@@ -90,30 +90,6 @@ edict_add(PyObject *dict, PyObject *edict, char *symbol, long value)
 }
 
 static PyObject *
-setExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
-{
-    int type;
-    char *keyword_list[] = {"type", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "i:PM_XTB_SET", keyword_list, &type))
-        return NULL;
-    return Py_BuildValue("i", PM_XTB_SET(type));
-}
-
-static PyObject *
-getExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
-{
-    int mode;
-    char *keyword_list[] = {"mode", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "i:PM_XTB_GET", keyword_list, &mode))
-        return NULL;
-    return Py_BuildValue("i", PM_XTB_GET(mode));
-}
-
-static PyObject *
 timespecToReal(PyObject *self, PyObject *args, PyObject *keywords)
 {
     struct timespec ts;
@@ -676,9 +652,9 @@ setOptionInterval(PyObject *self, PyObject *args, PyObject *keywords)
 			"s:pmSetOptionInterval", keyword_list, &delta))
 	return NULL;
 
-    if (pmParseHighResInterval(delta, &options.interval, &errmsg) < 0) {
+    if (pmParseInterval(delta, &options.interval, &errmsg) < 0) {
 	pmprintf("%s: interval argument not in %s(3) format:\n%s\n",
-		pmGetProgname(), "pmParseHighResInterval", errmsg);
+		pmGetProgname(), "pmParseInterval", errmsg);
 	options.errors++;
 	free(errmsg);
     }
@@ -905,8 +881,8 @@ setContextOptions(PyObject *self, PyObject *args, PyObject *keywords)
 
 	if (interval.tv_sec == 0 && interval.tv_nsec == 0)
 	    interval.tv_sec = delta;
-	if ((sts = pmSetModeHighRes(mode, &position, &interval)) < 0) {
-	    pmprintf("%s: %s: %s\n", "pmSetModeHighRes",
+	if ((sts = pmSetMode(mode, &position, &interval)) < 0) {
+	    pmprintf("%s: %s: %s\n", "pmSetMode",
 			    pmGetProgname(), pmErrStr(sts));
 	    options.flags |= PM_OPTFLAG_RUNTIME_ERR;
 	    options.errors++;
@@ -1272,12 +1248,6 @@ getOptionLocalPMDA(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef methods[] = {
-    { .ml_name = "PM_XTB_SET",
-	.ml_meth = (PyCFunction) setExtendedTimeBase,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS },
-    { .ml_name = "PM_XTB_GET",
-	.ml_meth = (PyCFunction) getExtendedTimeBase,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmtimespecToReal",
 	.ml_meth = (PyCFunction) timespecToReal,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
@@ -1665,8 +1635,6 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_TEXT_ONELINE", PM_TEXT_ONELINE);
     dict_add(dict, "PM_TEXT_HELP",    PM_TEXT_HELP);
 
-    dict_add(dict, "PM_XTB_FLAG", PM_XTB_FLAG);
-
     dict_add(dict, "PM_OPTFLAG_INIT", PM_OPTFLAG_INIT);
     dict_add(dict, "PM_OPTFLAG_DONE", PM_OPTFLAG_DONE);
     dict_add(dict, "PM_OPTFLAG_MULTI", PM_OPTFLAG_MULTI);
@@ -1688,14 +1656,6 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_EVENT_FLAG_ID",     PM_EVENT_FLAG_ID);
     dict_add(dict, "PM_EVENT_FLAG_PARENT", PM_EVENT_FLAG_PARENT);
     dict_add(dict, "PM_EVENT_FLAG_MISSED", PM_EVENT_FLAG_MISSED);
-
-    /*
-     * subset of the debug flags - all of 'em seems like overkill
-     * order here the same as the output from pmdbg -l
-     */
-    dict_add(dict, "PM_DEBUG_APPL0", (1<<11) /*DBG_TRACE_APPL0*/);
-    dict_add(dict, "PM_DEBUG_APPL1", (1<<12) /*DBG_TRACE_APPL1*/);
-    dict_add(dict, "PM_DEBUG_APPL2", (1<<13) /*DBG_TRACE_APPL2*/);
 
     /*
      * for ease of maintenance make the order of the error codes

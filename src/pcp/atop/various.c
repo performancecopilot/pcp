@@ -39,6 +39,8 @@ extern const char *ifpropmetrics[];
 extern const char *systmetrics[];
 extern const char *procmetrics[];
 
+static struct timespec fetchstep;
+
 /*
 ** Add the PCP long option and environment variable handling into
 ** the mix, along with regular atop short option handling, ready
@@ -136,7 +138,7 @@ convdate(double timed, char *chardat, size_t buflen)
 **			1 - Success
 */
 int
-getbranchtime(char *itim, struct timeval *newtime)
+getbranchtime(char *itim, struct timespec *newtime)
 {
 	register int	ilen = strlen(itim);
 	int		hours, minutes, seconds = 0;
@@ -182,7 +184,7 @@ getbranchtime(char *itim, struct timeval *newtime)
 
 	        // correct date-time format
 		newtime->tv_sec = epoch;
-		newtime->tv_usec = 0;
+		newtime->tv_nsec = 0;
 	        return 1;
 	}
 
@@ -213,7 +215,7 @@ getbranchtime(char *itim, struct timeval *newtime)
 
 		// correct date-time format
 		newtime->tv_sec = epoch;
-		newtime->tv_usec = 0;
+		newtime->tv_nsec = 0;
 		return 1;
 	}
 
@@ -268,7 +270,7 @@ getbranchtime(char *itim, struct timeval *newtime)
 		if ( seconds < 0 || seconds > 59 )
 			return 0;	// wrong date-time format
 
-		newtime->tv_usec = 0;
+		newtime->tv_nsec = 0;
 
 		/*
 		** when the new time is already filled with an epoch time,
@@ -831,8 +833,6 @@ setalarm2(int sec, int usec)
 void
 setup_step_mode(int forward)
 {
-	const int SECONDS_IN_24_DAYS = 2073600;
-
 	if (!rawreadflag)
 		fetchmode = PM_MODE_LIVE;
 	else if (forward)
@@ -840,16 +840,7 @@ setup_step_mode(int forward)
 	else
 		fetchmode = PM_MODE_INTERP;
 
-	if (interval.tv_sec > SECONDS_IN_24_DAYS)
-	{
-		fetchstep = interval.tv_sec;
-		fetchmode |= PM_XTB_SET(PM_TIME_SEC);
-	}
-	else
-	{
-		fetchstep = interval.tv_sec * 1e3 + interval.tv_usec / 1e3;
-		fetchmode |= PM_XTB_SET(PM_TIME_MSEC);
-	}
+	fetchstep = interval;
 }
 
 /*
@@ -861,24 +852,22 @@ setup_origin(pmOptions *opts)
 {
 	int		sts = 0;
 
-	start.tv_sec = opts->start.tv_sec;
-	start.tv_usec = opts->start.tv_nsec / 1000;
-	finish.tv_sec = opts->finish.tv_sec;
-	finish.tv_usec = opts->finish.tv_nsec / 1000;
-	curtime.tv_sec = origin.tv_sec = opts->origin.tv_sec;
-	curtime.tv_usec = origin.tv_usec = opts->origin.tv_nsec / 1000;
+	start = opts->start;
+	finish = opts->finish;
+	curtime = origin = opts->origin;
 
 	if (opts->interval.tv_sec || opts->interval.tv_nsec) {
 		interval.tv_sec = opts->interval.tv_sec;
-		interval.tv_usec = opts->interval.tv_nsec / 1000;
 	}
 
 	/* initial archive mode, position and delta */
 	if (opts->context == PM_CONTEXT_ARCHIVE)
 	{
+		struct timespec curtime_ts;
+		curtime_ts = curtime;
 		curtime = start;
 		setup_step_mode(1);
-		if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
+		if ((sts = pmSetMode(fetchmode, &curtime_ts, &fetchstep)) < 0)
 		{
 			pmprintf(
 		"%s: pmSetMode failure: %s\n", pmGetProgname(), pmErrStr(sts));
@@ -1361,21 +1350,21 @@ setup_metrics(const char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetri
 }
 
 int
-time_less_than(struct timeval *a, struct timeval *b)
+time_less_than(struct timespec *a, struct timespec *b)
 {
     if (a->tv_sec < b->tv_sec)
 	return 1;
-    if (a->tv_sec == b->tv_sec && a->tv_usec < b->tv_usec)
+    if (a->tv_sec == b->tv_sec && a->tv_nsec < b->tv_nsec)
 	return 1;
     return 0;
 }
 
 int
-time_greater_than(struct timeval *a, struct timeval *b)
+time_greater_than(struct timespec *a, struct timespec *b)
 {
     if (a->tv_sec > b->tv_sec)
 	return 1;
-    if (a->tv_sec == b->tv_sec && a->tv_usec > b->tv_usec)
+    if (a->tv_sec == b->tv_sec && a->tv_nsec > b->tv_nsec)
 	return 1;
     return 0;
 }
@@ -1385,13 +1374,15 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 {
 	pmResult	*rp;
 	int		sts;
+	struct timespec curtime_ts;
 
 	if (time_greater_than(&curtime, &finish)) {
 	    sampflags |= (RRLAST | RRMARK);
 	    return PM_ERR_EOL;
 	}
 
-	if ((sts = pmSetMode(fetchmode, &curtime, fetchstep)) < 0)
+	curtime_ts = curtime;
+	if ((sts = pmSetMode(fetchmode, &curtime_ts, &fetchstep)) < 0)
 	{
 		fprintf(stderr, "%s: %s setmode: %s\n",
 			pmGetProgname(), purpose, pmErrStr(sts));
@@ -1419,10 +1410,10 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 		sec = (time_t)rp->timestamp.tv_sec;
 		pmLocaltime(&sec, &tmp);
 
-		fprintf(stderr, "%s: got %d %s metrics @%02d:%02d:%02d.%03d\n",
+		fprintf(stderr, "%s: got %d %s metrics @%02d:%02d:%02d.%09d\n",
 				pmGetProgname(), rp->numpmid, purpose,
 				tmp.tm_hour, tmp.tm_min, tmp.tm_sec,
-				(int)(rp->timestamp.tv_usec / 1000));
+				(int)(rp->timestamp.tv_nsec));
 	}
 	return sts;
 }
@@ -1664,17 +1655,17 @@ rawconfig(FILE *fp, double delta)
 
 void
 rawwrite(pmOptions *opts, const char *name,
-	struct timeval *delta, unsigned int nsamples, char midnightflag)
+	struct timespec *delta, unsigned int nsamples, char midnightflag)
 {
 	pmRecordHost	*record;
-	struct timeval	elapsed;
+	struct timespec	elapsed;
 	double		duration, ddelta;
 	char		args[MAXPATHLEN];
 	char		*host;
 	int		sts;
 
 	host = (opts->nhosts > 0) ? opts->hosts[0] : "local:";
-	ddelta = pmtimevalToReal(delta);
+	ddelta = pmtimespecToReal(delta);
 	duration = ddelta * nsamples;
 
 	if (midnightflag)
@@ -1755,8 +1746,8 @@ rawwrite(pmOptions *opts, const char *name,
 		cleanstop(1);
 	}
 
-	pmtimevalFromReal(duration, &elapsed);
-	__pmtimevalSleep(elapsed);
+	pmtimespecFromReal(duration, &elapsed);
+	__pmtimespecSleep(elapsed);
 
 	if ((sts = pmRecordControl(NULL, PM_REC_OFF, "")) < 0)
 	{

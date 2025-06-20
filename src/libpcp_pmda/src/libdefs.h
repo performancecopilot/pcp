@@ -31,9 +31,9 @@ struct dynamic;
  */
 typedef struct {
     pmdaInterface	*dispatch;	/* back pointer to our pmdaInterface */
-    pmResult		*res;		/* high-water allocation for */
+    pmdaResult		*res;		/* high-water allocation for */
     __pmHashCtl		hashpmids;	/* hashed metrictab lookups */
-    int			maxnpmids;	/* pmResult for each PMDA */
+    int			maxnpmids;	/* pmdaResult for each PMDA */
     int			ndynamics;	/* number of dynamics entries, below */
     struct dynamic	*dynamics;	/* dynamic metric manipulation table */
     void		*privdata;	/* private (user) data for this PMDA */

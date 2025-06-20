@@ -19,7 +19,11 @@ include $(TOPDIR)/src/include/builddefs
 
 SUBDIRS = pcp
 
+ifeq "$(KEEP_CONFIG_FILES)" ""
 LDIRT = pcp.conf
+else
+LDIRT =
+endif
 
 default :: default_pcp
 

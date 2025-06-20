@@ -356,6 +356,10 @@ netstat_fields_t netstat_tcp_fields[] = {
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAOGOOD] },
     { .field = "TCPAODroppedIcmps",
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAODROPPEDICMPS] },
+    { .field = "PAWSOldAck",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSOLDACK] },
+    { .field = "TSEcrRejected",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TSECRREJECTED] },
 
     { .field = NULL, .offset = NULL }
 };

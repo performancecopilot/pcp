@@ -24,17 +24,16 @@ main(int argc, char **argv)
     pmLogLabel	label;				/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
     int		samples = 10;
-    double	delta = 1.0;
-    int		msec;
+    struct timespec	delta = { 1, 0 };
     char	*endnum;
     pmResult	*result;
-    pmResult	*prev = (pmResult *)0;
+    pmResult	*prev = NULL;
     int		i;
     int		numpmid = 3;
     pmID	pmid[3];
     const char	*name[] = { "sample.seconds", "sample.drift", "sample.milliseconds" };
     pmDesc	desc[3];
-    struct timeval tend = {PM_MAX_TIME_T, 0};
+    struct timespec tend = {PM_MAX_TIME_T, 0};
 
     pmSetProgname(argv[0]);
 
@@ -76,8 +75,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* delta seconds (double) */
-	    delta = strtod(optarg, &endnum);
-	    if (*endnum != '\0' || delta <= 0.0) {
+	    pmtimespecFromReal(strtod(optarg, &endnum), &delta);
+	    if (*endnum != '\0' || pmtimespecToReal(&delta) <= 0.0) {
 		fprintf(stderr, "%s: -t requires floating point argument\n", pmGetProgname());
 		errflag++;
 	    }
@@ -120,7 +119,7 @@ Options\n\
 	exit(1);
     }
 
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 	    pmGetProgname(), pmErrStr(sts));
 	exit(1);
@@ -137,7 +136,7 @@ Options\n\
 	}
     }
 
-    sts = pmSetMode(PM_MODE_BACK, &tend, 0);
+    sts = pmSetMode(PM_MODE_BACK, &tend, NULL);
     if (sts < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
@@ -171,8 +170,11 @@ Options\n\
 	}
     }
 
-    msec = -delta * 1000;
-    sts = pmSetMode(PM_MODE_INTERP, &result->timestamp, msec);
+    if (delta.tv_sec > 0)
+	delta.tv_sec = -delta.tv_sec;
+    else
+	delta.tv_nsec = -delta.tv_nsec;
+    sts = pmSetMode(PM_MODE_INTERP, &result->timestamp, &delta);
     if (sts < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
@@ -200,7 +202,7 @@ Options\n\
 	    break;
 	}
 	if (prev) {
-	    tdiff = pmtimevalSub(&result->timestamp, &prev->timestamp);
+	    tdiff = pmtimespecSub(&result->timestamp, &prev->timestamp);
 	    printf("\nsample %d, delta time=%.3f secs\n", i, tdiff);
 	    for (j = 0; j < numpmid; j++) {
 		printf("%s: ", name[j]);

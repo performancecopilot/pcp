@@ -98,7 +98,7 @@ extern void pmSeriesDiscoverLabels(pmDiscoverEvent *,
 extern void pmSeriesDiscoverMetric(pmDiscoverEvent *,
 				pmDesc *, int, char **, void *);
 extern void pmSeriesDiscoverValues(pmDiscoverEvent *,
-				pmHighResResult *, void *);
+				pmResult *, void *);
 extern void pmSeriesDiscoverInDom(pmDiscoverEvent *,
 				pmInResult *, void *);
 extern void pmSeriesDiscoverText(pmDiscoverEvent *,

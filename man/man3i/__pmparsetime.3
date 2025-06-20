@@ -16,27 +16,35 @@
 .\"
 .TH PMPARSETIME 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3__pmParseTime\f1,
-\f3__pmParseHighResTime\f1 \- parse time point specification
+\f3__pmtimevalParse\f1,
+\f3__pmtimespecParse\f1 \- parse time point specification
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int __pmParseTime(const char *\fIstring\fP, struct timeval *\fIlogStart\fP, struct\ timeval\ *\fIlogEnd\fP, struct\ timeval\ *\fIrslt\fP, char\ **\fIerrMsg\fP);
-.br
-.ti -8n
-int __pmParseHighResTime(const char *\fIstring\fP, struct timespec *\fIlogStart\fP, struct\ timespec\ *\fIlogEnd\fP, struct\ timespec\ *\fIrslt\fP, char\ **\fIerrMsg\fP);
-.sp
+int __pmtimevalParse(const char *\fIstring\fP,
+'in +\w'int __pmtimevalParse('u
+struct\ timeval\ *\fIlogStart\fP,
+struct\ timeval\ *\fIlogEnd\fP,
+struct\ timeval\ *\fIrslt\fP,
+char\ **\fIerrMsg\fP);
 .in
+.br
+int __pmtimespecParse(const char *\fIstring\fP,
+'in +\w'int __pmtimespecParse('u
+struct\ timespec\ *\fIlogStart\fP,
+struct\ timespec\ *\fIlogEnd\fP,
+struct\ timespec\ *\fIrslt\fP,
+char\ **\fIerrMsg\fP);
+.in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot
@@ -46,9 +54,9 @@ These interfaces are not part of the PCP APIs that are guaranteed to
 remain fixed across releases, and they may not work, or may provide
 different semantics at some point in the future.
 .SH DESCRIPTION
-.B __pmParseTime
+.B __pmtimevalParse
 and
-.B __pmParseHighResTime
+.B __pmtimespecParse
 are designed to encapsulate the interpretation of a time point specification
 in command line switches for use by the PCP client tools.
 .P
@@ -74,23 +82,23 @@ should have its tv_sec component set to PM_MAX_TIME_T.
 The
 .B rslt
 structure must be allocated before either calling
-.B __pmParseTime
+.B __pmtimevalParse
 or
-.BR __pmParseHighResTime .
+.BR __pmtimespecParse .
 .P
 You also need to set the current PCP reporting time zone to correctly
 reflect the \-z and \-Z command line parameters before calling
-.B __pmParseTime
+.B __pmtimevalParse
 or
-.BR __pmParseHighResTime .
+.BR __pmtimespecParse .
 See
 .BR pmUseZone (3)
 and friends for information on how this is done.
 .P
 If the conversion is successful, both
-.B __pmParseTime
+.B __pmtimevalParse
 and
-.B __pmParseHighResTime
+.B __pmtimespecParse
 return 0, and fill in
 .B rslt
 with the time value defined by the input parameters.

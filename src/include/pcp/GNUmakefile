@@ -22,11 +22,16 @@ SDSH_HFILES = sds.h sdsalloc.h
 EXTERNAL_HFILES = dict.h
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
-	 config32.h config64.h platform32.h platform64.h \
 	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h deprecated.h \
 	 ini.h sds.h dict.h archive.h
-INFILES = config.h.in configsz.h.in platform_defs.h.in platformsz.h.in
-CONFFILES = config.h configsz.h platform_defs.h platformsz.h
+INFILES = config.h.in platform_defs.h.in
+CONFFILES = config.h platform_defs.h
+ifeq "$(ENABLE_MULTILIB)" "true"
+HFILES += config32.h config64.h platform32.h platform64.h
+else
+INFILES += configsz.h.in platformsz.h.in
+CONFFILES += configsz.h platformsz.h
+endif
 GENERATED_HFILES = $(CONFFILES)
 NOSHIP_HFILES = libpcp.h sdsalloc.h
 

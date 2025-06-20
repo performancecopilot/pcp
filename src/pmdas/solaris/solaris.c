@@ -31,7 +31,7 @@ static char	mypath[MAXPATHLEN];
  * ... real callback is fetch_callback()
  */
 static int
-solaris_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+solaris_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i;
 

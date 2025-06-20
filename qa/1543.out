@@ -1020,13 +1020,13 @@ sample_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname=
 # TYPE sample_long_one gauge
 sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
 == large curl compression command ==
-# PCP5 sample.control 29.0.0 32 PM_INDOM_NULL instant none
-# HELP sample_control A control variable for the "sample" PMDA
-# TYPE sample_control gauge
-sample_control{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 0
 # PCP5 sample.dupnames.pid_daemon 29.0.1 u32 PM_INDOM_NULL instant none
 # HELP sample_dupnames_pid_daemon Process id of PMDA daemon
 # TYPE sample_dupnames_pid_daemon gauge
+sample_dupnames_pid_daemon{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} PID
+# PCP5 sample.dupnames.daemon_pid 29.0.1 u32 PM_INDOM_NULL instant none
+# HELP sample_dupnames_daemon_pid Process id of PMDA daemon
+# TYPE sample_dupnames_daemon_pid gauge
 == scrape all metrics ==
 done full scrape
 == check pmproxy is running ==

@@ -18,11 +18,15 @@
 \f3pmstrncat\f1 \- safe string concatenation
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 int pmstrncat(char *\fIdest\fP, size_t \fIdestlen\fP, char *\fIsrc\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .B pmstrncat
@@ -67,7 +71,7 @@ is useful
 the order of the arguments for
 .B pmstrncat
 has been
-.I deliberatelly
+.I deliberately
 changed from the order of the arguments for
 .BR strncat (3)
 to avoid accidental misuse that a compiler can easily

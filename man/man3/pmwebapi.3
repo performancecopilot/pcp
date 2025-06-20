@@ -18,6 +18,8 @@
 \f3PMWEBAPI\f1 \- introduction to the Performance Metrics Web Application Programming Interface
 .SH HTTP SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 GET /metrics
 .br
 GET /series/...
@@ -25,9 +27,13 @@ GET /series/...
 GET /search/...
 .br
 GET /pmapi/...
+.hy
+.ad
 .ft 1
 .SH C SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmwebapi.h>
 .sp
 .ft 1
@@ -35,6 +41,8 @@ GET /pmapi/...
 .ft 3
 .sp
 cc ... \-lpcp_web \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de SAMPLE

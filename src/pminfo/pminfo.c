@@ -359,7 +359,7 @@ setup_event_derived_metrics(void)
     if (pmid_flags == 0) {
 	/*
 	 * get PMID for event.flags and event.missed
-	 * note that pmUnpackEventRecords() will have called
+	 * note that pmUnpackHighResEventRecords() will have called
 	 * __pmRegisterAnon(), so the anonymous metrics
 	 * should now be in the PMNS
 	 */
@@ -451,7 +451,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
     int		flags;
 
     if (highres) {
-	pmHighResResult	**hr;
+	pmResult	**hr;
 
 	if ((nrecords = pmUnpackHighResEventRecords(vsp, inst, &hr)) < 0) {
 	    fprintf(stderr, "%s: pmUnpackHighResEventRecords: %s\n",
@@ -461,7 +461,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
 	setup_event_derived_metrics();
 	for (r = 0; r < nrecords; r++) {
 	    printf("    --- event record [%d] timestamp ", r);
-	    pmPrintHighResStamp(stdout, &hr[r]->timestamp);
+	    pmtimespecPrint(stdout, &hr[r]->timestamp);
 	    if (dump_nparams(hr[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -471,7 +471,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
 	pmFreeHighResEventResult(hr);
     }
     else {
-	pmResult	**res;
+	pmResult_v2	**res;
 
 	if ((nrecords = pmUnpackEventRecords(vsp, inst, &res)) < 0) {
 	    fprintf(stderr, "%s: pmUnpackEventRecords: %s\n",
@@ -481,7 +481,7 @@ myeventdump(pmValueSet *vsp, int inst, int highres)
 	setup_event_derived_metrics();
 	for (r = 0; r < nrecords; r++) {
 	    printf("    --- event record [%d] timestamp ", r);
-	    pmPrintStamp(stdout, &res[r]->timestamp);
+	    pmtimevalPrint(stdout, &res[r]->timestamp);
 	    if (dump_nparams(res[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -899,7 +899,7 @@ report(void)
 
     if (p_value || p_label || verify) {
 	if (opts.context == PM_CONTEXT_ARCHIVE) {
-	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
@@ -981,7 +981,7 @@ report(void)
 			free(all_inst);
 			free(all_names);
 			if (opts.context == PM_CONTEXT_ARCHIVE) {
-			    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
+			    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
 				fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 				exit(1);
 			    }

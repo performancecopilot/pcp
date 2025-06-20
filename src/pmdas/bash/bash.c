@@ -100,7 +100,7 @@ bash_instance(pmInDom indom, int inst, char *name,
 }
 
 static int
-bash_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+bash_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     check_processes(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -288,7 +288,7 @@ bash_store_metric(pmValueSet *vsp, int context)
 }
 
 static int
-bash_store(pmResult *result, pmdaExt *pmda)
+bash_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, sts;
     int		context = pmda->e_context;
@@ -424,6 +424,7 @@ main(int argc, char **argv)
     pmdaInterface	desc;
     long		minmem;
     int			c, sep = pmPathSeparator();
+    struct timespec	ts;
 
     pmSetProgname(argv[0]);
 
@@ -447,12 +448,13 @@ main(int argc, char **argv)
 	    break;
 
 	case 's':
-	    if (pmParseInterval(opts.optarg, &bash_interval, &endnum) < 0) {
+	    if (pmParseInterval(opts.optarg, &ts, &endnum) < 0) {
 		pmprintf("%s: -s requires a time interval: %s\n",
 			 pmGetProgname(), endnum);
 		free(endnum);
 		opts.errors++;
 	    }
+	    pmtimespecTotimeval(&ts, &bash_interval);
 	    break;
 	}
     }

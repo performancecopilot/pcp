@@ -6,44 +6,44 @@ testing names-change=abort
 testing names-change=ignore
   m.c.metrics  m.c.files  m.c.debug  m.c.reload
                                                
-            0          0          0           0
-            0          0          0           0
-            6          1          0           0
-            6          1          0           0
+            0          0                      0
+            0          0                      0
+            6          1                      0
+            6          1                      0
 testing names-change=update
   m.c.metrics  m.c.files  m.c.debug  m.c.reload
                                                
-            0          0          0           0
-            0          0          0           0
-            6          1          0           0
+            0          0                      0
+            0          0                      0
+            6          1                      0
 
   m.t.strings  m.t.strings  m.t.string  m.t.interval  m.t.interval  m.t.interval  m.t.indom  m.t.indom  m.t.discrete  m.t.counter  m.c.metrics  m.c.files  m.c.debug  m.c.reload
          zero         hero                      bird          tree          eggs       zero       hero                                                                          
                                             microsec      microsec      microsec      count      count                      count                                               
-       00oo00               g'day worl             0             0       xxxxxxx         43          0            42           41            6          1          0           0
-       00oo00               g'day worl             0             0       xxxxxxx         43          0            42           41            6          1          0           0
+       00oo00               g'day worl             0             0       xxxxxxx         43          0            42           41            6          1                      0
+       00oo00               g'day worl             0             0       xxxxxxx         43          0            42           41            6          1                      0
 testing names-change=update with instance filtering
   m.c.metrics  m.c.files  m.c.debug  m.c.reload
                                                
-            0          0          0           0
-            0          0          0           0
-            6          1          0           0
+            0          0                      0
+            0          0                      0
+            6          1                      0
 
   m.t.strings  m.t.string  m.t.interval  m.t.indom  m.t.discrete  m.t.counter  m.c.metrics  m.c.files  m.c.debug  m.c.reload
          zero                      eggs       zero                                                                          
                                microsec      count                      count                                               
-       00oo00  g'day worl       xxxxxxx         43            42           41            6          1          0           0
-       00oo00  g'day worl       xxxxxxx         43            42           41            6          1          0           0
+       00oo00  g'day worl       xxxxxxx         43            42           41            6          1                      0
+       00oo00  g'day worl       xxxxxxx         43            42           41            6          1                      0
 
   m.c.metrics  m.c.files  m.c.debug  m.c.reload
                                                
                                                
-            0          0          0           0
-            0          0          0           0
-            6          1          0           0
+            0          0                      0
+            0          0                      0
+            6          1                      0
 
   m.t.strings  m.t.string  m.t.interval  m.t.indom  m.t.discrete  m.t.counter  m.c.metrics  m.c.files  m.c.debug  m.c.reload
          zero                      eggs       zero                                                                          
                                microsec      count                      count                                               
-       00oo00  g'day worl       xxxxxxx         43            42           41            6          1          0           0
-       00oo00  g'day worl       xxxxxxx         43            42           41            6          1          0           0
+       00oo00  g'day worl       xxxxxxx         43            42           41            6          1                      0
+       00oo00  g'day worl       xxxxxxx         43            42           41            6          1                      0

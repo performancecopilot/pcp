@@ -54,7 +54,7 @@ exit=0
 <timestamp>: addItem <addr> nitems=1
 <timestamp>: Chart::addItem src=<host>
 <timestamp>: addItem metric=sample.control
-<timestamp>: SamplingEngine::isCompatible type=0, units=
+<timestamp>: SamplingEngine::isCompatible type=6, units=
 <timestamp>: addItem <addr> nitems=2
 --- post ---
 === views/006-03 ===

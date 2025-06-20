@@ -19,6 +19,8 @@
 \f3pmiPutValueHandle\f1 \- add a value for a metric-instance pair via a handle
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
@@ -26,12 +28,18 @@
 int pmiPutValueHandle(int \fIhandle\fP, const char *\fIvalue\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
+.hy
+.ad
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
 pmiPutValueHandle($\fIhandle\fP, $\fIvalue\fP);
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

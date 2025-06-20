@@ -19,13 +19,15 @@
 \f3pmGetArchiveEnd\f1 \- locate logical end of file for a set of archives
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
 int pmGetArchiveEnd(struct timespec *\fItp\fP);
-.fi
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Assuming the current PMAPI context
@@ -37,8 +39,6 @@ and return the last recorded timestamp via
 .IR tp .
 This timestamp may be passed to
 .BR pmSetMode (3)
-or
-.BR pmSetModeHighRes (3)
 to reliably position the context at the last valid
 archive record, e.g. in preparation for subsequent reading in
 reverse chronological order.
@@ -73,7 +73,7 @@ Prior to PCP 7.0 and
 .I libpcp.so.4
 the
 .I tp
-argument was a \f(CRstruct timeval\f(CR.
+argument was a \f(CRstruct timeval\fP.
 To support PMAPI transition, the old interface and semantics can be
 used if applications are linked with
 .I libpcp.so.3
@@ -117,12 +117,9 @@ function.
 .BR PMAPI (3),
 .BR pmFetch (3),
 .BR pmFetchArchive (3),
-.BR pmFetchHighRes (3),
-.BR pmFetchHighResArchive (3),
 .BR pmGetArchiveLabel (3),
 .BR pmGetConfig (3),
 .BR pmSetMode (3),
-.BR pmSetModeHighRes (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

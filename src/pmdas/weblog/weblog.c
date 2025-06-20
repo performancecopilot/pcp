@@ -2416,11 +2416,11 @@ refreshAll(void)
 }
 
 /*
- * Build a pmResult table of the requested metrics
+ * Build a pmdaResult table of the requested metrics
  */
 
 static int
-web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
+web_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *ext)
 {
     int			i;		/* over pmidlist[] */
     int			j;		/* over vset->vlist[] */
@@ -2429,7 +2429,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     int			need;
     int			inst;
     int			numval;
-    static pmResult	*res = (pmResult *)0;
+    static pmdaResult	*res = (pmdaResult *)0;
     static int		maxnpmids = 0;
     pmValueSet		*vset = (pmValueSet *)0;
     pmDesc		*dp = (pmDesc *)0;
@@ -2468,13 +2468,13 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
 
     if (numpmid > maxnpmids) {
-	if (res != (pmResult *)0)
+	if (res != (pmdaResult *)0)
 	    free(res);
 
-/* (numpmid - 1) because there's room for one valueSet in a pmResult */
+/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
 
-	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-	if ((res = (pmResult *) malloc(need)) == (pmResult *)0)
+	need = sizeof(pmdaResult) + (numpmid - 1) * sizeof(pmValueSet *);
+	if ((res = (pmdaResult *) malloc(need)) == (pmdaResult *)0)
 	    return -oserror();
 	maxnpmids = numpmid;
     }
@@ -2547,7 +2547,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
         if (vset == (pmValueSet *)0) {
             if (i) {
                 res->numpmid = i;
-                __pmFreeResultValues(res);
+                pmdaFreeResultValues(res);
             }
             return -oserror();
         }
@@ -2579,7 +2579,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 		if (vset == (pmValueSet *)0) {
 		    if (i) {
 			res->numpmid = i;
-			__pmFreeResultValues(res);
+			pmdaFreeResultValues(res);
 		    }
 		    return -oserror();
 		}
@@ -2945,7 +2945,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
             if (haveValue) {
                 sts = __pmStuffValue(&atom, &vset->vlist[j], type);
                 if (sts < 0) {
-                    __pmFreeResultValues(res);
+                    pmdaFreeResultValues(res);
                     return sts;
                 }
 
@@ -2967,7 +2967,7 @@ web_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
  */
 
 static int
-web_store(pmResult *result, pmdaExt *ext)
+web_store(pmdaResult *result, pmdaExt *ext)
 {
     int		i;
     int		j;

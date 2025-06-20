@@ -41,11 +41,11 @@ _nm()
     then
 	# use readelf(1) but turn lines like
 	#  38: 00000000000000a0     8 OBJECT  LOCAL  DEFAULT    4 xconfirm 
-	# 246: 0000000000000000     8 OBJECT  GLOBAL DEFAULT  137 pmProgname
+	# 246: 0000000000000000     8 OBJECT  GLOBAL DEFAULT  137 pmFoo
 	#
 	# into classical nm(1) format like
 	# 00000000000000a0 b xconfirm
-	# 0000000000000000 B pmProgname
+	# 0000000000000000 B pmFoo
 	#
 	# but skip lines like
 	# 73: 0000000000000000    16 OBJECT  LOCAL  DEFAULT   10 reltable.__pmDumpContext
@@ -571,11 +571,10 @@ util.o
     debug_map			# const
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
-    pmProgname			# no unsafe side-effects, see notes in util.c
-    pmDebug			# set-once from main(), read-only elsewhere
+    myprogname			# no unsafe side-effects, see notes in util.c
+    pmDebugOptions		# set-once from main(), read-only elsewhere
     				# also guarded by __pmLock_extcall when set
 				# from __pmInitLocks()
-    pmDebugOptions		# same story as pmDebug
     filelog			# guarded by util_lock mutex
     nfilelog			# guarded by util_lock mutex
     dosyslog			# no unsafe side-effects, see notes in util.c
@@ -741,7 +740,6 @@ do
 		    -e '/ C ___pmNativeConfig/d' \
 		    -e '/ C ___pmPDUCntIn/d' \
 		    -e '/ C ___pmPDUCntOut/d' \
-		    -e '/ C _pmProgname/d' \
 		    -e '/ \([BDR]\) \..*\./s// \1 /' \
 		    -e '/\.bss$/d' \
 		    -e '/\.data$/d' \

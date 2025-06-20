@@ -155,7 +155,7 @@ logger_profile(pmProfile *prof, pmdaExt *pmda)
 }
 
 static int
-logger_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+logger_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     pmdaEventNewClient(pmda->e_context);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
@@ -242,7 +242,7 @@ logger_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-logger_store(pmResult *result, pmdaExt *pmda)
+logger_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, j, sts;
 
@@ -543,6 +543,7 @@ main(int argc, char **argv)
     pmdaInterface	desc;
     long		minmem;
     int			c, err = 0, sep = pmPathSeparator();
+    struct timespec	ts;
 
     pmSetProgname(argv[0]);
     pmGetUsername(&username);
@@ -568,12 +569,13 @@ main(int argc, char **argv)
 		break;
 
 	    case 's':
-		if (pmParseInterval(optarg, &interval, &endnum) < 0) {
+		if (pmParseInterval(optarg, &ts, &endnum) < 0) {
 		    fprintf(stderr, "%s: -s requires a time interval: %s\n",
 			    pmGetProgname(), endnum);
 		    free(endnum);
 		    err++;
 		}
+		pmtimespecTotimeval(&ts, &interval);
 		break;
 
 	    case 'U':

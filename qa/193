@@ -33,7 +33,7 @@ esac
 
 _cleanup()
 {
-    pmstore pmcd.control.debug 0 >>$seq_full 2>&1 # pdu==1
+    pmstore pmcd.control.debug "" >>$seq_full 2>&1 # pdu==1
     _restore_auto_restart pmcd
 }
 
@@ -44,7 +44,7 @@ _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 
 # real QA test starts here
-pmstore pmcd.control.debug 1 >>$seq_full 2>&1 # pdu==1
+pmstore pmcd.control.debug "pdu" >>$seq_full 2>&1 # pdu==1
 src/crashpmcd
 
 # give pmcd a chance to deal with PDUs from crashpmcd

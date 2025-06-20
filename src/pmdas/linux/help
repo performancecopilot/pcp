@@ -2672,6 +2672,8 @@ Incoming multipath packet dropped due to memory limit.
 @ network.tcp.tcpaokeynotfound the TCPAOKeyNotFound field of the Tcp line from /proc/net/netstat
 @ network.tcp.tcpaogood the TCPAOGood field of the Tcp line from /proc/net/netstat
 @ network.tcp.tcpaodroppedicmps the TCPAODroppedIcmps field of the Tcp line from /proc/net/netstat
+@ network.tcp.pawsoldack the PAWSOldAck field of the Tcp line from /proc/net/netstat
+@ network.tcp.tsecrrejected the TSEcrRejected field of the Tcp line from /proc/net/netstat
 @ network.mptcp.mpfailtx the MPFailTx field of the MPTcp line from /proc/net/netstat
 Multipath TCP MP_FAIL transmits.
 @ network.mptcp.mpfailrx the MPFailRx field of the MPTcp line from /proc/net/netstat

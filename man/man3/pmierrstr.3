@@ -20,6 +20,8 @@
 \f3pmiErrStr_r\f1 \- convert a LOGIMPORT error code into a string
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
@@ -29,12 +31,18 @@ const char *pmiErrStr(int \fIcode\fP);
 char *pmiErrStr_r(int \fIcode\fP, char \fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
+.hy
+.ad
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
 pmiErrStr($\fIcode\fP);
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

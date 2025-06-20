@@ -18,20 +18,26 @@
 \f3pmdaDSO\f1 \- initialize the PMDA to run as a DSO
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
+int pmdaDSO(pmdaInterface *\fIdispatch\fP,
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmdaDSO(pmdaInterface *\fIdispatch\fP, int \fIinterface\fP, char\ *\fIname\fP, char\ *\fIhelptext\fP);
-.sp
+'in +\w'int pmdaDSO('u
+int\ \fIinterface\fP,
+char\ *\fIname\fP,
+char\ *\fIhelptext\fP);
 .in
 .hy
 .ad
+.sp
 cc ... \-lpcp_pmda \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .B pmdaDSO

@@ -19,13 +19,15 @@
 \f3pmGetArchiveLabel\f1 \- fetch the label record from a set of performance metrics archives
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
 int pmGetArchiveLabel(pmLogLabel *\fIlp\fP);
-.fi
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR
@@ -143,13 +145,13 @@ For a time in PCP 6.x there was a
 routine with the same semantics as the current
 .B pmGetArchiveLabel
 called
-.B pmGetHighArchiveLabel
+.B pmGetHighResArchiveLabel
 and a structure with same definition as
 .I pmLogLabel
 called
 .I pmHighResLogLabel
 although these are now deprecated and compile-time support for
-.B pmGetHighArchiveLabel
+.B pmGetHighResArchiveLabel
 and
 .I pmHighResLogLabel
 will be removed in a future release.

@@ -108,7 +108,7 @@ static pmdaMetric metrictab[] = {
 	PMDA_PMUNITS(0,0,0, 0,0,0)} },
 /* control.debug */
     { NULL,
-      { PMDA_PMID(0,16), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE,
+      { PMDA_PMID(0,16), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE,
 	PMDA_PMUNITS(0,0,0, 0,0,0) }, },
 /* counter.count */
     { NULL,
@@ -628,6 +628,8 @@ nextTraceInst(pmdaExt *pmda)
 static int
 auxFetch(int inst, pmID pmid, char *tag, pmAtomValue *atom)
 {
+    static char		*last_debug = NULL;
+
     if (inst != PM_IN_NULL && pmID_cluster(pmid) != 0)
 	return PM_ERR_INST;
 
@@ -755,7 +757,10 @@ auxFetch(int inst, pmID pmid, char *tag, pmAtomValue *atom)
 	    atom->ul = 1;
 	    break;
 	case 16:			/* trace.control.debug */
-	    atom->ul = pmDebug;
+	    if (last_debug != NULL)
+		free(last_debug);
+	    last_debug = pmGetDebug();
+	    atom->cp = last_debug;
 	    break;
 	default:
 	    return PM_ERR_PMID;
@@ -814,10 +819,10 @@ getIndomSize(pmID pmid)
 
 
 static int
-traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+traceFetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     static int		maxnpmids = 0;
-    static pmResult	*res = NULL;
+    static pmdaResult	*res = NULL;
     pmValueSet		*vset;
     pmDesc		*dp;
     pmdaMetric		*metap;
@@ -833,9 +838,9 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     if (numpmid > maxnpmids) {
 	if (res != NULL)
 	    free(res);
-	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
-	need = (int)sizeof(pmResult) + (numpmid-1)*(int)sizeof(pmValueSet *);
-	if ((res = (pmResult *) malloc(need)) == NULL) {
+	/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
+	need = (int)sizeof(pmdaResult) + (numpmid-1)*(int)sizeof(pmValueSet *);
+	if ((res = (pmdaResult *) malloc(need)) == NULL) {
 	    return -oserror();
 	}
 	maxnpmids = numpmid;
@@ -893,7 +898,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 					sizeof(pmValue));
 	if (vset == NULL) {
 	    if ((res->numpmid = i) > 0)
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 	    return -oserror();
 	}
 
@@ -915,7 +920,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		pmNotifyErr(LOG_ERR, "bogus instance ignored (pmid=%s)",
 					pmIDStr(dp->pmid));
 		if ((res->numpmid = i) > 0)
-		    __pmFreeResultValues(res);
+		    pmdaFreeResultValues(res);
 		return PM_ERR_INST;
 	    }
 	    if (j == numval) {
@@ -924,7 +929,7 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 			sizeof(pmValueSet) + (numval - 1)*sizeof(pmValue));
 		if (vset == NULL) {
 		    if ((res->numpmid = i) > 0)
-			__pmFreeResultValues(res);
+			pmdaFreeResultValues(res);
 		    return -oserror();
 		}
 	    }
@@ -969,12 +974,11 @@ traceFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 
 
 static int
-traceStore(pmResult *result, pmdaExt *pmda)
+traceStore(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, j;
     int         sts = 0;
     pmValueSet  *vsp = NULL;
-    pmAtomValue	av;
     extern int	afid;
     extern void alarming(int, void *);
 
@@ -1030,14 +1034,12 @@ traceStore(pmResult *result, pmdaExt *pmda)
 	    pmNotifyErr(LOG_INFO, "PMDA reset");
 	}
 	else if (pmID_item(vsp->pmid) == 16) {	/* trace.control.debug */
-	    if (vsp->numval != 1 || vsp->valfmt != PM_VAL_INSITU)
+	    if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
 		sts = PM_ERR_BADSTORE;
-	    else if (sts >= 0 && ((sts = pmExtractValue(vsp->valfmt,
-			&vsp->vlist[0], PM_TYPE_32, &av, PM_TYPE_32)) >= 0)) {
-		if (pmDebug != av.l) {
-		    pmClearDebug("all");
-		    __pmSetDebugBits(av.l);
-		    pmNotifyErr(LOG_INFO, "debug level set to %d", pmDebug);
+	    else {
+		pmClearDebug("all");
+		if ((sts = pmSetDebug(vsp->vlist[0].value.pval->vbuf)) == 0) {
+		    pmNotifyErr(LOG_INFO, "debug options set to %s", vsp->vlist[0].value.pval->vbuf);
 		    debuglibrary();
 		}
 	    }

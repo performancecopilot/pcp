@@ -82,7 +82,8 @@ debug none
 status
 debug blah
 debug none
-debug 1 blah
+debug 1
+debug pdu blah
 debug none
 debug blah fetch
 debug none

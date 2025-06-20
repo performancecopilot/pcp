@@ -1282,7 +1282,7 @@ hacluster_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 }
 
 static int
-hacluster_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+hacluster_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
 	int i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 

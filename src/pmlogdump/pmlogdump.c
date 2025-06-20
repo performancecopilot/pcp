@@ -327,7 +327,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, i
     printf(": ");
 
     if (highres) {
-	pmHighResResult	**hr;
+	pmResult	**hr;
 
 	if ((nrecords = pmUnpackHighResEventRecords(vsp, _index, &hr)) < 0)
 	    return;
@@ -349,7 +349,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, i
 
 	for (r = 0; r < nrecords; r++) {
 	    printf("        --- event record [%d] timestamp ", r);
-	    pmPrintHighResStamp(stdout, &hr[r]->timestamp);
+	    pmtimespecPrint(stdout, &hr[r]->timestamp);
 	    if (dump_nparams(hr[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -359,7 +359,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, i
 	pmFreeHighResEventResult(hr);
     }
     else {
-	pmResult	**res;
+	pmResult_v2	**res;
 
 	if ((nrecords = pmUnpackEventRecords(vsp, _index, &res)) < 0)
 	    return;
@@ -1445,12 +1445,12 @@ main(int argc, char *argv[])
     }
 
     if (mode == PM_MODE_FORW)
-	sts = pmSetModeHighRes(mode, &opts.start, NULL);
+	sts = pmSetMode(mode, &opts.start, NULL);
     else {
-	sts = pmSetModeHighRes(mode, &opts.finish, NULL);
+	sts = pmSetMode(mode, &opts.finish, NULL);
     }
     if (sts < 0) {
-	fprintf(stderr, "%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 

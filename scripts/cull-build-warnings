@@ -133,6 +133,7 @@ sed <$tmp.in >$tmp.out \
     -e '/^dpkg-shlibdeps: warning: .*\/pmda_pmcd.so contains an unresolvable .* probably a plugin/d' \
     -e '/^dpkg-shlibdeps: warning: package could avoid a useless dependency/d' \
     -e '/^dpkg-source: warning: ignoring deletion of file src\/pmlogconf\/openmetrics\/GNUmakefile/d' \
+    -e '/^dpkg-source: warning: ignoring deletion of file configure, use --include-removal to override/d' \
 # end
 mv $tmp.out $tmp.in
 

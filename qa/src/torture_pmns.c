@@ -276,7 +276,7 @@ test_api(void)
     char		**allnames;
     int			n;
     char		*back;
-    pmHighResResult		*resp;
+    pmResult		*resp;
     pmDesc		desc;
     struct timespec	delta = { 1, 0 };
     
@@ -328,7 +328,7 @@ test_api(void)
 	n = pmGetArchiveEnd(&when);
 	REPORT("pmGetArchiveEnd", n);
 
-	n = pmSetModeHighRes(PM_MODE_BACK, &when, &delta);
+	n = pmSetMode(PM_MODE_BACK, &when, &delta);
 	REPORT("pmSetMode", n);
     }
 
@@ -437,38 +437,38 @@ test_api(void)
         for (i = 0; i < numpmid; i++) {
 	    if (midlist[i] == PM_ID_NULL)
 		continue; 
-	    if ((n = pmSetModeHighRes(PM_MODE_FORW, &when, NULL)) < 0) {
+	    if ((n = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
 		printf("pmSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
 	    }
 	    else {
                 if (vflag)
                     printf("Fetch of %s:\n", namelist[i]);
-		if ((n = pmFetchHighRes(1, &midlist[i], &resp)) < 0) {
+		if ((n = pmFetch(1, &midlist[i], &resp)) < 0) {
 		    printf("Archive pmFetch: %s\n", pmErrStr(n));
 		}
 		else {
 		    if (vflag)
-			__pmDumpHighResResult(stdout, resp);
-		    pmFreeHighResResult(resp);
+			__pmDumpResult(stdout, resp);
+		    pmFreeResult(resp);
 		}
 	    }
   	}/*for*/
     }
 
     else if (context_type == PM_CONTEXT_HOST) {
-	if ((n = pmSetModeHighRes(PM_MODE_LIVE, (struct timespec *)0, NULL)) < 0) {
+	if ((n = pmSetMode(PM_MODE_LIVE, (struct timespec *)0, NULL)) < 0) {
 	    printf("pmSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {
-	    if ((n = pmFetchHighRes(numpmid, midlist, &resp)) < 0) {
+	    if ((n = pmFetch(numpmid, midlist, &resp)) < 0) {
 		printf("real-time pmFetch: %s\n", pmErrStr(n));
 	    }
 	    else {
 		if (vflag) {
 		    printf("\nReal-time result ...\n");
-		    __pmDumpHighResResult(stdout, resp);
+		    __pmDumpResult(stdout, resp);
 		}
-		pmFreeHighResResult(resp);
+		pmFreeResult(resp);
 	    }
 	}
     }

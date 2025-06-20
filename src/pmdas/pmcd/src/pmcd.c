@@ -36,7 +36,7 @@
  */
 static pmDesc	desctab[] = {
 /* control.debug */
-    { PMDA_PMID(0,0), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+    { PMDA_PMID(0,0), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* datasize */
     { PMDA_PMID(0,1), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) },
 /* numagents */
@@ -1066,7 +1066,7 @@ pmcd_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
  * numval != 1, so re-do vset[i] allocation
  */
 static int
-vset_resize(pmResult *rp, int i, int onumval, int numval)
+vset_resize(pmdaResult *rp, int i, int onumval, int numval)
 {
     int		expect = numval;
 
@@ -1083,7 +1083,7 @@ vset_resize(pmResult *rp, int i, int onumval, int numval)
 	if (i) {
 	    /* we're doomed ... reclaim pmValues 0, 1, ... i-1 */
 	    rp->numpmid = i;
-	    __pmFreeResultValues(rp);
+	    pmdaFreeResultValues(rp);
 	}
 	return -1;
     }
@@ -1339,7 +1339,7 @@ fetch_client_metric(int item, ClientInfo *cp)
 }
 
 static int
-pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+pmcd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int			i;		/* over pmidlist[] */
     int			j;
@@ -1348,7 +1348,7 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     int			numval;
     int			valfmt;
     unsigned long	datasize;
-    static pmResult	*res = NULL;
+    static pmdaResult	*res = NULL;
     static int		maxnpmids = 0;
     char		*host = NULL;	/* refresh max once per fetch */
     pmiestats_t		*pmie;
@@ -1356,13 +1356,14 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     pmDesc		*dp = NULL;	/* initialize to pander to gcc */
     pmAtomValue		atom;
     __pmLogPort		*lpp;
+    static char		*last_debug = NULL;
 
     if (numpmid > maxnpmids) {
 	if (res != NULL)
 	    free(res);
-	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
-	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-	if ((res = (pmResult *) malloc(need)) == NULL)
+	/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
+	need = (int)sizeof(pmdaResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
+	if ((res = (pmdaResult *) malloc(need)) == NULL)
 	    return -ENOMEM;
 	maxnpmids = numpmid;
     }
@@ -1411,7 +1412,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 	    case 0:	/* global metrics */
 		    switch (item) {
 			case 0:		/* control.debug */
-				atom.l = pmDebug;
+				if (last_debug != NULL)
+				    free(last_debug);
+				last_debug = pmGetDebug();
+				atom.cp = last_debug;
 				break;
 			case 1:		/* datasize */
 				__pmProcessDataSize(&datasize);
@@ -1720,10 +1724,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    numval++;
 		}
 		if (numval > 0) {
-		    pmResult	sortme;
+		    pmdaResult	sortme;
 		    sortme.numpmid = 1;
 		    sortme.vset[0] = vset;
-		    pmSortInstances(&sortme);
+		    pmdaSortInstances(&sortme);
 		}
 		break;
 
@@ -1789,10 +1793,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    numval++;
 		}
 		if (numval > 0) {
-		    pmResult	sortme;
+		    pmdaResult	sortme;
 		    sortme.numpmid = 1;
 		    sortme.vset[0] = vset;
-		    pmSortInstances(&sortme);
+		    pmdaSortInstances(&sortme);
 		}
 		break;
 
@@ -1846,10 +1850,10 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 		    numval++;
 		}
 		if (numval > 0) {
-		    pmResult	sortme;
+		    pmdaResult	sortme;
 		    sortme.numpmid = 1;
 		    sortme.vset[0] = vset;
-		    pmSortInstances(&sortme);
+		    pmdaSortInstances(&sortme);
 		}
 		break;
 
@@ -1893,7 +1897,7 @@ pmcd_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 }
 
 static int
-pmcd_store(pmResult *result, pmdaExt *pmda)
+pmcd_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, j, k, val;
     int		sts = 0;
@@ -1913,7 +1917,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 	if (cluster == 0) {
 	    if (item == 0) {	/* pmcd.control.debug */
 		pmClearDebug("all");
-		__pmSetDebugBits(vsp->vlist[0].value.lval);
+		sts = pmSetDebug(vsp->vlist[0].value.pval->vbuf);
 	    }
 	    else if (item == 4) { /* pmcd.control.timeout */
 		val = vsp->vlist[0].value.lval;
@@ -2055,7 +2059,7 @@ pmcd_store(pmResult *result, pmdaExt *pmda)
 		 * Expect one value for one instance (current client).
 		 * Clients can only set their own whoami/container.
 		 *
-		 * Use the value from the pmResult to change the value
+		 * Use the value from the pmdaResult to change the value
 		 * for the client[] that matches the current pmcd client.
 		 */
 		if (vsp->numval != 1)

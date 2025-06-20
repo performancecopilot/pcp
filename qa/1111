@@ -56,8 +56,8 @@ grep -E -q "^POST /write\?db=roar" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found POST URL in noauth output"
 grep -E -q "hinv_ncpu value=[0-9]+(\.[0-9]+)? [0-9]+$" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found proper metric body in noauth output"
-grep -E -q "sample_control value=0 [0-9]+$" $tmp.socat.out
-[ $? -eq 0 ] && echo "Found correct zero value in noauth output"
+grep -E -q "sample_control value= [0-9]+$" $tmp.socat.out
+[ $? -eq 0 ] && echo "Found correct null value in noauth output"
 _full_stash
 
 echo "=== 2. pcp2influxdb noauth with tags ===" | tee -a $seq_full

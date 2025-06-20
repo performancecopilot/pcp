@@ -947,7 +947,7 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     PM_UNLOCK(lcp->lc_lock);
     lcp->physend = -1;
 
-    ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
+    ctxp->c_mode = PM_MODE_FORW;
 
     return 0;
 
@@ -1450,11 +1450,6 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, __pmResult **resul
     acp = ctxp->c_archctl;
     version = __pmLogLabelVersion(&lcp->label);
 
-    /*
-     * Strip any XTB data from mode, its not used here
-     */
-    mode &= __PM_MODE_MASK;
-
     if (peekf != NULL)
 	f = peekf;
     else
@@ -1852,16 +1847,13 @@ __pmLogFetch(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult **resul
     pmid_ctl	*pcp;
     int		nskip;
     __pmTimestamp	tmp;
-    int		ctxp_mode;
     ctx_ctl_t	ctx_ctl = { NULL, 0 };
 
     sts = lock_ctx(ctxp, &ctx_ctl);
     if (sts < 0)
 	goto func_return;
 
-    ctxp_mode = ctxp->c_mode & __PM_MODE_MASK;
-
-    if (ctxp_mode == PM_MODE_INTERP) {
+    if (ctxp->c_mode == PM_MODE_INTERP) {
 	sts = __pmLogFetchInterp(ctxp, numpmid, pmidlist, result);
 	goto func_return;
     }
@@ -1897,17 +1889,17 @@ more:
 	     * to desired direction) until we're in the right place
 	     */
 	    nskip = 0;
-	    while (__pmLogRead_ctx(ctxp, ctxp_mode == PM_MODE_FORW ? PM_MODE_BACK : PM_MODE_FORW, NULL, result, PMLOGREAD_NEXT) >= 0) {
+	    while (__pmLogRead_ctx(ctxp, ctxp->c_mode == PM_MODE_FORW ? PM_MODE_BACK : PM_MODE_FORW, NULL, result, PMLOGREAD_NEXT) >= 0) {
 		nskip++;
 		tmp = (*result)->timestamp;
 		tdiff = __pmTimestampSub(&tmp, &ctxp->c_origin);
-		if (ctxp_mode == PM_MODE_FORW && tdiff < 0) {
+		if (ctxp->c_mode == PM_MODE_FORW && tdiff < 0) {
 		    /* too far ... next one forward is the one we need */
 		    __pmFreeResult(*result);
 		    *result = NULL;
 		    break;
 		}
-		else if (ctxp_mode == PM_MODE_BACK && tdiff > 0) {
+		else if (ctxp->c_mode == PM_MODE_BACK && tdiff > 0) {
 		    /* too far ... next one back is the one we need */
 		    __pmFreeResult(*result);
 		    *result = NULL;
@@ -1952,8 +1944,8 @@ more:
 	    break;
 	tmp = (*result)->timestamp;
 	tdiff = __pmTimestampSub(&tmp, &ctxp->c_origin);
-	if ((tdiff < 0 && ctxp_mode == PM_MODE_FORW) ||
-	    (tdiff > 0 && ctxp_mode == PM_MODE_BACK)) {
+	if ((tdiff < 0 && ctxp->c_mode == PM_MODE_FORW) ||
+	    (tdiff > 0 && ctxp->c_mode == PM_MODE_BACK)) {
 		nskip++;
 		__pmFreeResult(*result);
 		*result = NULL;
@@ -2184,10 +2176,10 @@ __pmLogSetTime(__pmContext *ctxp)
     __pmTimestamp	save_origin;
     int		save_mode;
     double	t_hi;
-    int		mode;
+    int		mode;		/* local mode esp. for PM_MODE_INTERP */
     int		i;
 
-    mode = ctxp->c_mode & __PM_MODE_MASK; /* strip XTB data */
+    mode = ctxp->c_mode;
 
     if (mode == PM_MODE_INTERP)
 	mode = ctxp->c_direction > 0 ? PM_MODE_FORW : PM_MODE_BACK;

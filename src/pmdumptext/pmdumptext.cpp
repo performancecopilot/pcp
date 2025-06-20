@@ -624,26 +624,6 @@ dumpHeader()
     }
 }
 
-/*
- * Get Extended Time Base interval and Units from a timeval
- */
-#define SECS_IN_24_DAYS 2073600.0
-
-static int
-getXTBintervalFromTimeval(int *mode, struct timeval *tval)
-{
-    double tmp_ival = pmtimevalToReal(tval);
-
-    if (tmp_ival > SECS_IN_24_DAYS) {
-	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_SEC);
-	return ((int)tmp_ival);
-    }
-    else {
-	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_MSEC);
-	return ((int)(tmp_ival * 1000.0));
-    }
-}
-
 static struct timespec
 tadd(struct timespec t1, struct timespec t2)
 {
@@ -1139,11 +1119,7 @@ main(int argc, char *argv[])
 	goto done;
 
     if (!isLive) {
-	int tmp_mode = PM_MODE_INTERP;
-	struct timeval	origin_tv = { opts_origin.tv_sec, opts_origin.tv_nsec / 1000 };
-	struct timeval	interval_tv = { opts_interval.tv_sec, opts_interval.tv_nsec / 1000 };
-	int tmp_delay = getXTBintervalFromTimeval(&tmp_mode, &interval_tv);
-	group->setArchiveMode(tmp_mode, &origin_tv, tmp_delay);
+	group->setArchiveMode(PM_MODE_INTERP, &opts_origin, &opts_interval);
     }
 
     if (shortFlag) {

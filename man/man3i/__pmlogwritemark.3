@@ -18,13 +18,21 @@
 \f3__pmLogWriteMark\f1 \- append a <mark> record to a PCP archive
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
 .sp
-int __pmLogWriteMark(__pmArchCtl *\fIacp\fP, const __pmTimestamp *\fIlast_stamp\fP, const __pmTimestamp *\fIinc\fP);
+int __pmLogWriteMark(__pmArchCtl *\fIacp\fP,
+'in +\w'int __pmLogWriteMark('u
+const\ __pmTimestamp\ *\fIlast_stamp\fP,
+const\ __pmTimestamp\ *\fIinc\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

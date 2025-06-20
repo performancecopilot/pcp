@@ -165,22 +165,22 @@ doit:
  * supplied.
  */
 
-static pmResult *
+static pmdaResult *
 MakeBadResult(int npmids, pmID *list, int sts)
 {
     int	       need;
     int	       i;
     pmValueSet *vSet;
-    pmResult   *result;
+    pmdaResult   *result;
 
     /*
      * Note: do not convert to __pmResult, the pmcd-pmda interfaces and
      * 	 and pmcd internally will continue to use pmResult
      */
-    need = (int)sizeof(pmResult) +
+    need = (int)sizeof(pmdaResult) +
 	(npmids - 1) * (int)sizeof(pmValueSet *);
 	/* npmids - 1 because there is already 1 pmValueSet* in a pmResult */
-    result = (pmResult *)malloc(need);
+    result = (pmdaResult *)malloc(need);
     if (result == NULL) {
 	pmNoMem("MakeBadResult.result", need, PM_FATAL_ERR);
     }
@@ -200,14 +200,14 @@ MakeBadResult(int npmids, pmID *list, int sts)
     return result;
 }
 
-static pmResult *
+static pmdaResult *
 SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 {
     __pmHashCtl		*hcp;
     __pmHashNode	*hp;
     pmProfile		*profile;
     pmProfile		defprofile = {PM_PROFILE_INCLUDE, 0, NULL};
-    pmResult		*result = NULL;
+    pmdaResult		*result = NULL;
     int			sts = 0;
     int			bad = 0;
     int			i;
@@ -395,8 +395,8 @@ ExtractState(int i, void *timestamp)
 /*
  * Handle both the original and high resolution fetch PDU requests.
  * The input handling and PMDA interactions are the same, difference
- * is in the output result - new uses pmHighResResult (timespec),
- * original uses pmResult (timeval).
+ * is in the output result - new uses pmResult (timespec),
+ * original uses pmdaResult (timeval).
  */
 static int
 HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
@@ -411,7 +411,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
     static int		maxnpmids;	/* sizes endResult */
     DomPmidList		*dList;		/* NOTE: NOT indexed by agent index */
     static int		nDoms;
-    static pmResult	**results;	/* array of replies from PMDAs */
+    static pmdaResult	**results;	/* array of replies from PMDAs */
     static int		*resIndex;
     __pmFdSet		waitFds;
     __pmFdSet		readyFds;
@@ -427,10 +427,10 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	    free(results);
 	if (resIndex != NULL)
 	    free(resIndex);
-	results = (pmResult **)malloc((nAgents + 1) * sizeof (pmResult *));
+	results = (pmdaResult **)malloc((nAgents + 1) * sizeof (pmdaResult *));
 	resIndex = (int *)malloc((nAgents + 1) * sizeof(int));
 	if (results == NULL || resIndex == NULL) {
-	    pmNoMem("DoFetch.results", (nAgents + 1) * sizeof (pmResult *) + (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
+	    pmNoMem("DoFetch.results", (nAgents + 1) * sizeof (pmdaResult *) + (nAgents + 1) * sizeof(int), PM_FATAL_ERR);
 	    /* NOTREACHED */
 	}
 	nDoms = nAgents;
@@ -561,7 +561,7 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	    if (sts == PDU_RESULT) {
 		__pmResult *rp;
 		if ((sts = __pmDecodeResult(pb, &rp)) >= 0) {
-		    results[i] = __pmOffsetResult(rp);
+		    results[i] = pmdaOffsetResult(rp);
 		    if (results[i]->numpmid == aFreq[i]) {
 			changes |= ExtractState(i, &rp->timestamp);
 		    } else {
@@ -671,15 +671,15 @@ HandleFetch(ClientInfo *cip, __pmPDU* pb, int pdutype)
 	     * MakeBadResult was called to create the result.  The value sets
 	     * within the skeleton need to be freed though!
 	     */
-	    __pmFreeResultValues(results[j]);
+	    pmdaFreeResultValues(results[j]);
 	else
 	    /* For others it is dynamically allocated in __pmDecodeResult or
 	     * MakeBadResult
 	     */
-	    pmFreeResult(results[j]);
+	    pmdaFreeResult(results[j]);
     }
     if (results[nAgents] != NULL)
-	pmFreeResult(results[nAgents]);
+	pmdaFreeResult(results[nAgents]);
     __pmUnpinPDUBuf(pmidList);
     return 0;
 }

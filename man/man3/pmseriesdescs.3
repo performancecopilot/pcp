@@ -22,33 +22,55 @@
 \f3pmSeriesSources\f1 \- fast, scalable time series metadata
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmwebapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmSeriesDescs(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
-.br
-.ti -8n
-int pmSeriesLabels(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
-.br
-.ti -8n
-int pmSeriesLabelValues(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIlabels\fP, void *\fIarg\fP);
-.br
-.ti -8n
-int pmSeriesInstances(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
-.br
-.ti -8n
-int pmSeriesMetrics(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
-.br
-.ti -8n
-int pmSeriesSources(pmSeriesSettings *\fIsp\fP, int \fIcount\fP, sds *\fIseries\fP, void *\fIarg\fP);
+#include <pcp/pmwebapi.h>
 .sp
+int pmSeriesDescs(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesDescs('u
+int\ \fIcount\fP,
+sds\ *\fIseries\fP,
+void\ *\fIarg\fP);
 .in
+.br
+int pmSeriesLabels(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesLabels('u
+int\ \fIcount\fP,
+sds\ *\fIseries\fP,
+void\ *\fIarg\fP);
+.in
+.br
+int pmSeriesLabelValues(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesLabelValues('u
+int\ \fIcount\fP,
+sds\ *\fIlabels\fP,
+void\ *\fIarg\fP);
+.in
+.br
+int pmSeriesInstances(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesInstances('u
+int\ \fIcount\fP,
+sds\ *\fIseries\fP,
+void\ *\fIarg\fP);
+.in
+.br
+int pmSeriesMetrics(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesMetrics('u
+int\ \fIcount\fP,
+sds\ *\fIseries\fP,
+void\ *\fIarg\fP);
+.in
+.br
+int pmSeriesSources(pmSeriesSettings *\fIsp\fP,
+'in +\w'int pmSeriesSources('u
+int\ \fIcount\fP,
+sds\ *\fIseries\fP,
+void\ *\fIarg\fP);
+.in
+.sp
+cc ... \-lpcp_web
 .hy
 .ad
-cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
 Each performance metric and data source forming part of the Performance

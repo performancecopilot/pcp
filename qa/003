@@ -273,6 +273,7 @@ do
 	    -e "/mem\.util\.shmempmdmapped: $unavailable/d" \
 	    -e "/mem\.util\.slabReclaimable: $unavailable/d" \
 	    -e "/mem\.util\.slabUnreclaimable: $unavailable/d" \
+	    -e "/mem\.util\.hugetlb: $unavailable/d" \
 	    -e "/mem\.util\.unaccepted: $unavailable/d" \
 	    -e "/mem\.util\.unevictable: $unavailable/d" \
 	    -e "/mem\.util\.zswap: $unavailable/d" \

@@ -1049,7 +1049,7 @@ denki_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * instance domain evaluation
  */
 static int
-denki_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+denki_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
 	if (has_rapl_sysfs)
 		read_rapl_sysfs();

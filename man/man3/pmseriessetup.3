@@ -22,33 +22,41 @@
 \f3pmSeriesClose\f1 \- fast, scalable time series services
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmwebapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmSeriesSetup(pmSeriesModule *\fImodule\fP, pmSeriesCallBacks *\fIcallbacks\fP, void *\fIarg\fP);
+#include <pcp/pmwebapi.h>
 .sp
-.ti -8n
-int pmSeriesSetSlots(pmSeriesModule *\fImodule\fP, void *\fIslots\fP);
-.br
-.ti -8n
-int pmSeriesSetEventLoop(pmSeriesModule *\fImodule\fP, void *\fIuvloop\fP);
-.br
-.ti -8n
-int pmSeriesSetConfiguration(pmSeriesModule *\fImodule\fP, struct dict *\fIconfig\fP);
-.br
-.ti -8n
-int pmSeriesSetMetricRegistry(pmSeriesModule *\fImodule\fP, struct mmv_registry *\fIregistry\fP);
+int pmSeriesSetup(pmSeriesModule *\fImodule\fP,
+'in +\w'int pmSeriesSetup('u
+pmSeriesCallBacks\ *\fIcallbacks\fP,
+void\ *\fIarg\fP);
+.in
 .sp
-.ti -8n
+int pmSeriesSetSlots(pmSeriesModule *\fImodule\fP,
+'in +\w'int pmSeriesSetSlots('u
+void\ *\fIslots\fP);
+.in
+.br
+int pmSeriesSetEventLoop(pmSeriesModule *\fImodule\fP,
+'in +\w'int pmSeriesSetEventLoop('u
+void\ *\fIuvloop\fP);
+.in
+.br
+int pmSeriesSetConfiguration(pmSeriesModule *\fImodule\fP,
+'in +\w'int pmSeriesSetConfiguration('u
+struct\ dict\ *\fIconfig\fP);
+.in
+.br
+int pmSeriesSetMetricRegistry(pmSeriesModule *\fImodule\fP,
+'in +\w'int pmSeriesSetMetricRegistry('u
+struct\ mmv_registry\ *\fIregistry\fP);
+.in
+.sp
 int pmSeriesClose(pmSeriesModule *\fImodule\fP);
 .sp
-.in
+cc ... \-lpcp_web
 .hy
 .ad
-cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
 The

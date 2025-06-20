@@ -17,20 +17,22 @@
 .\"
 .TH PMFETCH 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFetch\f1,
-\f3pmFetchHighRes\f1,
-\f3pmHighResFetch\f1 \- get performance metric values
+\f3pmFetch\f1 \- get performance metric values
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresult\fP);
-.br
-int pmFetchHighRes(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmHighResResult **\fIresult\fP);
-.fi
+int pmFetch(int \fInumpmid\fP,
+'in +\w'int pmFetch('u
+pmID\ *\fIpmidlist\fP,
+pmResult\ **\fIresult\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR
@@ -52,10 +54,8 @@ and
 .IR numpmid ,
 fetch the values for these performance metrics.
 .PP
-A call to either
+A call to
 .B pmFetch
-or
-.B pmFetchHighRes
 is executed in the context of a source of metrics,
 instance profile and collection time,
 previously established by calls to
@@ -100,31 +100,10 @@ typedef struct {
 
 /* Result returned by pmFetch() */
 typedef struct {
-      struct timeval timestamp;      /* time stamped by collector */
+      struct timespec timestamp;     /* time stamped by collector */
       int            numpmid;        /* number of PMIDs */
       pmValueSet     *vset[1];       /* set of value sets */
 } pmResult;
-.in
-.fi
-.ft 1
-.PP
-The principal result from
-.B pmFetchHighRes
-is exactly the same in terms of value sets, however a higher resolution
-timestamp (nanosecond instead of microsecond precision) is available in
-the
-.CR pmHighResResult
-structure.
-.PP
-.ft CR
-.nf
-.in +0.5i
-/* Result returned by pmFetchHighRes() */
-typedef struct {
-      struct timespec timestamp;      /* time stamped by collector */
-      int             numpmid;        /* number of PMIDs */
-      pmValueSet      *vset[1];       /* set of value sets */
-} pmHighResResult;
 .in
 .fi
 .ft 1
@@ -278,8 +257,6 @@ and order of entries in
 completely deterministic,
 and greatly simplifies the application programming logic
 after the call to
-.B pmFetchHighRes
-or
 .BR pmFetch .
 .PP
 The
@@ -307,13 +284,6 @@ and that host or the PMCS on that host became unreachable.
 Otherwise the value returned by the
 .B pmFetch
 function will be non-negative.
-.PP
-Similarly, the
-.I result
-structure returned by
-.B pmFetchHighRes
-operates under the same principles, and should be released via
-.BR pmFreeHighResResult (3).
 .PP
 If the current context involves fetching metrics from a
 Performance Metrics Collector Daemon (PMCD), then the return value
@@ -348,17 +318,31 @@ however the
 .CR pmResult
 returned by
 .B pmFetch
-(or
-.CR pmHighResResult
-returned by
-.BR pmFetchHighRes )
 has the same interpretation independent of the return value being
 zero or greater than zero.
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I timestamp
+field in the \f(CRpmResult\fP struct was a \f(CRstruct timeval\fP.
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
 .PP
-.B pmHighResFetch
-is a previous name for
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmFetch
+called
+.BR pmFetchHighRes ,
+and a struct with the same definition as the current
+\f(CRpmResult\fP struct called
+\f(CRpmResultHighRes\fP,
+although both are now deprecated and compile-time support for
 .B pmFetchHighRes
-that has been maintained for backwards compatibility.
+(and the historically misnamed alias
+.BR pmHighResFetch )
+and
+\f(CRpmResultHighRes\fP
+will be removed in a future release.
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmAddProfile (3),
@@ -367,7 +351,6 @@ that has been maintained for backwards compatibility.
 .BR pmDupContext (3),
 .BR pmExtractValue (3),
 .BR pmFetchArchive (3),
-.BR pmFreeHighResResult (3),
 .BR pmFreeResult (3),
 .BR pmGetInDom (3),
 .BR pmLookupDesc (3),
@@ -381,9 +364,7 @@ and
 .PP
 Note that
 .B pmFetch
-and
-.B pmFetchHighRes
-are the most primitive methods of fetching metric values from the PMCS.
+is the most primitive method for fetching metric values from the PMCS.
 See the
 .BR pmFetchGroup (3)
 API for a higher level method that insulates
@@ -394,8 +375,6 @@ traversal, conversions, and scaling.
 .SH DIAGNOSTICS
 As mentioned above,
 .B pmFetch
-and
-.B pmFetchHighRes
 return error codes
 .I insitu
 in the argument

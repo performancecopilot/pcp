@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 1781
+# Testing pmdahdb
+#
+# Copyright (c) 2025 Sam Feifer.  All Rights Reserved.
+#
+# hdb.conf must be configured correctly before running the test
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.python
+
+pmda_path="$PCP_PMDAS_DIR/hdb"
+pmda_script="$pmda_path/pmdahdb.python"
+
+[ -d $pmda_path ] || _notrun "HDB PMDA is not installed"
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+$python -c "from hdbcli import dbapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python hdbcli module not installed"
+
+# Set these to match what is in hdb.conf
+host="localhost"
+port="39017"
+user="user"
+password="password"
+
+HDB_VERSION=`$python $here/hdb/hdb_connect.python -H $host -P $port -U $user -W $password -Q "SELECT VERSION FROM SYS.M_DATABASE"` || _notrun "Cannot connnect to hdb instance"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+pmdahdb_remove()
+{
+    cd $pmda_path
+    echo
+    echo "=== remove HDB agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdahdb_install()
+{
+    cd $pmda_path
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== HDB agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/hdb.log >>$seq_full
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check hdb metrics have appeared/   { if ($7 >= 178 && $7 <= 198) $7 = "X"
+                                          if ($10 >= 1000 && $10 <= 5000) $10 = "Y"
+                                        }
+                                        { print }'
+}
+
+_prepare_pmda hdb
+
+trap "_cleanup_pmda hdb; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+pmdahdb_install
+
+echo "Check across all metrics for warnings on fetch"
+pminfo -dft hdb >> $seq_full
+pminfo -v hdb
+
+echo "Check hdb.version value matches hdb shell"
+pcpversion=`pmprobe -v hdb.version | awk '{ print $NF }' | tr -d \"`
+if [ $pcpversion = $HDB_VERSION ]
+then
+    echo "Success - matching version numbers"
+    status=0
+else
+    echo "Mismatch: $pcpversion vs $HDB_VERSION" | tee -a $seq_full
+fi
+
+pmdahdb_remove
+
+# success, all done
+exit

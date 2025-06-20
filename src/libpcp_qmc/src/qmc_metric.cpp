@@ -267,18 +267,7 @@ QString
 QmcMetric::spec(bool srcFlag, bool instFlag, uint instance) const
 {
     QString str;
-    int i, len = 4;
-
-    if (srcFlag)
-	len += context()->source().source().size();
-    len += name().size();
-    if (hasInstances() && instFlag) {
-	if (instance != UINT_MAX)
-	    len += instName(instance).size() + 2;
-	else
-	    for (i = 0; i < numInst(); i++)
-		len += instName(i).size() + 4;
-    }
+    int i;
 
     if (srcFlag) {
 	str.append(context()->source().source());
@@ -816,7 +805,7 @@ QmcMetric::extractNumericMetric(pmValueSet const *set, pmValue const *value, Qmc
 }
 
 void
-QmcMetricValue::extractEventRecords(QmcContext *context, int recordCount, pmResult **result)
+QmcMetricValue::extractEventRecords(QmcContext *context, int recordCount, qmcResult **result)
 {
     pmID parameterID;
     pmID missedID = QmcEventRecord::eventMissed();
@@ -866,7 +855,7 @@ void
 QmcMetric::extractEventMetric(pmValueSet const *valueSet, int index, QmcMetricValue &valueRef)
 {
     pmValueSet *values = (pmValueSet *)valueSet;
-    pmResult **result;
+    qmcResult **result;
     int sts;
 
     if ((sts = pmUnpackEventRecords(values, index, &result)) >= 0) {

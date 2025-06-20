@@ -336,6 +336,8 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _ieconfdir      %{_localstatedir}/lib/pcp/config/pmieconf
 %global _selinuxdir     %{_datadir}/selinux/packages/targeted
 
+%global _with_multilib --enable-multilib=true
+
 %if 0%{?fedora} >= 20 || 0%{?rhel} >= 8
 %global _with_doc --with-docdir=%{_docdir}/%{name}
 %endif
@@ -1490,6 +1492,20 @@ extracting performance metrics from bpftrace scripts.
 
 %if !%{disable_python3}
 #
+# pcp-pmda-hdb
+#
+%package pmda-hdb
+License: GPL-3.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for SAP HANA databases
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python3-pcp
+%description pmda-hdb
+This package provides a PMDA to export metric values about a SAP HANA
+database (https://www.sap.com/products/data-cloud/hana.html).
+#end pcp-pmda-hdb
+
+#
 # pcp-pmda-gluster
 #
 %package pmda-gluster
@@ -2242,7 +2258,7 @@ updated policy package.
 _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 
-%configure %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
+%configure %{?_with_multilib} %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2429,6 +2445,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
 basic_manifest | keep '(etc/pcp|pmdas)/gpsd(/|$)' >pcp-pmda-gpsd-files
 basic_manifest | keep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
+basic_manifest | keep '(etc/pcp|pmdas)/hdb(/|$)' >pcp-pmda-hdb-files
 basic_manifest | keep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
 basic_manifest | keep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
 basic_manifest | keep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
@@ -2493,7 +2510,7 @@ for pmda_package in \
     elasticsearch \
     farm \
     gfs2 gluster gpfs gpsd \
-    hacluster haproxy \
+    hacluster haproxy hdb \
     infiniband \
     json \
     libvirt lio lmsensors logger lustre lustrecomm \
@@ -2846,6 +2863,9 @@ exit 0
 %endif
 
 %if !%{disable_python3}
+%preun pmda-hdb
+%{pmda_remove "$1" "hdb"}
+
 %preun pmda-gluster
 %{pmda_remove "$1" "gluster"}
 
@@ -2991,7 +3011,11 @@ for PMDA in dm nfsclient openmetrics ; do
     fi
 done
 # managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
-%if 0%{?rhel} > 0 && 0%{?rhel} < 10
+%if 0%{?fedora} > 40 || 0%{?rhel} > 9
+    for s in pmcd pmlogger pmie; do
+        systemctl --quiet is-enabled $s && systemctl restart $s >/dev/null 2>&1
+    done
+%else  # old-school methods follow
 %if !%{disable_systemd}
     systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
     systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
@@ -3267,6 +3291,8 @@ fi
 %endif
 
 %if !%{disable_python3}
+%files pmda-hdb -f pcp-pmda-hdb-files.rpm
+
 %files pmda-libvirt -f pcp-pmda-libvirt-files.rpm
 
 %files pmda-lio -f pcp-pmda-lio-files.rpm

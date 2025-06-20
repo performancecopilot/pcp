@@ -140,7 +140,7 @@ main(int argc, char **argv)
 
     i = 0;
     namelist[i++] = "sampledso.write_me";
-    namelist[i++] = "sampledso.control";
+    namelist[i++] = "sampledso.ulong.write_me";
     namelist[i++] = "sampledso.long.one";
     numpmid = i;
     n = pmLookupName(numpmid, namelist, midlist);
@@ -156,6 +156,15 @@ main(int argc, char **argv)
     if ((n = pmFetch(numpmid, midlist, &old)) < 0) {
 	printf("pmFetch old: %s\n", pmErrStr(n));
 	exit(1);
+    }
+    /*
+     * need all but last metric to be insitu for the pmStore to work
+     */
+    for (i = 0; i < numpmid-1; i++) {
+	if (old->vset[i]->valfmt != PM_VAL_INSITU) {
+	    printf("Botch: metric[%d] %s: not PM_VAL_INSITU\n", i, namelist[i]);
+	    exit(1);
+	}
     }
     old->numpmid--;
     guard = 0;

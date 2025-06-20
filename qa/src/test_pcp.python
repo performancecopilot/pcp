@@ -29,21 +29,24 @@ def dump_seq(name_p, seq_p):
             print(text)
     print('')
 
-def dump_array_ptrs(name_p, arr_p):
-    print(name_p)
-    for i in range(len(arr_p)):
-        if (i > 0):
-            print(" ", arr_p[i].contents)
-        else:
-            print(arr_p[i].contents)
+def dump_desc(ctx, name, desc):
+    print(name, end='')
+    print(' pmid=' + ctx.pmIDStr(desc.contents.pmid), end='')
+    print(' type=', end='')
+    print(ctx.pmTypeStr(desc.contents.type), end='')
+    print(' indom=', end='')
+    print(ctx.pmInDomStr(desc), end='')
+    print(' sem=', end='')
+    print(ctx.pmSemStr(desc.contents.sem), end='')
+    print(' units=', end='')
+    print(ctx.pmUnitsStr(desc.contents.units))
 
-def dump_array(name_p, arr_p):
-    print(name_p)
-    for i in range(len(arr_p)):
-        if (i > 0):
-            print(" ", hex(arr_p[i]))
-        else:
-            print(hex(arr_p[i]))
+def dump_pmids(ctx, tag, name_p, pmid_p):
+    print(tag)
+    for i in range(len(name_p)):
+        print(' [' + str(i) + ']', end='')
+        print(' name=' + name_p[i], end='')
+        print(' pmid=' + ctx.pmIDStr(pmid_p[i]))
 
 ARCHIVE = ""                    # For testing either localhost or archive
 
@@ -86,7 +89,10 @@ def test_pcp(self):
     # pmLookupName
     try:
         self.ncpu_id = ctx.pmLookupName(("hinv.ncpu", "kernel.all.load", "hinv.machine"))
-        print("pmLookupName:", self.ncpu_id)
+        print("pmLookupName:", end='')
+        for i in range(len(self.ncpu_id)):
+            print(" [" + str(i) + "]", ctx.pmIDStr(self.ncpu_id[i]), end="")
+        print("")
         self.assertTrue(True)
     except pmapi.pmErr as error:
         self.assertTrue(False)
@@ -95,35 +101,27 @@ def test_pcp(self):
     print("pmIDStr:", ctx.pmIDStr(self.ncpu_id[0]))
     self.assertTrue(ctx.pmIDStr(self.ncpu_id[0]).count(".") > 1)
 
-    # pmLookupDesc
+    # pmLookupDescs
     try:
         descs = ctx.pmLookupDescs(self.ncpu_id)
         self.assertTrue(True)
     except pmapi.pmErr as error:
         self.assertTrue(False)
 
-    # pmFetchHighRes
+    # pmFetch
     try:
-        results = ctx.pmFetchHighRes(self.ncpu_id)
-        print("pmFetchHighRes:", results)
+        results = ctx.pmFetch(self.ncpu_id)
+        print("pmFetch:", results)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmFetchHighRes: ", error)
-        self.assertTrue(False)
-
-    # pmHighResFetch (deprecated, but still supported)
-    try:
-        results = ctx.pmHighResFetch(self.ncpu_id)
-        print("pmHighResFetch:", results)
-        self.assertTrue(True)
-    except pmapi.pmErr as error:
-        print("pmHighResFetch: ", error)
+        print("pmFetch: ", error)
         self.assertTrue(False)
 
     # pmExtractValue
     print("tv_sec", results.contents.get_sec())
     print("tv_nsec", results.contents.get_nsec())
     print("numpmid", results.contents.get_numpmid())
+    print("pmid", ctx.pmIDStr(results.contents.get_pmid(0)))
     atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                               results.contents.get_vlist(0, 0),
                               descs[0].contents.type,
@@ -193,7 +191,7 @@ def test_pcp(self):
     except pmapi.pmErr as error:
         print("pmLookupName:", error)
         self.assertTrue(False)
-    dump_array("pmLookupName", self.metric_ids)
+    dump_pmids(ctx, "pmLookupName", metrics, self.metric_ids)
     self.assertTrue(len(self.metric_ids) == 4)
 
     for i in range(len(metrics)):
@@ -219,10 +217,11 @@ def test_pcp(self):
         self.assertTrue(match)
 
         # pmLookupDesc
-        descs = ctx.pmLookupDescs(self.metric_ids[i])
-        dump_array_ptrs("pmLookupDesc", descs)
-        self.assertTrue(len(descs) == 1)
+        desc = ctx.pmLookupDesc(self.metric_ids[i])
+        self.assertTrue(desc != None)
+        dump_desc(ctx, name, descs[0])
 
+    # pmLookupDescs
     descs = ctx.pmLookupDescs(self.metric_ids)
     if self.local_type:
         # pmGetInDom - sample.bin
@@ -316,13 +315,13 @@ def test_pcp(self):
         print("pmAddProfile: ", error)
         self.assertTrue(False)
 
-    # pmParseHighResInterval
+    # pmParseInterval
     try:
-        (delta, errmsg) = ctx.pmParseHighResInterval("3 seconds")
-        print("pmParseHighResInterval:", delta)
+        (delta, errmsg) = ctx.pmParseInterval("3 seconds")
+        print("pmParseInterval:", delta)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmParseHighResInterval: ", error)
+        print("pmParseInterval: ", error)
         self.assertTrue(False)
 
     # pmParseUnitsStr
@@ -358,29 +357,29 @@ def test_pcp(self):
         print("pmParseUnitsStr: ", error)
         self.assertTrue(True)
 
-    # pmFetchHighRes
+    # second pmFetch for 4 metrics
     try:
-        results = ctx.pmFetchHighRes(self.metric_ids)
-        print("pmFetchHighRes:", results)
+        results = ctx.pmFetch(self.metric_ids)
+        print("pmFetch:", results)
         self.assertTrue(True)
     except pmapi.pmErr as error:
-        print("pmFetchHighRes: ", error)
+        print("pmFetch: ", error)
         self.assertTrue(False)
 
-    # pmSortHighResInstances
+    # pmSortInstances
     try:
-        ctx.pmSortHighResInstances(results)
-        print("pmSortHighResInstances: ok")
+        ctx.pmSortInstances(results)
+        print("pmSortInstances: ok")
     except pmapi.pmErr as error:
-        print("pmSortHighResInstances: ", error)
+        print("pmSortInstances: ", error)
         self.assertTrue(False)
 
-    # pmStoreHighRes
+    # pmStore
     try:
-        ctx.pmStoreHighRes(results)
+        ctx.pmStore(results)
         self.assertTrue(False)
     except pmapi.pmErr as error:
-        print("pmStoreHighRes: ", error)
+        print("pmStore: ", error)
         self.assertTrue(True)
 
     for i in range(results.contents.numpmid):
@@ -450,11 +449,11 @@ def test_pcp(self):
     if self.archive_type:
         # pmSetMode
         try:
-            ctx.pmSetModeHighRes(api.PM_MODE_INTERP, results.contents.timestamp, 0)
-            print("pmSetModeHighRes: ok")
+            ctx.pmSetMode(api.PM_MODE_INTERP, results.contents.timestamp, 0)
+            print("pmSetMode: ok")
             self.assertTrue(True)
         except pmapi.pmErr as error:
-            print("pmSetModeHighRes: ", error)
+            print("pmSetMode: ", error)
             self.assertTrue(False)
 
         # pmGetArchiveLabel
@@ -499,9 +498,9 @@ def test_pcp(self):
                 "sample.double.bin * delta(sample.double.bin_ctr)")
         average = ctx.pmLookupName("pcpqa.derivation")
         descs = ctx.pmLookupDescs(average)
-        results = ctx.pmFetchHighRes(average)
+        results = ctx.pmFetch(average)
         ctx.pmtimespecSleep(delta)
-        results = ctx.pmFetchHighRes(average)
+        results = ctx.pmFetch(average)
         atom = ctx.pmExtractValue(results.contents.get_valfmt(0),
                                       results.contents.get_vlist(0, 0),
                                       descs[0].contents.type,
@@ -517,8 +516,29 @@ def test_pcp(self):
         self.assertTrue(True)
 
     # pmFreeResult
-    ctx.pmFreeHighResResult(results)
-    print("pmFreeHighResResult")
+    ctx.pmFreeResult(results)
+    print("pmFreeResult")
+
+    # pmSetDebug & pmDebug
+    ctx.pmSetDebug("appl0,appl9")
+    sts = ctx.pmDebug("appl0")
+    if (sts == 1):
+        print("debug appl0 set")
+    else:
+        print("debug appl0 botch", sts, "(not 1)")
+        self.assertTrue(False)
+    sts = ctx.pmDebug("appl9")
+    if (sts == 1):
+        print("debug appl9 set")
+    else:
+        print("debug appl9 botch", sts, "(not 1)")
+        self.assertTrue(False)
+    sts = ctx.pmDebug("qa")
+    if (sts == 0):
+        print("debug qa not set")
+    else:
+        print("debug qa botch", sts, "(not 0)")
+        self.assertTrue(False)
 
     del ctx
 

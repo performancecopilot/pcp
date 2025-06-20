@@ -33,7 +33,7 @@ import openpyxl
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL
 
 # Default config
 DEFAULT_CONFIG = ["./pcp2xlsx.conf", "$HOME/.pcp2xlsx.conf", "$HOME/.pcp/pcp2xlsx.conf", "$PCP_SYSCONF_DIR/pcp2xlsx.conf"]
@@ -299,7 +299,7 @@ class PCP2XLSX(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 

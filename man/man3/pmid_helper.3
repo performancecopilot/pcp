@@ -21,9 +21,15 @@
 \f3pmID_item\f1 \- helper methods for manipulating PMIDs
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-pmID pmID_build(unsigned int \fIdomain\fP, unsigned int \fIcluster\fP, unsigned int \fIitem\fP);
+pmID pmID_build(unsigned int \fIdomain\fP,
+'in +\w'pmID pmID_build('u
+unsigned\ int\ \fIcluster\fP,
+unsigned\ int\ \fIitem\fP);
+.in
 .br
 unsigned int pmID_domain(pmID \fIpmid\fP);
 .br
@@ -32,6 +38,8 @@ unsigned int pmID_cluster(pmID \fIpmid\fP);
 unsigned int pmID_item(pmID \fIpmid\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Within the Performance Co-Pilot (PCP) each metric is assigned a

@@ -19,6 +19,8 @@
 \f3pmInDomStr_r\f1 \- convert a performance metric instance domain identifier into a string
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 const char *pmInDomStr(pmInDom \fIindom\fP);
@@ -26,6 +28,8 @@ const char *pmInDomStr(pmInDom \fIindom\fP);
 char *pmInDomStr_r(pmInDom \fIindom\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

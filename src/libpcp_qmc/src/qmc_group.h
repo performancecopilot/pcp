@@ -58,7 +58,7 @@ public:
     int fetch(bool update = true);
 
     // Set the archive position and mode
-    int setArchiveMode(int mode, const struct timeval *when, int interval);
+    int setArchiveMode(int mode, const struct timespec *when, const struct timespec *delta);
 
     int useTZ();			// Use TZ of current context as default
     int useTZ(const QString &tz);	// Use this TZ as default

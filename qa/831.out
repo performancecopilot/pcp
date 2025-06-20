@@ -1,12 +1,12 @@
 QA output created by 831
 Enabling sample PMDA tracing
-sample.control old value=0 new value=16777216
+sample.control old value="" new value="auth"
 Verifying authentication for new client
-sample.control 1 16777216
+sample.control 1 "auth"
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=N groupid=GID
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=N userid=UID
 Resetting sample PMDA tracing
-sample.control old value=16777216 new value=0
+sample.control old value="auth" new value=""
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=N groupid=GID
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=N userid=UID
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=N groupid=GID

@@ -8,14 +8,14 @@ Group [7 metrics] {
 	sample.long.one
 	sample.bin
 	sample.control
-} logged once: 276 bytes
+} logged once: 284 bytes
 
-Metric sample.control logged every 0.500 sec: 44 bytes or 7.25 Mbytes/day
+Metric sample.control logged every 0.500 sec: 52 bytes or 8.57 Mbytes/day
 
 Group [2 metrics] {
 	sample.long.one
 	sample.control
-} logged every 1 sec: 64 bytes or 5.27 Mbytes/day
+} logged every 1 sec: 72 bytes or 5.93 Mbytes/day
 
 Group [6 metrics] {
 	sample.string.hullo
@@ -24,12 +24,12 @@ Group [6 metrics] {
 	sample.float.one
 	sample.bin
 	sample.control
-} logged every 2 sec: 256 bytes or 10.55 Mbytes/day
+} logged every 2 sec: 264 bytes or 10.88 Mbytes/day
 [DATE] pmlogger(PID) Info: pmlogger: End of run time, exiting
 
 
 unique non-preamble/non-postscript record sizes from pmdumplog ...
-[276 bytes]
-[44 bytes]
-[64 bytes]
-[256 bytes]
+[284 bytes]
+[52 bytes]
+[72 bytes]
+[264 bytes]

@@ -705,7 +705,7 @@ pmcd.pdu
 216 pmda.linux local
 217 folio local
 218 archive local pmlogextract pmlogdump
-219 pmdbg local
+219:retired pmdbg local
 220 pmlogger local folio
 221 pmlogger local
 222 other local
@@ -2067,13 +2067,23 @@ pmcd.pdu
 1578 pmlogcheck local
 1579 pmlogcheck local valgrind
 1580 other local
+1581 libpcp local
+1582 archive local
+1583 archive local valgrind
 1584 pmda.mongodb local
 1585 pcp2xml python pcp2xxx local
+1586 libpcp local
+1587 libpcp local valgrind
 1588 python iostat local
 1589 pcp2json pcp2xxx python local
+1590 libpcp local
 1591 archive archive_v3 local
 1592 archive archive_v3 local valgrind
+1593 pmval pmdumptext archive local
+1594 other local
 1595 pmda.linux local valgrind
+1596 pmlogextract pmlogrewrite local
+1597 pmlogextract pmlogrewrite local valgrind
 1598 pmda.statsd local
 1599 pmda.statsd local
 1600 pmseries pmcd pmproxy pmlogger local
@@ -2157,6 +2167,7 @@ pmcd.pdu
 1773 pmseries pmproxy libpcp_web local pmjson
 1774 pmlogctl pmlogger logutil
 1775 pmdumptext archive local
+1781 pmda.hdb local python
 1784 pmlogconf local
 1788 pmda.linux local
 1793 pmrep pcp2xxx python local pmlogdump pmjson

@@ -18,18 +18,20 @@
 \f3pmParseUnitsStr\f1 \- parse units specification
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmParseUnitsStr(const char *\fIstring\fP, struct\ pmUnits\ *\fIout\fP, double\ *\fIoutMult\fP, char\ **\fIerrMsg\fP);
+#include <pcp/pmapi.h>
 .sp
+int pmParseUnitsStr(const char *\fIstring\fP,
+'in +\w'int pmParseUnitsStr('u
+struct\ pmUnits\ *\fIout\fP,
+double\ *\fIoutMult\fP,
+char\ **\fIerrMsg\fP);
 .in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmParseUnitsStr

@@ -474,7 +474,7 @@ main(int argc, char **argv)
     FILE		*tmpFp = (FILE*)0;
 
     pmdaInterface	desc;
-    struct timeval	delta;
+    struct timespec	delta;
 
     struct {
 	int		*argPos;

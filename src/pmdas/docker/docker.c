@@ -472,7 +472,7 @@ docker_background_loop(void *loop)
 }
 
 static int
-docker_store(pmResult *result, pmdaExt *pmda)
+docker_store(pmdaResult *result, pmdaExt *pmda)
 {
     int i;
 
@@ -638,7 +638,7 @@ notready(void)
 }
 
 static int
-docker_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+docker_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int local_ready;
 

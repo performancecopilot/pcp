@@ -1063,7 +1063,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 
     /* start after header + label record + trailer */
     ctxp->c_origin = acp->ac_log->label.start;
-    ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
+    ctxp->c_mode = PM_MODE_FORW;
     acp->ac_offset = __pmLogLabelSize(acp->ac_log);
     acp->ac_vol = acp->ac_curvol;
     acp->ac_serial = 0;		/* not serial access, yet */
@@ -1971,7 +1971,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 			fprintf(f, " not open\n");
 			continue;
 		    }
-		    fprintf(f, " mode=%s", _mode[con->c_mode & __PM_MODE_MASK]);
+		    fprintf(f, " mode=%s", _mode[con->c_mode]);
 		    fprintf(f, " profile=%s tifd=%d mdfd=%d mfd=%d\nrefcnt=%d vol=%d",
 			    con->c_sent ? "SENT" : "NOT_SENT",
 			    con->c_archctl->ac_log->tifp == NULL ? -1 : __pmFileno(con->c_archctl->ac_log->tifp),
@@ -2072,19 +2072,3 @@ __pmIsLogCtlLock(void *lock)
 
 #endif
 #endif
-
-/*
- * Stuff from here on is deprecated ... definitions in deprecated.h
- * not libpcp.h
- */
-
-/*
- * Don't use this function ... the return value is a pointer to a context
- * that is NOT LOCKED,
- */
-__pmContext *
-__pmCurrentContext(void)
-{
-    PM_INIT_LOCKS();
-    return PM_TPD(curr_ctxp);
-}

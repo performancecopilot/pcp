@@ -232,7 +232,7 @@ __pmFetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, __pmResult **result)
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
 	    sts = __pmLogFetch(ctxp, numpmid, pmidlist, result);
-	    if (sts >= 0 && (ctxp->c_mode & __PM_MODE_MASK) != PM_MODE_INTERP)
+	    if (sts >= 0 && ctxp->c_mode != PM_MODE_INTERP)
 		ctxp->c_origin = (*result)->timestamp;
 	}
 
@@ -275,6 +275,24 @@ pmFetch_ctx(__pmContext *ctxp, int numpmid, pmID *pmidlist, __pmResult **result)
 }
 
 int
+pmFetch_v2(int numpmid, pmID *pmidlist, pmResult_v2 **result)
+{
+    __pmResult	*rp;
+    int		sts;
+
+    sts = pmFetch_ctx(NULL, numpmid, pmidlist, &rp);
+    if (sts >= 0) {
+	pmResult_v2	*ans = __pmOffsetResult_v2(rp);
+	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
+
+	ans->timestamp.tv_sec = tmp.sec;
+	ans->timestamp.tv_usec = tmp.nsec / 1000;
+	*result = ans;
+    }
+    return sts;
+}
+
+int
 pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 {
     __pmResult	*rp;
@@ -286,37 +304,10 @@ pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
 
 	ans->timestamp.tv_sec = tmp.sec;
-	ans->timestamp.tv_usec = tmp.nsec / 1000;
-	*result = ans;
-    }
-    return sts;
-}
-
-int
-pmFetchHighRes(int numpmid, pmID *pmidlist, pmHighResResult **result)
-{
-    __pmResult	*rp;
-    int		sts;
-
-    sts = pmFetch_ctx(NULL, numpmid, pmidlist, &rp);
-    if (sts >= 0) {
-	pmHighResResult	*ans = __pmOffsetHighResResult(rp);
-	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
-
-	ans->timestamp.tv_sec = tmp.sec;
 	ans->timestamp.tv_nsec = tmp.nsec;
 	*result = ans;
     }
     return sts;
-}
-
-/*
- * older name, maintained for backwards compatibility
- */
-int 
-pmHighResFetch(int numpmid, pmID *pmidlist, pmHighResResult **result)
-{
-    return pmFetchHighRes(numpmid, pmidlist, result);
 }
 
 int
@@ -329,10 +320,9 @@ __pmFetchArchive(__pmContext *ctxp, __pmResult **result)
 	if (ctxp == NULL)
 	    sts = PM_ERR_NOCONTEXT;
 	else {
-	    int	ctxp_mode = (ctxp->c_mode & __PM_MODE_MASK);
 	    if (ctxp->c_type != PM_CONTEXT_ARCHIVE)
 		sts = PM_ERR_NOTARCHIVE;
-	    else if (ctxp_mode == PM_MODE_INTERP)
+	    else if (ctxp->c_mode == PM_MODE_INTERP)
 		/* makes no sense! */
 		sts = PM_ERR_MODE;
 	    else {
@@ -349,13 +339,13 @@ __pmFetchArchive(__pmContext *ctxp, __pmResult **result)
 }
 
 int
-pmFetchArchive(pmResult **result)
+pmFetchArchive_v2(pmResult_v2 **result)
 {
     __pmResult	*rp;
     int		sts;
 
     if ((sts = __pmFetchArchive(NULL, &rp)) >= 0) {
-	pmResult	*ans = __pmOffsetResult(rp);
+	pmResult_v2	*ans = __pmOffsetResult_v2(rp);
 	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
 
 	ans->timestamp.tv_sec = tmp.sec;
@@ -366,13 +356,13 @@ pmFetchArchive(pmResult **result)
 }
 
 int
-pmFetchHighResArchive(pmHighResResult **result)
+pmFetchArchive(pmResult **result)
 {
     __pmResult	*rp;
     int		sts;
 
     if ((sts = __pmFetchArchive(NULL, &rp)) >= 0) {
-	pmHighResResult	*ans = __pmOffsetHighResResult(rp);
+	pmResult	*ans = __pmOffsetResult(rp);
 	__pmTimestamp	tmp = rp->timestamp;	/* struct copy */
 
 	ans->timestamp.tv_sec = tmp.sec;
@@ -387,14 +377,13 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
 {
     int		sts;
     __pmContext	*ctxp;
-    int		l_mode = (mode & __PM_MODE_MASK);
 
     if ((sts = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(sts);
 	if (ctxp == NULL)
 	    return PM_ERR_NOCONTEXT;
 	if (ctxp->c_type == PM_CONTEXT_HOST) {
-	    if (l_mode != PM_MODE_LIVE)
+	    if (mode != PM_MODE_LIVE)
 		sts = PM_ERR_MODE;
 	    else {
 		ctxp->c_origin.sec = ctxp->c_origin.nsec = 0;
@@ -409,8 +398,8 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
 	}
 	else {
 	    /* assume PM_CONTEXT_ARCHIVE */
-	    if (l_mode == PM_MODE_INTERP ||
-		l_mode == PM_MODE_FORW || l_mode == PM_MODE_BACK) {
+	    if (mode == PM_MODE_INTERP ||
+		mode == PM_MODE_FORW || mode == PM_MODE_BACK) {
 		int	lsts;
 		if (when != NULL) {
 		    /*
@@ -447,8 +436,19 @@ __pmSetMode(int mode, const __pmTimestamp *when, const __pmTimestamp *delta, int
     return sts;
 }
 
+#ifndef PM_XTB_FLAG
+/*
+ * Extended time base definitions and macros ...
+ * were in pmapi.h, but deprecated there so need 'em here for
+ * backwards API compatibility
+ */
+#define PM_XTB_FLAG	0x1000000
+#define PM_XTB_SET(m)	(PM_XTB_FLAG | ((m) << 16))
+#define PM_XTB_GET(m)	(((m) & PM_XTB_FLAG) ? (((m) & 0xff0000) >> 16) : -1)
+#endif
+
 int
-pmSetMode(int mode, const struct timeval *when, int delta)
+pmSetMode_v2(int mode, const struct timeval *when, int delta)
 {
     __pmTimestamp	offset, interval;
     int			direction;
@@ -498,10 +498,11 @@ pmSetMode(int mode, const struct timeval *when, int delta)
 }
 
 int
-pmSetModeHighRes(int mode, const struct timespec *when, const struct timespec *delta)
+pmSetMode(int mode, const struct timespec *when, const struct timespec *delta)
 {
     __pmTimestamp	offset, interval;
     int			direction;
+    int			sts;
 
     /* set internal delta time */
     if (delta != NULL) {
@@ -521,9 +522,51 @@ pmSetModeHighRes(int mode, const struct timespec *when, const struct timespec *d
     else
 	direction = 0;
 
-    if (when == NULL)
-	return __pmSetMode(mode, NULL, &interval, direction);
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, "pmSetMode(mode=");
+	switch (mode) {
+	    case PM_MODE_LIVE:
+		fprintf(stderr, "LIVE");
+		break;
+	    case PM_MODE_INTERP:
+		fprintf(stderr, "INTERP");
+		break;
+	    case PM_MODE_FORW:
+		fprintf(stderr, "FORW");
+		break;
+	    case PM_MODE_BACK:
+		fprintf(stderr, "BACK");
+		break;
+	    default:
+		fprintf(stderr, "%d?", mode);
+		break;
+	}
+	fprintf(stderr, ", when=");
+	pmtimespecPrint(stderr, when);
+	fprintf(stderr, ", delta=");
+	pmtimespecPrintInterval(stderr, delta);
+	fprintf(stderr, ") direction=%d <:", direction);
+    }
+
+    if (when == NULL) {
+	sts =  __pmSetMode(mode, NULL, &interval, direction);
+	goto pmapi_return;
+    }
     offset.sec = when->tv_sec;
     offset.nsec = when->tv_nsec;
-    return __pmSetMode(mode, &offset, &interval, direction);
+    sts = __pmSetMode(mode, &offset, &interval, direction);
+
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }

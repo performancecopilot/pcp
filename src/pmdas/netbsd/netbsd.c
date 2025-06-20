@@ -683,7 +683,7 @@ netbsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * then do the fetch
  */
 static int
-netbsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+netbsd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i;
     int		done_disk = 0;

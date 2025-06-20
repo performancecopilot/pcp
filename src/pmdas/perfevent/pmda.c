@@ -289,7 +289,7 @@ static int perfevent_profile(pmProfile *prof, pmdaExt *pmda)
  * This routine is called once for each pmFetch(3) operation, so this
  * is where the hardware counters are read.
  */
-static int perfevent_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+static int perfevent_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     activecounters = perf_get_r(perfif, &hwcounters, &nhwcounters, &derived_counters, &nderivedcounters);
 

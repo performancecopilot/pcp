@@ -64,7 +64,7 @@ else
     exit 1
 fi
 
-for file in pmapi.h deprecated.h
+for file in pmapi.h
 do
     if [ ! -f $INCDIR/pcp/$file ]
     then
@@ -103,8 +103,7 @@ cat <<End-of-File >pmdbg.h
 
 typedef struct {
     const char	*name;
-    const int	bit;		/* old 32-bit mask value */
-    int	* const options;	/* points to a new pmDebugOptions.xxx */
+    int	* const options;	/* points to a pmDebugOptions.xxx */
     int		state;		/* for internal use */
     const char	*text;		/* explanation */
 } debug_map_t;
@@ -112,26 +111,7 @@ typedef struct {
 static debug_map_t debug_map[] = {
 End-of-File
 
-# start with the old DBG_TRACE macros ...
-#define DBG_TRACE_PDU		(1<<0)	/* PDU send and receive */
-#
-sed -n <$INCDIR/pcp/deprecated.h \
-    -e '/#define[ 	]*DBG_TRACE_/{
-s/#define[ 	]*DBG_TRACE_\([A-Z0-9_]*\)/\1/
-s/[ 	].*\/\* */ /
-s/ *\*\///
-p
-}' \
-| while read OPTION ignore_text
-do
-    option=`echo "$OPTION" | tr '[A-Z]' '[a-z]'`
-    echo "    { \"$option\", DBG_TRACE_$OPTION, &pmDebugOptions.$option, 0, \"TEXT\" }," >>$tmp/tmp
-done
-
-cat $tmp/tmp >>pmdbg.h
-echo "/* new debug options with no DBG_TRACE_xxx equivalent */" >>pmdbg.h
-
-# New ones ... look like this
+# debug options look like this ...
 #	int	exec;	 	/* pmExec tracing */
 #
 sed -n -e $sedcmd <$INCDIR/pcp/pmapi.h \
@@ -144,15 +124,7 @@ p
 }' \
 | while read option text
 do
-    if grep "\"$option\"," $tmp/tmp >/dev/null
-    then
-	# matches the old DBG_TRACE macros
-	sed -e "/\"$option\"/s@\"TEXT\"@\"$text\"@" <pmdbg.h >$tmp/fix
-	mv $tmp/fix pmdbg.h
-    else
-	# new one
-	echo "    { \"$option\", 0, &pmDebugOptions.$option, 0, \"$text\" }," >>pmdbg.h
-    fi
+    echo "    { \"$option\", &pmDebugOptions.$option, 0, \"$text\" }," >>pmdbg.h
 done
 
 cat <<End-of-File >>pmdbg.h

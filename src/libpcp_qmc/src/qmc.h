@@ -13,6 +13,17 @@
 #include <pcp/pmapi.h>
 #include <pcp/libpcp.h>
 
+/*
+ * PMAPI_VERSION note
+ * 	As of PMAPI_VERSION_4, pmResult was changed to a "HighRes"
+ * 	but the libpcp_qmc routines are still using the older
+ * 	pmResult_v2 structure (aka qmcResult)
+ */
+#define qmcFetch pmFetch_v2
+#define qmcResult pmResult_v2
+#define qmcFreeResult pmFreeResult_v2
+#define qmcFreeResultValues __pmFreeResultValues_v2
+
 //
 // Classes
 //

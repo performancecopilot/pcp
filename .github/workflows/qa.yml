@@ -32,8 +32,8 @@ jobs:
           - {platform: ubuntu2204,                os: ubuntu-latest, experimental: false}
           - {platform: ubuntu2404-container,      os: ubuntu-latest, experimental: false}
           - {platform: ubuntu2404,                os: ubuntu-latest, experimental: false}
-          - {platform: fedora40-container,        os: ubuntu-22.04, experimental: false}
           - {platform: fedora41-container,        os: ubuntu-22.04, experimental: false}
+          - {platform: fedora42-container,        os: ubuntu-22.04, experimental: false}
           - {platform: fedora-rawhide-container,  os: ubuntu-22.04, experimental: true }
           - {platform: centos-stream8-container,  os: ubuntu-latest, experimental: false}
           - {platform: centos-stream9-container,  os: ubuntu-22.04, experimental: false}

@@ -18,20 +18,23 @@
 \f3pmdaInstance\f1 \- return instance descriptions for a PMDA
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmdaInstance(pmInDom \fIindom\fP, int \fIinst\fP, char *\fIname\fP, pmInResult\ **\fIresult\fP, pmdaExt\ *\fIpmda\fP);
-.sp
+int pmdaInstance(pmInDom \fIindom\fP,
+'in +\w'int pmdaInstance('u
+int\ \fIinst\fP,
+char\ *\fIname\fP,
+pmInResult\ **\fIresult\fP,
+pmdaExt\ *\fIpmda\fP);
 .in
+.sp
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmdaInstance

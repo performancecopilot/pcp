@@ -28,45 +28,78 @@
 \f3pmdaCacheResize\f1 \- manage a cache of instance domain information for a PMDA
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmdaCacheStore(pmInDom \fIindom\fP, int \fIflags\fP, const\ char\ *\fIname\fP, void\ *\fIprivate\fP);
-.br
-.ti -8n
-int pmdaCacheStoreKey(pmInDom \fIindom\fP, int \fIflags\fP, const\ char\ *\fIname\fP, int\ \fIkeylen\fP, const void\ *\fIkey\fP, void\ *\fIprivate\fP);
-.br
-.ti -8n
-int pmdaCacheLookup(pmInDom \fIindom\fP, int \fIinst\fP, char **\fIname\fP, void\ **\fIprivate\fP);
-.br
-.ti -8n
-int pmdaCacheLookupName(pmInDom \fIindom\fP, const char *\fIname\fP, int\ *\fIinst\fP, void\ **\fIprivate\fP);
-.br
-.ti -8n
-int pmdaCacheLookupKey(pmInDom \fIindom\fP, const char *\fIname\fP, int\ \fIkeylen\fP, const void\ *\fIkey\fP, char **\fIoname\fP, int\ *\fIinst\fP, void\ **\fIprivate\fP);
-.br
-.ti -8n
-int pmdaCacheOp(pmInDom \fIindom\fP, int \fIop\fP);
-.br
-.ti -8n
-int pmdaCachePurge(pmInDom \fIindom\fP, time_t \fIrecent\fP);
-.br
-.ti -8n
-int pmdaCachePurgeCallback(pmInDom \fIindom\fP, time_t \fIrecent\fP, void (*\fIcallback\fP)(void *));
-.br
-.ti -8n
-int pmdaCacheResize(pmInDom \fIindom\fP, int \fImaximum\fP);
-.sp
+int pmdaCacheStore(pmInDom \fIindom\fP,
+'in +\w'int pmdaCacheStore('u
+int\ \fIflags\fP,
+const\ char\ *\fIname\fP,
+void\ *\fIprivate\fP);
 .in
+.br
+int pmdaCacheStoreKey(pmInDom \fIindom\fP,
+'in +\w'int pmdaCacheStoreKey('u
+int\ \fIflags\fP,
+const\ char\ *\fIname\fP,
+int\ \fIkeylen\fP,
+const\ void\ *\fIkey\fP,
+void\ *\fIprivate\fP);
+.in
+.br
+int pmdaCacheLookup(pmInDom \fIindom\fP,
+'in +\w'int pmdaCacheLookup('u
+int\ \fIinst\fP,
+char\ **\fIname\fP,
+void\ **\fIprivate\fP);
+.in
+.br
+int pmdaCacheLookupName(pmInDom \fIindom\fP,
+'in +\w'int pmdaCacheLookupName('u
+const\ char *\fIname\fP,
+int\ *\fIinst\fP,
+void\ **\fIprivate\fP);
+.in
+.br
+int pmdaCacheLookupKey(pmInDom \fIindom\fP,
+'in +\w'int pmdaCacheLookupKey('u
+const\ char\ *\fIname\fP,
+int\ \fIkeylen\fP,
+const\ void\ *\fIkey\fP,
+char\ **\fIoname\fP,
+int\ *\fIinst\fP,
+void\ **\fIprivate\fP);
+.in
+.br
+int pmdaCacheOp(pmInDom \fIindom\fP,
+'in +\w'int pmdaCacheOp('u
+int\ \fIop\fP);
+.in
+.br
+int pmdaCachePurge(pmInDom \fIindom\fP,
+'in +\w'int pmdaCachePurge('u
+time_t\ \fIrecent\fP);
+.in
+.br
+int pmdaCachePurgeCallback(pmInDom \fIindom\fP,
+'in +\w'int pmdaCachePurgeCallback('u
+time_t\ \fIrecent\fP,
+void\ (*\fIcallback\fP)(void\ *));
+.in
+.br
+int pmdaCacheResize(pmInDom \fIindom\fP,
+'in +\w'int pmdaCacheResize('u
+int\ \fImaximum\fP);
+.in
+.sp
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
+.SH DESCRIPTION
 .de EX
 .in +2n
 .ie t .ft C
@@ -83,7 +116,6 @@ cc ... \-lpcp_pmda \-lpcp
 .ft R
 .in
 ..
-.SH DESCRIPTION
 The
 .B pmdaCache
 family of routines provide services to support the maintenance of

@@ -683,3 +683,9 @@ network.tcp.tcpaogood
 
 network.tcp.tcpaodroppedicmps
     value 127
+
+network.tcp.pawsoldack
+    value 142
+
+network.tcp.tsecrrejected
+    value 143

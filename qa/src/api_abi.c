@@ -45,19 +45,19 @@
  * [ ] pmExtendFetchGroup_item
  * [ ] pmExtendFetchGroup_timestamp
  * [ ] pmExtractValue
- * [ ] pmFetch
+ * [y] pmFetch
  * [ ] pmFetchArchive
  * [ ] pmFetchGroup
- * [ ] pmFetchHighRes
+ * [y] pmFetchHighRes
  * [ ] pmFetchHighResArchive
  * [y] pmflush
  * [ ] pmFreeEventResult
  * [ ] pmFreeHighResEventResult
- * [ ] pmFreeHighResResult
+ * [y] pmFreeHighResResult
  * [ ] pmFreeLabelSets
  * [ ] pmFreeMetricSpec
  * [y] pmFreeOptions
- * [ ] pmFreeResult
+ * [y] pmFreeResult
  * [ ] pmfstring
  * [ ] pmGetAPIConfig
  * [y] pmGetArchiveEnd
@@ -88,7 +88,7 @@
  * [ ] pmGetProgname
  * [ ] pmGetUsername
  * [ ] pmGetVersion
- * [ ] pmHighResFetch
+ * [x] pmHighResFetch
  * [y] pmID_build
  * [y] pmID_cluster
  * [y] pmID_domain
@@ -126,18 +126,18 @@
  * [ ] pmNumberStr
  * [ ] pmNumberStr_r
  * [ ] pmOpenLog
- * [ ] pmParseHighResInterval
+ * [x] pmParseHighResInterval
  * [ ] pmParseHighResTimeWindow
- * [ ] pmParseInterval
+ * [y] pmParseInterval
  * [ ] pmParseMetricSpec
  * [ ] pmParseTimeWindow
  * [ ] pmParseUnitsStr
  * [ ] pmPathSeparator
  * [ ] pmPrintDesc
  * [ ] pmprintf
- * [ ] pmPrintHighResStamp
+ * [i] pmPrintHighResStamp
  * [ ] pmPrintLabelSets
- * [ ] pmPrintStamp
+ * [i] pmPrintStamp
  * [ ] pmPrintValue
  * [ ] pmReconnectContext
  * [ ] pmRegisterDerived
@@ -146,8 +146,8 @@
  * [ ] pmSemStr_r
  * [y] pmSetDebug
  * [ ] pmSetDerivedControl
- * [ ] pmSetMode
- * [ ] pmSetModeHighRes
+ * [y] pmSetMode
+ * [x] pmSetModeHighRes
  * [ ] pmSetProcessIdentity
  * [ ] pmSetProgname
  * [ ] pmSortHighResInstances
@@ -192,7 +192,8 @@
  */
 
 
-#include "pcp/pmapi.h"
+#include "pmapi.h"
+#include "libpcp.h"
 
 static int
 getflags(void)
@@ -391,12 +392,13 @@ main(int argc, char *argv[])
 	PMOPT_ARCHIVE_LIST,		/* --archive-list=ARCHIVE,ARCHIVE,... */
 	PMOPT_ARCHIVE_FOLIO,		/* --archive-folio=NAME */
 	PMOPT_DERIVED,			/* --derived=FILE */
+	{ "interval", 1, 'i', "DELTA", "a time interval" },
 	{ "metric", 1, 'm', "METRIC", "the metric [default: sample.colour]" },
 	PMAPI_OPTIONS_END
     };
     pmOptions opts = {
 	.flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-	.short_options = PMAPI_OPTIONS "H:K:LN:" "m:" ,
+	.short_options = PMAPI_OPTIONS "H:K:LN:" "i:m:" ,
 	.long_options = longopts,
 	.short_usage = "[options] ...",
     };
@@ -407,15 +409,19 @@ main(int argc, char *argv[])
 #if PMAPI_VERSION < 4
     struct timeval	start;
     struct timeval	end;
+    struct timeval	delta = { 1, 0 };
+    int			msec;
 #else
     struct timespec	start;
     struct timespec	end;
+    struct timespec	delta = { 1, 0 };
 #endif
     char	*name = "sample.colour";
     pmID	pmid;
     pmDesc	desc;
     pmInDom	indom;
     pmLogLabel	label;
+    char	*errmsg;
 
     /*
      * options tests ...
@@ -426,8 +432,24 @@ main(int argc, char *argv[])
 	    case 'm':
 		name = opts.optarg;
 		break;
+
+	    case 'i':
+		if ((sts = pmParseInterval(opts.optarg, &delta, &errmsg)) < 0) {
+		    printf("pmParseInterval: Fail: %s (%s)\n", pmErrStr(sts), errmsg);
+		    free(errmsg);
+		}
+		else {
+		    printf("-i interval: %s", interstr(&delta));
+#if PMAPI_VERSION >= 4
+		    printf(" (");
+		    pmtimespecPrintInterval(stdout, &delta);
+		    putchar(')');
+#endif
+		putchar('\n');
+		}
 	}
     }
+
     printf("End of option processing\n");
     if (opts.flags & PM_OPTFLAG_USAGE_ERR) {
 	pmUsageMessage(&opts);
@@ -437,6 +459,7 @@ main(int argc, char *argv[])
 	pmflush();
 	exit(1);
     }
+
     if (opts.timezone)	/* ensure we have deterministic output */
 	tz = opts.timezone;
     else
@@ -467,6 +490,7 @@ main(int argc, char *argv[])
 	}
 	/* current context is valid */
 	if (opts.narchives > 0) {
+	    /* archive context */
 	    if ((sts = pmGetArchiveLabel(&label)) < 0) {
 		printf("pmGetArchiveLabel: Fail: %s\n", pmErrStr(sts));
 		exit(1);
@@ -494,22 +518,30 @@ main(int argc, char *argv[])
 	    }
 	    else
 		printf("pmGetArchiveEnd: OK: time: %s\n", timestr(&end));
+#if PMAPI_VERSION < 4
+	    msec = delta.tv_sec * 1000 + delta.tv_usec / 1000;
+	    sts = pmSetMode(PM_MODE_INTERP, &start, msec);
+#else
+	    sts = pmSetMode(PM_MODE_INTERP, &start, &delta);
+#endif
+	    if (sts < 0)
+		printf("pmSetMode: Fail: %s\n", pmErrStr(sts));
 	}
 	else {
-	    struct timeval	tmp_tv;
-	    gettimeofday(&tmp_tv, NULL);
-	    start.tv_sec = tmp_tv.tv_sec;
-#if PMAPI_VERSION < 4
-	    start.tv_usec = tmp_tv.tv_usec;
-#else
-	    start.tv_nsec = tmp_tv.tv_usec / 1000;
-#endif
+	    /* host context */
 	    end.tv_sec = PM_MAX_TIME_T;
 #if PMAPI_VERSION < 4
+	    pmtimevalNow(&start);
 	    end.tv_usec = 0;
+	    msec = delta.tv_sec * 1000 + delta.tv_usec / 1000;
+	    sts = pmSetMode(PM_MODE_LIVE, &start, msec);
 #else
+	    pmtimespecNow(&start);
 	    end.tv_nsec = 0;
+	    sts = pmSetMode(PM_MODE_LIVE, &start, &delta);
 #endif
+	    if (sts < 0)
+		printf("pmSetMode: Fail: %s\n", pmErrStr(sts));
 	}
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg, opts.align_optarg, opts.origin_optarg, &start, &end, &opts.start, &opts.finish, &opts.origin, &err)) < 0)
 	printf("pmParseTimeWindow: Fail: %s: %s\n", err, pmErrStr(sts));
@@ -563,6 +595,30 @@ main(int argc, char *argv[])
     }
 
     /*
+     * pmFetch tests ...
+     */
+    if (pmid != PM_ID_NULL) {
+	pmResult	*rp;
+	if ((sts = pmFetch(1, &pmid, &rp)) < 0)
+	    printf("pmFetch: Fail: %s\n", pmErrStr(sts));
+	else {
+	    __pmDumpResult(stdout, rp);
+	    pmFreeResult(rp);
+	}
+    }
+#if PMAPI_VERSION < 4
+    if (pmid != PM_ID_NULL) {
+	pmHighResResult	*rp;
+	if ((sts = pmHighResFetch(1, &pmid, &rp)) < 0)
+	    printf("pmHighResFetch: Fail: %s\n", pmErrStr(sts));
+	else {
+	    __pmDumpHighResResult(stdout, rp);
+	    pmFreeHighResResult(rp);
+	}
+    }
+#endif
+
+    /*
      * pmInDom tests ...
      */
     if (indom != PM_INDOM_NULL) {
@@ -586,7 +642,7 @@ main(int argc, char *argv[])
 		free(namelist);
 	    }
 	}
-	else {
+	else if (opts.narchives > 0) {
 	    if ((sts = pmGetInDomArchive(indom, &instlist, &namelist)) < 0)
 		printf("pmGetInDomArchive: Fail: %s\n", pmErrStr(sts));
 	    else {

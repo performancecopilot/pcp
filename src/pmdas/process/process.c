@@ -306,7 +306,7 @@ process_refresh_pidlist()
 }
 
 static int
-process_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+process_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     /*
      * This is the wrapper over the pmdaFetch routine, to handle the problem

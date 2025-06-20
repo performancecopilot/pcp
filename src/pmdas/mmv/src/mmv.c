@@ -1012,16 +1012,16 @@ mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
     if (pmID_cluster(pmid) == 0) {
 	switch(pmID_item(pmid)) {
-	    case 0:
+	    case 0:		/* control.reload */
 		atom->l = ap->reload;
 		return PMDA_FETCH_STATIC;
-	    case 1:
-		atom->l = pmDebug;
-		return PMDA_FETCH_STATIC;
-	    case 2:
+	    case 1:		/* control.debug */
+		atom->cp = pmGetDebug();
+		return PMDA_FETCH_DYNAMIC;
+	    case 2:		/* control.files */
 		atom->l = ap->scnt;
 		return PMDA_FETCH_STATIC;
-	    case 3:
+	    case 3:		/* control.metrics */
 		/*
 		 * control.metrics ... number of scanned metrics less
 		 * control ones
@@ -1229,7 +1229,7 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *pmda)
     mmv_reload_maybe(pmda);
     if (pmID_cluster(ident) == 0) {
 	switch (pmID_item(ident)) {
-	    case 0: {
+	    case 0: {		/* control.reload */
 		static char reloadoneline[] = "Control maps reloading";
 		static char reloadtext[] = 
 "Writing anything other then 0 to this metric will result in\n"
@@ -1238,15 +1238,18 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *pmda)
 		*buffer = (type & PM_TEXT_ONELINE) ? reloadoneline : reloadtext;
 		return 0;
 	    }
-	    case 1: {
-		static char debugoneline[] = "Debug flag";
+	    case 1: {		/* control.debug */
+		static char debugoneline[] = "Debug options";
 		static char debugtext[] =
-"See pmdbg(1).  pmstore into this metric to change the debug value.\n";
+"See pmdbg(1).  pmstore into this metric to change the debug option(s)\n"
+"\n"
+"Note that if this PMDA is installed as a DSO agent, the debug options\n"
+"are shared with pmcd(1)\n";
 
 		*buffer = (type & PM_TEXT_ONELINE) ? debugoneline : debugtext;
 		return 0;
 	    }
-	    case 2: {
+	    case 2: {		/* control.files */
 		static char filesoneline[] = "Memory mapped file count";
 		static char filestext[] =
 "Count of currently mapped and exported statistics files.\n";
@@ -1254,7 +1257,7 @@ mmv_text(int ident, int type, char **buffer, pmdaExt *pmda)
 		*buffer = (type & PM_TEXT_ONELINE) ? filesoneline : filestext;
 		return 0;
 	    }
-	    case 3: {
+	    case 3: {		/* control.metrics */
 		static char metricsoneline[] = "Memory mapped metric count";
 		static char metricstext[] =
 "Count of currently mapped and exported metrics.\n\
@@ -1279,7 +1282,7 @@ mmv_instance(pmInDom indom, int inst, char *name,
 }
 
 static int
-mmv_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+mmv_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     agent_t		*ap = (agent_t *)pmdaExtGetData(pmda);
 
@@ -1292,7 +1295,7 @@ mmv_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
 }
 
 static int
-mmv_store(pmResult *result, pmdaExt *pmda)
+mmv_store(pmdaResult *result, pmdaExt *pmda)
 {
     agent_t		*ap = (agent_t *)pmdaExtGetData(pmda);
     int			i, m;
@@ -1313,13 +1316,17 @@ mmv_store(pmResult *result, pmdaExt *pmda)
 		    if (vsp->numval != 1 )
 			return PM_ERR_BADSTORE;
 
+		    if (pmID_item(vsp->pmid) == 1) {	/* control.debug */
+			pmClearDebug("all");
+			sts = pmSetDebug(vsp->vlist[0].value.pval->vbuf);
+			return sts;
+		    }
+
 		    if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0],
 					PM_TYPE_32, &atom, PM_TYPE_32)) < 0)
 			return sts;
-		    if (pmID_item(vsp->pmid) == 0)
+		    if (pmID_item(vsp->pmid) == 0)	/* control.reload */
 			ap->reload = atom.l;
-		    else if (pmID_item(vsp->pmid) == 1)
-			pmDebug = atom.l;
 		    else
 			return PM_ERR_PERMISSION;
 		}
@@ -1470,12 +1477,17 @@ init_pmda(pmdaInterface *dp, agent_t *ap)
 	ap->mtot = 4;
 	if ((ap->metrics = malloc(ap->mtot * sizeof(pmdaMetric))) != NULL) {
 	    /*
-	     * all the hard-coded metrics have the same semantics
+	     * most the hard-coded metrics have the same semantics
 	     */
 	    for (m = 0; m < ap->mtot; m++) {
 		ap->metrics[m].m_user = (void *)ap;
 		ap->metrics[m].m_desc.pmid = pmID_build(dp->domain, 0, m);
-		ap->metrics[m].m_desc.type = PM_TYPE_32;
+		if (m == 1) {
+		    /* control.debug */
+		    ap->metrics[m].m_desc.type = PM_TYPE_STRING;
+		}
+		else
+		    ap->metrics[m].m_desc.type = PM_TYPE_32;
 		ap->metrics[m].m_desc.indom = PM_INDOM_NULL;
 		ap->metrics[m].m_desc.sem = PM_SEM_INSTANT;
 		memset(&ap->metrics[m].m_desc.units, 0, sizeof(pmUnits));

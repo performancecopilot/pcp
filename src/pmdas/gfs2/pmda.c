@@ -938,7 +938,7 @@ gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 }
 
 static int
-gfs2_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+gfs2_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i, sts, need_refresh[NUM_CLUSTERS] = { 0 };
 
@@ -1071,7 +1071,7 @@ gfs2_debugfs_setup(void)
 }
 
 static int
-gfs2_store(pmResult *result, pmdaExt *pmda)
+gfs2_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i;
     int		sts = 0;

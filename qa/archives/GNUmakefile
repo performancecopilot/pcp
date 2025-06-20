@@ -67,7 +67,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-rocestat.0.xz pcp-rocestat.meta.xz pcp-rocestat.index \
 	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz all-ubuntu.22.04.index \
 	  bind2-9.18.0.xz bind2-9.18.meta.xz bind2-9.18.index \
-	  bind2-9.18+.0.xz bind2-9.18+.meta.xz bind2-9.18+.index
+	  bind2-9.18+.0.xz bind2-9.18+.meta.xz bind2-9.18+.index \
+	  gfs.0.xz gfs.meta gfs.index
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \

@@ -19,6 +19,8 @@
 \f3pmiWrite\f1 \- flush data to a LOGIMPORT archive
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
@@ -26,12 +28,18 @@
 int pmiWrite(int \fIsec\fP, int \fIusec\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
+.hy
+.ad
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
 pmiWrite($\fIsec\fP, $\fIusec\fP);
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

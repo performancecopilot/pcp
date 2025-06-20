@@ -20,7 +20,7 @@ pmcd.agent.fenced inst [70 or "mmv"] old value=1 new value=0
 == Attempt operations
 
 sample.control
-    value 0
+    value ""
 sample.ulong.bin 9 "bin-100" "bin-200" "bin-300" "bin-400" "bin-500" "bin-600" "bin-700" "bin-800" "bin-900"
 == Verify PMDA status
 pmcd.agent.fenced

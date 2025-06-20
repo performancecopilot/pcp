@@ -40,7 +40,7 @@ int ib_fetch_val(pmdaMetric *, unsigned int, pmAtomValue *);
 int ib_load_config(const char *, int, pmdaIndom *, unsigned int);
 void ib_rearm_for_update(void *);
 void ib_reset_perfcounters (void *);
-int ib_store(pmResult *, pmdaExt *);
+int ib_store(pmdaResult *, pmdaExt *);
 
 #define IB_HCA_INDOM    0
 #define IB_PORT_INDOM   1

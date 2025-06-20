@@ -819,9 +819,10 @@ main(int argc, char **argv)
     char		*exit_msg;
     const char		*names[2] = { "pmcd.timezone", "pmcd.zoneinfo" };;
     pmID		pmids[2];
-    pmHighResResult	*resp;
+    pmResult		*resp;
     pmValueSet		*vp;
     struct timespec	myepoch;
+    struct timespec	ts;
     struct timeval	nowait = {0, 0};
     FILE		*fp;		/* pipe from pmcpp */
 #ifdef HAVE___EXECUTABLE_START
@@ -1013,11 +1014,12 @@ main(int argc, char **argv)
             break;
 
 	case 't':		/* change default logging interval */
-	    if (pmParseInterval(opts.optarg, &delta, &p) < 0) {
+	    if (pmParseInterval(opts.optarg, &ts, &p) < 0) {
 		pmprintf("%s: illegal -t argument\n%s", pmGetProgname(), p);
 		free(p);
 		opts.errors++;
 	    }
+	    pmtimespecTotimeval(&ts, &delta);
 	    break;
 
 	case 'U':		/* run as named user */
@@ -1437,7 +1439,7 @@ main(int argc, char **argv)
     if (sts >= 0)
 	sts = pmLookupName(2, names, pmids);
     if (sts >= 0)
-	sts = pmFetchHighRes(2, pmids, &resp);
+	sts = pmFetch(2, pmids, &resp);
     if (sts >= 0) {
 	vp = resp->vset[0];
 	if (vp->numval > 1) { /* pmcd.zoneinfo present */
@@ -1460,7 +1462,7 @@ main(int argc, char **argv)
 		    "main: Could not get timezone from host %s\n",
 		    pmcd_host);
 	}
-	pmFreeHighResResult(resp);
+	pmFreeResult(resp);
     }
 
     /* do ParseTimeWindow stuff for -T */
@@ -1480,7 +1482,7 @@ main(int argc, char **argv)
         start = now_tv;
         end.tv_sec = PM_MAX_TIME_T;
         end.tv_usec = 0;
-        sts = __pmParseTime(runtime, &start, &end, &res_end, &err_msg);
+        sts = __pmtimevalParse(runtime, &start, &end, &res_end, &err_msg);
         if (sts < 0) {
 	    fprintf(stderr, "%s: illegal -T argument\n%s", pmGetProgname(), err_msg);
             exit(1);
@@ -1548,13 +1550,13 @@ main(int argc, char **argv)
 
     if (vol_switch_time.tv_sec > 0) {
 	struct timeval temp;
-	TVfromTS(temp, vol_switch_time);
+	pmtimespecTotimeval(&vol_switch_time, &temp);
 	vol_switch_afid = __pmAFregister(&temp, NULL, 
 					 vol_switch_callback);
     }
     if (exit_time.tv_sec > 0) {
 	struct timeval temp;
-	TVfromTS(temp, exit_time);
+	pmtimespecTotimeval(&exit_time, &temp);
 	__pmAFregister(&temp, NULL, run_done_callback);
     }
 
@@ -1746,9 +1748,9 @@ newvolume(int vol_switch_type)
      */
     if (vol_switch_afid >= 0 && vol_switch_type != VOL_SW_TIME) {
 	struct timeval temp;
-	TVfromTS(temp, vol_switch_time);
-      __pmAFunregister(vol_switch_afid);
-      vol_switch_afid = __pmAFregister(&temp, NULL,
+	pmtimespecTotimeval(&vol_switch_time, &temp);
+        __pmAFunregister(vol_switch_afid);
+        vol_switch_afid = __pmAFregister(&temp, NULL,
                                    vol_switch_callback);
     }
 

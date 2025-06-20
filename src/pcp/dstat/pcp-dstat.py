@@ -184,7 +184,7 @@ class DstatTerminal:
         user = getpass.getuser()
         host = context.pmGetContextHostName()
         host = host.split('.')[0]
-        path = context.pmProgname()
+        path = context.pmGetProgname()
         args = path + ' ' + ' '.join(arguments)
         sys.stdout.write('\033]0;(%s@%s) %s\007' % (user, host, args))
 
@@ -463,7 +463,7 @@ class DstatTool(object):
         self.derived = None
         self.globals = 1
         self.samples = -1 # forever
-        self.interval = pmapi.timeval(1)      # 1 sec
+        self.interval = pmapi.timespec(1)      # 1 sec
         self.opts.pmSetOptionInterval(str(1)) # 1 sec
         self.delay = 1.0
         self.type = 0
@@ -723,7 +723,7 @@ class DstatTool(object):
             operands = []
         else:
             try:
-                self.interval = pmapi.timeval.fromInterval(operands[0])
+                self.interval = pmapi.timespec.fromInterval(operands[0])
                 self.delay = float(self.interval)
             except:
                 sys.stderr.write("Invalid sample delay '%s'\n" % operands[0])
@@ -1179,7 +1179,7 @@ class DstatTool(object):
         elif plugin.name in ['time', 'time-adv']:    # formatted time
             value = stamp().strftime(TIMEFMT)
         if plugin.name in ['epoch-adv', 'time-adv']: # with milliseconds
-            value = value + '.' + str(stamp.value.tv_usec * 1000)[:3]
+            value = value + '.' + str(stamp.value.tv_nsec * 1000000)[:3]
         return value
 
     @staticmethod
@@ -1681,7 +1681,7 @@ class DstatTool(object):
             line += '"Author:","PCP team <pcp@groups.io> and Dag Wieers <dag@wieers.com>",,,,"URL:","https://pcp.io/ and http://dag.wieers.com/home-made/dstat/"\n'
         import getpass # pylint: disable=import-outside-toplevel
         line += '"Host:","' + self.context.pmGetContextHostName() + '",,,,"User:","' + getpass.getuser() + '"\n'
-        line += '"Cmdline:","' + self.context.pmProgname() + ' ' + ' '.join(self.arguments) + '",,,,"Date:","' + time.strftime('%d %b %Y %H:%M:%S %Z') + '"\n'
+        line += '"Cmdline:","' + self.context.pmGetProgname() + ' ' + ' '.join(self.arguments) + '",,,,"Date:","' + time.strftime('%d %b %Y %H:%M:%S %Z') + '"\n'
         ### Process title
         for o in visible:
             line += o.csvtitle()

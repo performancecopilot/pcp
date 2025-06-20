@@ -270,23 +270,6 @@ findHost(Task *t, Metric *m)
     return h;
 }
 
-/* helper function for Extended Time Base */
-static void
-getDoubleAsXTB(double *realtime, int *ival, int *mode)
-{
-#define SECS_IN_24_DAYS 2073600.0
-
-    if (*realtime > SECS_IN_24_DAYS) {
-        *ival = (int)*realtime;
-	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_SEC);
-    }
-    else {
-	*ival = (int)(*realtime * 1000.0);
-	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_MSEC);
-    }
-}
-
-
 /* find Fetch bundle for Metric */
 static Fetch *
 findFetch(Host *h, Metric *m)
@@ -297,7 +280,6 @@ findFetch(Host *h, Metric *m)
     int		    n;
     pmID	    pmid = m->desc.pmid;
     pmID	    *p;
-    struct timeval  tv;
 
     /* find existing Fetch bundle */
     f = h->fetches;
@@ -312,12 +294,11 @@ findFetch(Host *h, Metric *m)
 	    return NULL;
 	}
 	if (archives) {
-	    int tmp_ival;
-	    int tmp_mode = PM_MODE_INTERP;
-	    getDoubleAsXTB(&h->task->delta, &tmp_ival, &tmp_mode);
-
-	    pmtimevalFromReal(start, &tv);
-	    if ((sts = pmSetMode(tmp_mode, &tv, tmp_ival)) < 0) {
+	    struct timespec	start_ts;
+	    struct timespec	delta_ts;
+	    pmtimespecFromReal(start, &start_ts);
+	    pmtimespecFromReal(h->task->delta, &delta_ts);
+	    if ((sts = pmSetMode(PM_MODE_INTERP, &start_ts, &delta_ts)) < 0) {
 		fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(),
 			pmErrStr(sts));
 		exit(1);
@@ -539,7 +520,7 @@ initArchive(Archive *a)
 	pmNoMem("host name copy", strlen(tmp)+1, PM_FATAL_ERR);
 
     /* get the goodies from archive label */
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: cannot read label from archive %s\n"
 			"pmGetArchiveLabel failed: %s\n", 
 			pmGetProgname(), a->fname, pmErrStr(sts));
@@ -1119,7 +1100,7 @@ taskFetch(Task *t)
 			    if (m->desc.pmid == r->vset[i]->pmid) {
 				if (r->vset[i]->numval > 0) {
 				    m->vset = r->vset[i];
-				    m->stamp = pmtimevalToReal(&r->timestamp);
+				    m->stamp = pmtimespecToReal(&r->timestamp);
 				}
 				break;
 			    }

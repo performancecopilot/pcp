@@ -92,6 +92,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_bind2@|$(PMDA_BIND2)|g' \
 	    -e's|@pmda_nutcracker@|$(PMDA_NUTCRACKER)|g' \
 	    -e's|@pmda_resctrl@|$(PMDA_RESCTRL)|g' \
+		-e's|@pmda_hdb@|$(PMDA_HDB)|g' \
 	    -e's|@pcp2arrow@|$(HAVE_PYTHON_PYARROW)|g' \
 	    -e's|@pcp2xlsx@|$(HAVE_PYTHON_OPENPYXL)|g' \
 	    -e's|@pcp2influxdb@|$(HAVE_PYTHON_INFLUXDB)|g' \

@@ -18,15 +18,23 @@
 \f3pmaGetLog\f1 \- direct read of the next record from an archive file
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
 .br
 #include <pcp/archive.h>
 .sp
-int pmaGetLog(__pmArchCtl *\fIacp\fP, int \fIvol\fP, __int32_t **\fIrbuf\fP);
+int pmaGetLog(__pmArchCtl *\fIacp\fP,
+'in +\w'int pmaGetLog('u
+int\ \fIvol\fP,
+__int32_t\ **\fIrbuf\fP);
+.in
 .sp
 cc ... \-lpcp_archive \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

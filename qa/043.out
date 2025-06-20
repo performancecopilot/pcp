@@ -1,6 +1,6 @@
 QA output created by 043
 __pmResult ... numpmid: 3
-  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+  2.0.15 (pmcd.control.sighup): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
@@ -19,7 +19,7 @@ __pmControlLog: Insufficient elements in list
 
 numval == 0 tests (failures expected) ...
 __pmResult ... numpmid: 3
-  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+  2.0.15 (pmcd.control.sighup): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): No values returned!
   29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
@@ -29,7 +29,7 @@ __pmResult ... numpmid: 3
 pmStore: Missing metric value(s)
 __pmControlLog: OK
 __pmResult ... numpmid: 3
-  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+  2.0.15 (pmcd.control.sighup): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
@@ -40,7 +40,7 @@ __pmResult ... numpmid: 3
 
 numval < 0 tests (failures expected) ...
 __pmResult ... numpmid: 3
-  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+  2.0.15 (pmcd.control.sighup): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
@@ -48,7 +48,7 @@ __pmResult ... numpmid: 3
 pmStore: Missing metric value(s)
 __pmControlLog: OK
 __pmResult ... numpmid: 3
-  2.0.0 (pmcd.control.debug): numval: 1 valfmt: 0 vlist[]:
+  2.0.15 (pmcd.control.sighup): numval: 1 valfmt: 0 vlist[]:
    value INTEGER
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
    value INTEGER

@@ -18,18 +18,21 @@
 \f3pmExtractValue\f1 \- extract a performance metric value from a pmResult structure
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmExtractValue(int \fIvalfmt\fP, const pmValue *\fIival\fP, int\ \fIitype\fP, pmAtomValue\ *\fIoval\fP, int\ \fIotype\fP);
+#include <pcp/pmapi.h>
 .sp
+int pmExtractValue(int \fIvalfmt\fP,
+'in +\w'int pmExtractValue('u
+const\ pmValue\ *\fIival\fP,
+int\ \fIitype\fP,
+pmAtomValue\ *\fIoval\fP,
+int\ \fIotype\fP);
 .in
+.sp
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .de CR
@@ -113,14 +116,14 @@ parameter, and if
 specifies
 .BR PM_VAL_INSITU ,
 then the
-following types are not allowed, as these cannot be encoded in 32-bits;
+following input types are not allowed, as these cannot be encoded in 32-bits;
 .BR __int64_t ,
 .BR __uint64_t ,
 .BR double ,
 .B char *
 and
 .B void *
-(the corresponding
+and the corresponding
 .I itype
 values are
 .BR PM_TYPE_64 ,
@@ -130,7 +133,9 @@ values are
 .B PM_TYPE_AGGREGATE
 and
 .B PM_TYPE_EVENT
-respectively).
+(or
+.BR PM_TYPE_HIGHRES_EVENT )
+respectively.
 If
 .I valfmt
 specifies
@@ -175,36 +180,26 @@ If an error occurs, the value represented by
 will be zero (or
 .BR NULL ).
 .PP
-Note that although some of the conversions involving the types
-.B PM_TYPE_STRING
-and
-.B PM_TYPE_AGGREGATE
-are indeed possible, but are marked N \- the rationale
-is that
-.B pmExtractValue
-should not be attempting to duplicate functionality
-already available in the C library via
-.BR sscanf (3)
-and
-.BR sprintf (3).
-.PP
-No conversion involving the type
-.B PM_TYPE_EVENT
-is supported.
+No conversion involving the types
+.BR PM_TYPE_EVENT ,
+.B PM_TYPE_HIGHRES_EVENT
+or
+.B PM_TYPE_AGGR
+is supported, and the label ``BLOB'' in the table below covers
+all three of these types.
 .PP
 .ft CR
 .nf
-      | 32  |  U32  | 64  |  U64  | FLOAT | DBLE | STRNG | AGGR | EVENT
-======|=====|=======|=====|=======|=======|======|=======|======|=======
-32    |  Y  |   S   |  Y  |   S   |   P   |  P   |   N   |  N   |   N
-U32   |  T  |   Y   |  Y  |   Y   |   P   |  P   |   N   |  N   |   N
-64    |  T  |  T,S  |  Y  |   S   |   P   |  P   |   N   |  N   |   N
-U64   |  T  |   T   |  T  |   Y   |   P   |  P   |   N   |  N   |   N
-FLOAT | P,T | P,T,S | P,T | P,T,S |   Y   |  Y   |   N   |  N   |   N
-DBLE  | P,T | P,T,S | P,T | P,T,S |   P   |  Y   |   N   |  N   |   N
-STRNG |  N  |   N   |  N  |   N   |   N   |  N   |   Y   |  N   |   N
-AGGR  |  N  |   N   |  N  |   N   |   N   |  N   |   N   |  Y   |   N
-EVENT |  N  |   N   |  N  |   N   |   N   |  N   |   N   |  N   |   N
+      | 32  |  U32  | 64  |  U64  | FLOAT | DBLE | STRNG | BLOB
+======|=====|=======|=====|=======|=======|======|=======|======
+32    |  Y  |   S   |  Y  |   S   |   P   |  P   |   Y   |  N
+U32   |  T  |   Y   |  Y  |   Y   |   P   |  P   |   Y   |  N
+64    |  T  |  T,S  |  Y  |   S   |   P   |  P   |   Y   |  N
+U64   |  T  |   T   |  T  |   Y   |   P   |  P   |   Y   |  N
+FLOAT | P,T | P,T,S | P,T | P,T,S |   Y   |  Y   |   P   |  N
+DBLE  | P,T | P,T,S | P,T | P,T,S |   P   |  Y   |   P   |  N
+STRNG |  N  |   N   |  N  |   N   |   N   |  N   |   Y   |  N
+BLOB  |  N  |   N   |  N  |   N   |   N   |  N   |   N   |  N
 .fi
 .ft 1
 .PP

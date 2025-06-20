@@ -123,10 +123,10 @@ int		need_wait;
 RealTime
 getReal(void)
 {
-    struct timeval t;
+    struct timespec t;
 
-    pmtimevalNow(&t);
-    return pmtimevalToReal(&t);
+    pmtimespecNow(&t);
+    return pmtimespecToReal(&t);
 }
 
 

@@ -164,7 +164,7 @@ DoStore(ClientInfo *cp, __pmPDU* pb)
 	    if (ap->ipc.dso.dispatch.comm.pmda_interface >= PMDA_INTERFACE_5)
 		ap->ipc.dso.dispatch.version.four.ext->e_context = cp - client;
 	    s = ap->ipc.dso.dispatch.version.any.store(
-					__pmOffsetResult(dResult[i]),
+					__pmOffsetResult_v2(dResult[i]),
 					ap->ipc.dso.dispatch.version.any.ext);
 	}
 	else {

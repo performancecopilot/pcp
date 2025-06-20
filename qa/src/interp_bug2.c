@@ -55,7 +55,7 @@ main(int argc, char **argv)
     struct timespec delta;
     double	delta_f = 1.0;
     char	*endnum;
-    pmHighResResult	*result;
+    pmResult	*result;
     int		i;
     int		status = 0;
     int		done;
@@ -298,19 +298,19 @@ Options\n\
     start.tv_sec += 2;
 
     printf("Start at: ");
-    pmPrintHighResStamp(stdout, &start);
+    pmtimespecPrint(stdout, &start);
     printf("\n\n");
 
     printf("Pass One: rewind and fetch metrics_a until end of log\n");
     pmtimespecFromReal(delta_f, &delta);
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     done = 0;
     for (sample=0; !done; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID_A, pmid_a, &result)) < 0) {
+	if ((sts = pmFetch(N_PMID_A, pmid_a, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -319,7 +319,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintHighResStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_A) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -329,7 +329,7 @@ Options\n\
 	else {
 	    if (result->vset[0]->numval != 1) {
 		printf("Error: incorrect number of values\n");
-		__pmDumpHighResResult(stdout, result);
+		__pmDumpResult(stdout, result);
 		status = 1;
 	    }
 	    else
@@ -340,18 +340,18 @@ Options\n\
 	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     done = 0;
     for (sample=0; !done; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID_B, pmid_b, &result)) < 0) {
+	if ((sts = pmFetch(N_PMID_B, pmid_b, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -360,7 +360,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintHighResStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_B) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -372,7 +372,7 @@ Options\n\
 		result->vset[1]->numval != 1) {
 		printf("Error: incorrect number of values\n");
 		status = 1;
-		__pmDumpHighResResult(stdout, result);
+		__pmDumpResult(stdout, result);
 	    }
 	    else
 		printf("correct result\n");
@@ -382,18 +382,18 @@ Options\n\
 	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     printf("Pass Three: rewind and fetch metrics_c until end of log\n");
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &start, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     done = 0;
     for (sample=0; !done; sample++) {
-	if ((sts = pmFetchHighRes(N_PMID_C, pmid_c, &result)) < 0) {
+	if ((sts = pmFetch(N_PMID_C, pmid_c, &result)) < 0) {
 	    if (sts != PM_ERR_EOL) {
 		fprintf(stderr, "%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 		status = 1;
@@ -402,7 +402,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintHighResStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_C) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -414,7 +414,7 @@ Options\n\
 		result->vset[1]->numval != 1) {
 		printf("Error: incorrect number of values\n");
 		status = 1;
-		__pmDumpHighResResult(stdout, result);
+		__pmDumpResult(stdout, result);
 	    }
 	    else
 		printf("correct result\n");
@@ -424,7 +424,7 @@ Options\n\
 	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     exit(status);

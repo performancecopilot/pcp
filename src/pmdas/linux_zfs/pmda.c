@@ -1172,7 +1172,7 @@ static pmdaMetric metrictab[] = {
 };
 
 static int
-zfs_fetch(int numpmid, pmID *pmidlist, pmResult **resp, pmdaExt *pmda)
+zfs_fetch(int numpmid, pmID *pmidlist, pmdaResult **resp, pmdaExt *pmda)
 {
     int i;
     __pmID_int *idp;

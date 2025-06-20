@@ -506,13 +506,12 @@ AC_SUBST(PCFLAGS)
 AC_SUBST(PLDFLAGS)
 
 dnl we have some constraints around the packing of pmResults of various
-dnl flavours and Python modules handling of pmHighResResult
+dnl flavours and Python modules handling of pmResult
 dnl 1) we need the offset of the numpmid field in __pmResult to be at least as
-dnl    big as the offset of the numpmid field in pmResult _and_ pmHighResResult
+dnl    big as the offset of the numpmid field in pmResult_v2 _and_ pmResult
 dnl    (for the tricky games in libpcp to minimize copying)
 dnl 2) we need to know if the compiler is adding padding between the timestamp
-dnl    and the numpmid fields of pmHighResResult (for Python packing and
-dnl    unpacking)
+dnl    and the numpmid fields of pmResult (for Python packing and unpacking)
 cat <<End-of-File >conftest.c
 #include <stdint.h>
 #include <stddef.h>
@@ -529,22 +528,22 @@ typedef struct {
 typedef struct {
     struct timeval stamp;
     int numpmid;
-} pmResult;
+} pmResult_v2;
 typedef struct {
     struct timespec stamp;
     int numpmid;
-} pmHighResResult;
+} pmResult;
 void
 main(void)
 {
     __pmResult __rp;
-    pmResult rp;
-    pmHighResResult hrp;
+    pmResult_v2 rp;
+    pmResult hrp;
     int nb;
 
-    nb = (int)offsetof(pmResult,numpmid);
-    if (nb < (int)offsetof(pmHighResResult,numpmid))
-	nb = (int)offsetof(pmHighResResult,numpmid);
+    nb = (int)offsetof(pmResult_v2,numpmid);
+    if (nb < (int)offsetof(pmResult,numpmid))
+	nb = (int)offsetof(pmResult,numpmid);
     if (nb > (int)offsetof(__pmResult,numpmid))
 	printf("__pmResult pad %d\n", nb - (int)offsetof(__pmResult,numpmid));
 
@@ -650,10 +649,19 @@ AC_LANG_POP([C++])
 
 dnl Prevent shared libraries from being built for libpcp and other core libraries
 AC_ARG_ENABLE([shared],
-  [AS_HELP_STRING([--disable-shared], [disable core shared libary generation])],
+  [AS_HELP_STRING([--disable-shared], [disable core shared library generation])],
   [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --disable-shared=$withval"],
   [enable_shared=false])
 AC_SUBST(enable_shared)
+
+dnl Support installing both devel package variants on either 32/64 bit platform
+AC_ARG_ENABLE([multilib],
+  [AS_HELP_STRING([--enable-multilib], [enable multilib installations])],
+  [PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --enable-multilib=$withval"
+   AC_DEFINE(HAVE_MULTILIB, [1], [multilib defined])
+   enable_multilib=true],
+  [enable_multilib=false])
+AC_SUBST(enable_multilib)
 
 dnl check if user wants to use any of their own commands;
 dnl ordering is important: some tests use earlier results

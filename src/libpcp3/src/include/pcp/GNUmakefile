@@ -27,7 +27,11 @@ CONFFILES = config.h configsz.h platform_defs.h platformsz.h
 GENERATED_HFILES = $(CONFFILES)
 NOSHIP_HFILES = libpcp.h sdsalloc.h
 
+ifeq "$(KEEP_CONFIG_FILES)" ""
 LDIRT = $(GENERATED_HFILES)
+else
+LDIRT =
+endif
 
 default :: default_pcp
 

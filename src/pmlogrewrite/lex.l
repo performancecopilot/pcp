@@ -165,6 +165,7 @@ duptextstr(char *s, int strip_quotes)
 <type>"U64"		{ yylval.ival = PM_TYPE_U64; BEGIN(metric); return TOK_TYPE_NAME; }
 <type>"FLOAT"		{ yylval.ival = PM_TYPE_FLOAT; BEGIN(metric); return TOK_TYPE_NAME; }
 <type>"DOUBLE"		{ yylval.ival = PM_TYPE_DOUBLE; BEGIN(metric); return TOK_TYPE_NAME; }
+<type>"STRING"		{ yylval.ival = PM_TYPE_STRING; BEGIN(metric); return TOK_TYPE_NAME; }
 <type>"if"		{ BEGIN(iftype); return TOK_IF; }
 
 <iftype>"32"		{ yylval.ival = PM_TYPE_32; BEGIN(type); return TOK_TYPE_NAME; }
@@ -172,7 +173,8 @@ duptextstr(char *s, int strip_quotes)
 <iftype>"64"		{ yylval.ival = PM_TYPE_64; BEGIN(type); return TOK_TYPE_NAME; }
 <iftype>"U64"		{ yylval.ival = PM_TYPE_U64; BEGIN(type); return TOK_TYPE_NAME; }
 <iftype>"FLOAT"		{ yylval.ival = PM_TYPE_FLOAT; BEGIN(type); return TOK_TYPE_NAME; }
-<iftype>"DOUBLE"		{ yylval.ival = PM_TYPE_DOUBLE; BEGIN(type); return TOK_TYPE_NAME; }
+<iftype>"DOUBLE"	{ yylval.ival = PM_TYPE_DOUBLE; BEGIN(type); return TOK_TYPE_NAME; }
+<iftype>"STRING"	{ yylval.ival = PM_TYPE_STRING; BEGIN(type); return TOK_TYPE_NAME; }
 
 <output>"first"		{ yylval.ival = OUTPUT_FIRST; BEGIN(metric); return TOK_OUTPUT_TYPE; }
 <output>"last"		{ yylval.ival = OUTPUT_LAST; BEGIN(metric); return TOK_OUTPUT_TYPE; }

@@ -354,8 +354,8 @@ main(int argc, char **argv)
 	    }
 	    if (errflag != 2) {
 		if (type == PM_CONTEXT_ARCHIVE) {
-		    resp->timestamp.tv_usec--;
-		    pmSetMode(PM_MODE_FORW, &resp->timestamp, 0);
+		    resp->timestamp.tv_nsec--;
+		    pmSetMode(PM_MODE_FORW, &resp->timestamp, NULL);
 		}
 		pmFreeResult(resp);
 	    }

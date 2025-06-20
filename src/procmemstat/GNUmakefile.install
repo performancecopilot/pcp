@@ -26,7 +26,7 @@ default: $(TARGETS)
 
 install:
 
-clobber:
+clobber clean:
 	rm -f $(TARGETS) *.o core a.out pmnsmap.h mylog.* pmnsmap.i
 
 procmemstat:	procmemstat.c pmnsmap.h

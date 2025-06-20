@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 
-/* physical archive i/o and format rewriting */
+/* physical archive I/O and format rewriting */
 PCP_CALL extern int pmaGetLog(__pmArchCtl *, int, __int32_t **);
 PCP_CALL extern int pmaPutLog(__pmFILE *, __int32_t *);
 PCP_CALL extern int pmaRewriteData(__pmLogCtl *, __pmLogCtl *, __int32_t **);

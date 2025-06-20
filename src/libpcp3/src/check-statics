@@ -47,9 +47,13 @@ _nm()
 	# 00000000000000a0 b xconfirm
 	# 0000000000000000 B pmProgname
 	#
+	# but skip lines like
+	# 73: 0000000000000000    16 OBJECT  LOCAL  DEFAULT   10 reltable.__pmDumpContext
+	#
 	readelf --wide --symbols "$1" 2>/dev/null \
 	| awk '
 $4 != "OBJECT"			{ next }
+$8 ~ /^reltable\./		{ next }
 $8 ~ /__FUNCTION__.*/		{ next }
 $8 ~ /__PRETTY_FUNCTION__.*/	{ next }
 $8 ~ /__func__\.[0-9].*/	{ next }
@@ -239,7 +243,7 @@ connect.o
     proxy			# guarded by connect_lock mutex
 context.o
     contexts_lock		# local mutex
-    _mode			# const
+    ?_mode			# const
     being_initialized           # const
     def_backoff			# guarded by contexts_lock mutex
     backoff			# guarded by contexts_lock mutex

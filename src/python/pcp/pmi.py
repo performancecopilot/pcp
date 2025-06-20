@@ -49,7 +49,7 @@
 """
 # pylint: disable=too-many-arguments,too-many-positional-arguments
 
-from pcp.pmapi import pmID, pmInDom, pmUnits, pmHighResResult, pmResult
+from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult, pmResult_v2
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
 from ctypes import c_int, c_uint, c_longlong, c_char_p
 from ctypes import cast, create_string_buffer, POINTER, CDLL
@@ -124,10 +124,10 @@ LIBPCP_IMPORT.pmiHighResWrite.restype = c_int
 LIBPCP_IMPORT.pmiHighResWrite.argtypes = [c_longlong, c_int]
 
 LIBPCP_IMPORT.pmiPutHighResResult.restype = c_int
-LIBPCP_IMPORT.pmiPutHighResResult.argtypes = [POINTER(pmHighResResult)]
+LIBPCP_IMPORT.pmiPutHighResResult.argtypes = [POINTER(pmResult)]
 
 LIBPCP_IMPORT.pmiPutResult.restype = c_int
-LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult)]
+LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult_v2)]
 
 LIBPCP_IMPORT.pmiPutMark.restype = c_int
 LIBPCP_IMPORT.pmiPutMark.argtypes = None
@@ -394,7 +394,7 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        status = LIBPCP_IMPORT.pmiPutResult(cast(result, POINTER(pmResult)))
+        status = LIBPCP_IMPORT.pmiPutResult(cast(result, POINTER(pmResult_v2)))
         if status < 0:
             raise pmiErr(status)
         return status
@@ -404,7 +404,7 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        status = LIBPCP_IMPORT.pmiPutHighResResult(cast(result, POINTER(pmHighResResult)))
+        status = LIBPCP_IMPORT.pmiPutHighResResult(cast(result, POINTER(pmResult)))
         if status < 0:
             raise pmiErr(status)
         return status

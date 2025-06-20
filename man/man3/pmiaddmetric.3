@@ -19,26 +19,41 @@
 \f3pmiAddMetric\f1 \- add a new metric definition to a LOGIMPORT context
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmiAddMetric(const char *\fIname\fP, pmID \fIpmid\fP, int\ \fItype\fP, pmInDom\ \fIindom\fP, int\ \fIsem\fP, pmUnits\ \fIunits\fP);
-.sp
+int pmiAddMetric(const char *\fIname\fP,
+'in +\w'int pmiAddMetric('u
+pmID\ \fIpmid\fP,
+int\ \fItype\fP,
+pmInDom\ \fIindom\fP,
+int\ \fIsem\fP,
+pmUnits\ \fIunits\fP);
 .in
+.sp
+cc ... \-lpcp_import \-lpcp
 .hy
 .ad
-cc ... \-lpcp_import \-lpcp
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
-pmiAddMetric($\fIname\fP, $\fIpmid\fP, $\fItype\fP, $\fIindom\fP, $\fIsem\fP, $\fIunits\fP);
+pmiAddMetric($\fIname\fP,
+'in +\w'pmiAddMetric('u
+$\fIpmid\fP,
+$\fItype\fP,
+$\fIindom\fP,
+$\fIsem\fP,
+$\fIunits\fP);
+.in
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

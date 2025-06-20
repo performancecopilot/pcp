@@ -1873,7 +1873,7 @@ xfs_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-xfs_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+xfs_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i, need_refresh[NUM_CLUSTERS] = { 0 };
 
@@ -1929,7 +1929,7 @@ xfs_zero(pmValueSet *vsp)
 }
 
 static int
-xfs_store(pmResult *result, pmdaExt *pmda)
+xfs_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i;
     int		sts = 0;

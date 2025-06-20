@@ -4,7 +4,6 @@
  */
 
 #include <pcp/pmapi.h>
-#include <pcp/deprecated.h>
 
 static pmLongOptions longopts[] = {
     PMOPT_DEBUG,		/* -D */
@@ -22,28 +21,23 @@ int
 main(int argc, char **argv)
 {
     int		c;
-    int		sts;
 
-    printf("pmGetProgname=\"%s\"\n", pmGetProgname());
+    printf("pmGetProgname()=\"%s\"\n", pmGetProgname());
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	;
     }
 
     printf("pmGetProgname()=\"%s\"\n", pmGetProgname());
-    printf("pmProgname=\"%s\"\n", pmProgname);
 
-    sts = __pmSetProgname("foo");
-    printf("__pmSetProgname(foo) -> %d & pmProgname=\"%s\"\n", sts, pmProgname);
-    printf("pmGetProgname()=\"%s\"\n", pmGetProgname());
+    pmSetProgname("foo");
+    printf("pmSetProgname(foo): pmGetProgname()=\"%s\"\n", pmGetProgname());
 
     pmSetProgname("bar");
-    printf("pmSetProgname(bar) & pmGetProgname()=\"%s\"\n", pmGetProgname());
-    printf("pmProgname=\"%s\"\n", pmProgname);
+    printf("pmSetProgname(bar): pmGetProgname()=\"%s\"\n", pmGetProgname());
 
     pmSetProgname(NULL);
-    printf("pmSetProgname(NULL) & pmGetProgname()=\"%s\"\n", pmGetProgname());
-    printf("pmProgname=\"%s\"\n", pmProgname);
+    printf("pmSetProgname(NULL): pmGetProgname()=\"%s\"\n", pmGetProgname());
 
     return 0;
 }

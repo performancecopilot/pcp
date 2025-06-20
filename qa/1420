@@ -150,9 +150,9 @@ do
     | while read metric
     do
 	echo "+++ input archive pmval for $metric" >>$seq_full
-	pmval -a $tmp.x -z -w 12 -t 1sec $metric | _filter >$tmp.in
+	pmval -a $tmp.x -z -S +1.01sec -s 5 -w 12 -t 1sec $metric | _filter >$tmp.in
 	echo "+++ output archive pmval for $metric" >>$seq_full
-	pmval -a $tmp   -z -w 12 -t 1sec $metric | _filter >$tmp.out
+	pmval -a $tmp   -z -S +1.01sec -s 5 -w 12 -t 1sec $metric | _filter >$tmp.out
 	if diff $tmp.in $tmp.out >$tmp.diff
 	then
 	    :

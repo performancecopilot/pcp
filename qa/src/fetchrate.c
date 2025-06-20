@@ -18,8 +18,8 @@ main(int argc, char **argv)
     int		iter;
     const char	*metric;
     pmID	pmid;
-    pmResult	*result;
-    pmHighResResult *hresult;
+    pmResult_v2	*result;
+    pmResult	*hresult;
     struct timespec before, after;
     double	delta;
     static char	*usage = "[-h hostspec] [-H] [-L] [-n namespace] [-i iterations] metric";
@@ -100,14 +100,14 @@ main(int argc, char **argv)
 
     pmtimespecNow(&before);
     for (iter=0; iter < iterations; iter++) {
-	sts = highres ? pmFetchHighRes(1, &pmid, &hresult) :
-			pmFetch(1, &pmid, &result);
+	sts = highres ? pmFetch(1, &pmid, &hresult) :
+			pmFetch_v2(1, &pmid, &result);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: iteration %d : %s\n",
 			    pmGetProgname(), iter, pmErrStr(sts));
 	    exit(1);
 	}
-	highres ? pmFreeHighResResult(hresult) : pmFreeResult(result);
+	highres ? pmFreeResult(hresult) : pmFreeResult_v2(result);
     }
     pmtimespecNow(&after);
 

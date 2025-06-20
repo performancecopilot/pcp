@@ -408,7 +408,7 @@ struct llcstat {
 /************************************************************************/
 
 struct	sstat {
-	struct timeval	stamp;
+	struct timespec	stamp;
 
 	struct cpustat	cpu;
 	struct memstat	mem;

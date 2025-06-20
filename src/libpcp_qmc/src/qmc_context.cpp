@@ -274,7 +274,7 @@ int
 QmcContext::fetch(bool update)
 {
     int i, sts;
-    pmResult *result;
+    qmcResult *result;
 
     if (pmDebugOptions.pmc) {
 	QTextStream cerr(stderr);
@@ -333,7 +333,7 @@ QmcContext::fetch(bool update)
 	    cerr << "QmcContext::fetch: fetching context " << *this << Qt::endl;
 	}
 
-	sts = pmFetch(my.pmids.size(), 
+	sts = qmcFetch(my.pmids.size(), 
 		      (pmID *)(my.pmids.toVector().data()), &result);
 	if (sts >= 0) {
 	    my.previousTime = my.currentTime;
@@ -360,7 +360,7 @@ QmcContext::fetch(bool update)
 		    }
 		}
 	    }
-	    pmFreeResult(result);
+	    qmcFreeResult(result);
 	}
 	else {
 	    if (pmDebugOptions.pmc) {

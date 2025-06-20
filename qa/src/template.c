@@ -163,13 +163,13 @@ main(int argc, char **argv)
     if (opts.align_optarg != NULL || opts.start_optarg != NULL ||
         opts.finish_optarg != NULL || opts.origin_optarg != NULL) {
 	printf("Start time: ");
-	pmPrintHighResStamp(stdout, &opts.start);
+	pmtimespecPrint(stdout, &opts.start);
 	putchar('\n');
 	printf("Origin time: ");
-	pmPrintHighResStamp(stdout, &opts.origin);
+	pmtimespecPrint(stdout, &opts.origin);
 	putchar('\n');
 	printf("Finish time: ");
-	pmPrintHighResStamp(stdout, &opts.finish);
+	pmtimespecPrint(stdout, &opts.finish);
 	putchar('\n');
     }
 

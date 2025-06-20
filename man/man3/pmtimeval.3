@@ -23,9 +23,12 @@
 \f3pmtimevalSub\f1,
 \f3pmtimevalToReal\f1,
 \f3pmtimevalFromReal\f1,
-\f3pmPrintStamp\f1 \- helper routines for time stored as a struct timeval
+\f3pmtimevalTotimespec\f1,
+\f3pmtimevalPrint\f1 \- helper routines for time stored as a struct timeval
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 void pmtimevalNow(struct timeval *\fItv\fP);
@@ -34,17 +37,27 @@ void pmtimevalInc(struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
 .br
 void pmtimevalDec(struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
 .br
-double pmtimevalAdd(const struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+double pmtimevalAdd(const struct timeval *\fIap\fP,
+'in +\w'double pmtimevalAdd('u
+const\ struct\ timeval\ *\fIbp\fP);
+.in
 .br
-double pmtimevalSub(const struct timeval *\fIap\fP, const struct timeval *\fIbp\fP);
+double pmtimevalSub(const struct timeval *\fIap\fP,
+'in +\w'double pmtimevalSub('u
+const\ struct\ timeval\ *\fIbp\fP);
+.in
 .br
 double pmtimevalToReal(const struct timeval *\fIval\fP);
 .br
 void pmtimevalFromReal(double \fIsecs\fP, struct timeval *\fIval\fP);
 .br
-void pmPrintStamp(FILE *\fIf\fP, const struct timeval *\fItp\fP);
+void pmtimevalTotimespec(struct timeval *\fItvp\fP, struct timespec *\fItsp\fP);
+.br
+void pmtimevalPrint(FILE *\fIf\fP, const struct timeval *\fItp\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .B pmtimevalNow
@@ -86,7 +99,14 @@ provides the reverse conversion, taking the time in
 and returning the equivalent time in
 .IR val .
 .PP
-.B pmPrintStamp
+.B pmtimevalTotimespec
+converts the struct timeval
+.I tvp
+into an equivalent struct timespec
+.I tsp
+(modulo rounding microseconds up to nanoseconds).
+.PP
+.B pmtimevalPrint
 prints the timestamp from
 .I tp
 on the stream
@@ -98,6 +118,18 @@ in the format HH:MM:SS.XXX.
 For variants of these interfaces using nanosecond precision
 and the timespec structure, refer to
 .BR pmtimespecNow (3).
+.SH COMPATIBILITY
+Prior to PCP 7.0 the routine
+.B pmtimevalPrint
+was called
+.BR pmPrintStamp .
+To support PMAPI transition, the old routine can still be used
+if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+.B pmPrintStamp
+is now deprecated and compile-time support for
+this routine name will be removed in a future release.
 .SH SEE ALSO
 .BR gettimeofday (2),
 .BR time (2),

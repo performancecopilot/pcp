@@ -281,7 +281,7 @@ podman_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-podman_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+podman_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     unsigned int	cluster, need_refresh[NUM_CLUSTERS] = { 0 };
     int			i;

@@ -30,55 +30,58 @@
 \f3pmdaEventQueueMemory\f1 \- utilities for PMDAs managing event queues
 .SH "C SYNOPSIS"
 .ft 3
-.nf
-#include <pcp/pmapi.h>
-#include <pcp/pmda.h>
-.fi
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
+#include <pcp/pmapi.h>
+.br
+#include <pcp/pmda.h>
+.sp
 int pmdaEventNewQueue(const char *\fIname\fP, size_t \fImaxmem\fP);
 .br
-.ti -8n
-int pmdaEventNewActiveQueue(const char *\fIname\fP, size_t \fImaxmem\fP,  int \fInclients\fP);
+int pmdaEventNewActiveQueue(const char *\fIname\fP,
+'in +\w'int pmdaEventNewActiveQueue('u
+size_t\ \fImaxmem\fP,
+int\ \fInclients\fP);
+.in
 .br
-.ti -8n
 int pmdaEventQueueHandle(const char *\fIname\fP);
 .br
-.ti -8n
-int pmdaEventQueueAppend(int \fIhandle\fP, void *\fIbuffer\fP, size_t \fIbytes\fP, struct timeval *\fItv\fP);
+int pmdaEventQueueAppend(int \fIhandle\fP,
+'in +\w'int pmdaEventQueueAppend('u
+void\ *\fIbuffer\fP,
+size_t\ \fIbytes\fP,
+struct\ timeval\ *\fItv\fP);
+.in
 .br
-.ti -8n
 int pmdaEventQueueShutdown(int \fIhandle\fP);
 .sp
+typedef int (*pmdaEventDecodeCallBack)(int,
+'in +\w'typedef int ('u
+void\ *,
+int,
+struct\ timeval\ *,
+void\ *);
 .in
-.hy
-.ad
-.in +8n
-.ti -8n
-typedef int (*pmdaEventDecodeCallBack)(int, void *, int, struct timeval *, void *);
 .br
-.ti -8n
-int pmdaEventQueueRecords(int \fIhandle\fP, pmAtomValue *\fIavp\fP, int \fIcontext\fP, pmdaEventDecodeCallBack \fIdecoder\fP, void *\fIdata\fP);
+int pmdaEventQueueRecords(int \fIhandle\fP,
+'in +\w'int pmdaEventQueueRecords('u
+pmAtomValue\ *\fIavp\fP,
+int\ \fIcontext\fP,
+pmdaEventDecodeCallBack\ \fIdecoder\fP,
+void\ *\fIdata\fP);
+.in
 .br
-.ti -8n
 int pmdaEventQueueClients(int \fIhandle\fP, pmAtomValue *\fIavp\fP);
 .br
-.ti -8n
 int pmdaEventQueueCounter(int \fIhandle\fP, pmAtomValue *\fIavp\fP);
 .br
-.ti -8n
 int pmdaEventQueueBytes(int \fIhandle\fP, pmAtomValue *\fIavp\fP);
 .br
-.ti -8n
 int pmdaEventQueueMemory(int \fIhandle\fP, pmAtomValue *\fIavp\fP);
 .sp
-.in
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 .de CR

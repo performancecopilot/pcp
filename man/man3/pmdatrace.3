@@ -26,63 +26,90 @@
 \f3pmtraceerrstr\f1 \- application-level performance instrumentation services
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/trace.h>
 .sp
-.nf
 int pmtracebegin(const char *\fItag\fP);
+.br
 int pmtraceend(const char *\fItag\fP);
+.br
 int pmtraceabort(const char *\fItag\fP);
+.br
 int pmtracepoint(const char *\fItag\fP);
+.br
 int pmtraceobs(const char *\fItag\fP, double \fIvalue\fP);
+.br
 int pmtracecounter(const char *\fItag\fP, double \fIvalue\fP);
+.br
 char *pmtraceerrstr(int \fIcode\fP);
+.br
 int pmtracestate(int \fIflags\fP);
-.fi
 .sp
 cc ... \-lpcp_trace
+.hy
+.ad
 .ft 1
 .SH "FORTRAN SYNOPSIS"
 .ft 3
-.nf
+.ad l
+.hy 0
 character*(*) \fItag\fP
+.br
 integer \fIcode\fP
+.br
 integer \fIflags\fP
+.br
 integer \fIstate\fP
+.br
 character*(*) \fIestr\fP
+.br
 real*8 \fIvalue\fP
-.fi
 .sp
-.nf
 \fIcode\fP = pmtracebegin(\fItag\fP)
+.br
 \fIcode\fP = pmtraceend(\fItag\fP)
+.br
 \fIcode\fP = pmtraceabort(\fItag\fP)
+.br
 \fIcode\fP = pmtracepoint(\fItag\fP)
+.br
 \fIcode\fP = pmtraceobs(\fItag\fP, \fIvalue\fP)
+.br
 \fIcode\fP = pmtracecounter(\fItag\fP, \fIvalue\fP)
+.br
 pmtraceerrstr(\fIcode\fP, \fIestr\fP)
+.br
 \fIstate\fP = pmtracestate(\fIflags\fP)
-.fi
 .sp
-.nf
 f77 ... \-lpcp_trace  \f1or\f3  f90 ... \-lpcp_trace
-.fi
+.hy
+.ad
 .ft 1
 .SH "JAVA SYNOPSIS"
 .ft 3
-.nf
+.ad l
+.hy 0
 .sp
 import sgi.pcp.trace;
 .sp
 int trace.pmtracebegin(String \fItag\fP);
+.br
 int trace.pmtraceend(String \fItag\fP);
+.br
 int trace.pmtraceabort(String \fItag\fP);
+.br
 int trace.pmtracepoint(String \fItag\fP);
+.br
 int trace.pmtraceobs(String \fItag\fP, double \fIvalue\fP);
+.br
 int trace.pmtracecounter(String \fItag\fP, double \fIvalue\fP);
+.br
 String trace.pmtraceerrstr(int \fIcode\fP);
+.br
 int trace.pmtracestate(int \fIflags\fP);
-.fi
-.sp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

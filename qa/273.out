@@ -217,13 +217,15 @@ sampledso.updown.control.reset [reset all controls for sample.updown.obs]
 
 sampledso.control
 Help:
-This control variable may be modified using pmStore().
-The allowed values are
-    0	disable debugging output in the PMDA
-    >0	value is interpreted as a vector of bit-fields to set
-        old-style debugging options, see pmdbg -o -l for mapping
-	from values to debugging options
-    -1	force the PMDA to terminate
+When fetched, the value is the currently active set of debugging
+options for the PMDA.
+This control variable may be modified using pmStore() and then
+the allowed values are
+    ""	 disable debugging output in the PMDA
+    "-1" force the PMDA to terminate
+    "option1[,option2...]"
+         comma separated list of options to set, see pmdbg -l for
+         the available debugging options
 
 sampledso.daemon_pid
 Help:
@@ -2144,7 +2146,7 @@ pmExtractValue:  1073741823 [32] -> 1073741823 [64]
 pmExtractValue:  1073741823 [32] -> 1073741823 [U64]
 pmExtractValue:  1073741823 [32] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1073741823 [32] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1073741823 [32] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1073741823 [32] -> "1073741823" [STRING]
 pmExtractValue:  1073741823 [32] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1073741823 [32] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1073741823 [32] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2154,7 +2156,7 @@ pmExtractValue:  1073741823 [U32] -> 1073741823 [64]
 pmExtractValue:  1073741823 [U32] -> 1073741823 [U64]
 pmExtractValue:  1073741823 [U32] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1073741823 [U32] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1073741823 [U32] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1073741823 [U32] -> "1073741823" [STRING]
 pmExtractValue:  1073741823 [U32] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1073741823 [U32] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1073741823 [U32] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2164,7 +2166,7 @@ pmExtractValue:  1073741823 [64] -> 1073741823 [64]
 pmExtractValue:  1073741823 [64] -> 1073741823 [U64]
 pmExtractValue:  1073741823 [64] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1073741823 [64] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1073741823 [64] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1073741823 [64] -> "1073741823" [STRING]
 pmExtractValue:  1073741823 [64] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1073741823 [64] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1073741823 [64] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2174,7 +2176,7 @@ pmExtractValue:  1073741823 [U64] -> 1073741823 [64]
 pmExtractValue:  1073741823 [U64] -> 1073741823 [U64]
 pmExtractValue:  1073741823 [U64] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1073741823 [U64] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1073741823 [U64] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1073741823 [U64] -> "1073741823" [STRING]
 pmExtractValue:  1073741823 [U64] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1073741823 [U64] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1073741823 [U64] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2184,7 +2186,7 @@ pmExtractValue:  1.073742e+09 [FLOAT] -> 1073741824 [64]
 pmExtractValue:  1.073742e+09 [FLOAT] -> 1073741824 [U64]
 pmExtractValue:  1.073742e+09 [FLOAT] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1.073742e+09 [FLOAT] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1.073742e+09 [FLOAT] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1.073742e+09 [FLOAT] -> "1073741824" [STRING]
 pmExtractValue:  1.073742e+09 [FLOAT] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1.073742e+09 [FLOAT] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1.073742e+09 [FLOAT] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2194,7 +2196,7 @@ pmExtractValue:  1.073742e+09 [DOUBLE] -> 1073741823 [64]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> 1073741823 [U64]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> 1.073742e+09 [FLOAT]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> 1.073742e+09 [DOUBLE]
-pmExtractValue:  1.073742e+09 [DOUBLE] -> Error: Impossible value or scale conversion [STRING]
+pmExtractValue:  1.073742e+09 [DOUBLE] -> "1073741823" [STRING]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> Error: Impossible value or scale conversion [AGGREGATE]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> Error: Impossible value or scale conversion [EVENT]
 pmExtractValue:  1.073742e+09 [DOUBLE] -> Error: Impossible value or scale conversion [HIGHRES_EVENT]
@@ -2321,6 +2323,7 @@ Value: 18446744073709551615 0xffffffffffffffff
 (double) 1.844674e+19 => (ulong) : Truncation in value conversion
 (double) 1.844674e+19 => (longlong) : Truncation in value conversion
 (double) 1.844674e+19 => (ulonglong) : Truncation in value conversion
+(double) 1.844674e+19 => (char *) "1.844674407370955e+19" : value mismatch
 --- units.c case 39 ---
 old FLOAT:         123.456 -> 32: 123
 old FLOAT:  4151801600.000 -> 32: Truncation in value conversion
@@ -2333,7 +2336,7 @@ old FLOAT:         123.456 -> U64: 123
 old FLOAT: 18446744073709551616.0 -> U64: Truncation in value conversion
 old FLOAT:        -123.456 -> U64: Negative value in conversion to unsigned
 old FLOAT:       123.45678 -> DOUBLE:       123.45678
-old FLOAT:       123.45678 -> STRING: Impossible value or scale conversion
+old FLOAT:       123.45678 -> STRING: 123.4567794799805
 bad 64: 12345 -> 64: Impossible value or scale conversion
 bad U64: 12345 -> U64: Impossible value or scale conversion
 bad FLOAT:         123.456 -> FLOAT: Impossible value or scale conversion
@@ -2400,6 +2403,8 @@ Dump Instance Profile state=INCLUDE, 0 profiles
 __pmDecodeError: got error PDU (code=N, fromversion=N)
 __pmSetVersionIPC: fd=N version=N
 __pmSendCreds: ...
+Warning: no pmDesc for metric[0] pmcd.control.debug
+Warning: no pmDesc for metric[2] sample.colour
 __pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:
@@ -2450,6 +2455,8 @@ __pmResult ... numpmid: 3
     inst [2 or ???] value NUMBER
 Quitting need at least 4 metrics for profile tests
 --- store.c case 3 ---
+Warning: no pmDesc for metric[0] pmcd.control.debug
+Warning: no pmDesc for metric[2] sample.colour
 __pmResult ... numpmid: 3
   2.0.0 (pmcd.control.debug): No PMCD agent for domain of request
   30.0.14 (sampledso.long.write_me): numval: 1 valfmt: 0 vlist[]:

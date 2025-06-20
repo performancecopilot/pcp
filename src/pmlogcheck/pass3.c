@@ -439,7 +439,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	opts->start.tv_sec = opts->start.tv_nsec = 0;
     }
 
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts->start, NULL)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &opts->start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", l_archname, pmErrStr(sts));
 	return STS_FATAL;
     }

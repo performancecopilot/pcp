@@ -34,7 +34,7 @@ import json
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL0, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL
 from cpmapi import PM_TIME_MSEC
 
 # Default config
@@ -308,7 +308,7 @@ class PCP2Spark(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -466,7 +466,7 @@ class PCP2Spark(object):
                              ensure_ascii=False,
                              separators=(',', ': '))
 
-        if self.context.pmDebug(PM_DEBUG_APPL0):
+        if self.context.pmDebug("appl0"):
             print(message)
 
         try:

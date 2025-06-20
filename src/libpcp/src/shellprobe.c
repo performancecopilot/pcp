@@ -223,7 +223,7 @@ shellProbeForServices(const char *script, const char *service,
     int			sts;
     pthread_t		*threads = NULL;
     unsigned		threadIx;
-    unsigned		nThreads;
+    unsigned		nThreads = 0;
     pthread_attr_t	threadAttr;
 #endif
 

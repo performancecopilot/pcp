@@ -1184,7 +1184,7 @@ darwin_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
 }
 
 static int
-darwin_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+darwin_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int	i, need_refresh[NUM_CLUSTERS] = { 0 };
 

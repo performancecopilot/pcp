@@ -25,41 +25,57 @@
 \f3pmdaRootProcessTerminate\f1 \- privileged PCP collector services
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
 int pmdaRootConnect(void);
 .br
-.ti -8n
 void pmdaRootShutdown(int \fIfd\fP);
 .br
-.ti -8n
-int pmdaRootContainerHostName(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP, char *\fIbuffer\fP, int \fIbuflen\fP);
+int pmdaRootContainerHostName(int \fIfd\fP,
+'in +\w'int pmdaRootContainerHostName('u
+char\ *\fIname\fP,
+int\ \fInamelen\fP,
+char\ *\fIbuffer\fP,
+int\ \fIbuflen\fP);
+.in
 .br
-.ti -8n
-int pmdaRootContainerProcessID(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP);
+int pmdaRootContainerProcessID(int \fIfd\fP,
+'in +\w'int pmdaRootContainerProcessID('u
+char\ *\fIname\fP,
+int\ \fInamelen\fP);
+.in
 .br
-.ti -8n
-int pmdaRootContainerCGroupName(int \fIfd\fP, char *\fIname\fP, int \fInamelen\fP, char *\fIbuffer\fP, int \fIbuflen\fP);
+int pmdaRootContainerCGroupName(int \fIfd\fP,
+'in +\w'int pmdaRootContainerCGroupName('u
+char\ *\fIname\fP,
+int\ \fInamelen\fP,
+char\ *\fIbuffer\fP,
+int\ \fIbuflen\fP);
+.in
 .br
-.ti -8n
-int pmdaRootProcessStart(int \fIfd\fP, int \fIipctype\fP, char *\fIlabel\fP, int \fIlabellen\fP, const char *\fIargs\fP, int \fIargslen\fP, int *\fIpid\fP, int *\fIinfd\fP, int *\fIoutfd\fP);
+int pmdaRootProcessStart(int \fIfd\fP,
+'in +\w'int pmdaRootProcessStart('u
+int\ \fIipctype\fP,
+char\ *\fIlabel\fP,
+int\ \fIlabellen\fP,
+const\ char\ *\fIargs\fP,
+int\ \fIargslen\fP,
+int\ *\fIpid\fP,
+int\ *\fIinfd\fP,
+int\ *\fIoutfd\fP);
+.in
 .br
-.ti -8n
 int pmdaRootProcessWait(int \fIfd\fP, int \fIpid\fP, int *\fIstatus\fP);
 .br
-.ti -8n
 int pmdaRootProcessTerminate(int \fIfd\fP, int \fIpid\fP);
 .sp
-.in
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmdaRootConnect

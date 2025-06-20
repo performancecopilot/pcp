@@ -15,7 +15,6 @@ echo "QA output created by $seq"
 _filter_dumplog()
 {
     sed \
-	-e '/pmHighResResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/inst /{
 s/inst \[[0-9][0-9]* or "dks..."]/inst [DISK]/

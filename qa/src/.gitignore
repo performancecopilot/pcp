@@ -89,6 +89,7 @@ getconfig
 getcontexthost
 getdomainname
 getoptions
+getoptions_v2
 getversion
 github-50
 grind_conv
@@ -111,6 +112,7 @@ interp3
 interp4
 interp_bug
 interp_bug2
+interp_bug3
 iohack
 ipc
 json_test
@@ -208,6 +210,7 @@ pmnsinarchives
 pmnsunload
 pmpost-exploit
 pmprintf
+pmsetmode
 pmsocks_objstyle
 pmsprintf
 pmstrn

@@ -172,12 +172,12 @@ printstamp(struct timespec *stamp, int delim)
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
 	printf("%c'%s", delim, ddmm);
-	pmPrintHighResStamp(stdout, stamp);
+	pmtimespecPrint(stdout, stamp);
 	printf(" %4.4s\'", yr);
     }
     else {
 	printf("%c", delim);
-	pmPrintHighResStamp(stdout, stamp);
+	pmtimespecPrint(stdout, stamp);
     }
 }
 
@@ -197,12 +197,12 @@ printmsecstamp(struct timespec *stamp, int delim)
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
 	printf("%c'%s", delim, ddmm);
-	pmPrintStamp(stdout, &stamp_tv);
+	pmtimevalPrint(stdout, &stamp_tv);
 	printf(" %4.4s\'", yr);
     }
     else {
 	printf("%c", delim);
-	pmPrintStamp(stdout, &stamp_tv);
+	pmtimevalPrint(stdout, &stamp_tv);
     }
 }
 
@@ -229,7 +229,7 @@ printlabel(void)
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
-    pmPrintHighResStamp(stdout, &opts.start);
+    pmtimespecPrint(stdout, &opts.start);
     printf(" %4.4s\n", yr);
 
     if (opts.finish.tv_sec == PM_MAX_TIME_T) {
@@ -242,7 +242,7 @@ printlabel(void)
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);
-	pmPrintHighResStamp(stdout, &opts.finish);
+	pmtimespecPrint(stdout, &opts.finish);
 	printf(" %4.4s\n", yr);
     }
 }
@@ -579,7 +579,7 @@ findbin(pmID pmid, double val, double min, double max)
  * record has been seen between now & the last fetch for that instance
  */
 static void
-markrecord(pmHighResResult *result)
+markrecord(pmResult *result)
 {
     int			i, j;
     __pmHashNode	*hptr;
@@ -615,7 +615,7 @@ markrecord(pmHighResResult *result)
 }
 
 static void
-calcbinning(pmHighResResult *result)
+calcbinning(pmResult *result)
 {
     unsigned int	bin;
     int			i, j, k;
@@ -739,7 +739,7 @@ calcbinning(pmHighResResult *result)
 }
 
 static void
-calcaverage(pmHighResResult *result)
+calcaverage(pmResult *result)
 {
     int			i, j, k;
     int			sts;
@@ -900,7 +900,7 @@ calcaverage(pmHighResResult *result)
 				    __pmPrintMetricNames(stderr, numnames, names, " or ");
 				    fprintf(stderr, " (inst[%s]: %f) at ",
 					(istr == NULL ? "":istr), rate);
-				    pmPrintHighResStamp(stderr, &result->timestamp);
+				    pmtimespecPrint(stderr, &result->timestamp);
 				    fprintf(stderr, "\n");
 				}
 				if (rate > instdata->max) {
@@ -908,7 +908,7 @@ calcaverage(pmHighResResult *result)
 				    __pmPrintMetricNames(stderr, numnames, names, " or ");
 				    fprintf(stderr, " (inst[%s]: %f) at ",
 					(istr == NULL ? "":istr), rate);
-				    pmPrintHighResStamp(stderr, &result->timestamp);
+				    pmtimespecPrint(stderr, &result->timestamp);
 				    fprintf(stderr, "\n");
 				}
 				if (numnames > 0) free(names);
@@ -1007,7 +1007,7 @@ main(int argc, char *argv[])
     int			c, i, sts, trip, exitstatus = 0;
     int			lflag = 0;		/* no label by default */
     int			Hflag = 0;		/* no header by default */
-    pmHighResResult		*result;
+    pmResult		*result;
     struct timespec 	timespan = {0, 0};
     char		*endnum;
     char		*archive;
@@ -1134,7 +1134,7 @@ main(int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
     
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.start, NULL)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -1152,7 +1152,7 @@ main(int argc, char *argv[])
 
     for (trip = 0; trip < 2; trip++) {	/* two passes if binning */
 	for ( ; ; ) {
-	    if ((sts = pmFetchHighResArchive(&result)) < 0)
+	    if ((sts = pmFetchArchive(&result)) < 0)
 		break;
 
 	    if (opts.finish.tv_sec > result->timestamp.tv_sec ||
@@ -1162,10 +1162,10 @@ main(int argc, char *argv[])
 		    calcaverage(result);
 		else
 		    calcbinning(result);
-		pmFreeHighResResult(result);
+		pmFreeResult(result);
 	    }
 	    else {
-		pmFreeHighResResult(result);
+		pmFreeResult(result);
 		sts = PM_ERR_EOL;
 		break;
 	    }
@@ -1174,7 +1174,7 @@ main(int argc, char *argv[])
 	if (trip == 0 && nbins > 0) {	/* distribute values into bins */
 	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "resetting for second iteration\n");
-	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &opts.start, NULL)) < 0) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode reset failed: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 		exit(1);

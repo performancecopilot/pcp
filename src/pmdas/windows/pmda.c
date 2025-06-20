@@ -1345,7 +1345,7 @@ windows_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaE
 }
 
 static int
-windows_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+windows_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     windows_fetch_refresh(numpmid, pmidlist, pmda);
     return pmdaFetch(numpmid, pmidlist, resp, pmda);

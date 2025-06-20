@@ -177,8 +177,8 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
     int		flags;
     int		numpmid;
     int		nrecords;
-    pmResult	**res = NULL;
-    pmHighResResult **hres = NULL;
+    pmResult_v2	**res = NULL;
+    pmResult 	**hres = NULL;
 
     if (highres) {
 	if ((nrecords = pmUnpackHighResEventRecords(vsp, idx, &hres)) < 0) {
@@ -227,11 +227,11 @@ myeventdump(pmValueSet *vsp, int idx, int highres)
 	printf("  ");
 	if (highres) {
 	    numpmid = hres[r]->numpmid;
-	    pmPrintHighResStamp(stdout, &hres[r]->timestamp);
+	    pmtimespecPrint(stdout, &hres[r]->timestamp);
 	}
 	else {
 	    numpmid = res[r]->numpmid;
-	    pmPrintStamp(stdout, &res[r]->timestamp);
+	    pmtimevalPrint(stdout, &res[r]->timestamp);
 	}
 
 	printf(" --- event record [%d]", r);

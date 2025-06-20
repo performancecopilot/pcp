@@ -42,8 +42,8 @@ main(int argc, char **argv)
     int		verbose = 0;
     int		quick = 0;
     char	*host = NULL;			/* pander to gcc */
-    pmHighResResult	*result;
-    pmHighResResult	*prev = NULL;
+    pmResult	*result;
+    pmResult	*prev = NULL;
     struct timespec	start = { 0,0 };
     struct timespec	end;
     int		tzh;
@@ -163,12 +163,12 @@ Options\n\
 	}
     }
 
-    sts = pmSetModeHighRes(PM_MODE_BACK, &end, NULL);
+    sts = pmSetMode(PM_MODE_BACK, &end, NULL);
     if (sts < 0) {
 	printf("pmSetMode PM_MODE_BACK: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    sts = pmFetchHighResArchive(&result);
+    sts = pmFetchArchive(&result);
     if (sts < 0) {
 	printf("pmFetchArchive: %s\n", pmErrStr(sts));
 	e_sts = 1;
@@ -190,17 +190,17 @@ Options\n\
 	}
 	start.tv_sec = result->timestamp.tv_sec;
 	start.tv_nsec = result->timestamp.tv_nsec;
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     if (quick && e_sts == 0) {
 	int	i;
 	for (i = 0; i < 2; i++) {
-	    sts = pmFetchHighResArchive(&result);
+	    sts = pmFetchArchive(&result);
 	    if (sts >= 0) {
 		start.tv_sec = result->timestamp.tv_sec;
 		start.tv_nsec = result->timestamp.tv_nsec;
-		pmFreeHighResResult(result);
+		pmFreeResult(result);
 	    }
 	}
     }
@@ -209,14 +209,14 @@ Options\n\
 	start.tv_sec = 0;
 	start.tv_nsec = 0;
     }
-    sts = pmSetModeHighRes(PM_MODE_FORW, &start, NULL);
+    sts = pmSetMode(PM_MODE_FORW, &start, NULL);
     if (sts < 0) {
 	printf("pmSetMode PM_MODE_FORW: %s\n", pmErrStr(sts));
 	exit(1);
     }
-    while ((sts = pmFetchHighResArchive(&result)) >= 0) {
+    while ((sts = pmFetchArchive(&result)) >= 0) {
 	if (prev != NULL)
-	    pmFreeHighResResult(prev);
+	    pmFreeResult(prev);
 	prev = result;
     }
     if (verbose) printf("pmFetchArchive: %s\n", pmErrStr(sts));
@@ -238,7 +238,7 @@ Options\n\
 	    printf("\n");
 	    e_sts = 1;
 	}
-	pmFreeHighResResult(prev);
+	pmFreeResult(prev);
     }
 
     exit(e_sts);

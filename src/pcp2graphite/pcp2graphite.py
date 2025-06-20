@@ -39,7 +39,7 @@ import re
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL0, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE
 from cpmapi import PM_TIME_SEC
 
 # Default config
@@ -324,7 +324,7 @@ class PCP2Graphite(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -435,14 +435,14 @@ class PCP2Graphite(object):
                 pickled_output = pickle.dumps(pickled_input, protocol=self.pickle_protocol)
                 header = struct.pack("!L", len(pickled_output))
                 msg = header + pickled_output
-                if self.context.pmDebug(PM_DEBUG_APPL0):
+                if self.context.pmDebug("appl0"):
                     print("Sending %s #tuples %d" % (timestamp, len(pickled_input)))
                 self.socket.send(msg) # pylint: disable=no-member
             else:
                 for metric, value in miv_tuples:
                     message = "%s %s %s\n" % (metric, value, int(ts))
                     msg = message.encode()
-                    if self.context.pmDebug(PM_DEBUG_APPL0):
+                    if self.context.pmDebug("appl0"):
                         print("Sending %s: %s" % (timestamp, msg.rstrip().decode()))
                     self.socket.send(msg) # pylint: disable=no-member
         except socket.error as send_error:

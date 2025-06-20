@@ -10,7 +10,7 @@
 
 const char *namelist[2] = {"hinv.ncpu", "irix.kernel.all.cpu.idle"};
 pmID pmidlist[2];
-pmHighResResult *result;
+pmResult *result;
 struct timespec curpos;
 static void check_result(char *);
 
@@ -217,7 +217,7 @@ Options\n\
     }
 
     if (pmnsfile != PM_NS_DEFAULT && (sts = pmLoadNameSpace(pmnsfile)) < 0) {
-	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
+	fprintf(stderr, "%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), 
 	       pmnsfile, pmErrStr(sts));
 	exit(1);
     }
@@ -244,7 +244,7 @@ Options\n\
 	    exit(1);
 	}
 	if (mode != PM_MODE_INTERP) {
-	    if ((sts = pmSetModeHighRes(mode, &label.start, NULL)) < 0) {
+	    if ((sts = pmSetMode(mode, &label.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
@@ -316,7 +316,7 @@ Options\n\
 
     /* goto the start */
     pmtimespecFromReal(delta_f, &delta);
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &appStart, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &appStart, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -332,29 +332,29 @@ Options\n\
 
     /* play forwards over the mark */
     for (i=0; i < samples; i++) {
-	if ((sts = pmFetchHighRes(2, pmidlist, &result)) < 0) {
+	if ((sts = pmFetch(2, pmidlist, &result)) < 0) {
 	    fprintf(stderr, "%s: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 	check_result("forwards ");
 	curpos = result->timestamp; /* struct cpy */
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
     /* rewind back over the mark */
-    if ((sts = pmSetModeHighRes(PM_MODE_INTERP, &curpos, &delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &curpos, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 
     for (i=0; i < samples; i++) {
-	if ((sts = pmFetchHighRes(2, pmidlist, &result)) < 0) {
+	if ((sts = pmFetch(2, pmidlist, &result)) < 0) {
 	    fprintf(stderr, "%s: pmFetch failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}
 
 	check_result("rewinding");
-	pmFreeHighResResult(result);
+	pmFreeResult(result);
     }
 
 

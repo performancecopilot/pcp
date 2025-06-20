@@ -5,11 +5,11 @@ USER@HOST: userPassword
 Ensure pmcd can read the password file
 Start pmcd with this shiny new sasldb
 Enabling sample PMDA tracing
-sample.control old value=0 new value=16777216
+sample.control old value="" new value="auth"
 Verifying SASL authentication for new client (FAIL)
 sample.control -21357 Authentication - authentication failure
 Verifying SASL authentication for new client (PASS)
-sample.control 1 16777216
+sample.control 1 "auth"
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=N groupid=GID
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=N userid=UID
 [DATETIME] pmdasample(PID) Info: Attribute: ctx=N username=USER

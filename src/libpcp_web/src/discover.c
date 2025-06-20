@@ -676,7 +676,7 @@ pmDiscoverInvokeSourceCallBacks(pmDiscover *p, __pmTimestamp *tsp)
 }
 
 static void
-pmDiscoverInvokeValuesCallBack(pmDiscover *p, __pmTimestamp *tsp, pmHighResResult *r)
+pmDiscoverInvokeValuesCallBack(pmDiscover *p, __pmTimestamp *tsp, pmResult *r)
 {
     pmDiscoverCallBacks	*callbacks;
     pmDiscoverEvent	event;
@@ -1428,7 +1428,7 @@ process_metadata(pmDiscover *p)
 }
 
 static void
-bump_logvol_decode_stats(discoverModuleData *data, pmHighResResult *r)
+bump_logvol_decode_stats(discoverModuleData *data, pmResult *r)
 {
     if (r->numpmid == 0)
 	mmv_inc(data->map, data->metrics[DISCOVER_DECODE_MARK_RECORD]);
@@ -1449,7 +1449,7 @@ static void
 process_logvol(pmDiscover *p)
 {
     discoverModuleData	*data = getDiscoverModuleData(p->module);
-    pmHighResResult	*r = NULL;
+    pmResult	*r = NULL;
     __pmTimestamp	stamp;
     __pmContext		*ctxp;
     __pmArchCtl		*acp;
@@ -1470,7 +1470,7 @@ process_logvol(pmDiscover *p)
 	PM_UNLOCK(ctxp->c_lock);
 
 	r = NULL; /* so we know if pmFetchArchive() assigned it */
-	if ((sts = pmFetchHighResArchive(&r)) < 0) {
+	if ((sts = pmFetchArchive(&r)) < 0) {
 	    /* err handling to skip to the next vol */
 	    ctxp = __pmHandleToPtr(p->ctx);
 	    acp = ctxp->c_archctl;
@@ -1525,7 +1525,7 @@ process_logvol(pmDiscover *p)
 	stamp.nsec = r->timestamp.tv_nsec;
 	bump_logvol_decode_stats(data, r);
 	pmDiscoverInvokeValuesCallBack(p, &stamp, r);
-	pmFreeHighResResult(r);
+	pmFreeResult(r);
 	r = NULL;
     }
 
@@ -1534,7 +1534,7 @@ process_logvol(pmDiscover *p)
 	stamp.nsec = r->timestamp.tv_nsec;
 	bump_logvol_decode_stats(data, r);
 	pmDiscoverInvokeValuesCallBack(p, &stamp, r);
-	pmFreeHighResResult(r);
+	pmFreeResult(r);
     }
 
     /* datavol is now up-to-date and at EOF */
@@ -1617,12 +1617,12 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
 	     * Seek to end of archive for logvol data (see notes in
 	     * process_logvol routine also).
 	     */
-	    pmSetModeHighRes(PM_MODE_FORW, &tp, &after);
+	    pmSetMode(PM_MODE_FORW, &tp, &after);
 
 	    /*
 	     * For archive meta files, p->fd is the direct file descriptor
 	     * and we pre-scan all existing metadata. Note: we do NOT scan
-	     * pre-existing logvol data (see pmSetModeHighRes above)
+	     * pre-existing logvol data (see pmSetMode above)
 	     */
 	    metaname = sdsnew(p->context.name);
 	    metaname = sdscat(metaname, ".meta");

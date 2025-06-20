@@ -18,6 +18,8 @@
 \f3pmdaSendError\f1 \- send an error PDU to PMCD
 .SH C SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
@@ -25,14 +27,20 @@
 void pmdaSendError(pmdaInterface *\fIdispatch\fP, int \fIerr\fP);
 .sp
 cc ... \-lpcp_pmda \-lpcp
+.hy
+.ad
 .ft 1
 .SH PYTHON SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 from pcp.pmda import PMDA
 .br
 PMDA.pmda_notready()
 .br
 PMDA.pmda_ready()
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Metrics Domain Agent (PMDA) API (see

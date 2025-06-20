@@ -19,13 +19,21 @@
 \f3pmRegisterDerivedMetric\f1  \- register a global derived metric name and definition
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 char *pmRegisterDerived(char *\fIname\fP, char *\fIexpr\fP);
 .br
-int pmRegisterDerivedMetric(char *\fIname\fP, char *\fIexpr\fP, char **\fIerrmsg\fP);
+int pmRegisterDerivedMetric(char *\fIname\fP,
+'in +\w'int pmRegisterDerivedMetric('u
+char\ *\fIexpr\fP,
+char\ **\fIerrmsg\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

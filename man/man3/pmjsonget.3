@@ -21,36 +21,50 @@
 \f3pmjsonInitIndom\f1 \- JSON string helpers and metrics extraction
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmjson.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-typedef int (*json_get)(void *\fIbuffer\fP, int \fIlength\fP, void *\fIdata\fP);
-.br
-.ti -8n
-int pmjsonGet(json_metric_desc *\fIjson_metrics\fP, int \fInmetrics\fP, pmInDom \fIindom\fP, json_get \fIcallback\fP, void *\fIdata\fP);
-.br
-.ti -8n
-int pmjsonPrint(FILE *\fIfp\fP, json_flag *\fIoutput_flags\fP, const char *\fIjson_pointer\fP, json_get \fIcallback\fP, void *\fIdata\fP);
-.sp
+typedef int (*json_get)(void *\fIbuffer\fP,
+'in +\w'typedef int ('u
+int\ \fIlength\fP,
+void\ *\fIdata\fP);
 .in
-.hy
-.ad
-.in +8n
-.ti -8n
-int pmjsonInit(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP, int \fInmetrics\fP);
 .br
-.ti -8n
-int pmjsonInitIndom(int \fIfd\fP, json_metric_desc *\fIjson_metrics\fP, int \fInmetrics\fP, pmInDom \fIindom\fP);
-.sp
+int pmjsonGet(json_metric_desc *\fIjson_metrics\fP,
+'in +\w'int pmjsonGet('u
+int\ \fInmetrics\fP,
+pmInDom\ \fIindom\fP,
+json_get\ \fIcallback\fP,
+void\ *\fIdata\fP);
 .in
-.hy
-.ad
+.br
+int pmjsonPrint(FILE *\fIfp\fP,
+'in +\w'int pmjsonPrint('u
+json_flag\ *\fIoutput_flags\fP,
+const\ char\ *\fIjson_pointer\fP,
+json_get\ \fIcallback\fP,
+void\ *\fIdata\fP);
+.in
+.sp
+int pmjsonInit(int \fIfd\fP,
+'in +\w'int pmjsonInit('u
+json_metric_desc\ *\fIjson_metrics\fP,
+int\ \fInmetrics\fP);
+.in
+.br
+int pmjsonInitIndom(int \fIfd\fP,
+'in +\w'int pmjsonInitIndom('u
+json_metric_desc\ *\fIjson_metrics\fP,
+int\ \fInmetrics\fP,
+pmInDom\ \fIindom\fP);
+.in
+.sp
 cc ... \-lpcp_web
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 \f3pmjsonGet\f1 performs metric value extraction from JSON strings for a

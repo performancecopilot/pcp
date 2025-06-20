@@ -2,7 +2,7 @@ QA output created by 752
    "start "                         2014-01-18 15:08:50
    "end   "                         2014-01-27 11:28:50
 These time terms are relative to the start/end time.
-#1 __pmParseTime #2 pmParseTimeWindow/Start #3 pmParseTimeWindow/End.
+#1 __pmtimevalParse #2 pmParseTimeWindow/Start #3 pmParseTimeWindow/End.
    "Sat Jan 19 11:45:50 2014 "      2014-01-19 11:45:50
 #1 "+1minute"                       2014-01-18 15:09:50
 #2 "+1minute"                       2014-01-18 15:09:50

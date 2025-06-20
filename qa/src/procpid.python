@@ -53,7 +53,7 @@ if __name__ == '__main__':
         manager = pmcc.MetricGroupManager.builder(options, sys.argv)
         if manager.type == PM_CONTEXT_ARCHIVE:
             origin = options.pmGetOptionOrigin()
-            manager.pmSetMode(PM_MODE_FORW, origin, 0)
+            manager.pmSetMode(PM_MODE_FORW, origin, None)
         manager.printer = ProcReport()
         METRICS = options.pmGetOperands()
         if METRICS == None:

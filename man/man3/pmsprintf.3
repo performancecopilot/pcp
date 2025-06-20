@@ -18,11 +18,20 @@
 \f3pmsprintf\f1 \- formatted string conversion
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-int pmsprintf(char *\fIstr\fP, size_t \fIsize\fP, const char *\fIfmt\fP, ... /*\fIargs\fP*/);
+int pmsprintf(char *\fIstr\fP,
+'in +\w'int pmsprintf('u
+size_t\ \fIsize\fP,
+const\ char\ *\fIfmt\fP,
+\&...\ /*\fIargs\fP*/);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 Safe string formatting interface that wraps the

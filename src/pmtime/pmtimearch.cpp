@@ -593,7 +593,7 @@ void PmTimeArch::lineEditCtime_validate()
     }
     if (input[0] != '@')
 	input.prepend("@");
-    if (__pmParseTime(input.toLatin1(),
+    if (__pmtimevalParse(input.toLatin1(),
 			&my.pmtime.start, &my.pmtime.end, &current, &msg) < 0) {
 	error = QString("Invalid position date/time:\n\n%1\n").arg(msg);
 	QMessageBox warn(QMessageBox::Warning,

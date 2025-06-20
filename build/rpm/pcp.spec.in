@@ -455,6 +455,20 @@ into standard PCP archive logs for replay with any PCP monitoring tool.
 
 %if "@have_python@" == "true"
 #
+# pcp-pmda-hdb
+#
+%package pmda-hdb
+License: GPL-3.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for SAP HANA databases
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: python3-pcp
+%description pmda-hdb
+This package provides a PMDA to export metric values about a SAP HANA
+database (https://www.sap.com/products/data-cloud/hana.html).
+#end pcp-pmda-hdb
+
+#
 # pcp-import-pmseries
 #
 %package import-pmseries
@@ -1641,7 +1655,7 @@ Requires: python3-pcp python3-lxml
 %if "%{_vendor}" == "suse"
 Requires: python3-libvirt-python
 %else
-%if 0%{?centos_ver} == 7
+%if 0%{?rhel} == 7
 Requires: python36-libvirt
 %else
 Requires: libvirt-python3
@@ -2034,7 +2048,6 @@ extracting performance metrics from AMDGPU devices.
 # end pcp-pmda-amdgpu
 %endif
 
-
 %package zeroconf
 License: GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) Zeroconf Package
@@ -2222,6 +2235,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/gpfs(/|$)' >pcp-pmda-gpfs-files
 basic_manifest | keep '(etc/pcp|pmdas)/gpsd(/|$)' >pcp-pmda-gpsd-files
 basic_manifest | keep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
+basic_manifest | keep '(etc/pcp|pmdas)/hdb(/|$)' >pcp-pmda-hdb-files
 basic_manifest | keep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
 basic_manifest | keep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
 basic_manifest | keep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
@@ -2285,7 +2299,7 @@ for pmda_package in \
     elasticsearch \
     farm \
     gfs2 gluster gpfs gpsd \
-    hacluster haproxy \
+    hacluster haproxy hdb \
     infiniband \
     json \
     libvirt lio lmsensors logger lustre lustrecomm \
@@ -2489,7 +2503,11 @@ for PMDA in $needinstall ; do
     fi
 done
 # managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
-%if 0%{?rhel} > 0 && 0%{?rhel} < 10
+%if 0%{?fedora} > 40 || 0%{?rhel} > 9
+    for s in pmcd pmlogger pmie; do
+        systemctl --quiet is-enabled $s && systemctl restart $s >/dev/null 2>&1
+    done
+%else  # old-school methods follow
 %if "@enable_systemd@" == "true"
     systemctl restart pmcd pmlogger pmie >/dev/null 2>&1
     systemctl enable pmcd pmlogger pmie >/dev/null 2>&1
@@ -2681,6 +2699,9 @@ done
 %endif
 
 %if "@have_python@" == "true"
+%preun pmda-hdb
+%{pmda_remove "$1" "hdb"}
+
 %preun pmda-gluster
 %{pmda_remove "$1" "gluster"}
 
@@ -3016,6 +3037,8 @@ fi
 %endif
 
 %if "@have_python@" == "true"
+%files pmda-hdb -f pcp-pmda-hdb-files.rpm
+
 %files geolocate -f pcp-geolocate-files.rpm
 
 %files pmda-gluster -f pcp-pmda-gluster-files.rpm

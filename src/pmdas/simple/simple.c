@@ -232,7 +232,7 @@ simple_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * instance domain evaluation (as we do in simple_timenow_check).
  */
 static int
-simple_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+simple_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     numfetch++;
     simple_timenow_check();
@@ -383,7 +383,7 @@ simple_timenow_init(void)
  * support the storage of a value into the number of fetches count
  */
 static int
-simple_store(pmResult *result, pmdaExt *pmda)
+simple_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i;
     int		j;

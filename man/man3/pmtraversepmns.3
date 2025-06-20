@@ -19,14 +19,23 @@
 \f3pmTraversePMNS_r\f1 \- traverse the performance metrics name space
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmTraversePMNS(const char *\fIname\fP, void (*\fIdometric\fP)(const char *));
-int pmTraversePMNS_r(const char *\fIname\fP, void (*\fIdometric_r\fP)(const char *, void *), void *\fIclosure\fP);
-.fi
+int pmTraversePMNS(const char *\fIname\fP,
+'in +\w'int pmTraversePMNS('u
+void\ (*\fIdometric\fP)(const\ char\ *));
+.in
+int pmTraversePMNS_r(const char *\fIname\fP,
+'in +\w'int pmTraversePMNS_r('u
+void\ (*\fIdometric_r\fP)(const\ char\ *,\ void\ *),
+void\ *\fIclosure\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

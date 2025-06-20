@@ -1,0 +1,128 @@
+QA output created by 1581
+
+=== -h local: -t 123.456 -Z UTC ===
+--- PMAPI_VERSION_2 ---
+pmNewContext(1, "local:") <::> returns 0
+pmUseContext(0) <::> returns 0
+pmLookupName(1, name[0] sample.colour, ...) <::> returns 1 (pmid[0] 29.0.5)
+pmLookupDescs(1, desc[0] 29.0.5, ...) <::> returns 1
+pmLookupDesc(29.0.5, ...) <::> returns 0
+pmFetch(1, pmid[0] 29.0.5, ...) <::> returns 0
+pmFetch(1, pmid[0] 29.0.5, ...) <::> returns 0
+pmGetInDom(29.1, ...) <::> returns 3
+pmLookupInDom(29.1, blue) <::> returns 2
+pmNameInDom(29.1, 2, ...) <::> returns 0 (name blue)
+End of option processing
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x1 (host)
+    nhosts: 1
+    hosts: local:
+    narchives: 0
+start: NOW 
+    finish: PM_MAX_TIME_T
+origin: NOW 
+    interval: 123.456000
+    align_optarg: -
+    start_optarg: -
+    finish_optarg: -
+    origin_optarg: -
+    guiport_optarg: -
+    timezone: UTC
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 0
+    Lflag: 0
+pmLookupName: OK: sample.colour -> 29.0.5
+pmID_*: OK 29.0.5
+pmInDom_*: OK 29.1
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+pm*InDom*: OK
+timeval functions ...
+pmtimeval*: OK
+timespec functions ...
+pmtimespec*: OK
+--- compat ---
+< pmResult ... numpmid: 1
+---
+> pmHighResResult ... numpmid: 1
+
+=== -a archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec ===
+--- PMAPI_VERSION_2 ---
+pmNewContext(2, "archives/omnibus_v3") <::> returns 0
+pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+pmUseContext(0) <::> returns 0
+pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+pmLookupName(1, name[0] sample.colour, ...) <::> returns 1 (pmid[0] 29.0.5)
+pmLookupDescs(1, desc[0] 29.0.5, ...) <::> returns 1
+pmLookupDesc(29.0.5, ...) <::> returns 0
+pmFetch(1, pmid[0] 29.0.5, ...) <::> returns 0
+pmFetch(1, pmid[0] 29.0.5, ...) <:pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+:> returns 0
+pmGetInDomArchive(29.1,...) <::> returns 3
+pmLookupInDomArchive(29.1, blue) <::> returns 2
+pmNameInDomArchive(29.1, 2, ...) <::> returns 0 (name blue)
+End of option processing
+pmGetArchiveLabel: OK: hostname=bozo-vm.localdomain
+pmGetArchiveEnd: OK: time: 03/04/2022 16:51:04.732225
+Options structure dump:
+    version: 2
+    flags: 0x3 (init,done)
+    errors: 0
+    context: 0x2 (archive)
+    nhosts: 0
+    narchives: 1
+    archives: archives/omnibus_v3
+    start: 03/04/2022 16:50:55.403624
+    finish: 03/04/2022 16:51:00.403624
+    origin: 03/04/2022 16:50:55.406624
+    interval: -
+    align_optarg: -
+    start_optarg: +2msec
+    finish_optarg: 5sec
+    origin_optarg: +3msec
+    guiport_optarg: -
+    timezone: -
+    samples: 0
+    guiport: 0
+    guiflag: 0
+    tzflag: 1
+    Lflag: 0
+pmLookupName: OK: sample.colour -> 29.0.5
+pmID_*: OK 29.0.5
+pmInDom_*: OK 29.1
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): No values returned!
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+pm*InDomArchive*: OK
+--- compat ---
+2d1
+< pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+4d2
+< pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+< pmFetch(1, pmid[0] 29.0.5, ...) <:pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
+< :> returns 0
+---
+> pmFetch(1, pmid[0] 29.0.5, ...) <::> returns 0
+12,13d8
+< pmLookupInDomArchive(29.1, blue) <::> returns 2
+< pmNameInDomArchive(29.1, 2, ...) <::> returns 0 (name blue)
+< pmResult ... numpmid: 1
+---
+> pmHighResResult ... numpmid: 1

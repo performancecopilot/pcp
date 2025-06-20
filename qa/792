@@ -39,24 +39,6 @@ pminfo -D profile,fetch,context -v sample.long >/dev/null 2>$tmp.err
 _filter <$tmp.err
 
 echo
-echo '=== old-style all $PCP_DEBUG options ==='
-n=`pmdbg -D profile,fetch,context | sed -e 's/.* = //'`
-PCP_DEBUG=$n pminfo -v sample.long >/dev/null 2>$tmp.err
-_filter <$tmp.err
-
-echo
-echo '=== old-style both -D and $PCP_DEBUG options with full overlap ==='
-n=`pmdbg -D profile,fetch,context | sed -e 's/.* = //'`
-PCP_DEBUG=$n pminfo -D profile,fetch,context -v sample.long >/dev/null 2>$tmp.err
-_filter <$tmp.err
-
-echo
-echo '=== old-style both -D and $PCP_DEBUG options with no overlap ==='
-n=`pmdbg -D profile,context | sed -e 's/.* = //'`
-PCP_DEBUG=$n pminfo -D fetch -v sample.long >/dev/null 2>$tmp.err
-_filter <$tmp.err
-
-echo
 echo '=== new-style all $PCP_DEBUG options ==='
 PCP_DEBUG="profile,fetch,context" pminfo -v sample.long >/dev/null 2>$tmp.err
 _filter <$tmp.err

@@ -18,15 +18,22 @@
 \f3pmaRewriteData\f1 \- try to change the version of an archive data record
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
 .br
 #include <pcp/archive.h>
 .sp
-int pmaRewriteData(int \fIinvers\fP, int \fIoutvers\fP __int32_t *\fIrbuf\fP);
+int pmaRewriteData(int \fIinvers\fP,
+'in +\w'int pmaRewriteData('u
+int\ \fIoutvers\fP\ __int32_t\ *\fIrbuf\fP);
+.in
 .sp
 cc ... \-lpcp_archive \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

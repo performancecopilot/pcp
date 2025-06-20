@@ -20,26 +20,31 @@
 \f3__pmFreeHostSpec\f1 \- uniform host specification parser
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int __pmParseHostSpec(const char *\fIstring\fP, __pmHostSpec **\fIhostsp\fP, int\ *\fIcount\fP, char\ **\fIerrmsg\fP);
+int __pmParseHostSpec(const char *\fIstring\fP,
+'in +\w'int __pmParseHostSpec('u
+__pmHostSpec\ **\fIhostsp\fP,
+int\ *\fIcount\fP,
+char\ **\fIerrmsg\fP);
+.in
 .br
-.ti -8n
-int __pmUnparseHostSpec(__pmHostSpec *\fIhosts\fP, int \fIcount\fP, char *\fIstring\fP, size_t \fIsize\fP);
+int __pmUnparseHostSpec(__pmHostSpec *\fIhosts\fP,
+'in +\w'int __pmUnparseHostSpec('u
+int\ \fIcount\fP,
+char\ *\fIstring\fP,
+size_t\ \fIsize\fP);
+.in
 .br
-.ti -8n
 void __pmFreeHostSpec(__pmHostSpec *\fIhosts\fP, int \fIcount\fP);
 .sp
-.in
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

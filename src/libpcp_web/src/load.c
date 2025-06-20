@@ -268,7 +268,7 @@ pmwebapi_extract_events(pmValueSet *vsp, int inst)
 {
     sds			s;
     int			record, param, nrecords, flags, sts;
-    pmResult		**results, *result;
+    pmResult_v2		**results, *result;
 
     if ((sts = nrecords = pmUnpackEventRecords(vsp, inst, &results)) < 0) {
 	if (pmDebugOptions.series)
@@ -298,7 +298,7 @@ pmwebapi_extract_highres_events(pmValueSet *vsp, int inst)
 {
     sds			s;
     int			record, param, nrecords, flags, sts;
-    pmHighResResult	**results, *result;
+    pmResult	**results, *result;
 
     if ((sts = pmUnpackHighResEventRecords(vsp, inst, &results)) < 0) {
 	if (pmDebugOptions.series)
@@ -440,7 +440,7 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 {
     seriesGetContext	*context = &baton->pmapi;
     context_t		*cp = &context->context;
-    pmHighResResult	*result = context->result;
+    pmResult		*result = context->result;
     pmValueSet		*vsp;
     metric_t		*metric = NULL;
     char		ts[64];
@@ -456,7 +456,7 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 	goto out;
     }
 
-    pmSortHighResInstances(result);
+    pmSortInstances(result);
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
@@ -518,8 +518,8 @@ server_cache_series(seriesLoadBaton *baton)
     if (baton->pmapi.context.type != PM_CONTEXT_ARCHIVE)
 	return -ENOTSUP;
 
-    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &baton->timing.start, NULL)) < 0) {
-	infofmt(msg, "pmSetModeHighRes failed: %s",
+    if ((sts = pmSetMode(PM_MODE_FORW, &baton->timing.start, NULL)) < 0) {
+	infofmt(msg, "pmSetMode failed: %s",
 		pmErrStr_r(sts, pmmsg, sizeof(pmmsg)));
 	batoninfo(baton, PMLOG_ERROR, msg);
 	return sts;
@@ -550,7 +550,7 @@ server_cache_update_done(void *arg)
     seriesGetContext	*context = &baton->pmapi;
 
     /* finish book-keeping for the current record */
-    pmFreeHighResResult(context->result);
+    pmFreeResult(context->result);
     context->result = NULL;
     context->count++;
     context->done = NULL;
@@ -566,12 +566,12 @@ fetch_archive(uv_work_t *req)
     seriesLoadBaton	*baton = (seriesLoadBaton *)req->data;
     seriesGetContext	*context = &baton->pmapi;
     context_t		*cp = &context->context;
-    pmHighResResult	*result;
+    pmResult		*result;
     int			sts;
 
     assert(context->result == NULL);
     if ((context->error = sts = pmUseContext(cp->context)) >= 0)
-	if ((context->error = sts = pmFetchHighResArchive(&result)) >= 0)
+	if ((context->error = sts = pmFetchArchive(&result)) >= 0)
 	    context->result = result;
 }
 
@@ -600,7 +600,7 @@ fetch_archive_done(uv_work_t *req, int status)
 	    if (pmDebugOptions.series)
 		fprintf(stderr, "%s: time window end\n", "fetch_archive_done");
 	    sts = PM_ERR_EOL;
-	    pmFreeHighResResult(context->result);
+	    pmFreeResult(context->result);
 	    context->result = NULL;
 	}
     }
@@ -1484,7 +1484,7 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
 }
 
 void
-pmSeriesDiscoverValues(pmDiscoverEvent *event, pmHighResResult *result, void *arg)
+pmSeriesDiscoverValues(pmDiscoverEvent *event, pmResult *result, void *arg)
 {
     pmDiscoverModule	*module = event->module;
     pmDiscover		*p = (pmDiscover *)event->data;

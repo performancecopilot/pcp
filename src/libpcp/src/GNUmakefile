@@ -116,6 +116,7 @@ rtime.o: getdate.h
 derive.o derive_fetch.o: derive.h derive_parser.tab.h
 util.o:	pmdbg.h
 labels.o: sha256.h sort_r.h
+deprecated.o: $(TOPDIR)/src/include/pcp/deprecated.h
 
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/pmapi.h \
 		$(TOPDIR)/src/include/pcp/platform_defs.h \

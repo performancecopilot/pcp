@@ -130,12 +130,12 @@
 struct sysname	sysname;
 int		localhost;
 int		nodenamelen;
-struct timeval	start;
-struct timeval	finish;
-struct timeval	origin;
-struct timeval	pretime;	/* timing info				*/
-struct timeval	curtime;	/* timing info				*/
-struct timeval	interval = { 10, 0 };
+struct timespec	start;
+struct timespec	finish;
+struct timespec	origin;
+struct timespec	pretime;	/* timing info				*/
+struct timespec	curtime;	/* timing info				*/
+struct timespec	interval = { 10, 0 };
 unsigned long 	sampcnt;
 unsigned long 	sampflags;
 int		linelen  = 80;
@@ -179,7 +179,6 @@ int		supportflags;	/* supported features             	*/
 char		**argvp;
 
 int		fetchmode;
-int		fetchstep;
 
 struct visualize vis = {generic_samp, generic_error,
 			generic_end,  generic_usage,
@@ -418,7 +417,7 @@ main(int argc, char *argv[])
 			if (pmParseHighResInterval(arg, &opts.interval, &endnum) < 0)
 			{
 				pmprintf(
-			"%s: %s option not in pmParseInterval(3) format:\n%s\n",
+			"%s: %s option not in pmParseHighResInterval(3) format:\n%s\n",
 					pmGetProgname(), arg, endnum);
 				free(endnum);
 				opts.errors++;
@@ -447,8 +446,7 @@ main(int argc, char *argv[])
 		nsamples = opts.samples;
 
 	if (opts.interval.tv_sec || opts.interval.tv_nsec) {
-		interval.tv_sec = opts.interval.tv_sec;
-		interval.tv_usec = opts.interval.tv_nsec / 1000;
+		interval = opts.interval;
 	}
 
 	/*
@@ -551,8 +549,11 @@ engine(void)
 	sigact.sa_handler = getalarm;
 	sigaction(SIGALRM, &sigact, (struct sigaction *)0);
 
-	if ((interval.tv_sec || interval.tv_usec) && !rawreadflag)
-		setalarm(&interval);
+	if ((interval.tv_sec || interval.tv_nsec) && !rawreadflag) {
+		struct timeval tv;
+		pmtimespecTotimeval(&interval, &tv);
+		setalarm(&tv);
+	}
 
 	if (hinv_nrgpus > 0)
 		supportflags |= GPUSTAT;
@@ -639,8 +640,8 @@ engine(void)
 		if (sampcnt <= 1)
 			pretime.tv_sec = system_boottime;
 		curtime = cursstat->stamp; /* timestamp for this sample */
-		timed = pmtimevalToReal(&curtime);
-		delta = timed - pmtimevalToReal(&pretime);
+		timed = pmtimespecToReal(&curtime);
+		delta = timed - pmtimespecToReal(&pretime);
 		pretime = curtime; /* timestamp for previous sample */
 
 		deviatsyst(cursstat, presstat, devsstat, delta);
@@ -659,7 +660,7 @@ engine(void)
 		if ((rawreadflag && (sampflags & RRBOOT)) ||
 		    (lastcmd == MSAMPPREV || lastcmd == MSAMPBRANCH))
 		{
-			pmtimevalInc(&curtime, &interval);
+			pmtimespecInc(&curtime, &interval);
 			lastcmd = '\0';
 			goto reset;
 		}
@@ -678,7 +679,7 @@ engine(void)
                 (*vis.prep)();
 
 		if (rawreadflag && (lastcmd == 0 || lastcmd == MSAMPNEXT))
-			pmtimevalInc(&curtime, &interval);
+			pmtimespecInc(&curtime, &interval);
 
 reset:
 		if (lastcmd == MRESET || lastcmd == MSAMPBRANCH || lastcmd == MSAMPPREV)
@@ -780,8 +781,11 @@ getalarm(int sig)
 {
 	awaittrigger=0;
 
-	if ((interval.tv_sec || interval.tv_usec) && !rawreadflag)
-		setalarm(&interval);	/* restart the timer */
+	if ((interval.tv_sec || interval.tv_nsec) && !rawreadflag) {
+		struct timeval tv;
+		pmtimespecTotimeval(&interval, &tv);
+		setalarm(&tv);		/* restart the timer */
+	}
 }
 
 /*
@@ -810,7 +814,7 @@ static void
 do_interval(char *name, char *val)
 {
 	interval.tv_sec = get_posval(name, val);
-	interval.tv_usec = 0;
+	interval.tv_nsec = 0;
 }
 
 static void

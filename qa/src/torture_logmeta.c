@@ -130,7 +130,7 @@ Options:\n\
 		    pmGetProgname(), endnum);
 		exit(1);
 	    }
-	    if ((sts = pmSetModeHighRes(PM_MODE_FORW, &appOffset, NULL)) < 0) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &appOffset, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 		exit(1);

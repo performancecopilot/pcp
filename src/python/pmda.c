@@ -455,7 +455,7 @@ refresh(int numpmid, pmID *pmidlist)
 }
 
 static int
-fetch(int numpmid, pmID *pmidlist, pmResult **rp, pmdaExt *pmda)
+fetch(int numpmid, pmID *pmidlist, pmdaResult **rp, pmdaExt *pmda)
 {
     int sts;
 
@@ -801,7 +801,7 @@ lookup_metric(pmID pmid, pmdaExt *pmda)
 }
 
 static int
-store(pmResult *result, pmdaExt *pmda)
+store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i, j, sts, type;
     pmAtomValue	av;

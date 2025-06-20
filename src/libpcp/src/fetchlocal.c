@@ -77,7 +77,7 @@ copyvset(const char *caller, pmID pmid, int sts,
 
 static int
 dsofetch(const char *caller, __pmContext *ctxp, int ctx, int j,
-		pmID pmidlist[], int numpmid, int *cntp, pmResult **resultp)
+		pmID pmidlist[], int numpmid, int *cntp, pmResult_v2 **resultp)
 {
     int		sts = 0;
     int		cnt;
@@ -141,7 +141,7 @@ __pmFetchLocal(__pmContext *ctxp, int numpmid, pmID pmidlist[], __pmResult **res
     int		j;
     int		k;
     int		n;
-    pmResult	*tmp_ans;	/* maintains timeless PMDA fetch interface */
+    pmResult_v2	*tmp_ans;	/* maintains timeless PMDA fetch interface */
     __pmResult	*ans;
 
     if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA))

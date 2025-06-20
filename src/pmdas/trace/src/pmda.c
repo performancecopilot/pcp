@@ -158,6 +158,7 @@ main(int argc, char **argv)
     int			sep = pmPathSeparator();
     int			c = 0;
     int			sts;
+    struct timespec	ts;
 
     pmSetProgname(argv[0]);
     pmGetUsername(&username);
@@ -201,12 +202,13 @@ main(int argc, char **argv)
 	    }
 	    break;
 	case 'T':
-	    if (pmParseInterval(optarg, &timespan, &endnum) < 0) {
+	    if (pmParseInterval(optarg, &ts, &endnum) < 0) {
 		fprintf(stderr, "%s: -T requires a time interval: %s\n",
 			pmGetProgname(), endnum);
 		free(endnum);
 		err++;
 	    }
+	    pmtimespecTotimeval(&ts, &timespan);
 	    break;
 	case 'U':
 	    if (updateObserveValue(optarg) < 0)

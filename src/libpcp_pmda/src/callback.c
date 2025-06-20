@@ -480,7 +480,7 @@ pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *
  */
 
 static void
-__pmdaEncodeStatus(pmResult *result, unsigned char byte)
+__pmdaEncodeStatus(pmdaResult *result, unsigned char byte)
 {
     unsigned char	*flags;
 
@@ -494,12 +494,12 @@ __pmdaEncodeStatus(pmResult *result, unsigned char byte)
 #define PMDA_STATUS_CHANGE (PMDA_EXT_LABEL_CHANGE|PMDA_EXT_NAMES_CHANGE)
 
 /*
- * Resize the pmResult and call the e_callback for each metric instance
+ * Resize the pmdaResult and call the e_callback for each metric instance
  * required in the profile.
  */
 
 int
-pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+pmdaFetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int			i;		/* over pmidlist[] */
     int			j;		/* over metatab and vset->vlist[] */
@@ -539,9 +539,9 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
     if (numpmid > extp->maxnpmids) {
 	if (extp->res != NULL)
 	    free(extp->res);
-	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
-	need = (int)sizeof(pmResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
-	if ((extp->res = (pmResult *) malloc(need)) == NULL)
+	/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
+	need = (int)sizeof(pmdaResult) + (numpmid - 1) * (int)sizeof(pmValueSet *);
+	if ((extp->res = (pmdaResult *) malloc(need)) == NULL)
 	    return -oserror();
 	extp->maxnpmids = numpmid;
     }
@@ -707,7 +707,7 @@ error:
 
     if (i) {
 	extp->res->numpmid = i;
-	__pmFreeResultValues(extp->res);
+	__pmFreeResultValues_v2(extp->res);
     }
     return sts;
 }
@@ -995,7 +995,7 @@ pmdaAddNotes(pmLabelSet **lsp, const char *fmt, ...)
  */
 
 int
-pmdaStore(pmResult *result, pmdaExt *pmda)
+pmdaStore(pmdaResult *result, pmdaExt *pmda)
 {
     int     version;
     e_ext_t *extp = (e_ext_t *)pmda->e_ext;

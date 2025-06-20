@@ -1653,7 +1653,7 @@ pmFG
 pmFetch
 pmFetchArchive
 pmFetchGroup
-pmFetchHighRes
+! pmFetchHighRes
 pmFetchHighResArchive
 pmFreeEventResult
 pmFreeHighResEventResult
@@ -1761,6 +1761,7 @@ pmParseUnitsStr
 pmPathSeparator
 pmPrintDesc
 pmPrintHighResStamp
+pmPrintInterval
 pmPrintLabelSets
 pmPrintStamp
 pmPrintValue
@@ -2135,6 +2136,7 @@ pmtimespecInc
 pmtimespecNow
 pmtimespecSub
 pmtimespecToReal
+pmtimespecTotimeval
 pmtimevalAdd
 pmtimevalDec
 pmtimevalFromReal
@@ -2142,6 +2144,7 @@ pmtimevalInc
 pmtimevalNow
 pmtimevalSub
 pmtimevalToReal
+pmtimevalTotimespec
 pmtraceabort
 pmtracebegin
 pmtracecounter
@@ -2296,6 +2299,7 @@ ASCII
 CB		# from \\f(CB or .ft CB
 CR		# from \\f(CR or .ft CR
 Dappl		# from -DapplN
+DPMAPI_VERSION	# from -DPMAPI_VERSION=2
 GNUmakefile
 Gbytes?
 GiB
@@ -2454,6 +2458,7 @@ initialisation
 ! initialise
 initialised
 misbehaviours?
+neighbourhood
 preprocessed
 ! recognise
 recognised
@@ -2526,7 +2531,7 @@ do
     sed <"$file" \
 	-e '/^\.br/d' \
 	-e '/^\.sp/d' \
-	-e '/^\.in/d' \
+	-e "/^['.]in/d" \
 	-e '/^\.ti/d' \
 	-e '/^\.hy/d' \
 	-e '/^\.ad/d' \
@@ -2588,7 +2593,7 @@ p
     # Section 3 C-style Synopsis
     #
     sed -n <$tmp.synopsis \
-	-e '/(.*);/{
+	-e '/[;,]$/{
 s/[()*,;]/ /g 
 s/\[]//g
 p
@@ -2695,11 +2700,14 @@ p
     # then ispell (so we can treat _ as part of a word), sort, remove
     # duplicates, and then cull exceptions ...
     #
+    # - cull any \w'foobar' constructs
+    #
     if sed <"$file" >$tmp.in \
 	    -e '/^\.TH/d' \
 	    -e '/^\.[ 	]*\\"/d' \
 	    -e "/^'[ 	]*\\\\\"/d" \
 	    -e 's/0x[0-9a-f][0-9a-f]*//' \
+	    -e "s/\\\\w'[^']*'//" \
 	    -e 's/^@//' \
 	# end
     then

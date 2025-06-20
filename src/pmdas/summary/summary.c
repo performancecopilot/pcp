@@ -29,7 +29,7 @@
 
 int			nmeta;
 meta_t			*meta;
-pmResult 		*cachedResult;
+pmdaResult 		*cachedResult;
 static int		*freeList;
 
 static int
@@ -102,8 +102,8 @@ service_client(__pmPDU *pb)
 
 	if (cachedResult == NULL) {
 	    int		need;
-	    need = (int)sizeof(pmResult) - (int)sizeof(pmValueSet *);
-	    if ((cachedResult = (pmResult *)malloc(need)) == NULL) {
+	    need = (int)sizeof(pmdaResult) - (int)sizeof(pmValueSet *);
+	    if ((cachedResult = (pmdaResult *)malloc(need)) == NULL) {
 		pmNoMem("service_client: result malloc", need, PM_FATAL_ERR);
 	    }
 	    cachedResult->numpmid = 0;
@@ -125,9 +125,9 @@ service_client(__pmPDU *pb)
 		/* new PMID, expand cachedResult and initialize vset */
 		int		need;
 		cachedResult->numpmid++;
-		need = (int)sizeof(pmResult) +
+		need = (int)sizeof(pmdaResult) +
 		    (cachedResult->numpmid-1) * (int)sizeof(pmValueSet *);
-		if ((cachedResult = (pmResult *)realloc(cachedResult, need)) == NULL) {
+		if ((cachedResult = (pmdaResult *)realloc(cachedResult, need)) == NULL) {
 		    pmNoMem("service_client: result realloc", need, PM_FATAL_ERR);
 		}
 		if ((cachedResult->vset[j] = (pmValueSet *)malloc(sizeof(pmValueSet))) == NULL) {
@@ -181,12 +181,12 @@ summary_instance(pmInDom indom, int inst, char *name, pmInResult **result,
 }
 
 static void
-freeResultCallback(pmResult *res)
+freeResultCallback(pmdaResult *res)
 {
     int i;
 
     /*
-     * pmResult has now been sent to pmcd. Only free the
+     * pmdaResult has now been sent to pmcd. Only free the
      * value sets that had no values available because
      * the valid ones were reused from the cachedResult.
      */
@@ -199,7 +199,7 @@ freeResultCallback(pmResult *res)
 
 
 static int
-summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
+summary_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt * ex)
 {
     int			i;		/* over pmidlist[] */
     int			j;		/* over vset->vlist[] */
@@ -208,16 +208,16 @@ summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
     int			validpmid;
     pmID		pmid;
     pmDesc		desc;
-    static pmResult	*res = NULL;
+    static pmdaResult	*res = NULL;
     static int		maxnpmids = 0;
 
     if (numpmid > maxnpmids) {
 	maxnpmids = numpmid;
 	if (res != NULL)
 	    free(res);
-	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
-	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-	if ((res = (pmResult *)malloc(need)) == NULL)
+	/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
+	need = sizeof(pmdaResult) + (numpmid - 1) * sizeof(pmValueSet *);
+	if ((res = (pmdaResult *)malloc(need)) == NULL)
 	    return -oserror();
 
 	if (freeList != NULL)
@@ -269,7 +269,7 @@ summary_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt * ex)
 }
 
 static int
-summary_store(pmResult *result, pmdaExt * ex)
+summary_store(pmdaResult *result, pmdaExt * ex)
 {
     return PM_ERR_PERMISSION;
 }
@@ -277,7 +277,7 @@ summary_store(pmResult *result, pmdaExt * ex)
 void
 summary_init(pmdaInterface *dp)
 {
-    void (*callback)(pmResult *) = freeResultCallback;
+    void (*callback)(pmdaResult *) = freeResultCallback;
 
     dp->version.two.profile = summary_profile;
     dp->version.two.fetch = summary_fetch;
