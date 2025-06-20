@@ -7,5 +7,6 @@ label = interrupts
 width = 4
 printtype = d
 grouptype = 2
+filtertype = int
 int = kernel.all.interrupts.total
 int.label = %I

@@ -9,6 +9,7 @@ precision = 0
 printtype = p
 colorstep = 34
 grouptype = 2
+filtertype = cpu
 usr = 100 * (rate(kernel.percpu.cpu.user) + rate(kernel.percpu.cpu.nice) + rate(kernel.percpu.cpu.irq.soft) + rate(kernel.percpu.cpu.irq.hard))
 sys = 100 * rate(kernel.percpu.cpu.sys)
 idl = 100 * rate(kernel.percpu.cpu.idle)
