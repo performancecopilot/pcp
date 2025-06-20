@@ -145,9 +145,27 @@ Default is to report on all instances (no culling).
 .PP
 filtertype (string)
 .RS 4
-Used for plugin metrics that want to use instance grouping.
-The value of the filtertype entry should match the name of
-the plugin.
+Used for plugin metrics that allow command-line instance filtering
+options.
+The value of the filtertype entry should be appropriate for
+the instance select option being used as listed in the table
+below.
+.P
+.TS
+l l
+--
+l l.
+filtertype	instance select option
+cpu	-C
+disk	-D
+dm	-L
+md	-M
+part	-P
+int	-I
+net	-N
+net-packets	-N
+swap	-S
+.TE
 .RE
 .SS The [plugin] metrics
 Each plugin must have at least one metric associated with it.
