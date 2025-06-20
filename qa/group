@@ -383,6 +383,7 @@ meminfo
 mpstat
 netstat
 ps
+rocestat
 slabinfo
 
 # full test search
@@ -2234,4 +2235,5 @@ pmcd.pdu
 1991 pcp netstat python local
 1992 pmda.uwsgi local
 1993 pmda.rocestat local python
+1994 pcp rocestat python local
 4751 libpcp threads valgrind local pcp helgrind
