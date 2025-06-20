@@ -65,7 +65,7 @@ export TERM=ansi
 dstat "All defaults to EOL"
 dstat "Per CPU" --cpu -C 1,2,total --cpu-use
 dstat "CPU" --cpu-adv
-dstat "Per Disk" --disk -D sda,total --disk-wait
+dstat "Per Disk" --disk -D vda,total --disk-wait
 dstat "All Disks" --disk --full
 dstat "Zero Disks" --all -D --full
 dstat "Disk" --io
