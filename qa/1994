@@ -1,0 +1,48 @@
+
+#!/bin/sh
+# PCP QA Test No. 1994
+# Exercise various pcp-rocestat(1) command options.
+#
+# Copyright (c) 2025 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1        # failure is the default!
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_rocestat="$PCP_BINADM_DIR/pcp-rocestat"
+test -x $pcp_rocestat || _notrun "No pcp-rocestat(1) installed"
+pcp_rocestat="$python $pcp_rocestat"
+
+# real QA test starts here
+echo && echo pcp-rocestat output : Display default output
+PCP_ARCHIVE="archives/pcp-rocestat" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_rocestat -s 2
+
+archive_first="-a archives/pcp-rocestat -z -O +1"
+
+echo && echo pcp-rocestat output : Display all network statistics for nVidia RoCE devices.
+pcp $archive_first rocestat -s 2
+
+echo && echo pcp-rocestat output : Display hardware counter statistics for nVidia RoCE devices.
+pcp $archive_first rocestat --hw_stats -s 2
+
+echo && echo pcp-rocestat output : Display per lane statistics for nVidia RoCE devices.
+pcp $archive_first rocestat --lane_stats -s 2
+
+status=0
+exit
