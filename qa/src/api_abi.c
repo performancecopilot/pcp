@@ -43,7 +43,7 @@
  * [ ] pmExtendFetchGroup_event
  * [ ] pmExtendFetchGroup_indom
  * [ ] pmExtendFetchGroup_item
- * [ ] pmExtendFetchGroup_timestamp
+ * [x] pmExtendFetchGroup_timestamp
  * [ ] pmExtractValue
  * [y] pmFetch
  * [ ] pmFetchArchive

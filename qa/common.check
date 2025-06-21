@@ -789,7 +789,6 @@ _triage_pmcd()
 _wait_for_pmcd()
 {
     # 20 seconds default seems like a reasonable max time to get going
-    #debug# set -x
     __can_wait=${1-20}
     if [ $# -eq 2 -a -n "$2" ]
     then
@@ -856,7 +855,6 @@ _wait_for_pmcd()
 _wait_for_pmcd_stop()
 {
     # 20 seconds default seems like a reasonble max time to get shutdown
-    #debug# set -x
     __can_wait=${1-20}
     __i=0
     __stopped=false
@@ -980,7 +978,6 @@ _wait_for_pmlogger()
 	    ;;
     esac
 
-    #debug# set -x
     __i=0
     __dead=true
     rm -f $tmp._wait_for_pmlogger.pmlc
@@ -1143,7 +1140,6 @@ End-of-File
 #
 _wait_pmlogger_end()
 {
-    #debug# set -x
     if [ -z "$1" ]
     then
 	echo "Usage botch: _wait_pmlogger_end() needs pid arg"
@@ -1182,7 +1178,6 @@ _wait_pmlogger_end()
 		cat "$PCP_TMP_DIR/pmlogger/$__pid"
 		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid"
 		_systemctl_status pmlogger
-		#debug# set +x
 		return 1
 	    fi
 	    pmsleep 0.1
@@ -1193,44 +1188,13 @@ _wait_pmlogger_end()
 	    # code is run ... so hang around waiting for the process to
 	    # go away
 	    #
-	    __i=0
-	    while true
-	    do
-		if $sudo kill -s 0 $__pid 2>/dev/null
-		then
-		    # process still exists
-		    __i=`expr $__i + 1`
-		    if [ "$__i" -ge 100 ]
-		    then
-			# may exist, but is defunct so we should treat this
-			# as "ended" ...
-			#
-			$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-			| $PCP_AWK_PROG >$tmp.pmlogger.defunct '
-$2 == '$__pid' && $0 ~ /defunct/	{ print $3 }'
-			if [ -s "$tmp.pmlogger.defunct" ]
-			then
-			    echo "_wait_pmlogger_end: pid $__pid is defunct" >>$seq_full
-			    if which pstree >/dev/null 2>&1
-			    then
-				pstree -s -A -pua $__pid >>$seq_full 2>&1
-			    else
-				$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $__pid `cat $tmp.pmlogger.defunct`
-			    fi
-			else
-			    echo "_wait_pmlogger_end: failed to see pid $__pid exit after 100 iterations"
-			fi
-			_systemctl_status pmlogger
-			#debug# set +x
-			return 1
-		    fi
-		    pmsleep 0.1
-		else
-		    # process has really exited
-		    #debug# set +x
-		    return 0
-		fi
-	    done
+	    if _wait_process_end "_wait_pmlogger_end" "$__pid"
+	    then
+		return 0
+	    else
+		_systemctl_status pmlogger
+		return 1
+	    fi
 	fi
     done
 }
@@ -1239,8 +1203,6 @@ $2 == '$__pid' && $0 ~ /defunct/	{ print $3 }'
 #
 _wait_pmcd_end()
 {
-    #debug# set -x
-
     __pid=`cat $PCP_RUN_DIR/pmcd.pid 2>/dev/null`
     if [ -z "$__pid" ]
     then
@@ -1257,39 +1219,22 @@ p
     fi
     if [ -z "$__pid" ]
     then
-	#debug# set +x
 	return 0
     fi
 
-    __i=0
-    while true
-    do
-	if $sudo kill -s 0 $__pid 2>/dev/null
-	then
-	    # process still exists
-	    __i=`expr $__i + 1`
-	    if [ "$__i" -ge 100 ]
-	    then
-		echo "_wait_pmcd_end: failed to see pid $__pid exit after 100 iterations"
-		_systemctl_status pmcd
-		#debug# set +x
-		return 1
-	    fi
-	    pmsleep 0.1
-	else
-	    # process has really exited
-	    #debug# set +x
-	    return 0
-	fi
-    done
+    if _wait_process_end "_wait_pmcd_end" "$__pid"
+    then
+	return 0
+    else
+	_systemctl_status pmcd
+	return 1
+    fi
 }
 
 # Wait for at primary pmie to start ...
 #
 _wait_for_pmie()
 {
-    #debug# set -x
-
     __i=0
     while true
     do
@@ -1302,13 +1247,11 @@ _wait_for_pmie()
 	    then
 		echo "_wait_for_pmie: failed to see pmie start after 100 iterations"
 		_systemctl_status pmie
-		#debug# set +x
 		return 1
 	    fi
 	    pmsleep 0.1
 	else
 	    # process has really started ...
-	    #debug# set +x
 	    return 0
 	fi
     done
@@ -1318,8 +1261,6 @@ _wait_for_pmie()
 #
 _wait_pmie_end()
 {
-    #debug# set -x
-
     __pidlist=`cat $PCP_RUN_DIR/pmie.pid 2>/dev/null`
     if [ -z "$__pidlist" ]
     then
@@ -1337,40 +1278,21 @@ p
     fi
     if [ -z "$__pidlist" ]
     then
-	#debug# set +x
 	return 0
     fi
 
-    __i=0
-    while true
+    for __pid in $__pidlist
     do
-	rm -f $tmp.some_pmie_running
-	for __pid in $__pidlist
-	do
-	    if $sudo kill -s 0 $__pid 2>/dev/null
-	    then
-		# process still exists
-		touch $tmp.some.pmie
-	    fi
-	done
-	if [ -f $tmp.some.pmie ]
+	if _wait_process_end "_wait_pmie_end" "$__pid"
 	then
-	    __i=`expr $__i + 1`
-	    if [ "$__i" -ge 100 ]
-	    then
-		echo "_wait_pmie_end: failed to see pid(s) $__pidlist exit after 100 iterations"
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
-		_systemctl_status pmie
-		#debug# set +x
-		return 1
-	    fi
-	    pmsleep 0.1
+	    continue
 	else
-	    # all processes have exited
-	    #debug# set +x
-	    return 0
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
+	    _systemctl_status pmie
+	    return 1
 	fi
     done
+    return 0
 }
 
 # Wait for pmproxy to start up on given port
@@ -1462,8 +1384,6 @@ _wait_for_pmproxy_logfile()
 #
 _wait_pmproxy_end()
 {
-    #debug# set -x
-
     __pid=`cat $PCP_RUN_DIR/pmproxy.pid 2>/dev/null`
     if [ -z "$__pid" ]
     then
@@ -1480,31 +1400,16 @@ p
     fi
     if [ -z "$__pid" ]
     then
-	#debug# set +x
 	return 0
     fi
 
-    __i=0
-    while true
-    do
-	if $sudo kill -s 0 $__pid 2>/dev/null
-	then
-	    # process still exists
-	    __i=`expr $__i + 1`
-	    if [ "$__i" -ge 100 ]
-	    then
-		echo "_wait_proxy_end: failed to see pid $__pid exit after 100 iterations"
-		_systemctl_status proxy
-		#debug# set +x
-		return 1
-	    fi
-	    pmsleep 0.1
-	else
-	    # process has really exited
-	    #debug# set +x
-	    return 0
-	fi
-    done
+    if _wait_process_end "_wait_proxy_end" "$__pid"
+    then
+	return 0
+    else
+	_systemctl_status proxy
+	return 1
+    fi
 }
 
 # ensure primary logger allows pmlc state changes
@@ -3729,6 +3634,68 @@ _path_readable()
 	done
     fi
     return 1
+}
+
+# wait for a process to exit ...
+# Usage:
+#   _wait_process_end [tag] pid
+#
+_wait_process_end()
+{
+    if [ $# -eq 2 -a -n "$2" ]
+    then
+	__tag="$1"
+	__pid="$2"
+    elif [ $# -eq 1 -a -n "$1" ]
+    then
+	__tag="_wait_process_end"
+	__pid="$1"
+    else
+	echo >&2 "Usage: _wait_process_end [tag] pid \$#=$# \$1=\"$1\""
+	return 1
+    fi
+    __i=0
+    while true
+    do
+	if $sudo kill -s 0 $__pid 2>/dev/null
+	then
+	    # process still exists
+	    __i=`expr $__i + 1`
+	    if [ "$__i" -ge 100 ]
+	    then
+		# may exist, but is defunct so we should treat this
+		# as "exited" ...
+		# <defunct> for Linux-style ps(1)
+		# (command) for BSD-style ps(1)
+		#
+		__ppid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+		        | $PCP_AWK_PROG '
+$2 == '$__pid' && $NF ~ /<defunct>/ { print $3 }
+$2 == '$__pid' && $NF ~ /^([^)]*)$/ { print $3 }
+'`
+		if [ -n "$__ppid" ]
+		then
+		    echo "$__tag: pid $__pid is defunct" >>$seq_full
+		    if which pstree >/dev/null 2>&1
+		    then
+			pstree -s -A -pua $__pid >>$seq_full 2>&1
+		    else
+			echo "$__tag: parent pid $__ppid" >>$seq_full
+			$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $__pid $__ppid >>$seq_full
+		    fi
+		    return 0
+		else
+		    echo "$__tag: failed to see pid $__pid exit after 100 iterations"
+		fi
+		echo "$__tag: failed to see pid $__pid exit after 100 iterations"
+		return 1
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really exited
+	    return 0
+	fi
+    done
 }
 
 # exit wrapper ... set $status if $1 present

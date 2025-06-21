@@ -330,7 +330,7 @@ class PCP2JSON(object):
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
-        self.pmfg_ts = self.pmfg.extend_timestamp()
+        self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
 
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):

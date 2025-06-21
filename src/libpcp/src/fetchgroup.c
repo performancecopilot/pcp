@@ -1470,13 +1470,6 @@ pmExtendFetchGroup_timeval(pmFG pmfg, struct timeval *out_value)
 }
 
 int
-pmExtendFetchGroup_timestamp(pmFG pmfg, struct timeval *out_value)
-{
-    /* backwards compatibility */
-    return pmExtendFetchGroup_timeval(pmfg, out_value);
-}
-
-int
 pmExtendFetchGroup_indom(pmFG pmfg,
 		const char *metric, const char *scale,
 		int out_inst_codes[], char *out_inst_names[],

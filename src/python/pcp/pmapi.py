@@ -77,7 +77,7 @@
     v = pmfg.extend_item("hinv.ncpu")
     vv = pmfg.extend_indom("kernel.all.load", c_api.PM_TYPE_FLOAT)
     vvv = pmfg.extend_event("systemd.journal.records", field="systemd.journal.field.string")
-    t = pmfg.extend_timestamp()
+    t = pmfg.extend_timeval()
 
     pmfg.fetch()
     print("time: %s" % t())

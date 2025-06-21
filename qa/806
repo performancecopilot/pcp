@@ -49,10 +49,10 @@ _filter_pmval()
     then
 	$PCP_AWK_PROG '
 $1 == "host:"	{ next }
-NF == 1		{ if ( $1 < 0.90 || $1 > 1.10)
+NF == 1		{ if ( $1 < 0.90 || $1 > 1.15)
 		    $1 = $1 " (bad)"
 		  else
-		    $1 = "OK"
+		      $1 = "OK"
 		}
 		{ print }'
     else

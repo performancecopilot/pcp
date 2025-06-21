@@ -24,7 +24,7 @@ import cpmapi as c_api
 def test_pmfg_live(self, typed, target):
     # Any errors hereabouts trigger pmErr exceptions -> implicit fail
     pmfg = pmapi.fetchgroup(typed, target)
-    tt = pmfg.extend_timestamp()
+    tt = pmfg.extend_timeval()
     v1 = pmfg.extend_item("sample.ulong.one") # infer type
     v2 = pmfg.extend_item("sample.float.bin", c_api.PM_TYPE_FLOAT, instance="bin-100")
 
@@ -70,7 +70,7 @@ def test_pmfg_live(self, typed, target):
     print("cleared fetchgroup")
 
     print("adding back timestamp")
-    tt = pmfg.extend_timestamp()
+    tt = pmfg.extend_timeval()
     print("adding back metric")
     vvv1 = pmfg.extend_item("sample.ulong.one")
     pmfg.fetch()
@@ -109,7 +109,7 @@ def test_pmfg_interleaved(self):
     archives = ["archives/multi-vm00", "archives/multi-vm01", "archives/multi-vm02"]
     logger_instances = ["13034", "13035", "13036"] # pmcd.pmlogger.host indoms in those archives
     pmfgs = [pmapi.fetchgroup(c_api.PM_CONTEXT_ARCHIVE, a) for a in archives]
-    timestamps = [fg.extend_timestamp() for fg in pmfgs]
+    timestamps = [fg.extend_timeval() for fg in pmfgs]
     # need -some- metrics to let pmFetch succeed without PM_ERR_TOOSMALL
     metrics1 = [fg.extend_item("hinv.physmem") for fg in pmfgs]
     metrics2 = [fg.extend_item("pmcd.pmlogger.archive",instance=inst) for (fg,inst) in zip(pmfgs,logger_instances)] # DISCRETE, logged-once

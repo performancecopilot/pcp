@@ -57,8 +57,11 @@ pminfo openmetrics.simple_metric
 echo
 
 echo "-- source re-addition --"
-path=$here/openmetrics/samples/simple_metric.txt
-echo 'file:///'$path > $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+# same access controls logic as above, user $PCP_USER needs to be
+# able to read the file at the end of the URL
+#
+cp $here/openmetrics/samples/simple_metric.txt $tmp.simple_metric.txt
+echo 'file:///'$tmp.simple_metric.txt >$PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
 pminfo openmetrics.simple_metric
 echo
 

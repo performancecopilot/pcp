@@ -1123,7 +1123,7 @@ class pmConfig(object):
     def update_metrics(self, curr_insts=CURR_INSTS, max_insts=0):
         """ Update metricset """
         self.clear_metrics()
-        self.util.pmfg_ts = self.util.pmfg.extend_timestamp()
+        self.util.pmfg_ts = self.util.pmfg.extend_timeval()
         self.validate_metrics(curr_insts, max_insts)
 
     def names_change_action(self):

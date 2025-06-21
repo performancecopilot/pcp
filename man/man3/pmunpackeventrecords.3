@@ -16,8 +16,8 @@
 .\"
 .TH PMUNPACKEVENTRECORDS 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmUnpackEventRecords\f1,
-\f3pmUnpackHighResEventRecords\f1
+\f3pmUnpackHighResEventRecords\f1,
+\f3pmUnpackEventRecords\f1
 \- unpack event records
 .SH "C SYNOPSIS"
 .ft 3
@@ -25,16 +25,16 @@
 .hy 0
 #include <pcp/pmapi.h>
 .sp
-int pmUnpackEventRecords(pmValueSet *\fIvsp\fP,
-'in +\w'int pmUnpackEventRecords('u
-int\ \fIidx\fP,
-pmResult\ ***\fIrap\fP);
-.in
-.br
 int pmUnpackHighResEventRecords(pmValueSet *\fIvsp\fP,
 'in +\w'int pmUnpackHighResEventRecords('u
 int\ \fIidx\fP,
-pmHighResResult\ ***\fIhrap\fP);
+pmResult\ ***\fIhrap\fP);
+.in
+.br
+int pmUnpackEventRecords(pmValueSet *\fIvsp\fP,
+'in +\w'int pmUnpackEventRecords('u
+int\ \fIidx\fP,
+pmResult_v2\ ***\fIrap\fP);
 .in
 .sp
 cc ... \-lpcp
@@ -49,15 +49,15 @@ cc ... \-lpcp
 Event records are encoded as a packed array of records within a
 .I pmResult
 using a container metric with a value of type
-.B PM_TYPE_EVENT ,
+.B PM_TYPE_HIGHRES_EVENT
 and a
-.I pmHighResResult
-when using a metric of type
-.BR PM_TYPE_HIGHRES_EVENT .
+.I pmResult_v2
+when using a metric with a value of type
+.BR PM_TYPE_EVENT .
 .PP
-.B pmUnpackEventRecords
-and
 .B pmUnpackHighResEventRecords
+and
+.B pmUnpackEventRecords
 may be used to unpack event records from a metric value
 identified by
 .I vsp
@@ -71,17 +71,19 @@ will be unpacked, i.e. vsp->vlist[idx].
 The unpacked records are turned into either
 .I pmResult
 or
-.I pmHighResResult
+.I pmResult_v2
 structures, one per event record and one metric per event parameter, and
+.I hrap
+or
 .I rap
 is returned as a pointer to an array (NULL pointer terminated) of
 pointers to the result structures.
 .PP
 The only difference between the two result types is the timestamp scale;
 the
-.I pmHighResResult
-allows for nanosecond precision, whereas
 .I pmResult
+allows for nanosecond precision, whereas
+.I pmResult_v2
 allows for microsecond resolution.
 .PP
 Some control information from the packed event records is unpacked
@@ -89,7 +91,7 @@ into additional ``anonymous'' metrics as follows:
 .TP 4n
 1.
 If the event record has a non-zero flags value, then the corresponding
-.IR pmResult / pmHighResResult
+.IR pmResult / pmResult_v2
 will have the flags value encoded with the additional metric
 .B event.flags
 that is inserted ahead of all other event parameters.
@@ -98,35 +100,35 @@ that is inserted ahead of all other event parameters.
 If the event record flag is set to
 .BR PM_EVENT_FLAG_MISSED ,
 then the corresponding
-.IR pmResult / pmHighResResult
+.IR pmResult / pmResult_v2
 will have one metric
 .B event.missed
 with a value that equals the number of event records ``missed'' because
 either the PMDA could not keep up, or the PMAPI client did not collect
 the event records fast enough.
 .PP
-.B pmUnpackEventRecords
+.B pmUnpackHighResEventRecords
 returns the number of
 .I pmResult
 structures as the return value, which is >= 0 for success.
 Similarly,
-.B pmUnpackHighResEventRecords
+.B pmUnpackEventRecords
 returns the number of
-.I pmHighResResult
+.I pmResult_v2
 structures as the return value, which is >= 0 for success.
 .PP
-.I rap
+.I hrap
 and the associated
 .I pmResult
 structures may be freed using the convenience function
-.BR pmFreeEventResult (3).
+.BR pmFreeHighResEventResult (3).
 .PP
-Similarly, the
-.I hrap
+Similarly,
+.I rap
 and the associated
-.I pmHighResResult
+.I pmResult_v2
 structures may be freed using the convenience function
-.BR pmFreeHighResEventResult .
+.BR pmFreeEventResult (3).
 .SH "RETURN VALUE"
 The following errors are possible:
 .TP 10n
@@ -144,14 +146,20 @@ is not singular as expected.
 PM_ERR_TYPE
 .I vsp
 is not a value of type
-.BR PM_TYPE_EVENT .
+.B PM_TYPE_HIGHRES_EVENT
+for
+.B pmUnpackHighResEventRecords
+or
+.B PM_TYPE_EVENT
+for
+.BR pmUnpackEventRecords .
 .TP 10n
 PM_ERR_TOOSMALL
 The value identified by
 .I vsp
 is not legal because the value length is less than the minimum size,
 or the number of event records encoded in the (value header)
-.IR pmEventArray / pmHighResEventArray
+.IR pmHighResEventArray / pmEventArray
 structure is negative, or the number of missed event records in the
 array is negative.
 .TP 10n

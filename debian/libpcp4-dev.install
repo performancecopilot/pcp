@@ -40,8 +40,6 @@ usr/share/man/man3/__pmCheckAttribute.3.gz
 usr/share/man/man3/__pmCleanMapDir.3.gz
 usr/share/man/man3/__pmConnectLogger.3.gz
 usr/share/man/man3/__pmControlLog.3.gz
-usr/share/man/man3/__pmConvertHighResTime.3.gz
-usr/share/man/man3/__pmConvertTime.3.gz
 usr/share/man/man3/__pmDiscoverServicesWithOptions.3.gz
 usr/share/man/man3/__pmEquivInDom.3.gz
 usr/share/man/man3/__pmFaultInject.3.gz
@@ -81,7 +79,9 @@ usr/share/man/man3/__pmServerNotifyServiceManagerReady.3.gz
 usr/share/man/man3/__pmServerNotifyServiceManagerStopping.3.gz
 usr/share/man/man3/__pmUnparseHostAttrsSpec.3.gz
 usr/share/man/man3/__pmUnparseHostSpec.3.gz
+usr/share/man/man3/__pmtimespecConvert.3.gz
 usr/share/man/man3/__pmtimespecParse.3.gz
+usr/share/man/man3/__pmtimevalConvert.3.gz
 usr/share/man/man3/__pmtimevalParse.3.gz
 usr/share/man/man3/pmAF.3.gz
 usr/share/man/man3/pmAddDerived.3.gz
@@ -117,7 +117,6 @@ usr/share/man/man3/pmExtendFetchGroup_event.3.gz
 usr/share/man/man3/pmExtendFetchGroup_indom.3.gz
 usr/share/man/man3/pmExtendFetchGroup_item.3.gz
 usr/share/man/man3/pmExtendFetchGroup_timespec.3.gz
-usr/share/man/man3/pmExtendFetchGroup_timestamp.3.gz
 usr/share/man/man3/pmExtendFetchGroup_timeval.3.gz
 usr/share/man/man3/pmExtractValue.3.gz
 usr/share/man/man3/pmFetch.3.gz
