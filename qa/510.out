@@ -70,7 +70,8 @@ sample.event.param_aggregate
     adv  off nl             
 
 pmlc> log mandatory on once sample.event.records
-pmlc> sleep 20
+pmlc> # units are milliseconds
+pmlc> sleep 200
 pmlc> query sample.event
 sample.event.records
     mand on             once [0 or "fungus"]

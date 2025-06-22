@@ -71,7 +71,8 @@ do
 connect primary
 query sample.event
 log mandatory on once sample.event.records
-sleep 20
+# units are milliseconds
+sleep 200
 query sample.event
 End-of-File
     if grep 'Address already in use' <$tmp.out >>$seq_full
