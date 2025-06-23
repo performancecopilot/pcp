@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# remake the pcp-netstat archive ...
+# remake the pcp-rocestat archive ...
 # this archive is intended to be checked in and not remade, this script is
 # simply a record of how it was created
 #
@@ -70,8 +70,8 @@ rm -f pcp-rocestat.0.xz pcp-rocestat.meta.xz pcp-rocestat.index.xz
 
 if pmlogger -s 10 -c $tmp.config pcp-rocestat
 then
-	xz pcp-rocestat.0
-	xz pcp-rocestat.meta
+    xz pcp-rocestat.0
+    xz pcp-rocestat.meta
     xz pcp-rocestat.index
 else
     echo "Argh: pmlogger failed ..."
