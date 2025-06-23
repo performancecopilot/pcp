@@ -1616,16 +1616,16 @@ _check_series()
 #
 _check_key_server_version()
 {
-    if which valkey-cli >/dev/null 2>&1
+    if which valkey-cli >/dev/null 2>&1 && pidof valkey-server >/dev/null 2>&1
     then
 	keys_cli=valkey-cli
 	keys_ver=valkey_version
-    elif which redis-cli >/dev/null 2>&1
+    elif which redis-cli >/dev/null 2>&1 && pidof redis-server >/dev/null 2>&1
     then
 	keys_cli=redis-cli
 	keys_ver=redis_version
     else
-	_notrun "No key server command line interface found"
+	_notrun "No key server command line interface found or the key server is not running"
     fi
     eval __key_server_version=`$keys_cli -p "$1" info server |
 	grep "$keys_ver:" | sed -e 's/^.*://g' -e 's/\..*//g'`
