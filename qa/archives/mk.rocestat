@@ -1,0 +1,79 @@
+#!/bin/sh
+#
+# remake the pcp-netstat archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+
+log mandatory on 5 sec {
+    rocestat.hw.link.link_error_recovery
+    rocestat.hw.link.link_downed
+    rocestat.hw.link.local_link_integrity_errors
+    rocestat.hw.rnr.rnr_nak_retry_err
+    rocestat.hw.resp.resp_local_length_error
+    rocestat.hw.resp.resp_cqe_error
+    rocestat.hw.resp.resp_cqe_flush_error
+    rocestat.hw.resp.resp_remote_access_errors
+    rocestat.hw.req.req_remote_invalid_request
+    rocestat.hw.req.req_cqe_error
+    rocestat.hw.req.req_cqe_flush_error
+    rocestat.hw.req.duplicate_request
+    rocestat.hw.req.rx_read_requests
+    rocestat.hw.req.rx_atomic_requests
+    rocestat.hw.req.req_remote_access_errors
+    rocestat.hw.req.rx_write_requests
+    rocestat.hw.mcast.multicast_rcv_packets
+    rocestat.hw.mcast.multicast_xmit_packets
+    rocestat.hw.ucast.unicast_rcv_packets
+    rocestat.hw.ucast.unicast_xmit_packets
+    rocestat.hw.rcv.port_rcv_errors
+    rocestat.hw.rcv.port_rcv_remote_physical_errors
+    rocestat.hw.rcv.port_rcv_packets
+    rocestat.hw.rcv.port_rcv_data
+    rocestat.hw.rcv.port_rcv_constraint_errors
+    rocestat.hw.rcv.port_rcv_switch_relay_errors
+    rocestat.hw.xmit.port_xmit_data
+    rocestat.hw.xmit.port_xmit_constraint_errors
+    rocestat.hw.xmit.port_xmit_wait
+    rocestat.hw.xmit.port_xmit_packets
+    rocestat.hw.xmit.port_xmit_discards
+    rocestat.hw.roce_slow_restart_trans
+    rocestat.hw.roce_slow_restart_cnps
+    rocestat.hw.roce_slow_restart
+    rocestat.hw.roce_adp_retrans_to
+    rocestat.hw.clear_counters
+    rocestat.hw.local_ack_timeout_err
+    rocestat.hw.lifespan
+    rocestat.hw.implied_nak_seq_err
+    rocestat.hw.packet_seq_err
+    rocestat.hw.roce_adp_retrans
+    rocestat.hw.out_of_buffer
+    rocestat.hw.out_of_sequence
+    rocestat.hw.VL15_dropped
+    rocestat.hw.excessive_buffer_overrun_errors
+    rocestat.hw.symbol_error
+    rocestat.lane.tx_bytes
+    rocestat.lane.rx_bytes
+    rocestat.lane.rx_pause
+}
+End-of-File
+
+rm -f pcp-rocestat.0.xz pcp-rocestat.meta.xz pcp-rocestat.index.xz
+
+if pmlogger -s 10 -c $tmp.config pcp-rocestat
+then
+	xz pcp-rocestat.0
+	xz pcp-rocestat.meta
+    xz pcp-rocestat.index
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
