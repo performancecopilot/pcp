@@ -35,7 +35,7 @@ in the source distribution for its full text.
 # if defined(HAVE_DLADDR)
 #  include <dlfcn.h>
 # endif
-#elif defined(HAVE_EXECINFO_H)
+#elif defined(HAVE_EXECINFO_H) && defined(BACKTRACE_RETURN_TYPE)
 # define PRINT_BACKTRACE
 # include <execinfo.h>
 #endif
@@ -820,7 +820,121 @@ static int CRT_colorSchemes[LAST_COLORSCHEME][LAST_COLORELEMENT] = {
       [DYNAMIC_YELLOW] = ColorPair(Yellow, Black),
       [DYNAMIC_WHITE] = ColorPair(White, Black),
    },
-   [COLORSCHEME_BROKENGRAY] = { 0 } // dynamically generated.
+   [COLORSCHEME_BROKENGRAY] = { 0 }, // dynamically generated.
+   [COLORSCHEME_NORD] = {
+      [RESET_COLOR] = A_NORMAL,
+      [DEFAULT_COLOR] = A_NORMAL,
+      [FUNCTION_BAR] = ColorPair(Black, Cyan),
+      [FUNCTION_KEY] = A_NORMAL,
+      [PANEL_HEADER_FOCUS] = ColorPair(Black, Cyan),
+      [PANEL_HEADER_UNFOCUS] = ColorPair(Black, Cyan),
+      [PANEL_SELECTION_FOCUS] = ColorPair(Black, Cyan),
+      [PANEL_SELECTION_FOLLOW] = A_REVERSE,
+      [PANEL_SELECTION_UNFOCUS] = A_BOLD,
+      [FAILED_SEARCH] = A_REVERSE | A_BOLD | ColorPair(Yellow, Black),
+      [FAILED_READ] = A_BOLD | ColorPair(Yellow, Black),
+      [PAUSED] = A_BOLD | ColorPair(Black, Cyan),
+      [UPTIME] = A_BOLD,
+      [BATTERY] = A_BOLD,
+      [LARGE_NUMBER] = A_BOLD | ColorPair(Yellow, Black),
+      [METER_SHADOW] = A_BOLD | ColorPairGrayBlack,
+      [METER_TEXT] = A_NORMAL,
+      [METER_VALUE] = A_BOLD,
+      [METER_VALUE_ERROR] = A_BOLD,
+      [METER_VALUE_IOREAD] = A_NORMAL,
+      [METER_VALUE_IOWRITE] = A_NORMAL,
+      [METER_VALUE_NOTICE] = A_BOLD | ColorPair(Cyan, Black),
+      [METER_VALUE_OK] = A_NORMAL,
+      [METER_VALUE_WARN] = A_BOLD,
+      [LED_COLOR] = A_NORMAL,
+      [TASKS_RUNNING] = A_BOLD,
+      [PROCESS] = A_NORMAL,
+      [PROCESS_SHADOW] = A_BOLD | ColorPairGrayBlack,
+      [PROCESS_TAG] = A_BOLD | ColorPair(Cyan, Black),
+      [PROCESS_MEGABYTES] = A_BOLD | ColorPair(White, Black),
+      [PROCESS_GIGABYTES] = A_BOLD | ColorPair(Cyan, Black),
+      [PROCESS_BASENAME] = A_BOLD,
+      [PROCESS_TREE] = A_BOLD,
+      [PROCESS_RUN_STATE] = A_BOLD,
+      [PROCESS_D_STATE]  = A_BOLD | ColorPair(Yellow, Black),
+      [PROCESS_HIGH_PRIORITY] = A_BOLD,
+      [PROCESS_LOW_PRIORITY] = A_BOLD | ColorPairGrayBlack,
+      [PROCESS_NEW] = A_BOLD,
+      [PROCESS_TOMB] = A_BOLD | ColorPairGrayBlack,
+      [PROCESS_PRIV] = A_BOLD | ColorPair(Cyan, Black),
+      [BAR_BORDER] = A_BOLD,
+      [BAR_SHADOW] = A_BOLD | ColorPairGrayBlack,
+      [SWAP] = A_BOLD,
+      [SWAP_CACHE] = A_NORMAL,
+      [SWAP_FRONTSWAP] = A_BOLD | ColorPairGrayBlack,
+      [GRAPH_1]  = A_BOLD,
+      [GRAPH_2] = A_NORMAL,
+      [MEMORY_USED] = A_BOLD | ColorPair(Yellow, Black),
+      [MEMORY_BUFFERS] = A_NORMAL,
+      [MEMORY_BUFFERS_TEXT] = A_NORMAL,
+      [MEMORY_CACHE] = A_NORMAL,
+      [MEMORY_SHARED] = A_NORMAL,
+      [MEMORY_COMPRESSED] = A_BOLD | ColorPairGrayBlack,
+      [HUGEPAGE_1] = A_BOLD,
+      [HUGEPAGE_2] = A_NORMAL,
+      [HUGEPAGE_3] = A_BOLD | ColorPair(Cyan, Black),
+      [HUGEPAGE_4] = A_BOLD | ColorPair(Cyan, Black),
+      [LOAD_AVERAGE_FIFTEEN] = A_BOLD | ColorPairGrayBlack,
+      [LOAD_AVERAGE_FIVE] = A_NORMAL,
+      [LOAD_AVERAGE_ONE] = A_BOLD,
+      [LOAD] = A_BOLD,
+      [HELP_BOLD] = A_BOLD,
+      [HELP_SHADOW] = A_BOLD | ColorPairGrayBlack,
+      [CLOCK] = A_BOLD,
+      [DATE] = A_BOLD,
+      [DATETIME] = A_BOLD,
+      [CHECK_BOX] = A_BOLD,
+      [CHECK_MARK] = A_NORMAL,
+      [CHECK_TEXT] = A_NORMAL,
+      [HOSTNAME] = A_BOLD | ColorPair(Cyan, Black),
+      [CPU_NICE] = A_NORMAL,
+      [CPU_NICE_TEXT] = A_NORMAL,
+      [CPU_NORMAL] = A_BOLD,
+      [CPU_SYSTEM] = A_BOLD | ColorPair(Yellow, Black),
+      [CPU_IOWAIT] = A_NORMAL,
+      [CPU_IRQ] = A_BOLD,
+      [CPU_SOFTIRQ] = A_BOLD,
+      [CPU_STEAL] = A_BOLD | ColorPairGrayBlack,
+      [CPU_GUEST] = A_BOLD | ColorPairGrayBlack,
+      [GPU_ENGINE_1] = A_BOLD,
+      [GPU_ENGINE_2] = A_NORMAL,
+      [GPU_ENGINE_3] = A_BOLD | ColorPair(Cyan, Black),
+      [GPU_ENGINE_4] = A_BOLD | ColorPair(Cyan, Black),
+      [GPU_RESIDUE] = A_BOLD,
+      [PANEL_EDIT] = A_BOLD,
+      [SCREENS_OTH_BORDER] = A_BOLD | ColorPairGrayBlack,
+      [SCREENS_OTH_TEXT]  = A_BOLD | ColorPairGrayBlack,
+      [SCREENS_CUR_BORDER] = ColorPair(Black, Cyan),
+      [SCREENS_CUR_TEXT] = ColorPair(Black, Cyan),
+      [PRESSURE_STALL_THREEHUNDRED] = A_BOLD | ColorPairGrayBlack,
+      [PRESSURE_STALL_SIXTY] = A_NORMAL,
+      [PRESSURE_STALL_TEN] = A_BOLD,
+      [FILE_DESCRIPTOR_USED] = A_BOLD,
+      [FILE_DESCRIPTOR_MAX] = A_BOLD | ColorPair(Yellow, Black),
+      [ZFS_MFU] = A_NORMAL,
+      [ZFS_MRU] = A_NORMAL,
+      [ZFS_ANON] = A_BOLD | ColorPairGrayBlack,
+      [ZFS_HEADER] = A_BOLD,
+      [ZFS_OTHER] = A_BOLD | ColorPairGrayBlack,
+      [ZFS_COMPRESSED] = A_BOLD,
+      [ZFS_RATIO] = A_BOLD,
+      [ZRAM_COMPRESSED] = A_NORMAL,
+      [ZRAM_UNCOMPRESSED] = A_NORMAL,
+      [DYNAMIC_GRAY] = A_BOLD | ColorPairGrayBlack,
+      [DYNAMIC_DARKGRAY] = A_BOLD | ColorPairGrayBlack,
+      [DYNAMIC_RED] = A_BOLD | ColorPair(Yellow, Black),
+      [DYNAMIC_GREEN] = A_BOLD,
+      [DYNAMIC_BLUE] = A_BOLD | ColorPair(Cyan, Black),
+      [DYNAMIC_CYAN] = A_BOLD | ColorPair(Cyan, Black),
+      [DYNAMIC_MAGENTA] = A_BOLD,
+      [DYNAMIC_YELLOW] = A_BOLD | ColorPair(Yellow, Black),
+      [DYNAMIC_WHITE] = A_BOLD,
+   },
 };
 
 static bool CRT_retainScreenOnExit = false;
@@ -1005,6 +1119,8 @@ static bool terminalSupportsDefinedKeys(const char* termType) {
       return false;
    }
 
+   #define IS_END_OR_DASH(ch) ((ch) == '-' || (ch) == '\0')
+
    switch (termType[0]) {
    case 'a':
       if (String_eq(termType, "alacritty")) {
@@ -1012,15 +1128,15 @@ static bool terminalSupportsDefinedKeys(const char* termType) {
       }
       break;
    case 's':
-      if (termType[1] == 't' && (termType[2] == '-' || !termType[2])) {
+      if (termType[1] == 't' && IS_END_OR_DASH(termType[2])) {
          return true;
       }
-      if (String_eq(termType, "screen")) {
+      if (String_startsWith(termType, "screen") && IS_END_OR_DASH(termType[6])) {
          return true;
       }
       break;
    case 't':
-      if (String_eq(termType, "tmux")) {
+      if (String_startsWith(termType, "tmux") && IS_END_OR_DASH(termType[4])) {
          return true;
       }
       break;
@@ -1030,7 +1146,7 @@ static bool terminalSupportsDefinedKeys(const char* termType) {
       }
       break;
    case 'x':
-      if (String_eq(termType, "xterm")) {
+      if (String_startsWith(termType, "xterm") && IS_END_OR_DASH(termType[5])) {
          return true;
       }
       break;
@@ -1257,10 +1373,10 @@ static void print_backtrace(void) {
       snprintf(err_buf, sizeof(err_buf), "%2u: %#14lx  %s  (%s+%#lx)  [%p]%s\n", item++, pc, fname, symbolName, offset, ptr, frame);
       full_write_str(STDERR_FILENO, err_buf);
    }
-#elif defined(HAVE_EXECINFO_H)
+#elif defined(HAVE_EXECINFO_H) && defined(BACKTRACE_RETURN_TYPE)
    void* backtraceArray[256];
 
-   int nptrs = backtrace(backtraceArray, ARRAYSIZE(backtraceArray));
+   BACKTRACE_RETURN_TYPE nptrs = backtrace(backtraceArray, ARRAYSIZE(backtraceArray));
    if (nptrs > 0) {
       backtrace_symbols_fd(backtraceArray, nptrs, STDERR_FILENO);
    } else {

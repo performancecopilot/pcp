@@ -79,8 +79,8 @@ void ScreenManager_insert(ScreenManager* this, Panel* item, int size, int idx) {
    }
    Panel_resize(item, size, height);
    Panel_move(item, lastX, this->y1 + header_height(this));
-   if (idx < this->panelCount) {
-      for (int i =  idx + 1; i <= this->panelCount; i++) {
+   if ((size_t)idx < this->panelCount) {
+      for (int i =  idx + 1; (size_t)i <= this->panelCount; i++) {
          Panel* p = (Panel*) Vector_get(this->panels, i);
          Panel_move(p, p->x + size, p->y);
       }
@@ -91,12 +91,12 @@ void ScreenManager_insert(ScreenManager* this, Panel* item, int size, int idx) {
 }
 
 Panel* ScreenManager_remove(ScreenManager* this, int idx) {
-   assert(this->panelCount > idx);
+   assert((size_t)idx < this->panelCount);
    int w = ((Panel*) Vector_get(this->panels, idx))->w;
    Panel* panel = (Panel*) Vector_remove(this->panels, idx);
    this->panelCount--;
-   if (idx < this->panelCount) {
-      for (int i = idx; i < this->panelCount; i++) {
+   if ((size_t)idx < this->panelCount) {
+      for (size_t i = idx; i < this->panelCount; i++) {
          Panel* p = (Panel*) Vector_get(this->panels, i);
          Panel_move(p, p->x - w, p->y);
       }
@@ -161,16 +161,18 @@ static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTi
 }
 
 static inline bool drawTab(const int* y, int* x, int l, const char* name, bool cur) {
+   assert(*x >= 0);
+   assert(*x < l);
+
    attrset(CRT_colors[cur ? SCREENS_CUR_BORDER : SCREENS_OTH_BORDER]);
    mvaddch(*y, *x, '[');
    (*x)++;
    if (*x >= l)
       return false;
-   int nameLen = strlen(name);
-   int n = MINIMUM(l - *x, nameLen);
+   int nameWidth = (int)strnlen(name, l - *x);
    attrset(CRT_colors[cur ? SCREENS_CUR_TEXT : SCREENS_OTH_TEXT]);
-   mvaddnstr(*y, *x, name, n);
-   *x += n;
+   mvaddnstr(*y, *x, name, nameWidth);
+   *x += nameWidth;
    if (*x >= l)
       return false;
    attrset(CRT_colors[cur ? SCREENS_CUR_BORDER : SCREENS_OTH_BORDER]);
@@ -190,9 +192,12 @@ static void ScreenManager_drawScreenTabs(ScreenManager* this) {
    int y = panel->y - 1;
    int x = SCREEN_TAB_MARGIN_LEFT;
 
+   if (x >= l)
+      goto end;
+
    if (this->name) {
       drawTab(&y, &x, l, this->name, true);
-      return;
+      goto end;
    }
 
    for (int s = 0; screens[s]; s++) {
@@ -201,6 +206,8 @@ static void ScreenManager_drawScreenTabs(ScreenManager* this) {
          break;
       }
    }
+
+end:
    attrset(CRT_colors[RESET_COLOR]);
 }
 
@@ -272,7 +279,7 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
                if (mevent.y == LINES - 1) {
                   ch = FunctionBar_synthesizeEvent(panelFocus->currentBar, mevent.x);
                } else {
-                  for (int i = 0; i < this->panelCount; i++) {
+                  for (size_t i = 0; i < this->panelCount; i++) {
                      Panel* panel = (Panel*) Vector_get(this->panels, i);
                      if (mevent.x >= panel->x && mevent.x <= panel->x + panel->w) {
                         if (mevent.y == panel->y) {
@@ -398,12 +405,12 @@ tryLeft:
          }
 
 tryRight:
-         if (focus < this->panelCount - 1) {
+         if ((size_t)focus < this->panelCount - 1) {
             focus++;
          }
 
          panelFocus = (Panel*) Vector_get(this->panels, focus);
-         if (Panel_size(panelFocus) == 0 && focus < this->panelCount - 1) {
+         if (Panel_size(panelFocus) == 0 && (size_t)focus < this->panelCount - 1) {
             goto tryRight;
          }
 
