@@ -1616,11 +1616,11 @@ _check_series()
 #
 _check_key_server_version()
 {
-    if which valkey-cli >/dev/null 2>&1 && pidof valkey-server >/dev/null 2>&1
+    if which valkey-cli >/dev/null 2>&1 && [ -n "$(_get_pids_by_name valkey-server)" ]
     then
 	keys_cli=valkey-cli
 	keys_ver=valkey_version
-    elif which redis-cli >/dev/null 2>&1 && pidof redis-server >/dev/null 2>&1
+    elif which redis-cli >/dev/null 2>&1 && [ -n "$(_get_pids_by_name redis-server)" ]
     then
 	keys_cli=redis-cli
 	keys_ver=redis_version
