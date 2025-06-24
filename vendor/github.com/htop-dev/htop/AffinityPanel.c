@@ -10,6 +10,7 @@ in the source distribution for its full text.
 #include "AffinityPanel.h"
 
 #include <assert.h>
+#include <limits.h> // IWYU pragma: keep
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -321,7 +322,9 @@ static MaskItem* AffinityPanel_addObject(AffinityPanel* this, hwloc_obj_t obj, u
    }
 
    /* "[x] " + "|- " * depth + ("- ")?(if root node) + name */
-   unsigned width = 4 + 3 * depth + (2 * !depth) + strlen(buf);
+   unsigned int indent_width = 4 + 3 * depth + (2 * !depth);
+   assert(sizeof(buf) <= INT_MAX - indent_width);
+   unsigned int width = indent_width + (unsigned int)strlen(buf);
    if (width > this->width) {
       this->width = width;
    }
@@ -400,7 +403,7 @@ Panel* AffinityPanel_new(Machine* host, const Affinity* affinity, int* width) {
 
       char number[16];
       xSnprintf(number, 9, "CPU %d", Settings_cpuId(host->settings, i));
-      unsigned cpu_width = 4 + strlen(number);
+      unsigned int cpu_width = 4 + (unsigned int)strlen(number);
       if (cpu_width > this->width) {
          this->width = cpu_width;
       }
