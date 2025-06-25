@@ -23,21 +23,21 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length, stru
 }
 
 int
-pmLogGroupMeta(pmWebGroupSettings *sp, int id, const char *content, size_t length, struct dict *dp, void *arg)
+pmLogGroupMeta(pmLogGroupSettings *sp, int id, const char *content, size_t length, struct dict *dp, void *arg)
 {
     (void)arg; (void)dp; (void)id; (void)length; (void)content; (void)sp;
     return -EOPNOTSUPP;
 }
 
 int
-pmLogGroupIndex(pmWebGroupSettings *sp, int id, const char *content, size_t length, struct dict *dp, void *arg)
+pmLogGroupIndex(pmLogGroupSettings *sp, int id, const char *content, size_t length, struct dict *dp, void *arg)
 {
     (void)arg; (void)dp; (void)id; (void)length; (void)content; (void)sp;
     return -EOPNOTSUPP;
 }
 
 int
-pmLogGroupVolume(pmWebGroupSettings *sp, int id, unsigned int vol, const char *content, size_t length, struct dict *dp, void *arg)
+pmLogGroupVolume(pmLogGroupSettings *sp, int id, unsigned int vol, const char *content, size_t length, struct dict *dp, void *arg)
 {
     (void)arg; (void)dp; (void)vol; (void)id; (void)length; (void)content; (void)sp;
     return -EOPNOTSUPP;

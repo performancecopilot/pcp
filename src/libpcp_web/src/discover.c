@@ -12,6 +12,7 @@
  * License for more details.
  */
 #include "discover.h"
+#include "schema.h"
 #include "slots.h"
 #include "util.h"
 #include <assert.h>
@@ -2154,69 +2155,6 @@ archive_callback(pmDiscover *p)
     }
 }
 
-int
-pmDiscoverRegister(const char *dir, pmDiscoverModule *module,
-		pmDiscoverCallBacks *callbacks, void *arg)
-{
-    int			handle = -1;
-    int			avail_handle;
-    pmDiscoverCallBacks	**cbp;
-
-    while (callbacks != NULL) {
-	avail_handle = -1;
-	for (handle = 0; handle < discoverCallBackTableSize; handle++) {
-	    if (callbacks == discoverCallBackTable[handle])
-		break; /* we're adding new dirs using an existing handle */
-	    if (discoverCallBackTable[handle] == NULL) {
-		avail_handle = handle;
-		break;
-	    }
-	}
-	if (handle == discoverCallBackTableSize || avail_handle < 0) {
-	    avail_handle = discoverCallBackTableSize++;
-	    cbp = (pmDiscoverCallBacks **)realloc(discoverCallBackTable,
-			discoverCallBackTableSize * sizeof(*cbp));
-	    if (cbp == NULL)
-		return -ENOMEM;
-	    discoverCallBackTable = cbp;
-	    if (pmDebugOptions.discovery)
-		fprintf(stderr, "%s: new handle [%d] for callbacks %p\n",
-			__FUNCTION__, avail_handle, callbacks);
-	}
-	handle = avail_handle;
-	discoverCallBackTable[handle] = callbacks;
-	callbacks = callbacks->next;
-    }
-    /* else we are just adding dirs for all existing registered callbacks */
-
-    if (dir) {
-	/* NULL dir means add callbacks for existing directories and archives */
-	pmDiscoverArchives(dir, module, arg);
-    }
-
-    if (pmDebugOptions.discovery) {
-	fprintf(stderr, "Now tracking %d directories and %d archives\n",
-	    pmDiscoverTraverse(DISCOVER_FLAGS_DIRECTORY, NULL),
-	    pmDiscoverTraverse(DISCOVER_FLAGS_DATAVOL|DISCOVER_FLAGS_META, NULL));
-    }
-
-    /* monitor the directories */
-    pmDiscoverTraverse(DISCOVER_FLAGS_DIRECTORY, dir_callback);
-
-    /* monitor archive data and metadata volumes, uncompressed only */
-    pmDiscoverTraverse(DISCOVER_FLAGS_DATAVOL|DISCOVER_FLAGS_META, archive_callback);
-
-    return handle;
-}
-
-void
-pmDiscoverUnregister(int handle)
-{
-    if (discoverCallBackTable != NULL &&
-	handle >= 0 && handle < discoverCallBackTableSize)
-    	discoverCallBackTable[handle] = NULL; /* unregister these callbacks */
-}
-
 /*
  * Decode a metadata desc record in a given buffer buf of buflen bytes.
  * Careful not to modify the input buffer because it may be incomplete,
@@ -2357,4 +2295,397 @@ static int
 pmDiscoverDecodeMetaLabelSet(uint32_t *buf, int buflen, int type, __pmTimestamp *tsp, int *typep, int *idp, int *nsetsp, pmLabelSet **setsp)
 {
     return __pmLogLoadLabelSet((char *)buf, buflen, type, tsp, typep, idp, nsetsp, setsp);
+}
+
+int
+pmDiscoverRegister(const char *dir, pmDiscoverModule *module,
+		pmDiscoverCallBacks *callbacks, void *arg)
+{
+    int			handle = -1;
+    int			avail_handle;
+    pmDiscoverCallBacks	**cbp;
+
+    while (callbacks != NULL) {
+	avail_handle = -1;
+	for (handle = 0; handle < discoverCallBackTableSize; handle++) {
+	    if (callbacks == discoverCallBackTable[handle])
+		break; /* we're adding new dirs using an existing handle */
+	    if (discoverCallBackTable[handle] == NULL) {
+		avail_handle = handle;
+		break;
+	    }
+	}
+	if (handle == discoverCallBackTableSize || avail_handle < 0) {
+	    avail_handle = discoverCallBackTableSize++;
+	    cbp = (pmDiscoverCallBacks **)realloc(discoverCallBackTable,
+			discoverCallBackTableSize * sizeof(*cbp));
+	    if (cbp == NULL)
+		return -ENOMEM;
+	    discoverCallBackTable = cbp;
+	    if (pmDebugOptions.discovery)
+		fprintf(stderr, "%s: new handle [%d] for callbacks %p\n",
+			__FUNCTION__, avail_handle, callbacks);
+	}
+	handle = avail_handle;
+	discoverCallBackTable[handle] = callbacks;
+	callbacks = callbacks->next;
+    }
+    /* else we are just adding dirs for all existing registered callbacks */
+
+    if (dir) {
+	/* NULL dir means add callbacks for existing directories and archives */
+	pmDiscoverArchives(dir, module, arg);
+    }
+
+    if (pmDebugOptions.discovery) {
+	fprintf(stderr, "Now tracking %d directories and %d archives\n",
+	    pmDiscoverTraverse(DISCOVER_FLAGS_DIRECTORY, NULL),
+	    pmDiscoverTraverse(DISCOVER_FLAGS_DATAVOL|DISCOVER_FLAGS_META, NULL));
+    }
+
+    /* monitor the directories */
+    pmDiscoverTraverse(DISCOVER_FLAGS_DIRECTORY, dir_callback);
+
+    /* monitor archive data and metadata volumes, uncompressed only */
+    pmDiscoverTraverse(DISCOVER_FLAGS_DATAVOL|DISCOVER_FLAGS_META, archive_callback);
+
+    return handle;
+}
+
+void
+pmDiscoverUnregister(int handle)
+{
+    if (discoverCallBackTable != NULL &&
+	handle >= 0 && handle < discoverCallBackTableSize)
+    	discoverCallBackTable[handle] = NULL; /* unregister these callbacks */
+}
+
+discoverModuleData *
+getDiscoverModuleData(pmDiscoverModule *module)
+{
+    if (module->privdata == NULL)
+	module->privdata = calloc(1, sizeof(discoverModuleData));
+    return module->privdata;
+}
+
+int
+pmDiscoverSetSlots(pmDiscoverModule *module, void *slots)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+
+    if (data) {
+	data->slots = (keySlots *)slots;
+	data->shareslots = 1;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmDiscoverSetHostSpec(pmDiscoverModule *module, sds hostspec)
+{
+    (void)module;
+    (void)hostspec;
+    return -ENOTSUP;	/* deprecated, use pmDiscoverSetConfiguration */
+}
+
+int
+pmDiscoverSetConfiguration(pmDiscoverModule *module, dict *config)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+
+    if (data) {
+	data->config = config;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmDiscoverSetEventLoop(pmDiscoverModule *module, void *events)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+
+    if (data) {
+	data->events = (uv_loop_t *)events;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+void
+pmDiscoverSetupMetrics(pmDiscoverModule *module)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+    pmAtomValue		**metrics;
+    pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
+    pmUnits		countunits = MMV_UNITS(0,0,1,0,0,0);
+    pmUnits		secondsunits = MMV_UNITS(0,1,0,0,PM_TIME_SEC,0);
+    void		*map;
+
+    if (data == NULL || data->registry == NULL)
+	return;	/* no metric registry has been set up */
+
+    mmv_stats_add_metric(data->registry, "monitored", 1,
+	MMV_TYPE_U64, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
+	"directories and archives currently being monitored",
+	"Number of directories and archives currently being monitored");
+
+    mmv_stats_add_metric(data->registry, "purged", 2,
+	MMV_TYPE_U64, MMV_SEM_INSTANT, nounits, MMV_INDOM_NULL,
+	"directories and archives purged",
+	"Number of directories and archives no longer being monitored");
+
+    mmv_stats_add_metric(data->registry, "metadata.callbacks", 3,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"process metadata for monitored archives",
+	"total calls to process metadata for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "metadata.loops", 4,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"processing metadata for monitored archives",
+	"Total loops processing metadata for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "metadata.decode.desc", 5,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"desc records decoded for monitored archives",
+	"Total metric descriptor records decoded processing metadata for monitored\n"
+	"archives");
+
+    mmv_stats_add_metric(data->registry, "metadata.decode.indom", 6,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"indom records decoded for all monitored archives",
+	"Total indom records decoded processing metadata for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "metadata.decode.label", 7,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"label records decoded for monitored archives",
+	"Total label records decoded processing metadata for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "metadata.decode.helptext", 8,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"help text records decoded for all monitored archives",
+	"Total help text records decoded processing metadata for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "logvol.callbacks", 9,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"calls to process logvol data for monitored archives",
+	"Total calls to process log volume data for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "logvol.loops", 10,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"loops processing logvol data for monitored archives",
+	"Total loops processing logvol data for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "logvol.change_vol", 11,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"log vol values callbacks made for monitored archives",
+	"Total log volume values callbacks made for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "logvol.decode.result", 12,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"result records decoded for monitored archives",
+	"Total result records decoded for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "logvol.decode.result_pmids", 13,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"metric IDs in decoded result records for monitored archives",
+	"Total metric identifers in decoded result records for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "logvol.decode.mark_record", 14,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"mark records decoded for monitored archives",
+	"Total mark records in result records decoded for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "logvol.new_contexts", 15,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"successful new context calls made for monitored archives",
+	"Total successful new context calls made for monitored archives");
+
+    mmv_stats_add_metric(data->registry, "logvol.get_archive_end_failed", 16,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"Failed pmGetArchiveEnd calls for all monitored archives",
+	"Total failed pmGetArchiveEnd calls after successfully creating a new context\n"
+        "for all monitored archives");
+
+    mmv_stats_add_metric(data->registry, "changed_callbacks", 17,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"filesystem changed callbacks",
+	"Number of observed filesystem changes to PCP archives");
+
+    mmv_stats_add_metric(data->registry, "throttled_changed_callbacks", 18,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"filesystem changed callbacks ignored due to throttling",
+	"Number of filesystem change callbacks that were ignored due to throttling");
+
+    mmv_stats_add_metric(data->registry, "throttle", 19,
+	MMV_TYPE_U64, MMV_SEM_INSTANT, secondsunits, MMV_INDOM_NULL,
+	"minimum filesystem changed callback throttle time",
+	"Minimum time between filesystem changed callbacks for each monitored archive");
+
+    mmv_stats_add_metric(data->registry, "metadata.partial_reads", 20,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"metadata read returned less data than expected",
+	"Number of times a metadata record read returned less than expected length");
+
+    mmv_stats_add_metric(data->registry, "logvol.decode.result_errors", 21,
+	MMV_TYPE_U64, MMV_SEM_COUNTER, countunits, MMV_INDOM_NULL,
+	"error result records decoded for monitored archives",
+	"Total errors in result records decoded for monitored archives");
+
+    data->map = map = mmv_stats_start(data->registry);
+    metrics = data->metrics;
+
+    metrics[DISCOVER_MONITORED] = mmv_lookup_value_desc(
+				    map, "monitored", NULL);
+    metrics[DISCOVER_PURGED] = mmv_lookup_value_desc(
+				    map, "purged", NULL);
+    metrics[DISCOVER_META_CALLBACKS] = mmv_lookup_value_desc(
+				    map, "metadata.callbacks", NULL);
+    metrics[DISCOVER_META_LOOPS] = mmv_lookup_value_desc(
+				    map, "metadata.loops", NULL);
+    metrics[DISCOVER_DECODE_DESC] = mmv_lookup_value_desc(
+				    map, "metadata.decode.desc", NULL);
+    metrics[DISCOVER_DECODE_INDOM] = mmv_lookup_value_desc(
+				    map, "metadata.decode.indom", NULL);
+    metrics[DISCOVER_DECODE_LABEL] = mmv_lookup_value_desc(
+				    map, "metadata.decode.label", NULL);
+    metrics[DISCOVER_DECODE_HELPTEXT] = mmv_lookup_value_desc(
+				    map, "metadata.decode.helptext", NULL);
+    metrics[DISCOVER_LOGVOL_CALLBACKS] = mmv_lookup_value_desc(
+				    map, "logvol.callbacks", NULL);
+    metrics[DISCOVER_LOGVOL_LOOPS] = mmv_lookup_value_desc(
+				    map, "logvol.loops", NULL);
+    metrics[DISCOVER_LOGVOL_CHANGE_VOL] = mmv_lookup_value_desc(
+				    map, "logvol.change_vol", NULL);
+    metrics[DISCOVER_DECODE_RESULT] = mmv_lookup_value_desc(
+				    map, "logvol.decode.result", NULL);
+    metrics[DISCOVER_DECODE_RESULT_PMIDS] = mmv_lookup_value_desc(
+				    map, "logvol.decode.result_pmids", NULL);
+    metrics[DISCOVER_DECODE_MARK_RECORD] = mmv_lookup_value_desc(
+				    map, "logvol.decode.mark_record", NULL);
+    metrics[DISCOVER_LOGVOL_NEW_CONTEXTS] = mmv_lookup_value_desc(
+				    map, "logvol.new_contexts", NULL);
+    metrics[DISCOVER_ARCHIVE_END_FAILED] = mmv_lookup_value_desc(
+				    map, "logvol.get_archive_end_failed", NULL);
+    metrics[DISCOVER_CHANGED_CALLBACKS] = mmv_lookup_value_desc(
+				    map, "changed_callbacks", NULL);
+    metrics[DISCOVER_THROTTLE_CALLBACKS] = mmv_lookup_value_desc(
+				    map, "throttled_changed_callbacks", NULL);
+    metrics[DISCOVER_THROTTLE] = mmv_lookup_value_desc(
+				    map, "throttle", NULL);
+    metrics[DISCOVER_META_PARTIAL_READS] = mmv_lookup_value_desc(
+				    map, "metadata.partial_reads", NULL);
+    metrics[DISCOVER_DECODE_RESULT_ERRORS] = mmv_lookup_value_desc(
+				    map, "logvol.decode.result_errors", NULL);
+}
+
+int
+pmDiscoverSetMetricRegistry(pmDiscoverModule *module, mmv_registry_t *registry)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+
+    if (data) {
+	data->registry = registry;
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+int
+pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
+{
+    discoverModuleData	*data = getDiscoverModuleData(module);
+    const char		fallback[] = "/var/log/pcp/pmlogger";
+    const char		*logdir = pmGetOptionalConfig("PCP_ARCHIVE_DIR");
+    struct dict		*config;
+    unsigned int	domain, serial;
+    pmInDom		indom;
+    sds			option, *ids;
+    int			i, sts, nids;
+
+    if (data == NULL)
+	return -ENOMEM;
+    config = data->config;
+
+    /* double-check that we are supposed to be in here */
+    if ((option = pmIniFileLookup(config, "discover", "enabled"))) {
+	if (strcmp(option, "false") == 0)
+	    return 0;
+    }
+
+    /* see if an alternate archive directory is sought */
+    if ((option = pmIniFileLookup(config, "discover", "path")))
+	logdir = option;
+
+    /* prepare for optional metric and indom exclusion */
+    if ((option = pmIniFileLookup(config, "discover", "exclude.metrics"))) {
+	if ((data->pmids = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	    return -ENOMEM;
+	/* parse comma-separated metric name glob patterns, in 'option' */
+	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {
+	    data->exclude_names = nids;
+	    for (i = 0; i < nids; i++)
+		ids[i] = sdstrim(ids[i], " ");
+	    data->patterns = ids;
+	}
+    }
+    if ((option = pmIniFileLookup(config, "discover", "exclude.indoms"))) {
+	if ((data->indoms = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	    return -ENOMEM;
+	/* parse comma-separated indoms in 'option', convert to pmInDom */
+	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {
+	    data->exclude_indoms = nids;
+	    for (i = 0; i < nids; i++) {
+		if (sscanf(ids[i], "%u.%u", &domain, &serial) == 2) {
+		    indom = pmInDom_build(domain, serial);
+		    dictAdd(data->indoms, &indom, NULL);
+		}
+		sdsfree(ids[i]);
+	    }
+	    free(ids);
+	}
+    }
+
+    /* create global string map caches */
+    keysGlobalsInit(data->config);
+
+    if (!logdir)
+	logdir = fallback;
+
+    pmDiscoverSetupMetrics(module);
+
+    if (access(logdir, F_OK) == 0) {
+	sts = pmDiscoverRegister(logdir, module, cbs, arg);
+	if (sts >= 0) {
+	    data->handle = sts;
+	    return 0;
+	}
+    }
+    return -ESRCH;
+}
+
+void
+pmDiscoverClose(pmDiscoverModule *module)
+{
+    discoverModuleData	*discover = (discoverModuleData *)module->privdata;
+    unsigned int	i;
+
+    if (discover) {
+	pmDiscoverUnregister(discover->handle);
+	if (discover->slots && !discover->shareslots)
+	    keySlotsFree(discover->slots);
+	for (i = 0; i < discover->exclude_names; i++)
+	    sdsfree(discover->patterns[i]);
+	if (discover->patterns)
+	    free(discover->patterns);
+	if (discover->pmids)
+	    dictRelease(discover->pmids);
+	if (discover->indoms)
+	    dictRelease(discover->indoms);
+	memset(discover, 0, sizeof(*discover));
+	free(discover);
+    }
+
+    keysGlobalsClose();
 }
