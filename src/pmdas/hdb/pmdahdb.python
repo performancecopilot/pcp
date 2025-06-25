@@ -25,7 +25,7 @@ import argparse
 import configparser
 import os.path
 import sys
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 from cpmapi import (
     PM_COUNT_ONE,
@@ -105,7 +105,7 @@ class HDBConnection:
             cursor.execute(sql, parameters)
         except dbapi.ProgrammingError as ex:
             raise dbapi.ProgrammingError(
-                f"ex={ex}, sql='{sql}', paramters={parameters}"
+                f"ex={ex}, sql='{sql}', parameters={parameters}"
             ) from ex
 
         result = cursor.fetchall()
@@ -216,8 +216,11 @@ class Metric:
         :param meta: pmdaMetric
             PCP specific meta data of the metric. See pmdaMetric for details.
         :param query: str
-            SQL query that returns the value of the metric. If the Metric has an associated instance domain,
+            Can be either:
+            a) SQL query that returns the value of the metric. If the Metric has an associated instance domain,
             use a parameterised SQL query.
+            b) If the metric's query has been batched (for efficiency) this field will store the index of the
+            metric's value in the associated table populated by hdb_refresh.
         :param help_text: str
             Long help text. If not set, @desc will be used.
         :param min_hana_revision: str
@@ -234,15 +237,6 @@ class Metric:
         self.help_text = help_text
         self.min_hana_revision = min_hana_revision
         self.max_hana_revision = max_hana_revision
-
-        # If an instance domain is set, the query needs a WHERE clause that filters the results to match just
-        # one instance. A missing where clause is an indicator for a programming mistake. Since this mistake may not
-        # necessarely result in a runtime error, we end up with a subtle bug. This check prevents these situations.
-        if meta.m_desc.indom != PM_INDOM_NULL:
-            if " where " not in query.lower():
-                raise ValueError(
-                    "Metric with defined instance domain must have a WHERE clause in query"
-                )
 
     def __str__(self):
         return f"{self.name} ({self.query})"
@@ -271,6 +265,9 @@ class HdbPMDA(PMDA):
         # Lookup table that maps pmids (PCP domain) to this to individual Metric objects.
         self._metric_lookup: Dict[int, Metric] = {}  # pmid -> Metric
 
+        # Lookup table that maps PMID cluster numbers to inDom serial numbers
+        self._indom_id_lookup: Dict[int, int] = {} # cluster -> indom serial number
+
         # Each instance domain is mapped to a dictionary that contains the key value pairs to select the right instance
         # when querying the database. The key value pairs are used for named parameter binding in the sql query of
         # the metric. The named parameters in the sql query must match the keys of the dictionary.
@@ -282,7 +279,33 @@ class HdbPMDA(PMDA):
         # counter for automatically enumerating registered instance domains
         self._instance_domain_id_counter = 0
 
+        # lists to hold sampled data
+        self.host_resource_utilization = []
+        self.locks = []
+        self.system_overview = []
+        self.transactions_and_statements = []
+        self.plan_cache = []
+        self.caches = []
+        self.volume_io = []
+        self.schemas = []
+        self.service_memory = []
+        self.admission_control = []
+        self.buffer_cache = []
+        self.service_misc = []
+        self.buffer_cache_pool = []
+        self.mvcc = []
+        self.volumes = []
+        self.volumes_data_and_logs = []
+        self.backup = []
+        self.transactions_count = []
+        self.connections = []
+        self.column_unloads = []
+        self.oom_events = []
+        self.transactions_blocked = []
+        self.service_sql = []
+
         self._init_metrics()
+        self.set_refresh(self.hdb_refresh)
         self.set_fetch_callback(self.fetch_callback)
         self.set_user(pmContext.pmGetConfig("PCP_USER"))
 
@@ -310,7 +333,12 @@ class HdbPMDA(PMDA):
         indom_id = metric.meta.m_desc.indom
         if indom_id == PM_INDOM_NULL:
             try:
-                value = self._hdb.query_scalar(metric.query)
+                if cluster == 0:
+                    value = self.system_overview[0][int(metric.query)]
+                elif cluster == 11:
+                    value = self.backup[0][int(metric.query)]
+                else:
+                    value = self._hdb.query_scalar(metric.query)
             except OperationalError as ex:
                 self.err(
                     f"Failed to query DB for metric (metric={metric}, cluster={cluster}, item={item}, ex={ex})"
@@ -323,7 +351,52 @@ class HdbPMDA(PMDA):
             except KeyError:
                 return [PM_ERR_INST, 0]
             try:
-                value = self._hdb.query_scalar(metric.query, identifier_parameters)
+                # run hdb_value_map for clusters where the query is run in hdb_refresh
+                if cluster == 1:
+                    value = self.hdb_value_map(self.schemas, metric.query, inst)
+                elif cluster == 2:
+                    value = self.hdb_value_map(self.connections, metric.query, inst)
+                elif cluster == 3:
+                    value = self.hdb_value_map(self.volumes, metric.query, inst)
+                elif cluster == 4:
+                    value = self.hdb_value_map(self.service_memory, metric.query, inst)
+                elif cluster == 5:
+                    value = self.hdb_value_map(self.admission_control, metric.query, inst)
+                elif cluster == 6:
+                    value = self.hdb_value_map(self.buffer_cache, metric.query, inst)
+                elif cluster == 7:
+                    value = self.hdb_value_map(self.buffer_cache_pool, metric.query, inst)
+                elif cluster == 9:
+                    value = self.hdb_value_map(self.service_misc, metric.query, inst)
+                elif cluster == 10:
+                    value = self.hdb_value_map(self.volume_io, metric.query, inst)
+                elif cluster == 12:
+                    value = self.hdb_value_map(self.caches, metric.query, inst)
+                elif cluster in [13, 14, 28]:
+                    value = self.hdb_value_map(self.locks, metric.query, inst)
+                elif cluster in [15, 16]:
+                    value = self.hdb_value_map(self.transactions_and_statements, metric.query, inst)
+                elif cluster == 17:
+                    value = self.hdb_value_map(self.plan_cache, metric.query, inst)
+                elif cluster == 18:
+                    value = self.hdb_value_map(self.column_unloads, metric.query, inst)
+                elif cluster == 19:
+                    value = self.hdb_value_map(self.mvcc, metric.query, inst)
+                elif cluster == 20:
+                    value = self.hdb_value_map(self.oom_events, metric.query, inst)
+                elif cluster in [22, 23, 24]:
+                    value = self.hdb_value_map(self.host_resource_utilization, metric.query, inst)
+                elif cluster == 26:
+                    value = self.hdb_value_map(self.transactions_blocked, metric.query, inst)
+                elif cluster == 27:
+                    value = self.hdb_value_map(self.service_sql, metric.query, inst)
+                elif cluster == 29:
+                    value = self.hdb_value_map(self.volumes_data_and_logs, metric.query, inst)
+                elif cluster == 30:
+                    value = self.hdb_value_map(self.transactions_count, metric.query, inst)
+                else:
+                    # run query_scalar for metrics where the SQL query is not batched/run in hdb_refresh
+                    value = self._hdb.query_scalar(metric.query, identifier_parameters)
             except OperationalError as ex:
                 self.err(
                     f"Failed to query DB for metric (metric={metric}, cluster={cluster}, item={item}, inst={inst}, "
@@ -341,8 +414,347 @@ class HdbPMDA(PMDA):
         #       it might make more sense to return PM_ERR_AGAIN instead
         return [typed_value, 1]
 
+    def hdb_refresh(self, cluster):
+        """ refresh individual clusters as needed """
+
+        # _metrics_system_overview
+        if cluster == 0:
+            self.system_overview = self._hdb.query("SELECT SYSTEM_ID, VERSION FROM SYS.M_DATABASE")
+
+        # _metrics_schema
+        elif cluster == 1:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.schemas.clear()
+
+            for identifier_parameters in indom.values():
+                self.schemas.append(self._hdb.query("SELECT SUM(memory_size_in_total), SUM(READ_COUNT), " \
+                "SUM(WRITE_COUNT), SUM(MERGE_COUNT) FROM sys.m_cs_tables WHERE SCHEMA_NAME=:SCHEMA_NAME AND " \
+                "HOST=:HOST AND PORT=:PORT", identifier_parameters))
+
+    # _metrics_connections
+        elif cluster == 2:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.connections.clear()
+
+            for identifier_parameters in indom.values():
+                self.connections.append(self._hdb.query("SELECT COUNT(CASE WHEN connection_status = 'RUNNING' THEN 1 " \
+                "END) AS running_conns, COUNT(CASE WHEN connection_status = 'IDLE' THEN 1 END) AS idle_conns, " \
+                "COUNT(CASE WHEN connection_status = 'QUEUEING' THEN 1 END) AS queueing_conns FROM SYS.M_CONNECTIONS " \
+                "WHERE HOST = :HOST AND PORT = :PORT AND connection_status IN ('RUNNING', 'IDLE', 'QUEUEING')"),
+                identifier_parameters)
+
+        # _metrics_volumes
+        elif cluster == 3:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.volumes.clear()
+
+            for identifier_parameters in indom.values():
+                self.volumes.append(self._hdb.query("SELECT USED_SIZE, TOTAL_SIZE, FILL_RATIO FROM " \
+                "SYS.M_DATA_VOLUME_STATISTICS WHERE VOLUME_ID=:VOLUME_ID AND HOST=:HOST AND PORT=:PORT",
+                identifier_parameters))
+
+        # _metrics_service_memory
+        elif cluster == 4:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.service_memory.clear()
+
+            for identifier_parameters in indom.values():
+                self.service_memory.append(self._hdb.query("SELECT LOGICAL_MEMORY_SIZE, PHYSICAL_MEMORY_SIZE, " \
+                "CODE_SIZE, STACK_SIZE, HEAP_MEMORY_ALLOCATED_SIZE, HEAP_MEMORY_USED_SIZE, " \
+                "TO_DECIMAL((HEAP_MEMORY_USED_SIZE / NULLIF(HEAP_MEMORY_ALLOCATED_SIZE,0) * 100), 10, 2), " \
+                "SHARED_MEMORY_ALLOCATED_SIZE, " \
+                "TO_DECIMAL((SHARED_MEMORY_USED_SIZE / NULLIF(SHARED_MEMORY_ALLOCATED_SIZE,0) * 100), 10, 2), " \
+                "COMPACTORS_ALLOCATED_SIZE, COMPACTORS_FREEABLE_SIZE, EFFECTIVE_ALLOCATION_LIMIT, " \
+                "BLOCKED_MEMORY_LIMIT, FREE_MEMORY_SIZE, VIRTUAL_ADDRESS_SPACE_USED_SIZE, " \
+                "VIRTUAL_ADDRESS_SPACE_TOTAL_SIZE, FRAGMENTED_MEMORY_SIZE, TOTAL_MEMORY_USED_SIZE FROM " \
+                "SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND SERVICE_NAME=:SERVICE_NAME",
+                identifier_parameters))
+
+        # _metrics_admission_control
+        elif cluster == 5:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.admission_control.clear()
+
+            for identifier_parameters in indom.values():
+                self.admission_control.append(self._hdb.query("SELECT TOTAL_ADMIT_COUNT, TOTAL_REJECT_COUNT, " \
+                "TOTAL_ENQUEUE_COUNT, TOTAL_DEQUEUE_COUNT, TOTAL_TIMEOUT_COUNT, CURRENT_QUEUE_SIZE, LAST_WAIT_TIME, " \
+                "AVG_WAIT_TIME, MAX_WAIT_TIME, MIN_WAIT_TIME, SUM_WAIT_TIME, LAST_MEMORY_SIZE, LAST_MEMORY_RATIO, " \
+                "LAST_MEMORY_MEASURE_TIME FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                identifier_parameters))
+
+        # _metrics_buffer_cache
+        elif cluster == 6:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.buffer_cache.clear()
+
+            for identifier_parameters in indom.values():
+                self.buffer_cache.append(self._hdb.query("SELECT MAX_SIZE, ALLOCATED_SIZE, USED_SIZE, " \
+                "BUFFER_REUSE_COUNT, HIT_RATIO FROM SYS.M_BUFFER_CACHE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT " \
+                "AND VOLUME_ID=:VOLUME_ID", identifier_parameters))
+
+        # _metrics_buffer_cache_pool
+        elif cluster == 7:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.buffer_cache_pool.clear()
+
+            for identifier_parameters in indom.values():
+                self.buffer_cache_pool.append(self._hdb.query("SELECT GROWTH_PERCENT, TOTAL_BUFFER_COUNT, " \
+                "FREE_BUFFER_COUNT, LRU_LIST_BUFFER_COUNT, HOT_BUFFER_COUNT, BUFFER_REUSE_COUNT, OUT_OF_BUFFER_COUNT " \
+                "FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND VOLUME_ID=:VOLUME_ID " \
+                "AND CACHE_NAME=:CACHE_NAME AND BUFFER_SIZE=:BUFFER_SIZE", identifier_parameters))
+
+        # _metrics_service_misc
+        elif cluster == 9:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.service_misc.clear()
+
+            for identifier_parameters in indom.values():
+                self.service_misc.append(self._hdb.query("SELECT THREAD_COUNT, ACTIVE_THREAD_COUNT, " \
+                "OPEN_FILE_COUNT, PROCESS_CPU, PROCESS_CPU_TIME FROM SYS.M_SERVICE_STATISTICS WHERE HOST=:HOST " \
+                "AND PORT=:PORT AND SERVICE_NAME=:SERVICE_NAME", identifier_parameters))
+
+        # _metrics_volume_io
+        elif cluster == 10:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.volume_io.clear()
+
+            for identifier_parameters in indom.values():
+                self.volume_io.append(self._hdb.query("SELECT BLOCKED_WRITE_REQUESTS, MAX_BLOCKED_WRITE_REQUESTS, " \
+                "TOTAL_READS, TOTAL_TRIGGER_ASYNC_READS, ACTIVE_ASYNC_READS_COUNT, TRIGGER_READ_RATIO, " \
+                "TOTAL_SHORT_READS, TOTAL_FULL_RETRY_READS, TOTAL_FAILED_READS, TOTAL_READ_SIZE, TOTAL_READ_TIME, " \
+                "TOTAL_APPENDS, TOTAL_WRITES, TOTAL_TRIGGER_ASYNC_WRITES, ACTIVE_ASYNC_WRITES_COUNT, " \
+                "TRIGGER_WRITE_RATIO, TOTAL_SHORT_WRITES, TOTAL_FULL_RETRY_WRITES, TOTAL_FAILED_WRITES, " \
+                "TOTAL_WRITE_SIZE, TOTAL_WRITE_TIME, TOTAL_IO_TIME FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE " \
+                "HOST=:HOST AND PORT=:PORT AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE", identifier_parameters))
+
+        # _metrics_backup
+        elif cluster == 11:
+            self.backup = self._hdb.query("SELECT COUNT(CASE WHEN STATE_NAME = 'successful' THEN 1 END) AS " \
+            "successful_backup_count, MAX(CASE WHEN STATE_NAME = 'successful' THEN SECONDS_BETWEEN(UTC_START_TIME, " \
+            "UTC_END_TIME) END) AS max_successful_backup_duration_seconds, COUNT(CASE WHEN STATE_NAME = 'failed' THEN" \
+            " 1 END) AS failed_backup_count, COUNT(CASE WHEN STATE_NAME = 'running' THEN 1 END) AS " \
+            "running_backup_count, COUNT(CASE WHEN STATE_NAME = 'cancel pending' THEN 1 END) AS " \
+            "cancel_pending_backup_count, COUNT(CASE WHEN STATE_NAME = 'canceled' THEN 1 END) AS " \
+            "canceled_backup_count, MAX(CASE WHEN STATE_NAME IN ('running', 'cancel pending') THEN " \
+            "SECONDS_BETWEEN(UTC_START_TIME, NOW()) END) AS max_running_or_cancel_pending_current_duration_seconds " \
+            "FROM SYS.M_BACKUP_CATALOG WHERE STATE_NAME IN ('successful', 'failed', 'running', 'cancel pending', " \
+            "'canceled')")
+
+        # _metrics_caches
+        elif cluster == 12:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.caches.clear()
+
+            for identifier_parameters in indom.values():
+                self.caches.append(self._hdb.query("SELECT TOTAL_SIZE, USED_SIZE, ENTRY_COUNT, INSERT_COUNT, "
+                "INVALIDATE_COUNT, HIT_COUNT, MISS_COUNT FROM SYS.M_CACHES WHERE CACHE_ID=:CACHE_ID AND " \
+                "VOLUME_ID=:VOLUME_ID AND HOST=:HOST AND PORT=:PORT", identifier_parameters))
+
+        # _metrics_metadata_locks
+        # _metrics_table_locks
+        # _metrics_column_store_record_locks_wait
+        elif cluster in [13, 14, 28]:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.locks.clear()
+
+            for identifier_parameters in indom.values():
+                self.locks.append(self._hdb.query("SELECT SUM(CASE WHEN LOCK_TYPE = 'METADATA' THEN TOTAL_LOCK_WAITS " \
+                "ELSE 0 END) AS METADATA_TOTAL_LOCK_WAITS, SUM(CASE WHEN LOCK_TYPE = 'METADATA' THEN " \
+                "TOTAL_LOCK_WAIT_TIME ELSE 0 END) AS METADATA_TOTAL_LOCK_WAIT_TIME, SUM(CASE WHEN LOCK_TYPE = 'TABLE'" \
+                " THEN TOTAL_LOCK_WAITS ELSE 0 END) AS TABLE_TOTAL_LOCK_WAITS, SUM(CASE WHEN LOCK_TYPE = 'TABLE' THEN" \
+                " TOTAL_LOCK_WAIT_TIME ELSE 0 END) AS TABLE_TOTAL_LOCK_WAIT_TIME, SUM(CASE WHEN LOCK_TYPE = 'RECORD' " \
+                "THEN TOTAL_LOCK_WAITS ELSE 0 END) AS RECORD_TOTAL_LOCK_WAITS, SUM(CASE WHEN LOCK_TYPE = 'RECORD' " \
+                "THEN TOTAL_LOCK_WAIT_TIME ELSE 0 END) AS RECORD_TOTAL_LOCK_WAIT_TIME FROM " \
+                "SYS.M_LOCK_WAITS_STATISTICS WHERE HOST = :HOST AND PORT = :PORT AND LOCK_TYPE IN ('METADATA', " \
+                "'TABLE', 'RECORD')", identifier_parameters))
+
+        # _metrics_transactions
+        # _metrics_statements
+        elif cluster in [15, 16]:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.transactions_and_statements.clear()
+
+            for identifier_parameters in indom.values():
+                self.transactions_and_statements.append(self._hdb.query("SELECT UPDATE_TRANSACTION_COUNT, " \
+                "COMMIT_COUNT, ROLLBACK_COUNT, CURRENT_UPDATE_TRANSACTION_RATE, PEAK_UPDATE_TRANSACTION_RATE, "
+                "CURRENT_TRANSACTION_RATE, PEAK_TRANSACTION_RATE, CURRENT_COMMIT_RATE, PEAK_COMMIT_RATE, "
+                "CURRENT_ROLLBACK_RATE, PEAK_ROLLBACK_RATE, EXECUTION_COUNT, CURRENT_EXECUTION_RATE, " \
+                "PEAK_EXECUTION_RATE, EXECUTION_COUNT, PEAK_COMPILATION_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND" \
+                " PORT=:PORT", identifier_parameters))
+
+        # _metrics_plan_cache
+        elif cluster == 17:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.plan_cache.clear()
+
+            for identifier_parameters in indom.values():
+                self.plan_cache.append(self._hdb.query("SELECT PLAN_CACHE_CAPACITY, CACHED_PLAN_SIZE, " \
+                "TO_DECIMAL((CACHED_PLAN_SIZE / NULLIF(PLAN_CACHE_CAPACITY, 0) * 100), 10, 2), PLAN_CACHE_HIT_RATIO, "
+                "PLAN_CACHE_LOOKUP_COUNT, PLAN_CACHE_HIT_COUNT, EVICTED_PLAN_AVG_CACHE_TIME, EVICTED_PLAN_COUNT, "
+                "EVICTED_PLAN_PREPARATION_COUNT, EVICTED_PLAN_EXECUTION_COUNT, EVICTED_PLAN_PREPARATION_TIME, "
+                "EVICTED_PLAN_CURSOR_DURATION, EVICTED_PLAN_TOTAL_EXECUTION_TIME, EVICTED_PLAN_SIZE, "
+                "CACHED_PLAN_COUNT, CACHED_PLAN_PREPARATION_COUNT, CACHED_PLAN_EXECUTION_COUNT, "
+                "CACHED_PLAN_PREPARATION_TIME, CACHED_PLAN_CURSOR_DURATION, CACHED_PLAN_TOTAL_EXECUTION_TIME, "
+                "FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT", identifier_parameters))
+
+        # _metrics_column_unloads
+        elif cluster == 18:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.column_unloads.clear()
+
+            for identifier_parameters in indom.values():
+                self.column_unloads.append(self._hdb.query("SELECT COUNT(CASE WHEN REASON = 'LOW MEMORY' THEN 1 END) " \
+                "AS low_memory_unloads_count, COUNT(CASE WHEN REASON = 'SHRINK' THEN 1 END) AS shrink_unloads_count, " \
+                "COUNT(CASE WHEN REASON = 'EXPLICIT' THEN 1 END) AS explicit_unloads_count, COUNT(CASE WHEN REASON = " \
+                "'MERGE' THEN 1 END) AS merge_unloads_count FROM SYS.M_CS_UNLOADS WHERE HOST = :HOST AND PORT = " \
+                ":PORT AND REASON IN ('LOW MEMORY', 'SHRINK', 'EXPLICIT', 'MERGE')", identifier_parameters))
+
+        # _metrics_mvcc
+        elif cluster == 19:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.mvcc.clear()
+
+            for identifier_parameters in indom.values():
+                self.mvcc.append(self._hdb.query("SELECT VERSION_COUNT, DATA_VERSION_COUNT, METADATA_VERSION_COUNT, " \
+                "ACQUIRED_LOCK_COUNT, (GLOBAL_MVCC_TIMESTAMP-MIN_MVCC_SNAPSHOT_TIMESTAMP), "
+                "(MIN_WRITE_TRANSACTION_ID-MIN_READ_TRANSACTION_ID) FROM SYS.M_MVCC_OVERVIEW WHERE HOST=:HOST AND " \
+                "PORT=:PORT", identifier_parameters))
+
+        # _metrics_aggregated_host_oom
+        elif cluster == 20:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.oom_events.clear()
+
+            for identifier_parameters in indom.values():
+                self.oom_events.append(self._hdb.query("SELECT COUNT(CASE WHEN EVENT_REASON='GLOBAL ALLOCATION " \
+                "LIMIT' THEN 1 END) AS global_allocation_limit_count, COUNT(CASE WHEN EVENT_REASON='PROCESS " \
+                "ALLOCATION LIMIT' THEN 1 END) AS process_allocation_limit_count, COUNT(CASE WHEN " \
+                "EVENT_REASON='STATEMENT MEMORY LIMIT' THEN 1 END) AS statement_memory_limit_count FROM " \
+                "SYS.M_OUT_OF_MEMORY_EVENTS WHERE HOST=:HOST AND EVENT_REASON IN ('GLOBAL ALLOCATION LIMIT', " \
+                "'PROCESS ALLOCATION LIMIT', 'STATEMENT MEMORY LIMIT')", identifier_parameters))
+
+        # _metrics_aggregated_host_cpu,
+        # _metrics_aggregated_host_io,
+        # _metrics_aggregated_host_memory
+        elif cluster in [22, 23, 24]:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.host_resource_utilization.clear()
+
+            for identifier_parameters in indom.values():
+                self.host_resource_utilization.append(self._hdb.query("SELECT OPEN_FILE_COUNT, " \
+                "ACTIVE_ASYNC_IO_COUNT, TOTAL_CPU_USER_TIME, TOTAL_CPU_SYSTEM_TIME, TOTAL_CPU_WIO_TIME, " \
+                "TOTAL_CPU_IDLE_TIME, FREE_PHYSICAL_MEMORY, USED_PHYSICAL_MEMORY, FREE_SWAP_SPACE, USED_SWAP_SPACE, " \
+                "ALLOCATION_LIMIT, INSTANCE_TOTAL_MEMORY_USED_SIZE, INSTANCE_TOTAL_MEMORY_PEAK_USED_SIZE, " \
+                "INSTANCE_TOTAL_MEMORY_ALLOCATED_SIZE, INSTANCE_CODE_SIZE, INSTANCE_SHARED_MEMORY_ALLOCATED_SIZE " \
+                "FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST", identifier_parameters))
+
+        # _metrics_transactions_blocked
+        elif cluster == 26:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.transactions_blocked.clear()
+
+            for identifier_parameters in indom.values():
+                self.transactions_blocked.append(self._hdb.query("SELECT COUNT(1) AS total_blocked_transactions, " \
+                "COUNT(CASE WHEN LOCK_TYPE='RECORD' THEN 1 END) AS record_lock_count, COUNT(CASE WHEN " \
+                "LOCK_TYPE='TABLE' THEN 1 END) AS table_lock_count, COUNT(CASE WHEN LOCK_TYPE='METADATA' THEN 1 END) " \
+                "AS metadata_lock_count FROM SYS.M_BLOCKED_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT"),
+                identifier_parameters)
+
+        # _metrics_service_sql
+        elif cluster == 27:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.service_sql.clear()
+
+            for identifier_parameters in indom.values():
+                self.service_sql.append(self._hdb.query("SELECT COUNT(CASE WHEN IS_ACTIVE='TRUE' THEN 1 END) AS " \
+                "active_sqlexecutor_threads, COUNT(CASE WHEN IS_ACTIVE='FALSE' THEN 1 END) AS " \
+                "inactive_sqlexecutor_threads FROM SYS.M_SERVICE_THREADS WHERE HOST=:HOST AND PORT=:PORT AND " \
+                "THREAD_TYPE='SqlExecutor'"), identifier_parameters)
+
+        # _metrics_volumes_data_and_logs
+        elif cluster == 29:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.volumes_data_and_logs.clear()
+
+            for identifier_parameters in indom.values():
+                self.volumes_data_and_logs.append(self._hdb.query("SELECT SUM(CASE WHEN FILE_TYPE = 'DATA' THEN " \
+                "USED_SIZE ELSE 0 END) AS DATA_USED_SIZE, SUM(CASE WHEN FILE_TYPE = 'DATA' THEN TOTAL_SIZE ELSE 0 " \
+                "END) AS DATA_TOTAL_SIZE, SUM(CASE WHEN FILE_TYPE = 'LOG' THEN TOTAL_SIZE ELSE 0 END) AS " \
+                "LOG_TOTAL_SIZE FROM SYS.M_VOLUME_FILES WHERE VOLUME_ID=:VOLUME_ID AND HOST=:HOST AND PORT=:PORT AND " \
+                "FILE_TYPE IN ('DATA', 'LOG')", identifier_parameters))
+
+        # _metrics_transactions_count
+        elif cluster == 30:
+            indom_id = PMDA.indom(self._indom_id_lookup[cluster])
+            indom = self._indom_lookup[indom_id]
+
+            self.transactions_count.clear()
+
+            for identifier_parameters in indom.values():
+                self.transactions_count.append(self._hdb.query("SELECT COUNT(CASE WHEN TRANSACTION_STATUS = 'ACTIVE' " \
+                "THEN 1 END) AS ACTIVE_COUNT, COUNT(CASE WHEN TRANSACTION_STATUS = 'INACTIVE' THEN 1 END) AS " \
+                "INACTIVE_COUNT, COUNT(CASE WHEN TRANSACTION_STATUS = 'PRECOMMITTED' THEN 1 END) AS " \
+                "PRECOMMITTED_COUNT, COUNT(CASE WHEN TRANSACTION_STATUS = 'ABORTING' THEN 1 END) AS ABORTING_COUNT, " \
+                "COUNT(CASE WHEN TRANSACTION_STATUS = 'PARTIAL_ABORTING' THEN 1 END) AS PARTIAL_ABORTING_COUNT, " \
+                "COUNT(CASE WHEN TRANSACTION_STATUS = 'ACTIVE_PREPARE_COMMIT' THEN 1 END) AS " \
+                "ACTIVE_PREPARE_COMMIT_COUNT FROM SYS.M_TRANSACTIONS WHERE HOST = :HOST AND PORT = :PORT",
+                identifier_parameters))
+
+    def hdb_value_map(self, table, index, inst):
+        """ descend into table looking up a value for the index """
+        # raise a type error if the query is not an index (int type)
+        try:
+            value = table[inst][0][int(index)]
+        except TypeError:
+            raise TypeError(
+                    "Metric index not of type int"
+                )
+        return value
+
     def _init_metrics(self):
         # builders are expected to be of type cluster_id:int -> List[Metric]
+        # the order of the builders in metrics_builders determines the PMID cluster number and the inDom serial number
+        # changing this order requires modifying hdb_refresh() for the new cluster numbers
         metrics_builders = [
             self._metrics_system_overview,
             self._metrics_schema,
@@ -364,10 +776,17 @@ class HdbPMDA(PMDA):
             self._metrics_plan_cache,
             self._metrics_column_unloads,
             self._metrics_mvcc,
-            self._metrics_aggregated_host_memory,
+            self._metrics_aggregated_host_oom,
             self._metrics_alerts,
             self._metrics_aggregated_host_cpu,
             self._metrics_aggregated_host_io,
+            self._metrics_aggregated_host_memory,
+            self._metrics_instance,
+            self._metrics_transactions_blocked,
+            self._metrics_service_sql,
+            self._metrics_column_store_record_locks_wait,
+            self._metrics_volumes_data_and_logs,
+            self._metrics_transactions_count
         ]
         # TODO: Domains that should be added as well:
         #   - SDA Monitoring via M_REMOTE_CONNECTIONS and M_REMOTE_STATEMENTS
@@ -406,7 +825,7 @@ class HdbPMDA(PMDA):
         enum_query: str,
         min_hana_revision: Optional[str] = None,
         max_hana_revision: Optional[str] = None,
-    ) -> int:
+    ) -> Tuple[int, int]:
         # check version compat
         if not _hana_revision_included(
             self._hdb_revision, min_hana_revision, max_hana_revision
@@ -442,10 +861,10 @@ class HdbPMDA(PMDA):
             ) from ex
 
         self._indom_lookup[indom] = parameters
-        return indom
+        return indom, domain_id
 
     def _metrics_table_locks(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT"
         )
         return [
@@ -460,8 +879,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_LOCK_WAITS FROM SYS.M_LOCK_WAITS_STATISTICS WHERE LOCK_TYPE='TABLE' AND HOST=:HOST AND " \
-                "PORT=:PORT",
+                "2",
             ),
             Metric(
                 "hdb.table_locks.total_wait_time_microseconds",
@@ -474,8 +892,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT TOTAL_LOCK_WAIT_TIME FROM SYS.M_LOCK_WAITS_STATISTICS WHERE LOCK_TYPE='TABLE' AND HOST=:HOST " \
-                "AND PORT=:PORT",
+                "3",
             ),
         ]
 
@@ -492,19 +909,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_DISCRETE,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT SYSTEM_ID FROM SYS.M_DATABASE",
-            ),
-            Metric(
-                "hdb.instance_number",
-                "Instance number",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 1),
-                    PM_TYPE_U32,
-                    PM_INDOM_NULL,
-                    PM_SEM_DISCRETE,
-                    Metric.UNITS_NONE,
-                ),
-                "SELECT value FROM SYS.M_SYSTEM_OVERVIEW WHERE section='System' AND name='Instance Number'",
+                "0",
             ),
             Metric(
                 "hdb.version",
@@ -516,94 +921,15 @@ class HdbPMDA(PMDA):
                     PM_SEM_DISCRETE,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT VERSION FROM SYS.M_DATABASE",
+                "1",
             ),
         ]
 
     def _metrics_transactions(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
         )
-
         return [
-            Metric(
-                "hdb.transactions.active_count",
-                "Current number of active transactions",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 0),
-                    PM_TYPE_U64,
-                    indom_indexservers,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "TRANSACTION_STATUS='ACTIVE'",
-            ),
-            Metric(
-                "hdb.transactions.inactive_count",
-                "Current number of inactive transactions",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 1),
-                    PM_TYPE_U64,
-                    indom_indexservers,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "TRANSACTION_STATUS='INACTIVE'",
-            ),
-            Metric(
-                "hdb.transactions.precomitted_count",
-                "Current number of precommitted transactions",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 2),
-                    PM_TYPE_U64,
-                    indom_indexservers,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "TRANSACTION_STATUS='PRECOMMITTED'",
-            ),
-            Metric(
-                "hdb.transactions.aborting_count",
-                "Current number of aborting transactions",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 3),
-                    PM_TYPE_U64,
-                    indom_indexservers,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "TRANSACTION_STATUS='ABORTING'",
-            ),
-            Metric(
-                "hdb.transactions.partial_aborting_count",
-                "Current number of transactions in partial aborting status",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 4),
-                    PM_TYPE_U64,
-                    indom_indexservers,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "TRANSACTION_STATUS='PARTIAL_ABORTING'",
-            ),
-            Metric(
-                "hdb.transactions.active_prepare_count",
-                "Current number of transactions in active prepare status",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 5),
-                    PM_TYPE_U64,
-                    indom_indexservers,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "TRANSACTION_STATUS='ACTIVE_PREPARE_COMMIT'",
-            ),
             Metric(
                 "hdb.transactions.update_count",
                 "Number of update transactions",
@@ -614,7 +940,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT UPDATE_TRANSACTION_COUNT FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.transactions.commit_count",
@@ -626,7 +952,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COMMIT_COUNT FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "1",
             ),
             Metric(
                 "hdb.transactions.rollback_count",
@@ -638,7 +964,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT ROLLBACK_COUNT FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "2",
             ),
             Metric(
                 "hdb.transactions.update_rate",
@@ -650,7 +976,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CURRENT_UPDATE_TRANSACTION_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "3",
             ),
             Metric(
                 "hdb.transactions.peak_update_rate",
@@ -662,7 +988,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PEAK_UPDATE_TRANSACTION_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "4",
             ),
             Metric(
                 "hdb.transactions.transaction_rate",
@@ -674,7 +1000,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CURRENT_TRANSACTION_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "5",
             ),
             Metric(
                 "hdb.transactions.peak_transaction_rate",
@@ -686,7 +1012,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PEAK_TRANSACTION_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "6",
             ),
             Metric(
                 "hdb.transactions.commit_rate",
@@ -698,7 +1024,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CURRENT_COMMIT_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "7",
             ),
             Metric(
                 "hdb.transactions.peak_commit_rate",
@@ -710,7 +1036,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PEAK_COMMIT_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "8",
             ),
             Metric(
                 "hdb.transactions.peak_rollbacks_rate",
@@ -722,7 +1048,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CURRENT_ROLLBACK_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "9",
             ),
             Metric(
                 "hdb.transactions.peak_rollback_rate",
@@ -734,62 +1060,91 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PEAK_ROLLBACK_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "10",
             ),
+        ]
+
+    def _metrics_transactions_count(self, cluster_id: int) -> List[Metric]:
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
+            "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
+        )
+        return [
             Metric(
-                "hdb.transactions.blocked_count",
-                "Number of currently blocked transactions waiting for locks",
+                "hdb.transactions.active_count",
+                "Current number of active transactions",
                 pmdaMetric(
-                    PMDA.pmid(cluster_id, 17),
-                    PM_TYPE_DOUBLE,
+                    PMDA.pmid(cluster_id, 0),
+                    PM_TYPE_U64,
                     indom_indexservers,
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_BLOCKED_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT",
+                "0",
             ),
             Metric(
-                "hdb.transactions.blocked_record_count",
-                "Number of currently blocked transactions waiting for record locks",
+                "hdb.transactions.inactive_count",
+                "Current number of inactive transactions",
                 pmdaMetric(
-                    PMDA.pmid(cluster_id, 18),
-                    PM_TYPE_DOUBLE,
+                    PMDA.pmid(cluster_id, 1),
+                    PM_TYPE_U64,
                     indom_indexservers,
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_BLOCKED_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "LOCK_TYPE='RECORD'",
+                "1",
             ),
             Metric(
-                "hdb.transactions.blocked_table_count",
-                "Number of currently blocked transactions waiting for table locks",
+                "hdb.transactions.precomitted_count",
+                "Current number of precommitted transactions",
                 pmdaMetric(
-                    PMDA.pmid(cluster_id, 19),
-                    PM_TYPE_DOUBLE,
+                    PMDA.pmid(cluster_id, 2),
+                    PM_TYPE_U64,
                     indom_indexservers,
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_BLOCKED_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND LOCK_TYPE='TABLE'",
+                "2",
             ),
             Metric(
-                "hdb.transactions.blocked_metadata_count",
-                "Number of currently blocked transactions waiting for metadata locks",
+                "hdb.transactions.aborting_count",
+                "Current number of aborting transactions",
                 pmdaMetric(
-                    PMDA.pmid(cluster_id, 20),
-                    PM_TYPE_DOUBLE,
+                    PMDA.pmid(cluster_id, 3),
+                    PM_TYPE_U64,
                     indom_indexservers,
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_BLOCKED_TRANSACTIONS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "LOCK_TYPE='METADATA'",
+                "3",
+            ),
+            Metric(
+                "hdb.transactions.partial_aborting_count",
+                "Current number of transactions in partial aborting status",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 4),
+                    PM_TYPE_U64,
+                    indom_indexservers,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_COUNT,
+                ),
+                "4",
+            ),
+            Metric(
+                "hdb.transactions.active_prepare_count",
+                "Current number of transactions in active prepare status",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 5),
+                    PM_TYPE_U64,
+                    indom_indexservers,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_COUNT,
+                ),
+                "5",
             ),
         ]
 
     def _metrics_statements(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
         )
         return [
@@ -803,7 +1158,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT EXECUTION_COUNT FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "11",
             ),
             Metric(
                 "hdb.statements.execution_rate",
@@ -815,7 +1170,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CURRENT_EXECUTION_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "12",
             ),
             Metric(
                 "hdb.statements.peak_execution_rate",
@@ -827,7 +1182,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PEAK_EXECUTION_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "13",
             ),
             Metric(
                 "hdb.statements.compilation_rate",
@@ -839,7 +1194,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT EXECUTION_COUNT FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "14",
             ),
             Metric(
                 "hdb.statements.peak_compilation_rate",
@@ -851,12 +1206,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PEAK_COMPILATION_RATE FROM SYS.M_WORKLOAD WHERE HOST=:HOST AND PORT=:PORT",
+                "15",
             ),
         ]
 
     def _metrics_plan_cache(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
         )
 
@@ -871,7 +1226,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT PLAN_CACHE_CAPACITY FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.plan_cache.size_bytes",
@@ -883,7 +1238,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT CACHED_PLAN_SIZE FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "1",
             ),
             Metric(
                 "hdb.plan_cache.fill_ratio_percent",
@@ -895,8 +1250,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT TO_DECIMAL((CACHED_PLAN_SIZE / NULLIF(PLAN_CACHE_CAPACITY, 0) * 100), 10, 2) FROM " \
-                "SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "2",
             ),
             Metric(
                 "hdb.plan_cache.hit_ratio",
@@ -908,7 +1262,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT PLAN_CACHE_HIT_RATIO FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "3",
             ),
             Metric(
                 "hdb.plan_cache.lookups_count",
@@ -920,7 +1274,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PLAN_CACHE_LOOKUP_COUNT FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "4",
             ),
             Metric(
                 "hdb.plan_cache.hits_count",
@@ -932,7 +1286,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PLAN_CACHE_HIT_COUNT FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "5",
             ),
             Metric(
                 "hdb.plan_cache.evicted_plans.avg_cache_time_microseconds",
@@ -944,7 +1298,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT EVICTED_PLAN_AVG_CACHE_TIME FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "6",
             ),
             Metric(
                 "hdb.plan_cache.evicted_plans.count",
@@ -956,7 +1310,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT EVICTED_PLAN_COUNT FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "7",
             ),
             Metric(
                 "hdb.plan_cache.evicted_plans.preparation_count",
@@ -968,8 +1322,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT EVICTED_PLAN_PREPARATION_COUNT FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "8",
             ),
             Metric(
                 "hdb.plan_cache.evicted_plans.execution_count",
@@ -981,8 +1334,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT EVICTED_PLAN_EXECUTION_COUNT FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "9",
             ),
             Metric(
                 "hdb.plan_cache.evicted_plans.total_preparation_time_microseconds",
@@ -994,8 +1346,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT EVICTED_PLAN_PREPARATION_TIME FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "10",
             ),
             Metric(
                 "hdb.plan_cache.evicted_plans.total_cursor_duration_microseconds",
@@ -1007,8 +1358,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT EVICTED_PLAN_CURSOR_DURATION FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "11",
             ),
             Metric(
                 "hdb.plan_cache.evicted_plans.total_execution_time_microseconds",
@@ -1020,8 +1370,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT EVICTED_PLAN_TOTAL_EXECUTION_TIME FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "12",
             ),
             Metric(
                 "hdb.plan_cache.evicted_plans.size_bytes",
@@ -1033,7 +1382,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT EVICTED_PLAN_SIZE FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "13",
             ),
             Metric(
                 "hdb.plan_cache.cached_plans.count",
@@ -1045,7 +1394,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CACHED_PLAN_COUNT FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "14",
             ),
             Metric(
                 "hdb.plan_cache.cached_plans.preparation_count",
@@ -1057,8 +1406,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CACHED_PLAN_PREPARATION_COUNT FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "15",
             ),
             Metric(
                 "hdb.plan_cache.cached_plans.execution_count",
@@ -1070,7 +1418,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CACHED_PLAN_EXECUTION_COUNT FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "16",
             ),
             Metric(
                 "hdb.plan_cache.cached_plans.total_preparation_time_microseconds",
@@ -1082,8 +1430,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT CACHED_PLAN_PREPARATION_TIME FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "17",
             ),
             Metric(
                 "hdb.plan_cache.cached_plans.total_cursor_duration_microseconds",
@@ -1095,7 +1442,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT CACHED_PLAN_CURSOR_DURATION FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "18",
             ),
             Metric(
                 "hdb.plan_cache.cached_plans.total_execution_time_microseconds",
@@ -1107,13 +1454,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT CACHED_PLAN_TOTAL_EXECUTION_TIME FROM SYS.M_SQL_PLAN_CACHE_OVERVIEW WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "19",
             ),
         ]
 
     def _metrics_column_unloads(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
         )
         return [
@@ -1127,7 +1473,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_CS_UNLOADS WHERE HOST=:HOST AND PORT=:PORT AND REASON='LOW MEMORY'",
+                "0",
             ),
             Metric(
                 "hdb.column_unloads.shrink_count",
@@ -1139,7 +1485,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_CS_UNLOADS WHERE HOST=:HOST AND PORT=:PORT AND REASON='SHRINK'",
+                "1",
             ),
             Metric(
                 "hdb.column_unloads.explicit_count",
@@ -1151,7 +1497,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_CS_UNLOADS WHERE HOST=:HOST AND PORT=:PORT AND REASON='EXPLICIT'",
+                "2",
             ),
             Metric(
                 "hdb.column_unloads.merge_count",
@@ -1163,12 +1509,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_CS_UNLOADS WHERE HOST=:HOST AND PORT=:PORT AND REASON='MERGE'",
+                "3",
             ),
         ]
 
     def _metrics_alerts(self, cluster_id: int) -> List[Metric]:
-        indom = self._build_instance_domain(
+        indom, _ = self._build_instance_domain(
             "SELECT S.HOST AS HOST, S.PORT AS PORT, R.ALERT_RATING AS ALERT_RATING FROM SYS.M_SERVICES AS S FULL " \
             "OUTER JOIN (SELECT ELEMENT_NUMBER AS ALERT_RATING FROM SERIES_GENERATE_INTEGER(1, 0, 5)) as R ON (1=1) " \
             "WHERE S.SERVICE_NAME<>'daemon' ORDER BY S.HOST,S.PORT,R.ALERT_RATING;"
@@ -1190,7 +1536,7 @@ class HdbPMDA(PMDA):
         ]
 
     def _metrics_metadata_locks(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
         )
         return [
@@ -1205,8 +1551,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_LOCK_WAITS FROM SYS.M_LOCK_WAITS_STATISTICS WHERE LOCK_TYPE='METADATA' AND HOST=:HOST " \
-                "AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.metadata_locks.total_wait_time_microseconds",
@@ -1219,13 +1564,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT TOTAL_LOCK_WAIT_TIME FROM SYS.M_LOCK_WAITS_STATISTICS WHERE LOCK_TYPE='METADATA' AND " \
-                "HOST=:HOST AND PORT=:PORT",
+                "1",
             ),
         ]
 
     def _metrics_caches(self, cluster_id: int) -> List[Metric]:
-        indom_caches = self._build_instance_domain(
+        indom_caches, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT, VOLUME_ID, CACHE_ID FROM SYS.M_CACHES ORDER BY HOST,PORT,VOLUME_ID,CACHE_ID;"
         )
         return [
@@ -1239,8 +1583,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT TOTAL_SIZE FROM SYS.M_CACHES WHERE CACHE_ID=:CACHE_ID AND VOLUME_ID=:VOLUME_ID AND HOST=:HOST" \
-                " AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.cache.used_size_bytes",
@@ -1252,8 +1595,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT USED_SIZE FROM SYS.M_CACHES WHERE CACHE_ID=:CACHE_ID AND VOLUME_ID=:VOLUME_ID AND HOST=:HOST " \
-                "AND PORT=:PORT",
+                "1",
             ),
             Metric(
                 "hdb.cache.entries_count",
@@ -1265,8 +1607,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT ENTRY_COUNT FROM SYS.M_CACHES WHERE CACHE_ID=:CACHE_ID AND VOLUME_ID=:VOLUME_ID AND " \
-                "HOST=:HOST AND PORT=:PORT",
+                "2",
             ),
             Metric(
                 "hdb.cache.inserts_count",
@@ -1278,8 +1619,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT INSERT_COUNT FROM SYS.M_CACHES WHERE CACHE_ID=:CACHE_ID AND VOLUME_ID=:VOLUME_ID AND " \
-                "HOST=:HOST AND PORT=:PORT",
+                "3",
             ),
             Metric(
                 "hdb.cache.invalidations_count",
@@ -1291,8 +1631,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT INVALIDATE_COUNT FROM SYS.M_CACHES WHERE CACHE_ID=:CACHE_ID AND VOLUME_ID=:VOLUME_ID AND " \
-                "HOST=:HOST AND PORT=:PORT",
+                "4",
             ),
             Metric(
                 "hdb.cache.hits_count",
@@ -1304,8 +1643,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT HIT_COUNT FROM SYS.M_CACHES WHERE CACHE_ID=:CACHE_ID AND VOLUME_ID=:VOLUME_ID AND HOST=:HOST " \
-                "AND PORT=:PORT",
+                "5",
             ),
             Metric(
                 "hdb.cache.miss_count",
@@ -1317,13 +1655,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT MISS_COUNT FROM SYS.M_CACHES WHERE CACHE_ID=:CACHE_ID AND VOLUME_ID=:VOLUME_ID AND HOST=:HOST" \
-                " AND PORT=:PORT",
+                "6",
             ),
         ]
 
     def _metrics_volume_io(self, cluster_id: int) -> List[Metric]:
-        indom_volumes = self._build_instance_domain(
+        indom_volumes, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT, VOLUME_ID, TYPE FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS ORDER BY HOST,PORT,VOLUME_ID," \
             "TYPE;"
         )
@@ -1340,8 +1677,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT BLOCKED_WRITE_REQUESTS FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT " \
-                "AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "0",
             ),
             Metric(
                 "hdb.volumes.io.max_blocked_write_requests_count",
@@ -1353,8 +1689,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT MAX_BLOCKED_WRITE_REQUESTS FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND " \
-                "PORT=:PORT AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "1",
             ),
             Metric(
                 "hdb.volumes.io.total_reads_count",
@@ -1366,8 +1701,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_READS FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "2",
             ),
             Metric(
                 "hdb.volumes.io.total_async_reads_count",
@@ -1379,8 +1713,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_TRIGGER_ASYNC_READS FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND " \
-                "PORT=:PORT AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "3",
             ),
             Metric(
                 "hdb.volumes.io.active_async_reads_count",
@@ -1392,8 +1725,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT ACTIVE_ASYNC_READS_COUNT FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND " \
-                "PORT=:PORT AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "4",
             ),
             Metric(
                 "hdb.volumes.io.async_reads_trigger_ratio",
@@ -1405,8 +1737,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT TRIGGER_READ_RATIO FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "5",
             ),
             Metric(
                 "hdb.volumes.io.total_short_reads_count",
@@ -1418,8 +1749,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_SHORT_READS FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "6",
             ),
             Metric(
                 "hdb.volumes.io.total_full_retry_reads_count",
@@ -1431,8 +1761,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_FULL_RETRY_READS FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT " \
-                "AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "7",
             ),
             Metric(
                 "hdb.volumes.io.total_failed_reads_count",
@@ -1444,8 +1773,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_FAILED_READS FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "8",
             ),
             Metric(
                 "hdb.volumes.io.total_read_bytes",
@@ -1457,8 +1785,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT TOTAL_READ_SIZE FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "9",
             ),
             Metric(
                 "hdb.volumes.io.total_read_time_microseconds",
@@ -1470,8 +1797,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT TOTAL_READ_TIME FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "10",
             ),
             Metric(
                 "hdb.volumes.io.total_appends_count",
@@ -1483,8 +1809,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_APPENDS FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "11",
             ),
             Metric(
                 "hdb.volumes.io.total_writes_count",
@@ -1496,8 +1821,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_WRITES FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "12",
             ),
             Metric(
                 "hdb.volumes.io.total_async_writes_count",
@@ -1509,8 +1833,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_TRIGGER_ASYNC_WRITES FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND " \
-                "PORT=:PORT AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "13",
             ),
             Metric(
                 "hdb.volumes.io.active_async_writes_count",
@@ -1522,8 +1845,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT ACTIVE_ASYNC_WRITES_COUNT FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND " \
-                "PORT=:PORT AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "14",
             ),
             Metric(
                 "hdb.volumes.io.async_writes_trigger_ratio",
@@ -1535,8 +1857,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT TRIGGER_WRITE_RATIO FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND" \
-                " VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "15",
             ),
             Metric(
                 "hdb.volumes.io.total_short_writes_count",
@@ -1548,8 +1869,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_SHORT_WRITES FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND" \
-                " VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "16",
             ),
             Metric(
                 "hdb.volumes.io.total_full_retry_writes_count",
@@ -1561,8 +1881,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_FULL_RETRY_WRITES FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT" \
-                " AND VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "17",
             ),
             Metric(
                 "hdb.volumes.io.total_failed_writes_count",
@@ -1574,8 +1893,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_FAILED_WRITES FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND" \
-                " VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "18",
             ),
             Metric(
                 "hdb.volumes.io.total_written_bytes",
@@ -1587,8 +1905,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT TOTAL_WRITE_SIZE FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "19",
             ),
             Metric(
                 "hdb.volumes.io.total_write_time_microseconds",
@@ -1600,8 +1917,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT TOTAL_WRITE_TIME FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "20",
             ),
             Metric(
                 "hdb.volumes.io.total_time_microseconds",
@@ -1613,8 +1929,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT TOTAL_IO_TIME FROM SYS.M_VOLUME_IO_TOTAL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND TYPE=:TYPE",
+                "21",
             ),
         ]
 
@@ -1631,55 +1946,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_BACKUP_CATALOG WHERE STATE_NAME='successful'",
-            ),
-            Metric(
-                "hdb.backup.total_failed_count",
-                "Total number of failed backups",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 1),
-                    PM_TYPE_U64,
-                    PM_INDOM_NULL,
-                    PM_SEM_COUNTER,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_BACKUP_CATALOG WHERE STATE_NAME='failed'",
-            ),
-            Metric(
-                "hdb.backup.running_count",
-                "Number of currently running backups",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 2),
-                    PM_TYPE_U64,
-                    PM_INDOM_NULL,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_BACKUP_CATALOG WHERE STATE_NAME='running'",
-            ),
-            Metric(
-                "hdb.backup.cancel_pending_count",
-                "Number of currently running backups with pending cancellation",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 3),
-                    PM_TYPE_U64,
-                    PM_INDOM_NULL,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_BACKUP_CATALOG WHERE STATE_NAME='cancel pending'",
-            ),
-            Metric(
-                "hdb.backup.total_canceled_count",
-                "Total number of canceled backups",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 4),
-                    PM_TYPE_U64,
-                    PM_INDOM_NULL,
-                    PM_SEM_COUNTER,
-                    Metric.UNITS_COUNT,
-                ),
-                "SELECT COUNT(1) FROM SYS.M_BACKUP_CATALOG WHERE STATE_NAME='canceled'",
+                "0",
             ),
             Metric(
                 "hdb.backup.max_successful_runtime_seconds",
@@ -1691,8 +1958,55 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_SECOND,
                 ),
-                "SELECT MAX(SECONDS_BETWEEN(UTC_START_TIME, UTC_END_TIME)) FROM SYS.M_BACKUP_CATALOG WHERE " \
-                "STATE_NAME='successful'",
+                "1",
+            ),
+            Metric(
+                "hdb.backup.total_failed_count",
+                "Total number of failed backups",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 1),
+                    PM_TYPE_U64,
+                    PM_INDOM_NULL,
+                    PM_SEM_COUNTER,
+                    Metric.UNITS_COUNT,
+                ),
+                "2",
+            ),
+            Metric(
+                "hdb.backup.running_count",
+                "Number of currently running backups",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 2),
+                    PM_TYPE_U64,
+                    PM_INDOM_NULL,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_COUNT,
+                ),
+                "3",
+            ),
+            Metric(
+                "hdb.backup.cancel_pending_count",
+                "Number of currently running backups with pending cancellation",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 3),
+                    PM_TYPE_U64,
+                    PM_INDOM_NULL,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_COUNT,
+                ),
+                "4",
+            ),
+            Metric(
+                "hdb.backup.total_canceled_count",
+                "Total number of canceled backups",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 4),
+                    PM_TYPE_U64,
+                    PM_INDOM_NULL,
+                    PM_SEM_COUNTER,
+                    Metric.UNITS_COUNT,
+                ),
+                "5",
             ),
             Metric(
                 "hdb.backup.max_current_runtime_seconds",
@@ -1704,13 +2018,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_SECOND,
                 ),
-                "SELECT MAX(SECONDS_BETWEEN(UTC_START_TIME, NOW())) FROM SYS.M_BACKUP_CATALOG WHERE STATE_NAME IN "
-                "('running', 'cancel pending')",
+                "6",
             ),
         ]
 
     def _metrics_schema(self, cluster_id: int) -> List[Metric]:
-        indom_schemas = self._build_instance_domain(
+        indom_schemas, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST,PORT,SCHEMA_NAME from SYS.M_CS_TABLES GROUP BY HOST,PORT,SCHEMA_NAME"
         )
         return [
@@ -1728,8 +2041,7 @@ class HdbPMDA(PMDA):
                 # Be aware that after a split/merge operation the memory size is not estimated and therefore the
                 # values show zero.
                 # A delta merge is required to update the values.
-                "SELECT SUM(memory_size_in_total) FROM sys.m_cs_tables WHERE SCHEMA_NAME=:SCHEMA_NAME AND HOST=:HOST " \
-                "AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.schemas.total_read_count",
@@ -1743,8 +2055,7 @@ class HdbPMDA(PMDA):
                 ),
                 # This is not the number of SELECT statements against this table. A SELECT statement may involve
                 # several read accesses.
-                "SELECT SUM(READ_COUNT) FROM sys.m_cs_tables WHERE SCHEMA_NAME=:SCHEMA_NAME AND HOST=:HOST AND " \
-                "PORT=:PORT",
+                "1",
             ),
             Metric(
                 "hdb.schemas.total_write_count",
@@ -1758,8 +2069,7 @@ class HdbPMDA(PMDA):
                 ),
                 # This is not the number of DML and DDL statements against this table. A DML or DDL statement may
                 # involve several write accesses.
-                "SELECT SUM(WRITE_COUNT) FROM sys.m_cs_tables WHERE SCHEMA_NAME=:SCHEMA_NAME AND HOST=:HOST AND " \
-                "PORT=:PORT",
+                "2",
             ),
             Metric(
                 "hdb.schemas.total_merge_count",
@@ -1773,13 +2083,12 @@ class HdbPMDA(PMDA):
                 ),
                 # This is not the number of DML and DDL statements against this table. A DML or DDL statement may
                 # involve several write accesses.
-                "SELECT SUM(MERGE_COUNT) FROM sys.m_cs_tables WHERE SCHEMA_NAME=:SCHEMA_NAME AND HOST=:HOST AND " \
-                "PORT=:PORT",
+                "3",
             ),
         ]
 
     def _metrics_connections(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT"
         )
         return [
@@ -1793,8 +2102,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) num_conns FROM SYS.M_CONNECTIONS WHERE connection_status='RUNNING' AND HOST=:HOST " \
-                "AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.connections.idle_count",
@@ -1806,8 +2114,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) num_conns FROM SYS.M_CONNECTIONS WHERE connection_status='IDLE' AND HOST=:HOST AND " \
-                "PORT=:PORT",
+                "1",
             ),
             Metric(
                 "hdb.connections.queuing_count",
@@ -1819,14 +2126,56 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) num_conns FROM SYS.M_CONNECTIONS WHERE connection_status='RUNNING' AND HOST=:HOST " \
-                "AND PORT=:PORT",
+                "2",
             ),
         ]
 
     def _metrics_volumes(self, cluster_id: int) -> List[Metric]:
         # TODO: what about type DATA_BACKUP, LOG_BACKUP, and CATALOG_BACKUP types?
-        indom_volumes = self._build_instance_domain(
+        indom_volumes, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
+            "SELECT HOST, PORT, VOLUME_ID FROM SYS.M_VOLUMES ORDER BY VOLUME_ID;"
+        )
+        return [
+            Metric(
+                "hdb.volumes.used_size_bytes",
+                "Used size of the data volume in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 3),
+                    PM_TYPE_U64,
+                    indom_volumes,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "0",
+            ),
+            Metric(
+                "hdb.volumes.total_size_bytes",
+                "Total size of the data volume in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 4),
+                    PM_TYPE_U64,
+                    indom_volumes,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "1",
+            ),
+            Metric(
+                "hdb.volumes.fill_ratio",
+                "Displays the fill ratio of the data volume",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 5),
+                    PM_TYPE_FLOAT,
+                    indom_volumes,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_NONE,
+                ),
+                "2",
+            ),
+        ]
+
+    def _metrics_volumes_data_and_logs(self, cluster_id: int) -> List[Metric]:
+        indom_volumes, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT, VOLUME_ID FROM SYS.M_VOLUMES ORDER BY VOLUME_ID;"
         )
         return [
@@ -1840,8 +2189,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT SUM(USED_SIZE) FROM SYS.M_VOLUME_FILES WHERE FILE_TYPE='DATA' AND VOLUME_ID=:VOLUME_ID AND " \
-                "HOST=:HOST AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.volumes.data.total_size_bytes",
@@ -1853,8 +2201,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT SUM(TOTAL_SIZE) FROM SYS.M_VOLUME_FILES WHERE FILE_TYPE='DATA' AND VOLUME_ID=:VOLUME_ID AND " \
-                "HOST=:HOST AND PORT=:PORT",
+                "1",
             ),
             Metric(
                 "hdb.volumes.log.total_size_bytes",
@@ -1866,52 +2213,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT SUM(TOTAL_SIZE) FROM SYS.M_VOLUME_FILES WHERE FILE_TYPE='LOG' AND VOLUME_ID=:VOLUME_ID AND " \
-                "HOST=:HOST AND PORT=:PORT",
-            ),
-            Metric(
-                "hdb.volumes.used_size_bytes",
-                "Used size of the data volume in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 3),
-                    PM_TYPE_U64,
-                    indom_volumes,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT USED_SIZE FROM SYS.M_DATA_VOLUME_STATISTICS WHERE VOLUME_ID=:VOLUME_ID AND HOST=:HOST AND " \
-                "PORT=:PORT",
-            ),
-            Metric(
-                "hdb.volumes.total_size_bytes",
-                "Total size of the data volume in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 4),
-                    PM_TYPE_U64,
-                    indom_volumes,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT TOTAL_SIZE FROM SYS.M_DATA_VOLUME_STATISTICS WHERE VOLUME_ID=:VOLUME_ID AND HOST=:HOST AND " \
-                "PORT=:PORT",
-            ),
-            Metric(
-                "hdb.volumes.fill_ratio",
-                "Displays the fill ratio of the data volume",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 5),
-                    PM_TYPE_FLOAT,
-                    indom_volumes,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_NONE,
-                ),
-                "SELECT FILL_RATIO FROM SYS.M_DATA_VOLUME_STATISTICS WHERE VOLUME_ID=:VOLUME_ID AND HOST=:HOST AND " \
-                "PORT=:PORT",
+                "2",
             ),
         ]
 
     def _metrics_service_memory(self, cluster_id: int) -> List[Metric]:
-        indom_services = self._build_instance_domain(
+        indom_services, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             # exclude 'daemon' service as it has no meaningful metrics attached (most values are -1)
             "SELECT  HOST, PORT, SERVICE_NAME FROM SYS.M_SERVICES WHERE SERVICE_NAME<>'daemon' ORDER BY HOST,PORT," \
             "SERVICE_NAME;"
@@ -1927,8 +2234,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT LOGICAL_MEMORY_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "0",
             ),
             Metric(
                 "hdb.services.memory.physical_size_bytes",
@@ -1940,8 +2246,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT PHYSICAL_MEMORY_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "1",
             ),
             Metric(
                 "hdb.services.memory.code_size_bytes",
@@ -1953,8 +2258,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT CODE_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "2",
             ),
             Metric(
                 "hdb.services.memory.stack_size_bytes",
@@ -1966,8 +2270,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT STACK_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "3",
             ),
             Metric(
                 "hdb.services.memory.heap_allocated_size_bytes",
@@ -1979,8 +2282,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT HEAP_MEMORY_ALLOCATED_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "4",
             ),
             Metric(
                 "hdb.services.memory.heap_used_size_bytes",
@@ -1992,8 +2294,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT HEAP_MEMORY_USED_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "5",
             ),
             Metric(
                 "hdb.services.memory.heap_used_size_percent",
@@ -2005,8 +2306,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT TO_DECIMAL((HEAP_MEMORY_USED_SIZE / NULLIF(HEAP_MEMORY_ALLOCATED_SIZE,0) * 100), 10, 2) FROM " \
-                "SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND SERVICE_NAME=:SERVICE_NAME",
+                "6",
             ),
             Metric(
                 "hdb.services.memory.shared_allocated_size_bytes",
@@ -2018,8 +2318,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT SHARED_MEMORY_ALLOCATED_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "7",
             ),
             Metric(
                 "hdb.services.memory.shared_used_size_percent",
@@ -2031,8 +2330,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT TO_DECIMAL((SHARED_MEMORY_USED_SIZE / NULLIF(SHARED_MEMORY_ALLOCATED_SIZE,0) * 100), 10, 2) " \
-                "FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND SERVICE_NAME=:SERVICE_NAME",
+                "8",
             ),
             Metric(
                 "hdb.services.memory.compactors_allocated_size_bytes",
@@ -2044,8 +2342,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT COMPACTORS_ALLOCATED_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "9",
             ),
             Metric(
                 "hdb.services.memory.compactors_freeable_size_bytes",
@@ -2057,8 +2354,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT COMPACTORS_FREEABLE_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "10",
             ),
             Metric(
                 "hdb.services.memory.effective_allocation_limit_size_bytes",
@@ -2070,8 +2366,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT EFFECTIVE_ALLOCATION_LIMIT FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "11",
             ),
             Metric(
                 "hdb.services.memory.guaranteed_size_bytes",
@@ -2083,8 +2378,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT BLOCKED_MEMORY_LIMIT FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "12",
             ),
             Metric(
                 "hdb.services.memory.allocated_free_size_bytes",
@@ -2096,8 +2390,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT FREE_MEMORY_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "13",
             ),
             Metric(
                 "hdb.services.memory.virtual_address_space_used_size_bytes",
@@ -2109,8 +2402,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT VIRTUAL_ADDRESS_SPACE_USED_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND" \
-                " SERVICE_NAME=:SERVICE_NAME",
+                "14",
             ),
             Metric(
                 "hdb.services.memory.virtual_address_space_total_size_bytes",
@@ -2122,8 +2414,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT VIRTUAL_ADDRESS_SPACE_TOTAL_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT " \
-                "AND SERVICE_NAME=:SERVICE_NAME",
+                "15",
             ),
             Metric(
                 "hdb.services.memory.fragmented_size_bytes",
@@ -2136,8 +2427,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT FRAGMENTED_MEMORY_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "16",
             ),
             Metric(
                 "hdb.services.memory.used_size_bytes",
@@ -2149,13 +2439,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT TOTAL_MEMORY_USED_SIZE FROM SYS.M_SERVICE_MEMORY WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "17",
             ),
         ]
 
     def _metrics_admission_control(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT",
         )
         return [
@@ -2169,7 +2458,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_ADMIT_COUNT FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.admission_control.total_reject_count",
@@ -2181,7 +2470,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_REJECT_COUNT FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "1",
             ),
             Metric(
                 "hdb.admission_control.total_enqueue_count",
@@ -2193,7 +2482,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_ENQUEUE_COUNT FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "2",
             ),
             Metric(
                 "hdb.admission_control.total_dequeue_count",
@@ -2205,7 +2494,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_DEQUEUE_COUNT FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "3",
             ),
             Metric(
                 "hdb.admission_control.total_timeout_count",
@@ -2217,7 +2506,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_TIMEOUT_COUNT FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "4",
             ),
             Metric(
                 "hdb.admission_control.queue_size",
@@ -2229,7 +2518,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT CURRENT_QUEUE_SIZE FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "5",
             ),
             Metric(
                 "hdb.admission_control.wait_time.last_microseconds",
@@ -2241,7 +2530,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT LAST_WAIT_TIME FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "6",
             ),
             Metric(
                 "hdb.admission_control.wait_time.avg_microseconds",
@@ -2253,7 +2542,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT AVG_WAIT_TIME FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "7",
             ),
             Metric(
                 "hdb.admission_control.wait_time.max_microseconds",
@@ -2265,7 +2554,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT MAX_WAIT_TIME FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "8",
             ),
             Metric(
                 "hdb.admission_control.wait_time.min_microseconds",
@@ -2277,7 +2566,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT MIN_WAIT_TIME FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "9",
             ),
             Metric(
                 "hdb.admission_control.wait_time.sum_microseconds",
@@ -2289,7 +2578,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT SUM_WAIT_TIME FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "10",
             ),
             Metric(
                 "hdb.admission_control.measurement.memory_size_gigabytes",
@@ -2301,7 +2590,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_GIGABYTE,
                 ),
-                "SELECT LAST_MEMORY_SIZE FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "11",
             ),
             Metric(
                 "hdb.admission_control.measurement.memory_allocation_percent",
@@ -2313,7 +2602,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT LAST_MEMORY_RATIO FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT",
+                "12",
             ),
             Metric(
                 "hdb.admission_control.measurement.timestamp",
@@ -2325,14 +2614,13 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT LAST_MEMORY_MEASURE_TIME FROM SYS.M_ADMISSION_CONTROL_STATISTICS WHERE HOST=:HOST AND " \
-                "PORT=:PORT",
+                "13",
             ),
         ]
 
     def _metrics_buffer_cache(self, cluster_id: int) -> List[Metric]:
         # Assumption is that there is only one NSE buffer cache per volume (named CS).
-        indom_volumes = self._build_instance_domain(
+        indom_volumes, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT  HOST, PORT, VOLUME_ID FROM SYS.M_VOLUMES ORDER BY HOST,PORT,VOLUME_ID;"
         )
         return [
@@ -2346,8 +2634,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT MAX_SIZE FROM SYS.M_BUFFER_CACHE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID",
+                "0",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2360,8 +2647,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT ALLOCATED_SIZE FROM SYS.M_BUFFER_CACHE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID",
+                "1",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2374,8 +2660,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_BYTE,
                 ),
-                "SELECT USED_SIZE FROM SYS.M_BUFFER_CACHE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID",
+                "2",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2388,8 +2673,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT BUFFER_REUSE_COUNT FROM SYS.M_BUFFER_CACHE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID",
+                "3",
             ),
             Metric(
                 "hdb.buffer_cache.hit_ratio",
@@ -2401,17 +2685,13 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT HIT_RATIO FROM SYS.M_BUFFER_CACHE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID",
+                "4",
                 min_hana_revision=_HANA2_SPS_04,
             ),
         ]
 
     def _metrics_service_misc(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
-            "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT",
-        )
-        indom_services = self._build_instance_domain(
+        indom_services, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             # exclude 'daemon' service as it has no meaningful metrics attached (most values are -1)
             "SELECT HOST, PORT, SERVICE_NAME FROM SYS.M_SERVICES WHERE SERVICE_NAME<>'daemon' ORDER BY PORT," \
             "SERVICE_NAME;"
@@ -2427,8 +2707,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT THREAD_COUNT FROM SYS.M_SERVICE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "0",
             ),
             Metric(
                 "hdb.services.threads_active_count",
@@ -2440,8 +2719,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT ACTIVE_THREAD_COUNT FROM SYS.M_SERVICE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "1",
             ),
             Metric(
                 "hdb.services.open_files_count",
@@ -2453,8 +2731,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT OPEN_FILE_COUNT FROM SYS.M_SERVICE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "2",
             ),
             Metric(
                 "hdb.services.cpu_percent",
@@ -2468,8 +2745,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT PROCESS_CPU FROM SYS.M_SERVICE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "3",
             ),
             Metric(
                 "hdb.services.cpu_time_milliseconds",
@@ -2481,9 +2757,15 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MILLISECOND,
                 ),
-                "SELECT PROCESS_CPU_TIME FROM SYS.M_SERVICE_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "SERVICE_NAME=:SERVICE_NAME",
+                "4",
             ),
+        ]
+
+    def _metrics_service_sql(self, cluster_id: int) -> List[Metric]:
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
+            "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT",
+        )
+        return [
             Metric(
                 "hdb.services.sql_executor_threads_active_count",
                 "Number of active SQL Executor threads per indexserver",
@@ -2494,8 +2776,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_SERVICE_THREADS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "THREAD_TYPE='SqlExecutor' AND IS_ACTIVE='TRUE'",
+                "0",
             ),
             Metric(
                 "hdb.services.sql_executor_threads_inactive_count",
@@ -2507,13 +2788,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_SERVICE_THREADS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "THREAD_TYPE='SqlExecutor' AND IS_ACTIVE='FALSE'",
+                "1",
             ),
         ]
 
     def _metrics_buffer_cache_pool(self, cluster_id: int) -> List[Metric]:
-        indom_buffer_caches = self._build_instance_domain(
+        indom_buffer_caches, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT, VOLUME_ID, CACHE_NAME, BUFFER_SIZE FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS ORDER BY " \
             "HOST,PORT,VOLUME_ID,CACHE_NAME,BUFFER_SIZE",
             min_hana_revision=_HANA2_SPS_04,
@@ -2529,8 +2809,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_NONE,
                 ),
-                "SELECT GROWTH_PERCENT FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND CACHE_NAME=:CACHE_NAME AND BUFFER_SIZE=:BUFFER_SIZE",
+                "0",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2543,8 +2822,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_BUFFER_COUNT FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT " \
-                "AND VOLUME_ID=:VOLUME_ID AND CACHE_NAME=:CACHE_NAME AND BUFFER_SIZE=:BUFFER_SIZE",
+                "1",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2557,8 +2835,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT FREE_BUFFER_COUNT FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND" \
-                " VOLUME_ID=:VOLUME_ID AND CACHE_NAME=:CACHE_NAME AND BUFFER_SIZE=:BUFFER_SIZE",
+                "2",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2571,8 +2848,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT LRU_LIST_BUFFER_COUNT FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT" \
-                " AND VOLUME_ID=:VOLUME_ID AND CACHE_NAME=:CACHE_NAME AND BUFFER_SIZE=:BUFFER_SIZE",
+                "3",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2585,8 +2861,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT HOT_BUFFER_COUNT FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "VOLUME_ID=:VOLUME_ID AND CACHE_NAME=:CACHE_NAME AND BUFFER_SIZE=:BUFFER_SIZE",
+                "4",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2599,8 +2874,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT BUFFER_REUSE_COUNT FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT " \
-                "AND VOLUME_ID=:VOLUME_ID AND CACHE_NAME=:CACHE_NAME AND BUFFER_SIZE=:BUFFER_SIZE",
+                "5",
                 min_hana_revision=_HANA2_SPS_04,
             ),
             Metric(
@@ -2614,138 +2888,16 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT OUT_OF_BUFFER_COUNT FROM SYS.M_BUFFER_CACHE_POOL_STATISTICS WHERE HOST=:HOST AND PORT=:PORT " \
-                "AND VOLUME_ID=:VOLUME_ID AND CACHE_NAME=:CACHE_NAME AND BUFFER_SIZE=:BUFFER_SIZE",
+                "6",
                 min_hana_revision=_HANA2_SPS_04,
             ),
         ]
 
-    def _metrics_aggregated_host_memory(self, cluster_id: int) -> List[Metric]:
-        indom_hosts = self._build_instance_domain(
+    def _metrics_aggregated_host_oom(self, cluster_id: int) -> List[Metric]:
+        indom_hosts, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT DISTINCT(HOST) AS HOST FROM SYS.M_SERVICES",
         )
         return [
-            Metric(
-                "hdb.memory.host_free_bytes",
-                "Free physical memory on the host in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 0),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT FREE_PHYSICAL_MEMORY FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.host_used_bytes",
-                "Used physical memory on the host in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 1),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT USED_PHYSICAL_MEMORY FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.swap_free_bytes",
-                "Free swap memory on the host in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 2),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT FREE_SWAP_SPACE FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.swap_used_bytes",
-                "Used swap memory on the host in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 3),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT USED_SWAP_SPACE FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.host_allocation_limit_bytes",
-                "Allocation limit for all processes in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 4),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT ALLOCATION_LIMIT FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.used_bytes",
-                "Amount of memory from the memory pool that is currently being used by SAP HANA processes in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 5),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT INSTANCE_TOTAL_MEMORY_USED_SIZE FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.peak_used_bytes",
-                "Peak memory from the memory pool used by SAP HANA processes since the instance started (this is a " \
-                "sample-based value) in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 6),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT INSTANCE_TOTAL_MEMORY_PEAK_USED_SIZE FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.allocated_bytes",
-                "Size of the memory pool for all SAP HANA processes in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 7),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT INSTANCE_TOTAL_MEMORY_ALLOCATED_SIZE FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.code_size_bytes",
-                "Code size, including shared libraries of SAP HANA processes in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 8),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT INSTANCE_CODE_SIZE FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
-            Metric(
-                "hdb.memory.shared_size_bytes",
-                "Shared memory size of SAP HANA processes in bytes",
-                pmdaMetric(
-                    PMDA.pmid(cluster_id, 9),
-                    PM_TYPE_U64,
-                    indom_hosts,
-                    PM_SEM_INSTANT,
-                    Metric.UNITS_BYTE,
-                ),
-                "SELECT INSTANCE_SHARED_MEMORY_ALLOCATED_SIZE FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
-            ),
             Metric(
                 "hdb.memory.oom_events.global_allocation_limit_count",
                 "Number of out-of-memory (OOM) events since last reset cause by the global allocation limit.",
@@ -2756,8 +2908,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_OUT_OF_MEMORY_EVENTS WHERE EVENT_REASON='GLOBAL ALLOCATION LIMIT' AND " \
-                "HOST=:HOST",
+                "0",
             ),
             Metric(
                 "hdb.memory.oom_events.process_allocation_limit_count",
@@ -2769,8 +2920,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_OUT_OF_MEMORY_EVENTS WHERE EVENT_REASON='PROCESS ALLOCATION LIMIT' AND " \
-                "HOST=:HOST",
+                "1",
             ),
             Metric(
                 "hdb.memory.oom_events.statement_memory_limit_count",
@@ -2782,13 +2932,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT COUNT(1) FROM SYS.M_OUT_OF_MEMORY_EVENTS WHERE EVENT_REASON='STATEMENT MEMORY LIMIT' AND " \
-                "HOST=:HOST",
+                "2",
             ),
         ]
 
     def _metrics_aggregated_host_io(self, cluster_id: int) -> List[Metric]:
-        indom_hosts = self._build_instance_domain(
+        indom_hosts, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT DISTINCT(HOST) AS HOST FROM SYS.M_SERVICES",
         )
         return [
@@ -2802,10 +2951,10 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MILLISECOND,
                 ),
-                "SELECT OPEN_FILE_COUNT FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
+                "0",
             ),
             Metric(
-                "hdb.io.aysnc_requests_count",
+                "hdb.io.async_requests_count",
                 "Number of active asynchronous input and/or output requests on the host",
                 pmdaMetric(
                     PMDA.pmid(cluster_id, 1),
@@ -2814,18 +2963,16 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT ACTIVE_ASYNC_IO_COUNT FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
+                "1",
             ),
         ]
 
     def _metrics_column_store_record_locks(self, cluster_id: int) -> List[Metric]:
-        indom_table_partitions = self._build_instance_domain(
+        # TODO: the sql queries for these metrics should be batched
+        indom_table_partitions, _ = self._build_instance_domain(
             # schema name and table name may contain '.'. To keep the split mechanism working, escape a single '.'
             "SELECT HOST, PORT, SCHEMA_NAME, TABLE_NAME, PART_ID FROM SYS.M_CS_TABLES ORDER BY HOST,PORT,SCHEMA_NAME," \
             "TABLE_NAME,PART_ID;"
-        )
-        indom_indexservers = self._build_instance_domain(
-            "SELECT HOST,PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
         )
         return [
             Metric(
@@ -2870,6 +3017,13 @@ class HdbPMDA(PMDA):
                 "SCHEMA_NAME=:SCHEMA_NAME AND TABLE_NAME=:TABLE_NAME AND PART_ID=:PART_ID",
                 min_hana_revision=_HANA2_SPS_04,
             ),
+        ]
+
+    def _metrics_column_store_record_locks_wait(self, cluster_id: int) -> List[Metric]:
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
+            "SELECT HOST,PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
+        )
+        return [
             Metric(
                 "hdb.record_locks.total_waits_count",
                 "Accumulated lock wait count for record locks for all available services from database start up until" \
@@ -2881,8 +3035,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_COUNTER,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT TOTAL_LOCK_WAITS FROM SYS.M_LOCK_WAITS_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "LOCK_TYPE='RECORD'",
+                "4",
             ),
             Metric(
                 "hdb.record_locks.total_wait_time_microseconds",
@@ -2895,13 +3048,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MICROSECOND,
                 ),
-                "SELECT TOTAL_LOCK_WAIT_TIME FROM SYS.M_LOCK_WAITS_STATISTICS WHERE HOST=:HOST AND PORT=:PORT AND " \
-                "LOCK_TYPE='RECORD'",
+                "5",
             ),
         ]
 
     def _metrics_mvcc(self, cluster_id: int) -> List[Metric]:
-        indom_indexservers = self._build_instance_domain(
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
         )
         return [
@@ -2915,7 +3067,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT VERSION_COUNT FROM SYS.M_MVCC_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "0",
             ),
             Metric(
                 "hdb.mvcc.data_versions_count",
@@ -2927,7 +3079,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT DATA_VERSION_COUNT FROM SYS.M_MVCC_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "1",
             ),
             Metric(
                 "hdb.mvcc.metadata_versions_count",
@@ -2939,7 +3091,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT METADATA_VERSION_COUNT FROM SYS.M_MVCC_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "2",
             ),
             Metric(
                 "hdb.mvcc.acquired_lock_count",
@@ -2951,7 +3103,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT ACQUIRED_LOCK_COUNT FROM SYS.M_MVCC_OVERVIEW WHERE HOST=:HOST AND PORT=:PORT",
+                "3",
             ),
             Metric(
                 "hdb.mvcc.snapshot_lag",
@@ -2964,8 +3116,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT (GLOBAL_MVCC_TIMESTAMP-MIN_MVCC_SNAPSHOT_TIMESTAMP) FROM SYS.M_MVCC_OVERVIEW WHERE HOST=:HOST" \
-                " AND PORT=:PORT",
+                "4",
             ),
             Metric(
                 "hdb.mvcc.read_write_lag",
@@ -2977,13 +3128,12 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_COUNT,
                 ),
-                "SELECT (MIN_WRITE_TRANSACTION_ID-MIN_READ_TRANSACTION_ID) FROM SYS.M_MVCC_OVERVIEW WHERE HOST=:HOST " \
-                "AND PORT=:PORT",
+                "5",
             ),
         ]
 
     def _metrics_aggregated_host_cpu(self, cluster_id: int) -> List[Metric]:
-        indom_hosts = self._build_instance_domain(
+        indom_hosts, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
             "SELECT DISTINCT(HOST) AS HOST FROM SYS.M_SERVICES",
         )
         return [
@@ -2997,7 +3147,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MILLISECOND,
                 ),
-                "SELECT TOTAL_CPU_USER_TIME FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
+                "2",
             ),
             Metric(
                 "hdb.cpu.total_time_system_milliseconds",
@@ -3009,7 +3159,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MILLISECOND,
                 ),
-                "SELECT TOTAL_CPU_SYSTEM_TIME FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
+                "3",
             ),
             Metric(
                 "hdb.cpu.total_time_iowait_milliseconds",
@@ -3021,7 +3171,7 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MILLISECOND,
                 ),
-                "SELECT TOTAL_CPU_WIO_TIME FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
+                "4",
             ),
             Metric(
                 "hdb.cpu.total_time_idle_milliseconds",
@@ -3033,7 +3183,208 @@ class HdbPMDA(PMDA):
                     PM_SEM_INSTANT,
                     Metric.UNITS_MILLISECOND,
                 ),
-                "SELECT TOTAL_CPU_IDLE_TIME FROM SYS.M_HOST_RESOURCE_UTILIZATION WHERE HOST=:HOST",
+                "5",
+            ),
+        ]
+
+    def _metrics_aggregated_host_memory(self, cluster_id: int) -> List[Metric]:
+        indom_hosts, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
+            "SELECT DISTINCT(HOST) AS HOST FROM SYS.M_SERVICES",
+        )
+        return [
+            Metric(
+                "hdb.memory.host_free_bytes",
+                "Free physical memory on the host in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 0),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "6",
+            ),
+            Metric(
+                "hdb.memory.host_used_bytes",
+                "Used physical memory on the host in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 1),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "7",
+            ),
+            Metric(
+                "hdb.memory.swap_free_bytes",
+                "Free swap memory on the host in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 2),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "8",
+            ),
+            Metric(
+                "hdb.memory.swap_used_bytes",
+                "Used swap memory on the host in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 3),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "9",
+            ),
+            Metric(
+                "hdb.memory.host_allocation_limit_bytes",
+                "Allocation limit for all processes in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 4),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "10",
+            ),
+            Metric(
+                "hdb.memory.used_bytes",
+                "Amount of memory from the memory pool that is currently being used by SAP HANA processes in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 5),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "11",
+            ),
+            Metric(
+                "hdb.memory.peak_used_bytes",
+                "Peak memory from the memory pool used by SAP HANA processes since the instance started (this is a " \
+                "sample-based value) in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 6),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "12",
+            ),
+            Metric(
+                "hdb.memory.allocated_bytes",
+                "Size of the memory pool for all SAP HANA processes in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 7),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "13",
+            ),
+            Metric(
+                "hdb.memory.code_size_bytes",
+                "Code size, including shared libraries of SAP HANA processes in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 8),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "14",
+            ),
+            Metric(
+                "hdb.memory.shared_size_bytes",
+                "Shared memory size of SAP HANA processes in bytes",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 9),
+                    PM_TYPE_U64,
+                    indom_hosts,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_BYTE,
+                ),
+                "15",
+            ),
+        ]
+
+    @staticmethod
+    def _metrics_instance(cluster_id: int) -> List[Metric]:
+        return [
+            Metric(
+                "hdb.instance_number",
+                "Instance number",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 1),
+                    PM_TYPE_U32,
+                    PM_INDOM_NULL,
+                    PM_SEM_DISCRETE,
+                    Metric.UNITS_NONE,
+                ),
+                "SELECT value FROM SYS.M_SYSTEM_OVERVIEW WHERE section='System' AND name='Instance Number'",
+            ),
+        ]
+
+    def _metrics_transactions_blocked(self, cluster_id: int) -> List[Metric]:
+        indom_indexservers, self._indom_id_lookup[cluster_id] = self._build_instance_domain(
+            "SELECT HOST, PORT FROM SYS.M_SERVICES WHERE SERVICE_NAME='indexserver' ORDER BY HOST,PORT;"
+        )
+
+        return [
+            Metric(
+                "hdb.transactions.blocked_count",
+                "Number of currently blocked transactions waiting for locks",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 17),
+                    PM_TYPE_DOUBLE,
+                    indom_indexservers,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_COUNT,
+                ),
+                "0",
+            ),
+            Metric(
+                "hdb.transactions.blocked_record_count",
+                "Number of currently blocked transactions waiting for record locks",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 18),
+                    PM_TYPE_DOUBLE,
+                    indom_indexservers,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_COUNT,
+                ),
+                "1",
+            ),
+            Metric(
+                "hdb.transactions.blocked_table_count",
+                "Number of currently blocked transactions waiting for table locks",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 19),
+                    PM_TYPE_DOUBLE,
+                    indom_indexservers,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_COUNT,
+                ),
+                "2",
+            ),
+            Metric(
+                "hdb.transactions.blocked_metadata_count",
+                "Number of currently blocked transactions waiting for metadata locks",
+                pmdaMetric(
+                    PMDA.pmid(cluster_id, 20),
+                    PM_TYPE_DOUBLE,
+                    indom_indexservers,
+                    PM_SEM_INSTANT,
+                    Metric.UNITS_COUNT,
+                ),
+                "3",
             ),
         ]
 
