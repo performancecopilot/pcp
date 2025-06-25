@@ -10,6 +10,7 @@ in the source distribution for its full text.
 #include "Meter.h"
 
 #include <assert.h>
+#include <limits.h> // IWYU pragma: keep
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,7 +29,7 @@ in the source distribution for its full text.
 #define UINT32_WIDTH 32
 #endif
 
-#define GRAPH_HEIGHT 4 /* Unit: rows (lines) */
+#define DEFAULT_GRAPH_HEIGHT 4 /* Unit: rows (lines) */
 
 typedef struct MeterMode_ {
    Meter_Draw draw;
@@ -49,16 +50,22 @@ static inline void Meter_displayBuffer(const Meter* this, RichString* out) {
 /* ---------- TextMeterMode ---------- */
 
 static void TextMeterMode_draw(Meter* this, int x, int y, int w) {
+   assert(x >= 0);
+   assert(w <= INT_MAX - x);
+
    const char* caption = Meter_getCaption(this);
-   attrset(CRT_colors[METER_TEXT]);
-   mvaddnstr(y, x, caption, w);
+   if (w > 0) {
+      attrset(CRT_colors[METER_TEXT]);
+      mvaddnstr(y, x, caption, w);
+   }
    attrset(CRT_colors[RESET_COLOR]);
 
-   int captionLen = strlen(caption);
-   x += captionLen;
-   w -= captionLen;
-   if (w <= 0)
+   int captionWidth = w > 0 ? (int)strnlen(caption, w) : 0;
+   if (w <= captionWidth) {
       return;
+   }
+   w -= captionWidth;
+   x += captionWidth;
 
    RichString_begin(out);
    Meter_displayBuffer(this, &out);
@@ -71,27 +78,33 @@ static void TextMeterMode_draw(Meter* this, int x, int y, int w) {
 static const char BarMeterMode_characters[] = "|#*@$%&.";
 
 static void BarMeterMode_draw(Meter* this, int x, int y, int w) {
+   assert(x >= 0);
+   assert(w <= INT_MAX - x);
+
    // Draw the caption
-   const char* caption = Meter_getCaption(this);
-   attrset(CRT_colors[METER_TEXT]);
    int captionLen = 3;
-   mvaddnstr(y, x, caption, captionLen);
-   x += captionLen;
+   const char* caption = Meter_getCaption(this);
+   if (w >= captionLen) {
+      attrset(CRT_colors[METER_TEXT]);
+      mvaddnstr(y, x, caption, captionLen);
+   }
    w -= captionLen;
 
    // Draw the bar borders
-   attrset(CRT_colors[BAR_BORDER]);
-   mvaddch(y, x, '[');
-   w--;
-   mvaddch(y, x + MAXIMUM(w, 0), ']');
-   w--;
-   attrset(CRT_colors[RESET_COLOR]);
-
-   x++;
+   if (w >= 1) {
+      x += captionLen;
+      attrset(CRT_colors[BAR_BORDER]);
+      mvaddch(y, x, '[');
+      w--;
+      mvaddch(y, x + w, ']');
+      w--;
+   }
 
    if (w < 1) {
-      return;
+      goto end;
    }
+   attrset(CRT_colors[RESET_COLOR]); // Clear the bold attribute
+   x++;
 
    // The text in the bar is right aligned;
    // Pad with maximal spaces and then calculate needed starting position offset
@@ -129,12 +142,11 @@ static void BarMeterMode_draw(Meter* this, int x, int y, int w) {
       if (isPositive(value) && this->total > 0.0) {
          value = MINIMUM(value, this->total);
          blockSizes[i] = ceil((value / this->total) * w);
+         blockSizes[i] = MINIMUM(blockSizes[i], w - offset);
       } else {
          blockSizes[i] = 0;
       }
       int nextOffset = offset + blockSizes[i];
-      // (Control against invalid values)
-      nextOffset = CLAMP(nextOffset, 0, w);
       for (int j = offset; j < nextOffset; j++)
          if (RichString_getCharVal(bar, startPos + j) == ' ') {
             if (CRT_colorScheme == COLORSCHEME_MONOCHROME) {
@@ -152,9 +164,8 @@ static void BarMeterMode_draw(Meter* this, int x, int y, int w) {
    for (uint8_t i = 0; i < this->curItems; i++) {
       int attr = this->curAttributes ? this->curAttributes[i] : Meter_attributes(this)[i];
       RichString_setAttrn(&bar, CRT_colors[attr], startPos + offset, blockSizes[i]);
-      RichString_printoffnVal(bar, y, x + offset, startPos + offset, MINIMUM(blockSizes[i], w - offset));
+      RichString_printoffnVal(bar, y, x + offset, startPos + offset, blockSizes[i]);
       offset += blockSizes[i];
-      offset = CLAMP(offset, 0, w);
    }
    if (offset < w) {
       RichString_setAttrn(&bar, CRT_colors[BAR_SHADOW], startPos + offset, w - offset);
@@ -164,6 +175,8 @@ static void BarMeterMode_draw(Meter* this, int x, int y, int w) {
    RichString_delete(&bar);
 
    move(y, x + w + 1);
+
+end:
    attrset(CRT_colors[RESET_COLOR]);
 }
 
@@ -190,13 +203,20 @@ static const char* const GraphMeterMode_dotsAscii[] = {
 };
 
 static void GraphMeterMode_draw(Meter* this, int x, int y, int w) {
+   assert(x >= 0);
+   assert(w <= INT_MAX - x);
+
    // Draw the caption
-   const char* caption = Meter_getCaption(this);
-   attrset(CRT_colors[METER_TEXT]);
    const int captionLen = 3;
-   mvaddnstr(y, x, caption, captionLen);
-   x += captionLen;
+   const char* caption = Meter_getCaption(this);
+   if (w >= captionLen) {
+      attrset(CRT_colors[METER_TEXT]);
+      mvaddnstr(y, x, caption, captionLen);
+   }
    w -= captionLen;
+
+   assert(this->h >= 1);
+   int h = this->h;
 
    GraphData* data = &this->drawData;
 
@@ -213,7 +233,7 @@ static void GraphMeterMode_draw(Meter* this, int x, int y, int w) {
 
    const size_t nValues = data->nValues;
    if (nValues < 1)
-      return;
+      goto end;
 
    // Record new value if necessary
    const Machine* host = this->host;
@@ -231,8 +251,10 @@ static void GraphMeterMode_draw(Meter* this, int x, int y, int w) {
       }
    }
 
-   if (w <= 0)
-      return;
+   if (w < 1) {
+      goto end;
+   }
+   x += captionLen;
 
    // Graph drawing style (character set, etc.)
    const char* const* GraphMeterMode_dots;
@@ -251,27 +273,29 @@ static void GraphMeterMode_draw(Meter* this, int x, int y, int w) {
    // Starting positions of graph data and terminal column
    if ((size_t)w > nValues / 2) {
       x += w - nValues / 2;
-      w = nValues / 2;
+      w = (int)(nValues / 2);
    }
    size_t i = nValues - (size_t)w * 2;
 
    // Draw the actual graph
    for (int col = 0; i < nValues - 1; i += 2, col++) {
-      int pix = GraphMeterMode_pixPerRow * GRAPH_HEIGHT;
+      int pix = GraphMeterMode_pixPerRow * h;
       double total = MAXIMUM(this->total, 1);
       int v1 = (int) lround(CLAMP(data->values[i] / total * pix, 1.0, pix));
       int v2 = (int) lround(CLAMP(data->values[i + 1] / total * pix, 1.0, pix));
 
       int colorIdx = GRAPH_1;
-      for (int line = 0; line < GRAPH_HEIGHT; line++) {
-         int line1 = CLAMP(v1 - (GraphMeterMode_pixPerRow * (GRAPH_HEIGHT - 1 - line)), 0, GraphMeterMode_pixPerRow);
-         int line2 = CLAMP(v2 - (GraphMeterMode_pixPerRow * (GRAPH_HEIGHT - 1 - line)), 0, GraphMeterMode_pixPerRow);
+      for (int line = 0; line < h; line++) {
+         int line1 = CLAMP(v1 - (GraphMeterMode_pixPerRow * (h - 1 - line)), 0, GraphMeterMode_pixPerRow);
+         int line2 = CLAMP(v2 - (GraphMeterMode_pixPerRow * (h - 1 - line)), 0, GraphMeterMode_pixPerRow);
 
          attrset(CRT_colors[colorIdx]);
          mvaddstr(y + line, x + col, GraphMeterMode_dots[line1 * (GraphMeterMode_pixPerRow + 1) + line2]);
          colorIdx = GRAPH_2;
       }
    }
+
+end:
    attrset(CRT_colors[RESET_COLOR]);
 }
 
@@ -301,6 +325,27 @@ static void LEDMeterMode_drawDigit(int x, int y, int n) {
 }
 
 static void LEDMeterMode_draw(Meter* this, int x, int y, int w) {
+   assert(x >= 0);
+   assert(w <= INT_MAX - x);
+
+   int yText =
+#ifdef HAVE_LIBNCURSESW
+      CRT_utf8 ? y + 1 :
+#endif
+      y + 2;
+   attrset(CRT_colors[LED_COLOR]);
+
+   const char* caption = Meter_getCaption(this);
+   if (w > 0) {
+      mvaddnstr(yText, x, caption, w);
+   }
+
+   int captionWidth = w > 0 ? (int)strnlen(caption, w) : 0;
+   if (w <= captionWidth) {
+      goto end;
+   }
+   int xx = x + captionWidth;
+
 #ifdef HAVE_LIBNCURSESW
    if (CRT_utf8)
       LEDMeterMode_digits = LEDMeterMode_digitsUtf8;
@@ -311,26 +356,17 @@ static void LEDMeterMode_draw(Meter* this, int x, int y, int w) {
    RichString_begin(out);
    Meter_displayBuffer(this, &out);
 
-   int yText =
-#ifdef HAVE_LIBNCURSESW
-      CRT_utf8 ? y + 1 :
-#endif
-      y + 2;
-   attrset(CRT_colors[LED_COLOR]);
-   const char* caption = Meter_getCaption(this);
-   mvaddstr(yText, x, caption);
-   int xx = x + strlen(caption);
    int len = RichString_sizeVal(out);
    for (int i = 0; i < len; i++) {
       int c = RichString_getCharVal(out, i);
       if (c >= '0' && c <= '9') {
-         if (xx - x + 4 > w)
+         if (xx > x + w - 4)
             break;
 
          LEDMeterMode_drawDigit(xx, y, c - '0');
          xx += 4;
       } else {
-         if (xx - x + 1 > w)
+         if (xx > x + w - 1)
             break;
 #ifdef HAVE_LIBNCURSESW
          const cchar_t wc = { .chars = { c, '\0' }, .attr = 0 }; /* use LED_COLOR from attrset() */
@@ -341,8 +377,10 @@ static void LEDMeterMode_draw(Meter* this, int x, int y, int w) {
          xx += 1;
       }
    }
-   attrset(CRT_colors[RESET_COLOR]);
    RichString_delete(&out);
+
+end:
+   attrset(CRT_colors[RESET_COLOR]);
 }
 
 static const MeterMode Meter_modes[] = {
@@ -363,7 +401,7 @@ static const MeterMode Meter_modes[] = {
    },
    [GRAPH_METERMODE] = {
       .uiName = "Graph",
-      .h = GRAPH_HEIGHT,
+      .h = DEFAULT_GRAPH_HEIGHT,
       .draw = GraphMeterMode_draw,
    },
    [LED_METERMODE] = {

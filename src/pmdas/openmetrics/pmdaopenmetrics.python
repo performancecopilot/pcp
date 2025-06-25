@@ -559,7 +559,7 @@ class Source(object):
         self.path = path # pathname to .url or executable file
         self.url = None
         self.parse_error = False
-        self.parse_url_time = 0 # timestamp of config file when it was last parsed
+        self.parse_time = None # last time config file was parsed
         self.is_scripted = is_scripted
         self.pmda = thispmda # the shared pmda
         self.requests = None
@@ -822,9 +822,9 @@ class Source(object):
 
         return num_metrics
 
-    def parse_url_config(self, filepath):
+    def parse_config(self, filepath):
         '''
-        Parse a URL config file. The first line is always the URL.
+        Parse a configuration file. The first line is always the URL.
         Remaining lines are prefixed with a keyword. Supported keywords
         include '#' for a comment, 'HEADER:' to add to the header passed
         to the headers dict parameter to the get() call. Note the ':' are
@@ -922,10 +922,10 @@ class Source(object):
                 if not s[ST_MODE] & S_IXUSR:
                     self.pmda.err("cannot execute script '%s'" % self.path)
                     return
-            elif self.parse_url_time < s.st_mtime_ns:
+            elif self.parse_time is None or self.parse_time < s.st_mtime_ns:
                 # (re)parse the URL from given file
-                self.parse_url_config(self.path)
-                self.parse_url_time = s.st_mtime_ns
+                self.parse_config(self.path)
+                self.parse_time = s.st_mtime_ns
         except Exception as e:
             self.pmda.err("cannot stat %s: %s" % (self.path, e))
             return

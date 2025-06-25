@@ -5,6 +5,8 @@ Released under the GNU GPLv2+, see the COPYING file
 in the source distribution for its full text.
 */
 
+#include "config.h" // IWYU pragma: keep
+
 #include "darwin/DarwinProcess.h"
 
 #include <libproc.h>
@@ -233,7 +235,7 @@ static void DarwinProcess_updateCmdLine(const struct kinfo_proc* k, Process* pro
    /* Save where the argv[0] string starts. */
    sp = cp;
 
-   int end = 0;
+   size_t end = 0;
    for ( np = NULL; c < nargs && cp < &procargs[size]; cp++ ) {
       if ( *cp == '\0' ) {
          c++;
@@ -244,7 +246,7 @@ static void DarwinProcess_updateCmdLine(const struct kinfo_proc* k, Process* pro
          /* Note location of current '\0'. */
          np = cp;
          if (end == 0) {
-            end = cp - sp;
+            end = (size_t)(cp - sp);
          }
       }
    }
@@ -258,7 +260,7 @@ static void DarwinProcess_updateCmdLine(const struct kinfo_proc* k, Process* pro
       goto ERROR_B;
    }
    if (end == 0) {
-      end = np - sp;
+      end = (size_t)(np - sp);
    }
 
    Process_updateCmdline(proc, sp, 0, end);
@@ -476,6 +478,7 @@ void DarwinProcess_scanThreads(DarwinProcess* dp, DarwinProcessTable* dpt) {
       tprocess->st_uid           = proc->st_uid;
       tprocess->user             = proc->user;
 
+#ifdef HAVE_THREAD_EXTENDED_INFO_DATA_T
       thread_extended_info_data_t extended_info;
       mach_msg_type_number_t extended_info_count = THREAD_EXTENDED_INFO_COUNT;
       ret = thread_info(thread_list[i], THREAD_EXTENDED_INFO, (thread_info_t) &extended_info, &extended_info_count);
@@ -495,10 +498,16 @@ void DarwinProcess_scanThreads(DarwinProcess* dp, DarwinProcessTable* dpt) {
          isProcessStuck |= true;
          tdproc->super.state = UNINTERRUPTIBLE_WAIT;
       }
+#endif
 
       // TODO: depend on setting
+#ifdef HAVE_THREAD_EXTENDED_INFO_DATA_T
       const char* name = extended_info.pth_name[0] != '\0' ? extended_info.pth_name : proc->procComm;
-      Process_updateCmdline(tprocess, name, 0, strlen(name));
+#else
+      // Not provided in thread_basic_info_data_t; fall back to the process name
+      const char* name = proc->procComm;
+#endif
+      Process_updateCmdline(tprocess, name, 0, name ? strlen(name) : 0);
 
       if (!preExisting)
          ProcessTable_add(&dpt->super, tprocess);

@@ -9,6 +9,7 @@ in the source distribution for its full text.
 
 #include "FunctionBar.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -40,36 +41,37 @@ FunctionBar* FunctionBar_new(const char* const* functions, const char* const* ke
    if (!functions) {
       functions = FunctionBar_FLabels;
    }
-   for (int i = 0; i < FUNCTIONBAR_MAXEVENTS && functions[i]; i++) {
+   for (size_t i = 0; i < FUNCTIONBAR_MAXEVENTS && functions[i]; i++) {
       this->functions[i] = xStrdup(functions[i]);
    }
    if (keys && events) {
       this->staticData = false;
       this->keys.keys = xCalloc(FUNCTIONBAR_MAXEVENTS, sizeof(char*));
       this->events = xCalloc(FUNCTIONBAR_MAXEVENTS, sizeof(int));
-      int i = 0;
+      size_t i = 0;
       while (i < FUNCTIONBAR_MAXEVENTS && functions[i]) {
          this->keys.keys[i] = xStrdup(keys[i]);
          this->events[i] = events[i];
          i++;
       }
-      this->size = i;
+      this->size = (uint32_t)i;
    } else {
       this->staticData = true;
       this->keys.constKeys = FunctionBar_FKeys;
       this->events = FunctionBar_FEvents;
       this->size = ARRAYSIZE(FunctionBar_FEvents);
    }
+   assert(this->size <= FUNCTIONBAR_MAXEVENTS);
    return this;
 }
 
 void FunctionBar_delete(FunctionBar* this) {
-   for (int i = 0; i < FUNCTIONBAR_MAXEVENTS && this->functions[i]; i++) {
+   for (size_t i = 0; i < FUNCTIONBAR_MAXEVENTS && this->functions[i]; i++) {
       free(this->functions[i]);
    }
    free(this->functions);
    if (!this->staticData) {
-      for (int i = 0; i < this->size; i++) {
+      for (size_t i = 0; i < this->size; i++) {
          free(this->keys.keys[i]);
       }
       free(this->keys.keys);
@@ -79,7 +81,7 @@ void FunctionBar_delete(FunctionBar* this) {
 }
 
 void FunctionBar_setLabel(FunctionBar* this, int event, const char* text) {
-   for (int i = 0; i < this->size; i++) {
+   for (size_t i = 0; i < this->size; i++) {
       if (this->events[i] == event) {
          free(this->functions[i]);
          this->functions[i] = xStrdup(text);
@@ -97,7 +99,7 @@ int FunctionBar_drawExtra(const FunctionBar* this, const char* buffer, int attr,
    attrset(CRT_colors[FUNCTION_BAR]);
    mvhline(LINES - 1, 0, ' ', COLS);
    int x = 0;
-   for (int i = 0; i < this->size; i++) {
+   for (size_t i = 0; i < this->size; i++) {
       attrset(CRT_colors[FUNCTION_KEY]);
       mvaddstr(LINES - 1, x, this->keys.constKeys[i]);
       x += strlen(this->keys.constKeys[i]);
@@ -144,7 +146,7 @@ void FunctionBar_append(const char* buffer, int attr) {
 
 int FunctionBar_synthesizeEvent(const FunctionBar* this, int pos) {
    int x = 0;
-   for (int i = 0; i < this->size; i++) {
+   for (size_t i = 0; i < this->size; i++) {
       x += strlen(this->keys.constKeys[i]);
       x += strlen(this->functions[i]);
       if (pos < x) {
