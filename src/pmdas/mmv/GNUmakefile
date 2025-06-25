@@ -30,13 +30,15 @@ LLDFLAGS = -L$(TOPDIR)/src/libpcp_mmv/src -L$(TOPDIR)/src/libpcp/src
 LLDLIBS = -lpcp_mmv $(PCPLIB)
 LDIRT = mmvdump acme
 
-PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
-PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
-LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
-DEMODIR = $(PCP_DEMOS_DIR)/$(IAM)
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+LOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+DEMODIR		= $(PCP_DEMOS_DIR)/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
+
 DEMOFILES = README.demos Makefile.demos
-REWRITEVARDIR = $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE_MMV = "mmv	70	dso	mmv_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
 CONF_LINE_PMPROXY = "pmproxy	4	dso	pmproxy_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
 

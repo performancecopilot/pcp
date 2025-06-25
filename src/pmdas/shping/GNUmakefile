@@ -38,7 +38,8 @@ PMIECONFDIR	= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
 PMIECONFVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 PMLOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
 PMLOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
-REWRITEVARDIR = $(PCP_VAR_DIR)/config/pmlogrewrite
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 default:	build-me
 
