@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat.
+ * Copyright (c) 2016,2025 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -31,11 +31,18 @@ struct http_client;
 
 extern struct http_client *pmhttpNewClient(void);
 extern void pmhttpFreeClient(struct http_client *);
-extern int pmhttpClientFetch(struct http_client *, const char *,
-                             char *, size_t, char *, size_t);
+extern int pmhttpClientGet(struct http_client *, const char *, const char *,
+                             char **, size_t *, char **, size_t *);
+extern int pmhttpClientPost(struct http_client *, const char *, const char *,
+                            const void *, size_t, const char *,
+                            char **, size_t *, char **, size_t *);
 extern int pmhttpClientSetTimeout(struct http_client *, struct timeval *);
 extern int pmhttpClientSetProtocol(struct http_client *, enum http_protocol);
 extern int pmhttpClientSetUserAgent(struct http_client *, const char *, const char *);
+
+/* retired interfaces - no longer supported (fixed buffer sizes) */
+extern int pmhttpClientFetch(struct http_client *, const char *,
+                             char *, size_t, char *, size_t);
 
 #ifdef __cplusplus
 }

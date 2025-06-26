@@ -1276,7 +1276,7 @@ sendstatus(void)
 	ls.last = last_stamp;	/* struct assignment */
 	__pmGetTimestamp(&ls.now);
 	ls.vol = archctl.ac_curvol;
-	ls.size = __pmFtell(archctl.ac_mfp);
+	ls.size = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, pmGetProgname());
 	assert(ls.size >= 0);
 
 	ls.pmcd.hostname = ls.pmcd.fqdn = ls.pmcd.timezone = ls.pmcd.zoneinfo = NULL;

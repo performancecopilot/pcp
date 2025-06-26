@@ -81,6 +81,8 @@ pmquery
 pmdumptext
 # pmlogdump app
 pmlogdump
+# pmlogpush app
+pmlogpush
 # pmloglabel app
 pmloglabel
 # pmlogger app (not control scripts)
@@ -2095,6 +2097,8 @@ pmcd.pdu
 1610 libpcp local
 1612 pmda.bpf local
 1613 pmda.linux kernel local
+1614 pmproxy pmlogpush local valgrind
+1615 pmproxy pmlogpush local
 1619 pmcd local
 1622:retired local
 1623 libpcp_import local pmlogdump collectl2pcp pmrep

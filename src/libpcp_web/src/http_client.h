@@ -32,16 +32,27 @@ typedef struct http_client {
     const char		*user_agent;
     const char		*agent_vers;
     unsigned int	flags;
+    unsigned int	status_code;	/* HTTP response code (e.g. 200) */
     unsigned int	max_redirect;
     http_protocol	http_version;
     http_parser_url	parser_url;
-    char		*url;		/* copy of user URL / redirected */
+    char		*conn;		/* http://host:port, unix://sock */
+    const char		*path;		/* endpoint / resource location */
     http_parser		parser;
-    char		*body_buffer;	/* user-supplied result buffer */
+    const char		*content_type;	/* optional input content type */
+    const void		*input_buffer;	/* user-supplied input buffer */
+    size_t		input_length;	/* full length of that buffer */
+
+    char		*body_buffer;	/* work-in-progress output body */
     size_t		body_length;	/* full length of that buffer */
-    size_t		offset;		/* buffer written up to here */
-    char		*type_buffer;	/* optional content type buffer */
-    size_t		type_length;	/* full length of that buffer */
+    size_t		offset;		/* body written up to here */
+    char		**body_bufferp;	/* user-supplied output pointer */
+    size_t		*body_lengthp;	/* user-supplied buffer length */
+
+    char		*type_buffer;	/* work-in-progress output type */
+    size_t		type_length;	/* work-in-progress type length */
+    char		**type_bufferp;	/* user-supplied output pointer */
+    size_t		*type_lengthp;	/* end length of realloc buffer */
 } http_client;
 
 #endif

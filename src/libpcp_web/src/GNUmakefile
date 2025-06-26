@@ -75,11 +75,11 @@ endif
 LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps
 
 ifeq "$(HAVE_LIBUV)" "true"
-CFILES += discover.c webgroup.c timer.c
+CFILES += discover.c loggroup.c webgroup.c timer.c
 LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 LLDLIBS += $(LIB_FOR_LIBUV)
 else
-CFILES += nodiscover.c nowebgroup.c notimer.c
+CFILES += nodiscover.c nologgroup.c nowebgroup.c notimer.c
 endif
 
 ifeq "$(HAVE_LIBINIH)" "true"

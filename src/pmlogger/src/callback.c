@@ -625,6 +625,7 @@ do_work(task_t *tp)
     AFctl_t		*acp;
     lastfetch_t		*lfp;
     lastfetch_t		*free_lfp;
+    char		*caller = pmGetProgname();
     int			changed;
     int			needindom;
     int			needti;
@@ -754,11 +755,11 @@ do_work(task_t *tp)
 	 * 2^63-1 bytes (for v3 archives).
 	 */
 	max_offset = (archive_version == PM_LOG_VERS02) ? 0x7fffffff : LONGLONG_MAX;
-	peek_offset = __pmFtell(archctl.ac_mfp);
+	peek_offset = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller);
 	peek_offset += pdu_payload - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > max_offset) {
 	    if (pmDebugOptions.appl2)
-		pmNotifyErr(LOG_INFO, "callback: new volume based on max size, currently %ld", __pmFtell(archctl.ac_mfp));
+		pmNotifyErr(LOG_INFO, "callback: new volume based on max size, currently %ld", archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller));
 	    (void)newvolume(VOL_SW_MAX);
 	}
 
@@ -783,7 +784,7 @@ do_work(task_t *tp)
 	 * __pmEncodeResult to encode the right PDU buffer before doing
 	 * the correct style of result write.
 	 */
-	last_log_offset = __pmFtell(archctl.ac_mfp);
+	last_log_offset = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller);
 	assert(last_log_offset >= 0);
 
 	setavail(resp);
@@ -796,7 +797,7 @@ do_work(task_t *tp)
 	}
 
 	needti = 0;
-	old_meta_offset = __pmFtell(logctl.mdfp);
+	old_meta_offset = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_META, caller);
 	assert(old_meta_offset >= 0);
 
 	for (i = 0; i < resp->numpmid; i++) {
@@ -1057,12 +1058,13 @@ do_work(task_t *tp)
 	    }
 	}
 	__pmUnpinPDUBuf(pb);
-	__pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
+	if (!remote.only)
+	    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
 
-	if (__pmFtell(archctl.ac_mfp) > flushsize) {
+	if (archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller) > flushsize) {
 	    needti = 1;
 	    if (pmDebugOptions.appl2)
-		pmNotifyErr(LOG_INFO, "callback: file size (%d) reached flushsize (%ld)", (int)__pmFtell(archctl.ac_mfp), (long)flushsize);
+		pmNotifyErr(LOG_INFO, "callback: file size (%ld) reached flushsize (%ld)", archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller), (long)flushsize);
 	}
 
 	if (needti) {
@@ -1071,19 +1073,19 @@ do_work(task_t *tp)
 	     * result (but if this is the first one, skip the label
 	     * record, what a crock), ... ditto for the meta data
 	     */
-	    new_offset = __pmFtell(archctl.ac_mfp);
+	    new_offset = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller);
 	    assert(new_offset >= 0);
-	    new_meta_offset = __pmFtell(logctl.mdfp);
+	    new_meta_offset = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_META, caller);
 	    assert(new_meta_offset >= 0);
-	    __pmFseek(archctl.ac_mfp, last_log_offset, SEEK_SET);
-	    __pmFseek(logctl.mdfp, old_meta_offset, SEEK_SET);
+	    archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, last_log_offset, caller);
+	    archctl.ac_reset_cb(&archctl, PM_LOG_VOL_META, old_meta_offset, caller);
 	    __pmLogPutIndex(&archctl, &resp->timestamp);
 	    /*
 	     * ... and put them back
 	     */
-	    __pmFseek(archctl.ac_mfp, new_offset, SEEK_SET);
-	    __pmFseek(logctl.mdfp, new_meta_offset, SEEK_SET);
-	    flushsize = __pmFtell(archctl.ac_mfp) + 100000;
+	    archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, new_offset, caller);
+	    archctl.ac_reset_cb(&archctl, PM_LOG_VOL_META, new_meta_offset, caller);
+	    flushsize = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller) + 100000;
 	}
 
 	last_stamp = resp->timestamp;	/* struct assignment */
@@ -1153,7 +1155,7 @@ do_work(task_t *tp)
 	run_done(0, "Sample limit reached");
 
     if (exit_bytes != -1 && 
-        (vol_bytes + __pmFtell(archctl.ac_mfp) >= exit_bytes)) 
+        (vol_bytes + archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller) >= exit_bytes))
         /* reached exit_bytes limit, so stop logging */
         run_done(0, "Byte limit reached");
 
@@ -1165,10 +1167,10 @@ do_work(task_t *tp)
     }
 
     if (vol_switch_bytes > 0 &&
-        (__pmFtell(archctl.ac_mfp) >= vol_switch_bytes)) {
+        (archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller) >= vol_switch_bytes)) {
         (void)newvolume(VOL_SW_BYTES);
 	if (pmDebugOptions.appl2)
-	    pmNotifyErr(LOG_INFO, "callback: new volume based on size (%d)", (int)__pmFtell(archctl.ac_mfp));
+	    pmNotifyErr(LOG_INFO, "callback: new volume based on size (%ld)", archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller));
     }
 }
 

@@ -26,7 +26,6 @@ extern dictType sdsOwnDictCallBacks;	/* owned sds key -> sds string value */
 extern const char *timespec_str(struct timespec *, char *, int);
 extern const char *timespec_stream_str(struct timespec *, char *, int);
 extern const char *timestamp_str(__pmTimestamp *, char *, int);
-extern const char *timestamp_stream_str(__pmTimestamp *, char *, int);
 
 extern int context_labels(int, pmLabelSet **);
 extern int metric_labelsets(struct metric *,

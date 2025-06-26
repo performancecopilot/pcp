@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2022 Red Hat.
+ * Copyright (c) 2012-2022,2025 Red Hat.
  * Copyright (c) 1997,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -386,6 +386,7 @@ PCP_CALL extern int pmNewContext(int, const char *);
 #define PM_CTXFLAG_NO_FEATURE_CHECK	(1U<<15) /* don't check features in label record */
 #define PM_CTXFLAG_METADATA_ONLY	(1U<<16) /* only open .meta file of archive */
 #define PM_CTXFLAG_LAST_VOLUME	(1U<<17) /* open archive at start of last volume */
+#define PM_CTXFLAG_STREAMING_WRITER	(1U<<18) /* streaming log over a network */
 
 /*
  * Duplicate current context -- returns handle to new one for pmUseContext()
@@ -676,6 +677,7 @@ typedef struct pmTimespec {
 #define PM_LOG_VERS03		0x3
 #define PM_LOG_VOL_TI		-2	/* temporal index */
 #define PM_LOG_VOL_META		-1	/* meta data */
+#define PM_LOG_VOL_CURRENT	0	/* data, current active volume */
 #define PM_LOG_MAXHOSTLEN	64	/* V2 only, deprecated with V3 */
 #define PM_TZ_MAXLEN		40	/* V2 only, deprecated with V3 */
 #define PM_MAX_HOSTNAMELEN	256	/* max supported for V3 onward */

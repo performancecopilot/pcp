@@ -40,8 +40,7 @@ check_context_start(pmi_context *current)
     else
 	host = current->hostname;
 
-    acp = &current->archctl;
-    acp->ac_log = &current->logctl;
+    acp = __pmLogWriterInit(&current->archctl, &current->logctl);
     sts = __pmLogCreate(host, current->archive, current->version, acp, 0);
     if (sts < 0)
 	return sts;
