@@ -1163,7 +1163,7 @@ class OpenMetricsPMDA(PMDA):
                     mtime = m
         return mtime, ret
 
-    def initalize_controls(self, cluster):
+    def initialize_controls(self, cluster):
         # initialize statistics
         self.stats_fetch_calls[cluster] = 0
         self.stats_fetch_time[cluster] = 0
@@ -1275,7 +1275,7 @@ class OpenMetricsPMDA(PMDA):
                         cluster_for_refresh.append(key)
                         cluster_for_refresh_names.append(name)
                     if name in self.re_add_list:
-                        self.initalize_controls(key)
+                        self.initialize_controls(key)
             else:
                 try:
                     path = file
@@ -1284,7 +1284,7 @@ class OpenMetricsPMDA(PMDA):
                     self.source_by_name[source.name] = source
                     self.source_by_cluster[source.cluster] = source
 
-                    self.initalize_controls(cluster)
+                    self.initialize_controls(cluster)
 
                     save_cluster_table = True
                     self.log("Found source %s cluster %d" % (name, cluster))
