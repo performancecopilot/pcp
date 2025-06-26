@@ -677,6 +677,7 @@ typedef struct pmTimespec {
 #define PM_LOG_VERS03		0x3
 #define PM_LOG_VOL_TI		-2	/* temporal index */
 #define PM_LOG_VOL_META		-1	/* meta data */
+#define PM_LOG_VOL_CURRENT	0	/* data, current active volume */
 #define PM_LOG_MAXHOSTLEN	64	/* V2 only, deprecated with V3 */
 #define PM_TZ_MAXLEN		40	/* V2 only, deprecated with V3 */
 #define PM_MAX_HOSTNAMELEN	256	/* max supported for V3 onward */

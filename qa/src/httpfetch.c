@@ -19,7 +19,7 @@ main(int argc, char *argv[])
     char		*unix_location = NULL;
     struct timeval	timeout = { 0 };
     struct http_client	*client;
-    static const char	*usage = "[-aAptV] url";
+    static const char	*usage = "[-aApstV] url";
     static size_t	buflen, typelen;
     static char		*buf, *type;
 

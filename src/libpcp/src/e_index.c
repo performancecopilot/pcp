@@ -61,7 +61,7 @@ __pmLogIndexZeroTILogDiagnostic(const __pmArchCtl *acp, const char *caller)
     fprintf(stderr, "%s: Botch: log offset == 0\n", caller);
     fprintf(stderr, "  __pmFileno=%d __pmFtell -> %lld\n",
 		    __pmFileno(acp->ac_mfp),
-		    (long long)acp->ac_tell_cb(acp, 0, caller));
+		    (long long)acp->ac_tell_cb(acp, PM_LOG_VOL_CURRENT, caller));
     if ((sts = __pmFstat(acp->ac_mfp, &sbuf)) < 0)
 	fprintf(stderr, "  __pmFstat failed -> %d\n", sts);
     else
@@ -82,7 +82,7 @@ __pmLogPutIndex_v3(const __pmArchCtl *acp, const __pmTimestamp * const tsp)
     ti.vol = acp->ac_curvol;
     off_meta = (__pmoff64_t)acp->ac_tell_cb(acp, PM_LOG_VOL_META, caller);
     memcpy((void *)&ti.off_meta[0], (void *)&off_meta, 2*sizeof(__int32_t));
-    off_data = (__pmoff64_t)acp->ac_tell_cb(acp, 0, caller);
+    off_data = (__pmoff64_t)acp->ac_tell_cb(acp, PM_LOG_VOL_CURRENT, caller);
     if (off_data == 0)
 	__pmLogIndexZeroTILogDiagnostic(acp, caller);
     memcpy((void *)&ti.off_data[0], (void *)&off_data, 2*sizeof(__int32_t));
@@ -128,7 +128,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 			"%s: PCP archive file (%s) too big\n", caller, "meta");
 	    return -E2BIG;
 	}
-	tmp = acp->ac_tell_cb(acp, 0, caller);
+	tmp = acp->ac_tell_cb(acp, PM_LOG_VOL_CURRENT, caller);
 	assert(tmp >= 0);
 	off_data = (__pmoff32_t)tmp;
 	if (tmp != off_data) {
@@ -139,7 +139,7 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
     }
     else {
 	off_meta = (__pmoff32_t)acp->ac_tell_cb(acp, PM_LOG_VOL_META, caller);
-	off_data = (__pmoff32_t)acp->ac_tell_cb(acp, 0, caller);
+	off_data = (__pmoff32_t)acp->ac_tell_cb(acp, PM_LOG_VOL_CURRENT, caller);
     }
 
     if (off_data == 0)
@@ -170,7 +170,7 @@ __pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *tsp)
     __pmLogCtl		*lcp = acp->ac_log;
 
     acp->ac_flush_cb(acp, PM_LOG_VOL_META, __FUNCTION__);
-    acp->ac_flush_cb(acp, 0, __FUNCTION__);
+    acp->ac_flush_cb(acp, PM_LOG_VOL_CURRENT, __FUNCTION__);
 
     if (tsp == NULL) {
 	pmtimespecNow(&tmp);

@@ -211,7 +211,7 @@ do_logue(int type)
 	__pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
     }
     /* and write to the archive data file ... */
-    last_log_offset = archctl.ac_tell_cb(&archctl, 0, caller);
+    last_log_offset = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller);
 
     if (archive_version >= PM_LOG_VERS03)
 	sts = __pmLogPutResult3(&archctl, pb);
@@ -276,12 +276,12 @@ do_logue(int type)
 
 	/* fudge the temporal index */
 	offset = __pmLogLabelSize(&logctl);
-	o_data = archctl.ac_tell_cb(&archctl, 0, caller);
+	o_data = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller);
 	o_meta = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_META, caller);
-	archctl.ac_reset_cb(&archctl, 0, offset, caller);
+	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, offset, caller);
 	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_META, offset, caller);
 	__pmLogPutIndex(&archctl, &lid.stamp);
-	archctl.ac_reset_cb(&archctl, 0, o_data, caller);
+	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, o_data, caller);
 	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_META, o_meta, caller);
     }
 

@@ -966,25 +966,37 @@ cleanup:
 /*
  * Default callbacks for writing archive structures to a local filesystem
  */
+
+static __pmFILE *
+logCallBackFile(const __pmArchCtl *acp, int volume, const char **idp)
+{
+    if (volume == PM_LOG_VOL_META) {
+	*idp = "metadata";
+	return acp->ac_log->mdfp;
+    }
+    if (volume == PM_LOG_VOL_TI) {
+	*idp = "temporal index";
+	return acp->ac_log->tifp;
+    }
+    *idp = "data volume";
+    return acp->ac_mfp;
+}
+
 static int
 __pmLogWriteCB(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 		const char *caller)
 {
     size_t		result;
     __pmFILE		*fp;
+    const char		*id;
 
-    if (volume == PM_LOG_VOL_META)
-	fp = acp->ac_log->mdfp;
-    else if (volume == PM_LOG_VOL_TI)
-	fp = acp->ac_log->tifp;
-    else
-	fp = acp->ac_mfp;
+    fp = logCallBackFile(acp, volume, &id);
 
     if ((result = __pmFwrite(buffer, 1, length, fp)) != length) {
-	char	errmsg[PM_MAXERRMSGLEN];
+	char	error[PM_MAXERRMSGLEN];
 
-	pmNotifyErr(LOG_ERR,"%s: write failed: got %zu, expected %zu: %s\n",
-		caller, result, length, osstrerror_r(errmsg, sizeof(errmsg)));
+	pmNotifyErr(LOG_ERR, "%s: %s write failed: got %zu, expected %zu: %s\n",
+		caller, id, result, length, osstrerror_r(error, sizeof(error)));
 	return -oserror();
     }
     return 0;
@@ -996,20 +1008,9 @@ __pmLogFlushCB(const __pmArchCtl *acp, int volume, const char *caller)
     __pmFILE		*fp;
     const char		*id;
 
-    if (volume == PM_LOG_VOL_META) {
-	fp = acp->ac_log->mdfp;
-	id = "metadata";
-    }
-    else if (volume == PM_LOG_VOL_TI) {
-	fp = acp->ac_log->tifp;
-	id = "temporal index";
-    }
-    else {
-	fp = acp->ac_mfp;
-	id = "data volume";
-    }
+    fp = logCallBackFile(acp, volume, &id);
 
-    if (__pmFflush(fp) != 0) {
+    if (fp && __pmFflush(fp) != 0) {
 	pmNotifyErr(LOG_ERR, "%s: PCP archive %s flush failed\n", caller, id);
 	return -oserror();
     }
@@ -1022,40 +1023,27 @@ __pmLogResetCB(const __pmArchCtl *acp, int volume, long offset, const char *call
     __pmFILE		*fp;
     const char		*id;
 
-    if (volume == PM_LOG_VOL_META) {
-	fp = acp->ac_log->mdfp;
-	id = "metadata";
-    }
-    else if (volume == PM_LOG_VOL_TI) {
-	fp = acp->ac_log->tifp;
-	id = "temporal index";
-    }
-    else {
-	fp = acp->ac_mfp;
-	id = "data volume";
-    }
+    fp = logCallBackFile(acp, volume, &id);
 
     if (pmDebugOptions.log && pmDebugOptions.desperate)
 	pmNotifyErr(LOG_ERR, "%s: %s offset set to %ld\n", caller, id, offset);
+
     __pmFseek(fp, offset, SEEK_SET);
 }
 
 static long
 __pmLogTellCB(const __pmArchCtl *acp, int volume, const char *caller)
 {
+    const char		*id;
     __pmFILE		*fp;
     long		off;
 
-    if (volume == PM_LOG_VOL_META)
-	fp = acp->ac_log->mdfp;
-    else if (volume == PM_LOG_VOL_TI)
-	fp = acp->ac_log->tifp;
-    else
-	fp = acp->ac_mfp;
+    fp = logCallBackFile(acp, volume, &id);
 
     if ((off = __pmFtell(fp)) < 0) {
 	if (pmDebugOptions.log)
-	    pmNotifyErr(LOG_ERR, "%s: tell position call failed\n", caller);
+	    pmNotifyErr(LOG_ERR, "%s: %s tell position call failed\n",
+				 caller, id);
 	return -oserror();
     }
     return off;
@@ -1133,7 +1121,7 @@ logputresult(int version, __pmArchCtl *acp, __pmPDU *pb, const char *caller)
 	logputlabel(acp, lcp->label.vol, &lcp->label, caller);
 	lcp->label.vol = PM_LOG_VOL_META;
 	logputlabel(acp, lcp->label.vol, &lcp->label, caller);
-	lcp->label.vol = 0;
+	lcp->label.vol = PM_LOG_VOL_CURRENT;
 	logputlabel(acp, lcp->label.vol, &lcp->label, caller);
 	lcp->state = PM_LOG_STATE_INIT;
     }
@@ -1143,20 +1131,20 @@ logputresult(int version, __pmArchCtl *acp, __pmPDU *pb, const char *caller)
     if (pmDebugOptions.log)
 	fprintf(stderr, "%s: pdubuf=" PRINTF_P_PFX "%p"
 		" input len=%d output len=%d posn=%ld\n", __FUNCTION__,
-		pb, pb[0], sz, acp->ac_tell_cb(acp, 0, __FUNCTION__));
+		pb, pb[0], sz, acp->ac_tell_cb(acp, PM_LOG_VOL_CURRENT, __FUNCTION__));
 
     save_from = start[0];
     start[0] = htonl(sz);	/* swab */
 
     if (version == 1) {
-	sts = acp->ac_write_cb(acp, 0, start, sz - sizeof(int), caller);
+	sts = acp->ac_write_cb(acp, PM_LOG_VOL_CURRENT, start, sz - sizeof(int), caller);
 	if (sts >= 0)
-	    sts = acp->ac_write_cb(acp, 0, start, sizeof(int), caller);
+	    sts = acp->ac_write_cb(acp, PM_LOG_VOL_CURRENT, start, sizeof(int), caller);
     }
     else {
 	/* version == 2 or version == 3 */
 	start[(sz-1)/sizeof(__pmPDU)] = start[0];
-	sts = acp->ac_write_cb(acp, 0, start, sz, caller);
+	sts = acp->ac_write_cb(acp, PM_LOG_VOL_CURRENT, start, sz, caller);
     }
 
     /* restore and unswab */
@@ -1509,7 +1497,7 @@ __pmLogWriteMark(__pmArchCtl *acp,
     buf[k++] = 0;		/* numpmid */
     buf[k] = buf[0];		/* trailer len */
 
-    return acp->ac_write_cb(acp, 0, (__pmPDU *)buf, rlen, __FUNCTION__);
+    return acp->ac_write_cb(acp, PM_LOG_VOL_CURRENT, (__pmPDU *)buf, rlen, __FUNCTION__);
 }
 
 /*

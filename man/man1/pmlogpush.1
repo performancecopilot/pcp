@@ -39,8 +39,12 @@ must have been previously created using
 .PP
 This archive should be complete and finished (not actively being
 written to).
-Comparable functionality is available directly from pmlogger, for
-pushing archives remotely while they are actively being written.
+Comparable functionality is available directly from
+.B pmlogger
+using the
+.B \-R
+option, for pushing archives remotely while they are actively being
+written.
 .SH OPTIONS
 The available command line options are:
 .TP 5
@@ -59,13 +63,14 @@ number where the remote
 .B pmproxy
 server is listening, waiting to receive the given PCP
 .IR archive .
+The default port is 44322.
 .TP
 \fB\-s\fR \fIpath\fR, \fB\-\-unix\fR=\fIpath\fR
 Unix domain socket
 .I path
 where a local
 .B pmproxy
-server is listening, waiting to receive the given PCP
+server is listening (locally), waiting to receive the given PCP
 .IR archive .
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
@@ -116,6 +121,9 @@ with the
 .B \-l
 option to obtain
 a list of the available debugging options and their meaning.
+The
+.I http
+debugging option is of particular interest for this utility.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmlogger (1),

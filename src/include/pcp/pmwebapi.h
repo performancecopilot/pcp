@@ -385,8 +385,9 @@ extern int pmWebGroupSetMetricRegistry(pmWebGroupModule *, struct mmv_registry *
 extern void pmWebGroupClose(pmWebGroupModule *);
 
 /*
- * Interfaces providing pmlogger 'push' functionality,
- * a webhook for archives logs for central monitoring.
+ * Interfaces providing pmlogger 'push' functionality -
+ * a webhook for central recording of PCP archive data, but
+ * without centrally managed configuration of monitored hosts.
  */
 
 typedef void (*pmLogArchiveCallBack)(int, void *);

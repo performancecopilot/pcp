@@ -1,6 +1,6 @@
 '\" t
 .\"
-.\" Copyright (c) 2013-2022 Red Hat.
+.\" Copyright (c) 2013-2022,2025 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -28,7 +28,7 @@ GET /search/...
 .br
 GET /pmapi/...
 .br
-GET /logger/...
+POST /logger/...
 .hy
 .ad
 .ft 1
@@ -1258,11 +1258,9 @@ representation of a PCP archive label as described in
 Either version 2 and 3 are accepted, and the
 .I volume
 field of this stucture will be ignored \- one API call suffices
-for each of the volumes of an archive,
+for all of the volumes of an archive,
 .B pmproxy
 ensures correct content is written for each.
-This includes any subsequent data volumes beyond the first (that
-is, volume 0) \- only one label API request is needed per archive.
 .P
 This API returns a numeric token (LOGID) that must be used in all
 subsequent API interactions for this archive as described below.

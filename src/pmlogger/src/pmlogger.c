@@ -125,7 +125,7 @@ run_done(int sts, char *msg)
     if (last_stamp.sec != 0) {
 	if (last_log_offset < __pmLogLabelSize(archctl.ac_log))
 	    fprintf(stderr, "run_done: Botch: last_log_offset = %ld\n", (long)last_log_offset);
-	archctl.ac_reset_cb(&archctl, 0, last_log_offset, pmGetProgname());
+	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, last_log_offset, pmGetProgname());
 	__pmLogPutIndex(&archctl, &last_stamp);
     }
 
@@ -305,7 +305,7 @@ do_dialog(char cmd)
 	/* hack is close enough! */
 	now = 1;
 
-    archsize = vol_bytes + archctl.ac_tell_cb(&archctl, 0, pmGetProgname());
+    archsize = vol_bytes + archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, pmGetProgname());
 
     nchar = add_msg(&p, 0, "");
     p[0] = '\0';
@@ -1834,7 +1834,7 @@ newvolume(int vol_switch_type)
     };
 
     vol_samples_counter = 0;
-    vol_bytes += archctl.ac_tell_cb(&archctl, 0, pmGetProgname());
+    vol_bytes += archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, pmGetProgname());
     if (exit_bytes != -1) {
         if (vol_bytes >= exit_bytes) 
 	    run_done(0, "Byte limit reached");
