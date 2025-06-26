@@ -150,10 +150,8 @@ do_logue(int type)
 	     * either the full pathname to the base of the archive, cloned
 	     * from GetPort() in ports.c, or the remote connection string.
 	     */
-	    if (remote.only) {
-		pmstrncat(path, MAXPATHLEN, remote.conn);
-		atom.cp = path;
-	    }
+	    if (remote.only)
+		atom.cp = remote.conn;
 	    else if (__pmAbsolutePath(archName))
 		atom.cp = archName;
 	    else {
