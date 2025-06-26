@@ -31,8 +31,7 @@
 typedef struct {
     __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
     __int32_t	pid;		/* PID of logger */
-    __int32_t	start_sec;	/* start of this log (pmTimeval) */
-    __int32_t	start_usec;
+    __int32_t	start[2];	/* start time of this archive (pmTimeval) */
     __int32_t	vol;		/* current log volume no. */
     char	hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
     char	timezone[PM_TZ_MAXLEN];	/* $TZ at collection host */
@@ -44,8 +43,7 @@ typedef struct {
 typedef struct {
     __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS03 */
     __int32_t	pid;		/* PID of logger */
-    __int32_t	start_sec[2];	/* start of this log (__pmTimestamp) */
-    __int32_t	start_nsec;
+    __int32_t	start[3];	/* start time of this archive (__pmTimestamp) */
     __int32_t	vol;		/* current log volume no. */
     __uint32_t	features;	/* enabled archive feature bits */
     __uint32_t	reserved;	/* reserved for future use, zero padded */
@@ -115,7 +113,7 @@ __pmLogEncodeLabel(const __pmLogLabel *lp, void **buffer, size_t *length)
 	/* swab */
 	label.magic = htonl(lp->magic);
 	label.pid = htonl(lp->pid);
-	__pmPutTimestamp(&lp->start, &label.start_sec[0]);
+	__pmPutTimestamp(&lp->start, label.start);
 	label.vol = htonl(lp->vol);
 	label.features = htonl(lp->features);
 	label.reserved = 0;
@@ -139,7 +137,7 @@ __pmLogEncodeLabel(const __pmLogLabel *lp, void **buffer, size_t *length)
 	/* swab */
 	label.magic = htonl(lp->magic);
 	label.pid = htonl(lp->pid);
-	__pmPutTimeval(&lp->start, &label.start_sec);
+	__pmPutTimeval(&lp->start, label.start);
 	label.vol = htonl(lp->vol);
 	memset(label.hostname, 0, sizeof(label.hostname));
 	bytes = MINIMUM(strlen(lp->hostname), PM_LOG_MAXHOSTLEN - 1);
@@ -187,7 +185,7 @@ __pmLogDecodeLabelV3(__pmLabel_v3 *in, __pmLogLabel *lp)
 {
     __pmLogFreeLabel(lp);	/* reset from earlier call */
     lp->pid = ntohl(in->pid);
-    __pmLoadTimestamp(&in->start_sec[0], &lp->start);
+    __pmLoadTimestamp(in->start, &lp->start);
     lp->vol = ntohl(in->vol);
     lp->features = ntohl(in->features);
     lp->hostname = strndup(in->hostname, PM_MAX_HOSTNAMELEN - 1);
@@ -200,7 +198,7 @@ __pmLogDecodeLabelV2(__pmLabel_v2 *in, __pmLogLabel *lp)
 {
     __pmLogFreeLabel(lp);	/* reset from earlier call */
     lp->pid = ntohl(in->pid);
-    __pmLoadTimeval(&in->start_sec, &lp->start);
+    __pmLoadTimeval(in->start, &lp->start);
     lp->vol = ntohl(in->vol);
     lp->features = 0;		/* not supported in v2 */
     lp->hostname = strndup(in->hostname, PM_LOG_MAXHOSTLEN - 1);
