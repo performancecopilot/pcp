@@ -16,12 +16,15 @@ main(int argc, char *argv[])
     char		*agent = NULL;
     char		*http_version = NULL;
     char		*agent_version = NULL;
+    char		*unix_location = NULL;
     struct timeval	timeout = { 0 };
-    static const char	*usage = "[-aAptV] url";
     struct http_client	*client;
+    static const char	*usage = "[-aApstV] url";
+    static size_t	buflen, typelen;
+    static char		*buf, *type;
 
     pmSetProgname(argv[0]);
-    while ((c = getopt(argc, argv, "a:A:D:t:vV:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:A:D:s:t:vV:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* user-agent string */
@@ -38,6 +41,10 @@ main(int argc, char *argv[])
 		errflag++;
 		break;
 	    }
+	    break;
+
+	case 's':	/* Unix domain socket location */
+	    unix_location = optarg;
 	    break;
 
 	case 't':	/* request timeout (sec) */
@@ -100,27 +107,24 @@ main(int argc, char *argv[])
 	pmhttpClientSetTimeout(client, &timeout);
 
     while (optind < argc) {
-	char buf[BUFSIZ];
-	char type[64] = {0};
-
 	if (verbose)
 	    printf("<-- GET %s -->\n", argv[optind]);
 
-	c = pmhttpClientFetch(client, argv[optind], buf, sizeof(buf),
-				type, sizeof(type));
+	c = pmhttpClientGet(client, argv[optind], unix_location,
+			&buf, &buflen, &type, &typelen);
 	if (c < 0) {
-	    fprintf(stderr, "Failed to fetch %s [%d]\n", argv[optind], c);
+	    fprintf(stderr, "Failed HTTP GET %s [%d]\n", argv[optind], c);
 	    code = 1;
-	} else if (c == 0) {
+	} else if (buflen == 0) {
 	    printf("Response with empty body\n");
 	} else {
 	    if (verbose) {
 		printf("URL: %s\n", argv[optind]);
-		printf("Bytes: %d\n", c);
+		printf("Bytes: %zu\n", buflen);
 		printf("Content-type: %s\n", type);
 		printf("Body:\n");
 	    }
-	    printf("%.*s", c, buf);
+	    printf("%.*s", (int)buflen, buf);
 	}
 	optind++;
     }

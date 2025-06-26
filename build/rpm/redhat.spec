@@ -2672,6 +2672,14 @@ semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_relabel_post -s targeted
 %endif
 chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
+# auto-install important PMDAs for testing (if not present already)
+needinstall='sample simple'
+for PMDA in $needinstall ; do
+    if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
+    then
+	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
+    fi
+done
 %if 0%{?rhel}
 %if !%{disable_systemd}
     systemctl restart pcp-reboot-init pmcd pmlogger >/dev/null 2>&1
@@ -3390,5 +3398,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Tue Jul 01 2025 Nathan Scott <nathans@redhat.com> - 7.0.0-1
+* Thu Jul 31 2025 Nathan Scott <nathans@redhat.com> - 7.0.0-1
 - Latest release.

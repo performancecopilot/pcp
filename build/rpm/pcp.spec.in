@@ -2454,6 +2454,14 @@ semodule -r pcpqa >/dev/null 2>&1 || true
 %selinux_relabel_post -s targeted
 %endif
 chown -R pcpqa:pcpqa @pcp_var_dir@/testsuite 2>/dev/null
+# auto-install important PMDAs for testing (if not present already)
+needinstall='sample simple'
+for PMDA in $needinstall ; do
+    if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
+    then
+	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
+    fi
+done
 # inherited from %post for pcp-collector
 %if "@enable_systemd@" == "true"
     systemctl restart pcp-reboot-init pmcd pmlogger >/dev/null 2>&1

@@ -251,7 +251,10 @@ PCP_4.0 {
     __pmLogClose;
     __pmLogCompressedSuffix;
     __pmLogCreate;
+    __pmLogCreateLabel;
+    __pmLogDecodeLabel;
     __pmLogEncodeInDom;
+    __pmLogEncodeLabel;
     __pmLogEncodeLabels;
     __pmLogFeaturesStr;
     __pmLogFetch;
@@ -296,6 +299,7 @@ PCP_4.0 {
     __pmLogSetTime;
     __pmLogUndeltaInDom;
     __pmLogVersion;
+    __pmLogWriterInit;
     __pmLogWriteLabel;
     __pmLogWriteMark;
     __pmLoggerTimeout;

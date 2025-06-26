@@ -93,14 +93,6 @@ timespec_str(struct timespec *tvp, char *buffer, int buflen)
     return buffer;
 }
 
-/* convert into <milliseconds>-<nanoseconds> format for series streaming */
-const char *
-timestamp_stream_str(__pmTimestamp *tsp, char *buffer, int buflen)
-{
-    pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%d", tsp->sec, tsp->nsec);
-    return buffer;
-}
-
 /* convert __pmTimestamp into human readable date/time format for logging */
 const char *
 timestamp_str(__pmTimestamp *tsp, char *buffer, int buflen)

@@ -2,7 +2,7 @@ QA output created by 948
 === error cases ===
 pmlogger: -o and -h are mutually exclusive; use -o only when running
 pmlogger on the same (local) host as the DSO PMDA(s) being used.
-Usage: pmlogger [options] archive
+Usage: pmlogger [options] [archive]
 
 Options:
 ...

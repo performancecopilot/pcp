@@ -844,7 +844,7 @@ dumpLabelSets(void)
 
     /*
      * In order to make the output more deterministic for testing,
-     * output the help text sorted by
+     * output the labelsets sorted by
      *   time, then by
      *   type, then by
      *   identifier
@@ -1236,7 +1236,7 @@ overrides(int opt, pmOptions *options)
     return 0;
 }
 
-    int
+int
 main(int argc, char *argv[])
 {
     int			c;

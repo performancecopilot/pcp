@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2022,2024 Red Hat.
+ * Copyright (c) 2018-2022,2024-2025 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -38,10 +38,10 @@ typedef void uv_loop_t;
  * efficiently - using libuv/fs_notify mechanisms - no polling and callbacks
  * are issued with low latency when changes are detected.
  *
- * The PM_DISCOVER_FLAGS_META_IN_PROGRESS flag indicates a metadata record
+ * The DISCOVER_FLAGS_META_IN_PROGRESS flag indicates a metadata record
  * read is in-progress. This can span multiple callbacks. Until this completes,
  * we avoid processing logvol records. If a logvol callback is received whilst
- * PM_DISCOVER_FLAGS_META_IN_PROGRESS is set, set PM_DISCOVER_FLAGS_DATAVOL_READY
+ * DISCOVER_FLAGS_META_IN_PROGRESS is set, set DISCOVER_FLAGS_DATAVOL_READY
  * so we know to process the log volume callback once the metadata read has
  * completed.
  */
@@ -50,20 +50,20 @@ typedef void uv_loop_t;
  * Discovery state flags for a given path
  */
 typedef enum pmDiscoverFlags { 
-    PM_DISCOVER_FLAGS_NONE			= (0),
+    DISCOVER_FLAGS_NONE			= 0,
 
-    PM_DISCOVER_FLAGS_NEW			= (1 << 0), /* new path (stays set until cleared) */
-    PM_DISCOVER_FLAGS_DELETED			= (1 << 1), /* deleted (may have been compressed) */
-    PM_DISCOVER_FLAGS_COMPRESSED		= (1 << 2), /* file is compressed */
-    PM_DISCOVER_FLAGS_MONITORED			= (1 << 3), /* path is monitored */
-    PM_DISCOVER_FLAGS_DIRECTORY			= (1 << 4), /* directory path */
-    PM_DISCOVER_FLAGS_DATAVOL			= (1 << 5), /* archive data volume */
-    PM_DISCOVER_FLAGS_INDEX			= (1 << 6), /* archive index file */
-    PM_DISCOVER_FLAGS_META			= (1 << 7), /* archive metadata */
-    PM_DISCOVER_FLAGS_DATAVOL_READY		= (1 << 8), /* flag: datavol data available */
-    PM_DISCOVER_FLAGS_META_IN_PROGRESS		= (1 << 9), /* flag: metadata read in progress */
+    DISCOVER_FLAGS_NEW			= 1 << 0, /* new path (stays set until cleared) */
+    DISCOVER_FLAGS_DELETED		= 1 << 1, /* deleted (may have been compressed) */
+    DISCOVER_FLAGS_COMPRESSED		= 1 << 2, /* file is compressed */
+    DISCOVER_FLAGS_MONITORED		= 1 << 3, /* path is monitored */
+    DISCOVER_FLAGS_DIRECTORY		= 1 << 4, /* directory path */
+    DISCOVER_FLAGS_DATAVOL		= 1 << 5, /* archive data volume */
+    DISCOVER_FLAGS_INDEX		= 1 << 6, /* archive index file */
+    DISCOVER_FLAGS_META			= 1 << 7, /* archive metadata */
+    DISCOVER_FLAGS_DATAVOL_READY	= 1 << 8, /* flag: datavol data available */
+    DISCOVER_FLAGS_META_IN_PROGRESS	= 1 << 9, /* flag: metadata read in progress */
 
-    PM_DISCOVER_FLAGS_ALL			= ((unsigned int)~PM_DISCOVER_FLAGS_NONE)
+    DISCOVER_FLAGS_ALL			= (unsigned int)~DISCOVER_FLAGS_NONE
 } pmDiscoverFlags;
 
 struct pmDiscover;
@@ -81,11 +81,13 @@ typedef struct pmDiscover {
     __pmTimestamp		timestamp;	
     int				ctx;		/* PMAPI context handle */
     int				fd;		/* meta file descriptor */
+    sds				metavol;	/* partial metadata buffer */
+    sds				datavol;	/* partial data volume buffer */
 #ifdef HAVE_LIBUV
     uv_fs_event_t		*event_handle;	/* uv fs_notify event handle */ 
 #endif
     time_t			lastcb;		/* time last callback processed */
-    struct stat			statbuf;	/* stat buffer */
+    struct stat			statbuf;	/* stat buffer (metadata file) */
     void			*baton;		/* private internal lib data */
     void			*data;		/* opaque user data pointer */
 } pmDiscover;
@@ -111,6 +113,11 @@ extern void pmSearchDiscoverInDom(pmDiscoverEvent *,
 extern void pmSearchDiscoverText(pmDiscoverEvent *,
 				int, int, char *, void *);
 
+extern pmDiscover *pmDiscoverStreamLabel(const char *, __pmLogLabel *, pmDiscoverModule *, void *);
+extern int pmDiscoverStreamMeta(pmDiscover *, const char *, size_t);
+extern int pmDiscoverStreamData(pmDiscover *, const char *, size_t);
+extern void pmDiscoverStreamEnd(const char *);
+
 enum {
     DISCOVER_MONITORED,
     DISCOVER_PURGED,
@@ -133,6 +140,8 @@ enum {
     DISCOVER_THROTTLE,
     DISCOVER_META_PARTIAL_READS,
     DISCOVER_DECODE_RESULT_ERRORS,
+    DISCOVER_META_STREAMING,
+    DISCOVER_LOGVOL_STREAMING,
     NUM_DISCOVER_METRIC
 };
 
