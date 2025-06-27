@@ -1252,6 +1252,7 @@ pmDiscoverStreamEnd(const char *path)
 	    break;
 	}
 	prev = p;
+	p = next;
     }
 }
 

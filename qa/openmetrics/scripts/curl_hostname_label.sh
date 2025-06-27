@@ -12,5 +12,5 @@
 
 # here for QA purposes we're fetching from a local file
 # and just pretending it came from a remote host.
-curl --disable --get --no-progress-meter file://$PCP_PMDAS_DIR/openmetrics/config.d/some_metric.txt 2>/dev/null | \
+curl -Gqs file://$PCP_PMDAS_DIR/openmetrics/config.d/some_metric.txt 2>/dev/null | \
 sed -e 's/[a-z0-9]*=/hostname="remotehost",&/'

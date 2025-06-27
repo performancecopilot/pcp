@@ -2665,6 +2665,8 @@ chown -R pcpqa:pcpqa %{_testsdir} 2>/dev/null
 exit 0
 
 %post testsuite
+PCP_PMDAS_DIR=%{_pmdasdir}
+PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
 %if !%{disable_selinux}
 PCP_SELINUX_DIR=%{_selinuxdir}
 semodule -r pcpqa >/dev/null 2>&1 || true

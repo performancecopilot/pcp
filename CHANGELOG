@@ -1,5 +1,105 @@
 pcp-7.0.0 (31 July 2025)
-    - Work-in-progress.
+    - PMDA additions, enhancements and bug fixes:
+	pmdaopentelemetry: new exporter for OpenTelemetry metrics
+	pmdarocestat: new RDMA over Converged Ethernet (RoCE) metrics
+	pmdahdb: new agent exporting SAP HANA metrics
+	pmdalinux: additional TCP networking metrics
+	pmdalinux: additional kernel memory and hugetlb metrics
+	pmdaopenmetrics: improvements to dynamic metric name handling
+	pmdaopenmetrics: allow configuration files with epoch times
+	pmdapodman: fix container name/command handling in new podman
+	pmdahacluster: additional pacemaker node metrics
+    - Server-side utilities and log management scripts:
+	pmlogger, pmproxy: support for a remote archive push webhook;
+	  providing central logging without server-side configuration
+	pmproxy_daily: new daily script for pmlogger-pushed archives
+	pmproxy: support both OpenMetrics and OpenTelemetry /metrics
+	pmproxy: configurable HTTP headers (e.g. X-Grafana-Device-ID)
+	pmlogger_daily: default compression is a dynamic zst/xz choice
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp.so.4: default PMAPI supports nanosecond precision times
+	libpcp.so.3: provides backwards compatible libpcp interfaces
+	pmapi.h: backwards compatible APIs via -DPMAPI_VERSION=2|4
+	libpcp: flag for pmproxy to open archives at the last volume
+	libpcp_import: protect against a second call to pmiEnd
+	python api: fix (de)reference of a tuple in refresh callback
+	python api: removed python version 2 support, 3.6 is minimum
+    - Client tools and utilities:
+	pcp-rocestat: client to report NVIDIA RoCE metrics
+	pcp-htop: sync-up with latest htop.dev code fixes
+	pmrep: fix iostat merge percentage formulas
+	pmrep: allow for not preserving discrete metric values
+	pmlogpush: new tool for pushing existing archives to pmproxy
+	pcp2opentelemetry: new tool exporting to OpenTelemetry format
+	pmseries_import: new tool for archive analysis container
+	archive analysis container: removed rebuild of PCP sources
+	archive analysis container: refactored to use real packages
+	archive analysis container: set Grafana time window from archive
+    - Build, infrastructure and packaging updates:
+	build: removed Qt4 support from code base, 5.6 is minimum
+	build: various improvements for reproducible builds
+	build: archive-analysis container reworked to use packages
+	build: fixes to better support parallel building
+	build: fix multilib installs for pcp-libs-devel packages
+	build: provide libvirt PMDA on any el7 if py3 modules exist
+	build: clean up debian missing Build-Depends: packages
+	selinux: update policy for AMD and NVIDIA gpu pmdas
+	selinux: additional policy needed for pcp_pmie_t using ps
+	selinux: add permissions allowing proc_psi_t access
+	tmpfiles.d: additions to support better ostree integration
+	pcp-zeroconf: use systemd presets to drive service start
+    - Documentation:
+	man pages: improved function prototypes in SYNOPSIS section
+	man pages: updates to PCPCompat(1) describing major changes
+
+pcp-6.3.8 (11 April 2025)
+    - libpcp_web: fix selection and testing of exact match filtering
+    - pmproxy: add After:valkey to the pmproxy systemd unit file
+    - build: only regenerate debian/rules for Makepkgs builds
+    - build: use the conditional build-me makefile target for pmdabpf
+    - docs: update output format in pcp2elasticsearch man page
+    - docs: fix webapi man page links, no longer hosted on pcp.io
+
+pcp-6.3.7 (27 March 2025)
+    - pmdadenki: RAPL MSR support
+    - pmdabind2: updates for more recent bind versions
+    - pmdalinux: additrional mptcp networking metrics
+    - pcp2elasticsearch: support dynamic mapping
+    - pmstat: avoid a corner-case infinite loop
+    - libpcp: additional locking in __pmLogChangeVol
+    - libpcp, pmproxy: PM_CTXFLAG_LAST_VOLUME pmNewContext flag
+    - libpcp_web, pmseries: dynamic --load request rate adjusting
+    - libpcp_web, pmseries: fix small memleak on archive load
+    - pmproxy: REST API metric filtering for scrape requests
+    - build: configure provides a manual pmdamysql override
+    - build: configure always packages desktop icons in pcp-gui
+    - build: debian packaging fixes and lintian improvements
+    - build: fix unreliable configure.ac tests on scandir/dirent
+    - build: use the vendor-supplied libinih package if available
+    - selinux: several policy updates
+    - docs: fix dup section in pmdaredis(1) man page
+
+pcp-6.3.4 (13 March 2025)
+    - libpcp: fix endian issue in big-endian __pmTimestamp writing
+    - pcp-xsos: fine-tune error handling on bad command line options
+    - pcp-xsos: single-line pmPrintValue/pminfo values, escape shell chars
+    - pcp-atop: correct BPF per-process network metric names
+    - pmcd, pmdaproc: allow non-local username connection attributes
+    - pmlogger, libpcp: fix handling of dynamic instance domain labels
+    - pmrep: use BPF instead of BCC for proc networking metrics
+    - pmlogconf: use libbpf over BCC for networking metrics
+    - pmlogextract: fix logic around instances labels, allowing set updates
+    - pmdalinux: mem.numa.hugepages metrics (per node, per hugepage size)
+    - pmdabpftrace: fix for some python3 versions async IO create_task
+    - pmdanvidia: if present use dso from the libnvidia-ml runtime package
+    - pmdadm, pmieconf: default to enabling the dmthin pmie rules
+    - configure.ac: fix autoreconf, add AC_DEFINE_UNQUOTED descriptions
+    - rpm builds: enable bpf, bpftrace, bcc on riscv64 builds
+    - rpm builds: drop user creation scriptlets for rpm builds
+    - deb build: force debian/rules to be recreated each time
+    - containers: updates to the archive-analysis container
+    - selinux: several policy updates for new AVC denials
+    - docs: improve SSL/TLS diagnostic in pcp-verify script
 
 pcp-6.3.3 (29 January 2025)
     - Debian build changes - see debian/changelog for details
