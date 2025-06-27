@@ -3388,6 +3388,14 @@ class HdbPMDA(PMDA):
             ),
         ]
 
+    def domain_probe(self):
+        """
+        check: return True if database is available and monitorable
+        """
+        can_probe = bool(self._hdb.query_scalar("SELECT VERSION FROM SYS.M_DATABASE;"))
+        self.log(f"domain_probe return: {can_probe}")
+        return can_probe
+
 
 def _int_or_empty_value(val: Any) -> int:
     if val is None:
