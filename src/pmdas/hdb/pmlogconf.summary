@@ -1,0 +1,15 @@
+#pmlogconf-setup 2.0
+ident	SAP HANA database summary information
+probe	hdb.version exists ? include : exclude
+	hdb.version
+	hdb.instance_id
+	hdb.instance_number
+	hdb.alerts
+	hdb.backup.total_failed_count
+	hdb.backup.total_successful_count
+	hdb.backup.total_canceled_count
+	hdb.cpu
+	hdb.io
+	hdb.memory
+	hdb.services
+	hdb.buffer_cache
