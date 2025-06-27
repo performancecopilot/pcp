@@ -2238,7 +2238,7 @@ pmcd.pdu
 1963 pmda.linux local
 1970 pmda.bpf local
 1973 pcp zoneinfo python local
-1976 pmdaopenmetrics python local
+1976 pmda.openmetrics python local
 1978 atop local pmlogrewrite
 1984 pmlogconf pmda.redis local
 1985 pmfind local valgrind
