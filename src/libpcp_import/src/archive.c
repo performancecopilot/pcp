@@ -373,6 +373,9 @@ _pmi_put_label(pmi_context *current)
 int
 _pmi_end(pmi_context *current)
 {
+    if (current->state == CONTEXT_END)
+	return PM_ERR_NOCONTEXT;
+
     /* Final temporal index update to finish the archive
      * ... same logic here as in run_done() for pmlogger
      */
