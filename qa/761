@@ -39,6 +39,7 @@ root_cleanup()
     [ -f $tmp.conf.backup ] && $sudo cp $tmp.conf.backup $PCP_DIR/etc/pcp.conf
     _restore_pmda_install root || _exit 1
     rm -f $here/$seq.test-lxc-info.sh
+    rm -rf $tmp.* $tmp
 }
 
 # do metrics one at a time, map all internal instance ids to N and sort
