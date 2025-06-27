@@ -243,13 +243,13 @@ http_client_connect(http_client *cp)
 
 	if (!up->field_data[UF_HOST].len) {
 	    cp->error_code = -EINVAL;
-	    return -1;
+	    return cp->error_code;
 	}
 	length = 1;	/* just the terminator here */
 	length += up->field_data[UF_HOST].len;
 	if (length > MAXHOSTNAMELEN) {
 	    cp->error_code = -EINVAL;
-	    return -1;
+	    return cp->error_code;
 	}
 	length = up->field_data[UF_HOST].len;
 	memcpy(host, url + up->field_data[UF_HOST].off, length);
@@ -265,14 +265,14 @@ http_client_connect(http_client *cp)
 
 	if (!up->field_data[UF_HOST].len || !up->field_data[UF_PATH].len) {
 	    cp->error_code = -EINVAL;
-	    return -1;
+	    return cp->error_code;
 	}
 	length = 3;	/* 2 separators, terminator */
 	length += up->field_data[UF_HOST].len;
 	length += up->field_data[UF_PATH].len;
 	if (length > MAXPATHLEN) {
 	    cp->error_code = -EINVAL;
-	    return -1;
+	    return cp->error_code;
 	}
 	pmsprintf(path, sizeof(path), "/%.*s/%.*s",
 		up->field_data[UF_HOST].len, url + up->field_data[UF_HOST].off,
@@ -352,7 +352,6 @@ http_client_get(http_client *cp)
 	    sts = 1;
 	} else {
 	    cp->error_code = sts;
-	    sts = -1;
 	}
 	http_client_disconnect(cp);
     } else {
@@ -420,12 +419,10 @@ http_client_post(http_client *cp)
 
     if ((sts = __pmSend(cp->fd, buf, len, 0)) < 0 || /* header then body */
 	(sts = __pmSend(cp->fd, cp->input_buffer, cp->input_length, 0)) < 0) {
-	if (__pmSocketClosed()) {
+	if (__pmSocketClosed())
 	    sts = 1;
-	} else {
+	else
 	    cp->error_code = sts;
-	    sts = -1;
-	}
 	http_client_disconnect(cp);
     } else {
 	sts = 0;
@@ -504,7 +501,10 @@ reset_url_location(const char *tourl, size_t tolen, http_parser_url *top,
 	    *str++ = '/';
 	memcpy(str, suffix, length);
 	url[size - 1] = '\0';
-	http_parser_parse_url(url, size, 0, fromp);
+	if (http_parser_parse_url(url, size, 0, fromp) != 0) {
+	    free(url);
+	    return -ENOMEM;
+	}
 
 	if (pmDebugOptions.http)
 	    fprintf(stderr, "Redirecting from '%s' to '%s'\n", curl, url);
@@ -551,8 +551,10 @@ on_header_value(http_parser *pp, const char *offset, size_t length)
 	    http_parser_url	up;
 
 	    http_parser_url_init(&up);
-	    if ((sts = http_parser_parse_url(offset, length, 0, &up)) != 0)
-		return sts;
+	    if (http_parser_parse_url(offset, length, 0, &up) != 0) {
+		cp->error_code = -EINVAL;
+		return 1;
+	    }
 	    if ((sts = reset_url_location(offset, length, &up,
 					&cp->conn, &cp->parser_url)) < 0) {
 		cp->error_code = -ENOMEM;
@@ -818,8 +820,8 @@ http_client_prepare(http_client *cp, const char *url, /* conn */
     /* extract individual fields from the given URL */
     http_parser_url_init(&parser_url);
     if ((sts = http_parser_parse_url(url, strlen(url), 0, &parser_url)) != 0) {
-	cp->error_code = sts;
-	return -1;
+	cp->error_code = -EINVAL;
+	return cp->error_code;
     }
 
     /* short-circuit if we are making a request from a connected server */
@@ -829,7 +831,7 @@ http_client_prepare(http_client *cp, const char *url, /* conn */
 
     if ((new_url = strdup(url)) == NULL) {
 	cp->error_code = -ENOMEM;
-	return -1;
+	return cp->error_code;
     }
     free(cp->conn);
     cp->conn = new_url;
@@ -859,8 +861,8 @@ pmhttpClientGet(http_client *cp, const char *conn, const char *path,
 
     if (http_client_prepare(cp, conn, path, NULL, NULL, 0,
 			    out_body_buffer, out_body_length,
-			    out_type_buffer, out_type_length) != 0)
-	return -1;
+			    out_type_buffer, out_type_length) < 0)
+	return cp->error_code;
 
     while (redirected <= cp->max_redirect) {
 	/* ensure we're connected to the server */
@@ -915,8 +917,8 @@ pmhttpClientPost(http_client *cp, const char *conn, const char *path,
     if (http_client_prepare(cp, conn, path, in_content_type,
 			    in_body_buffer, in_body_length,
 			    out_body_buffer, out_body_length,
-			    out_type_buffer, out_type_length) != 0)
-	return -1;
+			    out_type_buffer, out_type_length) < 0)
+	return cp->error_code;
 
     while (redirected <= cp->max_redirect) {
 	/* ensure we're connected to the server */
