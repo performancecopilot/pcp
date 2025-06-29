@@ -10,18 +10,18 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 == Found archive files ==
--rw-r--r--. 1 user group 372 TIME 19990503.21.53.index
--rw-r--r--. 1 user group 1271 TIME 19990503.21.53.meta
--rw-r--r--. 1 user group 44904 TIME 19990503.21.53.9
--rw-r--r--. 1 user group 49824 TIME 19990503.21.53.1
--rw-r--r--. 1 user group 49824 TIME 19990503.21.53.2
--rw-r--r--. 1 user group 49824 TIME 19990503.21.53.3
--rw-r--r--. 1 user group 49824 TIME 19990503.21.53.4
--rw-r--r--. 1 user group 49824 TIME 19990503.21.53.5
--rw-r--r--. 1 user group 49824 TIME 19990503.21.53.6
--rw-r--r--. 1 user group 49824 TIME 19990503.21.53.7
--rw-r--r--. 1 user group 49824 TIME 19990503.21.53.8
--rw-r--r--. 1 user group 49984 TIME 19990503.21.53.0
+-rw-r--r-- 1 user group 372 TIME 19990503.21.53.index
+-rw-r--r-- 1 user group 1271 TIME 19990503.21.53.meta
+-rw-r--r-- 1 user group 44904 TIME 19990503.21.53.9
+-rw-r--r-- 1 user group 49824 TIME 19990503.21.53.1
+-rw-r--r-- 1 user group 49824 TIME 19990503.21.53.2
+-rw-r--r-- 1 user group 49824 TIME 19990503.21.53.3
+-rw-r--r-- 1 user group 49824 TIME 19990503.21.53.4
+-rw-r--r-- 1 user group 49824 TIME 19990503.21.53.5
+-rw-r--r-- 1 user group 49824 TIME 19990503.21.53.6
+-rw-r--r-- 1 user group 49824 TIME 19990503.21.53.7
+-rw-r--r-- 1 user group 49824 TIME 19990503.21.53.8
+-rw-r--r-- 1 user group 49984 TIME 19990503.21.53.0
 total 520
 == Found archive metrics ==
 event.flags

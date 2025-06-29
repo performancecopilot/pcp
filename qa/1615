@@ -64,6 +64,7 @@ _filter()
 _filter_ls()
 {
     sed \
+        -e 's/\([r-][w-][x-]\)\. /\1 /' \
         -e 's/tmp\/[0-9][0-9]*/tmp\/PID/' \
         -e 's/[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]/TIME/' \
     | $PCP_AWK_PROG '
