@@ -127,3 +127,25 @@
    ...
 }
 
+# qa/1595 on ubuntu2004-container
+# Conditional jump or move depends on uninitialised value(s)
+# at 0x56855D3: ??? (in /usr/lib/pcp/pmdas/linux/pmda_linux.so)
+# by 0x5676796: ??? (in /usr/lib/pcp/pmdas/linux/pmda_linux.so)
+# by 0x5676999: ??? (in /usr/lib/pcp/pmdas/linux/pmda_linux.so)
+# by 0x48AA9BA: __pmFetchLocal (in /usr/lib/libpcp.so.4)
+# by 0x48729FC: __pmFetch (in /usr/lib/libpcp.so.4)
+# by 0x4872E1A: pmFetch (in /usr/lib/libpcp.so.4)
+# by 0x10E148: ??? (in /usr/bin/pminfo)
+# by 0x10BFCC: ??? (in /usr/bin/pminfo)
+# by 0x4944082: (below main) (libc-start.c:308)
+{
+   <insert_a_suppression_name_here>
+   Memcheck:Cond
+   obj:/usr/lib/pcp/pmdas/linux/pmda_linux.so
+   obj:/usr/lib/pcp/pmdas/linux/pmda_linux.so
+   obj:/usr/lib/pcp/pmdas/linux/pmda_linux.so
+   fun:__pmFetchLocal
+   fun:__pmFetch
+   fun:pmFetch
+   ...
+}
