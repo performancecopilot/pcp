@@ -2093,6 +2093,7 @@ pmcd.pdu
 1602 pmproxy local
 1603 pmproxy local
 1604 pmseries pmproxy local
+1605 libpcp pminfo valgrind local
 1608 pmproxy local
 1610 libpcp local
 1612 pmda.bpf local

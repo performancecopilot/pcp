@@ -1362,6 +1362,20 @@ typedef struct pmOptList {
     struct pmOptList *	next;
 } pmOptionsList;
 
+static void
+free_list(pmOptionsList *head)
+{
+    pmOptionsList	*prior = NULL;
+    while (head != NULL) {
+	if (prior != NULL)
+	    free(prior);
+	prior = head;
+	head = head->next;
+    }
+    if (prior != NULL)
+	free(prior);
+}
+
 int
 pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 {
@@ -1538,26 +1552,27 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 	if (ambig_list != NULL && !exact) {
 	    if (print_errors) {
 		pmOptionsList first;
+		pmOptionsList *olp;
 		first.p = pfound;
 		first.next = ambig_list;
-		ambig_list = &first;
+		olp = &first;
 
 		pmprintf("%s: option '%s' is ambiguous; possibilities:",
 			pmGetProgname(), argv[d->optind]);
 		do {
-		    pmprintf(" '--%s'", ambig_list->p->long_opt);
-		    ambig_list = ambig_list->next;
-		} while (ambig_list != NULL);
+		    pmprintf(" '--%s'", olp->p->long_opt);
+		    olp = olp->next;
+		} while (olp != NULL);
 		pmprintf("\n");
 	    }
 	    d->__nextchar += strlen(d->__nextchar);
 	    d->optind++;
 	    d->optopt = 0;
-	    free(ambig_list);
+	    free_list(ambig_list);
 	    return '?';
 	}
 	else if (ambig_list != NULL) {
-	    free(ambig_list);
+	    free_list(ambig_list);
 	}
 
 	if (pfound != NULL) {

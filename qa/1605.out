@@ -1,0 +1,53 @@
+QA output created by 1605
+=== std out ===
+=== std err ===
+pminfo: option '--h' is ambiguous; possibilities: '--host' '--helptext' '--help' '--hostzone'
+Usage: pminfo [options] [metricname | pmid | indom]...
+
+General options:
+  -a FILE, --archive=FILE
+                        metrics source is a PCP archive
+  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
+  -h HOST, --host=HOST  metrics source is PMCD on host
+  --container=NAME      specify an individual container to be queried
+  -L, --local-PMDA      metrics source is local connection to a PMDA
+  -K SPEC, --spec-local=SPEC
+                        optional additional PMDA spec for local connection
+  -n FILE, --namespace=FILE
+                        use an alternative PMNS
+  -N FILE, --uniqnames=FILE
+                        like -n but only one name allowed for each PMID
+  -O TIME, --origin=TIME
+                        initial sample time within the time window
+  -Z TZ, --timezone=TZ  set reporting timezone
+  -z, --hostzone        set reporting timezone to local time of metrics source
+  -V, --version         display version number and exit
+  -?, --help            show this usage message and exit
+
+Protocol options:
+  -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
+  -d, --desc            get and print metric description
+  -f, --fetch           fetch and print values for all instances
+  -F, --fetchall        fetch and print values for non-enumerable indoms
+  -I, --fullindom       print InDom in verbose format
+  -l, --labels          print InDom, metric and instance labels
+  -m, --pmid            print PMID
+  -M, --fullpmid        print PMID in verbose format
+  -s, --series          print source, metric, instance series identifiers
+  -t, --oneline         get and display (terse) oneline text
+  -T, --helptext        get and display (verbose) help text
+
+Metrics options:
+  -c FILE, --derived=FILE
+                        load global derived metric definitions from FILE(s)
+  -r name=expr, --register=name=expr
+                        register a per-context derived metric
+  -x, --events          unpack and report on any fetched event records
+  -v, --verify          verify mode, be quiet and only report errors
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo --h
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
