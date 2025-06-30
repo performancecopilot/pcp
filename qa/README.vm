@@ -585,3 +585,12 @@ Recreate the mirror disk on vm03
 UUID=8f865731-443c-4b84-ade7-31e6ff94ee7c /silver ext2 defaults 0 0
     $ sudo systemctl daemon-reload
     $ sudo mount -a
+
+Adding a new disk
+
+    $ disk=/dev/vdb
+    $ sudo cfdisk $disk         <- make partition 1, all of the disk
+    $ mkfs.xfs ${disk}1
+    $ lsblk -fs ${disk}1 	-> UUID=<uuid>
+    $ [ -d /data ] || sudo mkdir /data
+    $ echo "UUID=<uuid> /data xfs default 0 2" | sudo tee -a /etc/fstab
