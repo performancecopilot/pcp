@@ -2095,10 +2095,14 @@ pmcd.pdu
 1604 pmseries pmproxy local
 1608 pmproxy local
 1610 libpcp local
+1611 pmlogger pmproxy pmlogpush libpcp_web local
 1612 pmda.bpf local
 1613 pmda.linux kernel local
-1614 pmproxy pmlogpush local valgrind
-1615 pmproxy pmlogpush local
+1614 pmproxy pmlogpush libpcp_web local valgrind
+1615 pmproxy pmlogpush libpcp_web local
+1616 pmproxy pmlogger pmlogpush libpcp_web local valgrind
+1617 pmproxy pmseries pmlogpush libpcp_web local
+1618 pmproxy pmseries pmlogpush libpcp_web local valgrind
 1619 pmcd local
 1622:retired local
 1623 libpcp_import local pmlogdump collectl2pcp pmrep

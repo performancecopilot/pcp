@@ -1,0 +1,164 @@
+#!/bin/sh
+# PCP QA Test No. 1617
+# Exercise pmproxy logger REST API with key server.
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+cached=false
+[ "$1" = "--cached" ] && cached=true
+
+_cleanup()
+{
+    cd $here
+    [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
+    _restore_config $PCP_SYSCONF_DIR/pmseries
+    [ -d $archive_path ] && $sudo rm -fr $archive_path
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$archive@ARCHIVE@g" \
+	-e "s@$archive_path@ARCHIVE_PATH@g" \
+    # end
+}
+
+_filter_ls()
+{
+    sed \
+        -e 's/\([r-][w-][x-]\)\. /\1 /' \
+        -e 's/tmp\/[0-9][0-9]*/tmp\/PID/' \
+        -e 's/[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]/TIME/' \
+    | $PCP_AWK_PROG '
+/TIME/  { $3 = "user"; $4 = "group" }
+        { print }'
+}
+
+_filter_metrics()
+{
+    sed \
+	-e "/^pmcd\.*/d" \
+	-e "/^event\.*/d" \
+    | LC_COLLATE=POSIX sort
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+
+user=`id -nu`
+pmproxy_port=`_find_free_port`
+_filter_pmproxy_port()
+{
+    sed \
+        -e "s/ FD $pmproxy_port / FD PORT /g" \
+        -e '/PORT ipv6 /d' \
+    # end
+}
+no_pmproxy_port=`expr $pmproxy_port + 1`
+key_server_port=`_find_free_port $no_pmproxy_port`
+
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
+echo
+_check_key_server_version $key_server_port
+
+cat >$tmp.conf << End-Of-File
+[keys]
+enabled = true
+servers = localhost:$key_server_port
+[pmproxy]
+http.enabled = true
+[pmlogger]
+enabled = true
+cached = $cached
+[discover]
+enabled = true
+[pmseries]
+enabled = true
+End-Of-File
+
+mkdir -p $tmp.pmproxy/pmproxy
+export PCP_RUN_DIR=$tmp.pmproxy
+export PCP_TMP_DIR=$tmp.pmproxy
+
+echo "Start test pmproxy ..."
+archive=$here/archives/ok-mv-bigbin
+archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
+$sudo rm -fr $archive_path
+
+$_valgrind_clean_assert pmproxy -f -p $pmproxy_port -U $user -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+pid=$!
+
+echo "valgrind pid: $pid" >>$seq_full
+echo "pmproxy port: $pmproxy_port" >>$seq_full
+
+# valgrind takes awhile to fire up
+i=0
+while [ $i -lt 40 ]
+do
+    $PCP_BINADM_DIR/telnet-probe -c localhost $pmproxy_port && break
+    sleep 1
+    i=`expr $i + 1`
+done
+if $PCP_BINADM_DIR/telnet-probe -c localhost $pmproxy_port
+then 
+    echo "Startup took $i secs" >>$seq_full
+else
+    echo "Arrgh: valgrind failed to start pmproxy on port $pmproxy_port after 40 secs"
+    exit
+fi
+
+echo "=== pmlogpush to pmproxy ==="
+pmlogpush -p $pmproxy_port $archive
+export PCP_DERIVED_CONFIG=""
+pminfo -a $archive | _filter_metrics
+
+# start valgrind pmproxy process exit
+pmsignal $pid
+
+# while that happens, check state of the key server
+echo "=== pmseries value check ==="
+pmseries -p $key_server_port -Z UTC 'sample.milliseconds[count:3]'
+
+echo "=== pmseries labels check ==="
+pmseries -p $key_server_port -l | LC_COLLATE=POSIX sort
+
+echo "=== pmseries metrics check ==="
+pmseries -p $key_server_port -m | _filter_metrics
+
+# valgrind takes awhile to shutdown too
+_wait_process_end $pid
+echo "=== valgrind stdout ===" | tee -a $seq_full
+cat $tmp.valout | _filter_valgrind
+
+echo "=== valgrind stderr ===" | tee -a $seq_full
+cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_pmproxy_port
+
+# success, all done
+exit
