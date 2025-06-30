@@ -22,38 +22,36 @@
 [\f2pcp\ options\f1]
 \f3rocestat\f1
 \f2[--hw_stats|--lane_stats]\f2
-[\f3\-s\f1 \f2samples\f1]
-[\f3\-a\f1 \f2archive\f1]
-[\f3\-S\f1 \f2start_time\f1]
-[\f3\-T\f1 \f2end_time\f1]
-
 .SH DESCRIPTION
 The
 .B pcp-rocestat
-tool for viewing nVidia RoCE device counters and monitoring real-time throughput on local interfaces.
-This tool utilizes ethtool counters for each device and reports throughput per priority queue.
+tool utilizes ethtool counters for each device and reports
+throughput per priority queue.
 By default
 .B pcp-rocestat
-reports live data for the local host. It has the capabilities to analyze the data on the archives as well.
+reports live data for the local host.
+It has the ability to analyze data from PDP archives as well.
 .SH OPTIONS
 .TP
 \fB\-\-hw_stats\fP
-Display hardware counters
+Display hardware counters.
 .TP
 \fB\-\-lane_stats\fP
-Display lane stats
+Display lane statistics.
 .TP
-\fB\-a\fP, \fB\-\-archive\fP
-Specify the archive to examine
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Specify the PCP archive to examine.
 .TP
-\fB\-s\fP, \fB\-\-samples\fP
-Specify number of samples
+\fB\-s\fR \fIsamples\fR, \fB\-\-samples\fR=\fIsamples\fR
+Specify number of
+.I samples
+to report.
 .TP
-\fB\-S\fP, \fB\-\-start TIME\fP
-Filter the samples from the archive from the given time
+\fB\-S\fR \fIstarttime\fR, \fB\-\-start\fR=\fIstarttime\fR
+Report the samples from the archive from the given time.
 .TP
-\fB\-T\fP, \fB\-\-finish TIME\fP
-Filter the samples from the archive till the given time
+\fB\-T\fR \fIendtime\fR, \fB\-\-finish\fR=\fIendtime\fR
+Report samples from the archive until the given time.
 .TP
 \fB\-V\fR, \fB\-\-version\fR
 Display version number and exit.
