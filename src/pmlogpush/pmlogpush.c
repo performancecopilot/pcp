@@ -73,9 +73,9 @@ httpError(int code, char *buf, size_t buflen)
     case 422:	/* UNPROCESSABLE_ENTITY */
 	pmsprintf(buf, buflen, "unprocessable (%d) - bad archive label", code);
 	return code;
-    case 500: /* INTERNAL_SERVER_ERROR*/
+    case 500: /* INTERNAL_SERVER_ERROR */
     default:
-	if (code == 200)	/* OK */
+	if (code >= 200 && code < 300)	/* OK */
 	    break;
 	pmsprintf(buf, buflen, "server error (%d)", code);
 	return code;

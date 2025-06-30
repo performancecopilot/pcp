@@ -113,7 +113,9 @@ on_pmlogger_done(int status, void *arg)
 	    code = HTTP_STATUS_BAD_REQUEST;
 	else if (status == PM_ERR_LABEL)
 	    code = HTTP_STATUS_UNPROCESSABLE_ENTITY;
-	else 
+	else if (status == -ESRCH)
+	    code = HTTP_STATUS_REQUEST_TIMEOUT;
+	else
 	    code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
 	client->u.http.parser.status_code = code;
 	body = pmlogger_failure;
@@ -295,12 +297,12 @@ pmlogger_request_body(struct client *client, const char *content, size_t length)
 	    return 0;
 	if (length > MAX_BODY_LENGTH) {
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
-	    return 1;
+	    return 0;
 	}
 	bytes = (baton->body ? sdslen(baton->body) : 0) + length;
 	if (bytes > MAX_BODY_LENGTH) {
 	    client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
-	    return 1;
+	    return 0;
 	}
 	if (baton->body == NULL)
 	    baton->body = sdsnewlen(content, length);
@@ -330,6 +332,12 @@ pmlogger_request_done(struct client *client)
     /* reference to prevent freeing while waiting for a reply callback */
     client_get(client);
 
+    /* error state entered already, message body may not be present */
+    if (client->u.http.parser.status_code) {
+	on_pmlogger_done(PM_ERR_GENERIC, baton);
+	return 0;
+    }
+
     switch (baton->restkey) {
     case RESTKEY_LABEL:
 	pmLogGroupLabel(&pmlogger_settings, baton->body, sdslen(baton->body),
@@ -357,8 +365,8 @@ pmlogger_request_done(struct client *client)
 
     default:
 	client->u.http.parser.status_code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
-	client_put(client);
-	return 1;
+	on_pmlogger_done(PM_ERR_GENERIC, baton);
+	return 0;
     }
 
     return 0;
