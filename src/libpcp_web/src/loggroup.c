@@ -13,6 +13,7 @@
  */
 #include <uv.h>
 #include <ctype.h>
+#include <assert.h>
 
 #include "pmapi.h"
 #include "pmwebapi.h"
@@ -22,6 +23,8 @@
 #include "util.h"
 #include "discover.h"
 
+static unsigned int cached_only;	/* perform key server caching only */
+
 #define DEFAULT_WORK_TIMER 5000
 static unsigned int default_worker;	/* BG work delta, milliseconds */
 
@@ -30,7 +33,7 @@ static unsigned int default_timeout;	/* timeout in milliseconds */
 
 /* constant string keys (initialized during setup) */
 static sds PARAM_LOGID, PARAM_POLLTIME;
-static sds EMPTYSTRING, WORK_TIMER, POLL_TIMEOUT;
+static sds CACHED_ONLY, WORK_TIMER, POLL_TIMEOUT;
 
 /* constant global strings (read-only) */
 static const char *TIME_FORMAT = "%Y%m%d.%H.%M";
@@ -81,7 +84,7 @@ typedef struct loggroups {
 } loggroups_t;
 
 static struct loggroups *
-loggroups_lookup(pmLogGroupModule *module)
+loggroups_create(pmLogGroupModule *module)
 {
     struct loggroups *groups = module->privdata;
 
@@ -91,6 +94,12 @@ loggroups_lookup(pmLogGroupModule *module)
 	uv_mutex_init(&groups->mutex);
     }
     return groups;
+}
+
+static inline struct loggroups *
+loggroups_lookup(pmLogGroupModule *module)
+{
+    return (struct loggroups *)module->privdata;
 }
 
 static int
@@ -374,14 +383,12 @@ loggroup_lookup_archive(pmLogGroupSettings *sp, int id, struct archive **pp, voi
 }
 
 void
-pmLogGroupDestroy(pmLogGroupSettings *settings, int id, void *arg)
+pmLogGroupDestroy(pmLogGroupSettings *sp, int id, void *arg)
 {
+    struct loggroups	*groups = loggroups_lookup(&sp->module);
     struct archive	*ap;
-    struct loggroups	*groups;
 
-    if (loggroup_lookup_archive(settings, id, &ap, arg) == 0) {
-	groups = settings->module.privdata;
-
+    if (loggroup_lookup_archive(sp, id, &ap, arg) == 0) {
 	if (pmDebugOptions.libweb || pmDebugOptions.log)
 	    fprintf(stderr, "%s: destroy archive %p groups=%p\n",
 			    "pmLogGroupDestroy", ap, groups);
@@ -396,6 +403,7 @@ logger_write_buffer(int fd, const char *content, size_t length)
 {
     ssize_t	bytes, written;
 
+    assert(cached_only == 0);
     for (written = 0; written < length; written += bytes)
 	if ((bytes = write(fd, content + written, length - written)) < 0)
 	    return -oserror();
@@ -411,6 +419,8 @@ logger_volume_label(archive_t *ap)
     char	*dir, path[MAXPATHLEN];
     int		fd = 0;
     int		sts;
+
+    assert(cached_only == 0);
 
     /* make any needed subdirectories, especially for this hostname */
     pmsprintf(path, sizeof(path), "%s.%u", ap->fullpath, ap->datavol);
@@ -450,6 +460,8 @@ logger_write_labels(const char *fullpath, __pmLogLabel *loglabel)
     void	*buffer;
     int		fd, sts;
     size_t	length;
+
+    assert(cached_only == 0);
 
     /* make any needed subdirectories, especially for this hostname */
     pmsprintf(path, sizeof(path), "%s", fullpath);
@@ -495,11 +507,16 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
 		dict *params, void *arg)
 {
     __pmLogLabel	loglabel = {0};
-    struct loggroups	*groups;
+    struct loggroups	*groups = loggroups_lookup(&sp->module);
     struct tm		tm;
     char		*dir, timebuf[64];
     char		pathbuf[MAXPATHLEN];
     int			sts, sep;
+
+    if (groups == NULL) {	/* disabled via config file */
+	sts = -ENOTSUP;
+	goto fail;
+    }
 
     /* safely verify buffer contents/length (user-supplied) */
     if ((sts = __pmLogDecodeLabel(content, length, &loglabel)) < 0)
@@ -519,6 +536,9 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
     pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s%c%s%c%s", dir, sep,
 		pmGetProgname(), sep, loglabel.hostname, sep, timebuf);
 
+    if (cached_only)
+	goto done;
+
     if (pmDebugOptions.log)
 	fprintf(stderr, "Writing archive %s.{meta,index} labels\n", pathbuf);
 
@@ -526,17 +546,16 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
 	goto fail;
 
     /* wrote two label headers and created one archive - update stats */
-    if ((groups = sp->module.privdata) != NULL) {
-	mmv_inc(groups->map, groups->metrics[LOGGROUP_LOGS]);
-	length *= 2;
-	mmv_add(groups->map, groups->metrics[LOGGROUP_BYTES], &length);
-	length = 2;
-	mmv_add(groups->map, groups->metrics[LOGGROUP_WRITES], &length);
-    }
+    mmv_inc(groups->map, groups->metrics[LOGGROUP_LOGS]);
+    length *= 2;
+    mmv_add(groups->map, groups->metrics[LOGGROUP_BYTES], &length);
+    length = 2;
+    mmv_add(groups->map, groups->metrics[LOGGROUP_WRITES], &length);
 
     if (pmDebugOptions.log)
 	fprintf(stderr, "Caching details for new archive %s\n", pathbuf);
 
+done:
     /* add to in-memory group of loggers for quick lookup */
     if ((sts = loggroup_new_archive(sp, &loglabel, pathbuf, params, arg)) < 0)
 	goto fail;
@@ -551,25 +570,32 @@ fail:
 }
 
 int
-pmLogGroupMeta(pmLogGroupSettings *settings, int id,
+pmLogGroupMeta(pmLogGroupSettings *sp, int id,
 		const char *content, size_t length, dict *params, void *arg)
 {
-    struct loggroups	*groups;
+    struct loggroups	*groups = loggroups_lookup(&sp->module);
     struct archive	*ap = NULL;
     ssize_t		bytes;
     char		path[MAXPATHLEN];
     int			fd, sts;
 
+    if (groups == NULL) {	/* disabled via config file */
+	sts = -ENOTSUP;
+	goto done;
+    }
     if (length >= MAX_BUFFER_SIZE) {
 	sts = -E2BIG;
 	goto done;
     }
 
-    if ((sts = loggroup_lookup_archive(settings, id, &ap, arg)) < 0)
+    if ((sts = loggroup_lookup_archive(sp, id, &ap, arg)) < 0)
 	goto done;
 
     if ((ap->discover != NULL) &&
 	(sts = pmDiscoverStreamMeta(ap->discover, content, length)) < 0)
+	goto done;
+
+    if (cached_only)
 	goto done;
 
     pmsprintf(path, sizeof(path), "%s.meta", ap->fullpath);
@@ -584,10 +610,8 @@ pmLogGroupMeta(pmLogGroupSettings *settings, int id,
 	goto done;
     }
 
-    if ((groups = settings->module.privdata) != NULL) {
-	mmv_add(groups->map, groups->metrics[LOGGROUP_BYTES], &bytes);
-	mmv_inc(groups->map, groups->metrics[LOGGROUP_WRITES]);
-    }
+    mmv_add(groups->map, groups->metrics[LOGGROUP_BYTES], &bytes);
+    mmv_inc(groups->map, groups->metrics[LOGGROUP_WRITES]);
 
     if (pmDebugOptions.log)
 	fprintf(stderr, "Wrote %zu bytes to %s.meta\n", bytes, ap->fullpath);
@@ -595,26 +619,33 @@ pmLogGroupMeta(pmLogGroupSettings *settings, int id,
 done:
     if (ap)
 	loggroup_deref_archive(ap);
-    settings->callbacks.on_done(sts, arg);
+    sp->callbacks.on_done(sts, arg);
     return sts;
 }
 
 int
-pmLogGroupIndex(pmLogGroupSettings *settings, int id,
+pmLogGroupIndex(pmLogGroupSettings *sp, int id,
 		const char *content, size_t length, dict *params, void *arg)
 {
-    struct loggroups	*groups;
+    struct loggroups	*groups = loggroups_lookup(&sp->module);
     struct archive	*ap = NULL;
     ssize_t		bytes;
     char		path[MAXPATHLEN];
-    int			fd, sts;
+    int			fd, sts = 0;
 
+    if (groups == NULL) {	/* disabled via config file */
+	sts = -ENOTSUP;
+	goto done;
+    }
     if (length >= MAX_BUFFER_SIZE) {
 	sts = -E2BIG;
 	goto done;
     }
 
-    if ((sts = loggroup_lookup_archive(settings, id, &ap, arg)) < 0)
+    if (cached_only)
+	goto done;
+
+    if ((sts = loggroup_lookup_archive(sp, id, &ap, arg)) < 0)
 	goto done;
 
     pmsprintf(path, sizeof(path), "%s.index", ap->fullpath);
@@ -629,42 +660,43 @@ pmLogGroupIndex(pmLogGroupSettings *settings, int id,
 	goto done;
     }
 
-    if ((groups = settings->module.privdata) != NULL) {
-	mmv_add(groups->map, groups->metrics[LOGGROUP_BYTES], &bytes);
-	mmv_inc(groups->map, groups->metrics[LOGGROUP_WRITES]);
-    }
+    mmv_add(groups->map, groups->metrics[LOGGROUP_BYTES], &bytes);
+    mmv_inc(groups->map, groups->metrics[LOGGROUP_WRITES]);
 
     if (pmDebugOptions.log)
 	fprintf(stderr, "Wrote %zu bytes to %s.index\n", bytes, ap->fullpath);
-    ap = NULL; /* successful write, so keep archive cached */
 
 done:
     if (ap)
 	loggroup_deref_archive(ap);
-    settings->callbacks.on_done(sts, arg);
+    sp->callbacks.on_done(sts, arg);
     return sts;
 }
 
 int
-pmLogGroupVolume(pmLogGroupSettings *settings, int id, unsigned int volume,
+pmLogGroupVolume(pmLogGroupSettings *sp, int id, unsigned int volume,
 		const char *content, size_t length, dict *params, void *arg)
 {
-    struct loggroups	*groups;
+    struct loggroups	*groups = loggroups_lookup(&sp->module);
     struct archive	*ap = NULL;
     ssize_t		bytes;
-    int			sts;
+    int			sts = 0;
 
+    if (groups == NULL) {	/* disabled via config file */
+	sts = -ENOTSUP;
+	goto done;
+    }
     if (length >= MAX_BUFFER_SIZE || volume >= MAX_VOLUME_COUNT) {
 	sts = -E2BIG;
 	goto done;
     }
 
-    if ((sts = loggroup_lookup_archive(settings, id, &ap, arg)) < 0)
+    if ((sts = loggroup_lookup_archive(sp, id, &ap, arg)) < 0)
 	goto done;
 
     if (volume != ap->datavol) {
 	ap->datavol = volume;
-	if ((ap->datafd = logger_volume_label(ap)) < 0) {
+	if (!cached_only && (ap->datafd = logger_volume_label(ap)) < 0) {
 	    sts = -oserror();
 	    goto done;
 	}
@@ -674,45 +706,44 @@ pmLogGroupVolume(pmLogGroupSettings *settings, int id, unsigned int volume,
 	(sts = pmDiscoverStreamData(ap->discover, content, length)) < 0)
 	goto done;
 
+    if (cached_only)
+	goto done;
+
     if ((bytes = logger_write_buffer(ap->datafd, content, length)) < 0) {
 	sts = -oserror();
 	goto done;
     }
 
-    if ((groups = settings->module.privdata) != NULL) {
-	mmv_add(groups->map, groups->metrics[LOGGROUP_BYTES], &bytes);
-	mmv_inc(groups->map, groups->metrics[LOGGROUP_WRITES]);
-    }
+    mmv_add(groups->map, groups->metrics[LOGGROUP_BYTES], &bytes);
+    mmv_inc(groups->map, groups->metrics[LOGGROUP_WRITES]);
 
     if (pmDebugOptions.log)
 	fprintf(stderr, "Wrote %zu data volume bytes to %s.%u\n",
 			bytes, ap->fullpath, ap->datavol);
-    ap = NULL; /* successful write, so keep archive cached */
 
 done:
     if (ap)
 	loggroup_deref_archive(ap);
-    settings->callbacks.on_done(sts, arg);
+    sp->callbacks.on_done(sts, arg);
     return sts;
 }
 
 int
 pmLogGroupSetup(pmLogGroupModule *module)
 {
-    struct loggroups	*groups = loggroups_lookup(module);
+    struct loggroups	*groups = loggroups_create(module);
     struct timespec	ts;
     unsigned int	pid;
 
     if (groups == NULL)
 	return -ENOMEM;
 
-    /* allocate strings for parameter dictionary key lookups */
     PARAM_LOGID = sdsnew("id");
     PARAM_POLLTIME = sdsnew("polltimeout");
 
     /* generally needed strings, error messages */
-    EMPTYSTRING = sdsnew("");
     WORK_TIMER = sdsnew("pmlogger.work");
+    CACHED_ONLY = sdsnew("pmlogger.cached");
     POLL_TIMEOUT = sdsnew("pmlogger.timeout");
 
     /* setup the random number generator for archive IDs */
@@ -738,6 +769,23 @@ pmLogGroupSetEventLoop(pmLogGroupModule *module, void *events)
     return -ENOMEM;
 }
 
+static void
+loggroup_free(struct loggroups *groups)
+{
+    dictIterator	*iterator;
+    dictEntry		*entry;
+
+    /* walk the archives, stop timers and free resources */
+    iterator = dictGetIterator(groups->archives);
+    while ((entry = dictNext(iterator)) != NULL)
+	loggroup_drop_archive((archive_t *)dictGetVal(entry), NULL);
+    dictReleaseIterator(iterator);
+    dictRelease(groups->archives);
+    loggroup_timers_stop(groups);
+    memset(groups, 0, sizeof(struct loggroups));
+    free(groups);
+}
+
 int
 pmLogGroupSetConfiguration(pmLogGroupModule *module, dict *config)
 {
@@ -745,6 +793,14 @@ pmLogGroupSetConfiguration(pmLogGroupModule *module, dict *config)
     char		*endnum;
     sds			value;
 
+    if ((value = pmIniFileLookup(config, "pmlogger", "enabled")) &&
+	(strcmp(value, "false") == 0)) {
+	module->privdata = NULL;
+	loggroup_free(groups);
+	return -ENOTSUP;
+    }
+
+    /* allocate strings for parameter dictionary key lookups */
     if ((value = dictFetchValue(config, WORK_TIMER)) == NULL) {
 	default_worker = DEFAULT_WORK_TIMER;
     } else {
@@ -760,6 +816,9 @@ pmLogGroupSetConfiguration(pmLogGroupModule *module, dict *config)
 	if (*endnum != '\0')
 	    default_timeout = DEFAULT_POLL_TIMEOUT;
     }
+
+    if ((value = dictFetchValue(config, CACHED_ONLY)) != NULL)
+	cached_only = (strcmp(value, "true") == 0);
 
     if (groups) {
 	groups->config = config;
@@ -832,20 +891,10 @@ pmLogGroupSetMetricRegistry(pmLogGroupModule *module, mmv_registry_t *registry)
 void
 pmLogGroupClose(pmLogGroupModule *module)
 {
-    struct loggroups	*groups = (struct loggroups *)module->privdata;
-    dictIterator	*iterator;
-    dictEntry		*entry;
+    struct loggroups	*groups = loggroups_lookup(module);
 
     if (groups) {
-	/* walk the archives, stop timers and free resources */
-	iterator = dictGetIterator(groups->archives);
-	while ((entry = dictNext(iterator)) != NULL)
-	    loggroup_drop_archive((archive_t *)dictGetVal(entry), NULL);
-	dictReleaseIterator(iterator);
-	dictRelease(groups->archives);
-	loggroup_timers_stop(groups);
-	memset(groups, 0, sizeof(struct loggroups));
-	free(groups);
+	loggroup_free(groups);
 	module->privdata = NULL;
     }
 
@@ -853,7 +902,7 @@ pmLogGroupClose(pmLogGroupModule *module)
     sdsfree(PARAM_POLLTIME);
 
     /* generally needed strings, error messages */
-    sdsfree(EMPTYSTRING);
     sdsfree(WORK_TIMER);
+    sdsfree(CACHED_ONLY);
     sdsfree(POLL_TIMEOUT);
 }

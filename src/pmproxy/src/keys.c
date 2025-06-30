@@ -20,6 +20,7 @@ static int search_queries;
 static int series_queries;
 static int key_server_resp;
 static int archive_discovery;
+static int archive_push;
 
 static pmDiscoverCallBacks key_server_series = {
     .on_source		= pmSeriesDiscoverSource,
@@ -163,7 +164,8 @@ on_key_server_connected(void *arg)
 	key_server_discover.callbacks = key_server_search;
     }
 
-    if (archive_discovery && (series_queries || search_queries)) {
+    if ((archive_discovery || archive_push) &&
+	(series_queries || search_queries)) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_DISCOVER);
 
 	pmDiscoverSetEventLoop(&key_server_discover.module, proxy->events);
@@ -245,9 +247,12 @@ setup_keys_module(struct proxy *proxy)
 	search_queries = (strcmp(option, "true") == 0);
     if ((option = pmIniFileLookup(config, "discover", "enabled")))
 	archive_discovery = (strcmp(option, "true") == 0);
+    if ((option = pmIniFileLookup(config, "pmlogger", "enabled")))
+	archive_push = (strcmp(option, "true") == 0);
 
     if (proxy->slots == NULL &&
-	(key_server_resp || series_queries || search_queries || archive_discovery)) {
+	(key_server_resp || series_queries || search_queries ||
+	 archive_discovery || archive_push)) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_KEYS);
 	keySlotsFlags	flags = get_key_slots_flags();
 
@@ -276,7 +281,7 @@ close_keys_module(struct proxy *proxy)
 	proxy->slots = NULL;
     }
 
-    if (archive_discovery)
+    if (archive_discovery || archive_push)
 	pmDiscoverClose(&key_server_discover.module);
 
     proxymetrics_close(proxy, METRICS_KEYS);

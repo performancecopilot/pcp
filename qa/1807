@@ -66,6 +66,7 @@ pmseries_import $args \
 pid=$!
 pmsleep 2.5 # delay for polling and loading
 _filter_import < $tmp.import 
+pmsignal $pid
 echo
 
 echo "== Verify archive data has been loaded into key server"

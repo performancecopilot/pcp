@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1615
-# Exercise pmlogpush and the logger REST API interfaces.
+# Exercise pmlogpush and the logger REST API.
 #
 # Copyright (c) 2025 Red Hat.  All Rights Reserved.
 #
@@ -66,6 +66,7 @@ _filter_ls()
     sed \
         -e 's/\([r-][w-][x-]\)\. /\1 /' \
         -e 's/tmp\/[0-9][0-9]*/tmp\/PID/' \
+        -e 's/19990503\.[0-9][0-9]\.[0-9][0-9]/ARCHIVE/' \
         -e 's/[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]/TIME/' \
     | $PCP_AWK_PROG '
 /TIME/  { $3 = "user"; $4 = "group" }

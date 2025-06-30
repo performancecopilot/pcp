@@ -1918,6 +1918,8 @@ _filter_valgrind()
 	-e '/^total heap usage:/d' \
 	-e '/^possibly lost:/d' \
 	-e '/^still reachable:/d' \
+	-e '/^of which reachable via heuristic:/d' \
+	-e '/^newarray .*:/d' \
 	-e '/^suppressed:/d' \
 	-e '/^Reachable blocks (those to which a pointer was found)/d' \
 	-e '/^To see them, rerun with:/d' \
