@@ -107,15 +107,28 @@ probe_cisco(cisco_t * cp)
     if (cp->fin == NULL) {
 	fd = conn_cisco(cp);
 	if (fd == -1) {
-	    fprintf(stderr, "grab_cisco(%s): connect failed: %s\n",
+	    fprintf(stderr, "probe_cisco(%s): connect failed: %s\n",
 		cp->host, osstrerror());
 	    return;
 	}
 	else {
 	    cp->fin = fdopen (fd, "r");
+	    if ((cp->fin = fdopen (fd, "r")) == NULL) {
+		fprintf(stderr, "probe_cisco(%s): input fdopen(%d) failed: %s\n",
+			    cp->host, fd, strerror(oserror()));
+		close(fd);
+		return;
+	    }
 	    if ((fd2 = dup(fd)) < 0) {
 	    	perror("dup");
 		exit(1);
+	    }
+	    if ((cp->fout = fdopen (fd2, "w")) == NULL) {
+		fprintf(stderr, "probe_cisco(%s): output fdopen(%d) failed: %s\n",
+			    cp->host, fd2, strerror(oserror()));
+		close(fd);
+		close(fd2);
+		return;
 	    }
 	    cp->fout = fdopen (fd2, "w");
 	    if (cp->username != NULL) {
