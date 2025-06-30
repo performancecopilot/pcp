@@ -83,7 +83,8 @@ proxymetrics(struct proxy *proxy, enum proxy_registry prid)
 	return proxy->metrics[prid];
 
     pmsprintf(path, sizeof(path), "%s%cpmproxy%c%s",
-	    pmGetConfig("PCP_TMP_DIR"), sep, sep, server_metrics[prid].group); //creates a new file
+	    pmGetConfig("PCP_TMP_DIR"), sep, sep, server_metrics[prid].group);
+    /* mmv_stats_registry creates a new file with this path */
     if ((file = strdup(path)) == NULL)
 	return NULL;
 
@@ -94,7 +95,9 @@ proxymetrics(struct proxy *proxy, enum proxy_registry prid)
     else
 	free(file);
     proxy->metrics[prid] = registry;
-    return registry; //once you have a registry you can start adding metrics to it 
+
+    /* once we have a registry we can start adding metrics to it */
+    return registry;
 }
 
 void
@@ -380,7 +383,7 @@ client_write(struct client *client, sds buffer, sds suffix)
 	request->writer.data = client;
 	request->callback = on_client_write;
 
-	/* client must not get freed while waiting for the write callback to fire */
+	/* client must not be freed while waiting for the write callback */
 	client_get(client);
 	uv_callback_fire(&proxy->write_callbacks, request, NULL);
     } else {
