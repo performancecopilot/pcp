@@ -807,8 +807,13 @@ label_callback(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 		const char *caller)
 {
     /* label is sent once and an identifier is returned */
-    if (remote.client && remote.log == 0)
-	remote_label(acp, volume, buffer, length, caller);
+    if (remote.client && remote.log == 0) {
+	if (remote_label(acp, volume, buffer, length, caller) < 0) {
+	    pmNotifyErr(LOG_ERR, "cannot send log label to %s, exiting.",
+				 remote.conn);
+	    exit(1);
+	}
+    }
     if (remote.only)
 	return 0;
     return local_write(acp, volume, buffer, length, caller);
@@ -818,9 +823,25 @@ static int
 write_callback(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 		const char *caller)
 {
-    /* label has been sent so identifier must be set */
-    if (remote.client && remote.log)
-	remote_write(acp, volume, buffer, length, caller);
+    if (remote.client) {
+	time_t	now;
+
+	/* if HTTP connection was lost, retry obtaining log ID */
+	if (remote.log == 0) {
+	    if (remote_label(acp, volume, buffer, length, caller) < 0)
+		return 0; /* still not connected */
+	    now = time(NULL);
+	    fprintf(stderr, "%s: re-established pmproxy %s connection at %s",
+			    pmGetProgname(), remote.conn, ctime(&now));
+	}
+	/* label has been (re-)sent, so log identifier is set */
+	if (remote_write(acp, volume, buffer, length, caller) < 0) {
+	    now = time(NULL);
+	    fprintf(stderr, "%s: lost pmproxy %s connection at %s",
+			    pmGetProgname(), remote.conn, ctime(&now));
+	    remote.log = 0;
+	}
+    }
     if (remote.only)
 	return 0;
     return local_write(acp, volume, buffer, length, caller);
