@@ -934,9 +934,13 @@ pmParseTimeWindow(
 	    offset = end;
 	}
 
-	if (swAlign) {
-	    align = offset.tv_nsec + 1000000000 * (__int64_t)offset.tv_sec;
-	    blign = (align / delta) * delta;
+	/*
+	 * if end.tv_sec == PM_MAX_TIME_T then we cannot do -A rounding
+	 * due to arithmetic overflow [Coverity CID 464604]
+	 */
+	if (swAlign && end.tv_sec != PM_MAX_TIME_T) {
+	    align = offset.tv_nsec + 1000000000 *
+	    (__int64_t)offset.tv_sec; blign = (align / delta) * delta;
 	    if (blign < align)
 		blign += delta;
 	    align = end.tv_nsec + 1000000000 * (__int64_t)end.tv_sec;
