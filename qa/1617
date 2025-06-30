@@ -19,7 +19,9 @@ fi
 . ./common.product
 . ./common.filter
 . ./common.check
+. ./common.keys
 
+_check_valgrind
 _check_series
 
 cached=false
@@ -106,6 +108,7 @@ End-Of-File
 mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
+export PCP_LOG_DIR=$tmp.pmproxy/pmproxy
 
 echo "Start test pmproxy ..."
 archive=$here/archives/ok-mv-bigbin
