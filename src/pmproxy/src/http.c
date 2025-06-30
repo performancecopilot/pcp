@@ -750,7 +750,6 @@ http_client_release(struct client *client)
 	sdsfree(client->u.http.realm);
 	client->u.http.realm = NULL;
     }
-
 }
 
 static int
@@ -1183,9 +1182,8 @@ on_http_client_read(struct proxy *proxy, struct client *client,
     size_t		bytes;
 
     if (pmDebugOptions.http || pmDebugOptions.query)
-	fprintf(stderr, "%s: %lld bytes from HTTP client %p\n%.*s",
-		"on_http_client_read", (long long)nread, client,
-		(int)nread, buf->base);
+	fprintf(stderr, "%s: %lld bytes from HTTP client %p\n",
+		"on_http_client_read", (long long)nread, client);
 
     if (nread <= 0)
 	return;
