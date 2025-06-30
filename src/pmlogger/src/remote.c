@@ -52,27 +52,28 @@ remote_ping(void)
 				&remote.body, &remote.body_bytes,
 				&remote.type, &remote.type_bytes);
     if (sts < 0) {
-	fprintf(stderr, "%s: %s GET from %s failed: %s\n",
-		pmGetProgname(), remote.conn, path, pmErrStr(sts));
+	pmNotifyErr(LOG_INFO, "%s: GET %s from %s failed: %s\n",
+		__FUNCTION__, path, remote.conn, pmErrStr(sts));
 	return -EINVAL;
     }
     if (remote_http_error(sts, errorbuf, sizeof(errorbuf))) {
-	fprintf(stderr, "%s: %s GET %s HTTP error: %s\n",
-		pmGetProgname(), remote.conn, path, errorbuf);
+	pmNotifyErr(LOG_INFO, "%s: GET %s from  %s HTTP error: %s\n",
+		__FUNCTION__, path, remote.conn, errorbuf);
 	return -EINVAL;
     }
     if (remote.type_bytes != AJ_LEN || strcmp(remote.type, AJ_STR) != 0) {
-	fprintf(stderr, "%s: %s unexpected response type: %s (%zu)\n",
-		pmGetProgname(), path, remote.type, remote.type_bytes);
+	pmNotifyErr(LOG_ERR, "%s: GET %s from  %s unexpected response type: %s bytes: %zu\n",
+		__FUNCTION__, path, remote.conn, remote.type, remote.type_bytes);
 	return -EINVAL;
     }
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: ping GET result: %s\n", __FUNCTION__, remote.body);
+	fprintf(stderr, "%s: GET %s from %s result: %s\n",
+		__FUNCTION__, path, remote.conn, remote.body);
 
     if ((strncmp(remote.body, "{\"success\":true}", 16)) != 0) {
-	fprintf(stderr, "%s: %s bad result (expected success, got %s)\n",
-			pmGetProgname(), path, remote.body);
+	pmNotifyErr(LOG_ERR, "%s: GET %s from %s bad result (expected success, got %s)\n",
+		__FUNCTION__, path, remote.conn, remote.body);
 	return -EINVAL;
     }
     return 0;
@@ -91,28 +92,29 @@ remote_label(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 				&remote.body, &remote.body_bytes,
 				&remote.type, &remote.type_bytes);
     if (sts < 0) {
-	fprintf(stderr, "%s: %s POST to %s failed: %s\n",
-		pmGetProgname(), remote.conn, path, pmErrStr(sts));
+	pmNotifyErr(LOG_INFO, "%s: POST %s to %s failed: %s\n",
+		__FUNCTION__, path, remote.conn, pmErrStr(sts));
 	return -EINVAL;
     }
     if (remote_http_error(sts, errorbuf, sizeof(errorbuf))) {
-	fprintf(stderr, "%s: HTTP error: %s\n", pmGetProgname(), errorbuf);
+	pmNotifyErr(LOG_INFO, "%s: POST %s to %s HTTP error: %s\n",
+		__FUNCTION__, path, remote.conn, errorbuf);
 	return -EINVAL;
     }
     if (remote.type_bytes != AJ_LEN || strcmp(remote.type, AJ_STR) != 0) {
-	fprintf(stderr, "%s: %s unexpected response type: %s (%zu)\n",
-		pmGetProgname(), path, remote.type, remote.type_bytes);
+	pmNotifyErr(LOG_ERR, "%s: POST %s to %s unexpected response type: %s (%zu)\n",
+		__FUNCTION__, path, remote.conn, remote.type, remote.type_bytes);
 	return -EINVAL;
     }
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: label POST result: %s\n",
-			__FUNCTION__, remote.body);
+	fprintf(stderr, "%s: POST %s to %s result: %s\n",
+		__FUNCTION__, path, remote.conn, remote.body);
 
     sts = sscanf(remote.body, "{\"archive\":%u,\"success\":true}", &remote.log);
     if (sts != 1) {
-	fprintf(stderr, "%s: %s bad result (expected 1 archive, got %d): %s\n",
-			pmGetProgname(), path, sts, remote.body);
+	pmNotifyErr(LOG_ERR, "%s: POST %s to %s bad result (expected 1 archive, got %d): %s\n",
+		__FUNCTION__, path, remote.conn, sts, remote.body);
 	return -EINVAL;
     }
     return 0;
@@ -138,21 +140,23 @@ remote_write(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 				&remote.body, &remote.body_bytes,
 				&remote.type, &remote.type_bytes);
     if (sts < 0) {
-	fprintf(stderr, "%s: %s POST to %s failed: %s\n",
-		pmGetProgname(), remote.conn, path, pmErrStr(sts));
+	pmNotifyErr(LOG_INFO, "%s: POST %s to %s failed: %s\n",
+		__FUNCTION__, path, remote.conn, pmErrStr(sts));
 	return sts;
     }
     if (remote_http_error(sts, errorbuf, sizeof(errorbuf))) {
-	fprintf(stderr, "%s: HTTP error: %s\n", pmGetProgname(), errorbuf);
+	pmNotifyErr(LOG_INFO, "%s: POST %s to %s HTTP error: %s\n",
+		__FUNCTION__, path, remote.conn, errorbuf);
 	return -EINVAL;
     }
     if (remote.type_bytes != AJ_LEN || strcmp(remote.type, AJ_STR) != 0) {
-	fprintf(stderr, "%s: %s unexpected response type: %s (%zu)\n",
-		pmGetProgname(), path, remote.type, remote.type_bytes);
+	pmNotifyErr(LOG_ERR, "%s: POST %s to %s unexpected response type: %s (%zu)\n",
+		__FUNCTION__, path, remote.conn, remote.type, remote.type_bytes);
 	return -EINVAL;
     }
     if (remote.body_bytes < 10) {
-	fprintf(stderr, "%s: %s unexpected body size\n", pmGetProgname(), path);
+	pmNotifyErr(LOG_ERR, "%s: POST %s to %s unexpected body size: %zu\n",
+		__FUNCTION__, path, remote.conn, remote.body_bytes);
 	return -EINVAL;
     }
     if (volume == PM_LOG_VOL_META)
@@ -163,7 +167,8 @@ remote_write(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 	remote.total_volume += remote.body_bytes;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: %s POST success\n", __FUNCTION__, path);
+	fprintf(stderr, "%s: POST %s to %s success\n",
+		__FUNCTION__, path, remote.conn);
 
     return 0;
 }
