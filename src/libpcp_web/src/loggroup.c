@@ -512,6 +512,7 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
     char		*dir, timebuf[64];
     char		pathbuf[MAXPATHLEN];
     int			sts, sep;
+    time_t		start;
 
     if (groups == NULL) {	/* disabled via config file */
 	sts = -ENOTSUP;
@@ -525,7 +526,8 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
     if (pmDebugOptions.log)
 	fprintf(stderr, "New archive label for host: %s\n", loglabel.hostname);
 
-    if (localtime_r(&loglabel.start.sec, &tm) == NULL ||
+    start = (time_t)loglabel.start.sec;
+    if (localtime_r(&start, &tm) == NULL ||
         strftime(timebuf, sizeof(timebuf), TIME_FORMAT, &tm) < 2) {
 	sts = -EINVAL;
 	goto fail;
