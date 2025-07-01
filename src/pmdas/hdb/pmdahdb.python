@@ -3388,7 +3388,6 @@ class HdbPMDA(PMDA):
             ),
         ]
 
-
 def _int_or_empty_value(val: Any) -> int:
     if val is None:
         return 0
