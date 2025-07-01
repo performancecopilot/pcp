@@ -1140,10 +1140,20 @@ pmGetOptions(int argc, char *const *argv, pmOptions *opts)
 void
 pmFreeOptions(pmOptions *opts)
 {
-    if (opts->narchives)
+    int		i;
+
+    if (opts->narchives) {
+	for (i = 0; i < opts->narchives; i++) {
+	    free(opts->archives[i]);
+	}
 	free(opts->archives);
-    if (opts->nhosts)
+    }
+    if (opts->nhosts) {
+	for (i = 0; i < opts->nhosts; i++) {
+	    free(opts->hosts[i]);
+	}
 	free(opts->hosts);
+    }
 }
 
 void
