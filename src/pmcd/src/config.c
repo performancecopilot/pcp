@@ -1668,11 +1668,12 @@ ConnectSocketAgent(AgentInfo *aPtr)
     return 0;
 
 error:
-    if (fd != -1) {
+    if (aPtr->inFd != -1) {
         if (aPtr->ipc.socket.addrDomain == AF_INET || aPtr->ipc.socket.addrDomain == AF_INET6)
-	    __pmCloseSocket(fd);
+	    __pmCloseSocket(aPtr->inFd);
 	else
-	    close(fd);
+	    close(aPtr->inFd);
+	aPtr->outFd = aPtr->inFd = -1;
     }
     return -1;
 }
