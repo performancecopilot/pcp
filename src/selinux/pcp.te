@@ -297,6 +297,16 @@ files_manage_generic_tmp_files(pcp_pmie_t)
 # pcp_pmlogger local  policy
 #
 
+optional_policy(`
+    require {
+	type pcp_pmlogger_t;
+	class capability2 perfmon;
+    }
+
+    #RHBZ2371004
+    allow pcp_pmlogger_t self:capability2 perfmon;
+')
+
 allow pcp_pmlogger_t self:capability { dac_read_search dac_override chown fowner sys_admin sys_ptrace };
 allow pcp_pmlogger_t self:process { getattr setpgid setrlimit};
 allow pcp_pmlogger_t self:netlink_route_socket {create_socket_perms nlmsg_read };
