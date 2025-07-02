@@ -875,6 +875,10 @@ __pmStartOptions(pmOptions *opts)
 	    *value = '\0';
 	    value++;	/* skip over the equals sign */
 	}
+	else {
+	    /* should not happen as env vars all contain = [pander to Coverity] */
+	    continue;
+	}
 
 	found = 0;
 	if (strcmp(s, "ALIGN_TIME") == 0) {
