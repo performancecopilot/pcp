@@ -1,0 +1,23 @@
+#!/usr/bin/env pmpython
+"""Prepare PMDA Python files"""
+
+import os
+import fnmatch
+
+from pcp.pmapi import pmContext as PCP
+
+CWD = os.getcwd()
+PMDANAME = os.path.basename(CWD)
+PMDADIR = PCP.pmGetConfig('PCP_PMDASADM_DIR') + '/' + PMDANAME
+
+for root, _, filenames in os.walk(PMDADIR):
+    os.chdir(root)
+    for filename in fnmatch.filter(filenames, '*.python'):
+        if filename in ('pmda' + PMDANAME + '.python', 'domain.h.python', 'pmns.python'):
+            continue
+        pyf = filename[:-4]
+        if not os.path.exists(pyf):
+            os.symlink(filename, pyf)
+    os.chdir(PMDADIR)
+os.chdir(CWD)
+

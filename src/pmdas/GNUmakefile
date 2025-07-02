@@ -41,7 +41,7 @@ PYPMDAS = gluster zswap unbound mic haproxy \
 	libvirt lio openmetrics opentelemetry \
 	elasticsearch bpftrace mssql netcheck \
 	rabbitmq openvswitch nfsclient mongodb \
-	uwsgi rocestat hdb
+	uwsgi rocestat hdb rds
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf
