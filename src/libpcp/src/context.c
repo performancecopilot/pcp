@@ -1683,7 +1683,7 @@ pmDupContext(void)
     if ((ctxnum = map_handle(new)) < 0) {
 	sts = PM_ERR_NOCONTEXT;
 	PM_UNLOCK(contexts_lock);
-	goto done;
+	goto new_fail;
     }
     newcon = contexts[ctxnum];
     PM_LOCK(newcon->c_lock);
