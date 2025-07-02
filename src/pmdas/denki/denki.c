@@ -268,6 +268,7 @@ static int detect_cpu(void) {
 
 			if (strncmp(vendor,"GenuineIntel",12)) {
 				pmNotifyErr(LOG_INFO, "%s not an Intel chip\n",vendor);
+				fclose(fff);
 				return -1;
 			}
 		}
@@ -276,6 +277,7 @@ static int detect_cpu(void) {
 			sscanf(result,"%*s%*s%*s%d",&family);
 			if (family!=6) {
 				pmNotifyErr(LOG_INFO, "Wrong CPU family %d\n",family);
+				fclose(fff);
 				return -1;
 			}
 		}
