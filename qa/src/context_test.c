@@ -7,6 +7,7 @@
  */
 
 #include <pcp/pmapi.h>
+#include "fault.h"
 #include "libpcp.h"
 
 static int inst_bin[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900 };
@@ -49,6 +50,12 @@ _err(int handle)
 	printf("pmReconnectContext(%d): Unexpected Error: %s\n", handle, pmErrStr(sts));
 }
 
+void
+faults(void)
+{
+    __pmFaultSummary(stdout);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -61,6 +68,7 @@ main(int argc, char **argv)
     int		failiter = 0;
     int		errflag = 0;
     int		type = 0;
+    int		Iflag = 0;
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
     char	*endnum;
@@ -70,11 +78,11 @@ main(int argc, char **argv)
     pmResult	*resp;
     __pmContext	*ctxp;
     int		handle[50];		/* need 3 x MAXC */
-    static char	*usage = "[-a archive] [-D debugspec] [-h hostname] [-i iterations] [-n namespace]";
+    static char	*usage = "[-I] [-a archive] [-D debugspec] [-h hostname] [-i iterations] [-n namespace]";
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:D:i:h:n:")) != EOF) {
+    while ((c = getopt(argc, argv, "a:D:i:Ih:n:")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -113,6 +121,10 @@ main(int argc, char **argv)
 	    }
 	    break;
 
+	case 'I':	/* fault injection */
+	    Iflag = 1;
+	    break;
+
 	case 'n':	/* alternative name space file */
 	    namespace = optarg;
 	    break;
@@ -128,6 +140,9 @@ main(int argc, char **argv)
 	fprintf(stderr, "Usage: %s %s\n", pmGetProgname(), usage);
 	exit(1);
     }
+
+    if (Iflag)
+	atexit(faults);
 
     if ((sts = pmLoadASCIINameSpace(namespace, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), namespace, pmErrStr(sts));
@@ -154,10 +169,16 @@ main(int argc, char **argv)
 	    /*
 	     * integrity check ... instance profiles should be identical
 	     */
-	    ctxp = __pmHandleToPtr(i-1);
+	    if ((ctxp = __pmHandleToPtr(i-1)) == NULL) {
+		/* fault injection may make this fail, and lock not held */
+		continue;
+	    }
 	    old = ctxp->c_instprof;
 	    PM_UNLOCK(ctxp->c_lock);
-	    ctxp = __pmHandleToPtr(i);
+	    if ((ctxp = __pmHandleToPtr(i)) == NULL) {
+		/* fault injection may make this fail, and lock not held */
+		continue;
+	    }
 	    new = ctxp->c_instprof;
 	    PM_UNLOCK(ctxp->c_lock);
 	    /*

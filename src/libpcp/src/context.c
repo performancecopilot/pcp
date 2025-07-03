@@ -32,6 +32,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include "fault.h"
 #include "internal.h"
 #include <string.h>
 #include <assert.h>
@@ -1532,6 +1533,7 @@ pmDupContext(void)
     tmpcon.c_instprof->state = oldcon->c_instprof->state;
     if (oldcon->c_instprof->profile_len > 0) {
 	tmpcon.c_instprof->profile_len = oldcon->c_instprof->profile_len;
+PM_FAULT_POINT("libpcp/" __FILE__ ":0", PM_FAULT_ALLOC);
 	tmpcon.c_instprof->profile = (pmInDomProfile *)malloc(
 	    oldcon->c_instprof->profile_len * sizeof(pmInDomProfile));
 	if (tmpcon.c_instprof->profile == NULL) {
@@ -1547,6 +1549,7 @@ pmDupContext(void)
 	q = tmpcon.c_instprof->profile;
 	for (; p < p_end; p++, q++) {
 	    if (p->instances) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		q->instances = (int *)malloc(p->instances_len * sizeof(int));
 		if (q->instances == NULL) {
 		    sts = -oserror();
@@ -1566,6 +1569,7 @@ pmDupContext(void)
 
     /* clone the archive control struct, if any */
     if (oldcon->c_archctl != NULL) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	if ((tmpcon.c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
 	    sts = -oserror();
 	    goto setup_fail;
@@ -1601,6 +1605,7 @@ pmDupContext(void)
 		fprintf(stderr, "pmDupContext: __pmLogChangeVol(tmpcon, %d) failed: %s\n",
 		    vol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
+	    tmpcon.c_archctl->ac_num_logs = 0;
 	    goto setup_fail;
 	}
 
@@ -1611,14 +1616,24 @@ pmDupContext(void)
 	if (oldcon->c_archctl->ac_log_list != NULL) {
 	    size_t size = oldcon->c_archctl->ac_num_logs *
 		sizeof(*oldcon->c_archctl->ac_log_list);
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    if ((tmpcon.c_archctl->ac_log_list = malloc(size)) == NULL) {
 		sts = -oserror();
+		tmpcon.c_archctl->ac_num_logs = 0;
+		__pmFclose(tmpcon.c_archctl->ac_mfp);
 		goto setup_fail;
 	    }
 	    /* We need to duplicate each ac_log_list entry. */
 	    for (i = 0; i < tmpcon.c_archctl->ac_num_logs; i++) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		tmpcon.c_archctl->ac_log_list[i] =
 		    malloc(sizeof(*tmpcon.c_archctl->ac_log_list[i]));
+		if (tmpcon.c_archctl->ac_log_list[i] == NULL) {
+		    sts = -oserror();
+		    tmpcon.c_archctl->ac_num_logs = i;
+		    __pmFclose(tmpcon.c_archctl->ac_mfp);
+		    goto setup_fail;
+		}
 		newmlcp = tmpcon.c_archctl->ac_log_list[i];
 		oldmlcp = oldcon->c_archctl->ac_log_list[i];
 		*newmlcp = *oldmlcp;
@@ -1626,23 +1641,44 @@ pmDupContext(void)
 		 * We need to duplicate the name and the hostname of each
 		 * archive in the list.
 		 */
+PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
 		if ((newmlcp->name = strdup(newmlcp->name)) == NULL) {
 		    sts = -oserror();
+		    tmpcon.c_archctl->ac_num_logs = i+1;
+		    /* don't free the ones we've not yet strdup'd */
+		    newmlcp->hostname = NULL;
+		    newmlcp->timezone = NULL;
+		    newmlcp->zoneinfo = NULL;
+		    __pmFclose(tmpcon.c_archctl->ac_mfp);
 		    goto setup_fail;
 		}
+PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 		if ((newmlcp->hostname = strdup(newmlcp->hostname)) == NULL) {
 		    sts = -oserror();
+		    tmpcon.c_archctl->ac_num_logs = i+1;
+		    /* don't free the ones we've not yet strdup'd */
+		    newmlcp->timezone = NULL;
+		    newmlcp->zoneinfo = NULL;
+		    __pmFclose(tmpcon.c_archctl->ac_mfp);
 		    goto setup_fail;
 		}
 		if (newmlcp->timezone != NULL) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 		    if ((newmlcp->timezone = strdup(newmlcp->timezone)) == NULL) {
 			sts = -oserror();
+			tmpcon.c_archctl->ac_num_logs = i+1;
+			/* don't free the ones we've not yet strdup'd */
+			newmlcp->zoneinfo = NULL;
+			__pmFclose(tmpcon.c_archctl->ac_mfp);
 			goto setup_fail;
 		    }
 		}
 		if (newmlcp->zoneinfo != NULL) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
 		    if ((newmlcp->zoneinfo = strdup(newmlcp->zoneinfo)) == NULL) {
 			sts = -oserror();
+			tmpcon.c_archctl->ac_num_logs = i+1;
+			__pmFclose(tmpcon.c_archctl->ac_mfp);
 			goto setup_fail;
 		    }
 		}
@@ -1680,7 +1716,15 @@ pmDupContext(void)
 	goto new_fail;
     }
     PM_LOCK(contexts_lock);
-    if ((ctxnum = map_handle(new)) < 0) {
+    ctxnum = map_handle(new);
+PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_MISC);
+/* begin fault-injection */
+    if (PM_FAULT_CHECK) {
+	PM_FAULT_CLEAR;
+	ctxnum = -1;
+    }
+/* end fault-injection */
+    if (ctxnum < 0) {
 	sts = PM_ERR_NOCONTEXT;
 	PM_UNLOCK(contexts_lock);
 	goto new_fail;
@@ -1727,15 +1771,36 @@ new_fail:
      * failure, get here with no locks held, but tmpcon may have
      * malloc'd memory we need to free
      */
-    if (tmpcon.c_archctl != NULL)
+    if (tmpcon.c_archctl != NULL) {
+	if (tmpcon.c_archctl->ac_log_list != NULL) {
+	    /*
+	     * ac_log_list is messy because we can fail in a number of
+	     * places while setting this up ... and note that
+	     * tmpcon.c_archctl->ac_num_logs may be < ac_num_logs in the
+	     * old context in this case
+	     */
+	    for (i = 0; i < tmpcon.c_archctl->ac_num_logs; i++) {
+		if (tmpcon.c_archctl->ac_log_list[i]->name != NULL)
+		    free(tmpcon.c_archctl->ac_log_list[i]->name);
+		if (tmpcon.c_archctl->ac_log_list[i]->hostname != NULL)
+		    free(tmpcon.c_archctl->ac_log_list[i]->hostname);
+		if (tmpcon.c_archctl->ac_log_list[i]->timezone != NULL)
+		    free(tmpcon.c_archctl->ac_log_list[i]->timezone);
+		if (tmpcon.c_archctl->ac_log_list[i]->zoneinfo != NULL)
+		    free(tmpcon.c_archctl->ac_log_list[i]->zoneinfo);
+		free(tmpcon.c_archctl->ac_log_list[i]);
+	    }
+	    free(tmpcon.c_archctl->ac_log_list);
+	}
 	free(tmpcon.c_archctl);
+    }
     if (tmpcon.c_instprof != NULL)
 	__pmFreeProfile(tmpcon.c_instprof);
     /* FALLTHROUGH */
 
 done:
     /* return an error code, or the handle for the new context */
-    if (sts < 0 && new >= 0) {
+    if (sts < 0 && new >= 0 && ctxnum >= 0) {
 	PM_LOCK(contexts_lock);
 	contexts_map[ctxnum] = MAP_FREE;
 	PM_UNLOCK(contexts_lock);

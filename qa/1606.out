@@ -1,0 +1,55 @@
+QA output created by 1606
+== initial profile malloc fails
+handle[3]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:0: guard trip==1, 1 trips, 1 faults
+
+== profile instances malloc fails
+handle[3]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:1: guard trip==1, 1 trips, 1 faults
+
+== clone c_archctl malloc fails
+handle[1]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:2: guard trip==1, 1 trips, 1 faults
+
+== c_archctl->ac_log_list malloc fails
+handle[1]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:3: guard trip==1, 1 trips, 1 faults
+
+== c_archctl->ac_log_list[0] malloc fails
+handle[1]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:4: guard trip==1, 1 trips, 1 faults
+
+== c_archctl->ac_log_list[2] malloc fails
+handle[1]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:4: guard trip==3, 3 trips, 1 faults
+
+== c_archctl->ac_log_list[0]->name strdup fails
+handle[1]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:5: guard trip==1, 1 trips, 1 faults
+
+== c_archctl->ac_log_list[1]->hostname strdup fails
+handle[1]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:6: guard trip==2, 2 trips, 1 faults
+
+== c_archctl->ac_log_list[2]->timezone strdup fails
+handle[1]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:7: guard trip==3, 3 trips, 1 faults
+
+== c_archctl->ac_log_list[0]->zoneinfo strdup fails
+handle[1]: pmDupContext(): Cannot allocate memory
+=== Fault Injection Summary Report ===
+libpcp/context.c:8: guard trip==1, 1 trips, 1 faults
+
+== map_handle() fails
+handle[1]: pmDupContext(): Attempt to use an illegal context
+=== Fault Injection Summary Report ===
+libpcp/context.c:9: guard trip==1, 1 trips, 1 faults

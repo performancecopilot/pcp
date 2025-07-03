@@ -1,0 +1,155 @@
+QA output created by 1607
+QA output created by 1606 --valgrind
+== initial profile malloc fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:0: guard trip==1, 1 trips, 1 faults
+=== std err ===
+handle[3]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -h local:
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== profile instances malloc fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:1: guard trip==1, 1 trips, 1 faults
+=== std err ===
+handle[3]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -h local:
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== clone c_archctl malloc fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:2: guard trip==1, 1 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -a tmparch/foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== c_archctl->ac_log_list malloc fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:3: guard trip==1, 1 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -a tmparch/foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== c_archctl->ac_log_list[0] malloc fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:4: guard trip==1, 1 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -a TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== c_archctl->ac_log_list[2] malloc fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:4: guard trip==3, 3 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -a TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== c_archctl->ac_log_list[0]->name strdup fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:5: guard trip==1, 1 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -a TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== c_archctl->ac_log_list[1]->hostname strdup fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:6: guard trip==2, 2 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -a TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== c_archctl->ac_log_list[2]->timezone strdup fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:7: guard trip==3, 3 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -a TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== c_archctl->ac_log_list[0]->zoneinfo strdup fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:8: guard trip==1, 1 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Cannot allocate memory
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -a tmparch/foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+== map_handle() fails
+=== std out ===
+=== Fault Injection Summary Report ===
+libpcp/context.c:9: guard trip==1, 1 trips, 1 faults
+=== std err ===
+handle[1]: pmDupContext(): Attempt to use an illegal context
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/context_test -I -i2 -h local:
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
