@@ -35,6 +35,12 @@ _cleanup()
     _restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
     [ -d $archive_path ] && $sudo rm -fr $archive_path
+    if [ -f $PCP_LOG_DIR/pmproxy/pmproxy.log ]
+    then
+	cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+    else
+	echo "Arrg, $PCP_LOG_DIR/pmproxy/pmproxy.log missing"
+    fi
     if $pmproxy_was_running
     then
         echo "Restart pmproxy ..." >>$seq_full

@@ -1526,8 +1526,6 @@ pmDiscoverStreamData(pmDiscover *p, const char *content, size_t length)
 	return PM_ERR_NOCONTEXT;
     }
     pmUseContext(p->ctx);
-    ctxp = __pmHandleToPtr(p->ctx);
-    PM_UNLOCK(ctxp->c_lock);
 
     p->datavol = sdscatlen(p->datavol, content, length);
     bytes = sdslen(p->datavol);
@@ -1562,8 +1560,10 @@ pmDiscoverStreamData(pmDiscover *p, const char *content, size_t length)
 	pb[0] = buflen + sizeof(uint32_t);
 	pb[1] = pb[2] = 0;	/* type, from */
 	memcpy(&pb[3], buf + sizeof(uint32_t), buflen - (sizeof(uint32_t) * 2));
+	ctxp = __pmHandleToPtr(p->ctx);
 	sts = __pmDecodeResult_ctx(ctxp, pb, &rp);
 	__pmUnpinPDUBuf(pb);
+	PM_UNLOCK(ctxp->c_lock);
 	if (sts < 0) {
 	    infofmt(msg, "Failed decoding %u bytes result buffer: %s\n",
 			    buflen, pmErrStr(sts));

@@ -179,6 +179,12 @@ __pmSetVersionIPC(int fd, int version)
     if (pmDebugOptions.context)
 	fprintf(stderr, "__pmSetVersionIPC: fd=%d version=%d\n", fd, version);
 
+    if (fd < 0) {
+	/* this should never happen */
+	pmNotifyErr(LOG_WARNING, "%s: fd %d not valid", __FUNCTION__, fd);
+	return -EBADF;
+    }
+
     PM_LOCK(ipc_lock);
     if ((sts = resize(fd)) < 0) {
 	PM_UNLOCK(ipc_lock);

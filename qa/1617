@@ -166,10 +166,10 @@ pmseries -c $tmp.conf -m | _filter_metrics
 # valgrind takes awhile to shutdown too
 _wait_process_end $pid
 echo "=== valgrind stdout ===" | tee -a $seq_full
-cat $tmp.valout | _filter_valgrind
+cat $tmp.valout | tee -a $seq_full | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq_full
-cat $tmp.valerr | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_pmproxy_port
+cat $tmp.valerr | tee -a $seq_full | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_pmproxy_port
 
 # success, all done
 exit
