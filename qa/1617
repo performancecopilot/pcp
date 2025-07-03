@@ -31,7 +31,6 @@ _cleanup()
 {
     cd $here
     [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
-    _restore_config $PCP_SYSCONF_DIR/pmseries
     [ -d $archive_path ] && $sudo rm -fr $archive_path
     $sudo rm -rf $tmp $tmp.*
 }
@@ -67,10 +66,17 @@ _filter_metrics()
     | LC_COLLATE=POSIX sort
 }
 
-# real QA test starts here
-_save_config $PCP_SYSCONF_DIR/pmseries
-$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+_filter_values()
+{
+    # filter on specific times/values from the archive, however
+    # some indeterminism exists from use of floating point math
+    sed \
+	-e 's/11:53:38.*1999/11:53:38 1999/g' \
+	-e 's/4.147.*e+06/4.147e+06/g' \
+    # end
+}
 
+# real QA test starts here
 user=`id -nu`
 pmproxy_port=`_find_free_port`
 _filter_pmproxy_port()
@@ -139,6 +145,8 @@ fi
 
 echo "=== pmlogpush to pmproxy ==="
 pmlogpush -p $pmproxy_port $archive
+pmsleep 1.5 # allow time for key server as well
+
 export PCP_DERIVED_CONFIG=""
 pminfo -a $archive | _filter_metrics
 
@@ -147,13 +155,13 @@ pmsignal $pid
 
 # while that happens, check state of the key server
 echo "=== pmseries value check ==="
-pmseries -p $key_server_port -Z UTC 'sample.milliseconds[count:3]'
+pmseries -c $tmp.conf 'sample.milliseconds[count:1,timezone:"UTC"]' | _filter_values
 
 echo "=== pmseries labels check ==="
-pmseries -p $key_server_port -l | LC_COLLATE=POSIX sort
+pmseries -c $tmp.conf -l | LC_COLLATE=POSIX sort
 
 echo "=== pmseries metrics check ==="
-pmseries -p $key_server_port -m | _filter_metrics
+pmseries -c $tmp.conf -m | _filter_metrics
 
 # valgrind takes awhile to shutdown too
 _wait_process_end $pid

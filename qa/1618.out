@@ -17,9 +17,7 @@ sampledso.milliseconds
 === pmseries value check ===
 
 0786b3badb53a087e918af364db3f47ada938332
-    [Thu May  6 18:04:49.181575000 1999] 4.147064e+06
-    [Thu May  6 18:04:49.157687000 1999] 4.147040e+06
-    [Thu May  6 18:04:49.124030000 1999] 4.147007e+06
+    [Mon May  3 11:53:38 1999] 4.147e+06
 === pmseries labels check ===
 hostname
 === pmseries metrics check ===

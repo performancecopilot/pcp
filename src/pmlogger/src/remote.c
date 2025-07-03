@@ -28,6 +28,9 @@ remote_http_error(int code, char *buf, size_t buflen)
     case 409:   /* CONFLICT */
 	pmsprintf(buf, buflen, "conflict (%d) - archive already exists", code);
 	return code;
+    case 410:   /* GONE */
+	pmsprintf(buf, buflen, "resource gone (%d) - server timed out", code);
+	return code;
     case 422:   /* UNPROCESSABLE_ENTITY */
 	pmsprintf(buf, buflen, "unprocessable (%d) - bad archive label", code);
 	return code;
