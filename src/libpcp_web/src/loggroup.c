@@ -25,10 +25,10 @@
 
 static unsigned int cached_only;	/* perform key server caching only */
 
-#define DEFAULT_WORK_TIMER 5000
+#define DEFAULT_WORK_TIMER 10000
 static unsigned int default_worker;	/* BG work delta, milliseconds */
 
-#define DEFAULT_POLL_TIMEOUT 60000
+#define DEFAULT_POLL_TIMEOUT 600000
 static unsigned int default_timeout;	/* timeout in milliseconds */
 
 /* constant string keys (initialized during setup) */

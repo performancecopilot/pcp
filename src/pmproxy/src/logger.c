@@ -113,8 +113,8 @@ on_pmlogger_done(int status, void *arg)
 	    code = HTTP_STATUS_BAD_REQUEST;
 	else if (status == PM_ERR_LABEL)
 	    code = HTTP_STATUS_UNPROCESSABLE_ENTITY;
-	else if (status == -ESRCH)
-	    code = HTTP_STATUS_REQUEST_TIMEOUT;
+	else if (status == -ESRCH || status == -ENOTCONN)
+	    code = HTTP_STATUS_GONE;
 	else
 	    code = HTTP_STATUS_INTERNAL_SERVER_ERROR;
 	client->u.http.parser.status_code = code;
