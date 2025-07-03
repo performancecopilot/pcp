@@ -19,6 +19,12 @@ then
     shift
 fi
 
+if [ $# -eq 0 ]
+then
+    echo "Usage: appchange [-c] app ..."
+    exit
+fi
+
 if [ ! -f $cache ]
 then
     echo "Rebuilding cache of app usage ..."

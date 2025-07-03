@@ -187,6 +187,15 @@ do
 	    cd $here
 	    continue
 	fi
+    else
+	# hack for kenj ...
+	#
+	case `pwd`
+	in
+	    */Logs/by-vm/*/qa)
+	    	badref=`pwd`/
+		;;
+	esac
     fi
     if [ ! -f $id.out.bad ]
     then
@@ -195,9 +204,9 @@ do
 	echo
 	if [ "$DIFF" = xxdiff ]
 	then
-	    $DIFF $ref$id.out $id.out.bad >/dev/null 2>&1
+	    $DIFF $ref$id.out $badref$id.out.bad >/dev/null 2>&1
 	else
-	    $DIFF $ref$id.out $id.out.bad
+	    $DIFF $ref$id.out $badref$id.out.bad
 	fi
     fi
     if $keep
