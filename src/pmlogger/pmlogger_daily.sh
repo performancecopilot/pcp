@@ -253,9 +253,20 @@ fi
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
 CONTROLDIR=$PCP_PMLOGGERCONTROL_PATH.d
 
-# default number of days to keep archives
+# default number of days to keep archives before culling
 #
-CULLAFTER=14
+CULLAFTER_CMDLINE=""
+CULLAFTER_DEFAULT=14
+if [ -n "$PCP_CULLAFTER" ]
+then
+    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$PCP_CULLAFTER"
+    if [ $? != 0 -a X"$PCP_CULLAFTER" != Xforever -a X"$PCP_CULLAFTER" != Xnever ]
+    then
+	echo "Error: \$PCP_CULLAFTER value ($PCP_CULLAFTER) must be number, time, \"forever\" or \"never\""
+	status=1
+	exit
+    fi
+fi
 
 # default compression program and days until starting compression and
 # filename suffix pattern for file files to NOT compress
@@ -264,7 +275,6 @@ COMPRESS=""
 COMPRESS_CMDLINE=""
 COMPRESS_DEFAULT=pmlogcompress
 COMPRESSAFTER_CMDLINE=""
-
 # we will compress aggressively (COMPRESSAFTER_DEFAULT=0) if
 # (a) xstd(1) is available, or
 # (b) xz(1) is available and transparent_decompress=true (liblzma present)
@@ -287,7 +297,6 @@ then
 else
     COMPRESSAFTER_DEFAULT="never"
 fi
-
 if [ -n "$PCP_COMPRESSAFTER" ]
 then
     $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$PCP_COMPRESSAFTER"
@@ -408,12 +417,18 @@ do
 		;;
 	-f)	FORCE=true
 		;;
-	-k)	CULLAFTER="$2"
+	-k)	CULLAFTER_CMDLINE="$2"
 		shift
-		$PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$CULLAFTER"
-		if [ $? != 0 -a X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
+		if [ -n "$PCP_CULLAFTER" -a "$PCP_CULLAFTER" != "$CULLAFTER_CMDLINE" ]
 		then
-		    echo "Error: -k value ($CULLAFTER) must be number, time, \"forever\" or \"never\""
+		    echo "Warning: -k value ($CULLAFTER_CMDLINE) ignored because \$PCP_CULLAFTER ($PCP_CULLAFTER) set in environment"
+		    CULLAFTER_CMDLINE=""
+		    continue
+		fi
+		$PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$CULLAFTER_CMDLINE"
+		if [ $? != 0 -a X"$CULLAFTER_CMDLINE" != Xforever -a X"$CULLAFTER_CMDLINE" != Xnever ]
+		then
+		    echo "Error: -k value ($CULLAFTER_CMDLINE) must be number, time, \"forever\" or \"never\""
 		    status=1
 		    exit
 		fi
@@ -1177,6 +1192,7 @@ _parse_control()
 			 -e '/=[^"'"'"']/s/[;&<>|].*$//' \
 			 -e '/^\\$[A-Za-z][A-Za-z0-9_]*=/{
 s/^\\$//
+s/^CULLAFTER=/PCP_CULLAFTER/
 s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 }'`
 		if [ -z "$cmd" ]
@@ -1193,6 +1209,29 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 			'export IFS;'*)
 			    _warning "cannot change \$IFS, line ignored"
+			    ;;
+
+			'export PCP_CULLAFTER;'*)
+			    old_value="$PCP_CULLAFTER"
+			    check=`echo "$cmd" | sed -e 's/.*=//' -e 's/  *$//'`
+			    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$check"
+			    if [ $? != 0 -a -n "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
+			    then
+				_error "\$PCP_CULLAFTER value ($check) must be number, time, \"forever\" or \"never\""
+			    else
+				$SHOWME && echo "+ $cmd"
+				echo eval $cmd >>$tmp/cmd
+				eval $cmd
+				if [ -n "$old_value" ]
+				then
+				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, previous value ($old_value) ignored"
+				fi
+				if [ -n "$PCP_CULLAFTER" -a -n "$CULLAFTER_CMDLINE" -a "$PCP_CULLAFTER" != "$CULLAFTER_CMDLINE" ]
+				then
+				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, -x value ($CULLAFTER_CMDLINE) ignored"
+				    CULLAFTER_CMDLINE=""
+				fi
+			    fi
 			    ;;
 
 			'export PCP_COMPRESS;'*)
@@ -1575,6 +1614,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    # prevent removing old files as this can lead to full
 	    # filesystems if left unattended.
 	    #
+	    CULLAFTER="$PCP_CULLAFTER"
+	    [ -z "$CULLAFTER" ] && CULLAFTER="$CULLAFTER_CMDLINE"
+	    [ -z "$CULLAFTER" ] && CULLAFTER="$CULLAFTER_DEFAULT"
+	    $VERY_VERBOSE && echo >&2 "CULLAFTER=$CULLAFTER"
 	    if [ X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
 	    then
 		# *BSD semantics for find(1) -mtime +N are "rounded up to
