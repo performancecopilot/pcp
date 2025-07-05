@@ -110,7 +110,7 @@ log mandatory on once {
     hinv.ndisk
 }
 log mandatory on every 1 second {
-    mem.util.free
+    sample.datasize
     disk.all.read
     disk.all.write
     kernel.all.load
