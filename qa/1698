@@ -1,0 +1,98 @@
+#!/bin/sh
+# PCP QA Test No. 1698
+# $PCP_CULLAFTER for pmlogger_daily
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq_full \
+    | sed \
+	-e '/^+ date-and-timestamp /d' \
+	-e '/Warning: skipping log rotation/d' \
+	-e '/Warning: current volume of current pmlogger not known/d' \
+	-e "s@$tmp@TMP@g" \
+	-e "s/`pmdate -1d %Y%m%d`/TODAY-1/g" \
+	-e "s/`pmdate -3d %Y%m%d`/TODAY-3/g" \
+	-e "s/`pmdate -5d %Y%m%d`/TODAY-5/g" \
+	-e "s/`pmdate -7d %Y%m%d`/TODAY-7/g" \
+    # end
+}
+
+mkdir $tmp || exit 1
+# make dates an odd number of days back from now so
+# we can cull using an even number of dates
+cat <<End-of-File >$tmp.config
+qahost	tmparch/foo	`pmdate -1d %Y%m%d`
+qahost	tmparch/foo	`pmdate -3d %Y%m%d`
+qahost	tmparch/foo	`pmdate -5d %Y%m%d`
+qahost	tmparch/foo	`pmdate -7d %Y%m%d`
+End-of-File
+mk.logfarm -c $tmp.config $tmp
+ls -lR $tmp >>$seq_full
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+qahost	n	n	$tmp/qahost	args-field-not-used
+End-of-File
+echo '$PCP_CULLAFTER=4' >$tmp.control2
+cat $tmp.control >>$tmp.control2
+
+# real QA test starts here
+echo
+echo "== -k 4 =="
+$PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control -k 4 >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+
+echo
+echo "== \$PCP_CULLAFTER=4 in environment  =="
+PCP_CULLAFTER=4 $PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+
+echo
+echo "== \$PCP_CULLAFTER=4 in control file  =="
+$PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control2 >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+
+echo
+echo "== -k 6 and \$PCP_CULLAFTER=4 in environment  =="
+PCP_CULLAFTER=4 $PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control -k 6 >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+
+echo
+echo "== -k 6 and \$PCP_CULLAFTER=4 in control file  =="
+$PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control2 -k 6 >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+
+echo
+echo "== -k 6 and \$PCP_CULLAFTER=4 in control file and \$PCP_CULLAFTER=8 in environment  =="
+PCP_CULLAFTER=8 $PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control2 -k 6 >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+
+# success, all done
+exit

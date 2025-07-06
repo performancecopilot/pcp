@@ -1228,7 +1228,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 				fi
 				if [ -n "$PCP_CULLAFTER" -a -n "$CULLAFTER_CMDLINE" -a "$PCP_CULLAFTER" != "$CULLAFTER_CMDLINE" ]
 				then
-				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, -x value ($CULLAFTER_CMDLINE) ignored"
+				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, -k value ($CULLAFTER_CMDLINE) ignored"
 				    CULLAFTER_CMDLINE=""
 				fi
 			    fi
