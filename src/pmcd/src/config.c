@@ -1647,7 +1647,8 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	addr.sun_family = AF_UNIX;
 	pmstrncpy(addr.sun_path, sizeof(addr.sun_path), aPtr->ipc.socket.name);
 	len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(addr.sun_path);
-	sts = connect(fd, (struct sockaddr *) &addr, len);
+	if ((sts = connect(fd, (struct sockaddr *) &addr, len)) < 0)
+	    close(fd);
 #else
 	fprintf(stderr, "pmcd: UNIX sockets are not supported : \"%s\" agent\n",
 		     aPtr->pmDomainLabel);
