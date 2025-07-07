@@ -1182,6 +1182,10 @@ pmNewContext(int type, const char *name)
 	list_map = (int *)realloc((void *)contexts_map, (1+contexts_len) * sizeof(int));
     }
     if (list == NULL || list_map == NULL) {
+	if (list != NULL)
+	    free(list);
+	if (list_map != NULL)
+	    free(list_map);
 	sts = -oserror();
 	goto FAILED_LOCKED;
     }
