@@ -68,10 +68,10 @@ zfree(void *ptr)
 const char *
 timespec_stream_str(struct timespec *stamp, char *buffer, int buflen)
 {
-    __uint64_t	millipart;
-    __uint64_t	fractions;
-    __uint64_t	crossover = stamp->tv_nsec / 1000000;
+    __uint64_t	millipart, fractions, crossover;
+    __uint32_t	nanoseconds = (__uint32_t)stamp->tv_nsec;
 
+    crossover = (__uint64_t)nanoseconds / 1000000;
     millipart = ((__uint64_t)stamp->tv_sec) * 1000;
     millipart += crossover;
     fractions = stamp->tv_nsec % 1000000 / 1000;
