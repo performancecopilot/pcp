@@ -879,7 +879,7 @@ initstreaming(__pmArchCtl *acp)
  *
  * NB: no locks are being held at entry.
  */
-    static int
+static int
 initarchive(__pmContext	*ctxp, const char *name)
 {
     int			i;
