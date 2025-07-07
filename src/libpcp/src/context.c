@@ -764,7 +764,7 @@ addName(const char *dirname, char *list, size_t *listsize,
  * The list of names may contain one or more directories. Examine the
  * list and replace the directories with the archives contained within.
  */
-    static char *
+static char *
 expandArchiveList(const char *names)
 {
     const char	*current;
@@ -776,7 +776,7 @@ expandArchiveList(const char *names)
     const char	*suffix;
     DIR		*dirp = NULL;
     struct dirent	*direntp;
-
+ 
     current = names;
     while (*current) {
 	/* Find the end of the current archive name. */
@@ -826,7 +826,7 @@ expandArchiveList(const char *names)
 		 */
 		--suffix;
 		newlist = addName(dirname, newlist, &newlistsize,
-			direntp->d_name, suffix - direntp->d_name);
+				   direntp->d_name, suffix - direntp->d_name);
 	    }
 	    closedir(dirp);
 	}
@@ -844,7 +844,7 @@ expandArchiveList(const char *names)
     return newlist;
 }
 
-    static int
+static int
 initstreaming(__pmArchCtl *acp)
 {
     int			sts;
@@ -948,7 +948,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "initarchive(..., %s, ...): __pmFindOrOpenArchive: %s\n",
-			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    goto error;
 	}
@@ -986,12 +986,12 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    __pmMultiLogCtl	**list_new;
 	    /* Initialize a new ac_log_list entry for this archive. */
 	    list_new = (__pmMultiLogCtl **)realloc(acp->ac_log_list,
-		    (acp->ac_num_logs + 1) *
-		    sizeof(*acp->ac_log_list));
+						   (acp->ac_num_logs + 1) *
+						   sizeof(*acp->ac_log_list));
 	    if (list_new == NULL) {
 		pmNoMem("initarchive: list_new",
-			(acp->ac_num_logs + 1) * sizeof(*acp->ac_log_list),
-			PM_FATAL_ERR);
+			  (acp->ac_num_logs + 1) * sizeof(*acp->ac_log_list),
+			  PM_FATAL_ERR);
 		/* NOTREACHED */
 	    }
 	    acp->ac_log_list = list_new;
@@ -1032,7 +1032,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	     */
 	    if (i < acp->ac_num_logs) {
 		memmove(&acp->ac_log_list[i + 1], &acp->ac_log_list[i],
-			(acp->ac_num_logs - i) * sizeof(*acp->ac_log_list));
+			 (acp->ac_num_logs - i) * sizeof(*acp->ac_log_list));
 	    }
 	    acp->ac_log_list[i] = mlcp;
 	    mlcp = NULL;
@@ -1067,7 +1067,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "initarchive(..., %s, ...): __pmLogChangeArchive: %s\n",
-			name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    goto error;
 	}
@@ -1076,7 +1076,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "initarchive(..., %s, ...): __pmLogChangeVol(..., %d, ...): %s\n",
-			name, acp->ac_log->minvol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		    name, acp->ac_log->minvol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
 	    goto error;
 	}
@@ -1090,7 +1090,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 
     return 0; /* success */
 
-error:
+ error:
     if (mlcp) {
 	if (mlcp->name)
 	    free (mlcp->name);
@@ -1124,7 +1124,7 @@ error:
     return sts;
 }
 
-    int
+int
 pmNewContext(int type, const char *name)
 {
     __pmContext	*new = NULL;
@@ -1183,10 +1183,6 @@ pmNewContext(int type, const char *name)
     }
     if (list == NULL || list_map == NULL) {
 	sts = -oserror();
-	if (list != NULL)
-	    free(list);
-	if (list_map != NULL)
-	    free(list_map);
 	goto FAILED_LOCKED;
     }
     contexts = list;
@@ -1310,14 +1306,14 @@ INIT_CONTEXT:
 	    goto FAILED;
     }
     else if (new->c_type == PM_CONTEXT_ARCHIVE) {
-	/*
-	 * Unlock during the archive initial file opens, which can take
-	 * a noticeable amount of time, esp. for multi-archives.  This
-	 * is OK because no other thread can validly touch our
-	 * partly-initialized context.
-	 */
-	sts = initarchive(new, name);
-	if (sts < 0)
+        /*
+         * Unlock during the archive initial file opens, which can take
+         * a noticeable amount of time, esp. for multi-archives.  This
+         * is OK because no other thread can validly touch our
+         * partly-initialized context.
+         */
+        sts = initarchive(new, name);
+        if (sts < 0)
 	    goto FAILED;
     }
     else {
@@ -1338,7 +1334,7 @@ INIT_CONTEXT:
     /* return the handle to the new (current) context */
     if (pmDebugOptions.context) {
 	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type,
-		name ? name : "NULL", PM_TPD(curr_handle));
+			name ? name : "NULL", PM_TPD(curr_handle));
 	__pmDumpContext(stderr, PM_TPD(curr_handle), PM_INDOM_NULL);
     }
 
@@ -1362,7 +1358,7 @@ FAILED:
      * something went wrong.  Let's install it as a blank
      * free entry in contexts[] to replace the PM_CONTEXT_INIT
      * stub we left in its place.
-     */
+    */
     PM_LOCK(contexts_lock);
 
 FAILED_LOCKED:
@@ -1370,18 +1366,18 @@ FAILED_LOCKED:
 	/* new has been allocated and ctxnum set */
 	if (new->c_instprof != NULL) {
 	    free(new->c_instprof);
-	    new->c_instprof = NULL;
-	}
-	/* We could memset-0 the struct, but this is not really
-	   necessary.  That's the first thing we'll do in INIT_CONTEXT. */
-	contexts[ctxnum] = new;
+            new->c_instprof = NULL;
+        }
+        /* We could memset-0 the struct, but this is not really
+           necessary.  That's the first thing we'll do in INIT_CONTEXT. */
+        contexts[ctxnum] = new;
 	contexts_map[ctxnum] = MAP_FREE;
     }
     PM_TPD(curr_handle) = old_curr_handle;
     PM_TPD(curr_ctxp) = old_curr_ctxp;
     if (pmDebugOptions.context)
 	fprintf(stderr, "pmNewContext(%d, %s) -> %d, curr_handle=%d\n",
-		type, name ? name : "NULL", sts, PM_TPD(curr_handle));
+	    type, name ? name : "NULL", sts, PM_TPD(curr_handle));
     PM_UNLOCK(contexts_lock);
 
 pmapi_return:
