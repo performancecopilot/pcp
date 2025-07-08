@@ -134,8 +134,6 @@ force	available
 --- pmlogconf setup stdout ---
 #+ TMP.grp:n:default:
 --- exit status=0 ---
---- pmlogconf setup stderr ---
-pmlogconf: cannot lookup metric names: Insufficient elements in list
 
 --- group file ---
 #pmlogconf-setup 2.0
