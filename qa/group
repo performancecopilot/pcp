@@ -2125,9 +2125,11 @@ pmcd.pdu
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1673 pmda.bpf local
+1679 pmlogconf local
 1680 openvswitch local
 1681 pmrep pcp2xxx pmlogconf local
 1682 pmrep pcp2xxx pmlogconf valgrind local
+1683 pmlogconf local valgrind
 1684 python derive local
 1688 pmieconf local
 1689 pmproxy libpcp_web local

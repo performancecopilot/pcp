@@ -384,15 +384,35 @@ parse_groupfile(FILE *file, const char *tag)
 	    group.ident = append(group.ident, chop(p), ' ');
 	}
 	else if (istoken(p, "probe", sizeof("probe")-1)) {
+	    if (group.probe != NULL) {
+		fprintf(stderr, "%s: Warning: %s/%s "
+			"repeated \"probe\" control lines ... \"%s\" will be ignored\n",
+		pmGetProgname(), groupdir, group.tag, group.probe);
+		free(group.probe);
+	    }
 	    p = trim(p + sizeof("probe"));
 	    group.probe = copy_string(p);
+	    if (group.metric != NULL)
+		free(group.metric);
 	    group.metric = copy_token(p);
 	}
 	else if (istoken(p, "force", sizeof("force")-1)) {
+	    if (group.force != NULL) {
+		fprintf(stderr, "%s: Warning: %s/%s "
+			"repeated \"force\" control lines ... \"%s\" will be ignored\n",
+		pmGetProgname(), groupdir, group.tag, group.force);
+		free(group.force);
+	    }
 	    p = trim(p + sizeof("force"));
 	    group.force = copy_string(p);
 	}
 	else if (istoken(p, "delta", sizeof("delta")-1)) {
+	    if (group.delta != NULL) {
+		fprintf(stderr, "%s: Warning: %s/%s "
+			"repeated \"delta\" control lines ... \"%s\" will be ignored\n",
+		pmGetProgname(), groupdir, group.tag, group.delta);
+		free(group.delta);
+	    }
 	    p = trim(p + sizeof("delta"));
 	    group.delta = copy_string(p);
 	}
@@ -503,6 +523,12 @@ fetch_groups(void)
 	names[n++] = (const char *)groups[i].metric;
     }
     count = n;
+    if (count == 0) {
+	/* nothing to lookup ... */
+	sts = 0;
+	free(descs);
+	goto done;
+    }
 
     if ((sts = pmLookupName(count, names, pmids)) < 0) {
 	if (count == 1)
@@ -546,6 +572,7 @@ fetch_groups(void)
 	    fprintf(stderr, "%s: cannot hash metric values: %s\n",
 			    pmGetProgname(), pmErrStr(sts));
     }
+done:
     free(names);
     free(pmids);
     return sts;
@@ -580,7 +607,7 @@ parse_group(group_t *group)
     if (group->force && group->metric) {
 	fprintf(stderr, "%s: Warning: %s/%s "
 			"\"probe\" and \"force\" control lines ... "
-			"ignoring \"force\\n",
+			"ignoring \"force\"\n",
 		pmGetProgname(), groupdir, group->tag);
     }
     if (!group->force && !group->metric) {
