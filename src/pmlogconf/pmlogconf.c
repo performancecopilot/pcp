@@ -1388,9 +1388,15 @@ update_groups(FILE *tempfile, const char *pattern)
     static char		buffer[128]; /* returned 'answer' points into this */
     char		*state = NULL, *errmsg, *p;
     unsigned int	i, m, count;
+    unsigned int	back = 0;
+    
 
     /* iterate over the groups array. */
     for (i = count = 0; i < ngroups; count = 0, i++) {
+	if (back) {
+	    i--;
+	    back = 0;
+	}
 	group = &groups[i];
 	if (!group->valid || group->saved_state == STATE_EXCLUDE)
 	    continue;
@@ -1436,7 +1442,7 @@ y         log this group\n\
 	    printf("Metrics in this group (%s):\n", group->tag);
 	    for (m = 0; m < group->nmetrics; m++)
 		printf("    %s\n", group->metrics[m]);
-	    i--;	/* stay on this group */
+	    back = 1;	/* stay on this group */
 	    continue;
 
 	case 'q':
