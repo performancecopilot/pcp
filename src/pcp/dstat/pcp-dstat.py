@@ -249,6 +249,7 @@ class DstatPlugin(object):
         self.names = []     # list of all column names for the plugin
         self.mgroup = []    # list of names of metrics in this plugin
         self.igroup = []    # list of names of this plugins instances
+        self.filtertype = None
 
     def apply(self, metric):
         """ Apply default pmConfig list values where none exist as yet
@@ -282,6 +283,7 @@ class DstatPlugin(object):
             metric[12] = self.cullinsts
         metric[13] = self   # back-pointer to this from metric dict
         metric[14] = self.valuesets  # recent samples for averaging
+        metric[15] = self.filtertype # filtertype for plugin
 
     def prepare_grouptype(self, instlist, fullinst):
         """Setup a list of instances from the command line"""
@@ -444,7 +446,7 @@ class DstatTool(object):
 
         ### Add additional dstat metric specifiers
         dspec = (None, 'printtype', 'colorstep', 'grouptype', 'cullinsts',
-                'plugin', 'valuesets')
+                'plugin', 'valuesets', 'filtertype')
         mspec = self.pmconfig.metricspec + dspec
         self.pmconfig.metricspec = mspec
 
@@ -525,7 +527,7 @@ class DstatTool(object):
         # values - 0:text label, 1:instance(s), 2:unit/scale, 3:type,
         #          4:width, 5:pmfg item, 6:precision, 7:limit,
         #          [ 8:printtype, 9:colorstep, 10:grouptype, 11:cullinsts,
-        #           12:plugin, 13:valuesets <- Dstat extras ]
+        #           12:plugin, 13:valuesets <- Dstat extras, 14: filtertype]
         self.metrics = OrderedDict()
         self.pmfg = None
         self.pmfg_ts = None
@@ -686,34 +688,34 @@ class DstatTool(object):
                                 lib.parse_verbose_metric_info(metrics, name, 'label', mkey)
                         lib.parse_verbose_metric_info(metrics, name, spec, value)
 
-                # Instance logic for -C/-D/-L/-M/-P/-I/-N/-S options
-                if section == 'cpu':
-                    plugin.prepare_grouptype(self.cpulist, self.full)
-                elif section in ['disk', 'disk-tps']:
-                    plugin.prepare_grouptype(self.disklist, self.full)
-                elif section in ['dm', 'dm-tps']:
-                    plugin.prepare_grouptype(self.dmlist, self.full)
-                elif section in ['md', 'md-tps']:
-                    plugin.prepare_grouptype(self.mdlist, self.full)
-                elif section in ['part', 'part-tps']:
-                    plugin.prepare_grouptype(self.partlist, self.full)
-                elif section == 'int':
-                    plugin.prepare_grouptype(self.intlist, self.full)
-                elif section == 'net':
-                    plugin.prepare_grouptype(self.netlist, self.full)
-                elif section == 'net-packets':
-                    plugin.prepare_grouptype(self.netpacketlist, self.full)
-                elif section == 'swap':
-                    plugin.prepare_grouptype(self.swaplist, self.full)
+                    if key in ['filtertype']:
+                        if value == 'cpu':
+                            plugin.prepare_grouptype(self.cpulist, self.full)
+                        elif value == 'disk':
+                            plugin.prepare_grouptype(self.disklist, self.full)
+                        elif value == 'dm':
+                            plugin.prepare_grouptype(self.dmlist, self.full)
+                        elif value == 'md':
+                            plugin.prepare_grouptype(self.mdlist, self.full)
+                        elif value == 'part':
+                            plugin.prepare_grouptype(self.partlist, self.full)
+                        elif value == 'int':
+                            plugin.prepare_grouptype(self.intlist, self.full)
+                        elif value == 'net':
+                            plugin.prepare_grouptype(self.netlist, self.full)
+                        elif value == 'net-packets':
+                            plugin.prepare_grouptype(self.netpacketlist, self.full)
+                        elif value == 'swap':
+                            plugin.prepare_grouptype(self.swaplist, self.full)
 
             for metric in metrics:
                 name = metrics[metric][0]
-                #print("Plugin[%s]: %s" % (name, metrics[metric]))
+                #print("Plugin[%s]: %s\n" % (name, metrics[metric]))
                 plugin.apply(metrics[metric])
                 state = metrics[metric][1:]
                 plugin.metrics.append(state)
                 self.metrics[name] = state
-                #print("Appended[%s]: %s" % (name, state))
+                #print("Appended[%s]: %s\n" % (name, state))
 
             self.totlist.append(plugin)
 
