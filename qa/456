@@ -102,7 +102,7 @@ echo
 echo "--------------"
 echo "PMLOGGER.DAILY"
 echo "--------------"
-$sudo $PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control -l $tmp/log
+$sudo $PCP_BINADM_DIR/pmlogger_daily -P -V -c $tmp/control -l $tmp/log
 $sudo cat $tmp/log | _filter
 
 # success, all done

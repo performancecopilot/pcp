@@ -18,7 +18,7 @@
 \f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-DEfKMNoprRVzZ?\f1]
+[\f3\-DEfKMNoPprRVzZ?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -363,6 +363,26 @@ is used to rename the archive, otherwise
 .BR pmlogger_merge (1)
 is used to merge all of the archives for a single host and a single day into a new
 PCP archive and the individual archives are removed.
+.TP 5
+\fB\-P\fR, \fB\-\-noproxy\fR
+By default, in addition to the archives created by local
+.BR pmlogger (1)
+instances below the
+.I $PCP_ARCHIVE_DIR/<hostname>
+directories
+.B pmlogger_daily
+will also process the archives that have been ``pushed'' from a
+remote
+.BR pmlogger (1)
+via the local
+.BR pmproxy (1)
+and stored below the
+.I $PCP_LOG_DIR/pmproxy/<hostname>
+directories.
+The
+.B \-P
+option prevents the processing of the archives from
+.BR pmproxy (1).
 .TP 5
 \fB\-p\fR
 If this option is specified for
@@ -940,6 +960,7 @@ platforms.
 .BR pmlogger_merge (1),
 .BR pmlogmv (1),
 .BR pmlogrewrite (1),
+.BR pmproxy (1),
 .BR systemd (1),
 .BR xz (1),
 .BR zstd (1)

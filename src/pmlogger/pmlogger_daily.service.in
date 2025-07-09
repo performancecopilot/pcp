@@ -1,5 +1,5 @@
 [Unit]
-Description=Process archives
+Description=Periodic processing of PCP archives
 Documentation=man:pmlogger_daily(1)
 ConditionPathExists=!@CRONTAB_PATH@
 

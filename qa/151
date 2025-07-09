@@ -177,8 +177,8 @@ ls -l $tmp >>$seq_full
 #
 cd /var/tmp
 echo
-echo "pmlogger_daily -k 5 -x never -V ..." >>$seq_full
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp/control -k 5 -x never -V -l $tmp.log"
+echo "pmlogger_daily -D -P -k 5 -x never -V ..." >>$seq_full
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -P -c $tmp/control -k 5 -x never -V -l $tmp.log"
 $sudo cat $tmp.log \
 | _filter \
 | $PCP_AWK_PROG '

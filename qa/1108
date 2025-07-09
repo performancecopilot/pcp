@@ -135,7 +135,7 @@ echo "done, now=$now" >>$seq_full
 # need to be a place the user $PCP_USER can cd to from pmlogger_daily
 #
 cd /var/tmp
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -o -k 550 -N -c $tmp.control" 2>&1 \
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -o -k 550 -N -c $tmp.control" 2>&1 \
 | tee -a $seq_full \
 | _filter
 cd $here

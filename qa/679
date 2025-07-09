@@ -155,7 +155,7 @@ export PCP_DERIVED_CONFIG=
 
 echo "+++ -N, do nothing +++" | tee -a $seq_full
 _setup
-$PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -NV -R >$tmp.log 2>$tmp.err
+$PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k forever -x never -NV -R >$tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
 $sudo rm -f $tmp.err $tmp.log
@@ -169,7 +169,7 @@ done
 echo | tee -a $seq_full
 echo "+++ -V -R +++" | tee -a $seq_full
 _setup
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
 cat $tmp.err $tmp.log >>$seq_full
@@ -185,7 +185,7 @@ echo | tee -a $seq_full
 echo "+++ .NeedRewrite +++" | tee -a $seq_full
 _setup
 $sudo -u pcp touch $PCP_LOG_DIR/pmlogger/.NeedRewrite
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
+$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
 cat $tmp.err $tmp.log >>$seq_full

@@ -103,28 +103,28 @@ control=$PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
 echo
 echo "only one current archive, expect no culling"
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $control \
-    -N -VV -k 0 -x never 2>&1 \
+    -P -N -VV -k 0 -x never 2>&1 \
 | _filter_log
 
 echo
 echo "one archive, cull it"
 $sudo pmlogctl stop localhost
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $control \
-    -N -VV -k 0 -x never 2>&1 \
+    -P -N -VV -k 0 -x never 2>&1 \
 | _filter_log
 
 echo
 echo "cull old archive, skip current one"
 $sudo pmlogctl start localhost
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $control \
-    -N -VV -k 0 -x never 2>&1 \
+    -P -N -VV -k 0 -x never 2>&1 \
 | _filter_log
 
 echo
 echo "two archives, cull 'em"
 $sudo pmlogctl stop localhost
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -c $control \
-    -N -VV -k 0 -x never 2>&1 \
+    -P -N -VV -k 0 -x never 2>&1 \
 | _filter_log
 
 # success, all done

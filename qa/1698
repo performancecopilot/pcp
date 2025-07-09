@@ -66,32 +66,32 @@ cat $tmp.control >>$tmp.control2
 # real QA test starts here
 echo
 echo "== -k 4 =="
-$PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control -k 4 >$tmp.tmp 2>&1
+$PCP_BINADM_DIR/pmlogger_daily -P -N -c $tmp.control -k 4 >$tmp.tmp 2>&1
 _filter <$tmp.tmp
 
 echo
 echo "== \$PCP_CULLAFTER=4 in environment  =="
-PCP_CULLAFTER=4 $PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control >$tmp.tmp 2>&1
+PCP_CULLAFTER=4 $PCP_BINADM_DIR/pmlogger_daily -P -N -c $tmp.control >$tmp.tmp 2>&1
 _filter <$tmp.tmp
 
 echo
 echo "== \$PCP_CULLAFTER=4 in control file  =="
-$PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control2 >$tmp.tmp 2>&1
+$PCP_BINADM_DIR/pmlogger_daily -P -N -c $tmp.control2 >$tmp.tmp 2>&1
 _filter <$tmp.tmp
 
 echo
 echo "== -k 6 and \$PCP_CULLAFTER=4 in environment  =="
-PCP_CULLAFTER=4 $PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control -k 6 >$tmp.tmp 2>&1
+PCP_CULLAFTER=4 $PCP_BINADM_DIR/pmlogger_daily -P -N -c $tmp.control -k 6 >$tmp.tmp 2>&1
 _filter <$tmp.tmp
 
 echo
 echo "== -k 6 and \$PCP_CULLAFTER=4 in control file  =="
-$PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control2 -k 6 >$tmp.tmp 2>&1
+$PCP_BINADM_DIR/pmlogger_daily -P -N -c $tmp.control2 -k 6 >$tmp.tmp 2>&1
 _filter <$tmp.tmp
 
 echo
 echo "== -k 6 and \$PCP_CULLAFTER=4 in control file and \$PCP_CULLAFTER=8 in environment  =="
-PCP_CULLAFTER=8 $PCP_BINADM_DIR/pmlogger_daily -N -c $tmp.control2 -k 6 >$tmp.tmp 2>&1
+PCP_CULLAFTER=8 $PCP_BINADM_DIR/pmlogger_daily -P -N -c $tmp.control2 -k 6 >$tmp.tmp 2>&1
 _filter <$tmp.tmp
 
 # success, all done

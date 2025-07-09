@@ -297,7 +297,7 @@ fi
 echo
 echo "pmlogger_daily"
 cd /var/tmp
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -D -Z -VV -x never -c $tmp/control -l $tmp/log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -P -D -Z -VV -x never -c $tmp/control -l $tmp/log"
 cd $here
 if [ -s $tmp/log ]
 then

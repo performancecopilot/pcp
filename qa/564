@@ -74,7 +74,7 @@ STAMP=`pmdate -5m %Y%m%d`0010
 touch -t "$STAMP" $tmp.*/$FIVEMONTHS.*
 
 # real QA test starts here
-$sudo $PCP_BINADM_DIR/pmlogger_daily -V -N -x 3 -X bzip2 -c $tmp.ctl 2>&1 | \
+$sudo $PCP_BINADM_DIR/pmlogger_daily -P -V -N -x 3 -X bzip2 -c $tmp.ctl 2>&1 | \
 sed \
 	-e '/date-and-timestamp/d' \
 	-e '/^Roll .*\/NOTICES/d' \

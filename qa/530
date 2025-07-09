@@ -152,7 +152,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	-c ./config'
     # need to be a place the user $PCP_USER can cd to from pmlogger_daily
     #
     cd /var/tmp
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x never -c $tmp.control -k 4 $verbose -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -o -x never -c $tmp.control -k 4 $verbose -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp.sed | LC_COLLATE=POSIX sort
@@ -165,7 +165,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	-c ./config'
 	$sudo mv $tmp/$yesterday.$ext $tmp/save.$ext
     done
     cd /var/tmp
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x never -c $tmp.control -k 3 $verbose -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -o -x never -c $tmp.control -k 3 $verbose -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp.sed | LC_COLLATE=POSIX sort
@@ -180,7 +180,7 @@ LOCALHOSTNAME	n   n	'"$tmp"'	-c ./config'
 	$sudo mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
     cd /var/tmp
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -o -x never -c $tmp.control -k 3 $verbose -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -o -x never -c $tmp.control -k 3 $verbose -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp.sed | LC_COLLATE=POSIX sort
