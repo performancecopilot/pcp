@@ -4,6 +4,7 @@
 
 [swap]
 label = %I
+grouptype = 2
 filtertype = swap
 used = swapdev.length - swapdev.free
 free = swapdev.free
