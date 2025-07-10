@@ -2211,6 +2211,7 @@ pmcd.pdu
 1837 pmproxy local
 1838 pmda.linux kernel local
 1844 pmdumptext libpcp_qmc remote
+1845 logutil pmlogger_daily local
 1848 libpcp local valgrind
 1849 libpcp local
 1850 pmseries libpcp_web local

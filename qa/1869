@@ -1,6 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1869
 # pmlogger_daily for pmproxy-pushed archives (like 1698)
+# - cull and compress testing
+# - see qa/1845 for rewrite and merge testing
 #
 # Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
 #
