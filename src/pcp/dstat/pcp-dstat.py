@@ -290,13 +290,12 @@ class DstatPlugin(object):
         if fullinst:
             self.grouptype = 1
             instlist = []
-        elif instlist is None:
-            instlist = ['total']
-        if 'total' in instlist:
-            self.grouptype = 2 if (len(instlist) == 1) else 3
-            instlist.remove('total') # remove command line arg
-        else:
-            self.grouptype = 1
+        elif isinstance(instlist, list) and len(instlist) > 0:
+            if 'total' in instlist:
+                self.grouptype = 2 if (len(instlist) == 1) else 3
+                instlist.remove('total') # remove command line arg
+            else:
+                self.grouptype = 1
         self.instances = instlist
 
     def statwidth(self):
