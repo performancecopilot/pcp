@@ -1,0 +1,131 @@
+QA output created by 1869
+== default options ===
+Add merge callback for: pmlogger_daily_report
+# $version=1.1    
++ export version; version=1.1    
+Info: processing archives from remote pmlogger on host qahost
+# $version=1.1    
++ export version; version=1.1    
+
+=== daily maintenance of PCP archives for host qahost ===
+
++ cd TMP/pmproxy/qahost
++ get mutex lock
+pmlogger_daily: [TMP/control:2]
+Warning: don't know how to signal pmproxy yet
+Archive files being compressed ...
+    TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta
+    TODAY-3.0 TODAY-3.meta TODAY-1.0 TODAY-1.1
++ pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta TODAY-1.0 TODAY-1.1
+
+== -k 4 -x 2 ==
+Add merge callback for: pmlogger_daily_report
+# $version=1.1    
++ export version; version=1.1    
+Info: processing archives from remote pmlogger on host qahost
+# $version=1.1    
++ export version; version=1.1    
+
+=== daily maintenance of PCP archives for host qahost ===
+
++ cd TMP/pmproxy/qahost
++ get mutex lock
+pmlogger_daily: [TMP/control:2]
+Warning: don't know how to signal pmproxy yet
+Archive files older than 4 days being removed ...
+    TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2
+    TODAY-5.index TODAY-5.meta
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.index TODAY-5.meta
+Archive files older than 2 days being compressed ...
+    TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta
+    TODAY-3.0 TODAY-3.meta
++ pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta
+
+== $PCP_CULLAFTER=4 and $PCP_COMPRESSAFTER=2 in top-level control file  ==
+Add merge callback for: pmlogger_daily_report
+# $version=1.1    
++ export version; version=1.1    
+Info: processing archives from remote pmlogger on host qahost
+# $version=1.1    
++ export version; version=1.1    
+# $PCP_CULLAFTER=4    
++ export PCP_CULLAFTER; PCP_CULLAFTER=4    
+# $PCP_COMPRESSAFTER=2    
++ export PCP_COMPRESSAFTER; PCP_COMPRESSAFTER=2    
+
+=== daily maintenance of PCP archives for host qahost ===
+
++ cd TMP/pmproxy/qahost
++ get mutex lock
+pmlogger_daily: [TMP/control:4]
+Warning: don't know how to signal pmproxy yet
+Archive files older than 4 days being removed ...
+    TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2
+    TODAY-5.index TODAY-5.meta
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.index TODAY-5.meta
+Archive files older than 2 days being compressed ...
+    TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta
+    TODAY-3.0 TODAY-3.meta
++ pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta
+
+== $PCP_CULLAFTER=4 in top-level and $PCP_COMPRESSAFTER=2 in per-host control files  ==
+Add merge callback for: pmlogger_daily_report
+# $version=1.1    
++ export version; version=1.1    
+Info: processing archives from remote pmlogger on host qahost
+# $version=1.1    
++ export version; version=1.1    
+# $PCP_CULLAFTER=4    
++ export PCP_CULLAFTER; PCP_CULLAFTER=4    
+# $PCP_COMPRESSAFTER=2    
++ export PCP_COMPRESSAFTER; PCP_COMPRESSAFTER=2    
+
+=== daily maintenance of PCP archives for host qahost ===
+
++ cd TMP/pmproxy/qahost
++ get mutex lock
+pmlogger_daily: [TMP/control:4]
+Warning: don't know how to signal pmproxy yet
+Archive files older than 4 days being removed ...
+    TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2
+    TODAY-5.index TODAY-5.meta
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.index TODAY-5.meta
+Archive files older than 2 days being compressed ...
+    TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta
+    TODAY-3.0 TODAY-3.meta
++ pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta
+
+== $PCP_CULLAFTER=? and $PCP_COMPRESSAFTER=? in both control files  ==
+Add merge callback for: pmlogger_daily_report
+# $version=1.1    
++ export version; version=1.1    
+Info: processing archives from remote pmlogger on host qahost
+# $version=1.1    
++ export version; version=1.1    
+# $PCP_CULLAFTER=6    
++ export PCP_CULLAFTER; PCP_CULLAFTER=6    
+# $PCP_COMPRESSAFTER=4    
++ export PCP_COMPRESSAFTER; PCP_COMPRESSAFTER=4    
+# $PCP_CULLAFTER=4    
++ export PCP_CULLAFTER; PCP_CULLAFTER=4    
+pmlogger_daily: [TMP/control:4]
+Warning: $PCP_CULLAFTER (4) reset from control file, previous value (6) ignored
+# $PCP_COMPRESSAFTER=2    
++ export PCP_COMPRESSAFTER; PCP_COMPRESSAFTER=2    
+pmlogger_daily: [TMP/control:5]
+Warning: $PCP_COMPRESSAFTER (2) reset from control file, previous value (4) ignored
+
+=== daily maintenance of PCP archives for host qahost ===
+
++ cd TMP/pmproxy/qahost
++ get mutex lock
+pmlogger_daily: [TMP/control:6]
+Warning: don't know how to signal pmproxy yet
+Archive files older than 4 days being removed ...
+    TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2
+    TODAY-5.index TODAY-5.meta
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.index TODAY-5.meta
+Archive files older than 2 days being compressed ...
+    TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta
+    TODAY-3.0 TODAY-3.meta
++ pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta

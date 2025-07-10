@@ -1358,7 +1358,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# do shell expansion of $dir if needed
 	#
 	_do_dir_and_args
-	$VERY_VERBOSE && echo "After _do_dir_and_args: orig_dir=$orig_dir dir=$dir"
+	$VERY_VERBOSE && echo >&2 "After _do_dir_and_args: orig_dir=$orig_dir dir=$dir"
 
 	if [ -z "$primary" -o -z "$socks" -o -z "$dir" -o -z "$args" ]
 	then
@@ -1388,9 +1388,14 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
 	if $VERY_VERBOSE
 	then
-	    pflag=''
-	    [ $primary = y ] && pflag=' -P'
-	    echo >&2 "Check pmlogger$pflag -h $host ... in $dir ..."
+	    if [ X"$args" = Xremote ]
+	    then
+		echo >&2 "Check archive push via pmproxy ... in $dir ..."
+	    else
+		pflag=''
+		[ $primary = y ] && pflag=' -P'
+		echo >&2 "Check pmlogger$pflag -h $host ... in $dir ..."
+	    fi
 	fi
 
 	# make sure output directory hierarchy exists and $PCP_USER
@@ -1416,7 +1421,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	cd $dir
 	dir=`$PWDCMND`
 	$SHOWME && echo "+ cd $dir"
-	$VERY_VERBOSE && echo "Current dir: $dir"
+	$VERY_VERBOSE && echo >&2 "Current dir: $dir"
 
 	# if $orig_dir contains embedded shell commands, like $(cmd ...)
 	# or `cmd ...` then previous archives may not be in $dir, e.g
@@ -1546,9 +1551,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		then
 		    if [ -z "$pid" ]
 		    then
-			$VERY_VERBOSE && echo >&2 "No non-primary pmlogger process(es) found"
+			echo >&2 "No non-primary pmlogger process(es) found"
 		    else
-			$VERY_VERBOSE && echo >&2 "non-primary pmlogger process(es) $pid identified, OK"
+			echo >&2 "non-primary pmlogger process(es) $pid identified, OK"
 		    fi
 		fi
 	    fi
@@ -2116,7 +2121,7 @@ _do_compress()
 		current_vol=`sed -n <$tmp/out -e '/^log volume/s/.*[^0-9]\([0-9][0-9]*\)$/\1/p'`
 		if [ -z "$current_vol" ]
 		then
-		    _warning "cannot get current volume for pmlogger PID=$pid (after $i attempts)"
+		    _warning "cannot get current archive volume for pmlogger PID=$pid (after $i attempts)"
 		    cat $tmp/out
 		else
 		    pminfo -f pmcd.pmlogger.archive >$tmp/out
@@ -2127,7 +2132,7 @@ p
 }'`
 		    if [ -z "$current_base" ]
 		    then
-			_warning "cannot get archive basename pmlogger PID=$pid"
+			_warning "cannot get archive basename for pmlogger PID=$pid"
 			cat $tmp/out
 		    fi
 		fi
@@ -2138,7 +2143,22 @@ p
 		    # skip this ...
 		    :
 		else
-		    _warning "don't know how to get current volume from pmproxy yet"
+		    # pick last (in sort order) uncompressed data volume
+		    #
+		    _last=`ls $PCP_LOG_DIR/pmproxy/$host 2>/dev/null | grep '\.[0-9][0-9]*$' | tail -1`
+		    $VERY_VERBOSE && echo >&2 "_last=$_last"
+		    current_base=`echo "$_last" | sed -e 's/\.[0-9][0-9]*$//'`
+		    current_vol=`echo "$_last" | sed -e 's/.*\.//'`
+		    $VERY_VERBOSE && echo >&2 "latest archive data volume: $current_base.$current_vol"
+		    if [ -z "$current_base" -o -z "$current_vol" ]
+		    then
+			_warning "cannot get current archive basename and volume for remote pmlogger on $host"
+			if $VERY_VERBOSE
+			then
+			    echo >&2 "Current dir: `$PWDCMND`"
+			    ls >&2
+			fi
+		    fi
 		fi
 	    fi
 
@@ -2316,20 +2336,30 @@ else
     # check for any archives from remote pmloggers via pmproxy or
     # pmlogpush ... if found, synthesize a control file for them
     #
-    if [ -d $PCP_LOG_DIR/pmproxy ]
+    if cd $PCP_LOG_DIR/pmproxy
     then
-	for _dirpath in $PCP_LOG_DIR/pmproxy/*
+	for _host in *
 	do
-	    if [ -d "$_dirpath" ]
+	    # TODO - does this need to be smarter?  e.g. check for some
+	    # minimal dir contents (.index file?)
+	    if [ -d "$_host" ]
 	    then
-		_host=`basename $_dirpath`
-		$VERBOSE && echo "Info: processing archives for remote pmlogger on host $host"
+		$VERBOSE && echo "Info: processing archives from remote pmlogger on host $_host"
 		echo '$version=1.1' >$tmp/control
-		[ -f "$_dirpath/control" ] && cat "$_dirpath/control" >>$tmp/control
-		echo "$_host	n n $_dirpath remote" >>$tmp/control
+		# optional global controls first
+		[ -f "./control" ] && cat "./control" >>$tmp/control
+		# optional per-host controls next
+		[ -f "$_host/control" ] && cat "$_host/control" >>$tmp/control
+		echo "$_host	n n PCP_LOG_DIR/pmproxy/$_host remote" >>$tmp/control
+		if $VERY_VERBOSE
+		then
+		    echo >&2 "Synthesized control file ..."
+		    cat >&2 $tmp/control
+		fi
 		_parse_control $tmp/control
 	    fi
 	done
+	cd $here
     fi
 fi
 

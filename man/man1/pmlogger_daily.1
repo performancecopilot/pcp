@@ -824,6 +824,17 @@ instances and which archives are managed by
 .B pmlogger_check
 and
 .BR pmlogger_daily (1).
+.PP
+Additionally, when
+.BR pmproxy (1)
+archives are being processed, environment variables like
+.B $PCP_CULLAFTER
+or
+.B $PCP_COMPRESSAFTER
+can be set either for all remote hosts via the file
+.I $PCP_LOG_DIR/pmproxy/control
+and/or per-host via files named
+.IR $PCP_LOG_DIR/pmproxy/<hostname>/control .
 .SH FILES
 .TP 5
 .I $PCP_VAR_DIR/config/pmlogger/config.default
