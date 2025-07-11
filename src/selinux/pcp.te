@@ -352,6 +352,17 @@ optional_policy(`
     userdom_setattr_user_home_content_files(pcp_pmlogger_t)
 ')
 
+optional_policy(`
+    require {
+	type pcp_pmlogger_t;
+	class capability2 perfmon;
+    }
+
+    #RHBZ2371004
+    # type=AVC msg=audit(N): avc:  denied  { perfmon } for  pid=PID comm="ps" capability=38  scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability2 permissive=0
+    allow pcp_pmlogger_t self:capability2 perfmon;
+')
+
 ########################################
 #
 # pcp_plugin local  policy
