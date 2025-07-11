@@ -22,7 +22,7 @@ hinv.ncpu
 hinv.ndisk
 kernel.all.load
 kernel.all.pswitch
-mem.util.free
+sample.datasize
 ## Found local archive files
 LOCAL_ARCHIVE.0
 LOCAL_ARCHIVE.index
@@ -34,7 +34,7 @@ hinv.ncpu
 hinv.ndisk
 kernel.all.load
 kernel.all.pswitch
-mem.util.free
+sample.datasize
 
 === Running pmlogger in remote only recording mode
 === std out ===
@@ -57,5 +57,5 @@ hinv.ncpu
 hinv.ndisk
 kernel.all.load
 kernel.all.pswitch
-mem.util.free
+sample.datasize
 ## Found no local archive files
