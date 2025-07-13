@@ -51,9 +51,10 @@ _filter()
 	-e 's;/usr/var;/var;g' \
 	-e "s;$tmp;TMP;g" \
 	-e "s;$PCP_TMP_DIR;PCP_TMP_DIR;" \
-	-e '/Duplicate/d' \
 	-e '/^Reconfigured: .*pmlogconf./d' \
 	-e '/^No reconfigure: .*pmlogconf./d' \
+	-e '/^After _do_dir_and_args:/d' \
+	-e '/^Current dir:/d' \
 	-e 's/process [0-9][0-9]*/process PID/' \
 	-e '/[0-9] inode=/d' \
 	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]\.[0-9][0-9]\.[0-9][0-9]/CHECK/' \
@@ -92,7 +93,6 @@ _cleanup()
     cd
     $sudo rm -rf $tmp $tmp.*
 
-    $sudo $PCP_BINADM_DIR/pmlogger_check
     _service pmlogger restart >/dev/null 2>&1
     _restore_auto_restart pmlogger
     _wait_for_pmlogger

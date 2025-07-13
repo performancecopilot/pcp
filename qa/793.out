@@ -1,12 +1,12 @@
 QA output created by 793
 pmlogger_check #1
-PMLOGGER.CHECK [TMP/control:LINE]
+PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/A) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-PMLOGGER.CHECK [TMP/control:LINE]
+PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/B) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-PMLOGGER.CHECK [TMP/control:LINE]
+PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/C) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 1 archives in TMP/A

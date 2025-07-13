@@ -290,7 +290,7 @@ eval $_PWDCMD -P >/dev/null 2>&1
 	in
 	    \#!#*)	# stopped by pmlogctl ... for pmlogger_daily only
 			# we need to check this one
-			[ $prog = pmlogger_daily ] \
+			[ "$prog" = pmlogger_daily ] \
 			    && host=`echo "$host" | sed -e 's/^#!#//'`
 		;;
 	    \#*|'')	# comment or empty
@@ -560,6 +560,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		do
 		    if pmlock -i "$$ $prog" -v "$dir/lock" >>$tmp/_out 2>&1
 		    then
+			if $VERY_VERBOSE
+			then
+			    echo "Acquired lock:"
+			    LC_TIME=POSIX ls -l "$dir/lock"
+			    [ -s "$dir/lock" ] && cat "$dir/lock"
+			fi
 			echo "$dir/lock" >$tmp/_lock
 			break
 		    else
@@ -571,7 +577,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			    then
 				_warning "removing lock file older than 30 minutes"
 				LC_TIME=POSIX ls -l "$dir/lock"
-				[ -s "$dir"/lock" ] && cat "$dir"/lock"
+				[ -s "$dir/lock" ] && cat "$dir/lock"
 				rm -f "$dir/lock"
 			    else
 				# there is a small timing window here where pmlock
@@ -598,7 +604,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		    #       but only if pmlogger_daily has not run, so no chance
 		    #       of a collision
 		    #
-		    if [ $prog != pmlogger_daily && -f "$PCP_RUN_DIR"/pmlogger_daily.pid ]
+		    if [ "$prog" != pmlogger_daily -a -f "$PCP_RUN_DIR"/pmlogger_daily.pid ]
 		    then
 			# maybe, check pid matches a running /bin/sh
 			#

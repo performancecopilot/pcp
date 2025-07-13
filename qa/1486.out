@@ -1,7 +1,7 @@
 QA output created by 1486
 
 === dir=TMP/foo ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/foo) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
@@ -27,7 +27,7 @@ Latest
 pmlogger.log
 
 === dir="TMP/fool" ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/fool) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
@@ -53,7 +53,7 @@ Latest
 pmlogger.log
 
 === dir='TMP/foolery' ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/foolery) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
@@ -79,7 +79,7 @@ Latest
 pmlogger.log
 
 === dir=TMP/$(TMP.foo.sh)-bar ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/foo-bar) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
@@ -105,7 +105,7 @@ Latest
 pmlogger.log
 
 === dir=TMP/`TMP.foo.sh`lish ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/foolish) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
@@ -131,7 +131,7 @@ Latest
 pmlogger.log
 
 === dir="TMP/foo bar" ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/foo bar) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
@@ -157,7 +157,7 @@ Latest
 pmlogger.log
 
 === dir='TMP/sn afu' ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/sn afu) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
@@ -183,7 +183,7 @@ Latest
 pmlogger.log
 
 === dir="TMP/$(echo mumble)-fumble" ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/mumble-fumble) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
@@ -209,7 +209,7 @@ Latest
 pmlogger.log
 
 === dir='TMP/`echo foo`l-on-the-hill' ===
-pmlogger_check [TMP.control:5]
+pmlogger_check: [TMP.control:5]
 Warning: creating directory (TMP/fool-on-the-hill) for PCP archive files
 No reconfigure: magic=1 auto-generated=1 skip=0: "TMP.config" (pmlogconf)
 Restarting pmlogger for host "local:" ... [PID]  process exited!
