@@ -155,7 +155,7 @@ pmsignal $pid
 
 # while that happens, check state of the key server
 echo "=== pmseries value check ==="
-pmseries -c $tmp.conf 'sample.milliseconds[count:1,timezone:"UTC"]' | _filter_values
+pmseries -c $tmp.conf -Z UTC 'sample.milliseconds[count:1,timezone:"UTC"]' | _filter_values
 
 echo "=== pmseries labels check ==="
 pmseries -c $tmp.conf -l | LC_COLLATE=POSIX sort
