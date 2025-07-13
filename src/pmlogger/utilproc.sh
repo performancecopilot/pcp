@@ -263,7 +263,9 @@ eval $_PWDCMD -P >/dev/null 2>&1
 	return
     fi
 
-    cat "$1" \
+    sed <"$1" \
+        -e "s;PCP_ARCHIVE_DIR;$PCP_ARCHIVE_DIR;g" \
+        -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
     | while read host primary socks dir args
     do
 	# start in one place for each iteration (beware of relative paths)
@@ -454,20 +456,18 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 
-	# substitute keywords in selected fields
-	# $dir - LOCALHOSTNAME, PCP_ARCHIVE_DIR, PCP_LOG_DIR
-	# $host - LOCALHOSTNAME
-	#
-	_dirhostname=`hostname || echo localhost`
-	dir=`echo "$dir" | sed -e "s;LOCALHOSTNAME;$_dirhostname;g" \
-			       -e "s;PCP_ARCHIVE_DIR;$PCP_ARCHIVE_DIR;g" \
-			       -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g"`
-	[ "$primary" = y -o "X$host" = XLOCALHOSTNAME ] && host=local:
-
 	# do shell expansion of $dir if needed
 	#
 	_do_dir_and_args
 	$VERY_VERBOSE && echo >&2 "After _do_dir_and_args: orig_dir=$orig_dir dir=$dir"
+
+	# substitute LOCALHOST keyword in selected fields
+	# $dir - LOCALHOSTNAME -> hostname(1) or localhost
+	# $host - LOCALHOSTNAME -> local:
+	#
+	_dirhostname=`hostname || echo localhost`
+	dir=`echo "$dir" | sed -e "s;LOCALHOSTNAME;$_dirhostname;g"`
+	[ "$primary" = y -o "X$host" = XLOCALHOSTNAME ] && host=local:
 
 	# check for archive ``push'' to remote pmproxy with + prefix for
 	# directory field
@@ -504,25 +504,28 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	#
 	if [ ! -d "$dir" ]
 	then
-	    if $SHOWME
+	    # SHOWME note: we need to try and make the dir (for QA)
+	    # and only give up on this control line if the mkdir
+	    # or the cd later fails
+	    #
+	    $SHOWME && echo "+ mkdir -p -m 0775 $dir"
+	    # mode rwxrwxr-x is the default for pcp:pcp dirs
+	    umask 002
+	    mkdir -p -m 0775 "$dir" >$tmp/_tmp 2>&1
+	    # reset the default mode to rw-rw-r- for files
+	    umask 022
+	    if [ ! -d "$dir" ]
 	    then
-		echo "+ mkdir -p -m 0775 $dir"
-		echo "+ ... cannot show any more for this control line"
+		cat $tmp/_tmp
+		if $SHOWME
+		then
+		    echo "+ ... cannot show any more for this control line"
+		else
+		    _error "cannot create directory ($dir) for PCP archive files"
+		fi
 		continue
 	    else
-		# mode rwxrwxr-x is the default for pcp:pcp dirs
-		umask 002
-		mkdir -p -m 0775 "$dir" >$tmp/_tmp 2>&1
-		# reset the default mode to rw-rw-r- for files
-		umask 022
-		if [ ! -d "$dir" ]
-		then
-		    cat $tmp/_tmp
-		    _error "cannot create directory ($dir) for PCP archive files"
-		    continue
-		else
-		    _warning "creating directory ($dir) for PCP archive files"
-		fi
+		_warning "creating directory ($dir) for PCP archive files"
 	    fi
 	fi
 

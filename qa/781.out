@@ -1,32 +1,41 @@
 QA output created by 781
 # $version=1.1    
 + export version; version=1.1    
-pmlogger_check [control:4]
++ mkdir -p -m 0775 logs/HOSTNAME
+pmlogger_check: [control:4]
 Warning: creating directory (logs/HOSTNAME) for PCP archive files
-+ cd LOGDIR/logs/HOSTNAME
++ cd logs/HOSTNAME
++ get mutex lock
 + pmlogconf -c -q -h local: ./config
 Restarting pmlogger for host "local:" ...
 + pmlogger -h local: -d "logs/LOCALHOSTNAME" -c ./config -m pmlogger_check ARCHIVE
-pmlogger_check [control:5]
++ release mutex lock
++ mkdir -p -m 0775 logs/no.such.host.pcp.io
+pmlogger_check: [control:5]
 Warning: creating directory (logs/no.such.host.pcp.io) for PCP archive files
-+ cd LOGDIR/logs/no.such.host.pcp.io
++ cd logs/no.such.host.pcp.io
++ get mutex lock
 + pmlogconf -c -q -h no.such.host.pcp.io ./config
 Restarting pmlogger for host "no.such.host.pcp.io" ...
 + pmlogger -h no.such.host.pcp.io -d "logs/no.such.host.pcp.io" -c ./config -m pmlogger_check ARCHIVE
-pmlogger_check [control:6]
++ release mutex lock
++ mkdir -p -m 0775 logs/another.host
+pmlogger_check: [control:6]
 Warning: creating directory (logs/another.host) for PCP archive files
-+ cd LOGDIR/logs/another.host
++ cd logs/another.host
++ get mutex lock
 + pmlogconf -c -q -h another.host ./config
 Restarting pmlogger for host "another.host" ...
 + pmlogger -h another.host -d "logs/another.host" -c ./config -m pmlogger_check ARCHIVE
++ release mutex lock
 + date-and-timestamp ...
 # $version=1.1    
 + export version; version=1.1    
++ cd logs/HOSTNAME
++ get mutex lock
 
 === compressing PCP archives for host local: ===
 
-+ cd LOGDIR/logs/HOSTNAME
-+ get mutex lock
 pmlogger_daily: [control:4]
 Error: no pmlogger instance running for host "local:"
 ... logging for host "local:" unchanged
@@ -34,11 +43,12 @@ pmlogger_daily: [control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 pmlogger_daily: [control:4]
 Warning: current volume of current pmlogger not known, compression skipped
++ release mutex lock
++ cd logs/no.such.host.pcp.io
++ get mutex lock
 
 === compressing PCP archives for host no.such.host.pcp.io ===
 
-+ cd LOGDIR/logs/no.such.host.pcp.io
-+ get mutex lock
 pmlogger_daily: [control:5]
 Error: no pmlogger instance running for host "no.such.host.pcp.io"
 ... logging for host "no.such.host.pcp.io" unchanged
@@ -46,11 +56,12 @@ pmlogger_daily: [control:5]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 pmlogger_daily: [control:5]
 Warning: current volume of current pmlogger not known, compression skipped
++ release mutex lock
++ cd logs/another.host
++ get mutex lock
 
 === compressing PCP archives for host another.host ===
 
-+ cd LOGDIR/logs/another.host
-+ get mutex lock
 pmlogger_daily: [control:6]
 Error: no pmlogger instance running for host "another.host"
 ... logging for host "another.host" unchanged
@@ -58,3 +69,4 @@ pmlogger_daily: [control:6]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 pmlogger_daily: [control:6]
 Warning: current volume of current pmlogger not known, compression skipped
++ release mutex lock
