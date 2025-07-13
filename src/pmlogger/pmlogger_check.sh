@@ -324,20 +324,6 @@ then
     exit
 fi
 
-_error()
-{
-    echo "$prog: [$controlfile:$line]"
-    echo "Error: $@"
-    echo "... logging for host \"$host\" unchanged"
-    touch $tmp/err
-}
-
-_warning()
-{
-    echo "$prog [$controlfile:$line]"
-    echo "Warning: $@"
-}
-
 _restarting()
 {
     $PCP_ECHO_PROG $PCP_ECHO_N "Restarting$iam pmlogger for host \"$host\" ...""$PCP_ECHO_C"

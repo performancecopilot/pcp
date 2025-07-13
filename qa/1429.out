@@ -23,7 +23,7 @@ YESTERDAY.0
 YESTERDAY.index
 YESTERDAY.meta
 --- cannot write in dest dir ---
-PMLOGGER.DAILY: [TMP.control:3]
+PMLOGGER.DAILY: [TMP.control:4]
 Warning: $PCP_AUTOSAVE_DIR (TMP.nowrite) reset from control file, previous value (/no/such/file) ignored
 PMLOGGER.DAILY: [TMP.control:4]
 Error: no pmlogger instance running for host "HOST"

@@ -5,8 +5,6 @@ Info: processing archives from remote pmlogger on host qahost
 
 === daily maintenance of PCP archives for host qahost ===
 
-pmlogger_daily: [TMP/control:2]
-Warning: don't know how to signal pmproxy yet
 Input archives to be merged:
 	TODAY-2.00.10
 	TODAY-2.01.20 (3 volumes)

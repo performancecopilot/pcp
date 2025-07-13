@@ -157,6 +157,491 @@ _do_dir_and_args()
     fi
 }
 
+# generic error reporting for log control tools and parse_log_control()
+#
+_error()
+{
+    echo "$prog: [$filename:$line]"
+    echo "Error: $@"
+    echo "... logging for host \"$host\" unchanged"
+    touch $tmp/err
+}
+
+# generic warning reporting for log control tools and parse_log_control()
+#
+_warning()
+{
+    echo "$prog: [$filename:$line]"
+    echo "Warning: $@"
+}
+
+# parse_log_control:
+# - one argument, the name of a pmlogger.control(5) control file
+#
+# shell variables set by the caller before calling _parse_log_control():
+# - $prog [caller's name] (one of pmlogger_check, pmlogger_janitor or pmlogger_daily)
+# - $tmp [dir for temporary files]
+# - $VERBOSE and $VERY_VERBOSE [from -V on command line]
+# - $SHOWME [from -N on command line]
+# - assorted $PCP_* things [assume /etc/pcp.conf has been sourced]
+#
+# functions defined in the caller:
+# - _add_callback() [for pmlogger_daily only]
+# 
+# once parsed, each valid control line triggers a callback to
+# _callback_log_control() in the caller with these shell variables set:
+# $host [host field, fully expanded]
+# $primary [y or n]
+# $socks [y or n]
+# $orig_dir [directory field after keyword substitution but before shell
+#	expansion]
+# $dir [directory field, fully processed]
+# $args [args field]
+# $logpush [true if only pushing remotely via pmproxy, else false]
+# $filename [shortened version of $1 suitable for error|warning msgs]
+# $line [current line number in $1]
+# and the current directory is $dir
+#
+# scoping rules
+# shell variables and temproary files in $tmp that are private to
+# _parse_log_control() are named with a "_" prefix
+#
+# other files
+# - $tmp/err [created on fatal error]
+# - $dir/lock [held while $dir is being processed then released]
+#
+_parse_log_control()
+{
+    # strip likely leading directories from control file pathname to get
+    # a useful short filename for messages
+    #
+    filename=`echo "$1" | sed -e "s@$(dirname $PCP_PMLOGGERCONTROL_PATH)/@@"`
+    line=0
+
+    # sanity checks on caller
+    #
+    if [ $# -ne 1 ]
+    then
+	_error "_parse_log_control: usage botch: expect 1 arg not $#: $*"
+	return
+    fi
+    if [ ! -f "$1" ]
+    then
+	_error "_parse_log_control: controlfile \"$1\" not found"
+	return
+    fi
+    if [ -z "$tmp" ]
+    then
+	_error "_parse_log_control: botch: \$tmp not set"
+	return
+    fi
+    if [ -z "$prog" ]
+    then
+	_error "_parse_log_control: botch: \$prog not set"
+	return
+    fi
+
+    if [ -z "$_PWDCMD" ]
+    then
+	 # determine path for pwd command to override shell built-in
+	 #
+_PWDCMD=`which pwd 2>/dev/null | $PCP_AWK_PROG '
+BEGIN           { i = 0 }
+/ not in /      { i = 1 }
+/ aliased to /  { i = 1 }
+                { if ( i == 0 ) print }
+'`
+[ -z "$_PWDCMD" ] && _PWDCMD=/bin/pwd
+eval $_PWDCMD -P >/dev/null 2>&1
+[ $? -eq 0 ] && _PWDCMD="$_PWDCMD -P"
+    fi
+    _here=`$_PWDCMD`
+
+    if echo "$1" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$'
+    then
+	echo "Warning: ignoring packaging backup control file \"$1\""
+	return
+    fi
+
+    cat "$1" \
+    | while read host primary socks dir args
+    do
+	# start in one place for each iteration (beware of relative paths)
+	cd "$_here"
+	line=`expr $line + 1`
+
+	if $VERY_VERBOSE
+	then
+	    case "$host"
+	    in
+		\#!#*)	# stopped by pmlogctl ... for pmlogger_daily only
+			# we need to check this one
+			[ "$prog" = pmlogger_daily ] \
+			    && echo >&2 "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
+			;;
+		\#*|'')	# comment or empty
+			;;
+		*)	echo >&2 "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
+			;;
+	    esac
+	fi
+
+	case "$host"
+	in
+	    \#!#*)	# stopped by pmlogctl ... for pmlogger_daily only
+			# we need to check this one
+			[ $prog = pmlogger_daily ] \
+			    && host=`echo "$host" | sed -e 's/^#!#//'`
+		;;
+	    \#*|'')	# comment or empty
+		continue
+		;;
+	    \$*)	# in-line variable assignment
+		$SHOWME && echo "# $host $primary $socks $dir $args"
+		_cmd=`echo "$host $primary $socks $dir $args" \
+		     | sed -n \
+			 -e "/='/s/\(='[^']*'\).*/\1/" \
+			 -e '/="/s/\(="[^"]*"\).*/\1/' \
+			 -e '/=[^"'"'"']/s/[;&<>|].*$//' \
+			 -e '/^\\$[A-Za-z][A-Za-z0-9_]*=/{
+s/^\\$//
+s/^CULLAFTER=/PCP_CULLAFTER/
+s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
+}'`
+		if [ -z "$_cmd" ]
+		then
+		    # in-line command, not a variable assignment
+		    _warning "in-line command is not a variable assignment, line ignored"
+		else
+		    rm -f $tmp/_cmd
+		    case "$_cmd"
+		    in
+			'export PATH;'*)
+			    _warning "cannot change \$PATH, line ignored"
+			    ;;
+
+			'export IFS;'*)
+			    _warning "cannot change \$IFS, line ignored"
+			    ;;
+
+			'export PCP_CULLAFTER;'*)
+			    _old_value="$PCP_CULLAFTER"
+			    _check=`echo "$_cmd" | sed -e 's/.*=//' -e 's/  *$//'`
+			    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$_check"
+			    if [ $? != 0 -a -n "$_check" -a X"$_check" != Xforever -a X"$_check" != Xnever ]
+			    then
+				_error "\$PCP_CULLAFTER value ($_check) must be number, time, \"forever\" or \"never\""
+			    else
+				$SHOWME && echo "+ $_cmd"
+				echo eval $_cmd >>$tmp/_cmd
+				eval $_cmd
+				if [ -n "$_old_value" -a "$_old_value" != "$PCP_CULLAFTER" ]
+				then
+				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, previous value ($_old_value) ignored"
+				fi
+				if [ -n "$PCP_CULLAFTER" -a -n "$CULLAFTER_CMDLINE" -a "$PCP_CULLAFTER" != "$CULLAFTER_CMDLINE" ]
+				then
+				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, -k value ($CULLAFTER_CMDLINE) ignored"
+				    CULLAFTER_CMDLINE=""
+				fi
+			    fi
+			    ;;
+
+			'export PCP_COMPRESS;'*)
+			    _old_value="$PCP_COMPRESS"
+			    $SHOWME && echo "+ $_cmd"
+			    echo eval $_cmd >>$tmp/_cmd
+			    eval $_cmd
+			    if [ -n "$_old_value" -a "$_old_value" != "$$PCP_COMPRESS" ]
+			    then
+				_warning "\$PCP_COMPRESS ($PCP_COMPRESS) reset from control file, previous value ($_old_value) ignored"
+			    fi
+			    if [ -n "$PCP_COMPRESS" -a -n "$COMPRESS_CMDLINE" -a "$PCP_COMPRESS" != "$COMPRESS_CMDLINE" ]
+			    then
+				_warning "\$PCP_COMPRESS ($PCP_COMPRESS) reset from control file, -X value ($COMPRESS_CMDLINE) ignored"
+				COMPRESS_CMDLINE=""
+			    fi
+			    ;;
+
+			'export PCP_COMPRESSAFTER;'*)
+			    _old_value="$PCP_COMPRESSAFTER"
+			    _check=`echo "$_cmd" | sed -e 's/.*=//' -e 's/  *$//'`
+			    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$_check"
+			    if [ $? != 0 -a -n "$_check" -a X"$_check" != Xforever -a X"$_check" != Xnever ]
+			    then
+				_error "\$PCP_COMPRESSAFTER value ($_check) must be number, time, \"forever\" or \"never\""
+			    else
+				$SHOWME && echo "+ $_cmd"
+				echo eval $_cmd >>$tmp/_cmd
+				eval $_cmd
+				if [ -n "$_old_value" -a "$_old_value" != "$PCP_COMPRESSAFTER" ]
+				then
+				    _warning "\$PCP_COMPRESSAFTER ($PCP_COMPRESSAFTER) reset from control file, previous value ($_old_value) ignored"
+				fi
+				if [ -n "$PCP_COMPRESSAFTER" -a -n "$COMPRESSAFTER_CMDLINE" -a "$PCP_COMPRESSAFTER" != "$COMPRESSAFTER_CMDLINE" ]
+				then
+				    _warning "\$PCP_COMPRESSAFTER ($PCP_COMPRESSAFTER) reset from control file, -x value ($COMPRESSAFTER_CMDLINE) ignored"
+				    COMPRESSAFTER_CMDLINE=""
+				fi
+			    fi
+			    ;;
+
+			'export PCP_COMPRESSREGEX;'*)
+			    _old_value="$PCP_COMPRESSREGEX"
+			    $SHOWME && echo "+ $_cmd"
+			    echo eval $_cmd >>$tmp/_cmd
+			    eval $_cmd
+			    if [ -n "$_old_value" -a "$_old_value" != "$PCP_COMPRESSREGEX" ]
+			    then
+				_warning "\$PCP_COMPRESSREGEX ($PCP_COMPRESSREGEX) reset from control file, previous value ($_old_value) ignored"
+			    fi
+			    if [ -n "$PCP_COMPRESSREGEX" -a -n "$COMPRESSREGEX_CMDLINE" -a "$PCP_COMPRESSREGEX" != "$COMPRESSREGEX_CMDLINE" ]
+			    then
+				_warning "\$PCP_COMPRESSREGEX ($PCP_COMPRESSREGEX) reset from control file, -Y value ($COMPRESSREGEX_CMDLINE) ignored"
+				COMPRESSREGEX_CMDLINE=""
+			    fi
+			    ;;
+
+			'export PCP_MERGE_CALLBACK;'*)
+			    if ! $COMPRESSONLY && [ "$prog" = pmlogger_daily ]
+			    then
+				$SHOWME && echo "+ $_cmd"
+				_script="`echo "$_cmd" | sed -e 's/.*BACK; PCP_MERGE_CALLBACK=//'`"
+				if _add_callback "$_script" $tmp/merge_callback
+				then
+				    $VERBOSE && echo "Add merge callback: $script"
+				fi
+			    fi
+			    ;;
+
+			'export PCP_COMPRESS_CALLBACK;'*)
+			    if [ "$prog" = pmlogger_daily ]
+			    then
+				$SHOWME && echo "+ $_cmd"
+				_script="`echo "$_cmd" | sed -e 's/.*BACK; PCP_COMPRESS_CALLBACK=//'`"
+				if _add_callback "$_script" $tmp/compress_callback
+				then
+				    $VERBOSE && echo "Add compress callback: $script"
+				fi
+			    fi
+			    ;;
+
+
+			*)
+			    $SHOWME && echo "+ $_cmd"
+			    echo eval $_cmd >>$tmp/_cmd
+			    eval $_cmd
+			    ;;
+		    esac
+		fi
+		continue
+		;;
+	esac
+
+	# set the version and other global variables
+	#
+	[ -f $tmp/_cmd ] && . $tmp/_cmd
+
+	# Note on control file format version
+	#  1.0 was shipped as part of SGI's PCPWEB beta, and did not
+	#  include the socks field ... this is no longer supported
+	#  1.1 is the first production release and the default
+	#  (and only) version
+	#
+	if [ -n "$version" -a "$version" != "1.1" ]
+	then
+	    _error "version $version not supported"
+	    continue
+	fi
+
+	# substitute keywords in selected fields
+	# $dir - LOCALHOSTNAME, PCP_ARCHIVE_DIR, PCP_LOG_DIR
+	# $host - LOCALHOSTNAME
+	#
+	_dirhostname=`hostname || echo localhost`
+	dir=`echo "$dir" | sed -e "s;LOCALHOSTNAME;$_dirhostname;g" \
+			       -e "s;PCP_ARCHIVE_DIR;$PCP_ARCHIVE_DIR;g" \
+			       -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g"`
+	[ "$primary" = y -o "X$host" = XLOCALHOSTNAME ] && host=local:
+
+	# do shell expansion of $dir if needed
+	#
+	_do_dir_and_args
+	$VERY_VERBOSE && echo >&2 "After _do_dir_and_args: orig_dir=$orig_dir dir=$dir"
+
+	# check for archive ``push'' to remote pmproxy with + prefix for
+	# directory field
+	#
+	case "$dir"
+	in
+	    +*)	dir=`echo "$dir" | sed -e 's/^+//'`
+		logpush=true
+		;;
+	    *)	logpush=false
+	    	;;
+	esac
+
+	if [ -z "$primary" -o -z "$socks" -o -z "$dir" -o -z "$args" ]
+	then
+	    _error "insufficient fields in control file record"
+	    continue
+	fi
+
+	if [ -f $tmp/_dir ]
+	then
+	    # check for directory duplicate entries
+	    #
+	    if [ "`grep "$dir" $tmp/_dir`" = "$dir" ]
+	    then
+		_error "Duplicate pmlogger instances for archive directory \"$dir\""
+		continue
+	    fi
+	fi
+	echo "$dir" >>$tmp/_dir
+
+	# make sure output directory hierarchy exists and $PCP_USER
+	# user can write there
+	#
+	if [ ! -d "$dir" ]
+	then
+	    if $SHOWME
+	    then
+		echo "+ mkdir -p -m 0775 $dir"
+		echo "+ ... cannot show any more for this control line"
+		continue
+	    else
+		# mode rwxrwxr-x is the default for pcp:pcp dirs
+		umask 002
+		mkdir -p -m 0775 "$dir" >$tmp/_tmp 2>&1
+		# reset the default mode to rw-rw-r- for files
+		umask 022
+		if [ ! -d "$dir" ]
+		then
+		    cat $tmp/_tmp
+		    _error "cannot create directory ($dir) for PCP archive files"
+		    continue
+		else
+		    _warning "creating directory ($dir) for PCP archive files"
+		fi
+	    fi
+	fi
+
+	# check $dir, cd there, acquire lock
+	#
+	$SHOWME && echo "+ cd $dir"
+	if cd "$dir"
+	then
+	    :
+	else
+	    if $SHOWME
+	    then
+		echo "+ ... cannot show any more for this control line"
+	    else
+		_error "cannot chdir to directory ($dir) for PCP archive files"
+	    fi
+	    continue
+	fi
+	dir=`$_PWDCMD`
+	$VERY_VERBOSE && echo >&2 "Current dir: $dir"
+
+	if $SHOWME
+	then
+	    echo "+ get mutex lock"
+	else
+	    if [ ! -w "$dir" ]
+	    then
+		_warning "no write access in $dir skip lock file processing"
+	    else
+		# demand mutual exclusion
+		#
+		rm -f $tmp/_stamp $tmp/_out
+		_delay=200	# tenths of a second
+		while [ $_delay -gt 0 ]
+		do
+		    if pmlock -i "$$ $prog" -v "$dir/lock" >>$tmp/_out 2>&1
+		    then
+			echo "$dir/lock" >$tmp/_lock
+			break
+		    else
+			[ -f $tmp/_stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/_stamp
+			find $tmp/_stamp -newer "$dir/lock" -print 2>/dev/null >$tmp/_tmp
+			if [ -s $tmp/_tmp ]
+			then
+			    if [ -f "$dir/lock" ]
+			    then
+				_warning "removing lock file older than 30 minutes"
+				LC_TIME=POSIX ls -l "$dir/lock"
+				[ -s "$dir"/lock" ] && cat "$dir"/lock"
+				rm -f "$dir/lock"
+			    else
+				# there is a small timing window here where pmlock
+				# might fail, but the lock file has been removed by
+				# the time we get here, so just keep trying
+				#
+				:
+			    fi
+			fi
+		    fi
+		    pmsleep 0.1
+		    _delay=`expr $_delay - 1`
+		done
+
+		if [ $_delay -eq 0 ]
+		then
+		    # failed to gain mutex lock
+		    #
+		    # if we are not pmlogger_daily and pmlogger_daily is already
+		    # running ... check it, and silently move on if this is the
+		    # case
+		    #
+		    # Note: $PCP_RUN_DIR may not exist (see pmlogger_daily note),
+		    #       but only if pmlogger_daily has not run, so no chance
+		    #       of a collision
+		    #
+		    if [ $prog != pmlogger_daily && -f "$PCP_RUN_DIR"/pmlogger_daily.pid ]
+		    then
+			# maybe, check pid matches a running /bin/sh
+			#
+			_pid=`cat "$PCP_RUN_DIR"/pmlogger_daily.pid`
+			if _get_pids_by_name sh | grep "^$_pid\$" >/dev/null
+			then
+			    # seems to be still running ... nothing for us to see
+			    # or do here
+			    #
+			    continue
+			fi
+		    fi
+		    if [ -f "$dir/lock" ]
+		    then
+			echo "$prog: Warning: is another PCP cron job running concurrently?"
+			LC_TIME=POSIX ls -l "$dir/lock"
+			[ -s "$dir/lock" ] && cat "$dir/lock"
+		    else
+			echo "$prog: `cat $tmp/_out`"
+		    fi
+		    _warning "failed to acquire exclusive lock ($dir/lock) ..."
+		    continue
+		fi
+	    fi
+	fi
+
+	# now hand back to the caller to do the real work ...
+	#
+	_callback_log_control
+
+	# unlock
+	#
+	if $SHOWME
+	then
+	    echo "+ release mutex lock"
+	else
+	    rm -f "$dir/lock"
+	    echo >$tmp/_lock
+	fi
+
+    done
+}
+
 # Usage: _save_prev_file pathname
 #
 # if pathname exists, try to preserve the contents in pathname.prev and

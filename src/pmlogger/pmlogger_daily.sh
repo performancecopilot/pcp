@@ -773,91 +773,11 @@ then
     exit
 fi
 
-_error()
-{
-    echo "$prog: [$filename:$line]"
-    echo "Error: $@"
-    echo "... logging for host \"$host\" unchanged"
-    touch $tmp/err
-}
-
-_warning()
-{
-    echo "$prog: [$filename:$line]"
-    echo "Warning: $@"
-}
-
 _skipping()
 {
     echo "$prog: Warning: $@"
     echo "[$filename:$line] ... skip log merging and compressing for host \"$host\""
     touch $tmp/skip
-}
-
-_lock()
-{
-    if [ ! -w $1 ]
-    then
-	_warning "no write access in $1 skip lock file processing"
-    else
-	# demand mutual exclusion
-	#
-	rm -f $tmp/stamp $tmp/out
-	delay=200	# tenths of a second
-	while [ $delay -gt 0 ]
-	do
-	    if pmlock -i "$$ pmlogger_daily" -v "$1/lock" >>$tmp/out 2>&1
-	    then
-		echo "$1/lock" >$tmp/lock
-		break
-	    else
-		[ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
-		find $tmp/stamp -newer "$1/lock" -print 2>/dev/null >$tmp/tmp
-		if [ -s $tmp/tmp ]
-		then
-		    if [ -f "$1/lock" ]
-		    then
-			_warning "removing lock file older than 30 minutes"
-			LC_TIME=POSIX ls -l "$1/lock"
-			[ -s "$1"/lock" ] && cat "$1"/lock"
-			rm -f "$1/lock"
-		    else
-			# there is a small timing window here where pmlock
-			# might fail, but the lock file has been removed by
-			# the time we get here, so just keep trying
-			#
-			:
-		    fi
-		fi
-	    fi
-	    pmsleep 0.1
-	    delay=`expr $delay - 1`
-	done
-
-	if [ $delay -eq 0 ]
-	then
-	    # failed to gain mutex lock
-	    #
-	    if [ -f "$1/lock" ]
-	    then
-		_warning "is another PCP cron job running concurrently?"
-		LC_TIME=POSIX ls -l "$1/lock"
-		[ -s "$dir/lock" ] && cat "$dir/lock"
-	    else
-		echo "$prog: `cat $tmp/out`"
-	    fi
-	    _error "failed to acquire exclusive lock ($1/lock) ..."
-	    return 1
-	fi
-    fi
-
-    return 0
-}
-
-_unlock()
-{
-    rm -f "$1/lock"
-    echo >$tmp/lock
 }
 
 # filter file names to leave those that look like PCP archives
@@ -981,14 +901,6 @@ then
 else
     echo $$ >"$PCP_RUN_DIR/pmlogger_daily.pid"
 fi
-
-# note on control file format version
-#  1.0 was shipped as part of PCPWEB beta, and did not include the
-#	socks field [this is the default for backwards compatibility]
-#  1.1 is the first production release, and the version is set in
-#	the control file with a $version=1.1 line (see below)
-#
-version=''
 
 # if this file exists at the end, we encountered a serious error
 #
@@ -1138,618 +1050,364 @@ BEGIN	{ seenslash = 0; inshell = 0; out = "" }
 END	{ print out }'
 }
 
-_parse_control()
+# come here from _parse_log_control() once per valid line in a control
+# file ... see utilproc.sh for interface definitions
+#
+_callback_log_control()
 {
-    controlfile="$1"
-    line=0
-
-    # strip leading directories from pathname to get useful filename
-    #
-    dirname=`dirname $PCP_PMLOGGERCONTROL_PATH`
-    filename=`echo "$controlfile" | sed -e "s@$dirname/@@"`
-
-    if echo "$controlfile" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$'
+    if $VERBOSE
     then
-	echo "Warning: ignoring backup control file \"$controlfile\""
+	echo
+	if $COMPRESSONLY
+	then
+	    echo "=== compressing PCP archives for host $host ==="
+	else
+	    echo "=== daily maintenance of PCP archives for host $host ==="
+	fi
+	echo
+    fi
+
+    if $VERY_VERBOSE
+    then
+	if [ X"$args" = X+ ]
+	then
+	    echo >&2 "Check archive push via pmproxy ... in $dir ..."
+	else
+	    pflag=''
+	    [ $primary = y ] && pflag=' -P'
+	    echo >&2 "Check pmlogger$pflag -h $host ... in $dir ..."
+	fi
+    fi
+
+    if [ -n "$PCP_AUTOSAVE_DIR" ]
+    then
+	if ! $COMPRESSONLY
+	then
+	    $SHOWME && echo "+ $cmd"
+	    eval $cmd
+	    if [ -s $tmp/autosave -a "`cat $tmp/autosave`" != "$PCP_AUTOSAVE_DIR" ]
+	    then
+		_warning "\$PCP_AUTOSAVE_DIR ($PCP_AUTOSAVE_DIR) reset from control file, previous value (`cat $tmp/autosave`) ignored"
+	    fi
+	    echo "$PCP_AUTOSAVE_DIR" >$tmp/autosave
+	    $VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR: $PCP_AUTOSAVE_DIR"
+	fi
+    fi
+
+    # if $orig_dir contains embedded shell commands, like $(cmd ...)
+    # or `cmd ...` then previous archives may not be in $dir, e.g
+    # when cmd is "date +%Y-%m-%d"
+    # all we can do is replace the embedded shell commands with "*"
+    # and hope sh(1) does all the work
+    #
+    find_dirs="."
+    if echo "$orig_dir" | grep '\$(' >/dev/null
+    then
+	if echo "$orig_dir" | grep '`' >/dev/null
+	then
+	    _warning "orig_dir ($orig_dir) contains both \$( and \`"
+	fi
+	find_dirs=`echo $orig_dir | _unshell`
+	$VERBOSE && echo "Embedded \$(...): find_dirs=$find_dirs"
+    elif echo "$orig_dir" | grep '`' >/dev/null
+    then
+	find_dirs=`echo $orig_dir | _unbackquote`
+	$VERBOSE && echo "Embedded \`...\`: find_dirs=$find_dirs"
+    fi
+
+    # For archive rewriting (to make metadata consistent across
+    # archives) find the rules as follows:
+    # - if pmlogrewrite exists (as a file, directory or symlink)
+    #   in the current archive directory use that
+    # - else use $PCP_VAR_DIR/config/pmlogrewrite
+    #
+    rewrite=''
+    for type in -f -d -L
+    do
+	if [ $type "./pmlogrewrite" ]
+	then
+	    rewrite="$rewrite -c `pwd`/pmlogrewrite"
+	    break
+	fi
+    done
+    [ -z "$rewrite" ] && rewrite='-c $PCP_VAR_DIR/config/pmlogrewrite'
+
+    if $REWRITEALL
+    then
+	# Do the pmlogrewrite -qi thing (using pmlogger_rewrite) for
+	# all archives in directories that match $find_dirs
+	#
+	rewrite_args="$rewrite"
+	$VERBOSE && rewrite_args="$rewrite_args -V"
+	$VERY_VERBOSE && rewrite_args="$rewrite_args -V"
+	for archdir in $find_dirs
+	do
+	    [ "$archdir" = "." ] && archdir="$dir"
+	    [ -d "$archdir" ] || continue
+	    $VERBOSE && echo "Info: pmlogrewrite all archives in $archdir"
+	    if $SHOWME
+	    then
+		echo "+ $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir"
+	    else
+		if eval $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir
+		then
+		    :
+		else
+		    _error "pmlogger_rewrite failed in $archdir"
+		fi
+	    fi
+	done
+    fi
+
+    if [ X"$args" = X+ ]
+    then
+	# archive pushed from remote pmlogger via pmproxy, log rotation
+	# done at the pmproxy end, so nothin to be done here
+	#
+	:
+    else
+	# local pmlogger should be running, force log rotation
+	# to terminate writing to current archive and start a
+	# new archive with updated name (based on date and time)
+	#
+	pid=''
+	if [ X"$primary" = Xy ]
+	then
+	    if test -e "$PCP_TMP_DIR/pmlogger/primary"
+	    then
+		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
+		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
+		$VERY_VERBOSE && echo >&2 "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
+		pid=`_get_primary_logger_pid`
+	    fi
+	    if [ -z "$pid" ]
+	    then
+		if $VERY_VERBOSE
+		then
+		    echo >&2 "primary pmlogger process PID not found"
+		    ls >&2 -l "$PCP_TMP_DIR/pmlogger"
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E >&2 '[P]ID|/[p]mlogger( |$)'
+		fi
+	    elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
+	    then
+		$VERY_VERBOSE && echo >&2 "primary pmlogger process $pid identified, OK"
+	    else
+		$VERY_VERBOSE && echo >&2 "primary pmlogger process $pid not running"
+		pid=''
+	    fi
+	else
+	    # pid(s) on stdout, diagnostics on stderr
+	    #
+	    pid=`_get_non_primary_logger_pid`
+	    if $VERY_VERBOSE
+	    then
+		if [ -z "$pid" ]
+		then
+		    echo >&2 "No non-primary pmlogger process(es) found"
+		else
+		    echo >&2 "non-primary pmlogger process(es) $pid identified, OK"
+		fi
+	    fi
+	fi
+
+	if [ -z "$pid" ]
+	then
+	    if [ "$PMLOGGER_CTL" = "on" ]
+	    then
+		_error "no pmlogger instance running for host \"$host\""
+	    else
+		_warning "no pmlogger instance running for host \"$host\""
+	    fi
+	    _warning "skipping log rotation because we don't know which pmlogger to signal"
+	elif ! $COMPRESSONLY
+	then
+	    touch $tmp/reexec
+	    if [ "$REEXEC_MODE" = force ]
+	    then
+		# -Z, force reexec
+		:
+	    elif [ "$REEXEC_MODE" = skip ]
+	    then
+		# -z, skip reexec
+		rm -f $tmp/reexec
+	    elif [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
+	    then
+		# if pmlogger is already creating an archive with today's
+		# date then "reexec" has already been done, so we do not need
+		# to do it again ... this can happen when systemd decides
+		# to run pmlogger_daily at pmlogger service start, rather
+		# than just at 00:10 (by default) as originally intended
+		# and implemented in the cron-driven approach
+		#
+		current_archive=`sed -n -e '3s;.*/;;p' <"$PCP_TMP_DIR/pmlogger/$pid"`
+		case "$current_archive"
+		in
+		    `pmdate %Y%m%d`*)
+				$VERBOSE && echo "Skip sending SIGUSR2 to $pid (reexec already done)"
+				rm -f $tmp/reexec
+				;;
+		esac
+	    fi
+	    if [ -f $tmp/reexec ]
+	    then
+		#
+		# send pmlogger a SIGUSR2 to "roll the archives"
+		#
+		if $SHOWME
+		then
+		    echo "+ $KILL -s USR2 $pid"
+		else
+		    $VERBOSE && echo "Sending SIGUSR2 to reexec $pid"
+		    $KILL -s USR2 "$pid"
+		    if $VERY_VERBOSE
+		    then
+			# We have seen in qa/793, but never in a "real"
+			# deployment, cases where the pmlogger process
+			# vanishes a short time after the SIGUSR2 has been
+			# sent and caught, the process has called exec() and
+			# main() has restarted.  This check is intended
+			# detect and report when this happens if -VV is
+			# in play.
+			#
+			sleep 1
+			if $PCP_PS_PROG -p "$pid" 2>&1 | grep "^$pid[ 	]" >/dev/null
+			then
+			    : still alive
+			else
+			    echo >&2 "Error: pmlogger process $pid has vanished"
+			fi
+		    fi
+		fi
+		rm -f $tmp/reexec
+	    fi
+	fi
+    fi
+
+    if $logpush
+    then
+    	# Found + prefix for $dir in control file, nothing more to be
+	# done here (the rest of the daily work will be done on the
+	# server end of the push)
+	#
 	return
     fi
 
-    sed \
-	-e "s;PCP_ARCHIVE_DIR;$PCP_ARCHIVE_DIR;g" \
-	-e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
-	$controlfile | \
-    while read host primary socks dir args
-    do
-	# start in one place for each iteration (beware of relative paths)
-	cd "$here"
-	line=`expr $line + 1`
-
-	if $VERY_VERBOSE
-	then
-	    case "$host"
-	    in
-		\#!#*)	# stopped by pmlogctl ... we'll be checking this one
-			echo >&2 "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
-			;;
-		\#*|'')	# comment or empty
-			;;
-		*)
-			echo >&2 "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
-			;;
-	    esac
-	fi
-
-	case "$host"
-	in
-	    \#!#*)	# stopped by pmlogctl ... need to check this one
-		host=`echo "$host" | sed -e 's/^#!#//'`
-		;;
-	    \#*|'')	# comment or empty
-		continue
-		;;
-	    \$*)	# in-line variable assignment
-		$SHOWME && echo "# $host $primary $socks $dir $args"
-		cmd=`echo "$host $primary $socks $dir $args" \
-		     | sed -n \
-			 -e "/='/s/\(='[^']*'\).*/\1/" \
-			 -e '/="/s/\(="[^"]*"\).*/\1/' \
-			 -e '/=[^"'"'"']/s/[;&<>|].*$//' \
-			 -e '/^\\$[A-Za-z][A-Za-z0-9_]*=/{
-s/^\\$//
-s/^CULLAFTER=/PCP_CULLAFTER/
-s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
-}'`
-		if [ -z "$cmd" ]
-		then
-		    # in-line command, not a variable assignment
-		    _warning "in-line command is not a variable assignment, line ignored"
-		else
-		    rm -f $tmp/cmd
-		    case "$cmd"
-		    in
-			'export PATH;'*)
-			    _warning "cannot change \$PATH, line ignored"
-			    ;;
-
-			'export IFS;'*)
-			    _warning "cannot change \$IFS, line ignored"
-			    ;;
-
-			'export PCP_CULLAFTER;'*)
-			    old_value="$PCP_CULLAFTER"
-			    check=`echo "$cmd" | sed -e 's/.*=//' -e 's/  *$//'`
-			    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$check"
-			    if [ $? != 0 -a -n "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
-			    then
-				_error "\$PCP_CULLAFTER value ($check) must be number, time, \"forever\" or \"never\""
-			    else
-				$SHOWME && echo "+ $cmd"
-				echo eval $cmd >>$tmp/cmd
-				eval $cmd
-				if [ -n "$old_value" ]
-				then
-				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, previous value ($old_value) ignored"
-				fi
-				if [ -n "$PCP_CULLAFTER" -a -n "$CULLAFTER_CMDLINE" -a "$PCP_CULLAFTER" != "$CULLAFTER_CMDLINE" ]
-				then
-				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, -k value ($CULLAFTER_CMDLINE) ignored"
-				    CULLAFTER_CMDLINE=""
-				fi
-			    fi
-			    ;;
-
-			'export PCP_COMPRESS;'*)
-			    old_value="$PCP_COMPRESS"
-			    $SHOWME && echo "+ $cmd"
-			    echo eval $cmd >>$tmp/cmd
-			    eval $cmd
-			    if [ -n "$old_value" ]
-			    then
-				_warning "\$PCP_COMPRESS ($PCP_COMPRESS) reset from control file, previous value ($old_value) ignored"
-			    fi
-			    if [ -n "$PCP_COMPRESS" -a -n "$COMPRESS_CMDLINE" -a "$PCP_COMPRESS" != "$COMPRESS_CMDLINE" ]
-			    then
-				_warning "\$PCP_COMPRESS ($PCP_COMPRESS) reset from control file, -X value ($COMPRESS_CMDLINE) ignored"
-				COMPRESS_CMDLINE=""
-			    fi
-			    ;;
-
-			'export PCP_COMPRESSAFTER;'*)
-			    old_value="$PCP_COMPRESSAFTER"
-			    check=`echo "$cmd" | sed -e 's/.*=//' -e 's/  *$//'`
-			    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$check"
-			    if [ $? != 0 -a -n "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
-			    then
-				_error "\$PCP_COMPRESSAFTER value ($check) must be number, time, \"forever\" or \"never\""
-			    else
-				$SHOWME && echo "+ $cmd"
-				echo eval $cmd >>$tmp/cmd
-				eval $cmd
-				if [ -n "$old_value" ]
-				then
-				    _warning "\$PCP_COMPRESSAFTER ($PCP_COMPRESSAFTER) reset from control file, previous value ($old_value) ignored"
-				fi
-				if [ -n "$PCP_COMPRESSAFTER" -a -n "$COMPRESSAFTER_CMDLINE" -a "$PCP_COMPRESSAFTER" != "$COMPRESSAFTER_CMDLINE" ]
-				then
-				    _warning "\$PCP_COMPRESSAFTER ($PCP_COMPRESSAFTER) reset from control file, -x value ($COMPRESSAFTER_CMDLINE) ignored"
-				    COMPRESSAFTER_CMDLINE=""
-				fi
-			    fi
-			    ;;
-
-			'export PCP_COMPRESSREGEX;'*)
-			    old_value="$PCP_COMPRESSREGEX"
-			    $SHOWME && echo "+ $cmd"
-			    echo eval $cmd >>$tmp/cmd
-			    eval $cmd
-			    if [ -n "$old_value" ]
-			    then
-				_warning "\$PCP_COMPRESSREGEX ($PCP_COMPRESSREGEX) reset from control file, previous value ($old_value) ignored"
-			    fi
-			    if [ -n "$PCP_COMPRESSREGEX" -a -n "$COMPRESSREGEX_CMDLINE" -a "$PCP_COMPRESSREGEX" != "$COMPRESSREGEX_CMDLINE" ]
-			    then
-				_warning "\$PCP_COMPRESSREGEX ($PCP_COMPRESSREGEX) reset from control file, -Y value ($COMPRESSREGEX_CMDLINE) ignored"
-				COMPRESSREGEX_CMDLINE=""
-			    fi
-			    ;;
-
-			'export PCP_MERGE_CALLBACK;'*)
-			    if ! $COMPRESSONLY
-			    then
-				$SHOWME && echo "+ $cmd"
-				script="`echo "$cmd" | sed -e 's/.*BACK; PCP_MERGE_CALLBACK=//'`"
-				if _add_callback "$script" $tmp/merge_callback
-				then
-				    $VERBOSE && echo "Add merge callback: $script"
-				fi
-			    fi
-			    ;;
-
-			'export PCP_COMPRESS_CALLBACK;'*)
-			    $SHOWME && echo "+ $cmd"
-			    script="`echo "$cmd" | sed -e 's/.*BACK; PCP_COMPRESS_CALLBACK=//'`"
-			    if _add_callback "$script" $tmp/compress_callback
-			    then
-				$VERBOSE && echo "Add compress callback: $script"
-			    fi
-			    ;;
-
-			'export PCP_AUTOSAVE_DIR;'*)
-			    if ! $COMPRESSONLY
-			    then
-				$SHOWME && echo "+ $cmd"
-				eval $cmd
-				if [ -s $tmp/autosave ]
-				then
-				    _warning "\$PCP_AUTOSAVE_DIR ($PCP_AUTOSAVE_DIR) reset from control file, previous value (`cat $tmp/autosave`) ignored"
-				fi
-				echo "$PCP_AUTOSAVE_DIR" >$tmp/autosave
-				$VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR: $PCP_AUTOSAVE_DIR"
-			    fi
-			    ;;
-
-			*)
-			    $SHOWME && echo "+ $cmd"
-			    echo eval $cmd >>$tmp/cmd
-			    eval $cmd
-			    ;;
-		    esac
-		fi
-		continue
-		;;
-	esac
-
-	# set the version and other global variables
+    if ! $COMPRESSONLY
+    then
+	# We now do this first, so that if the archives are bad for
+	# any reason we don't want failures to merge or rewrite to
+	# prevent removing old files as this can lead to full
+	# filesystems if left unattended.
 	#
-	[ -f $tmp/cmd ] && . $tmp/cmd
+	_do_cull
 
-	if [ -z "$version" -o "$version" = "1.0" ]
+	if $MFLAG
 	then
-	    if [ -z "$version" ]
-	    then
-		_warning "processing default version 1.0 control format"
-		version=1.0
-	    fi
-	    args="$dir $args"
-	    dir="$socks"
-	    socks=n
+	    # -M don't rewrite, merge or rename
+	    #
+	    :
+	else
+	    _do_merge
 	fi
+    fi
 
-	# do shell expansion of $dir if needed
-	#
-	_do_dir_and_args
-	$VERY_VERBOSE && echo >&2 "After _do_dir_and_args: orig_dir=$orig_dir dir=$dir"
+    # and compress old archive data files
+    # (after cull - don't compress unnecessarily)
+    #
+    _do_compress
 
-	if [ -z "$primary" -o -z "$socks" -o -z "$dir" -o -z "$args" ]
-	then
-	    _error "insufficient fields in control file record"
-	    continue
-	fi
-
-	# substitute LOCALHOSTNAME marker in this config line
-	# (differently for directory and pcp -h HOST arguments)
-	#
-	dirhostname=`hostname || echo localhost`
-	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
-	orig_dir=`echo $orig_dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
-	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
-
+    # autosave any newly merged (and possibly compressed) archives
+    # if PCP_AUTOSAVE_DIR is in play
+    #
+    if [ -s $tmp/autosave -a -s $tmp/savefiles ]
+    then
 	if $VERBOSE
 	then
-	    echo
-	    if $COMPRESSONLY
-	    then
-		echo "=== compressing PCP archives for host $host ==="
-	    else
-		echo "=== daily maintenance of PCP archives for host $host ==="
-	    fi
-	    echo
+	    ( echo "Autosave ... "; _fmt <$tmp/savefiles ) \
+	    | sed -e 's/^/    /'
 	fi
-
-	if $VERY_VERBOSE
-	then
-	    if [ X"$args" = Xremote ]
-	    then
-		echo >&2 "Check archive push via pmproxy ... in $dir ..."
-	    else
-		pflag=''
-		[ $primary = y ] && pflag=' -P'
-		echo >&2 "Check pmlogger$pflag -h $host ... in $dir ..."
-	    fi
-	fi
-
-	# make sure output directory hierarchy exists and $PCP_USER
-	# user can write there
-	#
-	if [ ! -d "$dir" ]
-	then
-	    # mode rwxrwxr-x is the default for pcp:pcp dirs
-	    umask 002
-	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
-	    # reset the default mode to rw-rw-r- for files
-	    umask 022
-	    if [ ! -d "$dir" ]
-	    then
-		cat $tmp/tmp
-		_error "cannot create directory ($dir) for PCP archive files"
-		continue
-	    else
-		_warning "creating directory ($dir) for PCP archive files"
-	    fi
-	fi
-
-	cd $dir
-	dir=`$PWDCMND`
-	$SHOWME && echo "+ cd $dir"
-	$VERY_VERBOSE && echo >&2 "Current dir: $dir"
-
-	# if $orig_dir contains embedded shell commands, like $(cmd ...)
-	# or `cmd ...` then previous archives may not be in $dir, e.g
-	# when cmd is "date +%Y-%m-%d"
-	# all we can do is replace the embedded shell commands with "*"
-	# and hope sh(1) does all the work
-	#
-        find_dirs="."
-	if echo "$orig_dir" | grep '\$(' >/dev/null
-	then
-	    if echo "$orig_dir" | grep '`' >/dev/null
-	    then
-		_warning "orig_dir ($orig_dir) contains both \$( and \`"
-	    fi
-	    find_dirs=`echo $orig_dir | _unshell`
-	    $VERBOSE && echo "Embedded \$(...): find_dirs=$find_dirs"
-	elif echo "$orig_dir" | grep '`' >/dev/null
-	then
-	    find_dirs=`echo $orig_dir | _unbackquote`
-	    $VERBOSE && echo "Embedded \`...\`: find_dirs=$find_dirs"
-	fi
-
-	if $SHOWME
-	then
-	    echo "+ get mutex lock"
-	else
-	    if _lock "$dir"
-	    then
-		:
-	    else
-		# fatal error, reported in _lock()
-		#
-		continue
-	    fi
-	fi
-
-	# For archive rewriting (to make metadata consistent across
-	# archives) find the rules as follows:
-	# - if pmlogrewrite exists (as a file, directory or symlink)
-	#   in the current archive directory use that
-	# - else use $PCP_VAR_DIR/config/pmlogrewrite
-	#
-	rewrite=''
-	for type in -f -d -L
+	last_mkdir=''
+	cat $tmp/savefiles \
+	| while read savefile
 	do
-	    if [ $type "./pmlogrewrite" ]
+	    # make sure destination directory hierarchy exists and $PCP_USER
+	    # user can write there
+	    #
+	    DATEYYYY=`echo "$savefile" | sed -e 's/^\(....\).*/\1/'`
+	    DATEMM=`echo "$savefile" | sed -e 's/^....\(..\).*/\1/'`
+	    DATEDD=`echo "$savefile" | sed -e 's/^......\(..\)/\1/'`
+	    auto_dir="`cat $tmp/autosave \
+		       | sed \
+			   -e s/DATEYYYY/$DATEYYYY/g \
+			   -e s/DATEMM/$DATEMM/g \
+			   -e s/DATEDD/$DATEDD/g \
+			   -e s/LOCALHOSTNAME/$dirhostname/`"
+	    if [ ! -d "$auto_dir" -a "$auto_dir" != "$last_mkdir" ]
 	    then
-		rewrite="$rewrite -c `pwd`/pmlogrewrite"
-		break
+		# mode rwxrwxr-x is the default for pcp:pcp dirs
+		umask 002
+		mkdir -p -m 0775 "$auto_dir" >$tmp/tmp 2>&1
+		# reset the default mode to rw-rw-r- for files
+		umask 022
+		if [ ! -d "$auto_dir" ]
+		then
+		    cat $tmp/tmp
+		    _error "cannot create directory ($auto_dir) for autosave"
+		else
+		    _warning "creating directory ($auto_dir) for autosave"
+		    # fall through and another warning will come from
+		    # _autosave()
+		fi
+		last_mkdir="$auto_dir"
 	    fi
+	    # $savefile may be a full pathname
+	    #
+	    case "$savefile"
+	    in
+		/*)
+		    src_dir=`dirname "$savefile"`
+		    savefile=`basename "$savefile"`
+		    ;;
+		*)
+		    src_dir="$dir"
+		    ;;
+	    esac
+	    _autosave "$src_dir" "$savefile" "$auto_dir"
 	done
-	[ -z "$rewrite" ] && rewrite='-c $PCP_VAR_DIR/config/pmlogrewrite'
+    fi
 
-	if $REWRITEALL
+    # and cull old trace files (from -t option)
+    #
+    if [ "$TRACE" -gt 0 ] && ! $COMPRESSONLY
+    then
+	if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
 	then
-	    # Do the pmlogrewrite -qi thing (using pmlogger_rewrite) for
-	    # all archives in directories that match $find_dirs
+	    # See note above re. find(1) on FreeBSD/NetBSD/OpenBSD
 	    #
-	    rewrite_args="$rewrite"
-	    $VERBOSE && rewrite_args="$rewrite_args -V"
-	    $VERY_VERBOSE && rewrite_args="$rewrite_args -V"
-	    for archdir in $find_dirs
-	    do
-		[ "$archdir" = "." ] && archdir="$dir"
-		[ -d "$archdir" ] || continue
-		$VERBOSE && echo "Info: pmlogrewrite all archives in $archdir"
-		if $SHOWME
-		then
-		    echo "+ $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir"
-		else
-		    if eval $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir
-		    then
-			:
-		    else
-			_error "pmlogger_rewrite failed in $archdir"
-		    fi
-		fi
-	    done
-	fi
-
-	if [ X"$args" = Xremote ]
-	then
-	    # archive pushed from remote pmlogger via pmproxy
-	    if $NOPROXY
-	    then
-		# skip this ...
-		:
-	    else
-		# TODO - signal pmproxy
-		_warning "don't know how to signal pmproxy yet"
-	    fi
+	    mtime=`expr $TRACE - 1`
 	else
-	    # local pmlogger should be running, force log rotation
-	    # to terminate writing to current archive and start a
-	    # new archive with updated name (based on date and time)
-	    #
-	    pid=''
-	    if [ X"$primary" = Xy ]
-	    then
-		if test -e "$PCP_TMP_DIR/pmlogger/primary"
-		then
-		    _host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
-		    _arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
-		    $VERY_VERBOSE && echo >&2 "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
-		    pid=`_get_primary_logger_pid`
-		fi
-		if [ -z "$pid" ]
-		then
-		    if $VERY_VERBOSE
-		    then
-			echo >&2 "primary pmlogger process PID not found"
-			ls >&2 -l "$PCP_TMP_DIR/pmlogger"
-			$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E >&2 '[P]ID|/[p]mlogger( |$)'
-		    fi
-		elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-		then
-		    $VERY_VERBOSE && echo >&2 "primary pmlogger process $pid identified, OK"
-		else
-		    $VERY_VERBOSE && echo >&2 "primary pmlogger process $pid not running"
-		    pid=''
-		fi
-	    else
-		# pid(s) on stdout, diagnostics on stderr
-		#
-		pid=`_get_non_primary_logger_pid`
-		if $VERY_VERBOSE
-		then
-		    if [ -z "$pid" ]
-		    then
-			echo >&2 "No non-primary pmlogger process(es) found"
-		    else
-			echo >&2 "non-primary pmlogger process(es) $pid identified, OK"
-		    fi
-		fi
-	    fi
-
-	    if [ -z "$pid" ]
-	    then
-		if [ "$PMLOGGER_CTL" = "on" ]
-		then
-		    _error "no pmlogger instance running for host \"$host\""
-		else
-		    _warning "no pmlogger instance running for host \"$host\""
-		fi
-		_warning "skipping log rotation because we don't know which pmlogger to signal"
-	    elif ! $COMPRESSONLY
-	    then
-		touch $tmp/reexec
-		if [ "$REEXEC_MODE" = force ]
-		then
-		    # -Z, force reexec
-		    :
-		elif [ "$REEXEC_MODE" = skip ]
-		then
-		    # -z, skip reexec
-		    rm -f $tmp/reexec
-		elif [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
-		then
-		    # if pmlogger is already creating an archive with today's
-		    # date then "reexec" has already been done, so we do not need
-		    # to do it again ... this can happen when systemd decides
-		    # to run pmlogger_daily at pmlogger service start, rather
-		    # than just at 00:10 (by default) as originally intended
-		    # and implemented in the cron-driven approach
-		    #
-		    current_archive=`sed -n -e '3s;.*/;;p' <"$PCP_TMP_DIR/pmlogger/$pid"`
-		    case "$current_archive"
-		    in
-			`pmdate %Y%m%d`*)
-				    $VERBOSE && echo "Skip sending SIGUSR2 to $pid (reexec already done)"
-				    rm -f $tmp/reexec
-				    ;;
-		    esac
-		fi
-		if [ -f $tmp/reexec ]
-		then
-		    #
-		    # send pmlogger a SIGUSR2 to "roll the archives"
-		    #
-		    if $SHOWME
-		    then
-			echo "+ $KILL -s USR2 $pid"
-		    else
-			$VERBOSE && echo "Sending SIGUSR2 to reexec $pid"
-			$KILL -s USR2 "$pid"
-			if $VERY_VERBOSE
-			then
-			    # We have seen in qa/793, but never in a "real"
-			    # deployment, cases where the pmlogger process
-			    # vanishes a short time after the SIGUSR2 has been
-			    # sent and caught, the process has called exec() and
-			    # main() has restarted.  This check is intended
-			    # detect and report when this happens if -VV is
-			    # in play.
-			    #
-			    sleep 1
-			    if $PCP_PS_PROG -p "$pid" 2>&1 | grep "^$pid[ 	]" >/dev/null
-			    then
-				: still alive
-			    else
-				echo >&2 "Error: pmlogger process $pid has vanished"
-			    fi
-			fi
-		    fi
-		    rm -f $tmp/reexec
-		fi
-	    fi
+	    mtime=$TRACE
 	fi
-
-	if ! $COMPRESSONLY
-	then
-	    # We now do this first, so that if the archives are bad for
-	    # any reason we don't want failures to merge or rewrite to
-	    # prevent removing old files as this can lead to full
-	    # filesystems if left unattended.
-	    #
-	    _do_cull
-
-	    if $MFLAG
-	    then
-		# -M don't rewrite, merge or rename
-		#
-		:
-	    else
-		_do_merge
-	    fi
-	fi
-
-	# and compress old archive data files
-	# (after cull - don't compress unnecessarily)
-	#
-	_do_compress
-
-	# autosave any newly merged (and possibly compressed) archives
-	# if PCP_AUTOSAVE_DIR is in play
-	#
-	if [ -s $tmp/autosave -a -s $tmp/savefiles ]
+	find "$PCP_ARCHIVE_DIR" -type f -mtime +$mtime \
+	| sed -n -e '/pmlogger\/daily\..*\.trace/p' \
+	| sort >$tmp/list
+	if [ -s $tmp/list ]
 	then
 	    if $VERBOSE
 	    then
-		( echo "Autosave ... "; _fmt <$tmp/savefiles ) \
-		| sed -e 's/^/    /'
+		echo "Trace files older than $TRACE days being removed ..."
+		_fmt <$tmp/list | sed -e 's/^/    /'
 	    fi
-	    last_mkdir=''
-	    cat $tmp/savefiles \
-	    | while read savefile
-	    do
-		# make sure destination directory hierarchy exists and $PCP_USER
-		# user can write there
-		#
-		DATEYYYY=`echo "$savefile" | sed -e 's/^\(....\).*/\1/'`
-		DATEMM=`echo "$savefile" | sed -e 's/^....\(..\).*/\1/'`
-		DATEDD=`echo "$savefile" | sed -e 's/^......\(..\)/\1/'`
-		auto_dir="`cat $tmp/autosave \
-			   | sed \
-			       -e s/DATEYYYY/$DATEYYYY/g \
-			       -e s/DATEMM/$DATEMM/g \
-			       -e s/DATEDD/$DATEDD/g \
-			       -e s/LOCALHOSTNAME/$dirhostname/`"
-		if [ ! -d "$auto_dir" -a "$auto_dir" != "$last_mkdir" ]
-		then
-		    # mode rwxrwxr-x is the default for pcp:pcp dirs
-		    umask 002
-		    mkdir -p -m 0775 "$auto_dir" >$tmp/tmp 2>&1
-		    # reset the default mode to rw-rw-r- for files
-		    umask 022
-		    if [ ! -d "$auto_dir" ]
-		    then
-			cat $tmp/tmp
-			_error "cannot create directory ($auto_dir) for autosave"
-		    else
-			_warning "creating directory ($auto_dir) for autosave"
-			# fall through and another warning will come from
-			# _autosave()
-		    fi
-		    last_mkdir="$auto_dir"
-		fi
-		# $savefile may be a full pathname
-		#
-		case "$savefile"
-		in
-		    /*)
-			src_dir=`dirname "$savefile"`
-			savefile=`basename "$savefile"`
-			;;
-		    *)
-			src_dir="$dir"
-			;;
-		esac
-		_autosave "$src_dir" "$savefile" "$auto_dir"
-	    done
-	fi
-
-	# and cull old trace files (from -t option)
-	#
-	if [ "$TRACE" -gt 0 ] && ! $COMPRESSONLY
-	then
-	    if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
+	    if $SHOWME
 	    then
-		# See note above re. find(1) on FreeBSD/NetBSD/OpenBSD
-		#
-		mtime=`expr $TRACE - 1`
+		cat $tmp/list | xargs echo + rm -f
 	    else
-		mtime=$TRACE
+		cat $tmp/list | xargs rm -f
 	    fi
-	    find "$PCP_ARCHIVE_DIR" -type f -mtime +$mtime \
-	    | sed -n -e '/pmlogger\/daily\..*\.trace/p' \
-	    | sort >$tmp/list
-	    if [ -s $tmp/list ]
-	    then
-		if $VERBOSE
-		then
-		    echo "Trace files older than $TRACE days being removed ..."
-		    _fmt <$tmp/list | sed -e 's/^/    /'
-		fi
-		if $SHOWME
-		then
-		    cat $tmp/list | xargs echo + rm -f
-		else
-		    cat $tmp/list | xargs rm -f
-		fi
-	    else
-		$VERY_VERBOSE && echo >&2 "Warning: no trace files found to cull"
-	    fi
+	else
+	    $VERY_VERBOSE && echo >&2 "Warning: no trace files found to cull"
 	fi
-
-	_unlock "$dir"
-    done
+    fi
 }
 
 # Paranoid archive saving
@@ -2136,7 +1794,7 @@ p
 			cat $tmp/out
 		    fi
 		fi
-	    elif [ X"$args" = Xremote ]
+	    elif [ X"$args" = X+ ]
 	    then
 		if $NOPROXY
 		then
@@ -2321,11 +1979,11 @@ then
     $VERBOSE && echo "Info: found .NeedRewrite => rewrite all archives"
 fi
 
-_parse_control $CONTROL
+_parse_log_control $CONTROL
 append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort`
 for extra in $append
 do
-    _parse_control $CONTROLDIR/$extra
+    _parse_log_control $CONTROLDIR/$extra
 done
 
 if $NOPROXY
@@ -2350,13 +2008,13 @@ else
 		[ -f "./control" ] && cat "./control" >>$tmp/control
 		# optional per-host controls next
 		[ -f "$_host/control" ] && cat "$_host/control" >>$tmp/control
-		echo "$_host	n n PCP_LOG_DIR/pmproxy/$_host remote" >>$tmp/control
+		echo "$_host	n n PCP_LOG_DIR/pmproxy/$_host +" >>$tmp/control
 		if $VERY_VERBOSE
 		then
 		    echo >&2 "Synthesized control file ..."
 		    cat >&2 $tmp/control
 		fi
-		_parse_control $tmp/control
+		_parse_log_control $tmp/control
 	    fi
 	done
 	cd $here

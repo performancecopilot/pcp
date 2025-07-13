@@ -1,11 +1,11 @@
 QA output created by 564
 # $version=1.1    
 + export version; version=1.1    
++ cd TMP/SEQ-PID.distdir
++ get mutex lock
 
 === daily maintenance of PCP archives for host dist.engr ===
 
-+ cd TMP/SEQ-PID.distdir
-+ get mutex lock
 pmlogger_daily: [TMP/SEQ-PID.ctl:3]
 Error: no pmlogger instance running for host "dist.engr"
 ... logging for host "dist.engr" unchanged
@@ -16,11 +16,12 @@ Archive files older than 14 days being removed ...
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 pmlogger_daily: [TMP/SEQ-PID.ctl:3]
 Warning: current volume of current pmlogger not known, compression skipped
++ release mutex lock
++ cd TMP/SEQ-PID.relaydir
++ get mutex lock
 
 === daily maintenance of PCP archives for host relay.engr ===
 
-+ cd TMP/SEQ-PID.relaydir
-+ get mutex lock
 pmlogger_daily: [TMP/SEQ-PID.ctl:4]
 Error: no pmlogger instance running for host "relay.engr"
 ... logging for host "relay.engr" unchanged
@@ -31,3 +32,4 @@ Archive files older than 14 days being removed ...
 + rm -f FIVEMONTHS.0 FIVEMONTHS.index FIVEMONTHS.meta
 pmlogger_daily: [TMP/SEQ-PID.ctl:4]
 Warning: current volume of current pmlogger not known, compression skipped
++ release mutex lock
