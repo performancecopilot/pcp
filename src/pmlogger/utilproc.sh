@@ -161,7 +161,7 @@ _do_dir_and_args()
 #
 _error()
 {
-    echo "$prog: [$filename:$line]"
+    [ -n "$filename$line" ] && echo "$prog: [$filename:$line]"
     echo "Error: $@"
     echo "... logging for host \"$host\" unchanged"
     touch $tmp/err
@@ -171,7 +171,7 @@ _error()
 #
 _warning()
 {
-    echo "$prog: [$filename:$line]"
+    [ -n "$filename$line" ] && echo "$prog: [$filename:$line]"
     echo "Warning: $@"
 }
 

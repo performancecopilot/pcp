@@ -154,6 +154,7 @@ logutil
 # finer grain than logutil
 pmlogger_daily
 pmlogger_check
+pmlogger_janitor
 
 # pmlogger_daily_report
 pmlogger_daily_report
@@ -1693,7 +1694,7 @@ pmcd.pdu
 1198 pmlogrewrite pmda.linux local pmlogdump
 1199 libpcp pmcd local pmda.sample
 1200 logutil local pmlc pmlogger_check
-1201 logutil remote pmlc pmlogger_check
+1201 logutil remote pmlc pmlogger_check pmlogger_janitor
 1202 pmda.dm local pmrep python
 1203 derive pmval libpcp local
 1204 pmlogctl local sanity
@@ -1935,7 +1936,7 @@ pmcd.pdu
 1440 pmlogrewrite pmlogcheck pminfo local
 1441 pmcd pmlogger logutil pmie pmieutil local not_in_ci
 1442 pmlogrewrite local
-1443 logutil pmlogctl local
+1443 logutil pmlogctl local pmlogger_janitor
 1444 pmda.bpf local
 1445 derive local
 1446 derive local valgrind
