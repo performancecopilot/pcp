@@ -75,7 +75,7 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
-    $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
+    $VERY_VERBOSE && echo "End [check]: `date '+%F %T.%N'`"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -157,8 +157,10 @@ do
 	-l)	PROGLOG="$2"
 		MYPROGLOG="$PROGLOG".$$
 		USE_SYSLOG=false
-		if [ "$PROGLOG" != "/dev/tty" ]
+		if [ "$PROGLOG" = "/dev/tty" ]
 		then
+		    daily_args="${daily_args} -l /dev/tty"
+		else
 		    daily_args="${daily_args} -l $2.from.check"
 		fi
 		shift
@@ -648,13 +650,19 @@ rm -f $tmp/err
 
 rm -f $tmp/pmloggers
 
+# come here from _parse_log_control() once per valid line in a control
+# file ... see utilproc.sh for interface definitions
+#
 _callback_log_control()
 {
-    # set -d to unexpanded directory from _do_dir_and_args() ...
-    # map spaces to CTL-A and tabs to CTL-B to avoid breaking
-    # the argument in the eval used to launch pmlogger
-    #
-    args="-d \"`echo "$orig_dir" | sed -e 's/ //g' -e 's/	//'`\" $args"
+    if ! $logpush
+    then
+	# set -d to unexpanded directory from _do_dir_and_args() ...
+	# map spaces to CTL-A and tabs to CTL-B to avoid breaking
+	# the argument in the eval used to launch pmlogger
+	#
+	args="-d \"`echo "$orig_dir" | sed -e 's/ //g' -e 's/	//'`\" $args"
+    fi
 
     # if -p/--skip-primary on the command line, do not process
     # a control file line for the primary pmlogger
@@ -681,79 +689,7 @@ _callback_log_control()
 	echo "Checking for: pmlogger$pflag -h $host ... in $dir ..."
     fi
 
-    pid=''
-    if [ "$primary" = y ]
-    then
-	if test -e "$PCP_TMP_DIR/pmlogger/primary"
-	then
-	    if $VERY_VERBOSE
-	    then 
-		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
-		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
-		echo "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
-	    fi
-	    pid=`_get_primary_logger_pid`
-	    if [ -z "$pid" ]
-	    then
-		if $VERY_VERBOSE
-		then
-		    echo "primary pmlogger process pid not found"
-		    ls -l "$PCP_RUN_DIR/pmlogger.pid"
-		    ls -l "$PCP_TMP_DIR/pmlogger"
-		fi
-	    elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-	    then
-		$VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
-		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
-	    else
-		$VERY_VERBOSE && echo "primary pmlogger process $pid not running"
-		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
-		pid=''
-	    fi
-	else
-	    if $VERY_VERBOSE
-	    then
-		echo "$PCP_TMP_DIR/pmlogger/primary: missing?"
-		echo "Contents of $PCP_TMP_DIR/pmlogger"
-		ls -l $PCP_TMP_DIR/pmlogger
-		echo "--- end of ls output ---"
-	    fi
-	fi
-    else
-	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
-	do
-	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
-	    if $VERY_VERBOSE
-	    then
-		_host=`sed -n 2p <$log`
-		_arch=`sed -n 3p <$log`
-		_archdir=`sed -n '3s@/[^/]*$@@p' <$log`
-		$PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch archdir=$_archdir ctldir=$dir: ""$PCP_ECHO_C"
-	    fi
-	    # throw away stderr in case $log has been removed by now
-	    match=`sed -e '3s@/[^/]*$@@' $log 2>/dev/null | \
-	    $PCP_AWK_PROG '
-BEGIN				{ m = 0 }
-NR == 3 && $0 == "'"$dir"'"	{ m = 2; next }
-END				{ print m }'`
-	    $VERY_VERBOSE && $PCP_ECHO_PROG $PCP_ECHO_N "match=$match ""$PCP_ECHO_C"
-	    if [ "$match" = 2 ]
-	    then
-		pid=`echo $log | sed -e 's,.*/,,'`
-		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-		then
-		    $VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
-		    break
-		fi
-		$VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
-		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
-		pid=''
-	    else
-		$VERY_VERBOSE && echo "different directory, skip"
-	    fi
-	done
-    fi
+    pid=`_find_matching_pmlogger`
 
     if [ -z "$pid" -a $START_PMLOGGER = true ]
     then
@@ -807,8 +743,6 @@ END				{ print m }'`
 	    _configure_pmlogger "$configfile" "$host"
 	fi
 
-	$VERBOSE && _restarting
-
 	sock_me=''
 	if [ "$socks" = y ]
 	then
@@ -850,12 +784,15 @@ END				{ print m }'`
 
 	if $SHOWME
 	then
+	    $VERBOSE && _restarting
 	    echo
 	    echo "+ ${sock_me}$PMLOGGER $args" | sed -e 's// /g' -e 's//	/g'
 	    return
 	else
 	    $PCP_BINADM_DIR/pmpost "start pmlogger from $prog for host $host"
 	    # The pmlogger child will be re-parented to init (aka systemd)
+	    $VERY_VERBOSE && echo >&2 "Command: $envs ${sock_me}$PMLOGGER $args"
+	    $VERBOSE && _restarting
 	    pid=`eval $envs '${sock_me}$PMLOGGER $args >$tmp/out 2>&1 & echo $!'`
 	fi
 
@@ -900,7 +837,6 @@ END				{ print m }'`
 	eval $KILL -s TERM $pid
 	$PCP_ECHO_PROG $PCP_ECHO_N "$pid ""$PCP_ECHO_C" >> $tmp/pmloggers
     fi
-
 }
 
 # parse and process the control file(s)
@@ -955,6 +891,7 @@ fi
 #
 if [ "$CONTROL" = "$PCP_PMLOGGERCONTROL_PATH" -a "$PMLOGGER_CHECK_SKIP_JANITOR" != "yes" ]
 then
+    $VERY_VERBOSE && echo "Running: pmlogger_janitor $daily_args"
     $PCP_BINADM_DIR/pmlogger_janitor $daily_args
 fi
 

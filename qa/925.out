@@ -2,7 +2,7 @@ QA output created by 925
 pmlogger_daily: [TMP.control:5]
 Warning: creating directory (TMP/pmlogger/myhost/2017/02/12) for PCP archive files
 
-=== daily maintenance of PCP archives for host local: ===
+=== daily maintenance of PCP archives for host local: in TMP/pmlogger/myhost/2017/02/12 ===
 
 pmlogger_daily: [TMP.control:5]
 Error: no pmlogger instance running for host "local:"

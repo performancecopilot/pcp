@@ -140,9 +140,9 @@ $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
 echo 'mech_list: plain' >$tmp.sasl
 echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
 $sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
-$sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
+$sudo chown $PCP_USER:$PCP_GROUP $PCP_SASLCONF_DIR/pmcd.conf
 ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
-$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
+$sudo -u $PCP_USER cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
 echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq_full
 password="some=very&secret.passwörd"
@@ -161,7 +161,7 @@ echo "Ensure pmcd can read the password file" | tee -a $seq_full
 chmod 640 $tmp.passwd.db
 $sudo chgrp pcp $tmp.passwd.db
 ls -l $tmp.passwd.db >>$seq_full
-$sudo -u pcp od -c $tmp.passwd.db >>$seq_full
+$sudo -u $PCP_USER od -c $tmp.passwd.db >>$seq_full
 
 echo "Start pmcd with this shiny new sasldb"
 if ! _service pmcd restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out

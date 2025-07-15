@@ -200,7 +200,7 @@ export PMCD_SOCKET=$tmp/pmcd.socket
 #
 username=`id -u -n`
 sudoopts="-u $username"
-id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
+id $PCP_USER >/dev/null 2>&1 && sudoopts="-u $PCP_USER"
 
 echo "sudoopts=$sudoopts" >>$seq_full
 echo "PMCD_PORT=$PMCD_PORT" >>$seq_full

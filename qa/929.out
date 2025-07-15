@@ -4,7 +4,7 @@ QA output created by 929
 + cd TMP.one
 + get mutex lock
 
-=== daily maintenance of PCP archives for host one.somewhere ===
+=== daily maintenance of PCP archives for host one.somewhere in TMP.one ===
 
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "one.somewhere"
@@ -17,7 +17,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP.two
 + get mutex lock
 
-=== daily maintenance of PCP archives for host two.somewhere ===
+=== daily maintenance of PCP archives for host two.somewhere in TMP.two ===
 
 pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "two.somewhere"
@@ -35,7 +35,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP.one
 + get mutex lock
 
-=== daily maintenance of PCP archives for host one.somewhere ===
+=== daily maintenance of PCP archives for host one.somewhere in TMP.one ===
 
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "one.somewhere"
@@ -46,7 +46,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP.two
 + get mutex lock
 
-=== daily maintenance of PCP archives for host two.somewhere ===
+=== daily maintenance of PCP archives for host two.somewhere in TMP.two ===
 
 pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "two.somewhere"

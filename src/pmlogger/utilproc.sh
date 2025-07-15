@@ -475,6 +475,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	case "$dir"
 	in
 	    +*)	dir=`echo "$dir" | sed -e 's/^+//'`
+	    	orig_dir=`echo "$orig_dir" | sed -e 's/^+//'`
 		logpush=true
 		;;
 	    *)	logpush=false
@@ -650,6 +651,106 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 
     done
 }
+
+# Called from _callback_log_control() [in pmlogger_check and pmlogger_janitor]
+# to return the PID of the running pmlogger that matches the current control
+# line, or '' if no such process exists
+#
+# See _parse_log_control() for the variables that are in play when this
+# function is called.
+#
+_find_matching_pmlogger()
+{
+    _pid=''
+    if [ "$primary" = y ]
+    then
+	if test -e "$PCP_TMP_DIR/pmlogger/primary"
+	then
+	    if $VERY_VERBOSE
+	    then 
+		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
+		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
+		echo >&2 "... try $PCP_TMP_DIR/pmlogger/primary: _host=$_host _arch=$_arch"
+	    fi
+	    _pid=`_get_primary_logger_pid`
+	    if [ -z "$_pid" ]
+	    then
+		if $VERY_VERBOSE
+		then
+		    echo >&2 "primary pmlogger process pid not found"
+		    ls >&2 -l "$PCP_RUN_DIR/pmlogger.pid"
+		    ls >&2 -l "$PCP_TMP_DIR/pmlogger"
+		fi
+	    elif _get_pids_by_name pmlogger | grep "^$_pid\$" >/dev/null
+	    then
+		$VERY_VERBOSE && echo >&2 "primary pmlogger process $_pid identified, OK"
+		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep >&2 -E '[P]ID|/[p]mlogger( |$)'
+	    else
+		$VERY_VERBOSE && echo >&2 "primary pmlogger process $_pid not running"
+		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep >&2 -E '[P]ID|/[p]mlogger( |$)'
+		_pid=''
+	    fi
+	else
+	    if $VERY_VERBOSE
+	    then
+		echo >&2 "$PCP_TMP_DIR/pmlogger/primary: missing?"
+		echo >&2 "Contents of $PCP_TMP_DIR/pmlogger"
+		ls >&2 -l $PCP_TMP_DIR/pmlogger
+		echo >&2 "--- end of ls output ---"
+	    fi
+	fi
+    else
+	# not the primary pmlogger ...
+	#
+	for _log in $PCP_TMP_DIR/pmlogger/[0-9]*
+	do
+	    [ "$_log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
+	    if $logpush
+	    then
+		# the "archive" record in $PCP_TMP_DIR is not the
+		# archive basename, but something like http://foo.com:44322
+		# from the -R option to pmlogger
+		#
+		_trydir=`echo "$args" | sed -e 's/.* -R *//' -e 's/ .*//'`
+	    else
+		_trydir="$dir"
+	    fi
+	    if $VERY_VERBOSE
+	    then
+		_host=`sed -n 2p <$_log`
+		_archdir=`sed -n 3p <$_log`
+		$PCP_ECHO_PROG >&2 $PCP_ECHO_N "... try $_log _host=$_host _archdir=$_archdir _trydir=$_trydir dir=$dir: ""$PCP_ECHO_C"
+	    fi
+	    # throw away stderr in case $log has been removed by now
+	    # if "archive" basename starts with a /, strip filename to
+	    # get dirname, else use http://foo.com:44322 in full
+	    #
+	    _match=`sed -e '3s/^\(\/.*\)\/[^/]*$/\1/' $_log 2>/dev/null \
+	            | $PCP_AWK_PROG '
+BEGIN				{ m = 0 }
+NR == 3 && $0 == "'"$_trydir"'"	{ m = 2; next }
+END				{ print m }'`
+	    $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "match=$_match ""$PCP_ECHO_C"
+	    if [ "$_match" = 2 ]
+	    then
+		_pid=`echo $_log | sed -e 's,.*/,,'`
+		if _get_pids_by_name pmlogger | grep "^$_pid\$" >/dev/null
+		then
+		    $VERY_VERBOSE && echo >&2 "pmlogger process $_pid identified, OK"
+		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep >&2 -E '[P]ID|/[p]mlogger( |$)'
+		    break
+		fi
+		$VERY_VERBOSE && echo >&2 "pmlogger process $_pid not running, skip"
+		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep >&2 -E '[P]ID|/[p]mlogger( |$)'
+		_pid=''
+	    else
+		$VERY_VERBOSE && echo >&2 "different directory, skip"
+	    fi
+	done
+    fi
+    echo "$_pid"
+}
+
 
 # Usage: _save_prev_file pathname
 #

@@ -11,7 +11,7 @@ YESTERDAY.12.10.index YESTERDAY.12.10.meta TODAY.00.10.0
 TODAY.00.10.index TODAY.00.10.meta
 
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/myhost ===
 
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "localhost"
@@ -49,7 +49,7 @@ YESTERDAY.12.10.index YESTERDAY.12.10.meta TODAY.00.10.0
 TODAY.00.10.index TODAY.00.10.meta
 
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/myhost ===
 
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "localhost"
@@ -87,7 +87,7 @@ YESTERDAY.12.10.index YESTERDAY.12.10.meta TODAY.00.10.0
 TODAY.00.10.index TODAY.00.10.meta pmlogrewrite
 
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/myhost ===
 
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "localhost"

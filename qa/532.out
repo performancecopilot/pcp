@@ -57,7 +57,7 @@ foo
 sed
 
 
-=== daily maintenance of PCP archives for host HOST ===
+=== daily maintenance of PCP archives for host HOST in TMP ===
 
 PMLOGGER.DAILY: [TMP/control:2]
 Error: no pmlogger instance running for host "HOST"

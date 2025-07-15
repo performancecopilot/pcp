@@ -22,15 +22,15 @@ Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 
 pmlogger_daily
 
-=== daily maintenance of PCP archives for host LOCALHOST ===
+=== daily maintenance of PCP archives for host LOCALHOST in TMP/A ===
 
 Warning: no archives found to merge
 
-=== daily maintenance of PCP archives for host LOCALHOST ===
+=== daily maintenance of PCP archives for host LOCALHOST in TMP/B ===
 
 Warning: no archives found to merge
 
-=== daily maintenance of PCP archives for host LOCALHOST ===
+=== daily maintenance of PCP archives for host LOCALHOST in TMP/C ===
 
 Warning: no archives found to merge
 3 archives in TMP/A

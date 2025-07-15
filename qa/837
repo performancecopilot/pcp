@@ -37,8 +37,8 @@ _filter()
 # real QA test starts here
 uid=`id -u`
 gid=`id -g`
-pcp_uid=`$sudo -u pcp id -u`
-pcp_gid=`$sudo -u pcp id -g`
+pcp_uid=`$sudo -u $PCP_USER id -u`
+pcp_gid=`$sudo -u $PCP_USER id -g`
 
 # reset the sample PMDA logfile
 if ! _service pcp start >/dev/null 2>&1; then _exit 1; fi

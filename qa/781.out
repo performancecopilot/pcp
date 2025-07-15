@@ -34,7 +34,7 @@ Restarting pmlogger for host "another.host" ...
 + cd logs/HOSTNAME
 + get mutex lock
 
-=== compressing PCP archives for host local: ===
+=== compressing PCP archives for host local: in LOGDIR/logs/HOSTNAME ===
 
 pmlogger_daily: [control:4]
 Error: no pmlogger instance running for host "local:"
@@ -47,7 +47,7 @@ Warning: current volume of current pmlogger not known, compression skipped
 + cd logs/no.such.host.pcp.io
 + get mutex lock
 
-=== compressing PCP archives for host no.such.host.pcp.io ===
+=== compressing PCP archives for host no.such.host.pcp.io in LOGDIR/logs/no.such.host.pcp.io ===
 
 pmlogger_daily: [control:5]
 Error: no pmlogger instance running for host "no.such.host.pcp.io"
@@ -60,7 +60,7 @@ Warning: current volume of current pmlogger not known, compression skipped
 + cd logs/another.host
 + get mutex lock
 
-=== compressing PCP archives for host another.host ===
+=== compressing PCP archives for host another.host in LOGDIR/logs/another.host ===
 
 pmlogger_daily: [control:6]
 Error: no pmlogger instance running for host "another.host"

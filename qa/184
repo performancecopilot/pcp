@@ -18,7 +18,7 @@ _cleanup()
     if [ ! -f $tmp.cleanup ]
     then
 	$sudo $signal -a pmlogger >/dev/null 2>&1
-	$sudo $PCP_BINADM_DIR/pmlogger_check
+	$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check
 	_wait_for_pmlogger
 	touch $tmp.cleanup
     fi

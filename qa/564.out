@@ -4,7 +4,7 @@ QA output created by 564
 + cd TMP/SEQ-PID.distdir
 + get mutex lock
 
-=== daily maintenance of PCP archives for host dist.engr ===
+=== daily maintenance of PCP archives for host dist.engr in TMP/SEQ-PID.distdir ===
 
 pmlogger_daily: [TMP/SEQ-PID.ctl:3]
 Error: no pmlogger instance running for host "dist.engr"
@@ -20,7 +20,7 @@ Warning: current volume of current pmlogger not known, compression skipped
 + cd TMP/SEQ-PID.relaydir
 + get mutex lock
 
-=== daily maintenance of PCP archives for host relay.engr ===
+=== daily maintenance of PCP archives for host relay.engr in TMP/SEQ-PID.relaydir ===
 
 pmlogger_daily: [TMP/SEQ-PID.ctl:4]
 Error: no pmlogger instance running for host "relay.engr"

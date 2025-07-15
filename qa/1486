@@ -127,7 +127,7 @@ End-of-File
     else
 	flag=''
     fi
-    $sudo -u pcp $PCP_BINADM_DIR/pmlogger_check -q -l $tmp.log -V $flag -c $tmp.control
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -q -l $tmp.log -V $flag -c $tmp.control
 
     # optionally map enclosing single quotes to enclosing double quotes
     # so eval gets done

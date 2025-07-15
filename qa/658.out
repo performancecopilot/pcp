@@ -1,6 +1,6 @@
 QA output created by 658
 
-=== daily maintenance of PCP archives for host thishost ===
+=== daily maintenance of PCP archives for host thishost in TMP/thishost ===
 
 pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "thishost"
@@ -28,7 +28,7 @@ Archive files being compressed ...
     20011002.0 20011002.meta 20011003.0 20011003.meta 20011004.0 20011004.meta
     20011005.0 20011005.meta 20011006.0 20011006.meta 20011007.0 20011007.meta
 
-=== daily maintenance of PCP archives for host otherhost ===
+=== daily maintenance of PCP archives for host otherhost in TMP/otherhost ===
 
 pmlogger_daily: [TMP.control:5]
 Error: no pmlogger instance running for host "otherhost"

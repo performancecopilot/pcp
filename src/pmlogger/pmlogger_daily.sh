@@ -73,7 +73,7 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
-    $VERY_VERBOSE && echo >&2 "End: `date '+%F %T.%N'`"
+    $VERY_VERBOSE && echo >&2 "End [daily]: `date '+%F %T.%N'`"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -1055,14 +1055,18 @@ END	{ print out }'
 #
 _callback_log_control()
 {
+    # nothing to do for pmlogger pushing to a remote pmproxy
+    #
+    $logpush && return
+
     if $VERBOSE
     then
 	echo
 	if $COMPRESSONLY
 	then
-	    echo "=== compressing PCP archives for host $host ==="
+	    echo "=== compressing PCP archives for host $host in $dir ==="
 	else
-	    echo "=== daily maintenance of PCP archives for host $host ==="
+	    echo "=== daily maintenance of PCP archives for host $host in $dir ==="
 	fi
 	echo
     fi
@@ -1804,7 +1808,6 @@ p
 		    # pick last (in sort order) uncompressed data volume
 		    #
 		    _last=`ls $PCP_LOG_DIR/pmproxy/$host 2>/dev/null | grep '\.[0-9][0-9]*$' | tail -1`
-		    $VERY_VERBOSE && echo >&2 "_last=$_last"
 		    current_base=`echo "$_last" | sed -e 's/\.[0-9][0-9]*$//'`
 		    current_vol=`echo "$_last" | sed -e 's/.*\.//'`
 		    $VERY_VERBOSE && echo >&2 "latest archive data volume: $current_base.$current_vol"

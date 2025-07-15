@@ -9,7 +9,7 @@ Info: processing archives from remote pmlogger on host qahost
 + cd TMP/pmproxy/qahost
 + get mutex lock
 
-=== daily maintenance of PCP archives for host qahost ===
+=== daily maintenance of PCP archives for host qahost in TMP/pmproxy/qahost ===
 
 Archive files being compressed ...
     TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta
@@ -27,7 +27,7 @@ Info: processing archives from remote pmlogger on host qahost
 + cd TMP/pmproxy/qahost
 + get mutex lock
 
-=== daily maintenance of PCP archives for host qahost ===
+=== daily maintenance of PCP archives for host qahost in TMP/pmproxy/qahost ===
 
 Archive files older than 4 days being removed ...
     TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2
@@ -53,7 +53,7 @@ Info: processing archives from remote pmlogger on host qahost
 + cd TMP/pmproxy/qahost
 + get mutex lock
 
-=== daily maintenance of PCP archives for host qahost ===
+=== daily maintenance of PCP archives for host qahost in TMP/pmproxy/qahost ===
 
 Archive files older than 4 days being removed ...
     TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2
@@ -79,7 +79,7 @@ Info: processing archives from remote pmlogger on host qahost
 + cd TMP/pmproxy/qahost
 + get mutex lock
 
-=== daily maintenance of PCP archives for host qahost ===
+=== daily maintenance of PCP archives for host qahost in TMP/pmproxy/qahost ===
 
 Archive files older than 4 days being removed ...
     TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2
@@ -113,7 +113,7 @@ Warning: $PCP_COMPRESSAFTER (2) reset from control file, previous value (4) igno
 + cd TMP/pmproxy/qahost
 + get mutex lock
 
-=== daily maintenance of PCP archives for host qahost ===
+=== daily maintenance of PCP archives for host qahost in TMP/pmproxy/qahost ===
 
 Archive files older than 4 days being removed ...
     TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2

@@ -954,7 +954,7 @@ _wait_for_pmlogger()
     in
 	0)
 	    __pid="-P"
-	    __sudo="$sudo -u pcp"
+	    __sudo="$sudo -u $PCP_USER"
 	    __dir_hostname=`hostname || echo localhost`
 	    __logfile="$PCP_ARCHIVE_DIR/$__dir_hostname/pmlogger.log" 
             __ident="primary"
@@ -985,7 +985,7 @@ _wait_for_pmlogger()
     do
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$tmp._wait_for_pmlogger.pmlc
 	echo "pmlc $__pid" >>$tmp._wait_for_pmlogger.pmlc
-	# May need sudo -u pcp here in case we're doing credentials checks
+	# May need sudo -u $PCP_USER here in case we're doing credentials checks
 	# in pmlogger and this is the primary pmlogger (started by user
 	# pcp) ... $__sudo contains the right secret sauce.
 	#

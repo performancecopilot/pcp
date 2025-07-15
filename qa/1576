@@ -92,7 +92,7 @@ _filter()
 	-e '/^Warning: cannot save previous date-and-timestamp/d' \
 	-e '/^Warning: cannot install new date-and-timestamp/d' \
 	-e '/^Start: /d' \
-	-e '/^End: /d' \
+	-e '/^End[: ]/d' \
 	-e 's/^\(Warning:.*PCP_COMPRESS (xz\)\([^)]*\))/\1 ...)/' \
     # end
 }

@@ -79,7 +79,7 @@ TMP/YESTERDAY/YESTERDAY.meta
 
 === [verbose] regular old -o show ===
 
-=== daily maintenance of PCP archives for host HOST ===
+=== daily maintenance of PCP archives for host HOST in TMP/TODAY ===
 
 Embedded $(...): find_dirs=TMP/*
 PMLOGGER.DAILY: [TMP.control:2]
@@ -133,7 +133,7 @@ TMP/YESTERDAY/YESTERDAY.meta
 
 === [verbose] no -o merge archives from before yesterday + rewrite all ===
 
-=== daily maintenance of PCP archives for host HOST ===
+=== daily maintenance of PCP archives for host HOST in TMP/TODAY ===
 
 Embedded $(...): find_dirs=TMP/*
 Info: pmlogrewrite all archives in TMP/TODAY-5
@@ -180,7 +180,7 @@ TMP/YESTERDAY/YESTERDAY.meta
 
 === [verbose] error, output already exists ===
 
-=== daily maintenance of PCP archives for host HOST ===
+=== daily maintenance of PCP archives for host HOST in TMP/TODAY ===
 
 Embedded $(...): find_dirs=TMP/*
 PMLOGGER.DAILY: [TMP.control:2]

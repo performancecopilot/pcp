@@ -1,7 +1,7 @@
 QA output created by 503
 +++ should just work ... +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -21,7 +21,7 @@ Removing input archive files ...... done
 
 +++ expect mismatch +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -45,7 +45,7 @@ pmlogger_merge: Error: file "20111001.0" not created
 
 +++ expect fix via local config file +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -75,7 +75,7 @@ Removing input archive files ...... done
 
 +++ expect fix via local symlink config file +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -105,7 +105,7 @@ Removing input archive files ...... done
 
 +++ expect fix via global config dir +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -135,7 +135,7 @@ Removing input archive files ...... done
 
 +++ expect fix via symlink to global config dir +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -167,7 +167,7 @@ Removing input archive files ...... done
 
 +++ expect mismatch +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -189,7 +189,7 @@ pmlogger_merge: Error: file "20111001.0" not created
 
 +++ expect fix via local config file +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -233,7 +233,7 @@ Removing input archive files ...... done
 
 +++ expect fix via local symlink config file +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -277,7 +277,7 @@ Removing input archive files ...... done
 
 +++ expect fix via global config dir +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -321,7 +321,7 @@ Removing input archive files ...... done
 
 +++ expect fix via symlink to global config dir +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"
@@ -365,7 +365,7 @@ Removing input archive files ...... done
 
 +++ expect fail when -r used and local config file present +++
 
-=== daily maintenance of PCP archives for host HOSTNAME ===
+=== daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
 pmlogger_daily: [TMP.control:2]
 Error: no pmlogger instance running for host "HOSTNAME"

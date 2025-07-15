@@ -128,7 +128,7 @@ End-of-File
 	case "$f"
 	in
 	    */..)	;;
-	    *)		$sudo chown pcp:pcp "$f"
+	    *)		$sudo chown $PCP_USER:$PCP_GROUP "$f"
 	    		;;
 	esac
     done
@@ -169,7 +169,7 @@ done
 echo | tee -a $seq_full
 echo "+++ -V -R +++" | tee -a $seq_full
 _setup
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k forever -x never -V -R -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
 cat $tmp.err $tmp.log >>$seq_full
@@ -184,8 +184,8 @@ done
 echo | tee -a $seq_full
 echo "+++ .NeedRewrite +++" | tee -a $seq_full
 _setup
-$sudo -u pcp touch $PCP_LOG_DIR/pmlogger/.NeedRewrite
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
+$sudo -u $PCP_USER -g $PCP_GROUP touch $PCP_LOG_DIR/pmlogger/.NeedRewrite
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k forever -x never -l $tmp.log 2>$tmp.err
 _filter <$tmp.err
 _filter <$tmp.log
 cat $tmp.err $tmp.log >>$seq_full

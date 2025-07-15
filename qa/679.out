@@ -6,7 +6,7 @@ QA output created by 679
 + cd TMP/oldsem0
 + get mutex lock
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/oldsem0 ===
 
 Info: pmlogrewrite all archives in TMP/oldsem0
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem0/pmlogrewrite -V TMP/oldsem0
@@ -21,7 +21,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP/oldsem1
 + get mutex lock
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/oldsem1 ===
 
 Info: pmlogrewrite all archives in TMP/oldsem1
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem1/pmlogrewrite -V TMP/oldsem1
@@ -35,7 +35,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP/oldsem2
 + get mutex lock
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/oldsem2 ===
 
 Info: pmlogrewrite all archives in TMP/oldsem2
 + PCP_BINADM_DIR/pmlogger_rewrite  -c TMP/oldsem2/pmlogrewrite -V TMP/oldsem2
@@ -48,7 +48,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP/newsem0
 + get mutex lock
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/newsem0 ===
 
 Info: pmlogrewrite all archives in TMP/newsem0
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem0
@@ -66,7 +66,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP/newsem1
 + get mutex lock
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/newsem1 ===
 
 Info: pmlogrewrite all archives in TMP/newsem1
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/newsem1
@@ -81,7 +81,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + cd TMP/empty
 + get mutex lock
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/empty ===
 
 Info: pmlogrewrite all archives in TMP/empty
 + PCP_BINADM_DIR/pmlogger_rewrite -c $PCP_VAR_DIR/config/pmlogrewrite -V TMP/empty
@@ -179,7 +179,7 @@ newsem1/20011008:
 
 +++ -V -R +++
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/oldsem0 ===
 
 Info: pmlogrewrite all archives in TMP/oldsem0
 Error: no pmlogger instance running for host "localhost"
@@ -195,7 +195,7 @@ Output archive files:
 <ls output> 20011005.0
 Removing input archive files ......... done
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/oldsem1 ===
 
 Info: pmlogrewrite all archives in TMP/oldsem1
 Error: no pmlogger instance running for host "localhost"
@@ -210,7 +210,7 @@ Output archive files:
 <ls output> 20011005.0
 Removing input archive files ...... done
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/oldsem2 ===
 
 Info: pmlogrewrite all archives in TMP/oldsem2
 Error: no pmlogger instance running for host "localhost"
@@ -223,7 +223,7 @@ remove ./20011005.00.10.0
 remove ./20011005.00.10.index
 remove ./20011005.00.10.meta
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/newsem0 ===
 
 Info: pmlogrewrite all archives in TMP/newsem0
 Error: no pmlogger instance running for host "localhost"
@@ -242,7 +242,7 @@ Output archive files:
 <ls output> 20011005.0
 Removing input archive files .................. done
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/newsem1 ===
 
 Info: pmlogrewrite all archives in TMP/newsem1
 Error: no pmlogger instance running for host "localhost"
@@ -258,7 +258,7 @@ Output archive files:
 <ls output> 20011005.0
 Removing input archive files ......... done
 
-=== daily maintenance of PCP archives for host localhost ===
+=== daily maintenance of PCP archives for host localhost in TMP/empty ===
 
 Info: pmlogrewrite all archives in TMP/empty
 Warning: no PCP archives found

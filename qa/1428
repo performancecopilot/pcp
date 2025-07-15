@@ -53,8 +53,8 @@ _filter()
 
 _doit()
 {
-    $sudo chown pcp:pcp $tmp $tmp/*
-    if $sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily_report -V -A -a $tmp/daily_report -l $tmp/LOG -f $tmp/OUT -t 2sec
+    $sudo chown $PCP_USER:$PCP_GROUP $tmp $tmp/*
+    if $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily_report -V -A -a $tmp/daily_report -l $tmp/LOG -f $tmp/OUT -t 2sec
     then
 	:
     else
@@ -77,13 +77,13 @@ _doit
 
 echo
 echo "xz compression for .meta"
-$sudo -u pcp xz $tmp/daily_report.meta
+$sudo -u $PCP_USER xz $tmp/daily_report.meta
 _doit
 
 echo
 echo "gzip compression for .0"
-$sudo -u pcp unxz $tmp/daily_report.meta.xz
-$sudo -u pcp gzip $tmp/daily_report.0
+$sudo -u $PCP_USER unxz $tmp/daily_report.meta.xz
+$sudo -u $PCP_USER gzip $tmp/daily_report.0
 _doit
 
 # success, all done

@@ -77,7 +77,7 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
-    $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
+    $VERY_VERBOSE && echo "End [janitor]: `date '+%F %T.%N'`"
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -329,6 +329,9 @@ rm -f $tmp/err
 
 rm -f $tmp/pmloggers
 
+# come here from _parse_log_control() once per valid line in a control
+# file ... see utilproc.sh for interface definitions
+#
 _callback_log_control()
 {
     if $VERY_VERBOSE
@@ -338,78 +341,7 @@ _callback_log_control()
 	echo "Checking for: pmlogger$pflag -h $host ... in $dir ..."
     fi
 
-    pid=''
-    if [ "$primary" = y ]
-    then
-	if test -e "$PCP_TMP_DIR/pmlogger/primary"
-	then
-	    if $VERY_VERBOSE
-	    then 
-		_host=`sed -n 2p <"$PCP_TMP_DIR/pmlogger/primary"`
-		_arch=`sed -n 3p <"$PCP_TMP_DIR/pmlogger/primary"`
-		echo "... try $PCP_TMP_DIR/pmlogger/primary: host=$_host arch=$_arch"
-	    fi
-	    pid=`_get_primary_logger_pid`
-	    if [ -z "$pid" ]
-	    then
-		if $VERY_VERBOSE
-		then
-		    echo "primary pmlogger process pid not found"
-		    ls -l "$PCP_RUN_DIR/pmlogger.pid"
-		    ls -l "$PCP_TMP_DIR/pmlogger"
-		fi
-	    elif _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-	    then
-		$VERY_VERBOSE && echo "primary pmlogger process $pid identified, OK"
-		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
-	    else
-		$VERY_VERBOSE && echo "primary pmlogger process $pid not running"
-		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
-		pid=''
-	    fi
-	else
-	    if $VERY_VERBOSE
-	    then
-		echo "$PCP_TMP_DIR/pmlogger/primary: missing?"
-		echo "Contents of $PCP_TMP_DIR/pmlogger"
-		ls -l $PCP_TMP_DIR/pmlogger
-		echo "--- end of ls output ---"
-	    fi
-	fi
-    else
-	for log in $PCP_TMP_DIR/pmlogger/[0-9]*
-	do
-	    [ "$log" = "$PCP_TMP_DIR/pmlogger/[0-9]*" ] && continue
-	    if $VERY_VERBOSE
-	    then
-		_host=`sed -n 2p <$log`
-		_arch=`sed -n 3p <$log`
-		$PCP_ECHO_PROG $PCP_ECHO_N "... try $log host=$_host arch=$_arch: ""$PCP_ECHO_C"
-	    fi
-	    # throw away stderr in case $log has been removed by now
-	    match=`sed -e '3s@/[^/]*$@@' $log 2>/dev/null | \
-	    $PCP_AWK_PROG '
-BEGIN				{ m = 0 }
-NR == 3 && $0 == "'$dir'"	{ m = 2; next }
-END				{ print m }'`
-	    $VERY_VERBOSE && echo "match=$match"
-	    if [ "$match" = 2 ]
-	    then
-		pid=`echo $log | sed -e 's,.*/,,'`
-		if _get_pids_by_name pmlogger | grep "^$pid\$" >/dev/null
-		then
-		    $VERY_VERBOSE && echo "pmlogger process $pid identified, OK"
-		    $VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
-		    break
-		fi
-		$VERY_VERBOSE && echo "pmlogger process $pid not running, skip"
-		$VERY_VERY_VERBOSE && $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
-		pid=''
-	    else
-		$VERY_VERBOSE && echo "different directory, skip"
-	    fi
-	done
-    fi
+    pid=`_find_matching_pmlogger`
 
     if [ -n "$pid" ]
     then
@@ -482,6 +414,36 @@ for c in $CONTROL $append
 do
     _parse_log_control "$c"
 done
+
+# check for any archives from remote pmloggers via pmproxy or
+# pmlogpush ... if found, synthesize a control file for them
+#
+here=`pwd`
+if cd $PCP_LOG_DIR/pmproxy
+then
+    for _host in *
+    do
+	# TODO - does this need to be smarter?  e.g. check for some
+	# minimal dir contents (.index file?)
+	if [ -d "$_host" ]
+	then
+	    $VERBOSE && echo "Info: processing archives from remote pmlogger on host $_host"
+	    echo '$version=1.1' >$tmp/control
+	    # optional global controls first
+	    [ -f "./control" ] && cat "./control" >>$tmp/control
+	    # optional per-host controls next
+	    [ -f "$_host/control" ] && cat "$_host/control" >>$tmp/control
+	    echo "$_host	n n PCP_LOG_DIR/pmproxy/$_host +" >>$tmp/control
+	    if $VERY_VERBOSE
+	    then
+		echo >&2 "Synthesized control file ..."
+		cat >&2 $tmp/control
+	    fi
+	    _parse_log_control $tmp/control
+	fi
+    done
+    cd $here
+fi
 
 if [ ! -s $tmp/loggers ]
 then

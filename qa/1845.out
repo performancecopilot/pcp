@@ -3,7 +3,7 @@ QA output created by 1845
 Add merge callback for: pmlogger_daily_report
 Info: processing archives from remote pmlogger on host qahost
 
-=== daily maintenance of PCP archives for host qahost ===
+=== daily maintenance of PCP archives for host qahost in TMP/pmproxy/qahost ===
 
 Input archives to be merged:
 	TODAY-2.00.10
