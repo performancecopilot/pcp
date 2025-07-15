@@ -63,7 +63,7 @@ _filter_log()
     | sed \
 	-e '1,/=== daily /d' \
 	-e '/^Start:/d' \
-	-e '/^End:/d' \
+	-e '/^End[: ]/d' \
 	-e '/^COMPRESSAFTER=/d' \
 	-e '/^\+ /d' \
 	-e '/^\.\.\. try /d' \
