@@ -120,6 +120,11 @@ remote_label(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 		__FUNCTION__, path, remote.conn, sts, remote.body);
 	return -EINVAL;
     }
+
+    remote.total_meta = length;
+    remote.total_index = length;
+    remote.total_volume = length;
+
     return 0;
 }
 
@@ -162,16 +167,17 @@ remote_write(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 		__FUNCTION__, path, remote.conn, remote.body_bytes);
 	return -EINVAL;
     }
-    if (volume == PM_LOG_VOL_META)
-	remote.total_meta += remote.body_bytes;
-    else if (volume == PM_LOG_VOL_TI)
-	remote.total_index += remote.body_bytes;
-    else
-	remote.total_volume += remote.body_bytes;
 
     if (pmDebugOptions.http)
 	fprintf(stderr, "%s: POST %s to %s success\n",
 		__FUNCTION__, path, remote.conn);
+
+    if (volume == PM_LOG_VOL_META)
+	remote.total_meta += length;
+    else if (volume == PM_LOG_VOL_TI)
+	remote.total_index += length;
+    else
+	remote.total_volume += length;
 
     return 0;
 }

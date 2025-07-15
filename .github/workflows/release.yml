@@ -22,7 +22,6 @@ jobs:
         include:
           # run all PCP builds in containers, because the GitHub Actions images contain
           # different packages than the stock Ubuntu releases
-          - {platform: debian10-container,        os: ubuntu-latest}
           - {platform: debian11-container,        os: ubuntu-latest}
           - {platform: debian12-container,        os: ubuntu-latest}
           - {platform: ubuntu1804-container,      os: ubuntu-latest}

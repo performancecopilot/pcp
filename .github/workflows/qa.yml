@@ -21,7 +21,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - {platform: debian10-container,        os: ubuntu-latest, experimental: false}
           - {platform: debian11-container,        os: ubuntu-latest, experimental: false}
           - {platform: debian12-container,        os: ubuntu-latest, experimental: false}
           - {platform: ubuntu1804-container,      os: ubuntu-latest, experimental: false}
