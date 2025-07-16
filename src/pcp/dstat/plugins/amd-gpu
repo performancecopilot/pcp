@@ -1,0 +1,13 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[amd-gpu]
+label = %I
+precision = 0
+printtype = p
+colorstep = 34
+grouptype = 1
+filtertype = gpu
+util% = amdgpu.gpu.load
+mem% = 100 * amdgpu.memory.used / amdgpu.memory.total
