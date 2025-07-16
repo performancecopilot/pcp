@@ -20,9 +20,6 @@ iam=rds
 python_opt=true
 daemon_opt=false
 
-# Prepare PMDA Python files (needed for easier packaging)
-$PCP_PYTHON_PROG $PCP_PMDAS_DIR/rds/pyprep
-
 #
 # See pmcd(1) man page. PMDA starts up in the "not ready" state.
 # When it has finished starting up, it sends a PM_ERR_PMDAREADY

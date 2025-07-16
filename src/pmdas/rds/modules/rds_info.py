@@ -53,8 +53,24 @@ CONN_DROP_REASONS = [
     "tcp_send failure"
 ]
 
+
 class RdsInfo:
     """Class to implement standard RDS info operations."""
+
+    USAGE_MSG = (
+        "Usage: python rds_info.py <option>\n"
+        "Available options:\n"
+        "  -I: Get RDS InfiniBand connections\n"
+        "  -T: Get RDS TCP Connections\n"
+        "  -c: Get RDS counters\n"
+        "  -k: Get RDS socket information\n"
+        "  -n: Get RDS connection details\n"
+        "  -p: Get RDS connection paths\n"
+        "  -r: Get RDS receive queues\n"
+        "  -s: Get RDS send queues\n"
+        "  -t: Get RDS retransmit queues\n"
+        "  --help: Show this help message\n"
+    )
 
     libc = ctypes.CDLL("libc.so.6", use_errno=True)
 
@@ -67,10 +83,12 @@ class RdsInfo:
     def get_rds_info_data(self, sock_fd, query_type):
         """Retrieve RDS information data."""
         data_len = ctypes.c_int(0)
-        res = self.libc.getsockopt(sock_fd, SOL_RDS, query_type, None, ctypes.byref(data_len))
+        res = self.libc.getsockopt(
+            sock_fd, SOL_RDS, query_type, None, ctypes.byref(data_len))
         if res < 0:
             data_buffer = ctypes.create_string_buffer(int(data_len.value))
-            res = self.libc.getsockopt(sock_fd, SOL_RDS, query_type, data_buffer, ctypes.byref(data_len))
+            res = self.libc.getsockopt(
+                sock_fd, SOL_RDS, query_type, data_buffer, ctypes.byref(data_len))
             if res < 0:
                 return None
 
@@ -120,7 +138,8 @@ class RdsInfo:
     @staticmethod
     def decode_flags(value):
         """Decode RDS Flags."""
-        flags = "".join([char if value & (1 << i) else "-" for i, char in enumerate("scCE")])
+        flags = "".join(
+            [char if value & (1 << i) else "-" for i, char in enumerate("scCE")])
         return flags
 
     def get_rds_ib_conns(self, sock_fd):
@@ -142,10 +161,11 @@ class RdsInfo:
                 src_qp = self.htosi(data[i+76:i+80], True)
                 dst_qp = self.htosi(data[i+88:i+92], True)
 
-            res.append(f"{saddr:14}  {daddr:14}  {tos:3}  {sol:2}  {s_dev:31}  {d_dev:32}  {src_qp:9}  {dst_qp:9}")
+            res.append(
+                f"{saddr:14}  {daddr:14}  {tos:3}  {sol:2}  {s_dev:31}  {d_dev:32}  {src_qp:9}  {dst_qp:9}")
         return "\n".join(res)
 
-    def get_rds_tcp_sockets(self, sock_fd):
+    def get_rds_tcp_conns(self, sock_fd):
         """Get RDS_INFO_TCP_SOCKETS from socket and parse it."""
         data, each = self.get_rds_info_data(sock_fd, RDS_INFO_TCP_SOCKETS)
 
@@ -160,9 +180,12 @@ class RdsInfo:
             rport = str(int(data[i+10:i+12].hex(), 16))
             hdr_remain = str(int(data[i+12:i+13].hex(), 16))
             data_remain = str(int(data[i+13:i+14].hex(), 16))
-            sent_nxt = str(self.little_endian_to_unsigned(data[i+28:i+32].hex(), 32))
-            exp_una = str(self.little_endian_to_unsigned(data[i+32:i+36].hex(), 32))
-            seen_una = str(self.little_endian_to_unsigned(data[i+36:i+40].hex(), 32))
+            sent_nxt = str(self.little_endian_to_unsigned(
+                data[i+28:i+32].hex(), 32))
+            exp_una = str(self.little_endian_to_unsigned(
+                data[i+32:i+36].hex(), 32))
+            seen_una = str(self.little_endian_to_unsigned(
+                data[i+36:i+40].hex(), 32))
 
             res.append(
                 f"{laddr:15} {lport:5} {raddr:15} {rport:5} "
@@ -194,10 +217,13 @@ class RdsInfo:
         for i in range(0, len(data), each):
             laddr = socket.inet_ntoa(data[i+16:i+20])
             raddr = socket.inet_ntoa(data[i+20:i+24])
-            tos = str(struct.unpack("<b", data[i + 41 : i + 42])[0])
-            next_tx = str(self.little_endian_to_unsigned(data[i + 0 : i + 4].hex(), 32))
-            next_rx = str(self.little_endian_to_unsigned(data[i + 8 : i + 12].hex(), 32))
-            flags = self.decode_flags(int(struct.unpack("<b", data[i + 40 : i + 41])[0]))
+            tos = str(struct.unpack("<b", data[i + 41: i + 42])[0])
+            next_tx = str(self.little_endian_to_unsigned(
+                data[i + 0: i + 4].hex(), 32))
+            next_rx = str(self.little_endian_to_unsigned(
+                data[i + 8: i + 12].hex(), 32))
+            flags = self.decode_flags(
+                int(struct.unpack("<b", data[i + 40: i + 41])[0]))
 
             res.append(f"{laddr} {raddr} {tos}  {next_rx} {next_tx} {flags}")
 
@@ -215,21 +241,22 @@ class RdsInfo:
         res = []
 
         for i in range(0, len(data), each):
-            laddr = socket.inet_ntoa(data[i + 4 : i + 8])
-            raddr = socket.inet_ntoa(data[i + 8 : i + 12])
-            lport = str(int(data[i + 12 : i + 14].hex(), 16))
-            rport = str(int(data[i + 14 : i + 16].hex(), 16))
+            laddr = socket.inet_ntoa(data[i + 4: i + 8])
+            raddr = socket.inet_ntoa(data[i + 8: i + 12])
+            lport = str(int(data[i + 12: i + 14].hex(), 16))
+            rport = str(int(data[i + 14: i + 16].hex(), 16))
 
-            snd_buf = str(struct.unpack("<I", data[i : i + 4])[0])
-            rcv_buf = self.little_endian_to_unsigned(data[i + 16 : i + 20].hex(), 32)
-            inode = str(struct.unpack("<Q", data[i + 20 : i + 28])[0])
+            snd_buf = str(struct.unpack("<I", data[i: i + 4])[0])
+            rcv_buf = self.little_endian_to_unsigned(
+                data[i + 16: i + 20].hex(), 32)
+            inode = str(struct.unpack("<Q", data[i + 20: i + 28])[0])
 
             # Default values for pid and comm
             pid, comm = "NA", "NA"
 
             try:
                 cong = self.htosi(data[i+32:i+36], True)
-                pid = struct.unpack("<I", data[i + 28 : i + 32])[0]
+                pid = struct.unpack("<I", data[i + 28: i + 32])[0]
                 comm = psutil.Process(pid).name()
             except (psutil.NoSuchProcess, psutil.AccessDenied, struct.error):
                 comm, pid, cong = "NA", "NA", -1
@@ -273,13 +300,13 @@ class RdsInfo:
         res = []
 
         for i in range(0, len(data), each):
-            laddr = str(socket.inet_ntoa(data[i + 12 : i + 16]))
-            raddr = str(socket.inet_ntoa(data[i + 16 : i + 20]))
-            lport = str(int(data[i + 20 : i + 22].hex(), 16))
-            rport = str(int(data[i + 22 : i + 24].hex(), 16))
-            tos = str(struct.unpack("<b", data[i + 24 : i + 25])[0])
-            seq = str(struct.unpack("<Q", data[i : i + 8])[0])
-            byte = str(struct.unpack("<I", data[i + 8 : i + 12])[0])
+            laddr = str(socket.inet_ntoa(data[i + 12: i + 16]))
+            raddr = str(socket.inet_ntoa(data[i + 16: i + 20]))
+            lport = str(int(data[i + 20: i + 22].hex(), 16))
+            rport = str(int(data[i + 22: i + 24].hex(), 16))
+            tos = str(struct.unpack("<b", data[i + 24: i + 25])[0])
+            seq = str(struct.unpack("<Q", data[i: i + 8])[0])
+            byte = str(struct.unpack("<I", data[i + 8: i + 12])[0])
 
             res.append(f"{laddr} {lport} {raddr} {rport} {tos} {seq} {byte}")
         return "\n".join(res)
@@ -295,17 +322,19 @@ class RdsInfo:
         res = []
 
         # Header for the main connection paths
-        res.append(f"{'LocalAddr':<15} {'RemoteAddr':<15} {'Tos':<4} {'Trans':<10}")
+        res.append(
+            f"{'LocalAddr':<15} {'RemoteAddr':<15} {'Tos':<4} {'Trans':<10}")
 
         for i in range(0, len(data), each):
-            saddr = socket.inet_ntoa(data[i + 12 : i + 16])
-            daddr = socket.inet_ntoa(data[i + 28 : i + 32])
-            tos = str(struct.unpack("<b", data[i + 48 : i + 49])[0])
-            trans = data[i + 32 : i + 48].split(b"\x00", maxsplit=1)[0].decode("utf-8")
+            saddr = socket.inet_ntoa(data[i + 12: i + 16])
+            daddr = socket.inet_ntoa(data[i + 28: i + 32])
+            tos = str(struct.unpack("<b", data[i + 48: i + 49])[0])
+            trans = data[i + 32: i +
+                         48].split(b"\x00", maxsplit=1)[0].decode("utf-8")
 
             res.append(f"{saddr:<15} {daddr:<15} {tos:<4} {trans:<10}")
 
-            path_num = int(struct.unpack("<b", data[i + 49 : i + 50])[0])
+            path_num = int(struct.unpack("<b", data[i + 49: i + 50])[0])
 
             res += "\n"
 
@@ -315,30 +344,31 @@ class RdsInfo:
                 f"{'Attempts':<10} {'RDS':<5} {'Down(Secs)':<13} {'Reason':<15}"
             )
 
-            path_data = data[i + 50 : i + 346]
+            path_data = data[i + 50: i + 346]
             for j in range(0, len(path_data), 37):
-                attempt_time = self.parse_time(path_data[j + 0 : j + 8])
-                conn_time = self.parse_time(path_data[j + 8 : j + 16])
-                reset_time = self.parse_time(path_data[j + 16 : j + 24])
+                attempt_time = self.parse_time(path_data[j + 0: j + 8])
+                conn_time = self.parse_time(path_data[j + 8: j + 16])
+                reset_time = self.parse_time(path_data[j + 16: j + 24])
 
-                reason = int(struct.unpack("<I", path_data[j + 24 : j + 28])[0])
+                reason = int(struct.unpack("<I", path_data[j + 24: j + 28])[0])
                 reason = (
                     CONN_DROP_REASONS[reason]
                     if reason < len(CONN_DROP_REASONS)
                     else str(reason)
                 )
 
-                attempts = str(struct.unpack("<I", path_data[j + 28 : j + 32])[0])
-                p_no = str(struct.unpack("<b", path_data[j + 32 : j + 33])[0])
+                attempts = str(struct.unpack(
+                    "<I", path_data[j + 28: j + 32])[0])
+                p_no = str(struct.unpack("<b", path_data[j + 32: j + 33])[0])
 
                 rds_flags = self.decode_flags(
-                    int(struct.unpack("<b", path_data[j + 36 : j + 37])[0])
+                    int(struct.unpack("<b", path_data[j + 36: j + 37])[0])
                 )
 
                 down = "---"
                 if rds_flags == "--C-" and reset_time != "---":
                     down = self.get_down_time(
-                        path_data[j + 8 : j + 16], path_data[j + 0 : j + 8]
+                        path_data[j + 8: j + 16], path_data[j + 0: j + 8]
                     )
 
                 res.append(
@@ -356,19 +386,8 @@ class RdsInfo:
         Wrapper function for all the above RDS-INFO options
         """
         infos = {
-            "-I": self.get_rds_ib_conns,
-            "-T": self.get_rds_tcp_sockets,
-            "-c": self.get_rds_counters,
-            "-k": self.get_rds_sockets,
-            "-n": self.get_rds_conns,
-            '-p': self.get_rds_paths,
-            "-r": lambda sock_fd: self.get_rds_queues(sock_fd, '-r'),
-            "-s": lambda sock_fd: self.get_rds_queues(sock_fd, '-s'),
-            "-t": lambda sock_fd: self.get_rds_queues(sock_fd, '-t')
-        }
-        infos = {
             "-I": {"method": self.get_rds_ib_conns, "description": "Get RDS InfiniBand connections"},
-            "-T": {"method": self.get_rds_tcp_sockets, "description": "Get RDS TCP socket information"},
+            "-T": {"method": self.get_rds_tcp_conns, "description": "Get RDS TCP connetions"},
             "-c": {"method": self.get_rds_counters, "description": "Get RDS counters"},
             "-k": {"method": self.get_rds_sockets, "description": "Get RDS socket information"},
             "-n": {"method": self.get_rds_conns, "description": "Get RDS connection details"},
@@ -380,13 +399,9 @@ class RdsInfo:
                    "description": "Get RDS retransmit queues"},
         }
 
-
         # If the user requests help or an invalid option is passed
         if option == "--help" or option not in infos:
-            print("Usage: python script.py <option>")
-            print("Available options:")
-            for key, value in infos.items():
-                print(f"  {key}: {value['description']}")
+            print(self.USAGE_MSG, file=sys.stderr)
             return ""
 
         sock_fd = self.create_rds_socket()
@@ -394,10 +409,11 @@ class RdsInfo:
         self.libc.close(sock_fd)
         return res
 
+
 if __name__ == "__main__":
     # Ensure an argument is passed
     if len(sys.argv) != 2:
-        print("Usage: python rds_info.py <option>")
+        print(RdsInfo.USAGE_MSG, file=sys.stderr)
         sys.exit(1)
 
     cmd_option = sys.argv[1]
