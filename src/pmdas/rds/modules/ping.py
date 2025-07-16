@@ -29,8 +29,6 @@ import threading
 import signal
 import re
 import concurrent.futures
-
-sys.path.append("/var/lib/pcp/pmdas/rds/modules")
 from rds_info import RdsInfo
 
 ICMP_ECHO = 8
@@ -55,7 +53,7 @@ def create_socket():
             socket.AF_INET, socket.SOCK_RAW, 1)  # 1 for ICMP
         return sock_fd
     except socket.error as err:
-        print("socket creation failed with error %s" % (err))
+        print("socket creation failed with error %s" % (err), file=sys.stderr)
         return None
 
 
@@ -64,7 +62,7 @@ def bind_socket(sock_fd, src_ip):
     try:
         sock_fd.bind((src_ip, src_port))
     except socket.error as err:
-        print("socket bind failed with error %s" % (err))
+        print("socket bind failed with error %s" % (err), file=sys.stderr)
 
 
 def calculate_checksum(source_string):
@@ -107,7 +105,7 @@ def create_rds_socket():
         sock_fd = socket.socket(socket.PF_RDS, socket.SOCK_SEQPACKET, 0)
         return sock_fd
     except socket.error as err:
-        print("socket creation failed with error %s" % (err))
+        print("socket creation failed with error %s" % (err), file=sys.stderr)
         return None
 
 
@@ -133,7 +131,7 @@ def send_ping(sock_fd, src_ip, dst_ip_list, send_timestamps):
             sock_fd.sendto(packet, (dst_ip, 1))
             send_timestamps[dst_ip] = datetime.now()
         except socket.error as err:
-            print("socket send failed with error %s" % (err))
+            print("socket send failed with error %s" % (err), file=sys.stderr)
             # remove the added entry from the list
             del send_timestamps[dst_ip]
         pings_sent = pings_sent + 1
@@ -250,7 +248,7 @@ def validate_ip(ip_addr_str):
         ipaddress.ip_address(ip_addr_str)
         return 0
     except ValueError:
-        print("Invalid IP %s" % ip_addr_str)
+        print("Invalid IP %s" % ip_addr_str, file=sys.stderr)
         return 1
 
 
@@ -258,7 +256,7 @@ def ping(args):
     dest_ip_list = [str(item) for item in args.list.split(' ')]
     for ip_addr in dest_ip_list:
         if validate_ip(ip_addr):
-            print("Invalid IP being passed %s. Please rectify." % (ip_addr))
+            print("Invalid IP being passed %s. Please rectify." % (ip_addr), file=sys.stderr)
             sys.exit(1)
 
     sock_fd = create_socket()

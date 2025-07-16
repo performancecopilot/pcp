@@ -24,12 +24,10 @@ import socket
 import time
 import json
 from time import perf_counter
-sys.path.append("/var/lib/pcp/pmdas/rds/modules")
+
 from rds_info import RdsInfo
 
-
 rds_pings_json = {}
-
 
 def signal_handler(sig, frame):
     sys.exit(0)
@@ -39,7 +37,7 @@ def create_rds_socket():
         sock_fd = socket.socket(socket.PF_RDS, socket.SOCK_SEQPACKET, 0)
         return sock_fd
     except socket.error as err:
-        print("socket creation failed with error %s" % (err))
+        print("socket creation failed with error %s" % (err), file=sys.stderr)
         return None
 
 def bind_rds_socket(sock_fd, saddr):
@@ -47,21 +45,21 @@ def bind_rds_socket(sock_fd, saddr):
     try:
         sock_fd.bind((saddr, src_port))
     except socket.error as err:
-        print("socket bind failed with error %s" % (err))
+        print("socket bind failed with error %s" % (err), file=sys.stderr)
 
 
 def set_tos(sock_fd, tos):
     try:
         fcntl.ioctl(sock_fd, 0x89E0, struct.pack('L', int(tos)))
     except socket.error as err:
-        print("Setting QOS failed with error %s" % (err))
+        print("Setting QOS failed with error %s" % (err), file=sys.stderr)
 
 def validate_ip(ip_addr_str):
     try:
         ipaddress.ip_address(ip_addr_str)
         return 0
     except ValueError:
-        print("Invalid IP %s" % ip_addr_str)
+        print("Invalid IP %s" % ip_addr_str, file=sys.stderr)
         return 1
 
 def send_rds_ping(sock_fd, saddr, tos, dst_ip_list, send_timestamps):
@@ -213,7 +211,7 @@ def print_latencies(latencies_dict):
             saddr, daddr, qos = conn.split('-')
             qos = int(qos)
         except ValueError:
-            print(f"Invalid connection key format: {conn}")
+            print(f"Invalid connection key format: {conn}", file=sys.stderr)
             continue
 
         latency_display = f"{latency} usec" if latency != -1 else "Timeout"
@@ -252,7 +250,7 @@ def main(argv):
         except KeyboardInterrupt:
             sys.exit(1)
     else:
-        print("Error: Both source_ip (-I) and dest_ip (-d) must be provided for single or multiple connection ping.")
+        print("Error: Both source_ip (-I) and dest_ip (-d) must be provided for single or multiple connection ping.", file=sys.stderr)
         sys.exit(1)
 
 
