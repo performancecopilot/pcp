@@ -631,8 +631,9 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
 		acp2 = ctxp2->c_archctl;
 		PM_LOCK(acp2->ac_log->lc_lock);
-		if (! acp2->ac_log->multi &&
-		    strcmp (name, acp2->ac_log->name) == 0) {
+		if (!acp2->ac_log->multi &&
+		    acp2->ac_log->name != NULL &&
+		    strcmp(name, acp2->ac_log->name) == 0) {
 		    lcp2 = acp2->ac_log;
 		    break;
 		}
