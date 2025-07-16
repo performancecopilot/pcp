@@ -418,6 +418,8 @@ extern int pmLogGroupSetup(pmLogGroupModule *);
 extern int pmLogGroupSetEventLoop(pmLogGroupModule *, void *);
 extern int pmLogGroupSetConfiguration(pmLogGroupModule *, struct dict *);
 extern int pmLogGroupSetMetricRegistry(pmLogGroupModule *, struct mmv_registry *);
+extern int pmLogPathsSetMetricRegistry(pmLogGroupModule *, struct mmv_registry *);
+extern void pmLogPathsReset(pmLogGroupModule *);
 extern void pmLogGroupClose(pmLogGroupModule *);
 
 /*

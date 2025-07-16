@@ -1289,6 +1289,16 @@ setup_http_module(struct proxy *proxy)
 }
 
 void
+reset_http_module(struct proxy *proxy)
+{
+    struct servlet	*servlet;
+
+    for (servlet = proxy->servlets; servlet != NULL; servlet = servlet->next)
+	if (servlet->reset)
+	    servlet->reset(proxy);
+}
+
+void
 close_http_module(struct proxy *proxy)
 {
     struct servlet	*servlet;

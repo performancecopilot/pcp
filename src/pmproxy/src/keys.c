@@ -274,6 +274,13 @@ get_keys_module(struct proxy *proxy)
 }
 
 void
+reset_keys_module(struct proxy *proxy)
+{
+    /* SIGHUP: no-op */
+    (void)proxy;
+}
+
+void
 close_keys_module(struct proxy *proxy)
 {
     if (proxy->slots) {

@@ -280,4 +280,6 @@ PCP_WEB_1.22 {
     pmLogGroupSetConfiguration;
     pmLogGroupSetEventLoop;
     pmLogGroupSetMetricRegistry;
+    pmLogPathsReset;
+    pmLogPathsSetMetricRegistry;
 } PCP_WEB_1.21;

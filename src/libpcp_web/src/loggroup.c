@@ -25,7 +25,7 @@
 
 static unsigned int cached_only;	/* perform key server caching only */
 
-#define DEFAULT_WORK_TIMER 10000
+#define DEFAULT_WORK_TIMER 2000
 static unsigned int default_worker;	/* BG work delta, milliseconds */
 
 #define DEFAULT_POLL_TIMEOUT 600000
@@ -51,8 +51,19 @@ enum loggroup_metric {
     NUM_LOGGROUP_METRIC
 };
 
+enum logpaths_metric {
+    LOGPATHS_COUNT = 1,
+    LOGPATHS_ARCHIVE,
+    NUM_LOGPATHS_METRIC
+};
+
+enum logpaths_indom {
+    LOGPATHS = 1,
+};
+
 typedef struct archive {
     sds			fullpath;	/* log path */
+    sds			idstring;	/* random identifier string */
     int			randomid;	/* random number identifier */
     unsigned int	setup	: 1;	/* log label present */
     unsigned int	garbage	: 1;	/* log pending removal */
@@ -76,12 +87,20 @@ typedef struct loggroups {
     pmAtomValue		*metrics[NUM_LOGGROUP_METRIC];
     void		*map;
 
+    mmv_registry_t	*logpaths;
+    pmAtomValue		*logmetrics[NUM_LOGPATHS_METRIC];
+    void		*logmap;
+
     uv_loop_t		*events;
     uv_timer_t		timer;
     uv_mutex_t		mutex;
 
     unsigned int	active;
+    unsigned int	update;
 } loggroups_t;
+
+static void logpaths_stats_reset(struct loggroups *);
+static void logpaths_stats_start(struct loggroups *);
 
 static struct loggroups *
 loggroups_create(pmLogGroupModule *module)
@@ -120,6 +139,7 @@ loggroup_free_archive(struct archive *ap)
 	close(ap->datafd);
     if (ap->discover)
 	pmDiscoverStreamEnd(ap->discover->context.name);
+    sdsfree(ap->idstring);
     sdsfree(ap->fullpath);
     memset(ap, 0, sizeof(*ap));
     free(ap);
@@ -213,7 +233,10 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
 	return -ENOMEM;
     ap->timeout = polltime;
     ap->randomid = archive = random();
-
+    if ((ap->idstring = sdscatfmt(sdsempty(), "%i", archive)) == NULL) {
+	loggroup_free_archive(ap);
+	return -ENOMEM;
+    }
     uv_mutex_lock(&groups->mutex);
     if (dictFind(groups->archives, &archive) != NULL) {
 	uv_mutex_unlock(&groups->mutex);
@@ -237,6 +260,7 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
 
     uv_mutex_lock(&groups->mutex);
     dictAdd(groups->archives, &archive, ap);
+    groups->update = 1;
     uv_mutex_unlock(&groups->mutex);
 
     /* leave until the end because uv_timer_init makes this visible in uv_run */
@@ -274,43 +298,50 @@ loggroup_garbage_collect(struct loggroups *groups)
 
     debug = pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log;
     if (debug)
-	fprintf(stderr, "%s: started for groups %p\n",
-			"loggroup_garbage_collect", groups);
+	fprintf(stderr, "%s: started for groups %p\n", __FUNCTION__, groups);
 
-    /* do archive GC if we get the lock (else don't block here) */
-    if (uv_mutex_trylock(&groups->mutex) == 0) {
-	iterator = dictGetSafeIterator(groups->archives);
-	for (entry = dictNext(iterator); entry;) {
-	    ap = (archive_t *)dictGetVal(entry);
-	    if (ap->privdata != groups)
-		continue;
-	    entry = dictNext(iterator);
-	    if (ap->garbage)
-		garbageset++;
-	    if (ap->inactive && ap->refcount == 0)
-		inactiveset++;
-	    if (ap->garbage || (ap->inactive && ap->refcount == 0)) {
-		if (debug)
-		    fprintf(stderr, "GC dropping archive %u (%p)\n",
-				    ap->randomid, ap);
-		uv_mutex_unlock(&groups->mutex);
-		loggroup_drop_archive(ap, groups);
-		uv_mutex_lock(&groups->mutex);
-		drops++;
-	    }
-	    count++;
-	}
-	dictReleaseIterator(iterator);
+    /* do archive GC if we get the lock */
+    if (uv_mutex_trylock(&groups->mutex) != 0)
+	return;
 
-	/* if dropping the last remaining archive, do cleanup */
-	if (groups->active && drops == count) {
+    iterator = dictGetSafeIterator(groups->archives);
+    for (entry = dictNext(iterator); entry;) {
+	ap = (archive_t *)dictGetVal(entry);
+	entry = dictNext(iterator);
+	if (ap->privdata != groups)
+	    continue;
+	if (ap->garbage)
+	    garbageset++;
+	if (ap->inactive && ap->refcount == 0)
+	    inactiveset++;
+	if (ap->garbage || (ap->inactive && ap->refcount == 0)) {
 	    if (debug)
-		fprintf(stderr, "%s: freezing groups %p\n",
-				"loggroup_garbage_collect", groups);
-	    loggroup_timers_stop(groups);
+		fprintf(stderr, "GC dropping archive %u (%p)\n",
+				ap->randomid, ap);
+	    uv_mutex_unlock(&groups->mutex);
+	    loggroup_drop_archive(ap, groups);
+	    uv_mutex_lock(&groups->mutex);
+	    groups->update = 1;
+	    drops++;
 	}
-	uv_mutex_unlock(&groups->mutex);
+	count++;
     }
+    dictReleaseIterator(iterator);
+
+    if (groups->update) {
+	logpaths_stats_reset(groups);
+	logpaths_stats_start(groups);
+	groups->update = 0;
+    }
+
+    /* if dropping the last remaining archive, do cleanup */
+    if (groups->active && drops == count) {
+	if (debug)
+	    fprintf(stderr, "%s: freezing groups %p\n", __FUNCTION__, groups);
+	loggroup_timers_stop(groups);
+    }
+
+    uv_mutex_unlock(&groups->mutex);
 
     mmv_set(groups->map, groups->metrics[LOGGROUP_GC_DROPS], &drops);
     mmv_set(groups->map, groups->metrics[LOGGROUP_GC_COUNT], &count);
@@ -320,6 +351,55 @@ loggroup_garbage_collect(struct loggroups *groups)
 			" %u garbageset, %u inactiveset]\n",
 			"loggroup_garbage_collect", drops, count,
 			garbageset, inactiveset);
+}
+
+static void
+loggroup_reset_archives(struct loggroups *groups)
+{
+    dictIterator        *iterator;
+    dictEntry           *entry;
+    archive_t		*ap;
+    unsigned int	debug, count = 0;
+
+    debug = pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log;
+    if (debug)
+	fprintf(stderr, "%s: started for groups %p\n", __FUNCTION__, groups);
+
+    uv_mutex_lock(&groups->mutex);
+    iterator = dictGetSafeIterator(groups->archives);
+    for (entry = dictNext(iterator); entry;) {
+	ap = (archive_t *)dictGetVal(entry);
+	entry = dictNext(iterator);
+	if (ap->privdata != groups)
+	    continue;
+	ap->refcount++;
+	ap->inactive = 1;
+	uv_mutex_unlock(&groups->mutex);
+	loggroup_drop_archive(ap, groups);
+	uv_mutex_lock(&groups->mutex);
+	groups->update = 1;
+	count++;
+    }
+    dictReleaseIterator(iterator);
+
+    if (groups->update) {
+	logpaths_stats_reset(groups);
+	logpaths_stats_start(groups);
+	groups->update = 0;
+    }
+
+    /* if dropping the last remaining archive, do cleanup */
+    if (groups->active || count) {
+	if (debug)
+	    fprintf(stderr, "%s: freezing groups %p\n", __FUNCTION__, groups);
+	loggroup_timers_stop(groups);
+    }
+
+    uv_mutex_unlock(&groups->mutex);
+
+    if (debug)
+	fprintf(stderr, "%s: finished [dropped all %u entries]\n",
+			__FUNCTION__, count);
 }
 
 static void
@@ -382,22 +462,6 @@ loggroup_lookup_archive(pmLogGroupSettings *sp, int id, struct archive **pp, voi
     return 0;
 }
 
-void
-pmLogGroupDestroy(pmLogGroupSettings *sp, int id, void *arg)
-{
-    struct loggroups	*groups = loggroups_lookup(&sp->module);
-    struct archive	*ap;
-
-    if (loggroup_lookup_archive(sp, id, &ap, arg) == 0) {
-	if (pmDebugOptions.libweb || pmDebugOptions.log)
-	    fprintf(stderr, "%s: destroy archive %p groups=%p\n",
-			    "pmLogGroupDestroy", ap, groups);
-
-	loggroup_deref_archive(ap);
-	loggroup_drop_archive(ap, groups);
-    }
-}
-
 static ssize_t
 logger_write_buffer(int fd, const char *content, size_t length)
 {
@@ -458,7 +522,7 @@ logger_write_labels(const char *fullpath, __pmLogLabel *loglabel)
 {
     char	*dir, path[MAXPATHLEN];
     void	*buffer;
-    int		fd, sts;
+    int		fd, sts, count = 0;
     size_t	length;
 
     assert(cached_only == 0);
@@ -473,9 +537,15 @@ logger_write_labels(const char *fullpath, __pmLogLabel *loglabel)
     loglabel->vol = PM_LOG_VOL_META;
     if ((sts = __pmLogEncodeLabel(loglabel, &buffer, &length)) < 0)
 	return sts;
+
     pmsprintf(path, sizeof(path), "%s.meta", fullpath);
+renamed:	/* return here during name conflict resolution */
     fd = open(path, O_CREAT|O_EXCL|O_APPEND|O_NOFOLLOW|O_WRONLY, 0644);
     if (fd < 0) {
+	if (oserror() == EEXIST && count++ < 100) {
+	    pmsprintf(path, sizeof(path), "%s-%02d.meta", fullpath, count);
+	    goto renamed;
+	}
 	free(buffer);
 	return -oserror();
     }
@@ -489,7 +559,10 @@ logger_write_labels(const char *fullpath, __pmLogLabel *loglabel)
     loglabel->vol = PM_LOG_VOL_TI;
     if ((sts = __pmLogEncodeLabel(loglabel, &buffer, &length)) < 0)
 	return sts;
-    pmsprintf(path, sizeof(path), "%s.index", fullpath);
+    if (count > 0)
+	pmsprintf(path, sizeof(path), "%s-%02d.index", fullpath, count);
+    else
+	pmsprintf(path, sizeof(path), "%s.index", fullpath);
     fd = open(path, O_CREAT|O_EXCL|O_APPEND|O_NOFOLLOW|O_WRONLY, 0644);
     if (fd < 0) {
 	free(buffer);
@@ -498,8 +571,10 @@ logger_write_labels(const char *fullpath, __pmLogLabel *loglabel)
     sts = logger_write_buffer(fd, buffer, length);
     free(buffer);
     close(fd);
+    if (sts < 0)
+	return sts;
 
-    return sts;
+    return count;
 }
 
 int
@@ -520,8 +595,10 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
     }
 
     /* safely verify buffer contents/length (user-supplied) */
-    if ((sts = __pmLogDecodeLabel(content, length, &loglabel)) < 0)
+    if ((sts = __pmLogDecodeLabel(content, length, &loglabel)) < 0) {
+	fprintf(stderr, "Failed to decode new label0\n");
 	goto fail;
+    }
 
     if (pmDebugOptions.log)
 	fprintf(stderr, "New archive label for host: %s\n", loglabel.hostname);
@@ -546,6 +623,9 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
 
     if ((sts = logger_write_labels(pathbuf, &loglabel)) < 0)
 	goto fail;
+    if (sts > 0) /* archive name conflicted - append the iteration count */
+	pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s%c%s%c%s-%02d", dir, sep,
+		pmGetProgname(), sep, loglabel.hostname, sep, timebuf, sts);
 
     /* wrote two label headers and created one archive - update stats */
     mmv_inc(groups->map, groups->metrics[LOGGROUP_LOGS]);
@@ -830,9 +910,50 @@ pmLogGroupSetConfiguration(pmLogGroupModule *module, dict *config)
 }
 
 static void
-pmLogGroupSetupMetrics(pmLogGroupModule *module)
+logpaths_stats_insts(struct loggroups *groups)
 {
-    struct loggroups	*groups = loggroups_lookup(module);
+    mmv_registry_t	*rp = groups->logpaths;
+    dictIterator        *iterator;
+    dictEntry           *entry;
+    archive_t		*ap;
+
+    /* walk archives, update instance domain */
+    iterator = dictGetIterator(groups->archives);
+    while ((entry = dictNext(iterator)) != NULL) {
+	ap = (archive_t *)dictGetVal(entry);
+	if (ap->privdata != groups || ap->inactive || ap->garbage)
+	    continue;
+	mmv_stats_add_instance(rp, LOGPATHS, ap->randomid, ap->idstring);
+    }
+    dictReleaseIterator(iterator);
+}
+
+static void
+logpaths_stats_value(struct loggroups *groups)
+{
+    dictIterator        *iterator;
+    dictEntry           *entry;
+    pmAtomValue		*atom;
+    archive_t		*ap;
+    uint32_t		count = 0;
+
+    /* walk archives, update the value (archive path) for each instance */
+    iterator = dictGetIterator(groups->archives);
+    while ((entry = dictNext(iterator)) != NULL) {
+	ap = (archive_t *)dictGetVal(entry);
+	if (ap->privdata != groups || ap->inactive || ap->garbage)
+	    continue;
+	atom = mmv_lookup_value_desc(groups->logmap, "archive", ap->idstring);
+	mmv_set_string(groups->logmap, atom, ap->fullpath, sdslen(ap->fullpath));
+	count++;
+    }
+    dictReleaseIterator(iterator);
+    mmv_set(groups->logmap, groups->logmetrics[LOGPATHS_COUNT], &count);
+}
+
+static void
+loggroup_stats_start(struct loggroups *groups)
+{
     pmAtomValue		**ap;
     pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
     pmUnits		countunits = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE);
@@ -877,6 +998,46 @@ pmLogGroupSetupMetrics(pmLogGroupModule *module)
     ap[LOGGROUP_GC_COUNT] = mmv_lookup_value_desc(map, "gc.archive.drops", NULL);
 }
 
+static void
+logpaths_stats_start(struct loggroups *groups)
+{
+    pmAtomValue		**ap;
+    pmUnits		nounits = MMV_UNITS(0,0,0,0,0,0);
+    pmUnits		countunits = MMV_UNITS(0,0,1,0,0,PM_COUNT_ONE);
+    void		*map;
+
+    if (groups == NULL || groups->logpaths == NULL)
+	return; /* no metric registry has been set up */
+
+    mmv_stats_add_indom(groups->logpaths, LOGPATHS,
+	"currently active remote pmlogger archive paths",
+	"Archive paths currently being written by the running service");
+
+    mmv_stats_add_metric(groups->logpaths, "count", LOGPATHS_COUNT,
+	MMV_TYPE_U32, MMV_SEM_INSTANT, countunits, MMV_INDOM_NULL,
+	"currently active remote pmlogger processes",
+	"Count of remote writers currently writing using the service");
+
+    mmv_stats_add_metric(groups->logpaths, "archive", LOGPATHS_ARCHIVE,
+	MMV_TYPE_STRING, MMV_SEM_INSTANT, nounits, LOGPATHS,
+	"currently active remote pmlogger archive paths",
+	"Archive paths currently being written by the running service");
+
+    logpaths_stats_insts(groups);
+
+    groups->logmap = map = mmv_stats_start(groups->logpaths);
+    ap = groups->logmetrics;
+    ap[LOGPATHS_COUNT] = mmv_lookup_value_desc(map, "count", NULL);
+
+    logpaths_stats_value(groups);
+}
+
+static void
+logpaths_stats_reset(struct loggroups *groups)
+{
+    mmv_stats_reset(groups->logpaths);
+}
+
 int
 pmLogGroupSetMetricRegistry(pmLogGroupModule *module, mmv_registry_t *registry)
 {
@@ -884,10 +1045,31 @@ pmLogGroupSetMetricRegistry(pmLogGroupModule *module, mmv_registry_t *registry)
 
     if (groups) {
 	groups->registry = registry;
-	pmLogGroupSetupMetrics(module);
+	loggroup_stats_start(groups);
 	return 0;
     }
     return -ENOMEM;
+}
+
+int
+pmLogPathsSetMetricRegistry(pmLogGroupModule *module, mmv_registry_t *logpaths)
+{
+    struct loggroups	*groups = loggroups_lookup(module);
+
+    if (groups) {
+	groups->logpaths = logpaths;
+	logpaths_stats_start(groups);
+	return 0;
+    }
+    return -ENOMEM;
+}
+
+void
+pmLogPathsReset(pmLogGroupModule *module)
+{
+    struct loggroups	*groups = loggroups_lookup(module);
+
+    loggroup_reset_archives(groups);
 }
 
 void

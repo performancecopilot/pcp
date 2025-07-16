@@ -1,6 +1,6 @@
 #!/bin/sh
-# PCP QA Test No. 1611
-# Exercise pmlogger and the logger REST API interfaces.
+# PCP QA Test No. 1620
+# Exercise pmlogger response with a pmproxy SIGHUP.
 #
 # Copyright (c) 2025 Red Hat.  All Rights Reserved.
 #
@@ -48,6 +48,7 @@ _cleanup()
 }
 
 status=0	# success is the default!
+signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -57,6 +58,7 @@ _filter()
 	-e "s@$archive_path@ARCHIVE_PATH@g" \
 	-e "s/TMP\.data\./LOCAL_ARCHIVE./g" \
 	-e "s/2[0-9][0-9]*\.[0-9][0-9]\.[0-9][0-9]\./REMOTE_ARCHIVE./g" \
+	-e "s/2[0-9][0-9]*\.[0-9][0-9]\.[0-9][0-9]-[0-9][0-9]\./REMOTE_ARCHIVE./g" \
     # end
 }
 
@@ -66,6 +68,14 @@ _filter_metrics()
 	-e "/^pmcd\.*/d" \
 	-e "/^event\.*/d" \
     | LC_COLLATE=POSIX sort
+}
+
+_save_logs()
+{
+    echo === pmlogger log >> $seq_full
+    cat pmlogger.log >> $seq_full
+    echo === pmproxy log >> $seq_full
+    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $seq_full
 }
 
 # real QA test starts here
@@ -100,6 +110,7 @@ $sudo cp $tmp.conf $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
 if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
 _wait_for_pmproxy || _exit 1
+pmproxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid`
 
 export PCP_DERIVED_CONFIG=""
 
@@ -110,18 +121,18 @@ log mandatory on once {
     hinv.ndisk
 }
 log mandatory on every 1 second {
-    sample.datasize
     disk.all.read
     disk.all.write
     kernel.all.load
     kernel.all.pswitch
 }
 End-Of-File
-common_args="-c $tmp.conf -T 5sec"
+common_args="-c $tmp.conf -T 15sec"
 
 echo
-echo "=== Running pmlogger in both local and remote modes"
+echo "=== Signalling pmlogger in both local and remote modes"
 mixed_mode="$common_args -R http://localhost:44322 $tmp.data"
+((sleep 10; $sudo $signal -s HUP $pmproxy_pid)&) >/dev/null 2>&1
 if $do_valgrind
 then
     _run_valgrind pmlogger $mixed_mode
@@ -129,11 +140,16 @@ else
     pmlogger $mixed_mode
 fi \
 | _filter
+wait # for child signal shell to finish
+
+echo "## checking for pmproxy SIGHUP"
+grep SIGHUP $PCP_LOG_DIR/pmproxy/pmproxy.log | _filter_pmproxy_log
+_save_logs
 
 if [ -d $archive_path ]
 then
-    echo "## Found remote archive files"
-    ls -1 $archive_path | _filter | LC_COLLATE=POSIX sort
+    echo "## found remote archive files" | tee -a $seq_full
+    ls -1 $archive_path | tee -a $seq_full | _filter | LC_COLLATE=POSIX sort
     echo "## with the following metrics"
     pminfo -a $archive_path | _filter_metrics
 else
@@ -143,7 +159,7 @@ else
 fi
 if [ -f $tmp.data.0 ]
 then
-    echo "## Found local archive files"
+    echo "## found local archive files"
     ls -1 $tmp.data.* | _filter | LC_COLLATE=POSIX sort
     echo "## with the following metrics"
     pminfo -a $tmp.data | _filter_metrics
@@ -157,6 +173,7 @@ $sudo rm -fr $archive_path $tmp.data.*
 echo
 echo "=== Running pmlogger in remote only recording mode"
 remote_mode="$common_args -R http://localhost:44322"
+((sleep 10; $sudo $signal -s HUP pmproxy_pid)&) >/dev/null 2>&1
 if $do_valgrind
 then
     _run_valgrind pmlogger $remote_mode
@@ -164,11 +181,16 @@ else
     pmlogger $remote_mode
 fi \
 | _filter
+wait # for child signal shell to finish
+
+echo "## checking for pmproxy SIGHUP"
+grep SIGHUP $PCP_LOG_DIR/pmproxy/pmproxy.log | _filter_pmproxy_log
+_save_logs
 
 if [ -d $archive_path ]
 then
-    echo "## Found remote archive files"
-    ls -1 $archive_path | _filter | LC_COLLATE=POSIX sort
+    echo "## found remote archive files"
+    ls -1 $archive_path | tee -a $seq_full | _filter | LC_COLLATE=POSIX sort
     echo "## with the following metrics"
     pminfo -a $archive_path | _filter_metrics
 else
@@ -182,7 +204,7 @@ then
     status=1
     exit
 else
-    echo "## Found no local archive files"
+    echo "## found no local archive files"
 fi
 
 # success, all done

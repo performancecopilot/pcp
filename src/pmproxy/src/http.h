@@ -75,6 +75,7 @@ extern sds http_get_buffer(struct client *);
 extern void http_set_buffer(struct client *, sds, http_flags_t);
 
 typedef void (*httpSetupCallBack)(struct proxy *);
+typedef void (*httpResetCallBack)(struct proxy *);
 typedef void (*httpCloseCallBack)(struct proxy *);
 typedef int (*httpHeadersCallBack)(struct client *, struct dict *);
 typedef int (*httpUrlCallBack)(struct client *, sds, struct dict *);
@@ -86,6 +87,7 @@ typedef struct servlet {
     const char * const	name;
     struct servlet	*next;
     httpSetupCallBack	setup;
+    httpResetCallBack	reset;
     httpCloseCallBack	close;
     httpUrlCallBack	on_url;
     httpHeadersCallBack	on_headers;

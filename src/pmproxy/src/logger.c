@@ -254,6 +254,7 @@ pmlogger_request_url(struct client *client, sds url, dict *parameters)
     }
 
     if ((baton = calloc(1, sizeof(*baton))) != NULL) {
+	client->u.http.parser.status_code = 0;
 	client->u.http.data = baton;
 	baton->client = client;
 	baton->volume = volume;
@@ -376,6 +377,7 @@ static void
 pmlogger_servlet_setup(struct proxy *proxy)
 {
     mmv_registry_t	*registry = proxymetrics(proxy, METRICS_LOGGROUP);
+    mmv_registry_t	*logpaths = proxymetrics(proxy, METRICS_LOGPATHS);
 
     PARAM_CLIENT = sdsnew("client");
 
@@ -385,6 +387,13 @@ pmlogger_servlet_setup(struct proxy *proxy)
     pmLogGroupSetEventLoop(&pmlogger_settings.module, proxy->events);
     pmLogGroupSetConfiguration(&pmlogger_settings.module, proxy->config);
     pmLogGroupSetMetricRegistry(&pmlogger_settings.module, registry);
+    pmLogPathsSetMetricRegistry(&pmlogger_settings.module, logpaths);
+}
+
+static void
+pmlogger_servlet_reset(struct proxy *proxy)
+{
+    pmLogPathsReset(&pmlogger_settings.module);
 }
 
 static void
@@ -392,6 +401,7 @@ pmlogger_servlet_close(struct proxy *proxy)
 {
     pmLogGroupClose(&pmlogger_settings.module);
     proxymetrics_close(proxy, METRICS_LOGGROUP);
+    proxymetrics_close(proxy, METRICS_LOGPATHS);
 
     sdsfree(PARAM_CLIENT);
 }
@@ -399,6 +409,7 @@ pmlogger_servlet_close(struct proxy *proxy)
 struct servlet pmlogger_servlet = {
     .name		= "logger",
     .setup 		= pmlogger_servlet_setup,
+    .reset 		= pmlogger_servlet_reset,
     .close 		= pmlogger_servlet_close,
     .on_url		= pmlogger_request_url,
     .on_headers		= pmlogger_request_headers,

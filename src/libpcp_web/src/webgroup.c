@@ -319,9 +319,9 @@ webgroup_garbage_collect(struct webgroups *groups)
 	iterator = dictGetSafeIterator(groups->contexts);
 	for (entry = dictNext(iterator); entry;) {
 	    cp = (context_t *)dictGetVal(entry);
+	    entry = dictNext(iterator);
 	    if (cp->privdata != groups)
 		continue;
-	    entry = dictNext(iterator);
 	    if (cp->garbage)
 		garbageset++;
 	    if (cp->inactive && cp->refcount == 0)

@@ -352,6 +352,13 @@ setup_secure_module(struct proxy *proxy)
 }
 
 void
+reset_secure_module(struct proxy *proxy)
+{
+    /* SIGHUP: no-op */
+    (void)proxy;
+}
+
+void
 close_secure_module(struct proxy *proxy)
 {
     if (proxy->ssl) {

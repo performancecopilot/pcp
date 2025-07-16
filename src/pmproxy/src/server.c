@@ -31,6 +31,7 @@ static struct {
 	{ .group = "webgroup" },	/* METRICS_WEBGROUP */
 	{ .group = "search" },          /* METRICS_SEARCH */
 	{ .group = "loggroup" },	/* METRICS_LOGGROUP */
+	{ .group = "logpaths" },	/* METRICS_LOGPATHS */
 };
 
 void
@@ -167,23 +168,35 @@ server_init(int portcount, const char *localpath)
 }
 
 static void
+reset_proxy(struct proxy *proxy)
+{
+    reset_pcp_module(proxy);
+    reset_http_module(proxy);
+    reset_keys_module(proxy);
+    reset_secure_module(proxy);
+}
+
+static void
 signal_handler(uv_signal_t *sighandle, int signum)
 {
     uv_handle_t		*handle = (uv_handle_t *)sighandle;
     struct proxy	*proxy = (struct proxy *)handle->data;
     uv_loop_t		*loop = proxy->events;
 
-    if (signum == SIGHUP)
-	return;
-    pmNotifyErr(LOG_INFO, "pmproxy caught %s\n",
-		signum == SIGINT ? "SIGINT" : "SIGTERM");
-    uv_signal_stop(&sigterm);
-    uv_signal_stop(&sigint);
-    uv_signal_stop(&sighup);
-    uv_close((uv_handle_t *)&sigterm, NULL);
-    uv_close((uv_handle_t *)&sigint, NULL);
-    uv_close((uv_handle_t *)&sighup, NULL);
-    uv_stop(loop);
+    if (signum == SIGHUP) {
+	pmNotifyErr(LOG_INFO, "pmproxy caught %s", "SIGHUP");
+	reset_proxy(proxy);
+    } else {
+	pmNotifyErr(LOG_INFO, "pmproxy caught %s",
+		    signum == SIGINT ? "SIGINT" : "SIGTERM");
+	uv_signal_stop(&sigterm);
+	uv_signal_stop(&sigint);
+	uv_signal_stop(&sighup);
+	uv_close((uv_handle_t *)&sigterm, NULL);
+	uv_close((uv_handle_t *)&sigint, NULL);
+	uv_close((uv_handle_t *)&sighup, NULL);
+	uv_stop(loop);
+    }
 }
 
 static void

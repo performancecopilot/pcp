@@ -2112,6 +2112,8 @@ pmcd.pdu
 1617 pmproxy pmseries pmlogpush libpcp_web local
 1618 pmproxy pmseries pmlogpush libpcp_web local valgrind
 1619 pmcd local
+1620 pmlogger pmproxy pmlogpush libpcp_web local
+1621 pmlogger pmproxy pmlogpush libpcp_web local valgrind
 1622:retired local
 1623 libpcp_import local pmlogdump collectl2pcp pmrep
 1626 pmproxy libpcp_web local

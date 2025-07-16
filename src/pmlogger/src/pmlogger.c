@@ -809,9 +809,8 @@ label_callback(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
     /* label is sent once and an identifier is returned */
     if (remote.client && remote.log == 0) {
 	if (remote_label(acp, volume, buffer, length, caller) < 0) {
-	    pmNotifyErr(LOG_ERR, "cannot send log label to %s, exiting.",
-				 remote.conn);
-	    exit(1);
+	    run_done(0, "Remote push recording failed to start");
+	    /*NOTREACHED*/
 	}
     }
     if (remote.only)
@@ -823,23 +822,15 @@ static int
 write_callback(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 		const char *caller)
 {
-    if (remote.client) {
-	time_t	now;
-
-	/* if HTTP connection was lost, retry obtaining log ID */
-	if (remote.log == 0) {
-	    if (remote_label(acp, volume, buffer, length, caller) < 0)
-		return 0; /* still not connected */
-	    now = time(NULL);
-	    fprintf(stderr, "%s: re-established pmproxy %s connection at %s",
-			    pmGetProgname(), remote.conn, ctime(&now));
-	}
-	/* label has been (re-)sent, so log identifier is set */
+    if (remote.client && remote.log != 0) {
 	if (remote_write(acp, volume, buffer, length, caller) < 0) {
-	    now = time(NULL);
+	    time_t now = time(NULL);
 	    fprintf(stderr, "%s: lost pmproxy %s connection at %s",
 			    pmGetProgname(), remote.conn, ctime(&now));
+	    /* if HTTP connection fails, we must restart pmlogger */
 	    remote.log = 0;
+	    run_done(0, "Remote push recording terminated");
+	    /*NOTREACHED*/
 	}
     }
     if (remote.only)
