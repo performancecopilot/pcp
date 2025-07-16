@@ -1603,7 +1603,7 @@ collecting statistics for nVidia RDMA over Converged Ethernet (RoCE) devices.
 #
 %package pmda-rds
 License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for RDS protocol
+Summary: Performance Co-Pilot (PCP) metrics for Reliable Datagram Sockets (RDS) protocol
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: python3-pcp

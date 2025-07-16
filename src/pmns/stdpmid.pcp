@@ -161,8 +161,8 @@ QA_TEST_PERL	252
 SIMPLE		253
 MEMORY_PYTHON	254
 # end QA section
-RDS		256
-### MORE FREE SLOTS 257..510 ###
+RDS		255
+### MORE FREE SLOTS 256..510 ###
 #
 # 511 is REALLY reserved ... see DYNAMIC_PMID in libpcp.h
 #
