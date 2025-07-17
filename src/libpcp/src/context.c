@@ -2098,7 +2098,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	    else if (con->c_type == PM_CONTEXT_LOCAL) {
 		fprintf(f, " handle %d:", contexts_map[i]);
 		fprintf(f, " standalone:");
-		fprintf(f, " profile=%s\n",
+		fprintf(f, " profile=%s",
 		    con->c_sent ? "SENT" : "NOT_SENT");
 	    }
 	    else if (con->c_type == PM_CONTEXT_ARCHIVE) {
