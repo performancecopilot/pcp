@@ -58,14 +58,6 @@ _filter_ls()
         { print }'
 }
 
-_filter_metrics()
-{
-    sed \
-	-e "/^pmcd\.*/d" \
-	-e "/^event\.*/d" \
-    | LC_COLLATE=POSIX sort
-}
-
 _filter_values()
 {
     # filter on specific times/values from the archive, however
@@ -75,6 +67,55 @@ _filter_values()
 	-e 's/4.147.*e+06/4.147e+06/g' \
     # end
 }
+
+# remove -Dcontext diagnostics from output ... they remain in $seq_full
+#
+_filter_context_debug()
+{
+    sed \
+	-e '/^on_client_/d' \
+	-e '/^pmNewContext(/d' \
+	-e '/^Dump Contexts:/d' \
+	-e '/^contexts\[/d' \
+	-e '/^Dump Instance Profile/d' \
+	-e '/^pmWhichContext/d' \
+	-e '/^pmUseContext/d' \
+	-e '/^__pmSetVersionIPC:/d' \
+	-e '/^IPC table /d' \
+	-e '/^refcnt=[0-9]* vol=[0-9]* offset=[0-9]*/d' \
+    # end
+}
+
+export PCP_DERIVED_CONFIG=""
+archive=$here/archives/ok-mv-bigbin
+
+# need to check *just* the metrics from the target archive
+# because pmproxy may start to gather metrics from the primary
+# logger's archive which means pmseries reports a whole lot more
+# than we're expecting
+#
+pminfo -a $archive \
+| sed \
+    -e "/^pmcd\.*/d" \
+    -e "/^event\.*/d" \
+    -e 's/.*/\/^&$\/p/' >$tmp.metrics.sed
+echo "+++ metrics.sed +++" >>$seq_full
+cat $tmp.metrics.sed >>$seq_full
+
+# similarly, *just* the labels from the target archive
+# e.g. labels {"hostname":"ha2"}
+#
+pminfo -a $archive -l \
+| sed -n \
+    -e '/ labels /{
+s/.*{"//
+s/":".*//
+s/.*/\/^&$\/p/p
+}' \
+| LC_COLLATE=POSIX sort \
+| uniq >$tmp.labels.sed
+echo "+++ labels.sed +++" >>$seq_full
+cat $tmp.labels.sed >>$seq_full
 
 # real QA test starts here
 user=`id -nu`
@@ -117,11 +158,10 @@ export PCP_TMP_DIR=$tmp.pmproxy
 export PCP_LOG_DIR=$tmp.pmproxy/pmproxy
 
 echo "Start test pmproxy ..."
-archive=$here/archives/ok-mv-bigbin
 archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
 $sudo rm -fr $archive_path
 
-$_valgrind_clean_assert pmproxy -f -p $pmproxy_port -U $user -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+$_valgrind_clean_assert pmproxy -Dcontext -f -p $pmproxy_port -U $user -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
 echo "valgrind pid: $pid" >>$seq_full
@@ -147,8 +187,7 @@ echo "=== pmlogpush to pmproxy ==="
 pmlogpush -p $pmproxy_port $archive
 pmsleep 1.5 # allow time for key server as well
 
-export PCP_DERIVED_CONFIG=""
-pminfo -a $archive | _filter_metrics
+pminfo -a $archive | sed -n -f $tmp.metrics.sed | LC_COLLATE=POSIX sort
 
 # start valgrind pmproxy process exit
 pmsignal $pid
@@ -158,10 +197,10 @@ echo "=== pmseries value check ==="
 pmseries -c $tmp.conf -Z UTC 'sample.milliseconds[count:1,timezone:"UTC"]' | _filter_values
 
 echo "=== pmseries labels check ==="
-pmseries -c $tmp.conf -l | LC_COLLATE=POSIX sort
+pmseries -c $tmp.conf -l | sed -n -f $tmp.labels.sed | LC_COLLATE=POSIX sort
 
 echo "=== pmseries metrics check ==="
-pmseries -c $tmp.conf -m | _filter_metrics
+pmseries -c $tmp.conf -m | sed -n -f $tmp.metrics.sed | LC_COLLATE=POSIX sort
 
 # valgrind takes awhile to shutdown too
 _wait_process_end $pid
@@ -169,7 +208,7 @@ echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | tee -a $seq_full | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq_full
-cat $tmp.valerr | tee -a $seq_full | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_pmproxy_port
+cat $tmp.valerr | tee -a $seq_full | _filter_context_debug | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_pmproxy_port
 
 # success, all done
 exit
