@@ -64,20 +64,20 @@ Usage: template [options] ...
 Got -s "13"
 
 === -a tmparch/foo -Dpmapi ===
-pmNewContext(2, "tmparch/foo") <::> returns 0
+pmNewContext(2, tmparch/foo) <::> returns 0
 pmGetArchiveEnd() <::> returns 0 end=TIMESTAMP
 
 === -g ===
 Got -g
 
 === -h 127.0.0.1 -Dpmapi ===
-pmNewContext(1, "127.0.0.1") <::> returns 0
+pmNewContext(1, 127.0.0.1) <::> returns 0
 
 === -t 1min2sec3msec ===
 Got -t 62.003000000 (secs)
 
 === -H TMP.hosts -Dpmapi ===
-pmNewContext(1, "127.0.0.1") <::> returns 0
+pmNewContext(1, 127.0.0.1) <::> returns 0
 
 === -n /var/lib/pcp/pmns/root ===
 Loaded PMNS

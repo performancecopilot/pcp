@@ -7,7 +7,7 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-pmNewContext(2, "archives/gfs") <::> returns 0
+pmNewContext(2, archives/gfs) <::> returns 0
 pmLookupName(2, name[0] gfs.inodes ... name[1] gfs.fmb, ...) <::> returns 2 (pmid[0] 245.0.2 ... pmid[1] 245.0.1)
 pmSetMode(mode=INTERP, when=13:40:00.000000000, delta=60m0s) direction=1 <::> returns 0
 pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0

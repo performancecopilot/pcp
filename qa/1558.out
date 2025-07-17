@@ -2,7 +2,7 @@ QA output created by 1558
 
 === -h local: -t 123.456 -Z UTC ===
 --- PMAPI_VERSION_2 ---
-pmNewContext(1, "local:") <::> returns 0
+pmNewContext(1, local:) <::> returns 0
 pmUseContext(0) <::> returns 0
 pmLookupName(1, name[0] sample.colour, ...) <::> returns 1 (pmid[0] 29.0.5)
 pmLookupDescs(1, desc[0] 29.0.5, ...) <::> returns 1
@@ -70,7 +70,7 @@ pmtimespec*: OK
 
 === -a archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec ===
 --- PMAPI_VERSION_2 ---
-pmNewContext(2, "archives/omnibus_v3") <::> returns 0
+pmNewContext(2, archives/omnibus_v3) <::> returns 0
 pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
 pmUseContext(0) <::> returns 0
 pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
