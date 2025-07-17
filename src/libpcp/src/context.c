@@ -628,11 +628,11 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	     * not part of a multi-archive context.
 	     */
 	    ctxp2 = contexts[i];
-	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
+	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE &&
+	        (ctxp2->c_flags & PM_CTXFLAG_STREAMING_WRITER) == 0) {
 		acp2 = ctxp2->c_archctl;
 		PM_LOCK(acp2->ac_log->lc_lock);
 		if (!acp2->ac_log->multi &&
-		    acp2->ac_log->name != NULL &&
 		    strcmp(name, acp2->ac_log->name) == 0) {
 		    lcp2 = acp2->ac_log;
 		    break;
@@ -1125,6 +1125,46 @@ initarchive(__pmContext	*ctxp, const char *name)
     return sts;
 }
 
+static struct {
+    int		flag;
+    const char	*name;
+} _flagmap[] = {
+    { PM_CTXFLAG_SHALLOW,	"shallow" },
+    { PM_CTXFLAG_EXCLUSIVE,	"exclusive" },
+    { PM_CTXFLAG_SECURE,	"secure" },
+    { PM_CTXFLAG_COMPRESS,	"compress" },
+    { PM_CTXFLAG_RELAXED,	"relaxed" },
+    { PM_CTXFLAG_AUTH,	"auth" },
+    { PM_CTXFLAG_CONTAINER,	"container" },
+    { PM_CTXFLAG_NO_FEATURE_CHECK,	"no_feature_check" },
+    { PM_CTXFLAG_METADATA_ONLY,	"metadata_only" },
+    { PM_CTXFLAG_LAST_VOLUME,	"last_volume" },
+    { PM_CTXFLAG_STREAMING_WRITER,	"streaming_writer" },
+    { 0,			NULL }
+};
+
+/*
+ * print context flags, with separator |
+ * type maybe type as passed to pmNewContext, or c_flags as stored
+ * in __pmContext
+ */
+static void
+print_ctx_flags(FILE *f, int type)
+{
+    int	j;
+    int	first = 1;
+
+    for (j = 0; _flagmap[j].name != NULL; j++) {
+	if (type & _flagmap[j].flag) {
+	    if (first)
+		first = 0;
+	    else
+		fputc('|', f);
+	    fprintf(f, "%s", _flagmap[j].name);
+	}
+    }
+}
+
 int
 pmNewContext(int type, const char *name)
 {
@@ -1140,10 +1180,12 @@ pmNewContext(int type, const char *name)
     static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
 
     if (pmDebugOptions.pmapi) {
-	if (name == NULL)
-	    fprintf(stderr, "pmNewContext(%d, NULL) <:", type);
-	else
-	    fprintf(stderr, "pmNewContext(%d, \"%s\") <:", type, name);
+	fprintf(stderr, "pmNewContext(%d", type & PM_CONTEXT_TYPEMASK);
+	if (type != (type & PM_CONTEXT_TYPEMASK)) {
+	    fputc('+', stderr);
+	    print_ctx_flags(stderr, type);
+	}
+	fprintf(stderr, ", %s) <:", name != NULL ? name : "NULL");
     }
 
     PM_INIT_LOCKS();
@@ -1323,8 +1365,14 @@ INIT_CONTEXT:
     }
     else {
 	/* bad type */
-	if (pmDebugOptions.context)
-	    fprintf(stderr, "pmNewContext(%d, %s): illegal type\n", type, name);
+	if (pmDebugOptions.context) {
+	    fprintf(stderr, "pmNewContext(%d", type & PM_CONTEXT_TYPEMASK);
+	    if (type != (type & PM_CONTEXT_TYPEMASK)) {
+		fputc('+', stderr);
+		print_ctx_flags(stderr, type);
+	    }
+	    fprintf(stderr, ", %s): illegal type 0x%x\n", name != NULL ? name : "NULL", type);
+	}
 	sts = PM_ERR_NOCONTEXT;
 	goto pmapi_return;
     }
@@ -1338,8 +1386,13 @@ INIT_CONTEXT:
 
     /* return the handle to the new (current) context */
     if (pmDebugOptions.context) {
-	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type,
-			name ? name : "NULL", PM_TPD(curr_handle));
+	fprintf(stderr, "pmNewContext(%d", type & PM_CONTEXT_TYPEMASK);
+	if (type != (type & PM_CONTEXT_TYPEMASK)) {
+	    fputc('+', stderr);
+	    print_ctx_flags(stderr, type);
+	}
+	fprintf(stderr, ", %s) -> %d\n",
+			name != NULL ? name : "NULL", PM_TPD(curr_handle));
 	__pmDumpContext(stderr, PM_TPD(curr_handle), PM_INDOM_NULL);
     }
 
@@ -1380,9 +1433,15 @@ FAILED_LOCKED:
     }
     PM_TPD(curr_handle) = old_curr_handle;
     PM_TPD(curr_ctxp) = old_curr_ctxp;
-    if (pmDebugOptions.context)
-	fprintf(stderr, "pmNewContext(%d, %s) -> %d, curr_handle=%d\n",
-	    type, name ? name : "NULL", sts, PM_TPD(curr_handle));
+    if (pmDebugOptions.context) {
+	fprintf(stderr, "pmNewContext(%d", type);
+	if (type != (type & PM_CONTEXT_TYPEMASK)) {
+	    fputc('+', stderr);
+	    print_ctx_flags(stderr, type);
+	}
+	fprintf(stderr, ", %s) -> %d, curr_handle=%d\n",
+	    name != NULL ? name : "NULL", sts, PM_TPD(curr_handle));
+    }
     PM_UNLOCK(contexts_lock);
 
 pmapi_return:
@@ -2068,13 +2127,21 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 			    con->c_archctl->ac_serial);
 		}
 	    }
-	    if (con->c_type == PM_CONTEXT_HOST || con->c_type == PM_CONTEXT_ARCHIVE) {
+	    if (con->c_type == PM_CONTEXT_HOST ||
+	        (con->c_type == PM_CONTEXT_ARCHIVE &&
+		 ! (con->c_flags & PM_CTXFLAG_STREAMING_WRITER))) {
 		fprintf(f, " origin=%" FMT_INT64 ".%09d",
 		    con->c_origin.sec, con->c_origin.nsec);
-		fprintf(f, " delta=%s%" FMT_INT64 ".%09d\n",
+		fprintf(f, " delta=%s%" FMT_INT64 ".%09d",
 		    con->c_direction < 0 ? "-" : "",
 		    con->c_delta.sec, con->c_delta.nsec);
 	    }
+	    if (con->c_flags) {
+		/* we have context flags */
+		fprintf(f, " flags: ");
+		print_ctx_flags(f, con->c_flags);
+	    }
+	    fputc('\n', f);
 	    __pmDumpProfile(f, indom, con->c_instprof);
 	}
     }

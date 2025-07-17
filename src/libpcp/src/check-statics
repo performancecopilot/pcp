@@ -244,6 +244,7 @@ connect.o
 context.o
     contexts_lock		# local mutex
     ?_mode			# const
+    ?_flagmap			# const
     ?being_initialized          # const
     def_backoff			# guarded by contexts_lock mutex
     backoff			# guarded by contexts_lock mutex
