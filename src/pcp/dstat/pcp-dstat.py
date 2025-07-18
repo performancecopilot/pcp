@@ -504,6 +504,7 @@ class DstatTool(object):
 
         # Options for specific plugins
         self.cpulist = None
+        self.gpulist = None
         self.disklist = None
         self.dmlist = None
         self.mdlist = None
@@ -694,6 +695,8 @@ class DstatTool(object):
                             plugin.prepare_grouptype(self.disklist, self.full)
                         elif value == 'dm':
                             plugin.prepare_grouptype(self.dmlist, self.full)
+                        if value == 'gpu':
+                            plugin.prepare_grouptype(self.gpulist, self.full)
                         elif value == 'md':
                             plugin.prepare_grouptype(self.mdlist, self.full)
                         elif value == 'part':
@@ -747,7 +750,7 @@ class DstatTool(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("acC:dD:fghiI:lL:mM:nN:o:pP:qrsS:tTvVy?")
+        opts.pmSetShortOptions("acC:dD:fgG:hiI:lL:mM:nN:o:pP:qrsS:tTvVy?")
         opts.pmSetShortUsage("[-afv] [options...] [delay [count]]")
         opts.pmSetLongOptionText('Versatile tool for generating system resource statistics')
 
@@ -791,11 +794,15 @@ class DstatTool(object):
         opts.pmSetLongOption('vm-adv', 0, None, '', 'enable advanced vm stats')
 #       opts.pmSetLongOption('zones', 0, None, '', 'enable zoneinfo stats')
         opts.pmSetLongOptionText('')
+        opts.pmSetLongOption('amd-gpu', 0, None, '', 'enable AMD GPU stats')
+        opts.pmSetLongOption('nvidia-gpu', 0, None, '', 'enable NVIDIA GPU stats')
+        opts.pmSetLongOptionText(' '*5 + '-G 0,1' + ' '*10 + 'include gpu0, gpu1')
+        opts.pmSetLongOptionText('')
         opts.pmSetLongOption('list', 0, None, '', 'list all available plugins')
         opts.pmSetLongOption('plugin', 0, None, '', 'enable external plugin by name, see --list')
         opts.pmSetLongOptionText('')
         opts.pmSetLongOption('all', 0, 'a', '', 'equals -cdngy (default)')
-        opts.pmSetLongOption('full', 0, 'f', '', 'automatically expand -C, -D, -I, -N and -S lists')
+        opts.pmSetLongOption('full', 0, 'f', '', 'automatically expand -C, -G, -D, -I, -N and -S lists')
         opts.pmSetLongOption('vmstat', 0, 'v', '', 'equals -pmgdsc -D total')
         opts.pmSetLongOptionText('')
         opts.pmSetLongOption('bits', 0, '', '', 'force bits for values expressed in bytes')
@@ -862,6 +869,9 @@ class DstatTool(object):
                 self.disklist.append('total')
         elif opt in ['device-mapper']:
             self.append_plugin('dm')
+        elif opt in ['G']:
+            insts = arg.split(',')
+            self.gpulist = sorted(['gpu' + str(x) for x in insts if x != 'total'])
         elif opt in ['L']:
             insts = arg.split(',')
             self.dmlist = sorted([x for x in insts if x != 'total'])
