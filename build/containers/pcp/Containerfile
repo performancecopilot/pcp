@@ -1,0 +1,41 @@
+FROM quay.io/centos/centos:stream10-minimal
+
+RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
+    pcp-zeroconf
+RUN microdnf clean all
+RUN systemctl enable pmproxy
+RUN systemctl mask \
+    dev-hugepages.mount getty.target console-getty.service \
+    sys-fs-fuse-connections.mount systemd-oomd.service systemd-resolved.service \
+    systemd-logind.service systemd-machine-id-commit.service \
+    systemd-random-seed.service systemd-remount-fs.service \
+    systemd-udev-trigger.service systemd-udevd.service \
+    systemd-udevd-control.socket systemd-udevd-kernel.socket
+
+ENV NAME="pcp-latest"
+ENV VERSION="6"
+ENV SUMMARY="Performance Co-Pilot"
+ENV REGISTRY="quay.io/performancecopilot/"
+ENV DESCRIPTION="Performance Co-Pilot is a system performance analysis toolkit."
+
+LABEL RUN="podman run -d --name ${NAME} --systemd always -p 44321:44321 -p 44322:44322 -v pcp-archives:/var/log/pcp/pmlogger ${REGISTRY}/${NAME}"
+
+LABEL name="${NAME}"
+LABEL version="${VERSION}"
+LABEL summary="${SUMMARY}"
+LABEL description="${DESCRIPTION}"
+LABEL maintainer="PCP Team <pcp@groups.io>"
+LABEL help="cat /README.md"
+LABEL com.redhat.component="pcp"
+LABEL io.k8s.display-name="${SUMMARY}"
+LABEL io.k8s.description="${DESCRIPTION}"
+LABEL io.openshift.expose-services="44321:pmcd,44322:pmproxy"
+LABEL io.openshift.tags="pcp,performance,monitoring,metrics"
+
+VOLUME ["/var/log/pcp/pmlogger"]
+EXPOSE 44321
+EXPOSE 44322
+
+ENTRYPOINT ["/usr/bin/container-entrypoint"]
+CMD ["/usr/sbin/init"]
+STOPSIGNAL SIGRTMIN+3
