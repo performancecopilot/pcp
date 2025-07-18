@@ -35,6 +35,7 @@ _filter()
 	-e '/pmConvScale,/s/[0-9][0-9]*\.[0-9][0-9]*/N.M/g' \
 	-e '/pmAtomStr /s/[0-9][0-9]*\.[0-9][0-9]*e.*/I.Je+K/g' \
 	-e '/<pcp\.pmapi\.c/s/c_.*_Array/c_INTEGER_Array/' \
+	-e 's/<ctypes.LP_/<pcp\.pmapi\.LP_/' \
 	-e 's/pmid\([= ]\)[0-9]*\.[0-9]*\.[0-9]*/pmid\1PMID/g' \
 	-e '/^pmLookupName: /s/[0-9]*\.[0-9]*\.[0-9]*/PMID/g' \
 	-e '/^pmIDStr: /s/[0-9]*\.[0-9]*\.[0-9]*/PMID/g' \
