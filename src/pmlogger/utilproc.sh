@@ -245,15 +245,15 @@ _parse_log_control()
     then
 	 # determine path for pwd command to override shell built-in
 	 #
-_PWDCMD=`which pwd 2>/dev/null | $PCP_AWK_PROG '
+	_PWDCMD=`which pwd 2>/dev/null | $PCP_AWK_PROG '
 BEGIN           { i = 0 }
 / not in /      { i = 1 }
 / aliased to /  { i = 1 }
                 { if ( i == 0 ) print }
 '`
-[ -z "$_PWDCMD" ] && _PWDCMD=/bin/pwd
-eval $_PWDCMD -P >/dev/null 2>&1
-[ $? -eq 0 ] && _PWDCMD="$_PWDCMD -P"
+	[ -z "$_PWDCMD" ] && _PWDCMD=/bin/pwd
+	eval $_PWDCMD -P >/dev/null 2>&1
+	[ $? -eq 0 ] && _PWDCMD="$_PWDCMD -P"
     fi
     _here=`$_PWDCMD`
 
