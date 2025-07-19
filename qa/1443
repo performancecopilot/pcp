@@ -60,6 +60,7 @@ _filter()
 	-e "s/$hostname/HOSTNAME/g" \
 	-e "s/PID $pid_1\$/PID PID_1/" \
 	-e "s/PID $pid_2\$/PID PID_2/" \
+	-e '/^Warning: ignoring packaging backup control file/d' \
     # end
 }
 
