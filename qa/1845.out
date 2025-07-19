@@ -15,7 +15,7 @@ Output archive files:
 -rw-r--r-- 5688 TODAY-2.0
 Removing input archive files ........... done
 Merge callbacks ...
-callback: /usr/lib/pcp/bin/pmlogger_daily_report -o /var/log/pcp/sa -a TMP/pmproxy/qahost/TODAY-2
+callback: PCP_BINADM_DIR/pmlogger_daily_report -o PCP_LOG_DIR/sa -a TMP/pmproxy/qahost/TODAY-2
 Remaining archives files ...
 TMP/pmproxy/qahost/TODAY-2.0
 TMP/pmproxy/qahost/TODAY-2.index
