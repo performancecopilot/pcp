@@ -35,7 +35,9 @@ _check_pmlogger_lock()
 	echo "!!! found pmlogger lock(s) @ `date` ..." >>$seq_full
 	cat $tmp.checklock >>$seq_full
 	echo "I am PID $$" >>$seq_full
-	_pstree_all "`sed <$tmp.checklock -e 's/ .*//'`"
+	locker=`sed <$tmp.checklock -e 's/ .*//'`
+	echo "locker PID $locker" >>$seq_full
+	[ -n "$locker" ] && _pstree_all $locker
     else
 	echo "!!! no pmlogger locks @ `date` ..." >>$seq_full
     fi
