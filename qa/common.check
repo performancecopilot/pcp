@@ -126,35 +126,78 @@ _check_freespace()
 # was responsible in the event of a test abort, but also preserves the
 # mode and ownership of the configuration file
 #
+# pmlogger control files are special and need to be saved *outside*
+# $PCP_PMLOGGERCONTROL_PATH.d in the peer save_config.d directory, else
+# _parse_config() in utilproc.sh will find "duplicate" direcotries
+#
 _save_config()
 {
-    if [ -f "$1" ]
+    case "$1"
+    in
+	$PCP_PMLOGGERCONTROL_PATH.d/*)
+	    _src="$1"
+	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_config.d/@'`.$seq
+	    if [ ! -d `dirname $_dst` ]
+	    then
+		if $sudo mkdir `dirname $_dst`
+		then
+		    :
+		else
+		    echo "Arrgh, failed to make backup pmlogger control.d"
+		    exit
+		fi
+	    fi
+	    ;;
+	*)
+	    _src="$1"
+	    _dst="$1.$seq"
+	    ;;
+    esac
+
+    if [ -f "$_src" ]
     then
-	$sudo rm -f "$1.$seq"
-	$sudo mv "$1" "$1.$seq"
-	$sudo cp "$1.$seq" "$1"
-    elif [ -d "$1" ]
+	$sudo rm -f "$_dst"
+	$sudo mv "$_src" "$_dst"
+	$sudo cp "$_dst" "$_src"
+    elif [ -d "$_src" ]
     then
-	$sudo rm -rf "$1.$seq"
-	$sudo mv "$1" "$1.$seq"
-	$sudo cp -r "$1.$seq" "$1"
+	$sudo rm -rf "_dst"
+	$sudo mv "$_src" "$_dst"
+	$sudo cp -r "$_dst" "$_src"
     else
 	echo "Botch: _save_config: $1 does not exist"
     fi
 }
 
+# reverse the changes from _save_config()
+#
+# pmlogger control files are special and need to be saved *outside*
+# $PCP_PMLOGGERCONTROL_PATH.d in the peer save_config.d directory, else
+# _parse_config() in utilproc.sh will find "duplicate" direcotries
+#
 _restore_config()
 {
-    if [ -f "$1.$seq" ]
+    case "$1"
+    in
+	$PCP_PMLOGGERCONTROL_PATH.d/*)
+	    _src="$1"
+	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_config.d/@'`.$seq
+	    ;;
+	*)
+	    _src="$1"
+	    _dst="$1.$seq"
+	    ;;
+    esac
+    if [ -f "$_dst" ]
     then
-	$sudo rm -f "$1"
-	$sudo mv "$1.$seq" "$1"
-    elif [ -d "$1.$seq" ]
+	$sudo rm -f "$_src"
+	$sudo mv "$_dst" "$_src"
+    elif [ -d "$_dst" ]
     then
-	$sudo rm -rf "$1"
-	$sudo mv "$1.$seq" "$1"
+	$sudo rm -rf "$_src"
+	$sudo mv "$_dst" "$_src"
     else
-	echo "Warning: _restore_config: $1.$seq does not exist"
+	echo "Warning: _restore_config: $_dst does not exist"
     fi
 }
 
@@ -324,15 +367,25 @@ _service()
 		done
 		;;
 	    *)
-		# if service is failed, need reset-failed before trying
-		# anything else
+		_extra_svc=''
+		case "$1"
+		in
+		    pmlogger)
+			    _extra_svc='pmlogger_daily pmlogger_check pmlogger_farm'
+			    ;;
+		esac
+		# if service (or related service) is failed, need
+		# reset-failed before trying anything else
 		#
-		if systemctl show --property=ActiveState $1.service 2>&1 \
-		  | grep '=failed$' >/dev/null
-		then
-		    $__verbose && echo "_service: using systemctl: reset-failed $1"
-		    $sudo systemctl reset-failed $1.service 2>>$seq_full
-		fi
+		for _svc in $1 $_extra_svc
+		do
+		    if systemctl show --property=ActiveState $_svc.service 2>&1 \
+		      | grep '=failed$' >/dev/null
+		    then
+			$__verbose && echo "_service: using systemctl: reset-failed $_svc"
+			$sudo systemctl reset-failed $_svc.service 2>>$seq_full
+		    fi
+		done
 
 		$__verbose && echo "_service: using systemctl $2 $1.service"
 		$sudo systemctl $2 $1.service
@@ -3706,4 +3759,71 @@ _exit()
 {
     [ $# -gt 0 ] && status="$1"
     exit
+}
+
+# borrowed from rc-proc.sh in ../src/pmcd
+# run pstree(1) with the focus on PID $1
+# ... Linux and *BSD (at least) have _totally_ different implementations
+# and command line arguments
+#
+_pstree_all()
+{
+    if which pstree >/dev/null 2>&1
+    then
+	if pstree -\? 2>&1 | grep ' --show-parents ' >/dev/null
+	then
+	    # Linux version
+	    #
+	    echo "Called from:"
+	    pstree -asp "$1"
+	    echo "--- end of pstree output ---"
+	elif pstree -\? 2>&1 | grep ' -s string' >/dev/null
+	then
+	    # *BSD version
+	    #
+	    echo "Called from:"
+	    pstree -p "$1" \
+	    | $PCP_AWK_PROG '
+/pstree -p/	{ exit }
+		{ print }'
+	    echo "--- end of pstree output ---"
+	else
+	    # don't know what sort of pstree this is ...
+	    #
+	    :
+	fi
+    fi
+}
+
+# borrowed from rc-proc.sh in ../src/pmcd
+# pstree(1) one-line for parents of PID $1
+# ... Linux and *BSD (at least) have _totally_ different implementations
+# and command line arguments
+#
+_pstree_oneline()
+{
+    if which pstree >/dev/null 2>&1
+    then
+	if pstree -\? 2>&1 | grep ' --show-parents ' >/dev/null
+	then
+	    # Linux version
+	    #
+	    pstree -lsp "$1"
+	elif pstree -\? 2>&1 | grep ' -s string' >/dev/null
+	then
+	    # *BSD version
+	    #
+	    pstree -p "$1" \
+	    | sed -e 's/^[ 	|\\=+-][ 	|\\=+-]*//' \
+	    | $PCP_AWK_PROG '
+$3 == "pstree"	{ exit }
+		{ print $3 "(" $1 ")--" }' \
+	    | ( tr '\012' '-' ; echo ) \
+	    | sed -e 's/---$//'
+	else
+	    # don't know what sort of pstree this is ...
+	    #
+	    :
+	fi
+    fi
 }
