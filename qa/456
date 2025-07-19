@@ -57,7 +57,7 @@ _cleanup()
 
     _stop_loggers >/dev/null 2>&1
 
-    cd # get out of tmp directory so we can delete it
+    cd $here # get out of tmp directory so we can delete it
     $sudo rm -rf $tmp $tmp.*
 
     $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check
@@ -67,13 +67,13 @@ _cleanup()
 _setup()
 {
     _stop_loggers
-    cd
     mkdir $tmp
 }
 
 # real QA test starts here
 
 _setup
+cd $tmp
 
 # control file
 #
