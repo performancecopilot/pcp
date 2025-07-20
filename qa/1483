@@ -54,7 +54,7 @@ _filter()
 	-e '/^-- No entries --$/d' \
 	-e '/^-- Journal begins at /d' \
 	-e '/^-- Logs begin at /d' \
-	-e '/: End: /d' \
+	-e '/: End[: ]/d' \
 	-e '/error while loading shared libraries: libpcp/d' \
 	-e '/rc\[[0-9]*]: .*pmpost:.* cannot open .*NOTICES/d' \
 	-e '/rc\[[0-9]*]: .*pmpost: unposted message:/d' \
