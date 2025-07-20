@@ -548,89 +548,94 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	dir=`$_PWDCMD`
 	$VERY_VERBOSE && echo >&2 "Current dir: $dir"
 
-	if $SHOWME
+	# pmlogger_janitor does NOT need the lock because it is only
+	# ever called from pmlogger_check with the lock already held
+	#
+	if [ "$prog" != pmlogger_janitor ]
 	then
-	    echo "+ get mutex lock"
-	else
-	    if [ ! -w "$dir" ]
+	    if $SHOWME
 	    then
-		_warning "no write access in $dir skip lock file processing"
+		echo "+ get mutex lock"
 	    else
-		# demand mutual exclusion
-		#
-		rm -f $tmp/_stamp $tmp/_out
-		_delay=200	# tenths of a second
-		while [ $_delay -gt 0 ]
-		do
-		    if pmlock -i "$$ $prog" -v "$dir/lock" >>$tmp/_out 2>&1
-		    then
-			if $VERY_VERBOSE
+		if [ ! -w "$dir" ]
+		then
+		    _warning "no write access in $dir skip lock file processing"
+		else
+		    # demand mutual exclusion
+		    #
+		    rm -f $tmp/_stamp $tmp/_out
+		    _delay=200	# tenths of a second
+		    while [ $_delay -gt 0 ]
+		    do
+			if pmlock -i "$$ $prog" -v "$dir/lock" >>$tmp/_out 2>&1
 			then
-			    echo "Acquired lock:"
-			    LC_TIME=POSIX ls -l "$dir/lock"
-			    [ -s "$dir/lock" ] && cat "$dir/lock"
-			fi
-			echo "$dir/lock" >$tmp/_lock
-			break
-		    else
-			[ -f $tmp/_stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/_stamp
-			find $tmp/_stamp -newer "$dir/lock" -print 2>/dev/null >$tmp/_tmp
-			if [ -s $tmp/_tmp ]
-			then
-			    if [ -f "$dir/lock" ]
+			    if $VERY_VERBOSE
 			    then
-				_warning "removing lock file older than 30 minutes"
+				echo "Acquired lock:"
 				LC_TIME=POSIX ls -l "$dir/lock"
 				[ -s "$dir/lock" ] && cat "$dir/lock"
-				rm -f "$dir/lock"
-			    else
-				# there is a small timing window here where pmlock
-				# might fail, but the lock file has been removed by
-				# the time we get here, so just keep trying
-				#
-				:
+			    fi
+			    echo "$dir/lock" >$tmp/_lock
+			    break
+			else
+			    [ -f $tmp/_stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/_stamp
+			    find $tmp/_stamp -newer "$dir/lock" -print 2>/dev/null >$tmp/_tmp
+			    if [ -s $tmp/_tmp ]
+			    then
+				if [ -f "$dir/lock" ]
+				then
+				    _warning "removing lock file older than 30 minutes"
+				    LC_TIME=POSIX ls -l "$dir/lock"
+				    [ -s "$dir/lock" ] && cat "$dir/lock"
+				    rm -f "$dir/lock"
+				else
+				    # there is a small timing window here where pmlock
+				    # might fail, but the lock file has been removed by
+				    # the time we get here, so just keep trying
+				    #
+				    :
+				fi
 			    fi
 			fi
-		    fi
-		    pmsleep 0.1
-		    _delay=`expr $_delay - 1`
-		done
-
-		if [ $_delay -eq 0 ]
-		then
-		    # failed to gain mutex lock
-		    #
-		    # if we are not pmlogger_daily and pmlogger_daily is already
-		    # running ... check it, and silently move on if this is the
-		    # case
-		    #
-		    # Note: $PCP_RUN_DIR may not exist (see pmlogger_daily note),
-		    #       but only if pmlogger_daily has not run, so no chance
-		    #       of a collision
-		    #
-		    if [ "$prog" != pmlogger_daily -a -f "$PCP_RUN_DIR"/pmlogger_daily.pid ]
+			pmsleep 0.1
+			_delay=`expr $_delay - 1`
+		    done
+		    if [ $_delay -eq 0 ]
 		    then
-			# maybe, check pid matches a running /bin/sh
+			# failed to gain mutex lock
 			#
-			_pid=`cat "$PCP_RUN_DIR"/pmlogger_daily.pid`
-			if _get_pids_by_name sh | grep "^$_pid\$" >/dev/null
+			# if we are not pmlogger_daily and pmlogger_daily is already
+			# running ... check it, and silently move on if this is the
+			# case
+			#
+			# Note: $PCP_RUN_DIR may not exist (see pmlogger_daily note),
+			#       but only if pmlogger_daily has not run, so no chance
+			#       of a collision
+			#
+			if [ "$prog" != pmlogger_daily -a -f "$PCP_RUN_DIR"/pmlogger_daily.pid ]
 			then
-			    # seems to be still running ... nothing for us to see
-			    # or do here
+			    # maybe, check pid matches a running /bin/sh
 			    #
-			    continue
+			    _pid=`cat "$PCP_RUN_DIR"/pmlogger_daily.pid`
+			    if _get_pids_by_name sh | grep "^$_pid\$" >/dev/null
+			    then
+				# seems to be still running ... nothing for us to see
+				# or do here
+				#
+				continue
+			    fi
 			fi
+			if [ -f "$dir/lock" ]
+			then
+			    echo "$prog: Warning: is another PCP cron job running concurrently?"
+			    LC_TIME=POSIX ls -l "$dir/lock"
+			    [ -s "$dir/lock" ] && cat "$dir/lock"
+			else
+			    echo "$prog: `cat $tmp/_out`"
+			fi
+			_warning "failed to acquire exclusive lock ($dir/lock) ..."
+			continue
 		    fi
-		    if [ -f "$dir/lock" ]
-		    then
-			echo "$prog: Warning: is another PCP cron job running concurrently?"
-			LC_TIME=POSIX ls -l "$dir/lock"
-			[ -s "$dir/lock" ] && cat "$dir/lock"
-		    else
-			echo "$prog: `cat $tmp/_out`"
-		    fi
-		    _warning "failed to acquire exclusive lock ($dir/lock) ..."
-		    continue
 		fi
 	    fi
 	fi
