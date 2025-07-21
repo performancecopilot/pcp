@@ -496,7 +496,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    if [ -s $tmp/_tmp ]
 	    then
 		_error "Duplicate pmlogger instances for archive directory \"$dir\""
-		echo "Prior instance(s) for this direcrtory:"
+		echo "Prior instance(s) for this directory:"
 		cat $tmp/_tmp
 		continue
 	    fi

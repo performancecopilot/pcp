@@ -15,6 +15,8 @@ Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: Duplicate pmlogger instances for archive directory "TMP"
 [dots] logging for host "LOCALHOST" unchanged
+Prior instance(s) for this directory:
+TMP TMP/control:LINE
 
 # PCP archive logging configuration/control - for qa/430
 #
@@ -31,6 +33,8 @@ Restarting primary pmlogger for host "LOCALHOST" [dots] [process PID]  done
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: Duplicate pmlogger instances for archive directory "TMP"
 [dots] logging for host "LOCALHOST" unchanged
+Prior instance(s) for this directory:
+TMP TMP/control:LINE
 
 # PCP archive logging configuration/control - for qa/430
 #

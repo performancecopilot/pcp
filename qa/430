@@ -46,8 +46,8 @@ _filter()
 	-e "s/$realhost/LOCALHOST/g" \
 	-e "s/$LOCALHOST/LOCALHOST/g" \
 	-e "s/local:/LOCALHOST/g" \
-	-e 's/control:[0-9][0-9]*]/control:LINE]/' \
-	-e 's/control.d\/*:[0-9][0-9]*]/control:LINE]/' \
+	-e 's/control:[0-9][0-9]*/control:LINE/' \
+	-e 's/control.d\/*:[0-9][0-9]*/control:LINE/' \
 	-e 's;/usr/var;/var;g' \
 	-e "s;$tmp;TMP;g" \
 	-e "s;$PCP_TMP_DIR;PCP_TMP_DIR;" \
