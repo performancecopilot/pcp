@@ -43,6 +43,8 @@ _cleanup()
     then
         _needclean=false
 	_restore_config $PCP_PMCDCONF_PATH
+	_restore_config $PCP_PMLOGGERCONTROL_PATH
+	_restore_config $PCP_PMLOGGERCONTROL_PATH.d
 	_change_config pmlogger on
 	_service pmcd restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
@@ -52,10 +54,9 @@ _cleanup()
 
     if $_chkconfig_pmlogger_on
     then
-	[ -f $PCP_PMLOGGERCONTROL_PATH.$seq ] && \
-	    $sudo mv $PCP_PMLOGGERCONTROL_PATH.$seq $PCP_PMLOGGERCONTROL_PATH
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_start
 	_wait_for_pmlogger
     	_chkconfig_pmlogger_on=false
     fi
@@ -74,9 +75,14 @@ $unix_domain_sockets && target="unix:"
 
 # real QA test starts here
 
-# disable all pmloggers ...
+# disable all pmloggers ... and make sure no control files are in play as
+# we'll add our own control file below
+#
 _chkconfig_pmlogger_on=true
-$sudo cp $PCP_PMLOGGERCONTROL_PATH $PCP_PMLOGGERCONTROL_PATH.$seq
+_save_config $PCP_PMLOGGERCONTROL_PATH
+$sudo rm $PCP_PMLOGGERCONTROL_PATH
+_save_config $PCP_PMLOGGERCONTROL_PATH.d
+$sudo rm -rf $PCP_PMLOGGERCONTROL_PATH.d
 cat <<End-of-File >$tmp.tmp
 # Installed by PCP QA test $seq on `date`
 # the goal here is to have a controlled primary logger that does
