@@ -58,7 +58,7 @@ qahost	tmparch/foo	`pmdate -3d %Y%m%d`
 qahost	tmparch/mv-foo	`pmdate -5d %Y%m%d`
 qahost	tmparch/foo	`pmdate -7d %Y%m%d`
 End-of-File
-mk.logfarm -c $tmp.config $PCP_LOG_DIR/pmproxy
+./mk.logfarm -c $tmp.config $PCP_LOG_DIR/pmproxy
 ls -lR $tmp >>$seq_full
 
 cat <<End-of-File >$tmp.control

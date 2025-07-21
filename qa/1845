@@ -61,7 +61,7 @@ qahost	archives/ok-foo		`pmdate -2d %Y%m%d.00.10`
 qahost	archives/ok-mv-foo	`pmdate -2d %Y%m%d.01.20`
 qahost	archives/ok-foo		`pmdate -2d %Y%m%d.02.30`
 End-of-File
-mk.logfarm -c $tmp.config $PCP_LOG_DIR/pmproxy
+./mk.logfarm -c $tmp.config $PCP_LOG_DIR/pmproxy
 ls -lR $tmp >>$seq_full
 find $PCP_LOG_DIR/pmproxy -name "*.index" \
 | while read arch
