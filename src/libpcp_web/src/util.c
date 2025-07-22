@@ -80,7 +80,7 @@ timespec_stream_str(struct timespec *stamp, char *buffer, int buflen)
     return buffer;
 }
 
-/* convert timeval into human readable date/time format for logging */
+/* convert timespec into human readable date/time format for logging */
 const char *
 timespec_str(struct timespec *tvp, char *buffer, int buflen)
 {
@@ -88,7 +88,7 @@ timespec_str(struct timespec *tvp, char *buffer, int buflen)
     time_t	now = (time_t)tvp->tv_sec;
 
     pmLocaltime(&now, &tmp);
-    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%6u",
+    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%09u",
 	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tvp->tv_nsec);
     return buffer;
 }
@@ -101,8 +101,8 @@ timestamp_str(__pmTimestamp *tsp, char *buffer, int buflen)
     time_t	now = (time_t)tsp->sec;
 
     pmLocaltime(&now, &tmp);
-    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%9u",
-	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec);
+    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09u",
+	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tsp->nsec);
     return buffer;
 }
 
@@ -1340,11 +1340,15 @@ pmwebapi_usectimestamp(sds s, struct timeval *timestamp)
 {
     struct tm	tmp;
     time_t	now;
+    size_t	length;
+    char	buffer[32];
 
     now = (time_t)timestamp->tv_sec;
     pmLocaltime(&now, &tmp);
-    return sdscatfmt(s, "%02d:%02d:%02d.%6d",
-		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_usec);
+    length = pmsprintf(buffer, sizeof(buffer), "%02u:%02u:%02u.%06u",
+			tmp.tm_hour, tmp.tm_min, tmp.tm_sec,
+			(unsigned int)timestamp->tv_usec);
+    return sdscatlen(s, buffer, length);
 }
 
 sds
@@ -1352,9 +1356,13 @@ pmwebapi_nsectimestamp(sds s, struct timespec *timestamp)
 {
     struct tm	tmp;
     time_t	now;
+    size_t	length;
+    char	buffer[32];
 
     now = (time_t)timestamp->tv_sec;
     pmLocaltime(&now, &tmp);
-    return sdscatfmt(s, "%02d:%02d:%02d.%9d",
-		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_nsec);
+    length = pmsprintf(buffer, sizeof(buffer), "%02u:%02u:%02u.%09u",
+			tmp.tm_hour, tmp.tm_min, tmp.tm_sec,
+			(unsigned int)timestamp->tv_nsec);
+    return sdscatlen(s, buffer, length);
 }
