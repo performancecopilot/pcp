@@ -1572,8 +1572,10 @@ pmDiscoverStreamData(pmDiscover *p, const char *content, size_t length)
 	}
 
 	result = __pmOffsetResult(rp);
-	stamp.sec = result->timestamp.tv_sec;
-	stamp.nsec = result->timestamp.tv_nsec;
+	/* mimic logic in pmFetchArchive */
+	stamp = rp->timestamp; /* struct copy */
+	result->timestamp.tv_sec = stamp.sec;
+	result->timestamp.tv_nsec = stamp.nsec;
 	bump_logvol_decode_stats(data, result);
 	pmDiscoverInvokeValuesCallBack(p, &stamp, result);
 	pmFreeResult(result);

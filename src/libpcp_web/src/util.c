@@ -88,7 +88,7 @@ timespec_str(struct timespec *tvp, char *buffer, int buflen)
     time_t	now = (time_t)tvp->tv_sec;
 
     pmLocaltime(&now, &tmp);
-    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%06u",
+    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%6u",
 	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tvp->tv_nsec);
     return buffer;
 }
@@ -101,7 +101,7 @@ timestamp_str(__pmTimestamp *tsp, char *buffer, int buflen)
     time_t	now = (time_t)tsp->sec;
 
     pmLocaltime(&now, &tmp);
-    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09u",
+    pmsprintf(buffer, buflen, "%02u:%02u:%02u.%9u",
 	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec);
     return buffer;
 }
@@ -1343,7 +1343,7 @@ pmwebapi_usectimestamp(sds s, struct timeval *timestamp)
 
     now = (time_t)timestamp->tv_sec;
     pmLocaltime(&now, &tmp);
-    return sdscatfmt(s, "%02d:%02d:%02d.%06d",
+    return sdscatfmt(s, "%02d:%02d:%02d.%6d",
 		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_usec);
 }
 
@@ -1355,6 +1355,6 @@ pmwebapi_nsectimestamp(sds s, struct timespec *timestamp)
 
     now = (time_t)timestamp->tv_sec;
     pmLocaltime(&now, &tmp);
-    return sdscatfmt(s, "%02d:%02d:%02d.%09d",
+    return sdscatfmt(s, "%02d:%02d:%02d.%9d",
 		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_nsec);
 }
