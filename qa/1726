@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 1726
+# pmdaopentelemetry sample exporter snapshot ingestion
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+# Note: if anything gets added or changed in qa/opentelemetry/samples directory,
+# then this test (and all tests in group pmda.opentelemetry) will need to be remade.
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.opentelemetry
+
+_pmdaopentelemetry_check || _notrun "opentelemetry pmda and/or load generator not installed"
+_have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    _pmdaopentelemetry_cleanup
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_prepare_pmda opentelemetry
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+_pmdaopentelemetry_save_config
+
+# add all the sample text files as urls.
+ls -1 $here/opentelemetry/samples/*.txt | LC_COLLATE=POSIX sort | while read file
+do
+    urlbase=`basename $file .txt | tr .- _`
+    echo 'file://'$file > $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
+done
+
+ls $PCP_PMDAS_DIR/opentelemetry/config.d/
+
+# add all the sample scripts
+cp -a $here/opentelemetry/scripts/* $PCP_PMDAS_DIR/opentelemetry/config.d
+find $PCP_PMDAS_DIR/opentelemetry/config.d -name GNU\* -exec rm -f {} ";"
+
+_pmdaopentelemetry_install
+
+if ! _pmdaopentelemetry_wait_for_metric opentelemetry.simplemetric.metric1
+then
+    status=1
+    exit
+fi
+
+if pminfo -dtTf `pminfo opentelemetry | grep -F -v opentelemetry.control | LC_COLLATE=POSIX sort` > $tmp.info 2> $tmp.err
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err
+
+_pmdaopentelemetry_remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit
