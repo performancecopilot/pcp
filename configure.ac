@@ -14,6 +14,8 @@ dnl or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 dnl for more details.
 dnl
 
+configopts="`rpmbuild --eval '--exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} --prefix=%{_prefix}' 2>/dev/null`"
+
 dnl unpacking check - this file must exist
 AC_INIT
 AC_CONFIG_SRCDIR([src/include/pcp/pmapi.h])
@@ -1531,6 +1533,15 @@ then
 fi
 AC_SUBST(PMDA_OPENMETRICS, $pmda_openmetrics)
 if $pmda_openmetrics; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the OpenTelemetry PMDA should be included])
+pmda_opentelemetry=false
+if test "$have_python" = true
+then
+    $have_python_requests && $have_python_OrderedDict && pmda_opentelemetry=true
+fi
+AC_SUBST(PMDA_OPENTELEMETRY, $pmda_opentelemetry)
+if $pmda_opentelemetry; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the SQL Server PMDA should be included])
 pmda_mssql=false
