@@ -4,13 +4,13 @@ ALL_PCP_SERVICES='pmcd,pmie,pmlogger,pmproxy'
 
 export PCP_SERVICES=${PCP_SERVICES:-${ALL_PCP_SERVICES}}
 export HOST_MOUNT=${HOST_MOUNT:-''}
-export REDIS_SERVERS=${REDIS_SERVERS:-'localhost:6379'}
+export KEY_SERVERS=${KEY_SERVERS:-'localhost:6379'}
 
 mkdir -p /etc/systemd/system/pmcd.service.d
 # shellcheck disable=SC2016
 envsubst '$HOST_MOUNT' < /usr/share/container-scripts/pcp/10-host_mount.conf.template > /etc/systemd/system/pmcd.service.d/10-host_mount.conf
 # shellcheck disable=SC2016
-envsubst '$REDIS_SERVERS' < /usr/share/container-scripts/pcp/pmproxy.conf.template > /etc/pcp/pmproxy/pmproxy.conf
+envsubst '$KEY_SERVERS' < /usr/share/container-scripts/pcp/pmproxy.conf.template > /etc/pcp/pmproxy/pmproxy.conf
 
 echo "Enabling PCP services: ${PCP_SERVICES}"
 for service in ${ALL_PCP_SERVICES//,/ }; do
