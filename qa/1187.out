@@ -33,6 +33,28 @@ CPU
 === std err
 === done
 
+NVIDIA GPU
+=== std out
+----system---- ----gpu0---
+     time     |util%  mem%
+23-07 10:02:23|   45    12
+23-07 10:02:24|   60    12
+23-07 10:02:25|   57    12
+23-07 10:02:26|   59    12
+=== std err
+=== done
+
+AMD GPU
+=== std out
+----system---- ----gpu0---
+     time     |util%  mem%
+23-07 08:58:11|   38    36
+23-07 08:58:12|   26    36
+23-07 08:58:13|   17    34
+23-07 08:58:14|   13    34
+=== std err
+=== done
+
 Per Disk
 === std out
 ----system---- --dsk/vda-- -dsk/total- ---vda---
