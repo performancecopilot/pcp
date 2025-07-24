@@ -144,6 +144,7 @@ extern int mmv_stats_add_instance_label(mmv_registry_t *,
 		int, int, const char *, const char *, mmv_value_type_t, int);
 
 extern void * mmv_stats_start(mmv_registry_t *);
+extern void mmv_stats_reset(mmv_registry_t *);
 extern void mmv_stats_free(mmv_registry_t *);
 
 extern pmAtomValue * mmv_lookup_value_desc(void *, const char *, const char *);

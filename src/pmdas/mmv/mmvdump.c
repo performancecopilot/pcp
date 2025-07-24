@@ -655,7 +655,8 @@ dump(const char *file, void *addr, size_t size)
 	count = toc[i].count;
 	offset = toc[i].offset;
 
-	if ((__int32_t)count < 1) {
+	if ((__int32_t)count < 1 &&
+	    type != MMV_TOC_INSTANCES && type != MMV_TOC_VALUES) {
 	    printf("Bad TOC[%d]: invalid entry count %d\n", i, (__int32_t)count);
 	    continue;
 	}

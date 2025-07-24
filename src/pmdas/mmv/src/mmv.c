@@ -65,10 +65,12 @@ typedef struct {
     mmv_disk_value_t	*values;	/* values in mmap */
     mmv_disk_metric_t	*metrics1;	/* v1 metric descs in mmap */
     mmv_disk_metric2_t	*metrics2;	/* v2 metric descs in mmap */
-    mmv_disk_label_t	*labels; 	/* labels desc in mmap */
+    mmv_disk_indom_t	*indoms; 	/* instance domains in mmap */
+    mmv_disk_label_t	*labels; 	/* labels in mmap */
     int			vcnt;		/* number of values */
     int			mcnt1;		/* number of metrics */
     int			mcnt2;		/* number of v2 metrics */
+    int			icnt;		/* number of instance domains */
     int			lcnt;		/* number of labels */
     int			version;	/* v1/v2/v3 version number */
     int			cluster;	/* cluster identifier */
@@ -562,7 +564,7 @@ create_indom(pmdaExt *pmda, stats_t *s, __uint64_t offset, __uint32_t count,
     }
 
     if (count == 0 && pmDebugOptions.appl0) {
-	pmNotifyErr(LOG_WARNING, "%s: %s:"
+	pmNotifyErr(LOG_DEBUG, "%s: %s:"
 		   " indom serial=%u has no instances",
 		   ap->prefix, s->name, id->serial);
     }
@@ -833,6 +835,8 @@ map_stats(pmdaExt *pmda)
 			/* first time we've observed this indom */
 			create_indom(pmda, s, ioffset, icount, &id[k], pmindom);
 		}
+		s->indoms = id;
+		s->icnt = count;
 		break;
 
 	    case MMV_TOC_VALUES:
@@ -894,6 +898,31 @@ map_stats(pmdaExt *pmda)
 }
 
 static int
+mmv_lookup_stat_indom(agent_t *agent, int serial, stats_t **stats,
+	__uint64_t *shorttext, __uint64_t *helptext)
+{
+    mmv_disk_indom_t	*in;
+    int			si, ii;
+
+    for (si = 0; si < agent->scnt; si++) {
+	stats_t *s = &agent->slist[si];
+
+	in = s->indoms;
+	for (ii = 0; ii < s->icnt; ii++) {
+	    if (in[ii].serial != pmInDom_serial(serial))
+		continue;
+	    if (shorttext)
+		*shorttext = in[ii].shorttext;
+	    if (helptext)
+		*helptext = in[ii].helptext;
+	    *stats = s;
+	    return 0;
+	}
+    }
+    return PM_ERR_INDOM;
+}
+
+static int
 mmv_lookup_item1(int item, unsigned int inst,
 	stats_t *s, mmv_disk_value_t **value,
 	__uint64_t *shorttext, __uint64_t *helptext)
@@ -905,6 +934,14 @@ mmv_lookup_item1(int item, unsigned int inst,
     for (mi = 0; mi < s->mcnt1; mi++) {
 	if (m1[mi].item != item)
 	    continue;
+
+	if (value == NULL) {
+	    if (shorttext)
+		*shorttext = m1[mi].shorttext;
+	    if (helptext)
+		*helptext = m1[mi].helptext;
+	    return m1[mi].type;
+	}
 
 	sts = PM_ERR_INST;
 	for (vi = 0; vi < s->vcnt; vi++) {
@@ -940,6 +977,14 @@ mmv_lookup_item2(int item, unsigned int inst,
     for (mi = 0; mi < s->mcnt2; mi++) {
 	if (m2[mi].item != item)
 	    continue;
+
+	if (value == NULL) {
+	    if (shorttext)
+		*shorttext = m2[mi].shorttext;
+	    if (helptext)
+		*helptext = m2[mi].helptext;
+	    return m2[mi].type;
+	}
 
 	sts = PM_ERR_INST;
 	for (vi = 0; vi < s->vcnt; vi++) {
@@ -1170,16 +1215,11 @@ mmv_desc(pmID pmid, pmDesc *desc, pmdaExt *pmda)
 }
 
 static int
-mmv_lookup_metric_helptext(agent_t *ap, pmID pmid, int type, char **text)
+mmv_helptext(agent_t *ap, stats_t *s, __uint64_t st, __uint64_t lt,
+		int type, char **text)
 {
     mmv_disk_string_t	*str;
-    mmv_disk_value_t	*v;
-    __uint64_t		st, lt;
     size_t		offset;
-    stats_t		*s;
-
-    if (mmv_lookup_stat_metric(ap, pmid, PM_IN_NULL, &s, &v, &st, &lt) < 0)
-	return PM_ERR_PMID;
 
     if ((type & PM_TEXT_ONELINE) && st) {
 	offset = st + sizeof(mmv_disk_string_t);
@@ -1219,15 +1259,34 @@ mmv_lookup_metric_helptext(agent_t *ap, pmID pmid, int type, char **text)
 }
 
 static int
+mmv_lookup_metric_helptext(agent_t *ap, pmID pmid, int type, char **text)
+{
+    __uint64_t		st, lt;
+    stats_t		*s;
+
+    if (mmv_lookup_stat_metric(ap, pmid, PM_IN_NULL, &s, NULL, &st, &lt) < 0)
+	return PM_ERR_PMID;
+    return mmv_helptext(ap, s, st, lt, type, text);
+}
+
+static int
+mmv_lookup_indom_helptext(agent_t *ap, pmInDom indom, int type, char **text)
+{
+    __uint64_t		st, lt;
+    stats_t		*s;
+
+    if (mmv_lookup_stat_indom(ap, indom, &s, &st, &lt) < 0)
+	return PM_ERR_INDOM;
+    return mmv_helptext(ap, s, st, lt, type, text);
+}
+
+static int
 mmv_text(int ident, int type, char **buffer, pmdaExt *pmda)
 {
     agent_t		*agent = (agent_t *)pmdaExtGetData(pmda);
 
-    if (type & PM_TEXT_INDOM)
-	return PM_ERR_TEXT;
-
     mmv_reload_maybe(pmda);
-    if (pmID_cluster(ident) == 0) {
+    if ((type & PM_TEXT_PMID) && pmID_cluster(ident) == 0) {
 	switch (pmID_item(ident)) {
 	    case 0: {		/* control.reload */
 		static char reloadoneline[] = "Control maps reloading";
@@ -1269,6 +1328,9 @@ Excludes the mmv.control.* metrics.\n";
 	}
 	return PM_ERR_PMID;
     }
+
+    if (type & PM_TEXT_INDOM)
+	return mmv_lookup_indom_helptext(agent, ident, type, buffer);
 
     return mmv_lookup_metric_helptext(agent, ident, type, buffer);
 }
