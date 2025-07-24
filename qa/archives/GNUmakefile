@@ -77,7 +77,7 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
 	  mk.mirage mk.mirage-3 mk.proc mk.free mk.ps\
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
-	  mk.sample_expr mk.tzchange mk.arch-all mk.amdgpu \
+	  mk.sample_expr mk.tzchange mk.arch-all mk.amdgpu mk.nvidiagpu \
 	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched mk.netstat \
 	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
