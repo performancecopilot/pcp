@@ -283,6 +283,18 @@ pmproxy.loggroup.gc.archive.scans PMID: 4.9.4 [archives scanned in last garbage 
 Help:
 Archives scanned during most recent loggroup garbage collection
 
+pmproxy.logpaths.archive PMID: 4.10.2 [currently active remote pmlogger archive paths]
+    Data Type: string  InDom: 4.20481 0x1005001
+    Semantics: instant  Units: none
+Help:
+Archive paths currently being written by the running service
+
+pmproxy.logpaths.count PMID: 4.10.1 [currently active remote pmlogger processes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Count of remote writers currently writing using the service
+
 pmproxy.map.context.size PMID: 4.1.6 [context map dictionary size]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
