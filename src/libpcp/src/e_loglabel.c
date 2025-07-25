@@ -221,27 +221,45 @@ __pmLogDecodeLabel(const char *buffer, size_t length, __pmLogLabel *lp)
     size_t		bytes;
 
     /* input length must be valid for one of the fixed-size label versions */
-    if (length != length_v2 && length != length_v3)
+    if (length != length_v2 && length != length_v3) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: length %zu != %zu (V2) or %zu (V3)\n", __FUNCTION__,
+		length, length_v2, length_v3);
 	return -EINVAL;
+    }
 
     peek = (__int32_t *)buffer;
     bytes = ntohl(peek[0]);
     magic = ntohl(peek[1]);
-    if ((magic & 0xffffff00) != PM_LOG_MAGIC)
+    if ((magic & 0xffffff00) != PM_LOG_MAGIC) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: magic 0x%x != 0x%x\n", __FUNCTION__,
+		magic & 0xffffff00, PM_LOG_MAGIC);
 	return PM_ERR_LABEL;
+    }
     version = magic & 0xff;
 
     /* label header must be valid for the given fixed-size label version */
     if ((version == PM_LOG_VERS03 && bytes != length_v3) ||
-	(version == PM_LOG_VERS02 && bytes != length_v2))
+	(version == PM_LOG_VERS02 && bytes != length_v2)) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: header length %zu != %zu (for V%d)\n", __FUNCTION__,
+		length, version == PM_LOG_VERS03 ? length_v3 : length_v2,
+		version);
 	return PM_ERR_LABEL;
+    }
 
     /* label trailer must be valid for the given fixed-size label version */
     peek = (__int32_t *)(buffer + bytes - sizeof(__int32_t));
     bytes = ntohl(*peek);
     if ((version == PM_LOG_VERS03 && bytes != length_v3) ||
-	(version == PM_LOG_VERS02 && bytes != length_v2))
+	(version == PM_LOG_VERS02 && bytes != length_v2)) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: trailer length %zu != %zu (for V%d)\n", __FUNCTION__,
+		bytes, version == PM_LOG_VERS03 ? length_v3 : length_v2,
+		version);
 	return PM_ERR_LABEL;
+    }
 
     lp->magic = magic;
 
