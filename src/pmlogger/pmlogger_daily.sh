@@ -349,7 +349,7 @@ echo > $tmp/usage
 cat >> $tmp/usage <<EOF
 Options:
   -c=FILE,--control=FILE  pmlogger control file
-  -D,--noreport           do not run pmlogger_daily_report
+  -D,--noreport           do not run pmlogger_daily_report for primary pmlogger
   -E,--expunge            expunge metrics with metadata inconsistencies when merging archives
   -f,--force              force actions (intended for QA, not production)
   -k=TIME,--discard=TIME  remove archives after TIME (format DD[:HH[:MM]])
@@ -361,6 +361,7 @@ Options:
   -o                      merge yesterdays logs only (old form, default is all) 
   -p                      poll and exit if processing already done for today
   -P,--noproxy            do not process archives pushed via pmproxy(1)
+  -Q,--proxyonly          only process archives pushed via pmproxy(1)
   -r,--norewrite          do not process archives with pmlogrewrite(1)
   -R,--rewriteall         check and rewrite all archives
   -s=SIZE,--rotate=SIZE   rotate NOTICES file after reaching SIZE bytes
@@ -400,6 +401,7 @@ FORCE=false
 KILL=pmsignal
 DO_DAILY_REPORT=true
 NOPROXY=false
+PROXYONLY=false
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -477,6 +479,8 @@ do
 		PFLAG=true
 		;;
 	-P)	NOPROXY=true
+		;;
+	-Q)	PROXYONLY=true
 		;;
 	-r)	if $REWRITEALL
 		then
@@ -606,9 +610,10 @@ then
     :
 else
     # merge callback initialization ...
-    # pmlogger_daily_report goes first, then
-    # values (script names) set in the environment, then
-    # (later) any values (script names) set in the control files
+    # pmlogger_daily_report goes first (but is only ever activated for
+    # the primary pmlogger instance), then values (script names) set in
+    # the environment, then (later) any values (script names) set in the
+    # control files
     #
     touch $tmp/merge_callback
     if $DO_DAILY_REPORT && [ -x "$PCP_BINADM_DIR/pmlogger_daily_report" ]
@@ -1982,12 +1987,18 @@ then
     $VERBOSE && echo "Info: found .NeedRewrite => rewrite all archives"
 fi
 
-_parse_log_control $CONTROL
-append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort`
-for extra in $append
-do
-    _parse_log_control $CONTROLDIR/$extra
-done
+if $PROXYONLY
+then
+    # skip this ...
+    :
+else
+    _parse_log_control $CONTROL
+    append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort`
+    for extra in $append
+    do
+	_parse_log_control $CONTROLDIR/$extra
+    done
+fi
 
 if $NOPROXY
 then
@@ -2001,8 +2012,10 @@ else
     then
 	for _host in *
 	do
-	    # TODO - does this need to be smarter?  e.g. check for some
-	    # minimal dir contents (.index file?)
+	    # need some minimal plausible dir contents like at least
+	    # one .index file
+	    #
+	    [ "`echo $_host/*.index`" = "$_host/*.index" ] && continue
 	    if [ -d "$_host" ]
 	    then
 		$VERBOSE && echo "Info: processing archives from remote pmlogger on host $_host"
