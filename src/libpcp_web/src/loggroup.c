@@ -596,7 +596,10 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
 
     /* safely verify buffer contents/length (user-supplied) */
     if ((sts = __pmLogDecodeLabel(content, length, &loglabel)) < 0) {
-	fprintf(stderr, "Failed to decode new label0\n");
+	char		msg[PM_MAXERRMSGLEN];
+	fprintf(stderr, "Failed to decode new label: %s\n",
+		    pmErrStr_r(sts, msg, sizeof(msg)));
+
 	goto fail;
     }
 
