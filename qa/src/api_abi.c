@@ -324,6 +324,7 @@ interstr(struct timespec *tp)
 
     if (tp->tv_sec == 0)
 	return "-";
+// check-time-formatting-ok
     pmsprintf(it, sizeof(it), "%0d.%06d", (int)tp->tv_sec, (int)tp->tv_nsec / 1000);
     return it;
 }
@@ -713,7 +714,7 @@ main(int argc, char *argv[])
 	    printf("pmtimespecToReal: Fail: %.6f != 123.456\n", f);
 	pmtimespecFromReal(456.123, &ts2);
 	if (ts2.tv_sec != 456 || ts2.tv_nsec != 123000000)
-	    printf("pmtimespecFromReal: Fail: %d.%06d != 456.123\n", (int)ts2.tv_sec, (int)ts2.tv_nsec);
+	    printf("pmtimespecFromReal: Fail: %d.%09d != 456.123\n", (int)ts2.tv_sec, (int)ts2.tv_nsec);
 	ts2.tv_sec = 1;
 	ts2.tv_nsec = 1000000;
 	xpect = 124.457;
@@ -736,7 +737,7 @@ main(int argc, char *argv[])
 	if (ts1.tv_sec != 123 && ts1.tv_nsec != 456000000)
 	    printf("pmtimespec*: OK\n");
 	else
-	    printf("pmtimespecNow: Fail: %d.%06d unexpected\n", (int)ts1.tv_sec, (int)ts1.tv_nsec);
+	    printf("pmtimespecNow: Fail: %d.%09d unexpected\n", (int)ts1.tv_sec, (int)ts1.tv_nsec);
     }
 
     exit(0);

@@ -117,6 +117,7 @@ myPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
 	time_t		now;
 	now = (time_t)tsp->sec;
 	pmLocaltime(&now, &tmp);
+// check-time-formatting-ok
 	fprintf(f, "%02d:%02d:%02d.%06d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec / 1000);
     }
 }
