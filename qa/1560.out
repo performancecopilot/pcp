@@ -128,15 +128,15 @@ __pmDecodeXtendError: PM_ERR_IPC: hdr.len 12 != sizeof(x_error_t) 20
     #0 = { type=0x1 a=0x2 b=0x0 c=0x0 }
 10: __pmDecodeProfile: sts=0 ctxnum=0 ...
 Dump Instance Profile state=INCLUDE, 0 profiles
-14: __pmDecodeesFetch: sts=0 ctxnum=0 unused=0.0 numpmid=3 pmids: 30.0.10 30.0.11 30.0.12
+14: __pmDecodeFetch: sts=0 ctxnum=0 unused=0.000000 numpmid=3 pmids: 30.0.10 30.0.11 30.0.12
 __pmDecodeFetchPDU: PM_ERR_IPC: short PDU 28 < min size 32
-18: __pmDecodeesFetch failed: IPC protocol failure
+18: __pmDecodeFetch failed: IPC protocol failure
 __pmDecodeFetchPDU: PM_ERR_IPC: numpmid -1 <= 0
-22: __pmDecodeesFetch failed: IPC protocol failure
+22: __pmDecodeFetch failed: IPC protocol failure
 __pmDecodeFetchPDU: PM_ERR_IPC: PDU too long 40 > required size 36
-26: __pmDecodeesFetch failed: IPC protocol failure
+26: __pmDecodeFetch failed: IPC protocol failure
 __pmDecodeFetchPDU: PM_ERR_IPC: PDU too short 40 < required size 44
-30: __pmDecodeesFetch failed: IPC protocol failure
+30: __pmDecodeFetch failed: IPC protocol failure
 
 === pdudata/fetch-numpmid ===
 7: __pmDecodeCreds: sts=0 sender=42 credcount=1 ...
