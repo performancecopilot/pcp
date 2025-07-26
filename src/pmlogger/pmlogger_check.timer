@@ -1,5 +1,5 @@
 [Unit]
-Description=Half-hourly check of pmlogger instances
+Description=Half-hourly check for PCP archive loggers (non-primary and remote hosts)
 
 [Timer]
 # if enabled, runs 1m after boot and every half hour

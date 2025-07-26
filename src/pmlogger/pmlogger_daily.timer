@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily processing of archives
+Description=Daily processing of local PCP archives
 
 [Timer]
 Persistent=true

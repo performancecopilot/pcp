@@ -1,5 +1,5 @@
 [Unit]
-Description=Check pmlogger instances are running
+Description=PCP archive loggers (non-primary and remote hosts)
 Documentation=man:pmlogger_check(1)
 ConditionPathExists=!@CRONTAB_PATH@
 

@@ -1,5 +1,5 @@
 [Unit]
-Description=Half-hourly check of pmlogger farm instances
+Description=Half-hourly check of PCP archive logger
 
 [Timer]
 # if enabled, runs 1m after boot and every half hour

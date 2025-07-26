@@ -1,5 +1,5 @@
 [Unit]
-Description=Periodic processing of PCP archives
+Description=Daily processing of local PCP archives
 Documentation=man:pmlogger_daily(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
@@ -9,7 +9,7 @@ Restart=no
 TimeoutStartSec=1h
 Environment="PMLOGGER_DAILY_PARAMS=-E"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
-ExecStart=@PCP_BINADM_DIR@/pmlogger_daily $PMLOGGER_DAILY_PARAMS
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily -P $PMLOGGER_DAILY_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@
 User=@PCP_USER@
