@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2021 Red Hat.
+ * Copyright (c) 2019-2021,2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -14,6 +14,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include "openmetrics.h"
+#include "opentelemetry.h"
 #include "server.h"
 #include "util.h"
 
@@ -41,6 +42,7 @@ typedef struct pmWebGroupBaton {
     pmWebRestKey	restkey;
     sds			context;
     dict		*labels;
+    sds			buffer;
     sds			suffix;		/* response trailer (stack) */
     sds			clientid;	/* user-supplied identifier */
     sds			username;	/* from basic auth header */
@@ -87,7 +89,7 @@ static pmWebRestCommand openmetrics[] = {
 
 static sds PARAM_NAMES, PARAM_NAME, PARAM_PMIDS, PARAM_PMID,
 	   PARAM_INDOM, PARAM_EXPR, PARAM_VALUE, PARAM_TIMES,
-	   PARAM_CONTEXT, PARAM_CLIENT;
+	   PARAM_CONTEXT, PARAM_CLIENT, PMAPI_TYPE, PMAPI_SEMANTICS;
 
 
 static pmWebRestCommand *
@@ -133,6 +135,7 @@ pmwebapi_data_release(struct client *client)
 			baton, client);
 
     sdsfree(baton->name);
+    sdsfree(baton->buffer);
     sdsfree(baton->suffix);
     sdsfree(baton->context);
     sdsfree(baton->clientid);
@@ -467,16 +470,16 @@ on_pmwebapi_children(sds context, pmWebChildren *children, void *arg)
 }
 
 /*
- * https://openmetrics.io/
+ * https://openmetrics.io/ text format (default /metrics response)
  *
- * metric_name [
- *    "{" label_name "=" `"` label_value `"` { "," label_name "=" `"` label_value `"` } [ "," ] "}"
- * ] value [ timestamp ]
+ * # HELP metric_name <one-line help string>
+ * # PCP5 metric_name <other PCP metadata>
+ * # TYPE metric_name <type string>
+ * metric_name{label_name="value"[,label_name="value"...]} value [timestamp]
  */
 static int
-on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
+pmwebapi_scrape_openmetrics(pmWebGroupBaton *baton, pmWebScrape *scrape)
 {
-    pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
     pmWebInstance	*instance = &scrape->instance;
     pmWebMetric		*metric = &scrape->metric;
     pmWebValue		*value = &scrape->value;
@@ -484,10 +487,6 @@ on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
     char		pmidstr[20], indomstr[20];
     sds			name = NULL, semantics = NULL, labels = NULL;
     sds			s, result;
-
-    pmwebapi_set_context(baton, context);
-    if (open_metrics_type_check(metric->type) < 0)
-	return 0;
 
     result = http_get_buffer(baton->client);
     name = open_metrics_name(metric->name, baton->compat);
@@ -550,11 +549,255 @@ value:
 }
 
 /*
- * Given an array of labelset pointers produce Open Metrics format labels.
+ * OpenTelemetry format output - helper routines.
+ */
+
+/* handy for removing pesky JSON comma separators */
+static sds
+chop_final_character(sds string)
+{
+    size_t	bytes;
+
+    bytes = sdslen(string);
+    string[bytes] = '\0';
+    sdssetlen(string, bytes - 1);
+    return string;
+}
+
+static const char *
+type_value_string(const char *value)
+{
+    if (value[0] == '"')
+	return "stringValue";
+    else if (strchr(value, '.'))
+	return "doubleValue";
+    return "intValue";
+}
+
+static sds
+add_sds_attribute(sds attributes, sds key, sds value)
+{
+    return sdscatfmt(attributes, "{\"key\":\"%S\",\"value\":{\"%s\":%S}},",
+				key, type_value_string(value), value);
+}
+
+static sds
+add_str_attribute(sds attributes, sds key, sds value)
+{
+    return sdscatfmt(attributes, "{\"key\":\"%S\",\"value\":{\"%s\":\"%S\"}},",
+				key, type_value_string("\""), value);
+}
+
+static void
+add_dict_attribute(void *arg, const struct dictEntry *entry)
+{
+    sds		*out = (sds *)arg;
+
+    *out = add_sds_attribute(*out, entry->key, entry->v.val);
+}
+
+static sds
+add_metrics_resource_attributes(pmWebGroupBaton *baton, sds result)
+{
+    unsigned long	cursor = 0, count = 0;
+
+    assert(sdslen(result) == 0);
+    result = sdscatlen(result, "{\"resourceMetrics\":[", 20);
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+
+    result = sdscatlen(result, "{\"resource\":{\"attributes\":[", 27);
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+    do {
+	cursor = dictScan(baton->labels, cursor, add_dict_attribute, NULL, &result);
+	count++;
+    } while (cursor);
+    if (count)
+	result = chop_final_character(result);
+    return sdscatlen(result, "]},", 3); /* end attributes, resources */
+}
+
+static sds
+add_metrics_resource_scope(pmWebGroupBaton *baton, sds result)
+{
+    static char		*version;
+
+    if (version == NULL)
+	version = pmGetConfig("PCP_VERSION");
+
+    result = sdscatlen(result, "\"scopeMetrics\":[{", 17);
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+
+    result = sdscatfmt(result, "\"scope\":{\"name\":\"performance-co-pilot\","
+			   "\"version\":\"%s\"},\"metrics\":[", version);
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+
+    return result;
+}
+
+static sds
+add_metric_metadata(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape)
+{
+    pmWebMetric		*metric = &scrape->metric;
+    const char		*sem = open_telemetry_semantics(metric->sem);
+    sds			units = open_telemetry_units(metric->units);
+    sds			name = open_telemetry_name(metric->name);
+    sds			quoted;
+
+    quoted = sdscatrepr(sdsempty(), metric->oneline, sdslen(metric->oneline));
+    result = sdscatfmt(result, "{\"name\":\"%S\","
+				"\"description\":%S,"
+				"\"unit\":\"%S\","
+				"\"%s\":{", name, quoted, units, sem);
+    sdsfree(quoted);
+    sdsfree(units);
+    sdsfree(name);
+
+    if (strcmp(metric->sem, "counter") == 0)
+	result = sdscatfmt(result,
+			"\"aggregationTemporality\":\"CUMULATIVE\","
+			"\"isMonotonic\":true,", 57);
+
+    result = sdscatlen(result, "\"dataPoints\":[", 14);
+
+    /* closure for dataPoints and metric JSON components */
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
+    baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_ARRAY);
+
+    return result;
+}
+
+static sds
+add_metric_datapoint(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape, int first)
+{
+    pmWebMetric		*metric = &scrape->metric;
+    pmWebValue		*value = &scrape->value;
+    unsigned long long	nanoseconds;
+
+    if (!first)
+	result = sdscatlen(result, ",", 1);
+
+    result = sdscatlen(result, "{\"attributes\":[", 15);
+    result = add_str_attribute(result, PMAPI_SEMANTICS, metric->sem);
+    result = add_str_attribute(result, PMAPI_TYPE, metric->type);
+    if (baton->buffer)
+	result = sdscatsds(result, baton->buffer);
+    else
+	result = chop_final_character(result);
+
+    nanoseconds = (scrape->seconds * 1000000) + scrape->nanoseconds;
+    return sdscatfmt(result, "],\"timeUnixNano\":\"%U\",\"%s\":\"%S\"}",
+		nanoseconds, open_telemetry_type(metric->type), value->value);
+}
+
+/*
+ * https://opentelemetry.io/ JSON format (curl -X "Accept:application/json")
+ *
+ * { "resourceMetrics": [ {
+ *     "resource": {  # source labels
+ *       "attributes": [
+ *         { "key": [ ... ], "value": { [...] } }
+ *       ]
+ *     },
+ *     "scopeMetrics": [ {
+ *       "scope": {
+ *         "name": "[PCP name]", "version", "[PCP version]"
+ *       },
+ *       "metrics": [ {
+ *         "name": ... # metric name
+ *         "description": ... # oneline text
+ *         "unit": ...,	# UCUM unit string
+ *         "sum" | "gauge": {  # metric type
+ *           "aggregationTemporality": "CUMULATIVE",  # for "sum" (counter)
+ *           "isMonotonic": true,  # also in relation to "sum" (counter)
+ *           "dataPoints": [...]  # instances, labels, values, timestamps, types
+ *                                # -> attributes, timeUnixNano, asInt | asDouble
+ *       } } ]
+ *     } ]
+ * } ] }
+ */
+static int
+pmwebapi_scrape_opentelemetry(pmWebGroupBaton *baton, pmWebScrape *scrape)
+{
+    pmWebMetric		*metric = &scrape->metric;
+    int			first_instance = 0;
+    sds			s, result;
+
+    result = http_get_buffer(baton->client);
+
+    if (baton->pmid == 0) {
+	/* first time, add resourceMetrics and scopeMetrics headers */
+	result = add_metrics_resource_attributes(baton, result);
+	result = add_metrics_resource_scope(baton, result);
+    }
+
+    if (baton->name == NULL)
+	baton->name = sdsempty();
+    s = baton->name;
+
+    if (metric->pmid != baton->pmid || sdscmp(metric->name, s) != 0) {
+	if (baton->pmid != 0) {	/* finish previous metrics JSON */
+	    baton->suffix = json_pop_suffix(baton->suffix);
+	    baton->suffix = json_pop_suffix(baton->suffix);
+	    baton->suffix = json_pop_suffix(baton->suffix);
+	    result = sdscatlen(result, "]}},", 3);
+	}
+	sdsclear(s);	/* new metric */
+	baton->name = sdscpylen(s, metric->name, sdslen(metric->name));
+	baton->pmid = metric->pmid;
+
+	result = add_metric_metadata(baton, result, scrape);
+	first_instance = 1;
+    }
+    result = add_metric_datapoint(baton, result, scrape, first_instance);
+
+    http_set_buffer(baton->client, result, HTTP_FLAG_REQ_JSON);
+    http_transfer(baton->client);
+    return 0;
+}
+
+/* test if given PCP metric type string represents numeric metric */
+static int
+scrape_type_check(sds type)
+{
+    static const char * const	typename[] = {
+	"32", "u32", "64", "u64", "float", "double"
+    };
+    int		i;
+
+    for (i = 0; i < sizeof(typename) / sizeof(typename[0]); i++)
+	if (strcmp(type, typename[i]) == 0)
+	    return 0;
+    return -ESRCH;
+}
+
+static int
+on_pmwebapi_scrape(sds context, pmWebScrape *scrape, void *arg)
+{
+    pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
+    pmWebMetric		*metric = &scrape->metric;
+
+    if (scrape_type_check(metric->type) < 0)
+	return 0;
+
+    pmwebapi_set_context(baton, context);
+    if (!(baton->client->u.http.flags & HTTP_FLAG_REQ_JSON))
+	return pmwebapi_scrape_openmetrics(baton, scrape);
+    return pmwebapi_scrape_opentelemetry(baton, scrape);
+}
+
+/*
+ * Given an array of labelset pointers produce labels formatted in either
+ * Open Metrics or Open Telemetry formats depending on the client request.
  * The labelset structure provided contains a pre-allocated result buffer.
+ * OpenTelemetry form is more difficult as we need two separate sections;
+ * to solve this the context labels are stored in the baton and once only.
  *
  * This function is comparable to pmMergeLabelSets(3), however it produces
- * labels in Open Metrics form instead of the native PCP JSONB style.
+ * labels in Open Metrics or Open Telemetry form instead of the native PCP
+ * JSONB style.
  */
 static void
 on_pmwebapi_scrape_labels(sds context, pmWebLabelSet *labelset, void *arg)
@@ -562,15 +805,14 @@ on_pmwebapi_scrape_labels(sds context, pmWebLabelSet *labelset, void *arg)
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)arg;
     struct client	*client = (struct client *)baton->client;
 
-    if (pmDebugOptions.labels || pmDebugOptions.series) {
+    if (pmDebugOptions.labels || pmDebugOptions.series)
 	fprintf(stderr, "%s: client=%p (ctx=%s)\n",
-		"on_pmwebapi_scrape_labels", client, context);
-    }
-    if (baton->labels == NULL)
-	baton->labels = dictCreate(&sdsOwnDictCallBacks, NULL);
-    open_metrics_labels(labelset, baton->labels);
-    dictRelease(baton->labels);	/* reset for next caller */
-    baton->labels = NULL;
+			__FUNCTION__, client, context);
+
+    if ((baton->client->u.http.flags & HTTP_FLAG_REQ_JSON))
+	open_telemetry_labels(labelset, &baton->labels, &baton->buffer);
+    else
+	open_metrics_labels(labelset);
 }
 
 static int
@@ -717,7 +959,8 @@ pmwebapi_setup_request_parameters(struct client *client,
     case RESTKEY_SCRAPE:
 	if (parameters && (entry = dictFind(parameters, PARAM_TIMES)))
 	     baton->times = (strcmp(dictGetVal(entry), "true") == 0);
-	client->u.http.flags |= HTTP_FLAG_TEXT;
+	if (!(client->u.http.flags & HTTP_FLAG_REQ_JSON))
+	    client->u.http.flags |= HTTP_FLAG_TEXT;
 	break;
 
     case RESTKEY_FETCH:
@@ -1010,6 +1253,8 @@ pmwebapi_servlet_setup(struct proxy *proxy)
     PARAM_TIMES = sdsnew("times");
     PARAM_CLIENT = sdsnew("client");
     PARAM_CONTEXT = sdsnew("context");
+    PMAPI_SEMANTICS = sdsnew("semantics");
+    PMAPI_TYPE = sdsnew("type");
 
     pmWebGroupSetup(&pmwebapi_settings.module);
     pmWebGroupSetEventLoop(&pmwebapi_settings.module, proxy->events);
@@ -1033,6 +1278,8 @@ pmwebapi_servlet_close(struct proxy *proxy)
     sdsfree(PARAM_TIMES);
     sdsfree(PARAM_CLIENT);
     sdsfree(PARAM_CONTEXT);
+    sdsfree(PMAPI_SEMANTICS);
+    sdsfree(PMAPI_TYPE);
 }
 
 struct servlet pmwebapi_servlet = {
