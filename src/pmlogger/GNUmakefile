@@ -139,13 +139,13 @@ pmlogger_check.service : pmlogger_check.service.in
 	# END
 
 crontab : crontab.in
-	$(SED) $< > $@ \
+	$(SED) <$< > $@ \
 	    -e 's;@user@;'$(CRONTAB_USER)';' \
 	    -e 's;@path@;'$(PCP_BINADM_DIR)';' \
 	# END
 
 crontab.daily_report : crontab.daily_report.in
-	$(SED) $< > $@ \
+	$(SED) <$< > $@ \
 	    -e 's;@user@;'$(CRONTAB_USER)';'
 	    -e 's;@path@;'$(PCP_BINADM_DIR)';'
 	    -e 's;@sapath@;'$(PCP_SA_DIR)';' \
