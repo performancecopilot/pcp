@@ -381,17 +381,17 @@ http_methods_string(char *buffer, size_t length, http_options_t options)
 
     memset(buffer, 0, length);
     if (options & HTTP_OPT_GET)
-	strcat(p, ", GET");
+	pmstrncat(p, length, ", GET");
     if (options & HTTP_OPT_PUT)
-	strcat(p, ", PUT");
+	pmstrncat(p, length, ", PUT");
     if (options & HTTP_OPT_HEAD)
-	strcat(p, ", HEAD");
+	pmstrncat(p, length, ", HEAD");
     if (options & HTTP_OPT_POST)
-	strcat(p, ", POST");
+	pmstrncat(p, length, ", POST");
     if (options & HTTP_OPT_TRACE)
-	strcat(p, ", TRACE");
+	pmstrncat(p, length, ", TRACE");
     if (options & HTTP_OPT_OPTIONS)
-	strcat(p, ", OPTIONS");
+	pmstrncat(p, length, ", OPTIONS");
     return p + 2; /* skip leading comma+space */
 }
 
