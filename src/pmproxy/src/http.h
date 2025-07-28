@@ -36,6 +36,8 @@ typedef enum http_flags {
     HTTP_FLAG_HTML	= (1<<2),
     HTTP_FLAG_UTF8	= (1<<3),
     HTTP_FLAG_UTF16	= (1<<4),
+    HTTP_FLAG_REQ_JSON	= (1<<5),
+    /* insert new flags here */
     HTTP_FLAG_NO_BODY	= (1<<11),
     HTTP_FLAG_GZIP	= (1<<12),
     HTTP_FLAG_DEFLATE	= (1<<13),

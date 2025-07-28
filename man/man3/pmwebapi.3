@@ -84,13 +84,12 @@ The examples in the scalable time series section use
 historical data recorded by the
 .BR pmlogger (1)
 service, in conjunction with a local key-value server/
-.SH OPEN METRICS
-Exporting of live performance metrics in an Open Metrics
-compatible format (as described at
-.I https://openmetrics.io
-and popularized by the
-.I https://prometheus.io
-project) is available.
+.SH OPEN METRICS AND OPEN TELEMETRY
+Exporting of live performance metrics in either Open Metrics (\c
+.IR https://openmetrics.io )
+or Open Telemetry (\c
+.IR https://opentelemetry.io )
+formats is available.
 .PP
 All requests are performed on the web server host by default,
 unless a
@@ -116,17 +115,54 @@ metrics indicated by a comma-separated list of
 .IR names .
 .PP
 For all numeric metrics with the given NAME prefixes, create
-an Open Metrics (Prometheus) text export format giving their
-current value and related metadata.
+an open text export format giving their current value and
+related metadata.
 .PP
-The response has plain text type rather than JSON commonly
-used elsewhere in the REST API.
-This format can be ingested by many open source monitoring
-tools, including Prometheus and
-.BR pmdaopenmetrics (1).
+Choice of output format is selected using the HTTP
+.I Accept
+header.
+With no header, the default response format is Open Metrics
+.IR text .
+Using the header with value
+.I application/json
+switches the response to the Open Telemetry JSON format.
 .PP
-The native PCP metric metadata (metric name, type, indom,
-semantics and units) is first output for each metric with
+In Open Telemetry response mode, sample timestamps are always
+included and are reported using nanosecond precision.
+.SAMPLE
+$ curl -H Accept:application/json -s http://localhost:44322/metrics?names=disk.dev,filesys | pmjson
+{
+    "resourceMetrics": [
+        {
+            "resource": {
+                "attributes": [ ... ]
+            },
+            "scopeMetrics": [
+                {
+                    "scope": { ... },
+                    "metrics": [
+                        {
+                            "name": "disk_dev_total_bytes",
+                            "description": "per-disk count of total bytes read and written",
+                            "unit": "KiBy",
+                            "sum": {
+                                "aggregationTemporality": "CUMULATIVE",
+                                "isMonotonic": true,
+                                "dataPoints": [
+                                    {
+                                        "attributes": [ ... ]
+                                        "timeUnixNano": "1753934255798173",
+                                        "asInt": "68927569"
+                                    }
+                                ]
+                            }
+                        },
+                        ...
+.ESAMPLE
+.PP
+In Open Metrics response mode, the native PCP metric metadata
+(metric name, type, indom, semantics and units) is first output
+for each metric with
 .B # PCP
 prefix.
 The metadata reported is of the form described on
@@ -1226,8 +1262,8 @@ client	string	Request identifier sent back with response
 .TE
 .P
 This request is a subset of the style described in the
-``OPEN METRICS'' section, allowing a web context
-identifier to be passed as a parameter.
+``OPEN METRICS AND OPEN TELEMETRY'' section, allowing a web
+context identifier to be passed as a parameter.
 It is otherwise very similar in terms of parameters
 and response handling, please refer to the earlier section
 for details.

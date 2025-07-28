@@ -10,6 +10,7 @@ QA output created by 1543
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     }
 }
 == Check hostname parameter ==
@@ -20,6 +21,7 @@ QA output created by 1543
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     }
 }
 == Check hostspec parameter ==
@@ -30,6 +32,7 @@ QA output created by 1543
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     }
 }
 == Pinging active context via URL ==
@@ -40,6 +43,7 @@ QA output created by 1543
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     }
 }
 Context ping success
@@ -51,6 +55,7 @@ Context ping success
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     }
 }
 == Pinging now-expired context via URL ==
@@ -61,6 +66,7 @@ Context ping success
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     }
 }
 Context successfully expired
@@ -72,6 +78,7 @@ Context successfully expired
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     }
 }
 Context successfully expired
@@ -94,6 +101,7 @@ Context successfully expired
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "10 as a 32-bit integer",
@@ -119,6 +127,7 @@ Series checked (single)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "like sample.bin but type 32",
@@ -143,6 +152,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "1 as a 32-bit integer",
@@ -160,6 +170,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "10 as a 32-bit integer",
@@ -177,6 +188,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "100 as a 32-bit integer",
@@ -194,6 +206,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "1000000 as a 32-bit integer",
@@ -211,6 +224,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "a 32-bit integer that can be modified",
@@ -229,6 +243,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "like sample.bin but type 32",
@@ -247,6 +262,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE",
@@ -276,6 +292,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "10 as a 32-bit integer",
@@ -304,6 +321,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "1 as a 32-bit integer",
@@ -321,6 +339,7 @@ Series checked (indom)
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
                 "role": "testing"
             },
             "text-oneline": "10 as a 32-bit integer",
@@ -482,6 +501,7 @@ Series checked (indom)
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     },
     "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
     "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
@@ -492,6 +512,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -500,6 +521,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -508,6 +530,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -516,6 +539,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -524,6 +548,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -532,6 +557,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -540,6 +566,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -548,6 +575,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -556,6 +584,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         }
     ]
@@ -567,6 +596,7 @@ Series checked (indom)
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     },
     "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
     "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
@@ -577,6 +607,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -585,6 +616,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -593,6 +625,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -601,6 +634,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -609,6 +643,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -617,6 +652,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -625,6 +661,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -633,6 +670,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -641,6 +679,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         }
     ]
@@ -658,6 +697,7 @@ Series checked (indom)
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     },
     "instances": [    ]
 }
@@ -677,6 +717,7 @@ Series checked (indom)
     "labels": {
         "domainname": "DOMAINNAME"
         "hostname": "HOSTNAME"
+        "machineid": "MACHINEID"
     },
     "text-oneline": "Instance domain \u0022bin\u0022 for sample PMDA",
     "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
@@ -687,6 +728,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         },
         {
@@ -695,6 +737,7 @@ Series checked (indom)
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
             }
         }
     ]
@@ -1052,6 +1095,2451 @@ sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
 sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
 == bad filter match param ==
 {"context":CONTEXT,"message":"dummy - invalid 'match' parameter value","success":false}
+== scrape one metric ==
+{
+    "resourceMetrics": [
+        {
+            "resource": {
+                "attributes": [
+                    {
+                        "key": "hostname",
+                        "value": {
+                            "stringValue": "HOSTNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
+                        }
+                    },
+                    {
+                        "key": "domainname",
+                        "value": {
+                            "stringValue: "DOMAINNAME"
+                        }
+                    }
+                ]
+            },
+            "scopeMetrics": [
+                {
+                    "scope": {
+                        "name": "performance-co-pilot",
+                        "version": "VERSION"
+                    },
+                    "metrics": [
+                        {
+                            "name": "sample_long_one",
+                            "description": "1 as a 32-bit integer",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+== scrape two metrics ==
+{
+    "resourceMetrics": [
+        {
+            "resource": {
+                "attributes": [
+                    {
+                        "key": "hostname",
+                        "value": {
+                            "stringValue": "HOSTNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
+                        }
+                    },
+                    {
+                        "key": "domainname",
+                        "value": {
+                            "stringValue: "DOMAINNAME"
+                        }
+                    }
+                ]
+            },
+            "scopeMetrics": [
+                {
+                    "scope": {
+                        "name": "performance-co-pilot",
+                        "version": "VERSION"
+                    },
+                    "metrics": [
+                        {
+                            "name": "sample_long_one",
+                            "description": "1 as a 32-bit integer",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_long_ten",
+                            "description": "10 as a 32-bit integer",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+== scrape bad metric name ==
+{
+    "context": "CONTEXT"
+    "message": "'no.such.metric' - Unknown metric name",
+    "success": false
+}
+== scrape one metric tree ==
+{
+    "resourceMetrics": [
+        {
+            "resource": {
+                "attributes": [
+                    {
+                        "key": "hostname",
+                        "value": {
+                            "stringValue": "HOSTNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
+                        }
+                    },
+                    {
+                        "key": "domainname",
+                        "value": {
+                            "stringValue: "DOMAINNAME"
+                        }
+                    }
+                ]
+            },
+            "scopeMetrics": [
+                {
+                    "scope": {
+                        "name": "performance-co-pilot",
+                        "version": "VERSION"
+                    },
+                    "metrics": [
+                        {
+                            "name": "sample_long_one",
+                            "description": "1 as a 32-bit integer",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_long_ten",
+                            "description": "10 as a 32-bit integer",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_long_hundred",
+                            "description": "100 as a 32-bit integer",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_long_million",
+                            "description": "1000000 as a 32-bit integer",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_long_write_me",
+                            "description": "a 32-bit integer that can be modified",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "changed",
+                                                "value": {
+                                                    "stringValue": "true"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_dupnames_five_long_bin",
+                            "description": "like sample.bin but type 32",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 100
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-100"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "100"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 200
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-200"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "200"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 300
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-300"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "300"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 400
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-400"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "400"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 500
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-500"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "500"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 600
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-600"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "600"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 700
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-700"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "700"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 800
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-800"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "800"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 900
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-900"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "900"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_long_bin",
+                            "description": "like sample.bin but type 32",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 100
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-100"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "100"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 200
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-200"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "200"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 300
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-300"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "300"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 400
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-400"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "400"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 500
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-500"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "500"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 600
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-600"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "600"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 700
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-700"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "700"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 800
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-800"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "800"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 900
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-900"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "900"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_long_bin_ctr",
+                            "description": "like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE",
+                            "unit": "KiBy",
+                            "sum": {
+                                "aggregationTemporality": "CUMULATIVE",
+                                "isMonotonic": true,
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 100
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-100"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "100"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 200
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-200"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "200"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 300
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-300"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "300"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 400
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-400"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "400"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 500
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-500"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "500"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 600
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-600"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "600"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 700
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-700"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "700"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 800
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-800"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "800"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "counter"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 900
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "bin-900"
+                                                }
+                                            },
+                                            {
+                                                "key": "bin",
+                                                "value": {
+                                                    "stringValue": "900"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+== scrape metric instances ==
+{
+    "resourceMetrics": [
+        {
+            "resource": {
+                "attributes": [
+                    {
+                        "key": "hostname",
+                        "value": {
+                            "stringValue": "HOSTNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
+                        }
+                    },
+                    {
+                        "key": "domainname",
+                        "value": {
+                            "stringValue: "DOMAINNAME"
+                        }
+                    }
+                ]
+            },
+            "scopeMetrics": [
+                {
+                    "scope": {
+                        "name": "performance-co-pilot",
+                        "version": "VERSION"
+                    },
+                    "metrics": [
+                        {
+                            "name": "sample_dupnames_four_colour",
+                            "description": "Metrics with a \"saw-tooth\" trend over time",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "model",
+                                                "value": {
+                                                    "stringValue": "RGB"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 0
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "red"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "model",
+                                                "value": {
+                                                    "stringValue": "RGB"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 1
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "green"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "model",
+                                                "value": {
+                                                    "stringValue": "RGB"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 2
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "blue"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            "name": "sample_colour",
+                            "description": "Metrics with a \"saw-tooth\" trend over time",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "model",
+                                                "value": {
+                                                    "stringValue": "RGB"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 0
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "red"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "model",
+                                                "value": {
+                                                    "stringValue": "RGB"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 1
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "green"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    },
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "model",
+                                                "value": {
+                                                    "stringValue": "RGB"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "instid",
+                                                "value": {
+                                                    "intValue": 2
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "blue"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+== small curl compression command ==
+{
+    "resourceMetrics": [
+        {
+            "resource": {
+                "attributes": [
+                    {
+                        "key": "hostname",
+                        "value": {
+                            "stringValue": "HOSTNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
+                        }
+                    },
+                    {
+                        "key": "domainname",
+                        "value": {
+                            "stringValue: "DOMAINNAME"
+                        }
+                    }
+                ]
+            },
+            "scopeMetrics": [
+                {
+                    "scope": {
+                        "name": "performance-co-pilot",
+                        "version": "VERSION"
+                    },
+                    "metrics": [
+                        {
+                            "name": "sample_long_one",
+                            "description": "1 as a 32-bit integer",
+                            "unit": "1",
+                            "gauge": {
+                                "dataPoints": [
+                                    {
+                                        "attributes": [
+                                            {
+                                                "key": "semantics",
+                                                "value": {
+                                                    "stringValue": "instant"
+                                                }
+                                            },
+                                            {
+                                                "key": "type",
+                                                "value": {
+                                                    "stringValue": "32"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
+                                            }
+                                        ],
+                                        "timeUnixNano": NANOSECONDS,
+                                        "asInt": "INTEGER"
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+== scrape all metrics (JSON) ==
+done full scrape (JSON)
+== check pmproxy is running ==
+pmproxy check passed
 
 *****   GET and POST /pmapi/derive   *****
 

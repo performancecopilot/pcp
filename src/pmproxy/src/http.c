@@ -190,7 +190,7 @@ json_string(const sds original)
 const char *
 http_content_type(http_flags_t flags)
 {
-    if (flags & HTTP_FLAG_JSON)
+    if (flags & (HTTP_FLAG_JSON|HTTP_FLAG_REQ_JSON))
 	return "application/json";
     if (flags & HTTP_FLAG_HTML)
 	return "text/html";
@@ -1016,6 +1016,7 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 	}
     }
 
+    /* HTTP encoding (optional compression) */
     if (strncmp(field, "Accept-Encoding", 15) == 0) {
 	values = sdssplitlen(value, sdslen(value), ", ", 2, &nvalues);
 	for (i = 0; values && i < nvalues; i++) {
@@ -1054,6 +1055,24 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 	}
 	sdsfreesplitres(values, nvalues);
     }
+
+    /* HTTP client requesting response type (e.g. for /metrics) */
+    if (strncmp(field, "Accept", 7) == 0) {
+	values = sdssplitlen(value, sdslen(value), ", ", 2, &nvalues);
+	for (i = 0; values && i < nvalues; i++) {
+	    if (strcmp(values[i], "application/json") == 0) {
+		client->u.http.flags |= HTTP_FLAG_REQ_JSON;
+		break;
+	    }
+	    if (strcmp(values[i], "text/plain") == 0 ||
+		strcmp(values[i], "application/octet-stream") == 0) {
+		/* finish here, priority is set above JSON */
+		break;
+	    }
+	}
+	sdsfreesplitres(values, nvalues);
+    }
+
     return 0;
 }
 
