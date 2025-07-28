@@ -772,7 +772,18 @@ _systemctl_status()
 #
 _ps_tcp_port()
 {
-    if which lsof >/dev/null 2>&1
+    if which fstat >/dev/null 2>&1
+    then
+	# for OpenBSD (at least) fstat produces lines like ...
+	# USER     CMD          PID   FD MOUNT        INUM  MODE         R/W    SZ|DV
+	# pcp      pmcd        7731    0* internet stream tcp 0x0 *:44321
+	# pcp      pmcd        7731    3* internet6 stream tcp 0x0 *:44321
+	#
+	echo "--- IPv4 port $1 user(s) ---"
+	fstat | sed -n -e '1s/MOUNT.*/.../p' -e "/internet .*:$1\$/p"
+	echo "--- IPv6 port $1 user(s) ---"
+	fstat | sed -n -e '1s/MOUNT.*/.../p' -e "/internet6 .*:$1\$/p"
+    elif which lsof >/dev/null 2>&1
     then
 	echo "--- IP port $1 user(s) ---"
 	sudo lsof -i :$1
