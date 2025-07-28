@@ -234,6 +234,7 @@ extern void close_secure_module(struct proxy *);
 #else
 #define flush_secure_module(p)	do { (void)(p); } while (0)
 #define setup_secure_module(p)	do { (void)(p); } while (0)
+#define reset_secure_module(p)	do { (void)(p); } while (0)
 #define close_secure_module(p)	do { (void)(p); } while (0)
 #endif
 
