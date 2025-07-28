@@ -237,11 +237,11 @@ __pmFetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, __pmResult **result)
 	}
 
 	/* process derived metrics, if any */
-	if (have_dm) {
+	if (have_dm)
 	    __pmFinishResult(ctxp, sts, result);
-	    if (newlist != NULL)
-		free(newlist);
-	}
+
+	if (newlist != NULL)
+	    free(newlist);
     }
 
 pmapi_return:
