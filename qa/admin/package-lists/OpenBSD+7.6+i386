@@ -55,7 +55,6 @@ py3-setuptools
 py3-six
 pylint3
 python
-python3
 qt5
 qtbase
 qtsvg
