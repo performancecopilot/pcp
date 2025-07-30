@@ -5,6 +5,7 @@ pcp-7.0.0 (31 July 2025)
 	pmdahdb: new agent exporting SAP HANA metrics
 	pmdalinux: additional TCP networking metrics
 	pmdalinux: additional kernel memory and hugetlb metrics
+	pmdalinux: support Amazon Linux within kernel.uname.distro
 	pmdaopenmetrics: improvements to dynamic metric name handling
 	pmdaopenmetrics: allow configuration files with epoch times
 	pmdapodman: fix container name/command handling in new podman
@@ -29,6 +30,7 @@ pcp-7.0.0 (31 July 2025)
     - Client tools and utilities:
 	pcp-rocestat: client to report NVIDIA RoCE metrics
 	pcp-htop: sync-up with latest htop.dev code fixes
+	pcp-htop: improve pmcd disconnect/restart handling
 	pmrep: fix iostat merge percentage formulas
 	pmrep: allow for not preserving discrete metric values
 	pmlogpush: new tool for pushing existing archives to pmproxy
