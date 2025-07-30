@@ -2116,14 +2116,13 @@ _run_valgrind()
 # Produces no stdout/stderr from valgrind - except in case of errors!
 # Uses same suppression logic as _run_valgrind.
 #
-# Usage:                    $__valgrind_clean_assert CMD ARGS ...
+# Usage:                    $valgrind_clean_assert CMD ARGS ...
 # just as you'd have used   CMD ARGS ...
 # alone, or                 |filtered
 # or                        & backgrounded
 #
 # It works even if valgrind is not available (expanding to nothing).
 #
-_valgrind_clean_assert=
 if which valgrind >/dev/null 2>&1; then
     # Note:
     # 	$here and $seq may not be set here, and this is not a shell
@@ -2174,11 +2173,13 @@ if which valgrind >/dev/null 2>&1; then
     # line options to valgrind
     #
     [ -n "$grind_extra" ] && __extra="$__extra $grind_extra"
-    __valgrind_clean_assert="valgrind -q \
+    valgrind_clean_assert="valgrind -q \
 	     --leak-check=full \
 	     --gen-suppressions=all --suppressions=$here/valgrind-suppress \
 	     $__extra \
 	     --log-fd=1"
+else
+    valgrind_clean_assert=
 fi
 
 _run_helgrind()

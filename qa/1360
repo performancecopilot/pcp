@@ -57,7 +57,7 @@ mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
 
-$_valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+$valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
 echo "valgrind pid: $pid" >>$seq_full

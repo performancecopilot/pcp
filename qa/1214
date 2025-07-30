@@ -99,9 +99,9 @@ do
     cat $tmp.log >> $seq_full
     if [ $status -ne 0 ]
     then
-	[ $status -eq 1 ] && $_valgrind_clean_assert \
+	[ $status -eq 1 ] && $valgrind_clean_assert \
 		pmseries -p $key_server_port $metric >> $seq_full 2>&1
-	[ $status -ge 2 ] && $_valgrind_clean_assert \
+	[ $status -ge 2 ] && $valgrind_clean_assert \
 		pmseries -p $proxyport $metric >> $seq_full 2>&1
     fi
 done

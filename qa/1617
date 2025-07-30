@@ -161,7 +161,7 @@ echo "Start test pmproxy ..."
 archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
 $sudo rm -fr $archive_path
 
-$_valgrind_clean_assert pmproxy -Dcontext -f -p $pmproxy_port -U $user -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+$valgrind_clean_assert pmproxy -Dcontext -f -p $pmproxy_port -U $user -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
 echo "valgrind pid: $pid" >>$seq_full

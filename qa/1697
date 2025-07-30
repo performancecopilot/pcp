@@ -75,7 +75,7 @@ mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
 proxyport=`_find_free_port`
-$_valgrind_clean_assert pmproxy -f -p $proxyport -r $key_server_port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+$valgrind_clean_assert pmproxy -f -p $proxyport -r $key_server_port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
 # valgrind takes awhile to fire up
