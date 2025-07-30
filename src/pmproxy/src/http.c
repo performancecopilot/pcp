@@ -687,7 +687,8 @@ http_transfer(struct client *client)
 		pmsprintf(length, sizeof(length), "%lX",
 			    (unsigned long)sdslen(client->buffer));
 		buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, client->buffer);
-		/* reset for next call - original released on I/O completion */
+		/* reset for next call - buffer released on I/O completion */
+		sdsfree(client->buffer);
 		client->buffer = NULL;	/* safe, as now held in 'buffer' */
 	    } else if (!buffer) {
 		return; /* streaming + compressing, nothing to send yet */
