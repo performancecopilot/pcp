@@ -37,6 +37,7 @@ get_distro_info(void)
     };
     char *rfiles[] = { "debian_version", "oracle-release", "fedora-release",
 	"redhat-release", "slackware-version", "SuSE-release", "lsb-release",
+	"amazon-linux-release",
 	/* insert any new distribution release variants here */
 	NULL
     };
