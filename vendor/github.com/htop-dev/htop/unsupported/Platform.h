@@ -67,6 +67,10 @@ void Platform_getHostname(char* buffer, size_t size);
 
 void Platform_getRelease(char** string);
 
+static inline const char* Platform_getFailedState(void) {
+   return NULL;
+}
+
 #define PLATFORM_LONG_OPTIONS
 
 static inline void Platform_longOptionsUsage(ATTR_UNUSED const char* name) { }

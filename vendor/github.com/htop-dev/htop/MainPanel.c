@@ -194,6 +194,8 @@ static void MainPanel_drawFunctionBar(Panel* super, bool hideFunctionBar) {
    IncSet_drawBar(this->inc, CRT_colors[FUNCTION_BAR]);
    if (this->state->pauseUpdate) {
       FunctionBar_append("PAUSED", CRT_colors[PAUSED]);
+   } else if (this->state->failedUpdate) {
+      FunctionBar_append(this->state->failedUpdate, CRT_colors[FAILED_READ]);
    }
 }
 
