@@ -38,6 +38,10 @@ extern const MeterClass* const Platform_meterTypes[];
 
 bool Platform_init(void);
 
+// Converts ticks in the Mach "timebase" to nanoseconds.
+// See `mach_timebase_info`, as used to define the `Platform_nanosecondsPerMachTick*` constants.
+uint64_t Platform_machTicksToNanoseconds(uint64_t mach_ticks);
+
 // Converts "scheduler ticks" to nanoseconds.
 // See `sysconf(_SC_CLK_TCK)`, as used to define the `Platform_nanosecondsPerSchedulerTick` constant.
 double Platform_schedulerTicksToNanoseconds(const double scheduler_ticks);
@@ -82,6 +86,10 @@ static inline void Platform_getHostname(char* buffer, size_t size) {
 
 static inline void Platform_getRelease(char** string) {
    *string = Generic_uname();
+}
+
+static inline const char* Platform_getFailedState(void) {
+   return NULL;
 }
 
 #define PLATFORM_LONG_OPTIONS

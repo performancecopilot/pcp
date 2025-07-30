@@ -44,6 +44,7 @@ in the source distribution for its full text.
 
 typedef struct Platform_ {
    int context;               /* PMAPI(3) context identifier */
+   bool reconnect;            /* need to reconnect the context */
    size_t totalMetrics;       /* total number of all metrics */
    const char** names;        /* name array indexed by Metric */
    pmID* pmids;               /* all known metric identifiers */
@@ -113,6 +114,8 @@ void Platform_getBattery(double* percent, ACPresence* isOnAC);
 void Platform_getHostname(char* buffer, size_t size);
 
 void Platform_getRelease(char** string);
+
+const char* Platform_getFailedState(void);
 
 enum {
    PLATFORM_LONGOPT_HOST = 128,

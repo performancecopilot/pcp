@@ -134,29 +134,37 @@ static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTi
 
    if (*rescan) {
       *oldTime = newTime;
-      int oldUidDigits = Process_uidDigits;
+
       if (!this->state->pauseUpdate && (*sortTimeout == 0 || host->settings->ss->treeView)) {
          host->activeTable->needsSort = true;
          *sortTimeout = 1;
       }
+
+      int oldUidDigits = Process_uidDigits;
+      int oldPidDigits = Process_pidDigits;
+
       // sample current values for system metrics and processes if not paused
       Machine_scan(host);
       if (!this->state->pauseUpdate)
          Machine_scanTables(host);
+      this->state->failedUpdate = Platform_getFailedState();
 
       // always update header, especially to avoid gaps in graph meters
       Header_updateData(this->header);
-      // force redraw if the number of UID digits was changed
-      if (Process_uidDigits != oldUidDigits) {
+
+      // force redraw if the number of UID/PID digits changed
+      if (Process_uidDigits != oldUidDigits || Process_pidDigits != oldPidDigits)
          *force_redraw = true;
-      }
+
       *redraw = true;
    }
+
    if (*redraw) {
       Table_rebuildPanel(host->activeTable);
       if (!this->state->hideMeters)
          Header_draw(this->header);
    }
+
    *rescan = false;
 }
 
@@ -304,6 +312,8 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
                      }
                   }
                }
+            } else if (mevent.bstate & BUTTON3_RELEASED) {
+               ch = KEY_RIGHTCLICK;
             #if NCURSES_MOUSE_VERSION > 1
             } else if (mevent.bstate & BUTTON4_PRESSED) {
                ch = KEY_WHEELUP;
