@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020,2023 Red Hat.
+ * Copyright (c) 2019-2020,2023,2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -511,10 +511,11 @@ http_reply(struct client *client, sds message,
 	pmsprintf(length, sizeof(length), "%lX",
 			(unsigned long)sdslen(suffix));
 	buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, suffix);
+	if (client->buffer != suffix)
+	    sdsfree(client->buffer);
+	client->buffer = NULL;
 	sdsfree(suffix);
 	suffix = NULL;
-
-	client->buffer = NULL;
 
 	if (!(client->u.http.flags & HTTP_FLAG_FLUSHING)) {
 	    client->u.http.flags &= ~HTTP_FLAG_STREAMING; /* end of stream! */
@@ -534,8 +535,10 @@ http_reply(struct client *client, sds message,
 	    suffix = message;
 	} else if (message != NULL) {
 	    suffix = sdscatsds(client->buffer, message);
-	    sdsfree(message);
+	    if (client->buffer != suffix)
+		sdsfree(client->buffer);
 	    client->buffer = NULL;
+	    sdsfree(message);
 	} else {
 	    suffix = sdsempty();
 	}
