@@ -39,11 +39,14 @@ CONFVER = 1
 INDENT = 2
 TIMEFMT = "%Y-%m-%d %H:%M:%S"
 TIMEOUT = 2.5 # seconds
+os.environ["TZ"] = "UTC"
+time.tzset()
 
 class PCP2OPENMETRICS(object):
     """ PCP to OPENMETRICS """
     def __init__(self):
         """ Construct object, prepare for command line handling """
+
         self.context = None
         self.daemonize = 0
         self.pmconfig = pmconfig.pmConfig(self)
@@ -390,7 +393,6 @@ class PCP2OPENMETRICS(object):
             # Silent goodbye, close in finalize()
             return
 
-        self.context.pmNewZone("UTC")
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:
