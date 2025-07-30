@@ -1473,8 +1473,12 @@ main(int argc, char **argv)
 
     if (remote.conn != NULL) {
 	remote.client = pmhttpNewClient();
-	if (remote_ping() < 0)	/* check for support, perform DNS resolution */
-	    exit(1);
+	if (remote_ping() < 0) { /* check for support, perform DNS resolution */
+	    if (remote.only)
+		exit(1);
+	    fprintf(stderr, "Cannot ping %s, continuing without remote push\n",
+			    remote.conn);
+	}
     }
 
     __pmLogWriterInit(&archctl, &logctl);

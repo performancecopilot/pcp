@@ -55,17 +55,20 @@ remote_ping(void)
 				&remote.body, &remote.body_bytes,
 				&remote.type, &remote.type_bytes);
     if (sts < 0) {
-	pmNotifyErr(LOG_ERR, "%s check for %s failed: %s",
+	if (pmDebugOptions.http || remote.only)
+	    pmNotifyErr(LOG_ERR, "%s check for %s failed: %s",
 			path, remote.conn, pmErrStr(sts));
 	return -EINVAL;
     }
     if (remote_http_error(sts, errorbuf, sizeof(errorbuf))) {
-	pmNotifyErr(LOG_ERR, "%s check for %s HTTP error: %s",
+	if (pmDebugOptions.http || remote.only)
+	    pmNotifyErr(LOG_ERR, "%s check for %s HTTP error: %s",
 			path, remote.conn, errorbuf);
 	return -EINVAL;
     }
     if (remote.type_bytes != AJ_LEN || strcmp(remote.type, AJ_STR) != 0) {
-	pmNotifyErr(LOG_ERR, "%s check for %s got unexpected type: %s",
+	if (pmDebugOptions.http || remote.only)
+	     pmNotifyErr(LOG_ERR, "%s check for %s got unexpected type: %s",
 			path, remote.conn, remote.type);
 	return -EINVAL;
     }
@@ -75,7 +78,8 @@ remote_ping(void)
 		__FUNCTION__, path, remote.conn, remote.body);
 
     if ((strncmp(remote.body, "{\"success\":true}", 16)) != 0) {
-	pmNotifyErr(LOG_ERR, "%s check for %s got bad result: %s",
+	if (pmDebugOptions.http || remote.only)
+	    pmNotifyErr(LOG_ERR, "%s check for %s got bad result: %s",
 			path, remote.conn, remote.body);
 	return -EINVAL;
     }
