@@ -1072,7 +1072,11 @@ static void CRT_installSignalHandlers(void) {
    sigaction(SIGFPE, &act, &old_sig_handler[SIGFPE]);
    sigaction(SIGILL, &act, &old_sig_handler[SIGILL]);
    sigaction(SIGBUS, &act, &old_sig_handler[SIGBUS]);
+#ifndef HTOP_PCP
    sigaction(SIGPIPE, &act, &old_sig_handler[SIGPIPE]);
+#else
+   signal(SIGPIPE, SIG_IGN);
+#endif
    sigaction(SIGSYS, &act, &old_sig_handler[SIGSYS]);
    sigaction(SIGABRT, &act, &old_sig_handler[SIGABRT]);
 
@@ -1104,9 +1108,9 @@ void CRT_resetSignalHandlers(void) {
 void CRT_setMouse(bool enabled) {
    if (enabled) {
 #if NCURSES_MOUSE_VERSION > 1
-      mousemask(BUTTON1_RELEASED | BUTTON4_PRESSED | BUTTON5_PRESSED, NULL);
+      mousemask(BUTTON1_RELEASED | BUTTON3_RELEASED | BUTTON4_PRESSED | BUTTON5_PRESSED, NULL);
 #else
-      mousemask(BUTTON1_RELEASED, NULL);
+      mousemask(BUTTON1_RELEASED | BUTTON3_RELEASED, NULL);
 #endif
    } else {
       mousemask(0, NULL);

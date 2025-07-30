@@ -83,6 +83,10 @@ static inline void Platform_getRelease(char** string) {
    *string = Generic_uname();
 }
 
+static inline const char* Platform_getFailedState(void) {
+   return NULL;
+}
+
 static inline void Platform_longOptionsUsage(ATTR_UNUSED const char* name) { }
 
 static inline CommandLineStatus Platform_getLongOption(ATTR_UNUSED int opt, ATTR_UNUSED int argc, ATTR_UNUSED char** argv) {

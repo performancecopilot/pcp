@@ -25,8 +25,6 @@ in the source distribution for its full text.
 static const char* const DisplayOptionsFunctions[] =       {"      ", "      ", "      ", "      ", "      ", "      ", "      ", "      ", "      ", "Done  ", NULL};
 
 static const char* const DisplayOptionsDecIncFunctions[] = {"      ", "      ", "      ", "      ", "      ", "      ", "Dec   ", "Inc   ", "      ", "Done  ", NULL};
-static const char* const DisplayOptionsDecIncKeys[] =      {"  "    , "  "    , "  "    , "  "    , "  "    , "  "    , "F7"    , "F8"    , "  "    , "F10"   , NULL};
-static const int DisplayOptionsDecIncEvents[] = {'-', KEY_F(7), '+', KEY_F(8), ERR, KEY_F(10)};
 
 static void DisplayOptionsPanel_delete(Object* object) {
    DisplayOptionsPanel* this = (DisplayOptionsPanel*) object;
@@ -49,8 +47,6 @@ static HandlerResult DisplayOptionsPanel_eventHandler(Panel* super, int ch) {
       case '\n':
       case '\r':
       case KEY_ENTER:
-      case KEY_MOUSE:
-      case KEY_RECLICK:
       case ' ':
          switch (OptionItem_kind(selected)) {
             case OPTION_ITEM_TEXT:
@@ -67,8 +63,12 @@ static HandlerResult DisplayOptionsPanel_eventHandler(Panel* super, int ch) {
          break;
       case '-':
       case KEY_F(7):
+      case KEY_RIGHTCLICK:
          if (OptionItem_kind(selected) == OPTION_ITEM_NUMBER) {
             NumberItem_decrease((NumberItem*)selected);
+            result = HANDLED;
+         } else if (OptionItem_kind(selected) == OPTION_ITEM_CHECK) {
+            CheckItem_set((CheckItem*)selected, false);
             result = HANDLED;
          }
          break;
@@ -76,6 +76,18 @@ static HandlerResult DisplayOptionsPanel_eventHandler(Panel* super, int ch) {
       case KEY_F(8):
          if (OptionItem_kind(selected) == OPTION_ITEM_NUMBER) {
             NumberItem_increase((NumberItem*)selected);
+            result = HANDLED;
+         } else if (OptionItem_kind(selected) == OPTION_ITEM_CHECK) {
+            CheckItem_set((CheckItem*)selected, true);
+            result = HANDLED;
+         }
+         break;
+      case KEY_RECLICK:
+         if (OptionItem_kind(selected) == OPTION_ITEM_NUMBER) {
+            NumberItem_increase((NumberItem*)selected);
+            result = HANDLED;
+         } else if (OptionItem_kind(selected) == OPTION_ITEM_CHECK) {
+            CheckItem_toggle((CheckItem*)selected);
             result = HANDLED;
          }
          break;
@@ -133,7 +145,7 @@ DisplayOptionsPanel* DisplayOptionsPanel_new(Settings* settings, ScreenManager* 
    FunctionBar* fuBar = FunctionBar_new(DisplayOptionsFunctions, NULL, NULL);
    Panel_init(super, 1, 1, 1, 1, Class(OptionItem), true, fuBar);
 
-   this->decIncBar = FunctionBar_new(DisplayOptionsDecIncFunctions, DisplayOptionsDecIncKeys, DisplayOptionsDecIncEvents);
+   this->decIncBar = FunctionBar_new(DisplayOptionsDecIncFunctions, NULL, NULL);
    this->settings = settings;
    this->scr = scr;
 

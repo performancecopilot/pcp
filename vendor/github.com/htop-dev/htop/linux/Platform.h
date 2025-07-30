@@ -98,6 +98,10 @@ static inline void Platform_getRelease(char** string) {
    *string = Generic_uname();
 }
 
+static inline const char* Platform_getFailedState(void) {
+   return NULL;
+}
+
 #ifdef HAVE_LIBCAP
    #define PLATFORM_LONG_OPTIONS \
       {"drop-capabilities", optional_argument, 0, 160},
