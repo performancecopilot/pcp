@@ -1,0 +1,43 @@
+QA output created by 1888
+
+=== opentelemetry agent installation ===
+
+opentelemetry.labels.labelMetric
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"label1":"someLabel","machineid":MACHINEID,"random":"someValue","scope_name":"my.library","source":"labels","uninteresting":"someValue","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric1
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric2
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric3
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+    inst [0 or "le=1"] labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+    inst [1 or "le=inf"] labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric3_count
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric3_sum
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.labels.labelMetric
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"label1":"someLabel","machineid":MACHINEID,"random":"someValue","scope_name":"my.library","source":"labels","uninteresting":"someValue","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric1
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric2
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric3
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+    inst [0 or "le=1"] labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+    inst [1 or "le=inf"] labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric3_count
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}
+
+opentelemetry.simplemetric.metric3_sum
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"source":"simplemetric","url":FILEURL,"userid":NUM}

@@ -1,0 +1,40 @@
+QA output created by 1787
+
+=== opentelemetry agent installation ===
+
+=== URL configuration file contains
+file://QA_DIR/opentelemetry/samples/labelfiltering.txt
+
+# Filter to remove the "uninteresting" label
+FILTER: EXCLUDE LABEL random
+
+# Filter to remove all labels in metric2, thus it becomes singular
+#FILTER: EXCLUDE LABEL removeme
+
+# Filter to exclude label "def" hence metric3 has duplicate instances
+#FILTER: EXCLUDE LABEL def
+
+#
+# *** NOTE: optional labels are not implemented yet
+# Filter to flag some_optional_label as optional in metric4
+# (an optional label is not present in instance name, but still included as a label for the metric)
+# FILTER: OPTIONAL LABEL some_optional_label
+
+# implicit final rule includes all labels not matching anything above
+# (this implicit rule is listed here just for testing purposes)
+#FILTER: INCLUDE .*
+
+
+=== pminfo listing. Note some labels in the pminfo listing have been removed, see _filter
+
+opentelemetry.labelfiltering.labelMetric
+    labels {"agent":"opentelemetry","label1":"someLabel","scope_name":"my.library","some_optional_label":"someValue","source":"labelfiltering"}
+    value 5
+== Note: check 1787.full for details
+
+=== remove opentelemetry agent ===
+Culling the Performance Metrics Name Space ...
+opentelemetry ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check opentelemetry metrics have gone away ... OK
