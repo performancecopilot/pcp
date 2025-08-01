@@ -498,22 +498,23 @@ http_reply(struct client *client, sds message,
 		    client->buffer ? (long unsigned)sdslen(client->buffer) : 0, client);
 
 	buffer = sdsempty();
-	suffix = client->buffer;
-	if (suffix == NULL) {	/* error or no data currently accumulated */
+
+	if (client->buffer == NULL) {
+	    /* error or no data currently accumulated */
 	    suffix = prepare_buffer(client, message, flags, 1);
 	} else if (message != NULL) {
-	    suffix = sdscatsds(suffix, message);
+	    suffix = sdscatsds(client->buffer, message);
 	    suffix = prepare_buffer(client, suffix, flags, 1);
 	    sdsfree(message);
+	} else {
+	    suffix = client->buffer;
 	}
+	client->buffer = NULL;
 	message = NULL;
 
 	pmsprintf(length, sizeof(length), "%lX",
 			(unsigned long)sdslen(suffix));
 	buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, suffix);
-	if (client->buffer != suffix)
-	    sdsfree(client->buffer);
-	client->buffer = NULL;
 	sdsfree(suffix);
 	suffix = NULL;
 
@@ -535,13 +536,11 @@ http_reply(struct client *client, sds message,
 	    suffix = message;
 	} else if (message != NULL) {
 	    suffix = sdscatsds(client->buffer, message);
-	    if (client->buffer != suffix)
-		sdsfree(client->buffer);
-	    client->buffer = NULL;
 	    sdsfree(message);
 	} else {
-	    suffix = sdsempty();
+	    suffix = client->buffer;
 	}
+	client->buffer = NULL;
 	suffix = prepare_buffer(client, suffix, flags, 1);
 	buffer = http_response_header(client, sdslen(suffix), sts, type);
     }
