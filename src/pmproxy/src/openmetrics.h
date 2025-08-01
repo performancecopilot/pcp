@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 Red Hat.
+ * Copyright (c) 2019,2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -17,9 +17,6 @@
 #include "pmwebapi.h"
 #include "dict.h"
 
-/* check if PCP metric type has valid Open Metrics form */
-extern int open_metrics_type_check(sds);
-
 /* convert PCP metric name to Open Metrics form */
 extern sds open_metrics_name(sds, int);
 
@@ -27,6 +24,6 @@ extern sds open_metrics_name(sds, int);
 extern sds open_metrics_semantics(sds);
 
 /* convert an array of PCP labelsets into Open Metrics form */
-extern void open_metrics_labels(pmWebLabelSet *, dict *);
+extern void open_metrics_labels(pmWebLabelSet *);
 
 #endif	/* OPEN_METRICS_H */
