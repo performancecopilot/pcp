@@ -78,6 +78,17 @@ $sudo touch -t 197001010000 $urlfile
 pminfo openmetrics.simple_metric
 echo
 
+echo "-- metric removal by modifying source file, source persists -- "
+path=$tmp'.simple_metric.txt'
+$sudo cp $here/openmetrics/samples/simple_metric.txt $tmp.saved_metric2
+$sudo cp $here/openmetrics/samples/simple_metric.txt $tmp2.saved_metric2
+$sudo sed -i -e "/metric2/d" $path
+$sudo sed -i -e "/metric2/d"  $here/openmetrics/samples/simple_metric.txt
+pminfo openmetrics.simple_metric
+$sudo mv $tmp.saved_metric2 $path
+$sudo mv $tmp2.saved_metric2 $here/openmetrics/samples/simple_metric.txt
+
+
 _pmdaopenmetrics_remove >/dev/null 2>&1
 
 # success, all done
