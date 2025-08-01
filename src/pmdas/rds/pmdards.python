@@ -1,0 +1,448 @@
+# __author__ = "Mohith Kumar Thummaluru"
+# __email__ = "mohith.k.kumar.thummaluru@oracle.com"
+# __version__ = "1.0.1"
+#
+# Copyright (c) 2025 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# pylint: disable=no-self-use, consider-using-f-string, too-many-instance-attributes
+# pylint: disable=c-extension-no-member, consider-iterating-dictionary
+# pylint: disable=too-many-locals, too-many-arguments, too-many-lines, unused-argument, line-too-long
+# pylint: disable=too-many-return-statements, too-many-branches, too-many-statements, bare-except
+"""
+Python implementation of the "rds" Performance Metrics Domain Agent.
+"""
+
+import os
+import sys
+import subprocess
+import threading
+from enum import Enum
+from collections import defaultdict, namedtuple
+
+import cpmapi as c_api
+from pcp.pmda import PMDA, pmdaMetric
+from pcp.pmapi import pmUnits
+from cpmda import PMDA_FETCH_NOVALUES
+from pcp.pmapi import pmContext as PCP
+
+PMDA_DIR = PCP.pmGetConfig('PCP_PMDAS_DIR')
+MODULES_DIR = os.path.join(PMDA_DIR, "rds", "modules")
+
+sys.path.append(os.path.dirname(MODULES_DIR))  # Enables: from modules.xyz import ...
+sys.path.append(MODULES_DIR)                   # Enables: importing sibling modules inside the modules directory
+
+from modules.rds_ping import rds_ping_all_avlbl_dest
+from modules.ping import ping_all_avlbl_dest
+from modules.rds_info import RdsInfo
+
+Metric = namedtuple("Metric", ["key", "name", "type", "units"])
+
+class Cluster(Enum):
+    CONN = 1
+    CONG = 2
+    PACKET = 3
+    SENDQ = 4
+    MEM = 5
+    IB = 6
+    SOCK = 7
+    RDS_INFO = 8
+    LAT = 9
+
+class ThreadWithReturnValue(threading.Thread):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._return = None
+
+    def run(self):
+        if self._target:
+            self._return = self._target(*self._args, **self._kwargs)
+
+    def join(self, *args, **kwargs):
+        super().join(*args, **kwargs)
+        return self._return
+
+
+class RDSPMDA(PMDA):
+    """
+    A RDS Performance Metrics Domain Agent.
+    """
+    # Centralized metric mapping
+    pm_type_64 = c_api.PM_TYPE_U64
+
+    byte_units = pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
+    count_units = pmUnits(0, 0, 1, 0, 0, 0)
+    pmunits = pmUnits(0, 0, 0, 0, 0, 0)
+
+    METRICS = {
+        # CLUSTER_CONN
+        Cluster.CONN: [
+            Metric("conn_reset", "rds.conn.conn_reset", pm_type_64, count_units),
+            Metric("qos_threshold_exceeded", "rds.conn.qos_threshold_exceeded", pm_type_64, count_units),
+        ],
+
+        # CLUSTER_CONG
+        Cluster.CONG: [
+            Metric("cong_send_blocked", "rds.cong.cong_send_blocked", pm_type_64, count_units),
+            Metric("cong_update_queued", "rds.cong.cong_update_queued", pm_type_64, count_units),
+            Metric("cong_send_error", "rds.cong.cong_send_error", pm_type_64, count_units),
+            Metric("cong_update_received", "rds.cong.cong_update_received", pm_type_64, count_units),
+        ],
+
+        Cluster.PACKET: [
+        # CLUSTER_PACKET (TX)
+            Metric("send_queued", "rds.packet.tx.send_queued", pm_type_64, count_units),
+            Metric("send_rdma", "rds.packet.tx.send_rdma", pm_type_64, count_units),
+            Metric("send_rdma_bytes", "rds.packet.tx.send_rdma_bytes", pm_type_64, byte_units),
+            Metric("send_ping", "rds.packet.tx.send_ping", pm_type_64, count_units),
+            Metric("send_pong", "rds.packet.tx.send_pong", pm_type_64, count_units),
+            Metric("send_hb_ping", "rds.packet.tx.send_hb_ping", pm_type_64, count_units),
+            Metric("send_hb_pong", "rds.packet.tx.send_hb_pong", pm_type_64, count_units),
+            Metric("send_mprds_ping", "rds.packet.tx.send_mprds_ping", pm_type_64, count_units),
+            Metric("send_mprds_pong", "rds.packet.tx.send_mprds_pong", pm_type_64, count_units),
+            Metric("send_immediate_retry", "rds.packet.tx.send_imm_retry", pm_type_64, count_units),
+            Metric("send_delayed_retry", "rds.packet.tx.send_delayed_retry", pm_type_64, count_units),
+            Metric("send_ack_required", "rds.packet.tx.send_ack_reqd", pm_type_64, count_units),
+            Metric("send_drop_acked", "rds.packet.tx.send_drop_acked", pm_type_64, count_units),
+            Metric("send_stuck_rm", "rds.packet.tx.send_stuck_rm", pm_type_64, count_units),
+
+        # CLUSTER_PACKET (RX)
+            Metric("recv_queued", "rds.packet.rx.recv_queued", pm_type_64, count_units),
+            Metric("recv_rdma_bytes", "rds.packet.rx.recv_rdma_bytes", pm_type_64, byte_units),
+            Metric("recv_ping", "rds.packet.rx.recv_ping", pm_type_64, count_units),
+            Metric("recv_pong", "rds.packet.rx.recv_pong", pm_type_64, count_units),
+            Metric("recv_hb_ping", "rds.packet.rx.recv_hb_ping", pm_type_64, count_units),
+            Metric("recv_hb_pong", "rds.packet.rx.recv_hb_pong", pm_type_64, count_units),
+            Metric("recv_mprds_ping", "rds.packet.rx.recv_mprds_ping", pm_type_64, count_units),
+            Metric("recv_mprds_pong", "rds.packet.rx.recv_mprds_pong", pm_type_64, count_units),
+            Metric("recv_immediate_retry", "rds.packet.rx.recv_imm_retry", pm_type_64, count_units),
+            Metric("recv_delayed_retry", "rds.packet.rx.delayed_retry", pm_type_64, count_units),
+            Metric("recv_ack_required", "rds.packet.rx.ack_reqd", pm_type_64, count_units),
+            Metric("recv_deliver_raced", "rds.packet.rx.recv_deliver_raced", pm_type_64, count_units),
+            Metric("recv_delivered", "rds.packet.rx.recv_delivered", pm_type_64, count_units),
+            Metric("recv_drop_bad_checksum", "rds.packet.rx.drop.bad_csum", pm_type_64, count_units),
+            Metric("recv_drop_old_seq", "rds.packet.rx.drop.old_seq", pm_type_64, count_units),
+            Metric("recv_drop_no_sock", "rds.packet.rx.drop.no_sock", pm_type_64, count_units),
+            Metric("recv_drop_dead_sock", "rds.packet.rx.drop.dead_sock", pm_type_64, count_units),
+        ],
+
+        # CLUSTER_SENDQ
+        Cluster.SENDQ : [
+            Metric("send_lock_queue_raced", "rds.sendq.send_lock_q_raced", pm_type_64, count_units),
+            Metric("send_queue_empty", "rds.sendq.q_empty", pm_type_64, count_units),
+            Metric("send_queue_full", "rds.sendq.q_full", pm_type_64, count_units),
+            Metric("send_lock_contention", "rds.sendq.send_lock_contention", pm_type_64, count_units),
+        ],
+
+        # CLUSTER_MEM
+        Cluster.MEM : [
+            Metric("page_allocs", "rds.mem.page_allocs", pm_type_64, count_units),
+            Metric("page_gets", "rds.mem.page_gets", pm_type_64, count_units),
+            Metric("page_frees", "rds.mem.page_frees", pm_type_64, count_units),
+            Metric("page_remainder_hit", "rds.mem.page_rem_hit", pm_type_64, count_units),
+            Metric("page_remainder_miss", "rds.mem.page_rem_miss", pm_type_64, count_units),
+            Metric("copy_to_user", "rds.mem.copy_to_user", pm_type_64, count_units),
+            Metric("copy_from_user", "rds.mem.copy_from_user", pm_type_64, count_units),
+        ],
+
+        # CLUSTER_IB
+        Cluster.IB : [
+            Metric("ib_ack_sent", "rds.ib.ack.sent", pm_type_64, count_units),
+            Metric("ib_ack_send_failure", "rds.ib.ack.send_failure", pm_type_64, count_units),
+            Metric("ib_ack_send_delayed", "rds.ib.ack.send_delayed", pm_type_64, count_units),
+            Metric("ib_ack_send_piggybacked", "rds.ib.ack.send_piggybacked", pm_type_64, count_units),
+            Metric("ib_ack_received", "rds.ib.ack.received", pm_type_64, count_units),
+            Metric("ib_tx_ring_full", "rds.ib.tx.ring_full", pm_type_64, count_units),
+            Metric("ib_tx_throttle", "rds.ib.tx.throttle", pm_type_64, count_units),
+            Metric("ib_tx_sg_mapping_failure", "rds.ib.tx.sg_mapping_failure", pm_type_64, count_units),
+            Metric("ib_tx_stalled", "rds.ib.tx.stalled", pm_type_64, count_units),
+            Metric("ib_tx_credit_updates", "rds.ib.tx.credit_updates", pm_type_64, count_units),
+            Metric("ib_rx_cq_event", "rds.ib.rx.cq_event", pm_type_64, count_units),
+            Metric("ib_rx_ring_empty", "rds.ib.rx.ring_empty", pm_type_64, count_units),
+            Metric("ib_rx_refill_from_cm", "rds.ib.rx.refill_from_cm", pm_type_64, count_units),
+            Metric("ib_rx_refill_from_cq", "rds.ib.rx.refill_from_cq", pm_type_64, count_units),
+            Metric("ib_rx_refill_from_thread", "rds.ib.rx.refill_from_thread", pm_type_64, count_units),
+            Metric("ib_rx_refill_lock_taken", "rds.ib.rx.refill_lock_taken", pm_type_64, count_units),
+            Metric("ib_rx_alloc_limit", "rds.ib.rx.alloc_limit", pm_type_64, count_units),
+            Metric("ib_rx_total_frags", "rds.ib.rx.total_frags", pm_type_64, count_units),
+            Metric("ib_rx_total_incs", "rds.ib.rx.total_incs", pm_type_64, count_units),
+            Metric("ib_rx_credit_updates", "rds.ib.rx.credit_updates", pm_type_64, count_units),
+            Metric("ib_rx_cache_get", "rds.ib.rx.cache.get", pm_type_64, count_units),
+            Metric("ib_rx_cache_put", "rds.ib.rx.cache.put", pm_type_64, count_units),
+            Metric("ib_rx_cache_put_alloc", "rds.ib.rx.cache.put_alloc", pm_type_64, count_units),
+            Metric("ib_rx_cache_put_free", "rds.ib.rx.cache.put_free", pm_type_64, count_units),
+            Metric("ib_rx_cache_alloc", "rds.ib.rx.cache.alloc", pm_type_64, count_units),
+            Metric("ib_rx_cache_free", "rds.ib.rx.cache.free", pm_type_64, count_units),
+            Metric("ib_rx_cache_get_percpu", "rds.ib.rx.cache.get_percpu", pm_type_64, count_units),
+            Metric("ib_rx_cache_put_percpu", "rds.ib.rx.cache.put_percpu", pm_type_64, count_units),
+            Metric("ib_rx_cache_get_ready", "rds.ib.rx.cache.get_ready", pm_type_64, count_units),
+            Metric("ib_rx_cache_get_miss", "rds.ib.rx.cache.get_miss", pm_type_64, count_units),
+            Metric("ib_recv_cache_added", "rds.ib.rx.cache.cache_added", pm_type_64, count_units),
+            Metric("ib_recv_cache_removed", "rds.ib.rx.cache.cache_removed", pm_type_64, count_units),
+            Metric("ib_recv_nmb_cache_added", "rds.ib.rx.cache.nmb_cache_added", pm_type_64, count_units),
+            Metric("ib_recv_nmb_cache_removed", "rds.ib.rx.cache.nmb_cache_removed", pm_type_64, count_units),
+            Metric("ib_yield_yielding", "rds.ib.yield.yielding", pm_type_64, count_units),
+            Metric("ib_yield_right_of_way", "rds.ib.yield.right_of_way", pm_type_64, count_units),
+            Metric("ib_yield_stale", "rds.ib.yield.stale", pm_type_64, count_units),
+            Metric("ib_yield_expired", "rds.ib.yield.expired", pm_type_64, count_units),
+            Metric("ib_yield_accepting", "rds.ib.yield.accepting", pm_type_64, count_units),
+            Metric("ib_yield_success", "rds.ib.yield.success", pm_type_64, count_units),
+            Metric("ib_atomic_cswp", "rds.ib.atomic.cswp", pm_type_64, count_units),
+            Metric("ib_atomic_fadd", "rds.ib.atomic.fadd", pm_type_64, count_units),
+            Metric("ib_cm_watchdog_triggered", "rds.ib.cm.watchdog_triggered", pm_type_64, count_units),
+            Metric("ib_rdma_mr_8k_alloc", "rds.ib.rdma_mr.8k_alloc", pm_type_64, count_units),
+            Metric("ib_rdma_mr_8k_free", "rds.ib.rdma_mr.8k_free", pm_type_64, count_units),
+            Metric("ib_rdma_mr_8k_used", "rds.ib.rdma_mr.8k_used", pm_type_64, count_units),
+            Metric("ib_rdma_mr_8k_pool_flush", "rds.ib.rdma_mr.8k_pool_flush", pm_type_64, count_units),
+            Metric("ib_rdma_mr_8k_pool_wait", "rds.ib.rdma_mr.8k_pool_wait", pm_type_64, count_units),
+            Metric("ib_rdma_mr_8k_pool_depleted", "rds.ib.rdma_mr.8k_pool_depleted", pm_type_64, count_units),
+            Metric("ib_rdma_mr_1m_alloc", "rds.ib.rdma_mr.1m_alloc", pm_type_64, count_units),
+            Metric("ib_rdma_mr_1m_free", "rds.ib.rdma_mr.1m_free", pm_type_64, count_units),
+            Metric("ib_rdma_mr_1m_used", "rds.ib.rdma_mr.1m_used", pm_type_64, count_units),
+            Metric("ib_rdma_mr_1m_pool_flush", "rds.ib.rdma_mr.1m_pool_flush", pm_type_64, count_units),
+            Metric("ib_rdma_mr_1m_pool_wait", "rds.ib.rdma_mr.1m_pool_wait", pm_type_64, count_units),
+            Metric("ib_rdma_mr_1m_pool_depleted", "rds.ib.rdma_mr.1m_pool_depleted", pm_type_64, count_units),
+            Metric("ib_srq_lows", "rds.ib.srq.lows", pm_type_64, count_units),
+            Metric("ib_srq_refills", "rds.ib.srq.refills", pm_type_64, count_units),
+            Metric("ib_srq_empty_refills", "rds.ib.srq.empty_refills", pm_type_64, count_units),
+            Metric("ib_connect_raced", "rds.ib.connect_raced", pm_type_64, count_units),
+            Metric("ib_evt_handler_call", "rds.ib.evt_handler_call", pm_type_64, count_units),
+            Metric("ib_tasklet_call", "rds.ib.tasklet_call", pm_type_64, count_units),
+            Metric("ib_tx_cq_event", "rds.ib.tx.cq_event", pm_type_64, count_units),
+            Metric("ib_listen_closed_stale", "rds.ib.listen_closed_stale", pm_type_64, count_units),
+        ],
+
+        # CLUSTER_SOCK
+        Cluster.SOCK : [
+            Metric("recv_bytes_added_to_sock", "rds.sock.bytes_added_to_sock", pm_type_64, byte_units),
+            Metric("recv_bytes_freed_fromsock", "rds.sock.bytes_freed_from_sock", pm_type_64, byte_units),
+        ],
+
+        Cluster.RDS_INFO: [
+            Metric("rds_info_ib_conns", "rds.info.ib_conns", c_api.PM_TYPE_STRING, pmunits),
+            Metric("rds_info_tcp_conns", "rds.info.tcp_conns", c_api.PM_TYPE_STRING, pmunits),
+            Metric("rds_info_sockets", "rds.info.sockets", c_api.PM_TYPE_STRING, pmunits),
+            Metric("rds_info_rds_conns", "rds.info.rds_conns", c_api.PM_TYPE_STRING, pmunits),
+            Metric("rds_info_recv_queue", "rds.info.recv_queue", c_api.PM_TYPE_STRING, pmunits),
+            Metric("rds_info_send_queue", "rds.info.send_queue", c_api.PM_TYPE_STRING, pmunits),
+            Metric("rds_info_retrans_queue", "rds.info.retrans_queue", c_api.PM_TYPE_STRING, pmunits),
+        ],
+
+        Cluster.LAT: [
+            Metric("ping", "rds.lat.ping", c_api.PM_TYPE_STRING, pmunits),
+            Metric("rds_ping", "rds.lat.rds_ping", c_api.PM_TYPE_STRING, pmunits),
+            Metric("arp_cache", "rds.lat.arp_cache", c_api.PM_TYPE_STRING, pmunits),
+        ],
+    }
+
+    def populate_rds_info_metric(self, arg):
+        """
+        Wrapper Caller function for all the RDS-INFO options
+        """
+        rds_info_data = ""
+        res = self.rds_info.main(arg)
+        for line in res.splitlines():
+            conn_str = " "
+            line_list = list(filter(None, line.rstrip().split(" ")))
+            conn_str = " ".join([str(elem) for elem in line_list]) + "\n"
+            rds_info_data += conn_str
+        return rds_info_data
+
+    def get_ip_neighbour_stats(self):
+        try:
+            result = subprocess.run(['ip', '-s', 'neighbour'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            output = result.stdout
+            return output
+        except subprocess.CalledProcessError as e:
+            self.log(f"Error running 'ip -s neighbour': {e}")
+            return ""
+
+    def populate_rds_couters(self):
+        """
+        Fetch RDS counters and populate the rds_counters dictionary.
+        """
+        # self.log("Fetching RDS counters...")
+        res = self.rds_info.main("-c")
+        for line in res.splitlines():
+            line_list = list(filter(None, line.rstrip().split(" ")))
+            self.rds_counters[str(line_list[0])] = int(line_list[1])
+
+    def populate_latency_data(self):
+        """
+        Fetch ping and RDS ping data using threads.
+        """
+        # self.log("Starting threads for ping data...")
+        thread1 = ThreadWithReturnValue(target=lambda: rds_ping_all_avlbl_dest(timeout=3))
+        thread2 = ThreadWithReturnValue(target=lambda: ping_all_avlbl_dest(timeout=3))
+
+        thread1.start()
+        thread2.start()
+
+        self.rds_ping_str = thread1.join() or ""
+        self.ping_str = thread2.join() or ""
+
+    def populate_arp_stats(self):
+        """
+        Fetch ARP stats and store them in arp_str.
+        """
+        self.arp_str = self.get_ip_neighbour_stats()
+
+    def populate_rds_info(self):
+        """
+        Fetch and cache RDS_INFO metrics.
+        """
+        # self.log("Fetching and caching RDS info data...")
+        rds_info_opts = [
+            ("rds_info_ib_conns", "-I"),
+            ("rds_info_tcp_conns", "-T"),
+            ("rds_info_sockets", "-k"),
+            ("rds_info_rds_conns", "-n"),
+            ("rds_info_recv_queue", "-r"),
+            ("rds_info_send_queue", "-s"),
+            ("rds_info_retrans_queue", "-t"),
+        ]
+
+        for metric_key, opt in rds_info_opts:
+            try:
+                res = self.populate_rds_info_metric(opt)
+                self.rds_info_cache[metric_key] = res
+                # self.log(f"Cached data for metric {metric_key}, size: {sys.getsizeof(res)} bytes")
+            except Exception as e:
+                self.log(f"Error fetching data for metric {metric_key}: {e}")
+                self.rds_info_cache[metric_key] = None
+
+    def populate_data(self):
+        """
+        Populate data for the PMDA.
+        """
+        self.populate_rds_couters()
+        self.populate_latency_data()
+        self.populate_arp_stats()
+        self.populate_rds_info()
+
+    def rds_fetch_callback(self, cluster, item, inst):
+        """
+        Fetch callback for retrieving metric values based on the METRICS structure.
+        """
+        # self.log(f"Fetching data for cluster {cluster}, item {item}, instance {inst}")
+
+        # Convert cluster to Cluster enum
+        cluster = Cluster(cluster)
+
+        if cluster not in self.METRICS:
+            self.log(f"Unknown cluster {cluster}")
+            return [c_api.PM_ERR_PMID, 0]
+
+        metrics = self.METRICS[cluster]
+        if item >= len(metrics):
+            self.log(f"Unknown item {item} in cluster {cluster}")
+            return [c_api.PM_ERR_PMID, 0]
+
+        metric = metrics[item]
+        metric_key = metric.key
+
+        if cluster == Cluster.RDS_INFO:
+            return self._fetch_rds_info(metric_key)
+        if cluster == Cluster.LAT:
+            return self._fetch_latency_metrics(item)
+
+        value = self.rds_counters.get(metric_key)
+        if value is not None:
+            return [value, 1]
+
+        self.log(f"Failed to fetch data for cluster {cluster}, item {item}")
+        return [c_api.PM_ERR_NAME, 0]
+
+    def _fetch_rds_info(self, metric_key):
+        """
+        Fetch data for the RDS_INFO cluster.
+        """
+        res = self.rds_info_cache.get(metric_key, "")
+        if not res:
+            self.log(f"No data available for metric {metric_key}")
+            return [PMDA_FETCH_NOVALUES, 0]
+        return [res, 1]
+
+    def _fetch_latency_metrics(self, item):
+        """
+        Fetch data for the LAT cluster.
+        """
+        if item == 0:
+            return [self.ping_str, 1]
+        elif item == 1:
+            return [self.rds_ping_str, 1]
+        elif item == 2:
+            return [self.arp_str, 1]
+        else:
+            self.log(f"Unknown item {item} in LAT cluster")
+            return [c_api.PM_ERR_PMID, 0]
+
+    def register_metrics(self):
+        """Register metrics based on the METRICS structure."""
+        null_indom = c_api.PM_INDOM_NULL
+        inst_sem = c_api.PM_SEM_INSTANT
+        count_sem = c_api.PM_SEM_COUNTER
+
+        for cluster, metrics in self.METRICS.items():
+            for item, metric in enumerate(metrics):
+                self.add_metric(
+                    metric.name,
+                    pmdaMetric(
+                        self.pmid(cluster.value, item),
+                        metric.type,
+                        null_indom,
+                        inst_sem,
+                        metric.units,
+                    ),
+                )
+
+        self.log("Registered all metrics!")
+    def __init__(self, name, domain, user, logfile):
+
+        super().__init__(name, domain, logfile)
+        if user is not None:
+            self.set_user(user)
+            self.log('Note: running as user "%s"' % user)
+
+        self.connect_pmcd()
+        self.pmda_name = name
+
+        self.ping_str = ""
+        self.rds_ping_str = ""
+        self.arp_str = ""
+        self.rds_counters = defaultdict()
+        self.rds_info_cache = defaultdict()
+
+        self.rds_info = RdsInfo()
+
+        self.register_metrics()
+        self.set_fetch(self.populate_data)
+        self.set_fetch_callback(self.rds_fetch_callback)
+
+    @classmethod
+    def in_pmda_setup(cls):
+        """Check if PMDA is in setup state"""
+        return os.environ.get('PCP_PYTHON_DOMAIN') or os.environ.get('PCP_PYTHON_PMNS')
+
+if __name__ == "__main__":
+    # This PMDA starts up in the "notready" state, see the Install script where
+    # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
+    # The "binary notready" setting can also be manually configured in pmcd.conf.
+    pmda = RDSPMDA(name='rds', domain=255, user="root", logfile='rds.log')
+
+    pmda.pmda_ready()
+    if not pmda.in_pmda_setup():
+        pmda.log("Ready to process requests.")
+
+    # Now enter the main loop
+    pmda.run()
