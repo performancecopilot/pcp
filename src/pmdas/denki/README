@@ -7,9 +7,11 @@ electricity.
 At the moment, metrics from 3 sources are available:
 
 - RAPL (available on newer Intel CPUs), values read via /sys file system
-- RAPL (available on newer Intel CPUs), values read via cpu MSR registers
+- RAPL (available on newer Intel CPUs), values read via CPU MSR registers
 - battery values
 
+The RAPL interface (Running Average Power Limit) provides accumulated
+energy consumption of various power domains (e.g. CPU packages, DRAM).
 
 Metrics
 =======
@@ -66,7 +68,7 @@ Usage scenarios/examples
     domains are available:
 
       inst [0 or "package-0"] - consumption of the other 3 domains
-      inst [1 or "core"]      - cpus consumption
+      inst [1 or "core"]      - CPUs consumption
       inst [2 or "uncore"]    - typically GPU, if on motherboard
       inst [3 or "dram"]      - memory
 
@@ -87,7 +89,7 @@ Usage scenarios/examples
 
  -  denki.rapl.msr:
 
-    If RAPL via MSR cpu registers is available, denki.rapl.msr can 
+    If RAPL via MSR CPU registers are available, denki.rapl.msr can 
 	give an estimation of the current power consumption.  On 
 	laptops, typically 5 RAPL MSR domains are available:
 
