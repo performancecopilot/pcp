@@ -349,11 +349,41 @@ __pmLogCreate(const char *host, const char *base, int log_version,
 }
 
 static void
+hashsummary(char *where, __pmHashCtl *hcp)
+{
+    int			i;
+    int			nempty = 0;
+    int			nnode = 0;
+    __pmHashNode	*hp;
+
+    fprintf(stderr, "%s(): hcp=%p", where, hcp);
+    if (hcp != NULL) {
+	fprintf(stderr, " nodes=%d hsize=%d", hcp->nodes, hcp->hsize);
+	for (i = 0; i < hcp->hsize; i++) {
+	    if (hcp->hash[i] == NULL)
+		nempty++;
+	    else {
+		for (hp = hcp->hash[i]; hp != NULL; hp = hp->next)
+		    nnode++;
+	    }
+	}
+	fprintf(stderr, " empty_slots=%d nodes=%d next=%p index=%d",
+		nempty, nnode, hcp->next, hcp->index);
+	if (nnode != hcp->nodes)
+	    fprintf(stderr, "\nBotch! found nodes %d != hash nodes %d", nnode, hcp->nodes);
+    }
+    fputc('\n', stderr);
+}
+
+static void
 logFreeHashPMID(__pmHashCtl *hcp)
 {
     __pmHashNode	*hp;
     __pmHashNode	*prior_hp;
     int			i;
+
+    if (pmDebugOptions.logmeta)
+	hashsummary("logFreeHashPMID", hcp);
 
     for (i = 0; i < hcp->hsize; i++) {
 	for (hp = hcp->hash[i], prior_hp = NULL; hp != NULL; hp = hp->next) {
@@ -378,6 +408,57 @@ logFreeHashInDom(__pmHashCtl *hcp)
     __pmLogInDom	*prior_idp;
     int			i;
 
+    if (pmDebugOptions.logmeta)
+	hashsummary("logFreeHashInDom", hcp);
+
+    /*
+     * first pass ... for all instance domains, search all the
+     * __pmLogInDom structs and set duplicate namelist[j] pointers
+     * to NULL to avoid double free() in the second pass
+     */
+    for (i = 0; i < hcp->hsize; i++) {
+	for (hp = hcp->hash[i]; hp != NULL; hp = hp->next) {
+	    /*
+	     * new hash table for each lcp->hashindom hash node, keyed
+	     * off instlist[j] with data being the matching namelist[j]
+	     * ... this works because all the __pmLogInDom stucts
+	     * for a single instance domain will hang off the same
+	     * lcp->hashindom hash node
+	     */
+	    __pmHashCtl		insthash;
+	    __pmHashNode	*ihp;
+	    __pmHashInit(&insthash);
+	    for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
+		int	j;
+		for (j = 0; j < idp->numinst; j++) {
+		    ihp = __pmHashSearch(idp->instlist[j], &insthash);
+		    while (ihp != NULL && ihp->data != (void *)idp->namelist[j])
+			ihp = ihp->next;
+		    if (ihp != NULL && ihp->data == (void *)idp->namelist[j]) {
+			/* duplicate namelist[j] pointer ... */
+			idp->namelist[j] = NULL;
+		    }
+		    else {
+		    	/* first time for this namelist[j] pointer */
+			if (__pmHashAdd(idp->instlist[j], idp->namelist[j], &insthash) < 0) {
+			    /* better to leak than to trash memory ... */
+			    fprintf(stderr, "%s: hash add failed for indom %s [%d] inst %d %s\n", __FUNCTION__, pmInDomStr(idp->indom), j, idp->instlist[j], idp->namelist[j]);
+			    idp->namelist[j] = NULL;
+			}
+		    }
+		}
+	    }
+	    /*
+	     * no storage hanging off the data field of the hash nodes
+	     * here, so this is safe
+	     */
+	    __pmHashFree(&insthash);
+	}
+    }
+
+    /*
+     * second pass, do the real freeing
+     */
     for (i = 0; i < hcp->hsize; i++) {
 	for (hp = hcp->hash[i], prior_hp = NULL; hp != NULL; hp = hp->next) {
 	    for (idp = (__pmLogInDom *)hp->data, prior_idp = NULL;
@@ -390,7 +471,7 @@ logFreeHashInDom(__pmHashCtl *hcp)
 		if (idp->buf != NULL)
 		    free(idp->buf);
 		if (idp->numinst >= 0) {
-		    if (idp->alloc & PMLID_NAMES && idp->namelist != NULL) {
+		    if ((idp->alloc & PMLID_NAMES) && idp->namelist != NULL) {
 			int		j;
 			for (j = 0; j < idp->numinst; j++) {
 			    if (idp->namelist[j] != NULL) {
@@ -400,9 +481,9 @@ logFreeHashInDom(__pmHashCtl *hcp)
 			}
 		    }
 		}
-		if (idp->alloc & PMLID_NAMELIST && idp->namelist != NULL)
+		if ((idp->alloc & PMLID_NAMELIST) && idp->namelist != NULL)
 		    free(idp->namelist);
-		if (idp->alloc & PMLID_INSTLIST && idp->instlist != NULL)
+		if ((idp->alloc & PMLID_INSTLIST) && idp->instlist != NULL)
 		    free(idp->instlist);
 		if (prior_idp != NULL)
 		    free(prior_idp);
@@ -431,6 +512,9 @@ logFreeTrimInDom(__pmHashCtl *hcp)
     __pmLogTrimInDom	*indomp;
     int			h;
     int			i;
+
+    if (pmDebugOptions.logmeta)
+	hashsummary("logFreeTrimPMID", hcp);
 
     /* loop over all indoms */
     for (h = 0; h < hcp->hsize; h++) {
@@ -476,6 +560,9 @@ logFreeHashLabels(__pmHashCtl *type_ctl)
     int			j;
     int			k;
 
+    if (pmDebugOptions.logmeta)
+	hashsummary("logFreeHashLabels", type_ctl);
+
     for (i = 0; i < type_ctl->hsize; i++) {
 	for (type_node = type_ctl->hash[i]; type_node != NULL; ) {
 	    ident_ctl = (__pmHashCtl *) type_node->data;
@@ -520,6 +607,9 @@ logFreeHashText(__pmHashCtl *type_ctl)
     char		*text;
     int			i;
     int			j;
+
+    if (pmDebugOptions.logmeta)
+	hashsummary("logFreeHashText", type_ctl);
 
     for (i = 0; i < type_ctl->hsize; i++) {
 	for (type_node = type_ctl->hash[i]; type_node != NULL; ) {
