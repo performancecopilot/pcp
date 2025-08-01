@@ -25,11 +25,13 @@
 is a Performance Metrics Domain Agent (PMDA) which extracts
 electricity related performance metrics.
 .PP
-Currently, metrics from RAPL (on Intel cpus) and battery
-charge values are available, if supported by the hardware.
+Currently, metrics from the Running Average Power Limit (RAPL)
+Intel CPU feature, and battery charge values are available, if
+supported by the hardware.
 .PP
 .B \-l
-Location of the log file.  By default, a log file named
+Location of the log file.
+By default, a log file named
 .I denki.log
 is written in the current directory of
 .BR pmcd (1)
@@ -37,8 +39,8 @@ when
 .B pmdadenki
 is started, i.e.
 .BR $PCP_LOG_DIR/pmcd .
-If the log file cannot
-be created or is not writable, output is written to the standard error instead.
+If the log file cannot be created or is not writable, output is
+written to the standard error instead.
 .SH "INSTALLATION"
 The
 .B denki
@@ -148,4 +150,4 @@ and
 .BR pcp.env (5).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ pmdadenki denki RAPL cpus
+.\" +ok+ pmdadenki denki RAPL CPUs
