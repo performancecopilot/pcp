@@ -34,9 +34,23 @@ _filter()
     # end
 }
 
+# borrowed from utilproc.sh ...
+#
+# determine path for pwd command to override shell built-in
+#
+PWDCMD=`which pwd 2>/dev/null | $PCP_AWK_PROG '
+BEGIN           { i = 0 }
+/ not in /      { i = 1 }
+/ aliased to /  { i = 1 }
+                { if ( i == 0 ) print }
+'`
+[ -z "$PWDCMD" ] && PWDCMD=/bin/pwd
+eval $PWDCMD -P >/dev/null 2>&1
+[ $? -eq 0 ] && PWDCMD="$PWDCMD -P"
+
 # real QA test starts here
 mypid=$$
-mycwd=`pwd`
+mycwd=`$PWDCMD`
 myexe=`readlink /proc/$$/exe`
 
 echo mypid: $mypid > $seq_full

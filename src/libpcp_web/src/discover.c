@@ -797,6 +797,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
     pmDiscoverEvent	event;
     char		buf[32], inbuf[32];
     int			i, sts = 0;
+    int			save_debug;
     pmInResult		full;			/* undelta'd indom */
 
     if (pmDebugOptions.discovery) {
@@ -838,7 +839,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 
 	sts = __pmLogAddInDom(acp, type, duplid, NULL);
 	if (sts == PMLOGPUTINDOM_DUP) {
-	    if (pmDebugOptions.dev0) {
+	    if (pmDebugOptions.discovery) {
 		fprintf(stderr, "%s: indom %s numinst %d type %s stamp ",
 				__FUNCTION__,
 				pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)),
@@ -878,26 +879,26 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 		 * PMLOGPUTINDOM_DUP ... so we need to walk the linked
 		 * list until we find the one for this delta indom
 		 */
-		if (pmDebugOptions.dev0) {
+		if (pmDebugOptions.discovery && pmDebugOptions.desperate) {
 		    fprintf(stderr, "walk %s chain: want idp @",
 				pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)));
 		    __pmPrintTimestamp(stderr, tsp);
 		    fprintf(stderr, " ...");
 		}
 		for ( ; idp != NULL; idp = idp->next) {
-		    if (pmDebugOptions.dev0) {
+		    if (pmDebugOptions.discovery && pmDebugOptions.desperate) {
 			fputc(' ', stderr);
 			__pmPrintTimestamp(stderr, &idp->stamp);
 			fputc('?', stderr);
 		    }
 		    if (__pmTimestampCmp(&idp->stamp, tsp) == 0) {
-			if (pmDebugOptions.dev0)
+			if (pmDebugOptions.discovery && pmDebugOptions.desperate)
 			    fprintf(stderr, " bingo isdelta=%d\n", idp->isdelta);
 			break;
 		    }
 		}
 		if (idp == NULL) {
-		    if (pmDebugOptions.dev0)
+		    if (pmDebugOptions.discovery && pmDebugOptions.desperate)
 			fprintf(stderr, " fail!\n");
 		    fprintf(stderr, "%s: Botch: indom %s @ ", __FUNCTION__,
 				pmInDomStr_r(in->indom, inbuf, sizeof(inbuf)));
@@ -916,7 +917,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 		    PM_UNLOCK(ctxp->c_lock);
 		    goto out;
 		}
-		if (pmDebugOptions.dev0) {
+		if (pmDebugOptions.discovery && pmDebugOptions.desperate) {
 		    __pmLogInDom	*ldp;		/* previous indom */
 		    /*
 		     * ldp is the one _before_ this (in time) ... must exist
@@ -945,14 +946,13 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
 			    idp->numinst, idp->isdelta);
 		    fflush(stderr);
 		}
-		if (pmDebugOptions.dev1) {
-		    pmDebugOptions.logmeta = pmDebugOptions.desperate = 1;
+		if (pmDebugOptions.discovery && pmDebugOptions.desperate) {
+		    save_debug = pmDebugOptions.logmeta;
+		    pmDebugOptions.logmeta = 1;
 		}
 		__pmLogUndeltaInDom(in->indom, idp);
-		if (pmDebugOptions.dev1) {
-		    pmDebugOptions.logmeta = pmDebugOptions.desperate = 0;
-		}
-		if (pmDebugOptions.dev0) {
+		if (pmDebugOptions.discovery && pmDebugOptions.desperate) {
+		    pmDebugOptions.logmeta = save_debug;
 		    fprintf(stderr, " after numinst %d isdelta %d\n", idp->numinst, idp->isdelta);
 		    for (j = 0; j < idp->numinst; j++)
 			fprintf(stderr, "%d ", idp->instlist[j]);

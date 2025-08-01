@@ -1995,7 +1995,7 @@ __pmFreeLogInDom(__pmLogInDom *lidp)
 
 /*
  * Duplicate a __pmLogInDom struct in a manner that shares no storage
- * with the original (all of the compnents are malloc'd)
+ * with the original (all of the components are malloc'd)
  */
 __pmLogInDom *
 __pmDupLogInDom(__pmLogInDom *lidp)
