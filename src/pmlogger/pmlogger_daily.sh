@@ -1171,7 +1171,7 @@ _callback_log_control()
     if [ X"$args" = X+ ]
     then
 	# archive pushed from remote pmlogger via pmproxy, log rotation
-	# done at the pmproxy end, so nothin to be done here
+	# done at the pmproxy end, so nothing to be done here
 	#
 	:
     else
@@ -2005,11 +2005,40 @@ then
     # skip this ...
     :
 else
-    # check for any archives from remote pmloggers via pmproxy or
-    # pmlogpush ... if found, synthesize a control file for them
+    # work to be done at the pmproxy end for logpush archives
     #
     if cd $PCP_LOG_DIR/pmproxy
     then
+	# if pmproxy is running, send it a SIGHUP to trigger log
+	# closing and subsequent log rotation
+	#
+	proxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid 2>/dev/null`
+	if [ -n "$proxy_pid" ]
+	then
+	    if $SHOWME
+	    then
+		echo "+ $KILL -s HUP $proxy_pid"
+	    else
+		$VERBOSE && echo >&2 "Sending SIGHUP to pmproxy $proxy_pid"
+		$KILL -s HUP "$proxy_pid"
+		# we don't have a good way of knowing when this has
+		# been done
+		# - pmproxy will close the sockets to the remote
+		#   pmloggers reasonably quickly, modulo signal and
+		#   asynchronous processing [10 seconds is a guess]
+		# - once this happens there will be no more writing
+		#   to the archives, so rewrite, merge and compress
+		#   are all OK
+		# - at the remote end, it will depend on pmlogger to
+		#   notice and commence a new archive dialog with
+		#   pmproxy
+		#
+		sleep 10
+	    fi
+	fi
+	# check for any archives from remote pmloggers via pmproxy or
+	# pmlogpush ... if found, synthesize a control file for them
+	#
 	for _host in *
 	do
 	    # need some minimal plausible dir contents like at least
