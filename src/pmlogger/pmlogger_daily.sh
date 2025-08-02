@@ -2009,33 +2009,9 @@ else
     #
     if cd $PCP_LOG_DIR/pmproxy
     then
-	# if pmproxy is running, send it a SIGHUP to trigger log
-	# closing and subsequent log rotation
+	# one-trip guard if there is something to be done
 	#
-	proxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid 2>/dev/null`
-	if [ -n "$proxy_pid" ]
-	then
-	    if $SHOWME
-	    then
-		echo "+ $KILL -s HUP $proxy_pid"
-	    else
-		$VERBOSE && echo >&2 "Sending SIGHUP to pmproxy $proxy_pid"
-		$KILL -s HUP "$proxy_pid"
-		# we don't have a good way of knowing when this has
-		# been done
-		# - pmproxy will close the sockets to the remote
-		#   pmloggers reasonably quickly, modulo signal and
-		#   asynchronous processing [10 seconds is a guess]
-		# - once this happens there will be no more writing
-		#   to the archives, so rewrite, merge and compress
-		#   are all OK
-		# - at the remote end, it will depend on pmlogger to
-		#   notice and commence a new archive dialog with
-		#   pmproxy
-		#
-		sleep 10
-	    fi
-	fi
+	rm -f $tmp/proxy_sighup
 	# check for any archives from remote pmloggers via pmproxy or
 	# pmlogpush ... if found, synthesize a control file for them
 	#
@@ -2045,6 +2021,37 @@ else
 	    # one .index file
 	    #
 	    [ "`echo $_host/*.index`" = "$_host/*.index" ] && continue
+	    if ! $COMPRESSONLY && [ ! -f $tmp/proxy_sighup ]
+	    then
+		# if pmproxy is running, send it a SIGHUP to trigger log
+		# closing and subsequent log rotation
+		#
+		proxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid 2>/dev/null`
+		if [ -n "$proxy_pid" ]
+		then
+		    if $SHOWME
+		    then
+			echo "+ $KILL -s HUP $proxy_pid"
+		    else
+			$VERBOSE && echo >&2 "Sending SIGHUP to pmproxy $proxy_pid"
+			$KILL -s HUP "$proxy_pid"
+			# we don't have a good way of knowing when this has
+			# been done
+			# - pmproxy will close the sockets to the remote
+			#   pmloggers reasonably quickly, modulo signal and
+			#   asynchronous processing [10 seconds is a guess]
+			# - once this happens there will be no more writing
+			#   to the archives, so rewrite, merge and compress
+			#   are all OK
+			# - at the remote end, it will depend on pmlogger to
+			#   notice and commence a new archive dialog with
+			#   pmproxy
+			#
+			sleep 10
+		    fi
+		fi
+		echo "$$" >$tmp/proxy_sighup
+	    fi
 	    if [ -d "$_host" ]
 	    then
 		$VERBOSE && echo "Info: processing archives from remote pmlogger on host $_host"
