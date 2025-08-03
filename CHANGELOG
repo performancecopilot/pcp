@@ -1,4 +1,4 @@
-pcp-7.0.0 (31 July 2025)
+pcp-7.0.0 (1 September 2025)
     - PMDA additions, enhancements and bug fixes:
 	pmdaopentelemetry: new exporter for OpenTelemetry metrics
 	pmdarocestat: new RDMA over Converged Ethernet (RoCE) metrics
