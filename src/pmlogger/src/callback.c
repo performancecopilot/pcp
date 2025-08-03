@@ -284,6 +284,10 @@ check_inst(pmValueSet *vsp, int hint, __pmResult *lrp)
 	for (i = 0; i < lrp->numpmid; i++) {
 	    if (lrp->vset[i]->pmid == vsp->pmid)
 		break;
+	    if (IS_DERIVED(vsp->pmid) &&
+		SET_DERIVED_LOGGED(vsp->pmid) == lrp->vset[i]->pmid)
+		/* PMID rewritten for logged derived metric */
+		break;
 	}
 	if (i == lrp->numpmid) {
 	    fprintf(stderr, "check_inst: cannot find PMID %s in last result ...\n",
