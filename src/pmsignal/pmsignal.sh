@@ -112,6 +112,8 @@ fi
 $nflag && pmsignal=echo
 
 sts=0
+# some versions of kill include a gratitous \n after and error
+# message, hence the sed at the end
 if [ "$PCP_PLATFORM" = mingw ]
 then
     for pid in $pids ; do
@@ -123,7 +125,8 @@ else
 	$pmsignal kill -$signal $pid
 	[ $? -eq 0 ] || sts=$?
     done
-fi
+fi 2>&1 \
+| sed -e '/^$/d'
 
 status=$sts
 exit
