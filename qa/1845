@@ -39,8 +39,10 @@ _filter()
     | sed \
 	-e '/cannot create .*pmlogger_daily.pid:/d' \
 	-e '/pmlogger_daily.pid: Permission denied/d' \
+	-e '/^Sending SIGHUP to pmproxy /d' \
 	-e "s@$tmp@TMP@g" \
 	-e "s@$PCP_BINADM_DIR@PCP_BINADM_DIR@g" \
+	-e '/^PCP_BINADM_DIR\/pmsignal: .* Operation not permitted/d' \
 	-e "s@$save_log_dir@PCP_LOG_DIR@g" \
 	-e "s@\[.*/control@[TMP/control@" \
 	-e "s/`pmdate -1d %Y%m%d`/TODAY-1/g" \

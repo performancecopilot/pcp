@@ -36,6 +36,7 @@ _filter()
     tee -a $seq_full \
     | sed \
 	-e '/^+ date-and-timestamp /d' \
+	-e '/^+ pmsignal -s HUP /d' \
 	-e '/Warning: skipping log rotation/d' \
 	-e '/Warning: current volume of current pmlogger not known/d' \
 	-e "s@$tmp@TMP@g" \
