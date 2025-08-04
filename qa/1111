@@ -50,7 +50,7 @@ sleep 2
 $pcp2influxdb -x roar -t 1 hinv.ncpu sample.control >$tmp.p2i.out 2>$tmp.p2i.err &
 p2ipid=$!
 sleep 3
-$signal $pid $p2ipid 2>/dev/null
+$signal $pid $p2ipid >>$seq_full 2>&1
 wait
 grep -E -q "^POST /write\?db=roar" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found POST URL in noauth output"
@@ -68,7 +68,7 @@ $pcp2influxdb -x roar -X host=me.example.com -t 1 hinv.ncpu \
         >$tmp.p2i.out 2>$tmp.p2i.err &
 p2ipid=$!
 sleep 3
-$signal $pid $p2ipid 2>/dev/null
+$signal $pid $p2ipid >>$seq_full 2>&1
 wait
 grep -E -q "^POST /write\?db=roar" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found POST URL in noauth output"
@@ -85,7 +85,7 @@ $pcp2influxdb -x roar --db-user pcp --db-pass hey \
         >$tmp.p2i.out 2>$tmp.p2i.err &
 p2ipid=$!
 sleep 3
-$signal $pid $p2ipid 2>/dev/null
+$signal $pid $p2ipid >>$seq_full 2>&1
 wait
 grep -E -q "^POST /write\?db=roar" $tmp.socat.out
 [ $? -eq 0 ] && echo "Found POST URL in output"
@@ -103,7 +103,7 @@ sleep 2
 $pcp2influxdb -t 2 -I sample.aggregate.null sample.string.hullo sample.bad >$tmp.p2i.out 2>$tmp.p2i.err &
 p2ipid=$!
 sleep 8 # enough for at least 2 messages
-$signal $pid $p2ipid 2>/dev/null
+$signal $pid $p2ipid >>$seq_full 2>&1
 wait
 grep 'Excluding' $tmp.p2i.err
 _full_stash
