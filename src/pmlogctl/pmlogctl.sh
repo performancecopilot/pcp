@@ -232,6 +232,78 @@ End-of-File
     exit
 }
 
+# expand (possibly nested) ENV(VAR[:default]) strings from $1 into $VAR
+# (assumed to be from the environment)
+# $2 is lineno
+#
+_do_env_subst()
+{
+    local ans="$1"
+    local count=0
+    local val
+    while true
+    do
+	if echo "$ans" | grep -q 'ENV([a-zA-Z_][^)]*)'
+	then
+	    # $ans contains at least one ENV(...) so extract the <param>
+	    # in the first ENV(<parame>) instance
+	    #
+	    local param=`echo "$ans" | sed -n -e 's/.*ENV(\([a-zA-Z_][^)]*\)).*/\1/p'`
+	    if echo "$param" | grep -q ':'
+	    then
+		local var=`echo "$param" | sed -e 's/:.*//'`
+		local default=`echo "$param" | sed -e 's/.*://'`
+	    else
+		local var="$param"
+		local default=''
+	    fi
+	    if [ -z "$var" ]
+	    then
+		_error "_do_env_subst: [$2] Botch: param=$param var=$var default=4default"
+		break
+	    fi
+	else
+	    # no ENV(...) in $ans
+	    #
+	    break
+	fi
+	# guard against recursion and limit number of expansions
+	#
+	if [ $count -ge 10 ]
+	then
+	    _warning "_do_env_subst: [$2] max ENV() expansions (10) exceeded"
+	    break
+	fi
+	count=`expr $count + 1`
+	# check if var has a defined value
+	#
+	eval val="\$$var"
+	if [ -z "$val" -a -n "$default" ]
+	then
+	    # no value, but :default so use that
+	    #
+	    val="$default"
+	fi
+	[ -z "$val" ] && _warning "_do_env_vars: [$2] \$$var empty value"
+	$VERY_VERBOSE && echo >&2 "[$2] ENV($var...) -> $val"
+	ans=`echo "$ans" | sed -e 's/\(.*\)*ENV([a-zA-Z_][^)]*)\(.*\)/\1'"$val"'\2/'`
+    done
+    echo "$ans"
+}
+
+# do ENV() substitution on an entire file
+#
+_do_env_file()
+{
+    local line
+    local lineno=1
+    while read line
+    do
+	echo `_do_env_subst "$line" $lineno`
+	lineno=`expr $lineno + 1`
+    done
+}
+
 # find matching hosts from command line args ...
 # 1. find control lines that contain each named host (or all hosts in the
 #    case of no hosts on the command line)
@@ -1521,6 +1593,20 @@ $1 == "'"$host"'"	{ print $4 }'`
 		echo >&2 "--- start control file ---"
 		cat >&2 $tmp/control
 		echo >&2 "--- end control file ---"
+	    fi
+	    _do_env_file <$tmp/control >$tmp/control.new
+	    if diff -q $tmp/control $tmp/control.new
+	    then
+		# no ENV() replacements
+		:
+	    else
+		mv $tmp/control.new $tmp/control
+		if $VERBOSE
+		then
+		    echo >&2 "--- start control file after ENV() substitutions ---"
+		    cat >&2 $tmp/control
+		    echo >&2 "--- end control file ---"
+		fi
 	    fi
 	    $VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
 	    $CP $tmp/control "$CONTROLDIR/$ident"

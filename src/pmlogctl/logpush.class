@@ -1,0 +1,24 @@
+# This policy file is for the logpush class, as used by the create,
+# cond-create, destroy and cond-destroy commands of pmlogctl
+#
+
+[class]
+logpush
+
+[ident]
+logpush-%h
+
+[control]
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+$version=1.1
+
+$class=logpush
+%h n n +PCP_ARCHIVE_DIR/%i -R http://ENV(PMPROXY_HOST):ENV(PMPROXY_PORT:44322) -c ENV(PMLOGGER_CONFIG:config.default) -r -v 100Mb -T24h10m
+
+[create]
+# want this policy to apply to every pmcd host
+condition(1)
+
+[destroy]
+# want this policy to apply to every pmcd host
+condition(1)
