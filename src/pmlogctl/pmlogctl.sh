@@ -989,7 +989,7 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		if [ -z "$pid" ]
 		then
 		    pid='?'
-		    state=dead
+		    [ "$state" = running ] && state=dead
 		fi
 	    else
 		pid=''

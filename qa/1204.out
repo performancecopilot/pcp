@@ -19,7 +19,7 @@ Options:
  -V, --verbose increase verbosity
  -?, --help show this usage message and exit
 
-Avaliable commands:
+Available commands:
  [-c classname] create host ...
  {-c classname|-i ident} cond-create host ...
  [-c classname] {start|stop|restart|destroy|check|status} [host ...]
@@ -27,7 +27,7 @@ Avaliable commands:
  and host may be a valid hostname or an egrep(1) pattern that matches
  the start of a hostname
 
-== -N -V create
+== -N -V create -c default
 --- start control file ---
 # created by pmlogctl on DATE
 $class=default
@@ -39,7 +39,7 @@ Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
 + PCP_BINADM_DIR/runaspcp PCP_BINADM_DIR/pmlogger_check  -c "PCP_ETC_DIR/pcp/pmlogger/control.d/localhost"
 
-== create
+== create -c default
 == status
 pmcd Host Archive Class PID State 
 localhost <archivename> default <pid> running 
@@ -47,7 +47,7 @@ localhost <archivename> default <pid> running
 pmcd Host Archive Class PID State 
 localhost <archivename> default <pid> running 
 
-== stop
+== stop -c default
 == status
 pmcd Host Archive Class PID State 
 localhost ? default ? stopped by pmlogctl
@@ -55,7 +55,7 @@ localhost ? default ? stopped by pmlogctl
 pmcd Host Archive Class PID State 
 localhost ? default ? stopped by pmlogctl
 
-== start
+== start -c default
 == status
 pmcd Host Archive Class PID State 
 localhost <archivename> default <pid> running 
@@ -63,7 +63,7 @@ localhost <archivename> default <pid> running
 pmcd Host Archive Class PID State 
 localhost <archivename> default <pid> running 
 
-== restart
+== restart -c default
 == status
 pmcd Host Archive Class PID State 
 localhost <archivename> default <pid> running 
@@ -71,19 +71,19 @@ localhost <archivename> default <pid> running
 pmcd Host Archive Class PID State 
 localhost <archivename> default <pid> running 
 
-== destroy
+== destroy -c default
 == status
 pmcd Host Archive Class PID State 
 == status localhost
 Warning: host localhost not defined in any pmlogger control file
 pmcd Host Archive Class PID State 
 
-== cond-create
+== cond-create -c pmfind
 == status
 pmcd Host Archive Class PID State 
 localhost <archivename> pmfind <pid> running 
 
-== cond-create -i 1204-foo
+== cond-create -c pmfind -i 1204-foo
 == status
 pmcd Host Archive Class PID State Instance Id
 localhost <archivename> pmfind <pid> running 1204-foo

@@ -19,7 +19,7 @@ Options:
   -V, --verbose         increase verbosity
   -?, --help            show this usage message and exit
 
-Avaliable commands:
+Available commands:
    [-c classname] create  host ...
    {-c classname|-i ident} cond-create host ...
    [-c classname] {start|stop|restart|destroy|check|status} [host ...]

@@ -14,7 +14,7 @@ pmcd Host Archive Class PID State
 localhost <archivename> <seq> <pid> running 
 
 === pmlogger won't stop ... stop case
-Looking for pmlogger using directory PCP_ARCHIVE_DIR/1215-localhost ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1215-localhost and args -c TMP.config ...
 Found PID <somepid> to stop using signal HUP
 Warning: pmlogger failed to stop for host localhost and directory PCP_ARCHIVE_DIR/1215-localhost (PID=<somepid>)
 Error: could not complete stop operation
@@ -22,7 +22,7 @@ pmcd Host Archive Class PID State
 localhost <archivename> <seq> <pid> running 
 
 === pmlogger won't stop ... restart case
-Looking for pmlogger using directory PCP_ARCHIVE_DIR/1215-localhost ...
+Looking for pmlogger using directory PCP_ARCHIVE_DIR/1215-localhost and args -c TMP.config ...
 Found PID <somepid> to stop using signal HUP
 Warning: pmlogger failed to stop for host localhost and directory PCP_ARCHIVE_DIR/1215-localhost (PID=<somepid>)
 Error: restart failed to stop host localhost in class 1215
