@@ -136,7 +136,7 @@ _save_config()
     in
 	$PCP_PMLOGGERCONTROL_PATH.d/*)
 	    _src="$1"
-	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_config.d/@'`.$seq
+	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
 	    if [ ! -d `dirname $_dst` ]
 	    then
 		if $sudo mkdir `dirname $_dst`
@@ -181,7 +181,7 @@ _restore_config()
     in
 	$PCP_PMLOGGERCONTROL_PATH.d/*)
 	    _src="$1"
-	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_config.d/@'`.$seq
+	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
 	    ;;
 	*)
 	    _src="$1"
