@@ -260,7 +260,7 @@ _do_env_subst()
 	    if [ -z "$var" ]
 	    then
 		_error "_do_env_subst: [$2] Botch: param=$param var=$var default=4default"
-		break
+		return 1
 	    fi
 	else
 	    # no ENV(...) in $ans
@@ -271,8 +271,8 @@ _do_env_subst()
 	#
 	if [ $count -ge 10 ]
 	then
-	    _warning "_do_env_subst: [$2] max ENV() expansions (10) exceeded"
-	    break
+	    _error "_do_env_subst: [$2] max ENV() expansions (10) exceeded"
+	    return 1
 	fi
 	count=`expr $count + 1`
 	# check if var has a defined value
@@ -284,11 +284,16 @@ _do_env_subst()
 	    #
 	    val="$default"
 	fi
-	[ -z "$val" ] && _warning "_do_env_vars: [$2] \$$var empty value"
+	if [ -z "$val" ]
+	then
+	    _error "_do_env_vars: [$2] \$$var empty value"
+	    return 1
+	fi
 	$VERY_VERBOSE && echo >&2 "[$2] ENV($var...) -> $val"
 	ans=`echo "$ans" | sed -e 's/\(.*\)*ENV([a-zA-Z_][^)]*)\(.*\)/\1'"$val"'\2/'`
     done
     echo "$ans"
+    return 0
 }
 
 # do ENV() substitution on an entire file
@@ -297,11 +302,20 @@ _do_env_file()
 {
     local line
     local lineno=1
+    rm -f $tmp/do_env.out
     while read line
     do
-	echo `_do_env_subst "$line" $lineno`
-	lineno=`expr $lineno + 1`
+	if _do_env_subst "$line" $lineno >>$tmp/do_env.out
+	then
+	    lineno=`expr $lineno + 1`
+	else
+	    # error reported in _do_env_subst() on stderr
+	    #
+	    return 1
+	fi
     done
+    cat $tmp/do_env.out
+    return 0
 }
 
 # find matching hosts from command line args ...
@@ -1594,30 +1608,34 @@ $1 == "'"$host"'"	{ print $4 }'`
 		cat >&2 $tmp/control
 		echo >&2 "--- end control file ---"
 	    fi
-	    _do_env_file <$tmp/control >$tmp/control.new
-	    if diff -q $tmp/control $tmp/control.new
+	    if _do_env_file <$tmp/control >$tmp/control.new
 	    then
-		# no ENV() replacements
-		:
-	    else
-		mv $tmp/control.new $tmp/control
-		if $VERBOSE
+		if diff -q $tmp/control $tmp/control.new
 		then
-		    echo >&2 "--- start control file after ENV() substitutions ---"
-		    cat >&2 $tmp/control
-		    echo >&2 "--- end control file ---"
+		    # no ENV() replacements
+		    :
+		else
+		    mv $tmp/control.new $tmp/control
+		    if $VERBOSE
+		    then
+			echo >&2 "--- start control file after ENV() substitutions ---"
+			cat >&2 $tmp/control
+			echo >&2 "--- end control file ---"
+		    fi
 		fi
-	    fi
-	    $VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
-	    $CP $tmp/control "$CONTROLDIR/$ident"
-	    $RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
-	    dir_args="`echo "$dir" | _expand_control`"
-	    args=`$PCP_AWK_PROG <$tmp/control '
+		$VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
+		$CP $tmp/control "$CONTROLDIR/$ident"
+		$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
+		dir_args="`echo "$dir" | _expand_control`"
+		args=`$PCP_AWK_PROG <$tmp/control '
 $1 == "'"$host"'"	{ printf "%s",$5
 			  for (i = 6; i <= NF; i++) printf " %s",$i
 			  print ""
 			}'`
-	    _check_started "$dir_args" "$args" || sts=1
+		_check_started "$dir_args" "$args" || sts=1
+	    else
+		_error "ENV() expansion failed for control file"
+	    fi
 	fi
     done
 

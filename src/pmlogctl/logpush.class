@@ -1,6 +1,11 @@
 # This policy file is for the logpush class, as used by the create,
 # cond-create, destroy and cond-destroy commands of pmlogctl
 #
+# Note that for create and cond-create, hostname (and hence %h) is
+# conventionally localhost or hostname(1) here, and $PMPROXY_HOST
+# identifies the remote host where pmproxy(1) is running and writing
+# the archive files
+# 
 
 [class]
 logpush
@@ -9,6 +14,9 @@ logpush
 logpush-%h
 
 [control]
+# logpush from pmcd and pmlogger on the localhost to pmproxy on
+# ENV(PMPROXY_HOST) where the archive files are stored
+
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 
@@ -16,9 +24,10 @@ $class=logpush
 %h n n +PCP_ARCHIVE_DIR/%i -R http://ENV(PMPROXY_HOST):ENV(PMPROXY_PORT:44322) -c ENV(PMLOGGER_CONFIG:config.default) -r -v 100Mb -T24h10m
 
 [create]
-# want this policy to apply to every pmcd host
+# for cond-create we want this policy to apply to every pmcd host
 condition(1)
 
 [destroy]
-# want this policy to apply to every pmcd host
+# for cond-destroy we want this policy to apply to every instance in
+# the logpush class
 condition(1)
