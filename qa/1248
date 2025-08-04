@@ -26,6 +26,7 @@ _cleanup()
     cd $here
     $sudo pmlogctl -af -c pmfind destroy localhost >>$seq_full 2>&1
     $sudo rm -rf $PCP_ETC_DIR/pcp/pmlogger/class.d/$seq.?
+    _restore_config $PCP_ETC_DIR/pcp/pmlogger/class.d
     $sudo rm -rf $tmp $tmp.*
     for dir in $seq $seq-a $seq-b $seq-c
     do
@@ -37,6 +38,19 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 localhost=`hostname`
+
+# this test requires only the pmfind policy class is in place
+#
+_save_config $PCP_ETC_DIR/pcp/pmlogger/class.d
+for policy in $PCP_ETC_DIR/pcp/pmlogger/class.d/*
+do
+    case "$policy"
+    in
+	*/pmfind)	;;
+	*)		$sudo rm -f "$policy"
+			;;
+    esac
+done
 
 _filter()
 {

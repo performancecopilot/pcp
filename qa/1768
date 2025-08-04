@@ -16,11 +16,25 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
+    _restore_config $PCP_ETC_DIR/pcp/pmlogger/class.d
     $sudo rm -rf $tmp $tmp.*
 }
 
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# this test requires only the pmfind policy class is in place
+#
+_save_config $PCP_ETC_DIR/pcp/pmlogger/class.d
+for policy in $PCP_ETC_DIR/pcp/pmlogger/class.d/*
+do
+    case "$policy"
+    in
+	*/pmfind)	;;
+	*)		$sudo rm -f "$policy"
+			;;
+    esac
+done
 
 _filter()
 {
