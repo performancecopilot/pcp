@@ -3,6 +3,7 @@ Start test key server ...
 PING
 PONG
 === checking metric scrape operation ===
+=== checking metric scrape JSON operation ===
 === checking short-fuse scrape operation ===
 === checking repeated scrape operation ===
 === checking one client making multiple requests ===

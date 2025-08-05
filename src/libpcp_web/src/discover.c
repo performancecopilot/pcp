@@ -1276,7 +1276,7 @@ pmDiscoverStreamLabel(const char *path, __pmLogLabel *label,
     __pmContext		*ctxp;
     __pmLogCtl		*lcp;
     pmDiscover 		*p;
-    sds			msg;
+    sds			msg = NULL;
     int			sts, type;
 
     mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_NEW_CONTEXTS]);
@@ -1413,7 +1413,7 @@ pmDiscoverStreamMeta(pmDiscover *p, const char *content, size_t length)
     size_t		rlen, bytes;
     char		*buf;
     __pmLogHdr		hdr;
-    sds			msg;
+    sds			msg = NULL;
 
     mmv_inc(data->map, data->metrics[DISCOVER_META_STREAMING]);
 
@@ -1512,7 +1512,7 @@ pmDiscoverStreamData(pmDiscover *p, const char *content, size_t length)
     uint32_t		buflen;
     size_t		bytes;
     char		*buf;
-    sds			msg;
+    sds			msg = NULL;
     int			sts;
 
     mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_STREAMING]);
@@ -1618,7 +1618,7 @@ process_metadata(pmDiscover *p)
     pmInResult		inresult;
     pmLabelSet		*labelset = NULL;
     __pmLogHdr		hdr;
-    sds			msg;
+    sds			msg = NULL;
     char		*lock_path;
     int			deleted;
     struct stat		sbuf;
@@ -1892,7 +1892,7 @@ pmDiscoverInvokeCallBacks(pmDiscover *p)
     discoverModuleData	*data = getDiscoverModuleData(p->module);
     struct stat		sbuf;
     int			sts, type;
-    sds			msg;
+    sds			msg = NULL;
     sds			metaname;
 
     if (!(p->flags & DISCOVER_FLAGS_DELETED) && is_deleted(p, &sbuf))

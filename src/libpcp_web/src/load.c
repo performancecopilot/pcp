@@ -88,7 +88,7 @@ load_prepare_metric(const char *name, void *arg)
     char		pmmsg[PM_MAXERRMSGLEN];
     char		*hname;
     pmID		pmid;
-    sds			msg;
+    sds			msg = NULL;
     int			sts;
 
     if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
@@ -512,7 +512,7 @@ static int
 server_cache_series(seriesLoadBaton *baton)
 {
     char		pmmsg[PM_MAXERRMSGLEN];
-    sds			msg;
+    sds			msg = NULL;
     int			sts;
 
     if (baton->pmapi.context.type != PM_CONTEXT_ARCHIVE)
@@ -734,7 +734,7 @@ load_prepare_exclude_metric(const char *name, void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     char		pmmsg[PM_MAXERRMSGLEN];
-    sds			msg;
+    sds			msg = NULL;
     pmID		pmid;
     int			i;
     int			sts;
@@ -763,7 +763,7 @@ load_prepare_included_metrics(seriesLoadBaton *baton)
     context_t		*cp = &baton->pmapi.context;
     const char		**metrics = baton->metrics;
     char		pmmsg[PM_MAXERRMSGLEN];
-    sds			msg;
+    sds			msg = NULL;
     int			i, sts;
 
     for (i = 0; i < baton->nmetrics; i++) {
@@ -783,7 +783,7 @@ load_prepare_excluded_metrics(seriesLoadBaton *baton)
     pmSeriesModule	*module = (pmSeriesModule *)baton->module;
     seriesModuleData	*data = getSeriesModuleData(module);
     char		pmmsg[PM_MAXERRMSGLEN];
-    sds			msg;
+    sds			msg = NULL;
     int			i, sts;
     sds			exclude_metrics_option;
     sds			*patterns = NULL;
@@ -983,7 +983,7 @@ doneSeriesGetContext(seriesGetContext *context, const char *caller)
 
     if (context->error && !context->loaded) {
 	char		pmmsg[PM_MAXERRMSGLEN];
-	sds		msg;
+	sds		msg = NULL;
 
 	if (context->error == PM_ERR_EOL) {
 	    context->loaded = 1;
@@ -1177,7 +1177,7 @@ series_load(pmSeriesSettings *settings,
 {
     seriesLoadBaton	*baton;
     seriesModuleData	*data = getSeriesModuleData(&settings->module);
-    sds			msg;
+    sds			msg = NULL;
     int			i;
 
     if (data == NULL)
@@ -1249,7 +1249,7 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     discoverModuleData	*data = getDiscoverModuleData(module);
     seriesLoadBaton	*baton;
     context_t		*cp;
-    sds			msg;
+    sds			msg = NULL;
     int			i;
 
     if (data == NULL || data->slots == NULL || data->slots->state != SLOTS_READY)
@@ -1330,7 +1330,7 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
     struct indom	*indom;
     struct instance	*instance;
     char		errmsg[PM_MAXERRMSGLEN], idbuf[64];
-    sds			msg;
+    sds			msg = NULL;
     int			i, id;
 
     if (baton == NULL || baton->slots == NULL || baton->slots->state != SLOTS_READY)
@@ -1463,7 +1463,7 @@ pmSeriesDiscoverMetric(pmDiscoverEvent *event,
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
     struct metric	*metric;
-    sds			msg;
+    sds			msg = NULL;
     int			i;
 
     if (pmDebugOptions.discovery) {
@@ -1520,7 +1520,7 @@ pmSeriesDiscoverInDom(pmDiscoverEvent *event, pmInResult *in, void *arg)
     struct domain	*domain;
     struct indom	*indom;
     pmInDom		id = in->indom;
-    sds			msg;
+    sds			msg = NULL;
     int			i;
 
     if (pmDebugOptions.discovery)

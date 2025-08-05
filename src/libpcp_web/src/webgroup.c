@@ -1007,6 +1007,7 @@ webgroup_lookup_indom(pmWebGroupSettings *settings, context_t *cp, sds name, voi
     sds			msg;
 
     if ((indom = webgroup_parse_indom(name)) == PM_INDOM_NULL) {
+	msg = NULL;
 	infofmt(msg, "failed to parse InDom %s", name);
 	moduleinfo(&settings->module, PMLOG_WARNING, msg, arg);
 	return NULL;
@@ -1969,13 +1970,13 @@ webgroup_scrape_tree(const char *prefix, struct webscrape *scrape)
 				    scrape->numnames, scrape->names,
 				    scrape->mplist, scrape->pmidlist,
 				    scrape->msg, scrape->arg);
-	for (i = 0; i < scrape->numnames; i++)
-	    sdsfree(scrape->names[i]);
-	scrape->numnames = 0;
     } else {
 	infofmt(*scrape->msg, "'%s' - %s", prefix,
 		pmErrStr_r(sts, err, sizeof(err)));
     }
+    for (i = 0; i < scrape->numnames; i++)
+	sdsfree(scrape->names[i]);
+    scrape->numnames = 0;
 
     if (sts >= 0)
 	sts = (scrape->status < 0) ? scrape->status : 0;

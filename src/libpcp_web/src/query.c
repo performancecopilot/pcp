@@ -393,6 +393,7 @@ extract_string(seriesQueryBaton *baton, pmSID series,
 	*string = sdscpylen(*string, reply->str, reply->len);
 	return 0;
     }
+    msg = NULL;
     infofmt(msg, "expected string result for %s of series %s (got %s)",
 			message, series, resp_reply_type(reply));
     batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -404,7 +405,7 @@ extract_mapping(seriesQueryBaton *baton, pmSID series,
 		respReply *reply, sds *string, const char *message)
 {
     keyMapEntry		*entry;
-    sds			msg, key;
+    sds			msg = NULL, key;
 
     if (reply->type == RESP_REPLY_STRING) {
 	key = sdsnewlen(reply->str, reply->len);
@@ -428,7 +429,7 @@ static int
 extract_sha1(seriesQueryBaton *baton, pmSID series,
 		respReply *reply, sds *sha, const char *message)
 {
-    sds			msg;
+    sds			msg = NULL;
     char		hashbuf[42];
 
     if (reply->type != RESP_REPLY_STRING) {
@@ -507,6 +508,7 @@ extract_time(seriesQueryBaton *baton, pmSID series,
 	*stamp = val;
 	return 0;
     }
+    msg = NULL;
     infofmt(msg, "expected string timestamp in series %s", series);
     batoninfo(baton, PMLOG_RESPONSE, msg);
     return -EPROTO;
@@ -572,7 +574,7 @@ series_values_reply(seriesQueryBaton *baton, sds series,
     respReply		*reply, *sample, **elements;
     timing_t		*tp = &baton->query.timing;
     int			n, sts, next, nelements;
-    sds			msg, save_timestamp;
+    sds			msg = NULL, save_timestamp;
 
     sampling.value.timestamp = sdsempty();
     sampling.value.series = sdsempty();
@@ -696,7 +698,7 @@ node_series_reply(seriesQueryBaton *baton, node_t *np, int nelements, respReply 
     unsigned char	*series;
     respReply		*reply;
     char		hashbuf[42];
-    sds			msg;
+    sds			msg = NULL;
     int			i, sts = 0;
 
     if (nelements <= 0)
@@ -934,7 +936,7 @@ node_pattern_reply(seriesQueryBaton *baton, node_t *np, const char *name,
 		int nelements, respReply **elements)
 {
     respReply		*reply, *r;
-    sds			msg, key, pattern, *matches;
+    sds			msg = NULL, key, pattern, *matches;
     char		buffer[42];
     size_t		bytes;
     unsigned int	i;
@@ -1048,6 +1050,7 @@ series_prepare_maps_pattern_reply(
     left = np->left;
 
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array for %s key \"%s\" (type=%s)",
 	    node_subtype(left), left->key, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -1171,6 +1174,7 @@ series_prepare_smembers_reply(
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_smembers_reply");
 
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array for %s set \"%s\" (type=%s)",
 		node_subtype(np->left), np->right->value,
 		resp_reply_type(reply));
@@ -1516,6 +1520,7 @@ series_query_expr_reply(keyClusterAsyncContext *c, void *r, void *arg)
     seriesBatonCheckMagic(sid, MAGIC_SID, "series_query_expr_reply");
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_expr_reply");
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array of one string element (got %zu) from series %s %s (type=%s)",
 		reply->elements, sid->name, HMGET, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -1548,6 +1553,7 @@ series_prepare_time_reply(
     seriesBatonCheckMagic(sid, MAGIC_SID, "series_prepare_time_reply");
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_prepare_time_reply");
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array from %s XSTREAM values (type=%s)",
 			sid->name, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -1844,7 +1850,7 @@ series_values_store_to_node(seriesQueryBaton *baton, sds series,
     int			i, sts, next, nelements;
     int			idx_series = np->value_set.num_series;
     int			idx_sample = 0;
-    sds			msg, save_timestamp;
+    sds			msg = NULL, save_timestamp;
 
     sampling.value.timestamp = sdsempty();
     sampling.value.series = sdsempty();
@@ -1970,6 +1976,7 @@ extract_series_desc(seriesQueryBaton *baton, pmSID series,
     sds			msg;
 
     if (nelements < 6) {
+	msg = NULL;
 	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
@@ -2009,6 +2016,7 @@ extract_series_node_desc(seriesQueryBaton *baton, pmSID series,
     sds			msg;
 
     if (nelements < 4 || elements[0]->type == RESP_REPLY_NIL) {
+	msg = NULL;
 	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
@@ -2048,6 +2056,7 @@ series_node_get_desc_reply(
     desc->units = sdsempty();
 
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array type from series %s %s (type=%s)",
 		sample_set->sid->name, HMGET, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -2086,7 +2095,7 @@ series_store_metric_name(seriesQueryBaton *baton, series_sample_set_t *sample_se
 {
     keyMapEntry	*entry;
     respReply		*reply;
-    sds			msg, key;
+    sds			msg = NULL, key;
     unsigned int	i;
     int			sts = 0;
 
@@ -2123,7 +2132,7 @@ series_node_get_metric_name_reply(
     seriesQueryBaton		*baton = (seriesQueryBaton *)sample_set->baton;
     respReply			*reply = r;
     int				sts;
-    sds				msg;
+    sds				msg = NULL;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_node_get_metric_name_reply");
 
@@ -2167,7 +2176,7 @@ series_node_prepare_time_reply(
     node_t			*np = (node_t *)arg;
     seriesQueryBaton		*baton = (seriesQueryBaton *)np->baton;
     respReply			*reply = r;
-    sds				msg;
+    sds				msg = NULL;
     int				idx = np->value_set.num_series;
     seriesGetSID		*sid = np->value_set.series_values[idx].sid;
 
@@ -2619,7 +2628,7 @@ series_calculate_rate(node_t *np, void *arg)
     unsigned int	n_instances, n_samples, i, j, k;
     double		s_data, t_data, mult;
     char		str[256];
-    sds			msg, expr;
+    sds			msg = NULL, expr;
     int			sts;
     pmUnits		units = {0};
 
@@ -2704,7 +2713,7 @@ series_calculate_time_domain_max(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		max_data, data;
     int			max_pointer;
-    sds			msg;
+    sds			msg = NULL;
     pmSeriesValue	inst;
 
     n_series = np->left->value_set.num_series;
@@ -2769,7 +2778,7 @@ series_calculate_max(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		max_data, data;
     int			max_pointer;
-    sds			msg;
+    sds			msg = NULL;
 
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
@@ -2833,7 +2842,7 @@ series_calculate_time_domain_min(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		min_data, data;
     int			min_pointer;
-    sds			msg;
+    sds			msg = NULL;
     pmSeriesValue	inst;
 
     n_series = np->left->value_set.num_series;
@@ -2898,7 +2907,7 @@ series_calculate_min(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		min_data, data;
     int			min_pointer;
-    sds			msg;
+    sds			msg = NULL;
 
     n_series = np->left->value_set.num_series;
     np->value_set.num_series = n_series;
@@ -3057,7 +3066,7 @@ series_calculate_rescale(node_t *np, void *arg)
     char		*errmsg, str_val[256];
     pmAtomValue		ival, oval;
     int			type, sts, str_len, i, j, k;
-    sds			msg;
+    sds			msg = NULL;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -3150,7 +3159,7 @@ series_calculate_abs(node_t *np, void *arg)
     pmAtomValue		val;
     int			type, sts, str_len, i, j, k;
     char		str_val[256];
-    sds			msg;
+    sds			msg = NULL;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -3191,7 +3200,7 @@ series_calculate_time_domain_topk(node_t *np, void *arg)
 {
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     unsigned int	n_series, n_samples, n_instances, i, j, k, l;
-    sds			msg;
+    sds			msg = NULL;
     pmSeriesValue	inst;
     int			n, ind;
     double		data;
@@ -3281,7 +3290,7 @@ series_calculate_topk(node_t *np, void *arg)
     int 		n, ind;
     double		*topk_data;
     int			*topk_pointer;
-    sds			msg;
+    sds			msg = NULL;
     pmSeriesValue	inst;
 
     n_series = np->left->value_set.num_series;
@@ -3363,7 +3372,7 @@ series_calculate_time_domain_standard_deviation(node_t *np, void *arg)
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		sum_data, mean, sd, data;
-    sds			msg;
+    sds			msg = NULL;
     pmSeriesValue	inst;
     char		stdev[64];
 
@@ -3432,7 +3441,7 @@ series_calculate_standard_deviation(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		sum_data, data, sd, mean;
     char		stdev[64];
-    sds			msg;
+    sds			msg = NULL;
     pmSeriesValue       inst;
 
     n_series = np->left->value_set.num_series;
@@ -3497,7 +3506,7 @@ series_calculate_time_domain_nth_percentile(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k, l, m;
     int			n, instance_idx, rank, *n_pointer;
     double              *n_data, data, rank_d;
-    sds			msg;
+    sds			msg = NULL;
     pmSeriesValue       inst;
 
     sscanf(np->right->value, "%d", &n);
@@ -3578,7 +3587,7 @@ series_calculate_nth_percentile(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k, l, m;
     int			n, instance_idx, rank, *n_pointer;
     double              *n_data, data, rank_d;
-    sds			msg;
+    sds			msg = NULL;
     pmSeriesValue       inst;
 
     sscanf(np->right->value, "%d", &n);
@@ -3660,7 +3669,7 @@ series_calculate_time_domain_statistical(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		sum_data, data;
     char		sum_data_str[64];
-    sds			msg;
+    sds			msg = NULL;
 
     assert(func == N_SUM_SAMPLE || func == N_AVG_SAMPLE);
 
@@ -3742,7 +3751,7 @@ series_calculate_statistical(node_t *np, void *arg)
     unsigned int	n_series, n_samples, n_instances, i, j, k;
     double		sum_data, data;
     char		sum_data_str[64];
-    sds			msg;
+    sds			msg = NULL;
 
     assert(func == N_SUM || func == N_AVG || func == N_SUM_INST || func == N_AVG_INST);
 
@@ -3849,7 +3858,7 @@ series_calculate_floor(node_t *np, void *arg)
     pmAtomValue		val;
     int			type, sts, str_len, i, j, k;
     char		str_val[256];
-    sds			msg;
+    sds			msg = NULL;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -3936,7 +3945,7 @@ series_calculate_log(node_t *np, void *arg)
     int			i, j, k, itype, otype=PM_TYPE_UNKNOWN;
     int			sts, str_len, is_natural_log;
     char		str_val[256];
-    sds			msg;
+    sds			msg = NULL;
 
 
     if (np->right != NULL) {
@@ -4029,7 +4038,7 @@ series_calculate_sqrt(node_t *np, void *arg)
     int			i, j, k, itype, otype=PM_TYPE_UNKNOWN;
     int			sts, str_len;
     char		str_val[256];
-    sds			msg;
+    sds			msg = NULL;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -4097,7 +4106,7 @@ series_calculate_round(node_t *np, void *arg)
     pmAtomValue		val;
     int			i, j, k, type, sts, str_len;
     char		str_val[256];
-    sds			msg;
+    sds			msg = NULL;
 
     np->value_set = np->left->value_set;
     for (i = 0; i < np->value_set.num_series; i++) {
@@ -4149,7 +4158,7 @@ series_calculate_binary_check(int ope_type, seriesQueryBaton *baton,
 	int *l_sem, int *r_sem, pmUnits *l_units, pmUnits *r_units,
 	pmUnits *large_units, sds l_indom, sds r_indom)
 {
-    sds			msg;
+    sds			msg = NULL;
     int			num_samples;
     double		mult;
     char		*errmsg = NULL;
@@ -4504,7 +4513,7 @@ series_calculate_plus(node_t *np, void *arg)
     unsigned int	num_samples, num_instances;
     pmAtomValue		l_val, r_val;
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
-    sds			msg;
+    sds			msg = NULL;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
 	return;
@@ -4556,7 +4565,7 @@ series_calculate_minus(node_t *np, void *arg)
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
     int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
     int			l_sem, r_sem;
-    sds			msg;
+    sds			msg = NULL;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
 	return;
@@ -4608,7 +4617,7 @@ series_calculate_star(node_t *np, void *arg)
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
     int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
     int			l_sem, r_sem, int_operand, is_int;
-    sds			msg;
+    sds			msg = NULL;
     double		data, double_operand;
     char		new_data[64];
 
@@ -4713,7 +4722,7 @@ series_calculate_slash(node_t *np, void *arg)
     pmUnits		l_units = {0}, r_units = {0}, large_units = {0};
     int			l_type, r_type, otype=PM_TYPE_UNKNOWN;
     int			l_sem, r_sem;
-    sds			msg;
+    sds			msg = NULL;
 
     if (left->value_set.num_series == 0 || right->value_set.num_series == 0)
 	return;
@@ -4925,7 +4934,7 @@ static void
 series_key_hash_expression(seriesQueryBaton *baton, char *hashbuf, int len_hashbuf)
 {
     unsigned char	hash[20];
-    sds			key, msg;
+    sds			key, msg = NULL;
     char		*errmsg;
     node_t		*np = baton->query.root;
     int			i, j, num_series = np->value_set.num_series;
@@ -5193,7 +5202,7 @@ static void
 reverse_map(seriesQueryBaton *baton, keyMap *map, int nkeys, respReply **elements)
 {
     respReply		*name, *hash;
-    sds			msg, key, val;
+    sds			msg = NULL, key, val;
     unsigned int	i;
 
     for (i = 0; i < nkeys; i += 2) {
@@ -5233,6 +5242,7 @@ series_map_lookup_expr_reply(keyClusterAsyncContext *c, void *r, void *arg)
     seriesBatonCheckMagic(sid, MAGIC_SID, "series_map_lookup_expr_reply");
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_map_lookup_expr_reply");
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY || reply->elements == 0)) {
+	msg = NULL;
 	infofmt(msg, "expected array of one string element (got %zu) from series %s %s (type=%s)",
 		reply->elements, sid->name, HMGET, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -5279,7 +5289,7 @@ series_map_reply(seriesQueryBaton *baton, sds series,
 {
     keyMapEntry	*entry;
     respReply		*reply;
-    sds			msg, key;
+    sds			msg = NULL, key;
     unsigned int	i;
     int			sts = 0;
 
@@ -5323,7 +5333,7 @@ series_map_keys_callback(
     seriesQueryBaton	*baton = (seriesQueryBaton *)arg;
     respReply		*reply = r;
     respReply		*child;
-    sds			val, msg;
+    sds			val, msg = NULL;
     unsigned int	i;
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_map_keys_callback");
@@ -5380,9 +5390,9 @@ series_label_value_reply(
     seriesGetLabelMap	*value = (seriesGetLabelMap *)arg;
     seriesQueryBaton	*baton = (seriesQueryBaton *)value->baton;
     respReply		*reply = r;
-    keyMapEntry	*entry;
+    keyMapEntry		*entry;
     pmSeriesLabel	label;
-    sds			msg;
+    sds			msg = NULL;
 
     seriesBatonCheckMagic(value, MAGIC_LABELMAP, "series_label_value_reply");
 
@@ -5425,7 +5435,7 @@ series_label_reply(seriesQueryBaton *baton, sds series,
     respReply		*reply;
     keyMap		*vmap;
     char		hashbuf[42];
-    sds			msg, key, cmd, name, vkey, nmapID, vmapID;
+    sds			msg = NULL, key, cmd, name, vkey, nmapID, vmapID;
     unsigned int	i, index;
     int			sts = 0;
 
@@ -5516,6 +5526,7 @@ series_lookup_labels_callback(
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_labels_callback");
 
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array from %s %s:%s (type=%s)",
 		HGETALL, "pcp:labelvalue:series", sid->name,
 		resp_reply_type(reply));
@@ -5596,7 +5607,7 @@ series_lookup_labelvalues_callback(
     respReply		*child;
     pmSeriesLabel	label;
     unsigned int	i;
-    sds			msg;
+    sds			msg = NULL;
 
     seriesBatonCheckMagic(sid, MAGIC_SID, "series_lookup_labelvalues_callback");
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_lookup_labelvalues_callback");
@@ -5704,6 +5715,7 @@ key_series_desc_reply(
     desc.units = sdsempty();
 
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array type from series %s %s (type=%s)",
 		sid->name, HMGET, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -5790,6 +5802,7 @@ extract_series_inst(seriesQueryBaton *baton, seriesGetSID *sid,
     sds			msg, series = sid->metric;
 
     if (nelements < 3) {
+	msg = NULL;
 	infofmt(msg, "bad reply from %s %s (%d)", series, HMGET, nelements);
 	batoninfo(baton, PMLOG_RESPONSE, msg);
 	return -EPROTO;
@@ -5827,6 +5840,7 @@ series_instances_reply_callback(
     inst.series = sdsempty();
 
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array from series %s %s (type=%s)",
 		HMGET, sid->name, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -5907,6 +5921,7 @@ series_inst_expr_reply(keyClusterAsyncContext *c, void *r, void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_inst_expr_reply");
 
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array of one string element (got %zu) from series %s %s (type=%s)",
 	    reply->elements, sid->name, HMGET, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -5963,6 +5978,7 @@ series_lookup_instances_callback(
 	    sdsfree(exprcmd);
 	}
     } else {
+	msg = NULL;
 	infofmt(msg, "expected array from series %s %s (type=%s)",
 		SMEMBERS, sid->name, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -6041,6 +6057,7 @@ key_lookup_mapping_callback(
     if (LIKELY(reply && reply->type == RESP_REPLY_ARRAY)) {
 	reverse_map(baton, baton->lookup.map, reply->elements, reply->element);
     } else {
+	msg = NULL;
 	infofmt(msg, "expected array from %s %s (type=%s)",
 	    HGETALL, "pcp:map:context.name", resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -6084,6 +6101,7 @@ series_query_mapping_callback(
     if (LIKELY(reply && reply->type == RESP_REPLY_ARRAY)) {
 	reverse_map(baton, namesmap, reply->elements, reply->element);
     } else {
+	msg = NULL;
 	infofmt(msg, "expected array from %s %s (type=%s)",
 	    HGETALL, "pcp:map:context.name", resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -6169,6 +6187,7 @@ key_get_sid_callback(
 
     /* unpack - extract names for this source via context name map */
     if (UNLIKELY(reply == NULL || reply->type != RESP_REPLY_ARRAY)) {
+	msg = NULL;
 	infofmt(msg, "expected array from %s %s (type=%s)",
 		SMEMBERS, sid->name, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -6300,6 +6319,7 @@ parsedelta(seriesQueryBaton *baton, sds string, struct timespec *result, const c
     int			sts;
 
     if ((sts = pmParseInterval(string, result, &error)) < 0) {
+	msg = NULL;
 	infofmt(msg, "Cannot parse time %s with %s:\n%s",
 		source, "pmParseInterval", error);
 	batoninfo(baton, PMLOG_ERROR, msg);
@@ -6318,6 +6338,7 @@ parsetime(seriesQueryBaton *baton, sds string, struct timespec *result, const ch
     int			sts;
 
     if ((sts = __pmtimespecParse(string, &start, &end, result, &error)) < 0) {
+	msg = NULL;
 	infofmt(msg, "Cannot parse time %s with %s:\n%s",
 		source, "__pmtimespecParse", error);
 	batoninfo(baton, PMLOG_ERROR, msg);
@@ -6335,6 +6356,7 @@ parseuint(seriesQueryBaton *baton, sds string, unsigned int *vp, const char *sou
 
     value = (unsigned int)strtoul(string, &endnum, 10);
     if (*endnum != '\0') {
+	msg = NULL;
 	infofmt(msg, "Invalid sample %s requested - %s", source, string);
 	batoninfo(baton, PMLOG_ERROR, msg);
 	baton->error = -EINVAL;
@@ -6351,6 +6373,7 @@ parsezone(seriesQueryBaton *baton, sds string, int *zone, const char *source)
     int			sts;
 
     if ((sts = pmNewZone(string)) < 0) {
+	msg = NULL;
 	infofmt(msg, "Cannot parse %s with pmNewZone:\n%s - %s",
 		source, string, pmErrStr_r(sts, error, sizeof(error)));
 	batoninfo(baton, PMLOG_ERROR, msg);
@@ -6365,7 +6388,7 @@ parseseries(seriesQueryBaton *baton, sds series, unsigned char *result)
 {
     unsigned int	i, off;
     char		*endptr, tuple[3] = {0};
-    sds			msg;
+    sds			msg = NULL;
 
     for (i = 0; i < 20; i++) {
 	off = i * 2;

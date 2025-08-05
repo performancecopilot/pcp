@@ -653,7 +653,7 @@ series_label_mapping_fail(seriesname_t *series, int sts, seriesLoadBaton *baton)
 {
     char			pmmsg[PM_MAXERRMSGLEN];
     char			hashbuf[42];
-    sds				msg;
+    sds				msg = NULL;
 
     pmwebapi_hash_str(series->hash, hashbuf, sizeof(hashbuf));
     infofmt(msg, "Cannot merge metric %s [%s] label set: %s", hashbuf,
@@ -1039,6 +1039,7 @@ keys_series_stream_callback(
 	// duplicate streams can happen when pmproxy is restarted and discovery
 	// re-adds a part of the archive; only show warnings in desperate mode
 	if (UNLIKELY(pmDebugOptions.desperate)) {
+	    msg = NULL;
 	    infofmt(msg, "duplicate or early stream %s insert at time %s",
 		baton->hash, baton->stamp);
 	    batoninfo(baton, PMLOG_DEBUG, msg);
@@ -1174,7 +1175,7 @@ keys_update_version_callback(
 	keyClusterAsyncContext *c, void *r, void *arg)
 {
     keySlotsBaton	*baton = (keySlotsBaton *)arg;
-    respReply          *reply = r;
+    respReply		*reply = r;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "keys_update_version_callback");
     checkStatusReplyOK(baton->info, baton->userdata, c, reply,
@@ -1207,7 +1208,7 @@ keys_load_series_version_callback(
     keySlotsBaton	*baton = (keySlotsBaton *)arg;
     respReply          *reply = r;
     unsigned int	version = 0;
-    sds			msg;
+    sds			msg = NULL;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "keys_load_series_version_callback");
 
@@ -1269,7 +1270,7 @@ keys_load_version_callback(
     unsigned int	server_version = 0;
     size_t		l;
     char		*endnum;
-    sds			msg;
+    sds			msg = NULL;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "keys_load_version_callback");	
     if (!reply) {
@@ -1350,6 +1351,7 @@ decodeCommandKey(keySlotsBaton *baton, int index, respReply *reply)
      * a setup with more than one server (cluster or otherwise).
      */
     if (reply->elements < 6) {
+	msg = NULL;
 	infofmt(msg, "bad reply %s[%d] response (%lld elements)",
 			COMMAND, index, (long long)reply->elements);
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -1381,7 +1383,7 @@ keys_load_keymap_callback(
     keySlotsBaton	*baton = (keySlotsBaton *)arg;
     respReply		*reply = r;
     respReply		*command;
-    sds			msg;
+    sds			msg = NULL;
     int			i;
 
     seriesBatonCheckMagic(baton, MAGIC_SLOTS, "keys_load_keymap_callback");
@@ -1433,6 +1435,7 @@ keysSchemaLoad(keySlots *slots, keySlotsFlags flags,
 
     baton = (keySlotsBaton *)calloc(1, sizeof(keySlotsBaton));
     if (baton == NULL) {
+	msg = NULL;
 	infofmt(msg, "Failed to allocate memory for key slots baton");
 	info(PMLOG_ERROR, msg, arg);
 	sdsfree(msg);
