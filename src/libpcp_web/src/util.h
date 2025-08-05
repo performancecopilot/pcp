@@ -114,7 +114,7 @@ extern void pmwebapi_release_value(int, pmAtomValue *);
  * Generally useful sds buffer formatting and diagnostics callback macros
  */
 #define infofmt(msg, fmt, ...)	\
-	((msg) = sdscatprintf(sdsempty(), fmt, ##__VA_ARGS__))
+	((msg) = sdscatprintf((msg)?(msg):sdsempty(), fmt, ##__VA_ARGS__))
 #define batoninfo(baton, level, msg)	\
 	((baton)->info((level), (msg), (baton)->userdata), sdsfree(msg))
 #define moduleinfo(module, level, msg, data)	\

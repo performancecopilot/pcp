@@ -385,6 +385,7 @@ keySlotsConnect(dict *config, keySlotsFlags flags,
 
     slots = keySlotsInit(config, events);
     if (slots == NULL) {
+	msg = NULL;
 	infofmt(msg, "Failed to allocate memory for key server slots");
 	info(PMLOG_ERROR, msg, arg);
 	sdsfree(msg);
@@ -644,7 +645,7 @@ keySlotsProxyConnect(keySlots *slots, keysInfoCallBack info,
     dictEntry		*entry;
     size_t		replyStartPosition;
     long long		position;
-    sds			cmd, msg;
+    sds			cmd, msg = NULL;
     int			hasKey;
     int			sts;
 
