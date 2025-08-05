@@ -797,7 +797,7 @@ pmDiscoverInvokeInDomCallBacks(pmDiscover *p, int type, __pmTimestamp *tsp, pmIn
     pmDiscoverEvent	event;
     char		buf[32], inbuf[32];
     int			i, sts = 0;
-    int			save_debug;
+    int			save_debug = 0;
     pmInResult		full;			/* undelta'd indom */
 
     if (pmDebugOptions.discovery) {
