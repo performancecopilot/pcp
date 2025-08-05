@@ -30,6 +30,7 @@ _filter()
 	-e '/^__pmLogLoadMeta(/s/acp=0x[0-9a-f][0-9a-f]* /acp=ADDR) /' \
 	-e '/^logFree/{
 s/hcp=0x[0-9a-f][0-9a-f]* /hcp=ADDR /
+s/next=0x0 /next=(nil) /
 s/next=0x[0-9a-f][0-9a-f]* /next=ADDR /
 }' \
     # end
