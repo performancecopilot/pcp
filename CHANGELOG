@@ -10,6 +10,7 @@ pcp-7.0.0 (1 September 2025)
 	pmdaopenmetrics: allow configuration files with epoch times
 	pmdapodman: fix container name/command handling in new podman
 	pmdahacluster: additional pacemaker node metrics
+	pmdasmart: add smart.wwid.* metrics with drive UUID for indom
 	pmdammv: support empty instance domains and dynamic map resets
 	pmdammv: export instance domain help text when requested
     - Server-side utilities and log management scripts:
