@@ -52,7 +52,7 @@ sleep 3
 nc localhost $port >$tmp.nc.out 2>$tmp.nc.err &
 pid=$!
 sleep 2
-$signal $pid 2>/dev/null
+$signal $pid >>$seq_full 2>&1
 wait
 # some nc(1) variants chatter a bit, filter out lines like
 # nc: using stream socket

@@ -27,6 +27,7 @@ install : default
 	$(INSTALL) -m 755 pmlogctl.sh $(PCP_BIN_DIR)/pmiectl$(SHELLSUFFIX)
 	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pcp/pmlogger/class.d
 	$(INSTALL) -m 644 pmlogger-pmfind.class $(PCP_ETC_DIR)/pcp/pmlogger/class.d/pmfind
+	$(INSTALL) -m 644 logpush.class $(PCP_ETC_DIR)/pcp/pmlogger/class.d/logpush
 	$(INSTALL) -m 755 -d $(PCP_ETC_DIR)/pcp/pmie/class.d
 	$(INSTALL) -m 644 pmie-pmfind.class $(PCP_ETC_DIR)/pcp/pmie/class.d/pmfind
 

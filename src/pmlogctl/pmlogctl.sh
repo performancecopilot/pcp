@@ -220,7 +220,7 @@ _usage()
                         [default/'
     cat >&2 <<End-of-File
 
-Avaliable commands:
+Available commands:
    [-c classname] create  host ...
    {-c classname|-i ident} cond-create host ...
    [-c classname] {start|stop|restart|destroy|check|status} [host ...]
@@ -230,6 +230,92 @@ Avaliable commands:
 End-of-File
     status=1
     exit
+}
+
+# expand (possibly nested) ENV(VAR[:default]) strings from $1 into $VAR
+# (assumed to be from the environment)
+# $2 is lineno
+#
+_do_env_subst()
+{
+    local ans="$1"
+    local count=0
+    local val
+    while true
+    do
+	if echo "$ans" | grep -q 'ENV([a-zA-Z_][^)]*)'
+	then
+	    # $ans contains at least one ENV(...) so extract the <param>
+	    # in the first ENV(<parame>) instance
+	    #
+	    local param=`echo "$ans" | sed -n -e 's/.*ENV(\([a-zA-Z_][^)]*\)).*/\1/p'`
+	    if echo "$param" | grep -q ':'
+	    then
+		local var=`echo "$param" | sed -e 's/:.*//'`
+		local default=`echo "$param" | sed -e 's/.*://'`
+	    else
+		local var="$param"
+		local default=''
+	    fi
+	    if [ -z "$var" ]
+	    then
+		_error "_do_env_subst: [$2] Botch: param=$param var=$var default=4default"
+		return 1
+	    fi
+	else
+	    # no ENV(...) in $ans
+	    #
+	    break
+	fi
+	# guard against recursion and limit number of expansions
+	#
+	if [ $count -ge 10 ]
+	then
+	    _error "_do_env_subst: [$2] max ENV() expansions (10) exceeded"
+	    return 1
+	fi
+	count=`expr $count + 1`
+	# check if var has a defined value
+	#
+	eval val="\$$var"
+	if [ -z "$val" -a -n "$default" ]
+	then
+	    # no value, but :default so use that
+	    #
+	    val="$default"
+	fi
+	if [ -z "$val" ]
+	then
+	    _error "_do_env_vars: [$2] \$$var empty value"
+	    return 1
+	fi
+	$VERY_VERBOSE && echo >&2 "[$2] ENV($var...) -> $val"
+	ans=`echo "$ans" | sed -e 's/\(.*\)*ENV([a-zA-Z_][^)]*)\(.*\)/\1'"$val"'\2/'`
+    done
+    echo "$ans"
+    return 0
+}
+
+# do ENV() substitution on an entire file
+#
+_do_env_file()
+{
+    local line
+    local lineno=1
+    rm -f $tmp/do_env.out
+    while read line
+    do
+	if _do_env_subst "$line" $lineno >>$tmp/do_env.out
+	then
+	    lineno=`expr $lineno + 1`
+	else
+	    # error reported in _do_env_subst() on stderr
+	    #
+	    return 1
+	fi
+    done
+    cat $tmp/do_env.out
+    return 0
 }
 
 # find matching hosts from command line args ...
@@ -479,11 +565,11 @@ _get_matching_hosts()
 	if $VERY_VERBOSE
 	then
 	    echo >&2 "_get_matching_hosts results:"
-	    echo >&2 "# control class host dir"
+	    echo >&2 "# control class host dir args"
 	    cat $tmp/args \
 	    | while read control class host primary socks dir other
 	    do
-		echo >&2 "$control $class $host $dir"
+		echo >&2 "$control $class $host $dir $args"
 	    done
 	    echo >&2 "# end"
 	fi
@@ -530,12 +616,32 @@ want == 1		{ print }'
 }
 
 # find the PID for the ${IAM} that is dinking in the $1 directory
+# with $2 args
 #
 _get_pid()
 {
+    dir="$1"
     if [ ${IAM} = pmlogger ]
     then
-	_egrep -rl "^$1/[^/]*$" $PCP_TMP_DIR/${IAM} \
+	case "$dir"
+	in
+	    +*)
+		# map file contains URL from something like
+		# -R http://bozo.localdomain:44322 in the args
+		#
+		pat=`echo "$2" \
+		     | sed -e 's/.* -R *//' -e 's/ .*//'`
+		;;
+	    *)
+		pat="$dir/[^/]*"
+		;;
+	esac
+	if [ -z "$pat" ]
+	then
+	    _error "Botch: _get_pid \"$1\" \"$2\" -> empty pattern"
+	    return
+	fi
+	_egrep -rl "^$pat\$" $PCP_TMP_DIR/${IAM} \
 	| sed -e 's;.*/;;' \
 	| grep -f $tmp/pids
     else
@@ -621,20 +727,22 @@ _diagnose()
 #
 # $1 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
 #      not a possibly sybolic path from a control file)
+# $2 = args from control file
 #
 _check_started()
 {
     $SHOWME && return 0
     dir="$1"
+    args="$2"
     max=600		# 1/10 of a second, so 1 minute max
     i=0
-    $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "Started? ""$PCP_ECHO_C"
+    $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "Started? dir=$dir args=$args ""$PCP_ECHO_C"
     while [ $i -lt $max ]
     do
 	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N ".""$PCP_ECHO_C"
 	# rebuild active pids list, then check for our $dir
 	_get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
-	pid=`_get_pid "$dir"`
+	pid=`_get_pid "$dir" "$args"`
 	[ -n "$pid" ] && break
 	i=`expr $i + 1`
 	pmsleep 0.1
@@ -662,11 +770,13 @@ _check_started()
 #
 # $1 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
 #      not a possibly symbolic path from a control file)
+# $2 = args from control file
 #
 _check_stopped()
 {
     $SHOWME && return 0
     dir="$1"
+    args="$2"
     max=50		# 1/10 of a second, so 5 secs max
     i=0
     $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "Stopped? ""$PCP_ECHO_C"
@@ -675,7 +785,7 @@ _check_stopped()
 	$VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N ".""$PCP_ECHO_C"
 	# rebuild active pids list, then check for our $dir
 	_get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
-	pid=`_get_pid "$dir"`
+	pid=`_get_pid "$dir" "$args"`
 	[ -z "$pid" ] && break
 	i=`expr $i + 1`
 	pmsleep 0.1
@@ -859,20 +969,42 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 	    evals=''
 	    if [ ${IAM} = pmlogger ]
 	    then
-		archive=`grep "^$dir/[^/]*$" $tmp/archive \
-			 | sed -e 's;.*/;;'`
+		case "$dir"
+		in
+		    +*)
+			dir=`echo "$dir" | sed -e 's/^+//'`
+			archive=`echo "$args" \
+				 | sed -e 's/.* -R *//' -e 's/ .*//'`
+			report_archive="`echo $archive \
+					 | sed -e 's@http://@>@' -e 's/:[0-9]*$//'`"
+			pid=`_egrep -rl "^$archive\$" $PCP_TMP_DIR/${IAM} \
+			     | sed -e 's;.*/;;' \
+			     | grep -f $tmp/pids`
+			;;
+		    *)
+			archive=`grep "^$dir/[^/]*\$" $tmp/archive \
+				 | sed -e 's;.*/;;'`
+			report_archive="$archive"
+			pid=`_egrep -rl "^$dir/[^/]*\$" $PCP_TMP_DIR/${IAM} \
+			     | sed -e 's;.*/;;' \
+			     | grep -f $tmp/pids`
+			;;
+		esac
 		check=`echo "$archive" | wc -l | sed -e 's/ //g'`
 		if [ "$check" -gt 1 ]
 		then
 		    cat >&2 $tmp/archive
 		    ls >&2 -l $PCP_TMP_DIR/${IAM}
 		    _error "Botch: more than one archive matches directory $dir"
+		    # NOTREACHED
 		fi
-		pid=`_egrep -rl "^$dir/[^/]*$" $PCP_TMP_DIR/${IAM} \
-		     | sed -e 's;.*/;;' \
-		     | grep -f $tmp/pids`
+		archive="$report_archive"
 		[ -z "$archive" ] && archive='?'
-		[ -z "$pid" ] && pid='?'
+		if [ -z "$pid" ]
+		then
+		    pid='?'
+		    [ "$state" = running ] && state=dead
+		fi
 	    else
 		pid=''
 		rules=''
@@ -1358,7 +1490,12 @@ $1 == "'"$host"'"	{ print $4 }'`
 	$CP $tmp/control "$CONTROLDIR/$ident"
 	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
 	dir_args="`echo "$dir" | _expand_control`"
-	_check_started "$dir_args" || sts=1
+	args=`$PCP_AWK_PROG <$tmp/control '
+$1 == "'"$host"'"	{ printf "%s",$5
+			  for (i = 6; i <= NF; i++) printf " %s",$i
+			  print ""
+			}'`
+	_check_started "$dir_args" "args" || sts=1
     done
 
     return $sts
@@ -1471,11 +1608,34 @@ $1 == "'"$host"'"	{ print $4 }'`
 		cat >&2 $tmp/control
 		echo >&2 "--- end control file ---"
 	    fi
-	    $VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
-	    $CP $tmp/control "$CONTROLDIR/$ident"
-	    $RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
-	    dir_args="`echo "$dir" | _expand_control`"
-	    _check_started "$dir_args" || sts=1
+	    if _do_env_file <$tmp/control >$tmp/control.new
+	    then
+		if diff -q $tmp/control $tmp/control.new
+		then
+		    # no ENV() replacements
+		    :
+		else
+		    mv $tmp/control.new $tmp/control
+		    if $VERBOSE
+		    then
+			echo >&2 "--- start control file after ENV() substitutions ---"
+			cat >&2 $tmp/control
+			echo >&2 "--- end control file ---"
+		    fi
+		fi
+		$VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
+		$CP $tmp/control "$CONTROLDIR/$ident"
+		$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
+		dir_args="`echo "$dir" | _expand_control`"
+		args=`$PCP_AWK_PROG <$tmp/control '
+$1 == "'"$host"'"	{ printf "%s",$5
+			  for (i = 6; i <= NF; i++) printf " %s",$i
+			  print ""
+			}'`
+		_check_started "$dir_args" "$args" || sts=1
+	    else
+		_error "ENV() expansion failed for control file"
+	    fi
 	fi
     done
 
@@ -1548,8 +1708,8 @@ _do_start()
     cat $tmp/args \
     | while read control class args_host primary socks args_dir args
     do
-	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $args_dir ..."
-	pid=`_get_pid "$args_dir"`
+	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $args_dir and args $args ..."
+	pid=`_get_pid "$args_dir" "$args"`
 	if [ -n "$pid" ]
 	then
 	    $VERBOSE && echo >&2 "${IAM} PID $pid already running for host $args_host, nothing to do"
@@ -1603,7 +1763,7 @@ $1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ sub(/^#!#/,
 	fi
 	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$control\""
 
-	_check_started "$args_dir" || sts=1
+	_check_started "$args_dir" "$args" || sts=1
     done
 
     return $sts
@@ -1633,8 +1793,8 @@ _do_stop()
 	    _warning "${IAM} for host $host already stopped, nothing to do"
 	    continue
 	fi
-	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $args_dir ..."
-	pid=`_get_pid "$args_dir"`
+	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $args_dir and args $args ..."
+	pid=`_get_pid "$args_dir" "$args"`
 	if [ -z "$pid" ]
 	then
 	    _warning "cannot find PID for host $args_host ${IAM}, already exited?"
@@ -1643,7 +1803,7 @@ _do_stop()
 	    #
 	    $VERBOSE && echo >&2 "Found PID $pid to stop using signal ${PCPQA_KILL_SIGNAL-TERM}"
 	    $KILL ${PCPQA_KILL_SIGNAL-TERM} $pid
-	    if _check_stopped "$args_dir"
+	    if _check_stopped "$args_dir" "$args"
 	    then
 		:
 	    elif [ -z "$PCPQA_KILL_SIGNAL" ]
@@ -1652,7 +1812,7 @@ _do_stop()
 		#
 		$VERBOSE && echo >&2 "That didn't work, try using signal KILL"
 		$KILL KILL $pid
-		if _check_stopped "$args_dir"
+		if _check_stopped "$args_dir" "$args"
 		then
 		    :
 		else
@@ -1889,7 +2049,8 @@ FROM_COND_CREATE=false
 # don't get confused by processes that exited, but did not cleanup ...
 # build a list of runing ${IAM} processes
 #
-_get_pids_by_name ${IAM} | sed -e 's/.*/^&$/' >$tmp/pids
+_get_pids_by_name ${IAM} | tee $tmp/tmp | sed -e 's/.*/^&$/' >$tmp/pids
+$VERY_VERBOSE && echo >&2 "Running $IAM processes: `tr '\012' ' ' <$tmp/tmp`"
 
 case "$ACTION"
 in

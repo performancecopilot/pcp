@@ -73,7 +73,7 @@ echo "== Zabbix Archive ==="
 pcp2zabbix -r -t 2 -s 3 $log -c $tmp.config sample >$tmp.pcp2zabbix.out 2>$tmp.pcp2zabbix.err &   # will error out after socket cat dies
 pmpid=$!
 sleep 2
-$signal $pmpid 2>/dev/null
+$signal $pmpid >>$seq_full 2>&1
 _seq_store
 
 echo "== Zabbix server input ==="

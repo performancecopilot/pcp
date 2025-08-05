@@ -27,6 +27,7 @@ _filter()
 	-e '/^addindom(/d' \
 	-e '/^addlabel(/d' \
 	-e '/^addtext(/d' \
+	-e '/^logFree/d' \
     # end
 }
 

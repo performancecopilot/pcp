@@ -136,7 +136,7 @@ _save_config()
     in
 	$PCP_PMLOGGERCONTROL_PATH.d/*)
 	    _src="$1"
-	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_config.d/@'`.$seq
+	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
 	    if [ ! -d `dirname $_dst` ]
 	    then
 		if $sudo mkdir `dirname $_dst`
@@ -181,7 +181,7 @@ _restore_config()
     in
 	$PCP_PMLOGGERCONTROL_PATH.d/*)
 	    _src="$1"
-	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_config.d/@'`.$seq
+	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
 	    ;;
 	*)
 	    _src="$1"
@@ -848,32 +848,36 @@ _triage_pmcd()
     _systemctl_status pmcd
 }
 
-# wait_for_pmcd [maxdelay [host]]
+# wait_for_pmcd [maxdelay [host [port]]]
 #
 _wait_for_pmcd()
 {
     # 20 seconds default seems like a reasonable max time to get going
     __can_wait=${1-20}
-    if [ $# -eq 2 -a -n "$2" ]
+    if [ $# -ge 2 -a -n "$2" ]
     then
 	__host="$2"
-	__host_opt="-h $2"
+	__host_opt="$2"
     else
 	__host=localhost
-	__host_opt=''
+	__host_opt='localhost'
+    fi
+    if [ $# -ge 3 -a -n "$3" ]
+    then
+	__host_opt="$__host_opt:$3"
     fi
     __i=0
     __dead=true
     #debug# ping -c 2 $__host
-    #debug# pcp -h $__host
+    #debug# pcp -h $__host_opt
     #debug# pcp -h `hostname`
     rm -f $tmp._wait_for_pmcd.err $tmp._wait_for_pmcd.out
     while [ $__i -lt $__can_wait ]
     do
 	echo "-- $__i --" >>$tmp._wait_for_pmcd.err
 	echo "-- $__i --" >>$tmp._wait_for_pmcd.out
-	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $__host_opt pmcd.numclients
-	__sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $__host_opt pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
+	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $__host_opt pmcd.numclients
+	__sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $__host_opt pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
 	if [ "${__sts:-0}" -gt 0 ]
 	then
 	    # numval really > 0, we're done
@@ -887,14 +891,14 @@ _wait_for_pmcd()
     if $__dead
     then
 	date
-	echo "Arrgh ... pmcd at $__host failed to start after $__can_wait seconds"
+	echo "Arrgh ... pmcd at $__host_opt failed to start after $__can_wait seconds"
 	echo "=== failing pmprobes stdout ==="
 	cat $tmp._wait_for_pmcd.out
 	echo "=== failing pmprobes stderr ==="
 	cat $tmp._wait_for_pmcd.err
 	echo "... and now"
-	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $__host_opt pmcd.numclients"
-	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $__host_opt pmcd.numclients
+	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $__host_opt pmcd.numclients"
+	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $__host_opt pmcd.numclients
 	case $__host
 	in
 	    localhost|unix:|local:|`hostname`)
@@ -3357,15 +3361,23 @@ _restore_pmda_install()
 }
 
 # find a local port that is not in use, optionally starting from a suggested port
+# ... give up after 100 probes
 #
 _find_free_port()
 {
+    __count=0
     __base=$1
     [ -z "$__base" ] && __base=54321
 
     while $PCP_BINADM_DIR/telnet-probe -c localhost $__base
     do
 	__base=`expr $__base + 1`
+	if [ $__count -ge 100 ]
+	then
+	    echo >&2 "Error: _find_free_port: failed after 100 attempts (last port tried $__base)"
+	    _exit 1
+	fi
+	__count=`expr $__count + 1`
     done
     echo $__base
 }
