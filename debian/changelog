@@ -19,7 +19,7 @@ pcp (7.0.0-1) unstable; urgency=low
   * build needs python3-requests for openmetrics PMDA
   * build needs libnet-snmp-perl for snmp PMDA
 
- -- Nathan Scott <nathans@debian.org>  Thu, 31 Jul 2025 07:39:11 +1000
+ -- Nathan Scott <nathans@debian.org>  Mon, 01 Sep 2025 07:39:11 +1000
 
 pcp (6.3.3-1) unstable; urgency=low
 

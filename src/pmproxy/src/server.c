@@ -820,6 +820,7 @@ shutdown_ports(void *arg)
 	}
     }
     proxy->nservers = 0;
+    proxy->map = NULL;
 
     close_proxy(proxy);
     if (proxy->config) {
