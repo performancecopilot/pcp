@@ -65,6 +65,8 @@ do
     count=`echo $base | sed -e 's,.*-root-,,g' -e 's,.tgz$,,g'`
     cd $count/smart
 
+    export SMART_SETUP_UUID="$root/$count/smart/wwid"
+
     echo "== Checking metric descriptors and values - $base"
     pminfo -L -K clear -K add,150,$pmda -dfmtT $metrics 2>&1 \
     | _filter

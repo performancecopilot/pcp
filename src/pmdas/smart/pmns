@@ -22,6 +22,7 @@ smart {
 	nvme_info
 	nvme_attributes
 	nvme_power_states
+	wwid
 }
 
 smart.info {
@@ -32,6 +33,8 @@ smart.info {
 	sector_size		SMART:0:5
 	rotation_rate		SMART:0:6
 	firmware_version	SMART:0:7
+	uuid			SMART:0:8
+	device			SMART:0:9
 }
 
 smart.attributes {
@@ -604,4 +607,596 @@ smart.nvme_power_states.power_state_5 {
 	relative_write_throughput				SMART:262:8
 	entry_latency						SMART:262:9
 	exit_latency						SMART:262:10
+}
+
+smart.wwid {
+	info
+	attributes
+	nvme_info
+	nvme_attributes
+	nvme_power_states
+}
+
+smart.wwid.info {
+	model_family		SMART:1000:1
+	device_model		SMART:1000:2
+	serial_number		SMART:1000:3
+	capacity_bytes		SMART:1000:4
+	sector_size		SMART:1000:5
+	rotation_rate		SMART:1000:6
+	firmware_version	SMART:1000:7
+	uuid			SMART:1000:8
+	device			SMART:1000:9
+}
+
+smart.wwid.attributes {
+	raw_read_error_rate
+	throughput_performance
+	spin_up_time
+	start_stop_count
+	reallocated_sector_count
+	seek_error_count
+	seek_time_performance
+	power_on_hours
+	spin_retry_count
+	calibration_retry_count
+	power_cycle_count
+	read_soft_error_rate
+	current_helium_level
+	erase_fail_count_chip
+	wear_leveling_count
+	used_reserved_block_count_total
+	unused_reserved_block_count_total
+	program_fail_count_total
+	erase_fail_count_total
+	runtime_bad_block
+	end_to_end_error
+	reported_uncorrect
+	command_timeout
+	high_fly_writes
+	airflow_temp_celsius
+	g_sense_error_rate
+	power_off_retract_count
+	load_cycle_count
+	temperature_celsius
+	hardware_ecc_recovered
+	reallocated_event_count
+	current_pending_sector
+	offline_uncorrectable
+	udma_crc_error_count
+	multi_zone_error_rate
+	soft_read_error_rate
+	disk_shift
+	loaded_hours
+	load_retry_count
+	load_friction
+	load_cycle
+	load_in_time
+	head_flying_hours
+	total_lbas_written
+	total_lbas_read
+	read_error_retry_rate
+	free_fall_sensor
+}
+
+smart.wwid.attributes.raw_read_error_rate {
+	id			SMART:1001:0
+	value			SMART:1001:1
+	worst			SMART:1001:2
+	thresh			SMART:1001:3
+	raw			SMART:1001:4
+}
+
+smart.wwid.attributes.throughput_performance {
+	id			SMART:1002:0
+	value			SMART:1002:1
+	worst			SMART:1002:2
+	thresh			SMART:1002:3
+	raw			SMART:1002:4
+}
+
+smart.wwid.attributes.spin_up_time {
+	id			SMART:1003:0
+	value			SMART:1003:1
+	worst			SMART:1003:2
+	thresh			SMART:1003:3
+	raw			SMART:1003:4
+}
+
+smart.wwid.attributes.start_stop_count {
+	id			SMART:1004:0
+	value			SMART:1004:1
+	worst			SMART:1004:2
+	thresh			SMART:1004:3
+	raw			SMART:1004:4
+}
+
+smart.wwid.attributes.reallocated_sector_count {
+	id			SMART:1005:0
+	value			SMART:1005:1
+	worst			SMART:1005:2
+	thresh			SMART:1005:3
+	raw			SMART:1005:4
+}
+
+smart.wwid.attributes.seek_error_count {
+	id			SMART:1007:0
+	value			SMART:1007:1
+	worst			SMART:1007:2
+	thresh			SMART:1007:3
+	raw			SMART:1007:4
+}
+
+smart.wwid.attributes.seek_time_performance {
+	id			SMART:1008:0
+	value			SMART:1008:1
+	worst			SMART:1008:2
+	thresh			SMART:1008:3
+	raw			SMART:1008:4
+}
+
+smart.wwid.attributes.power_on_hours {
+	id			SMART:1009:0
+	value			SMART:1009:1
+	worst			SMART:1009:2
+	thresh			SMART:1009:3
+	raw			SMART:1009:4
+}
+
+smart.wwid.attributes.spin_retry_count {
+	id			SMART:1010:0
+	value			SMART:1010:1
+	worst			SMART:1010:2
+	thresh			SMART:1010:3
+	raw			SMART:1010:4
+}
+
+smart.wwid.attributes.calibration_retry_count {
+	id			SMART:1011:0
+	value			SMART:1011:1
+	worst			SMART:1011:2
+	thresh			SMART:1011:3
+	raw			SMART:1011:4
+}
+
+smart.wwid.attributes.power_cycle_count {
+	id			SMART:1012:0
+	value			SMART:1012:1
+	worst			SMART:1012:2
+	thresh			SMART:1012:3
+	raw			SMART:1012:4
+}
+
+smart.wwid.attributes.read_soft_error_rate {
+	id			SMART:1013:0
+	value			SMART:1013:1
+	worst			SMART:1013:2
+	thresh			SMART:1013:3
+	raw			SMART:1013:4
+}
+
+smart.wwid.attributes.current_helium_level {
+	id			SMART:1022:0
+	value			SMART:1022:1
+	worst			SMART:1022:2
+	thresh			SMART:1022:3
+	raw			SMART:1022:4
+}
+
+smart.wwid.attributes.erase_fail_count_chip {
+	id			SMART:1176:0
+	value			SMART:1176:1
+	worst			SMART:1176:2
+	thresh			SMART:1176:3
+	raw			SMART:1176:4
+}
+
+smart.wwid.attributes.wear_leveling_count {
+	id			SMART:1177:0
+	value			SMART:1177:1
+	worst			SMART:1177:2
+	thresh			SMART:1177:3
+	raw			SMART:1177:4
+}
+
+smart.wwid.attributes.used_reserved_block_count_total {
+	id			SMART:1179:0
+	value			SMART:1179:1
+	worst			SMART:1179:2
+	thresh			SMART:1179:3
+	raw			SMART:1179:4
+}
+
+smart.wwid.attributes.unused_reserved_block_count_total {
+	id			SMART:1180:0
+	value			SMART:1180:1
+	worst			SMART:1180:2
+	thresh			SMART:1180:3
+	raw			SMART:1180:4
+}
+
+smart.wwid.attributes.program_fail_count_total {
+	id			SMART:1181:0
+	value			SMART:1181:1
+	worst			SMART:1181:2
+	thresh			SMART:1181:3
+	raw			SMART:1181:4
+}
+
+smart.wwid.attributes.erase_fail_count_total {
+	id			SMART:1182:0
+	value			SMART:1182:1
+	worst			SMART:1182:2
+	thresh			SMART:1182:3
+	raw			SMART:1182:4
+}
+
+smart.wwid.attributes.runtime_bad_block {
+	id			SMART:1183:0
+	value			SMART:1183:1
+	worst			SMART:1183:2
+	thresh			SMART:1183:3
+	raw			SMART:1183:4
+}
+
+smart.wwid.attributes.end_to_end_error {
+	id			SMART:1184:0
+	value			SMART:1184:1
+	worst			SMART:1184:2
+	thresh			SMART:1184:3
+	raw			SMART:1184:4
+}
+
+smart.wwid.attributes.reported_uncorrect {
+	id			SMART:1187:0
+	value			SMART:1187:1
+	worst			SMART:1187:2
+	thresh			SMART:1187:3
+	raw			SMART:1187:4
+}
+
+smart.wwid.attributes.command_timeout {
+	id			SMART:1188:0
+	value			SMART:1188:1
+	worst			SMART:1188:2
+	thresh			SMART:1188:3
+	raw			SMART:1188:4
+}
+
+smart.wwid.attributes.high_fly_writes {
+	id			SMART:1189:0
+	value			SMART:1189:1
+	worst			SMART:1189:2
+	thresh			SMART:1189:3
+	raw			SMART:1189:4
+}
+
+smart.wwid.attributes.airflow_temp_celsius {
+	id			SMART:1190:0
+	value			SMART:1190:1
+	worst			SMART:1190:2
+	thresh			SMART:1190:3
+	raw			SMART:1190:4
+}
+
+smart.wwid.attributes.g_sense_error_rate {
+	id			SMART:1191:0
+	value			SMART:1191:1
+	worst			SMART:1191:2
+	thresh			SMART:1191:3
+	raw			SMART:1191:4
+}
+
+smart.wwid.attributes.power_off_retract_count {
+	id			SMART:1192:0
+	value			SMART:1192:1
+	worst			SMART:1192:2
+	thresh			SMART:1192:3
+	raw			SMART:1192:4
+}
+
+smart.wwid.attributes.load_cycle_count {
+	id			SMART:1193:0
+	value			SMART:1193:1
+	worst			SMART:1193:2
+	thresh			SMART:1193:3
+	raw			SMART:1193:4
+}
+
+smart.wwid.attributes.temperature_celsius {
+	id			SMART:1194:0
+	value			SMART:1194:1
+	worst			SMART:1194:2
+	thresh			SMART:1194:3
+	raw			SMART:1194:4
+}
+
+smart.wwid.attributes.hardware_ecc_recovered {
+	id			SMART:1195:0
+	value			SMART:1195:1
+	worst			SMART:1195:2
+	thresh			SMART:1195:3
+	raw			SMART:1195:4
+}
+
+smart.wwid.attributes.reallocated_event_count {
+	id			SMART:1196:0
+	value			SMART:1196:1
+	worst			SMART:1196:2
+	thresh			SMART:1196:3
+	raw			SMART:1196:4
+}
+
+smart.wwid.attributes.current_pending_sector {
+	id			SMART:1197:0
+	value			SMART:1197:1
+	worst			SMART:1197:2
+	thresh			SMART:1197:3
+	raw			SMART:1197:4
+}
+
+smart.wwid.attributes.offline_uncorrectable {
+	id			SMART:1198:0
+	value			SMART:1198:1
+	worst			SMART:1198:2
+	thresh			SMART:1198:3
+	raw			SMART:1198:4
+}
+
+smart.wwid.attributes.udma_crc_error_count {
+	id			SMART:1199:0
+	value			SMART:1199:1
+	worst			SMART:1199:2
+	thresh			SMART:1199:3
+	raw			SMART:1199:4
+}
+
+smart.wwid.attributes.multi_zone_error_rate {
+	id			SMART:1200:0
+	value			SMART:1200:1
+	worst			SMART:1200:2
+	thresh			SMART:1200:3
+	raw			SMART:1200:4
+}
+
+smart.wwid.attributes.soft_read_error_rate {
+	id			SMART:1201:0
+	value			SMART:1201:1
+	worst			SMART:1201:2
+	thresh			SMART:1201:3
+	raw			SMART:1201:4
+}
+
+smart.wwid.attributes.disk_shift {
+	id			SMART:1220:0
+	value			SMART:1220:1
+	worst			SMART:1220:2
+	thresh			SMART:1220:3
+	raw			SMART:1220:4
+}
+
+smart.wwid.attributes.loaded_hours {
+	id			SMART:1222:0
+	value			SMART:1222:1
+	worst			SMART:1222:2
+	thresh			SMART:1222:3
+	raw			SMART:1222:4
+}
+
+smart.wwid.attributes.load_retry_count {
+	id			SMART:1223:0
+	value			SMART:1223:1
+	worst			SMART:1223:2
+	thresh			SMART:1223:3
+	raw			SMART:1223:4
+}
+
+smart.wwid.attributes.load_friction {
+	id			SMART:1224:0
+	value			SMART:1224:1
+	worst			SMART:1224:2
+	thresh			SMART:1224:3
+	raw			SMART:1224:4
+}
+
+smart.wwid.attributes.load_cycle {
+	id			SMART:1225:0
+	value			SMART:1225:1
+	worst			SMART:1225:2
+	thresh			SMART:1225:3
+	raw			SMART:1225:4
+}
+
+smart.wwid.attributes.load_in_time {
+	id			SMART:1226:0
+	value			SMART:1226:1
+	worst			SMART:1226:2
+	thresh			SMART:1226:3
+	raw			SMART:1226:4
+}
+
+smart.wwid.attributes.head_flying_hours {
+	id			SMART:1240:0
+	value			SMART:1240:1
+	worst			SMART:1240:2
+	thresh			SMART:1240:3
+	raw			SMART:1240:4
+}
+
+smart.wwid.attributes.total_lbas_written {
+	id			SMART:1241:0
+	value			SMART:1241:1
+	worst			SMART:1241:2
+	thresh			SMART:1241:3
+	raw			SMART:1241:4
+}
+
+smart.wwid.attributes.total_lbas_read {
+	id			SMART:1242:0
+	value			SMART:1242:1
+	worst			SMART:1242:2
+	thresh			SMART:1242:3
+	raw			SMART:1242:4
+}
+
+smart.wwid.attributes.read_error_retry_rate {
+	id			SMART:1250:0
+	value			SMART:1250:1
+	worst			SMART:1250:2
+	thresh			SMART:1250:3
+	raw			SMART:1250:4
+}
+
+smart.wwid.attributes.free_fall_sensor {
+	id			SMART:1254:0
+	value			SMART:1254:1
+	worst			SMART:1254:2
+	thresh			SMART:1254:3
+	raw			SMART:1254:4
+}
+
+smart.wwid.nvme_info {
+	model_number						SMART:1256:0
+	serial_number						SMART:1256:1
+	firmware_version					SMART:1256:2
+	pci_vendor_subsystem_id					SMART:1256:3
+	ieee_oui_identifier					SMART:1256:4
+	total_nvm_capacity					SMART:1256:5
+	unallocated_nvm_capacity				SMART:1256:6
+	controller_id						SMART:1256:7
+	nvme_version						SMART:1256:8
+	namespace_1_capacity					SMART:1256:18
+	namespace_1_utilization					SMART:1256:19
+	namespace_1_formatted_lba_size				SMART:1256:20
+	namespace_1_ieee_eui_64					SMART:1256:21
+	namespaces						SMART:1256:9
+	firware_updates						SMART:1256:10
+	maximum_data_transfer_size				SMART:1256:11
+	warning_temp_threshold					SMART:1256:12
+	critical_temp_thresold					SMART:1256:13
+	active_power_state					SMART:1256:14
+	apst_state						SMART:1256:15
+	completion_queue_length_completion			SMART:1256:16
+	completion_queue_length_submission			SMART:1256:17
+}
+
+smart.wwid.nvme_attributes {
+	critical_warning					SMART:1255:0
+	composite_temperature					SMART:1255:1
+	available_spare						SMART:1255:2
+	available_spare_threshold				SMART:1255:3
+	percentage_used						SMART:1255:4
+	data_units_read						SMART:1255:5
+	data_units_written					SMART:1255:6
+	host_read_commands					SMART:1255:7
+	host_write_commands					SMART:1255:8
+	controller_busy_time					SMART:1255:9
+	power_cycles						SMART:1255:10
+	power_on_hours						SMART:1255:11
+	unsafe_shutdowns					SMART:1255:12
+	media_and_data_integrity_errors				SMART:1255:13
+	number_of_error_information_log_entries			SMART:1255:14
+	warning_composite_temperature_time			SMART:1255:15
+	critical_composite_temperature_time			SMART:1255:16
+	temperature_sensor_one					SMART:1255:17
+	temperature_sensor_two					SMART:1255:18
+	temperature_sensor_three				SMART:1255:19
+	temperature_sensor_four					SMART:1255:20
+	temperature_sensor_five					SMART:1255:21
+	temperature_sensor_six					SMART:1255:22
+	temperature_sensor_seven				SMART:1255:23
+	temperature_sensor_eight				SMART:1255:24
+}
+
+smart.wwid.nvme_power_states {
+	power_state_0
+	power_state_1
+	power_state_2
+	power_state_3
+	power_state_4
+	power_state_5
+}
+
+smart.wwid.nvme_power_states.power_state_0 {
+	state							SMART:1257:0
+	max_power						SMART:1257:1
+	non_operational_state					SMART:1257:2
+	active_power						SMART:1257:3
+	idle_power						SMART:1257:4
+	relative_read_latency					SMART:1257:5
+	relative_read_throughput				SMART:1257:6
+	relative_write_latency					SMART:1257:7
+	relative_write_throughput				SMART:1257:8
+	entry_latency						SMART:1257:9
+	exit_latency						SMART:1257:10
+}
+
+smart.wwid.nvme_power_states.power_state_1 {
+	state							SMART:1258:0
+	max_power						SMART:1258:1
+	non_operational_state					SMART:1258:2
+	active_power						SMART:1258:3
+	idle_power						SMART:1258:4
+	relative_read_latency					SMART:1258:5
+	relative_read_throughput				SMART:1258:6
+	relative_write_latency					SMART:1258:7
+	relative_write_throughput				SMART:1258:8
+	entry_latency						SMART:1258:9
+	exit_latency						SMART:1258:10
+}
+
+smart.wwid.nvme_power_states.power_state_2 {
+	state							SMART:1259:0
+	max_power						SMART:1259:1
+	non_operational_state					SMART:1259:2
+	active_power						SMART:1259:3
+	idle_power						SMART:1259:4
+	relative_read_latency					SMART:1259:5
+	relative_read_throughput				SMART:1259:6
+	relative_write_latency					SMART:1259:7
+	relative_write_throughput				SMART:1259:8
+	entry_latency						SMART:1259:9
+	exit_latency						SMART:1259:10
+}
+
+smart.wwid.nvme_power_states.power_state_3 {
+	state							SMART:1260:0
+	max_power						SMART:1260:1
+	non_operational_state					SMART:1260:2
+	active_power						SMART:1260:3
+	idle_power						SMART:1260:4
+	relative_read_latency					SMART:1260:5
+	relative_read_throughput				SMART:1260:6
+	relative_write_latency					SMART:1260:7
+	relative_write_throughput				SMART:1260:8
+	entry_latency						SMART:1260:9
+	exit_latency						SMART:1260:10
+}
+
+smart.wwid.nvme_power_states.power_state_4 {
+	state							SMART:1261:0
+	max_power						SMART:1261:1
+	non_operational_state					SMART:1261:2
+	active_power						SMART:1261:3
+	idle_power						SMART:1261:4
+	relative_read_latency					SMART:1261:5
+	relative_read_throughput				SMART:1261:6
+	relative_write_latency					SMART:1261:7
+	relative_write_throughput				SMART:1261:8
+	entry_latency						SMART:1261:9
+	exit_latency						SMART:1261:10
+}
+
+smart.wwid.nvme_power_states.power_state_5 {
+	state							SMART:1262:0
+	max_power						SMART:1262:1
+	non_operational_state					SMART:1262:2
+	active_power						SMART:1262:3
+	idle_power						SMART:1262:4
+	relative_read_latency					SMART:1262:5
+	relative_read_throughput				SMART:1262:6
+	relative_write_latency					SMART:1262:7
+	relative_write_throughput				SMART:1262:8
+	entry_latency						SMART:1262:9
+	exit_latency						SMART:1262:10
 }

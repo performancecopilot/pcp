@@ -26,6 +26,8 @@ enum {
 	SECTOR_SIZE,
 	ROTATION_RATE,
 	FIRMWARE_VERSION,
+	UUID,
+	DEVICE,
 	NUM_INFO_METRICS
 };
 
@@ -181,6 +183,8 @@ struct device_info {
 	char			sector_size[64];
 	char			rotation_rate[18];
 	char			firmware_version[9];
+	char			uuid[37];
+	char			device[128];
 };
 
 struct nvme_device_info {
