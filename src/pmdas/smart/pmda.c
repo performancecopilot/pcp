@@ -3007,10 +3007,12 @@ uuid_instance_refresh(void)
 	    		n = pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/device/wwid", dev_name);
 	    		if (n <= 0 || access(buffer, F_OK) != 0) /* try alternate path */
 	        		n = pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/wwid", dev_name);
-		
-	    		if (n <= 0 || access(buffer, F_OK) != 0) /* alternative path also bad */
-	        		return 0;
-	        }
+
+			if (n <= 0 || access(buffer, F_OK) != 0) { /* alternative path also bad */
+				pclose(pf);
+				return 0;
+			}
+		}
 
 	    	if (n > 0 && (fd = open(buffer, O_RDONLY)) >= 0) {
 	        	n = read(fd, buffer, sizeof(buffer));
