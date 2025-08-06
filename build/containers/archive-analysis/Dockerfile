@@ -11,12 +11,13 @@ RUN dnf remove -y selinux-policy || true
 RUN ./Makepkgs --verbose
 RUN mkdir /build && \
     cd pcp-*/build/rpm && \
+    machine=$(ls pcp-zeroconf-* | sed -E 's/pcp-zeroconf-(.+)\.(.+)\.rpm/\2/') && \
     release=$(ls pcp-zeroconf-* | sed -E 's/pcp-zeroconf-(.+)\.(.+)\.rpm/\1/') && \
     cp \
-      pcp-$release.x86_64.rpm \
-      pcp-conf-$release.x86_64.rpm \
-      pcp-libs-$release.x86_64.rpm \
-      python3-pcp-$release.x86_64.rpm \
+      pcp-$release.$machine.rpm \
+      pcp-conf-$release.$machine.rpm \
+      pcp-libs-$release.$machine.rpm \
+      python3-pcp-$release.$machine.rpm \
       /build
 
 ## Deploy

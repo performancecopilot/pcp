@@ -9,21 +9,22 @@ RUN dnf builddep -y build/rpm/redhat.spec
 RUN ./Makepkgs --verbose
 RUN mkdir /build && \
     cd pcp-*/build/rpm && \
+    machine=$(ls pcp-zeroconf-* | sed -E 's/pcp-zeroconf-(.+)\.(.+)\.rpm/\2/') && \
     release=$(ls pcp-zeroconf-* | sed -E 's/pcp-zeroconf-(.+)\.(.+)\.rpm/\1/') && \
     cp \
-      pcp-$release.x86_64.rpm \
-      pcp-conf-$release.x86_64.rpm \
+      pcp-$release.$machine.rpm \
+      pcp-conf-$release.$machine.rpm \
       pcp-doc-$release.noarch.rpm \
-      pcp-libs-$release.x86_64.rpm \
-      pcp-system-tools-$release.x86_64.rpm \
-      pcp-zeroconf-$release.x86_64.rpm \
-      pcp-pmda-bpf-$release.x86_64.rpm \
-      pcp-pmda-bpftrace-$release.x86_64.rpm \
-      pcp-pmda-dm-$release.x86_64.rpm \
-      pcp-pmda-nfsclient-$release.x86_64.rpm \
-      pcp-pmda-openmetrics-$release.x86_64.rpm \
-      pcp-pmda-opentelemetry-$release.x86_64.rpm \
-      python3-pcp-$release.x86_64.rpm \
+      pcp-libs-$release.$machine.rpm \
+      pcp-system-tools-$release.$machine.rpm \
+      pcp-zeroconf-$release.$machine.rpm \
+      pcp-pmda-bpf-$release.$machine.rpm \
+      pcp-pmda-bpftrace-$release.$machine.rpm \
+      pcp-pmda-dm-$release.$machine.rpm \
+      pcp-pmda-nfsclient-$release.$machine.rpm \
+      pcp-pmda-openmetrics-$release.$machine.rpm \
+      pcp-pmda-opentelemetry-$release.$machine.rpm \
+      python3-pcp-$release.$machine.rpm \
       /build
 
 ## Deploy
