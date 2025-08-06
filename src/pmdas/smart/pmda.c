@@ -2998,44 +2998,42 @@ uuid_instance_refresh(void)
 		/* at this point dev_name contains our device name, we now need to store
 		   this and find out the UUID for the drive. The UUID will be used to
 		   map stats to disk drive instances */
-
+		   
 		if ((env_command = getenv("SMART_SETUP_UUID")) != NULL) {
-			//pmsprintf(buffer, sizeof(buffer), "%s", env_command);
 			sscanf(env_command, "%s", buffer);
-			n = 1;
-		} else {
-	    		n = pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/device/wwid", dev_name);
-	    		if (n <= 0 || access(buffer, F_OK) != 0) /* try alternate path */
-	        		n = pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/wwid", dev_name);
-
-			if (n <= 0 || access(buffer, F_OK) != 0) { /* alternative path also bad */
+			if ((fd = open(buffer, O_RDONLY)) < 0) {
+				/* env_command path fail */
 				pclose(pf);
-				return 0;
+				return -oserror();
+			} 
+		}else {
+			pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/device/wwid", dev_name);
+			if ((fd = open(buffer, O_RDONLY)) < 0) {
+				/* try alternate path */
+				pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/wwid", dev_name);
+				if ((fd = open(buffer, O_RDONLY)) < 0) {
+					/* alternative path also bad */
+					pclose(pf);
+					return -oserror();
+				}
 			}
 		}
+			
+	        n = read(fd, buffer, sizeof(buffer));
+		close(fd);
 
-	    	if (n > 0 && (fd = open(buffer, O_RDONLY)) >= 0) {
-	        	n = read(fd, buffer, sizeof(buffer));
-	        	close(fd);
+		if (n >= 0) {
+			if (strncmp(buffer, "t10.", 4) == 0) {
+				sscanf(buffer, "t10.%s", dev_uuid);	
 
-	        	if (n > 0) {
-		    		buffer[n-1] = '\0';
+			} else if (strncmp(buffer, "eui.", 4) == 0) {
+				sscanf(buffer, "eui.%s", dev_uuid);
 
-				if (strlen(buffer) == 0)
-				    	continue;
-				
-				if (strncmp(buffer, "t10.", 4) == 0) {
-					sscanf(buffer, "t10.%s", dev_uuid);	
+			} else if (strncmp(buffer, "naa.", 4) == 0) {
+				sscanf(buffer, "naa.%s", dev_uuid);
 
-				} else if (strncmp(buffer, "eui.", 4) == 0) {
-				    	sscanf(buffer, "eui.%s", dev_uuid);
-
-				} else if (strncmp(buffer, "naa.", 4) == 0) {
-				    	sscanf(buffer, "naa.%s", dev_uuid);
-
-				} else {
-					sscanf(buffer, "%s", dev_uuid);
-				}
+			} else {
+				sscanf(buffer, "%s", dev_uuid);
 			}
 		}
 
