@@ -30,7 +30,7 @@ pcp -z --archive archives/dm-io dstat --device-mapper -L dmcache1 --nocolor --ti
 echo
 
 echo "Partitions"
-pcp -z --archive archives/dm-io dstat --partition -P sda10,sdb1,total --nocolor --time
+pcp -z --archive archives/dm-io dstat --partition -P sda10,sdb1,total --nocolor --time-adv
 echo
 
 # success, all done

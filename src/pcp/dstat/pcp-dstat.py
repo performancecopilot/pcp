@@ -1093,7 +1093,7 @@ class DstatTool(object):
                 context = PM_CONTEXT_LOCAL
         if self.pmfg is None:
             self.pmfg = pmapi.fetchgroup(context, self.source)
-        self.pmfg_ts = self.pmfg.extend_timeval()
+        self.pmfg_ts = self.pmfg.extend_timespec()
         self.context = self.pmfg.get_context()
 
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
