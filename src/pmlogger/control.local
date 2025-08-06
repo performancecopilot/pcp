@@ -1,7 +1,7 @@
 #
 # PCP archive logging configuration/control
 #
-# see ../control for a description of the format
+# see pmlogger.control(5) for a description of the format
 #
 
 # === VARIABLE ASSIGNMENTS ===
@@ -10,7 +10,7 @@
 $version=1.1
 
 # Uncomment one of the lines below to enable/disable culling behaviour
-# that is different to the pmlogger_daily default [14].
+# that is different to the pmlogger_daily(1) default [14].
 # Value is days to keep, older archives are culled, 0 is immediate
 # culling once the archive has been completed, "never" or "forever"
 # suppresses culling.
@@ -20,7 +20,7 @@ $version=1.1
 #$PCP_CULLAFTER=never
 
 # Uncomment one of the lines below to enable/disable compression behaviour
-# that is different to the pmlogger_daily default.
+# that is different to the pmlogger_daily(1) default.
 # Value is days before compressing archives, 0 is immediate compression,
 # "never" or "forever" suppresses compression.
 #
@@ -32,5 +32,14 @@ $version=1.1
 #
 #Host		P?  S?	directory			args
 
-# local primary logger
+# local primary pmlogger(1)
 LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/LOCALHOSTNAME	-r -T24h10m -c config.default -v 100Mb
+
+# primary logpush from a local pmlogger(1) to a remote pmproxy(1)
+# if this line is uncommented, the LOCALHOSTNAME line above must be
+# commented out, as there can be at most one primary pmlogger(1) on each
+# host where pmcd(1) is running
+#
+#LOCALHOSTNAME	y   n	+PCP_ARCHIVE_DIR/LOCALHOSTNAME	-R http://<remotehost>:44322 -r -T24h10m -c config.default -v 100Mb
+#                       ^ the "+" here is important
+#               need to specify your remote pmproxy hostname here ^^^^^^^^^^^^

@@ -719,7 +719,7 @@ _find_matching_pmlogger()
 		# archive basename, but something like http://foo.com:44322
 		# from the -R option to pmlogger
 		#
-		_trydir=`echo "$args" | sed -e 's/.* -R *//' -e 's/ .*//'`
+		_trydir=`echo "$args" | sed -E -e 's/(.* |^)-R *//' -e 's/ .*//'`
 	    else
 		_trydir="$dir"
 	    fi

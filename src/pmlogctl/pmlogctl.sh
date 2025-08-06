@@ -259,7 +259,8 @@ _do_env_subst()
 	    fi
 	    if [ -z "$var" ]
 	    then
-		_error "_do_env_subst: [$2] Botch: param=$param var=$var default=4default"
+		echo >&2 "control[$2]: $1"
+		_error "_do_env_subst: Botch: param=$param var=$var default=4default"
 		return 1
 	    fi
 	else
@@ -271,7 +272,8 @@ _do_env_subst()
 	#
 	if [ $count -ge 10 ]
 	then
-	    _error "_do_env_subst: [$2] max ENV() expansions (10) exceeded"
+	    echo >&2 "control[$2]: $1"
+	    _error "_do_env_subst: max ENV() expansions (10) exceeded"
 	    return 1
 	fi
 	count=`expr $count + 1`
@@ -286,10 +288,15 @@ _do_env_subst()
 	fi
 	if [ -z "$val" ]
 	then
-	    _error "_do_env_vars: [$2] \$$var empty value"
+	    echo >&2 "control[$2]: $1"
+	    _error "_do_env_subst: \$$var empty value"
 	    return 1
 	fi
-	$VERY_VERBOSE && echo >&2 "[$2] ENV($var...) -> $val"
+	if $VERY_VERBOSE
+	then
+	    echo >&2 "control[$2]: $1"
+	    echo >&2 "ENV($var...) -> $val"
+	fi
 	ans=`echo "$ans" | sed -e 's/\(.*\)*ENV([a-zA-Z_][^)]*)\(.*\)/\1'"$val"'\2/'`
     done
     echo "$ans"
@@ -609,7 +616,6 @@ $4 == "'"$dir"'" || $4 == "'"$alt_dir"'" || $4 == "'"$3"'" 	{
 _get_policy_section()
 {
     $PCP_AWK_PROG <"$1" '
-NF == 0			{ next }
 $1 == "['"$2"']"	{ want = 1; next }
 $1 ~ /^\[[a-z]*]$/	{ want = 0; next }
 want == 1		{ print }'
@@ -630,7 +636,7 @@ _get_pid()
 		# -R http://bozo.localdomain:44322 in the args
 		#
 		pat=`echo "$2" \
-		     | sed -e 's/.* -R *//' -e 's/ .*//'`
+		     | sed -E -e 's/(.* |^)-R *//' -e 's/ .*//'`
 		;;
 	    *)
 		pat="$dir/[^/]*"
@@ -974,7 +980,7 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		    +*)
 			dir=`echo "$dir" | sed -e 's/^+//'`
 			archive=`echo "$args" \
-				 | sed -e 's/.* -R *//' -e 's/ .*//'`
+				 | sed -E -e 's/(.* |^)-R *//' -e 's/ .*//'`
 			report_archive="`echo $archive \
 					 | sed -e 's@http://@>@' -e 's/:[0-9]*$//'`"
 			pid=`_egrep -rl "^$archive\$" $PCP_TMP_DIR/${IAM} \
@@ -1257,6 +1263,11 @@ state == 3 && $1 !~ /^#/		{ state = 4; part = 2 }
 #
 _do_cond_create()
 {
+    if [ $# -eq 0 -o -z "$1" ]
+    then
+	_error "need at least one host for cond-create"
+	return 1
+    fi
     sts=0
     FROM_COND_CREATE=true
     __POLICY="$POLICY"		# value on entry, POLICY gets reset below
@@ -1495,7 +1506,7 @@ $1 == "'"$host"'"	{ printf "%s",$5
 			  for (i = 6; i <= NF; i++) printf " %s",$i
 			  print ""
 			}'`
-	_check_started "$dir_args" "args" || sts=1
+	_check_started "$dir_args" "$args" || sts=1
     done
 
     return $sts
@@ -1509,6 +1520,11 @@ $1 == "'"$host"'"	{ printf "%s",$5
 #
 _do_create()
 {
+    if [ $# -eq 0 -o -z "$1" ]
+    then
+	_error "need at least one host for create"
+	return 1
+    fi
     sts=0
     for host
     do
@@ -1597,45 +1613,45 @@ $1 == "'"$host"'"	{ print $4 }'`
 	fi
 	_egrep -rl "^($pat_host|#!#$pat_host)[ 	].*[ 	]$pat_dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
 	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
+	if $VERBOSE
+	then
+	    echo >&2 "--- start control file ---"
+	    cat >&2 $tmp/control
+	    echo >&2 "--- end control file ---"
+	fi
+	if _do_env_file <$tmp/control >$tmp/control.new
+	then
+	    if diff -q $tmp/control $tmp/control.new
+	    then
+		# no ENV() replacements
+		:
+	    else
+		mv $tmp/control.new $tmp/control
+		if $VERBOSE
+		then
+		    echo >&2 "--- start control file after ENV() substitutions ---"
+		    cat >&2 $tmp/control
+		    echo >&2 "--- end control file ---"
+		fi
+	    fi
+	else
+	    _error "ENV() expansion failed for control file"
+	fi
 	if $FROM_COND_CREATE
 	then
 	    # skip this part (the real create and start) ...
 	    :
 	else
-	    if $VERBOSE
-	    then
-		echo >&2 "--- start control file ---"
-		cat >&2 $tmp/control
-		echo >&2 "--- end control file ---"
-	    fi
-	    if _do_env_file <$tmp/control >$tmp/control.new
-	    then
-		if diff -q $tmp/control $tmp/control.new
-		then
-		    # no ENV() replacements
-		    :
-		else
-		    mv $tmp/control.new $tmp/control
-		    if $VERBOSE
-		    then
-			echo >&2 "--- start control file after ENV() substitutions ---"
-			cat >&2 $tmp/control
-			echo >&2 "--- end control file ---"
-		    fi
-		fi
-		$VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
-		$CP $tmp/control "$CONTROLDIR/$ident"
-		$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
-		dir_args="`echo "$dir" | _expand_control`"
-		args=`$PCP_AWK_PROG <$tmp/control '
+	    $VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
+	    $CP $tmp/control "$CONTROLDIR/$ident"
+	    $RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
+	    dir_args="`echo "$dir" | _expand_control`"
+	    args=`$PCP_AWK_PROG <$tmp/control '
 $1 == "'"$host"'"	{ printf "%s",$5
-			  for (i = 6; i <= NF; i++) printf " %s",$i
-			  print ""
-			}'`
-		_check_started "$dir_args" "$args" || sts=1
-	    else
-		_error "ENV() expansion failed for control file"
-	    fi
+		      for (i = 6; i <= NF; i++) printf " %s",$i
+		      print ""
+		    }'`
+	    _check_started "$dir_args" "$args" || sts=1
 	fi
     done
 

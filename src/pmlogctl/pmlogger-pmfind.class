@@ -8,10 +8,37 @@ pmfind
 pmfind-%h
 
 [control]
+# PCP archive logging configuration/control
+#
+# see pmlogger.control(5) for a description of the format
+#
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 
 $class=pmfind
+
+# Uncomment one of the lines below to enable/disable culling behaviour
+# that is different to the pmlogger_daily default [14].
+# Value is days to keep, older archives are culled, 0 is immediate
+# culling once the archive has been completed, "never" or "forever"
+# suppresses culling.
+#
+#$PCP_CULLAFTER=0
+#$PCP_CULLAFTER=3
+#$PCP_CULLAFTER=never
+
+# Uncomment one of the lines below to enable/disable compression behaviour
+# that is different to the pmlogger_daily default.
+# Value is days before compressing archives, 0 is immediate compression,
+# "never" or "forever" suppresses compression.
+#
+#$PCP_COMPRESSAFTER=0
+#$PCP_COMPRESSAFTER=3
+#$PCP_COMPRESSAFTER=never
+
+# === LOGGER CONTROL SPECIFICATIONS ===
+#
+#Host		P?  S?	directory			args
 %h n n PCP_ARCHIVE_DIR/%i -c ./%i.config
 
 [create]

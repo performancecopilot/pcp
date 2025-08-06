@@ -1,0 +1,28 @@
+# This policy file is for the pmfind class, as used by the create,
+# cond-create, destroy and cond-destroy commands of pmiectl
+#
+[class]
+pmfind
+
+[ident]
+pmfind-%h
+
+[control]
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+$version=1.1
+
+$class=pmfind
+
+#
+#Host P? S? pmie_log_pathname            pmie_args
+%h    n  n  PCP_LOG_DIR/pmie/%i/pmie.log -c ./%i.config
+
+[create]
+# for cond-create we want this policy to apply to every pmcd host
+# discovered by pmfind
+hostname(.*)
+
+[destroy]
+# for cond-destroy we want this policy to apply to every instance in
+# the pmfind class
+condition(1)
