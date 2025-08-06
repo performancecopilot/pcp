@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 Red Hat.
+ * Copyright (c) 2017-2025 Red Hat.
  * 
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -116,8 +116,8 @@ extern void pmwebapi_release_value(int, pmAtomValue *);
 #define infofmt(msg, fmt, ...)	\
 	((msg) = sdscatprintf((msg)?(msg):sdsempty(), fmt, ##__VA_ARGS__))
 #define batoninfo(baton, level, msg)	\
-	((baton)->info((level), (msg), (baton)->userdata), sdsfree(msg))
+	((baton)->info((level), (msg), (baton)->userdata), sdsfree(msg), (msg)=NULL)
 #define moduleinfo(module, level, msg, data)	\
-	((module)->on_info((level), (msg), (data)), sdsfree(msg))
+	((module)->on_info((level), (msg), (data)), sdsfree(msg), (msg)=NULL)
 
 #endif	/* SERIES_UTIL_H */
