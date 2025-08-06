@@ -5,6 +5,6 @@ PartOf=pmproxy.service
 [Timer]
 # if enabled, runs 15m after boot and every half hour
 OnBootSec=15min
-OnCalendar=*-*-* *:10:10
-OnCalendar=*-*-* *:40:10
+OnCalendar=*-*-* *:25:00
+OnCalendar=*-*-* *:55:00
 Unit=pmproxy_check.service

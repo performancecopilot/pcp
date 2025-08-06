@@ -2,11 +2,10 @@
 # Performance Co-Pilot crontab entries for a monitored site
 # with pmproxy running
 #
-# daily processing of remote archives, then hourly checks in
-# case it has not already been done
-05     *  *  *  *  @user@  @path@/pmlogger_daily -Q
+# daily processing of remote archives
+15     0  *  *  *  @user@  @path@/pmlogger_daily -Q
 # hourly polling to do daily processing if not done already in
 # the last 24 hours
 15     *  *  *  *  @user@  @path@/pmlogger_daily -Q -p
 # every 30 minutes, check if any compression needs to be done
-10,40  *  *  *  *  @user@  @path@/pmlogger_daily -Q -K
+25,55  *  *  *  *  @user@  @path@/pmlogger_daily -Q -K

@@ -8,4 +8,4 @@
 # the last 24 hours
 30     *  *  *  *  @user@  @path@/pmlogger_daily -P -p
 # every 30 minutes, check pmlogger instances are running
-25,55  *  *  *  *  @user@  @path@/pmlogger_check -C
+20,50  *  *  *  *  @user@  @path@/pmlogger_check -C

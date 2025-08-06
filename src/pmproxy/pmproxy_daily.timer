@@ -3,8 +3,8 @@ Description=Daily processing of remote PCP archives from pmproxy
 PartOf=pmproxy.service
 
 [Timer]
-# if enabled, runs 10m after boot and just after midnight (and before
-# the daily local PCP archive processing at 00:10:00
+# if enabled, runs 10m after boot and just after midnight (and after
+# the daily local PCP archive processing at 00:10:00)
 OnBootSec=10min
-OnCalendar=*-*-* 00:05:00
+OnCalendar=*-*-* 00:15:00
 Unit=pmproxy_daily.service
