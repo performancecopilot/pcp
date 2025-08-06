@@ -30,6 +30,7 @@ pcp-7.0.0 (1 September 2025)
 	python api: removed python version 2 support, 3.6 is minimum
     - Client tools and utilities:
 	pcp-rocestat: client to report NVIDIA RoCE metrics
+	pcp-dstat: fix the --time-adv option with archives
 	pcp-htop: sync-up with latest htop.dev code fixes
 	pcp-htop: improve pmcd disconnect/restart handling
 	pmrep: fix iostat merge percentage formulas
