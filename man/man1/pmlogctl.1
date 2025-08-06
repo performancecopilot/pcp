@@ -472,6 +472,59 @@ will assume the version is 1.1 and insert the line when the instance is created.
 will also add the class name during creation. e.g.
 .br
 .B $class=foo
+.PP
+Within a control line template, a simple form of parametric substition is
+supported.
+The
+.BI ENV( spec )
+macro is replaced by text using environment variables as follows:
+.PD 0
+.IP \(bu 4n
+If
+.I spec
+is of the form
+.I var
+then the value of
+.I $var
+from the environment is used.
+If
+.I $var
+is not defined or has the value of an empty string, this is an error.
+.IP \(bu 4n
+If
+.I spec
+is of the form
+\fIvar\fB:\fIdefault\fR
+then if
+.I $var
+from the environment
+is defined and is not an empty string the value of
+.I $var
+is used, otherwise the value
+.I default
+is used.
+The substitution is simple, so any whitespace between the
+.B :
+and the
+.B )
+is included in
+.IR default ,
+and
+.I default
+cannot contain a
+.BR ) .
+.PD
+.PP
+As an example
+.br
+.B # unset PMPROXY_PORT; PMPROXY_HOST=foobar.com pmlogctl create ...
+.br
+with a policy class control template line that includes
+.B http://ENV(PMPROXY_HOST):ENV(PMPROXY_PORT:44322)
+.br
+will generate a control line that includes
+.br
+.B http://foobar.com:44322
 .RE
 .TP 4n
 .B [create]
