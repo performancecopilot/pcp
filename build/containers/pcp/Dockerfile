@@ -33,7 +33,7 @@ COPY --from=build /build /build
 
 ENV SUMMARY="Performance Co-Pilot" \
     DESCRIPTION="Performance Co-Pilot is a system performance analysis toolkit." \
-    VERSION=6
+    VERSION=7
 
 LABEL name="pcp" \
       summary="${SUMMARY}" \
