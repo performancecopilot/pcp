@@ -1,0 +1,70 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "my.service"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "my.library",
+            "version": "1.0.0",
+            "attributes": [
+              {
+                "key": "my.scope.attribute",
+                "value": {
+                  "stringValue": "some scope attribute"
+                }
+              }
+            ]
+          },
+          "metrics": [
+            {
+              "name": "labelMetric",
+              "unit": "1",
+              "description": "I am a Counter Metric to test the labels",
+              "sum": {
+                "aggregationTemporality": 1,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "asDouble": 5,
+                    "startTimeUnixNano": "1544712660300000000",
+                    "timeUnixNano": "1544712660300000000",
+                    "attributes": [
+                      {
+                        "key": "random",
+                        "value": {
+                          "stringValue": "someValue"
+                        }
+                      },
+                      {
+                        "key": "some_optional_label",
+                        "value": {
+                          "stringValue": "someValue"
+                        }
+                      },
+                      {
+                        "key": "label1",
+                        "value": {
+                          "stringValue": "someLabel"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
