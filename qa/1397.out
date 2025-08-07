@@ -4284,7 +4284,7 @@ Help:
 Contains the number of read commands completed by the controller
 No value(s) available!
 
-smart.wwid.nvme_attributes.host_write_commands PMID: 150.1255.8 [Contains the number of write commands completed by the controller ]
+smart.wwid.nvme_attributes.host_write_commands PMID: 150.1255.8 [Contains the number of write commands completed by the controller]
     Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
@@ -7178,7 +7178,7 @@ smart.nvme_attributes.host_write_commands PMID: 150.255.8 [Contains the number o
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
-Contains the number of write commands completed by the controller
+Contains the number of write commands completed by the controller 
 No value(s) available!
 
 smart.nvme_attributes.media_and_data_integrity_errors PMID: 150.255.13 [Contains the number of error occurances by the controller]
@@ -9675,7 +9675,7 @@ Help:
 Contains the number of read commands completed by the controller
 No value(s) available!
 
-smart.wwid.nvme_attributes.host_write_commands PMID: 150.1255.8 [Contains the number of write commands completed by the controller ]
+smart.wwid.nvme_attributes.host_write_commands PMID: 150.1255.8 [Contains the number of write commands completed by the controller]
     Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
@@ -12231,7 +12231,7 @@ smart.nvme_attributes.host_write_commands PMID: 150.255.8 [Contains the number o
     Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
-Contains the number of write commands completed by the controller
+Contains the number of write commands completed by the controller 
     inst [0 or "nvme0n1"] value 94922330
 
 smart.nvme_attributes.media_and_data_integrity_errors PMID: 150.255.13 [Contains the number of error occurances by the controller]
@@ -14728,11 +14728,11 @@ Help:
 Contains the number of read commands completed by the controller
     inst [0 or "8ce38e0500882b63"] value 77209705
 
-smart.wwid.nvme_attributes.host_write_commands PMID: 150.1255.8 [Contains the number of write commands completed by the controller ]
+smart.wwid.nvme_attributes.host_write_commands PMID: 150.1255.8 [Contains the number of write commands completed by the controller]
     Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
-Contains the number of write commands completed by the controller 
+Contains the number of write commands completed by the controller
     inst [0 or "8ce38e0500882b63"] value 94922330
 
 smart.wwid.nvme_attributes.media_and_data_integrity_errors PMID: 150.1255.13 [Contains the number of error occurances by the controller]
@@ -19772,11 +19772,11 @@ Help:
 Contains the number of read commands completed by the controller
     inst [0 or "8ce38e0500882b63"] value 16961700
 
-smart.wwid.nvme_attributes.host_write_commands PMID: 150.1255.8 [Contains the number of write commands completed by the controller ]
+smart.wwid.nvme_attributes.host_write_commands PMID: 150.1255.8 [Contains the number of write commands completed by the controller]
     Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
-Contains the number of write commands completed by the controller 
+Contains the number of write commands completed by the controller
     inst [0 or "8ce38e0500882b63"] value 170550277
 
 smart.wwid.nvme_attributes.media_and_data_integrity_errors PMID: 150.1255.13 [Contains the number of error occurances by the controller]
