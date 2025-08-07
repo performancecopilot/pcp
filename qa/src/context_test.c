@@ -72,7 +72,8 @@ main(int argc, char **argv)
     char	*host = "localhost";
     char	*namespace = PM_NS_DEFAULT;
     char	*endnum;
-    pmInDom	indom_bin, indom_colour;
+    pmInDom	indom_bin = PM_INDOM_NULL;
+    pmInDom	indom_colour = PM_INDOM_NULL;
     pmID	metrics[2];
     pmDesc	descs[2];
     pmResult	*resp;
