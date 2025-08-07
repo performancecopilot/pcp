@@ -1613,18 +1613,12 @@ $1 == "'"$host"'"	{ print $4 }'`
 	fi
 	_egrep -rl "^($pat_host|#!#$pat_host)[ 	].*[ 	]$pat_dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
 	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
-	if $VERBOSE
-	then
-	    echo >&2 "--- start control file ---"
-	    cat >&2 $tmp/control
-	    echo >&2 "--- end control file ---"
-	fi
 	if _do_env_file <$tmp/control >$tmp/control.new
 	then
 	    if diff -q $tmp/control $tmp/control.new
 	    then
 		# no ENV() replacements
-		:
+		rm -f $tmp/control.new
 	    else
 		mv $tmp/control.new $tmp/control
 		if $VERBOSE
@@ -1636,12 +1630,19 @@ $1 == "'"$host"'"	{ print $4 }'`
 	    fi
 	else
 	    _error "ENV() expansion failed for control file"
+	    rm -f $tmp/control.new
 	fi
 	if $FROM_COND_CREATE
 	then
 	    # skip this part (the real create and start) ...
 	    :
 	else
+	    if $VERBOSE
+	    then
+		echo >&2 "--- start control file ---"
+		cat >&2 $tmp/control
+		echo >&2 "--- end control file ---"
+	    fi
 	    $VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
 	    $CP $tmp/control "$CONTROLDIR/$ident"
 	    $RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""

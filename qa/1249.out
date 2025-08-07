@@ -5,8 +5,13 @@ PCP_ETC_DIR/pcp/pmie/class.d/pmfind: host localhost hostname(.*) true
 # created by pmiectl on DATE
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
-localhost n n PCP_LOG_DIR/pmie/pmfind-localhost/pmie.log -c ./pmfind-localhost.config
+
+#
+#Host P? S? pmie_log_pathname            pmie_args
+localhost    n  n  PCP_LOG_DIR/pmie/pmfind-localhost/pmie.log -c ./pmfind-localhost.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/pmfind-localhost
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/pmfind-localhost
