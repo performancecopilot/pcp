@@ -1317,7 +1317,7 @@ _do_cond_create()
 	    then
 		# expect func(args...)
 		#
-		sed -e '/^#/d' <$tmp/cond \
+		sed -e '/^#/d' -e '/^$/d' <$tmp/cond \
 		| grep -v '[a-z][^(]*(.*)[ 	]*$' >$tmp/tmp
 		if [ -s $tmp/tmp ]
 		then
