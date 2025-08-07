@@ -2128,9 +2128,16 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: pcp-system-tools = %{version}-%{release}
 Requires: pcp-doc = %{version}-%{release}
 Requires: pcp-pmda-dm = %{version}-%{release}
+%if !%{disable_bpf}
+Requires: pcp-pmda-bpf = %{version}-%{release}
+%endif
+%if !%{disable_bpftrace}
+Requires: pcp-pmda-bpftrace = %{version}-%{release}
+%endif
 %if !%{disable_python3}
 Requires: pcp-pmda-nfsclient = %{version}-%{release}
 Requires: pcp-pmda-openmetrics = %{version}-%{release}
+Requires: pcp-pmda-opentelemetry = %{version}-%{release}
 %endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
@@ -3009,7 +3016,11 @@ PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
 PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
 # auto-install important PMDAs for RH Support (if not present already)
-for PMDA in dm nfsclient openmetrics ; do
+needinstall='dm'
+%if !%{disable_python3}
+needinstall="$needinstall nfsclient openmetrics opentelemetry"
+%endif
+for PMDA in $needinstall ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
         %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}

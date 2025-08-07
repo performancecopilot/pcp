@@ -2070,11 +2070,20 @@ Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: pcp-system-tools = @package_version@
 Requires: pcp-doc = @package_version@
 Requires: pcp-pmda-dm = @package_version@
+%if "@pmda_bpf@" == "true"
+Requires: pcp-pmda-bpf = @package_version@
+%endif
+%if "@pmda_bpftrace@" == "true"
+Requires: pcp-pmda-bpftrace = @package_version@
+%endif
 %if "@have_python@" == "true"
 Requires: pcp-pmda-nfsclient = @package_version@
 %endif
 %if "@pmda_openmetrics@" == "true"
 Requires: pcp-pmda-openmetrics = @package_version@
+%endif
+%if "@pmda_opentelemetry@" == "true"
+Requires: pcp-pmda-opentelemetry = @package_version@
 %endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
@@ -2519,6 +2528,9 @@ needinstall="$needinstall nfsclient"
 %endif
 %if "@pmda_openmetrics@" == "true"
 needinstall="$needinstall openmetrics"
+%endif
+%if "@pmda_opentelemetry@" == "true"
+needinstall="$needinstall opentelemetry"
 %endif
 for PMDA in $needinstall ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
