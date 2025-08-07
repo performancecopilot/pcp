@@ -18,7 +18,7 @@ ENV SUMMARY="Performance Co-Pilot"
 ENV REGISTRY="quay.io/performancecopilot/"
 ENV DESCRIPTION="Performance Co-Pilot is a system performance analysis toolkit."
 
-LABEL RUN="podman run -d --name ${NAME} --systemd always -p 44321:44321 -p 44322:44322 -v pcp-archives:/var/log/pcp/pmlogger ${REGISTRY}/${NAME}"
+LABEL RUN="podman run -d --name ${NAME} --systemd always -p 44321:44321 -p 44322:44322 -v pmlogger:/var/log/pcp/pmlogger -v pmproxy:/var/log/pcp/pmproxy ${REGISTRY}/${NAME}"
 
 LABEL name="${NAME}"
 LABEL version="${VERSION}"
@@ -30,9 +30,10 @@ LABEL com.redhat.component="pcp"
 LABEL io.k8s.display-name="${SUMMARY}"
 LABEL io.k8s.description="${DESCRIPTION}"
 LABEL io.openshift.expose-services="44321:pmcd,44322:pmproxy"
-LABEL io.openshift.tags="pcp,performance,monitoring,metrics"
+LABEL io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
 
 VOLUME ["/var/log/pcp/pmlogger"]
+VOLUME ["/var/log/pcp/pmproxy"]
 EXPOSE 44321
 EXPOSE 44322
 

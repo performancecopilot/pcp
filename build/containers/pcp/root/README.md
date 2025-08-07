@@ -10,7 +10,8 @@ $ podman run -d \
     --systemd always \
     -p 44321:44321 \
     -p 44322:44322 \
-    -v pcp-archives:/var/log/pcp/pmlogger \
+    -v pmlogger:/var/log/pcp/pmlogger \
+    -v pmproxy:/var/log/pcp/pmproxy \
     quay.io/performancecopilot/pcp
 ```
 
@@ -25,7 +26,8 @@ $ sudo podman run -d \
     --net host \
     --systemd always \
     -e HOST_MOUNT=/host \
-    -v pcp-archives:/var/log/pcp/pmlogger \
+    -v pmlogger:/var/log/pcp/pmlogger \
+    -v pmproxy:/var/log/pcp/pmproxy \
     -v /:/host:ro,rslave \
     quay.io/performancecopilot/pcp
 ```
@@ -37,7 +39,8 @@ $ docker run -d \
     --name pcp \
     -p 44321:44321 \
     -p 44322:44322 \
-    -v pcp-archives:/var/log/pcp/pmlogger \
+    -v pmlogger:/var/log/pcp/pmlogger \
+    -v pmproxy:/var/log/pcp/pmproxy \
     -v /sys/fs/cgroup:/sys/fs/cgroup:ro \
     registry.redhat.io/rhel8/pcp
 ```
@@ -66,7 +69,9 @@ Alternately, use comma-separated hostspecs (non-clustered setup)
 
 ### Configuration Files
 
-For custom configuration options beyond the above environment variables, it is advised to use a bind mount with a configuration file on the host to the container.
+For custom configuration options beyond the above environment variables, facilities within a container orchestration system would typically be used (Kubernetes / OpenShift ConfigMaps are very useful here).
+
+Another possibility is to use a bind mount with a configuration file on the host to the container.
 Example command to run a pmlogger-only container:
 
 ```
@@ -75,7 +80,8 @@ $ podman run -d \
     --systemd always \
     -e PCP_SERVICES=pmlogger \
     -v $(pwd)/pmlogger.control:/etc/pcp/pmlogger/control.d/local:z \
-    -v pcp-archives:/var/log/pcp/pmlogger \
+    -v pmlogger:/var/log/pcp/pmlogger \
+    -v pmproxy:/var/log/pcp/pmproxy \
     quay.io/performancecopilot/pcp
 ```
 
@@ -90,7 +96,11 @@ remote.pmcdhost.corp	n   n	PCP_ARCHIVE_DIR/remote_pmcd	-N -r -T24h10m -c config.
 
 ### `/var/log/pcp/pmlogger`
 
-Performance Co-Pilot archive files with historical metrics.
+Performance Co-Pilot archive files with historical metrics from local loggers.
+
+### `/var/log/pcp/pmproxy`
+
+Performance Co-Pilot archive files with historical metrics from remote loggers.
 
 ## Ports
 
@@ -100,7 +110,7 @@ The pmcd daemon listens on this port and exposes the [PMAPI(3)](https://man7.org
 
 ### `44322/tcp`
 
-The pmproxy daemon listens on this port and exposes the REST [PMWEBAPI(3)](https://man7.org/linux/man-pages/man3/pmwebapi.3.html) to access metrics.
+The pmproxy daemon listens on this port and exposes the REST [PMWEBAPI(3)](https://man7.org/linux/man-pages/man3/pmwebapi.3.html) to access metrics and/or receive remote logged archives.
 
 ## Documentation
 

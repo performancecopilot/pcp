@@ -46,7 +46,7 @@ LABEL name="pcp" \
       io.k8s.display-name="Performance Co-Pilot" \
       io.k8s.description="${DESCRIPTION}" \
       io.openshift.expose-services="44321:pmcd,44322:pmproxy" \
-      io.openshift.tags="pcp,performance,monitoring,metrics"
+      io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
 
 RUN groupadd -g 1001 -r pcp && \
     useradd  -u 1001 -g pcp -r -d /var/lib/pcp -s /sbin/nologin -c "Performance Co-Pilot" pcp && \
@@ -59,6 +59,7 @@ COPY build/containers/pcp/root /
 RUN systemctl mask systemd-remount-fs.service dev-hugepages.mount sys-fs-fuse-connections.mount systemd-logind.service getty.target console-getty.service systemd-udev-trigger.service systemd-udevd.service systemd-random-seed.service systemd-machine-id-commit.service
 
 VOLUME ["/var/log/pcp/pmlogger"]
+VOLUME ["/var/log/pcp/pmproxy"]
 EXPOSE 44321
 EXPOSE 44322
 
