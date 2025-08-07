@@ -1249,7 +1249,11 @@ main(int argc, char *argv[])
 	opts.guiflag = 1;	/* we're using pmtime control from here on */
     }
     else if (opts.context == PM_CONTEXT_ARCHIVE) { /* no time control, go it alone */
-	pmSetModeHighRes(amode, &opts.origin, &opts.interval);
+	struct timeval interval, origin;
+
+	timespec2val(&opts.interval, &interval);
+	timespec2val(&opts.origin, &origin);
+	pmTimeStateMode(amode, interval, &origin);
     }
 
     forever = (opts.samples < 0 || opts.guiflag);
