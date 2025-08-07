@@ -487,7 +487,7 @@ smart_refresh_device_info(const char *name, struct device_info *device_info, int
 {
 	char buffer[4096], capacity[64] = {'\0'};
 	FILE *pf;
-	int n, fd = 0;
+	int fd, n = 0;
 
 	pmsprintf(buffer, sizeof(buffer), "%s -Hi /dev/%s", smart_setup_stats, name);
 	buffer[sizeof(buffer)-1] = '\0';
@@ -543,27 +543,32 @@ smart_refresh_device_info(const char *name, struct device_info *device_info, int
 	sscanf(name, "%s", device_info->device);
 
 	/* Get disk UUID if not already populated */
-	n = pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/device/wwid", name);
-	if (n <= 0 || access(buffer, F_OK) != 0) /* try alternate path */
-		n = pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/wwid", name);
-	if (n > 0 && (fd = open(buffer, O_RDONLY)) >= 0) {
-		n = read(fd, buffer, sizeof(buffer));
-		close(fd);
+	
+	pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/device/wwid", name);
+	if ((fd = open(buffer, O_RDONLY)) < 0) {
+		/* try alternate path */
+		pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/wwid", name);
+		if ((fd = open(buffer, O_RDONLY)) < 0) {
+			/* alternative path also bad */
+			return 0;
+		}
+	}
+			
+	n = read(fd, buffer, sizeof(buffer));
+	close(fd);
+	
+	if (n >= 0) {
+		if (strncmp(buffer, "t10.", 4) == 0) {
+			sscanf(buffer, "t10.%s", device_info->uuid);	
 
-		if (n > 0) {
-			buffer[n-1] = '\0';
-			if (strncmp(buffer, "t10.", 4) == 0) {
-				sscanf(buffer, "t10.%s", device_info->uuid);
+		} else if (strncmp(buffer, "eui.", 4) == 0) {
+			sscanf(buffer, "eui.%s", device_info->uuid);
 
-			} else if (strncmp(buffer, "eui.", 4) == 0) {
-				sscanf(buffer, "eui.%s", device_info->uuid);
+		} else if (strncmp(buffer, "naa.", 4) == 0) {
+			sscanf(buffer, "naa.%s", device_info->uuid);
 
-			} else if (strncmp(buffer, "naa.", 4) == 0) {
-				sscanf(buffer, "naa.%s", device_info->uuid);
-
-			} else {
-				sscanf(buffer, "%s", device_info->uuid);
-			}
+		} else {
+			sscanf(buffer, "%s", device_info->uuid);
 		}
 	}
 	return 0;
