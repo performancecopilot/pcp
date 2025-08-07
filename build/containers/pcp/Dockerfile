@@ -31,28 +31,28 @@ RUN mkdir /build && \
 FROM quay.io/fedora/fedora:latest
 COPY --from=build /build /build
 
-ENV SUMMARY="Performance Co-Pilot" \
-    DESCRIPTION="Performance Co-Pilot is a system performance analysis toolkit." \
-    VERSION=7
+ENV SUMMARY="Performance Co-Pilot"
+ENV DESCRIPTION="Performance Co-Pilot is a system performance analysis toolkit."
+ENV VERSION=7
 
-LABEL name="pcp" \
-      summary="${SUMMARY}" \
-      description="${DESCRIPTION}" \
-      version="$VERSION" \
-      usage="podman run -d --name pcp --systemd always -p 44321:44321 -p 44322:44322 -v pcp-archives:/var/log/pcp/pmlogger quay.io/performancecopilot/pcp" \
-      maintainer="PCP Team <pcp@groups.io>" \
-      help="cat /README.md" \
-      com.redhat.component="pcp" \
-      io.k8s.display-name="Performance Co-Pilot" \
-      io.k8s.description="${DESCRIPTION}" \
-      io.openshift.expose-services="44321:pmcd,44322:pmproxy" \
-      io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
+LABEL name="pcp"
+LABEL summary="${SUMMARY}"
+LABEL description="${DESCRIPTION}"
+LABEL version="$VERSION"
+LABEL usage="podman run -d --name pcp --systemd always -p 44321:44321 -p 44322:44322 -v pmlogger:/var/log/pcp/pmlogger -v pmproxy:/var/log/pcp/pmproxy quay.io/performancecopilot/pcp"
+LABEL maintainer="PCP Team <pcp@groups.io>"
+LABEL help="cat /README.md"
+LABEL com.redhat.component="pcp"
+LABEL io.k8s.display-name="Performance Co-Pilot"
+LABEL io.k8s.description="${DESCRIPTION}"
+LABEL io.openshift.expose-services="44321:pmcd,44322:pmproxy"
+LABEL io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
 
-RUN groupadd -g 1001 -r pcp && \
-    useradd  -u 1001 -g pcp -r -d /var/lib/pcp -s /sbin/nologin -c "Performance Co-Pilot" pcp && \
-    dnf install -y --setopt=tsflags=nodocs procps-ng gettext /build/*.rpm && \
-    dnf clean all && \
-    rm -r /build
+RUN groupadd -g 1001 -r pcp
+RUN useradd  -u 1001 -g pcp -r -d /var/lib/pcp -s /sbin/nologin -c "Performance Co-Pilot" pcp
+RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext /build/*.rpm
+RUN dnf clean all
+RUN rm -r /build
 
 COPY build/containers/pcp/root /
 
