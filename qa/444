@@ -32,7 +32,6 @@ sed <$tmp.out \
     -e 's/^\[[0-9]*]//' \
     -e '/^__dmclosecontext.*metrics/d' \
     -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-    -e '/pmHighResResult/s/ .* numpmid/ ... numpmid/' \
     -e "s/   value \"$host\"/   value \"HOST\"/g" \
     -e "s/host:      $host/host:      localhost/g" \
     -e 's/[0-2][0-9]:[0-5][0-9]:[0-5][0-9]\.[0-9][0-9]*[0-9]/TIMESTAMP/g' \

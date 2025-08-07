@@ -209,7 +209,7 @@ if __name__ == '__main__':
             raise pmapi.pmUsageErr
         if BuddyinfoOptions.uflag:
             # -u turns off interpolation
-            mngr.pmSetMode(PM_MODE_FORW, mngr._options.pmGetOptionOrigin(), 0) # pylint: disable=protected-access
+            mngr.pmSetMode(PM_MODE_FORW, mngr._options.pmGetOptionOrigin(), None) # pylint: disable=protected-access
 
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:

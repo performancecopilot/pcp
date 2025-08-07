@@ -7,7 +7,7 @@ Value: 123 0x7b
 (long) 123 => (ulonglong) 123
 (long) 123 => (float) 1.230000e+02
 (long) 123 => (double) 1.230000e+02
-(long) 123 => (char *) : Impossible value or scale conversion
+(long) 123 => (char *) "123"
 (long) 123 => (pmValueBlock *) : Impossible value or scale conversion
 (long) 123 => (pmEventArray) : Impossible value or scale conversion
 (long) 123 => (pmHighResEventArray) : Impossible value or scale conversion
@@ -17,7 +17,7 @@ Value: 123 0x7b
 (ulong) 123 => (ulonglong) 123
 (ulong) 123 => (float) 1.230000e+02
 (ulong) 123 => (double) 1.230000e+02
-(ulong) 123 => (char *) : Impossible value or scale conversion
+(ulong) 123 => (char *) "123"
 (ulong) 123 => (pmValueBlock *) : Impossible value or scale conversion
 (ulong) 123 => (pmEventArray) : Impossible value or scale conversion
 (ulong) 123 => (pmHighResEventArray) : Impossible value or scale conversion
@@ -27,7 +27,7 @@ Value: 123 0x7b
 (longlong) 123 => (ulonglong) 123
 (longlong) 123 => (float) 1.230000e+02
 (longlong) 123 => (double) 1.230000e+02
-(longlong) 123 => (char *) : Impossible value or scale conversion
+(longlong) 123 => (char *) "123"
 (longlong) 123 => (pmValueBlock *) : Impossible value or scale conversion
 (longlong) 123 => (pmEventArray) : Impossible value or scale conversion
 (longlong) 123 => (pmHighResEventArray) : Impossible value or scale conversion
@@ -37,7 +37,7 @@ Value: 123 0x7b
 (ulonglong) 123 => (ulonglong) 123
 (ulonglong) 123 => (float) 1.230000e+02
 (ulonglong) 123 => (double) 1.230000e+02
-(ulonglong) 123 => (char *) : Impossible value or scale conversion
+(ulonglong) 123 => (char *) "123"
 (ulonglong) 123 => (pmValueBlock *) : Impossible value or scale conversion
 (ulonglong) 123 => (pmEventArray) : Impossible value or scale conversion
 (ulonglong) 123 => (pmHighResEventArray) : Impossible value or scale conversion
@@ -47,7 +47,7 @@ Value: 123 0x7b
 (float) 1.230000e+02 => (ulonglong) 123
 (float) 1.230000e+02 => (float) 1.230000e+02
 (float) 1.230000e+02 => (double) 1.230000e+02
-(float) 1.230000e+02 => (char *) : Impossible value or scale conversion
+(float) 1.230000e+02 => (char *) "123"
 (float) 1.230000e+02 => (pmValueBlock *) : Impossible value or scale conversion
 (float) 1.230000e+02 => (pmEventArray) : Impossible value or scale conversion
 (float) 1.230000e+02 => (pmHighResEventArray) : Impossible value or scale conversion
@@ -57,7 +57,7 @@ Value: 123 0x7b
 (double) 1.230000e+02 => (ulonglong) 123
 (double) 1.230000e+02 => (float) 1.230000e+02
 (double) 1.230000e+02 => (double) 1.230000e+02
-(double) 1.230000e+02 => (char *) : Impossible value or scale conversion
+(double) 1.230000e+02 => (char *) "123"
 (double) 1.230000e+02 => (pmValueBlock *) : Impossible value or scale conversion
 (double) 1.230000e+02 => (pmEventArray) : Impossible value or scale conversion
 (double) 1.230000e+02 => (pmHighResEventArray) : Impossible value or scale conversion

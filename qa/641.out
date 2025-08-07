@@ -1,6 +1,6 @@
 QA output created by 641
 
-=== daily maintenance of PCP archives for host thishost ===
+=== daily maintenance of PCP archives for host thishost in TMP/thishost ===
 
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "thishost"
@@ -27,7 +27,7 @@ remove ./20011006.00.10.meta
 pmlogger_daily: [TMP.control:3]
 Warning: current volume of current pmlogger not known, compression skipped
 
-=== daily maintenance of PCP archives for host otherhost ===
+=== daily maintenance of PCP archives for host otherhost in TMP/otherhost ===
 
 pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "otherhost"

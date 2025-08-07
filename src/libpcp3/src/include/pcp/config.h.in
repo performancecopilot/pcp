@@ -1,0 +1,803 @@
+/*
+ * This file is used by configure to create src/include/pcp/config.h
+ */
+
+/* Define to 1 if `TIOCGWINSZ' requires <sys/ioctl.h>. */
+#undef GWINSZ_IN_SYS_IOCTL
+
+/* AI_ADDRCONFIG macro */
+#undef HAVE_AI_ADDRCONFIG
+
+/* altzone global */
+#undef HAVE_ALTZONE
+
+/* Define to 1 if you have the <arpa/inet.h> header file. */
+#undef HAVE_ARPA_INET_H
+
+/* Define to 1 if you have the `atexit' function. */
+#undef HAVE_ATEXIT
+
+/* Service discovery via Avahi */
+#undef HAVE_AVAHI
+
+/* Define to 1 if you have the <avahi-client/publish.h> header file. */
+#undef HAVE_AVAHI_CLIENT_PUBLISH_H
+
+/* Define to 1 if you have the <avahi-common/alternative.h> header file. */
+#undef HAVE_AVAHI_COMMON_ALTERNATIVE_H
+
+/* Define to 1 if you have the `backtrace' function. */
+#undef HAVE_BACKTRACE
+
+/* basename API */
+#undef HAVE_BASENAME
+
+/* left-to-right bitfield ordering */
+#undef HAVE_BITFIELDS_LTOR
+
+/* Define to 1 if you have the <bits/wordsize.h> header file. */
+#undef HAVE_BITS_WORDSIZE_H
+
+/* Define to 1 if you have the `brk' function. */
+#undef HAVE_BRK
+
+/* compiler casts u64 to double */
+#undef HAVE_CAST_U64_DOUBLE
+
+/* Define to 1 if you have the `chown' function. */
+#undef HAVE_CHOWN
+
+/* clock_gettime API */
+#undef HAVE_CLOCK_GETTIME
+
+/* const arg for scandir() select method */
+#undef HAVE_CONST_DIRENT
+
+/* LL suffix on constants */
+#undef HAVE_CONST_LONGLONG
+
+/* struct dirent d_off field */
+#undef HAVE_DIRENT_D_OFF
+
+/* Define to 1 if you have the <dirent.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_DIRENT_H
+
+/* dirname API */
+#undef HAVE_DIRNAME
+
+/* Define to 1 if you have the <dlfcn.h> header file. */
+#undef HAVE_DLFCN_H
+
+/* dlopen API */
+#undef HAVE_DLOPEN
+
+/* Define to 1 if you have the <dl.h> header file. */
+#undef HAVE_DL_H
+
+/* Define to 1 if you don't have `vprintf' but do have `_doprnt.' */
+#undef HAVE_DOPRNT
+
+/* Define to 1 if you have the <endian.h> header file. */
+#undef HAVE_ENDIAN_H
+
+/* Define to 1 if you have the <execinfo.h> header file. */
+#undef HAVE_EXECINFO_H
+
+/* Define to 1 if you have the `fchmod' function. */
+#undef HAVE_FCHMOD
+
+/* Define to 1 if you have the `fchown' function. */
+#undef HAVE_FCHOWN
+
+/* Define to 1 if you have the `fcntl' function. */
+#undef HAVE_FCNTL
+
+/* Define to 1 if you have the <fcntl.h> header file. */
+#undef HAVE_FCNTL_H
+
+/* flog10 math API */
+#undef HAVE_FLOG10
+
+/* FNDELAY macro */
+#undef HAVE_FNDELAY
+
+/* fpclassify math API */
+#undef HAVE_FPCLASSIFY
+
+/* Define to 1 if you have the <fts.h> header file. */
+#undef HAVE_FTS_H
+
+/* Define to 1 if you have the `getcwd' function. */
+#undef HAVE_GETCWD
+
+/* Define to 1 if you have the `getdomainname' function. */
+#undef HAVE_GETDOMAINNAME
+
+/* Define to 1 if you have the `getgid' function. */
+#undef HAVE_GETGID
+
+/* Define to 1 if you have the `getgrent' function. */
+#undef HAVE_GETGRENT
+
+/* Define to 1 if you have the `getgrent_r' function. */
+#undef HAVE_GETGRENT_R
+
+/* Define to 1 if you have the `getgrgid' function. */
+#undef HAVE_GETGRGID
+
+/* Define to 1 if you have the `getgrgid_r' function. */
+#undef HAVE_GETGRGID_R
+
+/* Define to 1 if you have the `getgrnam' function. */
+#undef HAVE_GETGRNAM
+
+/* Define to 1 if you have the `getgrnam_r' function. */
+#undef HAVE_GETGRNAM_R
+
+/* Define to 1 if you have the `gethostname' function. */
+#undef HAVE_GETHOSTNAME
+
+/* Define to 1 if you have the `getmachineid' function. */
+#undef HAVE_GETMACHINEID
+
+/* Define to 1 if you have the `getmouse' function. */
+#undef HAVE_GETMOUSE
+
+/* Define to 1 if you have the `getpeereid' function. */
+#undef HAVE_GETPEEREID
+
+/* Define to 1 if you have the `getpeerucred' function. */
+#undef HAVE_GETPEERUCRED
+
+/* Define to 1 if you have the `getpwent' function. */
+#undef HAVE_GETPWENT
+
+/* Define to 1 if you have the `getpwent_r' function. */
+#undef HAVE_GETPWENT_R
+
+/* Define to 1 if you have the `getpwnam' function. */
+#undef HAVE_GETPWNAM
+
+/* Define to 1 if you have the `getpwnam_r' function. */
+#undef HAVE_GETPWNAM_R
+
+/* Define to 1 if you have the `getpwuid' function. */
+#undef HAVE_GETPWUID
+
+/* Define to 1 if you have the `getpwuid_r' function. */
+#undef HAVE_GETPWUID_R
+
+/* Define to 1 if you have the `getresuid' function. */
+#undef HAVE_GETRESUID
+
+/* Define to 1 if you have the `getrusage' function. */
+#undef HAVE_GETRUSAGE
+
+/* Define to 1 if you have the `getuid' function. */
+#undef HAVE_GETUID
+
+/* gid_t type */
+#undef HAVE_GID_T
+
+/* Define to 1 if you have the <grp.h> header file. */
+#undef HAVE_GRP_H
+
+/* Define to 1 if you have the <ieeefp.h> header file. */
+#undef HAVE_IEEEFP_H
+
+/* Define to 1 if you have the <infiniband/mad.h> header file. */
+#undef HAVE_INFINIBAND_MAD_H
+
+/* Define to 1 if you have the <infiniband/umad.h> header file. */
+#undef HAVE_INFINIBAND_UMAD_H
+
+/* Define to 1 if you have the <inttypes.h> header file. */
+#undef HAVE_INTTYPES_H
+
+/* Define to 1 if you have the `ioctl' function. */
+#undef HAVE_IOCTL
+
+/* Define to 1 if you have the <iphlpapi.h> header file. */
+#undef HAVE_IPHLPAPI_H
+
+/* Define to 1 if you have the <iptypes.h> header file. */
+#undef HAVE_IPTYPES_H
+
+/* isnan math API */
+#undef HAVE_ISNAN
+
+/* isnanf math API */
+#undef HAVE_ISNANF
+
+/* Define to 1 if you have the `kill' function. */
+#undef HAVE_KILL
+
+/* Define to 1 if you have the `dl' library (-ldl). */
+#undef HAVE_LIBDL
+
+/* Define to 1 if you have the `gen' library (-lgen). */
+#undef HAVE_LIBGEN
+
+/* Define to 1 if you have the <libgen.h> header file. */
+#undef HAVE_LIBGEN_H
+
+/* Define to 1 if you have the `ibmad' library (-libmad). */
+#undef HAVE_LIBIBMAD
+
+/* Define to 1 if you have the `ibumad' library (-libumad). */
+#undef HAVE_LIBIBUMAD
+
+/* Define to 1 if you have the `m' library (-lm). */
+#undef HAVE_LIBM
+
+/* Define to 1 if you have the `readline' library (-lreadline). */
+#undef HAVE_LIBREADLINE
+
+/* Define to 1 if you have the `regex' library (-lregex). */
+#undef HAVE_LIBREGEX
+
+/* Define to 1 if you have the `rt' library (-lrt). */
+#undef HAVE_LIBRT
+
+/* Define to 1 if you have the <libzfs.h> header file. */
+#undef HAVE_LIBZFS_H
+
+/* Define to 1 if you have the <limits.h> header file. */
+#undef HAVE_LIMITS_H
+
+/* Define to 1 if you have the <linux/perf_event.h> header file. */
+#undef HAVE_LINUX_PERF_EVENT_H
+
+/* lzma decompression */
+#undef HAVE_LZMA_DECOMPRESSION
+
+/* Define to 1 if you have the <lzma.h> header file. */
+#undef HAVE_LZMA_H
+
+/* machine/endian.h */
+#undef HAVE_MACHINE_ENDIAN_H
+
+/* Define to 1 if you have the <malloc.h> header file. */
+#undef HAVE_MALLOC_H
+
+/* Define to 1 if you have the <math.h> header file. */
+#undef HAVE_MATH_H
+
+/* Define to 1 if you have the `memalign' function. */
+#undef HAVE_MEMALIGN
+
+/* Define to 1 if you have the <memory.h> header file. */
+#undef HAVE_MEMORY_H
+
+/* Define to 1 if you have the `mkstemp' function. */
+#undef HAVE_MKSTEMP
+
+/* Define to 1 if you have the `mktime' function. */
+#undef HAVE_MKTIME
+
+/* Define to 1 if you have the `nanosleep' function. */
+#undef HAVE_NANOSLEEP
+
+/* Define to 1 if you have the <curses.h> header file. */
+#undef HAVE_CURSES_H
+
+/* Define to 1 if you have the <ncurses.h> header file. */
+#undef HAVE_NCURSES_H
+
+/* Define to 1 if you have the <ncurses/curses.h> header file. */
+#undef HAVE_NCURSES_CURSES_H
+
+/* Define to 1 if you have the <ncurses/ncurses.h> header file. */
+#undef HAVE_NCURSES_NCURSES_H
+
+/* Define to 1 if you have the <ncursesw/curses.h> header file. */
+#undef HAVE_NCURSESW_CURSES_H
+
+/* Define to 1 if you have the <ncursesw/term.h> header file. */
+#undef HAVE_NCURSESW_TERM_H
+
+/* Define to 1 if you have the <ncurses/term.h> header file. */
+#undef HAVE_NCURSES_TERM_H
+
+/* Define to 1 if you have the <term.h> header file. */
+#undef HAVE_TERM_H
+
+/* Define to 1 if you have the <ndir.h> header file, and it defines `DIR'. */
+#undef HAVE_NDIR_H
+
+/* Define to 1 if you have the <netdb.h> header file. */
+#undef HAVE_NETDB_H
+
+/* Define to 1 if you have the <netinet/in.h> header file. */
+#undef HAVE_NETINET_IN_H
+
+/* Define to 1 if you have the <netinet/tcp.h> header file. */
+#undef HAVE_NETINET_TCP_H
+
+/* Define to 1 if you have the <netioapi.h> header file. */
+#undef HAVE_NETIOAPI_H
+
+/* Define to 1 if you have the <net/if.h> header file. */
+#undef HAVE_NET_IF_H
+
+/* Define to 1 if you have the <nspr4/nspr.h> header file. */
+#undef HAVE_NSPR4_NSPR_H
+
+/* Define to 1 if you have the <nspr/nspr.h> header file. */
+#undef HAVE_NSPR_NSPR_H
+
+/* Define to 1 if you have the <nss3/nss.h> header file. */
+#undef HAVE_NSS3_NSS_H
+
+/* Define to 1 if you have the <nss/nss.h> header file. */
+#undef HAVE_NSS_NSS_H
+
+/* Define to 1 if you have the <perfmon/pfmlib_perf_event.h> header file. */
+#undef HAVE_PERFMON_PFMLIB_PERF_EVENT_H
+
+/* Define to 1 if you have the `pipe2' function. */
+#undef HAVE_PIPE2
+
+/* Define to 1 if you have the `closefrom' function. */
+#undef HAVE_CLOSEFROM
+
+/* pma_query_via API */
+#undef HAVE_PMA_QUERY_VIA
+
+/* Define to 1 if you have the <poll.h> header file. */
+#undef HAVE_POLL_H
+
+/* port_performance_query_via API */
+#undef HAVE_PORT_PERFORMANCE_QUERY_VIA
+
+/* Define to 1 if you have the `posix_memalign' function. */
+#undef HAVE_POSIX_MEMALIGN
+
+/* pow math API */
+#undef HAVE_POW
+
+/* Define to 1 if you have the `prctl' function. */
+#undef HAVE_PRCTL
+
+/* printf %p produces 0x */
+#undef HAVE_PRINTF_P_PFX
+
+/* PR_SET_PDEATHSIG constant */
+#undef HAVE_PR_SET_PDEATHSIG
+
+/* PR_TERMCHILD constant */
+#undef HAVE_PR_TERMCHILD
+
+/* pthread_barrier_t type */
+#undef HAVE_PTHREAD_BARRIER_T
+
+/* Define to 1 if you have the <pthread.h> header file. */
+#undef HAVE_PTHREAD_H
+
+/* pthread_mutex_t type */
+#undef HAVE_PTHREAD_MUTEX_T
+
+/* ptrdiff_t type */
+#undef HAVE_PTRDIFF_T
+
+/* Define to 1 if you have the <pwd.h> header file. */
+#undef HAVE_PWD_H
+
+/* readline API */
+#undef HAVE_READLINE
+
+/* Define to 1 if you have the `recvmsg' function. */
+#undef HAVE_RECVMSG
+
+/* Define to 1 if you have the `regcmp' function. */
+#undef HAVE_REGCMP
+
+/* Define to 1 if you have the `regcomp' function. */
+#undef HAVE_REGCOMP
+
+/* Define to 1 if you have the `regex' function. */
+#undef HAVE_REGEX
+
+/* Define to 1 if you have the `regexec' function. */
+#undef HAVE_REGEXEC
+
+/* Define to 1 if you have the <regex.h> header file. */
+#undef HAVE_REGEX_H
+
+/* Define to 1 if you have the <sasl/sasl.h> header file. */
+#undef HAVE_SASL_SASL_H
+
+/* SA_SIGINFO macro */
+#undef HAVE_SA_SIGINFO
+
+/* Define to 1 if you have the `sbrk' function. */
+#undef HAVE_SBRK
+
+/* Define to 1 if you have the `scandir' function. */
+#undef HAVE_SCANDIR
+
+/* Define to 1 if you have the <sched.h> header file. */
+#undef HAVE_SCHED_H
+
+/* Encrypted sockets */
+#undef HAVE_SECURE_SOCKETS
+
+/* Define to 1 if you have the `select' function. */
+#undef HAVE_SELECT
+
+/* Define to 1 if you have the `sendmsg' function. */
+#undef HAVE_SENDMSG
+
+/* Service discovery mechanisms */
+#undef HAVE_SERVICE_DISCOVERY
+
+/* Define to 1 if you have the `setlinebuf' function. */
+#undef HAVE_SETLINEBUF
+
+/* Define to 1 if you have the `setns' function. */
+#undef HAVE_SETNS
+
+/* Define to 1 if you have the `set_escdelay' function. */
+#undef HAVE_SET_ESCDELAY
+
+/* sid type */
+#undef HAVE_SID
+
+/* SIGBUS signal */
+#undef HAVE_SIGBUS
+
+/* Define to 1 if you have the `sighold' function. */
+#undef HAVE_SIGHOLD
+
+/* SIGHUP signal */
+#undef HAVE_SIGHUP
+
+/* Define to 1 if you have the `signal' function. */
+#undef HAVE_SIGNAL
+
+/* SIG_PF typedef */
+#undef HAVE_SIGPF
+
+/* SIGPIPE signal */
+#undef HAVE_SIGPIPE
+
+/* Define to 1 if you have the `sigrelse' function. */
+#undef HAVE_SIGRELSE
+
+/* Define to 1 if you have the `socket' function. */
+#undef HAVE_SOCKET
+
+/* socklen_t type */
+#undef HAVE_SOCKLEN_T
+
+/* Define to 1 if you have the <standards.h> header file. */
+#undef HAVE_STANDARDS_H
+
+/* Static probes (dtrace, systemtap) */
+#undef HAVE_STATIC_PROBES
+
+/* timespec type */
+#undef HAVE_STAT_TIMESPEC
+
+/* timespec_t type */
+#undef HAVE_STAT_TIMESPEC_T
+
+/* timestruc_t type */
+#undef HAVE_STAT_TIMESTRUC
+
+/* time_t type */
+#undef HAVE_STAT_TIME_T
+
+/* Define to 1 if you have the <stddef.h> header file. */
+#undef HAVE_STDDEF_H
+
+/* Define to 1 if you have the <stdint.h> header file. */
+#undef HAVE_STDINT_H
+
+/* Define to 1 if you have the <stdlib.h> header file. */
+#undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strchrnul' function. */
+#undef HAVE_STRCHRNUL
+
+/* strerror_r return */
+#undef HAVE_STRERROR_R_PTR
+
+/* strftime with %z */
+#undef HAVE_STRFTIME_z
+
+/* Define to 1 if you have the <strings.h> header file. */
+#undef HAVE_STRINGS_H
+
+/* Define to 1 if you have the <string.h> header file. */
+#undef HAVE_STRING_H
+
+/* Define to 1 if you have the `strndup' function. */
+#undef HAVE_STRNDUP
+
+/* Define to 1 if you have the `strtod' function. */
+#undef HAVE_STRTOD
+
+/* Define to 1 if you have the `strtol' function. */
+#undef HAVE_STRTOL
+
+/* Define to 1 if you have the `strtoll' function. */
+#undef HAVE_STRTOLL
+
+/* Define to 1 if you have the `strtoull' function. */
+#undef HAVE_STRTOULL
+
+/* sockaddr_un type */
+#undef HAVE_STRUCT_SOCKADDR_UN
+
+/* timespec type */
+#undef HAVE_STRUCT_TIMESPEC
+
+/* ucred type */
+#undef HAVE_STRUCT_UCRED
+
+/* st_mtime stat field */
+#undef HAVE_ST_MTIME_WITH_E
+
+/* st_mtimespec stat field */
+#undef HAVE_ST_MTIME_WITH_SPEC
+
+/* Define to 1 if you have the `sysinfo' function. */
+#undef HAVE_SYSINFO
+
+/* Define to 1 if you have the `syslog' function. */
+#undef HAVE_SYSLOG
+
+/* Define to 1 if you have the <syslog.h> header file. */
+#undef HAVE_SYSLOG_H
+
+/* Define to 1 if you have the <sys/byteorder.h> header file. */
+#undef HAVE_SYS_BYTEORDER_H
+
+/* Define to 1 if you have the <sys/dir.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_SYS_DIR_H
+
+/* IRIX sys/endian.h */
+#undef HAVE_SYS_ENDIAN_H
+
+/* Define to 1 if you have the <sys/ioctl.h> header file. */
+#undef HAVE_SYS_IOCTL_H
+
+/* Define to 1 if you have the <sys/mman.h> header file. */
+#undef HAVE_SYS_MMAN_H
+
+/* Define to 1 if you have the <sys/mount.h> header file. */
+#undef HAVE_SYS_MOUNT_H
+
+/* Define to 1 if you have the <sys/ndir.h> header file, and it defines `DIR'.
+   */
+#undef HAVE_SYS_NDIR_H
+
+/* Define to 1 if you have the <sys/prctl.h> header file. */
+#undef HAVE_SYS_PRCTL_H
+
+/* Define to 1 if you have the <sys/resource.h> header file. */
+#undef HAVE_SYS_RESOURCE_H
+
+/* Define to 1 if you have the <sys/sdt.h> header file. */
+#undef HAVE_SYS_SDT_H
+
+/* Define to 1 if you have the <sys/select.h> header file. */
+#undef HAVE_SYS_SELECT_H
+
+/* Define to 1 if you have the <sys/socket.h> header file. */
+#undef HAVE_SYS_SOCKET_H
+
+/* Define to 1 if you have the <sys/statfs.h> header file. */
+#undef HAVE_SYS_STATFS_H
+
+/* Define to 1 if you have the <sys/statvfs.h> header file. */
+#undef HAVE_SYS_STATVFS_H
+
+/* Define to 1 if you have the <sys/stat.h> header file. */
+#undef HAVE_SYS_STAT_H
+
+/* Define to 1 if you have the <sys/sysinfo.h> header file. */
+#undef HAVE_SYS_SYSINFO_H
+
+/* Define to 1 if you have the <sys/systeminfo.h> header file. */
+#undef HAVE_SYS_SYSTEMINFO_H
+
+/* Define to 1 if you have the <sys/termios.h> header file. */
+#undef HAVE_SYS_TERMIOS_H
+
+/* Define to 1 if you have the <sys/times.h> header file. */
+#undef HAVE_SYS_TIMES_H
+
+/* Define to 1 if you have the <sys/types.h> header file. */
+#undef HAVE_SYS_TYPES_H
+
+/* Define to 1 if you have the <sys/un.h> header file. */
+#undef HAVE_SYS_UN_H
+
+/* Define to 1 if you have the <sys/wait.h> header file. */
+#undef HAVE_SYS_WAIT_H
+
+/* Define to 1 if you have the `tcgetattr' function. */
+#undef HAVE_TCGETATTR
+
+/* Define to 1 if you have the <termios.h> header file. */
+#undef HAVE_TERMIOS_H
+
+/* Define to 1 if you have the <termio.h> header file. */
+#undef HAVE_TERMIO_H
+
+/* Define to 1 if you have the `trace_back_stack' function. */
+#undef HAVE_TRACE_BACK_STACK
+
+/* Transparent decompression */
+#undef HAVE_TRANSPARENT_DECOMPRESSION
+
+/* uid_t type */
+#undef HAVE_UID_T
+
+/* Define to 1 if you have the `uname' function. */
+#undef HAVE_UNAME
+
+/* _environ declared globally */
+#undef HAVE_UNDERBAR_ENVIRON
+
+/* Define to 1 if you have the <unistd.h> header file. */
+#undef HAVE_UNISTD_H
+
+/* Define to 1 if you have the `unsetenv' function. */
+#undef HAVE_UNSETENV
+
+/* Define to 1 if you have the `usleep' function. */
+#undef HAVE_USLEEP
+
+/* uv_pipe_chmod API. */
+#undef HAVE_UV_PIPE_CHMOD
+
+/* Define to 1 if you have the `valloc' function. */
+#undef HAVE_VALLOC
+
+/* Define to 1 if you have the <values.h> header file. */
+#undef HAVE_VALUES_H
+
+/* Define to 1 if you have the `vprintf' function. */
+#undef HAVE_VPRINTF
+
+/* Define to 1 if you have the `waitpid' function. */
+#undef HAVE_WAITPID
+
+/* indirect signal.h */
+#undef HAVE_WAIT_INCLUDES_SIGNAL
+
+/* Define to 1 if you have the <windows.h> header file. */
+#undef HAVE_WINDOWS_H
+
+/* Define to 1 if you have the <winsock2.h> header file. */
+#undef HAVE_WINSOCK2_H
+
+/* Define to 1 if you have the <ws2tcpip.h> header file. */
+#undef HAVE_WS2TCPIP_H
+
+/* Define to 1 if you have the <systemd/sd-daemon.h> header file. */
+#undef HAVE_SYSTEMD_SD_DAEMON_H
+
+/* 3-arg zfs_iter_snapshots */
+#undef HAVE_ZFS_ITER_SNAPSHOTS_3ARG
+
+/* 4-arg zfs_iter_snapshots */
+#undef HAVE_ZFS_ITER_SNAPSHOTS_4ARG
+
+/* 4-arg zpool_vdev_name */
+#undef HAVE_ZPOOL_VDEV_NAME_4ARG
+
+/* 5-arg zpool_vdev_name */
+#undef HAVE_ZPOOL_VDEV_NAME_5ARG
+
+/* Define to 1 if you have the `__clone' function. */
+#undef HAVE___CLONE
+
+/* __psint_t type */
+#undef HAVE___PSINT_T
+
+/* __thread private data */
+#undef HAVE___THREAD
+
+/* Platform is AIX */
+#undef IS_AIX
+
+/* Platform is Darwin (Mac OS X) */
+#undef IS_DARWIN
+
+/* Platform is FreeBSD */
+#undef IS_FREEBSD
+
+/* Platform is GNU Hurd */
+#undef IS_GNU
+
+/* Platform is Linux */
+#undef IS_LINUX
+
+/* Platform is MinGW (Windows) */
+#undef IS_MINGW
+
+/* Platform is NetBSD */
+#undef IS_NETBSD
+
+/* Platform is OpenBSD */
+#undef IS_OPENBSD
+
+/* Platform is Solaris */
+#undef IS_SOLARIS
+
+/* Define as the return type of signal handlers (`int' or `void'). */
+#undef RETSIGTYPE
+
+/* Define to 1 if you have the ANSI C header files. */
+#undef STDC_HEADERS
+
+/* Define to 1 if your <sys/time.h> declares `struct tm'. */
+#undef TM_IN_SYS_TIME
+
+/* Define to 1 if the X Window System is missing or not being used. */
+#undef X_DISPLAY_MISSING
+
+/* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
+   `char[]'. */
+#undef YYTEXT_POINTER
+
+/* Define to `int' if <sys/types.h> does not define. */
+#undef __int32_t
+
+/* Define to `long long' if <sys/types.h> does not define. */
+#undef __int64_t
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef __uint32_t
+
+/* Define to `unsigned long long' if <sys/types.h> does not define. */
+#undef __uint64_t
+
+/* Define to empty if `const' does not conform to ANSI C. */
+#undef const
+
+/* Define to `__inline__' or `__inline' if that's what the C compiler
+   calls it, or to nothing if 'inline' is not supported under any name.  */
+#ifndef __cplusplus
+#undef inline
+#endif
+
+/* Define to `long int' if <sys/types.h> does not define. */
+#undef off_t
+
+/* Define to `int' if <sys/types.h> does not define. */
+#undef pid_t
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef size_t
+
+/* Default strtoint64 to strtoll */
+#undef strtoint64
+
+/* Default strtouint64 to strtoull */
+#undef strtouint64
+
+/* Define to `unsigned int' if <sys/types.h> does not define. */
+#undef uint_t
+
+/* backtrace support */
+#undef HAVE___EXECUTABLE_START
+#undef HAVE___ETEXT
+#undef HAVE__ETEXT
+#undef HAVE_ETEXT
+
+/* sizeof suseconds_t ... only ever going to exist on linux-like systems */
+#undef PM_SIZEOF_SUSECONDS_T
+
+/* sizeof time_t */
+#undef PM_SIZEOF_TIME_T
+
+#ifndef PM_SIZEOF_TIME_T
+#error Unknown time_t size
+#endif

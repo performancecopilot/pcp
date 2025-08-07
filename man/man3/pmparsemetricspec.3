@@ -19,21 +19,23 @@
 \f3pmFreeMetricSpec\f1 \- uniform metric specification parser
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmParseMetricSpec(const char *\fIstring\fP, int \fIisarch\fP, char\ *\fIsource\fP, pmMetricSpec\ **\fIrsltp\fP, char\ **\fIerrmsg\fP);
+#include <pcp/pmapi.h>
+.sp
+int pmParseMetricSpec(const char *\fIstring\fP,
+'in +\w'int pmParseMetricSpec('u
+int\ \fIisarch\fP,
+char\ *\fIsource\fP,
+pmMetricSpec\ **\fIrsltp\fP,
+char\ **\fIerrmsg\fP);
+.in
 .br
-.ti -8n
 void pmFreeMetricSpec(pmMetricSpec *\fIrslt\fP);
 .sp
-.in
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmParseMetricSpec

@@ -34,10 +34,7 @@ import requests
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL1, PM_TIME_NSEC
-
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_TIME_NSEC
 
 # Default config
 DEFAULT_CONFIG = ["./pcp2influxdb.conf", "$HOME/.pcp2influxdb.conf", "$HOME/.pcp/pcp2influxdb.conf", "$PCP_SYSCONF_DIR/pcp2influxdb.conf"]
@@ -401,7 +398,7 @@ class PCP2InfluxDB(object):
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
-        self.pmfg_ts = self.pmfg.extend_timestamp()
+        self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
 
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
@@ -420,7 +417,7 @@ class PCP2InfluxDB(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -524,7 +521,7 @@ class PCP2InfluxDB(object):
 
         for metric in metrics:
             metric.set_tag_string(self.influx_tags)
-            metric.set_timestamp(long(ts))
+            metric.set_timestamp(int(ts))
             body.add(metric)
 
         url = self.influx_server + '/write'

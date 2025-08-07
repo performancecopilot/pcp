@@ -738,7 +738,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
 			exitcode = (ps->gen.excode >>   8) & 0xff;
 
 		printf("%s %d %s %c %d %d %d %d %d %ld %s %d %d %d %d "
- 		       "%d %d %d %d %d %d %ld %c %d %d %s %c %s %ld %d\n",
+ 		       "%d %d %d %d %d %d %ld %c %d %d %s %c %s %lld %d\n",
 			hp,
 			ps->gen.pid,
 			spaceformat(ps->gen.name, namout),
@@ -768,7 +768,7 @@ print_PRG(char *hp, struct sstat *ss, struct tstat *ps, int nact)
         		ps->gen.excode & ~(INT_MAX) ? 'N' : '-',
 			spaceformat(ps->gen.cgpath, pathout),
 			ps->gen.state == 'E' ?
-			    ps->gen.btime + ps->gen.elaps/hertz : 0,
+			    (long long)(ps->gen.btime + ps->gen.elaps/hertz) : 0,
 			ps->gen.nthridle);
 	}
 }

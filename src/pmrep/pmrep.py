@@ -17,7 +17,7 @@
 # pylint: disable=too-many-boolean-expressions, too-many-statements
 # pylint: disable=too-many-instance-attributes, too-many-locals
 # pylint: disable=too-many-branches, too-many-nested-blocks
-# pylint: disable=broad-except, too-many-arguments
+# pylint: disable=broad-except, too-many-arguments, too-many-positional-arguments
 # pylint: disable=too-many-lines, too-many-public-methods
 
 """ Performance Metrics Reporter """
@@ -39,15 +39,12 @@ import os
 # PCP Python PMAPI
 from pcp import pmapi, pmi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_CONTEXT_LOCAL
-from cpmapi import PM_INDOM_NULL, PM_IN_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
+from cpmapi import PM_INDOM_NULL, PM_IN_NULL, PM_TIME_SEC
 from cpmapi import PM_SEM_DISCRETE, PM_TYPE_STRING
 from cpmapi import PM_TEXT_PMID, PM_TEXT_INDOM, PM_TEXT_ONELINE, PM_TEXT_HELP
 from cpmapi import PM_LABEL_INDOM, PM_LABEL_INSTANCES
 from cpmapi import PM_LABEL_DOMAIN, PM_LABEL_CLUSTER, PM_LABEL_ITEM
 from cpmi import PMI_ERR_DUPINSTNAME, PMI_ERR_DUPTEXT
-
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
 
 # Default config
 DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep"]
@@ -106,7 +103,7 @@ class PMReporter(object):
         self.globals = 1
         self.timestamp = 0
         self.samples = None # forever
-        self.interval = pmapi.timeval(1)       # 1 sec
+        self.interval = pmapi.timespec(1)       # 1 sec
         self.opts.pmSetOptionInterval(str(1))  # 1 sec
         self.delay = 0
         self.type = 0
@@ -399,7 +396,7 @@ class PMReporter(object):
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
-        self.pmfg_ts = self.pmfg.extend_timestamp()
+        self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
 
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
@@ -413,9 +410,7 @@ class PMReporter(object):
 
         self.pmconfig.validate_common_options()
 
-        if self.output != OUTPUT_ARCHIVE and \
-           self.output != OUTPUT_CSV and \
-           self.output != OUTPUT_STDOUT:
+        if self.output not in (OUTPUT_ARCHIVE, OUTPUT_CSV, OUTPUT_STDOUT):
             sys.stderr.write("Error while parsing options: Invalid output target specified.\n")
             sys.exit(1)
 
@@ -488,7 +483,7 @@ class PMReporter(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stderr.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stderr.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -756,7 +751,7 @@ class PMReporter(object):
                 duration = max(0, duration)
         endtime = origin + duration
 
-        instances = sum([len(x[0]) for x in self.pmconfig.insts])
+        instances = sum(len(x[0]) for x in self.pmconfig.insts)
         insts_txt = "instances" if instances != 1 else "instance"
         if not self.static_header:
             if self.context.type == PM_CONTEXT_ARCHIVE:
@@ -812,12 +807,12 @@ class PMReporter(object):
         """ Helper to get number of instances of current results """
         if self.static_header:
             if self.colxrow is None:
-                c = len(str(sum([len(i[0]) for i in self.pmconfig.insts])))
+                c = len(str(sum(len(i[0]) for i in self.pmconfig.insts)))
             else:
                 c = len(str(len(self.metrics)))
         else:
             if self.colxrow is None:
-                c = len(str(sum([len(results[i]) for i in results])))
+                c = len(str(sum(len(results[i]) for i in results)))
             else:
                 c = len(str(len(results)))
         return c
@@ -1132,7 +1127,7 @@ class PMReporter(object):
                         continue
                 try:
                     self.pmi.pmiPutValue(metric, name, str(value))
-                except pmi.pmiErr as pmierror:
+                except pmi.pmiErr:
                     pass
                 data = 1
         self.prev_res = results # pylint: disable=attribute-defined-outside-init
@@ -1255,7 +1250,7 @@ class PMReporter(object):
 
     def format_stdout_value(self, value, width, precision, fmt, k):
         """ Format value for stdout output """
-        if isinstance(value, (int, long)):
+        if isinstance(value, int):
             if len(str(value)) > width:
                 value = pmconfig.TRUNC
             else:
@@ -1542,7 +1537,7 @@ class PMReporter(object):
                 self.writer.flush()
             except IOError as ioerror:
                 if ioerror.errno != errno.EPIPE:
-                    raise error
+                    raise ioerror
             try:
                 self.writer.close()
             except Exception:

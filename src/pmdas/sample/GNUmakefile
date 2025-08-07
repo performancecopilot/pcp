@@ -21,10 +21,12 @@ LDIRT = *.dir *.pag
 
 SUBDIRS = src
 
-PMDAADMDIR = $(PCP_PMDASADM_DIR)/sample
-PMDATMPDIR = $(PCP_PMDAS_DIR)/sample
-PMCHARTDIR = $(PCP_SYSCONF_DIR)/pmchart
-PMCHARTVARDIR = $(PCP_VAR_DIR)/config/pmchart
+PMDAADMDIR	= $(PCP_PMDASADM_DIR)/sample
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/sample
+PMCHARTDIR	= $(PCP_SYSCONF_DIR)/pmchart
+PMCHARTVARDIR	= $(PCP_VAR_DIR)/config/pmchart
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -41,6 +43,7 @@ ifeq "$(ENABLE_QT)" "true"
 	$(INSTALL) -m 644 -t $(PMCHARTVARDIR)/Sample Sample.pmchart $(PMCHARTDIR)/Sample
 endif
 	$(INSTALL) -m 755 $(TOPDIR)/src/pmcheck/pmda.template $(PCP_SHARE_DIR)/lib/pmcheck/pmda-sample
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/sample_migrate.conf migrate.conf $(REWRITEDIR)/sample_migrate.conf
 
 $(OBJECTS): domain.h
 

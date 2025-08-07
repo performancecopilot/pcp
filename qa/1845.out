@@ -1,0 +1,27 @@
+QA output created by 1845
+== default options, but no compression ===
+Add merge callback for: pmlogger_daily_report
+Info: processing archives from remote pmlogger on host qahost
+
+=== daily maintenance of PCP archives for host qahost in TMP/pmproxy/qahost ===
+
+Input archives to be merged:
+	TODAY-2.00.10
+	TODAY-2.01.20 (3 volumes)
+	TODAY-2.02.30
+Output archive files:
+-rw-r--r-- 1411 TODAY-2.meta
+-rw-r--r-- 272 TODAY-2.index
+-rw-r--r-- 5688 TODAY-2.0
+Removing input archive files ........... done
+Merge callbacks ...
+callback: PCP_BINADM_DIR/pmlogger_daily_report -o PCP_LOG_DIR/sa -a TMP/pmproxy/qahost/TODAY-2
+Remaining archives files ...
+TMP/pmproxy/qahost/TODAY-2.0
+TMP/pmproxy/qahost/TODAY-2.index
+TMP/pmproxy/qahost/TODAY-2.meta
+TMP/pmproxy/qahost/TODAY-1.0
+TMP/pmproxy/qahost/TODAY-1.1
+TMP/pmproxy/qahost/TODAY-1.2
+TMP/pmproxy/qahost/TODAY-1.index
+TMP/pmproxy/qahost/TODAY-1.meta

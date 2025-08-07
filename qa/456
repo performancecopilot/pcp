@@ -57,23 +57,23 @@ _cleanup()
 
     _stop_loggers >/dev/null 2>&1
 
-    cd # get out of tmp directory so we can delete it
-    $sudo rm -rf $tmp
+    cd $here # get out of tmp directory so we can delete it
+    $sudo rm -rf $tmp $tmp.*
 
-    $sudo $PCP_BINADM_DIR/pmlogger_check
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
 }
 
 _setup()
 {
     _stop_loggers
-    cd
     mkdir $tmp
 }
 
 # real QA test starts here
 
 _setup
+cd $tmp
 
 # control file
 #
@@ -92,18 +92,20 @@ foo	n   n
 foo	n
 EOF
 
+$sudo chown $PCP_USER:$PCP_GROUP $tmp
+
 echo "--------------"
 echo "PMLOGGER.CHECK"
 echo "--------------"
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log
-$sudo cat $tmp/log | _filter
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp.log
+$sudo cat $tmp.log | _filter
 
 echo
 echo "--------------"
 echo "PMLOGGER.DAILY"
 echo "--------------"
-$sudo $PCP_BINADM_DIR/pmlogger_daily -V -c $tmp/control -l $tmp/log
-$sudo cat $tmp/log | _filter
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -P -V -c $tmp/control -l $tmp.log
+$sudo cat $tmp.log | _filter
 
 # success, all done
 status=0

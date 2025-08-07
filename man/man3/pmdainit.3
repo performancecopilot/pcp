@@ -26,41 +26,41 @@
 \f3pmdaExtSetFlags\f1 \- initialize a PMDA
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-void pmdaInit(pmdaInterface *\fIdispatch\fP, pmdaIndom *\fIindoms\fP, int\ \fInindoms\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
+void pmdaInit(pmdaInterface *\fIdispatch\fP,
+'in +\w'void pmdaInit('u
+pmdaIndom\ *\fIindoms\fP,
+int\ \fInindoms\fP,
+pmdaMetric\ *\fImetrics\fP,
+int\ \fInmetrics\fP);
+.in
 .sp
-.ti -8n
-void pmdaRehash(pmdaExt *\fIpmda\fP, pmdaMetric\ *\fImetrics\fP, int\ \fInmetrics\fP);
+void pmdaRehash(pmdaExt *\fIpmda\fP,
+'in +\w'void pmdaRehash('u
+pmdaMetric\ *\fImetrics\fP,
+int\ \fInmetrics\fP);
+.in
 .sp
-.ti -8n
 void pmdaSetFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
 .br
-.ti -8n
 void pmdaSetCommFlags(pmdaInterface *\fIdispatch\fP, int \fIflags\fP);
 .br
-.ti -8n
 void pmdaExtSetFlags(pmdaExt *\fIpmda\fP, int \fIflags\fP);
-.sp
-.ti -8n
+.br
 void pmdaSetData(pmdaInterface *\fIdispatch\fP, void *\fIdata\fP);
 .br
-.ti -8n
 void pmdaExtSetData(pmdaExt *\fIpmda\fP, void *\fIdata\fP);
 .br
-.ti -8n
 void *pmdaExtGetData(pmdaExt *\fIpmda\fP);
 .sp
-.in
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmdaInit

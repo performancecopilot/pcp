@@ -98,7 +98,7 @@ cp /dev/null $tmp.noconf
 $sudo cp $tmp.new $NOTICES
 cp $NOTICES $seq_full
 echo >>$seq_full
-$sudo $PCP_BINADM_DIR/pmlogger_daily -c $tmp.noconf -m pcpqa@$host
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily -P -c $tmp.noconf -m pcpqa@$host
 
 sleep 2	# let mail arrive (shouldn't take long)
 

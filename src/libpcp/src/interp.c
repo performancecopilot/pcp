@@ -425,7 +425,7 @@ update_bounds(__pmContext *ctxp, double t_req, __pmResult *logrp, int do_mark, i
 		     * between pmResults, ignore the <mark> record
 		     */
 		    char		*endnum;
-		    struct timeval	gap;
+		    struct timespec	gap;
 		    if (pmParseInterval(str, &gap, &endnum) < 0) {
 			/*
 			 * probably should use pmprintf(), but that takes us into
@@ -437,7 +437,7 @@ update_bounds(__pmContext *ctxp, double t_req, __pmResult *logrp, int do_mark, i
 			ignore_mark_records = 0;
 		    }
 		    else {
-			ignore_mark_gap = pmtimevalToReal(&gap);
+			ignore_mark_gap = pmtimespecToReal(&gap);
 			ignore_mark_records = 1;
 		    }
 		}
@@ -2223,6 +2223,11 @@ __pmLogResetInterp(__pmContext *ctxp)
 	    }
 	}
     }
+
+    /*
+     * force __pmLogFetch() to re-position in the correct place
+     */
+    ctxp->c_archctl->ac_serial = 0;
 }
 
 /*

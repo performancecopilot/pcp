@@ -252,9 +252,9 @@ static void PCPDynamicScreen_parseFile(PCPDynamicScreens* screens, const char* p
          if (pmDebugOptions.appl0)
             fprintf(stderr, "[%s] screen: %s\n", path, key + 1);
       } else if (!ok) {
-         ;  /* skip this one, we're looking for a new header */
+         /* skip this one, we're looking for a new header */
       } else if (!value || !screen) {
-         ;  /* skip this one as we always need value strings */
+         /* skip this one as we always need value strings */
       } else if (String_eq(key, "heading")) {
          free_and_xStrdup(&screen->super.heading, value);
       } else if (String_eq(key, "caption")) {
@@ -393,7 +393,7 @@ void PCPDynamicScreens_addAvailableColumns(Panel* availableColumns, Hashtable* s
    Vector_prune(availableColumns->items);
 
    bool success;
-   unsigned int key;
+   ht_key_t key;
    success = DynamicScreen_search(screens, screen, &key);
    if (!success)
       return;

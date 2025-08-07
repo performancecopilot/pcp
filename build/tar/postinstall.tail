@@ -76,9 +76,21 @@ do
 	then
 	    $RM -f "$conf.pre"
 	else
-	    $MV "$conf" "$conf.dist"
-	    $MV "$conf.pre" "$conf"
-	    echo "Warning: $conf: original restored, new version in $conf.dist"
+	    # if $conf.pre is zero sized (maybe a previous filesystem
+	    # full or reconfig that failed), so that's probably not
+	    # a good thing to leave in place ...
+	    #
+	    if [ -s "$conf.pre" ]
+	    then
+		$MV "$conf" "$conf.dist"
+		$MV "$conf.pre" "$conf"
+		echo "Warning: $conf: original restored, new version in $conf.dist"
+		ls -l $conf $conf.dist
+	    else
+		echo "Warning: $conf: previous version is empty, not restored"
+		ls -l $conf.pre $conf
+		$RM -f "$conf.pre"
+	    fi
 	fi
     fi
 done

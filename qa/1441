@@ -230,7 +230,7 @@ _wait_for_new_pmie()
 	ls -l $PCP_RUN_DIR/pmie.pid
 	ls -l $PCP_TMP_DIR/pmie
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
-	$sudo -u pcp kill -USR1 "$1"
+	$sudo -u $PCP_USER kill -USR1 "$1"
 	sleep 1
 	echo "=== $oldhostname log ===" >>$seq_full
 	cat $PCP_LOG_DIR/pmie/$oldhostname/pmie.log >>$seq_full

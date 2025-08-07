@@ -330,7 +330,7 @@ main(int argc, char **argv)
 	     * merics from archives are fetched one at a time, otherwise
 	     * get them in batches of at most batchsize.
 	     */
-	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, 0)) < 0) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.origin, NULL)) < 0) {
 		printf("%d %s (pmSetMode)\n", sts, pmErrStr(sts));
 		continue;
 	    }

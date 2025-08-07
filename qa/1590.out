@@ -1,0 +1,43 @@
+QA output created by 1590
+
+=== -i 42 ===
+-i interval: 42.000000 (42s)
+End of option processing
+Options structure dump:
+...
+pmLookupName: OK: sample.colour -> 29.0.5
+pmID_*: OK 29.0.5
+pmInDom_*: OK 29.1
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+
+=== -i 42.1 ===
+-i interval: 42.100000 (42.1s)
+End of option processing
+Options structure dump:
+...
+pmLookupName: OK: sample.colour -> 29.0.5
+pmID_*: OK 29.0.5
+pmInDom_*: OK 29.1
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER
+
+=== -i 42.123456789 ===
+-i interval: 42.123456 (42.123456789s)
+End of option processing
+Options structure dump:
+...
+pmLookupName: OK: sample.colour -> 29.0.5
+pmID_*: OK 29.0.5
+pmInDom_*: OK 29.1
+pmResult ... numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value NUMBER
+    inst [1 or "green"] value NUMBER
+    inst [2 or "blue"] value NUMBER

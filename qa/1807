@@ -1,0 +1,81 @@
+#!/bin/sh
+# PCP QA Test No. 1807
+# Exercise the pmseries_import script.
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+. ./common.keys
+
+test -x $PCP_BINADM_DIR/pmseries_import || _notrun "No pmseries_import script"
+_check_series
+
+_cleanup()
+{
+    [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
+    _restore_config $PCP_SYSCONF_DIR/pmseries
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_import()
+{
+    sed \
+	-e "s@$here@PATH@g" \
+	-e "s@$tmp@TMP@g" \
+	-e "/^Dashboard:/d" \
+	-e "s/in [0-9]:[0-9][s|m]/in TIME/g" \
+    # end
+}
+
+cat >$tmp.jsonfile<<EOF
+{"time":{"from":0,"to":0}}
+EOF
+
+# real QA test starts here
+key_server_port=`_find_free_port`
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
+echo
+
+_check_key_server_version $key_server_port
+
+mkdir $tmp.archives
+cp $here/archives/pcp-meminfo* $tmp.archives
+args="-p $key_server_port -Z UTC"
+
+echo "== Auto-load metric data into this key server instance"
+pmseries_import $args \
+	--poll-interval 30 \
+	--import-timeout 60 \
+	--archives $tmp.archives \
+	--jsonfile $tmp.jsonfile \
+	>$tmp.import 2>&1 &
+pid=$!
+pmsleep 2.5 # delay for polling and loading
+_filter_import < $tmp.import 
+pmsignal $pid
+echo
+
+echo "== Verify archive data has been loaded into key server"
+pmseries $args 'mem.util.free[count:5]'
+echo
+
+echo "== Verify JSON time window has been updated"
+cat $tmp.jsonfile
+echo
+
+# success, all done
+exit

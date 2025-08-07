@@ -98,7 +98,7 @@ static pmdaMetric	metrics[] =
 	    PMDA_PMUNITS(0,0,0,0,0,0), }, },
 /* control.debug */
     { NULL,
-	{ PMDA_PMID(0,8),PM_TYPE_32,PM_INDOM_NULL,PM_SEM_DISCRETE,
+	{ PMDA_PMID(0,8),PM_TYPE_STRING,PM_INDOM_NULL,PM_SEM_DISCRETE,
 	    PMDA_PMUNITS(0,0,0,0,0,0), }, },
 /* control.cycles */
     { NULL,
@@ -365,7 +365,7 @@ refresh(void *dummy)
 }
 
 static int
-shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
+shping_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *ext)
 {
     int			i;		/* over pmidlist[] */
     int			j;		/* over vset->vlist[] */
@@ -373,12 +373,13 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     int			need;
     int			inst;
     int			numval;
-    static pmResult	*res = NULL;
+    static pmdaResult	*res = NULL;
     static int		maxnpmids = 0;
     pmValueSet		*vset;
     pmAtomValue		atom;
     pmDesc		*dp = NULL;
     int			type;
+    static char		*last_debug = NULL;
 
 #ifndef HAVE_SPROC
     /* In the pthread world we don't have asyncronous notification that
@@ -399,10 +400,10 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 	if (res != NULL)
 	    free(res);
 
-/* (numpmid - 1) because there's room for one valueSet in a pmResult */
+/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
 
-	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-	if ((res = (pmResult *) malloc(need)) == NULL)
+	need = sizeof(pmdaResult) + (numpmid - 1) * sizeof(pmValueSet *);
+	if ((res = (pmdaResult *) malloc(need)) == NULL)
 	    return -oserror();
 	maxnpmids = numpmid;
     }
@@ -455,7 +456,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 	if (vset == NULL) {
 	    if (i) {
 		res->numpmid = i;
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 	    }
 	    return -oserror();
 	}
@@ -484,7 +485,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 		if (vset == NULL) {
 		    if (i) {
 			res->numpmid = i;
-			__pmFreeResultValues(res);
+			pmdaFreeResultValues(res);
 		    }
 		    return -oserror();
 		}
@@ -527,7 +528,10 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 			break;
 
 		    case 8:	/* shping.control.debug PMID: ...0.8 */
-			atom.l = pmDebug;
+			if (last_debug != NULL)
+			    free(last_debug);
+			last_debug = pmGetDebug();
+			atom.cp = last_debug;
 			break;
 
 		    case 9:	/* shping.control.cycles PMID: ...0.9 */
@@ -548,7 +552,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 
 	    sts = __pmStuffValue(&atom, &vset->vlist[j], type);
 	    if (sts < 0) {
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 		return sts;
 	    }
 
@@ -563,7 +567,7 @@ shping_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 }
 
 static int
-shping_store(pmResult *result, pmdaExt *ext)
+shping_store(pmdaResult *result, pmdaExt *ext)
 {
     int		i;
     pmValueSet	*vsp;
@@ -593,13 +597,12 @@ shping_store(pmResult *result, pmdaExt *ext)
 		    break;
 
 		case 8:	/* shping.control.debug PMID: ...0.8 */
-		    ival = vsp->vlist[0].value.lval;
-		    if (ival < 0) {
-			sts = PM_ERR_SIGN;
-			break;
+		    if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
+			sts = PM_ERR_BADSTORE;
+		    else {
+			pmClearDebug("all");
+			sts = pmSetDebug(vsp->vlist[0].value.pval->vbuf);
 		    }
-		    pmClearDebug("all");
-		    __pmSetDebugBits(ival);
 		    break;
 
 		default:

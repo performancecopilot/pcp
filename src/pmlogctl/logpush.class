@@ -1,0 +1,60 @@
+# This policy file is for the logpush class, as used by the create,
+# cond-create, destroy and cond-destroy commands of pmlogctl
+#
+# Note that for create and cond-create, hostname (and hence %h) is
+# conventionally localhost or hostname(1) here, and $PMPROXY_HOST
+# identifies the remote host where pmproxy(1) is running and writing
+# the archive files
+# 
+
+[class]
+logpush
+
+[ident]
+logpush-%h
+
+[control]
+# PCP archive logging configuration/control
+#
+# see pmlogger.control(5) for a description of the format
+#
+# logpush from pmcd and pmlogger on the localhost to pmproxy on
+# ENV(PMPROXY_HOST) where the archive files are stored
+
+# DO NOT REMOVE OR EDIT THE FOLLOWING LINE
+$version=1.1
+
+$class=logpush
+
+# Uncomment one of the lines below to enable/disable culling behaviour
+# that is different to the pmlogger_daily default [14].
+# Value is days to keep, older archives are culled, 0 is immediate
+# culling once the archive has been completed, "never" or "forever"
+# suppresses culling.
+#
+#$PCP_CULLAFTER=0
+#$PCP_CULLAFTER=3
+#$PCP_CULLAFTER=never
+
+# Uncomment one of the lines below to enable/disable compression behaviour
+# that is different to the pmlogger_daily default.
+# Value is days before compressing archives, 0 is immediate compression,
+# "never" or "forever" suppresses compression.
+#
+#$PCP_COMPRESSAFTER=0
+#$PCP_COMPRESSAFTER=3
+#$PCP_COMPRESSAFTER=never
+
+# === LOGGER CONTROL SPECIFICATIONS ===
+#
+#Host		P?  S?	directory			args
+%h n n +PCP_ARCHIVE_DIR/%i  -r -v 100Mb -T24h10m -c ENV(PMLOGGER_CONFIG:config.default) -R http://ENV(PMPROXY_HOST):44322 
+
+[create]
+# for cond-create we want this policy to apply to every pmcd host
+condition(1)
+
+[destroy]
+# for cond-destroy we want this policy to apply to every instance in
+# the logpush class
+condition(1)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017,2021-2022 Red Hat.
+ * Copyright (c) 2017,2021-2022,2025 Red Hat.
  * Copyright (c) 1995-2003 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -99,7 +99,8 @@ do_logue(int type)
     __pmPDU	*pb;
     pmAtomValue	atom;
     char	path[MAXPATHLEN];
-    pmHighResResult	*res_pmcd = NULL; /* values from pmcd */
+    pmResult	*res_pmcd = NULL; /* values from pmcd */
+    const char	*caller = pmGetProgname();
     __pmLogInDom	lid;
 
     /* start to build the internal __pmResult */
@@ -146,10 +147,12 @@ do_logue(int type)
 	 }
 	 else if (desc[i].pmid == PMID(2,3,2)) {
 	    /*
-	     * the full pathname to the base of the archive, cloned
-	     * from GetPort() in ports.c
+	     * either the full pathname to the base of the archive, cloned
+	     * from GetPort() in ports.c, or the remote connection string.
 	     */
-	    if (__pmAbsolutePath(archName))
+	    if (remote.only)
+		atom.cp = remote.conn;
+	    else if (__pmAbsolutePath(archName))
 		atom.cp = archName;
 	    else {
 		if (getcwd(path, MAXPATHLEN) == NULL)
@@ -170,7 +173,7 @@ do_logue(int type)
 	    pmid[0] = PMID(2,0,23);	/* pmcd.pid */
 	    pmid[1] = PMID(2,0,24);	/* pmcd.seqnum */
 
-	    sts = pmFetchHighRes(2, pmid, &res_pmcd);
+	    sts = pmFetch(2, pmid, &res_pmcd);
 	    if (sts >= 0 && type == EPILOGUE) {
 		last_stamp.sec = res_pmcd->timestamp.tv_sec;
 		last_stamp.nsec = res_pmcd->timestamp.tv_nsec;
@@ -201,10 +204,12 @@ do_logue(int type)
     if (sts < 0)
 	goto done;
 
-    /* force use of log version */
-    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
+    if (!remote.only) {
+	/* force use of log version */
+	__pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
+    }
     /* and write to the archive data file ... */
-    last_log_offset = __pmFtell(archctl.ac_mfp);
+    last_log_offset = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller);
 
     if (archive_version >= PM_LOG_VERS03)
 	sts = __pmLogPutResult3(&archctl, pb);
@@ -215,7 +220,7 @@ do_logue(int type)
 	goto done;
 
     if (type == PROLOGUE) {
-	long	offset;
+	long	offset, o_data, o_meta;
 
 	for (i = 0; i < n_metric; i++) {
 	    if ((sts = __pmLogPutDesc(&archctl, &desc[i], 1, &names[i])) < 0)
@@ -269,11 +274,13 @@ do_logue(int type)
 
 	/* fudge the temporal index */
 	offset = __pmLogLabelSize(&logctl);
-	__pmFseek(archctl.ac_mfp, offset, SEEK_SET);
-	__pmFseek(logctl.mdfp, offset, SEEK_SET);
+	o_data = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller);
+	o_meta = archctl.ac_tell_cb(&archctl, PM_LOG_VOL_META, caller);
+	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, offset, caller);
+	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_META, offset, caller);
 	__pmLogPutIndex(&archctl, &lid.stamp);
-	__pmFseek(archctl.ac_mfp, 0L, SEEK_END);
-	__pmFseek(logctl.mdfp, 0L, SEEK_END);
+	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, o_data, caller);
+	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_META, o_meta, caller);
     }
 
     sts = 0;
@@ -292,7 +299,7 @@ done:
     res->numpmid = 0;		/* don't free vset's */
     __pmFreeResult(res);
     if (res_pmcd != NULL)
-	pmFreeHighResResult(res_pmcd);
+	pmFreeResult(res_pmcd);
 
     return sts;
 }

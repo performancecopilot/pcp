@@ -90,7 +90,8 @@ for dir in src/include src/libpcp src/libpcp_static src/libpcp_pmda \
 	src/newhelp \
 	src/libpcp_pmcd src/libpcp_gui \
 	src/libpcp_mmv src/libpcp_web src/libpcp_import src/libpcp_trace \
-	src/libpcp_qmc src/libpcp_fault
+	src/libpcp_qmc src/libpcp_fault src/libpcp3 \
+	qa/pmdas qa/perfevent qa/qt qa/src
 do
     if [ ! -d "$dir" ]
     then
@@ -110,6 +111,9 @@ do
 	case "$dir"
 	in
 	    src/include|src/pmns)
+		    ;;
+	    src/libpcp3)
+		    KEEP_CONFIG_FILES=yes $PCP_MAKE_PROG clean
 		    ;;
 	    *)
 		    $PCP_MAKE_PROG clean

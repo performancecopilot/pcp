@@ -39,11 +39,11 @@ static char		*l_archname;
 
 /* time manipulation */
 static int
-tsub(struct timeval *a, struct timeval *b)
+tsub(struct timespec *a, struct timespec *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    pmtimevalDec(a, b);
+    pmtimespecDec(a, b);
     return 0;
 }
 
@@ -409,7 +409,7 @@ docheck(__pmResult *result)
 int
 pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 {
-    struct timeval	timespan;
+    struct timespec	timespan;
     int			sts;
     __pmResult		*result;
     __pmTimestamp	label_stamp;
@@ -436,17 +436,17 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	 * No -S or -O or -A ... start from the epoch in case there are
 	 * records with a timestamp _before_ the label timestamp.
 	 */
-	opts->start.tv_sec = opts->start.tv_usec = 0;
+	opts->start.tv_sec = opts->start.tv_nsec = 0;
     }
 
-    if ((sts = pmSetMode(PM_MODE_FORW, &opts->start, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &opts->start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", l_archname, pmErrStr(sts));
 	return STS_FATAL;
     }
 
     sts = 0;
     last_stamp.sec = opts->start.tv_sec;
-    last_stamp.nsec = opts->start.tv_usec * 1000;
+    last_stamp.nsec = opts->start.tv_nsec * 1000;
     for ( ; ; ) {
 	/*
 	 * we need the next record with no fancy checks or record
@@ -506,7 +506,7 @@ pass3(__pmContext *ctxp, char *archname, pmOptions *opts)
 	last_stamp = result->timestamp;
 	if ((opts->finish.tv_sec > result->timestamp.sec) ||
 	    ((opts->finish.tv_sec == result->timestamp.sec) &&
-	     (opts->finish.tv_usec >= result->timestamp.nsec / 1000))) {
+	     (opts->finish.tv_nsec >= result->timestamp.nsec))) {
 	    if (result->numpmid == 0) {
 		/*
 		 * MARK record ... make sure wrap check is not done

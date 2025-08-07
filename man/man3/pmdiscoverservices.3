@@ -19,19 +19,29 @@
 \f3__pmDiscoverServicesWithOptions\f1 \- discover PCP services on the network
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmDiscoverServices(const char *\fIservice\fP, const char *\fImechanism\fP, char ***\fIurls\fP);
-.fi
+int pmDiscoverServices(const char *\fIservice\fP,
+'in +\w'int pmDiscoverServices('u
+const\ char\ *\fImechanism\fP,
+char\ ***\fIurls\fP);
+.in
 .sp
 #include <pcp/libpcp.h>
 .sp
-.nf
-int __pmDiscoverServicesWithOptions(const char *\fIservice\fP, const char *\fImechanism\fP, const char *\fIoptionsString\fP, const volatile unsigned *\fIflags\fP, char ***\fIurls\fP);
-.fi
+int __pmDiscoverServicesWithOptions(const char *\fIservice\fP,
+'in +\w'int __pmDiscoverServicesWithOptions('u
+const\ char\ *\fImechanism\fP,
+const\ char\ *\fIoptionsString\fP,
+const\ volatile\ unsigned\ *\fIflags\fP,
+char\ ***\fIurls\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

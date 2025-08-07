@@ -65,7 +65,7 @@ sleep 3
 # figure out which user we will run pmcd and its pmdas as
 username=`id -u -n`
 sudoopts="-u $username"
-id pcp >/dev/null 2>&1 && sudoopts="-u pcp"
+id $PCP_USER >/dev/null 2>&1 && sudoopts="-u $PCP_USER"
 
 # real QA test starts here
 for pmcd_o in 1 2 3

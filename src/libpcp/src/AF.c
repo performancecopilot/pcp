@@ -220,10 +220,10 @@ enqueue(qelt *qp)
 	struct timeval	now;
 
 	pmtimevalNow(&now);
-	pmPrintStamp(stderr, &now);
+	pmtimevalPrint(stderr, &now);
 	fprintf(stderr, " AFenqueue " PRINTF_P_PFX "%p(%d, " PRINTF_P_PFX "%p) for ",
 		qp->q_func, qp->q_afid, qp->q_data);
-	pmPrintStamp(stderr, &qp->q_when);
+	pmtimevalPrint(stderr, &qp->q_when);
 	fputc('\n', stderr);
     }
 
@@ -279,7 +279,7 @@ onalarm(int dummy)
 
     if (pmDebugOptions.af) {
 	pmtimevalNow(&now);
-	pmPrintStamp(stderr, &now);
+	pmtimevalPrint(stderr, &now);
 	fprintf(stderr, " AFonalarm(%d)\n", dummy);
     }
     if (root != NULL) {
@@ -298,7 +298,7 @@ onalarm(int dummy)
 		qp = root;
 		root = root->q_next;
 		if (pmDebugOptions.af) {
-		    pmPrintStamp(stderr, &now);
+		    pmtimevalPrint(stderr, &now);
 		    fprintf(stderr, " AFcallback " PRINTF_P_PFX "%p(%d, " PRINTF_P_PFX "%p)\n",
 			    qp->q_func, qp->q_afid, qp->q_data);
 		}
@@ -339,9 +339,9 @@ onalarm(int dummy)
 			if (tmp.tv_sec >= 0)
 			    break;
 			if (pmDebugOptions.af) {
-			    pmPrintStamp(stderr, &now);
+			    pmtimevalPrint(stderr, &now);
 			    fprintf(stderr, " AFcallback event %d too slow, skip callback for ", qp->q_afid);
-			    pmPrintStamp(stderr, &qp->q_when);
+			    pmtimevalPrint(stderr, &qp->q_when);
 			    fputc('\n', stderr);
 			}
 		    }
@@ -358,7 +358,7 @@ onalarm(int dummy)
 
 	if (root == NULL) {
 	    if (pmDebugOptions.af) {
-		pmPrintStamp(stderr, &now);
+		pmtimevalPrint(stderr, &now);
 		fprintf(stderr, "Warning: AF event queue is empty, nothing more will be scheduled\n");
 	    }
 	    ;
@@ -372,7 +372,7 @@ onalarm(int dummy)
 		/* use minimal delay (platform dependent) */
 		interval.tv_usec = MIN_ITIMER_USEC;
 	    if (pmDebugOptions.af) {
-		pmPrintStamp(stderr, &now);
+		pmtimevalPrint(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
 		printdelta(stderr, &interval);
 		fputc('\n', stderr);
@@ -425,7 +425,7 @@ __pmAFsetup(const struct timeval *start, const struct timeval *delta, void *data
 	    interval.tv_usec = MIN_ITIMER_USEC;
 
 	if (pmDebugOptions.af) {
-	    pmPrintStamp(stderr, &now);
+	    pmtimevalPrint(stderr, &now);
 	    fprintf(stderr, " AFsetitimer for delta ");
 	    printdelta(stderr, &interval);
 	    fputc('\n', stderr);
@@ -482,7 +482,7 @@ __pmAFunregister(int id)
 		/* use minimal delay (platform dependent) */
 		interval.tv_usec = MIN_ITIMER_USEC;
 	    if (pmDebugOptions.af) {
-		pmPrintStamp(stderr, &now);
+		pmtimevalPrint(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
 		printdelta(stderr, &interval);
 		fputc('\n', stderr);

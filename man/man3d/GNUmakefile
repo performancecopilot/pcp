@@ -22,6 +22,16 @@ MAN_PAGES	= $(shell echo *.3)
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 LSRCFILES	= $(MAN_PAGES)
 
+ifeq "$(MAN_PAGES)" "*.3"
+# no man pages in this directory ...
+#
+default::
+default_pcp:
+include $(BUILDRULES)
+install::
+install_pcp:
+check::
+else
 default :: $(MAN_PAGES)
 
 default_pcp : $(MAN_PAGES)
@@ -35,4 +45,5 @@ install_pcp : default
 
 check :: $(MAN_PAGES)
 	$(MANLINT) $^
+endif
 

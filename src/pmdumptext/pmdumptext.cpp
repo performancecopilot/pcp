@@ -107,7 +107,7 @@ static pmLongOptions longopts[] = {
 };
 
 // Collection start time
-static struct timeval logStartTime;
+static struct timespec logStartTime;
 
 // This may be putenv, so make it static
 static QString tzEnv = "TZ=";
@@ -335,13 +335,13 @@ parseConfig(QString const& configName, FILE *configFile)
 }
 
 static const char *
-dumpTime(struct timeval const &curPos)
+dumpTime(struct timespec const &curPos)
 {
     time_t	curTime = (time_t)(curPos.tv_sec);
     char	*p;
 
     if (timeOffsetFlag) {
-	double	o = pmtimevalSub(&curPos, &logStartTime);
+	double	o = pmtimespecSub(&curPos, &logStartTime);
 	if (o < 10)
 	    pmsprintf(buffer, sizeof(buffer), "%.2f ", o);
 	else if (o < 100)
@@ -388,7 +388,7 @@ dumpHeader()
     int		len = 0;
 
     if (niceFlag) {
-    	struct timeval pos = { 0, 0 };
+    	struct timespec pos = { 0, 0 };
     	timeStr = dumpTime(pos);
 	len = strlen(timeStr);
     }
@@ -624,58 +624,30 @@ dumpHeader()
     }
 }
 
-/*
- * Get Extended Time Base interval and Units from a timeval
- */
-#define SECS_IN_24_DAYS 2073600.0
-
-static int
-getXTBintervalFromTimeval(int *mode, struct timeval *tval)
+static struct timespec
+tadd(struct timespec t1, struct timespec t2)
 {
-    double tmp_ival = pmtimevalToReal(tval);
-
-    if (tmp_ival > SECS_IN_24_DAYS) {
-	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_SEC);
-	return ((int)tmp_ival);
-    }
-    else {
-	*mode = (*mode & 0x0000ffff) | PM_XTB_SET(PM_TIME_MSEC);
-	return ((int)(tmp_ival * 1000.0));
-    }
-}
-
-static struct timeval
-tadd(struct timeval t1, struct timeval t2)
-{
-    pmtimevalInc(&t1, &t2);
+    pmtimespecInc(&t1, &t2);
     return t1;
 }
 
-static struct timeval
-tsub(struct timeval t1, struct timeval t2)
+static struct timespec
+tsub(struct timespec t1, struct timespec t2)
 {
-    pmtimevalDec(&t1, &t2);
+    pmtimespecDec(&t1, &t2);
     return t1;
-}
-
-static struct timespec *
-tospec(struct timeval tv, struct timespec *ts)
-{
-    ts->tv_nsec = tv.tv_usec * 1000;
-    ts->tv_sec = tv.tv_sec;
-    return ts;
 }
 
 static void
-sleeptill(struct timeval sched)
+sleeptill(struct timespec sched)
 {
     int sts;
-    struct timeval curr;	/* current time */
+    struct timespec curr;	/* current time */
     struct timespec delay;	/* interval to sleep */
     struct timespec left;	/* remaining sleep time */
 
-    pmtimevalNow(&curr);
-    tospec(tsub(sched, curr), &delay);
+    pmtimespecNow(&curr);
+    delay = tsub(sched, curr);
     for (;;) {		/* loop to catch early wakeup by nanosleep */
 	sts = nanosleep(&delay, &left);
 	if (sts == 0 || (sts < 0 && errno != EINTR))
@@ -714,7 +686,11 @@ main(int argc, char *argv[])
     // Timing
     QString tzLabel;
     QString tzString;
-    struct timeval logEndTime;
+    struct timespec logEndTime;
+    struct timespec opts_start = { 0, 0 };
+    struct timespec opts_finish = { 0, 0 };
+    struct timespec opts_origin = { 0, 0 };
+    struct timespec opts_interval = { 0, 0 };
     double endTime;
     double delay;
     double pos;
@@ -927,8 +903,10 @@ main(int argc, char *argv[])
     }
 
     // Default update interval is 1 second
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
-	opts.interval.tv_sec = 1;
+    opts_interval.tv_sec = opts.interval.tv_sec;
+    opts_interval.tv_nsec = opts.interval.tv_nsec;
+    if (opts_interval.tv_sec == 0 && opts_interval.tv_nsec == 0)
+	opts_interval.tv_sec = 1;
 
     if (headerFlag)
 	metricFlag = unitFlag = sourceFlag = normFlag = true;
@@ -1079,47 +1057,53 @@ main(int argc, char *argv[])
     }
 
     if (isLive) {
-	pmtimevalNow(&logStartTime);
+	pmtimespecNow(&logStartTime);
 	logEndTime.tv_sec = PM_MAX_TIME_T;
-	logEndTime.tv_usec = 0;
+	logEndTime.tv_nsec = 0;
     }
     else {
+	struct timeval	temp_tv;
+
 	group->updateBounds();
 
-	logStartTime = group->logStart();
-	logEndTime = group->logEnd();
-	if (pmtimevalToReal(&logEndTime) <= pmtimevalToReal(&logStartTime)) {
+	temp_tv = group->logStart();
+	logStartTime.tv_sec = temp_tv.tv_sec;
+	logStartTime.tv_nsec = temp_tv.tv_usec * 1000;
+	temp_tv = group->logEnd();
+	logEndTime.tv_sec = temp_tv.tv_sec;
+	logEndTime.tv_nsec = temp_tv.tv_usec * 1000;
+	if (pmtimespecToReal(&logEndTime) <= pmtimespecToReal(&logStartTime)) {
 	    logEndTime.tv_sec = PM_MAX_TIME_T;
-	    logEndTime.tv_usec = 0;
+	    logEndTime.tv_nsec = 0;
 	}
     }
 
     if (pmDebugOptions.appl0) {
         cerr << "main: start = "
-             << pmtimevalToReal(&logStartTime) << ", end = "
-             << pmtimevalToReal(&logEndTime)
+             << pmtimespecToReal(&logStartTime) << ", end = "
+             << pmtimespecToReal(&logEndTime)
              << Qt::endl;
     }
 
     sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 			    opts.align_optarg, opts.origin_optarg,
-			    &logStartTime, &logEndTime, &opts.start,
-			    &opts.finish, &opts.origin, &endnum);
+			    &logStartTime, &logEndTime, &opts_start,
+			    &opts_finish, &opts_origin, &endnum);
     if (sts < 0) {
 	pmprintf("%s\n", endnum);
 	pmUsageMessage(&opts);
 	exit(1);
     }
 
-    pos = pmtimevalToReal(&opts.origin);
-    endTime = pmtimevalToReal(&opts.finish);
-    delay = (int)(pmtimevalToReal(&opts.interval) * 1000.0);
+    pos = pmtimespecToReal(&opts_origin);
+    endTime = pmtimespecToReal(&opts_finish);
+    delay = (int)(pmtimespecToReal(&opts_interval) * 1000000.0);
 
     if (endTime < pos && opts.finish_optarg == NULL)
 	endTime = DBL_MAX;
 
     if (pmDebugOptions.appl0) {
-	cerr << "main: realStartTime = " << pmtimevalToReal(&opts.start)
+	cerr << "main: realStartTime = " << pmtimespecToReal(&opts_start)
 	     << ", endTime = " << endTime << ", pos = " << pos 
 	     << ", delay = " << delay << Qt::endl;
     }
@@ -1135,9 +1119,7 @@ main(int argc, char *argv[])
 	goto done;
 
     if (!isLive) {
-	int tmp_mode = PM_MODE_INTERP;
-	int tmp_delay = getXTBintervalFromTimeval(&tmp_mode, &opts.interval);
-	group->setArchiveMode(tmp_mode, &opts.origin, tmp_delay);
+	group->setArchiveMode(PM_MODE_INTERP, &opts_origin, &opts_interval);
     }
 
     if (shortFlag) {
@@ -1156,7 +1138,7 @@ main(int argc, char *argv[])
 	sampleCount++;
 
 	if (timeFlag)
-	    cout << dumpTime(opts.origin) << delimiter;
+	    cout << dumpTime(opts_origin) << delimiter;
 
 	for (m = 0, v = 1; m < metrics.size(); m++) {
 	    metric = metrics[m];
@@ -1253,12 +1235,12 @@ main(int argc, char *argv[])
 //	if (opts.samples > 0 && sampleCount == opts.samples)
 //	    continue;	/* do not sleep needlessly */
 
-	opts.origin = tadd(opts.origin, opts.interval);
+	opts_origin = tadd(opts_origin, opts_interval);
 
 	if (isLive)
-	    sleeptill(opts.origin);
+	    sleeptill(opts_origin);
 
-	pos = pmtimevalToReal(&opts.origin);
+	pos = pmtimespecToReal(&opts_origin);
 	lines++;
 	if (repeatLines > 0 && repeatLines == lines) {
 	    cout << Qt::endl;

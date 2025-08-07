@@ -53,8 +53,7 @@ _filter_log()
 	-e '/^linux/s/\/var\//\/usr\//' \
 	-e '/^sample/s/.*/sample agent.../' \
 	-e '/client connection from/,/^$/d' \
-	-e 's/1 dso/X dso/' \
-	-e 's/2 dso/X dso/' \
+	-e 's/[1-4] dso/X dso/' \
 	-e 's/00001983  0000ffff/83190000  ffff0000/' \
 	-e "s;$PCP_PMCDCONF_PATH;\$PCP_PMCDCONF_PATH;g" \
 	-e "s;$PCP_VAR_DIR;\$PCP_VAR_DIR;g" \

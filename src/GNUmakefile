@@ -35,6 +35,10 @@ LIBS_SUBDIRS = \
 	libpcp_fault \
 	#
 
+# ABI compatibility (libpcp.so.3)
+#
+LIBS_SUBDIRS += libpcp3
+
 # ones that generate .static executables and may be used later on
 # in the build
 #
@@ -75,7 +79,6 @@ OTHER_SUBDIRS += \
 	pmdas \
 	pmdate \
 	pmdbg \
-	pmlogdump \
 	pmdumptext \
 	pmerr \
 	pmgenmap \
@@ -87,14 +90,16 @@ OTHER_SUBDIRS += \
 	pmlc \
 	pmlock \
 	pmlogcheck \
+	pmlogconf \
 	pmlogctl \
+	pmlogdump \
 	pmlogextract \
 	pmlogger \
 	pmlogreduce \
-	pmlogconf \
 	pmloglabel \
 	pmlogmv \
 	pmlogpaste \
+	pmlogpush \
 	pmlogrewrite \
 	pmlogredact \
 	pmlogsize \

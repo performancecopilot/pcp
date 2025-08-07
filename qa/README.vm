@@ -138,7 +138,8 @@ Debian
 
 Fedora
     https://fedoraproject.org/wiki/Releases
-    13 Dec 2024: 40 & 41
+    11 May 2025: 42 & 41
+    13 Dec 2024: 41 & 40
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -295,6 +296,8 @@ FreeBSD
     $ sudo pkg delete <package> or <glob pattern>
     # update all packages recipe
     $ sudo pkg update; sudo pkg upgrade -y
+    # clean pkg cache
+    $ sudo pkg clean -ay
     # release upgrade recipe
     $ sudo freebsd-update fetch; sudo freebsd-update install
     # has to be a N.M-RELEASE version for -r
@@ -475,6 +478,7 @@ OpenIndiana
 
 OpenBSD
     https://en.wikipedia.org/wiki/OpenBSD_version_history
+    20 Apr 2025: 7.6, 7.7
     07 Nov 2023: 7.3, 7.4
     08 Dec 2021: 6.9, 7.0
     13 Sep 2021: 6.8, 6.9
@@ -581,3 +585,12 @@ Recreate the mirror disk on vm03
 UUID=8f865731-443c-4b84-ade7-31e6ff94ee7c /silver ext2 defaults 0 0
     $ sudo systemctl daemon-reload
     $ sudo mount -a
+
+Adding a new disk
+
+    $ disk=/dev/vdb
+    $ sudo cfdisk $disk         <- make partition 1, all of the disk
+    $ mkfs.xfs ${disk}1
+    $ lsblk -fs ${disk}1 	-> UUID=<uuid>
+    $ [ -d /data ] || sudo mkdir /data
+    $ echo "UUID=<uuid> /data xfs default 0 2" | sudo tee -a /etc/fstab

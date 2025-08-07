@@ -50,9 +50,10 @@ main(int argc, char **argv)
     char	*namespace = PM_NS_DEFAULT;
     int		samples = -1;
     int		sample;
-    struct timeval start;
-    struct timeval eol;
-    double	delta = 1.0;
+    struct timespec start;
+    struct timespec eol;
+    struct timespec delta;
+    double	delta_f = 1.0;
     char	*endnum;
     pmResult	*result;
     int		i;
@@ -121,8 +122,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* delta seconds (double) */
-	    delta = strtod(optarg, &endnum);
-	    if (*endnum != '\0' || delta <= 0.0) {
+	    delta_f = strtod(optarg, &endnum);
+	    if (*endnum != '\0' || delta_f <= 0.0) {
 		fprintf(stderr, "%s: -t requires floating point argument\n", pmGetProgname());
 		errflag++;
 	    }
@@ -230,7 +231,7 @@ Options\n\
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
 	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-		label.ll_hostname);
+		label.hostname);
 	else
 	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
     }
@@ -293,15 +294,16 @@ Options\n\
     }
 
     /* skip the first two seconds, due to staggered start in log */
-    start = label.ll_start;
+    start = label.start;
     start.tv_sec += 2;
 
     printf("Start at: ");
-    pmPrintStamp(stdout, &start);
+    pmtimespecPrint(stdout, &start);
     printf("\n\n");
 
     printf("Pass One: rewind and fetch metrics_a until end of log\n");
-    if ((sts = pmSetMode(PM_MODE_INTERP, &start, (int)(delta * 1000))) < 0) {
+    pmtimespecFromReal(delta_f, &delta);
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -317,7 +319,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_A) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -335,14 +337,14 @@ Options\n\
 	}
 
 	if (result->timestamp.tv_sec >= eol.tv_sec &&
-	    result->timestamp.tv_usec > eol.tv_usec)
+	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
 	pmFreeResult(result);
     }
 
     printf("Pass Two: rewind and fetch metrics_b until end of log\n");
-    if ((sts = pmSetMode(PM_MODE_INTERP, &start, (int)(delta * 1000))) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -358,7 +360,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_B) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -377,14 +379,14 @@ Options\n\
 	}
 
 	if (result->timestamp.tv_sec >= eol.tv_sec &&
-	    result->timestamp.tv_usec > eol.tv_usec)
+	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
 	pmFreeResult(result);
     }
 
     printf("Pass Three: rewind and fetch metrics_c until end of log\n");
-    if ((sts = pmSetMode(PM_MODE_INTERP, &start, (int)(delta * 1000))) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &start, &delta)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -400,7 +402,7 @@ Options\n\
 	}
 
 	printf("sample %3d time=", sample);
-	pmPrintStamp(stdout, &result->timestamp);
+	pmtimespecPrint(stdout, &result->timestamp);
 	putchar(' ');
 	if (result->numpmid != N_PMID_C) {
 	    printf("Error: expected %d (got %d) value sets\n",
@@ -419,7 +421,7 @@ Options\n\
 	}
 
 	if (result->timestamp.tv_sec >= eol.tv_sec &&
-	    result->timestamp.tv_usec > eol.tv_usec)
+	    result->timestamp.tv_nsec > eol.tv_nsec)
 		done = 1;
 
 	pmFreeResult(result);

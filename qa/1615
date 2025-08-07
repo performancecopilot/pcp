@@ -1,0 +1,135 @@
+#!/bin/sh
+# PCP QA Test No. 1615
+# Exercise pmlogpush and the logger REST API.
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_series
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    _restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+
+    [ -d $archive_path ] && $sudo rm -fr $archive_path
+    if [ -f $PCP_LOG_DIR/pmproxy/pmproxy.log ]
+    then
+	cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+    else
+	echo "Arrg, $PCP_LOG_DIR/pmproxy/pmproxy.log missing"
+    fi
+    if $pmproxy_was_running
+    then
+        echo "Restart pmproxy ..." >>$seq_full
+        _service pmproxy restart >>$seq_full 2>&1
+        _wait_for_pmproxy
+    else
+        echo "Stopping pmproxy ..." >>$seq_full
+        _service pmproxy stop >>$seq_full 2>&1
+    fi
+    _restore_auto_restart pmproxy
+
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$archive@ARCHIVE@g" \
+	-e "s@$archive_path@ARCHIVE_PATH@g" \
+    # end
+}
+
+_filter_ls()
+{
+    sed \
+        -e 's/\([r-][w-][x-]\)\. /\1 /' \
+        -e 's/tmp\/[0-9][0-9]*/tmp\/PID/' \
+        -e 's/19990503\.[0-9][0-9]\.[0-9][0-9]/ARCHIVE/' \
+        -e 's/[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]/TIME/' \
+    | $PCP_AWK_PROG '
+/TIME/  { $3 = "user"; $4 = "group" }
+        { print }'
+}
+
+# real QA test starts here
+archive=$here/archives/ok-mv-bigbin
+archive_host=moomba
+archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
+$sudo rm -fr $archive_path
+
+pmproxy_was_running=false
+[ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
+echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+
+_save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+
+_stop_auto_restart pmproxy
+if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
+
+cat >$tmp.local << End-Of-File
+# Installed by PCP QA test $seq on `date`
+# ... aiming for a minimal and fast startup
+[pmproxy]
+pcp.enabled = false
+http.enabled = true
+[discover]
+enabled = false
+[pmseries]
+enabled = false
+End-Of-File
+$sudo cp $tmp.local $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
+
+if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
+_wait_for_pmproxy || _exit 1
+
+if $do_valgrind
+then
+    _run_valgrind pmlogpush $archive
+else
+    pmlogpush $archive
+fi \
+| _filter
+
+if [ -d $archive_path ]
+then
+    echo "== Found archive files =="
+    ls -l $archive_path | LC_COLLATE=POSIX sort -n | _filter_ls
+    echo "== Found archive metrics =="
+    export PCP_DERIVED_CONFIG=''
+    pminfo -a $archive_path | LC_COLLATE=POSIX sort
+else
+    echo "Archive push failed: $archive_path directory not created"
+    status=1
+    exit
+fi
+
+# success, all done
+exit

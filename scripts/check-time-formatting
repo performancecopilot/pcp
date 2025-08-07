@@ -1,0 +1,191 @@
+#!/bin/sh
+#
+# After the timeval -> __pmTimestamp or timespec changes, try
+# to check that printf-style formatting is correct
+#
+# A line containing the string "check-time-formatting-ok" immediately
+# prior to the line containing the formatting string will suppress
+# any checking.
+#
+
+tmp=/var/tmp/c-t-f-$$
+status=0
+verbose=false
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# get 3 lines from $1 before lineno $2 and output in *reverse*
+# lineno sequence
+#
+_get_region()
+{
+    awk <"$1" '
+NR > '$2'-3 && NR <= '$2'	{ print NR,$0 }' \
+| sort -nr
+}
+
+_check()
+{
+    # pass 0
+    # - formats like %d.%d and %d.%<digit>d are suspicious because they
+    #   probably should be %d.%06d for usec fields else %d.09d for nsec fields
+    # - for each suspicious line, go hunt in the region before it
+    #   for a sub-second time variable
+    #
+    sed -E -n <"$1" \
+	    -e '/%[0-9]*[uld][uld]*\.%[0-9]?[uld]/{
+=
+s/.*(%[0-9]*[uld][uld]*\.%[0-9]?[uld]).*/\1~&/p
+}' \
+    | while IFS='~' read check text
+    do
+	if [ -z "$text" ]
+	then
+	    # line number
+	    lineno="$check"
+	else
+	    _get_region "$file" "$lineno" >$tmp.region
+	    rm -f $tmp.subsec $tmp.suppress
+	    awk <$tmp.region '
+/check-time-formatting-ok/	{ print "ok" >>"'$tmp.suppress'"; exit }
+/[>.]tv_usec/	{ print "tv_usec" >>"'$tmp.subsec'" }
+/[>.]usec/	{ print "usec" >>"'$tmp.subsec'" }
+/[>.]tv_nsec/	{ print "tv_nsec" >>"'$tmp.subsec'" }
+/[>.]nsec/	{ print "nsec" >>"'$tmp.subsec'" }
+'
+	    if $verbose
+	    then
+		echo "+ $file:$lineno: pass0: check=$check"
+		echo "+ region ..."
+		cat $tmp.region
+		[ -s $tmp.subsec ] && echo "+ subsec: `cat $tmp.subsec`"
+		[ -s $tmp.suppress ] && echo "+ suppress: `cat $tmp.suppress`"
+	    fi
+	    if [ -s $tmp.subsec -a ! -f $tmp.suppress ]
+	    then
+		echo "$file:$lineno: format $check for `cat $tmp.subsec` element?"
+	    fi
+	fi
+    done
+
+    # pass 1
+    # - formats like %d.%06d should be used for usec fields
+    # - for each matching line, go hunt in the region before it
+    #   for a sub-second time variable
+    #
+    sed -E -n <"$1" \
+	-e '/%[0-9]*[uld][uld]*\.%06[uld]/{
+=
+s/.*(%[0-9]*[uld][uld]*\.%06[uld]).*/\1~&/p
+}' \
+    | while IFS='~' read check text
+    do
+	if [ -z "$text" ]
+	then
+	    # line number
+	    lineno="$check"
+	else
+	    _get_region "$file" "$lineno" >$tmp.region
+	    rm -f $tmp.subsec $tmp.suppress
+	    awk <$tmp.region '
+/check-time-formatting-ok/	{ print "ok" >>"'$tmp.suppress'"; exit }
+/[>.]tv_usec/	{ exit }
+/[>.]usec/	{ exit }
+/[>.]tv_nsec/	{ print "tv_nsec" >>"'$tmp.subsec'" }
+/[>.]nsec/	{ print "nsec" >>"'$tmp.subsec'" }
+'
+	    if $verbose
+	    then
+		echo "+ $file:$lineno: pass1: check=$check"
+		echo "+ region ..."
+		cat $tmp.region
+		[ -s $tmp.subsec ] && echo "+ subsec: `cat $tmp.subsec`"
+		[ -s $tmp.suppress ] && echo "+ suppress: `cat $tmp.suppress`"
+	    fi
+	    if [ -s $tmp.subsec -a ! -f $tmp.suppress ]
+	    then
+		echo "$file:$lineno: format $check for `cat $tmp.subsec` element?"
+	    fi
+	fi
+    done
+
+    # pass 2
+    # - formats like %d.%09d should be used for nsec fields
+    # - for each matching line, go hunt in the region before it
+    #   for a sub-second time variable
+    #
+    sed -E -n <"$1" \
+	-e '/%[0-9]*[uld][uld]*\.%09[uld]/{
+=
+s/.*(%[0-9]*[uld][uld]*\.%09[uld]).*/\1~&/p
+}' \
+    | while IFS='~' read check text
+    do
+	if [ -z "$text" ]
+	then
+	    # line number
+	    lineno="$check"
+	else
+	    _get_region "$file" "$lineno" >$tmp.region
+	    rm -f $tmp.subsec $tmp.suppress
+	    awk <$tmp.region '
+/check-time-formatting-ok/	{ print "ok" >>"'$tmp.suppress'"; exit }
+/[>.]tv_nsec/	{ exit }
+/[>.]nsec/	{ exit }
+/[>.]tv_usec/	{ print "tv_usec" >>"'$tmp.subsec'" }
+/[>.]usec/	{ print "usec" >>"'$tmp.subsec'" }
+'
+	    if $verbose
+	    then
+		echo "+ $file:$lineno: pass2: check=$check"
+		echo "+ region ..."
+		cat $tmp.region
+		[ -s $tmp.subsec ] && echo "+ subsec: `cat $tmp.subsec`"
+		[ -s $tmp.suppress ] && echo "+ suppress: `cat $tmp.suppress`"
+	    fi
+	    if [ -s $tmp.subsec -a ! -f $tmp.suppress ]
+	    then
+		echo "$file:$lineno: format $check for `cat $tmp.subsec` element?"
+	    fi
+	fi
+    done
+}
+
+if [ $# -ge 1 -a X"$1" = X-v ]
+then
+    verbose=true
+    shift
+fi
+
+if [ $# -eq -0 ]
+then
+    # default to find all .c, .y, .l, .cpp files that need
+    # to be inspected
+    #
+    here=`pwd`
+    while true
+    do
+	if [ -d .git ]
+	then
+	    topdir=`pwd`/
+	    break
+	fi
+	if [ `pwd` = "/" ]
+	then
+	    echo >&2 "Error: no .git between / and $here, do you know what you're doing?"
+	    status=1
+	    exit
+	fi
+	cd ..
+    done
+    cd $topdir
+    find src qa -type f \( -name "*.[cly]" -o -name "*,cpp" \) -print \
+    | while read file
+    do
+	_check "$file"
+    done
+else
+    for file
+    do
+	_check "$file"
+    done
+fi

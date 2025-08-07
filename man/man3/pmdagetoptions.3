@@ -20,29 +20,30 @@
 \f3pmdaGetOptions\f1 \- get options from arguments, parsing generic PMDA options
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmdaGetOptions(int \fIargc\fP, char *const *\fIargv\fP, pmdaOptions *\fIopts\fP, pmdaInterface\ *\fIdispatch\fP);
-.sp
+int pmdaGetOptions(int \fIargc\fP,
+'in +\w'int pmdaGetOptions('u
+char\ *const\ *\fIargv\fP,
+pmdaOptions\ *\fIopts\fP,
+pmdaInterface\ *\fIdispatch\fP);
 .in
-.hy
-.ad
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmdaGetOpt(int \fIargc\fP, char *const *\fIargv\fP, const\ char\ *\fIoptstring\fP, pmdaInterface\ *\fIdispatch\fP, int\ *\fIerr\fP);
-.sp
+.br
+int pmdaGetOpt(int \fIargc\fP,
+'in +\w'int pmdaGetOpt('u
+char\ *const\ *\fIargv\fP,
+const\ char\ *\fIoptstring\fP,
+pmdaInterface\ *\fIdispatch\fP,
+int\ *\fIerr\fP);
 .in
-.hy
-.ad
+.sp
 cc ... \-lpcp_pmda \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 These functions are wrappers for

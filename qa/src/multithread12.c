@@ -193,7 +193,7 @@ thread_C(void *arg)
 {
     int		iter = *((int *)arg);
     int		ctx;
-    struct timeval tend = {PM_MAX_TIME_T, 0};
+    struct timespec tend = {PM_MAX_TIME_T, 0};
     pmID	pmid;
     pmResult	*rp;
     int		sts;
@@ -223,7 +223,7 @@ thread_C(void *arg)
 	    pthread_exit("botch C.3");
 	}
 
-	sts = pmSetMode(PM_MODE_BACK, &tend, 0);
+	sts = pmSetMode(PM_MODE_BACK, &tend, NULL);
 	if (sts < 0) {
 	    fprintf(f, "Error: thread_C: iter %d: pmSetMode(%s) -> %s\n", i, archive_C, pmErrStr_r(sts, strbuf, sizeof(strbuf)));
 	    pthread_exit("botch C.4");

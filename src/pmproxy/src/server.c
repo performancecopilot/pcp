@@ -30,6 +30,8 @@ static struct {
 	{ .group = "series" },		/* METRICS_SERIES */
 	{ .group = "webgroup" },	/* METRICS_WEBGROUP */
 	{ .group = "search" },          /* METRICS_SEARCH */
+	{ .group = "loggroup" },	/* METRICS_LOGGROUP */
+	{ .group = "logpaths" },	/* METRICS_LOGPATHS */
 };
 
 void
@@ -82,7 +84,8 @@ proxymetrics(struct proxy *proxy, enum proxy_registry prid)
 	return proxy->metrics[prid];
 
     pmsprintf(path, sizeof(path), "%s%cpmproxy%c%s",
-	    pmGetConfig("PCP_TMP_DIR"), sep, sep, server_metrics[prid].group); //creates a new file
+	    pmGetConfig("PCP_TMP_DIR"), sep, sep, server_metrics[prid].group);
+    /* mmv_stats_registry creates a new file with this path */
     if ((file = strdup(path)) == NULL)
 	return NULL;
 
@@ -93,7 +96,9 @@ proxymetrics(struct proxy *proxy, enum proxy_registry prid)
     else
 	free(file);
     proxy->metrics[prid] = registry;
-    return registry; //once you have a registry you can start adding metrics to it 
+
+    /* once we have a registry we can start adding metrics to it */
+    return registry;
 }
 
 void
@@ -163,23 +168,35 @@ server_init(int portcount, const char *localpath)
 }
 
 static void
+reset_proxy(struct proxy *proxy)
+{
+    reset_pcp_module(proxy);
+    reset_http_module(proxy);
+    reset_keys_module(proxy);
+    reset_secure_module(proxy);
+}
+
+static void
 signal_handler(uv_signal_t *sighandle, int signum)
 {
     uv_handle_t		*handle = (uv_handle_t *)sighandle;
     struct proxy	*proxy = (struct proxy *)handle->data;
     uv_loop_t		*loop = proxy->events;
 
-    if (signum == SIGHUP)
-	return;
-    pmNotifyErr(LOG_INFO, "pmproxy caught %s\n",
-		signum == SIGINT ? "SIGINT" : "SIGTERM");
-    uv_signal_stop(&sigterm);
-    uv_signal_stop(&sigint);
-    uv_signal_stop(&sighup);
-    uv_close((uv_handle_t *)&sigterm, NULL);
-    uv_close((uv_handle_t *)&sigint, NULL);
-    uv_close((uv_handle_t *)&sighup, NULL);
-    uv_stop(loop);
+    if (signum == SIGHUP) {
+	pmNotifyErr(LOG_INFO, "pmproxy caught %s", "SIGHUP");
+	reset_proxy(proxy);
+    } else {
+	pmNotifyErr(LOG_INFO, "pmproxy caught %s",
+		    signum == SIGINT ? "SIGINT" : "SIGTERM");
+	uv_signal_stop(&sigterm);
+	uv_signal_stop(&sigint);
+	uv_signal_stop(&sighup);
+	uv_close((uv_handle_t *)&sigterm, NULL);
+	uv_close((uv_handle_t *)&sigint, NULL);
+	uv_close((uv_handle_t *)&sighup, NULL);
+	uv_stop(loop);
+    }
 }
 
 static void
@@ -379,7 +396,7 @@ client_write(struct client *client, sds buffer, sds suffix)
 	request->writer.data = client;
 	request->callback = on_client_write;
 
-	/* client must not get freed while waiting for the write callback to fire */
+	/* client must not be freed while waiting for the write callback */
 	client_get(client);
 	uv_callback_fire(&proxy->write_callbacks, request, NULL);
     } else {
@@ -803,6 +820,7 @@ shutdown_ports(void *arg)
 	}
     }
     proxy->nservers = 0;
+    proxy->map = NULL;
 
     close_proxy(proxy);
     if (proxy->config) {

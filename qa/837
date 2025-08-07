@@ -37,8 +37,8 @@ _filter()
 # real QA test starts here
 uid=`id -u`
 gid=`id -g`
-pcp_uid=`$sudo -u pcp id -u`
-pcp_gid=`$sudo -u pcp id -g`
+pcp_uid=`$sudo -u $PCP_USER id -u`
+pcp_gid=`$sudo -u $PCP_USER id -g`
 
 # reset the sample PMDA logfile
 if ! _service pcp start >/dev/null 2>&1; then _exit 1; fi
@@ -46,15 +46,14 @@ _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 
 # store to enable verbose attribute diagnostics
-authdbg=`pmdbg -o -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
-pmstore sample.control $authdbg
+pmstore sample.control "auth"
 
 pminfo --container=wedge sample >/dev/null 2>&1
 pmprobe --container=tailed sample >/dev/null 2>&1
 pmval -s1 --container=eagle sample.dodgey.value >/dev/null 2>&1
 
 cat $PCP_LOG_DIR/pmcd/sample.log | _filter
-pmstore sample.control 0
+pmstore sample.control ""
 
 # success, all done
 status=0

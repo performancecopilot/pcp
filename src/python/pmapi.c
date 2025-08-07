@@ -44,7 +44,6 @@ PCP_CALL extern void __pmEndOptions(pmOptions *);
 PCP_CALL extern void __pmServerStart(int, char **, int);
 PCP_CALL extern time_t __pmMktime(struct tm *);
 
-#if PY_MAJOR_VERSION >= 3
 #define MOD_ERROR_VAL NULL
 #define MOD_SUCCESS_VAL(val) val
 #define MOD_INIT(name) PyMODINIT_FUNC PyInit_##name(void)
@@ -52,15 +51,8 @@ PCP_CALL extern time_t __pmMktime(struct tm *);
         static struct PyModuleDef moduledef = { \
           PyModuleDef_HEAD_INIT, name, doc, -1, methods, }; \
         ob = PyModule_Create(&moduledef);
-#else
-#define MOD_ERROR_VAL
-#define MOD_SUCCESS_VAL(val)
-#define MOD_INIT(name) void init##name(void)
-#define MOD_DEF(ob, name, doc, methods) \
-        ob = Py_InitModule3(name, methods, doc);
-#endif
 
-static pmOptions options = { .version = PMAPI_VERSION_3 };
+static pmOptions options;
 static char **argVector;
 static int argCount;
 static int longOptionsCount;
@@ -71,6 +63,7 @@ static void
 dict_add_unsigned(PyObject *dict, char *symbol, unsigned long value)
 {
     PyObject *pyvalue = PyLong_FromUnsignedLong(value);
+
     PyDict_SetItemString(dict, symbol, pyvalue);
     Py_XDECREF(pyvalue);
 }
@@ -78,11 +71,8 @@ dict_add_unsigned(PyObject *dict, char *symbol, unsigned long value)
 static void
 dict_add(PyObject *dict, char *symbol, long value)
 {
-#if PY_MAJOR_VERSION >= 3
     PyObject *pyvalue = PyLong_FromLong(value);
-#else
-    PyObject *pyvalue = PyInt_FromLong(value);
-#endif
+
     PyDict_SetItemString(dict, symbol, pyvalue);
     Py_XDECREF(pyvalue);
 }
@@ -90,42 +80,13 @@ dict_add(PyObject *dict, char *symbol, long value)
 static void
 edict_add(PyObject *dict, PyObject *edict, char *symbol, long value)
 {
-#if PY_MAJOR_VERSION >= 3
     PyObject *pyvalue = PyLong_FromLong(value);
     PyObject *pysymbol = PyUnicode_FromString(symbol);
-#else
-    PyObject *pyvalue = PyInt_FromLong(value);
-    PyObject *pysymbol = PyString_FromString(symbol);
-#endif
 
     PyDict_SetItemString(dict, symbol, pyvalue);
     PyDict_SetItem(edict, pyvalue, pysymbol);
     Py_XDECREF(pysymbol);
     Py_XDECREF(pyvalue);
-}
-
-static PyObject *
-setExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
-{
-    int type;
-    char *keyword_list[] = {"type", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "i:PM_XTB_SET", keyword_list, &type))
-        return NULL;
-    return Py_BuildValue("i", PM_XTB_SET(type));
-}
-
-static PyObject *
-getExtendedTimeBase(PyObject *self, PyObject *args, PyObject *keywords)
-{
-    int mode;
-    char *keyword_list[] = {"mode", NULL};
-
-    if (!PyArg_ParseTupleAndKeywords(args, keywords,
-                        "i:PM_XTB_GET", keyword_list, &mode))
-        return NULL;
-    return Py_BuildValue("i", PM_XTB_GET(mode));
 }
 
 static PyObject *
@@ -461,7 +422,6 @@ resetAllOptions(PyObject *self, PyObject *args)
 {
     pmFreeOptions(&options);
     memset(&options, 0, sizeof(options));
-    options.version = PMAPI_VERSION_3;
     longOptionsCount = 0;
     Py_INCREF(Py_None);
     return Py_None;
@@ -692,9 +652,9 @@ setOptionInterval(PyObject *self, PyObject *args, PyObject *keywords)
 			"s:pmSetOptionInterval", keyword_list, &delta))
 	return NULL;
 
-    if (pmParseHighResInterval(delta, &options.interval, &errmsg) < 0) {
+    if (pmParseInterval(delta, &options.interval, &errmsg) < 0) {
 	pmprintf("%s: interval argument not in %s(3) format:\n%s\n",
-		pmGetProgname(), "pmParseHighResInterval", errmsg);
+		pmGetProgname(), "pmParseInterval", errmsg);
 	options.errors++;
 	free(errmsg);
     }
@@ -857,11 +817,7 @@ getOptionsFromList(PyObject *self, PyObject *args, PyObject *keywords)
 
     for (i = 0; i < argCount; i++) {
 	PyObject *pyarg = PyList_GET_ITEM(pyargv, i);
-#if PY_MAJOR_VERSION >= 3
 	char *string = (char *)PyUnicode_AsUTF8(pyarg);
-#else
-	char *string = (char *)PyString_AsString(pyarg);
-#endif
 
 	/* All parameters may be referred back to later, e.g. via
 	 * pmGetProgname() or getOperands (and others), so we must
@@ -925,8 +881,8 @@ setContextOptions(PyObject *self, PyObject *args, PyObject *keywords)
 
 	if (interval.tv_sec == 0 && interval.tv_nsec == 0)
 	    interval.tv_sec = delta;
-	if ((sts = pmSetModeHighRes(mode, &position, &interval)) < 0) {
-	    pmprintf("%s: %s: %s\n", "pmSetModeHighRes",
+	if ((sts = pmSetMode(mode, &position, &interval)) < 0) {
+	    pmprintf("%s: %s: %s\n", "pmSetMode",
 			    pmGetProgname(), pmErrStr(sts));
 	    options.flags |= PM_OPTFLAG_RUNTIME_ERR;
 	    options.errors++;
@@ -1088,11 +1044,7 @@ getOptionHosts(PyObject *self, PyObject *args)
 	if ((result = PyList_New(options.nhosts)) == NULL)
 	    return PyErr_NoMemory();
 	for (i = 0; i < options.nhosts; i++) {
-#if PY_MAJOR_VERSION >= 3
 	    PyObject *pyent = PyUnicode_FromString(options.hosts[i]);
-#else
-	    PyObject *pyent = PyString_FromString(options.hosts[i]);
-#endif
 	    PyList_SET_ITEM(result, i, pyent);
 	}
 	Py_INCREF(result);
@@ -1117,11 +1069,7 @@ getOptionArchives(PyObject *self, PyObject *args)
 	if ((result = PyList_New(options.narchives)) == NULL)
 	    return PyErr_NoMemory();
 	for (i = 0; i < options.narchives; i++) {
-#if PY_MAJOR_VERSION >= 3
 	    PyObject *pyent = PyUnicode_FromString(options.archives[i]);
-#else
-	    PyObject *pyent = PyString_FromString(options.archives[i]);
-#endif
 	    PyList_SET_ITEM(result, i, pyent);
 	}
 	Py_INCREF(result);
@@ -1300,12 +1248,6 @@ getOptionLocalPMDA(PyObject *self, PyObject *args)
 }
 
 static PyMethodDef methods[] = {
-    { .ml_name = "PM_XTB_SET",
-	.ml_meth = (PyCFunction) setExtendedTimeBase,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS },
-    { .ml_name = "PM_XTB_GET",
-	.ml_meth = (PyCFunction) getExtendedTimeBase,
-        .ml_flags = METH_VARARGS | METH_KEYWORDS },
     { .ml_name = "pmtimespecToReal",
 	.ml_meth = (PyCFunction) timespecToReal,
         .ml_flags = METH_VARARGS | METH_KEYWORDS },
@@ -1558,7 +1500,7 @@ MOD_INIT(cpmapi)
     PyModule_AddObject(module, "pmErrSymDict", edict);
 
     dict_add(dict, "PMAPI_VERSION_2", PMAPI_VERSION_2);
-    dict_add(dict, "PMAPI_VERSION_3", PMAPI_VERSION_3);
+    dict_add(dict, "PMAPI_VERSION_4", PMAPI_VERSION_4);
     dict_add(dict, "PMAPI_VERSION", PMAPI_VERSION);
 
     dict_add_unsigned(dict, "PM_ID_NULL", PM_ID_NULL);
@@ -1573,6 +1515,11 @@ MOD_INIT(cpmapi)
 #else
     dict_add(dict, "HAVE_BITFIELDS_LTOR", 0);
     dict_add(dict, "HAVE_BITFIELDS_RTOL", 1);
+#endif
+#ifndef PM_PAD_TIMESPEC
+    dict_add(dict, "PM_PAD_TIMESPEC", 0);
+#else
+    dict_add(dict, "PM_PAD_TIMESPEC", PM_PAD_TIMESPEC);
 #endif
 #ifdef PM_SIZEOF_SUSECONDS_T
     dict_add(dict, "PM_SIZEOF_SUSECONDS_T", PM_SIZEOF_SUSECONDS_T);
@@ -1688,8 +1635,6 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_TEXT_ONELINE", PM_TEXT_ONELINE);
     dict_add(dict, "PM_TEXT_HELP",    PM_TEXT_HELP);
 
-    dict_add(dict, "PM_XTB_FLAG", PM_XTB_FLAG);
-
     dict_add(dict, "PM_OPTFLAG_INIT", PM_OPTFLAG_INIT);
     dict_add(dict, "PM_OPTFLAG_DONE", PM_OPTFLAG_DONE);
     dict_add(dict, "PM_OPTFLAG_MULTI", PM_OPTFLAG_MULTI);
@@ -1711,14 +1656,6 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_EVENT_FLAG_ID",     PM_EVENT_FLAG_ID);
     dict_add(dict, "PM_EVENT_FLAG_PARENT", PM_EVENT_FLAG_PARENT);
     dict_add(dict, "PM_EVENT_FLAG_MISSED", PM_EVENT_FLAG_MISSED);
-
-    /*
-     * subset of the debug flags - all of 'em seems like overkill
-     * order here the same as the output from pmdbg -l
-     */
-    dict_add(dict, "PM_DEBUG_APPL0", (1<<11) /*DBG_TRACE_APPL0*/);
-    dict_add(dict, "PM_DEBUG_APPL1", (1<<12) /*DBG_TRACE_APPL1*/);
-    dict_add(dict, "PM_DEBUG_APPL2", (1<<13) /*DBG_TRACE_APPL2*/);
 
     /*
      * for ease of maintenance make the order of the error codes

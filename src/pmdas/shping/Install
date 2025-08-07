@@ -43,7 +43,7 @@ umask 022
 configfile=""
 cycle=120
 timeout=20
-debug=0
+debug=''
 
 _quit()
 {
@@ -62,7 +62,7 @@ _parsedefaults()
 	    \?)		echo "Warning: Unrecognized option in $PCP_PMCDCONF_PATH"
 			echo "         Remove line for the $iam PMDA in $PCP_PMCDCONF_PATH and re-run ./Install"
 	    		_quit 2;;
-	    D )		debug=$OPTARG;;
+	    D )		debug="-D $OPTARG";;
 	    I )		cycle=$OPTARG;;
 	    t )		timeout=$OPTARG;;
 	    * )		;;
@@ -198,15 +198,15 @@ fi
 if [ "$do_debug" = true ]
 then
     echo
-    $PCP_ECHO_PROG $PCP_ECHO_N "Enter the debugging flag (see pmdbg(1)) [$debug] ""$PCP_ECHO_C"
+    $PCP_ECHO_PROG $PCP_ECHO_N "Enter the debugging options (see pmdbg(1)) [$debug] ""$PCP_ECHO_C"
     read ans
     if [ ! -z "$ans" ]
     then
-	debug=$ans
+	debug="-D $ans"
     fi
 fi
 
-args="-I $cycle -t $timeout -D $debug $configfile"
+args="-I $cycle -t $timeout $debug $configfile"
 
 pmdaInstall
 

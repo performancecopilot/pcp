@@ -104,4 +104,4 @@ enum {
 
 extern void refresh_acct(proc_acct_t *);
 extern int acct_fetchCallBack(int, int, proc_acct_t *, pmAtomValue *);
-extern int acct_store(pmResult *, pmdaExt *, pmValueSet *, proc_acct_t *);
+extern int acct_store(pmdaResult *, pmdaExt *, pmValueSet *, proc_acct_t *);

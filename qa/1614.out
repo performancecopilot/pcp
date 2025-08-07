@@ -1,0 +1,39 @@
+QA output created by 1614
+QA output created by 1615 --valgrind
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogpush ARCHIVE
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+== Found archive files ==
+-rw-r--r-- 1 user group 372 TIME ARCHIVE.index
+-rw-r--r-- 1 user group 1271 TIME ARCHIVE.meta
+-rw-r--r-- 1 user group 44904 TIME ARCHIVE.9
+-rw-r--r-- 1 user group 49824 TIME ARCHIVE.1
+-rw-r--r-- 1 user group 49824 TIME ARCHIVE.2
+-rw-r--r-- 1 user group 49824 TIME ARCHIVE.3
+-rw-r--r-- 1 user group 49824 TIME ARCHIVE.4
+-rw-r--r-- 1 user group 49824 TIME ARCHIVE.5
+-rw-r--r-- 1 user group 49824 TIME ARCHIVE.6
+-rw-r--r-- 1 user group 49824 TIME ARCHIVE.7
+-rw-r--r-- 1 user group 49824 TIME ARCHIVE.8
+-rw-r--r-- 1 user group 49984 TIME ARCHIVE.0
+total 520
+== Found archive metrics ==
+event.flags
+event.missed
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.port
+sample.bin
+sample.bucket
+sample.colour
+sample.milliseconds
+sampledso.bin
+sampledso.bucket
+sampledso.colour
+sampledso.milliseconds

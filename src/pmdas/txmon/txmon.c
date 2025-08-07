@@ -152,7 +152,7 @@ txmon_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * support the storage of a value into the control metrics
  */
 static int
-txmon_store(pmResult *result, pmdaExt *pmda)
+txmon_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i;
     int		n;

@@ -31,6 +31,7 @@ get_sample(void)
     static pmDesc	*desclist;
     static pmUnits	scaleunits;
     static double	scalemult;
+    char		*errmsg;
     int			pid;
     pmAtomValue		tmp;
     pmAtomValue		atom;
@@ -38,9 +39,10 @@ get_sample(void)
     int			i;
 
     if (first) {
-	sts = pmParseUnitsStr(scale, &scaleunits, &scalemult);
+	sts = pmParseUnitsStr(scale, &scaleunits, &scalemult, &errmsg);
 	if (sts < 0) {
-	    fprintf(stderr, "%s: unit/scale parse error\n", pmGetProgname(), osstrerror());
+	    fprintf(stderr, "%s: unit/scale parse error: %s\n", pmGetProgname(), errmsg);
+	    free(errmsg);
 	    exit(1);
 	}
 

@@ -1013,7 +1013,7 @@ ib_reset_perfcounters (void *state)
 }
 
 int
-ib_store(pmResult *result, pmdaExt *pmda)
+ib_store(pmdaResult *result, pmdaExt *pmda)
 {
     int i;
 

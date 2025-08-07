@@ -18,11 +18,19 @@
 \f3pmAddProfile\f1 \- add instance(s) to the current PMAPI instance profile
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-int pmAddProfile(pmInDom \fIindom\fP, int \fInuminst\fP, int *\fIinstlist\fP);
+int pmAddProfile(pmInDom \fIindom\fP,
+'in +\w'int pmAddProfile('u
+int\ \fInuminst\fP,
+int\ *\fIinstlist\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

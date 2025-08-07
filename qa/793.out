@@ -1,12 +1,12 @@
 QA output created by 793
 pmlogger_check #1
-PMLOGGER.CHECK [TMP/control:LINE]
+PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/A) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-PMLOGGER.CHECK [TMP/control:LINE]
+PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/B) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
-PMLOGGER.CHECK [TMP/control:LINE]
+PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/C) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 1 archives in TMP/A
@@ -22,15 +22,15 @@ Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 
 pmlogger_daily
 
-=== daily maintenance of PCP archives for host LOCALHOST ===
+=== daily maintenance of PCP archives for host LOCALHOST in TMP/A ===
 
 Warning: no archives found to merge
 
-=== daily maintenance of PCP archives for host LOCALHOST ===
+=== daily maintenance of PCP archives for host LOCALHOST in TMP/B ===
 
 Warning: no archives found to merge
 
-=== daily maintenance of PCP archives for host LOCALHOST ===
+=== daily maintenance of PCP archives for host LOCALHOST in TMP/C ===
 
 Warning: no archives found to merge
 3 archives in TMP/A

@@ -41,15 +41,19 @@ _nm()
     then
 	# use readelf(1) but turn lines like
 	#  38: 00000000000000a0     8 OBJECT  LOCAL  DEFAULT    4 xconfirm 
-	# 246: 0000000000000000     8 OBJECT  GLOBAL DEFAULT  137 pmProgname
+	# 246: 0000000000000000     8 OBJECT  GLOBAL DEFAULT  137 pmFoo
 	#
 	# into classical nm(1) format like
 	# 00000000000000a0 b xconfirm
-	# 0000000000000000 B pmProgname
+	# 0000000000000000 B pmFoo
+	#
+	# but skip lines like
+	# 73: 0000000000000000    16 OBJECT  LOCAL  DEFAULT   10 reltable.__pmDumpContext
 	#
 	readelf --wide --symbols "$1" 2>/dev/null \
 	| awk '
 $4 != "OBJECT"			{ next }
+$8 ~ /^reltable\./		{ next }
 $8 ~ /__FUNCTION__.*/		{ next }
 $8 ~ /__PRETTY_FUNCTION__.*/	{ next }
 $8 ~ /__func__\.[0-9].*/	{ next }
@@ -239,8 +243,9 @@ connect.o
     proxy			# guarded by connect_lock mutex
 context.o
     contexts_lock		# local mutex
-    _mode			# const
-    being_initialized           # const
+    ?_mode			# const
+    ?_flagmap			# const
+    ?being_initialized          # const
     def_backoff			# guarded by contexts_lock mutex
     backoff			# guarded by contexts_lock mutex
     n_backoff			# guarded by contexts_lock mutex
@@ -325,6 +330,8 @@ derive_parser.tab.o
     ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)
 desc.o
 e_index.o
+    ?__pmLogPutIndex_v2.caller	# const
+    ?__pmLogPutIndex_v3.caller	# const
 e_indom.o
 e_labels.o
 e_loglabel.o
@@ -342,7 +349,7 @@ events.o
     pmid_flags			# no unsafe side-effects
     pmid_missed			# no unsafe side-effects
     ?caller                     # const
-    ?pmUnpackEventRecords.caller		# const
+    ?pmUnpackEventRecords.caller	# const
     ?pmUnpackHighResEventRecords.caller	# const
 exec.o
     exec_lock			# local mutex
@@ -375,8 +382,7 @@ getdate.tab.o
 getopt.o
     ?paths                	# const, may be optimized away
     ?fallback                	# const, may be optimized away
-getopt2.o
-getopt3.o
+getopt_v2.o
 hash.o
 help.o
 instance.o
@@ -568,11 +574,10 @@ util.o
     debug_map			# const
     ?num_debug			# const
     pmState			# no unsafe side-effects, see notes in util.c
-    pmProgname			# no unsafe side-effects, see notes in util.c
-    pmDebug			# set-once from main(), read-only elsewhere
+    myprogname			# no unsafe side-effects, see notes in util.c
+    pmDebugOptions		# set-once from main(), read-only elsewhere
     				# also guarded by __pmLock_extcall when set
 				# from __pmInitLocks()
-    pmDebugOptions		# same story as pmDebug
     filelog			# guarded by util_lock mutex
     nfilelog			# guarded by util_lock mutex
     dosyslog			# no unsafe side-effects, see notes in util.c
@@ -738,7 +743,6 @@ do
 		    -e '/ C ___pmNativeConfig/d' \
 		    -e '/ C ___pmPDUCntIn/d' \
 		    -e '/ C ___pmPDUCntOut/d' \
-		    -e '/ C _pmProgname/d' \
 		    -e '/ \([BDR]\) \..*\./s// \1 /' \
 		    -e '/\.bss$/d' \
 		    -e '/\.data$/d' \

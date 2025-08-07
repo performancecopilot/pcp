@@ -240,7 +240,7 @@ draw_samp(double sampletime, double nsecs, struct sstat *sstat,
 	static char	winitialized, wassorted, initlabels,
 			swapinuse, ttyrescaled;
 	static double	lasttime;
-	struct timeval	timeval;
+	struct timespec	ts;
 	static int	nrdisk, nrallintf, nrintf;
 
 	long		newinterval;
@@ -407,8 +407,8 @@ draw_samp(double sampletime, double nsecs, struct sstat *sstat,
 			/*
 			** back up two steps, advancing again shortly
 			*/
-			pmtimevalDec(&curtime, &interval);
-			pmtimevalDec(&curtime, &interval);
+			pmtimespecDec(&curtime, &interval);
+			pmtimespecDec(&curtime, &interval);
 
 			return lastchar;
 
@@ -429,9 +429,9 @@ draw_samp(double sampletime, double nsecs, struct sstat *sstat,
 			if (getwininput("Enter new time (format [YYYYMMDD]hhmm): ",
 					answer, sizeof answer, 1) >= 0)
 			{
-                                timeval = curtime;
+                                ts = curtime;
 
-                                if ( !getbranchtime(answer, &timeval) )
+                                if ( !getbranchtime(answer, &ts) )
                                 {
                                         beep();
                                         break;	// branch failed
@@ -441,8 +441,8 @@ draw_samp(double sampletime, double nsecs, struct sstat *sstat,
 				** back up one step before the branch time,
 				** to advance onto it in the next sample
 				*/
-				curtime = timeval;
-				pmtimevalDec(&curtime, &interval);
+				curtime = ts;
+				pmtimespecDec(&curtime, &interval);
 				if (time_less_than(&curtime, &start))
 					curtime = start;
 
@@ -484,8 +484,8 @@ draw_samp(double sampletime, double nsecs, struct sstat *sstat,
 			if ( (newinterval = getwininput("Interval: ", answer,
 							sizeof answer, 1)) >= 0)
 			{
-				interval.tv_usec = 0;
 				interval.tv_sec = newinterval;
+				interval.tv_nsec = 0;
 				setup_step_mode(0);
 			}
 
@@ -514,7 +514,7 @@ draw_samp(double sampletime, double nsecs, struct sstat *sstat,
 			winexit();
 			wininit(sstat);
 
-			if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+			if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 				setalarm2(1, 0); // force new sample
 
 			break;

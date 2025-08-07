@@ -57,11 +57,11 @@ PCPCFG = pcp-conf
 PCPCFG_FILES = pcp-conf.dirs pcp-conf.install
 PCPCFG_DOC_DIR = $(PCP_DOC_DIR)/../pcp-conf
 
-LIBPCPPCP = libpcp3
-LIBPCP_FILES = libpcp3.dirs libpcp3.install
-DEVPCP_FILES = libpcp3-dev.dirs libpcp3-dev.install
-LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3
-DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp3-dev
+LIBPCPPCP = libpcp4
+LIBPCP_FILES = libpcp4.dirs libpcp4.install
+DEVPCP_FILES = libpcp4-dev.dirs libpcp4-dev.install
+LIBPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp4
+DEVPCP_DOC_DIR = $(PCP_DOC_DIR)/../libpcp4-dev
 
 LIBGUIPCP = libpcp-gui2
 LIBGUI_FILES = libpcp-gui2.install
@@ -111,7 +111,7 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
-default: pcp.preinst pcp.postinst pcp.postrm mycontrol rules pcp-gui.install
+default: pcp.preinst pcp.postinst pcp.postrm rules pcp-gui.install
 
 include $(BUILDRULES)
 
@@ -331,14 +331,10 @@ ifeq "$(ENABLE_QT3D)" "true"
 	cat pcp-gui.install.pmview >>pcp-gui.install
 endif
 
-# always remake control from control.* pieces
+# only make control from control.* pieces in Makepkgs build
 #
-.PHONY:	mycontrol
-mycontrol control:
+control:
 	./fixcontrol >control
-ifeq ($(ENABLE_PYTHON2), true)
-	cat control.python2 >>control
-endif
 ifeq ($(ENABLE_PYTHON3), true)
 	cat control.python3 >>control
 endif

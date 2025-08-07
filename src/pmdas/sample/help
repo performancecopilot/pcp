@@ -87,13 +87,15 @@ The external instance names are the instance number, space, then
 a random "executable" name.
 
 @ sample.control A control variable for the "sample" PMDA
-This control variable may be modified using pmStore().
-The allowed values are
-    0	disable debugging output in the PMDA
-    >0	value is interpreted as a vector of bit-fields to set
-        old-style debugging options, see pmdbg -o -l for mapping
-	from values to debugging options
-    -1	force the PMDA to terminate
+When fetched, the value is the currently active set of debugging
+options for the PMDA.
+This control variable may be modified using pmStore() and then
+the allowed values are
+    ""	 disable debugging output in the PMDA
+    "-1" force the PMDA to terminate
+    "option1[,option2...]"
+         comma separated list of options to set, see pmdbg -l for
+         the available debugging options
 
 @ sample.daemon_pid Process id of PMDA daemon
 The process id of PMDA daemon, -1 if the daemon is a DSO.

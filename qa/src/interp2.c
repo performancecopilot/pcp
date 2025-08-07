@@ -10,32 +10,32 @@
 #include "libpcp.h"
 
 static void
-mung(struct timeval *start, struct timeval *end,
-     int pct, struct timeval *mid)
+mung(struct timespec *start, struct timespec *end,
+     int pct, struct timespec *mid)
 {
-    __int64_t	sec, usec;
+    __int64_t	sec, nsec;
     sec = (50 + pct * (__int64_t)end->tv_sec + (100 - pct) * (__int64_t)start->tv_sec) / 100;
-    usec = (50 + pct * (__int64_t)end->tv_usec + (100 - pct) * (__int64_t)start->tv_usec) / 100;
-    while (usec > 1000000) {
-	usec -= 1000000;
+    nsec = (50 + pct * (__int64_t)end->tv_nsec + (100 - pct) * (__int64_t)start->tv_nsec) / 100;
+    while (nsec > 1000000000) {
+	nsec -= 1000000000;
 	sec++;
     }
-    while (usec < 0) {
-	usec += 1000000;
+    while (nsec < 0) {
+	nsec += 1000000000;
 	sec--;
     }
     mid->tv_sec = sec;
-    mid->tv_usec = usec;
+    mid->tv_nsec = nsec;
 }
 
 static void
-printstamp(struct timeval *tp)
+printstamp(struct timespec *tp)
 {
     static struct tm	*tmp;
     time_t		clock = (time_t)tp->tv_sec;
 
     tmp = localtime(&clock);
-    printf("%02d:%02d:%02d.%03d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(tp->tv_usec/1000));
+    printf("%02d:%02d:%02d.%09d", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (int)(tp->tv_nsec/1000));
 }
 
 int
@@ -49,8 +49,9 @@ main(int argc, char **argv)
     pmLogLabel	label;			/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
     pmResult	*result;
-    struct timeval tend;
-    struct timeval twant;
+    struct timespec tend;
+    struct timespec twant;
+    struct timespec delta;
     int		msec;
     int		forw;
     int		back;
@@ -151,26 +152,28 @@ Options\n\
     }
 
     printf("start: ");
-    printstamp(&label.ll_start);
+    printstamp(&label.start);
     putchar('\n');
     printf("end: ");
     printstamp(&tend);
     putchar('\n');
-    mung(&label.ll_start, &tend, 2, &twant);
+    mung(&label.start, &tend, 2, &twant);
 #if 0
-    msec = 1000 * (twant.tv_sec - label.ll_start.tv_sec) +
-		(twant.tv_usec - label.ll_start.tv_usec) / 1000;
+    msec = 1000 * (twant.tv_sec - label.start.tv_sec) +
+		(twant.tv_nsec - label.start.tv_nsec) / 1000000;
 #else
     msec = 100;
 #endif
     printf("step: %d msec\n", msec);
     for (pct = 0; pct <= 100; pct += 10) {
 	__pmLogReads = 0;
-	mung(&label.ll_start, &tend, pct, &twant);
+	mung(&label.start, &tend, pct, &twant);
 	printf("%3d%% ", pct);
 	printstamp(&twant);
 	forw = back = 0;
-	sts = pmSetMode(PM_MODE_INTERP, &twant, msec);
+	delta.tv_sec = msec / 1000;
+	delta.tv_nsec = (msec % 1000) * 1000000; 
+	sts = pmSetMode(PM_MODE_INTERP, &twant, &delta);
 	if (sts < 0) {
 	    printf("pmSetMode: %s\n", pmErrStr(sts));
 	    exit(1);
@@ -180,7 +183,11 @@ Options\n\
 	    pmFreeResult(result);
 	}
 	printf("%4d forw + ", forw);
-	sts = pmSetMode(PM_MODE_INTERP, &twant, -msec);
+	if (delta.tv_sec > 0)
+	    delta.tv_sec = -delta.tv_sec;
+	else
+	    delta.tv_nsec = -delta.tv_nsec;
+	sts = pmSetMode(PM_MODE_INTERP, &twant, &delta);
 	if (sts < 0) {
 	    printf("pmSetMode: %s\n", pmErrStr(sts));
 	    exit(1);

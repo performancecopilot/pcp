@@ -52,4 +52,4 @@ pmlogextract.o:	logger.h
 $(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
 
 parsesize.c:	../pmlogger/src/parsesize.c
-	ln ../pmlogger/src/parsesize.c .
+	$(LN_S) ../pmlogger/src/parsesize.c .

@@ -33,14 +33,36 @@ CPU
 === std err
 === done
 
+NVIDIA GPU
+=== std out
+----system---- ----gpu0---
+     time     |util%  mem%
+23-07 10:02:23|   45    12
+23-07 10:02:24|   60    12
+23-07 10:02:25|   57    12
+23-07 10:02:26|   59    12
+=== std err
+=== done
+
+AMD GPU
+=== std out
+----system---- ----gpu0---
+     time     |util%  mem%
+23-07 08:58:11|   38    36
+23-07 08:58:12|   26    36
+23-07 08:58:13|   17    34
+23-07 08:58:14|   13    34
+=== std err
+=== done
+
 Per Disk
 === std out
-----system---- dsk/tota ---vda---
-     time     ||rawa wawa
-10-02 17:04:49|         
-10-02 17:04:50|   0 0.00
-10-02 17:04:51|   0    0
-10-02 17:04:52|   0    0
+----system---- --dsk/vda-- -dsk/total- ---vda---
+     time     | read  writ: read  writ|rawa wawa
+10-02 17:04:49|           :           |         
+10-02 17:04:50|   0   235k:   0   235k|   0 0.00
+10-02 17:04:51|   0     0 :   0     0 |   0    0
+10-02 17:04:52|   0     0 :   0     0 |   0    0
 === std err
 === done
 

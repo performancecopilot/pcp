@@ -341,6 +341,7 @@ _filter_optional_pmdas()
 	-e '/pmdaredis/d' \
 	-e '/pmdaroomtemp/d' \
 	-e '/pmdaroot/d' \
+	-e '/pmdarocestat/d' \
 	-e '/pmdarpm/d' \
 	-e '/pmdarsyslog/d' \
 	-e '/pmdasamba/d' \
@@ -427,6 +428,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[154 or "sockets"]/d' \
 	-e '/inst \[157 or "bpf"]/d' \
 	-e '/inst \[161 or "uwsgi"]/d' \
+        -e '/inst \[163 or "rocestat"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
     # end
 }
@@ -510,6 +512,7 @@ _filter_top_pmns()
 	-e '/^    proc /d' \
 	-e '/^    rabbitmq /d' \
 	-e '/^    redis /d' \
+	-e '/^    rocestat /d' \
 	-e '/^    rpm /d' \
 	-e '/^    rsyslog /d' \
 	-e '/^    samba /d' \
@@ -546,7 +549,6 @@ _filter_dumpresult()
 {
     sed \
 	-e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-	-e '/pmHighResResult/s/ .* numpmid/ ... numpmid/' \
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
 	-e '/value /{
 s/\(value.*\) 0x[0-9a-f][0-9a-f]*/\1 HEXNUMBER/
@@ -1179,4 +1181,42 @@ _filter_compiler_babble()
 _cull_dup_lines()
 {
     $PCP_AWK_PROG 'NR == 1 || last != $0 { print; last = $0 }'
+}
+
+# strip ls -l output to the essentials ...
+# drwxrwxr-x 2 pcpqa pcpqa 4096 Jan 16 15:09 TMP/run
+# ^^^^^^^^^^   ^^^^^ ^^^^^ ^^^^              ^^^^^^^
+#           . (maybe)
+# optionally these flags strip other fields:
+#   -u user
+#   -g group
+#   -s size
+#
+_filter_ls()
+{
+    _fields='$1,$3,$4,$5,$9'
+    while [ $# -ne 0 ]
+    do
+	case "$1"
+	in
+	    -u)
+		_fields=`echo "$_fields" | sed -e 's/,\$3//'`
+		;;
+	    -g)
+		_fields=`echo "$_fields" | sed -e 's/,\$4//'`
+		;;
+	    -s)
+		_fields=`echo "$_fields" | sed -e 's/,\$5//'`
+		;;
+	    *)
+		echo >&2 "_filter_ls: botch: arg $1 not -u or -g"
+		return
+		;;
+	esac
+	shift
+    done
+    $PCP_AWK_PROG '
+NF >= 9 && $1 ~ /^.[r-][w-][x-][r-][w-][x-][r-][w-][x-]/ { print '"$_fields"'; next }
+		{ print }' \
+    | sed -e 's/^\(.[r-][w-][x-][r-][w-][x-][r-][w-][x-]\)\./\1/'
 }

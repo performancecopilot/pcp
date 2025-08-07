@@ -118,7 +118,7 @@ refresh_indom(int gid)
 }
 
 static int
-overhead_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
+overhead_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *ext)
 {
     int			i;		/* over pmidlist[] */
     int			j;		/* over vset->vlist[] */
@@ -128,7 +128,7 @@ overhead_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     int			numval;
     int			gid;
     int			found;
-    static pmResult	*res = NULL;
+    static pmdaResult	*res = NULL;
     static int		maxnpmids = 0;
     pmValueSet		*vset;
     pmAtomValue		atom;
@@ -153,9 +153,9 @@ overhead_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
     {
 	if (res != NULL)
 	    free(res);
-	/* (numpmid - 1) because there's room for one valueSet in a pmResult */
-	need = sizeof(pmResult) + (numpmid - 1) * sizeof(pmValueSet *);
-	if ((res = (pmResult *) malloc(need)) == NULL)
+	/* (numpmid - 1) because there's room for one valueSet in a pmdaResult */
+	need = sizeof(pmdaResult) + (numpmid - 1) * sizeof(pmValueSet *);
+	if ((res = (pmdaResult *) malloc(need)) == NULL)
 	    return -oserror();
 	maxnpmids = numpmid;
     }
@@ -205,7 +205,7 @@ overhead_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 	if (vset == NULL) {
 	    if (i) {
 		res->numpmid = i;
-		__pmFreeResultValues(res);
+		pmdaFreeResultValues(res);
 	    }
 	    pthread_mutex_unlock(&proctab_mutex);
 	    return -oserror();
@@ -235,7 +235,7 @@ overhead_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *ext)
 		if (vset == NULL) {
 		    if (i) {
 			res->numpmid = i;
-			__pmFreeResultValues(res);
+			pmdaFreeResultValues(res);
 		    }
 		    pthread_mutex_unlock(&proctab_mutex);
 		    return -oserror();
@@ -330,7 +330,7 @@ fprintf(stderr, "fetch refreshtime=%d\n", refreshtime);
 	    if (found) {
 		sts = __pmStuffValue(&atom, &vset->vlist[j], type);
 		if (sts < 0) {
-		    __pmFreeResultValues(res);
+		    pmdaFreeResultValues(res);
 		    pthread_mutex_unlock(&proctab_mutex);
 		    return sts;
 		}
@@ -491,7 +491,7 @@ A value of 1.0 means the equivalent of 100%% of one CPU is being used.", gp->nam
 }
 
 static int
-overhead_store(pmResult *result, pmdaExt *ext)
+overhead_store(pmdaResult *result, pmdaExt *ext)
 {
     int		i;
     pmValueSet	*vsp;

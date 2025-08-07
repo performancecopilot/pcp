@@ -22,6 +22,18 @@ extern "C" {
 #endif
 
 /*
+ * PMAPI_VERSION note
+ * 	As of PMAPI_VERSION_4, pmResult was changed to a "HighRes"
+ * 	but the {pmcd,dbpmda,localcontext} <--> PMDA interface is
+ * 	still using the older pmResult_v2 structure (aka pmdaResult)
+ */
+#define pmdaResult pmResult_v2
+#define pmdaFreeResult pmFreeResult_v2
+#define pmdaFreeResultValues __pmFreeResultValues_v2
+#define pmdaOffsetResult __pmOffsetResult_v2
+#define pmdaSortInstances pmSortInstances_v2
+
+/*
  * libpcp_pmda interface versions
  */
 #define PMDA_INTERFACE_2	2	/* new function arguments */
@@ -87,7 +99,7 @@ typedef int (*pmdaFetchCallBack)(pmdaMetric *, unsigned int, pmAtomValue *);
  * Type of function call back used by pmdaMain to clean up a pmResult structure
  * after a fetch.
  */
-typedef void (*pmdaResultCallBack)(pmResult *);
+typedef void (*pmdaResultCallBack)(pmdaResult *);
 
 /*
  * Type of function call back used by pmdaMain on receipt of each PDU to check
@@ -221,11 +233,11 @@ typedef struct pmdaInterface {
 	struct {
 	    pmdaExt *ext;
 	    int	    (*profile)(pmProfile *, pmdaExt *);
-	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+	    int	    (*fetch)(int, pmID *, pmdaResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
 	    int	    (*instance)(pmInDom, int, char *, pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
-	    int	    (*store)(pmResult *, pmdaExt *);
+	    int	    (*store)(pmdaResult *, pmdaExt *);
 	} any, two, three;
 
 /*
@@ -237,11 +249,11 @@ typedef struct pmdaInterface {
 	struct {
 	    pmdaExt *ext;
 	    int	    (*profile)(pmProfile *, pmdaExt *);
-	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+	    int	    (*fetch)(int, pmID *, pmdaResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
 	    int	    (*instance)(pmInDom, int, char *, pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
-	    int	    (*store)(pmResult *, pmdaExt *);
+	    int	    (*store)(pmdaResult *, pmdaExt *);
 	    int     (*pmid)(const char *, pmID *, pmdaExt *);
 	    int     (*name)(pmID, char ***, pmdaExt *);
 	    int     (*children)(const char *, int, char ***, int **, pmdaExt *);
@@ -254,11 +266,11 @@ typedef struct pmdaInterface {
 	struct {
 	    pmdaExt *ext;
 	    int	    (*profile)(pmProfile *, pmdaExt *);
-	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+	    int	    (*fetch)(int, pmID *, pmdaResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
 	    int	    (*instance)(pmInDom, int, char *, pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
-	    int	    (*store)(pmResult *, pmdaExt *);
+	    int	    (*store)(pmdaResult *, pmdaExt *);
 	    int     (*pmid)(const char *, pmID *, pmdaExt *);
 	    int     (*name)(pmID, char ***, pmdaExt *);
 	    int     (*children)(const char *, int, char ***, int **, pmdaExt *);
@@ -272,11 +284,11 @@ typedef struct pmdaInterface {
 	struct {
 	    pmdaExt *ext;
 	    int	    (*profile)(pmProfile *, pmdaExt *);
-	    int	    (*fetch)(int, pmID *, pmResult **, pmdaExt *);
+	    int	    (*fetch)(int, pmID *, pmdaResult **, pmdaExt *);
 	    int	    (*desc)(pmID, pmDesc *, pmdaExt *);
 	    int	    (*instance)(pmInDom, int, char *, pmInResult **, pmdaExt *);
 	    int	    (*text)(int, int, char **, pmdaExt *);
-	    int	    (*store)(pmResult *, pmdaExt *);
+	    int	    (*store)(pmdaResult *, pmdaExt *);
 	    int     (*pmid)(const char *, pmID *, pmdaExt *);
 	    int     (*name)(pmID, char ***, pmdaExt *);
 	    int     (*children)(const char *, int, char ***, int **, pmdaExt *);
@@ -449,7 +461,7 @@ typedef struct pmdaOptions {
  *
  * pmdaSetResultCallBack
  *      Allows an application specific routine to be specified for cleaning up
- *      a pmResult after a fetch. Most PMDAs should not use this.
+ *      a pmdaResult after a fetch. Most PMDAs should not use this.
  *
  * pmdaSetFetchCallBack
  *      Allows an application specific routine to be specified for completing a
@@ -513,7 +525,7 @@ PMDA_CALL extern void pmdaSetLabelCallBack(pmdaInterface *, pmdaLabelCallBack);
  *	Store the instance profile away for the next fetch.
  *
  * pmdaFetch
- *	Resize the pmResult and call e_callback in the pmdaExt structure
+ *	Resize the pmdaResult and call e_callback in the pmdaExt structure
  *	for each metric instance required by the profile.
  *
  * pmdaInstance
@@ -556,11 +568,11 @@ PMDA_CALL extern void pmdaSetLabelCallBack(pmdaInterface *, pmdaLabelCallBack);
  */
 
 PMDA_CALL extern int pmdaProfile(pmProfile *, pmdaExt *);
-PMDA_CALL extern int pmdaFetch(int, pmID *, pmResult **, pmdaExt *);
+PMDA_CALL extern int pmdaFetch(int, pmID *, pmdaResult **, pmdaExt *);
 PMDA_CALL extern int pmdaInstance(pmInDom, int, char *, pmInResult **, pmdaExt *);
 PMDA_CALL extern int pmdaDesc(pmID, pmDesc *, pmdaExt *);
 PMDA_CALL extern int pmdaText(int, int, char **, pmdaExt *);
-PMDA_CALL extern int pmdaStore(pmResult *, pmdaExt *);
+PMDA_CALL extern int pmdaStore(pmdaResult *, pmdaExt *);
 PMDA_CALL extern int pmdaPMID(const char *, pmID *, pmdaExt *);
 PMDA_CALL extern int pmdaName(pmID, char ***, pmdaExt *);
 PMDA_CALL extern int pmdaChildren(const char *, int, char ***, int **, pmdaExt *);

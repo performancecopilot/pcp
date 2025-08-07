@@ -18,6 +18,8 @@
 \f3pmiSetVersion\f1 \- set the archive version for a LOGIMPORT archive
 .SH C SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
@@ -25,18 +27,28 @@
 int pmiSetVersion(int \fIvalue\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
+.hy
+.ad
 .ft 1
 .SH PERL SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
 pmiSetVersion($\fIvalue\fP);
+.hy
+.ad
 .ft 1
 .SH PYTHON SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 from pcp import pmi
 .sp
 log = pmi.pmiLogImport(\fIpath\fP).pmiSetVersion(\fIvalue\fP)
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

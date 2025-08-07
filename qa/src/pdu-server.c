@@ -174,7 +174,7 @@ decode_encode(int fd, __pmPDU *pb, int type)
 		    ctxnum, nowtv.tv_sec, nowtv.tv_usec);
 		foo.tv_sec = nowtv.tv_sec;
 		foo.tv_usec = nowtv.tv_usec;
-		pmPrintStamp(stderr, &foo);
+		pmtimevalPrint(stderr, &foo);
 		fprintf(stderr, " numpmid=%d\n+ PMIDs:", numpmid);
 		for (j = 0; j < numpmid; j++)
 		    fprintf(stderr, " %s", pmIDStr(pmidp[j]));

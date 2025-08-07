@@ -22,15 +22,23 @@
 \f3mmv_inc_atomvalue\f1 \- update a value in a Memory Mapped Value file
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/mmv_stats.h>
 .sp
 void mmv_inc_value(void *\fIaddr\fP, pmAtomValue *\fIav\fP, double \fIinc\fP);
 .br
-void mmv_inc_atomvalue(void *\fIaddr\fP, pmAtomValue *\fIav\fP, pmAtomValue *\fIinc\fP);
+void mmv_inc_atomvalue(void *\fIaddr\fP,
+'in +\w'void mmv_inc_atomvalue('u
+pmAtomValue\ *\fIav\fP,
+pmAtomValue\ *\fIinc\fP);
+.in
 .sp
 cc ... \-lpcp_mmv \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 \f3mmv_inc_value\f1

@@ -1,0 +1,45 @@
+QA output created by 1618
+QA output created by 1617 --cached
+Start test key server ...
+PING
+PONG
+
+Start test pmproxy ...
+=== pmlogpush to pmproxy ===
+sample.bin
+sample.bucket
+sample.colour
+sample.milliseconds
+sampledso.bin
+sampledso.bucket
+sampledso.colour
+sampledso.milliseconds
+=== pmseries value check ===
+
+0786b3badb53a087e918af364db3f47ada938332
+    [Mon May  3 11:53:38 1999] 4.147e+06
+=== pmseries labels check ===
+hostname
+=== pmseries metrics check ===
+sample.bin
+sample.bucket
+sample.colour
+sample.milliseconds
+sampledso.bin
+sampledso.bucket
+sampledso.colour
+sampledso.milliseconds
+=== valgrind stdout ===
+=== valgrind stderr ===
+Log for pmproxy on HOST started DATE
+
+pmproxy: PID = PID
+pmproxy request port(s):
+  sts fd   port  family address
+  === ==== ===== ====== =======
+ok FD unix UNIX_DOMAIN_SOCKET
+ok FD PORT inet INADDR_ANY
+[DATE] pmproxy(PID) Info: pmproxy caught SIGTERM
+[DATE] pmproxy(PID) Info: pmproxy Shutdown
+
+Log finished DATE

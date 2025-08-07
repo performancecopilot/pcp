@@ -40,15 +40,14 @@ _wait_for_pmcd || _exit 1		# sample.log is now sure to be clean
 _wait_for_pmlogger || _exit 1
 
 echo "Enabling sample PMDA tracing"
-authdbg=`pmdbg -o -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
-pmstore sample.control $authdbg
+pmstore sample.control "auth"
 
 echo "Verifying authentication for new client"
 pmprobe -v -h unix: sample.control
 filter_sample_log_credentials
 
 echo "Resetting sample PMDA tracing"
-pmstore -h unix: sample.control 0
+pmstore -h unix: sample.control ""
 filter_sample_log_credentials
 
 # success, all done

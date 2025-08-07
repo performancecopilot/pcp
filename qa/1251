@@ -115,11 +115,7 @@ cat <<'End-of-File' | sed -e '/^#/d' -e '/^[ 	]*$/d' | while read sect key altna
 # weirdos
 5	pcp.env		-	\.pcp/pcp.conf
 # from src/pmdas/json (Python), not man/man?
-# was generating, but hyphenation is in effect so troff was
-# producing
-#                      .... gen-
-#   erating JavaScript
-1	pmdajson	-	rating  *JavaScript
+1	pmdajson	-	JavaScript Object Notation
 End-of-File
 do
     # *BSD man(1) really uses apropos(1) for man -k which uses a full

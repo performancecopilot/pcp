@@ -63,7 +63,7 @@ mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
 
-$_valgrind_clean_assert pmproxy -f -r $key_server_port -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+$valgrind_clean_assert pmproxy -f -r $key_server_port -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
 echo "valgrind pid: $pid" >>$seq_full
@@ -86,6 +86,7 @@ else
 fi
 
 params="polltimeout=20"
+jsonreq="-H Accept:application/json"
 
 if which fuser >/dev/null
 then
@@ -102,6 +103,11 @@ fi
 date >>$seq_full
 echo "=== checking metric scrape operation ===" | tee -a $seq_full
 curl -Gs "http://localhost:$port/metrics?$params" >$tmp.tmp 2>&1
+grep "^curl" $tmp.tmp
+cat $tmp.tmp >>$seq_full
+
+echo "=== checking metric scrape JSON operation ===" | tee -a $seq_full
+curl -Gs $jsonreq "http://localhost:$port/metrics?$params" >$tmp.tmp 2>&1
 grep "^curl" $tmp.tmp
 cat $tmp.tmp >>$seq_full
 

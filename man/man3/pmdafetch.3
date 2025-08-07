@@ -19,23 +19,27 @@
 \f3pmdaSetFetchCallBack\f1 \- fill a pmResult structure with the requested metric values
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmdaFetch(int \fInumpmid\fP, pmID *\fIpmidlist\fP, pmResult **\fIresp\fP, pmdaExt\ *\fIpmda\fP);
-.br
-.ti -8n
-void pmdaSetFetchCallBack(pmdaInterface *\fIdispatch\fP, pmdaFetchCallBack\ \fIcallback\fP);
-.sp
+int pmdaFetch(int \fInumpmid\fP,
+'in +\w'int pmdaFetch('u
+pmID\ *\fIpmidlist\fP,
+pmResult\ **\fIresp\fP,
+pmdaExt\ *\fIpmda\fP);
 .in
+.br
+void pmdaSetFetchCallBack(pmdaInterface *\fIdispatch\fP,
+'in +\w'void pmdaSetFetchCallBack('u
+pmdaFetchCallBack\ \fIcallback\fP);
+.in
+.sp
+cc ... \-lpcp_pmda \-lpcp
 .hy
 .ad
-cc ... \-lpcp_pmda \-lpcp
 .ft 1
 .SH DESCRIPTION
 .B pmdaFetch

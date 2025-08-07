@@ -126,7 +126,7 @@ add_record(struct timespec *ts, int flags)
 static void
 dump(char *xpect)
 {
-    pmHighResResult **res;
+    pmResult **res;
     int		nmissed;
     int		nrecords;
     int		r;
@@ -188,8 +188,8 @@ dump(char *xpect)
 	    continue;
 
 	for (r = 0; r < nrecords; r++) {
-	    fprintf(stderr, "pmHighResResult[%d]\n", r);
-	    __pmDumpHighResResult(stderr, res[r]);
+	    fprintf(stderr, "pmResult[%d]\n", r);
+	    __pmDumpResult(stderr, res[r]);
 	}
 	pmFreeHighResEventResult(res);
     }

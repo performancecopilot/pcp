@@ -22,13 +22,13 @@ truncate(const char *fname, off_t offset)
 #endif
 
 static void
-printstamp(struct timeval *tp)
+printstamp(struct timespec *tsp)
 {
     static struct tm	*tmp;
-    time_t		clock = (time_t)tp->tv_sec;
+    time_t		clock = (time_t)tsp->tv_sec;
 
     tmp = localtime(&clock);
-    printf("%02d:%02d:%02d.%03d", (int)tmp->tm_hour, (int)tmp->tm_min, (int)tmp->tm_sec, (int)(tp->tv_usec/1000));
+    printf("%02d:%02d:%02d.%09d", (int)tmp->tm_hour, (int)tmp->tm_min, (int)tmp->tm_sec, (int)tsp->tv_nsec);
 }
 
 int
@@ -44,8 +44,8 @@ main(int argc, char **argv)
     char	*host = NULL;			/* pander to gcc */
     pmResult	*result;
     pmResult	*prev = NULL;
-    struct timeval	start = { 0,0 };
-    struct timeval	end;
+    struct timespec	start = { 0,0 };
+    struct timespec	end;
     int		tzh;
     off_t	trunc_size = 0;
 
@@ -163,7 +163,7 @@ Options\n\
 	}
     }
 
-    sts = pmSetMode(PM_MODE_BACK, &end, 0);
+    sts = pmSetMode(PM_MODE_BACK, &end, NULL);
     if (sts < 0) {
 	printf("pmSetMode PM_MODE_BACK: %s\n", pmErrStr(sts));
 	exit(1);
@@ -180,7 +180,7 @@ Options\n\
 	    printf("\n");
 	}
 	if (result->timestamp.tv_sec != end.tv_sec ||
-	    result->timestamp.tv_usec != end.tv_usec) {
+	    result->timestamp.tv_nsec != end.tv_nsec) {
 	    printf("Mismatch: end=");
 	    printstamp(&end);
 	    printf(" direct=");
@@ -189,7 +189,7 @@ Options\n\
 	    e_sts = 1;
 	}
 	start.tv_sec = result->timestamp.tv_sec;
-	start.tv_usec = result->timestamp.tv_usec;
+	start.tv_nsec = result->timestamp.tv_nsec;
 	pmFreeResult(result);
     }
 
@@ -199,7 +199,7 @@ Options\n\
 	    sts = pmFetchArchive(&result);
 	    if (sts >= 0) {
 		start.tv_sec = result->timestamp.tv_sec;
-		start.tv_usec = result->timestamp.tv_usec;
+		start.tv_nsec = result->timestamp.tv_nsec;
 		pmFreeResult(result);
 	    }
 	}
@@ -207,9 +207,9 @@ Options\n\
     else {
 	/* start from the epoch and move forward */
 	start.tv_sec = 0;
-	start.tv_usec = 0;
+	start.tv_nsec = 0;
     }
-    sts = pmSetMode(PM_MODE_FORW, &start, 0);
+    sts = pmSetMode(PM_MODE_FORW, &start, NULL);
     if (sts < 0) {
 	printf("pmSetMode PM_MODE_FORW: %s\n", pmErrStr(sts));
 	exit(1);
@@ -230,7 +230,7 @@ Options\n\
 	    printf("\n");
 	}
 	if (prev->timestamp.tv_sec != end.tv_sec ||
-	    prev->timestamp.tv_usec != end.tv_usec) {
+	    prev->timestamp.tv_nsec != end.tv_nsec) {
 	    printf("Mismatch: end=");
 	    printstamp(&end);
 	    printf(" serial=");

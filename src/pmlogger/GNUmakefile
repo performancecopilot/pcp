@@ -24,9 +24,10 @@ OTHERS	= pmnewlog.sh control rc_pmlogger rc_wrapper \
 	  pmlogger_farm.sh pmlogger_farm_check.service \
 	  pmlogger_farm_check.timer pmlogger_farm_check.service \
 	  pmlogger.pmcheck
-LDIRT	= crontab crontab.daily_report pmlogger.service \
-	  pmlogger_daily.service \
-	  pmlogger_check.service pmlogger_farm.service pmlogger_farm_check.service
+GENSCRIPT = crontab crontab.daily_report pmlogger.service \
+	  pmlogger_daily.service pmlogger_check.service \
+	  pmlogger_farm.service pmlogger_farm_check.service
+LDIRT	= $(GENSCRIPT)
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
@@ -37,15 +38,11 @@ CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab
 endif
 CRONTAB_DAILY_REPORT_PATH = $(CRONTAB_PATH)-daily-report
 
-default:: $(LDIRT)
-
-default:: $(SUBDIRS)
+default: $(GENSCRIPT) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-install:: $(SUBDIRS)
+install: default $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-
-install:: default
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_VAR_DIR)/config/pmlogger
 	$(INSTALL) -m 644 pmlogger_farm.defaults $(PCP_SYSCONFIG_DIR)/pmlogger_farm
 	$(INSTALL) -m 644 pmlogger.defaults $(PCP_SYSCONFIG_DIR)/pmlogger
@@ -66,13 +63,13 @@ install:: default
 	$(INSTALL) -m 755 rc_pmlogger $(PCP_SYSCONF_DIR)/pmlogger/rc
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service
-	$(INSTALL) -m 644 pmlogger_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.timer
 	$(INSTALL) -m 644 pmlogger_farm.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm.service
 	$(INSTALL) -m 644 pmlogger_farm_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm_check.service
 	$(INSTALL) -m 644 pmlogger_farm_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm_check.timer
 	$(INSTALL) -m 644 pmlogger_daily.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.service
-	$(INSTALL) -m 644 pmlogger_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.timer
+	$(INSTALL) -m 644 pmlogger_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_daily.timer
 	$(INSTALL) -m 644 pmlogger_check.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.service
+	$(INSTALL) -m 644 pmlogger_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.timer
 	$(INSTALL) -m 644 pmlogger_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmlogger_timers
 else
 	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
@@ -142,7 +139,14 @@ pmlogger_check.service : pmlogger_check.service.in
 	# END
 
 crontab : crontab.in
-	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' $< > $@
+	$(SED) <$< > $@ \
+	    -e 's;@user@;'$(CRONTAB_USER)';' \
+	    -e 's;@path@;'$(PCP_BINADM_DIR)';' \
+	# END
 
 crontab.daily_report : crontab.daily_report.in
-	$(SED) -e 's;@user@;'$(CRONTAB_USER)';' -e 's;@path@;'$(PCP_BINADM_DIR)';' -e 's;@sapath@;'$(PCP_SA_DIR)';' $< > $@
+	$(SED) <$< > $@ \
+	    -e 's;@user@;'$(CRONTAB_USER)';'
+	    -e 's;@path@;'$(PCP_BINADM_DIR)';'
+	    -e 's;@sapath@;'$(PCP_SA_DIR)';' \
+	# END

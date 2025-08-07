@@ -25,21 +25,18 @@ jobs:
           - {platform: ubuntu2004-container,      os: ubuntu-latest, experimental: false}
           - {platform: ubuntu2204-container,      os: ubuntu-latest, experimental: false}
           - {platform: ubuntu2404-container,      os: ubuntu-latest, experimental: false}
-          - {platform: fedora40-container,        os: ubuntu-22.04, experimental: false}
           - {platform: fedora41-container,        os: ubuntu-22.04, experimental: false}
           - {platform: fedora42-container,        os: ubuntu-22.04, experimental: false}
           - {platform: centos-stream8-container,  os: ubuntu-latest, experimental: false}
           - {platform: centos-stream9-container,  os: ubuntu-22.04, experimental: false}
           - {platform: centos-stream10-container, os: ubuntu-22.04, experimental: false}
 # other platforms that may be used for testing in developer repos
-#          - {platform: debian10-container,        os: ubuntu-latest, experimental: false}
 #          - {platform: debian11-container,        os: ubuntu-latest, experimental: false}
 #          - {platform: debian12-container,        os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu1804-container,      os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu2004,                os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu2204,                os: ubuntu-latest, experimental: false}
 #          - {platform: fedora-rawhide-container,  os: ubuntu-22.04, experimental: true }
-#          - {platform: centos7-container,         os: ubuntu-20.04, experimental: false}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4

@@ -36,6 +36,8 @@ typedef enum http_flags {
     HTTP_FLAG_HTML	= (1<<2),
     HTTP_FLAG_UTF8	= (1<<3),
     HTTP_FLAG_UTF16	= (1<<4),
+    HTTP_FLAG_REQ_JSON	= (1<<5),
+    /* insert new flags here */
     HTTP_FLAG_NO_BODY	= (1<<11),
     HTTP_FLAG_GZIP	= (1<<12),
     HTTP_FLAG_DEFLATE	= (1<<13),
@@ -75,6 +77,7 @@ extern sds http_get_buffer(struct client *);
 extern void http_set_buffer(struct client *, sds, http_flags_t);
 
 typedef void (*httpSetupCallBack)(struct proxy *);
+typedef void (*httpResetCallBack)(struct proxy *);
 typedef void (*httpCloseCallBack)(struct proxy *);
 typedef int (*httpHeadersCallBack)(struct client *, struct dict *);
 typedef int (*httpUrlCallBack)(struct client *, sds, struct dict *);
@@ -86,6 +89,7 @@ typedef struct servlet {
     const char * const	name;
     struct servlet	*next;
     httpSetupCallBack	setup;
+    httpResetCallBack	reset;
     httpCloseCallBack	close;
     httpUrlCallBack	on_url;
     httpHeadersCallBack	on_headers;
@@ -94,6 +98,7 @@ typedef struct servlet {
     httpReleaseCallBack	on_release;
 } servlet_t;
 
+extern struct servlet pmlogger_servlet;
 extern struct servlet pmsearch_servlet;
 extern struct servlet pmseries_servlet;
 extern struct servlet pmwebapi_servlet;

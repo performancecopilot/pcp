@@ -29,7 +29,7 @@ import cpmapi
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_DEBUG_APPL1, PM_TIME_SEC
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_TIME_SEC
 
 # Default config
 DEFAULT_CONFIG = ["./pcp2openmetrics.conf", "$HOME/.pcp2openmetrics.conf", "$HOME/.pcp/pcp2openmetrics.conf", "$PCP_SYSCONF_DIR/pcp2openmetrics.conf"]
@@ -39,11 +39,14 @@ CONFVER = 1
 INDENT = 2
 TIMEFMT = "%Y-%m-%d %H:%M:%S"
 TIMEOUT = 2.5 # seconds
+os.environ["TZ"] = "UTC"
+time.tzset()
 
 class PCP2OPENMETRICS(object):
     """ PCP to OPENMETRICS """
     def __init__(self):
         """ Construct object, prepare for command line handling """
+
         self.context = None
         self.daemonize = 0
         self.pmconfig = pmconfig.pmConfig(self)
@@ -309,7 +312,7 @@ class PCP2OPENMETRICS(object):
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
-        self.pmfg_ts = self.pmfg.extend_timestamp()
+        self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
 
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
@@ -329,7 +332,7 @@ class PCP2OPENMETRICS(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -390,7 +393,6 @@ class PCP2OPENMETRICS(object):
             # Silent goodbye, close in finalize()
             return
 
-        self.context.pmNewZone("UTC")
         ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
 
         if self.prev_ts is None:

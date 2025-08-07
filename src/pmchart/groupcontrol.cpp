@@ -383,14 +383,8 @@ GroupControl::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
     console->post("GroupControl::adjustArchiveWorldViewForward setup=%d", setup);
     my.timeState = ForwardState;
 
-    int setmode = PM_MODE_INTERP;
-    int delta = packet->delta.tv_sec;
-    if (packet->delta.tv_usec == 0) {
-	setmode |= PM_XTB_SET(PM_TIME_SEC);
-    } else {
-	delta = delta * 1000 + packet->delta.tv_usec / 1000;
-	setmode |= PM_XTB_SET(PM_TIME_MSEC);
-    }
+    struct timespec delta;
+    pmtimevalTotimespec(&packet->delta, &delta);
 
     //
     // X-Axis _max_ becomes packet->position.
@@ -402,7 +396,7 @@ GroupControl::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
 
     double left = position;
     double right = my.realPosition;
-    double interval = pmchart->timeAxis()->scaleValue((double)delta, my.visible);
+    double interval = pmchart->timeAxis()->scaleValue(pmtimespecToReal(&delta), my.visible);
 
     for (int i = last; i >= 0; i--, position += my.realDelta) {
 	if (setup == false &&
@@ -412,9 +406,9 @@ GroupControl::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool setup)
 
 	my.timeData[i] = position;
 
-	struct timeval timeval;
-	pmtimevalFromReal(position, &timeval);
-	setArchiveMode(setmode, &timeval, delta);
+	struct timespec when;
+	pmtimespecFromReal(position, &when);
+	setArchiveMode(PM_MODE_INTERP, &when, &delta);
 	console->post("Fetching data[%d] at %s", i, timeString(position));
 	fetch();
 	if (i == 0)		// refreshGadgets() finishes up last one
@@ -445,14 +439,8 @@ GroupControl::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool setup
     console->post("GroupControl::adjustArchiveWorldViewBackward");
     my.timeState = BackwardState;
 
-    int setmode = PM_MODE_INTERP;
-    int delta = packet->delta.tv_sec;
-    if (packet->delta.tv_usec == 0) {
-	setmode |= PM_XTB_SET(PM_TIME_SEC);
-    } else {
-	delta = delta * 1000 + packet->delta.tv_usec / 1000;
-	setmode |= PM_XTB_SET(PM_TIME_MSEC);
-    }
+    struct timespec delta;
+    pmtimevalTotimespec(&packet->delta, &delta);
 
     //
     // X-Axis _min_ becomes packet->position.
@@ -464,7 +452,7 @@ GroupControl::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool setup
 
     double left = position - (my.realDelta * last);
     double right = position;
-    double interval = pmchart->timeAxis()->scaleValue((double)delta, my.visible);
+    double interval = pmchart->timeAxis()->scaleValue(pmtimespecToReal(&delta), my.visible);
 
     for (int i = 0; i <= last; i++, position -= my.realDelta) {
 	if (setup == false &&
@@ -474,9 +462,13 @@ GroupControl::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool setup
 
 	my.timeData[i] = position;
 
-	struct timeval timeval;
-	pmtimevalFromReal(position, &timeval);
-	setArchiveMode(setmode, &timeval, -delta);
+	struct timespec when;
+	pmtimespecFromReal(position, &when);
+	if (delta.tv_sec != 0)
+	    delta.tv_sec = -delta.tv_sec;
+	else
+	    delta.tv_nsec = -delta.tv_nsec;
+	setArchiveMode(PM_MODE_INTERP, &when, &delta);
 	console->post("Fetching data[%d] at %s", i, timeString(position));
 	fetch();
 	if (i == last)		// refreshGadgets() finishes up last one

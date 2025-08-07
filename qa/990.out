@@ -446,6 +446,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_1: loading client cluster=4 for PMIDs from MMV_STATS_DIR/indoms_1
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_2: loading client cluster=5 for PMIDs from MMV_STATS_DIR/indoms_2
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: create_indom: serial=2
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: indom serial=2 has no instances
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: loading client cluster=6 for PMIDs from MMV_STATS_DIR/indoms_3
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_4: loading client cluster=7 for PMIDs from MMV_STATS_DIR/indoms_4
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_5: loading client cluster=8 for PMIDs from MMV_STATS_DIR/indoms_5
@@ -468,7 +469,6 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 [DATESTAMP] pminfo(PID) Error: mmv: indoms_6: indom[0] offset: 185 < 200
 [DATESTAMP] pminfo(PID) Info: pminfo: 4 metrics and 1 indoms after reload
 [DATESTAMP] pminfo(PID) Warning: mmv: contents_3: metrics count: 0
-[DATESTAMP] pminfo(PID) Warning: mmv: indoms_3: indom serial=2 has no instances
 
 mmv.control.metrics
     value 0
@@ -548,6 +548,7 @@ mmv.metrics_2.badmmv: Unknown or illegal instance identifier
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_1: loading client cluster=4 for PMIDs from MMV_STATS_DIR/indoms_1
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_2: loading client cluster=5 for PMIDs from MMV_STATS_DIR/indoms_2
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: create_indom: serial=2
+[DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: indom serial=2 has no instances
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_3: loading client cluster=6 for PMIDs from MMV_STATS_DIR/indoms_3
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_4: loading client cluster=7 for PMIDs from MMV_STATS_DIR/indoms_4
 [DATESTAMP] pminfo(PID) Debug: mmv: indoms_5: loading client cluster=8 for PMIDs from MMV_STATS_DIR/indoms_5
@@ -589,7 +590,6 @@ mmv.metrics_2.badmmv: Unknown or illegal instance identifier
 [DATESTAMP] pminfo(PID) Error: mmv: metrics_6: values offset: 209 < 224
 [DATESTAMP] pminfo(PID) Info: pminfo: 9 metrics and 1 indoms after reload
 [DATESTAMP] pminfo(PID) Warning: mmv: contents_3: metrics count: 0
-[DATESTAMP] pminfo(PID) Warning: mmv: indoms_3: indom serial=2 has no instances
 
 mmv.control.metrics
     value 5

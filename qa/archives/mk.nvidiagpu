@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# remake the nvidiagpu archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+if pmprobe nvidia >&1 | grep -q 'Unknown metric name'
+then
+    echo "Arrgh, NVIDIA GPU PMDA is apparently not installed"
+    exit 1
+fi
+
+cat <<End-of-File >>$tmp.config
+log mandatory on 1 sec {
+    nvidia
+    proc.fdinfo
+}
+End-of-File
+
+rm -f nvidiagpu.0 nvidiagpu.meta nvidiagpu.index
+
+pmlogger -s 7 -c $tmp.config nvidiagpu

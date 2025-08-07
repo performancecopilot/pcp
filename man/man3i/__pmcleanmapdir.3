@@ -18,13 +18,20 @@
 \f3__pmCleanMapDir\f1 \- remove old files from a map directory
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-int __pmCleanMapDir(const char *\fIdirname\fP, const char * \fIspecial\fP);
+int __pmCleanMapDir(const char *\fIdirname\fP,
+'in +\w'int __pmCleanMapDir('u
+const\ char\ *\fIspecial\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

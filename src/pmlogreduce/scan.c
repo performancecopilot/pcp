@@ -3,7 +3,7 @@
 static __pmTimestamp	last_stamp = { 0, 0 };
 static int		ictx_b = -1;
 
-extern struct timeval	winstart_tval;
+extern struct timespec	winstart_ts;
 
 /*
  * This is the heart of the data reduction algorithm.  The term
@@ -31,7 +31,7 @@ extern struct timeval	winstart_tval;
 void
 doscan(__pmTimestamp *end)
 {
-    struct timeval	last_tv;
+    struct timespec	last_ts;
     __pmResult		*rp;
     value_t		*vp;
     int			sts;
@@ -50,7 +50,7 @@ doscan(__pmTimestamp *end)
 	    exit(1);
 	}
 
-	if ((sts = pmSetMode(PM_MODE_FORW, NULL, 0)) < 0) {
+	if ((sts = pmSetMode(PM_MODE_FORW, NULL, NULL)) < 0) {
 	    fprintf(stderr,
 		"%s: Error: pmSetMode (ictx_b) failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
@@ -197,9 +197,9 @@ doscan(__pmTimestamp *end)
 	fprintf(stderr, " (%d records)\n", nr);
     }
 
-    last_tv.tv_sec = last_stamp.sec;
-    last_tv.tv_usec = last_stamp.nsec / 1000;
-    if ((sts = pmSetMode(PM_MODE_FORW, &last_tv, 0)) < 0) {
+    last_ts.tv_sec = last_stamp.sec;
+    last_ts.tv_nsec = last_stamp.nsec;
+    if ((sts = pmSetMode(PM_MODE_FORW, &last_ts, NULL)) < 0) {
 	fprintf(stderr,
 	    "%s: doscan: Error: pmSetMode (ictx_b) time=", pmGetProgname());
 	__pmPrintTimestamp(stderr, &last_stamp);

@@ -66,7 +66,7 @@ $sudo rm -f $seq_full
 # real QA test starts here
 
 dbpmda -ie <<End-of-File 2>$tmp.err >$tmp.out
-debug 1
+debug pdu
 getdesc on
 open pipe $PCP_PMDAS_DIR/sample/pmdasample $pipeargs -d 29 -l $tmp.log
 fetch 29.0.6

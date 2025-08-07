@@ -1,11 +1,11 @@
 [Unit]
-Description=Half-hourly check of pmlogger instances
+Description=Half-hourly check for PCP archive loggers (non-primary and remote hosts)
 
 [Timer]
 # if enabled, runs 1m after boot and every half hour
 OnBootSec=1min
-OnCalendar=*-*-* *:25:00
-OnCalendar=*-*-* *:55:00
+OnCalendar=*-*-* *:20:00
+OnCalendar=*-*-* *:50:00
 
 [Install]
 WantedBy=timers.target

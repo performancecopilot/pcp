@@ -22,6 +22,8 @@
 \f3pmdaCloseHelp\f1 \- help text support for a PMDA
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
@@ -35,6 +37,8 @@ char *pmdaGetInDomHelp(int \fIhandle\fP, pmInDom \fIindom\fP, int \fItype\fP);
 void pmdaCloseHelp(int \fIhandle\fP);
 .sp
 cc ... \-lpcp_pmda \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Metrics Domain Agent (PMDA) API (see

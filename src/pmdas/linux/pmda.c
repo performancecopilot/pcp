@@ -1196,6 +1196,16 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_MEMINFO,74), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
 
+/* mem.util.kreclaimable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,75), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.util.hugetlb */
+    { NULL,
+      { PMDA_PMID(CLUSTER_MEMINFO,76), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
 /* mem.numa.util.total */
     { NULL,
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,0), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
@@ -4722,6 +4732,16 @@ static pmdaMetric metrictab[] = {
 /* network.tcp.tcpaodroppedicmps */
   { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TCPAODROPPEDICMPS],
     { PMDA_PMID(CLUSTER_NET_NETSTAT,216), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.pawsoldack */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSOLDACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,230), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.tcp.tsecrrejected */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TSECRREJECTED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,231), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* network.mptcp.mpfailtx */
@@ -8755,6 +8775,16 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.Percpu;
 	   break;
+  case 75: /* mem.util.kreclaimable (in kbytes) */
+      if (!MEMINFO_VALID_VALUE(proc_meminfo.KReclaimable))
+    return 0; /* no values available */
+      atom->ull = proc_meminfo.KReclaimable;
+      break;	
+  case 76: /* mem.util.hugetlb (in kbytes) */
+      if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugetlb))
+    return 0; /* no values available */
+      atom->ull = proc_meminfo.Hugetlb;
+      break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -10253,7 +10283,7 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 
 static int
-linux_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+linux_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i, sts, need_refresh[NUM_REFRESHES] = {0};
 

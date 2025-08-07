@@ -53,7 +53,7 @@ mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
 
-$_valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+$valgrind_clean_assert pmproxy -f -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
 
 echo "valgrind pid: $pid" >>$seq_full
@@ -89,7 +89,7 @@ fi
 
 # valgrind takes awhile to shutdown too
 pmsignal $pid
-pmsleep 3.5
+_wait_process_end $pid
 echo "=== valgrind stdout ===" | tee -a $seq_full
 cat $tmp.valout | _filter_valgrind
 

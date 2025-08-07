@@ -19,6 +19,8 @@
 \f3pmUnitsStr_r \- convert a performance metric's units into a string
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 const char *pmUnitsStr(const pmUnits *\fIpu\fP);
@@ -26,6 +28,8 @@ const char *pmUnitsStr(const pmUnits *\fIpu\fP);
 char *pmUnitsStr_r(const pmUnits *\fIpu\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

@@ -126,7 +126,7 @@ group_create_pmlogger(const char *state, unsigned int line)
     size_t		length;
     group_t		*group;
     const char		*begin, *end;
-    struct timeval	interval;
+    struct timespec	interval;
     enum { TAG, STATE, DELTA } parse;
 
     if ((group = calloc(1, sizeof(group_t))) == NULL) {
@@ -195,7 +195,7 @@ group_create_pmlogger(const char *state, unsigned int line)
 	    if (strcmp(group->saved_delta, "once") == 0 ||
 		strcmp(group->saved_delta, "default") == 0)
 		break;
-	    if (pmParseInterval(group->saved_delta, &interval, &errmsg) < 0) {
+	    if (pmParseHighResInterval(group->saved_delta, &interval, &errmsg) < 0) {
 		fprintf(stderr, "%s: ignoring %s logging interval \"%s\" "
 				"on line %u of %s: %s\n", pmGetProgname(),
 			group->tag, group->saved_delta, line, config, errmsg);
@@ -469,15 +469,35 @@ parse_groupfile(FILE *file, const char *tag)
 	    group.ident = append(group.ident, chop(p), ' ');
 	}
 	else if (istoken(p, "probe", sizeof("probe")-1)) {
+	    if (group.probe != NULL) {
+		fprintf(stderr, "%s: Warning: %s/%s "
+			"repeated \"probe\" control lines ... \"%s\" will be ignored\n",
+		pmGetProgname(), groupdir, group.tag, group.probe);
+		free(group.probe);
+	    }
 	    p = trim(p + sizeof("probe"));
 	    group.probe = copy_string(p);
+	    if (group.metric != NULL)
+		free(group.metric);
 	    group.metric = copy_token(p);
 	}
 	else if (istoken(p, "force", sizeof("force")-1)) {
+	    if (group.force != NULL) {
+		fprintf(stderr, "%s: Warning: %s/%s "
+			"repeated \"force\" control lines ... \"%s\" will be ignored\n",
+		pmGetProgname(), groupdir, group.tag, group.force);
+		free(group.force);
+	    }
 	    p = trim(p + sizeof("force"));
 	    group.force = copy_string(p);
 	}
 	else if (istoken(p, "delta", sizeof("delta")-1)) {
+	    if (group.delta != NULL) {
+		fprintf(stderr, "%s: Warning: %s/%s "
+			"repeated \"delta\" control lines ... \"%s\" will be ignored\n",
+		pmGetProgname(), groupdir, group.tag, group.delta);
+		free(group.delta);
+	    }
 	    p = trim(p + sizeof("delta"));
 	    group.delta = copy_string(p);
 	}
@@ -600,6 +620,12 @@ fetch_groups(void)
 	return 0;
     }
     count = n;
+    if (count == 0) {
+	/* nothing to lookup ... */
+	sts = 0;
+	free(descs);
+	goto done;
+    }
 
     if ((sts = pmLookupName(count, names, pmids)) < 0) {
 	if (count == 1)
@@ -643,6 +669,7 @@ fetch_groups(void)
 	    fprintf(stderr, "%s: cannot hash metric values: %s\n",
 			    pmGetProgname(), pmErrStr(sts));
     }
+done:
     free(names);
     free(pmids);
     return sts;
@@ -677,7 +704,7 @@ parse_group(group_t *group)
     if (group->force && group->metric) {
 	fprintf(stderr, "%s: Warning: %s/%s "
 			"\"probe\" and \"force\" control lines ... "
-			"ignoring \"force\\n",
+			"ignoring \"force\"\n",
 		pmGetProgname(), groupdir, group->tag);
     }
     if (!group->force && !group->metric) {
@@ -1461,14 +1488,20 @@ char *
 update_groups(FILE *tempfile, const char *pattern)
 {
     group_t		*group;
-    struct timeval	interval;
+    struct timespec	interval;
     static char		*answer;
     static char		buffer[128]; /* returned 'answer' points into this */
     char		*state = NULL, *errmsg, *p;
     unsigned int	i, m, count;
+    unsigned int	back = 0;
+    
 
     /* iterate over the groups array. */
     for (i = count = 0; i < ngroups; count = 0, i++) {
+	if (back) {
+	    i--;
+	    back = 0;
+	}
 	group = &groups[i];
 	if (!group->valid || group->saved_state == STATE_EXCLUDE)
 	    continue;
@@ -1514,7 +1547,7 @@ y         log this group\n\
 	    printf("Metrics in this group (%s):\n", group->tag);
 	    for (m = 0; m < group->nmetrics; m++)
 		printf("    %s\n", group->metrics[m]);
-	    i--;	/* stay on this group */
+	    back = 1;	/* stay on this group */
 	    continue;
 
 	case 'q':
@@ -1570,7 +1603,7 @@ y         log this group\n\
 			update_delta(group, answer);
 			break;
 		    }
-		    if (pmParseInterval(answer, &interval, &errmsg) >= 0) {
+		    if (pmParseHighResInterval(answer, &interval, &errmsg) >= 0) {
 			update_delta(group, answer);
 			break;
 		    }

@@ -113,7 +113,7 @@ proc_redo_indom(pmdaIndom *idp)
     int			i;
     int			t;
     int			m;
-    int			len;
+    static int		len;
     int			sts;
 
     if (idp->it_set == NULL) {
@@ -124,7 +124,7 @@ proc_redo_indom(pmdaIndom *idp)
 	    proc_reset(idp);
 	    return -oserror();
 	}
-	/* for the proctab[].iname we do max length alloc and sprintf in there */
+	/* for the proctab[].iname we do max length alloc and snprintf in there */
 	len = 6;	/* "XXXX " + NUL */
 	for (m = 0, i = 0; i < n_1; i++) {
 	    if ((t = strlen(path_1[i])) > m)
@@ -167,9 +167,9 @@ proc_redo_indom(pmdaIndom *idp)
 	    proctab[i].ordinal = ordinal++;
 	    gettimeofday(&proctab[i].tv, NULL);
 	    if (i == 0)
-		sprintf(proctab[i].iname, "%04d %s", 1, "init");
+		snprintf(proctab[i].iname, len, "%04d %s", 1, "init");
 	    else {
-		sprintf(proctab[i].iname, "%04d %s%s%s", proctab[i].ordinal,
+		snprintf(proctab[i].iname, len, "%04d %s%s%s", proctab[i].ordinal,
 		    path_1[k_1], path_2[k_2], path_3[k_3]);
 		k_1 = (k_1 + 1) % n_1;
 		k_2 = (k_2 + 1) % n_2;
@@ -219,7 +219,7 @@ proc_redo_indom(pmdaIndom *idp)
 		proctab[i].pid = idp->it_set[j].i_inst = next_pid(idp);
 		proctab[i].ordinal = ordinal++;
 		gettimeofday(&proctab[i].tv, NULL);
-		sprintf(proctab[i].iname, "%04d %s%s%s", proctab[i].ordinal,
+		snprintf(proctab[i].iname, len, "%04d %s%s%s", proctab[i].ordinal,
 		    path_1[k_1], path_2[k_2], path_3[k_3]);
 		k_1 = (k_1 + 1) % n_1;
 		k_2 = (k_2 + 1) % n_2;

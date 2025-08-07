@@ -1,0 +1,17 @@
+QA output created by 1976
+
+=== openmetrics agent installation ===
+-- metric removal of new source/metric --
+Error: openmetrics.simple_metric: Unknown metric name
+
+-- source re-addition --
+openmetrics.simple_metric.metric2
+openmetrics.simple_metric.metric1
+
+-- metric removal of recognized source/metric --
+Error: openmetrics.simple_metric: Unknown metric name
+
+-- source re-addition with epoch timestamp --
+openmetrics.simple_metric.metric2
+openmetrics.simple_metric.metric1
+

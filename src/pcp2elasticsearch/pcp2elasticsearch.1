@@ -616,14 +616,12 @@ sends this type definition to Elasticsearch:
 .IP
  {
      "mappings": {
-         "pcp-metric": {
-             "properties": {
-                 "@timestamp": {
-                     "type": "date"
-                 },
-                 "host-id": {
-                     "type": "string"
-                 }
+         "properties": {
+             "@timestamp": {
+                "type": "long"
+             },
+             "host-id": {
+             "type": "text"
              }
          }
      }
@@ -633,13 +631,13 @@ The actual metrics data document is similar to this example:
 .IP
  {
      "@host-id": "bozo",
+     "@timestamp": 1507637520,
      "mem": {
          "util": {
              "used": 4525820,
              "free": 3344000
          }
      },
-     "@timestamp": 1507637520,
      "disk": {
          "partitions": {
              "@instances": [
@@ -675,6 +673,11 @@ The \fB$PCP_CONF\fP variable may be used to specify an alternative
 configuration file, as described in \fBpcp.conf\fP(5).
 .PP
 For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+.PP
+Of particular note,
+.B PCP_DISCRETE_ONCE
+can be set to ensure that discrete metric values are reported only once,
+unless they change at some point.
 .SH DEBUGGING OPTIONS
 The
 .B \-D

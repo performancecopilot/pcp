@@ -21,24 +21,31 @@
 \f3pmRecordControl\f1 \- record mode support for PMAPI clients
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmafm.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-FILE *pmRecordSetup(const char *\fIfolio\fP, const char *\fIcreator\fP, int\ \fIreplay\fP);
-.br
-.ti -8n
-int pmRecordAddHost(const char *\fIhost\fP, int \fIisdefault\fP, pmRecordHost\ **\fIrhp\fP);
-.br
-.ti -8n
-int pmRecordControl(pmRecordHost *\fIrhp\fP, int \fIrequest\fP, const\ char\ *\fIoptions\fP);
+#include <pcp/pmafm.h>
 .sp
+FILE *pmRecordSetup(const char *\fIfolio\fP,
+'in +\w'FILE *pmRecordSetup('u
+const\ char\ *\fIcreator\fP,
+int\ \fIreplay\fP);
 .in
+.br
+int pmRecordAddHost(const char *\fIhost\fP,
+'in +\w'int pmRecordAddHost('u
+int\ \fIisdefault\fP,
+pmRecordHost\ **\fIrhp\fP);
+.in
+.br
+int pmRecordControl(pmRecordHost *\fIrhp\fP,
+'in +\w'int pmRecordControl('u
+int\ \fIrequest\fP,
+const\ char\ *\fIoptions\fP);
+.in
+.sp
+cc ... \-lpcp_gui
 .hy
 .ad
-cc ... \-lpcp_gui
 .ft 1
 .SH DESCRIPTION
 These routines may be used to create a Performance Co-Pilot (PCP)

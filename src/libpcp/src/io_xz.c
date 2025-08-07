@@ -497,7 +497,7 @@ xz_fdopen(__pmFILE *f, int fd, const char *mode)
 static int
 xz_seek(__pmFILE *f, off_t offset, int whence)
 {
-    xzfile *xz = (xzfile *)f->priv;;
+    xzfile *xz = (xzfile *)f->priv;
     __int64_t new_offset;
 
     switch (whence) {
@@ -535,7 +535,7 @@ xz_lseek(__pmFILE *f, off_t offset, int whence)
 static void
 xz_rewind(__pmFILE *f)
 {
-    xzfile *xz = (xzfile *)f->priv;;
+    xzfile *xz = (xzfile *)f->priv;
 
     /* Don't actually seek to the requested offset now. Just record it. */
     xz->uncompressed_offset = 0;
@@ -547,7 +547,7 @@ xz_rewind(__pmFILE *f)
 static off_t
 xz_tell(__pmFILE *f)
 {
-    xzfile *xz = (xzfile *)f->priv;;
+    xzfile *xz = (xzfile *)f->priv;
     return xz->uncompressed_offset;
 }
 
@@ -797,7 +797,7 @@ reposition(xzfile *xz)
 static int
 xz_getc(__pmFILE *f)
 {
-    xzfile *xz = (xzfile *)f->priv;;
+    xzfile *xz = (xzfile *)f->priv;
     block *blk = reposition(xz);
     int c;
 
@@ -814,7 +814,7 @@ xz_getc(__pmFILE *f)
 static size_t
 xz_read(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
-    xzfile *xz = (xzfile *)f->priv;;
+    xzfile *xz = (xzfile *)f->priv;
     block *blk;
     const char *p;
     size_t n;

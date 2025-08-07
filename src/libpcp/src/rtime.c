@@ -204,7 +204,7 @@ parseError(const char *spec, const char *point, char *msg, char **rslt)
     char	*q;
 
     if ((*rslt = malloc(need)) == NULL)
-	pmNoMem("__pmParseTime", need, PM_FATAL_ERR);
+	pmNoMem("__pmtimevalParse", need, PM_FATAL_ERR);
     q = *rslt;
 
     for (p = spec; *p != '\0'; p++)
@@ -288,7 +288,7 @@ __pmParseInterval(
 }
 
 int		/* 0 -> ok, -1 -> error */
-pmParseInterval(
+pmParseInterval_v2(
     const char *spec,		/* interval to parse */
     struct timeval *rslt,	/* result stored here */
     char **errmsg)		/* error message */
@@ -304,7 +304,7 @@ pmParseInterval(
 }
 
 int		/* 0 -> ok, -1 -> error */
-pmParseHighResInterval(
+pmParseInterval(
     const char *spec,		/* interval to parse */
     struct timespec *rslt,	/* result stored here */
     char **errmsg)		/* error message */
@@ -429,7 +429,7 @@ __pmParseCtime(
 
 
 int	/* 0 ok, -1 error */
-__pmConvertTime(
+__pmtimevalConvert(
     struct tm *tmin,		/* absolute or +ve or -ve offset time */
     struct timeval *orig,	/* defaults and origin for offset */
     struct timeval *rslt)	/* result stored here */
@@ -443,7 +443,7 @@ __pmConvertTime(
     else
 	origin.tv_nsec = orig->tv_usec * 1000;
 
-    if ((sts = __pmConvertHighResTime(tmin, &origin, &result)) < 0)
+    if ((sts = __pmtimespecConvert(tmin, &origin, &result)) < 0)
 	return sts;
 
     rslt->tv_sec = result.tv_sec;
@@ -453,7 +453,7 @@ __pmConvertTime(
 
 
 int	/* 0 ok, -1 error */
-__pmConvertHighResTime(
+__pmtimespecConvert(
     struct tm *tmin,		/* absolute or +ve or -ve offset time */
     struct timespec *origin,	/* defaults and origin for offset */
     struct timespec *result)	/* result stored here */
@@ -622,7 +622,7 @@ glib_get_date(
 }
 
 int	/* 0 -> ok, -1 -> error */
-__pmParseHighResTime(
+__pmtimespecParse(
     const char	    *string,	/* string to be parsed */
     struct timespec *logStart,	/* start of log or current time */
     struct timespec *logEnd,	/* end of log or tv_sec == LONG_MAX */
@@ -647,18 +647,18 @@ __pmParseHighResTime(
     if (parseChar(&scan, '@')) {
 	if (__pmParseCtime(scan, &tm, errMsg) >= 0) {
 	    tm.tm_wday = NO_OFFSET;
-	    __pmConvertHighResTime(&tm, &start, rslt);
+	    __pmtimespecConvert(&tm, &start, rslt);
 	    return 0;
 	}
     }
 
     /* relative to end of archive */
     else if (end.tv_sec < PM_MAX_TIME_T && parseChar(&scan, '-')) {
-	if (pmParseHighResInterval(scan, &tspec, errMsg) >= 0) {
+	if (pmParseInterval(scan, &tspec, errMsg) >= 0) {
 	    tm.tm_wday = NEG_OFFSET;
 	    tm.tm_sec = tspec.tv_sec;
 	    tm.tm_yday = tspec.tv_nsec;
-	    __pmConvertHighResTime(&tm, &end, rslt);
+	    __pmtimespecConvert(&tm, &end, rslt);
 	    return 0;
 	}
     }
@@ -666,11 +666,11 @@ __pmParseHighResTime(
     /* relative to start of archive or current time */
     else {
 	parseChar(&scan, '+');
-	if (pmParseHighResInterval(scan, &tspec, errMsg) >= 0) {
+	if (pmParseInterval(scan, &tspec, errMsg) >= 0) {
 	    tm.tm_wday = PLUS_OFFSET;
 	    tm.tm_sec = tspec.tv_sec;
 	    tm.tm_yday = tspec.tv_nsec;
-	    __pmConvertHighResTime(&tm, &start, rslt);
+	    __pmtimespecConvert(&tm, &start, rslt);
 	    return 0;
 	}
     }
@@ -678,8 +678,7 @@ __pmParseHighResTime(
     /*
      * if we get here, *errMsg is not NULL, because one of
      * - __pmParseCtime(), or
-     * - pmParseHighResInterval(), or
-     * - the other pmParseHighResInterval()
+     * - pmParseInterval()
      * returned a value < 0 ... if glib_get_date() fails we're
      * going to return with the previously set *errMsg
      */
@@ -702,7 +701,7 @@ __pmParseHighResTime(
 }
 
 int	/* 0 -> ok, -1 -> error */
-__pmParseTime(
+__pmtimevalParse(
     const char	    *string,	/* string to be parsed */
     struct timeval  *logStart,	/* start of log or current time */
     struct timeval  *logEnd,	/* end of log or tv_sec == PM_MAX_TIME_T */
@@ -717,7 +716,7 @@ __pmParseTime(
     end.tv_sec = logEnd->tv_sec;
     end.tv_nsec = logEnd->tv_usec * 1000;
 
-    if ((sts = __pmParseHighResTime(string, &start, &end, &result, errMsg)) < 0)
+    if ((sts = __pmtimespecParse(string, &start, &end, &result, errMsg)) < 0)
 	return sts;
 
     rslt->tv_sec = result.tv_sec;
@@ -727,7 +726,7 @@ __pmParseTime(
 }
 
 int    /* 1 -> ok, 0 -> warning, -1 -> error */
-pmParseTimeWindow(
+pmParseTimeWindow_v2(
     const char      *swStart,   /* argument of -S switch, may be NULL */
     const char      *swEnd,     /* argument of -T switch, may be NULL */
     const char      *swAlign,   /* argument of -A switch, may be NULL */
@@ -751,7 +750,7 @@ pmParseTimeWindow(
     logend.tv_sec = logEnd->tv_sec;
     logend.tv_nsec = logEnd->tv_usec * 1000;
 
-    if ((sts = pmParseHighResTimeWindow(swStart, swEnd, swAlign, swOffset,
+    if ((sts = pmParseTimeWindow(swStart, swEnd, swAlign, swOffset,
 			&logstart, &logend, &start, &end, &offset, errMsg)) < 0)
 	return sts;
 
@@ -770,7 +769,7 @@ pmParseTimeWindow(
  * client tools.
  */
 int    /* 1 -> ok, 0 -> warning, -1 -> error */
-pmParseHighResTimeWindow(
+pmParseTimeWindow(
     const char      *swStart,   /* argument of -S switch, may be NULL */
     const char      *swEnd,     /* argument of -T switch, may be NULL */
     const char      *swAlign,   /* argument of -A switch, may be NULL */
@@ -802,21 +801,45 @@ pmParseHighResTimeWindow(
 
     /* parse -S argument and adjust start accordingly */
     if (swStart) {
-	if (__pmParseHighResTime(swStart, &start, &end, &start, errMsg) < 0)
+	if (__pmtimespecParse(swStart, &start, &end, &start, errMsg) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -S %s => %s\n", swStart, *errMsg);
+	    }
 	    return -1;
+	}
+	else if (pmDebugOptions.getopt) {
+	    fprintf(stderr, "pmParseTimeWindow: -S %s => logstart=", swStart);
+	    pmtimespecPrint(stderr, logStart);
+	    fprintf(stderr, " start=");
+	    pmtimespecPrint(stderr, &start);
+	    fprintf(stderr, " logend=");
+	    pmtimespecPrint(stderr, logEnd);
+	    fputc('\n', stderr);
+	}
     }
 
     /* sanity check -S */
     if (tscmp(start, *logStart) < 0) {
 	/* move start forwards to the beginning of the archive */
+	if (pmDebugOptions.getopt) {
+	    fprintf(stderr, "pmParseTimeWindow: -S %s start ", swStart);
+	    pmtimespecPrint(stderr, &start);
+	    fprintf(stderr, " before logstart ");
+	    pmtimespecPrint(stderr, logStart);
+	    fprintf(stderr, " advance to logstart\n");
+	}
 	start = *logStart;
     }
 
     /* parse -A argument and adjust start accordingly */
     if (swAlign) {
 	scan = swAlign;
-	if (pmParseHighResInterval(scan, &tspec, errMsg) < 0)
+	if (pmParseInterval(scan, &tspec, errMsg) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -A %s => %s\n", swAlign, *errMsg);
+	    }
 	    return -1;
+	}
 	if (tspec.tv_sec == 0 && tspec.tv_nsec == 0) {
 	    parseError(swAlign, swAlign, alignmsg, errMsg);
 	    return -1;
@@ -830,8 +853,17 @@ pmParseHighResTimeWindow(
 	astart.tv_nsec = (int)(blign % 1000000000);
 
 	/* sanity check -S after alignment */
-	if (tscmp(astart, *logStart) >= 0 && tscmp(astart, *logEnd) <= 0)
+	if (tscmp(astart, *logStart) >= 0 && tscmp(astart, *logEnd) <= 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -A %s", swAlign);
+		fprintf(stderr, " advance start from ");
+		pmtimespecPrint(stderr, &start);
+		fprintf(stderr, " to ");
+		pmtimespecPrint(stderr, &astart);
+		fputc('\n', stderr);
+	    }
 	    start = astart;
+	}
 	else {
 	    parseError(swAlign, swAlign, alignmsg, errMsg);
 	    sts = 0;
@@ -840,30 +872,75 @@ pmParseHighResTimeWindow(
 
     /* parse -T argument and adjust end accordingly */
     if (swEnd) {
-	if (__pmParseHighResTime(swEnd, &start, &end, &end, errMsg) < 0)
+	if (__pmtimespecParse(swEnd, &start, &end, &end, errMsg) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -T %s => %s\n", swEnd, *errMsg);
+	    }
 	    return -1;
+	}
+	else if (pmDebugOptions.getopt) {
+	    fprintf(stderr, "pmParseTimeWindow: -T %s => logstart=", swStart);
+	    pmtimespecPrint(stderr, logStart);
+	    fprintf(stderr, " end=");
+	    pmtimespecPrint(stderr, &end);
+	    fprintf(stderr, " logend=");
+	    pmtimespecPrint(stderr, logEnd);
+	    fputc('\n', stderr);
+	}
     }
 
     /* sanity check -T */
-    if (tscmp(end, *logEnd) > 0)
+    if (tscmp(end, *logEnd) > 0) {
 	/* move end backwards to the end of the archive */
+	if (pmDebugOptions.getopt) {
+	    fprintf(stderr, "pmParseTimeWindow: -T %s start ", swEnd);
+	    pmtimespecPrint(stderr, &end);
+	    fprintf(stderr, " after logend ");
+	    pmtimespecPrint(stderr, logEnd);
+	    fprintf(stderr, " trim to logend\n");
+	}
 	end = *logEnd;
+    }
 
     /* parse -O argument and align if required */
     offset = start;
     if (swOffset) {
-	if (__pmParseHighResTime(swOffset, &start, &end, &offset, errMsg) < 0)
+	if (__pmtimespecParse(swOffset, &start, &end, &offset, errMsg) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -O %s => %s\n", swOffset, *errMsg);
+	    }
 	    return -1;
+	}
 
 	/* sanity check -O */
-	if (tscmp(offset, start) < 0)
+	if (tscmp(offset, start) < 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -O %s offset ", swOffset);
+		pmtimespecPrint(stderr, &offset);
+		fprintf(stderr, " before start ");
+		pmtimespecPrint(stderr, &start);
+		fprintf(stderr, " advance to start\n");
+	    }
 	    offset = start;
-	else if (tscmp(offset, end) > 0)
+	}
+	else if (tscmp(offset, end) > 0) {
+	    if (pmDebugOptions.getopt) {
+		fprintf(stderr, "pmParseTimeWindow: -O %s offset ", swOffset);
+		pmtimespecPrint(stderr, &offset);
+		fprintf(stderr, " after end ");
+		pmtimespecPrint(stderr, &end);
+		fprintf(stderr, " trim to end\n");
+	    }
 	    offset = end;
+	}
 
-	if (swAlign) {
-	    align = offset.tv_nsec + 1000000000 * (__int64_t)offset.tv_sec;
-	    blign = (align / delta) * delta;
+	/*
+	 * if end.tv_sec == PM_MAX_TIME_T then we cannot do -A rounding
+	 * due to arithmetic overflow [Coverity CID 464604]
+	 */
+	if (swAlign && end.tv_sec != PM_MAX_TIME_T) {
+	    align = offset.tv_nsec + 1000000000 *
+	    (__int64_t)offset.tv_sec; blign = (align / delta) * delta;
 	    if (blign < align)
 		blign += delta;
 	    align = end.tv_nsec + 1000000000 * (__int64_t)end.tv_sec;
@@ -873,8 +950,17 @@ pmParseHighResTimeWindow(
 	    aoffset.tv_nsec = (int)(blign % 1000000000);
 
 	    /* sanity check -O after alignment */
-	    if (tscmp(aoffset, start) >= 0 && tscmp(aoffset, end) <= 0)
+	    if (tscmp(aoffset, start) >= 0 && tscmp(aoffset, end) <= 0) {
+		if (pmDebugOptions.getopt) {
+		    fprintf(stderr, "pmParseTimeWindow: -A %s", swAlign);
+		    fprintf(stderr, " advance offset from ");
+		    pmtimespecPrint(stderr, &offset);
+		    fprintf(stderr, " to ");
+		    pmtimespecPrint(stderr, &aoffset);
+		    fputc('\n', stderr);
+		}
 		offset = aoffset;
+	    }
 	    else {
 		parseError(swAlign, swAlign, alignmsg, errMsg);
 		sts = 0;

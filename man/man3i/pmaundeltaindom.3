@@ -18,15 +18,22 @@
 \f3pmaUndeltaInDom\f1 \- find ``full'' instance domain matching a ``delta'' instance domain
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
 .br
 #include <pcp/archive.h>
 .sp
-__pmLogInDom *pmaUndeltaInDom(__pmLogCtl *\fIlcp\fP, __int32_t *\fIbuf\fP);
+__pmLogInDom *pmaUndeltaInDom(__pmLogCtl *\fIlcp\fP,
+'in +\w'__pmLogInDom *pmaUndeltaInDom('u
+__int32_t\ *\fIbuf\fP);
+.in
 .sp
 cc ... \-lpcp_archive \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

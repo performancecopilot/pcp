@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=0	# success is the default!
-trap "_cleanup; rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; $sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _stop_auto_restart pmcd
 
@@ -33,25 +33,53 @@ esac
 
 _cleanup()
 {
-    pmstore pmcd.control.debug 0 >>$seq_full 2>&1 # pdu==1
-    _restore_auto_restart pmcd
+    if [ -n "$pmcd_pid" ]
+    then
+	$sudo kill -TERM $pmcd_pid
+	pmcd_pid=''
+	wait
+    fi
 }
 
-if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
-sleep 2
-if ! _service pcp start >/dev/null 2>&1; then _exit 1; fi
-_wait_for_pmcd || _exit 1
-_wait_for_pmlogger || _exit 1
+port=`_find_free_port`
+echo "port=$port" >>$seq_full
+
+# start a prive pmcd in the bacground, no daemonizing
+#
+$sudo $PCP_PMCD_PROG -f -p $port -s $tmp.pmcd.socket -l $tmp.pmcd.log >$tmp.pmcd.out 2>&1 &
+echo "sudo_pid=$!" >>$seq_full
+_wait_for_pmcd 10 localhost $port || _exit 1 
+# because sudo's in the mix, we need the first child of sudo, but it
+# is eaasier to get pmcd's pid from this line in pmcd's log filw
+# pmcd: PID = 22256, PDU version = 2
+#
+pmcd_pid=`sed <$tmp.pmcd.log -n -e '/^pmcd: PID = /{
+s/,.*//
+s/.* //
+p
+}'`
+echo "pmcd_pid=$pmcd_pid" >>$seq_full
+if [ -z "$pmcd_pid" ]
+then
+    echo "Arrgh, cannod get pmcd's pid from log file ... see $seq.full"
+    _exit 1
+fi
+
+# turn pdu debugging on ...
+#
+pmstore -h localhost:$port pmcd.control.debug "pdu" >>$seq_full 2>&1 # pdu==1
+
 
 # real QA test starts here
-pmstore pmcd.control.debug 1 >>$seq_full 2>&1 # pdu==1
-src/crashpmcd
+src/crashpmcd -p $port
 
 # give pmcd a chance to deal with PDUs from crashpmcd
 sleep 2
 
-echo "$PCP_PMCDLOG_PATH" >>$seq_full
-cat $PCP_PMCDLOG_PATH >>$seq_full
+echo "pmcd out ===" >>$seq_full
+cat $tmp.pmcd.out >>$seq_full
+echo "pmcd log ===" >>$seq_full
+cat $tmp.pmcd.log >>$seq_full
 
 # pmcd may receive more PDU's from other clients before
 # we disable the debug flags in _cleanup ... the awk
@@ -60,11 +88,12 @@ cat $PCP_PMCDLOG_PATH >>$seq_full
 # abour owning processes that have vanished ... this has
 # nothing to do with this test
 #
-_filter_pmcd_log <$PCP_PMCDLOG_PATH \
+_filter_pmcd_log <$tmp.pmcd.log \
 | sed \
     -e '1,/ok FD /d' \
     -e '/ok FD /d' \
     -e '/pmXmitPDU: ERROR/d' \
+    -e '/pmGetPDU: ERROR/d' \
     -e '/pmGetPDU: TYPE/d' \
     -e '/^000:/d' \
     -e '/pmproxy: .*: owning process PID .* vanished/d' \

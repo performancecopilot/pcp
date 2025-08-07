@@ -1,0 +1,91 @@
+QA output created by 1698
+
+== -k 4 ==
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP/qahost
++ get mutex lock
+pmlogger_daily: [TMP.control:2]
+Error: no pmlogger instance running for host "qahost"
+... logging for host "qahost" unchanged
+pmlogger_daily: [TMP.control:2]
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.index TODAY-5.meta
+pmlogger_daily: [TMP.control:2]
++ release mutex lock
+
+== $PCP_CULLAFTER=4 in environment  ==
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP/qahost
++ get mutex lock
+pmlogger_daily: [TMP.control:2]
+Error: no pmlogger instance running for host "qahost"
+... logging for host "qahost" unchanged
+pmlogger_daily: [TMP.control:2]
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.index TODAY-5.meta
+pmlogger_daily: [TMP.control:2]
++ release mutex lock
+
+== $PCP_CULLAFTER=4 in control file  ==
+# $PCP_CULLAFTER=4    
++ export PCP_CULLAFTER; PCP_CULLAFTER=4    
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP/qahost
++ get mutex lock
+pmlogger_daily: [TMP.control2:3]
+Error: no pmlogger instance running for host "qahost"
+... logging for host "qahost" unchanged
+pmlogger_daily: [TMP.control2:3]
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.index TODAY-5.meta
+pmlogger_daily: [TMP.control2:3]
++ release mutex lock
+
+== -k 6 and $PCP_CULLAFTER=4 in environment  ==
+Warning: -k value (6) ignored because $PCP_CULLAFTER (4) set in environment
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP/qahost
++ get mutex lock
+pmlogger_daily: [TMP.control:2]
+Error: no pmlogger instance running for host "qahost"
+... logging for host "qahost" unchanged
+pmlogger_daily: [TMP.control:2]
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.index TODAY-5.meta
+pmlogger_daily: [TMP.control:2]
++ release mutex lock
+
+== -k 6 and $PCP_CULLAFTER=4 in control file  ==
+# $PCP_CULLAFTER=4    
++ export PCP_CULLAFTER; PCP_CULLAFTER=4    
+pmlogger_daily: [TMP.control2:1]
+Warning: $PCP_CULLAFTER (4) reset from control file, -k value (6) ignored
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP/qahost
++ get mutex lock
+pmlogger_daily: [TMP.control2:3]
+Error: no pmlogger instance running for host "qahost"
+... logging for host "qahost" unchanged
+pmlogger_daily: [TMP.control2:3]
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.index TODAY-5.meta
+pmlogger_daily: [TMP.control2:3]
++ release mutex lock
+
+== -k 6 and $PCP_CULLAFTER=4 in control file and $PCP_CULLAFTER=8 in environment  ==
+Warning: -k value (6) ignored because $PCP_CULLAFTER (8) set in environment
+# $PCP_CULLAFTER=4    
++ export PCP_CULLAFTER; PCP_CULLAFTER=4    
+pmlogger_daily: [TMP.control2:1]
+Warning: $PCP_CULLAFTER (4) reset from control file, previous value (8) ignored
+# $version=1.1    
++ export version; version=1.1    
++ cd TMP/qahost
++ get mutex lock
+pmlogger_daily: [TMP.control2:3]
+Error: no pmlogger instance running for host "qahost"
+... logging for host "qahost" unchanged
+pmlogger_daily: [TMP.control2:3]
++ rm -f TODAY-7.0 TODAY-7.index TODAY-7.meta TODAY-5.0 TODAY-5.index TODAY-5.meta
+pmlogger_daily: [TMP.control2:3]
++ release mutex lock

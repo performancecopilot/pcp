@@ -42,7 +42,7 @@ PMI_CALL extern int pmiPutValue(const char *, const char *, const char *);
 PMI_CALL extern int pmiGetHandle(const char *, const char *);
 PMI_CALL extern int pmiPutValueHandle(int, const char *);
 PMI_CALL extern int pmiWrite(int, int);
-PMI_CALL extern int pmiPutResult(const pmResult *);
+PMI_CALL extern int pmiPutResult(const pmResult_v2 *);
 PMI_CALL extern int pmiPutMark(void);
 PMI_CALL extern int pmiPutText(unsigned int, unsigned int, unsigned int, const char *);
 PMI_CALL extern int pmiPutLabel(unsigned int, unsigned int, unsigned int, const char *, const char *);

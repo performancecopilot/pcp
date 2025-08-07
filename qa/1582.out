@@ -1,0 +1,52 @@
+QA output created by 1582
+pmNewContext(2, archives/gfs) <::> returns 0
+pmLookupName(2, name[0] gfs.inodes ... name[1] gfs.fmb, ...) <::> returns 2 (pmid[0] 245.0.2 ... pmid[1] 245.0.1)
+pmSetMode(mode=INTERP, when=13:40:00.000000000, delta=60m0s) direction=1 <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <:pmGetArchiveEnd() <::> returns 0 end=13:00:00.000000000
+:> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmSetMode(mode=FORW, when=22:40:00.000000000, delta=NULL) direction=0 <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+pmFetch(2, pmid[0] 245.0.2 ... pmid[1] 245.0.1, ...) <::> returns 0
+Note: timezone set to local timezone of host "[redacted]" from archive
+
+metrics[0]: gfs.inodes 245.0.2
+metrics[1]: gfs.fmb 245.0.1
+Start at: 13:40:00.000000000
+
+sample   0 time=13:40:00.000000000
+sample   1 time=14:40:00.000000000
+sample   2 time=15:40:00.000000000
+sample   3 time=16:40:00.000000000
+sample   4 time=17:40:00.000000000
+sample   5 time=18:40:00.000000000
+sample   6 time=19:40:00.000000000
+sample   7 time=20:40:00.000000000
+sample   8 time=21:40:00.000000000
+sample   9 time=22:40:00.000000000
+sample  10 time=22:40:00.000000000
+sample  11 time=22:45:00.000000000
+sample  12 time=22:50:00.000000000
+sample  13 time=22:55:00.000000000
+sample  14 time=23:00:00.000000000
+sample  15 time=23:05:00.000000000
+sample  16 time=23:10:00.000000000
+sample  17 time=23:15:00.000000000
+sample  18 time=23:20:00.000000000
+sample  19 time=23:25:00.000000000

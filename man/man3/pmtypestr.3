@@ -19,6 +19,8 @@
 \f3pmTypeStr_r\f1 \- convert a performance metric type into a string
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 const char *pmTypeStr(int \fItype\fP);
@@ -26,6 +28,8 @@ const char *pmTypeStr(int \fItype\fP);
 char *pmTypeStr_r(int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

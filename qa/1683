@@ -1,0 +1,38 @@
+#!/bin/sh
+# PCP QA Test No. 1683
+# pmlogconf - error handling and mem leaks
+# [related to Coverity CID 454668]
+#
+# valgrind variant, see qa/1679 for the non-valgrind variant
+#
+# check-group-include: pmlogconf
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+export seq
+./1679 --valgrind
+
+# success, all done
+exit

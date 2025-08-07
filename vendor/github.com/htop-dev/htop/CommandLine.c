@@ -249,6 +249,10 @@ static CommandLineStatus parseArguments(int argc, char** argv, CommandLineSettin
          }
          case 'F':
             assert(optarg);
+            if (optarg[0] == '\0' || optarg[0] == '|') {
+               fprintf(stderr, "Error: invalid filter value \"%s\".\n", optarg);
+               return STATUS_ERROR_EXIT;
+            }
             free_and_xStrdup(&flags->commFilter, optarg);
             break;
          case 'H': {
@@ -291,16 +295,6 @@ static CommandLineStatus parseArguments(int argc, char** argv, CommandLineSettin
    }
 
    return STATUS_OK;
-}
-
-static void CommandLine_delay(Machine* host, unsigned long millisec) {
-   struct timespec req = {
-      .tv_sec = 0,
-      .tv_nsec = millisec * 1000000L
-   };
-   while (nanosleep(&req, &req) == -1)
-      continue;
-   Platform_gettime_realtime(&host->realtime, &host->realtimeMs);
 }
 
 static void setCommFilter(State* state, char** commFilter) {
@@ -383,6 +377,7 @@ int CommandLine_run(int argc, char** argv) {
       .host = host,
       .mainPanel = panel,
       .header = header,
+      .failedUpdate = NULL,
       .pauseUpdate = false,
       .hideSelection = false,
       .hideMeters = false,
@@ -395,9 +390,6 @@ int CommandLine_run(int argc, char** argv) {
    ScreenManager* scr = ScreenManager_new(header, host, &state, true);
    ScreenManager_add(scr, (Panel*) panel, -1);
 
-   Machine_scan(host);
-   Machine_scanTables(host);
-   CommandLine_delay(host, 75);
    Machine_scan(host);
    Machine_scanTables(host);
 

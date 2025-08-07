@@ -22,33 +22,37 @@
 \f3pmDiscoverClose\f1 \- asynchronous archive location and contents discovery services
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmwebapi.h>
 .sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmDiscoverSetup(pmDiscoverModule *\fImodule\fP, pmDiscoverCallBacks *\fIcallbacks\fP, void *\fIarg\fP);
+int pmDiscoverSetup(pmDiscoverModule *\fImodule\fP,
+'in +\w'int pmDiscoverSetup('u
+pmDiscoverCallBacks\ *\fIcallbacks\fP,
+void\ *\fIarg\fP);
+.in
 .sp
-.ti -8n
 int pmDiscoverSetSlots(pmDiscoverModule *\fImodule\fP, void *\fIslots\fP);
 .br
-.ti -8n
 int pmDiscoverSetEventLoop(pmDiscoverModule *\fImodule\fP, void *\fIuvloop\fP);
 .br
-.ti -8n
-int pmDiscoverSetConfiguration(pmDiscoverModule *\fImodule\fP, struct dict *\fIconfig\fP);
+int pmDiscoverSetConfiguration(pmDiscoverModule *\fImodule\fP,
+'in +\w'int pmDiscoverSetConfiguration('u
+struct\ dict\ *\fIconfig\fP);
+.in
 .br
-.ti -8n
-int pmDiscoverSetMetricRegistry(pmDiscoverModule *\fImodule\fP, struct mmv_registry *\fIregistry\fP);
+int pmDiscoverSetMetricRegistry(pmDiscoverModule *\fImodule\fP,
+'in +\w'int pmDiscoverSetMetricRegistry('u
+struct\ mmv_registry\ *\fIregistry\fP);
+.in
 .sp
-.ti -8n
 int pmDiscoverClose(pmDiscoverModule *\fImodule\fP);
 .sp
-.in
+cc ... \-lpcp_web
 .hy
 .ad
-cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
 The

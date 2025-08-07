@@ -34,11 +34,8 @@ import json
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL, PM_DEBUG_APPL0, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_IN_NULL
 from cpmapi import PM_TIME_MSEC
-
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
 
 # Default config
 DEFAULT_CONFIG = ["./pcp2spark.conf", "$HOME/.pcp2spark.conf", "$HOME/.pcp/pcp2spark.conf", "$PCP_SYSCONF_DIR/pcp2spark.conf"]
@@ -292,7 +289,7 @@ class PCP2Spark(object):
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
-        self.pmfg_ts = self.pmfg.extend_timestamp()
+        self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
 
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
@@ -311,7 +308,7 @@ class PCP2Spark(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -407,7 +404,7 @@ class PCP2Spark(object):
         # Assemble all metrics into a single document
         # Use @-prefixed keys for metadata not coming in from PCP metrics
         host = self.context.pmGetContextHostName()
-        data = {'@host-id': host, '@timestamp': long(ts)}
+        data = {'@host-id': host, '@timestamp': int(ts)}
 
         insts_key = "@instances"
         inst_key = "@id"
@@ -469,7 +466,7 @@ class PCP2Spark(object):
                              ensure_ascii=False,
                              separators=(',', ': '))
 
-        if self.context.pmDebug(PM_DEBUG_APPL0):
+        if self.context.pmDebug("appl0"):
             print(message)
 
         try:

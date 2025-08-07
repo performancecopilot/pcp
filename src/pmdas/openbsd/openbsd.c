@@ -707,7 +707,7 @@ xtract:
  * then do the fetch
  */
 static int
-openbsd_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+openbsd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i;
     int		done_disk = 0;

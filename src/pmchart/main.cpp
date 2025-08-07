@@ -490,9 +490,19 @@ main(int argc, char ** argv)
     QString		tzLabel;
     QString		tzString;
     pmOptions		opts;
+    struct timeval	opts_origin;
+    struct timeval	opts_start;
+    struct timeval	opts_finish;
+    struct timeval	opts_interval;
+
+    struct timespec	logstart_ts;
+    struct timespec	logend_ts;
+    struct timespec	origin_ts;
+    struct timespec	start_ts;
+    struct timespec	finish_ts;
 
     memset(&opts, 0, sizeof(opts));
-    pmtimevalNow(&opts.origin);
+    pmtimevalNow(&opts_origin);
     pmSetProgname(argv[0]);
     QApplication a(argc, argv);
     setupEnvironment();
@@ -589,11 +599,13 @@ main(int argc, char ** argv)
 	exit(sts);
     }
 
+    opts_interval.tv_sec = opts.interval.tv_sec;
+    opts_interval.tv_usec = opts.interval.tv_nsec / 1000;
     /* set initial sampling interval from command line, else global setting */
-    if (opts.interval.tv_sec == 0 && opts.interval.tv_usec == 0)
-	pmtimevalFromReal(globalSettings.chartDelta, &opts.interval);
+    if (opts_interval.tv_sec == 0 && opts_interval.tv_usec == 0)
+	pmtimevalFromReal(globalSettings.chartDelta, &opts_interval);
 
-    console = new QedConsole(opts.origin);
+    console = new QedConsole(opts_origin);
 
     //
     // Deal with user requested sample/visible points globalSettings.  These
@@ -668,36 +680,52 @@ main(int argc, char ** argv)
 	archiveGroup->updateBounds();
 	logStartTime = archiveGroup->logStart();
 	logEndTime = archiveGroup->logEnd();
+	pmtimevalTotimespec(&logStartTime, &logstart_ts);
+	pmtimevalTotimespec(&logEndTime, &logend_ts);
+	pmtimevalTotimespec(&opts_origin, &origin_ts);
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 					opts.align_optarg, opts.origin_optarg,
-					&logStartTime, &logEndTime, &opts.start,
-					&opts.finish, &opts.origin, &endnum)) < 0) {
+					&logstart_ts, &logend_ts, &start_ts,
+					&finish_ts, &origin_ts, &endnum)) < 0) {
 	    pmprintf("Cannot parse archive time window\n%s\n", endnum);
 	    pmUsageMessage(&opts);
 	    free(endnum);
 	    exit(1);
 	}
+	pmtimespecTotimeval(&logstart_ts, &logStartTime);
+	pmtimespecTotimeval(&logend_ts, &logStartTime);
+	pmtimespecTotimeval(&start_ts, &opts_start);
+	pmtimespecTotimeval(&finish_ts, &opts_finish);
+	pmtimespecTotimeval(&origin_ts, &opts_origin);
 	// move position to account for initial visible points
-	if (tcmp(&opts.origin, &opts.start) <= 0)
+	if (tcmp(&opts_origin, &opts_start) <= 0)
 	    for (c = 0; c < globalSettings.visibleHistory - 2; c++)
-		pmtimevalAdd(&opts.origin, &opts.interval);
-	if (tcmp(&opts.origin, &opts.finish) > 0)
-	    opts.origin = opts.finish;
+		pmtimevalAdd(&opts_origin, &opts_interval);
+	if (tcmp(&opts_origin, &opts_finish) > 0)
+	    opts_origin = opts_finish;
     }
     else if (liveGroup->numContexts() > 0) {
 	liveGroup->defaultTZ(tzLabel, tzString);
 	pmtimevalNow(&logStartTime);
 	logEndTime.tv_sec = PM_MAX_TIME_T;
 	logEndTime.tv_usec = 0;
+	pmtimevalTotimespec(&logStartTime, &logstart_ts);
+	pmtimevalTotimespec(&logEndTime, &logend_ts);
+	pmtimevalTotimespec(&opts_origin, &origin_ts);
 	if ((sts = pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 					opts.align_optarg, opts.origin_optarg,
-					&logStartTime, &logEndTime, &opts.start,
-					&opts.finish, &opts.origin, &endnum)) < 0) {
+					&logstart_ts, &logend_ts, &start_ts,
+					&finish_ts, &origin_ts, &endnum)) < 0) {
 	    pmprintf("Cannot parse live time window\n%s\n", endnum);
 	    pmUsageMessage(&opts);
 	    free(endnum);
 	    exit(1);
 	}
+	pmtimespecTotimeval(&logstart_ts, &logStartTime);
+	pmtimespecTotimeval(&logend_ts, &logStartTime);
+	pmtimespecTotimeval(&start_ts, &opts_start);
+	pmtimespecTotimeval(&finish_ts, &opts_finish);
+	pmtimespecTotimeval(&origin_ts, &opts_origin);
     }
     console->post("Timezones and time window setup complete");
 
@@ -716,8 +744,8 @@ main(int argc, char ** argv)
     console->post("Phase1 user interface constructors complete");
 
     // Start pmtime process for time management
-    pmtime->init(opts.guiport, opts.narchives == 0, &opts.interval, &opts.origin,
-		 &opts.start, &opts.finish, tzString, tzLabel);
+    pmtime->init(opts.guiport, opts.narchives == 0, &opts_interval, &opts_origin,
+		 &opts_start, &opts_finish, tzString, tzLabel);
 
     pmchart->init();
     liveGroup->init(globalSettings.sampleHistory,

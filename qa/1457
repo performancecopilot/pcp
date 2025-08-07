@@ -89,7 +89,7 @@ mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
 
-$_valgrind_clean_assert pmproxy -f -l- --timeseries \
+$valgrind_clean_assert pmproxy -f -l- --timeseries \
 	-c $tmp.conf -p $port -U $username \
 	>$tmp.valout 2>$tmp.valerr &
 pid=$!

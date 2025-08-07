@@ -43,7 +43,7 @@ _filter()
 
 # real QA test starts here
 mkdir -p $tmp
-$sudo chown pcp:pcp $tmp
+$sudo chown $PCP_USER:$PCP_GROUP $tmp
 if xzcat archives/crontab-sar-report.tar.xz >$tmp.tar
 then
     :
@@ -51,7 +51,7 @@ else
     echo "Arrgh: xzcat failed"
     exit
 fi
-if $sudo -u pcp tar xf $tmp.tar -C $tmp
+if $sudo -u $PCP_USER tar xf $tmp.tar -C $tmp
 then
     :
 else
@@ -59,7 +59,7 @@ else
     exit
 fi
 ls -lR $tmp/crontab-sar-report* >>$seq_full
-$sudo -u pcp $PCP_BINADM_DIR/pmlogger_daily_report -A -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_daily_report -A -a $tmp/crontab-sar-report -l $tmp/LOG -f $tmp/OUT -t 30m || exit
 [ -f $tmp/LOG ] && $sudo cat $tmp/LOG >> $seq_full
 $sudo cat $tmp/OUT | tee -a $seq_full | _filter
 

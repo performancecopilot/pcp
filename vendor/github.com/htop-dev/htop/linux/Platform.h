@@ -64,6 +64,8 @@ pid_t Platform_getMaxPid(void);
 
 double Platform_setCPUValues(Meter* this, unsigned int cpu);
 
+void Platform_setGPUValues(Meter* this, double* totalUsage, unsigned long long* totalGPUTimeDiff);
+
 void Platform_setMemoryValues(Meter* this);
 
 void Platform_setSwapValues(Meter* this);
@@ -94,6 +96,10 @@ static inline void Platform_getHostname(char* buffer, size_t size) {
 
 static inline void Platform_getRelease(char** string) {
    *string = Generic_uname();
+}
+
+static inline const char* Platform_getFailedState(void) {
+   return NULL;
 }
 
 #ifdef HAVE_LIBCAP

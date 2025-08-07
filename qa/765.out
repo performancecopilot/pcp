@@ -143,7 +143,7 @@ lastval=210.000000 timesum=416.987937 (+209.996010) timespan=1.999942
 sum=933.000000 min=308.000000 max=314.000000 stocsum=933.000000
 lastval=311.000000 timesum=618.982079 (+310.994091) timespan=1.999942
 sample.dupnames.two.seconds or sample.seconds base value is 67.000000, count 2
-new min value for sample.dupnames.two.seconds or sample.seconds (inst[]: 1.000019) at 20:13:19.586
+new min value for sample.dupnames.two.seconds or sample.seconds (inst[]: 1.000019) at 20:13:19.586625000
 ++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999981 count=2
 sum=2.000000 min=1.000019 max=1.000039 stocsum=2.000058
 rate=1.000019 timesum=2.000000 (+0.499991) timespan=1.999942
@@ -187,7 +187,7 @@ lastval=213.000000 timesum=630.004125 (+213.016188) timespan=3.000018
 sum=1250.000000 min=308.000000 max=317.000000 stocsum=1250.000000
 lastval=314.000000 timesum=933.005943 (+314.023864) timespan=3.000018
 sample.dupnames.two.seconds or sample.seconds base value is 68.000000, count 3
-new min value for sample.dupnames.two.seconds or sample.seconds (inst[]: 0.999924) at 20:13:20.586
+new min value for sample.dupnames.two.seconds or sample.seconds (inst[]: 0.999924) at 20:13:20.586701000
 ++ sample.dupnames.two.seconds or sample.seconds timedelta=1.000076 count=3
 sum=3.000000 min=0.999924 max=1.000039 stocsum=2.999982
 rate=0.999924 timesum=3.000000 (+0.500038) timespan=3.000018
@@ -532,7 +532,7 @@ lastval=237.000000 timesum=2441.984724 (+236.981988) timespan=10.999935
 sum=3894.000000 min=308.000000 max=341.000000 stocsum=3894.000000
 lastval=338.000000 timesum=3552.978159 (+337.974312) timespan=10.999935
 sample.dupnames.two.seconds or sample.seconds base value is 76.000000, count 11
-new max value for sample.dupnames.two.seconds or sample.seconds (inst[]: 1.000076) at 20:13:28.586
+new max value for sample.dupnames.two.seconds or sample.seconds (inst[]: 1.000076) at 20:13:28.586618000
 ++ sample.dupnames.two.seconds or sample.seconds timedelta=0.999924 count=11
 sum=11.000000 min=0.999924 max=1.000076 stocsum=11.000065
 rate=1.000076 timesum=11.000000 (+0.499962) timespan=10.999935

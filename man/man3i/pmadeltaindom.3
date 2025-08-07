@@ -18,15 +18,23 @@
 \f3pmaDeltaInDom\f1 \- generate a ``delta indom'' if two observations of an instance domain are different
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
 .br
 #include <pcp/archive.h>
 .sp
-void pmaDeltaInDom(__pmLogInDom *\fIold\fP, __pmLogInDom *\fInew\fP, __pmLogInDom *\fInew_delta\fP);
+int pmaDeltaInDom(__pmLogInDom *\fIold\fP,
+'in +\w'void pmaDeltaInDom('u
+__pmLogInDom\ *\fInew\fP,
+__pmLogInDom\ *\fInew_delta\fP);
+.in
 .sp
 cc ... \-lpcp_archive \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

@@ -41,7 +41,7 @@ extern void printindom(FILE *, pmInResult *);
 extern void dohelp(int, int);
 extern void dostatus(void);
 extern int fillValues(pmValueSet *, int);
-extern void _dbDumpResult(FILE *, pmResult *, pmDesc *);
+extern void _dbDumpResult(FILE *, pmResult_v2 *, pmDesc *);
 extern void _dbPrintResult(FILE *, __pmResult *, pmDesc *);
 
 /* pmda exerciser routines */

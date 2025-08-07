@@ -7,7 +7,7 @@
 
 m4_define([htop_git_version],
   m4_normalize(m4_esyscmd([git describe --abbrev=7 --dirty --always --tags 2> /dev/null || echo ''])))
-m4_define([htop_release_version], [3.4.0-dev])
+m4_define([htop_release_version], [3.5.0-dev])
 
 # ----------------------------------------------------------------------
 # Autoconf initialization.
@@ -186,6 +186,7 @@ AC_CHECK_HEADERS([execinfo.h])
 
 if test "$my_htop_platform" = darwin; then
    AC_CHECK_HEADERS([mach/mach_time.h])
+   AC_CHECK_TYPES([thread_extended_info_data_t], [], [], [[#include <mach/thread_info.h>]])
 fi
 
 # ----------------------------------------------------------------------
@@ -371,10 +372,32 @@ AC_CHECK_FUNCS([ \
     readlinkat \
     sched_getscheduler \
     sched_setscheduler \
-    strchrnul \
+    strnlen \
    ])
 
+# strchrnul is available in macOS since 15.4, but the user may specify an older
+# macOS version ('-mmacos-version-min') to build for. We need to ensure it is
+# actually exposed in the header.
+htop_save_CFLAGS=$CFLAGS
+CFLAGS="$CFLAGS -Werror"
+
+AC_MSG_CHECKING([for strchrnul])
+AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <string.h>
+   ]], [[
+static char ch;
+char* ptr = strchrnul(&ch, 0);
+return ptr != &ch; /* Should be 0 (exit success) */
+   ]])],
+   [AC_MSG_RESULT(yes)
+   AC_DEFINE([HAVE_STRCHRNUL], [1], [Define to 1 if you have the 'strchrnul' function.])],
+   [AC_MSG_RESULT(no)])
+
+CFLAGS=$htop_save_CFLAGS
+
 if test "$my_htop_platform" = darwin; then
+   AC_CHECK_FUNCS([mach_timebase_info])
+
    AC_CHECK_FUNCS([host_statistics64], [
       AC_CHECK_TYPES([struct vm_statistics64], [], [], [[#include <mach/vm_statistics.h>]])
    ], [])
@@ -777,35 +800,64 @@ if test "x$enable_affinity" = xyes; then
 fi
 
 
+# $1: Header file name
+# $2: List of directories to search, separated by spaces
+# $3: Additional include directives
+htop_search_header_dir () {
+   htop_header_search_status=1 # 0 for success; nonzero for failure
+
+   htop_save_CPPFLAGS=$CPPFLAGS
+
+   AC_MSG_CHECKING([the include directory of $1])
+   for htop_header_dir in "" $2 ; do
+      htop_msg_header_dir="(default directories)"
+      if test "x$htop_header_dir" != x; then
+         htop_msg_header_dir=$htop_header_dir
+         htop_header_dir=" -I$htop_header_dir"
+      fi
+      CPPFLAGS="$AM_CPPFLAGS$htop_header_dir $htop_save_CPPFLAGS"
+      AC_COMPILE_IFELSE([AC_LANG_SOURCE([[$3
+#include <$1>]])],
+         [AM_CPPFLAGS="$AM_CPPFLAGS$htop_header_dir"
+         htop_header_search_status=0
+         break],
+         [htop_msg_header_dir="(not found)"])
+   done
+   AC_MSG_RESULT([$htop_msg_header_dir])
+
+   CPPFLAGS=$htop_save_CPPFLAGS
+   return "$htop_header_search_status"
+} # htop_search_header_dir
+
 AC_ARG_ENABLE([unwind],
               [AS_HELP_STRING([--enable-unwind],
               [enable unwind support for printing backtraces; requires libunwind @<:@default=check@:>@])],
               [],
               [enable_unwind=check])
 case "$enable_unwind" in
-   check)
-      enable_unwind=yes
+   no)
+      ;;
+   check|yes)
       if test "$enable_static" = yes; then
          AC_CHECK_LIB([lzma], [lzma_index_buffer_decode])
       fi
-      AC_CHECK_LIB([unwind], [backtrace], [], [enable_unwind=no])
-      AC_CHECK_HEADERS([libunwind.h], [], [
-         old_CFLAGS="$CFLAGS"
-         CFLAGS="$CFLAGS -I/usr/include/libunwind"
-         AC_CHECK_HEADERS([libunwind/libunwind.h], [], [
-            enable_unwind=no
-            CFLAGS="$old_CFLAGS"
-         ])
-      ])
-      ;;
-   no)
-      ;;
-   yes)
-      AC_CHECK_LIB([unwind], [backtrace], [], [AC_MSG_ERROR([can not find required library libunwind])])
-      AC_CHECK_HEADERS([libunwind.h], [], [
-         AM_CFLAGS="$AM_CFLAGS -I/usr/include/libunwind"
-         AC_CHECK_HEADERS([libunwind/libunwind.h], [], [AC_MSG_ERROR([can not find required header file libunwind.h])])
-      ])
+
+      AC_CHECK_LIB([unwind], [backtrace], [],
+         [if test "$enable_unwind" = yes; then
+            AC_MSG_ERROR([can not find required library libunwind])
+         fi
+         enable_unwind=no])
+
+      if test "$enable_unwind" = no; then
+         :
+      elif htop_search_header_dir libunwind.h "/usr/include/libunwind"; then
+         AC_DEFINE([HAVE_LIBUNWIND_H], 1, [Define to 1 if you have the <libunwind.h> header file.])
+         enable_unwind=yes
+      elif test "$enable_unwind" = yes; then
+         AC_MSG_ERROR([can not find required header file libunwind.h])
+      else
+         enable_unwind=no
+      fi
       ;;
    *)
       AC_MSG_ERROR([bad value '$enable_unwind' for --enable-unwind])
@@ -814,6 +866,55 @@ esac
 if test "x$enable_unwind" = xno; then
    # Fall back to backtrace(3) and add -lexecinfo if needed
    AC_SEARCH_LIBS([backtrace], [execinfo])
+
+   AC_MSG_CHECKING([the return type of backtrace])
+   AC_COMPILE_IFELSE([AC_LANG_SOURCE([[
+#ifndef BACKTRACE_RETURN_TYPE
+#error "BACKTRACE_RETURN_TYPE not defined"
+#endif
+      ]])],
+      [AC_MSG_RESULT([user defined])],
+      [htop_save_CFLAGS=$CFLAGS
+      CFLAGS="$AM_CFLAGS $CFLAGS -Werror"
+
+      # Use 'typeof' if supported. Otherwise guess types from larger bit width
+      # to smaller.
+      # 'size_t' is used in FreeBSD, NetBSD and OpenBSD.
+      # 'int' is used in Linux (with glibc) and macOS.
+      # See also: Gnulib documentation of 'backtrace'
+      # (https://www.gnu.org/software/gnulib/manual/html_node/backtrace.html).
+      # GCC (< 15) had a bug that warns on a non-null pointer in 'typeof'.
+      # Workaround by passing an address of 1 instead.
+      for backtrace_return_type in \
+         "typeof(backtrace((void**)1, 0))" \
+         "__typeof__(backtrace((void**)1, 0))" \
+         "__typeof(backtrace((void**)1, 0))" \
+         size_t \
+         int \
+      ; do
+         AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+#include <execinfo.h>
+#include <stddef.h> /* For size_t */
+         ]],[[
+#define BACKTRACE_RETURN_TYPE $backtrace_return_type
+/* Assuming the second argument of backtrace_symbols() would use the same type
+   as the return type of backtrace(). */
+static char** (*func)(void* const*, BACKTRACE_RETURN_TYPE) = backtrace_symbols;
+static void* addr;
+BACKTRACE_RETURN_TYPE nptrs = backtrace(&addr, 1);
+(void)nptrs;
+         ]])],
+         [AC_DEFINE_UNQUOTED([BACKTRACE_RETURN_TYPE], [$backtrace_return_type], [Defined to the return type of the 'backtrace' function.])
+         break],
+         [backtrace_return_type=""])
+      done
+      backtrace_return_type_msg=`echo "x$backtrace_return_type" | sed '
+         s/^x *//
+         s/^$/not available/
+         s/^\(_*typeof_*\) *( *backtrace( *( *void *\* *\* *) *1 *, *0 *) *) *$/automatic (using \1)/'`
+      AC_MSG_RESULT([$backtrace_return_type_msg])
+
+      CFLAGS=$htop_save_CFLAGS])
 fi
 
 
@@ -946,39 +1047,101 @@ case "$enable_capabilities" in
 esac
 
 
+# $1: libnl-3 search path
+htop_try_link_libnl3 () {
+   htop_save_LDFLAGS=$LDFLAGS
+   htop_save_LIBS=$LIBS
+
+   LIBS="-lnl-3 $LIBS"
+   if test "x$1" != x; then
+      # New library path searched after what user has specified
+      LDFLAGS="$LDFLAGS -L$1"
+   fi
+   AC_LINK_IFELSE([AC_LANG_PROGRAM([[
+/* struct nl_sock* nl_socket_alloc(void); */
+void* nl_socket_alloc(void);
+      ]], [[
+void* sock = nl_socket_alloc();
+      ]])],
+      [htop_libnl3_link_succeed=yes],
+      [htop_libnl3_link_succeed=no])
+
+   LDFLAGS=$htop_save_LDFLAGS
+   LIBS=$htop_save_LIBS
+} # htop_try_link_libnl3
+
 AC_ARG_ENABLE([delayacct],
               [AS_HELP_STRING([--enable-delayacct],
-                              [enable Linux delay accounting support; requires pkg-config, libnl-3 and libnl-genl-3 @<:@default=check@:>@])],
+                              [enable Linux delay accounting support; requires libnl-3 and libnl-genl-3 @<:@default=check@:>@])],
               [],
               [enable_delayacct=check])
 case "$enable_delayacct" in
-   no)
+   no|yes)
       ;;
    check)
       if test "$my_htop_platform" != linux; then
          enable_delayacct=no
       elif test "$enable_static" = yes; then
          enable_delayacct=no
-      else
-         old_CFLAGS="$CFLAGS"
-         CFLAGS="$CFLAGS -I/usr/include/libnl3"
-         AC_CHECK_HEADERS([netlink/attr.h netlink/handlers.h netlink/msg.h], [enable_delayacct=yes], [enable_delayacct=no])
-         CFLAGS="$old_CFLAGS"
       fi
-      ;;
-   yes)
-      old_CFLAGS="$CFLAGS"
-      CFLAGS="$CFLAGS -I/usr/include/libnl3"
-      AC_CHECK_HEADERS([netlink/attr.h netlink/handlers.h netlink/msg.h], [], [AC_MSG_ERROR([can not find required header files netlink/attr.h, netlink/handlers.h, netlink/msg.h])])
-      CFLAGS="$old_CFLAGS"
       ;;
    *)
       AC_MSG_ERROR([bad value '$enable_delayacct' for --enable-delayacct])
       ;;
 esac
+
+case "$enable_delayacct" in
+   check|yes)
+      if test "x${LIBNL3_CFLAGS+y}" = x; then
+         m4_ifdef([PKG_PROG_PKG_CONFIG], [
+            PKG_CHECK_MODULES(LIBNL3, libnl-3.0, [], [LIBNL3_CFLAGS="-I/usr/include/libnl3"])
+         ], [
+            LIBNL3_CFLAGS="-I/usr/include/libnl3"
+         ])
+      fi
+
+      htop_save_CFLAGS=$CFLAGS
+      # New include path searched after what user has specified
+      CFLAGS="$CFLAGS $LIBNL3_CFLAGS"
+      AC_CHECK_HEADERS([netlink/attr.h netlink/handlers.h netlink/msg.h],
+         [],
+         [if test "$enable_delayacct" = yes; then
+            AC_MSG_ERROR([can not find required header files netlink/attr.h, netlink/handlers.h, netlink/msg.h])
+         fi
+         enable_delayacct=no])
+      CFLAGS=$htop_save_CFLAGS
+
+      if test "$enable_delayacct" != no; then
+         AC_MSG_CHECKING([the search path of libnl-3])
+
+         htop_libnl3_link_succeed=no
+         htop_try_link_libnl3 "$LIBNL3_LIBDIR"
+         if test "$htop_libnl3_link_succeed${LIBNL3_LIBDIR+y}" = no && test "x$PKG_CONFIG" != x; then
+            LIBNL3_LIBDIR=`$PKG_CONFIG --variable=libdir libnl-3.0 2>/dev/null`
+            if test "x$LIBNL3_LIBDIR" != x; then
+               htop_try_link_libnl3 "$LIBNL3_LIBDIR"
+            fi
+         fi
+
+         if test "x$LIBNL3_LIBDIR" = x; then
+            AC_MSG_RESULT([(default)])
+         else
+            # The path must end with a slash
+            LIBNL3_LIBDIR=`echo "x$LIBNL3_LIBDIR" | sed 's/^x//; s|/*$|/|'`
+            AC_MSG_RESULT([$LIBNL3_LIBDIR])
+         fi
+         AC_DEFINE_UNQUOTED([LIBNL3_LIBDIR], ["$LIBNL3_LIBDIR"], [libnl-3 search path; use the default search paths if empty])
+         if test "$htop_libnl3_link_succeed" = no; then
+            AC_MSG_WARN([libnl-3 binary currently not present; will be needed in htop runtime for delay accounting support])
+         fi
+
+         enable_delayacct=yes
+      fi
+      ;;
+esac
 if test "$enable_delayacct" = yes; then
   AC_DEFINE([HAVE_DELAYACCT], [1], [Define if delay accounting support should be enabled.])
-  AM_CFLAGS="$AM_CFLAGS -I/usr/include/libnl3"
+  AM_CFLAGS="$AM_CFLAGS $LIBNL3_CFLAGS"
 fi
 AM_CONDITIONAL([HAVE_DELAYACCT], [test "$enable_delayacct" = yes])
 

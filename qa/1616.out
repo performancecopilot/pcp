@@ -1,0 +1,61 @@
+QA output created by 1616
+QA output created by 1611 --valgrind
+
+=== Running pmlogger in both local and remote modes
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogger -c TMP.conf -T 5sec -R http://localhost:44322 TMP.data
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+## Found remote archive files
+REMOTE_ARCHIVE.0
+REMOTE_ARCHIVE.index
+REMOTE_ARCHIVE.meta
+## with the following metrics
+disk.all.read
+disk.all.write
+hinv.ncpu
+hinv.ndisk
+kernel.all.load
+kernel.all.pswitch
+sample.datasize
+## Found local archive files
+LOCAL_ARCHIVE.0
+LOCAL_ARCHIVE.index
+LOCAL_ARCHIVE.meta
+## with the following metrics
+disk.all.read
+disk.all.write
+hinv.ncpu
+hinv.ndisk
+kernel.all.load
+kernel.all.pswitch
+sample.datasize
+
+=== Running pmlogger in remote only recording mode
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogger -c TMP.conf -T 5sec -R http://localhost:44322
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+## Found remote archive files
+REMOTE_ARCHIVE.0
+REMOTE_ARCHIVE.index
+REMOTE_ARCHIVE.meta
+## with the following metrics
+disk.all.read
+disk.all.write
+hinv.ncpu
+hinv.ndisk
+kernel.all.load
+kernel.all.pswitch
+sample.datasize
+## Found no local archive files

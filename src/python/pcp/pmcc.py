@@ -23,7 +23,7 @@
 
 import sys
 from ctypes import c_int, c_uint, c_char_p, cast, POINTER
-from pcp.pmapi import pmContext, pmValue, pmDesc, pmErr, timeval
+from pcp.pmapi import pmContext, pmValue, pmDesc, pmErr, timeval, timespec
 from cpmapi import (PM_CONTEXT_HOST, PM_CONTEXT_ARCHIVE, PM_INDOM_NULL,
                     PM_IN_NULL, PM_ID_NULL, PM_SEM_COUNTER, PM_ERR_EOL,
                     PM_TYPE_DOUBLE)
@@ -466,7 +466,7 @@ class MetricGroup(dict):
             sys.stderr.write(fail)
             raise SystemExit(1)
 
-        return result.timestamp # timeval
+        return result.timestamp # timespec
 
     def mgDelta(self):
         """
@@ -550,7 +550,7 @@ class MetricGroupManager(dict, MetricCache):
         dict.__init__(self)
         MetricCache.__init__(self, typed, target)
         self._options = None
-        self._default_delta = timeval(1, 0)
+        self._default_delta = timespec(1, 0)
         self._default_pause = None
         self._printer = None
         self._counter = 0
@@ -564,18 +564,18 @@ class MetricGroupManager(dict, MetricCache):
     def builder(cls, options, argv):
         """ Helper interface, simple PCP monitor argument parsing. """
         manager = cls.fromOptions(options, argv)
-        manager._default_delta = timeval(options.delta, 0)
+        manager._default_delta = timespec(options.delta, 0)
         manager._options = options
         return manager
 
     ##
     # methods
 
-    def _tv2float(self, tv):
-        """ convert timeval to epoch seconds as a float """
-        if tv is None:
+    def _ts2float(self, ts):
+        """ convert timespec to epoch seconds as a float """
+        if ts is None:
             return 0.0
-        return float(tv.tv_sec) + float(tv.tv_usec) / 1e6
+        return float(ts.tv_sec) + float(ts.tv_nsec) / 1e9
 
     def _computeSamples(self):
         """ Return the number of samples we are to take and the
@@ -603,8 +603,8 @@ class MetricGroupManager(dict, MetricCache):
         delta = self._options.pmGetOptionInterval()
         if delta is None:
             delta = self._default_delta
-        period = self._tv2float(delta)
-        window = (self._tv2float(finish) - self._tv2float(origin)) / period
+        period = self._ts2float(delta)
+        window = (self._ts2float(finish) - self._ts2float(origin)) / period
         # return samples rounded to positive number and the finish time as a float
         return int(window + 0.5) + extra, finish
 
@@ -661,9 +661,9 @@ class MetricGroupManager(dict, MetricCache):
         rmax = 0.0
         for group in self.keys():
             stamp = self[group].mgFetch()
-            if fetchtime is None or self._tv2float(stamp) > rmax:
+            if fetchtime is None or self._ts2float(stamp) > rmax:
                 fetchtime = stamp
-                rmax = self._tv2float(stamp)
+                rmax = self._ts2float(stamp)
         return fetchtime
 
     def run(self):
@@ -675,14 +675,14 @@ class MetricGroupManager(dict, MetricCache):
             interval in live mode.
         """
         samples, finish = self._computeSamples()
-        # print("DEBUG samples=" + str(samples) + " finish=" + str(self._tv2float(finish)))
+        # print("DEBUG samples=" + str(samples) + " finish=" + str(self._ts2float(finish)))
         timer = self._computePauseTime()
         try:
             curtime = self.fetch()
             while True:
                 if self._counter >= samples > 0:
                     break
-                if finish is not None and self._tv2float(curtime) >= self._tv2float(finish):
+                if finish is not None and self._ts2float(curtime) >= self._ts2float(finish):
                     break
                 self._printer.report(self)
                 timer.sleep()

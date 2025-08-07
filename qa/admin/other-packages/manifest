@@ -268,7 +268,7 @@ dpkg?		python3		[python3-minimal or python3-all]
 rpm?		python3		[python3]
 emerge?		python3		[?]
 pkgin?		python3		[?]
-pkg_add?	python3		[python3]
+pkg_add?	python3		[python]
 F_pkg?		python3.9|python3	[python39 or python3]
 S_pkg?		python3		[?]
 slackpkg?	python3		[python3]
@@ -1288,6 +1288,7 @@ rpm?	/usr/include/openssl/ssl.h	[openssl-devel or libopenssl-devel (build option
 F_pkg?	/usr/local/include/openssl/ssl.h	[openssl (build optional)]
 dpkg?	openssl				[openssl (QA optional)]
 rpm?	openssl				[openssl (QA optional)]
+pkg_add?	/usr/include/openssl/ssl.h	[base OpenBSD install (build optional)]
 F_pkg?	openssl				[base FreeBSD install (QA optional)]
 # -- sasl
 dpkg?		saslpasswd2		[sasl2-bin (QA optional)]
@@ -1674,6 +1675,32 @@ S_pkg?		targetcli		[N/A]
 slackpkg?	targetcli		[? {Slackware}]
 pacman?		targetcli		[? {Arch Linux}]
 brew?		targetcli		[N/A]
+
+# -- ethtool (for rocestat PMDA)
+#
+dpkg?		ethtool		[ethtool]
+rpm?		ethtool		[ethtool]
+emerge?		ethtool		[? {Gentoo}]
+pkgin?		ethtool		[? {NetBSD}]
+pkg_add?	ethtool		[N/A]
+F_pkg?		ethtool		[? {FreeBSD}]
+S_pkg?		ethtool		[? {Solaris}]
+slackpkg?	ethtool		[? {Slackware}]
+pacman?		ethtool		[? {Arch Linux}]
+brew?		ethtool		[? {MacOS?}]
+
+# -- ibdev2netdev (for rocestat PMDA)
+#
+dpkg?		ibdev2netdev	[N/A]
+rpm?		ibdev2netdev	[rdma-core]
+emerge?		ibdev2netdev	[? {Gentoo}]
+pkgin?		ibdev2netdev	[? {NetBSD}]
+pkg_add?	ibdev2netdev	[N/A]
+F_pkg?		ibdev2netdev	[? {FreeBSD}]
+S_pkg?		ibdev2netdev	[? {Solaris}]
+slackpkg?	ibdev2netdev	[? {Slackware}]
+pacman?		ibdev2netdev	[? {Arch Linux}]
+brew?		ibdev2netdev	[? {MacOS?}]
 
 # misc
 #

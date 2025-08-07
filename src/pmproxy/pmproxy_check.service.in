@@ -1,0 +1,13 @@
+[Unit]
+Description=Optionally compress remote PCP archives from pmproxy
+Documentation=man:pmlogger_daily(1)
+ConditionPathExists=!@CRONTAB_PATH@
+
+[Service]
+Environment="PMLOGGER_DAILY_PARAMS="
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmproxy_timers
+# proxy-managed archives only (-Q) and compress (-K)
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily -Q -K $PMLOGGER_DAILY_PARAMS
+WorkingDirectory=@PCP_VAR_DIR@
+Group=@PCP_GROUP@
+User=@PCP_USER@

@@ -509,14 +509,14 @@ getargs(int argc, char *argv[])
     int			bflag = 0;
     int			dfltConn = 0;	/* default context type */
     Archive		*a;
-    struct timeval	tv, tv1, tv2;
+    struct timespec	ts, ts1, ts2;
 
     extern int		showTimeFlag;
     extern int		errs;		/* syntax errors from syntax.c */
 
-    memset(&tv, 0, sizeof(tv));
-    memset(&tv1, 0, sizeof(tv1));
-    memset(&tv2, 0, sizeof(tv2));
+    memset(&ts, 0, sizeof(ts));
+    memset(&ts1, 0, sizeof(ts1));
+    memset(&ts2, 0, sizeof(ts2));
     dstructInit();
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
@@ -701,8 +701,8 @@ getargs(int argc, char *argv[])
 
     hostZone = opts.tzflag;
     timeZone = opts.timezone;
-    if (opts.interval.tv_sec || opts.interval.tv_usec)
-	dfltDelta = pmtimevalToReal(&opts.interval);
+    if (opts.interval.tv_sec || opts.interval.tv_nsec)
+	dfltDelta = pmtimespecToReal(&opts.interval);
 
     if (archives || interactive)
 	perf = &instrument;
@@ -797,24 +797,24 @@ getargs(int argc, char *argv[])
     reflectTime(dfltDelta);
 
     /* parse time window - just to check argument syntax */
-    pmtimevalFromReal(now, &tv1);
+    pmtimespecFromReal(now, &ts1);
     if (archives) {
-	pmtimevalFromReal(last, &tv2);
+	pmtimespecFromReal(last, &ts2);
     } else {
-	tv2.tv_sec = PM_MAX_TIME_T;
-	tv2.tv_usec = 0;
+	ts2.tv_sec = PM_MAX_TIME_T;
+	ts2.tv_nsec = 0;
     }
     if (pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 			  opts.align_optarg, opts.origin_optarg,
-                          &tv1, &tv2,
-                          &tv, &tv2, &tv1,
+                          &ts1, &ts2,
+                          &ts, &ts2, &ts1,
 		          &msg) < 0) {
 	fputs(msg, stderr);
 	free(msg);
         exit(1);
     }
-    start = pmtimevalToReal(&tv1);
-    stop = pmtimevalToReal(&tv2);
+    start = pmtimespecToReal(&ts1);
+    stop = pmtimespecToReal(&ts2);
     runTime = stop - start;
 
     /* when not in secret agent mode, register client id with pmcd */
@@ -853,17 +853,17 @@ getargs(int argc, char *argv[])
     if (agent)
 	agentInit();			/* initialize secret agent stuff */
 
-    pmtimevalFromReal(now, &tv1);
+    pmtimespecFromReal(now, &ts1);
     if (archives) {
-	pmtimevalFromReal(last, &tv2);
+	pmtimespecFromReal(last, &ts2);
     } else {
-	tv2.tv_sec = PM_MAX_TIME_T;
-	tv2.tv_usec = 0;
+	ts2.tv_sec = PM_MAX_TIME_T;
+	ts2.tv_nsec = 0;
     }
     if (pmParseTimeWindow(opts.start_optarg, opts.finish_optarg,
 			  opts.align_optarg, opts.origin_optarg,
-		          &tv1, &tv2,
-                          &tv, &tv2, &tv1,
+		          &ts1, &ts2,
+                          &ts, &ts2, &ts1,
 		          &msg) < 0) {
 	fputs(msg, stderr);
 	free(msg);
@@ -871,8 +871,8 @@ getargs(int argc, char *argv[])
     }
 
     /* set run timing window */
-    start = pmtimevalToReal(&tv1);
-    stop = pmtimevalToReal(&tv2);
+    start = pmtimespecToReal(&ts1);
+    stop = pmtimespecToReal(&ts2);
     runTime = stop - start;
 
     if (msg != NULL)
@@ -892,7 +892,7 @@ interact(void)
     char		*token;
     char		*msg;
     RealTime		rt;
-    struct timeval	tv1, tv2;
+    struct timespec	ts1, ts2;
 
     printf(intro, PCP_VERSION, menu, prompt);
     fflush(stdout);
@@ -917,8 +917,8 @@ interact(void)
 	    case 'r':
 		token = scanArg(finger);
 		if (token) {
-		    if (pmParseInterval(token, &tv1, &msg) == 0)
-			runTime = pmtimevalToReal(&tv1);
+		    if (pmParseInterval(token, &ts1, &msg) == 0)
+			runTime = pmtimespecToReal(&ts1);
 		    else {
 			fputs(msg, stderr);
 			free(msg);
@@ -942,19 +942,19 @@ interact(void)
 		    fprintf(stderr, "%s: error - argument required\n", pmGetProgname());
 		    break;
 		}
-		pmtimevalFromReal(start, &tv1);
+		pmtimespecFromReal(start, &ts1);
 		if (archives) {
-		    pmtimevalFromReal(last, &tv2);
+		    pmtimespecFromReal(last, &ts2);
 		} else {
-		    tv2.tv_sec = PM_MAX_TIME_T;
-		    tv2.tv_usec = 0;
+		    ts2.tv_sec = PM_MAX_TIME_T;
+		    ts2.tv_nsec = 0;
 		}
-		if (__pmParseTime(token, &tv1, &tv2, &tv1, &msg) < 0) {
+		if (__pmtimespecParse(token, &ts1, &ts2, &ts1, &msg) < 0) {
 		    fputs(msg, stderr);
 		    free(msg);
 		    break;
 		}
-		start = pmtimevalToReal(&tv1);
+		start = pmtimespecToReal(&ts1);
 		if (archives)
 		    invalidate();
 		break;
@@ -965,12 +965,12 @@ interact(void)
 		    fprintf(stderr, "%s: error - argument required\n", pmGetProgname());
 		    break;
 		}
-		if (pmParseInterval(token, &tv1, &msg) < 0) {
+		if (pmParseInterval(token, &ts1, &msg) < 0) {
 		    fputs(msg, stderr);
 		    free(msg);
 		    break;
 		}
-		runTime = pmtimevalToReal(&tv1);
+		runTime = pmtimespecToReal(&ts1);
 		break;
 	    case 'q':
 		quit = 1;

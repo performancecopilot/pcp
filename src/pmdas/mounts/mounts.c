@@ -351,7 +351,7 @@ mounts_refresh_mounts(void)
  * mounts_refresh_mounts.
  */
 static int
-mounts_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+mounts_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     mounts_config_file_check();
     mounts_refresh_mounts();

@@ -1,0 +1,218 @@
+{
+    "lane": {
+        "rx_pause": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "rx_bytes": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "tx_bytes": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        }
+    },
+    "hw_link": {
+        "link_error_recovery": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "link_downed": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "local_link_integrity_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        }
+    },
+    "hw_rnr": {
+        "rnr_nak_retry_err": {
+            "mlx5_0_1": 3,
+            "mlx5_1_1": 1
+        }
+    },
+    "hw_resp": {
+        "resp_local_length_error": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "resp_cqe_error": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "resp_cqe_flush_error": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "resp_remote_access_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        }
+    },
+    "hw_req": {
+        "req_remote_invalid_request": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "req_cqe_error": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "req_cqe_flush_error": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "duplicate_request": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "rx_read_requests": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "rx_atomic_requests": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "req_remote_access_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "rx_write_requests": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        }
+    },
+    "hw_mcast": {
+        "multicast_rcv_packets": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "multicast_xmit_packets": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        }
+    },
+    "hw_ucast": {
+        "unicast_rcv_packets": {
+            "mlx5_0_1": 2454,
+            "mlx5_1_1": 2469
+        },
+        "unicast_xmit_packets": {
+            "mlx5_0_1": 2496,
+            "mlx5_1_1": 2478
+        }
+    },
+    "hw_rcv": {
+        "port_rcv_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "port_rcv_remote_physical_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "port_rcv_packets": {
+            "mlx5_0_1": 2454,
+            "mlx5_1_1": 2469
+        },
+        "port_rcv_data": {
+            "mlx5_0_1": 57781,
+            "mlx5_1_1": 53893
+        },
+        "port_rcv_constraint_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "port_rcv_switch_relay_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        }
+    },
+    "hw_xmit": {
+        "port_xmit_data": {
+            "mlx5_0_1": 67939,
+            "mlx5_1_1": 56182
+        },
+        "port_xmit_constraint_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "port_xmit_wait": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "port_xmit_packets": {
+            "mlx5_0_1": 2496,
+            "mlx5_1_1": 2478
+        },
+        "port_xmit_discards": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        }
+    },
+    "hw": {
+        "roce_slow_restart_trans": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "roce_slow_restart_cnps": {
+            "mlx5_0_1": 3,
+            "mlx5_1_1": 1
+        },
+        "roce_slow_restart": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "roce_adp_retrans_to": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "clear_counters": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "local_ack_timeout_err": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "lifespan": {
+            "mlx5_0_1": 10,
+            "mlx5_1_1": 10
+        },
+        "implied_nak_seq_err": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "packet_seq_err": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "roce_adp_retrans": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "out_of_buffer": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "out_of_sequence": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "VL15_dropped": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "excessive_buffer_overrun_errors": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "symbol_error": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        }
+    }
+}

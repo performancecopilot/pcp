@@ -1,4 +1,5 @@
 ## Build
+## NB: this Dockerfile will be superceded by the Containerfile for PCP v7
 FROM quay.io/fedora/fedora:latest AS build
 COPY . /usr/src/pcp
 
@@ -15,6 +16,7 @@ RUN mkdir /build && \
       pcp-$release.x86_64.rpm \
       pcp-conf-$release.x86_64.rpm \
       pcp-libs-$release.x86_64.rpm \
+      python3-pcp-$release.x86_64.rpm \
       /build
 
 ## Deploy

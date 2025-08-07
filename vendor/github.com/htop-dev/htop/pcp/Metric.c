@@ -153,7 +153,11 @@ void Metric_enableThreads(void) {
    result->vset[0] = vset;
    result->numpmid = 1;
 
+#if PMAPI_VERSION >= 3
+   int sts = pmStoreHighRes(result);
+#else
    int sts = pmStore(result);
+#endif
    if (sts < 0 && pmDebugOptions.appl0)
       fprintf(stderr, "Error: cannot enable threads: %s\n", pmErrStr(sts));
 
@@ -166,6 +170,11 @@ bool Metric_fetch(struct timeval* timestamp) {
       pcp->result = NULL;
    }
    int sts, count = 0;
+   if (pcp->reconnect) {
+      if (pmReconnectContext(pcp->context) < 0)
+         return false;
+      pcp->reconnect = false;
+   }
    do {
       sts = pmFetch(pcp->totalMetrics, pcp->fetch, &pcp->result);
    } while (sts == PM_ERR_IPC && ++count < 3);
@@ -173,10 +182,16 @@ bool Metric_fetch(struct timeval* timestamp) {
       if (pmDebugOptions.appl0)
          fprintf(stderr, "Error: cannot fetch metric values: %s\n",
                  pmErrStr(sts));
+      pcp->reconnect = true;
       return false;
    }
-   if (timestamp)
+   if (timestamp) {
+#if PMAPI_VERSION >= 3
+      pmtimespecTotimeval(&pcp->result->timestamp, timestamp);
+#else
       *timestamp = pcp->result->timestamp;
+#endif
+   }
    return true;
 }
 

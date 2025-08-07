@@ -66,7 +66,7 @@ chmod ugo+w pmcheck.log
 # real QA test starts here
 _kill_my_pmloggers
 echo "start pmlogger ..."
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
+$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
 
 for i in 0 1 2 3 4
 do
@@ -99,7 +99,7 @@ do
     [ $i -eq 4 ] && break
     echo "restart pmlogger ..."
     _kill_my_pmloggers
-    $sudo $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -V -c control >>pmcheck.log 2>&1
 done
 _kill_my_pmloggers
 

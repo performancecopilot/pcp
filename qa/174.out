@@ -1,5 +1,5 @@
 QA output created by 174
-dbpmda> debug 1
+dbpmda> debug pdu
 dbpmda> getdesc on
 dbpmda> open pipe $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
 Start pmdasample PMDA: $PCP_PMDAS_DIR/sample/pmdasample -d 29 -l TMP.log
@@ -239,7 +239,7 @@ PDUs sent ...
 [PID]pmXmitPDU: FETCH fd=<n> len=32
 000:       20     7003     XPID        0        0        0        1  7400006 
 DSO init sample_init->VADDR() domain=0 challenge: pmda_interface=0xXXXX pmapi_version=2
-DSO has domain=30 pmda_interface=X pmapi_version=2
+DSO has domain=30 pmda_interface=X pmapi_version=4
 DSO desc()
 DSO profile()
 DSO fetch()

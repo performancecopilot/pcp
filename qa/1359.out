@@ -1,150 +1,108 @@
 QA output created by 1359
 arg: pdu
 pmSetDebug("pdu") ...
-pmDebug:	pdu
 pmDebugOptions:	pdu
+pmDebug("pdu") -> 1
+pmGetDebug -> pdu
 pmClearDebug("pdu") ...
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
-__pmParseDebug("pdu") ...
-__pmParseDebug -> 1
-pmDebug:	pdu
-pmDebugOptions:	pdu
-pmClearDebug("pdu") ...
-pmDebug:	Nothing set
-pmDebugOptions:	Nothing set
+pmDebug("pdu") -> 0
+pmGetDebug -> 
 arg: exec
 pmSetDebug("exec") ...
-pmDebug:	Nothing set
 pmDebugOptions:	exec
+pmDebug("exec") -> 1
+pmGetDebug -> exec
 pmClearDebug("exec") ...
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
-__pmParseDebug("exec") ...
-__pmParseDebug -> 0
-pmDebug:	Nothing set
-pmDebugOptions:	exec
-pmClearDebug("exec") ...
-pmDebug:	Nothing set
-pmDebugOptions:	Nothing set
+pmDebug("exec") -> 0
+pmGetDebug -> 
 arg: pdu,appl0,appl1
 pmSetDebug("pdu,appl0,appl1") ...
-pmDebug:	pdu,appl0,appl1
 pmDebugOptions:	pdu,appl0,appl1
+pmDebug("pdu,appl0,appl1") -> 1
+pmGetDebug -> pdu,appl0,appl1
 pmClearDebug("pdu,appl0,appl1") ...
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
-__pmParseDebug("pdu,appl0,appl1") ...
-__pmParseDebug -> 6145
-pmDebug:	pdu,appl0,appl1
-pmDebugOptions:	pdu,appl0,appl1
-pmClearDebug("pdu,appl0,appl1") ...
-pmDebug:	Nothing set
+pmDebug("pdu,appl0,appl1") -> 0
+pmGetDebug -> 
+arg: 
+pmSetDebug("") ...
 pmDebugOptions:	Nothing set
-arg: -1
-pmSetDebug("-1") ...
-pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmClearDebug("-1") ...
-pmDebug:	Nothing set
+pmDebug("") -> 0
+pmGetDebug -> 
+pmClearDebug("") ...
 pmDebugOptions:	Nothing set
-__pmParseDebug("-1") ...
-__pmParseDebug -> 2147483647
-pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmClearDebug("-1") ...
-pmDebug:	Nothing set
-pmDebugOptions:	Nothing set
-Warning: deprecated __pmSetDebugBits() called
+pmDebug("") -> 0
+pmGetDebug -> 
 arg: all
 pmSetDebug("all") ...
-pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,alloc,services,appl3,appl4,appl5,access,qa,search,query,compress,dev0,dev1,dev2,pmlc,appl6,appl7,appl8,appl9,tls,misc,qed
+pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,alloc,services,appl3,appl4,appl5,access,qa,search,query,compress,dev0,dev1,dev2,pmlc,appl6,appl7,appl8,appl9,tls,misc,qed,getopt
+pmDebug("all") -> 1
+pmGetDebug -> all
 pmClearDebug("all") ...
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
-__pmParseDebug("all") ...
-__pmParseDebug -> 2147483647
-pmDebug:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate
-pmDebugOptions:	pdu,fetch,profile,value,context,indom,pdubuf,log,logmeta,optfetch,af,appl0,appl1,appl2,pmns,libpmda,timecontrol,pmc,derive,lock,interp,config,pmapi,fault,auth,discovery,attr,http,desperate,deprecated,exec,labels,series,libweb,alloc,services,appl3,appl4,appl5,access,qa,search,query,compress,dev0,dev1,dev2,pmlc,appl6,appl7,appl8,appl9,tls,misc,qed
-pmClearDebug("all") ...
-pmDebug:	Nothing set
-pmDebugOptions:	Nothing set
+pmDebug("all") -> 0
+pmGetDebug -> 
 arg: pdu,desperate
 pmSetDebug("pdu,desperate") ...
-pmDebug:	pdu,desperate
 pmDebugOptions:	pdu,desperate
+pmDebug("pdu,desperate") -> 1
+pmGetDebug -> pdu,desperate
 pmClearDebug("pdu,desperate") ...
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
-__pmParseDebug("pdu,desperate") ...
-__pmParseDebug -> 1073741825
-pmDebug:	pdu,desperate
-pmDebugOptions:	pdu,desperate
-pmClearDebug("pdu,desperate") ...
-pmDebug:	Nothing set
+pmDebug("pdu,desperate") -> 0
+pmGetDebug -> 
+arg: appl3,qa
+pmSetDebug("appl3,qa") ...
+pmDebugOptions:	appl0,deprecated,appl3,qa
+pmDebug("appl3,qa") -> 1
+pmGetDebug -> appl0,deprecated,appl3,qa
+pmClearDebug("appl3,qa") ...
+pmDebugOptions:	appl0,deprecated
+pmDebug("appl3,qa") -> 0
+pmGetDebug -> appl0,deprecated
+arg: -1
+pmSetDebug("-1") ...
+pmSetDebug -> Impossible value or scale conversion
 pmDebugOptions:	Nothing set
-Warning: deprecated __pmParseDebug() called
-Warning: deprecated __pmSetDebugBits() called
-arg: 1
-pmSetDebug("1") ...
-pmDebug:	pdu
-pmDebugOptions:	pdu,deprecated
-pmClearDebug("1") ...
-pmDebug:	Nothing set
-pmDebugOptions:	deprecated
-__pmParseDebug("1") ...
-__pmParseDebug -> 1
-pmDebug:	pdu
-pmDebugOptions:	pdu,deprecated
-pmClearDebug("1") ...
-pmDebug:	Nothing set
-pmDebugOptions:	deprecated
+pmDebug("-1") -> -12362
+pmGetDebug -> 
+pmClearDebug("-1") ...
+pmClearDebug -> Impossible value or scale conversion
+pmDebugOptions:	Nothing set
+pmDebug("-1") -> -12362
+pmGetDebug -> 
 arg: 1073741825
 pmSetDebug("1073741825") ...
-pmDebug:	pdu,desperate
-pmDebugOptions:	pdu,desperate
-pmClearDebug("1073741825") ...
-pmDebug:	Nothing set
+pmSetDebug -> Impossible value or scale conversion
 pmDebugOptions:	Nothing set
-__pmParseDebug("1073741825") ...
-__pmParseDebug -> 1073741825
-pmDebug:	pdu,desperate
-pmDebugOptions:	pdu,desperate
+pmDebug("1073741825") -> -12362
+pmGetDebug -> 
 pmClearDebug("1073741825") ...
-pmDebug:	Nothing set
+pmClearDebug -> Impossible value or scale conversion
 pmDebugOptions:	Nothing set
+pmDebug("1073741825") -> -12362
+pmGetDebug -> 
 arg: 123.456
 pmSetDebug("123.456") ...
 pmSetDebug -> Impossible value or scale conversion
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
+pmDebug("123.456") -> -12362
+pmGetDebug -> 
 pmClearDebug("123.456") ...
 pmClearDebug -> Impossible value or scale conversion
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
-__pmParseDebug("123.456") ...
-__pmParseDebug -> -12362
-pmDebug:	Nothing set
-pmDebugOptions:	Nothing set
-pmClearDebug("123.456") ...
-pmClearDebug -> Impossible value or scale conversion
-pmDebug:	Nothing set
-pmDebugOptions:	Nothing set
+pmDebug("123.456") -> -12362
+pmGetDebug -> 
 arg: 1,x
 pmSetDebug("1,x") ...
 pmSetDebug -> Impossible value or scale conversion
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
+pmDebug("1,x") -> -12362
+pmGetDebug -> 
 pmClearDebug("1,x") ...
 pmClearDebug -> Impossible value or scale conversion
-pmDebug:	Nothing set
 pmDebugOptions:	Nothing set
-__pmParseDebug("1,x") ...
-__pmParseDebug -> -12362
-pmDebug:	Nothing set
-pmDebugOptions:	Nothing set
-pmClearDebug("1,x") ...
-pmClearDebug -> Impossible value or scale conversion
-pmDebug:	Nothing set
-pmDebugOptions:	Nothing set
+pmDebug("1,x") -> -12362
+pmGetDebug -> 

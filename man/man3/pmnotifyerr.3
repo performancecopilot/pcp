@@ -19,6 +19,8 @@
 \f3pmSyslog\f1 \- standard handling of error messages
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 void pmNotifyErr(int \fIpriority\fP, const char *\fImessage\fP, ...);
@@ -26,6 +28,8 @@ void pmNotifyErr(int \fIpriority\fP, const char *\fImessage\fP, ...);
 void pmSyslog(int \fIonoff\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 These routines provide standard handling for error messages from

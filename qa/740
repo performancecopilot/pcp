@@ -57,8 +57,7 @@ if ! _service pmcd restart >/dev/null 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
 
 # store to enable verbose attribute diagnostics
-authdbg=`pmdbg -o -l | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
-pmstore sample.control $authdbg
+pmstore sample.control "auth"
 
 # let pmdasample complete setup
 for i in 1 2 3 4 5 6 7 8 9 10
@@ -78,7 +77,7 @@ wait $!
 cat $PCP_LOG_DIR/pmcd/sample.log \
 | tee -a $seq_full \
 | _filter
-pmstore sample.control 0
+pmstore sample.control ""
 
 # success, all done
 status=0

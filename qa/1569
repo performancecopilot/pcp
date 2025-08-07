@@ -45,8 +45,10 @@ _filter()
 	-e '/xz_setup: /d' \
 	-e '/pcp-meminfo.0.xz/s/1032/892/' \
 	-e '/pcp-meminfo.0.xz/s/900/892/' \
+	-e '/pcp-meminfo.0.xz/s/964/956/' \
 	-e '/pcp-meminfo.meta.xz/s/3644/3640/' \
 	-e '/pcp-meminfo.meta.xz/s/3648/3640/' \
+	-e '/pcp-meminfo.meta.xz/s/3900/3892/' \
     # end
 }
 

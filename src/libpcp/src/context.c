@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018,2020-2022 Red Hat.
+ * Copyright (c) 2012-2018,2020-2022,2025 Red Hat.
  * Copyright (c) 2007-2008 Aconex.  All Rights Reserved.
  * Copyright (c) 1995-2002,2004,2006,2008 Silicon Graphics, Inc.  All Rights Reserved.
  *
@@ -32,6 +32,7 @@
 
 #include "pmapi.h"
 #include "libpcp.h"
+#include "fault.h"
 #include "internal.h"
 #include <string.h>
 #include <assert.h>
@@ -627,11 +628,12 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	     * not part of a multi-archive context.
 	     */
 	    ctxp2 = contexts[i];
-	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE) {
+	    if (ctxp2->c_type == PM_CONTEXT_ARCHIVE &&
+	        (ctxp2->c_flags & PM_CTXFLAG_STREAMING_WRITER) == 0) {
 		acp2 = ctxp2->c_archctl;
 		PM_LOCK(acp2->ac_log->lc_lock);
-		if (! acp2->ac_log->multi &&
-		    strcmp (name, acp2->ac_log->name) == 0) {
+		if (!acp2->ac_log->multi &&
+		    strcmp(name, acp2->ac_log->name) == 0) {
 		    lcp2 = acp2->ac_log;
 		    break;
 		}
@@ -652,7 +654,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 		free(lcp);
 	    }
 	    ++lcp2->refcnt;
-	    acp->ac_log = lcp2;
+	    __pmLogWriterInit(acp, lcp2);
 	    PM_UNLOCK(acp2->ac_log->lc_lock);
 	    PM_UNLOCK(contexts_lock);
 	    /*
@@ -688,7 +690,7 @@ __pmFindOrOpenArchive(__pmContext *ctxp, const char *name, int multi_arch)
 	__pmInitMutex(&lcp->lc_lock);
 #endif
 	lcp->multi = multi_arch;
-	acp->ac_log = lcp;
+	__pmLogWriterInit(acp, lcp);
     }
     sts = __pmLogOpen(name, ctxp);
     if (sts < 0) {
@@ -843,6 +845,29 @@ expandArchiveList(const char *names)
     return newlist;
 }
 
+static int
+initstreaming(__pmArchCtl *acp)
+{
+    int			sts;
+
+    acp->ac_vol = acp->ac_curvol;
+    acp->ac_meta_loaded = 1;
+
+    if ((acp->ac_log = (__pmLogCtl *)calloc(1, sizeof(__pmLogCtl))) == NULL) {
+	pmNoMem(__FUNCTION__, sizeof(__pmLogCtl), PM_RECOV_ERR);
+	return -ENOMEM;
+    }
+#ifdef PM_MULTI_THREAD
+    __pmInitMutex(&acp->ac_log->lc_lock);
+#endif
+    acp->ac_log->refcnt = 1;
+
+    if ((sts = __pmNewPMNS(&acp->ac_log->pmns)) < 0)
+	return sts;
+    __pmFixPMNSHashTab(acp->ac_log->pmns, acp->ac_log->numpmid, 1);
+    return sts;
+}
+
 /*
  * Initialize the given archive(s) for this context.
  *
@@ -878,20 +903,18 @@ initarchive(__pmContext	*ctxp, const char *name)
     if (name == NULL || *name == '\0')
 	return PM_ERR_LOGFILE;
 
-    /* Allocate the structure for overal control of the archive(s). */
-    if ((ctxp->c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
+    /* Allocate the structure for overall control of the archive(s). */
+    if ((acp = (__pmArchCtl *)calloc(1, sizeof(__pmArchCtl))) == NULL) {
 	pmNoMem("initarchive", sizeof(__pmArchCtl), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    acp = ctxp->c_archctl;
-    acp->ac_mfp = NULL;
+    ctxp->c_archctl = acp;
     acp->ac_curvol = -1;
-    acp->ac_num_logs = 0;
-    acp->ac_log_list = NULL;
-    acp->ac_log = NULL;
-    acp->ac_mark_done = 0;
     acp->ac_flags = ctxp->c_flags;
-    acp->ac_meta_loaded = 0;
+
+    if ((acp->ac_flags & PM_CTXFLAG_STREAMING_WRITER))
+	return initstreaming(acp);
+    __pmLogWriterInit(acp, NULL); /* prepare callbacks for file-based I/O */
 
     /*
      * The list of names may contain one or more directories. Examine the
@@ -907,7 +930,6 @@ initarchive(__pmContext	*ctxp, const char *name)
      * sort them in order of start time and check for overlaps. Keep the final
      * archive open.
      */
-    acp->ac_log_list = NULL;
     current = namelist;
     while (*current) {
 	/* Find the end of the current archive name. */
@@ -950,7 +972,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 		break;
 	    if (tdiff == 0.0) {
 		/* Is it a duplicate? */
-		if (strcmp (current, acp->ac_log_list[i]->name) == 0) {
+		if (strcmp(current, acp->ac_log_list[i]->name) == 0) {
 		    ignore = 1;
 		    break;
 		}
@@ -1010,7 +1032,7 @@ initarchive(__pmContext	*ctxp, const char *name)
 	     * which is the correct slot.
 	     */
 	    if (i < acp->ac_num_logs) {
-		memmove (&acp->ac_log_list[i + 1], &acp->ac_log_list[i],
+		memmove(&acp->ac_log_list[i + 1], &acp->ac_log_list[i],
 			 (acp->ac_num_logs - i) * sizeof(*acp->ac_log_list));
 	    }
 	    acp->ac_log_list[i] = mlcp;
@@ -1063,16 +1085,9 @@ initarchive(__pmContext	*ctxp, const char *name)
 
     /* start after header + label record + trailer */
     ctxp->c_origin = acp->ac_log->label.start;
-    ctxp->c_mode = (ctxp->c_mode & 0xffff0000) | PM_MODE_FORW;
+    ctxp->c_mode = PM_MODE_FORW;
     acp->ac_offset = __pmLogLabelSize(acp->ac_log);
     acp->ac_vol = acp->ac_curvol;
-    acp->ac_serial = 0;		/* not serial access, yet */
-    acp->ac_pmid_hc.nodes = 0;	/* empty hash list */
-    acp->ac_pmid_hc.hsize = 0;
-    acp->ac_end = 0.0;
-    acp->ac_want = NULL;
-    acp->ac_unbound = NULL;
-    acp->ac_cache = NULL;
 
     return 0; /* success */
 
@@ -1110,6 +1125,46 @@ initarchive(__pmContext	*ctxp, const char *name)
     return sts;
 }
 
+static struct {
+    int		flag;
+    const char	*name;
+} _flagmap[] = {
+    { PM_CTXFLAG_SHALLOW,	"shallow" },
+    { PM_CTXFLAG_EXCLUSIVE,	"exclusive" },
+    { PM_CTXFLAG_SECURE,	"secure" },
+    { PM_CTXFLAG_COMPRESS,	"compress" },
+    { PM_CTXFLAG_RELAXED,	"relaxed" },
+    { PM_CTXFLAG_AUTH,	"auth" },
+    { PM_CTXFLAG_CONTAINER,	"container" },
+    { PM_CTXFLAG_NO_FEATURE_CHECK,	"no_feature_check" },
+    { PM_CTXFLAG_METADATA_ONLY,	"metadata_only" },
+    { PM_CTXFLAG_LAST_VOLUME,	"last_volume" },
+    { PM_CTXFLAG_STREAMING_WRITER,	"streaming_writer" },
+    { 0,			NULL }
+};
+
+/*
+ * print context flags, with separator |
+ * type maybe type as passed to pmNewContext, or c_flags as stored
+ * in __pmContext
+ */
+static void
+print_ctx_flags(FILE *f, int type)
+{
+    int	j;
+    int	first = 1;
+
+    for (j = 0; _flagmap[j].name != NULL; j++) {
+	if (type & _flagmap[j].flag) {
+	    if (first)
+		first = 0;
+	    else
+		fputc('|', f);
+	    fprintf(f, "%s", _flagmap[j].name);
+	}
+    }
+}
+
 int
 pmNewContext(int type, const char *name)
 {
@@ -1125,10 +1180,12 @@ pmNewContext(int type, const char *name)
     static /*const*/ __pmContext being_initialized = { .c_type = PM_CONTEXT_INIT };
 
     if (pmDebugOptions.pmapi) {
-	if (name == NULL)
-	    fprintf(stderr, "pmNewContext(%d, NULL) <:", type);
-	else
-	    fprintf(stderr, "pmNewContext(%d, \"%s\") <:", type, name);
+	fprintf(stderr, "pmNewContext(%d", type & PM_CONTEXT_TYPEMASK);
+	if (type != (type & PM_CONTEXT_TYPEMASK)) {
+	    fputc('+', stderr);
+	    print_ctx_flags(stderr, type);
+	}
+	fprintf(stderr, ", %s) <:", name != NULL ? name : "NULL");
     }
 
     PM_INIT_LOCKS();
@@ -1168,6 +1225,10 @@ pmNewContext(int type, const char *name)
 	list_map = (int *)realloc((void *)contexts_map, (1+contexts_len) * sizeof(int));
     }
     if (list == NULL || list_map == NULL) {
+	if (list != NULL)
+	    free(list);
+	if (list_map != NULL)
+	    free(list_map);
 	sts = -oserror();
 	goto FAILED_LOCKED;
     }
@@ -1304,8 +1365,14 @@ INIT_CONTEXT:
     }
     else {
 	/* bad type */
-	if (pmDebugOptions.context)
-	    fprintf(stderr, "pmNewContext(%d, %s): illegal type\n", type, name);
+	if (pmDebugOptions.context) {
+	    fprintf(stderr, "pmNewContext(%d", type & PM_CONTEXT_TYPEMASK);
+	    if (type != (type & PM_CONTEXT_TYPEMASK)) {
+		fputc('+', stderr);
+		print_ctx_flags(stderr, type);
+	    }
+	    fprintf(stderr, ", %s): illegal type 0x%x\n", name != NULL ? name : "NULL", type);
+	}
 	sts = PM_ERR_NOCONTEXT;
 	goto pmapi_return;
     }
@@ -1319,8 +1386,13 @@ INIT_CONTEXT:
 
     /* return the handle to the new (current) context */
     if (pmDebugOptions.context) {
-	fprintf(stderr, "pmNewContext(%d, %s) -> %d\n", type,
-			name ? name : "NULL", PM_TPD(curr_handle));
+	fprintf(stderr, "pmNewContext(%d", type & PM_CONTEXT_TYPEMASK);
+	if (type != (type & PM_CONTEXT_TYPEMASK)) {
+	    fputc('+', stderr);
+	    print_ctx_flags(stderr, type);
+	}
+	fprintf(stderr, ", %s) -> %d\n",
+			name != NULL ? name : "NULL", PM_TPD(curr_handle));
 	__pmDumpContext(stderr, PM_TPD(curr_handle), PM_INDOM_NULL);
     }
 
@@ -1361,9 +1433,15 @@ FAILED_LOCKED:
     }
     PM_TPD(curr_handle) = old_curr_handle;
     PM_TPD(curr_ctxp) = old_curr_ctxp;
-    if (pmDebugOptions.context)
-	fprintf(stderr, "pmNewContext(%d, %s) -> %d, curr_handle=%d\n",
-	    type, name ? name : "NULL", sts, PM_TPD(curr_handle));
+    if (pmDebugOptions.context) {
+	fprintf(stderr, "pmNewContext(%d", type);
+	if (type != (type & PM_CONTEXT_TYPEMASK)) {
+	    fputc('+', stderr);
+	    print_ctx_flags(stderr, type);
+	}
+	fprintf(stderr, ", %s) -> %d, curr_handle=%d\n",
+	    name != NULL ? name : "NULL", sts, PM_TPD(curr_handle));
+    }
     PM_UNLOCK(contexts_lock);
 
 pmapi_return:
@@ -1519,6 +1597,7 @@ pmDupContext(void)
     tmpcon.c_instprof->state = oldcon->c_instprof->state;
     if (oldcon->c_instprof->profile_len > 0) {
 	tmpcon.c_instprof->profile_len = oldcon->c_instprof->profile_len;
+PM_FAULT_POINT("libpcp/" __FILE__ ":0", PM_FAULT_ALLOC);
 	tmpcon.c_instprof->profile = (pmInDomProfile *)malloc(
 	    oldcon->c_instprof->profile_len * sizeof(pmInDomProfile));
 	if (tmpcon.c_instprof->profile == NULL) {
@@ -1534,6 +1613,7 @@ pmDupContext(void)
 	q = tmpcon.c_instprof->profile;
 	for (; p < p_end; p++, q++) {
 	    if (p->instances) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_ALLOC);
 		q->instances = (int *)malloc(p->instances_len * sizeof(int));
 		if (q->instances == NULL) {
 		    sts = -oserror();
@@ -1553,6 +1633,7 @@ pmDupContext(void)
 
     /* clone the archive control struct, if any */
     if (oldcon->c_archctl != NULL) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":2", PM_FAULT_ALLOC);
 	if ((tmpcon.c_archctl = (__pmArchCtl *)malloc(sizeof(__pmArchCtl))) == NULL) {
 	    sts = -oserror();
 	    goto setup_fail;
@@ -1588,6 +1669,7 @@ pmDupContext(void)
 		fprintf(stderr, "pmDupContext: __pmLogChangeVol(tmpcon, %d) failed: %s\n",
 		    vol, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    }
+	    tmpcon.c_archctl->ac_num_logs = 0;
 	    goto setup_fail;
 	}
 
@@ -1598,14 +1680,24 @@ pmDupContext(void)
 	if (oldcon->c_archctl->ac_log_list != NULL) {
 	    size_t size = oldcon->c_archctl->ac_num_logs *
 		sizeof(*oldcon->c_archctl->ac_log_list);
+PM_FAULT_POINT("libpcp/" __FILE__ ":3", PM_FAULT_ALLOC);
 	    if ((tmpcon.c_archctl->ac_log_list = malloc(size)) == NULL) {
 		sts = -oserror();
+		tmpcon.c_archctl->ac_num_logs = 0;
+		__pmFclose(tmpcon.c_archctl->ac_mfp);
 		goto setup_fail;
 	    }
 	    /* We need to duplicate each ac_log_list entry. */
 	    for (i = 0; i < tmpcon.c_archctl->ac_num_logs; i++) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":4", PM_FAULT_ALLOC);
 		tmpcon.c_archctl->ac_log_list[i] =
 		    malloc(sizeof(*tmpcon.c_archctl->ac_log_list[i]));
+		if (tmpcon.c_archctl->ac_log_list[i] == NULL) {
+		    sts = -oserror();
+		    tmpcon.c_archctl->ac_num_logs = i;
+		    __pmFclose(tmpcon.c_archctl->ac_mfp);
+		    goto setup_fail;
+		}
 		newmlcp = tmpcon.c_archctl->ac_log_list[i];
 		oldmlcp = oldcon->c_archctl->ac_log_list[i];
 		*newmlcp = *oldmlcp;
@@ -1613,23 +1705,44 @@ pmDupContext(void)
 		 * We need to duplicate the name and the hostname of each
 		 * archive in the list.
 		 */
+PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
 		if ((newmlcp->name = strdup(newmlcp->name)) == NULL) {
 		    sts = -oserror();
+		    tmpcon.c_archctl->ac_num_logs = i+1;
+		    /* don't free the ones we've not yet strdup'd */
+		    newmlcp->hostname = NULL;
+		    newmlcp->timezone = NULL;
+		    newmlcp->zoneinfo = NULL;
+		    __pmFclose(tmpcon.c_archctl->ac_mfp);
 		    goto setup_fail;
 		}
+PM_FAULT_POINT("libpcp/" __FILE__ ":6", PM_FAULT_ALLOC);
 		if ((newmlcp->hostname = strdup(newmlcp->hostname)) == NULL) {
 		    sts = -oserror();
+		    tmpcon.c_archctl->ac_num_logs = i+1;
+		    /* don't free the ones we've not yet strdup'd */
+		    newmlcp->timezone = NULL;
+		    newmlcp->zoneinfo = NULL;
+		    __pmFclose(tmpcon.c_archctl->ac_mfp);
 		    goto setup_fail;
 		}
 		if (newmlcp->timezone != NULL) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 		    if ((newmlcp->timezone = strdup(newmlcp->timezone)) == NULL) {
 			sts = -oserror();
+			tmpcon.c_archctl->ac_num_logs = i+1;
+			/* don't free the ones we've not yet strdup'd */
+			newmlcp->zoneinfo = NULL;
+			__pmFclose(tmpcon.c_archctl->ac_mfp);
 			goto setup_fail;
 		    }
 		}
 		if (newmlcp->zoneinfo != NULL) {
+PM_FAULT_POINT("libpcp/" __FILE__ ":8", PM_FAULT_ALLOC);
 		    if ((newmlcp->zoneinfo = strdup(newmlcp->zoneinfo)) == NULL) {
 			sts = -oserror();
+			tmpcon.c_archctl->ac_num_logs = i+1;
+			__pmFclose(tmpcon.c_archctl->ac_mfp);
 			goto setup_fail;
 		    }
 		}
@@ -1667,10 +1780,18 @@ pmDupContext(void)
 	goto new_fail;
     }
     PM_LOCK(contexts_lock);
-    if ((ctxnum = map_handle(new)) < 0) {
+    ctxnum = map_handle(new);
+PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_MISC);
+/* begin fault-injection */
+    if (PM_FAULT_CHECK) {
+	PM_FAULT_CLEAR;
+	ctxnum = -1;
+    }
+/* end fault-injection */
+    if (ctxnum < 0) {
 	sts = PM_ERR_NOCONTEXT;
 	PM_UNLOCK(contexts_lock);
-	goto done;
+	goto new_fail;
     }
     newcon = contexts[ctxnum];
     PM_LOCK(newcon->c_lock);
@@ -1714,15 +1835,36 @@ new_fail:
      * failure, get here with no locks held, but tmpcon may have
      * malloc'd memory we need to free
      */
-    if (tmpcon.c_archctl != NULL)
+    if (tmpcon.c_archctl != NULL) {
+	if (tmpcon.c_archctl->ac_log_list != NULL) {
+	    /*
+	     * ac_log_list is messy because we can fail in a number of
+	     * places while setting this up ... and note that
+	     * tmpcon.c_archctl->ac_num_logs may be < ac_num_logs in the
+	     * old context in this case
+	     */
+	    for (i = 0; i < tmpcon.c_archctl->ac_num_logs; i++) {
+		if (tmpcon.c_archctl->ac_log_list[i]->name != NULL)
+		    free(tmpcon.c_archctl->ac_log_list[i]->name);
+		if (tmpcon.c_archctl->ac_log_list[i]->hostname != NULL)
+		    free(tmpcon.c_archctl->ac_log_list[i]->hostname);
+		if (tmpcon.c_archctl->ac_log_list[i]->timezone != NULL)
+		    free(tmpcon.c_archctl->ac_log_list[i]->timezone);
+		if (tmpcon.c_archctl->ac_log_list[i]->zoneinfo != NULL)
+		    free(tmpcon.c_archctl->ac_log_list[i]->zoneinfo);
+		free(tmpcon.c_archctl->ac_log_list[i]);
+	    }
+	    free(tmpcon.c_archctl->ac_log_list);
+	}
 	free(tmpcon.c_archctl);
+    }
     if (tmpcon.c_instprof != NULL)
 	__pmFreeProfile(tmpcon.c_instprof);
     /* FALLTHROUGH */
 
 done:
     /* return an error code, or the handle for the new context */
-    if (sts < 0 && new >= 0) {
+    if (sts < 0 && new >= 0 && ctxnum >= 0) {
 	PM_LOCK(contexts_lock);
 	contexts_map[ctxnum] = MAP_FREE;
 	PM_UNLOCK(contexts_lock);
@@ -1956,7 +2098,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 	    else if (con->c_type == PM_CONTEXT_LOCAL) {
 		fprintf(f, " handle %d:", contexts_map[i]);
 		fprintf(f, " standalone:");
-		fprintf(f, " profile=%s\n",
+		fprintf(f, " profile=%s",
 		    con->c_sent ? "SENT" : "NOT_SENT");
 	    }
 	    else if (con->c_type == PM_CONTEXT_ARCHIVE) {
@@ -1971,7 +2113,7 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 			fprintf(f, " not open\n");
 			continue;
 		    }
-		    fprintf(f, " mode=%s", _mode[con->c_mode & __PM_MODE_MASK]);
+		    fprintf(f, " mode=%s", _mode[con->c_mode]);
 		    fprintf(f, " profile=%s tifd=%d mdfd=%d mfd=%d\nrefcnt=%d vol=%d",
 			    con->c_sent ? "SENT" : "NOT_SENT",
 			    con->c_archctl->ac_log->tifp == NULL ? -1 : __pmFileno(con->c_archctl->ac_log->tifp),
@@ -1985,13 +2127,21 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
 			    con->c_archctl->ac_serial);
 		}
 	    }
-	    if (con->c_type == PM_CONTEXT_HOST || con->c_type == PM_CONTEXT_ARCHIVE) {
+	    if (con->c_type == PM_CONTEXT_HOST ||
+	        (con->c_type == PM_CONTEXT_ARCHIVE &&
+		 ! (con->c_flags & PM_CTXFLAG_STREAMING_WRITER))) {
 		fprintf(f, " origin=%" FMT_INT64 ".%09d",
 		    con->c_origin.sec, con->c_origin.nsec);
-		fprintf(f, " delta=%s%" FMT_INT64 ".%09d\n",
+		fprintf(f, " delta=%s%" FMT_INT64 ".%09d",
 		    con->c_direction < 0 ? "-" : "",
 		    con->c_delta.sec, con->c_delta.nsec);
 	    }
+	    if (con->c_flags) {
+		/* we have context flags */
+		fprintf(f, " flags: ");
+		print_ctx_flags(f, con->c_flags);
+	    }
+	    fputc('\n', f);
 	    __pmDumpProfile(f, indom, con->c_instprof);
 	}
     }
@@ -2072,19 +2222,3 @@ __pmIsLogCtlLock(void *lock)
 
 #endif
 #endif
-
-/*
- * Stuff from here on is deprecated ... definitions in deprecated.h
- * not libpcp.h
- */
-
-/*
- * Don't use this function ... the return value is a pointer to a context
- * that is NOT LOCKED,
- */
-__pmContext *
-__pmCurrentContext(void)
-{
-    PM_INIT_LOCKS();
-    return PM_TPD(curr_ctxp);
-}

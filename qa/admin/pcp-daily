@@ -48,12 +48,21 @@ _script_header()
 # PCP $action Script from pcp-daily on `date`
 #
 
+rm -f \$HOME/$1.log
+
+if [ -f /etc/pcp.conf ]
+then
+    . /etc/pcp.conf
+    [ -n "\$PCP_MAKE_PROG" ] && MAKE="\$PCP_MAKE_PROG"
+    export MAKE
+fi
+
 [ -f \$HOME/.dailyrc ] && . \$HOME/.dailyrc
 if [ $debug = true ]
 then
-    echo PATH=\$PATH
-    echo MAKE=\$MAKE
-    which \${MAKE:-make}
+    echo PATH=\$PATH >>\$HOME/$1.log 2>&1
+    echo MAKE=\$MAKE >>\$HOME/$1.log 2>&1
+    which \${MAKE:-make} >>\$HOME/$1.log 2>&1
 fi
 
 tmp=/var/tmp/\$\$
@@ -64,8 +73,7 @@ End-of-File
 	:
     else
 	cat <<End-of-File
-rm -f \$HOME/$1.log
-echo "--- starting $1 on \`date\` ---" >\$HOME/$1.log
+echo "--- starting $1 on \`date\` ---" >>\$HOME/$1.log
 if [ -x ./freespace ] 
 then
     ./freespace -l >>\$HOME/$1.log
@@ -872,6 +880,22 @@ do
 	    #
 	    qa_dir=/var/lib/pcp/testsuite
 	    qa_user=pcpqa
+	    ;;
+
+	vm26)
+	    # CentOS Stream9
+	    # exclude -x valgrind ... infected by the same valgrind bug as F42
+	    # 01 Jun 2025
+	    #
+	    [ X"$what" = Xall ] && check_what='-x valgrind'
+	    ;;
+
+	vm34)
+	    # Arch Linux
+	    # exclude -x valgrind ... infected by the same valgrind bug as F42
+	    # 20 May 2025
+	    #
+	    [ X"$what" = Xall ] && check_what='-x valgrind'
 	    ;;
 
 	vm35)

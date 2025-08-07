@@ -37,3 +37,4 @@ $(EXT_FILES):
 	$(LN_S) $(TOPDIR)/src/external/$@ .
 
 pminfo.o:	$(TOPDIR)/src/include/pcp/libpcp.h $(EXT_FILES)
+sha1.o:	$(EXT_FILES)

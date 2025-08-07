@@ -12,7 +12,6 @@ echo "QA output created by $seq"
 . ./common.python
 
 _check_series
-_check_requests_json
 
 status=1	# failure is the default!
 

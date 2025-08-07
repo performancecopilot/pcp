@@ -32,7 +32,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     # make verbose show-me mode pmlogger_check output deterministic
-    sed \
+    #
+    sed >$tmp.tmp \
 	-e '/\/NOTICES/d' \
 	-e "s,$tmp,LOGDIR,g" \
 	-e "s,/tmp/$seq-$$,LOGDIR,g" \
@@ -41,8 +42,14 @@ _filter()
 	-e "s,%Y%m%d.%H.%M,ARCHIVE,g" \
 	-e "s@$PCP_BINADM_DIR\/@@" \
 	-e '/^+ date-and-timestamp/s/stamp .*/stamp .../' \
-	-e '/^+ ln /d' \
-    # end
+	-e '/^+ ln /d'
+    # now need to cull any compression chatter for archives ''pushed''
+    # via pmproxy ... these ones follow a line like
+    # Info: processing archives from remote pmlogger on host gonzo
+    #
+    $PCP_AWK_PROG <$tmp.tmp '
+$1 == "Info:" && $0 ~ / from remote pmlogger /	{ exit }
+						{ print }'
 }
 
 mkdir $tmp

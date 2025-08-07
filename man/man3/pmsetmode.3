@@ -16,19 +16,22 @@
 .\"
 .TH PMSETMODE 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmSetMode\f1,
-\f3pmSetModeHighRes\f1 \- set collection time and mode parameters for the current PMAPI context
+\f3pmSetMode\f1 \- set collection time and mode parameters for the current PMAPI context
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
-int pmSetMode(int \fImode\fP, const struct timeval *\fIwhen\fP, int \fIdelta\fP);
-.br
-int pmSetModeHighRes(int \fImode\fP, const struct timespec *\fIwhen\fP, const struct timespec *\fIdelta\fP);
-.fi
+int pmSetMode(int \fImode\fP,
+'in +\w'int pmSetMode('u
+const\ struct\ timespec\ *\fIwhen\fP,
+const\ struct\ timespec\ *\fIdelta\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR
@@ -36,8 +39,6 @@ cc ... \-lpcp
 .el \fI\\$1\f1\\$2
 ..
 .B pmSetMode
-and
-.B pmSetModeHighRes
 are used to define the collection time and/or mode for accessing
 performance metrics and metadata in the current
 Performance Metrics Application Programming Interface (PMAPI)
@@ -45,7 +46,6 @@ context.
 This mode affects the semantics of subsequent calls to the following
 PMAPI routines:
 .BR pmFetch (3),
-.BR pmFetchHighRes (3),
 .BR pmFetchArchive (3),
 .BR pmLookupDesc (3),
 .BR pmGetInDom (3),
@@ -54,7 +54,7 @@ PMAPI routines:
 and
 .BR pmNameInDom (3).
 .PP
-Intended mainly for retrospective analyis of performance metrics
+Intended mainly for retrospective analysis of performance metrics
 from a PCP archive, the
 options described below allow an application to implement seeking to an arbitrary
 time within the archive, playback, fast forward, reverse,
@@ -62,9 +62,7 @@ etc. by alternating calls
 to
 .B pmSetMode
 and
-.BR pmFetch (3)
-or
-.BR pmFetchHighRes (3).
+.BR pmFetch (3).
 .PP
 If
 .I mode
@@ -89,8 +87,6 @@ and this
 .I mode
 is rarely used in calls to
 .B pmSetMode
-or
-.BR pmSetModeHighRes .
 .PP
 The other values of
 .I mode
@@ -117,11 +113,9 @@ or
 the
 .CR start
 field in the structure returned from a call to
-.BR pmGetHighResArchiveLabel (3),
+.BR pmGetArchiveLabel (3),
 and the time at the end of the archive can be established by calling
 .BR pmGetArchiveEnd (3)
-or
-.BR pmGetHighResArchiveEnd (3).
 .PP
 As a special case, if
 .I when
@@ -140,8 +134,6 @@ is
 .B PM_MODE_INTERP
 then as metric values are retrieved from the archive with
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 the current time is returned as the timestamp in the
 .CR pmResult
 structure and
@@ -151,33 +143,14 @@ is positive, the current time moves forwards, else the current
 time moves backwards.
 The adjustment to the current time is applied even if the
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 fails to return values for any metrics or returns an error,
 e.g. \c
 .B PM_ERR_EOL
 because the current time is outside the range defined by
 the records in the archive.
 .PP
-By default the
-.I delta
-parameter of
-.B pmSetMode
-is interpreted as milliseconds (but see the LARGE DELTA VALUES
-section below).
-.PP
-In the
-.B pmSetModeHighRes
-variant of this interface, the
-.I delta
-parameter is a
-.CR "struct timespec"
-so this can directly represent any interval.
-.PP
 When metric values are being requested via
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 the current time may
 not exactly match the times at which values have been recorded in the
 archive, so the returned metric values
@@ -212,8 +185,6 @@ or
 .B PM_MODE_BACK
 then when metric values are being requested via
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 the archive will be scanned in a forwards (\c
 .BR PM_MODE_FORW )
 or backwards (\c
@@ -229,8 +200,6 @@ new current time.
 .PP
 Note that any metrics requested via
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 that do
 .B not
 have a value in the archive record at the
@@ -239,8 +208,6 @@ archives where all of the metrics of interest have been logged regularly
 at the same time in the archive.
 Otherwise, each
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 will contain only the subset of the requested metrics and any associated
 instances found in the
 qualifying archive record.
@@ -258,8 +225,6 @@ but this is serendipitous.
 If no qualifying metrics can be found in the requested direction of searching
 before the end or start of the archive is encountered, then
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3)
 returns the special error indicator,
 .BR PM_ERR_EOL .
 .SH RECOMMENDATIONS
@@ -270,8 +235,6 @@ is preferred because:
 This maximizes the information that will be returned
 in each
 .BR pmFetch (3)
-or
-.BR pmFetchHighRes (3).
 .IP \(bu 2n
 This returns values at regular intervals of the current time, independent
 of the logging frequency for requested metrics in the archive.
@@ -322,12 +285,12 @@ archive in reverse temporal sequence.
 .ft CR
 .nf
 .in +0.5i
-struct timeval mytime;
+struct timespec mytime;
 pmResult result;
 
 pmNewContext(PM_CONTEXT_ARCHIVE, "myarchive");
 pmGetArchiveEnd(&mytime);
-pmSetMode(PM_MODE_BACK, &mytime, 0);
+pmSetMode(PM_MODE_BACK, &mytime, NULL);
 
 while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
     /*
@@ -338,84 +301,25 @@ while (pmFetch(npmid, pmidlist, &result) != PM_ERR_EOL) {
 }
 .in
 .ft 1
-.SH "LARGE DELTA VALUES"
-The simplest mechanism to set large values for
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.I when
+argument was a \f(CRstruct timeval\fP
+and the
 .I delta
-is to use the
+argument was an \f(CRint\fP (in units of milliseconds).
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+For a time in PCP 6.x there was a
+routine with the same semantics as the current
+.B pmSetMode
+called
 .B pmSetModeHighRes
-interface.
-However, the
-.B pmSetMode
-interface supports the XTB (eXtended Time Base) mechanism to allow
-for values in units other than milliseconds.
-.PP
-Because the
-.I delta
-parameter to
-.B pmSetMode
-is an
-.I int
-and treated as milliseconds by default there is a limit on the maximum
-absolute value of
-.I delta
-that can be specified with this default interpretation, namely about 24 days if a signed
-.I int
-has 31 bits of precision.
-To accommodate longer values of
-.I delta
-the high-order bits of the
-.I mode
-parameter is also used to optionally set the units of time for the
-.I delta
-parameter. To specify the units of time use the
-.B PM_XTB_SET
-macro with one of the values
-.BR PM_TIME_NSEC ,
-.BR PM_TIME_MSEC ,
-.BR PM_TIME_SEC ,
-etc.
-to set the
-.I mode
-as follows:
-.P
-.in +0.5i
-PM_MODE_INTERP | PM_XTB_SET(PM_TIME_XXXX)
-.PP
-The following code shows how this could be done if the desired
-.I delta
-is initially encoded in
-.I interval
-(a struct timeval).
-.PP
-.ft CR
-.nf
-.in +0.5i
-struct timeval interval;
-int mode;
-
-mode = ...
-
-if (abs(interval.tv_sec / (3600*24)) <= 24) {
-    /* default encoding of milliseconds is fine */
-    mode = PM_MODE_INTERP;
-    delta = interval.tv_sec * 1000 + (interval.tv_usec + 500)/ 1000;
-}
-else {
-    /* encode delta in units of seconds */
-    mode = PM_MODE_INTERP | PM_XTB_SET(PM_TIME_SEC);
-    delta = interval.tv_sec + (interval.tv_usec + 500000)/ 1000000;
-}
-.in
-.fi
-.ft
-.PP
-For millisecond encoding of
-.IR delta ,
-using
-.B PM_XTB_SET(PM_TIME_MSEC)
-is functionally equivalent to not using
-.B PM_XTB_SET
-at all.
+although this is now deprecated and compile-time support for
+.B pmSetModeHighRes
+will be removed in a future release.
 .SH DIAGNOSTICS
 .IP \f3PM_ERR_MODE\f1
 The
@@ -426,11 +330,8 @@ parameter is invalid
 .BR PMAPI (3),
 .BR pmFetch (3),
 .BR pmFetchArchive (3),
-.BR pmFetchHighRes (3),
 .BR pmGetArchiveEnd (3),
 .BR pmGetArchiveLabel (3),
-.BR pmGetHighResArchiveEnd (3),
-.BR pmGetHighResArchiveLabel (3),
 .BR pmGetInDom (3),
 .BR pmLookupDesc (3),
 .BR pmLookupInDom (3),
@@ -441,5 +342,5 @@ and
 
 .\" control lines for scripts/man-spell
 .\" +ok+ PM_TIME_XXXX
-.\" +ok+ XTB eXtended {both from XTB (eXtended Time Base)}
 .\" +ok+ myarchive pmidlist mydelta mytime npmid mtime abs {from example C code}
+.\" +ok+ pdf {from URL}

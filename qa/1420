@@ -1,10 +1,11 @@
 #!/bin/sh
 # PCP QA Test No. 1420
-# [what am I here for?]
+# comparing input archive and pmlogreduce output archive in terms
+# of metadata and metric values, for both V2 and V3 archives
 #
 # non-valgrind variant, see qa/1421 for the valgrind variant
 #
-# Copyright (c) 2022 [who are you?].  All Rights Reserved.
+# Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
 #
 
 if [ $# -eq 0 ]
@@ -79,7 +80,8 @@ End-of-File
 
 _filter()
 {
-    sed \
+    tee -a $seq_full \
+    | sed \
 	-e "s@$tmp@TMP@g" \
 	-e '/^end:/s/ .*/ DATE/' \
 	-e '/^archive:/s/ .*/ PATH/' \
@@ -93,6 +95,7 @@ _filter()
 _scanmeta()
 {
     src/scanmeta -a "$1.meta" \
+    | tee -a $seq_full \
     | sed -n -e '/^\[/s/[^ ]*] //p' \
     | sed \
 	-e 's/$/ /' \
@@ -121,7 +124,8 @@ do
     rm -f $tmp.x.0 $tmp.x.meta $tmp.x.index
     pmlogextract -c $tmp.config archives/omnibus-nomark_v$vers $tmp.x
 
-    _scanmeta $tmp.x | tee -a $seq_full >$tmp.in.meta
+    echo "+++ input archive scanmeta" >>$seq_full
+    _scanmeta $tmp.x >$tmp.in.meta
 
     rm -f $tmp.0 $tmp.meta $tmp.index
     if $do_valgrind
@@ -132,7 +136,8 @@ do
     fi \
     | sed -e "s@$tmp@TMP@g"
 
-    _scanmeta $tmp | tee -a $seq_full >$tmp.out.meta
+    echo "+++ output archive scanmeta" >>$seq_full
+    _scanmeta $tmp >$tmp.out.meta
     if diff $tmp.in.meta $tmp.out.meta >$tmp.diff
     then
 	:
@@ -144,10 +149,10 @@ do
     sed -e '/^#/d' <$tmp.config \
     | while read metric
     do
-	pmdumplog $tmp.x $metric >>$seq_full
-	pmval -XX -a $tmp.x -z -w 12 -t 1sec $metric | tee -a $seq_full | _filter >$tmp.in
-	pmdumplog $tmp $metric >>$seq_full
-	pmval -XX -a $tmp   -z -w 12 -t 1sec $metric | tee -a $seq_full | _filter >$tmp.out
+	echo "+++ input archive pmval for $metric" >>$seq_full
+	pmval -a $tmp.x -z -S +1.01sec -s 5 -w 12 -t 1sec $metric | _filter >$tmp.in
+	echo "+++ output archive pmval for $metric" >>$seq_full
+	pmval -a $tmp   -z -S +1.01sec -s 5 -w 12 -t 1sec $metric | _filter >$tmp.out
 	if diff $tmp.in $tmp.out >$tmp.diff
 	then
 	    :

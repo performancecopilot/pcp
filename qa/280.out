@@ -18,9 +18,10 @@ Expect this to quietly re-start the primary logger ...
 Expect this to get a mutex failure ...
 PMLOGGER.CHECK: Warning: is another PCP cron job running concurrently?
 -rw-r--r-- 1 USER GROUP 0 Mmm D YYYY $PCP_ARCHIVE_DIR/LOCALHOST/lock
-PMLOGGER.CHECK [$PCP_PMLOGGERCONTROL_PATH/control:LINE]
+PMLOGGER.CHECK: [control:LINE]
 Warning: failed to acquire exclusive lock ($PCP_ARCHIVE_DIR/LOCALHOST/lock) [dots]
 
 Expect this to cleanup an old lock file ...
-PMLOGGER.CHECK: Warning: removing lock file older than 30 minutes
+PMLOGGER.CHECK: [control:LINE]
+Warning: removing lock file older than 30 minutes
 -rw-r--r-- 1 USER GROUP 0 Jan 2 1997 $PCP_ARCHIVE_DIR/LOCALHOST/lock

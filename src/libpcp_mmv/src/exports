@@ -56,3 +56,8 @@ PCP_MMV_1.4 {
     mmv_inc;
     mmv_set;
 } PCP_MMV_1.3;
+
+PCP_MMV_1.5 {
+  global:
+    mmv_stats_reset;
+} PCP_MMV_1.4;

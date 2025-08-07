@@ -14,7 +14,8 @@ static int	tflag;
 static int	numpmid;
 static pmID	pmidlist[20];
 static const char *namelist[20];
-static double	delta = 500;
+static struct timespec	delta = { 0, 500000000 };
+static struct timespec	minus_delta = { 0, -500000000 };
 
 static void
 cmpres(int n, pmResult *e, pmResult *g)
@@ -24,10 +25,10 @@ cmpres(int n, pmResult *e, pmResult *g)
     int		err = 0;
 
     if (e->timestamp.tv_sec != g->timestamp.tv_sec ||
-	e->timestamp.tv_usec != g->timestamp.tv_usec) {
-	printf("[sample %d] pmResult.timestamp: expected %ld.%06ld, got %ld.%06ld\n",
-	    n, (long)e->timestamp.tv_sec, (long)e->timestamp.tv_usec,
-	    (long)g->timestamp.tv_sec, (long)g->timestamp.tv_usec);
+	e->timestamp.tv_nsec != g->timestamp.tv_nsec) {
+	printf("[sample %d] pmResult.timestamp: expected %ld.%09ld, got %ld.%09ld\n",
+	    n, (long)e->timestamp.tv_sec, (long)e->timestamp.tv_nsec,
+	    (long)g->timestamp.tv_sec, (long)g->timestamp.tv_nsec);
 	goto FAILED;
     }
     if (e->numpmid != g->numpmid) {
@@ -97,7 +98,7 @@ main(int argc, char **argv)
     pmResult	*resp;
     pmResult	**resvec = malloc(0);
     int		resnum = 0;
-    struct timeval	when;
+    struct timespec	when;
 
     pmSetProgname(argv[0]);
 
@@ -130,7 +131,13 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* sample interval */
-	    delta = 1000 * atof(optarg);
+	    pmtimespecFromReal(atof(optarg), &delta);
+	    if (delta.tv_sec > 0) {
+		minus_delta.tv_sec = -delta.tv_sec;
+		minus_delta.tv_nsec = delta.tv_nsec;
+	    }
+	    else
+		minus_delta.tv_nsec = -delta.tv_nsec;
 	    break;
 
 	case '?':
@@ -159,8 +166,8 @@ main(int argc, char **argv)
 	exit(1);
     }
 
-    when = loglabel.ll_start;
-    if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
+    when = loglabel.start;
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -209,17 +216,13 @@ main(int argc, char **argv)
 	    if (sts != PM_ERR_EOL)
 		printf("%s: pmFetch: %s\n", pmGetProgname(), pmErrStr(sts));
 	}
-	when.tv_usec += delta * 1000;
-	if (when.tv_usec > 1000000) {
-	    when.tv_sec++;
-	    when.tv_usec -= 1000000;
-	}
+	pmtimespecInc(&when, &delta);
     }
     fflush(stderr);
 
     printf("\nPass 1.2: backwards past EOL\n");
     fflush(stdout);
-    if ((sts = pmSetMode(PM_MODE_INTERP, &when, -delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &minus_delta)) < 0) {
         printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }
@@ -257,17 +260,13 @@ main(int argc, char **argv)
 	} else {
 	    pmFreeResult(resp);
 	}
-	when.tv_usec -= delta * 1000;
-	if (when.tv_usec < 0) {
-	    when.tv_sec--;
-	    when.tv_usec += 1000000;
-	}
+	pmtimespecDec(&when, &delta);
     }
     fflush(stderr);
 
     printf("\nPass 2.2: forwards prior to SOL\n");
     fflush(stdout);
-    if ((sts = pmSetMode(PM_MODE_INTERP, &when, delta)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &when, &delta)) < 0) {
         printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
         exit(1);
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017,2020-2022 Red Hat.
+ * Copyright (c) 2012-2017,2020-2022,2025 Red Hat.
  * Copyright (c) 1995-2002,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2021, Ken McDonell.  All Rights Reserved.
  *
@@ -31,8 +31,7 @@
 typedef struct {
     __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS02 */
     __int32_t	pid;		/* PID of logger */
-    __int32_t	start_sec;	/* start of this log (pmTimeval) */
-    __int32_t	start_usec;
+    __int32_t	start[2];	/* start time of this archive (pmTimeval) */
     __int32_t	vol;		/* current log volume no. */
     char	hostname[PM_LOG_MAXHOSTLEN]; /* name of collection host */
     char	timezone[PM_TZ_MAXLEN];	/* $TZ at collection host */
@@ -44,8 +43,7 @@ typedef struct {
 typedef struct {
     __uint32_t	magic;		/* PM_LOG_MAGIC|PM_LOG_VERS03 */
     __int32_t	pid;		/* PID of logger */
-    __int32_t	start_sec[2];	/* start of this log (__pmTimestamp) */
-    __int32_t	start_nsec;
+    __int32_t	start[3];	/* start time of this archive (__pmTimestamp) */
     __int32_t	vol;		/* current log volume no. */
     __uint32_t	features;	/* enabled archive feature bits */
     __uint32_t	reserved;	/* reserved for future use, zero padded */
@@ -86,10 +84,9 @@ dumplabel(const __pmLogLabel *lp)
  * start immediately after this
  */
 size_t
-__pmLogLabelSize(const __pmLogCtl *lcp)
+__pmLogLabelSizeByVersion(int version)
 {
     size_t	bytes;
-    int		version = __pmLogVersion(lcp);
 
     if (version == PM_LOG_VERS03)
 	bytes = sizeof(__pmLabel_v3);
@@ -97,18 +94,26 @@ __pmLogLabelSize(const __pmLogCtl *lcp)
 	bytes = sizeof(__pmLabel_v2);
     else {
 	if (pmDebugOptions.log)
-	    fprintf(stderr, "__pmLogLabelSize: label version %d not supported", version);
+	    fprintf(stderr, "%s: label version %d not supported",
+			   __FUNCTION__, version);
 	return 0;
     }
     return bytes + 2 * sizeof(__int32_t);	/* header + trailer length */
 }
 
+size_t
+__pmLogLabelSize(const __pmLogCtl *lcp)
+{
+    return __pmLogLabelSizeByVersion(__pmLogVersion(lcp));
+}
+
 int
-__pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
+__pmLogEncodeLabel(const __pmLogLabel *lp, void **buffer, size_t *length)
 {
     int		version = lp->magic & 0xff;
-    __int32_t	header;		/* and trailer */
+    __int32_t	header;
     size_t	bytes;
+    void	*buf;
 
     if (version == PM_LOG_VERS03)
 	header = htonl((__int32_t)sizeof(__pmLabel_v3)+ 2*sizeof(__int32_t));
@@ -116,20 +121,18 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	header = htonl((__int32_t)sizeof(__pmLabel_v2)+ 2*sizeof(__int32_t));
     else {
 	if (pmDebugOptions.log)
-	    fprintf(stderr, "__pmLogWriteLabel: label version %d not supported", version);
+	    fprintf(stderr, "%s: label version %d not supported",
+			    __FUNCTION__, version);
 	return PM_ERR_LABEL;
     }
 
-    /* header */
-    bytes = __pmFwrite(&header, 1, sizeof(header), f);
-    if (bytes != sizeof(header)) {
-	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("%s: header write failed: returns %zu expecting %zu: %s\n",
-		"__pmLogWriteLabel", bytes, sizeof(header),
-		osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
+    bytes = __pmLogLabelSizeByVersion(version);
+    if ((*buffer = buf = (__int32_t *)malloc(bytes)) == NULL)
 	return -oserror();
-    }
+    *length = bytes;
+
+    memcpy(buf, &header, sizeof(header));
+    buf = (unsigned char *)buf + sizeof(header);
 
     if (version == PM_LOG_VERS03) {
 	__pmLabel_v3	label;
@@ -137,7 +140,7 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	/* swab */
 	label.magic = htonl(lp->magic);
 	label.pid = htonl(lp->pid);
-	__pmPutTimestamp(&lp->start, &label.start_sec[0]);
+	__pmPutTimestamp(&lp->start, label.start);
 	label.vol = htonl(lp->vol);
 	label.features = htonl(lp->features);
 	label.reserved = 0;
@@ -151,15 +154,8 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	bytes = MINIMUM(pmstrlen(lp->zoneinfo), PM_MAX_ZONEINFOLEN - 1);
 	memcpy((void *)label.zoneinfo, (void *)lp->zoneinfo, bytes);
 
-	bytes = __pmFwrite(&label, 1, sizeof(label), f);
-	if (bytes != sizeof(label)) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    pmprintf("%s: write failed: returns %zu expecting %zu: %s\n",
-		    "__pmLogWriteLabel", bytes, sizeof(label),
-		    osstrerror_r(errmsg, sizeof(errmsg)));
-	    pmflush();
-	    return -oserror();
-	}
+	memcpy(buf, &label, sizeof(label));
+	buf = (unsigned char *)buf + sizeof(label);
     }
     else {
 	/* version == PM_LOG_VERS02 */
@@ -168,7 +164,7 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	/* swab */
 	label.magic = htonl(lp->magic);
 	label.pid = htonl(lp->pid);
-	__pmPutTimeval(&lp->start, &label.start_sec);
+	__pmPutTimeval(&lp->start, label.start);
 	label.vol = htonl(lp->vol);
 	memset(label.hostname, 0, sizeof(label.hostname));
 	bytes = MINIMUM(strlen(lp->hostname), PM_LOG_MAXHOSTLEN - 1);
@@ -177,24 +173,33 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	bytes = MINIMUM(strlen(lp->timezone), PM_TZ_MAXLEN - 1);
 	memcpy((void *)label.timezone, (void *)lp->timezone, bytes);
 
-	bytes = __pmFwrite(&label, 1, sizeof(label), f);
-	if (bytes != sizeof(label)) {
-	    char	errmsg[PM_MAXERRMSGLEN];
-	    pmprintf("%s: write failed: returns %zu expecting %zu: %s\n",
-		    "__pmLogWriteLabel", bytes, sizeof(label),
-		    osstrerror_r(errmsg, sizeof(errmsg)));
-	    pmflush();
-	    return -oserror();
-	}
+	memcpy(buf, &label, sizeof(label));
+	buf = (unsigned char *)buf + sizeof(label);
     }
 
-    /* trailer */
-    bytes = __pmFwrite(&header, 1, sizeof(header), f);
-    if (bytes != sizeof(header)) {
+    memcpy(buf, &header, sizeof(header)); /* trailer */
+    return 0;
+}
+
+int
+__pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
+{
+    void	*buffer;
+    size_t	length;
+    size_t	bytes;
+    int		sts;
+
+    if ((sts = __pmLogEncodeLabel(lp, &buffer, &length)) < 0)
+	return sts;
+
+    bytes = __pmFwrite(buffer, 1, length, f);
+    free(buffer);
+
+    if (bytes != length) {
 	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("%s: trailer write failed: returns %zu expecting %zu: %s\n",
-		"__pmLogWriteLabel", bytes, sizeof(header),
-		osstrerror_r(errmsg, sizeof(errmsg)));
+	pmprintf("%s: write failed: returns %zu expecting %zu: %s\n",
+		 __FUNCTION__, bytes, length,
+		 osstrerror_r(errmsg, sizeof(errmsg)));
 	pmflush();
 	return -oserror();
     }
@@ -203,6 +208,105 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
 	fprintf(stderr, "__pmLogWriteLabel:");
 	dumplabel(lp);
 	fputc('\n', stderr);
+    }
+
+    return 0;
+}
+
+static void
+__pmLogDecodeLabelV3(__pmLabel_v3 *in, __pmLogLabel *lp)
+{
+    __pmLogFreeLabel(lp);	/* reset from earlier call */
+    lp->pid = ntohl(in->pid);
+    __pmLoadTimestamp(in->start, &lp->start);
+    lp->vol = ntohl(in->vol);
+    lp->features = ntohl(in->features);
+    lp->hostname = strndup(in->hostname, PM_MAX_HOSTNAMELEN - 1);
+    lp->timezone = strndup(in->timezone, PM_MAX_TIMEZONELEN - 1);
+    lp->zoneinfo = strndup(in->zoneinfo, PM_MAX_ZONEINFOLEN - 1);
+}
+
+static void
+__pmLogDecodeLabelV2(__pmLabel_v2 *in, __pmLogLabel *lp)
+{
+    __pmLogFreeLabel(lp);	/* reset from earlier call */
+    lp->pid = ntohl(in->pid);
+    __pmLoadTimeval(in->start, &lp->start);
+    lp->vol = ntohl(in->vol);
+    lp->features = 0;		/* not supported in v2 */
+    lp->hostname = strndup(in->hostname, PM_LOG_MAXHOSTLEN - 1);
+    lp->timezone = strndup(in->timezone, PM_TZ_MAXLEN - 1);
+    lp->zoneinfo = NULL;	/* not supported in v2 */
+}
+
+/*
+ * Decode an archive label ... no checking other than record
+ * length and header-trailer consistency
+ */
+int
+__pmLogDecodeLabel(const char *buffer, size_t length, __pmLogLabel *lp)
+{
+    const size_t	length_v3 = __pmLogLabelSizeByVersion(PM_LOG_VERS03);
+    const size_t	length_v2 = __pmLogLabelSizeByVersion(PM_LOG_VERS02);
+    const char		*offset;
+    __uint32_t		version, magic;
+    __int32_t		*peek;
+    size_t		bytes;
+
+    /* input length must be valid for one of the fixed-size label versions */
+    if (length != length_v2 && length != length_v3) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: length %zu != %zu (V2) or %zu (V3)\n", __FUNCTION__,
+		length, length_v2, length_v3);
+	return -EINVAL;
+    }
+
+    peek = (__int32_t *)buffer;
+    bytes = ntohl(peek[0]);
+    magic = ntohl(peek[1]);
+    if ((magic & 0xffffff00) != PM_LOG_MAGIC) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: magic 0x%x != 0x%x\n", __FUNCTION__,
+		magic & 0xffffff00, PM_LOG_MAGIC);
+	return PM_ERR_LABEL;
+    }
+    version = magic & 0xff;
+
+    /* label header must be valid for the given fixed-size label version */
+    if ((version == PM_LOG_VERS03 && bytes != length_v3) ||
+	(version == PM_LOG_VERS02 && bytes != length_v2)) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: header length %zu != %zu (for V%d)\n", __FUNCTION__,
+		length, version == PM_LOG_VERS03 ? length_v3 : length_v2,
+		version);
+	return PM_ERR_LABEL;
+    }
+
+    /* label trailer must be valid for the given fixed-size label version */
+    peek = (__int32_t *)(buffer + bytes - sizeof(__int32_t));
+    bytes = ntohl(*peek);
+    if ((version == PM_LOG_VERS03 && bytes != length_v3) ||
+	(version == PM_LOG_VERS02 && bytes != length_v2)) {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: trailer length %zu != %zu (for V%d)\n", __FUNCTION__,
+		bytes, version == PM_LOG_VERS03 ? length_v3 : length_v2,
+		version);
+	return PM_ERR_LABEL;
+    }
+
+    lp->magic = magic;
+
+    /* swab external log label record */
+    offset = buffer + sizeof(__int32_t);
+    if (version == PM_LOG_VERS03)
+	__pmLogDecodeLabelV3((__pmLabel_v3 *)offset, lp);
+    else if (version == PM_LOG_VERS02)
+	__pmLogDecodeLabelV2((__pmLabel_v2 *)offset, lp);
+    else {
+	if (pmDebugOptions.log)
+	    fprintf(stderr, "%s: label version %u not supported\n", __FUNCTION__, version);
+	return PM_ERR_LABEL;
+
     }
 
     return 0;
@@ -265,19 +369,7 @@ __pmLogLoadLabel(__pmFILE *f, __pmLogLabel *lp)
 	}
 
 	/* swab external log label record */
-	lp->pid = ntohl(label.pid);
-	__pmLoadTimestamp(&label.start_sec[0], &lp->start);
-	lp->vol = ntohl(label.vol);
-	lp->features = ntohl(label.features);
-	if (lp->hostname)
-	    free(lp->hostname);
-	lp->hostname = strndup(label.hostname, PM_MAX_HOSTNAMELEN - 1);
-	if (lp->timezone)
-	    free(lp->timezone);
-	lp->timezone = strndup(label.timezone, PM_MAX_TIMEZONELEN - 1);
-	if (lp->zoneinfo)
-	    free(lp->zoneinfo);
-	lp->zoneinfo = strndup(label.zoneinfo, PM_MAX_ZONEINFOLEN - 1);
+	__pmLogDecodeLabelV3(&label, lp);
     }
     else if (version == PM_LOG_VERS02) {
 	__pmLabel_v2	label;
@@ -303,19 +395,7 @@ __pmLogLoadLabel(__pmFILE *f, __pmLogLabel *lp)
 	}
 
 	/* swab external log label record */
-	lp->pid = ntohl(label.pid);
-	__pmLoadTimeval(&label.start_sec, &lp->start);
-	lp->vol = ntohl(label.vol);
-	lp->features = 0;		/* not supported in v2 */
-	if (lp->hostname)
-	    free(lp->hostname);
-	lp->hostname = strndup(label.hostname, PM_LOG_MAXHOSTLEN - 1);
-	if (lp->timezone)
-	    free(lp->timezone);
-	lp->timezone = strndup(label.timezone, PM_TZ_MAXLEN - 1);
-	if (lp->zoneinfo)
-	    free(lp->zoneinfo);
-	lp->zoneinfo = NULL;	/* not supported in v2 */
+	__pmLogDecodeLabelV2(&label, lp);
     }
     else {
 	if (pmDebugOptions.log)
@@ -435,17 +515,19 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     }
 
     /*
-     * If we have the label record, and nothing else this is really
-     * an empty archive (probably pmlogger was killed off before any
-     * data records were written) ... better to return PM_ERR_NODATA
-     * here, rather than to stumble into PM_ERR_LOGREC at the first
-     * call to __pmLogRead*()
+     * If we have the label record and nothing else this is really
+     * an empty archive; either pmlogger was killed off before any
+     * data records were written or we are streaming this archive.
+     * In the former case it's better to return PM_ERR_NODATA here
+     * rather than to stumble into PM_ERR_LOGREC at the first call
+     * to __pmLogRead*().  In the latter case all is well.
      */
-    if ((sts = __pmFstat(f, &sbuf)) >= 0) {
-	if (sbuf.st_size == __pmLogLabelSize(lcp)) {
-	    if (pmDebugOptions.log)
-		fprintf(stderr, " file is empty");
-	    version = PM_ERR_NODATA;
+    if (!(acp->ac_flags & PM_CTXFLAG_LAST_VOLUME)) {
+	if ((sts = __pmFstat(f, &sbuf)) >= 0 &&
+	    (sbuf.st_size == __pmLogLabelSize(lcp))) {
+		if (pmDebugOptions.log)
+		    fprintf(stderr, " file is empty");
+		version = PM_ERR_NODATA;
 	}
     }
 

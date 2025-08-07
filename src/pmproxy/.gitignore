@@ -1,1 +1,5 @@
+crontab
+pmproxy_check.service
+pmproxy_compress.service
+pmproxy_daily.service
 pmproxy.service

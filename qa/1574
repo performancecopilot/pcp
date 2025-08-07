@@ -18,6 +18,9 @@ path=""
 # This test is not run if we dont have pmseries and a key server installed.
 _check_series
 
+# ditto for valgrind
+_check_valgrind
+
 _cleanup()
 {
     [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown

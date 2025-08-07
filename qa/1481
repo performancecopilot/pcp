@@ -68,7 +68,7 @@ cat $tmp.permslist >>$seq_full
 # build similar last from shell commands in tarball postinstall
 # script, where output looks like:
 # + mkdir -p /var/lib/pcp/config/pmda
-# + chown pcp:pcp /var/lib/pcp/config/pmda
+# + chown $PCP_USER:$PCP_GROUP /var/lib/pcp/config/pmda
 # + chmod 775 /var/lib/pcp/config/pmda
 #
 ( cd ../build/tar; ./postinstall -n ) 2>&1 \

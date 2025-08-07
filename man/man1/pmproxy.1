@@ -314,6 +314,24 @@ section can be used to explicitly enable or disable each of the
 different protocols.
 .PP
 The
+.I [http]
+section provides fine-tuning over HTTP server settings used by
+.BR pmproxy.
+.I chunksize
+sets the chunked transfer encoding buffer size, and defaults to
+the system pagesize.
+Access control HTTP protocol settings can be adjusted using the
+.I Access-Control-Allow-Headers
+and
+.I Access-Control-Max-Age
+options.
+Discussion of these HTTP protocol headers is beyond the scope of
+this document, but suitable default values are described within
+the
+.I pmproxy.conf
+configuration file.
+.PP
+The
 .I [keys]
 section allows connection information for one or more backing
 key-value server processes to be configured (hostnames and ports).
@@ -554,8 +572,7 @@ appl1	T{
 .ad l
 desperate logging mode, where a period followed by the PID of
 .B pmproxy
-
-is inserted in
+is inserted in the name of
 .IR logfile
 before the last period, so for example pmproxy.log
 becomes pmproxy.<pid>.log

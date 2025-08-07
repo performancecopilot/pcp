@@ -1,8 +1,7 @@
 /*
- * Exercise pmSetDebug() and pmClearDebug(), and the deprecated
- * __pmParseDebug() interface.
+ * Exercise pmSetDebug(), pmDebug(), pmGetDebug(), pmClearDebug()
  *
- * Copyright (c) 2017 Ken McDonell.  All Rights Reserved.
+ * Copyright (c) 2017,2025 Ken McDonell.  All Rights Reserved.
  */
 
 #include <pcp/pmapi.h>
@@ -16,6 +15,7 @@ main(int argc, char **argv)
     int		c;
     int		sts;
     int		errflag = 0;
+    char	*ans;
 
     /* trim cmd name of leading directory components */
     pmSetProgname(argv[0]);
@@ -63,25 +63,28 @@ Options:\n\
 	    printf("pmSetDebug -> %s\n", pmErrStr(sts));
 	}
 	__pmDumpDebug(stdout);
+	sts = pmDebug(argv[optind]);
+	printf("pmDebug(\"%s\") -> %d\n", argv[optind], sts);
+	if ((ans = pmGetDebug()) != NULL) {
+	    printf("pmGetDebug -> %s\n", ans);
+	    free(ans);
+	}
+	else
+	    printf("pmGetDebug -> NULL\n");
 
 	printf("pmClearDebug(\"%s\") ...\n", argv[optind]);
 	if ((sts = pmClearDebug(argv[optind])) != 0) {
 	    printf("pmClearDebug -> %s\n", pmErrStr(sts));
 	}
 	__pmDumpDebug(stdout);
-
-	printf("__pmParseDebug(\"%s\") ...\n", argv[optind]);
-	sts = __pmParseDebug(argv[optind]);
-	printf("__pmParseDebug -> %d\n", sts);
-	if (sts > 0)
-	    __pmSetDebugBits(sts);
-	__pmDumpDebug(stdout);
-
-	printf("pmClearDebug(\"%s\") ...\n", argv[optind]);
-	if ((sts = pmClearDebug(argv[optind])) != 0) {
-	    printf("pmClearDebug -> %s\n", pmErrStr(sts));
+	sts = pmDebug(argv[optind]);
+	printf("pmDebug(\"%s\") -> %d\n", argv[optind], sts);
+	if ((ans = pmGetDebug()) != NULL) {
+	    printf("pmGetDebug -> %s\n", ans);
+	    free(ans);
 	}
-	__pmDumpDebug(stdout);
+	else
+	    printf("pmGetDebug -> NULL\n");
 
 	optind++;
     }

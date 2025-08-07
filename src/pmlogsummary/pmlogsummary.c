@@ -67,10 +67,10 @@ typedef struct {
     double		max;		/* maximum value */
     double		sum;		/* sum of all values */
     double		lastval;	/* value from previous sample */
-    struct timeval	firsttime;	/* time of first sample */
-    struct timeval	lasttime;	/* time of previous sample */
-    struct timeval	mintime;	/* time of minimum sample */
-    struct timeval	maxtime;	/* time of maximum sample */
+    struct timespec	firsttime;	/* time of first sample */
+    struct timespec	lasttime;	/* time of previous sample */
+    struct timespec	mintime;	/* time of minimum sample */
+    struct timespec	maxtime;	/* time of maximum sample */
     int			markcount;	/* num mark records seen */
     int			marked;		/* seen since last "mark" record? */
     unsigned int	bintotal;	/* copy of count for 2nd pass */
@@ -116,25 +116,25 @@ pmMetricSpec		*msp;
 
 /* time manipulation */
 static int
-tsub(struct timeval *a, struct timeval *b)
+tsub(struct timespec *a, struct timespec *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    pmtimevalDec(a, b);
+    pmtimespecDec(a, b);
     if (a->tv_sec < 0) {
 	/* clip negative values at zero */
 	a->tv_sec = 0;
-	a->tv_usec = 0;
+	a->tv_nsec = 0;
     }
     return 0;
 }
 
 static int
-tadd(struct timeval *a, struct timeval *b)
+tadd(struct timespec *a, struct timespec *b)
 {
     if ((a == NULL) || (b == NULL))
 	return -1;
-    pmtimevalInc(a, b);
+    pmtimespecInc(a, b);
     return 0;
 }
 
@@ -159,7 +159,7 @@ pmiderr(pmID pmid, const char *msg, ...)
 }
 
 static void
-printstamp(struct timeval *stamp, int delim)
+printstamp(struct timespec *stamp, int delim)
 {
     if (dayflag) {
 	char	*ddmm;
@@ -172,12 +172,37 @@ printstamp(struct timeval *stamp, int delim)
 	ddmm[11] = '\0';
 	yr = &ddmm[20];
 	printf("%c'%s", delim, ddmm);
-	pmPrintStamp(stdout, stamp);
+	pmtimespecPrint(stdout, stamp);
 	printf(" %4.4s\'", yr);
     }
     else {
 	printf("%c", delim);
-	pmPrintStamp(stdout, stamp);
+	pmtimespecPrint(stdout, stamp);
+    }
+}
+
+static void
+printmsecstamp(struct timespec *stamp, int delim)
+{
+    struct timeval stamp_tv = { stamp->tv_sec, stamp->tv_nsec / 1000 };
+
+    if (dayflag) {
+	char	*ddmm;
+	char	*yr;
+	time_t	time;
+
+	time = stamp->tv_sec;
+	ddmm = pmCtime(&time, timebuf);
+	ddmm[10] = ' ';
+	ddmm[11] = '\0';
+	yr = &ddmm[20];
+	printf("%c'%s", delim, ddmm);
+	pmtimevalPrint(stdout, &stamp_tv);
+	printf(" %4.4s\'", yr);
+    }
+    else {
+	printf("%c", delim);
+	pmtimevalPrint(stdout, &stamp_tv);
     }
 }
 
@@ -196,15 +221,15 @@ printlabel(void)
 	exit(1);
     }
 
-    printf("Log Label (Log Format Version %d)\n", label.ll_magic & 0xff);
-    printf("Performance metrics from host %s\n", label.ll_hostname);
+    printf("Log Label (Log Format Version %d)\n", label.magic & 0xff);
+    printf("Performance metrics from host %s\n", label.hostname);
 
     time = opts.start.tv_sec;
     ddmm = pmCtime(&time, timebuf);
     ddmm[10] = '\0';
     yr = &ddmm[20];
     printf("  commencing %s ", ddmm);
-    pmPrintStamp(stdout, &opts.start);
+    pmtimespecPrint(stdout, &opts.start);
     printf(" %4.4s\n", yr);
 
     if (opts.finish.tv_sec == PM_MAX_TIME_T) {
@@ -217,7 +242,7 @@ printlabel(void)
 	ddmm[10] = '\0';
 	yr = &ddmm[20];
 	printf("  ending     %s ", ddmm);
-	pmPrintStamp(stdout, &opts.finish);
+	pmtimespecPrint(stdout, &opts.finish);
 	printf(" %4.4s\n", yr);
     }
 }
@@ -260,7 +285,7 @@ printsummary(const char *name)
     aveData		*avedata;
     instData		*instdata;
     double		metricspan = 0.0;
-    struct timeval	metrictimespan;
+    struct timespec	metrictimespan;
 
     /* cast away const, pmLookupName should never modify name */
     if ((sts = pmLookupName(1, &name, &pmid)) < 0) {
@@ -277,20 +302,20 @@ printsummary(const char *name)
 		break;
 	    if (avedata->desc.sem == PM_SEM_DISCRETE) {
 		double		val;
-		struct timeval	timediff;
+		struct timespec	timediff;
 
 		/* extend discrete metrics to the archive end */
 		timediff = opts.finish;
 		tsub(&timediff, &instdata->lasttime);
 		val = instdata->lastval;
 		instdata->stocave += val;
-		instdata->timeave += val*pmtimevalToReal(&timediff);
+		instdata->timeave += val*pmtimespecToReal(&timediff);
 		instdata->lasttime = opts.finish;
 		instdata->count++;
 	    }
 	    metrictimespan = instdata->lasttime;
 	    tsub(&metrictimespan, &instdata->firsttime);
-	    metricspan = pmtimevalToReal(&metrictimespan);
+	    metricspan = pmtimespecToReal(&metrictimespan);
 	    /* counter metric doesn't cover 90% of log */
 	    star = (avedata->desc.sem == PM_SEM_COUNTER && metricspan / logspan <= 0.1);
 
@@ -347,11 +372,11 @@ printsummary(const char *name)
 	    if (minflag)
 		printf("%c%.*f", delimiter, (int)precision, instdata->min);
 	    if (mintimeflag)
-		printstamp(&instdata->mintime, delimiter);
+		printmsecstamp(&instdata->mintime, delimiter);
 	    if (maxflag)
 		printf("%c%.*f", delimiter, (int)precision, instdata->max);
 	    if (maxtimeflag)
-		printstamp(&instdata->maxtime, delimiter);
+		printmsecstamp(&instdata->maxtime, delimiter);
 	    if (avedata->desc.sem == PM_SEM_DISCRETE)	/* all added marks + added endpoint above */
 		instdata->count = instdata->count - instdata->markcount - 1;
 	    if (countflag)
@@ -413,7 +438,7 @@ static void
 newHashInst(pmValue *vp,
 	aveData *avedata,		/* updated by this function */
 	int valfmt,
-	struct timeval *timestamp,	/* timestamp for this sample */
+	struct timespec *timestamp,	/* timestamp for this sample */
 	int pos)			/* position of this inst in instlist */
 {
     int		sts;
@@ -486,7 +511,7 @@ static void
 newHashItem(pmValueSet *vsp,
 	pmDesc *desc,
 	aveData *avedata,		/* output from this function */
-	struct timeval *timestamp)	/* timestamp for this sample */
+	struct timespec *timestamp)	/* timestamp for this sample */
 {
     int j;
 
@@ -561,7 +586,7 @@ markrecord(pmResult *result)
     aveData		*avedata;
     instData		*instdata;
     double		val;
-    struct timeval	timediff;
+    struct timespec	timediff;
 
     if (pmDebugOptions.appl0) {
 	printstamp(&result->timestamp, '\n');
@@ -578,7 +603,7 @@ markrecord(pmResult *result)
 		    tsub(&timediff, &instdata->lasttime);
 		    val = instdata->lastval;
 		    instdata->stocave += val;
-		    instdata->timeave += val*pmtimevalToReal(&timediff);
+		    instdata->timeave += val*pmtimespecToReal(&timediff);
 		    instdata->lasttime = result->timestamp;
 		    instdata->count++;
 		}
@@ -604,7 +629,7 @@ calcbinning(pmResult *result)
     aveData		*avedata = NULL;
     instData		*instdata;
     double		diff;
-    struct timeval	timediff;
+    struct timespec	timediff;
 
     if (result->numpmid == 0)	/* mark record */
 	markrecord(result);
@@ -676,7 +701,7 @@ calcbinning(pmResult *result)
 
 		timediff = result->timestamp;
 		tsub(&timediff, &instdata->lasttime);
-		diff = pmtimevalToReal(&timediff);
+		diff = pmtimespecToReal(&timediff);
 		wrap = 0;
 		if (avedata->desc.sem == PM_SEM_COUNTER) {
 		    diff *= avedata->scale;
@@ -729,7 +754,7 @@ calcaverage(pmResult *result)
     instData		*instdata;
     double		diff;
     double		rate = 0;
-    struct timeval	timediff;
+    struct timespec	timediff;
 
     if (result->numpmid == 0)	/* mark record */
 	markrecord(result);
@@ -811,7 +836,7 @@ calcaverage(pmResult *result)
 		    continue;
 		timediff = result->timestamp;
 		tsub(&timediff, &instdata->lasttime);
-		diff = pmtimevalToReal(&timediff);
+		diff = pmtimespecToReal(&timediff);
 		wrap = 0;
 		if (avedata->desc.sem == PM_SEM_COUNTER) {
 		    diff *= avedata->scale;
@@ -875,7 +900,7 @@ calcaverage(pmResult *result)
 				    __pmPrintMetricNames(stderr, numnames, names, " or ");
 				    fprintf(stderr, " (inst[%s]: %f) at ",
 					(istr == NULL ? "":istr), rate);
-				    pmPrintStamp(stderr, &result->timestamp);
+				    pmtimespecPrint(stderr, &result->timestamp);
 				    fprintf(stderr, "\n");
 				}
 				if (rate > instdata->max) {
@@ -883,7 +908,7 @@ calcaverage(pmResult *result)
 				    __pmPrintMetricNames(stderr, numnames, names, " or ");
 				    fprintf(stderr, " (inst[%s]: %f) at ",
 					(istr == NULL ? "":istr), rate);
-				    pmPrintStamp(stderr, &result->timestamp);
+				    pmtimespecPrint(stderr, &result->timestamp);
 				    fprintf(stderr, "\n");
 				}
 				if (numnames > 0) free(names);
@@ -929,11 +954,11 @@ calcaverage(pmResult *result)
 			int	numnames;
 			char	**names;
 			double	metricspan = 0.0;
-			struct timeval	metrictimespan;
+			struct timespec	metrictimespan;
 
 			metrictimespan = result->timestamp;
 			tsub(&metrictimespan, &instdata->firsttime);
-			metricspan = pmtimevalToReal(&metrictimespan);
+			metricspan = pmtimespecToReal(&metrictimespan);
 			numnames = pmNameAll(avedata->desc.pmid, &names);
 			fprintf(stderr, "++ ");
 			__pmPrintMetricNames(stderr, numnames, names, " or ");
@@ -983,7 +1008,7 @@ main(int argc, char *argv[])
     int			lflag = 0;		/* no label by default */
     int			Hflag = 0;		/* no header by default */
     pmResult		*result;
-    struct timeval 	timespan = {0, 0};
+    struct timespec 	timespan = {0, 0};
     char		*endnum;
     char		*archive;
 
@@ -1109,7 +1134,7 @@ main(int argc, char *argv[])
 	exit(EXIT_FAILURE);
     }
     
-    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode failed: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -1117,7 +1142,7 @@ main(int argc, char *argv[])
     if (lflag)
 	printlabel();
 
-    logspan = pmtimevalToReal(&opts.finish) - pmtimevalToReal(&opts.start);
+    logspan = pmtimespecToReal(&opts.finish) - pmtimespecToReal(&opts.start);
 
     /* check which timestamp print format we should be using */
     timespan = opts.finish;
@@ -1132,7 +1157,7 @@ main(int argc, char *argv[])
 
 	    if (opts.finish.tv_sec > result->timestamp.tv_sec ||
 		(opts.finish.tv_sec == result->timestamp.tv_sec &&
-		 opts.finish.tv_usec >= result->timestamp.tv_usec)) {
+		 opts.finish.tv_nsec >= result->timestamp.tv_nsec)) {
 		if (trip == 0)
 		    calcaverage(result);
 		else
@@ -1149,7 +1174,7 @@ main(int argc, char *argv[])
 	if (trip == 0 && nbins > 0) {	/* distribute values into bins */
 	    if (pmDebugOptions.appl0)
 		fprintf(stderr, "resetting for second iteration\n");
-	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, 0)) < 0) {
+	    if ((sts = pmSetMode(PM_MODE_FORW, &opts.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode reset failed: %s\n",
 		    pmGetProgname(), pmErrStr(sts));
 		exit(1);

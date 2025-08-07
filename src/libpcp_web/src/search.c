@@ -419,6 +419,7 @@ keys_search_info_callback(
 	}
 	baton->callbacks->on_metrics(&metrics, baton->userdata);
     } else {
+	msg = NULL;
 	infofmt(msg, "expected array from %s (reply=%s)",
 		FT_INFO, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);
@@ -558,6 +559,7 @@ keys_search_text_query_callback(
 	    extract_search_results(baton, total, timer, reply);
 	}
     } else {
+	msg = NULL;
 	infofmt(msg, "expected array from %s (reply=%s)",
 		FT_SEARCH, resp_reply_type(reply));
 	batoninfo(baton, PMLOG_RESPONSE, msg);

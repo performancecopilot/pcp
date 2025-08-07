@@ -28,7 +28,7 @@ main(int argc, char **argv)
     int		numpmid;
     pmDesc	desc;
     pmResult	*resp;
-    pmHighResResult *hresp;
+    pmResult *hresp;
     char	*endnum;
 
     pmSetProgname(argv[0]);
@@ -189,11 +189,11 @@ Options\n\
 	}
 	if (highres) {
 	    for (i = 0; i < iterations; i++) {
-		if ((n = pmFetchHighRes(numpmid, pmidlist, &hresp)) < 0) {
-		    fprintf(stderr, "pmFetchHighRes: %s\n", pmErrStr(n));
+		if ((n = pmFetch(numpmid, pmidlist, &hresp)) < 0) {
+		    fprintf(stderr, "pmFetch: %s\n", pmErrStr(n));
 		    exit(1);
 		}
-		pmFreeHighResResult(hresp);
+		pmFreeResult(hresp);
 	    }
 	} else {
 	    for (i = 0; i < iterations; i++) {

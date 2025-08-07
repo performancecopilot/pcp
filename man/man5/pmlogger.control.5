@@ -93,8 +93,7 @@ $ PMCD_CONNECT_TIMEOUT=20
 If the value to the right of the ``='' contains any white space,
 then the value should be enclosed in double (\[dq]) or single (\[aq]) quotes.
 .IP 3. 4n
-There
-.B must
+There should
 be a version line in the control file of the form:
 .br
 .in +4n
@@ -104,6 +103,13 @@ $version=1.1
 .fi
 .ft R
 .in -4n
+.RS
+.nr PD 0
+.PP
+But since the only version currently supported is 1.1, this
+declaration provides no additional value beyond documentation.
+.PD
+.RE
 .IP 4. 4n
 Fields within a line of the control file(s)
 are usually separated by one or more spaces or tabs (although refer to
@@ -132,7 +138,11 @@ performance metrics for this
 instance.
 The reserved word
 .B LOCALHOSTNAME
-will be replaced by the name of the local host.
+will be replaced by
+.B local:
+(so connection to
+.BR pmcd (1)
+on the local host).
 .IP 7. 4n
 The
 .I primary
@@ -236,25 +246,59 @@ In the
 field, the reserved word
 .B LOCALHOSTNAME
 will be replaced by the name of the local host.
+Similarly the reserved words
+.B PCP_ARCHIVE_DIR
+and
+.B PCP_LOG_DIR
+appearing anywhere in the
+.I directory
+field will be replaced by the values of the corresponding environment variables.
 .IP 12. 4n
+If the
+.I directory
+field (after any shell substitution) begins with ``+'' then this
+indicates that
+.BR pmlogger (1)
+will be executed with a
+.B \-R
+option in
+.I args
+to ``push'' the archive to a remote
+.BR pmproxy (1)
+server.
+In this case, no archive files are stored locally, but
+.I directory
+(after the leading ``+'' is stripped) is used as the directory
+in which the log file from the local
+.B pmlogger (1)
+will be stored and possibly the location for the
+.BR pmlogger (1)
+configuration file (see the example below).
+.IP 13. 4n
 The optional
 .I args
 field and any remaining fields are interpreted as arguments to be passed to
 .BR pmlogger (1).
 Most typically this would be at least the
 .B \-c
-option to specify the metrics to be logged and the logging frequencies.
+option to specify the metrics to be logged and the logging frequencies, and/or
+.B \-R
+in the case of a ``push'' archive.
 .PD
 .PP
 The following sample control lines specify a primary logger
 on the local host (\c
 .IR bozo ),
-and non-primary loggers to collect and log
+non-primary loggers to collect and log
 performance metrics from the hosts
 .IR wobbly ,
 .I boing
 and the local host (i.e. \c
-.IR bozo ).
+.IR bozo )
+and a logger pushing archives to the remote
+.BR pmproxy (1)
+on the host
+.IR grunt .
 .PP
 .nf
 .ft CR
@@ -262,7 +306,9 @@ $version=1.1
 bozo          y  n  $PCP_ARCHIVE_DIR/bozo   \-c config.default
 wobbly        n  n  "/store/wobbly/$(date +%Y)"  \-c ./wobbly.config
 boing         n  n  $PCP_ARCHIVE_DIR/boing   \-c ./pmlogger.config
-LOCALHOSTNAME n  n /cluster/LOCALHOSTNAME   \-c ./precious.config
+LOCALHOSTNAME n  n  /cluster/LOCALHOSTNAME   \-c ./precious.config
+LOCALHOSTNAME n  n  +PCP_ARCHIVE_DIR/remote \-R http://grunt:44322 \e
+				\-c ./remote.config
 .ft 1
 .fi
 .SH SCHEDULED EXECUTION
@@ -345,6 +391,7 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .BR pmlogger_check (1),
 .BR pmlogger_daily (1),
 .BR pmlogger_daily_report (1),
+.BR pmproxy (1),
 .BR pmsocks (1),
 .BR systemd (1)
 and

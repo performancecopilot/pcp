@@ -1647,7 +1647,8 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	addr.sun_family = AF_UNIX;
 	pmstrncpy(addr.sun_path, sizeof(addr.sun_path), aPtr->ipc.socket.name);
 	len = (int)offsetof(struct sockaddr_un, sun_path) + (int)strlen(addr.sun_path);
-	sts = connect(fd, (struct sockaddr *) &addr, len);
+	if ((sts = connect(fd, (struct sockaddr *) &addr, len)) < 0)
+	    close(fd);
 #else
 	fprintf(stderr, "pmcd: UNIX sockets are not supported : \"%s\" agent\n",
 		     aPtr->pmDomainLabel);
@@ -1668,11 +1669,12 @@ ConnectSocketAgent(AgentInfo *aPtr)
     return 0;
 
 error:
-    if (fd != -1) {
+    if (aPtr->inFd != -1) {
         if (aPtr->ipc.socket.addrDomain == AF_INET || aPtr->ipc.socket.addrDomain == AF_INET6)
-	    __pmCloseSocket(fd);
+	    __pmCloseSocket(aPtr->inFd);
 	else
-	    close(fd);
+	    close(aPtr->inFd);
+	aPtr->outFd = aPtr->inFd = -1;
     }
     return -1;
 }
@@ -2089,7 +2091,7 @@ GetAgentDso(AgentInfo *aPtr)
 	return -1;
     }
 
-    if (dso->dispatch.comm.pmapi_version == PMAPI_VERSION_2)
+    if (dso->dispatch.comm.pmapi_version >= PMAPI_VERSION_2)
 	aPtr->pduVersion = PDU_VERSION2;
     else {
 	pmNotifyErr(LOG_ERR,

@@ -15,7 +15,7 @@ TIMESTAMP 7 metrics
         inst [500 or "bin-500"] value 500
         inst [700 or "bin-700"] value 700
         inst [800 or "bin-800"] value 800
-    29.0.0 (sample.control): value 0
+    29.0.0 (sample.control): value ""
 
 [NNN bytes]
 TIMESTAMP 5 metrics

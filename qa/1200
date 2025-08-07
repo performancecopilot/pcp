@@ -43,7 +43,7 @@ _my_wait_for_pmlogger()
     _dead=true
     while [ $_i -lt $_maxdelay ]
     do
-	if $sudo -u pcp pmlc -P </dev/null 2>&1 \
+	if $sudo -u $PCP_USER pmlc -P </dev/null 2>&1 \
 		| tee $tmp.err \
 		| grep -E "Connection refused|Transport endpoint is not connected" >/dev/null
 	then

@@ -925,8 +925,8 @@ class PidstatReport(pmcc.MetricGroupPrinter):
 
     def timeStampDelta(self, group):
         s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
-        u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
-        return s + u / 1000000.0
+        n = group.timestamp.tv_nsec - group.prevTimestamp.tv_nsec
+        return s + n / 1000000000.0
 
     def print_machine_info(self,group, context):
         timestamp = context.pmLocaltime(group.timestamp.tv_sec)

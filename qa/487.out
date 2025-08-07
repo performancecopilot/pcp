@@ -1,6 +1,6 @@
 QA output created by 487
 
-=== metric sample.scale_step.time_up_secs { type -> string } ===
+=== metric sample.scale_step.time_up_secs { type -> aggr } ===
 Specification error in configuration file (TMP.config)
 [line 1] Expecting XXX (from PM_TYPE_XXX) in type clause
 

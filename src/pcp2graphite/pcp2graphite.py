@@ -39,11 +39,8 @@ import re
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_DEBUG_APPL0, PM_DEBUG_APPL1
+from cpmapi import PM_CONTEXT_ARCHIVE
 from cpmapi import PM_TIME_SEC
-
-if sys.version_info[0] >= 3:
-    long = int # pylint: disable=redefined-builtin
 
 # Default config
 DEFAULT_CONFIG = ["./pcp2graphite.conf", "$HOME/.pcp2graphite.conf", "$HOME/.pcp/pcp2graphite.conf", "$PCP_SYSCONF_DIR/pcp2graphite.conf"]
@@ -308,7 +305,7 @@ class PCP2Graphite(object):
         context, self.source = pmapi.pmContext.set_connect_options(self.opts, self.source, self.speclocal)
 
         self.pmfg = pmapi.fetchgroup(context, self.source)
-        self.pmfg_ts = self.pmfg.extend_timestamp()
+        self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
 
         if pmapi.c_api.pmSetContextOptions(self.context.ctx, self.opts.mode, self.opts.delta):
@@ -327,7 +324,7 @@ class PCP2Graphite(object):
     def execute(self):
         """ Fetch and report """
         # Debug
-        if self.context.pmDebug(PM_DEBUG_APPL1):
+        if self.context.pmDebug("appl1"):
             sys.stdout.write("Known config file keywords: " + str(self.keys) + "\n")
             sys.stdout.write("Known metric spec keywords: " + str(self.pmconfig.metricspec) + "\n")
 
@@ -434,18 +431,18 @@ class PCP2Graphite(object):
             if self.pickle:
                 pickled_input = []
                 for metric, value in miv_tuples:
-                    pickled_input.append((metric, (long(ts), value)))
+                    pickled_input.append((metric, (int(ts), value)))
                 pickled_output = pickle.dumps(pickled_input, protocol=self.pickle_protocol)
                 header = struct.pack("!L", len(pickled_output))
                 msg = header + pickled_output
-                if self.context.pmDebug(PM_DEBUG_APPL0):
+                if self.context.pmDebug("appl0"):
                     print("Sending %s #tuples %d" % (timestamp, len(pickled_input)))
                 self.socket.send(msg) # pylint: disable=no-member
             else:
                 for metric, value in miv_tuples:
-                    message = "%s %s %s\n" % (metric, value, long(ts))
+                    message = "%s %s %s\n" % (metric, value, int(ts))
                     msg = message.encode()
-                    if self.context.pmDebug(PM_DEBUG_APPL0):
+                    if self.context.pmDebug("appl0"):
                         print("Sending %s: %s" % (timestamp, msg.rstrip().decode()))
                     self.socket.send(msg) # pylint: disable=no-member
         except socket.error as send_error:

@@ -14,6 +14,7 @@ in the source distribution for its full text.
 #include <fcntl.h>
 #include <limits.h>
 #include <pwd.h>
+#include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -587,9 +588,9 @@ static void writeFields(OutputFunc of, FILE* fp,
 }
 
 static void writeList(OutputFunc of, FILE* fp,
-                      char** list, int len, char separator) {
+                      char** list, size_t len, char separator) {
    const char* sep = "";
-   for (int i = 0; i < len; i++) {
+   for (size_t i = 0; i < len; i++) {
       of(fp, "%s%s", sep, list[i]);
       sep = " ";
    }
@@ -632,7 +633,8 @@ static int signal_safe_fprintf(FILE* stream, const char* fmt, ...) {
    if (n <= 0)
       return n;
 
-   return full_write_str(fileno(stream), buf);
+   ssize_t ret = full_write_str(fileno(stream), buf);
+   return (int)MINIMUM(INT_MAX, ret);
 }
 
 int Settings_write(const Settings* this, bool onCrash) {

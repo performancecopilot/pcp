@@ -126,7 +126,7 @@ typedef struct seriesGetContext {
 
     context_t		context;
     unsigned long long	count;		/* number of samples processed */
-    pmHighResResult	*result;	/* currently active sample data */
+    pmResult		*result;	/* currently active sample data */
     int			loaded;		/* end of archive data reached */
     int			error;		/* PMAPI error code from fetch */
 

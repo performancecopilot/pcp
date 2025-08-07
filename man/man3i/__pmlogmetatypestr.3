@@ -19,6 +19,8 @@
 \f3__pmLogMetaTypeStr_r\f1 \- convert an archive metadata record type into a string
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/libpcp.h>
@@ -28,6 +30,8 @@ const char *__pmLogMetaTypeStr(int \fItype\fP);
 char *__pmLogMetaTypeStr_r(int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

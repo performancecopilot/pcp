@@ -165,7 +165,7 @@ dynamic_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * wrapper for pmdaFetch which increments the counters for each instance
  */
 static int
-dynamic_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+dynamic_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int i;
 
@@ -181,7 +181,7 @@ dynamic_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
  */
 /*ARGSUSED*/
 static int
-dynamic_store(pmResult *result, pmdaExt *pmda)
+dynamic_store(pmdaResult *result, pmdaExt *pmda)
 {
     int		i;
     int		j;

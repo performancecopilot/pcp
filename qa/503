@@ -149,7 +149,7 @@ _setup
 # need to be a place the user $PCP_USER can cd to from pmlogger_daily
 #
 cd /var/tmp
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
 cd $here
 $sudo cat $tmp.log | _filter
 mkdir $tmp.ok
@@ -169,7 +169,7 @@ do
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     cd /var/tmp
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
 
@@ -179,7 +179,7 @@ do
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo cp $tmp.conf $tmp.arch/pmlogrewrite
     cd /var/tmp
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
@@ -190,7 +190,7 @@ do
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo ln -s $tmp.conf $tmp.arch/pmlogrewrite
     cd /var/tmp
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
@@ -202,7 +202,7 @@ do
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
     cd /var/tmp
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
@@ -216,7 +216,7 @@ do
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
     $sudo ln -s $PCP_VAR_DIR/config/pmlogrewrite $tmp.arch/pmlogrewrite
     cd /var/tmp
-    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -c $tmp.control -x never -V -l $tmp.log"
+    $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
@@ -230,7 +230,7 @@ _setup
 $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
 $sudo cp $tmp.conf $tmp.arch/pmlogrewrite
 cd /var/tmp
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -r -c $tmp.control -x never -V -l $tmp.log"
+$sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -r -c $tmp.control -x never -V -l $tmp.log"
 cd $here
 $sudo cat $tmp.log | _filter
 

@@ -6,6 +6,7 @@
 
 static __pmPDUHdr hdr;
 static char *target;
+static uint16_t port = SERVER_PORT;
 
 void
 try(int len)
@@ -26,7 +27,7 @@ try(int len)
 	memset(&myAddr, 0, sizeof(myAddr));
 	myAddr.sin_family = AF_INET;
 	memcpy(&myAddr.sin_addr, servInfo->h_addr, servInfo->h_length);
-	myAddr.sin_port = htons(SERVER_PORT);
+	myAddr.sin_port = htons(port);
     }
 
     if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
@@ -53,15 +54,54 @@ try(int len)
     close(fd);
 }
 
+static pmLongOptions longopts[] = {
+    PMOPT_DEBUG,	/* -D */
+    { "port", 1, 'p', "PORT", "pmcd port [default 44321]" },
+    PMOPT_HELP,		/* -? */
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts = {
+    .flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
+    .short_options = "D:p:?",
+    .long_options = longopts,
+    .short_usage = "[options] [hostname]",
+};
+
 int
 main(int argc, char *argv[])
 {
-    int j;
-    int k;
+    int		j;
+    int		k;
+    char	c;
 
     pmSetProgname(argv[0]);
 
-    target = argc == 2 ? argv[1] : "localhost";
+    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
+	;
+    }
+
+    if (opts.flags & PM_OPTFLAG_EXIT) {
+	pmflush();
+	pmUsageMessage(&opts);
+	exit(0);
+    }
+
+    if (opts.errors || opts.optind > argc) {
+	pmUsageMessage(&opts);
+	exit(EXIT_FAILURE);
+    }
+
+    if (opts.guiport) {
+	/* we're overloading "guiport" to mean pmcd port here */
+	port = atoi(opts.guiport_optarg);
+    }
+
+    /* non-flag args are argv[opts.optind] ... argv[argc-1] */
+    if (opts.optind < argc)
+	target = argv[opts.optind];
+    else
+	target = "localhost";
 
     hdr.from = htonl(12345);
 

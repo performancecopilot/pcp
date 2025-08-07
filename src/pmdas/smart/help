@@ -49,6 +49,12 @@ will state Solid State Drive.
 The given firmware number for the current version of firmware installed on
 the drive.
 
+@smart.info.uuid UUID of the Drive
+The given globally unique identifier for the disk drive.
+
+@smart.info.device Device name for the Drive
+The given block device name for the disk drive.
+
 @smart.health SMART self-test result
 Whether the given drive has PASSED or FAILED SMART the self-test
 
@@ -454,3 +460,435 @@ Whether the given drive has PASSED or FAILED SMART the self-test
 @smart.nvme_power_states.power_state_5.relative_write_throughput Relative write throughput for this power state
 @smart.nvme_power_states.power_state_5.entry_latency Entry latency going into this power state
 @smart.nvme_power_states.power_state_5.exit_latency	Exit latency leaving from this power state
+
+@smart.wwid.info.model_family Model Family
+Listed model family name of the disk drive
+
+@smart.wwid.info.device_model Device Model
+The given device model of the disk drive
+
+@smart.wwid.info.serial_number Serial Number
+The given serial number of the disk drive
+
+@smart.wwid.info.capacity_bytes Capacity in Bytes
+The given capacity in bytes of the disk drive
+
+@smart.wwid.info.sector_size Sector Size
+The given sector size of the disk drive
+
+@smart.wwid.info.rotation_rate Rotational Rate of Drive
+The given rotational rate of the disk drive, for non-rotational drives this
+will state Solid State Drive.
+
+@smart.wwid.info.firmware_version Version of Firmware
+The given firmware number for the current version of firmware installed on
+the drive.
+
+@smart.wwid.info.uuid UUID of the Drive
+The given globally unique identifier for the disk drive.
+
+@smart.wwid.info.device Device name for the Drive
+The given block device name for the disk drive.
+
+@smart.wwid.attributes.raw_read_error_rate.id The given ID for SMART metric
+@smart.wwid.attributes.raw_read_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.raw_read_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.raw_read_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.raw_read_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.throughput_performance.id The given ID for SMART metric
+@smart.wwid.attributes.throughput_performance.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.throughput_performance.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.throughput_performance.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.throughput_performance.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.spin_up_time.id The given ID for SMART metric
+@smart.wwid.attributes.spin_up_time.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.spin_up_time.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.spin_up_time.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.spin_up_time.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.start_stop_count.id The given ID for SMART metric
+@smart.wwid.attributes.start_stop_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.start_stop_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.start_stop_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.start_stop_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.reallocated_sector_count.id The given ID for SMART metric
+@smart.wwid.attributes.reallocated_sector_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.reallocated_sector_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.reallocated_sector_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.reallocated_sector_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.seek_error_count.id The given ID for SMART metric
+@smart.wwid.attributes.seek_error_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.seek_error_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.seek_error_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.seek_error_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.seek_time_performance.id The given ID for SMART metric
+@smart.wwid.attributes.seek_time_performance.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.seek_time_performance.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.seek_time_performance.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.seek_time_performance.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.power_on_hours.id The given ID for SMART metric
+@smart.wwid.attributes.power_on_hours.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.power_on_hours.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.power_on_hours.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.power_on_hours.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.spin_retry_count.id The given ID for SMART metric
+@smart.wwid.attributes.spin_retry_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.spin_retry_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.spin_retry_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.spin_retry_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.calibration_retry_count.id The given ID for SMART metric
+@smart.wwid.attributes.calibration_retry_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.calibration_retry_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.calibration_retry_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.calibration_retry_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.power_cycle_count.id The given ID for SMART metric
+@smart.wwid.attributes.power_cycle_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.power_cycle_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.power_cycle_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.power_cycle_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.read_soft_error_rate.id The given ID for SMART metric
+@smart.wwid.attributes.read_soft_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.read_soft_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.read_soft_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.read_soft_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.current_helium_level.id The given ID for SMART metric
+@smart.wwid.attributes.current_helium_level.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.current_helium_level.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.current_helium_level.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.current_helium_level.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.erase_fail_count_chip.id The given ID for SMART metric
+@smart.wwid.attributes.erase_fail_count_chip.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.erase_fail_count_chip.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.erase_fail_count_chip.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.erase_fail_count_chip.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.wear_leveling_count.id The given ID for SMART metric
+@smart.wwid.attributes.wear_leveling_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.wear_leveling_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.wear_leveling_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.wear_leveling_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.used_reserved_block_count_total.id The given ID for SMART metric
+@smart.wwid.attributes.used_reserved_block_count_total.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.used_reserved_block_count_total.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.used_reserved_block_count_total.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.used_reserved_block_count_total.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.unused_reserved_block_count_total.id The given ID for SMART metric
+@smart.wwid.attributes.unused_reserved_block_count_total.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.unused_reserved_block_count_total.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.unused_reserved_block_count_total.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.unused_reserved_block_count_total.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.program_fail_count_total.id The given ID for SMART metric
+@smart.wwid.attributes.program_fail_count_total.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.program_fail_count_total.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.program_fail_count_total.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.program_fail_count_total.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.erase_fail_count_total.id The given ID for SMART metric
+@smart.wwid.attributes.erase_fail_count_total.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.erase_fail_count_total.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.erase_fail_count_total.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.erase_fail_count_total.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.runtime_bad_block.id The given ID for SMART metric
+@smart.wwid.attributes.runtime_bad_block.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.runtime_bad_block.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.runtime_bad_block.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.runtime_bad_block.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.end_to_end_error.id The given ID for SMART metric
+@smart.wwid.attributes.end_to_end_error.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.end_to_end_error.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.end_to_end_error.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.end_to_end_error.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.reported_uncorrect.id The given ID for SMART metric
+@smart.wwid.attributes.reported_uncorrect.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.reported_uncorrect.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.reported_uncorrect.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.reported_uncorrect.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.command_timeout.id The given ID for SMART metric
+@smart.wwid.attributes.command_timeout.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.command_timeout.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.command_timeout.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.command_timeout.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.high_fly_writes.id The given ID for SMART metric
+@smart.wwid.attributes.high_fly_writes.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.high_fly_writes.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.high_fly_writes.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.high_fly_writes.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.airflow_temp_celsius.id The given ID for SMART metric
+@smart.wwid.attributes.airflow_temp_celsius.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.airflow_temp_celsius.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.airflow_temp_celsius.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.airflow_temp_celsius.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.g_sense_error_rate.id The given ID for SMART metric
+@smart.wwid.attributes.g_sense_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.g_sense_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.g_sense_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.g_sense_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.power_off_retract_count.id The given ID for SMART metric
+@smart.wwid.attributes.power_off_retract_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.power_off_retract_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.power_off_retract_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.power_off_retract_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.load_cycle_count.id The given ID for SMART metric
+@smart.wwid.attributes.load_cycle_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.load_cycle_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.load_cycle_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.load_cycle_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.temperature_celsius.id The given ID for SMART metric
+@smart.wwid.attributes.temperature_celsius.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.temperature_celsius.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.temperature_celsius.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.temperature_celsius.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.hardware_ecc_recovered.id The given ID for SMART metric
+@smart.wwid.attributes.hardware_ecc_recovered.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.hardware_ecc_recovered.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.hardware_ecc_recovered.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.hardware_ecc_recovered.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.reallocated_event_count.id The given ID for SMART metric
+@smart.wwid.attributes.reallocated_event_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.reallocated_event_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.reallocated_event_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.reallocated_event_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.current_pending_sector.id The given ID for SMART metric
+@smart.wwid.attributes.current_pending_sector.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.current_pending_sector.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.current_pending_sector.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.current_pending_sector.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.offline_uncorrectable.id The given ID for SMART metric
+@smart.wwid.attributes.offline_uncorrectable.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.offline_uncorrectable.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.offline_uncorrectable.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.offline_uncorrectable.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.udma_crc_error_count.id The given ID for SMART metric
+@smart.wwid.attributes.udma_crc_error_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.udma_crc_error_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.udma_crc_error_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.udma_crc_error_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.multi_zone_error_rate.id The given ID for SMART metric
+@smart.wwid.attributes.multi_zone_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.multi_zone_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.multi_zone_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.multi_zone_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.soft_read_error_rate.id The given ID for SMART metric
+@smart.wwid.attributes.soft_read_error_rate.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.soft_read_error_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.soft_read_error_rate.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.soft_read_error_rate.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.disk_shift.id The given ID for SMART metric
+@smart.wwid.attributes.disk_shift.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.disk_shift.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.disk_shift.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.disk_shift.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.loaded_hours.id The given ID for SMART metric
+@smart.wwid.attributes.loaded_hours.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.loaded_hours.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.loaded_hours.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.loaded_hours.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.load_retry_count.id The given ID for SMART metric
+@smart.wwid.attributes.load_retry_count.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.load_retry_count.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.load_retry_count.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.load_retry_count.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.load_friction.id The given ID for SMART metric
+@smart.wwid.attributes.load_friction.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.load_friction.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.load_friction.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.load_friction.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.load_cycle.id The given ID for SMART metric
+@smart.wwid.attributes.load_cycle.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.load_cycle.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.load_cycle.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.load_cycle.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.load_in_time.id The given ID for SMART metric
+@smart.wwid.attributes.load_in_time.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.load_in_time.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.load_in_time.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.load_in_time.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.head_flying_hours.id The given ID for SMART metric
+@smart.wwid.attributes.head_flying_hours.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.head_flying_hours.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.head_flying_hours.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.head_flying_hours.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.total_lbas_written.id The given ID for SMART metric
+@smart.wwid.attributes.total_lbas_written.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.total_lbas_written.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.total_lbas_written.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.total_lbas_written.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.total_lbas_read.id The given ID for SMART metric
+@smart.wwid.attributes.total_lbas_read.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.total_lbas_read.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.total_lbas_read.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.total_lbas_read.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.read_error_retry_rate.id The given ID for SMART metric
+@smart.wwid.attributes.read_error_retry_rate.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.read_error_retry_rate.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.read_error_retry_rate.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.read_error_retry_rate.raw Raw metric value for the given SMART metric
+
+@smart.wwid.attributes.free_fall_sensor.id The given ID for SMART metric
+@smart.wwid.attributes.free_fall_sensor.value Normalised current recorded value for the given SMART metric
+@smart.wwid.attributes.free_fall_sensor.worst Normalised worst recorded value for the given SMART metric
+@smart.wwid.attributes.free_fall_sensor.thresh Normalised threshold value for the given SMART metric
+@smart.wwid.attributes.free_fall_sensor.raw Raw metric value for the given SMART metric
+
+@smart.wwid.nvme_info.model_number The model name and number for the NVME drive
+@smart.wwid.nvme_info.serial_number The serial number for the NVME drive
+@smart.wwid.nvme_info.firmware_version The current firmware version for the NVME drive
+@smart.wwid.nvme_info.pci_vendor_subsystem_id PCI Vendor and Subsystem ID for the NVME drive
+@smart.wwid.nvme_info.ieee_oui_identifier IEEE OUI identification value for the NVME drive
+@smart.wwid.nvme_info.total_nvm_capacity The total NVM capacity for the NVME drive
+@smart.wwid.nvme_info.unallocated_nvm_capacity The unallocated NVM capacity for the NVME drive
+@smart.wwid.nvme_info.controller_id The ID for the controller of the NVME drive
+@smart.wwid.nvme_info.nvme_version The NVME specification version for the NVME drive
+@smart.wwid.nvme_info.namespace_1_capacity The total capacity for namespace 1 on the NVME drive
+@smart.wwid.nvme_info.namespace_1_utilization The current utilization for namespace 1 on the NVME drive
+@smart.wwid.nvme_info.namespace_1_formatted_lba_size The LBA size formatted for namespace 1 on the NVME drive
+@smart.wwid.nvme_info.namespace_1_ieee_eui_64 the IEEE EUI 64 value for namespace 1 on the NVME drive
+@smart.wwid.nvme_info.namespaces The total number of namespaces on the NVME drive
+@smart.wwid.nvme_info.firware_updates The number of Slots and reset requirement status for the NVME drive
+@smart.wwid.nvme_info.maximum_data_transfer_size The maximum data transfer size supported for the NVME drive
+@smart.wwid.nvme_info.warning_temp_threshold The temperature at which the warning temperature threshold is set
+@smart.wwid.nvme_info.critical_temp_thresold The temperature at which the critical temperature threshold is set
+@smart.wwid.nvme_info.active_power_state The current active power state for the NVME drive
+@smart.wwid.nvme_info.apst_state The status of whether APST is enabled or not for the NVME drive
+@smart.wwid.nvme_info.completion_queue_length_completion The length of the completion queue for the NVME drive
+@smart.wwid.nvme_info.completion_queue_length_submission The length of the submission queue for the NVME drive
+
+@smart.wwid.nvme_attributes.critical_warning Indicates critical warnings for the sate of the Endurance Groups
+@smart.wwid.nvme_attributes.composite_temperature Contains current composite temperature of the controller
+@smart.wwid.nvme_attributes.available_spare Normalized percentage of remaining spare capacity
+@smart.wwid.nvme_attributes.available_spare_threshold Normalized percentage below spare capacity
+@smart.wwid.nvme_attributes.percentage_used Normalized Percentage of life used based off actual usage
+@smart.wwid.nvme_attributes.data_units_read Contains the number of 512 byte data units the host has read
+@smart.wwid.nvme_attributes.data_units_written Contains the number of 512 byte data units the host has written
+@smart.wwid.nvme_attributes.host_read_commands Contains the number of read commands completed by the controller
+@smart.wwid.nvme_attributes.host_write_commands Contains the number of write commands completed by the controller
+@smart.wwid.nvme_attributes.controller_busy_time Contains the amount of time controller is busy with I/O in minutes
+@smart.wwid.nvme_attributes.power_cycles Contains the number of power cycles
+@smart.wwid.nvme_attributes.power_on_hours Contains the number of power-on-hours
+@smart.wwid.nvme_attributes.unsafe_shutdowns Contains the number of unsafe shutdowns
+@smart.wwid.nvme_attributes.media_and_data_integrity_errors Contains the number of error occurances by the controller
+@smart.wwid.nvme_attributes.number_of_error_information_log_entries Contains the number of error log entries
+@smart.wwid.nvme_attributes.warning_composite_temperature_time Contains amount of time in minutes over composite temp
+@smart.wwid.nvme_attributes.critical_composite_temperature_time Contains amount of time in minutes over critical temp
+@smart.wwid.nvme_attributes.temperature_sensor_one Current temperature as reported by temp sensor 1
+@smart.wwid.nvme_attributes.temperature_sensor_two Currrent temperature as reported by temp sensor 2
+@smart.wwid.nvme_attributes.temperature_sensor_three Current temperature as reported by temp sensor 3
+@smart.wwid.nvme_attributes.temperature_sensor_four Current temperature as reported by temp sensor 4
+@smart.wwid.nvme_attributes.temperature_sensor_five Current temperature as reported by temp sensor 5
+@smart.wwid.nvme_attributes.temperature_sensor_six Current temperaure as reported by temp sensor 6
+@smart.wwid.nvme_attributes.temperature_sensor_seven Current Temperature as reported by temp sensor 7
+@smart.wwid.nvme_attributes.temperature_sensor_eight Current Temperature as reported by temp sensor 8
+
+@smart.wwid.nvme_power_states.power_state_0.state The power state identifier for this power state
+@smart.wwid.nvme_power_states.power_state_0.max_power The maximum power usage for this power state
+@smart.wwid.nvme_power_states.power_state_0.non_operational_state The value "1" if this state is an operational state
+@smart.wwid.nvme_power_states.power_state_0.active_power The average active power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_0.idle_power The average idle power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_0.relative_read_latency Relative read latency for this power state
+@smart.wwid.nvme_power_states.power_state_0.relative_read_throughput	Relative read throughput for this power state
+@smart.wwid.nvme_power_states.power_state_0.relative_write_latency Relative write latency for this power state
+@smart.wwid.nvme_power_states.power_state_0.relative_write_throughput Relative write throughput for this power state
+@smart.wwid.nvme_power_states.power_state_0.entry_latency Entry latency going into this power state
+@smart.wwid.nvme_power_states.power_state_0.exit_latency	Exit latency leaving from this power state
+
+@smart.wwid.nvme_power_states.power_state_1.state The power state identifier for this power state
+@smart.wwid.nvme_power_states.power_state_1.max_power The maximum power usage for this power state
+@smart.wwid.nvme_power_states.power_state_1.non_operational_state The value "1" if this state is an operational state
+@smart.wwid.nvme_power_states.power_state_1.active_power The average active power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_1.idle_power The average idle power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_1.relative_read_latency Relative read latency for this power state
+@smart.wwid.nvme_power_states.power_state_1.relative_read_throughput	Relative read throughput for this power state
+@smart.wwid.nvme_power_states.power_state_1.relative_write_latency Relative write latency for this power state
+@smart.wwid.nvme_power_states.power_state_1.relative_write_throughput Relative write throughput for this power state
+@smart.wwid.nvme_power_states.power_state_1.entry_latency Entry latency going into this power state
+@smart.wwid.nvme_power_states.power_state_1.exit_latency	Exit latency leaving from this power state
+
+@smart.wwid.nvme_power_states.power_state_2.state The power state identifier for this power state
+@smart.wwid.nvme_power_states.power_state_2.max_power The maximum power usage for this power state
+@smart.wwid.nvme_power_states.power_state_2.non_operational_state The value "1" if this state is an operational state
+@smart.wwid.nvme_power_states.power_state_2.active_power The average active power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_2.idle_power The average idle power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_2.relative_read_latency Relative read latency for this power state
+@smart.wwid.nvme_power_states.power_state_2.relative_read_throughput	Relative read throughput for this power state
+@smart.wwid.nvme_power_states.power_state_2.relative_write_latency Relative write latency for this power state
+@smart.wwid.nvme_power_states.power_state_2.relative_write_throughput Relative write throughput for this power state
+@smart.wwid.nvme_power_states.power_state_2.entry_latency Entry latency going into this power state
+@smart.wwid.nvme_power_states.power_state_2.exit_latency	Exit latency leaving from this power state
+
+@smart.wwid.nvme_power_states.power_state_3.state The power state identifier for this power state
+@smart.wwid.nvme_power_states.power_state_3.max_power The maximum power usage for this power state
+@smart.wwid.nvme_power_states.power_state_3.non_operational_state The value "1" if this state is an operational state
+@smart.wwid.nvme_power_states.power_state_3.active_power The average active power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_3.idle_power The average idle power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_3.relative_read_latency Relative read latency for this power state
+@smart.wwid.nvme_power_states.power_state_3.relative_read_throughput	Relative read throughput for this power state
+@smart.wwid.nvme_power_states.power_state_3.relative_write_latency Relative write latency for this power state
+@smart.wwid.nvme_power_states.power_state_3.relative_write_throughput Relative write throughput for this power state
+@smart.wwid.nvme_power_states.power_state_3.entry_latency Entry latency going into this power state
+@smart.wwid.nvme_power_states.power_state_3.exit_latency	Exit latency leaving from this power state
+
+@smart.wwid.nvme_power_states.power_state_4.state The power state identifier for this power state
+@smart.wwid.nvme_power_states.power_state_4.max_power The maximum power usage for this power state
+@smart.wwid.nvme_power_states.power_state_4.non_operational_state The value "1" if this state is an operational state
+@smart.wwid.nvme_power_states.power_state_4.active_power The average active power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_4.idle_power The average idle power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_4.relative_read_latency Relative read latency for this power state
+@smart.wwid.nvme_power_states.power_state_4.relative_read_throughput	Relative read throughput for this power state
+@smart.wwid.nvme_power_states.power_state_4.relative_write_latency Relative write latency for this power state
+@smart.wwid.nvme_power_states.power_state_4.relative_write_throughput Relative write throughput for this power state
+@smart.wwid.nvme_power_states.power_state_4.entry_latency Entry latency going into this power state
+@smart.wwid.nvme_power_states.power_state_4.exit_latency	Exit latency leaving from this power state
+
+@smart.wwid.nvme_power_states.power_state_5.state The power state identifier for this power state
+@smart.wwid.nvme_power_states.power_state_5.max_power The maximum power usage for this power state
+@smart.wwid.nvme_power_states.power_state_5.non_operational_state The value "1" if this state is an operational state
+@smart.wwid.nvme_power_states.power_state_5.active_power The average active power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_5.idle_power The average idle power usage for this power state if reported
+@smart.wwid.nvme_power_states.power_state_5.relative_read_latency Relative read latency for this power state
+@smart.wwid.nvme_power_states.power_state_5.relative_read_throughput	Relative read throughput for this power state
+@smart.wwid.nvme_power_states.power_state_5.relative_write_latency Relative write latency for this power state
+@smart.wwid.nvme_power_states.power_state_5.relative_write_throughput Relative write throughput for this power state
+@smart.wwid.nvme_power_states.power_state_5.entry_latency Entry latency going into this power state
+@smart.wwid.nvme_power_states.power_state_5.exit_latency	Exit latency leaving from this power state

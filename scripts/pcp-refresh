@@ -72,11 +72,11 @@ else
     exit 1
 fi
 
-grep '^ *M ' $tmp.out >$tmp.tmp
+grep '^ *[AM]' $tmp.out >$tmp.tmp
 if [ -s $tmp.tmp ]
 then
     cat $tmp.tmp
-    echo "Modified files ..."
+    echo "Modified or added files ..."
     echo -n "ok? [y] "
     read ans </dev/tty
 else

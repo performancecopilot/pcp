@@ -348,7 +348,7 @@ static int amdgpu_instance(pmInDom indom, int inst, char *name,
  * PDU.  The fetchCallback is then called once per-metric/instance pair
  * to perform the actual filling of the pmResult (via each pmAtomValue).
  */
-static int amdgpu_fetch(int numpmid, pmID pmidlist[], pmResult **resp,
+static int amdgpu_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp,
                         pmdaExt *pmda)
 {
   uint32_t i = 0;
@@ -641,6 +641,7 @@ int main(int argc, char **argv) {
   pmdaInterface desc = {0};
   char *endnum = NULL;
   int c;
+  struct timespec ts;
 
   isDSO = 0;
   pmSetProgname(argv[0]);
@@ -652,12 +653,13 @@ int main(int argc, char **argv) {
   while ((c = pmdaGetOptions(argc, argv, &opts, &desc)) != EOF) {
     switch (c) {
     case 't':
-      if (pmParseInterval(opts.optarg, &interval, &endnum) < 0) {
+      if (pmParseInterval(opts.optarg, &ts, &endnum) < 0) {
         fprintf(stderr, "%s: -t requires a time interval: %s\n",
                 pmGetProgname(), endnum);
         free(endnum);
         opts.errors++;
       }
+      pmtimespecTotimeval(&ts, &interval);
       autorefresh = 1; /* enable timers, non-default */
       break;
     default:

@@ -16,17 +16,22 @@
 .\"
 .TH PMFREEEVENTRESULT 3 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmFreeEventResult\f1,
-\f3pmFreeHighResEventResult\f1 \- release storage allocated for unpacked event records
+\f3pmFreeHighResEventResult\f1,
+\f3pmFreeEventResult\f1
+\- release storage allocated for unpacked event records
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-void pmFreeEventResult(pmResult **\fIrset\fP);
+void pmFreeHighResEventResult(pmResult **\fIhrset\fP);
 .br
-void pmFreeHighResEventResult(pmHighResResult **\fIhrset\fP);
+void pmFreeEventResult(pmResult_v2 **\fIrset\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR
@@ -34,31 +39,31 @@ cc ... \-lpcp
 .el \fI\\$1\f1\\$2
 ..
 When processing event records, if
-.BR pmUnpackEventRecords (3)
+.BR pmUnpackHighResEventRecords (3)
 is used to unpack event records from a metric within a
 .I pmResult
 structure with a value of type
-.B PM_TYPE_EVENT
+.B PM_TYPE_HIGHRES_EVENT
 then the structure returned from
-.BR pmUnpackEventRecords (3)
+.BR pmUnpackHighResEventRecords (3)
 is a NULL pointer terminated array of pointers to
 .I pmResult
 structures, one for each event record.
 .PP
-.B pmFreeEventResult
+.B pmFreeHighResEventResult
 is a convenience method that frees all of the
 .I pmResult
 structures and the array of pointers (\c
-.IR rset ).
+.IR hrset ).
 .PP
 Similarly,
-.B pmFreeHighResEventResult
+.B pmFreeEventResult
 may be used to free the
-.I pmHighResResult
+.I pmResult_v2
 structures and array returned from the
-.BR pmUnpackHighResEventRecords
+.BR pmUnpackEventRecords
 routine when using
-.BR PM_TYPE_HIGHRES_EVENT
+.BR PM_TYPE_EVENT
 metrics.
 .SH SEE ALSO
 .BR PMAPI (3)

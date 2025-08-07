@@ -18,7 +18,7 @@
 \f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-DEfKMNoprRVzZ?\f1]
+[\f3\-DEfKMNoPpQrRVzZ?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -96,7 +96,7 @@ and
 .BR pmlogger_check (1)
 are controlled by PCP logger control file(s)
 that specifies the
-.B pmlogger
+.BR pmlogger (1)
 instances to be managed.
 The default
 .I control
@@ -251,7 +251,8 @@ written by
 If
 .B $PCP_COMPRESSAFTER
 is set to a value greater than zero, then manually running
-.B pmlogger_daily with the
+.B pmlogger_daily
+with the
 .B \-x
 option may be used to compress volumes that are younger than the
 .B $PCP_COMPRESSAFTER
@@ -263,7 +264,7 @@ Note that since the default value of
 is 0 days, the
 .B \-x
 option has no effect unless the
-.B control
+.I control
 file has been edited and
 .B $PCP_COMPRESSAFTER
 has been set to a value greater than
@@ -364,6 +365,26 @@ is used to rename the archive, otherwise
 is used to merge all of the archives for a single host and a single day into a new
 PCP archive and the individual archives are removed.
 .TP 5
+\fB\-P\fR, \fB\-\-noproxy\fR
+By default, in addition to the archives created by local
+.BR pmlogger (1)
+instances below the
+.I $PCP_ARCHIVE_DIR/<hostname>
+directories
+.B pmlogger_daily
+will also process the archives that have been ``pushed'' from a
+remote
+.BR pmlogger (1)
+via the local
+.BR pmproxy (1)
+and stored below the
+.I $PCP_LOG_DIR/pmproxy/<hostname>
+directories.
+The
+.B \-P
+option prevents the processing of the archives from
+.BR pmproxy (1).
+.TP 5
 \fB\-p\fR
 If this option is specified for
 .B pmlogger_daily
@@ -398,6 +419,22 @@ and
 options to
 .B pmlogger_daily
 are mutually exclusive.
+.TP 5
+\fB\-Q\fR, \fB\-\-proxyonly\fR
+The inverse of
+.B \-P
+descibed above, namely
+only process the archives that have been ``pushed'' from a
+remote
+.BR pmlogger (1)
+via the local
+.BR pmproxy (1)
+and ignore
+all archives created by local
+.BR pmlogger (1)
+instances below the
+.I $PCP_ARCHIVE_DIR/<hostname>
+directories.
 .TP 5
 \fB\-r\fR, \fB\-\-norewrite\fR
 This command line option acts as an override and prevents all archive
@@ -462,7 +499,7 @@ days and then discarded.
 .TP 5
 \fB\-V\fR, \fB\-\-verbose\fR
 The output from the
-.BR cron
+.BR cron (8)
 execution of the scripts may be extended using the
 .B \-V
 option to the scripts which will enable verbose tracing of their activity.
@@ -481,7 +518,7 @@ maximizes the diagnostic capabilities for debugging.
 Archive data files can optionally be compressed after some period
 to conserve disk space.
 This is particularly useful for large numbers of
-.B pmlogger
+.BR pmlogger (1)
 processes under the control of
 .BR pmlogger_daily .
 .RS
@@ -660,7 +697,11 @@ If the
 packages is installed,
 then a special merge callback is added to call
 .BR pmlogger_daily_report (1)
-first, before any other merge callback options.
+first, before any other merge callback options, but
+.B only
+for the primary
+.BR pmlogger (1)
+instance.
 Refer to
 .BR pmlogger_daily_report (1)
 for an explanation of the
@@ -799,16 +840,27 @@ Refer to
 .BR pmlogger.control (5)
 for a description of the contol file(s) that are used to
 control which
-.B pmlogger
+.BR pmlogger (1)
 instances and which archives are managed by
-.B pmlogger_check
+.BR pmlogger_check (1)
 and
-.BR pmlogger_daily (1).
+.BR pmlogger_daily .
+.PP
+Additionally, when
+.BR pmproxy (1)
+archives are being processed, environment variables like
+.B $PCP_CULLAFTER
+or
+.B $PCP_COMPRESSAFTER
+can be set either for all remote hosts via the file
+.I $PCP_LOG_DIR/pmproxy/control
+and/or per-host via files named
+.IR $PCP_LOG_DIR/pmproxy/<hostname>/control .
 .SH FILES
 .TP 5
 .I $PCP_VAR_DIR/config/pmlogger/config.default
 default
-.B pmlogger
+.BR pmlogger (1)
 configuration file location for the local primary logger, typically
 generated automatically by
 .BR pmlogconf (1).
@@ -819,7 +871,7 @@ default location for archives of performance information collected from the host
 .TP 5
 .I $PCP_ARCHIVE_DIR/<hostname>/lock
 transient lock file to guarantee mutual exclusion during
-.B pmlogger
+.BR pmlogger (1)
 administration for the host
 .I hostname
 \- if present, can be safely removed if neither
@@ -940,6 +992,7 @@ platforms.
 .BR pmlogger_merge (1),
 .BR pmlogmv (1),
 .BR pmlogrewrite (1),
+.BR pmproxy (1),
 .BR systemd (1),
 .BR xz (1),
 .BR zstd (1)

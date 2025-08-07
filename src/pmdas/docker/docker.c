@@ -472,7 +472,7 @@ docker_background_loop(void *loop)
 }
 
 static int
-docker_store(pmResult *result, pmdaExt *pmda)
+docker_store(pmdaResult *result, pmdaExt *pmda)
 {
     int i;
 
@@ -638,7 +638,7 @@ notready(void)
 }
 
 static int
-docker_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+docker_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int local_ready;
 
@@ -669,7 +669,7 @@ docker_instance(pmInDom id, int i, char *name, pmInResult **in, pmdaExt *pmda)
 }
 
 typedef struct {
-    char	json[BUFSIZ];
+    char	*json;
     int		json_len;
     int		off;
 } http_data;
@@ -696,20 +696,24 @@ grab_json(char *buffer, int buffer_size, void *data)
 }
 
 static int
-grab_values(char *json_query, pmInDom indom, char *path, json_metric_desc *json, int json_size)
+grab_values(char *query, pmInDom indom, char *path, json_metric_desc *json, int json_size)
 {
     int			sts, i;
+    static char		*buffer;
+    static size_t	length;
     http_data		local_data;
     json_metric_desc	*local_metrics;
 
-    if ((sts = pmhttpClientFetch(http_client, "unix://var/run/docker.sock",
-			&local_data.json[0], sizeof(local_data.json),
-			json_query, strlen(json_query))) < 0) {
+    sts = pmhttpClientGet(http_client, "unix://var/run/docker.sock",
+				query, &buffer, &length, NULL, NULL);
+    if (sts < 0 || length < 1) {
 	if (pmDebugOptions.appl1)
 	    pmNotifyErr(LOG_ERR, "HTTP fetch (stats) failed\n");
 	return 0; // failed
     }
-    local_data.json_len = strlen(local_data.json);
+    local_data.json = buffer;
+    local_data.json_len = length;
+    local_data.json[length-1] = '\0';
     local_data.off = 0;
 
     pthread_mutex_lock(&docker_mutex);

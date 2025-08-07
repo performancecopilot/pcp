@@ -117,6 +117,8 @@ static HandlerResult MainPanel_eventHandler(Panel* super, int ch) {
       result = HANDLED;
    } else if (0 < ch && ch < 255 && isdigit((unsigned char)ch)) {
       MainPanel_idSearch(this, ch);
+   } else if (ch == KEY_LEFT || ch == KEY_RIGHT) {
+      reaction |= HTOP_KEEP_FOLLOWING;
    } else {
       if (ch != ERR) {
          this->idSearch = 0;
@@ -192,6 +194,8 @@ static void MainPanel_drawFunctionBar(Panel* super, bool hideFunctionBar) {
    IncSet_drawBar(this->inc, CRT_colors[FUNCTION_BAR]);
    if (this->state->pauseUpdate) {
       FunctionBar_append("PAUSED", CRT_colors[PAUSED]);
+   } else if (this->state->failedUpdate) {
+      FunctionBar_append(this->state->failedUpdate, CRT_colors[FAILED_READ]);
    }
 }
 

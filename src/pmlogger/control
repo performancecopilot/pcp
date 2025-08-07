@@ -23,6 +23,16 @@
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
 
+# Uncomment one of the lines below to enable/disable culling behaviour
+# that is different to the pmlogger_daily default [14].
+# Value is days to keep, older archives are culled, 0 is immediate
+# culling once the archive has been completed, "never" or "forever"
+# suppresses culling.
+#
+#$PCP_CULLAFTER=0
+#$PCP_CULLAFTER=3
+#$PCP_CULLAFTER=never
+
 # Uncomment one of the lines below to enable/disable compression behaviour
 # that is different to the pmlogger_daily default.
 # Value is days before compressing archives, 0 is immediate compression,

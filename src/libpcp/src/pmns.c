@@ -790,18 +790,21 @@ attach(char *base, __pmnsNode *rp)
     if (rp != NULL) {
 	for (np = rp->first; np != NULL; np = np->next) {
 	    if (np->pmid == PM_ID_NULL) {
+		size_t	pathlen;
 		/* non-terminal node ... */
 		if (*base == '\0') {
-		    if ((path = (char *)malloc(strlen(np->name)+1)) == NULL)
+		    pathlen = strlen(np->name)+1;
+		    if ((path = (char *)malloc(pathlen)) == NULL)
 			return -oserror();
-		    strcpy(path, np->name);
+		    pmstrncpy(path, pathlen, np->name);
 		}
 		else {
-		    if ((path = (char *)malloc(strlen(base)+strlen(np->name)+2)) == NULL)
+		    pathlen = strlen(base)+strlen(np->name)+2;
+		    if ((path = (char *)malloc(pathlen)) == NULL)
 			return -oserror();
-		    strcpy(path, base);
-		    strcat(path, ".");
-		    strcat(path, np->name);
+		    pmstrncpy(path, pathlen, base);
+		    pmstrncat(path, pathlen, ".");
+		    pmstrncat(path, pathlen, np->name);
 		}
 		if ((xp = findseen(path)) == NULL) {
 		    pmsprintf(linebuf, sizeof(linebuf), "Cannot find definition for non-terminal node \"%s\" in name space",
@@ -2977,11 +2980,11 @@ TraversePMNS_local(__pmContext *ctxp, char *name, int *numnames, char ***namelis
 		/*NOTREACHED*/
 	    }
 	    if (*name == '\0')
-		strcpy(newname, enfants[j]);
+		pmstrncpy(newname, size, enfants[j]);
 	    else {
-		strcpy(newname, name);
-		strcat(newname, ".");
-		strcat(newname, enfants[j]);
+		pmstrncpy(newname, size, name);
+		pmstrncat(newname, size, ".");
+		pmstrncat(newname, size, enfants[j]);
 	    }
 	    sts = TraversePMNS_local(ctxp, newname, numnames, namelist, sz_namelist);
 	    free(newname);

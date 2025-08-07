@@ -254,16 +254,16 @@ parse_args(int argc, char **argv)
 void
 load_namespace(char *path)
 {
-    struct timeval	now, then;
-    int sts;
+    struct timespec	now, then;
+    int			sts;
 
-    gettimeofday(&then, (struct timezone *)0);
+    pmtimespecNow(&then);
     if ((sts = pmLoadASCIINameSpace(path, 1)) < 0) {
 	printf("%s: Cannot load namespace from \"%s\": %s\n", pmGetProgname(), path, pmErrStr(sts));
 	exit(1);
     }
-    gettimeofday(&now, (struct timezone *)0);
-    printf("Name space load: %.2f msec\n", pmtimevalSub(&now, &then)*1000);
+    pmtimespecNow(&now);
+    printf("Name space load: %.2f msec\n", pmtimespecSub(&now, &then)*1000);
 }
 
 void 
@@ -278,6 +278,7 @@ test_api(void)
     char		*back;
     pmResult		*resp;
     pmDesc		desc;
+    struct timespec	delta = { 1, 0 };
     
     if (context_type != -1) {
 	if (context_type == 0) {
@@ -322,12 +323,12 @@ test_api(void)
      * have one yet.
      */
     if (context_type == PM_CONTEXT_ARCHIVE) {
-	struct timeval	when;
+	struct timespec	when;
 
 	n = pmGetArchiveEnd(&when);
 	REPORT("pmGetArchiveEnd", n);
 
-	n = pmSetMode(PM_MODE_BACK, &when, 1000);
+	n = pmSetMode(PM_MODE_BACK, &when, &delta);
 	REPORT("pmSetMode", n);
     }
 
@@ -426,17 +427,17 @@ test_api(void)
     }
 
     if (context_type == PM_CONTEXT_ARCHIVE) {
-	struct timeval	when;
+	struct timespec	when;
 
         when.tv_sec = 0;
-	when.tv_usec = 0;
+	when.tv_nsec = 0;
 
 	if (vflag) 
 	    printf("\nArchive result ...\n");
         for (i = 0; i < numpmid; i++) {
 	    if (midlist[i] == PM_ID_NULL)
 		continue; 
-	    if ((n = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
+	    if ((n = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
 		printf("pmSetMode(PM_MODE_FORW): %s\n", pmErrStr(n));
 	    }
 	    else {
@@ -455,7 +456,7 @@ test_api(void)
     }
 
     else if (context_type == PM_CONTEXT_HOST) {
-	if ((n = pmSetMode(PM_MODE_LIVE, (struct timeval *)0, 0)) < 0) {
+	if ((n = pmSetMode(PM_MODE_LIVE, (struct timespec *)0, NULL)) < 0) {
 	    printf("pmSetMode(PM_MODE_LIVE): %s\n", pmErrStr(n));
 	}
 	else {

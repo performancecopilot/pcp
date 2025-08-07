@@ -79,8 +79,8 @@ void ScreenManager_insert(ScreenManager* this, Panel* item, int size, int idx) {
    }
    Panel_resize(item, size, height);
    Panel_move(item, lastX, this->y1 + header_height(this));
-   if (idx < this->panelCount) {
-      for (int i =  idx + 1; i <= this->panelCount; i++) {
+   if ((size_t)idx < this->panelCount) {
+      for (int i =  idx + 1; (size_t)i <= this->panelCount; i++) {
          Panel* p = (Panel*) Vector_get(this->panels, i);
          Panel_move(p, p->x + size, p->y);
       }
@@ -91,12 +91,12 @@ void ScreenManager_insert(ScreenManager* this, Panel* item, int size, int idx) {
 }
 
 Panel* ScreenManager_remove(ScreenManager* this, int idx) {
-   assert(this->panelCount > idx);
+   assert((size_t)idx < this->panelCount);
    int w = ((Panel*) Vector_get(this->panels, idx))->w;
    Panel* panel = (Panel*) Vector_remove(this->panels, idx);
    this->panelCount--;
-   if (idx < this->panelCount) {
-      for (int i = idx; i < this->panelCount; i++) {
+   if ((size_t)idx < this->panelCount) {
+      for (size_t i = idx; i < this->panelCount; i++) {
          Panel* p = (Panel*) Vector_get(this->panels, i);
          Panel_move(p, p->x - w, p->y);
       }
@@ -134,48 +134,58 @@ static void checkRecalculation(ScreenManager* this, double* oldTime, int* sortTi
 
    if (*rescan) {
       *oldTime = newTime;
-      int oldUidDigits = Process_uidDigits;
+
       if (!this->state->pauseUpdate && (*sortTimeout == 0 || host->settings->ss->treeView)) {
          host->activeTable->needsSort = true;
          *sortTimeout = 1;
       }
+
+      int oldUidDigits = Process_uidDigits;
+      int oldPidDigits = Process_pidDigits;
+
       // sample current values for system metrics and processes if not paused
       Machine_scan(host);
       if (!this->state->pauseUpdate)
          Machine_scanTables(host);
+      this->state->failedUpdate = Platform_getFailedState();
 
       // always update header, especially to avoid gaps in graph meters
       Header_updateData(this->header);
-      // force redraw if the number of UID digits was changed
-      if (Process_uidDigits != oldUidDigits) {
+
+      // force redraw if the number of UID/PID digits changed
+      if (Process_uidDigits != oldUidDigits || Process_pidDigits != oldPidDigits)
          *force_redraw = true;
-      }
+
       *redraw = true;
    }
+
    if (*redraw) {
       Table_rebuildPanel(host->activeTable);
       if (!this->state->hideMeters)
          Header_draw(this->header);
    }
+
    *rescan = false;
 }
 
 static inline bool drawTab(const int* y, int* x, int l, const char* name, bool cur) {
+   assert(*x >= 0);
+   assert(*x < l);
+
    attrset(CRT_colors[cur ? SCREENS_CUR_BORDER : SCREENS_OTH_BORDER]);
    mvaddch(*y, *x, '[');
    (*x)++;
    if (*x >= l)
       return false;
-   int nameLen = strlen(name);
-   int n = MINIMUM(l - *x, nameLen);
+   int nameWidth = (int)strnlen(name, l - *x);
    attrset(CRT_colors[cur ? SCREENS_CUR_TEXT : SCREENS_OTH_TEXT]);
-   mvaddnstr(*y, *x, name, n);
-   *x += n;
+   mvaddnstr(*y, *x, name, nameWidth);
+   *x += nameWidth;
    if (*x >= l)
       return false;
    attrset(CRT_colors[cur ? SCREENS_CUR_BORDER : SCREENS_OTH_BORDER]);
    mvaddch(*y, *x, ']');
-   *x += 2;
+   *x += 1 + SCREEN_TAB_COLUMN_GAP;
    if (*x >= l)
       return false;
    return true;
@@ -188,11 +198,14 @@ static void ScreenManager_drawScreenTabs(ScreenManager* this) {
    int l = COLS;
    Panel* panel = (Panel*) Vector_get(this->panels, 0);
    int y = panel->y - 1;
-   int x = 2;
+   int x = SCREEN_TAB_MARGIN_LEFT;
+
+   if (x >= l)
+      goto end;
 
    if (this->name) {
       drawTab(&y, &x, l, this->name, true);
-      return;
+      goto end;
    }
 
    for (int s = 0; screens[s]; s++) {
@@ -201,6 +214,8 @@ static void ScreenManager_drawScreenTabs(ScreenManager* this) {
          break;
       }
    }
+
+end:
    attrset(CRT_colors[RESET_COLOR]);
 }
 
@@ -272,7 +287,7 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
                if (mevent.y == LINES - 1) {
                   ch = FunctionBar_synthesizeEvent(panelFocus->currentBar, mevent.x);
                } else {
-                  for (int i = 0; i < this->panelCount; i++) {
+                  for (size_t i = 0; i < this->panelCount; i++) {
                      Panel* panel = (Panel*) Vector_get(this->panels, i);
                      if (mevent.x >= panel->x && mevent.x <= panel->x + panel->w) {
                         if (mevent.y == panel->y) {
@@ -297,6 +312,8 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
                      }
                   }
                }
+            } else if (mevent.bstate & BUTTON3_RELEASED) {
+               ch = KEY_RIGHTCLICK;
             #if NCURSES_MOUSE_VERSION > 1
             } else if (mevent.bstate & BUTTON4_PRESSED) {
                ch = KEY_WHEELUP;
@@ -398,12 +415,12 @@ tryLeft:
          }
 
 tryRight:
-         if (focus < this->panelCount - 1) {
+         if ((size_t)focus < this->panelCount - 1) {
             focus++;
          }
 
          panelFocus = (Panel*) Vector_get(this->panels, focus);
-         if (Panel_size(panelFocus) == 0 && focus < this->panelCount - 1) {
+         if (Panel_size(panelFocus) == 0 && (size_t)focus < this->panelCount - 1) {
             goto tryRight;
          }
 

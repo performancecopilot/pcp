@@ -76,7 +76,7 @@ YESTERDAY.meta
 
 === [verbose] regular show ===
 
-=== daily maintenance of PCP archives for host HOST ===
+=== daily maintenance of PCP archives for host HOST in TMP ===
 
 PMLOGGER.DAILY: [TMP.control:2]
 Warning: no pmlogger instance running for host "HOST"
@@ -119,7 +119,7 @@ YESTERDAY.meta
 
 === [verbose] nothing to do but cull some more ===
 
-=== daily maintenance of PCP archives for host HOST ===
+=== daily maintenance of PCP archives for host HOST in TMP ===
 
 PMLOGGER.DAILY: [TMP.control:2]
 Warning: no pmlogger instance running for host "HOST"
@@ -147,7 +147,7 @@ save.meta
 
 === [verbose] error, output already exists ===
 
-=== daily maintenance of PCP archives for host HOST ===
+=== daily maintenance of PCP archives for host HOST in TMP ===
 
 PMLOGGER.DAILY: [TMP.control:2]
 Warning: no pmlogger instance running for host "HOST"

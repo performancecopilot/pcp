@@ -56,7 +56,7 @@ statsd_instance(pmInDom in_dom, int inst, char* name, pmInResult** result, pmdaE
  * @arg pmda - PMDA extension structure (contains agent-specific private data)
  */
 extern int
-statsd_fetch(int num_pm_id, pmID pm_id_list[], pmResult** resp, pmdaExt* pmda);
+statsd_fetch(int num_pm_id, pmID pm_id_list[], pmdaResult** resp, pmdaExt* pmda);
 
 /**
  * Wrapper around pmdaTreePMID, called before control is passed to pmdaTreePMID

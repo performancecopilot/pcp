@@ -1,0 +1,39 @@
+## Type:        string
+## Default:	"-E"
+#
+# Run the pmlogger_daily script, via pmproxy_daily.service or
+# pmproxy_check.service with the given parameters.  Both service units
+# are run periodically from their respective timer units.
+#
+# If PMLOGGER_DAILY_PARAMS is left commented out, the default
+# is "-E", which causes pmlogger_daily to continue rather than fail if
+# metadata inconsistencies are encountered when merging archives during
+# daily log processing, and the default rules apply for culling and
+# compression.
+#
+# Alternatively, these options may be added to PMLOGGER_DAILY_PARAMS ...
+#
+# For culling old archives
+# -k TIME, --discard=TIME
+# 		remove archives after TIME (format DD[:HH[:MM]]),
+# 		TIME maybe never or forever to prevent culling.
+#		[default -k 14:0:0 (14 days)]
+#
+# For compressing archives
+# -x TIME, --compress-after=TIME
+#		compress archive data files after TIME (format DD[:HH[:MM]]),
+#		TIME maybe 0 (compress as soon as possible) or never (prevent
+#		compression) or forever (alias for never).
+#		[default is 0 if zstd(1) is installed or xz(1) and
+#		the lzma library is installed, else never]
+# -X PROGRAM, --compressor=PROGRAM
+#		use PROGRAM for archive data file compression
+# -Y REGEX, --regex=REGEX
+#		grep -E filter for files to NOT compress.
+#		[default \.(index|Z|gz|bz2|zip|xz|lzma|lzo|lz4|zst)$]
+#
+# pmlogger_daily is ALWAYS run from pmproxy_*.service with an
+# additional -Q parameter independent of the value for
+# PMLOGGER_DAILY_PARAMS that may be set here.
+#
+#PMLOGGER_DAILY_PARAMS=""

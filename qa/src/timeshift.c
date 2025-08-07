@@ -164,7 +164,7 @@ main(int argc, char **argv)
     if (dflag)
 	new.tm_isdst = 1;
 
-    __pmConvertHighResTime(&new, &epoch, &tspec);
+    __pmtimespecConvert(&new, &epoch, &tspec);
 
     if (vflag)
 	fprintf(stderr, "want: %lld %04d-%02d-%02d %02d:%02d:%02d dst=%d\n", 

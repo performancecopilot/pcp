@@ -83,7 +83,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
     char		**offspring = NULL;
     int			*statuslist = NULL;
     int			subtype;
-    pmResult		*result;
+    pmdaResult		*result;
     int			ctxnum;
     int			length;
     pmTimeval		unused;
@@ -242,7 +242,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 	/*
 	 * Highwater mark sized __pmResult for PDU handling routines;
 	 * the PMDA fetch interface continues to use the original
-	 * pmResult structure for backward compatibility - this is OK
+	 * pmdaResult structure for backward compatibility - this is OK
 	 * because individual PMDAs do not set the fetch timestamps.
 	 */
 	if (sts >= 0 && (rp == NULL || npmids > rp->numpmid)) {
@@ -650,7 +650,7 @@ __pmdaMainPDU(pmdaInterface *dispatch)
 		    fprintf(stderr, " ... [%d] %s", rp->numpmid-1, pmIDStr_r(rp->vset[rp->numpmid-1]->pmid, idbuf, sizeof(idbuf)));
 		fprintf(stderr, "\n");
 	    }
-	    sts = dispatch->version.any.store(__pmOffsetResult(rp), pmda);
+	    sts = dispatch->version.any.store(__pmOffsetResult_v2(rp), pmda);
 	}
 	else {
 	    if (pmDebugOptions.libpmda)

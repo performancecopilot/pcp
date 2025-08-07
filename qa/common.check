@@ -126,35 +126,78 @@ _check_freespace()
 # was responsible in the event of a test abort, but also preserves the
 # mode and ownership of the configuration file
 #
+# pmlogger control files are special and need to be saved *outside*
+# $PCP_PMLOGGERCONTROL_PATH.d in the peer save_config.d directory, else
+# _parse_config() in utilproc.sh will find "duplicate" direcotries
+#
 _save_config()
 {
-    if [ -f "$1" ]
+    case "$1"
+    in
+	$PCP_PMLOGGERCONTROL_PATH.d/*)
+	    _src="$1"
+	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
+	    if [ ! -d `dirname $_dst` ]
+	    then
+		if $sudo mkdir `dirname $_dst`
+		then
+		    :
+		else
+		    echo "Arrgh, failed to make backup pmlogger control.d"
+		    exit
+		fi
+	    fi
+	    ;;
+	*)
+	    _src="$1"
+	    _dst="$1.$seq"
+	    ;;
+    esac
+
+    if [ -f "$_src" ]
     then
-	$sudo rm -f "$1.$seq"
-	$sudo mv "$1" "$1.$seq"
-	$sudo cp "$1.$seq" "$1"
-    elif [ -d "$1" ]
+	$sudo rm -f "$_dst"
+	$sudo mv "$_src" "$_dst"
+	$sudo cp "$_dst" "$_src"
+    elif [ -d "$_src" ]
     then
-	$sudo rm -rf "$1.$seq"
-	$sudo mv "$1" "$1.$seq"
-	$sudo cp -r "$1.$seq" "$1"
+	$sudo rm -rf "_dst"
+	$sudo mv "$_src" "$_dst"
+	$sudo cp -r "$_dst" "$_src"
     else
 	echo "Botch: _save_config: $1 does not exist"
     fi
 }
 
+# reverse the changes from _save_config()
+#
+# pmlogger control files are special and need to be saved *outside*
+# $PCP_PMLOGGERCONTROL_PATH.d in the peer save_config.d directory, else
+# _parse_config() in utilproc.sh will find "duplicate" direcotries
+#
 _restore_config()
 {
-    if [ -f "$1.$seq" ]
+    case "$1"
+    in
+	$PCP_PMLOGGERCONTROL_PATH.d/*)
+	    _src="$1"
+	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
+	    ;;
+	*)
+	    _src="$1"
+	    _dst="$1.$seq"
+	    ;;
+    esac
+    if [ -f "$_dst" ]
     then
-	$sudo rm -f "$1"
-	$sudo mv "$1.$seq" "$1"
-    elif [ -d "$1.$seq" ]
+	$sudo rm -f "$_src"
+	$sudo mv "$_dst" "$_src"
+    elif [ -d "$_dst" ]
     then
-	$sudo rm -rf "$1"
-	$sudo mv "$1.$seq" "$1"
+	$sudo rm -rf "$_src"
+	$sudo mv "$_dst" "$_src"
     else
-	echo "Warning: _restore_config: $1.$seq does not exist"
+	echo "Warning: _restore_config: $_dst does not exist"
     fi
 }
 
@@ -324,15 +367,25 @@ _service()
 		done
 		;;
 	    *)
-		# if service is failed, need reset-failed before trying
-		# anything else
+		_extra_svc=''
+		case "$1"
+		in
+		    pmlogger)
+			    _extra_svc='pmlogger_daily pmlogger_check pmlogger_farm'
+			    ;;
+		esac
+		# if service (or related service) is failed, need
+		# reset-failed before trying anything else
 		#
-		if systemctl show --property=ActiveState $1.service 2>&1 \
-		  | grep '=failed$' >/dev/null
-		then
-		    $__verbose && echo "_service: using systemctl: reset-failed $1"
-		    $sudo systemctl reset-failed $1.service 2>>$seq_full
-		fi
+		for _svc in $1 $_extra_svc
+		do
+		    if systemctl show --property=ActiveState $_svc.service 2>&1 \
+		      | grep '=failed$' >/dev/null
+		    then
+			$__verbose && echo "_service: using systemctl: reset-failed $_svc"
+			$sudo systemctl reset-failed $_svc.service 2>>$seq_full
+		    fi
+		done
 
 		$__verbose && echo "_service: using systemctl $2 $1.service"
 		$sudo systemctl $2 $1.service
@@ -719,7 +772,18 @@ _systemctl_status()
 #
 _ps_tcp_port()
 {
-    if which lsof >/dev/null 2>&1
+    if which fstat >/dev/null 2>&1
+    then
+	# for OpenBSD (at least) fstat produces lines like ...
+	# USER     CMD          PID   FD MOUNT        INUM  MODE         R/W    SZ|DV
+	# pcp      pmcd        7731    0* internet stream tcp 0x0 *:44321
+	# pcp      pmcd        7731    3* internet6 stream tcp 0x0 *:44321
+	#
+	echo "--- IPv4 port $1 user(s) ---"
+	fstat | sed -n -e '1s/MOUNT.*/.../p' -e "/internet .*:$1\$/p"
+	echo "--- IPv6 port $1 user(s) ---"
+	fstat | sed -n -e '1s/MOUNT.*/.../p' -e "/internet6 .*:$1\$/p"
+    elif which lsof >/dev/null 2>&1
     then
 	echo "--- IP port $1 user(s) ---"
 	sudo lsof -i :$1
@@ -784,33 +848,36 @@ _triage_pmcd()
     _systemctl_status pmcd
 }
 
-# wait_for_pmcd [maxdelay [host]]
+# wait_for_pmcd [maxdelay [host [port]]]
 #
 _wait_for_pmcd()
 {
     # 20 seconds default seems like a reasonable max time to get going
-    #debug# set -x
     __can_wait=${1-20}
-    if [ $# -eq 2 -a -n "$2" ]
+    if [ $# -ge 2 -a -n "$2" ]
     then
 	__host="$2"
-	__host_opt="-h $2"
+	__host_opt="$2"
     else
 	__host=localhost
-	__host_opt=''
+	__host_opt='localhost'
+    fi
+    if [ $# -ge 3 -a -n "$3" ]
+    then
+	__host_opt="$__host_opt:$3"
     fi
     __i=0
     __dead=true
     #debug# ping -c 2 $__host
-    #debug# pcp -h $__host
+    #debug# pcp -h $__host_opt
     #debug# pcp -h `hostname`
     rm -f $tmp._wait_for_pmcd.err $tmp._wait_for_pmcd.out
     while [ $__i -lt $__can_wait ]
     do
 	echo "-- $__i --" >>$tmp._wait_for_pmcd.err
 	echo "-- $__i --" >>$tmp._wait_for_pmcd.out
-	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $__host_opt pmcd.numclients
-	__sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $__host_opt pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
+	#debug# pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $__host_opt pmcd.numclients
+	__sts=`pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $__host_opt pmcd.numclients 2>>$tmp._wait_for_pmcd.err | tee -a $tmp._wait_for_pmcd.out | $PCP_AWK_PROG '{print $2}'`
 	if [ "${__sts:-0}" -gt 0 ]
 	then
 	    # numval really > 0, we're done
@@ -824,14 +891,14 @@ _wait_for_pmcd()
     if $__dead
     then
 	date
-	echo "Arrgh ... pmcd at $__host failed to start after $__can_wait seconds"
+	echo "Arrgh ... pmcd at $__host_opt failed to start after $__can_wait seconds"
 	echo "=== failing pmprobes stdout ==="
 	cat $tmp._wait_for_pmcd.out
 	echo "=== failing pmprobes stderr ==="
 	cat $tmp._wait_for_pmcd.err
 	echo "... and now"
-	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $__host_opt pmcd.numclients"
-	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd $__host_opt pmcd.numclients
+	echo "+ pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $__host_opt pmcd.numclients"
+	pmprobe -n $PCP_VAR_DIR/pmns/root_pmcd -h $__host_opt pmcd.numclients
 	case $__host
 	in
 	    localhost|unix:|local:|`hostname`)
@@ -856,7 +923,6 @@ _wait_for_pmcd()
 _wait_for_pmcd_stop()
 {
     # 20 seconds default seems like a reasonble max time to get shutdown
-    #debug# set -x
     __can_wait=${1-20}
     __i=0
     __stopped=false
@@ -956,7 +1022,7 @@ _wait_for_pmlogger()
     in
 	0)
 	    __pid="-P"
-	    __sudo="$sudo -u pcp"
+	    __sudo="$sudo -u $PCP_USER"
 	    __dir_hostname=`hostname || echo localhost`
 	    __logfile="$PCP_ARCHIVE_DIR/$__dir_hostname/pmlogger.log" 
             __ident="primary"
@@ -980,7 +1046,6 @@ _wait_for_pmlogger()
 	    ;;
     esac
 
-    #debug# set -x
     __i=0
     __dead=true
     rm -f $tmp._wait_for_pmlogger.pmlc
@@ -988,7 +1053,7 @@ _wait_for_pmlogger()
     do
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$tmp._wait_for_pmlogger.pmlc
 	echo "pmlc $__pid" >>$tmp._wait_for_pmlogger.pmlc
-	# May need sudo -u pcp here in case we're doing credentials checks
+	# May need sudo -u $PCP_USER here in case we're doing credentials checks
 	# in pmlogger and this is the primary pmlogger (started by user
 	# pcp) ... $__sudo contains the right secret sauce.
 	#
@@ -1143,7 +1208,6 @@ End-of-File
 #
 _wait_pmlogger_end()
 {
-    #debug# set -x
     if [ -z "$1" ]
     then
 	echo "Usage botch: _wait_pmlogger_end() needs pid arg"
@@ -1182,7 +1246,6 @@ _wait_pmlogger_end()
 		cat "$PCP_TMP_DIR/pmlogger/$__pid"
 		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid"
 		_systemctl_status pmlogger
-		#debug# set +x
 		return 1
 	    fi
 	    pmsleep 0.1
@@ -1193,44 +1256,13 @@ _wait_pmlogger_end()
 	    # code is run ... so hang around waiting for the process to
 	    # go away
 	    #
-	    __i=0
-	    while true
-	    do
-		if $sudo kill -s 0 $__pid 2>/dev/null
-		then
-		    # process still exists
-		    __i=`expr $__i + 1`
-		    if [ "$__i" -ge 100 ]
-		    then
-			# may exist, but is defunct so we should treat this
-			# as "ended" ...
-			#
-			$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-			| $PCP_AWK_PROG >$tmp.pmlogger.defunct '
-$2 == '$__pid' && $0 ~ /defunct/	{ print $3 }'
-			if [ -s "$tmp.pmlogger.defunct" ]
-			then
-			    echo "_wait_pmlogger_end: pid $__pid is defunct" >>$seq_full
-			    if which pstree >/dev/null 2>&1
-			    then
-				pstree -s -A -pua $__pid >>$seq_full 2>&1
-			    else
-				$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $__pid `cat $tmp.pmlogger.defunct`
-			    fi
-			else
-			    echo "_wait_pmlogger_end: failed to see pid $__pid exit after 100 iterations"
-			fi
-			_systemctl_status pmlogger
-			#debug# set +x
-			return 1
-		    fi
-		    pmsleep 0.1
-		else
-		    # process has really exited
-		    #debug# set +x
-		    return 0
-		fi
-	    done
+	    if _wait_process_end "_wait_pmlogger_end" "$__pid"
+	    then
+		return 0
+	    else
+		_systemctl_status pmlogger
+		return 1
+	    fi
 	fi
     done
 }
@@ -1239,8 +1271,6 @@ $2 == '$__pid' && $0 ~ /defunct/	{ print $3 }'
 #
 _wait_pmcd_end()
 {
-    #debug# set -x
-
     __pid=`cat $PCP_RUN_DIR/pmcd.pid 2>/dev/null`
     if [ -z "$__pid" ]
     then
@@ -1257,39 +1287,22 @@ p
     fi
     if [ -z "$__pid" ]
     then
-	#debug# set +x
 	return 0
     fi
 
-    __i=0
-    while true
-    do
-	if $sudo kill -s 0 $__pid 2>/dev/null
-	then
-	    # process still exists
-	    __i=`expr $__i + 1`
-	    if [ "$__i" -ge 100 ]
-	    then
-		echo "_wait_pmcd_end: failed to see pid $__pid exit after 100 iterations"
-		_systemctl_status pmcd
-		#debug# set +x
-		return 1
-	    fi
-	    pmsleep 0.1
-	else
-	    # process has really exited
-	    #debug# set +x
-	    return 0
-	fi
-    done
+    if _wait_process_end "_wait_pmcd_end" "$__pid"
+    then
+	return 0
+    else
+	_systemctl_status pmcd
+	return 1
+    fi
 }
 
 # Wait for at primary pmie to start ...
 #
 _wait_for_pmie()
 {
-    #debug# set -x
-
     __i=0
     while true
     do
@@ -1302,13 +1315,11 @@ _wait_for_pmie()
 	    then
 		echo "_wait_for_pmie: failed to see pmie start after 100 iterations"
 		_systemctl_status pmie
-		#debug# set +x
 		return 1
 	    fi
 	    pmsleep 0.1
 	else
 	    # process has really started ...
-	    #debug# set +x
 	    return 0
 	fi
     done
@@ -1318,8 +1329,6 @@ _wait_for_pmie()
 #
 _wait_pmie_end()
 {
-    #debug# set -x
-
     __pidlist=`cat $PCP_RUN_DIR/pmie.pid 2>/dev/null`
     if [ -z "$__pidlist" ]
     then
@@ -1337,40 +1346,21 @@ p
     fi
     if [ -z "$__pidlist" ]
     then
-	#debug# set +x
 	return 0
     fi
 
-    __i=0
-    while true
+    for __pid in $__pidlist
     do
-	rm -f $tmp.some_pmie_running
-	for __pid in $__pidlist
-	do
-	    if $sudo kill -s 0 $__pid 2>/dev/null
-	    then
-		# process still exists
-		touch $tmp.some.pmie
-	    fi
-	done
-	if [ -f $tmp.some.pmie ]
+	if _wait_process_end "_wait_pmie_end" "$__pid"
 	then
-	    __i=`expr $__i + 1`
-	    if [ "$__i" -ge 100 ]
-	    then
-		echo "_wait_pmie_end: failed to see pid(s) $__pidlist exit after 100 iterations"
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
-		_systemctl_status pmie
-		#debug# set +x
-		return 1
-	    fi
-	    pmsleep 0.1
+	    continue
 	else
-	    # all processes have exited
-	    #debug# set +x
-	    return 0
+	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
+	    _systemctl_status pmie
+	    return 1
 	fi
     done
+    return 0
 }
 
 # Wait for pmproxy to start up on given port
@@ -1462,8 +1452,6 @@ _wait_for_pmproxy_logfile()
 #
 _wait_pmproxy_end()
 {
-    #debug# set -x
-
     __pid=`cat $PCP_RUN_DIR/pmproxy.pid 2>/dev/null`
     if [ -z "$__pid" ]
     then
@@ -1480,31 +1468,16 @@ p
     fi
     if [ -z "$__pid" ]
     then
-	#debug# set +x
 	return 0
     fi
 
-    __i=0
-    while true
-    do
-	if $sudo kill -s 0 $__pid 2>/dev/null
-	then
-	    # process still exists
-	    __i=`expr $__i + 1`
-	    if [ "$__i" -ge 100 ]
-	    then
-		echo "_wait_proxy_end: failed to see pid $__pid exit after 100 iterations"
-		_systemctl_status proxy
-		#debug# set +x
-		return 1
-	    fi
-	    pmsleep 0.1
-	else
-	    # process has really exited
-	    #debug# set +x
-	    return 0
-	fi
-    done
+    if _wait_process_end "_wait_proxy_end" "$__pid"
+    then
+	return 0
+    else
+	_systemctl_status proxy
+	return 1
+    fi
 }
 
 # ensure primary logger allows pmlc state changes
@@ -1711,16 +1684,16 @@ _check_series()
 #
 _check_key_server_version()
 {
-    if which valkey-cli >/dev/null 2>&1
+    if which valkey-cli >/dev/null 2>&1 && [ -n "$(_get_pids_by_name valkey-server)" ]
     then
 	keys_cli=valkey-cli
 	keys_ver=valkey_version
-    elif which redis-cli >/dev/null 2>&1
+    elif which redis-cli >/dev/null 2>&1 && [ -n "$(_get_pids_by_name redis-server)" ]
     then
 	keys_cli=redis-cli
 	keys_ver=redis_version
     else
-	_notrun "No key server command line interface found"
+	_notrun "No key server command line interface found or the key server is not running"
     fi
     eval __key_server_version=`$keys_cli -p "$1" info server |
 	grep "$keys_ver:" | sed -e 's/^.*://g' -e 's/\..*//g'`
@@ -2013,6 +1986,8 @@ _filter_valgrind()
 	-e '/^total heap usage:/d' \
 	-e '/^possibly lost:/d' \
 	-e '/^still reachable:/d' \
+	-e '/^of which reachable via heuristic:/d' \
+	-e '/^newarray .*:/d' \
 	-e '/^suppressed:/d' \
 	-e '/^Reachable blocks (those to which a pointer was found)/d' \
 	-e '/^To see them, rerun with:/d' \
@@ -2145,14 +2120,13 @@ _run_valgrind()
 # Produces no stdout/stderr from valgrind - except in case of errors!
 # Uses same suppression logic as _run_valgrind.
 #
-# Usage:                    $__valgrind_clean_assert CMD ARGS ...
+# Usage:                    $valgrind_clean_assert CMD ARGS ...
 # just as you'd have used   CMD ARGS ...
 # alone, or                 |filtered
 # or                        & backgrounded
 #
 # It works even if valgrind is not available (expanding to nothing).
 #
-_valgrind_clean_assert=
 if which valgrind >/dev/null 2>&1; then
     # Note:
     # 	$here and $seq may not be set here, and this is not a shell
@@ -2203,11 +2177,13 @@ if which valgrind >/dev/null 2>&1; then
     # line options to valgrind
     #
     [ -n "$grind_extra" ] && __extra="$__extra $grind_extra"
-    __valgrind_clean_assert="valgrind -q \
+    valgrind_clean_assert="valgrind -q \
 	     --leak-check=full \
 	     --gen-suppressions=all --suppressions=$here/valgrind-suppress \
 	     $__extra \
 	     --log-fd=1"
+else
+    valgrind_clean_assert=
 fi
 
 _run_helgrind()
@@ -3385,15 +3361,23 @@ _restore_pmda_install()
 }
 
 # find a local port that is not in use, optionally starting from a suggested port
+# ... give up after 100 probes
 #
 _find_free_port()
 {
+    __count=0
     __base=$1
     [ -z "$__base" ] && __base=54321
 
     while $PCP_BINADM_DIR/telnet-probe -c localhost $__base
     do
 	__base=`expr $__base + 1`
+	if [ $__count -ge 100 ]
+	then
+	    echo >&2 "Error: _find_free_port: failed after 100 attempts (last port tried $__base)"
+	    _exit 1
+	fi
+	__count=`expr $__count + 1`
     done
     echo $__base
 }
@@ -3731,10 +3715,139 @@ _path_readable()
     return 1
 }
 
+# wait for a process to exit ...
+# Usage:
+#   _wait_process_end [tag] pid
+#
+_wait_process_end()
+{
+    if [ $# -eq 2 -a -n "$2" ]
+    then
+	__tag="$1"
+	__pid="$2"
+    elif [ $# -eq 1 -a -n "$1" ]
+    then
+	__tag="_wait_process_end"
+	__pid="$1"
+    else
+	echo >&2 "Usage: _wait_process_end [tag] pid \$#=$# \$1=\"$1\""
+	return 1
+    fi
+    __i=0
+    while true
+    do
+	if $sudo kill -s 0 $__pid 2>/dev/null
+	then
+	    # process still exists
+	    __i=`expr $__i + 1`
+	    if [ "$__i" -ge 100 ]
+	    then
+		# may exist, but is defunct so we should treat this
+		# as "exited" ...
+		# <defunct> for Linux-style ps(1)
+		# (command) for BSD-style ps(1)
+		#
+		__ppid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+		        | $PCP_AWK_PROG '
+$2 == '$__pid' && $NF ~ /<defunct>/ { print $3 }
+$2 == '$__pid' && $NF ~ /^([^)]*)$/ { print $3 }
+'`
+		if [ -n "$__ppid" ]
+		then
+		    echo "$__tag: pid $__pid is defunct" >>$seq_full
+		    if which pstree >/dev/null 2>&1
+		    then
+			pstree -s -A -pua $__pid >>$seq_full 2>&1
+		    else
+			echo "$__tag: parent pid $__ppid" >>$seq_full
+			$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $__pid $__ppid >>$seq_full
+		    fi
+		    return 0
+		else
+		    echo "$__tag: failed to see pid $__pid exit after 100 iterations"
+		fi
+		echo "$__tag: failed to see pid $__pid exit after 100 iterations"
+		return 1
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really exited
+	    return 0
+	fi
+    done
+}
+
 # exit wrapper ... set $status if $1 present
 #
 _exit()
 {
     [ $# -gt 0 ] && status="$1"
     exit
+}
+
+# borrowed from rc-proc.sh in ../src/pmcd
+# run pstree(1) with the focus on PID $1
+# ... Linux and *BSD (at least) have _totally_ different implementations
+# and command line arguments
+#
+_pstree_all()
+{
+    if which pstree >/dev/null 2>&1
+    then
+	if pstree -\? 2>&1 | grep ' --show-parents ' >/dev/null
+	then
+	    # Linux version
+	    #
+	    echo "Called from:"
+	    pstree -asp "$1"
+	    echo "--- end of pstree output ---"
+	elif pstree -\? 2>&1 | grep ' -s string' >/dev/null
+	then
+	    # *BSD version
+	    #
+	    echo "Called from:"
+	    pstree -p "$1" \
+	    | $PCP_AWK_PROG '
+/pstree -p/	{ exit }
+		{ print }'
+	    echo "--- end of pstree output ---"
+	else
+	    # don't know what sort of pstree this is ...
+	    #
+	    :
+	fi
+    fi
+}
+
+# borrowed from rc-proc.sh in ../src/pmcd
+# pstree(1) one-line for parents of PID $1
+# ... Linux and *BSD (at least) have _totally_ different implementations
+# and command line arguments
+#
+_pstree_oneline()
+{
+    if which pstree >/dev/null 2>&1
+    then
+	if pstree -\? 2>&1 | grep ' --show-parents ' >/dev/null
+	then
+	    # Linux version
+	    #
+	    pstree -lsp "$1"
+	elif pstree -\? 2>&1 | grep ' -s string' >/dev/null
+	then
+	    # *BSD version
+	    #
+	    pstree -p "$1" \
+	    | sed -e 's/^[ 	|\\=+-][ 	|\\=+-]*//' \
+	    | $PCP_AWK_PROG '
+$3 == "pstree"	{ exit }
+		{ print $3 "(" $1 ")--" }' \
+	    | ( tr '\012' '-' ; echo ) \
+	    | sed -e 's/---$//'
+	else
+	    # don't know what sort of pstree this is ...
+	    #
+	    :
+	fi
+    fi
 }

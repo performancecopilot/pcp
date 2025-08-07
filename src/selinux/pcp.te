@@ -123,6 +123,7 @@ kernel_read_vm_sysctls(pcp_pmcd_t)
 kernel_read_rpc_sysctls(pcp_pmcd_t)
 kernel_search_network_sysctl(pcp_pmcd_t)
 kernel_read_net_sysctls(pcp_pmcd_t)
+kernel_read_psi(pcp_pmcd_t)
 
 corecmd_exec_bin(pcp_pmcd_t)
 corecmd_exec_shell(pcp_pmcd_t)
@@ -206,6 +207,10 @@ optional_policy(`
     raid_access_check_mdadm(pcp_pmcd_t)
 ')
 
+optional_policy(`
+    libs_delete_lib_symlinks(pcp_pmcd_t)
+')
+
 tunable_policy(`pcp_read_generic_logs',`
     logging_read_generic_logs(pcp_pmcd_t)
 
@@ -246,7 +251,7 @@ optional_policy(`
 #
 # pcp_pmie local  policy
 #
-allow pcp_pmie_t self:capability { chown fsetid sys_ptrace };
+allow pcp_pmie_t self:capability { chown fsetid sys_admin sys_ptrace };
 allow pcp_pmie_t self:cap_userns sys_ptrace;
 allow pcp_pmie_t self:netlink_route_socket { create_socket_perms nlmsg_read };
 allow pcp_pmie_t self:unix_dgram_socket { create_socket_perms sendto };
@@ -293,7 +298,7 @@ files_manage_generic_tmp_files(pcp_pmie_t)
 #
 
 allow pcp_pmlogger_t self:capability { dac_read_search dac_override chown fowner sys_admin sys_ptrace };
-allow pcp_pmlogger_t self:process { getattr setpgid };
+allow pcp_pmlogger_t self:process { getattr setpgid setrlimit};
 allow pcp_pmlogger_t self:netlink_route_socket {create_socket_perms nlmsg_read };
 
 allow pcp_pmlogger_t pcp_pmcd_t:unix_stream_socket connectto;
@@ -347,6 +352,17 @@ optional_policy(`
     userdom_setattr_user_home_content_files(pcp_pmlogger_t)
 ')
 
+optional_policy(`
+    require {
+	type pcp_pmlogger_t;
+	class capability2 perfmon;
+    }
+
+    #RHBZ2371004
+    # type=AVC msg=audit(N): avc:  denied  { perfmon } for  pid=PID comm="ps" capability=38  scontext=system_u:system_r:pcp_pmlogger_t:s0 tcontext=system_u:system_r:pcp_pmlogger_t:s0 tclass=capability2 permissive=0
+    allow pcp_pmlogger_t self:capability2 perfmon;
+')
+
 ########################################
 #
 # pcp_plugin local  policy
@@ -374,6 +390,7 @@ require {
 	type debugfs_t;
 	type default_t;
 	type device_t;
+	type dri_device_t;
 	type etc_t;
 	type fixed_disk_device_t;
 	type fs_t;
@@ -414,6 +431,7 @@ require {
 	type sysctl_fs_t; #RHBZ1505888
 	type sysctl_irq_t; #pmda.bcc
 	type sysctl_net_t;
+	type sysctl_vm_t;
 	type sysfs_t; #RHBZ1545245
 	type syslogd_t;
 	type syslogd_var_run_t;
@@ -425,6 +443,7 @@ require {
 	type var_run_t;
 	type virt_image_t;
 	type websm_port_t; # pmda.openmetrics
+	type xserver_misc_device_t;
 
 	class blk_file { ioctl open read };
 	class capability { net_raw }; # pmda.netcheck
@@ -471,6 +490,14 @@ optional_policy(`
     }
     # pmda-bcc needs the ability to read addresses in /proc/kallsyms
     allow pcp_pmcd_t self:capability2 syslog;
+')
+
+optional_policy(`
+    require {
+	type rpm_t;
+    }
+    # for pmda-bcc and bioperpid module [qa/920, CentOS Stream8]
+    allow pcp_pmcd_t rpm_t:process signull;
 ')
 
 optional_policy(`
@@ -1008,6 +1035,11 @@ allow pcp_pmcd_t device_t:chr_file { create open read setattr write };
 allow pcp_pmcd_t device_t:dir { add_name remove_name write };
 allow pcp_pmcd_t device_t:lnk_file { create unlink };
 allow pcp_pmcd_t self:capability mknod;
+allow pcp_pmcd_t dri_device_t:chr_file { ioctl open read write };
+allow pcp_pmcd_t device_t:dir write;
+allow pcp_pmcd_t device_t:dir { create setattr };
+allow pcp_pmcd_t sysctl_vm_t:file read;
+allow pcp_pmcd_t xserver_misc_device_t:chr_file { ioctl open read write };
 
 # type=AVC msg=audit(N): avc: denied { sys_rawio } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 allow pcp_pmcd_t self:capability sys_rawio;
@@ -1076,6 +1108,7 @@ optional_policy(`
 allow syslogd_t pcp_log_t:fifo_file { open read write };
 
 #============= pcp_pmcd_t ==============
+#
 #
 ##============= pcp_pmie_t ==============
 #files_manage_generic_tmp_dirs(pcp_pmie_t)

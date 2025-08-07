@@ -382,7 +382,7 @@ bpf_register_module_metrics()
  * Fetch callback for pre-refresh
  */
 int
-bpf_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+bpf_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     module* target;
     int cache_result;

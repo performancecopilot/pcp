@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2022 Red Hat.
+# Copyright (c) 2012-2022,2025 Red Hat.
 # Copyright (c) 2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -32,7 +32,7 @@ LDIRT = config.cache config.status config.log files.rpm \
 	autom4te.cache install.manifest install.tmpfiles \
 	debug*.list devel_files libs_files conf_files \
 	base_files.rpm libs_files.rpm devel_files.rpm \
-	perl-pcp*.list* python-pcp*.list* python3-pcp*.list* \
+	perl-pcp*.list* python3-pcp*.list* \
 	tmpfiles.init.setup
 LDIRDIRT = pcp-[0-9]*.[0-9]*.[0-9]*  pcp-*-[0-9]*.[0-9]*.[0-9]*
 
@@ -67,9 +67,6 @@ ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	$(INSTALL) -m 755 -d $(PCP_RC_DIR)
 	$(INSTALL) -m 755 -d $(PCP_SASLCONF_DIR)
 	$(INSTALL) -m 755 -d $(PCP_BIN_DIR)
-	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
-	$(INSTALL) -m 755 -d $(PCP_LIBADM_DIR)
-	$(INSTALL) -m 755 -d $(PCP_PMDASADM_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)
 	$(INSTALL) -m 755 -d $(PCP_LIB_DIR)/pkgconfig
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)
@@ -77,6 +74,11 @@ ifneq "$(findstring $(TARGET_OS),darwin mingw)" ""
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man3
 	$(INSTALL) -m 755 -d $(PCP_MAN_DIR)/man5
 endif
+	$(INSTALL) -m 755 -d `dirname $(PCP_BINADM_DIR)`
+	$(INSTALL) -m 755 -d $(PCP_BINADM_DIR)
+	$(INSTALL) -m 755 -d $(PCP_LIBADM_DIR)
+	$(INSTALL) -m 755 -d $(PCP_PMNSADM_DIR)
+	$(INSTALL) -m 755 -d $(PCP_PMDASADM_DIR)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)
 ifeq "$(ENABLE_SYSTEMD)" "true"
 	# this works if PCP_RUN_DIR (and friends) are within a tmpfs that
@@ -135,6 +137,8 @@ pcp.lsm src/include/builddefs src/include/pcp/platform_defs.h: configure pcp.lsm
 
 tmpfiles.init.setup:	tmpfiles.init.setup.in
 	sed < $< > $@ \
+	    -e "s@PCP_VAR_DIR@$(PCP_VAR_DIR)@" \
+	    -e "s@PCP_TMP_DIR@$(PCP_TMP_DIR)@" \
 	    -e "s@PCP_RUN_DIR@$(PCP_RUN_DIR)@" \
 	    -e "s@PCP_LOG_DIR@$(PCP_LOG_DIR)@" \
 	    -e "s/PCP_GROUP/$(PCP_GROUP)/" \

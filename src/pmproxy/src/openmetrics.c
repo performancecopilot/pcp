@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019,2021 Red Hat.
+ * Copyright (c) 2019,2021,2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -13,6 +13,7 @@
  */
 #include "openmetrics.h"
 #include "libpcp.h"
+#include "util.h"
 
 static void
 labelname(const pmLabel *lp, const char *json, __pmHashCtl *lc,
@@ -58,11 +59,12 @@ labeladd(void *arg, const struct dictEntry *entry)
 
 /* convert an array of PCP labelsets into Open Metrics form */
 void
-open_metrics_labels(pmWebLabelSet *labels, struct dict *labeldict)
+open_metrics_labels(pmWebLabelSet *labels)
 {
     unsigned long	cursor = 0;
     pmLabelSet		*labelset;
     pmLabel		*label;
+    dict		*labeldict;
     dictEntry		*entry;
     const char		*offset;
     static sds		instname, instid;
@@ -73,6 +75,8 @@ open_metrics_labels(pmWebLabelSet *labels, struct dict *labeldict)
 	instname = sdsnewlen("instname", 8);
     if (instid == NULL)
 	instid = sdsnewlen("instid", 6);
+
+    labeldict = dictCreate(&sdsOwnDictCallBacks, NULL);
 
     /* walk labelset in order adding labels to a temporary dictionary */
     for (i = 0; i < labels->nsets; i++) {
@@ -116,21 +120,8 @@ open_metrics_labels(pmWebLabelSet *labels, struct dict *labeldict)
     do {
 	cursor = dictScan(labeldict, cursor, labeladd, NULL, labels);
     } while (cursor);
-}
 
-/* check if PCP metric type has valid Open Metrics form */
-int
-open_metrics_type_check(sds type)
-{
-    static const char * const	typename[] = {
-	"32", "u32", "64", "u64", "float", "double"
-    };
-    int		i;
-
-    for (i = 0; i < sizeof(typename) / sizeof(typename[0]); i++)
-	if (strcmp(type, typename[i]) == 0)
-	    return 0;
-    return -ESRCH;
+    dictRelease(labeldict);
 }
 
 /* convert PCP metric name to Open Metrics form */
@@ -148,7 +139,7 @@ open_metrics_name(sds metric, int compat)
     return name;
 }
 
-/* convert PCP metric type to Open Metrics form */
+/* convert PCP metric semantics to Open Metrics form */
 sds
 open_metrics_semantics(sds sem)
 {

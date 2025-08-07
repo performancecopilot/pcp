@@ -74,7 +74,7 @@ newcontext(void)
 		    pmGetProgname(), opts.archives[0],  pmErrStr(lctx));
 	    exit(EXIT_FAILURE);
 	}
-	if ((sts = pmSetMode(PM_MODE_FORW, NULL, 0)) < 0) {
+	if ((sts = pmSetMode(PM_MODE_FORW, NULL, NULL)) < 0) {
 	    fprintf(stderr, "%s: pmSetMode failed for context %d: %s\n",
 			pmGetProgname(), pmWhichContext(), pmErrStr(sts));
 		exit(EXIT_FAILURE);

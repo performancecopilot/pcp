@@ -16,13 +16,6 @@ echo "QA output created by $seq"
 DSTAT="$PCP_BINADM_DIR/pcp-dstat"
 test -f "$DSTAT" || _notrun "$DSTAT is not installed, skipped"
 
-__version=`pmpython --version 2>&1 | sed -e 's/Python //'`
-case "$__version"
-in
-    2.*)	_notrun "Python $__version reports number of tcp sockets off-by-one"
-    		;;
-esac
-
 _cleanup()
 {
     cd $here
@@ -35,15 +28,17 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # read from the pcp-dstat archive with various dstat options
 #
-dstat()
+dstat_archive()
 {
-    message="$1"
+    archive="$1"
+    message="$2"
+    shift
     shift
     options="$@"
 
     echo "$message"
 
-    pcp_options="pcp -z --origin=+0.1 --archive $here/archives/pcp-dstat"
+    pcp_options="pcp -z --origin=+0.1 --archive $archive"
     $pcp_options dstat --time $options 1 3 >$tmp.out 2>$tmp.err
 
     echo "=== std out"
@@ -51,6 +46,21 @@ dstat()
     echo "=== std err"
     cat $tmp.err
     echo "=== done" && echo
+}
+
+dstat()
+{
+    dstat_archive "$here/archives/pcp-dstat" "$@"
+}
+
+dstat_amdgpu()
+{
+    dstat_archive "$here/archives/amdgpu" "$@"
+}
+
+dstat_nvidiagpu()
+{
+    dstat_archive "$here/archives/nvidiagpu" "$@"
 }
 
 filter_info()
@@ -72,7 +82,9 @@ export TERM=ansi
 dstat "All defaults to EOL"
 dstat "Per CPU" --cpu -C 1,2,total --cpu-use
 dstat "CPU" --cpu-adv
-dstat "Per Disk" --disk -D sda,total --disk-wait
+dstat_nvidiagpu "NVIDIA GPU" --nvidia-gpu
+dstat_amdgpu "AMD GPU" --amd-gpu -G 0
+dstat "Per Disk" --disk -D vda,total --disk-wait
 dstat "All Disks" --disk --full
 dstat "Zero Disks" --all -D --full
 dstat "Disk" --io

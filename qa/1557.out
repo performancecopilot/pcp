@@ -1,0 +1,62 @@
+QA output created by 1557
+pmOptions et al tests ...
+
+--- --help ---
+diffs ...
+2c2
+< Usage: getoptions_v2 [options]
+---
+> Usage: getoptions [options]
+48c48
+<     version: 2
+---
+>     version: 4
+
+--- --interval 42 -T 10m ---
+diffs ...
+4c4
+<     version: 2
+---
+>     version: 4
+13c13
+<     interval: 42.000000
+---
+>     interval: 42.000000000
+
+--- --archive archives/20041125.0 --hostzone --align "15 sec" --start "@00:10:10" --finish "@00:11:30" --origin "@00:10:20" -Dgetopt ---
+diffs ...
+1c1
+< __pmBoundaryOptions: logstart 2004/11/25 00:10:06.248424 logend 2004/11/25 00:58:06.250880
+---
+> __pmBoundaryOptions: logstart 2004/11/25 00:10:06.248424000 logend 2004/11/25 00:58:06.250880000
+9c9
+<     version: 2
+---
+>     version: 4
+16,18c16,18
+<     start: 25/11/2004 00:10:15.000000
+<     finish: 25/11/2004 00:11:30.000000
+<     origin: 25/11/2004 00:10:30.000000
+---
+>     start: 25/11/2004 00:10:15.000000000
+>     finish: 25/11/2004 00:11:30.000000000
+>     origin: 25/11/2004 00:10:30.000000000
+
+--- -a archives/20041125.0 -z -A "15" -S "@00:10:10" -T "@00:11:30" -O "@00:10:20" -Dgetopt ---
+diffs ...
+1c1
+< __pmBoundaryOptions: logstart 2004/11/25 00:10:06.248424 logend 2004/11/25 00:58:06.250880
+---
+> __pmBoundaryOptions: logstart 2004/11/25 00:10:06.248424000 logend 2004/11/25 00:58:06.250880000
+9c9
+<     version: 2
+---
+>     version: 4
+16,18c16,18
+<     start: 25/11/2004 00:10:15.000000
+<     finish: 25/11/2004 00:11:30.000000
+<     origin: 25/11/2004 00:10:30.000000
+---
+>     start: 25/11/2004 00:10:15.000000000
+>     finish: 25/11/2004 00:11:30.000000000
+>     origin: 25/11/2004 00:10:30.000000000

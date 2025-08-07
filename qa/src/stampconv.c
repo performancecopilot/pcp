@@ -66,6 +66,7 @@ main(int argc, char **argv)
 
     printf("\n");
     stamp = input;
+// check-time-formatting-ok
     printf("pmTimeval input: % " FMT_INT64 ".%06d (%016llx %08x)\n", stamp.sec, stamp.nsec / 1000, (unsigned long long)stamp.sec, stamp.nsec / 1000);
     buf[0] = 0xaaaaaaaa;
     buf[1] = 0xbbbbbbbb;
@@ -75,6 +76,7 @@ main(int argc, char **argv)
 	printf("buf: %08x %08x %08x\n", buf[0], buf[1] ,buf[2]);
     stamp.sec = stamp.nsec = 0;
     __pmLoadTimeval(buf, &stamp);
+// check-time-formatting-ok
     printf("output: % " FMT_INT64 ".%06d (%016llx %08x)\n", stamp.sec, stamp.nsec / 1000, (unsigned long long)stamp.sec, stamp.nsec / 1000);
 
     return 0;

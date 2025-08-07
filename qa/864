@@ -23,6 +23,7 @@ if grep 'collectl version' $tmp.out >/dev/null
 then
     :
 else
+    rm -f $tmp.out
     _notrun "pcp-collectl not installed"
 fi
 

@@ -89,59 +89,59 @@ pmlogctl --help 2>&1 | _filter \
 # end
 
 echo
-echo '== -N -V create' | tee -a $seq_full
-pmlogctl -N -V create localhost 2>&1 | _filter
+echo '== -N -V create -c default' | tee -a $seq_full
+pmlogctl -N -V create -c default localhost 2>&1 | _filter
 
 echo | tee -a $seq_full
-echo '== create' | tee -a $seq_full
-$sudo pmlogctl create localhost | _filter
+echo '== create -c default' | tee -a $seq_full
+$sudo pmlogctl create -c default localhost | _filter
 echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
 echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
 echo | tee -a $seq_full
-echo '== stop' | tee -a $seq_full
-$sudo pmlogctl stop localhost | _filter
+echo '== stop -c default' | tee -a $seq_full
+$sudo pmlogctl stop -c default localhost | _filter
 echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
 echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
 echo | tee -a $seq_full
-echo '== start' | tee -a $seq_full
-$sudo pmlogctl start localhost | _filter
+echo '== start -c default' | tee -a $seq_full
+$sudo pmlogctl start -c default localhost | _filter
 echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
 echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
 echo | tee -a $seq_full
-echo '== restart' | tee -a $seq_full
-$sudo pmlogctl restart localhost | _filter
+echo '== restart -c default' | tee -a $seq_full
+$sudo pmlogctl restart -c default localhost | _filter
 echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
 echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
 echo | tee -a $seq_full
-echo '== destroy' | tee -a $seq_full
-$sudo pmlogctl destroy localhost | _filter
+echo '== destroy -c default' | tee -a $seq_full
+$sudo pmlogctl destroy -c default localhost | _filter
 echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
 echo '== status localhost' | tee -a $seq_full
 pmlogctl status localhost | _filter_status
 
 echo | tee -a $seq_full
-echo '== cond-create' | tee -a $seq_full
-$sudo pmlogctl cond-create localhost | _filter
+echo '== cond-create -c pmfind' | tee -a $seq_full
+$sudo pmlogctl cond-create -c pmfind localhost | _filter
 echo '== status' | tee -a $seq_full
 pmlogctl status | _filter_status
 $sudo pmlogctl -c pmfind destroy localhost | _filter
 
 echo | tee -a $seq_full
-echo "== cond-create -i $seq-foo" | tee -a $seq_full
-$sudo pmlogctl -i $seq-foo cond-create localhost | _filter
+echo "== cond-create -c pmfind -i $seq-foo" | tee -a $seq_full
+$sudo pmlogctl -i $seq-foo cond-create -c pmfind localhost | _filter
 echo '== status' | tee -a $seq_full
 pmlogctl -V status 2>&1 | _filter_status
 

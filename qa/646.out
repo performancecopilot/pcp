@@ -100,7 +100,8 @@ Cluster    = 0
 Process    = PID
 Flags      = 0x0 (none)
 Bad TOC[0]: invalid entry count 0
-Bad TOC[1]: invalid entry count 0
+
+TOC[1]: offset 56, values offset 72 (0 entries)
 MMV file   = $PCP_TMP_DIR/mmv/simple-PID
 Version    = 1
 Generated  = TIMESTAMP
@@ -220,7 +221,8 @@ Cluster    = 0
 Process    = PID
 Flags      = 0x0 (none)
 Bad TOC[0]: invalid entry count 0
-Bad TOC[1]: invalid entry count 0
+
+TOC[1]: offset 56, values offset 72 (0 entries)
 MMV file   = $PCP_TMP_DIR/mmv/simple2-PID
 Version    = 2
 Generated  = TIMESTAMP

@@ -7,6 +7,7 @@ tmp=/var/tmp/cscope.run.$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 rebuild=false
+skip_libpcp3=false
 if [ $# -eq 1 ]
 then
     case "$1"
@@ -20,6 +21,11 @@ then
 		export INCDIR=
 		shift
 		;;
+	-3)	# rebuild and exclude src/libpcp3
+		rebuild=true
+		skip_libpcp3=true
+		shift
+		;;
     esac
 fi
 
@@ -29,6 +35,7 @@ then
     echo >&2 "Options:"
     echo >&2 "-b	rebuild files list and index"
     echo >&2 "-x	exclude /usr/include, implies -b"
+    echo >&2 "-3	exclude src/libpcp3, implies -b"
     exit 1
 fi
 
@@ -45,6 +52,10 @@ then
 	    echo "$file" >>cscope.files
 	fi
     done
+    if $skip_libpcp3
+    then
+	sed -i -e '/^src\/libpcp3\//d' cscope.files
+    fi
     cscope -b -i cscope.files
 fi
 

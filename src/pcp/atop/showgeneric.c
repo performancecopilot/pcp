@@ -263,7 +263,7 @@ text_samp(double sampletime, double nsecs,
 	char		*statmsg = NULL, statbuf[80], genline[80];
 	char		*lastsortp, curorder, autoorder;
 	char		buf[34];
-	struct timeval	timeval;
+	struct timespec	ts;
 	struct passwd 	*pwd;
 	struct syscap	syscap;
 
@@ -1098,8 +1098,8 @@ text_samp(double sampletime, double nsecs,
 				/*
 				** back up two steps, advancing again shortly
 				*/
-				pmtimevalDec(&curtime, &interval);
-				pmtimevalDec(&curtime, &interval);
+				pmtimespecDec(&curtime, &interval);
+				pmtimespecDec(&curtime, &interval);
 
 				return lastchar;
 
@@ -1128,9 +1128,9 @@ text_samp(double sampletime, double nsecs,
                                 scanw("%31s\n", branchtime);
                                 noecho();
 
-				timeval = curtime;
+				ts = curtime;
 
-                                if ( !getbranchtime(branchtime, &timeval) )
+                                if ( !getbranchtime(branchtime, &ts) )
                                 {
                                         move(statline, 0);
                                         clrtoeol();
@@ -1143,8 +1143,8 @@ text_samp(double sampletime, double nsecs,
 				** back up one step before the branch time,
 				** to advance onto it in the next sample
 				*/
-				curtime = timeval;
-				pmtimevalDec(&curtime, &interval);
+				curtime = ts;
+				pmtimespecDec(&curtime, &interval);
 				if (time_less_than(&curtime, &start))
 					curtime = start;
 
@@ -1418,7 +1418,7 @@ text_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0); /* force new sample     */
 
 				firstproc = 0;
@@ -1486,12 +1486,12 @@ text_samp(double sampletime, double nsecs,
 
 				setalarm2(0, 0);	/* stop the clock */
 
-				interval.tv_usec = 0;
+				interval.tv_nsec = 0;
 				interval.tv_sec = getnumval("New interval in seconds "
 						     "(now %d): ",
 						     interval.tv_sec, statline);
 
-				if (interval.tv_sec || interval.tv_usec)
+				if (interval.tv_sec || interval.tv_nsec)
 				{
 					if (!paused)
 						setalarm2(3, 0); /*  set short timer */
@@ -1587,7 +1587,7 @@ text_samp(double sampletime, double nsecs,
 					procsel.userid[0] = USERSTUB;
 				}
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
@@ -1629,7 +1629,7 @@ text_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
@@ -1669,7 +1669,7 @@ text_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
@@ -1727,7 +1727,7 @@ text_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
@@ -1803,7 +1803,7 @@ text_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
@@ -1845,7 +1845,7 @@ text_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
@@ -1937,7 +1937,7 @@ text_samp(double sampletime, double nsecs,
 
 				move(statline, 0);
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;
@@ -2228,7 +2228,7 @@ text_samp(double sampletime, double nsecs,
 				            "statistics (now %d): ",
 					    maxllclines, statline);
 
-				if ((interval.tv_sec || interval.tv_usec) && !paused && !rawreadflag)
+				if ((interval.tv_sec || interval.tv_nsec) && !paused && !rawreadflag)
 					setalarm2(3, 0);  /* set short timer */
 
 				firstproc = 0;

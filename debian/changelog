@@ -1,8 +1,25 @@
 pcp (7.0.0-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * build fixes for gmake --shuffle=reverse option (closes: #1105441)
+  * build needs postfix for postfix PMDA (closes: #929368)
+  * build needs libsystemd-dev for systemd PMDA (closes: #929372)
+  * build needs libxml-libxml-perl and libfile-slurp-perl for bind2 PMDA (closes: #929376)
+  * build needs libyaml-libyaml-perl and libjson-perl for nutcracker PMDA (closes: #929377)
+  * build needs python3-rtslib-fb for lio PMDA (closes: #929378)
+  * build needs python3-libvirt and python3-lxml for libvirt PMDA (closes: #929379)
+  * build needs python3-bpfcc for bcc PMDA [fixed earlier] (closes: #929371)
+  * pmda postgresql not installed [fixed earlier] (closes: #985966)
+  * build needs libdrm-dev for amdgpu PMDA
+  * build needs python3-pymongo for mongodb PMDA
+  * build needs libjson-perl for activemq PMDA
+  * build needs python3-urllib3 for elasticsearch PMDA
+  * build needs libdbi-perl and libdbd-mysql-perl for mysql and oracle PMDA
+  * build needs python3-pyodbc for mssql PMDA
+  * build needs python3-requests for openmetrics PMDA
+  * build needs libnet-snmp-perl for snmp PMDA
 
- -- Nathan Scott <nathans@debian.org>  Tue, 01 Jul 2025 07:39:11 +1000
+ -- Nathan Scott <nathans@debian.org>  Mon, 01 Sep 2025 07:39:11 +1000
 
 pcp (6.3.3-1) unstable; urgency=low
 

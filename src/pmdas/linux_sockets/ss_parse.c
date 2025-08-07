@@ -196,10 +196,10 @@ ss_parse(char *line, int has_state_field, ss_stats_t *ss)
     char *r, *s, *p = line;
     int sts = 0;
     int		numscan;
-    char	*netid;
-    char	*state;
-    char	*src;
-    char	*dst;
+    char	*netid = NULL;
+    char	*state = NULL;
+    char	*src = NULL;
+    char	*dst = NULL;
 
     memset(&ss_p, 0, sizeof(ss_p));
     if (has_state_field) {
@@ -208,6 +208,10 @@ ss_parse(char *line, int has_state_field, ss_stats_t *ss)
 	if (numscan != 6) {
 	    if (__pmNotifyThrottle(__FILE__, __LINE__) < 2)
 		pmNotifyErr(LOG_INFO, "ss_parse: sscanf->%d not 6: %s\n", numscan, line);
+	    if (netid != NULL) free(netid);
+	    if (state != NULL) free(state);
+	    if (src != NULL) free(src);
+	    if (dst != NULL) free(dst);
 	    return PM_ERR_CONV;
 	}
         for (i=0; i < 6; i++)
@@ -220,6 +224,9 @@ ss_parse(char *line, int has_state_field, ss_stats_t *ss)
 	if (numscan != 5) {
 	    if (__pmNotifyThrottle(__FILE__, __LINE__) < 2)
 		pmNotifyErr(LOG_INFO, "ss_parse: sscanf->%d not 5: %s\n", numscan, line);
+	    if (netid != NULL) free(netid);
+	    if (src != NULL) free(src);
+	    if (dst != NULL) free(dst);
 	    return PM_ERR_CONV;
 	}
         for (i=0; i < 5; i++)

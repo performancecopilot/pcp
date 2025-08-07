@@ -27,22 +27,22 @@ newlabel(void)
     __pmLogLabel	*lp = &logctl.label;
 
     /* check version number */
-    if ((ilabel.ll_magic & 0xff) != PM_LOG_VERS02 &&
-        (ilabel.ll_magic & 0xff) != PM_LOG_VERS03) {
+    if ((ilabel.magic & 0xff) != PM_LOG_VERS02 &&
+        (ilabel.magic & 0xff) != PM_LOG_VERS03) {
 	fprintf(stderr,"%s: Error: version number %d (not %d or %d as expected) in archive (%s)\n",
-		pmGetProgname(), ilabel.ll_magic & 0xff, PM_LOG_VERS02, PM_LOG_VERS03, iname);
+		pmGetProgname(), ilabel.magic & 0xff, PM_LOG_VERS02, PM_LOG_VERS03, iname);
 	exit(1);
     }
 
     /* copy magic number, host and timezone info, use our pid */
-    lp->magic = ilabel.ll_magic;
+    lp->magic = ilabel.magic;
     lp->pid = (int)getpid();
     if (lp->hostname)
 	free(lp->hostname);
-    lp->hostname = strdup(ilabel.ll_hostname);
+    lp->hostname = strdup(ilabel.hostname);
     if (lp->timezone)
 	free(lp->timezone);
-    lp->timezone = strdup(ilabel.ll_tz);
+    lp->timezone = strdup(ilabel.timezone);
     if (lp->zoneinfo)
 	free(lp->zoneinfo);
     /* TODO: use v3 archive zoneinfo */

@@ -349,7 +349,12 @@ bool Platform_init(void) {
 
    if (opts.context == PM_CONTEXT_ARCHIVE) {
       gettimeofday(&pcp->offset, NULL);
+#if PMAPI_VERSION >= 3
+      struct timeval start = { opts.start.tv_sec, opts.start.tv_nsec / 1000 };
+      pmtimevalDec(&pcp->offset, &start);
+#else
       pmtimevalDec(&pcp->offset, &opts.start);
+#endif
    }
 
    for (unsigned int i = 0; i < PCP_METRIC_COUNT; i++)
@@ -761,8 +766,6 @@ bool Platform_getDiskIO(DiskIOData* data) {
 }
 
 bool Platform_getNetworkIO(NetworkIOData* data) {
-   memset(data, 0, sizeof(*data));
-
    pmAtomValue value;
    if (Metric_values(PCP_NET_RECVB, &value, 1, PM_TYPE_U64) != NULL)
       data->bytesReceived = value.ull;
@@ -789,6 +792,10 @@ void Platform_getFileDescriptors(double* used, double* max) {
 void Platform_getBattery(double* level, ACPresence* isOnAC) {
    *level = NAN;
    *isOnAC = AC_ERROR;
+}
+
+const char* Platform_getFailedState(void) {
+   return pcp->reconnect ? "PMCD DOWN" : NULL;
 }
 
 void Platform_longOptionsUsage(ATTR_UNUSED const char* name) {
@@ -850,8 +857,11 @@ void Platform_gettime_realtime(struct timeval* tv, uint64_t* msec) {
 
 void Platform_gettime_monotonic(uint64_t* msec) {
    if (pcp->result) {
-      struct timeval* tv = &pcp->result->timestamp;
-      *msec = ((uint64_t)tv->tv_sec * 1000) + ((uint64_t)tv->tv_usec / 1000);
+#if PMAPI_VERSION >= 3
+      *msec = ((uint64_t)pcp->result->timestamp.tv_sec * 1000) + ((uint64_t)pcp->result->timestamp.tv_nsec / 1000000);
+#else
+      *msec = ((uint64_t)pcp->result->timestamp.tv_sec * 1000) + ((uint64_t)pcp->result->timestamp.tv_usec / 1000);
+#endif
    } else {
       *msec = 0;
    }

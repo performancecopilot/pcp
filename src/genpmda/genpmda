@@ -444,7 +444,7 @@ END {
     	seencluster[c] = 0;
     }
     printf "static int\n" >>pmda_c
-    printf "%s_instance(pmInDom indom, int inst, char *name, __pmInResult **result, pmdaExt *pmda)\n", "'$iam'" >>pmda_c
+    printf "%s_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)\n", "'$iam'" >>pmda_c
     printf "{\n" >>pmda_c
     printf "    __pmInDom_int       *indomp = (__pmInDom_int *)&indom;\n" >>pmda_c
     printf "    int                 need_refresh[NCLUSTERS];\n" >>pmda_c

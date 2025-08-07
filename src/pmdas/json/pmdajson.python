@@ -1038,9 +1038,9 @@ class JsonPMDA(PMDA):
         # to the cache start with 1.
         self.__cluster_cache = IndomCache(0, MAX_CLUSTER, self)
 
-        # The pcp python support doesn't have a pmSetDebug()
-        # wrapper. So, if PCP_PYTHON_DEBUG has any value, turn
-        # debugging on.
+        # The pcp python support did not have a pmSetDebug()
+        # wrapper before PCP 7.0. So, if PCP_PYTHON_DEBUG has any
+        # value, turn debugging on.
         self.debug = ('PCP_PYTHON_DEBUG' in os.environ)
 
         # Try loading old cluster cache values.

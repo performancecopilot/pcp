@@ -20,29 +20,39 @@
 \f3__pmFreeAttrsSpec\f1 \- host and attributes specification parser
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int __pmParseHostAttrsSpec(const char *\fIstring\fP, __pmHostSpec **\fIhostsp\fP, int\ *\fIcount\fP, __pmHashCtl\ *\fIattrs\fP, char\ **\fIerrmsg\fP);
+int __pmParseHostAttrsSpec(const char *\fIstring\fP,
+'in +\w'int __pmParseHostAttrsSpec('u
+__pmHostSpec\ **\fIhostsp\fP,
+int\ *\fIcount\fP,
+__pmHashCtl\ *\fIattrs\fP,
+char\ **\fIerrmsg\fP);
+.in
 .br
-.ti -8n
-int __pmUnparseHostAttrsSpec(__pmHostSpec *\fIhostsp\fP, int\ *\fIcount\fP, __pmHashCtl\ *\fIattrs\fP, char\ *\fIstring\fP, size_t \fIsize\fP);
+int __pmUnparseHostAttrsSpec(__pmHostSpec *\fIhostsp\fP,
+'in +\w'int __pmUnparseHostAttrsSpec('u
+int\ *\fIcount\fP,
+__pmHashCtl\ *\fIattrs\fP,
+char\ *\fIstring\fP,
+size_t\ \fIsize\fP);
+.in
 .br
-.ti -8n
-void __pmFreeHostAttrsSpec(__pmHostSpec *\fIhosts\fP, int \fIcount\fP, __pmHashCtl\ *\fIattrs\fP);
+void __pmFreeHostAttrsSpec(__pmHostSpec *\fIhosts\fP,
+'in +\w'void __pmFreeHostAttrsSpec('u
+int\ \fIcount\fP,
+__pmHashCtl\ *\fIattrs\fP);
+.in
 .br
-.ti -8n
 void __pmFreeAttrsSpec(__pmHashCtl\ *\fIattrs\fP);
 .sp
-.in
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

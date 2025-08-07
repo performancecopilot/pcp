@@ -442,7 +442,7 @@ sendmail_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 }
 
 static int
-sendmail_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+sendmail_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     map_stats();
     return pmdaFetch(numpmid, pmidlist, resp, pmda);

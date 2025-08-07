@@ -28,10 +28,12 @@ main(int argc, char **argv)
     int		port = PM_LOG_NO_PORT;
     const char	*namelist[20];
     pmID	pmidlist[20];
+    pmDesc	desclist[20];
     int		*instlist;
     char	**inamelist;
     int		numpmid = 0;
     int		default_metrics = 0;
+    int		first = -1;
     __pmResult	*req;
     __pmResult	*status;
     pmResult	*result;
@@ -142,7 +144,7 @@ Options\n\
 	/* default metrics */
 	default_metrics = 1;
 	i = 0;
-	namelist[i++] = "pmcd.control.debug";
+	namelist[i++] = "pmcd.control.sighup";
 	namelist[i++] = "sampledso.long.write_me";
 	namelist[i++] = "sample.colour";
 	numpmid = i;
@@ -156,6 +158,46 @@ Options\n\
 		printf("	%s - not known\n", namelist[i]);
 	}
 	exit(1);
+    }
+
+    sts = pmLookupDescs(numpmid, pmidlist, desclist);
+    if (sts < 0) {
+	printf("pmLookupDescs: failed: %s\n", pmErrStr(sts));
+	exit(1);
+    }
+    /*
+     * need all metrics to have the same sort of type for the pmStore tests to work
+     */
+    for (i = 0; i < numpmid; i++) {
+	if (desclist[i].pmid == PM_ID_NULL) {
+	    printf("Warning: no pmDesc for metric[%d] %s\n", i, namelist[i]);
+	    continue;
+	}
+	if (first == -1) {
+	    first = i;
+	    continue;
+	}
+	if (desclist[i].type != desclist[0].type) {
+	    switch (desclist[0].type) {
+		case PM_TYPE_32:
+		case PM_TYPE_U32:
+		case PM_TYPE_64:
+		case PM_TYPE_U64:
+			    if (desclist[i].type == PM_TYPE_32 ||
+				desclist[i].type == PM_TYPE_U32 ||
+				desclist[i].type == PM_TYPE_64 ||
+				desclist[i].type == PM_TYPE_U64) continue;
+			    break;
+		case PM_TYPE_FLOAT:
+		case PM_TYPE_DOUBLE:
+			    if (desclist[i].type == PM_TYPE_FLOAT ||
+				desclist[i].type == PM_TYPE_DOUBLE) continue;
+			    break;
+	    }
+	    printf("Botch: metric[%d] %s: type %s\n", i, namelist[i], pmTypeStr(desclist[i].type));
+	    printf("       metric[0] %s: type %s\n", namelist[0], pmTypeStr(desclist[0].type));
+	    exit(1);
+	}
     }
 
     if ((sts = __pmFetch(NULL, numpmid, pmidlist, &req)) < 0) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019-2020,2023 Red Hat.
+ * Copyright (c) 2019-2020,2023,2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -23,22 +23,21 @@
 #include "zlib.h"
 #endif
 
-static int chunked_transfer_size; /* pmproxy.chunksize, pagesize by default */
+static int chunked_transfer_size; /* http.chunksize, pagesize by default */
 static int smallest_buffer_size = 128;
+static int max_age_value = 86400; /* 24h */
+static sds allowed_headers;
 
 /* https://tools.ietf.org/html/rfc7230#section-3.1.1 */
 #define MAX_URL_SIZE	8192
 #define MAX_PARAMS_SIZE 8000
 #define MAX_HEADERS_SIZE 128
 
-#define HEADER_ACCESS_CONTROL_MAX_AGE_VALUE 86400 /* 24h */
-
 static sds HEADER_ACCESS_CONTROL_REQUEST_HEADERS,
 	   HEADER_ACCESS_CONTROL_REQUEST_METHOD,
 	   HEADER_ACCESS_CONTROL_ALLOW_METHODS,
 	   HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
 	   HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
-	   HEADER_ACCESS_CONTROL_ALLOWED_HEADERS,
 	   HEADER_ACCESS_CONTROL_MAX_AGE,
 	   HEADER_CONNECTION, HEADER_CONTENT_LENGTH,
 	   HEADER_ORIGIN, HEADER_WWW_AUTHENTICATE;
@@ -191,7 +190,7 @@ json_string(const sds original)
 const char *
 http_content_type(http_flags_t flags)
 {
-    if (flags & HTTP_FLAG_JSON)
+    if (flags & (HTTP_FLAG_JSON|HTTP_FLAG_REQ_JSON))
 	return "application/json";
     if (flags & HTTP_FLAG_HTML)
 	return "text/html";
@@ -308,9 +307,9 @@ http_response_header(struct client *client, unsigned int length, http_code_t sts
 		"%S: %u\r\n",
 		HEADER_ACCESS_CONTROL_ALLOW_ORIGIN,
 		HEADER_ACCESS_CONTROL_ALLOW_HEADERS,
-		HEADER_ACCESS_CONTROL_ALLOWED_HEADERS,
+		allowed_headers,
 		HEADER_ACCESS_CONTROL_MAX_AGE,
-		HEADER_ACCESS_CONTROL_MAX_AGE_VALUE);
+		max_age_value);
 
     if (sts == HTTP_STATUS_UNAUTHORIZED && client->u.http.realm)
 	header = sdscatfmt(header, "%S: Basic realm=\"%S\"\r\n",
@@ -351,7 +350,7 @@ static sds
 http_headers_allowed(sds headers)
 {
     (void)headers;
-    return sdsdup(HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
+    return sdsdup(allowed_headers);
 }
 
 /* check whether the (preflight) method being proposed is acceptable */
@@ -382,17 +381,17 @@ http_methods_string(char *buffer, size_t length, http_options_t options)
 
     memset(buffer, 0, length);
     if (options & HTTP_OPT_GET)
-	strcat(p, ", GET");
+	pmstrncat(p, length, ", GET");
     if (options & HTTP_OPT_PUT)
-	strcat(p, ", PUT");
+	pmstrncat(p, length, ", PUT");
     if (options & HTTP_OPT_HEAD)
-	strcat(p, ", HEAD");
+	pmstrncat(p, length, ", HEAD");
     if (options & HTTP_OPT_POST)
-	strcat(p, ", POST");
+	pmstrncat(p, length, ", POST");
     if (options & HTTP_OPT_TRACE)
-	strcat(p, ", TRACE");
+	pmstrncat(p, length, ", TRACE");
     if (options & HTTP_OPT_OPTIONS)
-	strcat(p, ", OPTIONS");
+	pmstrncat(p, length, ", OPTIONS");
     return p + 2; /* skip leading comma+space */
 }
 
@@ -459,8 +458,7 @@ http_response_access(struct client *client, http_code_t sts, http_options_t opti
 			    "%S: %u\r\n",
 			    HEADER_ACCESS_CONTROL_ALLOW_METHODS,
 			    http_methods_string(buffer, sizeof(buffer), options),
-			    HEADER_ACCESS_CONTROL_MAX_AGE,
-			    HEADER_ACCESS_CONTROL_MAX_AGE_VALUE);
+			    HEADER_ACCESS_CONTROL_MAX_AGE, max_age_value);
 
 	value = http_header_value(client, HEADER_ACCESS_CONTROL_REQUEST_HEADERS);
 	if (value && (result = http_headers_allowed(value)) != NULL) {
@@ -500,14 +498,18 @@ http_reply(struct client *client, sds message,
 		    client->buffer ? (long unsigned)sdslen(client->buffer) : 0, client);
 
 	buffer = sdsempty();
-	suffix = client->buffer;
-	if (suffix == NULL) {	/* error or no data currently accumulated */
+
+	if (client->buffer == NULL) {
+	    /* error or no data currently accumulated */
 	    suffix = prepare_buffer(client, message, flags, 1);
 	} else if (message != NULL) {
-	    suffix = sdscatsds(suffix, message);
+	    suffix = sdscatsds(client->buffer, message);
 	    suffix = prepare_buffer(client, suffix, flags, 1);
 	    sdsfree(message);
+	} else {
+	    suffix = client->buffer;
 	}
+	client->buffer = NULL;
 	message = NULL;
 
 	pmsprintf(length, sizeof(length), "%lX",
@@ -515,8 +517,6 @@ http_reply(struct client *client, sds message,
 	buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, suffix);
 	sdsfree(suffix);
 	suffix = NULL;
-
-	client->buffer = NULL;
 
 	if (!(client->u.http.flags & HTTP_FLAG_FLUSHING)) {
 	    client->u.http.flags &= ~HTTP_FLAG_STREAMING; /* end of stream! */
@@ -537,10 +537,10 @@ http_reply(struct client *client, sds message,
 	} else if (message != NULL) {
 	    suffix = sdscatsds(client->buffer, message);
 	    sdsfree(message);
-	    client->buffer = NULL;
 	} else {
-	    suffix = sdsempty();
+	    suffix = client->buffer;
 	}
+	client->buffer = NULL;
 	suffix = prepare_buffer(client, suffix, flags, 1);
 	buffer = http_response_header(client, sdslen(suffix), sts, type);
     }
@@ -689,7 +689,8 @@ http_transfer(struct client *client)
 		pmsprintf(length, sizeof(length), "%lX",
 			    (unsigned long)sdslen(client->buffer));
 		buffer = sdscatfmt(buffer, "%s\r\n%S\r\n", length, client->buffer);
-		/* reset for next call - original released on I/O completion */
+		/* reset for next call - buffer released on I/O completion */
+		sdsfree(client->buffer);
 		client->buffer = NULL;	/* safe, as now held in 'buffer' */
 	    } else if (!buffer) {
 		return; /* streaming + compressing, nothing to send yet */
@@ -752,7 +753,6 @@ http_client_release(struct client *client)
 	sdsfree(client->u.http.realm);
 	client->u.http.realm = NULL;
     }
-
 }
 
 static int
@@ -1016,6 +1016,7 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 	}
     }
 
+    /* HTTP encoding (optional compression) */
     if (strncmp(field, "Accept-Encoding", 15) == 0) {
 	values = sdssplitlen(value, sdslen(value), ", ", 2, &nvalues);
 	for (i = 0; values && i < nvalues; i++) {
@@ -1054,6 +1055,24 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 	}
 	sdsfreesplitres(values, nvalues);
     }
+
+    /* HTTP client requesting response type (e.g. for /metrics) */
+    if (strncmp(field, "Accept", 7) == 0) {
+	values = sdssplitlen(value, sdslen(value), ", ", 2, &nvalues);
+	for (i = 0; values && i < nvalues; i++) {
+	    if (strcmp(values[i], "application/json") == 0) {
+		client->u.http.flags |= HTTP_FLAG_REQ_JSON;
+		break;
+	    }
+	    if (strcmp(values[i], "text/plain") == 0 ||
+		strcmp(values[i], "application/octet-stream") == 0) {
+		/* finish here, priority is set above JSON */
+		break;
+	    }
+	}
+	sdsfreesplitres(values, nvalues);
+    }
+
     return 0;
 }
 
@@ -1185,9 +1204,8 @@ on_http_client_read(struct proxy *proxy, struct client *client,
     size_t		bytes;
 
     if (pmDebugOptions.http || pmDebugOptions.query)
-	fprintf(stderr, "%s: %lld bytes from HTTP client %p\n%.*s",
-		"on_http_client_read", (long long)nread, client,
-		(int)nread, buf->base);
+	fprintf(stderr, "%s: %lld bytes from HTTP client %p\n",
+		"on_http_client_read", (long long)nread, client);
 
     if (nread <= 0)
 	return;
@@ -1260,28 +1278,46 @@ setup_http_module(struct proxy *proxy)
     values[VALUE_HTTP_COMPRESSED_BYTES] = mmv_lookup_value_desc(map,"compressed.bytes", NULL);
     values[VALUE_HTTP_UNCOMPRESSED_BYTES] = mmv_lookup_value_desc(map,"uncompressed.bytes", NULL);
 
-    if ((option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
+    if ((option = pmIniFileLookup(config, "http", "chunksize")) != NULL ||
+	(option = pmIniFileLookup(config, "pmproxy", "chunksize")) != NULL)
 	chunked_transfer_size = atoi(option);
     else
 	chunked_transfer_size = getpagesize();
     if (chunked_transfer_size < smallest_buffer_size)
 	chunked_transfer_size = smallest_buffer_size;
 
+    allowed_headers = sdsnew("Accept, Accept-Language, Content-Language, Content-Type");
+    if ((option = pmIniFileLookup(config, "http", "Access-Control-Allow-Headers")))
+	allowed_headers = sdscatfmt(allowed_headers, ", %S", option);
+
+    if ((option = pmIniFileLookup(config, "http", "Access-Control-Max-Age")))
+	max_age_value = atoi(option);
+
     HEADER_ACCESS_CONTROL_REQUEST_HEADERS = sdsnew("Access-Control-Request-Headers");
     HEADER_ACCESS_CONTROL_REQUEST_METHOD = sdsnew("Access-Control-Request-Method");
     HEADER_ACCESS_CONTROL_ALLOW_METHODS = sdsnew("Access-Control-Allow-Methods");
     HEADER_ACCESS_CONTROL_ALLOW_HEADERS = sdsnew("Access-Control-Allow-Headers");
     HEADER_ACCESS_CONTROL_ALLOW_ORIGIN = sdsnew("Access-Control-Allow-Origin");
-    HEADER_ACCESS_CONTROL_ALLOWED_HEADERS = sdsnew("Accept, Accept-Language, Content-Language, Content-Type");
     HEADER_ACCESS_CONTROL_MAX_AGE = sdsnew("Access-Control-Max-Age");
     HEADER_CONNECTION = sdsnew("Connection");
     HEADER_CONTENT_LENGTH = sdsnew("Content-Length");
     HEADER_ORIGIN = sdsnew("Origin");
     HEADER_WWW_AUTHENTICATE = sdsnew("WWW-Authenticate");
 
+    register_servlet(proxy, &pmlogger_servlet);
     register_servlet(proxy, &pmsearch_servlet);
     register_servlet(proxy, &pmseries_servlet);
     register_servlet(proxy, &pmwebapi_servlet);
+}
+
+void
+reset_http_module(struct proxy *proxy)
+{
+    struct servlet	*servlet;
+
+    for (servlet = proxy->servlets; servlet != NULL; servlet = servlet->next)
+	if (servlet->reset)
+	    servlet->reset(proxy);
 }
 
 void
@@ -1299,7 +1335,6 @@ close_http_module(struct proxy *proxy)
     sdsfree(HEADER_ACCESS_CONTROL_ALLOW_METHODS);
     sdsfree(HEADER_ACCESS_CONTROL_ALLOW_HEADERS);
     sdsfree(HEADER_ACCESS_CONTROL_ALLOW_ORIGIN);
-    sdsfree(HEADER_ACCESS_CONTROL_ALLOWED_HEADERS);
     sdsfree(HEADER_ACCESS_CONTROL_MAX_AGE);
     sdsfree(HEADER_CONNECTION);
     sdsfree(HEADER_CONTENT_LENGTH);

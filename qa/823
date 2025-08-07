@@ -55,9 +55,9 @@ _save_config $PCP_SASLCONF_DIR/pmcd.conf
 echo 'mech_list: plain' >$tmp.sasl
 echo "sasldb_path: $tmp.passwd.db" >>$tmp.sasl
 $sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
-$sudo chown pcp:pcp $PCP_SASLCONF_DIR/pmcd.conf
+$sudo chown $PCP_USER:$PCP_GROUP $PCP_SASLCONF_DIR/pmcd.conf
 ls -l $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
-$sudo -u pcp cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
+$sudo -u $PCP_USER cat $PCP_SASLCONF_DIR/pmcd.conf >>$seq_full
 
 echo "Creating temporary sasldb, add user running QA to it" | tee -a $seq_full
 echo y | saslpasswd2 -p -a pmcd -f $tmp.passwd.db $username
@@ -68,9 +68,9 @@ sasldblistusers2 -f $tmp.passwd.db \
 | _filter_listusers2
 
 echo "Ensure pmcd can read the password file" | tee -a $seq_full
-$sudo chown pcp:pcp $tmp.passwd.db
+$sudo chown $PCP_USER:$PCP_GROUP $tmp.passwd.db
 ls -l $tmp.passwd.db >>$seq_full
-$sudo -u pcp od -c $tmp.passwd.db >>$seq_full
+$sudo -u $PCP_USER od -c $tmp.passwd.db >>$seq_full
 
 echo "Start pmcd with this shiny new sasldb"
 if ! _service pcp restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
@@ -78,10 +78,8 @@ _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 
 echo "Enabling sample PMDA tracing" | tee -a $seq_full
-authdbg=`pmdbg -l -o | grep DBG_TRACE_AUTH | awk '{ print $2 }'`
-echo "authdbg=$authdbg" >>$seq_full
 echo "username=$username" >>$seq_full
-pmstore sample.control "$authdbg"
+pmstore sample.control "auth"
 
 echo "Verifying SASL authentication for new client (FAIL)" | tee -a $seq_full
 pmprobe -v -h "pcp://localhost?username=${username}&password=n" sample.control 2>&1\

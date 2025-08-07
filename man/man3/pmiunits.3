@@ -21,39 +21,46 @@
 \f3pmiInDom\f1 \- construct core metric data structures
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
 pmID pmiID(int \fIdomain\fP, int \fIcluster\fP, int \fIitem\fP);
-.ti -8n
+.br
 pmInDom pmiInDom(int \fIdomain\fP, int \fIserial\fP);
-.ti -8n
-pmUnits pmiUnits(int \fIdimSpace\fP, int \fIdimTime\fP, int \fIdimCount\fP, int\ \fIscaleSpace\fP, int\ \fIscaleTime\fP, int\ \fIscaleCount\fP);
-.sp
+.br
+pmUnits pmiUnits(int \fIdimSpace\fP,
+'in +\w'pmUnits pmiUnits('u
+int\ \fIdimTime\fP,
+int\ \fIdimCount\fP,
+int\ \fIscaleSpace\fP,
+int\ \fIscaleTime\fP,
+int\ \fIscaleCount\fP);
 .in
+.sp
+cc ... \-lpcp_import \-lpcp
 .hy
 .ad
-cc ... \-lpcp_import \-lpcp
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
-use PCP::LogImport;
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-$pmid = pmiID($\fIdomain\fP, $\fIcluster\fP, $\fIitem\fP);
-.ti -8n
-$indom = pmiInDom($\fIdomain\fP, $\fIserial\fP);
-.ti -8n
-$units = pmiUnits($\fIdimSpace\fP, $\fIdimTime\fP, $\fIdimCount\fP, $\fIscaleSpace\fP, $\fIscaleTime\fP, $\fIscaleCount\fP);
+use PCP::LogImport;
 .sp
+$pmid = pmiID($\fIdomain\fP, $\fIcluster\fP, $\fIitem\fP);
+.br
+$indom = pmiInDom($\fIdomain\fP, $\fIserial\fP);
+.br
+$units = pmiUnits($\fIdimSpace\fP,
+'in +\w'$units = pmiUnits('u
+$\fIdimTime\fP,
+$\fIdimCount\fP,
+$\fIscaleSpace\fP,
+$\fIscaleTime\fP,
+$\fIscaleCount\fP);
 .in
 .hy
 .ad

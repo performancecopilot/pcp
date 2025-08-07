@@ -1012,7 +1012,7 @@ __pmdaSetup(pmdaInterface *dispatch, int version, const char *name)
     }
     extp->dispatch = dispatch;
     pmda->e_ext = (void *)extp;
-    pmdaSetResultCallBack(dispatch, __pmFreeResultValues);
+    pmdaSetResultCallBack(dispatch, __pmFreeResultValues_v2);
 }
 
 /*

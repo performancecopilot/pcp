@@ -21,6 +21,31 @@ status=1
 trap "_cleanup" 0 1 2 3 15
 needclean=true
 
+_check_pmlogger_lock()
+{
+    rm -f $tmp.checklog
+    find $PCP_ARCHIVE_DIR -name lock \
+    | while read _lock
+    do
+	ls -l $_lock >>$seq_full
+	cat $_lock >>$tmp.checklock
+    done
+    if [ -s $tmp.checklock ]
+    then
+	echo "!!! found pmlogger lock(s) @ `date` ..." >>$seq_full
+	cat $tmp.checklock >>$seq_full
+	echo "I am PID $$" >>$seq_full
+	cat $tmp.checklock \
+	| while read _pid _who
+	do
+	    echo "locker pid $_pid who $_who" >>$seq_full
+	    _pstree_all $_pid
+	done
+    else
+	echo "!!! no pmlogger locks @ `date` ..." >>$seq_full
+    fi
+}
+
 _cleanup()
 {
     if $needclean
@@ -29,10 +54,12 @@ _cleanup()
 	needclean=false
 	_restore_primary_logger
 	echo "Stop/start at end ... " `date` >>$seq_full
+	_check_pmlogger_lock
 	_service pmlogger start 2>&1 | _filter_pcp_start
 	_wait_for_pmlogger
 	_restore_job_scheduler $tmp.cron $tmp.systemd $sudo
 	echo "Stop/start done " `date` >>$seq_full
+	_check_pmlogger_lock
     fi
     $sudo rm -f $tmp.*
     exit $status
@@ -50,7 +77,9 @@ control=$PCP_PMLOGGERCONTROL_PATH.d/local
 
 # stop primary logger, add -Dlog to config file and restart pmlogger
 echo "Stop/start at beginning ... " `date` >>$seq_full
+_check_pmlogger_lock
 _remove_job_scheduler $tmp.cron $tmp.systemd $sudo
+_check_pmlogger_lock
 if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
 echo "Stop/start done " `date` >>$seq_full
 
@@ -60,6 +89,7 @@ $sudo cp $tmp.control $control
 _writable_primary_logger
 if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmlogger || _exit 1
+_check_pmlogger_lock
 
 # real QA test starts here
 
@@ -71,7 +101,8 @@ do
 connect primary
 query sample.event
 log mandatory on once sample.event.records
-sleep 20
+# units are milliseconds
+sleep 200
 query sample.event
 End-of-File
     if grep 'Address already in use' <$tmp.out >>$seq_full

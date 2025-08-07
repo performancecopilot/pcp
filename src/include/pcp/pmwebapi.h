@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2022 Red Hat.
+ * Copyright (c) 2017-2022,2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -213,7 +213,7 @@ typedef void (*pmDiscoverLabelsCallBack)(pmDiscoverEvent *,
 typedef void (*pmDiscoverMetricCallBack)(pmDiscoverEvent *,
 		pmDesc *, int, char **, void *);
 typedef void (*pmDiscoverValuesCallBack)(pmDiscoverEvent *,
-		pmHighResResult *, void *);
+		pmResult *, void *);
 typedef void (*pmDiscoverInDomCallBack)(pmDiscoverEvent *,
 		pmInResult *, void *);
 typedef void (*pmDiscoverTextCallBack)(pmDiscoverEvent *,
@@ -367,7 +367,6 @@ typedef struct pmWebGroupSettings {
     pmWebGroupCallBacks		callbacks;
 } pmWebGroupSettings;
 
-struct dict;	/* parameters dictionary */
 extern int pmWebGroupContext(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupDerive(pmWebGroupSettings *, sds, struct dict *, void *);
 extern void pmWebGroupFetch(pmWebGroupSettings *, sds, struct dict *, void *);
@@ -384,6 +383,44 @@ extern int pmWebGroupSetEventLoop(pmWebGroupModule *, void *);
 extern int pmWebGroupSetConfiguration(pmWebGroupModule *, struct dict *);
 extern int pmWebGroupSetMetricRegistry(pmWebGroupModule *, struct mmv_registry *);
 extern void pmWebGroupClose(pmWebGroupModule *);
+
+/*
+ * Interfaces providing pmlogger 'push' functionality -
+ * a webhook for central recording of PCP archive data, but
+ * without centrally managed configuration of monitored hosts.
+ */
+
+typedef void (*pmLogArchiveCallBack)(int, void *);
+typedef void (*pmLogStatusCallBack)(int, void *);
+
+typedef struct pmLogGroupCallBacks {
+    pmLogArchiveCallBack	on_archive;	/* archive label established */
+    pmLogStatusCallBack		on_done;	/* all-purpose done callback */
+} pmLogGroupCallBacks;
+
+typedef struct pmLogGroupModule {
+    pmLogInfoCallBack		on_info;	/* general diagnostics call */
+    pmDiscoverModule		*discover;
+    void			*privdata;	/* private internal lib data */
+} pmLogGroupModule;
+
+typedef struct pmLogGroupSettings {
+    pmLogGroupModule		module;
+    pmLogGroupCallBacks		callbacks;
+} pmLogGroupSettings;
+
+extern int pmLogGroupLabel(pmLogGroupSettings *, const char *, size_t, struct dict *, void *);
+extern int pmLogGroupMeta(pmLogGroupSettings *, int, const char *, size_t, struct dict *, void *);
+extern int pmLogGroupIndex(pmLogGroupSettings *, int, const char *, size_t, struct dict *, void *);
+extern int pmLogGroupVolume(pmLogGroupSettings *, int, unsigned int, const char *, size_t, struct dict *, void *);
+
+extern int pmLogGroupSetup(pmLogGroupModule *);
+extern int pmLogGroupSetEventLoop(pmLogGroupModule *, void *);
+extern int pmLogGroupSetConfiguration(pmLogGroupModule *, struct dict *);
+extern int pmLogGroupSetMetricRegistry(pmLogGroupModule *, struct mmv_registry *);
+extern int pmLogPathsSetMetricRegistry(pmLogGroupModule *, struct mmv_registry *);
+extern void pmLogPathsReset(pmLogGroupModule *);
+extern void pmLogGroupClose(pmLogGroupModule *);
 
 /*
  * Full text search for metrics and instance domains.

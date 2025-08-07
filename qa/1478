@@ -38,17 +38,6 @@ _filter()
     # end
 }
 
-# strip ls -l output to the essentials ...
-# drwxrwxr-x 2 pcpqa pcpqa 4096 Jan 16 15:09 TMP/run
-# ^^^^^^^^^^   ^^^^^ ^^^^^                   ^^^^^^^
-#           . (maybe)
-_myls()
-{
-    $PCP_AWK_PROG '{ print $1,$3,$4,$9 }' \
-    | sed -e 's/r-x\. /r-x /' \
-    | _filter
-}
-
 mkdir $tmp
 
 # setup a "correct" NOTICES to avoid babble from trying to
@@ -90,12 +79,12 @@ $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
 echo
 echo "=== \$PCP_RUN_DIR missing"
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
-ls -ld $tmp/run | _myls
+ls -ld $tmp/run | _filter_ls -s | _filter
 
 echo
 echo "=== \$PCP_RUN_DIR exists and OK, so do nothing"
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
-ls -ld $tmp/run | _myls
+ls -ld $tmp/run | _filter_ls -s | _filter
 
 echo
 echo "=== \$PCP_RUN_DIR exists but various problems ..."
@@ -103,16 +92,16 @@ echo "--- wrong user"
 iam=`id -u`
 $sudo chown $iam:pcpqa $tmp/run
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
-ls -ld $tmp/run | _myls
+ls -ld $tmp/run | _filter_ls -s | _filter
 echo "--- wrong group"
 iam=`id -g`
 $sudo chown pcpqa:$iam $tmp/run
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
-ls -ld $tmp/run | _myls
+ls -ld $tmp/run | _filter_ls -s | _filter
 echo "--- wrong mode"
 $sudo chmod 755 $tmp/run
 $sudo $PCP_BINADM_DIR/pcp-reboot-init 2>&1 | _filter
-ls -ld $tmp/run | _myls
+ls -ld $tmp/run | _filter_ls -s | _filter
 
 # success, all done
 exit

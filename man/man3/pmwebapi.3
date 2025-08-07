@@ -1,6 +1,6 @@
 '\" t
 .\"
-.\" Copyright (c) 2013-2022 Red Hat.
+.\" Copyright (c) 2013-2022,2025 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -18,6 +18,8 @@
 \f3PMWEBAPI\f1 \- introduction to the Performance Metrics Web Application Programming Interface
 .SH HTTP SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 GET /metrics
 .br
 GET /series/...
@@ -25,9 +27,15 @@ GET /series/...
 GET /search/...
 .br
 GET /pmapi/...
+.br
+POST /logger/...
+.hy
+.ad
 .ft 1
 .SH C SYNOPSIS
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmwebapi.h>
 .sp
 .ft 1
@@ -35,6 +43,8 @@ GET /pmapi/...
 .ft 3
 .sp
 cc ... \-lpcp_web \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de SAMPLE
@@ -74,13 +84,12 @@ The examples in the scalable time series section use
 historical data recorded by the
 .BR pmlogger (1)
 service, in conjunction with a local key-value server/
-.SH OPEN METRICS
-Exporting of live performance metrics in an Open Metrics
-compatible format (as described at
-.I https://openmetrics.io
-and popularized by the
-.I https://prometheus.io
-project) is available.
+.SH OPEN METRICS AND OPEN TELEMETRY
+Exporting of live performance metrics in either Open Metrics (\c
+.IR https://openmetrics.io )
+or Open Telemetry (\c
+.IR https://opentelemetry.io )
+formats is available.
 .PP
 All requests are performed on the web server host by default,
 unless a
@@ -94,7 +103,7 @@ lf(CR) | l | l.
 Parameters	Type	Explanation
 _
 names	string	Comma-separated list of metric names
-filter	string	Comma-separated list of excluded metric names (default glob matching)
+filter	string	Comma-separated list of excluded metric names
 match	string	Pattern matching style (exact, glob or regex)
 times	boolean	Append sample times (milliseconds since epoch)
 _
@@ -106,17 +115,54 @@ metrics indicated by a comma-separated list of
 .IR names .
 .PP
 For all numeric metrics with the given NAME prefixes, create
-an Open Metrics (Prometheus) text export format giving their
-current value and related metadata.
+an open text export format giving their current value and
+related metadata.
 .PP
-The response has plain text type rather than JSON commonly
-used elsewhere in the REST API.
-This format can be ingested by many open source monitoring
-tools, including Prometheus and
-.BR pmdaopenmetrics (1).
+Choice of output format is selected using the HTTP
+.I Accept
+header.
+With no header, the default response format is Open Metrics
+.IR text .
+Using the header with value
+.I application/json
+switches the response to the Open Telemetry JSON format.
 .PP
-The native PCP metric metadata (metric name, type, indom,
-semantics and units) is first output for each metric with
+In Open Telemetry response mode, sample timestamps are always
+included and are reported using nanosecond precision.
+.SAMPLE
+$ curl -H Accept:application/json -s http://localhost:44322/metrics?names=disk.dev,filesys | pmjson
+{
+    "resourceMetrics": [
+        {
+            "resource": {
+                "attributes": [ ... ]
+            },
+            "scopeMetrics": [
+                {
+                    "scope": { ... },
+                    "metrics": [
+                        {
+                            "name": "disk_dev_total_bytes",
+                            "description": "per-disk count of total bytes read and written",
+                            "unit": "KiBy",
+                            "sum": {
+                                "aggregationTemporality": "CUMULATIVE",
+                                "isMonotonic": true,
+                                "dataPoints": [
+                                    {
+                                        "attributes": [ ... ]
+                                        "timeUnixNano": "1753934255798173",
+                                        "asInt": "68927569"
+                                    }
+                                ]
+                            }
+                        },
+                        ...
+.ESAMPLE
+.PP
+In Open Metrics response mode, the native PCP metric metadata
+(metric name, type, indom, semantics and units) is first output
+for each metric with
 .B # PCP
 prefix.
 The metadata reported is of the form described on
@@ -140,6 +186,16 @@ where "# PCP" is the identifying line suffix).
 Both metric labels and instances are represented as Prometheus
 labels, with external instance names being quoted and the
 flattened PCP metric hierarchy being presented with each value.
+.PP
+When metric
+.I names
+pattern matching is performed using the
+.I filter
+option, the default mode is glob-based matching.
+The
+.I match
+option can be used to instead request regex-based or
+exact-match metric filtering.
 .SAMPLE
 $ curl -s http://localhost:44322/metrics?names=proc.nprocs,kernel.pernode.cpu.intr,filesys.blocksize
 
@@ -179,6 +235,10 @@ this case, with top level "client" and "result" fields.
 REST API clients can optionally submit an URL-encoded query string
 in the body of the HTTP request unless otherwise noted.
 In this case the POST method must be used instead of the GET method.
+.SS GET \fI/series/ping\fR
+.PP
+Simple liveness test for clients to check whether the server is up
+and supports the \fI/series\fR API.
 .SS GET \fI/series/query\fR \- \fBpmSeriesQuery\fR(3)
 .TS
 box;
@@ -1202,11 +1262,59 @@ client	string	Request identifier sent back with response
 .TE
 .P
 This request is a subset of the style described in the
-``OPEN METRICS'' section, allowing a web context
-identifier to be passed as a parameter.
+``OPEN METRICS AND OPEN TELEMETRY'' section, allowing a web
+context identifier to be passed as a parameter.
 It is otherwise very similar in terms of parameters
 and response handling, please refer to the earlier section
 for details.
+.SH ARCHIVE WEBHOOK \- \fBLOGARCHIVE\fR(5)
+Remote archive push functionality is available via the
+.BR pmlogger (1)
+and
+.BR pmlogpush (1)
+utilities.
+This is achieved through a series of HTTP POST operations to
+the API endpoints described here.
+.PP
+All requests in this group can be accompanied by an optional
+.IR client
+parameter.
+The value passed in the request will be sent back in the
+response \- all responses are in JSON object form and will
+include an additional top level "client" field.
+.SS GET \fI/logger/ping\fR
+.P
+Basic liveness test for clients to check whether the server is up
+and supports the \fI/logger\fR API.
+.SS POST \fI/logger/label\fR
+.P
+The body of this API is the machine-agnostic binary (on-disk)
+representation of a PCP archive label as described in
+.BR LOGARCHIVE (5).
+Either version 2 and 3 are accepted, and the
+.I volume
+field of this stucture will be ignored \- one API call suffices
+for all of the volumes of an archive,
+.B pmproxy
+ensures correct content is written for each.
+.P
+This API returns a numeric token (LOGID) that must be used in all
+subsequent API interactions for this archive as described below.
+.SS POST \fI/logger/meta/LOGID\fR
+.P
+The request body contains metadata file records as described in
+.BR LOGARCHIVE .
+.SS POST \fI/logger/index/LOGID\fR
+.P
+The request body contains temporal index records as described in
+.BR LOGARCHIVE .
+.SS POST \fI/logger/volume/VOLID/LOGID\fR
+.P
+The request body contains timestamped metric value samples, as
+described in
+.BR LOGARCHIVE .
+The numeric volume (VOLID) to which these records is to be
+written is a mandatory part of the API endpoint.
 .SH NOTES
 For the REST APIs, errors generally result in HTTP-level
 error responses.
@@ -1232,11 +1340,13 @@ header is added to all REST API responses.
 .BR pminfo (1),
 .BR pmjson (1),
 .BR pmlogger (1),
+.BR pmlogpush (1),
 .BR pmproxy (1),
 .BR pmseries (1),
-.BR PCPIntro (3)
-and
+.BR PCPIntro (3),
 .BR PMAPI (3)
+and
+.BR LOGARCHIVE (5)
 
 .\" control lines for scripts/man-spell
 .\" +ok+ offset_bits_per_record_avg kernel_pernode_cpu_intr

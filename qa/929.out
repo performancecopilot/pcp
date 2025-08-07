@@ -1,11 +1,11 @@
 QA output created by 929
 # $version=1.1    
 + export version; version=1.1    
-
-=== daily maintenance of PCP archives for host one.somewhere ===
-
 + cd TMP.one
 + get mutex lock
+
+=== daily maintenance of PCP archives for host one.somewhere in TMP.one ===
+
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "one.somewhere"
 ... logging for host "one.somewhere" unchanged
@@ -13,11 +13,12 @@ pmlogger_daily: [TMP.control:3]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.00.10
 + pmlogmv -V -N PAST.00.10 PAST
-
-=== daily maintenance of PCP archives for host two.somewhere ===
-
++ release mutex lock
 + cd TMP.two
 + get mutex lock
+
+=== daily maintenance of PCP archives for host two.somewhere in TMP.two ===
+
 pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "two.somewhere"
 ... logging for host "two.somewhere" unchanged
@@ -26,27 +27,30 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.00.10
 + pmlogrewrite -iq -c $PCP_VAR_DIR/config/pmlogrewrite PAST.13.13
 + pmlogger_merge -V -N  -f PAST.00.10 PAST.13.13 PAST
++ release mutex lock
 
 --- -M case ---
 # $version=1.1    
 + export version; version=1.1    
-
-=== daily maintenance of PCP archives for host one.somewhere ===
-
 + cd TMP.one
 + get mutex lock
+
+=== daily maintenance of PCP archives for host one.somewhere in TMP.one ===
+
 pmlogger_daily: [TMP.control:3]
 Error: no pmlogger instance running for host "one.somewhere"
 ... logging for host "one.somewhere" unchanged
 pmlogger_daily: [TMP.control:3]
 Warning: skipping log rotation because we don't know which pmlogger to signal
-
-=== daily maintenance of PCP archives for host two.somewhere ===
-
++ release mutex lock
 + cd TMP.two
 + get mutex lock
+
+=== daily maintenance of PCP archives for host two.somewhere in TMP.two ===
+
 pmlogger_daily: [TMP.control:4]
 Error: no pmlogger instance running for host "two.somewhere"
 ... logging for host "two.somewhere" unchanged
 pmlogger_daily: [TMP.control:4]
 Warning: skipping log rotation because we don't know which pmlogger to signal
++ release mutex lock

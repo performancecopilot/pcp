@@ -1,0 +1,116 @@
+#!/bin/sh
+# PCP QA Test No. 1869
+# pmlogger_daily for pmproxy-pushed archives (like 1698)
+# - cull and compress testing
+# - see qa/1845 for rewrite and merge testing
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq_full \
+    | sed \
+	-e '/^+ date-and-timestamp /d' \
+	-e '/^+ pmsignal -s HUP /d' \
+	-e '/Warning: skipping log rotation/d' \
+	-e '/Warning: current volume of current pmlogger not known/d' \
+	-e "s@$tmp@TMP@g" \
+	-e "s@\[.*/control@[TMP/control@" \
+	-e "s/`pmdate -1d %Y%m%d`/TODAY-1/g" \
+	-e "s/`pmdate -3d %Y%m%d`/TODAY-3/g" \
+	-e "s/`pmdate -5d %Y%m%d`/TODAY-5/g" \
+	-e "s/`pmdate -7d %Y%m%d`/TODAY-7/g" \
+    # end
+}
+
+export PCP_LOG_DIR=$tmp
+
+mkdir -p $PCP_LOG_DIR/pmproxy/qahost || exit 1
+# make dates an odd number of days back from now so
+# we can cull using an even number of dates
+cat <<End-of-File >$tmp.config
+qahost	tmparch/mv-foo	`pmdate -1d %Y%m%d`
+qahost	tmparch/foo	`pmdate -3d %Y%m%d`
+qahost	tmparch/mv-foo	`pmdate -5d %Y%m%d`
+qahost	tmparch/foo	`pmdate -7d %Y%m%d`
+End-of-File
+./mk.logfarm -c $tmp.config $PCP_LOG_DIR/pmproxy
+ls -lR $tmp >>$seq_full
+
+cat <<End-of-File >$tmp.control
+\$version=1.1
+End-of-File
+
+# real QA test starts here
+echo "== default options ==="
+$PCP_BINADM_DIR/pmlogger_daily -V -N -c $tmp.control >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+
+echo
+echo "== -k 4 -x 2 =="
+$PCP_BINADM_DIR/pmlogger_daily -V -N -c $tmp.control -k 4 -x 2 >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+
+echo
+echo "== \$PCP_CULLAFTER=4 and \$PCP_COMPRESSAFTER=2 in top-level control file  =="
+cat <<'End-of-File' >$PCP_LOG_DIR/pmproxy/control
+$PCP_CULLAFTER=4
+$PCP_COMPRESSAFTER=2
+End-of-File
+$PCP_BINADM_DIR/pmlogger_daily -V -N -c $tmp.control >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+rm -f $PCP_LOG_DIR/pmproxy/control
+
+echo
+echo "== \$PCP_CULLAFTER=4 in top-level and \$PCP_COMPRESSAFTER=2 in per-host control files  =="
+cat <<'End-of-File' >$PCP_LOG_DIR/pmproxy/control
+$PCP_CULLAFTER=4
+End-of-File
+cat <<'End-of-File' >$PCP_LOG_DIR/pmproxy/qahost/control
+$PCP_COMPRESSAFTER=2
+End-of-File
+$PCP_BINADM_DIR/pmlogger_daily -V -N -c $tmp.control >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+rm -f $PCP_LOG_DIR/pmproxy/control $PCP_LOG_DIR/pmproxy/qahost/control
+
+echo
+echo "== \$PCP_CULLAFTER=? and \$PCP_COMPRESSAFTER=? in both control files  =="
+cat <<'End-of-File' >$PCP_LOG_DIR/pmproxy/control
+$PCP_CULLAFTER=6
+$PCP_COMPRESSAFTER=4
+End-of-File
+cat <<'End-of-File' >$PCP_LOG_DIR/pmproxy/qahost/control
+$PCP_CULLAFTER=4
+$PCP_COMPRESSAFTER=2
+End-of-File
+$PCP_BINADM_DIR/pmlogger_daily -V -N -c $tmp.control >$tmp.tmp 2>&1
+_filter <$tmp.tmp
+rm -f $PCP_LOG_DIR/pmproxy/control $PCP_LOG_DIR/pmproxy/qahost/control
+
+# success, all done
+exit

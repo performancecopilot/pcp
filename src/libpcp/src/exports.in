@@ -8,86 +8,17 @@
 #    #endif
 #    where <name> is one of the values for $PCP_PLATFORM from pcp.conf
 #
-PCP_3.0 {
+PCP_4.0 {
   global:
-    pmAddProfile;
-    pmAtomStr;
-    pmAtomStr_r;
-    pmConvScale;
-    pmCtime;
-    pmDebug;
-    pmDelProfile;
-    pmDerivedErrStr;
-    pmDestroyContext;
-    pmDupContext;
-    pmErrStr;
-    pmErrStr_r;
-    pmEventFlagsStr;
-    pmEventFlagsStr_r;
-    pmExtractValue;
-    pmFetch;
-    pmFetchArchive;
-    pmflush;
-    pmFreeEventResult;
-    pmFreeMetricSpec;
-    pmFreeResult;
-    pmGetArchiveEnd;
-    pmGetArchiveLabel;
-    pmGetChildren;
-    pmGetChildrenStatus;
-    pmGetConfig;
-    pmGetContextHostName;
-    pmGetInDom;
-    pmGetInDomArchive;
-    pmGetPMNSLocation;
-    pmIDStr;
-    pmIDStr_r;
-    pmInDomStr;
-    pmInDomStr_r;
-    pmLoadASCIINameSpace;
-    pmLoadDerivedConfig;
-    pmLoadNameSpace;
-    pmLocaltime;
-    pmLookupDesc;
-    pmLookupInDom;
-    pmLookupInDomArchive;
-    pmLookupInDomText;
-    pmLookupName;
-    pmLookupText;
-    pmNameAll;
-    pmNameID;
-    pmNameInDom;
-    pmNameInDomArchive;
-    pmNewContext;
-    pmNewContextZone;
-    pmNewZone;
-    pmNumberStr;
-    pmNumberStr_r;
-    pmParseInterval;
-    pmParseMetricSpec;
-    pmParseTimeWindow;
-    pmprintf;
-    pmPrintValue;
-    pmProgname;
-    pmReconnectContext;
-    pmRegisterDerived;
-    pmSetMode;
-    pmSortInstances;
-    pmStore;
-    pmTraversePMNS;
-    pmTraversePMNS_r;
-    pmTrimNameSpace;
-    pmTypeStr;
-    pmTypeStr_r;
-    pmUnitsStr;
-    pmUnitsStr_r;
-    pmUnloadNameSpace;
-    pmUnpackEventRecords;
-    pmUseContext;
-    pmUseZone;
-    pmWhichContext;
-    pmWhichZone;
-
+    __htonpmTimestamp;
+    __ntohpmTimestamp;
+    __pmAFblock;
+    __pmAFisempty;
+    __pmAFregister;
+    __pmAFsetup;
+    __pmAFunblock;
+    __pmAFunregister;
+    __pmAPIConfig;
     __pmAbsolutePath;
     __pmAccAddAccount;
     __pmAccAddClient;
@@ -100,158 +31,283 @@ PCP_3.0 {
     __pmAccDumpHosts;
     __pmAccDumpLists;
     __pmAccDumpUsers;
-    __pmAccept;
     __pmAccFreeSavedLists;
     __pmAccRestoreHosts;
     __pmAccRestoreLists;
     __pmAccSaveHosts;
     __pmAccSaveLists;
+    __pmAccept;
+    __pmAccess;
     __pmAddHostPorts;
+    __pmAddLabels;
+    __pmAddOptArchive;
+    __pmAddOptArchiveFolio;
+    __pmAddOptArchiveList;
+    __pmAddOptArchivePath;
+    __pmAddOptContainer;
+    __pmAddOptHost;
+    __pmAddOptHostList;
     __pmAddPMNSNode;
-    __pmAFblock;
-    __pmAFisempty;
-    __pmAFregister;
-    __pmAFunblock;
-    __pmAFunregister;
-    __pmAPIConfig;
+    __pmAllocResult;
     __pmAttrKeyStr_r;
     __pmAttrStr_r;
     __pmAuxConnectPMCD;
     __pmAuxConnectPMCDPort;
     __pmAuxConnectPMCDUnixSocket;
     __pmBind;
+    __pmCheckAttribute;
+    __pmCheckDupLabels;
     __pmCheckEventRecords;
+    __pmCleanMapDir;
+    __pmClearerr;
     __pmCloseSocket;
     __pmConfig;
     __pmConnect;
+    __pmConnectCheckError;
     __pmConnectGetPorts;
     __pmConnectLocal;
     __pmConnectLogger;
     __pmConnectPMCD;
+    __pmConnectRestoreFlags;
+    __pmConnectTimeout;
     __pmConnectTo;
     __pmControlLog;
-    __pmConvertTime;
     __pmCountPDUBuf;
     __pmCreateIPv6Socket;
     __pmCreateSocket;
     __pmCreateUnixSocket;
+    __pmCtlDebug;
     __pmDataIPC;
     __pmDataIPCSize;
+    __pmDecodeAttr;
     __pmDecodeAuth;
     __pmDecodeChildReq;
     __pmDecodeCreds;
     __pmDecodeDesc;
     __pmDecodeDescReq;
+    __pmDecodeDescs2;
+    __pmDecodeDescs;
     __pmDecodeError;
     __pmDecodeFetch;
+    __pmDecodeHighResFetch;
+    __pmDecodeHighResResult;
+    __pmDecodeHighResResult_ctx;
+    __pmDecodeIDList2;
     __pmDecodeIDList;
     __pmDecodeInstance;
     __pmDecodeInstanceReq;
+    __pmDecodeLabel;
+    __pmDecodeLabelReq;
     __pmDecodeLogControl;
     __pmDecodeLogRequest;
     __pmDecodeLogStatus;
     __pmDecodeNameList;
     __pmDecodeProfile;
     __pmDecodeResult;
+    __pmDecodeResult_ctx;
     __pmDecodeText;
     __pmDecodeTextReq;
     __pmDecodeTraversePMNSReq;
+    __pmDecodeValueSet;
     __pmDecodeXtendError;
+    __pmDiscoverServicesWithOptions;
     __pmDropHostPort;
     __pmDumpContext;
+    __pmDumpDebug;
     __pmDumpErrTab;
     __pmDumpEventRecords;
+    __pmDumpFetchFlags;
+    __pmDumpHighResEventRecords;
     __pmDumpIDList;
     __pmDumpInResult;
+    __pmDumpLabelSet;
+    __pmDumpLabelSets;
     __pmDumpNameAndStatusList;
     __pmDumpNameList;
+    __pmDumpNameNode;
     __pmDumpNameSpace;
+    __pmDumpPDUCnt;
+    __pmDumpPDUTrace;
     __pmDumpProfile;
     __pmDumpResult;
+    __pmDumpResult_v2;
+    __pmDumpStack;
+    __pmDumpStackInit;
     __pmDumpStatusList;
+    __pmDupLabelSets;
+    __pmDupLogInDom;
+    __pmEncodeHighResResult;
     __pmEncodeResult;
+    __pmEndOptions;
+    __pmEqualLabelSet;
+    __pmEquivInDom;
     __pmExportPMNS;
-    __pmFaultInject;
-    __pmFaultSummary;
     __pmFD;
     __pmFD_CLR;
     __pmFD_COPY;
     __pmFD_ISSET;
     __pmFD_SET;
     __pmFD_ZERO;
+    __pmFaultInject;
+    __pmFaultSummary;
+    __pmFclose;
+    __pmFdopen;
+    __pmFeaturesIPC;
+    __pmFeof;
+    __pmFerror;
+    __pmFetch;
+    __pmFetchArchive;
+    __pmFetchHighResLocal;
+    __pmFetchLocal;
+    __pmFflush;
+    __pmFgetc;
+    __pmFileno;
     __pmFindPDUBuf;
     __pmFindPMDA;
     __pmFindProfile;
     __pmFinishResult;
     __pmFixPMNSHashTab;
+    __pmFopen;
+    __pmFread;
     __pmFreeAttrsSpec;
+    __pmFreeDerived;
     __pmFreeHostAttrsSpec;
     __pmFreeHostSpec;
     __pmFreeInResult;
+    __pmFreeInterpData;
+    __pmFreeLogInDom;
+    __pmFreeLogStatus;
     __pmFreePMNS;
     __pmFreeProfile;
+    __pmFreeResult;
     __pmFreeResultValues;
+    __pmFreeResultValues_v2;
+    __pmFreeSecureConfig;
+    __pmFseek;
+    __pmFstat;
+    __pmFsync;
+    __pmFtell;
+    __pmFwrite;
     __pmGetAddrInfo;
-    __pmGetAPIConfig;
     __pmGetArchiveEnd;
     __pmGetClientId;
+    __pmGetContextLabels;
+    __pmGetDomainLabels;
+    __pmGetFileDescriptorFlags;
+    __pmGetFileStatusFlags;
     __pmGetInternalState;
+    __pmGetLabelConfigDomainName;
+    __pmGetLabelConfigHostName;
+    __pmGetLabelConfigMachineID;
+    __pmGetLongOptions;
     __pmGetNameInfo;
     __pmGetPDU;
     __pmGetPDUCeiling;
+    __pmGetResultSize;
+    __pmGetSecureConfig;
     __pmGetSockOpt;
-    __pmGetUsername;
+    __pmGetTimespec;
+    __pmGetTimestamp;
     __pmHandleToPtr;
+    __pmHasPMNSFileChanged;
     __pmHashAdd;
     __pmHashClear;
     __pmHashDel;
+    __pmHashFree;
     __pmHashInit;
+    __pmHashPreAlloc;
     __pmHashSearch;
     __pmHashWalk;
     __pmHashWalkCB;
-    __pmHasPMNSFileChanged;
+    __pmHighResFinishResult;
     __pmHostEntFree;
     __pmHostEntGetName;
     __pmHostEntGetSockAddr;
-    __pmInitLocks;
+    __pmIgnoreSignalPIPE;
     __pmInProfile;
+    __pmInitLocks;
     __pmIsLocalhost;
+    __pmLabelIdentString;
+    __pmLabelTypeString;
     __pmLastVersionIPC;
     __pmListen;
+    __pmLoadTimestamp;
+    __pmLoadTimeval;
     __pmLocalPMDA;
     __pmLock;
+    __pmLock_extcall;
     __pmLock_libpcp;
+    __pmLogAddDesc;
+    __pmLogAddInDom;
+    __pmLogAddLabelSets;
+    __pmLogAddPMNSNode;
+    __pmLogAddText;
+    __pmLogAddVolume;
+    __pmLogBaseName;
+    __pmLogBaseNameVol;
+    __pmLogChangeArchive;
     __pmLogChangeVol;
     __pmLogChkLabel;
     __pmLogClose;
+    __pmLogCompressedSuffix;
     __pmLogCreate;
+    __pmLogCreateLabel;
+    __pmLogDecodeLabel;
+    __pmLogEncodeInDom;
+    __pmLogEncodeLabel;
+    __pmLogEncodeLabels;
+    __pmLogFeaturesStr;
     __pmLogFetch;
     __pmLogFetchInterp;
     __pmLogFindLocalPorts;
+    __pmLogFindOpen;
     __pmLogFindPort;
-    __pmLoggerTimeout;
+    __pmLogFreeLabel;
     __pmLogGetInDom;
+    __pmLogLabelSize;
+    __pmLogLoadInDom;
     __pmLogLoadLabel;
+    __pmLogLoadLabelSet;
     __pmLogLoadMeta;
+    __pmLogLocalSocketDefault;
+    __pmLogLocalSocketUser;
     __pmLogLookupDesc;
     __pmLogLookupInDom;
+    __pmLogLookupLabel;
+    __pmLogLookupText;
+    __pmLogMetaTypeStr;
+    __pmLogMetaTypeStr_r;
     __pmLogName;
     __pmLogNameInDom;
     __pmLogName_r;
     __pmLogNewFile;
     __pmLogOpen;
     __pmLogPutDesc;
-    __pmLogPutIndex;
     __pmLogPutInDom;
+    __pmLogPutIndex;
+    __pmLogPutLabel;
+    __pmLogPutLabels;
+    __pmLogPutResult2;
+    __pmLogPutResult3;
     __pmLogPutResult;
+    __pmLogPutText;
     __pmLogRead;
+    __pmLogRead_ctx;
     __pmLogReads;
     __pmLogResetInterp;
+    __pmLogSearchInDom;
     __pmLogSetTime;
+    __pmLogUndeltaInDom;
+    __pmLogVersion;
+    __pmLogWriterInit;
     __pmLogWriteLabel;
+    __pmLogWriteMark;
+    __pmLoggerTimeout;
     __pmLookupAttrKey;
     __pmLookupDSO;
     __pmLoopBackAddress;
+    __pmLseek;
+    __pmMakePath;
     __pmMapErrno;
     __pmMemoryMap;
     __pmMemoryUnmap;
@@ -260,9 +316,7 @@ PCP_3.0 {
     __pmNativeConfig;
     __pmNativePath;
     __pmNewPMNS;
-    __pmNoMem;
-    __pmNotifyErr;
-    __pmOpenLog;
+    __pmNotifyThrottle;
     __pmOptFetchAdd;
     __pmOptFetchDel;
     __pmOptFetchDump;
@@ -270,49 +324,70 @@ PCP_3.0 {
     __pmOptFetchPutParams;
     __pmOptFetchRedo;
     __pmOverrideLastFd;
-    __pmParseCtime;
-    __pmParseDebug;
-    __pmParseHostAttrsSpec;
-    __pmParseHostSpec;
-    __pmParseTime;
-    __pmPathSeparator;
     __pmPDUCntIn;
     __pmPDUCntOut;
     __pmPDUTypeStr;
     __pmPDUTypeStr_r;
+    __pmParseCtime;
+    __pmParseHostAttrsSpec;
+    __pmParseHostSpec;
+    __pmParseLabelSet;
     __pmPinPDUBuf;
     __pmPrepareFetch;
-    __pmPrintDesc;
     __pmPrintIPC;
-    __pmPrintStamp;
+    __pmPrintMetricNames;
+    __pmPrintResult;
+    __pmPrintTimespec;
+    __pmPrintTimestamp;
     __pmPrintTimeval;
+    __pmProcessAddArg;
     __pmProcessCreate;
     __pmProcessDataSize;
+    __pmProcessExec;
     __pmProcessExists;
+    __pmProcessPipe;
+    __pmProcessPipeClose;
     __pmProcessRunTimes;
     __pmProcessTerminate;
+    __pmProcessUnpickArgs;
+    __pmPutTimestamp;
+    __pmPutTimeval;
     __pmRead;
     __pmRecv;
+    __pmRecvLabel;
     __pmRegisterAnon;
+    __pmRequestTimeout;
     __pmResetIPC;
+    __pmResetNotifyThrottle;
+    __pmRewind;
     __pmRotateLog;
     __pmSecureClientHandshake;
+    __pmSecureConfigInit;
+    __pmSecureServerCertificateSetup;
     __pmSecureServerHandshake;
+    __pmSecureServerInit;
     __pmSecureServerSetup;
     __pmSecureServerShutdown;
     __pmSelectRead;
     __pmSelectWrite;
     __pmSend;
+    __pmSendAttr;
     __pmSendAuth;
     __pmSendChildReq;
     __pmSendCreds;
     __pmSendDesc;
     __pmSendDescReq;
+    __pmSendDescs;
     __pmSendError;
     __pmSendFetch;
+    __pmSendFetchPDU;
+    __pmSendHighResFetch;
+    __pmSendHighResResult;
     __pmSendIDList;
     __pmSendInstance;
     __pmSendInstanceReq;
+    __pmSendLabel;
+    __pmSendLabelReq;
     __pmSendLogControl;
     __pmSendLogRequest;
     __pmSendLogStatus;
@@ -329,27 +404,41 @@ PCP_3.0 {
     __pmServerAdvertisePresence;
     __pmServerClearFeature;
     __pmServerCloseRequestPorts;
+    __pmServerCreatePIDFile;
     __pmServerDumpRequestPorts;
+    __pmServerGetFeaturesFromPDU;
+    __pmServerGetRequestPort;
     __pmServerHasFeature;
+    __pmServerNotifyServiceManagerReady;
+    __pmServerNotifyServiceManagerStopping;
     __pmServerOpenRequestPorts;
     __pmServerRequestPortString;
     __pmServerSetFeature;
     __pmServerSetLocalCreds;
     __pmServerSetLocalSocket;
     __pmServerSetServiceSpec;
+    __pmServerSetupRequestPorts;
+    __pmServerStart;
     __pmServerUnadvertisePresence;
     __pmSetClientId;
     __pmSetClientIdArgv;
+    __pmSetConnectTimeout;
     __pmSetDataIPC;
+    __pmSetFeaturesIPC;
+    __pmSetFileDescriptorFlags;
+    __pmSetFileStatusFlags;
     __pmSetInternalState;
+    __pmSetLocalContextFlag;
+    __pmSetLocalContextTable;
     __pmSetPDUCeiling;
     __pmSetPDUCntBuf;
-    __pmSetProcessIdentity;
     __pmSetProgname;
+    __pmSetRequestTimeout;
     __pmSetSignalHandler;
-    __pmSetSocketIPC;
     __pmSetSockOpt;
+    __pmSetSocketIPC;
     __pmSetVersionIPC;
+    __pmSetvbuf;
     __pmShutdown;
     __pmSockAddrAlloc;
     __pmSockAddrCompare;
@@ -358,8 +447,8 @@ PCP_3.0 {
     __pmSockAddrGetFamily;
     __pmSockAddrGetPort;
     __pmSockAddrInit;
-    __pmSockAddrIsInet;
     __pmSockAddrIsIPv6;
+    __pmSockAddrIsInet;
     __pmSockAddrIsLoopBack;
     __pmSockAddrIsUnix;
     __pmSockAddrMask;
@@ -369,285 +458,226 @@ PCP_3.0 {
     __pmSockAddrSetScope;
     __pmSockAddrSize;
     __pmSockAddrToString;
+    __pmSocketClosed;
     __pmSocketIPC;
-    __pmSpecLocalPMDA;
+    __pmSortInstances;
+    __pmStartOptions;
+    __pmStat;
     __pmStringToSockAddr;
+    __pmStringValue;
     __pmStuffValue;
-    __pmSyslog;
-    __pmtimevalAdd;
-    __pmtimevalFromReal;
-    __pmtimevalNow;
-    __pmtimevalPause;
-    __pmtimevalSleep;
-    __pmtimevalSub;
+    __pmTimespecSub;
+    __pmTimestampCmp;
+    __pmTimestampDec;
+    __pmTimestampInc;
+    __pmTimestampSub;
     __pmTimevalSub;
-    __pmtimevalToReal;
     __pmTimezone;
     __pmTimezone_r;
     __pmUnlock;
     __pmUnparseHostAttrsSpec;
     __pmUnparseHostSpec;
     __pmUnpinPDUBuf;
+    __pmUrlDecode;
+    __pmUrlEncode;
     __pmUsePMNS;
     __pmVersionIPC;
     __pmWrite;
     __pmXmitPDU;
-
-  local: *;
-};
-
-PCP_3.1 {
-  global:
-    pmDiscoverServices;
-} PCP_3.0;
-
-PCP_3.2 {
-  global:
-    pmGetContextHostName_r;
-    pmGetContextOptions;
-    pmGetOptions;
-    pmFreeOptions;
-    pmUsageMessage;
-
-    __pmStartOptions;
-    __pmAddOptArchive;
-    __pmAddOptArchiveList;
-    __pmAddOptHost;
-    __pmAddOptHostList;
-    __pmEndOptions;
-} PCP_3.1;
-
-PCP_3.3 {
-  global:
-    pmgetopt_r;
-
-    __pmLogLocalSocketDefault;
-    __pmLogLocalSocketUser;
-    __pmMakePath;
-} PCP_3.2;
-
-PCP_3.4 {
-  global:
-    __pmConnectCheckError;
-    __pmConnectRestoreFlags;
-    __pmGetFileStatusFlags;
-    __pmSetFileStatusFlags;
-    __pmGetFileDescriptorFlags;
-    __pmSetFileDescriptorFlags;
-    __pmSocketClosed;
-    __pmLogPutResult2;
-} PCP_3.3;
-
-PCP_3.5 {
-  global:
-    __pmDumpStack;
-    __pmServerCreatePIDFile;
-} PCP_3.4;
-
-PCP_3.6 {
-  global:
-    __pmDiscoverServicesWithOptions;
-    __pmDumpNameNode;
-    __pmFreeInterpData;
-    __pmAddOptArchiveFolio;
-} PCP_3.5;
-
-PCP_3.7 {
-  global:
-    pmFreeHighResResult;
-    pmFreeHighResEventResult;
-    pmUnpackHighResEventRecords;
-
-    __pmDumpHighResEventRecords;
-    __pmDumpHighResResult;
-    __pmPrintHighResStamp;
-    __pmGetTimespec;
-} PCP_3.6;
-
-PCP_3.8 {
-  global:
-    __pmtimevalInc;
-    __pmtimevalDec;
-} PCP_3.7;
-
-PCP_3.9 {
-  global:
-    __pmSendAttr;
-    __pmDecodeAttr;
-    __pmIgnoreSignalPIPE;
-    pmParseUnitsStr;
-} PCP_3.8;
-
-PCP_3.10 {
-  global:
-    __pmPrintMetricNames;
-} PCP_3.9;
-
-PCP_3.11 {
-  global:
-    pmGetVersion;
-    pmGetOptionalConfig;
-    __pmFetchLocal;
-} PCP_3.10;
-
-PCP_3.12 {
-  global:
-    __pmAFsetup;
-} PCP_3.11;
-
-PCP_3.13 {
-  global:
-    __pmConnectTimeout;
-    __pmRequestTimeout;
-    __pmSetConnectTimeout;
-    __pmSetRequestTimeout;
-    __pmStringValue;
-} PCP_3.12;
-
-PCP_3.14 {
-    pmCreateFetchGroup;
-    pmGetFetchGroupContext;
-    pmExtendFetchGroup_item;
-    pmExtendFetchGroup_indom;
-    pmExtendFetchGroup_event;
-    pmExtendFetchGroup_timestamp;
-    pmFetchGroup;
-    pmDestroyFetchGroup;
-    pmRegisterDerivedMetric;
-} PCP_3.13;
-
-PCP_3.15 {
-    __pmSecureServerCertificateSetup;
-    __pmServerGetFeaturesFromPDU;
-} PCP_3.14;
-
-PCP_3.16 {
-  global:
-    pmSemStr;
-    pmSemStr_r;
-    __pmAddOptContainer;
-    __pmSetLocalContextFlag;
-    __pmSetLocalContextTable;
-} PCP_3.15;
-
-PCP_3.17 {
-    __pmGetLongOptions;
-} PCP_3.16;
-
-PCP_3.18 {
-    __pmLock_extcall;
-    __pmFeaturesIPC;
-    __pmSetFeaturesIPC;
-    __pmCurrentContext;
-} PCP_3.17;
-
-PCP_3.19 {
-    __pmLogRead_ctx;
-} PCP_3.18;
-
-PCP_3.20 {
-    __pmFopen;
-    __pmFdopen;
-    __pmFseek;
-    __pmRewind;
-    __pmFtell;
-    __pmFgetc;
-    __pmFread;
-    __pmFwrite;
-    __pmFflush;
-    __pmFsync;
-    __pmLseek;
-    __pmFstat;
-    __pmFileno;
-    __pmFeof;
-    __pmFerror;
-    __pmClearerr;
-    __pmSetvbuf;
-    __pmFclose;
-} PCP_3.19;
-
-PCP_3.21 {
-  global:
-    pmsprintf;
-    __pmServerStart;
-    pmDebugOptions;
-    pmSetDebug;
+    __pmZoneinfo;
+    __pmtimespecConvert;
+    __pmtimespecParse;
+    __pmtimespecPause;
+    __pmtimespecSleep;
+    __pmtimevalConvert;
+    __pmtimevalParse;
+    __pmtimevalPause;
+    __pmtimevalSleep;
+    getdomainname;
+    getmachineid;
+    pmAddDerived;
+    pmAddDerivedMetric;
+    pmAddDerivedText;
+    pmAddProfile;
+    pmAtomStr;
+    pmAtomStr_r;
     pmClearDebug;
-    __pmDumpDebug;
-    __pmSetDebugBits;
-    __pmProcessAddArg;
-    __pmProcessUnpickArgs;
-    __pmProcessExec;
-    __pmProcessPipe;
-    __pmProcessPipeClose;
-} PCP_3.20;
-
-PCP_3.22 {
-  global:
+    pmClearFetchGroup;
+    pmConvScale;
+    pmCreateFetchGroup;
+    pmCtime;
+    pmDebug;
+    pmDebugOptions;
+    pmDelProfile;
+    pmDerivedErrStr;
+    pmDestroyContext;
+    pmDestroyFetchGroup;
+    pmDiscoverServices;
+    pmDupContext;
+    pmErrStr;
+    pmErrStr_r;
+    pmEventFlagsStr;
+    pmEventFlagsStr_r;
+    pmExtendFetchGroup_event;
+    pmExtendFetchGroup_indom;
+    pmExtendFetchGroup_item;
+    pmExtendFetchGroup_timespec;
+    pmExtendFetchGroup_timeval;
+    pmExtractValue;
+    pmFetch;
+    pmFetch_v2;
+    pmFetchArchive;
+    pmFetchArchive_v2;
+    pmFetchGroup;
+    pmFreeEventResult;
+    pmFreeHighResEventResult;
     pmFreeLabelSets;
+    pmFreeMetricSpec;
+    pmFreeOptions;
+    pmFreeOptions_v2;
+    pmFreeResult;
+    pmFreeResult_v2;
     pmGetAPIConfig;
+    pmGetArchiveEnd;
+    pmGetArchiveEnd_v2;
+    pmGetArchiveLabel;
+    pmGetArchiveLabel_v2;
+    pmGetChildren;
+    pmGetChildrenStatus;
     pmGetClusterLabels;
+    pmGetConfig;
+    pmGetContextHostName;
+    pmGetContextHostName_r;
     pmGetContextLabels;
+    pmGetContextOptions;
+    pmGetContextOptions_v2;
+    pmGetDebug;
+    pmGetDerivedControl;
     pmGetDomainLabels;
+    pmGetFetchGroupContext;
+    pmGetHostName;
+    pmGetInDom;
+    pmGetInDomArchive;
     pmGetInDomLabels;
+    pmGetInDom_ctx;
     pmGetInstancesLabels;
     pmGetItemLabels;
+    pmGetOptionalConfig;
+    pmGetOptions;
+    pmGetOptions_v2;
+    pmGetPMNSLocation;
     pmGetProgname;
     pmGetUsername;
+    pmGetVersion;
+    pmIDStr;
+    pmIDStr_r;
     pmID_build;
     pmID_cluster;
     pmID_domain;
     pmID_item;
+    pmInDomStr;
+    pmInDomStr_r;
     pmInDom_build;
     pmInDom_domain;
     pmInDom_serial;
+    pmLoadASCIINameSpace;
+    pmLoadDerivedConfig;
+    pmLoadNameSpace;
+    pmLocaltime;
+    pmLookupDesc;
+    pmLookupDescs;
+    pmLookupInDom;
+    pmLookupInDomArchive;
+    pmLookupInDomText;
     pmLookupLabels;
-    pmMergeLabels;
+    pmLookupName;
+    pmLookupText;
     pmMergeLabelSets;
+    pmMergeLabels;
+    pmNameAll;
+    pmNameID;
+    pmNameInDom;
+    pmNameInDomArchive;
+    pmNewContext;
+    pmNewContextZone;
+    pmNewZone;
     pmNoMem;
     pmNotifyErr;
+    pmNumberStr;
+    pmNumberStr_r;
     pmOpenLog;
+    pmParseInterval;
+    pmParseInterval_v2;
+    pmParseMetricSpec;
+    pmParseTimeWindow;
+    pmParseTimeWindow_v2;
+    pmParseUnitsStr;
     pmPathSeparator;
     pmPrintDesc;
-    pmPrintHighResStamp;
     pmPrintLabelSets;
-    pmPrintStamp;
+    pmPrintValue;
+    pmReconnectContext;
+    pmRegisterDerived;
+    pmRegisterDerivedMetric;
+    pmSemStr;
+    pmSemStr_r;
+    pmSetDebug;
+    pmSetDerivedControl;
+    pmSetMode;
+    pmSetMode_v2;
     pmSetProcessIdentity;
     pmSetProgname;
+    pmSortInstances;
+    pmSortInstances_v2;
+    pmSpecLocalPMDA;
+    pmStore;
+    pmStore_v2;
     pmSyslog;
+    pmTraversePMNS;
+    pmTraversePMNS_r;
+    pmTrimNameSpace;
+    pmTypeStr;
+    pmTypeStr_r;
+    pmUnitsStr;
+    pmUnitsStr_r;
+    pmUnloadNameSpace;
+    pmUnpackEventRecords;
+    pmUnpackHighResEventRecords;
+    pmUsageMessage;
+    pmUsageMessage_v2;
+    pmUseContext;
+    pmUseZone;
+    pmWhichContext;
+    pmWhichZone;
+    pmflush;
+    pmfstring;
+    pmgetopt_r;
+    pmgetopt_r_v2;
+    pmprintf;
+    pmsprintf;
+    pmstrlen;
+    pmstrncat;
+    pmstrncpy;
+    pmtimespecAdd;
+    pmtimespecDec;
+    pmtimespecFromReal;
+    pmtimespecInc;
+    pmtimespecNow;
+    pmtimespecPrint;
+    pmtimespecPrintInterval;
+    pmtimespecSub;
+    pmtimespecToReal;
+    pmtimespecTotimeval;
     pmtimevalAdd;
     pmtimevalDec;
     pmtimevalFromReal;
     pmtimevalInc;
     pmtimevalNow;
+    pmtimevalPrint;
     pmtimevalSub;
     pmtimevalToReal;
-    pmSpecLocalPMDA;
+    pmtimevalTotimespec;
 
-    __pmAddOptArchivePath;
-    __pmAddLabels;
-    __pmDecodeLabel;
-    __pmDecodeLabelReq;
-    __pmDumpLabelSet;
-    __pmDumpLabelSets;
-    __pmFreeHighResResult;
-    __pmGetContextLabels;
-    __pmGetDomainLabels;
-    __pmLogBaseName;
-    __pmLogLookupLabel;
-    __pmLogLookupText;
-    __pmLogPutLabel;
-    __pmLogPutText;
-    __pmParseLabelSet;
-    __pmRecvLabel;
-    __pmSendLabel;
-    __pmSendLabelReq;
-    __pmLabelIdentString;
-    __pmLabelTypeString;
-} PCP_3.21;
-
-PCP_3.23 {
-  global:
 #if mingw
     fsync;
     symlink;
@@ -662,218 +692,6 @@ PCP_3.23 {
     random;
     srandom;
 #endif
-    getdomainname;
-    getmachineid;
-} PCP_3.22;
 
-PCP_3.24 {
-  global:
-    pmClearFetchGroup;
-    __pmAccess;
-    __pmStat;
-} PCP_3.23;
-
-PCP_3.25 {
-  global:
-    __pmServerGetRequestPort;
-    __pmServerSetupRequestPorts;
-} PCP_3.24;
-
-PCP_3.26 {
-  global:
-    __pmDupLabelSets;
-} PCP_3.25;
-
-PCP_3.27 {
-  global:
-    __pmLogAddDesc;
-    __pmLogAddInDom;
-    __pmLogAddPMNSNode;
-    __pmLogAddLabelSets;
-    __pmLogAddText;
-    __pmLogAddVolume;
-    __pmLogCompressedSuffix;
-    __pmLogBaseNameVol;
-} PCP_3.26;
-
-PCP_3.28 {
-  global:
-    pmGetHostName;
-    __pmHashPreAlloc;
-    __pmServerNotifyServiceManagerReady;
-    __pmServerNotifyServiceManagerStopping;
-} PCP_3.27;
-
-PCP_3.29 {
-  global:
-    pmAddDerivedMetric;
-    pmAddDerived;
-    pmGetDerivedControl;
-    pmSetDerivedControl;
-} PCP_3.28;
-
-PCP_3.30 {
-  global:
-    __pmFreeDerived;
-    __pmGetLabelConfigHostName;
-    __pmGetLabelConfigMachineID;
-    __pmGetLabelConfigDomainName;
-} PCP_3.29;
-
-PCP_3.31 {
-  global:
-    pmfstring;
-    pmstrncpy;
-    pmstrncat;
-} PCP_3.30;
-
-PCP_3.32 {
-  global:
-    pmtimespecDec;
-    pmtimespecNow;
-    pmtimespecSub;
-
-    pmHighResFetch;
-
-#if 0
-    __pmHighResFetchLocal;
-#endif
-    __pmHighResFinishResult;
-    __pmSendHighResFetch;
-    __pmDecodeHighResFetch;
-    __pmSendHighResResult;
-    __pmDecodeHighResResult;
-} PCP_3.31;
-
-PCP_3.33 {
-  global:
-    __htonpmTimestamp;
-    __ntohpmTimestamp;
-    __pmFreeHighResResultValues;
-    __pmFreeLogStatus;
-    __pmLoadTimestamp;
-    __pmLoadTimeval;
-    __pmLogFindOpen;
-    __pmLogFreeLabel;
-    __pmLogLabelSize;
-    __pmLogLoadInDom;
-    __pmLogPutLabels;
-    __pmLogVersion;
-    __pmPrintResult;
-    __pmPrintTimespec;
-    __pmPrintTimestamp;
-    __pmPutTimestamp;
-    __pmPutTimeval;
-    pmstrlen;
-    __pmTimespecSub;
-    __pmTimestampCmp;
-    __pmTimestampDec;
-    __pmTimestampInc;
-    __pmTimestampSub;
-    __pmZoneinfo;
-} PCP_3.32;
-
-PCP_3.34 {
-  global:
-    __pmAllocResult;
-    __pmDumpPDUCnt;
-    __pmUrlEncode;
-    __pmUrlDecode;
-} PCP_3.33;
-
-PCP_3.35 {
-  global:
-    pmLookupDescs;
-    __pmSendDescs;
-    __pmDecodeDescs;
-    __pmDecodeDescs2;
-    __pmDecodeIDList2;
-    __pmHashFree;
-} PCP_3.34;
-
-PCP_3.36 {
-  global:
-    __pmDumpPDUTrace;
-} PCP_3.35;
-
-PCP_3.37 {
-  global:
-    pmtimespecAdd;
-    pmtimespecInc;
-    pmtimespecToReal;
-    pmtimespecFromReal;
-    pmExtendFetchGroup_timespec;
-    pmExtendFetchGroup_timeval;
-    pmGetHighResArchiveLabel;
-    pmGetHighResArchiveEnd;
-    pmStoreHighRes;
-    pmSetModeHighRes;
-    pmFetchHighRes;
-    pmFetchHighResArchive;
-    pmSortHighResInstances;
-    pmParseHighResInterval;
-    pmParseHighResTimeWindow;
-    __pmtimespecPause;
-    __pmtimespecSleep;
-    __pmConvertHighResTime;
-    __pmParseHighResTime;
-    __pmDecodeHighResResult_ctx;
-    __pmEncodeHighResResult;
-    __pmDecodeResult_ctx;
-    __pmDecodeValueSet;
-    __pmGetResultSize;
-    __pmSortInstances;
-    __pmSendFetchPDU;
-    __pmFetch;
-    __pmFetchHighResLocal;
-    __pmFetchArchive;
-    __pmFreeResult;
-    __pmGetTimestamp;
-    __pmLogWriteMark;
-    __pmLogFeaturesStr;
-    __pmLogLoadLabelSet;
-    __pmLogPutResult3;
-    __pmLogSearchInDom;
-    __pmLogUndeltaInDom;
-    __pmLogEncodeInDom;
-    __pmLogMetaTypeStr;
-    __pmLogMetaTypeStr_r;
-    __pmDupLogInDom;
-    __pmFreeLogInDom;
-    __pmLogEncodeLabels;
-    __pmDumpStackInit;
-    __pmGetSecureConfig;
-    __pmFreeSecureConfig;
-    __pmSecureServerInit;
-    __pmSecureConfigInit;
-} PCP_3.36;
-
-PCP_3.38 {
-    pmAddDerivedText;
-    __pmEquivInDom;
-} PCP_3.37;
-
-PCP_3.39 {
-    __pmCleanMapDir;
-} PCP_3.38;
-
-PCP_3.40 {
-    __pmLogChangeArchive;
-    __pmCheckDupLabels;
-} PCP_3.39;
-
-PCP_3.41 {
-    pmGetInDom_ctx;
-    __pmNotifyThrottle;
-    __pmResetNotifyThrottle;
-} PCP_3.40;
-
-PCP_3.42 {
-    __pmCheckAttribute;
-    __pmCtlDebug;
-} PCP_3.41;
-
-PCP_3.43 {
-    __pmDumpFetchFlags;
-    __pmEqualLabelSet;
-} PCP_3.42;
+  local: *;
+};

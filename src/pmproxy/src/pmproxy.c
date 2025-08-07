@@ -348,6 +348,7 @@ main(int argc, char *argv[])
     int		timeseries;
     char	*envstr;
     pid_t	mainpid;
+    struct timeval	finish;
 
     umask(022);
     set_rlimit_maxfiles();
@@ -463,7 +464,11 @@ main(int argc, char *argv[])
     fflush(stderr);
 
     /* Loop processing client connections and server responses */
-    server->loop(info, opts.finish_optarg? &opts.finish : NULL);
+    if (opts.finish_optarg) {
+	finish.tv_sec = opts.finish.tv_sec;
+	finish.tv_usec = opts.finish.tv_nsec / 1000;
+    }
+    server->loop(info, opts.finish_optarg? &finish : NULL);
 
     /* inform service manager and shutdown cleanly */
     __pmServerNotifyServiceManagerStopping(mainpid);

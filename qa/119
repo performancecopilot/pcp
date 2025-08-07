@@ -98,7 +98,7 @@ $sudo cp $tmp.tmp $PCP_PMLOGGERCONTROL_PATH
 $sudo mkdir -p $LOGGING_DIR/${myhost}-one >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/${myhost}-two >/dev/null 2>&1
 $sudo mkdir -p $LOGGING_DIR/no.such.host.pcp.io >/dev/null 2>&1
-id pcp >/dev/null 2>&1 && $sudo chown -R pcp:pcp $LOGGING_DIR
+id pcp >/dev/null 2>&1 && $sudo chown -R $PCP_USER:$PCP_GROUP $LOGGING_DIR
 echo "+++ before pcp start ..." >>$seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
 echo "+++" >>$seq_full

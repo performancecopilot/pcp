@@ -22,12 +22,12 @@ main(int argc, char **argv)
     char	*archive = "foo";
     char	*namespace = PM_NS_DEFAULT;
     static char	*usage = "[-a archive] [-n namespace] [-v]";
-    pmResult		*resp;
+    pmResult	*resp;
     int			resnum = 0;
     pmID		pmid = 0;
-    struct timeval	when;
-    struct timeval	first;
-    struct timeval	last;
+    struct timespec	when;
+    struct timespec	first;
+    struct timespec	last;
 
     pmSetProgname(argv[0]);
 
@@ -78,8 +78,8 @@ main(int argc, char **argv)
     }
 
     when.tv_sec = 0;
-    when.tv_usec = 0;
-    if ((sts = pmSetMode(PM_MODE_FORW, &when, 0)) < 0) {
+    when.tv_nsec = 0;
+    if ((sts = pmSetMode(PM_MODE_FORW, &when, NULL)) < 0) {
 	printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -112,7 +112,7 @@ main(int argc, char **argv)
     first.tv_sec--;
     printf("  2.1: FORWARD, expect success\n");
     __pmLogReads = 0;
-    if ((sts = pmSetMode(PM_MODE_FORW, &first, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &first, NULL)) < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
@@ -127,7 +127,7 @@ main(int argc, char **argv)
     }
     printf("  2.2: BACKWARD, expect EOL\n");
     __pmLogReads = 0;
-    if ((sts = pmSetMode(PM_MODE_BACK, &first, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_BACK, &first, NULL)) < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
@@ -142,7 +142,7 @@ main(int argc, char **argv)
     }
     printf("  2.3: INTERP, expect EOL\n");
     __pmLogReads = 0;
-    if ((sts = pmSetMode(PM_MODE_INTERP, &first, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &first, NULL)) < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
@@ -160,7 +160,7 @@ main(int argc, char **argv)
     last.tv_sec++;
     printf("  3.1: FORWARD, expect EOL\n");
     __pmLogReads = 0;
-    if ((sts = pmSetMode(PM_MODE_FORW, &last, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_FORW, &last, NULL)) < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
@@ -175,7 +175,7 @@ main(int argc, char **argv)
     }
     printf("  3.2: BACKWARD, expect success\n");
     __pmLogReads = 0;
-    if ((sts = pmSetMode(PM_MODE_BACK, &last, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_BACK, &last, NULL)) < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }
@@ -190,7 +190,7 @@ main(int argc, char **argv)
     }
     printf("  3.3: INTERP, expect EOL\n");
     __pmLogReads = 0;
-    if ((sts = pmSetMode(PM_MODE_INTERP, &last, 0)) < 0) {
+    if ((sts = pmSetMode(PM_MODE_INTERP, &last, NULL)) < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
     }

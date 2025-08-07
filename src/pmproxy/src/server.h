@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2019,2021-2024 Red Hat.
+ * Copyright (c) 2018-2019,2021-2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -44,6 +44,8 @@ typedef enum proxy_registry {
     METRICS_SERIES,
     METRICS_WEBGROUP,
     METRICS_SEARCH,
+    METRICS_LOGGROUP,
+    METRICS_LOGPATHS,
     NUM_REGISTRY
 } proxy_registry_t;
 
@@ -227,20 +229,26 @@ extern void on_pcp_client_close(struct client *);
 #ifdef HAVE_OPENSSL
 extern void flush_secure_module(struct proxy *);
 extern void setup_secure_module(struct proxy *);
+extern void reset_secure_module(struct proxy *);
 extern void close_secure_module(struct proxy *);
 #else
 #define flush_secure_module(p)	do { (void)(p); } while (0)
 #define setup_secure_module(p)	do { (void)(p); } while (0)
+#define reset_secure_module(p)	do { (void)(p); } while (0)
 #define close_secure_module(p)	do { (void)(p); } while (0)
 #endif
 
 extern void setup_http_module(struct proxy *);
+extern void reset_http_module(struct proxy *);
 extern void close_http_module(struct proxy *);
 
 extern void setup_keys_module(struct proxy *);
+extern void reset_keys_module(struct proxy *);
+extern void * get_keys_module(struct proxy *);
 extern void close_keys_module(struct proxy *);
 
 extern void setup_pcp_module(struct proxy *);
+extern void reset_pcp_module(struct proxy *);
 extern void close_pcp_module(struct proxy *);
 
 extern void setup_modules(struct proxy *);

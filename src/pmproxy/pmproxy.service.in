@@ -1,7 +1,9 @@
 [Unit]
 Description=Proxy for Performance Metrics Collector Daemon
 Documentation=man:pmproxy(1)
-After=network-online.target pmcd.service redis.service avahi-daemon.service
+After=network-online.target valkey.service redis.service avahi-daemon.service pmcd.service
+BindsTo=pmproxy_check.timer pmproxy_daily.timer
+Wants=pmcd.service
 
 [Service]
 Type=notify

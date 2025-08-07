@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018-2021,2024 Red Hat.
+ * Copyright (c) 2018-2021,2024-2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -20,6 +20,7 @@ static int search_queries;
 static int series_queries;
 static int key_server_resp;
 static int archive_discovery;
+static int archive_push;
 
 static pmDiscoverCallBacks key_server_series = {
     .on_source		= pmSeriesDiscoverSource,
@@ -40,8 +41,6 @@ static pmDiscoverCallBacks key_server_search = {
 static pmDiscoverSettings key_server_discover = {
     .module.on_info	= proxylog,
 };
-
-static void key_server_reconnect_worker(void *);
 
 static sds
 replyfmt(respReply *reply)
@@ -165,7 +164,8 @@ on_key_server_connected(void *arg)
 	key_server_discover.callbacks = key_server_search;
     }
 
-    if (archive_discovery && (series_queries || search_queries)) {
+    if ((archive_discovery || archive_push) &&
+	(series_queries || search_queries)) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_DISCOVER);
 
 	pmDiscoverSetEventLoop(&key_server_discover.module, proxy->events);
@@ -191,48 +191,6 @@ get_key_slots_flags()
 	flags |= SLOTS_SEARCH;
 
     return flags;
-}
-
-/*
- * Attempt to establish a server connection straight away
- * which is achieved via a timer that expires immediately
- * during the startup process.
- */
-void
-setup_keys_module(struct proxy *proxy)
-{
-    sds			option;
-
-    if ((option = pmIniFileLookup(config, "keys", "enabled")) &&
-	(strcmp(option, "false") == 0))
-	return;
-    else if ((option = pmIniFileLookup(config, "redis", "enabled")) &&
-	(strcmp(option, "false") == 0))
-	return;
-
-    if ((option = pmIniFileLookup(config, "pmproxy", "resp.enabled")))
-	key_server_resp = (strcmp(option, "true") == 0);
-    else if ((option = pmIniFileLookup(config, "pmproxy", "redis.enabled")))
-	key_server_resp = (strcmp(option, "true") == 0);
-    if ((option = pmIniFileLookup(config, "pmseries", "enabled")))
-	series_queries = (strcmp(option, "true") == 0);
-    if ((option = pmIniFileLookup(config, "pmsearch", "enabled")))
-	search_queries = (strcmp(option, "true") == 0);
-    if ((option = pmIniFileLookup(config, "discover", "enabled")))
-	archive_discovery = (strcmp(option, "true") == 0);
-
-    if (proxy->slots == NULL &&
-	(key_server_resp || series_queries || search_queries || archive_discovery)) {
-	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_KEYS);
-	keySlotsFlags	flags = get_key_slots_flags();
-
-	proxy->slots = keySlotsConnect(proxy->config,
-			flags, proxylog, on_key_server_connected,
-			proxy, proxy->events, proxy);
-	keySlotsSetMetricRegistry(proxy->slots, registry);
-	keySlotsSetupMetrics(proxy->slots);
-	pmWebTimerRegister(key_server_reconnect_worker, proxy);
-    }
 }
 
 static void
@@ -262,6 +220,66 @@ key_server_reconnect_worker(void *arg)
 			proxy, proxy->events, proxy);
 }
 
+/*
+ * Attempt to establish a server connection straight away
+ * which is achieved via a timer that expires immediately
+ * during the startup process.
+ */
+void
+setup_keys_module(struct proxy *proxy)
+{
+    sds			option;
+
+    if ((option = pmIniFileLookup(config, "keys", "enabled")) &&
+	(strcmp(option, "false") == 0))
+	return;
+    else if ((option = pmIniFileLookup(config, "redis", "enabled")) &&
+	(strcmp(option, "false") == 0))
+	return;
+
+    if ((option = pmIniFileLookup(config, "pmproxy", "resp.enabled")))
+	key_server_resp = (strcmp(option, "true") == 0);
+    else if ((option = pmIniFileLookup(config, "pmproxy", "redis.enabled")))
+	key_server_resp = (strcmp(option, "true") == 0);
+    if ((option = pmIniFileLookup(config, "pmseries", "enabled")))
+	series_queries = (strcmp(option, "true") == 0);
+    if ((option = pmIniFileLookup(config, "pmsearch", "enabled")))
+	search_queries = (strcmp(option, "true") == 0);
+    if ((option = pmIniFileLookup(config, "discover", "enabled")))
+	archive_discovery = (strcmp(option, "true") == 0);
+    if ((option = pmIniFileLookup(config, "pmlogger", "enabled")))
+	archive_push = (strcmp(option, "true") == 0);
+
+    if (proxy->slots == NULL &&
+	(key_server_resp || series_queries || search_queries ||
+	 archive_discovery || archive_push)) {
+	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_KEYS);
+	keySlotsFlags	flags = get_key_slots_flags();
+
+	proxy->slots = keySlotsConnect(proxy->config,
+			flags, proxylog, on_key_server_connected,
+			proxy, proxy->events, proxy);
+	keySlotsSetMetricRegistry(proxy->slots, registry);
+	keySlotsSetupMetrics(proxy->slots);
+	pmWebTimerRegister(key_server_reconnect_worker, proxy);
+    }
+}
+
+void *
+get_keys_module(struct proxy *proxy)
+{
+    if (proxy->slots == NULL)
+	setup_keys_module(proxy);
+    return &key_server_discover.module;
+}
+
+void
+reset_keys_module(struct proxy *proxy)
+{
+    /* SIGHUP: no-op */
+    (void)proxy;
+}
+
 void
 close_keys_module(struct proxy *proxy)
 {
@@ -270,7 +288,7 @@ close_keys_module(struct proxy *proxy)
 	proxy->slots = NULL;
     }
 
-    if (archive_discovery)
+    if (archive_discovery || archive_push)
 	pmDiscoverClose(&key_server_discover.module);
 
     proxymetrics_close(proxy, METRICS_KEYS);

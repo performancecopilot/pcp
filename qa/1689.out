@@ -1,10 +1,13 @@
 QA output created by 1689
 
-pmproxy.control.debug PMID: 4.0.1 [Debug flag]
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+pmproxy.control.debug PMID: 4.0.1 [Debug options]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
-See pmdbg(1).  pmstore into this metric to change the debug value.
+See pmdbg(1).  pmstore into this metric to change the debug option(s)
+
+Note that if this PMDA is installed as a DSO agent, the debug options
+are shared with pmcd(1)
 
 pmproxy.control.files PMID: 4.0.2 [Memory mapped file count]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -249,6 +252,48 @@ pmproxy.keys.responses.total_bytes PMID: 4.2.9 [total bytes received in response
     Semantics: counter  Units: byte
 Help:
 Cumulative count of bytes received in key server responses
+
+pmproxy.loggroup.archive.bytes PMID: 4.9.2 [total bytes written to archives by this service]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: Kbyte
+Help:
+Total remote archive bytes written by the running service
+
+pmproxy.loggroup.archive.count PMID: 4.9.1 [archives created by this service]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Count of remote archive creations by the running service
+
+pmproxy.loggroup.archive.write PMID: 4.9.3 [write system calls to archives by this service]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total remote archive write system calls by the running service
+
+pmproxy.loggroup.gc.archive.drops PMID: 4.9.5 [archives dropped in last garbage collection]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Archives dropped during most recent loggroup garbage collection
+
+pmproxy.loggroup.gc.archive.scans PMID: 4.9.4 [archives scanned in last garbage collection]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Archives scanned during most recent loggroup garbage collection
+
+pmproxy.logpaths.archive PMID: 4.10.2 [currently active remote pmlogger archive paths]
+    Data Type: string  InDom: 4.20481 0x1005001
+    Semantics: instant  Units: none
+Help:
+Archive paths currently being written by the running service
+
+pmproxy.logpaths.count PMID: 4.10.1 [currently active remote pmlogger processes]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Count of remote writers currently writing using the service
 
 pmproxy.map.context.size PMID: 4.1.6 [context map dictionary size]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff

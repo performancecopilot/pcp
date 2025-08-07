@@ -19,7 +19,6 @@
 \f3pmExtendFetchGroup_item\f1,
 \f3pmExtendFetchGroup_indom\f1,
 \f3pmExtendFetchGroup_event\f1,
-\f3pmExtendFetchGroup_timestamp\f1,
 \f3pmExtendFetchGroup_timespec\f1,
 \f3pmExtendFetchGroup_timeval\f1,
 \f3pmFetchGroup\f1,
@@ -28,48 +27,76 @@
 \f3pmDestroyFetchGroup\f1 \- simplified performance metrics value fetch and conversion
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmCreateFetchGroup(pmFG *\fIptr\fP, int \fItype\fP, const char *\fIname\fP);
+#include <pcp/pmapi.h>
+.sp
+int pmCreateFetchGroup(pmFG *\fIptr\fP,
+'in +\w'int pmCreateFetchGroup('u
+int\ \fItype\fP,
+const\ char\ *\fIname\fP);
+.in
 .br
-.ti -8n
-int pmExtendFetchGroup_item(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIinstance\fP, const char *\fIscale\fP, pmAtomValue *\fIout_value\fP, int \fIout_type\fP, int \fIout_sts\fP);
+int pmExtendFetchGroup_item(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_item('u
+const\ char\ *\fImetric\fP,
+const\ char\ *\fIinstance\fP,
+const\ char\ *\fIscale\fP,
+pmAtomValue\ *\fIout_value\fP,
+int\ \fIout_type\fP,
+int\ \fIout_sts\fP);
+.in
 .br
-.ti -8n
-int pmExtendFetchGroup_indom(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIscale\fP, int \fIout_inst_codes\fP[], char *\fIout_inst_names\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
+int pmExtendFetchGroup_indom(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_indom('u
+const\ char\ *\fImetric\fP,
+const\ char\ *\fIscale\fP,
+int\ \fIout_inst_codes\fP[],
+char\ *\fIout_inst_names\fP[],
+pmAtomValue\ \fIout_values\fP[],
+int\ \fIout_type\fP,
+int\ \fIout_stss\fP[],
+unsigned\ int\ \fIout_maxnum\fP,
+unsigned\ int\ *\fIout_num\fP,
+int\ *\fIout_sts\fP);
+.in
 .br
-.ti -8n
-int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIinstance\fP, const char *\fIfield\fP, const char *\fIscale\fP, struct timespec \fIout_times\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
+int pmExtendFetchGroup_event(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_event('u
+const\ char\ *\fImetric\fP,
+const\ char\ *\fIinstance\fP,
+const\ char\ *\fIfield\fP,
+const\ char\ *\fIscale\fP,
+struct\ timespec\ \fIout_times\fP[],
+pmAtomValue\ \fIout_values\fP[],
+int\ \fIout_type\fP,
+int\ \fIout_stss\fP[],
+unsigned\ int\ \fIout_maxnum\fP,
+unsigned\ int\ *\fIout_num\fP,
+int\ *\fIout_sts\fP);
+.in
 .br
-.ti -8n
-int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
+int pmExtendFetchGroup_timespec(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_timespec('u
+struct\ timespec\ *\fIout_value\fP);
+.in
 .br
-.ti -8n
-int pmExtendFetchGroup_timespec(pmFG \fIpmfg\fP, struct timespec *\fIout_value\fP);
+int pmExtendFetchGroup_timeval(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_timeval('u
+struct\ timeval\ *\fIout_value\fP);
+.in
 .br
-.ti -8n
-int pmExtendFetchGroup_timeval(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
-.br
-.ti -8n
 int pmGetFetchGroupContext(pmFG \fIpmfg\fP);
 .br
-.ti -8n
 int pmFetchGroup(pmFG \fIpmfg\fP);
 .br
-.ti -8n
 int pmClearFetchGroup(pmFG \fIpmfg\fP);
 .br
-.ti -8n
 int pmDestroyFetchGroup(pmFG \fIpmfg\fP);
 .sp
-.in
+cc ... \-lpcp
 .hy
 .ad
-cc ... \-lpcp
 .ft 1
 .SH DESCRIPTION
 The fetchgroup functions implement a registration-based mechanism to
@@ -107,18 +134,20 @@ Multiple fetchgroups may be used concurrently, independently.
 An opaque type \fBpmFG\fP is used to identify a fetchgroup, which is
 passed to all related function calls.
 .SS Creating a fetchgroup
-.ft 3
+\&
 .sp
+.ft 3
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmCreateFetchGroup(pmFG *\fIptr\fP, int \fItype\fP, const char *\fIname\fP);
-.sp
+int pmCreateFetchGroup(pmFG *\fIptr\fP,
+'in +\w'int pmCreateFetchGroup('u
+int\ \fItype\fP,
+const\ char\ *\fIname\fP);
 .in
 .hy
 .ad
 .ft 1
+.sp
 This function creates a new fetchgroup, associated with a new PMAPI
 context.
 The \fItype\fP and \fIname\fP parameters are relayed to
@@ -136,18 +165,16 @@ This function may fail in case of \fBpmNewContext\fP or memory
 allocation errors.
 Those are indicated with a negative return code and a cleared \fIptr\fP value.
 .SS Getting the private PMAPI context
-.ft 3
+\&
 .sp
+.ft 3
 .ad l
 .hy 0
-.in +8n
-.ti -8n
 int pmGetFetchGroupContext(pmFG \fIpmfg\fP);
-.sp
-.in
 .hy
 .ad
 .ft 1
+.sp
 This function returns the private PMAPI context used by the given
 fetchgroup.
 It may be safely used to adjust some configuration
@@ -162,18 +189,24 @@ For example, a
 .PP
 The normal function return code is the context number.
 .SS Extending a fetchgroup with a metric instance of interest
-.ft 3
+\&
 .sp
+.ft 3
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmExtendFetchGroup_item(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIinstance\fP, const char *\fIscale\fP, pmAtomValue *\fIout_value\fP, int \fIout_type\fP, int *\fIout_sts\fP);
-.sp
+int pmExtendFetchGroup_item(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_item('u
+const\ char\ *\fImetric\fP,
+const\ char\ *\fIinstance\fP,
+const\ char\ *\fIscale\fP,
+pmAtomValue\ *\fIout_value\fP,
+int\ \fIout_type\fP,
+int\ *\fIout_sts\fP);
 .in
 .hy
 .ad
 .ft 1
+.sp
 This function registers interest in a single metric and optional instance.
 The metric name is given in the mandatory \fImetric\fP parameter, which is
 checked immediately via
@@ -249,18 +282,28 @@ This function may fail in
 case of various lookup, type- and conversion- checking errors.
 Those are indicated with a negative return code.
 .SS Extending a fetchgroup with a metric instance domain of interest
-.ft 3
+\&
 .sp
+.ft 3
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmExtendFetchGroup_indom(pmFG \fIpmfg\fP, const char* \fImetric\fP, const char *\fIscale\fP, int \fIout_inst_codes\fP[], char *\fIout_inst_names\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
-.sp
+int pmExtendFetchGroup_indom(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_indom('u
+const\ char*\ \fImetric\fP,
+const\ char\ *\fIscale\fP,
+int\ \fIout_inst_codes\fP[],
+char\ *\fIout_inst_names\fP[],
+pmAtomValue\ \fIout_values\fP[],
+int\ \fIout_type\fP,
+int\ \fIout_stss\fP[],
+unsigned\ int\ \fIout_maxnum\fP,
+unsigned\ int\ *\fIout_num\fP,
+int\ *\fIout_sts\fP);
 .in
 .hy
 .ad
 .ft 1
+.sp
 This function generalizes the \fBpmExtendFetchGroup_item\fP function
 by registering interest in a whole instance domain.
 Therefore, the
@@ -334,18 +377,29 @@ This function may fail in
 case of various lookup, type- and conversion- checking errors.
 Those are indicated with a negative return code.
 .SS Extending a fetchgroup with an event field
-.ft 3
+\&
 .sp
+.ft 3
 .ad l
 .hy 0
-.in +8n
-.ti -8n
-int pmExtendFetchGroup_event(pmFG \fIpmfg\fP, const char *\fImetric\fP, const char *\fIinstance\fP, const char *\fIfield\fP, const char *\fIscale\fP, struct timespec \fIout_times\fP[], pmAtomValue \fIout_values\fP[], int \fIout_type\fP, int \fIout_stss\fP[], unsigned int \fIout_maxnum\fP, unsigned int *\fIout_num\fP, int *\fIout_sts\fP);
-.sp
+int pmExtendFetchGroup_event(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_event('u
+const\ char\ *\fImetric\fP,
+const\ char\ *\fIinstance\fP,
+const\ char\ *\fIfield\fP,
+const\ char\ *\fIscale\fP,
+struct\ timespec\ \fIout_times\fP[],
+pmAtomValue\ \fIout_values\fP[],
+int\ \fIout_type\fP,
+int\ \fIout_stss\fP[],
+unsigned\ int\ \fIout_maxnum\fP,
+unsigned\ int\ *\fIout_num\fP,
+int\ *\fIout_sts\fP);
 .in
 .hy
 .ad
 .ft 1
+.sp
 This function registers interest in all instances of one field of all
 records of an event metric.
 Since event metrics may return multiple
@@ -420,41 +474,37 @@ This function may fail in
 case of various lookup, type- and conversion- checking errors.
 Those are indicated with a negative return code.
 .SS Extending a fetchgroup with the fetch timestamp
+\&
+.sp
 .ft 3
-.sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmExtendFetchGroup_timestamp(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
+int pmExtendFetchGroup_timespec(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_timespec('u
+struct\ timespec\ *\fIout_value\fP);
+.in
 .br
-.ti -8n
-int pmExtendFetchGroup_timespec(pmFG \fIpmfg\fP, struct timespec *\fIout_value\fP);
-.br
-.ti -8n
-int pmExtendFetchGroup_timeval(pmFG \fIpmfg\fP, struct timeval *\fIout_value\fP);
-.sp
+int pmExtendFetchGroup_timeval(pmFG \fIpmfg\fP,
+'in +\w'int pmExtendFetchGroup_timeval('u
+struct\ timeval\ *\fIout_value\fP);
 .in
 .hy
 .ad
 .ft 1
+.sp
 These functions register interest in the \fBpmHighResResult\fP timestamp.
 If the \fIout_value\fP pointer is non-NULL, at every future
 \fBpmFetchGroup\fR call, the corresponding result timestamp will be
 copied there.
 .SS Fetching all metrics in a fetchgroup
-.ft 3
+\&
 .sp
+.ft 3
 .ad l
 .hy 0
-.in +8n
-.ti -8n
 int pmFetchGroup(pmFG \fIpmfg\fP);
-.sp
-.in
 .hy
 .ad
 .ft 1
+.PP
 This function performs one \fBpmFetch\fP on its private PMAPI context,
 including all the metrics that were registered via prior
 \fBpmExtendFetchGroup_*\fP calls.
@@ -481,11 +531,18 @@ pmValueSet.numval==0), then the last seen valid value (if any) is
 retained.
 This is intended to ease the processing of sets of archives with a
 mixture of once- and repeatedly-sampled metrics.
+The environment variable
+.B PCP_DISCRETE_ONCE
+may be set to disable this feature.
 .SS Clearing a fetchgroup
+\&
+.sp
 .ft 3
-.nf
+.ad l
+.hy 0
 int pmClearFetchGroup(pmFG \fIpmfg\fP);
-.fi
+.hy
+.ad
 .ft 1
 .PP
 When the current fetch state of a fetchgroup is no longer needed,
@@ -496,10 +553,14 @@ made at all and the context remains at the current fetch offset).
 It frees any pointers such as indom instance names or strings that
 may have been stored in output variables.
 .SS Destroying a fetchgroup
+\&
+.sp
 .ft 3
-.nf
+.ad l
+.hy 0
 int pmDestroyFetchGroup(pmFG \fIpmfg\fP);
-.fi
+.hy
+.ad
 .ft 1
 .PP
 When the fetchgroup is no longer needed, it may be explicitly freed
@@ -549,7 +610,7 @@ int main()
                                    v3_values, PM_TYPE_STRING,
                                    v3_stss, v3_maxnum, &v3_num, NULL);
     pcpassert(sts);
-    sts = pmExtendFetchGroup_timestamp(fg, &t);
+    sts = pmExtendFetchGroup_timeval(fg, &t);
     pcpassert(sts);
 
     for (i=0; i < 10; i++) {
@@ -634,10 +695,21 @@ pmAtomValue is registered (during a successful
 \fBpmExtendFetchGroup_*\fP call), it will be cleared to the sentinel
 value or to a valid converted metric value, from the time of
 registration until the \fBpmDestroyFetchGroup\fP call.
+.SH COMPATIBILITY
+Prior to PCP 7.0 the
+.B pmExtendFetchGroup_timestamp
+was an alias for
+.BR pmExtendFetchGroup_timeval .
+To support PMAPI transition, the old interface and semantics can be
+used if applications are recompiled with
+.BR \-DPMAPI_VERSION=2 .
+.PP
+.B pmExtendFetchGroup_timestamp
+although this is now deprecated and compile-time support
+will be removed in a future release.
 .SH "SEE ALSO"
 .BR PMAPI (3),
 .BR pmLookupName (3),
-.BR pmFetchHighRes (3),
 .BR pmParseUnitsStr (3),
 .BR pmUseContext (3),
 .BR pmRegisterDerived (3)
@@ -651,3 +723,4 @@ and
 .\" +ok+ fetchgroups pcpassert diskunits idletime
 .\" +ok+ specifes _maxnum structs mutexes _values _names
 .\" +ok+ _stss enum _num NaN sts fg
+.\" +ok+ PCP_DISCRETE_ONCE {env var}

@@ -27,8 +27,6 @@ struct mmv_registry {
     __uint32_t		nindoms;
     mmv_metric2_t *	metrics;
     __uint32_t		nmetrics;
-    mmv_instances2_t *	instances;
-    __uint32_t		ninstances;
     mmv_label_t *	labels;
     __uint32_t		nlabels;
     __uint32_t		version;
@@ -874,7 +872,7 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
 			int instid, const char *instname) 
 {
     mmv_instances2_t * instance;
-    mmv_instances2_t * inst_aux;
+    mmv_indom2_t * indom = NULL;
     size_t bytes;
     int i;
 
@@ -882,42 +880,33 @@ mmv_stats_add_instance(mmv_registry_t *registry, int serial,
 	setoserror(EFAULT);
 	return -1;
     }
-    
-    bytes = (registry->ninstances + 1) * sizeof(mmv_instances2_t);
-    instance = (mmv_instances2_t *) realloc(registry->instances, bytes);
-    if (instance == NULL) {
-	setoserror(ENOMEM);
-	return -1;
-    }
-    registry->instances = instance;
-    instance[registry->ninstances].internal = instid;
-    instance[registry->ninstances].external = (char *) instname;
 
-    /* Look for the given indom and add a new instance */
+    /* find indom with the given serial number */
     for (i = 0; i < registry->nindoms; i++) {
-	if (registry->indoms[i].serial != serial)
+	indom = &registry->indoms[i];
+	if (indom->serial != serial)
 	    continue;
-	bytes = (registry->indoms[i].count + 1) * sizeof(mmv_instances2_t);
-	inst_aux = realloc(registry->indoms[i].instances, bytes);
-	if (inst_aux == NULL) {
-	    setoserror(ENOMEM);
-	    return -1;    
-	}
-	registry->indoms[i].instances = inst_aux;
-
-	inst_aux[registry->indoms[i].count].internal = instid;
-	inst_aux[registry->indoms[i].count].external = (char *) instname;
-
-	registry->indoms[i].count++;
-
+	break;
     }
+
     if (i == registry->nindoms) {
 	/* indom with that serial number was not found */
 	setoserror(EINVAL);
 	return -1;
     }
-    
-    registry->ninstances++;
+
+    /* add the new instance to the found indom */
+    bytes = (indom->count + 1) * sizeof(mmv_instances2_t);
+    instance = realloc(indom->instances, bytes);
+    if (instance == NULL) {
+	setoserror(ENOMEM);
+	return -1;    
+    }
+    instance[indom->count].internal = instid;
+    instance[indom->count].external = (char *) instname;
+    indom->instances = instance;
+    indom->count++;
+
     return 0;
 }
 
@@ -1227,7 +1216,7 @@ mmv_stats_stop(const char *fname, void *addr)
 	sbuf.st_size = 1;
     else if (fstat(fd, &sbuf) < 0)
 	sbuf.st_size = 1;
-    else if (hdr && hdr->flags & MMV_FLAG_PROCESS)
+    else if (hdr && (hdr->flags & MMV_FLAG_PROCESS))
 	unlink(path);
     if (fd >= 0)
 	close(fd);
@@ -1236,7 +1225,7 @@ mmv_stats_stop(const char *fname, void *addr)
 }
 
 void
-mmv_stats_free(mmv_registry_t *registry)
+mmv_stats_reset(mmv_registry_t *registry)
 {
     int i;
 
@@ -1245,14 +1234,25 @@ mmv_stats_free(mmv_registry_t *registry)
 	    free(registry->indoms[i].instances);
     if (registry->indoms)
 	free(registry->indoms);
-    if (registry->instances)
-	free(registry->instances);
+    registry->indoms = NULL;
+    registry->nindoms = 0;
     if (registry->metrics)
 	free(registry->metrics);
+    registry->metrics = NULL;
+    registry->nmetrics = 0;
     if (registry->labels)
 	free(registry->labels);
+    registry->labels = NULL;
+    registry->nlabels = 0;
 
     mmv_stats_stop(registry->file, registry->addr);
+    registry->addr = NULL;
+}
+
+void
+mmv_stats_free(mmv_registry_t *registry)
+{
+    mmv_stats_reset(registry);
     memset(registry, 0, sizeof(mmv_registry_t));
     free(registry);
 }

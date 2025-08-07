@@ -746,6 +746,8 @@ mem.util {
     zswapped		60:1:72
     shadowcallstack	60:1:73
     percpu		60:1:74
+    kreclaimable	60:1:75
+    hugetlb		60:1:76
 }
 
 mem.numa {
@@ -1285,6 +1287,8 @@ network.tcp {
     tcpaokeynotfound		60:53:214
     tcpaogood		60:53:215
     tcpaodroppedicmps		60:53:216
+    pawsoldack		60:53:230
+    tsecrrejected		60:53:231
 }
 
 network.mptcp {

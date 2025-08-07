@@ -132,7 +132,7 @@ llc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
  * each metric for each multiple mon_L3_XX instance
  */
 static int
-llc_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+llc_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     DIR *dirp;
     FILE *fp;

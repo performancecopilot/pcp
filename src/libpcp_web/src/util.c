@@ -68,10 +68,10 @@ zfree(void *ptr)
 const char *
 timespec_stream_str(struct timespec *stamp, char *buffer, int buflen)
 {
-    __uint64_t	millipart;
-    __uint64_t	fractions;
-    __uint64_t	crossover = stamp->tv_nsec / 1000000;
+    __uint64_t	millipart, fractions, crossover;
+    __uint32_t	nanoseconds = (__uint32_t)stamp->tv_nsec;
 
+    crossover = (__uint64_t)nanoseconds / 1000000;
     millipart = ((__uint64_t)stamp->tv_sec) * 1000;
     millipart += crossover;
     fractions = stamp->tv_nsec % 1000000 / 1000;
@@ -80,7 +80,7 @@ timespec_stream_str(struct timespec *stamp, char *buffer, int buflen)
     return buffer;
 }
 
-/* convert timeval into human readable date/time format for logging */
+/* convert timespec into human readable date/time format for logging */
 const char *
 timespec_str(struct timespec *tvp, char *buffer, int buflen)
 {
@@ -88,16 +88,8 @@ timespec_str(struct timespec *tvp, char *buffer, int buflen)
     time_t	now = (time_t)tvp->tv_sec;
 
     pmLocaltime(&now, &tmp);
-    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%06u",
+    pmsprintf(buffer, sizeof(buflen), "%02u:%02u:%02u.%09u",
 	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tvp->tv_nsec);
-    return buffer;
-}
-
-/* convert into <milliseconds>-<nanoseconds> format for series streaming */
-const char *
-timestamp_stream_str(__pmTimestamp *tsp, char *buffer, int buflen)
-{
-    pmsprintf(buffer, buflen, "%" FMT_UINT64 "-%d", tsp->sec, tsp->nsec);
     return buffer;
 }
 
@@ -110,7 +102,7 @@ timestamp_str(__pmTimestamp *tsp, char *buffer, int buflen)
 
     pmLocaltime(&now, &tmp);
     pmsprintf(buffer, buflen, "%02u:%02u:%02u.%09u",
-	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec);
+	      tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (unsigned int)tsp->nsec);
     return buffer;
 }
 
@@ -1061,7 +1053,7 @@ pmwebapi_add_indom_instances(struct context *context, struct indom *indom)
     if ((sts = pmGetInDom(indom->indom, &instlist, &namelist)) >= 0) {
 	for (i = 0; i < sts; i++) {
 	    if (namelist[i] == NULL || namelist[i][0] == '\0') {
-		if (pmDebugOptions.dev0) {
+		if (pmDebugOptions.series) {
 		    if (namelist[i] == NULL)
 			fprintf(stderr, "pmwebapi_add_indom_instances: Botch: indom %s numinst %d inst %d namelist[%d] NULL\n", 
 				    pmInDomStr_r(indom->indom, buffer, sizeof(buffer)),
@@ -1348,11 +1340,15 @@ pmwebapi_usectimestamp(sds s, struct timeval *timestamp)
 {
     struct tm	tmp;
     time_t	now;
+    size_t	length;
+    char	buffer[32];
 
     now = (time_t)timestamp->tv_sec;
     pmLocaltime(&now, &tmp);
-    return sdscatfmt(s, "%02d:%02d:%02d.%06d",
-		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_usec);
+    length = pmsprintf(buffer, sizeof(buffer), "%02u:%02u:%02u.%06u",
+			tmp.tm_hour, tmp.tm_min, tmp.tm_sec,
+			(unsigned int)timestamp->tv_usec);
+    return sdscatlen(s, buffer, length);
 }
 
 sds
@@ -1360,9 +1356,13 @@ pmwebapi_nsectimestamp(sds s, struct timespec *timestamp)
 {
     struct tm	tmp;
     time_t	now;
+    size_t	length;
+    char	buffer[32];
 
     now = (time_t)timestamp->tv_sec;
     pmLocaltime(&now, &tmp);
-    return sdscatfmt(s, "%02d:%02d:%02d.%09d",
-		tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)timestamp->tv_nsec);
+    length = pmsprintf(buffer, sizeof(buffer), "%02u:%02u:%02u.%09u",
+			tmp.tm_hour, tmp.tm_min, tmp.tm_sec,
+			(unsigned int)timestamp->tv_nsec);
+    return sdscatlen(s, buffer, length);
 }

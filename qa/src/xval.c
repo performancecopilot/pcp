@@ -351,7 +351,24 @@ main(int argc, char *argv[])
 				match = (iv.d == av.d);
 			    break;
 			case PM_TYPE_STRING:
-			    match = (strcmp(bv.cp, av.cp) == 0);
+			    if (types[i] == PM_TYPE_STRING)
+				match = (strcmp(bv.cp, av.cp) == 0);
+			    else {
+				if (types[i] == PM_TYPE_32)
+				    match = strtol(av.cp, NULL, 10) == iv.l;
+				else if (types[i] == PM_TYPE_U32)
+				    match = strtoul(av.cp, NULL, 10) == iv.ul;
+				else if (types[i] == PM_TYPE_64)
+				    match = strtoll(av.cp, NULL, 10) == iv.ll;
+				else if (types[i] == PM_TYPE_U64)
+				    match = strtoull(av.cp, NULL, 10) == iv.ull;
+				else if (types[i] == PM_TYPE_FLOAT)
+				    match = (float)atof(av.cp) == iv.f;
+				else if (types[i] == PM_TYPE_DOUBLE)
+				    match = atof(av.cp) == iv.d;
+				else
+				    match = 0;
+			    }
 			    break;
 			case PM_TYPE_AGGREGATE:
 			    match = 0;
@@ -484,7 +501,7 @@ error_cases:
     if ((e = pmExtractValue(PM_VAL_INSITU, &pv, PM_TYPE_FLOAT, &av, PM_TYPE_STRING)) < 0)
 	printf("%s\n", pmErrStr(e));
     else
-	printf("%15.6f\n", av.d);
+	printf("%s\n", av.cp);
 
     pv.value.pval = vbp;
     vbp->vlen = PM_VAL_HDR_SIZE + sizeof(bv.ll);

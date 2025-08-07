@@ -113,7 +113,7 @@ Options:\n\
 	exit(1);
     }
 
-    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+    if ((sts = pmSetMode(mode, &label.start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -125,7 +125,7 @@ Options:\n\
 	    exit(1);
 	}
 	printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-	    label.ll_hostname);
+	    label.hostname);
     }
     else if (tz != NULL) {
 	if ((tzh = pmNewZone(tz)) < 0) {
@@ -159,7 +159,7 @@ Options:\n\
 	if (sts >= 0) {
 	    clock = rp->timestamp.tv_sec;
 	    pmCtime(&clock, timebuf);
-	    printf("numpmid=%2d %.19s.%08d\n", rp->numpmid, timebuf, (int)rp->timestamp.tv_usec);
+	    printf("numpmid=%2d %.19s.%09d\n", rp->numpmid, timebuf, (int)rp->timestamp.tv_nsec);
 	    pmFreeResult(rp);
 	}
 	else {
@@ -168,7 +168,7 @@ Options:\n\
 	}
     }
 
-    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+    if ((sts = pmSetMode(mode, &label.start, NULL)) < 0) {
 	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
@@ -180,7 +180,7 @@ Options:\n\
 	if (sts >= 0) {
 	    clock = rp->timestamp.tv_sec;
 	    pmCtime(&clock, timebuf);
-	    printf("numpmid=%2d %.19s.%08d", rp->numpmid, timebuf, (int)rp->timestamp.tv_usec);
+	    printf("numpmid=%2d %.19s.%09d", rp->numpmid, timebuf, (int)rp->timestamp.tv_nsec);
 	    if (rp->numpmid == 0)
 		printf(" <mark>");
 	    putchar('\n');

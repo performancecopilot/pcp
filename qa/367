@@ -118,7 +118,6 @@ s/from='$client'/from=CLIENT/
     -e '/PDU_CREDS:/s/sender='$client' /sender=CLIENT /' \
     -e '/pmResult dump/s/0x[^ ]*/ADDR/' \
     -e '/pmInResult dump/s/0x[^ ]*/ADDR/' \
-    -e '/pmHighResResult dump/s/0x[^ ]*/ADDR/' \
     -e '/value/s/[0-9]\.[0-9]*e-42/0/' \
     -e '/value/s/[0-9]\.[0-9]*e-31[12]/0/' \
     -e '/noname/s/Not privileged/Operation not permitted/' \

@@ -19,15 +19,24 @@
 \f3__pmProcessPipeClose\f1 \- support for process execution at the end of a pipe
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include "pmapi.h"
 .br
 #include "libpcp.h"
 .sp
-int __pmProcessPipe(__pmExecCtl_t **\fIhandle\fP, const char *\fItype\fP, int \fItoss\fP, FILE **\fIfp\fP);
+int __pmProcessPipe(__pmExecCtl_t **\fIhandle\fP,
+'in +\w'int __pmProcessPipe('u
+const\ char\ *\fItype\fP,
+int\ \fItoss\fP,
+FILE\ **\fIfp\fP);
+.in
 .br
 int __pmProcessPipeClose(FILE *\fIfp\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH CAVEAT
 This documentation is intended for internal Performance Co-Pilot

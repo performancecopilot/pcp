@@ -1,0 +1,227 @@
+#!/bin/sh
+# PCP QA Test No. 1617
+# Exercise pmproxy logger REST API with key server.
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.keys
+
+_check_valgrind
+_check_series
+
+cached=false
+[ "$1" = "--cached" ] && cached=true
+
+_cleanup()
+{
+    cd $here
+    [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
+    [ -d $archive_path ] && $sudo rm -fr $archive_path
+
+    # undo changes to PCP_RUN_DIR PCP_TMP_DIR PCP_LOG_DIR
+    unset PCP_ENV_DONE PCP_RUN_DIR PCP_TMP_DIR PCP_LOG_DIR
+    . $PCP_DIR/etc/pcp.env
+
+    _restore_auto_restart pmlogger
+    _service pmlogger start 2>&1 | _filter_pcp_start
+    _wait_for_pmlogger
+
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# prevent a local logger interfering with remote testing
+_stop_auto_restart pmlogger
+_service pmlogger stop 2>&1 | _filter_pcp_stop
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@$archive@ARCHIVE@g" \
+	-e "s@$archive_path@ARCHIVE_PATH@g" \
+    # end
+}
+
+_filter_ls()
+{
+    sed \
+        -e 's/\([r-][w-][x-]\)\. /\1 /' \
+        -e 's/tmp\/[0-9][0-9]*/tmp\/PID/' \
+        -e 's/[A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]/TIME/' \
+    | $PCP_AWK_PROG '
+/TIME/  { $3 = "user"; $4 = "group" }
+        { print }'
+}
+
+_filter_values()
+{
+    # filter on specific times/values from the archive, however
+    # some indeterminism exists from use of floating point math
+    sed \
+	-e 's/11:53:38.*1999/11:53:38 1999/g' \
+	-e 's/4.147.*e+06/4.147e+06/g' \
+    # end
+}
+
+# remove -Dcontext diagnostics from output ... they remain in $seq_full
+#
+_filter_context_debug()
+{
+    sed \
+	-e '/^on_client_/d' \
+	-e '/^pmNewContext(/d' \
+	-e '/^Dump Contexts:/d' \
+	-e '/^contexts\[/d' \
+	-e '/^Dump Instance Profile/d' \
+	-e '/^pmWhichContext/d' \
+	-e '/^pmUseContext/d' \
+	-e '/^__pmSetVersionIPC:/d' \
+	-e '/^IPC table /d' \
+	-e '/^refcnt=[0-9]* vol=[0-9]* offset=[0-9]*/d' \
+    # end
+}
+
+export PCP_DERIVED_CONFIG=""
+archive=$here/archives/ok-mv-bigbin
+
+# need to check *just* the metrics from the target archive
+# because pmproxy may start to gather metrics from the primary
+# logger's archive which means pmseries reports a whole lot more
+# than we're expecting
+#
+pminfo -a $archive \
+| sed \
+    -e "/^pmcd\.*/d" \
+    -e "/^event\.*/d" \
+    -e 's/.*/\/^&$\/p/' >$tmp.metrics.sed
+echo "+++ metrics.sed +++" >>$seq_full
+cat $tmp.metrics.sed >>$seq_full
+
+# similarly, *just* the labels from the target archive
+# e.g. labels {"hostname":"ha2"}
+#
+pminfo -a $archive -l \
+| sed -n \
+    -e '/ labels /{
+s/.*{"//
+s/":".*//
+s/.*/\/^&$\/p/p
+}' \
+| LC_COLLATE=POSIX sort \
+| uniq >$tmp.labels.sed
+echo "+++ labels.sed +++" >>$seq_full
+cat $tmp.labels.sed >>$seq_full
+
+# real QA test starts here
+user=`id -nu`
+pmproxy_port=`_find_free_port`
+_filter_pmproxy_port()
+{
+    sed \
+        -e "s/ FD $pmproxy_port / FD PORT /g" \
+        -e '/PORT ipv6 /d' \
+    # end
+}
+no_pmproxy_port=`expr $pmproxy_port + 1`
+key_server_port=`_find_free_port $no_pmproxy_port`
+
+echo "Start test key server ..."
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
+echo
+_check_key_server_version $key_server_port
+
+cat >$tmp.conf << End-Of-File
+[keys]
+enabled = true
+servers = localhost:$key_server_port
+[pmproxy]
+http.enabled = true
+[pmlogger]
+enabled = true
+cached = $cached
+[discover]
+enabled = true
+[pmseries]
+enabled = true
+End-Of-File
+
+mkdir -p $tmp.pmproxy/pmproxy
+export PCP_RUN_DIR=$tmp.pmproxy
+export PCP_TMP_DIR=$tmp.pmproxy
+export PCP_LOG_DIR=$tmp.pmproxy/pmproxy
+
+echo "Start test pmproxy ..."
+archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
+$sudo rm -fr $archive_path
+
+$valgrind_clean_assert pmproxy -Dcontext -f -p $pmproxy_port -U $user -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
+pid=$!
+
+echo "valgrind pid: $pid" >>$seq_full
+echo "pmproxy port: $pmproxy_port" >>$seq_full
+
+# valgrind takes awhile to fire up
+i=0
+while [ $i -lt 40 ]
+do
+    $PCP_BINADM_DIR/telnet-probe -c localhost $pmproxy_port && break
+    sleep 1
+    i=`expr $i + 1`
+done
+if $PCP_BINADM_DIR/telnet-probe -c localhost $pmproxy_port
+then 
+    echo "Startup took $i secs" >>$seq_full
+else
+    echo "Arrgh: valgrind failed to start pmproxy on port $pmproxy_port after 40 secs"
+    exit
+fi
+
+echo "=== pmlogpush to pmproxy ==="
+pmlogpush -p $pmproxy_port $archive
+pmsleep 1.5 # allow time for key server as well
+
+pminfo -a $archive | sed -n -f $tmp.metrics.sed | LC_COLLATE=POSIX sort
+
+# start valgrind pmproxy process exit
+pmsignal $pid
+
+# while that happens, check state of the key server
+echo "=== pmseries value check ==="
+pmseries -c $tmp.conf -Z UTC 'sample.milliseconds[count:1,timezone:"UTC"]' | _filter_values
+
+echo "=== pmseries labels check ==="
+pmseries -c $tmp.conf -l | sed -n -f $tmp.labels.sed | LC_COLLATE=POSIX sort
+
+echo "=== pmseries metrics check ==="
+pmseries -c $tmp.conf -m | sed -n -f $tmp.metrics.sed | LC_COLLATE=POSIX sort
+
+# valgrind takes awhile to shutdown too
+_wait_process_end $pid
+echo "=== valgrind stdout ===" | tee -a $seq_full
+cat $tmp.valout | tee -a $seq_full | _filter_valgrind
+
+echo "=== valgrind stderr ===" | tee -a $seq_full
+cat $tmp.valerr | tee -a $seq_full | _filter_context_debug | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_pmproxy_port
+
+# success, all done
+exit

@@ -31,7 +31,7 @@ static char	*username;
  * ... real callback is fetch_callback()
  */
 static int
-aix_fetch(int numpmid, pmID pmidlist[], pmResult **resp, pmdaExt *pmda)
+aix_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 {
     int		i;
 

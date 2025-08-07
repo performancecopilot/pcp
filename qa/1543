@@ -92,6 +92,7 @@ _filter_text()
 	-e "s/machineid=\"$machineid\"/machineid=\"MACHINEID\"/g" \
 	-e "s/domainname=\"$domainname\"/domainname=\"DOMAINNAME\"/g" \
 	-e "s/\"context\":[0-9][0-9]*/\"context\":CONTEXT/g" \
+	-e '/^sample_dupnames_pid_daemon/s/ [0-9][0-9]*/ PID/' \
 	-e "s/$CR//g" \
     #end
 }
@@ -113,14 +114,20 @@ _filter_json()
     if [ $status -eq 0 ]; then
 	cat $tmp.filtered | \
 	sed \
-	    -e '/"machineid": .*/d' \
+	    -e 's,"machineid": .*,"machineid": "MACHINEID",g' \
 	    -e 's,"series": .*,"series": "SERIES",g' \
 	    -e 's,"source": .*,"source": "SOURCE",g' \
 	    -e 's,"context": .*,"context": "CONTEXT",g' \
+	    -e 's,"version": ".*","version": "VERSION",g' \
 	    -e 's,"hostname": .*,"hostname": "HOSTNAME",g' \
 	    -e 's,"hostspec": .*,"hostname": "HOSTNAME",g' \
 	    -e 's,"domainname": .*,"domainname": "DOMAINNAME",g' \
 	    -e 's,"timestamp": [0-9][0-9]*.[0-9][0-9]*,"timestamp": TIME,g' \
+	    -e 's,"stringValue": "'$machineid'","stringValue": "MACHINEID",g' \
+	    -e 's,"stringValue": "'$domainname'","stringValue: "DOMAINNAME",g' \
+	    -e 's,"stringValue": "'$hostname'","stringValue": "HOSTNAME",g' \
+	    -e 's,"timeUnixNano": "[0-9][0-9]*","timeUnixNano": NANOSECONDS,g' \
+	    -e 's,"asInt": "[0-9][0-9]*","asInt": "INTEGER",g' \
 	    -e 's,"msec": [0-9][0-9]*,"msec": MILLISECONDS,g' \
 	    -e 's,"usec": [0-9][0-9]*,"usec": MICROSECONDS,g' \
 	    -e 's,"nsec": [0-9][0-9]*,"nsec": NANOSECONDS,g' \
@@ -132,6 +139,17 @@ _filter_json()
 	echo "Invalid JSON: $status"
 	cat $tmp.unfiltered
 	rm -f $tmp.context $tmp.series
+    fi
+}
+
+_check_pmproxy()
+{
+    echo "== check pmproxy is running =="
+    pminfo -v -h localhost@localhost:$port hinv.ncpu
+    if [ $? -eq 0 ]; then
+	echo "pmproxy check passed"
+    else
+	echo "pmproxy check failed"
     fi
 }
 
@@ -398,17 +416,12 @@ curl -s  --compressed "http://localhost:$port/metrics?name=sample.long.one" \
 	| _filter_text "small curl compression command"
 curl -s  --compressed "http://localhost:$port/metrics?name=sample,sampledso" \
 	| _filter_text "large curl compression command" | head -8
+
 echo "== scrape all metrics =="
 curl -s "http://localhost:$port/metrics" \
 	> /dev/null	# checking pmproxy remains up here (too much to filter)
 echo "done full scrape"
-echo "== check pmproxy is running =="
-pminfo -v -h localhost@localhost:$port hinv.ncpu
-if [ $? -eq 0 ]; then
-    echo "pmproxy check passed"
-else
-    echo "pmproxy check failed"
-fi
+_check_pmproxy
 
 # Filtering options
 curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=*ten" \
@@ -419,6 +432,27 @@ curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&fil
 	| _filter_text "good filter regex"
 curl -s "http://localhost:$port/metrics?name=sample.long.one,sample.long.ten&filter=ten&match=dummy" \
 	| _filter_text "bad filter match param"
+
+# alternate JSON output (OpenTelemetry instead of OpenMetrics)
+json_request="-H Accept:application/json"
+curl -s $json_request "http://localhost:$port/pmapi/metrics?target=sample.long.one" \
+	| _filter_json "scrape one metric"
+curl -s $json_request "http://localhost:$port/metrics?names=sample.long.one,sample.long.ten" \
+	| _filter_json "scrape two metrics"
+curl -s $json_request "http://localhost:$port/metrics?names=no.such.metric" \
+	| _filter_json "scrape bad metric name"
+curl -s $json_request "http://localhost:$port/pmapi/metrics?target=sample.long" \
+	| _filter_json "scrape one metric tree"
+curl -s $json_request "http://localhost:$port/pmapi/metrics?target=sample.colour" \
+	| _filter_json "scrape metric instances"
+curl -s $json_request --compressed "http://localhost:$port/metrics?name=sample.long.one" \
+	| _filter_json "small curl compression command"
+
+echo "== scrape all metrics (JSON) =="
+curl -s $json_request "http://localhost:$port/metrics" \
+	> /dev/null	# checking pmproxy remains up here (too much to filter)
+echo "done full scrape (JSON)"
+_check_pmproxy
 
 # No clue why or how, but on vm21 (Debian 11) this sleep makes the test
 # reliably pass, rather than 

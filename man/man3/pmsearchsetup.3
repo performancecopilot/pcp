@@ -23,33 +23,31 @@
 \f3pmSearchClose\f1 \- fast, scalable and full-text capable search services
 .SH "C SYNOPSIS"
 .ft 3
-#include <pcp/pmwebapi.h>
-.sp
 .ad l
 .hy 0
-.in +8n
-.ti -8n
+#include <pcp/pmwebapi.h>
+.sp
 int pmSearchSetup(pmSearchModule *\fImodule\fP, void *\fIarg\fP);
 .sp
-.ti -8n
 int pmSearchSetSlots(pmSearchModule *\fImodule\fP, void *\fIslots\fP);
 .br
-.ti -8n
 int pmSearchSetEventLoop(pmSearchModule *\fImodule\fP, void *\fIevents\fP);
 .br
-.ti -8n
-int pmSearchSetConfiguration(pmSearchModule *\fImodule\fP, struct dict *\fIconfig\fP);
+int pmSearchSetConfiguration(pmSearchModule *\fImodule\fP,
+'in +\w'int pmSearchSetConfiguration('u
+struct\ dict\ *\fIconfig\fP);
+.in
 .br
-.ti -8n
-int pmSearchSetMetricRegistry(pmSearchModule *\fImodule\fP, struct mmv_registry *\fIregistry\fP);
+int pmSearchSetMetricRegistry(pmSearchModule *\fImodule\fP,
+'in +\w'int pmSearchSetMetricRegistry('u
+struct\ mmv_registry\ *\fIregistry\fP);
+.in
 .sp
-.ti -8n
 int pmSearchClose(pmSearchModule *\fImodule\fP);
 .sp
-.in
+cc ... \-lpcp_web
 .hy
 .ad
-cc ... \-lpcp_web
 .ft 1
 .SH DESCRIPTION
 The

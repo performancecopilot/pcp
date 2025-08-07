@@ -33,15 +33,17 @@
 \f3pmLookupDescs\f1 \- obtain descriptions for performance metrics
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
-.nf
 int pmLookupDesc(pmID \fIpmid\fP, pmDesc *\fIdesc\fP);
 .br
 int pmLookupDescs(int \fInumpmid\fP, pmID *\fIpmids\fP, pmDesc *\fIdescs\fP);
-.fi
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

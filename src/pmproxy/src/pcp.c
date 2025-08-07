@@ -297,6 +297,13 @@ setup_pcp_module(struct proxy *proxy)
 }
 
 void
+reset_pcp_module(struct proxy *proxy)
+{
+    /* SIGHUP: no-op */
+    (void)proxy;
+}
+
+void
 close_pcp_module(struct proxy *proxy)
 {
     proxymetrics_close(proxy, METRICS_PCP);

@@ -230,7 +230,7 @@ main(int argc, char **argv)
     unsigned long	uvalue;
     int		seen_pdu_auth;
     int		calc_len;
-    int		save_len;
+    int		save_len = -1;
     int		len;
     int		type;
     int		out;
@@ -933,9 +933,9 @@ next:
 			    pmID	*pmidlist;
 			    lsts = __pmDecodeFetch(pdubuf, &ctxnum, &unused, &numpmid, &pmidlist);
 			    if (lsts < 0)
-				fprintf(stderr, "%d: __pmDecodeesFetch failed: %s\n", lineno, pmErrStr(lsts));
+				fprintf(stderr, "%d: __pmDecodeFetch failed: %s\n", lineno, pmErrStr(lsts));
 			    else {
-				fprintf(stderr, "%d: __pmDecodeesFetch: sts=%d ctxnum=%d unused=%d.%d numpmid=%d pmids:", lineno, lsts, ctxnum, (int)unused.tv_sec, (int)unused.tv_usec, numpmid);
+				fprintf(stderr, "%d: __pmDecodeFetch: sts=%d ctxnum=%d unused=%d.%06d numpmid=%d pmids:", lineno, lsts, ctxnum, (int)unused.tv_sec, (int)unused.tv_usec, numpmid);
 				for (j = 0; j < numpmid; j++) {
 				    fprintf(stderr, " %s", pmIDStr(pmidlist[j]));
 				}

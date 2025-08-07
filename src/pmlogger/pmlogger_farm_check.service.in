@@ -1,5 +1,5 @@
 [Unit]
-Description=Check and migrate non-primary pmlogger farm instances
+Description=Check PCP archive loggers
 Documentation=man:pmlogctl(1)
 ConditionPathExists=!@CRONTAB_PATH@
 
@@ -11,5 +11,8 @@ TimeoutStopSec=120
 # needs to run as root:root not pcp:pcp, pmlogctl will handle the
 # switch to pcp:pcp if any pmlogger needs to be launched, so NO
 # User= nor Group= here
+# -m is for migrate that we don't really need anymore
+# check will check and if necessary restart all pmlogger instances
+# known to pmlogctl(1)
 ExecStart=@PCP_BIN_DIR@/pmlogctl -m check
 WorkingDirectory=@PCP_VAR_DIR@

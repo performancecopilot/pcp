@@ -1,5 +1,5 @@
 [Unit]
-Description=Performance Metrics Archive Logger
+Description=PCP primary archive logger
 Documentation=man:pmlogger(1)
 After=network-online.target pmcd.service
 Before=pmlogger_farm.service pmlogger_check.timer pmlogger_daily.timer

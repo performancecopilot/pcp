@@ -25,7 +25,7 @@ extern int	nmeta;
 extern pid_t	clientPID;
 
 extern void summaryMainLoop(char *, int, pmdaInterface *);
-extern void mainLoopFreeResultCallback(void (*)(pmResult *));
+extern void mainLoopFreeResultCallback(void (*)(pmdaResult *));
 extern void service_client(__pmPDU *);
 
 

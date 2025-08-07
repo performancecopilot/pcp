@@ -106,7 +106,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":1", PM_FAULT_CALL);
 	 * have to do them one at a time in case different DSOs
 	 * involved ... need to copy each result->vset[n]
 	 */
-	pmResult	tmp;
+	pmResult_v2	tmp;
 	pmValueSet	tmpvset;
 
 	if (PM_MULTIPLE_THREADS(PM_SCOPE_DSO_PMDA)) {
@@ -153,7 +153,7 @@ pmapi_return:
 }
 
 int
-pmStore(const pmResult *rp)
+pmStore_v2(const pmResult_v2 *rp)
 {
     __pmResult	*newrp;
     int		i, sts;
@@ -186,7 +186,7 @@ pmStore(const pmResult *rp)
 }
 
 int
-pmStoreHighRes(const pmHighResResult *rp)
+pmStore(const pmResult *rp)
 {
     __pmResult	*newrp;
     int		i, sts;
@@ -198,7 +198,7 @@ pmStoreHighRes(const pmHighResResult *rp)
      * but provides correct format and alignment.
      */
     if ((newrp = __pmAllocResult(rp->numpmid)) == NULL) {
-	pmNoMem("pmStoreHighRes: newrp", sizeof(__pmResult) + (rp->numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
+	pmNoMem("pmStore: newrp", sizeof(__pmResult) + (rp->numpmid - 1) * sizeof(pmValueSet *), PM_RECOV_ERR);
 	return -ENOMEM;
     }
 

@@ -27,11 +27,11 @@ main(int argc, char **argv)
     char	local[MAXHOSTNAMELEN];
     char	*pmnsfile = PM_NS_DEFAULT;
     char	*endnum;
-    struct timeval startTime;
-    struct timeval endTime;
-    struct timeval appStart;
-    struct timeval appEnd;
-    struct timeval appOffset;
+    struct timespec startTime;
+    struct timespec endTime;
+    struct timespec appStart;
+    struct timespec appEnd;
+    struct timespec appOffset;
 
     pmSetProgname(argv[0]);
 
@@ -114,12 +114,12 @@ Options\n\
 	    exit(1);
 	}
 	if (mode != PM_MODE_INTERP) {
-	    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+	    if ((sts = pmSetMode(mode, &label.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
 	}
-  	startTime = label.ll_start;
+  	startTime = label.start;
 	sts = pmGetArchiveEnd(&endTime);
 	if (sts < 0) {
 	    fprintf(stderr, "%s: pmGetArchiveEnd: %s\n", pmGetProgname(),
@@ -128,7 +128,10 @@ Options\n\
 	}
     }
     else {
-	gettimeofday(&startTime, NULL);
+	struct timeval	temp_tv;
+	gettimeofday(&temp_tv, NULL);
+	startTime.tv_sec = temp_tv.tv_sec;
+	startTime.tv_nsec = temp_tv.tv_usec * 1000;
 	endTime.tv_sec = PM_MAX_TIME_T;
     }
 
@@ -140,7 +143,7 @@ Options\n\
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
 	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-		label.ll_hostname);
+		label.hostname);
 	else
 	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
     }

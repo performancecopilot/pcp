@@ -19,13 +19,22 @@
 \f3pmAtomStr_r\f1 \- convert a performance metric value into a string
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 const char *pmAtomStr(const pmAtomValue *\fIavp\fP, int \fItype\fP);
 .br
-char *pmAtomStr_r(const pmAtomValue *\fIavp\fP, int \fItype\fP, char *\fIbuf\fP, int \fIbuflen\fP);
+char *pmAtomStr_r(const pmAtomValue *\fIavp\fP,
+'in +\w'char *pmAtomStr_r('u
+int\ \fItype\fP,
+char\ *\fIbuf\fP,
+int\ \fIbuflen\fP);
+.in
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 .de CR

@@ -1,0 +1,10 @@
+[Unit]
+Description=Half-hourly optional compression of remote PCP archives from pmproxy
+PartOf=pmproxy.service
+
+[Timer]
+# if enabled, runs 15m after boot and every half hour
+OnBootSec=15min
+OnCalendar=*-*-* *:25:00
+OnCalendar=*-*-* *:55:00
+Unit=pmproxy_check.service

@@ -64,20 +64,25 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \
 	  pcp-meminfo.0.xz pcp-meminfo.meta.xz pcp-meminfo.index \
 	  pcp-netstat.0.xz pcp-netstat.meta.xz pcp-netstat.index \
+	  pcp-rocestat.0.xz pcp-rocestat.meta.xz pcp-rocestat.index.xz \
 	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz all-ubuntu.22.04.index \
 	  bind2-9.18.0.xz bind2-9.18.meta.xz bind2-9.18.index \
-	  bind2-9.18+.0.xz bind2-9.18+.meta.xz bind2-9.18+.index
+	  bind2-9.18+.0.xz bind2-9.18+.meta.xz bind2-9.18+.index \
+	  gfs.0.xz gfs.meta gfs.index \
+	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
+	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index
+
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
 	  mk.mirage mk.mirage-3 mk.proc mk.free mk.ps\
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
-	  mk.sample_expr mk.tzchange mk.arch-all \
+	  mk.sample_expr mk.tzchange mk.arch-all mk.amdgpu mk.nvidiagpu \
 	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched mk.netstat \
 	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
 	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo mk.zoneinfo \
-	  mk.atop-sar mk.pmstat
+	  mk.atop-sar mk.pmstat mk.rocestat
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \

@@ -29,7 +29,7 @@
 
 static pmLongOptions longopts[] = {
     PMOPT_ARCHIVE,	/* -a */
-    { PMLONGOPT_DEBUG,      1, 'D', "OPTS", "set pmDebug options" },
+    { PMLONGOPT_DEBUG,      1, 'D', "OPTS", "set debug options" },
     PMOPT_HOST,		/* -h */
     { "control", 0, 'c', "play pm{Set,Get}DerivedControl() games" },
     { "globlimit", 1, 'l', "limit max # of global derived metrics" },

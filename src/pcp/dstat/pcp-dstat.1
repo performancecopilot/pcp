@@ -19,6 +19,7 @@
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3dstat\f1 [\f3\-acdfghilmnpqrstvVy?\f1]
 [\f3\-C\f1 \f2cpus\f1]
+[\f3\-G\f1 \f2gpus\f1]
 [\f3\-D\f1 \f2disks\f1]
 [\f3\-L\f1 \f2DM devices\f1]
 [\f3\-M\f1 \f2MD devices\f1]
@@ -149,6 +150,12 @@ and
 include CPU0, CPU3 and total (when using \fB\-c\fR/\fB\-\-cpu\fR); use
 \fIall\fR
 to show all CPUs
+.TP
+\fB\-\-amd\-gpu\fR, \fB\-\-nvidia\-gpu\fR
+enable stats for the specific GPU architecture (utilization, memory use)
+.TP
+\fB\-G\fR \fI0,3\fR
+include GPU0 and GPU3 (when using \fB\-\-amd\-gpu\fR or \fB\-\-nvidia\-gpu\fR)
 .TP
 \fB\-d\fR, \fB\-\-disk\fR
 enable disk stats (read, write);

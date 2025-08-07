@@ -25,6 +25,8 @@ time control functions for synchronizing the archive position and
 update interval between one or more applications
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmtime.h>
 .sp
 int pmTimeConnect(int \fIport\fP, pmTime *\fIstate\fP);
@@ -38,6 +40,8 @@ int pmTimeShowDialog(int \fIfd\fP, int \fIshow\fP);
 int pmTimeRecv(int \fIfd\fP, pmTime *\fIstate\fP);
 .sp
 cc ... \-lpcp_gui
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 These functions form part of the Performance Metrics Applications

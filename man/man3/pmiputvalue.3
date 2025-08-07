@@ -19,26 +19,31 @@
 \f3pmiPutValue\f1 \- add a value for a metric-instance pair
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/import.h>
 .sp
-.ad l
-.hy 0
-.in +8n
-.ti -8n
-int pmiPutValue(const char *\fIname\fP, const char *\fIinstance\fP, const\ char\ *\fIvalue\fP);
-.sp
+int pmiPutValue(const char *\fIname\fP,
+'in +\w'int pmiPutValue('u
+const\ char\ *\fIinstance\fP,
+const\ char\ *\fIvalue\fP);
 .in
+.sp
+cc ... \-lpcp_import \-lpcp
 .hy
 .ad
-cc ... \-lpcp_import \-lpcp
 .ft 1
 .SH "Perl SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 use PCP::LogImport;
 .sp
 pmiPutValue($\fIname\fP, $\fIinstance\fP, $\fIvalue\fP);
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see

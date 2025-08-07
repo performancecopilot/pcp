@@ -16,6 +16,7 @@
 #define _LOGGER_H
 
 #include <pcp/pmapi.h>
+#include <pcp/pmhttp.h>
 #include <pcp/libpcp.h>
 #include <pcp/archive.h>
 #include <assert.h>
@@ -158,6 +159,9 @@ extern void run_done(int,char *);
 extern int putmark(void);
 extern void dumpit(void);
 
+/* parse -v arg */
+extern int ParseSize(char *, int *, __int64_t *, struct timespec *);
+
 #include <sys/param.h>
 extern char pmlc_host[];
 
@@ -229,9 +233,25 @@ extern int	qa_case;
 #endif
 
 /*
- * parse -v arg
+ * pmlogger 'push' - supports HTTP POSTing the archive to a remote webhook.
  */
-extern int
-ParseSize(char *, int *, __int64_t *, struct timeval *);
+typedef struct logpush {
+    char		*conn;		/* pmlogger remote push HTTP server */
+    struct http_client  *client;	/* HTTP client info for remote push */
+    char		*body;		/* HTTP request body buffer (cache) */
+    size_t		body_bytes;
+    char		*type;		/* HTTP request type buffer (cache) */
+    size_t		type_bytes;
+    unsigned int	log;		/* log identifier (from label push) */
+    unsigned int	only;		/* no local filesystem writes (0/1) */
+    size_t		total_meta;
+    size_t		total_index;
+    size_t		total_volume;
+} logpush_t;
+
+extern logpush_t remote;
+extern int remote_ping(void);
+extern int remote_label(const __pmArchCtl *, int, void *, size_t, const char *);
+extern int remote_write(const __pmArchCtl *, int, void *, size_t, const char *);
 
 #endif /* _LOGGER_H */

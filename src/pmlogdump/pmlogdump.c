@@ -64,7 +64,6 @@ static pmLongOptions longopts[] = {
 
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
-    .version = PMAPI_VERSION_3,
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_STDOUT_TZ | PM_OPTFLAG_BOUNDARIES,
     .short_options = "aD:dehIilLmMn:rS:sT:tVv:xZ:z?",
     .long_options = longopts,
@@ -118,6 +117,7 @@ myPrintTimestamp(FILE *f, const __pmTimestamp *tsp)
 	time_t		now;
 	now = (time_t)tsp->sec;
 	pmLocaltime(&now, &tmp);
+// check-time-formatting-ok
 	fprintf(f, "%02d:%02d:%02d.%06d", tmp.tm_hour, tmp.tm_min, tmp.tm_sec, tsp->nsec / 1000);
     }
 }
@@ -328,7 +328,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, i
     printf(": ");
 
     if (highres) {
-	pmHighResResult	**hr;
+	pmResult	**hr;
 
 	if ((nrecords = pmUnpackHighResEventRecords(vsp, _index, &hr)) < 0)
 	    return;
@@ -350,7 +350,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, i
 
 	for (r = 0; r < nrecords; r++) {
 	    printf("        --- event record [%d] timestamp ", r);
-	    pmPrintHighResStamp(stdout, &hr[r]->timestamp);
+	    pmtimespecPrint(stdout, &hr[r]->timestamp);
 	    if (dump_nparams(hr[r]->numpmid) < 0)
 		continue;
 	    flags = 0;
@@ -360,7 +360,7 @@ dump_event(int numnames, char **names, pmValueSet *vsp, int _index, int indom, i
 	pmFreeHighResEventResult(hr);
     }
     else {
-	pmResult	**res;
+	pmResult_v2	**res;
 
 	if ((nrecords = pmUnpackEventRecords(vsp, _index, &res)) < 0)
 	    return;
@@ -845,7 +845,7 @@ dumpLabelSets(void)
 
     /*
      * In order to make the output more deterministic for testing,
-     * output the help text sorted by
+     * output the labelsets sorted by
      *   time, then by
      *   type, then by
      *   identifier
@@ -1237,7 +1237,7 @@ overrides(int opt, pmOptions *options)
     return 0;
 }
 
-    int
+int
 main(int argc, char *argv[])
 {
     int			c;
@@ -1446,12 +1446,12 @@ main(int argc, char *argv[])
     }
 
     if (mode == PM_MODE_FORW)
-	sts = pmSetModeHighRes(mode, &opts.start, NULL);
+	sts = pmSetMode(mode, &opts.start, NULL);
     else {
-	sts = pmSetModeHighRes(mode, &opts.finish, NULL);
+	sts = pmSetMode(mode, &opts.finish, NULL);
     }
     if (sts < 0) {
-	fprintf(stderr, "%s: pmSetModeHighRes: %s\n", pmGetProgname(), pmErrStr(sts));
+	fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	exit(1);
     }
 

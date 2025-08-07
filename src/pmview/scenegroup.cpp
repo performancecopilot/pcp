@@ -113,24 +113,16 @@ void SceneGroup::adjustArchiveWorldViewForward(QmcTime::Packet *packet, bool set
     console->post("SceneGroup::adjustArchiveWorldViewForward");
     setTimeState(ForwardState);
 
-    int setmode = PM_MODE_INTERP;
-    int delta = packet->delta.tv_sec;
-    if (packet->delta.tv_usec == 0) {
-	setmode |= PM_XTB_SET(PM_TIME_SEC);
-    } else {
-	delta = delta * 1000 + packet->delta.tv_usec / 1000;
-	setmode |= PM_XTB_SET(PM_TIME_MSEC);
-    }
-
-    struct timeval timeval;
-    double position = timePosition();
-    QedApp::timevalFromSeconds(timePosition(), &timeval);
-    setArchiveMode(setmode, &timeval, delta);
-    console->post("SceneGroup::adjustArchiveWorldViewForward: Fetching data at %s", QedApp::timeString(position));
+    struct timespec when;
+    struct timespec delta;
+    pmtimespecFromReal(timePosition(), &when);
+    pmtimevalTotimespec(&packet->delta, &delta);
+    setArchiveMode(PM_MODE_INTERP, &when, &delta);
+    console->post("SceneGroup::adjustArchiveWorldViewForward: Fetching data at %s", QedApp::timeString(timePosition()));
     fetch();
 
     QedGroupControl::adjustArchiveWorldViewForward(packet, setup);
-    pmview->render((PmView::RenderOptions)(PmView::metrics | PmView::inventor | PmView::timeLabel), timeval.tv_sec);
+    pmview->render((PmView::RenderOptions)(PmView::metrics | PmView::inventor | PmView::timeLabel), when.tv_sec);
     // pmview->render(PmView::all, 0);
 }
 
@@ -139,24 +131,20 @@ void SceneGroup::adjustArchiveWorldViewBackward(QmcTime::Packet *packet, bool se
     console->post("SceneGroup::adjustArchiveWorldViewBackward");
     setTimeState(BackwardState);
 
-    int setmode = PM_MODE_INTERP;
-    int delta = packet->delta.tv_sec;
-    if (packet->delta.tv_usec == 0) {
-	setmode |= PM_XTB_SET(PM_TIME_SEC);
-    } else {
-	delta = delta * 1000 + packet->delta.tv_usec / 1000;
-	setmode |= PM_XTB_SET(PM_TIME_MSEC);
-    }
-
-    struct timeval timeval;
-    double position = timePosition();
-    QedApp::timevalFromSeconds(timePosition(), &timeval);
-    setArchiveMode(setmode, &timeval, delta);
-    console->post("SceneGroup::adjustArchiveWorldViewBackward: Fetching data at %s", QedApp::timeString(position));
+    struct timespec when;
+    struct timespec delta;
+    pmtimespecFromReal(timePosition(), &when);
+    pmtimevalTotimespec(&packet->delta, &delta);
+    if (delta.tv_sec != 0)
+	delta.tv_sec = -delta.tv_sec;
+    else
+	delta.tv_nsec = -delta.tv_nsec;
+    setArchiveMode(PM_MODE_INTERP, &when, &delta);
+    console->post("SceneGroup::adjustArchiveWorldViewBackward: Fetching data at %s", QedApp::timeString(timePosition()));
     fetch();
 
     QedGroupControl::adjustArchiveWorldViewBackward(packet, setup);
-    pmview->render((PmView::RenderOptions)(PmView::metrics | PmView::inventor | PmView::timeLabel), timeval.tv_sec);
+    pmview->render((PmView::RenderOptions)(PmView::metrics | PmView::inventor | PmView::timeLabel), when.tv_sec);
     // pmview->render(PmView::all, 0);
 }
 

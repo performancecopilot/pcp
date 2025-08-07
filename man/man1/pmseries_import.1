@@ -1,0 +1,118 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMSERIES_IMPORT 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmseries_import\f1 \- import PCP archive files for historical time series querying
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmseries_import
+[\f3\-h\f1]
+[\f3\-\-archives\f1 \f2path\f1]
+[\f3\-\-json\f1 \f2file\f1]
+[\f3\-\-import-timeout\f1 \f2time\f1]
+[\f3\-\-noop\f1]
+[\f3\-\-poll-interval\f1 \f2delta\f1]
+[\f3\-p\f1 \f2port\f1]
+[\f3\-Z\f1 \f2TZ\f1]
+.SH DESCRIPTION
+.B pmseries_import
+monitors a given \f2path\f1 for PCP archives, and automatically
+loads the contents into a key server (such as Valkey or Redis).
+This is then suitable for fast time series querying using the
+.BR pmseries (1)
+language, as provided by the command line tool and PCP REST API
+services of
+.BR pmproxy (1).
+.PP
+.B pmseries_import
+uses a simple polling technique, checking the archives directory
+for new archive files every 10 seconds.
+.PP
+This utility is most commonly used within a container providing
+an automated Grafana dashboard setup for arbitrary PCP archives.
+This approach provides an environment containing a
+.BR systemd (1)
+server to enable this archive monitoring utility, pre-configured
+.BR grafana-server (1),
+.BR valkey-server (1),
+and
+.BR pmproxy (1)
+REST API services.
+.SH OPTIONS
+.TP 5
+\fB\-\-archives\fR=\fIpath\fR
+Specifies an alternate
+.I path
+to poll for new PCP archives.
+Default value is
+.IR /archives .
+.TP 5
+\fB\-\-jsonfile\fR=\fIfile\fR
+Specifies an alternate JSON format
+.I file
+to update whenever the time window boundaries are seen to have changed.
+This file must contain JSON content, including a JSON map named "time"
+with "start" and "end" fields where string timestamps will be written.
+The default value is
+.IR /usr/local/var/lib/grafana/dashboards/pcp-archive-analysis.json .
+.TP 5
+\fB\-h\fR, \fB\-\-help\fR
+Display command usage message and exit.
+.TP 5
+\fB\-\-import-timeout\fR=\fItimeout\fR
+Specify a number of seconds to allow for any individual archive
+import to complete, via the
+.B pmseries
+load command for that archive.
+The default
+.I timeout
+value is
+.I 600
+seconds (5 minutes).
+.TP 5
+\fB\-\-noop\fR
+Skips all write operations (for debugging or testing purposes),
+reporting only diagnostic messages instead.
+.TP 5
+\fB\-\-poll-interval\fR=\fIdelta\fR
+The frequency with which the archive directory will be scanned.
+Default
+.I delta
+is once every 10 seconds.
+.TP 5
+\fB\-p\fR \fIport\fR, \fB\-\-port\fR=\fIport\fR
+An optional
+.I port
+on which
+.B pmseries
+should connect to the key server.
+The default port is 6379.
+.TP 5
+\fB\-Z\fR \fITZ\fR, \fB\-\-timezone\fR=\fITZ\fR
+An optional
+.I TZ
+value indicating the timezone to which
+.B pmseries
+should convert all archive timestamps when sending values to the
+key server.
+.SH SEE ALSO
+.BR grafana-server (1),
+.BR systemd (1),
+.BR valkey-server (1),
+.BR pmproxy (1)
+and
+.BR pmseries (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ grafana Grafana pre valkey Valkey

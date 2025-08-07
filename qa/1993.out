@@ -1,0 +1,21 @@
+QA output created by 1993
+
+=== Installing ROCESTAT agent ===
+
+=== Running ROCESTAT test script ===
+----------------------------------------------------------------------
+Fetching Rocestat PMDA metrics
+OK
+Ran X tests in YYYs
+test_hw_link_metrics (__main__.RocestatTests) ... ok
+test_hw_mcast_metrics (__main__.RocestatTests) ... ok
+test_hw_metrics (__main__.RocestatTests) ... ok
+test_hw_rcv_metrics (__main__.RocestatTests) ... ok
+test_hw_req_metrics (__main__.RocestatTests) ... ok
+test_hw_resp_metrics (__main__.RocestatTests) ... ok
+test_hw_rnr_metrics (__main__.RocestatTests) ... ok
+test_hw_ucast_metrics (__main__.RocestatTests) ... ok
+test_hw_xmit_metrics (__main__.RocestatTests) ... ok
+test_nic_metrics (__main__.RocestatTests) ... ok
+
+=== Removing ROCESTAT agent ===

@@ -63,6 +63,7 @@ public:
 
     const struct timeval *timestamp() const { return &my.timestamp; }
     void setTimestamp(struct timeval *tv) { my.timestamp = *tv; }
+    void setTimestamp(struct timespec *ts) { pmtimespecTotimeval(ts, &my.timestamp); }
 
     int flags() const { return my.flags; }
     void setFlags(int flags) { my.flags = flags; }
@@ -131,7 +132,7 @@ public:
 			 my.currentError = 0; }
 
     QVector<QmcEventRecord> const &eventRecords() const { return my.eventRecords; }
-    void extractEventRecords(QmcContext *context, int recordCount, pmResult **result);
+    void extractEventRecords(QmcContext *context, int recordCount, qmcResult **result);
     void dumpEventRecords(QTextStream &os, int instid) const;
 
 private:
@@ -265,7 +266,7 @@ public:
     uint contextIndex() const	// Index for context in group list
 	{ return my.contextIndex; }
 
-    // Index for metric into pmResult
+    // Index for metric into qmcResult
     uint idIndex() const { return my.idIndex; }
 
     // Index for indom in context list

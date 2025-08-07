@@ -1073,18 +1073,15 @@ __pmLogLookupDesc(__pmArchCtl *acp, pmID pmid, pmDesc *dp)
 int
 __pmLogPutDesc(__pmArchCtl *acp, const pmDesc *dp, int numnames, char **names)
 {
-    __pmLogCtl		*lcp = acp->ac_log;
-    __pmFILE		*f = lcp->mdfp;
     pmDesc		*tdp;
     int			olen;		/* length to write out */
     int			i, sts, len;
-    typedef struct {			/* skeletal external record */
+    struct external {			/* skeletal external record */
 	__pmLogHdr	hdr;
 	pmDesc		desc;
 	int		numnames;	/* not present if numnames == 0 */
 	char		data[0];	/* will be expanded */
-    } ext_t;
-    ext_t	*out;
+    } *out;
 
     len = sizeof(__pmLogHdr) + sizeof(pmDesc) + LENSIZE;
     if (numnames > 0) {
@@ -1093,7 +1090,7 @@ __pmLogPutDesc(__pmArchCtl *acp, const pmDesc *dp, int numnames, char **names)
             len += LENSIZE + (int)strlen(names[i]);
     }
 PM_FAULT_POINT("libpcp/" __FILE__ ":10", PM_FAULT_ALLOC);
-    if ((out = (ext_t *)calloc(1, len)) == NULL)
+    if ((out = (struct external *)calloc(1, len)) == NULL)
 	return -oserror();
 
     out->hdr.len = htonl(len);
@@ -1122,23 +1119,14 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":10", PM_FAULT_ALLOC);
 	memmove((void *)op, &out->hdr.len, sizeof(out->hdr.len));
     }
     else {
-	/* no names, trailer length lands on numnames in ext_t */
+	/* no names, trailer length lands on numnames in external struct */
 	out->numnames = out->hdr.len;
     }
 
-    if ((sts = __pmFwrite(out, 1, len, f)) != len) {
-	char	strbuf[20];
-	char	errmsg[PM_MAXERRMSGLEN];
-	pmprintf("__pmLogPutDesc(...,pmid=%s,name=%s): write failed: returned %d expecting %d: %s\n",
-	    pmIDStr_r(dp->pmid, strbuf, sizeof(strbuf)),
-	    numnames > 0 ? names[0] : "<none>", len, sts,
-	    osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
-	free(out);
-	return -oserror();
-    }
-
+    sts = acp->ac_write_cb(acp, PM_LOG_VOL_META, out, len, __FUNCTION__);
     free(out);
+    if (sts < 0)
+	return sts;
 
     /*
      * need to make a copy of the pmDesc, and add this, since caller
@@ -1148,7 +1136,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
     if ((tdp = (pmDesc *)malloc(sizeof(pmDesc))) == NULL)
 	return -oserror();
     *tdp = *dp;		/* struct assignment */
-    return __pmHashAdd((int)dp->pmid, (void *)tdp, &lcp->hashpmid);
+    return __pmHashAdd((int)dp->pmid, (void *)tdp, &acp->ac_log->hashpmid);
 }
 
 void
@@ -1471,25 +1459,23 @@ int
 __pmLogPutText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
 		char *buffer, int cached)
 {
-    __pmLogCtl		*lcp = acp->ac_log;
     char		*ptr;
     int			sts, len, textlen;
-    typedef struct {
+    struct external {
 	__pmLogHdr	hdr;
 	int		type;
 	int		ident;
 	char		data[0];
-    } ext_t;
-    ext_t		*out;
+    } *out;
 
     assert(type & (PM_TEXT_HELP|PM_TEXT_ONELINE));
     assert(type & (PM_TEXT_PMID|PM_TEXT_INDOM));
 
     textlen = strlen(buffer) + 1;
-    len = (int)sizeof(ext_t) + textlen + LENSIZE;
+    len = (int)sizeof(struct external) + textlen + LENSIZE;
 
 PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
-    if ((out = (ext_t *)malloc(len)) == NULL)
+    if ((out = (struct external *)malloc(len)) == NULL)
 	return -oserror();
 
     /* swab all output fields */
@@ -1506,16 +1492,10 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
     ptr += textlen;
     memmove((void *)ptr, &out->hdr.len, sizeof(out->hdr.len));
 
-    if ((sts = __pmFwrite(out, 1, len, lcp->mdfp)) != len) {
-	char	errmsg[PM_MAXERRMSGLEN];
-
-	pmprintf("__pmLogPutText(...ident,=%d,type=%d): write failed: returned %d expecting %d: %s\n",
-		ident, type, sts, len, osstrerror_r(errmsg, sizeof(errmsg)));
-	pmflush();
-	free(out);
-	return -oserror();
-    }
+    sts = acp->ac_write_cb(acp, PM_LOG_VOL_META, out, len, __FUNCTION__);
     free(out);
+    if (sts < 0)
+	return sts;
 
     if (!cached)
 	return 0;
@@ -1525,27 +1505,38 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":14", PM_FAULT_ALLOC);
 int
 pmLookupInDomArchive(pmInDom indom, const char *name)
 {
-    int			n;
     int			j;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmContext		*ctxp;
+    int			sts;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (pmDebugOptions.pmapi) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmLookupInDomArchive(%s, %s) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), name);
+    }
 
-    if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+
+    if ((sts = pmWhichContext()) >= 0) {
+	ctxp = __pmHandleToPtr(sts);
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_NOTARCHIVE;
+	    sts = PM_ERR_NOTARCHIVE;
+	    goto pmapi_return;
 	}
 
 	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_INDOM_LOG;
+	    sts = PM_ERR_INDOM_LOG;
+	    goto pmapi_return;
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
@@ -1557,7 +1548,8 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 	    for (j = 0; j < idp->numinst; j++) {
 		if (strcmp(name, idp->namelist[j]) == 0) {
 		    PM_UNLOCK(ctxp->c_lock);
-		    return idp->instlist[j];
+		    sts = idp->instlist[j];
+		    goto pmapi_return;
 		}
 	    }
 	    /* half-baked match to first space */
@@ -1568,42 +1560,66 @@ pmLookupInDomArchive(pmInDom indom, const char *name)
 		if (*p == ' ') {
 		    if (strncmp(name, idp->namelist[j], p - idp->namelist[j]) == 0) {
 			PM_UNLOCK(ctxp->c_lock);
-			return idp->instlist[j];
+			sts = idp->instlist[j];
+			goto pmapi_return;
 		    }
 		}
 	    }
 	}
-	n = PM_ERR_INST_LOG;
+	sts = PM_ERR_INST_LOG;
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    return n;
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }
 
 int
 pmNameInDomArchive(pmInDom indom, int inst, char **name)
 {
-    int			n;
+    int			sts;
     int			j;
     __pmHashNode	*hp;
     __pmLogInDom	*idp;
     __pmContext		*ctxp;
 
-    if (indom == PM_INDOM_NULL)
-	return PM_ERR_INDOM;
+    if (pmDebugOptions.pmapi) {
+	char    dbgbuf[20];
+	fprintf(stderr, "pmNameInDomArchive(%s, %d, ...) <:", pmInDomStr_r(indom, dbgbuf, sizeof(dbgbuf)), inst);
+    }
 
-    if ((n = pmWhichContext()) >= 0) {
-	ctxp = __pmHandleToPtr(n);
-	if (ctxp == NULL)
-	    return PM_ERR_NOCONTEXT;
+    if (indom == PM_INDOM_NULL) {
+	sts = PM_ERR_INDOM;
+	goto pmapi_return;
+    }
+
+    if ((sts = pmWhichContext()) >= 0) {
+	ctxp = __pmHandleToPtr(sts);
+	if (ctxp == NULL) {
+	    sts = PM_ERR_NOCONTEXT;
+	    goto pmapi_return;
+	}
 	if (ctxp->c_type != PM_CONTEXT_ARCHIVE) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_NOTARCHIVE;
+	    sts = PM_ERR_NOTARCHIVE;
+	    goto pmapi_return;
 	}
 
 	if ((hp = __pmHashSearch((unsigned int)indom, &ctxp->c_archctl->ac_log->hashindom)) == NULL) {
 	    PM_UNLOCK(ctxp->c_lock);
-	    return PM_ERR_INDOM_LOG;
+	    sts = PM_ERR_INDOM_LOG;
+	    goto pmapi_return;
 	}
 
 	for (idp = (__pmLogInDom *)hp->data; idp != NULL; idp = idp->next) {
@@ -1614,19 +1630,31 @@ pmNameInDomArchive(pmInDom indom, int inst, char **name)
 	    for (j = 0; j < idp->numinst; j++) {
 		if (idp->instlist[j] == inst) {
 		    if ((*name = strdup(idp->namelist[j])) == NULL)
-			n = -oserror();
+			sts = -oserror();
 		    else
-			n = 0;
+			sts = 0;
 		    PM_UNLOCK(ctxp->c_lock);
-		    return n;
+		    goto pmapi_return;
 		}
 	    }
 	}
-	n = PM_ERR_INST_LOG;
+	sts = PM_ERR_INST_LOG;
 	PM_UNLOCK(ctxp->c_lock);
     }
 
-    return n;
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d (name %s)\n", sts, *name);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }
 
 /*
@@ -1967,7 +1995,7 @@ __pmFreeLogInDom(__pmLogInDom *lidp)
 
 /*
  * Duplicate a __pmLogInDom struct in a manner that shares no storage
- * with the original (all of the compnents are malloc'd)
+ * with the original (all of the components are malloc'd)
  */
 __pmLogInDom *
 __pmDupLogInDom(__pmLogInDom *lidp)

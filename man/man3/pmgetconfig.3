@@ -20,6 +20,8 @@
 \f3pmGetAPIConfig\f1 \- return values for Performance Co-Pilot configuration variables
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .sp
 char *pmGetConfig(const char *\fIvariable\fP);
@@ -29,6 +31,8 @@ char *pmGetOptionalConfig(const char *\fIvariable\fP);
 char *pmGetAPIConfig(const char *\fIfeature\fP);
 .sp
 cc ... \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 The

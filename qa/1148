@@ -37,7 +37,7 @@ _wait_pmlogger_end $pid || _exit 1
 # real QA test starts here
 for i in 1 2 3 4
 do
-    $sudo $PCP_BINADM_DIR/pmlogger_check >$tmp.$i 2>&1 &
+    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check >$tmp.$i 2>&1 &
 done
 
 wait

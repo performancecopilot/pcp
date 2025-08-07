@@ -6,7 +6,7 @@
 # NB: this file is renamed GNUmakefile upon installation into $PCP_VAR_DIR/testsuite.
 # It is only for executing the testsuite.
 
-ifdef PCP_CONF
+ifneq "$(PCP_CONF)" ""
 include $(PCP_CONF)
 else
 include $(PCP_DIR)/etc/pcp.conf
@@ -21,7 +21,7 @@ ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
 ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure mic haproxy lio openmetrics
+SUBDIRS += secure mic haproxy lio openmetrics rocestat
 endif
 
 # Before installing the pcpqa policy module we need a PCP build with

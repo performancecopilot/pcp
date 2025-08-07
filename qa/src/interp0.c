@@ -24,8 +24,7 @@ main(int argc, char **argv)
     pmLogLabel	label;				/* get hostname for archives */
     char	*namespace = PM_NS_DEFAULT;
     int		samples = 10;
-    double	delta = 1.0;
-    int		msec;
+    struct timespec	delta = { 1, 0 };
     char	*endnum;
     pmResult	*result;
     pmResult	*prev = NULL;
@@ -72,8 +71,8 @@ main(int argc, char **argv)
 	    break;
 
 	case 't':	/* delta seconds (double) */
-	    delta = strtod(optarg, &endnum);
-	    if (*endnum != '\0' || delta <= 0.0) {
+	    pmtimespecFromReal(strtod(optarg, &endnum), &delta);
+	    if (*endnum != '\0' || pmtimespecToReal(&delta) <= 0.0) {
 		fprintf(stderr, "%s: -t requires floating point argument\n", pmGetProgname());
 		errflag++;
 	    }
@@ -117,7 +116,7 @@ Options\n\
 	exit(1);
     }
 
-    if ((sts = pmGetArchiveLabel(&label)) < 0) {
+    if ((sts = pmGetHighResArchiveLabel(&label)) < 0) {
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",
 	    pmGetProgname(), pmErrStr(sts));
 	exit(1);
@@ -149,8 +148,7 @@ Options\n\
     }
 
 
-    msec = delta * 1000;
-    sts = pmSetMode(PM_MODE_INTERP, &result->timestamp, msec);
+    sts = pmSetMode(PM_MODE_INTERP, &result->timestamp, &delta);
     if (sts < 0) {
 	printf("pmSetMode: %s\n", pmErrStr(sts));
 	exit(1);
@@ -174,7 +172,7 @@ Options\n\
     }
 
     for (i = 0; i < samples; i++) {
-	struct timeval tmp;
+	struct timespec tmp;
 
 	sts = pmFetch(numpmid, pmid, &result);
 	if (sts < 0) {
@@ -186,8 +184,8 @@ Options\n\
 	}
 	if (prev) {
 	    tmp = result->timestamp;
-	    pmtimevalDec(&tmp, &prev->timestamp);
-	    tdiff = pmtimevalToReal(&tmp);
+	    pmtimespecDec(&tmp, &prev->timestamp);
+	    tdiff = pmtimespecToReal(&tmp);
 	    printf("\nsample %d, delta time=%.3f secs\n", i, tdiff);
 	    for (j = 0; j < numpmid; j++) {
 		printf("%s: ", name[j]);
@@ -222,8 +220,12 @@ Options\n\
 			    cv - pv);
 		    }
 		    else if (type[j] == PM_TYPE_EVENT) {
-			pmResult **records;
+			pmResult_v2 **records;
 			int r, param;
+			struct timeval tmp_tv;
+			struct timeval prev_tv;
+
+			pmtimespecTotimeval(&prev->timestamp, &prev_tv);
 
 			printf("%d event records found\n", result->vset[j]->numval);
 			sts = pmUnpackEventRecords(result->vset[j], 0, &records);
@@ -231,9 +233,9 @@ Options\n\
 			    printf("event decode error: %s\n", pmErrStr(sts));
 			} else {
 			    for (r = 0; r < sts; r++) {
-				tmp = records[r]->timestamp;
-				pmtimevalDec(&tmp, &prev->timestamp);
-				tdiff = pmtimevalToReal(&tmp);
+				tmp_tv = records[r]->timestamp;
+				pmtimevalDec(&tmp_tv, &prev_tv);
+				tdiff = pmtimevalToReal(&tmp_tv);
 				printf("\nevent %d, offset time=%.3f secs, param ids:", j+1, tdiff);
 				for (param = 0; param < records[r]->numpmid; param++)
 				    printf(" %s", pmIDStr(records[r]->vset[param]->pmid));
@@ -243,7 +245,7 @@ Options\n\
 			}
 		    }
 		    else if (type[j] == PM_TYPE_HIGHRES_EVENT) {
-			pmHighResResult **hrecords;
+			pmResult **hrecords;
 			int r, param;
 
 			printf("%d highres event records found\n", result->vset[j]->numval);
@@ -253,8 +255,8 @@ Options\n\
 			} else {
 			    for (r = 0; r < sts; r++) {
 				tdiff = hrecords[r]->timestamp.tv_sec - prev->timestamp.tv_sec +
-				(long double)(hrecords[r]->timestamp.tv_nsec - prev->timestamp.tv_usec * 1000)
-					/ (long double)1000000000;
+				(double)(hrecords[r]->timestamp.tv_nsec - prev->timestamp.tv_nsec)
+					/ 1000000000;
 				printf("\nhighres event %d, offset time=%.9f secs, param ids:", j+1, tdiff);
 				for (param = 0; param < hrecords[r]->numpmid; param++)
 				    printf(" %s", pmIDStr(hrecords[r]->vset[param]->pmid));

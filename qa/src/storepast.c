@@ -99,10 +99,10 @@ Options:\n\
     }
 
     if (type == PM_CONTEXT_HOST) {
-	struct timeval	back;
-	gettimeofday(&back, (struct timezone *)0);
+	struct timespec	back;
+	pmtimespecNow(&back);
 	back.tv_sec -= 3600;	/* an hour ago */
-	if ((sts = pmSetMode(PM_MODE_BACK, &back, 0)) < 0) {
+	if ((sts = pmSetMode(PM_MODE_BACK, &back, NULL)) < 0) {
 	    printf("%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 	    exit(1);
 	}

@@ -134,7 +134,7 @@ Options:\n\
 		exit(1);
 	    }
 	    if (mode != PM_MODE_INTERP) {
-		if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+		if ((sts = pmSetMode(mode, &label.start, NULL)) < 0) {
 		    fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		    exit(1);
 		}

@@ -205,7 +205,7 @@ Options\n\
 	    exit(1);
 	}
 	if (mode != PM_MODE_INTERP) {
-	    if ((sts = pmSetMode(mode, &label.ll_start, 0)) < 0) {
+	    if ((sts = pmSetMode(mode, &label.start, NULL)) < 0) {
 		fprintf(stderr, "%s: pmSetMode: %s\n", pmGetProgname(), pmErrStr(sts));
 		exit(1);
 	    }
@@ -221,7 +221,7 @@ Options\n\
 	}
 	if (type == PM_CONTEXT_ARCHIVE)
 	    printf("Note: timezone set to local timezone of host \"%s\" from archive\n\n",
-		label.ll_hostname);
+		label.hostname);
 	else
 	    printf("Note: timezone set to local timezone of host \"%s\"\n\n", host);
     }

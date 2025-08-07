@@ -755,7 +755,7 @@ acct_fetchCallBack(int i_inst, int item, proc_acct_t *proc_acct, pmAtomValue *at
 }
 
 int
-acct_store(pmResult *result, pmdaExt *pmda, pmValueSet *vsp, proc_acct_t *proc_acct)
+acct_store(pmdaResult *result, pmdaExt *pmda, pmValueSet *vsp, proc_acct_t *proc_acct)
 {
     int sts = 0;
     pmAtomValue av;

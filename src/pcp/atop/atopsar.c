@@ -248,10 +248,10 @@ atopsar(int argc, char *argv[])
 			char	*endnum, *arg;
 
 			arg = argv[opts.optind++];
-			if (pmParseInterval(arg, &opts.interval, &endnum) < 0)
+			if (pmParseHighResInterval(arg, &opts.interval, &endnum) < 0)
 			{
 				pmprintf(
-			"%s: %s option not in pmParseInterval(3) format:\n%s\n",
+			"%s: %s option not in pmParseHighResInterval(3) format:\n%s\n",
 					pmGetProgname(), arg, endnum);
 				free(endnum);
 				opts.errors++;
@@ -288,8 +288,9 @@ atopsar(int argc, char *argv[])
 	if (opts.samples > 0)
 		nsamples = opts.samples + 1;
 
-	if (opts.interval.tv_sec || opts.interval.tv_usec)
+	if (opts.interval.tv_sec || opts.interval.tv_nsec) {
 		interval = opts.interval;
+	}
 
 	/*
 	** if no report-flags have been specified, take the first
@@ -621,7 +622,7 @@ reportraw(double timenow, double numsecs,
 		/*
 		** initialize variables for new report
 		*/
-		pmtimevalFromReal(timenow, &pretime);
+		pmtimespecFromReal(timenow, &pretime);
 
 		curline   = 1;
 		headline  = 0;
@@ -649,7 +650,7 @@ reportraw(double timenow, double numsecs,
 		if (usecolors)
 			printf(COLSETHEAD);
 
-		timed = pmtimevalToReal(&pretime);
+		timed = pmtimespecToReal(&pretime);
 		printf("%s  ", convtime(timed, timebuf, sizeof(timebuf)-1));
 
 		(pridef[prinow].prihead)(os_vers, os_rel, os_sub);
@@ -709,7 +710,7 @@ reportraw(double timenow, double numsecs,
 			printf("......................... logging restarted "
 			       ".........................\n");
 		}
-		pmtimevalFromReal(timenow, &pretime);
+		pmtimespecFromReal(timenow, &pretime);
 		curline++;
 
 		/*
@@ -838,7 +839,7 @@ reportraw(double timenow, double numsecs,
 			cleanstop(1);
 	}
 
-	pmtimevalFromReal(timenow, &pretime);
+	pmtimespecFromReal(timenow, &pretime);
 
 	return '\0';
 }

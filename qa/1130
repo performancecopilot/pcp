@@ -12,18 +12,6 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmapi" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
 
-# From Andreas 27 Jul 2022 ...
-# [pcp2elasticsearch] now uses a method='POST' argument, but this is
-# not available in Python versions before 3.3
-#
-__version=`$python --version 2>&1 | sed -e 's/Python //'`
-case "$__version"
-in
-    2.*|3.1.*|3.2.*)
-	_notrun "pcp2elasticsearch does not work with Python $__version"
-	;;
-esac
-
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
 which pcp2elasticsearch >$seq_full 2>&1 || _notrun "pcp2elasticsearch not installed"
 

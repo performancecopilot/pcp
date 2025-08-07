@@ -59,7 +59,7 @@ Options:
 No options implies silently check internal integrity of the helpfile.
 
 debug trace ...
-chkhelp -D 2048 $PCP_PMDAS_DIR/cisco/help
+chkhelp -D appl0 $PCP_PMDAS_DIR/cisco/help
 next_type=1 id=0x1400001
 next_type=1 id=0x1400002
 next_type=1 id=0x1400003

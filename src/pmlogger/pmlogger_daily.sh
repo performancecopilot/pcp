@@ -73,7 +73,7 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
-    $VERY_VERBOSE && echo >&2 "End: `date '+%F %T.%N'`"
+    $VERY_VERBOSE && echo >&2 "End [daily]: `date '+%F %T.%N'`"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -253,9 +253,20 @@ fi
 CONTROL=$PCP_PMLOGGERCONTROL_PATH
 CONTROLDIR=$PCP_PMLOGGERCONTROL_PATH.d
 
-# default number of days to keep archives
+# default number of days to keep archives before culling
 #
-CULLAFTER=14
+CULLAFTER_CMDLINE=""
+CULLAFTER_DEFAULT=14
+if [ -n "$PCP_CULLAFTER" ]
+then
+    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$PCP_CULLAFTER"
+    if [ $? != 0 -a X"$PCP_CULLAFTER" != Xforever -a X"$PCP_CULLAFTER" != Xnever ]
+    then
+	echo "Error: \$PCP_CULLAFTER value ($PCP_CULLAFTER) must be number, time, \"forever\" or \"never\""
+	status=1
+	exit
+    fi
+fi
 
 # default compression program and days until starting compression and
 # filename suffix pattern for file files to NOT compress
@@ -264,7 +275,6 @@ COMPRESS=""
 COMPRESS_CMDLINE=""
 COMPRESS_DEFAULT=pmlogcompress
 COMPRESSAFTER_CMDLINE=""
-
 # we will compress aggressively (COMPRESSAFTER_DEFAULT=0) if
 # (a) xstd(1) is available, or
 # (b) xz(1) is available and transparent_decompress=true (liblzma present)
@@ -287,7 +297,6 @@ then
 else
     COMPRESSAFTER_DEFAULT="never"
 fi
-
 if [ -n "$PCP_COMPRESSAFTER" ]
 then
     $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$PCP_COMPRESSAFTER"
@@ -340,7 +349,7 @@ echo > $tmp/usage
 cat >> $tmp/usage <<EOF
 Options:
   -c=FILE,--control=FILE  pmlogger control file
-  -D,--noreport           do not run pmlogger_daily_report
+  -D,--noreport           do not run pmlogger_daily_report for primary pmlogger
   -E,--expunge            expunge metrics with metadata inconsistencies when merging archives
   -f,--force              force actions (intended for QA, not production)
   -k=TIME,--discard=TIME  remove archives after TIME (format DD[:HH[:MM]])
@@ -351,6 +360,8 @@ Options:
   -N,--showme             perform a dry run, showing what would be done
   -o                      merge yesterdays logs only (old form, default is all) 
   -p                      poll and exit if processing already done for today
+  -P,--noproxy            do not process archives pushed via pmproxy(1)
+  -Q,--proxyonly          only process archives pushed via pmproxy(1)
   -r,--norewrite          do not process archives with pmlogrewrite(1)
   -R,--rewriteall         check and rewrite all archives
   -s=SIZE,--rotate=SIZE   rotate NOTICES file after reaching SIZE bytes
@@ -389,6 +400,8 @@ EXPUNGE=""
 FORCE=false
 KILL=pmsignal
 DO_DAILY_REPORT=true
+NOPROXY=false
+PROXYONLY=false
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -408,12 +421,18 @@ do
 		;;
 	-f)	FORCE=true
 		;;
-	-k)	CULLAFTER="$2"
+	-k)	CULLAFTER_CMDLINE="$2"
 		shift
-		$PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$CULLAFTER"
-		if [ $? != 0 -a X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
+		if [ -n "$PCP_CULLAFTER" -a "$PCP_CULLAFTER" != "$CULLAFTER_CMDLINE" ]
 		then
-		    echo "Error: -k value ($CULLAFTER) must be number, time, \"forever\" or \"never\""
+		    echo "Warning: -k value ($CULLAFTER_CMDLINE) ignored because \$PCP_CULLAFTER ($PCP_CULLAFTER) set in environment"
+		    CULLAFTER_CMDLINE=""
+		    continue
+		fi
+		$PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$CULLAFTER_CMDLINE"
+		if [ $? != 0 -a X"$CULLAFTER_CMDLINE" != Xforever -a X"$CULLAFTER_CMDLINE" != Xnever ]
+		then
+		    echo "Error: -k value ($CULLAFTER_CMDLINE) must be number, time, \"forever\" or \"never\""
 		    status=1
 		    exit
 		fi
@@ -458,6 +477,10 @@ do
 		    exit
 		fi
 		PFLAG=true
+		;;
+	-P)	NOPROXY=true
+		;;
+	-Q)	PROXYONLY=true
 		;;
 	-r)	if $REWRITEALL
 		then
@@ -587,9 +610,10 @@ then
     :
 else
     # merge callback initialization ...
-    # pmlogger_daily_report goes first, then
-    # values (script names) set in the environment, then
-    # (later) any values (script names) set in the control files
+    # pmlogger_daily_report goes first (but is only ever activated for
+    # the primary pmlogger instance), then values (script names) set in
+    # the environment, then (later) any values (script names) set in the
+    # control files
     #
     touch $tmp/merge_callback
     if $DO_DAILY_REPORT && [ -x "$PCP_BINADM_DIR/pmlogger_daily_report" ]
@@ -754,91 +778,11 @@ then
     exit
 fi
 
-_error()
-{
-    echo "$prog: [$filename:$line]"
-    echo "Error: $@"
-    echo "... logging for host \"$host\" unchanged"
-    touch $tmp/err
-}
-
-_warning()
-{
-    echo "$prog: [$filename:$line]"
-    echo "Warning: $@"
-}
-
 _skipping()
 {
     echo "$prog: Warning: $@"
     echo "[$filename:$line] ... skip log merging and compressing for host \"$host\""
     touch $tmp/skip
-}
-
-_lock()
-{
-    if [ ! -w $1 ]
-    then
-	_warning "no write access in $1 skip lock file processing"
-    else
-	# demand mutual exclusion
-	#
-	rm -f $tmp/stamp $tmp/out
-	delay=200	# tenths of a second
-	while [ $delay -gt 0 ]
-	do
-	    if pmlock -i "$$ pmlogger_daily" -v "$1/lock" >>$tmp/out 2>&1
-	    then
-		echo "$1/lock" >$tmp/lock
-		break
-	    else
-		[ -f $tmp/stamp ] || touch -t `pmdate -30M %Y%m%d%H%M` $tmp/stamp
-		find $tmp/stamp -newer "$1/lock" -print 2>/dev/null >$tmp/tmp
-		if [ -s $tmp/tmp ]
-		then
-		    if [ -f "$1/lock" ]
-		    then
-			_warning "removing lock file older than 30 minutes"
-			LC_TIME=POSIX ls -l "$1/lock"
-			[ -s "$1"/lock" ] && cat "$1"/lock"
-			rm -f "$1/lock"
-		    else
-			# there is a small timing window here where pmlock
-			# might fail, but the lock file has been removed by
-			# the time we get here, so just keep trying
-			#
-			:
-		    fi
-		fi
-	    fi
-	    pmsleep 0.1
-	    delay=`expr $delay - 1`
-	done
-
-	if [ $delay -eq 0 ]
-	then
-	    # failed to gain mutex lock
-	    #
-	    if [ -f "$1/lock" ]
-	    then
-		_warning "is another PCP cron job running concurrently?"
-		LC_TIME=POSIX ls -l "$1/lock"
-		[ -s "$dir/lock" ] && cat "$dir/lock"
-	    else
-		echo "$prog: `cat $tmp/out`"
-	    fi
-	    _error "failed to acquire exclusive lock ($1/lock) ..."
-	    return 1
-	fi
-    fi
-
-    return 0
-}
-
-_unlock()
-{
-    rm -f "$1/lock"
-    echo >$tmp/lock
 }
 
 # filter file names to leave those that look like PCP archives
@@ -962,14 +906,6 @@ then
 else
     echo $$ >"$PCP_RUN_DIR/pmlogger_daily.pid"
 fi
-
-# note on control file format version
-#  1.0 was shipped as part of PCPWEB beta, and did not include the
-#	socks field [this is the default for backwards compatibility]
-#  1.1 is the first production release, and the version is set in
-#	the control file with a $version=1.1 line (see below)
-#
-version=''
 
 # if this file exists at the end, we encountered a serious error
 #
@@ -1119,341 +1055,130 @@ BEGIN	{ seenslash = 0; inshell = 0; out = "" }
 END	{ print out }'
 }
 
-_parse_control()
+# come here from _parse_log_control() once per valid line in a control
+# file ... see utilproc.sh for interface definitions
+#
+_callback_log_control()
 {
-    controlfile="$1"
-    line=0
-
-    # strip leading directories from pathname to get useful filename
+    # nothing to do for pmlogger pushing to a remote pmproxy
     #
-    dirname=`dirname $PCP_PMLOGGERCONTROL_PATH`
-    filename=`echo "$controlfile" | sed -e "s@$dirname/@@"`
+    $logpush && return
 
-    if echo "$controlfile" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$'
+    if $VERBOSE
     then
-	echo "Warning: ignoring backup control file \"$controlfile\""
-	return
+	echo
+	if $COMPRESSONLY
+	then
+	    echo "=== compressing PCP archives for host $host in $dir ==="
+	else
+	    echo "=== daily maintenance of PCP archives for host $host in $dir ==="
+	fi
+	echo
     fi
 
-    sed \
-	-e "s;PCP_ARCHIVE_DIR;$PCP_ARCHIVE_DIR;g" \
-	-e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
-	$controlfile | \
-    while read host primary socks dir args
-    do
-	# start in one place for each iteration (beware of relative paths)
-	cd "$here"
-	line=`expr $line + 1`
-
-	if $VERY_VERBOSE
+    if $VERY_VERBOSE
+    then
+	if [ X"$args" = X+ ]
 	then
-	    case "$host"
-	    in
-		\#!#*)	# stopped by pmlogctl ... we'll be checking this one
-			echo >&2 "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
-			;;
-		\#*|'')	# comment or empty
-			;;
-		*)
-			echo >&2 "[$filename:$line] host=\"$host\" primary=\"$primary\" socks=\"$socks\" dir=\"$dir\" args=\"$args\""
-			;;
-	    esac
-	fi
-
-	case "$host"
-	in
-	    \#!#*)	# stopped by pmlogctl ... need to check this one
-		host=`echo "$host" | sed -e 's/^#!#//'`
-		;;
-	    \#*|'')	# comment or empty
-		continue
-		;;
-	    \$*)	# in-line variable assignment
-		$SHOWME && echo "# $host $primary $socks $dir $args"
-		cmd=`echo "$host $primary $socks $dir $args" \
-		     | sed -n \
-			 -e "/='/s/\(='[^']*'\).*/\1/" \
-			 -e '/="/s/\(="[^"]*"\).*/\1/' \
-			 -e '/=[^"'"'"']/s/[;&<>|].*$//' \
-			 -e '/^\\$[A-Za-z][A-Za-z0-9_]*=/{
-s/^\\$//
-s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
-}'`
-		if [ -z "$cmd" ]
-		then
-		    # in-line command, not a variable assignment
-		    _warning "in-line command is not a variable assignment, line ignored"
-		else
-		    rm -f $tmp/cmd
-		    case "$cmd"
-		    in
-			'export PATH;'*)
-			    _warning "cannot change \$PATH, line ignored"
-			    ;;
-
-			'export IFS;'*)
-			    _warning "cannot change \$IFS, line ignored"
-			    ;;
-
-			'export PCP_COMPRESS;'*)
-			    old_value="$PCP_COMPRESS"
-			    $SHOWME && echo "+ $cmd"
-			    echo eval $cmd >>$tmp/cmd
-			    eval $cmd
-			    if [ -n "$old_value" ]
-			    then
-				_warning "\$PCP_COMPRESS ($PCP_COMPRESS) reset from control file, previous value ($old_value) ignored"
-			    fi
-			    if [ -n "$PCP_COMPRESS" -a -n "$COMPRESS_CMDLINE" -a "$PCP_COMPRESS" != "$COMPRESS_CMDLINE" ]
-			    then
-				_warning "\$PCP_COMPRESS ($PCP_COMPRESS) reset from control file, -X value ($COMPRESS_CMDLINE) ignored"
-				COMPRESS_CMDLINE=""
-			    fi
-			    ;;
-
-			'export PCP_COMPRESSAFTER;'*)
-			    old_value="$PCP_COMPRESSAFTER"
-			    check=`echo "$cmd" | sed -e 's/.*=//' -e 's/  *$//'`
-			    $PCP_BINADM_DIR/find-filter </dev/null >/dev/null 2>&1 mtime "+$check"
-			    if [ $? != 0 -a -n "$check" -a X"$check" != Xforever -a X"$check" != Xnever ]
-			    then
-				_error "\$PCP_COMPRESSAFTER value ($check) must be number, time, \"forever\" or \"never\""
-			    else
-				$SHOWME && echo "+ $cmd"
-				echo eval $cmd >>$tmp/cmd
-				eval $cmd
-				if [ -n "$old_value" ]
-				then
-				    _warning "\$PCP_COMPRESSAFTER ($PCP_COMPRESSAFTER) reset from control file, previous value ($old_value) ignored"
-				fi
-				if [ -n "$PCP_COMPRESSAFTER" -a -n "$COMPRESSAFTER_CMDLINE" -a "$PCP_COMPRESSAFTER" != "$COMPRESSAFTER_CMDLINE" ]
-				then
-				    _warning "\$PCP_COMPRESSAFTER ($PCP_COMPRESSAFTER) reset from control file, -x value ($COMPRESSAFTER_CMDLINE) ignored"
-				    COMPRESSAFTER_CMDLINE=""
-				fi
-			    fi
-			    ;;
-
-			'export PCP_COMPRESSREGEX;'*)
-			    old_value="$PCP_COMPRESSREGEX"
-			    $SHOWME && echo "+ $cmd"
-			    echo eval $cmd >>$tmp/cmd
-			    eval $cmd
-			    if [ -n "$old_value" ]
-			    then
-				_warning "\$PCP_COMPRESSREGEX ($PCP_COMPRESSREGEX) reset from control file, previous value ($old_value) ignored"
-			    fi
-			    if [ -n "$PCP_COMPRESSREGEX" -a -n "$COMPRESSREGEX_CMDLINE" -a "$PCP_COMPRESSREGEX" != "$COMPRESSREGEX_CMDLINE" ]
-			    then
-				_warning "\$PCP_COMPRESSREGEX ($PCP_COMPRESSREGEX) reset from control file, -Y value ($COMPRESSREGEX_CMDLINE) ignored"
-				COMPRESSREGEX_CMDLINE=""
-			    fi
-			    ;;
-
-			'export PCP_MERGE_CALLBACK;'*)
-			    if ! $COMPRESSONLY
-			    then
-				$SHOWME && echo "+ $cmd"
-				script="`echo "$cmd" | sed -e 's/.*BACK; PCP_MERGE_CALLBACK=//'`"
-				if _add_callback "$script" $tmp/merge_callback
-				then
-				    $VERBOSE && echo "Add merge callback: $script"
-				fi
-			    fi
-			    ;;
-
-			'export PCP_COMPRESS_CALLBACK;'*)
-			    $SHOWME && echo "+ $cmd"
-			    script="`echo "$cmd" | sed -e 's/.*BACK; PCP_COMPRESS_CALLBACK=//'`"
-			    if _add_callback "$script" $tmp/compress_callback
-			    then
-				$VERBOSE && echo "Add compress callback: $script"
-			    fi
-			    ;;
-
-			'export PCP_AUTOSAVE_DIR;'*)
-			    if ! $COMPRESSONLY
-			    then
-				$SHOWME && echo "+ $cmd"
-				eval $cmd
-				if [ -s $tmp/autosave ]
-				then
-				    _warning "\$PCP_AUTOSAVE_DIR ($PCP_AUTOSAVE_DIR) reset from control file, previous value (`cat $tmp/autosave`) ignored"
-				fi
-				echo "$PCP_AUTOSAVE_DIR" >$tmp/autosave
-				$VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR: $PCP_AUTOSAVE_DIR"
-			    fi
-			    ;;
-
-			*)
-			    $SHOWME && echo "+ $cmd"
-			    echo eval $cmd >>$tmp/cmd
-			    eval $cmd
-			    ;;
-		    esac
-		fi
-		continue
-		;;
-	esac
-
-	# set the version and other global variables
-	#
-	[ -f $tmp/cmd ] && . $tmp/cmd
-
-	if [ -z "$version" -o "$version" = "1.0" ]
-	then
-	    if [ -z "$version" ]
-	    then
-		_warning "processing default version 1.0 control format"
-		version=1.0
-	    fi
-	    args="$dir $args"
-	    dir="$socks"
-	    socks=n
-	fi
-
-	# do shell expansion of $dir if needed
-	#
-	_do_dir_and_args
-	$VERY_VERBOSE && echo "After _do_dir_and_args: orig_dir=$orig_dir dir=$dir"
-
-	if [ -z "$primary" -o -z "$socks" -o -z "$dir" -o -z "$args" ]
-	then
-	    _error "insufficient fields in control file record"
-	    continue
-	fi
-
-	# substitute LOCALHOSTNAME marker in this config line
-	# (differently for directory and pcp -h HOST arguments)
-	#
-	dirhostname=`hostname || echo localhost`
-	dir=`echo $dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
-	orig_dir=`echo $orig_dir | sed -e "s;LOCALHOSTNAME;$dirhostname;"`
-	[ $primary = y -o "x$host" = xLOCALHOSTNAME ] && host=local:
-
-	if $VERBOSE
-	then
-	    echo
-	    if $COMPRESSONLY
-	    then
-		echo "=== compressing PCP archives for host $host ==="
-	    else
-		echo "=== daily maintenance of PCP archives for host $host ==="
-	    fi
-	    echo
-	fi
-
-	if $VERY_VERBOSE
-	then
+	    echo >&2 "Check archive push via pmproxy ... in $dir ..."
+	else
 	    pflag=''
 	    [ $primary = y ] && pflag=' -P'
 	    echo >&2 "Check pmlogger$pflag -h $host ... in $dir ..."
 	fi
+    fi
 
-	# make sure output directory hierarchy exists and $PCP_USER
-	# user can write there
-	#
-	if [ ! -d "$dir" ]
+    if [ -n "$PCP_AUTOSAVE_DIR" ]
+    then
+	if ! $COMPRESSONLY
 	then
-	    # mode rwxrwxr-x is the default for pcp:pcp dirs
-	    umask 002
-	    mkdir -p -m 0775 "$dir" >$tmp/tmp 2>&1
-	    # reset the default mode to rw-rw-r- for files
-	    umask 022
-	    if [ ! -d "$dir" ]
+	    $SHOWME && echo "+ $cmd"
+	    eval $cmd
+	    if [ -s $tmp/autosave -a "`cat $tmp/autosave`" != "$PCP_AUTOSAVE_DIR" ]
 	    then
-		cat $tmp/tmp
-		_error "cannot create directory ($dir) for PCP archive files"
-		continue
-	    else
-		_warning "creating directory ($dir) for PCP archive files"
+		_warning "\$PCP_AUTOSAVE_DIR ($PCP_AUTOSAVE_DIR) reset from control file, previous value (`cat $tmp/autosave`) ignored"
 	    fi
+	    echo "$PCP_AUTOSAVE_DIR" >$tmp/autosave
+	    $VERBOSE && echo "Using \$PCP_AUTOSAVE_DIR: $PCP_AUTOSAVE_DIR"
 	fi
+    fi
 
-	cd $dir
-	dir=`$PWDCMND`
-	$SHOWME && echo "+ cd $dir"
-	$VERY_VERBOSE && echo "Current dir: $dir"
+    # if $orig_dir contains embedded shell commands, like $(cmd ...)
+    # or `cmd ...` then previous archives may not be in $dir, e.g
+    # when cmd is "date +%Y-%m-%d"
+    # all we can do is replace the embedded shell commands with "*"
+    # and hope sh(1) does all the work
+    #
+    find_dirs="."
+    if echo "$orig_dir" | grep '\$(' >/dev/null
+    then
+	if echo "$orig_dir" | grep '`' >/dev/null
+	then
+	    _warning "orig_dir ($orig_dir) contains both \$( and \`"
+	fi
+	find_dirs=`echo $orig_dir | _unshell`
+	$VERBOSE && echo "Embedded \$(...): find_dirs=$find_dirs"
+    elif echo "$orig_dir" | grep '`' >/dev/null
+    then
+	find_dirs=`echo $orig_dir | _unbackquote`
+	$VERBOSE && echo "Embedded \`...\`: find_dirs=$find_dirs"
+    fi
 
-	# if $orig_dir contains embedded shell commands, like $(cmd ...)
-	# or `cmd ...` then previous archives may not be in $dir, e.g
-	# when cmd is "date +%Y-%m-%d"
-	# all we can do is replace the embedded shell commands with "*"
-	# and hope sh(1) does all the work
+    # For archive rewriting (to make metadata consistent across
+    # archives) find the rules as follows:
+    # - if pmlogrewrite exists (as a file, directory or symlink)
+    #   in the current archive directory use that
+    # - else use $PCP_VAR_DIR/config/pmlogrewrite
+    #
+    rewrite=''
+    for type in -f -d -L
+    do
+	if [ $type "./pmlogrewrite" ]
+	then
+	    rewrite="$rewrite -c `pwd`/pmlogrewrite"
+	    break
+	fi
+    done
+    [ -z "$rewrite" ] && rewrite='-c $PCP_VAR_DIR/config/pmlogrewrite'
+
+    if $REWRITEALL
+    then
+	# Do the pmlogrewrite -qi thing (using pmlogger_rewrite) for
+	# all archives in directories that match $find_dirs
 	#
-        find_dirs="."
-	if echo "$orig_dir" | grep '\$(' >/dev/null
-	then
-	    if echo "$orig_dir" | grep '`' >/dev/null
-	    then
-		_warning "orig_dir ($orig_dir) contains both \$( and \`"
-	    fi
-	    find_dirs=`echo $orig_dir | _unshell`
-	    $VERBOSE && echo "Embedded \$(...): find_dirs=$find_dirs"
-	elif echo "$orig_dir" | grep '`' >/dev/null
-	then
-	    find_dirs=`echo $orig_dir | _unbackquote`
-	    $VERBOSE && echo "Embedded \`...\`: find_dirs=$find_dirs"
-	fi
-
-	if $SHOWME
-	then
-	    echo "+ get mutex lock"
-	else
-	    if _lock "$dir"
-	    then
-		:
-	    else
-		# fatal error, reported in _lock()
-		#
-		continue
-	    fi
-	fi
-
-	# For archive rewriting (to make metadata consistent across
-	# archives) find the rules as follows:
-	# - if pmlogrewrite exists (as a file, directory or symlink)
-	#   in the current archive directory use that
-	# - else use $PCP_VAR_DIR/config/pmlogrewrite
-	#
-	rewrite=''
-	for type in -f -d -L
+	rewrite_args="$rewrite"
+	$VERBOSE && rewrite_args="$rewrite_args -V"
+	$VERY_VERBOSE && rewrite_args="$rewrite_args -V"
+	for archdir in $find_dirs
 	do
-	    if [ $type "./pmlogrewrite" ]
+	    [ "$archdir" = "." ] && archdir="$dir"
+	    [ -d "$archdir" ] || continue
+	    $VERBOSE && echo "Info: pmlogrewrite all archives in $archdir"
+	    if $SHOWME
 	    then
-		rewrite="$rewrite -c `pwd`/pmlogrewrite"
-		break
+		echo "+ $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir"
+	    else
+		if eval $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir
+		then
+		    :
+		else
+		    _error "pmlogger_rewrite failed in $archdir"
+		fi
 	    fi
 	done
-	[ -z "$rewrite" ] && rewrite='-c $PCP_VAR_DIR/config/pmlogrewrite'
+    fi
 
-	if $REWRITEALL
-	then
-	    # Do the pmlogrewrite -qi thing (using pmlogger_rewrite) for
-	    # all archives in directories that match $find_dirs
-	    #
-	    rewrite_args="$rewrite"
-	    $VERBOSE && rewrite_args="$rewrite_args -V"
-	    $VERY_VERBOSE && rewrite_args="$rewrite_args -V"
-	    for archdir in $find_dirs
-	    do
-		[ "$archdir" = "." ] && archdir="$dir"
-		[ -d "$archdir" ] || continue
-		$VERBOSE && echo "Info: pmlogrewrite all archives in $archdir"
-		if $SHOWME
-		then
-		    echo "+ $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir"
-		else
-		    if eval $PCP_BINADM_DIR/pmlogger_rewrite $rewrite_args $archdir
-		    then
-			:
-		    else
-			_error "pmlogger_rewrite failed in $archdir"
-		    fi
-		fi
-	    done
-	fi
-
+    if [ X"$args" = X+ ]
+    then
+	# archive pushed from remote pmlogger via pmproxy, log rotation
+	# done at the pmproxy end, so nothing to be done here
+	#
+	:
+    else
+	# local pmlogger should be running, force log rotation
+	# to terminate writing to current archive and start a
+	# new archive with updated name (based on date and time)
+	#
 	pid=''
 	if [ X"$primary" = Xy ]
 	then
@@ -1487,9 +1212,9 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    then
 		if [ -z "$pid" ]
 		then
-		    $VERY_VERBOSE && echo >&2 "No non-primary pmlogger process(es) found"
+		    echo >&2 "No non-primary pmlogger process(es) found"
 		else
-		    $VERY_VERBOSE && echo >&2 "non-primary pmlogger process(es) $pid identified, OK"
+		    echo >&2 "non-primary pmlogger process(es) $pid identified, OK"
 		fi
 	    fi
 	fi
@@ -1565,614 +1290,133 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 		rm -f $tmp/reexec
 	    fi
 	fi
+    fi
 
-	if ! $COMPRESSONLY
-	then
-	    # Cull any old archives.  
-	    #
-	    # We now do this first, so that if the archives are bad for
-	    # any reason we don't want failures to merge or rewrite to
-	    # prevent removing old files as this can lead to full
-	    # filesystems if left unattended.
-	    #
-	    if [ X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
-	    then
-		# *BSD semantics for find(1) -mtime +N are "rounded up to
-		# the next full 24-hour period", compared to GNU/Linux
-		# semantics "any fractional part is ignored".  So, these are
-		# almost always off by one day in terms of the files selected.
-		# 
-		# For GNU/Linux reduce the number of days by one (opens up
-		# the window).
-		#
-		# The real filtering is done by find-filter, we just want to
-		# be sure that we include all of the candidate files in the
-		# find(1) part.
-		#
-		CULLDAYS=`echo $CULLAFTER | sed -e 's/:.*//'`
-		if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
-		then
-		    :
-		else
-		    # decrement, unless already zero
-		    #
-		    [ "$CULLDAYS" -gt 0 ] && CULLDAYS=`expr "$CULLDAYS" - 1`
-		fi
-		if [ "$CULLDAYS" -gt 0 ]
-		then
-		    find $find_dirs -maxdepth 1 -type f -mtime +$CULLDAYS
-		else
-		    find $find_dirs -maxdepth 1 -type f
-		fi \
-		| $PCP_BINADM_DIR/find-filter mtime +$CULLAFTER \
-		| _filter_filename \
-		| LC_COLLATE=POSIX sort >$tmp/list
-		if [ -n "$pid" ]
-		then
-		    # pmlogger is running, make sure we don't cull the current
-		    # archive
-		    #
-		    if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
-		    then
-			current_base=`sed -n -e '3s;.*/;;p' <"$PCP_TMP_DIR/pmlogger/$pid"`
-			if [ -n "$current_base" ]
-			then
-			    $VERY_VERBOSE && echo >&2 "[$filename:$line] skip cull for current $current_base archive"
-			    sed -e "/^$current_base/d" <$tmp/list >$tmp/tmp
-			    mv $tmp/tmp $tmp/list
-			fi
-		    fi
-		fi
-		if [ -s $tmp/list ]
-		then
-		    if $VERBOSE
-		    then
-			echo "Archive files older than `_timespec $CULLAFTER` being removed ..."
-			_fmt <$tmp/list | sed -e 's/^/    /'
-		    fi
-		    if $SHOWME
-		    then
-			cat $tmp/list | xargs echo + rm -f 
-		    else
-			cat $tmp/list | xargs rm -f
-		    fi
-		else
-		    $VERY_VERBOSE && echo >&2 "Warning: no archive files found to cull"
-		fi
-	    fi
-
-	    # Merge archives.
-	    #
-	    # Will work for new style YYYYMMDD.HH.MM[-NN] archives and old style
-	    # YYMMDD.HH.MM[-NN] archives.
-	    # Note: we need to handle duplicate-breaking forms like
-	    # YYYYMMDD.HH.MM-seq# (even though pmlogger_merge already picks most
-	    # of these up) in case the base YYYYMMDD.HH.MM archive is for some
-	    # reason missing here
-	    #
-	    # Assume if the .meta or .meta.* file is present then other
-	    # archive components are also present (if not the case it
-	    # is a serious process botch, and pmlogger_merge will fail below)
-	    #
-	    # Find all candidate input archives, remove any that contain today's
-	    # date and group the remainder by date.
-	    #
-	    TODAY=`date +%Y%m%d`
-
-	    # split archive pathname for .meta files into
-	    # <directory>|<date>|<time[-seq]>|<.meta...>
-	    # (use | as the field separator as it is less likely than a
-	    # space to be in the <directory> part)
-	    #
-	    # need to handle both the year 2000 and the old name format,
-	    # so YYYYMMDD.HH.MM.meta.* and YYMMDD.HH.MM.meta.*
-	    #
-	    find $find_dirs -maxdepth 1 -type f \
-	    | sed -n \
-		-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
-		-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
-		-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
-		-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
-	    | sed -e 's@^./@@' \
-	    | sort -t'|' -k 1,1 -n -k2,3 \
-	    | $PCP_AWK_PROG -F'|' '
-$2 == "'$TODAY'"	{ next }
-	{ if ($1 == ".")
-	    thisdate = $2
-	  else
-	    thisdate = $1 "/" $2
-	  if (lastdate != "" && lastdate == thisdate) {
-	    # same dir and date as previous one
-	    inlist = inlist " " thisdate $3
-	    next
-	  }
-	  else {
-	    # different dir or date as previous one
-	    if (inlist != "") print lastdate,inlist
-	    inlist = thisdate $3
-	    lastdate = thisdate
-	  }
-	}
-END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
-
-	    if $OFLAG
-	    then
-		# -o option, preserve the old semantics, and only process the
-		# previous day's archives ... aim for a time close to midday
-		# yesterday and report that date
-		#
-		now_hr=`pmdate %H`
-		hr=`expr 12 + $now_hr`
-		grep -E "(^|.*/)[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
-		mv $tmp/tmp $tmp/list
-	    fi
-
-	    rm -f $tmp/skip
-	    if $MFLAG
-	    then
-		# -M don't rewrite, merge or rename
-		#
-		:
-	    else
-		if [ ! -s $tmp/list ]
-		then
-		    if $SHOWME
-		    then
-			:
-		    else
-			if $VERBOSE
-			then
-			    echo "Warning: no archives found to merge"
-			    $VERY_VERBOSE && ls >&2 -l
-			fi
-		    fi
-		else
-		    cat $tmp/list \
-		    | while read outfile inlist
-		    do
-			if [ -f $outfile.0 -o -f $outfile.index -o -f $outfile.meta ]
-			then
-			    _skipping "output archive ($outfile) already exists"
-			    continue
-			else
-			    $VERY_VERBOSE && echo >&2 "Rewriting input archives using $rewrite"
-			    if $RFLAG
-			    then
-				:
-			    else
-				for arch in $inlist
-				do
-				    if $SHOWME
-				    then
-					echo "+ pmlogrewrite -iq $rewrite $arch"
-				    else
-					if eval pmlogrewrite -iq $rewrite $arch
-					then
-					    :
-					else
-					    _skipping "rewrite for $arch failed using $rewrite failed"
-					    continue
-					fi
-				    fi
-				done
-			    fi
-			    [ -f $tmp/skip ] && continue
-			    if $VERY_VERBOSE
-			    then
-				for arch in $inlist
-				do
-				    echo >&2 "Input archive $arch ..."
-				    if $SHOWME
-				    then
-					echo "+ pmdumplog -L $arch"
-				    else
-					pmdumplog >&2 -L $arch
-				    fi
-				done
-			    fi
-			    narch=`echo $inlist | wc -w | sed -e 's/ //g'`
-			    rm -f $tmp/mergefile
-			    if [ "$narch" = 1 ]
-			    then
-				# optimization - rename, don't merge, for one input archive
-				#
-				if $SHOWME
-				then
-				    echo "+ pmlogmv$MYARGS $inlist $outfile"
-				    echo "$outfile" >$tmp/mergefile
-				elif pmlogmv$MYARGS $inlist $outfile
-				then
-				    if $VERY_VERBOSE
-				    then
-					echo >&2 "Renamed output archive $outfile ..."
-					pmdumplog >&2 -L $outfile
-				    fi
-				    echo "$outfile" >$tmp/mergefile
-				else
-				    _error "problems executing pmlogmv for host \"$host\""
-				fi
-			    else
-				# more than one input archive, merge away
-				#
-				if $SHOWME
-				then
-				    echo "+ pmlogger_merge$MYARGS $EXPUNGE -f $inlist $outfile"
-				    echo "$outfile" >$tmp/mergefile
-				elif pmlogger_merge$MYARGS $EXPUNGE -f $inlist $outfile
-				then
-				    if $VERY_VERBOSE
-				    then
-					echo >&2 "Merged output archive $outfile ..."
-					pmdumplog >&2 -L $outfile
-				    fi
-				    echo "$outfile" >$tmp/mergefile
-				else
-				    _error "problems executing pmlogger_merge for host \"$host\""
-				fi
-			    fi
-			    if [ -s $tmp/mergefile -a -s $tmp/merge_callback ]
-			    then
-				# Do merge callbacks
-				#
-				$VERBOSE && echo "Merge callbacks ..."
-				mergefile="`cat $tmp/mergefile`"
-				case "$mergefile"
-				in
-				    /*)	# full pathname
-				        ;;
-				    *)	# relative pathname
-					mergefile="$dir/$mergefile"
-					;;
-				esac
-				cat $tmp/merge_callback \
-				| while read exec
-				do
-				    case "$exec"
-				    in
-					$PCP_BINADM_DIR/pmlogger_daily_report)
-					    # only do this one for the primary
-					    # pmlogger instance
-					    #
-					    [ "$primary" != y ] && continue
-					    ;;
-				    esac
-				    if $SHOWME
-				    then
-					echo "+ $exec $mergefile"
-				    else
-					$VERBOSE && echo "callback: $exec $mergefile"
-					eval $exec $mergefile
-					sts=$?
-					if [ "$sts" = 0 ]
-					then
-					    :
-					else
-					    _warning "$exec $mergefile returned status $sts"
-					fi
-				    fi
-				done
-			    fi
-			    if [ -s $tmp/mergefile -a -s $tmp/autosave ]
-			    then
-				# save archive basename for possible AUTOSAVE use later
-				#
-				cat $tmp/mergefile >>$tmp/savefiles
-			    fi
-			fi
-		    done
-		fi
-	    fi
-	fi
-
-	# and compress old archive data files
-	# (after cull - don't compress unnecessarily)
+    if $logpush
+    then
+    	# Found + prefix for $dir in control file, nothing more to be
+	# done here (the rest of the daily work will be done on the
+	# server end of the push)
 	#
-	COMPRESSAFTER="$PCP_COMPRESSAFTER"
-	[ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_CMDLINE"
-	[ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_DEFAULT"
-	$VERY_VERBOSE && echo >&2 "COMPRESSAFTER=$COMPRESSAFTER"
-	if [ -n "$COMPRESSAFTER" -a X"$COMPRESSAFTER" != Xforever -a X"$COMPRESSAFTER" != Xnever ]
-	then
-	    # may have some compression to do ...
-	    #
-	    COMPRESS="$PCP_COMPRESS"
-	    [ -z "$COMPRESS" ] && COMPRESS="$COMPRESS_CMDLINE"
-	    [ -z "$COMPRESS" ] && COMPRESS="$COMPRESS_DEFAULT"
-	    # $COMPRESS may have args, e.g. -0 --block-size=10MiB so
-	    # extract executable command name
-	    #
-	    COMPRESS_PROG=`echo "$COMPRESS" | sed -e 's/[ 	].*//'`
-	    if [ -n "$COMPRESS_PROG" ] && which "$COMPRESS_PROG" >/dev/null 2>&1
-	    then
-		current_vol=''
-		if [ -n "$pid" ]
-		then
-		    # pmlogger running, need to avoid the current volume
-		    #
-		    # may need to wait for pmlogger to get going ... logic here
-		    # is based on _wait_for_pmlogger() in qa/common.check
-		    #
-		    i=1
-		    while true
-		    do
-			# pmlc may race with pmlogger starting up here - a timeout is required
-			# to avoid pmlc blocking forever and hanging pmlogger_daily. RHBZ#1892326
-			[ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
-			if pmlc "$pid" </dev/null 2>&1 | tee $tmp/out \
-				| grep "^Connected to .*pmlogger" >/dev/null
-			then
-			    # pmlogger socket has been set up ...
-			    break
-			else
-			    [ $i -eq 20 ] && break
-			    i=`expr $i + 1`
-			    sleep 1
-			fi
-		    done
-		    echo status | pmlc "$pid" >$tmp/out 2>&1
-		    current_vol=`sed -n <$tmp/out -e '/^log volume/s/.*[^0-9]\([0-9][0-9]*\)$/\1/p'`
-		    if [ -z "$current_vol" ]
-		    then
-			_warning "cannot get current volume for pmlogger PID=$pid (after $i attempts)"
-			cat $tmp/out
-		    else
-			pminfo -f pmcd.pmlogger.archive >$tmp/out
-			current_base=`sed -n <$tmp/out -e '/ or "'$pid'"]/{
-s/.*\///
-s/"//
-p
-}'`
-			if [ -z "$current_base" ]
-			then
-			    _warning "cannot get archive basename pmlogger PID=$pid"
-			    cat $tmp/out
-			fi
-		    fi
-		fi
+	return
+    fi
 
-		if $FORCE || [ -n "$current_vol" -a -n "$current_base" ]
-		then
-		    COMPRESSREGEX="$PCP_COMPRESSREGEX"
-		    [ -z "$COMPRESSREGEX" ] && COMPRESSREGEX="$COMPRESSREGEX_CMDLINE"
-		    [ -z "$COMPRESSREGEX" ] && COMPRESSREGEX="$COMPRESSREGEX_DEFAULT"
-		    if [ "$COMPRESSAFTER" -eq 0 ]
-		    then
-			# compress all possible files immediately
-			#
-			find $find_dirs -maxdepth 1 -type f
-		    else
-			# compress files last modified more than $COMPRESSSAFTER
-			# days ago
-			#
-			if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
-			then
-			    # See note above re. find(1) on FreeBSD/NetBSD/OpenBSD
-			    #
-			    mtime=`expr $COMPRESSAFTER - 1`
-			else
-			    mtime=$COMPRESSAFTER
-			fi
-			find $find_dirs -maxdepth 1 -type f -mtime +$mtime
-		    fi \
-		    | _filter_filename \
-		    | grep -E -v "$COMPRESSREGEX" \
-		    | LC_COLLATE=POSIX sort >$tmp/list
-		    if [ -s $tmp/list -a -n "$current_base" -a -n "$current_vol" ]
-		    then
-			# don't compress current volume (or later ones, if
-			# pmlogger has moved onto a new volume since
-			# $current_vol was determined), and don't compress
-			# either the current index or the current metadata
-			# files
-			#
-			$VERY_VERBOSE && echo >&2 "[$filename:$line] skip compress for current $current_base.$current_vol volume"
-			rm -f $tmp/out
-			touch $tmp/out
-			# need to handle both the year 2000 and the old name
-			# formats, the ...DDMM and ...DDMM.HH.MM, and the
-			# ...DDMM.HH.MM-seq# variants to get the base name
-			# separated from the other part of the file name, but
-			# on the upside compressed file names were stripped out
-			# above by the grep -E -v "$COMPRESSREGEX"
-			#
-			sed -n <$tmp/list \
-			    -e '/\./s/\.\([^.][^.]*\)$/ \1/p' \
-			| while read base other
-			do
-			    if [ "$base" != "$current_base" ]
-			    then
-				echo "$base.$other" >>$tmp/out
-			    else
-				case "$other"
-				in
-				    .index*|.meta*)
-					# don't do these ones
-					;;
-				    [0-9]*)
-				    	# data volume
-					if [ "$other" -lt "$current_vol" ]
-					then
-					    echo "$base.$other" >>$tmp/out
-					fi
-					;;
-				esac
-			    fi
-			done
-			mv $tmp/out $tmp/list
-		    fi
-		    if [ -s $tmp/list ]
-		    then
-			if $VERBOSE
-			then
-			    if [ "$COMPRESSAFTER" -eq 0 ]
-			    then
-				echo "Archive files being compressed ..."
-			    else
-				echo "Archive files older than $COMPRESSAFTER days being compressed ..."
-			    fi
-			    _fmt <$tmp/list | sed -e 's/^/    /'
-			fi
-			if $SHOWME
-			then
-			    cat $tmp/list | xargs echo + $COMPRESS
-			else
-			    cat $tmp/list | xargs $COMPRESS
-			fi
-			if [ -s $tmp/compress_callback ]
-			then
-			    # Do compress callbacks, but only for full
-			    # day's archives
-			    #
-			    $VERBOSE && echo "Compress callbacks ..."
-			    cat $tmp/list \
-			    | sed -n \
-				-e 's/\.[0-9][0-9]*$//' \
-				-e 's/\.meta$//' \
-				-e 's/\.index$//' \
-				-e '/^[12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]$/p' \
-				-e '/^[0-9][0-9][0-1][0-9][0-3][0-9]$/p' \
-			    | sort -n \
-			    | uniq \
-			    | while read compressfile
-			    do
-				case "$compressfile"
-				in
-				    /*)	# full pathname
-				        ;;
-				    *)	# relative pathname
-					compressfile="$dir/$compressfile"
-					;;
-				esac
-				cat $tmp/compress_callback \
-				| while read exec
-				do
-				    if $SHOWME
-				    then
-					echo "+ $exec $compressfile"
-				    else
-					$VERBOSE && echo "callback: $exec $compressfile"
-					eval $exec $compressfile
-					sts=$?
-					if [ "$sts" = 0 ]
-					then
-					    :
-					else
-					    _warning "$exec $compressfile returned status $sts"
-					fi
-				    fi
-				done
-			    done
-			fi
-		    else
-			$VERY_VERBOSE && echo >&2 "Warning: no archive files found to compress"
-		    fi
-		elif [ -z "$COMPRESSAFTER" -o X"$COMPRESSAFTER" = Xforever -o X"$COMPRESSAFTER" = Xnever ]
-		then
-		    # never going to do compression, so don't warn ...
-		    :
-		else
-		    _warning "current volume of current pmlogger not known, compression skipped"
-		fi
-	    else
-		_error "$COMPRESS_PROG: compression program not found"
-	    fi
-	fi
-
-	# autosave any newly merged (and possibly compressed) archives
-	# if PCP_AUTOSAVE_DIR is in play
+    if ! $COMPRESSONLY
+    then
+	# We now do this first, so that if the archives are bad for
+	# any reason we don't want failures to merge or rewrite to
+	# prevent removing old files as this can lead to full
+	# filesystems if left unattended.
 	#
-	if [ -s $tmp/autosave -a -s $tmp/savefiles ]
+	_do_cull
+
+	if $MFLAG
+	then
+	    # -M don't rewrite, merge or rename
+	    #
+	    :
+	else
+	    _do_merge
+	fi
+    fi
+
+    # and compress old archive data files
+    # (after cull - don't compress unnecessarily)
+    #
+    _do_compress
+
+    # autosave any newly merged (and possibly compressed) archives
+    # if PCP_AUTOSAVE_DIR is in play
+    #
+    if [ -s $tmp/autosave -a -s $tmp/savefiles ]
+    then
+	if $VERBOSE
+	then
+	    ( echo "Autosave ... "; _fmt <$tmp/savefiles ) \
+	    | sed -e 's/^/    /'
+	fi
+	last_mkdir=''
+	cat $tmp/savefiles \
+	| while read savefile
+	do
+	    # make sure destination directory hierarchy exists and $PCP_USER
+	    # user can write there
+	    #
+	    DATEYYYY=`echo "$savefile" | sed -e 's/^\(....\).*/\1/'`
+	    DATEMM=`echo "$savefile" | sed -e 's/^....\(..\).*/\1/'`
+	    DATEDD=`echo "$savefile" | sed -e 's/^......\(..\)/\1/'`
+	    auto_dir="`cat $tmp/autosave \
+		       | sed \
+			   -e s/DATEYYYY/$DATEYYYY/g \
+			   -e s/DATEMM/$DATEMM/g \
+			   -e s/DATEDD/$DATEDD/g \
+			   -e s/LOCALHOSTNAME/$dirhostname/`"
+	    if [ ! -d "$auto_dir" -a "$auto_dir" != "$last_mkdir" ]
+	    then
+		# mode rwxrwxr-x is the default for pcp:pcp dirs
+		umask 002
+		mkdir -p -m 0775 "$auto_dir" >$tmp/tmp 2>&1
+		# reset the default mode to rw-rw-r- for files
+		umask 022
+		if [ ! -d "$auto_dir" ]
+		then
+		    cat $tmp/tmp
+		    _error "cannot create directory ($auto_dir) for autosave"
+		else
+		    _warning "creating directory ($auto_dir) for autosave"
+		    # fall through and another warning will come from
+		    # _autosave()
+		fi
+		last_mkdir="$auto_dir"
+	    fi
+	    # $savefile may be a full pathname
+	    #
+	    case "$savefile"
+	    in
+		/*)
+		    src_dir=`dirname "$savefile"`
+		    savefile=`basename "$savefile"`
+		    ;;
+		*)
+		    src_dir="$dir"
+		    ;;
+	    esac
+	    _autosave "$src_dir" "$savefile" "$auto_dir"
+	done
+    fi
+
+    # and cull old trace files (from -t option)
+    #
+    if [ "$TRACE" -gt 0 ] && ! $COMPRESSONLY
+    then
+	if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
+	then
+	    # See note above re. find(1) on FreeBSD/NetBSD/OpenBSD
+	    #
+	    mtime=`expr $TRACE - 1`
+	else
+	    mtime=$TRACE
+	fi
+	find "$PCP_ARCHIVE_DIR" -type f -mtime +$mtime \
+	| sed -n -e '/pmlogger\/daily\..*\.trace/p' \
+	| sort >$tmp/list
+	if [ -s $tmp/list ]
 	then
 	    if $VERBOSE
 	    then
-		( echo "Autosave ... "; _fmt <$tmp/savefiles ) \
-		| sed -e 's/^/    /'
+		echo "Trace files older than $TRACE days being removed ..."
+		_fmt <$tmp/list | sed -e 's/^/    /'
 	    fi
-	    last_mkdir=''
-	    cat $tmp/savefiles \
-	    | while read savefile
-	    do
-		# make sure destination directory hierarchy exists and $PCP_USER
-		# user can write there
-		#
-		DATEYYYY=`echo "$savefile" | sed -e 's/^\(....\).*/\1/'`
-		DATEMM=`echo "$savefile" | sed -e 's/^....\(..\).*/\1/'`
-		DATEDD=`echo "$savefile" | sed -e 's/^......\(..\)/\1/'`
-		auto_dir="`cat $tmp/autosave \
-			   | sed \
-			       -e s/DATEYYYY/$DATEYYYY/g \
-			       -e s/DATEMM/$DATEMM/g \
-			       -e s/DATEDD/$DATEDD/g \
-			       -e s/LOCALHOSTNAME/$dirhostname/`"
-		if [ ! -d "$auto_dir" -a "$auto_dir" != "$last_mkdir" ]
-		then
-		    # mode rwxrwxr-x is the default for pcp:pcp dirs
-		    umask 002
-		    mkdir -p -m 0775 "$auto_dir" >$tmp/tmp 2>&1
-		    # reset the default mode to rw-rw-r- for files
-		    umask 022
-		    if [ ! -d "$auto_dir" ]
-		    then
-			cat $tmp/tmp
-			_error "cannot create directory ($auto_dir) for autosave"
-		    else
-			_warning "creating directory ($auto_dir) for autosave"
-			# fall through and another warning will come from
-			# _autosave()
-		    fi
-		    last_mkdir="$auto_dir"
-		fi
-		# $savefile may be a full pathname
-		#
-		case "$savefile"
-		in
-		    /*)
-			src_dir=`dirname "$savefile"`
-			savefile=`basename "$savefile"`
-			;;
-		    *)
-			src_dir="$dir"
-			;;
-		esac
-		_autosave "$src_dir" "$savefile" "$auto_dir"
-	    done
-	fi
-
-	# and cull old trace files (from -t option)
-	#
-	if [ "$TRACE" -gt 0 ] && ! $COMPRESSONLY
-	then
-	    if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
+	    if $SHOWME
 	    then
-		# See note above re. find(1) on FreeBSD/NetBSD/OpenBSD
-		#
-		mtime=`expr $TRACE - 1`
+		cat $tmp/list | xargs echo + rm -f
 	    else
-		mtime=$TRACE
+		cat $tmp/list | xargs rm -f
 	    fi
-	    find "$PCP_ARCHIVE_DIR" -type f -mtime +$mtime \
-	    | sed -n -e '/pmlogger\/daily\..*\.trace/p' \
-	    | sort >$tmp/list
-	    if [ -s $tmp/list ]
-	    then
-		if $VERBOSE
-		then
-		    echo "Trace files older than $TRACE days being removed ..."
-		    _fmt <$tmp/list | sed -e 's/^/    /'
-		fi
-		if $SHOWME
-		then
-		    cat $tmp/list | xargs echo + rm -f
-		else
-		    cat $tmp/list | xargs rm -f
-		fi
-	    else
-		$VERY_VERBOSE && echo >&2 "Warning: no trace files found to cull"
-	    fi
+	else
+	    $VERY_VERBOSE && echo >&2 "Warning: no trace files found to cull"
 	fi
-
-	_unlock "$dir"
-    done
+    fi
 }
 
 # Paranoid archive saving
@@ -2197,6 +1441,541 @@ _autosave()
     fi
 }
 
+# Cull any old archives.  
+#
+_do_cull()
+{
+    CULLAFTER="$PCP_CULLAFTER"
+    [ -z "$CULLAFTER" ] && CULLAFTER="$CULLAFTER_CMDLINE"
+    [ -z "$CULLAFTER" ] && CULLAFTER="$CULLAFTER_DEFAULT"
+    $VERY_VERBOSE && echo >&2 "CULLAFTER=$CULLAFTER"
+    if [ X"$CULLAFTER" != Xforever -a X"$CULLAFTER" != Xnever ]
+    then
+	# *BSD semantics for find(1) -mtime +N are "rounded up to
+	# the next full 24-hour period", compared to GNU/Linux
+	# semantics "any fractional part is ignored".  So, these are
+	# almost always off by one day in terms of the files selected.
+	# 
+	# For GNU/Linux reduce the number of days by one (opens up
+	# the window).
+	#
+	# The real filtering is done by find-filter, we just want to
+	# be sure that we include all of the candidate files in the
+	# find(1) part.
+	#
+	CULLDAYS=`echo $CULLAFTER | sed -e 's/:.*//'`
+	if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
+	then
+	    :
+	else
+	    # decrement, unless already zero
+	    #
+	    [ "$CULLDAYS" -gt 0 ] && CULLDAYS=`expr "$CULLDAYS" - 1`
+	fi
+	if [ "$CULLDAYS" -gt 0 ]
+	then
+	    find $find_dirs -maxdepth 1 -type f -mtime +$CULLDAYS
+	else
+	    find $find_dirs -maxdepth 1 -type f
+	fi \
+	| $PCP_BINADM_DIR/find-filter mtime +$CULLAFTER \
+	| _filter_filename \
+	| LC_COLLATE=POSIX sort >$tmp/list
+	if [ -n "$pid" ]
+	then
+	    # pmlogger is running, make sure we don't cull the current
+	    # archive
+	    #
+	    if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]
+	    then
+		current_base=`sed -n -e '3s;.*/;;p' <"$PCP_TMP_DIR/pmlogger/$pid"`
+		if [ -n "$current_base" ]
+		then
+		    $VERY_VERBOSE && echo >&2 "[$filename:$line] skip cull for current $current_base archive"
+		    sed -e "/^$current_base/d" <$tmp/list >$tmp/tmp
+		    mv $tmp/tmp $tmp/list
+		fi
+	    fi
+	fi
+	if [ -s $tmp/list ]
+	then
+	    if $VERBOSE
+	    then
+		echo "Archive files older than `_timespec $CULLAFTER` being removed ..."
+		_fmt <$tmp/list | sed -e 's/^/    /'
+	    fi
+	    if $SHOWME
+	    then
+		cat $tmp/list | xargs echo + rm -f 
+	    else
+		cat $tmp/list | xargs rm -f
+	    fi
+	else
+	    $VERY_VERBOSE && echo >&2 "Warning: no archive files found to cull"
+	fi
+    fi
+}
+
+# Merge partial archives into a single archive covering one day.
+#
+# Will work for new style YYYYMMDD.HH.MM[-NN] archives and old style
+# YYMMDD.HH.MM[-NN] archives.
+#
+# Note: we need to handle duplicate-breaking forms like
+# YYYYMMDD.HH.MM-seq# (even though pmlogger_merge already picks most
+# of these up) in case the base YYYYMMDD.HH.MM archive is for some
+# reason missing here
+#
+# Also ewrite each partial archive before merging.
+#
+_do_merge()
+{
+    #
+    # Assume if the .meta or .meta.* file is present then other
+    # archive components are also present (if not the case it
+    # is a serious process botch, and pmlogger_merge will fail below)
+    #
+    # Find all candidate input archives, remove any that contain today's
+    # date and group the remainder by date.
+    #
+    TODAY=`date +%Y%m%d`
+
+    # split archive pathname for .meta files into
+    # <directory>|<date>|<time[-seq]>|<.meta...>
+    # (use | as the field separator as it is less likely than a
+    # space to be in the <directory> part)
+    #
+    # need to handle both the year 2000 and the old name format,
+    # so YYYYMMDD.HH.MM.meta.* and YYMMDD.HH.MM.meta.*
+    #
+    find $find_dirs -maxdepth 1 -type f \
+    | sed -n \
+	-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+	-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+	-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+	-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2|\3|\4/p' \
+    | sed -e 's@^./@@' \
+    | sort -t'|' -k 1,1 -n -k2,3 \
+    | $PCP_AWK_PROG -F'|' '
+$2 == "'$TODAY'"	{ next }
+{ if ($1 == ".")
+    thisdate = $2
+  else
+    thisdate = $1 "/" $2
+  if (lastdate != "" && lastdate == thisdate) {
+    # same dir and date as previous one
+    inlist = inlist " " thisdate $3
+    next
+  }
+  else {
+    # different dir or date as previous one
+    if (inlist != "") print lastdate,inlist
+    inlist = thisdate $3
+    lastdate = thisdate
+  }
+}
+END	{ if (inlist != "") print lastdate,inlist }' >$tmp/list
+
+    if $OFLAG
+    then
+	# -o option, preserve the old semantics, and only process the
+	# previous day's archives ... aim for a time close to midday
+	# yesterday and report that date
+	#
+	now_hr=`pmdate %H`
+	hr=`expr 12 + $now_hr`
+	grep -E "(^|.*/)[0-9]*`pmdate -${hr}H %y%m%d` " $tmp/list >$tmp/tmp
+	mv $tmp/tmp $tmp/list
+    fi
+
+    rm -f $tmp/skip
+    if [ ! -s $tmp/list ]
+    then
+	if $SHOWME
+	then
+	    :
+	else
+	    if $VERBOSE
+	    then
+		echo "Warning: no archives found to merge"
+		$VERY_VERBOSE && ls >&2 -l
+	    fi
+	fi
+    else
+	cat $tmp/list \
+	| while read outfile inlist
+	do
+	    if [ -f $outfile.0 -o -f $outfile.index -o -f $outfile.meta ]
+	    then
+		_skipping "output archive ($outfile) already exists"
+		continue
+	    else
+		$VERY_VERBOSE && echo >&2 "Rewriting input archives using $rewrite"
+		if $RFLAG
+		then
+		    :
+		else
+		    for arch in $inlist
+		    do
+			if $SHOWME
+			then
+			    echo "+ pmlogrewrite -iq $rewrite $arch"
+			else
+			    if eval pmlogrewrite -iq $rewrite $arch
+			    then
+				:
+			    else
+				_skipping "rewrite for $arch failed using $rewrite failed"
+				continue
+			    fi
+			fi
+		    done
+		fi
+		[ -f $tmp/skip ] && continue
+		if $VERY_VERBOSE
+		then
+		    for arch in $inlist
+		    do
+			echo >&2 "Input archive $arch ..."
+			if $SHOWME
+			then
+			    echo "+ pmdumplog -L $arch"
+			else
+			    pmdumplog >&2 -L $arch
+			fi
+		    done
+		fi
+		narch=`echo $inlist | wc -w | sed -e 's/ //g'`
+		rm -f $tmp/mergefile
+		if [ "$narch" = 1 ]
+		then
+		    # optimization - rename, don't merge, for one input archive
+		    #
+		    if $SHOWME
+		    then
+			echo "+ pmlogmv$MYARGS $inlist $outfile"
+			echo "$outfile" >$tmp/mergefile
+		    elif pmlogmv$MYARGS $inlist $outfile
+		    then
+			if $VERY_VERBOSE
+			then
+			    echo >&2 "Renamed output archive $outfile ..."
+			    pmdumplog >&2 -L $outfile
+			fi
+			echo "$outfile" >$tmp/mergefile
+		    else
+			_error "problems executing pmlogmv for host \"$host\""
+		    fi
+		else
+		    # more than one input archive, merge away
+		    #
+		    if $SHOWME
+		    then
+			echo "+ pmlogger_merge$MYARGS $EXPUNGE -f $inlist $outfile"
+			echo "$outfile" >$tmp/mergefile
+		    elif pmlogger_merge$MYARGS $EXPUNGE -f $inlist $outfile
+		    then
+			if $VERY_VERBOSE
+			then
+			    echo >&2 "Merged output archive $outfile ..."
+			    pmdumplog >&2 -L $outfile
+			fi
+			echo "$outfile" >$tmp/mergefile
+		    else
+			_error "problems executing pmlogger_merge for host \"$host\""
+		    fi
+		fi
+		if [ -s $tmp/mergefile -a -s $tmp/merge_callback ]
+		then
+		    # Do merge callbacks
+		    #
+		    $VERBOSE && echo "Merge callbacks ..."
+		    mergefile="`cat $tmp/mergefile`"
+		    case "$mergefile"
+		    in
+			/*)	# full pathname
+			    ;;
+			*)	# relative pathname
+			    mergefile="$dir/$mergefile"
+			    ;;
+		    esac
+		    cat $tmp/merge_callback \
+		    | while read exec
+		    do
+			case "$exec"
+			in
+			    $PCP_BINADM_DIR/pmlogger_daily_report)
+				# only do this one for the primary
+				# pmlogger instance
+				#
+				[ "$primary" != y ] && continue
+				;;
+			esac
+			if $SHOWME
+			then
+			    echo "+ $exec $mergefile"
+			else
+			    $VERBOSE && echo "callback: $exec $mergefile"
+			    eval $exec $mergefile
+			    sts=$?
+			    if [ "$sts" = 0 ]
+			    then
+				:
+			    else
+				_warning "$exec $mergefile returned status $sts"
+			    fi
+			fi
+		    done
+		fi
+		if [ -s $tmp/mergefile -a -s $tmp/autosave ]
+		then
+		    # save archive basename for possible AUTOSAVE use later
+		    #
+		    cat $tmp/mergefile >>$tmp/savefiles
+		fi
+	    fi
+	done
+    fi
+}
+
+# Compress archive files
+#
+_do_compress()
+{
+    COMPRESSAFTER="$PCP_COMPRESSAFTER"
+    [ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_CMDLINE"
+    [ -z "$COMPRESSAFTER" ] && COMPRESSAFTER="$COMPRESSAFTER_DEFAULT"
+    $VERY_VERBOSE && echo >&2 "COMPRESSAFTER=$COMPRESSAFTER"
+    if [ -n "$COMPRESSAFTER" -a X"$COMPRESSAFTER" != Xforever -a X"$COMPRESSAFTER" != Xnever ]
+    then
+	# may have some compression to do ...
+	#
+	COMPRESS="$PCP_COMPRESS"
+	[ -z "$COMPRESS" ] && COMPRESS="$COMPRESS_CMDLINE"
+	[ -z "$COMPRESS" ] && COMPRESS="$COMPRESS_DEFAULT"
+	# $COMPRESS may have args, e.g. -0 --block-size=10MiB so
+	# extract executable command name
+	#
+	COMPRESS_PROG=`echo "$COMPRESS" | sed -e 's/[ 	].*//'`
+	if [ -n "$COMPRESS_PROG" ] && which "$COMPRESS_PROG" >/dev/null 2>&1
+	then
+	    current_vol=''
+	    if [ -n "$pid" ]
+	    then
+		# pmlogger running, need to avoid the current volume
+		#
+		# may need to wait for pmlogger to get going ... logic here
+		# is based on _wait_for_pmlogger() in qa/common.check
+		#
+		i=1
+		while true
+		do
+		    # pmlc may race with pmlogger starting up here - a timeout is required
+		    # to avoid pmlc blocking forever and hanging pmlogger_daily. RHBZ#1892326
+		    [ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
+		    if pmlc "$pid" </dev/null 2>&1 | tee $tmp/out \
+			    | grep "^Connected to .*pmlogger" >/dev/null
+		    then
+			# pmlogger socket has been set up ...
+			break
+		    else
+			[ $i -eq 20 ] && break
+			i=`expr $i + 1`
+			sleep 1
+		    fi
+		done
+		echo status | pmlc "$pid" >$tmp/out 2>&1
+		current_vol=`sed -n <$tmp/out -e '/^log volume/s/.*[^0-9]\([0-9][0-9]*\)$/\1/p'`
+		if [ -z "$current_vol" ]
+		then
+		    _warning "cannot get current archive volume for pmlogger PID=$pid (after $i attempts)"
+		    cat $tmp/out
+		else
+		    pminfo -f pmcd.pmlogger.archive >$tmp/out
+		    current_base=`sed -n <$tmp/out -e '/ or "'$pid'"]/{
+s/.*\///
+s/"//
+p
+}'`
+		    if [ -z "$current_base" ]
+		    then
+			_warning "cannot get archive basename for pmlogger PID=$pid"
+			cat $tmp/out
+		    fi
+		fi
+	    elif [ X"$args" = X+ ]
+	    then
+		if $NOPROXY
+		then
+		    # skip this ...
+		    :
+		else
+		    # pick last (in sort order) uncompressed data volume
+		    #
+		    _last=`ls $PCP_LOG_DIR/pmproxy/$host 2>/dev/null | grep '\.[0-9][0-9]*$' | tail -1`
+		    current_base=`echo "$_last" | sed -e 's/\.[0-9][0-9]*$//'`
+		    current_vol=`echo "$_last" | sed -e 's/.*\.//'`
+		    $VERY_VERBOSE && echo >&2 "latest archive data volume: $current_base.$current_vol"
+		    if [ -z "$current_base" -o -z "$current_vol" ]
+		    then
+			_warning "cannot get current archive basename and volume for remote pmlogger on $host"
+			if $VERY_VERBOSE
+			then
+			    echo >&2 "Current dir: `$PWDCMND`"
+			    ls >&2
+			fi
+		    fi
+		fi
+	    fi
+
+	    if $FORCE || [ -n "$current_vol" -a -n "$current_base" ]
+	    then
+		COMPRESSREGEX="$PCP_COMPRESSREGEX"
+		[ -z "$COMPRESSREGEX" ] && COMPRESSREGEX="$COMPRESSREGEX_CMDLINE"
+		[ -z "$COMPRESSREGEX" ] && COMPRESSREGEX="$COMPRESSREGEX_DEFAULT"
+		if [ "$COMPRESSAFTER" -eq 0 ]
+		then
+		    # compress all possible files immediately
+		    #
+		    find $find_dirs -maxdepth 1 -type f
+		else
+		    # compress files last modified more than $COMPRESSSAFTER
+		    # days ago
+		    #
+		    if [ "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
+		    then
+			# See note above re. find(1) on FreeBSD/NetBSD/OpenBSD
+			#
+			mtime=`expr $COMPRESSAFTER - 1`
+		    else
+			mtime=$COMPRESSAFTER
+		    fi
+		    find $find_dirs -maxdepth 1 -type f -mtime +$mtime
+		fi \
+		| _filter_filename \
+		| grep -E -v "$COMPRESSREGEX" \
+		| LC_COLLATE=POSIX sort >$tmp/list
+		if [ -s $tmp/list -a -n "$current_base" -a -n "$current_vol" ]
+		then
+		    # don't compress current volume (or later ones, if
+		    # pmlogger has moved onto a new volume since
+		    # $current_vol was determined), and don't compress
+		    # either the current index or the current metadata
+		    # files
+		    #
+		    $VERY_VERBOSE && echo >&2 "[$filename:$line] skip compress for current $current_base.$current_vol volume"
+		    rm -f $tmp/out
+		    touch $tmp/out
+		    # need to handle both the year 2000 and the old name
+		    # formats, the ...DDMM and ...DDMM.HH.MM, and the
+		    # ...DDMM.HH.MM-seq# variants to get the base name
+		    # separated from the other part of the file name, but
+		    # on the upside compressed file names were stripped out
+		    # above by the grep -E -v "$COMPRESSREGEX"
+		    #
+		    sed -n <$tmp/list \
+			-e '/\./s/\.\([^.][^.]*\)$/ \1/p' \
+		    | while read base other
+		    do
+			if [ "$base" != "$current_base" ]
+			then
+			    echo "$base.$other" >>$tmp/out
+			else
+			    case "$other"
+			    in
+				.index*|.meta*)
+				    # don't do these ones
+				    ;;
+				[0-9]*)
+				    # data volume
+				    if [ "$other" -lt "$current_vol" ]
+				    then
+					echo "$base.$other" >>$tmp/out
+				    fi
+				    ;;
+			    esac
+			fi
+		    done
+		    mv $tmp/out $tmp/list
+		fi
+		if [ -s $tmp/list ]
+		then
+		    if $VERBOSE
+		    then
+			if [ "$COMPRESSAFTER" -eq 0 ]
+			then
+			    echo "Archive files being compressed ..."
+			else
+			    echo "Archive files older than $COMPRESSAFTER days being compressed ..."
+			fi
+			_fmt <$tmp/list | sed -e 's/^/    /'
+		    fi
+		    if $SHOWME
+		    then
+			cat $tmp/list | xargs echo + $COMPRESS
+		    else
+			cat $tmp/list | xargs $COMPRESS
+		    fi
+		    if [ -s $tmp/compress_callback ]
+		    then
+			# Do compress callbacks, but only for full
+			# day's archives
+			#
+			$VERBOSE && echo "Compress callbacks ..."
+			cat $tmp/list \
+			| sed -n \
+			    -e 's/\.[0-9][0-9]*$//' \
+			    -e 's/\.meta$//' \
+			    -e 's/\.index$//' \
+			    -e '/^[12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]$/p' \
+			    -e '/^[0-9][0-9][0-1][0-9][0-3][0-9]$/p' \
+			| sort -n \
+			| uniq \
+			| while read compressfile
+			do
+			    case "$compressfile"
+			    in
+				/*)	# full pathname
+				    ;;
+				*)	# relative pathname
+				    compressfile="$dir/$compressfile"
+				    ;;
+			    esac
+			    cat $tmp/compress_callback \
+			    | while read exec
+			    do
+				if $SHOWME
+				then
+				    echo "+ $exec $compressfile"
+				else
+				    $VERBOSE && echo "callback: $exec $compressfile"
+				    eval $exec $compressfile
+				    sts=$?
+				    if [ "$sts" = 0 ]
+				    then
+					:
+				    else
+					_warning "$exec $compressfile returned status $sts"
+				    fi
+				fi
+			    done
+			done
+		    fi
+		else
+		    $VERY_VERBOSE && echo >&2 "Warning: no archive files found to compress"
+		fi
+	    elif [ -z "$COMPRESSAFTER" -o X"$COMPRESSAFTER" = Xforever -o X"$COMPRESSAFTER" = Xnever ]
+	    then
+		# never going to do compression, so don't warn ...
+		:
+	    else
+		_warning "current volume of current pmlogger not known, compression skipped"
+	    fi
+	else
+	    _error "$COMPRESS_PROG: compression program not found"
+	fi
+    fi
+}
 
 # .NeedRewrite in $PCP_LOG_DIR/pmlogger is just like -R, but needs
 # only be done once, e.g. after software upgrade with new pmlogrewrite(1)
@@ -2208,12 +1987,91 @@ then
     $VERBOSE && echo "Info: found .NeedRewrite => rewrite all archives"
 fi
 
-_parse_control $CONTROL
-append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort`
-for extra in $append
-do
-    _parse_control $CONTROLDIR/$extra
-done
+if $PROXYONLY
+then
+    # skip this ...
+    :
+else
+    _parse_log_control $CONTROL
+    append=`ls $CONTROLDIR 2>/dev/null | LC_COLLATE=POSIX sort`
+    for extra in $append
+    do
+	_parse_log_control $CONTROLDIR/$extra
+    done
+fi
+
+if $NOPROXY
+then
+    # skip this ...
+    :
+else
+    # work to be done at the pmproxy end for logpush archives
+    #
+    if cd $PCP_LOG_DIR/pmproxy
+    then
+	# one-trip guard if there is something to be done
+	#
+	rm -f $tmp/proxy_sighup
+	# check for any archives from remote pmloggers via pmproxy or
+	# pmlogpush ... if found, synthesize a control file for them
+	#
+	for _host in *
+	do
+	    # need some minimal plausible dir contents like at least
+	    # one .index file
+	    #
+	    [ "`echo $_host/*.index`" = "$_host/*.index" ] && continue
+	    if ! $COMPRESSONLY && [ ! -f $tmp/proxy_sighup ]
+	    then
+		# if pmproxy is running, send it a SIGHUP to trigger log
+		# closing and subsequent log rotation
+		#
+		proxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid 2>/dev/null`
+		if [ -n "$proxy_pid" ]
+		then
+		    if $SHOWME
+		    then
+			echo "+ $KILL -s HUP $proxy_pid"
+		    else
+			$VERBOSE && echo >&2 "Sending SIGHUP to pmproxy $proxy_pid"
+			$KILL -s HUP "$proxy_pid"
+			# we don't have a good way of knowing when this has
+			# been done
+			# - pmproxy will close the sockets to the remote
+			#   pmloggers reasonably quickly, modulo signal and
+			#   asynchronous processing [10 seconds is a guess]
+			# - once this happens there will be no more writing
+			#   to the archives, so rewrite, merge and compress
+			#   are all OK
+			# - at the remote end, it will depend on pmlogger to
+			#   notice and commence a new archive dialog with
+			#   pmproxy
+			#
+			sleep 10
+		    fi
+		fi
+		echo "$$" >$tmp/proxy_sighup
+	    fi
+	    if [ -d "$_host" ]
+	    then
+		$VERBOSE && echo "Info: processing archives from remote pmlogger on host $_host"
+		echo '$version=1.1' >$tmp/control
+		# optional global controls first
+		[ -f "./control" ] && cat "./control" >>$tmp/control
+		# optional per-host controls next
+		[ -f "$_host/control" ] && cat "$_host/control" >>$tmp/control
+		echo "$_host	n n PCP_LOG_DIR/pmproxy/$_host +" >>$tmp/control
+		if $VERY_VERBOSE
+		then
+		    echo >&2 "Synthesized control file ..."
+		    cat >&2 $tmp/control
+		fi
+		_parse_log_control $tmp/control
+	    fi
+	done
+	cd $here
+    fi
+fi
 
 if [ -f $tmp/err ]
 then

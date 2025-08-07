@@ -23,11 +23,11 @@
 # util.c
 pmflush -> pmGetOptionalConfig
 vpmprintf -> pmGetOptionalConfig
-__pmOpenLog -> logreopen
-__pmOpenLog -> logheader
+pmOpenLog -> logreopen
+pmOpenLog -> logheader
 __pmRotateLog -> logreopen
 __pmRotateLog -> logheader
-__pmOpenLog -> __pmNoMem
+pmOpenLog -> pmNoMem
 
 # config.c
 __pmconfig -> pmflush
@@ -36,19 +36,19 @@ __pmconfig -> pmflush
 __pmGetPDU -> __pmFindPDUBuf
 __pmGetPDU -> pduread
 __pmGetPDU -> __pmUnpinPDUBuf
-__pmGetPDU -> __pmNotifyErr;
+__pmGetPDU -> pmNotifyErr;
 pduread -> __pmSocketIPC;
 pduread -> __pmRequestTimeout;
 pduread -> __pmSocketReady;
-pduread -> __pmNotifyErr;
+pduread -> pmNotifyErr;
 pduread -> __pmRecv;
 pduread -> __pmOverrideLastFd;
-__pmRequestTimeout -> __pmNotifyErr
+__pmRequestTimeout -> pmNotifyErr
 
 # optfetch.c
-addpmid -> __pmNoMem
-addinst -> __pmNoMem
-__pmOptFetchAdd -> __pmNoMem
+addpmid -> pmNoMem
+addinst -> pmNoMem
+__pmOptFetchAdd -> pmNoMem
 
 # logutil.c
 __pmLogFetch -> __pmLogFetchInterp

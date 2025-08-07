@@ -18,13 +18,23 @@
 \f3pmdaAttribute\f1 \- informs a PMDA about client connection attributes
 .SH "C SYNOPSIS"
 .ft 3
+.ad l
+.hy 0
 #include <pcp/pmapi.h>
 .br
 #include <pcp/pmda.h>
 .sp
-int pmdaAttribute(int \fIcontext\fP, int \fIkey\fP, char *\fIvalue\fP, int \fIlength\fP, pmdaExt *\fIpmda\fP);
+int pmdaAttribute(int \fIcontext\fP,
+'in +\w'int pmdaAttribute('u
+int\ \fIkey\fP,
+char\ *\fIvalue\fP,
+int\ \fIlength\fP,
+pmdaExt\ *\fIpmda\fP);
+.in
 .sp
 cc ... \-lpcp_pmda \-lpcp
+.hy
+.ad
 .ft 1
 .SH DESCRIPTION
 As part of the Performance Metrics Domain Agent (PMDA) API (see

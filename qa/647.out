@@ -9,12 +9,15 @@ Check mmv metrics have appeared ... 4 metrics and 4 values
 
 === validate values ===
 
-mmv.control.debug PMID: 70.0.1 [Debug flag]
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+mmv.control.debug PMID: 70.0.1 [Debug options]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
-See pmdbg(1).  pmstore into this metric to change the debug value.
-    value 0
+See pmdbg(1).  pmstore into this metric to change the debug option(s)
+
+Note that if this PMDA is installed as a DSO agent, the debug options
+are shared with pmcd(1)
+    value ""
 
 mmv.control.files PMID: 70.0.2 [Memory mapped file count]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
@@ -87,12 +90,15 @@ This is a test string metric with instances
 
 === validate metrics ===
 
-mmv.control.debug PMID: 70.0.1 [Debug flag]
-    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+mmv.control.debug PMID: 70.0.1 [Debug options]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
-See pmdbg(1).  pmstore into this metric to change the debug value.
-    value 0
+See pmdbg(1).  pmstore into this metric to change the debug option(s)
+
+Note that if this PMDA is installed as a DSO agent, the debug options
+are shared with pmcd(1)
+    value ""
 
 mmv.control.files PMID: 70.0.2 [Memory mapped file count]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff

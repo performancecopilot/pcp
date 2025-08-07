@@ -160,7 +160,7 @@ nss_setup_collector()
     if [ -d $collectordb ]
     then
 	$sudo chmod -R 0644 $collectordb/*
-	$sudo chown -R pcp:pcp $collectordb
+	$sudo chown -R $PCP_USER:$PCP_GROUP $collectordb
     fi
 
     if [ -n "$__force_client_cert" ]
