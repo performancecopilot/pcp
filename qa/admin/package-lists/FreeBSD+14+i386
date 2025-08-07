@@ -58,7 +58,6 @@ postfix
 postgresql15-client
 pstree
 py311-elasticsearch
-py311-jsonpointer
 py311-libvirt
 py311-lxml
 py311-openpyxl

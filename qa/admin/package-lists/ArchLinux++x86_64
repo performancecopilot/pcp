@@ -61,7 +61,6 @@ core/psmisc
 core/python
 extra/python-defusedxml
 extra/python-elasticsearch
-extra/python-jsonpointer
 extra/python-openpyxl
 extra/python-pillow
 extra/python-prometheus_client

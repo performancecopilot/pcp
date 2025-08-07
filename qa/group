@@ -231,7 +231,7 @@ pmda.hacluster
 pmda.haproxy
 pmda.hotproc
 pmda.jbd2
-pmda.json
+#pmda.json		# note this group has been retired
 pmda.kvm
 pmda.libvirt
 pmda.lio
@@ -1547,8 +1547,8 @@ pmcd.pdu
 1049 pmie pmieconf local
 1050 pmieconf local
 1051 pmieconf #696008 local
-1052 pmda.json local python dbpmda
-1053 pmda.json pmda.install local python
+1052:retired pmda.json local python dbpmda
+1053:retired pmda.json pmda.install local python
 1054 pmlogger pmcpp local pmlogdump kernel
 1055 pmlogger local pmlogdump pmstore folio pmda.sample pmlc
 1056 derive local kernel

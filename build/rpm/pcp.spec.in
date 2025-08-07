@@ -611,6 +611,7 @@ Summary: Performance Co-Pilot tools for exporting PCP metrics in OpenTelemetry f
 URL: https://pcp.io
 Requires: pcp-libs >= @package_version@
 Requires: python3-pcp = @package_version@
+Obsoletes: pcp-pmda-json < 7.0.0
 
 %description export-pcp2opentelemetry
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
@@ -1752,24 +1753,6 @@ extracting metrics from OpenTelemetry (https://opentelemetry.io//) endpoints.
 #end pcp-pmda-opentelemetry
 %endif
 
-%if "@pmda_json@" == "true"
-#
-# pcp-pmda-json
-#
-%package pmda-json
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for JSON data
-URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-Requires: python3-pcp
-Requires: python3-jsonpointer
-Requires: python3-six
-%description pmda-json
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics output in JSON.
-# end pcp-pmda-json
-%endif
-
 #
 # C pmdas
 # pcp-pmda-apache
@@ -2269,7 +2252,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
 basic_manifest | keep '(etc/pcp|pmdas)/hdb(/|$)' >pcp-pmda-hdb-files
 basic_manifest | keep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
-basic_manifest | keep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
 basic_manifest | keep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
 basic_manifest | keep '(etc/pcp|pmdas)/lio(/|$)' >pcp-pmda-lio-files
 basic_manifest | keep '(etc/pcp|pmdas)/lmsensors(/|$)' >pcp-pmda-lmsensors-files
@@ -2334,7 +2316,6 @@ for pmda_package in \
     gfs2 gluster gpfs gpsd \
     hacluster haproxy hdb \
     infiniband \
-    json \
     libvirt lio lmsensors logger lustre lustrecomm \
     mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
@@ -2585,11 +2566,6 @@ done
 %if "@pmda_statsd@" == "true"
 %preun pmda-statsd
 %{pmda_remove "$1" "statsd"}
-%endif
-
-%if "@pmda_json@" == "true"
-%preun pmda-json
-%{pmda_remove "$1" "json"}
 %endif
 
 %if "@pmda_libvirt@" == "true"
@@ -3146,10 +3122,6 @@ fi
 %endif
 
 %files export-zabbix-agent -f pcp-export-zabbix-agent-files.rpm
-
-%if "@pmda_json@" == "true"
-%files pmda-json -f pcp-pmda-json-files.rpm
-%endif
 
 %if "@pmda_libvirt@" == "true"
 %files pmda-libvirt -f pcp-pmda-libvirt-files.rpm

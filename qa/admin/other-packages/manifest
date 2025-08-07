@@ -22,7 +22,7 @@
 #   but also marked N/A if a package is not available on a particular
 #   platform, if the package is installed with an alternate installer,
 #   then the form <package_manager>(<package_name>) may be used, e.g.
-#   pip3(jsonpointer) or cpan(Date::Format)
+#   pip3(openpyxl) or cpan(Date::Format)
 #   if there is more than one alternate package source, these can be
 #   separated by white space or the word "or", e.g. for RedHat and SuSE
 #   rpm naming differences
@@ -436,17 +436,6 @@ S_pkg?	/usr/lib/python3.*/*-packages/*/*/six.py	[library/python/pip-27]
 slackpkg?	/usr/lib*/python*/*-packages/*/*/six.py	[python-setuptools]
 pacman?	/usr/lib/python3.*/*-packages/six.py	[extra/python-six]
 brew?	/usr/local/lib/python3.*/*-packages/six.py	[pip3(six)]
-# -- python jsonpointer
-dpkg?	/usr/lib/python3/*-packages/jsonpointer.py	[python3-json-pointer (build optional)]
-rpm?	/usr/lib*/python3.*/*-packages/jsonpointer.py	[python3-jsonpointer]
-emerge?	/usr/lib/python3.*/*-packages/jsonpointer.py	[dev-python/jsonpointer]
-pkgin?	/usr/pkg/lib/python3.*/*-packages/jsonpointer.py	[python3-jsonpointer (build optional)]
-pkg_add?	/usr/local/lib/python3.*/*-packages/jsonpointer.py	[py3-jsonpointer]
-F_pkg?	/usr/local/lib/python3.*/*-packages/jsonpointer.py	[py3[0-9]*-jsonpointer]
-S_pkg?	jsonpointer.py					[N/A (build optional)]
-slackpkg?	jsonpointer.py				[N/A (build optional)]
-pacman?	/usr/lib/python3.*/*-packages/jsonpointer.py	[extra/python-jsonpointer (build optional)
-brew?	/usr/local/lib/python3.*/*-packages/jsonpointer.py	[pip3(jsonpointer) (build optional)
 # -- python rtslib for lio PMDA
 rpm?	/usr/lib*/python3.*/*-packages/rtslib		[python3-rtslib or python3-rtslib-fb]
 F_pkg?	/usr/local/lib/python3.*/*-packages/rtslib	[py3[0-9]*-rtslib-fb]

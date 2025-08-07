@@ -79,7 +79,6 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_opentelemetry@|$(PMDA_OPENTELEMETRY)|g' \
 	    -e's|@pmda_libvirt@|$(PMDA_LIBVIRT)|g' \
 	    -e's|@pmda_lio@|$(PMDA_LIO)|g' \
-	    -e's|@pmda_json@|$(PMDA_JSON)|g' \
 	    -e's|@pmda_nginx@|$(PMDA_NGINX)|g' \
 	    -e's|@pmda_oracle@|$(PMDA_ORACLE)|g' \
 	    -e's|@pmda_mongodb@|$(PMDA_MONGODB)|g' \
@@ -93,7 +92,7 @@ pcp.spec: pcp.spec.in
 	    -e's|@pmda_bind2@|$(PMDA_BIND2)|g' \
 	    -e's|@pmda_nutcracker@|$(PMDA_NUTCRACKER)|g' \
 	    -e's|@pmda_resctrl@|$(PMDA_RESCTRL)|g' \
-		-e's|@pmda_hdb@|$(PMDA_HDB)|g' \
+	    -e's|@pmda_hdb@|$(PMDA_HDB)|g' \
 	    -e's|@pcp2arrow@|$(HAVE_PYTHON_PYARROW)|g' \
 	    -e's|@pcp2xlsx@|$(HAVE_PYTHON_OPENPYXL)|g' \
 	    -e's|@pcp2influxdb@|$(HAVE_PYTHON_INFLUXDB)|g' \

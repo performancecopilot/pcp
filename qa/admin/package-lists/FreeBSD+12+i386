@@ -57,7 +57,6 @@ postfix
 postgresql15-client
 pstree
 py39-elasticsearch
-py39-jsonpointer
 py39-libvirt
 py39-lxml
 py39-openpyxl

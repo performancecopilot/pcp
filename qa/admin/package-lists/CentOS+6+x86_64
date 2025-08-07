@@ -72,7 +72,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 python-devel
-python-jsonpointer
 python-libs
 python-lxml
 python-psycopg2

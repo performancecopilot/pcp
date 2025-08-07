@@ -97,7 +97,6 @@ python3
 python3-bcc
 python3-devel
 # python3-elasticsearch
-python3-jsonpointer
 python3-libs
 python3-libvirt
 python3-lxml

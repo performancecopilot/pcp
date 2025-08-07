@@ -115,17 +115,6 @@ ExcludeArch: %{ix86}
 %global disable_bpftrace 1
 %endif
 
-# support for pmdajson
-%if 0%{?rhel} == 0 || 0%{?rhel} > 6
-%if !%{disable_python3}
-%global disable_json 0
-%else
-%global disable_json 1
-%endif
-%else
-%global disable_json 1
-%endif
-
 # support for pmdamongodb
 %if !%{disable_python3}
 %global disable_mongodb 0
@@ -407,12 +396,6 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_bpftrace --with-pmdabpftrace=no
 %else
 %global _with_bpftrace --with-pmdabpftrace=yes
-%endif
-
-%if %{disable_json}
-%global _with_json --with-pmdajson=no
-%else
-%global _with_json --with-pmdajson=yes
 %endif
 
 %if %{disable_mongodb}
@@ -1739,6 +1722,7 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: python3-pcp
 Requires: python3-requests
 BuildRequires: python3-requests
+Obsoletes: pcp-pmda-json < 7.0.0
 %description pmda-opentelemetry
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting metrics from OpenTelemetry (https://opentelemetry.io/) endpoints.
@@ -1828,24 +1812,6 @@ BuildRequires: python3-pyodbc
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from Microsoft SQL Server.
 # end pcp-pmda-mssql
-%endif
-
-%if !%{disable_json}
-#
-# pcp-pmda-json
-#
-%package pmda-json
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for JSON data
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: python3-pcp
-Requires: python3-jsonpointer python3-six
-BuildRequires: python3-jsonpointer python3-six
-%description pmda-json
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics output in JSON.
-# end pcp-pmda-json
 %endif
 
 #
@@ -2289,7 +2255,7 @@ updated policy package.
 _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 
-%configure %{?_with_multilib} %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
+%configure %{?_with_multilib} %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2445,7 +2411,6 @@ basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
-basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
 basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
 basic_manifest | keep 'pcp2opentelemetry' >pcp-export-pcp2opentelemetry-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
@@ -2479,7 +2444,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
 basic_manifest | keep '(etc/pcp|pmdas)/hdb(/|$)' >pcp-pmda-hdb-files
 basic_manifest | keep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
-basic_manifest | keep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
 basic_manifest | keep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
 basic_manifest | keep '(etc/pcp|pmdas)/lio(/|$)' >pcp-pmda-lio-files
 basic_manifest | keep '(etc/pcp|pmdas)/lmsensors(/|$)' >pcp-pmda-lmsensors-files
@@ -2545,7 +2509,6 @@ for pmda_package in \
     gfs2 gluster gpfs gpsd \
     hacluster haproxy hdb \
     infiniband \
-    json \
     libvirt lio lmsensors logger lustre lustrecomm \
     mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
@@ -2770,11 +2733,6 @@ exit 0
 %if !%{disable_statsd}
 %preun pmda-statsd
 %{pmda_remove "$1" "statsd"}
-%endif
-
-%if !%{disable_json}
-%preun pmda-json
-%{pmda_remove "$1" "json"}
 %endif
 
 %preun pmda-nginx
@@ -3334,10 +3292,6 @@ fi
 %endif
 
 %files export-zabbix-agent -f pcp-export-zabbix-agent-files.rpm
-
-%if !%{disable_json}
-%files pmda-json -f pcp-pmda-json-files.rpm
-%endif
 
 %if !%{disable_python3}
 %files pmda-hdb -f pcp-pmda-hdb-files.rpm

@@ -296,7 +296,6 @@ _filter_optional_pmdas()
 	-e '/pmdainfmx7/d' \
 	-e '/pmdainfmxping/d' \
 	-e '/pmdajbd2/d' \
-	-e '/pmdajson/d' \
 	-e '/pmdajstat/d' \
 	-e '/pmdakvm/d' \
 	-e '/pmdalab/d' \
@@ -326,6 +325,7 @@ _filter_optional_pmdas()
 	-e '/pmdanutcracker/d' \
 	-e '/pmdanvidia/d' \
 	-e '/pmdaopenmetrics/d' \
+	-e '/pmdaopentelemetry/d' \
 	-e '/pmdaoracle/d' \
 	-e '/pmdaoraping/d' \
 	-e '/pmdaoverhead/d' \

@@ -25,6 +25,7 @@
 import os
 import re
 import time
+import queue
 import pickle
 import traceback
 import argparse
@@ -40,11 +41,6 @@ from pcp.pmapi import pmUnits, pmContext
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom, pmdaInstid
 import cpmapi as c_api
 import cpmda
-
-if sys.version[0] == '2':
-    import Queue as queue
-else:
-    import queue
 
 # Sort config file list - generally needed because os.walk()
 # returns a different order on different platforms and/or filesystems.

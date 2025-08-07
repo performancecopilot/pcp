@@ -75,7 +75,6 @@ postgresql
 psmisc
 python-devel
 python-elasticsearch
-python-jsonpointer
 python-libs
 python-lxml
 python-psycopg2
