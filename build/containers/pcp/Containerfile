@@ -13,7 +13,7 @@ RUN systemctl mask \
     systemd-udevd-control.socket systemd-udevd-kernel.socket
 
 ENV NAME="pcp-latest"
-ENV VERSION="6"
+ENV VERSION="7"
 ENV SUMMARY="Performance Co-Pilot"
 ENV REGISTRY="quay.io/performancecopilot/"
 ENV DESCRIPTION="Performance Co-Pilot is a system performance analysis toolkit."
