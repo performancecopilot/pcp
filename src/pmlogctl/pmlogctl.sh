@@ -1277,11 +1277,21 @@ _do_cond_create()
 	echo 0 >$tmp/condition-true
 	# if no -p, then we're going to use all the class policy files,
 	# unless none exist in which case we'll use the default policy.
+	# 
+	# Need to ignore backup packaging files.
 	#
 	if [ "$__POLICY" = $tmp/policy ]
 	then
 	    find "$PCP_ETC_DIR/pcp/${IAM}/class.d" -type f \
-	    | sed -e '/class.d\/pmfind$/d' >$tmp/class
+	    | sed >$tmp/class \
+		-e '/class.d\/pmfind$/d' \
+		-e '/\.rpmsave$/d' \
+		-e '/\.rpmnew$/d' \
+		-e '/\.rpmorig$/d' \
+		-e '/\.dpkg-dist$/d' \
+		-e '/\.dpkg-old$/d' \
+		-e '/\.dpkg-new$/d' \
+	    # end
 	    if [ -s $tmp/class ]
 	    then
 		# we have user-defined classes, use 'em first, then
