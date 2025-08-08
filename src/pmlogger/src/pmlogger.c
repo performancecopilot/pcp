@@ -123,10 +123,15 @@ run_done(int sts, char *msg)
      * _before_ the last log record
      */
     if (last_stamp.sec != 0) {
-	if (last_log_offset < __pmLogLabelSize(archctl.ac_log))
-	    fprintf(stderr, "run_done: Botch: last_log_offset = %ld\n", (long)last_log_offset);
-	archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, last_log_offset, pmGetProgname());
-	__pmLogPutIndex(&archctl, &last_stamp);
+	if (last_log_offset < __pmLogLabelSize(archctl.ac_log)) {
+	    /*
+	     * archive never got started, so no pmResult, no
+	     * preamble and no archive label record
+	     */
+	    ;
+	}
+	else
+	    __pmLogPutIndex(&archctl, &last_stamp);
     }
 
     /*
