@@ -103,7 +103,7 @@ checklabel(__pmFILE *f, char *fname, int len, int *eol)
 	sts = STS_FATAL;
     }
     else {
-	if (vflag) {
+	if (vflag > 1) {
 	    if (*eol == 0) fputc('\n', stderr);
 	    fprintf(stderr, "%s: label record [magic=0x%08x version=%d vol=%d pid=%d start=",
                 fname, label.magic, label.magic & 0xff, label.vol, label.pid);
