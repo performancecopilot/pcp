@@ -2102,6 +2102,7 @@ pmcd.pdu
 1606 libpcp pmlogrewrite local fault
 1607 libpcp pmlogrewrite local valgrind fault
 1608 pmproxy local
+1609 pmlogrewrite local
 1610 libpcp local
 1611 pmlogger pmproxy pmlogpush libpcp_web local
 1612 pmda.bpf local

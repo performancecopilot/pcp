@@ -129,7 +129,7 @@ sampledso.bucket ["bin-900"] 900.000 none
 pmcd.seqnum  SEQNUM none
 pmcd.pid  PID none
 pmcd.pmlogger.port [PID] PORT none
-pmlogsummary: Cannot open archive "tmparch/null": Empty archive file
+pmlogsummary: Cannot open archive "tmparch/empty": Empty archive file
 pmlogsummary: Cannot locate end of archive tmparch/bad-1: Corrupted record in a PCP archive
 
 WARNING: This archive is sufficiently damaged that it may not be possible to
