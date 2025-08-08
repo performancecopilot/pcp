@@ -55,7 +55,7 @@ typedef struct {
 static void
 dumplabel(const __pmLogLabel *lp)
 {
-    fprintf(stderr, " magic=0x%08x version=%d vol=%d",
+    fprintf(stderr, "magic=0x%08x version=%d vol=%d",
 	    lp->magic, lp->magic & 0xff, lp->vol);
     if (lp->vol == PM_LOG_VOL_TI)
 	fprintf(stderr, " (index)");
@@ -205,7 +205,7 @@ __pmLogWriteLabel(__pmFILE *f, const __pmLogLabel *lp)
     }
 
     if (pmDebugOptions.log) {
-	fprintf(stderr, "__pmLogWriteLabel:");
+	fprintf(stderr, "__pmLogWriteLabel: ");
 	dumplabel(lp);
 	fputc('\n', stderr);
     }
@@ -509,6 +509,7 @@ __pmLogChkLabel(__pmArchCtl *acp, __pmFILE *f, __pmLogLabel *lp, int vol)
     }
 
     if (pmDebugOptions.log) {
+	fputc(' ', stderr);
 	fputc('[', stderr);
 	dumplabel(lp);
 	fputc(']', stderr);
