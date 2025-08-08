@@ -34,6 +34,64 @@ extern regex_t  envregex;
 
 #define ABBENVLEN	16
 
+// sort function by TGID
+// ensuring parent entry (PID=TGID) is first
+static int
+thread_sorter(const void *a, const void *b)
+{
+	struct tstat *ta = (struct tstat *)a;
+	struct tstat *tb = (struct tstat *)b;
+	register int64_t a64, b64;
+	if (ta->gen.tgid < tb->gen.tgid)
+		return -1;
+	if (ta->gen.tgid > tb->gen.tgid)
+		return 1;
+
+	a64 = (ta->gen.pid == ta->gen.tgid);
+	b64 = (tb->gen.pid == tb->gen.tgid);
+
+	if (a64 && !b64)
+		return -1;
+	if (!a64 && b64)
+		return 1;
+
+	return 0;
+}
+
+static void
+thread_cpu_accumulation(struct tstat **tasks, int count)
+{
+	qsort(*tasks, count, sizeof(struct tstat), thread_sorter);
+
+	struct tstat *parent = NULL;
+	struct tstat *current;
+	int64_t cpu_use_utime = 0, cpu_use_stime = 0;
+	for (int i=0; i < count; i++)
+	{
+		current = &(*tasks)[i];
+
+		if (parent == NULL)
+		{
+			parent = current;
+			cpu_use_utime = current->cpu.utime;
+			cpu_use_stime = current->cpu.stime;
+		}
+		else if (parent->gen.tgid != current->gen.tgid)
+		{
+			parent->cpu.utime = cpu_use_utime;
+			parent->cpu.stime = cpu_use_stime;
+			parent = current;
+			cpu_use_utime = current->cpu.utime;
+			cpu_use_stime = current->cpu.stime;
+		}
+		else
+		{
+			cpu_use_utime += current->cpu.utime;
+			cpu_use_stime += current->cpu.stime;
+		}
+	}
+}
+
 static void
 proccmd(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
@@ -364,6 +422,8 @@ photoproc(struct tstat **tasks, unsigned long *taskslen)
 		offset = get_instance_index(result, TASK_GEN_PID, pids[i]);
 		update_task(&(*tasks)[i], pids[i], insts[i], result, descs, offset);
 	}
+
+	thread_cpu_accumulation(tasks, count);
 
 	if (supportflags & NETATOP)
 		netproc_update_tasks(tasks, count);
