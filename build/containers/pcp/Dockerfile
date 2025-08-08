@@ -48,8 +48,6 @@ LABEL io.k8s.description="${DESCRIPTION}"
 LABEL io.openshift.expose-services="44321:pmcd,44322:pmproxy"
 LABEL io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
 
-RUN groupadd -g 1001 -r pcp
-RUN useradd  -u 1001 -g pcp -r -d /var/lib/pcp -s /sbin/nologin -c "Performance Co-Pilot" pcp
 RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext /build/*.rpm
 RUN dnf clean all
 RUN rm -r /build
