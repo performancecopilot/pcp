@@ -1028,7 +1028,7 @@ end:
 	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "%s: no metrics found?\n", "__pmLogLoadMeta");
 	    }
-	    sts = PM_ERR_LOGREC;
+	    sts = PM_ERR_NODATA;
 	}
     }
 
@@ -1249,6 +1249,8 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	    }
 	}
 	didp->numinst = numinst;
+	if (didp->alloc & PMLID_INSTLIST)
+	    free(didp->instlist);
 	didp->instlist = instlist;
 	if (didp->alloc & PMLID_NAMELIST)
 	    free(didp->namelist);
@@ -1990,7 +1992,6 @@ __pmFreeLogInDom(__pmLogInDom *lidp)
 	 */
 	memset((void *)lidp, 0, sizeof(*lidp));
     }
-
 }
 
 /*

@@ -12,8 +12,8 @@ Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
-=== tmparch/null ===
-pmdumplog: Cannot open archive "tmparch/null": Empty archive file
+=== tmparch/empty ===
+pmdumplog: Cannot open archive "tmparch/empty": Empty archive file
 
 === tmparch/bad-1 ===
 pmdumplog: Cannot locate end of archive tmparch/bad-1: Corrupted record in a PCP archive
@@ -116,14 +116,14 @@ Performance metrics from host HOST
     commencing DATE
     ending     DATE
 
-=== tmparch/null.0 ===
-pmdumplog: Cannot open archive "tmparch/null.0": Empty archive file
+=== tmparch/empty.0 ===
+pmdumplog: Cannot open archive "tmparch/empty.0": Empty archive file
 
-=== tmparch/null.index ===
-pmdumplog: Cannot open archive "tmparch/null.index": Empty archive file
+=== tmparch/empty.index ===
+pmdumplog: Cannot open archive "tmparch/empty.index": Empty archive file
 
-=== tmparch/null.meta ===
-pmdumplog: Cannot open archive "tmparch/null.meta": Empty archive file
+=== tmparch/empty.meta ===
+pmdumplog: Cannot open archive "tmparch/empty.meta": Empty archive file
 
 === tmparch/bad-1.0 ===
 pmdumplog: Cannot locate end of archive tmparch/bad-1.0: Corrupted record in a PCP archive

@@ -42,7 +42,7 @@ last result time (serial): MY-EOL-TIMESTAMP
 required 416 log reads
 
 empty archive
-eol: Cannot open archive "tmparch/null": Empty archive file
+eol: Cannot open archive "tmparch/empty": Empty archive file
 pmGetArchiveEnd failed!
 
 small multi-volume archive

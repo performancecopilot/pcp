@@ -45,7 +45,7 @@ src/eol -a tmparch/truncbin | _filter \
 
 echo
 echo "empty archive"
-src/eol -a tmparch/null | _filter
+src/eol -a tmparch/empty | _filter
 
 echo
 echo "small multi-volume archive"
