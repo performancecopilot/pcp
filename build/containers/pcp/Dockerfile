@@ -31,6 +31,16 @@ RUN mkdir /build && \
 FROM quay.io/fedora/fedora:latest
 COPY --from=build /build /build
 
+RUN dnf install -y --setopt=tsflags=nodocs gettext-envsubst /build/*.rpm
+RUN dnf clean all
+RUN rm -r /build
+
+# ensure a fixed UID is assigned for every PCP container invocation
+RUN sed -i -e 's/^u pcp -/u pcp 1001/g' /usr/lib/sysusers.d/pcp.conf
+
+## Setup
+COPY build/containers/pcp/root /
+
 ENV SUMMARY="Performance Co-Pilot"
 ENV DESCRIPTION="Performance Co-Pilot is a system performance analysis toolkit."
 ENV VERSION=7
@@ -48,13 +58,14 @@ LABEL io.k8s.description="${DESCRIPTION}"
 LABEL io.openshift.expose-services="44321:pmcd,44322:pmproxy"
 LABEL io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
 
-RUN dnf install -y --setopt=tsflags=nodocs procps-ng gettext /build/*.rpm
-RUN dnf clean all
-RUN rm -r /build
-
-COPY build/containers/pcp/root /
-
-RUN systemctl mask systemd-remount-fs.service dev-hugepages.mount sys-fs-fuse-connections.mount systemd-logind.service getty.target console-getty.service systemd-udev-trigger.service systemd-udevd.service systemd-random-seed.service systemd-machine-id-commit.service
+RUN systemctl mask \
+    console-getty.service dev-hugepages.mount getty.target \
+    sys-fs-fuse-connections.mount \
+    systemd-oomd.service systemd-resolved.service \
+    systemd-logind.service systemd-machine-id-commit.service \
+    systemd-random-seed.service systemd-remount-fs.service \
+    systemd-udev-trigger.service systemd-udevd.service \
+    systemd-udevd-control.socket systemd-udevd-kernel.socket
 
 VOLUME ["/var/log/pcp/pmlogger"]
 VOLUME ["/var/log/pcp/pmproxy"]

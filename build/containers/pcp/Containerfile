@@ -1,16 +1,14 @@
-FROM quay.io/centos/centos:stream10-minimal
-
+## Deploy
+FROM quay.io/fedora/fedora:latest
 RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
-    pcp-zeroconf
+    gettext-envsubst pcp-zeroconf
 RUN microdnf clean all
-RUN systemctl enable pmproxy
-RUN systemctl mask \
-    dev-hugepages.mount getty.target console-getty.service \
-    sys-fs-fuse-connections.mount systemd-oomd.service systemd-resolved.service \
-    systemd-logind.service systemd-machine-id-commit.service \
-    systemd-random-seed.service systemd-remount-fs.service \
-    systemd-udev-trigger.service systemd-udevd.service \
-    systemd-udevd-control.socket systemd-udevd-kernel.socket
+
+# ensure a fixed UID is assigned for every PCP container invocation
+RUN sed -i -e 's/^u pcp -/u pcp 1001/g' /usr/lib/sysusers.d/pcp.conf
+
+## Setup
+COPY build/containers/pcp/root /
 
 ENV NAME="pcp-latest"
 ENV VERSION="7"
@@ -31,6 +29,15 @@ LABEL io.k8s.display-name="${SUMMARY}"
 LABEL io.k8s.description="${DESCRIPTION}"
 LABEL io.openshift.expose-services="44321:pmcd,44322:pmproxy"
 LABEL io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
+
+RUN systemctl mask \
+    console-getty.service dev-hugepages.mount getty.target \
+    sys-fs-fuse-connections.mount \
+    systemd-oomd.service systemd-resolved.service \
+    systemd-logind.service systemd-machine-id-commit.service \
+    systemd-random-seed.service systemd-remount-fs.service \
+    systemd-udev-trigger.service systemd-udevd.service \
+    systemd-udevd-control.socket systemd-udevd-kernel.socket
 
 VOLUME ["/var/log/pcp/pmlogger"]
 VOLUME ["/var/log/pcp/pmproxy"]
