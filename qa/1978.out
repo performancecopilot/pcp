@@ -4,7 +4,7 @@ Defaults with core metric naming
 
 
 ATOP - shard                                 2021/04/20  15:30:37                                 -----------------                                   2s elapsed
-PRC | sys   56m45s |  user   4h29m | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones 570e3 |  no  procacct |
+PRC | sys    1h49m |  user   6h01m | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones 570e3 |  no  procacct |
 CPU | sys       5% |  user     15% | irq      25% |  idle    753% | wait      1% |  steal     0% | guest     0% |  ipc     0.45 | cycl 1.47THz |  curf 3.55GHz |
 cpu | sys       1% |  user      3% | irq       3% |  idle     93% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     0.49 | cycl 1.70THz |   |
 cpu | sys       1% |  user      2% | irq       3% |  idle     93% | cpu004 w  0% |  steal     0% | guest     0% |  ipc     0.48 | cycl 1.68THz |   |
@@ -31,84 +31,98 @@ NET | tun0    ---- |  pcki   93648 | pcko  100194 |  sp    0 Mbps | si  245 Mbps
 WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
 
     PID SYSCPU USRCPU RDELAY BDELAY  VGROW  RGROW  RDDSK  WRDSK RUID     EUID     ST EXC  THR S CPUNR  CPU CMD            
-   6532  5m23s 61m35s  0.00s  0.00s   3.1G 273.8M  21.2M     0B nathans  nathans  N-   -   48 S     4   2% Web Content    
-   4307 16m38s 42m05s  0.00s  0.00s   5.5G 328.5M  16.8M  68.0K nathans  nathans  N-   -   21 S     3   2% gnome-shell    
-   6569  2m25s 42m00s  0.00s  0.00s   3.6G 799.2M  36.1M     0B nathans  nathans  N-   -   46 S     4   1% Web Content    
-   6098  6m43s 28m44s  0.00s  0.00s   4.9G 834.3M 106.3M 184.0K nathans  nathans  N-   -  160 S     6   1% firefox        
-   6968 67.28s 17m41s  0.00s  0.00s  36.7G 207.9M  17.7M     0B nathans  nathans  N-   -   15 S     6   1% slack          
-   1242  4m42s  8m04s  0.00s  0.00s 909.6M 121.3M  39.9M 960.0K redis    redis    N-   -   37 S     4   0% redis-server   
-   7581 64.04s  9m45s  0.00s  0.00s  36.8G 411.3M   4.8M     0B nathans  nathans  N-   -   17 S     2   0% chrome         
-   7465  2m45s  7m31s  0.00s  0.00s  32.9G 272.6M 114.9M   1.2G nathans  nathans  N-   -   26 S     4   0% chrome         
-   6667 44.76s  8m38s  0.00s  0.00s   3.0G 291.9M   8.7M     0B nathans  nathans  N-   -   43 S     0   0% Web Content    
-   5913 35.93s  8m06s  0.00s  0.00s 892.0M 157.2M   1.5M     0B nathans  nathans  N-   -    4 S     4   0% gnome-terminal 
- 112368 53.63s  5m29s  0.00s  0.00s   3.2G 471.2M  15.6M     0B nathans  nathans  N-   -   42 S     0   0% Web Content    
+   6098 25m07s 63m36s  0.00s  0.00s   4.9G 834.3M 106.3M 184.0K nathans  nathans  N-   -  160 S     6   3% firefox        
+   6532 10m54s 66m48s  0.00s  0.00s   3.1G 273.8M  21.2M     0B nathans  nathans  N-   -   48 S     4   2% Web Content    
+   4307 16m49s 42m38s  0.00s  0.00s   5.5G 328.5M  16.8M  68.0K nathans  nathans  N-   -   21 S     3   2% gnome-shell    
+   6569  5m50s 47m18s  0.00s  0.00s   3.6G 799.2M  36.1M     0B nathans  nathans  N-   -   46 S     4   2% Web Content    
+   6968  1m57s 19m32s  0.00s  0.00s  36.7G 207.9M  17.7M     0B nathans  nathans  N-   -   15 S     6   1% slack          
+   4311  8m21s 12m47s  0.00s  0.00s   2.6G  14.9M   2.6M  48.0K nathans  nathans  N-   -    4 S     0   1% pulseaudio     
+   1242  4m48s 11m50s  0.00s  0.00s 909.6M 121.3M  39.9M 960.0K redis    redis    N-   -   37 S     4   1% redis-server   
+   7465  4m35s 10m27s  0.00s  0.00s  32.9G 272.6M 114.9M   1.2G nathans  nathans  N-   -   26 S     4   0% chrome         
+   7581 89.50s 10m44s  0.00s  0.00s  36.8G 411.3M   4.8M     0B nathans  nathans  N-   -   17 S     2   0% chrome         
+   6667  1m46s 10m09s  0.00s  0.00s   3.0G 291.9M   8.7M     0B nathans  nathans  N-   -   43 S     0   0% Web Content    
+   6289  2m40s  8m34s  0.00s  0.00s   3.0G 199.4M   5.6M     0B nathans  nathans  N-   -   51 S     3   0% Web Content    
+   5913 36.05s  8m06s  0.00s  0.00s 892.0M 157.2M   1.5M     0B nathans  nathans  N-   -    4 S     4   0% gnome-terminal 
+ 112368  1m46s  6m40s  0.00s  0.00s   3.2G 471.2M  15.6M     0B nathans  nathans  N-   -   42 S     0   0% Web Content    
+   6234 97.09s  4m44s  0.00s  0.00s   3.3G 258.5M  13.5M     0B nathans  nathans  N-   -   45 S     3   0% Web Content    
+   7505 90.45s  4m08s  0.00s  0.00s  32.7G 139.6M  10.0M 320.0K nathans  nathans  N-   -   12 S     5   0% chrome         
    4471  2m52s  2m45s  0.00s  0.00s   1.9G  57.3M   2.9M 144.0K nathans  nathans  N-   -   25 S     1   0% Xwayland       
-   6289 37.86s  4m42s  0.00s  0.00s   3.0G 199.4M   5.6M     0B nathans  nathans  N-   -   51 S     3   0% Web Content    
-   6234 41.49s  3m41s  0.00s  0.00s   3.3G 258.5M  13.5M     0B nathans  nathans  N-   -   45 S     3   0% Web Content    
-   7505 63.55s  2m31s  0.00s  0.00s  32.7G 139.6M  10.0M 320.0K nathans  nathans  N-   -   12 S     5   0% chrome         
- 112334 39.39s  2m31s  0.00s  0.00s   3.0G 298.6M  11.0M     0B nathans  nathans  N-   -   42 S     6   0% Web Content    
-   6860 19.84s 85.94s  0.00s  0.00s   4.8G 141.8M  97.4M   5.4M nathans  nathans  N-   -   32 S     5   0% slack          
-   7672 17.36s 87.06s  0.00s  0.00s  36.6G 159.8M   5.0M     0B nathans  nathans  N-   -   15 S     6   0% chrome         
+   7507 80.96s  3m58s  0.01s  0.00s  32.5G 106.0M 492.0K     0B nathans  nathans  N-   -    9 S     6   0% chrome         
+ 112334 90.61s  3m20s  0.00s  0.00s   3.0G 298.6M  11.0M     0B nathans  nathans  N-   -   42 S     6   0% Web Content    
+   4672  2m09s  1m42s  0.07s  0.00s 594.8M  11.8M 196.0K     0B nathans  nathans  N-   -    6 S     5   0% gsd-smartcard  
+   6902 49.55s  1m41s  1.45s  0.00s 573.0M  76.2M  10.2M  16.0K nathans  nathans  N-   -   10 S     5   0% slack          
+   6860 36.82s  1m45s  0.00s  0.00s   4.8G 141.8M  97.4M   5.4M nathans  nathans  N-   -   32 S     5   0% slack          
+   7672 19.82s 90.73s  0.00s  0.00s  36.6G 159.8M   5.0M     0B nathans  nathans  N-   -   15 S     6   0% chrome         
+   8038 19.23s 89.53s  0.00s  0.00s  40.7G 281.4M   1.4M     0B nathans  nathans  N-   -   16 S     2   0% chrome         
+   4916 20.26s 81.73s  1.00s  0.00s 524.1M  11.8M 120.0K     0B nathans  nathans  N-   -    3 S     6   0% ibus-daemon    
+   1239 14.08s 68.39s  0.21s  0.00s   1.9G  55.6M  57.3M 764.0K grafana  grafana  N-   -   17 S     5   0% grafana-server 
+ 149648 20.43s 60.40s  0.00s  0.00s   2.9G 147.9M  14.8M     0B nathans  nathans  N-   -   42 S     1   0% Web Content    
      58 79.50s  0.28s  0.96s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     7   0% kcompactd0     
+   6909 27.49s 50.48s  0.00s  0.00s 505.3M  66.0M 192.0K     0B nathans  nathans  N-   -    6 S     5   0% slack          
     937 40.30s 36.88s  0.00s  0.00s  11.0M   6.6M 244.0K     0B dbus     dbus     N-   -    1 S     7   0% dbus-broker    
-   8038  6.39s 67.50s  0.00s  0.00s  40.7G 281.4M   1.4M     0B nathans  nathans  N-   -   16 S     2   0% chrome         
+   2725 17.88s 48.78s  0.00s  0.00s 538.8M  20.9M 296.0K     0B geoclue  geoclue  N-   -    4 S     2   0% geoclue        
  512101  0.80s 62.63s  0.14s  0.00s 384.6M 152.7M     0B     0B root     root     N-   -    1 S     3   0% python3        
-   4311 38.58s 21.12s  0.00s  0.00s   2.6G  14.9M   2.6M  48.0K nathans  nathans  N-   -    4 S     0   0% pulseaudio     
    5896  9.77s 45.79s  1.03s  0.00s 726.1M  63.2M  20.0M  59.5M nathans  nathans  N-   -    3 S     4   0% hexchat        
- 149648  8.03s 47.42s  0.00s  0.00s   2.9G 147.9M  14.8M     0B nathans  nathans  N-   -   42 S     1   0% Web Content    
     848 16.55s 36.70s  1.39s  0.00s  42.7M  20.0M   6.3M     0B systemd- systemd- N-   -    1 S     0   0% systemd-resolv 
-   6902 14.42s 27.26s  1.45s  0.00s 573.0M  76.2M  10.2M  16.0K nathans  nathans  N-   -   10 S     5   0% slack          
-   4916  5.80s 31.71s  1.00s  0.00s 524.1M  11.8M 120.0K     0B nathans  nathans  N-   -    3 S     6   0% ibus-daemon    
+   4972  9.36s 35.77s  1.13s  0.00s 478.3M  15.0M 152.0K     0B root     root     N-   -    3 S     5   0% abrt-dbus      
+    960  9.45s 33.60s  1.00s  0.00s   2.8G  20.4M  16.3M     0B polkitd  polkitd  N-   -   12 S     1   0% polkitd        
+   1091 25.10s 17.14s  0.00s  0.00s   1.6G  62.3M  22.6M   8.0K mysql    mysql    N-   -   30 S     6   0% mysqld         
+   6351 10.32s 28.35s  0.00s  0.00s   2.6G 103.6M 128.0K     0B nathans  nathans  N-   -   35 S     6   0% WebExtensions  
+   1230 27.52s  8.57s  0.00s  0.00s 812.3M   7.3M 304.0K     0B root     root     N-   -   12 S     0   0% pcscd          
+   5007  7.01s 28.21s  0.26s  0.00s 366.4M   6.6M     0B     0B nathans  nathans  N-   -    3 S     7   0% ibus-engine-si 
      14 33.26s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     1   0% rcu_sched      
-   2725  9.26s 18.00s  0.00s  0.00s 538.8M  20.9M 296.0K     0B geoclue  geoclue  N-   -    4 S     2   0% geoclue        
-   6351  3.21s 23.26s  0.00s  0.00s   2.6G 103.6M 128.0K     0B nathans  nathans  N-   -   35 S     6   0% WebExtensions  
+ 122029 10.37s 21.13s  0.50s  0.00s  52.7G 161.4M 468.0K     0B nathans  nathans  N-   -   18 S     6   0% chrome         
+    905 12.81s 15.12s  1.02s  0.00s 302.5M   7.8M   2.2M     0B root     root     N-   -    2 S     5   0% thermald       
     881 10.41s 14.20s  0.87s  0.00s  33.9M   4.0M 836.0K     0B avahi    avahi    N-   -    1 S     4   0% avahi-daemon   
+    893  0.18s 20.30s  0.00s  0.00s 300.7M   6.3M   1.2M     0B root     root     N-   -    5 S     6   0% rngd           
+ 122007  3.57s 16.68s  0.84s  0.00s  36.6G 132.6M   4.0K     0B nathans  nathans  N-   -   13 S     3   0% chrome         
     835 20.21s  0.00s  1.64s  0.00s     0B     0B     0B   2.4G root     root     N-   -    1 S     7   0% jbd2/dm-2-8    
-    905  4.79s 15.10s  1.02s  0.00s 302.5M   7.8M   2.2M     0B root     root     N-   -    2 S     5   0% thermald       
- 510378  6.78s  7.24s  0.05s  0.00s 136.1M   6.3M  48.0K  48.0K pcp      pcp      N-   -    2 S     6   0% pmcd           
+   4945  2.95s 14.74s  0.49s  0.00s 545.0M  22.8M     0B     0B nathans  nathans  N-   -    4 S     7   0% ibus-extension 
+   6475  3.84s 13.10s  0.00s  0.00s   2.6G  83.7M 776.0K     0B nathans  nathans  N-   -   42 S     1   0% Privileged Con 
+ 510378  7.35s  8.02s  0.05s  0.00s 136.1M   6.3M  48.0K  48.0K pcp      pcp      N-   -    2 S     6   0% pmcd           
  511132  0.44s 13.47s  0.01s  0.00s  93.3M  63.6M 108.0K 402.9M pcp      pcp      N-   -    1 S     2   0% pmlogger       
-   6475  1.63s 10.86s  0.00s  0.00s   2.6G  83.7M 776.0K     0B nathans  nathans  N-   -   42 S     1   0% Privileged Con 
     139 12.39s  0.00s  0.54s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     7   0% kswapd0        
-   5007  1.78s  8.92s  0.26s  0.00s 366.4M   6.6M     0B     0B nathans  nathans  N-   -    3 S     7   0% ibus-engine-si 
- 122007  0.79s  9.68s  0.84s  0.00s  36.6G 132.6M   4.0K     0B nathans  nathans  N-   -   13 S     3   0% chrome         
-   4972  2.19s  7.64s  1.13s  0.00s 478.3M  15.0M 152.0K     0B root     root     N-   -    3 S     5   0% abrt-dbus      
-    960  2.48s  7.14s  1.00s  0.00s   2.8G  20.4M  16.3M     0B polkitd  polkitd  N-   -   12 S     1   0% polkitd        
- 251337  1.64s  7.66s  0.15s  0.00s  36.6G 128.2M 336.0K     0B nathans  nathans  N-   -   14 S     2   0% chrome         
+   7539  2.17s  8.84s  0.37s  0.00s  36.6G  84.8M   7.6M     0B nathans  nathans  N-   -   13 S     6   0% chrome         
+ 251337  1.83s  7.88s  0.15s  0.00s  36.6G 128.2M 336.0K     0B nathans  nathans  N-   -   14 S     2   0% chrome         
+    995  4.03s  5.23s  0.22s  0.00s 687.2M  19.2M   5.4M  18.2M root     root     N-   -    3 S     5   0% NetworkManager 
+   7257  4.22s  4.50s  0.00s  0.00s 647.6M   8.4M   2.8M     0B nathans  nathans  N-   -    5 S     7   0% sd_espeak-ng   
+   7253  3.93s  4.62s  0.00s  0.00s 350.3M   4.9M 136.0K     0B nathans  nathans  N-   -    3 S     2   0% sd_dummy       
    5620  5.98s  2.42s  0.09s  0.00s  27.5M   8.2M   4.0K     0B nm-openv nm-openv N-   -    1 S     6   0% openvpn        
  127014  3.08s  5.27s  0.00s  0.00s 515.8M   8.2M 104.0K     0B nathans  nathans  N-   -    3 S     6   0% gvfsd-dnssd    
-    995  3.83s  4.51s  0.22s  0.00s 687.2M  19.2M   5.4M  18.2M root     root     N-   -    3 S     5   0% NetworkManager 
       1  4.12s  4.05s  0.14s  0.00s 174.3M  19.7M  56.8M 200.0K root     root     N-   -    1 S     0   0% systemd        
-   7539  0.90s  6.58s  0.37s  0.00s  36.6G  84.8M   7.6M     0B nathans  nathans  N-   -   13 S     6   0% chrome         
- 122029  0.89s  6.13s  0.50s  0.00s  52.7G 161.4M 468.0K     0B nathans  nathans  N-   -   18 S     6   0% chrome         
+ 148070  1.24s  6.68s  0.45s  0.00s  40.6G 131.0M     0B     0B nathans  nathans  N-   -   14 S     0   0% chrome         
     883  5.14s  1.65s  0.18s  0.00s   2.4M   1.8M 248.0K     0B earlyoom earlyoom N-   -    1 S     4   0% earlyoom       
-   1239  0.87s  5.91s  0.21s  0.00s   1.9G  55.6M  57.3M 764.0K grafana  grafana  N-   -   17 S     5   0% grafana-server 
  567882  4.07s  2.10s  0.09s  0.00s  65.7M  31.1M  16.0K   4.0K nathans  nathans  N-   -    1 R     2   0% pmdaproc       
+ 536542  1.00s  5.11s  0.02s  0.00s  36.6G 119.6M 568.0K     0B nathans  nathans  N-   -   13 S     4   0% chrome         
+ 147351  1.01s  5.03s  0.70s  0.00s  36.6G 128.6M     0B     0B nathans  nathans  N-   -   13 S     1   0% chrome         
  510402  0.17s  5.71s  0.01s  0.00s 477.8M  30.4M 116.0K 180.0K root     root     N-   -    1 S     0   0% python3        
-   4945  0.75s  4.91s  0.49s  0.00s 545.0M  22.8M     0B     0B nathans  nathans  N-   -    4 S     7   0% ibus-extension 
- 148070  0.40s  4.46s  0.45s  0.00s  40.6G 131.0M     0B     0B nathans  nathans  N-   -   14 S     0   0% chrome         
- 507752  0.81s  3.47s  0.03s  0.00s 188.0M  88.9M 976.0K 544.0K pcp      pcp      N-   -    2 S     6   0% pmproxy        
+ 507752  1.32s  4.32s  0.03s  0.00s 188.0M  88.9M 976.0K 544.0K pcp      pcp      N-   -    2 S     6   0% pmproxy        
+   7803  0.84s  4.65s  0.78s  0.00s  40.6G 136.8M 636.0K     0B nathans  nathans  N-   -   14 S     5   0% chrome         
+ 251324  1.23s  4.23s  0.05s  0.00s  36.6G 109.1M   3.0M     0B nathans  nathans  N-   -   13 S     5   0% chrome         
+   4586  2.06s  2.81s  0.02s  0.00s 516.9M   6.8M 136.0K     0B nathans  nathans  N-   -    4 S     6   0% goa-identity-s 
+    897  1.24s  2.93s  0.00s  0.00s 278.9M  10.4M   1.3M     0B root     root     N-   -    3 S     6   0% rsyslogd       
  510388  1.84s  2.20s  0.01s  0.00s  25.9M   8.0M  80.0K  32.0K root     root     N-   -    1 S     4   0% pmdalinux      
- 251324  0.63s  3.38s  0.05s  0.00s  36.6G 109.1M   3.0M     0B nathans  nathans  N-   -   13 S     5   0% chrome         
     219  4.01s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     7   0% kworker/7:1H-k 
-   7803  0.34s  3.49s  0.78s  0.00s  40.6G 136.8M 636.0K     0B nathans  nathans  N-   -   14 S     5   0% chrome         
+ 148425  0.72s  3.18s  0.67s  0.00s  36.6G 121.6M     0B     0B nathans  nathans  N-   -   13 S     2   0% chrome         
+   2658  1.57s  2.25s  0.06s  0.00s 451.8M   8.4M 644.0K  96.0K root     root     N-   -    3 S     1   0% upowerd        
     946  1.58s  2.14s  0.12s  0.00s 271.9M  12.0M   2.7M  31.0M root     root     N-   -    1 S     6   0% sssd_nss       
- 536542  0.41s  3.21s  0.02s  0.00s  36.6G 119.6M 568.0K     0B nathans  nathans  N-   -   13 S     4   0% chrome         
  520551  3.55s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     3   0% kworker/3:3-ev 
+   4697  0.46s  2.93s  0.11s  0.00s   1.1G 338.4M  26.5M  14.8M nathans  nathans  N-   -    4 S     7   0% gnome-software 
      34  3.30s  0.04s  0.50s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     4   0% ksoftirqd/4    
-   2658  1.31s  2.02s  0.06s  0.00s 451.8M   8.4M 644.0K  96.0K root     root     N-   -    3 S     1   0% upowerd        
+ 510399  2.19s  0.98s  0.00s  0.00s  47.3M   8.8M  28.0K  56.0K pcp      pcp      N-   -    2 S     3   0% pmdaperfevent  
      44  3.02s  0.05s  0.58s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     6   0% ksoftirqd/6    
- 147351  0.21s  2.77s  0.70s  0.00s  36.6G 128.6M     0B     0B nathans  nathans  N-   -   13 S     1   0% chrome         
     639  1.73s  1.22s  0.18s  0.00s  93.8M  24.1M   1.9M 308.8M root     root     N-   -    1 S     1   0% systemd-journa 
      13  2.94s  0.01s  0.83s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     0   0% ksoftirqd/0    
      24  2.80s  0.15s  0.75s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     2   0% ksoftirqd/2    
-   4636  0.56s  2.31s  0.04s  0.00s 512.4M   7.0M   5.0M     0B nathans  nathans  N-   -    4 S     1   0% gsd-housekeepi 
+   1721  0.23s  2.68s  0.00s  0.00s   1.6G  13.7M  14.6M     0B grafana  grafana  N-   -   14 S     4   0% pcp_redis_data 
+   4636  0.56s  2.32s  0.04s  0.00s 512.4M   7.0M   5.0M     0B nathans  nathans  N-   -    4 S     1   0% gsd-housekeepi 
     541  2.61s  0.00s  0.28s  0.00s     0B     0B     0B 456.8M root     root     N-   -    1 S     5   0% jbd2/dm-0-8    
-   4697  0.12s  2.46s  0.11s  0.00s   1.1G 338.4M  26.5M  14.8M nathans  nathans  N-   -    4 S     7   0% gnome-software 
    7480  2.38s  0.14s  0.03s  0.00s  32.5G  15.4M 128.0K     0B nathans  nathans  N-   -    1 S     2   0% chrome         
  259641  0.76s  1.65s  0.06s  0.00s 558.1M  39.1M  11.9M  80.0K nathans  nathans  N-   -    2 S     6   0% kded4          
      49  2.17s  0.00s  0.63s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     7   0% ksoftirqd/7    
+ 115755  0.43s  1.66s  0.39s  0.00s  36.6G 122.6M 260.0K     0B nathans  nathans  N-   -   13 S     6   0% chrome         
+   7521  0.73s  1.30s  0.08s  0.00s  32.5G  47.6M 368.0K     0B nathans  nathans  N-   -    5 S     2   0% chrome         
  536069  1.94s  0.00s  0.14s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     2   0% kworker/u17:0- 
- 148425  0.18s  1.75s  0.67s  0.00s  36.6G 121.6M     0B     0B nathans  nathans  N-   -   13 S     2   0% chrome         
      19  1.92s  0.00s  0.38s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     1   0% ksoftirqd/1    
      39  1.72s  0.01s  0.24s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     5   0% ksoftirqd/5    
     276  1.69s  0.00s  0.65s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     4   0% kworker/4:1H-k 
@@ -116,16 +130,23 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  258588  1.64s  0.00s  0.74s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     7   0% kworker/7:0-kd 
  536169  1.60s  0.00s  0.03s  0.00s     0B     0B  12.0K     0B root     root     N-   -    1 I     2   0% kworker/u16:4- 
     318  1.58s  0.00s  0.46s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     6   0% kworker/6:1H-k 
+ 123743  0.46s  1.11s  0.31s  0.00s  36.6G  95.3M   4.0K     0B nathans  nathans  N-   -   13 S     7   0% chrome         
     163  1.55s  0.00s  0.33s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/0:1H-k 
    5919  0.65s  0.88s  0.00s  0.00s 230.2M   8.3M   6.6M     0B nathans  nathans  N-   -    1 S     0   0% bash           
     955  1.10s  0.39s  0.06s  0.00s 832.2M  13.2M 484.0K     0B root     root     N-   -    1 S     3   0% systemd-logind 
- 115755  0.18s  1.09s  0.39s  0.00s  36.6G 122.6M 260.0K     0B nathans  nathans  N-   -   13 S     6   0% chrome         
    4203  0.57s  0.66s  0.48s  0.00s   7.0M   4.6M     0B     0B nathans  nathans  N-   -    1 S     4   0% dbus-broker    
+   4605  0.10s  1.09s  0.16s  0.00s   1.5G  48.2M 704.0K     0B nathans  nathans  N-   -   11 S     6   0% evolution-cale 
+   2838  0.46s  0.72s  0.03s  0.00s   1.3G 728.3M  13.4M   3.2M root     root     N-   -    3 S     4   0% packagekitd    
  116371  0.47s  0.69s  0.00s  0.00s 230.5M   6.8M 660.0K     0B nathans  nathans  N-   -    1 S     2   0% bash           
-   7521  0.36s  0.72s  0.08s  0.00s  32.5G  47.6M 368.0K     0B nathans  nathans  N-   -    5 S     2   0% chrome         
-   4538  0.25s  0.72s  0.00s  0.00s 528.8M   9.1M   1.2M     0B nathans  nathans  N-   -    4 S     7   0% gvfs-udisks2-v 
-    884  0.18s  0.73s  0.05s  0.00s 562.6M  43.0M  16.8M     0B root     root     N-   -    4 S     3   0% firewalld      
+    898  0.03s  1.04s  0.00s  0.00s 150.2M   3.2M 204.0K     0B rtkit    rtkit    N-   -    3 S     5   0% rtkit-daemon   
+    884  0.20s  0.86s  0.05s  0.00s 562.6M  43.0M  16.8M     0B root     root     N-   -    4 S     3   0% firewalld      
+   4642  0.22s  0.81s  0.10s  0.00s 695.6M  22.1M 708.0K     0B nathans  nathans  N-   -    4 S     3   0% gsd-power      
+   4538  0.26s  0.76s  0.00s  0.00s 528.8M   9.1M   1.2M     0B nathans  nathans  N-   -    4 S     7   0% gvfs-udisks2-v 
+   7646  0.36s  0.64s  0.14s  0.00s  36.6G  75.1M 872.0K     0B nathans  nathans  N-   -   13 S     7   0% chrome         
     218  0.90s  0.00s  0.32s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     3   0% kworker/3:1H-e 
+   7762  0.32s  0.56s  0.07s  0.00s  32.7G  66.6M     0B     0B nathans  nathans  N-   -    6 S     4   0% chrome         
+   4628  0.33s  0.54s  0.06s  0.00s 791.2M  22.8M   1.1M     0B nathans  nathans  N-   -    4 S     1   0% gsd-color      
+   4653  0.10s  0.77s  0.05s  0.00s 663.2M   9.6M 360.0K     0B nathans  nathans  N-   -    4 S     1   0% gsd-sharing    
  532562  0.87s  0.00s  0.22s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     2   0% kworker/2:0-ev 
     936  0.27s  0.55s  0.06s  0.00s 259.9M  10.7M   1.3M 856.0K root     root     N-   -    1 S     4   0% sssd_be        
    7877  0.12s  0.69s  0.00s  0.00s 237.5M   9.8M   4.6M 824.0K nathans  nathans  N-   -    1 S     5   0% vim            
@@ -134,46 +155,41 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
    1981  0.13s  0.63s  0.04s  0.00s 289.5M  53.7M 108.0K     0B root     root     N-   -    1 S     2   0% python3        
     416  0.74s  0.00s  0.16s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     1   0% kworker/1:1H-k 
     285  0.73s  0.00s  0.18s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     5   0% kworker/5:1H-k 
-   4628  0.30s  0.39s  0.06s  0.00s 791.2M  22.8M   1.1M     0B nathans  nathans  N-   -    4 S     1   0% gsd-color      
  510389  0.17s  0.50s  0.00s  0.00s 251.7M  20.2M     0B   4.0K root     root     N-   -    1 S     2   0% python3        
- 123743  0.12s  0.52s  0.31s  0.00s  36.6G  95.3M   4.0K     0B nathans  nathans  N-   -   13 S     7   0% chrome         
+   4652  0.05s  0.59s  0.16s  0.00s   1.2G  47.2M   1.5M     0B nathans  nathans  N-   -    6 S     2   0% evolution-alar 
     665  0.33s  0.27s  0.30s  0.00s  52.2M  12.8M   7.1M     0B root     root     N-   -    1 S     6   0% systemd-udevd  
    1274  0.19s  0.36s  0.05s  0.00s  27.2M  16.5M   1.5M     0B nathans  nathans  N-   -    1 S     2   0% systemd        
+   4521  0.07s  0.45s  0.02s  0.00s   1.3G  42.2M  29.6M  24.0K nathans  nathans  N-   -    4 S     1   0% evolution-sour 
+   6626  0.30s  0.21s  0.00s  0.00s 180.2M  26.0M     0B     0B nathans  nathans  N-   -    3 S     1   0% RDD Process    
  540473  0.51s  0.00s  0.09s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/0:0-cg 
-   2838  0.16s  0.34s  0.03s  0.00s   1.3G 728.3M  13.4M   3.2M root     root     N-   -    3 S     4   0% packagekitd    
-   7646  0.14s  0.34s  0.14s  0.00s  36.6G  75.1M 872.0K     0B nathans  nathans  N-   -   13 S     7   0% chrome         
-   4586  0.07s  0.41s  0.02s  0.00s 516.9M   6.8M 136.0K     0B nathans  nathans  N-   -    4 S     6   0% goa-identity-s 
+    849  0.26s  0.20s  0.01s  0.00s  97.2M   2.6M 332.0K   4.8M root     root     N-   -    3 S     5   0% auditd         
  558573  0.46s  0.00s  0.00s  0.00s     0B     0B   8.0K     0B root     root     N-   -    1 I     7   0% kworker/u16:3- 
-   4642  0.07s  0.37s  0.10s  0.00s 695.6M  22.1M 708.0K     0B nathans  nathans  N-   -    4 S     3   0% gsd-power      
-   4653  0.02s  0.40s  0.05s  0.00s 663.2M   9.6M 360.0K     0B nathans  nathans  N-   -    4 S     1   0% gsd-sharing    
+   4515  0.06s  0.38s  0.08s  0.00s 913.9M  32.9M   8.9M     0B nathans  nathans  N-   -    6 S     3   0% gnome-shell-ca 
+   4639  0.08s  0.36s  0.11s  0.00s   1.1G  23.6M  96.0K     0B nathans  nathans  N-   -    4 S     5   0% gsd-media-keys 
  533793  0.41s  0.01s  0.07s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     1   0% kworker/1:3-ev 
-   4639  0.08s  0.33s  0.11s  0.00s   1.1G  23.6M  96.0K     0B nathans  nathans  N-   -    4 S     5   0% gsd-media-keys 
-   4652  0.03s  0.37s  0.16s  0.00s   1.2G  47.2M   1.5M     0B nathans  nathans  N-   -    6 S     2   0% evolution-alar 
-   4521  0.04s  0.30s  0.02s  0.00s   1.3G  42.2M  29.6M  24.0K nathans  nathans  N-   -    4 S     1   0% evolution-sour 
+   4802  0.03s  0.31s  0.08s  0.00s   1.0G  36.0M 780.0K     0B nathans  nathans  N-   -    6 S     1   0% evolution-addr 
  558544  0.34s  0.00s  0.02s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     6   0% kworker/u17:2- 
     901  0.12s  0.21s  0.09s  0.00s 257.2M   8.5M   4.1M 120.0K root     root     N-   -    1 S     4   0% sssd           
-    849  0.17s  0.16s  0.01s  0.00s  97.2M   2.6M 332.0K   4.8M root     root     N-   -    3 S     5   0% auditd         
-    893  0.18s  0.14s  0.00s  0.00s 300.7M   6.3M   1.2M     0B root     root     N-   -    5 S     6   0% rngd           
-   4605  0.02s  0.29s  0.16s  0.00s   1.5G  48.2M 704.0K     0B nathans  nathans  N-   -   11 S     6   0% evolution-cale 
- 510399  0.19s  0.10s  0.00s  0.00s  47.3M   8.8M  28.0K  56.0K pcp      pcp      N-   -    2 S     3   0% pmdaperfevent  
+   4924  0.05s  0.25s  0.06s  0.00s 858.5M  24.7M 128.0K     0B nathans  nathans  N-   -    8 S     6   0% gsd-xsettings  
+    954  0.13s  0.17s  0.00s  0.00s 528.5M   7.2M   1.5M   8.0K root     root     N-   -    4 S     2   0% accounts-daemo 
    1258  0.25s  0.04s  0.01s  0.00s 227.9M   3.7M 240.0K     0B root     root     N-   -    1 S     2   0% crond          
    1635  0.22s  0.07s  0.05s  0.00s  24.8M   1.9M     0B     0B dnsmasq  dnsmasq  N-   -    1 S     0   0% dnsmasq        
+   4541  0.16s  0.12s  0.00s  0.00s 394.4M  12.8M   1.8M     0B root     root     N-   -    5 S     6   0% udisksd        
    1673  0.21s  0.07s  0.07s  0.00s  24.8M   1.8M     0B     0B dnsmasq  dnsmasq  N-   -    1 S     7   0% dnsmasq        
+   3365  0.04s  0.23s  0.03s  0.00s 527.0M  10.9M 908.0K     0B colord   colord   N-   -    4 S     1   0% colord         
    7263  0.14s  0.11s  0.00s  0.00s 363.4M   4.0M     0B     0B nathans  nathans  N-   -    3 S     4   0% speech-dispatc 
-   4924  0.04s  0.20s  0.06s  0.00s 858.5M  24.7M 128.0K     0B nathans  nathans  N-   -    8 S     6   0% gsd-xsettings  
-   4802  0.01s  0.21s  0.08s  0.00s   1.0G  36.0M 780.0K     0B nathans  nathans  N-   -    6 S     1   0% evolution-addr 
     902  0.12s  0.10s  0.01s  0.00s 437.8M   6.1M 164.0K     0B root     root     N-   -    3 S     4   0% switcheroo-con 
  558402  0.21s  0.00s  0.05s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     4   0% kworker/4:3-mm 
  510395  0.06s  0.14s  0.00s  0.00s 266.9M  23.7M     0B   4.0K pcp      pcp      N-   -    1 S     6   0% python3        
  529850  0.07s  0.13s  0.00s  0.00s 229.0M   7.2M 360.0K     0B nathans  nathans  N-   -    1 S     0   0% bash           
-   7762  0.07s  0.12s  0.07s  0.00s  32.7G  66.6M     0B     0B nathans  nathans  N-   -    6 S     4   0% chrome         
    1157  0.09s  0.10s  0.00s  0.00s 374.3M  15.5M   1.4M     0B root     root     N-   -    1 S     4   0% abrt-dump-jour 
-   4541  0.08s  0.11s  0.00s  0.00s 394.4M  12.8M   1.8M     0B root     root     N-   -    5 S     6   0% udisksd        
+ 561040  0.10s  0.09s  0.00s  0.00s   2.4G  11.0M     0B     0B apache   apache   N-   -   81 S     0   0% /usr/sbin/http 
  510387  0.11s  0.08s  0.00s  0.00s  36.5M   7.5M  32.0K   4.0K pcp      pcp      N-   -    1 S     5   0% pmdasample     
+   4063  0.03s  0.16s  0.01s  0.00s 729.8M   6.2M 480.0K  16.0K nathans  nathans  N-   -    4 S     1   0% gnome-keyring- 
  558565  0.19s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     3   0% kworker/u16:2- 
    1158  0.08s  0.10s  0.00s  0.00s 359.2M  16.4M   1.2M     0B root     root     N-   -    1 S     3   0% abrt-dump-jour 
-   3365  0.03s  0.15s  0.03s  0.00s 527.0M  10.9M 908.0K     0B colord   colord   N-   -    4 S     1   0% colord         
     851  0.06s  0.12s  0.00s  0.00s   7.9M   3.9M 348.0K     0B root     root     N-   -    1 S     5   0% sedispatch     
+   4274  0.05s  0.12s  0.03s  0.00s 816.5M  12.1M 384.0K     0B nathans  nathans  N-   -    4 S     7   0% gnome-session- 
  559476  0.17s  0.00s  0.03s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     5   0% kworker/5:2-ev 
    1156  0.08s  0.08s  0.01s  0.00s 358.0M  15.3M   1.3M   8.0K root     root     N-   -    1 S     5   0% abrt-dump-jour 
       2  0.16s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     0   0% kthreadd       
@@ -185,59 +201,59 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
      28  0.15s  0.00s  0.59s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     3   0% migration/3    
      33  0.15s  0.00s  0.37s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     4   0% migration/4    
      38  0.15s  0.00s  0.30s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     5   0% migration/5    
+   4678  0.01s  0.13s  0.09s  0.00s 614.1M  20.8M     0B     0B nathans  nathans  N-   -    4 S     7   0% gsd-wacom      
+ 561042  0.10s  0.04s  0.00s  0.00s   2.2G  12.1M     0B     0B apache   apache   N-   -   65 S     2   0% /usr/sbin/http 
+ 561041  0.10s  0.04s  0.00s  0.00s   2.2G  11.8M     0B     0B apache   apache   N-   -   65 S     5   0% /usr/sbin/http 
     926  0.10s  0.04s  0.01s  0.00s  91.8M   3.5M 388.0K 188.0K chrony   chrony   N-   -    1 S     0   0% chronyd        
-   4678  0.01s  0.12s  0.09s  0.00s 614.1M  20.8M     0B     0B nathans  nathans  N-   -    4 S     7   0% gsd-wacom      
+   4638  0.01s  0.12s  0.06s  0.00s 613.7M  20.4M  48.0K     0B nathans  nathans  N-   -    4 S     7   0% gsd-keyboard   
+   4593  0.09s  0.04s  0.00s  0.00s 514.4M   7.1M 100.0K     0B nathans  nathans  N-   -    4 S     4   0% gvfs-afc-volum 
  510394  0.08s  0.05s  0.00s  0.00s  16.2M   6.5M     0B   4.0K root     root     N-   -    1 S     1   0% pmdakvm        
+   4565  0.02s  0.10s  0.01s  0.00s 817.1M  28.3M 588.0K   4.0K nathans  nathans  N-   -    4 S     0   0% goa-daemon     
    4951  0.02s  0.10s  0.04s  0.00s 540.0M  20.3M 136.0K     0B nathans  nathans  N-   -    3 S     1   0% ibus-x11       
-   4638  0.01s  0.10s  0.06s  0.00s 613.7M  20.4M  48.0K     0B nathans  nathans  N-   -    4 S     7   0% gsd-keyboard   
-   4274  0.03s  0.08s  0.03s  0.00s 816.5M  12.1M 384.0K     0B nathans  nathans  N-   -    4 S     7   0% gnome-session- 
  547825  0.11s  0.00s  0.02s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     5   0% kworker/5:0-cg 
  510406  0.07s  0.03s  0.00s  0.00s  16.2M   6.4M   4.0K   1.5M root     root     N-   -    1 S     5   0% pmdazfs        
-   4515  0.02s  0.08s  0.08s  0.00s 913.9M  32.9M   8.9M     0B nathans  nathans  N-   -    6 S     3   0% gnome-shell-ca 
  530954  0.05s  0.05s  0.00s  0.00s 228.8M   7.0M     0B     0B nathans  nathans  N-   -    1 S     4   0% bash           
-   4063  0.02s  0.08s  0.01s  0.00s 729.8M   6.2M 480.0K  16.0K nathans  nathans  N-   -    4 S     1   0% gnome-keyring- 
    4608  0.01s  0.08s  0.00s  0.00s   3.1G  19.7M     0B     0B nathans  nathans  N-   -   11 S     5   0% gjs            
  537161  0.03s  0.06s  0.00s  0.00s 229.0M   7.2M   8.0K     0B nathans  nathans  N-   -    1 S     2   0% bash           
  553270  0.09s  0.00s  0.01s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     6   0% kworker/6:3-ev 
  565955  0.09s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/u16:0- 
-   4565  0.01s  0.07s  0.01s  0.00s 817.1M  28.3M 588.0K   4.0K nathans  nathans  N-   -    4 S     0   0% goa-daemon     
+ 127103  0.01s  0.07s  0.00s  0.00s 707.0M  22.6M   3.4M  32.0K nathans  nathans  N-   -    5 S     0   0% tracker-store  
      55  0.08s  0.00s  0.01s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     4   0% kauditd        
     943  0.06s  0.02s  0.19s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     5   0% psimon         
  558607  0.04s  0.03s  0.00s  0.00s 312.0M  27.1M  12.5M   4.0K root     root     N-   -    1 S     6   0% php-fpm        
    4701  0.01s  0.06s  0.03s  0.00s 481.1M  16.9M   1.2M     0B nathans  nathans  N-   -    4 S     3   0% abrt-applet    
  561037  0.03s  0.04s  0.00s  0.00s  40.1M  16.2M  12.0K   4.0K root     root     N-   -    1 S     0   0% /usr/sbin/http 
-   7257  0.06s  0.01s  0.00s  0.00s 647.6M   8.4M   2.8M     0B nathans  nathans  N-   -    5 S     7   0% sd_espeak-ng   
  541441  0.02s  0.05s  0.00s  0.00s 228.9M   7.1M     0B     0B nathans  nathans  N-   -    1 S     4   0% bash           
- 127103  0.01s  0.05s  0.00s  0.00s 707.0M  22.6M   3.4M  32.0K nathans  nathans  N-   -    5 S     0   0% tracker-store  
-   4672  0.01s  0.05s  0.07s  0.00s 594.8M  11.8M 196.0K     0B nathans  nathans  N-   -    6 S     5   0% gsd-smartcard  
+   4673  0.01s  0.06s  0.02s  0.00s 226.5M   5.8M  52.0K     0B nathans  nathans  N-   -    3 S     1   0% gsd-disk-utili 
+ 536573  0.02s  0.04s  0.00s  0.00s  36.6G  58.0M     0B     0B nathans  nathans  N-   -   13 S     0   0% chrome         
    1008  0.04s  0.02s  0.00s  0.00s 255.7M  10.3M   2.0M 236.0K root     root     N-   -    1 S     6   0% cupsd          
    6807  0.01s  0.05s  0.00s  0.00s 228.8M   6.5M     0B     0B nathans  nathans  N-   -    1 S     6   0% bash           
     899  0.03s  0.03s  0.00s  0.00s  11.2M   5.3M   2.2M     0B root     root     N-   -    1 S     7   0% smartd         
  561022  0.06s  0.00s  0.01s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     1   0% kworker/1:0-mm 
-   7507  0.01s  0.04s  0.01s  0.00s  32.5G 106.0M 492.0K     0B nathans  nathans  N-   -    9 S     6   0% chrome         
    7476  0.02s  0.03s  0.00s  0.00s  32.5G  52.2M   5.3M     0B nathans  nathans  N-   -    1 S     7   0% chrome         
    7475  0.02s  0.03s  0.00s  0.00s  32.5G  51.1M   1.6M     0B nathans  nathans  N-   -    1 S     7   0% chrome         
-   6626  0.02s  0.03s  0.00s  0.00s 180.2M  26.0M     0B     0B nathans  nathans  N-   -    3 S     1   0% RDD Process    
     880  0.02s  0.03s  0.02s  0.00s 379.8M   8.3M   5.7M     0B root     root     N-   -    4 S     1   0% ModemManager   
  511710  0.03s  0.02s  0.00s  0.00s  36.5M   8.1M     0B 620.0K pcp      pcp      N-   -    1 S     2   0% pmie           
  510401  0.04s  0.01s  0.00s  0.00s  16.6M   6.9M     0B   4.0K root     root     N-   -    1 S     1   0% pmdadm         
    6019  0.01s  0.04s  0.00s  0.00s 228.8M   6.5M  24.0K     0B nathans  nathans  N-   -    1 S     4   0% bash           
-   1091  0.03s  0.01s  0.00s  0.00s   1.6G  62.3M  22.6M   8.0K mysql    mysql    N-   -   30 S     6   0% mysqld         
- 536573  0.01s  0.03s  0.00s  0.00s  36.6G  58.0M     0B     0B nathans  nathans  N-   -   13 S     0   0% chrome         
-    954  0.02s  0.02s  0.00s  0.00s 528.5M   7.2M   1.5M   8.0K root     root     N-   -    4 S     2   0% accounts-daemo 
+   4958  0.01s  0.04s  0.00s  0.00s 438.3M   6.1M     0B     0B nathans  nathans  N-   -    3 S     1   0% ibus-portal    
+   4645  0.01s  0.03s  0.06s  0.00s 462.8M  12.0M     0B     0B nathans  nathans  N-   -    3 S     7   0% gsd-print-noti 
+   3464  0.01s  0.03s  0.00s  0.00s 547.8M  11.7M 300.0K   4.0K root     root     N-   -    3 S     5   0% gdm-session-wo 
  510383  0.03s  0.01s  0.00s  0.00s  16.9M   7.0M 432.0K  12.0K root     root     N-   -    1 S     6   0% pmdaroot       
  566343  0.01s  0.03s  0.00s  0.00s 228.7M   6.9M     0B     0B pcpqa    pcpqa    N-   -    1 S     0   0% bash           
  510386  0.02s  0.02s  0.00s  0.00s  16.1M   5.8M     0B   4.0K root     root     N-   -    1 S     3   0% pmdaxfs        
     917  0.01s  0.03s  0.02s  0.00s   9.3M   3.9M   3.5M     0B dbus     dbus     N-   -    1 S     1   0% dbus-broker-la 
-    898  0.03s  0.01s  0.00s  0.00s 150.2M   3.2M 204.0K     0B rtkit    rtkit    N-   -    3 S     5   0% rtkit-daemon   
-   6909  0.01s  0.02s  0.00s  0.00s 505.3M  66.0M 192.0K     0B nathans  nathans  N-   -    6 S     5   0% slack          
    6867  0.01s  0.02s  0.00s  0.00s 413.6M  30.2M   2.6M     0B nathans  nathans  N-   -    1 S     2   0% slack          
     935  0.01s  0.02s  0.00s  0.00s 477.8M  13.0M   4.8M     0B root     root     N-   -    3 S     7   0% abrtd          
-   4645  0.01s  0.02s  0.06s  0.00s 462.8M  12.0M     0B     0B nathans  nathans  N-   -    3 S     7   0% gsd-print-noti 
-   3464  0.01s  0.02s  0.00s  0.00s 547.8M  11.7M 300.0K   4.0K root     root     N-   -    3 S     5   0% gdm-session-wo 
+   4633  0.00s  0.03s  0.04s  0.00s 542.9M  12.0M     0B     0B nathans  nathans  N-   -    4 S     4   0% gsd-datetime   
+   4675  0.00s  0.03s  0.02s  0.00s 520.1M   8.3M     0B     0B nathans  nathans  N-   -    4 S     5   0% gsd-sound      
  562091  0.02s  0.01s  0.00s  0.00s  36.9M   7.5M  48.0K   4.0K pcp      pcp      N-   -    1 S     7   0% pmdaapache     
-   4673  0.00s  0.03s  0.02s  0.00s 226.5M   5.8M  52.0K     0B nathans  nathans  N-   -    3 S     1   0% gsd-disk-utili 
+   4484  0.00s  0.03s  0.00s  0.00s 441.4M   7.0M 332.0K     0B nathans  nathans  N-   -    3 S     4   0% gvfsd          
+   4609  0.00s  0.03s  0.05s  0.00s 157.5M   6.7M     0B     0B nathans  nathans  N-   -    3 S     6   0% at-spi2-regist 
+   4676  0.01s  0.02s  0.01s  0.00s 655.7M   6.5M  48.0K     0B nathans  nathans  N-   -    4 S     2   0% gsd-usb-protec 
+   4646  0.00s  0.03s  0.03s  0.00s 655.1M   5.8M     0B     0B nathans  nathans  N-   -    3 S     7   0% gsd-rfkill     
    8328  0.01s  0.02s  0.00s  0.00s 234.1M   5.7M 204.0K     0B nathans  nathans  N-   -    1 S     6   0% gconfd-2       
+   4648  0.00s  0.03s  0.04s  0.00s 438.7M   5.5M  28.0K     0B nathans  nathans  N-   -    3 S     6   0% gsd-screensave 
    2840  0.02s  0.01s  0.01s  0.00s  12.9M   4.2M   1.7M     0B root     root     N-   -    1 S     5   0% wpa_supplicant 
     882  0.01s  0.02s  0.00s  0.00s   9.1M   4.1M   1.4M     0B root     root     N-   -    1 S     2   0% bluetoothd     
  567863  0.03s  0.00s  0.01s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/0:1-ev 
@@ -245,36 +261,25 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  569789  0.01s  0.00s  0.00s  0.00s  23.4M  11.7M     0B   1.2M nathans  nathans  N-   -    1 S     5   0% pmlogger       
    6868  0.00s  0.02s  0.00s  0.00s 413.6M  30.2M   2.3M     0B nathans  nathans  N-   -    1 S     0   0% slack          
  259637  0.01s  0.01s  0.00s  0.00s 301.8M  15.5M 844.0K     0B nathans  nathans  N-   -    1 S     0   0% kdeinit4       
-   4633  0.00s  0.02s  0.04s  0.00s 542.9M  12.0M     0B     0B nathans  nathans  N-   -    4 S     4   0% gsd-datetime   
    4205  0.01s  0.01s  0.00s  0.00s 463.8M  10.7M 608.0K     0B nathans  nathans  N-   -    4 S     5   0% gnome-session- 
    1261  0.01s  0.01s  0.01s  0.00s 457.4M   7.9M 868.0K   4.0K root     root     N-   -    3 S     0   0% gdm            
-   4484  0.00s  0.02s  0.00s  0.00s 441.4M   7.0M 332.0K     0B nathans  nathans  N-   -    3 S     4   0% gvfsd          
+   4627  0.00s  0.02s  0.02s  0.00s 511.2M   6.0M     0B     0B nathans  nathans  N-   -    4 S     5   0% gsd-a11y-setti 
     889  0.01s  0.01s  0.00s  0.00s 224.1M   4.2M 568.0K     0B root     root     N-   -    3 S     6   0% low-memory-mon 
  569076  0.02s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/u16:1- 
  259639  0.00s  0.01s  0.00s  0.00s 306.8M  14.8M   3.6M     0B nathans  nathans  N-   -    1 S     6   0% klauncher      
    4821  0.00s  0.01s  0.00s  0.00s 544.8M  13.4M  20.0K     0B nathans  nathans  N-   -    3 S     6   0% gsd-printer    
-   4675  0.00s  0.01s  0.02s  0.00s 520.1M   8.3M     0B     0B nathans  nathans  N-   -    4 S     5   0% gsd-sound      
-   4609  0.00s  0.01s  0.05s  0.00s 157.5M   6.7M     0B     0B nathans  nathans  N-   -    3 S     6   0% at-spi2-regist 
-   4676  0.01s  0.00s  0.01s  0.00s 655.7M   6.5M  48.0K     0B nathans  nathans  N-   -    4 S     2   0% gsd-usb-protec 
     988  0.01s  0.00s  0.00s  0.00s 227.2M   6.3M 304.0K     0B root     root     N-   -    3 S     3   0% uresourced     
    4530  0.00s  0.01s  0.00s  0.00s 152.8M   6.1M  76.0K 700.0K nathans  nathans  N-   -    3 S     0   0% dconf-service  
-   4646  0.00s  0.01s  0.03s  0.00s 655.1M   5.8M     0B     0B nathans  nathans  N-   -    3 S     7   0% gsd-rfkill     
-   4648  0.00s  0.01s  0.04s  0.00s 438.7M   5.5M  28.0K     0B nathans  nathans  N-   -    3 S     6   0% gsd-screensave 
    4202  0.00s  0.01s  0.01s  0.00s  17.8M   3.6M 136.0K     0B nathans  nathans  N-   -    1 S     2   0% dbus-broker-la 
     944  0.00s  0.01s  0.01s  0.00s   5.0M   3.0M  56.0K 112.0K root     root     N-   -    1 S     7   0% alsactl        
    1257  0.01s  0.00s  0.00s  0.00s  20.5M   2.8M 168.0K     0B root     root     N-   -    1 S     6   0% atd            
      15  0.01s  0.00s  0.72s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     0   0% migration/0    
  569077  0.01s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     4   0% kworker/u16:5- 
-   1721  0.00s  0.00s  0.00s  0.00s   1.6G  13.7M  14.6M     0B grafana  grafana  N-   -   14 S     4   0% pcp_redis_data 
- 561042  0.00s  0.00s  0.00s  0.00s   2.2G  12.1M     0B     0B apache   apache   N-   -   65 S     2   0% /usr/sbin/http 
- 561041  0.00s  0.00s  0.00s  0.00s   2.2G  11.8M     0B     0B apache   apache   N-   -   65 S     5   0% /usr/sbin/http 
    6870  0.00s  0.00s  0.00s  0.00s 413.6M  11.2M     0B     0B nathans  nathans  N-   -    1 S     6   0% slack          
- 561040  0.00s  0.00s  0.00s  0.00s   2.4G  11.0M     0B     0B apache   apache   N-   -   81 S     0   0% /usr/sbin/http 
  558615  0.00s  0.00s  0.00s  0.00s 323.5M  10.5M     0B     0B apache   apache   N-   -    1 S     4   0% php-fpm        
  558616  0.00s  0.00s  0.00s  0.00s 323.5M  10.5M     0B     0B apache   apache   N-   -    1 S     5   0% php-fpm        
  558612  0.00s  0.00s  0.00s  0.00s 323.5M  10.5M     0B     0B apache   apache   N-   -    1 S     4   0% php-fpm        
  132118  0.00s  0.00s  0.00s  0.00s 452.5M  10.5M  52.0K     0B nathans  nathans  N-   -    3 S     4   0% gvfsd-http     
-    897  0.00s  0.00s  0.00s  0.00s 278.9M  10.4M   1.3M     0B root     root     N-   -    3 S     6   0% rsyslogd       
  558613  0.00s  0.00s  0.00s  0.00s 323.5M  10.3M     0B     0B apache   apache   N-   -    1 S     1   0% php-fpm        
  558614  0.00s  0.00s  0.00s  0.00s 323.5M  10.3M     0B     0B apache   apache   N-   -    1 S     0   0% php-fpm        
  566340  0.00s  0.00s  0.00s  0.00s 256.3M   9.1M     0B     0B nathans  root     N-   -    1 S     3   0% sudo           
@@ -283,16 +288,12 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  126992  0.00s  0.00s  0.00s  0.00s 586.2M   7.9M 156.0K     0B nathans  nathans  N-   -    4 S     6   0% gvfsd-network  
  126984  0.00s  0.00s  0.00s  0.00s 513.6M   7.7M 184.0K     0B nathans  nathans  N-   -    3 S     4   0% gvfsd-trash    
  566342  0.00s  0.00s  0.00s  0.00s 254.5M   7.3M     0B   4.0K root     root     N-   -    1 S     3   0% su             
-   1230  0.00s  0.00s  0.00s  0.00s 812.3M   7.3M 304.0K     0B root     root     N-   -   12 S     0   0% pcscd          
  510409  0.00s  0.00s  0.00s  0.00s  36.3M   7.2M  52.0K   4.0K pcp      pcp      N-   -    1 S     3   0% pmdasimple     
  510393  0.00s  0.00s  0.00s  0.00s  36.3M   7.1M     0B   4.0K pcp      pcp      N-   -    1 S     3   0% pmdamounts     
-   4593  0.00s  0.00s  0.00s  0.00s 514.4M   7.1M 100.0K     0B nathans  nathans  N-   -    4 S     4   0% gvfs-afc-volum 
    4453  0.00s  0.00s  0.00s  0.00s 301.1M   6.9M     0B     0B nathans  nathans  N-   -    4 S     0   0% at-spi-bus-lau 
    1012  0.00s  0.00s  0.00s  0.00s  29.3M   6.7M   1.1M     0B root     root     N-   -    1 S     6   0% sshd           
    4943  0.00s  0.00s  0.00s  0.00s 438.6M   6.2M     0B     0B nathans  nathans  N-   -    4 S     0   0% ibus-dconf     
-   4958  0.00s  0.00s  0.00s  0.00s 438.3M   6.1M     0B     0B nathans  nathans  N-   -    3 S     1   0% ibus-portal    
    4575  0.00s  0.00s  0.00s  0.00s 366.1M   6.1M 204.0K 124.0K nathans  nathans  N-   -    3 S     6   0% gvfsd-metadata 
-   4627  0.00s  0.00s  0.02s  0.00s 511.2M   6.0M     0B     0B nathans  nathans  N-   -    4 S     5   0% gsd-a11y-setti 
    4574  0.00s  0.00s  0.00s  0.00s 438.3M   5.9M 112.0K     0B nathans  nathans  N-   -    3 S     7   0% gvfs-goa-volum 
    1337  0.00s  0.00s  0.00s  0.00s  56.8M   5.8M     0B     0B pcpqa    pcpqa    N-   -    1 S     6   0% (sd-pam        
    1338  0.00s  0.00s  0.00s  0.00s  56.8M   5.8M     0B     0B nathans  nathans  N-   -    1 S     6   0% (sd-pam        
@@ -300,7 +301,6 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
    4566  0.00s  0.00s  0.00s  0.00s 440.0M   5.7M 620.0K     0B nathans  nathans  N-   -    3 S     3   0% gvfs-gphoto2-v 
    4200  0.00s  0.00s  0.00s  0.00s 365.3M   5.3M   4.0K     0B nathans  nathans  N-   -    3 S     5   0% gdm-wayland-se 
    4570  0.00s  0.00s  0.00s  0.00s 437.8M   5.0M 104.0K     0B nathans  nathans  N-   -    3 S     1   0% gvfs-mtp-volum 
-   7253  0.00s  0.00s  0.00s  0.00s 350.3M   4.9M 136.0K     0B nathans  nathans  N-   -    3 S     2   0% sd_dummy       
    4511  0.00s  0.00s  0.00s  0.00s 437.3M   4.4M   4.0K     0B nathans  nathans  N-   -    3 S     1   0% xdg-permission 
    4271  0.00s  0.00s  0.00s  0.00s 155.2M   4.3M     0B     0B nathans  nathans  N-   -    3 S     5   0% uresourced     
  569742  0.00s  0.00s  0.00s  0.00s 217.3M   3.9M     0B     0B nathans  nathans  N-   -    1 S     6   0% mk.atop-thread 
@@ -411,7 +411,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
 
 
 ATOP - shard                                 2021/04/20  15:30:38                                 -----------------                                   1s elapsed
-PRC | sys    0.11s |  user   0.07s | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     4 |  no  procacct |
+PRC | sys    0.14s |  user   0.09s | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     4 |  no  procacct |
 CPU | sys      15% |  user     12% | irq      25% |  idle    748% | wait      0% |  steal     0% | guest     0% |  ipc     0.62 | cycl  186MHz |  curf 3.56GHz |
 cpu | sys      11% |  user      5% | irq       3% |  idle     81% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     1.03 | cycl  550MHz |   |
 cpu | sys       0% |  user      2% | irq       4% |  idle     94% | cpu006 w  0% |  steal     0% | guest     0% |  ipc     0.47 | cycl  190MHz |   |
@@ -432,48 +432,39 @@ NET | lo      ---- |  pcki      26 | pcko      26 |  sp    0 Mbps | si   24 Kbps
 
     PID SYSCPU USRCPU RDELAY BDELAY  VGROW  RGROW  RDDSK  WRDSK RUID     EUID     ST EXC  THR S CPUNR  CPU CMD            
  567882  0.10s  0.04s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 R     2  15% pmdaproc       
-   6569  0.00s  0.01s  0.00s  0.00s     0B 800.0K     0B     0B nathans  nathans  --   -   46 S     7   2% Web Content    
+   6098  0.01s  0.01s  0.00s  0.00s -20.0K   1.7M     0B     0B nathans  nathans  --   -  160 S     5   3% firefox        
+   6569  0.00s  0.02s  0.00s  0.00s     0B 800.0K     0B     0B nathans  nathans  --   -   46 S     7   3% Web Content    
  569789  0.00s  0.01s  0.00s  0.00s  -4.0K 236.0K     0B   1.1M nathans  nathans  --   -    1 S     5   1% pmlogger       
+ 112368  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     3   1% Web Content    
  510378  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B pcp      pcp      --   -    2 S     0   0% pmcd           
-   6098  0.00s  0.00s  0.00s  0.00s -20.0K   1.7M     0B     0B nathans  nathans  --   -  160 S     5   0% firefox        
- 112334  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     6   0% Web Content    
-   6968  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   15 S     6   0% slack          
    4311  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    4 S     0   0% pulseaudio     
+ 112334  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     6   0% Web Content    
+   6532  0.00s  0.00s  0.00s  0.00s     0B 136.0K     0B     0B nathans  nathans  --   -   48 S     2   0% Web Content    
+   6968  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   15 S     6   0% slack          
  510388  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     4   0% pmdalinux      
     905  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    2 S     4   0% thermald       
  510406  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     5   0% pmdazfs        
- 112368  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     3   0% Web Content    
    7581  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   17 S     4   0% chrome         
    4307  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   21 S     4   0% gnome-shell    
    6667  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   43 S     6   0% Web Content    
-   8038  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   16 S     2   0% chrome         
-   6532  0.00s  0.00s  0.00s  0.00s     0B 136.0K     0B     0B nathans  nathans  --   -   48 S     2   0% Web Content    
+   7465  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   26 S     4   0% chrome         
    6234  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   45 S     3   0% Web Content    
    6289  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   51 S     3   0% Web Content    
- 512101  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     3   0% python3        
  149648  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     1   0% Web Content    
  251337  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   14 S     2   0% chrome         
    1242  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B redis    redis    --   -   37 S     6   0% redis-server   
-   6351  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   35 S     6   0% WebExtensions  
-   6475  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     1   0% Privileged Con 
- 259641  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    2 S     6   0% kded4          
-   6626  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     1   0% RDD Process    
    2725  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B geoclue  geoclue  --   -    4 S     4   0% geoclue        
     960  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B polkitd  polkitd  --   -   12 S     5   0% polkitd        
     848  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B systemd- systemd- --   -    1 S     1   0% systemd-resolv 
-   7480  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     2   0% chrome         
    4972  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    3 S     0   0% abrt-dbus      
  561042  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   65 S     2   0% /usr/sbin/http 
+ 561041  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   65 S     5   0% /usr/sbin/http 
+ 561040  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   81 S     0   0% /usr/sbin/http 
  510399  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B pcp      pcp      --   -    2 S     3   0% pmdaperfevent  
  127014  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     3   0% gvfsd-dnssd    
- 530954  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     4   0% bash           
     937  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B dbus     dbus     --   -    1 S     6   0% dbus-broker    
-   1338  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% (sd-pam        
-   8328  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% gconfd-2       
     881  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B avahi    avahi    --   -    1 S     0   0% avahi-daemon   
-   7263  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     4   0% speech-dispatc 
  569742  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% mk.atop-thread 
- 116463  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     0   0% ssh-agent      
      14  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     0   0% rcu_sched      
      24  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     2   0% ksoftirqd/2    
      29  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     3   0% ksoftirqd/3    
@@ -483,7 +474,6 @@ NET | lo      ---- |  pcki      26 | pcko      26 |  sp    0 Mbps | si   24 Kbps
  258588  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     7   0% kworker/7:0-ev 
  520551  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     3   0% kworker/3:3-mm 
  532562  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     2   0% kworker/2:0-ev 
- 533793  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     1   0% kworker/1:3-ev 
  536069  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     4   0% kworker/u17:0- 
  536169  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     2   0% kworker/u16:4- 
  558573  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     7   0% kworker/u16:3- 
@@ -497,7 +487,7 @@ NET | lo      ---- |  pcki      26 | pcko      26 |  sp    0 Mbps | si   24 Kbps
 
 
 ATOP - shard                                 2021/04/20  15:30:39                                 -----------------                                   1s elapsed
-PRC | sys    0.13s |  user   0.13s | #proc    377 |  #trun      1 | #tslpi   291 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     0 |  no  procacct |
+PRC | sys    0.17s |  user   0.15s | #proc    377 |  #trun      1 | #tslpi   291 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     0 |  no  procacct |
 CPU | sys      13% |  user     16% | irq      26% |  idle    745% | wait      0% |  steal     0% | guest     0% |  ipc     0.62 | cycl  175MHz |  curf 3.58GHz |
 cpu | sys       9% |  user      6% | irq       3% |  idle     82% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     1.09 | cycl  527MHz |   |
 cpu | sys       0% |  user      6% | irq       3% |  idle     91% | cpu003 w  0% |  steal     0% | guest     0% |  ipc     0.65 | cycl  231MHz |   |
@@ -518,41 +508,32 @@ NET | enp0s25 ---- |  pcki      85 | pcko      10 |  sp    0 Mbps | si   53 Kbps
 
     PID SYSCPU USRCPU RDELAY BDELAY  VGROW  RGROW  RDDSK  WRDSK RUID     EUID     ST EXC  THR S CPUNR  CPU CMD            
  567882  0.09s  0.05s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 R     2  14% pmdaproc       
-   6569  0.00s  0.06s  0.00s  0.00s     0B   4.1M     0B     0B nathans  nathans  --   -   46 S     3   8% Web Content    
-   6098  0.00s  0.00s  0.00s  0.00s  20.0K  -0.6M     0B     0B nathans  nathans  --   -  160 S     4   2% firefox        
+   6569  0.02s  0.07s  0.00s  0.00s     0B   4.1M     0B     0B nathans  nathans  --   -   46 S     3  10% Web Content    
+   6098  0.01s  0.01s  0.00s  0.00s  20.0K  -0.6M     0B     0B nathans  nathans  --   -  160 S     4   3% firefox        
    4307  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   21 S     6   2% gnome-shell    
  569789  0.00s  0.00s  0.00s  0.00s   1.0M   1.1M     0B   1.1M nathans  nathans  --   -    1 S     5   1% pmlogger       
+   6234  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   45 S     0   1% Web Content    
+   7505  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   12 S     5   1% chrome         
      24  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     2   1% ksoftirqd/2    
  112368  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     4   0% Web Content    
  112334  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     7   0% Web Content    
    6667  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   43 S     7   0% Web Content    
    8038  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   16 S     4   0% chrome         
    6532  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   48 S     5   0% Web Content    
-   6234  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   45 S     0   0% Web Content    
+   7465  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   26 S     4   0% chrome         
    6289  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   51 S     1   0% Web Content    
-   7672  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   15 S     6   0% chrome         
- 512101  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     3   0% python3        
  149648  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     2   0% Web Content    
+   1242  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B redis    redis    --   -   37 S     6   0% redis-server   
    7507  0.00s  0.00s  0.00s  0.00s     0B  -8.0K     0B     0B nathans  nathans  --   -    9 S     6   0% chrome         
-   6351  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   35 S     6   0% WebExtensions  
-   7539  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   13 S     6   0% chrome         
-   6475  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     1   0% Privileged Con 
-   7521  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    5 S     2   0% chrome         
- 259641  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    2 S     6   0% kded4          
-   6626  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     1   0% RDD Process    
     848  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B systemd- systemd- --   -    1 S     1   0% systemd-resolv 
-   7480  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     2   0% chrome         
    4972  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    3 S     0   0% abrt-dbus      
  561042  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   65 S     2   0% /usr/sbin/http 
+   4672  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    6 S     5   0% gsd-smartcard  
+ 561041  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   65 S     5   0% /usr/sbin/http 
  510399  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B pcp      pcp      --   -    2 S     3   0% pmdaperfevent  
- 530954  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     4   0% bash           
  510378  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B pcp      pcp      --   -    2 S     0   0% pmcd           
  569803  0.00s  0.00s  0.00s  0.00s  15.9M   6.0M     0B     0B nathans  nathans  N-   -    1 S     0   0% pmsleep        
-   1338  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% (sd-pam        
-   8328  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% gconfd-2       
-   7263  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     4   0% speech-dispatc 
  569742  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% mk.atop-thread 
- 116463  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     0   0% ssh-agent      
      15  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     0   0% migration/0    
      18  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     1   0% migration/1    
      23  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     2   0% migration/2    
@@ -565,9 +546,7 @@ NET | enp0s25 ---- |  pcki      85 | pcko      10 |  sp    0 Mbps | si   53 Kbps
     276  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     4   0% kworker/4:1H-e 
  520551  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     3   0% kworker/3:3-ev 
  532562  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     2   0% kworker/2:0-ev 
- 533793  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     1   0% kworker/1:3-ev 
  536169  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     3   0% kworker/u16:4- 
- 553270  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     6   0% kworker/6:3-ev 
  558573  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     7   0% kworker/u16:3- 
  559476  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     5   0% kworker/5:2-ev 
  561022  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     1   0% kworker/1:0-mm 
@@ -583,7 +562,7 @@ Defaults with ix86arch metric naming
 
 
 ATOP - shard                                 2021/04/20  15:30:37                                 -----------------                                   2s elapsed
-PRC | sys   56m45s |  user   4h29m | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones 570e3 |  no  procacct |
+PRC | sys    1h49m |  user   6h01m | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones 570e3 |  no  procacct |
 CPU | sys       5% |  user     15% | irq      25% |  idle    753% | wait      1% |  steal     0% | guest     0% |  ipc     0.45 | cycl 1.47THz |  curf 3.55GHz |
 cpu | sys       1% |  user      3% | irq       3% |  idle     93% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     0.49 | cycl 1.70THz |   |
 cpu | sys       1% |  user      2% | irq       3% |  idle     93% | cpu004 w  0% |  steal     0% | guest     0% |  ipc     0.48 | cycl 1.68THz |   |
@@ -610,84 +589,98 @@ NET | tun0    ---- |  pcki   93648 | pcko  100194 |  sp    0 Mbps | si  245 Mbps
 WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
 
     PID SYSCPU USRCPU RDELAY BDELAY  VGROW  RGROW  RDDSK  WRDSK RUID     EUID     ST EXC  THR S CPUNR  CPU CMD            
-   6532  5m23s 61m35s  0.00s  0.00s   3.1G 273.8M  21.2M     0B nathans  nathans  N-   -   48 S     4   2% Web Content    
-   4307 16m38s 42m05s  0.00s  0.00s   5.5G 328.5M  16.8M  68.0K nathans  nathans  N-   -   21 S     3   2% gnome-shell    
-   6569  2m25s 42m00s  0.00s  0.00s   3.6G 799.2M  36.1M     0B nathans  nathans  N-   -   46 S     4   1% Web Content    
-   6098  6m43s 28m44s  0.00s  0.00s   4.9G 834.3M 106.3M 184.0K nathans  nathans  N-   -  160 S     6   1% firefox        
-   6968 67.28s 17m41s  0.00s  0.00s  36.7G 207.9M  17.7M     0B nathans  nathans  N-   -   15 S     6   1% slack          
-   1242  4m42s  8m04s  0.00s  0.00s 909.6M 121.3M  39.9M 960.0K redis    redis    N-   -   37 S     4   0% redis-server   
-   7581 64.04s  9m45s  0.00s  0.00s  36.8G 411.3M   4.8M     0B nathans  nathans  N-   -   17 S     2   0% chrome         
-   7465  2m45s  7m31s  0.00s  0.00s  32.9G 272.6M 114.9M   1.2G nathans  nathans  N-   -   26 S     4   0% chrome         
-   6667 44.76s  8m38s  0.00s  0.00s   3.0G 291.9M   8.7M     0B nathans  nathans  N-   -   43 S     0   0% Web Content    
-   5913 35.93s  8m06s  0.00s  0.00s 892.0M 157.2M   1.5M     0B nathans  nathans  N-   -    4 S     4   0% gnome-terminal 
- 112368 53.63s  5m29s  0.00s  0.00s   3.2G 471.2M  15.6M     0B nathans  nathans  N-   -   42 S     0   0% Web Content    
+   6098 25m07s 63m36s  0.00s  0.00s   4.9G 834.3M 106.3M 184.0K nathans  nathans  N-   -  160 S     6   3% firefox        
+   6532 10m54s 66m48s  0.00s  0.00s   3.1G 273.8M  21.2M     0B nathans  nathans  N-   -   48 S     4   2% Web Content    
+   4307 16m49s 42m38s  0.00s  0.00s   5.5G 328.5M  16.8M  68.0K nathans  nathans  N-   -   21 S     3   2% gnome-shell    
+   6569  5m50s 47m18s  0.00s  0.00s   3.6G 799.2M  36.1M     0B nathans  nathans  N-   -   46 S     4   2% Web Content    
+   6968  1m57s 19m32s  0.00s  0.00s  36.7G 207.9M  17.7M     0B nathans  nathans  N-   -   15 S     6   1% slack          
+   4311  8m21s 12m47s  0.00s  0.00s   2.6G  14.9M   2.6M  48.0K nathans  nathans  N-   -    4 S     0   1% pulseaudio     
+   1242  4m48s 11m50s  0.00s  0.00s 909.6M 121.3M  39.9M 960.0K redis    redis    N-   -   37 S     4   1% redis-server   
+   7465  4m35s 10m27s  0.00s  0.00s  32.9G 272.6M 114.9M   1.2G nathans  nathans  N-   -   26 S     4   0% chrome         
+   7581 89.50s 10m44s  0.00s  0.00s  36.8G 411.3M   4.8M     0B nathans  nathans  N-   -   17 S     2   0% chrome         
+   6667  1m46s 10m09s  0.00s  0.00s   3.0G 291.9M   8.7M     0B nathans  nathans  N-   -   43 S     0   0% Web Content    
+   6289  2m40s  8m34s  0.00s  0.00s   3.0G 199.4M   5.6M     0B nathans  nathans  N-   -   51 S     3   0% Web Content    
+   5913 36.05s  8m06s  0.00s  0.00s 892.0M 157.2M   1.5M     0B nathans  nathans  N-   -    4 S     4   0% gnome-terminal 
+ 112368  1m46s  6m40s  0.00s  0.00s   3.2G 471.2M  15.6M     0B nathans  nathans  N-   -   42 S     0   0% Web Content    
+   6234 97.09s  4m44s  0.00s  0.00s   3.3G 258.5M  13.5M     0B nathans  nathans  N-   -   45 S     3   0% Web Content    
+   7505 90.45s  4m08s  0.00s  0.00s  32.7G 139.6M  10.0M 320.0K nathans  nathans  N-   -   12 S     5   0% chrome         
    4471  2m52s  2m45s  0.00s  0.00s   1.9G  57.3M   2.9M 144.0K nathans  nathans  N-   -   25 S     1   0% Xwayland       
-   6289 37.86s  4m42s  0.00s  0.00s   3.0G 199.4M   5.6M     0B nathans  nathans  N-   -   51 S     3   0% Web Content    
-   6234 41.49s  3m41s  0.00s  0.00s   3.3G 258.5M  13.5M     0B nathans  nathans  N-   -   45 S     3   0% Web Content    
-   7505 63.55s  2m31s  0.00s  0.00s  32.7G 139.6M  10.0M 320.0K nathans  nathans  N-   -   12 S     5   0% chrome         
- 112334 39.39s  2m31s  0.00s  0.00s   3.0G 298.6M  11.0M     0B nathans  nathans  N-   -   42 S     6   0% Web Content    
-   6860 19.84s 85.94s  0.00s  0.00s   4.8G 141.8M  97.4M   5.4M nathans  nathans  N-   -   32 S     5   0% slack          
-   7672 17.36s 87.06s  0.00s  0.00s  36.6G 159.8M   5.0M     0B nathans  nathans  N-   -   15 S     6   0% chrome         
+   7507 80.96s  3m58s  0.01s  0.00s  32.5G 106.0M 492.0K     0B nathans  nathans  N-   -    9 S     6   0% chrome         
+ 112334 90.61s  3m20s  0.00s  0.00s   3.0G 298.6M  11.0M     0B nathans  nathans  N-   -   42 S     6   0% Web Content    
+   4672  2m09s  1m42s  0.07s  0.00s 594.8M  11.8M 196.0K     0B nathans  nathans  N-   -    6 S     5   0% gsd-smartcard  
+   6902 49.55s  1m41s  1.45s  0.00s 573.0M  76.2M  10.2M  16.0K nathans  nathans  N-   -   10 S     5   0% slack          
+   6860 36.82s  1m45s  0.00s  0.00s   4.8G 141.8M  97.4M   5.4M nathans  nathans  N-   -   32 S     5   0% slack          
+   7672 19.82s 90.73s  0.00s  0.00s  36.6G 159.8M   5.0M     0B nathans  nathans  N-   -   15 S     6   0% chrome         
+   8038 19.23s 89.53s  0.00s  0.00s  40.7G 281.4M   1.4M     0B nathans  nathans  N-   -   16 S     2   0% chrome         
+   4916 20.26s 81.73s  1.00s  0.00s 524.1M  11.8M 120.0K     0B nathans  nathans  N-   -    3 S     6   0% ibus-daemon    
+   1239 14.08s 68.39s  0.21s  0.00s   1.9G  55.6M  57.3M 764.0K grafana  grafana  N-   -   17 S     5   0% grafana-server 
+ 149648 20.43s 60.40s  0.00s  0.00s   2.9G 147.9M  14.8M     0B nathans  nathans  N-   -   42 S     1   0% Web Content    
      58 79.50s  0.28s  0.96s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     7   0% kcompactd0     
+   6909 27.49s 50.48s  0.00s  0.00s 505.3M  66.0M 192.0K     0B nathans  nathans  N-   -    6 S     5   0% slack          
     937 40.30s 36.88s  0.00s  0.00s  11.0M   6.6M 244.0K     0B dbus     dbus     N-   -    1 S     7   0% dbus-broker    
-   8038  6.39s 67.50s  0.00s  0.00s  40.7G 281.4M   1.4M     0B nathans  nathans  N-   -   16 S     2   0% chrome         
+   2725 17.88s 48.78s  0.00s  0.00s 538.8M  20.9M 296.0K     0B geoclue  geoclue  N-   -    4 S     2   0% geoclue        
  512101  0.80s 62.63s  0.14s  0.00s 384.6M 152.7M     0B     0B root     root     N-   -    1 S     3   0% python3        
-   4311 38.58s 21.12s  0.00s  0.00s   2.6G  14.9M   2.6M  48.0K nathans  nathans  N-   -    4 S     0   0% pulseaudio     
    5896  9.77s 45.79s  1.03s  0.00s 726.1M  63.2M  20.0M  59.5M nathans  nathans  N-   -    3 S     4   0% hexchat        
- 149648  8.03s 47.42s  0.00s  0.00s   2.9G 147.9M  14.8M     0B nathans  nathans  N-   -   42 S     1   0% Web Content    
     848 16.55s 36.70s  1.39s  0.00s  42.7M  20.0M   6.3M     0B systemd- systemd- N-   -    1 S     0   0% systemd-resolv 
-   6902 14.42s 27.26s  1.45s  0.00s 573.0M  76.2M  10.2M  16.0K nathans  nathans  N-   -   10 S     5   0% slack          
-   4916  5.80s 31.71s  1.00s  0.00s 524.1M  11.8M 120.0K     0B nathans  nathans  N-   -    3 S     6   0% ibus-daemon    
+   4972  9.36s 35.77s  1.13s  0.00s 478.3M  15.0M 152.0K     0B root     root     N-   -    3 S     5   0% abrt-dbus      
+    960  9.45s 33.60s  1.00s  0.00s   2.8G  20.4M  16.3M     0B polkitd  polkitd  N-   -   12 S     1   0% polkitd        
+   1091 25.10s 17.14s  0.00s  0.00s   1.6G  62.3M  22.6M   8.0K mysql    mysql    N-   -   30 S     6   0% mysqld         
+   6351 10.32s 28.35s  0.00s  0.00s   2.6G 103.6M 128.0K     0B nathans  nathans  N-   -   35 S     6   0% WebExtensions  
+   1230 27.52s  8.57s  0.00s  0.00s 812.3M   7.3M 304.0K     0B root     root     N-   -   12 S     0   0% pcscd          
+   5007  7.01s 28.21s  0.26s  0.00s 366.4M   6.6M     0B     0B nathans  nathans  N-   -    3 S     7   0% ibus-engine-si 
      14 33.26s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     1   0% rcu_sched      
-   2725  9.26s 18.00s  0.00s  0.00s 538.8M  20.9M 296.0K     0B geoclue  geoclue  N-   -    4 S     2   0% geoclue        
-   6351  3.21s 23.26s  0.00s  0.00s   2.6G 103.6M 128.0K     0B nathans  nathans  N-   -   35 S     6   0% WebExtensions  
+ 122029 10.37s 21.13s  0.50s  0.00s  52.7G 161.4M 468.0K     0B nathans  nathans  N-   -   18 S     6   0% chrome         
+    905 12.81s 15.12s  1.02s  0.00s 302.5M   7.8M   2.2M     0B root     root     N-   -    2 S     5   0% thermald       
     881 10.41s 14.20s  0.87s  0.00s  33.9M   4.0M 836.0K     0B avahi    avahi    N-   -    1 S     4   0% avahi-daemon   
+    893  0.18s 20.30s  0.00s  0.00s 300.7M   6.3M   1.2M     0B root     root     N-   -    5 S     6   0% rngd           
+ 122007  3.57s 16.68s  0.84s  0.00s  36.6G 132.6M   4.0K     0B nathans  nathans  N-   -   13 S     3   0% chrome         
     835 20.21s  0.00s  1.64s  0.00s     0B     0B     0B   2.4G root     root     N-   -    1 S     7   0% jbd2/dm-2-8    
-    905  4.79s 15.10s  1.02s  0.00s 302.5M   7.8M   2.2M     0B root     root     N-   -    2 S     5   0% thermald       
- 510378  6.78s  7.24s  0.05s  0.00s 136.1M   6.3M  48.0K  48.0K pcp      pcp      N-   -    2 S     6   0% pmcd           
+   4945  2.95s 14.74s  0.49s  0.00s 545.0M  22.8M     0B     0B nathans  nathans  N-   -    4 S     7   0% ibus-extension 
+   6475  3.84s 13.10s  0.00s  0.00s   2.6G  83.7M 776.0K     0B nathans  nathans  N-   -   42 S     1   0% Privileged Con 
+ 510378  7.35s  8.02s  0.05s  0.00s 136.1M   6.3M  48.0K  48.0K pcp      pcp      N-   -    2 S     6   0% pmcd           
  511132  0.44s 13.47s  0.01s  0.00s  93.3M  63.6M 108.0K 402.9M pcp      pcp      N-   -    1 S     2   0% pmlogger       
-   6475  1.63s 10.86s  0.00s  0.00s   2.6G  83.7M 776.0K     0B nathans  nathans  N-   -   42 S     1   0% Privileged Con 
     139 12.39s  0.00s  0.54s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     7   0% kswapd0        
-   5007  1.78s  8.92s  0.26s  0.00s 366.4M   6.6M     0B     0B nathans  nathans  N-   -    3 S     7   0% ibus-engine-si 
- 122007  0.79s  9.68s  0.84s  0.00s  36.6G 132.6M   4.0K     0B nathans  nathans  N-   -   13 S     3   0% chrome         
-   4972  2.19s  7.64s  1.13s  0.00s 478.3M  15.0M 152.0K     0B root     root     N-   -    3 S     5   0% abrt-dbus      
-    960  2.48s  7.14s  1.00s  0.00s   2.8G  20.4M  16.3M     0B polkitd  polkitd  N-   -   12 S     1   0% polkitd        
- 251337  1.64s  7.66s  0.15s  0.00s  36.6G 128.2M 336.0K     0B nathans  nathans  N-   -   14 S     2   0% chrome         
+   7539  2.17s  8.84s  0.37s  0.00s  36.6G  84.8M   7.6M     0B nathans  nathans  N-   -   13 S     6   0% chrome         
+ 251337  1.83s  7.88s  0.15s  0.00s  36.6G 128.2M 336.0K     0B nathans  nathans  N-   -   14 S     2   0% chrome         
+    995  4.03s  5.23s  0.22s  0.00s 687.2M  19.2M   5.4M  18.2M root     root     N-   -    3 S     5   0% NetworkManager 
+   7257  4.22s  4.50s  0.00s  0.00s 647.6M   8.4M   2.8M     0B nathans  nathans  N-   -    5 S     7   0% sd_espeak-ng   
+   7253  3.93s  4.62s  0.00s  0.00s 350.3M   4.9M 136.0K     0B nathans  nathans  N-   -    3 S     2   0% sd_dummy       
    5620  5.98s  2.42s  0.09s  0.00s  27.5M   8.2M   4.0K     0B nm-openv nm-openv N-   -    1 S     6   0% openvpn        
  127014  3.08s  5.27s  0.00s  0.00s 515.8M   8.2M 104.0K     0B nathans  nathans  N-   -    3 S     6   0% gvfsd-dnssd    
-    995  3.83s  4.51s  0.22s  0.00s 687.2M  19.2M   5.4M  18.2M root     root     N-   -    3 S     5   0% NetworkManager 
       1  4.12s  4.05s  0.14s  0.00s 174.3M  19.7M  56.8M 200.0K root     root     N-   -    1 S     0   0% systemd        
-   7539  0.90s  6.58s  0.37s  0.00s  36.6G  84.8M   7.6M     0B nathans  nathans  N-   -   13 S     6   0% chrome         
- 122029  0.89s  6.13s  0.50s  0.00s  52.7G 161.4M 468.0K     0B nathans  nathans  N-   -   18 S     6   0% chrome         
+ 148070  1.24s  6.68s  0.45s  0.00s  40.6G 131.0M     0B     0B nathans  nathans  N-   -   14 S     0   0% chrome         
     883  5.14s  1.65s  0.18s  0.00s   2.4M   1.8M 248.0K     0B earlyoom earlyoom N-   -    1 S     4   0% earlyoom       
-   1239  0.87s  5.91s  0.21s  0.00s   1.9G  55.6M  57.3M 764.0K grafana  grafana  N-   -   17 S     5   0% grafana-server 
  567882  4.07s  2.10s  0.09s  0.00s  65.7M  31.1M  16.0K   4.0K nathans  nathans  N-   -    1 R     2   0% pmdaproc       
+ 536542  1.00s  5.11s  0.02s  0.00s  36.6G 119.6M 568.0K     0B nathans  nathans  N-   -   13 S     4   0% chrome         
+ 147351  1.01s  5.03s  0.70s  0.00s  36.6G 128.6M     0B     0B nathans  nathans  N-   -   13 S     1   0% chrome         
  510402  0.17s  5.71s  0.01s  0.00s 477.8M  30.4M 116.0K 180.0K root     root     N-   -    1 S     0   0% python3        
-   4945  0.75s  4.91s  0.49s  0.00s 545.0M  22.8M     0B     0B nathans  nathans  N-   -    4 S     7   0% ibus-extension 
- 148070  0.40s  4.46s  0.45s  0.00s  40.6G 131.0M     0B     0B nathans  nathans  N-   -   14 S     0   0% chrome         
- 507752  0.81s  3.47s  0.03s  0.00s 188.0M  88.9M 976.0K 544.0K pcp      pcp      N-   -    2 S     6   0% pmproxy        
+ 507752  1.32s  4.32s  0.03s  0.00s 188.0M  88.9M 976.0K 544.0K pcp      pcp      N-   -    2 S     6   0% pmproxy        
+   7803  0.84s  4.65s  0.78s  0.00s  40.6G 136.8M 636.0K     0B nathans  nathans  N-   -   14 S     5   0% chrome         
+ 251324  1.23s  4.23s  0.05s  0.00s  36.6G 109.1M   3.0M     0B nathans  nathans  N-   -   13 S     5   0% chrome         
+   4586  2.06s  2.81s  0.02s  0.00s 516.9M   6.8M 136.0K     0B nathans  nathans  N-   -    4 S     6   0% goa-identity-s 
+    897  1.24s  2.93s  0.00s  0.00s 278.9M  10.4M   1.3M     0B root     root     N-   -    3 S     6   0% rsyslogd       
  510388  1.84s  2.20s  0.01s  0.00s  25.9M   8.0M  80.0K  32.0K root     root     N-   -    1 S     4   0% pmdalinux      
- 251324  0.63s  3.38s  0.05s  0.00s  36.6G 109.1M   3.0M     0B nathans  nathans  N-   -   13 S     5   0% chrome         
     219  4.01s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     7   0% kworker/7:1H-k 
-   7803  0.34s  3.49s  0.78s  0.00s  40.6G 136.8M 636.0K     0B nathans  nathans  N-   -   14 S     5   0% chrome         
+ 148425  0.72s  3.18s  0.67s  0.00s  36.6G 121.6M     0B     0B nathans  nathans  N-   -   13 S     2   0% chrome         
+   2658  1.57s  2.25s  0.06s  0.00s 451.8M   8.4M 644.0K  96.0K root     root     N-   -    3 S     1   0% upowerd        
     946  1.58s  2.14s  0.12s  0.00s 271.9M  12.0M   2.7M  31.0M root     root     N-   -    1 S     6   0% sssd_nss       
- 536542  0.41s  3.21s  0.02s  0.00s  36.6G 119.6M 568.0K     0B nathans  nathans  N-   -   13 S     4   0% chrome         
  520551  3.55s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     3   0% kworker/3:3-ev 
+   4697  0.46s  2.93s  0.11s  0.00s   1.1G 338.4M  26.5M  14.8M nathans  nathans  N-   -    4 S     7   0% gnome-software 
      34  3.30s  0.04s  0.50s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     4   0% ksoftirqd/4    
-   2658  1.31s  2.02s  0.06s  0.00s 451.8M   8.4M 644.0K  96.0K root     root     N-   -    3 S     1   0% upowerd        
+ 510399  2.19s  0.98s  0.00s  0.00s  47.3M   8.8M  28.0K  56.0K pcp      pcp      N-   -    2 S     3   0% pmdaperfevent  
      44  3.02s  0.05s  0.58s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     6   0% ksoftirqd/6    
- 147351  0.21s  2.77s  0.70s  0.00s  36.6G 128.6M     0B     0B nathans  nathans  N-   -   13 S     1   0% chrome         
     639  1.73s  1.22s  0.18s  0.00s  93.8M  24.1M   1.9M 308.8M root     root     N-   -    1 S     1   0% systemd-journa 
      13  2.94s  0.01s  0.83s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     0   0% ksoftirqd/0    
      24  2.80s  0.15s  0.75s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     2   0% ksoftirqd/2    
-   4636  0.56s  2.31s  0.04s  0.00s 512.4M   7.0M   5.0M     0B nathans  nathans  N-   -    4 S     1   0% gsd-housekeepi 
+   1721  0.23s  2.68s  0.00s  0.00s   1.6G  13.7M  14.6M     0B grafana  grafana  N-   -   14 S     4   0% pcp_redis_data 
+   4636  0.56s  2.32s  0.04s  0.00s 512.4M   7.0M   5.0M     0B nathans  nathans  N-   -    4 S     1   0% gsd-housekeepi 
     541  2.61s  0.00s  0.28s  0.00s     0B     0B     0B 456.8M root     root     N-   -    1 S     5   0% jbd2/dm-0-8    
-   4697  0.12s  2.46s  0.11s  0.00s   1.1G 338.4M  26.5M  14.8M nathans  nathans  N-   -    4 S     7   0% gnome-software 
    7480  2.38s  0.14s  0.03s  0.00s  32.5G  15.4M 128.0K     0B nathans  nathans  N-   -    1 S     2   0% chrome         
  259641  0.76s  1.65s  0.06s  0.00s 558.1M  39.1M  11.9M  80.0K nathans  nathans  N-   -    2 S     6   0% kded4          
      49  2.17s  0.00s  0.63s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     7   0% ksoftirqd/7    
+ 115755  0.43s  1.66s  0.39s  0.00s  36.6G 122.6M 260.0K     0B nathans  nathans  N-   -   13 S     6   0% chrome         
+   7521  0.73s  1.30s  0.08s  0.00s  32.5G  47.6M 368.0K     0B nathans  nathans  N-   -    5 S     2   0% chrome         
  536069  1.94s  0.00s  0.14s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     2   0% kworker/u17:0- 
- 148425  0.18s  1.75s  0.67s  0.00s  36.6G 121.6M     0B     0B nathans  nathans  N-   -   13 S     2   0% chrome         
      19  1.92s  0.00s  0.38s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     1   0% ksoftirqd/1    
      39  1.72s  0.01s  0.24s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     5   0% ksoftirqd/5    
     276  1.69s  0.00s  0.65s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     4   0% kworker/4:1H-k 
@@ -695,16 +688,23 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  258588  1.64s  0.00s  0.74s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     7   0% kworker/7:0-kd 
  536169  1.60s  0.00s  0.03s  0.00s     0B     0B  12.0K     0B root     root     N-   -    1 I     2   0% kworker/u16:4- 
     318  1.58s  0.00s  0.46s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     6   0% kworker/6:1H-k 
+ 123743  0.46s  1.11s  0.31s  0.00s  36.6G  95.3M   4.0K     0B nathans  nathans  N-   -   13 S     7   0% chrome         
     163  1.55s  0.00s  0.33s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/0:1H-k 
    5919  0.65s  0.88s  0.00s  0.00s 230.2M   8.3M   6.6M     0B nathans  nathans  N-   -    1 S     0   0% bash           
     955  1.10s  0.39s  0.06s  0.00s 832.2M  13.2M 484.0K     0B root     root     N-   -    1 S     3   0% systemd-logind 
- 115755  0.18s  1.09s  0.39s  0.00s  36.6G 122.6M 260.0K     0B nathans  nathans  N-   -   13 S     6   0% chrome         
    4203  0.57s  0.66s  0.48s  0.00s   7.0M   4.6M     0B     0B nathans  nathans  N-   -    1 S     4   0% dbus-broker    
+   4605  0.10s  1.09s  0.16s  0.00s   1.5G  48.2M 704.0K     0B nathans  nathans  N-   -   11 S     6   0% evolution-cale 
+   2838  0.46s  0.72s  0.03s  0.00s   1.3G 728.3M  13.4M   3.2M root     root     N-   -    3 S     4   0% packagekitd    
  116371  0.47s  0.69s  0.00s  0.00s 230.5M   6.8M 660.0K     0B nathans  nathans  N-   -    1 S     2   0% bash           
-   7521  0.36s  0.72s  0.08s  0.00s  32.5G  47.6M 368.0K     0B nathans  nathans  N-   -    5 S     2   0% chrome         
-   4538  0.25s  0.72s  0.00s  0.00s 528.8M   9.1M   1.2M     0B nathans  nathans  N-   -    4 S     7   0% gvfs-udisks2-v 
-    884  0.18s  0.73s  0.05s  0.00s 562.6M  43.0M  16.8M     0B root     root     N-   -    4 S     3   0% firewalld      
+    898  0.03s  1.04s  0.00s  0.00s 150.2M   3.2M 204.0K     0B rtkit    rtkit    N-   -    3 S     5   0% rtkit-daemon   
+    884  0.20s  0.86s  0.05s  0.00s 562.6M  43.0M  16.8M     0B root     root     N-   -    4 S     3   0% firewalld      
+   4642  0.22s  0.81s  0.10s  0.00s 695.6M  22.1M 708.0K     0B nathans  nathans  N-   -    4 S     3   0% gsd-power      
+   4538  0.26s  0.76s  0.00s  0.00s 528.8M   9.1M   1.2M     0B nathans  nathans  N-   -    4 S     7   0% gvfs-udisks2-v 
+   7646  0.36s  0.64s  0.14s  0.00s  36.6G  75.1M 872.0K     0B nathans  nathans  N-   -   13 S     7   0% chrome         
     218  0.90s  0.00s  0.32s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     3   0% kworker/3:1H-e 
+   7762  0.32s  0.56s  0.07s  0.00s  32.7G  66.6M     0B     0B nathans  nathans  N-   -    6 S     4   0% chrome         
+   4628  0.33s  0.54s  0.06s  0.00s 791.2M  22.8M   1.1M     0B nathans  nathans  N-   -    4 S     1   0% gsd-color      
+   4653  0.10s  0.77s  0.05s  0.00s 663.2M   9.6M 360.0K     0B nathans  nathans  N-   -    4 S     1   0% gsd-sharing    
  532562  0.87s  0.00s  0.22s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     2   0% kworker/2:0-ev 
     936  0.27s  0.55s  0.06s  0.00s 259.9M  10.7M   1.3M 856.0K root     root     N-   -    1 S     4   0% sssd_be        
    7877  0.12s  0.69s  0.00s  0.00s 237.5M   9.8M   4.6M 824.0K nathans  nathans  N-   -    1 S     5   0% vim            
@@ -713,46 +713,41 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
    1981  0.13s  0.63s  0.04s  0.00s 289.5M  53.7M 108.0K     0B root     root     N-   -    1 S     2   0% python3        
     416  0.74s  0.00s  0.16s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     1   0% kworker/1:1H-k 
     285  0.73s  0.00s  0.18s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     5   0% kworker/5:1H-k 
-   4628  0.30s  0.39s  0.06s  0.00s 791.2M  22.8M   1.1M     0B nathans  nathans  N-   -    4 S     1   0% gsd-color      
  510389  0.17s  0.50s  0.00s  0.00s 251.7M  20.2M     0B   4.0K root     root     N-   -    1 S     2   0% python3        
- 123743  0.12s  0.52s  0.31s  0.00s  36.6G  95.3M   4.0K     0B nathans  nathans  N-   -   13 S     7   0% chrome         
+   4652  0.05s  0.59s  0.16s  0.00s   1.2G  47.2M   1.5M     0B nathans  nathans  N-   -    6 S     2   0% evolution-alar 
     665  0.33s  0.27s  0.30s  0.00s  52.2M  12.8M   7.1M     0B root     root     N-   -    1 S     6   0% systemd-udevd  
    1274  0.19s  0.36s  0.05s  0.00s  27.2M  16.5M   1.5M     0B nathans  nathans  N-   -    1 S     2   0% systemd        
+   4521  0.07s  0.45s  0.02s  0.00s   1.3G  42.2M  29.6M  24.0K nathans  nathans  N-   -    4 S     1   0% evolution-sour 
+   6626  0.30s  0.21s  0.00s  0.00s 180.2M  26.0M     0B     0B nathans  nathans  N-   -    3 S     1   0% RDD Process    
  540473  0.51s  0.00s  0.09s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/0:0-cg 
-   2838  0.16s  0.34s  0.03s  0.00s   1.3G 728.3M  13.4M   3.2M root     root     N-   -    3 S     4   0% packagekitd    
-   7646  0.14s  0.34s  0.14s  0.00s  36.6G  75.1M 872.0K     0B nathans  nathans  N-   -   13 S     7   0% chrome         
-   4586  0.07s  0.41s  0.02s  0.00s 516.9M   6.8M 136.0K     0B nathans  nathans  N-   -    4 S     6   0% goa-identity-s 
+    849  0.26s  0.20s  0.01s  0.00s  97.2M   2.6M 332.0K   4.8M root     root     N-   -    3 S     5   0% auditd         
  558573  0.46s  0.00s  0.00s  0.00s     0B     0B   8.0K     0B root     root     N-   -    1 I     7   0% kworker/u16:3- 
-   4642  0.07s  0.37s  0.10s  0.00s 695.6M  22.1M 708.0K     0B nathans  nathans  N-   -    4 S     3   0% gsd-power      
-   4653  0.02s  0.40s  0.05s  0.00s 663.2M   9.6M 360.0K     0B nathans  nathans  N-   -    4 S     1   0% gsd-sharing    
+   4515  0.06s  0.38s  0.08s  0.00s 913.9M  32.9M   8.9M     0B nathans  nathans  N-   -    6 S     3   0% gnome-shell-ca 
+   4639  0.08s  0.36s  0.11s  0.00s   1.1G  23.6M  96.0K     0B nathans  nathans  N-   -    4 S     5   0% gsd-media-keys 
  533793  0.41s  0.01s  0.07s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     1   0% kworker/1:3-ev 
-   4639  0.08s  0.33s  0.11s  0.00s   1.1G  23.6M  96.0K     0B nathans  nathans  N-   -    4 S     5   0% gsd-media-keys 
-   4652  0.03s  0.37s  0.16s  0.00s   1.2G  47.2M   1.5M     0B nathans  nathans  N-   -    6 S     2   0% evolution-alar 
-   4521  0.04s  0.30s  0.02s  0.00s   1.3G  42.2M  29.6M  24.0K nathans  nathans  N-   -    4 S     1   0% evolution-sour 
+   4802  0.03s  0.31s  0.08s  0.00s   1.0G  36.0M 780.0K     0B nathans  nathans  N-   -    6 S     1   0% evolution-addr 
  558544  0.34s  0.00s  0.02s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     6   0% kworker/u17:2- 
     901  0.12s  0.21s  0.09s  0.00s 257.2M   8.5M   4.1M 120.0K root     root     N-   -    1 S     4   0% sssd           
-    849  0.17s  0.16s  0.01s  0.00s  97.2M   2.6M 332.0K   4.8M root     root     N-   -    3 S     5   0% auditd         
-    893  0.18s  0.14s  0.00s  0.00s 300.7M   6.3M   1.2M     0B root     root     N-   -    5 S     6   0% rngd           
-   4605  0.02s  0.29s  0.16s  0.00s   1.5G  48.2M 704.0K     0B nathans  nathans  N-   -   11 S     6   0% evolution-cale 
- 510399  0.19s  0.10s  0.00s  0.00s  47.3M   8.8M  28.0K  56.0K pcp      pcp      N-   -    2 S     3   0% pmdaperfevent  
+   4924  0.05s  0.25s  0.06s  0.00s 858.5M  24.7M 128.0K     0B nathans  nathans  N-   -    8 S     6   0% gsd-xsettings  
+    954  0.13s  0.17s  0.00s  0.00s 528.5M   7.2M   1.5M   8.0K root     root     N-   -    4 S     2   0% accounts-daemo 
    1258  0.25s  0.04s  0.01s  0.00s 227.9M   3.7M 240.0K     0B root     root     N-   -    1 S     2   0% crond          
    1635  0.22s  0.07s  0.05s  0.00s  24.8M   1.9M     0B     0B dnsmasq  dnsmasq  N-   -    1 S     0   0% dnsmasq        
+   4541  0.16s  0.12s  0.00s  0.00s 394.4M  12.8M   1.8M     0B root     root     N-   -    5 S     6   0% udisksd        
    1673  0.21s  0.07s  0.07s  0.00s  24.8M   1.8M     0B     0B dnsmasq  dnsmasq  N-   -    1 S     7   0% dnsmasq        
+   3365  0.04s  0.23s  0.03s  0.00s 527.0M  10.9M 908.0K     0B colord   colord   N-   -    4 S     1   0% colord         
    7263  0.14s  0.11s  0.00s  0.00s 363.4M   4.0M     0B     0B nathans  nathans  N-   -    3 S     4   0% speech-dispatc 
-   4924  0.04s  0.20s  0.06s  0.00s 858.5M  24.7M 128.0K     0B nathans  nathans  N-   -    8 S     6   0% gsd-xsettings  
-   4802  0.01s  0.21s  0.08s  0.00s   1.0G  36.0M 780.0K     0B nathans  nathans  N-   -    6 S     1   0% evolution-addr 
     902  0.12s  0.10s  0.01s  0.00s 437.8M   6.1M 164.0K     0B root     root     N-   -    3 S     4   0% switcheroo-con 
  558402  0.21s  0.00s  0.05s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     4   0% kworker/4:3-mm 
  510395  0.06s  0.14s  0.00s  0.00s 266.9M  23.7M     0B   4.0K pcp      pcp      N-   -    1 S     6   0% python3        
  529850  0.07s  0.13s  0.00s  0.00s 229.0M   7.2M 360.0K     0B nathans  nathans  N-   -    1 S     0   0% bash           
-   7762  0.07s  0.12s  0.07s  0.00s  32.7G  66.6M     0B     0B nathans  nathans  N-   -    6 S     4   0% chrome         
    1157  0.09s  0.10s  0.00s  0.00s 374.3M  15.5M   1.4M     0B root     root     N-   -    1 S     4   0% abrt-dump-jour 
-   4541  0.08s  0.11s  0.00s  0.00s 394.4M  12.8M   1.8M     0B root     root     N-   -    5 S     6   0% udisksd        
+ 561040  0.10s  0.09s  0.00s  0.00s   2.4G  11.0M     0B     0B apache   apache   N-   -   81 S     0   0% /usr/sbin/http 
  510387  0.11s  0.08s  0.00s  0.00s  36.5M   7.5M  32.0K   4.0K pcp      pcp      N-   -    1 S     5   0% pmdasample     
+   4063  0.03s  0.16s  0.01s  0.00s 729.8M   6.2M 480.0K  16.0K nathans  nathans  N-   -    4 S     1   0% gnome-keyring- 
  558565  0.19s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     3   0% kworker/u16:2- 
    1158  0.08s  0.10s  0.00s  0.00s 359.2M  16.4M   1.2M     0B root     root     N-   -    1 S     3   0% abrt-dump-jour 
-   3365  0.03s  0.15s  0.03s  0.00s 527.0M  10.9M 908.0K     0B colord   colord   N-   -    4 S     1   0% colord         
     851  0.06s  0.12s  0.00s  0.00s   7.9M   3.9M 348.0K     0B root     root     N-   -    1 S     5   0% sedispatch     
+   4274  0.05s  0.12s  0.03s  0.00s 816.5M  12.1M 384.0K     0B nathans  nathans  N-   -    4 S     7   0% gnome-session- 
  559476  0.17s  0.00s  0.03s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     5   0% kworker/5:2-ev 
    1156  0.08s  0.08s  0.01s  0.00s 358.0M  15.3M   1.3M   8.0K root     root     N-   -    1 S     5   0% abrt-dump-jour 
       2  0.16s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     0   0% kthreadd       
@@ -764,59 +759,59 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
      28  0.15s  0.00s  0.59s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     3   0% migration/3    
      33  0.15s  0.00s  0.37s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     4   0% migration/4    
      38  0.15s  0.00s  0.30s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     5   0% migration/5    
+   4678  0.01s  0.13s  0.09s  0.00s 614.1M  20.8M     0B     0B nathans  nathans  N-   -    4 S     7   0% gsd-wacom      
+ 561042  0.10s  0.04s  0.00s  0.00s   2.2G  12.1M     0B     0B apache   apache   N-   -   65 S     2   0% /usr/sbin/http 
+ 561041  0.10s  0.04s  0.00s  0.00s   2.2G  11.8M     0B     0B apache   apache   N-   -   65 S     5   0% /usr/sbin/http 
     926  0.10s  0.04s  0.01s  0.00s  91.8M   3.5M 388.0K 188.0K chrony   chrony   N-   -    1 S     0   0% chronyd        
-   4678  0.01s  0.12s  0.09s  0.00s 614.1M  20.8M     0B     0B nathans  nathans  N-   -    4 S     7   0% gsd-wacom      
+   4638  0.01s  0.12s  0.06s  0.00s 613.7M  20.4M  48.0K     0B nathans  nathans  N-   -    4 S     7   0% gsd-keyboard   
+   4593  0.09s  0.04s  0.00s  0.00s 514.4M   7.1M 100.0K     0B nathans  nathans  N-   -    4 S     4   0% gvfs-afc-volum 
  510394  0.08s  0.05s  0.00s  0.00s  16.2M   6.5M     0B   4.0K root     root     N-   -    1 S     1   0% pmdakvm        
+   4565  0.02s  0.10s  0.01s  0.00s 817.1M  28.3M 588.0K   4.0K nathans  nathans  N-   -    4 S     0   0% goa-daemon     
    4951  0.02s  0.10s  0.04s  0.00s 540.0M  20.3M 136.0K     0B nathans  nathans  N-   -    3 S     1   0% ibus-x11       
-   4638  0.01s  0.10s  0.06s  0.00s 613.7M  20.4M  48.0K     0B nathans  nathans  N-   -    4 S     7   0% gsd-keyboard   
-   4274  0.03s  0.08s  0.03s  0.00s 816.5M  12.1M 384.0K     0B nathans  nathans  N-   -    4 S     7   0% gnome-session- 
  547825  0.11s  0.00s  0.02s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     5   0% kworker/5:0-cg 
  510406  0.07s  0.03s  0.00s  0.00s  16.2M   6.4M   4.0K   1.5M root     root     N-   -    1 S     5   0% pmdazfs        
-   4515  0.02s  0.08s  0.08s  0.00s 913.9M  32.9M   8.9M     0B nathans  nathans  N-   -    6 S     3   0% gnome-shell-ca 
  530954  0.05s  0.05s  0.00s  0.00s 228.8M   7.0M     0B     0B nathans  nathans  N-   -    1 S     4   0% bash           
-   4063  0.02s  0.08s  0.01s  0.00s 729.8M   6.2M 480.0K  16.0K nathans  nathans  N-   -    4 S     1   0% gnome-keyring- 
    4608  0.01s  0.08s  0.00s  0.00s   3.1G  19.7M     0B     0B nathans  nathans  N-   -   11 S     5   0% gjs            
  537161  0.03s  0.06s  0.00s  0.00s 229.0M   7.2M   8.0K     0B nathans  nathans  N-   -    1 S     2   0% bash           
  553270  0.09s  0.00s  0.01s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     6   0% kworker/6:3-ev 
  565955  0.09s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/u16:0- 
-   4565  0.01s  0.07s  0.01s  0.00s 817.1M  28.3M 588.0K   4.0K nathans  nathans  N-   -    4 S     0   0% goa-daemon     
+ 127103  0.01s  0.07s  0.00s  0.00s 707.0M  22.6M   3.4M  32.0K nathans  nathans  N-   -    5 S     0   0% tracker-store  
      55  0.08s  0.00s  0.01s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     4   0% kauditd        
     943  0.06s  0.02s  0.19s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     5   0% psimon         
  558607  0.04s  0.03s  0.00s  0.00s 312.0M  27.1M  12.5M   4.0K root     root     N-   -    1 S     6   0% php-fpm        
    4701  0.01s  0.06s  0.03s  0.00s 481.1M  16.9M   1.2M     0B nathans  nathans  N-   -    4 S     3   0% abrt-applet    
  561037  0.03s  0.04s  0.00s  0.00s  40.1M  16.2M  12.0K   4.0K root     root     N-   -    1 S     0   0% /usr/sbin/http 
-   7257  0.06s  0.01s  0.00s  0.00s 647.6M   8.4M   2.8M     0B nathans  nathans  N-   -    5 S     7   0% sd_espeak-ng   
  541441  0.02s  0.05s  0.00s  0.00s 228.9M   7.1M     0B     0B nathans  nathans  N-   -    1 S     4   0% bash           
- 127103  0.01s  0.05s  0.00s  0.00s 707.0M  22.6M   3.4M  32.0K nathans  nathans  N-   -    5 S     0   0% tracker-store  
-   4672  0.01s  0.05s  0.07s  0.00s 594.8M  11.8M 196.0K     0B nathans  nathans  N-   -    6 S     5   0% gsd-smartcard  
+   4673  0.01s  0.06s  0.02s  0.00s 226.5M   5.8M  52.0K     0B nathans  nathans  N-   -    3 S     1   0% gsd-disk-utili 
+ 536573  0.02s  0.04s  0.00s  0.00s  36.6G  58.0M     0B     0B nathans  nathans  N-   -   13 S     0   0% chrome         
    1008  0.04s  0.02s  0.00s  0.00s 255.7M  10.3M   2.0M 236.0K root     root     N-   -    1 S     6   0% cupsd          
    6807  0.01s  0.05s  0.00s  0.00s 228.8M   6.5M     0B     0B nathans  nathans  N-   -    1 S     6   0% bash           
     899  0.03s  0.03s  0.00s  0.00s  11.2M   5.3M   2.2M     0B root     root     N-   -    1 S     7   0% smartd         
  561022  0.06s  0.00s  0.01s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     1   0% kworker/1:0-mm 
-   7507  0.01s  0.04s  0.01s  0.00s  32.5G 106.0M 492.0K     0B nathans  nathans  N-   -    9 S     6   0% chrome         
    7476  0.02s  0.03s  0.00s  0.00s  32.5G  52.2M   5.3M     0B nathans  nathans  N-   -    1 S     7   0% chrome         
    7475  0.02s  0.03s  0.00s  0.00s  32.5G  51.1M   1.6M     0B nathans  nathans  N-   -    1 S     7   0% chrome         
-   6626  0.02s  0.03s  0.00s  0.00s 180.2M  26.0M     0B     0B nathans  nathans  N-   -    3 S     1   0% RDD Process    
     880  0.02s  0.03s  0.02s  0.00s 379.8M   8.3M   5.7M     0B root     root     N-   -    4 S     1   0% ModemManager   
  511710  0.03s  0.02s  0.00s  0.00s  36.5M   8.1M     0B 620.0K pcp      pcp      N-   -    1 S     2   0% pmie           
  510401  0.04s  0.01s  0.00s  0.00s  16.6M   6.9M     0B   4.0K root     root     N-   -    1 S     1   0% pmdadm         
    6019  0.01s  0.04s  0.00s  0.00s 228.8M   6.5M  24.0K     0B nathans  nathans  N-   -    1 S     4   0% bash           
-   1091  0.03s  0.01s  0.00s  0.00s   1.6G  62.3M  22.6M   8.0K mysql    mysql    N-   -   30 S     6   0% mysqld         
- 536573  0.01s  0.03s  0.00s  0.00s  36.6G  58.0M     0B     0B nathans  nathans  N-   -   13 S     0   0% chrome         
-    954  0.02s  0.02s  0.00s  0.00s 528.5M   7.2M   1.5M   8.0K root     root     N-   -    4 S     2   0% accounts-daemo 
+   4958  0.01s  0.04s  0.00s  0.00s 438.3M   6.1M     0B     0B nathans  nathans  N-   -    3 S     1   0% ibus-portal    
+   4645  0.01s  0.03s  0.06s  0.00s 462.8M  12.0M     0B     0B nathans  nathans  N-   -    3 S     7   0% gsd-print-noti 
+   3464  0.01s  0.03s  0.00s  0.00s 547.8M  11.7M 300.0K   4.0K root     root     N-   -    3 S     5   0% gdm-session-wo 
  510383  0.03s  0.01s  0.00s  0.00s  16.9M   7.0M 432.0K  12.0K root     root     N-   -    1 S     6   0% pmdaroot       
  566343  0.01s  0.03s  0.00s  0.00s 228.7M   6.9M     0B     0B pcpqa    pcpqa    N-   -    1 S     0   0% bash           
  510386  0.02s  0.02s  0.00s  0.00s  16.1M   5.8M     0B   4.0K root     root     N-   -    1 S     3   0% pmdaxfs        
     917  0.01s  0.03s  0.02s  0.00s   9.3M   3.9M   3.5M     0B dbus     dbus     N-   -    1 S     1   0% dbus-broker-la 
-    898  0.03s  0.01s  0.00s  0.00s 150.2M   3.2M 204.0K     0B rtkit    rtkit    N-   -    3 S     5   0% rtkit-daemon   
-   6909  0.01s  0.02s  0.00s  0.00s 505.3M  66.0M 192.0K     0B nathans  nathans  N-   -    6 S     5   0% slack          
    6867  0.01s  0.02s  0.00s  0.00s 413.6M  30.2M   2.6M     0B nathans  nathans  N-   -    1 S     2   0% slack          
     935  0.01s  0.02s  0.00s  0.00s 477.8M  13.0M   4.8M     0B root     root     N-   -    3 S     7   0% abrtd          
-   4645  0.01s  0.02s  0.06s  0.00s 462.8M  12.0M     0B     0B nathans  nathans  N-   -    3 S     7   0% gsd-print-noti 
-   3464  0.01s  0.02s  0.00s  0.00s 547.8M  11.7M 300.0K   4.0K root     root     N-   -    3 S     5   0% gdm-session-wo 
+   4633  0.00s  0.03s  0.04s  0.00s 542.9M  12.0M     0B     0B nathans  nathans  N-   -    4 S     4   0% gsd-datetime   
+   4675  0.00s  0.03s  0.02s  0.00s 520.1M   8.3M     0B     0B nathans  nathans  N-   -    4 S     5   0% gsd-sound      
  562091  0.02s  0.01s  0.00s  0.00s  36.9M   7.5M  48.0K   4.0K pcp      pcp      N-   -    1 S     7   0% pmdaapache     
-   4673  0.00s  0.03s  0.02s  0.00s 226.5M   5.8M  52.0K     0B nathans  nathans  N-   -    3 S     1   0% gsd-disk-utili 
+   4484  0.00s  0.03s  0.00s  0.00s 441.4M   7.0M 332.0K     0B nathans  nathans  N-   -    3 S     4   0% gvfsd          
+   4609  0.00s  0.03s  0.05s  0.00s 157.5M   6.7M     0B     0B nathans  nathans  N-   -    3 S     6   0% at-spi2-regist 
+   4676  0.01s  0.02s  0.01s  0.00s 655.7M   6.5M  48.0K     0B nathans  nathans  N-   -    4 S     2   0% gsd-usb-protec 
+   4646  0.00s  0.03s  0.03s  0.00s 655.1M   5.8M     0B     0B nathans  nathans  N-   -    3 S     7   0% gsd-rfkill     
    8328  0.01s  0.02s  0.00s  0.00s 234.1M   5.7M 204.0K     0B nathans  nathans  N-   -    1 S     6   0% gconfd-2       
+   4648  0.00s  0.03s  0.04s  0.00s 438.7M   5.5M  28.0K     0B nathans  nathans  N-   -    3 S     6   0% gsd-screensave 
    2840  0.02s  0.01s  0.01s  0.00s  12.9M   4.2M   1.7M     0B root     root     N-   -    1 S     5   0% wpa_supplicant 
     882  0.01s  0.02s  0.00s  0.00s   9.1M   4.1M   1.4M     0B root     root     N-   -    1 S     2   0% bluetoothd     
  567863  0.03s  0.00s  0.01s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/0:1-ev 
@@ -824,36 +819,25 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  569789  0.01s  0.00s  0.00s  0.00s  23.4M  11.7M     0B   1.2M nathans  nathans  N-   -    1 S     5   0% pmlogger       
    6868  0.00s  0.02s  0.00s  0.00s 413.6M  30.2M   2.3M     0B nathans  nathans  N-   -    1 S     0   0% slack          
  259637  0.01s  0.01s  0.00s  0.00s 301.8M  15.5M 844.0K     0B nathans  nathans  N-   -    1 S     0   0% kdeinit4       
-   4633  0.00s  0.02s  0.04s  0.00s 542.9M  12.0M     0B     0B nathans  nathans  N-   -    4 S     4   0% gsd-datetime   
    4205  0.01s  0.01s  0.00s  0.00s 463.8M  10.7M 608.0K     0B nathans  nathans  N-   -    4 S     5   0% gnome-session- 
    1261  0.01s  0.01s  0.01s  0.00s 457.4M   7.9M 868.0K   4.0K root     root     N-   -    3 S     0   0% gdm            
-   4484  0.00s  0.02s  0.00s  0.00s 441.4M   7.0M 332.0K     0B nathans  nathans  N-   -    3 S     4   0% gvfsd          
+   4627  0.00s  0.02s  0.02s  0.00s 511.2M   6.0M     0B     0B nathans  nathans  N-   -    4 S     5   0% gsd-a11y-setti 
     889  0.01s  0.01s  0.00s  0.00s 224.1M   4.2M 568.0K     0B root     root     N-   -    3 S     6   0% low-memory-mon 
  569076  0.02s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     0   0% kworker/u16:1- 
  259639  0.00s  0.01s  0.00s  0.00s 306.8M  14.8M   3.6M     0B nathans  nathans  N-   -    1 S     6   0% klauncher      
    4821  0.00s  0.01s  0.00s  0.00s 544.8M  13.4M  20.0K     0B nathans  nathans  N-   -    3 S     6   0% gsd-printer    
-   4675  0.00s  0.01s  0.02s  0.00s 520.1M   8.3M     0B     0B nathans  nathans  N-   -    4 S     5   0% gsd-sound      
-   4609  0.00s  0.01s  0.05s  0.00s 157.5M   6.7M     0B     0B nathans  nathans  N-   -    3 S     6   0% at-spi2-regist 
-   4676  0.01s  0.00s  0.01s  0.00s 655.7M   6.5M  48.0K     0B nathans  nathans  N-   -    4 S     2   0% gsd-usb-protec 
     988  0.01s  0.00s  0.00s  0.00s 227.2M   6.3M 304.0K     0B root     root     N-   -    3 S     3   0% uresourced     
    4530  0.00s  0.01s  0.00s  0.00s 152.8M   6.1M  76.0K 700.0K nathans  nathans  N-   -    3 S     0   0% dconf-service  
-   4646  0.00s  0.01s  0.03s  0.00s 655.1M   5.8M     0B     0B nathans  nathans  N-   -    3 S     7   0% gsd-rfkill     
-   4648  0.00s  0.01s  0.04s  0.00s 438.7M   5.5M  28.0K     0B nathans  nathans  N-   -    3 S     6   0% gsd-screensave 
    4202  0.00s  0.01s  0.01s  0.00s  17.8M   3.6M 136.0K     0B nathans  nathans  N-   -    1 S     2   0% dbus-broker-la 
     944  0.00s  0.01s  0.01s  0.00s   5.0M   3.0M  56.0K 112.0K root     root     N-   -    1 S     7   0% alsactl        
    1257  0.01s  0.00s  0.00s  0.00s  20.5M   2.8M 168.0K     0B root     root     N-   -    1 S     6   0% atd            
      15  0.01s  0.00s  0.72s  0.00s     0B     0B     0B     0B root     root     N-   -    1 S     0   0% migration/0    
  569077  0.01s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     N-   -    1 I     4   0% kworker/u16:5- 
-   1721  0.00s  0.00s  0.00s  0.00s   1.6G  13.7M  14.6M     0B grafana  grafana  N-   -   14 S     4   0% pcp_redis_data 
- 561042  0.00s  0.00s  0.00s  0.00s   2.2G  12.1M     0B     0B apache   apache   N-   -   65 S     2   0% /usr/sbin/http 
- 561041  0.00s  0.00s  0.00s  0.00s   2.2G  11.8M     0B     0B apache   apache   N-   -   65 S     5   0% /usr/sbin/http 
    6870  0.00s  0.00s  0.00s  0.00s 413.6M  11.2M     0B     0B nathans  nathans  N-   -    1 S     6   0% slack          
- 561040  0.00s  0.00s  0.00s  0.00s   2.4G  11.0M     0B     0B apache   apache   N-   -   81 S     0   0% /usr/sbin/http 
  558615  0.00s  0.00s  0.00s  0.00s 323.5M  10.5M     0B     0B apache   apache   N-   -    1 S     4   0% php-fpm        
  558616  0.00s  0.00s  0.00s  0.00s 323.5M  10.5M     0B     0B apache   apache   N-   -    1 S     5   0% php-fpm        
  558612  0.00s  0.00s  0.00s  0.00s 323.5M  10.5M     0B     0B apache   apache   N-   -    1 S     4   0% php-fpm        
  132118  0.00s  0.00s  0.00s  0.00s 452.5M  10.5M  52.0K     0B nathans  nathans  N-   -    3 S     4   0% gvfsd-http     
-    897  0.00s  0.00s  0.00s  0.00s 278.9M  10.4M   1.3M     0B root     root     N-   -    3 S     6   0% rsyslogd       
  558613  0.00s  0.00s  0.00s  0.00s 323.5M  10.3M     0B     0B apache   apache   N-   -    1 S     1   0% php-fpm        
  558614  0.00s  0.00s  0.00s  0.00s 323.5M  10.3M     0B     0B apache   apache   N-   -    1 S     0   0% php-fpm        
  566340  0.00s  0.00s  0.00s  0.00s 256.3M   9.1M     0B     0B nathans  root     N-   -    1 S     3   0% sudo           
@@ -862,16 +846,12 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
  126992  0.00s  0.00s  0.00s  0.00s 586.2M   7.9M 156.0K     0B nathans  nathans  N-   -    4 S     6   0% gvfsd-network  
  126984  0.00s  0.00s  0.00s  0.00s 513.6M   7.7M 184.0K     0B nathans  nathans  N-   -    3 S     4   0% gvfsd-trash    
  566342  0.00s  0.00s  0.00s  0.00s 254.5M   7.3M     0B   4.0K root     root     N-   -    1 S     3   0% su             
-   1230  0.00s  0.00s  0.00s  0.00s 812.3M   7.3M 304.0K     0B root     root     N-   -   12 S     0   0% pcscd          
  510409  0.00s  0.00s  0.00s  0.00s  36.3M   7.2M  52.0K   4.0K pcp      pcp      N-   -    1 S     3   0% pmdasimple     
  510393  0.00s  0.00s  0.00s  0.00s  36.3M   7.1M     0B   4.0K pcp      pcp      N-   -    1 S     3   0% pmdamounts     
-   4593  0.00s  0.00s  0.00s  0.00s 514.4M   7.1M 100.0K     0B nathans  nathans  N-   -    4 S     4   0% gvfs-afc-volum 
    4453  0.00s  0.00s  0.00s  0.00s 301.1M   6.9M     0B     0B nathans  nathans  N-   -    4 S     0   0% at-spi-bus-lau 
    1012  0.00s  0.00s  0.00s  0.00s  29.3M   6.7M   1.1M     0B root     root     N-   -    1 S     6   0% sshd           
    4943  0.00s  0.00s  0.00s  0.00s 438.6M   6.2M     0B     0B nathans  nathans  N-   -    4 S     0   0% ibus-dconf     
-   4958  0.00s  0.00s  0.00s  0.00s 438.3M   6.1M     0B     0B nathans  nathans  N-   -    3 S     1   0% ibus-portal    
    4575  0.00s  0.00s  0.00s  0.00s 366.1M   6.1M 204.0K 124.0K nathans  nathans  N-   -    3 S     6   0% gvfsd-metadata 
-   4627  0.00s  0.00s  0.02s  0.00s 511.2M   6.0M     0B     0B nathans  nathans  N-   -    4 S     5   0% gsd-a11y-setti 
    4574  0.00s  0.00s  0.00s  0.00s 438.3M   5.9M 112.0K     0B nathans  nathans  N-   -    3 S     7   0% gvfs-goa-volum 
    1337  0.00s  0.00s  0.00s  0.00s  56.8M   5.8M     0B     0B pcpqa    pcpqa    N-   -    1 S     6   0% (sd-pam        
    1338  0.00s  0.00s  0.00s  0.00s  56.8M   5.8M     0B     0B nathans  nathans  N-   -    1 S     6   0% (sd-pam        
@@ -879,7 +859,6 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
    4566  0.00s  0.00s  0.00s  0.00s 440.0M   5.7M 620.0K     0B nathans  nathans  N-   -    3 S     3   0% gvfs-gphoto2-v 
    4200  0.00s  0.00s  0.00s  0.00s 365.3M   5.3M   4.0K     0B nathans  nathans  N-   -    3 S     5   0% gdm-wayland-se 
    4570  0.00s  0.00s  0.00s  0.00s 437.8M   5.0M 104.0K     0B nathans  nathans  N-   -    3 S     1   0% gvfs-mtp-volum 
-   7253  0.00s  0.00s  0.00s  0.00s 350.3M   4.9M 136.0K     0B nathans  nathans  N-   -    3 S     2   0% sd_dummy       
    4511  0.00s  0.00s  0.00s  0.00s 437.3M   4.4M   4.0K     0B nathans  nathans  N-   -    3 S     1   0% xdg-permission 
    4271  0.00s  0.00s  0.00s  0.00s 155.2M   4.3M     0B     0B nathans  nathans  N-   -    3 S     5   0% uresourced     
  569742  0.00s  0.00s  0.00s  0.00s 217.3M   3.9M     0B     0B nathans  nathans  N-   -    1 S     6   0% mk.atop-thread 
@@ -990,7 +969,7 @@ WWW | reqs      60 | totKB    133 | byt/rq  2269 | iwork     74 | bwork      1 |
 
 
 ATOP - shard                                 2021/04/20  15:30:38                                 -----------------                                   1s elapsed
-PRC | sys    0.11s |  user   0.07s | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     4 |  no  procacct |
+PRC | sys    0.14s |  user   0.09s | #proc    377 |  #trun      1 | #tslpi   290 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     4 |  no  procacct |
 CPU | sys      15% |  user     12% | irq      25% |  idle    748% | wait      0% |  steal     0% | guest     0% |  ipc     0.62 | cycl  186MHz |  curf 3.56GHz |
 cpu | sys      11% |  user      5% | irq       3% |  idle     81% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     1.03 | cycl  550MHz |   |
 cpu | sys       0% |  user      2% | irq       4% |  idle     94% | cpu006 w  0% |  steal     0% | guest     0% |  ipc     0.47 | cycl  190MHz |   |
@@ -1011,48 +990,39 @@ NET | lo      ---- |  pcki      26 | pcko      26 |  sp    0 Mbps | si   24 Kbps
 
     PID SYSCPU USRCPU RDELAY BDELAY  VGROW  RGROW  RDDSK  WRDSK RUID     EUID     ST EXC  THR S CPUNR  CPU CMD            
  567882  0.10s  0.04s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 R     2  15% pmdaproc       
-   6569  0.00s  0.01s  0.00s  0.00s     0B 800.0K     0B     0B nathans  nathans  --   -   46 S     7   2% Web Content    
+   6098  0.01s  0.01s  0.00s  0.00s -20.0K   1.7M     0B     0B nathans  nathans  --   -  160 S     5   3% firefox        
+   6569  0.00s  0.02s  0.00s  0.00s     0B 800.0K     0B     0B nathans  nathans  --   -   46 S     7   3% Web Content    
  569789  0.00s  0.01s  0.00s  0.00s  -4.0K 236.0K     0B   1.1M nathans  nathans  --   -    1 S     5   1% pmlogger       
+ 112368  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     3   1% Web Content    
  510378  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B pcp      pcp      --   -    2 S     0   0% pmcd           
-   6098  0.00s  0.00s  0.00s  0.00s -20.0K   1.7M     0B     0B nathans  nathans  --   -  160 S     5   0% firefox        
- 112334  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     6   0% Web Content    
-   6968  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   15 S     6   0% slack          
    4311  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    4 S     0   0% pulseaudio     
+ 112334  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     6   0% Web Content    
+   6532  0.00s  0.00s  0.00s  0.00s     0B 136.0K     0B     0B nathans  nathans  --   -   48 S     2   0% Web Content    
+   6968  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   15 S     6   0% slack          
  510388  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     4   0% pmdalinux      
     905  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    2 S     4   0% thermald       
  510406  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     5   0% pmdazfs        
- 112368  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     3   0% Web Content    
    7581  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   17 S     4   0% chrome         
    4307  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   21 S     4   0% gnome-shell    
    6667  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   43 S     6   0% Web Content    
-   8038  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   16 S     2   0% chrome         
-   6532  0.00s  0.00s  0.00s  0.00s     0B 136.0K     0B     0B nathans  nathans  --   -   48 S     2   0% Web Content    
+   7465  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   26 S     4   0% chrome         
    6234  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   45 S     3   0% Web Content    
    6289  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   51 S     3   0% Web Content    
- 512101  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     3   0% python3        
  149648  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     1   0% Web Content    
  251337  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   14 S     2   0% chrome         
    1242  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B redis    redis    --   -   37 S     6   0% redis-server   
-   6351  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   35 S     6   0% WebExtensions  
-   6475  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     1   0% Privileged Con 
- 259641  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    2 S     6   0% kded4          
-   6626  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     1   0% RDD Process    
    2725  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B geoclue  geoclue  --   -    4 S     4   0% geoclue        
     960  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B polkitd  polkitd  --   -   12 S     5   0% polkitd        
     848  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B systemd- systemd- --   -    1 S     1   0% systemd-resolv 
-   7480  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     2   0% chrome         
    4972  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    3 S     0   0% abrt-dbus      
  561042  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   65 S     2   0% /usr/sbin/http 
+ 561041  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   65 S     5   0% /usr/sbin/http 
+ 561040  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   81 S     0   0% /usr/sbin/http 
  510399  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B pcp      pcp      --   -    2 S     3   0% pmdaperfevent  
  127014  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     3   0% gvfsd-dnssd    
- 530954  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     4   0% bash           
     937  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B dbus     dbus     --   -    1 S     6   0% dbus-broker    
-   1338  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% (sd-pam        
-   8328  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% gconfd-2       
     881  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B avahi    avahi    --   -    1 S     0   0% avahi-daemon   
-   7263  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     4   0% speech-dispatc 
  569742  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% mk.atop-thread 
- 116463  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     0   0% ssh-agent      
      14  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     0   0% rcu_sched      
      24  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     2   0% ksoftirqd/2    
      29  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     3   0% ksoftirqd/3    
@@ -1062,7 +1032,6 @@ NET | lo      ---- |  pcki      26 | pcko      26 |  sp    0 Mbps | si   24 Kbps
  258588  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     7   0% kworker/7:0-ev 
  520551  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     3   0% kworker/3:3-mm 
  532562  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     2   0% kworker/2:0-ev 
- 533793  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     1   0% kworker/1:3-ev 
  536069  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     4   0% kworker/u17:0- 
  536169  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     2   0% kworker/u16:4- 
  558573  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     7   0% kworker/u16:3- 
@@ -1076,7 +1045,7 @@ NET | lo      ---- |  pcki      26 | pcko      26 |  sp    0 Mbps | si   24 Kbps
 
 
 ATOP - shard                                 2021/04/20  15:30:39                                 -----------------                                   1s elapsed
-PRC | sys    0.13s |  user   0.13s | #proc    377 |  #trun      1 | #tslpi   291 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     0 |  no  procacct |
+PRC | sys    0.17s |  user   0.15s | #proc    377 |  #trun      1 | #tslpi   291 |  #tslpu     0 | #tidle    85 |  #zombie    0 | clones     0 |  no  procacct |
 CPU | sys      13% |  user     16% | irq      26% |  idle    745% | wait      0% |  steal     0% | guest     0% |  ipc     0.62 | cycl  175MHz |  curf 3.58GHz |
 cpu | sys       9% |  user      6% | irq       3% |  idle     82% | cpu002 w  0% |  steal     0% | guest     0% |  ipc     1.09 | cycl  527MHz |   |
 cpu | sys       0% |  user      6% | irq       3% |  idle     91% | cpu003 w  0% |  steal     0% | guest     0% |  ipc     0.65 | cycl  231MHz |   |
@@ -1097,41 +1066,32 @@ NET | enp0s25 ---- |  pcki      85 | pcko      10 |  sp    0 Mbps | si   53 Kbps
 
     PID SYSCPU USRCPU RDELAY BDELAY  VGROW  RGROW  RDDSK  WRDSK RUID     EUID     ST EXC  THR S CPUNR  CPU CMD            
  567882  0.09s  0.05s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 R     2  14% pmdaproc       
-   6569  0.00s  0.06s  0.00s  0.00s     0B   4.1M     0B     0B nathans  nathans  --   -   46 S     3   8% Web Content    
-   6098  0.00s  0.00s  0.00s  0.00s  20.0K  -0.6M     0B     0B nathans  nathans  --   -  160 S     4   2% firefox        
+   6569  0.02s  0.07s  0.00s  0.00s     0B   4.1M     0B     0B nathans  nathans  --   -   46 S     3  10% Web Content    
+   6098  0.01s  0.01s  0.00s  0.00s  20.0K  -0.6M     0B     0B nathans  nathans  --   -  160 S     4   3% firefox        
    4307  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   21 S     6   2% gnome-shell    
  569789  0.00s  0.00s  0.00s  0.00s   1.0M   1.1M     0B   1.1M nathans  nathans  --   -    1 S     5   1% pmlogger       
+   6234  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   45 S     0   1% Web Content    
+   7505  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   12 S     5   1% chrome         
      24  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     2   1% ksoftirqd/2    
  112368  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     4   0% Web Content    
  112334  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     7   0% Web Content    
    6667  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   43 S     7   0% Web Content    
    8038  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   16 S     4   0% chrome         
    6532  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   48 S     5   0% Web Content    
-   6234  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   45 S     0   0% Web Content    
+   7465  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   26 S     4   0% chrome         
    6289  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   51 S     1   0% Web Content    
-   7672  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   15 S     6   0% chrome         
- 512101  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     3   0% python3        
  149648  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     2   0% Web Content    
+   1242  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B redis    redis    --   -   37 S     6   0% redis-server   
    7507  0.00s  0.00s  0.00s  0.00s     0B  -8.0K     0B     0B nathans  nathans  --   -    9 S     6   0% chrome         
-   6351  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   35 S     6   0% WebExtensions  
-   7539  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   13 S     6   0% chrome         
-   6475  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -   42 S     1   0% Privileged Con 
-   7521  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    5 S     2   0% chrome         
- 259641  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    2 S     6   0% kded4          
-   6626  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     1   0% RDD Process    
     848  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B systemd- systemd- --   -    1 S     1   0% systemd-resolv 
-   7480  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     2   0% chrome         
    4972  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    3 S     0   0% abrt-dbus      
  561042  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   65 S     2   0% /usr/sbin/http 
+   4672  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    6 S     5   0% gsd-smartcard  
+ 561041  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B apache   apache   --   -   65 S     5   0% /usr/sbin/http 
  510399  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B pcp      pcp      --   -    2 S     3   0% pmdaperfevent  
- 530954  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     4   0% bash           
  510378  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B pcp      pcp      --   -    2 S     0   0% pmcd           
  569803  0.00s  0.00s  0.00s  0.00s  15.9M   6.0M     0B     0B nathans  nathans  N-   -    1 S     0   0% pmsleep        
-   1338  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% (sd-pam        
-   8328  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% gconfd-2       
-   7263  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    3 S     4   0% speech-dispatc 
  569742  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     6   0% mk.atop-thread 
- 116463  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B nathans  nathans  --   -    1 S     0   0% ssh-agent      
      15  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     0   0% migration/0    
      18  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     1   0% migration/1    
      23  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 S     2   0% migration/2    
@@ -1144,9 +1104,7 @@ NET | enp0s25 ---- |  pcki      85 | pcko      10 |  sp    0 Mbps | si   53 Kbps
     276  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     4   0% kworker/4:1H-e 
  520551  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     3   0% kworker/3:3-ev 
  532562  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     2   0% kworker/2:0-ev 
- 533793  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     1   0% kworker/1:3-ev 
  536169  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     3   0% kworker/u16:4- 
- 553270  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     6   0% kworker/6:3-ev 
  558573  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     7   0% kworker/u16:3- 
  559476  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     5   0% kworker/5:2-ev 
  561022  0.00s  0.00s  0.00s  0.00s     0B     0B     0B     0B root     root     --   -    1 I     1   0% kworker/1:0-mm 
