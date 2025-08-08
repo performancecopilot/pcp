@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 1977
+# Exercise pcp2opentelemetry HTTP POST functionality.
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+which pcp2opentelemetry >/dev/null 2>&1 || _notrun "pcp2opentelemetry not installed"
+
+
+_cleanup()
+{
+   cd $here
+   $sudo rm -rf $tmp $tmp.*
+}
+
+status=0    # success is the default!
+cpus=`pmprobe -v hinv.ncpu | awk '{print $3}'`
+hostname=`hostname`
+machineid=`_machine_id`
+domainid=`_domain_name`
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_pcp2opentelemetry_http()
+{
+   tee -a $here/$seq.full \
+   | col -b \
+   | sed \
+       -e '/\"asDouble\":/ s/[0-9][0-9]*/NCPU/' \
+       -e 's/\"'$machineid'\"/MACHINEID/' \
+       -e 's/\"'$hostname'\"/HOSTNAME/' \
+       -e 's/\"'$domainid'\"/DOMAINID/' \
+       -e 's/\"agent\": .*/\"agent\": \"'$OSTYPE'\"/' \
+       -e 's/\"startTimeUnixNano\": .*/\"startTimeUnixNano\": TIME/' \
+       -e 's/\"userid\": .*/\"userid\": USERID/' \
+       -e 's/\"userid\": .*/\"userid\": GROUPID/' \
+       -e '/HTTP/d'
+} >> $tmp.python2.out
+
+
+# real QA test starts here
+port=`_find_free_port`
+$PCP_PYTHON_PROG $here/src/pythonserver.py $port >$tmp.python.out 2>&1 &
+pid=$!
+sleep 2 # let server start up
+
+
+echo "pcp2opentelemetry invocation" | tee -a $here/$seq.full
+pcp2opentelemetry -s1 -u http://localhost:$port/receive hinv.ncpu >$tmp.json.out 2>$tmp.openjson.err
+
+
+echo "pcp2opentelemetry HTTP POST (sorted):"
+_filter_pcp2opentelemetry_http <$tmp.python.out
+_check_http_filter <$tmp.python2.out
+
+
+# terminate pythonserver.py now
+pmsignal $pid >/dev/null 2>&1
+
+# success, all done
+exit
