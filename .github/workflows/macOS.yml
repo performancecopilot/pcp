@@ -10,11 +10,14 @@ jobs:
       - name: Install dependencies
         run: |
           brew install gnu-tar pkg-config python@3.13 python-setuptools autoconf qt qt-creator
-      - name: Build
+      - name: Build on macOS
+        id: Build
         run: |
           xcodebuild -version
           export PKGBUILD=`which pkgbuild`
           export QMAKE=`which qmake`
           ./Makepkgs —verbose
-          echo "Outputing PCP logs to the workflow console"
+      - name: Debug on failure
+        if: failure() && steps.Build.conclusion == 'failure'
+        run: |
           cat /Users/runner/work/pcp/pcp/Logs/pcp
