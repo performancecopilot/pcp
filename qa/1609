@@ -1,0 +1,36 @@
+#!/bin/sh
+# PCP QA Test No. 1609
+# pmlogrewrite -q with empty archive
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+pmlogrewrite -q tmparch/empty $tmp
+
+# success, all done
+exit

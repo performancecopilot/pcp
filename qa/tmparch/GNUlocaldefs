@@ -5,7 +5,7 @@
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-MKARCH	= foo.0 foo_v2.0 foo_v3.0 mv-foo.0 noti-foo.0 noti-ok-foo.0 null.0 \
+MKARCH	= foo.0 foo_v2.0 foo_v3.0 mv-foo.0 noti-foo.0 noti-ok-foo.0 empty.0 \
 	bar.0 mv-bar.0 noti-bar.0 \
 	bigbin.0 mv-bigbin.0 noti-bigbin.0 truncbin.0 \
 	interp.0 mv-interp.0 noti-interp.0 \
@@ -74,14 +74,16 @@ noti-ok-foo.0:	../archives/ok-foo.0
 	cp ../archives/ok-foo.meta noti-ok-foo.meta
 
 # just the label record
-null.0:	foo.0
-	rm -f null.index null.meta null.0
-	ln foo.meta null.meta
-	ln foo.index null.index
+empty.0:	foo.0
+	rm -f empty.index empty.meta empty.0
 	if [ "$(DEFAULT_ARCHIVE_VERSION)" = 3 ]; then \
-	    dd ibs=808 count=1 if=foo.0 of=null.0 ;\
+	    dd ibs=808 count=1 if=foo.0 of=empty.0 2>/dev/null ;\
+	    dd ibs=808 count=1 if=foo.meta of=empty.meta 2>/dev/null ;\
+	    dd ibs=808 count=1 if=foo.index of=empty.index 2>/dev/null ;\
 	else \
-	    dd ibs=132 count=1 if=foo.0 of=null.0 ;\
+	    dd ibs=132 count=1 if=foo.0 of=empty.0 2>/dev/null ;\
+	    dd ibs=132 count=1 if=foo.meta of=empty.meta 2>/dev/null ;\
+	    dd ibs=132 count=1 if=foo.index of=empty.index 2>/dev/null ;\
 	fi
 
 bar.0:	config.bar

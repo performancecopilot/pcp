@@ -1028,7 +1028,7 @@ end:
 	    if (pmDebugOptions.logmeta) {
 		fprintf(stderr, "%s: no metrics found?\n", "__pmLogLoadMeta");
 	    }
-	    sts = PM_ERR_LOGREC;
+	    sts = PM_ERR_NODATA;
 	}
     }
 

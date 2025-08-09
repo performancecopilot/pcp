@@ -1,0 +1,47 @@
+#!/bin/sh
+# PCP QA Test No. 1624
+# pmcd and pmlogger _service() uses for stop and start
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "Silence is golden ..."
+
+_service pmlogger stop || _exit 1
+_wait_pmlogger_end || _exit 1
+_service pmcd stop || _exit 1
+_wait_pmcd_end || _exit 1
+
+_service pmcd start || _exit 1
+_wait_for_pmcd || _exit 1
+_service pmlogger start || _exit 1
+_wait_for_pmlogger || _exit 1
+
+# success, all done
+exit
