@@ -150,7 +150,7 @@ do_logue(int type)
 	     * either the full pathname to the base of the archive, cloned
 	     * from GetPort() in ports.c, or the remote connection string.
 	     */
-	    if (remote.only)
+	    if (remote.conn)
 		atom.cp = remote.conn;
 	    else if (__pmAbsolutePath(archName))
 		atom.cp = archName;
@@ -204,7 +204,7 @@ do_logue(int type)
     if (sts < 0)
 	goto done;
 
-    if (!remote.only) {
+    if (!remote.conn) {
 	/* force use of log version */
 	__pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
     }

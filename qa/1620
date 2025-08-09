@@ -127,52 +127,9 @@ log mandatory on every 1 second {
     kernel.all.pswitch
 }
 End-Of-File
-common_args="-c $tmp.conf -T 15sec"
 
-echo
-echo "=== Signalling pmlogger in both local and remote modes"
-mixed_mode="$common_args -R http://localhost:44322 $tmp.data"
-((sleep 10; $sudo $signal -s HUP $pmproxy_pid)&) >/dev/null 2>&1
-if $do_valgrind
-then
-    _run_valgrind pmlogger $mixed_mode
-else
-    pmlogger $mixed_mode
-fi \
-| _filter
-wait # for child signal shell to finish
-
-echo "## checking for pmproxy SIGHUP"
-grep SIGHUP $PCP_LOG_DIR/pmproxy/pmproxy.log | _filter_pmproxy_log
-_save_logs
-
-if [ -d $archive_path ]
-then
-    echo "## found remote archive files" | tee -a $seq_full
-    ls -1 $archive_path | tee -a $seq_full | _filter | LC_COLLATE=POSIX sort
-    echo "## with the following metrics"
-    pminfo -a $archive_path | _filter_metrics
-else
-    echo "Archive push failed: $archive_path directory not created"
-    status=1
-    exit
-fi
-if [ -f $tmp.data.0 ]
-then
-    echo "## found local archive files"
-    ls -1 $tmp.data.* | _filter | LC_COLLATE=POSIX sort
-    echo "## with the following metrics"
-    pminfo -a $tmp.data | _filter_metrics
-else
-    echo "pmlogger failed to create local archive"
-    status=1
-    exit
-fi
-$sudo rm -fr $archive_path $tmp.data.*
-
-echo
-echo "=== Running pmlogger in remote only recording mode"
-remote_mode="$common_args -R http://localhost:44322"
+echo "=== Running pmlogger in remote recording mode"
+remote_mode="-c $tmp.conf -T 20sec http://localhost:44322"
 ((sleep 10; $sudo $signal -s HUP pmproxy_pid)&) >/dev/null 2>&1
 if $do_valgrind
 then
@@ -197,14 +154,6 @@ else
     echo "Archive push failed: $archive_path directory not created"
     status=1
     exit
-fi
-if [ -f $tmp.data.0 ]
-then
-    echo "pmlogger created local archives incorrectly"
-    status=1
-    exit
-else
-    echo "## found no local archive files"
 fi
 
 # success, all done

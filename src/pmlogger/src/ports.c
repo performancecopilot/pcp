@@ -502,7 +502,7 @@ GetPorts(char *file)
 	fprintf(mapstream, "%s\n", pmcd_host);
 
 	/* then remote connection string or full pathname to the archive base */
-	if (remote.only)
+	if (remote.conn)
 	    fprintf(mapstream, "%s\n", remote.conn);
 	else {
 	    /* THREADSAFE - no locks acquired in __pmNativePath() */

@@ -132,7 +132,7 @@ run_done(int sts, char *msg)
     /*
      * close the archive
      */
-    if (!remote.only) {
+    if (!remote.conn) {
 	__pmFclose(archctl.ac_mfp);
 	__pmFclose(archctl.ac_log->tifp);
 	__pmFclose(archctl.ac_log->mdfp);
@@ -483,7 +483,6 @@ static pmLongOptions longopts[] = {
     { "PID", 1, 'p', "PID", "Log specified metric for the lifetime of the pid" },
     { "primary", 0, 'P', 0, "execute as primary logger instance" },
     { "report", 0, 'r', 0, "report record sizes and archive growth rate" },
-    { "remote", 1, 'R', "URL", "remote HTTP server for archive push mode" },
     { "size", 1, 's', "SIZE", "terminate after endsize has been accumulated" },
     { "interval", 1, 't', "DELTA", "default logging interval [default 60.0 seconds]" },
     PMOPT_FINISH,
@@ -498,7 +497,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "c:Cd:D:h:H:I:l:K:Lm:Nn:op:PrR:s:T:t:uU:v:V:x:y?",
+    .short_options = "c:Cd:D:h:H:I:l:K:Lm:Nn:op:Prs:T:t:uU:v:V:x:y?",
     .long_options = longopts,
     .short_usage = "[options] [archive]",
 };
@@ -813,7 +812,7 @@ label_callback(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 	    /*NOTREACHED*/
 	}
     }
-    if (remote.only)
+    if (remote.conn)
 	return 0;
     return local_write(acp, volume, buffer, length, caller);
 }
@@ -833,7 +832,7 @@ write_callback(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 	    /*NOTREACHED*/
 	}
     }
-    if (remote.only)
+    if (remote.conn)
 	return 0;
     return local_write(acp, volume, buffer, length, caller);
 }
@@ -841,7 +840,7 @@ write_callback(const __pmArchCtl *acp, int volume, void *buffer, size_t length,
 static int
 flush_callback(const __pmArchCtl *acp, int volume, const char *caller)
 {
-    if (remote.only)
+    if (remote.conn)
 	return 0;
     return local_flush(acp, volume, caller);
 }
@@ -849,7 +848,7 @@ flush_callback(const __pmArchCtl *acp, int volume, const char *caller)
 static void
 reset_callback(const __pmArchCtl *acp, int volume, long offset, const char *caller)
 {
-    if (remote.only) {
+    if (remote.conn) {
 	if (volume == PM_LOG_VOL_META)
 	    remote.total_meta = offset;
 	else if (volume == PM_LOG_VOL_TI)
@@ -864,7 +863,7 @@ reset_callback(const __pmArchCtl *acp, int volume, long offset, const char *call
 static long
 tell_callback(const __pmArchCtl *acp, int volume, const char *caller)
 {
-    if (remote.only) {
+    if (remote.conn) {
 	if (volume == PM_LOG_VOL_META)
 	    return (long)remote.total_meta;
 	else if (volume == PM_LOG_VOL_TI)
@@ -1083,10 +1082,6 @@ main(int argc, char **argv)
 	    rflag = 1;
 	    break;
 
-	case 'R':		/* pmlogger remote push HTTP server */
-	    remote.conn = opts.optarg;
-	    break;
-
 	case 's':		/* exit size */
 	    sts = ParseSize(opts.optarg, &exit_samples, &exit_bytes, &exit_time);
 	    if (sts < 0) {
@@ -1180,11 +1175,8 @@ main(int argc, char **argv)
 	opts.errors++;
     }
 
-    if (remote.conn && Cflag == 0 && opts.optind > argc - 1)
-	remote.only = 1; /* do not create a local archive */
-
     if (!opts.errors && ((Cflag == 0 && opts.optind > argc - 1) ||
-			 (Cflag == 1 && opts.optind > argc)) && !remote.only) {
+			 (Cflag == 1 && opts.optind > argc))) {
 	pmprintf("%s: insufficient arguments\n", pmGetProgname());
 	opts.errors++;
     }
@@ -1202,6 +1194,10 @@ main(int argc, char **argv)
 	pmUsageMessage(&opts);
 	exit(1);
     }
+
+    /* pmlogger remote push HTTP server mode - no local archive */
+    if (strncmp(argv[opts.optind], "http://", 7) == 0)
+	remote.conn = argv[opts.optind];
 
     if (getenv("__PMLOGGER_REEXEC") != NULL) {
 	/*
@@ -1257,7 +1253,7 @@ main(int argc, char **argv)
     if (pmDebugOptions.appl4)
 	pmNotifyErr(LOG_INFO, "Signal handlers installed");
 
-    if (Cflag == 0 && !remote.only) {
+    if (Cflag == 0 && !remote.conn) {
 	/* base name for archive is here ... */
 	if ((archName = malloc(MAXPATHLEN+1)) == NULL) {
 	    pmNoMem("main: archName", strlen(argv[opts.optind])+1, PM_FATAL_ERR);
@@ -1473,12 +1469,8 @@ main(int argc, char **argv)
 
     if (remote.conn != NULL) {
 	remote.client = pmhttpNewClient();
-	if (remote_ping() < 0) { /* check for support, perform DNS resolution */
-	    if (remote.only)
-		exit(1);
-	    fprintf(stderr, "Cannot ping %s, continuing without remote push\n",
-			    remote.conn);
-	}
+	if (remote_ping() < 0) /* check for support, perform DNS resolution */
+	    exit(1);
     }
 
     __pmLogWriterInit(&archctl, &logctl);
@@ -1495,7 +1487,7 @@ main(int argc, char **argv)
     archctl.ac_tell_cb = tell_callback;
 
     /* setup in-memory libpcp structures safely, without creating files */
-    if (remote.only)
+    if (remote.conn)
 	sts = __pmLogCreateLabel(pmcd_host, archive_version, &logctl);
 
     /*
@@ -1503,7 +1495,7 @@ main(int argc, char **argv)
      * previous iteration, and if this happens use a -NN suffix to make
      * archName different, ... but only if make_uniq is set
      */
-    suff = remote.only ? 99 : -1;
+    suff = remote.conn ? 99 : -1;
     for (; suff < 99; suff++) { /* limit of 100 retries */
 	int	dirlen;
 	/*
@@ -1612,7 +1604,7 @@ main(int argc, char **argv)
         last_stamp.nsec = res_end.tv_usec * 1000;
     }
 
-    if (!remote.only)
+    if (!remote.conn)
 	fprintf(stderr, "Archive basename: %s\n", archName);
 
     if (notify_service_mgr && !pmlogger_reexec) {
@@ -1662,7 +1654,7 @@ main(int argc, char **argv)
     __pmAFunblock();
 
     /* create the Latest folio */
-    if (isdaemon && !remote.only)
+    if (isdaemon && !remote.conn)
 	updateLatestFolio(pmcd_host, archName);
 
     if (vol_switch_time.tv_sec > 0) {
@@ -1871,7 +1863,7 @@ newvolume(int vol_switch_type)
                                    vol_switch_callback);
     }
 
-    if (remote.only) {
+    if (remote.conn) {
 	logctl.label.vol = archctl.ac_curvol = nextvol;
 	time(&now);
 	fprintf(stderr, "New log volume %d, via %s at %s",
