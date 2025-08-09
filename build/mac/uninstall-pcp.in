@@ -43,7 +43,8 @@ then
 fi
 
 echo "Stopping PCP..."
-/Library/StartupItems/pcp/pcp stop
+/Library/StartupItems/pcp/pmlogger stop
+/Library/StartupItems/pcp/pmcd stop
 sleep 5
 
 if [ -x $BINADM_DIR/install-pcp -a -r $BINADM_DIR/idb ]

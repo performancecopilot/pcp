@@ -913,7 +913,7 @@ esac
 case $__scriptname
 in
     check|remake)
-	# $PCP_RC_DIR/pcp needs this to produce deterministic output now
+	# $PCP_RC_DIR scripts need this to produce deterministic output now
 	#
 	_change_config verbose on
 	;;

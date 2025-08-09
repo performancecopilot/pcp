@@ -20,6 +20,7 @@ pcp-7.0.0 (1 September 2025)
 	pmproxy: support both OpenMetrics and OpenTelemetry /metrics
 	pmproxy: configurable HTTP headers (e.g. X-Grafana-Device-ID)
 	pmlogger_daily: default compression is a dynamic zst/xz choice
+	rc_pcp: legacy init.d pmcd+pmlogger wrapper script removed
     - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp.so.4: default PMAPI supports nanosecond precision times
 	libpcp.so.3: provides backwards compatible libpcp interfaces

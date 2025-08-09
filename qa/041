@@ -1,6 +1,6 @@
 #! /bin/sh
 # PCP QA Test No. 041
-# Test $PCP_RC_DIR/pcp start
+# Test $PCP_RC_DIR pmcd and pmlogger start
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
