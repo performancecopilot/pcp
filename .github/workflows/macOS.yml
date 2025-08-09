@@ -1,0 +1,17 @@
+name: macOS CI
+on: [push]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Homebrew
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      - name: Install dependencies
+        run: |
+          brew install gnu-tar pkg-config python@3.13 python-setuptools autoconf qt qt-creator
+      - name: Build
+        run: |
+          export PKGBUILD=`which pkgbuild`
+          export QMAKE=`which qmake`
+          ./Makepkgs —verbose
