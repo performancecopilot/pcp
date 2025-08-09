@@ -12,6 +12,9 @@ jobs:
           brew install gnu-tar pkg-config python@3.13 python-setuptools autoconf qt qt-creator
       - name: Build
         run: |
+          xcodebuild -version
           export PKGBUILD=`which pkgbuild`
           export QMAKE=`which qmake`
           ./Makepkgs —verbose
+          echo "Outputing PCP logs to the workflow console"
+          cat /Users/runner/work/pcp/pcp/Logs/pcp
