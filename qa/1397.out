@@ -1718,7 +1718,7 @@ smart.info.uuid PMID: 150.0.8 [UUID of the Drive]
     Semantics: discrete  Units: none
 Help:
 The given globally unique identifier for the disk drive.
-No value(s) available!
+    inst [0 or "sda"] value "8ce38e0500882b63"
 
 smart.nvme_attributes.available_spare PMID: 150.255.2 [Normalized percentage of remaining spare capacity]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -4219,7 +4219,7 @@ smart.wwid.info.uuid PMID: 150.1000.8 [UUID of the Drive]
     Semantics: discrete  Units: none
 Help:
 The given globally unique identifier for the disk drive.
-No value(s) available!
+    inst [0 or "8ce38e0500882b63"] value "8ce38e0500882b63"
 
 smart.wwid.nvme_attributes.available_spare PMID: 150.1255.2 [Normalized percentage of remaining spare capacity]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -7109,7 +7109,11 @@ smart.info.uuid PMID: 150.0.8 [UUID of the Drive]
     Semantics: discrete  Units: none
 Help:
 The given globally unique identifier for the disk drive.
-No value(s) available!
+    inst [0 or "sda"] value "8ce38e0500882b63"
+    inst [1 or "sdb"] value "8ce38e0500882b63"
+    inst [2 or "sdc"] value "8ce38e0500882b63"
+    inst [3 or "sdd"] value "8ce38e0500882b63"
+    inst [4 or "sde"] value "8ce38e0500882b63"
 
 smart.nvme_attributes.available_spare PMID: 150.255.2 [Normalized percentage of remaining spare capacity]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -9610,7 +9614,7 @@ smart.wwid.info.uuid PMID: 150.1000.8 [UUID of the Drive]
     Semantics: discrete  Units: none
 Help:
 The given globally unique identifier for the disk drive.
-No value(s) available!
+    inst [0 or "8ce38e0500882b63"] value "8ce38e0500882b63"
 
 smart.wwid.nvme_attributes.available_spare PMID: 150.1255.2 [Normalized percentage of remaining spare capacity]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
