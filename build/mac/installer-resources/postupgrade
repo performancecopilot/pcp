@@ -22,7 +22,8 @@ trap "exit \$status" 0 1 2 15
 echo "$prog: PCP for MacOSX Upgrade"
 
 echo "$prog: Stopping PCP"
-/Library/StartupItems/pcp/pcp stop
+/Library/StartupItems/pcp/pmlogger stop
+/Library/StartupItems/pcp/pmcd stop
 
 echo "$prog: Writing install log to /var/log/pcp_inst.log"
 

@@ -49,8 +49,10 @@ export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 
 # Need healthy pmlogger connected to pmcd ... force this
 #
-if ! _service pcp stop >>$seq_full 2>&1; then _exit 1; fi
-if ! _service pcp start >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmlogger stop >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmcd stop >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
+if ! _service pmlogger start >>$seq_full 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 sleep 5

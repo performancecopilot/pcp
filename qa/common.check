@@ -509,7 +509,8 @@ _cleanup_pmda()
 	echo "_cleanup_pmda($__agent,$__iopts) called twice?" >>$seq_full
     else
 	_restore_config $PCP_PMCDCONF_PATH
-	_service pcp restart | _filter_pcp_start
+	_service pmcd restart | _filter_pcp_start
+	_service pmlogger restart | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger

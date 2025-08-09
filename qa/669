@@ -25,7 +25,8 @@ _cleanup()
 {
     if [ -n "$pid" ]; then kill $pid; fi
     # restart pmcd and primary pmlogger
-    _service pcp restart >>$seq_full 2>&1
+    _service pmcd restart >>$seq_full 2>&1
+    _service pmlogger restart >>$seq_full 2>&1
     _wait_for_pmcd
     _wait_for_pmlogger
     $sudo rm -fr $tmp.dir

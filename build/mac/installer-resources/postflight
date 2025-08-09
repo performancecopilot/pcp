@@ -13,6 +13,7 @@
 # for more details.
 #
 
-/Library/StartupItems/pcp/pcp start
+/Library/StartupItems/pcp/pmcd start
+/Library/StartupItems/pcp/pmlogger start
 
 exit 0

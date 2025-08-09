@@ -1,14 +1,6 @@
 # pmdanamed man page has correct deb paths but also mentions other distros
 pcp: FSSTND-dir-in-manual-page
 
-# /etc/init.d/pcp is a legacy script and should not be registered
-# with update-rc.d
-pcp: script-in-etc-init.d-not-registered-via-update-rc.d [etc/init.d/pcp]
-
-# /etc/init.d/pcp is a legacy script and should not have a systemd
-# equivalent
-pcp: omitted-systemd-service-for-init.d-script pcp [etc/init.d/pcp]
-
 # some /etc/init.d/pm* scripts are wrappers, with the real work being
 # done elsewhere, e.g. /etc/init.d/pmie calls /etc/pcp/pmie/rc and
 # support for the force-reload and restart options is included in the latter
@@ -26,7 +18,6 @@ pcp: doc-base-file-references-missing-file /usr/share/doc/pcp-doc/html/index.htm
 # PCP's init.d scripts are wrappers and we do not need the
 # /lib/lsb/init-functions.d/40-systemd functions to redirect to systemd
 # ... this is handled by PCP elsewhere
-pcp: init.d-script-does-not-source-init-functions [etc/init.d/pcp]
 pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmcd]
 pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmie]
 pcp: init.d-script-does-not-source-init-functions [etc/init.d/pmlogger]

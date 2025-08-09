@@ -41,7 +41,8 @@ w!
 q
 End-of-File
 	_needclean=false
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_start
+	_service pmlogger restart 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
 	_wait_for_pmlogger
     fi
@@ -128,9 +129,11 @@ do
     rm -f $PMCD_LOG_DIR/core*
     if [ $1 -eq 1 ]
     then
-	if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+	if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
+	if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
     else
-	if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+	if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+	if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
     fi
     _wait_for_pmcd || _exit 1
     _wait_for_pmlogger || _exit 1
@@ -141,15 +144,18 @@ echo
 echo "stop pmcd ..."
 for i in 1 2 3
 do
-    if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+    if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+    if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
     _wait_for_pmcd || _exit 1
     _wait_for_pmlogger || _exit 1
     rm -f $PMCD_LOG_DIR/core*
-    if ! _service pcp stop; then _exit 1; fi \
+    if ! _service pmlogger stop; then _exit 1; fi \
+    if ! _service pmcd stop; then _exit 1; fi \
     | _filter_pcp_stop
     [ "`echo $PMCD_LOG_DIR/core*`" != "$PMCD_LOG_DIR/core*" ] && _cleanup
 done
-if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 
@@ -162,7 +168,8 @@ g/^#$seq#.*pmdacisco/s/^#$seq#//
 w!
 q
 End-of-File
-    if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+    if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+    if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
     _wait_for_pmcd || _exit 1
     _wait_for_pmlogger || _exit 1
 

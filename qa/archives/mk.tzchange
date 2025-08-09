@@ -13,7 +13,8 @@ else
     exit 1
 fi
 
-$sudo $PCP_RC_DIR/pcp stop
+$sudo $PCP_RC_DIR/pmlogger stop
+$sudo $PCP_RC_DIR/pmcd stop
 
 [ -d $PCP_RUN_DIR ] && $sudo chmod 777 $PCP_RUN_DIR
 
@@ -27,9 +28,11 @@ do
     do
 	echo "log mandatory on 200msec sample.drift" | pmlogger tzchange-$hr-$a -s 4
     done
-    $sudo $PCP_RC_DIR/pcp stop
+    $sudo $PCP_RC_DIR/pmlogger stop
+    $sudo $PCP_RC_DIR/pmcd stop
 done
 
 [ -d $PCP_RUN_DIR ] && $sudo chmod 755 $PCP_RUN_DIR
 unset LD_PRELOAD
-$sudo $PCP_RC_DIR/pcp start
+$sudo $PCP_RC_DIR/pmcd start
+$sudo $PCP_RC_DIR/pmlogger start

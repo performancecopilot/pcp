@@ -44,7 +44,8 @@ _cleanup()
 	# make sure pmcd's socket is torn down (failure on vm33, BSD 6.8)
 	#
 	sleep 2
-        _service pcp restart 2>&1 | _filter_pcp_start
+        _service pmcd restart 2>&1 | _filter_pcp_start
+        _service pmlogger restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -123,8 +124,8 @@ yet.another {
 }
 End-of-File
 
-if ! _service pcp stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi | _filter_pcp_stop
 _wait_pmcd_end || _exit 1
 # make sure pmcd's socket is torn down (failure on vm33, BSD 6.8)
 sleep 1

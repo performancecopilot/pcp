@@ -33,7 +33,8 @@ host=`hostname`
 _cleanup()
 {
     _change_config pmlogger on
-    _service pcp restart >/dev/null 2>&1
+    _service pmcd restart >/dev/null 2>&1
+    _service pmlogger restart >/dev/null 2>&1
     _restore_auto_restart pmlogger
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -76,8 +77,8 @@ _stop()
 # real QA test starts here
 _change_config pmlogger off || _exit 1
 _stop_auto_restart pmlogger
-if ! _service pcp stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi | _filter_pcp_stop
 
 delta=10
 pre_delta=5
@@ -168,7 +169,7 @@ _filter <$tmp.stop.out \
 | sed -e '/pmlogger not running/d'
 _filter <$tmp.start.out
 
-wait $pid # for background processs, "pcp start" to finish
+wait $pid # for background processs, "pmcd start" to finish
 
 # success, all done
 status=0

@@ -97,9 +97,11 @@ umask 022
 
 # start from a known state
 #
-if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmlogger stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
 _wait_pmcd_end || _exit 1
-if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log || _exit 1
 

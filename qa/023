@@ -144,7 +144,7 @@ _cleanup()
 	echo "Restart and ping pmcd ..."
 	unset PMCD_PORT # don't worry about preserving just get rid of it
 	unset PMCD_SOCKET
-	_service pcp restart 2>&1 \
+	( _service pmcd restart; _service pmlogger restart ) 2>&1 \
 	| tee -a $seq_full \
 	| _filterall_pcp_start \
 	| sed \
