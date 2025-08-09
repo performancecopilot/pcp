@@ -1208,14 +1208,35 @@ End-of-File
 #
 _wait_pmlogger_end()
 {
-    if [ -z "$1" ]
+    if [ $# = 0 ]
     then
-	echo "Usage botch: _wait_pmlogger_end() needs pid arg"
-	return 1
+	# default is to wait for the primary pmlogger
+	__pid=''
+        if [ -f "$PCP_TMP_DIR/pmlogger/primary" ]
+	then
+	    __tmp=`ls -l $PCP_TMP_DIR/pmlogger/primary 2>/dev/null`
+	    case "_$tmp"
+	    in
+		*' -> '*)
+		    __pid=`echo "$__tmp" | sed -e 's@.*/@@'`
+		    ;;
+		*)
+		    __pid=''
+		    ;;
+	    esac
+	fi
+	if [ -z "$__pid" ]
+	then
+	    # either not a symlink or does not exist, nothing
+	    # to wait for
+	    #
+	    return
+	fi
+    else
+	__pid="$1"
     fi
-    __pid=$1
 
-    if $sudo kill -s 0 $__pid 2>/dev/null
+    if $sudo kill -s 0 "$__pid" 2>/dev/null
     then
 	# pmlogger process exists, so wait for PID file to go away
 	#
