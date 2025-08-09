@@ -758,11 +758,9 @@ do_work(task_t *tp)
 	    epoch = resp->timestamp;	/* struct assignment */
 	    first_result = 0;
 
-#if 1
 	    if ((lsts = do_prologue()) < 0)
 		fprintf(stderr, "Warning: problem writing archive prologue: %s\n",
 		    pmErrStr(lsts));
-#endif
 	}
 
 	pdu_payload = pduresultbytes(resp);

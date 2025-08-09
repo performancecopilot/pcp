@@ -125,13 +125,15 @@ run_done(int sts, char *msg)
     if (last_stamp.sec != 0) {
 	if (last_log_offset < __pmLogLabelSize(archctl.ac_log)) {
 	    /*
-	     * archive never got started, so no pmResult, no
-	     * preamble and no archive label record
+	     * no preamble => no archive label record => no temporal
+	     * index
 	     */
 	    ;
 	}
-	else
+	else {
+	    archctl.ac_reset_cb(&archctl, PM_LOG_VOL_CURRENT, last_log_offset, pmGetProgname());
 	    __pmLogPutIndex(&archctl, &last_stamp);
+	}
     }
 
     /*

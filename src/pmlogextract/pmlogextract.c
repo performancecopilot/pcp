@@ -125,6 +125,7 @@ static __pmHashCtl	rindomtext;	/* indom text records to be written */
 static __pmHashCtl	rpmidoneline;	/* pmid oneline records to be written */
 static __pmHashCtl	rpmidtext;	/* pmid text records to be written */
 static __pmHashCtl	rlabelset;	/* label sets to be written */
+static int		done_context_label;	/* set when PM_LABEL_CONTEXT written */
 
 static __pmTimestamp	curlog;		/* most recent timestamp in log */
 static __pmTimestamp	current;	/* most recent timestamp overall */
@@ -1415,6 +1416,8 @@ write_rec(reclist_t *rec)
     }
 }
 
+static void write_priorlabelset(int , int , const __pmTimestamp *);
+
 /*
  * Helper routine for write_priorlabelset, writing from a reclist of
  * labelsets where timestamp is suitable and an associated PDU exists.
@@ -1429,6 +1432,14 @@ write_priorlabelset_pdu(reclist_t *labelset, const __pmTimestamp *now)
 	/* Write the chosen record, if it has not already been written. */
 	if (labelset->pdu != NULL &&
 	    labelset->written != WRITTEN) {
+	    /*
+	     * First time we need to write out the relevant context
+	     * labels if any ... tricky little one-level recursion here
+	     */
+	    if (!done_context_label) {
+		done_context_label = 1;
+		write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, now);
+	    }
 	    labelset->written = MARK_FOR_WRITE;
 	    if (outarchvers == PM_LOG_VERS03)
 		__pmPutTimestamp(now, &labelset->pdu[2]);
@@ -2652,9 +2663,6 @@ writerlist(inarch_t *iap, rlist_t **rlready, __pmTimestamp *mintime)
 	 */
 	if (pre_startwin)
 	    pre_startwin = 0;
-
-	/* We need to write out the relevant context labels if any. */
-	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, mintime);
 
 	/* write out the descriptor and instance domain pdu's first */
 	write_metareclist(iap, elm->res, &needti);
