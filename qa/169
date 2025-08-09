@@ -30,7 +30,8 @@ _filter_dots()
 
 _cleanup()
 {
-    _service pcp stop >$tmp.stop
+    _service pmlogger stop >$tmp.stop
+    _service pmcd stop >>$tmp.stop
     # primary pmlogger exiting during the test is racey depending on timing
     # of fetches and stopping/starting pmcd (this is also not under test).
     _filter_pcp_stop <$tmp.stop | _filter_dots | sed -e '/logger not running/d'
@@ -40,7 +41,8 @@ _cleanup()
     cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq_full
     _restore_config $PCP_PMCDCONF_PATH
     _restore_config $PCP_SYSCONFIG_DIR/pmcd
-    _service pcp start 2>&1 >$tmp.start
+    _service pmcd start 2>&1 >$tmp.start
+    _service pmlogger start 2>&1 >>$tmp.start
     _filter_pcp_start <$tmp.start | _filter_dots
     _wait_for_pmcd
     _restore_auto_restart pmcd

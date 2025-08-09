@@ -13,7 +13,8 @@
 # for more details.
 # 
 
-/Library/StartupItems/pcp/pcp stop
+/Library/StartupItems/pcp/pmlogger stop
+/Library/StartupItems/pcp/pmcd stop
 
 if [ -f /etc/pcp.conf ]
 then

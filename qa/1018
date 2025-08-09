@@ -36,11 +36,12 @@ _filter()
 $sudo qt/qmc_source/qmc_source -DPMC 2>&1 | _filter
 
 # What happens if we stop pmcd
-if ! _service pcp stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi | _filter_pcp_stop
 $sudo qt/qmc_source/qmc_source -DPMC 2>&1 | _filter
 
-if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 

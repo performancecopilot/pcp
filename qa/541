@@ -35,7 +35,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 [ -f $control ] && $sudo mv $control $control.$seq
 
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 

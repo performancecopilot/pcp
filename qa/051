@@ -169,7 +169,8 @@ _cleanup()
 	echo "Restarting pmcd + pmlogger @ `date`" >>$seq_full
 	unset PMCD_SOCKET
 	export PMLOGGER_CHECK_SKIP_LOGCONF=yes
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_start
+	_service pmlogger restart 2>&1 | _filter_pcp_start
 	_restore_auto_restart pmcd
 	_wait_for_pmcd
 	_wait_for_pmlogger
@@ -205,8 +206,8 @@ ls 051.work/kill*
 cd 051.work
 
 echo "terminating pmcd..."
-if ! _service pcp stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi | _filter_pcp_stop
 if [ -f $config ]
 then
     $sudo mv $config $oconfig

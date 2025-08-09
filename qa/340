@@ -131,7 +131,8 @@ echo "---- start pmcd.conf ----" >>$seq_full
 cat $PCP_PMCDCONF_PATH >>$seq_full
 echo "---- end pmcd.conf ----" >>$seq_full
 
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd 20 $target || _exit 1
 _wait_for_pmlogger || _exit 1
 
@@ -179,7 +180,8 @@ echo "---- start pmcd.conf ----" >>$seq_full
 cat $PCP_PMCDCONF_PATH >>$seq_full
 echo "---- end pmcd.conf ----" >>$seq_full
 
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 

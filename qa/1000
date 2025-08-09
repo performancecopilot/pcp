@@ -26,7 +26,8 @@ _cleanup()
 	:
     else
 	cd $here
-	_service pcp start 2>&1 >/dev/null
+	_service pmcd start 2>&1 >/dev/null
+	_service pmlogger start 2>&1 >/dev/null
 	_wait_for_pmcd
 	_restore_auto_restart pmcd
 	_wait_for_pmlogger
@@ -76,7 +77,8 @@ pmdumptext -s 1 -h no.such.host.pcp.io 'proc.psinfo.utime[12345]'
 
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmlogger stop >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
 echo
 echo "=== pmcd not running, default case ==="
 pmdumptext -s 1 'sample.bin[bin-300]' 2>&1 | _filter2

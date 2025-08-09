@@ -245,7 +245,6 @@ _make_checkfiles()
 		$PCP_VAR_DIR/config/pmlogger/config.default \
 		$PCP_PMLOGGERCONTROL_PATH \
 		$PCP_PMCDOPTIONS_PATH \
-		$PCP_DIR/etc/init.d/pcp \
 		$PCP_DIR/etc/pcp.conf $PCP_DIR/etc/pcp.env \
 		$PCP_PMDAS_DIR/sample/dsohelp.dir \
 		$PCP_PMDAS_DIR/sample/dsohelp.pag \

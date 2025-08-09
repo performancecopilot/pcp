@@ -47,27 +47,15 @@ then
     systemctl stop pmcd.service >/dev/null
 elif $do_invoke_rc
 then
+    invoke-rc.d pmlogger stop
     invoke-rc.d pmproxy stop
     invoke-rc.d pmie stop
-    if [ -f /etc/init.d/pmcd ]; then
-	# PCP 4.0 style
-	invoke-rc.d pmlogger stop
-	invoke-rc.d pmcd stop
-    else
-	# PCP pre-4.0 style
-	invoke-rc.d pcp stop
-    fi
+    invoke-rc.d pmcd stop
 else
+    /etc/init.d/pmlogger stop
     /etc/init.d/pmproxy stop
     /etc/init.d/pmie stop
-    if [ -f /etc/init.d/pmcd ]; then
-	# PCP 4.0 style
-	/etc/init.d/pmlogger stop
-	/etc/init.d/pmcd stop
-    else
-	# PCP pre-4.0 style
-	/etc/init.d/pcp stop
-    fi
+    /etc/init.d/pmcd stop
 fi
 
 rm -f /var/lib/pcp/pmns/.NeedRebuild

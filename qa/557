@@ -25,8 +25,8 @@ HOST=`hostname`
 
 # real QA test starts here
 
-if ! _service pcp stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi | _filter_pcp_stop
 
 pmie -t 1sec $DEBUG << End-of-File >$tmp.log 2>&1 &
 pmcd.numclients > 0
@@ -34,7 +34,8 @@ pmcd.numclients > 0
 End-of-File
 
 sleep 3
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
 pmcd_wait
 sleep 10
 $signal -s TERM $!

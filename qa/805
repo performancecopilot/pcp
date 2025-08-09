@@ -47,8 +47,8 @@ export PMDA_POSTFIX_QSHAPE=$tmp.qshape
 # don't want Install to possibly restart pmcd via systemctl, as this
 # will clobber the environment, ...
 #
-if ! _service pcp stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi | _filter_pcp_stop
 if [ "$PCPQA_SYSTEMD" = x -o "${PCPQA_SYSTEMD-x}" != x ]
 then
     # $PCPQA_SYSTEMD is already set ...

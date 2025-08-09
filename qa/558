@@ -47,11 +47,12 @@ some_host
 End-of-File
 
 sleep 3
-if ! _service pcp stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi | _filter_pcp_stop
 
 sleep 10
-if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger start 2>&1; then _exit 1; fi | _filter_pcp_start
 pmcd_wait
 sleep 12
 $signal -s TERM $!

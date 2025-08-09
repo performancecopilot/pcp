@@ -16,7 +16,8 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    _service pcp start 2>&1 | _filter_pcp_start
+    _service pmcd start 2>&1 | _filter_pcp_start
+    _service pmlogger start 2>&1 | _filter_pcp_start
     _wait_for_pmcd
     _restore_auto_restart pmcd
     _wait_for_pmlogger
@@ -113,8 +114,8 @@ hertz=`pmprobe -v kernel.all.hz | $PCP_AWK_PROG '{ print $3 }'`
 pagesz=`pmprobe -v hinv.pagesize | $PCP_AWK_PROG '{ print $3 }'`
 
 # ensure pmcd is unavailable while this test is running
-if ! _service pcp stop; then _exit 1; fi \
-| _filter_pcp_stop
+if ! _service pmlogger stop; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmcd stop; then _exit 1; fi | _filter_pcp_stop
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 $sudo_local_ctx pmlogger -c $tmp.config -l $tmp.log -T 5 --local-PMDA -K add,30,$PCP_PMDAS_DIR/sample/pmda_sample.$DSO_SUFFIX,sample_init $tmp >$tmp.err 2>&1
 

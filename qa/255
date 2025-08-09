@@ -116,7 +116,8 @@ _cleanup()
     echo "=== Resetting pmcd.options back to original state ==="
     _restore_config $PCP_PMCDOPTIONS_PATH
     echo "=== Restart PMCD ==="
-    _service pcp restart 2>&1 | _filter_pcp_start
+    _service pmcd restart 2>&1 | _filter_pcp_start
+    _service pmlogger restart 2>&1 | _filter_pcp_start
     _restore_auto_restart pmcd
     _wait_for_pmcd
     _wait_for_pmlogger
@@ -370,8 +371,8 @@ _renew_pmcd main
 # Start with a fresh pmcd log
 #
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
-if ! _service pcp restart; then _exit 1; fi \
-| _filter_init 2>&1
+if ! _service pmcd restart; then _exit 1; fi | _filter_init 2>&1
+if ! _service pmlogger restart; then _exit 1; fi | _filter_init 2>&1
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 

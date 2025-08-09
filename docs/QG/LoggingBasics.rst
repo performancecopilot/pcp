@@ -20,8 +20,15 @@ Primary Logger
 1. The primary instance of the PCP archive logger (*pmlogger*) may be started on a 
    collector system each time *pmcd* is started. To turn it on, as **root** do the following::
 
+    # systemctl enable pmcd pmlogger
+    # systemctl start pmcd pmlogger
+
+    or
+
+    # chkconfig pmcd on
     # chkconfig pmlogger on
-    # $PCP_RC_DIR/pcp start
+    # $PCP_RC_DIR/pmcd start
+    # $PCP_RC_DIR/pmlogger start
 
 2. The specification for hosts to log and *pmlogger* options is given in the 
    ``$PCP_PMLOGGERCONTROL_PATH`` file and (optionally) files in the ``$PCP_PMLOGGERCONTROL_PATH.d`` directory.

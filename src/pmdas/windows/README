@@ -164,7 +164,7 @@ g. Make and upgrade (assuming you're on the target machine and not
 
    	$ make
 	$ su
-	# /etc/pcp stop
+	# /etc/pmcd stop
 	# make install
 	# cd $PCP_VAR_DIR/pmdas/windows
 	# ./Install

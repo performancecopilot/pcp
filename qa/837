@@ -41,7 +41,8 @@ pcp_uid=`$sudo -u $PCP_USER id -u`
 pcp_gid=`$sudo -u $PCP_USER id -g`
 
 # reset the sample PMDA logfile
-if ! _service pcp start >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmcd start >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmlogger start >/dev/null 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 
