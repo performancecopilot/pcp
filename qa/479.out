@@ -42,8 +42,8 @@ pmdumplog: Cannot open archive "TMP/bozo.client_v2": Empty archive file
 === size 136 ===
 __pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)
 __pmLogLoadMeta: no metrics found?
-__pmLogLoadMeta => -12373, records total:0
-pmdumplog: Cannot open archive "TMP/bozo.client_v2": Corrupted record in a PCP archive
+__pmLogLoadMeta => -12354, records total:0
+pmdumplog: Cannot open archive "TMP/bozo.client_v2": Empty archive file
 
 === size 160 ===
 __pmLogLoadMeta(acp=ADDR) => name=TMP/bozo.client_v2)

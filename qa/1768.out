@@ -5,8 +5,13 @@ PCP_ETC_DIR/pcp/pmie/class.d/pmfind: host pcp://slick:44321 hostname(.*) true
 # created by pmiectl on DATE
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
-pcp://slick:44321 n n PCP_LOG_DIR/pmie/243f90596d76cf23e8da47476ec452a2adbe0b32/pmie.log -c ./243f90596d76cf23e8da47476ec452a2adbe0b32.config
+
+#
+#Host P? S? pmie_log_pathname            pmie_args
+pcp://slick:44321    n  n  PCP_LOG_DIR/pmie/243f90596d76cf23e8da47476ec452a2adbe0b32/pmie.log -c ./243f90596d76cf23e8da47476ec452a2adbe0b32.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
@@ -14,10 +19,39 @@ Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/243f90596d76cf23e8da4747
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host pcp://slick:44321 hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
+# PCP archive logging configuration/control
+#
+# see pmlogger.control(5) for a description of the format
+#
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
+
+# Uncomment one of the lines below to enable/disable culling behaviour
+# that is different to the pmlogger_daily default [14].
+# Value is days to keep, older archives are culled, 0 is immediate
+# culling once the archive has been completed, "never" or "forever"
+# suppresses culling.
+#
+#$PCP_CULLAFTER=0
+#$PCP_CULLAFTER=3
+#$PCP_CULLAFTER=never
+
+# Uncomment one of the lines below to enable/disable compression behaviour
+# that is different to the pmlogger_daily default.
+# Value is days before compressing archives, 0 is immediate compression,
+# "never" or "forever" suppresses compression.
+#
+#$PCP_COMPRESSAFTER=0
+#$PCP_COMPRESSAFTER=3
+#$PCP_COMPRESSAFTER=never
+
+# === LOGGER CONTROL SPECIFICATIONS ===
+#
+#Host		P?  S?	directory			args
 pcp://slick:44321 n n PCP_ARCHIVE_DIR/243f90596d76cf23e8da47476ec452a2adbe0b32 -c ./243f90596d76cf23e8da47476ec452a2adbe0b32.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/243f90596d76cf23e8da47476ec452a2adbe0b32
@@ -28,8 +62,13 @@ PCP_ETC_DIR/pcp/pmie/class.d/pmfind: host pcp://slack:44321 hostname(.*) true
 # created by pmiectl on DATE
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
-pcp://slack:44321 n n PCP_LOG_DIR/pmie/8d00c4cf51d11bb9dced8a0e7507542653635377/pmie.log -c ./8d00c4cf51d11bb9dced8a0e7507542653635377.config
+
+#
+#Host P? S? pmie_log_pathname            pmie_args
+pcp://slack:44321    n  n  PCP_LOG_DIR/pmie/8d00c4cf51d11bb9dced8a0e7507542653635377/pmie.log -c ./8d00c4cf51d11bb9dced8a0e7507542653635377.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
@@ -37,10 +76,39 @@ Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/8d00c4cf51d11bb9dced8a0e
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host pcp://slack:44321 hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
+# PCP archive logging configuration/control
+#
+# see pmlogger.control(5) for a description of the format
+#
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
+
+# Uncomment one of the lines below to enable/disable culling behaviour
+# that is different to the pmlogger_daily default [14].
+# Value is days to keep, older archives are culled, 0 is immediate
+# culling once the archive has been completed, "never" or "forever"
+# suppresses culling.
+#
+#$PCP_CULLAFTER=0
+#$PCP_CULLAFTER=3
+#$PCP_CULLAFTER=never
+
+# Uncomment one of the lines below to enable/disable compression behaviour
+# that is different to the pmlogger_daily default.
+# Value is days before compressing archives, 0 is immediate compression,
+# "never" or "forever" suppresses compression.
+#
+#$PCP_COMPRESSAFTER=0
+#$PCP_COMPRESSAFTER=3
+#$PCP_COMPRESSAFTER=never
+
+# === LOGGER CONTROL SPECIFICATIONS ===
+#
+#Host		P?  S?	directory			args
 pcp://slack:44321 n n PCP_ARCHIVE_DIR/8d00c4cf51d11bb9dced8a0e7507542653635377 -c ./8d00c4cf51d11bb9dced8a0e7507542653635377.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/8d00c4cf51d11bb9dced8a0e7507542653635377
@@ -51,8 +119,13 @@ PCP_ETC_DIR/pcp/pmie/class.d/pmfind: host pcp://localhost:44321?container=b0cd2c
 # created by pmiectl on DATE
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
-pcp://localhost:44321?container=b0cd2cc912a3 n n PCP_LOG_DIR/pmie/7745e45ed37ca712f418ec7b871c04fc898b9276/pmie.log -c ./7745e45ed37ca712f418ec7b871c04fc898b9276.config
+
+#
+#Host P? S? pmie_log_pathname            pmie_args
+pcp://localhost:44321?container=b0cd2cc912a3    n  n  PCP_LOG_DIR/pmie/7745e45ed37ca712f418ec7b871c04fc898b9276/pmie.log -c ./7745e45ed37ca712f418ec7b871c04fc898b9276.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
@@ -60,10 +133,39 @@ Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/7745e45ed37ca712f418ec7b
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host pcp://localhost:44321?container=b0cd2cc912a3 hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
+# PCP archive logging configuration/control
+#
+# see pmlogger.control(5) for a description of the format
+#
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
+
+# Uncomment one of the lines below to enable/disable culling behaviour
+# that is different to the pmlogger_daily default [14].
+# Value is days to keep, older archives are culled, 0 is immediate
+# culling once the archive has been completed, "never" or "forever"
+# suppresses culling.
+#
+#$PCP_CULLAFTER=0
+#$PCP_CULLAFTER=3
+#$PCP_CULLAFTER=never
+
+# Uncomment one of the lines below to enable/disable compression behaviour
+# that is different to the pmlogger_daily default.
+# Value is days before compressing archives, 0 is immediate compression,
+# "never" or "forever" suppresses compression.
+#
+#$PCP_COMPRESSAFTER=0
+#$PCP_COMPRESSAFTER=3
+#$PCP_COMPRESSAFTER=never
+
+# === LOGGER CONTROL SPECIFICATIONS ===
+#
+#Host		P?  S?	directory			args
 pcp://localhost:44321?container=b0cd2cc912a3 n n PCP_ARCHIVE_DIR/7745e45ed37ca712f418ec7b871c04fc898b9276 -c ./7745e45ed37ca712f418ec7b871c04fc898b9276.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/7745e45ed37ca712f418ec7b871c04fc898b9276
@@ -74,8 +176,13 @@ PCP_ETC_DIR/pcp/pmie/class.d/pmfind: host pcp://localhost:44321?container=77475e
 # created by pmiectl on DATE
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
-pcp://localhost:44321?container=77475e5fa09c n n PCP_LOG_DIR/pmie/68dcffbdd4111d3ee82bb855286e3e35da828ca2/pmie.log -c ./68dcffbdd4111d3ee82bb855286e3e35da828ca2.config
+
+#
+#Host P? S? pmie_log_pathname            pmie_args
+pcp://localhost:44321?container=77475e5fa09c    n  n  PCP_LOG_DIR/pmie/68dcffbdd4111d3ee82bb855286e3e35da828ca2/pmie.log -c ./68dcffbdd4111d3ee82bb855286e3e35da828ca2.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
 + cp PCP_TMPFILE_DIR/pmiectl.XXXXX/control PCP_ETC_DIR/pcp/pmie/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
@@ -83,10 +190,39 @@ Installing control file: PCP_ETC_DIR/pcp/pmie/control.d/68dcffbdd4111d3ee82bb855
 PCP_ETC_DIR/pcp/pmlogger/class.d/pmfind: host pcp://localhost:44321?container=77475e5fa09c hostname(.*) true
 --- start control file ---
 # created by pmlogctl on DATE
+# PCP archive logging configuration/control
+#
+# see pmlogger.control(5) for a description of the format
+#
 # DO NOT REMOVE OR EDIT THE FOLLOWING LINE
 $version=1.1
+
 $class=pmfind
+
+# Uncomment one of the lines below to enable/disable culling behaviour
+# that is different to the pmlogger_daily default [14].
+# Value is days to keep, older archives are culled, 0 is immediate
+# culling once the archive has been completed, "never" or "forever"
+# suppresses culling.
+#
+#$PCP_CULLAFTER=0
+#$PCP_CULLAFTER=3
+#$PCP_CULLAFTER=never
+
+# Uncomment one of the lines below to enable/disable compression behaviour
+# that is different to the pmlogger_daily default.
+# Value is days before compressing archives, 0 is immediate compression,
+# "never" or "forever" suppresses compression.
+#
+#$PCP_COMPRESSAFTER=0
+#$PCP_COMPRESSAFTER=3
+#$PCP_COMPRESSAFTER=never
+
+# === LOGGER CONTROL SPECIFICATIONS ===
+#
+#Host		P?  S?	directory			args
 pcp://localhost:44321?container=77475e5fa09c n n PCP_ARCHIVE_DIR/68dcffbdd4111d3ee82bb855286e3e35da828ca2 -c ./68dcffbdd4111d3ee82bb855286e3e35da828ca2.config
+
 --- end control file ---
 Installing control file: PCP_ETC_DIR/pcp/pmlogger/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2
 + cp PCP_TMPFILE_DIR/pmlogctl.XXXXX/control PCP_ETC_DIR/pcp/pmlogger/control.d/68dcffbdd4111d3ee82bb855286e3e35da828ca2

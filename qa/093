@@ -31,7 +31,7 @@ _filter()
 
 # real QA test starts here
 echo "=== tmparch/foo ===" | tee -a $seq_full
-src/interp2 -a tmparch/foo | _filter 70 82 4 15
+src/interp2 -a tmparch/foo | _filter 70 82 4 16
 
 echo | tee -a $seq_full
 echo "=== archives/ok-bigbin ===" | tee -a $seq_full

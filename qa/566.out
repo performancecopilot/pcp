@@ -3,21 +3,21 @@ QA output created by 566
 
 TMP/foo.index alone:
 Scanning for components of archive "TMP/foo"
-TMP/foo.index: start pass0 ... found 4 records
+TMP/foo.index: start pass0 ... found 3 records
 TMP/foo.meta: missing metadata file
 TMP/foo.0 (or similar): missing log file 
 Due to earlier errors, cannot continue ... bye
 
 TMP/foo.meta missing:
 Scanning for components of archive "TMP/foo"
-TMP/foo.index: start pass0 ... found 4 records
+TMP/foo.index: start pass0 ... found 3 records
 TMP/foo.0: start pass0 ... found 11 records
 TMP/foo.meta: missing metadata file
 Due to earlier errors, cannot continue ... bye
 
 TMP/foo.0 missing:
 Scanning for components of archive "TMP/foo"
-TMP/foo.index: start pass0 ... found 4 records
+TMP/foo.index: start pass0 ... found 3 records
 TMP/foo.meta: start pass0 ... found 34 records
 TMP/foo.0 (or similar): missing log file 
 Due to earlier errors, cannot continue ... bye
@@ -40,7 +40,7 @@ pmlogcheck: no PCP archive files match "TMP/bar"
 
 TMP/foo:
 Scanning for components of archive "TMP/foo"
-TMP/foo.index: start pass0 ... found 4 records
+TMP/foo.index: start pass0 ... found 3 records
 TMP/foo.meta: start pass0 ... found 34 records
 TMP/foo.0: start pass0 ... found 11 records
 TMP/foo.1: cannot open file: Permission denied
@@ -50,7 +50,7 @@ Due to earlier errors, cannot continue ... bye
 
 foo:
 Scanning for components of archive "foo"
-foo.index: start pass0 ... found 4 records
+foo.index: start pass0 ... found 3 records
 foo.meta: start pass0 ... found 34 records
 foo.0: start pass0 ... found 11 records
 foo.1: cannot open file: Permission denied
@@ -62,7 +62,7 @@ foo.index:
 Note: timezone set to local timezone of host "HOST" from archive
 
 Scanning for components of archive "foo.index"
-foo.index: start pass0 ... found 4 records
+foo.index: start pass0 ... found 3 records
 foo.meta: start pass0 ... found 34 records
 foo.0: start pass0 ... found 11 records
 foo.1: start pass0 ... 
@@ -78,7 +78,7 @@ archive-20150415.044829:
 Note: timezone set to local timezone of host "HOST" from archive
 
 Scanning for components of archive "archive-20150415.044829"
-archive-20150415.044829.index: start pass0 ... found 4 records
+archive-20150415.044829.index: start pass0 ... found 3 records
 archive-20150415.044829.meta: start pass0 ... found 34 records
 archive-20150415.044829.0: start pass0 ... found 11 records
 archive-20150415.044829: start pass1 (check temporal index)
@@ -184,7 +184,8 @@ Due to earlier errors, cannot continue ... bye
 badarchives/badlabel-1.meta:
 Scanning for components of archive "badarchives/badlabel-1.meta"
 badarchives/badlabel-1.index: start pass0 ... found 4 records
-badarchives/badlabel-1.meta: start pass0 ... badarchives/badlabel-1.meta: bad label magic number: 0xdeadbe00 not 0x50052600 as expected
+badarchives/badlabel-1.meta: start pass0 ... 
+badarchives/badlabel-1.meta: bad label magic number: 0xdeadbe00 not 0x50052600 as expected
 found 12 records
 badarchives/badlabel-1.0: start pass0 ... found 10 records
 pmlogcheck: cannot open archive "badarchives/badlabel-1.meta": Illegal label record at start of a PCP archive file
@@ -192,7 +193,8 @@ Checking abandoned.
 
 badarchives/badlabel-2.meta:
 Scanning for components of archive "badarchives/badlabel-2.meta"
-badarchives/badlabel-2.index: start pass0 ... badarchives/badlabel-2.index: bad label version: 0 not 2 or 3 as expected
+badarchives/badlabel-2.index: start pass0 ... 
+badarchives/badlabel-2.index: bad label version: 0 not 2 or 3 as expected
 badarchives/badlabel-2.index: cannot load label record: Illegal label record at start of a PCP archive file
 badarchives/badlabel-2.meta: start pass0 ... found 12 records
 badarchives/badlabel-2.0: start pass0 ... found 10 records

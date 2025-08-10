@@ -77,13 +77,13 @@ noti-ok-foo.0:	../archives/ok-foo.0
 empty.0:	foo.0
 	rm -f empty.index empty.meta empty.0
 	if [ "$(DEFAULT_ARCHIVE_VERSION)" = 3 ]; then \
-	    dd ibs=808 count=1 if=foo.0 of=empty.0 2>/dev/null ;\
-	    dd ibs=808 count=1 if=foo.meta of=empty.meta 2>/dev/null ;\
-	    dd ibs=808 count=1 if=foo.index of=empty.index 2>/dev/null ;\
+	    dd ibs=808 count=1 if=foo.0 of=empty.0 ;\
+	    dd ibs=808 count=1 if=foo.meta of=empty.meta ;\
+	    dd ibs=808 count=1 if=foo.index of=empty.index ;\
 	else \
-	    dd ibs=132 count=1 if=foo.0 of=empty.0 2>/dev/null ;\
-	    dd ibs=132 count=1 if=foo.meta of=empty.meta 2>/dev/null ;\
-	    dd ibs=132 count=1 if=foo.index of=empty.index 2>/dev/null ;\
+	    dd ibs=132 count=1 if=foo.0 of=empty.0 ;\
+	    dd ibs=132 count=1 if=foo.meta of=empty.meta ;\
+	    dd ibs=132 count=1 if=foo.index of=empty.index ;\
 	fi
 
 bar.0:	config.bar

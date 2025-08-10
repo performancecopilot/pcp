@@ -45,6 +45,8 @@ sample.double.hundred	-0.0033
 sample.double.million	0.000056
 end-of-file
 
+pmdumplog -a $tmp.log >>$seq_full
+
 for i in '' '-i' '-i -w 10'
 do
     for f in '' '-M' '-F' '-G' '-f %H:%M:%S'

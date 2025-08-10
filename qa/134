@@ -139,6 +139,11 @@ _do_metrics()
     | sed -e 's/.*(//' -e 's/).*//' -e 's/^/    /'
 }
 
+# force one pmResult into the archive to trigger log label
+# and preamble writing
+#
+echo "log mandatory on once sampledso.long.ten" >$tmp.config
+
 # real QA test starts here
 
 echo 's/ [A-Z][a-z][a-z] [A-Z][a-z][a-z] .. / month-day /g' >$tmp.sed
@@ -146,7 +151,7 @@ echo 's/ [12][0-9][0-9][0-9]$/ year/' >>$tmp.sed
 echo "l0=0 l1=0" >$tmp.last
 echo "init $tmp.last: `cat $tmp.last`" >>$seq_full
 
-_start_up_pmlogger -Dlog,desperate -L -c /dev/null -l $tmp.log $tmp
+_start_up_pmlogger -Dlog,desperate -L -c $tmp.config -l $tmp.log $tmp
 _wait_for_pmlogger $pid $tmp.log || _exit 1
 
 echo

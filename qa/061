@@ -115,6 +115,9 @@ do
 		echo ""
 		echo "$ctl $state -> $req_ctl $req_state" | tee -a $seq_full
 		cat >$tmp.config <<End-of-File
+# with delayed preamble, need to force *something* into the archive
+log mandatory on once sample.long.ten
+
 log $ctl $state {
     sample.colour [ "blue" ]
 }
@@ -127,6 +130,7 @@ End-of-File
 		_start_up_pmlogger -L -D log,optfetch,pmlc -c $tmp.config -l $tmp.out $tmp >$tmp.err 2>&1
 		logger_pid=$pid
 		_wait_for_pmlogger $logger_pid $tmp.out || _exit 1
+		pmsleep 0.5sec
 		src/logcontrol -p $logger_pid enquire sample.colour
 		# give pmlogger a chance to run the request before killing it
 		#

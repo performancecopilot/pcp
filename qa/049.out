@@ -6,8 +6,8 @@ __pmFopen("archives/ok-mv-bigbin.SUFF, "r"): no decompress
 __pmFopen("archives/ok-mv-bigbin.SUFF, "r"): no decompress
 chkLabel: fd=<n1> vol=0 [magic=0x50052602 version=2 vol=0 pid=PID host=HOSTNAME
 __pmLogChangeVol: change to volume 0
-chkLabel: fd=<n2> vol=-2 [magic=0x50052602 version=2 vol=-2 pid=PID host=HOSTNAME
-chkLabel: fd=<n3> vol=-1 [magic=0x50052602 version=2 vol=-1 pid=PID host=HOSTNAME
+chkLabel: fd=<n2> vol=-2 [magic=0x50052602 version=2 vol=-2 (index) pid=PID host=HOSTNAME
+chkLabel: fd=<n3> vol=-1 [magic=0x50052602 version=2 vol=-1 (meta) pid=PID host=HOSTNAME
 __pmLogSetTime(0) TIME delta=0 before start ti@TIME vol=0 posn=OFFSET serial=1
 __pmFopen("archives/ok-mv-bigbin.0", "r"): no decompress
 __pmLogChangeVol: change to volume 0

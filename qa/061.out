@@ -12,20 +12,27 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
- state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
+Fetch Control @ ADDR: cost=6 state=NEW PMID PROFILE 
+PMIDs: [2] 29.0.11 29.0.5
   InDom 29.1 Control @ ADDR:
   instances: [1] 2
     PMID 29.0.5 Control @ ADDR:
     instances: [1] 2
       Request @ ADDR:
       instances: [1] 2
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
 
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
+Fetch task[0] delta: 0 usec numpmid: 2
+  Fetch group[0][0] 2 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -59,7 +66,8 @@ TIMESTAMP 5 metrics
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
 
-TIMESTAMP 1 metric
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value NUMBER
     29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
@@ -83,6 +91,19 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=5 state=PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -95,8 +116,10 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
-Fetch task[0] delta: 0 usec numpmid: 1
+Fetch task[0] delta: 0 usec numpmid: 2
   Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -129,6 +152,9 @@ TIMESTAMP 5 metrics
     2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -151,6 +177,19 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=5 state=PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -163,80 +202,10 @@ PMIDs: [1] 29.0.5
       Request @ ADDR:
       instances: [1] 2
 
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-mandatory on once -> advisory on once
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
-compared to: optreq task=ADDR state=NNMY delta=0.000000
-Warning [TMP.config, line 6]
-Incompatible request for metric "sample.colour" and instance "blue"
-Request for (advisory) ON conflicts with current (mandatory) ON state
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
+Fetch task[0] delta: 0 usec numpmid: 2
   Fetch group[0][0] 1 metrics
 Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -271,6 +240,89 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+mandatory on once -> advisory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
+compared to: optreq task=ADDR state=NNMY delta=0.000000
+Warning [TMP.config, line 9]
+Incompatible request for metric "sample.colour" and instance "blue"
+Request for (advisory) ON conflicts with current (mandatory) ON state
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=6 state=NEW PMID PROFILE 
+PMIDs: [2] 29.0.11 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+Fetch task[0] delta: 0 usec numpmid: 2
+  Fetch group[0][0] 2 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value NUMBER
     29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
@@ -290,27 +342,34 @@ Log for pmlogger on HOST started DATE
 [DATE] pmlogger(PID) Info: Start
 chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
 compared to: optreq task=ADDR state=NNMY delta=0.000000
-Warning [TMP.config, line 6]
+Warning [TMP.config, line 9]
 Incompatible request for metric "sample.colour" and instance "blue"
 Request for (advisory) OFF conflicts with current (mandatory) ON state
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
- state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
+Fetch Control @ ADDR: cost=6 state=NEW PMID PROFILE 
+PMIDs: [2] 29.0.11 29.0.5
   InDom 29.1 Control @ ADDR:
   instances: [1] 2
     PMID 29.0.5 Control @ ADDR:
     instances: [1] 2
       Request @ ADDR:
       instances: [1] 2
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
 
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
+Fetch task[0] delta: 0 usec numpmid: 2
+  Fetch group[0][0] 2 metrics
 Fetch task[1] delta: 0 usec numpmid: 1
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
@@ -345,7 +404,8 @@ TIMESTAMP 5 metrics
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
 
-TIMESTAMP 1 metric
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value NUMBER
     29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
@@ -369,7 +429,96 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=6 state=NEW PMID PROFILE 
+PMIDs: [2] 29.0.11 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+Fetch task[0] delta: 0 usec numpmid: 2
+  Fetch group[0][0] 2 metrics
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value NUMBER
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+mandatory maybe -> mandatory maybe
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
  state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
 Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
@@ -383,6 +532,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -417,73 +568,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-mandatory maybe -> mandatory maybe
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  0 (adv off)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -506,6 +591,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -520,6 +617,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -552,6 +651,9 @@ TIMESTAMP 5 metrics
     2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -574,6 +676,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, adv, on delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -588,6 +702,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -620,6 +736,9 @@ TIMESTAMP 5 metrics
     2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 1 metric
     29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
@@ -645,6 +764,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -659,74 +790,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-mandatory off -> mandatory on once
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
-compared to: optreq task=ADDR state=NNMN delta=0.000000
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -761,6 +826,85 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+mandatory off -> mandatory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
+compared to: optreq task=ADDR state=NNMN delta=0.000000
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=6 state=NEW PMID PROFILE 
+PMIDs: [2] 29.0.11 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+Fetch task[0] delta: 0 usec numpmid: 2
+  Fetch group[0][0] 2 metrics
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value NUMBER
     29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
@@ -784,6 +928,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -798,284 +954,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-mandatory off -> mandatory off
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  2 (mand off)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-mandatory off -> advisory on once
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  2 (mand off)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
-compared to: optreq task=ADDR state=NNMN delta=0.000000
-Warning [TMP.config, line 6]
-Incompatible request for metric "sample.colour" and instance "blue"
-Request for (advisory) ON conflicts with current (mandatory) OFF state
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
 Fetch task[1] delta: 0 usec numpmid: 1
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-mandatory off -> advisory off
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  2 (mand off)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
-compared to: optreq task=ADDR state=NNMN delta=0.000000
-Warning [TMP.config, line 6]
-Incompatible request for metric "sample.colour" and instance "blue"
-Request for (advisory) OFF conflicts with current (mandatory) OFF state
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
-Fetch task[1] delta: 0 usec numpmid: 1
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-advisory on once -> mandatory on once
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
-compared to: optreq task=ADDR state=NNAY delta=0.000000
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1110,6 +990,346 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+mandatory off -> mandatory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+mandatory off -> advisory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
+compared to: optreq task=ADDR state=NNMN delta=0.000000
+Warning [TMP.config, line 9]
+Incompatible request for metric "sample.colour" and instance "blue"
+Request for (advisory) ON conflicts with current (mandatory) OFF state
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
+Fetch task[2] delta: 0 usec numpmid: 1
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+mandatory off -> advisory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+chk_one: pmid=29.0.5 task=ADDR state=NNAN delta=0.000000
+compared to: optreq task=ADDR state=NNMN delta=0.000000
+Warning [TMP.config, line 9]
+Incompatible request for metric "sample.colour" and instance "blue"
+Request for (advisory) OFF conflicts with current (mandatory) OFF state
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
+Fetch task[2] delta: 0 usec numpmid: 1
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+advisory on once -> mandatory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
+compared to: optreq task=ADDR state=NNAY delta=0.000000
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=6 state=NEW PMID PROFILE 
+PMIDs: [2] 29.0.11 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+Fetch task[0] delta: 0 usec numpmid: 2
+  Fetch group[0][0] 2 metrics
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value NUMBER
     29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
@@ -1133,6 +1353,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -1147,6 +1379,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1179,6 +1413,9 @@ TIMESTAMP 5 metrics
     2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -1201,6 +1438,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -1215,6 +1464,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1247,6 +1498,9 @@ TIMESTAMP 5 metrics
     2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -1267,6 +1521,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, adv, on delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -1281,6 +1547,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1313,6 +1581,9 @@ TIMESTAMP 5 metrics
     2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 1 metric
     29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
@@ -1338,6 +1609,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -1352,74 +1635,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-advisory off -> mandatory on once
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
-compared to: optreq task=ADDR state=NNAN delta=0.000000
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1454,6 +1671,85 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+advisory off -> mandatory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  15 (mand on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+chk_one: pmid=29.0.5 task=ADDR state=NNMY delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 2
+  29.0.11 (sample.long.ten):
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=6 state=NEW PMID PROFILE 
+PMIDs: [2] 29.0.11 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+Fetch task[0] delta: 0 usec numpmid: 2
+  Fetch group[0][0] 2 metrics
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 2 metrics
+    29.0.11 (sample.long.ten): value NUMBER
     29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
 
 TIMESTAMP 5 metrics
@@ -1477,6 +1773,18 @@ Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
  state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
@@ -1491,142 +1799,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-advisory off -> mandatory off
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  2 (mand off)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-chk_one: pmid=29.0.5 task=ADDR state=NNMN delta=0.000000
-compared to: optreq task=ADDR state=NNAN delta=0.000000
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
-Starting logger for host "HOST"
-__pmFopen("TMP.index", "w"): no decompress
-__pmFopen("TMP.meta", "w"): no decompress
-__pmFopen("TMP.0", "w"): no decompress
-Archive basename: ARCHIVE
-do_creds: pmlc PDU version=3
-__pmDecodeLogRequest: got PDU (type=2, version=3)
-__pmSendLogStatus: sending PDU (version=3)
-do_creds: pmlc PDU version=3
-do_control_req: control=13 state=0 delta=5000 request ...
-LogControl dump from ADDR numpmid: 1
-  29.0.5 : numval: 3 valfmt: 0 inst [0]
- inst [1]
- inst [2]
-__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
-  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
-    inst [0 or "red"] value INT
-    inst [1 or "green"] value INT
-    inst [2 or "blue"] value INT
-[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
-
-Log finished DATE
-...
-control_req: connection accepted on fd=N from localhost
-control_req: connection accepted on fd=N from localhost
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-TIMESTAMP 5 metrics
-    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
-    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
-    2.0.23 (pmcd.pid): value NUMBER
-    2.0.24 (pmcd.seqnum): value NUMBER
-
-advisory off -> advisory on once
-sample.colour
-  inst [0 or "red"]  0 (adv off)
-  inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  13 (adv on, delta=0 msec, inlog, avail)
-Log for pmlogger on HOST started DATE
-
-[DATE] pmlogger(PID) Info: Start
-chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
-compared to: optreq task=ADDR state=NNAN delta=0.000000
-Config parsed
-optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
-
-After loading config ...
- state: not in log, unavail, adv, on delta: 0 usec numpmid: 1
-  29.0.5 (sample.colour):
-Dump optfetch structures from ADDR next=ADDR
-Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
-PMIDs: [1] 29.0.5
-  InDom 29.1 Control @ ADDR:
-  instances: [1] 2
-    PMID 29.0.5 Control @ ADDR:
-    instances: [1] 2
-      Request @ ADDR:
-      instances: [1] 2
-
-Fetch task[0] delta: 0 usec numpmid: 1
-  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1661,7 +1835,7 @@ TIMESTAMP 5 metrics
     2.0.24 (pmcd.seqnum): value NUMBER
 
 TIMESTAMP 1 metric
-    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
@@ -1670,19 +1844,33 @@ TIMESTAMP 5 metrics
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
 
-advisory off -> advisory off
+advisory off -> mandatory off
 sample.colour
   inst [0 or "red"]  0 (adv off)
   inst [1 or "green"]  0 (adv off)
-  inst [2 or "blue"]  0 (adv off)
+  inst [2 or "blue"]  2 (mand off)
 Log for pmlogger on HOST started DATE
 
 [DATE] pmlogger(PID) Info: Start
+chk_one: pmid=29.0.5 task=ADDR state=NNMN delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
 Config parsed
 optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
 
 After loading config ...
- state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+ state: not in log, unavail, mand, off delta: 0 usec numpmid: 1
   29.0.5 (sample.colour):
 Dump optfetch structures from ADDR next=ADDR
 Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
@@ -1696,6 +1884,8 @@ PMIDs: [1] 29.0.5
 
 Fetch task[0] delta: 0 usec numpmid: 1
   Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
 Starting logger for host "HOST"
 __pmFopen("TMP.index", "w"): no decompress
 __pmFopen("TMP.meta", "w"): no decompress
@@ -1728,6 +1918,180 @@ TIMESTAMP 5 metrics
     2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
     2.0.23 (pmcd.pid): value NUMBER
     2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+advisory off -> advisory on once
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  13 (adv on, delta=0 msec, inlog, avail)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+chk_one: pmid=29.0.5 task=ADDR state=NNAY delta=0.000000
+compared to: optreq task=ADDR state=NNAN delta=0.000000
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+ state: not in log, unavail, adv, on delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.5 (sample.dupnames.four.colour or sample.colour): inst [2 or "blue"] value NUMBER
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+advisory off -> advisory off
+sample.colour
+  inst [0 or "red"]  0 (adv off)
+  inst [1 or "green"]  0 (adv off)
+  inst [2 or "blue"]  0 (adv off)
+Log for pmlogger on HOST started DATE
+
+[DATE] pmlogger(PID) Info: Start
+Config parsed
+optFetch Cost Parameters: pmid=4 indom=1 fetch=15 scope=1
+
+After loading config ...
+ state: not in log, unavail, mand, on delta: 0 usec numpmid: 1
+  29.0.11 (sample.long.ten):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.11
+  InDom PM_INDOM_NULL Control @ ADDR:
+  instances: [0] ADDR
+    PMID 29.0.11 Control @ ADDR:
+    instances: [0] ADDR
+      Request @ ADDR:
+      instances: [0] ADDR
+
+ state: not in log, unavail, adv, off delta: 0 usec numpmid: 1
+  29.0.5 (sample.colour):
+Dump optfetch structures from ADDR next=ADDR
+Fetch Control @ ADDR: cost=20 state=NEW PMID PROFILE 
+PMIDs: [1] 29.0.5
+  InDom 29.1 Control @ ADDR:
+  instances: [1] 2
+    PMID 29.0.5 Control @ ADDR:
+    instances: [1] 2
+      Request @ ADDR:
+      instances: [1] 2
+
+Fetch task[0] delta: 0 usec numpmid: 1
+  Fetch group[0][0] 1 metrics
+Fetch task[1] delta: 0 usec numpmid: 1
+  Fetch group[1][0] 1 metrics
+Starting logger for host "HOST"
+__pmFopen("TMP.index", "w"): no decompress
+__pmFopen("TMP.meta", "w"): no decompress
+__pmFopen("TMP.0", "w"): no decompress
+Archive basename: ARCHIVE
+do_creds: pmlc PDU version=3
+__pmDecodeLogRequest: got PDU (type=2, version=3)
+__pmSendLogStatus: sending PDU (version=3)
+do_creds: pmlc PDU version=3
+do_control_req: control=13 state=0 delta=5000 request ...
+LogControl dump from ADDR numpmid: 1
+  29.0.5 : numval: 3 valfmt: 0 inst [0]
+ inst [1]
+ inst [2]
+__pmResult dump from ADDR timestamp: 0.000000000 TIME numpmid: 1
+  29.0.5 (sample.dupnames.four.colour, sample.colour): numval: 3 valfmt: 0 vlist[]:
+    inst [0 or "red"] value INT
+    inst [1 or "green"] value INT
+    inst [2 or "blue"] value INT
+[DATE] pmlogger(PID) Info: pmlogger: Caught signal 15, exiting
+
+Log finished DATE
+...
+control_req: connection accepted on fd=N from localhost
+control_req: connection accepted on fd=N from localhost
+
+TIMESTAMP 5 metrics
+    2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.3.0 (pmcd.pmlogger.port): inst [LOGGER_PID or "LOGGER_PID"] value PORT
+    2.3.2 (pmcd.pmlogger.archive): inst [LOGGER_PID or "LOGGER_PID"] value STRING
+    2.0.23 (pmcd.pid): value NUMBER
+    2.0.24 (pmcd.seqnum): value NUMBER
+
+TIMESTAMP 1 metric
+    29.0.11 (sample.long.ten): value NUMBER
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value STRING

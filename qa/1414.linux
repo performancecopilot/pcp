@@ -5,7 +5,7 @@ New log volume 1
 last log entry   DATE
 current time     DATE
 log volume       0
-log size more than 900
+log size more than 1000
 last log entry   DATE
 current time     DATE
 log volume       1
@@ -119,7 +119,7 @@ New log volume 1
 last log entry   DATE
 current time     DATE
 log volume       0
-log size more than 900
+log size more than 1000
 last log entry   DATE
 current time     DATE
 log volume       1

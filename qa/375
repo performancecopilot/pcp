@@ -52,7 +52,7 @@ _speak_to_me()
     # version logic in libpcp, then pmlc there will only be able to connect
     # to pmlogger here if we force pmlogger to offer LOG_PDU_VERSION2
     #
-    _start_up_pmlogger -V2 --pmlc-ipc-version=2 -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1
+    _start_up_pmlogger -V2 --pmlc-ipc-version=2 -L -c $tmp.config -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1
     _wait_for_pmlogger $pid /tmp/$$.log || _exit 1
 
     # the success cases
@@ -127,6 +127,11 @@ else
     me=`_host_to_fqdn $host`
 fi
 pid=''
+
+cat >$tmp.config <<End-of-File
+# with delayed preamble, need to force *something* into the archive
+log mandatory on once sample.long.ten
+End-of-File
 
 # real QA test starts here
 

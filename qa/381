@@ -134,8 +134,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 myhost=`hostname`
 pid=''
 
+# force one pmResult into the archive to trigger log label
+# and preamble writing
+#
+echo "log mandatory on once sampledso.long.ten" >$tmp.config
 
-_start_up_pmlogger -h $rem_host -L -c /dev/null -l $tmp.log $tmp >/dev/null 2>&1
+_start_up_pmlogger -h $rem_host -L -c $tmp.config -l $tmp.log $tmp >/dev/null 2>&1
 _wait_for_pmlogger $pid $tmp.log || _exit 1
 
 pminfo -f -h $rem_host pmcd.pmlogger.port >$tmp.tmp

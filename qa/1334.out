@@ -38,7 +38,7 @@ InDom: 2.1
 STAMP-1 1 instances
    PID or "PID"
 InDom: 29.12
-STAMP-2 14 instances
+STAMP-1 14 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -53,7 +53,7 @@ STAMP-2 14 instances
    18 or "0018 /etc/yobo"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-3 13 instances
+STAMP-2 13 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -67,7 +67,7 @@ STAMP-3 13 instances
    18 or "0018 /etc/yobo"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-4 11 instances
+STAMP-3 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -79,7 +79,7 @@ STAMP-4 11 instances
    15 or "0015 /usr/bin/loko"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-5 11 instances
+STAMP-4 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -91,7 +91,7 @@ STAMP-5 11 instances
    15 or "0015 /usr/bin/loko"
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
-STAMP-6 10 instances
+STAMP-5 10 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -102,7 +102,7 @@ STAMP-6 10 instances
    15 or "0015 /usr/bin/loko"
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
-STAMP-7 11 instances
+STAMP-6 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -114,7 +114,7 @@ STAMP-7 11 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-9 10 instances
+STAMP-8 10 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -125,7 +125,7 @@ STAMP-9 10 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-10 9 instances
+STAMP-9 9 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -135,7 +135,7 @@ STAMP-10 9 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-12 9 instances
+STAMP-11 9 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -145,7 +145,7 @@ STAMP-12 9 instances
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
    23 or "0023 /usr/bin/bobo"
-STAMP-14 11 instances
+STAMP-13 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -157,7 +157,7 @@ STAMP-14 11 instances
    23 or "0023 /usr/bin/bobo"
    24 or "0024 /usr/local/jester"
    25 or "0025 /usr/opt/bin/loko"
-STAMP-17 12 instances
+STAMP-16 12 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -170,7 +170,7 @@ STAMP-17 12 instances
    24 or "0024 /usr/local/jester"
    25 or "0025 /usr/opt/bin/loko"
    26 or "0026 /etc/pierrot"
-STAMP-19 13 instances
+STAMP-18 13 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -184,7 +184,7 @@ STAMP-19 13 instances
    25 or "0025 /usr/opt/bin/loko"
    27 or "0027 /usr/bin/waldo"
    28 or "0028 /usr/local/yobo"
-STAMP-21 14 instances
+STAMP-20 14 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -202,21 +202,20 @@ STAMP-21 14 instances
 
 Temporal Index
 		Log Vol    end(meta)     end(log)
-STAMP-1	      0          NNNN          NNNN
-STAMP-2	      0          NNNN          NNNN
-STAMP-3	      0         NNNN         NNNN
-STAMP-4	      0         NNNN         NNNN
-STAMP-5	      0         NNNN         NNNN
-STAMP-6	      0         NNNN         NNNN
-STAMP-7	      0         NNNN         NNNN
-STAMP-9	      0         NNNN         NNNN
-STAMP-10	      0         NNNN         NNNN
-STAMP-12	      0         NNNN         NNNN
-STAMP-14	      0         NNNN         NNNN
-STAMP-17	      0         NNNN         NNNN
-STAMP-19	      0         NNNN        NNNN
-STAMP-21	      0         NNNN        NNNN
-STAMP-22	      0         NNNN        NNNN
+STAMP-1	      0 NNNN NNNN
+STAMP-2	      0 NNNN NNNN
+STAMP-3	      0 NNNN NNNN
+STAMP-4	      0 NNNN NNNN
+STAMP-5	      0 NNNN NNNN
+STAMP-6	      0 NNNN NNNN
+STAMP-8	      0 NNNN NNNN
+STAMP-9	      0 NNNN NNNN
+STAMP-11	      0 NNNN NNNN
+STAMP-13	      0 NNNN NNNN
+STAMP-16	      0 NNNN NNNN
+STAMP-18	      0 NNNN NNNN
+STAMP-20	      0 NNNN NNNN
+STAMP-21	      0 NNNN NNNN
 
 [NNN bytes]
 STAMP-1 5 metrics
@@ -227,7 +226,7 @@ STAMP-1 5 metrics
     2.0.24 (pmcd.seqnum): ...
 
 [732 bytes]
-STAMP-2 3 metrics
+STAMP-1 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -275,7 +274,7 @@ STAMP-2 3 metrics
         inst [20 or "0020 /usr/local/koko"] value 20
 
 [684 bytes]
-STAMP-3 3 metrics
+STAMP-2 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -320,7 +319,7 @@ STAMP-3 3 metrics
         inst [20 or "0020 /usr/local/koko"] value 20
 
 [588 bytes]
-STAMP-4 3 metrics
+STAMP-3 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -359,7 +358,7 @@ STAMP-4 3 metrics
         inst [20 or "0020 /usr/local/koko"] value 20
 
 [588 bytes]
-STAMP-5 3 metrics
+STAMP-4 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -398,7 +397,7 @@ STAMP-5 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
 
 [540 bytes]
-STAMP-6 3 metrics
+STAMP-5 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -434,7 +433,7 @@ STAMP-6 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
 
 [588 bytes]
-STAMP-7 3 metrics
+STAMP-6 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -473,7 +472,7 @@ STAMP-7 3 metrics
         inst [22 or "0022 /etc/bozo"] value 22
 
 [588 bytes]
-STAMP-8 3 metrics
+STAMP-7 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -512,7 +511,7 @@ STAMP-8 3 metrics
         inst [22 or "0022 /etc/bozo"] value 22
 
 [540 bytes]
-STAMP-9 3 metrics
+STAMP-8 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -541,6 +540,39 @@ STAMP-9 3 metrics
         inst [3 or "0003 /usr/bin/bobo"] value 3
         inst [4 or "0004 /usr/local/jester"] value 4
         inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+
+[492 bytes]
+STAMP-9 3 metrics
+    29.0.158 (sample.proc.time):
+        inst [1 or "0001 init"] value TIME
+        inst [2 or "0002 /etc/bozo"] value TIME
+        inst [3 or "0003 /usr/bin/bobo"] value TIME
+        inst [4 or "0004 /usr/local/jester"] value TIME
+        inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
+        inst [15 or "0015 /usr/bin/loko"] value TIME
+        inst [20 or "0020 /usr/local/koko"] value TIME
+        inst [21 or "0021 /usr/opt/bin/lala"] value TIME
+        inst [22 or "0022 /etc/bozo"] value TIME
+    29.0.157 (sample.proc.exec):
+        inst [1 or "0001 init"] value "0001 init"
+        inst [2 or "0002 /etc/bozo"] value "bozo"
+        inst [3 or "0003 /usr/bin/bobo"] value "bobo"
+        inst [4 or "0004 /usr/local/jester"] value "jester"
+        inst [9 or "0009 /usr/opt/bin/jojo"] value "jojo"
+        inst [15 or "0015 /usr/bin/loko"] value "loko"
+        inst [20 or "0020 /usr/local/koko"] value "koko"
+        inst [21 or "0021 /usr/opt/bin/lala"] value "lala"
+        inst [22 or "0022 /etc/bozo"] value "bozo"
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
         inst [9 or "0009 /usr/opt/bin/jojo"] value 9
         inst [15 or "0015 /usr/bin/loko"] value 15
         inst [20 or "0020 /usr/local/koko"] value 20
@@ -588,39 +620,6 @@ STAMP-11 3 metrics
         inst [3 or "0003 /usr/bin/bobo"] value TIME
         inst [4 or "0004 /usr/local/jester"] value TIME
         inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
-        inst [15 or "0015 /usr/bin/loko"] value TIME
-        inst [20 or "0020 /usr/local/koko"] value TIME
-        inst [21 or "0021 /usr/opt/bin/lala"] value TIME
-        inst [22 or "0022 /etc/bozo"] value TIME
-    29.0.157 (sample.proc.exec):
-        inst [1 or "0001 init"] value "0001 init"
-        inst [2 or "0002 /etc/bozo"] value "bozo"
-        inst [3 or "0003 /usr/bin/bobo"] value "bobo"
-        inst [4 or "0004 /usr/local/jester"] value "jester"
-        inst [9 or "0009 /usr/opt/bin/jojo"] value "jojo"
-        inst [15 or "0015 /usr/bin/loko"] value "loko"
-        inst [20 or "0020 /usr/local/koko"] value "koko"
-        inst [21 or "0021 /usr/opt/bin/lala"] value "lala"
-        inst [22 or "0022 /etc/bozo"] value "bozo"
-    29.0.156 (sample.proc.ordinal):
-        inst [1 or "0001 init"] value 1
-        inst [2 or "0002 /etc/bozo"] value 2
-        inst [3 or "0003 /usr/bin/bobo"] value 3
-        inst [4 or "0004 /usr/local/jester"] value 4
-        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
-        inst [15 or "0015 /usr/bin/loko"] value 15
-        inst [20 or "0020 /usr/local/koko"] value 20
-        inst [21 or "0021 /usr/opt/bin/lala"] value 21
-        inst [22 or "0022 /etc/bozo"] value 22
-
-[492 bytes]
-STAMP-12 3 metrics
-    29.0.158 (sample.proc.time):
-        inst [1 or "0001 init"] value TIME
-        inst [2 or "0002 /etc/bozo"] value TIME
-        inst [3 or "0003 /usr/bin/bobo"] value TIME
-        inst [4 or "0004 /usr/local/jester"] value TIME
-        inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
         inst [20 or "0020 /usr/local/koko"] value TIME
         inst [21 or "0021 /usr/opt/bin/lala"] value TIME
         inst [22 or "0022 /etc/bozo"] value TIME
@@ -647,7 +646,7 @@ STAMP-12 3 metrics
         inst [23 or "0023 /usr/bin/bobo"] value 23
 
 [492 bytes]
-STAMP-13 3 metrics
+STAMP-12 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -680,7 +679,7 @@ STAMP-13 3 metrics
         inst [23 or "0023 /usr/bin/bobo"] value 23
 
 [588 bytes]
-STAMP-14 3 metrics
+STAMP-13 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -693,6 +692,45 @@ STAMP-14 3 metrics
         inst [23 or "0023 /usr/bin/bobo"] value TIME
         inst [24 or "0024 /usr/local/jester"] value 0
         inst [25 or "0025 /usr/opt/bin/loko"] value 0
+    29.0.157 (sample.proc.exec):
+        inst [1 or "0001 init"] value "0001 init"
+        inst [2 or "0002 /etc/bozo"] value "bozo"
+        inst [3 or "0003 /usr/bin/bobo"] value "bobo"
+        inst [4 or "0004 /usr/local/jester"] value "jester"
+        inst [9 or "0009 /usr/opt/bin/jojo"] value "jojo"
+        inst [20 or "0020 /usr/local/koko"] value "koko"
+        inst [21 or "0021 /usr/opt/bin/lala"] value "lala"
+        inst [22 or "0022 /etc/bozo"] value "bozo"
+        inst [23 or "0023 /usr/bin/bobo"] value "bobo"
+        inst [24 or "0024 /usr/local/jester"] value "jester"
+        inst [25 or "0025 /usr/opt/bin/loko"] value "loko"
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+
+[588 bytes]
+STAMP-14 3 metrics
+    29.0.158 (sample.proc.time):
+        inst [1 or "0001 init"] value TIME
+        inst [2 or "0002 /etc/bozo"] value TIME
+        inst [3 or "0003 /usr/bin/bobo"] value TIME
+        inst [4 or "0004 /usr/local/jester"] value TIME
+        inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
+        inst [20 or "0020 /usr/local/koko"] value TIME
+        inst [21 or "0021 /usr/opt/bin/lala"] value TIME
+        inst [22 or "0022 /etc/bozo"] value TIME
+        inst [23 or "0023 /usr/bin/bobo"] value TIME
+        inst [24 or "0024 /usr/local/jester"] value TIME
+        inst [25 or "0025 /usr/opt/bin/loko"] value TIME
     29.0.157 (sample.proc.exec):
         inst [1 or "0001 init"] value "0001 init"
         inst [2 or "0002 /etc/bozo"] value "bozo"
@@ -757,47 +795,8 @@ STAMP-15 3 metrics
         inst [24 or "0024 /usr/local/jester"] value 24
         inst [25 or "0025 /usr/opt/bin/loko"] value 25
 
-[588 bytes]
-STAMP-16 3 metrics
-    29.0.158 (sample.proc.time):
-        inst [1 or "0001 init"] value TIME
-        inst [2 or "0002 /etc/bozo"] value TIME
-        inst [3 or "0003 /usr/bin/bobo"] value TIME
-        inst [4 or "0004 /usr/local/jester"] value TIME
-        inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
-        inst [20 or "0020 /usr/local/koko"] value TIME
-        inst [21 or "0021 /usr/opt/bin/lala"] value TIME
-        inst [22 or "0022 /etc/bozo"] value TIME
-        inst [23 or "0023 /usr/bin/bobo"] value TIME
-        inst [24 or "0024 /usr/local/jester"] value TIME
-        inst [25 or "0025 /usr/opt/bin/loko"] value TIME
-    29.0.157 (sample.proc.exec):
-        inst [1 or "0001 init"] value "0001 init"
-        inst [2 or "0002 /etc/bozo"] value "bozo"
-        inst [3 or "0003 /usr/bin/bobo"] value "bobo"
-        inst [4 or "0004 /usr/local/jester"] value "jester"
-        inst [9 or "0009 /usr/opt/bin/jojo"] value "jojo"
-        inst [20 or "0020 /usr/local/koko"] value "koko"
-        inst [21 or "0021 /usr/opt/bin/lala"] value "lala"
-        inst [22 or "0022 /etc/bozo"] value "bozo"
-        inst [23 or "0023 /usr/bin/bobo"] value "bobo"
-        inst [24 or "0024 /usr/local/jester"] value "jester"
-        inst [25 or "0025 /usr/opt/bin/loko"] value "loko"
-    29.0.156 (sample.proc.ordinal):
-        inst [1 or "0001 init"] value 1
-        inst [2 or "0002 /etc/bozo"] value 2
-        inst [3 or "0003 /usr/bin/bobo"] value 3
-        inst [4 or "0004 /usr/local/jester"] value 4
-        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
-        inst [20 or "0020 /usr/local/koko"] value 20
-        inst [21 or "0021 /usr/opt/bin/lala"] value 21
-        inst [22 or "0022 /etc/bozo"] value 22
-        inst [23 or "0023 /usr/bin/bobo"] value 23
-        inst [24 or "0024 /usr/local/jester"] value 24
-        inst [25 or "0025 /usr/opt/bin/loko"] value 25
-
 [636 bytes]
-STAMP-17 3 metrics
+STAMP-16 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -839,7 +838,7 @@ STAMP-17 3 metrics
         inst [26 or "0026 /etc/pierrot"] value 26
 
 [636 bytes]
-STAMP-18 3 metrics
+STAMP-17 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -881,7 +880,7 @@ STAMP-18 3 metrics
         inst [26 or "0026 /etc/pierrot"] value 26
 
 [684 bytes]
-STAMP-19 3 metrics
+STAMP-18 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -926,7 +925,7 @@ STAMP-19 3 metrics
         inst [28 or "0028 /usr/local/yobo"] value 28
 
 [684 bytes]
-STAMP-20 3 metrics
+STAMP-19 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -971,7 +970,7 @@ STAMP-20 3 metrics
         inst [28 or "0028 /usr/local/yobo"] value 28
 
 [732 bytes]
-STAMP-21 3 metrics
+STAMP-20 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1019,7 +1018,7 @@ STAMP-21 3 metrics
         inst [30 or "0030 /etc/koko"] value 30
 
 [NNN bytes]
-STAMP-22 5 metrics
+STAMP-21 5 metrics
     2.3.3 (pmcd.pmlogger.host): ...
     2.3.0 (pmcd.pmlogger.port): ...
     2.3.2 (pmcd.pmlogger.archive): ...
@@ -1029,7 +1028,7 @@ STAMP-22 5 metrics
 Instance Domains on-disk ...
 STAMP-1 InDom: 2.1 1 instances
    PID or "PID"
-STAMP-2 InDom: 29.12 14 instances
+STAMP-1 InDom: 29.12 14 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1044,7 +1043,7 @@ STAMP-2 InDom: 29.12 14 instances
    18 or "0018 /etc/yobo"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-3 InDom: 29.12 13 instances
+STAMP-2 InDom: 29.12 13 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1058,7 +1057,7 @@ STAMP-3 InDom: 29.12 13 instances
    18 or "0018 /etc/yobo"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-4 InDom: 29.12 11 instances
+STAMP-3 InDom: 29.12 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1070,7 +1069,7 @@ STAMP-4 InDom: 29.12 11 instances
    15 or "0015 /usr/bin/loko"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-5 InDom: 29.12 11 instances
+STAMP-4 InDom: 29.12 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1082,7 +1081,7 @@ STAMP-5 InDom: 29.12 11 instances
    15 or "0015 /usr/bin/loko"
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
-STAMP-6 InDom: 29.12 10 instances
+STAMP-5 InDom: 29.12 10 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1093,7 +1092,7 @@ STAMP-6 InDom: 29.12 10 instances
    15 or "0015 /usr/bin/loko"
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
-STAMP-7 InDom: 29.12 11 instances
+STAMP-6 InDom: 29.12 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1105,7 +1104,7 @@ STAMP-7 InDom: 29.12 11 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-9 InDom: 29.12 10 instances
+STAMP-8 InDom: 29.12 10 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1116,7 +1115,7 @@ STAMP-9 InDom: 29.12 10 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-10 InDom: 29.12 9 instances
+STAMP-9 InDom: 29.12 9 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1126,7 +1125,7 @@ STAMP-10 InDom: 29.12 9 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-12 InDom: 29.12 9 instances
+STAMP-11 InDom: 29.12 9 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1136,7 +1135,7 @@ STAMP-12 InDom: 29.12 9 instances
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
    23 or "0023 /usr/bin/bobo"
-STAMP-14 InDom: 29.12 11 instances
+STAMP-13 InDom: 29.12 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1148,7 +1147,7 @@ STAMP-14 InDom: 29.12 11 instances
    23 or "0023 /usr/bin/bobo"
    24 or "0024 /usr/local/jester"
    25 or "0025 /usr/opt/bin/loko"
-STAMP-17 InDom: 29.12 12 instances
+STAMP-16 InDom: 29.12 12 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1161,7 +1160,7 @@ STAMP-17 InDom: 29.12 12 instances
    24 or "0024 /usr/local/jester"
    25 or "0025 /usr/opt/bin/loko"
    26 or "0026 /etc/pierrot"
-STAMP-19 InDom: 29.12 13 instances
+STAMP-18 InDom: 29.12 13 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1175,7 +1174,7 @@ STAMP-19 InDom: 29.12 13 instances
    25 or "0025 /usr/opt/bin/loko"
    27 or "0027 /usr/bin/waldo"
    28 or "0028 /usr/local/yobo"
-STAMP-21 InDom: 29.12 14 instances
+STAMP-20 InDom: 29.12 14 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1231,7 +1230,7 @@ InDom: 2.1
 STAMP-1 1 instances
    PID or "PID"
 InDom: 29.12
-STAMP-2 14 instances
+STAMP-1 14 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1246,7 +1245,7 @@ STAMP-2 14 instances
    18 or "0018 /etc/yobo"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-3 13 instances
+STAMP-2 13 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1260,7 +1259,7 @@ STAMP-3 13 instances
    18 or "0018 /etc/yobo"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-4 11 instances
+STAMP-3 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1272,7 +1271,7 @@ STAMP-4 11 instances
    15 or "0015 /usr/bin/loko"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-5 11 instances
+STAMP-4 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1284,7 +1283,7 @@ STAMP-5 11 instances
    15 or "0015 /usr/bin/loko"
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
-STAMP-6 10 instances
+STAMP-5 10 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1295,7 +1294,7 @@ STAMP-6 10 instances
    15 or "0015 /usr/bin/loko"
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
-STAMP-7 11 instances
+STAMP-6 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1307,7 +1306,7 @@ STAMP-7 11 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-9 10 instances
+STAMP-8 10 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1318,7 +1317,7 @@ STAMP-9 10 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-10 9 instances
+STAMP-9 9 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1328,7 +1327,7 @@ STAMP-10 9 instances
    20 or "0020 /usr/local/koko"
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
-STAMP-12 9 instances
+STAMP-11 9 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1338,7 +1337,7 @@ STAMP-12 9 instances
    21 or "0021 /usr/opt/bin/lala"
    22 or "0022 /etc/bozo"
    23 or "0023 /usr/bin/bobo"
-STAMP-14 11 instances
+STAMP-13 11 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1350,7 +1349,7 @@ STAMP-14 11 instances
    23 or "0023 /usr/bin/bobo"
    24 or "0024 /usr/local/jester"
    25 or "0025 /usr/opt/bin/loko"
-STAMP-17 12 instances
+STAMP-16 12 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1363,7 +1362,7 @@ STAMP-17 12 instances
    24 or "0024 /usr/local/jester"
    25 or "0025 /usr/opt/bin/loko"
    26 or "0026 /etc/pierrot"
-STAMP-19 13 instances
+STAMP-18 13 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1377,7 +1376,7 @@ STAMP-19 13 instances
    25 or "0025 /usr/opt/bin/loko"
    27 or "0027 /usr/bin/waldo"
    28 or "0028 /usr/local/yobo"
-STAMP-21 14 instances
+STAMP-20 14 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -1395,21 +1394,20 @@ STAMP-21 14 instances
 
 Temporal Index
 			Log Vol    end(meta)     end(log)
-STAMP-1	      0          NNNN          NNNN
-STAMP-2	      0         NNNN         NNNN
-STAMP-3	      0         NNNN         NNNN
-STAMP-4	      0         NNNN         NNNN
-STAMP-5	      0         NNNN         NNNN
-STAMP-6	      0         NNNN         NNNN
-STAMP-7	      0         NNNN         NNNN
-STAMP-9	      0         NNNN         NNNN
-STAMP-10	      0         NNNN         NNNN
-STAMP-12	      0         NNNN         NNNN
-STAMP-14	      0         NNNN         NNNN
-STAMP-17	      0         NNNN         NNNN
-STAMP-19	      0         NNNN        NNNN
-STAMP-21	      0         NNNN        NNNN
-STAMP-22	      0         NNNN        NNNN
+STAMP-1	      0 NNNN NNNN
+STAMP-2	      0 NNNN NNNN
+STAMP-3	      0 NNNN NNNN
+STAMP-4	      0 NNNN NNNN
+STAMP-5	      0 NNNN NNNN
+STAMP-6	      0 NNNN NNNN
+STAMP-8	      0 NNNN NNNN
+STAMP-9	      0 NNNN NNNN
+STAMP-11	      0 NNNN NNNN
+STAMP-13	      0 NNNN NNNN
+STAMP-16	      0 NNNN NNNN
+STAMP-18	      0 NNNN NNNN
+STAMP-20	      0 NNNN NNNN
+STAMP-21	      0 NNNN NNNN
 
 [NNN bytes]
 STAMP-1 5 metrics
@@ -1420,7 +1418,7 @@ STAMP-1 5 metrics
     2.0.24 (pmcd.seqnum): ...
 
 [736 bytes]
-STAMP-2 3 metrics
+STAMP-1 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1468,7 +1466,7 @@ STAMP-2 3 metrics
         inst [20 or "0020 /usr/local/koko"] value 20
 
 [688 bytes]
-STAMP-3 3 metrics
+STAMP-2 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1513,7 +1511,7 @@ STAMP-3 3 metrics
         inst [20 or "0020 /usr/local/koko"] value 20
 
 [592 bytes]
-STAMP-4 3 metrics
+STAMP-3 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1552,7 +1550,7 @@ STAMP-4 3 metrics
         inst [20 or "0020 /usr/local/koko"] value 20
 
 [592 bytes]
-STAMP-5 3 metrics
+STAMP-4 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1591,7 +1589,7 @@ STAMP-5 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
 
 [544 bytes]
-STAMP-6 3 metrics
+STAMP-5 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1627,7 +1625,7 @@ STAMP-6 3 metrics
         inst [21 or "0021 /usr/opt/bin/lala"] value 21
 
 [592 bytes]
-STAMP-7 3 metrics
+STAMP-6 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1666,7 +1664,7 @@ STAMP-7 3 metrics
         inst [22 or "0022 /etc/bozo"] value 22
 
 [592 bytes]
-STAMP-8 3 metrics
+STAMP-7 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1705,7 +1703,7 @@ STAMP-8 3 metrics
         inst [22 or "0022 /etc/bozo"] value 22
 
 [544 bytes]
-STAMP-9 3 metrics
+STAMP-8 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1734,6 +1732,39 @@ STAMP-9 3 metrics
         inst [3 or "0003 /usr/bin/bobo"] value 3
         inst [4 or "0004 /usr/local/jester"] value 4
         inst [5 or "0005 /usr/opt/bin/loko"] value 5
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [15 or "0015 /usr/bin/loko"] value 15
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+
+[496 bytes]
+STAMP-9 3 metrics
+    29.0.158 (sample.proc.time):
+        inst [1 or "0001 init"] value TIME
+        inst [2 or "0002 /etc/bozo"] value TIME
+        inst [3 or "0003 /usr/bin/bobo"] value TIME
+        inst [4 or "0004 /usr/local/jester"] value TIME
+        inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
+        inst [15 or "0015 /usr/bin/loko"] value TIME
+        inst [20 or "0020 /usr/local/koko"] value TIME
+        inst [21 or "0021 /usr/opt/bin/lala"] value TIME
+        inst [22 or "0022 /etc/bozo"] value TIME
+    29.0.157 (sample.proc.exec):
+        inst [1 or "0001 init"] value "0001 init"
+        inst [2 or "0002 /etc/bozo"] value "bozo"
+        inst [3 or "0003 /usr/bin/bobo"] value "bobo"
+        inst [4 or "0004 /usr/local/jester"] value "jester"
+        inst [9 or "0009 /usr/opt/bin/jojo"] value "jojo"
+        inst [15 or "0015 /usr/bin/loko"] value "loko"
+        inst [20 or "0020 /usr/local/koko"] value "koko"
+        inst [21 or "0021 /usr/opt/bin/lala"] value "lala"
+        inst [22 or "0022 /etc/bozo"] value "bozo"
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
         inst [9 or "0009 /usr/opt/bin/jojo"] value 9
         inst [15 or "0015 /usr/bin/loko"] value 15
         inst [20 or "0020 /usr/local/koko"] value 20
@@ -1781,39 +1812,6 @@ STAMP-11 3 metrics
         inst [3 or "0003 /usr/bin/bobo"] value TIME
         inst [4 or "0004 /usr/local/jester"] value TIME
         inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
-        inst [15 or "0015 /usr/bin/loko"] value TIME
-        inst [20 or "0020 /usr/local/koko"] value TIME
-        inst [21 or "0021 /usr/opt/bin/lala"] value TIME
-        inst [22 or "0022 /etc/bozo"] value TIME
-    29.0.157 (sample.proc.exec):
-        inst [1 or "0001 init"] value "0001 init"
-        inst [2 or "0002 /etc/bozo"] value "bozo"
-        inst [3 or "0003 /usr/bin/bobo"] value "bobo"
-        inst [4 or "0004 /usr/local/jester"] value "jester"
-        inst [9 or "0009 /usr/opt/bin/jojo"] value "jojo"
-        inst [15 or "0015 /usr/bin/loko"] value "loko"
-        inst [20 or "0020 /usr/local/koko"] value "koko"
-        inst [21 or "0021 /usr/opt/bin/lala"] value "lala"
-        inst [22 or "0022 /etc/bozo"] value "bozo"
-    29.0.156 (sample.proc.ordinal):
-        inst [1 or "0001 init"] value 1
-        inst [2 or "0002 /etc/bozo"] value 2
-        inst [3 or "0003 /usr/bin/bobo"] value 3
-        inst [4 or "0004 /usr/local/jester"] value 4
-        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
-        inst [15 or "0015 /usr/bin/loko"] value 15
-        inst [20 or "0020 /usr/local/koko"] value 20
-        inst [21 or "0021 /usr/opt/bin/lala"] value 21
-        inst [22 or "0022 /etc/bozo"] value 22
-
-[496 bytes]
-STAMP-12 3 metrics
-    29.0.158 (sample.proc.time):
-        inst [1 or "0001 init"] value TIME
-        inst [2 or "0002 /etc/bozo"] value TIME
-        inst [3 or "0003 /usr/bin/bobo"] value TIME
-        inst [4 or "0004 /usr/local/jester"] value TIME
-        inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
         inst [20 or "0020 /usr/local/koko"] value TIME
         inst [21 or "0021 /usr/opt/bin/lala"] value TIME
         inst [22 or "0022 /etc/bozo"] value TIME
@@ -1840,7 +1838,7 @@ STAMP-12 3 metrics
         inst [23 or "0023 /usr/bin/bobo"] value 23
 
 [496 bytes]
-STAMP-13 3 metrics
+STAMP-12 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1873,7 +1871,7 @@ STAMP-13 3 metrics
         inst [23 or "0023 /usr/bin/bobo"] value 23
 
 [592 bytes]
-STAMP-14 3 metrics
+STAMP-13 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -1886,6 +1884,45 @@ STAMP-14 3 metrics
         inst [23 or "0023 /usr/bin/bobo"] value TIME
         inst [24 or "0024 /usr/local/jester"] value 0
         inst [25 or "0025 /usr/opt/bin/loko"] value 0
+    29.0.157 (sample.proc.exec):
+        inst [1 or "0001 init"] value "0001 init"
+        inst [2 or "0002 /etc/bozo"] value "bozo"
+        inst [3 or "0003 /usr/bin/bobo"] value "bobo"
+        inst [4 or "0004 /usr/local/jester"] value "jester"
+        inst [9 or "0009 /usr/opt/bin/jojo"] value "jojo"
+        inst [20 or "0020 /usr/local/koko"] value "koko"
+        inst [21 or "0021 /usr/opt/bin/lala"] value "lala"
+        inst [22 or "0022 /etc/bozo"] value "bozo"
+        inst [23 or "0023 /usr/bin/bobo"] value "bobo"
+        inst [24 or "0024 /usr/local/jester"] value "jester"
+        inst [25 or "0025 /usr/opt/bin/loko"] value "loko"
+    29.0.156 (sample.proc.ordinal):
+        inst [1 or "0001 init"] value 1
+        inst [2 or "0002 /etc/bozo"] value 2
+        inst [3 or "0003 /usr/bin/bobo"] value 3
+        inst [4 or "0004 /usr/local/jester"] value 4
+        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
+        inst [20 or "0020 /usr/local/koko"] value 20
+        inst [21 or "0021 /usr/opt/bin/lala"] value 21
+        inst [22 or "0022 /etc/bozo"] value 22
+        inst [23 or "0023 /usr/bin/bobo"] value 23
+        inst [24 or "0024 /usr/local/jester"] value 24
+        inst [25 or "0025 /usr/opt/bin/loko"] value 25
+
+[592 bytes]
+STAMP-14 3 metrics
+    29.0.158 (sample.proc.time):
+        inst [1 or "0001 init"] value TIME
+        inst [2 or "0002 /etc/bozo"] value TIME
+        inst [3 or "0003 /usr/bin/bobo"] value TIME
+        inst [4 or "0004 /usr/local/jester"] value TIME
+        inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
+        inst [20 or "0020 /usr/local/koko"] value TIME
+        inst [21 or "0021 /usr/opt/bin/lala"] value TIME
+        inst [22 or "0022 /etc/bozo"] value TIME
+        inst [23 or "0023 /usr/bin/bobo"] value TIME
+        inst [24 or "0024 /usr/local/jester"] value TIME
+        inst [25 or "0025 /usr/opt/bin/loko"] value TIME
     29.0.157 (sample.proc.exec):
         inst [1 or "0001 init"] value "0001 init"
         inst [2 or "0002 /etc/bozo"] value "bozo"
@@ -1950,47 +1987,8 @@ STAMP-15 3 metrics
         inst [24 or "0024 /usr/local/jester"] value 24
         inst [25 or "0025 /usr/opt/bin/loko"] value 25
 
-[592 bytes]
-STAMP-16 3 metrics
-    29.0.158 (sample.proc.time):
-        inst [1 or "0001 init"] value TIME
-        inst [2 or "0002 /etc/bozo"] value TIME
-        inst [3 or "0003 /usr/bin/bobo"] value TIME
-        inst [4 or "0004 /usr/local/jester"] value TIME
-        inst [9 or "0009 /usr/opt/bin/jojo"] value TIME
-        inst [20 or "0020 /usr/local/koko"] value TIME
-        inst [21 or "0021 /usr/opt/bin/lala"] value TIME
-        inst [22 or "0022 /etc/bozo"] value TIME
-        inst [23 or "0023 /usr/bin/bobo"] value TIME
-        inst [24 or "0024 /usr/local/jester"] value TIME
-        inst [25 or "0025 /usr/opt/bin/loko"] value TIME
-    29.0.157 (sample.proc.exec):
-        inst [1 or "0001 init"] value "0001 init"
-        inst [2 or "0002 /etc/bozo"] value "bozo"
-        inst [3 or "0003 /usr/bin/bobo"] value "bobo"
-        inst [4 or "0004 /usr/local/jester"] value "jester"
-        inst [9 or "0009 /usr/opt/bin/jojo"] value "jojo"
-        inst [20 or "0020 /usr/local/koko"] value "koko"
-        inst [21 or "0021 /usr/opt/bin/lala"] value "lala"
-        inst [22 or "0022 /etc/bozo"] value "bozo"
-        inst [23 or "0023 /usr/bin/bobo"] value "bobo"
-        inst [24 or "0024 /usr/local/jester"] value "jester"
-        inst [25 or "0025 /usr/opt/bin/loko"] value "loko"
-    29.0.156 (sample.proc.ordinal):
-        inst [1 or "0001 init"] value 1
-        inst [2 or "0002 /etc/bozo"] value 2
-        inst [3 or "0003 /usr/bin/bobo"] value 3
-        inst [4 or "0004 /usr/local/jester"] value 4
-        inst [9 or "0009 /usr/opt/bin/jojo"] value 9
-        inst [20 or "0020 /usr/local/koko"] value 20
-        inst [21 or "0021 /usr/opt/bin/lala"] value 21
-        inst [22 or "0022 /etc/bozo"] value 22
-        inst [23 or "0023 /usr/bin/bobo"] value 23
-        inst [24 or "0024 /usr/local/jester"] value 24
-        inst [25 or "0025 /usr/opt/bin/loko"] value 25
-
 [640 bytes]
-STAMP-17 3 metrics
+STAMP-16 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -2032,7 +2030,7 @@ STAMP-17 3 metrics
         inst [26 or "0026 /etc/pierrot"] value 26
 
 [640 bytes]
-STAMP-18 3 metrics
+STAMP-17 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -2074,7 +2072,7 @@ STAMP-18 3 metrics
         inst [26 or "0026 /etc/pierrot"] value 26
 
 [688 bytes]
-STAMP-19 3 metrics
+STAMP-18 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -2119,7 +2117,7 @@ STAMP-19 3 metrics
         inst [28 or "0028 /usr/local/yobo"] value 28
 
 [688 bytes]
-STAMP-20 3 metrics
+STAMP-19 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -2164,7 +2162,7 @@ STAMP-20 3 metrics
         inst [28 or "0028 /usr/local/yobo"] value 28
 
 [736 bytes]
-STAMP-21 3 metrics
+STAMP-20 3 metrics
     29.0.158 (sample.proc.time):
         inst [1 or "0001 init"] value TIME
         inst [2 or "0002 /etc/bozo"] value TIME
@@ -2212,7 +2210,7 @@ STAMP-21 3 metrics
         inst [30 or "0030 /etc/koko"] value 30
 
 [NNN bytes]
-STAMP-22 5 metrics
+STAMP-21 5 metrics
     2.3.3 (pmcd.pmlogger.host): ...
     2.3.0 (pmcd.pmlogger.port): ...
     2.3.2 (pmcd.pmlogger.archive): ...
@@ -2222,7 +2220,7 @@ STAMP-22 5 metrics
 Instance Domains on-disk ...
 STAMP-1 InDom: 2.1 1 instances
    PID or "PID"
-STAMP-2 InDom: 29.12 14 instances
+STAMP-1 InDom: 29.12 14 instances
    1 or "0001 init"
    2 or "0002 /etc/bozo"
    3 or "0003 /usr/bin/bobo"
@@ -2237,35 +2235,35 @@ STAMP-2 InDom: 29.12 14 instances
    18 or "0018 /etc/yobo"
    19 or "0019 /usr/bin/jojo"
    20 or "0020 /usr/local/koko"
-STAMP-3 InDom: 29.12 delta 1 instances
+STAMP-2 InDom: 29.12 delta 1 instances
    del 10
-STAMP-4 InDom: 29.12 delta 2 instances
+STAMP-3 InDom: 29.12 delta 2 instances
    del 16
    del 18
-STAMP-5 InDom: 29.12 delta 2 instances
+STAMP-4 InDom: 29.12 delta 2 instances
    del 19
    add 21 or "0021 /usr/opt/bin/lala"
-STAMP-6 InDom: 29.12 delta 1 instances
+STAMP-5 InDom: 29.12 delta 1 instances
    del 8
-STAMP-7 InDom: 29.12 delta 1 instances
+STAMP-6 InDom: 29.12 delta 1 instances
    add 22 or "0022 /etc/bozo"
-STAMP-9 InDom: 29.12 delta 1 instances
+STAMP-8 InDom: 29.12 delta 1 instances
    del 14
-STAMP-10 InDom: 29.12 delta 1 instances
+STAMP-9 InDom: 29.12 delta 1 instances
    del 5
-STAMP-12 InDom: 29.12 delta 2 instances
+STAMP-11 InDom: 29.12 delta 2 instances
    del 15
    add 23 or "0023 /usr/bin/bobo"
-STAMP-14 InDom: 29.12 delta 2 instances
+STAMP-13 InDom: 29.12 delta 2 instances
    add 24 or "0024 /usr/local/jester"
    add 25 or "0025 /usr/opt/bin/loko"
-STAMP-17 InDom: 29.12 delta 1 instances
+STAMP-16 InDom: 29.12 delta 1 instances
    add 26 or "0026 /etc/pierrot"
-STAMP-19 InDom: 29.12 delta 3 instances
+STAMP-18 InDom: 29.12 delta 3 instances
    del 26
    add 27 or "0027 /usr/bin/waldo"
    add 28 or "0028 /usr/local/yobo"
-STAMP-21 InDom: 29.12 delta 3 instances
+STAMP-20 InDom: 29.12 delta 3 instances
    del 25
    add 29 or "0029 /usr/opt/bin/jojo"
    add 30 or "0030 /etc/koko"
