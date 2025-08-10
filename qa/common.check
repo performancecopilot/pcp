@@ -239,9 +239,9 @@ _restore_auto_restart()
 # Wrapper for PCP daemon init scripts ... use systemctl if available,
 # else run the PCP scripts directly
 #
-# Based on similar logic in the $PCP_RC_DIR/pcp script, but note this
-# one has to do the $sudo and handle "pcp" as the special non-service
-# case ...
+# Based on similar logic in the $PCP_RC_DIR/pcp script (retired), but
+# note this one has to do the $sudo and handle "pcp" as the special
+# non-service case ...
 #
 # Usage: _service [-v] <service> [on|off|restart|...]
 #
@@ -268,11 +268,11 @@ _service()
 	    case "$1"
 	    in
 		pcp)
-		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service -a -f $PCP_RC_DIR/pcp ]
+		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service ]
 		    then
 			:
 		    else
-			$__verbose && echo "_service: no systemctl, need pmcd service, pmlogger servce and pcp rc script"
+			$__verbose && echo "_service: no systemctl, need pmcd service and pmlogger servce"
 			__do_systemctl=false
 		    fi
 		    ;;

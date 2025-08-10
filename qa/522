@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 522
-# #655108 $PCP_RC_DIR/pcp leaves files in /var/tmp
+# #655108 $PCP_RC_DIR scripts leave files in /var/tmp
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -28,7 +28,7 @@ _wait_for_pmlogger || _exit 1
 _restore_auto_restart pmlogger
 
 # and wait some more for other pmloggers and stuff pmlogger_check will
-# do before _start_pmcheck() in $PCP_RC_DIR/pcp actually gets to do
+# do before _start_pmcheck() in $PCP_RC_DIR/pmlogger actually gets to do
 # the "rm"
 #
 st=0; cnt=0; while [ $st -ne 1 ] ; do 

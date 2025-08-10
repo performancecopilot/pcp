@@ -99,7 +99,7 @@ else
     fi
 fi
 
-# really make sure the "$PCP_RC_DIR/pcp stop" is complete, so it does
+# really make sure the "$PCP_RC_DIR/pmcd stop" is complete, so it does
 # not terminate the pmcd we're going to start
 #
 $sudo $signal -a pmcd >/dev/null 2>&1

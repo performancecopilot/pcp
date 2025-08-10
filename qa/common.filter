@@ -615,7 +615,6 @@ _filter_pcp_start()
 	-e "s;$PCP_LOG_DIR/pmcd.log;\$PCP_LOG_DIR/pmcd.log;" \
 	-e "s;$PCP_RC_DIR/pmcd;\$PCP_RC_DIR/pmcd;" \
 	-e "s;$PCP_RC_DIR/pmlogger;\$PCP_RC_DIR/pmlogger;" \
-	-e "s;$PCP_RC_DIR/pcp;\$PCP_RC_DIR/pmcd;" \
 	-e '/$PCP_RC_DIR\/pmcd/{
 s/ PMCD / pmcd /
 }' \

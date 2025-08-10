@@ -1,10 +1,9 @@
 #! /bin/sh
 # PCP QA Test No. 187
-# for bug #327288 - $PCP_RC_DIR/pcp blows away $PCP_TMP_DIR/pmlogger entries
+# for bug #327288 - $PCP_RC_DIR scripts blow away $PCP_TMP_DIR/pmlogger entries
 #
 # Note ... this will be a "sometimes" failure ... requires special
 # combinations of pids such that sort != sort -n and comm gets confused
-#  $PCP_RC_DIR/pcp
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #

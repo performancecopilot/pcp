@@ -1009,7 +1009,7 @@ User-specific directories containing configuration files for
 customisation of the various monitor tools, such as
 .BR pmchart (1).
 .TP
-.I $PCP_RC_DIR/pcp
+.I $PCP_RC_DIR/pmcd
 Script for starting and stopping
 .BR pmcd (1).
 .TP
@@ -1021,7 +1021,7 @@ Control file for
 Command line options passed to
 .BR pmcd (1)
 when it is started from
-.BR $PCP_RC_DIR/pcp .
+.BR $PCP_RC_DIR/pmcd .
 All the command line option lines should start with a hyphen as
 the first character.
 This file can also contain environment variable settings of
@@ -1099,7 +1099,7 @@ via
 Control file for
 .BR pmlogger (1)
 instances launched from
-.B $PCP_RC_DIR/pcp
+.B $PCP_RC_DIR/pmlogger
 and/or managed by
 .BR pmlogger_check (1)
 and
@@ -1341,29 +1341,15 @@ for all applications.
 When
 .BR pmcd (1)
 is started from
-.B $PCP_RC_DIR/pcp
-then the primary instance of
-.BR pmlogger (1)
-will be started if the configuration flag
-.B pmlogger
-is
-.BR chkconfig (8)
-or
-.BR systemctl (1)
-enabled and
-.B pmcd
-is running and accepting connections.
-.RS
-.PP
-The check on
+.B $PCP_RC_DIR/pmcd
+the check on
 .BR pmcd 's
 readiness will wait up to
 .B PMCD_WAIT_TIMEOUT
 seconds.
 If
 .B pmcd
-has a long startup time (such as on a very large
-system), then
+has a long startup time (such as on a very large system), then
 .B PMCD_WAIT_TIMEOUT
 can be set to provide a maximum wait longer than the default 60 seconds.
 .RE

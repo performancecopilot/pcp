@@ -78,16 +78,16 @@ infourmins=`pmdate +6M '%H:%M'`
 # 
 cat >$tmp.new <<EOF
 Started by pmlogger_daily: $twodaysago
-09:38 stop pmcd from $PCP_RC_DIR/pcp
-11:54 start pmcd from $PCP_RC_DIR/pcp
+09:38 stop pmcd from $PCP_RC_DIR/pmcd
+11:54 start pmcd from $PCP_RC_DIR/pmcd
 
 DATE: $earlyyesterday
-$oneminago stop pmcd from $PCP_RC_DIR/pcp
-$intwomins start pmcd from $PCP_RC_DIR/pcp
+$oneminago stop pmcd from $PCP_RC_DIR/pmcd
+$intwomins start pmcd from $PCP_RC_DIR/pmcd
 $infourmins pmie: busy disk spindle 49.4:dks0d1@rattle
 
 DATE: $timenow
-$oneminago stop pmcd from $PCP_RC_DIR/pcp
+$oneminago stop pmcd from $PCP_RC_DIR/pmcd
 EOF
 
 # real QA test starts here
