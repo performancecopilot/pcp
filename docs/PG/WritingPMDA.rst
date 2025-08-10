@@ -1972,7 +1972,7 @@ need to explicitly remove the PMDA as described in Section 2.8.2, “`Removing a
 
 .. sourcecode:: none
 
- # ${PCP_RC_DIR}/pcp start
+ # ${PCP_RC_DIR}/pmcd start
 
 The files ``${PCP_PMDAS_DIR}/*/Install`` provide a wealth of examples that may be used to construct a new PMDA **Install** script.
 

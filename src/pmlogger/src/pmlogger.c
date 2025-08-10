@@ -1203,7 +1203,7 @@ main(int argc, char **argv)
     }
 
     /* pmlogger remote push HTTP server mode - no local archive */
-    if (strncmp(argv[opts.optind], "http://", 7) == 0)
+    if (Cflag == 0 && strncmp(argv[opts.optind], "http://", 7) == 0)
 	remote.conn = argv[opts.optind];
 
     if (getenv("__PMLOGGER_REEXEC") != NULL) {

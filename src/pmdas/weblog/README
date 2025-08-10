@@ -138,7 +138,7 @@ can be restarted as follows:
     To register any changes to the $PCP_PMCDCONF_PATH file you must
     restart PMCD:
 
-	# $PCP_RC_DIR/pcp start
+	# $PCP_RC_DIR/pmcd start
 
 
 Troubleshooting
