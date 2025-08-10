@@ -9,11 +9,11 @@ jobs:
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Install dependencies
         run: |
-          brew install gnu-tar pkg-config python@3.13 python-setuptools autoconf qt qt-creator
           brew reinstall python@3.13
-          brew link python@3.13 --force
+          #brew link python@3.13 --force
           /opt/homebrew/bin/python3 -m pip install --upgrade pip
-          /opt/homebrew/bin/python3 -m pip install setuptools
+          /opt/homebrew/bin/python3 -m pip install setuptools       
+          brew install gnu-tar pkg-config autoconf qt qt-creator
       - name: Debug Python Environment
         run: |
           /opt/homebrew/bin/python3 --version
