@@ -7,13 +7,13 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Homebrew
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-#      - name: Install dependencies
-#        run: |
+      - name: Install dependencies
+        run: |
 #          brew reinstall python@3.13
 #          #brew link python@3.13 --force
 #          /opt/homebrew/bin/python3 -m pip install --upgrade pip
 #          /opt/homebrew/bin/python3 -m pip install setuptools
-#          brew install gnu-tar pkg-config autoconf qt qt-creator
+          brew install gnu-tar pkg-config autoconf qt qt-creator
 #      - name: Debug Python Environment
 #        run: |
 #          /opt/homebrew/bin/python3 --version
