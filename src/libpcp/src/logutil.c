@@ -1040,6 +1040,8 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     lcp->refcnt = 0;
     PM_UNLOCK(lcp->lc_lock);
     lcp->physend = -1;
+    lcp->last_ti.sec = 0;
+    lcp->last_ti.nsec = 0;
 
     ctxp->c_mode = PM_MODE_FORW;
 

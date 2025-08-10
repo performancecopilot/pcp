@@ -799,6 +799,7 @@ typedef struct {
     __pmFILE	*tifp;		/* temporal index */
     __pmFILE	*mdfp;		/* meta data */
     int		state;		/* (when writing) archive state */
+    __pmTimestamp last_ti;	/* (when writing) last temporal index timestamp */
     __pmHashCtl	hashpmid;	/* PMID hashed access */
     __pmHashCtl	hashrange;	/* ptr to first and last value in archive for */
 				/* each metric */

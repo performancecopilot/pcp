@@ -179,6 +179,19 @@ __pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	tsp = &stamp;
     }
 
+    if (__pmTimestampSub(&lcp->last_ti, tsp) == 0) {
+	/*
+	 * when writing an archive (either from pmlogger or
+	 * pmlogextract or pmlogrewrite or ...) delayed preamble
+	 * output means we may have more than one pmResult with the
+	 * same timestamp, and in this case only the first one should
+	 * generate a new temporal index entry as the offsets at the
+	 * first one are the correct one for this timestamp
+	 */
+	return 0;
+    }
+    lcp->last_ti = *tsp;	/* struct assignment */
+
     if (__pmLogVersion(lcp) == PM_LOG_VERS03)
 	return __pmLogPutIndex_v3(acp, tsp);
     else if (__pmLogVersion(lcp) == PM_LOG_VERS02)
