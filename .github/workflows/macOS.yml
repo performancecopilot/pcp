@@ -10,6 +10,16 @@ jobs:
       - name: Install dependencies
         run: |
           brew install gnu-tar pkg-config python@3.13 python-setuptools autoconf qt qt-creator
+          brew reinstall python@3.13
+          brew link python@3.13 --force
+          /opt/homebrew/bin/python3 -m pip install --upgrade pip
+          /opt/homebrew/bin/python3 -m pip install setuptools
+      - name: Debug Python Environment
+        run: |
+          /opt/homebrew/bin/python3 --version
+          which python3
+          /opt/homebrew/bin/python3 -m pip list | grep setuptools
+          /opt/homebrew/bin/python3 -c "import setuptools; print(setuptools.__version__)"
       - name: Build on macOS
         id: Build
         run: |
