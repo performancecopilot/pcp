@@ -1088,7 +1088,7 @@ do_work(task_t *tp)
 	    }
 	}
 	__pmUnpinPDUBuf(pb);
-	if (!remote.only)
+	if (!remote.conn)
 	    __pmOverrideLastFd(__pmFileno(archctl.ac_mfp));
 
 	if (archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller) > flushsize) {

@@ -1,6 +1,5 @@
 QA output created by 1620
-
-=== Signalling pmlogger in both local and remote modes
+=== Running pmlogger in remote recording mode
 ## checking for pmproxy SIGHUP
 [DATE] pmproxy(PID) Info: pmproxy caught SIGHUP
 ## found remote archive files
@@ -14,30 +13,3 @@ hinv.ncpu
 hinv.ndisk
 kernel.all.load
 kernel.all.pswitch
-## found local archive files
-LOCAL_ARCHIVE.0
-LOCAL_ARCHIVE.index
-LOCAL_ARCHIVE.meta
-## with the following metrics
-disk.all.read
-disk.all.write
-hinv.ncpu
-hinv.ndisk
-kernel.all.load
-kernel.all.pswitch
-
-=== Running pmlogger in remote only recording mode
-## checking for pmproxy SIGHUP
-[DATE] pmproxy(PID) Info: pmproxy caught SIGHUP
-## found remote archive files
-REMOTE_ARCHIVE.0
-REMOTE_ARCHIVE.index
-REMOTE_ARCHIVE.meta
-## with the following metrics
-disk.all.read
-disk.all.write
-hinv.ncpu
-hinv.ndisk
-kernel.all.load
-kernel.all.pswitch
-## found no local archive files

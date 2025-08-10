@@ -633,10 +633,10 @@ _get_pid()
 	in
 	    +*)
 		# map file contains URL from something like
-		# -R http://bozo.localdomain:44322 in the args
+		# http://bozo.localdomain:44322 in the args
 		#
 		pat=`echo "$2" \
-		     | sed -E -e 's/(.* |^)-R *//' -e 's/ .*//'`
+		     | sed -E -e 's@(.* |^)http://@http://@' -e 's/ .*//'`
 		;;
 	    *)
 		pat="$dir/[^/]*"
@@ -980,7 +980,7 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 		    +*)
 			dir=`echo "$dir" | sed -e 's/^+//'`
 			archive=`echo "$args" \
-				 | sed -E -e 's/(.* |^)-R *//' -e 's/ .*//'`
+				 | sed -E -e 's@(.* |^)http://@http://@' -e 's/ .*//'`
 			report_archive="`echo $archive \
 					 | sed -e 's@http://@>@' -e 's/:[0-9]*$//'`"
 			pid=`_egrep -rl "^$archive\$" $PCP_TMP_DIR/${IAM} \

@@ -243,7 +243,6 @@ typedef struct logpush {
     char		*type;		/* HTTP request type buffer (cache) */
     size_t		type_bytes;
     unsigned int	log;		/* log identifier (from label push) */
-    unsigned int	only;		/* no local filesystem writes (0/1) */
     size_t		total_meta;
     size_t		total_index;
     size_t		total_volume;

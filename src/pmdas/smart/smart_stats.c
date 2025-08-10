@@ -486,6 +486,7 @@ int
 smart_refresh_device_info(const char *name, struct device_info *device_info, int is_nvme)
 {
 	char buffer[4096], capacity[64] = {'\0'};
+	char *env_command;
 	FILE *pf;
 	int fd, n = 0;
 
@@ -543,14 +544,21 @@ smart_refresh_device_info(const char *name, struct device_info *device_info, int
 	sscanf(name, "%s", device_info->device);
 
 	/* Get disk UUID if not already populated */
-	
-	pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/device/wwid", name);
-	if ((fd = open(buffer, O_RDONLY)) < 0) {
-		/* try alternate path */
-		pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/wwid", name);
+	if ((env_command = getenv("SMART_SETUP_UUID")) != NULL) {
+		sscanf(env_command, "%s", buffer);
 		if ((fd = open(buffer, O_RDONLY)) < 0) {
-			/* alternative path also bad */
-			return 0;
+			/* env_command path fail */
+			return -oserror();
+		} 
+	}else {
+		pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/device/wwid", name);
+		if ((fd = open(buffer, O_RDONLY)) < 0) {
+			/* try alternate path */
+			pmsprintf(buffer, sizeof(buffer), "/sys/block/%s/wwid", name);
+			if ((fd = open(buffer, O_RDONLY)) < 0) {
+				/* alternative path also bad */
+				return 0;
+			}
 		}
 	}
 			

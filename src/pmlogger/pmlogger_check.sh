@@ -774,8 +774,8 @@ _callback_log_control()
 	if $logpush
 	then
 	    # don't need $LOGNAME as last argument, since we assume
-	    # command line $args contains -R and $dir prefixwed by
-	    # '+' in control file
+	    # command line $args ends with http://... and $dir
+	    # prefixed by '+' in control file
 	    #
 	    :
 	else

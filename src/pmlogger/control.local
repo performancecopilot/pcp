@@ -40,6 +40,6 @@ LOCALHOSTNAME	y   n	PCP_ARCHIVE_DIR/LOCALHOSTNAME	-r -T24h10m -c config.default 
 # commented out, as there can be at most one primary pmlogger(1) on each
 # host where pmcd(1) is running
 #
-#LOCALHOSTNAME	y   n	+PCP_ARCHIVE_DIR/LOCALHOSTNAME	-R http://<remotehost>:44322 -r -T24h10m -c config.default -v 100Mb
+#LOCALHOSTNAME	y   n	+PCP_ARCHIVE_DIR/LOCALHOSTNAME	-r -T24h10m -c config.default -v 100Mb http://<remotehost>:44322 
 #                       ^ the "+" here is important
-#               need to specify your remote pmproxy hostname here ^^^^^^^^^^^^
+#                                                   need to specify your remote pmproxy hostname here ^^^^^^^^^^^^
