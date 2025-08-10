@@ -9,16 +9,18 @@ jobs:
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Update Homebrew
         run: brew update
-      - name: Install Python 3.13
-        id: install-python
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install and verify setuptools
+        id: install-setuptools
         run: |
-          brew install python@3.13 --overwrite
-          echo "PYTHON_PATH=$(brew --prefix python@3.13)/bin" >> $GITHUB_ENV
-      - name: Verify Python version
-        run: |
-          ${PYTHON_PATH}/python3.13 --version
-          ${PYTHON_PATH}/pip3.13 --version
-      - name: Install dependencies
+          python3 --version
+          pip3 --version
+          pip3 install --upgrade pip setuptools wheel
+          python3 -c "import setuptools; print(setuptools.__version__)"
+      - name: Install Homebrew deps
         id: install-deps
         run: |
           brew install gnu-tar pkg-config autoconf qt qt-creator
