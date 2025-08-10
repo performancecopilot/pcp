@@ -34,7 +34,10 @@ static int
 check_stats_size(struct diskstats *stats, int count)
 {
     if (count > stats->highwater) {
-	stats->highwater++;
+	if (stats->highwater == 0)
+	    stats->highwater = 1;
+	else
+	    stats->highwater <<= 1;
 	stats->disks = realloc(stats->disks,
 				stats->highwater * sizeof(struct diskstat));
 	if (!stats->disks) {
@@ -100,7 +103,7 @@ clear_disk_totals(struct diskstats *all)
 /*
  * Update the counters associated with a single disk.
  */
-static void
+static int
 update_disk_stats(struct diskstat *disk,
 		  CFDictionaryRef pproperties, CFDictionaryRef properties)
 {
@@ -113,17 +116,19 @@ update_disk_stats(struct diskstat *disk,
     /* Get name from the drive properties */
     name = (CFStringRef) CFDictionaryGetValue(pproperties,
 			CFSTR(kIOBSDNameKey));
-    if(name == NULL)
-	return; /* Not much we can do with no name */
+    if (name == NULL || CFStringGetLength(name) == 0)
+	return -ENOENT; /* Not much we can do with no name */
 
     CFStringGetCString(name, disk->name, DEVNAMEMAX,
 			CFStringGetSystemEncoding());
+    if (disk->name[0] == '\0')
+	return -ENOENT; /* Not much we can do with no name */
 
     /* Get the blocksize from the drive properties */
     number = (CFNumberRef) CFDictionaryGetValue(pproperties,
 			CFSTR(kIOMediaPreferredBlockSizeKey));
-    if(number == NULL)
-	return; /* Not much we can do with no number */
+    if (number == NULL)
+	return -ENOENT; /* Not much we can do with no number */
     CFNumberGetValue(number, kCFNumberSInt64Type, &disk->blocksize);
 
     /* Get the statistics from the device properties. */
@@ -161,6 +166,7 @@ update_disk_stats(struct diskstat *disk,
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write_time);
     }
+    return 0;
 }
 
 static int
@@ -177,7 +183,7 @@ update_disk(diskstats_t *stats, io_registry_entry_t drive, int index)
 
     if (!IOObjectConformsTo(device, "IOBlockStorageDriver")) {
 	IOObjectRelease(device);
-	return 0;
+	return -ENOENT;
     }
 
     /* Obtain the drive properties. */
@@ -205,9 +211,13 @@ update_disk(diskstats_t *stats, io_registry_entry_t drive, int index)
     if (status < 0) {
 	IOObjectRelease(device);
     } else {
-	update_disk_stats(&stats->disks[index], pproperties, properties);
-	update_disk_totals(stats, &stats->disks[index]);
+	status = update_disk_stats(&stats->disks[index], pproperties, properties);
+	if (status < 0)
+	    IOObjectRelease(device);
+	else
+	    update_disk_totals(stats, &stats->disks[index]);
     }
+
     CFRelease(pproperties);
     CFRelease(properties);
     return status;
@@ -218,7 +228,8 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 {
     io_registry_entry_t		drive;
     CFMutableDictionaryRef	match;
-    int				i, status;
+    unsigned int		count;
+    int				status;
     static int			inited = 0;
     static mach_port_t		mach_port;
     static io_iterator_t	mach_device_list;
@@ -243,17 +254,19 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 	    return -oserror();
     }
 
-    indom->it_numinst = 0;
+    count = indom->it_numinst = 0;
     clear_disk_totals(stats);
-    for (i = 0; (drive = IOIteratorNext(mach_device_list)) != 0; i++) {
-	status = update_disk(stats, drive, i);
-	if (status)
-		break;
+
+    while ((drive = IOIteratorNext(mach_device_list)) != 0) {
+	status = update_disk(stats, drive, count);
+	if (status < 0)
+	    continue;
 	IOObjectRelease(drive);
+	count++;
     }
     IOIteratorReset(mach_device_list);
 
-    if (!status)
-	status = update_disk_indom(stats, i, indom);
+    if (count)
+	status = update_disk_indom(stats, count, indom);
     return status;
 }
