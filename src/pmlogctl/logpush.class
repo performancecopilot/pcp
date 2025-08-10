@@ -48,7 +48,7 @@ $class=logpush
 # === LOGGER CONTROL SPECIFICATIONS ===
 #
 #Host		P?  S?	directory			args
-%h n n +PCP_ARCHIVE_DIR/%i  -r -v 100Mb -T24h10m -c ENV(PMLOGGER_CONFIG:config.default) -R http://ENV(PMPROXY_HOST):44322 
+%h n n +PCP_ARCHIVE_DIR/%i  -r -v 100Mb -T24h10m -c ENV(PMLOGGER_CONFIG:config.default) http://ENV(PMPROXY_HOST):44322 
 
 [create]
 # for cond-create we want this policy to apply to every pmcd host

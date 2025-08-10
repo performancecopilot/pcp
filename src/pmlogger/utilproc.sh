@@ -717,9 +717,9 @@ _find_matching_pmlogger()
 	    then
 		# the "archive" record in $PCP_TMP_DIR is not the
 		# archive basename, but something like http://foo.com:44322
-		# from the -R option to pmlogger
+		# from last argument to pmlogger
 		#
-		_trydir=`echo "$args" | sed -E -e 's/(.* |^)-R *//' -e 's/ .*//'`
+		_trydir=`echo "$args" | sed -E -e 's@(.* |^)http:///http://@' -e 's/ .*//'`
 	    else
 		_trydir="$dir"
 	    fi
