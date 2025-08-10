@@ -7,17 +7,55 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install Homebrew
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      - name: Update Homebrew
+        run: brew update
+      - name: Install Python 3.13
+        id: install-python
+        run: |
+          brew install python@3.13 --overwrite
+          echo "PYTHON_PATH=$(brew --prefix python@3.13)/bin" >> $GITHUB_ENV
+      - name: Verify Python version
+        run: |
+          ${PYTHON_PATH}/python3.13 --version
+          ${PYTHON_PATH}/pip3.13 --version
       - name: Install dependencies
+        id: install-deps
         run: |
           brew install gnu-tar pkg-config autoconf qt qt-creator
+      - name: Debug Python Environment
+        run: |
+          /opt/homebrew/bin/python3 --version
+          which python3
+          /opt/homebrew/bin/python3 -m pip list | grep setuptools
+          /opt/homebrew/bin/python3 -c "import setuptools; print(setuptools.__version__)"
       - name: Build on macOS
         id: Build
         run: |
           xcodebuild -version
           export PKGBUILD=`which pkgbuild`
           export QMAKE=`which qmake`
-          ./Makepkgs --without-python3 -verbose
+          ./Makepkgs -verbose
       - name: Debug on failure
         if: failure() && steps.Build.conclusion == 'failure'
         run: |
           cat /Users/runner/work/pcp/pcp/Logs/pcp
+      - name: Debug on Python installation failure
+        if: failure() && steps.install-python.conclusion == 'failure'
+        run: |
+          echo "Python 3.13 installation failed. Collecting debug info..."
+          brew --version
+          brew config
+          brew doctor
+          ls -la /usr/local/bin | grep python
+          df -h
+          brew list
+      - name: Debug on dependency installation failure
+        if: failure() && steps.install-deps.conclusion == 'failure'
+        run: |
+          echo "Dependency installation failed. Collecting debug info..."
+          brew --version
+          brew config
+          brew doctor
+          ls -la /usr/local/bin | grep python
+          df -h
+          brew list
