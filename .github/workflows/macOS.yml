@@ -24,12 +24,6 @@ jobs:
         id: install-deps
         run: |
           brew install gnu-tar pkg-config autoconf qt qt-creator
-      - name: Debug Python Environment
-        run: |
-          /opt/homebrew/bin/python3 --version
-          which python3
-          /opt/homebrew/bin/python3 -m pip list | grep setuptools
-          /opt/homebrew/bin/python3 -c "import setuptools; print(setuptools.__version__)"
       - name: Build on macOS
         id: Build
         run: |
