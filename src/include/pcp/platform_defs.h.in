@@ -417,9 +417,6 @@ PCP_CALL extern char *strndup(const char *, size_t);
 #ifndef HAVE_STRCHRNUL
 PCP_CALL extern char *strchrnul(const char *, int);
 #endif
-#ifndef HAVE_STRCHRNUL
-PCP_CALL extern char *strchrnul(const char *, int);
-#endif
 
 #ifndef HAVE_GETDOMAINNAME
 PCP_CALL extern int getdomainname(char *, size_t);
