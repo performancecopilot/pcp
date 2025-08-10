@@ -22,7 +22,6 @@ jobs:
         id: install-deps
         run: |
           brew install gnu-tar pkg-config autoconf qt qt-creator
-          ${PYTHON_PATH}/pip3.13 install --upgrade pip setuptools wheel
       - name: Debug Python Environment
         run: |
           /opt/homebrew/bin/python3 --version
