@@ -71,10 +71,9 @@ pminfo openmetrics.simple_metric
 echo
 
 echo "-- source re-addition with epoch timestamp --"
-txtpath=$here/openmetrics/samples/simple_metric.txt
-urlfile=$PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
-echo 'file:///'$txtpath > $urlfile
-$sudo touch -t 197001010000 $urlfile
+cp $here/openmetrics/samples/simple_metric.txt $tmp.simple_metric.txt
+echo 'file:///'$tmp.simple_metric.txt > $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+$sudo touch -t 197001010000 $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
 pminfo openmetrics.simple_metric
 echo
 
