@@ -25,7 +25,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 < 		Log Vol    end(meta)     end(log)
 ---
 > 			Log Vol    end(meta)     end(log)
-15c15
+14c14
 < Command: pmdumplog -lt TMP.2 sample
 ---
 > Command: pmdumplog -lt TMP.3 sample
