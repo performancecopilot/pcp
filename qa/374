@@ -35,8 +35,9 @@ BEGIN				{ if ("'"$1"'" >= 3) labelsize=808
 /datax/				{ skip = 3 }
 skip > 0			{ skip--; next }
 $1 == "log" && $2 == "size"	{ if ($3 == labelsize) $3 = "[label]"
-				  else if ($3 <= labelsize+100) $3 = "[label] plus more than 100"
-				  else if ($3 <= labelsize+200) $3 = "[label] plus more than 200"
+				  else if ($3 < labelsize+100) $3 = "[label] plus less than 100"
+				  else if ($3 <= labelsize+200) $3 = "[label] plus more than 100"
+				  else $3 = "[label] plus more than 200"
 				}
 				{ print }'
 }
@@ -94,7 +95,11 @@ else
     echo "Error: unable to make \$PCP_TMP_DIR/pmlogger writeable" >&2
     exit 1
 fi
-( pmlogger -T5min -L -c /dev/null -l /tmp/$$.log /tmp/$$ </dev/null >/dev/null 2>&1 ) &
+# force one pmResult into the archive to trigger log label
+# and preamble writing
+#
+echo "log mandatory on once sampledso.long.ten" >/tmp/\$\$.config
+( pmlogger -T5min -L -c /tmp/\$\$.config -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
 sleep 1
 ls -l \$PCP_TMP_DIR/pmlogger >&2
 echo pid=\$! base=\$\$
@@ -186,6 +191,7 @@ End-of-File
     if [ ! -z "$host" ]
     then
 	_remote_signal $host $pid $base
+	ssh -q pcpqa@$host rm -f /tmp/$base.*
 	pid=''
 	base=''
     fi
@@ -203,7 +209,7 @@ _cleanup()
 	fi
 	need_clean=false
     fi
-    $sudo rm -f $tmp.* /tmp/$$.*
+    $sudo rm -f $tmp.*
 }
 
 need_clean=true
