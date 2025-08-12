@@ -146,8 +146,8 @@ __pmLogPutIndex_v2(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	__pmLogIndexZeroTILogDiagnostic(acp, caller);
 
     if (pmDebugOptions.log) {
-	fprintf(stderr, "%s: timestamp=%" FMT_INT64 ".06%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
-	    caller, tsp->sec, tsp->nsec / 1000, ti.vol, off_meta, off_data);
+	fprintf(stderr, "%s: timestamp=%" FMT_INT64 ".09%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
+	    caller, tsp->sec, tsp->nsec, ti.vol, off_meta, off_data);
     }
 
     __pmPutTimeval(tsp, &ti.sec);
@@ -188,6 +188,12 @@ __pmLogPutIndex(const __pmArchCtl *acp, const __pmTimestamp *tsp)
 	 * generate a new temporal index entry as the offsets at the
 	 * first one are the correct one for this timestamp
 	 */
+	if (pmDebugOptions.log) {
+	    fprintf(stderr, "%s: ignore duplicate timestamp=%" FMT_INT64 ".09%d vol=%d meta posn=%" FMT_INT64 " log posn=%" FMT_INT64 "\n",
+		__FUNCTION__, tsp->sec, tsp->nsec, acp->ac_curvol,
+		acp->ac_tell_cb(acp, PM_LOG_VOL_META, __FUNCTION__),
+		acp->ac_tell_cb(acp, PM_LOG_VOL_CURRENT, __FUNCTION__));
+	}
 	return 0;
     }
     lcp->last_ti = *tsp;	/* struct assignment */
