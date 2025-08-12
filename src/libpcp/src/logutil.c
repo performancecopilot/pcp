@@ -327,6 +327,8 @@ __pmLogCreate(const char *host, const char *base, int log_version,
     lcp->hashlabels.nodes = lcp->hashlabels.hsize = 0;
     lcp->hashtext.nodes = lcp->hashtext.hsize = 0;
     lcp->tifp = lcp->mdfp = acp->ac_mfp = NULL;
+    lcp->last_ti.sec = -1;
+    lcp->last_ti.nsec = -1;
 
     if ((lcp->tifp = __pmLogNewFile(base, PM_LOG_VOL_TI)) != NULL) {
 	if ((lcp->mdfp = __pmLogNewFile(base, PM_LOG_VOL_META)) != NULL) {
@@ -1040,8 +1042,6 @@ __pmLogOpen(const char *name, __pmContext *ctxp)
     lcp->refcnt = 0;
     PM_UNLOCK(lcp->lc_lock);
     lcp->physend = -1;
-    lcp->last_ti.sec = 0;
-    lcp->last_ti.nsec = 0;
 
     ctxp->c_mode = PM_MODE_FORW;
 
