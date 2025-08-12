@@ -107,12 +107,14 @@ _symlink()
 	status=$?
 	$MANIFEST l "$__target" `echo "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
     else
-	__dlist=`dirname "$__symlink" | sed -e "s;^$DIST_ROOT;;" -e 's;/; ;g'`
+       __dlist=`dirname "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
+       __dlist=`realpath "$__dlist" | sed -e 's;/; ;g'`
 	__tpath=""
 	for d in $__dlist
 	do
 	    __tpath="../${__tpath}"	# constructing a relative path
 	done
+
 	cd "${__dir}"
 	$LN "${__tpath}${__rel}" "$__symlink"
 	status=$?

@@ -39,7 +39,7 @@ pack_pcp :
 	if test ! -z "$(TAR)"; then \
 	    echo === tar === && $(MAKE) -j 1 -C tar $@ || exit $$?; \
 	fi; \
-	if test ! -z "$(PACKAGE_MAKER)"; then \
+	if test ! -z "$(PKGBUILD)"; then \
 	    echo === mac === && $(MAKE) -j 1 -C mac $@ || exit $$?; \
 	fi; \
 	if test ! -z "$(MKINSTALLP)"; then \

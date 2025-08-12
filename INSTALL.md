@@ -216,6 +216,17 @@ optional" or "QA optional".
 The pcp package uses autoconf/configure and expects a GNU build
 environment (your platform must at least have gmake).
 
+```
+# MacOS - use Homebrew and ensure the following packages are installed 
+brew install  gnu-tar pkg-config python@3.13 python-setuptools autoconf qt qt-creator
+
+# IMPORTANT - the .pkg & .dmg will not be created unless this is set.
+export PKGBUILD=`which pkgbuild`
+
+#This ensure pmdumptext is built
+export QMAKE=`which qmake`
+```
+
 If you just want to build a .rpm, .deb, .dmg, .msi[*] and/or
 tar file, use the "Makepkgs" script in the top level directory.
 This will configure and build the package for your platform and leave
@@ -241,6 +252,14 @@ $ dpkg -i *.deb
 $ cd pcp-<version>/build/rpm
 $ sudo rpm -U `ls -1 *.rpm | sed -e '/\.src\.rpm$/d'`
 ```
+**MacOS DMG install**
+```
+$ cd pcp-<version>/build/mac
+$ open *.dmg
+
+<A Finder window should open showing the .pkg you can double click to run the installer>
+```
+
 **tarball install** (where we don't have native packaging working yet)
 ```
 $ cd pcp-<version>/build/tar

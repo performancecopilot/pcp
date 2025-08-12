@@ -231,7 +231,7 @@ fi
 configenv=''
 if $dodeb
 then
-    # On Debian-based platforms, the debian/rules file already captures 
+    # On Debian-based platforms, the debian/rules file already captures
     # most of the required configure settings in $(configure_paths) and
     # $(configure_tools)
     #
@@ -271,7 +271,12 @@ then
     # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
     # and so on because of security requirements in recent versions.
     #
-configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr/local"
+    configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr/local"
+    if [ -x /usr/bin/pkgbuild ]; then
+        echo "MacOS build system detected.  Using pkgbuild"
+        export PKGBUILD=/usr/bin/pkgbuild
+    fi
+
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin places things
