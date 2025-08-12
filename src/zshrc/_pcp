@@ -655,7 +655,6 @@ _pcp () {
       "(-p --PID $exargs)"{-p+,--PID=}'[specify PID to exit after]:PID:_pids' \
       "(-P --primary $exargs)"{-P,--primary}'[run as primary logger instance]' \
       "(-r --report $exargs)"{-r,--report}'[report record sizes]' \
-      "(-R --remote $exargs)"{-R,--remote}'[remote HTTP server for archive push mode]' \
       "(-s --size $exargs)"{-s+,--size=}'[set endsize of archive]:size:' \
       "(-t --interval $exargs)"{-t+,--interval=}'[set logging interval]:interval:' \
       "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \

@@ -5,7 +5,7 @@ QA output created by 1620 --valgrind
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogger -c TMP.conf -T 20sec http://localhost:44322
+Command: pmlogger -c TMP.conf -T 15sec http://localhost:44322
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

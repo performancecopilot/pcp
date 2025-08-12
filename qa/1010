@@ -33,7 +33,6 @@ log mandatory on 1 second {
 }
 end-of-file
 pmlogger -c $tmp.log_conf -s 5s $tmp.log
-offset=`_arch_start $tmp.log 0`
 
 cat << end-of-file > $tmp.conf
 sample.hordes.one["3"]
@@ -53,7 +52,12 @@ do
     do
 	echo
 	echo "pmdumptext $i $f -umN"
-	pmdumptext -O $offset $i $f -d' ' -umN -t 1 -s 3 -c $tmp.conf -a $tmp.log 2>&1 \
+	# +999nsec is to compensate for pmdumptext working in usec precision
+	# and truncating the start time from nsec to usec, +999nsec ensures
+	# we are *just* past the first record in the archive
+	#
+	pmdumptext -S +999nsec $i $f -d' ' -umN -t 1 -s 3 -c $tmp.conf -a $tmp.log 2>&1 \
+	| tee -a $seq_full \
 	| _filter 
     done
 done

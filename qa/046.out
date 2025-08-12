@@ -121,7 +121,6 @@ Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP       0       OFFSET       OFFSET
 TIMESTAMP       0       OFFSET       OFFSET
-TIMESTAMP       0       OFFSET       OFFSET
 
 TIMESTAMP 5 metrics
     2.3.3 (pmcd.pmlogger.host): inst [LOGGER_PID or "LOGGER_PID"] value "HOST"

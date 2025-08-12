@@ -129,8 +129,8 @@ log mandatory on every 1 second {
 End-Of-File
 
 echo "=== Running pmlogger in remote recording mode"
-remote_mode="-c $tmp.conf -T 20sec http://localhost:44322"
-((sleep 10; $sudo $signal -s HUP pmproxy_pid)&) >/dev/null 2>&1
+remote_mode="-c $tmp.conf -T 15sec http://localhost:44322"
+((sleep 10; $sudo $signal -s HUP $pmproxy_pid)&) >/dev/null 2>&1
 if $do_valgrind
 then
     _run_valgrind pmlogger $remote_mode
@@ -138,7 +138,8 @@ else
     pmlogger $remote_mode
 fi \
 | _filter
-wait # for child signal shell to finish
+# pmlogger has been running for 15sec, plenty long enough
+# for sleep 10; send signal; pmproxy to catch signal
 
 echo "## checking for pmproxy SIGHUP"
 grep SIGHUP $PCP_LOG_DIR/pmproxy/pmproxy.log | _filter_pmproxy_log
