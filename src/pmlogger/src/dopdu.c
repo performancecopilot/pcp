@@ -752,8 +752,11 @@ gethistflags(pmID pmid, int inst)
     for (hp = __pmHashSearch(pmid, &hist_hash); hp != NULL; hp = hp->next)
 	if ((pmID)hp->key == pmid)
 	    break;
-    if (hp == NULL)
+    if (hp == NULL) {
+	if (pmDebugOptions.appl8)
+	    fprintf(stderr, "%s: PMID %s not in history\n", __FUNCTION__, pmIDStr(pmid));
 	return 0;
+    }
     php = (pmidhist_t *)hp->data;
     ihp = &php->ph_instlist[0];
     val = 0;
@@ -766,9 +769,16 @@ gethistflags(pmID pmid, int inst)
     else
 	found = php->ph_numinst > 0;
     if (found) {
+	if (pmDebugOptions.appl8)
+	    fprintf(stderr, "%s: PMID %s instance %d set history inlog flag\n", __FUNCTION__, pmIDStr(pmid), inst);
 	PMLC_SET_INLOG(val, 1);
 	val |= ihp->ih_flags;		/* only "available flag" is ever set */
     }
+    else {
+	if (pmDebugOptions.appl8)
+	    fprintf(stderr, "%s: PMID %s instance %d not in history\n", __FUNCTION__, pmIDStr(pmid), inst);
+    }
+
     return val;
 }
 

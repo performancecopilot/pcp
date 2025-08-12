@@ -75,9 +75,12 @@ clearavail(fetchctl_t *fcp)
 	    for (hp = __pmHashSearch(pmid, &hist_hash); hp != (__pmHashNode *)0; hp = hp->next)
 		if (pmid == (pmID)hp->key)
 		    break;
-	    if (hp == (__pmHashNode *)0)
+	    if (hp == (__pmHashNode *)0) {
 		/* not in history, no flags to update */
+		if (pmDebugOptions.appl8)
+		    fprintf(stderr, "%s: PMID %s no history\n", __FUNCTION__, pmIDStr(pmid));
 		continue;
+	    }
 	    php = (pmidhist_t *)hp->data;
 
 	    /* now we have the metric's entry in the history */
@@ -88,7 +91,9 @@ clearavail(fetchctl_t *fcp)
 		 * the history entry for the instance if it exists and
 		 * reset the "was available at last fetch" flag
 		 */
-		if (idp->i_numinst)
+		if (idp->i_numinst) {
+		    if (pmDebugOptions.appl8)
+			fprintf(stderr, "%s: PMID %s clear %d profile instances\n", __FUNCTION__, pmIDStr(pmid), idp->i_numinst);
 		    for (i = 0; i < idp->i_numinst; i++) {
 			inst = idp->i_instlist[i];
 			ihp = &php->ph_instlist[0];
@@ -98,19 +103,25 @@ clearavail(fetchctl_t *fcp)
 				break;
 			    }
 		    }
-		else
+		}
+		else {
 		    /*
 		     * if the profile specifies "all instances" clear EVERY
 		     * instance's "available" flag
 		     * NOTE: even instances that don't exist any more
 		     */
+		    if (pmDebugOptions.appl8)
+			fprintf(stderr, "%s: PMID %s clear all %d instances\n", __FUNCTION__, pmIDStr(pmid), php->ph_numinst);
 		    for (i = 0; i < php->ph_numinst; i++)
 			PMLC_SET_AVAIL(php->ph_instlist[i].ih_flags, 0);
+		}
 	    }
 	    /* indom is PM_INDOM_NULL */
 	    else {
 		/* if the single-valued metric is in the history it will have 1
 		 * instance */
+		if (pmDebugOptions.appl8)
+		    fprintf(stderr, "%s: PMID %s clear singular metric\n", __FUNCTION__, pmIDStr(pmid));
 		ihp = &php->ph_instlist[0];
 		PMLC_SET_AVAIL(ihp->ih_flags, 0);
 	    }
@@ -151,9 +162,16 @@ setavail(__pmResult *resp)
 		if (pmid == (pmID)hp->key)
 		    break;
 	    if (hp == (__pmHashNode *)0 ||
-		((optreq_t *)hp->data)->r_desc == (pmDesc *)0)
+		((optreq_t *)hp->data)->r_desc == (pmDesc *)0) {
 		/* not set up properly yet, not much we can do ... */
+		if (pmDebugOptions.appl8) {
+		    if (hp == (__pmHashNode *)0)
+			fprintf(stderr, "%s: PMID %s not in pm_hash\n", __FUNCTION__, pmIDStr(pmid));
+		    else
+			fprintf(stderr, "%s: PMID %s in pm_hash but pmDesc missing\n", __FUNCTION__, pmIDStr(pmid));
+		}
 		continue;
+	    }
 	    php = (pmidhist_t *)calloc(1, sizeof(pmidhist_t));
 	    if (php == (pmidhist_t *)0) {
 		pmNoMem("setavail: new pmid hist entry calloc",
@@ -179,8 +197,10 @@ setavail(__pmResult *resp)
 	    if ((j = __pmHashAdd(pmid, (void *)php, &hist_hash)) < 0) {
 		die("setavail: __pmHashAdd(hist_hash)", j);
 	    }
+	    if (pmDebugOptions.appl8)
+		fprintf(stderr, "%s: PMID %s new history, set avail for %d instances\n", __FUNCTION__, pmIDStr(pmid), vsp->numval);
 	    
-	    return;
+	    continue;
 	}
 
 	/* update an existing pmid history entry, adding any previously unseen
@@ -213,6 +233,8 @@ setavail(__pmResult *resp)
 		php->ph_numinst++;
 	    }
 	    PMLC_SET_AVAIL(ihp->ih_flags, 1);
+	    if (pmDebugOptions.appl8)
+		fprintf(stderr, "%s: PMID %s set avail for instance %d\n", __FUNCTION__, pmIDStr(pmid), inst);
 	}
     }
 }

@@ -55,7 +55,7 @@ sampledso.bin
   inst [800 or "bin-800"]  15 (mand on, delta=5000 msec, inlog, avail)
   inst [900 or "bin-900"]  15 (mand on, delta=5000 msec, inlog, avail)
 sample.colour
-  inst [0 or "red"]  3 (mand on, delta=5000 msec)
+  inst [0 or "red"]  15 (mand on, delta=5000 msec, inlog, avail)
 
 +++ allow advisory control over this one +++
 sample.lights  0 (adv off)
