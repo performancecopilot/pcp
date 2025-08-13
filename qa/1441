@@ -36,6 +36,17 @@ then
     # NOTREACHED
 fi
 
+# if the primary logger is configured for logpush, we need to
+# quietly move on and not dink with things ...
+#
+if pminfo -f pmcd.pmlogger.archive 2>&1 \
+   | tee -a $seq_full \
+   | grep -q '"primary".*"http://'
+then
+    _notrun "primary pmlogger configured for logpush"
+    # NOTREACHED
+fi
+
 # need systemd's autorestart to get pmlogger restarted quickly
 # ... cron-based restart takes too long for a QA test
 #

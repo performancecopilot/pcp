@@ -21,11 +21,21 @@ fi
 . ./common.filter
 . ./common.check
 
-
 pmlogctl status 2>&1 | tee -a $seq_full >$tmp.tmp
 nloggers=`sed -e 1d <$tmp.tmp | wc -l | sed -e 's/  *//g'`
 rm -f $tmp.tmp
 [ "$nloggers" -gt 1 ] && _notrun "more than one pmlogger already running"
+
+# if the primary logger is configured for logpush, we need to
+# quietly move on and not dink with things ...
+#
+if pminfo -f pmcd.pmlogger.archive 2>&1 \
+   | tee -a $seq_full \
+   | grep -q '"primary".*"http://'
+then
+    _notrun "primary pmlogger configured for logpush"
+    # NOTREACHED
+fi
 
 _cleanup()
 {
