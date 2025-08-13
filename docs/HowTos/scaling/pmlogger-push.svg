@@ -1,0 +1,1518 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   version="1.1"
+   width="849px"
+   height="374px"
+   viewBox="-0.5 -0.5 849 374"
+   content="&lt;mxfile host=&quot;app.diagrams.net&quot; modified=&quot;2021-03-15T18:57:52.795Z&quot; agent=&quot;5.0 (X11)&quot; etag=&quot;96-FtYLS9ywY2aJIkNmg&quot; version=&quot;14.4.8&quot; type=&quot;device&quot;&gt;&lt;diagram id=&quot;_u2Pu7ICIZ9oJZ_Oul_9&quot; name=&quot;Page-1&quot;&gt;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&lt;/diagram&gt;&lt;/mxfile&gt;"
+   id="svg1320"
+   sodipodi:docname="pmlogger-push.svg"
+   inkscape:version="1.4.2 (ebf0e940d0, 2025-05-08)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:xhtml="http://www.w3.org/1999/xhtml">
+  <metadata
+     id="metadata1324">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1453"
+     inkscape:window-height="837"
+     id="namedview1322"
+     showgrid="false"
+     inkscape:zoom="1.0977229"
+     inkscape:cx="393.99743"
+     inkscape:cy="194.94902"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="g1310"
+     inkscape:document-rotation="0"
+     inkscape:showpageshadow="2"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showguides="true" />
+  <defs
+     id="defs1002" />
+  <g
+     id="g1310">
+    <rect
+       x="323.47391"
+       y="69.966553"
+       width="287.25101"
+       height="260.06689"
+       rx="21.058582"
+       ry="25.343939"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1004"
+       style="stroke-width:0.933103" />
+    <rect
+       x="321.47391"
+       y="66.966553"
+       width="287.25101"
+       height="260.06689"
+       rx="22.777147"
+       ry="25.343939"
+       fill="#ffffff"
+       stroke="#000000"
+       pointer-events="all"
+       id="rect1006"
+       style="stroke-width:0.933103" />
+    <rect
+       x="16.942719"
+       y="23.132719"
+       width="247.94518"
+       height="89.734566"
+       rx="16.216085"
+       ry="13.460184"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1008"
+       style="stroke-width:1.26544" />
+    <rect
+       x="14.942719"
+       y="20.132719"
+       width="247.94518"
+       height="89.734566"
+       rx="15.305109"
+       ry="13.460184"
+       fill="#ffffff"
+       stroke="#000000"
+       pointer-events="all"
+       id="rect1010"
+       style="stroke-width:1.26544" />
+    <ellipse
+       cx="101.19"
+       cy="48"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1012" />
+    <ellipse
+       cx="99.190002"
+       cy="45"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1014" />
+    <ellipse
+       cx="61.190002"
+       cy="93"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1016" />
+    <ellipse
+       cx="59.190002"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1018" />
+    <ellipse
+       cx="101.19"
+       cy="93"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1020" />
+    <ellipse
+       cx="99.190002"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1022" />
+    <ellipse
+       cx="141.19"
+       cy="93"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1024" />
+    <ellipse
+       cx="139.19"
+       cy="90"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1026" />
+    <rect
+       x="79.190002"
+       y="35"
+       width="40"
+       height="20"
+       fill="#fdf6e3"
+       stroke="none"
+       pointer-events="all"
+       id="rect1028" />
+    <g
+       transform="translate(-8.5,-0.5)"
+       id="g1034">
+      <switch
+         id="switch1032">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 45px; margin-left: 88px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="107"
+           y="48"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1030">PMCD</text>
+      </switch>
+    </g>
+    <rect
+       x="21.190001"
+       y="63"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1036" />
+    <rect
+       x="19.190001"
+       y="60"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1038" />
+    <g
+       transform="translate(-8.5,-0.5)"
+       id="g1044">
+      <switch
+         id="switch1042">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 70px; margin-left: 28px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="47"
+           y="73"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1040">PMDAs</text>
+      </switch>
+    </g>
+    <rect
+       x="-6"
+       y="3"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1046" />
+    <rect
+       x="-8"
+       y="0"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1048" />
+    <g
+       transform="translate(-8.5,-0.5)"
+       id="g1054">
+      <switch
+         id="switch1052">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 10px; margin-left: 1px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="80"
+           y="13"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1050">Monitored Host</text>
+      </switch>
+    </g>
+    <rect
+       x="314.26001"
+       y="50"
+       width="173.75"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1056" />
+    <rect
+       x="312.26001"
+       y="47"
+       width="173.75"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1058" />
+    <g
+       transform="translate(55.5,-2.5)"
+       id="g1064">
+      <switch
+         id="switch1062">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 172px; height: 1px; padding-top: 59px; margin-left: 257px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">pmproxy Host</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="343"
+           y="62"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1060">pmproxy Host</text>
+      </switch>
+    </g>
+    <ellipse
+       cx="220.26001"
+       cy="65"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1066" />
+    <ellipse
+       cx="218.26001"
+       cy="62"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1068" />
+    <rect
+       x="200.26001"
+       y="55"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1070" />
+    <rect
+       x="198.26001"
+       y="52"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1072" />
+    <g
+       transform="translate(-68.5,-52.5)"
+       id="g1078">
+      <switch
+         id="switch1076">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 114px; margin-left: 267px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                <xhtml:i
+                   style="font-size: 10px">pmlogger</xhtml:i>
+              </xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="286"
+           y="117"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1074">pmlogger</text>
+      </switch>
+    </g>
+    <path
+       d="m 494,117.53 c 2.11,1.66 5.91,3.11 10.18,3.86 7.51,1.33 15.53,1.29 22.71,0.12 4.44,-0.72 8.31,-2.04 10.87,-3.98 v 12.3 c -0.34,3.4 -3.36,5.19 -6.64,6.38 -7.43,2.48 -20.17,2.79 -29.22,0.41 -3.77,-1.11 -7.58,-2.99 -7.9,-6.8 z m 0,-18.59 c 2.11,1.67 5.91,3.11 10.18,3.87 7.51,1.32 15.53,1.29 22.71,0.12 4.44,-0.73 8.31,-2.04 10.87,-3.98 v 12.29 c -0.34,3.4 -3.36,5.19 -6.64,6.39 -7.43,2.47 -20.17,2.78 -29.22,0.41 -3.77,-1.12 -7.58,-2.99 -7.9,-6.8 z m 0,-4.91 c 0,-3.25 6.79,-6.64 21.46,-7.03 14.57,0 22.3,3.72 22.3,7.01 0,3.65 -9.37,6.98 -20.88,6.98 C 505.07,101.15 494,98.19 494,94.03 Z"
+       fill="#2072b8"
+       stroke="none"
+       pointer-events="all"
+       id="path1084" />
+    <path
+       d="m 675.75309,157 c -35.46567,0 -44.33208,35 -15.95955,42 -28.37253,15.4 3.54657,49 26.59925,35 15.95955,28 69.15804,28 86.89087,0 35.46567,0 35.46567,-28 13.29963,-42 22.16604,-28 -13.29963,-56 -44.33208,-42 -22.16604,-21 -57.63171,-21 -66.49812,7 z"
+       fill="#ffffff"
+       stroke="#000000"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1086"
+       style="stroke-width:0.878062" />
+    <g
+       transform="translate(-46.5,-10.5)"
+       id="g1092">
+      <switch
+         id="switch1090">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 228px; height: 1px; padding-top: 204px; margin-left: 619px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Key Server</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="769"
+           y="205"
+           fill="#000000"
+           font-family="sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1088"><tspan
+             sodipodi:role="line"
+             id="tspan1328"
+             x="769"
+             y="205">Key</tspan><tspan
+             sodipodi:role="line"
+             x="769"
+             y="217.5"
+             id="tspan667">Server</tspan></text>
+      </switch>
+    </g>
+    <ellipse
+       cx="408"
+       cy="191"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1100" />
+    <ellipse
+       cx="406"
+       cy="188"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1102" />
+    <rect
+       x="388"
+       y="181"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1104" />
+    <rect
+       x="386"
+       y="178"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1106" />
+    <g
+       transform="translate(-94.5,-2.5)"
+       id="g1112">
+      <switch
+         id="switch1110">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 190px; margin-left: 481px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                <xhtml:div>pmproxy</xhtml:div>
+              </xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="500"
+           y="193"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1108">pmproxy</text>
+      </switch>
+    </g>
+    <path
+       d="m 248.26584,80.76119 114.39108,82.70869"
+       fill="none"
+       stroke="#000000"
+       stroke-width="3.56713"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1114"
+       sodipodi:nodetypes="cc" />
+    <path
+       d="m 366.94,166.14 -8.87,-1.18 3.9,-2.19 0.59,-4.43 z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1116" />
+    <rect
+       x="387"
+       y="140"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1118" />
+    <rect
+       x="385"
+       y="137"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1120" />
+    <g
+       transform="translate(131.5,-2.5)"
+       id="g1126">
+      <switch
+         id="switch1124">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 149px; margin-left: 330px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="383"
+           y="152"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1122">PCP Archive</text>
+      </switch>
+    </g>
+    <path
+       d="m 643.86,190 -8,4 2,-4 -2,-4 z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1130" />
+    <rect
+       x="0"
+       y="130"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1172" />
+    <rect
+       x="0"
+       y="130"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1174" />
+    <rect
+       x="0"
+       y="260"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       transform="translate(2,3)"
+       opacity="0.25"
+       id="rect1220" />
+    <rect
+       x="0"
+       y="260"
+       width="160"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1222" />
+    <path
+       d="m 495.21,193.14 c 2.11,1.66 5.91,3.11 10.18,3.86 7.51,1.33 15.53,1.29 22.71,0.12 4.44,-0.72 8.31,-2.04 10.87,-3.98 v 12.3 c -0.34,3.4 -3.36,5.19 -6.64,6.38 -7.43,2.48 -20.17,2.79 -29.22,0.41 -3.77,-1.11 -7.58,-2.99 -7.9,-6.8 z m 0,-18.59 c 2.11,1.67 5.91,3.11 10.18,3.87 7.51,1.32 15.53,1.29 22.71,0.12 4.44,-0.73 8.31,-2.04 10.87,-3.98 v 12.29 c -0.34,3.4 -3.36,5.19 -6.64,6.39 -7.43,2.47 -20.17,2.78 -29.22,0.41 -3.77,-1.12 -7.58,-2.99 -7.9,-6.8 z m 0,-4.91 c 0,-3.25 6.79,-6.64 21.46,-7.03 14.57,0 22.3,3.72 22.3,7.01 0,3.65 -9.37,6.98 -20.88,6.98 -11.81,0.16 -22.88,-2.8 -22.88,-6.96 z"
+       fill="#2072b8"
+       stroke="none"
+       pointer-events="all"
+       id="path1244" />
+    <path
+       d="m 367.76,188.02 -7.97,4.05 1.97,-4.01 -2.02,-3.99 z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1248" />
+    <rect
+       x="388.20999"
+       y="215.61"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1250" />
+    <rect
+       x="386.20999"
+       y="212.61"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1252" />
+    <g
+       transform="translate(131.5,-2.5)"
+       id="g1258">
+      <switch
+         id="switch1256">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 225px; margin-left: 331px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="384"
+           y="228"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1254">PCP Archive</text>
+      </switch>
+    </g>
+    <path
+       d="m 495.21,273.14 c 2.11,1.66 5.91,3.11 10.18,3.86 7.51,1.33 15.53,1.29 22.71,0.12 4.44,-0.72 8.31,-2.04 10.87,-3.98 v 12.3 c -0.34,3.4 -3.36,5.19 -6.64,6.38 -7.43,2.48 -20.17,2.79 -29.22,0.41 -3.77,-1.11 -7.58,-2.99 -7.9,-6.8 z m 0,-18.59 c 2.11,1.67 5.91,3.11 10.18,3.87 7.51,1.32 15.53,1.29 22.71,0.12 4.44,-0.73 8.31,-2.04 10.87,-3.98 v 12.29 c -0.34,3.4 -3.36,5.19 -6.64,6.39 -7.43,2.47 -20.17,2.78 -29.22,0.41 -3.77,-1.12 -7.58,-2.99 -7.9,-6.8 z m 0,-4.91 c 0,-3.25 6.79,-6.64 21.46,-7.03 14.57,0 22.3,3.72 22.3,7.01 0,3.65 -9.37,6.98 -20.88,6.98 -11.81,0.16 -22.88,-2.8 -22.88,-6.96 z"
+       fill="#2072b8"
+       stroke="none"
+       pointer-events="all"
+       id="path1274" />
+    <path
+       d="m 370.21,205.33 -4.03,7.99 -0.79,-4.4 -3.99,-2.02 z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1278" />
+    <rect
+       x="388.20999"
+       y="295.60999"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1280" />
+    <rect
+       x="386.20999"
+       y="292.60999"
+       width="108.25"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1282" />
+    <g
+       transform="translate(131.5,-2.5)"
+       id="g1288">
+      <switch
+         id="switch1286">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 106px; height: 1px; padding-top: 305px; margin-left: 331px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PCP Archive</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="384"
+           y="308"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1284">PCP Archive</text>
+      </switch>
+    </g>
+    <path
+       d="m 128.63718,48.394421 51.96126,12.826558"
+       fill="none"
+       stroke="#000000"
+       stroke-width="1.42519"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1290-6" />
+    <path
+       d="m 437.40605,203.43212 40.10179,13.74961"
+       fill="none"
+       stroke="#000000"
+       stroke-width="1.2963"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1290-6-7" />
+    <path
+       d="m 186.13158,60.892283 -8.42,3.01 2.46,-3.73 -1.5,-4.22 z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1294" />
+    <rect
+       x="17.132721"
+       y="145.74272"
+       width="247.94518"
+       height="89.734566"
+       rx="16.216085"
+       ry="13.460184"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1008-5"
+       style="stroke-width:1.26544" />
+    <rect
+       x="15.132721"
+       y="142.74272"
+       width="247.94518"
+       height="89.734566"
+       rx="15.305109"
+       ry="13.460184"
+       fill="#ffffff"
+       stroke="#000000"
+       pointer-events="all"
+       id="rect1010-3"
+       style="stroke-width:1.26544" />
+    <ellipse
+       cx="101.38"
+       cy="170.61"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1012-5" />
+    <ellipse
+       cx="99.379997"
+       cy="167.61"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1014-6" />
+    <ellipse
+       cx="61.379997"
+       cy="215.61"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1016-2" />
+    <ellipse
+       cx="59.379997"
+       cy="212.61"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1018-9" />
+    <ellipse
+       cx="101.38"
+       cy="215.61"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1020-1" />
+    <ellipse
+       cx="99.379997"
+       cy="212.61"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1022-2" />
+    <ellipse
+       cx="141.38"
+       cy="215.61"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1024-7" />
+    <ellipse
+       cx="139.38"
+       cy="212.61"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1026-0" />
+    <rect
+       x="79.379997"
+       y="157.61"
+       width="40"
+       height="20"
+       fill="#fdf6e3"
+       stroke="none"
+       pointer-events="all"
+       id="rect1028-9" />
+    <g
+       transform="translate(-8.31,122.11)"
+       id="g1034-3">
+      <switch
+         id="switch1032-6">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 45px; margin-left: 88px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="107"
+           y="48"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1030-0">PMCD</text>
+      </switch>
+    </g>
+    <rect
+       x="21.379997"
+       y="185.61"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1036-6" />
+    <rect
+       x="19.379997"
+       y="182.61"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1038-2" />
+    <g
+       transform="translate(-8.31,122.11)"
+       id="g1044-6">
+      <switch
+         id="switch1042-1">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 70px; margin-left: 28px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="47"
+           y="73"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1040-8">PMDAs</text>
+      </switch>
+    </g>
+    <g
+       transform="translate(-8.31,122.11)"
+       id="g1054-7">
+      <switch
+         id="switch1052-9">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 10px; margin-left: 1px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="80"
+           y="13"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1050-2">Monitored Host</text>
+      </switch>
+    </g>
+    <ellipse
+       cx="220.45001"
+       cy="187.61"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1066-0" />
+    <ellipse
+       cx="218.45001"
+       cy="184.61"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1068-2" />
+    <rect
+       x="200.45001"
+       y="177.61"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1070-3" />
+    <rect
+       x="198.45001"
+       y="174.61"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1072-7" />
+    <g
+       transform="translate(-68.31,70.11)"
+       id="g1078-5">
+      <switch
+         id="switch1076-9">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 114px; margin-left: 267px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                <xhtml:i
+                   style="font-size: 10px">pmlogger</xhtml:i>
+              </xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="286"
+           y="117"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1074-2">pmlogger</text>
+      </switch>
+    </g>
+    <path
+       d="m 128.82718,171.00442 51.96126,12.82656"
+       fill="none"
+       stroke="#000000"
+       stroke-width="1.42519"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1290-6-2" />
+    <path
+       d="m 186.32158,183.50228 -8.42,3.01 2.46,-3.73 -1.5,-4.22 z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1294-8" />
+    <rect
+       x="17.132721"
+       y="271.74274"
+       width="247.94518"
+       height="89.734566"
+       rx="16.216085"
+       ry="13.460184"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1008-7"
+       style="stroke-width:1.26544" />
+    <rect
+       x="15.132721"
+       y="268.74274"
+       width="247.94518"
+       height="89.734566"
+       rx="15.305109"
+       ry="13.460184"
+       fill="#ffffff"
+       stroke="#000000"
+       pointer-events="all"
+       id="rect1010-36"
+       style="stroke-width:1.26544" />
+    <ellipse
+       cx="101.38"
+       cy="296.60999"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1012-1" />
+    <ellipse
+       cx="99.379997"
+       cy="293.60999"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1014-2" />
+    <ellipse
+       cx="61.379997"
+       cy="341.60999"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1016-9" />
+    <ellipse
+       cx="59.379997"
+       cy="338.60999"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1018-3" />
+    <ellipse
+       cx="101.38"
+       cy="341.60999"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1020-19" />
+    <ellipse
+       cx="99.379997"
+       cy="338.60999"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1022-4" />
+    <ellipse
+       cx="141.38"
+       cy="341.60999"
+       rx="15"
+       ry="10"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1024-78" />
+    <ellipse
+       cx="139.38"
+       cy="338.60999"
+       rx="15"
+       ry="10"
+       fill="#2c3e50"
+       stroke="#000000"
+       pointer-events="all"
+       id="ellipse1026-4" />
+    <rect
+       x="79.379997"
+       y="283.60999"
+       width="40"
+       height="20"
+       fill="#fdf6e3"
+       stroke="none"
+       pointer-events="all"
+       id="rect1028-5" />
+    <g
+       transform="translate(-8.31,248.11)"
+       id="g1034-0">
+      <switch
+         id="switch1032-3">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 45px; margin-left: 88px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMCD</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="107"
+           y="48"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1030-6">PMCD</text>
+      </switch>
+    </g>
+    <rect
+       x="21.379997"
+       y="311.60999"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1036-1" />
+    <rect
+       x="19.379997"
+       y="308.60999"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1038-0" />
+    <g
+       transform="translate(-8.31,248.11)"
+       id="g1044-63">
+      <switch
+         id="switch1042-2">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 70px; margin-left: 28px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">PMDAs</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="47"
+           y="73"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1040-0">PMDAs</text>
+      </switch>
+    </g>
+    <g
+       transform="translate(-8.31,248.11)"
+       id="g1054-6">
+      <switch
+         id="switch1052-1">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 158px; height: 1px; padding-top: 10px; margin-left: 1px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">Monitored Host</xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="80"
+           y="13"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1050-5">Monitored Host</text>
+      </switch>
+    </g>
+    <ellipse
+       cx="220.45001"
+       cy="313.60999"
+       rx="30"
+       ry="15"
+       fill="#000000"
+       stroke="#000000"
+       pointer-events="all"
+       opacity="0.25"
+       id="ellipse1066-5" />
+    <ellipse
+       cx="218.45001"
+       cy="310.60999"
+       rx="30"
+       ry="15"
+       fill="#fdf6e3"
+       stroke="#d79b00"
+       pointer-events="all"
+       id="ellipse1068-4" />
+    <rect
+       x="200.45001"
+       y="303.60999"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       opacity="0.25"
+       id="rect1070-7" />
+    <rect
+       x="198.45001"
+       y="300.60999"
+       width="40"
+       height="20"
+       fill="none"
+       stroke="none"
+       pointer-events="all"
+       id="rect1072-6" />
+    <g
+       transform="translate(-68.31,196.11)"
+       id="g1078-56">
+      <switch
+         id="switch1076-93">
+        <foreignObject
+           style="overflow: visible; text-align: left;"
+           pointer-events="none"
+           width="100%"
+           height="100%"
+           requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility">
+          <xhtml:div
+             style="display: flex; align-items: unsafe center; justify-content: unsafe center; width: 38px; height: 1px; padding-top: 114px; margin-left: 267px;">
+            <xhtml:div
+               style="box-sizing: border-box; font-size: 0; text-align: center; ">
+              <xhtml:div
+                 style="display: inline-block; font-size: 10px; font-family: Sans-serif; color: #000000; line-height: 1.2; pointer-events: all; font-weight: bold; white-space: normal; word-wrap: normal; ">
+                <xhtml:i
+                   style="font-size: 10px">pmlogger</xhtml:i>
+              </xhtml:div>
+            </xhtml:div>
+          </xhtml:div>
+        </foreignObject>
+        <text
+           x="286"
+           y="117"
+           fill="#000000"
+           font-family="Sans-serif"
+           font-size="10px"
+           text-anchor="middle"
+           font-weight="bold"
+           id="text1074-7">pmlogger</text>
+      </switch>
+    </g>
+    <path
+       d="m 128.82718,297.00442 51.96126,12.82656"
+       fill="none"
+       stroke="#000000"
+       stroke-width="1.42519"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1290-6-4" />
+    <path
+       d="m 186.32158,309.50228 -8.42,3.01 2.46,-3.73 -1.5,-4.22 z"
+       fill="#000000"
+       stroke="#000000"
+       stroke-width="2"
+       stroke-miterlimit="10"
+       pointer-events="all"
+       id="path1294-5" />
+    <path
+       d="m 256.46235,187.93052 105.89423,0.43988"
+       fill="none"
+       stroke="#000000"
+       stroke-width="2.9529"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1246-5" />
+    <path
+       d="M 255.87697,298.90005 365.11912,209.74149"
+       fill="none"
+       stroke="#000000"
+       stroke-width="3.44547"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1276" />
+    <path
+       d="M 643.4568,189.54451 H 446.23135"
+       fill="none"
+       stroke="#000000"
+       stroke-width="3.00062"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1128" />
+    <path
+       d="m 436.18474,171.9151 44.44068,-29.82482"
+       fill="none"
+       stroke="#000000"
+       stroke-width="1.42519"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1290-6-43" />
+    <path
+       d="m 436.04461,215.11778 39.4124,59.37224"
+       fill="none"
+       stroke="#000000"
+       stroke-width="1.86656"
+       stroke-miterlimit="10"
+       pointer-events="stroke"
+       id="path1290-6-78" />
+  </g>
+  <switch
+     id="switch1318">
+    <g
+       requiredFeatures="http://www.w3.org/TR/SVG11/feature#Extensibility"
+       id="g1312" />
+    <a
+       transform="translate(0,-5)"
+       xlink:href="https://www.diagrams.net/doc/faq/svg-export-text-problems"
+       target="_blank"
+       id="a1316">
+      <text
+         text-anchor="middle"
+         font-size="10px"
+         x="50%"
+         y="100%"
+         id="text1314">Viewer does not support full SVG 1.1</text>
+    </a>
+  </switch>
+</svg>

@@ -40,8 +40,8 @@ A local `pmproxy(1)`_ daemon exports the performance metrics to a central key se
 
 .. figure:: decentralized.svg
 
-C. Centralized logging (pmlogger farm)
---------------------------------------
+C.1 Centralized logging (pmlogger farm)
+---------------------------------------
 
 In cases where the resource usage on the monitored hosts is constrained, another deployment option is a **pmlogger farm**.
 In this setup, a single logger host runs multiple `pmlogger(1)`_ processes, each configured to retrieve performance metrics from a different remote `pmcd(1)`_ host.
@@ -49,12 +49,20 @@ The centralized logger host is also configured to run the `pmproxy(1)`_ daemon, 
 
 .. figure:: pmlogger-farm.svg
 
-D. Federated setup (multiple pmlogger farms)
---------------------------------------------
+C.2 Centralized logging (pmlogger push)
+---------------------------------------
 
-For large scale deployments, we advise deploying multiple `pmlogger(1)`_ farms in a federated fashion.
+Available since PCP version 7, an alternative deployment option is the **pmlogger push** model.
+In contrast to the traditional pull model of PMAPI operation, in this setup multiple `pmlogger(1)`_ processes, each typically configured to retrieve performance metrics from a local `pmcd(1)`_ host, streams the output over an HTTP network connection to a remote, centralized logger host running the `pmproxy(1)`_ daemon. This central server stores resulting PCP archive logs (optionally) and loads the metric data into a key server (also optionally) - either one or the other, or both storage options can be used.
+
+.. figure:: pmlogger-push.svg
+
+D. Federated setup (multiple pmproxy servers)
+---------------------------------------------
+
+For large scale deployments, we advise deploying multiple `pmproxy(1)`_ servers in a federated fashion, with either the `pmlogger(1)`_ farm or push models.
 For example, one `pmlogger(1)`_ farm per rack or data center.
-Each pmlogger farm loads the metrics into a central key server.
+Each pmlogger setup loads the metrics into a central key server.
 
 .. figure:: federated-pmlogger-farm.svg
 
