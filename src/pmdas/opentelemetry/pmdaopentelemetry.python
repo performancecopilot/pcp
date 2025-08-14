@@ -31,7 +31,6 @@ import traceback
 import argparse
 import threading
 import subprocess
-import sys
 from ctypes import c_int
 from socket import gethostname
 from stat import ST_MODE, S_IXUSR, ST_CTIME
