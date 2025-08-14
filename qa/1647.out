@@ -29,7 +29,7 @@ FILTER: INCLUDE METRIC metric1
 FILTER: EXCLUDE METRIC .*
 
 # unrecognized keyword
-SOMECRAP: unrecognised
+SOMETEXT: unrecognised
 
 === pminfo listing. Note opentelemetry.simplemetric.metric2 should be filtered out
 

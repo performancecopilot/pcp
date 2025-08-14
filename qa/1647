@@ -64,7 +64,7 @@ FILTER: INCLUDE METRIC metric1
 FILTER: EXCLUDE METRIC .*
 
 # unrecognized keyword
-SOMECRAP: unrecognised
+SOMETEXT: unrecognised
 EOF
 
 done
