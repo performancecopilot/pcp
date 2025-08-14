@@ -429,6 +429,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[157 or "bpf"]/d' \
 	-e '/inst \[161 or "uwsgi"]/d' \
         -e '/inst \[163 or "rocestat"]/d' \
+	-e '/inst \[164 or "opentelemetry"]/d' \
 	-e '/inst \[250 or "trivial"]/d' \
     # end
 }
@@ -500,6 +501,7 @@ _filter_top_pmns()
 	-e '/^    nutcracker /d' \
 	-e '/^    nvidia /d' \
 	-e '/^    openmetrics /d' \
+	-e '/^    opentelemetry /d' \
 	-e '/^    oracle /d' \
 	-e '/^    oraping /d' \
 	-e '/^    pdns /d' \
