@@ -2,6 +2,8 @@
 # PCP QA Test No. 1402
 # more serious v3 do nothing and V2 -> V3 conversions
 #
+# non-valgrind variant, see qa/1625 for the valgrind variant
+#
 # Copyright (c) 2022 Ken McDonell.  All Rights Reserved.
 #
 
@@ -25,6 +27,10 @@ if [ "$1" = "--valgrind" ]
 then
     _check_valgrind
     do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1625 will be run"
 fi
 
 _cleanup()

@@ -2118,6 +2118,7 @@ pmcd.pdu
 1622:retired local
 1623 libpcp_import local pmlogdump collectl2pcp pmrep
 1624 other local
+1625 pmlogrewrite pmlogextract archive pmlogdump archive_v3 local valgrind
 1626 pmproxy libpcp_web local
 1627 libpcp_import local
 1628 libpcp_import valgrind local

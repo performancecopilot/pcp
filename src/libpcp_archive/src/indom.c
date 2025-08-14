@@ -510,7 +510,13 @@ pmaTryDeltaInDom(__pmLogCtl *lcp, __int32_t **rbuf, __pmLogInDom *lidp)
 		pmInDomStr(indom), pmErrStr(lsts));
 	    exit(1);
 	}
-
+	else {
+	    /* not using "delta" indom */
+	    if (rbuf) {
+		/* free old "last" record buffer */
+		free(last->buf);
+	    }
+	}
     }
 
     /* for next time we're called ... this -> last */

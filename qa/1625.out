@@ -1,0 +1,62 @@
+QA output created by 1625
+QA output created by 1402 --valgrind
+
+--- pmlogextract input version V2 ---
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogextract -V 3 archives/omnibus_v2 TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== scanmeta diffs ===
+=== pmdumplog diffs ===
+
+--- pmlogextract input version V3 ---
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogextract -V 3 archives/omnibus_v3 TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== scanmeta diffs ===
+=== pmdumplog diffs ===
+
+--- pmlogrewrite input version V2 ---
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -V 3 archives/omnibus_v2 TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== scanmeta diffs ===
+=== pmdumplog diffs ===
+498c498
+< TIMESTAMP	      0         1131         1004
+---
+> TIMESTAMP	      0         1531         1004
+
+--- pmlogrewrite input version V3 ---
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -V 3 archives/omnibus_v3 TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== scanmeta diffs ===
+=== pmdumplog diffs ===
+498c498
+< TIMESTAMP	      0         1131         1004
+---
+> TIMESTAMP	      0         1531         1004
