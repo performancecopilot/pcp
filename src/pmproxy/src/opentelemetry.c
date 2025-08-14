@@ -160,19 +160,6 @@ open_telemetry_labels(pmWebLabelSet *labels, struct dict **context, sds *buffer)
     dictRelease(metric_labels);
 }
 
-/* convert PCP metric name to Open Telemetry form */
-sds
-open_telemetry_name(sds metric)
-{
-    sds		p, name = sdsdup(metric);
-
-    /* swap dots with underscores in name */
-    for (p = name; p && *p; p++)
-	if (*p == '.')
-	    *p = '_';
-    return name;
-}
-
 /* convert PCP metric semantics to Open Telemetry form */
 const char *
 open_telemetry_semantics(sds sem)
