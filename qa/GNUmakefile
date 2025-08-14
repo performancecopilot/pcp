@@ -29,7 +29,7 @@ ifeq "$(PMDA_BPFTRACE)" "true"
 SUBDIRS += bpftrace
 endif
 ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure mic haproxy lio openmetrics
+SUBDIRS += secure mic haproxy lio openmetrics opentelemetry
 endif
 
 ifeq "$(ENABLE_SELINUX)" "true"
@@ -77,10 +77,10 @@ SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
 COMMON_SCRIPTS = common.install.cisco common.pcpweb
 COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
-	 common.secure common.pmcd.pdu \
-	 common.qt common.containers \
-	 common.discovery common.compress \
-	 common.python common.openmetrics \
+	 common.secure common.pmcd.pdu common.qt \
+	 common.containers common.compress \
+	 common.discovery common.python \
+	 common.openmetrics common.opentelemetry \
 	 common.bcc common.bpf common.bpftrace common.keys
 
 OTHERS = group triaged qa_hosts.primary README sanity.coverage \
