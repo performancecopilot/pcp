@@ -1714,6 +1714,22 @@ extracting metrics from OpenMetrics (https://openmetrics.io/) endpoints.
 #end pcp-pmda-openmetrics
 
 #
+# pcp-pmda-opentelemetry
+#
+%package pmda-opentelemetry
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from OpenTelemetry endpoints
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python3-pcp
+Requires: python3-requests
+BuildRequires: python3-requests
+%description pmda-opentelemetry
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting metrics from OpenTelemetry (https://opentelemetry.io/) endpoints.
+#end pcp-pmda-opentelemetry
+
+#
 # pcp-pmda-lmsensors
 #
 %package pmda-lmsensors
@@ -2470,6 +2486,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/nginx(/|$)' >pcp-pmda-nginx-files
 basic_manifest | keep '(etc/pcp|pmdas)/nutcracker(/|$)' >pcp-pmda-nutcracker-files
 basic_manifest | keep '(etc/pcp|pmdas)/nvidia(/|$)' >pcp-pmda-nvidia-files
 basic_manifest | keep '(etc/pcp|pmdas)/openmetrics(/|$)' >pcp-pmda-openmetrics-files
+basic_manifest | keep '(etc/pcp|pmdas)/opentelemetry(/|$)' >pcp-pmda-opentelemetry-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/openvswitch(/|$)' >pcp-pmda-openvswitch-files
 basic_manifest | keep '(etc/pcp|pmdas)/oracle(/|$)' >pcp-pmda-oracle-files
 basic_manifest | keep '(etc/pcp|pmdas)/pdns(/|$)' >pcp-pmda-pdns-files
@@ -2517,7 +2534,7 @@ for pmda_package in \
     mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
     nutcracker nvidia \
-    openmetrics openvswitch oracle \
+    openmetrics opentelemetry openvswitch oracle \
     pdns perfevent podman postfix postgresql \
     rabbitmq redis resctrl rocestat roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
@@ -2812,6 +2829,9 @@ exit 0
 
 %preun pmda-openmetrics
 %{pmda_remove "$1" "openmetrics"}
+
+%preun pmda-opentelemetry
+%{pmda_remove "$1" "opentelemetry"}
 
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
@@ -3308,6 +3328,9 @@ fi
 %files pmda-lio -f pcp-pmda-lio-files.rpm
 
 %files pmda-openmetrics -f pcp-pmda-openmetrics-files.rpm
+%endif
+
+%files pmda-opentelemetry -f pcp-pmda-opentelemetry-files.rpm
 %endif
 
 %if !%{disable_amdgpu}

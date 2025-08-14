@@ -1,0 +1,109 @@
+#!/bin/sh
+# PCP QA Test No. 1647
+# Test pmdaopentelemetry request headers, response filtering and label management
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.opentelemetry
+
+_pmdaopentelemetry_check || _notrun "opentelemetry pmda and/or load generator not installed"
+_have_python266 && _notrun "python load generator does not currently work with python 2.6.6"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    _pmdaopentelemetry_cleanup
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_prepare_pmda opentelemetry
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+HERE=`pwd`
+_pmdaopentelemetry_save_config
+
+# add the example URL with header config entries
+for file in $here/opentelemetry/samples/simplemetric.txt
+do
+    urlbase=`basename $file .txt | tr .- _`
+    echo 'file://'$file > $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
+
+    #
+    # add a bunch of headers to the URL config to test the parser
+    cat <<EOF >>$PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
+
+# this is a comment and the next line is blank
+
+# basic standard headers
+HEADER: Accept: text/html
+HEADER: Keep-Alive: 300
+HEADER: Connection: keep-alive
+
+# header with two words in the value
+HEADER: Authorization: bearer ababbdbbebbbebdbbe5538003023
+
+# header with multiple words in the value and colons and spaces
+HEADER: Someheader: has: colons: and spaces in: it!!!!!!
+
+# various headers with assorted characters
+HEADER: Accept-Language: en-us,en;q=0.5
+HEADER: Accept-Encoding: gzip,deflate
+HEADER: Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+
+# Filter to include metric1 and exclude all other metrics
+# note: these are anchored regex matches (whole metric name must match)
+FILTER: INCLUDE METRIC metric1
+FILTER: EXCLUDE METRIC .*
+
+# unrecognized keyword
+SOMECRAP: unrecognised
+EOF
+
+done
+
+_pmdaopentelemetry_install
+
+if ! _pmdaopentelemetry_wait_for_metric opentelemetry.control.calls
+then
+    status=1
+    exit
+fi
+
+echo; echo === URL configuration file contains
+sed -e "s|$HERE|QA_DIR|g" < $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
+
+echo; echo === pminfo listing. Note opentelemetry.simplemetric.metric2 should be filtered out
+names=`pminfo opentelemetry | grep -F -v opentelemetry.control | LC_COLLATE=POSIX sort` 2>$tmp.err
+if [ -z "$names" ]; then
+    echo "FAILED - no opentelemetry metrics to show"
+else
+    pminfo -mdf opentelemetry >>$here/$seq.full 2>&1
+    if pminfo -mdtTf `pminfo opentelemetry | grep -F -v opentelemetry.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+    then
+        :
+    else
+        echo "... failed! ... here is the Install log ..."
+        cat $tmp.out
+    fi
+    cat $tmp.info $tmp.err
+fi
+
+echo == Note: check $seq.full for log entries for the expected headers
+echo == pmdaopentelemetry LOG == >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/opentelemetry.log >>$here/$seq.full
+
+# cleanup preparing for remove (else error messages here)
+$sudo rm $PCP_PMDAS_DIR/opentelemetry/config.d/simplemetric.*
+_pmdaopentelemetry_remove
+
+# success, all done
+status=0
+exit
