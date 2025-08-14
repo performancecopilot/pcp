@@ -18,6 +18,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# if the primary logger is configured for logpush, we need to
+# quietly move on and not dink with things ...
+#
+if pminfo -f pmcd.pmlogger.archive 2>&1 \
+   | tee -a $seq_full \
+   | grep -q '"primary".*"http://'
+then
+    _notrun "primary pmlogger configured for logpush"
+    # NOTREACHED
+fi
+
 NEEDREWRITE=$PCP_LOG_DIR/pmlogger/.NeedRewrite
 
 _cleanup()

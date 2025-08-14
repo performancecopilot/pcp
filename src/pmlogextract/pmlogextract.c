@@ -125,7 +125,6 @@ static __pmHashCtl	rindomtext;	/* indom text records to be written */
 static __pmHashCtl	rpmidoneline;	/* pmid oneline records to be written */
 static __pmHashCtl	rpmidtext;	/* pmid text records to be written */
 static __pmHashCtl	rlabelset;	/* label sets to be written */
-static int		done_context_label;	/* set when PM_LABEL_CONTEXT written */
 
 static __pmTimestamp	curlog;		/* most recent timestamp in log */
 static __pmTimestamp	current;	/* most recent timestamp overall */
@@ -1432,14 +1431,6 @@ write_priorlabelset_pdu(reclist_t *labelset, const __pmTimestamp *now)
 	/* Write the chosen record, if it has not already been written. */
 	if (labelset->pdu != NULL &&
 	    labelset->written != WRITTEN) {
-	    /*
-	     * First time we need to write out the relevant context
-	     * labels if any ... tricky little one-level recursion here
-	     */
-	    if (!done_context_label) {
-		done_context_label = 1;
-		write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, now);
-	    }
 	    labelset->written = MARK_FOR_WRITE;
 	    if (outarchvers == PM_LOG_VERS03)
 		__pmPutTimestamp(now, &labelset->pdu[2]);
@@ -1699,6 +1690,7 @@ write_metareclist(inarch_t *iap, __pmResult *result, int *needti)
 	}
 
 	/* Write out the label set records associated with this pmid. */
+	write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, &stamp);
 	write_priorlabelset(PM_LABEL_ITEM, pmid, &stamp);
 	write_priorlabelset(PM_LABEL_DOMAIN, pmid, &stamp);
 	write_priorlabelset(PM_LABEL_CLUSTER, pmid, &stamp);
@@ -1751,6 +1743,7 @@ write_metareclist(inarch_t *iap, __pmResult *result, int *needti)
 		assert(other_indom->desc.indom == indom);
 
 		/* Write out the label set records associated with this indom */
+		write_priorlabelset(PM_LABEL_CONTEXT, PM_IN_NULL, &stamp);
 		write_priorlabelset(PM_LABEL_INDOM, indom, &stamp);
 		write_priorlabelset(PM_LABEL_INSTANCES, indom, &stamp);
 

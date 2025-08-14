@@ -21,6 +21,17 @@ done_clean=false
 LOCALHOST=`hostname`
 LOGGING_DIR="$PCP_ARCHIVE_DIR"
 
+# if the primary logger is configured for logpush, we need to
+# quietly move on and not dink with things ...
+#
+if pminfo -f pmcd.pmlogger.archive 2>&1 \
+   | tee -a $seq_full \
+   | grep -q '"primary".*"http://'
+then
+    _notrun "primary pmlogger configured for logpush"
+    # NOTREACHED
+fi
+
 _cleanup()
 {
     if $done_clean

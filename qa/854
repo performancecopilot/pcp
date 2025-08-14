@@ -21,6 +21,12 @@ done_clean=false
 LOCALHOST=`hostname`
 LOGGING_DIR="$PCP_ARCHIVE_DIR"
 
+if [ ! -f $LOGGING_DIR/$LOCALHOST/Latest ]
+then
+    _notrun "no Latest folio for primary pmlogger (logpush?)"
+    # NOTREACHED
+fi
+
 _cleanup()
 {
     if $done_clean

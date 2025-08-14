@@ -102,7 +102,7 @@ do
 	then
 	    _run_valgrind $tool -V 3 archives/omnibus_v$invers $tmp
 	else
-	    $tool -V 3 archives/omnibus_v2 $tmp 2>&1
+	    $tool -V 3 archives/omnibus_v$invers $tmp 2>&1
 	fi \
 	| _filter
 
