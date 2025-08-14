@@ -456,6 +456,7 @@ pcp2xlsx
 pcp2xml
 pcp2zabbix
 pcp2openmetrics
+pcp2opentelemetry
 
 # ...2pcp
 collectl2pcp
@@ -2260,6 +2261,7 @@ pmcd.pdu
 1970 pmda.bpf local
 1973 pcp zoneinfo python local
 1976 pmda.openmetrics python local
+1977 pcp2opentelemetry python local
 1978 atop local pmlogrewrite
 1984 pmlogconf pmda.redis local
 1985 pmfind local valgrind
