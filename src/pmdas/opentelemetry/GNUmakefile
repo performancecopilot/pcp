@@ -1,6 +1,6 @@
 #
-# Copyright (c) 2017 Ronak Jain.
-# Copyright (c) 2017,2019-2020,2023-2024 Red Hat.
+# Copyright (c) 2025 Lauren Chilton.
+# Copyright (c) 2017,2019-2020,2023, 2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,13 +16,10 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-IAM	= openmetrics
+IAM     = opentelemetry
 PYSCRIPT = pmda$(IAM).python
-LDIRT	= domain.h root pmns $(IAM).log
-DOMAIN	= $(IAM)
-# common endpoint URLs (on: enabled, off: available)
-ONURLS	= grafana.url ceph.url dcgm.url etcd.url vllm.url
-OFFURLS	= collectd.url kepler.url spark.url vmware.url
+LDIRT   = domain.h root pmns $(IAM).log
+DOMAIN  = $(IAM)
 
 MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
@@ -34,25 +31,19 @@ PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
 LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
-default_pcp default ::	build-me
+default_pcp default ::  build-me
 
 include $(BUILDRULES)
 
 ifeq "$(PMDA_OPENMETRICS)" "true"
-build-me:	check_domain
+build-me:       check_domain
 
 install_pcp install :: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)/config.d
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
-	@for url in $(ONURLS); do \
-	    $(INSTALL) -m 644 -t $(PMDATMPDIR)/config.d/$$url $$url $(PMDACONFIG)/$$url; \
-	done
-	@for url in $(OFFURLS); do \
-	    $(INSTALL) -m 644 $$url $(PMDACONFIG)/$$url; \
-	done
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove Upgrade $(PYSCRIPT) $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PYSCRIPT) $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 	$(INSTALL) -m 755 -d $(LOGCONFDIR)
 	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
@@ -67,7 +58,7 @@ build-me:
 install_pcp install:
 endif
 
-check_domain:	../../pmns/stdpmid
+check_domain:   ../../pmns/stdpmid
 	$(DOMAIN_PYTHONRULE)
 
 check:: $(MAN_PAGES)

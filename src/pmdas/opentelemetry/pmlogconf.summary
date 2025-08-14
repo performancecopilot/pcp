@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	OpenTelemetry instrumented applications summary information
+probe	opentelemetry.control.calls exists ? include : exclude
+	opentelemetry
