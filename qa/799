@@ -37,6 +37,8 @@ pminfo \
 | uniq >>$tmp.config
 echo "}" >>$tmp.config
 
+cat $tmp.config >>$seq_full
+
 pmlogger -l $tmp.log -c $tmp.config -s 1 $tmp
 cat $tmp.log >>$seq_full
 
@@ -46,6 +48,15 @@ textgrep=""
 pmdumplog $tmp \
 | grep $textgrep ' value ' \
 | wc -l >>$seq_full
+pminfo -d -a $tmp sample.load >>$seq_full 2>&1
+if pminfo -d -a $tmp sample.load >/dev/null 2>&1
+then
+    :
+else
+    echo "Arrgh sample.load not in test archive ..."
+    pmdumplog $tmp
+    _exit 1
+fi
 
 echo "=== no change ==="
 pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i $tmp 2>&1
