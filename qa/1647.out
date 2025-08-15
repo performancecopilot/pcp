@@ -33,7 +33,7 @@ SOMETEXT: unrecognised
 
 === pminfo listing. Note opentelemetry.simplemetric.metric2 should be filtered out
 
-opentelemetry.simplemetric.metric1 PMID: 88.1.0 []
+opentelemetry.simplemetric.metric1 PMID: 164.1.0 []
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 Help:

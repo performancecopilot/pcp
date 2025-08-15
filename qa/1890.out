@@ -3,7 +3,7 @@ QA output created by 1890
 === opentelemetry agent installation ===
 
 === /metrics webapi listing. The instname label should appear only once.
-# PCP5 opentelemetry.duplicate.somemetric 88.1.0 64 PM_INDOM_NULL counter none
+# PCP5 opentelemetry.duplicate.somemetric 164.1.0 64 PM_INDOM_NULL counter none
 # HELP opentelemetry_duplicate_somemetric metric to test duplicate labels
 # TYPE opentelemetry_duplicate_somemetric counter
 opentelemetry_duplicate_somemetric{scope_name="my.library",url="file:////home/lchilton/git/pcp/qa/opentelemetry/samples/duplicate.txt",agent="opentelemetry",hostname=HOSTNAME,instname="my.instname",domainname=DOMAINNAME,machineid=MACHINEID,source="duplicate"} 5

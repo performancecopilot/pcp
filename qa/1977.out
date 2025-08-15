@@ -21,39 +21,33 @@ Body:
       "resource": {
 	"attributes": [
 	  {
-	    "key": "os.type",
+	    "key": "domainname",
 	    "value": {
-	      "stringValue": "linux"
+	      "stringValue": DOMAINID
 	    }
 	  },
 	  {
-	    "key": "telemetry.sdk.language",
+	    "key": "groupid",
 	    "value": {
-	      "stringValue": "python"
+	      "stringValue": "STRING"
 	    }
 	  },
 	  {
-	    "key": "telemetry.sdk.name",
+	    "key": "hostname",
 	    "value": {
-	      "stringValue": "opentelemetry"
+	      "stringValue": HOSTNAME
 	    }
 	  },
 	  {
-	    "key": "telemetry.sdk.version",
+	    "key": "machineid",
 	    "value": {
-	      "stringValue": "1.24.0"
+	      "stringValue": MACHINEID
 	    }
 	  },
 	  {
-	    "key": "service.name",
+	    "key": "userid",
 	    "value": {
-	      "stringValue": "pcp"
-	    }
-	  },
-	  {
-	    "key": "server.address",
-	    "value": {
-	      "stringValue": "http://localhost:54322/receive"
+	      "stringValue": "STRING"
 	    }
 	  }
 	]
@@ -62,72 +56,42 @@ Body:
 	{
 	  "metrics": [
 	    {
+	      "name": "hinv.ncpu",
+	      "unit": "1",
 	      "description": "number of CPUs in the system",
 	      "gauge": {
 		"dataPoints": [
 		  {
-		    "asInt": 16,
+		    "asInt": INTEGER,
+		    "timeUnixNano": TIME
 		    "attributes": [
 		      {
 			"key": "semantics",
 			"value": {
-			  "stringValue": "discrete"
+			  "stringValue": "STRING"
 			}
 		      },
 		      {
 			"key": "type",
 			"value": {
-			  "stringValue": "u32"
-			}
-		      },
-		      {
-			"key": "domainname",
-			"value": {
-			  "stringValue": DOMAINID
-			}
-		      },
-		      {
-			"key": "groupid",
-			"value": {
-			  "stringValue": 4209557
-			}
-		      },
-		      {
-			"key": "hostname",
-			"value": {
-			  "stringValue": HOSTNAME
-			}
-		      },
-		      {
-			"key": "machineid",
-			"value": {
-			  "stringValue": MACHINEID
-			}
-		      },
-		      {
-			"key": "userid",
-			"value": {
-			  "stringValue": 4209557
+			  "stringValue": "STRING"
 			}
 		      },
 		      {
 			"key": "agent",
 			"value": {
-			  "stringValue": "linux"
+			  "stringValue": "STRING"
 			}
 		      }
-		    ],
-		    "startTimeUnixNano": TIME
+		    ]
 		  }
 		]
-	      },
-	      "name": "hinv.ncpu",
-	      "unit": "none"
+	      }
 	    }
 	  ],
 	  "scope": {
-	    "name": "pcp.hinv",
-	    "version": 1
+	    "name": "performance co-pilot",
+	    "version": VERSION
 	  }
 	}
       ]

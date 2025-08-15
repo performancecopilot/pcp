@@ -21,7 +21,6 @@ _cleanup()
 }
 
 status=0    # success is the default!
-cpus=`pmprobe -v hinv.ncpu | awk '{print $3}'`
 hostname=`hostname`
 machineid=`_machine_id`
 domainid=`_domain_name`
@@ -37,10 +36,10 @@ _filter_pcp2opentelemetry_http()
        -e 's/\"'$machineid'\"/MACHINEID/' \
        -e 's/\"'$hostname'\"/HOSTNAME/' \
        -e 's/\"'$domainid'\"/DOMAINID/' \
-       -e 's/\"agent\": .*/\"agent\": \"'$OSTYPE'\"/' \
-       -e 's/\"startTimeUnixNano\": .*/\"startTimeUnixNano\": TIME/' \
-       -e 's/\"userid\": .*/\"userid\": USERID/' \
-       -e 's/\"userid\": .*/\"userid\": GROUPID/' \
+       -e 's/\"version\": .*/\"version\": VERSION/' \
+       -e 's/\"timeUnixNano\": [0-9][0-9]*\.[0-9][0-9]*.*/\"timeUnixNano\": TIME/' \
+       -e 's/\"stringValue\": \".*\"/\"stringValue\": \"STRING\"/' \
+       -e 's/\"asInt\": [0-9][0-9]*/\"asInt\": INTEGER/' \
        -e '/HTTP/d'
 } >> $tmp.python2.out
 
