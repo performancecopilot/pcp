@@ -3,7 +3,7 @@ FROM quay.io/fedora/fedora:latest AS build
 COPY . /usr/src/pcp
 
 WORKDIR /usr/src/pcp
-RUN dnf install -y git which rpm-build 'dnf-command(builddep)'
+RUN dnf install -y git which bpftrace rpm-build 'dnf-command(builddep)'
 RUN dnf builddep -y build/rpm/redhat.spec
 
 RUN ./Makepkgs --verbose
