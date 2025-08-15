@@ -1,35 +1,27 @@
-#! /bin/sh
+#!/bin/sh
 #
-# Copyright (c) 2014-2015,2018 Red Hat.
-# 
+# Copyright (c) 2025 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# Install the json PMDA
+#
+# Remove the OpenTelemetry PMDA
 #
 
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=json
-domain=137
+iam=opentelemetry
 python_opt=true
-daemon_opt=false
-
-if [ ! -e "$PCP_TMP_DIR/json" ]
-then
-    echo "creating $PCP_TMP_DIR/json"
-    mkdir -p -m 1777 "$PCP_TMP_DIR/json"
-    chown $PCP_USER:$PCP_GROUP "$PCP_TMP_DIR/json"
-fi
 
 pmdaSetup
-pmdaInstall
+pmdaRemove
 exit
+

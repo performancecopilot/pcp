@@ -2,8 +2,10 @@
 # PCP QA Test No. 1715
 # Exercises pmdastatsd
 # - hdr histogram aggregation on duration metrics
-# Since agent works with UDP datagrams, we have to take into account the fact that not all payloads will get processed and will get lost.
-# Following test assumes that at least 10% of datagrams gets processed and measued values are within 35% +/- of expected values
+# Since agent works with UDP datagrams, we have to take into account
+# that not all payloads will get processed and some will get lost.
+# Following test assumes that at least 10% of datagrams get processed
+# and measured values are within 35% +/- of expected values
 #
 # Copyright (c) 2020 Red Hat.
 #

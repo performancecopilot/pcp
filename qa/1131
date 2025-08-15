@@ -1,8 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1131
-# Exercise pcp2json and pcp2openmetrics.
+# Exercise pcp2json, pcp2openmetrics, and pcp2opentelemetry.
 #
-# Copyright (c) 2017 Red Hat.
+# Copyright (c) 2025 Red Hat.
 #
 
 seq=`basename $0`
@@ -17,6 +17,8 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 
 which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
 which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
+which pcp2opentelemetry >/dev/null 2>&1 || _notrun "pcp2opentelemetry not installed"
+
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -42,13 +44,27 @@ _filter_pcp2openmetrics()
     tee -a $seq_full \
     | col -b \
     | sed \
+    -e '/hostname=/s/'$hostname'/HOST/' \
     -e '/domainname=/s/'$domainid'/DOMAINID/' \
     -e '/machineid=/s/'$machineid'/MACHINEID/' \
     -e '/groupid=/s/groupid="*[0-9][0-9]*"*/groupid="GROUPID"/' \
     -e '/userid=/s/userid="*[0-9][0-9]*"*/userid="USERID"/' \
-    -e '/hostname=/s/'$hostname'/HOST/' \
+    -e '/version=/s/version="*[^"]*"*/version="VERSION"/' \
+    -e '/agent=/s/agent="*[^"]*"*/agent="AGENT"/' \
     -e 's/\(.*}\).*/\1 NCPU/' \
     | LC_COLLATE=POSIX sort
+}
+
+_filter_pcp2opentelemetry()
+{
+   tee -a $here/$seq.full \
+   | col -b \
+   | sed \
+       -e '/\"asInt\":/ s/[0-9][0-9]*/INTEGER/' \
+       -e '/\"asDouble\":/ s/[0-9][0-9]*/DOUBLE/' \
+       -e 's/\"version\": .*/\"version\": VERSION/' \
+       -e 's/\"stringValue\": \".*\"/\"stringValue\": \"STRING\"/' \
+       -e 's/\"timeUnixNano\": [0-9][0-9]*\.[0-9][0-9]*.*/\"timeUnixNano\": TIME/'
 }
 
 # real QA test starts here
@@ -64,6 +80,8 @@ echo "---"
 pcp2openmetrics -s1 -z hinv.ncpu | _filter_pcp2openmetrics
 echo "---"
 pcp2openmetrics -s2 -x hinv.ncpu | _filter_pcp2openmetrics
+echo "---"
+pcp2opentelemetry -s1 -H -z hinv.ncpu | _filter_pcp2opentelemetry
 echo "---"
 
 cat $tmp.outfile | _archive_filter

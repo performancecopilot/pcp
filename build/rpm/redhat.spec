@@ -115,17 +115,6 @@ ExcludeArch: %{ix86}
 %global disable_bpftrace 1
 %endif
 
-# support for pmdajson
-%if 0%{?rhel} == 0 || 0%{?rhel} > 6
-%if !%{disable_python3}
-%global disable_json 0
-%else
-%global disable_json 1
-%endif
-%else
-%global disable_json 1
-%endif
-
 # support for pmdamongodb
 %if !%{disable_python3}
 %global disable_mongodb 0
@@ -407,12 +396,6 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_bpftrace --with-pmdabpftrace=no
 %else
 %global _with_bpftrace --with-pmdabpftrace=yes
-%endif
-
-%if %{disable_json}
-%global _with_json --with-pmdajson=no
-%else
-%global _with_json --with-pmdajson=yes
 %endif
 
 %if %{disable_mongodb}
@@ -811,6 +794,21 @@ Requires: python3-pcp = %{version}-%{release}
 %description export-pcp2openmetrics
 Performance Co-Pilot (PCP) front-end tools for exporting metric values
 in OpenMetrics (https://openmetrics.io/) format.
+
+#
+# pcp-export-pcp2opentelemetry
+#
+%package export-pcp2opentelemetry
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot tools for exporting PCP metrics in OpenTelemetry format
+URL: https://pcp.io
+Requires: pcp-libs >= %{version}-%{release}
+%if !%{disable_python3}
+Requires: python3-pcp = %{version}-%{release}
+
+%description export-pcp2opentelemetry
+Performance Co-Pilot (PCP) front-end tools for exporting metric values
+in OpenTelemetry (https://opentelemetry.io/) format.
 
 #
 # pcp-export-pcp2spark
@@ -1714,6 +1712,23 @@ extracting metrics from OpenMetrics (https://openmetrics.io/) endpoints.
 #end pcp-pmda-openmetrics
 
 #
+# pcp-pmda-opentelemetry
+#
+%package pmda-opentelemetry
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics from OpenTelemetry endpoints
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python3-pcp
+Requires: python3-requests
+BuildRequires: python3-requests
+Obsoletes: pcp-pmda-json <= 7.0.0
+%description pmda-opentelemetry
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+extracting metrics from OpenTelemetry (https://opentelemetry.io/) endpoints.
+#end pcp-pmda-opentelemetry
+
+#
 # pcp-pmda-lmsensors
 #
 %package pmda-lmsensors
@@ -1797,24 +1812,6 @@ BuildRequires: python3-pyodbc
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics from Microsoft SQL Server.
 # end pcp-pmda-mssql
-%endif
-
-%if !%{disable_json}
-#
-# pcp-pmda-json
-#
-%package pmda-json
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for JSON data
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: python3-pcp
-Requires: python3-jsonpointer python3-six
-BuildRequires: python3-jsonpointer python3-six
-%description pmda-json
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics output in JSON.
-# end pcp-pmda-json
 %endif
 
 #
@@ -2131,9 +2128,16 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: pcp-system-tools = %{version}-%{release}
 Requires: pcp-doc = %{version}-%{release}
 Requires: pcp-pmda-dm = %{version}-%{release}
+%if !%{disable_bpf}
+Requires: pcp-pmda-bpf = %{version}-%{release}
+%endif
+%if !%{disable_bpftrace}
+Requires: pcp-pmda-bpftrace = %{version}-%{release}
+%endif
 %if !%{disable_python3}
 Requires: pcp-pmda-nfsclient = %{version}-%{release}
 Requires: pcp-pmda-openmetrics = %{version}-%{release}
+Requires: pcp-pmda-opentelemetry = %{version}-%{release}
 %endif
 %description zeroconf
 This package contains configuration tweaks and files to increase metrics
@@ -2258,7 +2262,7 @@ updated policy package.
 _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 
-%configure %{?_with_multilib} %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_json} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
+%configure %{?_with_multilib} %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2414,8 +2418,8 @@ basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
-basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
 basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
+basic_manifest | keep 'pcp2opentelemetry' >pcp-export-pcp2opentelemetry-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
 basic_manifest | keep 'pcp2xml' >pcp-export-pcp2xml-files
 basic_manifest | keep 'pcp2zabbix' >pcp-export-pcp2zabbix-files
@@ -2447,7 +2451,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/hacluster(/|$)' >pcp-pmda-hacluster-files
 basic_manifest | keep '(etc/pcp|pmdas)/haproxy(/|$)' >pcp-pmda-haproxy-files
 basic_manifest | keep '(etc/pcp|pmdas)/hdb(/|$)' >pcp-pmda-hdb-files
 basic_manifest | keep '(etc/pcp|pmdas)/infiniband(/|$)' >pcp-pmda-infiniband-files
-basic_manifest | keep '(etc/pcp|pmdas)/json(/|$)' >pcp-pmda-json-files
 basic_manifest | keep '(etc/pcp|pmdas)/libvirt(/|$)' >pcp-pmda-libvirt-files
 basic_manifest | keep '(etc/pcp|pmdas)/lio(/|$)' >pcp-pmda-lio-files
 basic_manifest | keep '(etc/pcp|pmdas)/lmsensors(/|$)' >pcp-pmda-lmsensors-files
@@ -2470,6 +2473,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/nginx(/|$)' >pcp-pmda-nginx-files
 basic_manifest | keep '(etc/pcp|pmdas)/nutcracker(/|$)' >pcp-pmda-nutcracker-files
 basic_manifest | keep '(etc/pcp|pmdas)/nvidia(/|$)' >pcp-pmda-nvidia-files
 basic_manifest | keep '(etc/pcp|pmdas)/openmetrics(/|$)' >pcp-pmda-openmetrics-files
+basic_manifest | keep '(etc/pcp|pmdas)/opentelemetry(/|$)' >pcp-pmda-opentelemetry-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/openvswitch(/|$)' >pcp-pmda-openvswitch-files
 basic_manifest | keep '(etc/pcp|pmdas)/oracle(/|$)' >pcp-pmda-oracle-files
 basic_manifest | keep '(etc/pcp|pmdas)/pdns(/|$)' >pcp-pmda-pdns-files
@@ -2512,12 +2516,11 @@ for pmda_package in \
     gfs2 gluster gpfs gpsd \
     hacluster haproxy hdb \
     infiniband \
-    json \
     libvirt lio lmsensors logger lustre lustrecomm \
     mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
     nutcracker nvidia \
-    openmetrics openvswitch oracle \
+    openmetrics opentelemetry openvswitch oracle \
     pdns perfevent podman postfix postgresql \
     rabbitmq redis resctrl rocestat roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
@@ -2539,7 +2542,8 @@ done
 
 for export_package in \
     pcp2arrow pcp2elasticsearch pcp2graphite pcp2influxdb pcp2json \
-    pcp2openmetrics pcp2spark pcp2xlsx pcp2xml pcp2zabbix zabbix-agent ; \
+    pcp2openmetrics pcp2spark pcp2xlsx pcp2xml pcp2opentelemetry \
+    pcp2zabbix zabbix-agent ; \
 do \
     export_packages="$export_packages pcp-export-$export_package"; \
 done
@@ -2738,11 +2742,6 @@ exit 0
 %{pmda_remove "$1" "statsd"}
 %endif
 
-%if !%{disable_json}
-%preun pmda-json
-%{pmda_remove "$1" "json"}
-%endif
-
 %preun pmda-nginx
 %{pmda_remove "$1" "nginx"}
 
@@ -2812,6 +2811,9 @@ exit 0
 
 %preun pmda-openmetrics
 %{pmda_remove "$1" "openmetrics"}
+
+%preun pmda-opentelemetry
+%{pmda_remove "$1" "opentelemetry"}
 
 %preun pmda-lustre
 %{pmda_remove "$1" "lustre"}
@@ -3014,7 +3016,11 @@ PCP_PMDAS_DIR=%{_pmdasdir}
 PCP_SYSCONFIG_DIR=%{_sysconfdir}/sysconfig
 PCP_PMCDCONF_PATH=%{_confdir}/pmcd/pmcd.conf
 # auto-install important PMDAs for RH Support (if not present already)
-for PMDA in dm nfsclient openmetrics ; do
+needinstall='dm'
+%if !%{disable_python3}
+needinstall="$needinstall nfsclient openmetrics opentelemetry"
+%endif
+for PMDA in $needinstall ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
         %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
@@ -3271,6 +3277,8 @@ fi
 
 %files export-pcp2openmetrics -f pcp-export-pcp2openmetrics-files.rpm
 
+%files export-pcp2opentelemetry -f pcp-export-pcp2opentelemetry-files.rpm
+
 %files export-pcp2spark -f pcp-export-pcp2spark-files.rpm
 
 %files export-pcp2xml -f pcp-export-pcp2xml-files.rpm
@@ -3296,10 +3304,6 @@ fi
 
 %files export-zabbix-agent -f pcp-export-zabbix-agent-files.rpm
 
-%if !%{disable_json}
-%files pmda-json -f pcp-pmda-json-files.rpm
-%endif
-
 %if !%{disable_python3}
 %files pmda-hdb -f pcp-pmda-hdb-files.rpm
 
@@ -3308,6 +3312,9 @@ fi
 %files pmda-lio -f pcp-pmda-lio-files.rpm
 
 %files pmda-openmetrics -f pcp-pmda-openmetrics-files.rpm
+%endif
+
+%files pmda-opentelemetry -f pcp-pmda-opentelemetry-files.rpm
 %endif
 
 %if !%{disable_amdgpu}

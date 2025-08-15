@@ -1,0 +1,86 @@
+#!/bin/sh
+# PCP QA Test No. 1888
+# test pmda opentelemetry labels
+#
+# Note: if anything gets added or changed in qa/opentelemetry/samples directory,
+# then this test (and all tests in group pmda.opentelemetry) will need to be remade.
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.opentelemetry
+
+_pmdaopentelemetry_check || _notrun "opentelemetry pmda and/or load generator not installed"
+
+_notrun "currently failing, needs analysis and updates"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_filter()
+{
+    sed \
+    -e 's/"userid":[0-9]*/"userid":NUM/' \
+    -e 's/"groupid":[0-9]*/"groupid":NUM/' \
+    -e 's/"url":"file:.*\.txt"/"url":FILEURL/' \
+    -e 's/"hostname":"[a-z0-9][a-z0-9_.-]*"/"hostname":HOSTNAME/' \
+    -e 's/"machineid":"[a-z0-9][a-z0-9_.-]*"/"machineid":MACHINEID/' \
+    -e 's/"domainname":"[a-z0-9][a-z0-9_.-]*"/"domainname":DOMAINNAME/' \
+    -e 's;'$PCP_PMDAS_DIR';PCP_PMDAS_DIR;'
+}
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+    _restore_config $PCP_ETC_DIR/pcp/labels
+    _sighup_pmcd
+    _pmdaopentelemetry_cleanup
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_prepare_pmda opentelemetry
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+_save_config $PCP_ETC_DIR/pcp/labels
+$sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
+
+_pmdaopentelemetry_save_config
+_pmdaopentelemetry_install
+
+# add all the sample text files as urls.
+ls -1 $here/opentelemetry/samples/*.txt | LC_COLLATE=POSIX sort | while read file
+do
+    urlbase=`basename $file .txt | tr .- _`
+    echo 'file://'$file > $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
+done
+
+# add all the sample scripts
+cp -a $here/opentelemetry/scripts/* $PCP_PMDAS_DIR/opentelemetry/config.d
+rm -f $PCP_PMDAS_DIR/opentelemetry/config.d/GNU*
+
+if ! _pmdaopentelemetry_wait_for_metric opentelemetry.simplemetric.metric1
+then
+    status=1
+    exit
+fi
+
+if pminfo -l `pminfo opentelemetry | grep -F -v opentelemetry.control | LC_COLLATE=POSIX sort` 2> $tmp.err | _filter | tee $tmp.info
+then
+    :
+else
+    echo "... failed! ... here is the Install log ..."
+    cat $tmp.out
+fi
+cat $tmp.info $tmp.err
+
+_pmdaopentelemetry_remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit

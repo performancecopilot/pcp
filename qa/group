@@ -231,7 +231,7 @@ pmda.hacluster
 pmda.haproxy
 pmda.hotproc
 pmda.jbd2
-pmda.json
+#pmda.json		# note this group has been retired
 pmda.kvm
 pmda.libvirt
 pmda.lio
@@ -256,6 +256,7 @@ pmda.nutcracker
 pmda.nvidia
 pmda.ohead
 pmda.openmetrics
+pmda.opentelemetry
 pmda.oracle
 pmda.perfevent
 pmda.pipe
@@ -456,6 +457,7 @@ pcp2xlsx
 pcp2xml
 pcp2zabbix
 pcp2openmetrics
+pcp2opentelemetry
 
 # ...2pcp
 collectl2pcp
@@ -1545,8 +1547,8 @@ pmcd.pdu
 1049 pmie pmieconf local
 1050 pmieconf local
 1051 pmieconf #696008 local
-1052 pmda.json local python dbpmda
-1053 pmda.json pmda.install local python
+1052:retired pmda.json local python dbpmda
+1053:retired pmda.json pmda.install local python
 1054 pmlogger pmcpp local pmlogdump kernel
 1055 pmlogger local pmlogdump pmstore folio pmda.sample pmlc
 1056 derive local kernel
@@ -1624,7 +1626,7 @@ pmcd.pdu
 1128 pmie local
 1129 derive local kernel
 1130 pcp2elasticsearch python pcp2xxx local pmjson
-1131 pcp2json python pcp2xxx local
+1131 pcp2json python pcp2openmetrics pcp2opentelemetry local
 1132 pcp2xlsx python pcp2xxx local kernel
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local python kernel pmjson
@@ -2123,10 +2125,12 @@ pmcd.pdu
 1627 libpcp_import local
 1628 libpcp_import valgrind local
 1630 pmlogrewrite local pmlogdump
+1632 pmda.opentelemetry local python
 1633 python pmda.sockets local
 1634 pmda.sockets local valgrind
 1639 pmda.bpf local
 1644 pmda.perfevent local
+1647 pmda.opentelemetry local
 1653 pmda.denki local
 1658 pmda.linux local
 1660 libpcp labels local
@@ -2135,6 +2139,7 @@ pmcd.pdu
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1673 pmda.bpf local
+1678 pmda.opentelemetry local python
 1679 pmlogconf local
 1680 openvswitch local
 1681 pmrep pcp2xxx pmlogconf local
@@ -2177,6 +2182,7 @@ pmcd.pdu
 1723 pmda.bpftrace local python
 1724 pmda.bpftrace local python
 1725 pmda.bpftrace local python
+1726 pmda.opentelemetry local python
 1727 pmproxy libpcp_web pmda.openmetrics local
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
@@ -2193,6 +2199,7 @@ pmcd.pdu
 1775 pmdumptext archive local
 1781 pmda.hdb local python
 1784 pmlogconf local
+1787 pmda.opentelemetry local python
 1788 pmda.linux local
 1793 pmrep pcp2xxx python local pmlogdump pmjson
 1794 pcp2arrow local
@@ -2234,7 +2241,9 @@ pmcd.pdu
 1877 pmproxy libpcp_web local
 1878 other local
 1886 pmseries libpcp_web local
+1888 pmda.opentelemetry local python
 1889 pmlogger local
+1890 pmda.opentelemetry local python
 1893 pmda.proc local
 1895 pmda.bpf local
 1896 pmlogger logutil pmlc local
@@ -2254,6 +2263,8 @@ pmcd.pdu
 1936 other local pmclient
 1937 pmlogrewrite pmda.xfs local pmlogdump
 1940 pmlogconf valgrind local
+1942 pmda.opentelemetry local python
+1948 pmda.opentelemetry local python
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
 1957 libpcp local valgrind
@@ -2261,6 +2272,7 @@ pmcd.pdu
 1970 pmda.bpf local
 1973 pcp zoneinfo python local
 1976 pmda.openmetrics python local
+1977 pcp2opentelemetry python local
 1978 atop local pmlogrewrite
 1984 pmlogconf pmda.redis local
 1985 pmfind local valgrind

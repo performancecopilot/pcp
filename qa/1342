@@ -65,7 +65,7 @@ FILTER: INCLUDE METRIC metric1
 FILTER: EXCLUDE METRIC .*
 
 # unrecognized keyword
-SOMECRAP: unrecognised
+SOMETEXT: unrecognised
 EOF
     $sudo cp $tmp.tmp $PCP_PMDAS_DIR/openmetrics/config.d/$urlbase.url
 

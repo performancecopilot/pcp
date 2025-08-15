@@ -46,7 +46,6 @@ python3
 py3-Pillow
 py3-defusedxml
 py3-elasticsearch
-py3-jsonpointer
 py3-libvirt
 py3-openpyxl
 py3-prometheus_client

@@ -1,0 +1,49 @@
+QA output created by 1647
+
+=== opentelemetry agent installation ===
+
+=== URL configuration file contains
+file://QA_DIR/opentelemetry/samples/simplemetric.txt
+
+# this is a comment and the next line is blank
+
+# basic standard headers
+HEADER: Accept: text/html
+HEADER: Keep-Alive: 300
+HEADER: Connection: keep-alive
+
+# header with two words in the value
+HEADER: Authorization: bearer ababbdbbebbbebdbbe5538003023
+
+# header with multiple words in the value and colons and spaces
+HEADER: Someheader: has: colons: and spaces in: it!!!!!!
+
+# various headers with assorted characters
+HEADER: Accept-Language: en-us,en;q=0.5
+HEADER: Accept-Encoding: gzip,deflate
+HEADER: Accept-Charset: ISO-8859-1,utf-8;q=0.7,*;q=0.7
+
+# Filter to include metric1 and exclude all other metrics
+# note: these are anchored regex matches (whole metric name must match)
+FILTER: INCLUDE METRIC metric1
+FILTER: EXCLUDE METRIC .*
+
+# unrecognized keyword
+SOMETEXT: unrecognised
+
+=== pminfo listing. Note opentelemetry.simplemetric.metric2 should be filtered out
+
+opentelemetry.simplemetric.metric1 PMID: 164.1.0 []
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+I am a Counter
+    value 5
+== Note: check 1647.full for log entries for the expected headers
+
+=== remove opentelemetry agent ===
+Culling the Performance Metrics Name Space ...
+opentelemetry ... done
+Updating the PMCD control file, and notifying PMCD ...
+[...removing files...]
+Check opentelemetry metrics have gone away ... OK

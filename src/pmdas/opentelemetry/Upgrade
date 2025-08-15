@@ -1,26 +1,29 @@
-#! /bin/sh
+#!/bin/sh
 #
-# Copyright (c) 2014-2015 Red Hat.
-# 
+# Copyright (c) 2025 Red Hat.
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
-# Remove the json PMDA
+#
+# Drop any installation with the original JSON PMDA.
+#
+# Simply remove it - either OpenTelemetry (JSON) or OpenMetrics (Ceph) can
+# replace it, but we do not know which (and both installed from zeroconf).
 #
 
 . $PCP_DIR/etc/pcp.env
-. $PCP_SHARE_DIR/lib/pmdaproc.sh
 
-iam=json
-python_opt=true
+if grep -q ^json "$PCP_PMCDCONF_PATH" 2>/dev/null
+then
+    sed -i -e "/pmdajson/d" "$PCP_PMCDCONF_PATH" 2>/dev/null
+    rm -f "$PCP_VAR_DIR/pmns/json" 2>/dev/null
+fi
 
-pmdaSetup
-pmdaRemove
-exit
+exit 0

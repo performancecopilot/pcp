@@ -17,9 +17,6 @@
 #include "pmwebapi.h"
 #include "dict.h"
 
-/* convert PCP metric name to Open Telemetry form */
-extern sds open_telemetry_name(sds);
-
 /* convert PCP metric semantics to Open Telemetry form */
 const char *open_telemetry_semantics(sds);
 

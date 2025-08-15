@@ -1,0 +1,95 @@
+#!/bin/sh
+# PCP QA Test No. 1942
+# Test pmdaopentelemetry install, "notready" and large initial configs.
+# This also exercises pmdaSendError() and the associated python API
+# functions which are used by pmdaopentelemetry to tell PMCD that it
+# has finished processing the initial config on startup and is now
+# ready to process requests. Also tests the pmdaproc.sh fix for
+# $ipc_prot="binary notready".
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.opentelemetry
+
+_pmdaopentelemetry_check || _notrun "opentelemetry pmda and/or load generator not installed"
+
+_notrun "currently failing, needs analysis and updates"
+
+status=1        # failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+
+_cleanup()
+{
+    cd $here
+    _pmdaopentelemetry_cleanup
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_prepare_pmda opentelemetry
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+_pmdaopentelemetry_save_config
+
+# add a whopping set of URL configs to exercise the notready stuff
+for i in $(seq 1 500)
+do
+    file=$here/opentelemetry/samples/simplemetric.txt
+    urlbase=`basename $file .txt | tr .- _`
+    echo 'file://'$file > $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase$i.url
+done
+
+_pmdaopentelemetry_install
+
+if ! _pmdaopentelemetry_wait_for_metric opentelemetry.control.calls
+then
+    exit
+fi
+
+echo; echo === check \"notready\" appeared in pmcd.conf
+sed <$PCP_PMCDCONF_PATH >$tmp.tmp \
+    -e "s@[     ]$PCP_PYTHON_PROG[      ]@ PYTHON_PROG @" \
+    -e "s@[     ]`basename $PCP_PYTHON_PROG`[   ]@ PYTHON @" \
+    # done
+if grep 'opentelemetry.*notready' $tmp.tmp
+then
+    :
+else
+    echo "Oops ... here is $PCP_PMCDCONF_PATH"
+    cat $PCP_PMCDCONF_PATH
+    exit
+fi
+
+## echo === enable verbose log
+## pmstore opentelemetry.control.debug 1
+
+echo; echo === pminfo listing.
+names=`pminfo opentelemetry | grep -F -v opentelemetry.control | LC_COLLATE=POSIX sort` 2>$tmp.err
+if [ -z "$names" ]; then
+    echo "FAILED - no opentelemetry metrics to show"
+else
+    if pminfo -dtTf `pminfo opentelemetry | grep -F -v opentelemetry.control | LC_COLLATE=POSIX sort` > $tmp.info 2>$tmp.err
+    then
+        :
+    else
+        echo "... failed! ... here is the Install log ..."
+        cat $tmp.out
+    fi
+    cat $tmp.info $tmp.err
+fi
+
+echo == Note: check $seq.full for expected log entries
+echo == pmdaopentelemetry LOG == >>$here/$seq.full
+cat $PCP_LOG_DIR/pmcd/opentelemetry.log >>$here/$seq.full
+grep -E 'Ready to process requests|notready' $PCP_LOG_DIR/pmcd/opentelemetry.log | \
+sed -e 's/\[.*\]/[DATE]/' -e 's/([0-9]*)/(PID)/'
+
+_pmdaopentelemetry_remove > /dev/null 2>&1
+
+# success, all done
+status=0
+exit

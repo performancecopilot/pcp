@@ -143,13 +143,6 @@ else
     echo 's/?{python}, //' >>$tmp.sed
 fi
 
-if $HAVE_PYTHON_JSONPOINTER
-then
-    echo 's/?{python-json-pointer}, /python3-json-pointer, /' >>$tmp.sed
-else
-    echo 's/?{python-json-pointer}, //' >>$tmp.sed
-fi
-
 if $HAVE_PYTHON_OPENPYXL
 then
     echo 's/?{python-openpyxl}, /python3-openpyxl, /' >>$tmp.sed
@@ -318,17 +311,6 @@ then
     echo 's/?{python-urllib3}, /python3-urllib3, /' >>$tmp.sed
 else
     echo 's/?{python-urllib3}, //' >>$tmp.sed
-fi
-
-# build needs python3-six and python3-json-pointer and
-# OrderedDict module (from libpython that will be there)
-# for json PMDA
-# - python3-six done above for $HAVE_PYTHON_SIX
-# - python3-json-pointer done above for $HAVE_PYTHON_JSONPOINTER
-#
-if $PMDA_JSON
-then
-    :
 fi
 
 # build needs libdbi-perl and libdbd-mysql-perl for mysql and

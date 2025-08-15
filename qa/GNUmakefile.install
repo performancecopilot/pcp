@@ -16,7 +16,7 @@ include $(PCP_INC_DIR)/builddefs
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
-	  java mmv postfix perl json slurm tmparch sheet smart hacluster denki
+	  java mmv postfix perl slurm tmparch sheet smart hacluster denki
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif

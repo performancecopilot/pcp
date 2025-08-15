@@ -14,6 +14,8 @@ dnl or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 dnl for more details.
 dnl
 
+configopts="`rpmbuild --eval '--exec-prefix=%{_exec_prefix} --bindir=%{_bindir} --sbindir=%{_sbindir} --sysconfdir=%{_sysconfdir} --datadir=%{_datadir} --includedir=%{_includedir} --libdir=%{_libdir} --libexecdir=%{_libexecdir} --localstatedir=%{_localstatedir} --sharedstatedir=%{_sharedstatedir} --mandir=%{_mandir} --prefix=%{_prefix}' 2>/dev/null`"
+
 dnl unpacking check - this file must exist
 AC_INIT
 AC_CONFIG_SRCDIR([src/include/pcp/pmapi.h])
@@ -1141,8 +1143,6 @@ PCP_CHECK_PYTHON_MODULE(BPF, [from bcc import BPF])
 AC_SUBST(have_python_BPF)
 PCP_CHECK_PYTHON_MODULE(OrderedDict, [from collections import OrderedDict])
 AC_SUBST(have_python_OrderedDict)
-PCP_CHECK_PYTHON_MODULE(jsonpointer)
-AC_SUBST(have_python_jsonpointer)
 PCP_CHECK_PYTHON_MODULE(openpyxl)
 AC_SUBST(have_python_openpyxl)
 PCP_CHECK_PYTHON_MODULE(pyarrow)
@@ -1166,17 +1166,6 @@ then
 fi
 AC_SUBST(have_python_influxdb)
 if $have_python_influxdb; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-AC_MSG_CHECKING([if the json PMDA should be included])
-pmda_json=false
-AS_IF([test "x$do_pmdajson" = "xyes"], [pmda_json=true])
-AS_IF([test "x$do_pmdajson" = "xcheck"], [
-    dnl JSON PMDA needs both the six and jsonpointer Python modules
-    $have_python_jsonpointer && $have_python_six && \
-	$have_python_OrderedDict && pmda_json=true
-])
-AC_SUBST(PMDA_JSON, $pmda_json)
-if $pmda_json; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the bcc PMDA should be included])
 pmda_bcc=false
@@ -1531,6 +1520,15 @@ then
 fi
 AC_SUBST(PMDA_OPENMETRICS, $pmda_openmetrics)
 if $pmda_openmetrics; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
+
+AC_MSG_CHECKING([if the OpenTelemetry PMDA should be included])
+pmda_opentelemetry=false
+if test "$have_python" = true
+then
+    $have_python_requests && $have_python_OrderedDict && pmda_opentelemetry=true
+fi
+AC_SUBST(PMDA_OPENTELEMETRY, $pmda_opentelemetry)
+if $pmda_opentelemetry; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 AC_MSG_CHECKING([if the SQL Server PMDA should be included])
 pmda_mssql=false

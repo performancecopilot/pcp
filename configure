@@ -827,6 +827,7 @@ QMAKE
 PMDA_RESCTRL
 PMDA_LIBVIRT
 PMDA_MSSQL
+PMDA_OPENTELEMETRY
 PMDA_OPENMETRICS
 PMDA_LIO
 PMDA_NUTCRACKER
@@ -860,7 +861,6 @@ HAVE_LIBBPF
 libbpf_LIBS
 libbpf_CFLAGS
 PMDA_BCC
-PMDA_JSON
 have_python_influxdb
 have_python_six
 have_python_libvirt
@@ -869,7 +869,6 @@ have_python_setuptools
 have_python_pyodbc
 have_python_pyarrow
 have_python_openpyxl
-have_python_jsonpointer
 have_python_OrderedDict
 have_python_BPF
 enable_dstat
@@ -8791,28 +8790,6 @@ printf "%s\n" "no" >&6; }
     fi
 
 
- { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Python module jsonpointer" >&5
-printf %s "checking for Python module jsonpointer... " >&6; }
-    if test -n ""
-    then
-	txt=""
-    else
-	txt="import jsonpointer"
-    fi
-    $pcp_python_prog -c 'import sys;
-'"$txt" >>config.log 2>&1
-    if test "$?" = 0
-    then
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-	eval have_python_jsonpointer=true
-    else
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-	eval have_python_jsonpointer=false
-    fi
-
-
  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Python module openpyxl" >&5
 printf %s "checking for Python module openpyxl... " >&6; }
     if test -n ""
@@ -8977,26 +8954,6 @@ then
 fi
 
 if $have_python_influxdb; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }; fi
-
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the json PMDA should be included" >&5
-printf %s "checking if the json PMDA should be included... " >&6; }
-pmda_json=false
-if test "x$do_pmdajson" = "xyes"
-then :
-  pmda_json=true
-fi
-if test "x$do_pmdajson" = "xcheck"
-then :
-
-        $have_python_jsonpointer && $have_python_six && \
-	$have_python_OrderedDict && pmda_json=true
-
-fi
-PMDA_JSON=$pmda_json
-
-if $pmda_json; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
 
@@ -9743,6 +9700,19 @@ fi
 PMDA_OPENMETRICS=$pmda_openmetrics
 
 if $pmda_openmetrics; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }; fi
+
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if the OpenTelemetry PMDA should be included" >&5
+printf %s "checking if the OpenTelemetry PMDA should be included... " >&6; }
+pmda_opentelemetry=false
+if test "$have_python" = true
+then
+    $have_python_requests && $have_python_OrderedDict && pmda_opentelemetry=true
+fi
+PMDA_OPENTELEMETRY=$pmda_opentelemetry
+
+if $pmda_opentelemetry; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
 

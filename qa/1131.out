@@ -2271,13 +2271,98 @@ QA output created by 1131
 # HELP hinv_ncpu number of CPUs in the system
 # PCP5 hinv_ncpu 60.0.32 u32 PM_INDOM_NULL discrete
 # TYPE hinv_ncpu gauge
-hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} NCPU
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
 ---
 # EOF
 # HELP hinv_ncpu number of CPUs in the system
 # TYPE hinv_ncpu gauge
-hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} NCPU
-hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="linux"} NCPU
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
+hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
+---
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+	"attributes": [
+	  {
+	    "key": "domainname",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  },
+	  {
+	    "key": "groupid",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  },
+	  {
+	    "key": "hostname",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  },
+	  {
+	    "key": "machineid",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  },
+	  {
+	    "key": "userid",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  }
+	]
+      },
+      "scopeMetrics": [
+	{
+	  "metrics": [
+	    {
+	      "name": "hinv.ncpu",
+	      "unit": "1",
+	      "description": "number of CPUs in the system",
+	      "gauge": {
+		"dataPoints": [
+		  {
+		    "asInt": INTEGER,
+		    "timeUnixNano": TIME
+		    "attributes": [
+		      {
+			"key": "semantics",
+			"value": {
+			  "stringValue": "STRING"
+			}
+		      },
+		      {
+			"key": "type",
+			"value": {
+			  "stringValue": "STRING"
+			}
+		      },
+		      {
+			"key": "agent",
+			"value": {
+			  "stringValue": "STRING"
+			}
+		      }
+		    ]
+		  }
+		]
+	      }
+	    }
+	  ],
+	  "scope": {
+	    "name": "performance-co-pilot",
+	    "version": VERSION
+	  }
+	}
+      ]
+    }
+  ]
+}
+
 ---
 {
   "@pcp": {

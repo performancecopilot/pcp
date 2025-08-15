@@ -1,0 +1,101 @@
+QA output created by 1977
+pcp2opentelemetry invocation
+pcp2opentelemetry HTTP POST (sorted):
+INFO:root:Starting httpd...
+
+INFO:root:POST request,
+Path: /receive
+Headers:
+Host: localhost:PORT
+User-Agent: python-requests VERSION
+Accept: */*
+Content-Type: application/json
+Content-Length: SIZE
+
+
+
+Body:
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+	"attributes": [
+	  {
+	    "key": "domainname",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  },
+	  {
+	    "key": "groupid",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  },
+	  {
+	    "key": "hostname",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  },
+	  {
+	    "key": "machineid",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  },
+	  {
+	    "key": "userid",
+	    "value": {
+	      "stringValue": "STRING"
+	    }
+	  }
+	]
+      },
+      "scopeMetrics": [
+	{
+	  "metrics": [
+	    {
+	      "name": "hinv.ncpu",
+	      "unit": "1",
+	      "description": "number of CPUs in the system",
+	      "gauge": {
+		"dataPoints": [
+		  {
+		    "asInt": INTEGER,
+		    "timeUnixNano": TIME
+		    "attributes": [
+		      {
+			"key": "semantics",
+			"value": {
+			  "stringValue": "STRING"
+			}
+		      },
+		      {
+			"key": "type",
+			"value": {
+			  "stringValue": "STRING"
+			}
+		      },
+		      {
+			"key": "agent",
+			"value": {
+			  "stringValue": "STRING"
+			}
+		      }
+		    ]
+		  }
+		]
+	      }
+	    }
+	  ],
+	  "scope": {
+	    "name": "performance-co-pilot",
+	    "version": VERSION
+	  }
+	}
+      ]
+    }
+  ]
+}
+

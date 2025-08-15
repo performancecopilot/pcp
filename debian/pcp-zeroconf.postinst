@@ -1,7 +1,7 @@
 #!/bin/sh -e
 #DEBHELPER#
 
-for PMDA in dm nfsclient openmetrics ; do
+for PMDA in dm nfsclient openmetrics opentelemetry ; do
     if ! grep -q "$PMDA/pmda$PMDA" /etc/pcp/pmcd/pmcd.conf
     then
         if test -d "/var/lib/pcp/pmdas/$PMDA"

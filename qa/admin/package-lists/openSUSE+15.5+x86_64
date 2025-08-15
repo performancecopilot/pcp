@@ -104,7 +104,6 @@ python3-bcc
 python3-curses
 python3-devel
 python3-elasticsearch
-python3-jsonpointer
 python3-libvirt-python
 python3-lxml
 python3-openpyxl

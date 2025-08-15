@@ -124,7 +124,7 @@ do
 # tags - tags to search for in group file for -w
 pmrep|pmlogger_daily_report:pmrep:pmrep python
 _prepare_pmda bcc:bcc PMDA:pmda.bcc python
-pmdajson.python:json PMDA:pmda.json python
+pmdaopentelemetry.python:opentelemetry PMDA:pmda.opentelemetry python
 _pmdaopenmetrics_install:openmetrics PMDA:pmda.openmetrics python
 PCP_PMDAS_DIR/unbound:unbound PMDA:pmda.unbound python
 pmdalio.python:lio PMDA:pmda.lio python

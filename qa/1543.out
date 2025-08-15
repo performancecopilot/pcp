@@ -1129,7 +1129,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                     },
                     "metrics": [
                         {
-                            "name": "sample_long_one",
+                            "name": "sample.long.one",
                             "description": "1 as a 32-bit integer",
                             "unit": "1",
                             "gauge": {
@@ -1213,7 +1213,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                     },
                     "metrics": [
                         {
-                            "name": "sample_long_one",
+                            "name": "sample.long.one",
                             "description": "1 as a 32-bit integer",
                             "unit": "1",
                             "gauge": {
@@ -1258,7 +1258,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_long_ten",
+                            "name": "sample.long.ten",
                             "description": "10 as a 32-bit integer",
                             "unit": "1",
                             "gauge": {
@@ -1348,7 +1348,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                     },
                     "metrics": [
                         {
-                            "name": "sample_long_one",
+                            "name": "sample.long.one",
                             "description": "1 as a 32-bit integer",
                             "unit": "1",
                             "gauge": {
@@ -1393,7 +1393,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_long_ten",
+                            "name": "sample.long.ten",
                             "description": "10 as a 32-bit integer",
                             "unit": "1",
                             "gauge": {
@@ -1438,7 +1438,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_long_hundred",
+                            "name": "sample.long.hundred",
                             "description": "100 as a 32-bit integer",
                             "unit": "1",
                             "gauge": {
@@ -1483,7 +1483,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_long_million",
+                            "name": "sample.long.million",
                             "description": "1000000 as a 32-bit integer",
                             "unit": "1",
                             "gauge": {
@@ -1528,7 +1528,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_long_write_me",
+                            "name": "sample.long.write_me",
                             "description": "a 32-bit integer that can be modified",
                             "unit": "1",
                             "gauge": {
@@ -1579,7 +1579,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_dupnames_five_long_bin",
+                            "name": "sample.dupnames.five.long_bin",
                             "description": "like sample.bin but type 32",
                             "unit": "1",
                             "gauge": {
@@ -2074,7 +2074,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_long_bin",
+                            "name": "sample.long.bin",
                             "description": "like sample.bin but type 32",
                             "unit": "1",
                             "gauge": {
@@ -2569,7 +2569,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_long_bin_ctr",
+                            "name": "sample.long.bin_ctr",
                             "description": "like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE",
                             "unit": "KiBy",
                             "sum": {
@@ -3105,7 +3105,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                     },
                     "metrics": [
                         {
-                            "name": "sample_dupnames_four_colour",
+                            "name": "sample.dupnames.four.colour",
                             "description": "Metrics with a \"saw-tooth\" trend over time",
                             "unit": "1",
                             "gauge": {
@@ -3276,7 +3276,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                             }
                         },
                         {
-                            "name": "sample_colour",
+                            "name": "sample.colour",
                             "description": "Metrics with a \"saw-tooth\" trend over time",
                             "unit": "1",
                             "gauge": {
@@ -3486,7 +3486,7 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                     },
                     "metrics": [
                         {
-                            "name": "sample_long_one",
+                            "name": "sample.long.one",
                             "description": "1 as a 32-bit integer",
                             "unit": "1",
                             "gauge": {

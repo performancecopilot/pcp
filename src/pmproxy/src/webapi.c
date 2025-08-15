@@ -642,17 +642,16 @@ add_metric_metadata(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape)
     pmWebMetric		*metric = &scrape->metric;
     const char		*sem = open_telemetry_semantics(metric->sem);
     sds			units = open_telemetry_units(metric->units);
-    sds			name = open_telemetry_name(metric->name);
     sds			quoted;
 
     quoted = sdscatrepr(sdsempty(), metric->oneline, sdslen(metric->oneline));
+    /* https://opentelemetry.io/docs/specs/semconv/general/naming/ */
     result = sdscatfmt(result, "{\"name\":\"%S\","
 				"\"description\":%S,"
 				"\"unit\":\"%S\","
-				"\"%s\":{", name, quoted, units, sem);
+				"\"%s\":{", metric->name, quoted, units, sem);
     sdsfree(quoted);
     sdsfree(units);
-    sdsfree(name);
 
     if (strcmp(metric->sem, "counter") == 0)
 	result = sdscatfmt(result,
@@ -706,8 +705,8 @@ add_metric_datapoint(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape, in
  *         "name": "[PCP name]", "version", "[PCP version]"
  *       },
  *       "metrics": [ {
- *         "name": ... # metric name
- *         "description": ... # oneline text
+ *         "name": ... # PCP metric name
+ *         "description": ... # PCP oneline text
  *         "unit": ...,	# UCUM unit string
  *         "sum" | "gauge": {  # metric type
  *           "aggregationTemporality": "CUMULATIVE",  # for "sum" (counter)

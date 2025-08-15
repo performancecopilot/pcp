@@ -38,7 +38,7 @@ hdr_duration_aggregation = utils.configs["duration_aggregation_type"][1]
 def run_test():
     utils.print_test_section_separator()
     utils.pmdastatsd_install(hdr_duration_aggregation)
-    for i in range(0, 10000001):
+    for i in range(0, expected_count_max):
         sock.sendto("test_hdr:{}|ms".format(i * 2).encode("utf-8"), (ip, port))
     labels_output = utils.request_metric("statsd.test_hdr")
     output = utils.get_instances(labels_output)
