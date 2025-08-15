@@ -436,6 +436,8 @@ class PCP2OPENTELEMETRY(object):
         def attribute_converter(a_dictionary):
             entry_list = []
             for key, value in a_dictionary.items():
+                if not isinstance(value, (bytes, str)):
+                    value = str(value) # ensure double quotes later
                 new_dictionary = {"key": key, "value": {"stringValue": value}}
                 entry_list.append(new_dictionary)
             return entry_list

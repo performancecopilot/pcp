@@ -1626,7 +1626,7 @@ pmcd.pdu
 1128 pmie local
 1129 derive local kernel
 1130 pcp2elasticsearch python pcp2xxx local pmjson
-1131 pcp2json python pcp2xxx local
+1131 pcp2json python pcp2openmetrics pcp2opentelemetry local
 1132 pcp2xlsx python pcp2xxx local kernel
 1133 pcp2xml python pcp2xxx local
 1134 pmrep pcp2json pcp2xml python pcp2xxx local python kernel pmjson

@@ -21,9 +21,6 @@ _cleanup()
 }
 
 status=0    # success is the default!
-hostname=`hostname`
-machineid=`_machine_id`
-domainid=`_domain_name`
 $sudo rm -rf $tmp $tmp.* $seq.full
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -32,14 +29,11 @@ _filter_pcp2opentelemetry_http()
    tee -a $here/$seq.full \
    | col -b \
    | sed \
-       -e '/\"asDouble\":/ s/[0-9][0-9]*/NCPU/' \
-       -e 's/\"'$machineid'\"/MACHINEID/' \
-       -e 's/\"'$hostname'\"/HOSTNAME/' \
-       -e 's/\"'$domainid'\"/DOMAINID/' \
+       -e '/\"asInt\":/ s/[0-9][0-9]*/INTEGER/' \
+       -e '/\"asDouble\":/ s/[0-9][0-9]*/DOUBLE/' \
        -e 's/\"version\": .*/\"version\": VERSION/' \
-       -e 's/\"timeUnixNano\": [0-9][0-9]*\.[0-9][0-9]*.*/\"timeUnixNano\": TIME/' \
        -e 's/\"stringValue\": \".*\"/\"stringValue\": \"STRING\"/' \
-       -e 's/\"asInt\": [0-9][0-9]*/\"asInt\": INTEGER/' \
+       -e 's/\"timeUnixNano\": [0-9][0-9]*\.[0-9][0-9]*.*/\"timeUnixNano\": TIME/' \
        -e '/HTTP/d'
 } >> $tmp.python2.out
 

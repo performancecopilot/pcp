@@ -2287,31 +2287,31 @@ hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MAC
 	  {
 	    "key": "domainname",
 	    "value": {
-	      "stringValue": DOMAINID
+	      "stringValue": "STRING"
 	    }
 	  },
 	  {
 	    "key": "groupid",
 	    "value": {
-	      "stringValue": USER/GROUP ID
+	      "stringValue": "STRING"
 	    }
 	  },
 	  {
 	    "key": "hostname",
 	    "value": {
-	      "stringValue": HOSTNAME
+	      "stringValue": "STRING"
 	    }
 	  },
 	  {
 	    "key": "machineid",
 	    "value": {
-	      "stringValue": MACHINEID
+	      "stringValue": "STRING"
 	    }
 	  },
 	  {
 	    "key": "userid",
 	    "value": {
-	      "stringValue": USER/GROUP ID
+	      "stringValue": "STRING"
 	    }
 	  }
 	]
@@ -2326,25 +2326,25 @@ hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MAC
 	      "gauge": {
 		"dataPoints": [
 		  {
-		    "asInt": NCPU,
+		    "asInt": INTEGER,
 		    "timeUnixNano": TIME
 		    "attributes": [
 		      {
 			"key": "semantics",
 			"value": {
-			  "stringValue": "discrete"
+			  "stringValue": "STRING"
 			}
 		      },
 		      {
 			"key": "type",
 			"value": {
-			  "stringValue": "u32"
+			  "stringValue": "STRING"
 			}
 		      },
 		      {
 			"key": "agent",
 			"value": {
-			  "stringValue": AGENT
+			  "stringValue": "STRING"
 			}
 		      }
 		    ]

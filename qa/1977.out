@@ -23,7 +23,7 @@ Body:
 	  {
 	    "key": "domainname",
 	    "value": {
-	      "stringValue": DOMAINID
+	      "stringValue": "STRING"
 	    }
 	  },
 	  {
@@ -35,13 +35,13 @@ Body:
 	  {
 	    "key": "hostname",
 	    "value": {
-	      "stringValue": HOSTNAME
+	      "stringValue": "STRING"
 	    }
 	  },
 	  {
 	    "key": "machineid",
 	    "value": {
-	      "stringValue": MACHINEID
+	      "stringValue": "STRING"
 	    }
 	  },
 	  {
