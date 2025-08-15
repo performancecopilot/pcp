@@ -17,9 +17,12 @@ RUN mkdir /build && \
       pcp-libs-$release.x86_64.rpm \
       pcp-system-tools-$release.x86_64.rpm \
       pcp-zeroconf-$release.x86_64.rpm \
+      pcp-pmda-bpf-$release.x86_64.rpm \
+      pcp-pmda-bpftrace-$release.x86_64.rpm \
       pcp-pmda-dm-$release.x86_64.rpm \
       pcp-pmda-nfsclient-$release.x86_64.rpm \
       pcp-pmda-openmetrics-$release.x86_64.rpm \
+      pcp-pmda-opentelemetry-$release.x86_64.rpm \
       python3-pcp-$release.x86_64.rpm \
       /build
 
