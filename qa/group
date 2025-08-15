@@ -2239,6 +2239,7 @@ pmcd.pdu
 1876 pmcd secure local
 1877 pmproxy libpcp_web local
 1878 other local
+1881 pcp local
 1886 pmseries libpcp_web local
 1888 pmda.opentelemetry local python
 1889 pmlogger local
