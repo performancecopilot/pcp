@@ -189,7 +189,7 @@ def main():
     parser.add_argument('-p', "--port", type=str)
     parser.add_argument('-Z', "--timezone", type=str)
     args = parser.parse_args()
-    dash = 'http://localhost:3000/d/pcp-archive-analysis/pcp-archive-analysis'
+    dash = 'http://localhost:3000/dashboards'
     logging.basicConfig(level=logging.INFO, format="%(message)s")
     logging.info("Starting Performance Co-Pilot archive import...")
     logging.info("Dashboard: %s (when using default instructions)", dash)
