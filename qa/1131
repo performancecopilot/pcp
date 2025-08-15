@@ -48,6 +48,7 @@ _filter_pcp2openmetrics()
     -e '/machineid=/s/'$machineid'/MACHINEID/' \
     -e '/groupid=/s/groupid="*[0-9][0-9]*"*/groupid="GROUPID"/' \
     -e '/userid=/s/userid="*[0-9][0-9]*"*/userid="USERID"/' \
+    -e '/version=/s/version="*[^"]*"*/version="VERSION"/' \
     -e '/agent=/s/agent="*[^"]*"*/agent="AGENT"/' \
     -e '/hostname=/s/'$hostname'/HOST/' \
     -e 's/\(.*}\).*/\1 NCPU/' \

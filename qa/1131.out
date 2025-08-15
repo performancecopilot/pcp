@@ -2354,8 +2354,8 @@ hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MAC
 	    }
 	  ],
 	  "scope": {
-	    "name": "performance co-pilot",
-	    "version": "7.0.0"
+	    "name": "performance-co-pilot",
+	    "version": VERSION
 	  }
 	}
       ]

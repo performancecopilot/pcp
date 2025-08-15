@@ -90,7 +90,7 @@ Body:
 	    }
 	  ],
 	  "scope": {
-	    "name": "performance co-pilot",
+	    "name": "performance-co-pilot",
 	    "version": VERSION
 	  }
 	}

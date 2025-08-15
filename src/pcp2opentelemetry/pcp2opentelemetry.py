@@ -452,7 +452,7 @@ class PCP2OPENTELEMETRY(object):
         # produce scope attributes
         def scope_function(context):
             scope_body = {}
-            scope_body["name"] = "performance co-pilot"
+            scope_body["name"] = "performance-co-pilot"
             scope_body["version"] = context.pmGetConfig('PCP_VERSION')
             return scope_body
 
