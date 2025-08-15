@@ -611,7 +611,7 @@ Summary: Performance Co-Pilot tools for exporting PCP metrics in OpenTelemetry f
 URL: https://pcp.io
 Requires: pcp-libs >= @package_version@
 Requires: python3-pcp = @package_version@
-Obsoletes: pcp-pmda-json < 7.0.0
+Obsoletes: pcp-pmda-json <= 7.0.0
 
 %description export-pcp2opentelemetry
 Performance Co-Pilot (PCP) front-end tools for exporting metric values

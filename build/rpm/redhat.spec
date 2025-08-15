@@ -1722,7 +1722,7 @@ Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: python3-pcp
 Requires: python3-requests
 BuildRequires: python3-requests
-Obsoletes: pcp-pmda-json < 7.0.0
+Obsoletes: pcp-pmda-json <= 7.0.0
 %description pmda-opentelemetry
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting metrics from OpenTelemetry (https://opentelemetry.io/) endpoints.
