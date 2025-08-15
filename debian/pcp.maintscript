@@ -38,7 +38,8 @@ rm_conffile /etc/pcp/htop/columns/guest
 rm_conffile /etc/pcp/htop/columns/memory
 rm_conffile /etc/pcp/htop/columns/sched
 rm_conffile /etc/pcp/htop/columns/swap
-rm_conffile /etc/pcp/htop/columns/tcp rm_conffile /etc/pcp/htop/columns/udp
+rm_conffile /etc/pcp/htop/columns/tcp
+rm_conffile /etc/pcp/htop/columns/udp
 rm_conffile /etc/pcp/htop/columns/wchan
 rm_conffile /etc/pcp/htop/meters/entropy
 rm_conffile /etc/pcp/htop/meters/freespace
