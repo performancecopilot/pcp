@@ -27,9 +27,9 @@ chmod 775 /var/log/pcp
 # we used to dink with /var/run/pcp here, but that is done more
 # safely in pcp-reboot-init now
 
-# must match src/pmdas/{json,bash,mmv}/GNUmakefile
+# must match src/pmdas/{bash,mmv}/GNUmakefile
 #
-for PMDA in bash json mmv; do
+for PMDA in bash mmv; do
     # directory may be in optionally build component, so test first
     #
     if [ -d /var/lib/pcp/tmp/$PMDA ]

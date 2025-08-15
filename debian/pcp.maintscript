@@ -29,6 +29,7 @@ rm_conffile /etc/bash_completion.d/pcp
 rm_conffile /etc/cron.d/pcp-pmie
 rm_conffile /etc/cron.d/pcp-pmlogger
 rm_conffile /etc/cron.d/pcp-pmlogger-daily-report
+rm_conffile /etc/init.d/pcp
 rm_conffile /etc/pcp.sh
 rm_conffile /etc/pcp/htop/columns/container
 rm_conffile /etc/pcp/htop/columns/delayacct
@@ -37,8 +38,7 @@ rm_conffile /etc/pcp/htop/columns/guest
 rm_conffile /etc/pcp/htop/columns/memory
 rm_conffile /etc/pcp/htop/columns/sched
 rm_conffile /etc/pcp/htop/columns/swap
-rm_conffile /etc/pcp/htop/columns/tcp
-rm_conffile /etc/pcp/htop/columns/udp
+rm_conffile /etc/pcp/htop/columns/tcp rm_conffile /etc/pcp/htop/columns/udp
 rm_conffile /etc/pcp/htop/columns/wchan
 rm_conffile /etc/pcp/htop/meters/entropy
 rm_conffile /etc/pcp/htop/meters/freespace
@@ -49,6 +49,7 @@ rm_conffile /etc/pcp/htop/meters/mysql
 rm_conffile /etc/pcp/htop/meters/postfix
 rm_conffile /etc/pcp/htop/meters/redis
 rm_conffile /etc/pcp/htop/meters/tcp
+rm_conffile /etc/pcp/json/config.json
 rm_conffile /etc/pcp/openmetrics/config.d/collectd.url
 rm_conffile /etc/pcp/openmetrics/config.d/etcd.url
 rm_conffile /etc/pcp/openmetrics/config.d/grafana.url
