@@ -12,20 +12,17 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# Convert an installation with the original JSON PMDA to OpenTelemetry.
+# Drop any installation with the original JSON PMDA.
+#
+# Simply remove it - either OpenTelemetry (JSON) or OpenMetrics (Ceph) can
+# replace it, but we do not know which (and both installed from zeroconf).
 #
 
 . $PCP_DIR/etc/pcp.env
 
 if grep -q ^json "$PCP_PMCDCONF_PATH" 2>/dev/null
 then
-    if grep -q ^opentelemetry "$PCP_PMCDCONF_PATH" 2>/dev/null
-    then
-	# already have an opentelemetry PMDA install here
-	sed -i -e "/pmdajson/d" $PCP_PMCDCONF_PATH 2>/dev/null
-    else
-	sed -i -e "s,json,opentelemetry,g" $PCP_PMCDCONF_PATH 2>/dev/null
-    fi
+    sed -i -e "/pmdajson/d" "$PCP_PMCDCONF_PATH" 2>/dev/null
     rm -f "$PCP_VAR_DIR/pmns/json" 2>/dev/null
 fi
 
