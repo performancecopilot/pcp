@@ -15,33 +15,4 @@ echo "QA output created by $seq"
 
 _check_containers
 
-which pmmgr >/dev/null 2>&1 || _notrun "No pmmgr binary installed"
-echo pmmgr ok
-
-which docker >/dev/null 2>&1 || _notrun "No docker binary installed"
-docker info >/dev/null 2>&1 || _notrun "missing docker permissions or service"
-
-# Run the docker smoke-tester under /usr/bin/timeout control
-if which timeout >/dev/null; then
-    timeout -k 10s 60s docker run --rm busybox true || _notrun "failed docker smoke-test"
-else    
-    docker run --rm busybox true || _notrun "failed docker smoke-test"
-fi
-echo docker ok
-
-# kubectl installed?
-if which kubectl >/dev/null; then :; else _notrun "kubectl not installed"; fi
-
-# kubectl running?
-kubectl get pods -o json >/dev/null 2>&1 || _notrun "failed kubectl smoke-test"
-echo kubectl ok
-
-# TODO: the rest of this test would be somewhat similar to qa/668
-# Basically, set up a pmmgr config with target-kubectl-pod then start
-# some container/pods, and check the pmmgr target-kubectl-pod commands
-# correctly probe them using the arguments in the config file.
-#
-_notrun "qa test is work in progress"
-
-status=0
-exit
+_notrun "retired and culled"
