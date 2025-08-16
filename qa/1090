@@ -51,7 +51,7 @@ _get_context()
     curl -s "http://localhost:$port/pmapi/context?hostspec=localhost&polltimeout=50000" >$tmp.out 2>$tmp.err
     _dump_curl context
     # { [...,] "context": 2062287553 [,...] }
-    pmjson < $tmp.out \
+    pmjson -n < $tmp.out \
 	    | $PCP_AWK_PROG '$1 == "\"context\":" { print $2 }' \
 	    | sed -e 's/,//g' \
     #end

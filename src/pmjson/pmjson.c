@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Red Hat.
+ * Copyright (c) 2017,2025 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -23,7 +23,8 @@ static pmLongOptions longopts[] = {
     { "out", 1, 'o', "FILE", "write output to named FILE" },
     { "minimal", 0, 'm', 0, "report JSON with optional whitespace removed" },
 /*  { "pointer", 1, 'P', "PATH", "report subset of JSON via pointer PATH" }, */
-    { "pretty",  0, 'p', 0, "report neatly formatted JSON" },
+    { "pretty",  0, 'p', 0, "report neatly formatted and colourful JSON" },
+    { "not-pretty",  0, 'n', 0, "report boring, old monochromatic JSON output" },
     { "quiet", 0, 'q', 0, "quiet mode, parse only, do not write to stdout" },
     { "yaml", 0, 'y', 0, "parse JSON input, report a YAML style of output" },
     PMOPT_VERSION,
@@ -32,7 +33,7 @@ static pmLongOptions longopts[] = {
 };
 
 static pmOptions opts = {
-    .short_options = "D:mi:o:pqyV?",
+    .short_options = "D:mni:o:pqyV?",
     .long_options = longopts,
     .override = override,
 };
@@ -41,7 +42,7 @@ static int
 override(int opt, pmOptions *optsp)
 {
     (void)optsp;
-    return (opt == 'p');
+    return (opt == 'p' || opt =='n');
 }
 
 static int
@@ -59,28 +60,35 @@ main(int argc, char **argv)
     FILE	*in = stdin, *out = stdout;
     int		c, sts, flags = 0;
 
+    if (isatty(fileno(out)))
+	flags |= pmjson_flag_pretty; /* enable colour */
+
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
 	case 'i':	/* input from named file */
 	    infile = opts.optarg;
 	    break;
 	case 'm':	/* no optional whitespace */
-	    flags = pmjson_flag_minimal;
+	    flags |= pmjson_flag_minimal;
+	    break;
+	case 'n':	/* monochromatic output */
+	    flags &= ~pmjson_flag_pretty;
 	    break;
 	case 'o':	/* output to named file */
 	    outfile = opts.optarg;
+	    flags &= ~pmjson_flag_pretty;
 	    break;
-	case 'P':	/* search via jsonpointer */
+	case 'P':	/* search via jsonpointer (NYI) */
 	    pointer = opts.optarg;
 	    break;
-	case 'p':	/* pretty-print output */
-	    flags = pmjson_flag_pretty;
+	case 'p':	/* "pretty" mode, force colour */
+	    flags |= pmjson_flag_pretty;
 	    break;
 	case 'q':	/* no stdout messages */
-	    flags = pmjson_flag_quiet;
+	    flags |= pmjson_flag_quiet;
 	    break;
 	case 'y':	/* YAML-style output */
-	    flags = pmjson_flag_yaml;
+	    flags |= pmjson_flag_yaml;
 	    break;
 	default:
 	    opts.errors++;

@@ -36,6 +36,7 @@ pcp-7.0.0 (1 September 2025)
 	pcp-htop: improve pmcd disconnect/restart handling
 	pmrep: fix iostat merge percentage formulas
 	pmrep: allow for not preserving discrete metric values
+	pmjson: produce colorful output to the console by default
 	pmlogpush: new tool for pushing existing archives to pmproxy
 	pcp2opentelemetry: new tool exporting to OpenTelemetry format
 	pmseries_import: new tool for archive analysis container
