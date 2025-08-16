@@ -987,7 +987,7 @@ class OpenTelemetryPMDA(PMDA):
             pmUnits(0, 0, 0, 0, 0, 0)),
             'debug flag to enable verbose log messages',
             'Debugging flag to enable verbose log messages, to enable:\n'
-            '> pmstore %s.control.debug 1' % self.pmda_name)
+            '$ pmstore %s.control.debug 1' % self.pmda_name)
 
         # response status string, per-source end-point
         self.stats_status = {0:"none"} # status string, keyed by cluster number
@@ -1425,7 +1425,7 @@ class OpenTelemetryPMDA(PMDA):
 
     def opentelemetry_store_callback(self, cluster, item, inst, val):
         '''
-        To enable verbose log messages: pmstore opentelemetry.control.debug 1
+        To enable verbose log messages: $ pmstore opentelemetry.control.debug 1
         '''
         if cluster == 0 and item == 4:
             if val < 0:
@@ -1511,7 +1511,7 @@ if __name__ == '__main__':
     # Default domain number is PMDA(164), see -d option.
     pmda = OpenTelemetryPMDA(args.root, args.domain, args.config, args.timeout, args.user, args.debug, args.log)
 
-    # Uncomment to force -D or use: pmstore opentelemetry.control.debug 1
+    # Uncomment to force -D or use: $ pmstore opentelemetry.control.debug 1
     # pmda.dbg = True
 
     # Scan initial config
