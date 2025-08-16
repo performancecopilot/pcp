@@ -1079,7 +1079,9 @@ class OpenMetricsPMDA(PMDA):
         self.add_metric('%s.control.debug' % self.pmda_name, pmdaMetric(self.pmid(0, 4),
             c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE,
             pmUnits(0, 0, 0, 0, 0, 0)),
-            'debug flag to enable verbose log messages, to enable: pmstore %s.control.debug 1' % self.pmda_name)
+            'debug flag to enable verbose log messages',
+            'Debugging flag to enable verbose log messages, to enable:\n'
+            '> pmstore %s.control.debug 1' % self.pmda_name)
 
         # response status string, per-source end-point
         self.stats_status = {0:"none"} # status string, keyed by cluster number
