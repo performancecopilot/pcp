@@ -38,6 +38,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-atop-nvidia.0.xz pcp-atop-nvidia.meta.xz pcp-atop-nvidia.index \
 	  pcp-atop-threads.0.xz pcp-atop-threads.meta.xz pcp-atop-threads.index \
 	  pcp-dstat.0.xz pcp-dstat.meta pcp-dstat.index \
+	  pcp-remotes.0.xz pcp-remotes.meta.xz pcp-remotes.index.xz \
 	  pcp-free-tera.0.xz pcp-free-tera.meta.xz pcp-free-tera.index \
 	  pcp-hotatop.0.xz pcp-hotatop.meta pcp-hotatop.index \
 	  pcp-zeroconf.0.xz pcp-zeroconf.meta pcp-zeroconf.index \

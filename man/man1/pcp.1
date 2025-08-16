@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2014-2016 Red Hat.
+.\" Copyright (c) 2014-2016,2025 Red Hat.
 .\" Copyright (c) 2000 Silicon Graphics, Inc.  All Rights Reserved.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -106,8 +106,10 @@ summary report includes: the OS version, a summary of the hardware inventory,
 the local timezone, the PCP software version, the state of the
 .BR pmcd (1)
 process and associated Performance Metrics Domain Agents
-(PMDAs), as well as information about any PCP archivers (\c
-.BR pmlogger (1))
+(PMDAs), as well as information about any local PCP archivers (\c
+.BR pmlogger (1)),
+remote PCP archivers (\c
+.BR pmproxy (1)),
 and PCP inference engines (\c
 .BR pmie (1))
 that are running.
@@ -240,6 +242,7 @@ a list of the available debugging options and their meaning.
 .BR pmie (1),
 .BR pmlogconf (1),
 .BR pmlogger (1),
+.BR pmproxy (1),
 .BR pcp.conf (5),
 .BR pcp.env (5)
 and

@@ -31,7 +31,7 @@ do
 done
 
 # metrics
-metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.hostname pmcd.services pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
+metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.hostname pmcd.services pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host pmproxy.logpaths.archive hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
 # process count with 'primary' (pid 0) instance removed
@@ -222,6 +222,7 @@ mode == 3		{ inst(); next }
 /pmcd.agent.status/	{ mode = 2; count = 0; quote="status"; next }
 /pmcd.pmlogger.archive/	{ mode = 3; count = 0; quote="log_archive"; next }
 /pmcd.pmlogger.pmcd_host/ { mode = 3; count = 0; quote="log_host"; next }
+/pmproxy.logpaths.archive/ { mode = 3; count = 0; quote="remote_log"; next }
 /pmcd.pmie.pmcd_host/	{ mode = 3; count = 0; quote="ie_host"; next }
 /pmcd.pmie.logfile/	{ mode = 3; count = 0; quote="ie_log"; next }
 /pmcd.pmie.configfile/	{ mode = 3; count = 0; quote="ie_config"; next }
@@ -311,15 +312,17 @@ then
     cat $tmp/log_archive
     echo "log_host:"
     cat $tmp/log_host
+    echo "remote_log:"
+    cat $tmp/remote_log
 fi
 
+# need \n\n in awk prints here to force line breaks when piped into fmt later
+#
 if [ -f $tmp/log_archive -a -f $tmp/log_host ]
 then
     sort $tmp/log_archive -o $tmp/log_archive
     sort $tmp/log_host -o $tmp/log_host
 
-    # need \n\n here to force line breaks when piped into fmt later
-    #
     numloggers=`join $tmp/log_host $tmp/log_archive | sort \
 	| sed -e 's/"//g' | tee $tmp/log | _process`
 
@@ -336,6 +339,18 @@ $3 == primary	{ next }
 		{ printf "%s: %s\n\n",$2,$3 }'
 else
     numloggers=0
+fi
+
+if [ -f $tmp/remote_log ]
+then
+    sort $tmp/remote_log -o $tmp/remote_log
+
+    numrloggers=`cat $tmp/remote_log | sort \
+	| sed -e 's/"//g' | tee $tmp/rlog | wc -l`
+
+    $PCP_AWK_PROG < $tmp/rlog >> $tmp/rloggers '{ printf "%s\n\n",$2 }'
+else
+    numrloggers=0
 fi
 
 if [ -f $tmp/ie_host -a -f $tmp/ie_config -a -f $tmp/ie_log -a -f $tmp/ie_numrules ]
@@ -416,6 +431,13 @@ if [ "$numloggers" != 0 ]
 then
     $PCP_ECHO_PROG $PCP_ECHO_N " pmlogger: ""$PCP_ECHO_C"
     LC_COLLATE=POSIX sort < $tmp/loggers \
+    | sed -e '/^$/d' | sed -e '1!s/^/           /'
+fi
+
+if [ "$numrloggers" != 0 ]
+then
+    $PCP_ECHO_PROG $PCP_ECHO_N "  pmproxy: ""$PCP_ECHO_C"
+    LC_COLLATE=POSIX sort < $tmp/rloggers \
     | sed -e '/^$/d' | sed -e '1!s/^/           /'
 fi
 

@@ -1,0 +1,16 @@
+QA output created by 1881
+Performance Co-Pilot configuration on fedora:
+
+  archive: CWD/archives/pcp-remotes
+ platform: Linux fedora 6.15.9-201.fc42.aarch64 #1 SMP PREEMPT_DYNAMIC Sat Aug 2 18:15:03 UTC 2025 aarch64
+ hardware: 8 cpus, 1 disk, 1 node, 15939MB RAM
+ timezone: AEST-10
+ services: pmcd pmproxy
+     pmcd: Version 7.0.0-1, 19 agents, 7 clients
+     pmda: root pmcd proc pmproxy xfs sample sampledso podman
+           linux nfsclient apache mmv kvm jbd2 dm openmetrics denki
+           opentelemetry simple
+ pmlogger: fedora: /var/lib/pcp/testsuite/archives/pcp-remotes
+  pmproxy: /var/log/pcp/pmproxy/debian/20250815.16.21
+           /var/log/pcp/pmproxy/fedora/20250815.16.38
+     pmie: primary engine: /var/log/pcp/pmie/fedora/pmie.log
