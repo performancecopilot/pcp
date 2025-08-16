@@ -38,7 +38,7 @@ status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cp json/ceph_data1.json $PCP_TMP_DIR/web/
+cp ceph/ceph_data1.json $PCP_TMP_DIR/web/
 src/json_test "$PCP_TMP_DIR/web/ceph_data1.json"
 
 # success, all done
