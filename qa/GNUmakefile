@@ -16,7 +16,7 @@ TESTS	= $(shell sed -n -e '/^[0-9][0-9]*:retired/d' -e '/^[0-9][0-9]*:reserved/d
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
-	  java mmv postfix perl slurm tmparch sheet smart admin hacluster \
+	  java mmv postfix perl ceph slurm tmparch sheet smart admin hacluster \
 	  sockets denki gfs2 farm pdudata rocestat
 
 ifeq "$(PMDA_PERFEVENT)" "true"
