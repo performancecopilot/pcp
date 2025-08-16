@@ -202,7 +202,7 @@ osd/agent_evict: 0
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/json_test /var/lib/pcp/tmp/web/ceph_data1.json
+Command: src/json_test CWD/ceph/ceph_data1.json
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

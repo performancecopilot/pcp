@@ -7,8 +7,6 @@
 
 seq=`basename $0`
 echo "QA output created by $seq"
-qa_dir=`pwd`
-web_qa_dir="${qa_dir}/web"
 
 # get standard environment, filters and checks
 . ./common.product
@@ -19,38 +17,19 @@ _check_valgrind
 
 _filter()
 {
-    sed -e 's,0x[0-9a-fA-F]*,HEX,g'
+    sed \
+	-e 's,0x[0-9a-fA-F]*,HEX,g' \
+	-e "s,$here,CWD,g" \
+    #end
 }
-
-culldir=false
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-    $culldir && $sudo rm -fr "$PCP_TMP_DIR/web"
-}
-
-# is a pre-existing web directory in place?  if so, write access needed
-if [ -d "$PCP_TMP_DIR/web" ]
-then
-    [ -w "$PCP_TMP_DIR/web" ] || _notrun "Cannot write to $PCP_TMP_DIR/web"
-else
-    culldir=true
-    $sudo mkdir -p "$PCP_TMP_DIR/web"
-    $sudo chown `whoami` "$PCP_TMP_DIR/web"    # local user - tmpdir writing
-    $sudo chgrp $PCP_GROUP "$PCP_TMP_DIR/web"  # group pcp - pmdammv reading
-fi
 
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-cp ceph/ceph_data1.json $PCP_TMP_DIR/web/
-_run_valgrind src/json_test "$PCP_TMP_DIR/web/ceph_data1.ceph" > $tmp.out 2>&1
-cat $tmp.out | _filter
-cat $tmp.out >> $seq_full
+_run_valgrind src/json_test $here/ceph/ceph_data1.json > $tmp.out 2>&1
+cat $tmp.out | tee -a $seq_full | _filter
 
 # success, all done
 status=0
-_cleanup
 exit
