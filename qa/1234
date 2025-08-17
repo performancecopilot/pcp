@@ -29,17 +29,20 @@ _jsondump()
     echo "Input: $json"
     echo "Output:"
 
-    echo $json | pmjson --minimal
+    echo $json | pmjson --minimal -n
     echo "  => Minimal: exitsts =" $?
 
     echo $json | pmjson --pretty
-    echo "  => Pretty: exitsts =" $?
+    echo "  => Pretty JSON: exitsts =" $?
 
     echo $json | pmjson --quiet
     echo "  => Quiet: exitsts =" $?
 
-    echo $json | pmjson --yaml
+    echo $json | pmjson --yaml -n
     echo "  => YAML: exitsts =" $?
+
+    echo $json | pmjson --yaml --pretty
+    echo "  => Pretty YAML: exitsts =" $?
 
     echo
 }

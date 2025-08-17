@@ -7,10 +7,12 @@ Output:
 {}
   => Minimal: exitsts = 0
 {}
-  => Pretty: exitsts = 0
+  => Pretty JSON: exitsts = 0
   => Quiet: exitsts = 0
 
   => YAML: exitsts = 0
+
+  => Pretty YAML: exitsts = 0
 
 == Empty JSON array
 
@@ -19,10 +21,12 @@ Output:
 {}
   => Minimal: exitsts = 0
 {}
-  => Pretty: exitsts = 0
+  => Pretty JSON: exitsts = 0
   => Quiet: exitsts = 0
 
   => YAML: exitsts = 0
+
+  => Pretty YAML: exitsts = 0
 
 == Invalid string
 
@@ -31,10 +35,12 @@ Output:
 pmjson failed: Invalid argument
   => Minimal: exitsts = 1
 pmjson failed: Invalid argument
-  => Pretty: exitsts = 1
+  => Pretty JSON: exitsts = 1
   => Quiet: exitsts = 1
 pmjson failed: Invalid argument
   => YAML: exitsts = 1
+pmjson failed: Invalid argument
+  => Pretty YAML: exitsts = 1
 
 == Basic data types
 
@@ -43,20 +49,20 @@ Output:
 {"a":1,"b":"str","c":[1,2,3],"d":false,"e":null,"f":{"map":1}}
   => Minimal: exitsts = 0
 {
-    "a": 1,
-    "b": "str",
-    "c": [
+    [34m"a"[0m: 1,
+    [34m"b"[0m: [32m"str"[0m,
+    [34m"c"[0m: [
         1,
         2,
         3
     ],
-    "d": false,
-    "e": null,
-    "f": {
-        "map": 1
+    [34m"d"[0m: false,
+    [34m"e"[0m: null,
+    [34m"f"[0m: {
+        [34m"map"[0m: 1
     }
 }
-  => Pretty: exitsts = 0
+  => Pretty JSON: exitsts = 0
   => Quiet: exitsts = 0
 a: 1
 b: str
@@ -69,6 +75,17 @@ e: null
 f: 
     map: 1
   => YAML: exitsts = 0
+[34ma[0m: 1
+[34mb[0m: [32mstr[0m
+[34mc[0m: 
+      - 1
+      - 2
+      - 3
+[34md[0m: false
+[34me[0m: null
+[34mf[0m: 
+    [34mmap[0m: 1
+  => Pretty YAML: exitsts = 0
 
 == Nested data types
 
@@ -77,26 +94,26 @@ Output:
 {"a":{"b":"str","c":{"d":[1,2,3]}},"e":false,"f":{"map":1,"array":[1,2]}}
   => Minimal: exitsts = 0
 {
-    "a": {
-        "b": "str",
-        "c": {
-            "d": [
+    [34m"a"[0m: {
+        [34m"b"[0m: [32m"str"[0m,
+        [34m"c"[0m: {
+            [34m"d"[0m: [
                 1,
                 2,
                 3
             ]
         }
     },
-    "e": false,
-    "f": {
-        "map": 1,
-        "array": [
+    [34m"e"[0m: false,
+    [34m"f"[0m: {
+        [34m"map"[0m: 1,
+        [34m"array"[0m: [
             1,
             2
         ]
     }
 }
-  => Pretty: exitsts = 0
+  => Pretty JSON: exitsts = 0
   => Quiet: exitsts = 0
 a: 
     b: str
@@ -112,4 +129,18 @@ f:
           - 1
           - 2
   => YAML: exitsts = 0
+[34ma[0m: 
+    [34mb[0m: [32mstr[0m
+    [34mc[0m: 
+        [34md[0m: 
+              - 1
+              - 2
+              - 3
+[34me[0m: false
+[34mf[0m: 
+    [34mmap[0m: 1
+    [34marray[0m: 
+          - 1
+          - 2
+  => Pretty YAML: exitsts = 0
 

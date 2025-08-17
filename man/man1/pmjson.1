@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (c) 2018 Red Hat.
+.\" Copyright (c) 2018,2025 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -18,7 +18,7 @@
 \f3pmjson\f1 \- Performance Co-Pilot JSON dumping utility
 .SH SYNOPSIS
 \f3pmjson\f1
-[\f3\-mpqyV?\f1]
+[\f3\-mnpqyV?\f1]
 [\f3\-D\f1 \f2debug\f1]
 [\f3\-i\f1 \f2infile\f1]
 [\f3\-o\f1 \f2outfile\f1]
@@ -50,8 +50,13 @@ If this option is omitted, then
 .B pmjson
 will write to the standard output stream.
 .TP
+\fB\-n\fR, \fB\-\-not-pretty\fR
+Produce JSON output in raw, monochromatic format (default
+if output is being sent to a file).
+.TP
 \fB\-p\fR, \fB\-\-pretty\fR
-Produce JSON output in a human-readable format.
+Produce JSON output in a human-friendly format (default if
+output is on a terminal).
 .TP
 \fB\-q\fR, \fB\-\-quiet\fR
 Verify the input as valid JSON only, no output is produced.
