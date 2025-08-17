@@ -311,6 +311,7 @@ _filter_linux()
 	    -e '/^proc\.namespaces\.envid -12350 Metric not supported/d' \
 	    -e '/^hotproc\.namespaces\.envid -12350 Metric not supported/d' \
 	    -e '/^proc\.fdinfo\..* Metric not supported/d' \
+	    -e '/^pmproxy.logpaths.archive -12357 Unknown metric name/d' \
 	# linux
     fi
 }
