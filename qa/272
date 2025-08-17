@@ -99,8 +99,9 @@ _cleanup()
 	unset PMCD_PORT
 	[ -f $oconfig ] && $sudo cp $oconfig $config
 	# _change_config pmlogger on
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
         _needclean=false
     fi
@@ -122,8 +123,12 @@ fi
 echo "port=$port" >>$seq_full
 
 # _change_config pmlogger off
-if ! _service pcp stop; then _exit 1; fi \
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
 | _filter_pcp_stop
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 
 $sudo cp $config $oconfig
 
@@ -187,8 +192,11 @@ cat $config >>$seq_full
 PMCD_PORT=$port
 export PMCD_PORT
 
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 #DEBUG# pmstore pmcd.control.traceconn 1
@@ -283,9 +291,13 @@ echo >>$seq_full
 echo "=== Second pmcd.conf ===" >>$seq_full
 cat $config >>$seq_full
 
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
-_wait_for_pmcd_from_remote $other1
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
+_wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
+
 ssh -q $other1 -n -l pcpqa "sh -c 'PMCD_PORT=$port pmstore -h $me pmcd.control.debug \"appl1\"'"
 
 echo "    checking default access for this host (store should fail) ..."

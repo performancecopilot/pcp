@@ -30,7 +30,10 @@ _filter_dots()
 
 _cleanup()
 {
-    _service pcp stop >$tmp.stop
+    if ! _service pmlogger stop >$tmp.stop 2>&1; then _exit 1; fi
+    _wait_pmlogger_end || _exit 1
+    if ! _service pmcd stop >>$tmp.stop 2>&1; then _exit 1; fi
+    _wait_pmcd_end || _exit 1
     # primary pmlogger exiting during the test is racey depending on timing
     # of fetches and stopping/starting pmcd (this is also not under test).
     _filter_pcp_stop <$tmp.stop | _filter_dots | sed -e '/logger not running/d'
@@ -40,12 +43,13 @@ _cleanup()
     cat $PCP_LOG_DIR/pmcd/dumb_pmda.log >>$seq_full
     _restore_config $PCP_PMCDCONF_PATH
     _restore_config $PCP_SYSCONFIG_DIR/pmcd
-    _service pcp start 2>&1 >$tmp.start
-    _filter_pcp_start <$tmp.start | _filter_dots
+    _service pmcd start >$tmp.start 2>&1
     _wait_for_pmcd
     _restore_auto_restart pmcd
+    _service pmlogger start >>$tmp.start 2>&1
     _wait_for_pmlogger
     _restore_auto_restart pmlogger
+    _filter_pcp_start <$tmp.start | _filter_dots
     _restore_auto_restart pmie
     if $pmie_was_running
     then

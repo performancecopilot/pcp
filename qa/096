@@ -34,9 +34,10 @@ _cleanup()
     then
 	:
     else
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
 	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	_restore_auto_restart pmlogger
 	done_clean=true
@@ -61,7 +62,8 @@ $sudo rm -f /tmp/pcp.ttymap
 # make sure proc agent reloads it
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 

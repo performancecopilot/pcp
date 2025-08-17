@@ -59,8 +59,9 @@ _cleanup()
 	$sudo rm -f $control
 	[ -f $control.$seq ] && $sudo mv $control.$seq $control
 	_restore_loggers
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	needclean=false
     fi
@@ -99,7 +100,7 @@ _stop_auto_restart pmlogger
 _disable_loggers || _exit 1
 if ! _service pmlogger stop; then _exit 1; fi \
 | _filter_pcp_stop
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
 pminfo -f sample.dynamic.instant | _filter
 echo

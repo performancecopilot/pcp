@@ -111,8 +111,11 @@ fi
 _change_config pmcd on || _exit 1
 _change_config pmlogger on || _exit 1
 _writable_primary_logger
-if ! _service pcp restart >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 # help.c

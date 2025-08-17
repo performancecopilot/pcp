@@ -17,9 +17,10 @@ status=0
 _cleanup()
 {
     _restore_config $PCP_PMCDOPTIONS_PATH
-    _service pcp restart 2>&1 | _filter_pcp_start
-    _restore_auto_restart pmcd
+    _service pmcd restart 2>&1 | _filter_pcp_restart
     _wait_for_pmcd
+    _restore_auto_restart pmcd
+    _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
     $sudo rm -f $tmp.*
     exit $status
@@ -32,10 +33,18 @@ _stop_auto_restart pmcd
 # real QA test starts here
 
 echo "First, the standard logfile:" | tee -a $seq_full
-if ! _service pcp stop >/dev/null; then _exit 1; fi
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop >>$seq_full
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop >>$seq_full
+_wait_pmcd_end || _exit 1
 $sudo rm -f $PCP_LOG_DIR/pmcd/pmcd.log*
-if ! _service pcp start 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+if ! _service pmcd start 2>&1; then _exit 1; fi \
+| tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger start 2>&1; then _exit 1; fi \
+| tee -a $seq_full >>$tmp.out
 _wait_for_pmlogger || _exit 1
 grep -i 'starting pmcd' $tmp.out | _filter_pcp_start
 if [ -f $PCP_LOG_DIR/pmcd/pmcd.log ]
@@ -62,8 +71,11 @@ End-Of-File
 $sudo cp $tmp.options $PCP_PMCDOPTIONS_PATH
 
 echo "The logfile from the hacked \$PCP_PMCDOPTIONS_PATH (pmcd.options):" | tee -a $seq_full
-if ! _service pcp restart 2>&1; then _exit 1; fi | tee -a $seq_full >$tmp.out
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| tee -a $seq_full >$tmp.out
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| tee -a $seq_full >>$tmp.out
 _wait_for_pmlogger || _exit 1
 grep -i 'starting pmcd' $tmp.out | sed -e "s/$$/MYPID/" | _filter_pcp_start
 if [ -f $tmp.1.pmcd.log ]

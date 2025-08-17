@@ -36,7 +36,7 @@ echo Inode0: $inode0 >> $seq_full
 cp $PCP_PMCDCONF_PATH $tmp.save
 cat $PCP_PMCDCONF_PATH >> $seq_full
 
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_stop | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 

@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    _service pmcd restart 2>&1 | _filter_pcp_start
+    _service pmcd restart 2>&1 | _filter_pcp_restart
     _wait_for_pmcd
     _restore_auto_restart pmcd
     $sudo rm -rf $tmp $tmp.*

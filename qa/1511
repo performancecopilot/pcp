@@ -27,9 +27,10 @@ _cleanup()
 	[ -f $PCP_PMCDCONF_PATH.access.$seq ] && _restore_config $PCP_PMCDCONF_PATH.access
         _restore_config $PCP_PMCDCONF_PATH
 	_restore_primary_logger
-        _service pcp restart 2>&1 | _filter_pcp_start
-        _wait_for_pmcd
+	_service pmcd restart 2>&1 | _filter_pcp_restart
+	_wait_for_pmcd
 	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	_restore_auto_restart pmlogger
 	done_clean=true

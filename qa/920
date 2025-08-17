@@ -116,7 +116,7 @@ End-of-File
 fi
 
 if ! _service pmlogger restart; then _exit 1; fi \
-| _filter_pcp_start
+| _filter_pcp_restart
 
 # wait up to 20 seconds for our pmlogger to start
 #

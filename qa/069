@@ -121,9 +121,10 @@ _cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
-	_service pcp restart 2>&1 >/dev/null
-	_restore_auto_restart pmcd
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
     fi
     rm -f $tmp.*
@@ -140,8 +141,12 @@ trap "_interrupt; exit \$status" 1 2 3 15	# refactor-ok
 trap "_cleanup; exit \$status" 0
 
 _stop_auto_restart pmcd
-if ! _service pcp stop; then _exit 1; fi \
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
 | _filter_pcp_stop
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 
 cat <<End-of-File >$tmp.c
 #include <pcp/pmapi.h>

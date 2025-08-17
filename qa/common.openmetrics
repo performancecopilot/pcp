@@ -91,7 +91,7 @@ _pmdaopenmetrics_cleanup()
     _cleanup_pmda openmetrics
     # restart all pmloggers after running open metrics tests
     _restore_auto_restart pmlogger
-    _service pmlogger restart 2>&1 | _filter_pcp_start
+    _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
 }
 

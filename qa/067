@@ -80,9 +80,10 @@ _cleanup()
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
-	_service pcp restart 2>&1 | _filter_pcp_start
-	_restore_auto_restart pmcd
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	_needclean=false
 	rm -f $tmp.*
@@ -173,9 +174,13 @@ _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.config $PCP_PMCDCONF_PATH
 pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 && $sudo sh $tmp.cmd
-if ! _service pcp stop; then _exit 1; fi \
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
 | _filter_pcp_stop
-# Note: need to use $PCP_RC_DIR/* here, not _service pcp so that
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
+# Note: need to use $PCP_RC_DIR/* here, not _service pmcd so that
 # systemd (if running) does not get to see the pmcd exit status
 #
 ( $sudo $PCP_RC_DIR/pmcd start; $sudo $PCP_RC_DIR/pmlogger start ) 2>&1 | _filter_pcp_start

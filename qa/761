@@ -104,7 +104,12 @@ echo PCP_SYSTEMD_CGROUP=/system.slice >> $tmp.conf
 echo PCP_PODMAN_RUNDIR=$root/var/run/containers >> $tmp.conf
 echo PCP_PODMAN_DATADIR=$root/var/lib/containers >> $tmp.conf
 $sudo cp $tmp.conf $PCP_DIR/etc/pcp.conf
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
+_wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
+_wait_for_pmlogger || _exit 1
 echo four | tee -a $seq_full
 if ! _service pmcd status >>$seq_full; then _exit 1; fi
 _wait_for_pmcd || _exit 1

@@ -31,8 +31,9 @@ _cleanup()
     cat $tmp.pmlogger.log >>$seq_full
 
     _restore_config $PCP_ETC_DIR/pcp/pmlogger
-    _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _service pmcd restart 2>&1 | _filter_pcp_restart
     _wait_for_pmcd
+    _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
     if $pmproxy_was_running
     then
@@ -107,7 +108,7 @@ _restore_pmlogger_control
 if ! _service pmlogger stop 2>&1; then _exit 1; fi | _filter_pcp_stop
 
 _full_log === restarting pmproxy service to ensure sane starting condition 
-if ! _service pmproxy restart 2>&1; then _exit 1; fi | _filter_pcp_stop | _filter_pcp_start | _filter_pmproxy
+if ! _service pmproxy restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmproxy || _exit 1
 
 pmproxy_pid=`_get_pids_by_name -a pmproxy`
@@ -170,7 +171,7 @@ done
 src/time_stamp $tmp.stamp 'compression' >>$seq_full
 
 _full_log === restarting pmlogger # primary only
-if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 src/time_stamp $tmp.stamp 'restart pmcd & pmlogger' >>$seq_full
 
@@ -260,7 +261,7 @@ fi
 src/time_stamp $tmp.stamp 'found new volume #' >>$seq_full
 
 _full_log === checking pmproxy survives pmlogger restart
-if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 $sudo [ ! -d /proc/$pmproxy_pid/fd/ ] && echo FAIL && exit
 echo passed

@@ -22,8 +22,9 @@ _cleanup()
     cd $here
     if $_needclean
     then
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	_needclean=false
     fi
@@ -96,7 +97,12 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p](mcd|mlogger)' >>$seq_full
 
 # stop pmcd, primary pmlogger
 #
-if ! _service pcp stop 2>&1; then _exit 1; fi | _filter_pcp_stop
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 echo "pcp stop" >>$seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '/[p](mcd|mlogger)' >>$seq_full
 

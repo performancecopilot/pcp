@@ -268,13 +268,7 @@ _service()
 	    case "$1"
 	    in
 		pcp)
-		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/pmcd.service -a -f $PCP_SYSTEMDUNIT_DIR/pmlogger.service ]
-		    then
-			:
-		    else
-			$__verbose && echo "_service: no systemctl, need pmcd service and pmlogger servce"
-			__do_systemctl=false
-		    fi
+		    echo >&2 "Botch: _service pcp ... retired"
 		    ;;
 		*)
 		    if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service ]
@@ -298,74 +292,9 @@ _service()
 	case "$1"
 	in
 	    pcp)
-		# not a systemd service but a wrapper for the pmcd and pmlogger
-		# services, so a little different ...
-		#
-
-		# if service is failed, need reset-failed before trying
-		# anything else
-		#
-		for __svc in pmlogger pmcd
-		do
-		    if systemctl show --property=ActiveState $__svc.service 2>&1 \
-		      | grep '=failed$' >/dev/null
-		    then
-			$__verbose && echo "_service: using systemctl: reset-failed $__svc"
-			$sudo systemctl reset-failed $__svc.service 2>>$seq_full
-		    fi
-		done
-
-		if [ "$2" = start -o "$2" = restart ]
-		then
-		    $__verbose && echo "_service: using systemctl $2 pmcd.service then pmlogger.service"
-		    $sudo systemctl $2 pmcd.service
-		    $sudo systemctl $2 pmlogger.service
-		else
-		    $__verbose && echo "_service: using systemctl $2 pmlogger.service then pmcd.service"
-		    $sudo systemctl $2 pmlogger.service
-		    $sudo systemctl $2 pmcd.service
-		    if [ "$2" = stop ]
-		    then
-			# stop pmlogger_check (if active) ... it gets started
-			# as a by-product of start pmlogger, but is not stopped
-			# by stop pmlogger (there is a long and complicated
-			# good reason for this)
-			# ditto for pmlogger_daily, pmlogger_farm and
-			# pmlogger_farm_check
-			#
-			for __svc in pmlogger_check pmlogger_daily pmlogger_farm pmlogger_farm_check
-			do
-			    if systemctl show --property=ActiveState $__svc.timer 2>&1 \
-			      | grep '=active$' >/dev/null
-			    then
-				$__verbose && echo "_service: also stop $__svc.timer $__svc.service"
-				$sudo systemctl stop $__svc.timer $__svc.service
-			    fi
-			done
-		    fi
-		fi
-		for __svc in pmcd pmlogger
-		do
-		    eval `systemctl show --property=ActiveState $__svc.service`
-		    if [ "$2" = start -o "$2" = restart ]
-		    then
-			if [ "$ActiveState" != active -a "$ActiveState" != activating ]
-			then
-			    echo "_service $1 $2: expecting $__svc state \"active\", found state \"$ActiveState\"" >>$seq_full
-			    _systemctl_status $__svc >>$seq_full
-			fi
-		    elif [ "$2" = stop ]
-		    then
-			if [ "$ActiveState" != inactive ]
-			then
-			    echo "_service $1 $2: expecting $__svc state \"inactive\", found state \"$ActiveState\"" >>$seq_full
-			    _systemctl_status $__svc >>$seq_full
-			fi
-		    else
-			echo "_service $1 $2: Botch: don't know what $__svc state to expect, found state \"$ActiveState\"" >>$seq_full
-		    fi
-		done
+		echo >&2 "Botch: _service pcp ... retired"
 		;;
+
 	    *)
 		_extra_svc=''
 		case "$1"
@@ -509,9 +438,10 @@ _cleanup_pmda()
 	echo "_cleanup_pmda($__agent,$__iopts) called twice?" >>$seq_full
     else
 	_restore_config $PCP_PMCDCONF_PATH
-	_service pcp restart | _filter_pcp_start
-	_restore_auto_restart pmcd
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	if $__install_on_cleanup
 	then

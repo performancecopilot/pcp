@@ -48,7 +48,7 @@ sleep 3
 
 unset PCP_DERIVED_CONFIG
 _stop_auto_restart pmcd
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
 _restore_auto_restart pmcd
 

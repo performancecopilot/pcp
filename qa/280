@@ -68,10 +68,10 @@ _stop_auto_restart pmlogger
 _cleanup()
 {
     _restore_config $PCP_ETC_DIR/pcp/pmlogger
-    _service pmcd restart 2>&1 | tee -a $seq_full | _filter_pcp_start
+    _service pmcd restart 2>&1 | tee -a $seq_full | _filter_pcp_restart
     _wait_for_pmcd
     _restore_auto_restart pmcd
-    _service pmlogger restart 2>&1 | tee -a $seq_full | _filter_pcp_start
+    _service pmlogger restart 2>&1 | tee -a $seq_full | _filter_pcp_restart
     _wait_for_pmlogger
     _restore_auto_restart pmlogger
 }
@@ -97,10 +97,11 @@ umask 022
 
 # start from a known state
 #
-if ! _service pcp stop >/dev/null 2>&1; then _exit 1; fi
-_wait_pmcd_end || _exit 1
-if ! _service pcp start 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger -P $LOGGING_DIR/$LOCALHOST/pmlogger.log || _exit 1
 
 # these sometimes get left around and are owned by root

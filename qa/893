@@ -42,7 +42,7 @@ echo "Fake pmcd pid=$pid" >>$seq_full
 echo "Before restart ..." >>$seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)' >>$seq_full
 echo "_get_pids_by_name pmcd -> `_get_pids_by_name pmcd`" >>$seq_full
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 echo "After restart ..." >>$seq_full

@@ -28,7 +28,9 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
-    _service pcp restart >>$seq_full 2>&1
+    _service pmcd restart 2>&1 | _filter_pcp_restart
+    _wait_for_pmcd
+    _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
 }
 

@@ -32,8 +32,9 @@ _cleanup()
 	    $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 	    rm -f $tmp.pmcd.conf
 	fi
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	done_clean=true
     fi
@@ -58,8 +59,12 @@ echo "qahost=$qahost" >>$seq_full
 
 # stop pmcd and pmlogger cleanly
 #
-if ! _service pcp stop; then _exit 1; fi \
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
 | _filter_pcp_stop
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 
 # real QA test starts here
 home=$PCP_PMDAS_DIR
@@ -145,12 +150,12 @@ echo "=== pmcd.conf ===" >>$seq_full
 cat $PCP_PMCDCONF_PATH >>$seq_full
 
 echo "=== pmcd restarting ===" >>$seq_full
-# Note: need to use $PCP_RC_DIR/* here, not _service pcp so that
-# systemd does not get a chance to have a look in and syphon off our
-# (expected) error messages.
+# Note: need to use $PCP_RC_DIR/* here, not _service pmcd or
+# _service pmlogger so that systemd does not get a chance to have
+# a look in and syphon off our (expected) error messages.
 #
-$sudo $PCP_RC_DIR/pmcd restart 2>>$seq_full | _filter_pcp_start
-$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq_full | _filter_pcp_start
+$sudo $PCP_RC_DIR/pmcd restart 2>>$seq_full | _filter_pcp_restart
+$sudo $PCP_RC_DIR/pmlogger restart 2>>$seq_full | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 echo "=== pmcd restarted ===" >>$seq_full

@@ -100,8 +100,9 @@ _filter()
 $sudo cp $tmp.control $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq
 cat $PCP_ETC_DIR/pcp/pmlogger/control.d/$seq >>$seq_full
 
-_service pmlogger restart \
-| _filter_pcp_start
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
+_wait_for_pmlogger || _exit 1
 
 # _wait_for_pmlogger does not quite cut the mustard here ... we
 # need two pmloggers to be running ...

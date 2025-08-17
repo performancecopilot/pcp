@@ -38,9 +38,10 @@ _cleanup()
 	_restore_config $PCP_PMCDCONF_PATH
 	$sudo rm -f $PCP_PMCDCONF_PATH.prev
 	_restore_loggers
-	_service pcp restart 2>&1 | _filter_pcp_start
-	_restore_auto_restart pmcd
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	_needclean=false
     fi
@@ -137,8 +138,11 @@ echo "=== initial pmcd.conf ===" >>$seq_full
 cat $tmp.conf >>$seq_full
 echo "=== ===" >>$seq_full
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start | _filter_pmcd
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 cat <<End-of-File >$tmp.cmd

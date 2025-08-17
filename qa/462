@@ -33,9 +33,10 @@ host=`hostname`
 _cleanup()
 {
     _change_config pmlogger on
-    _service pcp restart >/dev/null 2>&1
-    _restore_auto_restart pmlogger
+    _service pmcd restart 2>&1 | _filter_pcp_restart
     _wait_for_pmcd
+    _restore_auto_restart pmcd
+    _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
     rm -f $tmp.*
 }
@@ -76,8 +77,12 @@ _stop()
 # real QA test starts here
 _change_config pmlogger off || _exit 1
 _stop_auto_restart pmlogger
-if ! _service pcp stop; then _exit 1; fi \
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
 | _filter_pcp_stop
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 
 delta=10
 pre_delta=5

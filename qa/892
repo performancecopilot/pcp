@@ -56,8 +56,9 @@ _cleanup()
     # ensure we do not leave local-only settings enabled
     _restore_config $PCP_SYSCONFIG_DIR/pmcd
 
-    _service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+    _service pmcd restart 2>&1 | _filter_pcp_restart
     _wait_for_pmcd
+    _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
 
     rm -rf $tmp.*
@@ -97,7 +98,7 @@ echo "# Dummy entry added by PCP QA test $seq" > $tmp.local
 echo PMCD_LOCAL=1 >> $tmp.local
 $sudo cp $tmp.local $PCP_SYSCONFIG_DIR/pmcd
 
-if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_stop | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
 _wait_for_pmlogger || _exit 1
 

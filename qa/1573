@@ -25,8 +25,9 @@ _cleanup()
 	$sudo rm -rf $PCP_LOG_DIR/pmlogger
 	$sudo mv $PCP_LOG_DIR/pmlogger.$seq $PCP_LOG_DIR/pmlogger
 	_restore_config $PCP_ETC_DIR/pcp/pmlogger
-	_service pcp restart 2>&1 | _filter_pcp_stop | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	_restore_config $PCP_SYSCONF_DIR/pmproxy
     fi
@@ -97,7 +98,7 @@ then
 fi
 
 echo === restarting pmlogger # primary only
-if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmlogger restart 2>&1; then _exit 1; fi | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 echo === wait for pmproxy to process filesystem events

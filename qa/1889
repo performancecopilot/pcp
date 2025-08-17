@@ -25,8 +25,9 @@ _cleanup()
     $sudo rm -f $PCP_RUN_DIR/pmlogger.pid
     echo "=== enable pmlogger.service"
     $sudo systemctl enable pmlogger.service >/dev/null 2>&1
+    _service pmlogger restart | _filter_pcp_restart
+    _wait_for_pmlogger
     _restore_auto_restart pmlogger
-    _service pmlogger restart | _filter_pcp_start
     rm -rf $tmp.*
 }
 

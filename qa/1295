@@ -54,10 +54,13 @@ _filter()
 pminfo -f sample.dynamic >/dev/null 2>&1
 
 # real QA test starts here
-
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
+
 
 # missing instance name (200)
 #

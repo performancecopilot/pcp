@@ -34,9 +34,10 @@ _cleanup()
     then
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
-	_service pcp restart 2>&1 | _filter_pcp_start
-	_restore_auto_restart pmcd
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	if $install_on_cleanup
 	then
@@ -93,8 +94,11 @@ export PCP_TRACE_RECONNECT
 
 ( ( $PCP_DEMOS_DIR/trace/app2 >/dev/null 2>&1 & ) )
 sleep 3
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 # time_sucker transaction sleeps for 10 secs - wait for this

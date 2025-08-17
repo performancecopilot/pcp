@@ -48,8 +48,9 @@ _cleanup()
     then
 	echo
 	_restore_config $PCP_PMCDCONF_PATH
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
     else
 	$sudo $signal -a -s HUP pmcd
@@ -115,8 +116,11 @@ esac
 
 _save_config $PCP_PMCDCONF_PATH
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-if ! _service pcp restart 2>&1; then _exit 1; fi | _filter_pcp_start
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmcd || _exit 1
+if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 unset ROOT MAKEFLAGS

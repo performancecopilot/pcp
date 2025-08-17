@@ -680,6 +680,11 @@ _filter_pcp_stop()
     | _filter_init_distro
 }
 
+_filter_pcp_restart()
+{
+    _filter_pcp_stop | _filter_pcp_start
+}
+
 _filterall_pcp_start()
 {
     _filter_pcp_start \

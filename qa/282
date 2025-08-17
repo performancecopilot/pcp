@@ -170,8 +170,10 @@ _cleanup()
 
 	pmafm $LOGGING_DIR/$LOCALHOST/Latest remove >$tmp.cmd 2>&1 \
 	&& $sudo sh $tmp.cmd
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	_needclean=false
     fi
@@ -283,8 +285,14 @@ End-of-File
 
 # real QA test starts here
 _save_setup
-if ! _service pcp stop; then _exit 1; fi \
+
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
 | _filter_pcp_stop
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
+
 ( $sudo $PCP_RC_DIR/pmcd restart; $sudo $PCP_RC_DIR/pmlogger restart ) 2>&1 \
 | tee -a $seq_full \
 | _filter_pcp_start

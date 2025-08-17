@@ -99,7 +99,7 @@ _pmdaopentelemetry_cleanup()
     _cleanup_pmda opentelemetry
     # restart all pmloggers after running opentelemetry tests
     _restore_auto_restart pmlogger
-    _service pmlogger restart 2>&1 | _filter_pcp_start
+    _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
 }
 

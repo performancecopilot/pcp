@@ -34,10 +34,18 @@ _cleanup()
 	&& $sudo sh $tmp.cmd
 	echo >>$seq_full
 	echo "--- pcp stop ---" >>$seq_full
-	_service pcp stop >>$seq_full 2>&1
+	_service pmlogger stop 2>&1 >>$seq_full
+	_wait_pmlogger_end
+	_service pmcd stop 2>&1 >>$seq_full
+	_wait_pmcd_end
 	echo "--- pcp start ---" >>$seq_full
-	_service pcp start 2>&1 | tee -a $seq_full | _filter_pcp_start
+	_service pmcd start 2>&1 \
+	| tee -a $seq_full \
+	| _filter_pcp_start
 	_restore_auto_restart pmcd
+	_service pmlogger start 2>&1 \
+	| tee -a $seq_full \
+	| _filter_pcp_start
 	echo >>$seq_full
 	echo "--- _wait_for_pmcd ---" >>$seq_full
 	_wait_for_pmcd | tee -a $seq_full
@@ -52,8 +60,14 @@ _cleanup()
 
 # real QA test starts here
 echo "--- pcp stop ---" >>$seq_full
-if ! _service pcp stop; then _exit 1; fi \
-| tee -a $seq_full | _filter_pcp_stop
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
+| tee -a $seq_full \
+| _filter_pcp_stop
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| tee -a $seq_full \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 echo >>$seq_full
 echo "--- run pmcdgone ---" >>$seq_full
 $sudo src/pmcdgone | tee -a $seq_full

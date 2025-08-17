@@ -88,9 +88,14 @@ _cleanup()
 	    && $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
 	echo "+++ restarting pmcd `date` +++" >>$seq_full
-	_service pcp restart 2>&1 | tee -a $seq_full | _filter_pcp_start
-	_restore_auto_restart pmcd
+	_service pmcd restart 2>&1 \
+	| tee -a $seq_full \
+	| _filter_pcp_restart
 	_wait_for_pmcd
+	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 \
+	| tee -a $seq_full \
+	| _filter_pcp_restart
 	_wait_for_pmlogger
 	_needclean=false
     fi
@@ -178,8 +183,14 @@ fi
 
 _save_config $PCP_PMCDCONF_PATH
 echo "+++ stopping pmcd `date` +++" >>$seq_full
-if ! _service pcp stop; then _exit 1; fi \
-| tee -a $seq_full | _filter_pcp_stop
+if ! _service pmlogger stop 2>&1; then _exit 1; fi \
+| tee -a $seq_full \
+| _filter_pcp_stop
+_wait_pmlogger_end || _exit 1
+if ! _service pmcd stop 2>&1; then _exit 1; fi \
+| tee -a $seq_full \
+| _filter_pcp_stop
+_wait_pmcd_end || _exit 1
 $sudo $signal -a pmgadgets pmchart pmview >/dev/null 2>&1
 $sudo cp $tmp $PCP_PMCDCONF_PATH
 # try to dodge bind: Address already in use

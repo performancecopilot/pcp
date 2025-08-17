@@ -38,10 +38,11 @@ _cleanup()
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
-	_service pcp restart 2>&1 | _filter_pcp_start
+	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
-	_wait_for_pmlogger
 	_restore_auto_restart pmcd
+	_service pmlogger restart 2>&1 | _filter_pcp_restart
+	_wait_for_pmlogger
 	if $install_on_cleanup
 	then
 	    ( cd $PCP_PMDAS_DIR/mmv; $sudo ./Install <$tmp.input >/dev/null 2>&1 )

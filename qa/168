@@ -16,9 +16,10 @@ echo "QA output created by $seq"
 
 _cleanup()
 {
-    _service pcp stop >/dev/null 2>&1
-    _service pcp start >/dev/null 2>&1
+    _service pmcd restart 2>&1 | _filter_pcp_restart
     _wait_for_pmcd
+    _restore_auto_restart pmcd
+    _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
     rm -f $tmp.*
 }
@@ -33,9 +34,11 @@ export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 # force sample PMDA back to a sane state
 _reset()
 {
-    if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
-    if ! _service pmcd start >/dev/null 2>&1; then _exit 1; fi
+    if ! _service pmcd restart 2>&1; then _exit 1; fi \
+    | _filter_pcp_restart
     _wait_for_pmcd || _exit 1
+    if ! _service pmlogger restart 2>&1; then _exit 1; fi \
+    | _filter_pcp_restart
     _wait_for_pmlogger || _exit 1
 }
 

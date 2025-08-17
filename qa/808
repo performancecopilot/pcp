@@ -23,7 +23,7 @@ _cleanup()
     fi
     $sudo rm -f $PCP_RUN_DIR/pmlogger.pid
     _restore_auto_restart pmlogger
-    _service pmlogger restart | _filter_pcp_start
+    _service pmlogger restart | _filter_pcp_restart
 
     if $pmproxy_was_running
     then
