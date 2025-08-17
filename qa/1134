@@ -95,7 +95,7 @@ echo "--- 09"
 # For completeness sake, no -nan in archives/value-test
 pmrep -z -p -u -a archives/all-sles9-sp1.meta -w 10 filesys.full
 echo "--- 10"
-pcp2json -z -a $A -H -I "" | pmjson -p | _value_filter
+pcp2json -z -a $A -H -I "" | pmjson | _value_filter
 echo "--- 11"
 pcp2xml -z -a $A -H -I "" | _value_filter | _sort
 echo "--- 12"

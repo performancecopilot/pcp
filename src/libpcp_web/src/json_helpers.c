@@ -17,8 +17,13 @@
 #include "pmda.h"
 #include "jsmn.h"
 
-/* Number of spaces to use in each level of pretty-printed output */
-#define PRETTY_SPACES	4
+/* Number of spaces to use in each level of default output */
+#define DEFAULT_SPACES	4
+
+/* ANSI escape codes for use when pretty-printing output */
+#define ANSI_GREEN	"\x1b[32m"
+#define ANSI_BLUE	"\x1b[34m"
+#define ANSI_RESET	"\x1b[0m"
 
 /*
  * JSMN helper interfaces for efficiently extracting from JSON strings
@@ -475,41 +480,54 @@ finished:
 }
 
 static int
-printyaml(FILE *fp, const char *js, jsmntok_t *t, size_t count, int indent)
+printyaml(FILE *fp, const char *js, jsmntok_t *t, size_t count, int indent, json_flags flags)
 {
-    int		i, j;
+    static int	value_string;	/* print value strings in green, else blue */
+    int		i, j, length;
 
     if (!count)
 	return 0;
 
     if (t->type == JSMN_PRIMITIVE) {
-	fprintf(fp, "%.*s", t->end - t->start, js + t->start);
+	length = t->end - t->start;
+	fprintf(fp, "%.*s", length, js + t->start);
+	value_string = 0;
 	return 1;
     } else if (t->type == JSMN_STRING) {
-	fprintf(fp, "%.*s", t->end - t->start, js + t->start);
+	length = t->end - t->start;
+	if (!(flags & pmjson_flag_pretty))
+	    fprintf(fp, "%.*s", length, js + t->start);
+	else
+	    fprintf(fp, "%s%.*s%s", value_string? ANSI_GREEN : ANSI_BLUE,
+				    length, js + t->start, ANSI_RESET);
+	value_string = !value_string;
 	return 1;
     } else if (t->type == JSMN_OBJECT) {
+	value_string = 0;
 	if (indent > 0)
 	    fprintf(fp, "\n");
 	for (i = j = 0; i < t->size; i++) {
-	    fprintf(fp, "%*s", PRETTY_SPACES * indent, "");
-	    j += printyaml(fp, js, t + 1 + j, count - j, indent + 1);
+	    fprintf(fp, "%*s", DEFAULT_SPACES * indent, "");
+	    j += printyaml(fp, js, t + 1 + j, count - j, indent + 1, flags);
 	    fprintf(fp, ": ");
-	    j += printyaml(fp, js, t + 1 + j, count - j, indent + 1);
+	    j += printyaml(fp, js, t + 1 + j, count - j, indent + 1, flags);
 	    if (i != t->size - 1)
 		fprintf(fp, "\n");
 	}
+	value_string = 0;
 	return j+1;
     } else if (t->type == JSMN_ARRAY) {
+	value_string = 0;
 	if (indent > 0)
 	    fprintf(fp, "\n");
 	for (i = j = 0; i < t->size; i++) {
-	    fprintf(fp, "%*s", PRETTY_SPACES * indent, "");
+	    fprintf(fp, "%*s", DEFAULT_SPACES * indent, "");
 	    fprintf(fp, "  - ");
-	    j += printyaml(fp, js, t+1+j, count-j, indent+1);
+	    j += printyaml(fp, js, t + 1 + j, count - j, indent + 1, flags);
 	    if (i != t->size - 1)
 		fprintf(fp, "\n");
 	}
+	value_string = 0;
 	return j+1;
     }
     return 0;
@@ -518,24 +536,34 @@ printyaml(FILE *fp, const char *js, jsmntok_t *t, size_t count, int indent)
 static int
 printjson(FILE *fp, const char *js, jsmntok_t *t, size_t count, int indent, json_flags flags)
 {
-    int		i, j;
+    static int	value_string;	/* print value strings in green, else blue */
+    int		i, j, length;
 
     if (!count)
 	return 0;
 
     if (t->type == JSMN_PRIMITIVE) {
-	fprintf(fp, "%.*s", t->end - t->start, js + t->start);
+	length = t->end - t->start;
+	fprintf(fp, "%.*s", length, js + t->start);
+	value_string = 0;
 	return 1;
     } else if (t->type == JSMN_STRING) {
-	fprintf(fp, "\"%.*s\"", t->end - t->start, js + t->start);
+	length = t->end - t->start;
+	if (!(flags & pmjson_flag_pretty))
+	    fprintf(fp, "\"%.*s\"", length, js + t->start);
+	else
+	    fprintf(fp, "%s\"%.*s\"%s", value_string? ANSI_GREEN : ANSI_BLUE,
+				    length, js + t->start, ANSI_RESET);
+	value_string = !value_string;
 	return 1;
     } else if (t->type == JSMN_OBJECT) {
+	value_string = 0;
 	fprintf(fp, "{");
 	if (!(flags & pmjson_flag_minimal) && t->size > 0)
 	    fprintf(fp, "\n");
 	for (i = j = 0; i < t->size; i++) {
 	    if (!(flags & pmjson_flag_minimal))
-		fprintf(fp, "%*s", PRETTY_SPACES * (1 + indent), "");
+		fprintf(fp, "%*s", DEFAULT_SPACES * (1 + indent), "");
 	    j += printjson(fp, js, t + 1 + j, count - j, indent + 1, flags);
 	    fprintf(fp, ":");
 	    if (!(flags & pmjson_flag_minimal))
@@ -547,16 +575,18 @@ printjson(FILE *fp, const char *js, jsmntok_t *t, size_t count, int indent, json
 		fprintf(fp, "\n");
 	}
 	if (!(flags & pmjson_flag_minimal))
-	    fprintf(fp, "%*s", PRETTY_SPACES * indent, "");
+	    fprintf(fp, "%*s", DEFAULT_SPACES * indent, "");
 	fprintf(fp, "}");
+	value_string = 0;
 	return j+1;
     } else if (t->type == JSMN_ARRAY) {
+	value_string = 0;
 	fprintf(fp, "[");
 	if (!(flags & pmjson_flag_minimal) && t->size > 0)
 	    fprintf(fp, "\n");
 	for (i = j = 0; i < t->size; i++) {
 	    if (!(flags & pmjson_flag_minimal))
-		fprintf(fp, "%*s", PRETTY_SPACES * (1 + indent), "");
+		fprintf(fp, "%*s", DEFAULT_SPACES * (1 + indent), "");
 	    j += printjson(fp, js, t+1+j, count-j, indent+1, flags);
 	    if (i != t->size - 1)
 		fprintf(fp, ",");
@@ -564,8 +594,9 @@ printjson(FILE *fp, const char *js, jsmntok_t *t, size_t count, int indent, json
 		fprintf(fp, "\n");
 	}
 	if (!(flags & pmjson_flag_minimal))
-	    fprintf(fp, "%*s", PRETTY_SPACES * indent, "");
+	    fprintf(fp, "%*s", DEFAULT_SPACES * indent, "");
 	fprintf(fp, "]");
+	value_string = 0;
 	return j+1;
     }
     return 0;
@@ -654,7 +685,7 @@ parsing:
 	if (flags & pmjson_flag_quiet)
 	    ; /* just checking syntax */
 	else if (flags & pmjson_flag_yaml) {
-	    printyaml(fp, json, json_tokens, parser.toknext, 0);
+	    printyaml(fp, json, json_tokens, parser.toknext, 0, flags);
 	    fprintf(fp, "\n");
 	} else {
 	    printjson(fp, json, json_tokens, parser.toknext, 0, flags);
