@@ -196,6 +196,9 @@ else
     exit
 fi
 
+# also wait for pmproxy to establish a key server connection
+_wait_for_pcp_schema $key_server_port
+
 echo "=== pmlogpush to pmproxy ==="
 pmlogpush -p $pmproxy_port $archive
 pmsleep 1.5 # allow time for key server as well
