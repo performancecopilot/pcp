@@ -1,0 +1,28 @@
+Optional PCP crontab installation
+
+For Linux systems where systemd(1) is active, the polling and daily
+scripts needed to manage service health, PCP archives, log rotation and
+related matters are handled by .timer "services" that are controlled
+by systemctl(1) and no manual cron(1) configuration is needed.
+
+For non-Linux systems, this work is done by cron(1) for the user
+"pcp", using crontab entries installed in the right place by the
+PCP package installation procedures and again no manual cron(1)
+configuration is needed.
+
+For Linux systems where systemd(1) is not active, some manual
+configuration is required to allow cron(1) to do the work.
+Specifically something along the lines of:
+
+    $ cd /usr/share/pcp/cron.d
+    $ sudo crontab -u pcp -r
+    $ cat pcp-* | sudo crontab -u pcp -
+
+and then check with:
+
+    $ sudo crontab -u pcp -l
+
+and customize (e.g. comment out or remove lines for services you're
+not using) with:
+
+    $ sudo crontab -u pcp -e
