@@ -1,4 +1,8 @@
-![PCP](images/pcpicon.png)
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="images/pcpicon-light.png">
+  <source media="(prefers-color-scheme: light)" srcset="images/pcpicon.png">
+  <img alt="Performance Co-Pilot logo" src="images/pcpicon.png">
+</picture>
 
 [![CI](https://github.com/performancecopilot/pcp/workflows/CI/badge.svg)](https://performancecopilot.github.io/qa-reports/reports/latest/)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/15853/badge.svg)](https://scan.coverity.com/projects/15853)
