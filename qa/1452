@@ -38,6 +38,7 @@ _pmdabpf_tryload $tmp.conf
 
 _cleanup()
 {
+    cd $here
     _pmdabpf_cleanup
     $sudo rm -rf $tmp $tmp.*
 }

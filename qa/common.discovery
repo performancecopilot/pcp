@@ -120,6 +120,7 @@ _cleanup_avahi_service()
 	echo "Stopping $service ..." >>$seq_full
 	_service $service stop >>$seq_full 2>&1
     fi
+    $sudo rm -rf $tmp $tmp.*
 }
 
 _control_avahi_service()

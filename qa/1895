@@ -33,8 +33,9 @@ _label_filter()
 
 _cleanup()
 {
+   cd $here
     _pmdabpf_cleanup
-    $sudo rm -f "$out_file"
+    $sudo rm -rf $tmp $tmp.* "$out_file"
 }
 
 _prepare_pmda bpf
