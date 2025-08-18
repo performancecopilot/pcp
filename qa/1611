@@ -141,5 +141,7 @@ else
     exit
 fi
 
+_service pmproxy stop >>$seq_full 2>&1
+
 # success, all done
 exit
