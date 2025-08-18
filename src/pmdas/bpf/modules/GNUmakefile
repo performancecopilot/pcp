@@ -98,13 +98,13 @@ endif
 $(HELPERS_H):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/iovisor/bcc/libbpf-tools/$@ $@
 
-$(HELPERS_C):
+$(HELPERS_C): $(HELPERS_H)
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/iovisor/bcc/libbpf-tools/$@ $@
 
 $(APPS_H):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/iovisor/bcc/libbpf-tools/$@ $@
 
-$(APPS_BPF):
+$(APPS_BPF): $(HELPERS_H)
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/iovisor/bcc/libbpf-tools/$@ $@
 
 vmlinux.h: $(PMDABPF_VMLINUXH)
@@ -127,6 +127,8 @@ vmlinux.h: $(PMDABPF_VMLINUXH)
 
 compat.o: compat.c
 	$(CC) -c $(CFLAGS) $(CPPFLAGS) $< -o $@
+
+$(COMMON_OBJ): $(HELPERS_H)
 
 # ifeq "$(CLANG_MAJOR_VERSION)" "12"
 # %.bpf.o: %.bpf.c FORCE

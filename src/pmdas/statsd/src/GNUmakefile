@@ -78,6 +78,8 @@ CFILES += $(RFILES)
 
 $(RAGELTARGET).o: $(RFILES)
 
+$(CMDTARGET) $(LIBTARGET): $(RAGELTARGET).o
+
 $(RFILES): $(RAGELTARGET).rl
 ifeq "$(RAGEL)" ""
 	@# for systems without ragel (RHEL)
