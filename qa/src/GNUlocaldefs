@@ -475,7 +475,7 @@ api_abi_v2:	api_abi.c
 # have to play games with libpcp.h so we include the one from
 # ../../src/libpcp3/src/include/pcp, not ./libpcp.h
 #
-api_abi_compat:	api_abi.c
+api_abi_compat:	api_abi.c libpcp.h
 	rm -f $@ 
 	mv libpcp.h libpcp.h.save
 	$(CC) -I../../src/libpcp3/src/include/pcp $(CFLAGS) $(CDEFS) -o $@ $< ../../src/libpcp3/src/$(LIBPCP3)
