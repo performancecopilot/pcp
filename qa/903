@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 _cleanup()
 {
     cd $here
-    $sudo rm -rf $tmp $tmp.*
+    rm -rf $tmp $tmp.* /tmp/mt13out.*
 }
 
 status=1	# failure is the default!
@@ -28,6 +28,7 @@ do
     echo | tee -a $seq_full
     echo "=== $src ===" | tee -a $seq_full
     [ "$src" = "-L" ] && echo "Note: expect errors with -L"
+    rm -f /tmp/mt13out.*
     src/multithread13 -i -v $src -s 100 5 >$tmp.out 2>$tmp.err
     cat $tmp.err $tmp.out >>$seq_full
     cat $tmp.err $tmp.out
