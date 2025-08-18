@@ -901,7 +901,11 @@ Summary: Performance Co-Pilot (PCP) metrics from statsd
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: chan HdrHistogram_c
-BuildRequires: ragel chan-devel HdrHistogram_c-devel
+BuildRequires: chan-devel HdrHistogram_c-devel
+# ragel unavailable on some RHEL and CentOS Stream platforms
+%if 0%{?rhel} == 0
+BuildRequires: ragel
+%endif
 
 %description pmda-statsd
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
