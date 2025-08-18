@@ -85,7 +85,7 @@ _pcp_complete()
 	arg_regex="-[abcDhKNnOrZ]"
     ;;
     pmjson)
-	all_args="DmiopqyV"
+	all_args="DmniopqyV"
 	arg_regex="-[Dio]"
     ;;
     pmlc)

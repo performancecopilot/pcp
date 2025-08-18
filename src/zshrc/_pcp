@@ -558,6 +558,7 @@ _pcp () {
       "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-i --in $exargs)"{-i+,--in=}'[set input file]:file:_files' \
       "(-m --minimal $exargs)"{-m,--minimal}'[minimal output format]' \
+      "(-n --not-pretty $exargs)"{-n,--not-pretty}'[monochromatic format]' \
       "(-o --out $exargs)"{-o+,--out=}'[set output file]:file:_files' \
       "(-p --pretty $exargs)"{-p,--pretty}'[human-readable format]' \
       "(-q --quiet $exargs)"{-q,--quiet}'[verify input, no output]' \
