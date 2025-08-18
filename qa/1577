@@ -32,8 +32,10 @@ _pmdabpf_tryload $tmp.conf
 
 _cleanup()
 {
+    cd $here
     _unmount_filesystem ext4
     _pmdabpf_cleanup
+    $sudo rm -rf $tmp $tmp.*
 }
 
 _prepare_pmda bpf

@@ -32,7 +32,9 @@ _non_filter()
 
 _cleanup()
 {
+    cd $here
     _pmdabpf_cleanup
+    $sudo rm -rf $tmp $tmp.*
     $sudo rm -rf /tmp/qa_execsnoop
 }
 
