@@ -172,8 +172,11 @@ loggroup_drop_archive(struct archive *archive, struct loggroups *groups)
 	    uv_mutex_lock(&groups->mutex);
 	    dictDelete(groups->archives, &archive->randomid);
 	    uv_mutex_unlock(&groups->mutex);
+	    uv_close((uv_handle_t *)&archive->timer, loggroup_release_archive);
+	} else {
+	    uv_close((uv_handle_t *)&archive->timer, NULL);
+	    loggroup_free_archive(archive);
 	}
-	uv_close((uv_handle_t *)&archive->timer, loggroup_release_archive);
     }
 }
 
@@ -237,20 +240,7 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
 	loggroup_free_archive(ap);
 	return -ENOMEM;
     }
-    uv_mutex_lock(&groups->mutex);
-    if (dictFind(groups->archives, &archive) != NULL) {
-	uv_mutex_unlock(&groups->mutex);
-	loggroup_free_archive(ap);
-	return -EEXIST;
-    }
-    uv_mutex_unlock(&groups->mutex);
     if ((ap->fullpath = sdsnew(fullpath)) == NULL) {
-	loggroup_free_archive(ap);
-	return -ENOMEM;
-    }
-    if (sp->module.discover &&
-	(ap->discover = pmDiscoverStreamLabel(fullpath, label,
-					sp->module.discover, ap)) == NULL) {
 	loggroup_free_archive(ap);
 	return -ENOMEM;
     }
@@ -259,9 +249,21 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
     ap->datafd = -1;
 
     uv_mutex_lock(&groups->mutex);
+    if (dictFind(groups->archives, &archive) != NULL) {
+	uv_mutex_unlock(&groups->mutex);
+	loggroup_free_archive(ap);
+	return -EEXIST;
+    }
     dictAdd(groups->archives, &archive, ap);
     groups->update = 1;
     uv_mutex_unlock(&groups->mutex);
+
+    if (sp->module.discover &&
+	(ap->discover = pmDiscoverStreamLogLabel(fullpath, label,
+					sp->module.discover, ap)) == NULL) {
+	loggroup_free_archive(ap);
+	return -ENOMEM;
+    }
 
     /* leave until the end because uv_timer_init makes this visible in uv_run */
     handle = (uv_handle_t *)&ap->timer;

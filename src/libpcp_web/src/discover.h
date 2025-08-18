@@ -93,6 +93,8 @@ typedef struct pmDiscover {
 } pmDiscover;
 
 extern void pmSeriesDiscoverSource(pmDiscoverEvent *, void *);
+extern void pmSeriesDiscoverReset(pmDiscoverEvent *,
+				pmLabelSet *, void *);
 extern void pmSeriesDiscoverClosed(pmDiscoverEvent *, void *);
 
 extern void pmSeriesDiscoverLabels(pmDiscoverEvent *,
@@ -113,7 +115,8 @@ extern void pmSearchDiscoverInDom(pmDiscoverEvent *,
 extern void pmSearchDiscoverText(pmDiscoverEvent *,
 				int, int, char *, void *);
 
-extern pmDiscover *pmDiscoverStreamLabel(const char *, __pmLogLabel *, pmDiscoverModule *, void *);
+extern pmDiscover *pmDiscoverStreamLogLabel(const char *, __pmLogLabel *,
+				pmDiscoverModule *, void *);
 extern int pmDiscoverStreamMeta(pmDiscover *, const char *, size_t);
 extern int pmDiscoverStreamData(pmDiscover *, const char *, size_t);
 extern void pmDiscoverStreamEnd(const char *);

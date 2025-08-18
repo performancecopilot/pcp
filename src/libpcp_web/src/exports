@@ -282,4 +282,6 @@ PCP_WEB_1.22 {
     pmLogGroupSetMetricRegistry;
     pmLogPathsReset;
     pmLogPathsSetMetricRegistry;
+
+    pmSeriesDiscoverReset;
 } PCP_WEB_1.21;

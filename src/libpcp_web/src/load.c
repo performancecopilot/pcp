@@ -943,7 +943,6 @@ series_source_mapping(void *arg)
     context_t		*context = &baton->pmapi.context;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_source_mapping");
-    seriesBatonCheckCount(baton, "series_source_mapping");
 
     seriesBatonReferences(baton, 2, "series_source_mapping");
     series_string_mapping(baton, contextmap, context->name.id, context->name.sds);
@@ -1146,6 +1145,9 @@ freeSeriesLoadBaton(seriesLoadBaton *baton)
 {
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "freeSeriesLoadBaton");
 
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: baton=%p\n", __FUNCTION__, baton);
+
     if (baton->done)
 	baton->done(baton->error, baton->userdata);
 
@@ -1169,6 +1171,23 @@ context_t *
 seriesLoadBatonContext(seriesLoadBaton *baton)
 {
     return &baton->pmapi.context;
+}
+
+static void
+series_source_persist(void *arg)
+{
+    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
+    seriesBatonMagic	*magic = (seriesBatonMagic *)arg;
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: baton=%p\n", __FUNCTION__, baton);
+
+    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_source_persist");
+    /* take a reference to keep this load baton until closed */
+    seriesBatonReference(baton, "series_source_persist");
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: magic=%p refcnt=%u\n", __FUNCTION__, magic, magic->refcount);
 }
 
 int
@@ -1219,27 +1238,6 @@ series_load(pmSeriesSettings *settings,
     return 0;
 }
 
-static void
-series_source_persist(void *arg)
-{
-    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
-
-    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_source_persist");
-    /* take a reference to keep this load baton until closed */
-    seriesBatonReference(baton, "series_source_persist");
-}
-
-static void
-series_discover_done(int status, void *arg)
-{
-    seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
-
-    seriesBatonCheckMagic(baton, MAGIC_LOAD, "series_discover_done");
-    /* archive no longer active, remove from discovery set */
-    freeSeriesLoadBaton(baton);
-    (void)status;
-}
-
 void
 pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
 {
@@ -1257,19 +1255,19 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
 
     baton = (seriesLoadBaton *)calloc(1, sizeof(seriesLoadBaton));
     if (baton == NULL) {
-	infofmt(msg, "%s: out of memory for baton", "pmSeriesDiscoverSource");
+	infofmt(msg, "%s: out of memory for baton", __FUNCTION__);
 	moduleinfo(module, PMLOG_ERROR, msg, arg);
 	return;
     }
     if ((set = pmwebapi_labelsetdup(p->context.labelset)) == NULL) {
-	infofmt(msg, "%s: out of memory for labels", "pmSeriesDiscoverSource");
+	infofmt(msg, "%s: out of memory for labels", __FUNCTION__);
 	moduleinfo(module, PMLOG_ERROR, msg, arg);
 	free(baton);
 	return;
     }
 
     initSeriesLoadBaton(baton, module, 0 /*flags*/,
-			module->on_info, series_discover_done,
+			module->on_info, NULL,
 			data->slots, arg);
     initSeriesGetContext(&baton->pmapi, baton);
     p->baton = baton;
@@ -1277,8 +1275,8 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     cp = &baton->pmapi.context;
 
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s: new source %s context=%p ctxid=%d\n",
-			"pmSeriesDiscoverSource", p->context.name, cp, p->ctx);
+	fprintf(stderr, "%s: new source %s context=%p baton=%p ctxid=%d\n",
+			__FUNCTION__, p->context.name, cp, baton, p->ctx);
 
     cp->context = p->ctx;
     cp->type = p->context.type;
@@ -1305,12 +1303,52 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
 }
 
 void
+pmSeriesDiscoverReset(pmDiscoverEvent *event, pmLabelSet *set, void *arg)
+{
+    pmDiscoverModule	*module = event->module;
+    pmDiscover		*p = (pmDiscover *)event->data;
+    discoverModuleData	*data = getDiscoverModuleData(module);
+    seriesLoadBaton	*baton = p->baton;
+    context_t		*cp = &baton->pmapi.context;
+    int			i;
+
+    if (data == NULL || data->slots == NULL || data->slots->state != SLOTS_READY)
+	return;
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: reset source %s context=%p baton=%p ctxid=%d\n",
+			__FUNCTION__, p->context.name, cp, baton, p->ctx);
+
+    if (cp->labelset)
+	pmFreeLabelSets(cp->labelset, 1);
+    cp->labelset = pmwebapi_labelsetdup(set);
+    pmwebapi_source_hash(cp->name.hash, set->json, set->jsonlen);
+
+    /* ordering of async operations */
+    i = 0;
+    baton->current = &baton->phases[i];
+    /* assign source/host string map (series_source_mapping) */
+    baton->phases[i++].func = series_source_mapping;
+    /* write source info into schema (series_cache_source) */
+    baton->phases[i++].func = series_cache_source;
+    assert(i <= LOAD_PHASES);
+
+    seriesBatonPhases(baton->current, i, baton);
+}
+
+void
 pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
 {
     pmDiscover		*p = (pmDiscover *)event->data;
     seriesLoadBaton	*baton = p->baton;
+    seriesBatonMagic	*magic = (seriesBatonMagic *)baton;
 
-    (void)arg;
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: closed source %s discover=%p baton=%p arg=%p\n",
+			__FUNCTION__, p->context.name, p, baton, arg);
+
+    if (pmDebugOptions.discovery)
+	fprintf(stderr, "%s: magic=%p refcnt=%u\n", __FUNCTION__, magic, magic->refcount);
 
     /* release pmSeriesDiscoverSource reference on load and context batons */
     doneSeriesLoadBaton(baton, "pmSeriesDiscoverSource");

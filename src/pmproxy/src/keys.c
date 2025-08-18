@@ -24,6 +24,7 @@ static int archive_push;
 
 static pmDiscoverCallBacks key_server_series = {
     .on_source		= pmSeriesDiscoverSource,
+    .on_reset		= pmSeriesDiscoverReset,
     .on_closed		= pmSeriesDiscoverClosed,
     .on_labels		= pmSeriesDiscoverLabels,
     .on_metric		= pmSeriesDiscoverMetric,

@@ -648,7 +648,8 @@ pmDiscoverInvokeClosedCallBacks(pmDiscover *p)
     if (pmDebugOptions.discovery) {
 	fprintf(stderr, "%s[%s]: %s closed name %s %s\n", __FUNCTION__,
 			timestamp_str(&stamp, buf, sizeof(buf)),
-			p->context.source, p->context.name, pmDiscoverFlagsStr(p));
+			p->context.source, p->context.name,
+			pmDiscoverFlagsStr(p));
 	if (pmDebugOptions.labels)
 	    fprintf(stderr, "context labels %s\n", p->context.labelset->json);
     }
@@ -682,6 +683,32 @@ pmDiscoverInvokeSourceCallBacks(pmDiscover *p, __pmTimestamp *tsp)
 	if ((callbacks = discoverCallBackTable[i]) &&
 	    callbacks->on_source != NULL)
 	    callbacks->on_source(&event, p->data);
+    }
+}
+
+static void
+pmDiscoverInvokeResetCallBacks(pmDiscover *p, pmLabelSet *set, __pmTimestamp *tsp)
+{
+    pmDiscoverCallBacks	*callbacks;
+    pmDiscoverEvent	event;
+    char		buf[32];
+    int			i;
+
+    if (pmDebugOptions.discovery) {
+	fprintf(stderr, "%s[%s]: %s name %s\n", __FUNCTION__,
+			timestamp_str(tsp, buf, sizeof(buf)),
+			p->context.source, p->context.name);
+	if (pmDebugOptions.labels) {
+	    fprintf(stderr, "old context labels %s\n", p->context.labelset->json);
+	    fprintf(stderr, "new context labels %s\n", set->json);
+	}
+    }
+
+    discover_event_init(p, tsp, &event);
+    for (i = 0; i < discoverCallBackTableSize; i++) {
+	if ((callbacks = discoverCallBackTable[i]) &&
+	    callbacks->on_reset != NULL)
+	    callbacks->on_reset(&event, set, p->data);
     }
 }
 
@@ -1224,7 +1251,7 @@ pmDiscoverResetSource(pmDiscover *p, __pmTimestamp *stamp, pmLabelSet *labelset)
        if (p->context.labelset)
            pmFreeLabelSets(p->context.labelset, 1);
        p->context.labelset = __pmDupLabelSets(labelset, 1);
-       pmDiscoverInvokeSourceCallBacks(p, stamp);
+       pmDiscoverInvokeResetCallBacks(p, labelset, stamp);
     }
 }
 
@@ -1269,7 +1296,7 @@ copy_loglabel(__pmLogLabel *l1, __pmLogLabel *l2)
 }
 
 pmDiscover *
-pmDiscoverStreamLabel(const char *path, __pmLogLabel *label,
+pmDiscoverStreamLogLabel(const char *path, __pmLogLabel *label,
                 pmDiscoverModule *module, void *arg)
 {
     discoverModuleData	*data = getDiscoverModuleData(module);
@@ -1279,14 +1306,15 @@ pmDiscoverStreamLabel(const char *path, __pmLogLabel *label,
     sds			msg = NULL;
     int			sts, type;
 
-    mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_NEW_CONTEXTS]);
-
-    /* delete hash table entry if one already exists */
-    pmDiscoverStreamEnd(path);
+    /* check that this is not an already hashed log */
+    if ((p = pmDiscoverLookup(path)) != NULL)
+	return p;
 
     /* insert hash table entry for this new archive */
     if ((p = pmDiscoverLookupAdd(path, module, arg)) == NULL)
-        return p;
+	return p;
+
+    mmv_inc(data->map, data->metrics[DISCOVER_LOGVOL_NEW_CONTEXTS]);
 
     /* one-time context initialization on the first metadata buffer */
     type = p->context.type | PM_CTXFLAG_STREAMING_WRITER;
