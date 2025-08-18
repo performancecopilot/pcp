@@ -23,6 +23,7 @@ jobs:
         include:
           - {platform: debian11-container,        os: ubuntu-latest, experimental: false}
           - {platform: debian12-container,        os: ubuntu-latest, experimental: false}
+          - {platform: debian13-container,        os: ubuntu-latest, experimental: false}
           - {platform: ubuntu1804-container,      os: ubuntu-latest, experimental: false}
           - {platform: ubuntu1804-i386-container, os: ubuntu-latest, experimental: false}
           - {platform: ubuntu2004-container,      os: ubuntu-latest, experimental: false}

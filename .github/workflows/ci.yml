@@ -31,8 +31,8 @@ jobs:
           - {platform: centos-stream9-container,  os: ubuntu-22.04, experimental: false}
           - {platform: centos-stream10-container, os: ubuntu-22.04, experimental: false}
 # other platforms that may be used for testing in developer repos
-#          - {platform: debian11-container,        os: ubuntu-latest, experimental: false}
 #          - {platform: debian12-container,        os: ubuntu-latest, experimental: false}
+#          - {platform: debian13-container,        os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu1804-container,      os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu2004,                os: ubuntu-latest, experimental: false}
 #          - {platform: ubuntu2204,                os: ubuntu-latest, experimental: false}
