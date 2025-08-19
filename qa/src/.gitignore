@@ -230,6 +230,7 @@ rootclient
 rtimetest
 scale
 scandata
+scanindex
 scanmeta
 semstr
 sha1ext2int

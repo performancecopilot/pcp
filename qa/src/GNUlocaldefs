@@ -55,7 +55,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	dumpstack.c usergroup.c derived_help.c ready-or-not.c cleanmapdir.c \
 	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c \
 	strnfoo.c mmv_ondisk.c newcontext.c api_abi.c interp_bug3.c \
-	pmsetmode.c
+	pmsetmode.c scanindex.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -457,6 +457,10 @@ mmv_ondisk:	mmv_ondisk.c
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 newcontext:	newcontext.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+scanindex:	scanindex.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
