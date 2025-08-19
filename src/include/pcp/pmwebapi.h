@@ -207,6 +207,8 @@ typedef struct pmDiscoverModule {
 } pmDiscoverModule;
 
 typedef void (*pmDiscoverSourceCallBack)(pmDiscoverEvent *, void *);
+typedef void (*pmDiscoverResetCallBack)(pmDiscoverEvent *,
+		pmLabelSet *, void *);
 typedef void (*pmDiscoverClosedCallBack)(pmDiscoverEvent *, void *);
 typedef void (*pmDiscoverLabelsCallBack)(pmDiscoverEvent *,
 		int, int, pmLabelSet *, int, void *);
@@ -221,6 +223,7 @@ typedef void (*pmDiscoverTextCallBack)(pmDiscoverEvent *,
 
 typedef struct pmDiscoverCallBacks {
     pmDiscoverSourceCallBack	on_source;	/* metric source discovered */
+    pmDiscoverResetCallBack	on_reset;	/* metric source changed ID */
     pmDiscoverClosedCallBack	on_closed;	/* end of discovery updates */
     pmDiscoverLabelsCallBack	on_labels;	/* new labelset discovered */
     pmDiscoverMetricCallBack	on_metric;	/* metric descriptor, names */
