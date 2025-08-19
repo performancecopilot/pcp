@@ -28,6 +28,8 @@
  	{ .it_indom = DISK_INDOM },
  	{ .it_indom = FLASH_LED_INDOM },
  	{ .it_indom = PER_HEAD_INDOM },
+ 	{ .it_indom = SCSI_DISK_INDOM },
+	{ .it_indom = SCSI_PER_HEAD_INDOM },
  };
  
  /*
@@ -528,6 +530,343 @@ pmdaMetric metrictable[] = {
     		PMDA_PMID(CLUSTER_ATA_PER_HEAD_STATS, NUMBER_REALLOCATION_CANDIDATE_SECTORS),
 		PM_TYPE_U64, PER_HEAD_INDOM, PM_SEM_COUNTER,
 		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* SCSI - PAGE 0: FARM log header */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_LOG_HEADER, SCSI_LOG_VERSION),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_LOG_HEADER, SCSI_PAGES_SUPPORTED),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_LOG_HEADER, SCSI_LOG_SIZE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_LOG_HEADER, SCSI_HEADS_SUPPORTED),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_LOG_HEADER, SCSI_REASON_FOR_LAST_FRAME),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* SCSI - PAGE 1: FARM Drive Information */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_SERIAL_NUMBER),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_WORLD_WIDE_NAME),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_FIRMWARE_REVISION),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_DEVICE_INTERFACE),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_DEVICE_CAPACITY_IN_SECTORS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_PHYSICAL_SECTOR_SIZE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_LOGICAL_SECTOR_SIZE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_DEVICE_BUFFER_SIZE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_NUMBER_OF_HEADS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_DEVICE_FORM_FACTOR),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_ROTATIONAL_RATE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_POWER_ON_HOURS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,1,-1,0,PM_TIME_HOUR,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_POWER_CYCLE_COUNT),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_HARDWARE_RESET_COUNT),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION, SCSI_ASSEMBLY_DATE),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	/* SCSI - PAGE 2: FARM Workload Statistics */		
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_TOTAL_READ_COMMANDS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_TOTAL_WRITE_COMMANDS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_TOTAL_RANDOM_READ_COMMANDS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_TOTAL_RANDOM_WRITE_COMMANDS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_TOTAL_OTHER_COMMANDS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_LOGICAL_SECTORS_WRITTEN),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_LOGICAL_SECTORS_READ),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_READ_COMMANDS_0_3_LBA_SPACE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_READ_COMMANDS_3_25_LBA_SPACE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_READ_COMMANDS_25_75_LBA_SPACE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_READ_CMMANDS_75_100_LBA_SPACE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_WRITE_COMMANDS_0_3_LBA_SPACE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_WRITE_COMMANDS_3_25_LBA_SPACE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_WRITE_COMMANDS_25_75_LBA_SPACE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_WORKLOAD_STATISTICS, SCSI_WRITE_COMMANDS_75_100_LBA_SPACE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* SCSI - PAGE 3: FARM Error Statistics */	
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_UNRECOVERABLE_READ_ERRORS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_UNRECOVERABLE_WRITE_ERRORS),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_MECHANICAL_START_FAILURES),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_FRU_CODE_MOST_RECENT_SMART_FRAME),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_INVALID_DWORD_COUNT_A),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_INVALID_DWORD_COUNT_B),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_DISPARITY_ERROR_CODE_A),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_DISPARITY_ERROR_CODE_B),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_LOSS_OF_DWORD_SYNC_A),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_LOSS_OF_DWORD_SYNC_B),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_PHY_RESET_PROBLEM_PORT_A),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ERROR_STATISTICS, SCSI_PHY_RESET_PROBLEM_PORT_B),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* SCSI - PAGE 4: FARM Environmental Statistics */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_CURRENT_TEMPERATURE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_HIGHEST_TEMPERATURE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_LOWEST_TEMPERATURE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_SPECIFIED_MAX_OPERATING_TEMPERATURE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_SPECIFIED_MIN_OPERATING_TEMPERATURE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_CURRENT_RELATIVE_HUMIDITY),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_CURRENT_MOTOR_POWER),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_12V_POWER_AVERAGE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_12V_POWER_MINIUMUM),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_12V_POWER_MAXIMUM),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_5V_POWER_AVERAGE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_5V_POWER_MINIMUM),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS, SCSI_5V_POWER_MAXIMUM),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* SCSI - PAGE 5: FARM Reliability Statistics */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_RELIABILITY_STATISTICS, SCSI_HELIUM_PRESSURE_THREHOLD_TRIPPED),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* SCSI - PAGE 6: FARM Drive Information Continued */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED, SCSI_DEPOPULATION_HEAD_MASK),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED, SCSI_PRODUCT_ID),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED, SCSI_DRIVE_RECORDING_TYPE),
+		PM_TYPE_STRING, SCSI_DISK_INDOM, PM_SEM_DISCRETE,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED, SCSI_DEPOPPED),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED, SCSI_MAX_NUMBER_FOR_REASSIGNMENT),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED, SCSI_TIME_TO_READY_LAST_POWER_CYCLE),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,PM_TIME_SEC,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED, SCSI_TIME_DRIVE_HELD_IN_STAGGERED_SPIN),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,PM_TIME_SEC,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED, SCSI_SPIN_UP_TIME),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,PM_TIME_SEC,0) }, },
+	/* SCSI - PAGE 7: FARM Environment Information Continued */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_INFORMATION_CONTINUED, SCSI_CURRENT_12V),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_INFORMATION_CONTINUED, SCSI_MAXIMUM_12V),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_INFORMATION_CONTINUED, SCSI_MINIMUM_12V),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_INFORMATION_CONTINUED, SCSI_CURRENT_5V),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_INFORMATION_CONTINUED, SCSI_MAXIMUM_5V),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_SCSI_ENVIRONMENTAL_INFORMATION_CONTINUED, SCSI_MINIMUM_5V),
+		PM_TYPE_U64, SCSI_DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* SCSI - FARM Per-head STATS */
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_HEAD_STATS, SCSI_MR_HEAD_RESISTANCE),
+		PM_TYPE_U64, SCSI_PER_HEAD_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_HEAD_STATS, SCSI_REALLOCATED_SECTORS),
+		PM_TYPE_U64, SCSI_PER_HEAD_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_HEAD_STATS, SCSI_REALLOCATED_CANDIDATE_SECTORS),
+		PM_TYPE_U64, SCSI_PER_HEAD_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_HEAD_STATS, SCSI_HEAD_POWER_ON_HOURS),
+		PM_TYPE_U64, SCSI_PER_HEAD_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_HEAD_STATS, SCSI_CUMULATIVE_LIFETIME_UNRECOVERABLE_READ_REPEATING),
+		PM_TYPE_U64, SCSI_PER_HEAD_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_HEAD_STATS, SCSI_CUMULATIVE_LIFETIME_UNRECOVERABLE_READ_UNIQUE),
+		PM_TYPE_U64, SCSI_PER_HEAD_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_HEAD_STATS, SCSI_SECOND_MR_HEAD_RESISTANCE),
+		PM_TYPE_U64, SCSI_PER_HEAD_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 };
 
 pmInDom
@@ -581,7 +920,7 @@ farm_instance_refresh(void)
 		}
 
 		while (fgets(buffer2, sizeof(buffer2)-1, pf2) != NULL) {
-			if (strstr(buffer2, "(FARM)")) {
+			if (strstr(buffer2, "(FARM) (GP Log 0xa6)")) {
 			        struct seagate_disk *dev;
 
 		                sts = pmdaCacheLookupName(indom, dev_name, NULL, (void **)&dev);
@@ -596,7 +935,74 @@ farm_instance_refresh(void)
 		                else if (sts < 0)
 			                continue;
 
-		                pmdaCacheStore(indom, PMDA_CACHE_ADD, dev_name, (void *)dev);
+				pmdaCacheStore(indom, PMDA_CACHE_ADD, dev_name, (void *)dev);
+		                
+		                break; //Save reading the entire FARM Log at this point.
+			}
+		}
+
+		pclose(pf2);
+	}
+
+	pclose(pf);
+	return(0);	
+}
+
+static int
+farm_scsi_instance_refresh(void)
+{
+	int sts;
+	char buffer[4096], buffer2[4096], dev_name[128];
+	FILE *pf, *pf2;
+	pmInDom indom = INDOM(SCSI_DISK_INDOM);
+
+	/*
+	 * update indom cache based off number of disks reported by "lsblk",
+	 * smartctl requires us to know the block device id/path for each of
+	 * our disks in order to be able to get our stats, we get this info
+	 * using "lsblk" and store the name of each device. We additionally
+	 * check whether the drive supports farm log output before adding as
+	 * an instance.
+	 */
+
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+
+	if ((pf = popen(farm_setup_lsblk, "r")) == NULL)
+		return -oserror();
+
+	while (fgets(buffer, sizeof(buffer)-1, pf)) {	
+		sscanf(buffer, "%s", dev_name);
+		buffer[sizeof(dev_name)-1] = '\0';
+
+		/* at this point dev_name contains our device name this will be used to
+		 *  map stats to disk drive instances, although lets check for FARM
+		 *  support
+		 */
+		pmsprintf(buffer2, sizeof(buffer2), "%s -l farm /dev/%s", farm_setup_smartctl, dev_name);
+		buffer2[sizeof(buffer2)-1] = '\0';
+
+		if ((pf2 = popen(buffer2, "r")) == NULL) {
+		        pclose(pf);
+			return -oserror();
+		}
+
+		while (fgets(buffer2, sizeof(buffer2)-1, pf2) != NULL) {
+			if (strstr(buffer2, "(FARM) (SCSI Log page 0x3d, sub-page 0x3)")) {
+			        struct seagate_disk *dev;
+
+		                sts = pmdaCacheLookupName(indom, dev_name, NULL, (void **)&dev);
+		                if (sts == PM_ERR_INST || (sts >=0 && dev == NULL)) {
+			                dev = calloc(1, sizeof(struct seagate_disk));
+			                if (dev == NULL) {
+				                pclose(pf);
+				                pclose(pf2);
+				                return PM_ERR_AGAIN;
+			                }
+		                }
+		                else if (sts < 0)
+			                continue;
+
+				pmdaCacheStore(indom, PMDA_CACHE_ADD, dev_name, (void *)dev);
 		                
 		                break; //Save reading the entire FARM Log at this point.
 			}
@@ -613,6 +1019,7 @@ static int
 farm_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
 	farm_instance_refresh();
+	farm_scsi_instance_refresh();
 	return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -620,11 +1027,15 @@ static int
 farm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 {
 	pmInDom indom = INDOM(DISK_INDOM);
+	pmInDom scsi_indom = INDOM(SCSI_DISK_INDOM);
 	struct seagate_disk *dev;
 	char *dev_name;
 	int i, sts;
 
 	if ((sts = farm_instance_refresh()) < 0)
+		return sts;
+
+	if ((sts = farm_scsi_instance_refresh()) < 0)
 		return sts;
 
 	for (pmdaCacheOp(indom, PMDA_CACHE_WALK_REWIND);;) {
@@ -648,6 +1059,28 @@ farm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	        
 	        if (need_refresh[CLUSTER_ATA_PER_HEAD_STATS])
 	                farm_ata_refresh_per_head_stats();
+	}
+	
+	for (pmdaCacheOp(scsi_indom, PMDA_CACHE_WALK_REWIND);;) {
+		if ((i= pmdaCacheOp(scsi_indom, PMDA_CACHE_WALK_NEXT)) < 0)
+			break;
+		if (!pmdaCacheLookup(scsi_indom, i, &dev_name, (void **)&dev) || !dev)
+			continue;
+
+		if (need_refresh[CLUSTER_SCSI_LOG_HEADER] ||
+			need_refresh[CLUSTER_SCSI_DRIVE_INFORMATION] ||
+			need_refresh[CLUSTER_SCSI_WORKLOAD_STATISTICS] ||
+			need_refresh[CLUSTER_SCSI_ERROR_STATISTICS] ||
+			need_refresh[CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS] ||
+			need_refresh[CLUSTER_SCSI_RELIABILITY_STATISTICS] ||
+			need_refresh[CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED] ||
+			need_refresh[CLUSTER_SCSI_ENVIRONMENTAL_INFORMATION_CONTINUED])
+			farm_scsi_refresh_data(dev_name, &dev->farm_scsi_log_stats);
+	}
+		
+        if (( i = pmdaCacheOp(scsi_indom, PMDA_CACHE_SIZE_ACTIVE)) > 0) {
+	        if (need_refresh[CLUSTER_SCSI_PER_HEAD_STATS])
+	                farm_scsi_refresh_per_head_stats();
 	}
 	
 	return sts;
@@ -696,6 +1129,22 @@ farm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 case CLUSTER_ATA_PER_HEAD_STATS:
                         return farm_ata_per_head_stats_fetch(item, inst, atom);
 
+		case CLUSTER_SCSI_LOG_HEADER:
+		case CLUSTER_SCSI_DRIVE_INFORMATION:
+		case CLUSTER_SCSI_WORKLOAD_STATISTICS:
+		case CLUSTER_SCSI_ERROR_STATISTICS:
+		case CLUSTER_SCSI_ENVIRONMENTAL_STATISTICS:
+		case CLUSTER_SCSI_RELIABILITY_STATISTICS:
+		case CLUSTER_SCSI_DRIVE_INFORMATION_CONTINUED:
+		case CLUSTER_SCSI_ENVIRONMENTAL_INFORMATION_CONTINUED:
+			sts = pmdaCacheLookup(INDOM(SCSI_DISK_INDOM), inst, NULL, (void **)&dev);
+			if (sts < 0)
+				return sts;
+			return farm_scsi_data_fetch(item, cluster, &dev->farm_scsi_log_stats, atom);
+
+                case CLUSTER_SCSI_PER_HEAD_STATS:
+                        return farm_scsi_per_head_stats_fetch(item, inst, atom);
+
 		default:
 			return PM_ERR_PMID;
 	}
@@ -715,6 +1164,11 @@ farm_labelInDom(pmID pmid, pmLabelSet **lp)
                         return 1;
                 
                 case CLUSTER_ATA_PER_HEAD_STATS:
+                        pmdaAddLabels(lp, "{\"device_type\":[\"disk\",\"disk_head\"]}");
+                        pmdaAddLabels(lp, "{\"indom_name\":\"per disk, per disk_head\"}");
+                        return 1;
+
+                case CLUSTER_SCSI_PER_HEAD_STATS:
                         pmdaAddLabels(lp, "{\"device_type\":[\"disk\",\"disk_head\"]}");
                         pmdaAddLabels(lp, "{\"indom_name\":\"per disk, per disk_head\"}");
                         return 1;
@@ -747,6 +1201,7 @@ farm_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
         struct farm_flash_led_events *flash_led_events;
         struct farm_per_head_stats *per_head_stats;
+        struct farm_scsi_per_head_stats *farm_scsi_per_head_stats;
         
         int sts;
         char *name, *disk_name;
@@ -777,6 +1232,17 @@ farm_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
                                 per_head_stats->head_id
                         );
 
+                case SCSI_PER_HEAD_INDOM:
+                        sts = pmdaCacheLookup(INDOM(SCSI_PER_HEAD_INDOM), inst, &name, (void **)&farm_scsi_per_head_stats);
+                        if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+                                return 0;
+                        
+                        disk_name = strsep(&name, ":");
+                        return pmdaAddLabels(lp, "{\"disk\":\"%s\", \"disk_head\":\"head_%u\"}",
+                                disk_name,
+                                farm_scsi_per_head_stats->head_id
+                        );
+
                 default:
                         break;
         }
@@ -786,7 +1252,7 @@ farm_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 void
 farm_instance_setup(void)
 {
-	static char lsblk_command[] = "lsblk -d -n -e 1,2,7,11,252 -o name";
+	static char lsblk_command[] = "lsblk -d -n -e 1,2,7,11,251,252 -o name";
 	static char smart_command[] = "LC_ALL=C smartctl";
 	char *env_command;
 

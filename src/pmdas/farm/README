@@ -3,7 +3,8 @@ Performance Co-Pilot PMDA for Field Accessible Reliability Metrics (FARM) Log St
 
 This PMDA is capable of collecting Seagate vendor specific Field Accessible Reliability
 Metrics (FARM) logs from Seagate drives, statistics are collected from smartmontools version
-7.3+ and on modern Seagate drives that provide access to GP Log 0xA6.
+7.3+ and on modern Seagate drives that provide access to GP Log 0xA6 for SATA drives
+and GP Log 0x3D for SAS drives.
 
 This PMDA collects its data through the smartctl utility and requires that the
 smartmontools package is installed in order to function.
