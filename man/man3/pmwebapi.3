@@ -142,7 +142,7 @@ $ curl -H Accept:application/json -s http://localhost:44322/metrics?names=disk.d
                     "scope": { ... },
                     "metrics": [
                         {
-                            "name": "disk_dev_total_bytes",
+                            "name": "disk.dev.total.bytes",
                             "description": "per-disk count of total bytes read and written",
                             "unit": "KiBy",
                             "sum": {
@@ -183,9 +183,9 @@ the end of the line.
 PCP metric names are mapped so that the \fB.\fP separators
 are exchanged with \fB_\fP (':' in back-compatibility mode,
 where "# PCP" is the identifying line suffix).
-Both metric labels and instances are represented as Prometheus
+Both metric labels and instances are represented as Open Metrics
 labels, with external instance names being quoted and the
-flattened PCP metric hierarchy being presented with each value.
+flattened PCP label hierarchy being presented with each value.
 .PP
 When metric
 .I names

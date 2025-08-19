@@ -2,15 +2,15 @@ type: container
 
 artifactory:
   package_type: deb
-  deploy_path: /debian/12/amd64/pcp
+  deploy_path: /debian/13/amd64/pcp
   params:
-    deb.distribution: bookworm
+    deb.distribution: trixie
     deb.component: main
     deb.architecture: amd64
 
 container:
   containerfile: |
-    FROM docker.io/library/debian:bookworm
+    FROM docker.io/library/debian:trixie
     RUN apt-get update && apt-get install -y systemd sudo
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
@@ -19,7 +19,7 @@ container:
     # pmcd will create the file /var/lib/pcp/pmns/stdpmid, among others
     RUN printf '#!/bin/sh\nexit 0\n' > /usr/sbin/policy-rc.d
 
-    CMD ["/bin/systemd"]
+    CMD ["/usr/lib/systemd/systemd"]
 
 tasks:
   setup: |
@@ -35,7 +35,7 @@ tasks:
     sudo dpkg -i build/deb/*.deb
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
-    sudo systemctl start redis
+    sudo systemctl start valkey
     sudo -i -u pcpqa ./check 002
   qa_sanity: |
     set -o pipefail

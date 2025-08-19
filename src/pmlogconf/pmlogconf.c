@@ -620,12 +620,6 @@ fetch_groups(void)
 	return 0;
     }
     count = n;
-    if (count == 0) {
-	/* nothing to lookup ... */
-	sts = 0;
-	free(descs);
-	goto done;
-    }
 
     if ((sts = pmLookupName(count, names, pmids)) < 0) {
 	if (count == 1)

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023 Red Hat.
+ * Copyright (c) 2023 - 2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -14,6 +14,7 @@
 
 farm {
 	ata
+	scsi
 }
 
 farm.ata {
@@ -26,57 +27,57 @@ farm.ata {
 }
 
 farm.ata.log_header {
-	log_version							FARM:0:0
-	pages_supported							FARM:0:1
-	log_size							FARM:0:2
-	page_size							FARM:0:3
-	heads_supported							FARM:0:4
-	number_of_copies						FARM:0:5
+	log_version									FARM:0:0
+	pages_supported								FARM:0:1
+	log_size									FARM:0:2
+	page_size									FARM:0:3
+	heads_supported								FARM:0:4
+	number_of_copies							FARM:0:5
 	reason_for_frame_capture					FARM:0:6
 }
 
 farm.ata.drive_information {
-	serial_number							FARM:1:0
-	world_wide_name							FARM:1:1
-	device_interface						FARM:1:2
+	serial_number								FARM:1:0
+	world_wide_name								FARM:1:1
+	device_interface							FARM:1:2
 	device_capacity_in_sectors					FARM:1:3
 	physical_sector_size						FARM:1:4
-	logical_sector_size						FARM:1:5
-	device_buffer_size						FARM:1:6
-	number_of_heads							FARM:1:7
-	device_form_factor						FARM:1:8
-	rotation_rate							FARM:1:9
-	firmware_rev							FARM:1:10
-	ata_security_state						FARM:1:11
+	logical_sector_size							FARM:1:5
+	device_buffer_size							FARM:1:6
+	number_of_heads								FARM:1:7
+	device_form_factor							FARM:1:8
+	rotation_rate								FARM:1:9
+	firmware_rev								FARM:1:10
+	ata_security_state							FARM:1:11
 	ata_features_supported						FARM:1:12
 	ata_features_enabled						FARM:1:13
-	power_on_hours							FARM:1:14
+	power_on_hours								FARM:1:14
 	spindle_power_on_hours						FARM:1:15
-	head_flight_hours						FARM:1:16
-	head_load_events						FARM:1:17
-	power_cycle_count						FARM:1:18
+	head_flight_hours							FARM:1:16
+	head_load_events							FARM:1:17
+	power_cycle_count							FARM:1:18
 	hardware_reset_count						FARM:1:19
-	spin_up_time							FARM:1:20
-	time_to_ready_last_power_cycle					FARM:1:21
-	time_drive_held_in_staggered_spin				FARM:1:22
-	model_number							FARM:1:23
+	spin_up_time								FARM:1:20
+	time_to_ready_last_power_cycle				FARM:1:21
+	time_drive_held_in_staggered_spin			FARM:1:22
+	model_number								FARM:1:23
 	drive_recording_type						FARM:1:24
-	max_number_available_sectors_reassignment			FARM:1:25
-	assembly_date							FARM:1:26
+	max_number_available_sectors_reassignment	FARM:1:25
+	assembly_date								FARM:1:26
 	depopulation_head_mask						FARM:1:27
 }
 
 farm.ata.workload_statistics {
-	total_read_commands						FARM:2:0
-	total_write_commands						FARM:2:1
-	total_random_read_commands					FARM:2:2
-	total_random_write_commands					FARM:2:3
-	total_other_commands						FARM:2:4
-	logical_sectors_written						FARM:2:5
-	logical_sectors_read						FARM:2:6
-	dither_events_current_power_cycle				FARM:2:7
-	dither_held_off_random_workloads				FARM:2:8
-	dither_held_off_sequential_workloads	  			FARM:2:9
+	total_read_commands											FARM:2:0
+	total_write_commands										FARM:2:1
+	total_random_read_commands									FARM:2:2
+	total_random_write_commands									FARM:2:3
+	total_other_commands										FARM:2:4
+	logical_sectors_written										FARM:2:5
+	logical_sectors_read										FARM:2:6
+	dither_events_current_power_cycle							FARM:2:7
+	dither_held_off_random_workloads							FARM:2:8
+	dither_held_off_sequential_workloads		  				FARM:2:9
 	read_commands_0_3_lba_space_last_3_smart_summary_frames		FARM:2:10
 	read_commands_3_25_lba_space_last_3_smart_summary_frames	FARM:2:11
 	read_commands_25_75_lba_space_last_3_smart_summary_frames	FARM:2:12
@@ -88,30 +89,30 @@ farm.ata.workload_statistics {
 }
 
 farm.ata.error_statistics {
-	unrecoverable_read_errors					FARM:3:0
-	unrecoverable_write_errors					FARM:3:1
-	reallocated_sectors						FARM:3:2
-	read_recovery_attempts						FARM:3:3
-	mechanical_start_failures					FARM:3:4
-	reallocated_candidate_sectors					FARM:3:5
-	asr_events							FARM:3:6
-	interface_crc_errors						FARM:3:7
-	spin_retry_count						FARM:3:8
-	spin_retry_count_normalized					FARM:3:9
-	spin_retry_count_worst						FARM:3:10
-	ioedc_errors							FARM:3:11
-	cto_count_total							FARM:3:12
-	cto_count_over_5s						FARM:3:13
-	cto_count_over_7s						FARM:3:14
-	total_flash_led_assert_events					FARM:3:15
-	index_of_last_flash_led						FARM:3:16
-	flash_led_event_information					FARM:6:0
-	flash_led_event_timestamp					FARM:6:1
-	flash_led_event_power_cycle					FARM:6:2
-	uncorrectable_errors						FARM:3:17
-	cumulative_lifetime_unrecoverable_errors_due_to_erc		FARM:3:18
-	cumulative_lifetime_unrecoverable_read_repeating		FARM:7:0
-	cumulative_lifetime_unrecoverable_read_unique			FARM:7:1
+	unrecoverable_read_errors							FARM:3:0
+	unrecoverable_write_errors							FARM:3:1
+	reallocated_sectors									FARM:3:2
+	read_recovery_attempts								FARM:3:3
+	mechanical_start_failures							FARM:3:4
+	reallocated_candidate_sectors						FARM:3:5
+	asr_events											FARM:3:6
+	interface_crc_errors								FARM:3:7
+	spin_retry_count									FARM:3:8
+	spin_retry_count_normalized							FARM:3:9
+	spin_retry_count_worst								FARM:3:10
+	ioedc_errors										FARM:3:11
+	cto_count_total										FARM:3:12
+	cto_count_over_5s									FARM:3:13
+	cto_count_over_7s									FARM:3:14
+	total_flash_led_assert_events						FARM:3:15
+	index_of_last_flash_led								FARM:3:16
+	flash_led_event_information							FARM:6:0
+	flash_led_event_timestamp							FARM:6:1
+	flash_led_event_power_cycle							FARM:6:2
+	uncorrectable_errors								FARM:3:17
+	cumulative_lifetime_unrecoverable_errors_due_to_erc	FARM:3:18
+	cumulative_lifetime_unrecoverable_read_repeating	FARM:7:0
+	cumulative_lifetime_unrecoverable_read_unique		FARM:7:1
 
 }
 
@@ -119,17 +120,17 @@ farm.ata.environment_statistics {
 	current_temperature						FARM:4:0
 	highest_temperature						FARM:4:1
 	lowest_temperature						FARM:4:2
-	average_short_term_temperature					FARM:4:3
-	average_long_term_temperature					FARM:4:4
-	highest_average_short_term_temperature				FARM:4:5
-	lowest_average_short_term_temperature				FARM:4:6
-	highest_average_long_term_temperature				FARM:4:7
-	lowest_average_long_term_temperature				FARM:4:8
-	time_in_over_temperature					FARM:4:9
-	time_in_under_temperature					FARM:4:10
-	specified_max_operating_temperature				FARM:4:11
-	specified_min_operating_temperature				FARM:4:12
-	current_relative_humidity					FARM:4:13
+	average_short_term_temperature			FARM:4:3
+	average_long_term_temperature			FARM:4:4
+	highest_average_short_term_temperature	FARM:4:5
+	lowest_average_short_term_temperature	FARM:4:6
+	highest_average_long_term_temperature	FARM:4:7
+	lowest_average_long_term_temperature	FARM:4:8
+	time_in_over_temperature				FARM:4:9
+	time_in_under_temperature				FARM:4:10
+	specified_max_operating_temperature		FARM:4:11
+	specified_min_operating_temperature		FARM:4:12
+	current_relative_humidity				FARM:4:13
 	current_motor_power						FARM:4:14
 	current_12_volts						FARM:4:15
 	minimum_12_volts						FARM:4:16
@@ -147,21 +148,142 @@ farm.ata.environment_statistics {
 
 farm.ata.reliability_statistics {
 	error_rate_smart_1_raw						FARM:5:0
-	error_rate_smart_1_normalized					FARM:5:1
+	error_rate_smart_1_normalized				FARM:5:1
 	error_rate_smart_1_worst					FARM:5:2
 	seek_error_rate_smart_7_raw					FARM:5:3
-	seek_error_rate_smart_7_normalized				FARM:5:4
-	seek_error_rate_smart_7_worst					FARM:5:5
+	seek_error_rate_smart_7_normalized			FARM:5:4
+	seek_error_rate_smart_7_worst				FARM:5:5
 	high_priority_unload_events					FARM:5:6
-	helium_pressure_threshold_tripped				FARM:5:7
-	lbas_corrected_by_parity_sector					FARM:5:8
+	helium_pressure_threshold_tripped			FARM:5:7
+	lbas_corrected_by_parity_sector				FARM:5:8
 	dvga_skip_write_detected					FARM:7:2
 	rvga_skip_write_detected					FARM:7:3
 	fvga_skip_write_detected					FARM:7:4
-	skip_write_detect_threshold_detect				FARM:7:5
-	write_power_hrs							FARM:7:6
-	mr_head_resistance						FARM:7:7
+	skip_write_detect_threshold_detect			FARM:7:5
+	write_power_secs							FARM:7:6
+	mr_head_resistance							FARM:7:7
 	second_mr_head_resistance					FARM:7:8
-	number_of_reallocated_sectors					FARM:7:9
-	number_of_reallocation_candidate_sectors			FARM:7:10
+	number_of_reallocated_sectors				FARM:7:9
+	number_of_reallocation_candidate_sectors	FARM:7:10
+}
+
+farm.scsi {
+	log_header
+	drive_information
+	workload_statistics
+	error_statistics
+	environment_statistics
+	reliability_statistics
+	drive_information_continued
+	environmental_information_continued
+	per_head_statistics
+}
+
+farm.scsi.log_header {
+	log_version								FARM:10:0
+	pages_supported							FARM:10:1
+	log_size								FARM:10:2
+	heads_supported							FARM:10:3
+	reason_for_frame_capture				FARM:10:4
+}
+
+farm.scsi.drive_information {
+	serial_number							FARM:11:0
+	world_wide_name							FARM:11:1
+	firmware_revision						FARM:11:2
+	device_interface						FARM:11:3
+	device_capacity_in_sectors				FARM:11:4
+	physical_sector_size					FARM:11:5
+	logical_sector_size						FARM:11:6
+	device_buffer_size						FARM:11:7
+	number_of_heads							FARM:11:8
+	device_form_factor						FARM:11:9
+	rotation_rate							FARM:11:10
+	power_on_hours							FARM:11:11
+	power_cycle_count						FARM:11:12
+	hardware_reset_count					FARM:11:13
+	assembly_date							FARM:11:14
+}
+
+farm.scsi.workload_statistics {
+	total_read_commands						FARM:12:0
+	total_write_commands					FARM:12:1
+	total_random_read_commands				FARM:12:2
+	total_random_write_commands				FARM:12:3
+	total_other_commands					FARM:12:4
+	logical_sectors_written					FARM:12:5
+	logical_sectors_read					FARM:12:6
+	read_commands_0_3_lba_space				FARM:12:7
+	read_commands_3_25_lba_space			FARM:12:8
+	read_commands_25_75_lba_space			FARM:12:9
+	read_commands_75_100_lba_space			FARM:12:10
+	write_commands_0_3_lba_space			FARM:12:11
+	write_commands_3_25_lba_space			FARM:12:12
+	write_commands_25_75_lba_space			FARM:12:13
+	write_commands_75_100_lba_space			FARM:12:14
+}
+
+farm.scsi.error_statistics {
+	unrecoverable_read_errors					FARM:13:0
+	unrecoverable_write_errors					FARM:13:1
+	mechanical_start_errors						FARM:13:2
+	fru_code_most_recent_smart_frame			FARM:13:3
+	invalid_dword_count_port_a					FARM:13:4
+	invalid_dword_count_port_b					FARM:13:5
+	disparity_error_count_port_a				FARM:13:6
+	disparity_error_count_port_b				FARM:13:7
+	loss_of_dword_sync_port_a					FARM:13:8
+	loss_of_dword_sync_port_b					FARM:13:9
+	phy_reset_problem_port_a					FARM:13:10
+	phy_reset_problem_port_b					FARM:13:11
+}
+
+farm.scsi.environment_statistics {
+	current_temperature							FARM:14:0
+	highest_temperature							FARM:14:1
+	lowest_temperature							FARM:14:2
+	specified_max_operating_temperature			FARM:14:3
+	specified_min_operating_temperature			FARM:14:4
+	current_relative_humidity					FARM:14:5
+	current_motor_power							FARM:14:6
+	power_average_12v							FARM:14:7
+	power_minimum_12v							FARM:14:8
+	power_maximum_12v							FARM:14:9
+	power_average_5v							FARM:14:10
+	power_minimum_5v							FARM:14:11
+	power_maximum_5v							FARM:14:12
+}
+
+farm.scsi.reliability_statistics {
+	helium_pressure_threshold_tripped			FARM:15:0
+}
+
+farm.scsi.drive_information_continued {
+	depopulation_head_mask						FARM:16:0
+	product_id									FARM:16:1
+	drive_recording_type						FARM:16:2
+	drive_been_depopped							FARM:16:3
+	max_available_sectors_for_reassignment		FARM:16:4
+	time_to_ready_last_power_cycle				FARM:16:5
+	time_drive_held_in_staggered_spin			FARM:16:6
+	last_servo_spin_up_time						FARM:16:7
+}
+
+farm.scsi.environmental_information_continued {
+	current_12_volts							FARM:17:0
+	minimum_12_volts							FARM:17:1
+	maximum_12_volts							FARM:17:2
+	current_5_volts								FARM:17:3
+	minimum_5_volts								FARM:17:4
+	maximum_5_volts								FARM:17:5
+}
+
+farm.scsi.per_head_statistics {
+	mr_head_resistance										FARM:18:0
+	reallocated_sectors										FARM:18:1
+	reallocated_candidate_sectors							FARM:18:2
+	power_on_hours											FARM:18:3
+	head_cumulative_lifetime_unrecoverable_read_repeating	FARM:18:4
+	head_cumulative_lifetime_unrecoverable_read_unique		FARM:18:5
+	second_mr_head_resistance								FARM:18:6
 }

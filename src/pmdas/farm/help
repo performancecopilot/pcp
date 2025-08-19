@@ -335,8 +335,107 @@ LBAs corrected by parity sector for the drive
 @farm.ata.reliability_statistics.rvga_skip_write_detected RVGA skip write detect by head for the drive
 @farm.ata.reliability_statistics.fvga_skip_write_detected FVGA skip write detect by head for the drive
 @farm.ata.reliability_statistics.skip_write_detect_threshold_detect Skip write detect threshold exceeded by head
-@farm.ata.reliability_statistics.write_power_hrs Write power-on (hrs) by head
+@farm.ata.reliability_statistics.write_power_secs Write power-on (secs) by head
 @farm.ata.reliability_statistics.mr_head_resistance MR head resistance from head 
 @farm.ata.reliability_statistics.second_mr_head_resistance Second MR head resistance from head 
 @farm.ata.reliability_statistics.number_of_reallocated_sectors Number of reallocated sectors by head 
 @farm.ata.reliability_statistics.number_of_reallocation_candidate_sectors Reallocation candidate sectors head
+
+@farm.scsi.log_header.log_version Listed version of the FARM log
+The current version for the FARM log provided by the drive
+
+@farm.scsi.log_header.pages_supported Number of FARM log pages supported
+Number of FARM log pages supported by the drive
+
+@farm.scsi.log_header.log_size FARM log size (bytes)
+The size in bytes for the FARM log on the drive
+
+@farm.scsi.log_header.heads_supported  Number of drive heads supported by log
+The maximum number of drive heads supported by this version of the FARM log
+
+@farm.scsi.log_header.reason_for_frame_capture Reason for the capture of the FARM log
+
+@farm.scsi.drive_information.serial_number Serial number of the drive
+@farm.scsi.drive_information.world_wide_name World wide name identifier for the drive
+@farm.scsi.drive_information.firmware_revision Firmware Revision for the drive
+@farm.scsi.drive_information.device_interface Drive interface
+@farm.scsi.drive_information.device_capacity_in_sectors Number of drive sectors
+@farm.scsi.drive_information.physical_sector_size Sector size (bytes)
+@farm.scsi.drive_information.logical_sector_size Logical sector size (bytes)
+@farm.scsi.drive_information.device_buffer_size Buffer size (bytes)
+@farm.scsi.drive_information.number_of_heads Number of drive heads
+@farm.scsi.drive_information.device_form_factor Form Factor
+@farm.scsi.drive_information.rotation_rate Rotation rate (rpm)
+@farm.scsi.drive_information.power_on_hours Power on hours
+@farm.scsi.drive_information.power_cycle_count Cycle count
+@farm.scsi.drive_information.hardware_reset_count Hardware reset count
+@farm.scsi.drive_information.assembly_date Assembly Date (YYWW)
+
+@farm.scsi.workload_statistics.total_read_commands Total read commands
+@farm.scsi.workload_statistics.total_write_commands Total write commands
+@farm.scsi.workload_statistics.total_random_read_commands Total random read commands
+@farm.scsi.workload_statistics.total_random_write_commands Total random write commands
+@farm.scsi.workload_statistics.total_other_commands Total other commands
+@farm.scsi.workload_statistics.logical_sectors_written Number logical sectors written
+@farm.scsi.workload_statistics.logical_sectors_read Number logical sectors read
+@farm.scsi.workload_statistics.read_commands_0_3_lba_space Read commands 0-3.125% LBA space
+@farm.scsi.workload_statistics.read_commands_3_25_lba_space Read commands 3.125-25% LBA space
+@farm.scsi.workload_statistics.read_commands_25_75_lba_space Read commands 25-75% LBA space
+@farm.scsi.workload_statistics.read_commands_75_100_lba_space Read commands 75-100% LBA space
+@farm.scsi.workload_statistics.write_commands_0_3_lba_space Write commands 0-3.125% LBA space
+@farm.scsi.workload_statistics.write_commands_3_25_lba_space Write commands 3.125-25% LBA space
+@farm.scsi.workload_statistics.write_commands_25_75_lba_space Write commands 25-75% LBA space
+@farm.scsi.workload_statistics.write_commands_75_100_lba_space Write commands 75-100% LBA space
+
+@farm.scsi.error_statistics.unrecoverable_read_errors	 Unrecoverable read errors
+@farm.scsi.error_statistics.unrecoverable_write_errors Unrecoverable write errors
+@farm.scsi.error_statistics.mechanical_start_errors Mechanical start errors
+@farm.scsi.error_statistics.fru_code_most_recent_smart_frame FRU code most recent SMART frame
+@farm.scsi.error_statistics.invalid_dword_count_port_a Invalid DWord count port A
+@farm.scsi.error_statistics.invalid_dword_count_port_b Invalid DWord count port B
+@farm.scsi.error_statistics.disparity_error_count_port_a Disparity error count port A
+@farm.scsi.error_statistics.disparity_error_count_port_b Diasparity error count port B
+@farm.scsi.error_statistics.loss_of_dword_sync_port_a Loss of DWord sync port A
+@farm.scsi.error_statistics.loss_of_dword_sync_port_b Loss of DWord sync port B
+@farm.scsi.error_statistics.phy_reset_problem_port_a Physical reset problem port A 
+@farm.scsi.error_statistics.phy_reset_problem_port_b Physical reset problem port B
+
+@farm.scsi.environment_statistics.current_temperature Current temperature
+@farm.scsi.environment_statistics.highest_temperature Highest temperature
+@farm.scsi.environment_statistics.lowest_temperature Lowest temperature
+@farm.scsi.environment_statistics.specified_max_operating_temperature Max operating temperature
+@farm.scsi.environment_statistics.specified_min_operating_temperature Min operating temperature
+@farm.scsi.environment_statistics.current_relative_humidity Relative humidity
+@farm.scsi.environment_statistics.current_motor_power Current motor power
+@farm.scsi.environment_statistics.power_average_12v 12v power average
+@farm.scsi.environment_statistics.power_minimum_12v 12v power minimum
+@farm.scsi.environment_statistics.power_maximum_12v 12v power maximum
+@farm.scsi.environment_statistics.power_average_5v 5v power average
+@farm.scsi.environment_statistics.power_minimum_5v 5v power minimum
+@farm.scsi.environment_statistics.power_maximum_5v 5v power maxiumum
+
+@farm.scsi.reliability_statistics.helium_pressure_threshold_tripped Helium thershold tripped
+
+@farm.scsi.drive_information_continued.depopulation_head_mask Depopulation head mask
+@farm.scsi.drive_information_continued.product_id Drive product ID
+@farm.scsi.drive_information_continued.drive_recording_type Recording type
+@farm.scsi.drive_information_continued.drive_been_depopped Depopped
+@farm.scsi.drive_information_continued.max_available_sectors_for_reassignment Max sectors for reassignment
+@farm.scsi.drive_information_continued.time_to_ready_last_power_cycle Time to ready last power cycle (secs)
+@farm.scsi.drive_information_continued.time_drive_held_in_staggered_spin Time held in staggered spin (secs)
+@farm.scsi.drive_information_continued.last_servo_spin_up_time Servo spin up time (ms)
+
+@farm.scsi.environmental_information_continued.current_12_volts Current 12v (mV)
+@farm.scsi.environmental_information_continued.minimum_12_volts Minimum 12v (mV)
+@farm.scsi.environmental_information_continued.maximum_12_volts Maximum 12v (mV)
+@farm.scsi.environmental_information_continued.current_5_volts Current 5v (mV)
+@farm.scsi.environmental_information_continued.minimum_5_volts Minimum 5v (mv)
+@farm.scsi.environmental_information_continued.maximum_5_volts Maximum 5v (mv)
+
+@farm.scsi.per_head_statistics.mr_head_resistance MR head resistance
+@farm.scsi.per_head_statistics.reallocated_sectors Number of reallocated sectors
+@farm.scsi.per_head_statistics.reallocated_candidate_sectors Number reallocation candidate sectors
+@farm.scsi.per_head_statistics.power_on_hours Write power on (hrs)
+@farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_repeating Lifetime unrecoverable read repeating
+@farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_unique Lifetime unrecoverable read unique
+@farm.scsi.per_head_statistics.second_mr_head_resistance Second MR head resistance
