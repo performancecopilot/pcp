@@ -1,7 +1,7 @@
 /*
  * Seagate Field Accessible Reliability Metrics (FARM) Log
  *
- * Copyright (c) 2023 Red Hat.
+ * Copyright (c) 2023 - 2025 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -166,12 +166,176 @@ enum {
 	RVGA_SKIP_WRITE_DETECTED,
 	FVGA_SKIP_WRITE_DETECTED,
 	SKIP_WRITE_DETECT_THRESHOLD_DETECT,
-	WRITE_POWER_HRS,
+	WRITE_POWER_SECS,
 	MR_HEAD_RESISTANCE,
 	SECOND_MR_HEAD_RESISTANCE,
 	NUMBER_REALLOCATED_SECTORS,
 	NUMBER_REALLOCATION_CANDIDATE_SECTORS,
 	NUM_PER_HEAD_STATS
+};
+
+enum {
+	SCSI_LOG_VERSION = 0,
+	SCSI_PAGES_SUPPORTED,
+	SCSI_LOG_SIZE,
+	SCSI_HEADS_SUPPORTED,
+	SCSI_REASON_FOR_LAST_FRAME,
+	NUM_SCSI_LOG_HEADER_STATS
+};
+
+
+enum {
+	SCSI_SERIAL_NUMBER = 0,
+	SCSI_WORLD_WIDE_NAME,
+	SCSI_FIRMWARE_REVISION,
+	SCSI_DEVICE_INTERFACE,
+	SCSI_DEVICE_CAPACITY_IN_SECTORS,
+	SCSI_PHYSICAL_SECTOR_SIZE,
+	SCSI_LOGICAL_SECTOR_SIZE,
+	SCSI_DEVICE_BUFFER_SIZE,
+	SCSI_NUMBER_OF_HEADS,
+	SCSI_DEVICE_FORM_FACTOR,
+	SCSI_ROTATIONAL_RATE,
+	SCSI_POWER_ON_HOURS,
+	SCSI_POWER_CYCLE_COUNT,
+	SCSI_HARDWARE_RESET_COUNT,
+	SCSI_ASSEMBLY_DATE,
+	NUM_SCSI_DRIVE_INFORMATION_STATS
+};
+
+enum {
+	SCSI_TOTAL_READ_COMMANDS = 0,
+	SCSI_TOTAL_WRITE_COMMANDS,
+	SCSI_TOTAL_RANDOM_READ_COMMANDS,
+	SCSI_TOTAL_RANDOM_WRITE_COMMANDS,
+	SCSI_TOTAL_OTHER_COMMANDS,
+	SCSI_LOGICAL_SECTORS_WRITTEN,
+	SCSI_LOGICAL_SECTORS_READ,
+	SCSI_READ_COMMANDS_0_3_LBA_SPACE,
+	SCSI_READ_COMMANDS_3_25_LBA_SPACE,
+	SCSI_READ_COMMANDS_25_75_LBA_SPACE,
+	SCSI_READ_CMMANDS_75_100_LBA_SPACE,
+	SCSI_WRITE_COMMANDS_0_3_LBA_SPACE,
+	SCSI_WRITE_COMMANDS_3_25_LBA_SPACE,
+	SCSI_WRITE_COMMANDS_25_75_LBA_SPACE,
+	SCSI_WRITE_COMMANDS_75_100_LBA_SPACE,
+	NUM_SCSI_WORKLOAD_STATS
+};
+
+enum {
+	SCSI_UNRECOVERABLE_READ_ERRORS = 0,
+	SCSI_UNRECOVERABLE_WRITE_ERRORS,
+	SCSI_MECHANICAL_START_FAILURES,
+	SCSI_FRU_CODE_MOST_RECENT_SMART_FRAME,
+	SCSI_INVALID_DWORD_COUNT_A,
+	SCSI_INVALID_DWORD_COUNT_B,
+	SCSI_DISPARITY_ERROR_CODE_A,
+	SCSI_DISPARITY_ERROR_CODE_B,
+	SCSI_LOSS_OF_DWORD_SYNC_A,
+	SCSI_LOSS_OF_DWORD_SYNC_B,
+	SCSI_PHY_RESET_PROBLEM_PORT_A,
+	SCSI_PHY_RESET_PROBLEM_PORT_B,
+	NUM_SCSI_ERORR_STATS
+};
+
+enum {
+	SCSI_CURRENT_TEMPERATURE = 0,
+	SCSI_HIGHEST_TEMPERATURE,
+	SCSI_LOWEST_TEMPERATURE,
+	SCSI_SPECIFIED_MAX_OPERATING_TEMPERATURE,
+	SCSI_SPECIFIED_MIN_OPERATING_TEMPERATURE,
+	SCSI_CURRENT_RELATIVE_HUMIDITY,
+	SCSI_CURRENT_MOTOR_POWER,
+	SCSI_12V_POWER_AVERAGE,
+	SCSI_12V_POWER_MINIUMUM,
+	SCSI_12V_POWER_MAXIMUM,
+	SCSI_5V_POWER_AVERAGE,
+	SCSI_5V_POWER_MINIMUM,
+	SCSI_5V_POWER_MAXIMUM,
+	NUM_SCSI_ENVIRONMENT_STATS
+};
+
+enum {
+	SCSI_HELIUM_PRESSURE_THREHOLD_TRIPPED = 0,
+	NUM_SCSI_RELIABILITY_STATS
+};
+
+enum {
+	SCSI_DEPOPULATION_HEAD_MASK = 0,
+	SCSI_PRODUCT_ID,
+	SCSI_DRIVE_RECORDING_TYPE,
+	SCSI_DEPOPPED,
+	SCSI_MAX_NUMBER_FOR_REASSIGNMENT,
+	SCSI_TIME_TO_READY_LAST_POWER_CYCLE,
+	SCSI_TIME_DRIVE_HELD_IN_STAGGERED_SPIN,
+	SCSI_SPIN_UP_TIME,
+	NUM_SCSI_DRIVE_INFORMATION_CONT_STATS
+};
+
+enum {
+	SCSI_CURRENT_12V = 0,
+	SCSI_MAXIMUM_12V,
+	SCSI_MINIMUM_12V,
+	SCSI_CURRENT_5V,
+	SCSI_MAXIMUM_5V,
+	SCSI_MINIMUM_5V,
+	NUM_SCSI_ENVIRONMENTAL_CONT_STATS
+};
+
+enum {
+	SCSI_MR_HEAD_RESISTANCE = 0,
+	SCSI_REALLOCATED_SECTORS,
+	SCSI_REALLOCATED_CANDIDATE_SECTORS,
+	SCSI_HEAD_POWER_ON_HOURS,
+	SCSI_CUMULATIVE_LIFETIME_UNRECOVERABLE_READ_REPEATING,
+	SCSI_CUMULATIVE_LIFETIME_UNRECOVERABLE_READ_UNIQUE,
+	SCSI_SECOND_MR_HEAD_RESISTANCE,
+	NUM_SCSI_PER_HEAD_STATS
+};
+
+enum {
+	SCSI_HEAD_LOAD_EVENTS = 0,
+	SCSI_TIMESTAMP_OF_LAST_IDD_TEST,
+	SCSI_NUMBER_OF_REALLOCATAED_SECTOR_RECLAMATIONS,
+	SCSI_SERVO_STATUS,
+	SCSI_NUMBER_OF_SLIPPED_SECTORS_AFTER_IDD_SCAN,
+	SCSI_NUMBER_OF_RESIDENT_REALLOCATED_SECTORS_AFTER_IDD_SCAN,
+	SCSI_SUCCESSFULLY_SCRUBBED_SECTORS_AFTER_IDD_SCAN,
+	SCSI_NUMBER_OF_DOS_SCANS_PERFORMED,
+	SCSI_NUMBER_OF_LBS_CORRECTED_BY_ISP,
+	SCSI_NUMBER_OF_VALID_PARITY_SECTORS,
+	SCSI_NUMBER_OF_LBAS_CORRECTED_BY_PARITY_SECTOR,
+	NUM_SCSI_PER_ACTUATOR_STATS
+};
+
+enum {
+	SCSI_FLASH_LED_EVENT_TOTAL_EVENTS_ACTUATOR_0 = 0,
+	SCSI_FLASH_LED_EVENT_INDEX_OF_LAST_FLASH_EVENT_ACTUATOR_0,
+	SCSI_FLASH_LED_EVENT_INFORMATION_ACTUATOR_0,
+	SCSI_FLASH_LED_EVENT_TIMESTAMP_ACTUATOR_0,
+	SCSI_FLASH_LED_EVENT_POWER_CYCLE_ACTUATOR_0,
+	SCSI_FLASH_LED_EVENT_TOTAL_EVENTS_ACTUATOR_1,
+	SCSI_FLASH_LED_EVENT_INDEX_OF_LAST_FLASH_EVENT_ACTUATOR_1,
+	SCSI_FLASH_LED_EVENT_INFORMATION_ACTUATOR_1,
+	SCSI_FLASH_LED_EVENT_TIMESTAMP_ACTUATOR_1,
+	SCSI_FLASH_LED_EVENT_POWER_CYCLE_ACTUATOR_1,
+	SCSI_FLASH_LED_EVENT_TOTAL_EVENTS_ACTUATOR_2,
+	SCSI_FLASH_LED_EVENT_INDEX_OF_LAST_FLASH_EVENT_ACTUATOR_2,
+	SCSI_FLASH_LED_EVENT_INFORMATION_ACTUATOR_2,
+	SCSI_FLASH_LED_EVENT_TIMESTAMP_ACTUATOR_2,
+	SCSI_FLASH_LED_EVENT_POWER_CYCLE_ACTUATOR_2,
+	SCSI_FLASH_LED_EVENT_TOTAL_EVENTS_ACTUATOR_3,
+	SCSI_FLASH_LED_EVENT_INDEX_OF_LAST_FLASH_EVENT_ACTUATOR_3,
+	SCSI_FLASH_LED_EVENT_INFORMATION_ACTUATOR_3,
+	SCSI_FLASH_LED_EVENT_TIMESTAMP_ACTUATOR_3,
+	SCSI_FLASH_LED_EVENT_POWER_CYCLE_ACTUATOR_3,
+	NUM_SCSI_FLASH_LED_STATS
+};
+
+enum {
+	SCSI_NUM_REALLOCATED_SECTORS = 0,
+	SCSI_NUM_REALLOCATED_CANDIDATE_SECTORS,
+	NUM_SCSI_ACTUATOR_REALLOC_STATS
 };
 
 struct farm_ata_log_stats {
@@ -298,7 +462,7 @@ struct farm_ata_log_stats {
 	uint64_t	rvga_skip_write_detected_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	fvga_skip_write_detected_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	skip_write_detect_threshold_detect_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
-	uint64_t	write_power_hrs_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	uint64_t	write_power_secs_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	mr_head_resistance_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	second_mr_head_resistance_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	number_reallocated_sectors_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
@@ -323,13 +487,118 @@ struct farm_per_head_stats {
 	uint64_t	rvga_skip_write_detected_head;
 	uint64_t	fvga_skip_write_detected_head;
 	uint64_t	skip_write_detect_threshold_detect_head;
-	uint64_t	write_power_hrs_head;
+	uint64_t	write_power_secs_head;
 	uint64_t	mr_head_resistance_head;
 	uint64_t	second_mr_head_resistance_head;
 	uint64_t	number_reallocated_sectors_head;
 	uint64_t	number_reallocation_candidate_sectors_head;
 };
- 
+
+struct farm_scsi_log_stats {
+	/* SCSI - PAGE 0: FARM log header */
+	char		log_version[9];
+	uint64_t	pages_supported;
+	uint64_t	log_size;
+	uint64_t	heads_supported;
+	uint64_t	reason_for_frame_capture;
+	/* SCSI - PAGE 1: Drive Information */
+	char		serial_number[9];
+	char		world_wide_name[19];
+	char		firmware_revision[5];
+	char		device_interface[8];
+	uint64_t	device_capacity_in_sectors;
+	uint64_t	physical_sector_size;
+	uint64_t	logical_sector_size;
+	uint64_t	device_buffer_size;
+	uint64_t	number_of_heads;
+	char		device_form_factor[13];
+	uint64_t	rotational_rate;
+	uint64_t	power_on_hours;
+	uint64_t	power_cycle_count;
+	uint64_t	hardware_reset_count;
+	char		assembly_date[5];
+	/* SCSI - PAGE 2: Workload Statistics */
+	uint64_t	total_read_commands;
+	uint64_t	total_write_commands;
+	uint64_t	total_random_read_commands;
+	uint64_t	total_random_write_commands;
+	uint64_t	total_other_commands;
+	uint64_t	logical_sectors_written;
+	uint64_t	logical_sectors_read;
+	uint64_t	read_commands_0_3_lba_space;
+	uint64_t	read_commands_3_25_lba_space;
+	uint64_t	read_commands_25_75_lba_space;
+	uint64_t	read_commands_75_100_lba_space;
+	uint64_t	write_commands_0_3_lba_space;
+	uint64_t	write_commands_3_25_lba_space;
+	uint64_t	write_commands_25_75_lba_space;
+	uint64_t	write_commands_75_100_lba_space;
+	/* SCSI - PAGE 3: Error Statistics */
+	uint64_t	unrecoverable_read_errors;
+	uint64_t	unrecoverable_write_errors;
+	uint64_t	mechanical_start_failures;
+	uint64_t	fru_code_most_recent_smart_frame;
+	uint64_t	invalid_dword_count_a;
+	uint64_t	invalid_dword_count_b;
+	uint64_t	dispartiy_error_code_a;
+	uint64_t	dispartiy_error_code_b;
+	uint64_t	loss_of_dword_sync_a;
+	uint64_t	loss_of_dword_sync_b;
+	uint64_t	phy_reset_problem_port_a;
+	uint64_t	phy_reset_problem_port_b;
+	/* SCSI - PAGE 4: Environmental Statistics */
+	uint64_t	current_temperature;
+	uint64_t	highest_temperature;
+	uint64_t	lowest_temperature;
+	uint64_t	specified_max_operating_temperature;
+	uint64_t	specified_min_operating_temperature;
+	uint64_t	current_relative_humidity;
+	uint64_t	current_motor_power;
+	uint64_t	_12v_power_average;
+	uint64_t	_12v_power_minimum;
+	uint64_t	_12v_power_maximum;
+	uint64_t	_5v_power_average;
+	uint64_t	_5v_power_minimum;
+	uint64_t	_5v_power_maximum;
+	/* SCSI - PAGE 5: Reliability Statistics */
+	uint64_t	helium_pressure_threshold_tripped;
+	/* SCSI - PAGE 6: Drive Information Continued */
+	uint64_t	depopulation_head_mask;
+	char		product_id[13];
+	char		drive_recording_type[8];
+	uint64_t	depopped;
+	uint64_t	max_number_for_reassignment;
+	uint64_t	time_to_ready_last_power_cycle;
+	uint64_t	time_drive_held_in_staggered_spin;
+	uint64_t	spin_up_time;
+	/* SCSI - PAGE 7: Environment Information Continued */
+	uint64_t	current_12_volts;
+	uint64_t	minimum_12_volts;
+	uint64_t	maximum_12_volts;
+	uint64_t	current_5_volts;
+	uint64_t	minimum_5_volts;
+	uint64_t	maximum_5_volts;
+	/* SCSI - FARM Log per head */
+	uint64_t	mr_head_resistance[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	uint64_t	reallocated_sectors[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	uint64_t	reallocated_candidate_sectors[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	uint64_t	head_power_on_hours[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	uint64_t	head_cumulative_lifetime_unrecoverable_read_repeating[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	uint64_t	head_cumulative_lifetime_unrecoverable_read_unique[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	uint64_t	second_mr_head_resistance[MAX_NUMBER_OF_SUPPORTED_HEADS];
+};
+
+struct farm_scsi_per_head_stats {
+	uint8_t	head_id;
+	uint64_t	mr_head_resistance;
+	uint64_t	reallocated_sectors;
+	uint64_t	reallocated_candidate_sectors;
+	uint64_t	power_on_hours;
+	uint64_t	head_cumulative_lifetime_unrecoverable_read_repeating;
+	uint64_t	head_cumulative_lifetime_unrecoverable_read_unique;
+	uint64_t	second_mr_head_resistance;
+};
+
 extern int farm_ata_data_fetch(int, int, struct farm_ata_log_stats *, pmAtomValue *);
 extern int farm_ata_refresh_data(const char *, struct farm_ata_log_stats *);
 
@@ -338,6 +607,12 @@ extern int farm_ata_refresh_led_events(void);
 
 extern int farm_ata_per_head_stats_fetch(int, unsigned int, pmAtomValue *);
 extern int farm_ata_refresh_per_head_stats (void);
+
+extern int farm_scsi_data_fetch(int, int, struct farm_scsi_log_stats *, pmAtomValue *);
+extern int farm_scsi_refresh_data(const char *, struct farm_scsi_log_stats *);
+
+extern int farm_scsi_per_head_stats_fetch(int, unsigned int, pmAtomValue *);
+extern int farm_scsi_refresh_per_head_stats (void);
 
 extern void farm_stats_setup(void);
 
