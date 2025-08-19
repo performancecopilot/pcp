@@ -2124,6 +2124,7 @@ pmcd.pdu
 1626 pmproxy libpcp_web local
 1627 libpcp_import local
 1628 libpcp_import valgrind local
+1629 pmlogger local
 1630 pmlogrewrite local pmlogdump
 1632 pmda.opentelemetry local python
 1633 python pmda.sockets local
