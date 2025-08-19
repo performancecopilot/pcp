@@ -58,9 +58,9 @@ _filter()
 echo "=== pmdumplog ==="
 if $do_valgrind
 then
-    _run_valgrind pmdumplog -z tmparch/sample-proc_v3 sample.proc.ordinal
+    _run_valgrind pmdumplog -z archives/sample-proc_v3 sample.proc.ordinal
 else
-    pmdumplog -z tmparch/sample-proc_v3 sample.proc.ordinal 2>&1
+    pmdumplog -z archives/sample-proc_v3 sample.proc.ordinal 2>&1
 fi \
 | _filter \
 | _filter_pmdumplog
@@ -69,9 +69,9 @@ echo
 echo "=== pminfo -f ==="
 if $do_valgrind
 then
-    _run_valgrind pminfo -z -f -a tmparch/sample-proc_v3 sample.proc.ordinal
+    _run_valgrind pminfo -z -f -a archives/sample-proc_v3 sample.proc.ordinal
 else
-    pminfo -z -f -a tmparch/sample-proc_v3 sample.proc.ordinal 2>&1
+    pminfo -z -f -a archives/sample-proc_v3 sample.proc.ordinal 2>&1
 fi \
 | _filter
 
@@ -79,9 +79,9 @@ echo
 echo "=== pmval -a ==="
 if $do_valgrind
 then
-    _run_valgrind pmval -z -t 250msec -a tmparch/sample-proc_v3 sample.proc.ordinal
+    _run_valgrind pmval -z -t 250msec -a archives/sample-proc_v3 sample.proc.ordinal
 else
-    pmval -z -t 250msec -a tmparch/sample-proc_v3 sample.proc.ordinal 2>&1
+    pmval -z -t 250msec -a archives/sample-proc_v3 sample.proc.ordinal 2>&1
 fi \
 | _filter \
 | sed \
@@ -95,9 +95,9 @@ echo
 echo "=== pmdumptext ==="
 if $do_valgrind
 then
-    _run_valgrind pmdumptext -M -z -t 250msec -a tmparch/sample-proc_v3 sample.proc.ordinal
+    _run_valgrind pmdumptext -M -z -t 250msec -a archives/sample-proc_v3 sample.proc.ordinal
 else
-    pmdumptext -M -z -t 250msec -a tmparch/sample-proc_v3 sample.proc.ordinal 2>&1
+    pmdumptext -M -z -t 250msec -a archives/sample-proc_v3 sample.proc.ordinal 2>&1
 fi \
 | _filter \
 | sed \
@@ -108,9 +108,9 @@ echo
 echo "=== pmlogsummary ==="
 if $do_valgrind
 then
-    _run_valgrind pmlogsummary -z -x tmparch/sample-proc_v3 sample.proc.ordinal
+    _run_valgrind pmlogsummary -z -x archives/sample-proc_v3 sample.proc.ordinal
 else
-    pmlogsummary -z -x tmparch/sample-proc_v3 sample.proc.ordinal 2>&1
+    pmlogsummary -z -x archives/sample-proc_v3 sample.proc.ordinal 2>&1
 fi \
 | _filter \
 | sed \

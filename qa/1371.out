@@ -289,7 +289,7 @@ TIMESTAMP 1 metric
         inst [30 or "0030 /etc/koko"] value 30
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmdumplog -z tmparch/sample-proc_v3 sample.proc.ordinal
+Command: pmdumplog -z archives/sample-proc_v3 sample.proc.ordinal
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -316,7 +316,7 @@ sample.proc.ordinal
     inst [20 or "0020 /usr/local/koko"] value 20
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pminfo -z -f -a tmparch/sample-proc_v3 sample.proc.ordinal
+Command: pminfo -z -f -a archives/sample-proc_v3 sample.proc.ordinal
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -326,13 +326,13 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
 
 metric:    sample.proc.ordinal
-archive:   tmparch/sample-proc_v3
+archive:   archives/sample-proc_v3
 host:      LOCALHOST
 start:     DATESTAMP
 end:       DATESTAMP
 semantics: instantaneous value
 units:     none
-samples:   20
+samples:   19
 interval:  0.25 sec
 TIMESTAMP  No values available
 full label for instance[0]: 0001 init
@@ -361,7 +361,6 @@ full label for instance[22]: 0029 /usr/opt/bin/jojo
 full label for instance[23]: 0030 /etc/koko
 
               0001 init 0002 /etc/b 0003 /usr/b 0004 /usr/l 0005 /usr/o 0008 /usr/l 0009 /usr/o 0010 /etc/k 0014 /etc/j 0015 /usr/b 0016 /usr/l 0018 /etc/y 0019 /usr/b 0020 /usr/l 0021 /usr/o 0022 /etc/b 0023 /usr/b 0024 /usr/l 0025 /usr/o 0026 /etc/p 0027 /usr/b 0028 /usr/l 0029 /usr/o 0030 /etc/k 
-TIMESTAMP          1           2           3           4           5           8           9           ?          14          15          16          18          19          20           ?           ?           ?           ?           ?           ?           ?           ?           ?           ? 
 TIMESTAMP          1           2           3           4           5           8           9           ?          14          15           ?           ?          19          20           ?           ?           ?           ?           ?           ?           ?           ?           ?           ? 
 TIMESTAMP          1           2           3           4           5           8           9           ?          14          15           ?           ?           ?          20           ?           ?           ?           ?           ?           ?           ?           ?           ?           ? 
 TIMESTAMP          1           2           3           4           5           ?           9           ?          14          15           ?           ?           ?          20          21           ?           ?           ?           ?           ?           ?           ?           ?           ? 
@@ -382,7 +381,7 @@ TIMESTAMP          1           2           3           4           ?           ?
 TIMESTAMP          1           2           3           4           ?           ?           9           ?           ?           ?           ?           ?           ?          20          21          22          23          24           ?           ?          27          28           ?           ? 
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmval -z -t 250msec -a tmparch/sample-proc_v3 sample.proc.ordinal
+Command: pmval -z -t 250msec -a archives/sample-proc_v3 sample.proc.ordinal
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -417,7 +416,6 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 
 	    1	    2	    3	    4	    5	    6	    7	    8	    9	   10	   11	   12	   13	   14	   15	   16	   17	   18	   19	   20	   21	   22	   23	   24
 DATESTAMP	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?	?
-DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	?	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	8.000	19.000	16.000	18.000	?
 DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	?	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	8.000	19.000	?	?	?
 DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	?	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	8.000	?	?	?	?
 DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	?	?	?	?	?	?	?	?	?	15.000	5.000	14.000	?	?	?	?	?
@@ -438,7 +436,7 @@ DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	27.00
 DATESTAMP	1.000	2.000	3.000	4.000	9.000	20.000	21.000	22.000	23.000	24.000	27.000	28.000	?	?	?	?	?	?	?	?	?	?	?	?
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmdumptext -M -z -t 250msec -a tmparch/sample-proc_v3 sample.proc.ordinal
+Command: pmdumptext -M -z -t 250msec -a archives/sample-proc_v3 sample.proc.ordinal
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -473,7 +471,7 @@ sample.proc.ordinal ["0029 /usr/opt/bin/jojo"] 29.000 none
 sample.proc.ordinal ["0030 /etc/koko"] 30.000 none
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogsummary -z -x tmparch/sample-proc_v3 sample.proc.ordinal
+Command: pmlogsummary -z -x archives/sample-proc_v3 sample.proc.ordinal
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
