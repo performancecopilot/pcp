@@ -24,6 +24,7 @@ jobs:
           # different packages than the stock Ubuntu releases
           - {platform: debian11-container,        os: ubuntu-latest}
           - {platform: debian12-container,        os: ubuntu-latest}
+          - {platform: debian13-container,        os: ubuntu-latest}
           - {platform: ubuntu1804-container,      os: ubuntu-latest}
           - {platform: ubuntu2004-container,      os: ubuntu-latest}
           - {platform: ubuntu2204-container,      os: ubuntu-latest}
