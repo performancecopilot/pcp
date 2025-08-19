@@ -768,7 +768,7 @@ do_work(task_t *tp)
 	if (first_result) {
 	    int		lsts;
 	    /*
-	     * delayed preamble until we have first fetch
+	     * delayed prologue until we have first fetch
 	     */
 	    if (pmDebugOptions.dev0) {
 		fprintf(stderr, "Note: epoch reset from ");
