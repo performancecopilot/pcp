@@ -805,11 +805,11 @@ Skip write detect threshold exceeded by head
     inst [5 or "sda::head_5"] value 0
     inst [6 or "sda::head_6"] value 0
 
-farm.ata.reliability_statistics.write_power_hrs PMID: 160.7.6 [Write power-on (hrs) by head]
+farm.ata.reliability_statistics.write_power_secs PMID: 160.7.6 [Write power-on (secs) by head]
     Data Type: 64-bit unsigned int  InDom: 160.2 0x28000002
     Semantics: counter  Units: byte
 Help:
-Write power-on (hrs) by head
+Write power-on (secs) by head
     inst [0 or "sda::head_0"] value 0
     inst [1 or "sda::head_1"] value 0
     inst [2 or "sda::head_2"] value 0

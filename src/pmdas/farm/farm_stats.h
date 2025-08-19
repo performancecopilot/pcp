@@ -166,7 +166,7 @@ enum {
 	RVGA_SKIP_WRITE_DETECTED,
 	FVGA_SKIP_WRITE_DETECTED,
 	SKIP_WRITE_DETECT_THRESHOLD_DETECT,
-	WRITE_POWER_HRS,
+	WRITE_POWER_SECS,
 	MR_HEAD_RESISTANCE,
 	SECOND_MR_HEAD_RESISTANCE,
 	NUMBER_REALLOCATED_SECTORS,
@@ -298,7 +298,7 @@ struct farm_ata_log_stats {
 	uint64_t	rvga_skip_write_detected_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	fvga_skip_write_detected_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	skip_write_detect_threshold_detect_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
-	uint64_t	write_power_hrs_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	uint64_t	write_power_secs_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	mr_head_resistance_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	second_mr_head_resistance_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	number_reallocated_sectors_head[MAX_NUMBER_OF_SUPPORTED_HEADS];
@@ -323,7 +323,7 @@ struct farm_per_head_stats {
 	uint64_t	rvga_skip_write_detected_head;
 	uint64_t	fvga_skip_write_detected_head;
 	uint64_t	skip_write_detect_threshold_detect_head;
-	uint64_t	write_power_hrs_head;
+	uint64_t	write_power_secs_head;
 	uint64_t	mr_head_resistance_head;
 	uint64_t	second_mr_head_resistance_head;
 	uint64_t	number_reallocated_sectors_head;

@@ -335,7 +335,7 @@ LBAs corrected by parity sector for the drive
 @farm.ata.reliability_statistics.rvga_skip_write_detected RVGA skip write detect by head for the drive
 @farm.ata.reliability_statistics.fvga_skip_write_detected FVGA skip write detect by head for the drive
 @farm.ata.reliability_statistics.skip_write_detect_threshold_detect Skip write detect threshold exceeded by head
-@farm.ata.reliability_statistics.write_power_hrs Write power-on (hrs) by head
+@farm.ata.reliability_statistics.write_power_hrs Write power-on (secs) by head
 @farm.ata.reliability_statistics.mr_head_resistance MR head resistance from head 
 @farm.ata.reliability_statistics.second_mr_head_resistance Second MR head resistance from head 
 @farm.ata.reliability_statistics.number_of_reallocated_sectors Number of reallocated sectors by head 

@@ -658,7 +658,7 @@ farm_ata_per_head_stats_fetch(int item, unsigned int inst, pmAtomValue *atom)
 	                atom->ull = per_head_stats->skip_write_detect_threshold_detect_head;
 	                return PMDA_FETCH_STATIC;	
 	
-	        case WRITE_POWER_HRS:
+	        case WRITE_POWER_SECS:
         		indom = INDOM(PER_HEAD_INDOM);
 	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&per_head_stats);
 	                
@@ -668,7 +668,7 @@ farm_ata_per_head_stats_fetch(int item, unsigned int inst, pmAtomValue *atom)
 	                if (sts != PMDA_CACHE_ACTIVE)
 	                        return PM_ERR_INST;
 	                
-	                atom->ull = per_head_stats->write_power_hrs_head;
+	                atom->ull = per_head_stats->write_power_secs_head;
 	                return PMDA_FETCH_STATIC;	
 	
         	case MR_HEAD_RESISTANCE:
@@ -1137,7 +1137,7 @@ farm_ata_refresh_data(const char *name, struct farm_ata_log_stats *farm_ata_log_
 		wpo_head_counter++;
 
 	if ((strncmp(strtrim(buffer), "Write Power On", 14) == 0)  && (wpo_head_counter < number_of_heads))
-		sscanf(buffer, "%*s%*s%*s%*s%*s%*s%*s %"SCNu64"", &farm_ata_log_stats->write_power_hrs_head[wpo_head_counter]);
+		sscanf(buffer, "%*s%*s%*s%*s%*s%*s%*s %"SCNu64"", &farm_ata_log_stats->write_power_secs_head[wpo_head_counter]);
 
 	if (strstr(buffer, "Resistance from"))
 		mr_head_counter++;
@@ -1178,7 +1178,7 @@ farm_ata_refresh_data(const char *name, struct farm_ata_log_stats *farm_ata_log_
         	farm_ata_log_stats->rvga_skip_write_detected_head[i] = -1;
         	farm_ata_log_stats->fvga_skip_write_detected_head[i] = -1;
         	farm_ata_log_stats->skip_write_detect_threshold_detect_head[i] = -1;
-        	farm_ata_log_stats->write_power_hrs_head[i] = -1;
+        	farm_ata_log_stats->write_power_secs_head[i] = -1;
         	farm_ata_log_stats->mr_head_resistance_head[i] = -1;
         	farm_ata_log_stats->second_mr_head_resistance_head[i] = -1;
 	        farm_ata_log_stats->number_reallocated_sectors_head[i]= -1;
@@ -1270,7 +1270,7 @@ farm_ata_refresh_per_head_stats(void)
                         per_head_stats->rvga_skip_write_detected_head  = dev->farm_ata_log_stats.rvga_skip_write_detected_head[i];
                         per_head_stats->fvga_skip_write_detected_head  = dev->farm_ata_log_stats.fvga_skip_write_detected_head[i];
                         per_head_stats->skip_write_detect_threshold_detect_head  = dev->farm_ata_log_stats.skip_write_detect_threshold_detect_head[i];
-                        per_head_stats->write_power_hrs_head  = dev->farm_ata_log_stats.write_power_hrs_head[i];
+                        per_head_stats->write_power_secs_head  = dev->farm_ata_log_stats.write_power_secs_head[i];
                         per_head_stats->mr_head_resistance_head  = dev->farm_ata_log_stats.mr_head_resistance_head[i];
                         per_head_stats->second_mr_head_resistance_head  = dev->farm_ata_log_stats.second_mr_head_resistance_head[i];
                         per_head_stats->number_reallocated_sectors_head  = dev->farm_ata_log_stats.number_reallocated_sectors_head[i];

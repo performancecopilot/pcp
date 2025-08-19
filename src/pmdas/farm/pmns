@@ -159,7 +159,7 @@ farm.ata.reliability_statistics {
 	rvga_skip_write_detected					FARM:7:3
 	fvga_skip_write_detected					FARM:7:4
 	skip_write_detect_threshold_detect				FARM:7:5
-	write_power_hrs							FARM:7:6
+	write_power_secs							FARM:7:6
 	mr_head_resistance						FARM:7:7
 	second_mr_head_resistance					FARM:7:8
 	number_of_reallocated_sectors					FARM:7:9
