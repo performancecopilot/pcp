@@ -107,13 +107,21 @@ _symlink()
 	status=$?
 	$MANIFEST l "$__target" `echo "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
     else
-       __dlist=`dirname "$__symlink" | sed -e "s;^$DIST_ROOT;;"`
-       __dlist=`realpath "$__dlist" | sed -e 's;/; ;g'`
+	__dlist=`dirname "$__symlink" | sed -e "s;^$DIST_ROOT;;" -e 's;/; ;g'`
 	__tpath=""
 	for d in $__dlist
 	do
 	    __tpath="../${__tpath}"	# constructing a relative path
 	done
+
+    # On MacOS, The etc/var (& tmp) directories off root are symlinks to a 'deeper' directory
+    # e.g. /var -> private/var
+    # so for MacOS, we must add one more '../' to these paths to make them work
+    if $MACDIRECTORYHACK && [[ $__dlist =~ ^.(var|etc).*$ ]]
+    then
+        __tpath="../${__tpath}"
+        echo "tpath is now $__tpath" >> /tmp/symlink.log
+    fi
 
 	cd "${__dir}"
 	$LN "${__tpath}${__rel}" "$__symlink"
@@ -158,6 +166,9 @@ test -f /usr/xpg4/bin/id && ID=/usr/xpg4/bin/id
 # Allow for overridding /var files checking (for QA only);
 # default is failure when regular files installed to /var.
 CHECK=true
+
+MACDIRECTORYHACK=false
+OS=`uname`; [ $OS = "Darwin" ] && MACDIRECTORYHACK=true
 
 prog=`basename $0`
 HERE=`pwd`
