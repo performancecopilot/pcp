@@ -699,7 +699,6 @@ static pmdaMetric metrictab[] = {
 static void
 darwin_refresh(int *need_refresh)
 {
-    pmNotifyErr(LOG_INFO, "darwin_refresh - BEGIN\n");
     if (need_refresh[CLUSTER_LOADAVG])
 	mach_loadavg_error = refresh_loadavg(mach_loadavg);
     if (need_refresh[CLUSTER_CPULOAD])
@@ -720,7 +719,6 @@ darwin_refresh(int *need_refresh)
 	mach_net_error = refresh_network(&mach_net, &indomtab[NETWORK_INDOM]);
     if (need_refresh[CLUSTER_NFS])
 	mach_nfs_error = refresh_nfs(&mach_nfs);
-    pmNotifyErr(LOG_INFO, "darwin_refresh - END\n");
 }
 
 static inline int
@@ -1129,7 +1127,6 @@ fetch_nfs(unsigned int item, unsigned int inst, pmAtomValue *atom)
 static int
 darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
-    pmNotifyErr(LOG_INFO, "darwin_fetchCallBack - BEGIN\n");
     unsigned int	item;
 
     if (mdesc->m_user) {
@@ -1168,14 +1165,12 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_NETWORK:	return fetch_network(item, inst, atom);
     case CLUSTER_NFS:		return fetch_nfs(item, inst, atom);
     }
-    pmNotifyErr(LOG_INFO, "darwin_fetchCallBack - END\n");
     return 0;
 }
 
 static int
 darwin_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *pmda)
 {
-    pmNotifyErr(LOG_INFO, "darwin_instance - BEGIN\n");
     int			need_refresh[NUM_CLUSTERS] = { 0 };
 
     switch (pmInDom_serial(indom)) {
@@ -1185,7 +1180,6 @@ darwin_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
     case NETWORK_INDOM:	need_refresh[CLUSTER_NETWORK]++; break;
     }
     darwin_refresh(need_refresh);
-    pmNotifyErr(LOG_INFO, "darwin_instance - END\n");
     return pmdaInstance(indom, inst, name, result, pmda);
 }
 
@@ -1206,9 +1200,6 @@ darwin_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 void 
 darwin_init(pmdaInterface *dp)
 {
-
-    pmNotifyErr(LOG_INFO, "Darwin initializing - Hello World!\n");
-
     int		sts;
 
     if (_isDSO) {
