@@ -1,0 +1,185 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": {
+              "stringValue": "my.service"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "my.library",
+            "version": "1.0.0",
+            "attributes": [
+              {
+                "key": "my.scope.attribute",
+                "value": {
+                  "stringValue": "some scope attribute"
+                }
+              }
+            ]
+          },
+          "metrics": [
+            {
+              "name": "my.counter",
+              "unit": "1",
+              "description": "I am a Counter",
+              "sum": {
+                "aggregationTemporality": 1,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "asDouble": 5,
+                    "startTimeUnixNano": "1544712660300000000",
+                    "timeUnixNano": "1544712660300000000",
+                    "attributes": [
+                      {
+                        "key": "my.counter.attr",
+                        "value": {
+                          "stringValue": "some value"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "my.gauge",
+              "unit": "1",
+              "description": "I am a Gauge",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "asDouble": 10,
+                    "timeUnixNano": "1544712660300000000",
+                    "attributes": [
+                      {
+                        "key": "my.gauge.attr",
+                        "value": {
+                          "stringValue": "some value"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "my.histogram",
+              "unit": "1",
+              "description": "I am a Histogram",
+              "histogram": {
+                "aggregationTemporality": 1,
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1544712660300000000",
+                    "timeUnixNano": "1544712660300000000",
+                    "count": 2,
+                    "sum": 2,
+                    "bucketCounts": [1,1],
+                    "explicitBounds": [1],
+                    "min": 0,
+                    "max": 2,
+                    "attributes": [
+                      {
+                        "key": "my.histogram.attr",
+                        "value": {
+                          "stringValue": "some value"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "my.summary",
+              "unit": "1",
+              "description": "I am a Summary",
+              "summary": {
+                "aggregationTemporality": 1,
+                "dataPoints": [
+                  {
+                    "startTimeUnixNano": "1544712660300000000",
+                    "timeUnixNano": "1544712660300000000",
+        	    "count": "2847",
+                    "sum": 142.67,
+        	    "quantileValues": [
+                      {
+                      	"quantile": 0.5,
+            		"value": 0.045
+          	      },
+                      {
+                        "quantile": 0.95,
+                        "value": 0.156
+                      },
+                      {
+                        "quantile": 0.99,
+                        "value": 0.234
+                      }
+                    ],
+                    "attributes": [
+                      {
+                        "key": "my.summary.attr",
+                        "value": {
+                          "stringValue": "some value"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "scope": {
+            "name": "my.library.two",
+            "version": "2.0.0",
+            "attributes": [
+              {
+                "key": "my.scope.attribute",
+                "value": {
+                  "stringValue": "some scope attribute"
+                }
+              }
+            ]
+          },
+          "metrics": [
+            {
+              "name": "my.counter.two",
+              "unit": "2",
+              "description": "I am a Counter",
+              "sum": {
+                "aggregationTemporality": 1,
+                "isMonotonic": true,
+                "dataPoints": [
+                  {
+                    "asDouble": 5,
+                    "startTimeUnixNano": "1544712660300000000",
+                    "timeUnixNano": "1544712660300000000",
+                    "attributes": [
+                      {
+                        "key": "my.counter.attr",
+                        "value": {
+                          "stringValue": "some value"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
