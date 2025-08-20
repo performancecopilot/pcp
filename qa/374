@@ -237,7 +237,7 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 #
 for type in '-b 64 -v pcp\>=5.3.5'
 do
-    cmd="./getpmcdhosts -L -n 1 $type 2>/dev/null"
+    cmd="./getpmcdhosts -P -L -n 1 $type 2>/dev/null"
     host=`eval $cmd`
     if [ -z "$host" ]
     then
