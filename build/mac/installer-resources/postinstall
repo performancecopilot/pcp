@@ -100,20 +100,4 @@ do
     [ -d "$dir" ] && rm -rf "$dir"
 done
 
-# Now remap the installed binary files so the PCP Library files can be loaded
-destination_lib_path=/usr/local/lib
-
-HOMEBREW_SITEPACKAGES=`echo "$(/opt/homebrew/bin/python3-config --prefix)/lib/python3/site-packages"`
-for basepath in `echo /usr/local/libexec/pcp/bin /usr/local/bin $HOMEBREW_SITEPACKAGES`; do
-	for binary in `ls -1 ${basepath}`; do
-      	  echo "Checking $binary"
-     	   # do not remap already remapped libraries
-      	  for library in `otool -l $basepath/$binary | grep libpcp | grep -v "/usr/local/lib" | awk '{print $2}'`; do
-           	     echo "Found PCP Libary: $library needing remapping"
-           	     new_lib_loc=$destination_lib_path/$library
-           	     install_name_tool -change $library $new_lib_loc $basepath/$binary
-           	     echo "Remapped to $new_lib_loc"
-       	 done
-	done
-done
 status=0
