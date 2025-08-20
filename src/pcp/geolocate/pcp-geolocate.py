@@ -1,6 +1,6 @@
 #!/usr/bin/pmpython
 #
-# Copyright (C) 2022-2023 Red Hat.
+# Copyright (C) 2022-2023,2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,10 +16,8 @@
 """ Display geographical location from local cache or IP lookup """
 
 from pcp.pmapi import pmContext as PCP
-try:
-    import urllib.request as httprequest
-except Exception:
-    import urllib2 as httprequest
+import urllib.request as httprequest
+import urllib.error as httperror
 import threading
 import time
 import json
@@ -61,27 +59,18 @@ def finish(url):
 
 
 def ipinfo(url):
-    with httprequest.urlopen(url) as http:
-        js = http.read().decode('utf-8')
-        data = json.loads(js)
-        coords = data['loc'].split(',')
-        print(output % (coords[0], coords[1]))
-    finish(url)
+    try:
+        with httprequest.urlopen(url) as http:
+            js = http.read().decode('utf-8')
+            data = json.loads(js)
+            coords = data['loc'].split(',')
+            print(output % (coords[0], coords[1]))
+        finish(url)
+    except httperror.HTTPError:
+        pass
 
 IPINFO = "https://ipinfo.io/json"
 threads.append(threading.Thread(target = ipinfo, args = (IPINFO, )))
-
-
-def mozilla(url):
-    with httprequest.urlopen(url) as http:
-        js = http.read().decode('utf-8')
-        data = json.loads(js)
-        coords = data['location']
-        print(output % (coords['lat'], coords['lng']))
-    finish(url)
-
-MOZILLA = "https://location.services.mozilla.com/v1/geolocate?key=geoclue"
-threads.append(threading.Thread(target = mozilla, args = (MOZILLA,)))
 
 
 try:
