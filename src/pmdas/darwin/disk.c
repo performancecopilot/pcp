@@ -33,10 +33,6 @@
 static int
 check_stats_size(struct diskstats *stats, int count)
 {
-
-	pmNotifyErr(LOG_INFO, "check_stats_size - BEGIN\n");
-
-
     if (count > stats->highwater) {
 	if (stats->highwater == 0)
 	    stats->highwater = 1;
@@ -49,7 +45,6 @@ check_stats_size(struct diskstats *stats, int count)
 	    return -ENOMEM;
 	}
     }
-	pmNotifyErr(LOG_INFO, "check_stats_size - END\n");
     return 0;
 }
 
@@ -112,17 +107,11 @@ static int
 update_disk_stats(struct diskstat *disk,
 		  CFDictionaryRef pproperties, CFDictionaryRef properties)
 {
-
-	pmNotifyErr(LOG_INFO, "update_disk_stats - BEGIN\n");
-
-
-
     CFDictionaryRef	statistics;
     CFStringRef		name;
     CFNumberRef		number;
 
     memset(disk, 0, sizeof(struct diskstat));
-	pmNotifyErr(LOG_INFO, "update_disk_stats - memset 0\n");
 
     /* Get name from the drive properties */
     name = (CFStringRef) CFDictionaryGetValue(pproperties,
@@ -135,48 +124,39 @@ update_disk_stats(struct diskstat *disk,
     if (disk->name[0] == '\0')
 	return -ENOENT; /* Not much we can do with no name */
 
-	pmNotifyErr(LOG_INFO, "update_disk_stats - got encoded name\n");
-
     /* Get the blocksize from the drive properties */
     number = (CFNumberRef) CFDictionaryGetValue(pproperties,
 			CFSTR(kIOMediaPreferredBlockSizeKey));
     if (number == NULL)
 	return -ENOENT; /* Not much we can do with no number */
     CFNumberGetValue(number, kCFNumberSInt64Type, &disk->blocksize);
-	pmNotifyErr(LOG_INFO, "update_disk_stats - got blocksize value\n");
 
     /* Get the statistics from the device properties. */
     statistics = (CFDictionaryRef) CFDictionaryGetValue(properties,
 			CFSTR(kIOBlockStorageDriverStatisticsKey));
-	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics ref\n");
     if (statistics) {
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 			CFSTR(kIOBlockStorageDriverStatisticsReadsKey));
-	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics READ ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->read);
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 			CFSTR(kIOBlockStorageDriverStatisticsWritesKey));
-    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics WRITE ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write);
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 		CFSTR(kIOBlockStorageDriverStatisticsBytesReadKey));
-    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics READ BYTES ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->read_bytes);
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 		CFSTR(kIOBlockStorageDriverStatisticsBytesWrittenKey));
-    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics WRITE BYTES ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write_bytes);
 	number = (CFNumberRef) CFDictionaryGetValue(statistics,
 		CFSTR(kIOBlockStorageDriverStatisticsLatentReadTimeKey));
-    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics Latent Read Time ref\n");
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->read_time);
@@ -185,9 +165,7 @@ update_disk_stats(struct diskstat *disk,
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write_time);
-    	pmNotifyErr(LOG_INFO, "update_disk_stats - got statistics Latent Write Time ref\n");
     }
-	pmNotifyErr(LOG_INFO, "update_disk_stats - END\n");
     return 0;
 }
 
@@ -248,8 +226,7 @@ update_disk(diskstats_t *stats, io_registry_entry_t drive, int index)
 int
 refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 {
-	pmNotifyErr(LOG_INFO, "refresh_disks - BEGIN\n");
-	io_registry_entry_t		drive;
+    io_registry_entry_t		drive;
     CFMutableDictionaryRef	match;
     unsigned int		count;
     int				status;
@@ -265,9 +242,7 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
 	}
 	memset(stats, 0, sizeof(struct diskstats));
 	inited = 1;
-    	pmNotifyErr(LOG_INFO, "refresh_disks - init completed\n");
     }
-
 
     /* Get an interator for IOMedia objects (drives). */
     match = IOServiceMatching("IOMedia");
