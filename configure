@@ -8571,7 +8571,7 @@ test -n "$PYLINT" || PYLINT="/bin/true"
 
 
 
-for ac_prog in python3
+for ac_prog in /opt/homebrew/bin/python3.12 python3
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -8637,6 +8637,9 @@ printf "%s\n" "no" >&6; }
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PYTHON3" >&5
 printf "%s\n" "$PYTHON3" >&6; }
     fi
+else
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PYTHON3" >&5
+printf "%s\n" "$PYTHON3" >&6; }
 fi
 
 
@@ -8668,7 +8671,22 @@ printf "%s\n" "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 		 PY_MAJOR="$PY_MAJOR"
     PY_MINOR="$PY_MINOR"
     PY_VERSION="python$PY_MAJOR.$PY_MINOR"
-    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION}"
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Python $PY_MAJOR.$PY_MINOR header directory" >&5
+printf %s "checking for Python $PY_MAJOR.$PY_MINOR header directory... " >&6; }
+
+        if test -n "$PYTHON3"; then
+                for cfg in "$PYTHON3-config" "python3.$PY_MINOR-config" "python3-config"; do
+            if $cfg --includes >/dev/null 2>&1; then
+                PY_INCLUDE_DIRS=`$cfg --includes`
+                break
+            fi
+        done
+    fi
+
+        if test -z "$PY_INCLUDE_DIRS"; then
+        PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION} -I/opt/homebrew/include/${PY_VERSION} -I/opt/homebrew/include/${PY_VERSION}m"
+    fi
+
     saved_CFLAGS="$CFLAGS"
     saved_CPPFLAGS="$CPPFLAGS"
     CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
@@ -8681,10 +8699,16 @@ if test "x$ac_cv_header_Python_h" = xyes
 then :
   printf "%s\n" "#define HAVE_PYTHON_H 1" >>confdefs.h
 
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: found in $PY_INCLUDE_DIRS" >&5
+printf "%s\n" "found in $PY_INCLUDE_DIRS" >&6; }
+
 else case e in #(
   e)
-	echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
-	echo Proceeding with the Python $PY_MAJOR installation found, regardless. ;;
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: not found" >&5
+printf "%s\n" "not found" >&6; }
+        echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+        echo Proceeding with the Python $PY_MAJOR installation found, regardless.
+     ;;
 esac
 fi
 
