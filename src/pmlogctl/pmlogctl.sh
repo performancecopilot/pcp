@@ -28,7 +28,12 @@
 #
 
 . "$PCP_DIR/etc/pcp.env"
+
+# we are not an "rc" script, so dodge any special handling in
+# rc-proc.sh
+export PCPQA_NO_RC_STATUS=true
 . "$PCP_SHARE_DIR/lib/rc-proc.sh"
+
 . "$PCP_SHARE_DIR/lib/utilproc.sh"
 
 prog=`basename "$0"`

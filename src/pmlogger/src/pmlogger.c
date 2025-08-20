@@ -109,9 +109,12 @@ run_done(int sts, char *msg)
 	fputc('\n', stderr);
     }
 
-    if ((lsts = do_epilogue()) < 0)
-	fprintf(stderr, "Warning: problem writing archive epilogue: %s\n",
-	    pmErrStr(lsts));
+    if (last_log_offset >= __pmLogLabelSize(archctl.ac_log)) {
+	/* prologue was written, so add epilogue */
+	if ((lsts = do_epilogue()) < 0)
+	    fprintf(stderr, "Warning: problem writing archive epilogue: %s\n",
+		pmErrStr(lsts));
+    }
 
     if (msg != NULL)
 	pmNotifyErr(LOG_INFO, "pmlogger: %s, %s\n", msg, log_switch_flag ? "reexec" : "exiting");
@@ -126,7 +129,7 @@ run_done(int sts, char *msg)
     if (last_stamp.sec != 0) {
 	if (last_log_offset < __pmLogLabelSize(archctl.ac_log)) {
 	    /*
-	     * no preamble => no archive label record => no temporal
+	     * no prologue => no archive label record => no temporal
 	     * index
 	     */
 	    ;

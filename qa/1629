@@ -1,0 +1,80 @@
+#!/bin/sh
+# PCP QA Test No. 1629
+# pmlogger w/out prologue, make sure there is no epilogue
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    if [ -n "$pid" ]
+    then
+	pmsignal -s KILL $pid
+	pid=''
+    fi
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+pmlogger -L -Dlog,desperate -c /dev/null -l $tmp.log $tmp &
+pid=$!
+sleep 2
+pmsignal -s TERM $pid
+pid=''
+
+cat $tmp.log >>$seq_full
+rm $tmp.log
+ls -l $tmp.* >>$seq_full
+
+for file in $tmp.*
+do
+    part=`echo $file | sed -e 's/.*\././'`
+    if [ -s "$file" ]
+    then
+	echo "Error: archive $part not empty"
+	ls -l $file
+	case "$part"
+	in
+	    .0)
+	    	src/scandata -v -o "$file"
+		;;
+	    .meta)
+	    	src/scanmeta "$file"
+		;;
+	    .index)
+	    	src/scanindex "$file"
+		;;
+	esac
+    else
+	echo "archive $part empty as expected"
+    fi
+done
+
+# success, all done
+exit

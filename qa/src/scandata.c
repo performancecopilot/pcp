@@ -250,6 +250,7 @@ done:
 
     __pmLogFreeLabel(&label);
 
-    printf("%d data records found\n", nrec);
+    /* nrec == 0 is the label record */
+    printf("%d data records found\n", nrec-1);
     exit(0);
 }

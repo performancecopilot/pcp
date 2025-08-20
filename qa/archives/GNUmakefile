@@ -187,3 +187,8 @@ pcp-mpstat3.0: pcp-mpstat2.0
 	../src/stripmark tmp/pcp-mpstat3.0 pcp-mpstat3.0
 	rm -rf tmp pcp-mpstat3-head.* pcp-mpstat3-body.*
 
+# sample-proc (same as the one in ../tmparch but this one is not
+# subject to platform jitters
+#
+sample-proc_v3.0 sammpe-proc_v2.0:
+	../tmparch/make.sample-proc
