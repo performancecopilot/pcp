@@ -1003,7 +1003,7 @@ AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python3 available for the build and runtime
-AC_PATH_PROGS(PYTHON3, [/opt/homebrew/bin/python3.12 python3])
+AC_PATH_PROGS(PYTHON3, [python3])
 if test -z "$PYTHON3"
 then
     dnl no python3 executable, so look for latest python3.x, if any

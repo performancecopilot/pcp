@@ -218,7 +218,7 @@ environment (your platform must at least have gmake).
 
 ```
 # MacOS - use Homebrew and ensure the following packages are installed 
-brew install  gnu-tar pkg-config python@3.13 python-setuptools autoconf qt qt-creator
+brew install  gnu-tar pkg-config python3 python-setuptools autoconf qt qt-creator
 
 # IMPORTANT - the .pkg & .dmg will not be created unless this is set.
 export PKGBUILD=`which pkgbuild`
