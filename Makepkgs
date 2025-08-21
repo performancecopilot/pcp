@@ -275,6 +275,7 @@ then
     if [ -x /usr/bin/pkgbuild ]; then
         echo "MacOS build system detected.  Using pkgbuild"
         export PKGBUILD=/usr/bin/pkgbuild
+        export QMAKE=`which qmake`
     fi
 
 elif [ $target = netbsd ]
