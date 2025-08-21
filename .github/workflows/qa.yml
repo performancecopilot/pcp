@@ -127,7 +127,7 @@ jobs:
           path: qa-reports
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: artifacts
 
@@ -228,7 +228,7 @@ jobs:
           ssh-key: ${{ secrets.QA_REPORT_DEPLOY_KEY }}
 
       - name: Download artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           path: artifacts
 
