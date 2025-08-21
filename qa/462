@@ -38,6 +38,7 @@ _cleanup()
     _restore_auto_restart pmcd
     _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
+    _restore_auto_restart pmlogger
     rm -f $tmp.*
 }
 

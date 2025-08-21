@@ -224,6 +224,10 @@ _stop_auto_restart()
 
 _restore_auto_restart()
 {
+    # Note this is idempotent, so repeated calls for the same service
+    # are safe, e.g. in the body of a test and in _cleanup() from a
+    # trap
+    #
     if [ -n "$PCP_SYSTEMDUNIT_DIR" -a -f $PCP_SYSTEMDUNIT_DIR/$1.service.$seq ]
     then
 	_restore_config $PCP_SYSTEMDUNIT_DIR/$1.service
