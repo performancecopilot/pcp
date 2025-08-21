@@ -1274,12 +1274,12 @@ _callback_log_control()
 			# deployment, cases where the pmlogger process
 			# vanishes a short time after the SIGUSR2 has been
 			# sent and caught, the process has called exec() and
-			# main() has restarted.  This check is intended
+			# main() has restarted.  This check is intended to
 			# detect and report when this happens if -VV is
 			# in play.
 			#
 			sleep 1
-			if $PCP_PS_PROG -p "$pid" 2>&1 | grep "^$pid[ 	]" >/dev/null
+			if $PCP_PS_PROG -p "$pid" 2>&1 | grep "^[ 	]*$pid[ 	]" >/dev/null
 			then
 			    : still alive
 			else

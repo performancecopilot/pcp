@@ -39,6 +39,7 @@ _cleanup()
 	pmcd_pid=''
 	wait
     fi
+    _restore_auto_restart pmcd
 }
 
 port=`_find_free_port`

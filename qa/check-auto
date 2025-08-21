@@ -1,0 +1,95 @@
+#!/bin/sh
+#
+# Usage: check-auto [seq ...]
+#
+# Check that if a QA script uses _stop_auto_restart for a
+# (systemd) service, it also uses _restore_auto_restart
+# (preferably in _cleanup())
+#
+
+tmp=/var/tmp/check-auto
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+verbose=false
+if [ X"$1" = X-v ]
+then
+    verbose=true
+    shift
+fi
+
+[ $# -eq 0 ] && set -- `ls -d [0-9]*[0-9] | sort -n`
+
+if [ $# -eq 1 ]
+then
+    grep _stop_auto_restart $1 \
+    | sed -e "s/^/$1:/"
+else
+    grep _stop_auto_restart $*
+fi \
+| sed \
+    -e 's/:/ /' \
+    -e "/#.*_stop_auto_restart/d" \
+| while read seq match
+do
+    svc=`echo "$match" | sed -e 's/_stop_auto_restart //'`
+    #debug# echo "seq=$seq match=$match svc=$svc"
+    case "$svc"
+    in
+	pmcd|pmlogger|pmie|pmproxy)
+		;;
+	*)
+		echo "$seq: can't handle service \"$svc\" from \"$match\""
+		;;
+    esac
+    rm -f $tmp.cleanup $tmp.remainder $tmp.ok
+    sed <$seq \
+	-e '/^[ 	]*#.*_restore_auto_restart/d' \
+    | awk '
+/^_cleanup/	{ inclean = 1 }
+inclean == 1	{ print $0 >>"'$tmp.cleanup'" }
+inclean == 0	{ print $0 >>"'$tmp.remainder'" }
+inclean == 1 && $1 == "}"	{ inclean = 0 }'
+    if [ -f $tmp.cleanup ]
+    then
+	if grep -q "_restore_auto_restart $svc" $tmp.cleanup
+	then
+	    # good, in _cleanup
+	    $verbose && echo "$seq: _restore_auto_restart $svc in _cleanup()"
+	    touch $tmp.ok
+	fi
+	if grep -q '_cleanup_pmda' $tmp.cleanup
+	then
+	    # special case _restore_auto_restart pmcd done in _cleanup_pmda()
+	    # called from _cleanup()
+	    $verbose && echo "$seq: _restore_auto_restart pmcd in _cleanup_pmda() from _cleanup()"
+	    touch $tmp.ok
+	fi
+    fi
+    if [ ! -f $tmp.ok ]
+    then
+	if [ "$svc" = pmcd ]
+	then
+	    if grep -q '_cleanup_pmda' $seq
+	    then
+		# special case _restore_auto_restart pmcd done in _cleanup_pmda()
+		$verbose && echo "$seq: _restore_auto_restart pmcd in _cleanup_pmda()"
+		touch $tmp.ok
+	    elif grep -E -q '_pmdabcc_cleanup|_pmdaopenmetrics_cleanup|_pmdabpf_cleanup|_pmdaopentelemetry_cleanup|_pmdabpftrace_cleanup' $seq
+	    then
+		# special case _restore_auto_restart pmcd done in __pmda<foo>_cleanup
+		$verbose && echo "$seq: _restore_auto_restart pmcd in _pmda<foo>_cleanup()"
+		touch $tmp.ok
+	    else
+		[ ! -f $tmp.cleanup ] && echo "$seq: warning: _cleanup() not found"
+	    fi
+	else
+	    [ ! -f $tmp.cleanup ] && echo "$seq: warning: _cleanup() not found"
+	fi
+    fi
+    if grep -q "_restore_auto_restart $svc" $tmp.remainder
+    then
+	echo "$seq: warning: _restore_auto_restart $svc outside _cleanup()"
+	touch $tmp.ok
+    fi
+    [ ! -f $tmp.ok ] && echo "$seq: error: _restore_auto_restart $svc missing"
+done

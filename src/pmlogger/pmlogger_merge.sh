@@ -49,6 +49,46 @@ _warning()
     force=false
 }
 
+# replacement for fmt(1) that is the same on every platform ... mimics
+# the FSF version with a maximum line length of 75 columns
+#
+_fmt()
+{
+    $PCP_AWK_PROG '
+BEGIN		{ len = 0 }
+		{ for (i = 1; i <= NF; i++) {
+		    wlen = length($i)
+		    if (wlen >= 75) {
+			# filename longer than notional max line length
+			# print partial line (if any), then this one
+			# on a line by itself
+			if (len > 0) {
+			    printf "\n"
+			    len = 0
+			}
+			print $i
+		    }
+		    else {
+			if (len + 1 + wlen > 75) {
+			    printf "\n"
+			    len = 0
+			}
+			if (len + 1 + wlen <= 75) {
+			    if (len == 0) {
+				printf "%s",$i
+				len = wlen;
+			    }
+			    else {
+				printf " %s",$i
+				len += 1 + wlen
+			    }
+			}
+		    }
+		  }
+		}
+END		{ if (len > 0) printf "\n" }'
+}
+
 _usage()
 {
     pmgetopt --usage --progname=$prog --config=$tmp/usage
@@ -188,7 +228,8 @@ do
 		    ;;
 		0)
 		    echo "$prog: Error: \"volume 0\" file missing for archive \"$input\""
-		    ls ${file}*
+		    echo "Files present for this archive ..."
+		    ls `pmlogbasename ${input}`* | _fmt | sed -e 's/^/    /'
 		    fail=true
 		    ;;
 	    esac

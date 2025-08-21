@@ -114,6 +114,10 @@ _wait_for_new_pmlogger()
     else
 	echo "Failed!" >>$seq_full
 	date
+	if which systemctl >/dev/null 2>&1
+	then
+	    systemctl -l --no-pager status pmlogger >>$seq_full
+	fi
 	if [ -f $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log ]
 	then
 	    echo "--- start $oldhostname pmlogger.log" >>$seq_full
@@ -143,19 +147,6 @@ _wait_for_new_pmlogger()
 	    cat $PCP_TMP_DIR/pmlogger/primary
 	else
 	    echo $PCP_TMP_DIR/pmlogger/primary is missing
-	fi
-	if [ -f $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log ]
-	then
-	    echo "--- start $oldhostname pmlogger.log" >>$seq_full
-	    cat $PCP_LOG_DIR/pmlogger/$oldhostname/pmlogger.log >>$seq_full
-	    echo "--- end $oldhostname pmlogger.log" >>$seq_full
-	elif [ -f $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log ]
-	then
-	    echo "--- start $newhostname pmlogger.log" >>$seq_full
-	    cat $PCP_LOG_DIR/pmlogger/$newhostname/pmlogger.log >>$seq_full
-	    echo "--- end $newhostname pmlogger.log" >>$seq_full
-	else
-	    echo "--- no pmlogger.log" >>$seq_full
 	fi
 	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)'
 	echo "--- start pmcd.log" >>$seq_full
