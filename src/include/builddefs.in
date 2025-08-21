@@ -441,11 +441,10 @@ endif
 
 # MacOS requires the installed library paths be stamped into binaries
 ifeq "$(TARGET_OS)" "darwin"
+
 LINKER_MAKERULE = \
-    for bin in `echo $(CMDTARGET) $(LIBTARGET)`; do \
-        for lib in `otool -l $$bin | grep libpcp | ${AWK} '{print $$2}'`; do \
-	    install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $$bin; \
-        done; \
+    for lib in `otool -L $@ | ${AWK} '/libpcp/ {print $$1}'`; do \
+        install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $@; \
     done
 else
 LINKER_MAKERULE =
