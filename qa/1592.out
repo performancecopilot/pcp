@@ -102,7 +102,7 @@ Timestamp: 14:49:54.067305000 numpmid: 6
 Timestamp: 14:49:54.567305000 numpmid: 0 <mark>
 [8] len=20 @ offset=924
 Timestamp: 14:49:55.067305000 numpmid: 0 <mark>
-9 data records found
+8 data records found
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/scandata -o -v TMP_v2.0
@@ -220,7 +220,7 @@ Timestamp: 14:49:54.567305985
 [8] len=24 @ offset=1628
 Timestamp: 14:49:55.067305985
  numpmid: 0 <mark>
-9 data records found
+8 data records found
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/scandata -o -v TMP_v3.0
