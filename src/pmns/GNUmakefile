@@ -39,9 +39,11 @@ include $(BUILDRULES)
 
 pmnsmerge$(EXECSUFFIX):      pmnsmerge.o pmnsutil.o
 	$(CCF) -o $@ $(LDFLAGS) pmnsmerge.o pmnsutil.o $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pmnsdel$(EXECSUFFIX):        pmnsdel.o pmnsutil.o
 	$(CCF) -o $@ $(LDFLAGS) pmnsdel.o pmnsutil.o $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 .NeedRebuild:
 	echo "This file flags the rc scripts to rebuild the PMNS" > .NeedRebuild

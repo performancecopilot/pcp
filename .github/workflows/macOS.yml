@@ -1,0 +1,55 @@
+name: macOS CI
+on: [push]
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Homebrew
+        run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+      - name: Update Homebrew
+        run: brew update
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Install and verify setuptools
+        id: install-setuptools
+        run: |
+          python3 --version
+          pip3 --version
+          pip3 install --upgrade pip setuptools wheel
+          python3 -c "import setuptools; print(setuptools.__version__)"
+      - name: Install Homebrew deps
+        id: install-deps
+        run: |
+          brew install gnu-tar pkg-config autoconf qt qt-creator
+      - name: Build on macOS
+        id: Build
+        run: |
+          xcodebuild -version
+          ./Makepkgs -verbose
+      - name: Debug on failure
+        if: failure() && steps.Build.conclusion == 'failure'
+        run: |
+          cat /Users/runner/work/pcp/pcp/Logs/pcp
+      - name: Debug on Python installation failure
+        if: failure() && steps.install-python.conclusion == 'failure'
+        run: |
+          echo "Python 3.13 installation failed. Collecting debug info..."
+          brew --version
+          brew config
+          brew doctor
+          ls -la /usr/local/bin | grep python
+          df -h
+          brew list
+      - name: Debug on dependency installation failure
+        if: failure() && steps.install-deps.conclusion == 'failure'
+        run: |
+          echo "Dependency installation failed. Collecting debug info..."
+          brew --version
+          brew config
+          brew doctor
+          ls -la /usr/local/bin | grep python
+          df -h
+          brew list

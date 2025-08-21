@@ -28,10 +28,12 @@ endif
 ifdef CMDTARGET
 $(CMDTARGET) : $(SUBDIRS) $(OBJECTS)
 	$(CCF) -o $(CMDTARGET) $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 endif
 ifdef CXXMDTARGET
 $(CXXMDTARGET) : $(SUBDIRS) $(OBJECTS)
 	$(CXXF) -o $(CXXMDTARGET) $(LDFLAGS) $(OBJECTS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 endif
 
 # GNU make has a built-in recipe for .cc / .C / .cpp, but not for .cxx -> .o
@@ -81,6 +83,7 @@ endif
 
 $(LIBTARGET) : $(SUBDIRS) $(OBJECTS) $(EXPORTS)
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $(LIBTARGET) $(OBJECTS) $(LDLIBS) $(LIB_FOR_DLOPEN) $(LIB_FOR_BASENAME)
+	$(LINKER_MAKERULE)
 endif
 
 ifdef STATICLIBTARGET

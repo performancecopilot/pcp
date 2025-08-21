@@ -2,7 +2,7 @@
 
 if [ ! -x "$1" -o ! -x "$2" -o ! -d "$3" -o -z "$4" -o ! -f "$5" ]; then
     if [ ! -x "$1" ]; then
-	echo PackageMaker not executable
+	echo pkgbuild not executable
     fi
     if [ ! -x "$2" ]; then
 	echo hdiutil not executable
@@ -22,7 +22,7 @@ fi
 
 IFDIR="installer-files"
 IRDIR="installer-resources"
-PKGMKR=$1
+PKGBUILD=$1
 HDIUTIL=$2
 DIST_ROOT=$3
 PACKAGE=$4-$PACKAGE_VERSION-$PACKAGE_BUILD
@@ -60,7 +60,7 @@ echo "Gathering files from the source tree using install-pcp"
 _do rm -rf $IFDIR
 _do mkdir $IFDIR
 cd $IFDIR
-_do ../install-pcp -R $DIST_ROOT -c $IDB
+_do ../install-pcp -v -R $DIST_ROOT -c $IDB
 cd $HERE
 
 pwd
@@ -87,19 +87,19 @@ for f in installer-info installer-description; do
 	    < $f > $nf || exit 1
 done
 
-echo "Launching PackageMaker..."
+echo "Launching pkgbuild..."
 
 _do rm -rf $PKG
 
-# PackageMaker returns non-zero value even if it succeeds.
-# PackageMaker must be run by the user logged into the localhost desktop.
-#
-_run $PKGMKR -build -p $HERE/$PKG  \
-	-f $HERE/installer-files -r $HERE/installer-resources \
-	-i $HERE/info -d $HERE/description &
-wait
+# create custom 'flatenned' directory to use for pkgbuild
+pkgroot=`mktemp -d /tmp/macos-pkg.XXXXXXXXX`
+cp -RP installer-files/* $pkgroot/
+cp -RP installer-resources/* $pkgroot/
 
-if [ ! -d $HERE/$PKG ]
+# pkgbuild must be run by the user logged into the localhost desktop.
+_run $PKGBUILD --identifier io.pcp.performancecopilot --version $PACKAGE_VERSION --nopayload --scripts $pkgroot $HERE/$PKG
+
+if [ ! -s $HERE/$PKG ]
 then
     echo "$prog: Package generation failed"
     exit 1
@@ -114,7 +114,6 @@ _do mv $PKG $PACKAGE
 _do $HDIUTIL makehybrid -quiet -o $PACKAGE.tmp $PACKAGE \
 	-hfs-openfolder dmg.tmp/$DMG -hfs
 _do $HDIUTIL convert -quiet $TEMPDMG -format UDRO -o $DMG
-_do $HDIUTIL internet-enable -quiet -yes $DMG
 
 if [ ! -f $HERE/$DMG ]
 then

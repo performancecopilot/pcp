@@ -80,6 +80,8 @@ endif
 ifeq "$(TARGET_OS)" "darwin"
 DSOSUFFIX = dylib
 CASE_INSENSITIVE_FS = yes
+# make space for $PCP_LIB_DIR
+LDFLAGS += -Wl,-headerpad -Wl,64
 endif
 ifeq "$(TARGET_OS)" "mingw"
 DSOSUFFIX = dll
@@ -434,6 +436,17 @@ BEGIN	{ print "$$mapfile_version 2"; print } \
 	{ print }'
 else
 EXPORTS_MAKERULE =
+endif
+
+# MacOS requires the installed library paths be stamped into binaries
+ifeq "$(TARGET_OS)" "darwin"
+
+LINKER_MAKERULE = \
+    for lib in `otool -L $@ | ${AWK} '/libpcp/ {print $$1}'`; do \
+        install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $@; \
+    done
+else
+LINKER_MAKERULE =
 endif
 
 # prepare domain.h used during the PMDA build process for each PMDA

@@ -42,6 +42,7 @@ include $(BUILDRULES)
 
 newhelp$(EXECSUFFIX):	newhelp.c
 	$(CCF) -o $@ $(LDFLAGS) newhelp.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 newhelp.static$(EXECSUFFIX):	newhelp.c $(STATIC_LIBPCP)
 	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) newhelp.c $(STATIC_LIBPCP) $(STATIC_LDLIBS)

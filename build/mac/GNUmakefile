@@ -28,7 +28,7 @@ pack_pcp : extrabits
 	 PACKAGE_MAJOR=${PACKAGE_MAJOR} \
 	 PACKAGE_MINOR=${PACKAGE_MINOR} \
 	 PACKAGE_BUILD=${PACKAGE_BUILD} \
-	./build-installer $(PACKAGE_MAKER) $(HDIUTIL) \
+	./build-installer $(PKGBUILD) $(HDIUTIL) \
 			  $$DIST_ROOT ${PACKAGE_NAME} idb 
 
 idb: $(DIST_MANIFEST)
@@ -41,6 +41,9 @@ idb: $(DIST_MANIFEST)
 # make source relative to DIST_ROOT
 # ensure that a symlink has a full path for the source (no change needed
 #   if source is already a full path)
+# Remove a linux-specific directory/file that isn't useful and isn't allowed in /usr/lib anyway (tmpfiles.d)
+# Get rid of the QA & Testsuite stuff is as they're not useful resources for the Mac installation (it's not a source-bundle) and some files don't correctly come across anyway
+# - this also speeds up the install and trims down the archive
 # append the installer scripts
 	@echo Making idb...
 	@echo "# Version 1" > idb
@@ -66,27 +69,23 @@ idb: $(DIST_MANIFEST)
 			printf "%s %s %s %s %s %s replace\n", $$1, $$2, $$3, $$4, $$6, $$5 ; \
 		} \
 		' $$DIST_MANIFEST \
-	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' >> idb
+	| sed -e 's# '$$WA'/# #g' -e 's# /# #g' | \
+	grep -v "usr/lib/tmpfiles.d" | \
+	$(PCP_AWK_PROG) ' \
+		$$6 !~ /^qa/ && $$5 !~ /testsuite/ {print} \
+	 ' >> idb
 	@(bdir=`echo $(PCP_BINADM_DIR) | cut -c2-`; \
 	  echo "f 644 root wheel $$bdir/idb idb replace"; \
 	  echo "f 755 root wheel $$bdir/install-pcp install-pcp replace"; \
 	  echo "f 755 root wheel $$bdir/uninstall-pcp uninstall-pcp replace") >> idb
-	@echo "f 644 root wheel Library/StartupItems/pcp/StartupParameters.plist StartupParameters.plist replace" >> idb
-	@echo "d 755 root wheel Library/StartupItems/pcp/Resources . replace" >> idb
-	@echo "d 755 root wheel Library/StartupItems/pcp/Resources/English.lproj . replace" >> idb
-	@echo "f 644 root wheel Library/StartupItems/pcp/Resources/English.lproj/Localizable.strings English.lproj/Localizable.strings replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pmcd etc/init.d/pmcd replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pmie etc/init.d/pmie replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pmproxy etc/init.d/pmproxy replace" >> idb
-	@echo "s 0 root wheel Library/StartupItems/pcp/pmlogger etc/init.d/pmlogger replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmcd.plist io.pcp.pmcd.plist replace" >> idb
 	@echo idb created
 
 extrabits: idb
 	DIST_MANIFEST= $(INSTALL) -m 755 idb install-pcp uninstall-pcp \
 		$(PCP_BINADM_DIR)
-	DIST_MANIFEST= $(INSTALL) -m 644 StartupParameters.plist \
-		Library/StartupItems/pcp/StartupParameters.plist
-	DIST_MANIFEST= $(INSTALL) -m 644 English.lproj/Localizable.strings \
-		Library/StartupItems/pcp/Resources/English.lproj/Localizable.strings
+	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmcd.plist \
+		Library/LaunchDaemons/io.pcp.pmcd.plist
+
 
 include $(BUILDRULES)

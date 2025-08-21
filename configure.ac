@@ -1019,6 +1019,8 @@ then
     else
 	AC_MSG_RESULT([$PYTHON3])
     fi
+else
+    AC_MSG_RESULT([$PYTHON3])
 fi
 AC_SUBST(PYTHON3)
 
@@ -1029,15 +1031,36 @@ AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
   [ PY_MAJOR="$1"
     PY_MINOR="$2"
     PY_VERSION="python$PY_MAJOR.$PY_MINOR"
-    PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION}"
+    AC_MSG_CHECKING([for Python $PY_MAJOR.$PY_MINOR header directory])
+
+    dnl Try python3-config (or versioned python3.X-config) to get include path
+    if test -n "$PYTHON3"; then
+        dnl Try versioned python3.X-config first, then fallback to python3-config
+        for cfg in "$PYTHON3-config" "python3.$PY_MINOR-config" "python3-config"; do
+            if $cfg --includes >/dev/null 2>&1; then
+                PY_INCLUDE_DIRS=`$cfg --includes`
+                break
+            fi
+        done
+    fi
+
+    dnl Fallback to manual paths if python3-config fails or is unavailable
+    if test -z "$PY_INCLUDE_DIRS"; then
+        PY_INCLUDE_DIRS="-I/usr/include/${PY_VERSION}m -I/usr/include/${PY_VERSION} -I/usr/local/include/${PY_VERSION} -I/opt/homebrew/include/${PY_VERSION} -I/opt/homebrew/include/${PY_VERSION}m"
+    fi
+
     saved_CFLAGS="$CFLAGS"
     saved_CPPFLAGS="$CPPFLAGS"
     CFLAGS="$CFLAGS $PY_INCLUDE_DIRS"
     CPPFLAGS="$CPPFLAGS $PY_INCLUDE_DIRS"
 
-    AC_CHECK_HEADERS([Python.h], [], [
-	echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
-	echo Proceeding with the Python $PY_MAJOR installation found, regardless.])
+    AC_CHECK_HEADERS([Python.h], [
+        AC_MSG_RESULT([found in $PY_INCLUDE_DIRS])
+    ], [
+        AC_MSG_RESULT([not found])
+        echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+        echo Proceeding with the Python $PY_MAJOR installation found, regardless.
+    ])
 
     CPPFLAGS="$saved_CPPFLAGS"
     CFLAGS="$saved_CFLAGS"

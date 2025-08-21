@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>io.pcp.pmcd</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/etc/init.d/pmcd</string>
+            <string>start</string>
+        </array>
+        <key>Disabled</key>
+        <false/>
+        <key>UserName</key>
+        <string>root</string>
+        <key>UserGroup</key>
+        <string>wheel</string>
+        <key>KeepAlive</key>
+        <false/>
+        <key>ThrottleInterval</key>
+        <integer>30</integer>
+        <key>RunAtLoad</key>
+        <true/>
+        <key>StandardErrorPath</key>
+        <string>/tmp/pmcd.job.err</string>
+        <key>StandardOutPath</key>
+        <string>/tmp/pmcd.job.out</string>
+    </dict>
+</plist>
