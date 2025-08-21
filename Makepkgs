@@ -256,16 +256,6 @@ then
 	    configopts="$configopts --with-selinux=no --with-qt=no"
 	fi
     fi
-    # for RHEL 7 Python3 is incomplete, so we're forced to still use
-    # Python2 if available
-    #
-    if [ -f /etc/system-release ]
-    then
-	if grep 'Red Hat.* release 7\.' /etc/system-release >/dev/null
-	then
-	    configopts="$configopts --with-python=check"
-	fi
-    fi
 elif [ $target = darwin ]
 then
     # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
@@ -289,29 +279,24 @@ then
     case `uname -r`
     in
 	9.3*)
-		# Bog-standard, just without python and without python3
+		# Bog-standard, just without python3
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python3=no --prefix=/usr"
 		;;
 	10.*|11.*)
-		# Bog-standard, just without python2
+		# Bog-standard
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --prefix=/usr"
-		;;
-	12.*)
-		# Bog-standard, just without python2 and static probes
-		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr"
 		;;
 	13.*)
-		# Bog-standard, just without python2 and qt and static probes
+		# Bog-standard, just without qt and static probes
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-qt=no --with-static-probes=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-qt=no --with-static-probes=no --prefix=/usr"
 		;;
 	14.*)
-		# Bog-standard, just without python2 and static probes
+		# Bog-standard, just without static probes
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-static-probes=no --prefix=/usr"
 		;;
 	*)
 		# Bog-standard, as below ...
@@ -319,11 +304,6 @@ then
 		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr"
 		;;
     esac
-elif [ $target = sunos ]
-then
-    # Need to take control of the Python versions, otherwise standard.
-    #
-    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=check"
 else
     # Bog-standard options suitable for a package on any platform.
     # Command line can be used to extend this set, and any unusual
@@ -347,7 +327,6 @@ in
     linux)
 	ARCH=`uname -m`
 	[ -f /etc/slackware-version -a "$ARCH" = x86_64 ] && configopts="$configopts --libdir=/usr/lib64"
-	[ -f /etc/gentoo-release ] && configopts="$configopts --without-python"
 	;;
     sunos|SunOS|solaris)
 	ARCH=`isainfo -k`
