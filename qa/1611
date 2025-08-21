@@ -31,21 +31,25 @@ _cleanup()
 {
     cd $here
 
+    date +TIME:%X.%N >>$seq_full
     echo "Stopping pmproxy ..." >>$seq_full
     _service pmproxy stop >>$seq_full 2>&1
     _restore_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
     if $pmproxy_was_running
     then
-        echo "Retarting pmproxy ..." >>$seq_full
+        echo "Restarting pmproxy ..." >>$seq_full
+	date +TIME:%X.%N >>$seq_full
 	_service pmproxy restart >>$seq_full 2>&1
 	_wait_for_pmproxy
 	if [ $? -eq 1 ]
 	then
-	    find $PCP_LOG_DIR/pmproxy
+	    find $PCP_LOG_DIR/pmproxy >>$seq.full
 	    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
+	    cat $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf >>$seq_full
 	fi
     fi
     _restore_auto_restart pmproxy
+    date +TIME:%X.%N >>$seq_full
 
     $sudo rm -rf $tmp $tmp.* $archive_path
 }
@@ -78,6 +82,7 @@ archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
 echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
+date +TIME:%X.%N >>$seq_full
 
 _save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 
@@ -123,6 +128,7 @@ End-Of-File
 
 echo
 echo "=== Running pmlogger in remote recording mode"
+date +TIME:%X.%N >>$seq_full
 remote_mode="-c $tmp.conf -T 5sec http://localhost:44322"
 if $do_valgrind
 then
@@ -131,6 +137,7 @@ else
     pmlogger $remote_mode
 fi \
 | _filter
+date +TIME:%X.%N >>$seq_full
 
 if [ -d $archive_path ]
 then
