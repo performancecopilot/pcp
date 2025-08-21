@@ -39,7 +39,7 @@ jobs:
 #          - {platform: fedora-rawhide-container,  os: ubuntu-22.04, experimental: true }
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Fix local hostname DNS lookup
         run: echo 127.0.1.1 $(hostname --fqdn) $(hostname) | sudo tee -a /etc/hosts
@@ -109,7 +109,7 @@ jobs:
 #    env:
 #      CC: clang
 #    steps:
-#    - uses: actions/checkout@v4
+#    - uses: actions/checkout@v5
 #    - name: Install Dependencies
 #      run: brew install automake pkg-config openssl libuv
 #    - name: Build packages
