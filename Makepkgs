@@ -258,16 +258,16 @@ then
     fi
 elif [ $target = darwin ]
 then
-    # On Mac OS X platforms, we install away from /usr/bin, /usr/lib
+    # On Mac OS platforms, we install away from /usr/bin, /usr/lib
     # and so on because of security requirements in recent versions.
+    # Qt use is retired here due to problems with linking+packaging.
+    # The realpath invocations resolve an issue relating to symlink
+    # re-mapping to the /private paths.
     #
-    configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr/local"
-    if [ -x /usr/bin/pkgbuild ]; then
-        echo "MacOS build system detected.  Using pkgbuild"
-        export PKGBUILD=/usr/bin/pkgbuild
-        export QMAKE=`which qmake`
-    fi
-
+    etc=`realpath /etc`
+    var=`realpath /var`
+    configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-qt=no"
+    export PKGBUILD=`which pkgbuild`
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin places things
