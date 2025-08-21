@@ -43,6 +43,7 @@ pcp-7.0.0 (1 September 2025)
 	archive analysis container: refactored to use real packages
 	archive analysis container: set Grafana time window from archive
     - Build, infrastructure and packaging updates:
+	build: MacOS builds and packaging, welcome back!
 	build: removed Qt4 support from code base, 5.6 is minimum
 	build: various improvements for reproducible builds
 	build: archive-analysis container reworked to use packages

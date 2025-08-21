@@ -2,7 +2,7 @@
 
 - Packages
   1. Linux Installation (rpm, deb)
-  2. Mac OS X Installation (brew)
+  2. Mac OS Installation (brew+dmg)
   3. AIX Installation
   4. Solaris Installation
   5. Windows Installation
@@ -50,28 +50,12 @@ root filesystem.
 
 *-- Ken*
 
-### 2. Mac OS X Installation
+### 2. MacOS Installation
 
-Installing PCP on MacOSX is done via https://brew.sh/ commands.
+Installing PCP on MacOS is done using the downloaded PCP .dmg file.
 From a Terminal run:
 ```
-$ brew install qt
-$ brew link qt --force
-$ brew install pcp
-$ brew link pcp
-$ pcp --version
-```
-
-The output for the last command will be something like
-```
-pcp version 4.1.1
-```
-
-Use the version number for creating symlinks (for version 4.1.1)
-```
-$ export version="4.1.1"
-$ sudo ln -s /usr/local/Cellar/pcp/$version/etc/pcp.conf /etc/pcp.conf
-$ sudo ln -s /usr/local/Cellar/pcp/$version/etc/pcp.env /etc/pcp.env
+$ open pcp-X.Y.Z-N.dmg
 ```
 
 ### 3. AIX Installation
@@ -218,7 +202,7 @@ environment (your platform must at least have gmake).
 
 ```
 # MacOS - use Homebrew and ensure the following packages are installed 
-brew install  gnu-tar pkg-config python3 python-setuptools autoconf qt qt-creator
+brew install gnu-tar pkg-config python3 python-setuptools autoconf
 ```
 
 ---
@@ -251,10 +235,9 @@ $ sudo rpm -U `ls -1 *.rpm | sed -e '/\.src\.rpm$/d'`
 ```
 **MacOS DMG install**
 ```
-$ cd pcp-<version>/build/mac
-$ open *.dmg
+$ open pcp-<version>/build/mac/pcp-<version>.dmg
 
-<A Finder window should open showing the .pkg you can double click to run the installer>
+<A Finder window opens with the .pkg - double click it to run the installer>
 ```
 
 **tarball install** (where we don't have native packaging working yet)
@@ -337,7 +320,7 @@ $ su root
 # /etc/init.d/pmcd start  (or...)
 # /etc/rc.d/init.d/pmcd start
 ```
-Mac OS X:
+Mac OS:
 ```
 $ sudo /Library/StartupItems/pcp/pmcd start
 ```

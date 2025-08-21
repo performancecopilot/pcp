@@ -28,8 +28,6 @@ jobs:
         id: Build
         run: |
           xcodebuild -version
-          export PKGBUILD=`which pkgbuild`
-          export QMAKE=`which qmake`
           ./Makepkgs -verbose
       - name: Debug on failure
         if: failure() && steps.Build.conclusion == 'failure'
