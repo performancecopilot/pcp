@@ -61,7 +61,7 @@ echo "-- source re-addition --"
 # able to read the file at the end of the URL
 #
 cp $here/openmetrics/samples/simple_metric.txt $tmp.simple_metric.txt
-echo 'file:///'$tmp.simple_metric.txt >$PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+echo 'file:///'$tmp.simple_metric.txt > $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
 pminfo openmetrics.simple_metric
 echo
 
@@ -76,6 +76,10 @@ echo 'file:///'$tmp.simple_metric.txt > $PCP_PMDAS_DIR/openmetrics/config.d/simp
 $sudo touch -t 197001010000 $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
 pminfo openmetrics.simple_metric
 echo
+
+echo "-- metric removal by modifying source file, source persists --"
+$sudo sed -i -e "/metric2/d" $tmp'.simple_metric.txt'
+pminfo openmetrics.simple_metric
 
 _pmdaopenmetrics_remove >/dev/null 2>&1
 
