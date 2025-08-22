@@ -115,6 +115,20 @@ run_done(int sts, char *msg)
 	    fprintf(stderr, "Warning: problem writing archive epilogue: %s\n",
 		pmErrStr(lsts));
     }
+    else {
+	/* 
+	 * if the prologue was not written, then remove all the
+	 * archive files as this archive never got started ...
+	 * no need to check for errors here
+	 */
+	char	path[MAXPATHLEN];
+	pmsprintf(path, sizeof(path), "%s.0", archName);
+	unlink(path);
+	pmsprintf(path, sizeof(path), "%s.meta", archName);
+	unlink(path);
+	pmsprintf(path, sizeof(path), "%s.index", archName);
+	unlink(path);
+    }
 
     if (msg != NULL)
 	pmNotifyErr(LOG_INFO, "pmlogger: %s, %s\n", msg, log_switch_flag ? "reexec" : "exiting");
