@@ -1,0 +1,87 @@
+#!/bin/sh
+# PCP QA Test No. 9000
+# If systemd is in the mix, check systemctl status for all PCP
+# units.
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ "`$PCP_PS_PROG -p 1 -o comm=`" != systemd ] && _notrun "systemd not active"
+[ -d "$PCP_SYSTEMDUNIT_DIR" ] || _notrun "systemd dir $PCP_SYSTEMDUNIT_DIR not found"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+echo "Silence is golden ..."
+
+( cd $PCP_SYSTEMDUNIT_DIR; ls pcp-* pm* ) \
+| while read unit
+do
+    systemctl status -l --no-pager "$unit" >>$seq_full
+    systemctl show --no-pager "$unit" >$tmp.tmp
+    LoadState='missing'
+    eval `grep ^LoadState= $tmp.tmp`
+    UnitFileState='missing'
+    eval `grep ^UnitFileState= $tmp.tmp`
+    ActiveState='missing'
+    eval `grep ^ActiveState= $tmp.tmp`
+    TriggeredBy='missing'
+    eval `grep ^TriggeredBy= $tmp.tmp`
+    SubState='missing'
+    eval `grep ^SubState= $tmp.tmp`
+    if [ "$LoadState" = loaded -a "$UnitFileState" = disabled ]
+    then
+	echo "$unit: loaded but disabled" >>$seq_full
+	continue
+    fi
+    if [ "$LoadState" = loaded -a "$ActiveState" = active ]
+    then
+	echo "$unit: loaded and active" >>$seq_full
+	continue
+    fi
+    if [ "$LoadState" = loaded -a "$ActiveState" = inactive -a "$TriggeredBy" != missing ]
+    then
+	echo "$unit: loaded and waiting for $TriggeredBy" >>$seq_full
+	continue
+    fi
+    if [ "$SubState" = dead ]
+    then
+	echo "$unit: BAD Substate=dead"
+	systemctl status -l --no-pager "$unit"
+	continue
+    fi
+    echo "$unit: BAD Unclassified LoadState=$LoadState UnitFileState=$UnitFileState ActiveState=$ActiveState TriggeredBy=$TriggeredBy SubState=$SubState"
+    systemctl status -l --no-pager "$unit"
+done
+
+# success, all done
+exit
