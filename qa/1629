@@ -50,9 +50,9 @@ pid=''
 
 cat $tmp.log >>$seq_full
 rm $tmp.log
-ls -l $tmp.* >>$seq_full
+ls -l $tmp.* >>$seq_full 2>&1
 
-for file in $tmp.*
+for file in $tmp.0 $tmp.index $tmp.meta
 do
     part=`echo $file | sed -e 's/.*\././'`
     if [ -s "$file" ]
@@ -71,8 +71,11 @@ do
 	    	src/scanindex "$file"
 		;;
 	esac
+    elif [ -f "$file" ]
+    then
+	echo "Error: archive $part empty ... not good"
     else
-	echo "archive $part empty as expected"
+	echo "archive $part missing as expected"
     fi
 done
 

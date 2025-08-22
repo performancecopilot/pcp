@@ -663,7 +663,6 @@ fetch_groups(void)
 	    fprintf(stderr, "%s: cannot hash metric values: %s\n",
 			    pmGetProgname(), pmErrStr(sts));
     }
-done:
     free(names);
     free(pmids);
     return sts;

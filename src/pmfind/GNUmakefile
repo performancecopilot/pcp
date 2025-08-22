@@ -31,14 +31,16 @@ endif
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
-ifeq ($(ENABLE_SYSTEMD),true)
-CRONTAB_PATH = $(PCP_SHARE_DIR)/cron.d/pcp-pmfind
-else
 CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pcp-pmfind
+ifeq ($(ENABLE_SYSTEMD),true)
+CRONTAB_INSTALL = $(PCP_SHARE_DIR)/cron.d/pcp-pmfind
+else
+CRONTAB_INSTALL = $(CRONTAB_PATH)
 endif
 else
 CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmfind/crontab
+CRONTAB_INSTALL = $(CRONTAB_PATH)
 endif
 
 default : $(CMDTARGET) crontab pmfind.service
@@ -55,8 +57,8 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmfind.service $(PCP_SYSTEMDUNIT_DIR)/pmfind.service
 	$(INSTALL) -m 644 pmfind.timer $(PCP_SYSTEMDUNIT_DIR)/pmfind.timer
 endif
-	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
-	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
+	$(INSTALL) -m 755 -d `dirname $(CRONTAB_INSTALL)`
+	$(INSTALL) -m 644 crontab $(CRONTAB_INSTALL)
 
 default_pcp : default
 

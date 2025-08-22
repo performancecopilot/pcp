@@ -220,7 +220,7 @@ export PMCD_CONNECT_TIMEOUT PMCD_REQUEST_TIMEOUT
 type="-v pcp>=5.3.5"
 echo
 echo "=== pmlogger host type: $type ==="
-host=`./getpmcdhosts -L -n 1 $type`
+host=`./getpmcdhosts -P -L -n 1 $type`
 if [ -z "$host" ]
 then
     _notrun "./getpmcdhosts failed to find a suitable host"

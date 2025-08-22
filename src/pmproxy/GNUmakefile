@@ -24,14 +24,16 @@ LDIRT = *.log $(GENSCRIPT)
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
-ifeq ($(ENABLE_SYSTEMD),true)
-CRONTAB_PATH = $(PCP_SHARE_DIR)/cron.d/pcp-pmproxy
-else
 CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pcp-pmproxy
+ifeq ($(ENABLE_SYSTEMD),true)
+CRONTAB_INSTALL = $(PCP_SHARE_DIR)/cron.d/pcp-pmproxy
+else
+CRONTAB_INSTALL = $(CRONTAB_PATH)
 endif
 else
 CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmproxy/crontab
+CRONTAB_INSTALL = $(CRONTAB_PATH)
 endif
 
 default: $(GENSCRIPT) $(SUBDIRS)
@@ -52,8 +54,8 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmproxy_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmproxy_check.timer
 	$(INSTALL) -m 644 pmproxy_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmproxy_timers
 endif
-	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
-	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
+	$(INSTALL) -m 755 -d `dirname $(CRONTAB_INSTALL)`
+	$(INSTALL) -m 644 crontab $(CRONTAB_INSTALL)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmproxy
 	$(INSTALL) -m 755 pmproxy.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmproxy$(SHELLSUFFIX)
 

@@ -31,16 +31,18 @@ LDIRT	= $(GENSCRIPT)
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
-ifeq ($(ENABLE_SYSTEMD),true)
-CRONTAB_PATH = $(PCP_SHARE_DIR)/cron.d/pcp-pmlogger
-else
 CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pcp-pmlogger
+ifeq ($(ENABLE_SYSTEMD),true)
+CRONTAB_INSTALL = $(PCP_SHARE_DIR)/cron.d/pcp-pmlogger
+else
+CRONTAB_INSTALL = $(CRONTAB_PATH)
 endif
 else
 CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmlogger/crontab
+CRONTAB_INSTALL = $(CRONTAB_PATH)
 endif
-CRONTAB_DAILY_REPORT_PATH = $(CRONTAB_PATH)-daily-report
+CRONTAB_DAILY_REPORT_INSTALL = $(CRONTAB_INSTALL)-daily-report
 
 default: $(GENSCRIPT) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
@@ -76,9 +78,9 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger_check.timer $(PCP_SYSTEMDUNIT_DIR)/pmlogger_check.timer
 	$(INSTALL) -m 644 pmlogger_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmlogger_timers
 endif
-	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
-	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
-	$(INSTALL) -m 644 crontab.daily_report $(CRONTAB_DAILY_REPORT_PATH)
+	$(INSTALL) -m 755 -d `dirname $(CRONTAB_INSTALL)`
+	$(INSTALL) -m 644 crontab $(CRONTAB_INSTALL)
+	$(INSTALL) -m 644 crontab.daily_report $(CRONTAB_DAILY_REPORT_INSTALL)
 ifeq ($(TARGET_OS),linux)
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 crontab.README $(PCP_SHARE_DIR)/cron.d/README

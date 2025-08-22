@@ -26,14 +26,16 @@ LDIRT	= crontab pmie.service pmie_daily.service pmie_check.service \
 
 ifeq ($(TARGET_OS),linux)
 CRONTAB_USER = $(PCP_USER)
-ifeq ($(ENABLE_SYSTEMD),true)
-CRONTAB_PATH = $(PCP_SHARE_DIR)/cron.d/pcp-pmie
-else
 CRONTAB_PATH = $(PCP_ETC_DIR)/cron.d/pcp-pmie
+ifeq ($(ENABLE_SYSTEMD),true)
+CRONTAB_INSTALL = $(PCP_SHARE_DIR)/cron.d/pcp-pmie
+else
+CRONTAB_INSTALL = $(CRONTAB_PATH)
 endif
 else
 CRONTAB_USER =
 CRONTAB_PATH = $(PCP_SYSCONF_DIR)/pmie/crontab
+CRONTAB_INSTALL = $(CRONTAB_PATH)
 endif
 
 default:: crontab pmie.service pmie_daily.service pmie_check.service \
@@ -68,8 +70,8 @@ ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmie_check.service $(PCP_SYSTEMDUNIT_DIR)/pmie_check.service
 	$(INSTALL) -m 644 pmie_timers.sysconfig $(PCP_SYSCONFIG_DIR)/pmie_timers
 endif
-	$(INSTALL) -m 755 -d `dirname $(CRONTAB_PATH)`
-	$(INSTALL) -m 644 crontab $(CRONTAB_PATH)
+	$(INSTALL) -m 755 -d `dirname $(CRONTAB_INSTALL)`
+	$(INSTALL) -m 644 crontab $(CRONTAB_INSTALL)
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_LOG_DIR)/pmie
 	$(INSTALL) -m 775 -o $(PCP_USER) -g $(PCP_GROUP) -d $(PCP_TMP_DIR)/pmie
 	$(INSTALL) -m 755 pmie.pmcheck $(PCP_SHARE_DIR)/lib/pmcheck/pmie
