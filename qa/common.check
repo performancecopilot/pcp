@@ -1327,11 +1327,11 @@ _wait_for_pmproxy()
     in
 	0)
 	    __port=44322
-	    __logfile="$PCP_ARCHIVE_DIR/pmproxy/pmproxy.log" 
+	    __logfile="$PCP_LOG_DIR/pmproxy/pmproxy.log"
 	    ;;
 	1)
 	    __port="$1"
-	    __logfile="$PCP_ARCHIVE_DIR/pmproxy/pmproxy.log" 
+	    __logfile="$PCP_LOG_DIR/pmproxy/pmproxy.log"
 	    ;;
 	2)
 	    __port="$1"
