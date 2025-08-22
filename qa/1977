@@ -16,8 +16,9 @@ which pcp2opentelemetry >/dev/null 2>&1 || _notrun "pcp2opentelemetry not instal
 
 _cleanup()
 {
-   cd $here
-   $sudo rm -rf $tmp $tmp.*
+    cd $here
+    _restore_config $PCP_SYSCONF_DIR/labels
+    $sudo rm -rf $tmp $tmp.*
 }
 
 status=0    # success is the default!
@@ -39,6 +40,9 @@ _filter_pcp2opentelemetry_http()
 
 
 # real QA test starts here
+_save_config $PCP_SYSCONF_DIR/labels
+$sudo rm -rf $PCP_SYSCONF_DIR/labels/*
+
 port=`_find_free_port`
 $PCP_PYTHON_PROG $here/src/pythonserver.py $port >$tmp.python.out 2>&1 &
 pid=$!

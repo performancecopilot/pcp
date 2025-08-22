@@ -19,10 +19,16 @@ which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
 which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
 which pcp2opentelemetry >/dev/null 2>&1 || _notrun "pcp2opentelemetry not installed"
 
+_cleanup()
+{
+    cd $here
+    _restore_config $PCP_SYSCONF_DIR/labels
+    $sudo rm -rf $tmp.*
+}
 
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 A="$here/archives/rep"
 hostname=`hostname`
@@ -68,6 +74,9 @@ _filter_pcp2opentelemetry()
 }
 
 # real QA test starts here
+_save_config $PCP_SYSCONF_DIR/labels
+$sudo rm -rf $PCP_SYSCONF_DIR/labels/*
+
 echo "---"
 pcp2json -a $A -H -I -z "" | _archive_filter
 echo "---"
