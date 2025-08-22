@@ -45,6 +45,7 @@ grammar.h grammar.tab.c:	grammar.y
 
 pmie$(EXECSUFFIX):	$(OBJECTS) fun.o
 	$(CCF) -o $@ $(LDFLAGS) $(OBJECTS) fun.o $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 install:	default
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BIN_DIR)/$(TARGET)
