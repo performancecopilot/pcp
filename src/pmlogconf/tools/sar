@@ -123,12 +123,16 @@ probe	kernel.uname.sysname ~ Linux ? include : exclude
 	mem.util.inactive
 	mem.util.kernelStack
 	mem.util.pageTables
+	mem.util.shmem
 	mem.util.slab
 	mem.util.swapFree
 	mem.util.swapTotal
 	mem.util.swapCached
 	mem.util.used
 	mem.util.vmallocUsed
+	mem.vmstat.pgdemote_direct
+	mem.vmstat.pgdemote_khugepaged
+	mem.vmstat.pgdemote_kswapd
 	mem.vmstat.pgdemote_total
 	mem.vmstat.pgfault
 	mem.vmstat.pgfree
