@@ -134,6 +134,10 @@ PCP_RUN_DIR=@pcp_run_dir@
 # Subdirectories: pmcd pmlogger pmie
 PCP_LOG_DIR=@pcp_log_dir@
 
+# parent directory of PCP archives from remote pmloggers
+# Standard path: /var/log/pcp/pmproxy
+PCP_REMOTE_ARCHIVE_DIR=@pcp_log_dir@/pmproxy
+
 # parent directory of PCP archive directories
 # Standard path: /var/log/pcp/pmlogger
 PCP_ARCHIVE_DIR=@pcp_archive_dir@

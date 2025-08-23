@@ -614,9 +614,15 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
     }
 
     sep = pmPathSeparator();
-    dir = pmGetConfig("PCP_LOG_DIR");
-    pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s%c%s%c%s", dir, sep,
-		pmGetProgname(), sep, loglabel.hostname, sep, timebuf);
+    dir = pmGetConfig("PCP_REMOTE_ARCHIVE_DIR");
+    if (dir) {
+	pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s%c%s", dir, sep,
+		    loglabel.hostname, sep, timebuf);
+    } else {
+	dir = pmGetConfig("PCP_LOG_DIR");
+	pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s%c%s%c%s", dir, sep,
+		    pmGetProgname(), sep, loglabel.hostname, sep, timebuf);
+    }
 
     if (cached_only)
 	goto done;

@@ -419,7 +419,7 @@ done
 # pmlogpush ... if found, synthesize a control file for them
 #
 here=`pwd`
-if cd $PCP_LOG_DIR/pmproxy
+if cd "$PCP_REMOTE_ARCHIVE_DIR"
 then
     for _host in *
     do
@@ -433,7 +433,7 @@ then
 	    [ -f "./control" ] && cat "./control" >>$tmp/control
 	    # optional per-host controls next
 	    [ -f "$_host/control" ] && cat "$_host/control" >>$tmp/control
-	    echo "$_host	n n PCP_LOG_DIR/pmproxy/$_host +" >>$tmp/control
+	    echo "$_host	n n PCP_REMOTE_ARCHIVE_DIR/$_host +" >>$tmp/control
 	    if $VERY_VERBOSE
 	    then
 		echo >&2 "Synthesized control file ..."
