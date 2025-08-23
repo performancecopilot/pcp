@@ -525,10 +525,14 @@ __pmOptFetchAdd(fetchctl_t **root, optreq_t *new)
 	     */
 	    if (fp->f_state & OPT_STATE_XPMID) {
 		idp->i_pmp = pmp->p_next;
+		if (pmp->p_instlist != NULL)
+		    free(pmp->p_instlist);
 		free(pmp);
 	    }
 	    if (fp->f_state & OPT_STATE_XINDOM) {
 		fp->f_idp = idp->i_next;
+		if (idp->i_instlist != NULL)
+		    free(idp->i_instlist);
 		free(idp);
 	    }
 	    if (fp->f_state & OPT_STATE_XFETCH) {
@@ -609,8 +613,12 @@ __pmOptFetchDel(fetchctl_t **root, optreq_t *new)
 				    free(fp);
 				    fp = NULL;
 				}
+				if (idp->i_instlist != NULL)
+				    free(idp->i_instlist);
 				free(idp);
 			    }
+			    if (pmp->p_instlist != NULL)
+				free(pmp->p_instlist);
 			    free(pmp);
 			}
 			/* data structures repaired, now redo lists */
