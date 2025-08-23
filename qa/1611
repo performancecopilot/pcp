@@ -43,7 +43,7 @@ _cleanup()
 	_wait_for_pmproxy
 	if [ $? -eq 1 ]
 	then
-	    find $PCP_LOG_DIR/pmproxy >>$seq.full
+	    find $PCP_REMOTE_ARCHIVE_DIR >>$seq.full
 	    cat $PCP_LOG_DIR/pmproxy/pmproxy.log >>$seq_full
 	    cat $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf >>$seq_full
 	fi
@@ -77,7 +77,7 @@ _filter_metrics()
 
 # real QA test starts here
 archive_host=`hostname`
-archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
+archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
