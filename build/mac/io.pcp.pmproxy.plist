@@ -3,10 +3,10 @@
 <plist version="1.0">
     <dict>
         <key>Label</key>
-        <string>io.pcp.pmcd</string>
+        <string>io.pcp.pmproxy</string>
         <key>ProgramArguments</key>
         <array>
-            <string>/etc/init.d/pmcd</string>
+            <string>/etc/init.d/pmproxy</string>
             <string>start</string>
         </array>
         <key>Disabled</key>
@@ -22,8 +22,8 @@
         <key>RunAtLoad</key>
         <true/>
         <key>StandardErrorPath</key>
-        <string>/var/log/pcp/pmcd/plist.stderr</string>
+        <string>/var/log/pcp/pmproxy/plist.stderr</string>
         <key>StandardOutPath</key>
-        <string>/var/log/pcp/pmcd/plist.stdout</string>
+        <string>/var/log/pcp/pmproxy/plist.stdout</string>
     </dict>
 </plist>
