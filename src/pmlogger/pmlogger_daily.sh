@@ -1852,6 +1852,7 @@ p
 		    fi
 		    find $find_dirs -maxdepth 1 -type f -mtime +$mtime
 		fi \
+		| $PCP_BINADM_DIR/find-filter mtime +$COMPRESSAFTER \
 		| _filter_filename \
 		| grep -E -v "$COMPRESSREGEX" \
 		| LC_COLLATE=POSIX sort >$tmp/list
