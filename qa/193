@@ -94,6 +94,8 @@ _filter_pmcd_log <$tmp.pmcd.log \
     -e '1,/ok FD /d' \
     -e '/ok FD /d' \
     -e '/pmXmitPDU: ERROR/d' \
+    -e '/pmXmitPDU: error/d' \
+    -e '/pmXmitPDU: non-socket write() result -1/d' \
     -e '/pmGetPDU: ERROR/d' \
     -e '/pmGetPDU: TYPE/d' \
     -e '/^000:/d' \
