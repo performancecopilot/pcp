@@ -3806,3 +3806,32 @@ $3 == "pstree"	{ exit }
 	fi
     fi
 }
+
+# check if the primary pmlogger is writing to a local file (as opposed
+# to logpush via http to a remote pmproxy
+#
+_check_local_primary_archive()
+{
+    _archive=`pminfo -f pmcd.pmlogger.archive 2>>$seq_full | sed -n -e '/"primary"]/{
+s/"$//
+s/.*"//
+p
+}'`
+    case "$_archive"
+    in
+    	/*)		# local file
+			return 0
+			;;
+
+	http://*)	# logpush
+			echo "_check_local_primary_archive: false: $_archive" >>$seq_full
+			return 1
+			;;
+
+	*)		# botch
+			echo "_check_local_primary_archive: botch: _archive=\"$_archive\"" >>$seq_full
+			return 1
+			;;
+    esac
+}
+

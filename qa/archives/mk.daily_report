@@ -32,6 +32,11 @@ log mandatory on default {
     mem.vmstat.pgscan_kswapd
     mem.vmstat.pgsteal_direct
     mem.vmstat.pgsteal_kswapd
+    mem.vmstat.pgpromote_success
+    mem.vmstat.pgdemote_kswapd
+    mem.vmstat.pgdemote_direct
+    mem.vmstat.pgdemote_khugepaged
+    mem.util.shmem
 
     # [sar-b] (unless already included)
     disk.all.blkdiscard

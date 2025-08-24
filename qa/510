@@ -28,7 +28,9 @@ _check_pmlogger_lock()
     | while read _lock
     do
 	ls -l $_lock >>$seq_full
-	cat $_lock >>$tmp.checklock
+	# lock file could have vanished by now ...
+	#
+	cat $_lock >>$tmp.checklock 2>/dev/null
     done
     if [ -s $tmp.checklock ]
     then
@@ -39,7 +41,7 @@ _check_pmlogger_lock()
 	| while read _pid _who
 	do
 	    echo "locker pid $_pid who $_who" >>$seq_full
-	    _pstree_all $_pid
+	    _pstree_all $_pid >>$seq_full
 	done
     else
 	echo "!!! no pmlogger locks @ `date` ..." >>$seq_full

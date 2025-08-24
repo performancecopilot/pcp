@@ -2126,6 +2126,7 @@ pmcd.pdu
 1628 libpcp_import valgrind local
 1629 pmlogger local
 1630 pmlogrewrite local pmlogdump
+1631 pmlogger local
 1632 pmda.opentelemetry local python
 1633 python pmda.sockets local
 1634 pmda.sockets local valgrind
@@ -2288,3 +2289,4 @@ pmcd.pdu
 1993 pmda.rocestat local python
 1994 pcp rocestat python local
 4751 libpcp threads valgrind local pcp helgrind
+9000 other local

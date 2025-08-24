@@ -35,14 +35,14 @@ _cleanup()
     then
 	[ -f $tmp.control ] && \
 	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
-	[ -d $tmp.control.d ] && \
-	    $sudo mv $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
+	[ -d $PCP_PMLOGGERCONTROL_PATH.d-$seq ] && \
+	    $sudo mv $PCP_PMLOGGERCONTROL_PATH.d-$seq $PCP_PMLOGGERCONTROL_PATH.d
+	_restore_auto_restart pmcd
 	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
-	_restore_auto_restart pmcd
+	_restore_auto_restart pmlogger
 	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
-	_restore_auto_restart pmlogger
 	_needclean=false
     fi
     $sudo rm -rf $LOGGING_DIR
@@ -85,7 +85,7 @@ then
 fi
 
 $sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
-$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $tmp.control.d
+$sudo mv $PCP_PMLOGGERCONTROL_PATH.d $PCP_PMLOGGERCONTROL_PATH.d-$seq
 
 export PMLOGGER_CHECK_SKIP_LOGCONF=yes
 

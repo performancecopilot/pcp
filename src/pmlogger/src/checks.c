@@ -187,7 +187,10 @@ chk_all(task_t *tp, pmID pmid)
 
 			if (idp->i_numinst > 0) {
 			    idp->i_numinst = 0;
-			    free(idp->i_instlist);
+			    /*
+			     * don't free idp->i_instlist ... optfetch is
+			     * looking after that
+			     */
 			}
 			break;
 		    }

@@ -19,6 +19,8 @@ done_clean=false
 LOCALHOST=`hostname`
 LOGGING_DIR="$PCP_ARCHIVE_DIR"
 
+_check_local_primary_archive || _notrun "primary pmlogger not writing locally"
+
 if [ ! -f $LOGGING_DIR/$LOCALHOST/Latest ]
 then
     _notrun "no Latest folio for primary pmlogger (logpush?)"

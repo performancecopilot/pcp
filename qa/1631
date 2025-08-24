@@ -1,0 +1,65 @@
+#!/bin/sh
+# PCP QA Test No. 1631
+# pmlogger + optFetch double free
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# problem is only visible with valgrind ...
+#
+_check_valgrind
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+cat <<'End-of-File' >$tmp.config
+# pared down from Nathan's pmlogconf changes for PCP 7.0
+#
+log advisory on default {
+	disk.dev.read
+	nfs.client.reqs[read,write]
+}
+log advisory on default {
+	nfs.client.reqs
+	proc.nprocs
+}
+End-of-File
+
+
+# real QA test starts here
+
+_run_valgrind pmlogger -Doptfetch,desperate -c $tmp.config -s 1 -l $tmp.log $tmp 2>&1 \
+| _filter
+
+cat $tmp.log >>$seq_full
+
+# success, all done
+exit
