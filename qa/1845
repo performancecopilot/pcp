@@ -22,6 +22,21 @@ fi
 . ./common.filter
 . ./common.check
 
+# mimic test in pmlogger_daily ...
+#
+if [ -x "$PCP_BINADM_DIR/pmlogger_daily_report" ]
+then
+    if [ -f $PCP_VAR_DIR/config/pmlogconf/zeroconf/disk ]
+    then
+	:
+    else
+	_notrun "no zeroconf installation for pmlogger_daily_report metrics"
+    fi
+else
+    _notrun "pmlogger_daily_report script not installed"
+fi
+
+
 _cleanup()
 {
     cd $here

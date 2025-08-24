@@ -1,6 +1,5 @@
 QA output created by 1869
 == default options ===
-Add merge callback for: pmlogger_daily_report
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -18,7 +17,6 @@ Archive files being compressed ...
 + release mutex lock
 
 == -k 4 -x 2 ==
-Add merge callback for: pmlogger_daily_report
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -40,7 +38,6 @@ Archive files older than 2 days being compressed ...
 + release mutex lock
 
 == $PCP_CULLAFTER=4 and $PCP_COMPRESSAFTER=2 in top-level control file  ==
-Add merge callback for: pmlogger_daily_report
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -66,7 +63,6 @@ Archive files older than 2 days being compressed ...
 + release mutex lock
 
 == $PCP_CULLAFTER=4 in top-level and $PCP_COMPRESSAFTER=2 in per-host control files  ==
-Add merge callback for: pmlogger_daily_report
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -92,7 +88,6 @@ Archive files older than 2 days being compressed ...
 + release mutex lock
 
 == $PCP_CULLAFTER=? and $PCP_COMPRESSAFTER=? in both control files  ==
-Add merge callback for: pmlogger_daily_report
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
