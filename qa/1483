@@ -114,7 +114,9 @@ _filter()
 	    # sudo babble
 	    # and pmlogger_check will fail during PCP builds
 	    # and pmlogger_daily will fail during PCP builds
+	    # and pmlogger_janitor will fail during PCP builds
 	    # and qa/1210 and qa/1213
+	    # and lock collision with pmlogctl from pmlogger_farm_check
 	    # and this strange one but only on bozo and vm03
 	    # ... bozo.localdomain pmlogctl[1013253]: mount: write error
 	    # and fallout from qa/1213 if pmlogger_farm_check goes off
@@ -125,10 +127,12 @@ _filter()
 		-e '/pmlogger_check failed - see .*\/pmlogger_check.log/d' \
 		-e '/pmlogger_daily failed - see .*\/pmlogger_daily.log/d' \
 		-e '/pmlogger_daily failed - see .*\/pmlogger_daily-K.log/d' \
+		-e '/pmlogger_janitor failed - see .*\/pmlogger_janitor.log/d' \
 		-e '/pmlogctl\[[0-9]*]: .* failed to start for host no\.such\.host\.pcp\.io/d' \
 		-e '/pmlogctl\[[0-9]*]: .* is another pmlogctl job running concurrently?/d' \
 		-e '/pmlogctl\[[0-9]*]: .*\/pmlogger\/lock$/d' \
 		-e '/pmlogctl\[[0-9]*]: .* failed to acquire exclusive lock/d' \
+		-e '/pmlogctl\[[0-9]*]: [0-9][0-9]* pmlogctl/d' \
 		-e '/pmlogctl\[[0-9]*]: Terminated$/d' \
 		-e '/ pmlogctl\[[0-9]*]: mount: write error/d' \
 		-e '/vm03 pmlogctl\[[0-9]*]: mount: write error/d' \
