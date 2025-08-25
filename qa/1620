@@ -80,7 +80,7 @@ _save_logs()
 
 # real QA test starts here
 archive_host=`hostname`
-archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
+archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
@@ -142,7 +142,7 @@ fi \
 # for sleep 10; send signal; pmproxy to catch signal
 
 echo "## checking for pmproxy SIGHUP"
-grep SIGHUP $PCP_LOG_DIR/pmproxy/pmproxy.log | _filter_pmproxy_log
+grep SIGHUP $PCP_REMOTE_ARCHIVE_DIR/pmproxy.log | _filter_pmproxy_log
 _save_logs
 
 if [ -d $archive_path ]

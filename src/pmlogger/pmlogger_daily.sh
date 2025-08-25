@@ -1812,7 +1812,7 @@ p
 		else
 		    # pick last (in sort order) uncompressed data volume
 		    #
-		    _last=`ls $PCP_LOG_DIR/pmproxy/$host 2>/dev/null | grep '\.[0-9][0-9]*$' | tail -1`
+		    _last=`ls $PCP_REMOTE_ARCHIVE_DIR/$host 2>/dev/null | grep '\.[0-9][0-9]*$' | tail -1`
 		    current_base=`echo "$_last" | sed -e 's/\.[0-9][0-9]*$//'`
 		    current_vol=`echo "$_last" | sed -e 's/.*\.//'`
 		    $VERY_VERBOSE && echo >&2 "latest archive data volume: $current_base.$current_vol"
@@ -2008,7 +2008,7 @@ then
 else
     # work to be done at the pmproxy end for logpush archives
     #
-    if cd $PCP_LOG_DIR/pmproxy
+    if cd "$PCP_REMOTE_ARCHIVE_DIR"
     then
 	# one-trip guard if there is something to be done
 	#
@@ -2061,7 +2061,7 @@ else
 		[ -f "./control" ] && cat "./control" >>$tmp/control
 		# optional per-host controls next
 		[ -f "$_host/control" ] && cat "$_host/control" >>$tmp/control
-		echo "$_host	n n PCP_LOG_DIR/pmproxy/$_host +" >>$tmp/control
+		echo "$_host	n n PCP_REMOTE_ARCHIVE_DIR/$_host +" >>$tmp/control
 		if $VERY_VERBOSE
 		then
 		    echo >&2 "Synthesized control file ..."

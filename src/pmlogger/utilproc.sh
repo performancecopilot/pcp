@@ -264,6 +264,7 @@ BEGIN           { i = 0 }
     fi
 
     sed <"$1" \
+        -e "s;PCP_REMOTE_ARCHIVE_DIR;$PCP_REMOTE_ARCHIVE_DIR;g" \
         -e "s;PCP_ARCHIVE_DIR;$PCP_ARCHIVE_DIR;g" \
         -e "s;PCP_LOG_DIR;$PCP_LOG_DIR;g" \
     | while read host primary socks dir args

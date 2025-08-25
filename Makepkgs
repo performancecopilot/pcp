@@ -23,7 +23,6 @@ srconly=false
 cfgonly=false
 dorpm=unknown
 dodeb=unknown
-docker=false
 check=false
 
 if [ ! -d .git ]
@@ -171,10 +170,6 @@ do
     --target)
 	target=$2
 	shift 2
-	;;
-    --with-docker)
-	docker=true
-	shift
 	;;
     --with-make)
 	MAKE=$2
@@ -747,39 +742,6 @@ packaging_rpm()
     [ -f $tmp/failed ] && build_failure Packaging RPMs via pack_pcp
 }
 
-packaging_docker()
-{
-    echo
-    echo "== Building docker container images, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
-    rm -f $tmp/failed
-
-    if docker version >/dev/null 2>&1; then
-	v=`docker version | sed -e 's/\./ /g' | \
-	    awk '/^Server/ {s=1; if($2 == "version:") {print 10*$3+$4; exit}}
-	    	/Version:/ {if (s) {print 10*$2+$3; exit}}'`
-	if [ -z "$v" -o "$v" -lt 14 ]; then
-	    echo 'Error: docker version too old. Containers build skipped.'
-	    touch $tmp/failed
-	fi
-    else
-	echo 'Error: docker not enabled or not properly configured for non-root access.'
-	echo 'Check the docker service is enabled and running. You can allow non-root access'
-	echo 'as follows: edit /etc/sysconfig/docker and add OPTIONS="-G gid" where gid is a'
-	echo 'group name that you are a member of. Then restart the docker service.'
-	touch $tmp/failed
-    fi
-
-    [ -f $tmp/failed ] && build_failure Packaging docker images, docker configuration
-
-    if $verbose ; then
-	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
-    else
-	($MAKE -C build/containers pack_pcp 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
-    fi
-
-    [ -f $tmp/failed ] && build_failure Packaging docker containers via pack_pcp
-}
-
 # real build starts here
 clean_packaging
 src_tar_build
@@ -810,12 +772,6 @@ else
 fi
 
 #
-# --with-docker, currently only for RPM platforms with docker
-if $docker
-then
-    packaging_docker
-fi
-
 # At this point we may, or may not be in a build tree (no for rpm,
 # yes for debian, who knows for others) ... so anything that is a
 # build artifact that is needed by "make check" may not be there,

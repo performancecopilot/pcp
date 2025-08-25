@@ -82,7 +82,7 @@ _filter_ls()
 # real QA test starts here
 archive=$here/archives/ok-mv-bigbin
 archive_host=moomba
-archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
+archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
 $sudo rm -fr $archive_path
 
 pmproxy_was_running=false

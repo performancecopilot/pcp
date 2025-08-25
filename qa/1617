@@ -33,8 +33,8 @@ _cleanup()
     [ -n "$key_server_port" ] && $keys_cli -p $key_server_port shutdown
     [ -d $archive_path ] && $sudo rm -fr $archive_path
 
-    # undo changes to PCP_RUN_DIR PCP_TMP_DIR PCP_LOG_DIR
-    unset PCP_ENV_DONE PCP_RUN_DIR PCP_TMP_DIR PCP_LOG_DIR
+    # undo changes to PCP_RUN_DIR PCP_TMP_DIR PCP_REMOTE_ARCHIVE_DIR
+    unset PCP_ENV_DONE PCP_RUN_DIR PCP_TMP_DIR PCP_REMOTE_ARCHIVE_DIR
     . $PCP_DIR/etc/pcp.env
 
     _restore_auto_restart pmlogger
@@ -168,10 +168,10 @@ End-Of-File
 mkdir -p $tmp.pmproxy/pmproxy
 export PCP_RUN_DIR=$tmp.pmproxy
 export PCP_TMP_DIR=$tmp.pmproxy
-export PCP_LOG_DIR=$tmp.pmproxy/pmproxy
+export PCP_REMOTE_ARCHIVE_DIR=$tmp.pmproxy/pmproxy
 
 echo "Start test pmproxy ..."
-archive_path=$PCP_LOG_DIR/pmproxy/$archive_host
+archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
 $sudo rm -fr $archive_path
 
 $valgrind_clean_assert pmproxy -Dcontext -f -p $pmproxy_port -U $user -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
