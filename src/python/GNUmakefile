@@ -40,7 +40,11 @@ else
 SETUP_PY = distutils-setup.py
 endif
 
+ifeq ($(PCP_PLATFORM),darwin)
+default default_pcp: pre_build build_python3 fix_install_names
+else
 default default_pcp: pre_build build_python3
+endif
 
 ifeq "$(ENABLE_PYTHON3)" "true"
 PY3_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
@@ -71,6 +75,24 @@ build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h
 #
 pre_build:
 	cd pcp; $(MAKE) default
+
+fix_install_names:
+	@for so in build/lib.macosx-*/c*.so; do \
+		if [ -f "$$so" ]; then \
+			echo "Fixing library references in $$so"; \
+			for lib in $$(otool -L "$$so" | grep -E 'libpcp.*\.dylib' | awk '{print $$1}'); do \
+				if echo "$$lib" | grep -q -v '@rpath'; then \
+					newlib=$$(echo "$$lib" | sed 's|libpcp[^/]*\.dylib|@rpath/libpcp.dylib|'); \
+					newlib=$$(echo "$$newlib" | sed 's|libpcp_pmda[^/]*\.dylib|@rpath/libpcp_pmda.dylib|'); \
+					newlib=$$(echo "$$newlib" | sed 's|libpcp_gui[^/]*\.dylib|@rpath/libpcp_gui.dylib|'); \
+					newlib=$$(echo "$$newlib" | sed 's|libpcp_import[^/]*\.dylib|@rpath/libpcp_import.dylib|'); \
+					newlib=$$(echo "$$newlib" | sed 's|libpcp_mmv[^/]*\.dylib|@rpath/libpcp_mmv.dylib|'); \
+					echo "Changing $$lib to $$newlib"; \
+					install_name_tool -change "$$lib" "$$newlib" "$$so"; \
+				fi; \
+			done; \
+		fi; \
+	done
 
 foo:
 	echo $(CFLAGS)
