@@ -25,6 +25,7 @@ ENV = CFLAGS=$(CFLAGS_ABI)
 else
 ENV = nothing=''
 endif
+
 ifeq ($(PCP_PLATFORM),mingw)
 ENV += CC="$(CC)"
 ENV += LD="$(LD)"
@@ -34,6 +35,7 @@ ENV += PYTHONCPREFIX="/usr/x86_64-w64-mingw32/sys-root/mingw/"
 # /usr/x86_64-w64-mingw32/sys-root/mingw/lib/pkgconfig/python3-embed.pc
 EXTRA_PY_INCLUDES = :/usr/x86_64-w64-mingw32/sys-root/mingw/include:/usr/x86_64-w64-mingw32/sys-root/mingw/include/python3.11
 endif
+
 ifeq "$(HAVE_PYTHON_SETUPTOOLS)" "true"
 SETUP_PY = setup.py
 else
@@ -41,9 +43,14 @@ SETUP_PY = distutils-setup.py
 endif
 
 ifeq ($(PCP_PLATFORM),darwin)
-default default_pcp: pre_build build_python3 fix_install_names
+REWRITE_SO_FILES = \
+    for dso in `find build -name \*.so`; do \
+        for lib in `otool -L $$dso | ${AWK} '/libpcp/ {print $$1}'`; do \
+            install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $$dso; \
+        done; \
+    done
 else
-default default_pcp: pre_build build_python3
+REWRITE_SO_FILES =
 endif
 
 ifeq "$(ENABLE_PYTHON3)" "true"
@@ -52,6 +59,7 @@ PY3_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python3-pcp.li
 build_python3: $(SETUP_PY) $(CFILES)
 	export $(ENV); $(PYTHON3) $(SETUP_PY) build_ext $(PY3_BUILD_OPTS)
 	export $(ENV); $(PYTHON3) $(SETUP_PY) build
+	$(REWRITE_SO_FILES)
 	touch build_python3
 
 install_python3: build_python3
@@ -75,24 +83,6 @@ build_python3:	$(TOPDIR)/src/include/pcp/libpcp.h
 #
 pre_build:
 	cd pcp; $(MAKE) default
-
-fix_install_names:
-	@for so in build/lib.macosx-*/c*.so; do \
-		if [ -f "$$so" ]; then \
-			echo "Fixing library references in $$so"; \
-			for lib in $$(otool -L "$$so" | grep -E 'libpcp.*\.dylib' | awk '{print $$1}'); do \
-				if echo "$$lib" | grep -q -v '@rpath'; then \
-					newlib=$$(echo "$$lib" | sed 's|libpcp[^/]*\.dylib|@rpath/libpcp.dylib|'); \
-					newlib=$$(echo "$$newlib" | sed 's|libpcp_pmda[^/]*\.dylib|@rpath/libpcp_pmda.dylib|'); \
-					newlib=$$(echo "$$newlib" | sed 's|libpcp_gui[^/]*\.dylib|@rpath/libpcp_gui.dylib|'); \
-					newlib=$$(echo "$$newlib" | sed 's|libpcp_import[^/]*\.dylib|@rpath/libpcp_import.dylib|'); \
-					newlib=$$(echo "$$newlib" | sed 's|libpcp_mmv[^/]*\.dylib|@rpath/libpcp_mmv.dylib|'); \
-					echo "Changing $$lib to $$newlib"; \
-					install_name_tool -change "$$lib" "$$newlib" "$$so"; \
-				fi; \
-			done; \
-		fi; \
-	done
 
 foo:
 	echo $(CFLAGS)
