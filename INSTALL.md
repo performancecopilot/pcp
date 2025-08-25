@@ -2,7 +2,7 @@
 
 - Packages
   1. Linux Installation (rpm, deb)
-  2. Mac OS Installation (brew+dmg)
+  2. MacOS Installation (brew+dmg)
   3. AIX Installation
   4. Solaris Installation
   5. Windows Installation
