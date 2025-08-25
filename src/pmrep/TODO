@@ -1,7 +1,17 @@
 - comment, clean up, optimize code
-- update sar/iostat/pidstat metricsets to match latest sysstat
-- drop obsolete metricsets from config files
+
 - drop deprecated pmconfig.py methods
+
+- drop obsolete metricsets from config files
+
+- update sar/iostat/pidstat metricsets to match latest sysstat
+  - last check: Aug '25
+  - for :sar-r change later:
+    - https://github.com/sysstat/sysstat/commit/6f34da35732d05a27fd2723ff9ef0511733c2757
+    - https://github.com/sysstat/sysstat/commit/99eacd7e203a29867c9245d510ce931e8ce1341b
+  - for :pidstat consider these if needed:
+    - https://github.com/sysstat/sysstat/commit/7f9a1d45467ba5b1cefcbd7b1b7369373e272867
+    - https://github.com/sysstat/sysstat/commit/378d097d7c5af3b4935d04a9f12f1dbd85b4b854
 
 - verify metric labels printing (-m)
   - test instance vs metric labels
