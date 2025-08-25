@@ -120,13 +120,17 @@ $pcp2elasticsearch -a $here/archives/rep -I "" >$tmp.p2e.out 2>$tmp.p2e.err
 sleep 2
 $signal $pid 2>/dev/null
 wait
-echo "--- Start of received data ---"
-grep -E '(slack)' $tmp.socat.err | sed -e 's,< [1-9].*,,g' >$tmp.archive.data
+echo "--- Start of received data ---" | tee -a $seq_full
+# sed is trying to dodge text fragments like this at the end of the
+# line ...
+# > 2025/08/25 07:36:48.000221044  length=973 from=0 to=972
+grep -E '(slack)' $tmp.socat.err | sed -e 's,[<>] [1-9][0-9/:. ]*length=.*,,' >$tmp.archive.data
+cat $tmp.archive.data >>$seq_full
 while read -r line
 do
   echo $line | _filter_prec | pmjson | LC_COLLATE=POSIX sort | tr -d ,
 done < $tmp.archive.data
-echo "--- End of received data ---"
+echo "--- End of received data ---" | tee -a $seq_full
 _full_stash
 
 echo "=== 4. pcp2elasticsearch with custom --es-search-type ===" | tee -a $seq_full
