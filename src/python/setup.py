@@ -22,17 +22,11 @@ from setuptools import setup, find_packages, Extension
 # To use a consistent encoding
 from codecs import open
 from os import path
-import platform
-
 
 # Get the long description from the README file
 here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
-
-# Darwin specific linker options, which expects Homebrew to be there and sets the library search path to help find libpcp etc
-extra_link_args = ['-Wl,-rpath,/usr/local/lib']
-#if platform.system() == 'Darwin' and path.exists('/opt/homebrew/lib') else []
 
 setup(name = 'pcp',
     version = '7.0',
@@ -45,11 +39,11 @@ setup(name = 'pcp',
     url = 'https://pcp.io',
     packages = find_packages(),
     ext_modules = [
-        Extension('cpmapi', ['pmapi.c'], libraries = ['pcp'], extra_link_args=extra_link_args),
-        Extension('cpmda', ['pmda.c'], libraries = ['pcp_pmda', 'pcp'], extra_link_args=extra_link_args),
-        Extension('cpmgui', ['pmgui.c'], libraries = ['pcp_gui', 'pcp'], extra_link_args=extra_link_args),
-        Extension('cpmi', ['pmi.c'], libraries = ['pcp_import', 'pcp'], extra_link_args=extra_link_args),
-        Extension('cmmv', ['mmv.c'], libraries = ['pcp_mmv', 'pcp'], extra_link_args=extra_link_args),
+        Extension('cpmapi', ['pmapi.c'], libraries = ['pcp']),
+        Extension('cpmda', ['pmda.c'], libraries = ['pcp_pmda', 'pcp']),
+        Extension('cpmgui', ['pmgui.c'], libraries = ['pcp_gui', 'pcp']),
+        Extension('cpmi', ['pmi.c'], libraries = ['pcp_import', 'pcp']),
+        Extension('cmmv', ['mmv.c'], libraries = ['pcp_mmv', 'pcp']),
     ],
     keywords = ['performance', 'analysis', 'monitoring' ],
     platforms = [ 'Windows', 'Linux', 'FreeBSD', 'NetBSD', 'OpenBSD', 'Solaris', 'Mac OS X', 'AIX' ],
