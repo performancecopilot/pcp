@@ -27,8 +27,6 @@ then
     do_valgrind=true
 fi
 
-# test for-some-thing || _notrun No support for some-thing
-
 _cleanup()
 {
     cd $here
