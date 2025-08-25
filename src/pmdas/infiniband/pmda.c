@@ -52,19 +52,19 @@ pmdaMetric metrictab[] = {
     /* infiniband.hca.node_guid */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_node_guid),
-	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* infiniband.hca.system_guid */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_hca_system_guid),
-	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* infiniband.port.guid */
     { NULL,
 	{PMDA_PMID(0,METRIC_ib_port_guid),
-	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PM_TYPE_STRING, IB_PORT_INDOM, PM_SEM_DISCRETE, 
          PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* infiniband.port.gid_prefix */
@@ -119,13 +119,55 @@ pmdaMetric metrictab[] = {
     { (void *)IBPMDA_RCV_BYTES,
 	{PMDA_PMID(1,METRIC_ib_port_in_bytes),
 	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
-	 PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* infiniband.port.in.data */
+    { (void *)IBPMDA_RCV_DATA,
+	{PMDA_PMID(1,METRIC_ib_port_in_data),
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* infiniband.port.in.packets */
     { (void *)IBPMDA_RCV_PKTS,
 	{PMDA_PMID(1,METRIC_ib_port_in_packets),
-	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) }, },
+
+    /* infiniband.port.select */
+    { (void *)IBPMDA_PORT_SELECT,
+	{PMDA_PMID(1,METRIC_ib_port_select),
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+	/* infiniband.port.counter_select */
+    { (void *)IBPMDA_COUNTER_SELECT,
+	{PMDA_PMID(1,METRIC_ib_port_counter_select),
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* infiniband.port.in.ucast_packets */
+    { (void *)IBPMDA_RCV_UPKTS,
+	{PMDA_PMID(1,METRIC_ib_port_in_upkts),
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* infiniband.port.in.mcast_packets */
+    { (void *)IBPMDA_RCV_MPKTS,
+	{PMDA_PMID(1,METRIC_ib_port_in_mpkts),
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* infiniband.port.out.ucast_packets */
+    { (void *)IBPMDA_XMT_UPKTS,
+	{PMDA_PMID(1,METRIC_ib_port_out_upkts),
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* infiniband.port.out.mcast_packets */
+    { (void *)IBPMDA_XMT_MPKTS,
+	{PMDA_PMID(1,METRIC_ib_port_out_mpkts),
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* infiniband.port.in.errors.drop */
     { (void *)IBPMDA_ERR_SWITCH_REL,
@@ -156,6 +198,12 @@ pmdaMetric metrictab[] = {
 	{PMDA_PMID(1,METRIC_ib_port_out_bytes),
 	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+    /* infiniband.port.out.data */
+    { (void *)IBPMDA_XMT_DATA,
+	{PMDA_PMID(1,METRIC_ib_port_out_data),
+	 PM_TYPE_64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
     /* infiniband.port.out.packets */
     {(void *)IBPMDA_XMT_PKTS,
@@ -282,6 +330,425 @@ pmdaMetric metrictab[] = {
 	{PMDA_PMID(3,METRIC_ib_port_switch_total_packets),
 	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_COUNTER, 
 	 PMDA_PMUNITS(0,0,1,0,0,0) } },
+	
+    /* CM rx_duplicates stats*/
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_apr),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_drep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_dreq),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_lap),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_mra),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_rej),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_rep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_req),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_rtu),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_sidr_rep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_duplicates_sidr_req),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+    /* CM rx_msgs stats*/
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_apr),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_drep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_dreq),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_lap),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_mra),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_rej),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_rep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_req),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_rtu),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_sidr_rep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_rx_msgs_sidr_req),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+    /* CM rx_msgs stats*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_apr),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_drep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_dreq),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_lap),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_mra),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_rej),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_rep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_req),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_rtu),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_sidr_rep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_msgs_sidr_req),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+    /* CM tx_retries stats*/
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_apr),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_drep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_dreq),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_lap),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_mra),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_rej),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_rep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_req),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_rtu),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_sidr_rep),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL,
+	{PMDA_PMID(4, METRIC_ib_cm_tx_retries_sidr_req),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.dup*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_dup),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.lle*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_lle),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.lpe*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_lpe),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.lqpoe*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_lqpoe),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.oos*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_oos),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.rae*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_rae),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.rire*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_rire),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.rnr*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_rnr),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.rq.wrfe*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_rq_num_wrfe),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+
+	/* infiniband.port.diag.sq.bre*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_bre),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.lle*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_lle),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.lpe*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_lpe),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.lqpoe*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_lqpoe),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.mwbe*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_mwbe),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.oos*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_oos),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.rae*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_rae),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.rire*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_rire),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.rnr*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_rnr),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.roe*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_roe),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.rree*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_rree),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.to*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_to),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.tree*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_tree),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+	/* infiniband.port.diag.sq.wrfe*/
+	{ NULL,
+	{PMDA_PMID(4, METRIC_ib_port_diag_sq_num_wrfe),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+    /* infiniband.hca.transport */		
+    { NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_transport),
+	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },	
+
+    /* infiniband.hca.board_id */
+    { NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_board_id),
+	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* infiniband.hca.vendor_id */
+    { NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_vendor_id),
+	 PM_TYPE_STRING, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+    /* infiniband.hca.resource */
+	{ NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_res_pd),
+	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_res_cq),
+	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_res_qp),
+	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_res_cm_id),
+	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_res_mr),
+	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_res_ctx),
+	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ NULL,
+	{PMDA_PMID(0,METRIC_ib_hca_res_srq),
+	 PM_TYPE_U64, IB_HCA_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+	/* infiniband.port.sm_lid*/ 
+    { NULL,
+	{PMDA_PMID(0,METRIC_ib_port_sm_lid),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+	/* infiniband.port.lmc*/ 
+    { NULL,
+	{PMDA_PMID(0,METRIC_ib_port_lmc),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+	/* infiniband.port.max_mtu*/ 
+    { NULL,
+	{PMDA_PMID(0,METRIC_ib_port_max_mtu),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+	/* infiniband.port.max_mtu*/ 
+    { NULL,
+	{PMDA_PMID(0,METRIC_ib_port_active_mtu),
+	 PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+	/* infiniband.port.link_layer*/ 
+    { NULL,
+	{PMDA_PMID(0,METRIC_ib_port_link_layer),
+	 PM_TYPE_STRING, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+	 PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+	/* */ 
+	{ NULL,
+		{PMDA_PMID(0,METRIC_ib_port_netdev_name),
+		PM_TYPE_STRING, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+	/* infiniband.port.capmask */ 
+	{ NULL,
+		{PMDA_PMID(0,METRIC_ib_port_capmask),
+		PM_TYPE_U64, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	
+	/* infiniband.port.node_desc */ 
+	{ NULL,
+		{PMDA_PMID(0,METRIC_ib_port_node_desc),
+		PM_TYPE_STRING, IB_PORT_INDOM, PM_SEM_DISCRETE, 
+		PMDA_PMUNITS(0,0,0,0,0,0) }, }
 };
 
 pmdaIndom indomtab[] = {
@@ -327,10 +794,11 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
 
     if (dp->status != 0)
          return;
-
+	// pmsprintf()
     if (confpath == NULL) {
 	pmsprintf(defconf, sizeof(defconf), "%s%c" "infiniband" "%c" "config", 
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	// pmNotifyErr(LOG_INFO, "Path : %s\n",defconf);
 	confpath = defconf;
     }
 
@@ -354,7 +822,7 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
     dp->version.two.fetch = ib_fetch;
     dp->version.two.store = ib_store;
     pmdaSetFetchCallBack(dp, ib_fetch_val);
-
+	// pmNotifyErr(LOG_INFO, "sizeof metric tab %d", sizeof(metrictab));
     pmdaInit(dp, indomtab, ARRAYSZ(indomtab), metrictab, ARRAYSZ(metrictab));
 }
 
