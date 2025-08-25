@@ -1018,6 +1018,7 @@ ac_user_opts='
 enable_option_checking
 with_64bit
 with_optimization
+with_non_debug
 with_gperftools
 with_sanitizer
 with_threads
@@ -1756,6 +1757,8 @@ Optional Packages:
   --with-64bit            turn on 64 bit compilation mode (default is platform
                           dependent)
   --with-optimization     enable optimization for C/C++ code (default is yes)
+  --with-non-debug        enable non-debug builds for C/C++ code (default is
+                          no)
   --with-gperftools       enable gperftools for CPU and heap profiling
                           (default is no)
   --with-sanitizer        enable sanitizers (default is no, common values are
@@ -3384,6 +3387,17 @@ fi
 
 
 
+# Check whether --with-non-debug was given.
+if test ${with_non_debug+y}
+then :
+  withval=$with_non_debug; use_ndebug=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-non-debug=$withval"
+else case e in #(
+  e) use_ndebug=no ;;
+esac
+fi
+
+
+
 # Check whether --with-gperftools was given.
 if test ${with_gperftools+y}
 then :
@@ -4007,6 +4021,13 @@ else
     $gcc_debug && optimization="$optimization -g"
 fi
 
+
+if test "$use_ndebug" = yes
+then
+    CFLAGS="$CFLAGS -DNDEBUG"
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: Compiling with the NDEBUG macro set (non-debug)" >&5
+printf "%s\n" "$as_me: Compiling with the NDEBUG macro set (non-debug)" >&6;}
+fi
 
 
 
