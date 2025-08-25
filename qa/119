@@ -179,6 +179,9 @@ echo "=== pmlogger_check ===" >>$seq_full
 cd /var/tmp
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -l $PMCHECK_LOG
 cd $here
+# give any failing pmloggers a chance to exit
+#
+sleep 2
 echo "+++ after pmlogger_check ..." >>$seq_full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger( |$)' >>$seq_full
 echo "+++" >>$seq_full
