@@ -53,6 +53,8 @@ else
 REWRITE_SO_FILES =
 endif
 
+default default_pcp: pre_build build_python3
+
 ifeq "$(ENABLE_PYTHON3)" "true"
 PY3_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
 PY3_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python3-pcp.list
