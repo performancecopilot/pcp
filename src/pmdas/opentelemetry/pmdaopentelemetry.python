@@ -127,7 +127,7 @@ class Metric(object):
                 self.source.pmda.debug("created metric %#x (%s) labels='%s' optional_labels='%s'" %
                     (self.pmid, self.mname, self.labels, self.optional_labels))
 
-    def assign_metadata(self, value, semantics, type, units):
+    def assign_metadata(self, value, semantics, mtype, units):
         ''' Compute metric metadata self.{mtype, mname, msem, munits}
         '''
         #
@@ -137,51 +137,46 @@ class Metric(object):
         self.msem = c_api.PM_SEM_INSTANT # aka guage
         self.mname = 'opentelemetry.' + self.source.name + '.' + self.name.replace(":", ".")
 
-        # TO-DO: unit help
-        '''
-        def UCUM_space_prefix(prefix):
-            if prefix == "bi":
-                return 0 # base bytes
-            elif prefix == "Kiby":
-                return 1 # Kibibyte
-            elif prefix == "Miby":
-                return 2 # Mebibyte
-            elif prefix == "Giby":
-                return 3 # Gibibyte
-            elif prefix == "Tiy":
-                return 4 # Tebibyte
-            elif prefix == "Piby":
-                return 5 # Pebibyte
-            elif prefix == "Eiby":
-                return 6 # Exbibyte
-            elif prefix == "Zibi":
-                return 7 # Zebibyte
-            elif prefix == "Yibi":
-                return 8 # obibyte
-            else:
-                # revist
-                return None
+        # Space unit prefixes
+        def UCUM_space_prefix(prefix):  # pylint: disable=unused-variable (TODO)
+            if prefix == "": # base bytes
+                return c_api.PM_SPACE_BYTE
+            elif prefix == "Ki": # Kibibyte
+                return c_api.PM_SPACE_KBYTE
+            elif prefix == "Mi": # Mebibyte
+                return c_api.PM_SPACE_MBYTE
+            elif prefix == "Gi": # Gibibyte
+                return c_api.PM_SPACE_GBYTE
+            elif prefix == "Ti": # Tebibyte
+                return c_api.PM_SPACE_TBYTE
+            elif prefix == "Pi": # Pebibyte
+                return c_api.PM_SPACE_PBYTE
+            elif prefix == "Ei": # Exbibyte
+                return c_api.PM_SPACE_EBYTE
+            elif prefix == "Zi": # Zebibyte
+                return c_api.PM_SPACE_ZBYTE
+            elif prefix == "Yi": # Yobibyte
+                return c_api.PM_SPACE_YBYTE
+            return None
 
         # Time unit prefixes
-        def UCUM_time_prefix(prefix):
-            if prefix == "ns":
-                return 0 # nano
-            elif prefix == "us":
-                return 1 # micro
-            elif prefix == "ms":
-                return 2 # milli
-            elif prefix == "s":
-                return 3 # base second
-            elif prefix == "min":
-                return 4 # minute
-            elif prefix == "h":
-                return 5 # hour
-            else:
-                # revisit
-                return None
+        def UCUM_time_prefix(prefix):  # pylint: disable=unused-variable (TODO)
+            if prefix == "ns": # nano
+                return c_api.PM_TIME_NSEC
+            elif prefix == "us": # micro
+                return c_api.PM_TIME_USEC
+            elif prefix == "ms": # milli
+                return c_api.PM_TIME_MSEC
+            elif prefix == "s": # base second
+                return c_api.PM_TIME_SEC
+            elif prefix == "min": # minute
+                return c_api.PM_TIME_MIN
+            elif prefix == "h": # hour
+                return c_api.PM_TIME_HOUR
+            return None
 
         # Count unit prefixes (powers of 10)
-        def UCUM_count_prefix(prefix):
+        def UCUM_count_prefix(prefix):  # pylint: disable=unused-variable (TODO)
             if prefix == "y":
                 return -24 # yocto
             elif prefix == "z":
@@ -216,11 +211,9 @@ class Metric(object):
                 return 21 # zetta
             elif prefix == "y":
                 return 24 # yotta
-            else:
-                return None
-        '''
-        
-        self.munits = pmUnits(0, 0, 0, 0, 0, 0) # units field absent, default to nonunits
+            return None
+
+        self.munits = pmUnits(0, 0, 0, 0, 0, 0) # ignore for now, need UCUM converter
 
         # assign semantics
         if semantics == "counter":
@@ -514,14 +507,11 @@ class Source(object):
             value = item["value"]["stringValue"]
             labels[key] = value
         return labels
-    
-    def pcp_name(self, name):
-        return name.replace(".", "_")
-    
+
     def add_metric(self, metric):
         try:
             mname = metric["name"]
-            fullname = ("opentelemetry.%s.%s.%s") % (self.name, metric["prefix_name"], mname)
+            fullname = ("opentelemetry.%s.%s") % (self.name, mname)
             included_labels, optional_labels = self.filter_labelset(metric["labels"])
             naming_labels = metric["instances"]
             self.pmda.debug("naming labels --> %s" % naming_labels) if self.pmda.dbg else None
@@ -561,7 +551,7 @@ class Source(object):
                         raise ValueError('invalid metric name: ' + mname)
                     # new metric
                     metricnum = self.pmids_table.intern_lookup_value(mname)
-                    name = ("%s.%s") % (metric["prefix_name"], metric["name"])
+                    name = metric["name"]
                     m = Metric(self, name, metricnum, metric, included_labels, optional_labels)
                     self.metrics_by_name[mname] = m
                     self.metrics_by_num[metricnum] = m # not pmid!
@@ -587,46 +577,45 @@ class Source(object):
     def parse_metric(self, resource_name, scope_name, metric_dictionary):
         num_metrics = 0
         metric = {}
-        metric["prefix_name"] = "%s.%s" % (resource_name, scope_name)
-        metric["name"] = self.pcp_name(metric_dictionary["name"])
+        metric["name"] = metric_dictionary["name"]
         metric["unit"] = metric_dictionary["unit"]
         metric["description"] = metric_dictionary["description"]
 
         # determine metric type
         if "sum" in metric_dictionary:  # sum or counter
             metric["semantic"] = "counter"
-            type = "sum"
+            mtype = "sum"
         elif "gauge" in metric_dictionary:  # gauge
             metric["semantic"] = "gauge"
-            type = "gauge"
-        elif "histogram" in metric_dictionary:  # histogram 
+            mtype = "gauge"
+        elif "histogram" in metric_dictionary:  # histogram
             metric["semantic"] = "counter"
-            type = "histogram"
+            mtype = "histogram"
         elif "summary" in metric_dictionary:    # sum
             metric["semantic"] = "counter"
-            type = "summary"
-        else: 
+            mtype = "summary"
+        else:
             # what to do in this case? set to gauge or throw an exception?
             self.pmda.debug("error") if self.pmda.dbg else None
-        
-        if "aggregationTemporality" in metric_dictionary[type]:
-            metric["a_temp"] = metric_dictionary[type]["aggregationTemporality"]
-        
-        if "isMonotonic" in metric_dictionary[type]:
-            metric["isMonotonic"] = metric_dictionary[type]["isMonotonic"]
+
+        if "aggregationTemporality" in metric_dictionary[mtype]:
+            metric["a_temp"] = metric_dictionary[mtype]["aggregationTemporality"]
+
+        if "isMonotonic" in metric_dictionary[mtype]:
+            metric["isMonotonic"] = metric_dictionary[mtype]["isMonotonic"]
         else:
             metric["isMonotonic"] = False
-        
+
         # determine if metric is singular
-        if len(metric_dictionary[type]["dataPoints"]) == 1 and type != "histogram" and type != "summary":
+        if len(metric_dictionary[mtype]["dataPoints"]) == 1 and type != "histogram" and type != "summary":
             metric["is_singular"] = True
         else:
             metric["is_singular"] = False
 
         metric["values"] = []
         metric["instances"] = []
-        data_points = metric_dictionary[type]["dataPoints"]
-        if type == "sum" or type == "gauge":
+        data_points = metric_dictionary[mtype]["dataPoints"]
+        if mtype in ["sum", "gauge"]:
             for instance in data_points:
                 metric["time"] = instance["timeUnixNano"]
                 metric["labels"] = self.collect_attributes(instance["attributes"])
@@ -647,11 +636,11 @@ class Source(object):
         else: # histogram or sum
             for instance in data_points:
                 count = instance["count"]
-                sum = instance["sum"]
+                msum = instance["sum"]
                 metric["time"] = instance["timeUnixNano"]
                 metric["type"] = "int"
                 metric["labels"] = self.collect_attributes(instance["attributes"])
-                if type == "histogram":
+                if mtype == "histogram":
                     self.pmda.debug("instance: %s" % instance) if self.pmda.dbg else None
                     metric["values"] = instance["bucketCounts"]
                     for item in instance["explicitBounds"]:
@@ -676,7 +665,7 @@ class Source(object):
                     num_metrics += 1
 
                 metric["name"] = metric_sum_name
-                metric["value"] = sum
+                metric["value"] = msum
                 metric["type"] = "double"
                 if self.add_metric(metric):
                     num_metrics += 1
@@ -687,15 +676,14 @@ class Source(object):
 
     def parse_lines(self, text):
         num_metrics = 0
-        state = "none"
         data = text["resourceMetrics"]
 
         for resource in data:
             resource_attributes = self.collect_attributes(resource["resource"]["attributes"])
-            resource_name = self.pcp_name(resource_attributes["service.name"])
+            resource_name = resource_attributes["service.name"]
             scope_metrics = resource["scopeMetrics"]
             for scope in scope_metrics:
-                scope_name = self.pcp_name(scope["scope"]["name"])
+                scope_name = scope["scope"]["name"]
                 metrics = scope["metrics"]
                 for metric in metrics:
                     num_metrics += self.parse_metric(resource_name, scope_name, metric)
@@ -1037,7 +1025,7 @@ class OpenTelemetryPMDA(PMDA):
                 if ctime is None or m > ctime:
                     ctime = m
         return ctime, ret
-    
+
     def initialize_controls(self, cluster):
         # initalize statistics
         self.stats_fetch_calls[cluster] = 0
