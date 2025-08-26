@@ -68,7 +68,8 @@ _cd()
 for conf in \
     "$PCP_PMCDCONF_PATH" "$PCP_PMCDOPTIONS_PATH" "$PCP_PMCDRCLOCAL_PATH" \
     "$PCP_PMIECONTROL_PATH" "$PCP_PMLOGGERCONTROL_PATH" \
-    "$PCP_PMPROXYOPTIONS_PATH" "$PCP_PMWEBDOPTIONS_PATH"
+    "$PCP_PMPROXYOPTIONS_PATH" "$PCP_PMWEBDOPTIONS_PATH" \
+  # end
 do
     if [ -f "$conf.pre" -a -f "$conf" ]
     then
@@ -365,7 +366,8 @@ for dir in "$PCP_LOG_DIR" \
 	   "$PCP_TMP_DIR" "$PCP_TMP_DIR"/pmie "$PCP_TMP_DIR"/pmlogger \
 	   "$PCP_TMP_DIR"/mmv "$PCP_TMP_DIR"/pmproxy \
 	   "$PCP_VAR_DIR"/config/pmda \
-	   "$PCP_VAR_DIR"/config/pmie "$PCP_VAR_DIR"/config/pmlogger
+	   "$PCP_VAR_DIR"/config/pmie "$PCP_VAR_DIR"/config/pmlogger \
+    # end
 do
     _do_dir "pcp:pcp" 775 "$dir"
 done
@@ -491,10 +493,33 @@ fi
 # but that have gone away or moved somewhere else
 #
 for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
+	    "$PCP_VAR_DIR"/config/pmlogconf/filesystem/xfs-io-irix \
+	    "$PCP_VAR_DIR"/config/pmlogger/crontab.docker \
+	    "$PCP_VAR_DIR"/config/pmie/crontab.docker \
+	    "$PCP_VAR_DIR"/pmns/xfs \
 	    "$PCP_BINADM_DIR"/pmmgr "$PCP_RC_DIR"/pmmgr /etc/init.d/pmmgr \
-	    "$PCP_SYSCONF_DIR"/pmrep/pmrep.conf
+	    "$PCP_SYSCONF_DIR"/pmrep/pmrep.conf \
+	    "$PCP_PMDAS_DIR"/activemq/*.pm \
+	    "$PCP_PMDAS_DIR"/postgresql/pmdapostgresql.pl \
+	    "$PCP_PMDAS_DIR"/nfsclient/pmdanfsclient.pl \
+	    "$PCP_PMDAS_DIR"/elasticsearch/pmdaelasticsearch.pl \
+	    "$PCP_PMDAS_DIR"/kvm/pmdakvm.pl \
+	    "$PCP_PMDAS_DIR"/lmsensors/pmdalmsensors \
+	    "$PCP_SHARE_DIR"/lib/pmlogger "$PCP_SHARE_DIR"/lib/pmproxy \
+	    "$PCP_SHARE_DIR"/lib/pmmgr "$PCP_SHARE_DIR"/lib/pmie \
+	    "$PCP_SHARE_DIR"/lib/pmcd "$PCP_SHARE_DIR"/lib/pmwebd \
+	    "$PCP_SHARE_DIR"/lib/pcp \
+	    "$PCP_SHARE_DIR"/bin/logdecompress \
+	    "$PCP_ETC_DIR"/pcp/pmlogconf/kernel/*-irix \
+	    "$PCP_ETC_DIR"/pcp/pmlogconf/networking/*-irix \
+	    "$PCP_ETC_DIR"/pcp/pmlogconf/memory/*-irix \
+	    "$PCP_ETC_DIR"/pcp/pmlogger/crontab.docker \
+	    "$PCP_ETC_DIR"/pcp/pmie/crontab.docker \
+	    "$PCP_ETC_DIR"/pcp/pmproxy/pmproxy.defaults \
+	    "$PCP_ETC_DIR"/pcp/pmrep/xtract-names \
+    # end
 do
-    [ -f "$file" ] && $RM -f "$file"
+    $RM -f "$file"
 done
 if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
 then
@@ -506,7 +531,17 @@ then
 fi
 for dir in "$PCP_VAR_DIR"/config/pmieconf/pcp \
 	   "$PCP_LOG_DIR"/pmmgr "$PCP_ETC_DIR"/pcp/pmmgr \
-	   "$PCP_DEMOS_DIR"/json
+	   "$PCP_ETC_DIR"/pcp/pmcheck \
+	   "$PCP_DEMOS_DIR"/json \
+	   "$PCP_SHARE_DIR"/webapps \
+	   "$PCP_PMDAS_DIR"/prometheus \
+	   "$PCP_ETC_DIR"/pcp/htop \
+	   "$PCP_ETC_DIR"/pcp/json \
+	   "$PCP_ETC_DIR"/pcp/pmlogconf/v1.0 \
+	   "$PCP_ETC_DIR"/pcp/pmlogconf/sgi \
+	   "$PCP_ETC_DIR"/pcp/pmwebd \
+	   "$PCP_ETC_DIR"/pcp/ohead \
+    # end
 do
     [ -d "$dir" ] && $RM -rf "$dir"
 done
