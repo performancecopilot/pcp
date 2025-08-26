@@ -171,6 +171,7 @@ export PCP_TMP_DIR=$tmp.pmproxy
 export PCP_REMOTE_ARCHIVE_DIR=$tmp.pmproxy/pmproxy
 
 echo "Start test pmproxy ..."
+archive_host=`hostname`
 archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
 $sudo rm -fr $archive_path
 
