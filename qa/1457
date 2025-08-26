@@ -81,8 +81,8 @@ echo "pcp.enabled = true" >> $tmp.conf
 echo "http.enabled = true" >> $tmp.conf
 echo "resp.enabled = true" >> $tmp.conf
 echo "secure.enabled = true" >> $tmp.conf
-echo "private_key = $here/tls.conf/pcp.key" >> $tmp.conf
-echo "certificates = $here/tls.conf/pcp.crt" >> $tmp.conf
+echo "private_key = $tmp.tls/pcp.key" >> $tmp.conf
+echo "certificates = $tmp.tls/pcp.crt" >> $tmp.conf
 
 port=`_find_free_port`
 mkdir -p $tmp.pmproxy/pmproxy
@@ -110,6 +110,10 @@ then
     echo "Startup took $i secs" >>$seq_full
 else
     echo "Arrgh: valgrind failed start pmproxy and get port $port ready after 30 secs"
+    echo "=== valgrind stdout ===" >> $seq_full
+    cat $tmp.valout >> $seq_full
+    echo "=== valgrind stderr ===" >> $seq_full
+    cat $tmp.valerr >> $seq_full
     exit
 fi
 
