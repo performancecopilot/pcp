@@ -73,7 +73,7 @@ main(int argc, char *argv[])
 {
     int		j;
     int		k;
-    char	c;
+    int		c;
 
     pmSetProgname(argv[0]);
 
