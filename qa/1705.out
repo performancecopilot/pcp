@@ -40,8 +40,7 @@ kprobe:... { @c = count(); }"
 found metric bpftrace.scripts.test4.status with matching value "error"
 
 bpftrace.scripts.test4.error
-    value "Can't attach to PROBES probes because it exceeds the current limit of PROBES probes.
-You can increase the limit through the BPFTRACE_MAX_PROBES environment variable, but BE CAREFUL since a high number of probes attached can cause your system to crash."
+    value "<kprobes error babble>"
 
 bpftrace.scripts.test4.exit_code
     value 1

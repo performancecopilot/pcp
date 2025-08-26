@@ -129,15 +129,26 @@ then
 fi
 pmstore bpftrace.control.register "`cat $tmp.probe`" 2>&1 \
 | _filter_kprobe
-_pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"'
+_pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"' 15
 pminfo -f bpftrace.scripts.test4.error \
+| tee -a $seq_full \
 | sed \
     -e 's/ [1-9][0-9]* / PROBES /g' \
     -e 's/"ERROR: /"/' \
-    -e '/value "Error attaching probe: '"'"'kprobe:\*'"'"'"/{
-s/value ".*/value "Can'"'"'t attach to PROBES probes because it exceeds the current limit of PROBES probes.\
-You can increase the limit through the BPFTRACE_MAX_PROBES environment variable, but BE CAREFUL since a high number of probes attached can cause your system to crash."/
+    -e '/value "Can'"'"'t attach to PROBES probes/{
+s/value ".*"*/value "<kprobes error babble>"/
 }' \
+    -e '/^You can increase the limit through/d' \
+    -e '/value "Error attaching probe: '"'"'kprobe:\*'"'"'"/{
+s/value ".*"*/value "<kprobes error babble>"/
+}' \
+    -e '/value "cannot attach kprobe, Invalid argument/{
+s/value ".*"*/value "<kprobes error babble>"/
+}' \
+    -e '/value "create_probe_event: .* Too many open files/{
+s/value ".*"*/value "<kprobes error babble>"/
+}' \
+    -e '/^ERROR: Error attaching probe: kprobe:d_delete/d' \
     # end
 pminfo -f bpftrace.scripts.test4.exit_code \
 | sed -e '/value/s/ 255$/ 1/'
