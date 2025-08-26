@@ -1,0 +1,126 @@
+#!/bin/sh
+# PCP QA Test No. 1635
+# Check for obsolete files that have been installed in the past
+# but are no longer part of the tarball packaging.
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+# Usage: ./1635 [--repair]
+#
+# With --repair:
+# - cleanout PMDAs that are not being built for this platform
+#   (assumes we're running from a git tree where a build has been
+#   done)
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# figure out how PCP packages got installed ... we want to
+# eliminate all the non-tarball methods
+#
+if which dpkg-query >/dev/null 2>&1
+then
+    [ "`dpkg-query -W -f '${package}\n' pcp`" = pcp ] \
+	&& _notrun "dpkg install, not tarball"
+fi
+if which rpm >/dev/null 2>&1
+then
+    [ "`rpm -q --qf '%{NAME}\n' pcp`" = pcp ] \
+	&& _notrun "rpm install, not tarball"
+fi
+
+# need PCP to have been installed within the last week
+#
+if find /etc/pcp.conf -mtime -7 >$tmp.tmp 2>&1
+then
+    [ -s "$tmp.tmp" ] || _notrun "PCP not installed in the last week"
+else
+    cat $tmp.tmp
+    echo "Arrgh: /etc/pcp.conf missing?"
+    _exit 1
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+if [ $# -eq 1 -a X"$1" = X--repair ]
+then
+    if [ ! -f ../src/include/builddefs ]
+    then
+	echo "Warning: no builddefs, cannot cull PMDAs"
+    else
+	grep '^PMDA_.* = false' ../src/include/builddefs \
+	| sed -e 's/PMDA_//' -e 's/ .*//' \
+	| tr '[A-Z]' '[a-z]' \
+	| while read pmda
+	do
+	    for dir in "$PCP_VAR_DIR/pmdas/$pmda" \
+		       "$PCP_ETC_DIR/pcp/$pmda" \
+		       "$PCP_ETC_DIR/pcp/pmlogconf/$pmda" \
+		       "$PCP_ETC_DIR/pcp/pmieconf/$pmda" \
+		    # end
+	    do
+		if [ -d "$dir" ]
+		then
+		    echo "Culling $pmda $dir ..."
+		    $sudo rm -rf "$dir"
+		fi
+	    done
+	done
+    fi
+fi
+
+# sed expressions to cull the ones that are OK ...
+#
+cat <<End-of-File >$tmp.exceptions
+/^\/var\/lib\/pcp\/tmp\//d
+/^\/var\/lib\/pcp\/testsuite\//d
+/^\/var\/lib\/pcp\/config\/pmda\//d
+/^\/var\/lib\/pcp\/pmdas\/.*\/domain.h$/d
+/^\/var\/lib\/pcp\/pmdas\/.*\/domain.h.perl$/d
+/^\/var\/lib\/pcp\/pmdas\/.*\/domain.h.python$/d
+/^\/var\/lib\/pcp\/pmdas\/.*\/pmns$/d
+/^\/var\/lib\/pcp\/pmdas\/.*\/pmns.perl$/d
+/^\/var\/lib\/pcp\/pmdas\/.*\/pmns.python$/d
+/^\/var\/lib\/pcp\/pmdas\/.*\/help.pag$/d
+/^\/var\/lib\/pcp\/pmdas\/.*\/help.dir$/d
+/^\/var\/lib\/pcp\/pmdas\/netcheck\/__pycache__\//d
+/^\/var\/lib\/pcp\/pmdas\/netcheck\/modules\/__pycache__\//d
+/^\/var\/lib\/pcp\/config\/pmlogrewrite\/pcpqa.conf/d
+/^\/var\/lib\/pcp\/config\/web\/weblog.conf/d
+/^\/var\/lib\/pcp\/pmdas\/pipe\/pipe.conf/d
+/^\/var\/lib\/pcp\/config\/pmie\/config.default/d
+/^\/var\/lib\/pcp\/pmns\/root.prev/d
+/^\/etc\/pcp\/pmieconf\/primary\/test_actions/d
+End-of-File
+
+# real QA test starts here
+echo "Silence is golden ..."
+for dir in /etc/pcp /var/lib/pcp /usr/lib/pcp /usr/share/pcp
+do
+    [ -d "$dir" ] || continue
+    $sudo find "$dir" -type f -mtime +8
+done \
+| sed -f $tmp.exceptions
+
+# success, all done
+exit
