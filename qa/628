@@ -23,6 +23,7 @@ _cleanup()
     cd $here
 
     [ -f $tmp.root ] && $sudo cp $tmp.root $PCP_VAR_DIR/pmns/root
+    $sudo rm -f $PCP_VAR_DIR/pmns/idiot
     [ -f $tmp.root.bin ] && $sudo cp $tmp.root.bin $PCP_VAR_DIR/pmns/root.bin
     [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     _service pmcd restart 2>&1 | _filter_pcp_restart
