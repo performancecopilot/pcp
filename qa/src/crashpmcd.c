@@ -9,7 +9,7 @@ static char *target;
 static uint16_t port = SERVER_PORT;
 
 void
-try(int len)
+try_crash(int len)
 {
     int fd;
     int sts;
@@ -20,6 +20,8 @@ try(int len)
 
     if (first) {
 	first = 0;
+	if (target == NULL)
+	    target = "localhost";
 	if ((servInfo = gethostbyname(target)) == NULL) {
 	    fprintf(stderr, "host \"%s\" unknown\n", target);
 	    exit(1);
@@ -100,8 +102,6 @@ main(int argc, char *argv[])
     /* non-flag args are argv[opts.optind] ... argv[argc-1] */
     if (opts.optind < argc)
 	target = argv[opts.optind];
-    else
-	target = "localhost";
 
     hdr.from = htonl(12345);
 
@@ -109,7 +109,7 @@ main(int argc, char *argv[])
 	hdr.len = htonl(k);
 	hdr.type = htonl(0x55aa0000);
 	for (j = 0; j <= 12; j++) {
-	    try(j);
+	    try_crash(j);
 	}
     }
 
@@ -117,7 +117,7 @@ main(int argc, char *argv[])
 	hdr.len = htonl(k<<24);
 	hdr.type = htonl(0x000055aa);
 	for (j = 0; j <= 12; j++) {
-	    try(j);
+	    try_crash(j);
 	}
     }
 
