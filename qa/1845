@@ -99,7 +99,7 @@ _filter <$tmp.tmp
 _filter <$tmp.out
 
 echo "Remaining archives files ..."
-find $REMOTE_ARCHIVE_DIR -type f -print \
+find $PCP_REMOTE_ARCHIVE_DIR -type f -print \
 | LC_COLLATE=POSIX sort \
 | _filter
 
