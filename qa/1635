@@ -93,8 +93,10 @@ fi
 #
 cat <<End-of-File >$tmp.exceptions
 /^\/var\/lib\/pcp\/tmp\//d
+/^\/var\/lib\/pcp\/\.[a-z]/d
 /^\/var\/lib\/pcp\/testsuite\//d
 /^\/var\/lib\/pcp\/config\/pmda\//d
+/^\/var\/lib\/pcp\/config\/logger\/logger.conf/d
 /^\/var\/lib\/pcp\/pmdas\/.*\/domain.h$/d
 /^\/var\/lib\/pcp\/pmdas\/.*\/domain.h.perl$/d
 /^\/var\/lib\/pcp\/pmdas\/.*\/domain.h.python$/d
@@ -103,14 +105,17 @@ cat <<End-of-File >$tmp.exceptions
 /^\/var\/lib\/pcp\/pmdas\/.*\/pmns.python$/d
 /^\/var\/lib\/pcp\/pmdas\/.*\/help.pag$/d
 /^\/var\/lib\/pcp\/pmdas\/.*\/help.dir$/d
+/^\/var\/lib\/pcp\/pmdas\/.*\/.*\.o/d
 /^\/var\/lib\/pcp\/pmdas\/netcheck\/__pycache__\//d
 /^\/var\/lib\/pcp\/pmdas\/netcheck\/modules\/__pycache__\//d
+/^\/var\/lib\/pcp\/pmdas\/sample\/dynamic.indom/d
 /^\/var\/lib\/pcp\/config\/pmlogrewrite\/pcpqa.conf/d
 /^\/var\/lib\/pcp\/config\/web\/weblog.conf/d
 /^\/var\/lib\/pcp\/pmdas\/pipe\/pipe.conf/d
 /^\/var\/lib\/pcp\/config\/pmie\/config.default/d
 /^\/var\/lib\/pcp\/pmns\/root.prev/d
 /^\/etc\/pcp\/pmieconf\/primary\/test_actions/d
+/^\/etc\/pcp\/openmetrics\/config.d\/.*.url/d
 End-of-File
 
 # real QA test starts here
