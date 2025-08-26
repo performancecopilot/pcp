@@ -66,8 +66,9 @@ _filter()
 }
 
 export PCP_LOG_DIR=$tmp
+export PCP_REMOTE_ARCHIVE_DIR=$tmp/pmproxy
 
-mkdir -p $PCP_LOG_DIR/pmproxy/qahost || exit 1
+mkdir -p $PCP_REMOTE_ARCHIVE_DIR/qahost || exit 1
 mkdir -p $PCP_LOG_DIR/pmlogger || exit 1
 # ok-foo archives are less than 20sec long, so make the MM.SS parts
 # of the archive basenames to ensure there is no temporal overlap
@@ -78,9 +79,9 @@ qahost	archives/ok-foo		`pmdate -2d %Y%m%d.00.10`
 qahost	archives/ok-mv-foo	`pmdate -2d %Y%m%d.01.20`
 qahost	archives/ok-foo		`pmdate -2d %Y%m%d.02.30`
 End-of-File
-./mk.logfarm -c $tmp.config $PCP_LOG_DIR/pmproxy
+./mk.logfarm -c $tmp.config $PCP_REMOTE_ARCHIVE_DIR
 ls -lR $tmp >>$seq_full
-find $PCP_LOG_DIR/pmproxy -name "*.index" \
+find $PCP_REMOTE_ARCHIVE_DIR -name "*.index" \
 | while read arch
 do
     pmlogdump -L $arch >>$seq_full
@@ -97,7 +98,7 @@ _filter <$tmp.tmp
 _filter <$tmp.out
 
 echo "Remaining archives files ..."
-find $PCP_LOG_DIR/pmproxy -type f -print \
+find $PCP_REMOTE_ARCHIVE_DIR -type f -print \
 | LC_COLLATE=POSIX sort \
 | _filter
 
