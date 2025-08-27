@@ -130,6 +130,14 @@ fi
 pmstore bpftrace.control.register "`cat $tmp.probe`" 2>&1 \
 | _filter_kprobe
 _pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"' 15
+# Note: Failure texts we've seen here include
+#    vm03 (Fedora 42)
+#	value "cannot attach kprobe, Invalid argument
+#    ERROR: Error attaching probe: kprobe:debug_registers_open"
+#    bozo (Ubuntu 24.04)
+#	value "ERROR: Can't attach to 514 probes because it exceeds the current limit of 512 probes.
+#    You can increase the limit through the BPFTRACE_MAX_PROBES environment variable, but BE CAREFUL since a high number of probes attached can cause your system to crash."
+#
 pminfo -f bpftrace.scripts.test4.error \
 | tee -a $seq_full \
 | sed \
@@ -137,18 +145,22 @@ pminfo -f bpftrace.scripts.test4.error \
     -e 's/"ERROR: /"/' \
     -e '/value "Can'"'"'t attach to PROBES probes/{
 s/value ".*"*/value "<kprobes error babble>"/
+n
+/^You can increase the limit through/d
 }' \
-    -e '/^You can increase the limit through/d' \
     -e '/value "Error attaching probe: '"'"'kprobe:\*'"'"'"/{
 s/value ".*"*/value "<kprobes error babble>"/
 }' \
     -e '/value "cannot attach kprobe, Invalid argument/{
 s/value ".*"*/value "<kprobes error babble>"/
+n
+/^ERROR: Error attaching probe: kprobe:/d
 }' \
     -e '/value "create_probe_event: .* Too many open files/{
 s/value ".*"*/value "<kprobes error babble>"/
+n
+/^ERROR: Error attaching probe: kprobe:/d
 }' \
-    -e '/^ERROR: Error attaching probe: kprobe:d_delete/d' \
     # end
 pminfo -f bpftrace.scripts.test4.exit_code \
 | sed -e '/value/s/ 255$/ 1/'
