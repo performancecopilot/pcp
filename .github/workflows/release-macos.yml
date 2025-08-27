@@ -1,5 +1,8 @@
-name: release-macos.yml
+name: macOS Release
 on:
+  push:
+    branches:
+      - macos-release-process
   workflow_dispatch:
     inputs:
       myInput:
