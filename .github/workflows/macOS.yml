@@ -23,7 +23,7 @@ jobs:
       - name: Install Homebrew deps
         id: install-deps
         run: |
-          brew install gnu-tar pkg-config autoconf qt qt-creator
+          brew install gnu-tar pkg-config autoconf
       - name: Build on macOS
         id: Build
         run: |
