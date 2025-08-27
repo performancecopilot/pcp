@@ -689,3 +689,6 @@ network.tcp.pawsoldack
 
 network.tcp.tsecrrejected
     value 143
+
+network.tcp.pawstimewait
+    value 144

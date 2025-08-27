@@ -360,6 +360,8 @@ netstat_fields_t netstat_tcp_fields[] = {
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSOLDACK] },
     { .field = "TSEcrRejected",
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TSECRREJECTED] },
+    { .field = "PAWSTimewait",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSTIMEWAIT] },
 
     { .field = NULL, .offset = NULL }
 };
