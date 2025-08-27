@@ -142,11 +142,11 @@ pkgpcp_zeroconf = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_zeroconf);
 pkgpcp_python3 = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_python3);
 
 configure_tools = export DEBUG=-DNDEBUG QT_SELECT=5;
-# Note: configure options come from $(configure_paths) here, _plus_
-#       any passed in from the environment via $(configure_opts)
-#       ... Makepkgs uses the latter mechanism to refine the configure
-#       options
-#
+configure_debug = --with-non-debug=yes
+# Note: configure options come from $(configure_paths) _plus_ any
+#       $(configure_debug) value here, _plus_ any passed in from the
+#       environment via $(configure_opts)
+# ... Makepkgs uses the latter mechanism to refine the configure options
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --with-zip=/bin/gzip --with-tar=/bin/tar SED=/bin/sed ECHO=/bin/echo QMAKE=/usr/bin/qmake MAKEDEPEND=/bin/true BZIP2=/bin/bzip2
 
 checkdir = test -f debian/rules
@@ -182,7 +182,8 @@ config: .census
 	then dh_update_autotools_config; \
 	else dh_autotools-dev_updateconfig; \
 	fi
-	$(configure_tools) ./configure $(configure_paths) $(configure_opts)
+	$(configure_tools) \
+	./configure $(configure_paths) $(configure_debug) $(configure_opts)
 	touch .census
 
 clean:
