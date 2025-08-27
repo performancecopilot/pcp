@@ -39,6 +39,10 @@ _filter()
 
 # real QA test starts here
 export LC_COLLATE=POSIX
+echo "== new diagnostics ==" >> $seq.full
+pmdumplog -dehIL tmparch/foo >> $seq.full
+echo "== end diagnostics ==" >> $seq.full
+
 echo "=== directory traversal and file checks ===" | tee -a $seq_full
 cp tmparch/foo.index $tmp
 ( echo; echo "TMP/foo.index alone:" ) | tee -a $seq_full
