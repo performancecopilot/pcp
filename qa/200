@@ -139,6 +139,7 @@ if ! _service pmcd stop 2>&1; then _exit 1; fi \
 | _filter_pcp_stop
 _wait_pmcd_end || _exit 1
 _wait_for_pmcd_exit
+pmsleep 1.1
 if ! _service pmcd start 2>&1; then _exit 1; fi \
 | _filter_pcp_start
 _wait_for_pmcd || _exit 1
@@ -174,6 +175,8 @@ do
     if ! _service pmcd start 2>&1; then _exit 1; fi \
     | _filter_pcp_start
     echo "end start pmcd `date`" >>$seq_full
+    _wait_for_pmcd
+    pmsleep 1.1
 
     wait
     _filter <$tmp.out
