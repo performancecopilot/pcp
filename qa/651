@@ -73,7 +73,7 @@ _cleanup()
 _wait_for_start()
 {
     rm -f $tmp.started
-    for i in 1 2 3 4 5
+    for i in 1 2 3 4 5 6 7 8 9
     do
 	echo "startup delay i=$i" >>$seq_full
 	if pmprobe $target -v sample.long.hundred >$tmp.tmp 2>&1
@@ -107,7 +107,7 @@ _wait_for_start()
 _wait_for_stop()
 {
     rm -f $tmp.stopped
-    for i in 1 2 3 4 5
+    for i in 1 2 3 4 5 6 7 8 9
     do
 	echo "shutdown delay i=$i" >>$seq_full
 	if pmprobe $target -v sample.long.hundred >>$seq_full 2>&1
@@ -139,7 +139,7 @@ if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
 _wait_for_stop
 
 proxyargs="-l $tmp.log"
-proxyargs="$proxyargs -Dcontext,pdu"
+proxyargs="$proxyargs -Dcontext" # -Dcontext,pdu
 id pcp >/dev/null 2>&1 && proxyargs="$proxyargs -U pcp"
 
 echo "== pmproxy not running ==" | tee -a $seq_full

@@ -41,14 +41,14 @@ _cleanup()
     else
 	echo "Arrg, $PCP_LOG_DIR/pmproxy/pmproxy.log missing"
     fi
+
+    echo "Stopping pmproxy ..." >>$seq_full
+    _service pmproxy stop >>$seq_full 2>&1
     if $pmproxy_was_running
     then
-        echo "Restart pmproxy ..." >>$seq_full
-        _service pmproxy restart >>$seq_full 2>&1
+        echo "Restarting pmproxy ..." >>$seq_full
+        _service pmproxy start >>$seq_full 2>&1
         _wait_for_pmproxy
-    else
-        echo "Stopping pmproxy ..." >>$seq_full
-        _service pmproxy stop >>$seq_full 2>&1
     fi
     _restore_auto_restart pmproxy
 

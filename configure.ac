@@ -34,6 +34,12 @@ AC_ARG_WITH([optimization],
     [use_optimization=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-optimization=$withval"],
     [use_optimizaton=yes])
 
+AC_ARG_WITH([non-debug],
+    [AS_HELP_STRING([--with-non-debug],
+		    [enable non-debug builds for C/C++ code (default is no)])],
+    [use_ndebug=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-non-debug=$withval"],
+    [use_ndebug=no])
+
 AC_ARG_WITH([gperftools],
     [AS_HELP_STRING([--with-gperftools],
 		    [enable gperftools for CPU and heap profiling (default is no)])],
@@ -355,6 +361,13 @@ else
     $gcc_debug && optimization="$optimization -g"
 fi
 AC_SUBST(optimization)
+
+dnl optionally disable the use of <assert.h> functionality from C and C++ code
+if test "$use_ndebug" = yes
+then
+    CFLAGS="$CFLAGS -DNDEBUG"
+    AC_MSG_NOTICE([Compiling with the NDEBUG macro set (non-debug)])
+fi
 
 PKG_PROG_PKG_CONFIG
 if test -z "$PKG_CONFIG"; then
