@@ -23,9 +23,9 @@ _cleanup()
 {
     [ -f $tmp.pmcd.conf ] && $sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
     [ "$PCP_PLATFORM" != "linux" ] && _change_config pmlogger on
+    _restore_auto_restart pmcd
     _service pmcd restart 2>&1 | _filter_pcp_restart
     _wait_for_pmcd
-    _restore_auto_restart pmcd
     _service pmlogger restart 2>&1 | _filter_pcp_restart
     _wait_for_pmlogger
     $sudo rm -f $tmp.pmcd.conf
@@ -133,14 +133,7 @@ $sudo cp $PCP_PMCDCONF_PATH $tmp.pmcd.conf
 $sudo cp $tmp.new $PCP_PMCDCONF_PATH
 
 # ensure we have pmcd ready for the first iteration.
-# just doing a start may race and find the pmcd socket busy,
-# so stop, wait a little, and start
-if ! _service pmcd stop 2>&1; then _exit 1; fi \
-| _filter_pcp_stop
-_wait_pmcd_end || _exit 1
-_wait_for_pmcd_exit
-pmsleep 1.1
-if ! _service pmcd start 2>&1; then _exit 1; fi \
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
 | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 
@@ -164,19 +157,10 @@ do
     DEBUG=-Dcontext
     src/recon $DEBUG >$tmp.out 2>&1 &
 
-    pmsleep 1.1
-    echo "begin stop pmcd `date`" >>$seq_full
-    if ! _service pmcd stop; then _exit 1; fi \
-    | _filter_pcp_stop
-    echo "end stop pmcd `date`" >>$seq_full
-    _wait_for_pmcd_exit
-    pmsleep 1.1
-    echo "begin start pmcd `date`" >>$seq_full
-    if ! _service pmcd start 2>&1; then _exit 1; fi \
+    pmsleep 2.5
+    if ! _service pmcd restart 2>&1; then _exit 1; fi \
     | _filter_pcp_start
-    echo "end start pmcd `date`" >>$seq_full
     _wait_for_pmcd
-    pmsleep 1.1
 
     wait
     _filter <$tmp.out
