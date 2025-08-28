@@ -3,15 +3,17 @@ on:
   push:
   workflow_call:
     inputs:
-      message:
-        description: 'Message to display in shared step'
+      perform_release:
         required: false
-        type: string
-        default: 'Default message'
+        type: boolean
 jobs:
   build:
     runs-on: macos-latest
     steps:
+      - name: Generate Github Summary
+        if: inputs.perform_release
+        run: |
+          echo "RELEASE DETECTED!" >> $GITHUB_STEP_SUMMARY
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
