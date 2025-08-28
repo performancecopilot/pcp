@@ -22,14 +22,14 @@ import sys
 import time
 MPSTAT_METRICS = ['kernel.uname.nodename', 'kernel.uname.release', 'kernel.uname.sysname',
                   'kernel.uname.machine', 'hinv.map.cpu_num', 'hinv.ncpu', 'hinv.cpu.online',
-                  'kernel.all.cpu.user',
-                  'kernel.all.cpu.nice', 'kernel.all.cpu.sys', 'kernel.all.cpu.wait.total',
-                  'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft', 'kernel.all.cpu.steal',
-                  'kernel.all.cpu.guest', 'kernel.all.cpu.guest_nice', 'kernel.all.cpu.idle',
-                  'kernel.percpu.cpu.user', 'kernel.percpu.cpu.nice', 'kernel.percpu.cpu.sys',
-                  'kernel.percpu.cpu.wait.total', 'kernel.percpu.cpu.irq.hard', 'kernel.percpu.cpu.irq.soft',
-                  'kernel.percpu.cpu.steal', 'kernel.percpu.cpu.guest','kernel.percpu.cpu.guest_nice',
-                  'kernel.percpu.cpu.idle', 'kernel.all.intr', 'kernel.percpu.intr']
+                  'kernel.all.cpu.vuser', 'kernel.all.cpu.vnice', 'kernel.all.cpu.sys',
+                  'kernel.all.cpu.wait.total', 'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft',
+                  'kernel.all.cpu.steal', 'kernel.all.cpu.guest', 'kernel.all.cpu.guest_nice',
+                  'kernel.all.cpu.idle','kernel.percpu.cpu.vuser','kernel.percpu.cpu.vnice',
+                  'kernel.percpu.cpu.sys','kernel.percpu.cpu.wait.total', 'kernel.percpu.cpu.irq.hard',
+                  'kernel.percpu.cpu.irq.soft','kernel.percpu.cpu.steal', 'kernel.percpu.cpu.guest',
+                  'kernel.percpu.cpu.guest_nice','kernel.percpu.cpu.idle', 'kernel.all.intr', 'kernel.percpu.intr']
+
 interrupts_list = []
 soft_interrupts_list = []
 
@@ -126,170 +126,70 @@ class MetricRepository:
 
 class CoreCpuUtil:
     def __init__(self, instance, delta_time, metric_repository):
-        self.delta_time = delta_time
         self.instance = instance
+        self.delta_time = delta_time
         self.metric_repository = metric_repository
+        self._total_cpus = None  # Cache for performance
 
     def total_cpus(self):
-        return self.metric_repository.current_value('hinv.ncpu', None)
+        if self._total_cpus is None:
+            self._total_cpus = self.metric_repository.current_value('hinv.ncpu', None)
+        return self._total_cpus
+
     def cpu_number(self):
         return self.instance
 
-    def cpu_online(self):
-        return self.metric_repository.current_value('hinv.cpu.online', self.instance)
-
     def user_time(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.user'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-
-        else:
-            return None
+        return self._compute_metric('cpu.vuser')
 
     def nice_time(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.nice'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
-            return None
+        return self._compute_metric('cpu.vnice')
 
     def sys_time(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.sys'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
-            return None
+        return self._compute_metric('cpu.sys')
 
     def iowait_time(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.wait.total'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
-            return None
+        return self._compute_metric('cpu.wait.total')
 
     def irq_hard(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.irq.hard'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
-            return None
+        return self._compute_metric('cpu.irq.hard')
 
     def irq_soft(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.irq.soft'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
-            return None
+        return self._compute_metric('cpu.irq.soft')
 
     def steal(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.steal'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
-            return None
+        return self._compute_metric('cpu.steal')
 
     def guest_time(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.guest'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
-            return None
+        return self._compute_metric('cpu.guest')
 
     def guest_nice(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.guest_nice'
-        p_time = self.metric_repository.previous_value(metric, self.instance)
-        c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
-            return None
+        return self._compute_metric('cpu.guest_nice')
 
     def idle_time(self):
-        metric = 'kernel.' + self.__all_or_percpu() + '.cpu.idle'
+        return self._compute_metric('cpu.idle')
+
+    def _compute_metric(self, metric_suffix):
+        metric = f'kernel.{self._all_or_percpu()}.{metric_suffix}'
         p_time = self.metric_repository.previous_value(metric, self.instance)
         c_time = self.metric_repository.current_value(metric, self.instance)
-        if p_time is not None and c_time is not None:
-            value = (100*(c_time - p_time))/(1000*self.delta_time)
-            if self.instance is None and self.total_cpus() is not None:
-                return float("%.2f"%(value/self.total_cpus()))
-            else:
-                if self.total_cpus() is None:
-                    return None
-                return float("%.2f"%(value))
-        else:
+
+        if p_time is None or c_time is None or self.delta_time == 0:
             return None
 
-    def __all_or_percpu(self):
+        try:
+            value = (100 * (c_time - p_time)) / (1000 * self.delta_time)
+            if self.instance is None:
+                total = self.total_cpus()
+                if total:
+                    value /= total
+                else:
+                    return None
+            return min (round(value, 2),100)
+        except (ZeroDivisionError, TypeError):
+            return None
+
+    def _all_or_percpu(self):
         return 'all' if self.instance is None else 'percpu'
 
 class CpuUtil:
@@ -652,7 +552,7 @@ class MpstatReport(pmcc.MetricGroupPrinter):
     def report(self,manager):
         try:
             group = manager['mpstat']
-            if group['kernel.all.cpu.user'].netPrevValues is None:
+            if group['kernel.all.cpu.vuser'].netPrevValues is None:
                 # need two fetches to report rate converted counter metrics
                 self.get_summary_metrics(group)
                 return
