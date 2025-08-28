@@ -19,7 +19,7 @@ jobs:
         with:
           ref: ${{ github.ref_name }}
       - name: Build macOS
-        uses: ./.github/workflows/macOS.yml
+        uses: ./.github/workflows/macOS.yml@${{ github.ref_name }}
       - name: Generate Github Summary
         run: |
           find . -name '*.dmg' >> $GITHUB_STEP_SUMMARY
