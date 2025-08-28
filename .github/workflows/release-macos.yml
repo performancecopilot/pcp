@@ -18,6 +18,11 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
+      - name: Debug - Print Context
+        run: |
+            echo "Branch: ${{ github.ref_name }}"
+            echo "Full ref: ${{ github.ref }}"
+            ls -la .github/workflows/
       - name: Build macOS
         uses: ./.github/workflows/macOS.yml@${{ github.ref_name }}
       - name: Generate Github Summary
