@@ -1,7 +1,7 @@
 name: macOS CI
 on:
   push:
-  workflow_call:
+  workflow_dispatch:
     inputs:
       perform_release:
         required: false
