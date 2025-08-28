@@ -1,5 +1,13 @@
 name: macOS CI
-on: [push,  workflow_call]
+on:
+  push:
+  workflow_call:
+    inputs:
+      message:
+        description: 'Message to display in shared step'
+        required: false
+        type: string
+        default: 'Default message'
 jobs:
   build:
     runs-on: macos-latest
