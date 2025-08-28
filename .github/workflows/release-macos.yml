@@ -16,6 +16,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
       - name: Build macOS
         uses: ./.github/workflows/macOS.yml
       - name: Generate Github Summary
