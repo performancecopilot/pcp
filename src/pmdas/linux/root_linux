@@ -1290,6 +1290,7 @@ network.tcp {
     pawsoldack		60:53:230
     tsecrrejected		60:53:231
     pawstimewait		60:53:232
+    beyondwindow		60:53:233
 }
 
 network.mptcp {
@@ -1363,6 +1364,12 @@ network.mptcp {
     mpjoinsyntxbinderr		60:53:227
     mpjoinsyntxconnecterr		60:53:228
     blackhole		60:53:229
+    mpjoinrejected		60:53:234
+    mpcapabledatafallback		60:53:235
+    md5sigfallback		60:53:236
+    dssfallback		60:53:237
+    simultconnectfallback		60:53:238
+    fallbackfailed		60:53:239
 }
 
 network.udp {
