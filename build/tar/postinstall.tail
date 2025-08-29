@@ -493,7 +493,6 @@ fi
 # but that have gone away or moved somewhere else
 #
 for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
-	    "$PCP_VAR_DIR"/config/pmlogconf/filesystem/xfs-io-irix \
 	    "$PCP_VAR_DIR"/config/pmlogger/crontab.docker \
 	    "$PCP_VAR_DIR"/config/pmie/crontab.docker \
 	    "$PCP_VAR_DIR"/pmns/xfs \
@@ -511,15 +510,18 @@ for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
 	    "$PCP_SHARE_DIR"/lib/pcp \
 	    "$PCP_SHARE_DIR"/bin/logdecompress \
 	    "$PCP_ETC_DIR"/pcp/pmlogconf/kernel/*-irix \
+	    "$PCP_VAR_DIR"/config/pmlogconf/kernel/*-irix \
 	    "$PCP_ETC_DIR"/pcp/pmlogconf/networking/*-irix \
+	    "$PCP_VAR_DIR"/config/pmlogconf/networking/*-irix \
 	    "$PCP_ETC_DIR"/pcp/pmlogconf/memory/*-irix \
+	    "$PCP_VAR_DIR"/config/pmlogconf/memory/*-irix \
 	    "$PCP_ETC_DIR"/pcp/pmlogger/crontab.docker \
 	    "$PCP_ETC_DIR"/pcp/pmie/crontab.docker \
 	    "$PCP_ETC_DIR"/pcp/pmproxy/pmproxy.defaults \
 	    "$PCP_ETC_DIR"/pcp/pmrep/xtract-names \
     # end
 do
-    $RM -f "$file"
+    [ -f "$file" -o -L "$file" ] && $RM -f "$file"
 done
 if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
 then
@@ -538,7 +540,9 @@ for dir in "$PCP_VAR_DIR"/config/pmieconf/pcp \
 	   "$PCP_ETC_DIR"/pcp/htop \
 	   "$PCP_ETC_DIR"/pcp/json \
 	   "$PCP_ETC_DIR"/pcp/pmlogconf/v1.0 \
+	   "$PCP_VAR_DIR"/config/pmlogconf/v1.0 \
 	   "$PCP_ETC_DIR"/pcp/pmlogconf/sgi \
+	   "$PCP_VAR_DIR"/config/pmlogconf/sgi \
 	   "$PCP_ETC_DIR"/pcp/pmwebd \
 	   "$PCP_ETC_DIR"/pcp/ohead \
     # end

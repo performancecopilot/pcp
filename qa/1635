@@ -74,6 +74,8 @@ then
 	| while read pmda
 	do
 	    for dir in "$PCP_VAR_DIR/pmdas/$pmda" \
+		       "$PCP_VAR_DIR/config/pmieconf/$pmda" \
+		       "$PCP_VAR_DIR/config/pmlogconf/$pmda" \
 		       "$PCP_ETC_DIR/pcp/$pmda" \
 		       "$PCP_ETC_DIR/pcp/pmlogconf/$pmda" \
 		       "$PCP_ETC_DIR/pcp/pmieconf/$pmda" \
@@ -88,6 +90,7 @@ then
 	done
     fi
 fi
+
 
 # sed expressions to cull the ones that are OK ...
 #
@@ -106,9 +109,13 @@ cat <<End-of-File >$tmp.exceptions
 /^\/var\/lib\/pcp\/pmdas\/.*\/help.pag$/d
 /^\/var\/lib\/pcp\/pmdas\/.*\/help.dir$/d
 /^\/var\/lib\/pcp\/pmdas\/.*\/.*\.o/d
+/^\/var\/lib\/pcp\/pmdas\/ohead\/sample.conf/d
+/^\/var\/lib\/pcp\/pmdas\/ohead\/default.conf/d
+/^\/var\/lib\/pcp\/pmdas\/json\/config.json/d
 /^\/var\/lib\/pcp\/pmdas\/netcheck\/__pycache__\//d
 /^\/var\/lib\/pcp\/pmdas\/netcheck\/modules\/__pycache__\//d
 /^\/var\/lib\/pcp\/pmdas\/sample\/dynamic.indom/d
+/^\/var\/lib\/pcp\/pmns\/stdpmid/d
 /^\/var\/lib\/pcp\/config\/pmlogrewrite\/pcpqa.conf/d
 /^\/var\/lib\/pcp\/config\/web\/weblog.conf/d
 /^\/var\/lib\/pcp\/pmdas\/pipe\/pipe.conf/d
@@ -120,12 +127,26 @@ End-of-File
 
 # real QA test starts here
 echo "Silence is golden ..."
+
+# old files
+#
 for dir in /etc/pcp /var/lib/pcp /usr/lib/pcp /usr/share/pcp
 do
     [ -d "$dir" ] || continue
     $sudo find "$dir" -type f -mtime +8
 done \
-| sed -f $tmp.exceptions
+| sed -f $tmp.exceptions \
+| sed -e 's/^/file /'
+
+# dangling symlinks
+#
+for dir in /etc/pcp /var/lib/pcp /usr/lib/pcp /usr/share/pcp
+do
+    [ -d "$dir" ] || continue
+    $sudo find "$dir" -type l -a -exec test ! -e {} \; -a -print
+done \
+| sed -f $tmp.exceptions \
+| sed -e 's/^/symlink /'
 
 # success, all done
 exit
