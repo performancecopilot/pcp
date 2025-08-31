@@ -121,6 +121,7 @@ cat <<End-of-File >$tmp.exceptions
 /^\/var\/lib\/pcp\/pmdas\/pipe\/pipe.conf/d
 /^\/var\/lib\/pcp\/config\/pmie\/config.default/d
 /^\/var\/lib\/pcp\/pmns\/root.prev/d
+/^\/etc\/pcp\/pmcd\/pmcd.options/d
 /^\/etc\/pcp\/pmieconf\/primary\/test_actions/d
 /^\/etc\/pcp\/openmetrics\/config.d\/.*.url/d
 End-of-File

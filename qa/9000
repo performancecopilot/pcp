@@ -46,10 +46,12 @@ _filter()
 # real QA test starts here
 echo "Silence is golden ..."
 
+fmt="%-28.28s %-9.9s %-13.13s %-11.11s %-12.12s %-12.12s %-12.12s %-12.12s\n"
+$verbose && printf "$fmt" "Unit" "LoadState" "UnitFileState" "ActiveState" "TriggeredBy" "SubState" "ConditionResult"
+
 ( cd $PCP_SYSTEMDUNIT_DIR; ls -d pcp-*.service pcp-*.timer pm*.service pm*.timer 2>/dev/null ) \
 | while read unit
 do
-    $verbose && echo "unit=$unit"
     [ -f "$PCP_SYSTEMDUNIT_DIR/$unit" ] || continue
     systemctl status -l --no-pager "$unit" >>$seq_full
     systemctl show --no-pager "$unit" >$tmp.tmp
@@ -65,7 +67,8 @@ do
     eval `grep ^SubState= $tmp.tmp`
     ConditionResult='missing'
     eval `grep ^ConditionResult= $tmp.tmp`
-    $verbose && echo "LoadState=$LoadState UnitFileState=$UnitFileState ActiveState=$ActiveState SubState=$SubState $ConditionResult"
+    $verbose && printf "$fmt" "$unit" "$LoadState" "$UnitFileState" "$ActiveState" "$TriggeredBy" "$SubState" "$ConditionResult"
+    echo "unit=$unit LoadState=$LoadState UnitFileState=$UnitFileState ActiveState=$ActiveState TriggeredBy=$TriggeredBy SubState=$SubState ConditionResult=$ConditionResult" >>$seq_full
     if [ "$LoadState" = loaded -a "$UnitFileState" = disabled ]
     then
 	echo "$unit: loaded but disabled" >>$seq_full
