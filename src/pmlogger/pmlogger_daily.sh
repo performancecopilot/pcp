@@ -73,7 +73,7 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
-    $VERY_VERBOSE && echo >&2 "End [daily]: `date '+%F %T.%N'`"
+    $VERBOSE && echo >&2 "End [daily]: `date '+%F %T.%N'` status=$status"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -736,11 +736,8 @@ else
     fi
 fi
 
-if $VERY_VERBOSE
-then
-    echo >&2 "Start: `date '+%F %T.%N'`"
-    _pstree_all $$
-fi
+$VERBOSE && echo >&2 "Start: `date '+%F %T.%N'`"
+$VERY_VERBOSE && _pstree_all $$
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
 # then save $MYPROGLOG there as well with a unique name that contains the date
