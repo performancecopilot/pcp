@@ -16,6 +16,9 @@ else
     echo "QA output created by `basename $0` $*"
 fi
 
+verbose=false
+[ $# -gt 0 -a X"$1" = X--verbose ] && verbose=true
+
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
@@ -43,9 +46,11 @@ _filter()
 # real QA test starts here
 echo "Silence is golden ..."
 
-( cd $PCP_SYSTEMDUNIT_DIR; ls pcp-* pm* ) \
+( cd $PCP_SYSTEMDUNIT_DIR; ls -d pcp-*.service pcp-*.timer pm*.service pm*.timer 2>/dev/null ) \
 | while read unit
 do
+    $verbose && echo "unit=$unit"
+    [ -f "$PCP_SYSTEMDUNIT_DIR/$unit" ] || continue
     systemctl status -l --no-pager "$unit" >>$seq_full
     systemctl show --no-pager "$unit" >$tmp.tmp
     LoadState='missing'
@@ -58,6 +63,9 @@ do
     eval `grep ^TriggeredBy= $tmp.tmp`
     SubState='missing'
     eval `grep ^SubState= $tmp.tmp`
+    ConditionResult='missing'
+    eval `grep ^ConditionResult= $tmp.tmp`
+    $verbose && echo "LoadState=$LoadState UnitFileState=$UnitFileState ActiveState=$ActiveState SubState=$SubState $ConditionResult"
     if [ "$LoadState" = loaded -a "$UnitFileState" = disabled ]
     then
 	echo "$unit: loaded but disabled" >>$seq_full
@@ -68,10 +76,22 @@ do
 	echo "$unit: loaded and active" >>$seq_full
 	continue
     fi
-    if [ "$LoadState" = loaded -a "$ActiveState" = inactive -a "$TriggeredBy" != missing ]
+    if [ "$LoadState" = loaded -a "$ActiveState" = inactive -a "$TriggeredBy" != missing -a "$ConditionResult" = yes ]
     then
 	echo "$unit: loaded and waiting for $TriggeredBy" >>$seq_full
 	continue
+    fi
+    # pcp-reboot-init.service is a special "one" shot and
+    # the resulting ActiveState (SubState) can be "inactive (dead)" or
+    # "active (exited)"
+    #
+    if [ "$unit" = pcp-reboot-init.service ]
+    then
+	if [ "$ActiveState+$SubState" = "active+exited" -o \
+	     "$ActiveState+$SubState" = "inactive+dead" ]
+	then
+	    continue
+	fi
     fi
     if [ "$SubState" = dead ]
     then
