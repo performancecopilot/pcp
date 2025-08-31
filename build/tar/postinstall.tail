@@ -526,7 +526,12 @@ done
 if [ -n "$PCP_SYSTEMDUNIT_DIR" ]
 then
     for file in pmmgr.service pmfind.path pmie_check.path pmlogger_check.path \
-	pmmgr.service pmwebd.service
+	pmmgr.service pmwebd.service \
+	pmlogger_daily-poll.service pmlogger_daily-poll.timer \
+	pmlogger_daily_poll.service pmlogger_daily_poll.timer \
+	pmlogger_daily_report-poll.service pmlogger_daily_report-poll.timer \
+	pmlogger_daily_report_poll.service pmlogger_daily_report_poll.timer \
+	pmlogger_daily_report.service pmlogger_daily_report.timer
     do
 	[ -f "$PCP_SYSTEMDUNIT_DIR/$file" ] && $RM -f "$PCP_SYSTEMDUNIT_DIR/$file"
     done
