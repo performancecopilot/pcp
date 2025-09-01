@@ -73,7 +73,7 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
-    $VERY_VERBOSE && echo >&2 "End [daily]: `date '+%F %T.%N'`"
+    $VERBOSE && echo >&2 "End [daily]: `date '+%F %T.%N'` status=$status"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -263,7 +263,7 @@ then
     if [ $? != 0 -a X"$PCP_CULLAFTER" != Xforever -a X"$PCP_CULLAFTER" != Xnever ]
     then
 	echo "Error: \$PCP_CULLAFTER value ($PCP_CULLAFTER) must be number, time, \"forever\" or \"never\""
-	status=1
+	$NOERROR || status=1
 	exit
     fi
 fi
@@ -303,7 +303,7 @@ then
     if [ $? != 0 -a X"$PCP_COMPRESSAFTER" != Xforever -a X"$PCP_COMPRESSAFTER" != Xnever ]
     then
 	echo "Error: \$PCP_COMPRESSAFTER value ($PCP_COMPRESSAFTER) must be number, time, \"forever\" or \"never\""
-	status=1
+	$NOERROR || status=1
 	exit
     fi
 fi
@@ -358,6 +358,7 @@ Options:
   -m=ADDRs,--mail=ADDRs   send daily NOTICES entries to email addresses
   -M		          do not rewrite, merge or rename archives
   -N,--showme             perform a dry run, showing what would be done
+  -n,--noerror            always exit with status 0 (for systemd services)
   -o                      merge yesterdays logs only (old form, default is all) 
   -p                      poll and exit if processing already done for today
   -P,--noproxy            do not process archives pushed via pmproxy(1)
@@ -378,7 +379,7 @@ EOF
 _usage()
 {
     pmgetopt --progname=$prog --config=$tmp/usage --usage
-    status=1
+    $NOERROR || status=1
     exit
 }
 
@@ -402,6 +403,7 @@ KILL=pmsignal
 DO_DAILY_REPORT=true
 NOPROXY=false
 PROXYONLY=false
+NOERROR=false
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -433,14 +435,14 @@ do
 		if [ $? != 0 -a X"$CULLAFTER_CMDLINE" != Xforever -a X"$CULLAFTER_CMDLINE" != Xnever ]
 		then
 		    echo "Error: -k value ($CULLAFTER_CMDLINE) must be number, time, \"forever\" or \"never\""
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		;;
 	-K)	if $PFLAG
 		then
 		    echo "Error: -p and -K are mutually exclusive"
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		COMPRESSONLY=true
@@ -455,10 +457,12 @@ do
 	-m)	MAILME="$2"
 		shift
 		;;
+	-n)	NOERROR=true
+		;;
 	-M)	if $REWRITEALL
 		then
 		    echo "Error: -R and -M are mutually exclusive"
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		MFLAG=true
@@ -473,7 +477,7 @@ do
 	-p)     if $COMPRESSONLY
 		then
 		    echo "Error: -K and -p are mutually exclusive"
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		PFLAG=true
@@ -485,7 +489,7 @@ do
 	-r)	if $REWRITEALL
 		then
 		    echo "Error: -R and -r are mutually exclusive"
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		RFLAG=true
@@ -493,7 +497,7 @@ do
 	-R)	if $RFLAG
 		then
 		    echo "Error: -r and -R are mutually exclusive"
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		REWRITEALL=true
@@ -504,7 +508,7 @@ do
 		if [ -n "$check" ]
 		then
 		    echo "Error: -s value ($ROLLNOTICES) must be numeric"
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		;;
@@ -514,7 +518,7 @@ do
 		if [ -n "$check" ]
 		then
 		    echo "Error: -t value ($TRACE) must be numeric"
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		# send all stdout and stderr output (after argument parsing) to
@@ -546,7 +550,7 @@ do
 		if [ $? != 0 -a X"$COMPRESSAFTER_CMDLINE" != Xforever -a X"$COMPRESSAFTER_CMDLINE" != Xnever ]
 		then
 		    echo "Error: -x value ($COMPRESSAFTER_CMDLINE) must be number, time, \"forever\" or \"never\""
-		    status=1
+		    $NOERROR || status=1
 		    exit
 		fi
 		;;
@@ -736,11 +740,8 @@ else
     fi
 fi
 
-if $VERY_VERBOSE
-then
-    echo >&2 "Start: `date '+%F %T.%N'`"
-    _pstree_all $$
-fi
+$VERBOSE && echo >&2 "Start [daily]: `date '+%F %T.%N'`"
+$VERY_VERBOSE && _pstree_all $$
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
 # then save $MYPROGLOG there as well with a unique name that contains the date
@@ -762,7 +763,7 @@ then
 		if [ -w $link ]
 		then
 		    echo "--- Added by $prog when SaveLogs dir found ---" >>$link
-		    echo "Start: `date '+%F %T.%N'`" >>$link
+		    echo "Start [daily]: `date '+%F %T.%N'`" >>$link
 		    echo "Args: $ARGS" >>$link
 		    _pstree_all $$
 		fi
@@ -774,7 +775,7 @@ fi
 if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)"
-    status=1
+    $NOERROR || status=1
     exit
 fi
 
@@ -2078,7 +2079,7 @@ if [ -f $tmp/err ]
 then
     # serious errors
     #
-    status=1
+    $NOERROR || status=1
 fi
 
 # if need be, remove .NeedRewrite so we don't trigger -R processing

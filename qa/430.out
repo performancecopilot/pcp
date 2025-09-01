@@ -11,12 +11,14 @@ LOCALHOSTNAME	n   n	TMP -c TMP/config
 LOCALHOSTNAME	y   n	TMP	-c TMP/config
 # 
 
+Start [check]: DATESTAMP
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: Duplicate pmlogger instances for archive directory "TMP"
 [dots] logging for host "LOCALHOST" unchanged
 Prior instance(s) for this directory:
 TMP TMP/control:LINE
+End [check]: DATESTAMP status=1
 
 # PCP archive logging configuration/control - for qa/430
 #
@@ -29,12 +31,14 @@ LOCALHOSTNAME	y   n	TMP	-c TMP/config
 LOCALHOSTNAME	n   n	TMP	-c TMP/config
 # 
 
+Start [check]: DATESTAMP
 Restarting primary pmlogger for host "LOCALHOST" [dots] [process PID]  done
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: Duplicate pmlogger instances for archive directory "TMP"
 [dots] logging for host "LOCALHOST" unchanged
 Prior instance(s) for this directory:
 TMP TMP/control:LINE
+End [check]: DATESTAMP status=1
 
 # PCP archive logging configuration/control - for qa/430
 #
@@ -47,8 +51,10 @@ LOCALHOSTNAME	y   n   TMP.subname  -c TMP/config
 LOCALHOSTNAME	n   n   TMP -c TMP/config
 # 
 
+Start [check]: DATESTAMP
 Restarting primary pmlogger for host "LOCALHOST" [dots] [process PID]  done
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+End [check]: DATESTAMP status=0
 
 # PCP archive logging configuration/control - for qa/430
 #
@@ -61,12 +67,14 @@ LOCALHOST	y   n   TMP/LOCALHOST  -c TMP/config
 LOCALHOSTsuper	n   n   TMP/LOCALHOSTsuper -c TMP/config
 #
 
+Start [check]: DATESTAMP
 PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/LOCALHOST) for PCP archive files
 Restarting primary pmlogger for host "LOCALHOST" [dots] [process PID]  done
 PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/LOCALHOSTsuper) for PCP archive files
 Restarting pmlogger for host "LOCALHOSTsuper" [dots] [process PID]  done
+End [check]: DATESTAMP status=0
 
 # PCP archive logging configuration/control - for qa/430
 #
@@ -82,6 +90,7 @@ LOCALHOST	        n   n   TMP.4 -c TMP/config
 LOCALHOSTsuper	        n   n   TMP.5 -c TMP/config
 LOCALHOSTsuper	        n   n   TMP.6 -c TMP/config
 
+Start [check]: DATESTAMP
 PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP.1) for PCP archive files
 Restarting primary pmlogger for host "LOCALHOST" [dots] [process PID]  done
@@ -100,12 +109,13 @@ Restarting pmlogger for host "LOCALHOSTsuper" [dots] [process PID]  done
 PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP.6) for PCP archive files
 Restarting pmlogger for host "LOCALHOSTsuper" [dots] [process PID]  done
+End [check]: DATESTAMP status=0
 
 Restart tests while other pmloggers are running ...
 
 Kill off one pmlogger ...
 Check ...
-Start: ...
+Start [check]: DATESTAMP
 [TMP/control:LINE] host="$version=1.1" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="$PMLOGGER_CHECK_SKIP_JANITOR=yes" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
@@ -144,11 +154,11 @@ Acquired lock:
 PID PMLOGGER.CHECK
 Checking for: pmlogger -h LOCALHOSTsuper [dots] in TMP.6 ...
 Doing compression [dots]
-End [check]: ...
+End [check]: DATESTAMP status=0
 
 Kill off one pmlogger ...
 Check ...
-Start: ...
+Start [check]: DATESTAMP
 [TMP/control:LINE] host="$version=1.1" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="$PMLOGGER_CHECK_SKIP_JANITOR=yes" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
@@ -185,11 +195,11 @@ Acquired lock:
 PID PMLOGGER.CHECK
 Checking for: pmlogger -h LOCALHOSTsuper [dots] in TMP.6 ...
 Doing compression [dots]
-End [check]: ...
+End [check]: DATESTAMP status=0
 
 Kill off one pmlogger ...
 Check ...
-Start: ...
+Start [check]: DATESTAMP
 [TMP/control:LINE] host="$version=1.1" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="$PMLOGGER_CHECK_SKIP_JANITOR=yes" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
@@ -226,11 +236,11 @@ Acquired lock:
 PID PMLOGGER.CHECK
 Checking for: pmlogger -h LOCALHOSTsuper [dots] in TMP.6 ...
 Doing compression [dots]
-End [check]: ...
+End [check]: DATESTAMP status=0
 
 Kill off one pmlogger ...
 Check ...
-Start: ...
+Start [check]: DATESTAMP
 [TMP/control:LINE] host="$version=1.1" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="$PMLOGGER_CHECK_SKIP_JANITOR=yes" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
@@ -267,11 +277,11 @@ Acquired lock:
 PID PMLOGGER.CHECK
 Checking for: pmlogger -h LOCALHOSTsuper [dots] in TMP.6 ...
 Doing compression [dots]
-End [check]: ...
+End [check]: DATESTAMP status=0
 
 Kill off one pmlogger ...
 Check ...
-Start: ...
+Start [check]: DATESTAMP
 [TMP/control:LINE] host="$version=1.1" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="$PMLOGGER_CHECK_SKIP_JANITOR=yes" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
@@ -308,11 +318,11 @@ Acquired lock:
 PID PMLOGGER.CHECK
 Checking for: pmlogger -h LOCALHOSTsuper [dots] in TMP.6 ...
 Doing compression [dots]
-End [check]: ...
+End [check]: DATESTAMP status=0
 
 Kill off one pmlogger ...
 Check ...
-Start: ...
+Start [check]: DATESTAMP
 [TMP/control:LINE] host="$version=1.1" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="$PMLOGGER_CHECK_SKIP_JANITOR=yes" primary="" socks="" dir="" args=""
 [TMP/control:LINE] host="LOCALHOSTNAME" primary="y" socks="n" dir="TMP.1" args="-c TMP/config"
@@ -349,6 +359,6 @@ Checking for: pmlogger -h LOCALHOSTsuper [dots] in TMP.6 ...
 Command:  PCP_BINADM_DIR/pmlogger -h LOCALHOSTsuper -d "TMP.6" -c TMP/config -m PMLOGGER.CHECK %Y%m%d.%H.%M
 Restarting pmlogger for host "LOCALHOSTsuper" [dots] [process PID]  done
 Doing compression [dots]
-End [check]: ...
+End [check]: DATESTAMP status=0
 
 Cleaning up

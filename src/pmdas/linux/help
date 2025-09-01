@@ -2675,6 +2675,7 @@ Incoming multipath packet dropped due to memory limit.
 @ network.tcp.pawsoldack the PAWSOldAck field of the Tcp line from /proc/net/netstat
 @ network.tcp.tsecrrejected the TSEcrRejected field of the Tcp line from /proc/net/netstat
 @ network.tcp.pawstimewait the PAWSTimewait field of the Tcp line from /proc/net/netstat
+@ network.tcp.beyondwindow the BeyondWindow field of the Tcp line from /proc/net/netstat
 @ network.mptcp.mpfailtx the MPFailTx field of the MPTcp line from /proc/net/netstat
 Multipath TCP MP_FAIL transmits.
 @ network.mptcp.mpfailrx the MPFailRx field of the MPTcp line from /proc/net/netstat
@@ -2715,6 +2716,12 @@ Multipath TCP incoming RM_ADDR drops.
 @ network.mptcp.mpjoinsyntxbinderr the MPJoinSynTxBindErr field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.mpjoinsyntxconnecterr the MPJoinSynTxConnectErr field of the MPTcp line from /proc/net/netstat
 @ network.mptcp.blackhole the Blackhole field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpjoinrejected the MPJoinRejected field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.mpcapabledatafallback the MPCapableDataFallback field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.md5sigfallback the MD5SigFallback field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.dssfallback the DssFallback field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.simultconnectfallback the SimultConnectFallback field of the MPTcp line from /proc/net/netstat
+@ network.mptcp.fallbackfailed the FallbackFailed field of the MPTcp line from /proc/net/netstat
 
 @ disk.wwid.scsi_paths per-device/wwid scsi paths to same physical device
 The value of this string typed metric is the sd paths to the same physical

@@ -35,6 +35,8 @@ _filter()
     #
     sed >$tmp.tmp \
 	-e '/\/NOTICES/d' \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e "s,$tmp,LOGDIR,g" \
 	-e "s,/tmp/$seq-$$,LOGDIR,g" \
 	-e 's,/privateLOGDIR,LOGDIR,g' \

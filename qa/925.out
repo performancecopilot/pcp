@@ -1,4 +1,5 @@
 QA output created by 925
+Start [daily]: DATESTAMP
 pmlogger_daily: [TMP.control:5]
 Warning: creating directory (TMP/pmlogger/myhost/2017/02/12) for PCP archive files
 
@@ -10,6 +11,7 @@ Error: no pmlogger instance running for host "local:"
 pmlogger_daily: [TMP.control:5]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 Warning: no archives found to merge
+End [daily]: DATESTAMP status=1
 mode=drwxrwxr-x user=pcp group=OK name=myhost
 
 pmlogger/myhost:

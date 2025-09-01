@@ -1,5 +1,6 @@
 QA output created by 793
 pmlogger_check #1
+Start [check]: DATESTAMP
 PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/A) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
@@ -9,13 +10,16 @@ Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 PMLOGGER.CHECK: [TMP/control:LINE]
 Warning: creating directory (TMP/C) for PCP archive files
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+End [check]: DATESTAMP status=0
 1 archives in TMP/A
 1 archives in TMP/B
 1 archives in TMP/C
 pmlogger_check #2
+Start [check]: DATESTAMP
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
 Restarting pmlogger for host "LOCALHOST" [dots] [process PID]  done
+End [check]: DATESTAMP status=0
 2 archives in TMP/A
 2 archives in TMP/B
 2 archives in TMP/C

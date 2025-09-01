@@ -56,6 +56,7 @@ control
 foo
 sed
 
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOST in TMP ===
 
@@ -83,6 +84,7 @@ Output archive files:
 -rw-r--r-- ... 192 ... YESTERDAY.index
 -rw-r--r-- ... 1240 ... YESTERDAY.0
 Removing input archive files ......... done
+End [daily]: DATESTAMP status=1
 
 After ...
 NOW-2.1H.MM-00.0

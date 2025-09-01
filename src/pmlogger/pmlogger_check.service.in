@@ -11,7 +11,7 @@ TimeoutStartSec=4h
 TimeoutStopSec=120
 Environment="PMLOGGER_CHECK_PARAMS=--skip-primary"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmlogger_timers
-ExecStart=@PCP_BINADM_DIR@/pmlogger_check $PMLOGGER_CHECK_PARAMS
+ExecStart=@PCP_BINADM_DIR@/pmlogger_check --noerror $PMLOGGER_CHECK_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@
 User=@PCP_USER@
