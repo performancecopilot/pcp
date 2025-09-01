@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 7.0.0
+Version: 7.0.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
@@ -2419,6 +2419,7 @@ basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
+basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
 basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
 basic_manifest | keep 'pcp2opentelemetry' >pcp-export-pcp2opentelemetry-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
@@ -3408,5 +3409,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Mon Sep 01 2025 Nathan Scott <nathans@redhat.com> - 7.0.0-1
+* Wed Oct 01 2025 Nathan Scott <nathans@redhat.com> - 7.0.1-1
 - Latest release.
