@@ -72,6 +72,7 @@ _filter_metrics()
 # real QA test starts here
 archive_host=`hostname`
 archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
+archive_botch=$PCP_LOG_DIR/pmproxy/pmproxy
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
@@ -83,7 +84,7 @@ _save_config $PCP_SYSCONF_DIR/pmproxy/pmproxy.conf
 _stop_auto_restart pmproxy
 if ! _service pmproxy stop >>$seq_full 2>&1; then _exit 1; fi
 
-$sudo rm -fr $archive_path
+$sudo rm -fr $archive_path $archive_botch
 
 # pmproxy config
 cat >$tmp.conf << End-Of-File
@@ -141,6 +142,12 @@ then
     pminfo -a $archive_path | _filter_metrics
 else
     echo "Archive push failed: $archive_path directory not created"
+    status=1
+    exit
+fi
+if [ -d $archive_botch ]
+then
+    echo "Bad archive path $archive_botch found but should not be"
     status=1
     exit
 fi
