@@ -43,6 +43,8 @@ _filter()
 	-e '/date-and-timestamp/d' \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e '/^+ mv .*NOTICES/d' \
 	-e '/^+ touch .*NOTICES/d' \
 	-e "s,$tmp,TMP,g" \

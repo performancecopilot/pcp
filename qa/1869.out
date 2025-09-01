@@ -1,5 +1,6 @@
 QA output created by 1869
 == default options ===
+Start [daily]: DATESTAMP
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -15,8 +16,10 @@ Archive files being compressed ...
     TODAY-3.0 TODAY-3.meta TODAY-1.0 TODAY-1.1
 + pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta TODAY-1.0 TODAY-1.1
 + release mutex lock
+End [daily]: DATESTAMP status=0
 
 == -k 4 -x 2 ==
+Start [daily]: DATESTAMP
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -36,8 +39,10 @@ Archive files older than 2 days being compressed ...
     TODAY-3.0 TODAY-3.meta
 + pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta
 + release mutex lock
+End [daily]: DATESTAMP status=0
 
 == $PCP_CULLAFTER=4 and $PCP_COMPRESSAFTER=2 in top-level control file  ==
+Start [daily]: DATESTAMP
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -61,8 +66,10 @@ Archive files older than 2 days being compressed ...
     TODAY-3.0 TODAY-3.meta
 + pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta
 + release mutex lock
+End [daily]: DATESTAMP status=0
 
 == $PCP_CULLAFTER=4 in top-level and $PCP_COMPRESSAFTER=2 in per-host control files  ==
+Start [daily]: DATESTAMP
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -86,8 +93,10 @@ Archive files older than 2 days being compressed ...
     TODAY-3.0 TODAY-3.meta
 + pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta
 + release mutex lock
+End [daily]: DATESTAMP status=0
 
 == $PCP_CULLAFTER=? and $PCP_COMPRESSAFTER=? in both control files  ==
+Start [daily]: DATESTAMP
 # $version=1.1    
 + export version; version=1.1    
 Info: processing archives from remote pmlogger on host qahost
@@ -119,3 +128,4 @@ Archive files older than 2 days being compressed ...
     TODAY-3.0 TODAY-3.meta
 + pmlogcompress TODAY-7.0 TODAY-7.meta TODAY-5.0 TODAY-5.1 TODAY-5.2 TODAY-5.meta TODAY-3.0 TODAY-3.meta
 + release mutex lock
+End [daily]: DATESTAMP status=0

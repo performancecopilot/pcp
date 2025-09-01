@@ -1,5 +1,7 @@
 QA output created by 679
 +++ -N, do nothing +++
+Start [daily]: DATESTAMP
+End [daily]: DATESTAMP status=1
 + date-and-timestamp ...
 # $version=1.1    
 + export version; version=1.1    
@@ -178,6 +180,7 @@ newsem1/20011008:
     Semantics: counter  Units: byte
 
 +++ -V -R +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host localhost in TMP/oldsem0 ===
 
@@ -266,6 +269,7 @@ Error: no pmlogger instance running for host "localhost"
 ... logging for host "localhost" unchanged
 Warning: skipping log rotation because we don't know which pmlogger to signal
 Warning: no archives found to merge
+End [daily]: DATESTAMP status=1
 oldsem0/20011002:
     Semantics: discrete  Units: none
     Semantics: counter  Units: Kbyte

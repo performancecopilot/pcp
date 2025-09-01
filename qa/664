@@ -43,6 +43,8 @@ _filter()
     sed \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e "s@$tmp@TMP@g" \
 	-e '/^-rw/{
 s/\. 1 .* \([^ ][^ ]*\)/ ... \1/

@@ -1,4 +1,5 @@
 QA output created by 664
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host thishost in TMP/thishost ===
 
@@ -60,6 +61,7 @@ remove ./20011005.00.10.index.compressed
 remove ./20011005.00.10.meta.compressed
 pmlogger_daily: [TMP.control:4]
 Warning: current volume of current pmlogger not known, compression skipped
+End [daily]: DATESTAMP status=1
 
 And the smouldering ruins ...
 TMP/otherhost/20011002.0.compressed TMP/otherhost/20011002.index TMP/otherhost/20011002.meta

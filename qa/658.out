@@ -1,4 +1,5 @@
 QA output created by 658
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host thishost in TMP/thishost ===
 
@@ -60,6 +61,7 @@ remove ./20011005.00.10.meta
 Archive files being compressed ...
     20011002.0 20011002.meta 20011003.0 20011003.meta 20011004.0 20011004.meta
     20011005.0 20011005.meta 20011006.0 20011006.meta
+End [daily]: DATESTAMP status=1
 
 And the smouldering ruins ...
 TMP/otherhost/20011002.0.SUFF TMP/otherhost/20011002.index TMP/otherhost/20011002.meta.SUFF

@@ -44,6 +44,8 @@ _filter()
     sed \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e "s,$tmp,TMP,g" \
 	-e "s,/privateTMP,TMP,g" \
 	-e "s,$PCP_TMP_DIR,PCP_TMP_DIR,g" \

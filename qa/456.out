@@ -2,6 +2,7 @@ QA output created by 456
 --------------
 PMLOGGER.CHECK
 --------------
+Start [check]: DATESTAMP
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: insufficient fields in control file record
 [dots] logging for host "LOCALHOST" unchanged
@@ -23,10 +24,12 @@ Error: insufficient fields in control file record
 PMLOGGER.CHECK: [TMP/control:LINE]
 Error: insufficient fields in control file record
 [dots] logging for host "foo" unchanged
+End [check]: DATESTAMP status=1
 
 --------------
 PMLOGGER.DAILY
 --------------
+Start [daily]: DATESTAMP
 PMLOGGER.DAILY: [TMP/control:LINE]
 Error: insufficient fields in control file record
 [dots] logging for host "LOCALHOST" unchanged
@@ -48,5 +51,6 @@ Error: insufficient fields in control file record
 PMLOGGER.DAILY: [TMP/control:LINE]
 Error: insufficient fields in control file record
 [dots] logging for host "foo" unchanged
+End [daily]: DATESTAMP status=1
 
 Cleaning up
