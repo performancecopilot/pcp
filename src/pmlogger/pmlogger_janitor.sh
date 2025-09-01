@@ -230,7 +230,7 @@ else
     exec 3>&2 1>"$MYPROGLOG" 2>&1
 fi
 
-$VERBOSE && echo >&2 "Start: `date '+%F %T.%N'`"
+$VERBOSE && echo >&2 "Start [janitor]: `date '+%F %T.%N'`"
 $VERY_VERBOSE && _pstree_all $$
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
@@ -253,7 +253,7 @@ then
 		if [ -w $link ]
 		then
 		    echo "--- Added by $prog when SaveLogs dir found ---" >>$link
-		    echo "Start: `date '+%F %T.%N'`" >>$link
+		    echo "Start [janitor]: `date '+%F %T.%N'`" >>$link
 		    echo "Args: $ARGS" >>$link
 		    _pstree_all $$
 		fi

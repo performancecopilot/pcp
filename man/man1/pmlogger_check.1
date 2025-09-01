@@ -18,7 +18,7 @@
 \f3pmlogger_check\f1 \- administration of Performance Co-Pilot archive files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_check
-[\f3\-CNPpqsTV?\f1]
+[\f3\-CNnPpqsTV?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-l\f1 \f2logfile\f1]
 .SH DESCRIPTION
@@ -116,6 +116,14 @@ Using
 in conjunction with
 .B \-V
 maximizes the diagnostic capabilities for debugging.
+.TP 5
+\fB\-n\fR, \fB\-\-noerror\fR
+Force the exit status to be 0 other than for catastrophic errors.
+Useful when called from a
+.BR systemd (1)
+service or timer unit so that the associated unit is not marked
+as failed in a way that would prevent subsequent execution from
+.BR systemd (1).
 .TP 5
 \fB\-P\fR, \fB\-\-only\-primary\fR
 If this option is specified for

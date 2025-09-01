@@ -7,7 +7,7 @@ ConditionPathExists=!@CRONTAB_PATH@
 Environment="PMLOGGER_DAILY_PARAMS=-E"
 EnvironmentFile=-@PCP_SYSCONFIG_DIR@/pmproxy_timers
 # proxy-managed archives only (-Q)
-ExecStart=@PCP_BINADM_DIR@/pmlogger_daily -Q $PMLOGGER_DAILY_PARAMS
+ExecStart=@PCP_BINADM_DIR@/pmlogger_daily --noerror -Q $PMLOGGER_DAILY_PARAMS
 WorkingDirectory=@PCP_VAR_DIR@
 Group=@PCP_GROUP@
 User=@PCP_USER@

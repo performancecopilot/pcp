@@ -121,6 +121,7 @@ STOP_PMLOGGER=false
 QUICKSTART=false
 SKIP_PRIMARY=false
 ONLY_PRIMARY=false
+NOERROR=false
 
 echo > $tmp/usage
 cat >> $tmp/usage << EOF
@@ -128,6 +129,7 @@ Options:
   -c=FILE,--control=FILE  configuration of pmlogger instances to manage
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -C                      query system service runlevel information
+  -n,--noerror            always exit with status 0 (for systemd services)
   -N,--showme             perform a dry run, showing what would be done
   -p,--skip-primary       do not start or stop the primary pmlogger instance
   -P,--only-primary       only start or stop the primary pmlogger, no others
@@ -165,6 +167,8 @@ do
 		fi
 		shift
 		;;
+	-n)	NOERROR=true
+		;;
 	-N)	SHOWME=true
 		USE_SYSLOG=false
 		MV="echo + mv"
@@ -199,7 +203,7 @@ do
 		break
 		;;
 	-\?)	pmgetopt --usage --progname=$prog --config=$tmp/usage
-		status=1
+		$NOERROR || status=1
 		exit
 		;;
     esac
@@ -209,7 +213,7 @@ done
 if [ $# -ne 0 ]
 then
     pmgetopt --usage --progname=$prog --config=$tmp/usage
-    status=1
+    $NOERROR || status=1
     exit
 fi
 
@@ -251,7 +255,7 @@ else
     exec 1>"$MYPROGLOG" 2>&1
 fi
 
-$VERBOSE && echo >&2 "Start: `date '+%F %T.%N'`"
+$VERBOSE && echo >&2 "Start [check]: `date '+%F %T.%N'`"
 $VERY_VERBOSE && _pstree_all $$
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
@@ -319,7 +323,7 @@ fi
 if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)"
-    status=1
+    $NOERROR || status=1
     exit
 fi
 
@@ -513,7 +517,7 @@ _wait_for_pmcd()
 	echo "Arrgghhh ... pmcd at localhost failed to start after $_can_wait seconds"
 	echo "=== failing pmprobes ==="
 	pmprobe pmcd.numclients
-	status=1
+	$NOERROR || status=1
     fi
 }
 
@@ -866,7 +870,7 @@ then
             fi
             echo "$prog: Error: pmlogger process(es) will not die"
             cat $tmp/alive
-            status=1
+            $NOERROR || status=1
             break
         done
     fi
@@ -892,7 +896,10 @@ then
     $PCP_BINADM_DIR/pmlogger_janitor $daily_args
 fi
 
-[ -f $tmp/err ] && status=1
+if [ -f $tmp/err ]
+then
+    $NOERROR || status=1
+fi
 
 # optional end logging to $PCP_LOG_DIR/NOTICES
 #
