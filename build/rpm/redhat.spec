@@ -2419,6 +2419,7 @@ basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
+basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
 basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
 basic_manifest | keep 'pcp2opentelemetry' >pcp-export-pcp2opentelemetry-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
