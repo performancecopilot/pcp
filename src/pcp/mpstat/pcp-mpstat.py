@@ -173,19 +173,15 @@ class CoreCpuUtil:
         metric = f'kernel.{self._all_or_percpu()}.{metric_suffix}'
         p_time = self.metric_repository.previous_value(metric, self.instance)
         c_time = self.metric_repository.current_value(metric, self.instance)
-
         if p_time is None or c_time is None or self.delta_time == 0:
             return None
-
         try:
             value = (100 * (c_time - p_time)) / (1000 * self.delta_time)
-            if self.instance is None:
+            if self.instance is not None:
                 total = self.total_cpus()
                 if total:
                     value /= total
-                else:
-                    return None
-            return min (round(value, 2),100)
+            return min (round(value, 2), 100.0)
         except (ZeroDivisionError, TypeError):
             return None
 
