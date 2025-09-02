@@ -1,12 +1,13 @@
 from typing import Optional, List
+import asyncio
 import multiprocessing
 from .models import Script, PMDAConfig, RuntimeInfo, Logger, BPFtraceError
 from .process_manager import ProcessManager
 from .utils import get_bpftrace_version
 
 
-def process_manager_main(config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
-    ProcessManager(config, logger, pipe, runtime_info).run()
+def process_manager_main(loop: asyncio.AbstractEventLoop, config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
+    ProcessManager(loop, config, logger, pipe, runtime_info).run()
 
 
 class BPFtraceService():
@@ -14,6 +15,7 @@ class BPFtraceService():
     def __init__(self, config: PMDAConfig, logger: Logger):
         self.config = config
         self.logger = logger
+        self.loop = asyncio.new_event_loop()
         self.pipe, self.child_pipe = multiprocessing.Pipe()
         self.process = None
 
@@ -47,7 +49,9 @@ class BPFtraceService():
         runtime_info = self.gather_runtime_info()
         self.process = multiprocessing.Process(name="pmdabpftrace process manager",
                                                target=process_manager_main,
-                                               args=(self.config, self.logger, self.child_pipe, runtime_info),
+                                               args=(self.loop, self.config,
+                                                     self.logger, self.child_pipe,
+                                                     runtime_info),
                                                daemon=True)
         self.process.start()
 

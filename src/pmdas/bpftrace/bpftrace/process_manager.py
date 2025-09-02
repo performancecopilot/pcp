@@ -22,8 +22,8 @@ class ScriptTasks:
 
 class ProcessManager():
 
-    def __init__(self, config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
-        self.loop = asyncio.get_event_loop()
+    def __init__(self, loop: asyncio.AbstractEventLoop, config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
+        self.loop = loop
         self.loop.set_exception_handler(self.handle_exception)
         self.config = config
         self.logger = logger
