@@ -13,6 +13,17 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+# if the primary logger is configured for logpush, we need to
+# quietly move on and not dink with things ...
+#
+if pminfo -f pmcd.pmlogger.archive 2>&1 \
+   | tee -a $seq_full \
+   | grep -q '"primary".*"http://'
+then
+    _notrun "primary pmlogger configured for logpush"
+    # NOTREACHED
+fi
+
 if which realpath >/dev/null 2>&1
 then
     [ `realpath $PCP_ARCHIVE_DIR/$(hostname)` = "$PCP_ARCHIVE_DIR/$(hostname)" ] || _notrun "symlinks in PCP_ARCHIVE_DIR: `realpath $PCP_ARCHIVE_DIR/$(hostname)` != $PCP_ARCHIVE_DIR/$(hostname)"
