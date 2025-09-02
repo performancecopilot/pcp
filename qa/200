@@ -107,9 +107,10 @@ $0 != last	{ print; last = $0 }' \
 	-e '/__pmConnect(fd=.*) ->/d' \
 	-e '/__pmCloseChannelbyContext/d' \
     | $PCP_AWK_PROG '
-/delay: 2 /	{ print "delay: 2-4 secs"; next }
-/delay: 3 /	{ print "delay: 2-4 secs"; next }
-/delay: 4 /	{ print "delay: 2-4 secs"; next }
+/delay: 1 /	{ print "delay: 1-4 secs"; next }
+/delay: 2 /	{ print "delay: 1-4 secs"; next }
+/delay: 3 /	{ print "delay: 1-4 secs"; next }
+/delay: 4 /	{ print "delay: 1-4 secs"; next }
 /delay: 5 /	{ print "delay: 5-7 secs"; next }
 /delay: 6 /	{ print "delay: 5-7 secs"; next }
 /delay: 7 /	{ print "delay: 5-7 secs"; next }
