@@ -26,8 +26,12 @@ _cleanup()
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-# assorted metrics may not be there, plus this ripper ...
+# assorted metrics may not be there, plus these rippers ...
 # [Mon Dec 18 20:31:35] pminfo(8372) Error: pmdaFetch: Fetch callback error from metric PMID 3.11.0[1]: No data available
+# [Tue Sep  2 16:54:58] pminfo(3502278) Error: pmdaFetch: Fetch callback error from metric PMID 3.9.7[833]: No such process
+# which come from kernel threads that don't have expected values
+# for the metrics proc.psinfo.cgroups (PMID: 3.11.0) and
+# proc.memory.maps (PMID: 3.9.7)
 #
 # and ERROR SUMMARY may appear twice because some valgrind versions
 # get confused and report summary stats for 2 threads ... take the
@@ -60,6 +64,7 @@ _filter()
 	-e '/^proc\.fdinfo\..*: Metric not supported/d' \
 	-e '/^proc\.fdinfo\..*: No value(s) available/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
+	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.9\.7\[.*]: No such process/d' \
 	-e '/proc\.psinfo\.tty_pgrp: No value(s) available/d' \
 	-e '/ acct: existing pacct file did not grow /d' \
 	-e '/ acct: enable -Dappl3 /d' \
