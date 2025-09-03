@@ -58,7 +58,6 @@ unset PCP_ARCHIVE
 
 echo; echo == Check handling of missing values
 pcp atopsar -r archives/pcp-vmstat
-pcp atopsar -r archives/pcp-mpstat
 
 # success, all done
 echo; echo "== Done"

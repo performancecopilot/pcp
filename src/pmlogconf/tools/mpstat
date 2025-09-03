@@ -2,10 +2,10 @@
 ident   metrics used by the pcp-mpstat(1) command
 probe	kernel.uname.sysname ~ Linux ? include : exclude
 # -u/-P ------------------------------------------------
-	kernel.all.cpu.user 		# %usr
-	kernel.percpu.cpu.user
-	kernel.all.cpu.nice 		# %nice
-	kernel.percpu.cpu.nice
+	kernel.all.cpu.vuser 		# %usr
+	kernel.percpu.cpu.vuser
+	kernel.all.cpu.vnice 		# %nice
+	kernel.percpu.cpu.vnice
 	kernel.all.cpu.sys 		# %sys
 	kernel.percpu.cpu.sys
 	kernel.all.cpu.wait.total 	# %iowait

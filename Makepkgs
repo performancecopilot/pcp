@@ -525,11 +525,12 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
-    # don't sign by default
-    sign='-us -uc'
+    TYPE=${TYPE:-source}
+    sign='-us -uc'	# don't sign by default
     # sign if --signed and $DEB_SIGN_KEYID set in the environment
-    # (always for an upload to Debian servers so its source only)
-    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign='-S'
+    # (usual for an upload to Debian servers, so its source-only
+    # - unless new sub-packages exist then we need full build)
+    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign="--build=$TYPE"
     opts="$sign -r$SUDO -sa"
     rm -f $tmp/failed
     if $verbose ; then
