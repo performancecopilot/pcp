@@ -65,6 +65,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \
 	  pcp-meminfo.0.xz pcp-meminfo.meta.xz pcp-meminfo.index \
 	  pcp-netstat.0.xz pcp-netstat.meta.xz pcp-netstat.index \
+	  pcp-mpstat.0.xz pcp-mpstat.meta.xz pcp-mpstat.index.xz \
 	  pcp-rocestat.0.xz pcp-rocestat.meta.xz pcp-rocestat.index.xz \
 	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz all-ubuntu.22.04.index \
 	  bind2-9.18.0.xz bind2-9.18.meta.xz bind2-9.18.index \
