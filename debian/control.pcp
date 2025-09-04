@@ -10,10 +10,10 @@ Standards-Version: 4.7.2
 X-Python3-Version: >= 3.6
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, zstd, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
-Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python-bpfcc}, redis-server, zstd
+Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python-bpfcc}, redis-server
 Provides: dstat, pcp-webapi, pcp-manager
 Replaces: dstat, pcp-webapi, pcp-manager
 Architecture: any
