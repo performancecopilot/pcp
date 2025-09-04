@@ -22,8 +22,8 @@ class ScriptTasks:
 
 class ProcessManager():
 
-    def __init__(self, loop: asyncio.AbstractEventLoop, config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
-        self.loop = loop
+    def __init__(self, config: PMDAConfig, logger: Logger, pipe: multiprocessing.Pipe, runtime_info: RuntimeInfo):
+        self.loop = asyncio.new_event_loop()
         self.loop.set_exception_handler(self.handle_exception)
         self.config = config
         self.logger = logger
@@ -322,6 +322,7 @@ class ProcessManager():
         else:
             self.logger.info(f"manager: using bpftrace {self.runtime_info.bpftrace_version_str}")
 
+        asyncio.set_event_loop(self.loop)
         asyncio.ensure_future(self.expiry_timer())
         self.loop.run_until_complete(self.main_loop())
 
