@@ -75,7 +75,7 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
-    $VERBOSE && echo >&2 "End [check]: `date '+%F %T.%N'` status=$status"
+    $VERBOSE && echo >&2 "End [check]: `_datestamp` status=$status"
 }
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -255,7 +255,7 @@ else
     exec 1>"$MYPROGLOG" 2>&1
 fi
 
-$VERBOSE && echo >&2 "Start [check]: `date '+%F %T.%N'`"
+$VERBOSE && echo >&2 "Start [check]: `_datestamp`"
 $VERY_VERBOSE && _pstree_all $$
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
@@ -265,7 +265,13 @@ if [ "$PROGLOG" != "/dev/tty" ]
 then
     if [ -d $PCP_LOG_DIR/pmlogger/SaveLogs -a -w $PCP_LOG_DIR/pmlogger/SaveLogs ]
     then
-	now="`date '+%Y%m%d.%H:%M:%S.%N'`"
+	if [ `date +%N` = N ]
+	then
+	    # no %N, %S is the best we can do
+	    now="`date '+%Y%m%d.%H:%M:%S'`"
+	else
+	    now="`date '+%Y%m%d.%H:%M:%S.%N'`"
+	fi
 	link=`echo $MYPROGLOG | sed -e "s@.*$prog@$PCP_LOG_DIR/pmlogger/SaveLogs/$now-$prog@"`
 	if [ ! -f "$link" ]
 	then
@@ -277,7 +283,7 @@ then
 		if [ -w $link ]
 		then
 		    echo "--- Added by $prog when SaveLogs dir found ---" >>$link
-		    echo "Start: `date '+%F %T.%N'`" >>$link
+		    echo "Start [check]: `_datestamp`" >>$link
 		    echo "Args: $ARGS" >>$link
 		    _pstree_all $$
 		fi

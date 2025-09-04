@@ -70,7 +70,7 @@ _cleanup()
 	[ -n "$lockfile" ] && rm -f "$lockfile"
 	[ -d "$tmp" ] && rm -rf $tmp
     fi
-    $VERY_VERBOSE && echo "End: `date '+%F %T.%N'`"
+    $VERY_VERBOSE && echo "End: `_datestamp`"
 }
 
 # constant setup
@@ -225,7 +225,7 @@ fi
 
 if $VERY_VERBOSE
 then
-    echo "Start: `date '+%F %T.%N'`"
+    echo "Start: `_datestamp`"
     _pstree_all $$
 fi
 _error()
