@@ -47,6 +47,8 @@ _filter()
 	-e '/^Reconfigured: .*pmlogconf./d' \
 	-e '/^No reconfigure: .*pmlogconf./d' \
 	-e '/^PMLOGGER_CHECK_SKIP_LOGCONF=yes:/d' \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e 's;/private/;/;g' \
 	-e "s;$LOGGING_DIR;\$PCP_ARCHIVE_DIR;" \
 	-e "s;$PCP_PMLOGGERCONTROL_PATH;\$PCP_PMLOGGERCONTROL_PATH;" \

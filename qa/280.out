@@ -3,12 +3,16 @@ QA output created by 280
 Ping primary logger ...
 
 Expect this should do nothing ...
+Start [check]: DATESTAMP
+End [check]: DATESTAMP status=0
 
 Kill off primary logger ...
 Unable to connect to primary pmlogger at LOCALHOST: Connection refused
 
 Expect this to re-start the primary logger ...
+Start [check]: DATESTAMP
 Restarting primary pmlogger for host "LOCALHOST" [dots] [process PID] . done
+End [check]: DATESTAMP status=0
 
 Kill off primary logger ...
 Unable to connect to primary pmlogger at LOCALHOST: Connection refused
