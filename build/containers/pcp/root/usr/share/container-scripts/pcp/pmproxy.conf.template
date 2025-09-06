@@ -19,28 +19,60 @@
 # delay in seconds for TCP keep-alive (zero to disable)
 #keepalive = 45
 
-# buffer size for chunked transfer encoding (bytes, default pagesize)
-#chunksize = 4096
-
 # support PCP protocol proxying
 pcp.enabled = true
 
 # serve the PCP REST APIs (HTTP)
 http.enabled = true
 
-# support Redis protocol proxying
-redis.enabled = true
+# RESP proxying (key server serialisation protocol)
+resp.enabled = false
 
 # support SSL/TLS protocol wrapping
 secure.enabled = true
 
+#####################################################################
+## settings related to HTTP server configuration
+#####################################################################
+[http]
+
+# buffer size for chunked transfer encoding (bytes, default pagesize)
+#chunksize = 4096
+
+# append allowed HTTP header values to returned by this HTTP server -
+# extending: Accept, Accept-Language, Content-Language, Content-Type.
+Access-Control-Allow-Headers = X-Grafana-Device-ID
+
+# adjust max page age setting in seconds, default is 86400 (24 hours)
+#Access-Control-Max-Age = 86400
+
+#####################################################################
+## settings related to RESP key/value server connections
+#####################################################################
+[keys]
+
+# allow completely disabling any/all connection attempts across
+# all of the pmproxy functionality (when this is set to false).
+enabled = true
+
+# connection spec(s) - could be any individual cluster host and
+# every host in the cluster will be automatically discovered --
+# alternately use comma-separated hostspecs (non-cluster setup).
+servers = ${KEY_SERVERS}
+
+# authentication with username and password is only supported in
+# some versions (with RESP ACL support), for older versions only
+# password authentication is supported (leave the username value
+# empty).  Commented or empty values disable authentication.
+#username =
+#password =
 
 #####################################################################
 ## settings related to automatically discovered archives
 #####################################################################
 [discover]
 
-# propogate archives from pmlogger(1) into Redis querying
+# index local pmlogger(1) archive content via key server for querying
 enabled = true
 
 # comma-separated metrics name (globs) to skip during discovery
@@ -51,8 +83,8 @@ exclude.indoms = 3.9,3.40,79.7
 
 #####################################################################
 ## settings for metric and indom help text searching via RediSearch
-[pmsearch]
 #####################################################################
+[pmsearch]
 
 # allow REST API queries and indexing of metric and indom help text
 enabled = true
@@ -61,25 +93,36 @@ enabled = true
 count = 10
 
 #####################################################################
-## settings for fast, scalable time series quering via Redis
-[pmseries]
+## settings for fast, scalable time series quering via a key server
 #####################################################################
+[pmseries]
 
 # allow REST API queries of fast, scalable time series
 enabled = true
 
-# Redis connection spec(s) - could be any individual cluster host,
-# and all hosts in the cluster will be automatically discovered --
-# alternately, use comma-separated hostspecs (non-clustered setup)
-servers = ${KEY_SERVERS}
-
-# number of elements from scan calls (https://redis.io/commands/scan)
+# number of elements from scan calls (https://valkey.io/commands/scan)
 cursor.count = 256
 
-# seconds to expire in-core series (https://redis.io/commands/expire)
+# seconds to expire in-core series (https://valkey.io/commands/expire)
+# all metric values of a series (a series represents a specific metric
+# and host combination) will be removed if there was no update to this
+# series in the specified amount of time (in seconds)
 stream.expire = 86400
 
-# limit number of elements in series (https://redis.io/commands/xadd)
+# limit elements in individual series keys (https://valkey.io/commands/xadd)
+# indicates the number of metric values to store per series - i.e. per
+# metric and also per host data volumes are considerations here.
 stream.maxlen = 8640
+
+#####################################################################
+## settings for the remote pmlogger archive "push" functionality
+#####################################################################
+[pmlogger]
+
+# allow REST API webhook receiving remote pmlogger(1) archive content
+enabled = true
+
+# bypass persistent storage of pmlogger archives, use key server only
+#cached = true
 
 #####################################################################

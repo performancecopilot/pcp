@@ -1,12 +1,11 @@
 ## Build
-## NB: this Dockerfile will be superceded by the Containerfile for PCP v7
 FROM quay.io/fedora/fedora:latest AS build
 COPY . /usr/src/pcp
 
 WORKDIR /usr/src/pcp
 RUN dnf install -y git which rpm-build 'dnf-command(builddep)'
 RUN dnf builddep -y build/rpm/redhat.spec
-RUN dnf remove -y selinux-policy || true
+RUN dnf remove -y --setopt=protected_packages= selinux-policy\* || true
 
 RUN ./Makepkgs --verbose
 RUN mkdir /build && \
