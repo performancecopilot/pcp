@@ -186,7 +186,7 @@ echo >>$seq_full
 echo "=== pmie errors ===" >>$seq_full
 cat $tmp.err >>$seq_full
 
-_filter2 <$tmp.err | _filter
+_filter <$tmp.err | _filter2
 _filter <$tmp.out
 
 echo "SYSLOG ..."
