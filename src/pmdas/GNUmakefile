@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2020 Red Hat.
+# Copyright (c) 2013-2020,2025 Red Hat.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,8 @@ include $(TOPDIR)/src/include/builddefs
 
 CPMDAS = root pmcd \
 	linux_proc linux_xfs linux_zfs linux \
-	darwin freebsd netbsd solaris aix windows \
+	darwin_proc darwin freebsd netbsd aix \
+	solaris windows \
 	sample simple trivial sendmail mailq txmon \
 	apache cisco trace shping mounts weblog \
 	mmv lmsensors process roomtemp summary etw \

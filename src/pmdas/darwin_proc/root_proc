@@ -1,0 +1,90 @@
+/*
+ * Metrics for the Darwin (macOS) proc PMDA
+ */
+
+#ifndef PROC
+#define PROC    3
+#endif
+
+root {
+    proc
+}
+
+proc {
+    nprocs		PROC:1:0
+    psinfo
+    runq
+    id
+    memory
+    control
+}
+
+proc.psinfo {
+    pid			PROC:1:1
+    ppid		PROC:1:2
+    pgid		PROC:1:3
+    tpgid		PROC:1:4
+    cwd			PROC:1:5
+    cmd			PROC:1:6
+    exe			PROC:1:7
+    nice		PROC:1:8
+    majflt		PROC:1:9
+    priority		PROC:1:10
+    psargs		PROC:1:11
+    sname		PROC:1:12
+    start_time		PROC:1:13
+    utime		PROC:1:14
+    stime		PROC:1:15
+    threads		PROC:1:16
+    translated		PROC:1:17
+    tty			PROC:1:18
+    ttyname		PROC:1:19
+    wchan		PROC:1:20
+    wchan_s		PROC:1:21
+    wmesg_s		PROC:1:22
+    pswitch		PROC:1:23
+    usrpri		PROC:1:24
+}
+
+proc.runq {
+    runnable		PROC:2:0
+    blocked		PROC:2:1
+    sleeping		PROC:2:2
+    stopped		PROC:2:3
+    swapped		PROC:2:4
+    defunct		PROC:2:5
+    unknown		PROC:2:6
+    kernel		PROC:2:7
+}
+
+proc.id {
+    uid			PROC:3:0
+    euid		PROC:3:1
+    suid		PROC:3:2
+    gid			PROC:3:3
+    uid_nm		PROC:3:4
+    euid_nm		PROC:3:5
+    suid_nm		PROC:3:6
+    gid_nm		PROC:3:7
+    ngid		PROC:3:8
+}
+
+proc.memory {
+    size		PROC:4:0
+    rss			PROC:4:1
+}
+
+proc.control {
+    all
+    perclient
+}
+
+proc.control.all {
+    threads		PROC:0:0
+}
+
+proc.control.perclient {
+    threads		PROC:0:1
+}
+
+#undef PROC
