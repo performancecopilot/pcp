@@ -36,18 +36,20 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.BASE_IMAGE }}
+          tags: type=raw,value=latest,enable={{is_default_branch}}
 
 #     - name: Extract tags and labels for archive image
 #       id: meta_archive
 #       uses: docker/metadata-action@v5
 #       with:
 #         images: ${{ env.REGISTRY }}/${{ env.ARCHIVE_IMAGE }}
+#         tags: type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push base image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: ./build/containers/pcp/Dockerfile
+          file: ./build/containers/pcp/Containerfile
           push: true
           tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
@@ -57,7 +59,7 @@ jobs:
 #       uses: docker/build-push-action@v6
 #       with:
 #         context: .
-#         file: ./build/containers/archive-analysis/Dockerfile
+#         file: ./build/containers/archive-analysis/Containerfile
 #         push: true
 #         tags: ${{ steps.meta_archive.outputs.tags }}
 #         labels: ${{ steps.meta_archive.outputs.labels }}
