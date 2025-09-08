@@ -1,5 +1,7 @@
-# PCP required package list for Debian 13 x86_64
+# PCP required package list for Debian 14 x86_64
+# created by kenj on vm25 Mon 08 Sep 2025 06:26:50 AEST
 #
+Text::CSV_XS cpan
 apache2
 apache2-bin
 auditd
@@ -17,14 +19,15 @@ build-essential
 chrpath
 clang
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
 debhelper
 dh-python
+docker.io
 dpkg-dev
 ed
+ethtool
 expect
 flex
 g++
@@ -36,9 +39,10 @@ git
 grep
 iproute2
 jq
+kubernetes-client
 libavahi-common-dev
-libbpf1
 libbpf-dev
+libbpf1
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
@@ -57,7 +61,6 @@ libjson-perl
 liblist-moreutils-perl
 liblzma-dev
 libncurses-dev
-libncurses5-dev
 libnet-snmp-perl
 libperl5.40
 libpfm4-dev
@@ -84,7 +87,7 @@ libvirt-daemon-system
 libxml-libxml-perl
 libxml-tokeparser-perl
 libyaml-libyaml-perl
-linux-headers-`uname -r` not4ci
+linux-headers-rt-amd64 not4ci
 llvm
 lm-sensors
 make
@@ -94,7 +97,7 @@ mariadb-client-core
 memcached
 net-tools
 nmap
-openjdk-21-jre-headless
+openjdk-24-jre-headless
 openssl
 perl
 perl-modules-5.40
@@ -121,21 +124,24 @@ python3-six
 qtbase5-dev
 qtbase5-dev-tools
 qtchooser
-valkey-server
-valkey-tools
 sasl2-bin
 sed
 smartmontools
 socat
 sudo
 sysstat
-systemd-dev
+systemtap
+systemtap-runtime
+systemtap-sdt-dev
 targetcli-fb
 time
 unbound
 valgrind
+valkey-server
+valkey-tools
 xfsprogs
 xkb-data
 zabbix-agent
+zfsutils-linux
 zlib1g-dev
 zstd
