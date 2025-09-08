@@ -15,3 +15,5 @@ Error: openmetrics.simple_metric: Unknown metric name
 openmetrics.simple_metric.metric2
 openmetrics.simple_metric.metric1
 
+-- metric removal by modifying source file, source persists -- 
+openmetrics.simple_metric.metric1
