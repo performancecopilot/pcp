@@ -129,7 +129,6 @@ smartmontools
 socat
 sudo
 sysstat
-systemd-dev
 targetcli-fb
 time
 unbound
