@@ -98,7 +98,7 @@ echo "# PCP required package list for $distro $version $arch" >$tmp.list
 echo "# created by `id -un` on `hostname` `date`" >>$tmp.list
 echo "#" >>$tmp.list
 
-$home/check-vm -fap \
+$home/old-list-packages -fap \
 | tr ' ' '\012' \
 | sed \
     -e 's/\(.*\)(\(.*\))/\2 \1/' \

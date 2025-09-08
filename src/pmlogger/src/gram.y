@@ -585,6 +585,8 @@ activate_cached_metric(const char *name, int index)
     }
     else {
 	free(dp);
+	if (rqp->r_instlist != NULL)
+	    free(rqp->r_instlist);
 	free(rqp);
     }
     return;
