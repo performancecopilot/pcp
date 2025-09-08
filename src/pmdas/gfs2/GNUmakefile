@@ -17,8 +17,8 @@ include	$(TOPDIR)/src/include/builddefs
 
 IAM		= gfs2
 DOMAIN		= GFS2
-CFILES		= latency.c control.c glstats.c worst_glock.c glocks.c sbstats.c ftrace.c pmda.c
-HFILES		= latency.c control.h glstats.h worst_glock.h glocks.h sbstats.h ftrace.h pmdagfs2.h
+CFILES		= glockfd.c latency.c control.c glstats.c worst_glock.c glocks.c sbstats.c ftrace.c pmda.c
+HFILES		= glockfd.h latency.h control.h glstats.h worst_glock.h glocks.h sbstats.h ftrace.h pmdagfs2.h
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
@@ -72,12 +72,13 @@ pmda.o glocks.o:	       glocks.h
 pmda.o sbstats.o:	       sbstats.h
 pmda.o:			       pmdagfs2.h
 pmda.o glstats.o:	       glstats.h
+pmda.o glockfd.o:	glockfd.h
 pmda.o ftrace.o:	       ftrace.h
 pmda.o ftrace.o worst_glock.o: worst_glock.h
 pmda.o ftrace.o latency.o:     latency.h
 pmda.o control.o:              control.h
 
-pmda.o sbstats.o worst_glock.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+pmda.o sbstats.o worst_glock.o glockfd.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

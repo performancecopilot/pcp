@@ -21,6 +21,7 @@ gfs2 {
     holders
     sbstats		GFS2:*:*
     glstats
+    glockfd
     tracepoints
     worst_glock		GFS2:*:*
     latency
@@ -90,6 +91,12 @@ gfs2.glstats {
     flock		GFS2:2:6
     quota		GFS2:2:8
     journal		GFS2:2:9
+}
+
+gfs2.glockfd {
+    total		GFS2:7:0
+    pids			GFS2:8:0
+    fds			GFS2:8:1
 }
 
 gfs2.tracepoints {

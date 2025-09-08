@@ -3031,7 +3031,7 @@ done
 # managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
 %if 0%{?fedora} > 40 || 0%{?rhel} > 9
     for s in pmcd pmlogger pmie; do
-        systemctl --quiet is-enabled $s && systemctl restart $s >/dev/null 2>&1
+        systemctl --quiet is-enabled $s && systemctl --quiet restart $s || true
     done
 %else  # old-school methods follow
 %if !%{disable_systemd}

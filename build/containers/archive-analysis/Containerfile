@@ -1,21 +1,46 @@
-FROM quay.io/centos/centos:stream10-minimal
+## Deploy
+FROM quay.io/fedora/fedora:rawhide
 
 COPY build/containers/archive-analysis/root /
 
 RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
-        pcp python3-pcp procps-ng gettext valkey grafana grafana-pcp && \
-    microdnf clean all && \
-    systemctl mask systemd-remount-fs.service dev-hugepages.mount \
-        sys-fs-fuse-connections.mount systemd-logind.service getty.target \
-        console-getty.service systemd-udev-trigger.service systemd-udevd.service \
-        systemd-random-seed.service systemd-machine-id-commit.service \
-        systemd-oomd systemd-resolved \
-        systemd-udevd-control.socket systemd-udevd-kernel.socket && \
-    systemctl disable pmcd pmlogger pmie && \
-    systemctl enable pmproxy valkey grafana-server archive-import && \
-    sed -i 's/pcp-valkey-datasource/performancecopilot-valkey-datasource/g' \
-        /etc/grafana/grafana.ini && \
-    chown -R grafana:grafana /etc/grafana
+    gettext-envsubst grafana-pcp pcp python3-pcp pcp-import-* valkey zstd && \
+    microdnf clean all
+
+# ensure a fixed UID is assigned for every PCP container invocation
+RUN sed -i -e 's/^u pcp -/u pcp 1001/g' /usr/lib/sysusers.d/pcp.conf
+
+## Setup
+ENV NAME="archive-analysis"
+ENV VERSION="7"
+ENV SUMMARY="Performance Co-Pilot archive analysis automation"
+ENV REGISTRY="quay.io/performancecopilot/"
+ENV DESCRIPTION="Grafana analysis automation for Performance Co-Pilot archives."
+
+LABEL name="${NAME}"
+LABEL version="${VERSION}"
+LABEL summary="${SUMMARY}"
+LABEL description="${DESCRIPTION}"
+LABEL maintainer="PCP Team <pcp@groups.io>"
+LABEL help="cat /README.md"
+LABEL com.redhat.component="pcp"
+LABEL io.k8s.display-name="${SUMMARY}"
+LABEL io.k8s.description="${DESCRIPTION}"
+LABEL io.openshift.expose-services="3000:grafana"
+LABEL io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
+
+RUN systemctl mask \
+    console-getty.service dev-hugepages.mount getty.target \
+    systemd-oomd.service systemd-resolved.service \
+    systemd-logind.service systemd-machine-id-commit.service \
+    systemd-random-seed.service systemd-remount-fs.service \
+    systemd-udev-trigger.service systemd-udevd.service \
+    systemd-udevd-control.socket systemd-udevd-kernel.socket
+
+RUN systemctl disable pmcd pmlogger pmie
+RUN systemctl enable pmproxy valkey grafana-server archive-import
+RUN sed -i 's/pcp-valkey/performancecopilot-valkey/g' /etc/grafana/grafana.ini
+RUN chown -R grafana:grafana /etc/grafana
 
 VOLUME ["/archives"]
 EXPOSE 3000
