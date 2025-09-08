@@ -1,16 +1,18 @@
 ## Deploy
-FROM quay.io/fedora/fedora:latest
+FROM quay.io/fedora/fedora:rawhide
+
+COPY build/containers/pcp/root /
+
+# pcp-zeroconf currently failing to install cleanly in rawhide
 RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
-    gettext-envsubst pcp-zeroconf
-RUN microdnf clean all
+    gettext-envsubst pcp pcp-pmda-* pcp-import-* pcp-export-* zstd && \
+    microdnf clean all
 
 # ensure a fixed UID is assigned for every PCP container invocation
 RUN sed -i -e 's/^u pcp -/u pcp 1001/g' /usr/lib/sysusers.d/pcp.conf
 
 ## Setup
-COPY build/containers/pcp/root /
-
-ENV NAME="pcp-latest"
+ENV NAME="pcp"
 ENV VERSION="7"
 ENV SUMMARY="Performance Co-Pilot"
 ENV REGISTRY="quay.io/performancecopilot/"
@@ -32,7 +34,6 @@ LABEL io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observabili
 
 RUN systemctl mask \
     console-getty.service dev-hugepages.mount getty.target \
-    sys-fs-fuse-connections.mount \
     systemd-oomd.service systemd-resolved.service \
     systemd-logind.service systemd-machine-id-commit.service \
     systemd-random-seed.service systemd-remount-fs.service \
