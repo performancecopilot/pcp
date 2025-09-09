@@ -1,4 +1,4 @@
-# PCP required package list for Debian 12.2 i686
+# PCP required package list for Debian 12 i686
 # created by kenj on vm21.localdomain Mon 16 Oct 2023 11:21:07 AEDT
 #
 Text::CSV_XS cpan
@@ -25,6 +25,7 @@ dh-python
 docker.io
 dpkg-dev
 ed
+ethtool
 expect
 flex
 g++
@@ -129,8 +130,10 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
 systemtap
+systemtap-runtime
 systemtap-sdt-dev
 targetcli-fb
 time
@@ -139,6 +142,5 @@ valgrind
 xfsprogs
 xkb-data
 zabbix-agent
-zfsutils-linux
 zlib1g-dev
 zstd
