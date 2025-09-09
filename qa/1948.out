@@ -3,8 +3,8 @@ QA output created by 1948
 === opentelemetry agent installation ===
 Fetch and desc opentelemetry metrics: success
 
-opentelemetry.source1.sample_counter0001 []
-    Data Type: double  InDom: 88.6145 0x16001801
+opentelemetry.source1.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
+    Data Type: double  InDom: 164.6145 0x29001801
     Semantics: counter  Units: none
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 510616182
@@ -407,8 +407,8 @@ opentelemetry.source1.sample_counter0001 []
     inst [398 or "398 inst-398"] value 203225240000
     inst [399 or "399 inst-399"] value 203735857000
 
-opentelemetry.source1.sample_gauge0000 []
-    Data Type: double  InDom: 88.6144 0x16001800
+opentelemetry.source1.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
+    Data Type: double  InDom: 164.6144 0x29001800
     Semantics: instant  Units: none
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 24.2
@@ -811,9 +811,9 @@ opentelemetry.source1.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 9631.6
     inst [399 or "399 inst-399"] value 9655.799999999999
 
-opentelemetry.source1.sample_summary0002 []
-    Data Type: double  InDom: 88.6146 0x16001802
-    Semantics: instant  Units: none
+opentelemetry.source1.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
+    Data Type: double  InDom: 164.6146 0x29001802
+    Semantics: counter  Units: none
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.0006384920000000001
     inst [2 or "quantile: 0.5"] value 0.001276984
@@ -1215,17 +1215,17 @@ opentelemetry.source1.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.254119816
     inst [399 or "quantile: 99.75"] value 0.254758308
 
-opentelemetry.source1.sample_summary0002_count []
-    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+opentelemetry.source1.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
     value 7272
 
-opentelemetry.source1.sample_summary0002_sum []
+opentelemetry.source1.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
-    Semantics: instant  Units: none
+    Semantics: counter  Units: none
     value 5.564827
 
-opentelemetry.source0.sample_counter0001 []
+opentelemetry.source0.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 170205394
     inst [2 or "2 inst-2"] value 340410788
@@ -1627,7 +1627,7 @@ opentelemetry.source0.sample_counter0001 []
     inst [398 or "398 inst-398"] value 67741746800
     inst [399 or "399 inst-399"] value 67911952200
 
-opentelemetry.source0.sample_gauge0000 []
+opentelemetry.source0.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 0
     inst [2 or "2 inst-2"] value 0
@@ -2029,7 +2029,7 @@ opentelemetry.source0.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 0
     inst [399 or "399 inst-399"] value 0
 
-opentelemetry.source0.sample_summary0002 []
+opentelemetry.source0.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.000319246
     inst [2 or "quantile: 0.5"] value 0.0006384920000000001
@@ -2431,13 +2431,13 @@ opentelemetry.source0.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.127059908
     inst [399 or "quantile: 99.75"] value 0.127379154
 
-opentelemetry.source0.sample_summary0002_count []
+opentelemetry.source0.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 3636
 
-opentelemetry.source0.sample_summary0002_sum []
+opentelemetry.source0.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 2.782414
 
-opentelemetry.source0.sample_counter0001 []
+opentelemetry.source0.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 170205394
     inst [2 or "2 inst-2"] value 340410788
@@ -2839,7 +2839,7 @@ opentelemetry.source0.sample_counter0001 []
     inst [398 or "398 inst-398"] value 67741746800
     inst [399 or "399 inst-399"] value 67911952200
 
-opentelemetry.source0.sample_gauge0000 []
+opentelemetry.source0.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 0
     inst [2 or "2 inst-2"] value 0
@@ -3241,7 +3241,7 @@ opentelemetry.source0.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 0
     inst [399 or "399 inst-399"] value 0
 
-opentelemetry.source0.sample_summary0002 []
+opentelemetry.source0.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.000319246
     inst [2 or "quantile: 0.5"] value 0.0006384920000000001
@@ -3643,13 +3643,13 @@ opentelemetry.source0.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.127059908
     inst [399 or "quantile: 99.75"] value 0.127379154
 
-opentelemetry.source0.sample_summary0002_count []
+opentelemetry.source0.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 3636
 
-opentelemetry.source0.sample_summary0002_sum []
+opentelemetry.source0.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 2.782414
 
-opentelemetry.source0.sample_counter0001 []
+opentelemetry.source0.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 170205394
     inst [2 or "2 inst-2"] value 340410788
@@ -4051,7 +4051,7 @@ opentelemetry.source0.sample_counter0001 []
     inst [398 or "398 inst-398"] value 67741746800
     inst [399 or "399 inst-399"] value 67911952200
 
-opentelemetry.source0.sample_gauge0000 []
+opentelemetry.source0.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 0
     inst [2 or "2 inst-2"] value 0
@@ -4453,7 +4453,7 @@ opentelemetry.source0.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 0
     inst [399 or "399 inst-399"] value 0
 
-opentelemetry.source0.sample_summary0002 []
+opentelemetry.source0.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.000319246
     inst [2 or "quantile: 0.5"] value 0.0006384920000000001
@@ -4855,28 +4855,28 @@ opentelemetry.source0.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.127059908
     inst [399 or "quantile: 99.75"] value 0.127379154
 
-opentelemetry.source0.sample_summary0002_count []
+opentelemetry.source0.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 3636
 
-opentelemetry.source0.sample_summary0002_sum []
+opentelemetry.source0.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 2.782414
 
-opentelemetry.source0.sample_counter0001 []
+opentelemetry.source0.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-opentelemetry.source0.sample_gauge0000 []
+opentelemetry.source0.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-opentelemetry.source0.sample_summary0002 []
+opentelemetry.source0.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source0.sample_summary0002_count []
+opentelemetry.source0.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source0.sample_summary0002_sum []
+opentelemetry.source0.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_counter0001 []
+opentelemetry.source1.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 680821576
     inst [2 or "2 inst-2"] value 1361643150
@@ -5278,7 +5278,7 @@ opentelemetry.source1.sample_counter0001 []
     inst [398 or "398 inst-398"] value 270966987000
     inst [399 or "399 inst-399"] value 271647809000
 
-opentelemetry.source1.sample_gauge0000 []
+opentelemetry.source1.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 36.3
     inst [2 or "2 inst-2"] value 72.59999999999999
@@ -5680,7 +5680,7 @@ opentelemetry.source1.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 14447.4
     inst [399 or "399 inst-399"] value 14483.7
 
-opentelemetry.source1.sample_summary0002 []
+opentelemetry.source1.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.0007981150000000001
     inst [2 or "quantile: 0.5"] value 0.00159623
@@ -6082,13 +6082,13 @@ opentelemetry.source1.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.3176497700000001
     inst [399 or "quantile: 99.75"] value 0.318447885
 
-opentelemetry.source1.sample_summary0002_count []
+opentelemetry.source1.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 9090
 
-opentelemetry.source1.sample_summary0002_sum []
+opentelemetry.source1.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 6.956034
 
-opentelemetry.source1.sample_counter0001 []
+opentelemetry.source1.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 851026970
     inst [2 or "2 inst-2"] value 1702053940
@@ -6490,7 +6490,7 @@ opentelemetry.source1.sample_counter0001 []
     inst [398 or "398 inst-398"] value 338708734000
     inst [399 or "399 inst-399"] value 339559761000
 
-opentelemetry.source1.sample_gauge0000 []
+opentelemetry.source1.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 48.4
     inst [2 or "2 inst-2"] value 96.8
@@ -6892,7 +6892,7 @@ opentelemetry.source1.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 19263.2
     inst [399 or "399 inst-399"] value 19311.6
 
-opentelemetry.source1.sample_summary0002 []
+opentelemetry.source1.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.0009577380000000001
     inst [2 or "quantile: 0.5"] value 0.001915476
@@ -7294,43 +7294,43 @@ opentelemetry.source1.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.3811797240000001
     inst [399 or "quantile: 99.75"] value 0.382137462
 
-opentelemetry.source1.sample_summary0002_count []
+opentelemetry.source1.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 10908
 
-opentelemetry.source1.sample_summary0002_sum []
+opentelemetry.source1.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 8.347241
 
-opentelemetry.source1.sample_counter0001 []
+opentelemetry.source1.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_gauge0000 []
+opentelemetry.source1.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_summary0002 []
+opentelemetry.source1.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_summary0002_count []
+opentelemetry.source1.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_summary0002_sum []
+opentelemetry.source1.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_counter0001 []
+opentelemetry.source1.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_gauge0000 []
+opentelemetry.source1.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_summary0002 []
+opentelemetry.source1.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_summary0002_count []
+opentelemetry.source1.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source1.sample_summary0002_sum []
+opentelemetry.source1.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source2.sample_counter0001 []
+opentelemetry.source2.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 851026970
     inst [2 or "2 inst-2"] value 1702053940
@@ -7732,7 +7732,7 @@ opentelemetry.source2.sample_counter0001 []
     inst [398 or "398 inst-398"] value 338708734000
     inst [399 or "399 inst-399"] value 339559761000
 
-opentelemetry.source2.sample_gauge0000 []
+opentelemetry.source2.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 48.4
     inst [2 or "2 inst-2"] value 96.8
@@ -8134,7 +8134,7 @@ opentelemetry.source2.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 19263.2
     inst [399 or "399 inst-399"] value 19311.6
 
-opentelemetry.source2.sample_summary0002 []
+opentelemetry.source2.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.0009577380000000001
     inst [2 or "quantile: 0.5"] value 0.001915476
@@ -8536,13 +8536,13 @@ opentelemetry.source2.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.3811797240000001
     inst [399 or "quantile: 99.75"] value 0.382137462
 
-opentelemetry.source2.sample_summary0002_count []
+opentelemetry.source2.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 10908
 
-opentelemetry.source2.sample_summary0002_sum []
+opentelemetry.source2.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 8.347241
 
-opentelemetry.source2.sample_counter0001 []
+opentelemetry.source2.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 1191437760
     inst [2 or "2 inst-2"] value 2382875520
@@ -8944,7 +8944,7 @@ opentelemetry.source2.sample_counter0001 []
     inst [398 or "398 inst-398"] value 474192228000
     inst [399 or "399 inst-399"] value 475383665000
 
-opentelemetry.source2.sample_gauge0000 []
+opentelemetry.source2.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 72.59999999999999
     inst [2 or "2 inst-2"] value 145.2
@@ -9346,7 +9346,7 @@ opentelemetry.source2.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 28894.8
     inst [399 or "399 inst-399"] value 28967.4
 
-opentelemetry.source2.sample_summary0002 []
+opentelemetry.source2.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.001276984
     inst [2 or "quantile: 0.5"] value 0.002553968
@@ -9748,13 +9748,13 @@ opentelemetry.source2.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.508239632
     inst [399 or "quantile: 99.75"] value 0.5095166160000001
 
-opentelemetry.source2.sample_summary0002_count []
+opentelemetry.source2.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 14544
 
-opentelemetry.source2.sample_summary0002_sum []
+opentelemetry.source2.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 11.129654
 
-opentelemetry.source2.sample_counter0001 []
+opentelemetry.source2.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 1531848550
     inst [2 or "2 inst-2"] value 3063697090
@@ -10156,7 +10156,7 @@ opentelemetry.source2.sample_counter0001 []
     inst [398 or "398 inst-398"] value 609675721000
     inst [399 or "399 inst-399"] value 611207570000
 
-opentelemetry.source2.sample_gauge0000 []
+opentelemetry.source2.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 96.8
     inst [2 or "2 inst-2"] value 193.6
@@ -10558,7 +10558,7 @@ opentelemetry.source2.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 38526.4
     inst [399 or "399 inst-399"] value 38623.2
 
-opentelemetry.source2.sample_summary0002 []
+opentelemetry.source2.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.00159623
     inst [2 or "quantile: 0.5"] value 0.00319246
@@ -10960,28 +10960,28 @@ opentelemetry.source2.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.6352995400000001
     inst [399 or "quantile: 99.75"] value 0.6368957700000001
 
-opentelemetry.source2.sample_summary0002_count []
+opentelemetry.source2.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 18180
 
-opentelemetry.source2.sample_summary0002_sum []
+opentelemetry.source2.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 13.912068
 
-opentelemetry.source2.sample_counter0001 []
+opentelemetry.source2.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-opentelemetry.source2.sample_gauge0000 []
+opentelemetry.source2.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-opentelemetry.source2.sample_summary0002 []
+opentelemetry.source2.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source2.sample_summary0002_count []
+opentelemetry.source2.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source2.sample_summary0002_sum []
+opentelemetry.source2.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source3.sample_counter0001 []
+opentelemetry.source3.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 1191437760
     inst [2 or "2 inst-2"] value 2382875520
@@ -11383,7 +11383,7 @@ opentelemetry.source3.sample_counter0001 []
     inst [398 or "398 inst-398"] value 474192228000
     inst [399 or "399 inst-399"] value 475383665000
 
-opentelemetry.source3.sample_gauge0000 []
+opentelemetry.source3.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 72.59999999999999
     inst [2 or "2 inst-2"] value 145.2
@@ -11785,7 +11785,7 @@ opentelemetry.source3.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 28894.8
     inst [399 or "399 inst-399"] value 28967.4
 
-opentelemetry.source3.sample_summary0002 []
+opentelemetry.source3.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.001276984
     inst [2 or "quantile: 0.5"] value 0.002553968
@@ -12187,13 +12187,13 @@ opentelemetry.source3.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.508239632
     inst [399 or "quantile: 99.75"] value 0.5095166160000001
 
-opentelemetry.source3.sample_summary0002_count []
+opentelemetry.source3.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 14544
 
-opentelemetry.source3.sample_summary0002_sum []
+opentelemetry.source3.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 11.129654
 
-opentelemetry.source3.sample_counter0001 []
+opentelemetry.source3.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 1702053940
     inst [2 or "2 inst-2"] value 3404107880
@@ -12595,7 +12595,7 @@ opentelemetry.source3.sample_counter0001 []
     inst [398 or "398 inst-398"] value 677417468000
     inst [399 or "399 inst-399"] value 679119522000
 
-opentelemetry.source3.sample_gauge0000 []
+opentelemetry.source3.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 108.9
     inst [2 or "2 inst-2"] value 217.8
@@ -12997,7 +12997,7 @@ opentelemetry.source3.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 43342.2
     inst [399 or "399 inst-399"] value 43451.1
 
-opentelemetry.source3.sample_summary0002 []
+opentelemetry.source3.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.001755853
     inst [2 or "quantile: 0.5"] value 0.003511706
@@ -13399,13 +13399,13 @@ opentelemetry.source3.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.6988294940000001
     inst [399 or "quantile: 99.75"] value 0.7005853470000001
 
-opentelemetry.source3.sample_summary0002_count []
+opentelemetry.source3.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 19998
 
-opentelemetry.source3.sample_summary0002_sum []
+opentelemetry.source3.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 15.303274
 
-opentelemetry.source3.sample_counter0001 []
+opentelemetry.source3.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 2212670120
     inst [2 or "2 inst-2"] value 4425340240
@@ -13807,7 +13807,7 @@ opentelemetry.source3.sample_counter0001 []
     inst [398 or "398 inst-398"] value 880642709000
     inst [399 or "399 inst-399"] value 882855379000
 
-opentelemetry.source3.sample_gauge0000 []
+opentelemetry.source3.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 145.2
     inst [2 or "2 inst-2"] value 290.4
@@ -14209,7 +14209,7 @@ opentelemetry.source3.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 57789.6
     inst [399 or "399 inst-399"] value 57934.8
 
-opentelemetry.source3.sample_summary0002 []
+opentelemetry.source3.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.002234722
     inst [2 or "quantile: 0.5"] value 0.004469444
@@ -14611,28 +14611,28 @@ opentelemetry.source3.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.8894193560000001
     inst [399 or "quantile: 99.75"] value 0.8916540780000001
 
-opentelemetry.source3.sample_summary0002_count []
+opentelemetry.source3.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 25452
 
-opentelemetry.source3.sample_summary0002_sum []
+opentelemetry.source3.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 19.476895
 
-opentelemetry.source3.sample_counter0001 []
+opentelemetry.source3.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-opentelemetry.source3.sample_gauge0000 []
+opentelemetry.source3.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-opentelemetry.source3.sample_summary0002 []
+opentelemetry.source3.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source3.sample_summary0002_count []
+opentelemetry.source3.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source3.sample_summary0002_sum []
+opentelemetry.source3.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source4.sample_counter0001 []
+opentelemetry.source4.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 1531848550
     inst [2 or "2 inst-2"] value 3063697090
@@ -15034,7 +15034,7 @@ opentelemetry.source4.sample_counter0001 []
     inst [398 or "398 inst-398"] value 609675721000
     inst [399 or "399 inst-399"] value 611207570000
 
-opentelemetry.source4.sample_gauge0000 []
+opentelemetry.source4.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 96.8
     inst [2 or "2 inst-2"] value 193.6
@@ -15436,7 +15436,7 @@ opentelemetry.source4.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 38526.4
     inst [399 or "399 inst-399"] value 38623.2
 
-opentelemetry.source4.sample_summary0002 []
+opentelemetry.source4.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.00159623
     inst [2 or "quantile: 0.5"] value 0.00319246
@@ -15838,13 +15838,13 @@ opentelemetry.source4.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.6352995400000001
     inst [399 or "quantile: 99.75"] value 0.6368957700000001
 
-opentelemetry.source4.sample_summary0002_count []
+opentelemetry.source4.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 18180
 
-opentelemetry.source4.sample_summary0002_sum []
+opentelemetry.source4.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 13.912068
 
-opentelemetry.source4.sample_counter0001 []
+opentelemetry.source4.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 2212670120
     inst [2 or "2 inst-2"] value 4425340240
@@ -16246,7 +16246,7 @@ opentelemetry.source4.sample_counter0001 []
     inst [398 or "398 inst-398"] value 880642709000
     inst [399 or "399 inst-399"] value 882855379000
 
-opentelemetry.source4.sample_gauge0000 []
+opentelemetry.source4.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 145.2
     inst [2 or "2 inst-2"] value 290.4
@@ -16648,7 +16648,7 @@ opentelemetry.source4.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 57789.6
     inst [399 or "399 inst-399"] value 57934.8
 
-opentelemetry.source4.sample_summary0002 []
+opentelemetry.source4.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.002234722
     inst [2 or "quantile: 0.5"] value 0.004469444
@@ -17050,13 +17050,13 @@ opentelemetry.source4.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 0.8894193560000001
     inst [399 or "quantile: 99.75"] value 0.8916540780000001
 
-opentelemetry.source4.sample_summary0002_count []
+opentelemetry.source4.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 25452
 
-opentelemetry.source4.sample_summary0002_sum []
+opentelemetry.source4.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 19.476895
 
-opentelemetry.source4.sample_counter0001 []
+opentelemetry.source4.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 2893491700
     inst [2 or "2 inst-2"] value 5786983400
@@ -17458,7 +17458,7 @@ opentelemetry.source4.sample_counter0001 []
     inst [398 or "398 inst-398"] value 1151609700000
     inst [399 or "399 inst-399"] value 1154503190000
 
-opentelemetry.source4.sample_gauge0000 []
+opentelemetry.source4.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
     inst [0 or "0 inst-0"] value 0
     inst [1 or "1 inst-1"] value 193.6
     inst [2 or "2 inst-2"] value 387.2
@@ -17860,7 +17860,7 @@ opentelemetry.source4.sample_gauge0000 []
     inst [398 or "398 inst-398"] value 77052.8
     inst [399 or "399 inst-399"] value 77246.39999999999
 
-opentelemetry.source4.sample_summary0002 []
+opentelemetry.source4.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     inst [0 or "quantile: 0.0"] value 0
     inst [1 or "quantile: 0.25"] value 0.002873214
     inst [2 or "quantile: 0.5"] value 0.005746428
@@ -18262,25 +18262,25 @@ opentelemetry.source4.sample_summary0002 []
     inst [398 or "quantile: 99.5"] value 1.143539172
     inst [399 or "quantile: 99.75"] value 1.146412386
 
-opentelemetry.source4.sample_summary0002_count []
+opentelemetry.source4.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 32724
 
-opentelemetry.source4.sample_summary0002_sum []
+opentelemetry.source4.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
     value 25.041722
 
-opentelemetry.source4.sample_counter0001 []
+opentelemetry.source4.sample_counter0001 [sample_counter0001 instance scale 0.7 value scale 170205394.0]
 Error: Try again. Information not currently available
 
-opentelemetry.source4.sample_gauge0000 []
+opentelemetry.source4.sample_gauge0000 [sample_gauge0000 instance scale 1, value scale 12.1]
 Error: Try again. Information not currently available
 
-opentelemetry.source4.sample_summary0002 []
+opentelemetry.source4.sample_summary0002 [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source4.sample_summary0002_count []
+opentelemetry.source4.sample_summary0002_count [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
-opentelemetry.source4.sample_summary0002_sum []
+opentelemetry.source4.sample_summary0002_sum [sample_summary0002 instance scale 0.25 value scale 0.000159623]
 Error: Try again. Information not currently available
 
 === remove opentelemetry agent ===

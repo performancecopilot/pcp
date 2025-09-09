@@ -15,8 +15,6 @@ echo "QA output created by $seq"
 
 _pmdaopentelemetry_check || _notrun "opentelemetry pmda and/or load generator not installed"
 
-_notrun "currently failing, needs analysis and updates"
-
 status=1        # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 
@@ -40,14 +38,11 @@ do
     echo 'file://'$file > $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
 done
 
-ls $PCP_PMDAS_DIR/opentelemetry/config.d/
-
 # add all the sample scripts
 cp -a $here/opentelemetry/scripts/* $PCP_PMDAS_DIR/opentelemetry/config.d
 find $PCP_PMDAS_DIR/opentelemetry/config.d -name GNU\* -exec rm -f {} ";"
 
 _pmdaopentelemetry_install
-
 if ! _pmdaopentelemetry_wait_for_metric opentelemetry.simplemetric.metric1
 then
     status=1

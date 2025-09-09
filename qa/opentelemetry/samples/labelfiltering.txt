@@ -32,11 +32,10 @@
               "description": "I am a Counter Metric to test the labels",
               "sum": {
                 "aggregationTemporality": 1,
-                "isMonotonic": true,
+                "isMonotonic": "true",
                 "dataPoints": [
                   {
-                    "asDouble": 5,
-                    "startTimeUnixNano": "1544712660300000000",
+                    "asInt": "5",
                     "timeUnixNano": "1544712660300000000",
                     "attributes": [
                       {

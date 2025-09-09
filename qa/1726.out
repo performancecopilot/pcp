@@ -1,11 +1,22 @@
 QA output created by 1726
-duplicate.url
-labels.url
-simplemetric.url
 
 === opentelemetry agent installation ===
 
-opentelemetry.labels.labelMetric [I am a Counter Metric to test the labels]
+opentelemetry.curl_scripted.some_metric [I am a Counter]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+I am a Counter
+    value 10
+
+opentelemetry.duplicate.somemetric [metric to test duplicate labels]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+metric to test duplicate labels
+    value 5
+
+opentelemetry.labelfiltering.labelMetric [I am a Counter Metric to test the labels]
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 Help:
@@ -27,7 +38,7 @@ I am a Gauge
     value 10
 
 opentelemetry.simplemetric.metric3 [I am a Histogram]
-    Data Type: 64-bit int  InDom: 88.7170 0x16001c02
+    Data Type: 64-bit int  InDom: 164.10242 0x29002802
     Semantics: counter  Units: none
 Help:
 I am a Histogram
@@ -42,7 +53,7 @@ I am a Histogram
     value 2
 
 opentelemetry.simplemetric.metric3_sum [I am a Histogram]
-    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
 Help:
 I am a Histogram
