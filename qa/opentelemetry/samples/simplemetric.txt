@@ -36,7 +36,6 @@
                 "dataPoints": [
                   {
                     "asDouble": 5,
-                    "startTimeUnixNano": "1544712660300000000",
                     "timeUnixNano": "1544712660300000000",
                     "attributes": [
                       {
@@ -79,7 +78,6 @@
                 "aggregationTemporality": 1,
                 "dataPoints": [
                   {
-                    "startTimeUnixNano": "1544712660300000000",
                     "timeUnixNano": "1544712660300000000",
                     "count": 2,
                     "sum": 2,
