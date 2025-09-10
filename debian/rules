@@ -141,12 +141,16 @@ pkgpcp_testsuite = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_testsuite);
 pkgpcp_zeroconf = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_zeroconf);
 pkgpcp_python3 = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_python3);
 
-configure_tools = export DEBUG=-DNDEBUG QT_SELECT=5;
-configure_debug = --with-non-debug=yes
+configure_tools = export QT_SELECT=5;
 # Note: configure options come from $(configure_paths) _plus_ any
-#       $(configure_debug) value here, _plus_ any passed in from the
-#       environment via $(configure_opts)
-# ... Makepkgs uses the latter mechanism to refine the configure options
+#       passed in from the environment via $(configure_opts)
+# Makepkgs uses the latter mechanism to refine the configure options
+# but for distro builds $(configure_opts) is not set in the environment
+# and defaults to --with-non-debug=yes (so assert() is a no-op)
+#
+ifeq "$(configure_opts)" ""
+configure_opts = --with-non-debug=yes
+endif
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --with-zip=/bin/gzip --with-tar=/bin/tar SED=/bin/sed ECHO=/bin/echo QMAKE=/usr/bin/qmake MAKEDEPEND=/bin/true BZIP2=/bin/bzip2
 
 checkdir = test -f debian/rules
