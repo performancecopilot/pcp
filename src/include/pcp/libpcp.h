@@ -848,7 +848,7 @@ struct __pmArchCtl;
 typedef int (*pmLogWriteCallBack)(const struct __pmArchCtl *, int, void *, size_t, const char *);
 typedef int (*pmLogFlushCallBack)(const struct __pmArchCtl *, int, const char *);
 typedef void (*pmLogResetCallBack)(const struct __pmArchCtl *, int, long, const char *);
-typedef long (*pmLogTellCallBack)(const struct __pmArchCtl *, int, const char *);
+typedef off_t (*pmLogTellCallBack)(const struct __pmArchCtl *, int, const char *);
 
 /*
  * Per-context controls for archives and logs

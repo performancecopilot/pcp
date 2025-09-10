@@ -53,7 +53,7 @@ static int
 stdio_seek(__pmFILE *f, off_t offset, int whence)
 {
     FILE *fp = (FILE *)f->priv;
-    return fseek(fp, offset, whence);
+    return fseeko(fp, offset, whence);
 }
 
 static void
@@ -67,7 +67,7 @@ static off_t
 stdio_tell(__pmFILE *f)
 {
     FILE *fp = (FILE *)f->priv;
-    return ftell(fp);
+    return ftello(fp);
 }
 
 static int
@@ -82,7 +82,7 @@ stdio_read(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
     FILE *fp = (FILE *)f->priv;
     size_t n = fread(ptr, size, nmemb, fp);
-    f->position = ftell(fp);
+    f->position = ftello(fp);
     return n;
 }
 
@@ -91,7 +91,7 @@ stdio_write(void *ptr, size_t size, size_t nmemb, __pmFILE *f)
 {
     FILE *fp = (FILE *)f->priv;
     size_t n = fwrite(ptr, size, nmemb, fp);
-    f->position = ftell(fp);
+    f->position = ftello(fp);
     return n;
 }
 

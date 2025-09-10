@@ -885,7 +885,7 @@ reset_callback(const __pmArchCtl *acp, int volume, long offset, const char *call
     }
 }
 
-static long
+static off_t
 tell_callback(const __pmArchCtl *acp, int volume, const char *caller)
 {
     if (remote.conn) {

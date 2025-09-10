@@ -175,7 +175,7 @@ check_header_magic(FILE *f)
 {
   char buf[XZ_HEADER_MAGIC_LEN];
 
-  if (fseek(f, 0, SEEK_SET) == -1)
+  if (fseeko(f, 0, SEEK_SET) == -1)
       return 1; /* error */
   if (fread(buf, 1, sizeof(buf), f) != sizeof(buf)) {
       setoserror(-PM_ERR_LOGREC);
@@ -197,7 +197,7 @@ parse_indexes(FILE *f, size_t *nr_streams)
 {
   lzma_ret r;
   off_t index_size;
-  int pos;
+  off_t pos;
   int sts;
   uint8_t footer[LZMA_STREAM_HEADER_SIZE];
   uint8_t header[LZMA_STREAM_HEADER_SIZE];
@@ -212,10 +212,10 @@ parse_indexes(FILE *f, size_t *nr_streams)
   *nr_streams = 0;
 
   /* Check file size is a multiple of 4 bytes. */
-  sts = fseek(f, 0, SEEK_END);
+  sts = fseeko(f, 0, SEEK_END);
   if (sts != 0)
       goto err;
-  pos = ftell(f);
+  pos = ftello(f);
   if (pos == -1)
       goto err;
   if ((pos & 3) != 0) {
@@ -230,8 +230,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
 	  goto err;
       }
 
-      if (fseek(f, -LZMA_STREAM_HEADER_SIZE, SEEK_CUR) != 0) {
-	  xz_debug("%s(%d, ...): fseek: %m", __func__, fileno(f));
+      if (fseeko(f, -LZMA_STREAM_HEADER_SIZE, SEEK_CUR) != 0) {
+	  xz_debug("%s(%d, ...): fseeko: %m", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -273,8 +273,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
       xz_debug("%s(%d, ...): decode index at pos = %d", __func__, fileno(f), pos);
 
       /* Seek backwards to the index of this stream. */
-      if (fseek(f, pos, SEEK_SET) != 0) {
-	  xz_debug("%s(%d, ...): fseek: %m", __func__, fileno(f));
+      if (fseeko(f, pos, SEEK_SET) != 0) {
+	  xz_debug("%s(%d, ...): fseeko: %m", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }
@@ -318,8 +318,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
       xz_debug("%s(%d, ...): decode stream header at pos = %d", __func__, fileno(f), pos);
 
       /* Read and decode the stream header. */
-      if (fseek(f, pos, SEEK_SET) != 0) {
-	  xz_debug("%s(%d, ...): fseek: %m", __func__, fileno(f));
+      if (fseeko(f, pos, SEEK_SET) != 0) {
+	  xz_debug("%s(%d, ...): fseeko: %m", __func__, fileno(f));
 	  setoserror(-PM_ERR_LOGREC);
 	  goto err;
       }

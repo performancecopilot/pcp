@@ -97,7 +97,7 @@ refresh_proc_zoneinfo(pmInDom indom, pmInDom protection_indom)
 
 	    /* bail out of inner loop when we reach the next node */
 	    if (strncmp(buf, "Node", 4) == 0) {
-		(void)fseek(fp, -(long)(strlen(buf)), 1); /* back-track */
+		(void)fseeko(fp, -(long)(strlen(buf)), 1); /* back-track */
 		break;
 	    }
 

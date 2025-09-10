@@ -98,7 +98,7 @@ gfs2_refresh_glockfd(const char *sysfs, const char *name, struct glockfd *glockf
     
     // reset pointer to top of file to collect holder information
     // now we know the file size
-    fseek(pf, 0, SEEK_SET);
+    fseeko(pf, 0, SEEK_SET);
     
     fds = calloc(total, sizeof(int32_t));
     if (fds == NULL) {

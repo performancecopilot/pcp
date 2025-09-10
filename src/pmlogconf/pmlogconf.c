@@ -1663,7 +1663,7 @@ update_pmlogger_tempfile(FILE *tempfile)
 	if (ftruncate(fileno(tempfile), 0L) < 0)
 	    fprintf(stderr, "%s: cannot truncate temporary file: %s\n",
 			pmGetProgname(), osstrerror());
-	if (fseek(tempfile, 0L, SEEK_SET) < 0)
+	if (fseeko(tempfile, 0L, SEEK_SET) < 0)
 	    fprintf(stderr, "%s: cannot fseek to temporary file start: %s\n",
 			pmGetProgname(), osstrerror());
 	prompt = 0;
@@ -1703,7 +1703,7 @@ copy_and_parse_tempfile(FILE *file, FILE *tempfile)
      * existing group state as we go, and stashing the immutable trailer
      * as well.
      */
-    fseek(file, 0L, SEEK_SET);
+    fseeko(file, 0L, SEEK_SET);
     while (fgets(bytes, sizeof(bytes), file) != NULL) {
 	fputs(bytes, tempfile);	/* copy into temporary configuration file */
 	line++;

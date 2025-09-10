@@ -45,7 +45,7 @@ static int
 stdio_seek(__pmFILE *f, off_t offset, int whence)
 {
     FILE *fp = (FILE *)f->priv;
-    return fseek(fp, offset, whence);
+    return fseeko(fp, offset, whence);
 }
 
 static void
@@ -59,7 +59,7 @@ static off_t
 stdio_tell(__pmFILE *f)
 {
     FILE *fp = (FILE *)f->priv;
-    return ftell(fp);
+    return ftello(fp);
 }
 
 static int
