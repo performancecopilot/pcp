@@ -1,6 +1,6 @@
-"""Wrapper module for libpcp_import - Performace Co-Pilot Log Import API
+"""Wrapper module for libpcp_import - Performance Co-Pilot Log Import API
 #
-# Copyright (C) 2012-2022 Red Hat.
+# Copyright (C) 2012-2025 Red Hat.
 #
 # This file is part of the "pcp" module, the python interfaces for the
 # Performance Co-Pilot toolkit.
@@ -19,8 +19,7 @@
 # Example use of this module for creating a PCP archive:
 
         import time
-        import pmapi
-        from pcp import pmi
+        from pcp import pmapi, pmi
 
         # Create a new archive
         log = pmi.pmiLogImport("loadtest")
@@ -47,14 +46,14 @@
 
         del log
 """
-# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=bare-except,too-many-arguments,too-many-positional-arguments
 
 from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult, pmResult_v2
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
 from ctypes import c_int, c_uint, c_longlong, c_char_p
 from ctypes import cast, create_string_buffer, POINTER, CDLL
 from ctypes.util import find_library
-from datetime import datetime
+from datetime import datetime, timedelta, tzinfo
 from math import modf
 
 # Performance Co-Pilot PMI library (C)
@@ -139,6 +138,22 @@ LIBPCP_IMPORT.pmiPutLabel.restype = c_int
 LIBPCP_IMPORT.pmiPutLabel.argtypes = [c_uint, c_uint, c_uint, c_char_p, c_char_p]
 
 #
+# timezone class and globals for all versions of python3 :P
+#
+
+ZERO = timedelta(0)
+
+class UTC(tzinfo):
+    def utcoffset(self, dt):
+        return ZERO
+    def tzname(self, dt):
+        return "UTC"
+    def dst(self, dt):
+        return ZERO
+
+utc = UTC()
+
+#
 # definition of exception classes
 #
 
@@ -170,7 +185,6 @@ class pmiErr(Exception):
 
     def errno(self):
         return self.code
-
 
 #
 # class LogImport
@@ -206,7 +220,7 @@ class pmiLogImport(object):
         if not isinstance(path, bytes):
             path = path.encode('utf-8')
         self._path = path        # the archive path (file name)
-        self._epoch = datetime.utcfromtimestamp(0)    # epoch sec
+        self._epoch = datetime.fromtimestamp(0, tz=utc)    # epoch sec
         self._ctx = LIBPCP_IMPORT.pmiStart(c_char_p(path), inherit)
         if self._ctx < 0:
             raise pmiErr(self._ctx)
