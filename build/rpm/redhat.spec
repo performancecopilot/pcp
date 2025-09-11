@@ -695,6 +695,20 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python3}
 #
+# pcp-import-guidellm2pcp
+#
+%package import-guidellm2pcp
+License: LGPL-2.1-or-later
+Summary: Performance Co-Pilot tools importing GuideLLM results into PCP archive logs
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+Requires: python3-pcp = %{version}-%{release}
+
+%description import-guidellm2pcp
+Performance Co-Pilot (PCP) front-end tools for importing GuideLLM JSON
+benchmark results into PCP archives for replay with PCP analysis tools.
+
+#
 # pcp-import-pmseries
 #
 %package import-pmseries
@@ -2414,6 +2428,7 @@ basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
 basic_manifest | keep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
 basic_manifest | keep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
 basic_manifest | keep 'collectl2pcp' >pcp-import-collectl2pcp-files
+basic_manifest | keep 'guidellm2pcp' >pcp-import-guidellm2pcp-files
 basic_manifest | keep 'pcp2arrow' >pcp-export-pcp2arrow-files
 basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
@@ -2536,7 +2551,7 @@ do \
 done
 
 for import_package in \
-    pmseries \
+    pmseries guidellm2pcp \
     collectl2pcp iostat2pcp ganglia2pcp mrtg2pcp sar2pcp sheet2pcp ; \
 do \
     import_packages="$import_packages pcp-import-$import_package"; \
@@ -3373,6 +3388,8 @@ fi
 
 %if !%{disable_python3}
 %files import-pmseries -f pcp-import-pmseries-files.rpm
+
+%files import-guidellm2pcp -f pcp-import-guidellm2pcp-files.rpm
 %endif
 
 %if !%{disable_perl}
