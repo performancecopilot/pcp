@@ -2187,6 +2187,7 @@ pmcd.pdu
 1725 pmda.bpftrace local python
 1726 pmda.opentelemetry local python
 1727 pmproxy libpcp_web pmda.openmetrics local
+1735 python pmimport local
 1740 pmda.proc local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
 1747 pmlogger labels local
