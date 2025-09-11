@@ -130,6 +130,12 @@ export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
 configure=./configure
 cmdline_configopts=''
 
+# our default is to build without -DNDEBUG, so assert()s are active.
+# use --nodebug to change this.
+#
+configure_opts="--with-non-debug=no"
+export configure_opts
+
 for opt in $*
 do
     [ -z "$*" ] && break
@@ -182,6 +188,9 @@ do
     --with-zip)
 	ZIP=$2
 	shift 2
+	;;
+    --nodebug)
+	configure_opts="--with-non-debug=yes"
 	;;
     *)
 	# Add remaining options to the ./configure command line
