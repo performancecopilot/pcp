@@ -29,6 +29,7 @@ dh-python
 docker.io
 dpkg-dev
 ed
+ethtool
 expect
 flex
 g++
@@ -134,8 +135,10 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
 systemtap
+systemtap-runtime
 systemtap-sdt-dev
 targetcli-fb
 time
@@ -144,5 +147,6 @@ valgrind
 xfsprogs
 xkb-data
 zabbix-agent
+zfsutils-linux
 zlib1g-dev
 zstd
