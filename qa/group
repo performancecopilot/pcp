@@ -2236,6 +2236,7 @@ pmcd.pdu
 1855 pmda.rabbitmq local
 1856 dstat python local derive
 1869 logutil pmlogger_daily local
+1870 guidellm2pcp python pmimport libpcp_import local
 1871 pmsearch local
 1872 pmproxy local pmjson
 1874 pmseries pmproxy local pmjson
