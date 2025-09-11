@@ -1,0 +1,63 @@
+#!/usr/bin/env pmpython
+""" Python test case for Log Import API exception handling
+"""
+#
+# Copyright (C) 2025 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+import sys
+import cpmapi
+from pcp import pmi
+
+def check_pcp_except(archive, hostname):
+    """ Generate an exception to verify handling of PCP error codes
+    """
+    log = pmi.pmiLogImport(archive)
+    log.pmiSetHostname(hostname)
+    # put values for a non-existent metric (PCP error)
+    log.pmiPutValue("no.such.metric", "", str(0))
+    del log
+
+def check_pmi_except(archive, hostname):
+    """ Generate an exception to verify handling of PMI error codes
+    """
+    log = pmi.pmiLogImport(archive)
+    log.pmiSetHostname(hostname)
+    # attempt to add duplicate metric name (PMI error)
+    name = 'two.up'
+    pmid = log.pmiID(1, 2, 3)
+    indom = log.pmiInDom(1, 2)
+    nounit = log.pmiUnits(0, 0, 0, 0, 0, 0)
+    log.pmiAddMetric(name, pmid, cpmapi.PM_TYPE_U32,
+                     indom, cpmapi.PM_SEM_DISCRETE, nounit)
+    log.pmiAddMetric(name, pmid, cpmapi.PM_TYPE_U32,
+                     indom, cpmapi.PM_SEM_DISCRETE, nounit)
+    del log
+
+
+if __name__ == '__main__':
+
+    if (len(sys.argv) < 2):
+        print("Usage: " + sys.argv[0] + " <path>")
+        sys.exit(1)
+
+    try:
+        check_pcp_except(sys.argv[1], "www.example.com")
+    except Exception as e:
+        print(e)
+
+    try:
+        check_pmi_except(sys.argv[1], "www.example.com")
+    except Exception as e:
+        print(e)
+

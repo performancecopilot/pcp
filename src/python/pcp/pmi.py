@@ -157,11 +157,15 @@ class pmiErr(Exception):
     def __str__(self):
         try:
             error_symbol = pmiErrSymDict[self.code]
+        except KeyError:
+            error_symbol = "[%d]" % self.code
+        try:
             error_string = create_string_buffer(PMI_MAXERRMSGLEN)
             error_string = LIBPCP_IMPORT.pmiErrStr_r(self.code, error_string,
                                                      PMI_MAXERRMSGLEN)
-        except KeyError:
-            error_symbol = error_string = ""
+            error_string = str(error_string.decode())
+        except:
+            error_string = "Unknown error code"
         return "%s %s" % (error_symbol, error_string)
 
     def errno(self):
