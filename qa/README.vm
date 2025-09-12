@@ -86,9 +86,8 @@ rpm
 
 Ubuntu
     https://wiki.ubuntu.com/Releases
-    [just the LTS releases]
-    13 Dec 2024: 24.04.1 (Noble), 22.04.5 (Jammy), 20.04.6 (Focal),
-		 18.04.6 (Bionic), 16.04.7 (Xenial), 14.04.6 (Trusty)
+    [just the LTS releases to end of standard support]
+    11 Sep 2025: 24.04 (Noble), 22.04 (Jammy)
     # which packages are installed
     $ dpkg-query -W -f '${package}\n'
     # package search recipe (name and info or description)
@@ -108,38 +107,34 @@ Ubuntu
 
 Debian
     https://wiki.debian.org/DebianReleases
-    13 Dec 2024: 10 (Buster), 11 (Bullseye) and 12 (Bookworm)
+    08 Sep 2025: 12 (Bookworm) and 13 (Trixie)
     # see Ubuntu for most notes
     #
-    # release upgrade reciple
+    # release upgrade recipe
     # make sure everything is up to date
-    $ sudo apt update; sudo apt upgrade
+    $ sudo apt-get update; sudo apt-get -y upgrade
     # In a text editor, replace the codename of your release with that
     # of the next release in APT's package sources
+    $ sudo vi /etc/apt/sources.list /etc/apt/sources.list.d/*
     # For instance, the line
     #    deb https://deb.debian.org/debian/ buster main
     # should be replaced with
     #    deb https://deb.debian.org/debian/ bullseye main
-    $ sudo vi /etc/apt/sources.list /etc/apt/sources.list.d/*
-    # Clean and update package lists
-    $ sudo apt clean; sudo apt update
-    # Perform a minor release upgrade, removing packages if required
-    $ sudo apt dist-upgrade
-    # Perform a major release upgrade
-    $ sudo vi /etc/apt/sources.list
-      :g/<oldrelease>/s//<newrelease>/g
-    $ sudo apt update
-    $ sudo apt upgrade --without-new-pkgs
-    $ sudo apt full-upgrade
-    # Reboot to make changes effective (optional, but recommended)
+    # Debian 12 == bookworm
+    # Debian 13 == trixie
+    # Debian 14 == forky
+    $ sudo apt-get clean; sudo apt-get update
+    $ sudo DEBIAN_FRONTEND=noninteractive apt-get --show-progress -y -o DPkg::Options::=--force-confdef --without-new-pkgs upgrade
+    $ sudo DEBIAN_FRONTEND=noninteractive apt-get --show-progress -y -o DPkg::Options::=--force-confdef full-upgrade
+    $ sudo apt-get -y autoremove
     $ sudo reboot -r now
-    # Remove packages that are not required anymore
-    $ sudo apt autoremove
+    #
+    # Perform a minor release upgrade, removing packages if required
+    $ sudo apt-get dist-upgrade
 
 Fedora
     https://fedoraproject.org/wiki/Releases
-    11 May 2025: 42 & 41
-    13 Dec 2024: 41 & 40
+    11 Sep 2025: 42 & 41
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -177,7 +172,7 @@ Fedora
 RedHat
     https://access.redhat.com/articles/3078
     Full Support versions (5 years from release)
-    14 Dec 2024: 7.9, 8.10, 9.5
+    11 Sep 2025: 8.10, 9.6 & 10.1
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -208,10 +203,7 @@ RedHat
 
 CentOS Stream
     https://en.wikipedia.org/wiki/CentOS_Stream
-    15 Dec 2024: 9, 10
-    [old CentOS]
-    https://en.wikipedia.org/wiki/CentOS#CentOS_releases
-    25 Sep 2018: 6.*, 7.1-7.9
+    11 Sep 2025: 9, 10
     # everything the same as RedHat
     # only sane upgrade plan is fresh install!, then
     # sudo dnf install epel-release -y
@@ -227,9 +219,7 @@ CentOS Stream
 
 openSUSE
     https://en.opensuse.org/Lifetime
-    23 Jan 2024: 15.5 and 15.6
-    16 Oct 2019: 15.0 and 15.1
-    15 Sep 2021: 15.2 and 15.3
+    11 Sep 2025: 15.6 and 16.0
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -256,7 +246,7 @@ openSUSE
 
 SUSE (SLES)
     https://www.suse.com/lifecycle/
-    18 Nov 2105: 11 SP4 and 12 SP1
+    18 Nov 2015: 11 SP4 and 12 SP1
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -278,10 +268,8 @@ SUSE (SLES)
 
 FreeBSD
     https://www.freebsd.org/releases/
-    10 Jan 2024: 13.2 and 14.0
-    15 Nov 2023: 12.4 and 13.2
-    17 Oct 2019: 11.2, 11.3 and 12.0
-    26 Sep 2018: 10, 10.4, 11 and 11.2
+    11 Sep 2025: 13.5 and 14.3
+    (15.0 expected Dec 2025)
     # which packages are installed
     $ pkg info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)
@@ -321,8 +309,7 @@ FreeBSD
 
 NetBSD
     http://www.netbsd.org/releases/formal.html
-    23 Nov 2015: 6.1.5 and 7.0
-    14 Feb 2018: 6.1.5 and 7.1.1
+    11 Sep 2025: 9.4 and 10.1
     # --- pkgin for pre-build binaries ---
     # which packages are installed
     $ pkg_info -a | sed -e 's/-[0-9].*//'
@@ -380,14 +367,13 @@ Gentoo
     N/A
 
 Linux Mint
-    http://www.linuxmint.com/oldreleases.php
-    24 Dec 2015: 13 (LTS), 17 (LTS)
+    http://www.linuxmint.com/download.php
+    11 Sep 2025: 22.2
     # same as Ubuntu
     
 OpenMandriva
-    https://wiki.openmandriva.org/en/Category:Releases
-    9 Aug 2020: 2014.2 3.3 4.0 4.1
-    20 Oct 2021: 4.1 4.2 4.3
+    https://wiki.openmandriva.org/en/distribution/releases/download
+    11 Sep 2025: Rock (OMLx 6.0) and Rome (rolling)
     # same as Fedora now
     ...
     # for 4.1 -> 4.2 this looks promising
@@ -402,7 +388,7 @@ OpenMandriva
 
 Slackware
     https://www.slackware.com
-    27 June 2016: 14.1
+    11 Sep 2025: 15.0
     # which packages are installed
     $ ls /var/log/packages | sed -e 's/-[0-9].*//'
     # package search recipe (name only)
@@ -421,7 +407,7 @@ Slackware
 
 Arch Linux
     https://www.archlinux.org/releng/releases/
-    05 Oct 2020: 2020.10.01 2020.09.01 2020.08.01
+    11 Sep 2025: 2025-07-01, 2025-08-01 and 2025-09-01
     # after virgin install, need at least this to get going
     $ sudo pacman -S inetutils	# for hostname(1)
     $ sudo pacman -S iputils	# for ping(1)
@@ -449,8 +435,8 @@ Arch Linux
     $ sudo pacman -Sc
 
 OpenIndiana
-    https://www.openindiana.org/download/
-    17 Aug 2016: 2016.04
+    https://www.openindiana.org/downloads/
+    11 Sep 2025: 2025.06
     # initial setup to get rid of restricitions and to get up to date ...
     $ sudo pkg uninstall userland-incorporation entire
     $ sudo pkg update
@@ -478,10 +464,7 @@ OpenIndiana
 
 OpenBSD
     https://en.wikipedia.org/wiki/OpenBSD_version_history
-    20 Apr 2025: 7.6, 7.7
-    07 Nov 2023: 7.3, 7.4
-    08 Dec 2021: 6.9, 7.0
-    13 Sep 2021: 6.8, 6.9
+    11 Sep 2025: 7.6, 7.7
     # package search recipe (name only, not info or description)
     $ pkg_info -Q <pattern>
     # which package installs a file/directory
