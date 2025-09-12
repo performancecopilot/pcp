@@ -28,8 +28,3 @@ PMCD_RESTART_AGENTS=1
 # The value is a PCPIntro(1) interval in units of seconds and it
 # will be passed directly to the pmcd_wait(1) utility.
 # PMCD_WAIT_TIMEOUT=60
-
-# Mode for pmcd to initialize the NSS certificate database when using
-# secure connections. The default for pmcd is "readonly", as set here.
-# If set to "readwrite" but fails, it will fallback and attempt readonly.
-PCP_NSS_INIT_MODE=readonly
