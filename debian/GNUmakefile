@@ -116,9 +116,11 @@ default: pcp.preinst pcp.postinst pcp.postrm rules pcp-gui.install
 include $(BUILDRULES)
 
 install: default
+	cp pcp-testsuite.install.in pcp-testsuite.install
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pcp.sysusers $(PCP_SYSTEMDSYSUSERS_DIR)/pcp.conf
 	$(INSTALL) -m 644 pcp-testsuite.sysusers $(PCP_SYSTEMDSYSUSERS_DIR)/pcp-testsuite.conf
+	echo "usr/lib/sysusers.d/pcp-testsuite.conf" >>pcp-testsuite.install
 endif
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(LINTDIR)
