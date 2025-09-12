@@ -2307,8 +2307,11 @@ desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
 %if 0%{?rhel} || 0%{?fedora}
-# Fedora and RHEL default local only access for pmcd and pmlogger
-sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmcd,pmlogger}
+# Fedora and RHEL default local only access for pmcd, pmproxy and pmlogger
+if [ "$1" -eq 1 ]
+then
+    sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmcd,pmproxy,pmlogger}
+fi
 %endif
 
 # default chkconfig off (all RPM platforms)
