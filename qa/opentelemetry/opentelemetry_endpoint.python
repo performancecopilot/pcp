@@ -40,22 +40,21 @@ class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
         instance_count = 0
         format_name = 'sample_gauge{:04d}'.format(endpointNum)
         format_desc = 'sample_gauge{:04d} instance scale {}, value scale {}'.format(endpointNum, instance_scale, gauge_value)
-        gauge_string = {'resourceMetrics': [{'resource': {'attributes': [{'key': 'service.name', 'value': {'stringValue': 'my.service'}}]}, 'scopeMetrics': [{'scope': {'name': 'my.library', 'version': '1.0.0', 'attributes': [{'key': 'my.scope.attribute', 'value': {'stringValue': 'some.scope.attribute'}}]}, 'metrics': [{'name': 'sample_gauge', 'unit': '1', 'description': 'description', 'gauge': {'aggregationTemporality': 2, 'isMonotonic': True, 'dataPoints': [{'asDoube': 5, 'startTimeUnixNano': '1544712660300000000', 'timeUnixNano': '1544712660300000000', 'attributes': [{'key': 'labels', 'value': {'stringValue': 'some.interesting.labels'}}]}]}}]}]}]}
-        helper_str = gauge_string['resourceMetrics'][0]['scopeMetrics'][0]['metrics'][0]
-        points = helper_str['gauge']['dataPoints'][0]
-        helper_str['name'] = format_name
-        helper_str['description'] = format_desc
+        gauge_string = {'name': 'sample_gauge', 'unit': '1', 'description': 'description', 'gauge': {'aggregationTemporality': '2', 'isMonotonic': 'True', 'dataPoints': [{'asDouble': '5', 'timeUnixNano': '1544712660300000000', 'attributes': [{'key': 'labels', 'value': {'stringValue': 'some.interesting.labels'}}]}]}}
+        points = gauge_string['gauge']['dataPoints'][0]
+        gauge_string['name'] = format_name
+        gauge_string['description'] = format_desc
         data = []
         for i in range(instances):
             copy = deepcopy(points)
             format_instname = "{{bar=\'{:.1f}\'}}".format(i * instance_scale)
             format_value = "{:.1f}".format((int(iteration) * instance_count * gauge_value))
+            inst_dict = {'key': 'instance', 'value': {'stringValue': format_instname}}
             copy['asDouble'] = format_value
-            copy['attributes'][0]['instname'] = format_instname
+            copy['attributes'].append(inst_dict)
             data.append(copy)
             instance_count += 1
-        helper_str['gauge']['dataPoints'] = data
-        gauge_string = json.dumps(gauge_string, sort_keys=False, indent=4, separators=(',', ': '))
+        gauge_string['gauge']['dataPoints'] = data
         return gauge_string
 
     def sample_counter_data(self, iteration=None, instances=None, metrics=None, endpointNum=None):
@@ -64,22 +63,21 @@ class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
         instance_count = 0
         format_name = 'sample_counter{:04d}'.format(endpointNum)
         format_desc = 'sample_counter{:04d} instance scale {} value scale {}'.format(endpointNum, instance_scale, counter_value)
-        counter_string = {'resourceMetrics': [{'resource': {'attributes': [{'key': 'service.name', 'value': {'stringValue': 'my.service'}}]}, 'scopeMetrics': [{'scope': {'name': 'my.library', 'version': '1.0.0', 'attributes': [{'key': 'my.scope.attribute', 'value': {'stringValue': 'some.scope.attribute'}}]}, 'metrics': [{'name': 'sample_counter', 'unit': '1', 'description': 'description', 'sum': {'aggregationTemporality': 2, 'isMonotonic': True, 'dataPoints': [{'value': 5, 'startTimeUnixNano': '1544712660300000000', 'timeUnixNano': '1544712660300000000', 'attributes': [{'label5': 'some interesting label'}]},{'asDouble': 10, 'startTimeUnixNano': '1544712660300000000', 'timeUnixNano': '1544712660300000000', 'attributes': [{'key': 'labels', 'value': {'stringValue': 'some.interesting.labels'}}]}]}}]}]}]}
-        helper_str = counter_string['resourceMetrics'][0]['scopeMetrics'][0]['metrics'][0]
-        points = helper_str['sum']['dataPoints'][0]
-        helper_str['name'] = format_name
-        helper_str['description'] = format_desc
+        counter_string = {'name': 'sample_counter', 'unit': '1', 'description': 'description', 'sum': {'aggregationTemporality': '2', 'isMonotonic': 'True', 'dataPoints': [{'asDouble': 10, 'timeUnixNano': '1544712660300000000', 'attributes': [{'key': 'labels', 'value': {'stringValue': 'some.interesting.labels'}}]}]}}
+        points = counter_string['sum']['dataPoints'][0]
+        counter_string['name'] = format_name
+        counter_string['description'] = format_desc
         data = []
         for i in range(instances):
             copy = deepcopy(points)
             format_instname = "{{baz=\'{:.1f}\'}}".format(i * instance_scale)
             format_value = "{:.8e}".format((int(iteration) * instance_count * counter_value))
+            inst_dict = {'key': 'instance', 'value': {'stringValue': format_instname}}
             copy['asDouble'] = format_value
-            copy['attributes'][0]['instname'] = format_instname
+            copy['attributes'].append(inst_dict)
             data.append(copy)
             instance_count += 1
-        helper_str['sum']['dataPoints'] = data
-        counter_string = json.dumps(counter_string, sort_keys=False, indent=4, separators=(',', ': '))
+        counter_string['sum']['dataPoints'] = data
         return counter_string
 
     def sample_summary_data(self, iteration=None, instances=None, metrics=None, endpointNum=None):
@@ -92,17 +90,15 @@ class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
         format_desc = 'sample_summary{:04d} instance scale {} value scale {}'.format(endpointNum, instance_scale, summary_value_q0)
         format_count = '{:d}'.format((int(iteration) * int(summary_value_count)))
         format_sum = '{:16f}'.format((int(iteration) * float(summary_value_sum)))
-        summary_string = {'resourceMetrics': [{'resource': {'attributes': [{'key': 'service.name', 'value': {'stringValue': 'my.service'}}], 'schema_url': ''}, 'scopeMetrics': [{'scope': {'name': 'getting-started', 'version': '0.1.2', 'schema_url': '', 'attributes': [{}]}, 'metrics': [{'name': 'my.summary', 'description': '', 'unit': '', 'summary': {'dataPoints': [{'attributes': [{'key': 'labels', 'value': {'stringValue': 'some.interesting.labels'}}], 'startTimeUnixNano': 1741190626268422106, 'timeUnixNano': 1741190626268846852, 'count': 1, 'sum': 99.9, 'quantileValues': []}]}}], 'schema_url': ''}], 'schema_url': ''}]}
-        helper_str = summary_string['resourceMetrics'][0]['scopeMetrics'][0]['metrics'][0]
-        points = helper_str['summary']['dataPoints'][0]
-        helper_str['name'] = format_name
-        helper_str['description'] = format_desc
+        summary_string = {'name': 'my.summary', 'description': '', 'unit': '', 'summary': {'dataPoints': [{'attributes': [{'key': 'labels', 'value': {'stringValue': 'some.interesting.labels'}}], 'timeUnixNano': 1741190626268846852, 'count': 1, 'sum': 99.9, 'quantileValues': []}]}}
+        points = summary_string['summary']['dataPoints'][0]
+        summary_string['name'] = format_name
+        summary_string['description'] = format_desc
         points["count"] = format_count
         points["sum"] = format_sum
         for i in range(instances):
             points["quantileValues"].append({'quantile': (i * instance_scale), 'value': (int(iteration) * instance_count * float(summary_value_q0))})
             instance_count += 1
-        summary_string = json.dumps(summary_string, sort_keys=False, indent=4, separators=(',', ': '))
         return summary_string
 
     def sample_histogram_data(self, iteration=None, instances=None, metrics=None, endpointNum=None):
@@ -115,11 +111,10 @@ class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
         format_desc = 'sample_histogram{:04d} instance scale {} value scale {} (sample histogram has instances)'.format(endpointNum, instance_scale, histogram_value_l1)
         format_count = "{:d}".format((int(instances) * int(histogram_value_count)))
         format_sum = "{:d}".format((int(instances) * int(histogram_value_sum)))
-        histogram_string = {'resourceMetrics': [{'resource': {'attributes': [{'key': 'service.name', 'value': {'stringValue': 'my.service'}}], 'schema_url': ''}, 'scopeMetrics': [{'scope': {'name': 'getting-started', 'version': '0.1.2', 'schema_url': '', 'attributes': [{}]}, 'metrics': [{'name': 'my.histogram', 'description': '', 'unit': '', 'histogram': {'dataPoints': [{'attributes': [{}], 'startTimeUnixNano': 1741190626268422106, 'timeUnixNano': 1741190626268846852, 'count': 1, 'sum': 99.9, 'bucketCounts': [], 'explicitBounds': [], 'min': 99.9, 'max': 99.9, 'exemplars': []}], 'aggregationTemporality': 2}}], 'schema_url': ''}], 'schema_url': ''}]}
-        helper_str = histogram_string['resourceMetrics'][0]['scopeMetrics'][0]['metrics'][0]
-        points = helper_str['histogram']['dataPoints'][0]
-        helper_str['name'] = format_name
-        helper_str['description'] = format_desc
+        histogram_string = {'name': 'my.histogram', 'description': '', 'unit': '', 'histogram': {'dataPoints': [{'attributes': [{}], 'timeUnixNano': 1741190626268846852, 'count': 1, 'sum': 99.9, 'bucketCounts': [], 'explicitBounds': [], 'min': 99.9, 'max': 99.9, 'exemplars': []}], 'aggregationTemporality': 2}}
+        points = histogram_string['histogram']['dataPoints'][0]
+        histogram_string['name'] = format_name
+        histogram_string['description'] = format_desc
         points["count"] = format_count
         points["sum"] = format_sum
         for i in range(instances):
@@ -127,37 +122,42 @@ class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
             points["explicitBounds"].append((i * instance_scale))
             instance_count += 1
         points["bucketCounts"].append(0)
-        histogram_string = json.dumps(histogram_string, sort_keys=False, indent=4, separators=(',', ': '))
         return histogram_string
+ 
+    def start_string(self):
+        start = {'resourceMetrics': [{'resource': {'attributes': [{'key': 'service.name', 'value': {'stringValue': 'my.service'}}]}, 'scopeMetrics': [{'scope': {'name': 'my.library', 'version': '1.0.0', 'attributes': [{'key': 'my.scope.attribute', 'value': {'stringValue': 'some.scope.attribute'}}]}, 'metrics': []}]}]}
+        return start
 
     def format_opentelemetry_output(self, metrics=None, iteration=None, instances=None, error=None, endpointNum=None):
         metrics_remaining = metrics
-        endpoint_string = ""
+        endpoint_string = self.start_string()
+        helper = endpoint_string['resourceMetrics'][0]['scopeMetrics'][0]['metrics']
+
         while metrics_remaining >= 0:
-            endpoint_string += self.sample_gauge_data(iteration, instances, metrics_remaining, (metrics-metrics_remaining))
+            helper.append(self.sample_gauge_data(iteration, instances, metrics_remaining, (metrics-metrics_remaining)))
             metrics_remaining -= 1
             iteration += 1
             if metrics_remaining <= 0:
                 break
-            endpoint_string += self.sample_counter_data(iteration, instances, metrics_remaining, (metrics-metrics_remaining))
+            helper.append(self.sample_counter_data(iteration, instances, metrics_remaining, (metrics-metrics_remaining)))
             metrics_remaining -= 1
             iteration += 1
             if metrics_remaining <= 0:
                 break
-            endpoint_string += self.sample_summary_data(iteration, instances, metrics_remaining, (metrics-metrics_remaining))
+            helper.append(self.sample_summary_data(iteration, instances, metrics_remaining, (metrics-metrics_remaining)))
 #            metrics_remaining -= 4
             metrics_remaining -= instances
             iteration += 1
             if metrics_remaining <= 0:
                 break
-            endpoint_string += self.sample_histogram_data(iteration, instances, metrics_remaining, (metrics-metrics_remaining))
+            helper.append(self.sample_histogram_data(iteration, instances, metrics_remaining, (metrics-metrics_remaining)))
 #            metrics_remaining -= 5
             metrics_remaining -= instances
             iteration += 1
+        endpoint_string = json.dumps(endpoint_string, sort_keys=False, indent=4, separators=(',', ': '))
         if error is not None:
             return endpoint_string[:int(len(endpoint_string)/int(error))]
         else:
-            print("ENDPOINT STRING", endpoint_string, "END")
             return endpoint_string
 
     def do_GET(self):
