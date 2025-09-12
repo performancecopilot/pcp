@@ -2290,4 +2290,4 @@ pmcd.pdu
 1993 pmda.rocestat local python
 1994 pcp rocestat python local
 4751 libpcp threads valgrind local pcp helgrind
-9000 other local
+9000 other local sanity

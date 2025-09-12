@@ -79,7 +79,7 @@ do
 	echo "$unit: loaded and active" >>$seq_full
 	continue
     fi
-    if [ "$LoadState" = loaded -a "$ActiveState" = inactive -a "$TriggeredBy" != missing -a "$ConditionResult" = yes ]
+    if [ "$LoadState" = loaded -a "$ActiveState" = inactive -a "$SubState" = dead -a "$TriggeredBy" != missing ]
     then
 	echo "$unit: loaded and waiting for $TriggeredBy" >>$seq_full
 	continue
@@ -98,7 +98,7 @@ do
     fi
     if [ "$SubState" = dead ]
     then
-	echo "$unit: BAD Substate=dead"
+	echo "$unit: BAD LoadState=$LoadState UnitFileState=$UnitFileState ActiveState=$ActiveState Substate=dead TriggeredBy=$TriggeredBy"
 	systemctl status -l --no-pager "$unit"
 	continue
     fi
