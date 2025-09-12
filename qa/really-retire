@@ -127,9 +127,9 @@ End-of-File
 	    cat <<End-of-File >$out
 QA output created by $seq
 test really-retired by `id -un` on `date +'%d %b %Y'`
-#
-# to see the original output
-# 	\$ git diff `git rev-parse --short HEAD` -- $out
+
+to see the original output
+ 	\$ git diff `git rev-parse --short HEAD` -- $out
 End-of-File
 	    echo "$out: output culled"
 	fi

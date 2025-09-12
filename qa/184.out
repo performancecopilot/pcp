@@ -1,5 +1,5 @@
 QA output created by 184
 test really-retired by kenj on 13 Sep 2025
-#
-# to see the original output
-# 	$ git diff 5ce07ea86 -- 184.out
+
+ to see the original output
+ 	$ git diff 5ce07ea86 -- 184.out
