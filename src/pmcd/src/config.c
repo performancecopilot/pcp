@@ -2061,6 +2061,7 @@ GetAgentDso(AgentInfo *aPtr)
     dso->dispatch.comm.pmda_interface = challenge;
     /* set in 2 steps to avoid int to bitfield truncation warnings */
     dso->dispatch.comm.pmapi_version = PMAPI_VERSION_2; /* oldest supported */
+    /* coverity[integer_overflow] */
     dso->dispatch.comm.pmapi_version = ~dso->dispatch.comm.pmapi_version;
 
     dso->dispatch.comm.flags = 0;
