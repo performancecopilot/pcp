@@ -5,55 +5,12 @@
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
 
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+seq=`basename $0`
+echo "QA output created by $seq"
 
 # get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-do_valgrind=false
-if [ "$1" = "--valgrind" ]
-then
-    _check_valgrind
-    do_valgrind=true
-fi
-
-# checks /proc files, only works on linux platform
-[ $PCP_PLATFORM = linux ] || _notrun "Linux-only test, unsupported on $PCP_PLATFORM"
-
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-status=0	# success is the default!
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
-if grep -q -s PCP_NSS_INIT_MODE $PCP_SYSCONFIG_DIR/pmcd
-then
-    echo passed, PCP_NSS_INIT_MODE found in pmcd sysconfig
-else
-    echo FAILED, PCP_NSS_INIT_MODE not found in pmcd sysconfig
-fi
-
-pmcdpid=`_get_pids_by_name pmcd`
-if $sudo grep -q -s PCP_NSS_INIT_MODE /proc/$pmcdpid/environ
-then
-    echo passed, PCP_NSS_INIT_MODE found in pmcd environment
-else
-    echo FAILED, PCP_NSS_INIT_MODE not found in pmcd environment
-fi
-
-# all done
-exit
+_notrun "retired and culled"
