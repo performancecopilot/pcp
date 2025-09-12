@@ -1691,6 +1691,12 @@ slackpkg?	ibdev2netdev	[? {Slackware}]
 pacman?		ibdev2netdev	[? {Arch Linux}]
 brew?		ibdev2netdev	[? {MacOS?}]
 
+# -- /usr/share/pkgconfig/systemd.pc needed for configure testing to
+# set systemd paths
+#
+dpkg?		/usr/share/pkgconfig/systemd.pc 	[systemd-dev]
+rpm?		/usr/share/pkgconfig/systemd.pc		[systemd]
+
 # misc
 #
 rpm?		/usr/sbin/qshape	[postfix-perl-scripts]

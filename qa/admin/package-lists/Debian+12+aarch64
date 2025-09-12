@@ -129,6 +129,7 @@ sed
 smartmontools
 socat
 sysstat
+systemd-dev
 systemtap
 systemtap-sdt-dev
 targetcli-fb
