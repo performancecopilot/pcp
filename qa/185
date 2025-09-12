@@ -5,138 +5,14 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 185
+
 seq=`basename $0`
-echo "QA output created by $seq"
-
-# create our own tmpdir to ensure we can write to it
-tmpdir=/tmp/$seq-$$
-rm -rf $tmpdir
-mkdir -p $tmpdir/pmlogger
-export PCP_TMP_DIR=$tmpdir
-
-# get standard filters
 . ./common.product
 . ./common.filter
 . ./common.check
 
-signal=$PCP_BINADM_DIR/pmsignal
-trap "$signal -a pmlogger >/dev/null 2>&1; cd; rm -rf $tmpdir $tmp $tmp.* /tmp/pmlogger.log* /tmp/Latest; exit" 0 1 2 3 15
-
-_filter_dumplog()
-{
-    sed \
-	-e '/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/s//TIMESTAMP/' \
-	-e 's/^\(log started  *\).*/\1DATESTAMP/' \
-	-e 's/^\(last log entry  *\).*/\1DATESTAMP/' \
-	-e 's/^\(current time  *\).*/\1DATESTAMP/' \
-	-e 's/^\(  *commencing *\).*/\1DATESTAMP/' \
-	-e 's/^\(  *ending *\).*/\1DATESTAMP/' \
-	-e '/^Performance metrics/s/host .*/host HOST/'
-}
-
-_filter_newlog()
-{
-    sed \
-	-e 's/pid [0-9][0-9]*/pid PID/' \
-	-e '/ \/usr\/pcp\/bin\/pmlogger /s/.*/-- ps line removed --/' \
-	-e '/^\/usr\/pcp\/bin\/pmlogger/s/[0-9][0-9]*/PID/g' \
-	-e '/configuration file saved as/s/[0-9][0-9]*/PID/g' \
-	-e 's/\[[0-9][0-9]*]/[PID]/' \
-	-e 's/ host [^ ]*/ host HOST/g' \
-	-e '/^Getting logged/s/host HOST/host name/' \
-	-e 's/ -h [^ ]*/ -h HOST/g' \
-	-e 's/ SIG.* done/ signal stuff ... done/' \
-	-e '/Error \[<stdin>,/d' \
-	-e '/Warning \[<stdin>,/d' \
-	-e '/Not connected to any/d' \
-	-e '/Logging statement ignored/d' \
-	-e '/Problem with lookup for metric/d' \
-	-e '/Reason: Unknown metric name/d' \
-	-e '/Try again. Information not currently available/d' \
-	-e '/Unknown or illegal metric identifier/d' \
-	-e '/Metric not supported by this version/d' \
-	-e '/^log size/s/[0-9][0-9]*/BYTES/' \
-	-e '/^Contacting pmlogger /d' \
-	-e '/^pmnewlog: Warning: errors from talking /d' \
-	-e '/^continuing .../d' \
-	-e '/New pmlogger configuration file saved /d' \
-	-e '/^[ 	]*$/d'
-}
-
-# real QA test starts here
-cat <<End-of-File >$tmp.config
-# singular instances
-log mandatory off sample.control
-log mandatory on 10 sec sample.load
-log advisory on once sample.seconds
-# multiple instances
-log mandatory off sample.colour
-log mandatory on 20 sec sample.bin
-log advisory on 1 min sample.bucket
-End-of-File
-rm -f $tmp.arch.*
-$sudo rm -f /tmp/pmlogger.log* /tmp/Latest
-pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch &
-pid=$!
-sleep 1
-
-echo
-echo "=== pmnewlog #1 =="
-rm -f $tmp.arch.1.*
-# ps $PCP_PS_ALL_FLAGS | grep pmlogger
-# echo "pid=$pid"
-pmnewlog -C $tmp.config.1 -p $pid $tmp.arch.1 2>&1 >$tmp.out
-_filter_newlog <$tmp.out | _filter_dumplog >$tmp.check
-if [ -s $tmp.check ]
-then
-    echo "Unexpected output!"
-    echo
-    echo "Filtered residual ..."
-    cat $tmp.check
-    echo
-    echo "Unfiltered output from pmnewlog ..."
-    cat $tmp.out
-else
-    echo "Nothing unexpected in the pmnewlog output"
-fi
-
-echo
-echo "=== config differences ==="
-diff $tmp.config $tmp.config.1
-
-echo
-echo "=== pmnewlog #2 =="
-rm -f $tmp.arch.2.*
-
-hostname=`hostname`
-pid=`ps $PCP_PS_ALL_FLAGS \
-     | tee $tmp.ps \
-     | grep -v grep \
-     | $PCP_AWK_PROG "/pmlogger.*-h $hostname.*-c \/tmp\// "'{print $2}'`
-# ps $PCP_PS_ALL_FLAGS | grep pmlogger
-# echo "pid=$pid"
-if [ "X$pid" = X ]
-then
-    echo "Error: no pid matching \"pmlogger.*-h `hostname`.*-c /tmp/\" from ps!"
-    cat $tmp.ps
-    exit 1
-fi
-
-pmnewlog -C $tmp.config.2 -p $pid $tmp.arch.2 2>&1 >$tmp.out
-_filter_newlog <$tmp.out | _filter_dumplog >$tmp.check
-if [ -s $tmp.check ]
-then
-    echo "Unexpected output!"
-    echo
-    echo "Filtered residual ..."
-    cat $tmp.check
-    echo
-    echo "Unfiltered output from pmnewlog ..."
-    cat $tmp.out
-else
-    echo "Nothing unexpected in the pmnewlog output"
-fi
-
-echo
-echo "=== config differences (expect none!) ==="
-diff $tmp.config.1 $tmp.config.2
+_notrun 'retired and culled'

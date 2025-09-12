@@ -1,0 +1,18 @@
+#!/bin/sh
+# PCP QA Test No. 782
+# Test backwards compatibility for pmwebd options configuration.
+#
+# Copyright (c) 2014 Red Hat.
+#
+
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff c37c7c679 -- 782
+
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_notrun 'retired and culled'

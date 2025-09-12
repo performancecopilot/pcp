@@ -1,26 +1,5 @@
 QA output created by 666
-pmmgr ok
-=== 1. prepare blank pmmgr config directory  ===
-=== 2. pmmgr barenaked startup  ===
-=== 3. look for pmmgr starting no daemons ===
-target-host
-target-threads
-=== 4. add control files to start pmlogger and pmie ===
-=== 5. restart pmcd a few times to get a bunch of pmlogger archives ===
-=== 6. check the directories ===
-more than one
-=== 7. add log-merging/rewriting, sans pmFOOconf ===
-=== 8. recheck the directories past retain/merge ===
-less than three
-=== 9. how about some granular/reduced mode with some extra monitoring ===
-=== 10. wait a bit ===
-=== 11. admire grained / reduced / retained / monitor data ===
-more than zero and less than five archives
-more than zero and less than four reduced archives
-monitor-0 output good
-monitor-1 output good
-monitor-2 output good
-monitor-3 output good
-=== ZZZ kill pmmgr ===
-=== valgrind stdout ===
-=== valgrind stderr ===
+test really-retired by kenj on 13 Sep 2025
+#
+# to see the original output
+# 	$ git diff 5ce07ea86 -- 666.out

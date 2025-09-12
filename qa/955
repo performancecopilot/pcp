@@ -7,126 +7,14 @@
 # Copyright (c) 2016 Red Hat.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 955
 
-# get standard environment, filters and checks
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-[ $PCP_PLATFORM = linux ] || _notrun "Test uses Linux interrupts metrics"
-
-status=1	# failure is the default!
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
-
-_filter()
-{
-    tee -a $seq_full \
-    | sed \
-	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
-	-e 's/0x[0-9a-f]*/ADDR/g' \
-	-e 's/[0-2][0-9]:00:00.000/TIME/' \
-	-e "s@$tmp@TMP@g" \
-    #end
-}
-
-_filter_intr()
-{
-    _filter \
-    | $PCP_AWK_PROG '
-BEGIN				{ part = 0 }
-part == 1 && $1 == "dbpmda>"	{ part = 2 }
-part == 3 && $1 == "dbpmda>"	{ part = 4 }
-				{ print >"'$tmp'.part." part }
-/kernel.all.interrupts.total): numval:/	{ part = 1 }
-/kernel.all.softirqs.total): numval:/	{ part = 3 }
-'
-    cat $tmp.part.0
-    sed <$tmp.part.1  \
-	-e "s/inst [[0-9][0-9]*/inst [NN/" \
-    | sort
-    cat $tmp.part.2
-    sed <$tmp.part.3  \
-	-e "s/inst [[0-9][0-9]*/inst [NN/" \
-    | sort
-    cat $tmp.part.4
-}
-
-_count_leafs()
-{
-   grep leaf |	$PCP_AWK_PROG '
-		END {if (NR > 2) print "LEAFS OK" 
-			   else print "NO LEAFS"}'
-}
-
-# real QA test starts here
-machine=8cpu-x86_64
-pmdalinux=$PCP_PMDAS_DIR/linux/pmdalinux
-
-export LINUX_STATSPATH=$tmp.root
-export LINUX_NCPUS=8
-export TERM=ansi
-
-mkdir -p $LINUX_STATSPATH/proc
-cp $here/linux/interrupts-$machine $LINUX_STATSPATH/proc/interrupts
-cp $here/linux/softirqs-$machine $LINUX_STATSPATH/proc/softirqs
-_make_proc_stat $LINUX_STATSPATH/proc/stat $LINUX_NCPUS
-
-# Test real regression that occured when updating dynamic metrics
-echo "=== Daemon PMDA linux static text then dynamic fetch test ==="
-dbpmda -ie <<EOF 2>&1 | _filter
-open pipe $pmdalinux -d 60 -l $tmp.log
-text hinv.ncpu
-fetch kernel.percpu.interrupts.line1
-EOF
-cat $tmp.log >>$seq_full
-
-# Try a couple of other plausible failures
-
-# Static fetch then dynamic fetch
-echo "=== Daemon PMDA linux static fetch then dynamic fetch test ==="
-dbpmda -ie <<EOF 2>&1 | _filter
-open pipe $pmdalinux -d 60 -l $tmp.log
-fetch hinv.ncpu
-fetch kernel.percpu.interrupts.line1
-EOF
-cat $tmp.log >>$seq_full
-
-# Dynamic fetch then static fetch
-echo "=== Daemon PMDA linux dynamic then static fetch test ==="
-dbpmda -ie <<EOF 2>&1 | _filter
-open pipe $pmdalinux -d 60 -l $tmp.log
-fetch kernel.percpu.interrupts.line1
-fetch hinv.ncpu
-EOF
-cat $tmp.log >>$seq_full
-
-# Dump a dynamic tree
-echo "=== Daemon PMDA linux look for dynamic children ==="
-dbpmda -ie <<EOF 2>&1 | _filter | _count_leafs
-open pipe $pmdalinux -d 60 -l $tmp.log
-children kernel.percpu.interrupts
-EOF
-cat $tmp.log >>$seq_full
-
-# Check values from a second dynamic tree (softirqs)
-echo "=== Daemon PMDA fetch from a second dynamic metric tree ==="
-dbpmda -ie <<EOF 2>&1 | _filter
-open pipe $pmdalinux -d 60 -l $tmp.log
-fetch kernel.percpu.softirqs.NET_RX kernel.percpu.interrupts.line0
-EOF
-cat $tmp.log >>$seq_full
-
-# Verify aggregated metric values
-echo "=== Daemon PMDA accumulated interrupts and softirqs ==="
-dbpmda -ie <<EOF 2>&1 | _filter_intr
-open pipe $pmdalinux -d 60 -l $tmp.log
-fetch kernel.all.interrupts.total
-fetch kernel.all.softirqs.total
-EOF
-cat $tmp.log >>$seq_full
-
-# success, all done
-status=0
-exit
+_notrun 'retired and culled'

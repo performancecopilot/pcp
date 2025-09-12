@@ -1,0 +1,19 @@
+#! /bin/sh
+# PCP QA Test No. 1225
+# checks pmwebd graphite archive scanning and graphite export functionality
+# checks the -J flag for archive hostname canonicalization in the query results.
+# checks pmwebd and pmrep report the same values and times for the same archive.
+#
+# Copyright (c) 2017-2018 Red Hat.
+#
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 301e4025a -- 1225
+
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_notrun 'retired and culled'

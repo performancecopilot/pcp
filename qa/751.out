@@ -1,9 +1,5 @@
 QA output created by 751
-
-old -> new changes
-@@ -30,3 +30,3 @@
- PMID: 123.1.10 (rpm.size)
--    Data Type: 32-bit unsigned int  InDom: 123.0 0x1ec00000
-+    Data Type: 64-bit unsigned int  InDom: 123.0 0x1ec00000
-     Semantics: instant  Units: byte
-new -> ref changes ... expect none
+test really-retired by kenj on 13 Sep 2025
+#
+# to see the original output
+# 	$ git diff 5ce07ea86 -- 751.out

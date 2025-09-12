@@ -7,53 +7,14 @@
 # Copyright (c) 2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 219
 
-# get standard environment, filters and checks
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-if [ -f $PCP_INC_DIR/pmdbg.h ]
-then
-    if grep DBG_TRACE_ $PCP_INC_DIR/pmdbg.h >/dev/null
-    then
-	:
-    else
-	_notrun "new style $PCP_INC_DIR/pmdbg.h, nothing to test"
-    fi
-else
-    _notrun "$PCP_INC_DIR/pmdbg.h not installed"
-    # NOTREACHED
-fi
-
-status=0	# success is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
-pmdbg -l -o \
-| tee $seq_full \
-| sed -n -e '/^DBG_/s/[ 	].*//p' \
-| LC_COLLATE=POSIX sort >$tmp.dbg
-
-echo "------" >>$seq_full
-cat $PCP_INC_DIR/pmdbg.h >>$seq_full
-sed -n <$PCP_INC_DIR/pmdbg.h \
-    -e '/^[ 	]*\/\*/d' \
-    -e '/DBG_/{
-s/.*DBG_/DBG_/
-s/[, 	].*//
-p
-}' \
-| LC_COLLATE=POSIX sort >$tmp.dbg.h
-
-echo "Missing from pmdbg -l -o ..."
-comm -23 $tmp.dbg.h $tmp.dbg
-
-echo
-echo "Missing from <pcp/pmdbg.h> ..."
-comm -13 $tmp.dbg.h $tmp.dbg
-
-# success, all done
-exit
+_notrun 'retired and culled'

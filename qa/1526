@@ -13,39 +13,14 @@
 # Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 1526
 
-# get standard environment, filters and checks
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-status=0	# success is the default!
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
-
-echo "QA environment probing ... this is NOT a qa/$seq failure"
-echo "=== env ==="
-env
-for dir in /sys /sys/block
-do
-    echo "=== $dir ==="
-    if [ -d "$dir" ]
-    then
-	ls -l "$dir"
-    else
-	echo "Not a directory!"
-    fi
-done
-
-# all done
-exit
+_notrun 'retired and culled'

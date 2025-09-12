@@ -1,10 +1,5 @@
 QA output created by 783
-=== std out ===
-=== std err ===
-=== filtered valgrind report ===
-Memcheck, a memory error detector
-Command: /var/lib/pcp/pmdas/rpm/pmdarpm -C
-LEAK SUMMARY:
-definitely lost: 0 bytes in 0 blocks
-indirectly lost: 0 bytes in 0 blocks
-ERROR SUMMARY: 0 errors from 0 contexts ...
+test really-retired by kenj on 13 Sep 2025
+#
+# to see the original output
+# 	$ git diff 5ce07ea86 -- 783.out

@@ -5,81 +5,14 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 500
 
-# get standard environment, filters and checks
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-signal=$PCP_BINADM_DIR/pmsignal
-newlog=$PCP_BINADM_DIR/pmnewlog
-status=1	# failure is the default!
-trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
-
-mkdir -p -m 777 $tmp
-cd $tmp
-wai=`whoami`
-
-_filter_pmnewlog()
-{
-    sed \
-	-e "s;$PCP_BINADM_DIR/pmlogger;pmlogger;g" \
-	-e 's/process [0-9][0-9]*/process PID/' \
-	-e "s/^ *$wai/   pcpqa/" \
-	-e '/^ *pcp*.*pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
-	-e '/^ *root.*pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
-	-e '/^[0-9][0-9]*.* pmlogger -L.*.*-c null one/	s/.*/-- ps line removed --/' \
-	-e 's/ SIG.* done/ signal stuff ... done/' \
-	-e "s;$tmp;TMP;g" \
-	-e 's/ -h [^ ]*/ -h HOST/g' \
-	-e '/pmlogger \[[0-9][0-9]*].*/{
-		s/\[.*/[PID] .../
-		q
-	}'
-}
-
-# real QA test starts here
-touch null
-_start_up_pmlogger -L -c null one
-pmlogger_pid=$pid
-
-for arg in '-D pdu' -r '-t 5sec' '-v 100k'
-do
-    echo
-    echo "pmnewlog args: -V -L -c null -p ... $arg one"
-    _wait_for_pmlogger $pmlogger_pid pmlogger.log || _exit 1
-    $sudo rm -f one.*
-    # Need to do this really as root so the pmsignal to kill pmlogger
-    # works as expected.
-    #
-    eval $sudo $newlog -V -L -c null -p $pmlogger_pid $arg one >out
-    _filter_pmnewlog <out
-
-    pmlogger_pid=`sed -n <out '/^pmlogger \[/{
-s/].*//
-s/.*\[//
-p
-}'`
-    if [ -z "$pmlogger_pid" ]
-    then
-	echo "Cannot extract pmlogger PID from ..."
-	cat out
-	echo
-	echo "... giving up!"
-	exit
-    fi
-
-done
-
-$sudo $signal -s TERM $pmlogger_pid
-_wait_pmlogger_end $pmlogger_pid || _exit 1
-
-echo
-echo "expect none of my pmloggers to be running ..."
-ps $PCP_PS_ALL_FLAGS | grep pmlogger | grep 'null one' | grep -v grep
-
-# success, all done
-status=0
-exit
+_notrun 'retired and culled'

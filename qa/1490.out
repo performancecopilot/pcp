@@ -1,2 +1,5 @@
 QA output created by 1490
-PASSED
+test really-retired by kenj on 13 Sep 2025
+#
+# to see the original output
+# 	$ git diff 5ce07ea86 -- 1490.out

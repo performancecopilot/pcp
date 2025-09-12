@@ -5,39 +5,14 @@
 # Copyright (c) 2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 126
 
-# get standard environment, filters and checks
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-rm -f $seq.out
-if [ -f /etc/redhat-release ]
-then
-    if grep -E -q '^CentOS [^0-9]*5\.[0-9]|^Red Hat [^0-9]*5\.[0-9]' </etc/redhat-release
-    then
-	# not all the snmp metrics are there ...
-	ln $seq.out.2 $seq.out
-    else
-	ln $seq.out.1 $seq.out
-    fi
-else
-    ln $seq.out.1 $seq.out
-fi
-
-status=0	# success is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
-
-if [ -e /proc/net/snmp ]
-then
-    awk '$2 !~ /[0-9]/ {print}' /proc/net/snmp
-else
-    grep -v '^QA' $seq.out
-fi
-
-# success, all done
-exit $status
+_notrun 'retired and culled'

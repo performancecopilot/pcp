@@ -1,0 +1,140 @@
+#!/bin/sh
+#
+# Really retire QA tests
+# - ensure :retired tag is in the group file
+# - replace test by a stub _notrun
+# - replace all .out files with a one-line "retired" note
+#
+
+tmp=/var/tmp/really-retire-$$
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 4 15
+
+if [ $# -eq 0 ]
+then
+    do_all=true
+    set -- `sed <group -n -e '/^[0-9][0-9]*:retired/s/:retired.*//p'`
+else
+    do_all=false
+fi
+
+if [ ! -f group ]
+then
+    echo "Arrgh: no group file, are you in the right directory?"
+    exit 1
+fi
+
+for seq
+do
+    prior_sha=`git rev-parse --short HEAD`
+    if [ ! -f "$seq" ]
+    then
+	# test has been removed, so try and reconstruct the last
+	# commit *before* the git rm
+	#
+	if git log -2 --format=%h -- $seq >$tmp.tmp
+	then
+	    sha=`sed -n -e 1p <$tmp.tmp`
+	    prior_sha=`sed -n -e 2p <$tmp.tmp`
+	    if [ -n "$sha" ]
+	    then
+		if git ls-tree -- ${sha}~ $seq >$tmp.tmp
+		then
+		    blob=`awk <$tmp.tmp '{print $3}'`
+		    if [ -n "$blob" ]
+		    then
+			if git cat-file -p $blob >$tmp.tmp
+			then
+			    if [ -s $tmp.tmp ]
+			    then
+				# success
+				mv $tmp.tmp $seq
+				chmod 755 $seq
+				git add $seq
+				echo "$seq: reconstructed from commit $sha"
+			    else
+				echo "Arrgh: test $seq empty from commit $sha and blob $blob"
+				exit 1
+			    fi
+			else
+			    echo "Arrgh: git cat-file failed for $seq commit $sha and blob $blob"
+			    exit 1
+			fi
+		    else
+			echo "Arrgh: blob empty for $seq commit $sha"
+			exit 1
+		    fi
+		else
+		    echo "Arrgh: git ls-tree failed for $seq commit $sha"
+		    exit 1
+		fi
+	    else
+		echo "Arrgh: sha empty for $seq"
+		exit 1
+	    fi
+	else
+	    echo "Arrgh: git log failed for $seq"
+	    exit 1
+	fi
+    fi
+    if grep -q "^$seq:retired" group
+    then
+	$do_all || echo "$seq: already tagged :retired in group file"
+    elif grep -q "^$seq " group
+    then
+	sed -e "/^$seq /s/ /:retired /" <group >$tmp.tmp
+	mv $tmp.tmp group
+	echo "$seq: add :retired tag in group file"
+    else
+	echo "Arrgh: test $seq is not in the group file, I quit"
+	exit 1
+    fi
+
+    if grep -q '_notrun.*[Rr]etired' $seq
+    then
+	$do_all || echo "$seq: test already culled"
+    else
+	# keep every thing in first comment block and any blank lines
+	#
+	awk <$seq >$tmp.tmp '
+/^#/ || NF == 0		{ print; next }
+			{ exit }'
+	cat <<End-of-File >>$tmp.tmp
+# test really-retired by `id -un` on `date +'%d %b %Y'`
+#
+# to see the original test
+# 	\$ git diff $prior_sha -- $seq
+
+seq=\`basename \$0\`
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_notrun 'retired and culled'
+End-of-File
+	cp $tmp.tmp $seq
+	git add $seq
+	echo "$seq: test culled"
+    fi
+
+    for out in $seq.*out*
+    do
+	[ "$out" = "$seq.*out*" -o "$out" = $seq.out.bad -o "$out" = $seq.out.bak ] && continue
+	if grep -q '^test really-retired by' $out
+	then
+	    $do_all || echo "$out: output already culled"
+	else
+	    cat <<End-of-File >$out
+QA output created by $seq
+test really-retired by `id -un` on `date +'%d %b %Y'`
+#
+# to see the original output
+# 	\$ git diff `git rev-parse --short HEAD` -- $out
+End-of-File
+	    echo "$out: output culled"
+	fi
+    done
+
+done
+
+status=0

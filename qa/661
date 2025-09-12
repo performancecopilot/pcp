@@ -1,0 +1,17 @@
+#! /bin/sh
+# PCP QA Test No. 661
+# checks pmwebd graphite (web application) functionality
+#
+# Copyright (c) 2014-2016 Red Hat.
+#
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff eb803247c -- 661
+
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_notrun 'retired and culled'
