@@ -10,6 +10,7 @@ $ podman run -d \
     --systemd always \
     -p 44321:44321 \
     -p 44322:44322 \
+    -e PCP_DOMAIN_AGENTS=apache,uwsgi \
     -v pmlogger:/var/log/pcp/pmlogger \
     -v pmproxy:/var/log/pcp/pmproxy \
     quay.io/performancecopilot/pcp
@@ -17,7 +18,7 @@ $ podman run -d \
 
 **Note:** On SELinux enabled systems, the following boolean needs to be set: `sudo setsebool -P container_manage_cgroup true`
 
-### Enabling host processes, network and container metrics
+### Enabling host processes, eBPF, network and container metrics
 
 ```
 $ sudo podman run -d \
@@ -26,6 +27,7 @@ $ sudo podman run -d \
     --net host \
     --systemd always \
     -e HOST_MOUNT=/host \
+    -e PCP_DOMAIN_AGENTS=bpf,bpftrace \
     -v pmlogger:/var/log/pcp/pmlogger \
     -v pmproxy:/var/log/pcp/pmproxy \
     -v /:/host:ro,rslave \
@@ -56,6 +58,11 @@ Default: `pmcd,pmie,pmlogger,pmproxy`
 
 Comma-separated list of PCP services to start.
 
+#### `PCP_DOMAIN_AGENTS`
+Default: unset.
+
+Comma-separated list of non-default PCP domain agents to start.
+
 #### `HOST_MOUNT`
 Default: unset.
 
@@ -64,7 +71,7 @@ Path inside the container to the bind mount of `/` on the host.
 #### `KEY_SERVERS`
 Default: `localhost:6379`
 
-Key server connection spec(s) - could be any individual cluster host, and all hosts in the cluster will be automatically discovered.
+Key server (Valkey or Redis) connection spec(s) - could be any individual cluster host, and all hosts in the cluster will be automatically discovered.
 Alternately, use comma-separated hostspecs (non-clustered setup)
 
 ### Configuration Files
@@ -85,11 +92,18 @@ $ podman run -d \
     quay.io/performancecopilot/pcp
 ```
 
-pmlogger.control:
+pmlogger.control for local logging:
 ```
 $version=1.1
 
-remote.pmcdhost.corp	n   n	PCP_ARCHIVE_DIR/remote_pmcd	-N -r -T24h10m -c config.default -v 100Mb
+www.example.com   n   n	PCP_ARCHIVE_DIR/www-example -N -r -T24h10m -c config.example -v 100Mb
+```
+
+pmlogger.control for remote logging:
+```
+$version=1.1
+
+www.example.com   n   n	+PCP_ARCHIVE_DIR/www-example    -N -r -T24h10m -c config.example -v 100Mb http://central.example.com:44321
 ```
 
 ## Volumes

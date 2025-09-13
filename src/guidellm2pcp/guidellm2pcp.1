@@ -1,0 +1,76 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (C) 2025 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH GUIDELLM2PCP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3guidellm2pcp\f1 \- GuideLLM benchmark results importer
+.SH SYNOPSIS
+\fBguidellm2pcp\fP
+[\fB\-hv\fP]
+[\fB\-a\fP \fIarchive\fP]
+[\fB\-H\fP \fIhostname\fP]
+\fIresults\fP
+[...]
+.SH DESCRIPTION
+.B guidellm2pcp
+is a performance metrics importer tool that creates a PCP archive
+from the JSON results of a GuideLLM benchmark.
+.PP
+An archive spanning the time for which the benchmark and its run
+iterations were active.
+Discrete PCP metrics are created for each recorded aspect of a run,
+and logged once at the start and once at the end of each iteration,
+followed by a mark record.
+.PP
+This allows PCP tools to report on these metrics in a meaningful way
+alongside other system (kernel, hardware, vLLM, and so on) metrics
+gathered during the benchmark.
+.PP
+The only mandatory command line argument is the JSON
+.I results
+file from a GuideLLM invocation.
+This JSON can optionally be wrapped with additional Model Furnace
+metadata, and if this is detected additional PCP labels will be
+extracted and stored (such as model and inference server names).
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Specified the name of the output PCP
+.I archive
+to be produced.
+By default, an archive name using the timestamp of the start of
+the benchmark run will be used.
+.TP
+\fB\-H\fR \fIhostname\fR, \fB\-\-hostname\fR=\fIhostname\fR
+Sets the
+.I hostname
+that will be stamped into the PCP archive label header.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display usage message and exit.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Report progress as each run is identified and its values saved.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pminfo (1),
+.BR pmrep (1),
+.BR LOGARCHIVE (5),
+and
+.BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ GuideLLM EST

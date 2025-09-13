@@ -4,11 +4,8 @@ FROM quay.io/fedora/fedora:rawhide
 COPY build/containers/archive-analysis/root /
 
 RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
-    gettext-envsubst grafana-pcp pcp python3-pcp pcp-import-* valkey zstd && \
-    microdnf clean all
-
-# ensure a fixed UID is assigned for every PCP container invocation
-RUN sed -i -e 's/^u pcp -/u pcp 1001/g' /usr/lib/sysusers.d/pcp.conf
+    gettext-envsubst grafana grafana-pcp pcp python3-pcp pcp-import-* valkey \
+    libbpf zstd && microdnf clean all
 
 ## Setup
 ENV NAME="archive-analysis"
@@ -38,7 +35,7 @@ RUN systemctl mask \
     systemd-udevd-control.socket systemd-udevd-kernel.socket
 
 RUN systemctl disable pmcd pmlogger pmie
-RUN systemctl enable pmproxy valkey grafana-server archive-import
+RUN systemctl enable grafana-server pmseries_import pmproxy valkey
 RUN sed -i 's/pcp-valkey/performancecopilot-valkey/g' /etc/grafana/grafana.ini
 RUN chown -R grafana:grafana /etc/grafana
 

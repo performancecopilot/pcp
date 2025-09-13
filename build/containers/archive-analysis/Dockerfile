@@ -16,6 +16,7 @@ RUN mkdir /build && \
       pcp-$release.$machine.rpm \
       pcp-conf-$release.$machine.rpm \
       pcp-libs-$release.$machine.rpm \
+      pcp-import-pmseries-$release.$machine.rpm \
       python3-pcp-$release.$machine.rpm \
       /build
 
@@ -26,7 +27,7 @@ COPY --from=build /build /build
 COPY build/containers/archive-analysis/root /
 
 RUN dnf install -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs \
-        python3 procps-ng gettext /build/*.rpm valkey grafana grafana-pcp && \
+        python3 procps-ng gettext /build/*.rpm valkey grafana grafana-pcp zstd && \
     dnf clean all && \
     rm -rf /build && \
     systemctl mask systemd-remount-fs.service dev-hugepages.mount \
@@ -36,9 +37,8 @@ RUN dnf install -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs \
         systemd-oomd systemd-resolved \
         systemd-udevd-control.socket systemd-udevd-kernel.socket && \
     systemctl disable pmcd pmlogger pmie && \
-    systemctl enable pmproxy valkey grafana-server archive-import && \
-    mkdir /dashboards && \
-    sed -i 's/pcp-valkey-datasource/performancecopilot-valkey-datasource/g' \
+    systemctl enable grafana-server pmproxy pmseries_import valkey && \
+    mkdir /dashboards && sed -i 's/pcp-valkey/performancecopilot-valkey/g' \
         /etc/grafana/grafana.ini && \
     chown -R grafana:grafana /etc/grafana
 

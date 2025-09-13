@@ -1,5 +1,4 @@
 pmseries
-pmseries_import.py
 pmseries_import.service
 jsmn.c
 jsmn.h

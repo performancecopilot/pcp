@@ -8,8 +8,9 @@ RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
     gettext-envsubst pcp pcp-pmda-* pcp-import-* pcp-export-* zstd && \
     microdnf clean all
 
-# ensure a fixed UID is assigned for every PCP container invocation
-RUN sed -i -e 's/^u pcp -/u pcp 1001/g' /usr/lib/sysusers.d/pcp.conf
+# ensure pmcd and pmproxy ports are both accessible on startup
+RUN sed -i 's/^PMPROXY_LOCAL=1/PMPROXY_LOCAL=0/g' /etc/sysconfig/pmproxy
+RUN sed -i 's/^PMCD_LOCAL=1/PMCD_LOCAL=0/g' /etc/sysconfig/pmcd
 
 ## Setup
 ENV NAME="pcp"
@@ -38,12 +39,12 @@ RUN systemctl mask \
     systemd-logind.service systemd-machine-id-commit.service \
     systemd-random-seed.service systemd-remount-fs.service \
     systemd-udev-trigger.service systemd-udevd.service \
-    systemd-udevd-control.socket systemd-udevd-kernel.socket
+    systemd-udevd-control.socket systemd-udevd-kernel.socket \
+    systemd-userdbd.service
 
 VOLUME ["/var/log/pcp/pmlogger"]
 VOLUME ["/var/log/pcp/pmproxy"]
-EXPOSE 44321
-EXPOSE 44322
+EXPOSE 44321 44322
 
 ENTRYPOINT ["/usr/bin/container-entrypoint"]
 CMD ["/usr/sbin/init"]
