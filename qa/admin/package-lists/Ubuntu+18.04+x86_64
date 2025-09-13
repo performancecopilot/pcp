@@ -24,6 +24,7 @@ dh-python
 docker.io not4ci
 dpkg-dev
 ed
+ethtool
 flex
 g++
 gawk
@@ -126,6 +127,7 @@ sed
 smartmontools
 socat
 sysstat
+systemd
 systemtap
 systemtap-sdt-dev
 targetcli-fb

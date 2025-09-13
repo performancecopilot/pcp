@@ -1671,7 +1671,7 @@ brew?		ibdev2netdev	[? {MacOS?}]
 # -- /usr/share/pkgconfig/systemd.pc needed for configure testing to
 # set systemd paths
 #
-dpkg?		/usr/share/pkgconfig/systemd.pc 	[systemd-dev]
+dpkg?		/usr/share/pkgconfig/systemd.pc 	[systemd or systemd-dev]
 rpm?		/usr/share/pkgconfig/systemd.pc		[systemd]
 
 # misc
