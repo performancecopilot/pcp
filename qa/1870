@@ -36,11 +36,11 @@ files=`ls -1 guidellm/*.json | LC_COLLATE=POSIX sort`
 
 for json in $files
 do
-    echo "guidellm2pcp $json
+    echo "== guidellm2pcp $json"
     guidellm2pcp -a $tmp.archive $json
-    pminfo -z -l -f -a $tmp.archive guidellm
-    pmval -z -t 60sec -a $tmp.archive guidellm.duration
-    rm -f $tmp.archive
+    pminfo -z -f -a $tmp.archive guidellm
+    pmval -z -t 60sec -a $tmp.archive guidellm.duration | _filter
+    rm -f $tmp.archive*
 done
 
 # success, all done
