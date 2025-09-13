@@ -117,9 +117,26 @@ fi
 
 if $ENABLE_SYSTEMD
 then
-    echo 's/?{systemd-dev}, /systemd-dev, /' >>$tmp.sed
+    # this is a pain ...
+    # /usr/share/pkgconfig/systemd.pc is the file configure needs
+    # but that's in different packages for different platforms try
+    # and suss out the package, but if that fails simply omit any
+    # related package from the Build-Depends: clause
+    #
+    if [ -f /usr/share/pkgconfig/systemd.pc ]
+    then
+	pkg=`dpkg-query -S /usr/share/pkgconfig/systemd.pc 2>/dev/null | sed -e 's/: .*//'`
+	if [ -n "$pkg" ]
+	then
+	    echo "s/?{systemd-pkgconfig}, /$pkg, /" >>$tmp.sed
+	else
+	    echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
+	fi
+    else
+	echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
+    fi
 else
-    echo 's/?{systemd-dev}, //' >>$tmp.sed
+    echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
 fi
 
 # PMDA_SYSTEMD is only true if we have libsystemd ...
