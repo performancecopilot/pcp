@@ -133,8 +133,7 @@ smartmontools
 socat
 sudo
 sysstat
-# only in backports which does not work in default CI
-systemd-dev not4ci
+systemd-dev
 systemtap
 systemtap-runtime
 systemtap-sdt-dev

@@ -137,7 +137,7 @@ smartmontools
 socat
 sudo
 sysstat
-systemd-dev
+systemd-dev not4ci
 systemtap
 systemtap-runtime
 systemtap-sdt-dev
