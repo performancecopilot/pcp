@@ -143,6 +143,7 @@ valkey-tools
 xfsprogs
 xkb-data
 zabbix-agent
-zfsutils-linux
+# suspect licensing restrictions will break this in CI
+zfsutils-linux not4ci
 zlib1g-dev
 zstd

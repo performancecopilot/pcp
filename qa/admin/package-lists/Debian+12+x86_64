@@ -148,6 +148,7 @@ valgrind
 xfsprogs
 xkb-data
 zabbix-agent
-zfsutils-linux
+# suspect licensing restrictions are breaking this in CI
+zfsutils-linux not4ci
 zlib1g-dev
 zstd

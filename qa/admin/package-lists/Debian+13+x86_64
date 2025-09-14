@@ -133,7 +133,8 @@ smartmontools
 socat
 sudo
 sysstat
-systemd-dev
+# only in backports which does not work in default CI
+systemd-dev not4ci
 systemtap
 systemtap-runtime
 systemtap-sdt-dev
@@ -144,6 +145,7 @@ valgrind
 xfsprogs
 xkb-data
 zabbix-agent
-zfsutils-linux
+# suspect licensing restrictions are breaking this in CI
+zfsutils-linux not4ci
 zlib1g-dev
 zstd
