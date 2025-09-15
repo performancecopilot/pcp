@@ -157,7 +157,7 @@ __pmHashClear(__pmHashCtl *hcp)
  * callback function must not modify the hash table.
  */
 void
-__pmHashWalkCB(__pmHashWalkCallback cb, void *cdata, const __pmHashCtl *hcp)
+__pmHashWalkCB(__pmHashWalkCallback cb, void *cdata, __pmHashCtl *hcp)
 {
     int n;
 
@@ -172,6 +172,7 @@ __pmHashWalkCB(__pmHashWalkCallback cb, void *cdata, const __pmHashCtl *hcp)
             case PM_HASH_WALK_DELETE_STOP:
                 *tpp = tp->next;  /* unlink */
                 free(tp);         /* delete */
+                hcp->nodes--;
                 return;           /* & stop */
 
             case PM_HASH_WALK_NEXT:
@@ -186,6 +187,7 @@ __pmHashWalkCB(__pmHashWalkCallback cb, void *cdata, const __pmHashCtl *hcp)
                  */
                 free(tp);         /* delete */
                 tp = *tpp; /* == tp->next, except that tp is already freed. */
+                hcp->nodes--;
                 break;            /* & next */
 
             case PM_HASH_WALK_STOP:
