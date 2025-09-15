@@ -39,8 +39,8 @@ chained(__pmHashCtl *h)
     __pmHashNode *n;
 
     for (n = __pmHashWalk(h, PM_HASH_WALK_START);
-         n != NULL;
-         n = __pmHashWalk(h, PM_HASH_WALK_NEXT)) {
+	 n != NULL;
+	 n = __pmHashWalk(h, PM_HASH_WALK_NEXT)) {
 	dumpnode(n->key, (__int64_t)((__psint_t)n->data));
     }
 }
@@ -61,12 +61,12 @@ main(int argc, char **argv)
     dumphash(&hc);
 
     if (argc >= 2) {
-        if (strcmp(argv[1], "callback") == 0)
-            __pmHashWalkCB(walker, (void *)PM_HASH_WALK_NEXT, &hc);
-        else if (strcmp(argv[1], "linked") == 0)
-            chained(&hc);
+	if (strcmp(argv[1], "callback") == 0)
+	    __pmHashWalkCB(walker, (void *)PM_HASH_WALK_NEXT, &hc);
+	else if (strcmp(argv[1], "linked") == 0)
+	    chained(&hc);
 	dumphash(&hc);
-        exit(0);
+	exit(0);
     }
 
     printf("iterating WALK_STOP\n");
