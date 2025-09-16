@@ -30,13 +30,13 @@
 #ifndef RESP_KEYS_H
 #define RESP_KEYS_H
 
-#include <hiredis/hiredis.h>
-#include <hiredis/async.h>
+#include <libvalkey/include/valkey/valkey.h>
+#include <libvalkey/include/valkey/async.h>
 
-#define RESP_OK			REDIS_OK
-#define RESP_ERR		REDIS_ERR
-#define RESP_ERR_IO		REDIS_ERR_IO
-#define RESP_CONN_UNIX		REDIS_CONN_UNIX
+#define RESP_OK			VALKEY_OK
+#define RESP_ERR		VALKEY_ERR
+#define RESP_ERR_IO		VALKEY_ERR_IO
+#define RESP_CONN_UNIX		VALKEY_CONN_UNIX
 
 /*
  * Unfortunately there is no error code for these errors to use.
@@ -47,49 +47,49 @@
 #define RESP_ELOADDATA	"loading the dataset in memory"
 #define RESP_ENOCLUSTER	"ERR This instance has cluster support disabled"
 
-#define RESP_KEEPALIVE_INTERVAL REDIS_KEEPALIVE_INTERVAL
+#define RESP_KEEPALIVE_INTERVAL VALKEY_KEEPALIVE_INTERVAL
 
 /*
  * Protocol reply types
  */
-#define RESP_REPLY_STRING	REDIS_REPLY_STRING
-#define RESP_REPLY_ARRAY 	REDIS_REPLY_ARRAY
-#define RESP_REPLY_BOOL 	REDIS_REPLY_BOOL
-#define RESP_REPLY_DOUBLE	REDIS_REPLY_DOUBLE
-#define RESP_REPLY_INTEGER	REDIS_REPLY_INTEGER
-#define RESP_REPLY_MAP		REDIS_REPLY_MAP
-#define RESP_REPLY_NIL		REDIS_REPLY_NIL
-#define RESP_REPLY_SET		REDIS_REPLY_SET
-#define RESP_REPLY_STATUS	REDIS_REPLY_STATUS
-#define RESP_REPLY_ERROR	REDIS_REPLY_ERROR
+#define RESP_REPLY_STRING	VALKEY_REPLY_STRING
+#define RESP_REPLY_ARRAY 	VALKEY_REPLY_ARRAY
+#define RESP_REPLY_BOOL 	VALKEY_REPLY_BOOL
+#define RESP_REPLY_DOUBLE	VALKEY_REPLY_DOUBLE
+#define RESP_REPLY_INTEGER	VALKEY_REPLY_INTEGER
+#define RESP_REPLY_MAP		VALKEY_REPLY_MAP
+#define RESP_REPLY_NIL		VALKEY_REPLY_NIL
+#define RESP_REPLY_SET		VALKEY_REPLY_SET
+#define RESP_REPLY_STATUS	VALKEY_REPLY_STATUS
+#define RESP_REPLY_ERROR	VALKEY_REPLY_ERROR
 
-#define respReply redisReply
-#define respReader redisReader
-#define respReaderCreate redisReaderCreate
-#define respReaderFeed redisReaderFeed
-#define respReaderFree redisReaderFree
-#define respReaderGetReply redisReaderGetReply
+#define respReply valkeyReply
+#define respReader valkeyReader
+#define respReaderCreate valkeyReaderCreate
+#define respReaderFeed valkeyReaderFeed
+#define respReaderFree valkeyReaderFree
+#define respReaderGetReply valkeyReaderGetReply
 
-#define keysAsyncContext redisAsyncContext
-#define keysAsyncEnableKeepAlive redisAsyncEnableKeepAlive
-#define keysKeepAlive redisKeepAlive
+#define keysAsyncContext valkeyAsyncContext
+#define keysAsyncEnableKeepAlive valkeyAsyncEnableKeepAlive
+#define keysKeepAlive valkeyKeepAlive
 
-#define keyClusterAsyncFree redisClusterAsyncFree
-#define keyClusterAsyncContext redisClusterAsyncContext
-#define keyClusterAsyncContextInit redisClusterAsyncContextInit
-#define keyClusterCallbackFn redisClusterCallbackFn
-#define keyClusterConnect2 redisClusterConnect2
-#define keyClusterAsyncDisconnect redisClusterAsyncDisconnect
-#define keyClusterSetOptionAddNodes redisClusterSetOptionAddNodes
-#define keyClusterSetOptionPassword redisClusterSetOptionPassword
-#define keyClusterSetOptionUsername redisClusterSetOptionUsername
-#define keyClusterSetOptionConnectTimeout redisClusterSetOptionConnectTimeout
-#define keyClusterSetOptionTimeout redisClusterSetOptionTimeout
-#define keyClusterLibuvAttach redisClusterLibuvAttach
-#define keyClusterAsyncSetConnectCallback redisClusterAsyncSetConnectCallback
-#define keyClusterAsyncSetDisconnectCallback redisClusterAsyncSetDisconnectCallback
-#define keyClusterAsyncFormattedCommand redisClusterAsyncFormattedCommand
-#define keyClusterAsyncFormattedCommandToNode redisClusterAsyncFormattedCommandToNode
+#define keyClusterAsyncFree valkeyClusterAsyncFree
+#define keyClusterAsyncContext valkeyClusterAsyncContext
+#define keyClusterAsyncContextInit valkeyClusterAsyncConnectWithOptions
+#define keyClusterCallbackFn valkeyClusterCallbackFn
+#define keyClusterConnect2 valkeyClusterConnectWithOptions
+#define keyClusterAsyncDisconnect valkeyClusterAsyncDisconnect
+#define keyClusterSetOptionAddNodes valkeyClusterOptions.initial_nodes
+#define keyClusterSetOptionPassword valkeyClusterOptions.password
+#define keyClusterSetOptionUsername valkeyClusterOptions.username
+#define keyClusterSetOptionConnectTimeout valkeyClusterOptions.connect_timeout
+#define keyClusterSetOptionTimeout valkeyClusterSetOptionTimeout
+#define keyLibuvAttachAdapter valkeyLibuvAttachAdapter
+#define keyClusterAsyncSetConnectCallback valkeyClusterOptions.async_connect_callback
+#define keyClusterAsyncSetDisconnectCallback valkeyClusterOptions.async_disconnect_callback
+#define keyClusterAsyncFormattedCommand valkeyClusterAsyncFormattedCommand
+#define keyClusterAsyncFormattedCommandToNode valkeyClusterAsyncFormattedCommandToNode
 
 extern const char *resp_reply_type(respReply *);
 extern int keysAsyncEnableKeepAlive(keysAsyncContext *);
