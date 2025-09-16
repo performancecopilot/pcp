@@ -265,7 +265,7 @@ then
 else
     echo "Warning: no extra suppressions found for valgrind version $__version" >>$seq_full
 fi
-# skip valgrind errors in upstream non-PCP code, like hiredis ...
+# skip valgrind errors in upstream non-PCP code, like libvalkey ...
 # (seen on vm11 Debian 10.13)
 # ... same suppressions as for qa/1662
 #
