@@ -1457,7 +1457,7 @@ keysSchemaLoad(keySlots *slots, keySlotsFlags flags,
     /* Register the pmsearch schema with RediSearch if needed */
     if (flags & SLOTS_SEARCH) {
 	/* if we got a route update means we are in cluster mode */
-	if (slots->acc->cc->route_version > 0) {
+	if (slots->acc && slots->acc->cc.route_version > 0) {
 	    pmNotifyErr(LOG_INFO, "disabling search module "
 			"because it does not support cluster mode\n");
 	} else {
@@ -1707,9 +1707,9 @@ pmSeriesSetup(pmSeriesModule *module, void *arg)
 	if (option && strcmp(option, "true") == 0)
 	    flags |= SLOTS_SEARCH;
 
-	data->slots = keySlotsConnect(
+	data->slots = &(keySlotsConnect(
 			data->config, flags, module->on_info,
-			module->on_setup, arg, data->events, arg);
+			module->on_setup, arg, data->events, arg))->slots;
 	data->shareslots = 0;
     }
 

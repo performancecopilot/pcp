@@ -1095,10 +1095,10 @@ connect_keys_source_service(seriesLoadBaton *baton)
 	    if ((baton->flags & PM_SERIES_FLAG_TEXT))
 		flags |= SLOTS_SEARCH;
 	    baton->slots = data->slots =
-		keySlotsConnect(
+		&(keySlotsConnect(
 		    data->config, flags, baton->info,
 		    series_load_end_phase, baton->userdata,
-		    data->events, (void *)baton);
+		    data->events, (void *)baton))->slots;
 	}
     }
 }
