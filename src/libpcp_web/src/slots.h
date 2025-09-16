@@ -14,7 +14,7 @@
 #ifndef SLOTS_H
 #define SLOTS_H
 
-#include <hiredis-cluster/hircluster.h>
+#include <libvalkey/include/valkey/cluster.h>
 #include <mmv_stats.h>
 #include "batons.h"
 #include "keys.h"
@@ -79,13 +79,19 @@ typedef struct keySlotsReplyData {
 
 typedef void (*keyPhase)(keySlots *, void *);	/* phased operations */
 
+/* Wrapper struct that holds both keySlots and the original connection options */
+typedef struct keySlotsContext {
+    keySlots			slots;		/* the key slots structure */
+    valkeyClusterOptions	opts;		/* original connection options */
+} keySlotsContext;
+
 extern void keySlotsSetupMetrics(keySlots *);
 extern int keySlotsSetMetricRegistry(keySlots *, mmv_registry_t *);
-extern keySlots *keySlotsInit(dict *, void *);
-extern keySlots *keySlotsConnect(dict *, keySlotsFlags,
+extern keySlotsContext *keySlotsInit(dict *, void *);
+extern keySlotsContext *keySlotsConnect(dict *, keySlotsFlags,
 		keysInfoCallBack, keysDoneCallBack, void *, void *, void *);
 extern void keySlotsReconnect(keySlots *, keySlotsFlags,
-		keysInfoCallBack, keysDoneCallBack, void *, void *, void *);
+		keysInfoCallBack, keysDoneCallBack, void *, void *, void *, valkeyClusterOptions *);
 extern uint64_t keySlotsInflightRequests(keySlots *);
 extern int keySlotsRequest(keySlots *, sds, keyClusterCallbackFn *, void *);
 extern int keySlotsRequestFirstNode(keySlots *slots, const sds cmd,
