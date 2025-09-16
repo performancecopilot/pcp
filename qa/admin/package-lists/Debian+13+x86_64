@@ -123,8 +123,6 @@ python3-six
 qtbase5-dev
 qtbase5-dev-tools
 qtchooser
-redis-server
-redis-tools
 valkey-server
 valkey-tools
 sasl2-bin
