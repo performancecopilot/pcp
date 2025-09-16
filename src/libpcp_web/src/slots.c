@@ -21,7 +21,7 @@
 #include <strings.h>
 #endif
 #if defined(HAVE_LIBUV)
-#include <hiredis-cluster/adapters/libuv.h>
+#include <libvalkey/include/valkey/adapters/libuv.h>
 #else
 static int keyClusterLibuvAttach() { return RESP_OK; }
 #endif
@@ -29,7 +29,7 @@ static int keyClusterLibuvAttach() { return RESP_OK; }
 static char default_server[] = "localhost:6379";
 
 static void
-key_server_connect_callback(const keysAsyncContext *keys, int status)
+key_server_connect_callback(keysAsyncContext *keys, int status)
 {
     if (status == RESP_OK) {
 	if (pmDebugOptions.series)
@@ -154,10 +154,10 @@ keySlotsSetMetricRegistry(keySlots *slots, mmv_registry_t *registry)
     return -ENOMEM;
 }
 
-keySlots *
+keySlotsContext *
 keySlotsInit(dict *config, void *events)
 {
-    keySlots		*slots;
+    keySlotsContext		*context;
     sds			servers = NULL;
     sds			def_servers = NULL;
     sds			username = NULL;
@@ -166,19 +166,19 @@ keySlotsInit(dict *config, void *events)
     struct timeval	connection_timeout = {5, 0}; // 5s
     struct timeval	command_timeout = {60, 0}; // 1m
 
-    if ((slots = (keySlots *)calloc(1, sizeof(keySlots))) == NULL) {
-	pmNotifyErr(LOG_ERR, "%s: failed to allocate keySlots\n",
+    if ((context = (keySlotsContext *)calloc(1, sizeof(keySlotsContext))) == NULL) {
+	pmNotifyErr(LOG_ERR, "%s: failed to allocate keySlotsContext\n",
 			"keySlotsInit");
 	return NULL;
     }
 
-    slots->state = SLOTS_DISCONNECTED;
-    slots->events = events;
-    slots->keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
-    if (slots->keymap == NULL) {
+    context->slots.state = SLOTS_DISCONNECTED;
+    context->slots.events = events;
+    context->slots.keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
+    if (context->slots.keymap == NULL) {
 	pmNotifyErr(LOG_ERR, "%s: failed to allocate keymap\n",
 			"keySlotsInit");
-	free(slots);
+	free(context);
 	return NULL;
     }
 
@@ -201,107 +201,58 @@ keySlotsInit(dict *config, void *events)
     if (password == NULL)
 	password = pmIniFileLookup(config, "pmseries", "auth.password");
 
-    if ((slots->acc = keyClusterAsyncContextInit()) == NULL) {
-	/* Coverity CID370635 */
-	pmNotifyErr(LOG_ERR, "%s: %s failed\n",
-			"keySlotsInit", "keyClusterAsyncContextInit");
-	sdsfree(def_servers);
-	return slots;
-    }
-
-    if (slots->acc->err) {
-        pmNotifyErr(LOG_ERR, "%s: %s\n", "keySlotsInit", slots->acc->errstr);
-	sdsfree(def_servers);
-	return slots;
-    }
-
-    sts = keyClusterSetOptionAddNodes(slots->acc->cc, servers);
-    if (sts != RESP_OK) {
-	pmNotifyErr(LOG_ERR, "%s: failed to add key server nodes: %s\n",
-			"keySlotsInit", slots->acc->cc->errstr);
-	sdsfree(def_servers);
-	return slots;
-    }
-    sdsfree(def_servers); /* Coverity CID370634 */
-
     /*
+     * Add options to the valkeyClusterOptions struct
      * the ini parser already removes spaces at the beginning and end of the
      * configuration values, so checking for empty strings using sdslen() is
-     * fine
-     */
-    if (username != NULL && sdslen(username) > 0) {
-	sts = keyClusterSetOptionUsername(slots->acc->cc, username);
-	if (sts != RESP_OK) {
-	    pmNotifyErr(LOG_ERR, "%s: failed to set key server username: %s\n",
-		"keyClusterSetOptionUsername", slots->acc->cc->errstr);
-	    return slots;
-	}
-    }
-
-    /*
+     * fine.
      * see note above re empty configuration values having only a password
      * set and no username is a valid key server configuration, details:
      * https://valkey.io/commands/auth
-     */
-    if (password != NULL && sdslen(password) > 0) {
-	sts = keyClusterSetOptionPassword(slots->acc->cc, password);
-	if (sts != RESP_OK) {
-	    pmNotifyErr(LOG_ERR, "%s: failed to set key server password: %s\n",
-		"keyClusterSetOptionPassword", slots->acc->cc->errstr);
-	    return slots;
-	}
+    */
+
+    context->opts.initial_nodes = servers;                    // sds string
+    context->opts.username = (username && sdslen(username)) ? username : NULL;
+    context->opts.password = (password && sdslen(password)) ? password : NULL;
+    context->opts.connect_timeout = &connection_timeout;      // struct timeval*
+    context->opts.command_timeout = &command_timeout;      // struct timeval*
+    context->opts.async_connect_callback = key_server_connect_callback;
+    context->opts.async_disconnect_callback = key_server_disconnect_callback;
+#if defined(HAVE_LIBUV)
+    context->opts.attach_fn = keyLibuvAttachAdapter;
+    context->opts.attach_data = (uv_loop_t *)events;
+#endif
+
+    if ((context->slots.acc = keyClusterAsyncContextInit(&context->opts)) == NULL) {
+        /* Coverity CID370635 */
+        pmNotifyErr(LOG_ERR, "%s: %s failed\n",
+                "keySlotsInit", "keyClusterAsyncContextInit");
+        sdsfree(def_servers);   
+        return context;
+        }
+        
+    if (context->slots.acc->err) {
+        pmNotifyErr(LOG_ERR, "%s: %s\n", "keySlotsInit", context->slots.acc->errstr);
+	sdsfree(def_servers);
+	return context;
     }
 
-    sts = keyClusterSetOptionConnectTimeout(slots->acc->cc, connection_timeout);
-    if (sts != RESP_OK) {
-	pmNotifyErr(LOG_ERR, "%s: failed to set connect timeout: %s\n",
-			"keySlotsInit", slots->acc->errstr);
-	return slots;
-    }
+    sdsfree(def_servers); /* Coverity CID370634 */
 
-    sts = keyClusterSetOptionTimeout(slots->acc->cc, command_timeout);
-    if (sts != RESP_OK) {
-	pmNotifyErr(LOG_ERR, "%s: failed to set command timeout: %s\n",
-			"keySlotsInit", slots->acc->cc->errstr);
-	return slots;
-    }
-
-    sts = keyClusterLibuvAttach(slots->acc, slots->events);
-    if (sts != RESP_OK) {
-	pmNotifyErr(LOG_ERR, "%s: failed to attach to event loop: %s\n",
-			"keySlotsInit", slots->acc->errstr);
-	return slots;
-    }
-
-    sts = keyClusterAsyncSetConnectCallback(slots->acc, key_server_connect_callback);
-    if (sts != RESP_OK) {
-	pmNotifyErr(LOG_ERR, "%s: failed to set connect callback: %s\n",
-			"keySlotsInit", slots->acc->errstr);
-	return slots;
-    }
-
-    sts = keyClusterAsyncSetDisconnectCallback(slots->acc, key_server_disconnect_callback);
-    if (sts != RESP_OK) {
-	pmNotifyErr(LOG_ERR, "%s: failed to set disconnect callback: %s\n",
-			"keySlotsInit", slots->acc->errstr);
-	return slots;
-    }
-
-    return slots;
+    return context;
 }
 
 /**
- * despite the name, this function also handles the initial
- * connection to the key server
+ * Handles reconnection logic and schema loading after initial
+ * connection (which happens in keySlotsInit with libvalkey)
  */
 void
 keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
 		keysInfoCallBack info, keysDoneCallBack done,
-		void *userdata, void *events, void *arg)
+		void *userdata, void *events, void *arg, valkeyClusterOptions *opts)
 {
     dictIterator	*iterator;
     dictEntry		*entry;
-    int			sts = 0;
     static int		log_connection_errors = 1;
 
     if (slots == NULL)
@@ -323,15 +274,20 @@ keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
     slots->search = 0;
     dictEmpty(slots->keymap, NULL);
 
-    sts = keyClusterConnect2(slots->acc->cc);
-    if (sts == RESP_OK) {
+    /* Connect to the key server */
+    /* libvalkey determines cluster mode during initial connect */
+    valkeyClusterContext *tmp = keyClusterConnect2(opts);
+    if (tmp) {
+        slots->acc->cc = *tmp;
+    }
+    if (slots->acc->cc.err == 0) {
 	slots->cluster = 1;
     }
-    else if (slots->acc->cc->err &&
-		strcmp(slots->acc->cc->errstr, RESP_ENOCLUSTER) == 0) {
+    else if (slots->acc->cc.err &&
+		strcmp(slots->acc->cc.errstr, RESP_ENOCLUSTER) == 0) {
 	/* key server instance has cluster support disabled */
-	slots->acc->cc->err = 0;
-	memset(slots->acc->cc->errstr, '\0', strlen(slots->acc->cc->errstr));
+	slots->acc->cc.err = 0;
+	memset(slots->acc->cc.errstr, '\0', strlen(slots->acc->cc.errstr));
 	slots->cluster = 0;
 
 	/*
@@ -339,7 +295,7 @@ keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
 	 * is configured, but cluster mode is disabled
 	 * otherwise all other nodes silently don't get any data
 	 */
-	iterator = dictGetSafeIterator(slots->acc->cc->nodes);
+	iterator = dictGetSafeIterator(slots->acc->cc.nodes);
 	entry = dictNext(iterator);
 	if (entry && dictNext(iterator)) {
 	    dictReleaseIterator(iterator);
@@ -353,7 +309,7 @@ keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
     else {
 	if (log_connection_errors || pmDebugOptions.desperate) {
 	    pmNotifyErr(LOG_INFO, "Cannot connect to key server: %s\n",
-			slots->acc->cc->errstr);
+			slots->acc->cc.errstr);
 	    log_connection_errors = 0;
 	}
 	slots->state = SLOTS_DISCONNECTED;
@@ -370,12 +326,12 @@ keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
  * compatibility, the actual connection to the key server happens in
  * keySlotsReconnect()
  */
-keySlots *
+keySlotsContext *
 keySlotsConnect(dict *config, keySlotsFlags flags,
 		keysInfoCallBack info, keysDoneCallBack done,
 		void *userdata, void *events, void *arg)
 {
-    keySlots			*slots;
+    keySlotsContext		*context;
     sds				enabled, msg;
 
     if (!(enabled = pmIniFileLookup(config, "resp", "enabled")))
@@ -383,8 +339,8 @@ keySlotsConnect(dict *config, keySlotsFlags flags,
     if (enabled && strcmp(enabled, "false") == 0)
 	return NULL;
 
-    slots = keySlotsInit(config, events);
-    if (slots == NULL) {
+    context = keySlotsInit(config, events);
+    if (context == NULL) {
 	msg = NULL;
 	infofmt(msg, "Failed to allocate memory for key server slots");
 	info(PMLOG_ERROR, msg, arg);
@@ -392,8 +348,8 @@ keySlotsConnect(dict *config, keySlotsFlags flags,
 	return NULL;
     }
 
-    keySlotsReconnect(slots, flags, info, done, userdata, events, arg);
-    return slots;
+    keySlotsReconnect(&context->slots, flags, info, done, userdata, events, arg, &context->opts);
+    return context;
 }
 
 void
@@ -585,7 +541,7 @@ keySlotsRequestFirstNode(keySlots *slots, const sds cmd,
 {
     dictIterator	*iterator;
     dictEntry		*entry;
-    cluster_node	*node;
+    valkeyClusterNode	*node;
     keySlotsReplyData	*srd;
     uint64_t		size;
     int			sts;
@@ -597,7 +553,7 @@ keySlotsRequestFirstNode(keySlots *slots, const sds cmd,
     if (UNLIKELY(slots->state != SLOTS_CONNECTED && slots->state != SLOTS_READY))
 	return -ENOTCONN;
 
-    iterator = dictGetSafeIterator(slots->acc->cc->nodes);
+    iterator = dictGetSafeIterator(slots->acc->cc.nodes);
     entry = dictNext(iterator);
     dictReleaseIterator(iterator);
     if (!entry) {
@@ -735,8 +691,8 @@ reportReplyError(keysInfoCallBack info, void *userdata,
 	msg = sdscatfmt(msg, "\nRESP reply error: %s", reply->str);
     else if (acc->err)
 	msg = sdscatfmt(msg, "\nRESP acc error: %s", acc->errstr);
-    else if (acc->cc->err)
-	msg = sdscatfmt(msg, "\nRESP cc error: %s", acc->cc->errstr);
+    else if (acc->cc.err)
+	msg = sdscatfmt(msg, "\nRESP cc error: %s", acc->cc.errstr);
     info(PMLOG_RESPONSE, msg, userdata);
     sdsfree(msg);
 }
