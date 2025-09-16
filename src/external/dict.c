@@ -905,7 +905,7 @@ unsigned long dictScan(dict *d,
     return v;
 }
 
-/* ------------------ compat functions required in hiredis ------------------ */
+/* ------------------ compat functions required in libvalkey ------------------ */
 void dictInitIterator(dictIterator *iter, dict *d)
 {
     // please refer to dictGetSafeIterator()
