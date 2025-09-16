@@ -16,6 +16,12 @@
 
 #define KEY_SERVER_RECONNECT_INTERVAL 2
 
+/* Struct to hold proxy and options for the callback */
+typedef struct key_server_connect_data {
+    struct proxy		*proxy;		/* proxy instance */
+    valkeyClusterOptions	*opts;		/* connection options for reconnection */
+} key_server_connect_data_t;
+
 static int search_queries;
 static int series_queries;
 static int key_server_resp;
@@ -196,7 +202,9 @@ get_key_slots_flags()
 static void
 key_server_reconnect_worker(void *arg)
 {
-    struct proxy	*proxy = (struct proxy *)arg;
+    key_server_connect_data_t	*connect_data = (key_server_connect_data_t *)arg;
+    struct proxy	*proxy = connect_data->proxy;
+    valkeyClusterOptions	*opts = connect_data->opts;
     static unsigned int	wait_sec = KEY_SERVER_RECONNECT_INTERVAL;
 
     /* wait X seconds, because this timer callback is called every second */
@@ -213,11 +221,11 @@ key_server_reconnect_worker(void *arg)
 	return;
 
     if (pmDebugOptions.desperate)
-	proxylog(PMLOG_INFO, "Trying to connect to key server ...", arg);
+	proxylog(PMLOG_INFO, "Trying to connect to key server ...", proxy);
 
     keySlotsFlags	flags = get_key_slots_flags();
     keySlotsReconnect(proxy->slots, flags, proxylog, on_key_server_connected,
-			proxy, proxy->events, proxy);
+			proxy, proxy->events, proxy, opts);
 }
 
 /*
@@ -229,6 +237,8 @@ void
 setup_keys_module(struct proxy *proxy)
 {
     sds			option;
+    key_server_connect_data_t	*connect_data;
+    keySlotsContext		*context;
 
     if ((option = pmIniFileLookup(config, "keys", "enabled")) &&
 	(strcmp(option, "false") == 0))
@@ -256,12 +266,23 @@ setup_keys_module(struct proxy *proxy)
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_KEYS);
 	keySlotsFlags	flags = get_key_slots_flags();
 
-	proxy->slots = keySlotsConnect(proxy->config,
+	context = keySlotsConnect(proxy->config,
 			flags, proxylog, on_key_server_connected,
 			proxy, proxy->events, proxy);
+
+	proxy->slots = &context->slots;
+
 	keySlotsSetMetricRegistry(proxy->slots, registry);
 	keySlotsSetupMetrics(proxy->slots);
-	pmWebTimerRegister(key_server_reconnect_worker, proxy);
+
+	if ((connect_data = (key_server_connect_data_t *)calloc(1, sizeof(key_server_connect_data_t))) == NULL) {
+	    pmNotifyErr(LOG_ERR, "Failed to allocate connect data for key server reconnection\n");
+	    return;
+	}
+	connect_data->proxy = proxy;
+	connect_data->opts = &context->opts;
+
+	pmWebTimerRegister(key_server_reconnect_worker, connect_data);
     }
 }
 
