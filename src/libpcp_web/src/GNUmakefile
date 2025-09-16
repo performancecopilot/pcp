@@ -26,25 +26,20 @@ else
 INIH_XFILES =
 endif
 
-HIREDIS_HFILES = $(addprefix deps/hiredis/, \
-	alloc.h async.h async_private.h fmacros.h hiredis.h net.h \
-	read.h sds.h sdsalloc.h sockcompat.h win32.h adapters/libuv.h)
-HIREDIS_CFILES = $(addprefix deps/hiredis/, \
-	alloc.c async.c hiredis.c net.c sds.c sockcompat.c read.c)
-HIREDIS_XFILES = $(HIREDIS_HFILES) $(HIREDIS_CFILES)
-
-HIREDIS_CLUSTER_HFILES = $(addprefix deps/hiredis-cluster/, \
-	adlist.h command.h hiarray.h hiutil.h hircluster.h win32.h \
-	adapters/libuv.h)
-HIREDIS_CLUSTER_CFILES = $(addprefix deps/hiredis-cluster/, \
-	adlist.c command.c crc16.c hiarray.c hiutil.c hircluster.c)
-HIREDIS_CLUSTER_XFILES = $(HIREDIS_CLUSTER_HFILES) $(HIREDIS_CLUSTER_CFILES)
+LIBVALKEY_HFILES = $(addprefix deps/libvalkey/, \
+	include/valkey/alloc.h include/valkey/async.h src/async_private.h src/fmacros.h include/valkey/valkey.h include/valkey/net.h \
+	include/valkey/read.h include/valkey/visibility.h src/sds.h src/sdsalloc.h include/valkey/sockcompat.h src/win32.h include/valkey/adapters/libuv.h \
+	src/adlist.h src/command.h src/vkutil.h include/valkey/cluster.h src/valkey_private.h src/cmddef.h)
+LIBVALKEY_CFILES = $(addprefix deps/libvalkey/, \
+	src/alloc.c src/async.c src/valkey.c src/net.c src/sds.c src/sockcompat.c src/read.c \
+	src/adlist.c src/command.c src/crc16.c src/vkutil.c src/cluster.c src/conn.c)
+LIBVALKEY_XFILES = $(LIBVALKEY_HFILES) $(LIBVALKEY_CFILES)
 
 CFILES = jsmn.c http_client.c http_parser.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
 	 keys.c dict.c maps.c batons.c encoding.c \
 	 search.c json_helpers.c config.c \
-	 $(HIREDIS_CFILES) $(HIREDIS_CLUSTER_CFILES)
+	 $(LIBVALKEY_CFILES)
 ifneq "$(HAVE_LIBINIH)" "true"
 	 CFILES += $(INIH_CFILES)
 endif
@@ -52,7 +47,7 @@ HFILES = jsmn.h http_client.h http_parser.h zmalloc.h \
 	 query.h schema.h load.h sha1.h util.h slots.h \
 	 keys.h dict.h maps.h batons.h encoding.h \
 	 search.h discover.h private.h \
-	 $(HIREDIS_HFILES) $(HIREDIS_CLUSTER_HFILES)
+	 $(LIBVALKEY_HFILES)
 ifneq "$(HAVE_LIBINIH)" "true"
 	 HFILES += $(INIH_HFILES)
 endif
@@ -72,7 +67,7 @@ ifneq "$(HAVE_LIBINIH)" "true"
 LCFLAGS += -Iinih
 endif
 
-LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps
+LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps -Ideps/libvalkey/include/valkey
 
 ifeq "$(HAVE_LIBUV)" "true"
 CFILES += discover.c loggroup.c webgroup.c timer.c
@@ -113,12 +108,12 @@ SYMTARGET =
 endif
 
 VERSION_SCRIPT = exports
-LDIRT = $(XFILES) $(YFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(SYMTARGET) $(YFILES:%.y=%.tab.?) exports
+LDIRT = $(XFILES) $(YFILES) $(LIBVALKEY_XFILES) $(SYMTARGET) $(YFILES:%.y=%.tab.?)
 ifneq "$(HAVE_LIBINIH)" "true"
 	LDIRT += $(INIH_XFILES)
 endif
 
-default: exports $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(INIH_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: $(XFILES) $(LIBVALKEY_XFILES) $(INIH_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
@@ -148,12 +143,10 @@ $(INIH_XFILES):
 	mkdir -p deps/inih
 	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/benhoyt/$(@:deps/%=%) $@
 endif
-$(HIREDIS_XFILES):
-	mkdir -p deps/hiredis/adapters
-	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/redis/$(@:deps/%=%) $@
-$(HIREDIS_CLUSTER_XFILES):
-	mkdir -p deps/hiredis-cluster/adapters
-	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/Nordix/$(@:deps/%=%) $@
+$(LIBVALKEY_XFILES):
+	mkdir -p deps/libvalkey/include/valkey/adapters
+	mkdir -p deps/libvalkey/src
+	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/valkey-io/$(@:deps/%=%) $@
 
 .NOTPARALLEL:
 query_parser.tab.h query_parser.tab.c: query_parser.y query.h
@@ -167,8 +160,10 @@ default_pcp:	default
 install_pcp:	install
 
 ifneq ($(LIBTARGET),)
-$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(HIREDIS_XFILES) $(HIREDIS_CLUSTER_XFILES) $(INIH_XFILES)
+$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(LIBVALKEY_XFILES) $(INIH_XFILES)
 endif
+
+%.o: $(LIBVALKEY_XFILES) $(INIH_XFILES)
 
 jsmn.o:		jsmn.c jsmn.h
 discover.o:	discover.h discover.c
