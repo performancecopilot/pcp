@@ -50,7 +50,7 @@ $(EXTERNAL_HFILES):
 $(INIH_HFILES):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/benhoyt/inih/$@ .
 $(SDSH_HFILES):
-	$(LN_S) -f $(TOPDIR)/vendor/github.com/redis/hiredis/$@ .
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src/$@ .
 $(USDT_HFILES):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/libbpf/usdt/$@ .
 
