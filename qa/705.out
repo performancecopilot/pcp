@@ -1,35 +1,45 @@
 QA output created by 705
 == callback-based state exercising
+HASH: 0 entries, 0 buckets
 adding entries
+HASH: 4 entries, 1 bucket
 iterating WALK_STOP
-3 => 3
+NODE: 3 => 3
 iterating WALK_NEXT
-3 => 3
-2 => 2
-1 => 1
-0 => 0
+NODE: 3 => 3
+NODE: 2 => 2
+NODE: 1 => 1
+NODE: 0 => 0
 iterating WALK_DELETE_STOP
-3 => 3
+NODE: 3 => 3
+HASH: 3 entries, 1 bucket
 iterating WALK_NEXT
-2 => 2
-1 => 1
-0 => 0
+NODE: 2 => 2
+NODE: 1 => 1
+NODE: 0 => 0
 iterating WALK_DELETE_NEXT
-2 => 2
-1 => 1
-0 => 0
+NODE: 2 => 2
+NODE: 1 => 1
+NODE: 0 => 0
 iterating WALK_NEXT
+HASH: 0 entries, 1 bucket
 == verifying both hash walkers produce same results
 callback:
+HASH: 0 entries, 0 buckets
 adding entries
-3 => 3
-2 => 2
-1 => 1
-0 => 0
+HASH: 4 entries, 1 bucket
+NODE: 3 => 3
+NODE: 2 => 2
+NODE: 1 => 1
+NODE: 0 => 0
+HASH: 4 entries, 1 bucket
 chained:
+HASH: 0 entries, 0 buckets
 adding entries
-3 => 3
-2 => 2
-1 => 1
-0 => 0
+HASH: 4 entries, 1 bucket
+NODE: 3 => 3
+NODE: 2 => 2
+NODE: 1 => 1
+NODE: 0 => 0
+HASH: 4 entries, 1 bucket
 == success
