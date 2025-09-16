@@ -182,7 +182,7 @@ unsigned long dictScan(dict *d, unsigned long v, dictScanFunction *fn, dictScanB
 uint64_t dictGetHash(dict *d, const void *key);
 dictEntry **dictFindEntryRefByPtrAndHash(dict *d, const void *oldptr, uint64_t hash);
 
-/* compat functions required for hiredis */
+/* compat functions required for libvalkey */
 void dictInitIterator(dictIterator *iter, dict *d);
 #define dictGetEntryVal dictGetVal
 #define dictSetHashVal dictSetVal
