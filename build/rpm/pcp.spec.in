@@ -63,11 +63,7 @@ BuildRequires: make
 BuildRequires: gcc gcc-c++
 BuildRequires: procps autoconf bison flex
 
-%if 0%{?sles_version} == 11
-# rpmbuild is in the rpm (not rpm-build) package for SLES11
-%else
 BuildRequires: rpm-build
-%endif
 
 %if "@enable_avahi@" == "true"
 BuildRequires: avahi-devel
@@ -186,12 +182,29 @@ Requires: initscripts
 %global pmda_remove() %{expand:
 if [ %1 -eq 0 ]
 then
+    # %1 (#pkgs remaining after action) == 0 => this is an uninstall, see
+    # https://docs.fedoraproject.org/en-US/packaging-guidelines/Scriptlets/
     PCP_PMDAS_DIR=@pcp_pmdas_dir@
     PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
-    if [ -f "$PCP_PMCDCONF_PATH" -a -f "$PCP_PMDAS_DIR/%2/domain.h" ]
+    if [ -d "$PCP_PMDAS_DIR/%2/" ]
     then
-	(cd "$PCP_PMDAS_DIR/%2/" && ./Remove >/dev/null 2>&1)
+	here=`pwd`
+	if cd "$PCP_PMDAS_DIR/%2/"
+	then
+	    if [ -f "$PCP_PMCDCONF_PATH" -a -f "domain.h" ]
+	    then
+		./Remove >/dev/null 2>&1)
+	    fi
+	    rm -f domain.h domain.h.perl domain.h.python
+	    rm -f pmns pmns.perl pmns.python
+	    rm -f help.dir help.pag
+	    rm -f *.o
+	    cd $here
+	fi
     fi
+    # avoid error when run as %preun and PMDA is not configured for
+    # use by pmcd
+    exit 0
 fi
 }
 
@@ -226,6 +239,11 @@ Requires: pcp-selinux = @package_version@
 %endif
 
 Requires: pcp-libs = @package_version@
+
+%if 0%{?suse_version} == 1600
+Provides: user(pcp)
+Provides: group(pcp)
+%endif
 
 %description
 Performance Co-Pilot (PCP) provides a framework and services to support
@@ -262,6 +280,17 @@ Obsoletes: pcp < 3.0
 # prevent conflicting library (libpcp.so.N) installation
 Conflicts: postgresql-pgpool-II
 
+# if upgrading from an existing openSUSE installation replace their
+# libpcp* packages
+Obsoletes: libpcp3 < @package_version@ libpcp4 < @package_version@
+Provides: libpcp3 = @package_version@ libpcp4 = @package_version@
+Obsoletes: libpcp_gui2 < @package_version@ libpcp_import1 < @package_version@
+Provides: libpcp_gui2 = @package_version@ libpcp_import1 = @package_version@
+Obsoletes: libpcp_mmv1 < @package_version@ libpcp_trace2 < @package_version@
+Provides: libpcp_mmv1 = @package_version@ libpcp_trace2 = @package_version@
+Obsoletes: libpcp_web1 < @package_version@
+Provides: libpcp_web1 = @package_version@
+
 %description libs
 Performance Co-Pilot (PCP) run-time libraries
 
@@ -275,6 +304,11 @@ URL: https://pcp.io
 
 # prevent conflicting library (libpcp.so) installation
 Conflicts: postgresql-pgpool-II-devel
+
+# if upgrading from an existing openSUSE installation replace their
+# libpcp-devel package
+Obsoletes: libpcp-devel < @package_version@
+Provides: libpcp-devel = @package_version@
 
 %description libs-devel
 Performance Co-Pilot (PCP) headers for development.
@@ -309,6 +343,11 @@ Requires: bc gcc gzip bzip2
 Requires: selinux-policy-devel
 Requires: selinux-policy-targeted
 Requires: setools-console
+%endif
+
+%if 0%{?suse_version} == 1600
+Provides: user(pcpqa)
+Provides: group(pcpqa)
 %endif
 
 %description testsuite
@@ -807,13 +846,16 @@ BuildRequires: setools-console
 BuildRequires: setools
 %endif
 Requires: policycoreutils selinux-policy-targeted
-%if "%{_vendor}" == "suse"
-# no libsemanage for SuSE other than libsemanage1 for OpenSuSE 12
-%if 0%{?suse_version} >= 1200
-Requires: libsemanage1
-%endif
+%if 0%{?suse_version} >= 1600
+# libsemanage2 for OpenSUSE 16
+Requires: libsemanage2
 %else
-Requires: libsemanage
+    %if 0%{?suse_version} >= 1200
+    # libsemanage1 for OpenSUSE 12
+    Requires: libsemanage1
+    %else
+    Requires: libsemanage
+    %endif
 %endif
 
 %description selinux
@@ -1300,7 +1342,11 @@ Summary: Performance Co-Pilot (PCP) metrics for the Postfix (MTA)
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
 Requires: perl-PCP-PMDA = @package_version@
+%if 0%{?suse_version} >= 1600
+Requires: perl
+%else
 Requires: perl-Time-HiRes
+%endif
 %if 0%{?fedora} > 16 || 0%{?rhel} > 5
 Requires: postfix-perl-scripts
 %endif
@@ -1436,10 +1482,14 @@ License: Apache-2.0 AND GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
-%if 0%{?sle_version} >= 150500
+%if 0%{?suse_version} >= 1600
 Requires: libbpf1
 %else
-Requires: libbpf
+    %if %{defined sle_version} && 0%{?sle_version} >= 150500
+    Requires: libbpf1
+    %else
+    Requires: libbpf
+    %endif
 %endif
 BuildRequires: libbpf-devel clang llvm
 %description pmda-bpf
@@ -2477,7 +2527,7 @@ done
 %if "@enable_selinux@" == "true"
 %selinux_relabel_pre -s targeted
 %endif
-%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
+%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1600
 systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp-testsuite.conf - < %{_topdir}/debian/pcp-testsuite.sysusers
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
@@ -2527,7 +2577,7 @@ fi
 %endif
 
 %pre
-%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9
+%if 0%{?fedora} >= 32 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1600
 systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp.conf - < %{_topdir}/debian/pcp.sysusers
 %else
 getent group pcp >/dev/null || groupadd -r pcp
