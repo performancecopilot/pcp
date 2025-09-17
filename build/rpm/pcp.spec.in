@@ -193,7 +193,7 @@ then
 	then
 	    if [ -f "$PCP_PMCDCONF_PATH" -a -f "domain.h" ]
 	    then
-		./Remove >/dev/null 2>&1)
+		./Remove >/dev/null 2>&1
 	    fi
 	    rm -f domain.h domain.h.perl domain.h.python
 	    rm -f pmns pmns.perl pmns.python
