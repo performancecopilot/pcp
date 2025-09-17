@@ -1,0 +1,67 @@
+QA output created by 1995
+== Checking metric descriptors and values - nfs4client-root-001.tgz
+
+nfs4.server.clients.client_id
+    inst [0 or "0xfff8465c68c830b9"] value "0xfff8465c68c830b9"
+
+nfs4.server.clients.addr
+    inst [0 or "0xfff8465c68c830b9"] value "192.168.122.1:926"
+
+nfs4.server.clients.status
+    inst [0 or "0xfff8465c68c830b9"] value "confirmed"
+
+nfs4.server.clients.hostname
+    inst [0 or "0xfff8465c68c830b9"] value "fedora-work"
+
+nfs4.server.clients.callback_state
+    inst [0 or "0xfff8465c68c830b9"] value "UP"
+
+nfs4.server.clients.callback_addr
+    inst [0 or "0xfff8465c68c830b9"] value "192.168.122.1:0"
+
+nfs4.server.clients.admin_revoked_states
+    inst [0 or "0xfff8465c68c830b9"] value 0
+
+nfs4.server.clients.session_slots
+    inst [0 or "0xfff8465c68c830b9"] value 64
+
+nfs4.server.clients.session_target_slots
+    inst [0 or "0xfff8465c68c830b9"] value 64
+
+nfs4.server.open.inode
+    inst [0 or "8659577:0xfff8465c68c830b9"] value 8659577
+    inst [1 or "8659337:0xfff8465c68c830b9"] value 8659337
+    inst [2 or "8659338:0xfff8465c68c830b9"] value 8659338
+
+nfs4.server.open.type
+    inst [0 or "8659577:0xfff8465c68c830b9"] value "deleg"
+    inst [1 or "8659337:0xfff8465c68c830b9"] value "deleg"
+    inst [2 or "8659338:0xfff8465c68c830b9"] value "deleg"
+
+nfs4.server.open.access
+    inst [0 or "8659577:0xfff8465c68c830b9"] value "ra"
+    inst [1 or "8659337:0xfff8465c68c830b9"] value "ra"
+    inst [2 or "8659338:0xfff8465c68c830b9"] value "ra"
+
+nfs4.server.open.filename
+    inst [0 or "8659577:0xfff8465c68c830b9"] value "test2"
+    inst [1 or "8659337:0xfff8465c68c830b9"] value "test.txt"
+    inst [2 or "8659338:0xfff8465c68c830b9"] value "world"
+
+nfs4.server.open.client_id
+    inst [0 or "8659577:0xfff8465c68c830b9"] value "0xfff8465c68c830b9"
+    inst [1 or "8659337:0xfff8465c68c830b9"] value "0xfff8465c68c830b9"
+    inst [2 or "8659338:0xfff8465c68c830b9"] value "0xfff8465c68c830b9"
+
+nfs4.server.open.client_addr
+    inst [0 or "8659577:0xfff8465c68c830b9"] value "192.168.122.1:926"
+    inst [1 or "8659337:0xfff8465c68c830b9"] value "192.168.122.1:926"
+    inst [2 or "8659338:0xfff8465c68c830b9"] value "192.168.122.1:926"
+
+nfs4.server.open.client_hostname
+    inst [0 or "8659577:0xfff8465c68c830b9"] value "fedora-work"
+    inst [1 or "8659337:0xfff8465c68c830b9"] value "fedora-work"
+    inst [2 or "8659338:0xfff8465c68c830b9"] value "fedora-work"
+
+== done
+
