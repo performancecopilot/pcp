@@ -379,6 +379,8 @@ static pmdaIndom indomtab[] = {
     { WWID_INDOM, 0, NULL },
     { HUGEPAGES_INDOM, 0, NULL },
     { NUMA_HUGEPAGES_INDOM, 0, NULL },
+    { NFS4_SVR_CLIENT_INDOM, 0, NULL },
+    { NFS4_SVR_CLIENT_OPENS_INDOM, 0, NULL },
 };
 
 
@@ -7544,6 +7546,58 @@ static pmdaMetric metrictab[] = {
     /* mem.numa.hugepages.totalsize */
     { NULL, { PMDA_PMID(CLUSTER_NUMA_HUGEPAGES, TOTALSIZE_NUMA_HUGEPAGES), PM_TYPE_U64,
 	NUMA_HUGEPAGES_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/*
+ * NFSv4 Server Client and Open Files metrics clusters
+ */
+    /* nfs4.server.clients.client_id */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_CLIENT_ID), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.addr */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_ADDR), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.status */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_STATUS), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.hostname */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_HOSTNAME), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.callback_state */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_CALLBACK_STATE), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.callback_addr */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_CALLBACK_ADDR), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.admin_revoked_sates */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_ADMIN_REVOKED_STATES), PM_TYPE_U64,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.session_slots */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_SESSION_SLOTS), PM_TYPE_U64,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.session_target_slots */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_CLIENTS, NFS4_CLIENT_SESSION_TARGET_SLOTS), PM_TYPE_U64,
+	NFS4_SVR_CLIENT_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.open.inode */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_OPENS, NFS4_CLIENT_OPENS_INODE), PM_TYPE_U64,
+	NFS4_SVR_CLIENT_OPENS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.open.type */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_OPENS, NFS4_CLIENT_OPENS_TYPE), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_OPENS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.open.access */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_OPENS, NFS4_CLIENT_OPENS_ACCESS), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_OPENS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.open.filename */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_OPENS, NFS4_CLIENT_OPENS_FILENAME), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_OPENS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.open.client_id */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_OPENS, NFS4_CLIENT_OPENS_CLIENT_ID), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_OPENS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.open.client_addr */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_OPENS, NFS4_CLIENT_OPENS_CLIENT_ADDR), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_OPENS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* nfs4.server.clients.open.client_hostname */
+    { NULL, { PMDA_PMID(CLUSTER_NFS4_SVR_OPENS, NFS4_CLIENT_OPENS_CLIENT_HOSTNAME), PM_TYPE_STRING,
+	NFS4_SVR_CLIENT_OPENS_INDOM, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 typedef struct {
@@ -7916,6 +7970,11 @@ linux_refresh(pmdaExt *pmda, int *need_refresh, int context)
     if (need_refresh[CLUSTER_NUMA_HUGEPAGES])
 	refresh_sysfs_numa_hugepages(INDOM(NUMA_HUGEPAGES_INDOM));
 
+    if (need_refresh[CLUSTER_NFS4_SVR_CLIENTS])
+        refresh_nfs4_svr_client(INDOM(NFS4_SVR_CLIENT_INDOM));
+    if (need_refresh[CLUSTER_NFS4_SVR_OPENS])
+        refresh_nfs4_svr_client_opens(INDOM(NFS4_SVR_CLIENT_OPENS_INDOM));
+
 done:
     container_close(cp, ns_fds);
     return sts;
@@ -8017,6 +8076,13 @@ linux_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt
     case SOFTIRQ_CPU_INDOM:
         need_refresh[CLUSTER_SOFTIRQS]++;
 	break;
+    case NFS4_SVR_CLIENT_INDOM:
+        need_refresh[CLUSTER_NFS4_SVR_CLIENTS]++;
+        break;
+    case NFS4_SVR_CLIENT_OPENS_INDOM:
+        need_refresh[CLUSTER_NFS4_SVR_OPENS]++;
+        break;
+
     /* no default label : pmdaInstance will pick up errors */
     }
 
@@ -8046,6 +8112,8 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     scsi_entry_t	*scsi_entry;
     uint64_t		*values;
     char		*name;
+    nfs4_svr_client_t	*nfs4_svr_client;
+    nfs4_svr_open_t	*nfs4_svr_open;
 
     if (mdesc->m_user != NULL) {
 	/*
@@ -10314,6 +10382,24 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->ull *= values[PAGESIZE_NUMA_HUGEPAGES];
 	break;
 
+    case CLUSTER_NFS4_SVR_CLIENTS:
+        nfs4_svr_client = NULL;
+        sts = pmdaCacheLookup(INDOM(NFS4_SVR_CLIENT_INDOM), inst, NULL, (void **)&nfs4_svr_client);
+        if (sts < 0)
+            return sts;
+        if (sts == PMDA_CACHE_INACTIVE)
+            return PM_ERR_INST;
+        return nfs4_svr_client_fetch(item, nfs4_svr_client, atom);
+    
+    case CLUSTER_NFS4_SVR_OPENS:
+        nfs4_svr_open = NULL;
+        sts = pmdaCacheLookup(INDOM(NFS4_SVR_CLIENT_OPENS_INDOM), inst, NULL, (void **)&nfs4_svr_open);
+        if (sts < 0)
+            return sts;
+        if (sts == PMDA_CACHE_INACTIVE)
+            return PM_ERR_INST;
+        return nfs4_svr_client_opens_fetch(item, nfs4_svr_open, atom);
+
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -10608,6 +10694,10 @@ linux_labelInDom(pmInDom indom, pmLabelSet **lp)
 	pmdaAddLabels(lp, "{\"device_type\":\"cpu\"}");
 	pmdaAddLabels(lp, "{\"indom_name\":\"per cpu, per softirq\"}");
 	return 1;
+    case NFS4_SVR_CLIENT_OPENS_INDOM:
+        pmdaAddLabels(lp, "{\"inode\":\"client_id\"}");
+        pmdaAddLabels(lp, "{\"indom_name\":\"per inode, per client_id\"}");
+        return 1;
     default:
 	sts = 0;
 	break;
@@ -10656,6 +10746,7 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
     zoneprot_entry_t	*prot;
     interrupt_cpu_t	*cpuintr;
     interrupt_t		*intr;
+    nfs4_svr_open_t	*nfs4_svr_open;
     unsigned int	numanode, value;
     char		*name, *p;
     int			sts;
@@ -10734,6 +10825,14 @@ linux_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 	p = strchr(name, ':');
 	return pmdaAddLabels(lp, "{\"cpu\":%u, \"softirq\":\"%.*s\"}",
 			cpuintr->cpuid, (int)(p - name), name);
+
+    case NFS4_SVR_CLIENT_OPENS_INDOM:
+	sts = pmdaCacheLookup(indom, inst, &name, (void **)&nfs4_svr_open);
+	if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+	    return 0;
+	p = strchr(name, ':');
+	return pmdaAddLabels(lp, "{\"inode\":%s, \"client_id\":\"%s\"}",
+			p, nfs4_svr_open->client_id);
 
     default:
 	break;

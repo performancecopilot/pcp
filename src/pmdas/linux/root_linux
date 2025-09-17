@@ -1746,6 +1746,30 @@ nfs4.client {
 nfs4.server {
     calls		60:7:66
     reqs		60:7:67
+    clients
+    open
+}
+
+nfs4.server.clients {
+    client_id	60:96:0
+    addr	60:96:1
+    status	60:96:2
+    hostname	60:96:3
+    callback_state	60:96:4
+    callback_addr	60:96:5
+    admin_revoked_states	60:96:6
+    session_slots	60:96:7
+    session_target_slots	60:96:8
+}
+
+nfs4.server.open {
+    inode	60:97:0
+    type	60:97:1
+    access	60:97:2
+    filename	60:97:3
+    client_id	60:97:4
+    client_addr	60:97:5
+    client_hostname	60:97:6
 }
 
 mem.slabinfo {

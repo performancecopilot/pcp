@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016-2024 Red Hat.
+ * Copyright (c) 2016-2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -117,6 +117,8 @@ enum {
 	CLUSTER_PRESSURE_IRQ,	/* 93 /proc/pressure/irq metrics */
 	CLUSTER_HUGEPAGES,	/* 94 /sys/kernel/mm/hugepages metrics */
 	CLUSTER_NUMA_HUGEPAGES,	/* 95 /sys/devices/system/node/nodeN/hugepages metrics */
+	CLUSTER_NFS4_SVR_CLIENTS,	/* 96 /proc/fs/nfsd/clients/<client>/info metrics */
+	CLUSTER_NFS4_SVR_OPENS,	/* 97 /proc/fs/nfsd/clients/<client>/states metrics */
 
 	NUM_CLUSTERS		/* one more than highest numbered cluster */
 };
@@ -199,6 +201,8 @@ enum {
 	WWID_INDOM,		/* 42 - per-WWID multipath device */
 	HUGEPAGES_INDOM,	/* 43 - hugepages (fixed sizes) */
 	NUMA_HUGEPAGES_INDOM,	/* 44 - NUMA hugepages (fixed sizes) */
+	NFS4_SVR_CLIENT_INDOM,	/* 45 - NFSv4 Server connected clients */
+	NFS4_SVR_CLIENT_OPENS_INDOM,	/* 46 - NFSv4 Server open files */
 
 	NUM_INDOMS		/* one more than highest numbered cluster */
 };

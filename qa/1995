@@ -1,8 +1,8 @@
 #!/bin/sh
-# PCP QA Test No. 732
-# Exercise the Linux kernel NFS/RPC metrics.
+# PCP QA Test No. 1995
+# Exercise the Linux kernel NFS4 Client metrics.
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2025 Red Hat.
 #
 
 seq=`basename $0`
@@ -23,7 +23,7 @@ root=$tmp.root
 export LINUX_STATSPATH=$root
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 
-for tgz in $here/linux/nfsrpc-*.tgz
+for tgz in $here/linux/nfs4client-*.tgz
 do
     $sudo rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
@@ -32,7 +32,7 @@ do
     base=`basename $tgz`
 
     echo "== Checking metric descriptors and values - $base"
-    pminfo -L -K clear -K add,60,$pmda -f rpc nfs nfs3 nfs4.client nfs4.server.calls nfs4.server.reqs
+    pminfo -L -K clear -K add,60,$pmda -f nfs4.server.clients nfs4.server.open
     echo && echo "== done" && echo
     cd $here
 done
