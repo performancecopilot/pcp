@@ -24,6 +24,7 @@ _cleanup()
 	$sudo cp $PCP_TMP_DIR/pmlogger/primary.qa.$seq $PCP_TMP_DIR/pmlogger/primary
 	$sudo rm -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq
     fi
+    _restore_auto_restart pmlogger
     _restore_primary_logger
     rm -f $tmp.*
     exit $status
@@ -89,12 +90,11 @@ pmsignal -s KILL -a src/drain-server
 _change_config pmcd on || _exit 1
 _change_config pmlogger on || _exit 1
 _writable_primary_logger
-if ! _service pmcd stop >/dev/null 2>&1; then _exit 1; fi
-if ! _service pmlogger stop >/dev/null 2>&1; then _exit 1; fi
-if ! _service pmcd start >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmcd restart >/dev/null 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
-if ! _service pmlogger start >/dev/null 2>&1; then _exit 1; fi
+if ! _service pmlogger restart >/dev/null 2>&1; then _exit 1; fi
 _wait_for_pmlogger || _exit 1
+_stop_auto_restart pmlogger
 
 $sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.primary
 $sudo cp $PCP_TMP_DIR/pmlogger/primary $PCP_TMP_DIR/pmlogger/primary.qa.$seq
@@ -155,8 +155,16 @@ echo "=== Timeout on pmlc commands cases ===" | tee -a $seq_full
 
 # put port info back to original state
 #
-$sudo cp $PCP_TMP_DIR/pmlogger/primary.qa.$seq $PCP_TMP_DIR/pmlogger/primary
-$sudo rm -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq
+if [ -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq ]
+then
+    $sudo cp $PCP_TMP_DIR/pmlogger/primary.qa.$seq $PCP_TMP_DIR/pmlogger/primary
+    $sudo rm -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq
+else
+    echo "Arrgh ... $PCP_TMP_DIR/pmlogger/primary.qa.$seq went away"
+    ls -l $PCP_TMP_DIR/pmlogger
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)'
+    _exit 1
+fi
 
 echo | tee -a $seq_full
 echo "Check QA code cleared when pmlc exits ..." | tee -a $seq_full

@@ -1,4 +1,5 @@
 pcp/
+pcp-testsuite.install
 pcp.preinst
 pcp.preinst.head
 pcp.postinst

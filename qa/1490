@@ -4,33 +4,14 @@
 #
 # Copyright (c) 2020 Red Hat.  All Rights Reserved.
 #
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 1490
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-# get standard environment, filters and checks
-. ./common.python
-$python -c 'from pcp import pmapi' 2>/dev/null
-test $? -eq 0 || _notrun 'Python pcp pmapi module is not installed'
-
-$python -c "import argparse" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python argparse module not installed"
-
-_check_valgrind
-
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-status=1	# failure is the default!
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
-leaked=`_run_valgrind $python src/labelsets_memleak.python 2>&1 | tee $tmp.full |\
-  awk '/definitely lost: .* bytes in .* blocks/ { print $3 }' |sed -e 's/,//g'`
-[ "$leaked" -le 512 ] && status=0 # some small leaks not due to labelsets
-
-if [ $status -eq 0 ]; then echo PASSED; else echo FAILED, leaked $leaked; fi
-
-exit
+_notrun 'retired and culled'

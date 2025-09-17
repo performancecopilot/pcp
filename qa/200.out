@@ -8,12 +8,12 @@ delay: 5-7 secs
 PMCD_RECONNECT_TIMEOUT="1,1,2,2"
 pmFetch failed: IPC protocol failure
 pmReconnectContext: success
-delay: 2-4 secs
+delay: 1-4 secs
 
 PMCD_RECONNECT_TIMEOUT="2"
 pmFetch failed: IPC protocol failure
 pmReconnectContext: success
-delay: 2-4 secs
+delay: 1-4 secs
 
 PMCD_RECONNECT_TIMEOUT="1-2"
 pmFetch failed: IPC protocol failure

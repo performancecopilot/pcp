@@ -811,7 +811,7 @@ do_work(task_t *tp)
 	peek_offset += pdu_payload - sizeof(__pmPDUHdr) + 2*sizeof(int);
 	if (peek_offset > max_offset) {
 	    if (pmDebugOptions.appl2)
-		pmNotifyErr(LOG_INFO, "callback: new volume based on max size, currently %ld", archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller));
+		pmNotifyErr(LOG_INFO, "callback: new volume based on max size, currently %" FMT_INT64, archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller));
 	    (void)newvolume(VOL_SW_MAX);
 	}
 
@@ -1116,7 +1116,7 @@ do_work(task_t *tp)
 	if (archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller) > flushsize) {
 	    needti = 1;
 	    if (pmDebugOptions.appl2)
-		pmNotifyErr(LOG_INFO, "callback: file size (%ld) reached flushsize (%ld)", archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller), (long)flushsize);
+		pmNotifyErr(LOG_INFO, "callback: file size (%" FMT_INT64 ") reached flushsize (%ld)", archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller), (long)flushsize);
 	}
 
 	if (needti) {
@@ -1222,7 +1222,7 @@ do_work(task_t *tp)
         (archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller) >= vol_switch_bytes)) {
         (void)newvolume(VOL_SW_BYTES);
 	if (pmDebugOptions.appl2)
-	    pmNotifyErr(LOG_INFO, "callback: new volume based on size (%ld)", archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller));
+	    pmNotifyErr(LOG_INFO, "callback: new volume based on size (%" FMT_INT64 ")", archctl.ac_tell_cb(&archctl, PM_LOG_VOL_CURRENT, caller));
     }
 }
 

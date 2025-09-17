@@ -362,6 +362,8 @@ netstat_fields_t netstat_tcp_fields[] = {
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_TSECRREJECTED] },
     { .field = "PAWSTimewait",
       .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_PAWSTIMEWAIT] },
+    { .field = "BeyondWindow",
+      .offset = &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_BEYONDWINDOW] },
 
     { .field = NULL, .offset = NULL }
 };
@@ -507,6 +509,18 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINSYNTXCONNECTERR] },
     { .field = "Blackhole",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_BLACKHOLE] },
+    { .field = "MPJoinRejected",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINREJECTED] },
+    { .field = "MPCapableDataFallback",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEDATAFALLBACK] },
+    { .field = "MD5SigFallback",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MD5SIGFALLBACK] },
+    { .field = "DssFallback",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSFALLBACK] },
+    { .field = "SimultConnectFallback",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SIMULTCONNECTFALLBACK] },
+    { .field = "FallbackFailed",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_FALLBACKFAILED] },
 
     { .field = NULL, .offset = NULL }
 };

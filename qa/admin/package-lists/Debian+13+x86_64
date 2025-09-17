@@ -1,5 +1,6 @@
-# PCP required package list for Debian 12 any
+# PCP required package list for Debian 13 x86_64
 #
+Text::CSV_XS cpan
 apache2
 apache2-bin
 auditd
@@ -17,14 +18,15 @@ build-essential
 chrpath
 clang
 coreutils
-Text::CSV_XS cpan
 cppcheck
 cron
 curl
 debhelper
 dh-python
+docker.io
 dpkg-dev
 ed
+ethtool
 expect
 flex
 g++
@@ -36,6 +38,7 @@ git
 grep
 iproute2
 jq
+kubernetes-client
 libavahi-common-dev
 libbpf1
 libbpf-dev
@@ -57,7 +60,6 @@ libjson-perl
 liblist-moreutils-perl
 liblzma-dev
 libncurses-dev
-libncurses5-dev
 libnet-snmp-perl
 libperl5.40
 libpfm4-dev
@@ -130,6 +132,9 @@ socat
 sudo
 sysstat
 systemd-dev
+systemtap
+systemtap-runtime
+systemtap-sdt-dev
 targetcli-fb
 time
 unbound
@@ -137,5 +142,7 @@ valgrind
 xfsprogs
 xkb-data
 zabbix-agent
+# suspect licensing restrictions are breaking this in CI
+zfsutils-linux not4ci
 zlib1g-dev
 zstd

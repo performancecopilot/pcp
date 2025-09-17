@@ -29,6 +29,7 @@ dh-python
 docker.io
 dpkg-dev
 ed
+ethtool
 expect
 flex
 g++
@@ -134,8 +135,11 @@ sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
+systemd-dev not4ci
 systemtap
+systemtap-runtime
 systemtap-sdt-dev
 targetcli-fb
 time
@@ -144,5 +148,7 @@ valgrind
 xfsprogs
 xkb-data
 zabbix-agent
+# suspect licensing restrictions are breaking this in CI
+zfsutils-linux not4ci
 zlib1g-dev
 zstd

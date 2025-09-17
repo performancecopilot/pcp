@@ -9,62 +9,14 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 311
 
-# get standard filters
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-_notrun "no support for V1 archives"
-
-status=0	# success is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
-_order()
-{
-    $PCP_AWK_PROG '
-NF == 0		{ next }
-/^pmcd/		{ if (NF > 1) print; else printf("%s|", $0); next }
-/^proc/		{ printf("%s|", $0); next }
-/^sample/	{ printf("%s|", $0); next }
-		{ print }' \
-    | LC_COLLATE=POSIX sort \
-    | $PCP_AWK_PROG -F'|' '{ print $1; if (NF == 2) print $2 }'
-}
-
-_filter()
-{
-    sed \
-	-e '/^\[[0-9]* bytes]/d' \
-	-e 's/): inst/):  inst/'
-}
-
-# deal with an annoying libc error ... using TZ=:Australia/Melbourne
-# causes the -z option to report the wrong time, at least for some
-# times of the year
-#
-TZ=EST-10
-export TZ
-
-# real QA test starts here
-echo "== pminfo prologue and no values =="
-pminfo -n src/root_irix -z -f -a badarchives/err_v1 | _order
-
-echo
-echo "== pminfo skip prologue and errors instead of values =="
-pminfo -n src/root_irix -z -O 1sec -f -a badarchives/err_v1 | _order
-
-echo
-echo "== pmdumplog for 1 metric (expect error) ==="
-pmdumplog -n src/root_irix -z badarchives/err_v1 sample.bad.nosupport
-
-echo
-echo "== diffs for pmdumplog all metrics compared to PCP 1.x output (expect none) =="
-pmdumplog -n src/root_irix -z -dilmst badarchives/err_v1 \
-| _filter \
-| diff - badarchives/err_v1.dump
-
-# success, all done
-exit
+_notrun 'retired and culled'

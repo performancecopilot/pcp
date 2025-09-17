@@ -96,6 +96,5 @@ HOST-SUMMARY-LINE
 
 == Check handling of missing values
 pcp-atopsar: no per-processor values available
-pcp-atopsar: no per-interface values available
 
 == Done

@@ -29,6 +29,7 @@ dh-python
 docker.io not4ci
 dpkg-dev
 ed
+ethtool
 expect
 flex
 g++
@@ -132,6 +133,7 @@ sasl2-bin
 sed
 smartmontools
 socat
+systemd
 sysstat
 systemtap
 systemtap-sdt-dev

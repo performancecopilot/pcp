@@ -632,9 +632,10 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
 
     if ((sts = logger_write_labels(pathbuf, &loglabel)) < 0)
 	goto fail;
-    if (sts > 0) /* archive name conflicted - append the iteration count */
-	pmsprintf(pathbuf, sizeof(pathbuf), "%s%c%s%c%s%c%s-%02d", dir, sep,
-		pmGetProgname(), sep, loglabel.hostname, sep, timebuf, sts);
+    if (sts > 0) { /* archive name conflicted - append the iteration count */
+	pmsprintf(timebuf, sizeof(timebuf), "-%02d", sts);
+	pmstrncat(pathbuf, sizeof(pathbuf), timebuf);
+    }
 
     /* wrote two label headers and created one archive - update stats */
     mmv_inc(groups->map, groups->metrics[LOGGROUP_LOGS]);

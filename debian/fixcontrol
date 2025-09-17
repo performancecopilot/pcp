@@ -115,10 +115,31 @@ else
     echo 's/?{python-psycopg2}, //' >>$tmp.sed
 fi
 
-# PMDA_SYSTEMD is only true if we have libsystemd, but HAVE_SYSTEMD
-# may be true when we're using systemd even if libsystemd is not
-# installed ... so use the former to enable the [lib]systemd-dev in
-# the Build-Depends: clause
+if $ENABLE_SYSTEMD
+then
+    # this is a pain ...
+    # /usr/share/pkgconfig/systemd.pc is the file configure needs
+    # but that's in different packages for different platforms try
+    # and suss out the package, but if that fails simply omit any
+    # related package from the Build-Depends: clause
+    #
+    if [ -f /usr/share/pkgconfig/systemd.pc ]
+    then
+	pkg=`dpkg-query -S /usr/share/pkgconfig/systemd.pc 2>/dev/null | sed -e 's/: .*//'`
+	if [ -n "$pkg" ]
+	then
+	    echo "s/?{systemd-pkgconfig}, /$pkg, /" >>$tmp.sed
+	else
+	    echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
+	fi
+    else
+	echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
+    fi
+else
+    echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
+fi
+
+# PMDA_SYSTEMD is only true if we have libsystemd ...
 # Note: that the HAVE_SYSTEMD_SD_DAEMON_H macro that is used to
 # guard the use of libsystemd from libpcp is not available here, but
 # the semantics of HAVE_SYSTEMD_SD_DAEMON_H and PMDA_SYSTEMD are
@@ -126,7 +147,7 @@ fi
 #
 if $PMDA_SYSTEMD
 then
-    echo 's/?{libsystemd-dev}, /systemd, systemd-dev | libsystemd-dev, /' >>$tmp.sed
+    echo 's/?{libsystemd-dev}, /libsystemd-dev, /' >>$tmp.sed
 else
     echo 's/?{libsystemd-dev}, //' >>$tmp.sed
 fi

@@ -130,6 +130,12 @@ export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
 configure=./configure
 cmdline_configopts=''
 
+# our default is to build without -DNDEBUG, so assert()s are active.
+# use --nodebug to change this.
+#
+configure_opts="--with-non-debug=no"
+export configure_opts
+
 for opt in $*
 do
     [ -z "$*" ] && break
@@ -182,6 +188,9 @@ do
     --with-zip)
 	ZIP=$2
 	shift 2
+	;;
+    --nodebug)
+	configure_opts="--with-non-debug=yes"
 	;;
     *)
 	# Add remaining options to the ./configure command line
@@ -525,11 +534,12 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
-    # don't sign by default
-    sign='-us -uc'
+    TYPE=${TYPE:-source}
+    sign='-us -uc'	# don't sign by default
     # sign if --signed and $DEB_SIGN_KEYID set in the environment
-    # (always for an upload to Debian servers so its source only)
-    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign='-S'
+    # (usual for an upload to Debian servers, so its source-only
+    # - unless new sub-packages exist then we need full build)
+    $signed && [ -n "$DEB_SIGN_KEYID" ] && sign="--build=$TYPE"
     opts="$sign -r$SUDO -sa"
     rm -f $tmp/failed
     if $verbose ; then

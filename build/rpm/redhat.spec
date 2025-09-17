@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 7.0.0
+Version: 7.0.1
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
@@ -301,7 +301,7 @@ BuildRequires: qt5-qtsvg-devel
 %endif
 
 # Utilities used indirectly e.g. by scripts we install
-Requires: bash xz gawk sed grep coreutils diffutils findutils
+Requires: bash xz zstd gawk sed grep coreutils diffutils findutils
 Requires: which %{_hostname_executable} %{_ps_executable}
 Requires: pcp-libs = %{version}-%{release}
 
@@ -694,6 +694,20 @@ Performance Co-Pilot (PCP) module for exporting metrics from PCP to
 Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python3}
+#
+# pcp-import-guidellm2pcp
+#
+%package import-guidellm2pcp
+License: LGPL-2.1-or-later
+Summary: Performance Co-Pilot tools importing GuideLLM results into PCP archive logs
+URL: https://pcp.io
+Requires: pcp-libs = %{version}-%{release}
+Requires: python3-pcp = %{version}-%{release}
+
+%description import-guidellm2pcp
+Performance Co-Pilot (PCP) front-end tools for importing GuideLLM JSON
+benchmark results into PCP archives for replay with PCP analysis tools.
+
 #
 # pcp-import-pmseries
 #
@@ -2307,8 +2321,11 @@ desktop-file-validate $RPM_BUILD_ROOT/%{_datadir}/applications/pmchart.desktop
 %endif
 
 %if 0%{?rhel} || 0%{?fedora}
-# Fedora and RHEL default local only access for pmcd and pmlogger
-sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmcd,pmlogger}
+# Fedora and RHEL default local only access for pmcd, pmproxy and pmlogger
+if [ "$1" -eq 1 ]
+then
+    sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/%{_sysconfdir}/sysconfig/{pmcd,pmproxy,pmlogger}
+fi
 %endif
 
 # default chkconfig off (all RPM platforms)
@@ -2414,11 +2431,13 @@ basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
 basic_manifest | keep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
 basic_manifest | keep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
 basic_manifest | keep 'collectl2pcp' >pcp-import-collectl2pcp-files
+basic_manifest | keep 'guidellm2pcp' >pcp-import-guidellm2pcp-files
 basic_manifest | keep 'pcp2arrow' >pcp-export-pcp2arrow-files
 basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
 basic_manifest | keep 'pcp2xlsx' >pcp-export-pcp2xlsx-files
 basic_manifest | keep 'pcp2graphite' >pcp-export-pcp2graphite-files
+basic_manifest | keep 'pcp2json' >pcp-export-pcp2json-files
 basic_manifest | keep 'pcp2openmetrics' >pcp-export-pcp2openmetrics-files
 basic_manifest | keep 'pcp2opentelemetry' >pcp-export-pcp2opentelemetry-files
 basic_manifest | keep 'pcp2spark' >pcp-export-pcp2spark-files
@@ -2535,7 +2554,7 @@ do \
 done
 
 for import_package in \
-    pmseries \
+    pmseries guidellm2pcp \
     collectl2pcp iostat2pcp ganglia2pcp mrtg2pcp sar2pcp sheet2pcp ; \
 do \
     import_packages="$import_packages pcp-import-$import_package"; \
@@ -3030,7 +3049,7 @@ done
 # managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
 %if 0%{?fedora} > 40 || 0%{?rhel} > 9
     for s in pmcd pmlogger pmie; do
-        systemctl --quiet is-enabled $s && systemctl restart $s >/dev/null 2>&1
+        systemctl --quiet is-enabled $s && systemctl --quiet restart $s || true
     done
 %else  # old-school methods follow
 %if !%{disable_systemd}
@@ -3372,6 +3391,8 @@ fi
 
 %if !%{disable_python3}
 %files import-pmseries -f pcp-import-pmseries-files.rpm
+
+%files import-guidellm2pcp -f pcp-import-guidellm2pcp-files.rpm
 %endif
 
 %if !%{disable_perl}
@@ -3408,5 +3429,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Mon Sep 01 2025 Nathan Scott <nathans@redhat.com> - 7.0.0-1
+* Wed Oct 01 2025 Nathan Scott <nathans@redhat.com> - 7.0.1-1
 - Latest release.

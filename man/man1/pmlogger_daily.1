@@ -18,7 +18,7 @@
 \f3pmlogger_daily\f1 \- administration of Performance Co-Pilot archive files
 .SH SYNOPSIS
 .B $PCP_BINADM_DIR/pmlogger_daily
-[\f3\-DEfKMNoPpQrRVzZ?\f1]
+[\f3\-DEfKMNnoPpQrRVzZ?\f1]
 [\f3\-c\f1 \f2control\f1]
 [\f3\-k\f1 \f2time\f1]
 [\f3\-l\f1 \f2logfile\f1]
@@ -353,6 +353,14 @@ in conjunction with
 .B \-V
 maximizes the diagnostic capabilities for debugging.
 .TP 5
+\fB\-n\fR, \fB\-\-noerror\fR
+Force the exit status to be 0 other than for catastrophic errors.
+Useful when called from a
+.BR systemd (1)
+service or timer unit so that the associated unit is not marked
+as failed in a way that would prevent subsequent execution from
+.BR systemd (1).
+.TP 5
 \fB\-o\fR
 By default all possible archives will be merged.
 This option reinstates the old behaviour in which only yesterday's archives
@@ -423,7 +431,7 @@ are mutually exclusive.
 \fB\-Q\fR, \fB\-\-proxyonly\fR
 The inverse of
 .B \-P
-descibed above, namely
+described above, namely
 only process the archives that have been ``pushed'' from a
 remote
 .BR pmlogger (1)
@@ -1004,5 +1012,6 @@ and
 .\" +ok+ SaveLogs VV
 .\" +ok+ YYYYMMDD autosave autosaved autosaving contol datestamp
 .\" +ok+ gpfs {from gpfs/LOCALHOSTNAME/DATEYYYY/DATEMM-DATEDD}
-.\" +ok+ lz lzma lzo {from compression suffixes}
+.\" +ok+ lz lzma lzo zst {from compression suffixes}
+.\" +ok+ zstd {from zstd(1)}
 .\" +ok+ prev {from .prev suffix} transparent_decompress writeable zeroconf

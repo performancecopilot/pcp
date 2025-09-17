@@ -100,7 +100,7 @@ __pmAccAddOp(unsigned int op)
      * number of bits in an unsigned int)
      */
     for (i = 0; i < WORD_BIT; i++)
-	if (op & (mask = 1 << i))
+	if (op & (mask = ((unsigned int) 1) << i))
 	    break;
 
     /* only one bit may be set in op */

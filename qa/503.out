@@ -1,5 +1,6 @@
 QA output created by 503
 +++ should just work ... +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -16,10 +17,12 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 
 !!! global { hostname -> dreaming } !!!
 
 +++ expect mismatch +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -42,8 +45,10 @@ Output archive files:
 pmlogger_merge: Error: file "20111001.meta" not created
 pmlogger_merge: Error: file "20111001.index" not created
 pmlogger_merge: Error: file "20111001.0" not created
+End [daily]: DATESTAMP status=1
 
 +++ expect fix via local config file +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -60,6 +65,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
@@ -74,6 +80,7 @@ Removing input archive files ...... done
  
 
 +++ expect fix via local symlink config file +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -90,6 +97,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
@@ -104,6 +112,7 @@ Removing input archive files ...... done
  
 
 +++ expect fix via global config dir +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -120,6 +129,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
@@ -134,6 +144,7 @@ Removing input archive files ...... done
  
 
 +++ expect fix via symlink to global config dir +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -150,6 +161,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 --- TMP.in
 +++ TMP.out
 @@ -1,7 +1,7 @@
@@ -166,6 +178,7 @@ Removing input archive files ...... done
 !!! metric sampledso.double.hundred { type -> float } !!!
 
 +++ expect mismatch +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -186,8 +199,10 @@ Output archive files:
 pmlogger_merge: Error: file "20111001.meta" not created
 pmlogger_merge: Error: file "20111001.index" not created
 pmlogger_merge: Error: file "20111001.0" not created
+End [daily]: DATESTAMP status=1
 
 +++ expect fix via local config file +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -204,6 +219,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 --- TMP.in
 +++ TMP.out
 @@ -52,7 +52,7 @@
@@ -232,6 +248,7 @@ Removing input archive files ...... done
      2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 
 +++ expect fix via local symlink config file +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -248,6 +265,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 --- TMP.in
 +++ TMP.out
 @@ -52,7 +52,7 @@
@@ -276,6 +294,7 @@ Removing input archive files ...... done
      2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 
 +++ expect fix via global config dir +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -292,6 +311,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 --- TMP.in
 +++ TMP.out
 @@ -52,7 +52,7 @@
@@ -320,6 +340,7 @@ Removing input archive files ...... done
      2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 
 +++ expect fix via symlink to global config dir +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -336,6 +357,7 @@ Output archive files:
 -rw-r--r-- ... 20111001.index
 -rw-r--r-- ... 20111001.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 --- TMP.in
 +++ TMP.out
 @@ -52,7 +52,7 @@
@@ -364,6 +386,7 @@ Removing input archive files ...... done
      2.3.3 (pmcd.pmlogger.host): inst [1933 or "1933"] value "localhost.localdomain"
 
 +++ expect fail when -r used and local config file present +++
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOSTNAME in TMP.arch ===
 
@@ -384,3 +407,4 @@ Output archive files:
 pmlogger_merge: Error: file "20111001.meta" not created
 pmlogger_merge: Error: file "20111001.index" not created
 pmlogger_merge: Error: file "20111001.0" not created
+End [daily]: DATESTAMP status=1

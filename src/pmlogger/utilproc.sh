@@ -858,3 +858,17 @@ END						{ exit sts }'
 	return $__sts
     fi
 }
+
+# current time to the highest precision available from date(1) and
+# strftime(3)
+#
+_datestamp()
+{
+    if [ `date +%N` = N ]
+    then
+	# no %N, %T is the best we can do
+	date +'%F %T'
+    else
+	date +'%F %T.%N'
+    fi
+}

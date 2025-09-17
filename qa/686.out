@@ -10,6 +10,7 @@ YESTERDAY.00.10.index YESTERDAY.00.10.meta YESTERDAY.12.10.0
 YESTERDAY.12.10.index YESTERDAY.12.10.meta TODAY.00.10.0
 TODAY.00.10.index TODAY.00.10.meta
 
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host localhost in TMP/myhost ===
 
@@ -31,6 +32,7 @@ Output archive files:
 <ls output> YESTERDAY.index
 <ls output> YESTERDAY.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 
 After ...
 YESTERDAY.0 YESTERDAY.index YESTERDAY.meta TODAY.00.10.0
@@ -48,6 +50,7 @@ YESTERDAY.00.10.index YESTERDAY.00.10.meta YESTERDAY.12.10.0
 YESTERDAY.12.10.index YESTERDAY.12.10.meta TODAY.00.10.0
 TODAY.00.10.index TODAY.00.10.meta
 
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host localhost in TMP/myhost ===
 
@@ -70,6 +73,7 @@ Output archive files:
 <ls output> YESTERDAY.index
 <ls output> YESTERDAY.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 
 After ...
 YESTERDAY.0 YESTERDAY.index YESTERDAY.meta TODAY.00.10.0
@@ -86,6 +90,7 @@ YESTERDAY.00.10.index YESTERDAY.00.10.meta YESTERDAY.12.10.0
 YESTERDAY.12.10.index YESTERDAY.12.10.meta TODAY.00.10.0
 TODAY.00.10.index TODAY.00.10.meta pmlogrewrite
 
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host localhost in TMP/myhost ===
 
@@ -107,6 +112,7 @@ Specification error in configuration file (TMP/myhost/pmlogrewrite)
 [line 2] syntax error
 pmlogger_daily: Warning: rewrite for YESTERDAY.12.10 failed using  -c TMP/myhost/pmlogrewrite failed
 [TMP.control:3] ... skip log merging and compressing for host "localhost"
+End [daily]: DATESTAMP status=1
 
 After ...
 YESTERDAY.00.10.0 YESTERDAY.00.10.index YESTERDAY.00.10.meta

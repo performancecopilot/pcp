@@ -36,6 +36,7 @@ cyrus-sasl-plain
 device-mapper-devel
 docker
 ed
+ethtool
 expect
 flex
 gawk
@@ -118,6 +119,7 @@ python3-rtslib-fb
 python3-setuptools
 python3-six
 ragel
+rdma-core
 rdma-core-devel
 readline-devel
 redis
@@ -131,6 +133,7 @@ smartmontools
 socat
 sudo
 sysstat
+systemd
 systemd-devel
 systemtap
 systemtap-runtime

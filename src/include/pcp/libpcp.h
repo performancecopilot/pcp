@@ -534,7 +534,7 @@ typedef enum {
 PCP_CALL extern void __pmHashInit(__pmHashCtl *);
 PCP_CALL extern int __pmHashPreAlloc(int, __pmHashCtl *);
 typedef __pmHashWalkState(*__pmHashWalkCallback)(const __pmHashNode *, void *);
-PCP_CALL extern void __pmHashWalkCB(__pmHashWalkCallback, void *, const __pmHashCtl *);
+PCP_CALL extern void __pmHashWalkCB(__pmHashWalkCallback, void *, __pmHashCtl *);
 PCP_CALL extern __pmHashNode *__pmHashWalk(__pmHashCtl *, __pmHashWalkState);
 PCP_CALL extern __pmHashNode *__pmHashSearch(unsigned int, __pmHashCtl *);
 PCP_CALL extern int __pmHashAdd(unsigned int, void *, __pmHashCtl *);
@@ -848,7 +848,7 @@ struct __pmArchCtl;
 typedef int (*pmLogWriteCallBack)(const struct __pmArchCtl *, int, void *, size_t, const char *);
 typedef int (*pmLogFlushCallBack)(const struct __pmArchCtl *, int, const char *);
 typedef void (*pmLogResetCallBack)(const struct __pmArchCtl *, int, long, const char *);
-typedef long (*pmLogTellCallBack)(const struct __pmArchCtl *, int, const char *);
+typedef off_t (*pmLogTellCallBack)(const struct __pmArchCtl *, int, const char *);
 
 /*
  * Per-context controls for archives and logs

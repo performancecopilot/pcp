@@ -1,0 +1,17 @@
+#! /bin/sh
+# PCP QA Test No. 1389
+# checks pmwebd graphite support for multi-volume archives
+#
+# Copyright (c) 2018 Red Hat.
+#
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 4fe4508ce -- 1389
+
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_notrun 'retired and culled'

@@ -211,6 +211,24 @@ network.mptcp.mpjoinsyntxconnecterr
 network.mptcp.blackhole
     value 66
 
+network.mptcp.mpjoinrejected
+    value 67
+
+network.mptcp.mpcapabledatafallback
+    value 68
+
+network.mptcp.md5sigfallback
+    value 69
+
+network.mptcp.dssfallback
+    value 70
+
+network.mptcp.simultconnectfallback
+    value 71
+
+network.mptcp.fallbackfailed
+    value 72
+
 == Checking network.tcp metrics
 
 network.tcp.rtoalgorithm
@@ -692,3 +710,6 @@ network.tcp.tsecrrejected
 
 network.tcp.pawstimewait
     value 144
+
+network.tcp.beyondwindow
+    value 145

@@ -1,4 +1,8 @@
 QA output created by 781
+Start [check]: DATESTAMP
+Start [daily]: DATESTAMP
+End [daily]: DATESTAMP status=1
+End [check]: DATESTAMP status=0
 # $version=1.1    
 + export version; version=1.1    
 + mkdir -p -m 0775 logs/HOSTNAME

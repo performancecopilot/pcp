@@ -1123,12 +1123,12 @@ __pmLogResetCB(const __pmArchCtl *acp, int volume, long offset, const char *call
     __pmFseek(fp, offset, SEEK_SET);
 }
 
-static long
+static off_t
 __pmLogTellCB(const __pmArchCtl *acp, int volume, const char *caller)
 {
     const char		*id;
     __pmFILE		*fp;
-    long		off;
+    off_t		off;
 
     fp = logCallBackFile(acp, volume, &id);
 
@@ -1222,7 +1222,7 @@ logputresult(int version, __pmArchCtl *acp, __pmPDU *pb, const char *caller)
 
     if (pmDebugOptions.log)
 	fprintf(stderr, "%s: pdubuf=" PRINTF_P_PFX "%p"
-		" input len=%d output len=%d posn=%ld\n", __FUNCTION__,
+		" input len=%d output len=%d posn=%" FMT_INT64 "\n", __FUNCTION__,
 		pb, pb[0], sz, acp->ac_tell_cb(acp, PM_LOG_VOL_CURRENT, __FUNCTION__));
 
     save_from = start[0];

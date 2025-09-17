@@ -173,7 +173,8 @@ export PCP_REMOTE_ARCHIVE_DIR=$tmp.pmproxy/pmproxy
 echo "Start test pmproxy ..."
 archive_host=`hostname`
 archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
-$sudo rm -fr $archive_path
+archive_botch=$PCP_LOG_DIR/pmproxy/pmproxy
+$sudo rm -fr $archive_path $archive_botch
 
 $valgrind_clean_assert pmproxy -Dcontext -f -p $pmproxy_port -U $user -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!
@@ -226,6 +227,14 @@ cat $tmp.valout | tee -a $seq_full | _filter_valgrind
 
 echo "=== valgrind stderr ===" | tee -a $seq_full
 cat $tmp.valerr | tee -a $seq_full | _filter_context_debug | _filter_pmproxy_log | grep -v "Cannot connect to key server" | _filter_pmproxy_port
+
+# final sanity check
+if [ -d $archive_botch ]
+then
+    echo "Bad archive path $archive_botch found but should not be"
+    status=1
+    exit
+fi
 
 # success, all done
 exit

@@ -18,20 +18,18 @@ include $(TOPDIR)/src/include/builddefs
 CFILES = pmseries.c
 CMDTARGET = pmseries$(EXECSUFFIX)
 CMDIMPORT = pmseries_import
-CONTAINER = build/containers/archive-analysis/root/usr/bin/archive-import.py
-XFILES = $(CMDIMPORT).py
 LLDLIBS	= $(PCP_WEBLIB)
 LCFLAGS = $(LIBUVCFLAGS)
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 endif
-LDIRT += $(XFILES) $(CMDIMPORT).service
+LDIRT += $(CMDIMPORT).service
 BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 
 default:	build-me
 
 ifeq "$(HAVE_LIBUV)" "true"
-build-me:	$(CMDTARGET) $(XFILES) $(CMDIMPORT).service
+build-me:	$(CMDTARGET) $(CMDIMPORT).py $(CMDIMPORT).service
 
 install:	default
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
@@ -51,10 +49,6 @@ install:
 endif
 
 include $(BUILDRULES)
-
-# TODO: move this file here instead of symlinking, once transition completed
-$(XFILES):
-	$(LN_S) $(TOPDIR)/$(CONTAINER) $@
 
 default_pcp : default
 

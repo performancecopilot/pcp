@@ -60,6 +60,8 @@ _filter()
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e "s/local:/HOST/g" \
 	-e '/mkdir:/s/: cannot create directory /: /' \
 	-e "s/`hostname`/HOST/g" \

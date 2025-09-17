@@ -196,6 +196,29 @@ the lock_time metrics or not. The machine must have the gfs2 trace-points
 available for the glock_lock_time based metrics to function.
     value 1
 
+gfs2.glockfd.fds PMID: 115.8.1 [File descriptors with glock holders per filesystem]
+    Data Type: 32-bit int  InDom: 115.1 0x1cc00001
+    Semantics: instant  Units: none
+Help:
+File descriptors with glock holders per filesystem
+    inst [0 or "loop0::holder_0"] value 4923
+    inst [1 or "loop0::holder_1"] value 4960
+
+gfs2.glockfd.pids PMID: 115.8.0 [List of process PID with glock holders per filesystem]
+    Data Type: 32-bit int  InDom: 115.1 0x1cc00001
+    Semantics: instant  Units: none
+Help:
+List of process PID with glock holders per filesystem
+    inst [0 or "loop0::holder_0"] value 9
+    inst [1 or "loop0::holder_1"] value 9
+
+gfs2.glockfd.total PMID: 115.7.0 [Total number of glock holders per filesystem]
+    Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
+    Semantics: instant  Units: none
+Help:
+Total number of glock holders per filesystem
+    inst [0 or "loop0"] value 2
+
 gfs2.glocks.deferred PMID: 115.0.3 [GFS2 global locks in deferred state]
     Data Type: 64-bit unsigned int  InDom: 115.0 0x1cc00000
     Semantics: instant  Units: count

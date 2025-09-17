@@ -127,6 +127,7 @@ OTHER_SUBDIRS += \
 	autofsd-probe \
 	telnet-probe \
 	collectl2pcp \
+	guidellm2pcp \
 	iostat2pcp \
 	mrtg2pcp \
 	sar2pcp \

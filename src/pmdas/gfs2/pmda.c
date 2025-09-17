@@ -30,10 +30,9 @@ static char *gfs2_sysdir;
 static char *gfs2_debugfsdir;
 
 pmdaIndom indomtable[] = { 
-    { .it_indom = GFS_FS_INDOM }, 
+    { .it_indom = GFS_FS_INDOM },
+    { .it_indom = GFS_HOLDER_INDOM },
 };
-
-#define INDOM(x) (indomtable[x].it_indom)
 
 /*
  * all metrics supported in this PMDA - one table entry for each
@@ -267,6 +266,19 @@ pmdaMetric metrictable[] = {
         PMDA_PMID(CLUSTER_GLSTATS, GLSTATS_JOURNAL),
         PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+    /* GLOCKFD*/
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_GLOCKFD, GLOCKFD_TOTAL),
+        PM_TYPE_U64, GFS_FS_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_HOLDER_STATS, GLOCKFD_PROCESS),
+        PM_TYPE_32, GFS_HOLDER_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_HOLDER_STATS, GLOCKFD_FILE_DESCRIPTOR),
+        PM_TYPE_32, GFS_HOLDER_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
     /* TRACEPOINTS */
     { .m_desc = {
         PMDA_PMID(CLUSTER_TRACEPOINTS, FTRACE_GLOCKSTATE_TOTAL),
@@ -801,6 +813,12 @@ pmdaMetric metrictable[] = {
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
+pmInDom
+gfs2_indom(int serial)
+{
+    return indomtable[serial].it_indom;
+}
+
 int
 metrictable_size(void)
 {
@@ -848,7 +866,7 @@ static int
 gfs2_instance_refresh(void)
 {
     int i, sts, count, gfs2_status;
-    struct dirent **files;
+    struct dirent **files = {0};
     pmInDom indom = INDOM(GFS_FS_INDOM);
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
@@ -929,10 +947,17 @@ gfs2_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	    gfs2_refresh_sbstats(gfs2_debugfsdir, name, &fs->sbstats);
         if (need_refresh[CLUSTER_GLSTATS])
             gfs2_refresh_glstats(gfs2_debugfsdir, name, &fs->glstats);
+        if (need_refresh[CLUSTER_GLOCKFD])
+            gfs2_refresh_glockfd(gfs2_debugfsdir, name, &fs->glockfd);
     }
 
     if (need_refresh[CLUSTER_TRACEPOINTS] || need_refresh[CLUSTER_WORSTGLOCK] || need_refresh[CLUSTER_LATENCY])
         gfs2_refresh_ftrace_stats(indom);
+
+    if (( i = pmdaCacheOp(indom, PMDA_CACHE_SIZE_ACTIVE)) > 0) {
+        if (need_refresh[CLUSTER_HOLDER_STATS])
+             gfs2_refresh_per_holder();
+    }
 
     return sts;
 }
@@ -981,6 +1006,15 @@ gfs2_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	if (sts < 0)
 	    return sts;
 	return gfs2_glstats_fetch(item, &fs->glstats, atom);
+
+    case CLUSTER_GLOCKFD:
+        sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);
+	if (sts < 0)
+	    return sts;
+	return gfs2_glockfd_fetch(item, &fs->glockfd, atom);
+
+    case CLUSTER_HOLDER_STATS:
+        return gfs2_per_holder_fetch(item, inst, atom);
 
     case CLUSTER_TRACEPOINTS:
         sts = pmdaCacheLookup(INDOM(GFS_FS_INDOM), inst, NULL, (void **)&fs);

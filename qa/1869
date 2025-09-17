@@ -46,6 +46,8 @@ _filter()
 	-e "s/`pmdate -3d %Y%m%d`/TODAY-3/g" \
 	-e "s/`pmdate -5d %Y%m%d`/TODAY-5/g" \
 	-e "s/`pmdate -7d %Y%m%d`/TODAY-7/g" \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
     # end
 }
 

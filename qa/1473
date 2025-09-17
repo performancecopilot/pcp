@@ -83,6 +83,9 @@ END				{ if ( eatlines ) {
 				  }
 				}
 				{ print }' \
+    | sed \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
     | sed -f $tmp.sed \
     | sed \
 	-e '/^Roll .*\/NOTICES/d' \

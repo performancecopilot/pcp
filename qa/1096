@@ -4,28 +4,14 @@
 #
 # Copyright (c) 2017 Red Hat.  All Rights Reserved.
 #
-seq=`basename $0`
-echo "QA output created by $seq"
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 1096
 
-# get standard environment, filters and checks
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-_get_libpcp_config
-$multi_threaded || _notrun "No libpcp threading support"
-
-status=0	# success is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
-echo "=== testing non-multithreaded pmNewContext with one good live context and one bad archive context ===" | tee -a $seq_full
-date >> $seq_full
-if ! src/archctl_segfault; then echo FAILED; status=1; fi
-echo "=== testing multithreaded pmNewContext with one good live context and one bad archive context ===" | tee -a $seq_full
-date >> $seq_full
-src/multithread11 localhost badarchives/empty
-[ $? -ne 0 ] && echo FAILED, see $seq.full && status=1
-
-# success, all done
-exit
+_notrun 'retired and culled'

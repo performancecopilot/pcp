@@ -47,7 +47,9 @@ class BPFtraceService():
         runtime_info = self.gather_runtime_info()
         self.process = multiprocessing.Process(name="pmdabpftrace process manager",
                                                target=process_manager_main,
-                                               args=(self.config, self.logger, self.child_pipe, runtime_info),
+                                               args=(self.config,
+                                                     self.logger, self.child_pipe,
+                                                     runtime_info),
                                                daemon=True)
         self.process.start()
 

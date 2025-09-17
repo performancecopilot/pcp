@@ -4749,6 +4749,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NET_NETSTAT,232), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
+/* network.tcp.beyondwindow */
+  { &_pm_proc_net_netstat.tcp[_PM_NETSTAT_TCPEXT_BEYONDWINDOW],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,233), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
 /* network.mptcp.mpfailtx */
   { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPFAILTX],
     { PMDA_PMID(CLUSTER_NET_NETSTAT,190), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -4917,6 +4922,36 @@ static pmdaMetric metrictab[] = {
 /* network.mptcp.blackhole */
   { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_BLACKHOLE],
     { PMDA_PMID(CLUSTER_NET_NETSTAT,229), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpjoinrejected */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPJOINREJECTED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,234), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.mpcapabledatafallback */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MPCAPABLEDATAFALLBACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,235), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.md5sigfallback */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_MD5SIGFALLBACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,236), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.dssfallback */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_DSSFALLBACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,237), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.simultconnectfallback */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SIMULTCONNECTFALLBACK],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,238), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+    PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
+
+/* network.mptcp.fallbackfailed */
+  { &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_FALLBACKFAILED],
+    { PMDA_PMID(CLUSTER_NET_NETSTAT,239), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
     PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* hinv.map.scsi */

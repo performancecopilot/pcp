@@ -62,6 +62,8 @@ _filter()
 	-e "s@\[.*/control@[TMP/control@" \
 	-e "s/`pmdate -1d %Y%m%d`/TODAY-1/g" \
 	-e "s/`pmdate -2d %Y%m%d`/TODAY-2/g" \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
     | _filter_ls -u -g
 }
 

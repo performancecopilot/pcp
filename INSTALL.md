@@ -1,7 +1,7 @@
 # INSTALL
 
 - Packages
-  1. Linux Installation (rpm, deb)
+  1. Linux Installation (rpm, deb, containers)
   2. MacOS Installation (brew+dmg)
   3. AIX Installation
   4. Solaris Installation
@@ -26,6 +26,10 @@ If you are using a RPM based distribution and have the binary rpm:
 $ sudo rpm -Uvh pcp-*.rpm
 ```
 ... and skip to the final section (below) - "Post-install steps".
+
+If you are using a container based distribution, latest builds can
+be installed using the instructions for your runtime listed here:
+https://quay.io/repository/performancecopilot/archive-analysis
 
 *Special note for Ubuntu 8.04, 8.10, 9.04, 9.10 and 10.04*
 
@@ -222,6 +226,14 @@ $ ./Makepkgs --verbose --target mingw64
 Once "Makepkgs" completes you will have package binaries that will
 need to be installed.  The recipe depends on the packaging flavour,
 but the following should provide guidance:
+
+**Container builds**
+- using a build tool with the provided Dockerfile(s) invokes the
+Makepkgs script at the appropriate time, so instead:
+```
+podman build -t pcp -f build/containers/pcp/Dockerfile .
+podman build -t archive-analysis -f build/containers/archive-analysis/Dockerfile .
+```
 
 **dpkg install** (Debian and derivative distributions)
 ```

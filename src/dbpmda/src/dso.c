@@ -72,6 +72,7 @@ opendso(char *dso, char *init, int domain)
 	    dispatch.comm.pmda_interface = challenge;
 	    /* set in 2 steps to avoid int to bitfield truncation warnings */
 	    dispatch.comm.pmapi_version = PMAPI_VERSION_2;   /* use oldest */
+	    /* coverity[integer_overflow] */
 	    dispatch.comm.pmapi_version = ~dispatch.comm.pmapi_version;
 	    dispatch.comm.flags = 0;
 	    dispatch.status = 0;

@@ -83,7 +83,8 @@ _filter_ls()
 archive=$here/archives/ok-mv-bigbin
 archive_host=moomba
 archive_path=$PCP_REMOTE_ARCHIVE_DIR/$archive_host
-$sudo rm -fr $archive_path
+archive_botch=$PCP_LOG_DIR/pmproxy/pmproxy
+$sudo rm -fr $archive_path $archive_botch
 
 pmproxy_was_running=false
 [ -f $PCP_RUN_DIR/pmproxy.pid ] && pmproxy_was_running=true
@@ -127,6 +128,12 @@ then
     pminfo -a $archive_path | LC_COLLATE=POSIX sort
 else
     echo "Archive push failed: $archive_path directory not created"
+    status=1
+    exit
+fi
+if [ -d $archive_botch ]
+then
+    echo "Bad archive path $archive_botch found but should not be"
     status=1
     exit
 fi

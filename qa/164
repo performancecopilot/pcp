@@ -4,54 +4,14 @@
 #
 # Copyright (c) 2005 Silicon Graphics, Inc.  All Rights Reserved.
 
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 164
+
 seq=`basename $0`
-echo "QA output created by $seq"
-
-if which diskstat >/dev/null 2>&1
-then
-    :
-else
-    _notrun "No diskstat binary installed"
-    # NOTREACHED
-fi
-
-# get standard environment, filters and checks
 . ./common.product
 . ./common.filter
 . ./common.check
 
-status=0	# success is the default!
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
-# real QA test starts here
-
-pmdumplog -z -dilmst archives/kenj-pc-diskstat disk >$tmp.out
-awk <$tmp.out '/^[0-1].*\(disk.dev.read\)/	{ print NR }' >$tmp.tmp
-echo "=== first sample ==="
-f=`sed 1q $tmp.tmp`
-l=`sed -e 1d -e 2q $tmp.tmp`
-l=`expr $l - 2`
-sed -n -e "$f,${l}p" $tmp.out
-
-echo "=== last sample ==="
-f=`tail -1 <$tmp.tmp`
-sed -n -e "$f,\$p" $tmp.out
-
-echo
-echo "=== pmval ==="
-pmval -z -t 10 -S 10 -a archives/kenj-pc-diskstat disk.dev.total
-
-echo
-echo "=== diskstat ==="
-diskstat -z -t 10 -S 10 -a archives/kenj-pc-diskstat
-
-echo
-echo "=== diskstat -i ==="
-diskstat -z -i -t 10 -S 10 -a archives/kenj-pc-diskstat
-
-echo
-echo "=== diskstat -x ==="
-diskstat -z -x -t 10 -S 10 -a archives/kenj-pc-diskstat
-
-# success, all done
-exit
+_notrun 'retired and culled'

@@ -5,118 +5,14 @@
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 184
 
-# get standard filters
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-_cleanup()
-{
-    if [ ! -f $tmp.cleanup ]
-    then
-	$sudo $signal -a pmlogger >/dev/null 2>&1
-	$sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check
-	_wait_for_pmlogger
-	touch $tmp.cleanup
-    fi
-}
-
-signal=$PCP_BINADM_DIR/pmsignal
-newlog=$PCP_BINADM_DIR/pmnewlog
-trap "_cleanup; cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
-
-_filter_dumplog()
-{
-    sed \
-	-e '/\[[0-9][0-9]* bytes\]/d' \
-	-e '/^[0-9][0-9]:[0-9][0-9]:[0-9][0-9]\.[0-9][0-9]*[0-9]/s//TIMESTAMP/' \
-	-e 's/^\(log started  *\).*/\1DATESTAMP/' \
-	-e 's/^\(last log entry  *\).*/\1DATESTAMP/' \
-	-e 's/^\(current time  *\).*/\1DATESTAMP/' \
-	-e 's/^\(  *commencing *\).*/\1DATESTAMP/' \
-	-e 's/^\(  *ending *\).*/\1DATESTAMP/' \
-	-e '/^Performance metrics/s/host .*/host HOST/' \
-	-e '/(pmcd.control.register)/s/value [0-9][0-9]*/value INTEGER/' \
-	-e '/^InDom: 2.1/,/^$/s/[0-9][0-9]* or "[0-9][0-9]*"/LOGGER_PID or "LOGGER_PID"/g' \
-	-e '/pmcd.pmlogger.*inst/s/[0-9][0-9]* or "[0-9][0-9]*"/LOGGER_PID or "LOGGER_PID"/' \
-	-e '/pmcd.pmlogger.port/s/value .*/value PORT/' \
-	-e '/pmcd.pmlogger.host/s/value ".*/value "HOST"/' \
-	-e '/pmcd.pmlogger.archive/s/value ".*/value "PATH"/' \
-	-e '/pmcd\.seqnum/s/value [0-9][0-9.]*/value SEQNUM/' \
-	-e '/pmcd\.pid/s/value [0-9][0-9.]*/value PID/' \
-    | $PCP_AWK_PROG '
-$1 == "TIMESTAMP" && NF == 4	{ print "TIMESTAMP       0       OFFSET       OFFSET"; next }
-				{ print }'
-}
-
-_filter_newlog()
-{
-    sed \
-	-e "s;$PCP_BINADM_DIR/pmlogger;pmlogger;g" \
-	-e 's/process [0-9][0-9]*/process PID/' \
-	-e '/pmlogger -L/s/.*/-- ps line removed --/' \
-	-e '/ \/usr\/pcp\/bin\/pmlogger /s/.*/-- ps line removed --/' \
-	-e 's/^\/usr\/pcp\/bin\/pmlogger/pmlogger/' \
-	-e "/^pmlogger/s/$seq-[0-9][0-9]*/SEQ-PID/g" \
-	-e '/configuration file saved as/s/[0-9][0-9]*/PID/g' \
-	-e 's/\[[0-9][0-9]*]/[PID]/' \
-	-e '/PMCD host/d' \
-	-e 's/ host [^ ]*/ host HOST/g' \
-	-e '/^Getting logged/s/host HOST/host name/' \
-	-e 's/ -h [^ ]*/ -h HOST/g' \
-	-e 's/ -c [^ ]*/ -c CONF/g' \
-	-e 's/ SIG.* done/ signal stuff ... done/' \
-	-e '/Error \[<stdin>,/d' \
-	-e '/Warning \[<stdin>,/d' \
-	-e '/Not connected to any/d' \
-	-e '/Logging statement ignored/d' \
-	-e '/Problem with lookup for metric/d' \
-	-e '/Reason: Unknown metric name/d' \
-	-e '/Try again. Information not currently available/d' \
-	-e '/Unknown or illegal metric identifier/d' \
-	-e '/Unknown or illegal instance domain identifier/d' \
-	-e '/Metric not supported by this version/d' \
-	-e '/^log size/s/[0-9][0-9]*/BYTES/' \
-	-e '/^Contacting pmlogger /d' \
-	-e '/^pmnewlog: Warning: errors from talking /d' \
-	-e '/^continuing .../d' \
-	-e '/New pmlogger configuration file saved /d' \
-	-e '/^[ 	]*$/d' \
-	-e 's;/tmp/PID/pcp;/tmp/PID;g'
-}
-
-# real QA test starts here
-
-# Note:
-# Logging a metric with an instance domain so that the record will be flushed.
-cat <<End-of-File >$tmp.config
-log mandatory on once pmcd.control.register["0"]
-End-of-File
-$sudo rm -f $tmp.arch.*
-_start_up_pmlogger -L -c $tmp.config -l $tmp.log $tmp.arch >$tmp.err 2>&1
-logger_pid=$pid
-_wait_for_pmlogger $logger_pid $tmp.log || _exit 1
-
-echo "=== old log ===" | tee $seq_full
-pmdumplog -dilmst $tmp.arch | tee -a $seq_full | _filter_dumplog
-
-echo | tee -a $seq_full
-echo "=== pmnewlog ==" | tee -a $seq_full
-$sudo $newlog -V -p $logger_pid -l $tmp.log $tmp.newarch 2>&1 >$tmp.out
-cat $tmp.out >>$seq_full
-_filter_newlog <$tmp.out | _filter_dumplog
-
-# Cleanup after youself
-$sudo rm -f `dirname $tmp`/Latest
-
-echo
-echo "=== check old pmlogger has gone ==="
-ps $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '$2 == '$logger_pid' { print }'
-
-echo | tee -a $seq_full
-echo "=== check what's in the new log ===" | tee -a $seq_full
-sleep 1
-pmdumplog -dilmst $tmp.newarch | tee -a $seq_full | _filter_dumplog
+_notrun 'retired and culled'

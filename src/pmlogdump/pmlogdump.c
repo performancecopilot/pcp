@@ -1170,17 +1170,17 @@ rawdump(FILE *f)
     int		i;
     int		sts;
 
-    if ((old = ftell(f)) < 0) {
+    if ((old = ftello(f)) < 0) {
 	fprintf(stderr, "rawdump: Botch: ftell(%p) -> %lld (%s)\n", f, (long long)old, pmErrStr(-errno));
 	return;
     }
 
-    if (fseek(f, (long)0, SEEK_SET) < 0)
+    if (fseeko(f, (long)0, SEEK_SET) < 0)
 	fprintf(stderr, "Warning: fseek(..., 0, ...) failed: %s\n", pmErrStr(-oserror()));
 
     while ((sts = fread(&len, 1, sizeof(len), f)) == sizeof(len)) {
 	len = ntohl(len);
-	printf("Dump ... record len: %d @ offset: %lld", len, (long long)(ftell(f) - sizeof(len)));
+	printf("Dump ... record len: %d @ offset: %lld", len, (long long)(ftello(f) - sizeof(len)));
 	len -= 2 * sizeof(len);
 	for (i = 0; i < len; i++) {
 	    check = fgetc(f);
@@ -1207,7 +1207,7 @@ rawdump(FILE *f)
     }
     if (sts < 0)
 	printf("fread fails: %s\n", osstrerror());
-    if (fseek(f, old, SEEK_SET) < 0)
+    if (fseeko(f, old, SEEK_SET) < 0)
 	fprintf(stderr, "Warning: fseek(..., %lld, ...) failed: %s\n", (long long)old, pmErrStr(-oserror()));
 }
 

@@ -5,56 +5,14 @@
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 #
 
-if [ $# -eq 0 ]
-then
-    seq=`basename $0`
-    echo "QA output created by $seq"
-else
-    # use $seq from caller, unless not set
-    [ -n "$seq" ] || seq=`basename $0`
-    echo "QA output created by `basename $0` $*"
-fi
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff 5ce07ea86 -- 1282
 
-# get standard environment, filters and checks
+seq=`basename $0`
 . ./common.product
 . ./common.filter
 . ./common.check
 
-_cleanup()
-{
-    cd $here
-    $sudo rm -rf $tmp $tmp.*
-}
-
-status=0	# success is the default!
-trap "_cleanup; exit \$status" 0 1 2 3 15
-
-# odd cases to be filtered out ...
-# - docker.io not helpful on machines hosting VMs
-# - unbound not helpful on machines running real DNS, e.g. with bind9
-#
-_filter()
-{
-    sed \
-	-e 's/^/ /' \
-	-e 's/$/ /' \
-	-e 's/ docker.io / /' \
-	-e 's/ unbound / /' \
-	-e 's/^ //' \
-	-e 's/ $//' \
-	-e '/^ *$/d' \
-    # end
-}
-
-# real QA test starts here
-admin/whatami >>$seq_full
-
-echo "list-packages -m (CI case)"
-admin/list-packages -m -x notci -x cpan -x pip3 2>&1 | _filter
-
-echo
-echo "list-packages -c"
-admin/list-packages -c 2>&1 | _filter
-
-# success, all done
-exit
+_notrun 'retired and culled'

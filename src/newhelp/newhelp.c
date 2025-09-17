@@ -147,7 +147,7 @@ newentry(char *buf)
     fprintf(f, "\n@ %s ", name);
 
     hindex[thisindex].pmid = pmid;
-    hindex[thisindex].off_oneline = ftell(f);
+    hindex[thisindex].off_oneline = ftello(f);
 
     /* skip white space ... to start of oneline */
     *p = end_c;
@@ -178,7 +178,7 @@ newentry(char *buf)
 	return;
     }
 
-    hindex[thisindex].off_text = ftell(f);
+    hindex[thisindex].off_text = ftello(f);
 
     /* trim all but last newline ... */
     i = (int)strlen(p) - 1;

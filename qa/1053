@@ -1,0 +1,18 @@
+#!/bin/sh
+# PCP QA Test No. 1053
+# Exercise the JSON PMDA Install/Remove.
+#
+# Copyright (c) 2015-2016 Red Hat.
+#
+
+# test really-retired by kenj on 13 Sep 2025
+#
+# to see the original test
+# 	$ git diff fedca87b0 -- 1053
+
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_notrun 'retired and culled'

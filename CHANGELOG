@@ -1,3 +1,6 @@
+pcp-7.0.1 (1 October 2025)
+    - Work-in-progress, bug-fix release.
+
 pcp-7.0.0 (1 September 2025)
     - PMDA additions, enhancements and bug fixes:
 	pmdaopentelemetry: new exporter for OpenTelemetry metrics
@@ -16,6 +19,7 @@ pcp-7.0.0 (1 September 2025)
     - Server-side utilities and log management scripts:
 	pmlogger, pmproxy: support for a remote archive push webhook;
 	  providing central logging without server-side configuration
+	pmlogconf: updates to ensure complete sysstat metric coverage
 	pmproxy_daily: new daily script for pmlogger-pushed archives
 	pmproxy: support both OpenMetrics and OpenTelemetry /metrics
 	pmproxy: configurable HTTP headers (e.g. X-Grafana-Device-ID)
@@ -26,6 +30,7 @@ pcp-7.0.0 (1 September 2025)
 	libpcp.so.3: provides backwards compatible libpcp interfaces
 	pmapi.h: backwards compatible APIs via -DPMAPI_VERSION=2|4
 	libpcp: flag for pmproxy to open archives at the last volume
+	libpcp: fix lurking __pmOptFetchAdd bug affecting pmlogger
 	libpcp_import: protect against a second call to pmiEnd
 	python api: fix (de)reference of a tuple in refresh callback
 	python api: removed python version 2 support, 3.6 is minimum
@@ -36,6 +41,7 @@ pcp-7.0.0 (1 September 2025)
 	pcp-htop: improve pmcd disconnect/restart handling
 	pmrep: fix iostat merge percentage formulas
 	pmrep: allow for not preserving discrete metric values
+	pmrep: add sar-B and sar-r columns, sync with recent sysstat
 	pmjson: produce colorful output to the console by default
 	pmlogpush: new tool for pushing existing archives to pmproxy
 	pcp2opentelemetry: new tool exporting to OpenTelemetry format
@@ -52,6 +58,8 @@ pcp-7.0.0 (1 September 2025)
 	build: fix multilib installs for pcp-libs-devel packages
 	build: provide libvirt PMDA on any el7 if py3 modules exist
 	build: clean up debian missing Build-Depends: packages
+	build: allow -DNDEBUG to be used consistently across distro builds
+	build: allow containers of any architecture to be built
 	selinux: update policy for AMD and NVIDIA gpu pmdas
 	selinux: additional policy needed for pcp_pmie_t using ps
 	selinux: add permissions allowing proc_psi_t access

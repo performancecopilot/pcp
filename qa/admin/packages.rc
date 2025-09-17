@@ -29,6 +29,9 @@ s/CentOS\([0-9]\)/CentOS \1/
 }' \
 	-e '/Debian/{
 s;bullseye/sid;11;
+s;bookworm/sid;12;
+s;trixie/sid;13;
+s;forky/sid;14;
 }' \
 	-e '/FreeBSD/{
 s/-RELEASE//

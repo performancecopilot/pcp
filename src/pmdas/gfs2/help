@@ -729,3 +729,7 @@ latency metrics to function.
 per fetch. The number of glocks that will be processed and accepted over all
 ftrace read trace statistics. This number can be manually altered using pmstore
 in order to tailor the number of glocks processed. This value must be positive.
+
+@ gfs2.glockfd.total Total number of glock holders per filesystem
+@ gfs2.glockfd.pids List of process PID with glock holders per filesystem
+@ gfs2.glockfd.fds File descriptors with glock holders per filesystem

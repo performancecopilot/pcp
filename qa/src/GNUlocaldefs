@@ -156,7 +156,7 @@ PYTHONFILES = \
 	test_pcp.python test_pmcc.python \
 	test_pmi.python check_import.python \
 	test_mmv.python test_webapi.python \
-	test_pcp_derived.python \
+	test_pcp_derived.python test_bad_import.python \
 	test_pcp_options.python test_pcp_getopts.python \
 	test_pcp_time.python test_pmnswalk.python \
 	pmapi_exceptions.python pmapi_daemon.python \

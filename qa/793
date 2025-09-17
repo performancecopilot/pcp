@@ -37,6 +37,8 @@ _filter()
 	-e 's;/usr/var;/var;g' \
 	-e '/^Roll .*\/NOTICES/d' \
 	-e '/^Start .*\/NOTICES/d' \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e "s;$tmp;TMP;g" \
 	-e '/Duplicate/d' \
 	-e '/Roll [^ ]*\/NOTICES /d' \

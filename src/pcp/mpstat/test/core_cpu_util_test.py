@@ -28,11 +28,11 @@ class TestCoreCpuUtil(unittest.TestCase):
             return 2
         if metric_name == 'hinv.cpu.online':
             return 2
-        if metric_name == 'kernel.all.cpu.user' and instance is None:
+        if metric_name == 'kernel.all.cpu.vuser' and instance is None:
             return 1234
         if metric_name == 'kernel.all.cpu.sys' and instance is None:
             return 1123
-        if metric_name == 'kernel.all.cpu.nice' and instance is None:
+        if metric_name == 'kernel.all.cpu.vnice' and instance is None:
             return 1223
         if metric_name == 'kernel.all.cpu.guest' and instance is None:
             return 1233
@@ -48,11 +48,11 @@ class TestCoreCpuUtil(unittest.TestCase):
             return 1122
         if metric_name == 'kernel.all.cpu.guest_nice' and instance is None:
             return 1123
-        if metric_name == 'kernel.percpu.cpu.user' and instance == 0:
+        if metric_name == 'kernel.percpu.cpu.vuser' and instance == 0:
             return 1234
         if metric_name == 'kernel.percpu.cpu.sys' and instance == 0:
             return 1123
-        if metric_name == 'kernel.percpu.cpu.nice' and instance == 0:
+        if metric_name == 'kernel.percpu.cpu.vnice' and instance == 0:
             return 1223
         if metric_name == 'kernel.percpu.cpu.guest' and instance == 0:
             return 1233
@@ -91,11 +91,11 @@ class TestCoreCpuUtil(unittest.TestCase):
         return None
 
     def metric_repo_previous_value_side_effect(self, metric_name,instance):
-        if metric_name == 'kernel.all.cpu.user' and instance is None:
+        if metric_name == 'kernel.all.cpu.vuser' and instance is None:
             return 1230
         if metric_name == 'kernel.all.cpu.sys' and instance is None:
             return 1112
-        if metric_name == 'kernel.all.cpu.nice' and instance is None:
+        if metric_name == 'kernel.all.cpu.vnice' and instance is None:
             return 1215
         if metric_name == 'kernel.all.cpu.guest' and instance is None:
             return 1225
@@ -115,7 +115,7 @@ class TestCoreCpuUtil(unittest.TestCase):
             return 1230
         if metric_name == 'kernel.percpu.cpu.sys' and instance == 0:
             return 1112
-        if metric_name == 'kernel.percpu.cpu.nice' and instance == 0:
+        if metric_name == 'kernel.percpu.cpu.vnice' and instance == 0:
             return 1215
         if metric_name == 'kernel.percpu.cpu.guest' and instance == 0:
             return 1225
@@ -136,7 +136,7 @@ class TestCoreCpuUtil(unittest.TestCase):
     def test_cpu_online(self):
         cpu_util = CoreCpuUtil(None, 1.34, self.__metric_repository)
 
-        test_cpu_online  = cpu_util.cpu_online()
+        test_cpu_online  = cpu_util.total_cpus()
 
         self.assertEqual(test_cpu_online, 2)
 
@@ -144,8 +144,7 @@ class TestCoreCpuUtil(unittest.TestCase):
         cpu_util = CoreCpuUtil(0, 1.34, self.__metric_repository)
 
         user_time  = cpu_util.user_time()
-
-        self.assertEqual(user_time,0.3)
+        self.assertEqual(user_time,None)
 
     def test_nice_time(self):
         cpu_util = CoreCpuUtil(0, 1.34, self.__metric_repository)

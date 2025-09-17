@@ -16,7 +16,7 @@ Error: not all required metrics are available
 Missing ['disk.dev.read', 'disk.dev.read_bytes', 'disk.dev.write', 'disk.dev.write_bytes', 'disk.dev.read_merge', 'disk.dev.write_merge', 'disk.dev.blkread', 'disk.dev.blkwrite', 'disk.dev.read_rawactive', 'disk.dev.write_rawactive', 'disk.dev.avactive']
 === mpstat ===
 Error: not all required metrics are available
-Missing: ['hinv.map.cpu_num', 'hinv.cpu.online', 'kernel.all.cpu.wait.total', 'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft', 'kernel.all.cpu.steal', 'kernel.all.cpu.guest_nice', 'kernel.percpu.cpu.user', 'kernel.percpu.cpu.nice', 'kernel.percpu.cpu.sys', 'kernel.percpu.cpu.wait.total', 'kernel.percpu.cpu.irq.hard', 'kernel.percpu.cpu.irq.soft', 'kernel.percpu.cpu.steal', 'kernel.percpu.cpu.guest', 'kernel.percpu.cpu.guest_nice', 'kernel.percpu.cpu.idle', 'kernel.all.intr', 'kernel.percpu.intr']
+Missing: ['hinv.map.cpu_num', 'hinv.cpu.online', 'kernel.all.cpu.vnice', 'kernel.all.cpu.wait.total', 'kernel.all.cpu.irq.hard', 'kernel.all.cpu.irq.soft', 'kernel.all.cpu.steal', 'kernel.all.cpu.guest_nice', 'kernel.percpu.cpu.vuser', 'kernel.percpu.cpu.vnice', 'kernel.percpu.cpu.sys', 'kernel.percpu.cpu.wait.total', 'kernel.percpu.cpu.irq.hard', 'kernel.percpu.cpu.irq.soft', 'kernel.percpu.cpu.steal', 'kernel.percpu.cpu.guest', 'kernel.percpu.cpu.guest_nice', 'kernel.percpu.cpu.idle', 'kernel.all.intr', 'kernel.percpu.intr']
 === tapestat ===
 Error: not all required metrics are available
 Missing: ['tape.dev.in_flight', 'tape.dev.io_ns', 'tape.dev.other_cnt', 'tape.dev.read_byte_cnt', 'tape.dev.read_cnt', 'tape.dev.read_ns', 'tape.dev.resid_cnt', 'tape.dev.write_byte_cnt', 'tape.dev.write_cnt', 'tape.dev.write_ns']

@@ -1,6 +1,7 @@
 QA output created by 1845
 == default options, but no compression ===
 Add merge callback for: pmlogger_daily_report
+Start [daily]: DATESTAMP
 Info: processing archives from remote pmlogger on host qahost
 
 === daily maintenance of PCP archives for host qahost in TMP/pmproxy/qahost ===
@@ -16,6 +17,7 @@ Output archive files:
 Removing input archive files ........... done
 Merge callbacks ...
 callback: PCP_BINADM_DIR/pmlogger_daily_report -o PCP_LOG_DIR/sa -a TMP/pmproxy/qahost/TODAY-2
+End [daily]: DATESTAMP status=0
 Remaining archives files ...
 TMP/pmproxy/qahost/TODAY-2.0
 TMP/pmproxy/qahost/TODAY-2.index

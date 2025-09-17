@@ -78,6 +78,7 @@ YESTERDAY.index
 YESTERDAY.meta
 
 === [verbose] regular show ===
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOST in TMP ===
 
@@ -98,6 +99,7 @@ Output archive files:
 -rw-r--r-- ... 192 ... YESTERDAY.index
 -rw-r--r-- ... 864 ... YESTERDAY.0
 Removing input archive files ...... done
+End [daily]: DATESTAMP status=1
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
@@ -121,6 +123,7 @@ YESTERDAY.index
 YESTERDAY.meta
 
 === [verbose] nothing to do but cull some more ===
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOST in TMP ===
 
@@ -133,6 +136,7 @@ Archive files older than 3 days being removed ...
     NOW-3.00.02.0 NOW-3.00.02.index NOW-3.00.02.meta NOW-3.00.04.0
     NOW-3.00.04.index NOW-3.00.04.meta
 Warning: no archives found to merge
+End [daily]: DATESTAMP status=1
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
@@ -150,6 +154,7 @@ save.index
 save.meta
 
 === [verbose] error, output already exists ===
+Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOST in TMP ===
 
@@ -160,6 +165,7 @@ PMLOGGER.DAILY: [TMP.control:2]
 Warning: skipping log rotation because we don't know which pmlogger to signal
 PMLOGGER.DAILY: Warning: output archive (YESTERDAY) already exists
 [TMP.control:2] ... skip log merging and compressing for host "HOST"
+End [daily]: DATESTAMP status=1
 NOW-2.00.02.0
 NOW-2.00.02.index
 NOW-2.00.02.meta
