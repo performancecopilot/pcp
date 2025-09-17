@@ -8,7 +8,8 @@ on:
         type: boolean
 jobs:
   build:
-    runs-on: macos-latest
+# TODO!!!!!!!!!!!!!!!  CHANGE THIS BACK TO macos-latest - purely here to get access to more available runners for iteration testing
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
         with:
@@ -79,3 +80,8 @@ jobs:
         if: steps.check_tag.outputs.match == ''
         run: |
           echo "Not a Release!" >> $GITHUB_STEP_SUMMARY
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: steps.check_tag.outputs.match != ''
+        with:
+          files: build/mac/io.*
