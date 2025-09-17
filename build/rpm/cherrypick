@@ -50,6 +50,8 @@ do
 	    -e '/-PCP-/d' \
 	    -e '/perl(PCP::/d' \
 	    -e '/lib.*\.so[.(]/d' \
+	    -e '/^user(/d' \
+	    -e '/^group(/d' \
 	# end
     else
 	echo >&2 "cherrypick: rpm -qR -p $rpm failed!"
