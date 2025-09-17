@@ -12,6 +12,7 @@ ENV NAME="archive-analysis"
 ENV VERSION="7"
 ENV SUMMARY="Performance Co-Pilot archive analysis automation"
 ENV REGISTRY="quay.io/performancecopilot/"
+#ENV REGISTRY="ghcr.io/performancecopilot/"
 ENV DESCRIPTION="Grafana analysis automation for Performance Co-Pilot archives."
 
 LABEL name="${NAME}"
