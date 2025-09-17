@@ -69,9 +69,14 @@ jobs:
         uses: actions-ecosystem/action-regex-match@v2
         with:
           text: ${{ github.ref_name }}
-          regex: '^[0-9]+\.[0-9]+\.[0-9]+$'
+#          regex: '^[0-9]+\.[0-9]+\.[0-9]+$'
+          regex: '^version-test-.*'
           flags: g  # Global flag, but optional if just checking match
       - name: Generate Github Summary
         if: steps.check_tag.outputs.matched == 'true'
         run: |
           echo "RELEASE DETECTED!" >> $GITHUB_STEP_SUMMARY
+      - name: Generate Github Summary - no version tag
+        if: steps.check_tag.outputs.matched != 'true'
+        run: |
+          echo "Not a Release!" >> $GITHUB_STEP_SUMMARY
