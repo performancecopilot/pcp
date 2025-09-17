@@ -21,8 +21,6 @@ void
 __pmHashInit(__pmHashCtl *hcp)
 {
     memset(hcp, 0, sizeof(*hcp));
-    /* NB: some __pmHash* clients rely on this to eschew explicit
-       initialization for .bss / .data-resident __pmHashCtl structs. */
 }
 
 /*
@@ -62,8 +60,8 @@ __pmHashSearch(unsigned int key, __pmHashCtl *hcp)
 int
 __pmHashAdd(unsigned int key, void *data, __pmHashCtl *hcp)
 {
-    __pmHashNode    *hp;
-    int		k;
+    __pmHashNode	*hp;
+    int			k;
 
     hcp->nodes++;
 
@@ -157,42 +155,44 @@ __pmHashClear(__pmHashCtl *hcp)
  * callback function must not modify the hash table.
  */
 void
-__pmHashWalkCB(__pmHashWalkCallback cb, void *cdata, const __pmHashCtl *hcp)
+__pmHashWalkCB(__pmHashWalkCallback cb, void *cdata, __pmHashCtl *hcp)
 {
-    int n;
+    int		n;
 
     for (n = 0; n < hcp->hsize; n++) {
-        __pmHashNode *tp = hcp->hash[n];
-        __pmHashNode **tpp = & hcp->hash[n];
+	__pmHashNode	*tp = hcp->hash[n];
+	__pmHashNode	**tpp = & hcp->hash[n];
 
-        while (tp != NULL) {
-            __pmHashWalkState state = (*cb)(tp, cdata);
+	while (tp != NULL) {
+	    __pmHashWalkState state = (*cb)(tp, cdata);
 
-            switch (state) {
-            case PM_HASH_WALK_DELETE_STOP:
-                *tpp = tp->next;  /* unlink */
-                free(tp);         /* delete */
-                return;           /* & stop */
+	    switch (state) {
+	    case PM_HASH_WALK_DELETE_STOP:
+		*tpp = tp->next;  /* unlink */
+		free(tp);	 /* delete */
+		hcp->nodes--;
+		return;	   /* & stop */
 
-            case PM_HASH_WALK_NEXT:
-                tpp = &tp->next;
-                tp = *tpp;
-                break;
+	    case PM_HASH_WALK_NEXT:
+		tpp = &tp->next;
+		tp = *tpp;
+		break;
 
-            case PM_HASH_WALK_DELETE_NEXT:
-                *tpp = tp->next;  /* unlink */
-                /* NB: do not change tpp.  It will still point at the previous
-                 * node's "next" pointer.  Consider consecutive CONTINUE_DELETEs.
-                 */
-                free(tp);         /* delete */
-                tp = *tpp; /* == tp->next, except that tp is already freed. */
-                break;            /* & next */
+	    case PM_HASH_WALK_DELETE_NEXT:
+		*tpp = tp->next;  /* unlink */
+		/* NB: do not change tpp.  It will still point at the previous
+		 * node's "next" pointer.  Consider consecutive CONTINUE_DELETEs.
+		 */
+		free(tp);  /* delete */
+		tp = *tpp; /* == tp->next, except that tp is already freed. */
+		hcp->nodes--;
+		break;	   /* & next */
 
-            case PM_HASH_WALK_STOP:
-            default:
-                return;
-            }
-        }
+	    case PM_HASH_WALK_STOP:
+	    default:
+		return;
+	    }
+	}
     }
 }
 
@@ -208,15 +208,15 @@ __pmHashWalk(__pmHashCtl *hcp, __pmHashWalkState state)
 	return NULL;
 
     if (state == PM_HASH_WALK_START) {
-        hcp->index = 0;
-        hcp->next = hcp->hash[0];
+	hcp->index = 0;
+	hcp->next = hcp->hash[0];
     }
 
     while (hcp->next == NULL) {
-        hcp->index++;
-        if (hcp->index >= hcp->hsize)
-            return NULL;
-        hcp->next = hcp->hash[hcp->index];
+	hcp->index++;
+	if (hcp->index >= hcp->hsize)
+	    return NULL;
+	hcp->next = hcp->hash[hcp->index];
     }
 
     node = hcp->next;
