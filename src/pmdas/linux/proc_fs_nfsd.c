@@ -2,12 +2,12 @@
  * Linux /proc/fs/nfsd metrics cluster
  *
  * Copyright (c) 2017-2025 Red Hat.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -15,8 +15,6 @@
  */
 #include "linux.h"
 #include "proc_fs_nfsd.h"
-
-char *stats_path = "";
 
 int
 refresh_proc_fs_nfsd(proc_fs_nfsd_t *proc_fs_nfsd)
@@ -57,7 +55,7 @@ refresh_proc_fs_nfsd(proc_fs_nfsd_t *proc_fs_nfsd)
 
 		/* first line is headers, read and discard */
 	    	if (fscanf(statsp, "#%*[^\n]\n") != 0)
-			fprintf(stderr, "Error: parsing /proc/fs/nfsd/pool_stats headers: %s\n", 
+			fprintf(stderr, "Error: parsing /proc/fs/nfsd/pool_stats headers: %s\n",
 				osstrerror());
 
 	    	/* default is one pool, but there might be more.
@@ -187,8 +185,6 @@ refresh_nfs4_svr_client(pmInDom indom)
 {
     int i, count, nfsd_client_status;
     struct dirent **files = {0};
-
-    char	*envpath;
     char buf[MAXPATHLEN];
     char path[MAXPATHLEN];
     FILE *infop = NULL;
@@ -196,11 +192,8 @@ refresh_nfs4_svr_client(pmInDom indom)
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     /* update indom cache based on scan of /proc/fs/nfsd/clients/ */
-    if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
-	stats_path = envpath;
+    pmsprintf(path, sizeof(path), "%s/proc/fs/nfsd/clients/", linux_statspath);
 
-    pmsprintf(path, sizeof(path), "%s/proc/fs/nfsd/clients/", stats_path);
-    
     count = scandir(path, &files, NULL, NULL);
     if (count < 0) {
         if (oserror() == EPERM)
@@ -219,25 +212,23 @@ refresh_nfs4_svr_client(pmInDom indom)
             continue;
 
         pmsprintf(path, sizeof(path), "/proc/fs/nfsd/clients/%s/info", files[i]->d_name);
-
         if ((infop = linux_statsfile(path, buf, sizeof(buf))) == NULL) {
 	    nfsd_client_status = -oserror();
 	    if (pmDebugOptions.libpmda) {
 	        if (nfsd_client_status == 0)
 		    fprintf(stderr, "Warning: nfsd client info metrics are not available : %s\n",
-			    osstrerror());	    
+			    osstrerror());
 	    }
         }
 
         nfs4_svr_client_t *nfs4_svr_client;
-        
         nfs4_svr_client = calloc(1, sizeof(nfs4_svr_client_t));
         if (nfs4_svr_client == NULL) {
            nfsd_client_status = PM_ERR_AGAIN;
            break;
         }
-            
-        while (fgets(buf, sizeof(buf)-1, infop) != NULL) {
+
+        while (fgets(buf, sizeof(buf), infop) != NULL) {
 
             if (strncmp(buf, "clientid:", 9) == 0)
                 sscanf(buf, "clientid: %s", nfs4_svr_client->client_id);
@@ -286,10 +277,9 @@ refresh_nfs4_svr_client(pmInDom indom)
         }
         pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)nfs4_svr_client);
     }
-    
+
     for (i = 0; i < count; i++)
         free(files[i]);
-        
     free(files);
 
     return nfsd_client_status;
@@ -300,24 +290,17 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
 {
     int i, count, nfsd_client_status;
     struct dirent **files = {0};
-
-    char	*envpath;
     char buf[MAXPATHLEN];
     char buf2[MAXPATHLEN];
     char path[MAXPATHLEN];
     char filename[MAXPATHLEN];
-    char inst_name[MAXPATHLEN];
-    
     FILE *infop = NULL;
     FILE *statesp = NULL;
 
     pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
     /* update indom cache based on scan of /proc/fs/nfsd/clients/ */
-    if ((envpath = getenv("LINUX_STATSPATH")) != NULL)
-	stats_path = envpath;
-
-    pmsprintf(path, sizeof(path), "%s/proc/fs/nfsd/clients/", stats_path);
+    pmsprintf(path, sizeof(path), "%s/proc/fs/nfsd/clients/", linux_statspath);
 
     count = scandir(path, &files, NULL, NULL);
     if (count < 0) {
@@ -333,9 +316,8 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
 
     for (i = 0; i < count; i++) {
 
-        if (files[i]->d_name[0] == '.') {
+        if (files[i]->d_name[0] == '.')
             continue;
-        }
 
         pmsprintf(path, sizeof(path), "/proc/fs/nfsd/clients/%s/states", files[i]->d_name);
 
@@ -344,14 +326,13 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
 	    if (pmDebugOptions.libpmda) {
 	        if (nfsd_client_status == 0)
 		    fprintf(stderr, "Warning: nfsd client open metrics are not available : %s\n",
-			    osstrerror());	    
+			    osstrerror());
 	    }
         }
 
-        while (fgets(buf, sizeof(buf)-1, statesp) != NULL) {
+        while (fgets(buf, sizeof(buf), statesp) != NULL) {
 
             nfs4_svr_open_t *nfs4_svr_open;
-
             nfs4_svr_open = calloc(1, sizeof(nfs4_svr_open_t));
             if (nfs4_svr_open == NULL) {
                 nfsd_client_status = PM_ERR_AGAIN;
@@ -359,7 +340,7 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
             }
 
             /* Allocate stats from /proc/fs/nfsd/clients/<client>/states */
-            sscanf(buf, "- %*x: { type: %s access: %s superblock: \"fc:%*d:%llu\", filename: \"%s", 
+            sscanf(buf, "- %*x: { type: %s access: %s superblock: \"fc:%*d:%llu\", filename: \"%s",
                 nfs4_svr_open->type,
                 nfs4_svr_open->access,
                 &nfs4_svr_open->inode,
@@ -384,11 +365,11 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
 	        if (pmDebugOptions.libpmda) {
 	            if (nfsd_client_status == 0)
 		        fprintf(stderr, "Warning: nfsd client open metrics are not available : %s\n",
-			    osstrerror());	    
+			    osstrerror());
 	        }
             }
 
-            while (fgets(buf2, sizeof(buf2)-1, infop) != NULL) {
+            while (fgets(buf2, sizeof(buf2), infop) != NULL) {
                 if (strncmp(buf2, "clientid:", 9) == 0)
                     sscanf(buf2, "clientid: %s", nfs4_svr_open->client_id);
 
@@ -411,20 +392,18 @@ refresh_nfs4_svr_client_opens(pmInDom indom)
                 continue; /* dont add an instance if we cannt get an inode number */
             }
 
-            pmsprintf(inst_name, sizeof(inst_name), "%llu:%s",
+            pmsprintf(path, sizeof(path), "%llu:%s",
                 nfs4_svr_open->inode,
                 nfs4_svr_open->client_id
             );
 
-            pmdaCacheStore(indom, PMDA_CACHE_ADD, inst_name, (void *)nfs4_svr_open);
+            pmdaCacheStore(indom, PMDA_CACHE_ADD, path, (void *)nfs4_svr_open);
 	}
 	fclose(statesp);
-
     }
-    
+
     for (i = 0; i < count; i++)
         free(files[i]);
-
     free(files);
 
     return nfsd_client_status;
