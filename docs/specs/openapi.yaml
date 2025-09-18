@@ -70,33 +70,6 @@ paths:
 
         ```bash
         $ curl -s -H Accept:application/json http://localhost:44322/metrics?names=names=disk.dev,filesys | pmjson
-          {
-              "resourceMetrics": [
-                  {
-                      "resource": {
-                          "attributes": [ ... ]
-                      },
-                      "scopeMetrics": [
-                          {
-                              "scope": { ... },
-                              "metrics": [
-                                  {
-                                      "name": "disk.dev.total.bytes",
-                                      "description": "per-disk count of total bytes read and written",
-                                      "unit": "KiBy",
-                                      "sum": {
-                                          "aggregationTemporality": "CUMULATIVE",
-                                          "isMonotonic": true,
-                                          "dataPoints": [
-                                              {
-                                                  "attributes": [ ... ]
-                                                  "timeUnixNano": "1753934255798173",
-                                                  "asInt": "68927569"
-                                              }
-                                          ]
-                                      }
-                                  },
-                                  ...
         ```
 
         In the Open Metrics (Prometheus) text response form, the native PCP metric metadata (metric name, type, indom, semantics and units) is first output for each metric with **\# PCP** prefix.
