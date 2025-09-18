@@ -850,12 +850,12 @@ Requires: policycoreutils selinux-policy-targeted
 # libsemanage2 for OpenSUSE 16
 Requires: libsemanage2
 %else
-    %if 0%{?suse_version} >= 1200
-    # libsemanage1 for OpenSUSE 12
-    Requires: libsemanage1
-    %else
-    Requires: libsemanage
-    %endif
+%if 0%{?suse_version} >= 1200
+# libsemanage1 for OpenSUSE 12
+Requires: libsemanage1
+%else
+Requires: libsemanage
+%endif
 %endif
 
 %description selinux
@@ -1485,11 +1485,11 @@ Requires: pcp = @package_version@ pcp-libs = @package_version@
 %if 0%{?suse_version} >= 1600
 Requires: libbpf1
 %else
-    %if %{defined sle_version} && 0%{?sle_version} >= 150500
-    Requires: libbpf1
-    %else
-    Requires: libbpf
-    %endif
+%if %{defined sle_version} && 0%{?sle_version} >= 150500
+Requires: libbpf1
+%else
+Requires: libbpf
+%endif
 %endif
 BuildRequires: libbpf-devel clang llvm
 %description pmda-bpf
