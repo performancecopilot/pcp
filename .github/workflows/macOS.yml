@@ -85,6 +85,4 @@ jobs:
         if: steps.check_tag.outputs.match != ''
         with:
           files: |
-              build/**/io.*
-              build/**/Localizable.strings
               pcp-**/build/mac/pcp-*.dmg
