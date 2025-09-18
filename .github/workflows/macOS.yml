@@ -79,3 +79,4 @@ jobs:
         with:
           files: |
               pcp-**/build/mac/pcp-*.dmg
+              !pcp-**/build/mac/pcp-*.tmp.dmg
