@@ -75,6 +75,8 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.42 scsi devices identified by unique WWID
 @ 60.43 set of hugepage sizes
 @ 60.44 set of hugepage sizes for each NUMA node
+@ 60.45 network filesystem (NFS) v4 server connected clients
+@ 60.46 network filesystem (NFS) v4 server open files
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
