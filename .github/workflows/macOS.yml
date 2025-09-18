@@ -78,5 +78,4 @@ jobs:
         if: steps.check_tag.outputs.match != ''
         with:
           files: |
-              !pcp-**/build/mac/pcp-*.tmp.dmg
               pcp-**/build/mac/pcp-*.dmg

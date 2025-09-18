@@ -114,6 +114,8 @@ _do mv $PKG $PACKAGE
 _do $HDIUTIL makehybrid -quiet -o $PACKAGE.tmp $PACKAGE \
 	-hfs-openfolder dmg.tmp/$DMG -hfs
 _do $HDIUTIL convert -quiet $TEMPDMG -format UDRO -o $DMG
+# get rid of a tmp file that is generated as part of the DMG build, as this complicates the Release uploaod process
+_do rm $TEMPDMG
 
 if [ ! -f $HERE/$DMG ]
 then
