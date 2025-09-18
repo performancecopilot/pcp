@@ -2291,5 +2291,6 @@ pmcd.pdu
 1992 pmda.uwsgi local
 1993 pmda.rocestat local python
 1994 pcp rocestat python local
+1995 pmda.linux local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

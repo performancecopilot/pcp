@@ -3,6 +3,7 @@
 # Replacement for check-vm using (almost) explicit package lists for
 # each distro-version-architecture combination
 #
+LANG=C.UTF-8
 
 _usage()
 {

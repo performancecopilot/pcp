@@ -75,6 +75,8 @@ devices all share the same statistics in the kernel as the st devices.
 @ 60.42 scsi devices identified by unique WWID
 @ 60.43 set of hugepage sizes
 @ 60.44 set of hugepage sizes for each NUMA node
+@ 60.45 network filesystem (NFS) v4 server connected clients
+@ 60.46 network filesystem (NFS) v4 server open files
 
 @ kernel.uname.release release level of the running kernel
 Release level of the running kernel as reported via the release[]
@@ -1800,6 +1802,23 @@ tools running on IRIX.
 @ nfs4.client.reqs cumulative total for each client NFSv4 request type
 @ nfs4.server.calls cumulative total of server NFSv4 operations, plus NULL requests
 @ nfs4.server.reqs cumulative total for each server NFSv4 operation, and for NULL requests
+@nfs4.server.clients.client_id client_id of the client connected to the NFS server
+@nfs4.server.clients.addr IP address of the client connected to the NFS server
+@nfs4.server.clients.status Status of the client connected to the NFS server
+@nfs4.server.clients.hostname Hostname of the client connected to the NFS server
+@nfs4.server.clients.callback_state Callback state of the client to the NFS server
+@nfs4.server.clients.callback_addr Callback address of the client to the NFS server
+@nfs4.server.clients.admin_revoked_states Admin revoked states for the client
+@nfs4.server.clients.session_slots Session slots for the client
+@nfs4.server.clients.session_target_slots Target for session slots for the client
+@nfs4.server.open.inode Inode of the open file by the client to the NFS server
+@nfs4.server.open.type Type of operation of the open file by the client to the NFS server
+@nfs4.server.open.access Access mode of the open file by the client to the NFS server
+@nfs4.server.open.filename Filename of the open file by the client to the NFS server
+@nfs4.server.open.client_id Client ID of the client
+@nfs4.server.open.client_addr IP address of the client
+@nfs4.server.open.client_hostname Hostname of the client
+
 @ rpc.client.rpccnt cumulative total of client RPC requests
 @ rpc.client.rpcretrans cumulative total of client RPC retransmissions
 @ rpc.client.rpcauthrefresh cumulative total of client RPC auth refreshes
