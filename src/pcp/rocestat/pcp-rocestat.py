@@ -69,6 +69,10 @@ ROCESTAT_HW_METRICS = [
     'rocestat.hw.VL15_dropped',
     'rocestat.hw.excessive_buffer_overrun_errors',
     'rocestat.hw.symbol_error',
+    'rocestat.hw.rp_cnp_handled',
+    'rocestat.hw.rp_cnp_ignored',
+    'rocestat.hw.np_cnp_sent',
+    'rocestat.hw.np_ecn_marked_roce_packets',
 ]
 
 ROCESTAT_HW_METRICS_DESC = [
@@ -118,6 +122,10 @@ ROCESTAT_HW_METRICS_DESC = [
     'VL15_dropped',
     'excessive_buffer_overrun_errors',
     'symbol_error',
+    'rp_cnp_handled',
+    'rp_cnp_ignored',
+    'np_cnp_sent',
+    'np_ecn_marked_roce_packets',
 ]
 
 ROCESTAT_PER_LANE_METRICS = ['rocestat.lane.tx_bytes', 'rocestat.lane.rx_bytes', 'rocestat.lane.rx_pause']
