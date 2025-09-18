@@ -30,6 +30,7 @@ import argparse
 import threading
 import subprocess
 import sys
+from urllib.parse import urlparse
 from ctypes import c_int
 from socket import gethostname
 from stat import ST_MODE, S_IXUSR
@@ -908,7 +909,6 @@ class Source(object):
         # clear cached values from all my metrics
         for _, m in self.metrics_by_name.items():
             m.clear_values()
-        # TODO: ditch metrics no longer found in document
 
         # bump the fetch call counter for this source, and for the total (cluster 0)
         self.pmda.stats_fetch_calls[self.cluster] += 1
@@ -947,6 +947,20 @@ class Source(object):
                     r.raise_for_status() # non-200?  ERROR
                     # NB: the requests package automatically enables http keep-alive and compression
                     self.document = r.text
+
+            # ditch metrics no longer found in document
+            for name, metric in self.pmda.all_metrics.items():
+                split_metric = name.split(".")
+                stripped_metric = name.replace("openmetrics.%s." % self.name, "")
+                if split_metric[1] == self.name and stripped_metric not in self.document:
+                    try:
+                        self.pmda.remove_metric(name, metric)
+                        self.pmda.removed_metrics[name] = metric
+                        self.pmda.set_need_refresh()
+                        self.pmda.debug("removed metric from existing source: %s" % name) if self.pmda.dbg else None
+                        del self.pmda.all_metrics[name]
+                    except Exception as e:
+                        self.pmda.debug("can't remove metric: %s, see error: %s" % (name, e)) if self.pmda.dbg else None
 
             # update fetch time counter stats, in ms
             incr = int(1000 * (time.time() - fetch_time))
@@ -1040,6 +1054,10 @@ class OpenMetricsPMDA(PMDA):
         self.all_metrics = {}
         # keep track of removed metrics, in case of re-addition
         self.removed_metrics = {}
+        # keep track of control initialization
+        self.controls = {0:0}
+        # keep track of modified sources, in need of extra refresh
+        self.modified_files = []
 
         # compiled regex cache
         self.regex_cache = {}
@@ -1149,11 +1167,39 @@ class OpenMetricsPMDA(PMDA):
                     if mtime is None or m > mtime:
                         mtime = m
                     ret.append(fname)
+                fname = os.path.join(path, f)
+                with open(fname, 'r') as name:
+                    f_path = name.readline().strip()
+                    if f_path.startswith("file:///"):
+                        parsed = urlparse(f_path)
+                        m = os.path.getmtime(parsed.path)
+                        if mtime is None or m > mtime:
+                            mtime = m
+                            self.modified_files.append(fname)
             for d in subdirs:
                 m, _ = self.traverse(os.path.join(path, d), mtime)
                 if mtime is None or m > mtime:
                     mtime = m
         return mtime, ret
+
+    def initialize_controls(self, cluster):
+        # initialize statistics
+        self.stats_fetch_calls[cluster] = 0
+        self.stats_fetch_time[cluster] = 0
+        self.stats_parse_time[cluster] = 0
+        self.stats_status[cluster] = "unknown"
+        self.stats_status_code[cluster] = 0
+
+        self.controls[cluster] = 1
+
+    def delete_controls(self, cluster):
+        del self.stats_fetch_calls[cluster]
+        del self.stats_fetch_time[cluster]
+        del self.stats_parse_time[cluster]
+        del self.stats_status[cluster]
+        del self.stats_status_code[cluster]
+
+        self.controls[cluster] = 0
 
     def rescan_confdir(self):
         '''Scan the configuration directories for any new .url files
@@ -1164,6 +1210,10 @@ class OpenMetricsPMDA(PMDA):
         else do nothing.  This is important because this callback is
         invoked frequently by src/python/pmda.c.
         '''
+
+        # re-initialize variables to keep track of modified files before new traversal
+        self.modified_files = []
+        m_files = []
 
         traverse_time = time.time()
         dir_mtime, conf_filelist = self.traverse(self.config_dir, self.config_dir_mtime)
@@ -1185,6 +1235,11 @@ class OpenMetricsPMDA(PMDA):
             name = file_split[0].replace(self.config_dir + "/", "").replace("/", ".")
             nicknames.append(name)
 
+        for file in self.modified_files:
+            file_split = os.path.splitext(file)
+            name = file_split[0].replace(self.config_dir + "/", "").replace("/", ".")
+            m_files.append(name)
+
         # check if config change adds a previously removed source
         for key in self.removed_metrics:
             split_name = key.split(".")
@@ -1199,6 +1254,9 @@ class OpenMetricsPMDA(PMDA):
             try:
                 remove_name = key
                 remove_obj = value
+                cluster = self.cluster_table.intern_lookup_value(split_name[1])
+                if self.controls[cluster] == 1:
+                    self.delete_controls(cluster)
                 self.remove_metric(remove_name, remove_obj)
                 self.removed_metrics[remove_name] = remove_obj
                 self.debug("removed metric name: %s" % remove_name) if self.dbg else None
@@ -1240,11 +1298,13 @@ class OpenMetricsPMDA(PMDA):
                 s = self.source_by_name[name]
                 cluster_for_refresh = []
                 cluster_for_refresh_names = []
-                if name in self.re_add_list:
+                if name in self.re_add_list or name in m_files:
                     for key,value in self.source_by_cluster.items():
                         if value == s:
                             cluster_for_refresh.append(key)
                             cluster_for_refresh_names.append(name)
+                            if self.controls[key] == 0:
+                                self.initialize_controls(key)
                     self.debug("refreshing cluster list: %s" % cluster_for_refresh_names) if self.dbg else None
                     self.refresh_some_clusters_for_fetch(cluster_for_refresh)
             else:
@@ -1255,12 +1315,7 @@ class OpenMetricsPMDA(PMDA):
                     self.source_by_name[source.name] = source
                     self.source_by_cluster[source.cluster] = source
 
-                    # initialize statistics
-                    self.stats_fetch_calls[cluster] = 0
-                    self.stats_fetch_time[cluster] = 0
-                    self.stats_parse_time[cluster] = 0
-                    self.stats_status[cluster] = "unknown"
-                    self.stats_status_code[cluster] = 0
+                    self.initialize_controls(cluster)
 
                     save_cluster_table = True
                     self.log("Found source %s cluster %d" % (name, cluster))
