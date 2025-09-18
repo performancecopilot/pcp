@@ -84,4 +84,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         if: steps.check_tag.outputs.match != ''
         with:
-          files: build/mac/io.*
+          files: |
+              build/**/io.*
+              build/**/Localizable.strings
+              pcp-**/build/mac/pcp-*.dmg
