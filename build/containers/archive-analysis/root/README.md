@@ -9,17 +9,35 @@ $ podman run \
     -t --rm \
     --security-opt label=disable \
     -p 127.0.0.1:3000:3000 \
-    -v /location/to/pcp/archives/on/host:/archives \
+    -p 127.0.0.1:44323:44323 \
+    -v /pcp/archives/on/host:/archives \
+    -v /grafana/dashboards/on/host:/dashboards \
     quay.io/performancecopilot/archive-analysis
 ```
 
-This command starts the container, which runs Valkey and Grafana (inside the container) and loads all PCP archives of the selected directory on the host into Valkey. You can point your browser to `http://localhost:3000/dashboards` and can start inspecting the archives using Grafana. 
+This command starts the container, which runs Valkey, Grafana, the PCP REST API (pmproxy) and loads all PCP archives of the selected directory on the host into Valkey.  This directory is checked every few seconds for new archives arriving while the container is running as described at `https://man7.org/linux/man-pages/man1/pmseries_import.1.html`.
+
+You can point your browser to `http://localhost:3000/dashboards` and perform archive analysis using Grafana.
 
 To stop the container, run `podman rm -f pcp-archive-analysis`.
 
 ## Additional Dashboards
-Additional dashboards from the host can be provisioned by adding:
+
+If the optional /dashboards volume (second -v option above) is used, additional dashboards from the host will be provisioned by Grafana from the specified directory.
+
+## PCP REST API Access
+
+If the optional PMWEBAPI(3) port (second -p option above) is used, you can access the REST API described at `https://pcp.readthedocs.io/en/latest/api/`.
+
+Read access is available using the pmseries(1) query language described at `https://man7.org/linux/man-pages/man1/pmseries.1.html`
+
 ```
--v /location/to/dashboards/on/host:/dashboards
+curl -s 'http://localhost:44323/series/query?expr=disk.dev.read*[samples:1]'
 ```
-to the `podman run` command above.
+
+Write access is available using the pmlogger(1) push functionality described at `https://man7.org/linux/man-pages/man1/pmlogger.1.html`
+
+```
+pmlogconf -c config.push;
+pmlogger -c config.push -t 10sec http://localhost:44323
+```

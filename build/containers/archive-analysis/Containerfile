@@ -5,7 +5,7 @@ COPY build/containers/archive-analysis/root /
 
 RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
     gettext-envsubst grafana grafana-pcp pcp python3-pcp pcp-import-* valkey \
-    libbpf zstd && microdnf clean all
+    libbpf && microdnf clean all
 
 ## Setup
 ENV NAME="archive-analysis"
@@ -14,6 +14,8 @@ ENV SUMMARY="Performance Co-Pilot archive analysis automation"
 ENV REGISTRY="quay.io/performancecopilot/"
 #ENV REGISTRY="ghcr.io/performancecopilot/"
 ENV DESCRIPTION="Grafana analysis automation for Performance Co-Pilot archives."
+
+LABEL RUN="podman run -d --name ${NAME} --security-opt label=disable --systemd always -p 3000:3000 -p 44323:44323 -v dashboards:/dashboards -v archives:/archives ${REGISTRY}/${NAME}"
 
 LABEL name="${NAME}"
 LABEL version="${VERSION}"
@@ -24,8 +26,8 @@ LABEL help="cat /README.md"
 LABEL com.redhat.component="pcp"
 LABEL io.k8s.display-name="${SUMMARY}"
 LABEL io.k8s.description="${DESCRIPTION}"
-LABEL io.openshift.expose-services="3000:grafana"
-LABEL io.openshift.tags="pcp,performance,metrics,analysis,monitoring,observability"
+LABEL io.openshift.expose-services="3000:grafana,44323:pmwebapi"
+LABEL io.openshift.tags="pcp,performance,metrics,grafana,analysis,observability"
 
 RUN systemctl mask \
     console-getty.service dev-hugepages.mount getty.target \
@@ -41,7 +43,8 @@ RUN sed -i 's/pcp-valkey/performancecopilot-valkey/g' /etc/grafana/grafana.ini
 RUN chown -R grafana:grafana /etc/grafana
 
 VOLUME ["/archives"]
-EXPOSE 3000
+VOLUME ["/dashboards"]
+EXPOSE 3000 44323
 
 CMD ["/usr/sbin/init"]
 STOPSIGNAL SIGRTMIN+3
