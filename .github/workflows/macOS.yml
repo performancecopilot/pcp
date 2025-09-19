@@ -1,10 +1,13 @@
 name: macOS CI
-on: [push]
+on:
+  push:
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
       - name: Install Homebrew
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Update Homebrew
@@ -23,7 +26,7 @@ jobs:
       - name: Install Homebrew deps
         id: install-deps
         run: |
-          brew install gnu-tar pkg-config autoconf qt qt-creator
+          brew install gnu-tar pkg-config autoconf
       - name: Build on macOS
         id: Build
         run: |
@@ -53,3 +56,26 @@ jobs:
           ls -la /usr/local/bin | grep python
           df -h
           brew list
+      # New steps for handling releases on version tags below
+      - name: Check if version tag
+        if: github.ref_type == 'tag'
+        id: check_tag
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref_name }}
+          regex: '^[0-9]+\.[0-9]+\.[0-9]+$'
+          flags: g  # Global flag, but optional if just checking match
+      - name: Generate Github Summary - version tag detected
+        if: steps.check_tag.outputs.match != ''
+        run: |
+          echo "RELEASE DETECTED!" >> $GITHUB_STEP_SUMMARY
+      - name: Generate Github Summary - no version tag
+        if: steps.check_tag.outputs.match == ''
+        run: |
+          echo "Not a Release!" >> $GITHUB_STEP_SUMMARY
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: steps.check_tag.outputs.match != ''
+        with:
+          files: |
+              pcp-**/build/mac/pcp-*.dmg
