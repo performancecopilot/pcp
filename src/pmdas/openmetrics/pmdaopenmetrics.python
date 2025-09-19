@@ -581,6 +581,8 @@ class Source(object):
 
         self.metrics_by_name = {} # name -> Metric
         self.metrics_by_num = {} # number (last component of pmid) -> Metric
+        self.metric_removal_flags = {}
+        self.metric_fullnames = {}
 
     def helptext(self, helpline):
         if helpline: # it could be None!
@@ -603,7 +605,7 @@ class Source(object):
         '''
         now = time.time()
         last_try_age = now - self.refresh_time
-        return len(self.metrics_by_name) == 0 and last_try_age > empty_source_pmns_poll
+        return len(self.metrics_by_name) == 0 or last_try_age > empty_source_pmns_poll
 
     def check_filter(self, name, entrytype):
         '''
@@ -689,13 +691,15 @@ class Source(object):
             self.pmda.debug("included_labels '%s'" % (included_labels)) if self.pmda.dbg else None
             self.pmda.debug("optional_labels '%s'" % (optional_labels)) if self.pmda.dbg else None
             if sp.name in self.metrics_by_name:
-                if ("openmetrics.%s.%s" % (self.name, sp.name)) not in self.pmda.all_metrics and self.name in self.pmda.re_add_list:
+                self.metric_removal_flags[sp.name] = False
+                if pcpline:
+                    split = pcpline.split(" ")
+                    fullname = "openmetrics.%s.%s" % (self.name, split[1])
+                else:
+                    fullname = "openmetrics.%s.%s" % (self.name, sp.name.replace(":", "."))
+                self.metric_fullnames[sp.name] = fullname
+                if ("openmetrics.%s.%s" % (self.name, sp.name)) not in self.pmda.all_metrics:
                     # re-add metric to namespace
-                    if pcpline:
-                        split = pcpline.split(" ")
-                        fullname = "openmetrics.%s.%s" % (self.name, split[1])
-                    else:
-                        fullname = "openmetrics.%s.%s" % (self.name, sp.name.replace(":", "."))
                     help_oneline, help_text = self.helptext(helpline)
                     try:
                         obj = self.pmda.removed_metrics[fullname]
@@ -967,6 +971,9 @@ class Source(object):
         if self.document is None: # error during fetch?
             return
 
+        for metric in self.metrics_by_name:
+            self.metric_removal_flags[metric] = True
+
         # parse and handle the openmetrics formatted metric data
         parse_time = time.time()
         s = self.parse_lines(self.document)
@@ -975,6 +982,19 @@ class Source(object):
         incr = int(1000 * (time.time() - parse_time))
         self.pmda.stats_parse_time[self.cluster] += incr
         self.pmda.stats_parse_time[0] += incr # total
+
+        for metric, value in self.metric_removal_flags.items():
+            remove_name = self.metric_fullnames[metric]
+            if value is True and remove_name in self.pmda.all_metrics:
+                self.pmda.debug("removing metric from existing source: %s" % metric) if self.pmda.dbg else None
+                try:
+                    remove_object = self.pmda.all_metrics[remove_name]
+                    self.pmda.remove_metric(remove_name, remove_object)
+                    self.pmda.set_need_refresh()
+                    del self.pmda.all_metrics[remove_name]
+                    self.pmda.removed_metrics[remove_name] = remove_object
+                except Exception as e:
+                    self.pmda.debug("cannot remove metric from existing source, see error: %s" % e) if self.pmda.dbg else None
 
         # save metric & indom lookup tables changes, if any
         for _, m in self.metrics_by_name.items():
@@ -1040,6 +1060,7 @@ class OpenMetricsPMDA(PMDA):
         self.all_metrics = {}
         # keep track of removed metrics, in case of re-addition
         self.removed_metrics = {}
+        self.controls = {0:0}
 
         # compiled regex cache
         self.regex_cache = {}
@@ -1155,6 +1176,24 @@ class OpenMetricsPMDA(PMDA):
                     mtime = m
         return mtime, ret
 
+    def initialize_controls(self, cluster):
+        self.stats_fetch_calls[cluster] = 0
+        self.stats_fetch_time[cluster] = 0
+        self.stats_parse_time[cluster] = 0
+        self.stats_status[cluster] = "unknown"
+        self.stats_status_code[cluster] = 0
+
+        self.controls[cluster] = 1
+
+    def delete_controls(self, cluster):
+        del self.stats_fetch_calls[cluster]
+        del self.stats_fetch_time[cluster]
+        del self.stats_parse_time[cluster]
+        del self.stats_status[cluster]
+        del self.stats_status_code[cluster]
+
+        self.controls[cluster] = 0
+
     def rescan_confdir(self):
         '''Scan the configuration directories for any new .url files
         or scripts.  Ensure there is a Source registered in the
@@ -1199,6 +1238,9 @@ class OpenMetricsPMDA(PMDA):
             try:
                 remove_name = key
                 remove_obj = value
+                cluster = self.cluster_table.intern_lookup_value(split_name[1])
+                if self.controls[cluster] == 1:
+                    self.delete_controls(cluster)
                 self.remove_metric(remove_name, remove_obj)
                 self.removed_metrics[remove_name] = remove_obj
                 self.debug("removed metric name: %s" % remove_name) if self.dbg else None
@@ -1245,6 +1287,8 @@ class OpenMetricsPMDA(PMDA):
                         if value == s:
                             cluster_for_refresh.append(key)
                             cluster_for_refresh_names.append(name)
+                            if self.controls[key] == 0:
+                                self.initialize_controls(key)
                     self.debug("refreshing cluster list: %s" % cluster_for_refresh_names) if self.dbg else None
                     self.refresh_some_clusters_for_fetch(cluster_for_refresh)
             else:
@@ -1256,11 +1300,7 @@ class OpenMetricsPMDA(PMDA):
                     self.source_by_cluster[source.cluster] = source
 
                     # initialize statistics
-                    self.stats_fetch_calls[cluster] = 0
-                    self.stats_fetch_time[cluster] = 0
-                    self.stats_parse_time[cluster] = 0
-                    self.stats_status[cluster] = "unknown"
-                    self.stats_status_code[cluster] = 0
+                    self.initialize_controls(cluster)
 
                     save_cluster_table = True
                     self.log("Found source %s cluster %d" % (name, cluster))
