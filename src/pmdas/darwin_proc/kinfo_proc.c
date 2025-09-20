@@ -356,6 +356,15 @@ darwin_update_instance(const __pmHashNode *node, void *data)
     return PM_HASH_WALK_NEXT;
 }
 
+static int
+darwin_compare_instance(const void *pa, const void *pb)
+{
+    pmdaInstid		*a = (pmdaInstid *)pa;
+    pmdaInstid		*b = (pmdaInstid *)pb;
+
+    return a->i_inst - b->i_inst;
+}
+
 void
 darwin_refresh_processes(pmdaIndom *indomp, darwin_procs_t *processes,
 	darwin_runq_t *runq, int want_threads)
@@ -524,7 +533,11 @@ darwin_refresh_processes(pmdaIndom *indomp, darwin_procs_t *processes,
     if ((insts = (pmdaInstid *)realloc(indomp->it_set, count)) != NULL) {
 	indomp->it_set = insts;
 	indomp->it_numinst = 0; /* updated in the callback below */
+
 	__pmHashWalkCB(darwin_update_instance, indomp, processes);
+
+	qsort(indomp->it_set, indomp->it_numinst, sizeof(pmdaInstid),
+			darwin_compare_instance);
     } else {
 	free(indomp->it_set);
 	indomp->it_set = NULL;
