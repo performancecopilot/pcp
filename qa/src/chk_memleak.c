@@ -118,7 +118,7 @@ main(int argc, char **argv)
 	}
 	else {
 	    __pmProcessDataSize(&memusage);
-	    if (memusage - first_memusage > 0) {
+	    if (memusage > first_memusage) {
 		if (i > 1)
 		    printf("iteration %d: leaked %lu bytes\n", i,
 			   memusage - last_memusage);
