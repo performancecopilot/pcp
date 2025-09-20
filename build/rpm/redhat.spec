@@ -1512,7 +1512,11 @@ License: GPL-3.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics for SAP HANA databases
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+%if %{?el8}
 Requires: python3-pcp
+%else
+Requires: python3-pcp python3-packaging
+%endif
 %description pmda-hdb
 This package provides a PMDA to export metric values about a SAP HANA
 database (https://www.sap.com/products/data-cloud/hana.html).
