@@ -51,7 +51,11 @@ from cpmapi import (
 )
 from pcp.pmapi import pmContext, pmUnits
 from pcp.pmda import PMDA, pmdaIndom, pmdaInstid, pmdaMetric
-from packaging.version import parse as Version
+try:
+    from packaging.version import parse as Version
+except:
+    from distutils.version import LooseVersion as Version
+
 try:
     from hdbcli import dbapi
     from pyhdbcli import OperationalError, ResultRow
