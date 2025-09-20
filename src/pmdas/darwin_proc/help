@@ -1,0 +1,111 @@
+#
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Darwin (macOS) proc PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ 3.0 all current processes
+
+@ proc.nprocs instantaneous number of processes
+
+@ proc.psinfo.pid process identifier
+@ proc.psinfo.ppid parent process identifier
+@ proc.psinfo.pgid process group identifier
+@ proc.psinfo.tpgid process thread group identifier
+@ proc.psinfo.cwd process current working directory
+@ proc.psinfo.cmd process command name
+@ proc.psinfo.exe process executable path
+@ proc.psinfo.nice process scheduling nice level
+@ proc.psinfo.majflt number of major page faults
+@ proc.psinfo.priority process scheduling priority
+@ proc.psinfo.psargs process arguments
+@ proc.psinfo.sname process scheduling state
+@ proc.psinfo.start_time process start time, seconds since the epoch
+@ proc.psinfo.utime process time spent in user space
+@ proc.psinfo.stime process time spent in the kernel
+@ proc.psinfo.threads number of threads for the process
+@ proc.psinfo.translated process arch translated
+@ proc.psinfo.tty process terminal device number
+@ proc.psinfo.ttyname process terminal name
+@ proc.psinfo.wchan process wait channel address
+@ proc.psinfo.wchan_s process wait channel symbol
+@ proc.psinfo.wmesg_s process wait channel reason
+@ proc.psinfo.pswitch process context switches
+@ proc.psinfo.usrpri process user priority
+
+@ proc.runq.runnable number of runnable (on run queue) processes
+Instantaneous number of runnable (on run queue) processes;
+state 'R' in ps(1).
+@ proc.runq.blocked number of processes in uninterruptible sleep
+Instantaneous number of processes in uninterruptible sleep or parked;
+state 'D' in ps(1).
+@ proc.runq.sleeping number of processes sleeping
+Instantaneous number of processes sleeping; state 'S' in ps(1).
+@ proc.runq.stopped number of traced, stopped or suspended processes
+Instantaneous number of traced, stopped or suspended processes; state
+'tT' in ps(1).
+@ proc.runq.swapped number of processes that are swapped
+Instantaneous number of processes (excluding kernel threads) that are
+swapped; state 'SW' in ps(1).
+@ proc.runq.defunct number of defunct/zombie processes
+Instantaneous number of defunct/zombie processes; state 'Z' in ps(1).
+@ proc.runq.unknown number of processes is an unknown state
+Instantaneous number of processes is an unknown state, including all
+kernel threads
+@ proc.runq.kernel number of kernel threads
+Instantaneous number of processes with virtual size of zero (kernel threads)
+
+@ proc.id.uid process real user ID
+@ proc.id.euid process effective user ID
+@ proc.id.suid process saved user ID
+@ proc.id.gid process real group ID
+@ proc.id.uid_nm process user name
+@ proc.id.euid_nm process effective user name
+@ proc.id.suid_nm process saved user name
+@ proc.id.gid_nm process group name
+@ proc.id.ngid process number of supplementary groups
+
+@ proc.memory.size instantaneous virtual size of process
+@ proc.memory.rss instantaneous resident size of process
+
+@ proc.control.all.threads process indom includes threads
+If set to one, the process instance domain as reported by pmdaproc
+contains all threads as well as the processes that started them.
+If set to zero, the process instance domain contains only processes.
+
+This setting is persistent for the life of pmdaproc and affects all
+client tools that request instances and values from pmdaproc.
+Use either pmstore(1) or pmStore(3) to modify this metric.
+
+@ proc.control.perclient.threads for a client, process indom includes threads
+If set to one, the process instance domain as reported by pmdaproc
+contains all threads as well as the processes that started them.
+If set to zero, the process instance domain contains only processes.
+
+This setting is only visible to the active client context.  In other
+words, storing into this metric has no effect for other monitoring
+tools.  See proc.control.all.threads, if that is the desired outcome.
+Only pmStore(3) can effectively set this metric (pmstore(1) cannot).

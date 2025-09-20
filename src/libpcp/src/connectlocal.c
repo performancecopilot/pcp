@@ -132,7 +132,7 @@ build_dsotab(void)
 	     */
 	    domain = 3;
 	    init = "proc_init";
-	    pmsprintf(pathbuf, sizeof(pathbuf), "%s/proc/pmda_proc.so", pmdas);
+	    pmsprintf(pathbuf, sizeof(pathbuf), "%s/proc/pmda_proc.%s", pmdas, DSO_SUFFIX);
 	    name = pathbuf;
 	    peekc = *p;
 	    goto dsoload;
