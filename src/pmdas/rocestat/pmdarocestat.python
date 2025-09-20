@@ -56,7 +56,11 @@ RoceStatHW = [
         ("roce_adp_retrans_to", c_ulonglong),
         ("roce_slow_restart", c_ulonglong),
         ("roce_slow_restart_cnps", c_ulonglong),
-        ("roce_slow_restart_trans", c_ulonglong)
+        ("roce_slow_restart_trans", c_ulonglong),
+        ("rp_cnp_handled", c_ulonglong),
+        ("rp_cnp_ignored", c_ulonglong),
+        ("np_cnp_sent", c_ulonglong),
+        ("np_ecn_marked_roce_packets", c_ulonglong)
     ]
 
 RoceStatXmit = [

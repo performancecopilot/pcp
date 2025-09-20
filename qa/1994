@@ -1,4 +1,3 @@
-
 #!/bin/sh
 # PCP QA Test No. 1994
 # Exercise various pcp-rocestat(1) command options.
