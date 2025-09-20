@@ -27,7 +27,7 @@ COPY --from=build /build /build
 COPY build/containers/archive-analysis/root /
 
 RUN dnf install -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs \
-        python3 procps-ng gettext /build/*.rpm valkey grafana grafana-pcp zstd && \
+        python3 procps-ng gettext /build/*.rpm valkey grafana grafana-pcp && \
     dnf clean all && \
     rm -rf /build && \
     systemctl mask systemd-remount-fs.service dev-hugepages.mount \
@@ -43,7 +43,8 @@ RUN dnf install -y --setopt=install_weak_deps=False --setopt=tsflags=nodocs \
     chown -R grafana:grafana /etc/grafana
 
 VOLUME ["/archives"]
-EXPOSE 3000
+VOLUME ["/dashboards"]
+EXPOSE 3000 44323
 
 CMD ["/usr/sbin/init"]
 STOPSIGNAL SIGRTMIN+3
