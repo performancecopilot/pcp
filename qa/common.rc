@@ -50,14 +50,14 @@ export PCPQA_NO_RC_STATUS
 
 case $PCP_PLATFORM
 in
-    linux|freebsd|netbsd|openbsd|solaris|aix)
-    	DSO_SUFFIX=so
-	;;
     darwin)
 	DSO_SUFFIX=dylib
 	;;
-    mingw)
+    mingw*)
 	DSO_SUFFIX=dll
+	;;
+    *)
+    	DSO_SUFFIX=so
 	;;
 esac
 
@@ -69,20 +69,12 @@ esac
 #	-E, --preserve-env
 #
 sudo=`which sudo`
-case $PCP_PLATFORM
-in
-    darwin)
-	# I cannot make this work on Mac OS X ... kenj
-	;;
-    *)
-	if $sudo -h 2>&1 | grep -E '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
-	then
-	    # sudo has -E to preserve the environment
-	    #
-	    sudo="$sudo -E"
-	fi
-	;;
-esac
+if $sudo -h 2>&1 | grep -E '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
+then
+    # sudo has -E to preserve the environment
+    #
+    sudo="$sudo -E"
+fi
 
 # $sudo_local_ctx maybe $sudo if PM_CONTEXT_LOCAL needs to run as root,
 # e.g. for /dev/kmem readers
