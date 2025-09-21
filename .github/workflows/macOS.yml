@@ -30,10 +30,11 @@ jobs:
       - name: Install Homebrew deps
         id: install-brew-deps
         run: |
-          brew install autoconf gnu-tar pkg-config libuv ncurses openssl ragel readline unixodbc xz zstd
+          brew install autoconf unixodbc
       - name: Build on macOS
         id: Build
         run: |
+          source pybuilddeps/bin/activate
           xcodebuild -version
           ./Makepkgs -verbose
       - name: Debug on failure
