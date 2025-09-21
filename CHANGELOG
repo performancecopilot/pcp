@@ -1,5 +1,38 @@
-pcp-7.0.1 (1 October 2025)
-    - Work-in-progress, bug-fix release.
+pcp-7.0.1 (21 September 2025)
+    - PMDA additions, enhancements and bug fixes:
+	pmdaproc: new per-process metrics agent for macOS
+	pmdagfs2: Add support for glockfd debugfs metric collection
+	pmdalinux: add NFSv4 connected clients and open files metrics
+	pmdalinux: additional /proc/net/netstat MPTcp metrics
+	pmdabpftrace: Adjust event loop code to work with Python 3.14
+    - Client tools and utilities:
+	guidellm2pcp: convert GuideLLM benchmark results to PCP archives
+	pcp-mpstat: use vuser/vnice metrics and unify CPU utilization values
+    - Server-side utilities and log management scripts:
+	pmproxy, libpcp_web: ensure correct path used for conflict resolution
+	pmlogger, pmie scripts: improvements for BSD date(1) differences
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: fix accounting within __pmHashCtl after walk-based-delete
+	libpcp: fixes for >2GB archive files on 32-bit platforms
+	python api: fix datetime-based timestamps in import API
+	python api: improve exception handler in import API
+    - Build, infrastructure, containers and packaging updates:
+	build: automate macOS release and build process on github
+	build: add aarch64 archive-analysis container builds on quay+ghcr
+	build: debian conditional Build-Depends: for systemd pkgconfig file
+	build: packaging list updates for RHEL 10 builds of PCP
+	build: add pmproxy to the rpm set needing LOCAL_ONLY port setup
+	build: ensure pcp-zeroconf rpm install script succeeds
+	build: add zstd package as a hard rpm package dependency
+	containers: archive-analysis container exports optional REST API
+	containers: switch archive-analysis to using pcp-import-pmseries
+	containers: add PCP_DOMAIN_AGENTS to pcp for auto-enabling PMDAs
+	containers: make most/all PMDAs available in the pcp container
+	containers: update the pmproxy template config in pcp container
+    - Documentation:
+	docs: fix openapi.yaml issues (pcp.readthedocs.io/en/latest/api)
+	docs: add a containers note about alternate registry at ghcr.io
+	docs: add a CLAUDE.md file for devs using claude code with PCP
 
 pcp-7.0.0 (1 September 2025)
     - PMDA additions, enhancements and bug fixes:
