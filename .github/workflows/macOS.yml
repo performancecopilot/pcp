@@ -16,25 +16,19 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
-      - name: Install python venv
-        id: install-python-venv
+      - name: Install python deps
+        id: install-python-deps
         run: |
           python3 --version
           pip3 --version
           pip3 install --upgrade pip
-          python3 -m venv build
-          source build/bin/activate
-      - name: Install and verify python setuptools
-        id: install-python-venv
-        run: |
+          python3 -m venv pybuilddeps
+          source pybuilddeps/bin/activate
           pip3 install setuptools wheel
           python3 -c "import setuptools; print(setuptools.__version__)"
-      - name: Install python module deps
-        id: install-python-modules
-        run: |
           python3 -m pip install lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests six
       - name: Install Homebrew deps
-        id: install-deps
+        id: install-brew-deps
         run: |
           brew install autoconf gnu-tar pkg-config libuv ncurses openssl ragel readline unixodbc xz zstd
       - name: Build on macOS
@@ -47,7 +41,7 @@ jobs:
         run: |
           cat /Users/runner/work/pcp/pcp/Logs/pcp
       - name: Debug on Python installation failure
-        if: failure() && steps.install-python.conclusion == 'failure'
+        if: failure() && steps.install-python-deps.conclusion == 'failure'
         run: |
           echo "Python 3.13 installation failed. Collecting debug info..."
           brew --version
@@ -56,8 +50,8 @@ jobs:
           ls -la /usr/local/bin | grep python
           df -h
           brew list
-      - name: Debug on dependency installation failure
-        if: failure() && steps.install-deps.conclusion == 'failure'
+      - name: Debug on brew dependency installation failure
+        if: failure() && steps.install-brew-deps.conclusion == 'failure'
         run: |
           echo "Dependency installation failed. Collecting debug info..."
           brew --version
