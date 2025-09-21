@@ -322,7 +322,9 @@ $ su root
 
 ## Post-install steps
 
-You will need to start the PCP Collection Daemon (PMCD), as root:
+You'll need to start the Performance Metrics Collection Daemon (PMCD)
+as root (consider also pmlogger, pmie and pmproxy), if your packaging
+system has not done so already:
 
 Linux:
 ```
@@ -334,7 +336,7 @@ $ su root
 ```
 Mac OS:
 ```
-$ sudo /Library/StartupItems/pcp/pmcd start
+$ sudo /etc/init.d/pmcd start
 ```
 Windows:
 ```
