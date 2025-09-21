@@ -1,3 +1,6 @@
+pcp-7.0.2 (15 October 2025)
+    - Currently work-in-progress.
+
 pcp-7.0.1 (21 September 2025)
     - PMDA additions, enhancements and bug fixes:
 	pmdaproc: new per-process metrics agent for macOS

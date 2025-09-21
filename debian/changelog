@@ -1,7 +1,13 @@
-pcp (7.0.1-1) unstable; urgency=low
+pcp (7.0.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
   * Introduces a guidellm2pcp format-converter package.
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 15 Oct 2025 17:52:14 +1000
+
+pcp (7.0.1-1) unstable; urgency=low
+
+  * New release (full details in CHANGELOG).
 
  -- Nathan Scott <nathans@debian.org>  Sun, 21 Sep 2025 12:02:22 +1000
 
