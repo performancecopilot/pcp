@@ -8587,7 +8587,7 @@ fi
 
   test -n "$PYLINT" && break
 done
-test -n "$PYLINT" || PYLINT="/bin/true"
+test -n "$PYLINT" || PYLINT="/usr/bin/true"
 
 
 

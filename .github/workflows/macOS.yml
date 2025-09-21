@@ -16,17 +16,27 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
-      - name: Install and verify setuptools
-        id: install-setuptools
+      - name: Install python venv
+        id: install-python-venv
         run: |
           python3 --version
           pip3 --version
-          pip3 install --upgrade pip setuptools wheel
+          pip3 install --upgrade pip
+          python3 -m venv build
+          source build/bin/activate
+      - name: Install and verify python setuptools
+        id: install-python-venv
+        run: |
+          pip3 install setuptools wheel
           python3 -c "import setuptools; print(setuptools.__version__)"
+      - name: Install python module deps
+        id: install-python-modules
+        run: |
+          python3 -m pip install lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests six
       - name: Install Homebrew deps
         id: install-deps
         run: |
-          brew install gnu-tar pkg-config autoconf
+          brew install autoconf gnu-tar pkg-config libuv ncurses openssl ragel readline unixodbc xz zstd
       - name: Build on macOS
         id: Build
         run: |

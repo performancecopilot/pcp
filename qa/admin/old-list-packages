@@ -650,7 +650,7 @@ in
     Darwin)
 	mytype=brew
 	installcmd="brew install"
-	echo >&2 "TODO: no list all packages method for brew"
+	brew list --formulae -1 >$tmp.installed
 	;;
 
 esac
