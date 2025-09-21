@@ -336,7 +336,8 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     unsigned int	cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int	item = pmID_item(mdesc->m_desc.pmid);
     darwin_proc_t	*proc;
-    const char		*cp;
+    static char		psbuf[PROC_CMD_MAXLEN];
+    char		*cp;
 
     if (mdesc->m_user != NULL) {
 	/* 
@@ -418,7 +419,25 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    atom->l = proc->priority;
 	    break;
 	case 11: /* proc.psinfo.psargs */
-	    atom->cp = proc->psargs ? proc->psargs : "";
+	    if ((cp = proc_strings_lookup(proc->cmd_id)) != NULL) {
+		if (*cp == '/') { /* full path + args, use this one directly */
+		    atom->cp = cp;
+		    break;
+		}
+		/* relative path + args, try to find the full path elsewhere */
+		if ((cp = proc_strings_lookup(proc->exe_id)) == NULL)
+		    cp = proc->comm;
+		if (proc->psargs == NULL) {
+		    atom->cp = cp;
+		} else {
+		    pmsprintf(psbuf, sizeof(psbuf), "%s %s", cp, proc->psargs);
+		    atom->cp = psbuf;
+		}
+	    } else {
+		if ((cp = proc_strings_lookup(proc->exe_id)) == NULL)
+		    cp = proc->comm;
+		atom->cp = cp;
+	    }
 	    break;
 	case 12: /* proc.psinfo.sname */
 	    atom->cp = proc->state;
