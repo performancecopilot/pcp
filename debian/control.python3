@@ -11,3 +11,10 @@ Description: Performance Co-Pilot Python3 PMAPI module
  all of the interesting performance data in a system, and allows
  client applications to easily retrieve and process any subset of
  that data.
+
+Package: pcp-import-guidellm2pcp
+Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp-import1 (= ${binary:Version})
+Architecture: any
+Description: Tool for importing GuideLLM results into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tools for importing GuideLLM JSON
+ benchmark results into PCP archives for replay with PCP analysis tools.
