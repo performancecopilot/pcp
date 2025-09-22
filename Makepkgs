@@ -534,7 +534,7 @@ debian_buildpackage()
     echo "== Building deb packages using dpkg-buildpackage"
 
     SUDO=${SUDO:-fakeroot}
-    TYPE=${TYPE:-source}
+    TYPE=${TYPE:-source}      # alternate: full
     sign='-us -uc'	# don't sign by default
     # sign if --signed and $DEB_SIGN_KEYID set in the environment
     # (usual for an upload to Debian servers, so its source-only
