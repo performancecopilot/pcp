@@ -213,6 +213,22 @@
         "symbol_error": {
             "mlx5_0_1": 0,
             "mlx5_1_1": 0
+        },
+        "rp_cnp_handled": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "rp_cnp_ignored": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "np_cnp_sent": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
+        },
+        "np_ecn_marked_roce_packets": {
+            "mlx5_0_1": 0,
+            "mlx5_1_1": 0
         }
     }
 }
