@@ -251,7 +251,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
       pos -= LZMA_STREAM_HEADER_SIZE;
       (*nr_streams)++;
 
-      xz_debug("%s(%d, ...): decode stream footer at pos = %d", __func__, fileno(f), pos);
+      xz_debug("%s(%d, ...): decode stream footer at pos = %lld", __func__, fileno(f),
+	       (long long) pos);
 
       /* Does the stream footer look reasonable? */
       r = lzma_stream_footer_decode(&footer_flags, footer);
@@ -270,7 +271,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
       }
 
       pos -= index_size;
-      xz_debug("%s(%d, ...): decode index at pos = %d", __func__, fileno(f), pos);
+      xz_debug("%s(%d, ...): decode index at pos = %lld", __func__, fileno(f),
+	       (long long) pos);
 
       /* Seek backwards to the index of this stream. */
       if (fseeko(f, pos, SEEK_SET) != 0) {
@@ -315,7 +317,8 @@ parse_indexes(FILE *f, size_t *nr_streams)
 
       pos -= lzma_index_total_size(this_index) + LZMA_STREAM_HEADER_SIZE;
 
-      xz_debug("%s(%d, ...): decode stream header at pos = %d", __func__, fileno(f), pos);
+      xz_debug("%s(%d, ...): decode stream header at pos = %lld", __func__, fileno(f),
+	       (long long) pos);
 
       /* Read and decode the stream header. */
       if (fseeko(f, pos, SEEK_SET) != 0) {
