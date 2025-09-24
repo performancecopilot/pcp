@@ -1418,6 +1418,42 @@ static pmdaMetric metrictab[] = {
       { PMDA_PMID(CLUSTER_NUMA_MEMINFO,41), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
+/* mem.numa.util.swapCached */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,42), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.numa.util.kreclaimable */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,43), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.numa.util.anonhugepages */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,44), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.numa.util.shmemhugepages */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,45), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.numa.util.shemempmdmapped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,46), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.numa.util.filehugepages */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,47), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+/* mem.numa.util.filepmdmapped */
+    { NULL,
+      { PMDA_PMID(CLUSTER_NUMA_MEMINFO,48), PM_TYPE_U64, NODE_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+
+
 /* swap.length */
     { NULL,
       { PMDA_PMID(CLUSTER_MEMINFO,6), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT, 
@@ -10020,7 +10056,27 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sts = linux_table_lookup("HugePages_Surp:", np->meminfo, &atom->ull);
 	    atom->ull *= (proc_meminfo.Hugepagesize << 10);
 	    break;
-
+  case 42: /* mem.numa.util.swapCached */
+    sts = linux_table_lookup("SwapCached:", np->meminfo, &atom->ull);
+    break;
+  case 43: /* mem.numa.util.kreclaimable */
+    sts = linux_table_lookup("KReclaimable:", np->meminfo, &atom->ull);
+    break;
+  case 44: /* mem.numa.util.anonhugepages */
+    sts = linux_table_lookup("AnonHugePages:", np->meminfo, &atom->ull);
+    break;
+  case 45: /* mem.numa.util.shmemhugepages */
+    sts = linux_table_lookup("ShmemHugePages:", np->meminfo, &atom->ull);
+    break;
+  case 46: /* mem.numa.util.shmempmdmapped */
+    sts = linux_table_lookup("ShmemPmdMapped:", np->meminfo, &atom->ull);
+    break;
+  case 47: /* mem.numa.util.filehugepages */
+    sts = linux_table_lookup("FileHugePages:", np->meminfo, &atom->ull);
+    break;
+  case 48: /* mem.numa.util.filepmdmapped */
+    sts = linux_table_lookup("FilePmdMapped:", np->meminfo, &atom->ull);
+    break;
 	default:
 	    return PM_ERR_PMID;
 	}

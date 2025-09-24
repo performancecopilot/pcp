@@ -793,6 +793,13 @@ mem.numa.util {
     hugepagesTotalBytes	60:36:39
     hugepagesFreeBytes	60:36:40
     hugepagesSurpBytes	60:36:41
+    swapCached          60:36:42
+    kreclaimable        60:36:43
+    anonhugepages       60:36:44
+    shmemhugepages      60:36:45
+    shmempmdmapped     60:36:46
+    filehugepages       60:36:47
+    filepmdmapped       60:36:48
 }
 
 mem.numa.alloc {

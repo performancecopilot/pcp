@@ -1032,6 +1032,13 @@ pressure.
 @ mem.numa.util.hugepagesTotal per-node total count of hugepages
 @ mem.numa.util.hugepagesFree per-node count of free hugepages
 @ mem.numa.util.hugepagesSurp per-node count of surplus hugepages
+@ mem.numa.util.swapCached per-node amount of memory in swap cache
+@ mem.numa.util.kreclaimable per-node kernel reclaimable memory
+@ mem.numa.util.anonhugepages per-node amount of memory in anonymous huge pages
+@ mem.numa.util.shmemhugepages per-node amount of shared memory allocated with huge
+@ mem.numa.util.shmempmdmapped per-node shared memory mapped into userspace with hugepages
+@ mem.numa.util.filehugepages per-node page cache (file) pages allocated with hugepages
+@ mem.numa.util.filepmdmapped per-node page cache mapped into userspace with hugepages
 @ mem.numa.alloc.hit per-node count of times a task wanted alloc on local node and succeeded
 @ mem.numa.alloc.miss per-node count of times a task wanted alloc on local node but got another node
 @ mem.numa.alloc.foreign count of times a task on another node alloced on that node, but got this node
