@@ -287,7 +287,7 @@ then
     COMPRESSAFTER_DEFAULT=0
 elif which zx >/dev/null 2>&1
 then
-    eval `pmconfig -L -s transparent_decompress`
+    eval `$PCP_BINADM_DIR/pmconfig -L -s transparent_decompress`
     if $transparent_decompress
     then
 	COMPRESSAFTER_DEFAULT=0

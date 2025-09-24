@@ -19,7 +19,7 @@
 #include <pcp/mmv_dev.h>
 #include <inttypes.h>
 #include <sys/stat.h>
-#include <strings.h>
+#include <string.h>
 
 int
 dump_indoms(void *addr, size_t size, int idx, long base, __uint64_t offset, __int32_t count)
@@ -585,7 +585,7 @@ flagstr(int flags)
 	strcat(buf, bits);
     } else {
 	/* remove any trailing comma-space */
-	if ((ptr = rindex(buf, ',')) != NULL)
+	if ((ptr = strrchr(buf, ',')) != NULL)
 	    *ptr = '\0';
     }
     return buf;

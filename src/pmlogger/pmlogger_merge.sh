@@ -188,7 +188,7 @@ do
 done
 
 # get $compress_suffixes variable
-eval `pmconfig -L -s compress_suffixes`
+eval `$PCP_BINADM_DIR/pmconfig -L -s compress_suffixes`
 
 # For each input archive, need to have at least .0 and .meta and
 # warn if .index is missing.

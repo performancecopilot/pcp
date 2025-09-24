@@ -112,7 +112,7 @@ then
 fi
 
 # get $compress_suffixes variable
-eval `pmconfig -L -s compress_suffixes`
+eval `$PCP_BINADM_DIR/pmconfig -L -s compress_suffixes`
 
 # For each command line argument, if it is a directory descent to find
 # all files and insert these into the command line arguments list in

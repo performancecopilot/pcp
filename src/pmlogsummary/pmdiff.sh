@@ -142,7 +142,7 @@ do
 		break
 		;;
 	-V)
-		pmconfig -L pcp_version | sed -e 's/[_=]/ /g' -e "s/^pcp/$prog/g"
+		$PCP_BINADM_DIR/pmconfig -L pcp_version | sed -e 's/[_=]/ /g' -e "s/^pcp/$prog/g"
 		status=0
 		exit
 		;;

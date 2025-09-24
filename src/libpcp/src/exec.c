@@ -32,7 +32,7 @@
 #endif
 #include <signal.h>
 #include <ctype.h>
-#include <strings.h>
+#include <string.h>
 
 struct __pmExecCtl {
     int		argc;
@@ -902,7 +902,7 @@ __pmProcessUnpickArgs(__pmExecCtl_t **argp, const char *command)
 	    p++;
 	}
 
-	pend = index(p, endch);
+	pend = strchr(p, endch);
 	if (pend == NULL) {
 	    done = 1;
 	    if (endch != ' ') {

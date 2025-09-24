@@ -23,8 +23,6 @@ LIBPCP_LDLIBS += -lpsapi -lws2_32 -liphlpapi -lregex
 endif
 
 ifeq "$(TARGET_OS)" "solaris"
-# enables standards compliant thread-safe interfaces (accounts.c)
-LIBPCP_CFLAGS += -D_POSIX_PTHREAD_SEMANTICS
 LIBPCP_LDLIBS += $(PLDLIBS)
 endif
 

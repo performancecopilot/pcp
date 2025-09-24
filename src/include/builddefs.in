@@ -90,6 +90,9 @@ SHELLSUFFIX = .sh
 PLDLIBS = -lwsock32 -liphlpapi
 endif
 ifeq "$(TARGET_OS)" "solaris"
+# enables standards compliant thread-safe interfaces and 2-arg form of
+# ctime_r()
+CFLAGS += -D_POSIX_PTHREAD_SEMANTICS
 PLDFLAGS += -fPIC
 PLDLIBS = -lnsl -lsocket -lresolv -ldl -lposix4
 DSOSUFFIX = so

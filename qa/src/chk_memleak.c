@@ -25,7 +25,6 @@ main(int argc, char **argv)
     static char	*usage = "[-D debugspec] [-L] [-h host] [-a archive] [-n namespace] [-v] [-i iterations]";
     int		niter = 100;
     int		contype = PM_CONTEXT_HOST;
-    unsigned long first_memusage;
     unsigned long last_memusage = 0;
     unsigned long memusage;
 
@@ -114,14 +113,14 @@ main(int argc, char **argv)
 
 	pmDestroyContext(c);
 	if (i == 0) {
-	    __pmProcessDataSize(&first_memusage);
+	    __pmProcessDataSize(&last_memusage);
 	}
 	else {
 	    __pmProcessDataSize(&memusage);
-	    if (memusage > first_memusage) {
+	    if (memusage > last_memusage) {
 		if (i > 1)
-		    printf("iteration %d: leaked %lu bytes\n", i,
-			   memusage - last_memusage);
+		    printf("iteration %d: leaked %lu bytes [from %lu to %lu]\n", i,
+			   memusage - last_memusage, last_memusage, memusage);
 		last_memusage = memusage;
 	    }
 	}

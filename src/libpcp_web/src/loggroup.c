@@ -14,6 +14,7 @@
 #include <uv.h>
 #include <ctype.h>
 #include <assert.h>
+#include <limits.h>
 
 #include "pmapi.h"
 #include "pmwebapi.h"

@@ -198,7 +198,6 @@ PCP_3.0 {
     __pmGetInternalState;
     __pmGetNameInfo;
     __pmGetPDU;
-    __pmGetPDUCeiling;
     __pmGetSockOpt;
     __pmGetUsername;
     __pmHandleToPtr;
@@ -298,7 +297,9 @@ PCP_3.0 {
     __pmRotateLog;
     __pmSecureClientHandshake;
     __pmSecureServerHandshake;
+#if ENABLE_SECURE
     __pmSecureServerSetup;
+#endif
     __pmSecureServerShutdown;
     __pmSelectRead;
     __pmSelectWrite;
@@ -517,7 +518,9 @@ PCP_3.14 {
 } PCP_3.13;
 
 PCP_3.15 {
+#if ENABLE_SECURE
     __pmSecureServerCertificateSetup;
+#endif
     __pmServerGetFeaturesFromPDU;
 } PCP_3.14;
 
@@ -636,7 +639,6 @@ PCP_3.22 {
     __pmLogBaseName;
     __pmLogLookupLabel;
     __pmLogLookupText;
-    __pmLogPutLabel;
     __pmLogPutText;
     __pmParseLabelSet;
     __pmRecvLabel;
@@ -738,7 +740,6 @@ PCP_3.32 {
 #if 0
     __pmHighResFetchLocal;
 #endif
-    __pmHighResFinishResult;
     __pmSendHighResFetch;
     __pmDecodeHighResFetch;
     __pmSendHighResResult;
@@ -747,8 +748,6 @@ PCP_3.32 {
 
 PCP_3.33 {
   global:
-    __htonpmTimestamp;
-    __ntohpmTimestamp;
     __pmFreeHighResResultValues;
     __pmFreeLogStatus;
     __pmLoadTimestamp;
@@ -825,7 +824,6 @@ PCP_3.37 {
     __pmSortInstances;
     __pmSendFetchPDU;
     __pmFetch;
-    __pmFetchHighResLocal;
     __pmFetchArchive;
     __pmFreeResult;
     __pmGetTimestamp;

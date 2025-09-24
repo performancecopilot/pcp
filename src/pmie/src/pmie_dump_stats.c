@@ -49,7 +49,7 @@ main(int argc, char **argv)
 	}
 	else {
 	    char	*p;
-	    p = rindex(argv[1], pmPathSeparator());
+	    p = strrchr(argv[1], pmPathSeparator());
 	    if (p == NULL)
 		p = argv[1];
 	    else

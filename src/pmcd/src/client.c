@@ -257,7 +257,7 @@ CheckAccountAccess(ClientInfo *cp)
     groupid = ((node = __pmHashSearch(PCP_ATTR_GROUPID, &cp->attrs)) ?
 		(const char *)node->data : NULL);
     if (pmDebugOptions.auth)
-	fprintf(stderr, "CheckAccountAccess: client fd=%d userid=%s groupid=%s\n", cp->fd, userid, groupid);
+	fprintf(stderr, "CheckAccountAccess: client fd=%d userid=%s groupid=%s\n", cp->fd, userid ? userid : "(null)", groupid ? groupid : "(null)");
     if (!userid || !groupid)
 	if (__pmServerHasFeature(PM_SERVER_FEATURE_CREDS_REQD))
 	    return PM_ERR_PERMISSION;

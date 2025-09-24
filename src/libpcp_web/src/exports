@@ -99,10 +99,6 @@ PCP_WEB_1.6 {
     pmSeriesDiscoverInDom;
     pmSeriesDiscoverText;
 
-    redisSlotsConnect;
-    redisSlotsFree;
-    redisSlotsProxyConnect;
-    redisSlotsProxyFree;
     sdsDictCallBacks;
 
     dictAdd;
@@ -118,7 +114,6 @@ PCP_WEB_1.6 {
 
 PCP_WEB_1.7 {
   global:
-    ini_parse;
     pmIniFileParse;
 } PCP_WEB_1.6;
 
@@ -223,18 +218,12 @@ PCP_WEB_1.15 {
     pmSearchTextTypeStr;
 } PCP_WEB_1.14;
 
-PCP_WEB_1.16 {
-  global:
-    redisSlotsSetupMetrics;
-    redisSlotsSetMetricRegistry;
-} PCP_WEB_1.15;
-
 PCP_WEB_1.17 {
   global:
     pmWebTimerSetMetricRegistry;
     pmWebTimerRegister;
     pmWebTimerRelease;
-} PCP_WEB_1.16;
+} PCP_WEB_1.15;
 
 PCP_WEB_1.18 {
   global:
@@ -247,7 +236,6 @@ PCP_WEB_1.19 {
   global:
     dictGenHashFunction;
     dictGetIterator;
-    redisSlotsReconnect;
 } PCP_WEB_1.18;
 
 PCP_WEB_1.20 {
