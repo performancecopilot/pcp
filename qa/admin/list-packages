@@ -548,7 +548,7 @@ p
 
 	OpenIndiana)
 	    pkg list -H | sed -e 's/ .*//' >$tmp.installed
-	    # TODO $tmp.allpkgs
+	    pkg list -a | sed -e 's/ .*//' >$tmp.allpkgs
 	    ;;
 
 	Slackware)

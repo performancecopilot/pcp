@@ -102,6 +102,7 @@ $home/old-list-packages -fap \
 | tr ' ' '\012' \
 | sed \
     -e 's/\(.*\)(\(.*\))/\2 \1/' \
+    -e '/^{[A-Z][A-Za-z]*}$/d' \
 | LC_COLLATE=POSIX sort \
 | uniq >>$tmp.list
 

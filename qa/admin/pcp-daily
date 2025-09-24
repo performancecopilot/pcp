@@ -986,7 +986,7 @@ do
 		    ;;
 
 		OpenBSD*)
-		    # Only selected groups this stage for OpenBSD
+		    # Only selected groups at this stage for OpenBSD
 		    #
 		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g pmrep -g threads -g logutil -g dbpmda -g pmcheck -g pmlc"
 		    ;;
@@ -995,6 +995,12 @@ do
 		    # Only -g sanity at this stage for NetBSD
 		    #
 		    [ X"$what" = Xall ] && check_what="$check_what -g sanity"
+		    ;;
+
+		OpenIndiana)
+		    # Only selected groups at this stage for OpenIndiana
+		    #
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g libpcp"
 		    ;;
 
 	    esac
