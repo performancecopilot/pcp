@@ -10056,27 +10056,27 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    sts = linux_table_lookup("HugePages_Surp:", np->meminfo, &atom->ull);
 	    atom->ull *= (proc_meminfo.Hugepagesize << 10);
 	    break;
-  case 42: /* mem.numa.util.swapCached */
-    sts = linux_table_lookup("SwapCached:", np->meminfo, &atom->ull);
-    break;
-  case 43: /* mem.numa.util.kreclaimable */
-    sts = linux_table_lookup("KReclaimable:", np->meminfo, &atom->ull);
-    break;
-  case 44: /* mem.numa.util.anonhugepages */
-    sts = linux_table_lookup("AnonHugePages:", np->meminfo, &atom->ull);
-    break;
-  case 45: /* mem.numa.util.shmemhugepages */
-    sts = linux_table_lookup("ShmemHugePages:", np->meminfo, &atom->ull);
-    break;
-  case 46: /* mem.numa.util.shmempmdmapped */
-    sts = linux_table_lookup("ShmemPmdMapped:", np->meminfo, &atom->ull);
-    break;
-  case 47: /* mem.numa.util.filehugepages */
-    sts = linux_table_lookup("FileHugePages:", np->meminfo, &atom->ull);
-    break;
-  case 48: /* mem.numa.util.filepmdmapped */
-    sts = linux_table_lookup("FilePmdMapped:", np->meminfo, &atom->ull);
-    break;
+	case 42: /* mem.numa.util.swapCached */
+	    sts = linux_table_lookup("SwapCached:", np->meminfo, &atom->ull);
+	    break;
+	case 43: /* mem.numa.util.kreclaimable */
+	    sts = linux_table_lookup("KReclaimable:", np->meminfo, &atom->ull);
+	    break;
+	case 44: /* mem.numa.util.anonhugepages */
+	    sts = linux_table_lookup("AnonHugePages:", np->meminfo, &atom->ull);
+	    break;
+	case 45: /* mem.numa.util.shmemhugepages */
+	    sts = linux_table_lookup("ShmemHugePages:", np->meminfo, &atom->ull);
+	    break;
+	case 46: /* mem.numa.util.shmempmdmapped */
+	    sts = linux_table_lookup("ShmemPmdMapped:", np->meminfo, &atom->ull);
+	    break;
+	case 47: /* mem.numa.util.filehugepages */
+	    sts = linux_table_lookup("FileHugePages:", np->meminfo, &atom->ull);
+	    break;
+	case 48: /* mem.numa.util.filepmdmapped */
+	    sts = linux_table_lookup("FilePmdMapped:", np->meminfo, &atom->ull);
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
