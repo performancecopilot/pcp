@@ -164,6 +164,9 @@ mem.numa.util.active_anon
 mem.numa.util.active_file
     inst [0 or "node0"] value 4309788
 
+mem.numa.util.anonhugepages
+    inst [0 or "node0"] value 0
+
 mem.numa.util.anonpages
     inst [0 or "node0"] value 2247232
 
@@ -175,6 +178,12 @@ mem.numa.util.dirty
 
 mem.numa.util.filePages
     inst [0 or "node0"] value 7080468
+
+mem.numa.util.filehugepages
+No value(s) available!
+
+mem.numa.util.filepmdmapped
+No value(s) available!
 
 mem.numa.util.free
     inst [0 or "node0"] value 5205416
@@ -215,6 +224,9 @@ mem.numa.util.inactive_file
 mem.numa.util.kernelStack
     inst [0 or "node0"] value 12352
 
+mem.numa.util.kreclaimable
+No value(s) available!
+
 mem.numa.util.lowFree
 No value(s) available!
 
@@ -233,6 +245,12 @@ mem.numa.util.pageTables
 mem.numa.util.shmem
     inst [0 or "node0"] value 394328
 
+mem.numa.util.shmemhugepages
+No value(s) available!
+
+mem.numa.util.shmempmdmapped
+No value(s) available!
+
 mem.numa.util.slab
     inst [0 or "node0"] value 991832
 
@@ -241,6 +259,9 @@ mem.numa.util.slabReclaimable
 
 mem.numa.util.slabUnreclaimable
     inst [0 or "node0"] value 231160
+
+mem.numa.util.swapCached
+No value(s) available!
 
 mem.numa.util.total
     inst [0 or "node0"] value 16022140
@@ -2982,6 +3003,10 @@ mem.numa.util.active_file
     inst [0 or "node0"] value 9678060
     inst [1 or "node1"] value 3626496
 
+mem.numa.util.anonhugepages
+    inst [0 or "node0"] value 3792896
+    inst [1 or "node1"] value 6488064
+
 mem.numa.util.anonpages
     inst [0 or "node0"] value 4057600
     inst [1 or "node1"] value 6696000
@@ -2997,6 +3022,12 @@ mem.numa.util.dirty
 mem.numa.util.filePages
     inst [0 or "node0"] value 17256600
     inst [1 or "node1"] value 13987452
+
+mem.numa.util.filehugepages
+No value(s) available!
+
+mem.numa.util.filepmdmapped
+No value(s) available!
 
 mem.numa.util.free
     inst [0 or "node0"] value 42911652
@@ -3048,6 +3079,9 @@ mem.numa.util.kernelStack
     inst [0 or "node0"] value 6352
     inst [1 or "node1"] value 6000
 
+mem.numa.util.kreclaimable
+No value(s) available!
+
 mem.numa.util.lowFree
 No value(s) available!
 
@@ -3070,6 +3104,12 @@ mem.numa.util.shmem
     inst [0 or "node0"] value 615296
     inst [1 or "node1"] value 385984
 
+mem.numa.util.shmemhugepages
+No value(s) available!
+
+mem.numa.util.shmempmdmapped
+No value(s) available!
+
 mem.numa.util.slab
     inst [0 or "node0"] value 964316
     inst [1 or "node1"] value 487692
@@ -3081,6 +3121,9 @@ mem.numa.util.slabReclaimable
 mem.numa.util.slabUnreclaimable
     inst [0 or "node0"] value 129580
     inst [1 or "node1"] value 79556
+
+mem.numa.util.swapCached
+No value(s) available!
 
 mem.numa.util.total
     inst [0 or "node0"] value 67077488
@@ -5805,6 +5848,10 @@ mem.numa.util.active_file
     inst [0 or "node0"] value 9678060
     inst [1 or "node1"] value 3626496
 
+mem.numa.util.anonhugepages
+    inst [0 or "node0"] value 3792896
+    inst [1 or "node1"] value 6488064
+
 mem.numa.util.anonpages
     inst [0 or "node0"] value 4057600
     inst [1 or "node1"] value 6696000
@@ -5820,6 +5867,12 @@ mem.numa.util.dirty
 mem.numa.util.filePages
     inst [0 or "node0"] value 17256600
     inst [1 or "node1"] value 13987452
+
+mem.numa.util.filehugepages
+No value(s) available!
+
+mem.numa.util.filepmdmapped
+No value(s) available!
 
 mem.numa.util.free
     inst [0 or "node0"] value 42911652
@@ -5871,6 +5924,9 @@ mem.numa.util.kernelStack
     inst [0 or "node0"] value 6352
     inst [1 or "node1"] value 6000
 
+mem.numa.util.kreclaimable
+No value(s) available!
+
 mem.numa.util.lowFree
 No value(s) available!
 
@@ -5893,6 +5949,12 @@ mem.numa.util.shmem
     inst [0 or "node0"] value 615296
     inst [1 or "node1"] value 385984
 
+mem.numa.util.shmemhugepages
+No value(s) available!
+
+mem.numa.util.shmempmdmapped
+No value(s) available!
+
 mem.numa.util.slab
     inst [0 or "node0"] value 964316
     inst [1 or "node1"] value 487692
@@ -5904,6 +5966,9 @@ mem.numa.util.slabReclaimable
 mem.numa.util.slabUnreclaimable
     inst [0 or "node0"] value 129580
     inst [1 or "node1"] value 79556
+
+mem.numa.util.swapCached
+No value(s) available!
 
 mem.numa.util.total
     inst [0 or "node0"] value 67077488
@@ -8618,6 +8683,9 @@ mem.numa.util.active_anon
 mem.numa.util.active_file
     inst [0 or "node0"] value 92256
 
+mem.numa.util.anonhugepages
+    inst [0 or "node0"] value 0
+
 mem.numa.util.anonpages
     inst [0 or "node0"] value 273808
 
@@ -8629,6 +8697,12 @@ mem.numa.util.dirty
 
 mem.numa.util.filePages
     inst [0 or "node0"] value 308732
+
+mem.numa.util.filehugepages
+No value(s) available!
+
+mem.numa.util.filepmdmapped
+No value(s) available!
 
 mem.numa.util.free
     inst [0 or "node0"] value 3264468
@@ -8669,6 +8743,9 @@ mem.numa.util.inactive_file
 mem.numa.util.kernelStack
     inst [0 or "node0"] value 4992
 
+mem.numa.util.kreclaimable
+No value(s) available!
+
 mem.numa.util.lowFree
 No value(s) available!
 
@@ -8676,7 +8753,7 @@ mem.numa.util.lowTotal
 No value(s) available!
 
 mem.numa.util.mapped
-    inst [0 or "node0"] value 0
+    inst [0 or "node0"] value 158692
 
 mem.numa.util.mlocked
     inst [0 or "node0"] value 0
@@ -8687,6 +8764,12 @@ mem.numa.util.pageTables
 mem.numa.util.shmem
     inst [0 or "node0"] value 1344
 
+mem.numa.util.shmemhugepages
+    inst [0 or "node0"] value 0
+
+mem.numa.util.shmempmdmapped
+    inst [0 or "node0"] value 0
+
 mem.numa.util.slab
     inst [0 or "node0"] value 109724
 
@@ -8695,6 +8778,9 @@ mem.numa.util.slabReclaimable
 
 mem.numa.util.slabUnreclaimable
     inst [0 or "node0"] value 60884
+
+mem.numa.util.swapCached
+No value(s) available!
 
 mem.numa.util.total
     inst [0 or "node0"] value 4020980
@@ -11172,6 +11258,9 @@ mem.numa.util.active_anon
 mem.numa.util.active_file
     inst [0 or "node0"] value 7097520
 
+mem.numa.util.anonhugepages
+    inst [0 or "node0"] value 0
+
 mem.numa.util.anonpages
     inst [0 or "node0"] value 4056464
 
@@ -11183,6 +11272,12 @@ mem.numa.util.dirty
 
 mem.numa.util.filePages
     inst [0 or "node0"] value 8514392
+
+mem.numa.util.filehugepages
+No value(s) available!
+
+mem.numa.util.filepmdmapped
+No value(s) available!
 
 mem.numa.util.free
     inst [0 or "node0"] value 2495168
@@ -11223,6 +11318,9 @@ mem.numa.util.inactive_file
 mem.numa.util.kernelStack
     inst [0 or "node0"] value 18960
 
+mem.numa.util.kreclaimable
+No value(s) available!
+
 mem.numa.util.lowFree
 No value(s) available!
 
@@ -11230,7 +11328,7 @@ mem.numa.util.lowTotal
 No value(s) available!
 
 mem.numa.util.mapped
-    inst [0 or "node0"] value 0
+    inst [0 or "node0"] value 848700
 
 mem.numa.util.mlocked
     inst [0 or "node0"] value 80
@@ -11241,6 +11339,12 @@ mem.numa.util.pageTables
 mem.numa.util.shmem
     inst [0 or "node0"] value 978644
 
+mem.numa.util.shmemhugepages
+    inst [0 or "node0"] value 0
+
+mem.numa.util.shmempmdmapped
+    inst [0 or "node0"] value 0
+
 mem.numa.util.slab
     inst [0 or "node0"] value 693448
 
@@ -11249,6 +11353,9 @@ mem.numa.util.slabReclaimable
 
 mem.numa.util.slabUnreclaimable
     inst [0 or "node0"] value 143160
+
+mem.numa.util.swapCached
+No value(s) available!
 
 mem.numa.util.total
     inst [0 or "node0"] value 16050940
@@ -13790,6 +13897,9 @@ mem.numa.util.active_anon
 mem.numa.util.active_file
     inst [0 or "node0"] value 270124
 
+mem.numa.util.anonhugepages
+    inst [0 or "node0"] value 14336
+
 mem.numa.util.anonpages
     inst [0 or "node0"] value 103152
 
@@ -13801,6 +13911,12 @@ mem.numa.util.dirty
 
 mem.numa.util.filePages
     inst [0 or "node0"] value 712752
+
+mem.numa.util.filehugepages
+No value(s) available!
+
+mem.numa.util.filepmdmapped
+No value(s) available!
 
 mem.numa.util.free
     inst [0 or "node0"] value 2518140
@@ -13841,6 +13957,9 @@ mem.numa.util.inactive_file
 mem.numa.util.kernelStack
     inst [0 or "node0"] value 2240
 
+mem.numa.util.kreclaimable
+No value(s) available!
+
 mem.numa.util.lowFree
 No value(s) available!
 
@@ -13848,7 +13967,7 @@ mem.numa.util.lowTotal
 No value(s) available!
 
 mem.numa.util.mapped
-    inst [0 or "node0"] value 0
+    inst [0 or "node0"] value 95940
 
 mem.numa.util.mlocked
     inst [0 or "node0"] value 0
@@ -13859,6 +13978,12 @@ mem.numa.util.pageTables
 mem.numa.util.shmem
     inst [0 or "node0"] value 202704
 
+mem.numa.util.shmemhugepages
+    inst [0 or "node0"] value 0
+
+mem.numa.util.shmempmdmapped
+    inst [0 or "node0"] value 0
+
 mem.numa.util.slab
     inst [0 or "node0"] value 427388
 
@@ -13867,6 +13992,9 @@ mem.numa.util.slabReclaimable
 
 mem.numa.util.slabUnreclaimable
     inst [0 or "node0"] value 327284
+
+mem.numa.util.swapCached
+No value(s) available!
 
 mem.numa.util.total
     inst [0 or "node0"] value 3871596
@@ -15690,6 +15818,10 @@ mem.numa.util.active_file
     inst [0 or "node0"] value 476640
     inst [1 or "node1"] value 168596
 
+mem.numa.util.anonhugepages
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
 mem.numa.util.anonpages
     inst [0 or "node0"] value 40328
     inst [1 or "node1"] value 68004
@@ -15705,6 +15837,14 @@ mem.numa.util.dirty
 mem.numa.util.filePages
     inst [0 or "node0"] value 2588864
     inst [1 or "node1"] value 607516
+
+mem.numa.util.filehugepages
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.numa.util.filepmdmapped
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
 
 mem.numa.util.free
     inst [0 or "node0"] value 1166440
@@ -15756,6 +15896,10 @@ mem.numa.util.kernelStack
     inst [0 or "node0"] value 1792
     inst [1 or "node1"] value 1968
 
+mem.numa.util.kreclaimable
+    inst [0 or "node0"] value 78264
+    inst [1 or "node1"] value 55308
+
 mem.numa.util.lowFree
 No value(s) available!
 
@@ -15763,8 +15907,8 @@ mem.numa.util.lowTotal
 No value(s) available!
 
 mem.numa.util.mapped
-    inst [0 or "node0"] value 0
-    inst [1 or "node1"] value 0
+    inst [0 or "node0"] value 55732
+    inst [1 or "node1"] value 43264
 
 mem.numa.util.mlocked
     inst [0 or "node0"] value 0
@@ -15778,6 +15922,14 @@ mem.numa.util.shmem
     inst [0 or "node0"] value 596
     inst [1 or "node1"] value 588
 
+mem.numa.util.shmemhugepages
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
+mem.numa.util.shmempmdmapped
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
+
 mem.numa.util.slab
     inst [0 or "node0"] value 144912
     inst [1 or "node1"] value 123512
@@ -15789,6 +15941,10 @@ mem.numa.util.slabReclaimable
 mem.numa.util.slabUnreclaimable
     inst [0 or "node0"] value 66648
     inst [1 or "node1"] value 68204
+
+mem.numa.util.swapCached
+    inst [0 or "node0"] value 0
+    inst [1 or "node1"] value 0
 
 mem.numa.util.total
     inst [0 or "node0"] value 4060992
