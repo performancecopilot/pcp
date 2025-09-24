@@ -1021,7 +1021,7 @@ in
 	;;
 
     brew)
-	echo >&2 "TODO: no list all packages method for brew"
+	brew list --formulae -1
 	;;
 
     *)

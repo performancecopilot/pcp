@@ -1,10 +1,13 @@
 name: macOS CI
-on: [push]
+on:
+  push:
 jobs:
   build:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.ref_name }}
       - name: Install Homebrew
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Update Homebrew
@@ -13,20 +16,25 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
-      - name: Install and verify setuptools
-        id: install-setuptools
+      - name: Install python deps
+        id: install-python-deps
         run: |
           python3 --version
           pip3 --version
-          pip3 install --upgrade pip setuptools wheel
+          pip3 install --upgrade pip
+          python3 -m venv pybuilddeps
+          source pybuilddeps/bin/activate
+          pip3 install setuptools wheel
           python3 -c "import setuptools; print(setuptools.__version__)"
+          python3 -m pip install lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests six
       - name: Install Homebrew deps
-        id: install-deps
+        id: install-brew-deps
         run: |
-          brew install gnu-tar pkg-config autoconf qt qt-creator
+          brew install autoconf unixodbc
       - name: Build on macOS
         id: Build
         run: |
+          source pybuilddeps/bin/activate
           xcodebuild -version
           ./Makepkgs -verbose
       - name: Debug on failure
@@ -34,7 +42,7 @@ jobs:
         run: |
           cat /Users/runner/work/pcp/pcp/Logs/pcp
       - name: Debug on Python installation failure
-        if: failure() && steps.install-python.conclusion == 'failure'
+        if: failure() && steps.install-python-deps.conclusion == 'failure'
         run: |
           echo "Python 3.13 installation failed. Collecting debug info..."
           brew --version
@@ -43,8 +51,8 @@ jobs:
           ls -la /usr/local/bin | grep python
           df -h
           brew list
-      - name: Debug on dependency installation failure
-        if: failure() && steps.install-deps.conclusion == 'failure'
+      - name: Debug on brew dependency installation failure
+        if: failure() && steps.install-brew-deps.conclusion == 'failure'
         run: |
           echo "Dependency installation failed. Collecting debug info..."
           brew --version
@@ -53,3 +61,26 @@ jobs:
           ls -la /usr/local/bin | grep python
           df -h
           brew list
+      # New steps for handling releases on version tags below
+      - name: Check if version tag
+        if: github.ref_type == 'tag'
+        id: check_tag
+        uses: actions-ecosystem/action-regex-match@v2
+        with:
+          text: ${{ github.ref_name }}
+          regex: '^[0-9]+\.[0-9]+\.[0-9]+$'
+          flags: g  # Global flag, but optional if just checking match
+      - name: Generate Github Summary - version tag detected
+        if: steps.check_tag.outputs.match != ''
+        run: |
+          echo "RELEASE DETECTED!" >> $GITHUB_STEP_SUMMARY
+      - name: Generate Github Summary - no version tag
+        if: steps.check_tag.outputs.match == ''
+        run: |
+          echo "Not a Release!" >> $GITHUB_STEP_SUMMARY
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: steps.check_tag.outputs.match != ''
+        with:
+          files: |
+              pcp-**/build/mac/pcp-*.dmg

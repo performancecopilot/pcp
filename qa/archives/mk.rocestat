@@ -60,6 +60,10 @@ log mandatory on 5 sec {
     rocestat.hw.VL15_dropped
     rocestat.hw.excessive_buffer_overrun_errors
     rocestat.hw.symbol_error
+    rocestat.hw.rp_cnp_handled
+    rocestat.hw.rp_cnp_ignored
+    rocestat.hw.np_cnp_sent
+    rocestat.hw.np_ecn_marked_roce_packets
     rocestat.lane.tx_bytes
     rocestat.lane.rx_bytes
     rocestat.lane.rx_pause

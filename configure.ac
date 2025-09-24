@@ -1014,7 +1014,7 @@ AC_OUTPUT
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
-AC_CHECK_PROGS(PYLINT, pylint, /bin/true)
+AC_CHECK_PROGS(PYLINT, pylint, /usr/bin/true)
 AC_SUBST(PYLINT)
 
 dnl check if python3 available for the build and runtime

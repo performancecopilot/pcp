@@ -409,7 +409,7 @@ disk.dev {
     total_rawactive	60:0:79
     aveq		60:0:47
     scheduler		60:0:59
-    capacity            60:0:87
+    capacity		60:0:87
     discard		60:0:88
     blkdiscard		60:0:89
     discard_bytes	60:0:90
@@ -514,12 +514,12 @@ disk.partitions {
     read_bytes		60:10:6
     write_bytes		60:10:7
     total_bytes		60:10:8
-    read_merge          60:10:9
-    write_merge         60:10:10
-    avactive            60:10:11
-    aveq                60:10:12
-    read_rawactive      60:10:13
-    write_rawactive     60:10:14
+    read_merge		60:10:9
+    write_merge		60:10:10
+    avactive		60:10:11
+    aveq		60:10:12
+    read_rawactive	60:10:13
+    write_rawactive	60:10:14
     total_rawactive	60:10:15
     capacity		60:10:16
     discard		60:10:17
@@ -551,7 +551,7 @@ disk.wwid {
     total_rawactive	60:92:79
     aveq		60:92:47
     scheduler		60:92:59
-    capacity            60:92:87
+    capacity		60:92:87
     discard		60:92:88
     blkdiscard		60:92:89
     discard_bytes	60:92:90
@@ -572,12 +572,12 @@ zram {
     read_bytes		60:86:6
     write_bytes		60:86:7
     total_bytes		60:86:8
-    read_merge          60:86:9
-    write_merge         60:86:10
-    avactive            60:86:11
-    aveq                60:86:12
-    read_rawactive      60:86:13
-    write_rawactive     60:86:14
+    read_merge		60:86:9
+    write_merge		60:86:10
+    avactive		60:86:11
+    aveq		60:86:12
+    read_rawactive	60:86:13
+    write_rawactive	60:86:14
     total_rawactive	60:86:15
     capacity		60:86:16
     discard		60:86:17
@@ -793,6 +793,13 @@ mem.numa.util {
     hugepagesTotalBytes	60:36:39
     hugepagesFreeBytes	60:36:40
     hugepagesSurpBytes	60:36:41
+    swapCached		60:36:42
+    kreclaimable	60:36:43
+    anonhugepages	60:36:44
+    shmemhugepages	60:36:45
+    shmempmdmapped	60:36:46
+    filehugepages	60:36:47
+    filepmdmapped	60:36:48
 }
 
 mem.numa.alloc {
@@ -1076,25 +1083,25 @@ network.ip {
     fragoks		60:14:16
     fragfails		60:14:17
     fragcreates		60:14:18
-    innoroutes          60:53:00
-    intruncatedpkts     60:53:01
-    inmcastpkts         60:53:02
-    outmcastpkts        60:53:03
-    inbcastpkts         60:53:04
-    outbcastpkts        60:53:05
-    inoctets            60:53:06
-    outoctets           60:53:07
-    inmcastoctets       60:53:08
-    outmcastoctets      60:53:09
-    inbcastoctets       60:53:10
-    outbcastoctets      60:53:11
-    csumerrors          60:53:12
-    noectpkts           60:53:13
-    ect1pkts            60:53:14
-    ect0pkts            60:53:15
-    cepkts              60:53:16
+    innoroutes		60:53:00
+    intruncatedpkts	60:53:01
+    inmcastpkts		60:53:02
+    outmcastpkts	60:53:03
+    inbcastpkts		60:53:04
+    outbcastpkts	60:53:05
+    inoctets		60:53:06
+    outoctets		60:53:07
+    inmcastoctets	60:53:08
+    outmcastoctets	60:53:09
+    inbcastoctets	60:53:10
+    outbcastoctets	60:53:11
+    csumerrors		60:53:12
+    noectpkts		60:53:13
+    ect1pkts		60:53:14
+    ect0pkts		60:53:15
+    cepkts		60:53:16
     reasmoverlaps	60:53:168
-    outtransmits		60:14:96
+    outtransmits	60:14:96
 }
 
 network.icmp {
@@ -1622,9 +1629,9 @@ filesys {
     freefiles		60:5:6
     mountdir		60:5:7
     full		60:5:8
-    blocksize           60:5:9
-    avail               60:5:10
-    readonly            60:5:11
+    blocksize		60:5:9
+    avail		60:5:10
+    readonly		60:5:11
     uuid		60:5:12
     type		60:5:13
 }
@@ -1891,10 +1898,10 @@ mem.vmstat {
 	pgrefill_dma32			60:28:65
 	pgrefill_movable		60:28:66
 	pgdeactivate			60:28:15
-	pgdemote_direct                 60:28:182
-	pgdemote_khugepaged             60:28:183
-	pgdemote_kswapd                 60:28:184
-	pgdemote_total                  60:28:185
+	pgdemote_direct			60:28:182
+	pgdemote_khugepaged		60:28:183
+	pgdemote_kswapd			60:28:184
+	pgdemote_total			60:28:185
 	pgfault				60:28:16
 	pgfree				60:28:13
 	pginodesteal			60:28:30
@@ -1904,8 +1911,8 @@ mem.vmstat {
 	pgmigrate_success		60:28:118
 	pgpgin				60:28:6
 	pgpgout				60:28:7
-	pgpromote_candidate             60:28:186
-	pgpromote_success               60:28:187
+	pgpromote_candidate		60:28:186
+	pgpromote_success		60:28:187
 	pgrefill_dma			60:28:20
 	pgrefill_high			60:28:18
 	pgrefill_normal			60:28:19
@@ -2083,11 +2090,11 @@ tty {
 }
 
 tty.serial {
-    tx      60:74:0
-    rx	    60:74:1
-    frame   60:74:2
-    parity  60:74:3
-    brk     60:74:4
-    overrun 60:74:5
-    irq	    60:74:6
+    tx			60:74:0
+    rx			60:74:1
+    frame		60:74:2
+    parity		60:74:3
+    brk			60:74:4
+    overrun		60:74:5
+    irq			60:74:6
 }

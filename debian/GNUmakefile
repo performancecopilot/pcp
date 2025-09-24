@@ -49,6 +49,10 @@ PCPIMPORTCOLLECTL = pcp-import-collectl2pcp
 PCPIMPORTCOLLECTL_FILES = pcp-import-collectl2pcp.install
 PCPIMPORTCOLLECTL_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-collectl2pcp
 
+PCPIMPORTGUIDELLM = pcp-import-guidellm2pcp
+PCPIMPORTGUIDELLM_FILES = pcp-import-guidellm2pcp.install
+PCPIMPORTGUIDELLM_DOC_DIR = $(PCP_DOC_DIR)/../pcp-import-guidellm2pcp
+
 PCPPMDAINFINIBAND = pcp-pmda-infiniband
 PCPPMDAINFINIBAND_FILES = pcp-pmda-infiniband.dirs pcp-pmda-infiniband.install
 PCPPMDAINFINIBAND_DOC_DIR = $(PCP_DOC_DIR)/../pcp-pmda-infiniband
@@ -300,6 +304,13 @@ ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(PCPIMPORTCOLLECTL_DOC_DIR)
 	$(INSTALL) -m 644 copyright $(PCPIMPORTCOLLECTL_DOC_DIR)
 	$(INSTALL) -m 644 changelog $(PCPIMPORTCOLLECTL_DOC_DIR)/changelog.Debian
+endif
+
+install-pcpimportguidellm: default
+ifeq ($(PACKAGE_DISTRIBUTION), debian)
+	$(INSTALL) -m 755 -d $(PCPIMPORTGUIDELLM_DOC_DIR)
+	$(INSTALL) -m 644 copyright $(PCPIMPORTGUIDELLM_DOC_DIR)
+	$(INSTALL) -m 644 changelog $(PCPIMPORTGUIDELLM_DOC_DIR)/changelog.Debian
 endif
 
 install-pcppmdainfiniband: default

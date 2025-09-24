@@ -1,0 +1,59 @@
+# PCP required package list for Darwin 24.6.0 arm64
+# created by nathans on Sun 21 Sep 2025 08:59:13 AEST
+#
+HdrHistogram_c
+JSON cpan
+Pillow-PIL pip3
+RediSearch
+Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
+Spreadsheet::WriteExcel cpan
+Spreadsheet::XLSX cpan
+Text::CSV_XS cpan
+XML::TokeParser cpan
+YAML::LibYAML cpan
+YAML::XS cpan
+autoconf
+bash
+bc
+bcc pip3
+bison
+cppcheck
+docker
+ed
+elasticsearch pip3
+flex
+gawk
+gdb
+grep
+httpd
+icu4c
+libuv
+libvirt
+libvirt-python pip3
+lxml pip3
+make
+mandoc
+mariadb
+memcached
+ncurses
+nmap
+openpyxl pip3
+pkg-config
+postgresql
+prometheus_client pip3
+psycopg2 pip3
+python
+qt
+readline
+requests pip3
+sed
+setuptools pip3
+six pip3
+smartmontools
+socat
+sqlite
+unbound
+valkey
+xz
+zstd
