@@ -19880,3 +19880,1486 @@ mem.zoneinfo.workingset_restore_file
 
 == done
 
+== Checking all mem metric values - meminfo-root-008.tgz
+
+mem.buddyinfo.pages
+No value(s) available!
+
+mem.buddyinfo.total
+No value(s) available!
+
+mem.freemem
+No value(s) available!
+
+mem.hugepages.free
+No value(s) available!
+
+mem.hugepages.overcommit
+No value(s) available!
+
+mem.hugepages.pagesize
+No value(s) available!
+
+mem.hugepages.reserved
+No value(s) available!
+
+mem.hugepages.surplus
+No value(s) available!
+
+mem.hugepages.totalsize
+No value(s) available!
+
+mem.ksm.full_scans
+    value 0
+
+mem.ksm.merge_across_nodes
+    value 0
+
+mem.ksm.pages_shared
+    value 0
+
+mem.ksm.pages_sharing
+    value 0
+
+mem.ksm.pages_to_scan
+    value 0
+
+mem.ksm.pages_unshared
+    value 0
+
+mem.ksm.pages_volatile
+    value 0
+
+mem.ksm.run_state
+    value 0
+
+mem.ksm.sleep_time
+    value 0
+
+mem.numa.alloc.foreign
+No value(s) available!
+
+mem.numa.alloc.hit
+No value(s) available!
+
+mem.numa.alloc.interleave_hit
+No value(s) available!
+
+mem.numa.alloc.local_node
+No value(s) available!
+
+mem.numa.alloc.miss
+No value(s) available!
+
+mem.numa.alloc.other_node
+No value(s) available!
+
+mem.numa.hugepages.free
+No value(s) available!
+
+mem.numa.hugepages.pagesize
+No value(s) available!
+
+mem.numa.hugepages.surplus
+No value(s) available!
+
+mem.numa.hugepages.totalsize
+No value(s) available!
+
+mem.numa.max_bandwidth
+No value(s) available!
+
+mem.numa.util.NFS_Unstable
+No value(s) available!
+
+mem.numa.util.active
+No value(s) available!
+
+mem.numa.util.active_anon
+No value(s) available!
+
+mem.numa.util.active_file
+No value(s) available!
+
+mem.numa.util.anonhugepages
+No value(s) available!
+
+mem.numa.util.anonpages
+No value(s) available!
+
+mem.numa.util.bounce
+No value(s) available!
+
+mem.numa.util.dirty
+No value(s) available!
+
+mem.numa.util.filePages
+No value(s) available!
+
+mem.numa.util.filehugepages
+No value(s) available!
+
+mem.numa.util.filepmdmapped
+No value(s) available!
+
+mem.numa.util.free
+No value(s) available!
+
+mem.numa.util.highFree
+No value(s) available!
+
+mem.numa.util.highTotal
+No value(s) available!
+
+mem.numa.util.hugepagesFree
+No value(s) available!
+
+mem.numa.util.hugepagesFreeBytes
+No value(s) available!
+
+mem.numa.util.hugepagesSurp
+No value(s) available!
+
+mem.numa.util.hugepagesSurpBytes
+No value(s) available!
+
+mem.numa.util.hugepagesTotal
+No value(s) available!
+
+mem.numa.util.hugepagesTotalBytes
+No value(s) available!
+
+mem.numa.util.inactive
+No value(s) available!
+
+mem.numa.util.inactive_anon
+No value(s) available!
+
+mem.numa.util.inactive_file
+No value(s) available!
+
+mem.numa.util.kernelStack
+No value(s) available!
+
+mem.numa.util.kreclaimable
+No value(s) available!
+
+mem.numa.util.lowFree
+No value(s) available!
+
+mem.numa.util.lowTotal
+No value(s) available!
+
+mem.numa.util.mapped
+No value(s) available!
+
+mem.numa.util.mlocked
+No value(s) available!
+
+mem.numa.util.pageTables
+No value(s) available!
+
+mem.numa.util.shmem
+No value(s) available!
+
+mem.numa.util.shmemhugepages
+No value(s) available!
+
+mem.numa.util.shmempmdmapped
+No value(s) available!
+
+mem.numa.util.slab
+No value(s) available!
+
+mem.numa.util.slabReclaimable
+No value(s) available!
+
+mem.numa.util.slabUnreclaimable
+No value(s) available!
+
+mem.numa.util.swapCached
+No value(s) available!
+
+mem.numa.util.total
+No value(s) available!
+
+mem.numa.util.unevictable
+No value(s) available!
+
+mem.numa.util.used
+No value(s) available!
+
+mem.numa.util.writeback
+No value(s) available!
+
+mem.numa.util.writebackTmp
+No value(s) available!
+
+mem.physmem
+No value(s) available!
+
+mem.slabinfo.objects.active
+No value(s) available!
+
+mem.slabinfo.objects.size
+No value(s) available!
+
+mem.slabinfo.objects.total
+No value(s) available!
+
+mem.slabinfo.slabs.active
+No value(s) available!
+
+mem.slabinfo.slabs.objects_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.pages_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.total
+No value(s) available!
+
+mem.slabinfo.slabs.total_size
+No value(s) available!
+
+mem.util.NFS_Unstable
+No value(s) available!
+
+mem.util.active
+No value(s) available!
+
+mem.util.active_anon
+No value(s) available!
+
+mem.util.active_file
+No value(s) available!
+
+mem.util.anonhugepages
+No value(s) available!
+
+mem.util.anonpages
+No value(s) available!
+
+mem.util.available
+No value(s) available!
+
+mem.util.bounce
+No value(s) available!
+
+mem.util.bufmem
+No value(s) available!
+
+mem.util.cache_clean
+No value(s) available!
+
+mem.util.cached
+No value(s) available!
+
+mem.util.cmafree
+No value(s) available!
+
+mem.util.cmatotal
+No value(s) available!
+
+mem.util.commitLimit
+No value(s) available!
+
+mem.util.committed_AS
+No value(s) available!
+
+mem.util.corrupthardware
+No value(s) available!
+
+mem.util.directMap1G
+No value(s) available!
+
+mem.util.directMap2M
+No value(s) available!
+
+mem.util.directMap4k
+No value(s) available!
+
+mem.util.dirty
+No value(s) available!
+
+mem.util.filehugepages
+No value(s) available!
+
+mem.util.filepmdmapped
+No value(s) available!
+
+mem.util.free
+No value(s) available!
+
+mem.util.highFree
+No value(s) available!
+
+mem.util.highTotal
+No value(s) available!
+
+mem.util.hugepagesFree
+No value(s) available!
+
+mem.util.hugepagesFreeBytes
+No value(s) available!
+
+mem.util.hugepagesRsvd
+No value(s) available!
+
+mem.util.hugepagesRsvdBytes
+No value(s) available!
+
+mem.util.hugepagesSurp
+No value(s) available!
+
+mem.util.hugepagesSurpBytes
+No value(s) available!
+
+mem.util.hugepagesTotal
+No value(s) available!
+
+mem.util.hugepagesTotalBytes
+No value(s) available!
+
+mem.util.hugetlb
+No value(s) available!
+
+mem.util.inactive
+No value(s) available!
+
+mem.util.inactive_anon
+No value(s) available!
+
+mem.util.inactive_file
+No value(s) available!
+
+mem.util.kernelStack
+No value(s) available!
+
+mem.util.kreclaimable
+No value(s) available!
+
+mem.util.lowFree
+No value(s) available!
+
+mem.util.lowTotal
+No value(s) available!
+
+mem.util.mapped
+No value(s) available!
+
+mem.util.mlocked
+No value(s) available!
+
+mem.util.mmap_copy
+No value(s) available!
+
+mem.util.other
+No value(s) available!
+
+mem.util.pageTables
+No value(s) available!
+
+mem.util.percpu
+No value(s) available!
+
+mem.util.quicklists
+No value(s) available!
+
+mem.util.reverseMaps
+No value(s) available!
+
+mem.util.shadowcallstack
+No value(s) available!
+
+mem.util.shared
+No value(s) available!
+
+mem.util.shmem
+No value(s) available!
+
+mem.util.shmemhugepages
+No value(s) available!
+
+mem.util.shmempmdmapped
+No value(s) available!
+
+mem.util.slab
+No value(s) available!
+
+mem.util.slabReclaimable
+No value(s) available!
+
+mem.util.slabUnreclaimable
+No value(s) available!
+
+mem.util.swapCached
+No value(s) available!
+
+mem.util.swapFree
+No value(s) available!
+
+mem.util.swapTotal
+No value(s) available!
+
+mem.util.unaccepted
+No value(s) available!
+
+mem.util.unevictable
+No value(s) available!
+
+mem.util.used
+No value(s) available!
+
+mem.util.vmallocChunk
+No value(s) available!
+
+mem.util.vmallocTotal
+No value(s) available!
+
+mem.util.vmallocUsed
+No value(s) available!
+
+mem.util.writeback
+No value(s) available!
+
+mem.util.zswap
+No value(s) available!
+
+mem.util.zswapped
+No value(s) available!
+
+mem.vmmemctl.current
+    value 0
+
+mem.vmmemctl.target
+    value 0
+
+mem.vmstat.allocstall
+No value(s) available!
+
+mem.vmstat.allocstall_dma
+No value(s) available!
+
+mem.vmstat.allocstall_dma32
+No value(s) available!
+
+mem.vmstat.allocstall_high
+No value(s) available!
+
+mem.vmstat.allocstall_movable
+No value(s) available!
+
+mem.vmstat.allocstall_normal
+No value(s) available!
+
+mem.vmstat.balloon_deflate
+No value(s) available!
+
+mem.vmstat.balloon_inflate
+No value(s) available!
+
+mem.vmstat.balloon_migrate
+No value(s) available!
+
+mem.vmstat.compact_blocks_moved
+No value(s) available!
+
+mem.vmstat.compact_daemon_free_scanned
+No value(s) available!
+
+mem.vmstat.compact_daemon_migrate_scanned
+No value(s) available!
+
+mem.vmstat.compact_daemon_wake
+No value(s) available!
+
+mem.vmstat.compact_fail
+No value(s) available!
+
+mem.vmstat.compact_free_scanned
+No value(s) available!
+
+mem.vmstat.compact_isolated
+No value(s) available!
+
+mem.vmstat.compact_migrate_scanned
+No value(s) available!
+
+mem.vmstat.compact_pagemigrate_failed
+No value(s) available!
+
+mem.vmstat.compact_pages_moved
+No value(s) available!
+
+mem.vmstat.compact_stall
+No value(s) available!
+
+mem.vmstat.compact_success
+No value(s) available!
+
+mem.vmstat.drop_pagecache
+No value(s) available!
+
+mem.vmstat.drop_slab
+No value(s) available!
+
+mem.vmstat.htlb_buddy_alloc_fail
+No value(s) available!
+
+mem.vmstat.htlb_buddy_alloc_success
+No value(s) available!
+
+mem.vmstat.kswapd_high_wmark_hit_quickly
+No value(s) available!
+
+mem.vmstat.kswapd_inodesteal
+No value(s) available!
+
+mem.vmstat.kswapd_low_wmark_hit_quickly
+No value(s) available!
+
+mem.vmstat.kswapd_skip_congestion_wait
+No value(s) available!
+
+mem.vmstat.kswapd_steal
+No value(s) available!
+
+mem.vmstat.nr_active_anon
+No value(s) available!
+
+mem.vmstat.nr_active_file
+No value(s) available!
+
+mem.vmstat.nr_anon_pages
+No value(s) available!
+
+mem.vmstat.nr_anon_transparent_hugepages
+No value(s) available!
+
+mem.vmstat.nr_bounce
+No value(s) available!
+
+mem.vmstat.nr_dirtied
+No value(s) available!
+
+mem.vmstat.nr_dirty
+No value(s) available!
+
+mem.vmstat.nr_dirty_background_threshold
+No value(s) available!
+
+mem.vmstat.nr_dirty_threshold
+No value(s) available!
+
+mem.vmstat.nr_file_hugepages
+No value(s) available!
+
+mem.vmstat.nr_file_pages
+No value(s) available!
+
+mem.vmstat.nr_file_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_acquired
+No value(s) available!
+
+mem.vmstat.nr_foll_pin_released
+No value(s) available!
+
+mem.vmstat.nr_free_cma
+No value(s) available!
+
+mem.vmstat.nr_free_pages
+No value(s) available!
+
+mem.vmstat.nr_inactive_anon
+No value(s) available!
+
+mem.vmstat.nr_inactive_file
+No value(s) available!
+
+mem.vmstat.nr_isolated_anon
+No value(s) available!
+
+mem.vmstat.nr_isolated_file
+No value(s) available!
+
+mem.vmstat.nr_kernel_misc_reclaimable
+No value(s) available!
+
+mem.vmstat.nr_kernel_stack
+No value(s) available!
+
+mem.vmstat.nr_mapped
+No value(s) available!
+
+mem.vmstat.nr_mlock
+No value(s) available!
+
+mem.vmstat.nr_page_table_pages
+No value(s) available!
+
+mem.vmstat.nr_pages_scanned
+No value(s) available!
+
+mem.vmstat.nr_shmem
+No value(s) available!
+
+mem.vmstat.nr_shmem_hugepages
+No value(s) available!
+
+mem.vmstat.nr_shmem_pmdmapped
+No value(s) available!
+
+mem.vmstat.nr_slab
+No value(s) available!
+
+mem.vmstat.nr_slab_reclaimable
+No value(s) available!
+
+mem.vmstat.nr_slab_unreclaimable
+No value(s) available!
+
+mem.vmstat.nr_unevictable
+No value(s) available!
+
+mem.vmstat.nr_unstable
+No value(s) available!
+
+mem.vmstat.nr_vmscan_immediate_reclaim
+No value(s) available!
+
+mem.vmstat.nr_vmscan_write
+No value(s) available!
+
+mem.vmstat.nr_writeback
+No value(s) available!
+
+mem.vmstat.nr_writeback_temp
+No value(s) available!
+
+mem.vmstat.nr_written
+No value(s) available!
+
+mem.vmstat.nr_zone_active_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_active_file
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_anon
+No value(s) available!
+
+mem.vmstat.nr_zone_inactive_file
+No value(s) available!
+
+mem.vmstat.nr_zone_unevictable
+No value(s) available!
+
+mem.vmstat.nr_zone_write_pending
+No value(s) available!
+
+mem.vmstat.nr_zspages
+No value(s) available!
+
+mem.vmstat.numa_foreign
+No value(s) available!
+
+mem.vmstat.numa_hint_faults
+No value(s) available!
+
+mem.vmstat.numa_hint_faults_local
+No value(s) available!
+
+mem.vmstat.numa_hit
+No value(s) available!
+
+mem.vmstat.numa_huge_pte_updates
+No value(s) available!
+
+mem.vmstat.numa_interleave
+No value(s) available!
+
+mem.vmstat.numa_local
+No value(s) available!
+
+mem.vmstat.numa_miss
+No value(s) available!
+
+mem.vmstat.numa_other
+No value(s) available!
+
+mem.vmstat.numa_pages_migrated
+No value(s) available!
+
+mem.vmstat.numa_pte_updates
+No value(s) available!
+
+mem.vmstat.oom_kill
+No value(s) available!
+
+mem.vmstat.pageoutrun
+No value(s) available!
+
+mem.vmstat.pgactivate
+No value(s) available!
+
+mem.vmstat.pgalloc_dma
+No value(s) available!
+
+mem.vmstat.pgalloc_dma32
+No value(s) available!
+
+mem.vmstat.pgalloc_high
+No value(s) available!
+
+mem.vmstat.pgalloc_movable
+No value(s) available!
+
+mem.vmstat.pgalloc_normal
+No value(s) available!
+
+mem.vmstat.pgdeactivate
+No value(s) available!
+
+mem.vmstat.pgdemote_direct
+No value(s) available!
+
+mem.vmstat.pgdemote_khugepaged
+No value(s) available!
+
+mem.vmstat.pgdemote_kswapd
+No value(s) available!
+
+mem.vmstat.pgdemote_total
+No value(s) available!
+
+mem.vmstat.pgfault
+No value(s) available!
+
+mem.vmstat.pgfree
+No value(s) available!
+
+mem.vmstat.pginodesteal
+No value(s) available!
+
+mem.vmstat.pglazyfreed
+No value(s) available!
+
+mem.vmstat.pgmajfault
+No value(s) available!
+
+mem.vmstat.pgmigrate_fail
+No value(s) available!
+
+mem.vmstat.pgmigrate_success
+No value(s) available!
+
+mem.vmstat.pgpgin
+No value(s) available!
+
+mem.vmstat.pgpgout
+No value(s) available!
+
+mem.vmstat.pgpromote_candidate
+No value(s) available!
+
+mem.vmstat.pgpromote_success
+No value(s) available!
+
+mem.vmstat.pgrefill_dma
+No value(s) available!
+
+mem.vmstat.pgrefill_dma32
+No value(s) available!
+
+mem.vmstat.pgrefill_high
+No value(s) available!
+
+mem.vmstat.pgrefill_movable
+No value(s) available!
+
+mem.vmstat.pgrefill_normal
+No value(s) available!
+
+mem.vmstat.pgrotated
+No value(s) available!
+
+mem.vmstat.pgscan_anon
+No value(s) available!
+
+mem.vmstat.pgscan_direct
+No value(s) available!
+
+mem.vmstat.pgscan_direct_dma
+No value(s) available!
+
+mem.vmstat.pgscan_direct_dma32
+No value(s) available!
+
+mem.vmstat.pgscan_direct_high
+No value(s) available!
+
+mem.vmstat.pgscan_direct_movable
+No value(s) available!
+
+mem.vmstat.pgscan_direct_normal
+No value(s) available!
+
+mem.vmstat.pgscan_direct_throttle
+No value(s) available!
+
+mem.vmstat.pgscan_direct_total
+No value(s) available!
+
+mem.vmstat.pgscan_file
+No value(s) available!
+
+mem.vmstat.pgscan_khugepaged
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_dma
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_dma32
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_high
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_movable
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_normal
+No value(s) available!
+
+mem.vmstat.pgscan_kswapd_total
+No value(s) available!
+
+mem.vmstat.pgsteal_anon
+No value(s) available!
+
+mem.vmstat.pgsteal_direct
+No value(s) available!
+
+mem.vmstat.pgsteal_direct_dma
+No value(s) available!
+
+mem.vmstat.pgsteal_direct_dma32
+No value(s) available!
+
+mem.vmstat.pgsteal_direct_movable
+No value(s) available!
+
+mem.vmstat.pgsteal_direct_normal
+No value(s) available!
+
+mem.vmstat.pgsteal_dma
+No value(s) available!
+
+mem.vmstat.pgsteal_dma32
+No value(s) available!
+
+mem.vmstat.pgsteal_file
+No value(s) available!
+
+mem.vmstat.pgsteal_high
+No value(s) available!
+
+mem.vmstat.pgsteal_khugepaged
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_dma
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_dma32
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_movable
+No value(s) available!
+
+mem.vmstat.pgsteal_kswapd_normal
+No value(s) available!
+
+mem.vmstat.pgsteal_movable
+No value(s) available!
+
+mem.vmstat.pgsteal_normal
+No value(s) available!
+
+mem.vmstat.pgsteal_total
+No value(s) available!
+
+mem.vmstat.pswpin
+No value(s) available!
+
+mem.vmstat.pswpout
+No value(s) available!
+
+mem.vmstat.slabs_scanned
+No value(s) available!
+
+mem.vmstat.swap_ra
+No value(s) available!
+
+mem.vmstat.swap_ra_hit
+No value(s) available!
+
+mem.vmstat.thp_collapse_alloc
+No value(s) available!
+
+mem.vmstat.thp_collapse_alloc_failed
+No value(s) available!
+
+mem.vmstat.thp_deferred_split_page
+No value(s) available!
+
+mem.vmstat.thp_fault_alloc
+No value(s) available!
+
+mem.vmstat.thp_fault_fallback
+No value(s) available!
+
+mem.vmstat.thp_fault_fallback_charge
+No value(s) available!
+
+mem.vmstat.thp_file_alloc
+No value(s) available!
+
+mem.vmstat.thp_file_mapped
+No value(s) available!
+
+mem.vmstat.thp_split
+No value(s) available!
+
+mem.vmstat.thp_split_page
+No value(s) available!
+
+mem.vmstat.thp_split_page_failed
+No value(s) available!
+
+mem.vmstat.thp_split_pmd
+No value(s) available!
+
+mem.vmstat.thp_split_pud
+No value(s) available!
+
+mem.vmstat.thp_swpout
+No value(s) available!
+
+mem.vmstat.thp_swpout_fallback
+No value(s) available!
+
+mem.vmstat.thp_zero_page_alloc
+No value(s) available!
+
+mem.vmstat.thp_zero_page_alloc_failed
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_cleared
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_culled
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_mlocked
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_mlockfreed
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_munlocked
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_rescued
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_scanned
+No value(s) available!
+
+mem.vmstat.unevictable_pgs_stranded
+No value(s) available!
+
+mem.vmstat.workingset_activate
+No value(s) available!
+
+mem.vmstat.workingset_nodereclaim
+No value(s) available!
+
+mem.vmstat.workingset_nodes
+No value(s) available!
+
+mem.vmstat.workingset_refault
+No value(s) available!
+
+mem.vmstat.workingset_restore
+No value(s) available!
+
+mem.vmstat.zone_reclaim_failed
+No value(s) available!
+
+mem.zoneinfo.cma
+No value(s) available!
+
+mem.zoneinfo.free
+No value(s) available!
+
+mem.zoneinfo.high
+No value(s) available!
+
+mem.zoneinfo.low
+No value(s) available!
+
+mem.zoneinfo.managed
+No value(s) available!
+
+mem.zoneinfo.min
+No value(s) available!
+
+mem.zoneinfo.nr_active_anon
+No value(s) available!
+
+mem.zoneinfo.nr_active_file
+No value(s) available!
+
+mem.zoneinfo.nr_alloc_batch
+No value(s) available!
+
+mem.zoneinfo.nr_anon_pages
+No value(s) available!
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+No value(s) available!
+
+mem.zoneinfo.nr_bounce
+No value(s) available!
+
+mem.zoneinfo.nr_dirtied
+No value(s) available!
+
+mem.zoneinfo.nr_dirty
+No value(s) available!
+
+mem.zoneinfo.nr_file_hugepages
+No value(s) available!
+
+mem.zoneinfo.nr_file_pages
+No value(s) available!
+
+mem.zoneinfo.nr_file_pmdmapped
+No value(s) available!
+
+mem.zoneinfo.nr_foll_pin_acquired
+No value(s) available!
+
+mem.zoneinfo.nr_foll_pin_released
+No value(s) available!
+
+mem.zoneinfo.nr_free_cma
+No value(s) available!
+
+mem.zoneinfo.nr_free_pages
+No value(s) available!
+
+mem.zoneinfo.nr_inactive_anon
+No value(s) available!
+
+mem.zoneinfo.nr_inactive_file
+No value(s) available!
+
+mem.zoneinfo.nr_isolated_anon
+No value(s) available!
+
+mem.zoneinfo.nr_isolated_file
+No value(s) available!
+
+mem.zoneinfo.nr_kernel_misc_reclaimable
+No value(s) available!
+
+mem.zoneinfo.nr_kernel_stack
+No value(s) available!
+
+mem.zoneinfo.nr_mapped
+No value(s) available!
+
+mem.zoneinfo.nr_mlock
+No value(s) available!
+
+mem.zoneinfo.nr_page_table_pages
+No value(s) available!
+
+mem.zoneinfo.nr_shmem
+No value(s) available!
+
+mem.zoneinfo.nr_shmem_hugepages
+No value(s) available!
+
+mem.zoneinfo.nr_shmem_pmdmapped
+No value(s) available!
+
+mem.zoneinfo.nr_slab_reclaimable
+No value(s) available!
+
+mem.zoneinfo.nr_slab_unreclaimable
+No value(s) available!
+
+mem.zoneinfo.nr_swapcached
+No value(s) available!
+
+mem.zoneinfo.nr_unevictable
+No value(s) available!
+
+mem.zoneinfo.nr_unstable
+No value(s) available!
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+No value(s) available!
+
+mem.zoneinfo.nr_vmscan_write
+No value(s) available!
+
+mem.zoneinfo.nr_writeback
+No value(s) available!
+
+mem.zoneinfo.nr_writeback_temp
+No value(s) available!
+
+mem.zoneinfo.nr_written
+No value(s) available!
+
+mem.zoneinfo.nr_zone_active_anon
+No value(s) available!
+
+mem.zoneinfo.nr_zone_active_file
+No value(s) available!
+
+mem.zoneinfo.nr_zone_inactive_anon
+No value(s) available!
+
+mem.zoneinfo.nr_zone_inactive_file
+No value(s) available!
+
+mem.zoneinfo.nr_zone_unevictable
+No value(s) available!
+
+mem.zoneinfo.nr_zone_write_pending
+No value(s) available!
+
+mem.zoneinfo.nr_zspages
+No value(s) available!
+
+mem.zoneinfo.numa_foreign
+No value(s) available!
+
+mem.zoneinfo.numa_hit
+No value(s) available!
+
+mem.zoneinfo.numa_interleave
+No value(s) available!
+
+mem.zoneinfo.numa_local
+No value(s) available!
+
+mem.zoneinfo.numa_miss
+No value(s) available!
+
+mem.zoneinfo.numa_other
+No value(s) available!
+
+mem.zoneinfo.present
+No value(s) available!
+
+mem.zoneinfo.protection
+No value(s) available!
+
+mem.zoneinfo.scanned
+No value(s) available!
+
+mem.zoneinfo.spanned
+No value(s) available!
+
+mem.zoneinfo.workingset_activate
+No value(s) available!
+
+mem.zoneinfo.workingset_active_anon
+No value(s) available!
+
+mem.zoneinfo.workingset_active_file
+No value(s) available!
+
+mem.zoneinfo.workingset_nodereclaim
+No value(s) available!
+
+mem.zoneinfo.workingset_refault
+No value(s) available!
+
+mem.zoneinfo.workingset_refault_anon
+No value(s) available!
+
+mem.zoneinfo.workingset_refault_file
+No value(s) available!
+
+mem.zoneinfo.workingset_restore_anon
+No value(s) available!
+
+mem.zoneinfo.workingset_restore_file
+No value(s) available!
+
+== done
+
+== Checking slabinfo metric values - meminfo-root-008.tgz
+
+mem.slabinfo.objects.active
+No value(s) available!
+
+mem.slabinfo.objects.size
+No value(s) available!
+
+mem.slabinfo.objects.total
+No value(s) available!
+
+mem.slabinfo.slabs.active
+No value(s) available!
+
+mem.slabinfo.slabs.objects_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.pages_per_slab
+No value(s) available!
+
+mem.slabinfo.slabs.total
+No value(s) available!
+
+mem.slabinfo.slabs.total_size
+No value(s) available!
+
+== done
+
+== Checking buddyinfo metric values - meminfo-root-008.tgz
+
+mem.buddyinfo.pages
+No value(s) available!
+
+mem.buddyinfo.total
+No value(s) available!
+
+== done
+
+== Checking zoneinfo metric values - meminfo-root-008.tgz
+
+mem.zoneinfo.cma
+No value(s) available!
+
+mem.zoneinfo.free
+No value(s) available!
+
+mem.zoneinfo.high
+No value(s) available!
+
+mem.zoneinfo.low
+No value(s) available!
+
+mem.zoneinfo.managed
+No value(s) available!
+
+mem.zoneinfo.min
+No value(s) available!
+
+mem.zoneinfo.nr_active_anon
+No value(s) available!
+
+mem.zoneinfo.nr_active_file
+No value(s) available!
+
+mem.zoneinfo.nr_alloc_batch
+No value(s) available!
+
+mem.zoneinfo.nr_anon_pages
+No value(s) available!
+
+mem.zoneinfo.nr_anon_transparent_hugepages
+No value(s) available!
+
+mem.zoneinfo.nr_bounce
+No value(s) available!
+
+mem.zoneinfo.nr_dirtied
+No value(s) available!
+
+mem.zoneinfo.nr_dirty
+No value(s) available!
+
+mem.zoneinfo.nr_file_hugepages
+No value(s) available!
+
+mem.zoneinfo.nr_file_pages
+No value(s) available!
+
+mem.zoneinfo.nr_file_pmdmapped
+No value(s) available!
+
+mem.zoneinfo.nr_foll_pin_acquired
+No value(s) available!
+
+mem.zoneinfo.nr_foll_pin_released
+No value(s) available!
+
+mem.zoneinfo.nr_free_cma
+No value(s) available!
+
+mem.zoneinfo.nr_free_pages
+No value(s) available!
+
+mem.zoneinfo.nr_inactive_anon
+No value(s) available!
+
+mem.zoneinfo.nr_inactive_file
+No value(s) available!
+
+mem.zoneinfo.nr_isolated_anon
+No value(s) available!
+
+mem.zoneinfo.nr_isolated_file
+No value(s) available!
+
+mem.zoneinfo.nr_kernel_misc_reclaimable
+No value(s) available!
+
+mem.zoneinfo.nr_kernel_stack
+No value(s) available!
+
+mem.zoneinfo.nr_mapped
+No value(s) available!
+
+mem.zoneinfo.nr_mlock
+No value(s) available!
+
+mem.zoneinfo.nr_page_table_pages
+No value(s) available!
+
+mem.zoneinfo.nr_shmem
+No value(s) available!
+
+mem.zoneinfo.nr_shmem_hugepages
+No value(s) available!
+
+mem.zoneinfo.nr_shmem_pmdmapped
+No value(s) available!
+
+mem.zoneinfo.nr_slab_reclaimable
+No value(s) available!
+
+mem.zoneinfo.nr_slab_unreclaimable
+No value(s) available!
+
+mem.zoneinfo.nr_swapcached
+No value(s) available!
+
+mem.zoneinfo.nr_unevictable
+No value(s) available!
+
+mem.zoneinfo.nr_unstable
+No value(s) available!
+
+mem.zoneinfo.nr_vmscan_immediate_reclaim
+No value(s) available!
+
+mem.zoneinfo.nr_vmscan_write
+No value(s) available!
+
+mem.zoneinfo.nr_writeback
+No value(s) available!
+
+mem.zoneinfo.nr_writeback_temp
+No value(s) available!
+
+mem.zoneinfo.nr_written
+No value(s) available!
+
+mem.zoneinfo.nr_zone_active_anon
+No value(s) available!
+
+mem.zoneinfo.nr_zone_active_file
+No value(s) available!
+
+mem.zoneinfo.nr_zone_inactive_anon
+No value(s) available!
+
+mem.zoneinfo.nr_zone_inactive_file
+No value(s) available!
+
+mem.zoneinfo.nr_zone_unevictable
+No value(s) available!
+
+mem.zoneinfo.nr_zone_write_pending
+No value(s) available!
+
+mem.zoneinfo.nr_zspages
+No value(s) available!
+
+mem.zoneinfo.numa_foreign
+No value(s) available!
+
+mem.zoneinfo.numa_hit
+No value(s) available!
+
+mem.zoneinfo.numa_interleave
+No value(s) available!
+
+mem.zoneinfo.numa_local
+No value(s) available!
+
+mem.zoneinfo.numa_miss
+No value(s) available!
+
+mem.zoneinfo.numa_other
+No value(s) available!
+
+mem.zoneinfo.present
+No value(s) available!
+
+mem.zoneinfo.protection
+No value(s) available!
+
+mem.zoneinfo.scanned
+No value(s) available!
+
+mem.zoneinfo.spanned
+No value(s) available!
+
+mem.zoneinfo.workingset_activate
+No value(s) available!
+
+mem.zoneinfo.workingset_active_anon
+No value(s) available!
+
+mem.zoneinfo.workingset_active_file
+No value(s) available!
+
+mem.zoneinfo.workingset_nodereclaim
+No value(s) available!
+
+mem.zoneinfo.workingset_refault
+No value(s) available!
+
+mem.zoneinfo.workingset_refault_anon
+No value(s) available!
+
+mem.zoneinfo.workingset_refault_file
+No value(s) available!
+
+mem.zoneinfo.workingset_restore_anon
+No value(s) available!
+
+mem.zoneinfo.workingset_restore_file
+No value(s) available!
+
+== done
+
