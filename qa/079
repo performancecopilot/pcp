@@ -40,20 +40,25 @@ echo ""
 TZ=EST-10
 export TZ
 echo "Local time, TZ=$TZ"
-pmclient -a $ARCH | _filter
+pmclient -a $ARCH 2>&1 >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter
 
 echo ""
 echo "-Z UTC"
-pmclient -a $ARCH -Z UTC | _filter
+pmclient -a $ARCH -Z UTC >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter
 
 echo ""
 echo "-Z PDT8"
-pmclient -a $ARCH -Z PDT8 | _filter
+pmclient -a $ARCH -Z PDT8 >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter
 
 echo ""
 echo "local time at collection host"
-pmclient -a $ARCH -z | _filter
+pmclient -a $ARCH -z >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter
 
 echo ""
 echo "and again, but skip 15 seconds"
-pmclient -a $ARCH -S 15 -z | _filter
+pmclient -a $ARCH -S 15 -z >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out | _filter
