@@ -78,7 +78,6 @@ children of "" ...
     pmda                <s = 1>
     sample              <s = 1>
     sampledso           <s = 1>
-    zfs                 <s = 1>
     zpool               <s = 1>
 
 Real-time result ...

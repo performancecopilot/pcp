@@ -325,8 +325,6 @@ PCP_CALL extern int fsync(int);
 PCP_CALL extern int symlink(const char *, const char *);
 PCP_CALL extern int readlink(const char *, char *, size_t);
 PCP_CALL extern void setlinebuf(FILE *);
-PCP_CALL extern char *index(const char *, int);
-PCP_CALL extern char *rindex(const char *, int);
 PCP_CALL extern char *strcasestr(const char *, const char *);
 PCP_CALL extern char *strsep(char **, const char *);
 PCP_CALL extern long int lrand48(void);

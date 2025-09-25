@@ -75,11 +75,6 @@ else
 CFILES += win32.c
 endif
 
-ifeq "$(TARGET_OS)" "solaris"
-# enables standards compliant thread-safe interfaces (accounts.c)
-LCFLAGS += -D_POSIX_PTHREAD_SEMANTICS
-endif
-
 ifeq "$(LIB_FOR_BASENAME)" "-lpcp"
 # don't need to be linked to myself in this case!
 LIB_FOR_BASENAME =

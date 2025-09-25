@@ -95,7 +95,7 @@ fi
 
 # need to handle compression suffixes at the end of a file name
 #
-eval `pmconfig -L -s compress_suffixes`
+eval `$PCP_BINADM_DIR/pmconfig -L -s compress_suffixes`
 if [ -n "$compress_suffixes" ]
 then
     pat=`echo $compress_suffixes | sed -e 's/\.//g' -e 's/ /|/g' -e 's/^/(/' -e 's/$/)/'`

@@ -8,9 +8,7 @@
 
 #include <pcp/pmapi.h>
 #include "libpcp.h"
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
+#include <string.h>
 
 static int	nmetric;		/* for metric ... args */
 static char	**name = NULL;
@@ -183,7 +181,7 @@ main(int argc, char **argv)
 
 	case 'i':	/* list of external instance names */
 	    q = optarg;
-	    while ((q = index(optarg, ',')) != NULL) {
+	    while ((q = strchr(optarg, ',')) != NULL) {
 		ninst++;
 		instname = (char **)realloc(instname, (ninst+1)*sizeof(instname[0]));
 		if (instname == NULL) {

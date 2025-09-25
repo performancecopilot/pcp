@@ -1048,10 +1048,10 @@ static int
 mmv_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     mmv_disk_string_t	*str;
-    mmv_disk_value_t	*v;
+    mmv_disk_value_t	*v = NULL;	/* pander to gcc */
     __uint64_t		offset;
     agent_t		*ap = (agent_t *)mdesc->m_user;
-    stats_t		*s;
+    stats_t		*s = NULL;	/* pander to gcc */
     pmID		pmid = mdesc->m_desc.pmid;
     int			sts, flags;
 
@@ -1262,7 +1262,7 @@ static int
 mmv_lookup_metric_helptext(agent_t *ap, pmID pmid, int type, char **text)
 {
     __uint64_t		st, lt;
-    stats_t		*s;
+    stats_t		*s = NULL;	/* pander to gcc */
 
     if (mmv_lookup_stat_metric(ap, pmid, PM_IN_NULL, &s, NULL, &st, &lt) < 0)
 	return PM_ERR_PMID;

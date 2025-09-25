@@ -1014,7 +1014,7 @@ AC_OUTPUT
 AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
-AC_CHECK_PROGS(PYLINT, pylint, /usr/bin/true)
+AC_CHECK_PROGS(PYLINT, pylint, true)
 AC_SUBST(PYLINT)
 
 dnl check if python3 available for the build and runtime
@@ -1616,7 +1616,7 @@ AS_IF([test "x$do_qt" != "xno"], [
     then
 	dnl NB: no longer use qtchooser, its deprecated and doesn't work for
 	dnl the second of two options we wish to support - Qt5 and Qt6.
-	export QTPATHS="/usr/lib64/qt6/bin:/usr/lib/qt6/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin"
+	export QTPATHS="/usr/lib64/qt6/bin:/usr/lib/qt6/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/bin/amd64"
 	if test -n "$QTDIR"
 	then
 	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt6.sh qmake6 qmake-qt5.sh qmake-qt5],,
@@ -1625,7 +1625,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt6.sh qmake6 qmake-qt5.sh qmake-qt5],,
 			  [/usr/bin:$QTPATHS:/usr/local/bin])
 	fi
-	test "x$cc_is_gcc" = xyes -a $target_os = solaris && QMAKE="$QMAKE -spec solaris-g++"
+	test "x$cc_is_gcc" = xyes -a $target_os = solaris -a -n "$QMAKE" && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"

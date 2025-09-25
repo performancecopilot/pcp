@@ -123,7 +123,7 @@ then
     then
 	if grep 'Red Hat.* release 7\.' /etc/system-release >/dev/null
 	then
-	    configopts="$configopts --with-python=check"
+	    configopts="$configopts --with-python3=check"
 	fi
     fi
 elif [ $target = darwin ]
@@ -147,27 +147,27 @@ then
 	9.3*)
 		# default case, just without python
 		#
-		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=no"
+		configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python3=no"
 		;;
 	10.*|11.*)
 		# Bog-standard, just without python2
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python3=no --prefix=/usr"
 		;;
 	12.*)
 		# Bog-standard, just without python2 and static-probes
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python3=no --with-static-probes=no --prefix=/usr"
 		;;
 	13.*)
 		# Bog-standard, just without python2 and qt and static-probes
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-qt=no --with-static-probes=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python3=no --with-qt=no --with-static-probes=no --prefix=/usr"
 		;;
 	14.*)
 		# Bog-standard, just without python2 and static-probes
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python=no --with-static-probes=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --with-python3=no --with-static-probes=no --prefix=/usr"
 		;;
 	*)
 		# default case, as below ...
@@ -179,7 +179,7 @@ elif [ $target = sunos ]
 then
     # Need to take control of the Python versions, otherwise standard.
     #
-    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python=no --with-python3=check"
+    configopts="--prefix=/usr --sysconfdir=/etc --localstatedir=/var --with-python3=check"
 else
     # default case, we know no better
     #

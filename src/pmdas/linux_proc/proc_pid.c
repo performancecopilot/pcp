@@ -867,7 +867,7 @@ refresh_proc_pidlist(proc_pid_t *proc_pid, proc_pid_list_t *pids, proc_runq_t *r
 	    }
 
 	    if ((ep->name = strdup(buf)) != NULL)
-		ep->psargs = index(ep->name, ' ') + 1;
+		ep->psargs = strchr(ep->name, ' ') + 1;
 	    else
 		ep->psargs = NULL;
 
@@ -1557,7 +1557,7 @@ parse_proc_status(proc_pid_entry_t *ep, size_t buflen, char *buf)
 			fputc(*p, stderr);
 		    fputc('\n', stderr);
 		}
-		curline = index(curline, '\n');
+		curline = strchr(curline, '\n');
 	}
 	if (curline != NULL) curline++;
     }
@@ -1782,7 +1782,7 @@ parse_proc_io(proc_pid_entry_t *ep, size_t buflen, char *buf)
 		    fputc(*p, stderr);
 		fputc('\n', stderr);
 	    }
-	    curline = index(curline, '\n');
+	    curline = strchr(curline, '\n');
 	}
 	if (curline != NULL) curline++;
     }
@@ -1921,7 +1921,7 @@ parse_proc_smaps(proc_pid_entry_t *ep, size_t buflen, char *buf)
 		fputc('\n', stderr);
 	    }
 	}
-	curline = index(curline, '\n');	/* skips any kB suffix */
+	curline = strchr(curline, '\n');	/* skips any kB suffix */
 	if (curline != NULL) curline++;
     }
 }
@@ -2311,7 +2311,7 @@ parse_proc_fdinfo(proc_pid_fdinfo_t *fdinfo, size_t buflen, char *buf)
 	case 'd':
 	  if (strncmp(curline, "drm-driver:", 11) == 0) {
 	      char *c = curline + 11;
-	      char const *n = index(curline, '\n');
+	      char const *n = strchr(curline, '\n');
 	      size_t size = sizeof(fdinfo->drm_driver) - 1;
 
 	      while (isspace(*c))
@@ -2326,7 +2326,7 @@ parse_proc_fdinfo(proc_pid_fdinfo_t *fdinfo, size_t buflen, char *buf)
 	      fdinfo->drm_client_id = strtoull(curline + 14, &curline, 0);
 	  else if (strncmp(curline, "drm-pdev:", 9) == 0) {
 	      char *c = curline + 9;
-	      char const *n = index(curline, '\n');
+	      char const *n = strchr(curline, '\n');
 	      size_t size = sizeof(fdinfo->drm_driver) - 1;
 
 	      while (isspace(*c))
@@ -2372,7 +2372,7 @@ parse_proc_fdinfo(proc_pid_fdinfo_t *fdinfo, size_t buflen, char *buf)
 		fputc('\n', stderr);
 	    }
 	}
-	curline = index(curline, '\n');	/* skips any kiB suffix */
+	curline = strchr(curline, '\n');	/* skips any kiB suffix */
 	if (curline != NULL) curline++;
     }
 }

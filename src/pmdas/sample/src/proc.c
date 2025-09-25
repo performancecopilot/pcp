@@ -20,6 +20,7 @@
 
 #include <pcp/pmapi.h>
 #include <pcp/pmda.h>
+#include <string.h>
 
 static int ordinal;
 
@@ -175,7 +176,7 @@ proc_redo_indom(pmdaIndom *idp)
 		k_2 = (k_2 + 1) % n_2;
 		k_3 = (k_3 + 1) % n_3;
 	    }
-	    proctab[i].exec = rindex(proctab[i].iname, '/');
+	    proctab[i].exec = strrchr(proctab[i].iname, '/');
 	    if (proctab[i].exec == NULL) {
 		/* no embedded slash */
 		proctab[i].exec = proctab[i].iname;
@@ -224,7 +225,7 @@ proc_redo_indom(pmdaIndom *idp)
 		k_1 = (k_1 + 1) % n_1;
 		k_2 = (k_2 + 1) % n_2;
 		k_3 = (k_3 + 1) % n_3;
-		proctab[i].exec = rindex(proctab[i].iname, '/');
+		proctab[i].exec = strrchr(proctab[i].iname, '/');
 		proctab[i].exec++;
 		idp->it_set[j].i_name = proctab[i].iname;
 		idp->it_numinst++;

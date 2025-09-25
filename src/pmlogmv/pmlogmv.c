@@ -85,7 +85,7 @@ check_name(char *name)
     char	*p;
 
     for (p = meta; *p; p++) {
-	if (index(name, *p) != NULL) {
+	if (strchr(name, *p) != NULL) {
 	    fprintf(stderr, "%s: dstname (%s) unsafe [shell metacharacter '%c']\n", progname, name, *p);
 	    return -1;
 	}

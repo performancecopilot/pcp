@@ -4,7 +4,7 @@
 #
 
 TOPDIR=../..
-eval `sed -n '/^TAR[ 	]*=/s/ //g' <$TOPDIR/src/include/builddefs`
+eval `sed -n '/^TAR[ 	]*=/s/[ 	]//gp' <$TOPDIR/src/include/builddefs`
 
 DIST_ROOT="$1"
 

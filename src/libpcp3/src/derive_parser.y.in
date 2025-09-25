@@ -40,6 +40,7 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+#include <string.h>
 #include "derive.h"
 
 #define YYDEBUG 1
@@ -227,7 +228,7 @@ __dminit_parse(const char *path, int recover)
     int		sts = 0;
     int		lsts;
 
-    while ((q = index(p, ':')) != NULL) {
+    while ((q = strchr(p, ':')) != NULL) {
 	char	*name = strndup(p, q-p+1);
 	name[q-p] = '\0';
 	lsts = __dminit_component(name, 1, recover);

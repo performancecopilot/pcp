@@ -20,7 +20,7 @@ then
     export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
 fi
 
-pmconfig -L | grep lock_debug=true >/dev/null || _notrun libpcp not built with -DPM_MULTI_THREAD_DEBUG
+$PCP_BINADM_DIR/pmconfig -L | grep lock_debug=true >/dev/null || _notrun libpcp not built with -DPM_MULTI_THREAD_DEBUG
 
 _cleanup()
 {

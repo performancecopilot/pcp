@@ -2802,7 +2802,7 @@ _change_config()
 	    then
 		if [ "$2" = on ]
 		then
-		    __state=`svcs -l svc:/application/pcp/$__pat | sed -n '/^state[ 	]/s///p'`
+		    __state=`svcs -l svc:/application/pcp/$__pat | sed -n '/^state[ 	].*/s///p'`
 		    [ -n "$__state" -a "$__state" != "online" ] \
 			&& $sudo svcadm clear svc:/application/pcp/$__pat
 		    $sudo svcadm enable svc:/application/pcp/$__pat
@@ -3396,7 +3396,7 @@ _get_primary_logger_pid()
 
 _get_libpcp_config()
 {
-    pmconfig -L -s > $tmp.config
+    $PCP_BINADM_DIR/pmconfig -L -s > $tmp.config
     . $tmp.config
     rm $tmp.config
 }

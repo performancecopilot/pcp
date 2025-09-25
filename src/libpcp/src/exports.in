@@ -7,11 +7,12 @@
 #    ...
 #    #endif
 #    where <name> is one of the values for $PCP_PLATFORM from pcp.conf
+#    or <name> is one of the ENABLE_* makefile variables from builddefs;
+#    in the latter case if the variable has the value "true" in buildefs
+#    then the #if -- #endif block here is included
 #
 PCP_4.0 {
   global:
-    __htonpmTimestamp;
-    __ntohpmTimestamp;
     __pmAFblock;
     __pmAFisempty;
     __pmAFregister;
@@ -157,7 +158,6 @@ PCP_4.0 {
     __pmFerror;
     __pmFetch;
     __pmFetchArchive;
-    __pmFetchHighResLocal;
     __pmFetchLocal;
     __pmFflush;
     __pmFgetc;
@@ -202,7 +202,6 @@ PCP_4.0 {
     __pmGetLongOptions;
     __pmGetNameInfo;
     __pmGetPDU;
-    __pmGetPDUCeiling;
     __pmGetResultSize;
     __pmGetSecureConfig;
     __pmGetSockOpt;
@@ -219,7 +218,6 @@ PCP_4.0 {
     __pmHashSearch;
     __pmHashWalk;
     __pmHashWalkCB;
-    __pmHighResFinishResult;
     __pmHostEntFree;
     __pmHostEntGetName;
     __pmHostEntGetSockAddr;
@@ -285,7 +283,6 @@ PCP_4.0 {
     __pmLogPutDesc;
     __pmLogPutInDom;
     __pmLogPutIndex;
-    __pmLogPutLabel;
     __pmLogPutLabels;
     __pmLogPutResult2;
     __pmLogPutResult3;
@@ -363,10 +360,14 @@ PCP_4.0 {
     __pmRotateLog;
     __pmSecureClientHandshake;
     __pmSecureConfigInit;
+#if ENABLE_SECURE
     __pmSecureServerCertificateSetup;
+#endif
     __pmSecureServerHandshake;
     __pmSecureServerInit;
+#if ENABLE_SECURE
     __pmSecureServerSetup;
+#endif
     __pmSecureServerShutdown;
     __pmSelectRead;
     __pmSelectWrite;

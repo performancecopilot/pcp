@@ -28,7 +28,7 @@ echo "Checking host mode ..."
 ../src/chk_memleak -i 250 -h localhost
 status1=$?
 echo "Checking archive mode ..."
-../src//chk_memleak -i 250 -a foo
+../src/chk_memleak -i 250 -a foo
 status2=$?
 
 if [ $status1 -eq 0 -a $status2 -eq 0 ]

@@ -243,68 +243,67 @@ End-of-File
 #
 _do_env_subst()
 {
-    local ans="$1"
-    local count=0
-    local val
+    __ans="$1"
+    __count=0
     while true
     do
-	if echo "$ans" | grep -q 'ENV([a-zA-Z_][^)]*)'
+	if echo "$__ans" | grep -q 'ENV([a-zA-Z_][^)]*)'
 	then
-	    # $ans contains at least one ENV(...) so extract the <param>
-	    # in the first ENV(<parame>) instance
+	    # $__ans contains at least one ENV(...) so extract the <param>
+	    # in the first ENV(<param>) instance
 	    #
-	    local param=`echo "$ans" | sed -n -e 's/.*ENV(\([a-zA-Z_][^)]*\)).*/\1/p'`
-	    if echo "$param" | grep -q ':'
+	    __param=`echo "$__ans" | sed -n -e 's/.*ENV(\([a-zA-Z_][^)]*\)).*/\1/p'`
+	    if echo "$__param" | grep -q ':'
 	    then
-		local var=`echo "$param" | sed -e 's/:.*//'`
-		local default=`echo "$param" | sed -e 's/.*://'`
+		__var=`echo "$__param" | sed -e 's/:.*//'`
+		__default=`echo "$__param" | sed -e 's/.*://'`
 	    else
-		local var="$param"
-		local default=''
+		__var="$__param"
+		__default=''
 	    fi
-	    if [ -z "$var" ]
+	    if [ -z "$__var" ]
 	    then
 		echo >&2 "control[$2]: $1"
-		_error "_do_env_subst: Botch: param=$param var=$var default=4default"
+		_error "_do_env_subst: Botch: __param=$__param __var=$__var __default=$__default"
 		return 1
 	    fi
 	else
-	    # no ENV(...) in $ans
+	    # no ENV(...) in $__ans
 	    #
 	    break
 	fi
 	# guard against recursion and limit number of expansions
 	#
-	if [ $count -ge 10 ]
+	if [ $__count -ge 10 ]
 	then
 	    echo >&2 "control[$2]: $1"
 	    _error "_do_env_subst: max ENV() expansions (10) exceeded"
 	    return 1
 	fi
-	count=`expr $count + 1`
-	# check if var has a defined value
+	__count=`expr $__count + 1`
+	# check if __var has a defined value
 	#
-	eval val="\$$var"
-	if [ -z "$val" -a -n "$default" ]
+	eval __val="\$$__var"
+	if [ -z "$__val" -a -n "$__default" ]
 	then
 	    # no value, but :default so use that
 	    #
-	    val="$default"
+	    __val="$__default"
 	fi
-	if [ -z "$val" ]
+	if [ -z "$__val" ]
 	then
 	    echo >&2 "control[$2]: $1"
-	    _error "_do_env_subst: \$$var empty value"
+	    _error "_do_env_subst: \$$__var empty value"
 	    return 1
 	fi
 	if $VERY_VERBOSE
 	then
 	    echo >&2 "control[$2]: $1"
-	    echo >&2 "ENV($var...) -> $val"
+	    echo >&2 "ENV($__var...) -> $__val"
 	fi
-	ans=`echo "$ans" | sed -e 's/\(.*\)*ENV([a-zA-Z_][^)]*)\(.*\)/\1'"$val"'\2/'`
+	__ans=`echo "$__ans" | sed -e 's/\(.*\)*ENV([a-zA-Z_][^)]*)\(.*\)/\1'"$__val"'\2/'`
     done
-    echo "$ans"
+    echo "$__ans"
     return 0
 }
 
@@ -312,14 +311,13 @@ _do_env_subst()
 #
 _do_env_file()
 {
-    local line
-    local lineno=1
+    __lineno=1
     rm -f $tmp/do_env.out
-    while read line
+    while read __line
     do
-	if _do_env_subst "$line" $lineno >>$tmp/do_env.out
+	if _do_env_subst "$__line" $__lineno >>$tmp/do_env.out
 	then
-	    lineno=`expr $lineno + 1`
+	    __lineno=`expr $__lineno + 1`
 	else
 	    # error reported in _do_env_subst() on stderr
 	    #
@@ -389,7 +387,7 @@ _get_matching_hosts()
 	    # the pattern above returns all possible control lines, but
 	    # may need some further culling
 	    #
-	    ctl_host="`echo "$ctl_line" | sed -e 's/[ 	].*//'`"
+	    ctl_host=`echo "$ctl_line" | sed -e 's/[ 	].*//'`
 	    if echo "$_host" | grep '^[a-zA-Z0-9][a-zA-Z0-9.-]*$' >/dev/null
 	    then
 		# $_host is a syntactically correct hostname so we need
@@ -446,7 +444,7 @@ _get_matching_hosts()
 		# bad control line ... missing at least directory, so warn and
 		# ignore
 		#
-		_warning "$ctl_file: insufficient fields in control line for host `echo "$ctl_line" | sed -e 's/ .*//'`"
+		_warning "$ctl_file: insufficient fields in control line for host "`echo "$ctl_line" | sed -e 's/ .*//'`
 		continue
 	    fi
 	    primary=`echo "$ctl_line" | $PCP_AWK_PROG '{ print $2 }'`
@@ -598,9 +596,9 @@ _get_class()
 {
     control="$1"
     # need space at end so hostname looks like it does in a control line
-    host="`echo "$2 " | _unexpand_control | sed -e 's/ $//'`"
-    dir="`echo "$3" | _unexpand_control`"
-    alt_dir="`echo "$3" | _unexpand_pcp_control`"
+    host=`echo "$2 " | _unexpand_control | sed -e 's/ $//'`
+    dir=`echo "$3" | _unexpand_control`
+    alt_dir=`echo "$3" | _unexpand_pcp_control`
     class=`$PCP_AWK_PROG <"$control" '
 BEGIN			{ class = "" }
 /^[$]class=/		{ class = $1; sub(/[$]class=/,"",class) }
@@ -986,8 +984,8 @@ found == 0 && $3 == "'"$host"'" && $6 == "'"$dir"'"	{ print NR >>"'$tmp/match'";
 			dir=`echo "$dir" | sed -e 's/^+//'`
 			archive=`echo "$args" \
 				 | sed -E -e 's@(.* |^)http://@http://@' -e 's/ .*//'`
-			report_archive="`echo $archive \
-					 | sed -e 's@http://@>@' -e 's/:[0-9]*$//'`"
+			report_archive=`echo $archive \
+					 | sed -e 's@http://@>@' -e 's/:[0-9]*$//'`
 			pid=`_egrep -rl "^$archive\$" $PCP_TMP_DIR/${IAM} \
 			     | sed -e 's;.*/;;' \
 			     | grep -f $tmp/pids`
@@ -1440,7 +1438,7 @@ END	{ exit(sts) }'
 	    # just one class "matches", use the control file from do_create()
 	    #
 	    mv $tmp/control.$n $tmp/control
-	    POLICY="`cat $tmp/policy.1`"
+	    POLICY=`cat $tmp/policy.1`
 	else
 	    # some work to be done ...
 	    #
@@ -1515,7 +1513,7 @@ $1 == "'"$host"'"	{ print $4 }'`
 
 	$CP $tmp/control "$CONTROLDIR/$ident"
 	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
-	dir_args="`echo "$dir" | _expand_control`"
+	dir_args=`echo "$dir" | _expand_control`
 	args=`$PCP_AWK_PROG <$tmp/control '
 $1 == "'"$host"'"	{ printf "%s",$5
 			  for (i = 6; i <= NF; i++) printf " %s",$i
@@ -1621,13 +1619,19 @@ $1 == "'"$host"'"	{ print $4 }'`
 	if [ "$host" = "$LOCALHOST" ]
 	then
 	    pat_host="($host|LOCALHOSTNAME)"
-	    pat_dir="($dir|`echo "$dir" | sed -e "s;$host;LOCALHOSTNAME;"`)"
+	    pat_dir="($dir|"`echo "$dir" | sed -e "s;$host;LOCALHOSTNAME;"`")"
 	else
 	    pat_host="$host"
 	    pat_dir="$dir"
 	fi
 	_egrep -rl "^($pat_host|#!#$pat_host)[ 	].*[ 	]$pat_dir([ 	]|$)" $CONTROLFILE $CONTROLDIR >$tmp/out
 	[ -s $tmp/out ] && _error "host $host and directory $dir already defined in `cat $tmp/out`"
+	if $VERY_VERBOSE
+	then
+	    echo >&2 "--- start control file before ENV() substitutions ---"
+	    cat >&2 $tmp/control
+	    echo >&2 "--- end control file ---"
+	fi
 	if _do_env_file <$tmp/control >$tmp/control.new
 	then
 	    if diff -q $tmp/control $tmp/control.new
@@ -1661,7 +1665,7 @@ $1 == "'"$host"'"	{ print $4 }'`
 	    $VERBOSE && echo >&2 "Installing control file: $CONTROLDIR/$ident"
 	    $CP $tmp/control "$CONTROLDIR/$ident"
 	    $RUNASPCP "$CHECKCMD $CHECKARGS -c \"$CONTROLDIR/$ident\""
-	    dir_args="`echo "$dir" | _expand_control`"
+	    dir_args=`echo "$dir" | _expand_control`
 	    args=`$PCP_AWK_PROG <$tmp/control '
 $1 == "'"$host"'"	{ printf "%s",$5
 		      for (i = 6; i <= NF; i++) printf " %s",$i
@@ -1690,7 +1694,7 @@ _do_destroy()
 	    _error "control file changes skipped because ${IAM} could not be stopped"
 	fi
 	dir=`echo "$args_dir" | _unexpand_control`
-	alt_dir="`echo "$args_dir" | _unexpand_pcp_control`"
+	alt_dir=`echo "$args_dir" | _unexpand_pcp_control`
 	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
 	# need to match either expanded or unexpanded host name, with
 	# or without #!# prefix
@@ -1732,73 +1736,78 @@ $1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ next }
 
 # start command
 #
+# Note:
+#	also called from _do_restart() where there is an outer
+#	while read control class ... loop, so need to disambiguate
+#	the variable names here
+#
 _do_start()
 {
-    restart=false
-    [ "$1" = '-r' ] && restart=true
-    sts=0
+    __restart=false
+    [ "$1" = '-r' ] && __restart=true
+    __sts=0
     cat $tmp/args \
-    | while read control class args_host primary socks args_dir args
+    | while read __control __class __args_host __primary __socks __args_dir __args
     do
-	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $args_dir and args $args ..."
-	pid=`_get_pid "$args_dir" "$args"`
-	if [ -n "$pid" ]
+	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $__args_dir and args $__args ..."
+	__pid=`_get_pid "$__args_dir" "$__args"`
+	if [ -n "$__pid" ]
 	then
-	    $VERBOSE && echo >&2 "${IAM} PID $pid already running for host $args_host, nothing to do"
-	    $VERBOSE && $restart && echo >&2 "Not expected for restart!"
+	    $VERBOSE && echo >&2 "${IAM} PID $__pid already running for host $__args_host, nothing to do"
+	    $VERBOSE && $__restart && echo >&2 "Not expected for restart!"
 	    if $MIGRATE
 	    then
 		$VERBOSE && vflag="-v"
-		migrate_pid_service $vflag "$pid" ${IAM}_farm.service
+		migrate_pid_service $vflag "$__pid" ${IAM}_farm.service
 	    fi
 	    continue
 	fi
 	if $VERBOSE
 	then
-	    if $restart
+	    if $__restart
 	    then
 		echo >&2 "Not found as expected, launching new ${IAM}"
 	    else
 		echo >&2 "Not found, launching new ${IAM}"
 	    fi
 	fi
-	if [ ! -f "$control" ]
+	if [ ! -f "$__control" ]
 	then
-	    _warning "control file $control for host $args_host ${IAM} has vanished"
-	    sts=1
+	    _warning "control file $__control for host $__args_host ${IAM} has vanished"
+	    __sts=1
 	    continue
 	fi
-	dir=`echo "$args_dir" | _unexpand_control`
-	alt_dir="`echo "$args_dir" | _unexpand_pcp_control`"
-	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
-	$PCP_AWK_PROG <"$control" >$tmp/control '
-$1 == "'"#!#$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ sub(/^#!#/,"",$1) }
+	__dir=`echo "$__args_dir" | _unexpand_control`
+	__alt_dir=`echo "$__args_dir" | _unexpand_pcp_control`
+	__host=`echo "$__args_host " | _unexpand_control | sed -e 's/ $//'`
+	$PCP_AWK_PROG <"$__control" >$tmp/control '
+$1 == "'"#!#$__host"'" && ($4 == "'"$__dir"'" || $4 == "'"$__alt_dir"'")	{ sub(/^#!#/,"",$1) }
 									{ print }'
-	if cmp -s "$control" $tmp/control
+	if cmp -s "$__control" $tmp/control
 	then
-	    if $restart
+	    if $__restart
 	    then
 		:
 	    else
-		$VERBOSE && echo >&2 "${IAM} for host $host and directory $dir already enabled in control file $control"
+		$VERBOSE && echo >&2 "${IAM} for host $__host and directory $__dir already enabled in control file $__control"
 	    fi
 	else
 	    if $VERY_VERBOSE
 	    then
-		echo >&2 "Diffs for control file $control after enabling host $host and directory $dir ..."
-		diff >&2 "$control" $tmp/control
+		echo >&2 "Diffs for control file $__control after enabling host $__host and directory $__dir ..."
+		diff >&2 "$__control" $tmp/control
 	    elif $VERBOSE
 	    then
-		echo >&2 "Enable ${IAM} for host $host and directory $dir in control file $control"
+		echo >&2 "Enable ${IAM} for host $__host and directory $__dir in control file $__control"
 	    fi
-	    $CP $tmp/control "$control"
+	    $CP $tmp/control "$__control"
 	fi
-	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$control\""
+	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$__control\""
 
-	_check_started "$args_dir" "$args" || sts=1
+	_check_started "$__args_dir" "$__args" || __sts=1
     done
 
-    return $sts
+    return $__sts
 }
 
 # check command - start dead hosts, if any
@@ -1810,32 +1819,37 @@ _do_check()
 
 # stop command
 #
+# Note:
+#	also called from _do_destroy() and _do_restart() where there
+#	is an outer while read control class ... loop, so need to
+#	disambiguate the variable names here
+#
 _do_stop()
 {
-    skip_control_update=false
-    [ "$1" = '-q' ] && skip_control_update=true
-    sts=0
+    __skip_control_update=false
+    [ "$1" = '-q' ] && __skip_control_update=true
+    __sts=0
     rm -f $tmp/sts
     cat $tmp/args \
-    | while read control class args_host primary socks args_dir args
+    | while read __control __class __args_host __primary __socks __args_dir __args
     do
-	host=`echo "$args_host " | _unexpand_control | sed -e 's/ $//'`
-	if grep "^#!#$host[ 	]" $control >/dev/null
+	__host=`echo "$__args_host " | _unexpand_control | sed -e 's/ $//'`
+	if grep "^#!#$__host[ 	]" $__control >/dev/null
 	then
-	    _warning "${IAM} for host $host already stopped, nothing to do"
+	    _warning "${IAM} for host $__host already stopped, nothing to do"
 	    continue
 	fi
-	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $args_dir and args $args ..."
-	pid=`_get_pid "$args_dir" "$args"`
-	if [ -z "$pid" ]
+	$VERBOSE && echo >&2 "Looking for ${IAM} using directory $__args_dir and args $__args ..."
+	__pid=`_get_pid "$__args_dir" "$__args"`
+	if [ -z "$__pid" ]
 	then
-	    _warning "cannot find PID for host $args_host ${IAM}, already exited?"
+	    _warning "cannot find PID for host $__args_host ${IAM}, already exited?"
 	else
 	    # $PCPQA_KILL_SIGNAL is only intended for QA tests
 	    #
-	    $VERBOSE && echo >&2 "Found PID $pid to stop using signal ${PCPQA_KILL_SIGNAL-TERM}"
-	    $KILL ${PCPQA_KILL_SIGNAL-TERM} $pid
-	    if _check_stopped "$args_dir" "$args"
+	    $VERBOSE && echo >&2 "Found PID $__pid to stop using signal ${PCPQA_KILL_SIGNAL-TERM}"
+	    $KILL ${PCPQA_KILL_SIGNAL-TERM} $__pid
+	    if _check_stopped "$__args_dir" "$__args"
 	    then
 		:
 	    elif [ -z "$PCPQA_KILL_SIGNAL" ]
@@ -1843,8 +1857,8 @@ _do_stop()
 		# Not QA and SIGTERM did not work, try a bigger hammer ...
 		#
 		$VERBOSE && echo >&2 "That didn't work, try using signal KILL"
-		$KILL KILL $pid
-		if _check_stopped "$args_dir" "$args"
+		$KILL KILL $__pid
+		if _check_stopped "$__args_dir" "$__args"
 		then
 		    :
 		else
@@ -1856,37 +1870,37 @@ _do_stop()
 		continue
 	    fi
 	fi
-	$skip_control_update && continue
-	if [ ! -f "$control" ]
+	$__skip_control_update && continue
+	if [ ! -f "$__control" ]
 	then
-	    _warning "control file $control for host $args_host ${IAM} has vanished"
+	    _warning "control file $__control for host $__args_host ${IAM} has vanished"
 	    echo 1 >$tmp/sts
 	    continue
 	fi
-	dir=`echo "$args_dir" | _unexpand_control`
-	alt_dir="`echo "$args_dir" | _unexpand_pcp_control`"
-	$PCP_AWK_PROG <"$control" >$tmp/control '
-$1 == "'"$host"'" && ($4 == "'"$dir"'" || $4 == "'"$alt_dir"'")	{ $1 = "#!#" $1 }
+	__dir=`echo "$__args_dir" | _unexpand_control`
+	__alt_dir=`echo "$__args_dir" | _unexpand_pcp_control`
+	$PCP_AWK_PROG <"$__control" >$tmp/control '
+$1 == "'"$__host"'" && ($4 == "'"$__dir"'" || $4 == "'"$__alt_dir"'")	{ $1 = "#!#" $1 }
 								{ print }'
-	if cmp -s "$control" $tmp/control
+	if cmp -s "$__control" $tmp/control
 	then
-	    $VERBOSE && echo >&2 "${IAM} for host $host and directory $dir already disabled in control file $control"
+	    $VERBOSE && echo >&2 "${IAM} for host $__host and directory $__dir already disabled in control file $__control"
 	else
 	    if $VERY_VERBOSE
 	    then
-		echo >&2 "Diffs for control file $control after disabling host $host and directory $dir ..."
-		diff >&2 "$control" $tmp/control
+		echo >&2 "Diffs for control file $__control after disabling host $__host and directory $__dir ..."
+		diff >&2 "$__control" $tmp/control
 	    elif $VERBOSE
 	    then
-		echo >&2 "Disable ${IAM} for host $host and directory $dir in control file $control"
+		echo >&2 "Disable ${IAM} for host $__host and directory $__dir in control file $__control"
 	    fi
-	    $CP $tmp/control "$control"
+	    $CP $tmp/control "$__control"
 	fi
     done
 
-    [ -f $tmp/sts ] && sts="`cat $tmp/sts`"
+    [ -f $tmp/sts ] && __sts=`cat $tmp/sts`
 
-    return $sts
+    return $__sts
 }
 
 # restart command
@@ -2123,7 +2137,7 @@ in
 	    # cond-create -> cond_create, so it is a valid shell
 	    # function name
 	    #
-	    eval "_do_`echo "$ACTION" | sed -e 's/-/_/g'`" $*
+	    _do_`echo "$ACTION" | sed -e 's/-/_/g'` $*
 	    cmd_sts=$?
 	    if [ $cmd_sts -ne 0 ]
 	    then

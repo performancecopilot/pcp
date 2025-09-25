@@ -17,7 +17,7 @@
 #include "libpcp.h"
 #include <pcp/trace.h>
 #include <pcp/trace_dev.h>
-#include <strings.h>
+#include <string.h>
 #include "localconfig.h"
 
 static int	raw;		/* if set, echo PDUs, do not decode/encode */
@@ -781,7 +781,7 @@ main(int argc, char *argv[])
     fprintf(stderr, "%s: MYPID %" FMT_PID, pmGetProgname(), mypid);
     /* don't have %x equivalent of FMT_PID unfortunately */
     fmt = strdup(" %" FMT_PID "\n");
-    p = index(fmt, 'd');
+    p = strchr(fmt, 'd');
     if (p)
 	*p = 'x';
     fprintf(stderr, fmt, mypid);

@@ -33,9 +33,7 @@
 #if defined(HAVE_IEEEFP_H)
 #include <ieeefp.h>
 #endif
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
+#include <string.h>
 
 extern char	*clientid;
 
@@ -144,7 +142,7 @@ eqinst(char *myname, char *indomname)
 	return 1;
     }
 
-    p = index(myname, ' ');
+    p = strchr(myname, ' ');
     if (p == NULL) {
 	/* no space */
 	mylen = 0;
@@ -153,7 +151,7 @@ eqinst(char *myname, char *indomname)
 	mylen = p - myname;
     }
 
-    p = index(indomname, ' ');
+    p = strchr(indomname, ' ');
     if (p == NULL) {
 	/* no space */
 	indomlen = 0;

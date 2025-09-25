@@ -22,9 +22,7 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "internal.h"
-#ifdef HAVE_STRINGS_H
-#include <strings.h>
-#endif
+#include <string.h>
 
 static void *
 parseAlloc(const char *func, size_t need)
@@ -109,7 +107,7 @@ pmParseMetricSpec(
      * Find end of metric name first ([ or end of string) then scan
      * backwards for first ':' or '/'
      */
-    mark = index(scan, (int)'[');
+    mark = strchr(scan, (int)'[');
     if (mark == NULL) mark = &scan[strlen(scan)-1];
     while (mark >= scan) {
 	if (*mark == ':') {

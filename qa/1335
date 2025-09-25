@@ -21,7 +21,7 @@ fi
 . ./common.filter
 . ./common.check
 
-eval `pmconfig -L -s v3_archives`
+eval `$PCP_BINADM_DIR/pmconfig -L -s v3_archives`
 [ "$v3_archives" = true ] || _notrun "No V3 archive support"
 
 do_valgrind=false
