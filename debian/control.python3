@@ -14,6 +14,8 @@ Description: Performance Co-Pilot Python3 PMAPI module
 
 Package: pcp-import-guidellm2pcp
 Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp-import1 (= ${binary:Version})
+Breaks: pcp (<< 7.0.2)
+Replaces: pcp (<< 7.0.2)
 Architecture: any
 Description: Tool for importing GuideLLM results into PCP archive logs
  Performance Co-Pilot (PCP) front-end tools for importing GuideLLM JSON
