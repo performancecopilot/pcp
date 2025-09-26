@@ -19,8 +19,9 @@
 # pylint: disable=too-many-nested-blocks, too-many-return-statements
 # pylint: disable=broad-except, bare-except, missing-docstring
 # pylint: disable=expression-not-assigned, too-many-arguments
-# pylint: disable=too-many-positional-arguments
-# pylint: disable=consider-using-f-string
+# pylint: disable=too-many-positional-arguments, multiple-statements
+# pylint: disable=consider-using-f-string, consider-using-enumerate
+# pylint: disable=unused-variable
 
 import os
 import re
@@ -83,14 +84,15 @@ typestrD = {'double': c_api.PM_TYPE_DOUBLE,
 
 class Metric(object):
     ''' Metric information class '''
-    def __init__(self, source, name, metricnum, metric_dict, included_labels, optional_labels):
+    def __init__(self, source, name, metricnum, metric_dict, included_labels, optional_labels, conf_metadata):
         self.source = source
         self.name = name
         self.helpline = metric_dict["description"]
         self.metricnum = metricnum # seen during fetch callbacks
         self.pmid = source.pmda.pmid(source.cluster, metricnum) # add domain/cluster#
         self.indom_number = MAX_CLUSTER+1 + (source.cluster * (MAX_METRIC+1)) + metricnum
-        self.units = metric_dict["unit"].lower()
+        self.multiplier = 1 # pmParseUnits returns a tuple of (pmUnits, multiplier)
+        self.units = metric_dict["unit"]
         self.munits = pmUnits(0, 0, 0, 0, 0, 0)
         self.monotonic = metric_dict["isMonotonic"]
         self.values = {} # instance-vector-to-value
@@ -99,9 +101,24 @@ class Metric(object):
         self.optional_labels = optional_labels # optional labels
         self.inst_labels = {} # dict of instid:labels (where labels is a dict)
 
-        self.assign_metadata(metric_dict["values"][0], metric_dict["semantic"], metric_dict["type"], self.units)
-        self.singular = metric_dict["is_singular"]
+        if conf_metadata:
+            # assign config provided metadata
+            if self.source.pmda.dbg:
+                self.source.pmda.debug("conf_metadata: %s" % conf_metadata)
+            split_metadata = conf_metadata.split(' ')
+            self.mname = 'opentelemetry.' + self.source.name + '.' + split_metadata[1]
+            self.mtype = self.decodeTypeStr(split_metadata[2])
+            self.munits, self.multiplier = self.parse_pcp_units(' '.join(split_metadata[5:]))
+            if split_metadata[4] == 'instant':
+                self.msem = c_api.PM_SEM_INSTANT
+            elif split_metadata[4] == 'counter':
+                self.msem = c_api.PM_SEM_COUNTER
+            elif split_metadata[4] == 'discrete':
+                self.msem = c_api.PM_SEM_DISCRETE
+        else:
+            self.assign_metadata(metric_dict["semantic"], metric_dict["data_type"], self.units)
 
+        self.singular = metric_dict["is_singular"]
         if self.singular:
             self.mindom = c_api.PM_INDOM_NULL
             self.indom_table = None
@@ -127,7 +144,30 @@ class Metric(object):
                 self.source.pmda.debug("created metric %#x (%s) labels='%s' optional_labels='%s'" %
                     (self.pmid, self.mname, self.labels, self.optional_labels))
 
-    def assign_metadata(self, value, semantics, mtype, units):
+    def decodeTypeStr(self, typestr):
+        try:
+            ret = typestrD[typestr]
+        except:
+            ret = c_api.PM_TYPE_DOUBLE
+
+        return ret
+
+    def parse_pcp_units(self, s):
+        ''' parse a PCP units string '''
+        mult = 1
+        units = pmUnits(0, 0, 0, 0, 0, 0)
+        if s != 'none':
+            try:
+                units, mult = pmContext.pmParseUnitsStr(s)
+            except Exception as e:
+                self.source.pmda.err('parse_pcp_units "%s" Error: %s' % (s, e))
+
+        self.source.pmda.debug('parse_pcp_units "%s": units=%s mult=%f' %
+            (s, str(units), mult)) if self.source.pmda.dbg else None
+
+        return units, mult
+
+    def assign_metadata(self, semantics, data_type, units):
         ''' Compute metric metadata self.{mtype, mname, msem, munits}
         '''
         #
@@ -137,83 +177,83 @@ class Metric(object):
         self.msem = c_api.PM_SEM_INSTANT # aka guage
         self.mname = 'opentelemetry.' + self.source.name + '.' + self.name.replace(":", ".")
 
-        # Space unit prefixes
-        def UCUM_space_prefix(prefix):  # pylint: disable=unused-variable (TODO)
-            if prefix == "": # base bytes
-                return c_api.PM_SPACE_BYTE
-            elif prefix == "Ki": # Kibibyte
-                return c_api.PM_SPACE_KBYTE
-            elif prefix == "Mi": # Mebibyte
-                return c_api.PM_SPACE_MBYTE
-            elif prefix == "Gi": # Gibibyte
-                return c_api.PM_SPACE_GBYTE
-            elif prefix == "Ti": # Tebibyte
-                return c_api.PM_SPACE_TBYTE
-            elif prefix == "Pi": # Pebibyte
-                return c_api.PM_SPACE_PBYTE
-            elif prefix == "Ei": # Exbibyte
-                return c_api.PM_SPACE_EBYTE
-            elif prefix == "Zi": # Zebibyte
-                return c_api.PM_SPACE_ZBYTE
-            elif prefix == "Yi": # Yobibyte
-                return c_api.PM_SPACE_YBYTE
-            return None
+        # space unit prefixes
+        def UCUM_space_prefix(prefix):
+            if prefix == "By":
+                return 0 # base bytes
+            elif prefix == "KiBy":
+                return 1 # Kibibyte
+            elif prefix == "MiBy":
+                return 2 # Mebibyte
+            elif prefix == "GiBy":
+                return 3 # Gibibyte
+            elif prefix == "TiBy":
+                return 4 # Tebibyte
+            elif prefix == "PiBy":
+                return 5 # Pebibyte
+            elif prefix == "EiBy":
+                return 6 # Exbibyte
+            elif prefix == "ZiBi":
+                return 7 # Zebibyte
+            elif prefix == "YiBi":
+                return 8 # obibyte
+            else:
+                return -1
 
-        # Time unit prefixes
-        def UCUM_time_prefix(prefix):  # pylint: disable=unused-variable (TODO)
-            if prefix == "ns": # nano
-                return c_api.PM_TIME_NSEC
-            elif prefix == "us": # micro
-                return c_api.PM_TIME_USEC
-            elif prefix == "ms": # milli
-                return c_api.PM_TIME_MSEC
-            elif prefix == "s": # base second
-                return c_api.PM_TIME_SEC
-            elif prefix == "min": # minute
-                return c_api.PM_TIME_MIN
-            elif prefix == "h": # hour
-                return c_api.PM_TIME_HOUR
-            return None
+        # time unit prefixes
+        def UCUM_time_prefix(prefix):
+            if prefix == "ns":
+                return 0 # nano
+            elif prefix == "us":
+                return 1 # micro
+            elif prefix == "ms":
+                return 2 # milli
+            elif prefix == "s":
+                return 3 # base second
+            elif prefix == "min":
+                return 4 # minute
+            elif prefix == "h":
+                return 5 # hour
+            else:
+                return -1
 
-        # Count unit prefixes (powers of 10)
-        def UCUM_count_prefix(prefix):  # pylint: disable=unused-variable (TODO)
-            if prefix == "y":
-                return -24 # yocto
-            elif prefix == "z":
-                return -21 # zepto
-            elif prefix == "a":
-                return -18 # atto
-            elif prefix == "f":
-                return -15 # femto
-            elif prefix == "p":
-                return -12 # pico
-            elif prefix == "n":
-                return -9 # nano
-            elif prefix == "u":
-                return -6 # micro
-            elif prefix == "m":
-                return -3 # milli
-            elif prefix == "":
-                return 0 # no prefix (PM_COUNT_ONE)
-            elif prefix == "k":
-                return 3 # kilo
-            elif prefix == "M":
-                return 6 # mega
-            elif prefix == "G":
-                return 9 # giga
-            elif prefix == "T":
-                return 12 # tera
-            elif prefix == "P":
-                return 15 # peta
-            elif prefix == "E":
-                return 18 # exa
-            elif prefix == "Z":
-                return 21 # zetta
-            elif prefix == "y":
-                return 24 # yotta
-            return None
+        def parse_single_units(unit_string, unit_dict):
+            if "**" in unit_string:
+                power = unit_string.split("**")[1]
+            else:
+                power = 1
+            if unit_string.startswith('{') and unit_string.endswith('}'):
+                unit_dict["dimcount"] = power
+            elif 'By' in unit_string:
+                unit_dict["dimspace"] = power
+                unit_dict["scalespace"] = UCUM_space_prefix(unit_string)
+                if unit_dict["scalespace"] == -1:
+                    unit_dict["dimspace"] = 0
+                    unit_dict["scalespace"] = 0
+            else:
+                unit_dict["dimtime"] = power
+                unit_dict["scaletime"]  = UCUM_time_prefix(unit_string)
+                if unit_dict["scaletime"] == -1:
+                    unit_dict["dimtime"] = 0
+                    unit_dict["scaletime"] = 0
 
-        self.munits = pmUnits(0, 0, 0, 0, 0, 0) # ignore for now, need UCUM converter
+        def parse_units(units):
+            # parse metric units:
+            unit_dict = {"dimspace": 0, "dimtime": 0, "dimcount": 0, "scalespace": 0, "scaletime": 0, "scalecount": 0}
+            if units == "1":
+                return unit_dict
+            units = units.lower()
+
+            if '/' in units:
+                split = units.split('/')
+                parse_single_units(split[0], unit_dict)
+                parse_single_units(split[1], unit_dict)
+            else:
+                parse_single_units(units, unit_dict)
+            return unit_dict
+
+        unit_dict = parse_units(units)
+        self.munits = pmUnits(unit_dict["dimspace"], unit_dict["dimtime"], unit_dict["dimcount"], unit_dict["scalespace"], unit_dict["scaletime"], unit_dict["scalecount"])
 
         # assign semantics
         if semantics == "counter":
@@ -222,46 +262,61 @@ class Metric(object):
             self.msem = c_api.PM_SEM_INSTANT
 
         # assign datatype
-        if type == "asDouble":
+        if data_type == "double":
             self.mtype = c_api.PM_TYPE_DOUBLE
-        elif type == "asInt":
+        elif data_type == "int":
             self.mtype = c_api.PM_TYPE_64
-        elif type == "asString":
+        elif data_type == "string":
             self.mtype = c_api.PM_TYPE_STRING
         else:
             self.mtype = c_api.PM_TYPE_DOUBLE
 
         if self.source.pmda.dbg:
-            self.source.pmda.debug('assign_metadata: mname="%s" type="%s" msem="%s" munits="%s"' %
+            self.source.pmda.debug('assign_metadata: mname="%s" data_type="%s" msem="%s" munits="%s"' %
                 (self.mname, self.mtype, self.msem, self.munits))
 
     def clear_values(self):
         ''' Erase all stored instance/value pairs, in anticipation of a new set. '''
         self.values.clear()
 
-    def store_inst(self, labels, value, num):
-        ''' Store given new instance/value pair. '''
-
-        # assert (labels is None) == (self.indom_table is None) # no metric indom flipflop
-        if self.singular:
-            inst = c_api.PM_IN_NULL
-            instname = "PM_IN_NULL"
-            self.source.pmda.debug('store_inst mname="%s" singular=True value="%s" labels=%s' % (self.mname, value, labels))
-        else:
-            instname = None
-            # NB: no quoting/transforms - preserve incoming value verbatim
-            if labels:
-                instname = labels[num]
-            if instname is None:
-                self.indom_table.prefix_mode = True # Mark for instance# prefixed names
-                instname = "inst-%s" % num
-            inst = self.indom_table.intern_lookup_value(instname)
+    def store_singular_inst(self, labels, value):
+        ''' Store singular instance/value pair '''
+        inst = c_api.PM_IN_NULL
+        instname = "PM_IN_NULL"
+        self.source.pmda.debug('store_inst mname="%s" singular=True value="%s" labels=%s' % (self.mname, value, labels))
 
         self.values[inst] = value
         self.inst_labels[inst] = labels
         if self.source.pmda.dbg:
             self.source.pmda.debug('store_inst mname=%s inst=%d instname="%s" value="%s"' % (self.mname, inst, instname, value))
             self.source.pmda.debug('store_inst mname=%s inst_labels[%d]=%s' % (self.mname, inst, labels))
+
+    def store_multiple_insts(self, metric_type, instances, labels, values):
+        ''' Store instance/value pair of metric with > 1 instances '''
+        # keep track of if the number of instances in the inst name list matches the num of inst values ?
+        if len(instances) != len(values):
+            self.source.pmda.err("error num instances doesn't match num values")
+        if instances[0] == "inst-0":
+            self.indom_table.prefix_mode = True # Mark for instance# prefixed names
+
+        if metric_type in ("histogram", "summary"):
+            for idx in range (len(instances)):
+                included_labels, optional_labels = self.source.filter_labelset(labels)
+                inst = self.indom_table.intern_lookup_value(instances[idx])
+                self.values[inst] = values[idx]
+                self.inst_labels[inst] = included_labels
+                if self.source.pmda.dbg:
+                    self.source.pmda.debug('store_inst mname=%s inst=%d instname="%s" value="%s"' % (self.mname, inst, instances[idx], values[idx]))
+                    self.source.pmda.debug('store_inst mname=%s inst_labels[%d]=%s' % (self.mname, inst, included_labels))
+        else:
+            for idx in range (len(instances)):
+                included_labels, optional_labels = self.source.filter_labelset(labels[idx][idx])
+                inst = self.indom_table.intern_lookup_value(instances[idx])
+                self.values[inst] = values[idx]
+                self.inst_labels[inst] = included_labels
+                if self.source.pmda.dbg:
+                    self.source.pmda.debug('store_inst mname=%s inst=%d instname="%s" value="%s"' % (self.mname, inst, instances[idx], values[idx]))
+                    self.source.pmda.debug('store_inst mname=%s inst_labels[%d]=%s' % (self.mname, inst, included_labels))
 
     def save(self):
         if self.indom_table is not None:
@@ -293,7 +348,6 @@ class Metric(object):
 
         self.source.pmda.debug('fetch_inst returning %s' % ret)
         return ret
-
 
 class PersistentNameTable(object):
     '''Persistent name table.  Answers name-to-number queries by assigning
@@ -472,8 +526,8 @@ class Source(object):
                 included_labels[lname] = optional_labels[lname] = lval
         if included_labels == {}:
             return None, None # no labels => singular indom
-        if optional_labels == {}:
-            optional_labels = None
+        #if optional_labels == {}:
+            #optional_labels = None
         return included_labels, optional_labels
 
     def valid_metric_name(self, name):
@@ -494,16 +548,21 @@ class Source(object):
             unescaped = helpline.replace('\\\\', '\\').replace('\\n', '\n')
             split = unescaped.split('\n')
             help_oneline = split[0] # must have at least one entry
-            help_text = '\n'.join(split[1:]) # may have other entries
+            help_text = helpline # may have other entries
         else:
             help_oneline = ''
             help_text = ''
-        return help_text, help_oneline
+        return help_oneline, help_text
+
+    def format_name(self, name):
+        return name.replace(".", "_")
 
     def collect_attributes(self, attribute_list):
         labels = {}
         for item in attribute_list:
-            key = item["key"]
+            if not item:
+                continue
+            key = self.format_name(item["key"])
             value = item["value"]["stringValue"]
             labels[key] = value
         return labels
@@ -512,9 +571,15 @@ class Source(object):
         try:
             mname = metric["name"]
             fullname = ("opentelemetry.%s.%s") % (self.name, mname)
-            included_labels, optional_labels = self.filter_labelset(metric["labels"])
-            naming_labels = metric["instances"]
-            self.pmda.debug("naming labels --> %s" % naming_labels) if self.pmda.dbg else None
+            if metric["type"] == "histogram" or metric["type"] == "summary":
+                included_labels, optional_labels = self.filter_labelset(metric["labels"])
+            elif len(metric["labels"]) == 0:
+                included_labels, optional_labels = self.filter_labelset(metric["labels"][0])
+            else:
+                all_labels = {}
+                for idx in range (len(metric["labels"])):
+                    all_labels.update(metric["labels"][idx][idx])
+                included_labels, optional_labels = self.filter_labelset(all_labels)
             self.pmda.debug("included_labels '%s'" % (included_labels)) if self.pmda.dbg else None
             self.pmda.debug("optional_labels '%s'" % (optional_labels)) if self.pmda.dbg else None
             if mname in self.metrics_by_name:
@@ -531,13 +596,12 @@ class Source(object):
                     except Exception as e:
                         self.pmda.debug("can't re-add metric: %s, see error: %s" % (fullname, e)) if self.pmda.dbg else None
                 m = self.metrics_by_name[mname]
-                assert self.metrics_by_name[mname]
+                assert self.metrics_by_num[m.metricnum] == m
                 if m.singular:
                     # singular metrics have no naming labels
-                    m.store_inst(included_labels, metric["values"][0], 0)
+                    m.store_singular_inst(included_labels, metric["values"][0])
                 else:
-                    for x in range(0, len(metric["values"])):
-                        m.store_inst(naming_labels, metric["values"][x], x)
+                    m.store_multiple_insts(metric["type"], metric["instances"], metric["labels"], metric["values"])
             # new metric
             else:
                 # check metric is not excluded by filters
@@ -551,16 +615,23 @@ class Source(object):
                         raise ValueError('invalid metric name: ' + mname)
                     # new metric
                     metricnum = self.pmids_table.intern_lookup_value(mname)
-                    name = metric["name"]
-                    m = Metric(self, name, metricnum, metric, included_labels, optional_labels)
+                    # check if the config specifies metadata for this metric
+                    conf_metadata = None
+                    if self.metadatalist:
+                        for metadata in self.metadatalist:
+                            rx = self.pmda.lookup_regex(metadata[0])
+                            if rx.match(mname):
+                                # config metadata overrides parsed metadata
+                                conf_metadata = "METADATA %s %s" % (mname, ' '.join(metadata[1:])) # to EOL
+                                break
+                    m = Metric(self, mname, metricnum, metric, included_labels, optional_labels, conf_metadata)
                     self.metrics_by_name[mname] = m
                     self.metrics_by_num[metricnum] = m # not pmid!
                     if m.singular:
                         # singular metrics have no naming labels
-                        m.store_inst(included_labels, metric["values"][0], 0)
+                        m.store_singular_inst(included_labels, metric["values"][0])
                     else:
-                        for x in range(0, len(metric["values"])):
-                            m.store_inst(naming_labels, metric["values"][x], x)
+                        m.store_multiple_insts(metric["type"], metric["instances"], metric["labels"], metric["values"])
                     self.pmda.set_notify_change()
         except ValueError as e:
             if not self.parse_error:
@@ -577,6 +648,7 @@ class Source(object):
     def parse_metric(self, resource_name, scope_name, metric_dictionary):
         num_metrics = 0
         metric = {}
+        metric["prefix_name"] = "%s.%s" % (resource_name, scope_name)
         metric["name"] = metric_dictionary["name"]
         metric["unit"] = metric_dictionary["unit"]
         metric["description"] = metric_dictionary["description"]
@@ -584,50 +656,63 @@ class Source(object):
         # determine metric type
         if "sum" in metric_dictionary:  # sum or counter
             metric["semantic"] = "counter"
-            mtype = "sum"
+            metric["type"] = "sum"
         elif "gauge" in metric_dictionary:  # gauge
             metric["semantic"] = "gauge"
-            mtype = "gauge"
+            metric["type"] = "gauge"
         elif "histogram" in metric_dictionary:  # histogram
             metric["semantic"] = "counter"
-            mtype = "histogram"
+            metric["type"] = "histogram"
         elif "summary" in metric_dictionary:    # sum
             metric["semantic"] = "counter"
-            mtype = "summary"
+            metric["type"] = "summary"
         else:
             # what to do in this case? set to gauge or throw an exception?
             self.pmda.debug("error") if self.pmda.dbg else None
 
-        if "aggregationTemporality" in metric_dictionary[mtype]:
-            metric["a_temp"] = metric_dictionary[mtype]["aggregationTemporality"]
+        if "aggregationTemporality" in metric_dictionary[metric["type"]]:
+            metric["a_temp"] = metric_dictionary[metric["type"]]["aggregationTemporality"]
 
-        if "isMonotonic" in metric_dictionary[mtype]:
-            metric["isMonotonic"] = metric_dictionary[mtype]["isMonotonic"]
+        if "isMonotonic" in metric_dictionary[metric["type"]]:
+            metric["isMonotonic"] = metric_dictionary[metric["type"]]["isMonotonic"]
         else:
             metric["isMonotonic"] = False
 
         # determine if metric is singular
-        if len(metric_dictionary[mtype]["dataPoints"]) == 1 and type != "histogram" and type != "summary":
+        if len(metric_dictionary[metric["type"]]["dataPoints"]) == 1 and metric["type"] != "histogram" and metric["type"] != "summary":
             metric["is_singular"] = True
         else:
             metric["is_singular"] = False
 
         metric["values"] = []
         metric["instances"] = []
-        data_points = metric_dictionary[mtype]["dataPoints"]
-        if mtype in ["sum", "gauge"]:
+        metric["labels"] = []
+        data_points = metric_dictionary[metric["type"]]["dataPoints"]
+        if metric["type"] == "sum" or metric["type"] == "gauge":
+            inst_num = 0
             for instance in data_points:
                 metric["time"] = instance["timeUnixNano"]
-                metric["labels"] = self.collect_attributes(instance["attributes"])
-                # throw out metric if instances do not match type?
+                labels = self.collect_attributes(instance["attributes"])
+                metric["labels"].append({inst_num: labels})
+
+                if "instance" in metric["labels"][inst_num]:
+                    metric["instances"].append(metric["labels"][inst_num]["instance"])
+                    inst_num += 1
+                elif "instname" in metric["labels"]:
+                    metric["instances"].append(metric["labels"][inst_num]["instname"])
+                    inst_num += 1
+                else:
+                    metric["instances"].append("inst-%s" % inst_num)
+                    inst_num += 1
+
                 if "asDouble" in instance:
-                    metric["type"] = "double"
+                    metric["data_type"] = "double"
                     metric["values"].append(instance["asDouble"])
                 elif "asInt" in instance:
-                    metric["type"] = "int"
+                    metric["data_type"] = "int"
                     metric["values"].append(instance["asInt"])
                 elif "asString" in instance:
-                    metric["type"] = "string"
+                    metric["data_type"] = "string"
                     metric["values"].append(instance["asString"])
                 else:
                     self.pmda.debug("error2") if self.pmda.dbg else None
@@ -635,12 +720,12 @@ class Source(object):
                 num_metrics += 1
         else: # histogram or sum
             for instance in data_points:
-                count = instance["count"]
-                msum = instance["sum"]
+                count_attr = instance["count"]
+                sum_attr = instance["sum"]
                 metric["time"] = instance["timeUnixNano"]
-                metric["type"] = "int"
+                metric["data_type"] = "int"
                 metric["labels"] = self.collect_attributes(instance["attributes"])
-                if mtype == "histogram":
+                if metric["type"] == "histogram":
                     self.pmda.debug("instance: %s" % instance) if self.pmda.dbg else None
                     metric["values"] = instance["bucketCounts"]
                     for item in instance["explicitBounds"]:
@@ -648,8 +733,9 @@ class Source(object):
                     metric["instances"].append("le=inf")
                 else: # summary
                     quantiles = instance["quantileValues"]
+                    metric["data_type"] = "double"
                     for item in quantiles:
-                        metric["instances"].append(item["quantile"])
+                        metric["instances"].append("quantile: %s" % item["quantile"])
                         metric["values"].append(item["value"])
 
                 if self.add_metric(metric):
@@ -660,18 +746,17 @@ class Source(object):
                 metric_sum_name = metric["name"] + "_sum"
 
                 metric["name"] = metric_count_name
-                metric["value"] = count
+                metric["values"].clear(); metric["values"].append(count_attr)
+                metric["is_singular"] = True
+                metric["data_type"] = "int"
                 if self.add_metric(metric):
                     num_metrics += 1
 
                 metric["name"] = metric_sum_name
-                metric["value"] = msum
-                metric["type"] = "double"
+                metric["values"].clear(); metric["values"].append(sum_attr)
+                metric["data_type"] = "double"
                 if self.add_metric(metric):
                     num_metrics += 1
-
-        self.pmda.debug("metric dictionary: %s" % metric) if self.pmda.dbg else None
-
         return num_metrics
 
     def parse_lines(self, text):
@@ -680,7 +765,7 @@ class Source(object):
 
         for resource in data:
             resource_attributes = self.collect_attributes(resource["resource"]["attributes"])
-            resource_name = resource_attributes["service.name"]
+            resource_name = resource_attributes["service_name"]
             scope_metrics = resource["scopeMetrics"]
             for scope in scope_metrics:
                 scope_name = scope["scope"]["name"]

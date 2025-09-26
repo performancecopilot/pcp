@@ -63,7 +63,7 @@ _pmdaopentelemetry_save_config()
     $sudo mv $CONFIG_DIR $CONFIG_DIR.$seq
     $sudo mkdir -p $CONFIG_DIR
     $sudo chmod 777 $CONFIG_DIR
-    for __f in $PCP_VAR_DIR/config/pmda/88.*.py; do
+    for __f in $PCP_VAR_DIR/config/pmda/164.*.py; do
         [ -f "$__f" ] && $sudo mv -f $__f $__f.$seq
     done
     # turn off all pmloggers when running open telemetry tests
@@ -78,8 +78,8 @@ _pmdaopentelemetry_restore_config()
         $sudo mv $CONFIG_DIR.$seq $CONFIG_DIR
         $sudo chmod 755 $CONFIG_DIR
     fi
-    $sudo rm -f $PCP_VAR_DIR/config/pmda/88.*.py
-    for __f in $PCP_VAR_DIR/config/pmda/88.*.py.$seq; do
+    $sudo rm -f $PCP_VAR_DIR/config/pmda/164.*.py
+    for __f in $PCP_VAR_DIR/config/pmda/164.*.py.$seq; do
         [ -f "$__f" ] && $sudo mv -f $__f `echo $__f | sed -e "s/\.$seq//"`
     done
 }
