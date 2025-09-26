@@ -50,6 +50,12 @@ static pmdaIndom docker_indomtab[NUM_INDOMS];
 #define INDOM(x) (docker_indomtab[x].it_indom)
 #define INDOMTAB_SZ ARRAY_SIZE(docker_indomtab)
 
+static json_metric_desc dockerd_metrics[] = {
+    /* GET localhost/info */
+    { "DockerRootDir", 0, 1, {0}, ""}
+};
+#define dockerd_metrics_size 	ARRAY_SIZE(dockerd_metrics)
+
 static json_metric_desc basic_metrics[] = {
     /* GET localhost/containers/$ID/json */
     { "State/Pid", 0, 1, {0}, ""},
@@ -425,6 +431,16 @@ stat_time_differs(struct stat *statbuf, struct stat *lastsbuf)
 }
 
 static void
+refresh_dockerd()
+{
+    char    json_query[BUFSIZ];
+    pmInDom indom = PM_INDOM_NULL;
+
+    pmsprintf(json_query, BUFSIZ, "http://localhost/info");
+    grab_values(json_query, indom, "dummy", dockerd_metrics, dockerd_metrics_size);
+}
+
+static void
 refresh_basic(char *path)
 {
     char    json_query[BUFSIZ];
@@ -465,6 +481,7 @@ docker_background_loop(void *loop)
 	local_freq = thread_freq;
 	pthread_mutex_unlock(&refresh_mutex);
 	sleep(local_freq);
+	docker_setup();
 	refresh_insts(resulting_path);
 	if (!loop)
 	    exit(0);
@@ -849,13 +866,25 @@ refresh_insts(char *path)
 static int
 docker_setup(void)
 {
-    static const char *docker_default = "/var/lib/docker";
-    const char        *docker = getenv("PCP_DOCKER_DIR");
+    refresh_dockerd();
+    const char *docker_api = dockerd_metrics[0].values.cp;
 
-    if (!docker)
-	docker = docker_default;
-    pmsprintf(resulting_path, sizeof(mypath), "%s/containers", docker);
+    static const char *docker_default = "/var/lib/docker";
+    const char        *docker_env = getenv("PCP_DOCKER_DIR");
+
+    const char *dir;
+    if (docker_api) {
+        dir = docker_api;
+    } else {
+        if (!docker_env) {
+            dir = docker_default;
+        } else {
+            dir = docker_env;
+        }
+    }
+    pmsprintf(resulting_path, sizeof(mypath), "%s/containers", dir);
     resulting_path[sizeof(resulting_path)-1] = '\0';
+
     return 0;
 }
 
@@ -899,7 +928,6 @@ docker_init(pmdaInterface *dp)
     for (i = 0; i < NUM_INDOMS; i++)
 	pmdaCacheOp(INDOM(i), PMDA_CACHE_CULL);
 	
-    docker_setup();
     sts = pthread_create(&docker_query_thread, NULL, docker_background_loop, loop);
     if (sts != 0) {
 	pmNotifyErr(LOG_DEBUG, "docker_init: Cannot spawn new thread: %d\n", sts);
@@ -962,7 +990,6 @@ main(int argc, char **argv)
     }
     
     if (qaflag) {
-	docker_setup();
 	docker_background_loop(0);
 	exit(0);
     }
