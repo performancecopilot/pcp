@@ -50,8 +50,14 @@ static pmdaIndom docker_indomtab[NUM_INDOMS];
 #define INDOM(x) (docker_indomtab[x].it_indom)
 #define INDOMTAB_SZ ARRAY_SIZE(docker_indomtab)
 
+static json_metric_desc dockerd_metrics[] = {
+    /* GET /info */
+    { "DockerRootDir", 0, 1, {0}, ""}
+};
+#define dockerd_metrics_size 	ARRAY_SIZE(dockerd_metrics)
+
 static json_metric_desc basic_metrics[] = {
-    /* GET localhost/containers/$ID/json */
+    /* GET /containers/$ID/json */
     { "State/Pid", 0, 1, {0}, ""},
     { "Name", 0, 1, {0}, ""},
     { "State/Running", CONTAINER_FLAG_RUNNING, 1, {0}, ""},
@@ -428,12 +434,22 @@ stat_time_differs(struct stat *statbuf, struct stat *lastsbuf)
 }
 
 static void
+refresh_dockerd()
+{
+    char    json_query[BUFSIZ];
+    pmInDom indom = PM_INDOM_NULL;
+
+    pmsprintf(json_query, BUFSIZ, "/info");
+    grab_values(json_query, indom, json_query, dockerd_metrics, dockerd_metrics_size);
+}
+
+static void
 refresh_basic(char *path)
 {
     char    json_query[BUFSIZ];
     pmInDom indom = INDOM(CONTAINERS_INDOM);
 
-    pmsprintf(json_query, BUFSIZ, "http://localhost/containers/%s/json", path);
+    pmsprintf(json_query, BUFSIZ, "/containers/%s/json", path);
     grab_values(json_query, indom, path, basic_metrics, basic_metrics_size);
 } 
 
@@ -443,7 +459,7 @@ refresh_version(char *path)
     char    json_query[BUFSIZ];
     pmInDom indom = PM_INDOM_NULL;
 
-    pmsprintf(json_query, BUFSIZ, "http://localhost/version");
+    pmsprintf(json_query, BUFSIZ, "/version");
     grab_values(json_query, indom, path, version_metrics, version_metrics_size);
 }
 
@@ -454,7 +470,7 @@ refresh_stats(char *path)
     pmInDom indom = INDOM(CONTAINERS_STATS_CACHE_INDOM);
 
     /* the ?stream=0 bit is set so as to not continuously request stats */
-    pmsprintf(json_query, BUFSIZ, "http://localhost/containers/%s/stats?stream=0", path);
+    pmsprintf(json_query, BUFSIZ, "/containers/%s/stats?stream=0", path);
     grab_values(json_query, indom, path, stats_metrics, stats_metrics_size);
 }
 
@@ -468,6 +484,7 @@ docker_background_loop(void *loop)
 	local_freq = thread_freq;
 	pthread_mutex_unlock(&refresh_mutex);
 	sleep(local_freq);
+	docker_setup();
 	refresh_insts(resulting_path);
 	if (!loop)
 	    exit(0);
@@ -853,10 +870,22 @@ static int
 docker_setup(void)
 {
     static const char *docker_default = "/var/lib/docker";
-    const char        *docker = getenv("PCP_DOCKER_DIR");
+    const char        *docker_env = getenv("PCP_DOCKER_DIR");
+    const char        *docker_api;
+    const char        *docker;
 
-    if (!docker)
-	docker = docker_default;
+    refresh_dockerd();
+    docker_api = dockerd_metrics[0].values.cp;
+
+    if (docker_api) {
+        docker = docker_api;
+    } else {
+        if (!docker_env) {
+            docker = docker_default;
+        } else {
+            docker = docker_env;
+        }
+    }
     pmsprintf(resulting_path, sizeof(mypath), "%s/containers", docker);
     resulting_path[sizeof(resulting_path)-1] = '\0';
     return 0;
@@ -882,8 +911,8 @@ indomtab_setup(void)
 static void
 setup(void)
 {
-    docker_setup();
     http_client_setup();
+    docker_setup();
     indomtab_setup();
 }
 
