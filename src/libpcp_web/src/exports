@@ -114,6 +114,7 @@ PCP_WEB_1.6 {
 
 PCP_WEB_1.7 {
   global:
+    ini_parse;
     pmIniFileParse;
 } PCP_WEB_1.6;
 
