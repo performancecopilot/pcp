@@ -1,4 +1,5 @@
 deps/
+exports
 sds.c
 sds.h
 sdsalloc.h

@@ -34,8 +34,8 @@ then
 fi
 
 echo 'BEGIN {' >$tmp.awk
-sed -n <../../include/builddefs >>$tmp.awk \
-    -e '/^ENABLE_/{
+sed -E  -n <../../include/builddefs >>$tmp.awk \
+    -e '/^(ENABLE|HAVE)_/{
 s/ //g
 s/^[^=]*/    builddefs["&/
 s/=/"]="/
@@ -54,7 +54,7 @@ cat <<End-of-File >>$tmp.awk
 		  if (\$2 == "$PCP_PLATFORM") {
 		    skip = 0
 		  }
-		  else if (\$2 !~ /^ENABLE_/) {
+		  else if (\$2 !~ /^ENABLE_/ && \$2 !~ /^HAVE_/) {
 		    skip = 1
 		  }
 		  else if (builddefs[\$2] == "") {

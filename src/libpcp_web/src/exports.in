@@ -1,3 +1,17 @@
+# This is the master version of the exports file.
+# It is in the syntax of the GNU ld VERSION command with
+# the following additions:
+# 1. comment lines prefixed by #
+# 2. conditional lines of the form
+#    #if <name>
+#    ...
+#    #endif
+#    where <name> is one of the values for $PCP_PLATFORM from pcp.conf
+#    or <name> is one of the ENABLE_* or HAVE_* makefile variables from
+#    builddefs; in the latter case if the makefile variable has the value
+#    "true" then the #if -- #endif block here is included
+#
+
 PCP_WEB_1.0 {
   global:
     pmjsonInitIndom;
@@ -114,7 +128,9 @@ PCP_WEB_1.6 {
 
 PCP_WEB_1.7 {
   global:
+#if HAVE_LIBINIH
     ini_parse;
+#endif
     pmIniFileParse;
 } PCP_WEB_1.6;
 

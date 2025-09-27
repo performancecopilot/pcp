@@ -1,4 +1,4 @@
-# This is the main version of the exports file.
+# This is the master version of the exports file.
 # It is in the syntax of the GNU ld VERSION command with
 # the following additions:
 # 1. comment lines prefixed by #
@@ -7,10 +7,11 @@
 #    ...
 #    #endif
 #    where <name> is one of the values for $PCP_PLATFORM from pcp.conf
-#    or <name> is one of the ENABLE_* makefile variables from builddefs;
-#    in the latter case if the variable has the value "true" in buildefs
-#    then the #if -- #endif block here is included
+#    or <name> is one of the ENABLE_* or HAVE_* makefile variables from
+#    builddefs; in the latter case if the makefile variable has the value
+#    "true" then the #if -- #endif block here is included
 #
+
 PCP_4.0 {
   global:
     __pmAFblock;
