@@ -777,15 +777,17 @@ _check_started()
 
 # check ${IAM} really stopped
 #
-# $1 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
+# $1 = host
+# $2 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
 #      not a possibly symbolic path from a control file)
-# $2 = args from control file
+# $3 = args from control file
 #
 _check_stopped()
 {
     $SHOWME && return 0
-    dir="$1"
-    args="$2"
+    host="$1"
+    dir="$2"
+    args="$3"
     max=50		# 1/10 of a second, so 5 secs max
     i=0
     $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "Stopped? ""$PCP_ECHO_C"
@@ -1849,7 +1851,7 @@ _do_stop()
 	    #
 	    $VERBOSE && echo >&2 "Found PID $__pid to stop using signal ${PCPQA_KILL_SIGNAL-TERM}"
 	    $KILL ${PCPQA_KILL_SIGNAL-TERM} $__pid
-	    if _check_stopped "$__args_dir" "$__args"
+	    if _check_stopped "$__host" "$__args_dir" "$__args"
 	    then
 		:
 	    elif [ -z "$PCPQA_KILL_SIGNAL" ]
@@ -1858,7 +1860,7 @@ _do_stop()
 		#
 		$VERBOSE && echo >&2 "That didn't work, try using signal KILL"
 		$KILL KILL $__pid
-		if _check_stopped "$__args_dir" "$__args"
+		if _check_stopped "$__host" "$__args_dir" "$__args"
 		then
 		    :
 		else
