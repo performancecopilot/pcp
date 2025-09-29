@@ -1189,8 +1189,11 @@ read_rule(FILE *f, rule_t **r, char *name)
 	if ((sts = read_next_attribute(f, &attr, &value)) < 0)
 	    return errmsg;
 	else if (sts == 0) {	/* end of attribute list */
-	    if ((*r = alloc_rule(rule)) == NULL)
+	    if ((*r = alloc_rule(rule)) == NULL) {
+		free(rule.predicate);
+		free(rule.enumerate);
 		return errmsg;
+	    }
 	    break;
 	}
 	else {
