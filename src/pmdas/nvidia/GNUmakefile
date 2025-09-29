@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015,2020 Red Hat.
+# Copyright (c) 2014-2015,2020,2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -29,6 +29,8 @@ LDIRT	= domain.h *.log *.dir *.pag so_locations
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
+LOGCONFDIR = $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
+LOGCONFVARDIR = $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
 
 default:	$(LIBTARGET) $(CMDTARGET)
 
@@ -40,6 +42,10 @@ install:	default
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFDIR)
+	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/config pmlogconf.config $(LOGCONFDIR)/config
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
 
 $(OBJECTS): domain.h
 
