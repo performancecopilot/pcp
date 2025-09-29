@@ -3,6 +3,10 @@
 #include "architecture.h"
 
 #include <stddef.h>
+#ifdef NDEBUG
+/* assert() failure is better than core dump */
+#undef NDEBUG
+#endif
 #include <assert.h>
 
 #include <perfmon/pfmlib.h>
