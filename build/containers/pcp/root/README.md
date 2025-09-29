@@ -18,16 +18,17 @@ $ podman run -d \
 
 **Note:** On SELinux enabled systems, the following boolean needs to be set: `sudo setsebool -P container_manage_cgroup true`
 
-### Enabling host processes, eBPF, network and container metrics
+### Enabling host processes, eBPF, NVIDIA GPU, network and container metrics
 
 ```
 $ sudo podman run -d \
     --name pcp \
     --privileged \
     --net host \
+    --device nvidia.com/gpu=all \
     --systemd always \
     -e HOST_MOUNT=/host \
-    -e PCP_DOMAIN_AGENTS=bpf,bpftrace \
+    -e PCP_DOMAIN_AGENTS=bpf,bpftrace,nvidia \
     -v pmlogger:/var/log/pcp/pmlogger \
     -v pmproxy:/var/log/pcp/pmproxy \
     -v /:/host:ro,rslave \
