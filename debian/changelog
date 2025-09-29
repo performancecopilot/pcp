@@ -1,6 +1,7 @@
 pcp (7.0.2-1) unstable; urgency=low
 
   * New release (full details in CHANGELOG).
+  * Introduces a JSON benchmark results format-converter package.
 
  -- Nathan Scott <nathans@debian.org>  Wed, 15 Oct 2025 17:52:14 +1000
 

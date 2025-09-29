@@ -27,7 +27,7 @@ pcp_import_mrtg = pcp-import-mrtg2pcp
 pcp_import_sheet = pcp-import-sheet2pcp
 pcp_import_iostat = pcp-import-iostat2pcp
 pcp_import_collectl = pcp-import-collectl2pcp
-pcp_import_guidellm = pcp-import-guidellm2pcp
+pcp_import_benchmarks = pcp-import-benchmarks
 pcp_export_elasticsearch = pcp-export-pcp2elasticsearch
 pcp_export_graphite = pcp-export-pcp2graphite
 pcp_export_influxdb = pcp-export-pcp2influxdb
@@ -72,7 +72,7 @@ dirpcp_import_mrtg = debian/$(pcp_import_mrtg)
 dirpcp_import_sheet = debian/$(pcp_import_sheet)
 dirpcp_import_iostat = debian/$(pcp_import_iostat)
 dirpcp_import_collectl = debian/$(pcp_import_collectl)
-dirpcp_import_guidellm = debian/$(pcp_import_guidellm)
+dirpcp_import_benchmarks = debian/$(pcp_import_benchmarks)
 dirpcp_export_elasticsearch = debian/$(pcp_export_elasticsearch)
 dirpcp_export_graphite = debian/$(pcp_export_graphite)
 dirpcp_export_influxdb = debian/$(pcp_export_influxdb)
@@ -101,7 +101,7 @@ alldir = $(dirpcp) $(dirpcpcfg) \
 		$(dirlibpcp_mmv) $(dirlibpcp_mmvdev) \
 		$(dirpcp_import_sar) $(dirpcp_import_mrtg) \
 		$(dirpcp_import_collectl) $(dirpcp_import_ganglia) \
-		$(dirpcp_import_guidellm) $(dirpcp_import_iostat) \
+		$(dirpcp_import_benchmarks) $(dirpcp_import_iostat) \
 		$(dirpcp_import_sheet) \
 		$(dirpcp_testsuite) $(dirpcp_pmda_infiniband) \
 		$(dirpcp_zeroconf) $(allperldir) $(dirpcp_python3)
@@ -129,7 +129,7 @@ pkgpcp_import_mrtg = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_mrtg);
 pkgpcp_import_sheet = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_sheet);
 pkgpcp_import_iostat = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_iostat);
 pkgpcp_import_collectl = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_collectl);
-pkgpcp_import_guidellm = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_guidellm);
+pkgpcp_import_benchmarks = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_import_benchmarks);
 pkgpcp_export_elasticsearch = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_elasticsearch);
 pkgpcp_export_graphite = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_graphite);
 pkgpcp_export_influxdb = $(zip) DIST_ROOT="`pwd`"/$(dirpcp_export_influxdb);
@@ -248,7 +248,8 @@ binary-arch: checkroot build-stamp
 	if debian/checkconf HAVE_PERL; then $(pkglibpcp_import_perl) $(MAKE) -C src/perl/LogImport install_perl; else true; fi
 	if debian/checkconf HAVE_PERL; then $(pkgpcp_logsummary_perl) $(MAKE) -C src/perl/LogSummary install_perl; else true; fi
 	$(pkgpcp_import_collectl) $(MAKE) -C src/collectl2pcp install
-	$(pkgpcp_import_guidellm) $(MAKE) -C src/guidellm2pcp install
+	$(pkgpcp_import_benchmarks) $(MAKE) -C src/guidellm2pcp install
+	$(pkgpcp_import_benchmarks) $(MAKE) -C src/vllmbench2pcp install
 	$(pkgpcp_export_elasticsearch) $(MAKE) -C src/pcp2elasticsearch install
 	$(pkgpcp_export_graphite) $(MAKE) -C src/pcp2graphite install
 	$(pkgpcp_export_influxdb) $(MAKE) -C src/pcp2influxdb install
