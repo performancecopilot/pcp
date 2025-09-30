@@ -17,7 +17,7 @@
 .SH NAME
 \f3pcp-dstat\f1 \- versatile tool for generating system resource statistics
 .SH SYNOPSIS
-\f3pcp\f1 [\f2pcp\ options\f1] \f3dstat\f1 [\f3\-acdfghilmnpqrstvVy?\f1]
+\f3pcp\f1 [\f2pcp\ options\f1] \f3dstat\f1 [\f3\-acdfghilmnpqrstuvVy?\f1]
 [\f3\-C\f1 \f2cpus\f1]
 [\f3\-G\f1 \f2gpus\f1]
 [\f3\-D\f1 \f2disks\f1]
@@ -241,11 +241,14 @@ show time spent between updates in seconds
 .TP
 \fB\-t\fR, \fB\-\-time\fR
 enable time/date output (try \fB\-\-time-adv\fR for millisecond precision,
-or \fB\-\-time-min\fR for a minimal hours:minutes:seconds form)
+or \fB\-\-times\fR for a minimal hours:minutes:seconds form)
 .TP
 \fB\-T\fR, \fB\-\-epoch\fR
 enable time counter (seconds since epoch, or millisecond precision from
 the \fB\-\-epoch-adv\fR plugin)
+.TP
+\fB\-u\fR, \fB\-\-times\fR
+enable a short-format system time reporting column (hours:minutes:seconds)
 .TP
 \fB\-y\fR, \fB\-\-sys\fR
 enable system stats (interrupts, context switches)

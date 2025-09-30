@@ -589,7 +589,7 @@ class DstatTool(object):
         timefmtlen = len(time.strftime(TIMEFMT, time.localtime()))
         timer = DstatTimePlugin('time', 'system', timefmtlen)
         timeradv = DstatTimePlugin('time-adv', 'system', timefmtlen + 4)
-        timermin = DstatTimePlugin('time-hms', 'system', 8)
+        timermin = DstatTimePlugin('times', 'system', 8)  # short-format
         epoch = DstatTimePlugin('epoch', 'epoch', 10)
         epochadv = DstatTimePlugin('epoch-adv', 'epoch', 14)
         names = [timer.name, timeradv.name, timermin.name, epoch.name, epochadv.name]
@@ -646,7 +646,7 @@ class DstatTool(object):
                 print('You did not select any stats, using -cdngy by default.')
             else:  # if no time and no plugins specified, provide a time
                 print('You did not select any stats, using -ucdngy by default.')
-                self.plugins += ['time-hms']
+                self.plugins += ['times']
             self.plugins += ['cpu', 'disk', 'net', 'page', 'sys']
 
         lib = self.pmconfig
@@ -787,7 +787,7 @@ class DstatTool(object):
         opts.pmSetLongOptionText(' '*5 + '-S swap1,total' + ' '*8 + 'include swap1 and total')
         opts.pmSetLongOption('time', 0, 't', '', 'enable time/date output')
         opts.pmSetLongOption('time-adv', 0, None, '', 'enable time/date output (with milliseconds)')
-        opts.pmSetLongOption('time-hms', 0, 'u', '', 'enable a very short time output format')
+        opts.pmSetLongOption('times', 0, 'u', '', 'enable a short time output format (HH:MM::SS)')
         opts.pmSetLongOption('epoch', 0, 'T', '', 'enable time counter (seconds since epoch)')
         opts.pmSetLongOption('epoch-adv', 0, None, '', 'enable time counter (milliseconds since epoch)')
         opts.pmSetLongOption('sys', 0, 'y', '', 'enable system stats')
@@ -1196,7 +1196,7 @@ class DstatTool(object):
             value = str(int(stamp.value))
         elif plugin.name in ['time', 'time-adv']:    # formatted time
             value = stamp().strftime(TIMEFMT)
-        elif plugin.name in ['time-hms']:    # minimal formatted time
+        elif plugin.name in ['times']:    # short-form formatted time
             value = stamp().strftime(TIMEMIN)
         if plugin.name in ['epoch-adv', 'time-adv']: # with milliseconds
             value = value + '.' + str(stamp.value.tv_nsec * 1000000)[:3]
