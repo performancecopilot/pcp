@@ -83,4 +83,4 @@ $(COV_DIR)/%.o: %.c
 	$(CCF) $(COV_FLAGS) -c -o $@ $^
 
 fakefs:	fakefs.tar.gz
-	tar xf fakefs.tar.gz
+	$(TAR) -xf fakefs.tar.gz

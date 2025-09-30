@@ -12,11 +12,15 @@ endif
 PATH	= $(shell . $(PCP_DIR)/etc/pcp.env; echo $$PATH)
 include $(PCP_INC_DIR)/builddefs
 
-default default_pcp setup: $(FAKEFS)
-	tar xf $(FAKEFS)
+default default_pcp setup: fakefs
 
 LDIRT = fakefs
 
 install install_pcp:
 
 include $(BUILDRULES)
+
+fakefs:
+	sudo rm -rf fakefs
+	$(TAR) -xpf $(FAKEFS)
+	sudo chown -R root:root fakefs
