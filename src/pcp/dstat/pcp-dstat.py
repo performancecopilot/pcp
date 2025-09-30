@@ -92,8 +92,7 @@ ANSI = {
 
     'clear': '\033[2J',
     'clearline': '\033[2K',
-    'save': '\033[s',
-    'restore': '\033[u',
+    'linestart': '\033[0G',
     'nolinewrap': '\033[7l',
 
     'default': '\033[0;0m',
@@ -1862,7 +1861,7 @@ class DstatTool(object):
                 newline = '\n'
                 newline += ANSI['reset'] + ANSI['clearline']
             elif loop != 0:
-                newline = ANSI['restore']
+                newline = ANSI['clearline'] + ANSI['linestart']
 
         # Display header
         if showheader:
@@ -1871,7 +1870,6 @@ class DstatTool(object):
             showheader = False
             sys.stdout.write(newline)
             newline = self.show_header(vislist)
-            newline += ANSI['reset'] + ANSI['clearline'] + ANSI['save']
 
         # Display CSV header
         newoline = ''
