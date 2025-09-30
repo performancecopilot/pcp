@@ -85,7 +85,8 @@ fi
 #
 
 here=`pwd`
-for dir in src/include src/libpcp src/libpcp_static src/libpcp_pmda \
+for dir in vendor \
+	src/include src/libpcp src/libpcp_static src/libpcp_pmda \
 	src/pmcpp src/pmns \
 	src/newhelp \
 	src/libpcp_pmcd src/libpcp_gui \
