@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2015 Ken McDonell.  All Rights Reserved.
 #
