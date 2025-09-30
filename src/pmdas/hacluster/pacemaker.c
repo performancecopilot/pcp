@@ -794,7 +794,7 @@ hacluster_refresh_pacemaker_resources(const char *instance_name, struct resource
 void
 pacemaker_stats_setup(void)
 {
-	static char pacemaker_command_cibadmin[] = "cibadmin --query --local";
+	static char pacemaker_command_cibadmin[] = "cibadmin --query";
 	static char pacemaker_command_crm_mon[] = "crm_mon -X --inactive";
 	char *env_command;
 
