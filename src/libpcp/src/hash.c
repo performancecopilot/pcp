@@ -141,11 +141,9 @@ __pmHashDel(unsigned int key, void *data, __pmHashCtl *hcp)
 void
 __pmHashClear(__pmHashCtl *hcp)
 {
-    if (hcp->hsize != 0) {
-	free(hcp->hash);
-	hcp->hash = NULL;
-	hcp->hsize = 0;
-    }
+    free(hcp->hash);
+    hcp->hash = NULL;
+    hcp->hsize = 0;
 }
 
 /*
