@@ -56,14 +56,16 @@ perl5
 pkgconf
 pstree
 postfix
-postgresql15-client
+postgresql17-client
 py311-elasticsearch
 py311-libvirt
 py311-lxml
 py311-openpyxl
+py311-pandas
 py311-pillow
 py311-prometheus-client
 py311-psycopg2
+py311-pyarrow
 py311-requests
 py311-rtslib-fb
 py311-setuptools
