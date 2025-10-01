@@ -55,7 +55,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	dumpstack.c usergroup.c derived_help.c ready-or-not.c cleanmapdir.c \
 	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c \
 	strnfoo.c mmv_ondisk.c newcontext.c api_abi.c interp_bug3.c \
-	pmsetmode.c scanindex.c
+	pmsetmode.c scanindex.c localtime.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -338,79 +338,79 @@ sizeof:	sizeof.c
 
 template:	template.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ template.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 exercise:	exercise.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ exercise.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 chkacc1:	chkacc1.c localconfig.h
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ chkacc1.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 chkacc2:	chkacc2.c localconfig.h
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ chkacc2.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 chkacc3:	chkacc3.c localconfig.h
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ chkacc3.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 ipc:	ipc.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ ipc.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 chk_memleak:	chk_memleak.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ chk_memleak.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 chknumval:	chknumval.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ chknumval.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 logcontrol:	logcontrol.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ logcontrol.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 numberstr: numberstr.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ numberstr.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 pmcdgone:	pmcdgone.c localconfig.h
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ pmcdgone.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 slow_af:	slow_af.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ slow_af.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 mmv_poke:	mmv_poke.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ mmv_poke.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 labels:	labels.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ labels.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 mergelabels:	mergelabels.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ mergelabels.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 mergelabelsets:	mergelabelsets.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ mergelabelsets.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 parselabels:	parselabels.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ parselabels.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 traverse_return_codes:	traverse_return_codes.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ traverse_return_codes.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 getdomainname:	getdomainname.c
 	rm -f $@
-	$(CCF) $(CDEFS) -o $@ getdomainname.c $(LDLIBS)
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 pmstrn:	pmstrn.c
 	rm -f $@
@@ -461,6 +461,10 @@ newcontext:	newcontext.c
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 scanindex:	scanindex.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+localtime:	localtime.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 

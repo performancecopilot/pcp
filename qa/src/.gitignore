@@ -123,6 +123,7 @@ labels
 libpcp.h
 loadderived
 loadconfig2
+localtime
 logcontrol
 lookupnametest
 mark-bug
