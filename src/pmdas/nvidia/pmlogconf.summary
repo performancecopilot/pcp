@@ -1,0 +1,15 @@
+#pmlogconf-setup 2.0
+ident   NVIDIA GPU metrics
+probe	nvidia.numcards values ? include : exclude
+	nvidia.energy
+	nvidia.gpuactive
+	nvidia.gpuutilaccum
+	nvidia.memactive
+	nvidia.memused
+	nvidia.memusedaccum
+	nvidia.memutilaccum
+	nvidia.memtotal
+	nvidia.nprocs
+	nvidia.power
+	nvidia.proc.all
+	nvidia.samples

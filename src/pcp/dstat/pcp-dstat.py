@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (C) 2018-2022 Red Hat.
+# Copyright (C) 2018-2025 Red Hat.
 # Copyright (C) 2004-2016 Dag Wieers <dag@wieers.com>
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -49,6 +49,7 @@ def py3round(number, ndigits=None):
     return round(number, ndigits)
 
 TIMEFMT = os.getenv('DSTAT_TIMEFMT') or '%d-%m %H:%M:%S'
+TIMEMIN = '%H:%M:%S'
 
 NOUNITS = pmapi.pmUnits()
 
@@ -91,8 +92,7 @@ ANSI = {
 
     'clear': '\033[2J',
     'clearline': '\033[2K',
-    'save': '\033[s',
-    'restore': '\033[u',
+    'linestart': '\033[0G',
     'nolinewrap': '\033[7l',
 
     'default': '\033[0;0m',
@@ -589,10 +589,11 @@ class DstatTool(object):
         timefmtlen = len(time.strftime(TIMEFMT, time.localtime()))
         timer = DstatTimePlugin('time', 'system', timefmtlen)
         timeradv = DstatTimePlugin('time-adv', 'system', timefmtlen + 4)
+        timermin = DstatTimePlugin('times', 'system', 8)  # short-format
         epoch = DstatTimePlugin('epoch', 'epoch', 10)
         epochadv = DstatTimePlugin('epoch-adv', 'epoch', 14)
-        names = [timer.name, timeradv.name, epoch.name, epochadv.name]
-        self.timelist = [timer, timeradv, epoch, epochadv]
+        names = [timer.name, timeradv.name, timermin.name, epoch.name, epochadv.name]
+        self.timelist = [timer, timeradv, timermin, epoch, epochadv]
         self.timeplugins = names
         self.allplugins.append(names)
 
@@ -639,8 +640,13 @@ class DstatTool(object):
         for section in self.plugins:
             if section in self.timeplugins:
                 timelen += 1
-        if not self.plugins or (timelen > 0 and timelen == len(self.plugins)):
-            print('You did not select any stats, using -cdngy by default.')
+        have_time = timelen > 0 and timelen == len(self.plugins)
+        if not self.plugins or have_time:
+            if have_time:
+                print('You did not select any stats, using -cdngy by default.')
+            else:  # if no time and no plugins specified, provide a time
+                print('You did not select any stats, using -ucdngy by default.')
+                self.plugins += ['times']
             self.plugins += ['cpu', 'disk', 'net', 'page', 'sys']
 
         lib = self.pmconfig
@@ -750,7 +756,7 @@ class DstatTool(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("acC:dD:fgG:hiI:lL:mM:nN:o:pP:qrsS:tTvVy?")
+        opts.pmSetShortOptions("acC:dD:fgG:hiI:lL:mM:nN:o:pP:qrsS:tTuvVy?")
         opts.pmSetShortUsage("[-afv] [options...] [delay [count]]")
         opts.pmSetLongOptionText('Versatile tool for generating system resource statistics')
 
@@ -781,6 +787,7 @@ class DstatTool(object):
         opts.pmSetLongOptionText(' '*5 + '-S swap1,total' + ' '*8 + 'include swap1 and total')
         opts.pmSetLongOption('time', 0, 't', '', 'enable time/date output')
         opts.pmSetLongOption('time-adv', 0, None, '', 'enable time/date output (with milliseconds)')
+        opts.pmSetLongOption('times', 0, 'u', '', 'enable a short time output format (HH:MM::SS)')
         opts.pmSetLongOption('epoch', 0, 'T', '', 'enable time counter (seconds since epoch)')
         opts.pmSetLongOption('epoch-adv', 0, None, '', 'enable time counter (milliseconds since epoch)')
         opts.pmSetLongOption('sys', 0, 'y', '', 'enable system stats')
@@ -1189,6 +1196,8 @@ class DstatTool(object):
             value = str(int(stamp.value))
         elif plugin.name in ['time', 'time-adv']:    # formatted time
             value = stamp().strftime(TIMEFMT)
+        elif plugin.name in ['times']:    # short-form formatted time
+            value = stamp().strftime(TIMEMIN)
         if plugin.name in ['epoch-adv', 'time-adv']: # with milliseconds
             value = value + '.' + str(stamp.value.tv_nsec * 1000000)[:3]
         return value
@@ -1850,9 +1859,9 @@ class DstatTool(object):
         if op.update and not self.novalues:
             if step == 1 and update != 0 and not onovalues:
                 newline = '\n'
-                newline += ANSI['reset'] + ANSI['clearline'] + ANSI['save']
+                newline += ANSI['reset'] + ANSI['clearline']
             elif loop != 0:
-                newline = ANSI['restore']
+                newline = ANSI['clearline'] + ANSI['linestart']
 
         # Display header
         if showheader:
@@ -1861,7 +1870,6 @@ class DstatTool(object):
             showheader = False
             sys.stdout.write(newline)
             newline = self.show_header(vislist)
-            newline += ANSI['reset'] + ANSI['clearline'] + ANSI['save']
 
         # Display CSV header
         newoline = ''
