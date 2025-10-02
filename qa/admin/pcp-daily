@@ -847,6 +847,14 @@ do
 	    [ X"$what" = Xall ] && check_what='-x valgrind'
 	    ;;
 
+	vm10)
+	    # localtime() bug in FreeBSD 14 causes some tests to hang
+	    # so skip 'em
+	    #
+	    [ X"$what" = Xall ] && check_what='-X 1547'
+	    ;;
+
+
 	vm15)
 	    # 1123 loops forever lost in an X11 wasteland
 	    [ X"$what" = Xall ] && check_what='-X 1123'
