@@ -23,4 +23,3 @@ include $(BUILDRULES)
 fakefs:
 	sudo rm -rf fakefs
 	$(TAR) -xpf $(FAKEFS)
-	sudo chown -R root:root fakefs
