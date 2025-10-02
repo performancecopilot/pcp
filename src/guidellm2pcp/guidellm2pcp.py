@@ -334,4 +334,6 @@ with open(args.results) as json_data:
 
         log.pmiPutMark() # end of benchmark iteration
 
+    if args.verbose:
+        print("Writing archive:", args.archive)
     del log # flush the archive to persistent storage

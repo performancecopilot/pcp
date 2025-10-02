@@ -16,9 +16,9 @@
 #
 
 import argparse
+import calendar
 import json
 import sys
-import time
 
 from datetime import datetime, timedelta, timezone
 from pcp import pmapi, pmi
@@ -166,19 +166,19 @@ def put_metric_values(pcp, values, instance) -> None:
                    'mean_e2el_ms', 'median_e2el_ms',
                    'std_e2el_ms', 'p99_e2el_ms']:
         if metric in values and values[metric] is not None:
-            print('adding', metric, ':', str(values[metric]))
+            if args.verbose:
+                print('adding', metric, ':', str(values[metric]))
             pcp.pmiPutValue(pmns + metric, instance, str(values[metric]))
 
 
 def timestamp(timestring) -> datetime:
     # extract timestamp from string like "20250929-080417"
-    print('timestring:', timestring)
     (dates, times) = timestring.split('-')
     # (year, month, day, hour, minute, second, weekday, day_of_year, is_dst)
     (yy, mm, dd) = (int(dates[0:4]), int(dates[4:6]), int(dates[6:8]))
     (HH, MM, SS) = (int(times[0:2]), int(times[2:4]), int(times[4:6]))
     local_time_tuple = (yy, mm, dd, HH, MM, SS, 0, 0, 0)
-    seconds_since_epoch = time.mktime(local_time_tuple)
+    seconds_since_epoch = calendar.timegm(local_time_tuple)
     return datetime.fromtimestamp(seconds_since_epoch, timezone.utc)
 
 
@@ -242,4 +242,6 @@ with open(args.results) as json_data:
 
     log.pmiPutMark() # end of benchmark iteration
 
+    if args.verbose:
+        print("Writing archive:", args.archive)
     del log # flush the archive to persistent storage
