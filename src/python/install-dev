@@ -19,8 +19,20 @@ sudo $PCP_MAKE_PROG install
 packing_list=../../python3-pcp.list
 if [ ! -f "$packing_list" ]
 then
-    echo "Arrgh: $packing_list does not exist, you lose."
-    exit
+    # not at ../.. try ../../pcp-<buildversion>
+    if [ -f ../../VERSION.pcp ]
+    then
+	. ../../VERSION.pcp
+	packing_list=../../pcp-$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION/python3-pcp.list
+	if [ ! -f "$packing_list" ]
+	then
+	    echo "Arrgh: $packing_list does not exist, you lose."
+	    exit
+	fi
+    else
+	echo "Arrgh: $packing_list does not exist, you lose."
+	exit
+    fi
 fi
 
 if [ ! -d build ]
