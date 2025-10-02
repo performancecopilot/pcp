@@ -321,13 +321,12 @@ _is_triaged()
     sed -n <triaged \
 	-e '/^'$seq'	/{
 s///
-s@\\@\\\\\\\\\\\\\\\\@g
+s@\\@\\\\\\\\@g
 p
 }' \
     | while read _line
     do
-	eval `echo "$_line" | sed -e 's/\//\\\\/g' -e 's/^/_re="/' -e 's/	.*/"/'`
-	eval `echo "$_line" | sed -e 's/^[^	]*	/_comments="/' -e 's/$/"/'`
+	eval `echo "$_line" | sed -e 's/^/_re="/' -e 's/	.*/"/'`
 	if grep -E "$_re" $tmp.whatami >/dev/null 2>&1
 	then
 	    # triaged, don't treat as a Failure
