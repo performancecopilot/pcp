@@ -1,14 +1,14 @@
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-TESTDIR = $(PCP_VAR_DIR)/testsuite/named
-TESTDATA = $(shell echo bind-*.txt bind-*.xml)
+TESTDIR = $(PCP_VAR_DIR)/testsuite/vllmbench
+RESULTS = $(shell echo *.json)
 
-default default_pcp setup: 
+default default_pcp setup:
 
 install install_pcp:
 	$(INSTALL) -m 755 -d $(TESTDIR)
-	$(INSTALL) -m 644 -f $(TESTDATA) $(TESTDIR)
+	$(INSTALL) -m 644 -f $(RESULTS) $(TESTDIR)
 	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 
 include $(BUILDRULES)
