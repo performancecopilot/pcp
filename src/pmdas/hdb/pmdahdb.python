@@ -52,11 +52,15 @@ from cpmapi import (
 from pcp.pmapi import pmContext, pmUnits
 from pcp.pmda import PMDA, pmdaIndom, pmdaInstid, pmdaMetric
 try:
+    from packaging.version import parse as Version
+except: # pylint: disable=bare-except
+    from distutils.version import LooseVersion as Version # pylint: disable=deprecated-module
+
+try:
     from hdbcli import dbapi
-    from looseversion import LooseVersion
     from pyhdbcli import OperationalError, ResultRow
 except:
-    raise ImportError("Failed to import hdbcli, pyhdbcli, and/or looseversion. Please make sure these modules are " \
+    raise ImportError("Failed to import hdbcli, and/or pyhdbcli. Please make sure these modules are " \
     "installed.")
 
 
@@ -163,9 +167,9 @@ def _hana_revision_included(
     """
     if revision is None:
         raise ValueError("version must not be None")
-    v_revision = LooseVersion(revision)
-    v_min = LooseVersion(min_revision) if min_revision else None
-    v_max = LooseVersion(max_revision) if max_revision else None
+    v_revision = Version(revision)
+    v_min = Version(min_revision) if min_revision else None
+    v_max = Version(max_revision) if max_revision else None
 
     if v_min is not None and v_max is not None:
         if v_max < v_min:
@@ -3483,14 +3487,15 @@ def _parse_config(filename: str) -> _Config:
 
     # hana config parsing
     try:
+        section = parser[_Config.HDBConfig.SECTION]
         hdb_config = _Config.HDBConfig(
-            host=parser.get(_Config.HDBConfig.SECTION, "host"),
-            port=parser.getint(_Config.HDBConfig.SECTION, "port"),
-            user=parser.get(_Config.HDBConfig.SECTION, "user"),
-            password=parser.get(_Config.HDBConfig.SECTION, "password"),
-            connect_timeout=parser.get(_Config.HDBConfig.SECTION, "connect_timeout"),
-            node_timeout=parser.get(_Config.HDBConfig.SECTION, "node_connect_timeout"),
-            comm_timeout=parser.get(_Config.HDBConfig.SECTION, "communication_timeout"),
+            host=section.get("host", 'localhost'),
+            port=section.getint("port", 39017),
+            user=section.get("user"),
+            password=section.get("password"),
+            connect_timeout=section.get("connect_timeout", '60000'),
+            node_timeout=section.get("node_connect_timeout", '10000'),
+            comm_timeout=section.get("communication_timeout", '2000'),
         )
     except configparser.Error as parse_err:
         raise RuntimeError(
