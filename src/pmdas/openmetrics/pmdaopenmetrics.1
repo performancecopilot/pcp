@@ -2,6 +2,7 @@
 .\"
 .\" Copyright (c) 2017-2019 Red Hat.
 .\" Copyright (c) 2017 Ronak Jain.
+.\" Copyright (c) 2025 Lauren Chilton.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -25,6 +26,7 @@
 [\f3\-c\f1 \f2config\f1]
 [\f3\-d\f1 \f2domain\f1]
 [\f3\-l\f1 \f2logfile\f1]
+[\f3\-R\f1 \f2refresh_timeout\f1]
 [\f3\-r\f1 \f2root\f1]
 [\f3\-t\f1 \f2timeout\f1]
 [\f3\-u\f1 \f2user\f1]
@@ -138,6 +140,13 @@ Use of the
 .B \-r
 option may also change the defaults for some other command line options,
 e.g. the default log file name and the default configuration directory.
+.PP
+The
+.B \-R
+option allows the user to configure the \fItimeout\fR,
+in seconds, between cluster refreshes. The default value is
+.B 10
+seconds.
 .SH "CONFIGURATION SOURCES"
 As it runs,
 .B pmdaopenmetrics

@@ -4,9 +4,84 @@ QA output created by 1976
 -- metric removal of new source/metric --
 Error: openmetrics.simple_metric: Unknown metric name
 
+-- check control metrics disappeared --
+
+openmetrics.control.status_code PMID: 144.0.6 [per-end-point source URL response status code after the most recent fetch]
+    Data Type: 32-bit int  InDom: 144.0 0x24000000
+    Semantics: discrete  Units: none
+    inst [0 or "control"] value 0
+    inst [1 or "awk_scripted"] value 0
+    inst [2 or "bad_summary_nometa"] value 0
+    inst [3 or "collectd_sample"] value 0
+    inst [4 or "curl.script"] value 0
+    inst [5 or "curl_filtered"] value 0
+    inst [6 or "curl_hostname_label"] value 0
+    inst [7 or "curl_scripted"] value 0
+    inst [8 or "duplicate_hostname_label"] value 0
+    inst [9 or "good_summary_nometa"] value 0
+    inst [10 or "jenkins_monitoring_javamelody"] value 0
+    inst [11 or "jenkins_prometheus_plugin"] value 0
+    inst [12 or "labelfiltering"] value 0
+    inst [13 or "multiple.namespace.levels"] value 0
+    inst [14 or "multiple.namespace.more"] value 0
+    inst [15 or "pmwebd_3_12_2"] value 0
+    inst [16 or "problematic_strings"] value 0
+    inst [17 or "prom_exposition_formats_example1"] value 0
+    inst [18 or "python_sample_client_server"] value 0
+    inst [19 or "python_scripted"] value 0
+    inst [20 or "reordered_labels"] value 0
+    inst [21 or "sample_pmda_3_12_2"] value 0
+    inst [22 or "sample_pmda_instname_5_0_0"] value 0
+    inst [23 or "sample_pmda_pcp5_metadata"] value 0
+    inst [24 or "sample_prometheus_metrics"] value 0
+    inst [25 or "script_failed"] value 0
+    inst [26 or "sh_script_no_suffix"] value 0
+    inst [27 or "sh_scripted"] value 0
+    inst [29 or "stderr_check"] value 0
+    inst [30 or "thermostat"] value 0
+    inst [31 or "vmware_exporter"] value 0
+
 -- source re-addition --
 openmetrics.simple_metric.metric2
 openmetrics.simple_metric.metric1
+
+-- check control metrics reappeared --
+
+openmetrics.control.status_code PMID: 144.0.6 [per-end-point source URL response status code after the most recent fetch]
+    Data Type: 32-bit int  InDom: 144.0 0x24000000
+    Semantics: discrete  Units: none
+    inst [0 or "control"] value 0
+    inst [1 or "awk_scripted"] value 0
+    inst [2 or "bad_summary_nometa"] value 0
+    inst [3 or "collectd_sample"] value 0
+    inst [4 or "curl.script"] value 0
+    inst [5 or "curl_filtered"] value 0
+    inst [6 or "curl_hostname_label"] value 0
+    inst [7 or "curl_scripted"] value 0
+    inst [8 or "duplicate_hostname_label"] value 0
+    inst [9 or "good_summary_nometa"] value 0
+    inst [10 or "jenkins_monitoring_javamelody"] value 0
+    inst [11 or "jenkins_prometheus_plugin"] value 0
+    inst [12 or "labelfiltering"] value 0
+    inst [13 or "multiple.namespace.levels"] value 0
+    inst [14 or "multiple.namespace.more"] value 0
+    inst [15 or "pmwebd_3_12_2"] value 0
+    inst [16 or "problematic_strings"] value 0
+    inst [17 or "prom_exposition_formats_example1"] value 0
+    inst [18 or "python_sample_client_server"] value 0
+    inst [19 or "python_scripted"] value 0
+    inst [20 or "reordered_labels"] value 0
+    inst [21 or "sample_pmda_3_12_2"] value 0
+    inst [22 or "sample_pmda_instname_5_0_0"] value 0
+    inst [23 or "sample_pmda_pcp5_metadata"] value 0
+    inst [24 or "sample_prometheus_metrics"] value 0
+    inst [25 or "script_failed"] value 0
+    inst [26 or "sh_script_no_suffix"] value 0
+    inst [27 or "sh_scripted"] value 0
+    inst [28 or "simple_metric"] value 0
+    inst [29 or "stderr_check"] value 0
+    inst [30 or "thermostat"] value 0
+    inst [31 or "vmware_exporter"] value 0
 
 -- metric removal of recognized source/metric --
 Error: openmetrics.simple_metric: Unknown metric name
@@ -15,3 +90,8 @@ Error: openmetrics.simple_metric: Unknown metric name
 openmetrics.simple_metric.metric2
 openmetrics.simple_metric.metric1
 
+-- metric removal by modifying source file, source persists --
+-- sleep to allow for old_enough_for_refresh() --
+
+-- metric2 removed --
+openmetrics.simple_metric.metric1
