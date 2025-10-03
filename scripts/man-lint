@@ -96,4 +96,16 @@ state == 1	{ for (i = 1; i <= NF; i++) {
     fi
 done
 
+# sanity check that man(1) can read each file without producing errors
+for manpage in "$@"
+do
+    man ./$manpage 2>$tmp/err | cat >/dev/null
+    if [ -s $tmp/err ]
+    then
+	echo "Error: man ./$manpage produces the following stderr diagnostics:"
+	cat $tmp/err
+	sts=1
+    fi
+done
+
 exit
