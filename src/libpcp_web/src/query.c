@@ -2693,6 +2693,7 @@ series_calculate_rate(node_t *np, void *arg)
 			np->value_set.series_values[i].series_desc.units,
 			&units, &mult, &msg)) < 0) {
 	    free(msg);
+	    msg = NULL; /* Ensure infofmt() does not use this freed msg */
 	}
 	sdsfree(np->value_set.series_values[i].series_desc.units);
 	units.dimTime -= 1;
