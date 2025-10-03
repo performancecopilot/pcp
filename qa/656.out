@@ -10,70 +10,70 @@ cifs.session PMID: 121.0.0 [Number of sessions]
     Semantics: instant  Units: count
 Help:
 Count of the number of active CIFS sessions.
-    value 1
+Error: No such file or directory
 
 cifs.shares PMID: 121.0.1 [Number of shares]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 Number of unqiue shares which are currently mounted on the system.
-    value 3
+Error: No such file or directory
 
 cifs.buffer PMID: 121.0.2 [SMB request/response buffer]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 Number of transactions currently in the SMB request/response buffer.
-    value 1
+Error: No such file or directory
 
 cifs.pool_size PMID: 121.0.3 [SMB request/response pool size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 The total pool size for the SMB request/response buffer.
-    value 5
+Error: No such file or directory
 
 cifs.small_buffer PMID: 121.0.4 [SMB small request/response buffer]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 Number of transactions currently in the SMB small request/response buffer.
-    value 1
+Error: No such file or directory
 
 cifs.small_pool_size PMID: 121.0.5 [SMB small request/response bool size]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 The total pool size for the SMB small request/response buffer.
-    value 30
+Error: No such file or directory
 
 cifs.mid_operations PMID: 121.0.6 [Pending network operations (MIDs)]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 Total number of pending network operations (MIDs).
-    value 0
+Error: No such file or directory
 
 cifs.total_operations PMID: 121.0.7 [CIFS operations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 The total number of CIFS operations
-    value 0
+Error: No such file or directory
 
 cifs.total_reconnects PMID: 121.0.8 [CIFS share re-connects]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 The total number of CIFS share reconnects.
-    value 0
+Error: No such file or directory
 
 cifs.vfs_operations PMID: 121.0.9 [VFS operations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 The total number of Virtual File System operations.
-    value 291
+Error: No such file or directory
 
 cifs.vfs_operations_max PMID: 121.0.10 [Max VFS operations.]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -81,7 +81,7 @@ cifs.vfs_operations_max PMID: 121.0.10 [Max VFS operations.]
 Help:
 The max number of con-current Virtial File System operations allowed at
 one time.
-    value 2
+Error: No such file or directory
 
 cifs.fs.connected PMID: 121.1.0 [File system connection status.]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
@@ -90,36 +90,28 @@ Help:
 The connection status for each file system mounted, 0 corresponds to a file
 system which is currently disconnected. 1 corresponds to a file system which
 is connected.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 1
-    inst [1 or "\\192.168.122.153\cifs-two"] value 1
-    inst [2 or "\\192.168.122.153\cifs-one"] value 1
+Error: No such file or directory
 
 cifs.fs.smbs PMID: 121.1.1 [CIFS server operations.]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of CIFS server operations for each mounted CIFS filesystem.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 37
-    inst [1 or "\\192.168.122.153\cifs-two"] value 37
-    inst [2 or "\\192.168.122.153\cifs-one"] value 50
+Error: No such file or directory
 
 cifs.fs.oplock_breaks PMID: 121.1.2 [Number of oplock breaks.]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of operation lock breaks for each file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.fs.read PMID: 121.1.3 [Read operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of read operations per filesystem mounted.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 2
+Error: No such file or directory
 
 cifs.fs.read_bytes PMID: 121.1.4 [Read bytes]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
@@ -127,18 +119,14 @@ cifs.fs.read_bytes PMID: 121.1.4 [Read bytes]
 Help:
 Total number of read bytes (throughput) for each mounted CIFS file system
 in KB.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.fs.write PMID: 121.1.5 [Write operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of write operations per filesystem mounted.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.fs.write_bytes PMID: 121.1.6 [Write bytes]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
@@ -146,384 +134,567 @@ cifs.fs.write_bytes PMID: 121.1.6 [Write bytes]
 Help:
 Total number of write bytes (throughput) for each mounted CIFS file system
 in KB.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.fs.flushes PMID: 121.1.7 [Cache flushes]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of file system cache flushes.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.fs.locks PMID: 121.1.8 [Number of lock]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of open locks for each mounted CIFS file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.fs.hard_links PMID: 121.1.9 [Hard links created]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of hard links created for each file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.fs.sym_links PMID: 121.1.10 [Symbolic links created]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of symbolic links created for each mounted file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.fs.read_fails PMID: 121.1.23 [Read failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of read operations that failed per filesystem mounted.
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.write_fails PMID: 121.1.24 [Write failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of write operations that failed per filesystem mounted.
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.flushes_fails PMID: 121.1.25 [Cache flush failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of file system cache flush failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.locks_fails PMID: 121.1.26 [Number of lock failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of open lock failures for each mounted CIFS file system.
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.negotiates PMID: 121.1.28 [Count of protocol negotiations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of protocol negotiations
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.negotiates_fails PMID: 121.1.29 [Count of protocol negotiations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of protocol negotiations
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.sessionsetups PMID: 121.1.30 [Count of session setups]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of session setups
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.sessionsetups_fails PMID: 121.1.31 [Count of session setup failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of session setup failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.logoffs PMID: 121.1.32 [Number of logoffs]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of logoffs
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.logoffs_fails PMID: 121.1.33 [Number of logoff failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of logoff failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.treecons PMID: 121.1.34 [Number of tree connections]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of tree connections
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.treecons_fails PMID: 121.1.35 [Number of tree connection failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of tree connection failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.treediscons PMID: 121.1.36 [Number of tree disconnects]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of tree disconnects
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.treediscons_fails PMID: 121.1.37 [Number of tree disconnection failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of tree disconnection failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.creates PMID: 121.1.38 [Number of created files]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of created files
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.creates_fails PMID: 121.1.39 [Number of files failed to create]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of files failed to create
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.IOCTLs PMID: 121.1.40 [Number of IOCTLs]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of IOCTLs
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.IOCTLs_fails PMID: 121.1.41 [Number of failed IOCTLs]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of failed IOCTLs
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.cancels PMID: 121.1.42 [Number of cancelled ops]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of cancelled ops
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.cancels_fails PMID: 121.1.43 [Number of cancelled ops failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Number of cancelled ops failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.echos PMID: 121.1.44 [Count of echo commands]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of echo commands
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.echos_fails PMID: 121.1.45 [Count of echo command failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of echo command failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.querydirs PMID: 121.1.46 [Count of directory queries]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of directory queries
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.querydirs_fails PMID: 121.1.47 [Count of directory query failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of directory query failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.changenotifies PMID: 121.1.48 [Count of change notifications]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of change notifications
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.changenotifies_fails PMID: 121.1.49 [Count of change notification failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of change notification failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.queryinfos PMID: 121.1.50 [Count of information queries]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of information queries
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.queryinfos_fails PMID: 121.1.51 [Count of information query failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of information query failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.setinfos PMID: 121.1.52 [Count of set infos]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of set infos
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.setinfos_fails PMID: 121.1.53 [Count of set info failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Count of set info failures
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.fs.oplock_breaks_fails PMID: 121.1.54 [Number of oplock break failures.]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of operation lock break failures for each file system.
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.ops.open PMID: 121.1.11 [Open operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of file open operations per mounted file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.ops.close PMID: 121.1.12 [Close operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of file close operations per mounted file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 3
+Error: No such file or directory
 
 cifs.ops.close_fails PMID: 121.1.27 [Close operation failures]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of file close operation failures per mounted file system.
-Error: Metric not supported by this version of monitored application
+Error: No such file or directory
 
 cifs.ops.delete PMID: 121.1.13 [Delete operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of file delete operations per mounted file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.ops.posix_open PMID: 121.1.14 [Posix open operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of posix file open operations per file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 3
+Error: No such file or directory
 
 cifs.ops.posix_mkdir PMID: 121.1.15 [Posix mkdir operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of posix directory creation operations per file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.ops.mkdir PMID: 121.1.16 [mkdir operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of directory creation operations per file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.ops.rmdir PMID: 121.1.17 [rmdir operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of directory removal operations per file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.ops.rename PMID: 121.1.18 [rename operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of rename operations per file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.ops.t2_rename PMID: 121.1.19 [t2 rename operations]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of t2 rename operations per file system.
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.ops.find_first PMID: 121.1.20 [FindFirst requests]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of FindFirst requests to the server
-    inst [0 or "\\192.168.122.153\cifs-three"] value 22
-    inst [1 or "\\192.168.122.153\cifs-two"] value 22
-    inst [2 or "\\192.168.122.153\cifs-one"] value 26
+Error: No such file or directory
 
 cifs.ops.find_next PMID: 121.1.21 [FindNext requests]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of FindNext requests to the server
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.ops.find_close PMID: 121.1.22 [FindClose requests]
     Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
     Semantics: instant  Units: count
 Help:
 Total number of FindClose requests to the server
-    inst [0 or "\\192.168.122.153\cifs-three"] value 0
-    inst [1 or "\\192.168.122.153\cifs-two"] value 0
-    inst [2 or "\\192.168.122.153\cifs-one"] value 0
+Error: No such file or directory
 
 cifs.version PMID: 121.0.11 [CIFS version number]
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 Help:
 The cifs fs version number
-    value "1.0"
+Error: No such file or directory
+
+cifs.debug.max_buffer_size PMID: 121.2.0 [Max CIFS buffer size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Max CIFS buffer size
+Error: No such file or directory
+
+cifs.debug.active_vfs_requests PMID: 121.2.1 [Number of active VFS requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Number of active VFS requests
+Error: No such file or directory
+
+cifs.debug.servers.connection_id PMID: 121.3.0 [CIFS server connection ID]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server connection ID
+Error: No such file or directory
+
+cifs.debug.servers.hostname PMID: 121.3.1 [CIFS server hostname]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server hostname
+Error: No such file or directory
+
+cifs.debug.servers.client_guid PMID: 121.3.2 [CIFS client global UID]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS client global UID
+Error: No such file or directory
+
+cifs.debug.servers.number_of_credits PMID: 121.3.3 [Number of credits]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of credits
+Error: No such file or directory
+
+cifs.debug.servers.server_capabilities PMID: 121.3.4 [CIFS server capabilities]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server capabilities
+Error: No such file or directory
+
+cifs.debug.servers.tcp_status PMID: 121.3.5 [TCP status]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+TCP status
+Error: No such file or directory
+
+cifs.debug.servers.instance PMID: 121.3.6 [CIFS server instance]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server instance
+Error: No such file or directory
+
+cifs.debug.servers.local_users_to_server PMID: 121.3.7 [Number of local users to server]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of local users to server
+Error: No such file or directory
+
+cifs.debug.servers.security_mode PMID: 121.3.8 [CIFS security mode]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS security mode
+Error: No such file or directory
+
+cifs.debug.servers.requests_on_wire PMID: 121.3.9 [Number of reuqests on wire]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of reuqests on wire
+Error: No such file or directory
+
+cifs.debug.servers.net_namespace PMID: 121.3.10 [CIFS net namespace]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS net namespace
+Error: No such file or directory
+
+cifs.debug.servers.send PMID: 121.3.11 [Number of send reuqests]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of send reuqests
+Error: No such file or directory
+
+cifs.debug.servers.max_request_wait PMID: 121.3.12 [Max reuqest waits]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Max reuqest waits
+Error: No such file or directory
+
+cifs.debug.sessions.addr PMID: 121.4.0 [Address for the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Address for the session
+Error: No such file or directory
+
+cifs.debug.sessions.uses PMID: 121.4.1 [Number of uses of the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of uses of the session
+Error: No such file or directory
+
+cifs.debug.sessions.capability PMID: 121.4.2 [Capabilities of the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Capabilities of the session
+Error: No such file or directory
+
+cifs.debug.sessions.status PMID: 121.4.3 [Session status]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Session status
+Error: No such file or directory
+
+cifs.debug.sessions.security_type PMID: 121.4.4 [Security type for the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Security type for the session
+Error: No such file or directory
+
+cifs.debug.sessions.id PMID: 121.4.5 [Session ID]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Session ID
+Error: No such file or directory
+
+cifs.debug.sessions.user PMID: 121.4.6 [Number of users for the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of users for the session
+Error: No such file or directory
+
+cifs.debug.sessions.cred_user PMID: 121.4.7 [Number of credential users for the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of credential users for the session
+Error: No such file or directory
+
+cifs.debug.shares.mounts PMID: 121.5.0 [Number of mounts]
+    Data Type: 64-bit unsigned int  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Number of mounts
+Error: No such file or directory
+
+cifs.debug.shares.devinfo PMID: 121.5.1 [Device information]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Device information
+Error: No such file or directory
+
+cifs.debug.shares.attributes PMID: 121.5.2 [Share attributes]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share attributes
+Error: No such file or directory
+
+cifs.debug.shares.status PMID: 121.5.3 [Share status]
+    Data Type: 32-bit unsigned int  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share status
+Error: No such file or directory
+
+cifs.debug.shares.type PMID: 121.5.4 [Share type]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share type
+Error: No such file or directory
+
+cifs.debug.shares.serial_number PMID: 121.5.5 [Share Serial Number]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share Serial Number
+Error: No such file or directory
+
+cifs.debug.shares.tid PMID: 121.5.6 [Share TID]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share TID
+Error: No such file or directory
+
+cifs.debug.shares.maximal_access PMID: 121.5.7 [Share maximal access]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share maximal access
+Error: No such file or directory
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
@@ -1011,6 +1182,1011 @@ cifs.version PMID: 121.0.11 [CIFS version number]
 Help:
 The cifs fs version number
     value "2.10"
+
+cifs.debug.max_buffer_size PMID: 121.2.0 [Max CIFS buffer size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Max CIFS buffer size
+    value 18446744073709551615
+
+cifs.debug.active_vfs_requests PMID: 121.2.1 [Number of active VFS requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Number of active VFS requests
+    value 0
+
+cifs.debug.servers.connection_id PMID: 121.3.0 [CIFS server connection ID]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server connection ID
+No value(s) available!
+
+cifs.debug.servers.hostname PMID: 121.3.1 [CIFS server hostname]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server hostname
+No value(s) available!
+
+cifs.debug.servers.client_guid PMID: 121.3.2 [CIFS client global UID]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS client global UID
+No value(s) available!
+
+cifs.debug.servers.number_of_credits PMID: 121.3.3 [Number of credits]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of credits
+No value(s) available!
+
+cifs.debug.servers.server_capabilities PMID: 121.3.4 [CIFS server capabilities]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server capabilities
+No value(s) available!
+
+cifs.debug.servers.tcp_status PMID: 121.3.5 [TCP status]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+TCP status
+No value(s) available!
+
+cifs.debug.servers.instance PMID: 121.3.6 [CIFS server instance]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server instance
+No value(s) available!
+
+cifs.debug.servers.local_users_to_server PMID: 121.3.7 [Number of local users to server]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of local users to server
+No value(s) available!
+
+cifs.debug.servers.security_mode PMID: 121.3.8 [CIFS security mode]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS security mode
+No value(s) available!
+
+cifs.debug.servers.requests_on_wire PMID: 121.3.9 [Number of reuqests on wire]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of reuqests on wire
+No value(s) available!
+
+cifs.debug.servers.net_namespace PMID: 121.3.10 [CIFS net namespace]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS net namespace
+No value(s) available!
+
+cifs.debug.servers.send PMID: 121.3.11 [Number of send reuqests]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of send reuqests
+No value(s) available!
+
+cifs.debug.servers.max_request_wait PMID: 121.3.12 [Max reuqest waits]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Max reuqest waits
+No value(s) available!
+
+cifs.debug.sessions.addr PMID: 121.4.0 [Address for the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Address for the session
+No value(s) available!
+
+cifs.debug.sessions.uses PMID: 121.4.1 [Number of uses of the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of uses of the session
+No value(s) available!
+
+cifs.debug.sessions.capability PMID: 121.4.2 [Capabilities of the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Capabilities of the session
+No value(s) available!
+
+cifs.debug.sessions.status PMID: 121.4.3 [Session status]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Session status
+No value(s) available!
+
+cifs.debug.sessions.security_type PMID: 121.4.4 [Security type for the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Security type for the session
+No value(s) available!
+
+cifs.debug.sessions.id PMID: 121.4.5 [Session ID]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Session ID
+No value(s) available!
+
+cifs.debug.sessions.user PMID: 121.4.6 [Number of users for the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of users for the session
+No value(s) available!
+
+cifs.debug.sessions.cred_user PMID: 121.4.7 [Number of credential users for the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of credential users for the session
+No value(s) available!
+
+cifs.debug.shares.mounts PMID: 121.5.0 [Number of mounts]
+    Data Type: 64-bit unsigned int  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Number of mounts
+    inst [0 or "\\fubar.com\mysmbuser"] value 1
+
+cifs.debug.shares.devinfo PMID: 121.5.1 [Device information]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Device information
+    inst [0 or "\\fubar.com\mysmbuser"] value "0x20"
+
+cifs.debug.shares.attributes PMID: 121.5.2 [Share attributes]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share attributes
+    inst [0 or "\\fubar.com\mysmbuser"] value "0x1006f"
+
+cifs.debug.shares.status PMID: 121.5.3 [Share status]
+    Data Type: 32-bit unsigned int  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share status
+    inst [0 or "\\fubar.com\mysmbuser"] value 1
+
+cifs.debug.shares.type PMID: 121.5.4 [Share type]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share type
+    inst [0 or "\\fubar.com\mysmbuser"] value "DISK"
+
+cifs.debug.shares.serial_number PMID: 121.5.5 [Share Serial Number]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share Serial Number
+    inst [0 or "\\fubar.com\mysmbuser"] value ""
+
+cifs.debug.shares.tid PMID: 121.5.6 [Share TID]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share TID
+    inst [0 or "\\fubar.com\mysmbuser"] value ""
+
+cifs.debug.shares.maximal_access PMID: 121.5.7 [Share maximal access]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share maximal access
+    inst [0 or "\\fubar.com\mysmbuser"] value ""
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -L -K clear -K add,121,/var/lib/pcp/pmdas/cifs/pmda_cifs.so,cifs_init -dfmtT -n /var/lib/pcp/pmdas/cifs/root cifs
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+=== Unpacking fake root (cifs-root-6.16.7.tgz) === 
+
+=== Valgrind check cifs metrics for all filesystems ===
+=== std out ===
+
+cifs.session PMID: 121.0.0 [Number of sessions]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Count of the number of active CIFS sessions.
+    value 2
+
+cifs.shares PMID: 121.0.1 [Number of shares]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of unqiue shares which are currently mounted on the system.
+    value 4
+
+cifs.buffer PMID: 121.0.2 [SMB request/response buffer]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of transactions currently in the SMB request/response buffer.
+    value 2
+
+cifs.pool_size PMID: 121.0.3 [SMB request/response pool size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total pool size for the SMB request/response buffer.
+    value 6
+
+cifs.small_buffer PMID: 121.0.4 [SMB small request/response buffer]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Number of transactions currently in the SMB small request/response buffer.
+    value 2
+
+cifs.small_pool_size PMID: 121.0.5 [SMB small request/response bool size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total pool size for the SMB small request/response buffer.
+    value 30
+
+cifs.mid_operations PMID: 121.0.6 [Pending network operations (MIDs)]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+Total number of pending network operations (MIDs).
+    value 0
+
+cifs.total_operations PMID: 121.0.7 [CIFS operations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of CIFS operations
+    value 0
+
+cifs.total_reconnects PMID: 121.0.8 [CIFS share re-connects]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of CIFS share reconnects.
+    value 0
+
+cifs.vfs_operations PMID: 121.0.9 [VFS operations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The total number of Virtual File System operations.
+    value 255
+
+cifs.vfs_operations_max PMID: 121.0.10 [Max VFS operations.]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help:
+The max number of con-current Virtial File System operations allowed at
+one time.
+    value 4
+
+cifs.fs.connected PMID: 121.1.0 [File system connection status.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+The connection status for each file system mounted, 0 corresponds to a file
+system which is currently disconnected. 1 corresponds to a file system which
+is connected.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.smbs PMID: 121.1.1 [CIFS server operations.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of CIFS server operations for each mounted CIFS filesystem.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.oplock_breaks PMID: 121.1.2 [Number of oplock breaks.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of operation lock breaks for each file system.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.read PMID: 121.1.3 [Read operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read operations per filesystem mounted.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.read_bytes PMID: 121.1.4 [Read bytes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read bytes (throughput) for each mounted CIFS file system
+in KB.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.write PMID: 121.1.5 [Write operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write operations per filesystem mounted.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.write_bytes PMID: 121.1.6 [Write bytes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write bytes (throughput) for each mounted CIFS file system
+in KB.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.flushes PMID: 121.1.7 [Cache flushes]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of file system cache flushes.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 1
+
+cifs.fs.locks PMID: 121.1.8 [Number of lock]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of open locks for each mounted CIFS file system.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.hard_links PMID: 121.1.9 [Hard links created]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of hard links created for each file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.sym_links PMID: 121.1.10 [Symbolic links created]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of symbolic links created for each mounted file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.fs.read_fails PMID: 121.1.23 [Read failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of read operations that failed per filesystem mounted.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.write_fails PMID: 121.1.24 [Write failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of write operations that failed per filesystem mounted.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.flushes_fails PMID: 121.1.25 [Cache flush failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of file system cache flush failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.locks_fails PMID: 121.1.26 [Number of lock failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of open lock failures for each mounted CIFS file system.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.negotiates PMID: 121.1.28 [Count of protocol negotiations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of protocol negotiations
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.negotiates_fails PMID: 121.1.29 [Count of protocol negotiations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of protocol negotiations
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.sessionsetups PMID: 121.1.30 [Count of session setups]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of session setups
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.sessionsetups_fails PMID: 121.1.31 [Count of session setup failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of session setup failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.logoffs PMID: 121.1.32 [Number of logoffs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of logoffs
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.logoffs_fails PMID: 121.1.33 [Number of logoff failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of logoff failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.treecons PMID: 121.1.34 [Number of tree connections]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree connections
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 1
+    inst [1 or "\\192.168.122.29\cifstest"] value 1
+
+cifs.fs.treecons_fails PMID: 121.1.35 [Number of tree connection failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree connection failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.treediscons PMID: 121.1.36 [Number of tree disconnects]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree disconnects
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.treediscons_fails PMID: 121.1.37 [Number of tree disconnection failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of tree disconnection failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.creates PMID: 121.1.38 [Number of created files]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of created files
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 50
+    inst [1 or "\\192.168.122.29\cifstest"] value 40
+
+cifs.fs.creates_fails PMID: 121.1.39 [Number of files failed to create]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of files failed to create
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.IOCTLs PMID: 121.1.40 [Number of IOCTLs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of IOCTLs
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 1
+    inst [1 or "\\192.168.122.29\cifstest"] value 1
+
+cifs.fs.IOCTLs_fails PMID: 121.1.41 [Number of failed IOCTLs]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of failed IOCTLs
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.cancels PMID: 121.1.42 [Number of cancelled ops]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of cancelled ops
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.cancels_fails PMID: 121.1.43 [Number of cancelled ops failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Number of cancelled ops failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.echos PMID: 121.1.44 [Count of echo commands]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of echo commands
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.echos_fails PMID: 121.1.45 [Count of echo command failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of echo command failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.querydirs PMID: 121.1.46 [Count of directory queries]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of directory queries
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 52
+    inst [1 or "\\192.168.122.29\cifstest"] value 4
+
+cifs.fs.querydirs_fails PMID: 121.1.47 [Count of directory query failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of directory query failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.changenotifies PMID: 121.1.48 [Count of change notifications]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of change notifications
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.changenotifies_fails PMID: 121.1.49 [Count of change notification failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of change notification failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.queryinfos PMID: 121.1.50 [Count of information queries]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of information queries
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 25
+    inst [1 or "\\192.168.122.29\cifstest"] value 37
+
+cifs.fs.queryinfos_fails PMID: 121.1.51 [Count of information query failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of information query failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.setinfos PMID: 121.1.52 [Count of set infos]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of set infos
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 1
+
+cifs.fs.setinfos_fails PMID: 121.1.53 [Count of set info failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Count of set info failures
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.fs.oplock_breaks_fails PMID: 121.1.54 [Number of oplock break failures.]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of operation lock break failures for each file system.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.ops.open PMID: 121.1.11 [Open operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file open operations per mounted file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.close PMID: 121.1.12 [Close operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file close operations per mounted file system.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 50
+    inst [1 or "\\192.168.122.29\cifstest"] value 40
+
+cifs.ops.close_fails PMID: 121.1.27 [Close operation failures]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file close operation failures per mounted file system.
+    inst [0 or "\\192.168.122.242\cifsrhel"] value 0
+    inst [1 or "\\192.168.122.29\cifstest"] value 0
+
+cifs.ops.delete PMID: 121.1.13 [Delete operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of file delete operations per mounted file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.posix_open PMID: 121.1.14 [Posix open operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of posix file open operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.posix_mkdir PMID: 121.1.15 [Posix mkdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of posix directory creation operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.mkdir PMID: 121.1.16 [mkdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of directory creation operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.rmdir PMID: 121.1.17 [rmdir operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of directory removal operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.rename PMID: 121.1.18 [rename operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of rename operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.t2_rename PMID: 121.1.19 [t2 rename operations]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of t2 rename operations per file system.
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.find_first PMID: 121.1.20 [FindFirst requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindFirst requests to the server
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.find_next PMID: 121.1.21 [FindNext requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindNext requests to the server
+Error: Metric not supported by this version of monitored application
+
+cifs.ops.find_close PMID: 121.1.22 [FindClose requests]
+    Data Type: 64-bit unsigned int  InDom: 121.0 0x1e400000
+    Semantics: instant  Units: count
+Help:
+Total number of FindClose requests to the server
+Error: Metric not supported by this version of monitored application
+
+cifs.version PMID: 121.0.11 [CIFS version number]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+The cifs fs version number
+    value "2.55"
+
+cifs.debug.max_buffer_size PMID: 121.2.0 [Max CIFS buffer size]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Max CIFS buffer size
+    value 16384
+
+cifs.debug.active_vfs_requests PMID: 121.2.1 [Number of active VFS requests]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Number of active VFS requests
+    value 0
+
+cifs.debug.servers.connection_id PMID: 121.3.0 [CIFS server connection ID]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server connection ID
+    inst [0 or "192.168.122.242"] value "0x2"
+    inst [1 or "192.168.122.29"] value "0x1"
+
+cifs.debug.servers.hostname PMID: 121.3.1 [CIFS server hostname]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server hostname
+    inst [0 or "192.168.122.242"] value "192.168.122.242"
+    inst [1 or "192.168.122.29"] value "192.168.122.29"
+
+cifs.debug.servers.client_guid PMID: 121.3.2 [CIFS client global UID]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS client global UID
+    inst [0 or "192.168.122.242"] value "EA4A6FB2-9EDF-CD4F-BCE5-C986AE351363"
+    inst [1 or "192.168.122.29"] value "453A1C8B-A783-6E43-B5EF-1BC6CD7110C7"
+
+cifs.debug.servers.number_of_credits PMID: 121.3.3 [Number of credits]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of credits
+    inst [0 or "192.168.122.242"] value 1460
+    inst [1 or "192.168.122.29"] value 983
+
+cifs.debug.servers.server_capabilities PMID: 121.3.4 [CIFS server capabilities]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server capabilities
+    inst [0 or "192.168.122.242"] value "0x300047"
+    inst [1 or "192.168.122.29"] value "0x300067"
+
+cifs.debug.servers.tcp_status PMID: 121.3.5 [TCP status]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+TCP status
+    inst [0 or "192.168.122.242"] value 1
+    inst [1 or "192.168.122.29"] value 1
+
+cifs.debug.servers.instance PMID: 121.3.6 [CIFS server instance]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS server instance
+    inst [0 or "192.168.122.242"] value 1
+    inst [1 or "192.168.122.29"] value 1
+
+cifs.debug.servers.local_users_to_server PMID: 121.3.7 [Number of local users to server]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of local users to server
+    inst [0 or "192.168.122.242"] value 1
+    inst [1 or "192.168.122.29"] value 1
+
+cifs.debug.servers.security_mode PMID: 121.3.8 [CIFS security mode]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS security mode
+    inst [0 or "192.168.122.242"] value "0x1"
+    inst [1 or "192.168.122.29"] value "0x1"
+
+cifs.debug.servers.requests_on_wire PMID: 121.3.9 [Number of reuqests on wire]
+    Data Type: 32-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of reuqests on wire
+    inst [0 or "192.168.122.242"] value 0
+    inst [1 or "192.168.122.29"] value 0
+
+cifs.debug.servers.net_namespace PMID: 121.3.10 [CIFS net namespace]
+    Data Type: string  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+CIFS net namespace
+    inst [0 or "192.168.122.242"] value "4026531840"
+    inst [1 or "192.168.122.29"] value "4026531840"
+
+cifs.debug.servers.send PMID: 121.3.11 [Number of send reuqests]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Number of send reuqests
+    inst [0 or "192.168.122.242"] value 0
+    inst [1 or "192.168.122.29"] value 0
+
+cifs.debug.servers.max_request_wait PMID: 121.3.12 [Max reuqest waits]
+    Data Type: 64-bit unsigned int  InDom: 121.1 0x1e400001
+    Semantics: instant  Units: none
+Help:
+Max reuqest waits
+    inst [0 or "192.168.122.242"] value 0
+    inst [1 or "192.168.122.29"] value 0
+
+cifs.debug.sessions.addr PMID: 121.4.0 [Address for the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Address for the session
+    inst [0 or "192.168.122.242::1"] value "192.168.122.242"
+    inst [1 or "192.168.122.29::1"] value "192.168.122.29"
+
+cifs.debug.sessions.uses PMID: 121.4.1 [Number of uses of the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of uses of the session
+    inst [0 or "192.168.122.242::1"] value 1
+    inst [1 or "192.168.122.29::1"] value 1
+
+cifs.debug.sessions.capability PMID: 121.4.2 [Capabilities of the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Capabilities of the session
+    inst [0 or "192.168.122.242::1"] value "0x300047"
+    inst [1 or "192.168.122.29::1"] value "0x300067"
+
+cifs.debug.sessions.status PMID: 121.4.3 [Session status]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Session status
+    inst [0 or "192.168.122.242::1"] value 1
+    inst [1 or "192.168.122.29::1"] value 1
+
+cifs.debug.sessions.security_type PMID: 121.4.4 [Security type for the session]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Security type for the session
+    inst [0 or "192.168.122.242::1"] value "RawNTLMSSP"
+    inst [1 or "192.168.122.29::1"] value "RawNTLMSSP"
+
+cifs.debug.sessions.id PMID: 121.4.5 [Session ID]
+    Data Type: string  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Session ID
+    inst [0 or "192.168.122.242::1"] value "0xda27df9a"
+    inst [1 or "192.168.122.29::1"] value "0x3819634e"
+
+cifs.debug.sessions.user PMID: 121.4.6 [Number of users for the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of users for the session
+    inst [0 or "192.168.122.242::1"] value 0
+    inst [1 or "192.168.122.29::1"] value 0
+
+cifs.debug.sessions.cred_user PMID: 121.4.7 [Number of credential users for the session]
+    Data Type: 32-bit unsigned int  InDom: 121.2 0x1e400002
+    Semantics: instant  Units: none
+Help:
+Number of credential users for the session
+    inst [0 or "192.168.122.242::1"] value 0
+    inst [1 or "192.168.122.29::1"] value 0
+
+cifs.debug.shares.mounts PMID: 121.5.0 [Number of mounts]
+    Data Type: 64-bit unsigned int  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Number of mounts
+    inst [0 or "\\192.168.122.242\IPC$"] value 1
+    inst [1 or "\\192.168.122.242\cifsrhel"] value 1
+    inst [2 or "\\192.168.122.29\IPC$"] value 1
+    inst [3 or "\\192.168.122.29\cifstest"] value 1
+
+cifs.debug.shares.devinfo PMID: 121.5.1 [Device information]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Device information
+    inst [0 or "\\192.168.122.242\IPC$"] value "0x0"
+    inst [1 or "\\192.168.122.242\cifsrhel"] value "0x20"
+    inst [2 or "\\192.168.122.29\IPC$"] value "0x0"
+    inst [3 or "\\192.168.122.29\cifstest"] value "0x20"
+
+cifs.debug.shares.attributes PMID: 121.5.2 [Share attributes]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share attributes
+    inst [0 or "\\192.168.122.242\IPC$"] value "0x0"
+    inst [1 or "\\192.168.122.242\cifsrhel"] value "0x1006f"
+    inst [2 or "\\192.168.122.29\IPC$"] value "0x0"
+    inst [3 or "\\192.168.122.29\cifstest"] value "0x1006f"
+
+cifs.debug.shares.status PMID: 121.5.3 [Share status]
+    Data Type: 32-bit unsigned int  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share status
+    inst [0 or "\\192.168.122.242\IPC$"] value 1
+    inst [1 or "\\192.168.122.242\cifsrhel"] value 1
+    inst [2 or "\\192.168.122.29\IPC$"] value 1
+    inst [3 or "\\192.168.122.29\cifstest"] value 1
+
+cifs.debug.shares.type PMID: 121.5.4 [Share type]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share type
+    inst [0 or "\\192.168.122.242\IPC$"] value "0"
+    inst [1 or "\\192.168.122.242\cifsrhel"] value "DISK"
+    inst [2 or "\\192.168.122.29\IPC$"] value "0"
+    inst [3 or "\\192.168.122.29\cifstest"] value "DISK"
+
+cifs.debug.shares.serial_number PMID: 121.5.5 [Share Serial Number]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share Serial Number
+    inst [0 or "\\192.168.122.242\IPC$"] value "0x0"
+    inst [1 or "\\192.168.122.242\cifsrhel"] value "0xde1d3d25"
+    inst [2 or "\\192.168.122.29\IPC$"] value "0x0"
+    inst [3 or "\\192.168.122.29\cifstest"] value "0xf53d3879"
+
+cifs.debug.shares.tid PMID: 121.5.6 [Share TID]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share TID
+    inst [0 or "\\192.168.122.242\IPC$"] value "0xcf17849f"
+    inst [1 or "\\192.168.122.242\cifsrhel"] value "0xe32b2fe6"
+    inst [2 or "\\192.168.122.29\IPC$"] value "0x8e0c26a8"
+    inst [3 or "\\192.168.122.29\cifstest"] value "0x2881a8e6"
+
+cifs.debug.shares.maximal_access PMID: 121.5.7 [Share maximal access]
+    Data Type: string  InDom: 121.3 0x1e400003
+    Semantics: instant  Units: none
+Help:
+Share maximal access
+    inst [0 or "\\192.168.122.242\IPC$"] value "0x1f00a9"
+    inst [1 or "\\192.168.122.242\cifsrhel"] value "0x1f01ff"
+    inst [2 or "\\192.168.122.29\IPC$"] value "0x1f00a9"
+    inst [3 or "\\192.168.122.29\cifstest"] value "0x1f01ff"
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
