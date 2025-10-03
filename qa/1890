@@ -16,8 +16,6 @@ _check_series   # ensure pmproxy makes a REST API available
 _pmdaopentelemetry_check || _notrun "opentelemetry pmda not installed"
 which curl >/dev/null 2>&1 || _notrun curl not installed
 
-_notrun "currently failing, needs analysis and updates"
-
 status=1        # failure is the default!
 
 # only stop pmproxy if it was not running before the QA test starts
@@ -49,6 +47,7 @@ _filter_opentelemetry_labels()
     sed \
     -e "s;$PCP_PMDAS_DIR;PCP_PMDAS_DIR;g" \
     -e 's;machineid="[a-z0-9]*";machineid=MACHINEID;g' \
+    -e 's;url="[^"]*";url=URL;g' \
     -e 's;hostname="[a-zA-Z0-9_\.\-]*";hostname=HOSTNAME;g' \
     -e 's;hostname:[a-zA-Z0-9_\.\-]*";hostname:HOSTNAME";g' \
     -e 's;domainname="[a-zA-Z0-9_\.\-]*";domainname=DOMAINNAME;g' \

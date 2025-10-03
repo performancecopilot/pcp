@@ -14,8 +14,6 @@ echo "QA output created by $seq"
 
 _pmdaopentelemetry_check || _notrun "opentelemetry pmda and/or load generator not installed"
 
-_notrun "currently failing, needs analysis and updates"
-
 status=1        # failure is the default!
 $sudo rm -rf $tmp $tmp.* $seq.full
 totalendpoints=5 #total queue to work through
