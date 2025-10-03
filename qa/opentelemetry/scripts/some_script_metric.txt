@@ -14,7 +14,7 @@
       "scopeMetrics": [
         {
           "scope": {
-            "name": "my.library",
+            "name": "my.scope",
             "version": "1.0.0",
             "attributes": [
               {
@@ -27,19 +27,19 @@
           },
           "metrics": [
             {
-              "name": "somemetric",
+              "name": "some_metric",
               "unit": "1",
-              "description": "metric to test duplicate labels",
+              "description": "I am a Counter",
               "sum": {
                 "aggregationTemporality": 1,
-                "isMonotonic": "true",
+                "isMonotonic": true,
                 "dataPoints": [
                   {
-                    "asDouble": "5",
+                    "asInt": 10,
                     "timeUnixNano": "1544712660300000000",
                     "attributes": [
                       {
-                        "key": "my.sum.attribute",
+                        "key": "my.counter.attr",
                         "value": {
                           "stringValue": "someValue"
                         }

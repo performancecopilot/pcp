@@ -433,18 +433,16 @@ Metric data returned by URL or scripted configuration files may contain
 metadata that can be used by the
 .B opentelemetry
 PMDA to specify the semantics, data type, scaling and units of dynamically created metrics.
-This metadata is prefixed with
-.B "# PCP5"
-or
-.B "# PCP"
-in the ingested metric data.
+This metadata is found for each metric under the
+.B "metric"
+list header in the opentelemetry json data structure.
 For additional information about PCP metadata, see
 .BR pmLookupDesc (3)
 and
 .BR pmParseUnitsStr (3)
 and examples in shipped configuration files.
 .PP
-In-line "PCP5" metadata must be supplied by the metrics source end-point (URL or script).
+Metadata must be supplied in the json data by the opentelemetry source end-point (URL or script)
 An alternative is to specify this in the URL configuration file directly, which has the advantage
 of not having to modify the source/end-point if the metadata is incorrect or missing.
 Metadata specified in the URL configuration file over-rides any in-line metadata.
