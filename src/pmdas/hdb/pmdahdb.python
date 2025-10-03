@@ -140,15 +140,9 @@ class HDBConnection:
         return scalar
 
 
-# HANA 2 Support package stacks (SPS) and revisions
+# HANA 2 Support package stacks (SPS) and revisions used for version checks
 # https://help.sap.com/viewer/42668af650f84f9384a3337bcd373692/2.0.05/en-US
-_HANA2_SPS_06 = "2.00.060"
-_HANA2_SPS_05 = "2.00.050"
 _HANA2_SPS_04 = "2.00.040"
-_HANA2_SPS_03 = "2.00.030"
-_HANA2_SPS_02 = "2.00.020"
-_HANA2_SPS_01 = "2.00.010"
-_HANA2_SPS_00 = "2.00.000"
 
 
 def _hana_revision_included(
