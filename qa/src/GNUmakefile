@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2012,2014,2016,2018 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2024 Red Hat.
+# Copyright (c) 2024-2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -16,11 +16,9 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 TARGET = pcp-xsos
-XFILES = README.md $(TARGET) $(TARGET).1
 MAN_PAGES = $(TARGET).1
-LDIRT = $(XFILES)
 
-default: $(XFILES) $(TARGET)
+default: $(TARGET)
 
 include $(BUILDRULES)
 
@@ -31,9 +29,6 @@ install: default
 default_pcp : default
 
 install_pcp : install
-
-$(XFILES):
-	$(LN_S) -f $(TOPDIR)/vendor/github.com/performancecopilot/xsos-pcp/$@ $@
 
 check:: $(MAN_PAGES)
 	$(MANLINT) $^

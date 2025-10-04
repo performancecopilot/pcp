@@ -28,7 +28,7 @@ FILTER: EXCLUDE LABEL random
 === pminfo listing. Note some labels in the pminfo listing have been removed, see _filter
 
 opentelemetry.labelfiltering.labelMetric
-    labels {"agent":"opentelemetry","label1":"someLabel","scope_name":"my.library","some_optional_label":"someValue","source":"labelfiltering"}
+    labels {"agent":"opentelemetry","label1":"someLabel","some_optional_label":"someValue","source":"labelfiltering"}
     value 5
 == Note: check 1787.full for details
 

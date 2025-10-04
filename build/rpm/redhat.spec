@@ -695,18 +695,19 @@ Zabbix via the Zabbix agent - see zbxpcp(3) for further details.
 
 %if !%{disable_python3}
 #
-# pcp-import-guidellm2pcp
+# pcp-import-benchmarks
 #
-%package import-guidellm2pcp
+%package import-benchmarks
 License: LGPL-2.1-or-later
-Summary: Performance Co-Pilot tools importing GuideLLM results into PCP archive logs
+Summary: Performance Co-Pilot tools importing benchmark results into PCP archive logs
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: python3-pcp = %{version}-%{release}
+Obsoletes: pcp-import-guidellm2pcp < 7.0.2
 
-%description import-guidellm2pcp
-Performance Co-Pilot (PCP) front-end tools for importing GuideLLM JSON
-benchmark results into PCP archives for replay with PCP analysis tools.
+%description import-benchmarks
+Performance Co-Pilot (PCP) front-end tools for importing JSON benchmark
+results files into PCP archives for replay with PCP analysis tools.
 
 #
 # pcp-import-pmseries
@@ -1513,6 +1514,9 @@ Summary: Performance Co-Pilot (PCP) metrics for SAP HANA databases
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: python3-pcp
+%if 0%{?rhel} > 8 || 0%{?fedora} > 0
+Requires: python3-packaging
+%endif
 %description pmda-hdb
 This package provides a PMDA to export metric values about a SAP HANA
 database (https://www.sap.com/products/data-cloud/hana.html).
@@ -2431,7 +2435,8 @@ basic_manifest | keep 'sheet2pcp' >pcp-import-sheet2pcp-files
 basic_manifest | keep 'mrtg2pcp' >pcp-import-mrtg2pcp-files
 basic_manifest | keep 'ganglia2pcp' >pcp-import-ganglia2pcp-files
 basic_manifest | keep 'collectl2pcp' >pcp-import-collectl2pcp-files
-basic_manifest | keep 'guidellm2pcp' >pcp-import-guidellm2pcp-files
+basic_manifest | keep 'guidellm2pcp' >pcp-import-benchmarks-files
+basic_manifest | keep 'vllmbench2pcp' >pcp-import-benchmarks-files
 basic_manifest | keep 'pcp2arrow' >pcp-export-pcp2arrow-files
 basic_manifest | keep 'pcp2elasticsearch' >pcp-export-pcp2elasticsearch-files
 basic_manifest | keep 'pcp2influxdb' >pcp-export-pcp2influxdb-files
@@ -2554,7 +2559,7 @@ do \
 done
 
 for import_package in \
-    pmseries guidellm2pcp \
+    pmseries benchmarks \
     collectl2pcp iostat2pcp ganglia2pcp mrtg2pcp sar2pcp sheet2pcp ; \
 do \
     import_packages="$import_packages pcp-import-$import_package"; \
@@ -3392,7 +3397,7 @@ fi
 %if !%{disable_python3}
 %files import-pmseries -f pcp-import-pmseries-files.rpm
 
-%files import-guidellm2pcp -f pcp-import-guidellm2pcp-files.rpm
+%files import-benchmarks -f pcp-import-benchmarks-files.rpm
 %endif
 
 %if !%{disable_perl}

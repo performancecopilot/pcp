@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014, 2018 Red Hat.
+# Copyright (c) 2014, 2018, 2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -195,3 +195,37 @@ Total number of file close operation failures per mounted file system.
 @ cifs.fs.oplock_breaks_fails Number of oplock break failures.
 Total number of operation lock break failures for each file system.
 
+@cifs.debug.max_buffer_size Max CIFS buffer size
+@cifs.debug.active_vfs_requests Number of active VFS requests
+
+@cifs.debug.servers.connection_id CIFS server connection ID
+@cifs.debug.servers.hostname CIFS server hostname
+@cifs.debug.servers.client_guid CIFS client global UID
+@cifs.debug.servers.number_of_credits Number of credits
+@cifs.debug.servers.server_capabilities CIFS server capabilities
+@cifs.debug.servers.tcp_status TCP status
+@cifs.debug.servers.instance CIFS server instance
+@cifs.debug.servers.local_users_to_server Number of local users to server
+@cifs.debug.servers.security_mode CIFS security mode
+@cifs.debug.servers.requests_on_wire Number of reuqests on wire
+@cifs.debug.servers.net_namespace CIFS net namespace
+@cifs.debug.servers.send Number of send reuqests
+@cifs.debug.servers.max_request_wait Max reuqest waits
+
+@cifs.debug.sessions.addr Address for the session
+@cifs.debug.sessions.uses Number of uses of the session
+@cifs.debug.sessions.capability Capabilities of the session
+@cifs.debug.sessions.status Session status
+@cifs.debug.sessions.security_type Security type for the session
+@cifs.debug.sessions.id Session ID
+@cifs.debug.sessions.user Number of users for the session
+@cifs.debug.sessions.cred_user Number of credential users for the session
+
+@cifs.debug.shares.mounts Number of mounts
+@cifs.debug.shares.devinfo Device information
+@cifs.debug.shares.attributes Share attributes
+@cifs.debug.shares.status Share status
+@cifs.debug.shares.type Share type
+@cifs.debug.shares.serial_number Share Serial Number
+@cifs.debug.shares.tid Share TID
+@cifs.debug.shares.maximal_access Share maximal access

@@ -1,4 +1,3 @@
-#!gmake
 #
 # Copyright (c) 2015-2017 Ken McDonell.  All Rights Reserved.
 # Copyright (c) 2012,2014,2017 Red Hat.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014,2018 Red Hat.
+ * Copyright (c) 2014,2018, 2025 Red Hat.
  *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,6 +27,7 @@ cifs {
     fs
     ops
     version		 CIFS:0:11
+    debug
 }
 
 cifs.fs {
@@ -92,4 +93,50 @@ cifs.ops {
     find_first		 CIFS:1:20
     find_next		 CIFS:1:21
     find_close		 CIFS:1:22
+}
+
+cifs.debug { 
+    max_buffer_size	CIFS:2:0
+    active_vfs_requests	CIFS:2:1
+    servers
+    sessions
+    shares
+}
+
+cifs.debug.servers {
+    connection_id	CIFS:3:0
+    hostname		CIFS:3:1
+    client_guid		CIFS:3:2
+    number_of_credits	CIFS:3:3
+    server_capabilities	CIFS:3:4
+    tcp_status		CIFS:3:5
+    instance		CIFS:3:6
+    local_users_to_server	CIFS:3:7
+    security_mode	CIFS:3:8
+    requests_on_wire	CIFS:3:9
+    net_namespace	CIFS:3:10
+    send			CIFS:3:11
+    max_request_wait	CIFS:3:12
+}
+
+cifs.debug.sessions {
+    addr			CIFS:4:0
+    uses			CIFS:4:1
+    capability		CIFS:4:2
+    status		CIFS:4:3
+    security_type	CIFS:4:4
+    id			CIFS:4:5
+    user			CIFS:4:6
+    cred_user		CIFS:4:7
+}
+
+cifs.debug.shares {
+    mounts		CIFS:5:0
+    devinfo		CIFS:5:1
+    attributes		CIFS:5:2
+    status		CIFS:5:3
+    type			CIFS:5:4
+    serial_number	CIFS:5:5
+    tid			CIFS:5:6
+    maximal_access	CIFS:5:7
 }

@@ -12,11 +12,11 @@ Description: Performance Co-Pilot Python3 PMAPI module
  client applications to easily retrieve and process any subset of
  that data.
 
-Package: pcp-import-guidellm2pcp
+Package: pcp-import-benchmarks
 Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp-import1 (= ${binary:Version})
-Breaks: pcp (<< 7.0.2)
-Replaces: pcp (<< 7.0.2)
+Breaks: pcp (<< 7.0.2), pcp-import-guidellm2pcp (<< 7.0.2)
+Replaces: pcp (<< 7.0.2), pcp-import-guidellm2pcp (<< 7.0.2)
 Architecture: any
-Description: Tool for importing GuideLLM results into PCP archive logs
- Performance Co-Pilot (PCP) front-end tools for importing GuideLLM JSON
- benchmark results into PCP archives for replay with PCP analysis tools.
+Description: Tool for importing JSON benchmark results into PCP archive logs
+ Performance Co-Pilot (PCP) front-end tools for importing JSON benchmark
+ results into PCP archives for replay with PCP analysis tools.

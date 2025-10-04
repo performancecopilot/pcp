@@ -1,0 +1,311 @@
+QA output created by 1809
+== vllmbench2pcp vllmbench/run-1-10x-cpu-kvcache-50.0qps-Qwen3-8B-20251001-061613.json
+Note: timezone set to local timezone of host "vllm" from archive
+
+vllm.bench.request_goodput: pmFetch: End of PCP archive
+vllm.bench.max_concurrency: pmFetch: End of PCP archive
+
+vllm.bench.p99_e2el_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 186238.2925568004
+
+vllm.bench.std_e2el_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 46831.00833144818
+
+vllm.bench.median_e2el_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 102592.1996779998
+
+vllm.bench.mean_e2el_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 93267.03776809102
+
+vllm.bench.p99_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 393.2569382603106
+
+vllm.bench.std_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 158.3185316599636
+
+vllm.bench.median_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 81.38437649904517
+
+vllm.bench.mean_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 118.7430254902591
+
+vllm.bench.p99_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 385.7780269470326
+
+vllm.bench.std_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 53.1471309806035
+
+vllm.bench.median_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 122.9072994612311
+
+vllm.bench.mean_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 136.0342131538093
+
+vllm.bench.p99_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 119933.6116144404
+
+vllm.bench.std_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 44280.92225988287
+
+vllm.bench.median_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 82773.58458550043
+
+vllm.bench.mean_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 69755.2078556054
+
+vllm.bench.max_concurrent_requests
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 1010
+
+vllm.bench.max_output_tokens_per_s
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 2700
+
+vllm.bench.total_token_throughput
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 2803.464808099209
+
+vllm.bench.output_throughput
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 1333.326885424319
+
+vllm.bench.request_throughput
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 6.699933497799281
+
+vllm.bench.total_output_tokens
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 332340
+
+vllm.bench.total_input_tokens
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 366441
+
+vllm.bench.num_prompts
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 5000
+
+vllm.bench.completed
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 1670
+
+vllm.bench.duration
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 249.2562053860001
+
+vllm.bench.burstiness
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 1
+
+vllm.bench.request_rate
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 50
+Note: timezone set to local timezone of host "vllm" from archive
+
+metric:    vllm.bench.duration
+archive:   TMP.archive
+host:      vllm
+start:     Wed Oct  1 06:16:13 2025
+end:       Wed Oct  1 06:20:22 2025
+semantics: discrete instantaneous value
+units:     sec
+samples:   5
+interval:  60.00 sec
+
+               vllm-Qwen/Qwen3-8B 
+06:16:13.000             249.3    
+06:17:13.000             249.3    
+06:18:13.000             249.3    
+06:19:13.000             249.3    
+06:20:13.000             249.3    
+== vllmbench2pcp vllmbench/run-1-no-cpu-kvcache-50.0qps-Qwen3-8B-20251001-054159.json
+Note: timezone set to local timezone of host "vllm" from archive
+
+vllm.bench.request_goodput: pmFetch: End of PCP archive
+vllm.bench.max_concurrency: pmFetch: End of PCP archive
+
+vllm.bench.p99_e2el_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 187504.6499065899
+
+vllm.bench.std_e2el_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 47254.93073351573
+
+vllm.bench.median_e2el_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 106468.6965564997
+
+vllm.bench.mean_e2el_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 95643.65972334315
+
+vllm.bench.p99_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 398.5501487316105
+
+vllm.bench.std_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 160.0279691916519
+
+vllm.bench.median_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 80.57288700092613
+
+vllm.bench.mean_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 120.5512665477455
+
+vllm.bench.p99_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 381.2347572666735
+
+vllm.bench.std_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 58.41230411490023
+
+vllm.bench.median_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 127.2738394160753
+
+vllm.bench.mean_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 141.9300769124305
+
+vllm.bench.p99_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 123942.8252484
+
+vllm.bench.std_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 45175.88353441886
+
+vllm.bench.median_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 84976.22441300063
+
+vllm.bench.mean_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 71658.83308718873
+
+vllm.bench.max_concurrent_requests
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 1010
+
+vllm.bench.max_output_tokens_per_s
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 2660
+
+vllm.bench.total_token_throughput
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 2467.357143703518
+
+vllm.bench.output_throughput
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 1181.874198024507
+
+vllm.bench.request_throughput
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 5.910566141364354
+
+vllm.bench.total_output_tokens
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 326334
+
+vllm.bench.total_input_tokens
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 354942
+
+vllm.bench.num_prompts
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 5000
+
+vllm.bench.completed
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 1632
+
+vllm.bench.duration
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 276.1156818089985
+
+vllm.bench.burstiness
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 1
+
+vllm.bench.request_rate
+    inst [1 or "vllm-Qwen/Qwen3-8B"] value 50
+Note: timezone set to local timezone of host "vllm" from archive
+
+metric:    vllm.bench.duration
+archive:   TMP.archive
+host:      vllm
+start:     Wed Oct  1 05:41:59 2025
+end:       Wed Oct  1 05:46:35 2025
+semantics: discrete instantaneous value
+units:     sec
+samples:   5
+interval:  60.00 sec
+
+               vllm-Qwen/Qwen3-8B 
+05:41:59.000             276.1    
+05:42:59.000             276.1    
+05:43:59.000             276.1    
+05:44:59.000             276.1    
+05:45:59.000             276.1    
+== vllmbench2pcp vllmbench/vllm-infqps-Qwen3-0.6B-20250929-080417.json
+Note: timezone set to local timezone of host "vllm" from archive
+
+vllm.bench.p99_e2el_ms: pmFetch: End of PCP archive
+vllm.bench.std_e2el_ms: pmFetch: End of PCP archive
+vllm.bench.median_e2el_ms: pmFetch: End of PCP archive
+vllm.bench.mean_e2el_ms: pmFetch: End of PCP archive
+vllm.bench.request_goodput: pmFetch: End of PCP archive
+vllm.bench.max_concurrency: pmFetch: End of PCP archive
+
+vllm.bench.p99_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 115.7618499996715
+
+vllm.bench.std_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 20.73108038032129
+
+vllm.bench.median_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 58.14668699986214
+
+vllm.bench.mean_itl_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 62.61498070085921
+
+vllm.bench.p99_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 87.98361288229451
+
+vllm.bench.std_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 11.15296357630585
+
+vllm.bench.median_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 67.38705348512559
+
+vllm.bench.mean_tpot_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 66.63317667886639
+
+vllm.bench.p99_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 44199.25157169998
+
+vllm.bench.std_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 14089.3630690597
+
+vllm.bench.median_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 14847.21485599994
+
+vllm.bench.mean_ttft_ms
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 17396.70428878979
+
+vllm.bench.max_concurrent_requests
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 999
+
+vllm.bench.max_output_tokens_per_s
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 5376
+
+vllm.bench.total_token_throughput
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 6752.459170747247
+
+vllm.bench.output_throughput
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 3245.574015722439
+
+vllm.bench.request_throughput
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 15.99570025508987
+
+vllm.bench.total_output_tokens
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 202700
+
+vllm.bench.total_input_tokens
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 219020
+
+vllm.bench.num_prompts
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 2500
+
+vllm.bench.completed
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 999
+
+vllm.bench.duration
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 62.45428359299967
+
+vllm.bench.burstiness
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value 1
+
+vllm.bench.request_rate
+    inst [1 or "vllm-Qwen/Qwen3-0.6B"] value inf
+Note: timezone set to local timezone of host "vllm" from archive
+
+metric:    vllm.bench.duration
+archive:   TMP.archive
+host:      vllm
+start:     Mon Sep 29 08:04:17 2025
+end:       Mon Sep 29 08:05:19 2025
+semantics: discrete instantaneous value
+units:     sec
+samples:   2
+interval:  60.00 sec
+
+             vllm-Qwen/Qwen3-0.6B 
+08:04:17.000              62.45   
+08:05:17.000              62.45   
