@@ -18,20 +18,20 @@ initial 825042862 -> 825042862 Fri Feb 23 13:34:22 1996
 
 pmNewZone("EST-11EST-10,86/2:00,303/2:00")
 initial 28800 -> 28800 Thu Jan  1 19:00:00 1970
--3 months -> -7920000 Wed Oct  1 19:00:00 1969
+-3 months -> -7920000 Wed Oct  1 18:00:00 1969
 -2 months -> -5241600 Sat Nov  1 19:00:00 1969
 -1 months -> -2649600 Mon Dec  1 19:00:00 1969
 +1 months -> 2707200 Sun Feb  1 19:00:00 1970
 +2 months -> 5126400 Sun Mar  1 19:00:00 1970
-+3 months -> 7804800 Wed Apr  1 19:00:00 1970
++3 months -> 7804800 Wed Apr  1 18:00:00 1970
 
 initial 825042862 -> 825042862 Fri Feb 23 13:34:22 1996
 -3 months -> 817094062 Thu Nov 23 13:34:22 1995
 -2 months -> 819686062 Sat Dec 23 13:34:22 1995
 -1 months -> 822364462 Tue Jan 23 13:34:22 1996
 +1 months -> 827548462 Sat Mar 23 13:34:22 1996
-+2 months -> 830226862 Tue Apr 23 13:34:22 1996
-+3 months -> 832818862 Thu May 23 13:34:22 1996
++2 months -> 830226862 Tue Apr 23 12:34:22 1996
++3 months -> 832818862 Thu May 23 12:34:22 1996
 
 pmNewZone("UTC")
 initial 28800 -> 28800 Thu Jan  1 08:00:00 1970

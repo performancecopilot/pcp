@@ -20,6 +20,21 @@ $python -c "import openpyxl" >/dev/null 2>&1
 which unzip >/dev/null 2>&1 || _notrun "unzip not installed"
 which pcp2xlsx >/dev/null 2>&1 || _notrun "pcp2xlsx not installed"
 
+if [ $PCP_PLATFORM = freebsd ]
+then
+    # workaround Python class teardown problem
+    # AttributeError: 'NoneType' object has no attribute ...
+    #
+    version=`uname -rs | sed -e 's/FreeBSD //'`
+    case "$version"
+    in
+	14.[0-3]-*)
+	    _notrun "Python teardown botch"
+	    # NOTREACHED
+	    ;;
+    esac
+fi
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15

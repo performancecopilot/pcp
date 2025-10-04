@@ -45,6 +45,22 @@ then
     esac
 fi
 
+if [ $PCP_PLATFORM = freebsd ]
+then
+    # workaround datetime.strftime() in Python that is busted when
+    # the timezone|timeinfo is, er, Australia/Someplace, for at least
+    # some parts of the year
+    #
+    version=`uname -rs | sed -e 's/FreeBSD //'`
+    case "$version"
+    in
+	14.[0-3]-*)
+	    _notrun "datetime.strftime() botch"
+	    # NOTREACHED
+	    ;;
+    esac
+fi
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
