@@ -3,7 +3,7 @@ include $(TOPDIR)/src/include/builddefs
 
 TESTDIR = $(PCP_VAR_DIR)/testsuite/opentelemetry
 ENDPOINT = opentelemetry_endpoint.python
-SUBDIRS = samples
+SUBDIRS = samples scripts
 
 default default_pcp setup: $(ENDPOINT) $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
