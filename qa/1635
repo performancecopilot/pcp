@@ -147,7 +147,7 @@ do
     $sudo find "$dir" -type l -a -exec test ! -e {} \; -a -print
 done \
 | sed -f $tmp.exceptions \
-| sed -e 's/^/symlink /'
+| sed -e 's/^/dangling symlink /'
 
 # success, all done
 exit

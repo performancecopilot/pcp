@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 which man > /dev/null 2>&1 || _notrun "No man(1) command?"
-man pmrep | grep -q pmrep || _notrun "No man pages installed?"
+man pmrep | grep -q 'performance metrics reporter' || _notrun "No man pages installed?"
 
 status=1        # failure is the default!
 hostname=`hostname`
