@@ -402,6 +402,9 @@ static pthread_mutex_t	stats_mutex;
 static void refresh_insts(char *);
 static int grab_values(char *, pmInDom, char *, json_metric_desc *, int);
 static int docker_setup(void);
+static void http_client_setup(void);
+static void indomtab_setup(void);
+static void setup(void);
 
 /* General utility routine for checking timestamp differences */
 static int
@@ -859,6 +862,31 @@ docker_setup(void)
     return 0;
 }
 
+static void
+http_client_setup(void)
+{
+    if ((http_client = pmhttpNewClient()) == NULL) {
+        pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
+        exit(1);
+    }
+}
+
+static void
+indomtab_setup(void)
+{
+    docker_indomtab[CONTAINERS_INDOM].it_indom = CONTAINERS_INDOM;
+    docker_indomtab[CONTAINERS_STATS_INDOM].it_indom = CONTAINERS_STATS_INDOM;
+    docker_indomtab[CONTAINERS_STATS_CACHE_INDOM].it_indom = CONTAINERS_STATS_CACHE_INDOM;
+}
+
+static void
+setup(void)
+{
+    docker_setup();
+    http_client_setup();
+    indomtab_setup();
+}
+
 /*
  * Initialise the agent (both daemon and DSO).
  */
@@ -879,11 +907,8 @@ docker_init(pmdaInterface *dp)
 
     if (dp->status != 0)
 	return;
-    
-    if ((http_client = pmhttpNewClient()) == NULL) {
-	pmNotifyErr(LOG_ERR, "HTTP client creation failed\n");
-	exit(1);
-    }
+
+    setup();
 
     pthread_mutex_init(&docker_mutex, NULL);
     pthread_mutex_init(&refresh_mutex, NULL);
@@ -892,14 +917,10 @@ docker_init(pmdaInterface *dp)
     dp->version.any.instance = docker_instance;
     dp->version.any.store = docker_store;
     pmdaSetFetchCallBack(dp, docker_fetchCallBack);
-    docker_indomtab[CONTAINERS_INDOM].it_indom = CONTAINERS_INDOM;
-    docker_indomtab[CONTAINERS_STATS_INDOM].it_indom = CONTAINERS_STATS_INDOM;
-    docker_indomtab[CONTAINERS_STATS_CACHE_INDOM].it_indom = CONTAINERS_STATS_CACHE_INDOM;
     pmdaInit(dp, docker_indomtab, INDOMTAB_SZ, metrictab, METRICTAB_SZ);
     for (i = 0; i < NUM_INDOMS; i++)
 	pmdaCacheOp(INDOM(i), PMDA_CACHE_CULL);
 	
-    docker_setup();
     sts = pthread_create(&docker_query_thread, NULL, docker_background_loop, loop);
     if (sts != 0) {
 	pmNotifyErr(LOG_DEBUG, "docker_init: Cannot spawn new thread: %d\n", sts);
@@ -962,7 +983,7 @@ main(int argc, char **argv)
     }
     
     if (qaflag) {
-	docker_setup();
+	setup();
 	docker_background_loop(0);
 	exit(0);
     }
