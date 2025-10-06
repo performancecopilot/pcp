@@ -20,3 +20,12 @@ Architecture: any
 Description: Tool for importing JSON benchmark results into PCP archive logs
  Performance Co-Pilot (PCP) front-end tools for importing JSON benchmark
  results into PCP archives for replay with PCP analysis tools.
+
+Package: pcp-import-guidellm2pcp
+Depends: pcp-import-benchmarks ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed once
+ pcp-import-benchmarks is installed.
