@@ -227,7 +227,7 @@ MKINSTALLP = @mkinstallp@
 DLLTOOL = @dlltool@
 RPMBUILD= @rpmbuild@
 RPM	= @rpm@
-POD2MAN = @pod2man@
+POD2MAN = @pod2man@ --fixed=CR
 DPKG	= @dpkg@
 MAKEPKG	= @makepkg@
 GENPMDA	= $(TOPDIR)/src/genpmda/genpmda
