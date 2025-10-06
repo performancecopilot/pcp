@@ -65,7 +65,8 @@ Architecture: any
 Priority: optional
 Section: oldlibs
 Description: transitional package
- This is a transitional package. It can safely be removed.
+ This is a transitional package. It can safely be removed once
+ /usr/lib/libpcp.so.3 is no longer needed.
 
 Package: libpcp4
 Depends: ${shlibs:Depends}, ${misc:Depends}, pcp-conf (= ${binary:Version})
@@ -89,7 +90,8 @@ Architecture: any
 Priority: optional
 Section: oldlibs
 Description: transitional package
- This is a transitional package. It can safely be removed.
+ This is a transitional package. It can safely be removed once libpcp4
+ is installed.
 
 Package: libpcp-gui2-dev
 Section: libdevel
