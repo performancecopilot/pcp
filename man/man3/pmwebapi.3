@@ -236,7 +236,6 @@ REST API clients can optionally submit an URL-encoded query string
 in the body of the HTTP request unless otherwise noted.
 In this case the POST method must be used instead of the GET method.
 .SS GET \fI/series/ping\fR
-.PP
 Simple liveness test for clients to check whether the server is up
 and supports the \fI/series\fR API.
 .SS GET \fI/series/query\fR \- \fBpmSeriesQuery\fR(3)
@@ -1283,11 +1282,9 @@ The value passed in the request will be sent back in the
 response \- all responses are in JSON object form and will
 include an additional top level "client" field.
 .SS GET \fI/logger/ping\fR
-.P
 Basic liveness test for clients to check whether the server is up
 and supports the \fI/logger\fR API.
 .SS POST \fI/logger/label\fR
-.P
 The body of this API is the machine-agnostic binary (on-disk)
 representation of a PCP archive label as described in
 .BR LOGARCHIVE (5).
@@ -1301,15 +1298,12 @@ ensures correct content is written for each.
 This API returns a numeric token (LOGID) that must be used in all
 subsequent API interactions for this archive as described below.
 .SS POST \fI/logger/meta/LOGID\fR
-.P
 The request body contains metadata file records as described in
 .BR LOGARCHIVE .
 .SS POST \fI/logger/index/LOGID\fR
-.P
 The request body contains temporal index records as described in
 .BR LOGARCHIVE .
 .SS POST \fI/logger/volume/VOLID/LOGID\fR
-.P
 The request body contains timestamped metric value samples, as
 described in
 .BR LOGARCHIVE .
