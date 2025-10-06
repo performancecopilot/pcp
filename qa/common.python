@@ -62,7 +62,7 @@ _check_http_filter()
        -e 's/^\(Date:\).*/\1 DATE/g' \
        -e 's/\(\"context\":\) [0-9][0-9]*/\1 CTXID/g' \
        -e '/^Accept-Encoding: /d' \
-       -e 's/\(\hostname=\): \""$hostname"\"/\1:HOST/g' \
+       -e 's/\(hostname=\): "'"$hostname"'"/\1:HOST/g' \
        -e '/^Connection: keep-alive/d' \
        -e '/ using stream socket$/d'
 }
