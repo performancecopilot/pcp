@@ -23,8 +23,10 @@ default: $(TARGET)
 include $(BUILDRULES)
 
 install: default
+ifeq "$(findstring $(PCP_PLATFORM),freebsd openbsd netbsd)" ""
 	$(INSTALL) -m 755 $(TARGET) $(PCP_BINADM_DIR)/$(TARGET)
 	$(INSTALL_MAN)
+endif
 
 default_pcp : default
 
