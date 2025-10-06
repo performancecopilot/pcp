@@ -2,7 +2,7 @@
 # PCP QA Test No. 1976
 # Test pmdaopenmetrics metric removal
 #
-# Copyright (c) 2017, 2025 Red Hat.  All Rights Reserved.
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
 #
 seq=`basename $0`
 echo "QA output created by $seq"
@@ -45,6 +45,15 @@ find $PCP_PMDAS_DIR/openmetrics/config.d -name GNU\* -exec rm -f {} ";"
 
 _pmdaopenmetrics_install
 
+iam=openmetrics
+# append -R option to pmcd config
+sed < $PCP_PMCDCONF_PATH \
+        -e "/^$iam.*/s/$/ -R 1/" \
+        > $tmp.conf
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+$sudo systemctl restart pmcd
+sleep 2
+
 if ! _pmdaopenmetrics_wait_for_metric openmetrics.thermostat
 then
     status=1
@@ -56,13 +65,21 @@ $sudo rm $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
 pminfo openmetrics.simple_metric
 echo
 
+echo "-- check control metrics disappeared --"
+pminfo -dfmt openmetrics.control.status_code
+echo
+
 echo "-- source re-addition --"
 # same access controls logic as above, user $PCP_USER needs to be
 # able to read the file at the end of the URL
 #
 cp $here/openmetrics/samples/simple_metric.txt $tmp.simple_metric.txt
-echo 'file:///'$tmp.simple_metric.txt >$PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
+echo 'file:///'$tmp.simple_metric.txt > $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
 pminfo openmetrics.simple_metric
+echo
+
+echo "-- check control metrics reappeared --"
+pminfo -dfmt openmetrics.control.status_code
 echo
 
 echo "-- metric removal of recognized source/metric --"
@@ -76,6 +93,16 @@ echo 'file:///'$tmp.simple_metric.txt > $PCP_PMDAS_DIR/openmetrics/config.d/simp
 $sudo touch -t 197001010000 $PCP_PMDAS_DIR/openmetrics/config.d/simple_metric.url
 pminfo openmetrics.simple_metric
 echo
+
+echo "-- metric removal by modifying source file, source persists --"
+$sudo sed -i -e "/metric2/d" $tmp'.simple_metric.txt'
+
+echo "-- sleep to allow for old_enough_for_refresh() --"
+sleep 2
+echo
+
+echo "-- metric2 removed --"
+pminfo openmetrics.simple_metric
 
 _pmdaopenmetrics_remove >/dev/null 2>&1
 
