@@ -733,38 +733,26 @@ lf(CB) | l | l.
 Operators	Type	Explanation
 _
 T{
-.ad l
 some_inst
-.br
 some_host
-.br
 some_sample
 T}	Existential	T{
-.ad l
 True if at least one set member is true in the associated dimension
 T}
 _
 T{
-.ad l
 all_inst
-.br
 all_host
-.br
 all_sample
 T}	Universal	T{
-.ad l
 True if all set members are true in the associated dimension
 T}
 _
 T{
-.ad l
 \f(CIN\f(CB%_inst
-.br
 \f(CIN\f(CB%_host
-.br
 \f(CIN\f(CB%_sample\fR
 T}	Percentile	T{
-.ad l
 True if at least \fIN\fP percent of set members are true in the associated dimension
 T}
 .TE
@@ -787,19 +775,11 @@ lf(CB) | l.
 Operators	Explanation
 _
 match_inst	T{
-.ad l
-For each value of the logical expression that is ``true'', the
-result is ``true'' if the associated instance name matches the
-regular expression.
-Otherwise the result is ``false''.
+For each value of the logical expression that is ``true'', the result is ``true'' if the associated instance name matches the regular expression.  Otherwise the result is ``false''.
 T}
 _
 nomatch_inst	T{
-.ad l
-For each value of the logical expression that is ``true'', the
-result is ``true'' if the associated instance name does
-\fBnot\fP match the
-regular expression.  Otherwise the result is ``false''.
+For each value of the logical expression that is ``true'', the result is ``true'' if the associated instance name does \fBnot\fP match the regular expression.  Otherwise the result is ``false''.
 T}
 .TE
 .PP
@@ -824,50 +804,34 @@ lf(CB) | l | l.
 Operators	Type	Explanation
 _
 T{
-.ad l
 min_inst
-.br
 min_host
-.br
 min_sample
 T}	Extrema	T{
-.ad l
 Minimum value across all set members in the associated dimension
 T}
 _
 T{
-.ad l
 max_inst
-.br
 max_host
-.br
 max_sample
 T}	Extrema	T{
-.ad l
 Maximum value across all set members in the associated dimension
 T}
 _
 T{
-.ad l
 sum_inst
-.br
 sum_host
-.br
 sum_sample
 T}	Aggregate	T{
-.ad l
 Sum of values across all set members in the associated dimension
 T}
 _
 T{
-.ad l
 avg_inst
-.br
 avg_host
-.br
 avg_sample
 T}	Aggregate	T{
-.ad l
 Average value across all set members in the associated dimension
 T}
 .TE
@@ -1543,25 +1507,13 @@ lf(B) | lf(B)
 lf(B) | lxf(R) .
 Option	Description
 _
-appl0	T{
-.ad l
-lexical scanning during parsing of the configuration file
-T}
+appl0	lexical scanning during parsing of the configuration file
 _
-appl1	T{
-.ad l
-configuration file parsing and expression tree construction
-T}
+appl1	configuration file parsing and expression tree construction
 _
-appl2	T{
-.ad l
-expression evaluation
-T}
+appl2	expression evaluation
 _
-appl3	T{
-.ad l
-status file operations
-T}
+appl3	status file operations
 .TE
 .SH SEE ALSO
 .BR PCPIntro (1),
