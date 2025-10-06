@@ -565,9 +565,17 @@ Option	Description
 _
 appl0	client connections and disconnections
 _
-appl1	desperate logging mode, where a period followed by the PID of \fBpmproxy\fR is inserted in the name of \fIRlogfile\fP before the last period, so for example pmproxy.log becomes pmproxy.<pid>.log
+appl1	T{
+desperate logging mode, where a period followed by the PID of
+\fBpmproxy\fR is inserted in the name of \fIRlogfile\fP before the last
+period, so for example pmproxy.log becomes pmproxy.<pid>.log
+T}
 _
-appl2	log incoming HTTP URLs (this is also enabled by the \fBhttp\fR debugging option, but the latter has broader scope because it turns on debugging in the libraries that \fBpmproxy\fR uses)
+appl2	T{
+log incoming HTTP URLs (this is also enabled by the \fBhttp\fR debugging
+option, but the latter has broader scope because it turns on debugging
+in the libraries that \fBpmproxy\fR uses)
+T}
 .TE
 .SH SEE ALSO
 .BR PCPIntro (1),

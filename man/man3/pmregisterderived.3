@@ -904,17 +904,26 @@ Derived Metric	Starting PMID	Description
 _
 global	511.0.1	T{
 .hy 0
-Metrics are assigned \fIascending\fP PMIDs as they are registered via \fBpmRegisterDerived\fP, \fBpmRegisterDerivedMetric\fP or \fBpmLoadDerivedConfig\fP(3).
+Metrics are assigned \fIascending\fP PMIDs as they are registered
+via \fBpmRegisterDerived\fP or \fBpmRegister-DerivedMetric\fP, or
+\fBpmLoad-DerivedConfig\fP(3).
 T}
 _
 per-context	511.2047.1023	T{
 .hy 0
-Metrics are assigned \fIdescending\fP PMIDs as they are registered via \fBpmAddDerived\fP(3) or \fBpmAddDerivedMetric\fP(3).
+Metrics are assigned \fIdescending\fP PMIDs as they are registered via
+\fBpmAddDerived\fP(3) or \fBpmAddDerivedMetric\fP(3).
 T}
 _
 remapped	511.c.i	T{
 .hy 0
-When a derived metric is recorded in a PCP archive by \fBpmlogger\fP(1) or one of the related archive creation tools, the PMID of the derived metric is remapped in the archive so that \fIc\fP is the cluster of derived metric plus 2048, and i is the item of the derived metric.  For example, a derived metric with PMID 511.0.13 will have the remapped PMID 511.2048.13 in an archive.  See \fBpmlogger\fP(1) for a discussion about adding derived metrics to a PCP archive.
+When a derived metric is recorded in a PCP archive by \fBpmlogger\fP(1)
+or one of the related archive creation tools, the PMID of the derived
+metric is remapped in the archive so that \fIc\fP is the cluster of
+derived metric plus 2048, and i is the item of the derived metric.
+For example, a derived metric with PMID 511.0.13 will have the remapped
+PMID 511.2048.13 in an archive.  See \fBpmlogger\fP(1) for a discussion
+about adding derived metrics to a PCP archive.
 T}
 .TE
 .PP
