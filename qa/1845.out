@@ -9,7 +9,7 @@ Info: processing archives from remote pmlogger on host qahost
 Input archives to be merged:
 	TODAY-2.00.10
 	TODAY-2.01.20 (3 volumes)
-	TODAY-2.02.30
+	TODAY-2.03.30
 Output archive files:
 -rw-r--r-- 1411 TODAY-2.meta
 -rw-r--r-- 272 TODAY-2.index
