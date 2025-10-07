@@ -703,7 +703,8 @@ Summary: Performance Co-Pilot tools importing benchmark results into PCP archive
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: python3-pcp = %{version}-%{release}
-Obsoletes: pcp-import-guidellm2pcp < 7.0.2
+Obsoletes: pcp-import-guidellm2pcp <= 7.0.2
+Provides: pcp-import-guidellm2pcp = %{version}-%{release}
 
 %description import-benchmarks
 Performance Co-Pilot (PCP) front-end tools for importing JSON benchmark
