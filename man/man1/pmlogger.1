@@ -1331,64 +1331,31 @@ lf(B) | lf(B)
 lf(B) | lxf(R) .
 Option	Description
 _
-appl0	T{
-.ad l
-control request PDUs to and from
-.BR pmlc (1)
-T}
+appl0	control request PDUs to and from \fBpmlc\fP(1)
 _
-appl1	T{
-.ad l
-credentials exchange
-T}
+appl1	credentials exchange
 _
 appl2	T{
-.ad l
-alarm (timing) loop diagnostics, callback work and record control
-mode messages
+alarm (timing) loop diagnostics, callback work and record
+control mode messages
 T}
 _
-appl3	T{
-.ad l
-signal callbacks and exit logging
-T}
+appl3	signal callbacks and exit logging
 _
-appl4	T{
-.ad l
-record timestamps in
-.I logfile
-as milestones are reached
-T}
+appl4	record timestamps in \fIlogfile\fP as milestones are reached
 _
-appl5	T{
-.ad l
-PDU stats after
-.I conffile
-file processed
-T}
+appl5	PDU stats after \fIconffile\fP file processed
 _
 appl6	T{
-.ad l
-building the metadata cache from
-.I conffile
-to boost start-up performance,
-.IR pass0 ()
-work
+building the metadata cache from \fIconffile\fP to boost start-up performance, \fIpass0\fP() work
 T}
 _
 appl7	T{
-.ad l
-suppress building of the metadata cache,
-.IR pass0 ()
-becomes a no-op
+suppress building of the metadata cache, \fIpass0\fP() becomes a no-op
 T}
 _
 appl8	T{
-.ad l
-hist_hash updates and queries to support
-.B query
-command from
-.BR pmlc (1)
+hist_hash updates and queries to support \fBquery\fP command from \fBpmlc\fP(1)
 T}
 .TE
 .SH SEE ALSO

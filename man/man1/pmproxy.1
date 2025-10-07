@@ -563,29 +563,18 @@ lf(B) | lf(B)
 lf(B) | lxf(R) .
 Option	Description
 _
-appl0	T{
-.ad l
-client connections and disconnections
-T}
+appl0	client connections and disconnections
 _
 appl1	T{
-.ad l
 desperate logging mode, where a period followed by the PID of
-.B pmproxy
-is inserted in the name of
-.IR logfile
-before the last period, so for example pmproxy.log
-becomes pmproxy.<pid>.log
+\fBpmproxy\fR is inserted in the name of \fIRlogfile\fP before the last
+period, so for example pmproxy.log becomes pmproxy.<pid>.log
 T}
 _
 appl2	T{
-.ad l
-log incoming HTTP URLs (this is also enabled by the
-.B http
-debugging option, but the latter has broader scope because it
-turns on debugging in the libraries that
-.B pmproxy
-uses)
+log incoming HTTP URLs (this is also enabled by the \fBhttp\fR debugging
+option, but the latter has broader scope because it turns on debugging
+in the libraries that \fBpmproxy\fR uses)
 T}
 .TE
 .SH SEE ALSO

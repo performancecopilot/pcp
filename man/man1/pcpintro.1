@@ -152,6 +152,7 @@ There is a set of common command line arguments that are used consistently
 by most PCP tools.
 .TP
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+.RS
 Performance metric information is retrospectively retrieved
 from the set of Performance Co-Pilot (PCP) archives identified by
 .IR archive
@@ -162,7 +163,6 @@ See
 and
 .BR LOGARCHIVE (5)
 for archive creation interfaces and format documentation.
-.RS
 .PP
 .I archive
 is a comma-separated list of names, each
@@ -205,6 +205,7 @@ etc.
 .RE
 .TP
 \fB\-h\fR \fIhost\fR, \fB\-\-host\fR=\fIhost\fR
+.RS
 Unless directed to another host by the
 .B \-h
 (or
@@ -247,8 +248,10 @@ is 0 or
 is not specified, the application
 will sample and report continuously (in real time mode) or until the end
 of the set of PCP archives (in archive mode).
+.RE
 .TP
 \fB\-z\fR, \fB\-\-hostzone\fR
+.RS
 Change the reporting timezone to the local timezone at the
 host that is the source of the performance metrics, as identified via
 either the
@@ -260,8 +263,10 @@ or
 (or
 .BR \-\-archive )
 options.
+.RE
 .TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+.RS
 By default, applications
 report the time of day according to the local timezone on the
 system where
@@ -276,8 +281,10 @@ in the format of the environment variable
 .B TZ
 as described in
 .BR environ (7).
+.RE
 .TP
 \fB\-D\fR \fIdebugspec\fR, \fB\-\-debug\fR=\fIdebugspec\fR
+.RS
 Sets the PCP debugging options to
 .I debugspec
 to enable diagnostics and tracing that is most helpful for developers or
@@ -304,6 +311,7 @@ option, but a typical invocation in this mode would be
 .B "\-O today"
 or
 .BR "\-\-origin yesterday" .
+.RE
 .SH INTERVAL SPECIFICATION AND ALIGNMENT
 Most PCP tools operate with periodic sampling or
 reporting, and the
@@ -1181,8 +1189,7 @@ is a directory then recursive descent is used to enumerate all
 files below that directory and these are added to the list.
 .RS
 .PP
-Each file in the resulting list is assumed to
-contain
+Each file in the resulting list is assumed to contain
 definitions of derived metrics as per the syntax described in
 .BR pmLoadDerivedConfig (3),
 and these are loaded in order.
@@ -1276,7 +1283,6 @@ If
 .B PCP_STDERR
 is set to any other value, the value is assumed to
 be a filename, and all messages will be written there.
-.RE
 .TP
 .B PMCD_CONNECT_TIMEOUT
 When attempting to connect to a remote

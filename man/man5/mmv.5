@@ -259,13 +259,21 @@ c | c | c
 n | n | l.
 Offset	Length	Value
 _
-0	4	Flags (PM_LABEL_[CLUSTER|ITEM|INDOM|INSTANCES]|OPTIONAL)
+0	4	T{
+Flags - PM_LABEL_ CLUSTER, ITEM, INDOM, INSTANCES and OPTIONAL
+T}
 _
-4	4	Identifier for given type (indom, cluster or item)
+4	4	T{
+Identifier for given type (indom, cluster or item)
+T}
 _
-8	4	Internal Instance or PM_IN_NULL
+8	4	T{
+Internal Instance or PM_IN_NULL
+T}
 _
-12	244	Payload (Name and Value JSONB String)
+12	244	T{
+Payload (Name and Value JSONB String)
+T}
 .TE
 .PP
 Each entry in the payload is a 244 byte (maximum) character array,
