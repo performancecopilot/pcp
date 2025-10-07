@@ -562,10 +562,18 @@ Version 2
 _
 Offset	Length	Name
 _
-0	4	tag, TYPE_LABEL_V2=3
-4	4	timestamp, seconds part (past UNIX epoch)
-8	4	timestamp, microseconds part
-12	4	label type (PM_LABEL_* type macros.)
+0	4	T{
+tag, TYPE_LABEL_V2=3
+T}
+4	4	T{
+timestamp, seconds part (past UNIX epoch)
+T}
+8	4	T{
+timestamp, microseconds part
+T}
+12	4	T{
+label type (PM_LABEL_* type macros.)
+T}
 16	4	T{
 .TW
 numeric identifier - domain, PMID, etc or PM_IN_NULL=-1 for context labels
@@ -574,12 +582,20 @@ T}
 .TW
 N: number of label sets in this record, usually 1 except in the case of instances
 T}
-24	4	offset to the start of the JSONB labels string
-28	L1	first labelset array entry (see below)
+24	4	T{
+offset to the start of the JSONB labels string
+T}
+28	L1	first T{
+labelset array entry (see below)
+T}
 \&...	...	...
-28+L1	LN	N-th labelset array entry (see below)
+28+L1	LN	N-th T{
+labelset array entry (see below)
+T}
 \&...	...	...
-28+L1+...LN	M	concatenated JSONB strings for all labelsets
+28+L1+...LN	M	T{
+concatenated JSONB strings for all labelsets
+T}
 .TE
 
 .TS
@@ -591,10 +607,18 @@ Version 3
 _
 Offset	Length	Name
 _
-0	4	tag, TYPE_LABEL=7
-4	8	timestamp, seconds part (past UNIX epoch)
-12	4	timestamp, nanoseconds part
-16	4	label type (PM_LABEL_* type macros.)
+0	4	T{
+tag, TYPE_LABEL=7
+T}
+4	8	T{
+timestamp, seconds part (past UNIX epoch)
+T}
+12	4	T{
+timestamp, nanoseconds part
+T}
+16	4	T{
+label type (PM_LABEL_* type macros.)
+T}
 20	4	T{
 .TW
 numeric identifier - domain, PMID, etc or PM_IN_NULL=-1 for context labels
@@ -603,12 +627,20 @@ T}
 .TW
 N: number of label sets in this record, usually 1 except in the case of instances
 T}
-28	4	offset to the start of the JSONB labels string
-32	L1	first labelset array entry (see below)
+28	4	T{
+offset to the start of the JSONB labels string
+T}
+32	L1	T{
+first labelset array entry (see below)
+T}
 \&...	...	...
-32+L1	LN	N-th labelset array entry (see below)
+32+L1	LN	T{
+N-th labelset array entry (see below)
+T}
 \&...	...	...
-32+L1+...LN	M	concatenated JSONB strings for all labelsets
+32+L1+...LN	M	T{
+concatenated JSONB strings for all labelsets
+T}
 .TE
 
 .PP
