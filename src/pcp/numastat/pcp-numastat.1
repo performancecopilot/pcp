@@ -18,7 +18,7 @@
 \f3pcp-numastat\f1 \- report on NUMA memory allocation
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3numastat\f1
-[\fB-V\fR] [\fB-w\fR \fIwidth\fR] [\fB-m\fR][-n\fR] [\fB-?\fR]
+[\fB\-mnV?\fR] [\fB\-w\fR \fIwidth\fR]
 .SH DESCRIPTION
 .B pcp-numastat
 displays NUMA allocation statistics from the kernel memory
@@ -62,18 +62,18 @@ The additional command line options available for
 .B pcp-numastat
 are:
 .TP 5
+\fB\-m\fR, \fB\-\-meminfo\fR
+Display meminfo-like system-wide memory usage.
+.TP
+\fB\-n\fR, \fB\-\-numastat\fR
+Display the numastat statistics info.
+.TP
 \fB\-V\fR, \fB\-\-version\fR
 Display the current version of the command.
 .TP
 \fB\-w\fR \fIwidth\fR, \fB\-\-width\fR=\fIwidth\fR
 Limit display to
 .IR width .
-.TP
-\fB-m\fR, \fB--meminfo\fR
-Display meminfo-like system-wide memory usage.
-.TP
-\fB-n\fR, \fB--numastat\fR
-Display the numastat statistics info.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
