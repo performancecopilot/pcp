@@ -385,8 +385,7 @@ get_fr_bw(cisco_t *cp, char *interface)
 
 	    case BW:
 		sscanf(w, "%d", &bandwidth);
-		bandwidth *= 1000;		/* Kbit -> bytes/sec */
-		bandwidth /= 8;
+		bandwidth *= (1000/8);		/* Kbit -> bytes/sec */
 		state = IN_REPORT;
 		break;
 
@@ -664,8 +663,7 @@ grab_cisco(intf_t *ip)
 
 	    case BW:
 		sscanf(w, "%d", &tmp.bandwidth);
-		tmp.bandwidth *= 1000;		/* Kbit -> bytes/sec */
-		tmp.bandwidth /= 8;
+		tmp.bandwidth *= (1000/8);	/* Kbit -> bytes/sec */
 		nval++;
 		state = IN_REPORT;
 		break;
