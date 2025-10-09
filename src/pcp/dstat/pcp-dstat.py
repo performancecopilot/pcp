@@ -935,6 +935,8 @@ class DstatTool(object):
             self.append_plugin('time')
         elif opt in ['T']:
             self.append_plugin('epoch')
+        elif opt in ['u']:
+            self.append_plugin('times')
         elif opt in ['y']:
             self.append_plugin('sys')
         elif opt in ['a', 'all']:
