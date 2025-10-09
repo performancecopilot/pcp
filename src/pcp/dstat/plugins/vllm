@@ -1,0 +1,24 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[vllm-kvcache-use]
+label = kv%
+width = 3
+precision = 0
+printtype = p
+colorstep = 34
+use = 100 * sum(openmetrics.vllm.vllm.kv_cache_usage_perc)
+
+[vllm-prefix-cache]
+label = cache
+width = 5
+precision = 2
+reqs = sum(openmetrics.vllm.vllm.prefix_cache_queries_total)
+reqs.label = reqs
+hits = sum(openmetrics.vllm.vllm.prefix_cache_hits_total)
+hits.label = hits
+extreqs = sum(openmetrics.vllm.vllm.external_prefix_cache_queries_total)
+extreqs.label = ereq
+exthits = sum(openmetrics.vllm.vllm.external_prefix_cache_hits_total)
+exthits.label = ehit
