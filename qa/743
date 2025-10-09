@@ -23,16 +23,31 @@ archive3="-a $here/archives/numa -z"
 
 # real QA test starts here
 echo && echo 1 node numastat output, at archive start, cmd width
-PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 $pcp_numastat --width=64
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat --width=64
+
+echo && echo 1 node meminfo output with option -m, at archive start, cmd width
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat -m --width=64
+
+echo && echo 1 node meminfo and numastat output with option -mn, at archive start, cmd width
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat -mn --width=64
+
+echo && echo 1 node numastat output with optin -n, at archive start, cmd width
+PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat -n --width=64
 
 echo && echo 1 node numastat output, at archive end, cmd width
-pcp $archive2 -O-0 numastat --width=64
+pcp $archive2 -O-1 numastat --width=64
 
-echo && echo 3 node numastat output, at archive end, large env width
-NUMASTAT_WIDTH=1000 pcp $archive3 -O-0 numastat
+echo && echo 4 node numastat output, at archive end, large env width
+NUMASTAT_WIDTH=1000 pcp $archive3 -O-1 numastat
 
-echo && echo 3 node numastat output, at archive end, small env width
-NUMASTAT_WIDTH=50 pcp $archive3 -O-0 numastat
+echo && echo 4 node meminfo and  numastat output with option -mn, at archive end, large env width
+NUMASTAT_WIDTH=1000 pcp $archive3 -O-1 numastat -mn
+
+echo && echo 4 node numastat output, at archive end, small env width
+NUMASTAT_WIDTH=50 pcp $archive3 -O-1 numastat
+
+echo && echo 4 node meminfo and numastat output with option -mn, at archive end, small env width
+NUMASTAT_WIDTH=50 pcp $archive3 -O-1 numastat -mn
 
 # success, all done
 status=0
