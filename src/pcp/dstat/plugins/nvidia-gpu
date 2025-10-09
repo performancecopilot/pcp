@@ -3,11 +3,12 @@
 #
 
 [nvidia-gpu]
+width = 3
 label = %I
 precision = 0
 printtype = p
 colorstep = 34
 grouptype = 1
 filtertype = gpu
-util% = nvidia.gpuactive
-mem% = 100 * nvidia.memused / nvidia.memtotal
+use = nvidia.gpuactive
+mem = 100 * nvidia.memused / nvidia.memtotal
