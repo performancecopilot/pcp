@@ -1,0 +1,26 @@
+#
+# pcp-dstat(1) configuration file - see pcp-dstat(5)
+#
+
+[vllm-kvgpu]
+label = kv%
+width = 3
+precision = 0
+printtype = p
+colorstep = 34
+use = 100 * sum(openmetrics.vllm.vllm.kv_cache_usage_perc)
+
+#
+# uses experimental metrics from upstream vLLM PR #26245
+# (still lack a kvcache usage perc metric at this stage)
+#
+[vllm-kvcache]
+label = kvcache
+width = 5
+precision = 2
+allreqs = sum(openmetrics.vllm.vllm.prefix_cache_queries_total)
+allreqs.label = reqs
+gpuhits = sum(openmetrics.vllm.vllm.prefix_cache_hits_total)
+gpuhits.label = gpu
+connhits = sum(openmetrics.vllm.vllm.connector_prefix_cache_hits_total)
+connhits.label = conn
