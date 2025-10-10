@@ -817,6 +817,8 @@ http_client_prepare(http_client *cp, const char *url, /* conn */
     cp->input_buffer = in_body_buffer;
     cp->input_length = in_body_length;
 
+    cp->flags &= ~F_MESSAGE_END;
+
     /* extract individual fields from the given URL */
     http_parser_url_init(&parser_url);
     if ((sts = http_parser_parse_url(url, strlen(url), 0, &parser_url)) != 0) {
