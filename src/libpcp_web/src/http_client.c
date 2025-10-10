@@ -825,9 +825,9 @@ http_client_prepare(http_client *cp, const char *url, /* conn */
     }
 
     /* short-circuit if we are making a request from a connected server */
-    if (http_compare_source(&parser_url, url, &cp->parser_url, cp->conn) == 0)
-	return 0;
-    http_client_disconnect(cp);
+    if (http_compare_source(&parser_url, url, &cp->parser_url, cp->conn) != 0) {
+        http_client_disconnect(cp);
+    }
 
     if ((new_url = strdup(url)) == NULL) {
 	cp->error_code = -ENOMEM;
