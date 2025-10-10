@@ -1745,7 +1745,7 @@ of the number of fragments by combining them as they are received.
 @ hinv.pagesize Memory page size
 The memory page size of the running kernel in bytes.
 @ hinv.hugepagesize Huge page size from /proc/meminfo
-The memory huge page size of the running kernel in bytes.
+The memory huge page size of the running kernel in kilobytes.
 @ hinv.ncpu number of CPUs in the system
 @ hinv.ndisk number of disks in the system
 @ hinv.nfilesys number of (local) file systems currently mounted
