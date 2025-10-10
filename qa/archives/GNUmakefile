@@ -70,6 +70,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  bind2-9.18.0.xz bind2-9.18.meta.xz bind2-9.18.index \
 	  bind2-9.18+.0.xz bind2-9.18+.meta.xz bind2-9.18+.index \
 	  gfs.0.xz gfs.meta gfs.index \
+	  numa.0.xz numa.meta.xz numa.index.xz \
 	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
 	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index
 
