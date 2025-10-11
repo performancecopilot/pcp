@@ -817,6 +817,8 @@ http_client_prepare(http_client *cp, const char *url, /* conn */
     cp->input_buffer = in_body_buffer;
     cp->input_length = in_body_length;
 
+    cp->flags &= ~F_MESSAGE_END;
+
     /* extract individual fields from the given URL */
     http_parser_url_init(&parser_url);
     if ((sts = http_parser_parse_url(url, strlen(url), 0, &parser_url)) != 0) {
@@ -825,9 +827,9 @@ http_client_prepare(http_client *cp, const char *url, /* conn */
     }
 
     /* short-circuit if we are making a request from a connected server */
-    if (http_compare_source(&parser_url, url, &cp->parser_url, cp->conn) == 0)
-	return 0;
-    http_client_disconnect(cp);
+    if (http_compare_source(&parser_url, url, &cp->parser_url, cp->conn) != 0) {
+        http_client_disconnect(cp);
+    }
 
     if ((new_url = strdup(url)) == NULL) {
 	cp->error_code = -ENOMEM;

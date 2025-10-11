@@ -1,3 +1,11 @@
 QA output created by 867
 == Check simple HTTP fetch
 OK
+== Check HTTP cache
+["kernel.all.load"]
+["kernel.all.load"]
+["kernel.all.intr"]
+["kernel.all.load"]
+["kernel.all.load"]
+["kernel.all.intr"]
+OK
