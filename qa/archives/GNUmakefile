@@ -63,17 +63,17 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index \
 	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \
 	  pcp-meminfo.0.xz pcp-meminfo.meta.xz pcp-meminfo.index \
-	  pcp-netstat.0.xz pcp-netstat.meta.xz pcp-netstat.index \
 	  pcp-mpstat.0.xz pcp-mpstat.meta.xz pcp-mpstat.index.xz \
+	  pcp-netstat.0.xz pcp-netstat.meta.xz pcp-netstat.index \
 	  pcp-rocestat.0.xz pcp-rocestat.meta.xz pcp-rocestat.index.xz \
 	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz all-ubuntu.22.04.index \
 	  bind2-9.18.0.xz bind2-9.18.meta.xz bind2-9.18.index \
 	  bind2-9.18+.0.xz bind2-9.18+.meta.xz bind2-9.18+.index \
-	  gfs.0.xz gfs.meta gfs.index \
+	  pcp-numastat-1-node.0.xz pcp-numastat-1-node.meta.xz \
+	  pcp-numastat-1-node.index.xz gfs.0.xz gfs.meta gfs.index \
 	  numa.0.xz numa.meta.xz numa.index.xz \
 	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
 	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index
-
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
