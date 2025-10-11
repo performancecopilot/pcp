@@ -41,8 +41,10 @@ _filter()
 export LC_COLLATE=POSIX
 echo "== new diagnostics ==" >> $seq.full
 pmdumplog -dehIL tmparch/foo >> $seq.full
-echo "== pre diagnostics ==" >> $seq.full
+echo "== pre diagnostic0 ==" >> $seq.full
 pmlogcheck -z -v tmparch/foo >> $seq.full 2>&1
+echo "== pre diagnostic1 ==" >> $seq.full
+$here/src/scanmeta -a tmparch/foo.meta >> $seq.full
 echo "== end diagnostics ==" >> $seq.full
 
 echo "=== directory traversal and file checks ===" | tee -a $seq_full
