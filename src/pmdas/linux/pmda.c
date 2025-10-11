@@ -8835,10 +8835,10 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		return 0; /* no values available */
 	   atom->ull = proc_meminfo.MemAvailable;
 	   break;
-	case 59: /* hinv.hugepagesize (in bytes) */
+	case 59: /* hinv.hugepagesize (in kbytes) */
 	    if (!MEMINFO_VALID_VALUE(proc_meminfo.Hugepagesize))
 	    	return 0; /* no values available */
-	    atom->ul = (proc_meminfo.Hugepagesize << 10);
+	    atom->ul = proc_meminfo.Hugepagesize;
 	    break;
 	case 60: /* mem.util.hugepagesTotalBytes (in bytes) */
 	   if (!MEMINFO_VALID_VALUE(proc_meminfo.HugepagesTotal))
