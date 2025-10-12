@@ -1,5 +1,38 @@
 pcp-7.0.2 (15 October 2025)
-    - Currently work-in-progress.
+    - PMDA additions, enhancements and bug fixes:
+	pmdaopenmetrics: update metric removal mechanism
+	pmdaopentelemetry: QA failure fixes and improvements
+	pmdahacluster: support "cibadmin --local" deprecation for pacemaker metrics
+	pmdanvidia: add pmlogconf setups for logging GPU metrics
+	pmdacifs: add support for collecting DebugData metrics
+	pmdahdb: remove unused SPS version macros, various improvements
+	pmdalinux: add new numastat per-node metrics (mem.numa.util.*)
+	pmdarocestat: fix invalid path on RHEL8, support MLNX OFED 4.1
+    - Client tools and utilities:
+	pcp-xsos: new tool merged from separate xsos-pcp repository
+	pcp-dstat: fix incremental sample updating, add default time column
+	pcp-htop: sync with latest htop.dev code fixes
+	vllmbench2pcp: convert vLLM bench results to PCP archives
+    - Server-side utilities and log management scripts:
+	pmlogctl: fix variable renaming fallout
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: fix formatting arguments to xz_debug()
+	libpcp3: fix formatting arguments to xz_debug()
+	libpcp_web: eliminate possible use after free in series_calculate_rate()
+	libpcp_web: conditional exports handling improvements
+	libpcp: remove unneeded conditional from __pmHashClear() [Coverity]
+	pmieconf: eliminate minor memory leaks [Coverity]
+    - Build, infrastructure, containers and packaging updates:
+	build: update OpenIndiana platform support
+	build: sync redhat.spec with recent rpm package changes
+	build: packaging changes for openSUSE 16.0
+	build: merge separate xsos-pcp repository into main PCP tree
+	build: improvements for pcp-import-benchmarks packaging
+	packaging: add transitional package pcp-import-guidellm2pcp
+	packaging: FreeBSD and OpenBSD package list updates
+    - Documentation:
+	docs: extend pcp container readme to show nvidia GPU enablement
+	docs: update INSTALL.md macOS pmcd start instructions
 
 pcp-7.0.1 (21 September 2025)
     - PMDA additions, enhancements and bug fixes:

@@ -100,6 +100,7 @@ hex2nbo
 hp-mib
 hrunpack
 httpfetch
+httpcache
 import_limit_test.pl
 indom
 indom2int

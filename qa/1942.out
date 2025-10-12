@@ -3,7 +3,7 @@ QA output created by 1942
 === opentelemetry agent installation ===
 
 === check "notready" appeared in pmcd.conf
-opentelemetry	164	pipe	binary notready		/usr/bin/python3 /var/lib/pcp/pmdas/opentelemetry/pmdaopentelemetry.python 
+opentelemetry	164	pipe	binary notready	 PYTHON_PROG /var/lib/pcp/pmdas/opentelemetry/pmdaopentelemetry.python 
 
 === pminfo listing.
 

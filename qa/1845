@@ -75,12 +75,15 @@ mkdir -p $PCP_REMOTE_ARCHIVE_DIR/qahost || exit 1
 mkdir -p $PCP_ARCHIVE_DIR || exit 1
 # ok-foo archives are less than 20sec long, so make the MM.SS parts
 # of the archive basenames to ensure there is no temporal overlap
+# Dodge: 02:30 ... that is a potential daylight savings black hole
+#        for timezone Australia/Melbourne, and touch(1) helpfully
+#        (not!) responds with: invalid date format ‘202510050230.00’
 #
 cat <<End-of-File >$tmp.config
 qahost	archives/ok-mv-foo	`pmdate -1d %Y%m%d`
 qahost	archives/ok-foo		`pmdate -2d %Y%m%d.00.10`
 qahost	archives/ok-mv-foo	`pmdate -2d %Y%m%d.01.20`
-qahost	archives/ok-foo		`pmdate -2d %Y%m%d.02.30`
+qahost	archives/ok-foo		`pmdate -2d %Y%m%d.03.30`
 End-of-File
 ./mk.logfarm -c $tmp.config $PCP_REMOTE_ARCHIVE_DIR
 ls -lR $tmp >>$seq_full

@@ -49,8 +49,8 @@ fi
 
 echo; echo === check \"notready\" appeared in pmcd.conf
 sed <$PCP_PMCDCONF_PATH >$tmp.tmp \
-    -e "s@[     ]$PCP_PYTHON_PROG[      ]@ PYTHON_PROG @" \
-    -e "s@[     ]`basename $PCP_PYTHON_PROG`[   ]@ PYTHON @" \
+    -e "s@[ 	]$PCP_PYTHON_PROG[ 	]@ PYTHON_PROG @" \
+    -e "s@[ 	]`basename $PCP_PYTHON_PROG`[ 	]@ PYTHON @" \
     # done
 if grep 'opentelemetry.*notready' $tmp.tmp
 then

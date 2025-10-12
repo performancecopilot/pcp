@@ -28,6 +28,9 @@ static char *smart_setup_nvmecli;
 static int _POWER_STATE_CLUSTER_OFFSET = 257;
 
 static int nvmecli_support = 1; // Assume we have support by default until checked
+static int nvme_feature_active_power_state = 1;
+static int nvme_feature_apst_state = 1;
+static int nvme_feature_completion_queue = 1;
 
 /*
  * NVME Spec allows for S.M.A.R.T attribute field formats to be
@@ -261,28 +264,28 @@ nvme_device_info_fetch(int item, int cluster, struct nvme_device_info *nvme_devi
                         return 1;
 
                 case NVME_ACTIVE_POWER_STATE:
-                        if (!nvmecli_support)
+                        if (!nvmecli_support || !nvme_feature_active_power_state)
                                 return PMDA_FETCH_NOVALUES;
 
                         atom->ul = nvme_device_info->active_power_state;
                         return 1;
 
                 case NVME_APST_STATE:
-                        if (!nvmecli_support)
+                        if (!nvmecli_support || !nvme_feature_apst_state)
                                 return PMDA_FETCH_NOVALUES;
 
                         atom->cp = nvme_device_info->apst_state;
                         return 1;
 
                 case NVME_COMPLETION_QUEUE_LENGTH_COMPLETION:
-                        if (!nvmecli_support)
+                        if (!nvmecli_support || !nvme_feature_completion_queue)
                                 return PMDA_FETCH_NOVALUES;
 
                         atom->ul = nvme_device_info->completion_queue_length_completion;
                         return 1;
 
                 case NVME_COMPLETION_QUEUE_LENGTH_SUBMISSION:
-                        if (!nvmecli_support)
+                        if (!nvmecli_support || !nvme_feature_completion_queue)
                                 return PMDA_FETCH_NOVALUES;
 
                         atom->ul = nvme_device_info->completion_queue_length_submission;
@@ -424,56 +427,102 @@ nvme_power_data_fetch(int item, int cluster, struct nvme_power_states *nvme_powe
 	switch (item) {
 
 		case STATE:
-			atom->ul = nvme_power_states->state[cluster];
-			return 1;
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+			} else {
+				atom->ul = nvme_power_states->state[cluster];
+				return 1;
+			}
 
 		case MAX_POWER:
-		        atom->d = nvme_power_states->max_power[cluster];
-		        return 1;
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+                        } else {
+                        	atom->d = nvme_power_states->max_power[cluster];
+                        	return 1;
+		        }
 
                 case NON_OPERATIONAL_STATE:
-                        atom->ul = nvme_power_states->non_operational_state[cluster];
-                        return 1;
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+                        } else {
+                        	atom->ul = nvme_power_states->non_operational_state[cluster];
+                        	return 1;
+                        }
 
                 case ACTIVE_POWER:
-                        if (nvme_power_states->active_power[cluster] == -1) {
-                                return PMDA_FETCH_NOVALUES;
+			// Note: sometimes no max power is reported so this might be set to -1.
+			if (nvme_power_states->active_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
                         } else {
-                                atom->d = nvme_power_states->active_power[cluster];
-                                return 1;
+                        	atom->d = nvme_power_states->active_power[cluster];
+                        	return 1;
                         }
 
                 case IDLE_POWER:
-                        if (nvme_power_states->idle_power[cluster] == -1) {
-                                return PMDA_FETCH_NOVALUES;
+			// Note: sometimes no idle power is reported so this might be set to -1.
+			if (nvme_power_states->idle_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
                         } else {
-                                atom->d = nvme_power_states->idle_power[cluster];
-                                return 1;
+                        	atom->d = nvme_power_states->idle_power[cluster];
+                        	return 1;
+                        }
+                case RELATIVE_READ_LATENCY:
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+                        } else {
+                        	atom->ul = nvme_power_states->relative_read_latency[cluster];
+                        	return 1;
                         }
 
-                case RELATIVE_READ_LATENCY:
-                        atom->ul = nvme_power_states->relative_read_latency[cluster];
-                        return 1;
-
                 case RELATIVE_READ_THROUGHPUT:
-                        atom->ul = nvme_power_states->relative_read_throughput[cluster];
-                        return 1;
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+                        } else {
+                        	atom->ul = nvme_power_states->relative_read_throughput[cluster];
+                        	return 1;
+                        }
 
                 case RELATIVE_WRITE_LATENCY:
-                        atom->ul = nvme_power_states->relative_write_latency[cluster];
-                        return 1;
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+                        } else {
+                        	atom->ul = nvme_power_states->relative_write_latency[cluster];
+                        	return 1;
+                        }
 
                 case RELATIVE_WRITE_THROUGHPUT:
-                        atom->ul = nvme_power_states->relative_write_throughput[cluster];
-                        return 1;
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+                        } else {
+                        	atom->ul = nvme_power_states->relative_write_throughput[cluster];
+                        	return 1;
+                        }
 
                 case ENTRY_LATENCY:
-                        atom->ul = nvme_power_states->entry_latency[cluster];
-                        return 1;
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+                        } else {
+                        	atom->ul = nvme_power_states->entry_latency[cluster];
+                        	return 1;
+                        }
 
                 case EXIT_LATENCY:
-                        atom->ul = nvme_power_states->exit_latency[cluster];
-                        return 1;
+			// If max_power is set to -1 we have no information for that power state.
+			if (nvme_power_states->max_power[cluster] == -1) {
+				return PMDA_FETCH_NOVALUES;
+                        } else {
+                        	atom->ul = nvme_power_states->exit_latency[cluster];
+                        	return 1;
+                        }
 
 		default:
 			return PM_ERR_PMID;
@@ -757,7 +806,7 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
                 /*
                   smart.nvme_info.active_power_state
                 */
-
+            if (nvme_feature_active_power_state) {
 	        pmsprintf(buffer, sizeof(buffer), "%s get-feature -f 0x02 -H /dev/%s 2>&1", smart_setup_nvmecli, name);
 	        buffer[sizeof(buffer)-1] = '\0';
 
@@ -773,6 +822,12 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
                                break;
                         }
 
+                        if (strstr(buffer, "unsupported value")){
+                            // Also disable if feature is not supported on this drive
+                            nvme_feature_active_power_state = 0;
+                            continue;
+                        }
+
                         if (strstr(buffer, "Power State")) {
 	                        sscanf(buffer, "%*s%*s%*s %s", capacity);
 
@@ -780,15 +835,16 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
                         }
 	        }
 	        pclose(pf);
+            }
 
-		/* Short-circuit here, only the first invocation checks for nvme-cli */
-		if (!nvmecli_support)
-			return 0;
+	    /* Short-circuit here, only the first invocation checks for nvme-cli */
+	    if (!nvmecli_support)
+		return 0;
 
                 /*
                   smart.nvme_info.apste_state
                 */
-
+            if (nvme_feature_apst_state) {
         	pmsprintf(buffer, sizeof(buffer), "%s get-feature -f 0x0c -H /dev/%s", smart_setup_nvmecli, name);
 	        buffer[sizeof(buffer)-1] = '\0';
 
@@ -796,16 +852,23 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
 	        	return -oserror();
 
 	        while (fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+	                if (strstr(buffer, "unsupported value")){
+                            // Also disable if feature is not supported on this drive
+                            nvme_feature_apst_state = 0;
+                            continue;
+                        }
+
                         if (strstr(buffer, "(APSTE):"))
                                 sscanf(buffer, "%*s%*s%*s%*s%*s%*s %s", nvme_device_info->apst_state);
 	        }
 	        pclose(pf);
-
+            }
+            
                 /*
                   smart.nvme_info.completion_queue_length_completion
                   smart.nvme_info.completion_queue_length_submission
                 */
-
+            if (nvme_feature_completion_queue) {
         	pmsprintf(buffer, sizeof(buffer), "%s get-feature -f 0x07 -H /dev/%s", smart_setup_nvmecli, name);
         	buffer[sizeof(buffer)-1] = '\0';
 
@@ -813,6 +876,12 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
         		return -oserror();
 
         	while (fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+	                if (strstr(buffer, "unsupported value")){
+                            // Also disable if feature is not supported on this drive
+                            nvme_feature_completion_queue = 0;
+                            continue;
+                        }
+
                         if (strstr(buffer, "(NCQA):")){
                                 sscanf(buffer, "%*s%*s%*s%*s%*s%*s%*s %s", capacity);
 
@@ -826,6 +895,7 @@ nvme_device_refresh_data(const char *name, struct nvme_device_info *nvme_device_
                         }
                 }
                 pclose(pf);
+            }
         }
         return 0;
 }
@@ -1065,6 +1135,12 @@ nvme_power_refesh_data(const char *name, struct nvme_power_states *nvme_power_st
 		}
 	}
         pclose(pf);
+
+        /* For any further power states not listed in the output we set max_power to -1
+           which indicates no results during the fetch. */
+        for (int i = current_ps; i < NUM_POWER_STATES; i++) {
+	    nvme_power_states->max_power[i] = -1;
+        }
 
         return 0;
 }
