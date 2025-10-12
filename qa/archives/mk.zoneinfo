@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# remake the pcp-buddyinfo archive ...
+# remake the pcp-zoneinfo archive ...
 # this archive is intended to be checked in and not remade, this script is
 # simply a record of how it was created
 #
@@ -92,7 +92,7 @@ log advisory on 10 seconds {
 }
 End-of-File
 
-rm -f pcp-zoneinfo.0  pcp-zoneinfo.index  pcp-zoneinfo.meta pcp-zoneinfo.*
+rm -f pcp-zoneinfo.*
 
 if pmlogger -s3 -c $tmp.config pcp-zoneinfo; then
         xz pcp-zoneinfo.0

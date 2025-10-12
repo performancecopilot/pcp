@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# remake the free archive ...
+# remake the meminfo archive ...
 # this archive is intended to be checked in and not remade, this script is
 # simply a record of how it was created
 #
