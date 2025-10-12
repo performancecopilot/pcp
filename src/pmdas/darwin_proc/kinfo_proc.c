@@ -455,27 +455,6 @@ darwin_refresh_processes(pmdaIndom *indomp, darwin_procs_t *processes,
 	proc->translated = xproc->p_flag & P_TRANSLATED;
 	proc->threads = 1;
 
-	/* update the runq statistics */
-	if (xproc->p_stat == SRUN) {
-	    pmsprintf(proc->state, sizeof(proc->state), "R");
-	    runq->runnable++;
-	} else if (xproc->p_stat == SSLEEP) {
-	    pmsprintf(proc->state, sizeof(proc->state), "S");
-	    runq->sleeping++;
-	} else if (xproc->p_stat == SZOMB) {
-	    pmsprintf(proc->state, sizeof(proc->state), "Z");
-	    runq->defunct++;
-	} else if (xproc->p_stat == SSTOP) {
-	    pmsprintf(proc->state, sizeof(proc->state), "T");
-	    runq->stopped++;
-	} else if (xproc->p_stat == SIDL) {
-	    pmsprintf(proc->state, sizeof(proc->state), "B");
-	    runq->blocked++;
-	} else {
-	    pmsprintf(proc->state, sizeof(proc->state), "?");
-	    runq->unknown++;
-	}
-
 	if (proc->msg_id == -1 && xproc->p_wmesg)
 	    proc->msg_id = proc_strings_insert(xproc->p_wmesg);
 
@@ -533,6 +512,24 @@ darwin_refresh_processes(pmdaIndom *indomp, darwin_procs_t *processes,
 	proc->size = pti.pti_virtual_size / 1024;
 	proc->rss = pti.pti_resident_size / 1024;
 	proc->pswitch = pti.pti_csw;
+
+	/* update the runq statistics */
+	if (pti.pti_numrunning > 0) {
+	    pmsprintf(proc->state, sizeof(proc->state), "R");
+	    runq->runnable++;
+	} else if (xproc->p_stat == SZOMB) {
+	    pmsprintf(proc->state, sizeof(proc->state), "Z");
+	    runq->defunct++;
+	} else if (xproc->p_stat == SSTOP) {
+	    pmsprintf(proc->state, sizeof(proc->state), "T");
+	    runq->stopped++;
+	} else if (xproc->p_stat == SIDL) {
+	    pmsprintf(proc->state, sizeof(proc->state), "B");
+	    runq->blocked++;
+	} else {
+	    pmsprintf(proc->state, sizeof(proc->state), "S");
+	    runq->sleeping++;
+	}
     }
 
     free(procs);
