@@ -1,0 +1,25 @@
+#!/bin/sh
+#
+# remake the pcp-zeroconf archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+pmlogconf $tmp.config
+sed -i -e 's/\(\+ zeroconf.*\):x:/\1:y:/g' $tmp.config
+
+rm -f pcp-zeroconf.*
+if pmlogger -T 5min -t 10sec -c $tmp.config pcp-zeroconf; then
+        xz pcp-zeroconf.0
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
+
+
