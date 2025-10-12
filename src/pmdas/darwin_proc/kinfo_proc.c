@@ -54,18 +54,30 @@ darwin_version_in_range(darwin_version_t v_lower, darwin_version_t v_upper)
 		darwin_compare_version(v_upper) < 0;
 }
 
-static double
-darwin_ticks_to_nsecs(const double scheduler_ticks)
+static uint64_t
+darwin_ticks_to_nsecs(uint64_t mach_ticks)
 {
-    static double darwin_nsec_per_tick = -1;
+    static uint64_t darwin_nsec_per_mach_tick_numer = 1;
+    static uint64_t darwin_nsec_per_mach_tick_denom = 1;
+    static int first = 1;
 
-    if (darwin_nsec_per_tick < 0) {
-	const double nsec_per_sec = 1e9;
-	long ticks_per_sec = sysconf(_SC_CLK_TCK);
-	darwin_nsec_per_tick = nsec_per_sec / ticks_per_sec;
-	assert(darwin_nsec_per_tick != 0.0);
+    if (first) {
+	mach_timebase_info_data_t info = { 0 };
+	if (mach_timebase_info(&info) == KERN_SUCCESS) {
+	    darwin_nsec_per_mach_tick_numer = info.numer;
+	    darwin_nsec_per_mach_tick_denom = info.denom;
+	}
+	first = 0;
     }
-    return scheduler_ticks * darwin_nsec_per_tick;
+ 
+    uint64_t ticks_quot = mach_ticks / darwin_nsec_per_mach_tick_numer;
+    uint64_t part1 = ticks_quot * darwin_nsec_per_mach_tick_numer;
+
+    uint64_t ticks_rem  = mach_ticks % darwin_nsec_per_mach_tick_denom;
+    uint64_t part2 = (ticks_rem * darwin_nsec_per_mach_tick_numer) /
+			darwin_nsec_per_mach_tick_denom;
+
+    return part1 + part2;
 }
 
 static size_t

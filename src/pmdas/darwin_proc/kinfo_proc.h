@@ -22,6 +22,7 @@
 #include <libproc.h>
 #include <mach/mach.h>
 #include <mach/mach_host.h>
+#include <mach/mach_time.h>
 #include <sys/proc.h>
 #include <sys/sysctl.h>
 
