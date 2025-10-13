@@ -51,7 +51,7 @@ HugePages_Total   : 0
 HugePages_Free    : 0 
 HugePages_Rsvd    : 0 
 HugePages_Surp    : 0 
-Hugepagesize      : 2097152 kB
+Hugepagesize      : 2048 kB
 Hugetlb           : 0 kB
 DirectMap4k       : 388032 kB
 DirectMap2M       : 20953088 kB
@@ -106,7 +106,7 @@ HugePages_Total   : 0
 HugePages_Free    : 0 
 HugePages_Rsvd    : 0 
 HugePages_Surp    : 0 
-Hugepagesize      : 2097152 kB
+Hugepagesize      : 2048 kB
 Hugetlb           : 0 kB
 DirectMap4k       : 388032 kB
 DirectMap2M       : 20953088 kB
@@ -161,7 +161,7 @@ HugePages_Total   : 0
 HugePages_Free    : 0 
 HugePages_Rsvd    : 0 
 HugePages_Surp    : 0 
-Hugepagesize      : 2097152 kB
+Hugepagesize      : 2048 kB
 Hugetlb           : 0 kB
 DirectMap4k       : 388032 kB
 DirectMap2M       : 20953088 kB
@@ -216,7 +216,7 @@ HugePages_Total   : 0
 HugePages_Free    : 0 
 HugePages_Rsvd    : 0 
 HugePages_Surp    : 0 
-Hugepagesize      : 2097152 kB
+Hugepagesize      : 2048 kB
 Hugetlb           : 0 kB
 DirectMap4k       : 388032 kB
 DirectMap2M       : 20953088 kB
@@ -274,7 +274,7 @@ HugePages_Total   : 0
 HugePages_Free    : 0 
 HugePages_Rsvd    : 0 
 HugePages_Surp    : 0 
-Hugepagesize      : 2097152 kB
+Hugepagesize      : 2048 kB
 Hugetlb           : 0 kB
 DirectMap4k       : 388032 kB
 DirectMap2M       : 20953088 kB
@@ -329,7 +329,7 @@ HugePages_Total   : 0
 HugePages_Free    : 0 
 HugePages_Rsvd    : 0 
 HugePages_Surp    : 0 
-Hugepagesize      : 2097152 kB
+Hugepagesize      : 2048 kB
 Hugetlb           : 0 kB
 DirectMap4k       : 388032 kB
 DirectMap2M       : 20953088 kB
@@ -384,7 +384,7 @@ HugePages_Total   : 0
 HugePages_Free    : 0 
 HugePages_Rsvd    : 0 
 HugePages_Surp    : 0 
-Hugepagesize      : 2097152 kB
+Hugepagesize      : 2048 kB
 Hugetlb           : 0 kB
 DirectMap4k       : 388032 kB
 DirectMap2M       : 20953088 kB
