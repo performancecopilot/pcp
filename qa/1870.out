@@ -210,6 +210,9 @@ guidellm.run_stats.requests_made.errored
 guidellm.run_stats.requests_made.successful
     inst [1 or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 18
 
+guidellm.run_id
+    inst [1 or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value "1fe47ac8-1e6d-45d3-9514-5d1f1644e7e9"
+
 guidellm.duration
     inst [1 or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 299.9909930229187
 Note: timezone set to local timezone of host "1fe47ac8-1e6d-45d3-9514-5d1f1644e7e9" from archive
@@ -448,6 +451,9 @@ guidellm.run_stats.requests_made.errored
 
 guidellm.run_stats.requests_made.successful
     inst [1 or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 88
+
+guidellm.run_id
+    inst [1 or "274a4994-b103-4208-9ebc-6ded791c9d87"] value "2955716b-c78a-42b4-8621-28e6b44473e4"
 
 guidellm.duration
     inst [1 or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 199.966094493866

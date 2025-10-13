@@ -22,8 +22,8 @@ import sys
 from datetime import datetime, timezone
 from pcp import pmapi, pmi
 from cpmapi import (PM_COUNT_ONE, PM_LABEL_CONTEXT,
-                    PM_TIME_SEC, PM_TIME_MSEC,
-                    PM_TYPE_DOUBLE, PM_TYPE_U64, PM_SEM_DISCRETE,
+                    PM_TIME_SEC, PM_TIME_MSEC, PM_SEM_DISCRETE,
+                    PM_TYPE_DOUBLE, PM_TYPE_U64, PM_TYPE_STRING,
                     PM_TEXT_PMID, PM_TEXT_ONELINE, PM_TEXT_HELP)
 
 def register_metrics(pcp) -> pmapi.pmInDom:
@@ -50,8 +50,10 @@ def register_metrics(pcp) -> pmapi.pmInDom:
         item += 1
 
     pmns = 'guidellm.'
+    add_metric(pmns + 'run_id', PM_TYPE_STRING, nounit,
+               'Unique identifier spanning the entire benchmark invocation')
     add_metric(pmns + 'duration', PM_TYPE_DOUBLE, secunits,
-               'Elapsed time in seconds for each GuideLLM run completed')
+               'Elapsed time in seconds for each GuideLLM strategy completion')
     pmns = 'guidellm.run_stats.requests_made.'
     add_metric(pmns + 'successful', PM_TYPE_U64, unitone,
                'Count of requests processed (requests-per-second as a rate)')
@@ -232,12 +234,13 @@ def register_metrics(pcp) -> pmapi.pmInDom:
 
     return indom
 
-def put_metric_values(pcp, values, instance) -> None:
+def put_metric_values(pcp, run_id, values, instance) -> None:
     """ Scan through JSON data and extract values for each PCP metric;
         pmiPutValue inserts one value for one metric:inst at one time.
     """
     pmns = 'guidellm.'
     pcp.pmiPutValue(pmns + 'duration', instance, str(values['duration']))
+    pcp.pmiPutValue(pmns + 'run_id', instance, str(run_id))
 
     pmns = 'guidellm.run_stats.requests_made.'
     stats = values['run_stats']['requests_made']
@@ -326,10 +329,10 @@ with open(args.results) as json_data:
         log.pmiAddInstance(ids, instname, instid)
         log.pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, 'guidellm_id', instname)
 
-        put_metric_values(log, benchmark, instname)
+        put_metric_values(log, run_id, benchmark, instname)
         log.pmiWrite(timestamp(benchmark['run_stats']['start_time']))
 
-        put_metric_values(log, benchmark, instname)
+        put_metric_values(log, run_id, benchmark, instname)
         log.pmiWrite(timestamp(benchmark['run_stats']['end_time']))
 
         log.pmiPutMark() # end of benchmark iteration
