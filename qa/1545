@@ -19,22 +19,6 @@ $python -c "from lxml import etree" >/dev/null 2>&1
 
 which pcp2xml >/dev/null 2>&1 || _notrun "No pcp2xml binary installed"
 
-if [ $PCP_PLATFORM = freebsd ]
-then
-    # workaround datetime.strftime() in Python that is busted when
-    # the timezone|timeinfo is, er, Australia/Someplace, for at least
-    # some parts of the year
-    #
-    version=`uname -rs | sed -e 's/FreeBSD //'`
-    case "$version"
-    in
-	14.[0-3]-*)
-	    _notrun "datetime.strftime() botch"
-	    # NOTREACHED
-	    ;;
-    esac
-fi
-
 _cleanup()
 {
     cd $here

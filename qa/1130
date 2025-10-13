@@ -94,7 +94,7 @@ grep -q 'socat.* Broken pipe' $tmp.socat.log && \
 	_notrun "socat on this platform is not behaving as expected [broken pipe]"
 grep -E -q '^POST /+pcp/_doc HTTP/' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct index in output"
-grep -E -q '"hinv": {"ncpu": '$ncpu'}' $tmp.socat.err
+grep -E -q '"hinv": \{"ncpu": '$ncpu'}' $tmp.socat.err
 [ $? -eq 0 ] && echo "Found correct value in output"
 _full_stash
 
