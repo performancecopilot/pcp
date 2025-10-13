@@ -903,7 +903,7 @@ pmdaLabel(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 	    }
 	    if ((lp->nlabels = sts) > 0)
 		pmdaAddLabelFlags(lp, type);
-	    lp->inst = inst;
+	    lp->inst = (unsigned int)inst;
 	    count++;
 	    lp++;
 

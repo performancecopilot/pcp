@@ -168,6 +168,9 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
         units = ""
         if METRICS_DESC[idx][-6:] == "_NO_kb":
             metric_name = METRICS_DESC[idx][:-6]
+        elif METRICS_DESC[idx] == "Hugepagesize":
+            metric_name = METRICS_DESC[idx]
+            units = "B"
         else:
             metric_name = METRICS_DESC[idx]
             units = "kB"
@@ -203,6 +206,9 @@ class MeminfoReport(pmcc.MetricGroupPrinter):
                 continue
 
             metric_name, units = self.getMetricName(idx)
+            if units == "B":
+                val = int(val / 1024)
+                units = "kB"
             print("%-17s : %s %s"%(metric_name, val, units))
 
             idx += 1

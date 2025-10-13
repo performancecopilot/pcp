@@ -644,9 +644,9 @@ procprt_CID_a(struct tstat *curstat, int avgval, double nsecs)
         static char buf[64];
 
 	if (curstat->gen.utsname[0])
-        	pmsprintf(buf, sizeof buf, "%-15s", curstat->gen.utsname);
+        	pmsprintf(buf, sizeof buf, "%-12s", curstat->gen.utsname);
 	else
-        	pmsprintf(buf, sizeof buf, "%-15s", "host-----------");
+        	pmsprintf(buf, sizeof buf, "%-12s", "host--------");
 
         return buf;
 }
@@ -657,15 +657,15 @@ procprt_CID_e(struct tstat *curstat, int avgval, double nsecs)
         static char buf[64];
 
 	if (curstat->gen.utsname[0])
-        	pmsprintf(buf, sizeof buf, "%-15s", curstat->gen.utsname);
+        	pmsprintf(buf, sizeof buf, "%-12s", curstat->gen.utsname);
 	else
-        	pmsprintf(buf, sizeof buf, "%-15s", "?");
+        	pmsprintf(buf, sizeof buf, "%-12s", "?");
 
         return buf;
 }
 
 proc_printdef procprt_CID = 
-   { "CID/POD     ", "CID", procprt_CID_a, procprt_CID_e, 15};
+   { "CID/POD     ", "CID", procprt_CID_a, procprt_CID_e, 12};
 /***************************************************************/
 char *
 procprt_SYSCPU_ae(struct tstat *curstat, int avgval, double nsecs)

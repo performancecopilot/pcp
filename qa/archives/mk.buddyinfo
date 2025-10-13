@@ -25,7 +25,7 @@ log advisory on 10 seconds {
 }
 End-of-File
 
-rm -f pcp-buddyinfo.0  pcp-buddyinfo.index  pcp-buddyinfo.meta pcp-buddyinfo.*
+rm -f pcp-buddyinfo.*
 
 if pmlogger -s 10 -c $tmp.config pcp-buddyinfo; then
         xz pcp-buddyinfo.0

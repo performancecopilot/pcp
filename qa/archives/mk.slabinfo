@@ -31,7 +31,7 @@ log advisory on 10 seconds {
 }
 End-of-File
 
-rm -f pcp-slabinfo.0  pcp-slabinfo.index  pcp-slabinfo.meta pcp-slabinfo.*
+rm -f pcp-slabinfo.*
 
 if pmlogger -T 60sec -t 10sec -c $tmp.config pcp-slabinfo; then
         xz pcp-slabinfo.0

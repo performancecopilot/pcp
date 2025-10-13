@@ -21,10 +21,12 @@ fi
 cat <<End-of-File >>$tmp.config
 log mandatory on once {
     hinv
+    kernel.uname
 }
 
 log mandatory on 1 sec {
     mem.numa.alloc
+    mem.numa.util
     kernel.pernode
 End-of-File
 

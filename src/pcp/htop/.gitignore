@@ -5,6 +5,7 @@ pcp-htop.1
 pcp-htop.1.*
 pcp-htop.5
 pcp-htop.5.*
+pcp
 pcp/columns
 pcp/meters
 pcp/screens

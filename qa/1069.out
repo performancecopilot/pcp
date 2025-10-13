@@ -810,14 +810,14 @@ Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
 16:06:53      1.000        1000.016
 
   archive: QAPATH/archives/numa
-     host: grundy
- timezone: UTC-7
-    start: Thu Apr 10 19:55:52 2014
-      end: Thu Apr 10 19:56:01 2014
+     host: ssosharm-pcp-test-vm
+ timezone: UTC+0
+    start: Wed Oct  8 03:06:06 2025
+      end: Wed Oct  8 03:06:14 2025
   metrics: 1 (1 instance)
-  samples: 10
+  samples: 9
  interval: 1.0 sec
- duration: 00:00:09
+ duration: 00:00:08
 
 
   archive: QAPATH/archives/rep

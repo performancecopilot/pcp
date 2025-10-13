@@ -39,10 +39,13 @@ _filter()
 
 # real QA test starts here
 export LC_COLLATE=POSIX
-echo "== new diagnostics ==" >> $seq_full
-pmdumplog -dehIL tmparch/foo >> $seq_full
-src/scanmeta -a tmparch/foo.meta >> $seq_full
-echo "== end diagnostics ==" >> $seq_full
+echo "== new diagnostics ==" >> $seq.full
+pmdumplog -dehIL tmparch/foo >> $seq.full
+echo "== pre diagnostic0 ==" >> $seq.full
+pmlogcheck -z -v tmparch/foo >> $seq.full 2>&1
+echo "== pre diagnostic1 ==" >> $seq.full
+$here/src/scanmeta -a tmparch/foo.meta >> $seq.full
+echo "== end diagnostics ==" >> $seq.full
 
 echo "=== directory traversal and file checks ===" | tee -a $seq_full
 cp tmparch/foo.index $tmp
