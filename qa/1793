@@ -68,22 +68,6 @@ p
 }'
 }
 
-if [ $PCP_PLATFORM = freebsd ]
-then
-    # workaround datetime.strftime() in Python that is busted when
-    # the timezone|timeinfo is, er, Australia/Someplace, for at least
-    # some parts of the year
-    #
-    version=`uname -rs | sed -e 's/FreeBSD //'`
-    case "$version"
-    in
-	14.[0-3]-*)
-	    export TZ=UTC
-	    echo "Forcing TZ=UTC to dodge FreeBSD bug" >>$seq_full
-	    ;;
-    esac
-fi
-
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/labels
 $sudo rm -rf $PCP_ETC_DIR/pcp/labels/*
