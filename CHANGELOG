@@ -13,7 +13,6 @@ pcp-7.0.2 (15 October 2025)
 	pmdaproc: fix macOS ticks calculation for process time
 	pmdaproc: updates to the macOS scheduler state metric
     - Client tools and utilities:
-	pmrep, pmconfig.py: replace strftime('%s') uses for portability
 	pcp-meminfo: fix handling of hinv.hugepagesize which uses bytes
 	pcp-atop: fix column width for CID when showing GPU stats (e)
 	pcp-dstat: reduce width of GPU columns, more like the CPU columns
