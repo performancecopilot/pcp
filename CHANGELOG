@@ -2,24 +2,37 @@ pcp-7.0.2 (15 October 2025)
     - PMDA additions, enhancements and bug fixes:
 	pmdaopenmetrics: update metric removal mechanism
 	pmdaopentelemetry: QA failure fixes and improvements
+	pmdadocker: auto detect PCP_DOCKER_DIR using the Docker Engine API
 	pmdahacluster: support "cibadmin --local" deprecation for pacemaker metrics
+	pmdasmart: Better handling of non-supported NVME features
 	pmdanvidia: add pmlogconf setups for logging GPU metrics
 	pmdacifs: add support for collecting DebugData metrics
 	pmdahdb: remove unused SPS version macros, various improvements
 	pmdalinux: add new numastat per-node metrics (mem.numa.util.*)
 	pmdarocestat: fix invalid path on RHEL8, support MLNX OFED 4.1
+	pmdaproc: fix macOS ticks calculation for process time
+	pmdaproc: updates to the macOS scheduler state metric
     - Client tools and utilities:
-	pcp-xsos: new tool merged from separate xsos-pcp repository
+	pmrep, pmconfig.py: replace strftime('%s') uses for portability
+	pcp-meminfo: fix handling of hinv.hugepagesize which uses bytes
+	pcp-atop: fix column width for CID when showing GPU stats (e)
+	pcp-dstat: reduce width of GPU columns, more like the CPU columns
 	pcp-dstat: fix incremental sample updating, add default time column
+	pcp-xsos: source code merged from separate xsos-pcp repository
 	pcp-htop: sync with latest htop.dev code fixes
 	vllmbench2pcp: convert vLLM bench results to PCP archives
+	guidellm2pcp: add run_id as a metric also, for ease of analysis
+	guidellm2pcp: ensure instance identifier stability across runs
     - Server-side utilities and log management scripts:
 	pmlogctl: fix variable renaming fallout
+	pmlogconf: insert additional metrics needed for pcp-numastat
     - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
 	libpcp: fix formatting arguments to xz_debug()
 	libpcp3: fix formatting arguments to xz_debug()
 	libpcp_web: eliminate possible use after free in series_calculate_rate()
 	libpcp_web: conditional exports handling improvements
+	libpcp_web: fix invalid HTTP request cache handling
+	libpcp_web: fix partial HTTP response handling
 	libpcp: remove unneeded conditional from __pmHashClear() [Coverity]
 	pmieconf: eliminate minor memory leaks [Coverity]
     - Build, infrastructure, containers and packaging updates:
@@ -33,6 +46,7 @@ pcp-7.0.2 (15 October 2025)
     - Documentation:
 	docs: extend pcp container readme to show nvidia GPU enablement
 	docs: update INSTALL.md macOS pmcd start instructions
+	docs: resolve warnings from man pages on macOS
 
 pcp-7.0.1 (21 September 2025)
     - PMDA additions, enhancements and bug fixes:
