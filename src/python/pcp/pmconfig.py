@@ -1147,7 +1147,7 @@ class pmConfig(object):
 
         # Watch for end time in uninterpolated mode
         if not self.util.interpol:
-            sample = self.util.pmfg_ts().timestamp()
+            sample = self.util.pmfg_ts().strftime('%s')
             finish = self.util.opts.pmGetOptionFinish()
             if float(sample) > float(finish):
                 return -2
@@ -1168,7 +1168,7 @@ class pmConfig(object):
         self._round += 1
 
         if not self._init_ts:
-            self._init_ts = self.util.pmfg_ts().timestamp() + float(self.util.pmfg_ts().microsecond) / 1000000
+            self._init_ts = float(self.util.pmfg_ts().strftime("%s.%f"))
 
         wakeup = self._init_ts + float(self.util.interval) * self._round
 
