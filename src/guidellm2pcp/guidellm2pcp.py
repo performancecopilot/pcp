@@ -234,13 +234,13 @@ def register_metrics(pcp) -> pmapi.pmInDom:
 
     return indom
 
-def put_metric_values(pcp, run_id, values, instance) -> None:
+def put_metric_values(pcp, runid, values, instance) -> None:
     """ Scan through JSON data and extract values for each PCP metric;
         pmiPutValue inserts one value for one metric:inst at one time.
     """
     pmns = 'guidellm.'
     pcp.pmiPutValue(pmns + 'duration', instance, str(values['duration']))
-    pcp.pmiPutValue(pmns + 'run_id', instance, str(run_id))
+    pcp.pmiPutValue(pmns + 'run_id', instance, str(runid))
 
     pmns = 'guidellm.run_stats.requests_made.'
     stats = values['run_stats']['requests_made']
@@ -272,9 +272,22 @@ def put_metric_values(pcp, run_id, values, instance) -> None:
         pcp.pmiPutValue(pmns + 'variance', instance, str(stats['variance']))
 
 
-def timestamp(timestring) -> datetime:
+def timestamp(timestring: str) -> datetime:
     return datetime.fromtimestamp(timestring, timezone.utc)
 
+insts = {}    # hash instance names to instance IDs
+instids = {}  # hash instance IDs to instance names
+
+def getinstid(instance: str) -> int:
+    try:
+        return insts[instname]
+    except KeyError:
+        pass # fallthrough
+    key = hash(instance) & 0x7FFFFFFF
+    if instids.get(key) is None:
+        instids[key] = instance
+        return key
+    return getinstid('_' + instance)
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-v", "--verbose", help="Enable verbose progress diagnostics",
@@ -290,7 +303,6 @@ with open(args.results) as json_data:
     except: # pylint: disable=bare-except
         print('Failed to load JSON document from:', args.results)
         sys.exit(1)
-    instid = 0
     run_id = None
 
     # check if the results are wrapped with model furnace metadata
@@ -321,8 +333,8 @@ with open(args.results) as json_data:
                     log.pmiPutLabel(PM_LABEL_CONTEXT, 0, 0, label, value)
             ids = register_metrics(log)
 
-        instid = instid + 1
         instname = benchmark['id_']
+        instid = getinstid(instname)
         if args.verbose:
             print('[%d] %s' % (instid, instname))
 
