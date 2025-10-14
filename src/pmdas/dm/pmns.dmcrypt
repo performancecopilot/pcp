@@ -1,0 +1,29 @@
+/*
+ * Copyright (c) 2025 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+ 
+ dmcrypt {
+ 	active              DM:6:0
+ 	type                DM:6:1
+ 	cipher              DM:6:2
+ 	keysize             DM:6:3
+ 	key_location        DM:6:4
+ 	device              DM:6:5
+ 	sector_size         DM:6:6
+ 	offset              DM:6:7
+ 	offset_bytes        DM:6:8
+ 	size                DM:6:9
+ 	size_bytes          DM:6:10
+ 	mode                DM:6:11
+ 	flags               DM:6:12
+}

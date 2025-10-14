@@ -24,6 +24,7 @@ enum {
     DM_STATS_INDOM = 3,		/* Dmstats basic counter */
     DM_HISTOGRAM_INDOM = 4,	/* Dmstats latency histogram */
     DM_VDODEV_INDOM = 5,	/* VDO devices */
+    DM_CRYPT_INDOM = 6,		/* Dmcrypt*/
     NUM_INDOMS
 };
 
