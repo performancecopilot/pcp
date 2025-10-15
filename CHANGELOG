@@ -1,3 +1,6 @@
+pcp-7.0.3 (27 Nobember 2025)
+    - Work-in-progress, not yet released.
+
 pcp-7.0.2 (15 October 2025)
     - PMDA additions, enhancements and bug fixes:
 	pmdaopenmetrics: update metric removal mechanism
