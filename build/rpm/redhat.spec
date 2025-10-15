@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 7.0.1
+Version: 7.0.2
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
