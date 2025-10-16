@@ -534,9 +534,11 @@ static void
 server_cache_series_finished(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
+#if ! defined(NDEBUG)
     seriesGetContext	*context = &baton->pmapi;
 
     assert(context->result == NULL);
+#endif
 
     /* drop load reference taken in server_cache_series */
     doneSeriesLoadBaton(baton, "server_cache_series_finished");
