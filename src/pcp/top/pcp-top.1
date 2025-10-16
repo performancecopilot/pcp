@@ -1,6 +1,5 @@
 '\" t
 .\"
-.\" Man page for pcp-slabinfo
 .\" Copyright (c) 2023 Oracle and/or its affiliates.
 .\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 .\"
@@ -14,94 +13,144 @@
 .\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 .\" for more details.
 .\"
-.TH PCP-SLABINFO 1 "PCP" "Performance Co-Pilot"
+.TH PCP-TOP 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pcp-slabinfo\f1 \- Report statistics for kernel slab allocator
+\f3pcp-top\f1 \- Top-like real-time system and process monitor using Performance Co-Pilot metrics
 .SH SYNOPSIS
 \f3pcp\f1
 [\f2pcp\ options\f1]
-\f3slabinfo\f1
+\f3top\f1
+[\f3\-o\f1 \f2{cpu|mem}\f1]
+[\f3\-c\f1 \f2N\f1]
 [\f3\-a\f1 \f2archive\f1]
 [\f3\-s\f1 \f2samples\f1]
 [\f3\-Z\f1 \f2timezone\f1]
+[\f3\-z\f1]
+[\f3\-V\f1]
+[\f3\-?\f1]
 .SH DESCRIPTION
 The
-.B pcp-slabinfo
-command is used for viewing different stats related to slab.
-It helps users analyze useful information related to the slab allocator.
-The information includes the total number of objects that are currently
-active, allocated objects, pages per slab, etc.
-By default,
-.B pcp-slabinfo
-reports live data for the local host.
+.B pcp-top
+command provides a dynamic, real-time view of the system's running processes and overall system health, similar to the classic
+.BR top (1)
+utility, but leveraging the Performance Co-Pilot (PCP) framework for metric collection.
 .PP
-The statistics shown are as follows:
+By default,
+.B pcp-top
+shows live monitoring data for the local host unless an archive is specified.
+.PP
+The top section displays host information, uptime, user count, and CPU load averages. The summary row of process states (tasks) is followed by a table of active processes, showing fields such as CPU and memory usage.
+.PP
+The process table displays the following per-process fields:
+.TS
+lfB  lfB  lfB
+l    l    l.
+HEADER	DESCRIPTION	DETAILS
+_	_	_
+PID	Process ID.
+USER	User name.	Truncated to 6 characters.
+PR	Scheduler priority value of the process.
+NI	Niceness of the process.
+VIRT	Virtual memory size.	Displayed in gigabytes (g) when over 1 GiB.
+RES	Resident memory size.	Displayed in gigabytes (g) if over 1 GiB.
+SHR	Shared memory.	
+STATE	Process state.	Usually single letter: R (running), S (sleeping), etc.
+%CPU	Percentage of CPU used by the process in last interval.
+%MEM	Percentage of total physical memory used.
+START	Process execution time.	
+COMMAND	Command name (truncated, up to 40 chars).
+.TE
+.PP
+The header also shows:
 .TS
 lfB  lfB
 l    lx.
-HEADER	DESCRIPTION
+FIELD	DESCRIPTION
 _	_
-active_objs	T{
-.ad l
-The number of objects that are currently active (i.e., in use)
-T}
-num_objs	T{
-.ad l
-The total number of allocated objects (i.e. objects that are both in use and not in use).
-T}
-objsize	The size of objects in this slab, in bytes.
-objperslab	The number of objects stored in each slab.
-pagesperslab	The number of pages allocated for each slab
-active_slabs	The number of active slabs.
-num_slabs	The total number of slabs.
+Uptime	Time since last boot.
+Users	Number of logged-in users.
+Load Average	1, 5, and 15-minute system load averages.
+Tasks	Summary of total, running, sleeping, stopped, and zombie processes.
 .TE
 .SH OPTIONS
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone ,
+and other
+.I PCP options
+are also available; consult
+.BR PCPIntro (1)
+for details.
+.PP
+Mandatory or optional arguments to long options are also mandatory or optional for any corresponding short options.
+.PP
+The command line options specific to
+.B pcp-top
+are:
 .TP
-\fB\-a\fR \fIfile\fR, \fB\-\-archive\fR=\fIfile\fR
-Fetch /proc/slabinfo for a specified archive \fIfile\fR
+\fB\-o\fR \fI{cpu|mem}\fR
+Sort the process table by \fB%cpu\fR (default) or \fB%mem\fR usage.
+.TP
+\fB\-c\fR \fIN\fR
+Show only the top N processes by the selected sort key (default: 2000).
+.TP
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Process PCP archive data from the given \fIarchive\fR file, rather than live metrics.
 .TP
 \fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
-Get the slabinfo statistics for specified number of samples \fIcount\fR
-.TP
-\fB\-V\fR, \fB\-\-version\fR
-Display version number and exit.
-.TP
-\fB\-z\fR, \fB\-\-hostzone\fR
-Use the local timezone of the host that is the source of the
-performance metrics, as identified by either the
-.B \-h
-or the
-.B \-a
-options.
-The default is to use the timezone of the local host.
+Display output for the specified number of samples (default: unlimited, until interrupted).
 .TP
 \fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
-Use
+Set the reporting timezone to
 .I timezone
-for the date and time.
-.I Timezone
-is in the format of the environment variable
-.B TZ
-as described in
-.BR environ (7).
+in the format of the environment variable
+.B TZ.
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Report times in the local timezone of the host that is the metric source.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version information and exit.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
 .SH NOTES
-.B pcp-slabinfo
-collects information from
-.IR /proc/slabinfo .
-.SH PCP ENVIRONMENT
-Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. On each installation, the file \fI/etc/pcp.conf\fP contains the local values for these variables. The \fB$PCP_CONF\fP variable may be used to specify an alternative configuration file, as described in \fBpcp.conf\fP(5).
+.B pcp-top
+collects process and system performance metrics via the PCP APIs. Most fields and their units match those of the standard
+.BR top (1)
+utility, but numerical values and process selection are affected by the underlying PCP metric set and sampling interval.
 .PP
-For environment variables affecting PCP tools, see \fBpmGetOptions\fP(3).
+For more information about available metrics and PCP configuration, see
+.BR PCPIntro (1)
+and related pcp manuals.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. Each installation has an
+\fI/etc/pcp.conf\fP
+file containing local values for these variables. The
+\fB$PCP_CONF\fP
+variable may specify an alternative configuration file, as described in
+\fBpcp.conf\fP(5).
+.PP
+Variables affecting PCP tools are documented in
+\fBpmGetOptions\fP(3).
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pcp (1),
+.BR pcp-ps (1),
+.BR top (1),
 .BR pmParseInterval (3),
-.BR environ (7).
+.BR environ (7)
 
 .\" control lines for scripts/man-spell
-.\" +ok+ pagesperslab active_slabs active_objs objperslab num_slabs
-.\" +ok+ slabinfo {from pcp-slabinfo}
-.\" +ok+ num_objs objsize
+.\" +ok+ PR NI VIRT RES SHR VSZ PID
+.\" +ok+ top pcp-top COMMAND PCP
+.\" +ok+ loadavg%cpu %mem START
+.\" +ok+ process state
