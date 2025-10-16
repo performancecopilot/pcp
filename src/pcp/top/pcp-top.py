@@ -25,6 +25,7 @@ from pcp import pmapi, pmcc
 from cpmapi import PM_CONTEXT_ARCHIVE
 import collections
 
+GIGABYTE = 1024 ** 2
 
 SYS_MECTRICS= ["kernel.uname.sysname","kernel.uname.release",
                "kernel.uname.nodename","kernel.uname.machine","hinv.ncpu",
@@ -141,7 +142,7 @@ class TopUtil(object):
         # self.time = self.group.contextCache.pmLocaltime(int(self.group.timestamp))
         self.format_uptime = "%H:%M:%S"
     def __kb_to_gb(self, kb):
-        return str(round(kb / (1024 ** 2), 2)) + "g" # 1 GB = 1024^2 KB
+        return str(round(kb / GIGABYTE, 2)) + "g" # 1 GB = 1024^2 KB
     
     def process_list(self):
         return dict(self.repo.current_values("proc.psinfo.pid").items())
@@ -155,7 +156,18 @@ class TopUtil(object):
 
     def get_load_average(self):
         load_avg = self.repo.current_values("kernel.all.load")
-        return load_avg[1], load_avg[5], load_avg[15]
+        if load_avg is None:
+            return 0.0, 0.0, 0.0
+        if isinstance(load_avg, dict):
+            vals = sorted(load_avg.values())
+            if len(vals) == 0:
+                return 0.0, 0.0, 0.0
+            return tuple(vals + [vals[-1]]*(3-len(vals)))[:3]
+        if isinstance(load_avg, (list, tuple)):
+            if len(load_avg) == 0:
+                return 0.0, 0.0, 0.0
+            return tuple(load_avg + [load_avg[-1]]*(3-len(load_avg)))[:3]
+        return 0.0, 0.0, 0.0
 
     def tasks(self):
         total = self.repo.current_value("proc.nprocs", None) or 0
@@ -193,10 +205,10 @@ class TopUtil(object):
         return "?" if nice is None else nice
     def virtual_memory(self, instance=None):
         vms = self.repo.current_value('proc.psinfo.vsize', instance)
-        return self.__kb_to_gb(vms) if vms is not None and vms > 1024 ** 2 else vms if vms is not None else "?"
+        return self.__kb_to_gb(vms) if vms is not None and vms > GIGABYTE else vms if vms is not None else "?"
     def resident_memory(self, instance=None):
         rss = self.repo.current_value('proc.psinfo.rss', instance)
-        return self.__kb_to_gb(rss) if rss is not None and rss > 1024 ** 2 else rss if rss is not None else "?"
+        return self.__kb_to_gb(rss) if rss is not None and rss > GIGABYTE else rss if rss is not None else "?"
     def process_state(self, instance=None):
         state = self.repo.current_value('proc.psinfo.sname', instance)
         return state if state is not None else "UNKNOWN"
@@ -246,8 +258,9 @@ class TopReport(pmcc.MetricGroupPrinter):
     def __init__(self,opts,group):
         self.opts = opts
         self.group = group
-        self.samples = opts.samples
-        self.context = opts.context
+        self.timefmt = opts.timefmt
+        self.context = group.type
+        self.samples = self.opts.pmGetOptionSamples()
 
     def __timeStampDelta(self,group):
         s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
@@ -285,30 +298,38 @@ class TopReport(pmcc.MetricGroupPrinter):
             print("{:<5} {:>10} {:>8} {:>5} {:>5} {:>10} {:>10} {:>10} {:>4} {:>5} {:>5} {:>5} {:>20}".format(
                     timestamp, pid, proc[0], proc[1], proc[2], proc[3], proc[4], proc[5], proc[6], proc[7], proc[8], proc[9], proc[10]))
 
-
     def report(self, manager):
         group = manager["allinfo"]
         if group['proc.psinfo.utime'].netPrevValues is None:
             # skip the first iteration as we need previous values to calculate cpu usage
             return
         interval_in_seconds = self.__timeStampDelta(group)
-        self.samples = self.opts.pmGetOptionSamples()
         t_s = group.contextCache.pmLocaltime(int(group.timestamp))
-        timestamp = time.strftime(TopOptions.timefmt, t_s.struct_time())
+        timestamp = time.strftime(self.timefmt, t_s.struct_time())
         header_indentation = "        " if len(timestamp) < 9 else (len(timestamp) - 7) * " "
         value_indentation = ((len(header_indentation) + 9) - len(timestamp)) * " "
-        self.print_report(group,timestamp,header_indentation,value_indentation,manager['topinfo'],interval_in_seconds)
+        if self.context != PM_CONTEXT_ARCHIVE and self.samples is None:
+            self.print_report(group,timestamp,header_indentation,value_indentation,manager['topinfo'],interval_in_seconds)
+            sys.exit(0)
+        elif self.context == PM_CONTEXT_ARCHIVE and self.samples is None:
+            self.print_report(group,timestamp,header_indentation,value_indentation,manager['topinfo'],interval_in_seconds)
+        elif self.samples >= 1:
+            self.print_report(group,timestamp,header_indentation,value_indentation,manager['topinfo'],interval_in_seconds)
+            self.samples -= 1
+        else:
+            pass
 
 class TopOptions(pmapi.pmOptions):
-    timefmt = "%H:%M:%S"
-    sort_by = "%cpu"
-    num_procs = 2000
+
     def __init__(self):
         pmapi.pmOptions.__init__(self, "a:s:Z:zV:o:c:?")
         self.options()
         self.pmSetOptionCallback(self.extraOptions)
         self.samples = None
         self.context = None
+        self.timefmt = "%H:%M:%S"
+        self.sort_by = "%cpu"
+        self.num_procs = 2000
 
     def options(self):
         self.pmSetLongOptionHeader("General options")
@@ -323,9 +344,9 @@ class TopOptions(pmapi.pmOptions):
 
     def extraOptions(self,opts, optarg, index):
         if opts == 'o':
-            TopOptions.sort_by = optarg
+            self.sort_by = optarg
         elif opts == 'c':
-            TopOptions.num_procs = optarg
+            self.num_procs = optarg
         else:
             return False
         return True
