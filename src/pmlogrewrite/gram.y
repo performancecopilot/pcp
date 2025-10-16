@@ -1286,17 +1286,13 @@ indom_int	: TOK_FLOAT
 		    {
 			int		domain;
 			int		serial;
-			int		sts;
-			sts = sscanf($1, "%d.%d", &domain, &serial);
-			if (sts < 2) {
-			    pmsprintf(mess, sizeof(mess), "Missing serial field for indom");
-			    yyerror(mess);
-			}
-			if (domain < 1 || domain >= DYNAMIC_PMID) {
+			/* TOK_FLOAT => domain >= 0 && serial >= 0 after sscanf */
+			sscanf($1, "%d.%d", &domain, &serial);
+			if (domain >= DYNAMIC_PMID) {
 			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for indom", domain);
 			    yyerror(mess);
 			}
-			if (serial < 0 || serial >= 4194304) {
+			if (serial >= 4194304) {
 			    pmsprintf(mess, sizeof(mess), "Illegal serial field (%d) for indom", serial);
 			    yyerror(mess);
 			}
@@ -1307,8 +1303,9 @@ indom_int	: TOK_FLOAT
 		| TOK_INDOM_STAR
 		    {
 			int		domain;
+			/* TOK_INDOM_STAR => domain >= 0 after sscanf */
 			sscanf($1, "%d.", &domain);
-			if (domain < 1 || domain >= DYNAMIC_PMID) {
+			if (domain >= DYNAMIC_PMID) {
 			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for indom", domain);
 			    yyerror(mess);
 			}
@@ -1556,10 +1553,9 @@ pmid_int	: TOK_PMID_INT
 			int	domain;
 			int	cluster;
 			int	item;
-			int	sts;
-			sts = sscanf($1, "%d.%d.%d", &domain, &cluster, &item);
-			assert(sts == 3);
-			if (domain < 1 || domain > DYNAMIC_PMID) {
+			/* TOK_PMID_INT => domain >= 0 && cluster >=0 && item >= 0 after sscanf */
+			sscanf($1, "%d.%d.%d", &domain, &cluster, &item);
+			if (domain > DYNAMIC_PMID) {
 			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
@@ -1567,11 +1563,11 @@ pmid_int	: TOK_PMID_INT
 			    pmsprintf(mess, sizeof(mess), "Dynamic metric domain field (%d) for pmid", domain);
 			    yywarn(mess);
 			}
-			if (cluster < 0 || cluster >= 4096) {
+			if (cluster >= 4096) {
 			    pmsprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
 			    yyerror(mess);
 			}
-			if (item < 0 || item >= 1024) {
+			if (item >= 1024) {
 			    pmsprintf(mess, sizeof(mess), "Illegal item field (%d) for pmid", item);
 			    yyerror(mess);
 			}
@@ -1584,8 +1580,12 @@ pmid_int	: TOK_PMID_INT
 			int	domain;
 			int	cluster;
 			int	sts;
+			/*
+			 * TOK_PMID_STAR matches <n>.<n>.* or <n>.*.*
+			 * => domain >= 0, but cluster may be undefined after sscanf
+			 */
 			sts = sscanf($1, "%d.%d.", &domain, &cluster);
-			if (domain < 1 || domain > DYNAMIC_PMID) {
+			if (domain > DYNAMIC_PMID) {
 			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
@@ -1594,6 +1594,7 @@ pmid_int	: TOK_PMID_INT
 			    yywarn(mess);
 			}
 			if (sts == 2) {
+			    /* cluster is <n> */
 			    if (cluster >= 4096) {
 				pmsprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
 				yyerror(mess);
@@ -1601,6 +1602,7 @@ pmid_int	: TOK_PMID_INT
 			    current_star_metric = 1;
 			}
 			else {
+			    /* cluster is "*" */
 			    cluster = 0;
 			    current_star_metric = 2;
 			}
@@ -2715,10 +2717,9 @@ labeldomainspec	: TOK_DOMAIN pmid_domain optlabeldetails
 pmid_domain	: TOK_NUMBER
 		    {
 			int	domain;
-			int	sts;
-			sts = sscanf($1, "%d", &domain);
-			assert(sts == 1);
-			if (domain < 1 || domain > DYNAMIC_PMID) {
+			/* TOK_NUMBER => domain >= 0 after sscanf */
+			sscanf($1, "%d", &domain);
+			if (domain > DYNAMIC_PMID) {
 			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
@@ -2754,9 +2755,12 @@ labeldomainopt	: TOK_DELETE
 		    {
 			labelspec_t	*lp;
 			int		domain;
-			int		sts;
-			sts = sscanf($3, "%d", &domain);
-			assert(sts == 1);
+			/* TOK_NUMBER => domain >= 0 after sscanf */
+			sscanf($3, "%d", &domain);
+			if (domain >= DYNAMIC_PMID) {
+			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for label", domain);
+			    yyerror(mess);
+			}
 			free($3);
 			for (lp = walk_label(W_START, LABEL_CHANGE_ID, "id", 0); lp != NULL; lp = walk_label(W_NEXT, LABEL_CHANGE_ID, "id", 0)) {
 			    if (domain == lp->old_id) {
@@ -2913,10 +2917,9 @@ pmid_cluster	: TOK_FLOAT
 		    {
 			int	domain;
 			int	cluster;
-			int	sts;
-			sts = sscanf($1, "%d.%d", &domain, &cluster);
-			assert(sts == 2);
-			if (domain < 1 || domain > DYNAMIC_PMID) {
+			/* TOK_FLOAT => domain >= 0 && serial >= 0 after sscanf */
+			sscanf($1, "%d.%d", &domain, &cluster);
+			if (domain > DYNAMIC_PMID) {
 			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
@@ -2924,7 +2927,7 @@ pmid_cluster	: TOK_FLOAT
 			    pmsprintf(mess, sizeof(mess), "Dynamic metric domain field (%d) for pmid", domain);
 			    yywarn(mess);
 			}
-			if (cluster < 0 || cluster >= 4096) {
+			if (cluster >= 4096) {
 			    pmsprintf(mess, sizeof(mess), "Illegal cluster field (%d) for pmid", cluster);
 			    yyerror(mess);
 			}
@@ -2935,10 +2938,9 @@ pmid_cluster	: TOK_FLOAT
 		| TOK_INDOM_STAR
 		    {
 			int	domain;
-			int	sts;
-			sts = sscanf($1, "%d.", &domain);
-			assert (sts == 1);
-			if (domain < 1 || domain > DYNAMIC_PMID) {
+			/* TOK_INDOM_STAR => domain >= 0 after sscanf */
+			sscanf($1, "%d.", &domain);
+			if (domain > DYNAMIC_PMID) {
 			    pmsprintf(mess, sizeof(mess), "Illegal domain field (%d) for pmid", domain);
 			    yyerror(mess);
 			}
