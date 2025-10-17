@@ -1164,6 +1164,11 @@ freeSeriesLoadBaton(seriesLoadBaton *baton)
 void
 doneSeriesLoadBaton(seriesLoadBaton *baton, const char *caller)
 {
+	if (baton == NULL) {
+		if (pmDebugOptions.series)
+	        fprintf(stderr, "doneSeriesLoadBaton: NULL baton from %s\n", caller);
+        return;
+    }
     seriesPassBaton(&baton->current, baton, caller);
 }
 
@@ -1310,7 +1315,7 @@ void
 pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
 {
     pmDiscover		*p = (pmDiscover *)event->data;
-    seriesLoadBaton	*baton = p->baton;
+    seriesLoadBaton	*baton = p ? p->baton : NULL; 
 
     (void)arg;
 
