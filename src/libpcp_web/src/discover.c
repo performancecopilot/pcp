@@ -123,6 +123,13 @@ pmDiscoverLookupAdd(const char *fullpath, pmDiscoverModule *module, void *arg)
 	h->context.name = name;
 	h->metavol = sdsempty();
 	h->datavol = sdsempty();
+	if (h->metavol == NULL || h->datavol == NULL) {
+	    sdsfree(h->metavol);
+	    sdsfree(h->datavol);
+	    sdsfree(name);
+	    free(h);
+	    return NULL;
+	}
 	h->module = module;
 	h->data = arg;
 	if (p == NULL)
@@ -297,6 +304,12 @@ pmDiscoverArchives(const char *dir, pmDiscoverModule *module, void *arg)
      * if this is a newly discovered archive or directory
      */
     a = pmDiscoverLookupAdd(dir, module, arg);
+    if (a == NULL) {
+	if (pmDebugOptions.discovery)
+	    fprintf(stderr, "%s: pmDiscoverLookupAdd failed for %s\n",
+			    __FUNCTION__, dir);
+	return -ENOMEM;
+    }
     a->flags |= DISCOVER_FLAGS_DIRECTORY;
 
     if ((dirp = opendir(dir)) == NULL) {
@@ -332,6 +345,12 @@ pmDiscoverArchives(const char *dir, pmDiscoverModule *module, void *arg)
 		 */
 		*suffix = '\0'; /* strip suffix from path giving archive name */
 		a = pmDiscoverLookupAdd(path, module, arg);
+		if (a == NULL) {
+		    if (pmDebugOptions.discovery)
+			fprintf(stderr, "%s: pmDiscoverLookupAdd failed for %s\n",
+					__FUNCTION__, path);
+		    continue;
+		}
 
 		/*
 		 * note: pmDiscoverLookupAdd sets DISCOVER_FLAGS_NEW
