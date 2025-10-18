@@ -352,3 +352,17 @@ updated an existing entry.
 @ vdo.dev.index.updates_not_found Update calls where entry not found
 The number of update calls since context statistics were last reset that
 added a new entry.
+
+@dmcrypt.active Whether the crypt device is active
+@dmcrypt.type Crypt device type
+@dmcrypt.cipher Cipher used for the crypt device
+@dmcrypt.keysize Keysize for the crypt device
+@dmcrypt.key_location Decryption key location for the crypt device
+@dmcrypt.device The crypt device
+@dmcrypt.sector_size Sector size for the crypt device
+@dmcrypt.offset Offset for the crypt device
+@dmcrypt.offset_bytes Offset in bytes for the crypt device
+@dmcrypt.size Crypt device size
+@dmcrypt.size_bytes Crypt device size in bytes
+@dmcrypt.mode Current mode for the crypt device
+@dmcrypt.flags Flags for the crypt device

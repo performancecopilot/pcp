@@ -13,9 +13,11 @@ root {
     dmthin
     dmstats
     vdo
+    dmcrypt
 }
 
 #include "pmns.dmcache"
 #include "pmns.dmthin"
 #include "pmns.dmstats"
 #include "pmns.vdo"
+#include "pmns.dmcrypt"
