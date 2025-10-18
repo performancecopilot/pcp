@@ -241,70 +241,70 @@ Whether the crypt device is active
 
 dmcrypt.type PMID: 129.6.1 [Crypt device type]
     Data Type: string  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: discrete  Units: none
 Help:
 Crypt device type
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value "LUKS2"
 
 dmcrypt.cipher PMID: 129.6.2 [Cipher used for the crypt device]
     Data Type: string  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: discrete  Units: none
 Help:
 Cipher used for the crypt device
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value "aes-xts-plain64"
 
 dmcrypt.keysize PMID: 129.6.3 [Keysize for the crypt device]
     Data Type: 32-bit unsigned int  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: discrete  Units: none
 Help:
 Keysize for the crypt device
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value 512
 
 dmcrypt.key_location PMID: 129.6.4 [Decryption key location for the crypt device]
     Data Type: string  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: discrete  Units: none
 Help:
 Decryption key location for the crypt device
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value "keyring"
 
 dmcrypt.device PMID: 129.6.5 [The crypt device]
     Data Type: string  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: discrete  Units: none
 Help:
 The crypt device
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value "/dev/nvme0n1p3"
 
 dmcrypt.sector_size PMID: 129.6.6 [Sector size for the crypt device]
     Data Type: 32-bit unsigned int  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: discrete  Units: byte
 Help:
 Sector size for the crypt device
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value 512
 
 dmcrypt.offset PMID: 129.6.7 [Offset for the crypt device]
     Data Type: 64-bit unsigned int  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: instant  Units: Kbyte
 Help:
 Offset for the crypt device
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value 32768
 
 dmcrypt.offset_bytes PMID: 129.6.8 [Offset in bytes for the crypt device]
     Data Type: 64-bit unsigned int  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: instant  Units: byte
 Help:
 Offset in bytes for the crypt device
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value 16777216
 
 dmcrypt.size PMID: 129.6.9 [Crypt device size]
     Data Type: 64-bit unsigned int  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: instant  Units: Kbyte
 Help:
 Crypt device size
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value 996853760
 
 dmcrypt.size_bytes PMID: 129.6.10 [Crypt device size in bytes]
     Data Type: 64-bit unsigned int  InDom: 129.6 0x20400006
-    Semantics: instant  Units: none
+    Semantics: instant  Units: byte
 Help:
 Crypt device size in bytes
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value 510389125120

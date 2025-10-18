@@ -31,14 +31,11 @@ static char *dm_setup_cryptsetup;
  * trim this out from the output to make comparisons easier.
  */
 char 
-*strtrim(char* str) {
-    // Check for empty String
-    if(*str == 0)  // All spaces
-        return str;
-
-    // Trim leading space
-    while(isspace((unsigned char)*str)) str++;
-
+*strtrim(char* str)
+{
+    /* trim leading space */
+    while (isspace((unsigned char)*str))
+	str++;
     return str;
 }
 
@@ -48,7 +45,7 @@ dm_crypt_fetch(int item, struct crypt_stats *crypt_stats, pmAtomValue *atom)
     if (item < 0 || item >= NUM_CRYPT_STATS)
 	return PM_ERR_PMID;
 
-    switch(item) {
+    switch (item) {
         case CRYPT_ACTIVE:
             atom->ul = crypt_stats->active;
             break;
@@ -177,11 +174,14 @@ dm_refresh_crypt(const char *name, struct crypt_stats *crypt_stats)
     if (sts <= 0)
         return sts;
     if (sts == 2000)
-	pmNotifyErr(LOG_ERR, "dm_refresh_crypt: pipe (%s %s) terminated with unknown error\n", dm_setup_cryptsetup, name);
+	pmNotifyErr(LOG_ERR, "%s: pipe (%s %s) terminated with unknown error\n",
+			__FUNCTION__, dm_setup_cryptsetup, name);
     else if (sts > 1000)
-	pmNotifyErr(LOG_ERR, "dm_refresh_crypt: pipe (%s %s) terminated with signal %d\n", dm_setup_cryptsetup, name, sts - 1000);
+	pmNotifyErr(LOG_ERR, "%s: pipe (%s %s) terminated with signal %d\n",
+			__FUNCTION__, dm_setup_cryptsetup, name, sts - 1000);
     else
-	pmNotifyErr(LOG_ERR, "dm_refresh_crypt: pipe (%s %s) terminated with exit status %d\n", dm_setup_cryptsetup, name, sts);
+	pmNotifyErr(LOG_ERR, "%s: pipe (%s %s) terminated with exit status %d\n",
+			__FUNCTION__, dm_setup_cryptsetup, name, sts);
 
     return PM_ERR_GENERIC;
 }
@@ -242,11 +242,14 @@ dm_crypt_instance_refresh(void)
     if (sts <= 0)
         return sts;
     if (sts == 2000)
-	pmNotifyErr(LOG_ERR, "dm_crypt_instance_refresh: pipe (%s) terminated with unknown error\n", dm_setup_dmsetup);
+	pmNotifyErr(LOG_ERR, "%s: pipe (%s) terminated with unknown error\n",
+			__FUNCTION__, dm_setup_dmsetup);
     else if (sts > 1000)
-	pmNotifyErr(LOG_ERR, "dm_crypt_instance_refresh: pipe (%s) terminated with signal %d\n", dm_setup_dmsetup, sts - 1000);
+	pmNotifyErr(LOG_ERR, "%s: pipe (%s) terminated with signal %d\n",
+			__FUNCTION__, dm_setup_dmsetup, sts - 1000);
     else
-	pmNotifyErr(LOG_ERR, "dm_crypt_instance_refresh: pipe (%s) terminated with exit status %d\n", dm_setup_dmsetup, sts);
+	pmNotifyErr(LOG_ERR, "%s: pipe (%s) terminated with exit status %d\n",
+			__FUNCTION__, dm_setup_dmsetup, sts);
 
     return PM_ERR_GENERIC;            
 }
