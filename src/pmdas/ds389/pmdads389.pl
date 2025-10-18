@@ -41,6 +41,7 @@ our $dffilter = '(objectclass=*)';
 our $dattrs = ['*', '+'];
 # How often it will check
 our $query_interval = 2; # seconds
+our $query_timeout = 1; # seconds
 # Metrics defaults
 our $mpm_type = PM_TYPE_U32;
 our $mpm_indom = PM_INDOM_NULL;
@@ -195,7 +196,7 @@ use vars qw( $ldap $pmda %metrics );
 sub ds389_connection_setup {
   if (!defined($ldap)) {
     if (!pmda_install()) { $pmda->log("binding to $server"); }
-    $ldap = Net::LDAP->new($server,version => $ldapver);
+    $ldap = Net::LDAP->new($server, version => $ldapver, timeout => $query_timeout);
     if (!defined($ldap)) {
       if (!pmda_install()) { $pmda->log("bind failed, server down?"); }
       return;
@@ -326,7 +327,7 @@ sub retrieve_ldap {
   
   if ((strftime("%s", localtime()) - $ts) > $query_interval) {
     $ts = strftime("%s", localtime());
-    $mesg = $ldap->search(scope => $scope, base => $base, filter => $filter, attrs => $lattrs);
+    $mesg = $ldap->search(scope => $scope, base => $base, filter => $filter, attrs => $lattrs, timelimit => $query_timeout);
     if ($mesg->code) {
       $pmda->log("search(scope: \"$scope\", base: \"$base\", filter: \"$filter\", attrs: \"". join(' ', @$lattrs) ."\") failed: " . $mesg->error);
       undef $ldap;
