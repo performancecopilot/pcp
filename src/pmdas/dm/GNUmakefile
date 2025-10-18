@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015-2021 Red Hat.
+# Copyright (c) 2015-2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -17,7 +17,7 @@ include	$(TOPDIR)/src/include/builddefs
 
 IAM		= dm
 DOMAIN		= DM
-PMNSFILES	= pmns.dmcache pmns.dmthin pmns.dmstats pmns.vdo
+PMNSFILES	= pmns.dmcache pmns.dmthin pmns.dmstats pmns.vdo pmns.dmcrypt
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
@@ -26,8 +26,8 @@ PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMIEDIR		= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
 PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
-CFILES		= pmda.c dmthin.c dmcache.c vdo.c
-HFILES		= indom.h dmthin.h dmcache.h dmstats.h vdo.h
+CFILES		= pmda.c dmthin.c dmcache.c vdo.c dmcrypt.c
+HFILES		= indom.h dmthin.h dmcache.h dmstats.h vdo.h dmcrypt.h
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 
@@ -79,11 +79,12 @@ domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
 $(OBJECTS): domain.h
-pmda.o dmcache.o dmthin.o dm.o vdo.o: indom.h
+pmda.o dmcache.o dmthin.o dm.o vdo.o dmcrypt.o: indom.h
 pmda.o dmcache.o: dmcache.h
 pmda.o dmthin.o: dmthin.h
 ifeq "$(HAVE_DEVMAPPER)" "true"
 pmda.o dmstats.o: dmstats.h
+pmda.o dmcrypt.o: dmcrypt.h
 endif
 pmda.o vdo.o: vdo.h
 
