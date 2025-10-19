@@ -458,9 +458,9 @@ _filter_top_pmns()
 	-e '/^    datatape /d' \
 	-e '/^    dbping /d' \
 	-e '/^    dmcache /d' \
+	-e '/^    dmcrypt /d' \
 	-e '/^    dmstats /d' \
 	-e '/^    dmthin /d' \
-	-e '/^    dm /d' \
 	-e '/^    dmf /d' \
 	-e '/^    ds389 /d' \
 	-e '/^    elasticsearch /d' \
@@ -932,7 +932,7 @@ $1 == "inst" && $2 ~ /^\[/ {
 }
 
 # for src/torture_api, filter out lines like:
-#     hostname             <s = 1>
+#     metricname             <s = 1>
 # for the top-level PMNS nodes that come from optionaly PMDAs
 # or are not present on every platform
 #
@@ -958,6 +958,7 @@ _filter_torture_api()
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
 	-e '/^    denki /d' \
+	-e '/^    dm /d' \
 	-e '/^    ds389 /d' \
 	-e '/^    dynamic /d' \
 	-e '/^    engr /d' \
