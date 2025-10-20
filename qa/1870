@@ -44,12 +44,13 @@ do
     echo "== guidellm2pcp $json"
     guidellm2pcp -a $tmp.archive $json
     pminfo -z -f -a $tmp.archive guidellm | _filter_pminfo
-    pmval -z -t 60sec -a $tmp.archive \
-	    -i 274a4994-b103-4208-9ebc-6ded791c9d87 \
-	    guidellm.duration | _filter_pmval
-    pmval -z -t 60sec -a $tmp.archive \
-	    -i 02c80641-6612-4b3e-b52d-da6a51a64c6b \
-	    guidellm.duration | _filter_pmval
+    for inst in `pmprobe -I -a $tmp.archive guidellm.duration | \
+	    $PCP_AWK_PROG '{ for (i=3; i<=NF; i++) print $i }' | \
+	    LC_COLLATE=POSIX sort`
+    do
+        pmval -z -t 60sec -a $tmp.archive -i $inst guidellm.duration | \
+		_filter_pmval
+    done
     rm -f $tmp.archive*
 done
 

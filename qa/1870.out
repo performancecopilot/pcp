@@ -215,12 +215,31 @@ guidellm.run_id
 
 guidellm.duration
     inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 299.9909930229187
-pmval: instance 274a4994-b103-4208-9ebc-6ded791c9d87 not available
 Note: timezone set to local timezone of host "1fe47ac8-1e6d-45d3-9514-5d1f1644e7e9" from archive
 
-pmval: instance 02c80641-6612-4b3e-b52d-da6a51a64c6b not available
-Note: timezone set to local timezone of host "1fe47ac8-1e6d-45d3-9514-5d1f1644e7e9" from archive
+metric:    guidellm.duration
+archive:   TMP.archive
+host:      1fe47ac8-1e6d-45d3-9514-5d1f1644e7e9
+start:     Mon Sep  8 17:56:54 2025
+end:       Mon Sep  8 18:06:55 2025
+semantics: discrete instantaneous value
+units:     sec
+samples:   11
+interval:  60.00 sec
+full label for instance[0]: 42aa77c2-6694-405e-a616-980e3e18e9f9
 
+            42aa77c2-6694-405e-a6 
+17:56:54.520             300.0    
+17:57:54.520             300.0    
+17:58:54.520             300.0    
+17:59:54.520             300.0    
+18:00:54.520             300.0    
+18:01:54.520             300.0    
+18:02:54.520  No values available
+18:03:54.520  No values available
+18:04:54.520  No values available
+18:05:54.520  No values available
+18:06:54.520  No values available
 == guidellm2pcp guidellm/model-furnace.json
 Note: timezone set to local timezone of host "2955716b-c78a-42b4-8621-28e6b44473e4" from archive
 
@@ -458,24 +477,3 @@ full label for instance[0]: 274a4994-b103-4208-9ebc-6ded791c9d87
 17:52:24.511  No values available
 17:53:24.511  No values available
 17:54:24.511  No values available
-Note: timezone set to local timezone of host "2955716b-c78a-42b4-8621-28e6b44473e4" from archive
-
-metric:    guidellm.duration
-archive:   TMP.archive
-host:      2955716b-c78a-42b4-8621-28e6b44473e4
-start:     Mon Sep  8 17:48:24 2025
-end:       Mon Sep  8 17:55:05 2025
-semantics: discrete instantaneous value
-units:     sec
-samples:   7
-interval:  60.00 sec
-17:48:24.511  No values available
-17:49:24.511  No values available
-17:50:24.511  No values available
-17:51:24.511  No values available
-full label for instance[0]: 02c80641-6612-4b3e-b52d-da6a51a64c6b
-
-            02c80641-6612-4b3e-b5 
-17:52:24.511             200.0    
-17:53:24.511             200.0    
-17:54:24.511             200.0    
