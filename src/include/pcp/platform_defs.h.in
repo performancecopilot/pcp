@@ -72,12 +72,12 @@ extern "C" {
 #include <ws2tcpip.h>
 #endif
 
-#if defined(HAVE_ENDIAN_H)
-#include <endian.h>
+#if defined(HAVE_MACHINE_ENDIAN_H)
+#include <machine/endian.h>
 #elif defined(HAVE_SYS_ENDIAN_H)
 #include <sys/endian.h>
-#elif defined(HAVE_MACHINE_ENDIAN_H)
-#include <machine/endian.h>
+#elif defined(HAVE_ENDIAN_H)
+#include <endian.h>
 #endif
 #if defined(HAVE_ENDIAN_H) || defined(HAVE_SYS_ENDIAN_H) || defined(HAVE_MACHINE_ENDIAN_H)
 #if defined(BYTE_ORDER) && BYTE_ORDER == BIG_ENDIAN

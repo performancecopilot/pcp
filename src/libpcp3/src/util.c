@@ -2385,17 +2385,6 @@ alphasort(const_dirent **p, const_dirent **q)
  * is preserved.
  * ====================================================
  */
-
-#ifdef HAVE_ENDIAN_H
-#include <endian.h>
-#else
-#ifdef HAVE_SYS_ENDIAN_H
-#include <sys/endian.h>
-#else
-bozo!
-#endif
-#endif
-
 #if __BYTE_ORDER == __LITTLE_ENDIAN
 #define __HI(x) *(1+(int*)&x)
 #define __LO(x) *(int*)&x
