@@ -32,6 +32,7 @@
 @ DM.3 Device mapper dmstats API devices
 @ DM.4 Device mapper latency histogram bins
 @ DM.5 Virtual Data Optimization devices
+@ DM.6 Device mapper encrypted block devices
 
 @ dmcache.size Size of each cache device
 The total size of each cache device in Kbytes.
