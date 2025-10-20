@@ -86,7 +86,10 @@ Other_node           :            0
 
 
 === testing pcp-uptime on pcp-zeroconf archive
-pcp-uptime: Impossible value or scale conversion
+ 10:15:05 up 2 days, 20:39,  2 users,  load average: 0.48, 0.31, 0.28
+
+=== testing pcp-uptime on pcp-zeroconf archive with no data
+ 10:14:55 up ? time, ? users, load average: ?, ?, ?
 
 === testing pcp-free on pcp-zeroconf archive
               total        used        free      shared  buff/cache   available

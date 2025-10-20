@@ -51,6 +51,17 @@ Display version number and exit.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
+.PP
+When replaying from an archive using the
+.BR \-a
+option, the required information may not be available at the
+default starting time, in which case the reported values will be ``?''.
+In this case, use the
+.BR \-S
+or
+.BR \-O
+options to move the starting time into a point in the archive
+where the required information is available.
 .SH NOTES
 .B pcp-uptime
 is inspired by the

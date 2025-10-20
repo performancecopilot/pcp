@@ -48,7 +48,10 @@ echo; echo === testing pcp-numastat on pcp-zeroconf archive
 pcp -z -s 3 -S +10s -a archives/pcp-zeroconf numastat || exit 1
 
 echo; echo === testing pcp-uptime on pcp-zeroconf archive
-pcp -z -s 3 -S +10s -a archives/pcp-zeroconf uptime || exit 1
+pcp -z -S +10s -a archives/pcp-zeroconf uptime || exit 1
+
+echo; echo === testing pcp-uptime on pcp-zeroconf archive with no data
+pcp -z -a archives/pcp-zeroconf uptime || exit 1
 
 echo; echo === testing pcp-free on pcp-zeroconf archive
 pcp -z -s 3 -S +10s -a archives/pcp-zeroconf free || exit 1

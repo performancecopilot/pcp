@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2019-2020 Red Hat.
 #
+# check-group-exclude: pcp-uptime
 
 seq=`basename $0`
 echo "QA output created by $seq"

@@ -27,6 +27,9 @@ pcp -a $here/archives/pcp-uptime -z -O-0 uptime
 echo && echo uptime output, at archive start, forw-fetch needed
 PCP_ARCHIVE="archives/pcp-uptime2" PCP_HOSTZONE=1 $pcp_uptime
 
+echo && echo uptime output, at archive start plus a bit
+PCP_ARCHIVE="archives/pcp-uptime2" PCP_HOSTZONE=1 PCP_START_TIME=@10:43 $pcp_uptime
+
 # success, all done
 status=0
 exit
