@@ -478,8 +478,8 @@ OpenIndiana
     $ sudo zfs destroy [-R] <name@date>
 
 OpenBSD
-    https://en.wikipedia.org/wiki/OpenBSD_version_history
-    11 Sep 2025: 7.6, 7.7
+    https://cdn.openbsd.org/pub/OpenBSD/
+    22 Oct 2025: 7.7, 7.8
     # package search recipe (name only, not info or description)
     $ pkg_info -Q <pattern>
     # which package installs a file/directory
@@ -502,6 +502,8 @@ OpenBSD
     - will reboot again
     $ sudo sysmerge
     $ sudo pkg_add -u
+    - this will take some time and may involve answering some questions
+      to resolve issues
 
 Template
     URL
