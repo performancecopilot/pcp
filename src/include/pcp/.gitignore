@@ -5,4 +5,5 @@ config.h
 dict.h
 sds.h
 sdsalloc.h
+usdt.h
 ini.h
