@@ -734,15 +734,17 @@ _diagnose()
 
 # check ${IAM} really started
 #
-# $1 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
+# $1 = host
+# $2 = dir as it appears on the $PCP_TMP_DIR/${IAM} files (so a real path,
 #      not a possibly sybolic path from a control file)
-# $2 = args from control file
+# $3 = args from control file
 #
 _check_started()
 {
     $SHOWME && return 0
-    dir="$1"
-    args="$2"
+    host="$1"
+    dir="$2"
+    args="$3"
     max=600		# 1/10 of a second, so 1 minute max
     i=0
     $VERY_VERBOSE && $PCP_ECHO_PROG >&2 $PCP_ECHO_N "Started? dir=$dir args=$args ""$PCP_ECHO_C"
@@ -1521,7 +1523,7 @@ $1 == "'"$host"'"	{ printf "%s",$5
 			  for (i = 6; i <= NF; i++) printf " %s",$i
 			  print ""
 			}'`
-	_check_started "$dir_args" "$args" || sts=1
+	_check_started "$host" "$dir_args" "$args" || sts=1
     done
 
     return $sts
@@ -1673,7 +1675,7 @@ $1 == "'"$host"'"	{ printf "%s",$5
 		      for (i = 6; i <= NF; i++) printf " %s",$i
 		      print ""
 		    }'`
-	    _check_started "$dir_args" "$args" || sts=1
+	    _check_started "$host" "$dir_args" "$args" || sts=1
 	fi
     done
 
@@ -1806,7 +1808,7 @@ $1 == "'"#!#$__host"'" && ($4 == "'"$__dir"'" || $4 == "'"$__alt_dir"'")	{ sub(/
 	fi
 	$RUNASPCP "$CHECKCMD $CHECKARGS -c \"$__control\""
 
-	_check_started "$__args_dir" "$__args" || __sts=1
+	_check_started "$__host" "$__args_dir" "$__args" || __sts=1
     done
 
     return $__sts
