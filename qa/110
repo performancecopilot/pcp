@@ -154,6 +154,9 @@ else
     _failed
 fi
 
+# give the PMDA + socket a chance to be setup before pminfo check
+export PCPQA_CHECK_DELAY=3
+
 echo
 echo "=== Unix socket daemon agent ==="
 echo "=== Unix socket daemon agent ===" >>$seq_full
