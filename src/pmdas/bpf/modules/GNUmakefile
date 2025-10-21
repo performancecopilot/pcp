@@ -12,6 +12,7 @@ COMMON_OBJ = \
 	trace_helpers.o \
 	btf_helpers.o \
 	uprobe_helpers.o \
+	path_helpers.o \
 	map_helpers.o \
 
 # ported helper files.
@@ -21,9 +22,11 @@ HELPERS_H = \
 	bits.bpf.h \
 	blk_types.h \
 	maps.bpf.h \
+	path_helpers.bpf.h \
 	core_fixes.bpf.h \
 	btf_helpers.h \
 	map_helpers.h \
+	path_helpers.h \
 	trace_helpers.h \
 	uprobe_helpers.h \
 
@@ -31,6 +34,7 @@ HELPERS_C = \
 	compat.c \
 	btf_helpers.c \
 	map_helpers.c \
+	path_helpers.c \
 	trace_helpers.c \
 	uprobe_helpers.c \
 
@@ -111,7 +115,7 @@ vmlinux.h: $(PMDABPF_VMLINUXH)
 	$(LN_S) -f $< $@
 
 %.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_H_2) $(APPS_BPF) $(APPS_BPF_2)
-	$(CLANG) -Wall -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
+	$(CLANG) -Wall -Wno-switch -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
 		-I. -c $< -o $@
 	$(LLVM_STRIP) -g $@
 

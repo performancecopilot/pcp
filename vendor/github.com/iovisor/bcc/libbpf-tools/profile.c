@@ -17,12 +17,15 @@
 #include <asm/unistd.h>
 #include <bpf/libbpf.h>
 #include <bpf/bpf.h>
+#include <sys/stat.h>
 #include "profile.h"
 #include "profile.skel.h"
 #include "trace_helpers.h"
 
 #define OPT_PERF_MAX_STACK_DEPTH	1 /* --perf-max-stack-depth */
 #define OPT_STACK_STORAGE_SIZE		2 /* --stack-storage-size */
+
+#define SYM_INFO_LEN			2048
 
 /*
  * -EFAULT in get_stackid normally means the stack-trace is not available,
@@ -31,9 +34,6 @@
 #define STACK_ID_EFAULT(stack_id)	(stack_id == -EFAULT)
 
 #define STACK_ID_ERR(stack_id)		((stack_id < 0) && !STACK_ID_EFAULT(stack_id))
-
-#define NEED_DELIMITER(delimiter, ustack_id, kstack_id) \
-	(delimiter && ustack_id >= 0 && kstack_id >= 0)
 
 /* hash collision (-EEXIST) suggests that stack map size may be too small */
 #define CHECK_STACK_COLLISION(ustack_id, kstack_id)	\
@@ -50,9 +50,24 @@ struct key_ext_t {
 
 typedef const char* (*symname_fn_t)(unsigned long);
 
+/* This structure represents output format-dependent attributes. */
+struct fmt_t {
+	bool folded;
+	char *prefix;
+	char *suffix;
+	char *delim;
+};
+
+struct fmt_t stacktrace_formats[] = {
+	{ false, "    ", "\n", "--" },	/* multi-line */
+	{ true, ";", "", "-" }		/* folded */
+};
+
+#define pr_format(str, fmt)		printf("%s%s%s", fmt->prefix, str, fmt->suffix)
+
 static struct env {
-	pid_t pid;
-	pid_t tid;
+	pid_t pids[MAX_PID_NR];
+	pid_t tids[MAX_TID_NR];
 	bool user_stacks_only;
 	bool kernel_stacks_only;
 	int stack_storage_size;
@@ -64,9 +79,8 @@ static struct env {
 	bool delimiter;
 	bool include_idle;
 	int cpu;
+	bool folded;
 } env = {
-	.pid = -1,
-	.tid = -1,
 	.stack_storage_size = 1024,
 	.perf_max_stack_depth = 127,
 	.duration = INT_MAX,
@@ -87,38 +101,42 @@ const char argp_program_doc[] =
 "    profile -F 99       # profile stack traces at 99 Hertz\n"
 "    profile -c 1000000  # profile stack traces every 1 in a million events\n"
 "    profile 5           # profile at 49 Hertz for 5 seconds only\n"
+"    profile -f          # output in folded format for flame graphs\n"
 "    profile -p 185      # only profile process with PID 185\n"
 "    profile -L 185      # only profile thread with TID 185\n"
 "    profile -U          # only show user space stacks (no kernel)\n"
 "    profile -K          # only show kernel space stacks (no user)\n";
 
 static const struct argp_option opts[] = {
-	{ "pid", 'p', "PID", 0, "profile process with this PID only" },
-	{ "tid", 'L', "TID", 0, "profile thread with this TID only" },
+	{ "pid", 'p', "PID", 0, "profile processes with one or more comma-separated PIDs only", 0 },
+	{ "tid", 'L', "TID", 0, "profile threads with one or more comma-separated TIDs only", 0 },
 	{ "user-stacks-only", 'U', NULL, 0,
-	  "show stacks from user space only (no kernel space stacks)" },
+	  "show stacks from user space only (no kernel space stacks)", 0 },
 	{ "kernel-stacks-only", 'K', NULL, 0,
-	  "show stacks from kernel space only (no user space stacks)" },
-	{ "frequency", 'F', "FREQUENCY", 0, "sample frequency, Hertz" },
-	{ "delimited", 'd', NULL, 0, "insert delimiter between kernel/user stacks" },
-	{ "include-idle ", 'I', NULL, 0, "include CPU idle stacks" },
+	  "show stacks from kernel space only (no user space stacks)", 0 },
+	{ "frequency", 'F', "FREQUENCY", 0, "sample frequency, Hertz", 0 },
+	{ "delimited", 'd', NULL, 0, "insert delimiter between kernel/user stacks", 0 },
+	{ "include-idle ", 'I', NULL, 0, "include CPU idle stacks", 0 },
+	{ "folded", 'f', NULL, 0, "output folded format, one line per stack (for flame graphs)", 0 },
 	{ "stack-storage-size", OPT_STACK_STORAGE_SIZE, "STACK-STORAGE-SIZE", 0,
-	  "the number of unique stack traces that can be stored and displayed (default 1024)" },
-	{ "cpu", 'C', "CPU", 0, "cpu number to run profile on" },
+	  "the number of unique stack traces that can be stored and displayed (default 1024)", 0 },
+	{ "cpu", 'C', "CPU", 0, "cpu number to run profile on", 0 },
 	{ "perf-max-stack-depth", OPT_PERF_MAX_STACK_DEPTH,
-	  "PERF-MAX-STACK-DEPTH", 0, "the limit for both kernel and user stack traces (default 127)" },
-	{ "verbose", 'v', NULL, 0, "Verbose debug output" },
-	{ NULL, 'h', NULL, OPTION_HIDDEN, "Show the full help" },
+	  "PERF-MAX-STACK-DEPTH", 0, "the limit for both kernel and user stack traces (default 127)", 0 },
+	{ "verbose", 'v', NULL, 0, "Verbose debug output", 0 },
+	{ NULL, 'h', NULL, OPTION_HIDDEN, "Show the full help", 0 },
 	{},
 };
 
 struct ksyms *ksyms;
 struct syms_cache *syms_cache;
 struct syms *syms;
+static char syminfo[SYM_INFO_LEN];
 
 static error_t parse_arg(int key, char *arg, struct argp_state *state)
 {
 	static int pos_args;
+	int ret;
 
 	switch (key) {
 	case 'h':
@@ -128,18 +146,28 @@ static error_t parse_arg(int key, char *arg, struct argp_state *state)
 		env.verbose = true;
 		break;
 	case 'p':
-		errno = 0;
-		env.pid = strtol(arg, NULL, 10);
-		if (errno) {
-			fprintf(stderr, "invalid PID: %s\n", arg);
+		ret = split_convert(strdup(arg), ",", env.pids, sizeof(env.pids),
+				    sizeof(pid_t), str_to_int);
+		if (ret) {
+			if (ret == -ENOBUFS)
+				fprintf(stderr, "the number of pid is too big, please "
+					"increase MAX_PID_NR's value and recompile\n");
+			else
+				fprintf(stderr, "invalid PID: %s\n", arg);
+
 			argp_usage(state);
 		}
 		break;
 	case 'L':
-		errno = 0;
-		env.tid = strtol(arg, NULL, 10);
-		if (errno || env.tid <= 0) {
-			fprintf(stderr, "Invalid TID: %s\n", arg);
+		ret = split_convert(strdup(arg), ",", env.tids, sizeof(env.tids),
+				    sizeof(pid_t), str_to_int);
+		if (ret) {
+			if (ret == -ENOBUFS)
+				fprintf(stderr, "the number of tid is too big, please "
+					"increase MAX_TID_NR's value and recompile\n");
+			else
+				fprintf(stderr, "invalid TID: %s\n", arg);
+
 			argp_usage(state);
 		}
 		break;
@@ -170,6 +198,9 @@ static error_t parse_arg(int key, char *arg, struct argp_state *state)
 			fprintf(stderr, "invalid CPU: %s\n", arg);
 			argp_usage(state);
 		}
+		break;
+	case 'f':
+		env.folded = true;
 		break;
 	case OPT_PERF_MAX_STACK_DEPTH:
 		errno = 0;
@@ -208,7 +239,7 @@ static error_t parse_arg(int key, char *arg, struct argp_state *state)
 
 static int nr_cpus;
 
-static int open_and_attach_perf_event(int freq, struct bpf_program *prog,
+static int open_and_attach_perf_event(struct bpf_program *prog,
 				      struct bpf_link *links[])
 {
 	struct perf_event_attr attr = {
@@ -297,25 +328,114 @@ static const char *ksymname(unsigned long addr)
 {
 	const struct ksym *ksym = ksyms__map_addr(ksyms, addr);
 
-	return ksym ? ksym->name : "[unknown]";
+	if (!env.verbose)
+		return ksym ? ksym->name : "[unknown]";
+
+	if (ksym)
+		snprintf(syminfo, SYM_INFO_LEN, "0x%lx %s+0x%lx", addr,
+			 ksym->name, addr - ksym->addr);
+	else
+		snprintf(syminfo, SYM_INFO_LEN, "0x%lx [unknown]", addr);
+
+	return syminfo;
+}
+
+static const char *usyminfo(unsigned long addr)
+{
+	struct sym_info sinfo;
+	int err;
+	int c;
+
+	c = snprintf(syminfo, SYM_INFO_LEN, "0x%016lx", addr);
+
+	err = syms__map_addr_dso(syms, addr, &sinfo);
+	if (err == 0) {
+		if (sinfo.sym_name) {
+			c += snprintf(syminfo + c, SYM_INFO_LEN - c, " %s+0x%lx",
+				      sinfo.sym_name, sinfo.sym_offset);
+		}
+
+		snprintf(syminfo + c, SYM_INFO_LEN - c, " (%s+0x%lx)",
+			 sinfo.dso_name, sinfo.dso_offset);
+	}
+
+	return syminfo;
 }
 
 static const char *usymname(unsigned long addr)
 {
-	const struct sym *sym = syms__map_addr(syms, addr);
+	const struct sym *sym;
 
-	return sym ? sym->name : "[unknown]";
+	if (!env.verbose) {
+		sym = syms__map_addr(syms, addr);
+		return sym ? sym->name : "[unknown]";
+	}
+
+	return usyminfo(addr);
 }
 
-static void print_stacktrace(unsigned long *ip, symname_fn_t symname)
+static void print_stacktrace(unsigned long *ip, symname_fn_t symname, struct fmt_t *f)
 {
-	for (size_t i = 0; ip[i] && i < env.perf_max_stack_depth; i++)
-		printf("    %s\n", symname(ip[i]));
+	int i;
+
+	if (!f->folded) {
+		for (i = 0; ip[i] && i < env.perf_max_stack_depth; i++)
+			pr_format(symname(ip[i]), f);
+		return;
+	} else {
+		for (i = env.perf_max_stack_depth - 1; i >= 0; i--) {
+			if (!ip[i])
+				continue;
+
+			pr_format(symname(ip[i]), f);
+		}
+	}
 }
 
-static int print_count(struct key_t *event, __u64 count, int stack_map)
+static bool print_user_stacktrace(struct key_t *event, int stack_map,
+				  unsigned long *ip, struct fmt_t *f, bool delim)
+{
+	if (env.kernel_stacks_only || STACK_ID_EFAULT(event->user_stack_id))
+		return false;
+
+	if (delim)
+		pr_format(f->delim, f);
+
+	if (bpf_map_lookup_elem(stack_map, &event->user_stack_id, ip) != 0) {
+		pr_format("[Missed User Stack]", f);
+	} else {
+		syms = syms_cache__get_syms(syms_cache, event->pid);
+		if (syms)
+			print_stacktrace(ip, usymname, f);
+		else if (!f->folded)
+			fprintf(stderr, "failed to get syms\n");
+	}
+
+	return true;
+}
+
+static bool print_kern_stacktrace(struct key_t *event, int stack_map,
+				  unsigned long *ip, struct fmt_t *f, bool delim)
+{
+	if (env.user_stacks_only || STACK_ID_EFAULT(event->kern_stack_id))
+		return false;
+
+	if (delim)
+		pr_format(f->delim, f);
+
+	if (bpf_map_lookup_elem(stack_map, &event->kern_stack_id, ip) != 0)
+		pr_format("[Missed Kernel Stack]", f);
+	else
+		print_stacktrace(ip, ksymname, f);
+
+	return true;
+}
+
+static int print_count(struct key_t *event, __u64 count, int stack_map, bool folded)
 {
 	unsigned long *ip;
+	int ret;
+	struct fmt_t *fmt = &stacktrace_formats[folded];
 
 	ip = calloc(env.perf_max_stack_depth, sizeof(unsigned long));
 	if (!ip) {
@@ -323,36 +443,19 @@ static int print_count(struct key_t *event, __u64 count, int stack_map)
 		return -ENOMEM;
 	}
 
-	/* kernel stack */
-	if (!env.user_stacks_only && !STACK_ID_EFAULT(event->kern_stack_id)) {
-		if (bpf_map_lookup_elem(stack_map, &event->kern_stack_id, ip) != 0)
-			printf("    [Missed Kernel Stack]\n");
-		else
-			print_stacktrace(ip, ksymname);
+	if (!folded) {
+		/* multi-line stack output */
+		ret = print_kern_stacktrace(event, stack_map, ip, fmt, false);
+		print_user_stacktrace(event, stack_map, ip, fmt, ret && env.delimiter);
+		printf("    %-16s %s (%d)\n", "-", event->name, event->pid);
+		printf("        %lld\n\n", count);
+	} else {
+		/* folded stack output */
+		printf("%s", event->name);
+		ret = print_user_stacktrace(event, stack_map, ip, fmt, false);
+		print_kern_stacktrace(event, stack_map, ip, fmt, ret && env.delimiter);
+		printf(" %lld\n", count);
 	}
-
-	/* user stack */
-	if (!env.kernel_stacks_only && !STACK_ID_EFAULT(event->user_stack_id)) {
-		if (NEED_DELIMITER(env.delimiter, event->user_stack_id,
-				   event->kern_stack_id))
-			printf("    --\n");
-
-		if (bpf_map_lookup_elem(stack_map, &event->user_stack_id, ip) != 0) {
-			printf("    [Missed User Stack]\n");
-		} else {
-			syms = syms_cache__get_syms(syms_cache, event->pid);
-			if (!syms)
-				fprintf(stderr, "failed to get syms\n");
-			else
-				print_stacktrace(ip, usymname);
-		}
-	}
-
-	/* process information */
-	printf("    %-16s %s (%d)\n", "-", event->name, event->pid);
-
-	/* count sampled */
-	printf("        %lld\n\n", count);
 
 	free(ip);
 
@@ -385,7 +488,7 @@ static int print_counts(int counts_map, int stack_map)
 		event = &counts[i].k;
 		count = counts[i].v;
 
-		print_count(event, count, stack_map);
+		print_count(event, count, stack_map, env.folded);
 
 		/* handle stack id errors */
 		nr_missing_stacks += MISSING_STACKS(event->user_stack_id, event->kern_stack_id);
@@ -404,16 +507,40 @@ cleanup:
 	return ret;
 }
 
+static int set_pidns(const struct profile_bpf *obj)
+{
+	struct stat statbuf;
+
+	if (!probe_bpf_ns_current_pid_tgid())
+		return -EPERM;
+
+	if (stat("/proc/self/ns/pid", &statbuf) == -1)
+		return -errno;
+
+	obj->rodata->use_pidns = true;
+	obj->rodata->pidns_dev = statbuf.st_dev;
+	obj->rodata->pidns_ino = statbuf.st_ino;
+
+	return 0;
+}
+
 static void print_headers()
 {
+	int i;
+
 	printf("Sampling at %d Hertz of", env.sample_freq);
 
-	if (env.pid != -1)
-		printf(" PID %d", env.pid);
-	else if (env.tid != -1)
-		printf(" TID %d", env.tid);
-	else
+	if (env.pids[0]) {
+		printf(" PID [");
+		for (i = 0; i < MAX_PID_NR && env.pids[i]; i++)
+			printf("%d%s", env.pids[i], (i < MAX_PID_NR - 1 && env.pids[i + 1]) ? ", " : "]");
+	} else if (env.tids[0]) {
+		printf(" TID [");
+		for (i = 0; i < MAX_TID_NR && env.tids[i]; i++)
+			printf("%d%s", env.tids[i], (i < MAX_TID_NR - 1 && env.tids[i + 1]) ? ", " : "]");
+	} else {
 		printf(" all threads");
+	}
 
 	if (env.user_stacks_only)
 		printf(" by user");
@@ -440,7 +567,9 @@ int main(int argc, char **argv)
 	};
 	struct bpf_link *links[MAX_CPU_NR] = {};
 	struct profile_bpf *obj;
+	int pids_fd, tids_fd;
 	int err, i;
+	__u8 val = 0;
 
 	err = argp_parse(&argp, argc, argv, 0, NULL, NULL);
 	if (err)
@@ -472,20 +601,45 @@ int main(int argc, char **argv)
 	}
 
 	/* initialize global data (filtering options) */
-	obj->rodata->targ_pid = env.pid;
-	obj->rodata->targ_tid = env.tid;
 	obj->rodata->user_stacks_only = env.user_stacks_only;
 	obj->rodata->kernel_stacks_only = env.kernel_stacks_only;
 	obj->rodata->include_idle = env.include_idle;
+	if (env.pids[0])
+		obj->rodata->filter_by_pid = true;
+	else if (env.tids[0])
+		obj->rodata->filter_by_tid = true;
 
 	bpf_map__set_value_size(obj->maps.stackmap,
 				env.perf_max_stack_depth * sizeof(unsigned long));
 	bpf_map__set_max_entries(obj->maps.stackmap, env.stack_storage_size);
 
+	err = set_pidns(obj);
+	if (err && env.verbose)
+		fprintf(stderr, "failed to translate pidns: %s\n", strerror(-err));
+
 	err = profile_bpf__load(obj);
 	if (err) {
 		fprintf(stderr, "failed to load BPF programs\n");
 		goto cleanup;
+	}
+
+	if (env.pids[0]) {
+		pids_fd = bpf_map__fd(obj->maps.pids);
+		for (i = 0; i < MAX_PID_NR && env.pids[i]; i++) {
+			if (bpf_map_update_elem(pids_fd, &(env.pids[i]), &val, BPF_ANY) != 0) {
+				fprintf(stderr, "failed to init pids map: %s\n", strerror(errno));
+				goto cleanup;
+			}
+		}
+	}
+	else if (env.tids[0]) {
+		tids_fd = bpf_map__fd(obj->maps.tids);
+		for (i = 0; i < MAX_TID_NR && env.tids[i]; i++) {
+			if (bpf_map_update_elem(tids_fd, &(env.tids[i]), &val, BPF_ANY) != 0) {
+				fprintf(stderr, "failed to init tids map: %s\n", strerror(errno));
+				goto cleanup;
+			}
+		}
 	}
 
 	ksyms = ksyms__load();
@@ -500,13 +654,14 @@ int main(int argc, char **argv)
 		goto cleanup;
 	}
 
-	err = open_and_attach_perf_event(env.freq, obj->progs.do_perf_event, links);
+	err = open_and_attach_perf_event(obj->progs.do_perf_event, links);
 	if (err)
 		goto cleanup;
 
 	signal(SIGINT, sig_handler);
 
-	print_headers();
+	if (!env.folded)
+		print_headers();
 
 	/*
 	 * We'll get sleep interrupted when someone presses Ctrl-C.

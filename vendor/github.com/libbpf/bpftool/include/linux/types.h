@@ -12,6 +12,7 @@
 
 typedef uint64_t u64;
 typedef __u32 u32;
+typedef __u16 u16;
 typedef __u8  u8;
 
 #define __bitwise__

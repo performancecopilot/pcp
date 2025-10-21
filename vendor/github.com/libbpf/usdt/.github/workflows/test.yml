@@ -1,0 +1,53 @@
+name: USDT CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+
+    strategy:
+      fail-fast: false
+      matrix:
+        runs-on: [ 'ubuntu-latest', 'ubuntu-24.04-arm' ]
+        shared: [ 0, 1 ]
+        compiler:
+          - { name: 'gcc', version: 11 }
+          - { name: 'gcc', version: 12 }
+          - { name: 'gcc', version: 13 }
+          - { name: 'gcc', version: 14 }
+          - { name: 'llvm', version: 17 }
+          - { name: 'llvm', version: 18 }
+          - { name: 'llvm', version: 19 }
+
+    runs-on: ${{ matrix.runs-on }}
+
+    name: ${{ endsWith(matrix.runs-on, '-arm') && 'arm64' || 'x86_64' }} ${{ matrix.shared == 1 && 'shared' || 'static' }} ${{ matrix.compiler.name }}-${{ matrix.compiler.version }}
+
+    env:
+      COMPILER: ${{ matrix.compiler.name }}
+      COMPILER_VERSION: ${{ matrix.compiler.version }}
+      SHARED: ${{ matrix.shared }}
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install prerequisites
+      run: sudo -E .github/scripts/setup.sh
+
+    - name: Build SHARED=${{ matrix.shared }}
+      run: .github/scripts/build.sh
+
+    - name: Test SHARED=${{ matrix.shared }}
+      run: make -C tests test
+
+    - uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: tests-output-${{ endsWith(matrix.runs-on, '-arm') && 'arm64' || 'x86_64' }}-${{ matrix.shared == 1 && 'shared' || 'static' }}-${{ matrix.compiler.name }}-${{ matrix.compiler.version }}
+        if-no-files-found: warn
+        path: tests/.output
+        include-hidden-files: true
