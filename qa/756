@@ -68,6 +68,10 @@ then
 	exit
     fi
     cd $here/perfevent
+    # historically the fakefs tree was owned root:root, so we may need
+    # a bigger hammer
+    #
+    $sudo rm -rf fakefs
     rm -f perfevent_test
     if $PCP_MAKE_PROG clean perfevent_test fakefs >>$seq_full 2>&1
     then
