@@ -35,9 +35,9 @@ const char argp_program_doc[] =
 "    bashreadline -s /usr/lib/libreadline.so\n";
 
 static const struct argp_option opts[] = {
-	{ "shared", 's', "PATH", 0, "the location of libreadline.so library" },
-	{ "verbose", 'v', NULL, 0, "Verbose debug output" },
-	{ NULL, 'h', NULL, OPTION_HIDDEN, "Show the full help" },
+	{ "shared", 's', "PATH", 0, "the location of libreadline.so library", 0 },
+	{ "verbose", 'v', NULL, 0, "Verbose debug output", 0 },
+	{ NULL, 'h', NULL, OPTION_HIDDEN, "Show the full help", 0 },
 	{},
 };
 
@@ -74,13 +74,9 @@ static int libbpf_print_fn(enum libbpf_print_level level, const char *format, va
 static void handle_event(void *ctx, int cpu, void *data, __u32 data_size)
 {
 	struct str_t *e = data;
-	struct tm *tm;
 	char ts[16];
-	time_t t;
 
-	time(&t);
-	tm = localtime(&t);
-	strftime(ts, sizeof(ts), "%H:%m:%S", tm);
+	str_timestamp("%H:%M:%S", ts, sizeof(ts));
 
 	printf("%-9s %-7d %s\n", ts, e->pid, e->str);
 }
