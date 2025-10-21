@@ -25,9 +25,18 @@ _filter_hostnames()
     sed -e 's/host \".*\"/host \"HOST\"/g' $tmp.err > $tmp.err.1
     mv $tmp.err.1 $tmp.err
 }
+
+_filter_metalabel()
+{
+    # sometimes a pmcd_label_change event occurs during recording (.meta)
+    sed -e 's/found 35 records$/found 34 records/g' $tmp.err > $tmp.err.1
+    mv $tmp.err.1 $tmp.err
+}
+
 _filter()
 {
     _filter_hostnames
+    _filter_metalabel
     echo >>$seq_full
     echo "stdout" >>$seq_full
     cat $tmp.out >>$seq_full
