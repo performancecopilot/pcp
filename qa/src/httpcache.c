@@ -7,7 +7,7 @@
 #include <pcp/pmhttp.h>
 
 static struct http_client  *client;
-static char *sock = "unix://tmp/httpcache.sock";
+static char sock[256];
 
 int
 call_http_get(char *url)
@@ -54,17 +54,29 @@ int
 main(int argc, char *argv[])
 {
     int code = 0;
+    char url[256];
+    char port[6];
 
     pmSetProgname(argv[0]);
+
+    if (argc != 3) {
+	    fprintf(stderr, "Usage: %s <socket_path> <port_number>\n", argv[0]);
+	    return 1;
+    }
+
+    pmstrncpy(sock, sizeof(sock), argv[1]);
+    pmstrncpy(port, sizeof(port), argv[2]);
 
     if ((client = pmhttpNewClient()) == NULL) {
 	perror("pmhttpNewClient");
 	exit(1);
     }
 
-    code |= call_http_get("http://localhost:44323/series/metrics?match=kernel.all.load");
-    code |= call_http_get("http://localhost:44323/series/metrics?match=kernel.all.load");
-    code |= call_http_get("http://localhost:44323/series/metrics?match=kernel.all.intr");
+    pmsprintf(url, sizeof(url), "http://localhost:%s/series/metrics?match=kernel.all.load", port);
+    code |= call_http_get(url);
+    code |= call_http_get(url);
+    pmsprintf(url, sizeof(url), "http://localhost:%s/series/metrics?match=kernel.all.intr", port);
+    code |= call_http_get(url);
 
     code |= call_unix_domain_get("/series/metrics?match=kernel.all.load");
     code |= call_unix_domain_get("/series/metrics?match=kernel.all.load");

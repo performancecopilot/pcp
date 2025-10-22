@@ -1,4 +1,10 @@
 QA output created by 867
+=== Start test key server ...
+PING
+PONG
+
+=== Start test pmproxy ...
+== load test data for verification
 == Check simple HTTP fetch
 OK
 == Check HTTP cache

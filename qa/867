@@ -17,46 +17,78 @@ _check_series
 
 _cleanup()
 {
+    [ -z "$socat_pid" ] || $sudo $signal $socat_pid
+    [ -f "$tmp.socat.out" ] && cat $tmp.socat.out >> $seq_full
+    [ -f "$tmp.socat.err" ] && cat $tmp.socat.err >> $seq_full
+    [ -z "$proxy_pid" ] || $sudo $signal $proxy_pid
+    [ -n "$options" ] && $keys_cli $options shutdown
     cd $here
     $sudo rm -rf \$tmp \$tmp.*
 }
 
 status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
 trap "cd $here; _cleanup; exit \$status" 0 1 2 3 15
 
 unset http_proxy
 unset HTTP_PROXY
 
 # real QA test starts here
-if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
+echo "=== Start test key server ..."
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+echo
+echo "=== Start test pmproxy ..."
+proxyport=`_find_free_port`
+username=`id -u -n`
+cat > $tmp.conf <<EOF
+[pmproxy]
+pcp.enabled = true
+http.enabled = true
+resp.enabled = true
+[pmseries]
+enabled = true
+servers = localhost:$key_server_port
+EOF
+$PCP_BINADM_DIR/pmproxy -f -p $proxyport -s $tmp.socket \
+        -U $username -l $tmp.log -c $tmp.conf &
+proxy_pid=$!
+pmsleep 0.5
+
+echo "== load test data for verification" | tee -a $seq_full
+pmseries $options --load $here/archives/proc > $seq_full
+echo === test data load complete === >> $seq_full
 
 echo "== Check simple HTTP fetch" | tee -a $seq_full
-$here/src/httpfetch "http://localhost:44323/series/ping" >> $seq_full 2>&1
+$here/src/httpfetch "http://localhost:$proxyport/series/ping" >> $seq_full 2>&1
 [ $? -eq 0 ] && echo OK
 
-if true
+rm -f $tmp.socat.out $tmp.socat.err $tmp.httpcache.sock
+socat -d -d -T 2 unix-listen:$tmp.httpcache.sock,fork tcp-connect:localhost:$proxyport >$tmp.socat.out 2>$tmp.socat.err &
+socat_pid=$!
+rm -f $tmp.socat
+i=0
+while [ ! -f $tmp.socat -a $i -lt 10 ]
+do
+    pmsleep 1
+    if timeout 1s curl -v --unix-socket $tmp.httpcache.sock "http://localhost:$proxyport/series/ping" >> $seq_full 2>&1
+    then
+        touch $tmp.socat
+    else
+        i=`expr $i + 1`
+    fi
+done
+if [ ! -f $tmp.socat ]
 then
-    # the next part of this test is broken, I'm disabling it until a
-    # fix is proposed - kenj 19 Oct 2025
-    #
-    echo "== Check HTTP cache" | tee -a $seq_full
-    cat <<'End-of-File'
-["kernel.all.load"]
-["kernel.all.load"]
-["kernel.all.intr"]
-["kernel.all.load"]
-["kernel.all.load"]
-["kernel.all.intr"]
-OK
-End-of-File
-else
-    socat UNIX-LISTEN:/tmp/httpcache.sock,fork TCP-CONNECT:localhost:44323 2>/dev/null &
-    pid=$!
-    trap "kill $pid > /dev/null 2>&1" EXIT
-    echo "== Check HTTP cache" | tee -a $seq_full
-    $here/src/httpcache
-    [ $? -eq 0 ] && echo OK
+    echo "Failed to get socat started ... see $seq.full"
+    _exit 1
 fi
+
+echo "== Check HTTP cache" | tee -a $seq_full
+$here/src/httpcache "unix:/$tmp.httpcache.sock" "$proxyport"
+[ $? -eq 0 ] && echo OK
 
 # success, all done
 status=0
