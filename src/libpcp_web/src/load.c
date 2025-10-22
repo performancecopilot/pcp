@@ -1166,7 +1166,7 @@ doneSeriesLoadBaton(seriesLoadBaton *baton, const char *caller)
 {
 	if (baton == NULL) {
 		if (pmDebugOptions.series)
-	        fprintf(stderr, "doneSeriesLoadBaton: NULL baton from %s\n", caller);
+	        fprintf(stderr, "%s: NULL baton from %s\n", __FUNCTION__, caller);
         return;
     }
     seriesPassBaton(&baton->current, baton, caller);

@@ -130,12 +130,12 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
 
     if (baton == NULL) {
         if (pmDebugOptions.series)
-            fprintf(stderr, "seriesPassBaton: NULL baton from %s\n", caller);
+            fprintf(stderr, "%s: NULL baton from %s\n", __FUNCTION__, caller);
         return;
     }
     if (head == NULL) {
         if (pmDebugOptions.series)
-            fprintf(stderr, "seriesPassBaton: NULL head from %s\n", caller);
+            fprintf(stderr, "%s: NULL head from %s\n", __FUNCTION__, caller);
         return;
     }
 
@@ -147,7 +147,7 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
     }
     if (baton->refcount == 0) {
         if (pmDebugOptions.series)
-            fprintf(stderr, "seriesPassBaton: refcount is 0 from %s\n", caller);
+            fprintf(stderr, "%s: refcount is 0 from %s\n", __FUNCTION__, caller);
         return;
     }
 

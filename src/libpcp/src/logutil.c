@@ -574,13 +574,10 @@ logFreeHashLabels(__pmHashCtl *type_ctl)
 		    for (label = (__pmLogLabelSet *)ident_node->data; label != NULL; ) {
 			for (k = 0; k < label->nsets; k++) {
 			    labelset = &label->labelsets[k];
-			    if (labelset->json != NULL)
-				free(labelset->json);
-			    if (labelset->labels != NULL)
-				free(labelset->labels);
+			    free(labelset->json);
+			    free(labelset->labels);
 			}
-			if (label->labelsets != NULL)
-			    free(label->labelsets);
+			free(label->labelsets);
 			curr_label = label;
 			label = label->next;
 			free(curr_label);
@@ -593,14 +590,12 @@ logFreeHashLabels(__pmHashCtl *type_ctl)
 
 	    curr_type_node = type_node;
 	    type_node = type_node->next;
-	    if (ident_ctl->hash != NULL)
-		free(ident_ctl->hash);
+	    free(ident_ctl->hash);
 	    free(ident_ctl);
 	    free(curr_type_node);
 	}
     }
-    if (type_ctl->hash != NULL)
-	free(type_ctl->hash);
+    free(type_ctl->hash);
 }
 
 static void
@@ -628,21 +623,18 @@ logFreeHashText(__pmHashCtl *type_ctl)
 		    curr_ident_node = ident_node;
 		    ident_node = ident_node->next;
 		    free(curr_ident_node);
-		    if (text != NULL)
-			free(text);
+		    free(text);
 		}
 	    }
 
 	    curr_type_node = type_node;
 	    type_node = type_node->next;
-	    if (ident_ctl->hash != NULL)
-		free(ident_ctl->hash);
+	    free(ident_ctl->hash);
 	    free(ident_ctl);
 	    free(curr_type_node);
 	}
     }
-    if (type_ctl->hash != NULL)
-	free(type_ctl->hash);
+    free(type_ctl->hash);
 }
 
 static void
