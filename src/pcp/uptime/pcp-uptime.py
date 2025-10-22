@@ -28,7 +28,7 @@ def print_timestamp(stamp):
 def print_uptime(seconds):
     """ Report on system up-time in days, hours and minutes """
     result = " up"
-    if (seconds < 0):
+    if seconds < 0:
         result += " ? time,"
     else:
         days = int(seconds / (60 * 60 * 24))
@@ -48,7 +48,7 @@ def print_uptime(seconds):
 
 def print_users(nusers):
     """ Report the number of logged in users at sample time """
-    if (nusers < 0):
+    if nusers < 0:
         return ' ? users,'
     else:
         if nusers == 1:
@@ -58,8 +58,7 @@ def print_users(nusers):
 
 def print_load(one, five, fifteen):
     """ Report 1, 5, 15 minute load averages at sample time """
-    result = " load average:"
-    if (one < 0):
+    if one < 0:
         return ' load average: ?, ?, ?'
     else:
         return ' load average: %.2f, %.2f, %.2f' % (one, five, fifteen)
@@ -102,7 +101,7 @@ class Uptime(object):
         time_struct = self.context.pmLocaltime(sample_time)
         uptime += print_timestamp(time_struct)
 
-        if (result.contents.get_numval(0) == 1):
+        if result.contents.get_numval(0) == 1:
             atom = self.context.pmExtractValue(
                             result.contents.get_valfmt(0),
                             result.contents.get_vlist(0, 0),
@@ -111,7 +110,7 @@ class Uptime(object):
         else:
             uptime += print_uptime(-60)
 
-        if (result.contents.get_numval(0) == 1):
+        if result.contents.get_numval(0) == 1:
             atom = self.context.pmExtractValue(
                             result.contents.get_valfmt(1),
                             result.contents.get_vlist(1, 0),
@@ -121,23 +120,23 @@ class Uptime(object):
             uptime += print_users(-1)
 
         averages = [ -1, -1, -1 ]
-        if (result.contents.get_numval(2) == 3):
+        if result.contents.get_numval(2) == 3:
             for j in range(3):
                 # instances are not necessarily sorted, so map from
                 # jth instance to averages[] index (k)
                 #
                 inst = result.contents.get_inst(2, j)
-                if (inst == 1):
+                if inst == 1:
                     k = 0
-                elif (inst == 5):
+                elif inst == 5:
                     k = 1
-                elif (inst == 15):
+                elif inst == 15:
                     k = 2
                 else:
                     k = -1
-                    print("%s: botch: instance [%d] %d unknown for kernel.all.load" % (error.progname(), j, inst))
+                    print("pcp-uptime: botch: instance[%d]=%d unknown for kernel.all.load" % (j, inst))
 
-                if (k >= 0):
+                if k >= 0:
                     averages[k] = self.context.pmExtractValue(
                                               result.contents.get_valfmt(2),
                                               result.contents.get_vlist(2, j),
