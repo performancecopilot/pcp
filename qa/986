@@ -21,6 +21,8 @@ perl -e "use XML::TokeParser" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl XML::TokeParser module not installed"
 perl -e "use Spreadsheet::ReadSXC" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "perl Spreadsheet::ReadSXC module not installed"
+perl -e "use Spreadsheet::Read" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "perl Spreadsheet::Read module not installed"
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
