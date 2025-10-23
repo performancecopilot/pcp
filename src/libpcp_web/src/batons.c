@@ -129,13 +129,11 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
     seriesBatonMagic	*baton = (seriesBatonMagic *)arg;
 
     if (baton == NULL) {
-        if (pmDebugOptions.series)
-            fprintf(stderr, "%s: NULL baton from %s\n", __FUNCTION__, caller);
+        pmNotifyErr(LOG_ERR, "%s: NULL baton from %s\n", __FUNCTION__, caller);
         return;
     }
     if (head == NULL) {
-        if (pmDebugOptions.series)
-            fprintf(stderr, "%s: NULL head from %s\n", __FUNCTION__, caller);
+        pmNotifyErr(LOG_ERR, "%s: NULL baton from %s\n", __FUNCTION__, caller);
         return;
     }
 
@@ -146,8 +144,7 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
 		caller, "seriesPassBaton");
     }
     if (baton->refcount == 0) {
-        if (pmDebugOptions.series)
-            fprintf(stderr, "%s: refcount is 0 from %s\n", __FUNCTION__, caller);
+        pmNotifyErr(LOG_ERR, "%s: refcount is 0 from %s\n", __FUNCTION__, caller);
         return;
     }
 
