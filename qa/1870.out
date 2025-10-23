@@ -1,4 +1,233 @@
 QA output created by 1870
+== guidellm2pcp guidellm/guidellm-0.4.json
+Note: timezone set to local timezone of host "1faa392e-36cf-4fee-9dc3-7343890e33de" from archive
+
+
+guidellm.tokens_per_second.total.variance
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 3064.284184766836
+
+guidellm.tokens_per_second.total.std_dev
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 55.35597695612314
+
+guidellm.tokens_per_second.total.max
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 195.8472439393043
+
+guidellm.tokens_per_second.total.min
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.tokens_per_second.total.median
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 192.3095899371361
+
+guidellm.tokens_per_second.total.count
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1768
+
+guidellm.tokens_per_second.total.mode
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.tokens_per_second.total.mean
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 173.0142682006668
+
+guidellm.output_tokens_per_second.total.variance
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 80.75466417099314
+
+guidellm.output_tokens_per_second.total.std_dev
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 8.986359895474537
+
+guidellm.output_tokens_per_second.total.max
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 31.79338375638058
+
+guidellm.output_tokens_per_second.total.min
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.output_tokens_per_second.total.median
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 31.21908927550911
+
+guidellm.output_tokens_per_second.total.count
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1768
+
+guidellm.output_tokens_per_second.total.mode
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.output_tokens_per_second.total.mean
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 28.0867318507576
+
+guidellm.inter_token_latency_ms.total.variance
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 48.76757192326227
+
+guidellm.inter_token_latency_ms.total.std_dev
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 6.983378260073148
+
+guidellm.inter_token_latency_ms.total.max
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 31.85296545223314
+
+guidellm.inter_token_latency_ms.total.min
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.inter_token_latency_ms.total.median
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 30.35859185822156
+
+guidellm.inter_token_latency_ms.total.count
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1768
+
+guidellm.inter_token_latency_ms.total.mode
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.inter_token_latency_ms.total.mean
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 28.63047637099737
+
+guidellm.time_per_output_token_ms.total.variance
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1087.915450175055
+
+guidellm.time_per_output_token_ms.total.std_dev
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 32.98356333350075
+
+guidellm.time_per_output_token_ms.total.max
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 174.4775152206421
+
+guidellm.time_per_output_token_ms.total.min
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.time_per_output_token_ms.total.median
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 31.99504852294922
+
+guidellm.time_per_output_token_ms.total.count
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1768
+
+guidellm.time_per_output_token_ms.total.mode
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.time_per_output_token_ms.total.mean
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 37.92018009796402
+
+guidellm.time_to_first_token_ms.total.variance
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 2556036.037443548
+
+guidellm.time_to_first_token_ms.total.std_dev
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1598.760781806818
+
+guidellm.time_to_first_token_ms.total.max
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 7262.431621551514
+
+guidellm.time_to_first_token_ms.total.min
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.time_to_first_token_ms.total.median
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 110.5034351348877
+
+guidellm.time_to_first_token_ms.total.count
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1768
+
+guidellm.time_to_first_token_ms.total.mode
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.time_to_first_token_ms.total.mean
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 498.2857427715717
+
+guidellm.request_latency.total.variance
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 2.719847864069401
+
+guidellm.request_latency.total.std_dev
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1.649196126623332
+
+guidellm.request_latency.total.max
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 8.724188089370728
+
+guidellm.request_latency.total.min
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.request_latency.total.median
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1.600037574768066
+
+guidellm.request_latency.total.count
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1768
+
+guidellm.request_latency.total.mode
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.request_latency.total.mean
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1.896319327446131
+
+guidellm.requests_per_second.total.variance
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 2026978.589814704
+
+guidellm.requests_per_second.total.std_dev
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1423.719982937201
+
+guidellm.requests_per_second.total.max
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 838860.8
+
+guidellm.requests_per_second.total.min
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0.1203526898885186
+
+guidellm.requests_per_second.total.median
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1.141028396326558
+
+guidellm.requests_per_second.total.count
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1083
+
+guidellm.requests_per_second.total.mode
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0.1203526898885186
+
+guidellm.requests_per_second.total.mean
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 51.24268686047785
+
+guidellm.run_stats.worker_targeted_start_delay_avg
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 45.16665222269917
+
+guidellm.run_stats.worker_resolve_end_delay_avg
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value -8.550441643661764e-05
+
+guidellm.run_stats.worker_resolve_time_avg
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1.923990977700479
+
+guidellm.run_stats.worker_resolve_start_delay_avg
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 9.342556086061227e-07
+
+guidellm.run_stats.request_targeted_start_delay_avg
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 45.16666998946828
+
+guidellm.run_stats.request_start_delay_avg
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1.776676911574144e-05
+
+guidellm.run_stats.queued_time_avg
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1.327632081184991
+
+guidellm.run_stats.finalized_delay_avg
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value -1
+
+guidellm.run_stats.requests_made.total
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1834
+
+guidellm.run_stats.requests_made.incomplete
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 165
+
+guidellm.run_stats.requests_made.errored
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 0
+
+guidellm.run_stats.requests_made.successful
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 1669
+
+guidellm.run_id
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value "1faa392e-36cf-4fee-9dc3-7343890e33de"
+
+guidellm.duration
+    inst [N or "018a28bc-a823-4fbe-8e4d-a8f565a69f43"] value 60.05835556983948
+Note: timezone set to local timezone of host "1faa392e-36cf-4fee-9dc3-7343890e33de" from archive
+
+metric:    guidellm.duration
+archive:   TMP.archive
+host:      1faa392e-36cf-4fee-9dc3-7343890e33de
+start:     Thu Oct 23 05:37:04 2025
+end:       Thu Oct 23 05:38:04 2025
+semantics: discrete instantaneous value
+units:     sec
+samples:   2
+interval:  60.00 sec
+full label for instance[0]: 018a28bc-a823-4fbe-8e4d-a8f565a69f43
+
+            018a28bc-a823-4fbe-8e 
+05:37:04.116              60.06   
+05:38:04.116              60.06   
 == guidellm2pcp guidellm/llm-output.json
 Note: timezone set to local timezone of host "1fe47ac8-1e6d-45d3-9514-5d1f1644e7e9" from archive
 
@@ -171,8 +400,14 @@ guidellm.requests_per_second.total.mode
 guidellm.requests_per_second.total.mean
     inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 0.06333523486336284
 
-guidellm.run_stats.request_time_avg
-    inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 15.78477680683136
+guidellm.run_stats.worker_time_avg
+    inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 15.78655801321331
+
+guidellm.run_stats.worker_start_time_targeted_delay_avg
+    inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 15.07989616143076
+
+guidellm.run_stats.worker_start_delay_avg
+    inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 6.124847813656456e-05
 
 guidellm.run_stats.request_start_time_targeted_delay_avg
     inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 15.08017941525108
@@ -182,18 +417,6 @@ guidellm.run_stats.request_time_delay_avg
 
 guidellm.run_stats.request_start_time_delay_avg
     inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 7.540231334535699
-
-guidellm.run_stats.worker_start_time_targeted_delay_avg
-    inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 15.07989616143076
-
-guidellm.run_stats.worker_time_avg
-    inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 15.78655801321331
-
-guidellm.run_stats.worker_start_delay_avg
-    inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 6.124847813656456e-05
-
-guidellm.run_stats.scheduled_time_delay_avg
-    inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 9.5367431640625e-06
 
 guidellm.run_stats.queued_time_avg
     inst [N or "42aa77c2-6694-405e-a616-980e3e18e9f9"] value 15.07876216737848
@@ -412,8 +635,14 @@ guidellm.requests_per_second.total.mode
 guidellm.requests_per_second.total.mean
     inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 0.4450754525424314
 
-guidellm.run_stats.request_time_avg
-    inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 2.243066428752428
+guidellm.run_stats.worker_time_avg
+    inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 2.244553308808402
+
+guidellm.run_stats.worker_start_time_targeted_delay_avg
+    inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 2.226627234662517
+
+guidellm.run_stats.worker_start_delay_avg
+    inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 5.313251795393698e-05
 
 guidellm.run_stats.request_start_time_targeted_delay_avg
     inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 2.226892356122478
@@ -423,18 +652,6 @@ guidellm.run_stats.request_time_delay_avg
 
 guidellm.run_stats.request_start_time_delay_avg
     inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 1.113578738791219
-
-guidellm.run_stats.worker_start_time_targeted_delay_avg
-    inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 2.226627234662517
-
-guidellm.run_stats.worker_time_avg
-    inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 2.244553308808402
-
-guidellm.run_stats.worker_start_delay_avg
-    inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 5.313251795393698e-05
-
-guidellm.run_stats.scheduled_time_delay_avg
-    inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 4.109371913952774e-06
 
 guidellm.run_stats.queued_time_avg
     inst [N or "274a4994-b103-4208-9ebc-6ded791c9d87"] value 2.225717649031221
