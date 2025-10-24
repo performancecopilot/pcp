@@ -133,7 +133,7 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
         return;
     }
     if (head == NULL) {
-        pmNotifyErr(LOG_ERR, "%s: NULL baton from %s\n", __FUNCTION__, caller);
+        pmNotifyErr(LOG_ERR, "%s: NULL phase from %s\n", __FUNCTION__, caller);
         return;
     }
 
