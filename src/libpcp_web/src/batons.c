@@ -128,13 +128,25 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
     seriesBatonPhase	*next;
     seriesBatonMagic	*baton = (seriesBatonMagic *)arg;
 
+    if (baton == NULL) {
+        pmNotifyErr(LOG_ERR, "%s: NULL baton from %s\n", __FUNCTION__, caller);
+        return;
+    }
+    if (head == NULL) {
+        pmNotifyErr(LOG_ERR, "%s: NULL baton from %s\n", __FUNCTION__, caller);
+        return;
+    }
+
     if (UNLIKELY(baton->traced || pmDebugOptions.series)) {
 	fprintf(stderr,
 		"Baton [%s/%p] references: %u -> %u (@ %s[%s])\n",
 		magic_str(baton), baton, baton->refcount, baton->refcount - 1,
 		caller, "seriesPassBaton");
     }
-    assert(baton->refcount);
+    if (baton->refcount == 0) {
+        pmNotifyErr(LOG_ERR, "%s: refcount is 0 from %s\n", __FUNCTION__, caller);
+        return;
+    }
 
     if (--baton->refcount > 0) {
 	/* phase still in-progress so no more to do */

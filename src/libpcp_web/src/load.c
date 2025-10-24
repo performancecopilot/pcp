@@ -1164,6 +1164,10 @@ freeSeriesLoadBaton(seriesLoadBaton *baton)
 void
 doneSeriesLoadBaton(seriesLoadBaton *baton, const char *caller)
 {
+    if (baton == NULL) {
+        pmNotifyErr(LOG_ERR, "%s: NULL baton from %s\n", __FUNCTION__, caller);
+        return;
+    }
     seriesPassBaton(&baton->current, baton, caller);
 }
 
@@ -1310,7 +1314,7 @@ void
 pmSeriesDiscoverClosed(pmDiscoverEvent *event, void *arg)
 {
     pmDiscover		*p = (pmDiscover *)event->data;
-    seriesLoadBaton	*baton = p->baton;
+    seriesLoadBaton	*baton = p ? p->baton : NULL; 
 
     (void)arg;
 
