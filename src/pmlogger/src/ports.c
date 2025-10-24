@@ -225,7 +225,7 @@ static sig_map_t	sig_handler[] = {
     { SIGEMT,	sigcore_handler },	/* Core   Emulation Trap */
 #endif
     { SIGFPE,	sigcore_handler },	/* Core   Arithmetic Exception */
-    { SIGKILL,	SIG_DFL },		/* Exit   Killed */
+/*  { SIGKILL,	SIG_DFL },		-- Exit   Killed (uncatchable) */
     { SIGBUS,	sigcore_handler },	/* Core   Bus Error */
     { SIGSEGV,	sigcore_handler },	/* Core   Segmentation Fault */
     { SIGSYS,	sigcore_handler },	/* Core   Bad System Call */
@@ -245,7 +245,7 @@ static sig_map_t	sig_handler[] = {
 #ifdef SIGPOLL
     { SIGPOLL,	sigexit_handler },	/* Exit   Pollable Event [see streamio(7)] */
 #endif
-    { SIGSTOP,	SIG_DFL },		/* Stop   Stopped (signal) */
+/*  { SIGSTOP,	SIG_DFL },		-- Stop   Stopped (uncatchable signal) */
     { SIGTSTP,	sigmisc_handler },	/* Stop   Stopped (user) */
     { SIGCONT,	sigmisc_handler },	/* Ignore Continued */
     { SIGTTIN,	sigmisc_handler },	/* Stop   Stopped (tty input) */
