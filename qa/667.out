@@ -116,10 +116,6 @@ L222L
 (Vpcp.sample.byte_rate
 (L1192055499L
 L964L
-=(lp0
-(Vpcp.sample.byte_rate
-(L1192055500L
-L343L
 
 Sending 1 archived metrics to Graphite host localhost...
 (Ctrl-C to stop)
@@ -133,7 +129,6 @@ Sending Wed Oct 10 22:31:36 2007 #tuples 1
 Sending Wed Oct 10 22:31:37 2007 #tuples 1
 Sending Wed Oct 10 22:31:38 2007 #tuples 1
 Sending Wed Oct 10 22:31:39 2007 #tuples 1
-Sending Wed Oct 10 22:31:40 2007 #tuples 1
 
 === 6. pcp2graphite and latest pickle version ===
 Found pcp.hinv.ncpu in highest versioned pickled output
