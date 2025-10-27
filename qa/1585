@@ -47,9 +47,17 @@ _filter()
 
 # real QA test starts here
 echo "---"
-pcp2xml -a $A -H -I -z mem.util.cached hinv.ncpu | _filter | grep hinv | wc -l
+pcp2xml -a $A -H -I -z mem.util.cached hinv.ncpu \
+| _filter \
+| grep hinv \
+| wc -l \
+| sed -e 's/^  *//g'
 echo "---"
-PCP_DISCRETE_ONCE=1 pcp2xml -a $A -H -I -z mem.util.cached hinv.ncpu | _filter | grep hinv | wc -l
+PCP_DISCRETE_ONCE=1 pcp2xml -a $A -H -I -z mem.util.cached hinv.ncpu \
+| _filter \
+| grep hinv \
+| wc -l \
+| sed -e 's/^  *//g'
 echo "---"
 
 # success, all done

@@ -51,7 +51,8 @@ sed < $PCP_PMCDCONF_PATH \
         -e "/^$iam.*/s/$/ -R 1/" \
         > $tmp.conf
 $sudo cp $tmp.conf $PCP_PMCDCONF_PATH
-$sudo systemctl restart pmcd
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
 sleep 2
 
 if ! _pmdaopenmetrics_wait_for_metric openmetrics.thermostat

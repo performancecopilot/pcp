@@ -47,17 +47,24 @@ _value_filter()
 
 _filter_pcp2openmetrics()
 {
+    # Note: need PMID filter for each platform, where the PMID of
+    #       hinv.ncpu may be different
+    #
     tee -a $seq_full \
     | col -b \
     | sed \
-    -e '/hostname=/s/'$hostname'/HOST/' \
-    -e '/domainname=/s/'$domainid'/DOMAINID/' \
-    -e '/machineid=/s/'$machineid'/MACHINEID/' \
-    -e '/groupid=/s/groupid="*[0-9][0-9]*"*/groupid="GROUPID"/' \
-    -e '/userid=/s/userid="*[0-9][0-9]*"*/userid="USERID"/' \
-    -e '/version=/s/version="*[^"]*"*/version="VERSION"/' \
-    -e '/agent=/s/agent="*[^"]*"*/agent="AGENT"/' \
-    -e 's/\(.*}\).*/\1 NCPU/' \
+	-e '/hostname=/s/'$hostname'/HOST/' \
+	-e '/domainname=/s/'$domainid'/DOMAINID/' \
+	-e '/machineid=/s/'$machineid'/MACHINEID/' \
+	-e '/groupid=/s/groupid="*[0-9][0-9]*"*/groupid="GROUPID"/' \
+	-e '/userid=/s/userid="*[0-9][0-9]*"*/userid="USERID"/' \
+	-e '/version=/s/version="*[^"]*"*/version="VERSION"/' \
+	-e '/agent=/s/agent="*[^"]*"*/agent="AGENT"/' \
+	-e 's/\(.*}\).*/\1 NCPU/' \
+	-e '/PCP5 hinv_ncpu/{
+s/ 60.0.32 / PMID /
+s/ 85.0.0 / PMID /
+}' \
     | LC_COLLATE=POSIX sort
 }
 
@@ -70,7 +77,8 @@ _filter_pcp2opentelemetry()
        -e '/\"asDouble\":/ s/[0-9][0-9]*/DOUBLE/' \
        -e 's/\"version\": .*/\"version\": VERSION/' \
        -e 's/\"stringValue\": \".*\"/\"stringValue\": \"STRING\"/' \
-       -e 's/\"timeUnixNano\": [0-9][0-9]*\.[0-9][0-9]*.*/\"timeUnixNano\": TIME/'
+       -e 's/\"timeUnixNano\": [0-9][0-9]*\.[0-9][0-9]*.*/\"timeUnixNano\": TIME/' \
+   # end
 }
 
 # real QA test starts here

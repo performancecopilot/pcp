@@ -17,6 +17,8 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 
 which socat >/dev/null 2>&1 || _notrun "socat binary not installed"
 which pcp2zabbix >/dev/null 2>&1 || _notrun "pcp2zabbix not installed"
+vis=cat
+which vis >/dev/null 2>&1 && vis=vis
 
 status=1	# failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
@@ -25,13 +27,13 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 _seq_store()
 {
     echo "--- pcp2zabbix stdout --" >>$seq_full
-    cat $tmp.pcp2zabbix.out >>$seq_full
+    $vis $tmp.pcp2zabbix.out >>$seq_full
     echo "--- pcp2zabbix stderr --" >>$seq_full
-    cat $tmp.pcp2zabbix.err >>$seq_full
+    $vis $tmp.pcp2zabbix.err >>$seq_full
     echo "--- socat stdout --" >>$seq_full
-    cat $tmp.socat.out >>$seq_full
+    $vis $tmp.socat.out >>$seq_full
     echo "--- socat stderr --" >>$seq_full
-    cat $tmp.socat.err >>$seq_full
+    $vis $tmp.socat.err >>$seq_full
 }
 
 _zbx_header()
@@ -39,11 +41,13 @@ _zbx_header()
     output=$1
 
     # extract the (partially binary) header, preceding the JSON response
-    # and make it into a deterministic string
+    # and make it into a deterministic string (delete everything after the
+    # ^A in the header line)
     sed -n 1p $output | \
     sed -e 's/{//g' | \
     od -c | \
     sed -n 1p | \
+    tee -a $seq_full | \
     sed -e 's/ D 001.*/ D/g' | \
     sed -e 's/   / /g' -e 's/  / /g'
 }
@@ -104,8 +108,24 @@ header=`_zbx_header $tmp.socat.out`
 echo "header: $header"
 echo "body:"
 echo '{' # ate this from the header
-sed -n '1!p' $tmp.socat.out | sed -e 's,"clock":[0-9]*,"clock":CLOCK,'
-echo #}
+# filter out the small non-printable characters (keep \011 [\t],
+# \012 [\n] and \015 [\r]) and then due to a potential sample & sleep
+# race, we may have more than one sample, pick just the first one
+#
+tr '\000\001\002\003\004\005\006\007\010\013\014\016\017' '?' <$tmp.socat.out \
+| $PCP_AWK_PROG '
+BEGIN		{ block = 0 }
+/ZBXD/		{ block++
+		  if (block > 1) {
+		      # close first block, as the second block
+		      # starts with a line like }ZBXD...
+		      print "}"
+		      exit
+		  }
+		}
+NR == 1		{ next }	# header line
+		{ print }' \
+| sed -e 's,"clock":[0-9]*,"clock":CLOCK,'
 
 # success, all done
 status=0

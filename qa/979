@@ -11,6 +11,8 @@ echo "QA output created by $seq"
 
 . ./common.python
 
+_need_metric mem.physmem
+
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 

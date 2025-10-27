@@ -16,7 +16,12 @@ echo "QA output created by $seq"
 test -e $PCP_PMDAS_DIR/unbound || _notrun "unbound PMDA not installed"
 if which unbound-control >/dev/null 2>&1
 then
-    :
+    if unbound-control status >>$seq_full 2>&1
+    then
+	:
+    else
+	_notrun "unbound not running, see $seq.full for details"
+    fi
 else
     _notrun "unbound-control not installed"
 fi

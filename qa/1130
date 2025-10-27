@@ -22,6 +22,8 @@ port=9200
 $PCP_BINADM_DIR/telnet-probe -c localhost $port
 [ $? -eq 1 ] || _notrun "Elasticsearch port $port is already in use"
 
+[ "$PCP_PLATFORM" = freebsd ] && _notrun "socat use here does not work on FreeBSD"
+
 signal=$PCP_BINADM_DIR/pmsignal
 status=1       # failure is the default!
 

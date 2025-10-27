@@ -17,6 +17,8 @@ echo "QA output created by $seq"
 
 [ -n "$PCP_PYTHON_PROG" ] || _notrun "no acceptable python to run src/fsstats.python"
 
+_need_metric filesys.capacity
+
 status=1	# failure is the default!
 
 _filter_mounts()
