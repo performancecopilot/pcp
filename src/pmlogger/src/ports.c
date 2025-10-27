@@ -203,6 +203,7 @@ sigusr2_handler(int sig)
 
 typedef struct {
     int		sig;
+    int		notcatchable;
     void	(*func)(int);
 } sig_map_t;
 
@@ -210,51 +211,51 @@ typedef struct {
  * Try to do the right thing for the various STOP/CONT signals.
  */
 static sig_map_t	sig_handler[] = {
-    { SIGHUP,	sighup_handler },	/* Exit   Hangup [see termio(7)] */
-    { SIGINT,	sigterm_handler },	/* Exit   Interrupt [see termio(7)] */
+    { SIGHUP,	0, sighup_handler },	/* Exit   Hangup [see termio(7)] */
+    { SIGINT,	0, sigterm_handler },	/* Exit   Interrupt [see termio(7)] */
 #ifndef IS_MINGW
-    { SIGQUIT,	sigcore_handler },	/* Core   Quit [see termio(7)] */
-    { SIGILL,	sigcore_handler },	/* Core   Illegal Instruction */
-    { SIGTRAP,	sigcore_handler },	/* Core   Trace/Breakpoint Trap */
+    { SIGQUIT,	0, sigcore_handler },	/* Core   Quit [see termio(7)] */
+    { SIGILL,	0, sigcore_handler },	/* Core   Illegal Instruction */
+    { SIGTRAP,	0, sigcore_handler },	/* Core   Trace/Breakpoint Trap */
 #ifdef IS_OPENBSD
-    { SIGABRT,	SIG_DFL },		/* Core   Abort */
+    { SIGABRT,	0, SIG_DFL },		/* Core   Abort */
 #else
-    { SIGABRT,	sigcore_handler },	/* Core   Abort */
+    { SIGABRT,	0, sigcore_handler },	/* Core   Abort */
 #endif
 #ifdef SIGEMT
-    { SIGEMT,	sigcore_handler },	/* Core   Emulation Trap */
+    { SIGEMT,	0, sigcore_handler },	/* Core   Emulation Trap */
 #endif
-    { SIGFPE,	sigcore_handler },	/* Core   Arithmetic Exception */
-    { SIGKILL,	SIG_DFL },		/* Exit   Killed */
-    { SIGBUS,	sigcore_handler },	/* Core   Bus Error */
-    { SIGSEGV,	sigcore_handler },	/* Core   Segmentation Fault */
-    { SIGSYS,	sigcore_handler },	/* Core   Bad System Call */
-    { SIGPIPE,	sigpipe_handler },	/* Exit   Broken Pipe */
-    { SIGALRM,	sigterm_handler },	/* Exit   Alarm Clock */
+    { SIGFPE,	0, sigcore_handler },	/* Core   Arithmetic Exception */
+    { SIGKILL,	1, SIG_DFL },		/* Exit   Killed (uncatchable) */
+    { SIGBUS,	0, sigcore_handler },	/* Core   Bus Error */
+    { SIGSEGV,	0, sigcore_handler },	/* Core   Segmentation Fault */
+    { SIGSYS,	0, sigcore_handler },	/* Core   Bad System Call */
+    { SIGPIPE,	0, sigpipe_handler },	/* Exit   Broken Pipe */
+    { SIGALRM,	0, sigterm_handler },	/* Exit   Alarm Clock */
 #endif
-    { SIGTERM,	sigterm_handler },	/* Exit   Terminated */
+    { SIGTERM,	0, sigterm_handler },	/* Exit   Terminated */
 #ifndef IS_MINGW
-    { SIGUSR1,	sigterm_handler },	/* Exit User Signal 1 */
-    { SIGUSR2,	sigusr2_handler },	/* reexec User Signal 2 */
-    { SIGCHLD,	SIG_DFL },		/* Ignore Child stopped or terminated */
+    { SIGUSR1,	0, sigterm_handler },	/* Exit User Signal 1 */
+    { SIGUSR2,	0, sigusr2_handler },	/* reexec User Signal 2 */
+    { SIGCHLD,	0, SIG_DFL },		/* Ignore Child stopped or terminated */
 #ifdef SIGPWR
-    { SIGPWR,	sigmisc_handler },	/* Ignore Power Fail/Restart */
+    { SIGPWR,	0, sigmisc_handler },	/* Ignore Power Fail/Restart */
 #endif
-    { SIGWINCH,	sigmisc_handler },	/* Ignore Window Size Change */
-    { SIGURG,	sigmisc_handler },	/* Ignore Urgent Socket Condition */
+    { SIGWINCH,	0, sigmisc_handler },	/* Ignore Window Size Change */
+    { SIGURG,	0, sigmisc_handler },	/* Ignore Urgent Socket Condition */
 #ifdef SIGPOLL
-    { SIGPOLL,	sigexit_handler },	/* Exit   Pollable Event [see streamio(7)] */
+    { SIGPOLL,	0, sigexit_handler },	/* Exit   Pollable Event [see streamio(7)] */
 #endif
-    { SIGSTOP,	SIG_DFL },		/* Stop   Stopped (signal) */
-    { SIGTSTP,	sigmisc_handler },	/* Stop   Stopped (user) */
-    { SIGCONT,	sigmisc_handler },	/* Ignore Continued */
-    { SIGTTIN,	sigmisc_handler },	/* Stop   Stopped (tty input) */
-    { SIGTTOU,	sigmisc_handler },	/* Stop   Stopped (tty output) */
-    { SIGVTALRM, sigterm_handler },	/* Exit   Virtual Timer Expired */
+    { SIGSTOP,	1, SIG_DFL },		/* Stop   Stopped (uncatchable signal) */
+    { SIGTSTP,	0, sigmisc_handler },	/* Stop   Stopped (user) */
+    { SIGCONT,	0, sigmisc_handler },	/* Ignore Continued */
+    { SIGTTIN,	0, sigmisc_handler },	/* Stop   Stopped (tty input) */
+    { SIGTTOU,	0, sigmisc_handler },	/* Stop   Stopped (tty output) */
+    { SIGVTALRM, 0, sigterm_handler },	/* Exit   Virtual Timer Expired */
 
-    { SIGPROF,	sigterm_handler },	/* Exit   Profiling Timer Expired */
-    { SIGXCPU,	sigcore_handler },	/* Core   CPU time limit exceeded [see getrlimit(2)] */
-    { SIGXFSZ,	sigcore_handler}	/* Core   File size limit exceeded [see getrlimit(2)] */
+    { SIGPROF,	0, sigterm_handler },	/* Exit   Profiling Timer Expired */
+    { SIGXCPU,	0, sigcore_handler },	/* Core   CPU time limit exceeded [see getrlimit(2)] */
+    { SIGXFSZ,	0, sigcore_handler}	/* Core   File size limit exceeded [see getrlimit(2)] */
 #endif
 };
 
@@ -546,6 +547,7 @@ init_signals(void)
      * by trapping all the signals we can
      */
     for (i = 0; i < sizeof(sig_handler)/sizeof(sig_handler[0]); i++) {
+	if (sig_handler[i].notcatchable) continue;
 	__pmSetSignalHandler(sig_handler[i].sig, sig_handler[i].func);
     }
     /*
@@ -557,9 +559,9 @@ init_signals(void)
     for (j = 1; j < 32; j++) {
 	for (i = 0; i < sizeof(sig_handler)/sizeof(sig_handler[0]); i++) {
 	    if (j == sig_handler[i].sig) break;
-        }
-        if (i == sizeof(sig_handler)/sizeof(sig_handler[0]))
-	    /* not special cased in seg_handler[] */
+	}
+	if (i == sizeof(sig_handler)/sizeof(sig_handler[0]))
+	    /* not special cased in sig_handler[] */
 	    __pmSetSignalHandler(j, sigexit_handler);
     }
 

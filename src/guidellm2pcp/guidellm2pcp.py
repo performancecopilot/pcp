@@ -65,14 +65,21 @@ def register_metrics(pcp) -> pmapi.pmInDom:
                'Count of all requests started irrespective of how they finish')
 
     pmns = 'guidellm.run_stats.'
+    add_metric(pmns + 'finalized_delay_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'queued_time_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'scheduled_time_delay_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'scheduled_time_sleep_avg', PM_TYPE_DOUBLE, secunits)
+    add_metric(pmns + 'worker_resolve_start_delay_avg', PM_TYPE_DOUBLE, secunits)
+    add_metric(pmns + 'worker_resolve_time_avg', PM_TYPE_DOUBLE, secunits)
+    add_metric(pmns + 'worker_resolve_end_delay_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'worker_start_delay_avg', PM_TYPE_DOUBLE, secunits)
-    add_metric(pmns + 'worker_time_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'worker_start_time_targeted_delay_avg', PM_TYPE_DOUBLE, secunits)
+    add_metric(pmns + 'worker_time_avg', PM_TYPE_DOUBLE, secunits)
+    add_metric(pmns + 'worker_targeted_start_delay_avg', PM_TYPE_DOUBLE, secunits)
+    add_metric(pmns + 'request_start_delay_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'request_start_time_delay_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'request_start_time_targeted_delay_avg', PM_TYPE_DOUBLE, secunits)
+    add_metric(pmns + 'request_targeted_start_delay_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'request_time_delay_avg', PM_TYPE_DOUBLE, secunits)
     add_metric(pmns + 'request_time_avg', PM_TYPE_DOUBLE, secunits)
 
@@ -249,12 +256,20 @@ def put_metric_values(pcp, runid, values, instance) -> None:
 
     pmns = 'guidellm.run_stats.'
     stats = values['run_stats']
-    for metric in ['queued_time_avg', 'scheduled_time_delay_avg',
-                   'worker_start_delay_avg', 'worker_time_avg',
-                   'worker_start_time_targeted_delay_avg',
+    for metric in ['finalized_delay_avg', 'queued_time_avg',
+                   'request_start_delay_avg',
+                   'request_targeted_start_delay_avg',
                    'request_start_time_delay_avg', 'request_time_delay_avg',
-                   'request_start_time_targeted_delay_avg', 'request_time_avg']:
-        pcp.pmiPutValue(pmns + metric, instance, str(stats[metric]))
+                   'request_start_time_targeted_delay_avg', 'request_time_avg'
+                   'scheduled_time_delay_avg',
+                   'worker_resolve_start_delay_avg', 'worker_resolve_time_avg',
+                   'worker_resolve_end_delay_avg', 'worker_start_delay_avg',
+                   'worker_start_time_targeted_delay_avg', 'worker_time_avg',
+                   'worker_targeted_start_delay_avg']:
+        try:
+            pcp.pmiPutValue(pmns + metric, instance, str(stats[metric]))
+        except KeyError:  # numerous variations between guidellm versions
+            pass
 
     for group in ['requests_per_second', 'request_latency',
                   'time_to_first_token_ms', 'time_per_output_token_ms',
