@@ -1,0 +1,16 @@
+QA output created by 1792
+== sub-second end-time handling in uninterpolated mode
+          d.a.avactive
+                  ms/s
+10:34:22           N/A
+10:35:22        70.886
+10:36:22        98.586
+10:37:22        56.701
+          d.a.avactive
+                  ms/s
+10:34:22           N/A
+10:35:22        70.886
+10:36:22        98.586
+10:37:22        56.701
+10:38:22        64.152
+== done

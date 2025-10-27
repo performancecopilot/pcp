@@ -1,0 +1,33 @@
+#!/bin/sh
+# PCP QA Test No. 1792
+# Exercise pmrep timestamp handling.
+#
+# Copyright (c) 2025 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1  # failure is the default!
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+log="--archive $here/archives/20130706 -z"
+
+# real QA test starts here
+echo "== sub-second end-time handling in uninterpolated mode"
+pmrep -p -u $log disk.all.avactive -p -S '@10:33:33' -T '@10:38:22.910'
+pmrep -p -u $log disk.all.avactive -p -S '@10:33:33' -T '@10:38:22.911'
+
+# success, all done
+echo "== done"
+status=0
+exit
