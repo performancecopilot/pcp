@@ -1147,9 +1147,9 @@ class pmConfig(object):
 
         # Watch for end time in uninterpolated mode
         if not self.util.interpol:
-            sample = self.util.pmfg_ts().timestamp()
-            finish = self.util.opts.pmGetOptionFinish()
-            if float(sample) > float(finish):
+            sample_ts = self.util.pmfg_ts().timestamp()
+            finish_ts = float(self.util.opts.pmGetOptionFinish())
+            if sample_ts > finish_ts:
                 return -2
 
         # Handle any PMCD state change notification
