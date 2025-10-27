@@ -27,7 +27,7 @@ include $(BUILDRULES)
 install:	default
 	$(INSTALL) -m 755 $(CMDSCRIPT) $(PCP_BIN_DIR)/$(CMDTARGET)
 	$(INSTALL) -S $(PCP_BIN_DIR)/$(CMDTARGET) $(PCP_BINADM_DIR)/$(CMDTARGET)
-	$(INSTALL) -m 755 -d $(SYSCONFIG)/pmlogredact
+	$(INSTALL) -m 755 -d $(SYSCONFIG)
 	$(INSTALL) -m 755 -d $(VARCONFIG)
 	$(INSTALL) -m 644 -t $(VARCONFIG)/network network $(SYSCONFIG)/network
 	$(INSTALL) -m 644 -t $(VARCONFIG)/usernames usernames $(SYSCONFIG)/usernames
