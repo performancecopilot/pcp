@@ -1,0 +1,51 @@
+#!/bin/sh
+# PCP QA Test No. 1636
+# Exercise pcp-dstat archive mode and CSV functionality.
+# - live metrics part split off from qa/1187
+#
+# Copyright (c) 2018-2021 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# for dstat.cpu.usr derived metric expression
+_need_metric kernel.percpu.cpu.irq.soft
+
+DSTAT="$PCP_BINADM_DIR/pcp-dstat"
+test -f "$DSTAT" || _notrun "$DSTAT is not installed, skipped"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+# verify no special characters in live CSV output
+echo
+echo "CSV timestamp"
+$DSTAT -T -o $tmp.csv3 1 2 > /dev/null
+echo "=== done" && echo
+echo "CSV timestamp checking" >> $seq_full
+cat $tmp.csv3 | tee -a $seq_full | grep 37m
+echo "CSV timestamp complete" | tee -a $seq_full
+
+# success, all done
+exit

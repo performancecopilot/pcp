@@ -2131,6 +2131,7 @@ pmcd.pdu
 1633 python pmda.sockets local
 1634 pmda.sockets local valgrind
 1635 other local
+1636 python pcp dstat local derive
 1639 pmda.bpf local
 1644 pmda.perfevent local
 1647 pmda.opentelemetry local

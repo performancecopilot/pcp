@@ -355,7 +355,3 @@ CSV terminal compared
 ---
 > "Cmdline:","pcp-dstat --time -tfvnrl -o TMP.csvterm1 1 3",,,,"Date:","DATE"
 CSV terminal complete
-CSV timestamp
-=== done
-
-CSV timestamp complete

@@ -1,6 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1187
 # Exercise pcp-dstat archive mode and CSV functionality.
+# - live metrics part has been split off to qa/1636
 #
 # Copyright (c) 2018-2021 Red Hat.  All Rights Reserved.
 #
@@ -140,14 +141,6 @@ echo "CSV terminal complete" | tee -a $seq_full
 export COLUMNS=$SAVED_COLUMNS LINES=$SAVED_LINES
 test -x /usr/bin/stty && /usr/bin/stty cols $SAVED_TPUT_COLUMNS >/dev/null 2>&1
 unset SAVED_TPUT_COLUMNS SAVED_COLUMNS SAVED_LINES
-
-# verify no special characters in live CSV output
-echo "CSV timestamp"
-$DSTAT -T -o $tmp.csv3 1 2 > /dev/null
-echo "=== done" && echo
-echo "CSV timestamp checking" >> $seq_full
-cat $tmp.csv3 | tee -a $seq_full | grep 37m
-echo "CSV timestamp complete" | tee -a $seq_full
 
 # success, -D all done
 status=0
