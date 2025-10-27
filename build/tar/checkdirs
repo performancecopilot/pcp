@@ -8,7 +8,10 @@
 #
 verbose=false
 
-if $verbose
+# to save tmp files, set to true
+save_tmp=false
+
+if $save_tmp
 then
     tmp=`pwd`/tmp
 else
@@ -25,11 +28,12 @@ fi
 
 . ../../src/include/pcp.conf
 
-pkg_tarball=`echo ../../pcp-*/build/tar/pcp-*.tar.gz`
+pkg_tarball=`echo ../../pcp-$PCP_VERSION/build/tar/pcp-$PCP_VERSION-*.tar.gz`
 if [ ! -f "$pkg_tarball" ]
 then
     echo "Error: ../../pcp-*/build/tar/pcp-*.tar.gz: not found"
     echo "... need to run Makepkgs from ../.."
+    echo "pkg_tarball=$pkg_tarball"
     exit
 fi
 tar -tzf $pkg_tarball >$tmp.toc
@@ -48,11 +52,12 @@ then
     echo "... need to run ./make"
     exit
 fi
-./postinstall -n >$tmp.post
+./postinstall -n >$tmp.post 2>/dev/null
 
 here=`pwd`
 
 sed <$tmp.all \
+    -e '/^export nothing=/d' \
     -e 's/.*install-sh //' \
     -e 's/  *$//' \
     -e 's/\(.*\) -d \(.*\)/\2 \1/' \
