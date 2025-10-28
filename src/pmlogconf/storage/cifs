@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	CIFS shares statistics [Linux]
+probe	cifs.shares values ? include : exclude
+	cifs
