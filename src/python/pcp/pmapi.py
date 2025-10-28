@@ -650,6 +650,8 @@ def get_indom(pmdesc):
                     ("lval", c_uint)]
     if isinstance(pmdesc, POINTER(pmDesc)):
         return pmdesc.contents.indom
+    elif isinstance(pmdesc, int):
+        return pmdesc
     else:           # raw indom
         # Goodness, there must be a simpler way to do this
         value = Value()
