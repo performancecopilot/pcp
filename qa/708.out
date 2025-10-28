@@ -1,16 +1,36 @@
 QA output created by 708
+Writing to new PCP archive: TMP.pcplog
+pmiSetHostname: fu.bar.com
+pmiSetTimezone: UTC
+pmid 251.1.1
+units 
+pmiAddMetric: qa.one
+pmiPutValue: qa.one
+pmid 251.1.2
+indom 251.3
+units Kbyte / sec
+pmiAddMetric: qa.two
+pmiAddInstance: qa.two[in]
+pmiAddMetric: qa.two[out]
+pmiAddMetric: qa.two[total]
+pmiPutValue: qa.two[in]
+pmiPutValue: qa.two[out]
+pmiPutValue: qa.two[total]
+
+expect OK ...
 OK
+
 Note: timezone set to local timezone of host "fu.bar.com" from archive
 
 
-hinv.ncpu
-    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+qa.one
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x........
     Semantics: discrete  Units: none
     value 42
 
-kernel.all.load
-    Data Type: float  InDom: 60.2 0xf000002
-    Semantics: discrete  Units: none
-    inst [1 or "1 minute"] value 42.00
-    inst [5 or "5 minute"] value 42.04
-    inst [15 or "15 minute"] value 42.15
+qa.two
+    Data Type: float  InDom: 251.3 0x........
+    Semantics: discrete  Units: Kbyte / sec
+    inst [1 or "in"] value 42.01
+    inst [2 or "out"] value 42.05
+    inst [100 or "total"] value 84.06
