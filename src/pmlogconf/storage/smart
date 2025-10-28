@@ -1,0 +1,6 @@
+#pmlogconf-setup 2.0
+ident	S.M.A.R.T drive statistics [Linux]
+probe	smart.info values ? include : exclude
+	smart.info
+	smart.health
+	smart.attributes
