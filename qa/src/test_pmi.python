@@ -19,6 +19,7 @@ import unittest
 import cpmapi
 from pcp import pmi
 from pcp import pmapi
+from pcp.pmapi import pmContext
 
 OUTFILE = ""
 
@@ -39,50 +40,58 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
     print("pmiSetTimezone:", timezone)
     self.assertTrue(code >= 0)
 
-    pmid = log.pmiID(60, 2, 0)
-    indom = log.pmiInDom(60, 2)
+    pmid = log.pmiID(251, 1, 1)
+    print("pmid",pmContext.pmIDStr(pmid))
     units = log.pmiUnits(0, 0, 0, 0, 0, 0)
+    print("units",pmContext.pmUnitsStr(units))
 
-    # create a metric without instances (hinv.ncpu)
-    code = log.pmiAddMetric("hinv.ncpu", cpmapi.PM_ID_NULL,
+    # create a metric without instances (qa.one)
+    code = log.pmiAddMetric("qa.one", pmid,
                             cpmapi.PM_TYPE_U32, cpmapi.PM_INDOM_NULL,
                             cpmapi.PM_SEM_DISCRETE, units)
-    print("pmiAddMetric: hinv.ncpu")
+    print("pmiAddMetric: qa.one")
     self.assertTrue(code >= 0)
 
     # give it a value
-    code = log.pmiPutValue("hinv.ncpu", "", "42")
-    print("pmiPutValue: hinv.ncpu")
+    code = log.pmiPutValue("qa.one", "", "42")
+    print("pmiPutValue: qa.one")
     self.assertTrue(code >= 0)
 
     # write record at fixed time (float mode)
     log.pmiWrite(1547483646.654321)
 
-    # create a metric with instances (kernel.all.load)
-    code = log.pmiAddMetric("kernel.all.load", pmid,
+    pmid = log.pmiID(251, 1, 2)
+    print("pmid",pmContext.pmIDStr(pmid))
+    indom = log.pmiInDom(251, 3)
+    print("indom",pmContext.pmInDomStr(indom))
+    units = log.pmiUnits(1, -1, 0, cpmapi.PM_SPACE_KBYTE, cpmapi.PM_TIME_SEC, 0)
+    print("units",pmContext.pmUnitsStr(units))
+
+    # create a metric with instances (qa.two)
+    code = log.pmiAddMetric("qa.two", pmid,
                             cpmapi.PM_TYPE_FLOAT, indom,
                             cpmapi.PM_SEM_DISCRETE, units)
-    print("pmiAddMetric: kernel.all.load")
+    print("pmiAddMetric: qa.two")
     self.assertTrue(code >= 0)
-    code = log.pmiAddInstance(indom, "1 minute", 1)
-    print("pmiAddInstance: kernel.all.load[1 minute]")
+    code = log.pmiAddInstance(indom, "in", 1)
+    print("pmiAddInstance: qa.two[in]")
     self.assertTrue(code >= 0)
-    code = log.pmiAddInstance(indom, "5 minute", 5)
-    print("pmiAddMetric: kernel.all.load[5 minute]")
+    code = log.pmiAddInstance(indom, "out", 2)
+    print("pmiAddMetric: qa.two[out]")
     self.assertTrue(code >= 0)
-    code = log.pmiAddInstance(indom, "15 minute", 15)
-    print("pmiAddMetric: kernel.all.load[15 minute]")
+    code = log.pmiAddInstance(indom, "total", 100)
+    print("pmiAddMetric: qa.two[total]")
     self.assertTrue(code >= 0)
 
     # give them values
-    code = log.pmiPutValue("kernel.all.load", "1 minute", "42.01")
-    print("pmiPutValue: kernel.all.load[1 minute]")
+    code = log.pmiPutValue("qa.two", "in", "42.01")
+    print("pmiPutValue: qa.two[in]")
     self.assertTrue(code >= 0)
-    code = log.pmiPutValue("kernel.all.load", "5 minute", "42.05")
-    print("pmiPutValue: kernel.all.load[5 minute]")
+    code = log.pmiPutValue("qa.two", "out", "42.05")
+    print("pmiPutValue: qa.two[out]")
     self.assertTrue(code >= 0)
-    code = log.pmiPutValue("kernel.all.load", "15 minute", "42.15")
-    print("pmiPutValue: kernel.all.load[15 minute]")
+    code = log.pmiPutValue("qa.two", "total", "84.06")
+    print("pmiPutValue: qa.two[total]")
     self.assertTrue(code >= 0)
 
     # date --date='@1547483647'

@@ -13,7 +13,11 @@ echo "QA output created by $seq"
 _filter()
 {
     sed \
-	-e 's/\(42\.[0-9][0-9]\)[0-9][0-9]*/\1/g'
+	-e 's/42\.0099.*/42.01/' \
+	-e 's/42\.0499.*/42.05/' \
+	-e 's/84\.0599.*/84.06/' \
+	-e "s@$tmp@TMP@" \
+	-e 's/0x[0-9a-f]*/0x......../' \
     #end
 }
 
@@ -24,11 +28,16 @@ $python -c 'from pcp import pmi' 2>/dev/null
 test $? -eq 0 || _notrun 'Python pcp pmi module is not installed'
 
 # real QA test starts here
-$python $here/src/test_pmi.py $tmp.pcplog >$seq_full 2>&1
-grep OK $seq_full
+$python $here/src/test_pmi.py $tmp.pcplog >$tmp.out 2>$tmp.err
+cat $tmp.out >>$seq_full
+_filter <$tmp.out
+echo
+echo "expect OK ..."
+grep OK $tmp.err
 
+echo
 export PCP_DERIVED_CONFIG=''
-pminfo --desc --fetch -z -a $tmp.pcplog hinv.ncpu kernel.all.load | _filter
+pminfo --desc --fetch -z -a $tmp.pcplog qa.one qa.two | _filter
 
 # success, all done
 status=0
