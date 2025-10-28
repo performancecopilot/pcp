@@ -1357,6 +1357,104 @@ Help:
 Reason for the capture of the FARM log
 No value(s) available!
 
+farm.scsi.per_actuator_actuator_recallocation.number_reallocated_sectors PMID: 160.20.0 [Number of reallocated sectors per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.6 0x28000006
+    Semantics: counter  Units: none
+Help:
+Number of reallocated sectors per actuator
+No value(s) available!
+
+farm.scsi.per_actuator_actuator_recallocation.number_recallocated_candidate_sectors PMID: 160.20.1 [Number of reallocated candidate sectors pe]
+    Data Type: 64-bit unsigned int  InDom: 160.6 0x28000006
+    Semantics: counter  Units: none
+Help:
+r actuator
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.head_load_events PMID: 160.19.0 [Number of head load events per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of head load events per actuator
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.number_of_dos_scans_performed PMID: 160.19.8 [Number of DOS scans performed per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of DOS scans performed per actuator
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_isp PMID: 160.19.9 [Number of LBAs corrected by ISP per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of LBAs corrected by ISP per actuator
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_parity_sector PMID: 160.19.11 [Number of LBAs corrected by parity sector per actu]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+ator
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.number_of_reallocated_sector_reclamations PMID: 160.19.3 [Number of reallocated sector reclamations]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of reallocated sector reclamations
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of resident reallocated sectors]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+ after IDD scan
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan PMID: 160.19.5 [Number of slipeed sectors after IDD scan]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of slipeed sectors after IDD scan
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors PMID: 160.19.10 [Number of valid parity sectors per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of valid parity sectors per actuator
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.servo_status PMID: 160.19.4 [Servo status per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Servo status per actuator
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test PMID: 160.19.2 [Sub command of last IDD test per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Sub command of last IDD test per actuator
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.successfully_scrubbed_sectors_after_idd_scan PMID: 160.19.7 [Number of successful scrubbed sectors after IDD]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+ scan
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.timestamp_of_last_idd_test PMID: 160.19.1 [Time stamp of last IDD test per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Time stamp of last IDD test per actuator
+No value(s) available!
+
 farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_repeating PMID: 160.18.4 [Lifetime unrecoverable read repeating]
     Data Type: 64-bit unsigned int  InDom: 160.4 0x28000004
     Semantics: counter  Units: byte
@@ -2801,6 +2899,146 @@ farm.scsi.log_header.reason_for_frame_capture PMID: 160.10.4 [Reason for the cap
 Help:
 Reason for the capture of the FARM log
     inst [0 or "sg0"] value 0
+
+farm.scsi.per_actuator_actuator_recallocation.number_reallocated_sectors PMID: 160.20.0 [Number of reallocated sectors per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.6 0x28000006
+    Semantics: counter  Units: none
+Help:
+Number of reallocated sectors per actuator
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_actuator_recallocation.number_recallocated_candidate_sectors PMID: 160.20.1 [Number of reallocated candidate sectors pe]
+    Data Type: 64-bit unsigned int  InDom: 160.6 0x28000006
+    Semantics: counter  Units: none
+Help:
+r actuator
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.head_load_events PMID: 160.19.0 [Number of head load events per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of head load events per actuator
+    inst [0 or "sg0::actuator_0"] value 6683
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.number_of_dos_scans_performed PMID: 160.19.8 [Number of DOS scans performed per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of DOS scans performed per actuator
+    inst [0 or "sg0::actuator_0"] value 42331466307
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_isp PMID: 160.19.9 [Number of LBAs corrected by ISP per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of LBAs corrected by ISP per actuator
+    inst [0 or "sg0::actuator_0"] value 2
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_parity_sector PMID: 160.19.11 [Number of LBAs corrected by parity sector per actu]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+ator
+    inst [0 or "sg0::actuator_0"] value 53
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.number_of_reallocated_sector_reclamations PMID: 160.19.3 [Number of reallocated sector reclamations]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of reallocated sector reclamations
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of resident reallocated sectors]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+ after IDD scan
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan PMID: 160.19.5 [Number of slipeed sectors after IDD scan]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of slipeed sectors after IDD scan
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors PMID: 160.19.10 [Number of valid parity sectors per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of valid parity sectors per actuator
+    inst [0 or "sg0::actuator_0"] value 548118
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.servo_status PMID: 160.19.4 [Servo status per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Servo status per actuator
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test PMID: 160.19.2 [Sub command of last IDD test per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Sub command of last IDD test per actuator
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.successfully_scrubbed_sectors_after_idd_scan PMID: 160.19.7 [Number of successful scrubbed sectors after IDD]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+ scan
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.timestamp_of_last_idd_test PMID: 160.19.1 [Time stamp of last IDD test per actuator]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Time stamp of last IDD test per actuator
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
 
 farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_repeating PMID: 160.18.4 [Lifetime unrecoverable read repeating]
     Data Type: 64-bit unsigned int  InDom: 160.4 0x28000004

@@ -1189,6 +1189,216 @@ farm_scsi_per_head_stats_fetch(int item, unsigned int inst, pmAtomValue *atom)
 	}
 }
 
+int 
+farm_scsi_per_actuator_stats_fetch(int item, unsigned int inst, pmAtomValue *atom)
+{
+	struct  farm_scsi_per_actuator_stats *farm_scsi_per_actuator_stats;
+	pmInDom indom;
+	int sts;
+
+	switch  (item) {
+                case SCSI_HEAD_LOAD_EVENTS:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->head_load_events;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_TIMESTAMP_OF_LAST_IDD_TEST:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->timestamp_of_last_idd_test;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_SUBCOMMAND_OF_LAST_IDD_TEST:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->sub_command_of_last_idd_test;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_NUMBER_OF_REALLOCATAED_SECTOR_RECLAMATIONS:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->number_of_reallocated_sector_reclamations;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_SERVO_STATUS:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->servo_status;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_NUMBER_OF_SLIPPED_SECTORS_AFTER_IDD_SCAN:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->number_of_slipped_sectors_after_idd_scan;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_NUMBER_OF_RESIDENT_REALLOCATED_SECTORS_AFTER_IDD_SCAN:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->number_of_resident_reallocated_sectors_after_idd_scan;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_SUCCESSFULLY_SCRUBBED_SECTORS_AFTER_IDD_SCAN:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->successfully_scrubbed_sectors_after_idd_scan;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_NUMBER_OF_DOS_SCANS_PERFORMED:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->number_of_dos_scans_performed;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_NUMBER_OF_LBS_CORRECTED_BY_ISP:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->number_of_lbas_corrected_by_isp;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_NUMBER_OF_VALID_PARITY_SECTORS:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->number_of_valid_parity_sectors;
+	                return PMDA_FETCH_STATIC;
+
+		case SCSI_NUMBER_OF_LBAS_CORRECTED_BY_PARITY_SECTOR:
+	                indom = INDOM(SCSI_ACTUATOR_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_stats);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_stats->number_of_lbas_corrected_by_parity_sector;
+	                return PMDA_FETCH_STATIC;
+
+		default:
+			return PM_ERR_PMID;
+	        
+	}
+}
+
+int 
+farm_scsi_per_actuator_reallocation_fetch(int item, unsigned int inst, pmAtomValue *atom)
+{
+	struct  farm_scsi_per_actuator_reallocation *farm_scsi_per_actuator_reallocation;
+	pmInDom indom;
+	int sts;
+
+	switch  (item) {
+                case SCSI_NUM_REALLOCATED_SECTORS:
+	                indom = INDOM(SCSI_ACTUATOR_REALLOCATION_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_reallocation);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_reallocation->actuator_number_reallocated_sectors;
+	                return PMDA_FETCH_STATIC;
+
+                case SCSI_NUM_REALLOCATED_CANDIDATE_SECTORS:
+	                indom = INDOM(SCSI_ACTUATOR_REALLOCATION_INDOM);
+	                sts = pmdaCacheLookup(indom, inst, NULL, (void **)&farm_scsi_per_actuator_reallocation);
+	                
+	                if (sts <0)
+	                        return sts;
+
+	                if (sts != PMDA_CACHE_ACTIVE)
+	                        return PM_ERR_INST;
+	                
+	                atom->ull = farm_scsi_per_actuator_reallocation->actuator_number_recallocated_candidate_sectors;
+	                return PMDA_FETCH_STATIC;
+
+		default:
+			return PM_ERR_PMID;
+	        
+	}
+}
+
 int
 farm_ata_refresh_data(const char *name, struct farm_ata_log_stats *farm_ata_log_stats)
 {
@@ -1752,7 +1962,7 @@ farm_scsi_refresh_data(const char *name, struct farm_scsi_log_stats *farm_scsi_l
 	int scanresult = 0;	
 	int mr_head_counter = -1, realloc_head_counter = -1, candidate_head_counter = -1;
 	int power_head_counter = - 1, repeat_head_counter = -1, unique_head_counter = -1;
-	int mr2_head_counter = -1;	
+	int mr2_head_counter = -1, per_actuator_counter = -1, per_actuator_reallocation_counter = -1;	
 	FILE *pf;
 
 	pmsprintf(buffer, sizeof(buffer), "%s -l farm /dev/%s", farm_setup_stats, name);
@@ -2047,8 +2257,60 @@ farm_scsi_refresh_data(const char *name, struct farm_scsi_log_stats *farm_scsi_l
 	if ((strncmp(trimmed, "Second MR Head Resistance", 25) == 0)  && (mr2_head_counter < number_of_heads))
 		sscanf(buffer, "%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->second_mr_head_resistance[mr2_head_counter]);
 
-	if (strstr(buffer, "FARM Log Actuator"))
-		break;
+	if (strstr(buffer, "FARM Log Actuator Information"))
+		/* The per_actuator_counter will start at -1 so the first actuator is actuator_0 */
+		per_actuator_counter++;
+	
+	if ((strncmp(trimmed, "Head Load Events", 16) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->head_load_events[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "TimeStamp of last IDD test", 26) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->timestamp_of_last_idd_test[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Sub-Command of last IDD test", 28) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->sub_command_of_last_idd_test[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Number of Reallocated Sector Reclamations", 41) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->number_of_reallocated_sector_reclamations[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Servo Status", 12) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s %"SCNu64"", &farm_scsi_log_stats->servo_status[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Number of Slipped Sectors After IDD Scan", 40) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->number_of_slipped_sectors_after_idd_scan[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Number of Resident Reallocated Sectors After IDD Scan", 53) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->number_of_resident_reallocated_sectors_after_idd_scan[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Successfully Scrubbed Sectors After IDD Scan", 44) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->successfully_scrubbed_sectors_after_idd_scan[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Successfully Scrubbed Sectors After IDD Scan", 44) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->successfully_scrubbed_sectors_after_idd_scan[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Number of DOS Scans Performed", 29) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->number_of_dos_scans_performed[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Number of LBAs Corrected by ISP", 30) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->number_of_lbas_corrected_by_isp[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Number of Valid Parity Sectors", 28) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->number_of_valid_parity_sectors[per_actuator_counter]);
+
+	if ((strncmp(trimmed, "Number of LBAs Corrected by Parity Sector", 41) == 0) && (per_actuator_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+		sscanf(buffer, "%*s%*s%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->number_of_lbas_corrected_by_parity_sector[per_actuator_counter]);
+
+	if (strstr(buffer, "FARM Log Actuator 0x00 Reallocation"))
+		/* The per_actuator_counter will start at -1 so the first actuator is actuator_0 */
+		per_actuator_reallocation_counter++;
+
+	if (per_actuator_reallocation_counter >= 0) {
+		if ((strncmp(trimmed, "Number of Reallocated Sectors", 29) == 0) && (per_actuator_reallocation_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+			sscanf(buffer, "%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->actuator_number_reallocated_sectors[per_actuator_reallocation_counter]);
+
+		if ((strncmp(trimmed, "Number of Reallocated Candidate Sectors", 39) == 0) && (per_actuator_reallocation_counter < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS))
+			sscanf(buffer, "%*s%*s%*s%*s%*s %"SCNu64"", &farm_scsi_log_stats->actuator_number_recallocated_candidate_sectors[per_actuator_reallocation_counter]);
+	}
 
 	}
 	pclose(pf);
@@ -2066,6 +2328,29 @@ farm_scsi_refresh_data(const char *name, struct farm_scsi_log_stats *farm_scsi_l
         	farm_scsi_log_stats->head_cumulative_lifetime_unrecoverable_read_repeating[i] = -1;
         	farm_scsi_log_stats->head_cumulative_lifetime_unrecoverable_read_unique[i] = -1;
         	farm_scsi_log_stats->second_mr_head_resistance[i] = -1;
+	 }
+	
+	// Correct number of actuator count by adding +1 (we started the counter from -1)
+	farm_scsi_log_stats->number_of_actuators = per_actuator_counter + 1;
+	 
+	 for (i = farm_scsi_log_stats->number_of_actuators; i < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS; i++) {
+	        farm_scsi_log_stats->head_load_events[i] = -1;
+	        farm_scsi_log_stats->timestamp_of_last_idd_test[i] = -1;
+	        farm_scsi_log_stats->sub_command_of_last_idd_test[i] = -1;
+	        farm_scsi_log_stats->number_of_reallocated_sector_reclamations[i] = -1;
+	        farm_scsi_log_stats->servo_status[i] = -1;
+	        farm_scsi_log_stats->number_of_slipped_sectors_after_idd_scan[i] = -1;
+	        farm_scsi_log_stats->number_of_resident_reallocated_sectors_after_idd_scan[i] = -1;
+	        farm_scsi_log_stats->successfully_scrubbed_sectors_after_idd_scan[i] = -1;
+	        farm_scsi_log_stats->number_of_dos_scans_performed[i] = -1;
+	        farm_scsi_log_stats->number_of_lbas_corrected_by_isp[i] = -1;
+	        farm_scsi_log_stats->number_of_valid_parity_sectors[i] = -1;
+	        farm_scsi_log_stats->number_of_lbas_corrected_by_parity_sector[i] = -1;
+	 }
+	 
+	for (i = farm_scsi_log_stats->number_of_actuators; i < MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS; i++) {
+	        farm_scsi_log_stats->actuator_number_reallocated_sectors[i] = -1;
+	        farm_scsi_log_stats->actuator_number_recallocated_candidate_sectors[i] = -1;
 	 }
 	
 	return 0;
@@ -2114,6 +2399,99 @@ farm_scsi_refresh_per_head_stats(void)
                         scsi_per_head_stats->second_mr_head_resistance  = dev->farm_scsi_log_stats.second_mr_head_resistance[i];
 
 		    	pmdaCacheStore(per_head_indom, PMDA_CACHE_ADD, inst_name, (void *)scsi_per_head_stats);
+                }
+	}
+	return 0;
+}
+
+int
+farm_scsi_refresh_per_actuator_stats(void){
+	char inst_name[128], *dev_name;
+	struct seagate_disk *dev;
+        int inst, sts;
+
+	pmInDom disk_indom = INDOM(SCSI_DISK_INDOM);
+	pmInDom per_actuator_indom = INDOM(SCSI_ACTUATOR_INDOM);
+
+	pmdaCacheOp(per_actuator_indom, PMDA_CACHE_INACTIVE);
+
+	for (pmdaCacheOp(disk_indom, PMDA_CACHE_WALK_REWIND);;) {
+		if ((inst = pmdaCacheOp(disk_indom, PMDA_CACHE_WALK_NEXT)) < 0)
+			break;
+		if (!pmdaCacheLookup(disk_indom, inst, &dev_name, (void **)&dev) || !dev)
+			continue;
+
+                for (int i = 0; i < dev->farm_scsi_log_stats.number_of_actuators; i++) {
+                        pmsprintf(inst_name, sizeof(inst_name), "%s::actuator_%d", dev_name, i);
+
+                        struct farm_scsi_per_actuator_stats *scsi_per_actuator_stats;
+
+	                sts = pmdaCacheLookupName(per_actuator_indom, inst_name, NULL, (void **)&scsi_per_actuator_stats);
+		                if (sts == PM_ERR_INST || (sts >=0 && scsi_per_actuator_stats == NULL)) {
+			                scsi_per_actuator_stats = calloc(1, sizeof(struct farm_scsi_per_actuator_stats));
+			                if (scsi_per_actuator_stats == NULL) {
+				                return PM_ERR_AGAIN;
+			                }
+		                }
+		                else if (sts < 0)
+			                continue;
+
+                        scsi_per_actuator_stats->actuator_id = i;
+		        scsi_per_actuator_stats->head_load_events = dev->farm_scsi_log_stats.head_load_events[i];
+                        scsi_per_actuator_stats->timestamp_of_last_idd_test  = dev->farm_scsi_log_stats.timestamp_of_last_idd_test[i];
+                        scsi_per_actuator_stats->sub_command_of_last_idd_test = dev->farm_scsi_log_stats.sub_command_of_last_idd_test[i];
+	                scsi_per_actuator_stats->number_of_reallocated_sector_reclamations  = dev->farm_scsi_log_stats.number_of_reallocated_sector_reclamations[i];
+                        scsi_per_actuator_stats->servo_status  = dev->farm_scsi_log_stats.servo_status[i];
+                        scsi_per_actuator_stats->number_of_slipped_sectors_after_idd_scan  = dev->farm_scsi_log_stats.number_of_slipped_sectors_after_idd_scan[i];
+                        scsi_per_actuator_stats->successfully_scrubbed_sectors_after_idd_scan  = dev->farm_scsi_log_stats.successfully_scrubbed_sectors_after_idd_scan[i];
+                        scsi_per_actuator_stats->number_of_dos_scans_performed  = dev->farm_scsi_log_stats.number_of_dos_scans_performed[i];
+                        scsi_per_actuator_stats->number_of_lbas_corrected_by_isp  = dev->farm_scsi_log_stats.number_of_lbas_corrected_by_isp[i];
+                        scsi_per_actuator_stats->number_of_valid_parity_sectors  = dev->farm_scsi_log_stats.number_of_valid_parity_sectors[i];
+                        scsi_per_actuator_stats->number_of_lbas_corrected_by_parity_sector  = dev->farm_scsi_log_stats.number_of_lbas_corrected_by_parity_sector[i];
+
+		    	pmdaCacheStore(per_actuator_indom, PMDA_CACHE_ADD, inst_name, (void *)scsi_per_actuator_stats);
+                }
+	}
+	return 0;
+}
+
+int
+farm_scsi_refresh_per_actuator_reallocation_stats(void){
+	char inst_name[128], *dev_name;
+	struct seagate_disk *dev;
+        int inst, sts;
+
+	pmInDom disk_indom = INDOM(SCSI_DISK_INDOM);
+	pmInDom per_actuator_realloc_indom = INDOM(SCSI_ACTUATOR_REALLOCATION_INDOM);
+
+	pmdaCacheOp(per_actuator_realloc_indom, PMDA_CACHE_INACTIVE);
+
+	for (pmdaCacheOp(disk_indom, PMDA_CACHE_WALK_REWIND);;) {
+		if ((inst = pmdaCacheOp(disk_indom, PMDA_CACHE_WALK_NEXT)) < 0)
+			break;
+		if (!pmdaCacheLookup(disk_indom, inst, &dev_name, (void **)&dev) || !dev)
+			continue;
+
+                for (int i = 0; i < dev->farm_scsi_log_stats.number_of_actuators; i++) {
+                        pmsprintf(inst_name, sizeof(inst_name), "%s::actuator_%d", dev_name, i);
+
+                        struct farm_scsi_per_actuator_reallocation *scsi_per_actuator_reallocation_stats;
+
+	                sts = pmdaCacheLookupName(per_actuator_realloc_indom, inst_name, NULL, (void **)&scsi_per_actuator_reallocation_stats);
+		                if (sts == PM_ERR_INST || (sts >=0 && scsi_per_actuator_reallocation_stats == NULL)) {
+			                scsi_per_actuator_reallocation_stats = calloc(1, sizeof(struct farm_scsi_per_actuator_reallocation));
+			                if (scsi_per_actuator_reallocation_stats == NULL) {
+				                return PM_ERR_AGAIN;
+			                }
+		                }
+		                else if (sts < 0)
+			                continue;
+
+                        scsi_per_actuator_reallocation_stats->actuator_id = i;
+		        scsi_per_actuator_reallocation_stats->actuator_number_reallocated_sectors = dev->farm_scsi_log_stats.actuator_number_reallocated_sectors[i];
+                        scsi_per_actuator_reallocation_stats->actuator_number_recallocated_candidate_sectors  = dev->farm_scsi_log_stats.actuator_number_recallocated_candidate_sectors[i];
+
+		    	pmdaCacheStore(per_actuator_realloc_indom, PMDA_CACHE_ADD, inst_name, (void *)scsi_per_actuator_reallocation_stats);
                 }
 	}
 	return 0;

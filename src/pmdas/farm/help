@@ -439,3 +439,19 @@ The maximum number of drive heads supported by this version of the FARM log
 @farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_repeating Lifetime unrecoverable read repeating
 @farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_unique Lifetime unrecoverable read unique
 @farm.scsi.per_head_statistics.second_mr_head_resistance Second MR head resistance
+
+@farm.scsi.per_actuator_statistics.head_load_events Number of head load events per actuator
+@farm.scsi.per_actuator_statistics.timestamp_of_last_idd_test Time stamp of last IDD test per actuator
+@farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test Sub command of last IDD test per actuator
+@farm.scsi.per_actuator_statistics.number_of_reallocated_sector_reclamations Number of reallocated sector reclamations
+@farm.scsi.per_actuator_statistics.servo_status Servo status per actuator
+@farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan Number of slipeed sectors after IDD scan
+@farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan Number of resident reallocated sectors after IDD scan
+@farm.scsi.per_actuator_statistics.successfully_scrubbed_sectors_after_idd_scan Number of successful scrubbed sectors after IDD scan
+@farm.scsi.per_actuator_statistics.number_of_dos_scans_performed Number of DOS scans performed per actuator
+@farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_isp Number of LBAs corrected by ISP per actuator
+@farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors Number of valid parity sectors per actuator
+@farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_parity_sector Number of LBAs corrected by parity sector per actuator
+
+@farm.scsi.per_actuator_actuator_recallocation.number_reallocated_sectors Number of reallocated sectors per actuator
+@farm.scsi.per_actuator_actuator_recallocation.number_recallocated_candidate_sectors Number of reallocated candidate sectors per actuator
