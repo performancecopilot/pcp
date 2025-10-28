@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Wrapper with useradd(1) like args around dscl(1) for Mac OS X
+# Wrapper with useradd(1) like args around dscl(1) for macOS
 #
 
 _usage()

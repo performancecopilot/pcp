@@ -18,7 +18,7 @@ ifeq ($(TARGET_OS), linux)
 LOCAL_RULES = filling vfs_files
 endif
 
-# Metrics missing from Mac OS X
+# Metrics missing from macOS
 #
 # rule: buffer_cache
 #   kernel.all.io.bread -12357 Unknown metric name

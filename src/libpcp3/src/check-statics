@@ -253,8 +253,8 @@ context.o
     contexts_map		# guarded by contexts_lock mutex
     last_handle			# guarded by contexts_lock mutex
     hostbuf			# single-threaded
-    ?curr_handle		# thread private (no __thread symbols for Mac OS X)
-    ?curr_ctxp			# thread private (no __thread symbols for Mac OS X)
+    ?curr_handle		# thread private (no __thread symbols for macOS)
+    ?curr_ctxp			# thread private (no __thread symbols for macOS)
     ?__emutls_t.curcontext	# thread private (*BSD, MinGW)
     ?__emutls_v.curcontext	# thread private (*BSD, MinGW)
     ?__emutls_t.curr_ctxp	# thread private (*BSD, MinGW)
@@ -295,7 +295,7 @@ derive_parser.tab.o
 				# are trying to run pmRegisterDerived at the
 				# same time)
 
-    ?derive_errmsg		# thread private (no __thread symbols for Mac OS X)
+    ?derive_errmsg		# thread private (no __thread symbols for macOS)
     yytranslate            	# const
     ?yyrline			# const
     ?yytname			# const
@@ -510,11 +510,11 @@ pmns.o
     seenpmid			# guarded by pmns_lock mutex
     tokbuf			# guarded by pmns_lock mutex
     tokpmid			# guarded by pmns_lock mutex
-    ?useExtPMNS			# thread private (no __thread symbols for Mac OS X)
+    ?useExtPMNS			# thread private (no __thread symbols for macOS)
     ?__emutls_t.useExtPMNS	# thread private for OpenBSD
     repname			# guarded by pmns_lock mutex
     main_pmns			# guarded by pmns_lock mutex
-    ?curr_pmns			# thread private (no __thread symbols for Mac OS X)
+    ?curr_pmns			# thread private (no __thread symbols for macOS)
     ?__emutls_t.curr_pmns	# thread private for OpenBSD
     locerr			# no unsafe side-effects, see notes in pmns.c
     argp			# guarded by exec_lock
@@ -552,7 +552,7 @@ tz.o
     savetz			# guarded by __pmLock_libpcp mutex
     tzbuffer			# guarded by __pmLock_libpcp mutex
     ?wildabbr			# const (MinGW)
-    ?names			# const (clang, MacOSx)
+    ?names			# const (clang, macOS)
 units.o
     abuf			# pmAtomStr deprecated by pmAtomStr_r
     ubuf			# pmUnitsStr deprecated by pmUnitsStr_r
@@ -596,9 +596,9 @@ util.o
     typename			# const
     xconfirm_init		# no unsafe side-effects, see notes in util.c
     xconfirm			# no unsafe side-effects, see notes in util.c
-    ?get			# sbrk(0) hack for Mac OS X, safe
-    ?highwater			# sbrk(0) hack for Mac OS X, safe
-    ?pick			# sbrk(0) hack for Mac OS X, safe
+    ?get			# sbrk(0) hack for macOS, safe
+    ?highwater			# sbrk(0) hack for macOS, safe
+    ?pick			# sbrk(0) hack for macOS, safe
     text_start			# no unsage side-effects, see notes in util.c
 throttle.o
     throttle_lock		# local mutex

@@ -135,7 +135,7 @@ pcp-7.0.0 (1 September 2025)
 	archive analysis container: refactored to use real packages
 	archive analysis container: set Grafana time window from archive
     - Build, infrastructure and packaging updates:
-	build: MacOS builds and packaging, welcome back!
+	build: macOS builds and packaging, welcome back!
 	build: removed Qt4 support from code base, 5.6 is minimum
 	build: various improvements for reproducible builds
 	build: archive-analysis container reworked to use packages
@@ -531,7 +531,7 @@ pcp-6.1.1 (17 November 2023)
 	libpcp: fix a couple of derived metric bugs
 	libpcp_web: implement config override by canonical env vars
     - Misc build, infrastructure and packaging updates:
-	build: new CI build to keep PCP for MacOS up-to-date
+	build: new CI build to keep PCP for macOS up-to-date
 	build: several fixes to tools when compiling with clang
 	build: install pmlog[redact,reduce,rewrite] on default PATH
 	build: default to using a path-prefixed PCP_PYTHON_PROG
@@ -681,7 +681,7 @@ pcp-6.0.2 (12 February 2023)
     - Misc build, infrastructure and packaging updates:
 	configure.ac: fixes for improved C99 compatibility
 	configure.ac: use QTDIR search path only when given
-	MacOS: build: fix shared library builds on modern Macs
+	macOS: build: fix shared library builds on modern Macs
 	OpenBSD: build updates for clang, Qt and openssl
 	libbpf: updated minimium version to 0.8.0, ARM and PPC support
 	Qt: update minimum required versions for libqwt

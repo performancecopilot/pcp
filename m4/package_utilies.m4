@@ -99,7 +99,7 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     dpkg=$DKPG
     AC_SUBST(dpkg)
 
-    dnl Check for the MacOSX PackageMaker
+    dnl Check for the macOS PackageMaker
     AC_MSG_CHECKING([for PackageMaker])
     if test -z "$PACKAGE_MAKER"
     then
@@ -122,7 +122,7 @@ AC_DEFUN([AC_PACKAGE_UTILITIES],
     fi
     AC_SUBST(package_maker)
 
-    dnl check if the MacOSX hdiutil program is available
+    dnl check if the macOS hdiutil program is available
     test -z "$HDIUTIL" && AC_PATH_PROG(HDIUTIL, hdiutil)
     hdiutil=$HDIUTIL
     AC_SUBST(hdiutil)

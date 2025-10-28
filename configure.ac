@@ -278,7 +278,7 @@ then
     pcp_ps_all_flags=-efw
 elif test $target_os = darwin
 then
-    AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (Mac OS X)])
+    AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (macOS)])
     target_distro=macosx
     export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
@@ -888,7 +888,7 @@ AC_SUBST(sanitizer)
 
 dnl Check for service discovery mechanisms (DNS-SD, Avahi)
 AS_IF([test "x$do_discovery" != "xno"], [
-    # on Mac OS X, dns_sd.h
+    # on macOS, dns_sd.h
 
     # on Linux, aloha Avahi
     enable_avahi=true
@@ -1986,7 +1986,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 ]], [[
 ]])],[AC_DEFINE(HAVE_SYS_ENDIAN_H, 1, sys/endian.h) AC_MSG_RESULT(yes)],[AC_MSG_RESULT(no)])
 
-dnl Check if we have <machine/endian.h> ... MacOSX way
+dnl Check if we have <machine/endian.h> ... macOS way
 AC_MSG_CHECKING([for machine/endian.h ])
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <machine/endian.h>

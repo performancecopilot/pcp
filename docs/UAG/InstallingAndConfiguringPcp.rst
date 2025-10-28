@@ -216,7 +216,7 @@ The following rules apply to the DSO syntax:
 +------------------+-----------------------------------------------------------------------+
 | *path*           | Designates the location of the DSO. An absolute path must be used.    |
 |                  | On most platforms this will be a **so** suffixed file, on Windows it  | 
-|                  | is a **dll**, and on Mac OS X it is a **dylib** file.                 |
+|                  | is a **dll**, and on macOS it is a **dylib** file.                    |
 +------------------+-----------------------------------------------------------------------+
 
 Socket entries in the **pmcd.conf** file follow this syntax:: 

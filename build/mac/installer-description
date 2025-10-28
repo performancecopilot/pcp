@@ -5,9 +5,9 @@
 	<key>IFPkgDescriptionDeleteWarning</key>
 	<string></string>
 	<key>IFPkgDescriptionDescription</key>
-	<string>Performance Co-Pilot for Mac OS X</string>
+	<string>Performance Co-Pilot for macOS</string>
 	<key>IFPkgDescriptionTitle</key>
-	<string>PCP for Mac OS X</string>
+	<string>PCP for macOS</string>
 	<key>IFPkgDescriptionVersion</key>
 	<string>@package_version@</string>
 </dict>

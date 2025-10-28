@@ -19,7 +19,7 @@ prog=`basename $0`
 status=1
 trap "exit \$status" 0 1 2 15
 
-echo "$prog: PCP for MacOSX Install"
+echo "$prog: PCP for macOS Install"
 
 echo "$prog: Writing install log to /var/log/pcp_inst.log"
 echo "$prog: Writing install log to /var/log/pcp_inst.log"  > /var/log/pcp_inst.log

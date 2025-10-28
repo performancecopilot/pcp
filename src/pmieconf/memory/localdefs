@@ -10,7 +10,7 @@ ifeq ($(TARGET_OS), linux)
 LOCAL_RULES += oom_kill
 endif
 
-# Metrics missing from Mac OS X
+# Metrics missing from macOS
 #
 # rule: swap_low
 #   swap.free -12357 Unknown metric name
