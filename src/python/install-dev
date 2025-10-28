@@ -12,8 +12,9 @@ trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 . /etc/pcp.conf
 
-$PCP_MAKE_PROG clean
+sudo $PCP_MAKE_PROG clean
 $PCP_MAKE_PROG
+$PCP_MAKE_PROG check
 sudo $PCP_MAKE_PROG install
 
 packing_list=../../python3-pcp.list
