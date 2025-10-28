@@ -1,0 +1,5 @@
+#pmlogconf-setup 2.0
+ident	Seagate Field Accessible Reliability Metrics (FARM) Log [Linux]
+probe	smart.ata values ? include : exclude
+probe	smart.scsi values ? include : exclude
+	farm

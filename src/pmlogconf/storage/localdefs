@@ -1,1 +1,1 @@
-FILES = smart vdo vdo-summary
+FILES = farm smart vdo vdo-summary
