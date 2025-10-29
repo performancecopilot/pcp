@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 1996
+# Exercise the InfiniBand PMDA with mock libraries (no hardware required)
+#
+# Copyright (c) 2025 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_PMDAS_DIR/infiniband/pmdaib ] || _notrun "infiniband pmda not installed"
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# Check for mock IB libraries
+test -f $here/src/libibumad.$DSO_SUFFIX || \
+	_notrun "No InfiniBand mock umad library is available"
+test -f $here/src/libibverbs.$DSO_SUFFIX || \
+	_notrun "No InfiniBand mock verbs library is available"
+
+_filter()
+{
+    sed \
+	-e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g' \
+	-e 's/inst \[[0-9][0-9]* /inst [N /g' \
+	-e '/No value(s) available/d' \
+    #end
+}
+
+pmda=$PCP_PMDAS_DIR/infiniband/pmda_ib.$DSO_SUFFIX,ib_init
+pmns=$PCP_PMDAS_DIR/infiniband/pmns
+domain=`sed -n '/INFINIBAND/s/.*INFINIBAND[ 	]*//p' $PCP_VAR_DIR/pmns/stdpmid | head -1`
+
+# real QA test starts here
+root=$tmp.root
+export IB_STATSPATH=$root
+export LD_LIBRARY_PATH=$here/src:$LD_LIBRARY_PATH
+
+for tgz in $here/infiniband/ib-root-*.tgz
+do
+    rm -fr $root
+    mkdir $root || _fail "root in use when processing $tgz"
+    cd $root
+    tar xzf $tgz
+    base=`basename $tgz`
+
+    echo
+    echo "== Testing InfiniBand PMDA with mock libraries - $base ==" | tee -a $seq.full
+
+    # Test basic metric fetching
+    echo
+    echo "=== HCA (Host Channel Adapter) metrics ===" | tee -a $seq.full
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.hca 2>&1 | _filter
+
+    echo
+    echo "=== Port state metrics ===" | tee -a $seq.full
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.port.state 2>&1 | _filter
+
+    echo
+    echo "=== Port performance counters ===" | tee -a $seq.full
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.port.in_bytes 2>&1 | _filter
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.port.out_bytes 2>&1 | _filter
+
+    echo
+    echo "=== Sysfs-based metrics ===" | tee -a $seq.full
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.hca.board_id 2>&1 | _filter
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.port.node_desc 2>&1 | _filter
+
+    ( echo && echo "== done" && echo ) | tee -a $seq.full
+    cd $here
+done
+
+# Capture any log output
+if [ -f ib.log ]
+then
+    echo
+    echo "=== PMDA log output ===" | tee -a $seq.full
+    $sudo cat ib.log >>$seq.full
+    $sudo rm -f ib.log*
+fi
+
+# success, all done
+status=0
+exit

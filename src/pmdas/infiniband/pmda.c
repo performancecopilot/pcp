@@ -757,6 +757,8 @@ pmdaIndom indomtab[] = {
     { IB_CNT_INDOM, 0, NULL },
 };
 
+static int _isDSO = 1;	/* =0 I am a daemon */
+
 static void
 foreach_inst(pmInDom indom, void (*cb)(void *state))
 {
@@ -790,15 +792,18 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
 {
     char defconf[MAXPATHLEN];
     int sep = pmPathSeparator();
+    char *envpath;
     int i;
 
     if (dp->status != 0)
          return;
-	// pmsprintf()
+
+    if ((envpath = getenv("IB_STATSPATH")) != NULL)
+	ib_statspath = envpath;
+
     if (confpath == NULL) {
-	pmsprintf(defconf, sizeof(defconf), "%s%c" "infiniband" "%c" "config", 
+	pmsprintf(defconf, sizeof(defconf), "%s%c" "infiniband" "%c" "config",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
-	// pmNotifyErr(LOG_INFO, "Path : %s\n",defconf);
 	confpath = defconf;
     }
 
@@ -809,7 +814,6 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
 	}
     }
 
-
     if ((dp->status = ib_load_config(confpath, writeconf, indomtab, ARRAYSZ(indomtab))))
 	return;
 
@@ -818,12 +822,26 @@ ibpmda_init(const char *confpath, int writeconf, pmdaInterface *dp)
 	    pmdaCacheOp (indomtab[i].it_indom, PMDA_CACHE_SAVE);
 	}
     }
- 
+
     dp->version.two.fetch = ib_fetch;
     dp->version.two.store = ib_store;
     pmdaSetFetchCallBack(dp, ib_fetch_val);
-	// pmNotifyErr(LOG_INFO, "sizeof metric tab %d", sizeof(metrictab));
     pmdaInit(dp, indomtab, ARRAYSZ(indomtab), metrictab, ARRAYSZ(metrictab));
+}
+
+void
+__PMDA_INIT_CALL
+ib_init(pmdaInterface *dp)
+{
+    if (_isDSO) {
+	char helppath[MAXPATHLEN];
+	int sep = pmPathSeparator();
+	pmsprintf(helppath, sizeof(helppath), "%s%c" "infiniband" "%c" "help",
+		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
+	pmdaDSO(dp, PMDA_INTERFACE_3, "infiniband DSO", helppath);
+    }
+
+    ibpmda_init(NULL, 0, dp);
 }
 
 static void
@@ -851,8 +869,9 @@ main(int argc, char **argv)
     int opt;
     int writeconf = 0;
 
+    _isDSO = 0;
     pmSetProgname(argv[0]);
-    pmsprintf(helppath, sizeof(helppath), "%s%c" "infiniband" "%c" "help", 
+    pmsprintf(helppath, sizeof(helppath), "%s%c" "infiniband" "%c" "help",
 		pmGetConfig("PCP_PMDAS_DIR"), sep, sep);
     pmdaDaemon(&dispatch, PMDA_INTERFACE_3, pmGetProgname(), IB, "infiniband.log", helppath);
 

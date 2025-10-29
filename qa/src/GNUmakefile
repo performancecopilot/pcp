@@ -19,6 +19,11 @@ LLDFLAGS = \
 NVIDIACFLAGS = -I$(TOPDIR)/src/pmdas/nvidia
 NVIDIAQALIB = libnvidia-ml.$(DSOSUFFIX)
 
+ifeq "$(HAVE_PMDAINFINIBAND)" "true"
+IBUMADQALIB = libibumad.$(DSOSUFFIX)
+IBVERBSQALIB = libibverbs.$(DSOSUFFIX)
+endif
+
 LDIRT += localconfig.h libpcp.h
 
 include GNUlocaldefs
@@ -31,6 +36,8 @@ install install_pcp:
 	$(INSTALL) -m 644 -f $(CFILES) $(MYFILES) $(TESTDIR)
 	$(INSTALL) -m 755 -f $(PSCRIPTS) $(MYSCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 755 -f $(NVIDIAQALIB) $(TESTDIR)/$(NVIDIAQALIB)
+	$(INSTALL) -m 755 -f $(IBUMADQALIB) $(TESTDIR)/$(IBUMADQALIB)
+	$(INSTALL) -m 755 -f $(IBVERBSQALIB) $(TESTDIR)/$(IBVERBSQALIB)
 	$(INSTALL) -m 644 -f GNUlocaldefs $(TESTDIR)/GNUlocaldefs
 	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 

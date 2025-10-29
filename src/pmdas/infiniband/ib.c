@@ -22,6 +22,7 @@
 #endif
 #include <ctype.h>
 
+char *ib_statspath = "";	/* optional path prefix for all sysfs files */
 
 #define IBPMDA_MAX_HCAS (16)
 
@@ -640,7 +641,8 @@ static char *
 ib_hca_get_board_id(hca_state_t *hca)
 {
     char path[MAXPATHLEN];
-    pmsprintf(path, sizeof(path), "/sys/class/infiniband/%s/board_id", hca->ca.ca_name);
+    pmsprintf(path, sizeof(path), "%s/sys/class/infiniband/%s/board_id",
+	      ib_statspath ? ib_statspath : "", hca->ca.ca_name);
 
     char *board_id = read_sysfs_file(path);
     if (board_id != NULL) {
@@ -751,18 +753,19 @@ static int
 read_cm_msgs(const char *ca_name, int portnum, const char *request_type, const char *filename)
 {
     char filepath[MAXPATHLEN];
+    char *prefix = ib_statspath ? ib_statspath : "";
 
     // Try first file path format
-    pmsprintf(filepath, sizeof(filepath), "/sys/class/infiniband/%s/ports/%d/%s/%s", 
-              ca_name, portnum, request_type, filename);
+    pmsprintf(filepath, sizeof(filepath), "%s/sys/class/infiniband/%s/ports/%d/%s/%s",
+              prefix, ca_name, portnum, request_type, filename);
 
     FILE *file = fopen(filepath, "r");
     if (file == NULL) {
         pmNotifyErr(LOG_INFO, "Failed to open file %s, trying alternate path", filepath);
 
         // Try the alternate file path format
-        pmsprintf(filepath, sizeof(filepath), "/sys/class/infiniband_cm/%s/%d/%s/%s", 
-                  ca_name, portnum, request_type, filename);
+        pmsprintf(filepath, sizeof(filepath), "%s/sys/class/infiniband_cm/%s/%d/%s/%s",
+                  prefix, ca_name, portnum, request_type, filename);
 
         file = fopen(filepath, "r");
         if (file == NULL) {
@@ -787,8 +790,8 @@ read_diag_counters(const char *ca_name, int portnum, const char *filename)
 {
     char filepath[MAXPATHLEN];
 
-    pmsprintf(filepath, sizeof(filepath), "/sys/class/infiniband/%s/ports/%d/hw_counters/%s", 
-             ca_name, portnum, filename);
+    pmsprintf(filepath, sizeof(filepath), "%s/sys/class/infiniband/%s/ports/%d/hw_counters/%s",
+             ib_statspath ? ib_statspath : "", ca_name, portnum, filename);
 
     FILE *file = fopen(filepath, "r");
     if (file == NULL) {
@@ -882,7 +885,8 @@ static char *
 get_node_desc(const char *ib_dev_name)
 {
     char path[MAXPATHLEN];
-    pmsprintf(path, sizeof(path), "/sys/class/infiniband/%s/node_desc", ib_dev_name);
+    pmsprintf(path, sizeof(path), "%s/sys/class/infiniband/%s/node_desc",
+	      ib_statspath, ib_dev_name);
 
     char *node_desc = read_sysfs_file(path);
     if (node_desc != NULL) {

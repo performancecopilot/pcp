@@ -34,6 +34,8 @@
 #endif
 
 
+extern char *ib_statspath;	/* optional path prefix for all sysfs files */
+
 void ibpmda_init (const char *configpath, int, pmdaInterface *);
 
 int ib_fetch_val(pmdaMetric *, unsigned int, pmAtomValue *);

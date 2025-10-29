@@ -223,6 +223,15 @@ LCFLAGS += $(NVIDIACFLAGS)
 TARGETS += $(NVIDIAQALIB)
 endif
 
+# InfiniBand mock libraries for testing
+IBUMADQALIB = libibumad.$(DSOSUFFIX)
+IBVERBSQALIB = libibverbs.$(DSOSUFFIX)
+ifneq ($(IBUMADQALIB),)
+MYCFILES += infiniband-umad.c infiniband-verbs.c
+LDIRT += infiniband-umad.o infiniband-verbs.o
+TARGETS += $(IBUMADQALIB) $(IBVERBSQALIB)
+endif
+
 ifeq "$(HAVE_CMOCKA)" "true"
 CFILES += test_encodings.c test_hostspec.c
 endif
@@ -835,6 +844,14 @@ endif
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)
+endif
+
+ifneq ($(IBUMADQALIB),)
+$(IBUMADQALIB):	infiniband-umad.o
+	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)
+
+$(IBVERBSQALIB):	infiniband-verbs.o
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)
 endif
 

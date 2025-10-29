@@ -1,3 +1,7 @@
+#ifndef IB
+#define IB 91
+#endif
+
 infiniband {
     hca
     port
