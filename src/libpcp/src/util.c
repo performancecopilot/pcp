@@ -2701,7 +2701,7 @@ pow(double x, double y)
 
 #define PROCFS_ENTRY_SIZE 40	/* encompass any size of entry for pid */
 
-#if defined(IS_DARWIN) /* No procfs on Mac OS X */
+#if defined(IS_DARWIN) /* No procfs on macOS */
 int
 __pmProcessExists(pid_t pid)
 {
@@ -2756,7 +2756,7 @@ __pmProcessTerminate(pid_t pid, int force)
 #if defined(IS_DARWIN)
 #define sbrk hack_sbrk
 /*
- * cheap and nasty sbrk(0) for Mac OS X where sbrk() is deprecated
+ * cheap and nasty sbrk(0) for macOS where sbrk() is deprecated
  */
 void *
 hack_sbrk(int incr)

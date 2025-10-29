@@ -41,7 +41,7 @@ endif
 
 default : $(LIBTARGET) $(STATICLIBTARGET)
 
-# Static probing for Linux, Mac OS X and Solaris.
+# Static probing for Linux, macOS and Solaris.
 ifeq "$(ENABLE_PROBES)" "true"
 ifneq "$(findstring $(TARGET_OS),linux darwin)" ""
 trace.o: probes.h

@@ -278,7 +278,7 @@ __pmconfigpath(const char *pcp_dir, const char *pcp_conf)
     }
 
     if (access("/etc/pcp.conf", R_OK) == -1) {
-	/* may still be the Mac OS X case with HomeBrew, for example */
+	/* may still be the macOS case with HomeBrew, for example */
 	if (access("/usr/local/etc/pcp.conf", R_OK) == 0)
 	    return strdup("/usr/local/etc/pcp.conf");
     }

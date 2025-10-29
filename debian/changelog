@@ -1101,8 +1101,8 @@ pcp (2.7.4-20080418) unstable; urgency=low
 pcp (2.7.4-20080415) unstable; urgency=low
 
   * Improve path handling in pcp.env.
-  * Cygwin and Mac OS X ps fixes making daemon restart reliable.
-  * Mac OS X local context support.
+  * Cygwin and macOS ps fixes making daemon restart reliable.
+  * macOS local context support.
   * Improve kmchart integration.
 
  -- Nathan Scott <nathans@debian.org>  Tue, 15 Apr 2008 17:27:49 +1000

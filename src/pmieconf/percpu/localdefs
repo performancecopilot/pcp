@@ -14,7 +14,7 @@ ifeq ($(TARGET_OS), linux)
 LOCAL_RULES = some_util many_util system
 endif
 
-# Metrics missing from Mac OS X
+# Metrics missing from macOS
 #
 # rule: syscall
 #   kernel.percpu.syscall -12357 Unknown metric name

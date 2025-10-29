@@ -74,7 +74,7 @@ _filesize()
 
     if [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = openbsd ]
     then
-	# Mac OS X format (same for OpenBSD)
+	# macOS format (same for OpenBSD)
 	# stat(1) format
 	# 234881026 5304024 -rwxr-xr-x 1 kenj kenj 0 2016 "May  4 14:00:42 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" "Apr 27 20:14:16 2011" 4096 8 0 441
 	stat "$__filename" 2>&1 | $PCP_AWK_PROG '{ print $8 }'
@@ -1786,7 +1786,7 @@ _find_key_server_modules()
 
 _check_display()
 {
-    # note: non-X systems (MacOSX, Windows) must pass here unchallenged
+    # note: non-X systems (macOS, Windows) must pass here unchallenged
     if [ -z "$PCPQA_CLOSE_X_SERVER" ]
     then
 	_notrun "\$PCPQA_CLOSE_X_SERVER not set in ./common.config"
@@ -2486,7 +2486,7 @@ _get_word_size()
     in
     i?86|athlon|ppc)
 	__size=32
-	# but, apps are 64-bit on my Mac OS X
+	# but, apps are 64-bit on modern macOS
 	[ $PCP_PLATFORM = darwin ] && __size=64
 	;;
     x86_64|ia64|ppc64|ppc64le|s390x|aarch64)

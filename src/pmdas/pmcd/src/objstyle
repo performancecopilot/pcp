@@ -50,7 +50,7 @@ done
 # ia32 laptop
 # dummy.o: ELF 32-bit LSB relocatable, Intel 80386, version 1 (SYSV), not stripped
 #
-# Mac OS X
+# macOS
 # pmcd.o: Mach-O universal binary with 2 architectures
 # pmcd.o (for architecture arm64):	Mach-O 64-bit object arm64
 # pmcd.o (for architecture x86_64):	Mach-O 64-bit object x86_64
