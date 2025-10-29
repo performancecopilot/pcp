@@ -23,7 +23,6 @@ import time
 from datetime import datetime
 from pcp import pmapi, pmcc
 from cpmapi import PM_CONTEXT_ARCHIVE
-import collections
 
 GIGABYTE = 1024 ** 2
 
@@ -32,7 +31,7 @@ SYS_MECTRICS= ["kernel.uname.sysname","kernel.uname.release",
                "kernel.all.uptime", "kernel.all.nusers", "kernel.all.load"]
 
 TOP_METRICS = [ "mem.physmem", "hinv.pagesize", "kernel.all.boottime",
-               "kernel.all.nusers", "kernel.all.uptime", "kernel.all.load", 
+               "kernel.all.nusers", "kernel.all.uptime", "kernel.all.load",
                "proc.psinfo.pid", "proc.psinfo.utime", "proc.psinfo.stime", "proc.psinfo.guest_time",
                 "proc.psinfo.vsize", "proc.psinfo.rss", "proc.psinfo.priority",
                 "proc.psinfo.nice", "proc.psinfo.cmd", "proc.psinfo.psargs",
@@ -139,13 +138,57 @@ class TopUtil(object):
         self.repo = MetricRepository(mngr)
         self.group = mngr
         self.interval = interval_in_seconds
-        # self.time = self.group.contextCache.pmLocaltime(int(self.group.timestamp))
         self.format_uptime = "%H:%M:%S"
+        # Cache some values to avoid repeated lookups
+        self.process_priority_cache = self.priority()
+        self.process_list_cache = self.process_list()
+        self.process_user_name_cache = self.user_name()
+        self.process_command_cache = self.process_command()
+        self.process_nice_cache = self.nice()
+        self.process_state_cache = self.process_state()
+        self.virtual_memory_cache = self.virtual_memory()
+        self.resident_memory_cache = self.resident_memory()
+        self.shared_memory_cache = self.shared_memory()
+        self.process_utime_cache = self.utime()
+        self.process_stime_cache = self.stime()
+
     def __kb_to_gb(self, kb):
         return str(round(kb / GIGABYTE, 2)) + "g" # 1 GB = 1024^2 KB
-    
+
+    def _fetch_value(self, metric, instance=None):
+        if instance is None:
+            return dict(self.repo.current_values(metric).items())
+        value = self.repo.current_value(metric, instance)
+        return "?" if value is None else value
+
+    def priority(self, instance=None):
+        return self._fetch_value('proc.psinfo.priority',instance)
     def process_list(self):
-        return dict(self.repo.current_values("proc.psinfo.pid").items())
+        return self._fetch_value('proc.psinfo.cmd', None)
+    def user_name(self):
+        return self._fetch_value('proc.id.uid_nm', None)
+
+    def process_command(self, instance=None):
+        return self._fetch_value('proc.psinfo.cmd', instance)
+    def nice(self, instance=None):
+        return self._fetch_value('proc.psinfo.nice', instance)
+    def process_state(self, instance=None):
+        return self._fetch_value('proc.psinfo.sname', instance)
+
+    def shared_memory(self, instance=None):
+        return self._fetch_value('proc.memory.share', instance)
+
+    def virtual_memory(self, instance=None):
+        return self._fetch_value('proc.psinfo.vsize', instance)
+    def resident_memory(self, instance=None):
+        return self._fetch_value('proc.psinfo.rss', instance)
+    def utime(self, instance=None):
+        return self._fetch_value('proc.psinfo.utime', instance)
+    def stime(self, instance=None):
+        return self._fetch_value('proc.psinfo.stime', instance)
+    def guest_time(self, instance=None):
+        return self._fetch_value('proc.psinfo.guest_time', instance)
+
     def uptime(self):
         seconds = self.repo.current_value("kernel.all.uptime", None) or 0
         return time.strftime(self.format_uptime, time.localtime(seconds))
@@ -184,43 +227,23 @@ class TopUtil(object):
         return "Top - %s up %d users, Load Average: %.2f, %.2f, %.2f\n" % (uptime, users, avg1, avg5, avg15) + \
                "Tasks: %d total,    %d running,    %d sleeping,  %d stopped,    %d zombie" % self.tasks()
 
-    def mem_usage(self, instance=None):
-        rss = self.repo.current_value('proc.psinfo.rss', instance)
-        total_mem = self.repo.current_value('mem.physmem', None)
-        if rss is not None and total_mem is not None:
-            return float("%.2f" % (100 * float(rss) / total_mem))
+    def memory_usage(self, pid):
+        """
+        Calculate the percentage of memory used by a particular process
+        """
+        resident_memory = self.resident_memory_cache.get(pid)
+        total_physical_memory = self.repo.current_value('mem.physmem', None)
+        if resident_memory is not None and total_physical_memory is not None:
+            return round(resident_memory / total_physical_memory * 100, 2)
         return "?"
 
-    def process_command(self, instance=None):
-        cmd = self.repo.current_value('proc.psinfo.cmd', instance)
-        return cmd[:40] if cmd is not None else "?"
-    def user_name(self, instance=None):
-        user = self.repo.current_value('proc.id.uid_nm', instance)
-        return "?" if user is None else user[:6]
-    def priority(self, instance=None):
-        priority = self.repo.current_value('proc.psinfo.priority', instance)
-        return "?" if priority is None else priority
-    def nice(self, instance=None):
-        nice = self.repo.current_value('proc.psinfo.nice', instance)
-        return "?" if nice is None else nice
-    def virtual_memory(self, instance=None):
-        vms = self.repo.current_value('proc.psinfo.vsize', instance)
-        return self.__kb_to_gb(vms) if vms is not None and vms > GIGABYTE else vms if vms is not None else "?"
-    def resident_memory(self, instance=None):
-        rss = self.repo.current_value('proc.psinfo.rss', instance)
-        return self.__kb_to_gb(rss) if rss is not None and rss > GIGABYTE else rss if rss is not None else "?"
-    def process_state(self, instance=None):
-        state = self.repo.current_value('proc.psinfo.sname', instance)
-        return state if state is not None else "UNKNOWN"
     def calculate_delta(self, metric, instance):
         c_value = self.repo.current_value(metric, instance)
         p_value = self.repo.previous_value(metric, instance)
         if c_value is not None and p_value is not None and c_value >= p_value:
-           return c_value / 1000 - p_value / 1000
+            return c_value / 1000 - p_value / 1000
         return c_value / 1000 if c_value is not None else 0
-    def shared_memory(self, instance):
-        smem = self.repo.current_value('proc.memory.share', instance)
-        return smem if smem is not None else "?"
+
     def cpu_usage(self, instance):
         if instance is None:
             return '?'
@@ -231,26 +254,26 @@ class TopUtil(object):
         if total_time == 0:
             return 0
         return float("%.2f" % ((total_time  / self.interval) * 100.0))
-    def execution_time(self, instance=None):
-        system_time = self.repo.current_value('proc.psinfo.stime', instance) or 0
-        user_time = self.repo.current_value('proc.psinfo.utime', instance) or 0
-        runtime =  system_time + user_time
+    def execution_time(self, pid):
+        sys_time = self.process_stime_cache.get(pid, 0)
+        user_time = self.process_utime_cache.get(pid, 0)
+        runtime = sys_time + user_time
         return str(datetime.fromtimestamp(runtime/1000).strftime("%M:%S"))
     def process_data_list(self):
         res = {}
         for pid, proc in self.process_list().items():
             res[pid] = [
-                self.user_name(pid),
-                self.priority(pid),
-                self.nice(pid),
-                self.virtual_memory(pid),
-                self.resident_memory(pid),
-                self.shared_memory(pid),
-                self.process_state(pid),
+                self.process_user_name_cache.get(pid, "?"),
+                self.process_priority_cache.get(pid, "?"),
+                self.process_nice_cache.get(pid, "?"),
+                (lambda x: self.__kb_to_gb(x) if x is not None else "?")(self.virtual_memory_cache.get(pid, None)),
+                (lambda x: self.__kb_to_gb(x) if x is not None else "?")(self.resident_memory_cache.get(pid, None)),
+                self.shared_memory_cache.get(pid, "?"),
+                self.process_state_cache.get(pid, "UNKNOWN"),
                 self.cpu_usage(pid),
-                self.mem_usage(pid),
+                self.memory_usage(pid),
                 self.execution_time(pid),
-                self.process_command(pid),
+                self.process_command_cache.get(pid, "?")
             ]
         return res
 
@@ -296,7 +319,8 @@ class TopReport(pmcc.MetricGroupPrinter):
             sorted_list = sorted(topinfo.process_data_list().items(), key=lambda x: x[1][8], reverse=True)
         for pid, proc in sorted_list[:int(self.opts.num_procs)]:
             print("{:<5} {:>10} {:>8} {:>5} {:>5} {:>10} {:>10} {:>10} {:>4} {:>5} {:>5} {:>5} {:>20}".format(
-                    timestamp, pid, proc[0], proc[1], proc[2], proc[3], proc[4], proc[5], proc[6], proc[7], proc[8], proc[9], proc[10]))
+                    timestamp, pid, proc[0], proc[1], proc[2], proc[3],
+                    proc[4], proc[5], proc[6], proc[7], proc[8], proc[9], proc[10]))
 
     def report(self, manager):
         group = manager["allinfo"]
@@ -309,12 +333,30 @@ class TopReport(pmcc.MetricGroupPrinter):
         header_indentation = "        " if len(timestamp) < 9 else (len(timestamp) - 7) * " "
         value_indentation = ((len(header_indentation) + 9) - len(timestamp)) * " "
         if self.context != PM_CONTEXT_ARCHIVE and self.samples is None:
-            self.print_report(group,timestamp,header_indentation,value_indentation,manager['topinfo'],interval_in_seconds)
+            self.print_report(
+                group,
+                timestamp,
+                header_indentation,
+                value_indentation,
+                manager['topinfo'],
+                interval_in_seconds)
             sys.exit(0)
         elif self.context == PM_CONTEXT_ARCHIVE and self.samples is None:
-            self.print_report(group,timestamp,header_indentation,value_indentation,manager['topinfo'],interval_in_seconds)
+            self.print_report(
+                group,
+                timestamp,
+                header_indentation,
+                value_indentation,
+                manager['topinfo'],
+                interval_in_seconds)
         elif self.samples >= 1:
-            self.print_report(group,timestamp,header_indentation,value_indentation,manager['topinfo'],interval_in_seconds)
+            self.print_report(
+                group,
+                timestamp,
+                header_indentation,
+                value_indentation,
+                manager['topinfo'],
+                interval_in_seconds)
             self.samples -= 1
         else:
             pass
