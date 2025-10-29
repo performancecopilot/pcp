@@ -11,3 +11,15 @@ QA output created by 1996
 === Sysfs-based metrics ===
 
 == done
+
+== Testing InfiniBand PMDA with mock libraries - ib-root-002.tgz ==
+
+=== HCA (Host Channel Adapter) metrics ===
+
+=== Port state metrics ===
+
+=== Port performance counters ===
+
+=== Sysfs-based metrics ===
+
+== done

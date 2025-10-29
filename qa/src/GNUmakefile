@@ -19,7 +19,7 @@ LLDFLAGS = \
 NVIDIACFLAGS = -I$(TOPDIR)/src/pmdas/nvidia
 NVIDIAQALIB = libnvidia-ml.$(DSOSUFFIX)
 
-ifeq "$(HAVE_PMDAINFINIBAND)" "true"
+ifeq "$(PMDA_INFINIBAND)" "true"
 IBUMADQALIB = libibumad.$(DSOSUFFIX)
 IBVERBSQALIB = libibverbs.$(DSOSUFFIX)
 endif
@@ -36,8 +36,10 @@ install install_pcp:
 	$(INSTALL) -m 644 -f $(CFILES) $(MYFILES) $(TESTDIR)
 	$(INSTALL) -m 755 -f $(PSCRIPTS) $(MYSCRIPTS) $(TESTDIR)
 	$(INSTALL) -m 755 -f $(NVIDIAQALIB) $(TESTDIR)/$(NVIDIAQALIB)
+ifeq "$(PMDA_INFINIBAND)" "true"
 	$(INSTALL) -m 755 -f $(IBUMADQALIB) $(TESTDIR)/$(IBUMADQALIB)
 	$(INSTALL) -m 755 -f $(IBVERBSQALIB) $(TESTDIR)/$(IBVERBSQALIB)
+endif
 	$(INSTALL) -m 644 -f GNUlocaldefs $(TESTDIR)/GNUlocaldefs
 	$(INSTALL) -m 644 -f GNUmakefile.install $(TESTDIR)/GNUmakefile
 

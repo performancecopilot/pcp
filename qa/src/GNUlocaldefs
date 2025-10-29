@@ -215,6 +215,7 @@ endif
 LCFLAGS = -DHAVE_TRACE
 LLDLIBS	= $(LDFLAGS) $(PCPLIB)
 
+# NVIDIA mock library for testing
 ifneq ($(NVIDIAQALIB),)
 LIBTARGET = true
 MYCFILES += nvidia-ml.c
@@ -224,9 +225,8 @@ TARGETS += $(NVIDIAQALIB)
 endif
 
 # InfiniBand mock libraries for testing
-IBUMADQALIB = libibumad.$(DSOSUFFIX)
-IBVERBSQALIB = libibverbs.$(DSOSUFFIX)
 ifneq ($(IBUMADQALIB),)
+LIBTARGET = true
 MYCFILES += infiniband-umad.c infiniband-verbs.c
 LDIRT += infiniband-umad.o infiniband-verbs.o
 TARGETS += $(IBUMADQALIB) $(IBVERBSQALIB)
