@@ -15,7 +15,7 @@ ifeq ($(TARGET_OS), linux)
 LOCAL_RULES = util context_switch system load_average low_util
 endif
 
-# Metrics missing from Mac OS X
+# Metrics missing from macOS
 #
 # rule: util
 #   kernel.all.cpu.intr -12357 Unknown metric name

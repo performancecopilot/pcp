@@ -707,7 +707,7 @@
 /* Platform is AIX */
 #undef IS_AIX
 
-/* Platform is Darwin (Mac OS X) */
+/* Platform is Darwin (macOS) */
 #undef IS_DARWIN
 
 /* Platform is FreeBSD */

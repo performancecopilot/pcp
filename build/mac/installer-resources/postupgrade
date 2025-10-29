@@ -19,7 +19,7 @@ prog=`basename $0`
 status=1
 trap "exit \$status" 0 1 2 15
 
-echo "$prog: PCP for MacOSX Upgrade"
+echo "$prog: PCP for macOS Upgrade"
 
 echo "$prog: Stopping PCP"
 /Library/StartupItems/pcp/pmlogger stop

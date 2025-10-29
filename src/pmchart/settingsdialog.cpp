@@ -134,7 +134,7 @@ SettingsDialog::SettingsDialog(QWidget* parent)
     connect(addHostButton, SIGNAL(clicked()),
 		this, SLOT(addHostButton_clicked()));
 
-#ifndef IS_DARWIN	// only relevent as an option on Mac OS X
+#ifndef IS_DARWIN	// only relevent as an option on macOS
     nativeToolbarCheckBox->setEnabled(false);
 #endif
 

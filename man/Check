@@ -279,7 +279,7 @@ grep -r -i irix man? \
 | sed >$tmp.out \
     -e '/\.tmp:/d' \
     -e '/man5\/pmns.5:.*IRIX:[A-Z]/d' \
-    -e '/man1\/pcpintro.1:.*MacOSX, IRIX, AIX/d' \
+    -e '/man1\/pcpintro.1:.*macOS, IRIX, AIX/d' \
     -e '/man1\/pmie.1:.*\/SGI_Admin\/books\/PCP_IRIX\//d' \
     -e '/man5\/pmns.5:#define IRIX 1/d' \
     -e '/man1\/pcpcompat.1:configuration file format (from IRIX) was also retired in this release,/d' \

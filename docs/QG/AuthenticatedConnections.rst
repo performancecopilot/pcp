@@ -49,7 +49,7 @@ A *local:* specification is also available, which indicates that the monitor too
 
 .. note::
     
-   This facility is completely independent and separate to the remote access facility (described later). Therefore, it can still be used even when support for the remote authentication facilities is unavailable or not configured. This local facility is always enabled on platforms that support it - these include Linux, Mac OS X and Solaris.
+   This facility is completely independent and separate to the remote access facility (described later). Therefore, it can still be used even when support for the remote authentication facilities is unavailable or not configured. This local facility is always enabled on platforms that support it - these include Linux, macOS and Solaris.
  
 Remote Access
 ****************

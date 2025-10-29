@@ -59,7 +59,7 @@ endif
 ifdef VERSION_SCRIPT
 ifneq ($(INVISIBILITY),)
 ifeq ($(TARGET_OS), darwin)
-# Mac OS X ld(1) takes a different format for the symbols file
+# macOS ld(1) takes a different format for the symbols file
 # EXPORTS	= $(VERSION_SCRIPT).darwin
 # _SHAREDOPTS	+=  -Wl,-exported_symbols_list $(EXPORTS)
 # LDIRT		+= $(EXPORTS)
