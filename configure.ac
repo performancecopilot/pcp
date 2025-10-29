@@ -2126,30 +2126,40 @@ AS_IF([test "x$do_infiniband" != "xno"], [
     ], [])
     savedLIBS=$LIBS
     IB_LIBS=""
+    AC_CHECK_HEADERS([infiniband/verbs.h], [have_ibverbs=true], [have_ibverbs=false])
     AC_CHECK_LIB(ibmad, madrpc_init)
     AC_CHECK_LIB(ibumad, umad_init)
+    AC_CHECK_LIB(ibverbs, ibv_get_device_list)
     if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
     then
+	IB_CFLAGS=""
 	IB_LIBS="-libmad -libumad"
 	LIBS="$IB_LIBS"
 	AC_MSG_CHECKING([for port_performance_query_via])
 	AC_TRY_LINK_FUNC(port_performance_query_via,
-                AC_DEFINE(HAVE_PORT_PERFORMANCE_QUERY_VIA, [1], [port_performance_query_via API])
+		AC_DEFINE(HAVE_PORT_PERFORMANCE_QUERY_VIA, [1], [port_performance_query_via API])
 		have_port_performance_query_via=true
 		AC_MSG_RESULT(yes),
-                have_port_performance_query_via=false
+		have_port_performance_query_via=false
 		AC_MSG_RESULT(no))
 	AC_MSG_CHECKING([for pma_query_via])
 	AC_TRY_LINK_FUNC(pma_query_via,
 		AC_DEFINE(HAVE_PMA_QUERY_VIA, [1], [pma_query_via API])
-                have_pma_query_via=true
+		have_pma_query_via=true
 		AC_MSG_RESULT(yes),
-                have_pma_query_via=false
+		have_pma_query_via=false
 		AC_MSG_RESULT(no))
 	LIBS=$savedLIBS
 	if test $have_pma_query_via -o $have_port_performance_query_via
 	then
-	    :
+	    AC_MSG_CHECKING([if verbs API should be used])
+	    if test $ac_cv_header_infiniband_verbs_h = yes -a $ac_cv_lib_ibverbs_ibv_get_device_list = yes
+	    then
+		IB_LIBS="$IB_LIBS -libverbs"
+		AC_MSG_RESULT(yes)
+	    else
+		AC_MSG_RESULT(no)
+	    fi
 	else
 	    pmda_infiniband=false
 	fi
@@ -2158,6 +2168,7 @@ AS_IF([test "x$do_infiniband" != "xno"], [
     fi
     LIBS=$savedLIBS
     AC_SUBST(IB_LIBS)
+    AC_SUBST(IB_CFLAGS)
 ])
 AC_MSG_CHECKING([if the infiniband PMDA should be included])
 AC_SUBST(PMDA_INFINIBAND, $pmda_infiniband)

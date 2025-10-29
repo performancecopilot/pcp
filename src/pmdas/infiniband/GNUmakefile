@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015,2020 Red Hat.
+# Copyright (c) 2013-2015,2020,2025 Red Hat.
 # Copyright (c) 2007-2009 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pmdaib$(EXECSUFFIX)
 CFILES	= ib.c pmda.c
 HFILES  = ibpmda.h
-LLDLIBS	= $(IB_LIBS) $(PCP_LIBS) -lpcp_pmda -lpcp -libverbs
+LLDLIBS	= $(IB_LIBS) $(PCP_LIBS) -lpcp_pmda -lpcp
 
 IAM	= ib
 DOMAIN  = IB

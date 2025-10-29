@@ -1,11 +1,12 @@
 /*
+ * Copyright (C) 2025 Red Hat. All Rights Reserved.
  * Copyright (C) 2008 Silicon Graphics, Inc. All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -16,8 +17,9 @@
 #include "ibpmda.h"
 #include <infiniband/umad.h>
 #include <infiniband/mad.h>
+#ifdef HAVE_INFINIBAND_VERBS_H
 #include <infiniband/verbs.h>
-#include <infiniband/ibnetdisc.h>
+#endif
 #include <ctype.h>
 
 
@@ -85,17 +87,17 @@ static mad_cnt_desc_t mad_cnt_descriptors[] = {
     MADDESC_INIT(XMT_BYTES,      12, 31, 4),
     MADDESC_INIT(RCV_BYTES,      13, 31, 4),
 
-	MADDESC_INIT(XMT_BYTES,      26, 31, 1),
+    MADDESC_INIT(XMT_BYTES,      26, 31, 1),
     MADDESC_INIT(RCV_BYTES,      27, 31, 1),
 
     MADDESC_INIT(XMT_PKTS,       14, 31, 1),
     MADDESC_INIT(RCV_PKTS,       15, 31, 1),
-    MADDESC_INIT(PORT_SELECT,    	20, 31, 1),
-    MADDESC_INIT(COUNTER_SELECT,    21, 31, 1),
-    MADDESC_INIT(EXT_RCV_UPKTS,    		22, 31, 1),
-    MADDESC_INIT(EXT_RCV_MPKTS,    		23, 31, 1),
-    MADDESC_INIT(EXT_XMT_UPKTS,    		24, 31, 1),
-    MADDESC_INIT(EXT_XMT_MPKTS,    		25, 31, 1)
+    MADDESC_INIT(PORT_SELECT,    20, 31, 1),
+    MADDESC_INIT(COUNTER_SELECT, 21, 31, 1),
+    MADDESC_INIT(EXT_RCV_UPKTS,  22, 31, 1),
+    MADDESC_INIT(EXT_RCV_MPKTS,  23, 31, 1),
+    MADDESC_INIT(EXT_XMT_UPKTS,  24, 31, 1),
+    MADDESC_INIT(EXT_XMT_MPKTS,  25, 31, 1),
 };
 
 #undef MADDESC_INIT
@@ -505,7 +507,7 @@ ib_portcap_to_string(port_state_t *pst)
  * watermark and must be reset, don't change the previous value here - 
  * it  could lead to double counting on the second call */
 static uint64_t
-ib_update_perfcnt (port_state_t *pst, int udata, int *rv )
+ib_update_perfcnt(port_state_t *pst, int udata, int *rv)
 {
     mad_cnt_desc_t * md = mad_cnt_descriptors + udata;
 	// pmNotifyErr(LOG_INFO, "name - %s\n", md->name);
@@ -566,20 +568,21 @@ ib_linkwidth (port_state_t *pst)
 static char *
 ib_hca_get_transport(hca_state_t* hca)
 {
-		if (hca->ca.node_type < ARRAYSZ(node_types)) {
-			switch(hca->ca.node_type){
-				case IBV_NODE_CA:
-				case IBV_NODE_SWITCH:
-				case IBV_NODE_ROUTER:
-					return "Infinband";
-				case IBV_NODE_RNIC:
-					return "iWARP";
-			}
-	    }
-		return "unknown";
+    if (hca->ca.node_type < ARRAYSZ(node_types)) {
+	switch (hca->ca.node_type) {
+	case IBV_NODE_CA:
+	case IBV_NODE_SWITCH:
+	case IBV_NODE_ROUTER:
+	    return "Infinband";
+	case IBV_NODE_RNIC:
+	    return "iWARP";
+	}
+    }
+    return "unknown";
 }
 
-char* read_sysfs_file(const char* filename) {
+char* read_sysfs_file(const char* filename)
+{
     FILE *file;
     char *buffer = NULL;
     size_t total_size = 0;
@@ -634,26 +637,28 @@ char* read_sysfs_file(const char* filename) {
 }
 
 static char *
-ib_hca_get_board_id(hca_state_t* hca){
-	char path[256];
-    snprintf(path, sizeof(path), "/sys/class/infiniband/%s/board_id", hca->ca.ca_name);
+ib_hca_get_board_id(hca_state_t *hca)
+{
+    char path[MAXPATHLEN];
+    pmsprintf(path, sizeof(path), "/sys/class/infiniband/%s/board_id", hca->ca.ca_name);
 
-	char *board_id = read_sysfs_file(path);
-
-	if (board_id != NULL) {
-		size_t length = strlen(board_id);
-        if (length > 0 && board_id[length - 1] == '\n') {
-            board_id[length - 1] = '\0';
-        }
-		
-		return board_id;
+    char *board_id = read_sysfs_file(path);
+    if (board_id != NULL) {
+	size_t length = strlen(board_id);
+	if (length > 0 && board_id[length - 1] == '\n') {
+	    board_id[length - 1] = '\0';
+	}
+	return board_id;
     }
-	return "NA";
+    return "NA";
 }
 
 static char *
-ib_hca_get_vendor_id(hca_state_t* hca) {
+ib_hca_get_vendor_id(hca_state_t *hca)
+{
+#ifdef HAVE_INFINIBAND_VERBS_H
     struct ibv_device **device_list = ibv_get_device_list(NULL);
+
     if (!device_list) {
         pmNotifyErr(LOG_INFO, "Failed to get IB devices list");
         return "NA";
@@ -663,18 +668,19 @@ ib_hca_get_vendor_id(hca_state_t* hca) {
     struct ibv_device *device;
     struct ibv_context *context;
     struct ibv_device_attr device_attr;
-	int i;
+    int i;
+
     for (i = 0; device_list[i]; ++i) {
         device = device_list[i];
         context = ibv_open_device(device);
         if (!context) {
-            pmNotifyErr(LOG_INFO, "Failed to open IB device");
+            pmNotifyErr(LOG_INFO, "Failed to open IB device %s", ibv_get_device_name(device));
             continue;
         }
 
         if (ibv_query_device(context, &device_attr) == 0 && device_attr.node_guid == target_guid) {
             static char vendor_id[20];
-            snprintf(vendor_id, sizeof(vendor_id), "0x%04x", device_attr.vendor_id);
+            pmsprintf(vendor_id, sizeof(vendor_id), "0x%04x", device_attr.vendor_id);
             ibv_close_device(context);
             ibv_free_device_list(device_list);
             return vendor_id;
@@ -683,22 +689,23 @@ ib_hca_get_vendor_id(hca_state_t* hca) {
     }
 
     ibv_free_device_list(device_list);
+#endif
     return "NA";
 }
 
-uint64_t ib_hca_get_resources(hca_state_t* hca, char * resource_type){
-	const long long int NOT_FOUND  = UINT64_MAX;
-	const int MAX_OUTPUT_SIZE = 1024;
-
-	const char* ca_name = hca->ca.ca_name;
-    FILE *fp;
+static uint64_t
+ib_hca_get_resources(hca_state_t* hca, char * resource_type)
+{
+    const long long int NOT_FOUND  = UINT64_MAX;
+    const int MAX_OUTPUT_SIZE = 1024;
+    const char* ca_name = hca->ca.ca_name;
     char command[256];
     char output[MAX_OUTPUT_SIZE];
+    FILE *fp;
 
     memset(output, 0, sizeof(output));
 
-    snprintf(command, sizeof(command), "rdma res show %s", ca_name);
-
+    pmsprintf(command, sizeof(command), "rdma res show %s", ca_name);
     fp = popen(command, "r");
     if (fp == NULL) {
         pmNotifyErr(LOG_INFO, "popen failed");
@@ -738,23 +745,24 @@ uint64_t ib_hca_get_resources(hca_state_t* hca, char * resource_type){
     }
 
     return NOT_FOUND;
-
 }
 
-int read_cm_msgs(const char *ca_name, int portnum, const char *request_type, const char *filename) {
-    char filepath[256];
+static int
+read_cm_msgs(const char *ca_name, int portnum, const char *request_type, const char *filename)
+{
+    char filepath[MAXPATHLEN];
 
     // Try first file path format
-    snprintf(filepath, sizeof(filepath), "/sys/class/infiniband/%s/ports/%d/%s/%s", 
-             ca_name, portnum, request_type, filename);
+    pmsprintf(filepath, sizeof(filepath), "/sys/class/infiniband/%s/ports/%d/%s/%s", 
+              ca_name, portnum, request_type, filename);
 
     FILE *file = fopen(filepath, "r");
     if (file == NULL) {
         pmNotifyErr(LOG_INFO, "Failed to open file %s, trying alternate path", filepath);
 
         // Try the alternate file path format
-        snprintf(filepath, sizeof(filepath), "/sys/class/infiniband_cm/%s/%d/%s/%s", 
-                 ca_name, portnum, request_type, filename);
+        pmsprintf(filepath, sizeof(filepath), "/sys/class/infiniband_cm/%s/%d/%s/%s", 
+                  ca_name, portnum, request_type, filename);
 
         file = fopen(filepath, "r");
         if (file == NULL) {
@@ -765,7 +773,6 @@ int read_cm_msgs(const char *ca_name, int portnum, const char *request_type, con
 
     uint64_t metric_value;
     if (fscanf(file, "%lu", &metric_value) != 1) {
-
         pmNotifyErr(LOG_INFO, "Failed to read from file %s", filepath);
         fclose(file);
         return -1; 
@@ -775,22 +782,22 @@ int read_cm_msgs(const char *ca_name, int portnum, const char *request_type, con
     return metric_value;
 }
 
-int read_diag_counters(const char *ca_name, int portnum, const char *filename){
-    char filepath[256];
+static int
+read_diag_counters(const char *ca_name, int portnum, const char *filename)
+{
+    char filepath[MAXPATHLEN];
 
-    snprintf(filepath, sizeof(filepath), "/sys/class/infiniband/%s/ports/%d/hw_counters/%s", 
+    pmsprintf(filepath, sizeof(filepath), "/sys/class/infiniband/%s/ports/%d/hw_counters/%s", 
              ca_name, portnum, filename);
 
     FILE *file = fopen(filepath, "r");
     if (file == NULL) {
         pmNotifyErr(LOG_INFO, "Failed to open file %s, trying alternate path", filepath);
-
-		return -1; 
+        return -1; 
     }
 
     uint64_t metric_value;
     if (fscanf(file, "%lu", &metric_value) != 1) {
-
         pmNotifyErr(LOG_INFO, "Failed to read from file %s", filepath);
         fclose(file);
         return -1; 
@@ -800,8 +807,8 @@ int read_diag_counters(const char *ca_name, int portnum, const char *filename){
     return metric_value;
 }
 
-
-int get_mtu_value(int mtu) {
+static int
+get_mtu_value(int mtu) {
     switch (mtu) {
         case 1:   return 256;   
         case 2:   return 512;
@@ -812,35 +819,38 @@ int get_mtu_value(int mtu) {
     }
 }
 
-int ib_port_get_active_mtu(port_state_t *pst, int find_active_mtu) {
+static int
+ib_port_get_active_mtu(port_state_t *pst, int find_active_mtu)
+{
     int local_mtu = mad_get_field(pst->portinfo, 0, IB_PORT_MTU_CAP_F);
 
-	if(find_active_mtu == 0){
-	    return get_mtu_value(local_mtu);
-	}
+    if (find_active_mtu == 0)
+	return get_mtu_value(local_mtu);
 
     int neigh_mtu = mad_get_field(pst->portinfo, 0, IB_PORT_NEIGHBOR_MTU_F);
-
     int active_mtu = (local_mtu < neigh_mtu ? local_mtu : neigh_mtu);
 
     return get_mtu_value(active_mtu);
 }
 
-char* get_node_guid_string(uint64_t guid) {
+static char *
+get_node_guid_string(uint64_t guid)
+{
     static char guid_string[20]; // Enough space for "0x" followed by 16 hex digits + null terminator
     uint64_t host_guid = be64toh(guid);
-	snprintf(guid_string, sizeof(guid_string), 
+
+    pmsprintf(guid_string, sizeof(guid_string), 
 			"%04" PRIx64 ":%04" PRIx64 ":%04" PRIx64 ":%04" PRIx64,
 			(host_guid >> 48) & 0xFFFF,
 			(host_guid >> 32) & 0xFFFF,
 			(host_guid >> 16) & 0xFFFF,
 			host_guid & 0xFFFF);
-
-
     return guid_string;
 }
 
-char* get_netdev_name(const char *ib_dev_name, int port_num) {
+static char *
+get_netdev_name(const char *ib_dev_name, int port_num)
+{
     char cmd_output[256];
     char command[] = "ibdev2netdev";
     FILE *fp;
@@ -868,18 +878,35 @@ char* get_netdev_name(const char *ib_dev_name, int port_num) {
     return "";
 }
 
+static char *
+get_node_desc(const char *ib_dev_name)
+{
+    char path[MAXPATHLEN];
+    pmsprintf(path, sizeof(path), "/sys/class/infiniband/%s/node_desc", ib_dev_name);
+
+    char *node_desc = read_sysfs_file(path);
+    if (node_desc != NULL) {
+	size_t length = strlen(node_desc);
+	if (length > 0 && node_desc[length - 1] == '\n') {
+	    node_desc[length - 1] = '\0';
+	}
+	return node_desc;
+    }
+    return "NA";
+}
+
 int
 ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 {
     unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
     unsigned int item = pmID_item(mdesc->m_desc.pmid);
-    int	rv = 1; 
     port_state_t *pst = NULL;
     hca_state_t *hca = NULL;
+    int st;
+    int	rv = 1; 
     int umask;
     int udata = (int)((__psint_t)mdesc->m_user);
     void *closure = NULL;
-    int st;
     char *name = NULL;
 
     umask = 1<<cluster;
@@ -942,9 +969,9 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		sm.lid = lp->ump->sm_lid;
 
 		memset (&pst->portid, 0, sizeof (pst->portid));
-		if (ib_resolve_guid_via (&pst->portid, &pst->guid, &sm,
-					 pst->timeout, lp->hndl) < 0) {
-			pmNotifyErr (LOG_ERR, 
+		if (ib_resolve_guid_via(&pst->portid, &pst->guid, &sm,
+					pst->timeout, lp->hndl) < 0) {
+			pmNotifyErr(LOG_ERR, 
 				       "Cannot resolve GUID 0x%llx for %s "
 				       "via  %s:%d\n", 
 					(unsigned long long)pst->guid,
@@ -958,18 +985,17 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    switch (cluster) {
 	    case 0: /* port attributes */
 		memset (pst->portinfo, 0, sizeof(pst->portinfo));
-		if (!smp_query_via (pst->portinfo, &pst->portid,
-				    IB_ATTR_PORT_INFO, 0, pst->timeout,
-				    lp->hndl)) {
-		    pmNotifyErr (LOG_ERR,
-				   "Cannot get port info for %s via %s:%d\n",
-				   name, lp->ump->ca_name, lp->ump->portnum);
+		if (!smp_query_via(pst->portinfo, &pst->portid,
+				   IB_ATTR_PORT_INFO, 0, pst->timeout,
+				   lp->hndl)) {
+		    pmNotifyErr(LOG_ERR,
+				"Cannot get port info for %s via %s:%d\n",
+				name, lp->ump->ca_name, lp->ump->portnum);
 		    return 0;
 		}
 		break;
 
-		case 4:
-
+	    case 4:
 	    case 1: /* performance counters */
 		/* I thought about updating all accumulating counters
 		 * in case port_performance_query() succeeds but
@@ -988,7 +1014,6 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		}
 		break;
 			
-
 	    case 3: { /* switch performance counters */
 
 #ifdef HAVE_PMA_QUERY_VIA
@@ -1132,8 +1157,8 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	case METRIC_ib_port_rate:
 	    atom->l = ib_linkwidth(pst) * 
-		      (5 * mad_get_field (pst->portinfo, 0, 
-					  IB_PORT_LINK_SPEED_ACTIVE_F))/2;
+		      (5 * mad_get_field(pst->portinfo, 0, 
+					 IB_PORT_LINK_SPEED_ACTIVE_F))/2;
 	    break;
 
 	case METRIC_ib_port_lid:
@@ -1141,11 +1166,11 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 
 	case METRIC_ib_port_sm_lid:
-	    atom->l = mad_get_field (pst->portinfo, 0, IB_PORT_SMLID_F);
+	    atom->l = mad_get_field(pst->portinfo, 0, IB_PORT_SMLID_F);
 	    break;
 
 	case METRIC_ib_port_lmc:
-	    atom->l = mad_get_field (pst->portinfo, 0, IB_PORT_LMC_F);
+	    atom->l = mad_get_field(pst->portinfo, 0, IB_PORT_LMC_F);
 	    break;
 	
 	case METRIC_ib_port_max_mtu:
@@ -1165,13 +1190,12 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		break;
 
 	case METRIC_ib_port_capmask:
-		atom->ull = mad_get_field (pst->portinfo, 0, IB_PORT_CAPMASK_F);
+		atom->ull = mad_get_field(pst->portinfo, 0, IB_PORT_CAPMASK_F);
 		break;
 
 	case METRIC_ib_port_node_desc:
-		// pmNotifyErr(LOG_INFO, "%s", (hca->ca.ca_name));
-		atom->cp = "cp";//get_node_desc(get_node_guid_string(pst->lport->ump->port_guid));
-		break;
+	    atom->cp = get_node_desc(pst->lport->ump->ca_name);
+	    break;
 
 	case METRIC_ib_port_capabilities:
 	    atom->cp = ib_portcap_to_string(pst);
@@ -1363,7 +1387,8 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->ull = res;
 			}
 		} else if (item >= 45 && item <= 53) {
-			sprintf(diag_metric_name, "rq_num_%s", diag_metrics_rq[item-45]);
+			pmsprintf(diag_metric_name, sizeof(diag_metric_name),
+					"rq_num_%s", diag_metrics_rq[item-45]);
 			res = read_diag_counters(ca_name, portnum, diag_metric_name);
 			if (res == -1) {
 				atom->ull = 0;
@@ -1371,7 +1396,8 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				atom->ull = res;
 			}
 		} else if (item >= 54 && item <= 67) {
-			sprintf(diag_metric_name, "sq_num_%s", diag_metrics_sq[item-54]);
+			pmsprintf(diag_metric_name, sizeof(diag_metric_name),
+					"sq_num_%s", diag_metrics_sq[item-54]);
 			res = read_diag_counters(ca_name, portnum, diag_metric_name);
 			if (res == -1) {
 				atom->ull = 0;
@@ -1545,4 +1571,3 @@ ib_store(pmdaResult *result, pmdaExt *pmda)
     }
     return 0;
 }
-
