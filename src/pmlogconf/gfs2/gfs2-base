@@ -5,6 +5,7 @@ probe	gfs2.glocks.total values ? include : exclude
 	gfs2.holders
 	gfs2.sbstats
 	gfs2.glstats
+	gfs2.glockfd
 	gfs2.tracepoints.promote
 	gfs2.tracepoints.demote_rq
 	gfs2.tracepoints.log_flush
