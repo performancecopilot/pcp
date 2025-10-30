@@ -34,8 +34,8 @@ _filter()
 }
 
 pmda=$PCP_PMDAS_DIR/infiniband/pmda_ib.$DSO_SUFFIX,ib_init
-pmns=$PCP_PMDAS_DIR/infiniband/pmns
-domain=`sed -n '/INFINIBAND/s/.*INFINIBAND[ 	]*//p' $PCP_VAR_DIR/pmns/stdpmid | head -1`
+pmns=$PCP_PMDAS_DIR/infiniband/root
+domain=91
 
 # real QA test starts here
 root=$tmp.root
@@ -56,21 +56,23 @@ do
     # Test basic metric fetching
     echo
     echo "=== HCA (Host Channel Adapter) metrics ===" | tee -a $seq.full
-    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.hca 2>&1 | _filter
+    metrics="infiniband.hca.numports infiniband.hca.res.pd"
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns $metrics 2>&1 | _filter
 
     echo
     echo "=== Port state metrics ===" | tee -a $seq.full
-    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.port.state 2>&1 | _filter
+    metrics=infiniband.port.state
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns $metrics 2>&1 | _filter
 
     echo
     echo "=== Port performance counters ===" | tee -a $seq.full
-    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.port.in_bytes 2>&1 | _filter
-    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.port.out_bytes 2>&1 | _filter
+    metrics="infiniband.port.in.bytes infiniband.port.out.bytes"
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns $metrics 2>&1 | _filter
 
     echo
     echo "=== Sysfs-based metrics ===" | tee -a $seq.full
-    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.hca.board_id 2>&1 | _filter
-    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns ib.port.node_desc 2>&1 | _filter
+    metrics="infiniband.hca.board_id infiniband.port.node_desc"
+    pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns $metrics 2>&1 | _filter
 
     ( echo && echo "== done" && echo ) | tee -a $seq.full
     cd $here

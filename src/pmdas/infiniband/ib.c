@@ -1239,7 +1239,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    switch ((st = mad_get_field(pst->portinfo, 0,
 				        IB_PORT_LINK_SPEED_ACTIVE_F))) {
 	    case 1:
-		atom->cp = "2.5 Gpbs";
+		atom->cp = "2.5 Gbps";
 		break;
 	    case 2:
         	atom->cp = "5.0 Gbps";
@@ -1272,7 +1272,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	     * and stuff its value into pmAtomValue */
 	    switch (mdesc->m_desc.type) {
 	    case PM_TYPE_32:
-		atom->l = (int32_t)ib_update_perfcnt (pst, udata, &rv);
+		atom->l = (int)ib_update_perfcnt(pst, udata, &rv);
 		break;
 	    case PM_TYPE_64:
 		atom->ll = ib_update_perfcnt (pst, udata, &rv);
@@ -1286,23 +1286,23 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    /* Synthetic metrics */
 	    switch (item) {
 	    case METRIC_ib_port_total_bytes:
-		atom->ll = ib_update_perfcnt (pst, IBPMDA_XMT_BYTES, &rv1)
-			 + ib_update_perfcnt (pst, IBPMDA_RCV_BYTES, &rv2);
+		atom->ll = ib_update_perfcnt(pst, IBPMDA_XMT_BYTES, &rv1)
+			 + ib_update_perfcnt(pst, IBPMDA_RCV_BYTES, &rv2);
 		break;
 
 	    case METRIC_ib_port_total_packets:
-		atom->ll = ib_update_perfcnt (pst, IBPMDA_XMT_PKTS, &rv1)
-			 + ib_update_perfcnt (pst, IBPMDA_RCV_PKTS, &rv2);
+		atom->ll = ib_update_perfcnt(pst, IBPMDA_XMT_PKTS, &rv1)
+			 + ib_update_perfcnt(pst, IBPMDA_RCV_PKTS, &rv2);
 		break;
 
 	    case METRIC_ib_port_total_errors_drop:
-		atom->l = (int)(ib_update_perfcnt (pst, IBPMDA_ERR_SWITCH_REL, &rv1) 
-			+ ib_update_perfcnt (pst, IBPMDA_XMT_DISCARDS, &rv2));
+		atom->l = (int)(ib_update_perfcnt(pst, IBPMDA_ERR_SWITCH_REL, &rv1) 
+			+ ib_update_perfcnt(pst, IBPMDA_XMT_DISCARDS, &rv2));
 		break;
 
 	    case METRIC_ib_port_total_errors_filter:
-		atom->l = (int)(ib_update_perfcnt (pst, IBPMDA_ERR_XMTCONSTR, &rv1) 
-			+ ib_update_perfcnt (pst, IBPMDA_ERR_RCVCONSTR, &rv2));
+		atom->l = (int)(ib_update_perfcnt(pst, IBPMDA_ERR_XMTCONSTR, &rv1) 
+			+ ib_update_perfcnt(pst, IBPMDA_ERR_RCVCONSTR, &rv2));
 		break;
 
 		case METRIC_ib_port_in_upkts:
@@ -1470,8 +1470,6 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	}
 #else
 	return PM_ERR_VALUE;
-	
-
 #endif
 	break;
 
