@@ -741,6 +741,7 @@ lib_for_hdr_histogram
 PMDA_PERFEVENT
 PFM_LIBS
 PMDA_INFINIBAND
+IB_CFLAGS
 IB_LIBS
 PMDA_SYSTEMD
 SYSTEMD_LIBS
@@ -13106,6 +13107,19 @@ fi
 done
     savedLIBS=$LIBS
     IB_LIBS=""
+           for ac_header in infiniband/verbs.h
+do :
+  ac_fn_c_check_header_compile "$LINENO" "infiniband/verbs.h" "ac_cv_header_infiniband_verbs_h" "$ac_includes_default"
+if test "x$ac_cv_header_infiniband_verbs_h" = xyes
+then :
+  printf "%s\n" "#define HAVE_INFINIBAND_VERBS_H 1" >>confdefs.h
+ have_ibverbs=true
+else case e in #(
+  e) have_ibverbs=false ;;
+esac
+fi
+
+done
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for madrpc_init in -libmad" >&5
 printf %s "checking for madrpc_init in -libmad... " >&6; }
 if test ${ac_cv_lib_ibmad_madrpc_init+y}
@@ -13208,8 +13222,60 @@ then :
 
 fi
 
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for ibv_get_device_list in -libverbs" >&5
+printf %s "checking for ibv_get_device_list in -libverbs... " >&6; }
+if test ${ac_cv_lib_ibverbs_ibv_get_device_list+y}
+then :
+  printf %s "(cached) " >&6
+else case e in #(
+  e) ac_check_lib_save_LIBS=$LIBS
+LIBS="-libverbs  $LIBS"
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+/* Override any GCC internal prototype to avoid an error.
+   Use char because int might match the return type of a GCC
+   builtin and then its argument prototype would still apply.
+   The 'extern "C"' is for builds by C++ compilers;
+   although this is not generally supported in C code supporting it here
+   has little cost and some practical benefit (sr 110532).  */
+#ifdef __cplusplus
+extern "C"
+#endif
+char ibv_get_device_list (void);
+int
+main (void)
+{
+return ibv_get_device_list ();
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_link "$LINENO"
+then :
+  ac_cv_lib_ibverbs_ibv_get_device_list=yes
+else case e in #(
+  e) ac_cv_lib_ibverbs_ibv_get_device_list=no ;;
+esac
+fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam \
+    conftest$ac_exeext conftest.$ac_ext
+LIBS=$ac_check_lib_save_LIBS ;;
+esac
+fi
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_ibverbs_ibv_get_device_list" >&5
+printf "%s\n" "$ac_cv_lib_ibverbs_ibv_get_device_list" >&6; }
+if test "x$ac_cv_lib_ibverbs_ibv_get_device_list" = xyes
+then :
+  printf "%s\n" "#define HAVE_LIBIBVERBS 1" >>confdefs.h
+
+  LIBS="-libverbs $LIBS"
+
+fi
+
     if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
     then
+	IB_CFLAGS=""
 	IB_LIBS="-libmad -libumad"
 	LIBS="$IB_LIBS"
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for port_performance_query_via" >&5
@@ -13279,7 +13345,7 @@ then :
 
 printf "%s\n" "#define HAVE_PMA_QUERY_VIA 1" >>confdefs.h
 
-                have_pma_query_via=true
+		have_pma_query_via=true
 		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
 else case e in #(
@@ -13293,7 +13359,17 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 	LIBS=$savedLIBS
 	if test $have_pma_query_via -o $have_port_performance_query_via
 	then
-	    :
+	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if verbs API should be used" >&5
+printf %s "checking if verbs API should be used... " >&6; }
+	    if test $ac_cv_header_infiniband_verbs_h = yes -a $ac_cv_lib_ibverbs_ibv_get_device_list = yes
+	    then
+		IB_LIBS="$IB_LIBS -libverbs"
+		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+	    else
+		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+	    fi
 	else
 	    pmda_infiniband=false
 	fi
@@ -13301,6 +13377,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 	pmda_infiniband=false
     fi
     LIBS=$savedLIBS
+
 
 
 fi

@@ -19,17 +19,20 @@ SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  java mmv postfix perl ceph slurm tmparch sheet smart admin hacluster \
 	  sockets denki gfs2 farm pdudata rocestat guidellm vllmbench
 
+ifeq "$(HAVE_PYTHON)" "true"
+SUBDIRS += secure mic haproxy lio openmetrics opentelemetry
+endif
+ifeq "$(PMDA_BPFTRACE)" "true"
+SUBDIRS += bpftrace
+endif
+ifeq "$(PMDA_INFINIBAND)" "true"
+SUBDIRS += infiniband
+endif
 ifeq "$(PMDA_PERFEVENT)" "true"
 SUBDIRS += perfevent
 endif
 ifeq "$(PMDA_STATSD)" "true"
 SUBDIRS += statsd
-endif
-ifeq "$(PMDA_BPFTRACE)" "true"
-SUBDIRS += bpftrace
-endif
-ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure mic haproxy lio openmetrics opentelemetry
 endif
 
 ifeq "$(ENABLE_SELINUX)" "true"

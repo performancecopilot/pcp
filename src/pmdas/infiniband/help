@@ -1,4 +1,5 @@
 #
+# Copyright (c) 2025 Red Hat.  All Rights Reserved.
 # Copyright (c) 2007,2008 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -11,9 +12,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# You should have received a copy of the GNU General Public License along
-# with this program; if not, write to the Free Software Foundation, Inc.,
-# 59 Temple Place, Suite 330, Boston, MA  02111-1307 USA
+#
+@ 91.0 InfiniBand host channel adapters (HCAs)
+One instance for each InfiniBand HCA detected on the system.
+
+@ 91.1 InfiniBand ports
+One instance for each port on each InfiniBand HCA. Instance names
+are of the form "hca_name:port_number" (e.g., "mlx5_0:1").
+
+@ 91.2 InfiniBand performance counter identifiers
+Counter identifiers used for control metrics like infiniband.control.hiwat.
 
 @ infiniband.hca.type Node type
 Node type: channel adapter (CA), switch, router etc
@@ -186,5 +194,284 @@ Cumulative value of infiniband.port.switch.in.bytes and
 infiniband.port.switch.out.bytes, provided for convenience.
 
 @ infiniband.port.switch.total.packets Packets transmitted and received (using switch counters)
-Cumulative value of infiniband.port.switch.in.packets and 
+Cumulative value of infiniband.port.switch.in.packets and
 infiniband.port.switch.out.packets, provided for convenience.
+
+@ infiniband.hca.transport HCA transport type
+Transport protocol type: InfiniBand, iWARP, or RoCE (RDMA over Converged Ethernet).
+
+@ infiniband.hca.board_id HCA board identifier
+Board identifier string from the HCA hardware, typically the model number.
+
+@ infiniband.hca.vendor_id HCA vendor identifier
+PCI vendor ID of the HCA hardware manufacturer.
+
+@ infiniband.hca.res.pd Protection domains allocated
+Number of protection domains currently allocated on this HCA.
+
+@ infiniband.hca.res.cq Completion queues allocated
+Number of completion queues currently allocated on this HCA.
+
+@ infiniband.hca.res.qp Queue pairs allocated
+Number of queue pairs currently allocated on this HCA.
+
+@ infiniband.hca.res.cm_id Connection manager IDs allocated
+Number of connection manager identifiers currently allocated on this HCA.
+
+@ infiniband.hca.res.mr Memory regions registered
+Number of memory regions currently registered on this HCA.
+
+@ infiniband.hca.res.ctx Contexts allocated
+Number of device contexts currently allocated on this HCA.
+
+@ infiniband.hca.res.srq Shared receive queues allocated
+Number of shared receive queues currently allocated on this HCA.
+
+@ infiniband.port.sm_lid Subnet manager LID
+Local identifier (LID) of the subnet manager for this port.
+
+@ infiniband.port.lmc LMC value
+LID Mask Control (LMC) value, determines number of LIDs assigned to the port.
+
+@ infiniband.port.max_mtu Maximum MTU
+Maximum transmission unit (MTU) supported by this port in bytes.
+
+@ infiniband.port.active_mtu Active MTU
+Currently active MTU (maximum transmission unit) negotiated for this port in bytes.
+
+@ infiniband.port.link_layer Link layer protocol
+Link layer protocol in use: InfiniBand or Ethernet.
+
+@ infiniband.port.netdev_name Network device name
+Name of the associated network device (e.g., ib0, eth0) if applicable.
+
+@ infiniband.port.capmask Port capability mask
+Bitmask of port capabilities as a numeric value.
+
+@ infiniband.port.node_desc Node description
+Text description of the node this port belongs to.
+
+@ infiniband.port.in.ucast_packets Unicast packets received
+Number of unicast packets received on this port.
+
+@ infiniband.port.in.mcast_packets Multicast packets received
+Number of multicast packets received on this port.
+
+@ infiniband.port.in.data Data octets received
+Number of data octets received on this port (alternative counter format).
+
+@ infiniband.port.out.ucast_packets Unicast packets transmitted
+Number of unicast packets transmitted from this port.
+
+@ infiniband.port.out.mcast_packets Multicast packets transmitted
+Number of multicast packets transmitted from this port.
+
+@ infiniband.port.out.data Data octets transmitted
+Number of data octets transmitted from this port (alternative counter format).
+
+@ infiniband.port.select Port select counter
+Port select value for extended counters.
+
+@ infiniband.port.counter_select Counter select value
+Counter select value for extended performance counters.
+
+@ infiniband.port.cm.rx_duplicates.apr APR duplicate messages received
+Number of duplicate Alternate Path Response (APR) messages received.
+
+@ infiniband.port.cm.rx_duplicates.drep DREP duplicate messages received
+Number of duplicate Disconnect Reply (DREP) messages received.
+
+@ infiniband.port.cm.rx_duplicates.dreq DREQ duplicate messages received
+Number of duplicate Disconnect Request (DREQ) messages received.
+
+@ infiniband.port.cm.rx_duplicates.lap LAP duplicate messages received
+Number of duplicate Load Alternate Path (LAP) messages received.
+
+@ infiniband.port.cm.rx_duplicates.mra MRA duplicate messages received
+Number of duplicate Message Receipt Acknowledgment (MRA) messages received.
+
+@ infiniband.port.cm.rx_duplicates.rej REJ duplicate messages received
+Number of duplicate Reject (REJ) messages received.
+
+@ infiniband.port.cm.rx_duplicates.rep REP duplicate messages received
+Number of duplicate Connection Reply (REP) messages received.
+
+@ infiniband.port.cm.rx_duplicates.req REQ duplicate messages received
+Number of duplicate Connection Request (REQ) messages received.
+
+@ infiniband.port.cm.rx_duplicates.rtu RTU duplicate messages received
+Number of duplicate Ready To Use (RTU) messages received.
+
+@ infiniband.port.cm.rx_duplicates.sidr_rep SIDR_REP duplicate messages received
+Number of duplicate Service ID Resolution Reply (SIDR_REP) messages received.
+
+@ infiniband.port.cm.rx_duplicates.sidr_req SIDR_REQ duplicate messages received
+Number of duplicate Service ID Resolution Request (SIDR_REQ) messages received.
+
+@ infiniband.port.cm.rx_msgs.apr APR messages received
+Number of Alternate Path Response (APR) messages received.
+
+@ infiniband.port.cm.rx_msgs.drep DREP messages received
+Number of Disconnect Reply (DREP) messages received.
+
+@ infiniband.port.cm.rx_msgs.dreq DREQ messages received
+Number of Disconnect Request (DREQ) messages received.
+
+@ infiniband.port.cm.rx_msgs.lap LAP messages received
+Number of Load Alternate Path (LAP) messages received.
+
+@ infiniband.port.cm.rx_msgs.mra MRA messages received
+Number of Message Receipt Acknowledgment (MRA) messages received.
+
+@ infiniband.port.cm.rx_msgs.rej REJ messages received
+Number of Reject (REJ) messages received.
+
+@ infiniband.port.cm.rx_msgs.rep REP messages received
+Number of Connection Reply (REP) messages received.
+
+@ infiniband.port.cm.rx_msgs.req REQ messages received
+Number of Connection Request (REQ) messages received.
+
+@ infiniband.port.cm.rx_msgs.rtu RTU messages received
+Number of Ready To Use (RTU) messages received.
+
+@ infiniband.port.cm.rx_msgs.sidr_rep SIDR_REP messages received
+Number of Service ID Resolution Reply (SIDR_REP) messages received.
+
+@ infiniband.port.cm.rx_msgs.sidr_req SIDR_REQ messages received
+Number of Service ID Resolution Request (SIDR_REQ) messages received.
+
+@ infiniband.port.cm.tx_msgs.apr APR messages transmitted
+Number of Alternate Path Response (APR) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.drep DREP messages transmitted
+Number of Disconnect Reply (DREP) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.dreq DREQ messages transmitted
+Number of Disconnect Request (DREQ) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.lap LAP messages transmitted
+Number of Load Alternate Path (LAP) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.mra MRA messages transmitted
+Number of Message Receipt Acknowledgment (MRA) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.rej REJ messages transmitted
+Number of Reject (REJ) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.rep REP messages transmitted
+Number of Connection Reply (REP) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.req REQ messages transmitted
+Number of Connection Request (REQ) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.rtu RTU messages transmitted
+Number of Ready To Use (RTU) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.sidr_rep SIDR_REP messages transmitted
+Number of Service ID Resolution Reply (SIDR_REP) messages transmitted.
+
+@ infiniband.port.cm.tx_msgs.sidr_req SIDR_REQ messages transmitted
+Number of Service ID Resolution Request (SIDR_REQ) messages transmitted.
+
+@ infiniband.port.cm.tx_retries.apr APR message retransmissions
+Number of Alternate Path Response (APR) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.drep DREP message retransmissions
+Number of Disconnect Reply (DREP) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.dreq DREQ message retransmissions
+Number of Disconnect Request (DREQ) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.lap LAP message retransmissions
+Number of Load Alternate Path (LAP) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.mra MRA message retransmissions
+Number of Message Receipt Acknowledgment (MRA) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.rej REJ message retransmissions
+Number of Reject (REJ) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.rep REP message retransmissions
+Number of Connection Reply (REP) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.req REQ message retransmissions
+Number of Connection Request (REQ) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.rtu RTU message retransmissions
+Number of Ready To Use (RTU) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.sidr_rep SIDR_REP message retransmissions
+Number of Service ID Resolution Reply (SIDR_REP) message retransmissions.
+
+@ infiniband.port.cm.tx_retries.sidr_req SIDR_REQ message retransmissions
+Number of Service ID Resolution Request (SIDR_REQ) message retransmissions.
+
+@ infiniband.port.diag.rq.dup RQ duplicate request errors
+Receive queue duplicate request errors.
+
+@ infiniband.port.diag.rq.lle RQ local length errors
+Receive queue local length errors.
+
+@ infiniband.port.diag.rq.lpe RQ local protection errors
+Receive queue local protection errors.
+
+@ infiniband.port.diag.rq.lqpoe RQ local QP operation errors
+Receive queue local queue pair operation errors.
+
+@ infiniband.port.diag.rq.oos RQ out of sequence errors
+Receive queue out of sequence errors.
+
+@ infiniband.port.diag.rq.rae RQ remote access errors
+Receive queue remote access errors.
+
+@ infiniband.port.diag.rq.rire RQ remote invalid request errors
+Receive queue remote invalid request errors.
+
+@ infiniband.port.diag.rq.rnr RQ receiver not ready errors
+Receive queue receiver not ready (RNR) errors.
+
+@ infiniband.port.diag.rq.wrfe RQ work request flushed errors
+Receive queue work request flushed errors.
+
+@ infiniband.port.diag.sq.bre SQ bad response errors
+Send queue bad response errors.
+
+@ infiniband.port.diag.sq.lle SQ local length errors
+Send queue local length errors.
+
+@ infiniband.port.diag.sq.lpe SQ local protection errors
+Send queue local protection errors.
+
+@ infiniband.port.diag.sq.lqpoe SQ local QP operation errors
+Send queue local queue pair operation errors.
+
+@ infiniband.port.diag.sq.mwbe SQ memory window bind errors
+Send queue memory window bind errors.
+
+@ infiniband.port.diag.sq.oos SQ out of sequence errors
+Send queue out of sequence errors.
+
+@ infiniband.port.diag.sq.rae SQ remote access errors
+Send queue remote access errors.
+
+@ infiniband.port.diag.sq.rire SQ remote invalid request errors
+Send queue remote invalid request errors.
+
+@ infiniband.port.diag.sq.rnr SQ receiver not ready errors
+Send queue receiver not ready (RNR) errors.
+
+@ infiniband.port.diag.sq.roe SQ remote operation errors
+Send queue remote operation errors.
+
+@ infiniband.port.diag.sq.rree SQ remote request errors
+Send queue remote request errors.
+
+@ infiniband.port.diag.sq.to SQ timeout errors
+Send queue timeout errors.
+
+@ infiniband.port.diag.sq.tree SQ transport retry exceeded errors
+Send queue transport retry count exceeded errors.
+
+@ infiniband.port.diag.sq.wrfe SQ work request flushed errors
+Send queue work request flushed errors.

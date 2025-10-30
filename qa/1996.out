@@ -1,0 +1,139 @@
+QA output created by 1996
+
+== Testing InfiniBand PMDA with mock libraries - ib-root-001.tgz ==
+
+=== HCA (Host Channel Adapter) metrics ===
+
+infiniband.hca.numports PMID: 91.0.2 [Number of ports on HCA]
+    Data Type: 32-bit int  InDom: 91.0 0x16c00000
+    Semantics: discrete  Units: none
+Help:
+Number of ports on HCA
+
+infiniband.hca.res.pd PMID: 91.0.19 [Protection domains allocated]
+    Data Type: 64-bit unsigned int  InDom: 91.0 0x16c00000
+    Semantics: discrete  Units: none
+Help:
+Number of protection domains currently allocated on this HCA.
+
+=== Port state metrics ===
+
+infiniband.port.state PMID: 91.0.10 [Port's state]
+    Data Type: string  InDom: 91.1 0x16c00001
+    Semantics: discrete  Units: none
+Help:
+Port's state - can be Active, Down, NoChange, Armed or Initialize
+
+=== Port performance counters ===
+
+infiniband.port.in.bytes PMID: 91.1.0 [Bytes received]
+    Data Type: 64-bit int  InDom: 91.1 0x16c00001
+    Semantics: counter  Units: byte
+Help:
+Counter of data octets received on all VLs at the port. This 
+includes all octets between (and not including) the start of 
+packet delimiter and the VCRC, and may include packets containing errors.
+It excludes all link packets. 
+
+This counter is implemented by sampling underlying saturating PortRcvData 
+counter. When a value of saturated counter reaches predefined threshold,
+the counter is reset after its value is copied into internal state.
+
+infiniband.port.out.bytes PMID: 91.1.2 [Bytes transmitted]
+    Data Type: 64-bit int  InDom: 91.1 0x16c00001
+    Semantics: counter  Units: byte
+Help:
+Counter of data octets, transmitted on all VLs from the port. This 
+includes all octets between (and not including) the start of 
+packet delimiter and the VCRC, and may include packets containing errors.
+It excludes all link packets. 
+
+This counter is implemented by sampling underlying saturating PortXmtData 
+counter. When a value of saturated counter reaches predefined threshold,
+the counter is reset after its value is copied into internal state.
+
+=== Sysfs-based metrics ===
+
+infiniband.hca.board_id PMID: 91.0.17 [HCA board identifier]
+    Data Type: string  InDom: 91.0 0x16c00000
+    Semantics: discrete  Units: none
+Help:
+Board identifier string from the HCA hardware, typically the model number.
+
+infiniband.port.node_desc PMID: 91.0.33 [Node description]
+    Data Type: string  InDom: 91.1 0x16c00001
+    Semantics: discrete  Units: none
+Help:
+Text description of the node this port belongs to.
+
+== done
+
+
+== Testing InfiniBand PMDA with mock libraries - ib-root-002.tgz ==
+
+=== HCA (Host Channel Adapter) metrics ===
+
+infiniband.hca.numports PMID: 91.0.2 [Number of ports on HCA]
+    Data Type: 32-bit int  InDom: 91.0 0x16c00000
+    Semantics: discrete  Units: none
+Help:
+Number of ports on HCA
+
+infiniband.hca.res.pd PMID: 91.0.19 [Protection domains allocated]
+    Data Type: 64-bit unsigned int  InDom: 91.0 0x16c00000
+    Semantics: discrete  Units: none
+Help:
+Number of protection domains currently allocated on this HCA.
+
+=== Port state metrics ===
+
+infiniband.port.state PMID: 91.0.10 [Port's state]
+    Data Type: string  InDom: 91.1 0x16c00001
+    Semantics: discrete  Units: none
+Help:
+Port's state - can be Active, Down, NoChange, Armed or Initialize
+
+=== Port performance counters ===
+
+infiniband.port.in.bytes PMID: 91.1.0 [Bytes received]
+    Data Type: 64-bit int  InDom: 91.1 0x16c00001
+    Semantics: counter  Units: byte
+Help:
+Counter of data octets received on all VLs at the port. This 
+includes all octets between (and not including) the start of 
+packet delimiter and the VCRC, and may include packets containing errors.
+It excludes all link packets. 
+
+This counter is implemented by sampling underlying saturating PortRcvData 
+counter. When a value of saturated counter reaches predefined threshold,
+the counter is reset after its value is copied into internal state.
+
+infiniband.port.out.bytes PMID: 91.1.2 [Bytes transmitted]
+    Data Type: 64-bit int  InDom: 91.1 0x16c00001
+    Semantics: counter  Units: byte
+Help:
+Counter of data octets, transmitted on all VLs from the port. This 
+includes all octets between (and not including) the start of 
+packet delimiter and the VCRC, and may include packets containing errors.
+It excludes all link packets. 
+
+This counter is implemented by sampling underlying saturating PortXmtData 
+counter. When a value of saturated counter reaches predefined threshold,
+the counter is reset after its value is copied into internal state.
+
+=== Sysfs-based metrics ===
+
+infiniband.hca.board_id PMID: 91.0.17 [HCA board identifier]
+    Data Type: string  InDom: 91.0 0x16c00000
+    Semantics: discrete  Units: none
+Help:
+Board identifier string from the HCA hardware, typically the model number.
+
+infiniband.port.node_desc PMID: 91.0.33 [Node description]
+    Data Type: string  InDom: 91.1 0x16c00001
+    Semantics: discrete  Units: none
+Help:
+Text description of the node this port belongs to.
+
+== done
+

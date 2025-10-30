@@ -4,6 +4,9 @@ usr/lib/pcp/pmdas/infiniband/Upgrade
 usr/lib/pcp/pmdas/infiniband/Remove
 usr/lib/pcp/pmdas/infiniband/domain.h
 usr/lib/pcp/pmdas/infiniband/help
+usr/lib/pcp/pmdas/infiniband/help.dir
+usr/lib/pcp/pmdas/infiniband/help.pag
+usr/lib/pcp/pmdas/infiniband/pmda_ib.so
 usr/lib/pcp/pmdas/infiniband/pmdaib
 usr/lib/pcp/pmdas/infiniband/pmns
 usr/lib/pcp/pmdas/infiniband/root
@@ -12,6 +15,9 @@ var/lib/pcp/pmdas/infiniband/Upgrade
 var/lib/pcp/pmdas/infiniband/Remove
 var/lib/pcp/pmdas/infiniband/domain.h
 var/lib/pcp/pmdas/infiniband/help
+var/lib/pcp/pmdas/infiniband/help.dir
+var/lib/pcp/pmdas/infiniband/help.pag
 var/lib/pcp/pmdas/infiniband/pmdaib
+var/lib/pcp/pmdas/infiniband/pmda_ib.so
 var/lib/pcp/pmdas/infiniband/pmns
 var/lib/pcp/pmdas/infiniband/root

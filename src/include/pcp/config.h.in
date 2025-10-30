@@ -192,6 +192,9 @@
 /* Define to 1 if you have the <infiniband/umad.h> header file. */
 #undef HAVE_INFINIBAND_UMAD_H
 
+/* Define to 1 if you have the <infiniband/verbs.h> header file. */
+#undef HAVE_INFINIBAND_VERBS_H
+
 /* Define to 1 if you have the <inttypes.h> header file. */
 #undef HAVE_INTTYPES_H
 

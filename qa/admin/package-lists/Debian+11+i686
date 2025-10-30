@@ -48,6 +48,7 @@ libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
+libibverbs-dev
 libicu67
 libinih-dev
 libjson-perl
