@@ -71,9 +71,11 @@ fi
 
 if $PMDA_INFINIBAND
 then
+    echo 's/?{libibverbs-dev}, /libibverbs-dev, /' >>$tmp.sed
     echo 's/?{libibumad-dev}, /libibumad-dev, /' >>$tmp.sed
     echo 's/?{libibmad-dev}, /libibmad-dev, /' >>$tmp.sed
 else
+    echo 's/?{libibverbs-dev}, //' >>$tmp.sed
     echo 's/?{libibumad-dev}, //' >>$tmp.sed
     echo 's/?{libibmad-dev}, //' >>$tmp.sed
 fi
