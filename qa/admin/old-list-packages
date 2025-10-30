@@ -1411,6 +1411,8 @@ libibmad-devel|infiniband-diags-devel	>=	1.1.7	pcp-pmda-infiniband
 libibmad|libibmad5|infiniband-diags	>=	1.1.7	pcp-pmda-infiniband
 libibumad-devel|rdma-core-devel		>=	1.1.7	pcp-pmda-infiniband
 libibumad|libibumad3			>=	1.1.7	pcp-pmda-infiniband
+libibverbs-devel|rdma-core-devel	>=	1.1.7	pcp-pmda-infiniband
+libibverbs|libibverbs1			>=	1.1.7	pcp-pmda-infiniband
 End-of-File
     cat $tmp.rpm \
     | sed -e 's/#.*//' -e '/^[ 	]*$/d' \

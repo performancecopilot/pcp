@@ -569,6 +569,7 @@ ib_linkwidth (port_state_t *pst)
 static char *
 ib_hca_get_transport(hca_state_t* hca)
 {
+#ifdef HAVE_INFINIBAND_VERBS_H
     if (hca->ca.node_type < ARRAYSZ(node_types)) {
 	switch (hca->ca.node_type) {
 	case IBV_NODE_CA:
@@ -579,6 +580,9 @@ ib_hca_get_transport(hca_state_t* hca)
 	    return "iWARP";
 	}
     }
+#else
+    (void)hca;
+#endif
     return "unknown";
 }
 
