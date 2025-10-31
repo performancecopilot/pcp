@@ -21,9 +21,6 @@
 #ifdef HAVE_TERMIOS_H
 #include <termios.h>
 #endif
-#ifdef HAVE_TERMIO_H
-#include <termio.h>
-#endif
 
 #define MINCOLS	80
 #define MINROWS	24
@@ -37,8 +34,8 @@ static int	ncols;
 static char	shortmsg[] = "more? (h=help) ";
 static char	longmsg[] = \
 	"[q or n to stop, y or <space> to go on, <enter> to step] more? ";
-#ifdef HAVE_TERMIO_H
-static struct termio	otty;
+#ifdef HAVE_TERMIOS_H
+static struct termios	otty;
 #endif
 
 void setio(int reset)	{ neols = 0; skiprest = reset; }
@@ -64,12 +61,10 @@ promptformore(void)
     int			sts = 1;
     char		c;
     char		*prompt;
-#ifdef HAVE_TERMIO_H
+#ifdef HAVE_TERMIOS_H
     static int		first = 1;
-    struct termio	ntty;
-#endif
+    struct termios	ntty;
 
-#ifdef HAVE_TERMIO_H
     if (first) {
 	if (ioctl(0, TCGETA, &otty) < 0) {
 	    fprintf(stderr, "%s: TCGETA ioctl failed: %s\n", pmGetProgname(),
@@ -80,7 +75,7 @@ promptformore(void)
     }
 
     /* put terminal into raw mode so we can read input immediately */
-    memcpy(&ntty, &otty, sizeof(struct termio));
+    memcpy(&ntty, &otty, sizeof(struct termios));
     ntty.c_cc[VMIN] = 1;
     ntty.c_cc[VTIME] = 1;
     ntty.c_lflag &= ~(ICANON | ECHO);
@@ -126,7 +121,7 @@ promptformore(void)
     }
 
 reset_tty:
-#ifdef HAVE_TERMIO_H
+#ifdef HAVE_TERMIOS_H
     if (ioctl(0, TCSETAW, &otty) < 0) {
 	fprintf(stderr, "%s: reset TCSETAW ioctl failed: %s\n", pmGetProgname(),
 		osstrerror());

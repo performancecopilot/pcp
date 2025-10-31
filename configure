@@ -11650,12 +11650,6 @@ then :
 
 fi
 
-ac_fn_c_check_header_compile "$LINENO" "termio.h" "ac_cv_header_termio_h" "$ac_includes_default"
-if test "x$ac_cv_header_termio_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_TERMIO_H 1" >>confdefs.h
-
-fi
 ac_fn_c_check_header_compile "$LINENO" "termios.h" "ac_cv_header_termios_h" "$ac_includes_default"
 if test "x$ac_cv_header_termios_h" = xyes
 then :
