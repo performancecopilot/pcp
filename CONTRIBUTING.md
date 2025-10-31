@@ -128,19 +128,19 @@ commit of the remote repository.
 Example usage:
 ```
 # Vendor a new library
-git subtree add --prefix vendor/github.com/redis/hiredis \
-  https://github.com/redis/hiredis.git v1.0.0 --squash
+git subtree add --prefix vendor/github.com/libbpf/libbpf \
+  https://github.com/libbpf/libbpf.git v1.6.2 --squash
 
 # Pull changes from the remote repository
-git subtree pull --prefix vendor/github.com/redis/hiredis \
-  https://github.com/redis/hiredis.git v1.0.1 --squash
+git subtree pull --prefix vendor/github.com/libbpf/libbpf \
+  https://github.com/libbpf/libbpf.git v1.6.3 --squash
 
 # Push modifications of vendored sources to the remote repository
 # Note: the commit(s) are split automatically, i.e. if one commit modifies
 # both PCP and vendored sources, the commit pushed to the remote repository
 # only contains updated files from the vendored directory
-git subtree push --prefix vendor/github.com/redis/hiredis \
-  https://github.com/andreasgerstmayr/hiredis.git some-updates
+git subtree push --prefix vendor/github.com/libbpf/libbpf \
+  https://github.com/andreasgerstmayr/libbpf.git some-updates
 ```
 
 Example vendoring a subdirectory of a remote repository:
