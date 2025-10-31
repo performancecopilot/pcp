@@ -177,6 +177,8 @@ farm.scsi {
 	drive_information_continued
 	environmental_information_continued
 	per_head_statistics
+	per_actuator_statistics
+	per_actuator_actuator_recallocation
 }
 
 farm.scsi.log_header {
@@ -286,4 +288,24 @@ farm.scsi.per_head_statistics {
 	head_cumulative_lifetime_unrecoverable_read_repeating	FARM:18:4
 	head_cumulative_lifetime_unrecoverable_read_unique		FARM:18:5
 	second_mr_head_resistance								FARM:18:6
+}
+
+farm.scsi.per_actuator_statistics {
+	head_load_events										FARM:19:0
+	timestamp_of_last_idd_test								FARM:19:1
+	subcommand_of_last_idd_test								FARM:19:2
+	number_of_reallocated_sector_reclamations				FARM:19:3
+	servo_status											FARM:19:4
+	number_of_slipped_sectors_after_idd_scan				FARM:19:5
+	number_of_resident_reallocated_sectors_after_idd_scan	FARM:19:6
+	successfully_scrubbed_sectors_after_idd_scan			FARM:19:7
+	number_of_dos_scans_performed							FARM:19:8
+	number_of_lbas_corrected_by_isp							FARM:19:9
+	number_of_valid_parity_sectors							FARM:19:10
+	number_of_lbas_corrected_by_parity_sector				FARM:19:11
+}
+
+farm.scsi.per_actuator_actuator_recallocation {
+	number_reallocated_sectors								FARM:20:0
+	number_recallocated_candidate_sectors					FARM:20:1
 }

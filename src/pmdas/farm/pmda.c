@@ -30,6 +30,8 @@
  	{ .it_indom = PER_HEAD_INDOM },
  	{ .it_indom = SCSI_DISK_INDOM },
 	{ .it_indom = SCSI_PER_HEAD_INDOM },
+	{ .it_indom = SCSI_ACTUATOR_INDOM },
+	{ .it_indom = SCSI_ACTUATOR_REALLOCATION_INDOM },
  };
  
  /*
@@ -867,6 +869,64 @@ pmdaMetric metrictable[] = {
     		PMDA_PMID(CLUSTER_SCSI_PER_HEAD_STATS, SCSI_SECOND_MR_HEAD_RESISTANCE),
 		PM_TYPE_U64, SCSI_PER_HEAD_INDOM, PM_SEM_COUNTER,
 		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/* SCSI - FARM Per-Actuator STATS */
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_HEAD_LOAD_EVENTS),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_TIMESTAMP_OF_LAST_IDD_TEST),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_SUBCOMMAND_OF_LAST_IDD_TEST),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_NUMBER_OF_REALLOCATAED_SECTOR_RECLAMATIONS),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_SERVO_STATUS),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_NUMBER_OF_SLIPPED_SECTORS_AFTER_IDD_SCAN),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_NUMBER_OF_RESIDENT_REALLOCATED_SECTORS_AFTER_IDD_SCAN),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_SUCCESSFULLY_SCRUBBED_SECTORS_AFTER_IDD_SCAN),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },		
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_NUMBER_OF_DOS_SCANS_PERFORMED),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },			
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_NUMBER_OF_LBS_CORRECTED_BY_ISP),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_NUMBER_OF_VALID_PARITY_SECTORS),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_STATS, SCSI_NUMBER_OF_LBAS_CORRECTED_BY_PARITY_SECTOR),
+		PM_TYPE_U64, SCSI_ACTUATOR_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	/* SCSI - FARM Per-Actuator Reallocation STATS */
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_REALLOCATION, SCSI_NUM_REALLOCATED_SECTORS),
+		PM_TYPE_U64, SCSI_ACTUATOR_REALLOCATION_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+    		PMDA_PMID(CLUSTER_SCSI_PER_ACTUATOR_REALLOCATION, SCSI_NUM_REALLOCATED_CANDIDATE_SECTORS),
+		PM_TYPE_U64, SCSI_ACTUATOR_REALLOCATION_INDOM, PM_SEM_COUNTER,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 pmInDom
@@ -1081,6 +1141,12 @@ farm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
         if (( i = pmdaCacheOp(scsi_indom, PMDA_CACHE_SIZE_ACTIVE)) > 0) {
 	        if (need_refresh[CLUSTER_SCSI_PER_HEAD_STATS])
 	                farm_scsi_refresh_per_head_stats();
+
+	        if (need_refresh[CLUSTER_SCSI_PER_ACTUATOR_STATS])
+	                farm_scsi_refresh_per_actuator_stats();
+
+	        if (need_refresh[CLUSTER_SCSI_PER_ACTUATOR_REALLOCATION])
+	                farm_scsi_refresh_per_actuator_reallocation_stats();
 	}
 	
 	return sts;
@@ -1145,6 +1211,12 @@ farm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 case CLUSTER_SCSI_PER_HEAD_STATS:
                         return farm_scsi_per_head_stats_fetch(item, inst, atom);
 
+		case CLUSTER_SCSI_PER_ACTUATOR_STATS:
+                        return farm_scsi_per_actuator_stats_fetch(item, inst, atom);
+
+		case CLUSTER_SCSI_PER_ACTUATOR_REALLOCATION:
+                        return farm_scsi_per_actuator_reallocation_fetch(item, inst, atom);
+
 		default:
 			return PM_ERR_PMID;
 	}
@@ -1171,6 +1243,16 @@ farm_labelInDom(pmID pmid, pmLabelSet **lp)
                 case CLUSTER_SCSI_PER_HEAD_STATS:
                         pmdaAddLabels(lp, "{\"device_type\":[\"disk\",\"disk_head\"]}");
                         pmdaAddLabels(lp, "{\"indom_name\":\"per disk, per disk_head\"}");
+                        return 1;
+
+		case CLUSTER_SCSI_PER_ACTUATOR_STATS:
+                        pmdaAddLabels(lp, "{\"device_type\":[\"disk\",\"disk_actuator\"]}");
+                        pmdaAddLabels(lp, "{\"indom_name\":\"per disk, per disk_actuator\"}");
+                        return 1;
+
+		case CLUSTER_SCSI_PER_ACTUATOR_REALLOCATION:
+                        pmdaAddLabels(lp, "{\"device_type\":[\"disk\",\"disk_actuator\"]}");
+                        pmdaAddLabels(lp, "{\"indom_name\":\"per disk, per disk_actuator\"}");
                         return 1;
 
                 default:
@@ -1202,6 +1284,8 @@ farm_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
         struct farm_flash_led_events *flash_led_events;
         struct farm_per_head_stats *per_head_stats;
         struct farm_scsi_per_head_stats *farm_scsi_per_head_stats;
+        struct farm_scsi_per_actuator_stats *farm_scsi_per_actuator_stats;
+        struct farm_scsi_per_actuator_reallocation *farm_scsi_per_actuator_reallocation;
         
         int sts;
         char *name, *disk_name;
@@ -1241,6 +1325,28 @@ farm_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
                         return pmdaAddLabels(lp, "{\"disk\":\"%s\", \"disk_head\":\"head_%u\"}",
                                 disk_name,
                                 farm_scsi_per_head_stats->head_id
+                        );
+
+		case CLUSTER_SCSI_PER_ACTUATOR_STATS:
+                        sts = pmdaCacheLookup(INDOM(SCSI_ACTUATOR_INDOM), inst, &name, (void **)&farm_scsi_per_actuator_stats);
+                        if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+                                return 0;
+                        
+                        disk_name = strsep(&name, ":");
+                        return pmdaAddLabels(lp, "{\"disk\":\"%s\", \"disk_actuator\":\"actuator_%u\"}",
+                                disk_name,
+                                farm_scsi_per_actuator_stats->actuator_id
+                        );
+
+		case CLUSTER_SCSI_PER_ACTUATOR_REALLOCATION:
+                        sts = pmdaCacheLookup(INDOM(SCSI_ACTUATOR_REALLOCATION_INDOM), inst, &name, (void **)&farm_scsi_per_actuator_reallocation);
+                        if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
+                                return 0;
+                        
+                        disk_name = strsep(&name, ":");
+                        return pmdaAddLabels(lp, "{\"disk\":\"%s\", \"disk_actuator\":\"actuator_%u\"}",
+                                disk_name,
+                                farm_scsi_per_actuator_reallocation->actuator_id
                         );
 
                 default:

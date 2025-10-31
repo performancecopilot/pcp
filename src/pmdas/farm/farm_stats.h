@@ -19,6 +19,8 @@
 
 #define MAX_NUMBER_OF_SUPPORTED_HEADS 24
 #define MAX_NUMBER_OF_LED_EVENTS 8
+
+#define MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS 4
  
 enum {
 	LOG_VERSION = 0,
@@ -296,6 +298,7 @@ enum {
 enum {
 	SCSI_HEAD_LOAD_EVENTS = 0,
 	SCSI_TIMESTAMP_OF_LAST_IDD_TEST,
+	SCSI_SUBCOMMAND_OF_LAST_IDD_TEST,
 	SCSI_NUMBER_OF_REALLOCATAED_SECTOR_RECLAMATIONS,
 	SCSI_SERVO_STATUS,
 	SCSI_NUMBER_OF_SLIPPED_SECTORS_AFTER_IDD_SCAN,
@@ -586,6 +589,23 @@ struct farm_scsi_log_stats {
 	uint64_t	head_cumulative_lifetime_unrecoverable_read_repeating[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	head_cumulative_lifetime_unrecoverable_read_unique[MAX_NUMBER_OF_SUPPORTED_HEADS];
 	uint64_t	second_mr_head_resistance[MAX_NUMBER_OF_SUPPORTED_HEADS];
+	/* SCSI - FARM Actuator information */
+	uint64_t number_of_actuators;
+	uint64_t head_load_events[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t timestamp_of_last_idd_test[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t sub_command_of_last_idd_test[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t number_of_reallocated_sector_reclamations[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t servo_status[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t number_of_slipped_sectors_after_idd_scan[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t number_of_resident_reallocated_sectors_after_idd_scan[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t successfully_scrubbed_sectors_after_idd_scan[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t number_of_dos_scans_performed[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t number_of_lbas_corrected_by_isp[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t number_of_valid_parity_sectors[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t number_of_lbas_corrected_by_parity_sector[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	/* SCSI - FARM Actuator Reallocation */
+	uint64_t actuator_number_reallocated_sectors[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
+	uint64_t actuator_number_recallocated_candidate_sectors[MAX_NUMBER_OF_SUPPORTED_SCSI_ACTUATORS];
 };
 
 struct farm_scsi_per_head_stats {
@@ -597,6 +617,28 @@ struct farm_scsi_per_head_stats {
 	uint64_t	head_cumulative_lifetime_unrecoverable_read_repeating;
 	uint64_t	head_cumulative_lifetime_unrecoverable_read_unique;
 	uint64_t	second_mr_head_resistance;
+};
+
+struct farm_scsi_per_actuator_stats {
+	uint8_t	actuator_id;
+	uint64_t head_load_events;
+	uint64_t timestamp_of_last_idd_test;
+	uint64_t sub_command_of_last_idd_test;
+	uint64_t number_of_reallocated_sector_reclamations;
+	uint64_t servo_status;
+	uint64_t number_of_slipped_sectors_after_idd_scan;
+	uint64_t number_of_resident_reallocated_sectors_after_idd_scan;
+	uint64_t successfully_scrubbed_sectors_after_idd_scan;
+	uint64_t number_of_dos_scans_performed;
+	uint64_t number_of_lbas_corrected_by_isp;
+	uint64_t number_of_valid_parity_sectors;
+	uint64_t number_of_lbas_corrected_by_parity_sector;
+};
+
+struct farm_scsi_per_actuator_reallocation {
+	uint8_t 	actuator_id;
+	uint64_t actuator_number_reallocated_sectors;
+	uint64_t actuator_number_recallocated_candidate_sectors;
 };
 
 extern int farm_ata_data_fetch(int, int, struct farm_ata_log_stats *, pmAtomValue *);
@@ -613,6 +655,12 @@ extern int farm_scsi_refresh_data(const char *, struct farm_scsi_log_stats *);
 
 extern int farm_scsi_per_head_stats_fetch(int, unsigned int, pmAtomValue *);
 extern int farm_scsi_refresh_per_head_stats (void);
+
+extern int farm_scsi_per_actuator_stats_fetch(int, unsigned int, pmAtomValue *);
+extern int farm_scsi_refresh_per_actuator_stats (void);
+
+extern int farm_scsi_per_actuator_reallocation_fetch(int, unsigned int, pmAtomValue *);
+extern int farm_scsi_refresh_per_actuator_reallocation_stats(void);
 
 extern void farm_stats_setup(void);
 
