@@ -37,6 +37,8 @@ enum fs_type {
 	NFS,
 	XFS,
 	F2FS,
+	BCACHEFS,
+	ZFS,
 };
 
 static struct fs_config {
@@ -78,6 +80,20 @@ static struct fs_config {
 		[F_FSYNC] = "f2fs_sync_file",
 		[F_GETATTR] = "f2fs_getattr",
 	}},
+	[BCACHEFS] = { "bcachefs", {
+		[F_READ] = "bch2_read_iter",
+		[F_WRITE] = "bch2_write_iter",
+		[F_OPEN] = "bch2_open",
+		[F_FSYNC] = "bch2_fsync",
+		[F_GETATTR] = "bch2_getattr",
+	}},
+	[ZFS] = { "zfs", {
+		[F_READ] = "zpl_iter_read",
+		[F_WRITE] = "zpl_iter_write",
+		[F_OPEN] = "zpl_open",
+		[F_FSYNC] = "zpl_fsync",
+		[F_GETATTR] = NULL, /* not supported */
+	}},
 };
 
 static char *file_op_names[] = {
@@ -115,12 +131,12 @@ const char argp_program_doc[] =
 "    fsdist -t btrfs -m 5       # trace btrfs operation, 5s summaries, in ms\n";
 
 static const struct argp_option opts[] = {
-	{ "timestamp", 'T', NULL, 0, "Print timestamp" },
-	{ "milliseconds", 'm', NULL, 0, "Millisecond histogram" },
-	{ "pid", 'p', "PID", 0, "Process ID to trace" },
-	{ "type", 't', "Filesystem", 0, "Which filesystem to trace, [btrfs/ext4/nfs/xfs/f2fs]" },
-	{ "verbose", 'v', NULL, 0, "Verbose debug output" },
-	{ NULL, 'h', NULL, OPTION_HIDDEN, "Show the full help" },
+	{ "timestamp", 'T', NULL, 0, "Print timestamp", 0 },
+	{ "milliseconds", 'm', NULL, 0, "Millisecond histogram", 0 },
+	{ "pid", 'p', "PID", 0, "Process ID to trace", 0 },
+	{ "type", 't', "Filesystem", 0, "Which filesystem to trace, [btrfs/ext4/nfs/xfs/f2fs/bcachefs/zfs]", 0 },
+	{ "verbose", 'v', NULL, 0, "Verbose debug output", 0 },
+	{ NULL, 'h', NULL, OPTION_HIDDEN, "Show the full help", 0 },
 	{},
 };
 
@@ -149,6 +165,10 @@ static error_t parse_arg(int key, char *arg, struct argp_state *state)
 			fs_type = XFS;
 		} else if (!strcmp(arg, "f2fs")) {
 			fs_type = F2FS;
+		} else if (!strcmp(arg, "bcachefs")) {
+			fs_type = BCACHEFS;
+		} else if (!strcmp(arg, "zfs")) {
+			fs_type = ZFS;
 		} else {
 			warn("invalid filesystem\n");
 			argp_usage(state);
@@ -195,16 +215,20 @@ static void alias_parse(char *prog)
 {
 	char *name = basename(prog);
 
-	if (!strcmp(name, "btrfsdist")) {
+	if (strstr(name, "btrfsdist")) {
 		fs_type = BTRFS;
-	} else if (!strcmp(name, "ext4dist")) {
+	} else if (strstr(name, "ext4dist")) {
 		fs_type = EXT4;
-	} else if (!strcmp(name, "nfsdist")) {
+	} else if (strstr(name, "nfsdist")) {
 		fs_type = NFS;
-	} else if (!strcmp(name, "xfsdist")) {
+	} else if (strstr(name, "xfsdist")) {
 		fs_type = XFS;
-	} else if (!strcmp(name, "f2fsdist")){
+	} else if (strstr(name, "f2fsdist")){
 		fs_type = F2FS;
+	} else if (strstr(name, "bcachefsdist")){
+		fs_type = BCACHEFS;
+	} else if (strstr(name, "zfsdist")) {
+		fs_type = ZFS;
 	}
 }
 
@@ -364,9 +388,7 @@ int main(int argc, char **argv)
 		.doc = argp_program_doc,
 	};
 	struct fsdist_bpf *skel;
-	struct tm *tm;
 	char ts[32];
-	time_t t;
 	int err;
 	bool support_fentry;
 
@@ -440,9 +462,7 @@ int main(int argc, char **argv)
 		printf("\n");
 
 		if (emit_timestamp) {
-			time(&t);
-			tm = localtime(&t);
-			strftime(ts, sizeof(ts), "%H:%M:%S", tm);
+			str_timestamp("%H:%M:%S", ts, sizeof(ts));
 			printf("%-8s\n", ts);
 		}
 
