@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013,2015 Red Hat.
+ * Copyright (c) 2013,2015,2025 Red Hat.
  * Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -17,10 +17,9 @@
 #include "pmcd.h"
 #include "config.h"
 #if HAVE_STATIC_PROBES
-#include "probes.h"
+#include "usdt.h"
 #else
-#define PCP_PROBE_PMCD_PDU(type,who,p1,p2)
-#define PCP_PROBE_PMCD(type,who,p1,p2)
+#define pmcd_usdt_trace(type,who,p1,p2)	do { } while (0)
 #endif
 
 /*
@@ -39,7 +38,7 @@ static tracebuf		*trace;
 static unsigned int	next;
 
 /*
- * by default, circular buffer last 20 events -- change by modify
+ * by default, circular buffer last 20 events -- change by modifying
  * pmcd.control.tracebufs
  * by default, tracing is disabled -- change by setting the following
  * to 1, pmcd.control.traceconn (trace connections) and/or
@@ -61,20 +60,200 @@ pmcd_init_trace(int n)
     next = 0;
 }
 
+#if HAVE_STATIC_PROBES
+void
+pmcd_usdt_trace(int type, int who, int p1, int p2)
+{
+    switch (type) {
+    case TR_ADD_CLIENT:
+	if (USDT_IS_ACTIVE(pmcd, add_client)) {
+	    ClientInfo		*cip;
+	    __pmSockAddr	*saddr;
+	    char		saddrbuf[96];
+	    char		*addrs;
+	    unsigned int	seq;
+	    int			fd;
+
+	    cip = GetClient(who);
+	    if (cip == NULL) {
+		fd = -1;
+		seq = 0;
+		pmstrncpy(saddrbuf, sizeof(saddrbuf), "unknown");
+	    } else {
+		fd = cip->fd;
+		seq = cip->seq;
+		saddr = (__pmSockAddr *)cip->addr;
+		addrs = __pmSockAddrToString(saddr);
+		if (addrs == NULL) {
+		    pmstrncpy(saddrbuf, sizeof(saddrbuf), "invalid");
+		} else {
+		    pmstrncpy(saddrbuf, sizeof(saddrbuf), addrs);
+		    free(addrs);
+    		}
+	    }
+	    USDT_WITH_SEMA(pmcd, add_client, who, saddrbuf, fd, seq);
+	}
+	break;
+
+    case TR_DEL_CLIENT:
+	if (USDT_IS_ACTIVE(pmcd, del_client)) {
+	    const int		fd = p1, err = p2;
+
+	    USDT_WITH_SEMA(pmcd, del_client, who, fd, err);
+	}
+	break;
+
+    case TR_ADD_AGENT:
+	if (USDT_IS_ACTIVE(pmcd, add_agent)) {
+	    const int		infd = p1, outfd = p2;
+	    char		agent_type[16];
+
+	    if (infd == -1 && outfd == -1)
+		pmstrncpy(agent_type, sizeof(agent_type), "DSO");
+	    else
+		pmstrncpy(agent_type, sizeof(agent_type), "daemon");
+	    USDT_WITH_SEMA(pmcd, add_agent, who, agent_type, infd, outfd);
+	}
+	break;
+
+    case TR_DEL_AGENT:
+	if (USDT_IS_ACTIVE(pmcd, del_agent)) {
+	    const int		infd = p1, outfd = p2;
+	    char		agent_type[8];
+
+	    if (infd == -1 && outfd == -1)
+		pmstrncpy(agent_type, sizeof(agent_type), "DSO");
+	    else
+		pmstrncpy(agent_type, sizeof(agent_type), "daemon");
+	    USDT_WITH_SEMA(pmcd, del_agent, who, agent_type, infd, outfd);
+	}
+	break;
+
+    case TR_EOF:
+	if (USDT_IS_ACTIVE(pmcd, early_eof)) {
+	    const int		fd = who;
+	    char		pdu_type[32];
+
+	    __pmPDUTypeStr_r(p1, pdu_type, sizeof(pdu_type));
+	    USDT_WITH_SEMA(pmcd, early_eof, fd, pdu_type);
+	}
+	break;
+
+    case TR_WRONG_PDU:
+	if (USDT_IS_ACTIVE(pmcd, wrong_pdu)) {
+	    const int		fd = who;
+	    char		wantbuf[64];
+	    char		recvbuf[64];
+	    char		recvtype[4];
+
+	    if (p1 < 0)
+		pmstrncpy(wantbuf, sizeof(wantbuf), "NO");
+	    else
+		__pmPDUTypeStr_r(p1, wantbuf, sizeof(wantbuf));
+	    if (p2 > 0) {
+		pmstrncpy(recvtype, sizeof(recvtype), "PDU");
+		__pmPDUTypeStr_r(p2, recvbuf, sizeof(recvbuf));
+	    } else if (p2 == 0) {
+		pmstrncpy(recvtype, sizeof(recvtype), "EOF");
+		recvbuf[0] = '\0';
+	    } else {
+		pmstrncpy(recvtype, sizeof(recvtype), "ERR");
+		pmErrStr_r(p2, recvbuf, sizeof(recvbuf));
+	    }
+	    USDT_WITH_SEMA(pmcd, wrong_pdu, fd, wantbuf, recvtype, recvbuf);
+	}
+	break;
+
+    case TR_XMIT_ERR:
+	if (USDT_IS_ACTIVE(pmcd, xmit_err)) {
+	    const int		fd = who, err = p2;
+	    char		errorstr[64];
+	    char		pdu_type[32];
+
+	    __pmPDUTypeStr_r(p1, pdu_type, sizeof(pdu_type));
+	    pmErrStr_r(err, errorstr, sizeof(errorstr));
+	    USDT_WITH_SEMA(pmcd, xmit_err, fd, pdu_type, err, errorstr);
+	}
+	break;
+
+    case TR_RECV_TIMEOUT:
+	if (USDT_IS_ACTIVE(pmcd, recv_timeout)) {
+	    const int		fd = who;
+	    char		pdu_type[32];
+
+	    __pmPDUTypeStr_r(p1, pdu_type, sizeof(pdu_type));
+	    USDT_WITH_SEMA(pmcd, recv_timeout, fd, pdu_type);
+	}
+	break;
+
+    case TR_RECV_ERR:
+	if (USDT_IS_ACTIVE(pmcd, recv_err)) {
+	    const int		fd = who, err = p2;
+	    char		errorstr[64];
+	    char		pdu_type[32];
+
+	    __pmPDUTypeStr_r(p1, pdu_type, sizeof(pdu_type));
+	    pmErrStr_r(err, errorstr, sizeof(errorstr));
+	    USDT_WITH_SEMA(pmcd, recv_err, fd, pdu_type, err, errorstr);
+	}
+	break;
+
+    case TR_XMIT_PDU:
+	if (USDT_IS_ACTIVE(pmcd, xmit_pdu)) {
+	    const int		fd = who;
+	    char		pdu_info[64];
+	    char		pdu_type[32];
+	    char		id_str[20];
+
+	    __pmPDUTypeStr_r(p1, pdu_type, sizeof(pdu_type));
+	    if (p1 == PDU_ERROR)
+		pmErrStr_r(p2, pdu_info, sizeof(pdu_info));
+	    else if (p1 == PDU_TEXT_REQ || p1 == PDU_TEXT)
+		pmsprintf(pdu_info, sizeof(pdu_info), "id=0x%x", p2);
+	    else if (p1 == PDU_DESC_REQ || p1 == PDU_DESC)
+		pmsprintf(pdu_info, sizeof(pdu_info), "pmid=%s",
+			  pmIDStr_r((pmID)p2, id_str, sizeof(id_str)));
+	    else if (p1 == PDU_INSTANCE_REQ || p1 == PDU_INSTANCE)
+		pmsprintf(pdu_info, sizeof(pdu_info), "indom=%s",
+			  pmInDomStr_r((pmInDom)p2, id_str, sizeof(id_str)));
+	    else if (p1 == PDU_PMNS_NAMES || p1 == PDU_PMNS_IDS ||
+		     p1 == PDU_RESULT || p1 == PDU_DESCS)
+		pmsprintf(pdu_info, sizeof(pdu_info), "numpmid=%d", p2);
+	    else if (p1 == PDU_CREDS)
+		pmsprintf(pdu_info, sizeof(pdu_info), "numcred=%d", p2);
+	    else
+		pmsprintf(pdu_info, sizeof(pdu_info), "unknown=%d", p2);
+	    USDT_WITH_SEMA(pmcd, xmit_pdu, fd, pdu_type, p2, pdu_info);
+	}
+	break;
+
+    case TR_RECV_PDU:
+	if (USDT_IS_ACTIVE(pmcd, recv_pdu)) {
+	    const int		fd = who;
+	    char		pdu_type[32];
+
+	    __pmPDUTypeStr_r(p1, pdu_type, sizeof(pdu_type));
+	    USDT_WITH_SEMA(pmcd, recv_pdu, fd, pdu_type);
+	}
+	break;
+    }
+}
+#endif
+
 void
 pmcd_trace(int type, int who, int p1, int p2)
 {
     int		p;
 
+    pmcd_usdt_trace(type, who, p1, p2);
+
     switch (type) {
 	case TR_XMIT_PDU:
 	case TR_RECV_PDU:
-	    PCP_PROBE_PMCD_PDU(type, who, p1, p2);
 	    if ((pmcd_trace_mask & TR_MASK_PDU) == 0)
 		return;
 	    break;
 	default:
-	    PCP_PROBE_PMCD(type, who, p1, p2);
 	    if ((pmcd_trace_mask & TR_MASK_CONN) == 0)
 		return;
 	    break;

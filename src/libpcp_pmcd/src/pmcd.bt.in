@@ -1,0 +1,92 @@
+#!/usr/bin/bpftrace
+/*
+ * Copyright (c) 2013,2015,2025 Red Hat.
+ * Copyright (c) 1995-2000,2003 Silicon Graphics, Inc.  All Rights Reserved.
+ * 
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+BEGIN
+{
+    printf("Tracing pmcd USDT probes... Hit Ctrl-C to end.\n");
+    printf("%-12s %-20s %-30s %s\n", "EVENT", "FILE", "DETAILS");
+}
+
+usdt:@PMCD_PATH@:pmcd:add_client
+{
+    printf("pmcd(%s) who=%d addr=%s fd=%d seq=%d\n",
+	    "add_client", arg0, str(arg1), arg2, arg3);
+}
+
+usdt:@PMCD_PATH@:pmcd:del_client
+{
+    printf("pmcd(%s) who=%d fd=%d err=%d\n",
+	    "del_client", arg0, arg1, arg2);
+}
+
+usdt:@PMCD_PATH@:pmcd:add_agent
+{
+    printf("pmcd(%s) who=%d type=%s infd=%d outfd=%d\n",
+	    "add_agent", arg0, str(arg1), arg2, arg3);
+}
+
+usdt:@PMCD_PATH@:pmcd:del_agent
+{
+    printf("pmcd(%s) who=%d type=%s infd=%d outfd=%d\n",
+	    "del_agent", arg0, str(arg1), arg2, arg3);
+}
+
+usdt:@PMCD_PATH@:pmcd:early_eof
+{
+    printf("pmcd(%s) fd=%d type=%s\n",
+	    "early_eof", arg0, str(arg1));
+}
+
+usdt:@PMCD_PATH@:pmcd:wrong_pdu
+{
+    printf("pmcd(%s) fd=%d want=%s recv=%s info=%s\n",
+	    "wrong_pdu", arg0, str(arg1), str(arg2), str(arg3));
+}
+
+usdt:@PMCD_PATH@:pmcd:xmit_err
+{
+    printf("pmcd(%s) fd=%d type=%s code=%d error=%s\n",
+	    "xmit_err", arg0, str(arg1), arg2, str(arg3));
+}
+
+usdt:@PMCD_PATH@:pmcd:recv_timeout
+{
+    printf("pmcd(%s) fd=%d type=%s\n",
+	    "recv_timeout", arg0, str(arg1));
+}
+
+usdt:@PMCD_PATH@:pmcd:recv_err
+{
+    printf("pmcd(%s) fd=%d type=%s code=%d error=%s\n",
+	    "recv_err", arg0, str(arg1)), arg2, str(arg3));
+}
+
+usdt:@PMCD_PATH@:pmcd:xmit_pdu
+{
+    printf("pmcd(%s) fd=%d type=%s code=%d str=%s\n",
+	    "xmit_pdu", arg0, str(arg1)), arg2, str(arg3));
+}
+
+usdt:@PMCD_PATH@:pmcd:recv_pdu
+{
+    printf("pmcd(%s) fd=%d type=%s\n",
+	    "recv_pdu", arg0, str(arg1));
+}
+
+END
+{   
+    printf("\nTracing ended.\n");
+}
