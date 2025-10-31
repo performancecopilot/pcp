@@ -19,6 +19,38 @@
 
 #include "main.h"
 
+static const int cgroup_attach_types[] = {
+	BPF_CGROUP_INET_INGRESS,
+	BPF_CGROUP_INET_EGRESS,
+	BPF_CGROUP_INET_SOCK_CREATE,
+	BPF_CGROUP_INET_SOCK_RELEASE,
+	BPF_CGROUP_INET4_BIND,
+	BPF_CGROUP_INET6_BIND,
+	BPF_CGROUP_INET4_POST_BIND,
+	BPF_CGROUP_INET6_POST_BIND,
+	BPF_CGROUP_INET4_CONNECT,
+	BPF_CGROUP_INET6_CONNECT,
+	BPF_CGROUP_UNIX_CONNECT,
+	BPF_CGROUP_INET4_GETPEERNAME,
+	BPF_CGROUP_INET6_GETPEERNAME,
+	BPF_CGROUP_UNIX_GETPEERNAME,
+	BPF_CGROUP_INET4_GETSOCKNAME,
+	BPF_CGROUP_INET6_GETSOCKNAME,
+	BPF_CGROUP_UNIX_GETSOCKNAME,
+	BPF_CGROUP_UDP4_SENDMSG,
+	BPF_CGROUP_UDP6_SENDMSG,
+	BPF_CGROUP_UNIX_SENDMSG,
+	BPF_CGROUP_UDP4_RECVMSG,
+	BPF_CGROUP_UDP6_RECVMSG,
+	BPF_CGROUP_UNIX_RECVMSG,
+	BPF_CGROUP_SOCK_OPS,
+	BPF_CGROUP_DEVICE,
+	BPF_CGROUP_SYSCTL,
+	BPF_CGROUP_GETSOCKOPT,
+	BPF_CGROUP_SETSOCKOPT,
+	BPF_LSM_CGROUP
+};
+
 #define HELP_SPEC_ATTACH_FLAGS						\
 	"ATTACH_FLAGS := { multi | override }"
 
@@ -28,13 +60,15 @@
 	"                        cgroup_device | cgroup_inet4_bind |\n" \
 	"                        cgroup_inet6_bind | cgroup_inet4_post_bind |\n" \
 	"                        cgroup_inet6_post_bind | cgroup_inet4_connect |\n" \
-	"                        cgroup_inet6_connect | cgroup_inet4_getpeername |\n" \
-	"                        cgroup_inet6_getpeername | cgroup_inet4_getsockname |\n" \
-	"                        cgroup_inet6_getsockname | cgroup_udp4_sendmsg |\n" \
-	"                        cgroup_udp6_sendmsg | cgroup_udp4_recvmsg |\n" \
-	"                        cgroup_udp6_recvmsg | cgroup_sysctl |\n" \
-	"                        cgroup_getsockopt | cgroup_setsockopt |\n" \
-	"                        cgroup_inet_sock_release }"
+	"                        cgroup_inet6_connect | cgroup_unix_connect |\n" \
+	"                        cgroup_inet4_getpeername | cgroup_inet6_getpeername |\n" \
+	"                        cgroup_unix_getpeername | cgroup_inet4_getsockname |\n" \
+	"                        cgroup_inet6_getsockname | cgroup_unix_getsockname |\n" \
+	"                        cgroup_udp4_sendmsg | cgroup_udp6_sendmsg |\n" \
+	"                        cgroup_unix_sendmsg | cgroup_udp4_recvmsg |\n" \
+	"                        cgroup_udp6_recvmsg | cgroup_unix_recvmsg |\n" \
+	"                        cgroup_sysctl | cgroup_getsockopt |\n" \
+	"                        cgroup_setsockopt | cgroup_inet_sock_release }"
 
 static unsigned int query_flags;
 static struct btf *btf_vmlinux;
@@ -82,7 +116,7 @@ static void guess_vmlinux_btf_id(__u32 attach_btf_obj_id)
 	if (fd < 0)
 		return;
 
-	err = bpf_obj_get_info_by_fd(fd, &btf_info, &btf_len);
+	err = bpf_btf_get_info_by_fd(fd, &btf_info, &btf_len);
 	if (err)
 		goto out;
 
@@ -108,7 +142,7 @@ static int show_bpf_prog(int id, enum bpf_attach_type attach_type,
 	if (prog_fd < 0)
 		return -1;
 
-	if (bpf_obj_get_info_by_fd(prog_fd, &info, &info_len)) {
+	if (bpf_prog_get_info_by_fd(prog_fd, &info, &info_len)) {
 		close(prog_fd);
 		return -1;
 	}
@@ -136,8 +170,8 @@ static int show_bpf_prog(int id, enum bpf_attach_type attach_type,
 			jsonw_string_field(json_wtr, "attach_type", attach_type_str);
 		else
 			jsonw_uint_field(json_wtr, "attach_type", attach_type);
-		jsonw_string_field(json_wtr, "attach_flags",
-				   attach_flags_str);
+		if (!(query_flags & BPF_F_QUERY_EFFECTIVE))
+			jsonw_string_field(json_wtr, "attach_flags", attach_flags_str);
 		jsonw_string_field(json_wtr, "name", prog_name);
 		if (attach_btf_name)
 			jsonw_string_field(json_wtr, "attach_btf_name", attach_btf_name);
@@ -150,11 +184,14 @@ static int show_bpf_prog(int id, enum bpf_attach_type attach_type,
 			printf("%-15s", attach_type_str);
 		else
 			printf("type %-10u", attach_type);
-		printf(" %-15s %-15s", attach_flags_str, prog_name);
+		if (query_flags & BPF_F_QUERY_EFFECTIVE)
+			printf(" %-15s", prog_name);
+		else
+			printf(" %-15s %-15s", attach_flags_str, prog_name);
 		if (attach_btf_name)
 			printf(" %-15s", attach_btf_name);
 		else if (info.attach_btf_id)
-			printf(" attach_btf_obj_id=%d attach_btf_id=%d",
+			printf(" attach_btf_obj_id=%u attach_btf_id=%u",
 			       info.attach_btf_obj_id, info.attach_btf_id);
 		printf("\n");
 	}
@@ -178,11 +215,11 @@ static int count_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type)
 
 static int cgroup_has_attached_progs(int cgroup_fd)
 {
-	enum bpf_attach_type type;
+	unsigned int i = 0;
 	bool no_prog = true;
 
-	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++) {
-		int count = count_attached_bpf_progs(cgroup_fd, type);
+	for (i = 0; i < ARRAY_SIZE(cgroup_attach_types); i++) {
+		int count = count_attached_bpf_progs(cgroup_fd, cgroup_attach_types[i]);
 
 		if (count < 0 && errno != EINVAL)
 			return -1;
@@ -195,6 +232,32 @@ static int cgroup_has_attached_progs(int cgroup_fd)
 
 	return no_prog ? 0 : 1;
 }
+
+static int show_effective_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
+				    int level)
+{
+	LIBBPF_OPTS(bpf_prog_query_opts, p);
+	__u32 prog_ids[1024] = {0};
+	__u32 iter;
+	int ret;
+
+	p.query_flags = query_flags;
+	p.prog_cnt = ARRAY_SIZE(prog_ids);
+	p.prog_ids = prog_ids;
+
+	ret = bpf_prog_query_opts(cgroup_fd, type, &p);
+	if (ret)
+		return ret;
+
+	if (p.prog_cnt == 0)
+		return 0;
+
+	for (iter = 0; iter < p.prog_cnt; iter++)
+		show_bpf_prog(prog_ids[iter], type, NULL, level);
+
+	return 0;
+}
+
 static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
 				   int level)
 {
@@ -245,13 +308,21 @@ static int show_attached_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
 	return 0;
 }
 
+static int show_bpf_progs(int cgroup_fd, enum bpf_attach_type type,
+			  int level)
+{
+	return query_flags & BPF_F_QUERY_EFFECTIVE ?
+	       show_effective_bpf_progs(cgroup_fd, type, level) :
+	       show_attached_bpf_progs(cgroup_fd, type, level);
+}
+
 static int do_show(int argc, char **argv)
 {
-	enum bpf_attach_type type;
 	int has_attached_progs;
 	const char *path;
 	int cgroup_fd;
 	int ret = -1;
+	unsigned int i;
 
 	query_flags = 0;
 
@@ -292,19 +363,21 @@ static int do_show(int argc, char **argv)
 
 	if (json_output)
 		jsonw_start_array(json_wtr);
+	else if (query_flags & BPF_F_QUERY_EFFECTIVE)
+		printf("%-8s %-15s %-15s\n", "ID", "AttachType", "Name");
 	else
 		printf("%-8s %-15s %-15s %-15s\n", "ID", "AttachType",
 		       "AttachFlags", "Name");
 
 	btf_vmlinux = libbpf_find_kernel_btf();
-	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++) {
+	for (i = 0; i < ARRAY_SIZE(cgroup_attach_types); i++) {
 		/*
 		 * Not all attach types may be supported, so it's expected,
 		 * that some requests will fail.
 		 * If we were able to get the show for at least one
 		 * attach type, let's return 0.
 		 */
-		if (show_attached_bpf_progs(cgroup_fd, type, 0) == 0)
+		if (show_bpf_progs(cgroup_fd, cgroup_attach_types[i], 0) == 0)
 			ret = 0;
 	}
 
@@ -327,9 +400,9 @@ exit:
 static int do_show_tree_fn(const char *fpath, const struct stat *sb,
 			   int typeflag, struct FTW *ftw)
 {
-	enum bpf_attach_type type;
 	int has_attached_progs;
 	int cgroup_fd;
+	unsigned int i;
 
 	if (typeflag != FTW_D)
 		return 0;
@@ -361,8 +434,8 @@ static int do_show_tree_fn(const char *fpath, const struct stat *sb,
 	}
 
 	btf_vmlinux = libbpf_find_kernel_btf();
-	for (type = 0; type < __MAX_BPF_ATTACH_TYPE; type++)
-		show_attached_bpf_progs(cgroup_fd, type, ftw->level);
+	for (i = 0; i < ARRAY_SIZE(cgroup_attach_types); i++)
+		show_bpf_progs(cgroup_fd, cgroup_attach_types[i], ftw->level);
 
 	if (errno == EINVAL)
 		/* Last attach type does not support query.
@@ -436,6 +509,11 @@ static int do_show_tree(int argc, char **argv)
 
 	if (json_output)
 		jsonw_start_array(json_wtr);
+	else if (query_flags & BPF_F_QUERY_EFFECTIVE)
+		printf("%s\n"
+		       "%-8s %-15s %-15s\n",
+		       "CgroupPath",
+		       "ID", "AttachType", "Name");
 	else
 		printf("%s\n"
 		       "%-8s %-15s %-15s %-15s\n",

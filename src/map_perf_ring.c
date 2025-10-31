@@ -29,13 +29,6 @@
 
 static volatile bool stop;
 
-struct event_ring_info {
-	int fd;
-	int key;
-	unsigned int cpu;
-	void *mem;
-};
-
 struct perf_event_sample {
 	struct perf_event_header header;
 	__u64 time;
@@ -98,15 +91,15 @@ print_bpf_output(void *private_data, int cpu, struct perf_event_header *event)
 		jsonw_end_object(json_wtr);
 	} else {
 		if (e->header.type == PERF_RECORD_SAMPLE) {
-			printf("== @%lld.%09lld CPU: %d index: %d =====\n",
+			printf("== @%llu.%09llu CPU: %d index: %d =====\n",
 			       e->time / 1000000000ULL, e->time % 1000000000ULL,
 			       cpu, idx);
 			fprint_hex(stdout, e->data, e->size, " ");
 			printf("\n");
 		} else if (e->header.type == PERF_RECORD_LOST) {
-			printf("lost %lld events\n", lost->lost);
+			printf("lost %llu events\n", lost->lost);
 		} else {
-			printf("unknown event type=%d size=%d\n",
+			printf("unknown event type=%u size=%u\n",
 			       e->header.type, e->header.size);
 		}
 	}
@@ -135,7 +128,8 @@ int do_event_pipe(int argc, char **argv)
 	int err, map_fd;
 
 	map_info_len = sizeof(map_info);
-	map_fd = map_parse_fd_and_info(&argc, &argv, &map_info, &map_info_len);
+	map_fd = map_parse_fd_and_info(&argc, &argv, &map_info, &map_info_len,
+				       0);
 	if (map_fd < 0)
 		return -1;
 
@@ -195,10 +189,9 @@ int do_event_pipe(int argc, char **argv)
 	opts.map_keys = &ctx.idx;
 	pb = perf_buffer__new_raw(map_fd, MMAP_PAGE_CNT, &perf_attr,
 				  print_bpf_output, &ctx, &opts);
-	err = libbpf_get_error(pb);
-	if (err) {
+	if (!pb) {
 		p_err("failed to create perf buffer: %s (%d)",
-		      strerror(err), err);
+		      strerror(errno), errno);
 		goto err_close_map;
 	}
 
@@ -213,7 +206,7 @@ int do_event_pipe(int argc, char **argv)
 		err = perf_buffer__poll(pb, 200);
 		if (err < 0 && err != -EINTR) {
 			p_err("perf buffer polling failed: %s (%d)",
-			      strerror(err), err);
+			      strerror(errno), errno);
 			goto err_close_pb;
 		}
 	}
