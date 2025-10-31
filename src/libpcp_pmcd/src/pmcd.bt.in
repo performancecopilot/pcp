@@ -17,7 +17,6 @@
 BEGIN
 {
     printf("Tracing pmcd USDT probes... Hit Ctrl-C to end.\n");
-    printf("%-12s %-20s %-30s %s\n", "EVENT", "FILE", "DETAILS");
 }
 
 usdt:@PMCD_PATH@:pmcd:add_client
@@ -58,8 +57,8 @@ usdt:@PMCD_PATH@:pmcd:wrong_pdu
 
 usdt:@PMCD_PATH@:pmcd:xmit_err
 {
-    printf("pmcd(%s) fd=%d type=%s code=%d error=%s\n",
-	    "xmit_err", arg0, str(arg1), arg2, str(arg3));
+    printf("pmcd(%s) fd=%d type=%s %s\n",
+	    "xmit_err", arg0, str(arg1), str(arg3));
 }
 
 usdt:@PMCD_PATH@:pmcd:recv_timeout
@@ -70,14 +69,14 @@ usdt:@PMCD_PATH@:pmcd:recv_timeout
 
 usdt:@PMCD_PATH@:pmcd:recv_err
 {
-    printf("pmcd(%s) fd=%d type=%s code=%d error=%s\n",
-	    "recv_err", arg0, str(arg1)), arg2, str(arg3));
+    printf("pmcd(%s) fd=%d type=%s %s\n",
+	    "recv_err", arg0, str(arg1), str(arg3));
 }
 
 usdt:@PMCD_PATH@:pmcd:xmit_pdu
 {
-    printf("pmcd(%s) fd=%d type=%s code=%d str=%s\n",
-	    "xmit_pdu", arg0, str(arg1)), arg2, str(arg3));
+    printf("pmcd(%s) fd=%d type=%s %s\n",
+	    "xmit_pdu", arg0, str(arg1), str(arg3));
 }
 
 usdt:@PMCD_PATH@:pmcd:recv_pdu

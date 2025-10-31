@@ -18,6 +18,7 @@ TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
 CFILES = data.c trace.c client.c
+SCRIPT = pmcd.bt
 
 LCFLAGS = -I$(TOPDIR)/src/pmcd/src -I$(TOPDIR)/src/libpcp/src -DPMCD_INTERNAL
 LLDLIBS = $(PCPLIB)
@@ -30,9 +31,9 @@ STATICLIBTARGET = libpcp_pmcd.a
 LDIRT	+= libpcp_pmcd.$(DSOSUFFIX)
 endif
 
-default : $(LIBTARGET) $(STATICLIBTARGET)
+default : $(LIBTARGET) $(STATICLIBTARGET) $(SCRIPT)
 
-pmcd.bt : pmcd.bt.in
+$(SCRIPT) : $(SCRIPT).in
 	$(SED) -e 's;@PMCD_PATH@;'$(PCP_BINADM_DIR)/pmcd';' $< > $@
 
 include $(BUILDRULES)

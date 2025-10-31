@@ -217,11 +217,13 @@ pmcd_usdt_trace(int type, int who, int p1, int p2)
 		pmsprintf(pdu_info, sizeof(pdu_info), "indom=%s",
 			  pmInDomStr_r((pmInDom)p2, id_str, sizeof(id_str)));
 	    else if (p1 == PDU_PMNS_NAMES || p1 == PDU_PMNS_IDS ||
-		     p1 == PDU_RESULT || p1 == PDU_DESCS)
+		     p1 == PDU_FETCH || p1 == PDU_HIGHRES_FETCH ||
+		     p1 == PDU_RESULT || p1 == PDU_HIGHRES_RESULT ||
+		     p1 == PDU_DESCS)
 		pmsprintf(pdu_info, sizeof(pdu_info), "numpmid=%d", p2);
 	    else if (p1 == PDU_CREDS)
 		pmsprintf(pdu_info, sizeof(pdu_info), "numcred=%d", p2);
-	    else
+	    else if (p1 != PDU_PROFILE)
 		pmsprintf(pdu_info, sizeof(pdu_info), "unknown=%d", p2);
 	    USDT_WITH_SEMA(pmcd, xmit_pdu, fd, pdu_type, p2, pdu_info);
 	}
@@ -418,8 +420,6 @@ pmcd_dump_trace(FILE *f)
 		    if (trace[p].t_p1 == PDU_ERROR)
 			fprintf(f, ", err=%d: %s",
 			    trace[p].t_p2, pmErrStr(trace[p].t_p2));
-		    else if (trace[p].t_p1 == PDU_RESULT)
-			fprintf(f, ", numpmid=%d", trace[p].t_p2);
 		    else if (trace[p].t_p1 == PDU_TEXT_REQ ||
 			     trace[p].t_p1 == PDU_TEXT)
 			fprintf(f, ", id=0x%x", trace[p].t_p2);
@@ -429,9 +429,13 @@ pmcd_dump_trace(FILE *f)
 		    else if (trace[p].t_p1 == PDU_INSTANCE_REQ ||
 			     trace[p].t_p1 == PDU_INSTANCE)
 			fprintf(f, ", indom=%s", pmInDomStr_r((pmInDom)trace[p].t_p2, strbuf, sizeof(strbuf)));
-		    else if (trace[p].t_p1 == PDU_PMNS_NAMES)
-			fprintf(f, ", numpmid=%d", trace[p].t_p2);
-		    else if (trace[p].t_p1 == PDU_PMNS_IDS)
+		    else if (trace[p].t_p1 == PDU_PMNS_NAMES ||
+		 	     trace[p].t_p1 == PDU_PMNS_IDS ||
+		 	     trace[p].t_p1 == PDU_FETCH ||
+		 	     trace[p].t_p1 == PDU_HIGHRES_FETCH ||
+		 	     trace[p].t_p1 == PDU_RESULT ||
+		 	     trace[p].t_p1 == PDU_HIGHRES_RESULT ||
+		 	     trace[p].t_p1 == PDU_DESCS)
 			fprintf(f, ", numpmid=%d", trace[p].t_p2);
 		    else if (trace[p].t_p1 == PDU_CREDS)
 			fprintf(f, ", numcreds=%d", trace[p].t_p2);
