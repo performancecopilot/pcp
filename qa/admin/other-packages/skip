@@ -102,10 +102,9 @@ LinuxMint    18\.3    -       libsoqt-dev
 LinuxMint    17\.     -       python-{.*}
 LinuxMint    18\.     -       python-{.*}
 #-- NetBSD
-# observed on vm38 ... dtrace(1) is not the systemtap one
 # we're using python3
-NetBSD       6\.1\.5  -       py27-{.*} dtrace
-NetBSD       8\.0     -       py27-{.*} dtrace
+NetBSD       6\.1\.5  -       py27-{.*}
+NetBSD       8\.0     -       py27-{.*}
 #-- OpenBSD
 # observed on vm37
 # qtbase is Qt5 and gcc++ here is too old to compile Qt5 headers ... revisit

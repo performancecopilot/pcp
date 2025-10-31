@@ -18,6 +18,7 @@
 
 #include "module.h"
 
+#include <assert.h>
 #include <bpf/bpf.h>
 #include <bpf/libbpf.h>
 #include <pcp/pmda.h>
@@ -92,6 +93,44 @@ static bool get_item(unsigned int offset, struct tailq_entry** val)
         iter++;
     }
     return false;
+}
+
+
+static char *get_fname(struct event *e)
+{
+    /* based on print_full_path in path_helpers */
+    static char buffer[BUFSIZ];
+    char name[NAME_MAX];
+    int depth;
+
+    memset(buffer, 0, sizeof(buffer));
+    for (depth = e->fname.depth; depth >= 0; depth--) {
+	char *fname = (char *)&e->fname.pathes[NAME_MAX * depth];
+
+	/**
+	 * If it is a mount point, there will be a '/', because
+	 * the '/' will be added below, so just skip this '/'.
+	 */
+	if (fname[0] == '/' && fname[1] == '\0')
+	    continue;
+
+	/**
+	 * 1. If the file/path name starts with '/', do not
+	 *    print the '/' prefix.
+	 * 2. If bpf_probe_read_kernel_str() fails, or the
+	 *    directory depth reaches the upper limit
+	 *    MAX_PATH_DEPTH, the top-level directory
+	 *    is printed without the prefix '/'.
+	 */
+	pmsprintf(name, sizeof(name), "%s%s",
+			"/\0" + (fname[0] == '/' ||
+				 ((e->fname.failed ||
+				   e->fname.depth == MAX_PATH_DEPTH - 1) &&
+				  depth == e->fname.depth)),
+			fname);
+	pmstrncat(buffer, sizeof(buffer), name);
+    }
+    return buffer;
 }
 
 static unsigned int indom_id_mapping[INDOM_COUNT];
@@ -278,7 +317,8 @@ static void handle_event(void *ctx, int cpu, void *data, __u32 data_sz)
     elm->event.ret = event->ret;
     elm->event.flags = event->flags;
     pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
-    pmstrncpy(elm->event.fname, sizeof(elm->event.fname), event->fname);
+    assert(sizeof(elm->event.fname) == sizeof(event->fname));
+    memcpy(&elm->event.fname, &event->fname, sizeof(elm->event.fname));
 
     push(elm);
 }
@@ -388,42 +428,39 @@ static int opensnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtomV
         return PM_ERR_INST;
     }
 
-    if(!get_item(inst, &value))
+    if (!get_item(inst, &value))
         return PMDA_FETCH_NOVALUES;
 
-    /* bpf.opensnoop.pid */
-    if (item == PID) {
+    switch (item) {
+    case PID: /* bpf.opensnoop.pid */
         atom->ul = value->event.pid;
-    }
-    /* bpf.opensnoop.uid */
-    if (item == UID) {
+        break;
+    case UID: /* bpf.opensnoop.uid */
         atom->ul = value->event.uid;
-    }
-    /* bpf.opensnoop.fd */
-    if (item == FD) {
+        break;
+    case FD: /* bpf.opensnoop.fd */
         if (value->event.ret >= 0)
             atom->l = value->event.ret;
         else
             atom->l = -1;
-    }
-    /* bpf.opensnoop.err */
-    if (item == ERR) {
+        break;
+    case ERR: /* bpf.opensnoop.err */
         if (value->event.ret >= 0)
             atom->l = 0;
         else
             atom->l = - value->event.ret;
-    }
-    /* bpf.opensnoop.flags */
-    if (item == FLAGS) {
+        break;
+    case FLAGS: /* bpf.opensnoop.flags */
         atom->l = value->event.flags;
-    }
-    /* bpf.opensnoop.comm */
-    if (item == COMM) {
+        break;
+    case COMM: /* bpf.opensnoop.comm */
         atom->cp = value->event.comm;
-    }
-    /* bpf.opensnoop.fname */
-    if (item == FNAME) {
-        atom->cp = value->event.fname;
+        break;
+    case FNAME: /* bpf.opensnoop.fname */
+        atom->cp = get_fname(&value->event);
+        break;
+    default:
+	return PM_ERR_PMID;
     }
 
     return PMDA_FETCH_STATIC;

@@ -79,9 +79,6 @@ BuildRequires: %{_lib}sasl-devel
 BuildRequires: cyrus-sasl-devel
 %endif
 %endif
-%if "@enable_probes@" == "true"
-BuildRequires: systemtap-sdt-devel
-%endif
 %if "@enable_qt@" == "true"
 BuildRequires: gcc-c++
 %endif

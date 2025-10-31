@@ -98,7 +98,6 @@ smartmontools
 socat
 sqlite
 sysstat
-systemtap-sdt-devel
 targetcli
 time
 valgrind

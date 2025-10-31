@@ -139,9 +139,6 @@ socat
 sudo
 sysstat
 systemd-dev not4ci
-systemtap
-systemtap-runtime
-systemtap-sdt-dev
 targetcli-fb
 time
 unbound

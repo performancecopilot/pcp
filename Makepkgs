@@ -283,30 +283,19 @@ then
     # For FreeBSD 10.4 and 11.3 it seems to fail when trying to build
     # Python and Python3 at the same time ... so skip Python(2)
     # For FreeBSD 13 I don't have Qt working
-    # For FreeBSD 14 cppcheck => Qt installed and dtrace/static probes
-    # is not working
+    # For FreeBSD 14 cppcheck => Qt installed
     #
     case `uname -r`
     in
 	9.3*)
 		# Bog-standard, just without python3
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-python3=no --prefix=/usr"
-		;;
-	10.*|11.*)
-		# Bog-standard
-		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr --with-python3=no"
 		;;
 	13.*)
-		# Bog-standard, just without qt and static probes
+		# Bog-standard, just without Qt
 		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-qt=no --with-static-probes=no --prefix=/usr"
-		;;
-	14.*)
-		# Bog-standard, just without static probes
-		#
-		configopts="--sysconfdir=/etc --localstatedir=/var --with-static-probes=no --prefix=/usr"
+		configopts="--sysconfdir=/etc --localstatedir=/var --prefix=/usr --with-qt=no"
 		;;
 	*)
 		# Bog-standard, as below ...

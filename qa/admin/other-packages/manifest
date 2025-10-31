@@ -1295,17 +1295,6 @@ rpm?		seinfo			[setools-console or setools or selinux-tools (build optional)]
 rpm?    /usr/share/selinux/devel/Makefile [selinux-policy-devel or selinux-policy (build optional)]
 rpm?    /etc/selinux/targeted/policy	[selinux-policy-targeted (build optional)]
 rpm?	/usr/lib*/libselinux.so		[libselinux-devel (build optional)]
-# -- systemtap
-dpkg?		dtrace		[systemtap-sdt-dev (build optional)]
-rpm?		dtrace		[systemtap-sdt-devel (build optional)]
-emerge?		dtrace		[dev-util/systemtap (build optional)]
-pkgin?		dtrace		[dtrace (build optional)]
-pkg_add?	dtrace		[N/A (build optional)]
-F_pkg?		dtrace		[base FreeBSD install (build optional)]
-S_pkg?		dtrace		[developer/dtrace (build optional)]
-slackpkg?	dtrace		[N/A (build optional)]
-pacman?		dtrace		[N/A (build optional)]
-brew?		dtrace		[base Darwin install (build optional)]
 # -- smartctl
 dpkg?		smartctl		[smartmontools (QA optional)]
 rpm?		smartctl		[smartmontools (QA optional)]
@@ -1583,21 +1572,6 @@ S_pkg?		jq			[text/jq (QA optional)]
 slackpkg?	jq			[N/A (QA optional)]
 pacman?		jq			[? (QA optional)]
 brew?		jq			[? (QA optional)]
-
-# -- stap (for pmcd QA)
-#
-dpkg?		stap			[systemtap (QA optional)]
-dpkg?		staprun			[systemtap-runtime (QA optional)]
-rpm?		stap			[systemtap-devel or systemtap (QA optional)]
-rpm?		staprun			[systemtap-runtime (QA optional)]
-emerge?		stap			[? (QA optional)]
-pkgin?		stap			[? (QA optional)]
-pkg_add?	stap			[N/A (QA optional)]
-F_pkg?		stap			[N/A (QA optional)]
-S_pkg?		stap			[N/A (QA optional)]
-slackpkg?	stap			[N/A (QA optional)]
-pacman?		stap			[? (QA optional)]
-brew?		stap			[? (QA optional)]
 
 # -- tplist or tplist-bpfcc (for bcc PMDA QA)
 #

@@ -126,7 +126,6 @@ sed
 smartmontools
 socat
 sysstat
-systemtap-sdt-dev
 targetcli-fb
 time
 unbound

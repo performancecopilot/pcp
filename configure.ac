@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2023 Red Hat.
+dnl Copyright (c) 2012-2025 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -811,68 +811,10 @@ AC_SUBST(echo_c)
 dnl subsequent configure checks rely on $EGREP being set
 AC_PROG_EGREP
 
-dnl Check for static probes (dtrace, systemtap)
-if test "$do_probes" = "check" -o "$do_probes" = "yes"
-then
-    enable_probes=true
-    AC_CHECK_PROGS(DTRACE, dtrace, [])
-    if test -z "$DTRACE"
-    then
-	if test "$do_probes" = "yes"
-	then
-	    AC_MSG_ERROR([cannot enable static probes - no dtrace executable])
-	fi
-	enable_probes=false
-    fi
-    AC_CHECK_HEADERS([sys/sdt.h], [
-	if $enable_probes = true
-	then
-	    if test $target_os = kfreebsd
-	    then
-		enable_probes=false
-	    elif test $target_os = freebsd
-	    then
-		dnl dtrace support in FreeBSD depends on configuration of kernel
-		rm -f conftest.d conftest.h
-		cat <<End-of-File >conftest.d
-provider eek {
-probe urk(int);
-};
-End-of-File
-		if dtrace -s conftest.d -h >/dev/null 2>&1
-		then
-		    if test ! -f conftest.h
-		    then
-			enable_probes=false
-			if test "$do_probes" = "yes"
-			then
-			    AC_MSG_ERROR([cannot enable static probes - no .h from dtrace -h])
-			fi
-		    fi
-		else
-		    enable_probes=false
-		    if test "$do_probes" = "yes"
-		    then
-			AC_MSG_ERROR([cannot enable static probes - dtrace failed])
-		    fi
-		fi
-	    fi
-	fi
-    ], [
-	enable_probes=false
-	if test "$do_probes" = "yes"
-	then
-	    AC_MSG_ERROR([cannot enable static probes - no SDT header])
-	fi
-    ])
-
-    if test "$enable_probes" = "true"
-    then
-        AC_DEFINE(HAVE_STATIC_PROBES, [1], [Static probes (dtrace, systemtap)])
-    fi
-    AC_SUBST(enable_probes)
-    AC_SUBST(DTRACE)
-fi
+AC_MSG_CHECKING([if USDT probes should be used])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include "vendor/github.com/libbpf/usdt/usdt.h"
+]], [[ USDT(pcp, check, 1); ]])], [AC_DEFINE(HAVE_STATIC_PROBES, [1], [Static probes (USDT)]) AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)])
 
 dnl Check for gperftools
 AS_IF([test "x$use_gperftools" != "xno"], [

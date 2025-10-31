@@ -1,5 +1,3 @@
-pmcd.stp
-probes.h
+pmcd.bt
 libpcp_pmcd.a
 libpcp_pmcd.dll
-rewrite

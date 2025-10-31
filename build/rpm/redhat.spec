@@ -268,9 +268,6 @@ BuildRequires: chan-devel HdrHistogram_c-devel
 %if !%{disable_perfevent}
 BuildRequires: libpfm-devel >= 4
 %endif
-%if !%{disable_sdt}
-BuildRequires: systemtap-sdt-devel
-%endif
 %if !%{disable_libuv}
 BuildRequires: libuv-devel >= 1.0
 %endif

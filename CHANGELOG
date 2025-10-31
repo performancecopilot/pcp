@@ -3070,7 +3070,7 @@ pcp-4.1.0 (15 June 2018)
 	- pmdabcc: match process name on /proc/$PID/comm
 	- pmdabcc: add process filtering in tracepoint/uprobe modules
 	- pmdabcc: fix tcplife with older/newer kernel/bcc
-	- pmdabcc: add USDT/dtrace hit count BPF/Python module
+	- pmdabcc: add USDT hit count BPF/Python module
 	- pmdabcc: add pid check/filter helpers, relax process check
 	- pmdabcc: introduce reserved ranges in bcc.conf
 	- pmdabcc: README and man page updates
@@ -4149,7 +4149,6 @@ pcp-3.10.8 (30 October 2015)
     - pmdaperfevent: add reference clock cycles for NHM and WSM
     - docs: added upgrade instructions to pmdaperfevent man page
     - containers: bindmount /dev/log for syslog messages
-    - build: fix FreeBSD 10.2 with dtrace probes auto-enabled
 
 pcp-3.10.7 (16 September 2015)
     - containers: added the pcp-pmie container
@@ -4960,7 +4959,7 @@ pcp-3.8.3 (9 September 2013)
     - Add an option allowing custom pmcd.hostname settings
     - Implement host access checking for unix domain sockets.
     - Man page updates, esp. to pmcd.1 re access controls.
-    - Add static probe support for pmcd probes (systemtap/dtrace)
+    - Add static probe support for pmcd probes (USDT)
     - Change pmGetContextHostName to be pmcd.hostname aware and thus
       able to report the correct remote hostname through a tunnel.
     - Update numerous tools to use pmGetContextHostName now.

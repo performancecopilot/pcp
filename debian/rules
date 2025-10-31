@@ -270,9 +270,6 @@ binary-arch: checkroot build-stamp
 	dh_installdocs -a
 	dh_installchangelogs -a
 	dh_link -a
-	# pmcd.stp added to dh_fixperms because on Ubuntu 16.04
-	# $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp was getting an
-	# unwanted mode change from 444 to 644
 	# Note:	with the change to
 	#		Rules-Requires-Root: no
 	#	in the control file, in response to addressing
@@ -280,7 +277,7 @@ binary-arch: checkroot build-stamp
 	#	(which is a change in Debian build process, not a PCP bug)
 	#	dh_fixperms needs to come *before* dh_strip
 	#	- thanks to Niels Thykier <niels at thykier.net> for this tip
-	dh_fixperms -a -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd -Xpmcd.stp
+	dh_fixperms -a -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd
 	# Note: --no-automatic-dbgsym not defined for all releases up to
 	# 	and including Debian 8 (jessie), but defined after that
 	# 	... expect a warning on older releases, but no other ill
