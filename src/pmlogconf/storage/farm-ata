@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	Seagate Field Accessible Reliability Metrics (FARM) Log for ATA disks [Linux]
+probe	farm.ata.log_header.log_version values ? include : exclude
+	farm.ata
