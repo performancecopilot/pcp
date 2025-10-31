@@ -91,7 +91,6 @@ setools-console
 smartmontools
 sqlite
 sysstat
-systemtap-sdt-devel
 targetcli
 time
 valgrind

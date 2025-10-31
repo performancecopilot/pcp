@@ -136,9 +136,6 @@ sudo
 sysstat
 systemd
 systemd-devel
-systemtap-devel
-systemtap-runtime
-systemtap-sdt-devel
 targetcli
 time
 valkey

@@ -1062,7 +1062,7 @@ pcp (2.7.7-20080924) unstable; urgency=low
 pcp (2.7.4-20081001) unstable; urgency=low
 
   * Added the Perl PCP::PMDA interface package - libpcp-pmda-perl.
-  * Several new Perl PMDAs (mysql, dbping, systemtap, memcached).
+  * Several new Perl PMDAs (mysql, dbping, memcached).
   * Several new Linux kernel metrics (cpu steal time, IO scheduler,
     additional NFS server metrics).
   * Many portability changes for native Win32 builds under MinGW.
