@@ -66,8 +66,8 @@ promptformore(void)
     struct termios	ntty;
 
     if (first) {
-	if (ioctl(0, TCGETA, &otty) < 0) {
-	    fprintf(stderr, "%s: TCGETA ioctl failed: %s\n", pmGetProgname(),
+	if (tcgetattr(0, &otty) == -1) {
+	    fprintf(stderr, "%s: tcgetattr failed: %s\n", pmGetProgname(),
 		    osstrerror());
 	    exit(1);
 	}
@@ -75,12 +75,10 @@ promptformore(void)
     }
 
     /* put terminal into raw mode so we can read input immediately */
-    memcpy(&ntty, &otty, sizeof(struct termios));
-    ntty.c_cc[VMIN] = 1;
-    ntty.c_cc[VTIME] = 1;
-    ntty.c_lflag &= ~(ICANON | ECHO);
-    if (ioctl(0, TCSETAW, &ntty) < 0) {
-	fprintf(stderr, "%s: TCSETAW ioctl failed: %s\n", pmGetProgname(),
+    ntty = otty;
+    cfmakeraw(&ntty);
+    if (tcsetattr(0, TCSAFLUSH, &ntty) == -1) {
+	fprintf(stderr, "%s: tcsetattr failed: %s\n", pmGetProgname(),
 		osstrerror());
 	exit(1);
     }
@@ -122,8 +120,8 @@ promptformore(void)
 
 reset_tty:
 #ifdef HAVE_TERMIOS_H
-    if (ioctl(0, TCSETAW, &otty) < 0) {
-	fprintf(stderr, "%s: reset TCSETAW ioctl failed: %s\n", pmGetProgname(),
+    if (tcsetattr(0, TCSAFLUSH, &otty) == -1) {
+	fprintf(stderr, "%s: reset tcsetattr failed: %s\n", pmGetProgname(),
 		osstrerror());
 	exit(1);
     }
