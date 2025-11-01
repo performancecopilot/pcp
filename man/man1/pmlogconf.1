@@ -239,18 +239,50 @@ followed by one of the
 .BR pmlogger (1)
 interval specification described above.
 .IP \(bu 3n
+An optional derived metric control lines begin with the keyword
+.B define
+and have the format:
+.RS 3n
+.br
+.ti +5n
+\fBdefine\fR \fIname\fR \fIexpr\fR
+.br
+where
+.I name
+is the name of a derived metric and
+.I expr
+is a derived metric expression.
+Refer to
+.BR pmRegisterDerived (3)
+for the syntactic and semantic descriptions of
+.I name
+and
+.IR expr.
+Once defined,
+.I name
+may be used as the
+.I metric
+in a subsequent
+.B probe
+control line, allowing the expression of more complex
+guards for conditional inclusion of metrics in
+.IR configfile .
+.RE
+.IP \(bu 3n
 .B probe
 control lines have the format:
 .RS 3n
 .br
-.ce
+.ti +5n
 \fBprobe\fR \fImetric\fR [\fIcondition\fR [\fIstate_rule\fR] ]
 .br
 where
 .I metric
 is the name of a PCP metric (must be a leaf node in the PMNS,
 no instance specification is allowed, and it must not be a
-derived metric) and the optional
+derived metric, other than one mentioned in a previous
+.B define
+control line) and the optional
 .I condition
 is the keyword
 .B exists
@@ -263,7 +295,7 @@ exists, i.e. is defined in the PMNS) or the keyword
 exists in the PMNS and has one or more current values)
 or an expression of the form
 .br
-.ce
+.ti +5n
 \fIop\fR \fIval\fR
 where
 .I op
@@ -292,7 +324,7 @@ is provided, there may also be an optional
 .I state_rule
 of the form
 .br
-.ce
+.ti +5n
 \fB?\fR \fItrue_state\fR \fB:\fR \fIfalse_state\fR
 where
 .I true_state
@@ -323,7 +355,7 @@ The default
 .I state_rule
 is
 .br
-.ce
+.ti +5n
 .ft B
 ? available : exclude
 .ft R
@@ -389,8 +421,8 @@ Display version number and exit.
 .TP
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
-.SH EXAMPLE
-The following group file demonstrates all of the supported
+.SH EXAMPLES
+The following group file demonstrates most of the supported
 syntactic elements.
 .PP
 .ft CR
@@ -403,6 +435,42 @@ probe   sample.secret.foo.one values ? include : exclude
         sample.secret.foo.one
         sample.secret.foo.bar   # non-leaf in the PMNS
         sample.colour [ red green ]
+.fi
+.ft
+.PP
+In the following example (backslashes have been added for readability, the
+.B define
+clause is all on one line), the
+\f(CRmumble\fP metrics will be included in
+.I configfile
+if either the \f(CRmumble.foo\fP metric is known and has at least
+one instance (and value) or the \f(CRmumble.bar\fP metric is known and has at least
+one instance (and value):
+.PP
+.ft CR
+.nf
+#pmlogconf-setup 2.0
+ident   Derived metric example with alternation
+define  mumble.check = \e
+            (defined(mumble.foo) ? count(mumble.foo) : 0) + \e
+            (defined(mumble.bar) ? count(mumble.bar) : 0)
+probe   mumble.check > 0 ? include : exclude
+        mumble
+.fi
+.ft
+.PP
+The following example uses a derived metric to access one particular
+metric instance in a
+.B probe
+control line.
+.PP
+.ft CR
+.nf
+#pmlogconf-setup 2.0
+ident   Derived metric example using a single metric instance
+define  fumble_log = fumble.control[verbose_log]
+probe   fumble_log > 0 ? include : exclude
+        fumble.detailed
 .fi
 .ft
 .SH MIGRATION
@@ -427,7 +495,9 @@ configuration file, as described in \fBpcp.conf\fP(5).
 .B pmlogconf
 overrides any
 .B $PCP_DERIVED_CONFIG
-environment variable to an empty string, for performance reasons.
+environment variable to an empty string, for performance reasons
+and to prevent the inclusion of derived metrics in
+.I configfile .
 .PP
 .B pmlogconf
 honours the
@@ -486,6 +556,8 @@ appl1	metric probe operations
 .SH SEE ALSO
 .BR pmcd (1),
 .BR pmlogger (1),
+.BR PMAPI (3),
+.BR pmRegisterDerived (3),
 .BR pcp.conf (5)
 and
 .BR pcp.env (5).

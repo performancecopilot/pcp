@@ -1,0 +1,133 @@
+#!/bin/sh
+# PCP QA Test No. 1637
+# pmlogconf define tests
+#
+# non-valgrind variant, see qa/1638 for the valgrind variant
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1638 will be run"
+fi
+
+# test for-some-thing || _notrun No support for some-thing
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+mkdir -p $tmp/foo
+
+# real QA test starts here
+cat <<End-of-File >$tmp/foo/0
+#pmlogconf-setup 2.0
+ident	qa-$seq-0
+# syntax error, name
+define
+probe	x > 0 ? include : exclude
+	sample.bin
+End-of-File
+
+cat <<End-of-File >$tmp/foo/1
+#pmlogconf-setup 2.0
+ident	qa-$seq-1
+# syntax error, missing =
+define	x
+probe	x > 0 ? include : exclude
+	sample.bin
+End-of-File
+
+cat <<End-of-File >$tmp/foo/2
+#pmlogconf-setup 2.0
+ident	qa-$seq-2
+# syntax error, missing expr
+define	x = 
+probe	x > 0 ? include : exclude
+	sample.bin
+End-of-File
+
+cat <<End-of-File >$tmp/foo/3
+#pmlogconf-setup 2.0
+ident	qa-$seq-3
+# definition error, bad expr
+define	x = sum( sample.bin
+probe	x > 0 ? include : exclude
+	sample.bin
+End-of-File
+
+cat <<End-of-File >$tmp/foo/3
+#pmlogconf-setup 2.0
+ident	qa-$seq-3
+# goodie
+define	x = count(sample.bin)
+probe	x > 0 ? include : exclude
+	sample.bin
+End-of-File
+
+cat <<End-of-File >$tmp/foo/4
+#pmlogconf-setup 2.0
+ident	qa-$seq-4
+# original storage/farm config, rewritten
+define	y = (defined(smart.ata) ? count(smart.ata) : 0) + (defined(smart.scsi) ? count(smart.scsi) : 0)
+# +1 for QA so the value is always >= 1
+define	z = (defined(smart.ata) ? count(smart.ata) : 0) + (defined(smart.scsi) ? count(smart.scsi) : 0) + 1
+probe	z > 0 ? include : exclude
+	sample.colour
+End-of-File
+
+cat <<End-of-File >$tmp/foo/5
+#pmlogconf-setup 2.0
+ident   Derived metric example using a single metric instance
+ident	based on pmlogconf(1) EXAMPLES
+delta	once
+define  fumble_log = sample.colour[green]
+probe   fumble_log >= 200 ? include : exclude
+        sample.colour[red]
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pmlogconf -d $tmp/foo $tmp.out
+else
+    pmlogconf -d $tmp/foo $tmp.out 2>&1
+fi \
+| _filter
+_filter <$tmp.out
+
+# success, all done
+exit

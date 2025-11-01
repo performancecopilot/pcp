@@ -501,6 +501,66 @@ parse_groupfile(FILE *file, const char *tag)
 	    p = trim(p + sizeof("delta"));
 	    group.delta = copy_string(p);
 	}
+	else if (istoken(p, "define", sizeof("define")-1)) {
+	    /*
+	     * derived metric definition ...
+	     * define name = expr
+	     */
+	    char	*name;
+	    char	*expr;
+	    int		sts;
+	    char	*errmsg;
+	    name = p = trim(p + sizeof("define"));
+	    if (name[0] == '\0') {
+		fprintf(stderr, "%s: Error: %s/%s "
+			"define missing <name>\n",
+			pmGetProgname(), groupdir, group.tag);
+		free(group.tag);
+		free(group.ident);
+		group.valid = 0;
+		return -EINVAL;
+	    }
+	    p++;
+	    while (*p != '\0' && !isspace((int)*p))
+		p++;
+	    *p = '\0';
+	    p = trim(p + 1);
+	    /* found name, expect = now */
+	    if (*p == '=') {
+		p = trim(p + 1);
+		expr = chop(p);
+		if (expr[0] != '\0') {
+		    if ((sts = pmRegisterDerivedMetric(name, expr, &errmsg)) < 0) {
+			fprintf(stderr, "%s: Error: %s/%s "
+				"define pmRegisterDerivedMetric: failed: %s\n",
+				pmGetProgname(), groupdir, group.tag, errmsg);
+			free(errmsg);
+			free(group.tag);
+			free(group.ident);
+			group.valid = 0;
+			return -EINVAL;
+		    }
+		}
+		else {
+		    fprintf(stderr, "%s: Error: %s/%s "
+			    "define missing <expr> after =\n",
+			    pmGetProgname(), groupdir, group.tag);
+		    free(group.tag);
+		    free(group.ident);
+		    group.valid = 0;
+		    return -EINVAL;
+		}
+	    }
+	    else {
+		fprintf(stderr, "%s: Error: %s/%s "
+			"define missing = after <name>\n",
+			pmGetProgname(), groupdir, group.tag);
+		free(group.tag);
+		free(group.ident);
+		group.valid = 0;
+		return -EINVAL;
+	    }
+	}
 	else {		/* a metric specification for this logging group */
 	    group_metric(&group, p);
 	}
@@ -1836,7 +1896,7 @@ pmapi_setup(pmOptions *options)
     int		sts;
 
     /* prepare the environment - no derived metrics, POSIX sorting */
-    unsetenv("PCP_DERIVED_CONFIG");
+    setenv("PCP_DERIVED_CONFIG", "", 1);
     setenv("LC_COLLATE", "POSIX", 1);
 
     /* setup connection to pmcd in order to query metric states */

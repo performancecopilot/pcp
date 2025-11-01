@@ -1,0 +1,46 @@
+QA output created by 1637
+pmlogconf: Error: TMP/foo/0 define missing <name>
+pmlogconf: Error: TMP/foo/1 define missing = after <name>
+pmlogconf: Error: TMP/foo/2 define missing <expr> after =
+Creating config file "TMP.out" using default settings ...
+...
+#pmlogconf 2.0
+#
+# pmlogger(1) config file created and updated by pmlogconf
+#
+# DO NOT UPDATE THE INITIAL SECTION OF THIS FILE.
+# Any changes may be lost the next time pmlogconf is used
+# on this file.
+#
+#+ groupdir TMP/foo
+#
+#+ 3:y:default:
+## qa-1637-3
+log advisory on default {
+	sample.bin
+}
+#----
+#+ 4:y:default:
+## qa-1637-4
+log advisory on default {
+	sample.colour
+}
+#----
+#+ 5:y:once:
+## Derived metric example using a single metric instance based on pmlogconf(1)
+## EXAMPLES
+log advisory on once {
+	sample.colour[red]
+}
+#----
+# DO NOT UPDATE THE FILE ABOVE THIS LINE
+# Otherwise any changes may be lost the next time pmlogconf is
+# used on this file.
+#
+# It is safe to make additions from here on ...
+#
+
+[access]
+disallow .* : all;
+disallow :* : all;
+allow local:* : enquire;
