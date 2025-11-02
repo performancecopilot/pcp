@@ -1197,9 +1197,9 @@ AC_MSG_CHECKING([if the bpf PMDA should be included])
 pmda_bpf=false
 AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
 AS_IF([test "x$do_pmdabpf" = "xcheck"], [
-    dnl pmdabpf needs -lelf, clang 10+ and arch-specific vmlinux.h from bpftool
+    dnl pmdabpf needs -lelf, clang 12+ and arch-specific vmlinux.h from bpftool
     $have_libelf && \
-	test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && \
+	test $clang_major_version -ge 12 -a -f "$pmdabpf_vmlinuxh" && \
     pmda_bpf=true
 ])
 AC_SUBST(PMDA_BPF, $pmda_bpf)

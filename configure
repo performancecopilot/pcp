@@ -9133,7 +9133,7 @@ if test "x$do_pmdabpf" = "xcheck"
 then :
 
         $have_libelf && \
-	test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && \
+	test $clang_major_version -ge 12 -a -f "$pmdabpf_vmlinuxh" && \
     pmda_bpf=true
 
 fi
