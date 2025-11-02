@@ -1,0 +1,4 @@
+#pmlogconf-setup 2.0
+ident	Seagate Field Accessible Reliability Metrics (FARM) Log for SCSI (SAS) disks [Linux]
+probe	farm.scsi.log_header.log_version values ? include : exclude
+	farm.scsi
