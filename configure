@@ -9132,8 +9132,9 @@ fi
 if test "x$do_pmdabpf" = "xcheck"
 then :
 
-        $have_libbpf && $have_libelf && \
-	test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && pmda_bpf=true
+        $have_libelf && \
+	test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && \
+    pmda_bpf=true
 
 fi
 PMDA_BPF=$pmda_bpf
@@ -9143,24 +9144,15 @@ printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: r
 printf "%s\n" "no" >&6; }; fi
 
 if $pmda_bpf; then
-    libbpf_version_major=`echo $libbpf_version | cut -d. -f1`
-    libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
-    pmdabpf_modules="biolatency.so runqlat.so"
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if bpf PMDA modules using bpf_buffer__new should be included" >&5
-printf %s "checking if bpf PMDA modules using bpf_buffer__new should be included... " >&6; }
-    if test "$libbpf_version_major" -eq 0; then
-       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 1.0.0, installed: $libbpf_version)" >&5
-printf "%s\n" "no (libbpf version required: 1.0.0, installed: $libbpf_version)" >&6; }
-    else
-       pmdabpf_modules="${pmdabpf_modules} mountsnoop.so oomkill.so"
-       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-    fi
-    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
-
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking which bpf PMDA modules should be included" >&5
 printf %s "checking which bpf PMDA modules should be included... " >&6; }
+    if test $clang_major_version -ge 15; then
+	pmdabpf_modules="bashreadline.so"
+    else
+	pmdabpf_modules="bashreadline.so"
+    fi
+    pmdabpf_modules="${pmdabpf_modules} biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
+
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_modules" >&5
 printf "%s\n" "$pmdabpf_modules" >&6; }
 fi
