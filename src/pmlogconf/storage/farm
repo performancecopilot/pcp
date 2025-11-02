@@ -1,5 +1,0 @@
-#pmlogconf-setup 2.0
-ident	Seagate Field Accessible Reliability Metrics (FARM) Log [Linux]
-define	storage.farm = (defined(farm.ata.drive_information.serial_number) ? count(farm.ata.drive_information.serial_number) : 0) + (defined(farm.scsi.drive_information.serial_number) ? count(farm.scsi.drive_information.serial_number) : 0)
-probe	storage.farm > 0 ? include : exclude
-	farm
