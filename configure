@@ -857,10 +857,6 @@ CLANG
 HAVE_LIBELF
 libelf_LIBS
 libelf_CFLAGS
-libbpf_version
-HAVE_LIBBPF
-libbpf_LIBS
-libbpf_CFLAGS
 PMDA_BCC
 have_python_influxdb
 have_python_six
@@ -1089,8 +1085,6 @@ avahi_LIBS
 SYSTEMD_TMPFILESDIR
 SYSTEMD_SYSUSERSDIR
 SYSTEMD_SYSTEMUNITDIR
-libbpf_CFLAGS
-libbpf_LIBS
 libelf_CFLAGS
 libelf_LIBS
 CPP
@@ -1850,9 +1844,6 @@ Some influential environment variables:
               value of sysusersdir for systemd, overriding pkg-config
   SYSTEMD_SYSTEMUNITDIR
               value of systemdsystemunitdir for systemd, overriding pkg-config
-  libbpf_CFLAGS
-              C compiler flags for libbpf, overriding pkg-config
-  libbpf_LIBS linker flags for libbpf, overriding pkg-config
   libelf_CFLAGS
               C compiler flags for libelf, overriding pkg-config
   libelf_LIBS linker flags for libelf, overriding pkg-config
@@ -6603,8 +6594,8 @@ printf "%s\n" "$ac_cv_path_EGREP" >&6; }
  ac_cv_path_EGREP_TRADITIONAL=$EGREP
 
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if static probes should be used" >&5
-printf %s "checking if static probes should be used... " >&6; }
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if USDT probes should be used" >&5
+printf %s "checking if USDT probes should be used... " >&6; }
 cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
 
@@ -8925,91 +8916,6 @@ PMDA_BCC=$pmda_bcc
 if $pmda_bcc; then { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }; fi
-
-
-pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libbpf >= 0.8.0" >&5
-printf %s "checking for libbpf >= 0.8.0... " >&6; }
-
-if test -n "$libbpf_CFLAGS"; then
-    pkg_cv_libbpf_CFLAGS="$libbpf_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.8.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.8.0") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_libbpf_CFLAGS=`$PKG_CONFIG --cflags "libbpf >= 0.8.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$libbpf_LIBS"; then
-    pkg_cv_libbpf_LIBS="$libbpf_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.8.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.8.0") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_libbpf_LIBS=`$PKG_CONFIG --libs "libbpf >= 0.8.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-                libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
-        else
-                libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
-        fi
-        # Put the nasty error message in config.log where it belongs
-        echo "$libbpf_PKG_ERRORS" >&5
-
-        have_libbpf=false
-elif test $pkg_failed = untried; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-        have_libbpf=false
-else
-        libbpf_CFLAGS=$pkg_cv_libbpf_CFLAGS
-        libbpf_LIBS=$pkg_cv_libbpf_LIBS
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-        have_libbpf=true
-fi
-HAVE_LIBBPF=$have_libbpf
-
-if $have_libbpf
-then :
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking libbpf version" >&5
-printf %s "checking libbpf version... " >&6; }
-    libbpf_version=`$PKG_CONFIG --modversion libbpf`
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $libbpf_version" >&5
-printf "%s\n" "$libbpf_version" >&6; }
-
-fi
 
 
 pkg_failed=no

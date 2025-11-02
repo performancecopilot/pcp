@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= bpf.c
 CMDTARGET = pmdabpf$(EXECSUFFIX)
 LIBTARGET = pmda_bpf.$(DSOSUFFIX)
-LLDLIBS = $(PCP_WEBLIB) $(LIB_FOR_LIBBPF) $(LIB_FOR_LIBELF) -lz -lm -ldl
+LLDLIBS = $(PCP_WEBLIB) $(LIB_FOR_LIBELF) -lbpf
 ifeq "$(HAVE_LIBINIH)" "true"
 LLDLIBS += $(LIB_FOR_INIH)
 endif

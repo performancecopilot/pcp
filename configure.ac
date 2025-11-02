@@ -1155,15 +1155,6 @@ AS_IF([test "x$do_pmdabcc" = "xcheck"], [
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-PKG_CHECK_MODULES([libbpf], [libbpf >= 0.8.0], [have_libbpf=true], [have_libbpf=false])
-AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
-AS_IF([$have_libbpf], [
-    AC_MSG_CHECKING([libbpf version])
-    libbpf_version=`$PKG_CONFIG --modversion libbpf`
-    AC_SUBST(libbpf_version)
-    AC_MSG_RESULT($libbpf_version)
-])
-
 PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
 AC_SUBST(HAVE_LIBELF, [$have_libelf])
 
