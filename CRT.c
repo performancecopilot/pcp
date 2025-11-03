@@ -12,6 +12,7 @@ in the source distribution for its full text.
 #include <errno.h>
 #include <fcntl.h>
 #include <langinfo.h>
+#include <limits.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -28,7 +29,7 @@ in the source distribution for its full text.
 #include <sys/mman.h>
 #endif
 
-#if defined(HAVE_LIBUNWIND_H) && defined(HAVE_LIBUNWIND)
+#if defined(HAVE_LIBUNWIND_H) && defined(HAVE_LOCAL_UNWIND)
 # define PRINT_BACKTRACE
 # define UNW_LOCAL_ONLY
 # include <libunwind.h>
@@ -94,21 +95,31 @@ const char* const* CRT_treeStr = CRT_treeStrAscii;
 
 static const Settings* CRT_settings;
 
-const char* CRT_degreeSign;
-
-static const char* initDegreeSign(void) {
 #ifdef HAVE_LIBNCURSESW
-   if (CRT_utf8)
-      return "\xc2\xb0";
-
-   static char buffer[4];
-   // this might fail if the current locale does not support wide characters
-   int r = snprintf(buffer, sizeof(buffer), "%lc", 176);
-   if (r > 0)
-      return buffer;
+# if MB_LEN_MAX >= 3 // Minimum required to support UTF-8 BMP subset
+char CRT_degreeSign[MB_LEN_MAX * 2] = "\xc2\xb0";
+# else
+char CRT_degreeSign[MB_LEN_MAX * 2] = "";
+# endif
+#else
+char CRT_degreeSign[] = "";
 #endif
 
-   return "";
+static void initDegreeSign(void) {
+#ifdef HAVE_LIBNCURSESW
+# if MB_LEN_MAX >= 3
+   if (CRT_utf8)
+      return;
+# endif
+
+   // this might fail if the current locale does not support wide characters
+   int r = snprintf(CRT_degreeSign, sizeof(CRT_degreeSign), "%lc", 176);
+   if (r <= 0 || (size_t)r >= sizeof(CRT_degreeSign))
+      CRT_degreeSign[0] = '\0';
+#endif
+
+   // No-op
+   return;
 }
 
 const int* CRT_colors;
@@ -1131,6 +1142,11 @@ static bool terminalSupportsDefinedKeys(const char* termType) {
          return true;
       }
       break;
+   case 'f':
+      if (String_eq(termType, "foot")) {
+         return true;
+      }
+      break;
    case 's':
       if (termType[1] == 't' && IS_END_OR_DASH(termType[2])) {
          return true;
@@ -1265,7 +1281,7 @@ IGNORE_WCASTQUAL_END
 
    CRT_setMouse(settings->enableMouse);
 
-   CRT_degreeSign = initDegreeSign();
+   initDegreeSign();
 }
 
 void CRT_done(void) {
@@ -1335,7 +1351,7 @@ void CRT_setColors(int colorScheme) {
 
 #ifdef PRINT_BACKTRACE
 static void print_backtrace(void) {
-#if defined(HAVE_LIBUNWIND_H) && defined(HAVE_LIBUNWIND)
+#if defined(HAVE_LIBUNWIND_H) && defined(HAVE_LOCAL_UNWIND)
    unw_context_t context;
    unw_getcontext(&context);
 

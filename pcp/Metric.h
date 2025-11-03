@@ -175,6 +175,8 @@ pmAtomValue* Metric_values(Metric metric, pmAtomValue* atom, int count, int type
 
 const pmDesc* Metric_desc(Metric metric);
 
+static inline Metric Metric_fromId(size_t id) { return (Metric)id; }
+
 int Metric_type(Metric metric);
 
 int Metric_instanceCount(Metric metric);
@@ -182,6 +184,10 @@ int Metric_instanceCount(Metric metric);
 int Metric_instanceOffset(Metric metric, int inst);
 
 pmAtomValue* Metric_instance(Metric metric, int inst, int offset, pmAtomValue* atom, int type);
+
+pmAtomValue* Metric_instance_kibibytes(Metric metric, int inst, int offset, pmAtomValue* atom);
+
+pmAtomValue* Metric_instance_milliseconds(Metric metric, int inst, int offset, pmAtomValue* atom);
 
 void Metric_externalName(Metric metric, int inst, char** externalName);
 
