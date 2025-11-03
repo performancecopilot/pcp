@@ -26,6 +26,16 @@
 #
 # blank lines before the @ line are ignored
 #
+
+@160.0 FARM log header ATA disks 
+@160.1 FARM drive information ATA disks
+@160.2 FARM workload statistics ATA disks
+@160.3 FARM error statistics ATA disks
+@160.4 FARM environmental statistics ATA disks
+@160.5 FARM reliability statistics ATA disks
+@160.6 FARM flash LED statistics ATA disks
+@160.7 FARM per-head statistics ATA disks
+
 @farm.ata.log_header.log_version Listed version of the FARM log
 The current version for the FARM log provided by the drive
 
@@ -130,10 +140,10 @@ The drive assembly date
 @farm.ata.drive_information.depopulation_head_mask Depopulation head mask
 The drive depopulation head mask
 
-@farm.ata.workload_statistics.total_read_commands Total number of read commands on drive
+@farm.ata.workload_statistics.total_read_commands Total number of read commands
 The total number of recorded read commands done on the drive
 
-@farm.ata.workload_statistics.total_write_commands Total number of write commands on drive
+@farm.ata.workload_statistics.total_write_commands Total number of write commands
 The total number of recorded write commands done on the drive
 
 @farm.ata.workload_statistics.total_random_read_commands Total number of random read commands on drive
@@ -160,29 +170,29 @@ Number of times dither was held off during random workloads
 @farm.ata.workload_statistics.dither_held_off_sequential_workloads Dither held off sequential workloads
 Number of times dither was held off during sequential workloads
 
-@farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_summary_frames Read commands 0-3.125% LBA space
-Number of read commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+@farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_frames Read commands 0-3.125% LBA space
+Number of read commands from 0-3.125% of LBA space for the last 3 frames
 
-@farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_summary_frames Read commands 3.125-25% LBA space
-Number of read commands from 3.125-25% of LBA space for the last 3 SMART summary frames
+@farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_frames Read commands 3.125-25% LBA space
+Number of read commands from 3.125-25% of LBA space for the last 3 frames
 
-@farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_summary_frames Read commands 25-75% LBA space
-Number of read commands from 25-75% of LBA space for the last 3 SMART summary frames
+@farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_frames Read commands 25-75% LBA space
+Number of read commands from 25-75% of LBA space for the last 3 SMART frames
 
-@farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_summary_frames Read commands 75-100% LBA space
-Number of read commands from 75-100% of LBA space for the last 3 SMART summary frames
+@farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_frames Read commands 75-100% LBA space
+Number of read commands from 75-100% of LBA space for the last 3 SMART frames
 
-@farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_summary_frames Write commands 0-3.125% LBA space
-Number of write commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+@farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_frames Write commands 0-3.125% LBA space
+Number of write commands from 0-3.125% of LBA space for the last 3 SMART frames
 
-@farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_summary_frames Write commands 3.125-25% LBA space
-Number of write commands from 3.125-25 % of LBA space for the last 3 SMART summary frames
+@farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_frames Write commands 3.125-25% LBA space
+Number of write commands from 3.125-25 % of LBA space for the last 3 SMART frames
 
-@farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_summary_frames Write commands 25-75% LBA space
-Number of write commands from 25-75% of LBA space for the last 3 SMART summary frames
+@farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_frames Write commands 25-75% LBA space
+Number of write commands from 25-75% of LBA space for the last 3 SMART frames
 
-@farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_summary_frames Write commands 75-100% LBA space
-Number of write commands for 75-100% of LBA space for the last 3 SMART summary frames
+@farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_frames Write commands 75-100% LBA space
+Number of write commands for 75-100% of LBA space for the last 3 SMART frames
 
 @farm.ata.error_statistics.unrecoverable_read_errors Unrecoverable read errors
 Number of unrecoverable read errors on the drive
@@ -341,6 +351,18 @@ LBAs corrected by parity sector for the drive
 @farm.ata.reliability_statistics.number_of_reallocated_sectors Number of reallocated sectors by head 
 @farm.ata.reliability_statistics.number_of_reallocation_candidate_sectors Reallocation candidate sectors head
 
+@160.10 FARM log header SCSI disks
+@160.11 FARM drive information SCSI disks
+@160.12 FARM workload statistics SCSI disks
+@160.13 FARM error statistics SCSI disks
+@160.14 FARM environment statistics SCSI disks
+@160.15 FARM reliability statistics SCSI disks
+@160.16 FARM drive information continued SCSI disks
+@160.17 FARM environmental statistics continued SCSI disks
+@160.18 FARM per-head statistics SCSI disks
+@160.19 FARM per-actuator statistics SCSI disks
+@160.20 FARM per-actuator reallocation statistics SCSI disks
+
 @farm.scsi.log_header.log_version Listed version of the FARM log
 The current version for the FARM log provided by the drive
 
@@ -439,3 +461,19 @@ The maximum number of drive heads supported by this version of the FARM log
 @farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_repeating Lifetime unrecoverable read repeating
 @farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_unique Lifetime unrecoverable read unique
 @farm.scsi.per_head_statistics.second_mr_head_resistance Second MR head resistance
+
+@farm.scsi.per_actuator_statistics.head_load_events Number of head load events
+@farm.scsi.per_actuator_statistics.timestamp_of_last_idd_test Time stamp of last IDD test
+@farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test Sub command of last IDD test
+@farm.scsi.per_actuator_statistics.number_of_reallocated_sector_reclamations Number of reallocated sector reclamations
+@farm.scsi.per_actuator_statistics.servo_status Servo status
+@farm.scsi.per_actuator_statistics.slipped_sectors_after_idd_scan Slipped sectors after IDD scan
+@farm.scsi.per_actuator_statistics.resident_reallocated_sectors_after_idd_scan Number of sectors after IDD scan
+@farm.scsi.per_actuator_statistics.successfully_scrubbed_sectors_after_idd_scan Number of scrubbed sectors after IDD scan
+@farm.scsi.per_actuator_statistics.number_of_dos_scans_performed Number of DOS scans performed
+@farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_isp Number of LBAs corrected by ISP
+@farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors Number of valid parity sectors
+@farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_parity_sector Number of LBAs corrected by parity sector
+
+@farm.scsi.per_actuator_actuator_recallocation.number_reallocated_sectors Number of reallocated sectors
+@farm.scsi.per_actuator_actuator_recallocation.number_recallocated_candidate_sectors Number of reallocated candidate sectors
