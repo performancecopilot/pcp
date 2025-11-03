@@ -857,28 +857,28 @@ farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_summary_fr
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of read commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+Number of read commands from 0-3.125% of LBA space for the last 3 frames
     inst [0 or "sda"] value 0
 
 farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.12 [Read commands 25-75% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of read commands from 25-75% of LBA space for the last 3 SMART summary frames
+Number of read commands from 25-75% of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
 farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.11 [Read commands 3.125-25% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of read commands from 3.125-25% of LBA space for the last 3 SMART summary frames
+Number of read commands from 3.125-25% of LBA space for the last 3 frames
     inst [0 or "sda"] value 0
 
 farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.13 [Read commands 75-100% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of read commands from 75-100% of LBA space for the last 3 SMART summary frames
+Number of read commands from 75-100% of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
 farm.ata.workload_statistics.total_other_commands PMID: 160.2.4 [Total number of other commands on drive]
@@ -902,14 +902,14 @@ Help:
 The total number of recorded random write commands on the drive
     inst [0 or "sda"] value 824509792
 
-farm.ata.workload_statistics.total_read_commands PMID: 160.2.0 [Total number of read commands on drive]
+farm.ata.workload_statistics.total_read_commands PMID: 160.2.0 [Total number of read commands]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: counter  Units: none
 Help:
 The total number of recorded read commands done on the drive
     inst [0 or "sda"] value 246636536
 
-farm.ata.workload_statistics.total_write_commands PMID: 160.2.1 [Total number of write commands on drive]
+farm.ata.workload_statistics.total_write_commands PMID: 160.2.1 [Total number of write commands]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: counter  Units: none
 Help:
@@ -920,28 +920,28 @@ farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_summary_f
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of write commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+Number of write commands from 0-3.125% of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
 farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.16 [Write commands 25-75% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of write commands from 25-75% of LBA space for the last 3 SMART summary frames
+Number of write commands from 25-75% of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
 farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.15 [Write commands 3.125-25% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of write commands from 3.125-25 % of LBA space for the last 3 SMART summary frames
+Number of write commands from 3.125-25 % of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
 farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.17 [Write commands 75-100% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of write commands for 75-100% of LBA space for the last 3 SMART summary frames
+Number of write commands for 75-100% of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
 farm.scsi.drive_information.assembly_date PMID: 160.11.14 [Assembly Date (YYWW)]
@@ -1357,46 +1357,46 @@ Help:
 Reason for the capture of the FARM log
 No value(s) available!
 
-farm.scsi.per_actuator_actuator_recallocation.number_reallocated_sectors PMID: 160.20.0 [Number of reallocated sectors per actuator]
+farm.scsi.per_actuator_actuator_recallocation.number_reallocated_sectors PMID: 160.20.0 [Number of reallocated sectors]
     Data Type: 64-bit unsigned int  InDom: 160.6 0x28000006
     Semantics: counter  Units: none
 Help:
-Number of reallocated sectors per actuator
+Number of reallocated sectors
 No value(s) available!
 
-farm.scsi.per_actuator_actuator_recallocation.number_recallocated_candidate_sectors PMID: 160.20.1 [Number of reallocated candidate sectors pe]
+farm.scsi.per_actuator_actuator_recallocation.number_recallocated_candidate_sectors PMID: 160.20.1 [Number of reallocated candidate sectors]
     Data Type: 64-bit unsigned int  InDom: 160.6 0x28000006
     Semantics: counter  Units: none
 Help:
-r actuator
+Number of reallocated candidate sectors
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.head_load_events PMID: 160.19.0 [Number of head load events per actuator]
+farm.scsi.per_actuator_statistics.head_load_events PMID: 160.19.0 [Number of head load events]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of head load events per actuator
+Number of head load events
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.number_of_dos_scans_performed PMID: 160.19.8 [Number of DOS scans performed per actuator]
+farm.scsi.per_actuator_statistics.number_of_dos_scans_performed PMID: 160.19.8 [Number of DOS scans performed]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of DOS scans performed per actuator
+Number of DOS scans performed
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_isp PMID: 160.19.9 [Number of LBAs corrected by ISP per actuator]
+farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_isp PMID: 160.19.9 [Number of LBAs corrected by ISP]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of LBAs corrected by ISP per actuator
+Number of LBAs corrected by ISP
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_parity_sector PMID: 160.19.11 [Number of LBAs corrected by parity sector per actu]
+farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_parity_sector PMID: 160.19.11 [Number of LBAs corrected by parity sector]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-ator
+Number of LBAs corrected by parity sector
 No value(s) available!
 
 farm.scsi.per_actuator_statistics.number_of_reallocated_sector_reclamations PMID: 160.19.3 [Number of reallocated sector reclamations]
@@ -1406,53 +1406,53 @@ Help:
 Number of reallocated sector reclamations
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of resident reallocated sectors]
+farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of sectors after IDD scan]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
- after IDD scan
+Number of sectors after IDD scan
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan PMID: 160.19.5 [Number of slipeed sectors after IDD scan]
+farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan PMID: 160.19.5 [Number of slipped sectors after IDD scan]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of slipeed sectors after IDD scan
+Number of slipped sectors after IDD scan
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors PMID: 160.19.10 [Number of valid parity sectors per actuator]
+farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors PMID: 160.19.10 [Number of valid parity sectors]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of valid parity sectors per actuator
+Number of valid parity sectors
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.servo_status PMID: 160.19.4 [Servo status per actuator]
+farm.scsi.per_actuator_statistics.servo_status PMID: 160.19.4 [Servo status]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Servo status per actuator
+Servo status
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test PMID: 160.19.2 [Sub command of last IDD test per actuator]
+farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test PMID: 160.19.2 [Sub command of last IDD test]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Sub command of last IDD test per actuator
+Sub command of last IDD test
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.successfully_scrubbed_sectors_after_idd_scan PMID: 160.19.7 [Number of successful scrubbed sectors after IDD]
+farm.scsi.per_actuator_statistics.successfully_scrubbed_sectors_after_idd_scan PMID: 160.19.7 [Number of scrubbed sectors after IDD scan]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
- scan
+Number of scrubbed sectors after IDD scan
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.timestamp_of_last_idd_test PMID: 160.19.1 [Time stamp of last IDD test per actuator]
+farm.scsi.per_actuator_statistics.timestamp_of_last_idd_test PMID: 160.19.1 [Time stamp of last IDD test]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Time stamp of last IDD test per actuator
+Time stamp of last IDD test
 No value(s) available!
 
 farm.scsi.per_head_statistics.head_cumulative_lifetime_unrecoverable_read_repeating PMID: 160.18.4 [Lifetime unrecoverable read repeating]
@@ -2400,28 +2400,28 @@ farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_summary_fr
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of read commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+Number of read commands from 0-3.125% of LBA space for the last 3 frames
 No value(s) available!
 
 farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.12 [Read commands 25-75% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of read commands from 25-75% of LBA space for the last 3 SMART summary frames
+Number of read commands from 25-75% of LBA space for the last 3 SMART frames
 No value(s) available!
 
 farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.11 [Read commands 3.125-25% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of read commands from 3.125-25% of LBA space for the last 3 SMART summary frames
+Number of read commands from 3.125-25% of LBA space for the last 3 frames
 No value(s) available!
 
 farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.13 [Read commands 75-100% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of read commands from 75-100% of LBA space for the last 3 SMART summary frames
+Number of read commands from 75-100% of LBA space for the last 3 SMART frames
 No value(s) available!
 
 farm.ata.workload_statistics.total_other_commands PMID: 160.2.4 [Total number of other commands on drive]
@@ -2445,14 +2445,14 @@ Help:
 The total number of recorded random write commands on the drive
 No value(s) available!
 
-farm.ata.workload_statistics.total_read_commands PMID: 160.2.0 [Total number of read commands on drive]
+farm.ata.workload_statistics.total_read_commands PMID: 160.2.0 [Total number of read commands]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: counter  Units: none
 Help:
 The total number of recorded read commands done on the drive
 No value(s) available!
 
-farm.ata.workload_statistics.total_write_commands PMID: 160.2.1 [Total number of write commands on drive]
+farm.ata.workload_statistics.total_write_commands PMID: 160.2.1 [Total number of write commands]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: counter  Units: none
 Help:
@@ -2463,28 +2463,28 @@ farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_summary_f
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of write commands from 0-3.125% of LBA space for the last 3 SMART summary frames
+Number of write commands from 0-3.125% of LBA space for the last 3 SMART frames
 No value(s) available!
 
 farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.16 [Write commands 25-75% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of write commands from 25-75% of LBA space for the last 3 SMART summary frames
+Number of write commands from 25-75% of LBA space for the last 3 SMART frames
 No value(s) available!
 
 farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.15 [Write commands 3.125-25% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of write commands from 3.125-25 % of LBA space for the last 3 SMART summary frames
+Number of write commands from 3.125-25 % of LBA space for the last 3 SMART frames
 No value(s) available!
 
 farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.17 [Write commands 75-100% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
-Number of write commands for 75-100% of LBA space for the last 3 SMART summary frames
+Number of write commands for 75-100% of LBA space for the last 3 SMART frames
 No value(s) available!
 
 farm.scsi.drive_information.assembly_date PMID: 160.11.14 [Assembly Date (YYWW)]
@@ -2900,61 +2900,61 @@ Help:
 Reason for the capture of the FARM log
     inst [0 or "sg0"] value 0
 
-farm.scsi.per_actuator_actuator_recallocation.number_reallocated_sectors PMID: 160.20.0 [Number of reallocated sectors per actuator]
+farm.scsi.per_actuator_actuator_recallocation.number_reallocated_sectors PMID: 160.20.0 [Number of reallocated sectors]
     Data Type: 64-bit unsigned int  InDom: 160.6 0x28000006
     Semantics: counter  Units: none
 Help:
-Number of reallocated sectors per actuator
+Number of reallocated sectors
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_actuator_recallocation.number_recallocated_candidate_sectors PMID: 160.20.1 [Number of reallocated candidate sectors pe]
+farm.scsi.per_actuator_actuator_recallocation.number_recallocated_candidate_sectors PMID: 160.20.1 [Number of reallocated candidate sectors]
     Data Type: 64-bit unsigned int  InDom: 160.6 0x28000006
     Semantics: counter  Units: none
 Help:
-r actuator
+Number of reallocated candidate sectors
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.head_load_events PMID: 160.19.0 [Number of head load events per actuator]
+farm.scsi.per_actuator_statistics.head_load_events PMID: 160.19.0 [Number of head load events]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of head load events per actuator
+Number of head load events
     inst [0 or "sg0::actuator_0"] value 6683
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.number_of_dos_scans_performed PMID: 160.19.8 [Number of DOS scans performed per actuator]
+farm.scsi.per_actuator_statistics.number_of_dos_scans_performed PMID: 160.19.8 [Number of DOS scans performed]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of DOS scans performed per actuator
+Number of DOS scans performed
     inst [0 or "sg0::actuator_0"] value 42331466307
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_isp PMID: 160.19.9 [Number of LBAs corrected by ISP per actuator]
+farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_isp PMID: 160.19.9 [Number of LBAs corrected by ISP]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of LBAs corrected by ISP per actuator
+Number of LBAs corrected by ISP
     inst [0 or "sg0::actuator_0"] value 2
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_parity_sector PMID: 160.19.11 [Number of LBAs corrected by parity sector per actu]
+farm.scsi.per_actuator_statistics.number_of_lbas_corrected_by_parity_sector PMID: 160.19.11 [Number of LBAs corrected by parity sector]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-ator
+Number of LBAs corrected by parity sector
     inst [0 or "sg0::actuator_0"] value 53
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
@@ -2970,71 +2970,71 @@ Number of reallocated sector reclamations
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of resident reallocated sectors]
+farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of sectors after IDD scan]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
- after IDD scan
+Number of sectors after IDD scan
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan PMID: 160.19.5 [Number of slipeed sectors after IDD scan]
+farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan PMID: 160.19.5 [Number of slipped sectors after IDD scan]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of slipeed sectors after IDD scan
+Number of slipped sectors after IDD scan
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors PMID: 160.19.10 [Number of valid parity sectors per actuator]
+farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors PMID: 160.19.10 [Number of valid parity sectors]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Number of valid parity sectors per actuator
+Number of valid parity sectors
     inst [0 or "sg0::actuator_0"] value 548118
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.servo_status PMID: 160.19.4 [Servo status per actuator]
+farm.scsi.per_actuator_statistics.servo_status PMID: 160.19.4 [Servo status]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Servo status per actuator
+Servo status
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test PMID: 160.19.2 [Sub command of last IDD test per actuator]
+farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test PMID: 160.19.2 [Sub command of last IDD test]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Sub command of last IDD test per actuator
+Sub command of last IDD test
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.successfully_scrubbed_sectors_after_idd_scan PMID: 160.19.7 [Number of successful scrubbed sectors after IDD]
+farm.scsi.per_actuator_statistics.successfully_scrubbed_sectors_after_idd_scan PMID: 160.19.7 [Number of scrubbed sectors after IDD scan]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
- scan
+Number of scrubbed sectors after IDD scan
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.timestamp_of_last_idd_test PMID: 160.19.1 [Time stamp of last IDD test per actuator]
+farm.scsi.per_actuator_statistics.timestamp_of_last_idd_test PMID: 160.19.1 [Time stamp of last IDD test]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
-Time stamp of last IDD test per actuator
+Time stamp of last IDD test
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
