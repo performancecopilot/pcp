@@ -758,6 +758,15 @@ optional_policy(`
     userdom_manage_tmp_files(pcp_pmcd_t)
 ')
 
+optional_policy(`
+    require {
+        type admin_home_t;
+    }
+    # https://bugzilla.redhat.com/show_bug.cgi?id=2397077
+    # type=AVC msg=audit(N): avc:  denied  { write } for  pid=PID comm="python3" name="SQLDBC.shm" dev="vda2" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:admin_home_t:s0 tclass=file
+    allow pcp_pmcd_t admin_home_t:file { write };
+')
+
 #============= init_t ==============
 # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmcd" name="pmcd" dev="dm-1" ino=INO scontext=system_u:system_r:init_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=dir permissive=0
 allow init_t pcp_log_t:dir read;
