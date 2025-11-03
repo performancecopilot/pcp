@@ -853,28 +853,28 @@ Help:
 The total number of recorded logical sectors written on the drive
     inst [0 or "sda"] value 148199221061
 
-farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_summary_frames PMID: 160.2.10 [Read commands 0-3.125% LBA space]
+farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_frames PMID: 160.2.10 [Read commands 0-3.125% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of read commands from 0-3.125% of LBA space for the last 3 frames
     inst [0 or "sda"] value 0
 
-farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.12 [Read commands 25-75% LBA space]
+farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_frames PMID: 160.2.12 [Read commands 25-75% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of read commands from 25-75% of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
-farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.11 [Read commands 3.125-25% LBA space]
+farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_frames PMID: 160.2.11 [Read commands 3.125-25% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of read commands from 3.125-25% of LBA space for the last 3 frames
     inst [0 or "sda"] value 0
 
-farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.13 [Read commands 75-100% LBA space]
+farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_frames PMID: 160.2.13 [Read commands 75-100% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
@@ -916,28 +916,28 @@ Help:
 The total number of recorded write commands done on the drive
     inst [0 or "sda"] value 856168463
 
-farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_summary_frames PMID: 160.2.14 [Write commands 0-3.125% LBA space]
+farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_frames PMID: 160.2.14 [Write commands 0-3.125% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of write commands from 0-3.125% of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
-farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.16 [Write commands 25-75% LBA space]
+farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_frames PMID: 160.2.16 [Write commands 25-75% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of write commands from 25-75% of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
-farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.15 [Write commands 3.125-25% LBA space]
+farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_frames PMID: 160.2.15 [Write commands 3.125-25% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of write commands from 3.125-25 % of LBA space for the last 3 SMART frames
     inst [0 or "sda"] value 0
 
-farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.17 [Write commands 75-100% LBA space]
+farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_frames PMID: 160.2.17 [Write commands 75-100% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
@@ -1406,20 +1406,6 @@ Help:
 Number of reallocated sector reclamations
 No value(s) available!
 
-farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of sectors after IDD scan]
-    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
-    Semantics: counter  Units: none
-Help:
-Number of sectors after IDD scan
-No value(s) available!
-
-farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan PMID: 160.19.5 [Number of slipped sectors after IDD scan]
-    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
-    Semantics: counter  Units: none
-Help:
-Number of slipped sectors after IDD scan
-No value(s) available!
-
 farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors PMID: 160.19.10 [Number of valid parity sectors]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
@@ -1427,11 +1413,25 @@ Help:
 Number of valid parity sectors
 No value(s) available!
 
+farm.scsi.per_actuator_statistics.resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of sectors after IDD scan]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of sectors after IDD scan
+No value(s) available!
+
 farm.scsi.per_actuator_statistics.servo_status PMID: 160.19.4 [Servo status]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
 Servo status
+No value(s) available!
+
+farm.scsi.per_actuator_statistics.slipped_sectors_after_idd_scan PMID: 160.19.5 [Slipped sectors after IDD scan]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Slipped sectors after IDD scan
 No value(s) available!
 
 farm.scsi.per_actuator_statistics.subcommand_of_last_idd_test PMID: 160.19.2 [Sub command of last IDD test]
@@ -2396,28 +2396,28 @@ Help:
 The total number of recorded logical sectors written on the drive
 No value(s) available!
 
-farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_summary_frames PMID: 160.2.10 [Read commands 0-3.125% LBA space]
+farm.ata.workload_statistics.read_commands_0_3_lba_space_last_3_smart_frames PMID: 160.2.10 [Read commands 0-3.125% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of read commands from 0-3.125% of LBA space for the last 3 frames
 No value(s) available!
 
-farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.12 [Read commands 25-75% LBA space]
+farm.ata.workload_statistics.read_commands_25_75_lba_space_last_3_smart_frames PMID: 160.2.12 [Read commands 25-75% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of read commands from 25-75% of LBA space for the last 3 SMART frames
 No value(s) available!
 
-farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.11 [Read commands 3.125-25% LBA space]
+farm.ata.workload_statistics.read_commands_3_25_lba_space_last_3_smart_frames PMID: 160.2.11 [Read commands 3.125-25% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of read commands from 3.125-25% of LBA space for the last 3 frames
 No value(s) available!
 
-farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.13 [Read commands 75-100% LBA space]
+farm.ata.workload_statistics.read_commands_75_100_lba_space_last_3_smart_frames PMID: 160.2.13 [Read commands 75-100% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
@@ -2459,28 +2459,28 @@ Help:
 The total number of recorded write commands done on the drive
 No value(s) available!
 
-farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_summary_frames PMID: 160.2.14 [Write commands 0-3.125% LBA space]
+farm.ata.workload_statistics.write_commands_0_3_lba_space_last_3_smart_frames PMID: 160.2.14 [Write commands 0-3.125% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of write commands from 0-3.125% of LBA space for the last 3 SMART frames
 No value(s) available!
 
-farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_summary_frames PMID: 160.2.16 [Write commands 25-75% LBA space]
+farm.ata.workload_statistics.write_commands_25_75_lba_space_last_3_smart_frames PMID: 160.2.16 [Write commands 25-75% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of write commands from 25-75% of LBA space for the last 3 SMART frames
 No value(s) available!
 
-farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_summary_frames PMID: 160.2.15 [Write commands 3.125-25% LBA space]
+farm.ata.workload_statistics.write_commands_3_25_lba_space_last_3_smart_frames PMID: 160.2.15 [Write commands 3.125-25% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
 Number of write commands from 3.125-25 % of LBA space for the last 3 SMART frames
 No value(s) available!
 
-farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_summary_frames PMID: 160.2.17 [Write commands 75-100% LBA space]
+farm.ata.workload_statistics.write_commands_75_100_lba_space_last_3_smart_frames PMID: 160.2.17 [Write commands 75-100% LBA space]
     Data Type: 64-bit unsigned int  InDom: 160.0 0x28000000
     Semantics: instant  Units: none
 Help:
@@ -2970,26 +2970,6 @@ Number of reallocated sector reclamations
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
-farm.scsi.per_actuator_statistics.number_of_resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of sectors after IDD scan]
-    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
-    Semantics: counter  Units: none
-Help:
-Number of sectors after IDD scan
-    inst [0 or "sg0::actuator_0"] value 0
-    inst [1 or "sg0::actuator_1"] value 0
-    inst [2 or "sg0::actuator_2"] value 0
-    inst [3 or "sg0::actuator_3"] value 0
-
-farm.scsi.per_actuator_statistics.number_of_slipped_sectors_after_idd_scan PMID: 160.19.5 [Number of slipped sectors after IDD scan]
-    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
-    Semantics: counter  Units: none
-Help:
-Number of slipped sectors after IDD scan
-    inst [0 or "sg0::actuator_0"] value 0
-    inst [1 or "sg0::actuator_1"] value 0
-    inst [2 or "sg0::actuator_2"] value 0
-    inst [3 or "sg0::actuator_3"] value 0
-
 farm.scsi.per_actuator_statistics.number_of_valid_parity_sectors PMID: 160.19.10 [Number of valid parity sectors]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
@@ -3000,11 +2980,31 @@ Number of valid parity sectors
     inst [2 or "sg0::actuator_2"] value 0
     inst [3 or "sg0::actuator_3"] value 0
 
+farm.scsi.per_actuator_statistics.resident_reallocated_sectors_after_idd_scan PMID: 160.19.6 [Number of sectors after IDD scan]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Number of sectors after IDD scan
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
 farm.scsi.per_actuator_statistics.servo_status PMID: 160.19.4 [Servo status]
     Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
     Semantics: counter  Units: none
 Help:
 Servo status
+    inst [0 or "sg0::actuator_0"] value 0
+    inst [1 or "sg0::actuator_1"] value 0
+    inst [2 or "sg0::actuator_2"] value 0
+    inst [3 or "sg0::actuator_3"] value 0
+
+farm.scsi.per_actuator_statistics.slipped_sectors_after_idd_scan PMID: 160.19.5 [Slipped sectors after IDD scan]
+    Data Type: 64-bit unsigned int  InDom: 160.5 0x28000005
+    Semantics: counter  Units: none
+Help:
+Slipped sectors after IDD scan
     inst [0 or "sg0::actuator_0"] value 0
     inst [1 or "sg0::actuator_1"] value 0
     inst [2 or "sg0::actuator_2"] value 0
