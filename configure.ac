@@ -1210,7 +1210,7 @@ if $pmda_bpf; then
     if test $clang_major_version -ge 15; then
 	pmdabpf_modules="bashreadline.so"
     else
-	pmdabpf_modules="bashreadline.so"
+	pmdabpf_modules=""
     fi
     pmdabpf_modules="${pmdabpf_modules} biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
     AC_SUBST(pmdabpf_modules)
