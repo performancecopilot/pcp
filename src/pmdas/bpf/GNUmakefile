@@ -4,11 +4,13 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= bpf.c
 CMDTARGET = pmdabpf$(EXECSUFFIX)
 LIBTARGET = pmda_bpf.$(DSOSUFFIX)
-LLDLIBS = $(PCP_WEBLIB) $(LIB_FOR_MATH) $(LIB_FOR_LIBELF) -lbpf
+LLDLIBS = $(PCP_WEBLIB)
+LLDLIBS += $(LIB_FOR_ZLIB) $(LIB_FOR_MATH) $(LIB_FOR_LIBELF) -lbpf
 ifeq "$(HAVE_LIBINIH)" "true"
 LLDLIBS += $(LIB_FOR_INIH)
 endif
-LCFLAGS = -I.
+LLDFLAGS += -fPIC -L./bpf
+LCFLAGS = -fPIC -I. -I./bpf/include
 CONFIG	= bpf.conf
 DFILES	= README
 SUBDIRS	= modules
@@ -24,7 +26,7 @@ MAN_SECTION = 1
 MAN_PAGES = pmda$(IAM).$(MAN_SECTION)
 MAN_DEST = $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).$(DSOSUFFIX)
+LDIRT	= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).$(DSOSUFFIX) bpf
 
 default: build-me
 
@@ -55,10 +57,13 @@ default_pcp : default
 
 install_pcp : install
 
-$(OBJECTS): domain.h
+$(OBJECTS): domain.h bpf
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+bpf:
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/libbpf/bpftool/src/bootstrap/libbpf bpf
 
 pmns:
 	$(LN_S) -f root_bpf pmns

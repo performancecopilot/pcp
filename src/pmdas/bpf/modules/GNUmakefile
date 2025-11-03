@@ -2,6 +2,8 @@ TOPDIR = ../../../..
 include $(TOPDIR)/src/include/builddefs
 
 IAM	= bpf
+LCFLAGS = -I../bpf/include -I..
+LLDFLAGS += -fPIC -L../bpf
 LDLIBS = $(PCP_WEBLIB) $(LIB_FOR_MATH) $(LIB_FOR_LIBELF) -lbpf
 LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
 MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
@@ -116,7 +118,7 @@ vmlinux.h: $(PMDABPF_VMLINUXH)
 
 %.bpf.o: %.bpf.c vmlinux.h $(APPS_H) $(APPS_H_2) $(APPS_BPF) $(APPS_BPF_2)
 	$(CLANG) -Wall -Wno-switch -g -O2 -target bpf -D__TARGET_ARCH_$(PMDABPF_ARCH) \
-		-I. -c $< -o $@
+		-I../bpf/include -I. -c $< -o $@
 	$(LLVM_STRIP) -g $@
 
 %.skel.h: %.bpf.o
