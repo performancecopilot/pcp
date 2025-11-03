@@ -35,7 +35,7 @@ Header* Header_new(Machine* host, HeaderLayout hLayout) {
    this->host = host;
 
    Header_forEachColumn(this, i) {
-      this->columns[i] = Vector_new(Class(Meter), true, DEFAULT_SIZE);
+      this->columns[i] = Vector_new(Class(Meter), true, VECTOR_DEFAULT_SIZE);
    }
 
    return this;
@@ -62,7 +62,7 @@ void Header_setLayout(Header* this, HeaderLayout hLayout) {
    if (newColumns > oldColumns) {
       this->columns = xReallocArray(this->columns, newColumns, sizeof(Vector*));
       for (size_t i = oldColumns; i < newColumns; i++)
-         this->columns[i] = Vector_new(Class(Meter), true, DEFAULT_SIZE);
+         this->columns[i] = Vector_new(Class(Meter), true, VECTOR_DEFAULT_SIZE);
    } else {
       // move meters from to-be-deleted columns into last one
       for (size_t i = newColumns; i < oldColumns; i++) {
@@ -77,7 +77,7 @@ void Header_setLayout(Header* this, HeaderLayout hLayout) {
    Header_calculateHeight(this);
 }
 
-static void Header_addMeterByName(Header* this, const char* name, MeterModeId mode, unsigned int column) {
+static void Header_addMeterByName(Header* this, const char* name, MeterModeId mode, size_t column) {
    assert(column < HeaderLayout_getColumns(this->headerLayout));
 
    Vector* meters = this->columns[column];
@@ -155,7 +155,7 @@ void Header_writeBackToSettings(const Header* this) {
 
       for (int i = 0; i < len; i++) {
          const Meter* meter = (Meter*) Vector_get(vec, i);
-         char* name;
+         char* name = NULL;
          if (meter->param && As_Meter(meter) == &DynamicMeter_class) {
             const char* dynamic = DynamicMeter_lookup(settings->dynamicMeters, meter->param);
             xAsprintf(&name, "%s(%s)", As_Meter(meter)->name, dynamic);
@@ -170,7 +170,7 @@ void Header_writeBackToSettings(const Header* this) {
    }
 }
 
-Meter* Header_addMeterByClass(Header* this, const MeterClass* type, unsigned int param, unsigned int column) {
+Meter* Header_addMeterByClass(Header* this, const MeterClass* type, unsigned int param, size_t column) {
    assert(column < HeaderLayout_getColumns(this->headerLayout));
 
    Vector* meters = this->columns[column];
@@ -198,8 +198,8 @@ void Header_draw(const Header* this) {
    for (int y = 0; y < height; y++) {
       mvhline(y, 0, ' ', COLS);
    }
-   const int numCols = HeaderLayout_getColumns(this->headerLayout);
-   const int width = COLS - 2 * pad - (numCols - 1);
+   const size_t numCols = HeaderLayout_getColumns(this->headerLayout);
+   const int width = COLS - 2 * pad - ((int)numCols - 1);
    int x = pad;
    float roundingLoss = 0.0F;
 
@@ -253,7 +253,7 @@ void Header_updateData(Header* this) {
  * by counting how many columns to the right are empty or contain a BlankMeter.
  * Returns the number of columns to span, i.e. if the direct neighbor is occupied 1.
  */
-static int calcColumnWidthCount(const Header* this, const Meter* curMeter, const int pad, const unsigned int curColumn, const int curHeight) {
+static int calcColumnWidthCount(const Header* this, const Meter* curMeter, const int pad, const size_t curColumn, const int curHeight) {
    for (size_t i = curColumn + 1; i < HeaderLayout_getColumns(this->headerLayout); i++) {
       const Vector* meters = this->columns[i];
 
@@ -269,11 +269,11 @@ static int calcColumnWidthCount(const Header* this, const Meter* curMeter, const
             continue;
 
          if (!Object_isA((const Object*) meter, (const ObjectClass*) &BlankMeter_class))
-            return i - curColumn;
+            return (int)(i - curColumn);
       }
    }
 
-   return HeaderLayout_getColumns(this->headerLayout) - curColumn;
+   return (int)(HeaderLayout_getColumns(this->headerLayout) - curColumn);
 }
 
 int Header_calculateHeight(Header* this) {

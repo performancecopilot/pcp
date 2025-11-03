@@ -241,9 +241,10 @@ static void CPUMeterCommonInit(Meter* this) {
 
    CPUMeterData* data = this->meterData;
    if (!data) {
-      data = this->meterData = xMalloc(sizeof(CPUMeterData));
+      data = xCalloc(1, sizeof(CPUMeterData));
       data->cpus = this->host->existingCPUs;
       data->meters = count ? xCalloc(count, sizeof(Meter*)) : NULL;
+      this->meterData = data;
    }
 
    Meter** meters = data->meters;
@@ -352,6 +353,7 @@ const MeterClass CPUMeter_class = {
    .defaultMode = BAR_METERMODE,
    .supportedModes = METERMODE_DEFAULT_SUPPORTED,
    .maxItems = CPU_METER_ITEMCOUNT,
+   .isPercentChart = true,
    .total = 100.0,
    .attributes = CPUMeter_attributes,
    .name = "CPU",

@@ -295,6 +295,12 @@ void Process_makeCommandStr(Process* this, const Settings* settings) {
                   }                                                                           \
                }                                                                              \
                break;                                                                         \
+            case 'n':                                                                         \
+               CHECK_AND_MARK(str_, "/nix/store/");                                           \
+               break;                                                                         \
+            case 'r':                                                                         \
+               CHECK_AND_MARK(str_, "/run/current-system/");                                  \
+               break;                                                                         \
          }                                                                                    \
       } while (0)
 
@@ -892,7 +898,7 @@ static bool Process_setPriority(Process* this, int priority) {
 bool Process_rowChangePriorityBy(Row* super, Arg delta) {
    Process* this = (Process*) super;
    assert(Object_isA((const Object*) this, (const ObjectClass*) &Process_class));
-   return Process_setPriority(this, this->nice + delta.i);
+   return Process_setPriority(this, (int)this->nice + delta.i);
 }
 
 static bool Process_sendSignal(Process* this, Arg sgn) {
