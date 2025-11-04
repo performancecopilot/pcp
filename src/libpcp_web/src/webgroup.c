@@ -78,6 +78,23 @@ webgroups_lookup(pmWebGroupModule *module)
     return groups;
 }
 
+typedef struct webscrape {
+    pmWebGroupSettings	*settings;
+    struct context	*context;
+    sds			*msg;
+    int			status;
+    unsigned int	numnames;	/* current count of metric names */
+    sds			*names;		/* metric names for batched up scrape */
+    struct metric	**mplist;
+    pmID		*pmidlist;
+    int			numfilters;	/* current count of filters */
+    sds			*filters;
+    enum matches	match;		/* type of matching to use for filters */
+    regex_t		*regex;		/* for filter compiled regular expressions */
+    void		*arg;
+    int                 in_traversal;   /* flag: 1 if we're inside TraversePMNS callback */
+} webscrape_t;
+
 static int
 webgroup_deref_context(struct context *cp)
 {
@@ -832,6 +849,16 @@ webgroup_lookup_metric(pmWebGroupSettings *settings, context_t *cp, sds name, vo
     struct metric	*mp;
     pmID		pmid;
     int			sts;
+    webscrape_t         *scrape = NULL;
+
+    if (arg != NULL) {
+        scrape = (webscrape_t *)arg;
+        if (scrape->in_traversal) {
+            if ((mp = dictFetchValue(cp->metrics, name)) != NULL)
+                return mp;
+            return NULL;
+        }
+    }
 
     if ((mp = dictFetchValue(cp->metrics, name)) != NULL)
 	return mp;
@@ -1869,22 +1896,6 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
     return sts < 0 ? sts : 0;
 }
 
-typedef struct webscrape {
-    pmWebGroupSettings	*settings;
-    struct context	*context;
-    sds			*msg;
-    int			status;
-    unsigned int	numnames;	/* current count of metric names */
-    sds			*names;		/* metric names for batched up scrape */
-    struct metric	**mplist;
-    pmID		*pmidlist;
-    int			numfilters;	/* current count of filters */
-    sds			*filters;
-    enum matches	match;		/* type of matching to use for filters */
-    regex_t		*regex;		/* for filter compiled regular expressions */
-    void		*arg;
-} webscrape_t;
-
 static int
 filtered(struct webscrape *filter_info, const char *name)
 {
@@ -1941,10 +1952,12 @@ webgroup_scrape_batch(const char *name, void *arg)
     }
 
     if (scrape->numnames == DEFAULT_BATCHSIZE) {
+        scrape->in_traversal = 1;
 	sts = webgroup_scrape_names(scrape->settings, scrape->context,
 			scrape->numnames, scrape->names,
 			scrape->mplist, scrape->pmidlist,
-			scrape->msg, scrape->arg);
+                        scrape->msg, (void *)scrape);
+        scrape->in_traversal = 0;
 	for (i = 0; i < scrape->numnames; i++)
 	    sdsfree(scrape->names[i]);
 	scrape->numnames = 0;
@@ -1963,6 +1976,7 @@ webgroup_scrape_tree(const char *prefix, struct webscrape *scrape)
 	fprintf(stderr, "%s: scraping namespace prefix \"%s\"\n",
 			"pmWebGroupScrape", prefix);
 
+    scrape->in_traversal = 0;
     sts = pmTraversePMNS_r(prefix, webgroup_scrape_batch, scrape);
     if (sts >= 0 && scrape->status >= 0 && scrape->numnames) {
 	/* complete any remaining (sub-batchsize) leftovers */
