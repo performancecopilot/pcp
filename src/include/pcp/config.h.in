@@ -501,9 +501,6 @@
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
 
-/* Define to 1 if you have the `strchrnul' function. */
-#undef HAVE_STRCHRNUL
-
 /* strerror_r return */
 #undef HAVE_STRERROR_R_PTR
 
