@@ -3529,7 +3529,7 @@ def _main():
             conf.hdb_config.node_timeout,
             conf.hdb_config.comm_timeout,
         )
-    except RuntimeError as ex:
+    except (RuntimeError, dbapi.Error) as ex:
         print(ex, file=sys.stderr)
         sys.exit(1)
     # Default domain number is PMDA(88)
