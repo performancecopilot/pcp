@@ -26,9 +26,9 @@ pmGetChildrenStatus() returns -12357 (Unknown metric name)
 
 Real-time result ...
 pmResult dump from ADDR timestamp: DATESTAMP numpmid: 3
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
-  511.0.3 (qa1271.a): No PMCD agent for domain of request
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
+  511.0.3 (qa1271.a): Unknown or illegal metric identifier
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 [TMP.conf:5] Error: pmRegisterDerived(qa1271.b, ...) syntax error
  sample.bin - 100 +
                   ^
@@ -72,6 +72,6 @@ pmGetChildrenStatus() returns -12357 (Unknown metric name)
 
 Real-time result ...
 pmResult dump from ADDR timestamp: DATESTAMP numpmid: 3
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
-  511.2047.1023 (qa1271.a): No PMCD agent for domain of request
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
+  511.2047.1023 (qa1271.a): Unknown or illegal metric identifier
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier

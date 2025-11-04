@@ -47,7 +47,7 @@ children of "sample.secret" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns 1
 sample.secret.bar: id[0] = 29.0.1000
 
@@ -75,7 +75,7 @@ children of "sample.secret.foo" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns 1
 sample.secret.foo.one: id[0] = 29.0.1001
 
@@ -112,7 +112,7 @@ children of "sample.secret.foo.bar" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns -12394 (Metric name is not a leaf in PMNS)
 sample.secret.foo.bar.grunt: id[0] = PM_ID_NULL
 
@@ -125,7 +125,7 @@ children of "sample.secret.foo.bar.grunt" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns -12394 (Metric name is not a leaf in PMNS)
 sample.secret.foo.bar.grunt.snort: id[0] = PM_ID_NULL
 
@@ -138,7 +138,7 @@ children of "sample.secret.foo.bar.grunt.snort" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns 1
 sample.secret.foo.bar.grunt.snort.huff.puff.seven: id[0] = 29.0.1007
 
@@ -173,7 +173,7 @@ children of "sampledso.secret" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns 1
 sampledso.secret.bar: id[0] = 30.0.1000
 
@@ -201,7 +201,7 @@ children of "sampledso.secret.foo" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns 1
 sampledso.secret.foo.one: id[0] = 30.0.1001
 
@@ -238,7 +238,7 @@ children of "sampledso.secret.foo.bar" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns -12394 (Metric name is not a leaf in PMNS)
 sampledso.secret.foo.bar.grunt: id[0] = PM_ID_NULL
 
@@ -251,7 +251,7 @@ children of "sampledso.secret.foo.bar.grunt" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns -12394 (Metric name is not a leaf in PMNS)
 sampledso.secret.foo.bar.grunt.snort: id[0] = PM_ID_NULL
 
@@ -264,7 +264,7 @@ children of "sampledso.secret.foo.bar.grunt.snort" ...
 
 Real-time result ...
 pmResult ... numpmid: 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 pmLookupName() returns 1
 sampledso.secret.foo.bar.grunt.snort.huff.puff.seven: id[0] = 30.0.1007
 

@@ -700,3 +700,9 @@ PCP_4.0 {
 
   local: *;
 };
+
+PCP_4.1 {
+    global:
+    pmUnregisterDerived;
+    __pmContextWalk;
+} PCP_4.0;

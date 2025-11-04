@@ -286,6 +286,7 @@ _filter_optional_pmdas()
 	-e '/pmdaelasticsearch/d' \
 	-e '/pmda_environ/d' \
 	-e '/pmdaespping/d' \
+	-e '/pmdafarm/d' \
 	-e '/pmdagfs2/d' \
 	-e '/pmdagluster/d' \
 	-e '/pmdahacluster/d' \
@@ -421,6 +422,7 @@ _filter_optional_pmda_instances()
         -e '/inst \[153 or "zfs"]/d' \
         -e '/inst \[156 or "denki"]/d' \
         -e '/inst \[158 or "overhead"]/d' \
+        -e '/inst \[160 or "farm"]/d' \
 	-e '/inst \[142 or "lio"]/d' \
 	-e '/inst \[144 or "openmetrics"]/d' \
 	-e '/inst \[149 or "bcc"]/d' \
@@ -962,6 +964,7 @@ _filter_torture_api()
 	-e '/^    ds389 /d' \
 	-e '/^    dynamic /d' \
 	-e '/^    engr /d' \
+	-e '/^    farm /d' \
 	-e '/^    fchost /d' \
 	-e '/^    feature /d' \
 	-e '/^    ha_cluster /d' \

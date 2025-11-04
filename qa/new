@@ -14,7 +14,7 @@
 
 # use ./new-seqs to help refine min and max
 #
-min=1510
+min=1640
 max=1999
 max_probes=200
 

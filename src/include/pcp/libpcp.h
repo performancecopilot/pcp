@@ -1005,6 +1005,10 @@ PCP_DATA extern int __pmLogReads;
 /* Convert opaque context handle to __pmContext pointer */
 PCP_CALL extern __pmContext *__pmHandleToPtr(int);
 
+/* Walk the (locked) context table with a callback per context */
+typedef void (*__pmContextWalkCallback)(void *, __pmContext *);
+PCP_CALL extern void __pmContextWalk(void *, __pmContextWalkCallback);
+
 /*
  * Dump the current context (source details + instance profile),
  * for a particular instance domain.

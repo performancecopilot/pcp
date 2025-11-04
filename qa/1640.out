@@ -1,0 +1,177 @@
+QA output created by 1640
++ -- unregister unknown metric
+
++ -u foobar foobar
+unregister: pmUnregisterDerived(foobar): failed: Unknown metric name
+
+--- definition and unregister, but no context ---
++ -r foo=sample.bin -u foo foo
+unregister: pmUnregisterDerived(foo) => 0
+
+--- value 42 for global derived metric ---
++ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: foo.bar
+=== context[0]=0
+--- foo.bar
+pmResult ... numpmid: 1
+  511.0.1 (foo.bar): numval: 1 valfmt: 1 vlist[]:
+   value 42
+
+--- global derived metric unregistered ---
++ -r foobar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -u foobar foobar
+unregister: pmUnregisterDerived(foobar) => 1
+=== context[0]=0
+--- foobar
+pmLookupName(foobar, ...) failed: Unknown metric name
+pmLookupDesc(foobar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.0.1 (<noname>): Unknown or illegal metric identifier
+
+--- value 42 for per-context derived metric in 2nd context only ---
++ -h bozo.localdomain -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: foo.bar
+=== context[0]=0
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+=== context[1]=1
+--- foo.bar
+pmResult ... numpmid: 1
+  511.2047.1023 (foo.bar): numval: 1 valfmt: 1 vlist[]:
+   value 42
+=== context[2]=2
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+
+--- per-context drived metric unregistered ---
++ -h bozo.localdomain -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -u foo.bar foo.bar
+unregister: pmUnregisterDerived(foo.bar) => 1
+=== context[0]=0
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+=== context[1]=1
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+=== context[2]=2
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+
+--- value 42 in 2 contexts ---
++ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain foo.bar
+=== context[0]=0
+--- foo.bar
+pmResult ... numpmid: 1
+  511.0.1 (foo.bar): numval: 1 valfmt: 1 vlist[]:
+   value 42
+=== context[1]=1
+--- foo.bar
+pmResult ... numpmid: 1
+  511.0.1 (foo.bar): numval: 1 valfmt: 1 vlist[]:
+   value 42
+
+--- name undefined in all contexts ---
++ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain -u foo.bar foo.bar
+unregister: pmUnregisterDerived(foo.bar) => 2
+=== context[0]=0
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.0.1 (<noname>): Unknown or illegal metric identifier
+=== context[1]=1
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.0.1 (<noname>): Unknown or illegal metric identifier
+
+--- value 42 in the 1st context, name undefined in the 2nd context ---
++ -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h bozo.localdomain foo.bar
+=== context[0]=0
+--- foo.bar
+pmResult ... numpmid: 1
+  511.2047.1023 (foo.bar): numval: 1 valfmt: 1 vlist[]:
+   value 42
+=== context[1]=1
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+
++ -- global and per-context derived metrics unregistered
+
++ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain -q bar.foo=(8*sample.long.ten+4*sample.long.one)/2 -u foo.bar -u bar.foo foo.bar bar.foo
+unregister: pmUnregisterDerived(foo.bar) => 2
+unregister: pmUnregisterDerived(bar.foo) => 1
+=== context[0]=0
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+--- bar.foo
+pmLookupName(bar.foo, ...) failed: Unknown metric name
+pmLookupDesc(bar.foo, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+=== context[1]=1
+--- foo.bar
+pmLookupName(foo.bar, ...) failed: Unknown metric name
+pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+--- bar.foo
+pmLookupName(bar.foo, ...) failed: Unknown metric name
+pmLookupDesc(bar.foo, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+
+--- load ---
++ -h local: -c TMP.config foo.load
+=== context[0]=0
+--- foo.load
+pmResult ... numpmid: 1
+  511.0.3 (foo.load): numval: 1 valfmt: 1 vlist[]:
+   value 42
+
+--- load and unregister ---
++ -c TMP.config -h local: -u foo.load foo.load
+unregister: pmUnregisterDerived(foo.load) => 1
+=== context[0]=0
+--- foo.load
+pmLookupName(foo.load, ...) failed: Unknown metric name
+pmLookupDesc(foo.load, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
+
+--- masking ---
++ -c TMP.config -h local: -q foo.load=sample.long.million foo.load
+=== context[0]=0
+--- foo.load
+pmResult ... numpmid: 1
+  511.2047.1023 (foo.load): numval: 1 valfmt: 0 vlist[]:
+   value 1000000
+
+--- masking and unregister ---
++ -c TMP.config -h local: -q foo.load=sample.long.million -u foo.load foo.load
+unregister: pmUnregisterDerived(foo.load) => 2
+=== context[0]=0
+--- foo.load
+pmLookupName(foo.load, ...) failed: Unknown metric name
+pmLookupDesc(foo.load, ...) failed: Unknown or illegal metric identifier
+pmResult ... numpmid: 1
+  511.2047.1023 (<noname>): Unknown or illegal metric identifier
+

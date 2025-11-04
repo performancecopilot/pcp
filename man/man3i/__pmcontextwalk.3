@@ -1,0 +1,102 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Ken McDonell.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMCONTEXTWALK 3 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3__pmContextWalk\f1 \- traversal of all PMAPI contexts
+.SH "C SYNOPSIS"
+.ft 3
+.ad l
+.hy 0
+#include "pmapi.h"
+.br
+#include "libpcp.h"
+.sp
+void (*__pmContextWalkCallback)(void *\fIhandle\fP, __pmContext *\fIctxp\fP);
+.br
+int __pmContextWalk(void *\fIhandle\fP, __pmContextWalkCallback \fIcallback\fP,
+.sp
+cc ... \-lpcp
+.hy
+.ad
+.ft 1
+.SH CAVEAT
+This documentation is intended for internal Performance Co-Pilot
+(PCP) developer use.
+.PP
+These interfaces are not part of the PCP APIs that are guaranteed to
+remain fixed across releases, and they may not work, or may provide
+different semantics at some point in the future.
+.SH DESCRIPTION
+.B __pmContextWalk
+provides a thread-safe and lock-safe way of processing each active
+PMAPI context in turn.
+.PP
+For each valid PMAPI context,
+.I callback
+is called with
+.I handle
+passed in from the
+.B __pmContextWalk
+caller and
+.I ctxp
+pointing to a context for which the
+.I c_lock
+lock has been acquired.
+The
+.I handle
+argument is a pointer to an arbitrary object that may be shared between
+the
+.B __pmContextWalk
+caller and the
+.I callback
+routine, but is not otherwise accessed by
+.BR __pmContextWalk ,
+so could be
+.BR NULL .
+.PP
+The per-context
+.I c_lock
+is released by
+.B __pmContextWalk
+after
+.I callback
+is called and should not be unlocked by
+.IR callback .
+.PP
+For the duration of the call to
+.B __pmContextWalk
+all context initiation (via
+.BR pmNewContext (3),
+.B pmDupContext (3)
+or
+.BR pmRFeconnectContext (3))
+and teardown (via
+.BR pmDestroyContext (3))
+is blocked.
+.SH RETURN VALUES
+.B __pmContextWalk
+returns the number of contexts processed and hence the number of times
+.I callback
+was called, else
+a negative value suitable for reporting with
+.BR pmErrStr (3).
+.SH SEE ALSO
+.BR PMAPI (3),
+.BR pmDestroyContext (3),
+.BR pmDupContext (3),
+.BR pmErrStr (3)
+and
+.BR pmNewContext (3).

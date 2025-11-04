@@ -1069,6 +1069,7 @@ PCP_CALL extern void pmFreeOptions(pmOptions *);
  */
 PCP_CALL extern int pmLoadDerivedConfig(const char *);
 PCP_CALL extern int pmRegisterDerivedMetric(const char *, const char *, char **);
+PCP_CALL extern int pmUnregisterDerived(const char *);
 PCP_CALL extern char *pmRegisterDerived(const char *, const char *);
 PCP_CALL extern char *pmDerivedErrStr(void);
 PCP_CALL extern int pmAddDerivedMetric(const char *, const char *, char **);

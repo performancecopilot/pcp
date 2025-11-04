@@ -114,6 +114,12 @@ to the context in which they are defined using the allied routines
 and
 .BR pmAddDerivedMetric (3).
 .PP
+To undefine a derived metric by name, refer to
+.BR pmUnregisterDerived (3)
+which removes
+all instances of the derived metric in all contexts, irrespective
+of how the derived metric was defined.
+.PP
 .I name
 should follow the syntactic rules for the names of performance metrics,
 namely one or more components separated with a dot (``.''), and each
@@ -991,11 +997,6 @@ Derived metrics are not available when using
 as this routine does not use a target list of PMIDs that could be
 remapped (as is done for
 .BR pmFetch (3)).
-.PP
-There is no
-.B pmUnregisterDerived
-method, so once registered a derived metric persists for the life
-of the application.
 .SH DIAGNOSTICS
 On success,
 .B pmRegisterDerived
@@ -1063,6 +1064,7 @@ to release the space allocated for
 .BR pmLoadDerivedConfig (3),
 .BR pmNewContext (3),
 .BR pmReconnectContext (3),
+.BR pmUnregisterDerived (3),
 .BR pmprintf (3)
 and
 .BR PMNS (5).

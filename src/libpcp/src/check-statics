@@ -264,6 +264,7 @@ context.o
 derive_fetch.o
     ?promote			# const
 derive_parser.tab.o
+    unregister_lock		# local mutex
     ?fmt			# const
     ?fmt_nopos			# const
     ?fmt_pmapi			# const
@@ -328,6 +329,7 @@ derive_parser.tab.o
     ?type_c			# const (MinGW)
     ?.LpmRegisterDerivedMetric.fmt	# static string (FreeBSD gcc)
     ?pmRegisterDerivedMetric.fmt	# static string (FreeBSD 10.2 gcc)
+    unregister_count		# guarded by unregister_lock
 desc.o
 e_index.o
     ?__pmLogPutIndex_v2.caller	# const

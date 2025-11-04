@@ -2135,6 +2135,8 @@ pmcd.pdu
 1637 pmlogconf local
 1638 pmlogconf local valgrind
 1639 pmda.bpf local
+1640 derive local
+1641 derive local valgrind
 1644 pmda.perfevent local
 1647 pmda.opentelemetry local
 1653 pmda.denki local

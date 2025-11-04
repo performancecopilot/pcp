@@ -273,6 +273,7 @@ tstate
 tztest
 unpack
 unpickargs
+unregister
 units-parse
 usergroup
 username

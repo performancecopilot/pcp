@@ -165,6 +165,7 @@ __pmFetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, __pmResult **result)
 {
     int		need_unlock = 0;
     int		ctx, sts;
+    int		i;
 
     if (pmDebugOptions.pmapi)
 	trace_fetch_entry(numpmid, pmidlist);
@@ -242,6 +243,19 @@ __pmFetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, __pmResult **result)
 
 	if (newlist != NULL)
 	    free(newlist);
+	/*
+	 * pmUnregisterDerived() introduces the possibility of a stale
+	 * PMID being used in fetch => PMID 511.?.? or PM_ID_NULL passed
+	 * to PMCD which returns PM_ERR_NOAGENT ... remap error code here
+	 * if we have a valid pmResult
+	 */
+	if (sts >= 0) {
+	    for (i = 0; i < (*result)->numpmid; i++) {
+		if ((*result)->vset[i]->numval == PM_ERR_NOAGENT &&
+		    (IS_DERIVED((*result)->vset[i]->pmid) || (*result)->vset[i]->pmid == PM_ID_NULL))
+		    (*result)->vset[i]->numval = PM_ERR_PMID;
+	    }
+	}
     }
 
 pmapi_return:

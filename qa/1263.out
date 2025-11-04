@@ -54,4 +54,4 @@ pmResult dump from ADDR timestamp: DATESTAMP numpmid: 5
    value 6
   511.2047.1013 (qa1263.sub.sub.f): numval: 1 valfmt: 0 vlist[]:
    value 11
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier

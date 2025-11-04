@@ -19,7 +19,7 @@
  * curr_ctx needs to be thread-private
  *
  * contexts[], contexts_map[], contexts_len and last_handle are protected
- * from changes * using the local contexts_lock mutex.
+ * from changes using the local contexts_lock mutex.
  *
  * Ditto for back n_backoff, def_backoff[] and backoff[].
  *
@@ -71,7 +71,7 @@ static int		def_backoff[] = {5, 10, 20, 40, 80};
 static int		*backoff;
 
 #ifdef PM_MULTI_THREAD
-static pthread_mutex_t	contexts_lock = PTHREAD_MUTEX_INITIALIZER;
+pthread_mutex_t	contexts_lock = PTHREAD_MUTEX_INITIALIZER;
 #else
 void			*contexts_lock;
 #endif
@@ -2147,6 +2147,35 @@ __pmDumpContext(FILE *f, int context, pmInDom indom)
     }
 
     PM_UNLOCK(contexts_lock);
+}
+
+/*
+ * walk the (locked) context table with one callback per context,
+ * passing the pointer to a locked context
+ */
+void
+__pmContextWalk(void *handle, __pmContextWalkCallback callback)
+{
+    int			i;
+    __pmContext		*ctxp;
+
+    PM_INIT_LOCKS();
+
+    PM_LOCK(contexts_lock);
+    for (i = 0; i < contexts_len; i++) {
+	ctxp = contexts[i];
+	if (contexts_map[i] == MAP_FREE ||
+	    contexts_map[i] == MAP_TEARDOWN ||
+            ctxp->c_type == PM_CONTEXT_INIT) {
+	    continue;
+	}
+	PM_LOCK(ctxp->c_lock);
+	callback(handle, ctxp);
+	PM_UNLOCK(ctxp->c_lock);
+    }
+    PM_UNLOCK(contexts_lock);
+
+    return;
 }
 
 #ifdef PM_MULTI_THREAD

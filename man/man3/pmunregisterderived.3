@@ -1,0 +1,73 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMUNREGISTERDERIVED 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmUnregisterDerived\f1  \- unregister a derived by metric
+.SH "C SYNOPSIS"
+.ft 3
+.ad l
+.hy 0
+#include <pcp/pmapi.h>
+.sp
+int pmUnregisterDerived(char *\fIname\fP);
+.sp
+cc ... \-lpcp
+.hy
+.ad
+.ft 1
+.SH DESCRIPTION
+Derived metrics provide a way of extending the Performance Metrics
+Name Space (PMNS) with new metrics defined at the PCP client-side using
+expressions over the existing performance metrics.
+.PP
+Global derived metrics are created by calling
+.BR pmRegisterDerived (3),
+.BR pmRegisterDerivedMetric (3)
+or
+.BR pmLoadDerivedConfig (3).
+Per-context derived metrics are created by calling
+.BR pmAddDerived (3)
+or
+.BR pmAddDerivedMetric (3).
+.PP
+.B pmUnregisterDerived
+removes the definition of the derived metric
+.I name
+from the set of glabal derived metrics and from every active PMAPI context.
+.SH DIAGNOSTICS
+On success,
+.B pmUnregisterDerived
+returns a value greater than or equal to zero being
+the number of contexts from which
+.I name
+was removed.
+.PP
+Othewise
+.B pmUnregisterDerived
+returns a PMAPI error and the application should call
+.BR pmErrStr (3)
+to retrieve the corresponding error message.
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR PMAPI (3),
+.BR pmAddDerived (3),
+.BR pmAddDerivedMetric (3),
+.BR pmErrStr (3),
+.BR pmLoadDerivedConfig (3),
+.BR pmRegisterDerived (3),
+.BR pmRegisterDerivedMetric (3)
+and
+.BR PMNS (5).

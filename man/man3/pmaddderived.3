@@ -100,10 +100,15 @@ is called.
 This is different to global derived metrics where the semantic checks
 are delayed until the metric is used in a specific PMAPI context.
 .PP
-There is no ``unregister''
-method, so once registered a per-context derived metric persists for the life
+Once registered a per-context derived metric persists for the life
 of the PMAPI context, but it is destroyed as a side-effect of
 .BR pmDestroyContext (3).
+.PP
+To undefine a derived metric by name, refer to
+.BR pmUnregisterDerived (3)
+which removes
+all instances of the derived metric in all contexts, irrespective
+of how the derived metric was defined.
 .SH DIAGNOSTICS
 On success,
 .B pmAddDerived
@@ -166,6 +171,7 @@ to release the space allocated for
 .BR pmLoadDerivedConfig (3),
 .BR pmNewContext (3),
 .BR pmRegisterDerived (3),
-.BR pmRegisterDerivedMetric (3)
+.BR pmRegisterDerivedMetric (3),
+.BR pmUnregisterDerived (3)
 and
 .BR PMNS (5).

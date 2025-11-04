@@ -7,6 +7,7 @@
  * Debug flags
  *   DERIVE & APPL0
  *	pmRegisterDerived(), lexical scanner, syntactic checks
+ *	and pmUnregisterDerived()
  *   DERIVE & APPL1
  *	_dmopencontext(), refresh(), semantic checks
  *   DERIVE & APPL2
@@ -72,6 +73,12 @@ static __thread char	*derive_errmsg;
 static char		*derive_errmsg;
 #endif
 
+#ifdef PM_MULTI_THREAD
+pthread_mutex_t	unregister_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void		*unregister_lock;
+#endif
+
 /* lexer variables */
 static char		*tokbuf;
 static int		tokbuflen;
@@ -125,6 +132,8 @@ static const pmUnits noUnits;
 static pmDesc specdesc;		/* used for speclist */
 static int specflags;		/* ditto */
 static node_t *specmeta;	/* metric name from meta=... */
+
+static int unregister_count;	/* for pmUnregiserDerived */
 
 /*
  * Handle one component of the ':' separated derived config spec.
@@ -1988,7 +1997,8 @@ registerderived(int derive_locked, const char *name, const char *expr, int isano
     }
 
     for (i = 0; i < registered.nmetric; i++) {
-	if (strcmp(name, registered.mlist[i].name) == 0) {
+	if (!(registered.mlist[i].flags & DM_FREE) &&
+	    strcmp(name, registered.mlist[i].name) == 0) {
 	    /* oops, duplicate name ... */
 	    PM_TPD(derive_errmsg) = "Duplicate global derived metric name";
 	    if (derive_locked == PM_NOT_LOCKED)
@@ -2106,7 +2116,8 @@ setattr(int derive_locked, const char *name, const char *attr, const char *value
     }
 
     for (i = 0; i < registered.nmetric; i++) {
-	if (strcmp(name, registered.mlist[i].name) == 0) {
+	if (!(registered.mlist[i].flags & DM_FREE) &&
+	    strcmp(name, registered.mlist[i].name) == 0) {
 	    /* found it! */
 	    break;
 	}
@@ -2146,7 +2157,23 @@ done:
 char *
 pmRegisterDerived(const char *name, const char *expr)
 {
-    return registerderived(PM_NOT_LOCKED, name, expr, 0);
+    char	*c_sts;
+
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmRegisterDerived(%s, %s) <:", name, expr);
+
+    c_sts = registerderived(PM_NOT_LOCKED, name, expr, 0);
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (c_sts == NULL)
+	    fprintf(stderr, "NULL\n");
+	else {
+	    fprintf(stderr, "%s\n", c_sts);
+	}
+    }
+
+    return c_sts;
 }
 
 /* Global derived metrics - variant including error handling. */
@@ -2157,15 +2184,21 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
     char	*offset;
     char	*error;
     char	*dmsg;
+    int		sts;
 
     static const char	fmt[] = \
 	"Error: pmRegisterDerivedMetric(\"%s\", ...)\n%s\n%*s^\n";
     static const char	fmt_nopos[] = \
 	"Error: pmRegisterDerivedMetric(\"%s\", ...)\n%s\n^\n";
 
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmRegisterDerivedMetric(%s, %s, ...) <:", name, expr);
+
     *errmsg = NULL;
-    if ((offset = registerderived(PM_NOT_LOCKED, name, expr, 0)) == NULL)
-	return 0;
+    if ((offset = registerderived(PM_NOT_LOCKED, name, expr, 0)) == NULL) {
+	sts = 0;
+	goto pmapi_return;
+    }
 
     /* failed to register name/expr - build an error string to pass back */
     length = strlen(fmt);
@@ -2188,7 +2221,22 @@ pmRegisterDerivedMetric(const char *name, const char *expr, char **errmsg)
     error[length-1] = '\0';
 
     *errmsg = error;
-    return -1;
+    sts = -1;
+
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	l_errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, l_errmsg, sizeof(l_errmsg)));
+	}
+    }
+
+    return sts;
+
 }
 
 /* Register an anonymous metric */
@@ -2236,17 +2284,167 @@ PM_FAULT_RETURN(PM_ERR_FAULT);
     return 0;
 }
 
+/*
+ * called from pmUnRegisterDerived() once for each active
+ * context
+ */
+static void
+context_walk_cb(void *handle, __pmContext *ctxp)
+{
+    char	*name = (char *)handle;
+    ctl_t	*cp = (ctl_t *)ctxp->c_dm;
+    int		i;
+
+    if (cp == NULL)
+	return;
+
+    for (i = 0; i < cp->nmetric; i++) {
+	if (!(cp->mlist[i].flags & DM_FREE) &&
+	    strcmp(name, cp->mlist[i].name) == 0) {
+	    /* bingo! */
+	    unregister_count++;
+	    cp->mlist[i].flags |= DM_FREE;
+	    if (cp->mlist[i].flags & DM_GLOBAL)
+		;
+	    else {
+		/*
+		 * per-context derived metrics (via pmAddDerivedMetric())
+		 * have their own storage, others have pointers into the
+		 * global metrics (registered.mlist[]) and these have
+		 * already been freed
+		 */
+		free(cp->mlist[i].name);
+		if (cp->mlist[i].oneline != NULL)
+		    free((void *)cp->mlist[i].oneline);
+		if (cp->mlist[i].helptext != NULL)
+		    free((void *)cp->mlist[i].helptext);
+	    }
+	    cp->mlist[i].name = NULL;
+	    cp->mlist[i].pmid = PM_ID_NULL;
+	    /* mimic logic from __dmclosecontext() */
+	    if (cp->mlist[i].expr != NULL) {
+		if (cp->mlist[i].flags & DM_GLOBAL) {
+		    if (cp->mlist[i].flags & DM_BIND)
+			free_expr(cp->mlist[i].expr); 
+		}
+		else {
+		    free_expr_ctx(cp->mlist[i].expr); 
+		}
+		cp->mlist[i].expr = NULL;
+	    }
+	    cp->mlist[i].oneline = NULL;
+	    cp->mlist[i].helptext = NULL;
+	    /* no break, see comment above in pmUnregisterDerived() */
+	}
+    }
+
+    return;
+}
+
+int
+pmUnregisterDerived(const char *name)
+{
+    int		i;
+    int		sts;
+    int		seen_in_pass1 = 0;	/* per-context derived metrics from */
+    					/* pmAddDerived() are only seen in pass 2 */
+
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmUnregisterDerived(%s) <:", name);
+
+    PM_INIT_LOCKS();
+    PM_LOCK(unregister_lock);
+    unregister_count = 0;
+
+    PM_LOCK(registered.mutex);
+    /* 
+     * pass 1, mark global metric (if any) as DM_FREE
+     * => being unregistered
+     */
+    for (i = 0; i < registered.nmetric; i++) {
+	if (!(registered.mlist[i].flags & DM_FREE) &&
+	    strcmp(name, registered.mlist[i].name) == 0) {
+	    /*
+	     * bingo!
+	     * -- but masked per-context metrics means there
+	     * may be more, so keep going
+	     */
+	    registered.mlist[i].flags |= DM_FREE;
+	    seen_in_pass1 = 1;
+	}
+    }
+    PM_UNLOCK(registered.mutex);
+
+    /* pass 2, unregister the metric in every context */
+    __pmContextWalk((void *)name, context_walk_cb);
+
+    PM_LOCK(registered.mutex);
+    /* pass 3, clean up global metric definition */
+    for (i = 0; i < registered.nmetric; i++) {
+	/* flagged as DM_FREE in pass 1, so need a slightly different guard here */
+	if (registered.mlist[i].name != NULL &&
+	    strcmp(name, registered.mlist[i].name) == 0) {
+	    /* bingo! */
+	    free(registered.mlist[i].name);
+	    registered.mlist[i].name = NULL;
+	    registered.mlist[i].pmid = PM_ID_NULL;
+	    free_expr(registered.mlist[i].expr);
+	    registered.mlist[i].expr = NULL;
+	    if (registered.mlist[i].oneline != NULL) {
+		free((void *)registered.mlist[i].oneline);
+		registered.mlist[i].oneline = NULL;
+	    }
+	    if (registered.mlist[i].helptext != NULL) {
+		free((void *)registered.mlist[i].helptext);
+		registered.mlist[i].helptext = NULL;
+	    }
+	    /* no break, see comment above */
+	}
+    }
+
+    PM_UNLOCK(registered.mutex);
+
+    sts = (unregister_count == 0 && !seen_in_pass1) ? PM_ERR_NAME : unregister_count;
+
+    PM_UNLOCK(unregister_lock);
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
+}
+
 int
 pmLoadDerivedConfig(const char *fname)
 {
 
     int		sts;
 
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmLoadDerivedConfig(%s) <:", fname);
+
     PM_INIT_LOCKS();
     PM_LOCK(registered.mutex);
     __dminit();
     sts = __dminit_parse(fname, 0 /*non-recovering*/);
     PM_UNLOCK(registered.mutex);
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
 
     return sts;
 }
@@ -2675,7 +2873,8 @@ addderived(const char *name, const char *expr, char **p)
     }
 
     for (i = 0; i < cp->nmetric; i++) {
-	if (strcmp(name, cp->mlist[i].name) == 0) {
+	if (!(cp->mlist[i].flags & DM_FREE) &&
+	    strcmp(name, cp->mlist[i].name) == 0) {
 	    if ((cp->mlist[i].flags & DM_GLOBAL) == 0) {
 		/* oops, duplicate per-context name ... */
 		PM_TPD(derive_errmsg) = "Duplicate per-context derived metric name";
@@ -2740,7 +2939,8 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
      * check for masking ...
      */
     for (i = 0; i < cp->nmetric; i++) {
-	if (strcmp(name, cp->mlist[i].name) == 0) {
+	if (!(cp->mlist[i].flags & DM_FREE) &&
+	    strcmp(name, cp->mlist[i].name) == 0) {
 	    /*
 	     * global name same as per-context name, the latter wins
 	     * and the former is "masked"
@@ -2806,11 +3006,27 @@ pmAddDerived(const char *name, const char *expr)
 {
     char	*p;
     int		sts;
+    char	*c_sts;
+
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmAddDerived(%s, %s) <:", name, expr);
+
     sts = addderived(name, expr, &p);
     if (sts == NO_ERROR)
-	return NULL;
+	c_sts = NULL;
     else
-	return p;
+	c_sts = p;
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (c_sts == NULL)
+	    fprintf(stderr, "NULL\n");
+	else {
+	    fprintf(stderr, "%s\n", c_sts);
+	}
+    }
+
+    return c_sts;
 }
 
 /* Global derived metrics - variant including error handling. */
@@ -2830,9 +3046,14 @@ pmAddDerivedMetric(const char *name, const char *expr, char **errmsg)
     static const char	fmt_pmapi[] = \
 	"Error: pmAddDerivedMetric(\"%s\", ...): returns %d\n";
 
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmAddDerivedMetric(%s, %s, ...) <:", name, expr);
+
     *errmsg = NULL;
-    if ((sts = addderived(name, expr, &offset)) == NO_ERROR)
-	return 0;
+    if ((sts = addderived(name, expr, &offset)) == NO_ERROR) {
+	sts = 0;
+	goto pmapi_return;
+    }
 
     /*
      * failed to add name/expr - build an error string to pass back
@@ -2868,6 +3089,19 @@ pmAddDerivedMetric(const char *name, const char *expr, char **errmsg)
     }
 
     *errmsg = error;
+
+pmapi_return:
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	l_errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, l_errmsg, sizeof(l_errmsg)));
+	}
+    }
+
     return sts;
 }
 
@@ -2880,6 +3114,9 @@ pmAddDerivedText(const char *name, int type, const char *text)
     int		ctx;
     __pmContext	*ctxp = NULL;
 
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmAddDerivedText(%s, %d, %s) <:", name, type, text);
+
     if ((ctx = pmWhichContext()) >= 0) {
 	ctxp = __pmHandleToPtr(ctx);
 	/* ensures we have context lock if there is a valid context */
@@ -2889,7 +3126,8 @@ pmAddDerivedText(const char *name, int type, const char *text)
     __dminit();
 
     for (i = 0; i < registered.nmetric; i++) {
-	if (strcmp(name, registered.mlist[i].name) == 0) {
+	if (!(registered.mlist[i].flags & DM_FREE) &&
+	    strcmp(name, registered.mlist[i].name) == 0) {
 	    /* found it! */
 	    break;
 	}
@@ -2908,7 +3146,8 @@ pmAddDerivedText(const char *name, int type, const char *text)
 	    ctl_t		*cp;
 	    cp = (ctl_t *)ctxp->c_dm;
 	    for (i = 0; i < cp->nmetric; i++) {
-		if (strcmp(name, cp->mlist[i].name) == 0) {
+		if (!(cp->mlist[i].flags & DM_FREE) &&
+		    strcmp(name, cp->mlist[i].name) == 0) {
 		    /* found it! */
 		    break;
 		}
@@ -2955,6 +3194,16 @@ done:
     if (ctx >= 0)
 	PM_UNLOCK(ctxp->c_lock);
 
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
     return sts;
 }
 
@@ -2965,6 +3214,9 @@ pmGetDerivedControl(int what, int *valuep)
     int		value;
     int		ctx;
     __pmContext	*ctxp;
+
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmGetDerivedControl(what=%d, ...) <:", what);
 
     switch (what) {
     case PCP_DERIVED_GLOBAL_LIMIT:
@@ -3005,6 +3257,16 @@ pmGetDerivedControl(int what, int *valuep)
 	sts = 0;
     }
 
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
     return sts;
 }
 
@@ -3014,6 +3276,9 @@ pmSetDerivedControl(int what, int value)
     int		sts = 0;
     int		ctx;
     __pmContext	*ctxp;
+
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmSetDerivedControl(what=%d, value=%d) <:", what, value);
 
     switch (what) {
     case PCP_DERIVED_GLOBAL_LIMIT:
@@ -3050,6 +3315,16 @@ pmSetDerivedControl(int what, int value)
     default:
     		sts = PM_ERR_BADDERIVE;
 		break;
+    }
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
     }
 
     return sts;
@@ -3124,7 +3399,11 @@ refresh(__pmContext *ctxp)
 	return;
     }
     cp->mlist = tmp_mlist;
-    for (i = cp->nmetric, j = cp->glob_last; j < registered.nmetric; i++, j++) {
+    for (i = cp->nmetric, j = cp->glob_last; j < registered.nmetric; j++) {
+	if (registered.mlist[j].flags & DM_FREE) {
+	    /* this has been unregistered, so skip it */
+	    continue;
+	}
 	cp->mlist[i].name = registered.mlist[j].name;
 	cp->mlist[i].pmid = registered.mlist[j].pmid;
 	cp->mlist[i].anon = registered.mlist[j].anon;
@@ -3137,8 +3416,9 @@ refresh(__pmContext *ctxp)
 	    fprintf(stderr, "refresh: append metric \"%s\" for ctx %d\n",
 	    	cp->mlist[i].name, ctxp->c_handle);
 	}
+	i++;
+	cp->nmetric++;
     }
-    cp->nmetric = need;
     cp->glob_last = registered.nmetric;
 }
 
@@ -3167,9 +3447,9 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     for (i = 0; i < cp->nmetric; i++) {
 	/*
 	 * skip global derived metrics masked by per-context derived
-	 * metrics with the same name
+	 * metrics with the same name and "free" entries
 	 */
-	if (cp->mlist[i].flags & DM_MASKED)
+	if ((cp->mlist[i].flags & DM_MASKED) || (cp->mlist[i].flags & DM_FREE))
 	    continue;
 
 	/*
@@ -3254,9 +3534,9 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
     for (i = 0; i < cp->nmetric; i++) {
 	/*
 	 * skip global derived metrics masked by per-context derived
-	 * metrics with the same name
+	 * metrics with the same name, and "free" entries
 	 */
-	if (cp->mlist[i].flags & DM_MASKED)
+	if ((cp->mlist[i].flags & DM_MASKED) || (cp->mlist[i].flags & DM_FREE))
 	    continue;
 
 	/*
@@ -3409,9 +3689,9 @@ __dmgetpmid(__pmContext *ctxp, int derive_locked, const char *name, pmID *dp)
     for (i = 0; i < cp->nmetric; i++) {
 	/*
 	 * skip global derived metrics masked by per-context derived
-	 * metrics with the same name
+	 * metrics with the same name and "free" entries
 	 */
-	if (cp->mlist[i].flags & DM_MASKED)
+	if ((cp->mlist[i].flags & DM_MASKED) || (cp->mlist[i].flags & DM_FREE))
 	    continue;
 	if (strcmp(name, cp->mlist[i].name) == 0) {
 	    *dp = cp->mlist[i].pmid;
@@ -3451,9 +3731,9 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
     for (i = 0; i < cp->nmetric; i++) {
 	/*
 	 * skip global derived metrics masked by per-context derived
-	 * metrics with the same name
+	 * metrics with the same name and "free" entries
 	 */
-	if (cp->mlist[i].flags & DM_MASKED)
+	if ((cp->mlist[i].flags & DM_MASKED) || (cp->mlist[i].flags & DM_FREE))
 	    continue;
 	if (pmid == cp->mlist[i].pmid) {
 	    *name = strdup(cp->mlist[i].name);
@@ -3504,7 +3784,8 @@ __dmcheckname(__pmContext *ctxp, int derive_locked, const char *name, pmID pmid)
 	refresh(ctxp);
 
     for (i = 0; i < cp->nmetric; i++) {
-	if (strcmp(name, cp->mlist[i].name) == 0) {
+	if (!(cp->mlist[i].flags & DM_FREE) &&
+	    strcmp(name, cp->mlist[i].name) == 0) {
 	    if (cp->mlist[i].pmid == pmid)
 		continue;
 	    fprintf(stderr, "Warning: %s [%s",
@@ -3635,6 +3916,7 @@ void
 __dmopencontext(__pmContext *ctxp)
 {
     int		i;
+    int		j;
     ctl_t	*cp;
 
     PM_LOCK(registered.mutex);
@@ -3661,17 +3943,23 @@ __dmopencontext(__pmContext *ctxp)
 	pmNoMem("pmNewContext: derived metrics (mlist)", cp->nmetric*sizeof(dm_t), PM_FATAL_ERR);
 	/* NOTREACHED */
     }
-    for (i = 0; i < cp->nmetric; i++) {
-	cp->mlist[i].name = registered.mlist[i].name;
-	cp->mlist[i].pmid = registered.mlist[i].pmid;
-	cp->mlist[i].anon = registered.mlist[i].anon;
+    for (j = i = 0; i < cp->nmetric; i++) {
+	if (registered.mlist[i].flags & DM_FREE) {
+	    /* this has been unregistered, so skip it */
+	    continue;
+	}
+	cp->mlist[j].name = registered.mlist[i].name;
+	cp->mlist[j].pmid = registered.mlist[i].pmid;
+	cp->mlist[j].anon = registered.mlist[i].anon;
 	assert(registered.mlist[i].expr != NULL);
-	cp->mlist[i].expr = registered.mlist[i].expr;
-	cp->mlist[i].flags = registered.mlist[i].flags;
-	cp->mlist[i].flags &= ~DM_BIND;
-	cp->mlist[i].oneline = registered.mlist[i].oneline;
-	cp->mlist[i].helptext = registered.mlist[i].helptext;
+	cp->mlist[j].expr = registered.mlist[i].expr;
+	cp->mlist[j].flags = registered.mlist[i].flags;
+	cp->mlist[j].flags &= ~DM_BIND;
+	cp->mlist[j].oneline = registered.mlist[i].oneline;
+	cp->mlist[j].helptext = registered.mlist[i].helptext;
+	j++;
     }
+    cp->nmetric = j;
     PM_UNLOCK(registered.mutex);
 }
 
@@ -3740,9 +4028,9 @@ __dmdesc(__pmContext *ctxp, int derive_locked, pmID pmid, pmDesc *desc)
     for (i = 0; i < cp->nmetric; i++) {
 	/*
 	 * skip global derived metrics masked by per-context derived
-	 * metrics with the same name
+	 * metrics with the same name and "free" entries
 	 */
-	if (cp->mlist[i].flags & DM_MASKED)
+	if ((cp->mlist[i].flags & DM_MASKED) || (cp->mlist[i].flags & DM_FREE))
 	    continue;
 	if (cp->mlist[i].pmid == pmid) {
 	    if ((cp->mlist[i].flags & DM_BIND) == 0) {
@@ -3839,6 +4127,12 @@ int
 __pmIsDeriveLock(void *lock)
 {
     return lock == (void *)&registered.mutex;
+}
+
+int
+__pmIsUnregisterLock(void *lock)
+{
+    return lock == (void *)&unregister_lock;
 }
 #endif
 
