@@ -53,11 +53,11 @@ PR	Scheduler priority value of the process.
 NI	Niceness of the process.
 VIRT	Virtual memory size.	Displayed in gigabytes (g) when over 1 GiB.
 RES	Resident memory size.	Displayed in gigabytes (g) if over 1 GiB.
-SHR	Shared memory.	
+SHR	Shared memory.
 STATE	Process state.	Usually single letter: R (running), S (sleeping), etc.
 %CPU	Percentage of CPU used by the process in last interval.
 %MEM	Percentage of total physical memory used.
-START	Process execution time.	
+START	Process execution time (user+system time, MM:SS).
 COMMAND	Command name (truncated, up to 40 chars).
 .TE
 .PP
@@ -100,7 +100,7 @@ are:
 Sort the process table by \fB%cpu\fR (default) or \fB%mem\fR usage.
 .TP
 \fB\-c\fR \fIN\fR
-Show only the top N processes by the selected sort key (default: 2000).
+Show only the top N processes by the selected sort key (default: 100).
 .TP
 \fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
 Process PCP archive data from the given \fIarchive\fR file, rather than live metrics.

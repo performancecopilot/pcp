@@ -213,6 +213,13 @@ class TopUtil(object):
         return 0.0, 0.0, 0.0
 
     def tasks(self):
+        """
+            Returns the total number of processes and the number of processes
+            in different states: running, sleeping (includes swapped out), stopped,
+            and zombie.
+
+            :return: tuple of (total, running, sleeping, stopped, zombie)
+        """
         total = self.repo.current_value("proc.nprocs", None) or 0
         running = self.repo.current_value("proc.runq.runnable", None) or 0
         sleeping = self.repo.current_value("proc.runq.sleeping", None) or 0
@@ -222,6 +229,12 @@ class TopUtil(object):
         return total, running, sleeping + swapped, stopped, zombie
 
     def top_header(self):
+        """
+        Generates the top header which includes uptime, number of users, 
+        load averages and task information.
+
+        :return: string
+        """
         users, (avg1, avg5, avg15) = self.no_of_users(), self.get_load_average()
         uptime = self.uptime()
         return "Top - %s up %d users, Load Average: %.2f, %.2f, %.2f\n" % (uptime, users, avg1, avg5, avg15) + \
@@ -260,20 +273,70 @@ class TopUtil(object):
         runtime = sys_time + user_time
         return str(datetime.fromtimestamp(runtime/1000).strftime("%M:%S"))
     def process_data_list(self):
+        """
+        Bulk-fetch all required metrics for current sample, once
+
+        :return: A dictionary of process data, where each key is a pid and
+            the value is a list of process information in the following order:
+            - user name
+            - priority
+            - nice
+            - virtual memory size (in GB)
+            - resident memory size (in GB)
+            - shared memory size (in GB)
+            - process state
+            - CPU usage (as a percentage)
+            - memory usage (as a percentage)
+            - execution time (in minutes and seconds)
+            - command name
+        """
+        user_name_map = self.process_user_name_cache
+        priority_map = self.process_priority_cache
+        nice_map = self.process_nice_cache
+        vsize_map = self.virtual_memory_cache
+        rss_map = self.resident_memory_cache
+        shared_map = self.shared_memory_cache
+        state_map = self.process_state_cache
+        cmd_map = self.process_command_cache
+
+        # Pre-compute utime and stime for all pids for execution time
+        utime_map = self.process_utime_cache
+        stime_map = self.process_stime_cache
+
+        all_pids = list(self.process_list_cache.keys())
+
+        sort_by = getattr(self, "sort_by", "%cpu")
+        sort_index = 7 if sort_by == "%cpu" else 8
+
+        # Original per-process metric access (pre-memoization)
+        sort_values = {}
+        for pid in all_pids:
+            if sort_index == 7:
+                sort_values[pid] = self.cpu_usage(pid)
+            else:
+                sort_values[pid] = self.memory_usage(pid)
+
+        sorted_pids = sorted(
+            all_pids,
+            key=lambda pid: (sort_values[pid] if sort_values[pid] not in ("?", None) else -1.0),
+            reverse=True
+        )
+        top_pids = sorted_pids[:int(getattr(self, "num_procs", 100))]
+
         res = {}
-        for pid, proc in self.process_list().items():
+        for pid in top_pids:
             res[pid] = [
-                self.process_user_name_cache.get(pid, "?"),
-                self.process_priority_cache.get(pid, "?"),
-                self.process_nice_cache.get(pid, "?"),
-                (lambda x: self.__kb_to_gb(x) if x is not None else "?")(self.virtual_memory_cache.get(pid, None)),
-                (lambda x: self.__kb_to_gb(x) if x is not None else "?")(self.resident_memory_cache.get(pid, None)),
-                self.shared_memory_cache.get(pid, "?"),
-                self.process_state_cache.get(pid, "UNKNOWN"),
+                user_name_map.get(pid, "?"),
+                priority_map.get(pid, "?"),
+                nice_map.get(pid, "?"),
+                (lambda x: self.__kb_to_gb(x) if x is not None else "?")(vsize_map.get(pid, None)),
+                (lambda x: self.__kb_to_gb(x) if x is not None else "?")(rss_map.get(pid, None)),
+                shared_map.get(pid, "?"),
+                state_map.get(pid, "UNKNOWN"),
                 self.cpu_usage(pid),
                 self.memory_usage(pid),
-                self.execution_time(pid),
-                self.process_command_cache.get(pid, "?")
+                str(datetime.fromtimestamp((stime_map.get(pid, 0) + utime_map.get(pid, 0))/1000).strftime("%M:%S")),
+                cmd_map.get(pid, "?")
             ]
         return res
 
@@ -285,12 +348,15 @@ class TopReport(pmcc.MetricGroupPrinter):
         self.context = group.type
         self.samples = self.opts.pmGetOptionSamples()
 
-    def __timeStampDelta(self,group):
-        s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
-        n = group.timestamp.tv_nsec - group.prevTimestamp.tv_nsec
-        return s + n / 1000000000.0
+    # Removed unused private member __timeStampDelta
     def __get_ncpu(self, group):
         return group['hinv.ncpu'].netValues[0][2]
+
+    def __timeStampDelta(self, group):
+        s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
+        n = group.timestamp.tv_nsec - group.prevTimestamp.tv_nsec
+        interval_in_seconds = s + n / 1000000000.0
+        return interval_in_seconds
 
     def __print_machine_info(self, context):
         timestamp = self.group.pmLocaltime(context.timestamp.tv_sec)
@@ -317,10 +383,16 @@ class TopReport(pmcc.MetricGroupPrinter):
             sorted_list = sorted(topinfo.process_data_list().items(), key=lambda x: x[1][7], reverse=True)
         elif self.opts.sort_by == "%mem":
             sorted_list = sorted(topinfo.process_data_list().items(), key=lambda x: x[1][8], reverse=True)
-        for pid, proc in sorted_list[:int(self.opts.num_procs)]:
-            print("{:<5} {:>10} {:>8} {:>5} {:>5} {:>10} {:>10} {:>10} {:>4} {:>5} {:>5} {:>5} {:>20}".format(
-                    timestamp, pid, proc[0], proc[1], proc[2], proc[3],
-                    proc[4], proc[5], proc[6], proc[7], proc[8], proc[9], proc[10]))
+        else:
+            sorted_list = list(topinfo.process_data_list().items())
+        for pid, proc_values in sorted_list[:int(self.opts.num_procs)]:
+            print(
+                "{:<5} {:>10} {:>8} {:>5} {:>5} {:>10} {:>10} {:>10} {:>4} {:>5} {:>5} {:>5} {:>20}".format(
+                    timestamp, pid, proc_values[0], proc_values[1], proc_values[2],
+                    proc_values[3], proc_values[4], proc_values[5], proc_values[6], proc_values[7],
+                    proc_values[8], proc_values[9], proc_values[10]
+                )
+            )
 
     def report(self, manager):
         group = manager["allinfo"]
@@ -371,14 +443,14 @@ class TopOptions(pmapi.pmOptions):
         self.context = None
         self.timefmt = "%H:%M:%S"
         self.sort_by = "%cpu"
-        self.num_procs = 2000
+        self.num_procs = 100
 
     def options(self):
         self.pmSetLongOptionHeader("General options")
         self.pmSetLongOptionHostZone()
         self.pmSetLongOptionArchive()
         self.pmSetLongOption("", 1, "o", "[%mem, %cpu]","Sort by %mem or %cpu (default %cpu)")
-        self.pmSetLongOption("", 1, "c", "N (default 2000)","Show only top N processes (default 2000)")
+        self.pmSetLongOption("", 1, "c", "N (default 100)","Show only top N processes (default 100)")
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionSamples()
         self.pmSetLongOptionVersion()
