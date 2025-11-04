@@ -2260,6 +2260,7 @@ pmcd.pdu
 1900 pmda.bpf local valgrind
 1901 pmlogger local
 1902 help local
+1904 top local
 1906 pmseries libpcp_web local
 1912 pmie local
 1913 pmie local valgrind

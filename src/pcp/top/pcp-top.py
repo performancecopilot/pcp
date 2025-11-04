@@ -230,7 +230,7 @@ class TopUtil(object):
 
     def top_header(self):
         """
-        Generates the top header which includes uptime, number of users, 
+        Generates the top header which includes uptime, number of users,
         load averages and task information.
 
         :return: string
@@ -329,8 +329,8 @@ class TopUtil(object):
                 user_name_map.get(pid, "?"),
                 priority_map.get(pid, "?"),
                 nice_map.get(pid, "?"),
-                (lambda x: self.__kb_to_gb(x) if x is not None else "?")(vsize_map.get(pid, None)),
-                (lambda x: self.__kb_to_gb(x) if x is not None else "?")(rss_map.get(pid, None)),
+                self.__kb_to_gb(vsize_map.get(pid, None)) if vsize_map.get(pid, None) is not None else "?",
+                self.__kb_to_gb(rss_map.get(pid, None)) if rss_map.get(pid, None) is not None else "?",
                 shared_map.get(pid, "?"),
                 state_map.get(pid, "UNKNOWN"),
                 self.cpu_usage(pid),
