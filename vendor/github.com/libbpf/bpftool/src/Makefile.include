@@ -7,6 +7,7 @@ endif
 
 LLVM_VERSION ?=
 CLANG        ?= clang$(LLVM_VERSION)
+LLVM_CONFIG  ?= llvm-config$(LLVM_VERSION)
 LLVM_STRIP   ?= llvm-strip$(LLVM_VERSION)
 
 ifneq ($(LLVM),)
@@ -42,7 +43,18 @@ EXTRA_WARNINGS := \
 	-Wundef \
 	-Wwrite-strings \
 
-ifeq ($(findstring s,$(filter-out --%,$(MAKEFLAGS))),)
+ifeq ($(V),1)
+  Q =
+else
+  Q = @
+endif
+
+define descend
+  mkdir -p $(OUTPUT)$(1) && \
+    $(MAKE) --no-print-directory -C $(1) $(2)
+endef
+
+ifeq ($(findstring s,$(firstword -$(MAKEFLAGS))),)
   ifneq ($(V),1)
 
     define def_quiet_msg

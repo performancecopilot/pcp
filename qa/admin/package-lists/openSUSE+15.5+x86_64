@@ -132,9 +132,6 @@ socat
 sudo
 sysstat
 systemd-devel
-systemtap
-systemtap-runtime
-systemtap-sdt-devel
 time
 valgrind
 xfsprogs

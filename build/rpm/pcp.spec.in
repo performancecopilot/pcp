@@ -79,9 +79,6 @@ BuildRequires: %{_lib}sasl-devel
 BuildRequires: cyrus-sasl-devel
 %endif
 %endif
-%if "@enable_probes@" == "true"
-BuildRequires: systemtap-sdt-devel
-%endif
 %if "@enable_qt@" == "true"
 BuildRequires: gcc-c++
 %endif
@@ -1487,16 +1484,7 @@ License: Apache-2.0 AND GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
-%if 0%{?suse_version} >= 1600
-Requires: libbpf1
-%else
-%if %{defined sle_version} && 0%{?sle_version} >= 150500
-Requires: libbpf1
-%else
-Requires: libbpf
-%endif
-%endif
-BuildRequires: libbpf-devel clang llvm
+BuildRequires: clang llvm
 %description pmda-bpf
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 extracting performance metrics from eBPF ELF modules.

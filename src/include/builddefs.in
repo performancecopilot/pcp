@@ -191,7 +191,6 @@ GIT	= @GIT@
 MANLINT	= $(TOPDIR)/scripts/man-lint -f
 PYLINT	= PYTHONPATH=$(PYTHONPATH):$(TOPDIR)/src/python @PYLINT@ --rcfile=$(TOPDIR)/.pylintrc --output-format=colorized
 PYTHON3	= @PYTHON3@
-DTRACE  = @DTRACE@
 ifeq "$(TARGET_OS)" "freebsd"
 QMAKE	= @qmake@
 else
@@ -266,7 +265,6 @@ CLANG_MAJOR_VERSION = @CLANG_MAJOR_VERSION@
 ENABLE_MULTILIB = @enable_multilib@
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
-ENABLE_PROBES = @enable_probes@
 ENABLE_AVAHI = @enable_avahi@
 ENABLE_DSTAT = @enable_dstat@
 ENABLE_QT = @enable_qt@
@@ -316,9 +314,6 @@ HAVE_LIBUV = @HAVE_LIBUV@
 LIB_FOR_LIBUV = @libuv_LIBS@
 HAVE_LIBINIH = @HAVE_LIBINIH@
 LIB_FOR_INIH = @lib_for_inih@
-HAVE_LIBBPF = @HAVE_LIBBPF@
-LIBBPF_VERSION = @libbpf_version@
-LIB_FOR_LIBBPF = @libbpf_LIBS@
 HAVE_LIBELF = @HAVE_LIBELF@
 LIB_FOR_LIBELF = @libelf_LIBS@
 HAVE_NCURSES = @HAVE_NCURSES@

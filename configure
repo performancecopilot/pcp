@@ -857,10 +857,6 @@ CLANG
 HAVE_LIBELF
 libelf_LIBS
 libelf_CFLAGS
-libbpf_version
-HAVE_LIBBPF
-libbpf_LIBS
-libbpf_CFLAGS
 PMDA_BCC
 have_python_influxdb
 have_python_six
@@ -904,8 +900,6 @@ avahi_CFLAGS
 sanitizer
 gperftools_LIBS
 gperftools_CFLAGS
-enable_probes
-DTRACE
 EGREP
 GREP
 echo_c
@@ -1091,8 +1085,6 @@ avahi_LIBS
 SYSTEMD_TMPFILESDIR
 SYSTEMD_SYSUSERSDIR
 SYSTEMD_SYSTEMUNITDIR
-libbpf_CFLAGS
-libbpf_LIBS
 libelf_CFLAGS
 libelf_LIBS
 CPP
@@ -1852,9 +1844,6 @@ Some influential environment variables:
               value of sysusersdir for systemd, overriding pkg-config
   SYSTEMD_SYSTEMUNITDIR
               value of systemdsystemunitdir for systemd, overriding pkg-config
-  libbpf_CFLAGS
-              C compiler flags for libbpf, overriding pkg-config
-  libbpf_LIBS linker flags for libbpf, overriding pkg-config
   libelf_CFLAGS
               C compiler flags for libelf, overriding pkg-config
   libelf_LIBS linker flags for libelf, overriding pkg-config
@@ -6605,156 +6594,33 @@ printf "%s\n" "$ac_cv_path_EGREP" >&6; }
  ac_cv_path_EGREP_TRADITIONAL=$EGREP
 
 
-if test "$do_probes" = "check" -o "$do_probes" = "yes"
-then
-    enable_probes=true
-    for ac_prog in dtrace
-do
-  # Extract the first word of "$ac_prog", so it can be a program name with args.
-set dummy $ac_prog; ac_word=$2
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for $ac_word" >&5
-printf %s "checking for $ac_word... " >&6; }
-if test ${ac_cv_prog_DTRACE+y}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if USDT probes should be used" >&5
+printf %s "checking if USDT probes should be used... " >&6; }
+cat confdefs.h - <<_ACEOF >conftest.$ac_ext
+/* end confdefs.h.  */
+
+    #include "vendor/github.com/libbpf/usdt/usdt.h"
+
+int
+main (void)
+{
+ USDT(pcp, check, 1);
+  ;
+  return 0;
+}
+_ACEOF
+if ac_fn_c_try_compile "$LINENO"
 then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) if test -n "$DTRACE"; then
-  ac_cv_prog_DTRACE="$DTRACE" # Let the user override the test.
-else
-as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in $PATH
-do
-  IFS=$as_save_IFS
-  case $as_dir in #(((
-    '') as_dir=./ ;;
-    */) ;;
-    *) as_dir=$as_dir/ ;;
-  esac
-    for ac_exec_ext in '' $ac_executable_extensions; do
-  if as_fn_executable_p "$as_dir$ac_word$ac_exec_ext"; then
-    ac_cv_prog_DTRACE="$ac_prog"
-    printf "%s\n" "$as_me:${as_lineno-$LINENO}: found $as_dir$ac_word$ac_exec_ext" >&5
-    break 2
-  fi
-done
-  done
-IFS=$as_save_IFS
-
-fi ;;
-esac
-fi
-DTRACE=$ac_cv_prog_DTRACE
-if test -n "$DTRACE"; then
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $DTRACE" >&5
-printf "%s\n" "$DTRACE" >&6; }
-else
-  { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-fi
-
-
-  test -n "$DTRACE" && break
-done
-
-    if test -z "$DTRACE"
-    then
-	if test "$do_probes" = "yes"
-	then
-	    as_fn_error $? "cannot enable static probes - no dtrace executable" "$LINENO" 5
-	fi
-	enable_probes=false
-    fi
-    ac_header= ac_cache=
-for ac_item in $ac_header_c_list
-do
-  if test $ac_cache; then
-    ac_fn_c_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
-    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
-      printf "%s\n" "#define $ac_item 1" >> confdefs.h
-    fi
-    ac_header= ac_cache=
-  elif test $ac_header; then
-    ac_cache=$ac_item
-  else
-    ac_header=$ac_item
-  fi
-done
-
-
-
-
-
-
-
-
-if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
-then :
-
-printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
-
-fi
-       for ac_header in sys/sdt.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "sys/sdt.h" "ac_cv_header_sys_sdt_h" "$ac_includes_default"
-if test "x$ac_cv_header_sys_sdt_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_SYS_SDT_H 1" >>confdefs.h
-
-	if $enable_probes = true
-	then
-	    if test $target_os = kfreebsd
-	    then
-		enable_probes=false
-	    elif test $target_os = freebsd
-	    then
-				rm -f conftest.d conftest.h
-		cat <<End-of-File >conftest.d
-provider eek {
-probe urk(int);
-};
-End-of-File
-		if dtrace -s conftest.d -h >/dev/null 2>&1
-		then
-		    if test ! -f conftest.h
-		    then
-			enable_probes=false
-			if test "$do_probes" = "yes"
-			then
-			    as_fn_error $? "cannot enable static probes - no .h from dtrace -h" "$LINENO" 5
-			fi
-		    fi
-		else
-		    enable_probes=false
-		    if test "$do_probes" = "yes"
-		    then
-			as_fn_error $? "cannot enable static probes - dtrace failed" "$LINENO" 5
-		    fi
-		fi
-	    fi
-	fi
-
-else case e in #(
-  e)
-	enable_probes=false
-	if test "$do_probes" = "yes"
-	then
-	    as_fn_error $? "cannot enable static probes - no SDT header" "$LINENO" 5
-	fi
-     ;;
-esac
-fi
-
-done
-
-    if test "$enable_probes" = "true"
-    then
 
 printf "%s\n" "#define HAVE_STATIC_PROBES 1" >>confdefs.h
-
-    fi
-
-
+ { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+else case e in #(
+  e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; } ;;
+esac
 fi
+rm -f core conftest.err conftest.$ac_objext conftest.beam conftest.$ac_ext
 
 if test "x$use_gperftools" != "xno"
 then :
@@ -6859,6 +6725,35 @@ if test "x$use_sanitizer" != "xno"; then
 fi
 
 
+ac_header= ac_cache=
+for ac_item in $ac_header_c_list
+do
+  if test $ac_cache; then
+    ac_fn_c_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
+    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
+      printf "%s\n" "#define $ac_item 1" >> confdefs.h
+    fi
+    ac_header= ac_cache=
+  elif test $ac_header; then
+    ac_cache=$ac_item
+  else
+    ac_header=$ac_item
+  fi
+done
+
+
+
+
+
+
+
+
+if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
+then :
+
+printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
+
+fi
 if test "x$do_discovery" != "xno"
 then :
 
@@ -9024,91 +8919,6 @@ printf "%s\n" "no" >&6; }; fi
 
 
 pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libbpf >= 0.8.0" >&5
-printf %s "checking for libbpf >= 0.8.0... " >&6; }
-
-if test -n "$libbpf_CFLAGS"; then
-    pkg_cv_libbpf_CFLAGS="$libbpf_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.8.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.8.0") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_libbpf_CFLAGS=`$PKG_CONFIG --cflags "libbpf >= 0.8.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$libbpf_LIBS"; then
-    pkg_cv_libbpf_LIBS="$libbpf_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libbpf >= 0.8.0\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "libbpf >= 0.8.0") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_libbpf_LIBS=`$PKG_CONFIG --libs "libbpf >= 0.8.0" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-                libbpf_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
-        else
-                libbpf_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libbpf >= 0.8.0" 2>&1`
-        fi
-        # Put the nasty error message in config.log where it belongs
-        echo "$libbpf_PKG_ERRORS" >&5
-
-        have_libbpf=false
-elif test $pkg_failed = untried; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-        have_libbpf=false
-else
-        libbpf_CFLAGS=$pkg_cv_libbpf_CFLAGS
-        libbpf_LIBS=$pkg_cv_libbpf_LIBS
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-        have_libbpf=true
-fi
-HAVE_LIBBPF=$have_libbpf
-
-if $have_libbpf
-then :
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking libbpf version" >&5
-printf %s "checking libbpf version... " >&6; }
-    libbpf_version=`$PKG_CONFIG --modversion libbpf`
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $libbpf_version" >&5
-printf "%s\n" "$libbpf_version" >&6; }
-
-fi
-
-
-pkg_failed=no
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libelf" >&5
 printf %s "checking for libelf... " >&6; }
 
@@ -9322,8 +9132,9 @@ fi
 if test "x$do_pmdabpf" = "xcheck"
 then :
 
-        $have_libbpf && $have_libelf && \
-	test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && pmda_bpf=true
+        $have_libelf && \
+	test $clang_major_version -ge 12 -a -f "$pmdabpf_vmlinuxh" && \
+    pmda_bpf=true
 
 fi
 PMDA_BPF=$pmda_bpf
@@ -9333,24 +9144,15 @@ printf "%s\n" "yes" >&6; }; else { printf "%s\n" "$as_me:${as_lineno-$LINENO}: r
 printf "%s\n" "no" >&6; }; fi
 
 if $pmda_bpf; then
-    libbpf_version_major=`echo $libbpf_version | cut -d. -f1`
-    libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
-    pmdabpf_modules="biolatency.so runqlat.so"
-
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if bpf PMDA modules using bpf_buffer__new should be included" >&5
-printf %s "checking if bpf PMDA modules using bpf_buffer__new should be included... " >&6; }
-    if test "$libbpf_version_major" -eq 0; then
-       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no (libbpf version required: 1.0.0, installed: $libbpf_version)" >&5
-printf "%s\n" "no (libbpf version required: 1.0.0, installed: $libbpf_version)" >&6; }
-    else
-       pmdabpf_modules="${pmdabpf_modules} mountsnoop.so oomkill.so"
-       { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-    fi
-    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
-
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking which bpf PMDA modules should be included" >&5
 printf %s "checking which bpf PMDA modules should be included... " >&6; }
+    if test $clang_major_version -ge 15; then
+	pmdabpf_modules="bashreadline.so"
+    else
+	pmdabpf_modules=""
+    fi
+    pmdabpf_modules="${pmdabpf_modules} biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
+
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $pmdabpf_modules" >&5
 printf "%s\n" "$pmdabpf_modules" >&6; }
 fi

@@ -131,10 +131,6 @@ sqlite-libs
 sudo
 sysstat
 systemd-devel
-systemtap
-systemtap-devel
-systemtap-runtime
-systemtap-sdt-devel
 targetcli
 time
 valgrind

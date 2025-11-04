@@ -1,6 +1,6 @@
 /*
- *
  * Copyright (c) 2022 Sohaib Mohamed <sohaib.amhmd@gmail.com>
+ * Copyright (c) 2025 Red Hat.
  *
  * Based on the mountsnoop(8):
  * https://github.com/iovisor/bcc/blob/master/libbpf-tools/mountsnoop.c
@@ -83,6 +83,23 @@ static const char *flag_names[] = {
     [31] = "MS_NOUSER",
 };
 static const int flag_count = sizeof(flag_names) / sizeof(flag_names[0]);
+static const char *attr_names[] = {
+    [0] = "MOUNT_ATTR_RDONLY",
+    [1] = "MOUNT_ATTR_NOSUID",
+    [2] = "MOUNT_ATTR_NODEV",
+    [3] = "MOUNT_ATTR_NOEXEC",
+    [4] = "MOUNT_ATTR_RELATIME",
+    [5] = "MOUNT_ATTR_NOATIME",
+    [6] = "MOUNT_ATTR_STRICTATIME",
+    [7] = "MOUNT_ATTR_NODIRATIME",
+    [8] = "?", [9] = "?", [10] = "?",
+    [11] = "?", [12] = "?", [13] = "?",
+    [14] = "?", [15] = "?", [16] = "?",
+    [17] = "?", [18] = "?", [19] = "?",
+    [20] = "MOUNT_ATTR_IDMAP",
+    [21] = "MOUNT_ATTR_NOSYMFOLLOW",
+};
+static const int attr_count = sizeof(attr_names) / sizeof(attr_names[0]);
 
 static pmdaInstid *mountsnoop_instances;
 static struct mountsnoop_bpf *obj;
@@ -407,6 +424,25 @@ static const char *strflags(__u64 flags)
     return str;
 }
 
+static const char *strattrflags(__u32 attrs)
+{
+    static char str[512];
+    int i;
+
+    if (!attrs)
+        return "0x0";
+
+    str[0] = '\0';
+    for (i = 0; i < attr_count; i++) {
+        if (!((1 << i) & attrs))
+            continue;
+        if (str[0])
+            strcat(str, " | ");
+        strcat(str, attr_names[i]);
+    }
+    return str;
+}
+
 static const char *strerrno(int errnum)
 {
     const char *errstr;
@@ -418,25 +454,122 @@ static const char *strerrno(int errnum)
     ret[0] = '\0';
     errstr = strerrorname_np(-errnum);
     if (!errstr) {
-        snprintf(ret, sizeof(ret), "%d", errnum);
+        pmsprintf(ret, sizeof(ret), "%d", errnum);
         return ret;
     }
 
-    snprintf(ret, sizeof(ret), "-%s", errstr);
+    pmsprintf(ret, sizeof(ret), "-%s", errstr);
     return ret;
 }
 
-static const char *gen_call(const struct event *e)
+static char *gen_fs(const struct event *e)
 {
-    static char call[10240];
+    switch (e->op) {
+    case MOUNT:
+        return (char *)e->mount.fs;
+    case FSOPEN:
+        return (char *)e->fsopen.fs;
+    default:
+	break;
+    }
+    return "";
+}
+
+static char *gen_src(const struct event *e)
+{
+    switch (e->op) {
+    case MOUNT:
+        return (char *)e->mount.src;
+    default:
+	break;
+    }
+    return "";
+}
+
+static char *gen_dest(const struct event *e)
+{
+    switch (e->op) {
+    case MOUNT:
+        return (char *)e->mount.dest;
+    case UMOUNT:
+        return (char *)e->umount.dest;
+    default:
+	break;
+    }
+    return "";
+}
+
+static char *gen_data(const struct event *e)
+{
+    switch (e->op) {
+    case MOUNT:
+        return (char *)e->mount.data;
+    default:
+	break;
+    }
+    return "";
+}
+
+static char *gen_flags(const struct event *e)
+{
+    switch (e->op) {
+    case MOUNT:
+        return (char *)strflags(e->mount.flags);
+    case UMOUNT:
+        return (char *)strflags(e->umount.flags);
+    case FSOPEN:
+        return (char *)strflags(e->fsopen.flags);
+    case FSMOUNT:
+        return (char *)strflags(e->fsmount.flags);
+    case MOVE_MOUNT:
+        return (char *)strflags(e->move_mount.flags);
+    case FSCONFIG:
+    default:
+	break;
+    }
+    return "";
+}
+
+static char *gen_call(const struct event *e)
+{
+    static char call[BUFSIZ];
 
     memset(call, 0, sizeof(call));
-    if (e->op == UMOUNT) {
-        snprintf(call, sizeof(call), "umount(\"%s\", %s) = %s",
-                e->dest, strflags(e->flags), strerrno(e->ret));
-    } else {
-        snprintf(call, sizeof(call), "mount(\"%s\", \"%s\", \"%s\", %s, \"%s\") = %s",
-                e->src, e->dest, e->fs, strflags(e->flags), e->data, strerrno(e->ret));
+    switch (e->op) {
+    case MOUNT:
+        pmsprintf(call, sizeof(call),
+		 "mount(\"%s\", \"%s\", \"%s\", %s, \"%s\") = %s",
+                 e->mount.src, e->mount.dest, e->mount.fs,
+		 strflags(e->mount.flags), e->mount.data, strerrno(e->ret));
+	break;
+    case UMOUNT:
+        pmsprintf(call, sizeof(call), "umount(\"%s\", %s) = %s",
+                e->umount.dest, strflags(e->umount.flags), strerrno(e->ret));
+	break;
+    case FSOPEN:
+        pmsprintf(call, sizeof(call), "fsopen(\"%s\", %s) = %s",
+                e->fsopen.fs, strflags(e->fsopen.flags), strerrno(e->ret));
+	break;
+    case FSCONFIG:
+        pmsprintf(call, sizeof(call), "fsconfig(%d, %u, \"%s\", \"%s\") = %s",
+                e->fsconfig.fd, e->fsconfig.cmd,
+		e->fsconfig.key, e->fsconfig.value, strerrno(e->ret));
+	break;
+    case FSMOUNT:
+        pmsprintf(call, sizeof(call),
+		 "fsmount(%d, %s, %s) = %s",
+                 e->fsmount.fs_fd, strflags(e->fsmount.flags),
+		 strattrflags(e->fsmount.attr_flags), strerrno(e->ret));
+	break;
+    case MOVE_MOUNT:
+        pmsprintf(call, sizeof(call),
+		 "move_mount(%d, \"%s\", %d, \"%s\", %s) = %s",
+                 e->move_mount.from_dfd, e->move_mount.from_pathname,
+                 e->move_mount.to_dfd, e->move_mount.to_pathname,
+		 strflags(e->move_mount.flags), strerrno(e->ret));
+	break;
+    default:
+	break;
     }
     return call;
 }
@@ -447,17 +580,51 @@ static int handle_event(void *ctx, void *data, size_t len)
     struct tailq_entry *elm = allocElm();
 
     elm->event.delta = event->delta;
-    elm->event.flags = event->flags;
     elm->event.pid = event->pid;
     elm->event.tid = event->tid;
     elm->event.mnt_ns = event->mnt_ns;
     elm->event.ret = event->ret;
     elm->event.op = event->op;
     pmstrncpy(elm->event.comm, sizeof(elm->event.comm), event->comm);
-    pmstrncpy(elm->event.fs, sizeof(elm->event.fs), event->fs);
-    pmstrncpy(elm->event.src, sizeof(elm->event.src), event->src);
-    pmstrncpy(elm->event.dest, sizeof(elm->event.dest), event->dest);
-    pmstrncpy(elm->event.data, sizeof(elm->event.data), event->data);
+
+    switch (event->op) {
+    case MOUNT:
+	elm->event.mount.flags = event->mount.flags;
+	pmstrncpy(elm->event.mount.fs, sizeof(elm->event.mount.fs), event->mount.fs);
+	pmstrncpy(elm->event.mount.src, sizeof(elm->event.mount.src), event->mount.src);
+	pmstrncpy(elm->event.mount.dest, sizeof(elm->event.mount.dest), event->mount.dest);
+	pmstrncpy(elm->event.mount.data, sizeof(elm->event.mount.data), event->mount.data);
+	break;
+    case UMOUNT:
+	elm->event.umount.flags = event->umount.flags;
+	pmstrncpy(elm->event.umount.dest, sizeof(elm->event.umount.dest), event->umount.dest);
+	break;
+    case FSOPEN:
+	pmstrncpy(elm->event.fsopen.fs, sizeof(elm->event.fsopen.fs), event->fsopen.fs);
+	elm->event.fsopen.flags = event->fsopen.flags;
+	break;
+    case FSCONFIG:
+	elm->event.fsconfig.fd = event->fsconfig.fd;
+	elm->event.fsconfig.cmd = event->fsconfig.cmd;
+	pmstrncpy(elm->event.fsconfig.key, sizeof(elm->event.fsconfig.key), event->fsconfig.key);
+	pmstrncpy(elm->event.fsconfig.value, sizeof(elm->event.fsconfig.value), event->fsconfig.value);
+	elm->event.fsconfig.aux = event->fsconfig.aux;
+	break;
+    case FSMOUNT:
+	elm->event.fsmount.fs_fd = event->fsmount.fs_fd;
+	elm->event.fsmount.flags = event->fsmount.flags;
+	elm->event.fsmount.attr_flags = event->fsmount.attr_flags;
+	break;
+    case MOVE_MOUNT:
+	elm->event.move_mount.from_dfd = event->move_mount.from_dfd;
+	pmstrncpy(elm->event.move_mount.from_pathname, sizeof(elm->event.move_mount.from_pathname), event->move_mount.from_pathname);
+	elm->event.move_mount.to_dfd = event->move_mount.to_dfd;
+	pmstrncpy(elm->event.move_mount.to_pathname, sizeof(elm->event.move_mount.to_pathname), event->move_mount.to_pathname);
+	elm->event.move_mount.flags = event->move_mount.flags;
+	break;
+    default:
+	break;
+    }
 
     push(elm);
     return 0;
@@ -561,64 +728,54 @@ static int mountsnoop_fetch_to_atom(unsigned int item, unsigned int inst, pmAtom
         return PMDA_FETCH_STATIC;
     }
 
-    if (inst == PM_IN_NULL) {
+    if (inst == PM_IN_NULL)
         return PM_ERR_INST;
-    }
 
-    if(!get_item(inst, &value))
+    if (!get_item(inst, &value))
         return PMDA_FETCH_NOVALUES;
 
-    /* bpf.mountsnoop.pid */
-    if (item == PID) {
+    switch (item) {
+    case PID: /* bpf.mountsnoop.pid */
         atom->ul = value->event.pid;
-    }
-    /* bpf.mountsnoop.tid */
-    if (item == TID) {
-        atom->ul = value->event.pid;
-    }
-    /* bpf.mountsnoop.comm */
-    if (item == COMM) {
+        break;
+    case TID: /* bpf.mountsnoop.tid */
+        atom->ul = value->event.tid;
+        break;
+    case COMM: /* bpf.mountsnoop.comm */
         atom->cp = value->event.comm;
-    }
-    /* bpf.mountsnoop.op */
-    if (item == OP) {
+        break;
+    case OP: /* bpf.mountsnoop.op */
         atom->cp = op_name[value->event.op];
-    }
-    /* bpf.mountsnoop.ret */
-    if (item == RET) {
+        break;
+    case RET: /* bpf.mountsnoop.ret */
         atom->cp = (char*)strerrno(value->event.ret);
-    }
-    /* bpf.mountsnoop.lat */
-    if (item == LAT) {
+        break;
+    case LAT: /* bpf.mountsnoop.lat */
         atom->ull = value->event.delta;
-    }
-    /* bpf.mountsnoop.mnt_ns */
-    if (item == MNT_NS) {
+        break;
+    case MNT_NS: /* bpf.mountsnoop.mnt_ns */
         atom->ul = value->event.mnt_ns;
-    }
-    /* bpf.mountsnoop.fs */
-    if (item == FS) {
-        atom->cp = value->event.fs;
-    }
-    /* bpf.mountsnoop.source */
-    if (item == SOURCE) {
-        atom->cp = value->event.src;
-    }
-    /* bpf.mountsnoop.target */
-    if (item == TARGET) {
-        atom->cp = value->event.dest;
-    }
-    /* bpf.mountsnoop.data */
-    if (item == DATA) {
-        atom->cp = value->event.data;
-    }
-    /* bpf.mountsnoop.flags */
-    if (item == FLAGS) {
-        atom->cp = (char*)strflags(value->event.flags);
-    }
-    /* bpf.mountsnoop.call */
-    if (item == CALL) {
-        atom->cp = (char*)gen_call(&value->event);
+        break;
+    case FS: /* bpf.mountsnoop.fs */
+        atom->cp = gen_fs(&value->event);
+        break;
+    case SOURCE: /* bpf.mountsnoop.source */
+        atom->cp = gen_src(&value->event);
+        break;
+    case TARGET: /* bpf.mountsnoop.target */
+        atom->cp = gen_dest(&value->event);
+        break;
+    case DATA: /* bpf.mountsnoop.data */
+        atom->cp = gen_data(&value->event);
+        break;
+    case FLAGS: /* bpf.mountsnoop.flags */
+        atom->cp = gen_flags(&value->event);
+        break;
+    case CALL: /* bpf.mountsnoop.call */
+        atom->cp = gen_call(&value->event);
+        break;
+    default:
+        return PM_ERR_PMID;
     }
 
     return PMDA_FETCH_STATIC;

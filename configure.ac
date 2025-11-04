@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2023 Red Hat.
+dnl Copyright (c) 2012-2025 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -811,68 +811,10 @@ AC_SUBST(echo_c)
 dnl subsequent configure checks rely on $EGREP being set
 AC_PROG_EGREP
 
-dnl Check for static probes (dtrace, systemtap)
-if test "$do_probes" = "check" -o "$do_probes" = "yes"
-then
-    enable_probes=true
-    AC_CHECK_PROGS(DTRACE, dtrace, [])
-    if test -z "$DTRACE"
-    then
-	if test "$do_probes" = "yes"
-	then
-	    AC_MSG_ERROR([cannot enable static probes - no dtrace executable])
-	fi
-	enable_probes=false
-    fi
-    AC_CHECK_HEADERS([sys/sdt.h], [
-	if $enable_probes = true
-	then
-	    if test $target_os = kfreebsd
-	    then
-		enable_probes=false
-	    elif test $target_os = freebsd
-	    then
-		dnl dtrace support in FreeBSD depends on configuration of kernel
-		rm -f conftest.d conftest.h
-		cat <<End-of-File >conftest.d
-provider eek {
-probe urk(int);
-};
-End-of-File
-		if dtrace -s conftest.d -h >/dev/null 2>&1
-		then
-		    if test ! -f conftest.h
-		    then
-			enable_probes=false
-			if test "$do_probes" = "yes"
-			then
-			    AC_MSG_ERROR([cannot enable static probes - no .h from dtrace -h])
-			fi
-		    fi
-		else
-		    enable_probes=false
-		    if test "$do_probes" = "yes"
-		    then
-			AC_MSG_ERROR([cannot enable static probes - dtrace failed])
-		    fi
-		fi
-	    fi
-	fi
-    ], [
-	enable_probes=false
-	if test "$do_probes" = "yes"
-	then
-	    AC_MSG_ERROR([cannot enable static probes - no SDT header])
-	fi
-    ])
-
-    if test "$enable_probes" = "true"
-    then
-        AC_DEFINE(HAVE_STATIC_PROBES, [1], [Static probes (dtrace, systemtap)])
-    fi
-    AC_SUBST(enable_probes)
-    AC_SUBST(DTRACE)
-fi
+AC_MSG_CHECKING([if USDT probes should be used])
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include "vendor/github.com/libbpf/usdt/usdt.h"
+]], [[ USDT(pcp, check, 1); ]])], [AC_DEFINE(HAVE_STATIC_PROBES, [1], [Static probes (USDT)]) AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)])
 
 dnl Check for gperftools
 AS_IF([test "x$use_gperftools" != "xno"], [
@@ -1213,15 +1155,6 @@ AS_IF([test "x$do_pmdabcc" = "xcheck"], [
 AC_SUBST(PMDA_BCC, $pmda_bcc)
 if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
-PKG_CHECK_MODULES([libbpf], [libbpf >= 0.8.0], [have_libbpf=true], [have_libbpf=false])
-AC_SUBST(HAVE_LIBBPF, [$have_libbpf])
-AS_IF([$have_libbpf], [
-    AC_MSG_CHECKING([libbpf version])
-    libbpf_version=`$PKG_CONFIG --modversion libbpf`
-    AC_SUBST(libbpf_version)
-    AC_MSG_RESULT($libbpf_version)
-])
-
 PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
 AC_SUBST(HAVE_LIBELF, [$have_libelf])
 
@@ -1264,28 +1197,23 @@ AC_MSG_CHECKING([if the bpf PMDA should be included])
 pmda_bpf=false
 AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
 AS_IF([test "x$do_pmdabpf" = "xcheck"], [
-    dnl pmdabpf requires libbpf, libelf, clang 10+ and a bpftool-generated arch-specific vmlinux.h
-    $have_libbpf && $have_libelf && \
-	test $clang_major_version -ge 10 -a -f "$pmdabpf_vmlinuxh" && pmda_bpf=true
+    dnl pmdabpf needs -lelf, clang 12+ and arch-specific vmlinux.h from bpftool
+    $have_libelf && \
+	test $clang_major_version -ge 12 -a -f "$pmdabpf_vmlinuxh" && \
+    pmda_bpf=true
 ])
 AC_SUBST(PMDA_BPF, $pmda_bpf)
 if $pmda_bpf; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 if $pmda_bpf; then
-    libbpf_version_major=`echo $libbpf_version | cut -d. -f1`
-    libbpf_version_minor=`echo $libbpf_version | cut -d. -f2`
-    pmdabpf_modules="biolatency.so runqlat.so"
-
-    AC_MSG_CHECKING([if bpf PMDA modules using bpf_buffer__new should be included])
-    if test "$libbpf_version_major" -eq 0; then
-       AC_MSG_RESULT([no (libbpf version required: 1.0.0, installed: $libbpf_version)])
-    else
-       pmdabpf_modules="${pmdabpf_modules} mountsnoop.so oomkill.so"
-       AC_MSG_RESULT(yes)
-    fi
-    pmdabpf_modules="${pmdabpf_modules} bashreadline.so biolatency.so execsnoop.so exitsnoop.so fsslower.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
-    AC_SUBST(pmdabpf_modules)
     AC_MSG_CHECKING([which bpf PMDA modules should be included])
+    if test $clang_major_version -ge 15; then
+	pmdabpf_modules="bashreadline.so"
+    else
+	pmdabpf_modules=""
+    fi
+    pmdabpf_modules="${pmdabpf_modules} biolatency.so execsnoop.so exitsnoop.so fsslower.so mountsnoop.so oomkill.so opensnoop.so runqlat.so statsnoop.so tcpconnect.so tcpconnlat.so vfsstat.so biosnoop.so netatop.so"
+    AC_SUBST(pmdabpf_modules)
     AC_MSG_RESULT($pmdabpf_modules)
 fi
 

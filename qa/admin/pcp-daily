@@ -832,14 +832,6 @@ do
 	    [ X"$what" = Xall ] && check_what='-g sanity'
 	    ;;
 
-	vm01)
-	    # 749 recently (Dec 2023) has been locking the whole VM up
-	    # -- this test is using systemtap + pmcd static probes
-	    # fixed? [Jan 2024], but not fixed [Jan 2025]
-	    #
-	    [ X"$what" = Xall ] && check_what='-X 749'
-	    ;;
-
 	vm05)
 	    # Exclude -x valgrind ... does not work on my Gentoo at the
 	    # moment
