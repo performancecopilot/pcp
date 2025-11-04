@@ -804,6 +804,7 @@ shutdown_ports(void *arg)
     struct server	*server;
     struct stream	*stream;
     unsigned int	i;
+    uv_handle_t         *handle;
 
     for (i = 0; i < proxy->nservers; i++) {
 	server = &proxy->servers[i];
@@ -811,7 +812,11 @@ shutdown_ports(void *arg)
 	if (stream->active == 0)
 	    continue;
 	if (stream->family == STREAM_LOCAL) {
-	    uv_close((uv_handle_t *)&stream->u.local, NULL);
+            handle = (uv_handle_t *)&stream->u.local;
+            if (handle != NULL && uv_is_closing(handle) == 0) {
+                uv_close(handle, NULL);
+                stream->active = 0; 
+            }
 	    unlink(stream->address);
 	} else {
 	    uv_close((uv_handle_t *)&stream->u.tcp, NULL);
@@ -828,7 +833,9 @@ shutdown_ports(void *arg)
 	proxy->config = NULL;
     }
     pmWebTimerClose();
-    uv_loop_close(proxy->events);
+    /* handles should do the close, no need to close events asynchronously
+     * exit(0) will clean up anyway.
+     * uv_loop_close(proxy->events); */
     proxymetrics_close(proxy, METRICS_SERVER);
 
     free(proxy->servers);
