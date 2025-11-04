@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 IAM	= bpf
 LCFLAGS = -I../bpf/include -I..
 LLDFLAGS += -fPIC -L../bpf
-LDLIBS = $(PCP_WEBLIB) $(LIB_FOR_MATH) $(LIB_FOR_LIBELF) -lbpf
+LDLIBS = -lbpf $(PCP_WEBLIB) $(LIB_FOR_MATH) $(LIB_FOR_LIBELF)
 LDIRT = $(HELPERS_H) $(HELPERS_C) $(APPS_H) $(APPS_BPF) vmlinux.h
 MODULETMP = $(PCP_PMDAS_DIR)/$(IAM)/modules
 MODULEDIR = $(PCP_PMDASADM_DIR)/$(IAM)/modules

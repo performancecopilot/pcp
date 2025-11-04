@@ -4,8 +4,8 @@ include $(TOPDIR)/src/include/builddefs
 CFILES	= bpf.c
 CMDTARGET = pmdabpf$(EXECSUFFIX)
 LIBTARGET = pmda_bpf.$(DSOSUFFIX)
-LLDLIBS = $(PCP_WEBLIB)
-LLDLIBS += $(LIB_FOR_ZLIB) $(LIB_FOR_MATH) $(LIB_FOR_LIBELF) -lbpf
+LLDLIBS = -lbpf $(PCP_WEBLIB)
+LLDLIBS += $(LIB_FOR_ZLIB) $(LIB_FOR_MATH) $(LIB_FOR_LIBELF)
 ifeq "$(HAVE_LIBINIH)" "true"
 LLDLIBS += $(LIB_FOR_INIH)
 endif
