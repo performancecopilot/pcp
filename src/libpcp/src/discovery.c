@@ -67,7 +67,7 @@ char *
 __pmServiceDiscoveryParseTimeout(const char *s, struct timeval *timeout)
 {
     double		seconds;
-    char		*end;
+    char		*end, *result;
 
     /*
      * The string is a floating point number representing the number of seconds
@@ -76,7 +76,9 @@ __pmServiceDiscoveryParseTimeout(const char *s, struct timeval *timeout)
     seconds = strtod(s, &end);
     if (*end != '\0' && *end != ',') {
 	pmNotifyErr(LOG_ERR, "the timeout argument '%s' is not valid", s);
-	return strchrnul(s, ',');
+	if ((result = strchr(s, ',')) == NULL)
+	    result = strchr(s, '\0');
+	return result;
     }
 
     /* Set the specified timeout. */
@@ -88,6 +90,8 @@ __pmServiceDiscoveryParseTimeout(const char *s, struct timeval *timeout)
 static int
 parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 {
+    char		*result;
+
     if (optionsString == NULL)
 	return 0; /* no options to parse */
 
@@ -112,7 +116,9 @@ parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 	    return -EINVAL;
 	}
 	/* Locate the start of the next option. */
-	optionsString = strchrnul(optionsString, ',');
+	if ((result = strchr(optionsString, ',')) == NULL)
+	    result = strchr(optionsString, '\0');
+	optionsString = result;
     }
 
     return 0; /* ok */

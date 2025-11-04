@@ -13871,12 +13871,6 @@ then :
   printf "%s\n" "#define HAVE_STRNDUP 1" >>confdefs.h
 
 fi
-ac_fn_c_check_func "$LINENO" "strchrnul" "ac_cv_func_strchrnul"
-if test "x$ac_cv_func_strchrnul" = xyes
-then :
-  printf "%s\n" "#define HAVE_STRCHRNUL 1" >>confdefs.h
-
-fi
 
 ac_fn_c_check_func "$LINENO" "getgrent" "ac_cv_func_getgrent"
 if test "x$ac_cv_func_getgrent" = xyes
