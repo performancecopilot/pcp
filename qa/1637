@@ -120,6 +120,15 @@ probe   fumble_log >= 200 ? include : exclude
         sample.colour[red]
 End-of-File
 
+cat <<End-of-File >$tmp/foo/6
+#pmlogconf-setup 2.0
+ident   Derived metric name re-use
+delta	once
+define  fumble_log = sample.colour[red]
+probe   fumble_log >= 100 ? include : exclude
+        sample.colour[blue]
+End-of-File
+
 if $do_valgrind
 then
     _run_valgrind pmlogconf -d $tmp/foo $tmp.out

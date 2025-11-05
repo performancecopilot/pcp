@@ -267,6 +267,14 @@ in a subsequent
 control line, allowing the expression of more complex
 guards for conditional inclusion of metrics in
 .IR configfile .
+.PP
+Note that
+.I name
+needs to be unique across
+.B all
+group files and not collide with an existing name in the PMNS.
+So some suitable naming convention may need to be adopted when the group files are
+created.
 .RE
 .IP \(bu 3n
 .B probe

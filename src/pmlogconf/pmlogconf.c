@@ -515,10 +515,7 @@ parse_groupfile(FILE *file, const char *tag)
 		fprintf(stderr, "%s: Error: %s/%s "
 			"define missing <name>\n",
 			pmGetProgname(), groupdir, group.tag);
-		free(group.tag);
-		free(group.ident);
-		group.valid = 0;
-		return -EINVAL;
+		goto bad_define;
 	    }
 	    p++;
 	    while (*p != '\0' && !isspace((int)*p))
@@ -535,28 +532,27 @@ parse_groupfile(FILE *file, const char *tag)
 				"define pmRegisterDerivedMetric: failed: %s\n",
 				pmGetProgname(), groupdir, group.tag, errmsg);
 			free(errmsg);
-			free(group.tag);
-			free(group.ident);
-			group.valid = 0;
-			return -EINVAL;
+			goto bad_define;
 		    }
 		}
 		else {
 		    fprintf(stderr, "%s: Error: %s/%s "
 			    "define missing <expr> after =\n",
 			    pmGetProgname(), groupdir, group.tag);
-		    free(group.tag);
-		    free(group.ident);
-		    group.valid = 0;
-		    return -EINVAL;
+		    goto bad_define;
 		}
 	    }
 	    else {
 		fprintf(stderr, "%s: Error: %s/%s "
 			"define missing = after <name>\n",
 			pmGetProgname(), groupdir, group.tag);
+bad_define:
 		free(group.tag);
-		free(group.ident);
+		if (group.ident != NULL) free(group.ident);
+		if (group.probe != NULL) free(group.probe);
+		if (group.metric != NULL) free(group.metric);
+		if (group.force != NULL) free(group.force);
+		if (group.delta != NULL) free(group.delta);
 		group.valid = 0;
 		return -EINVAL;
 	    }

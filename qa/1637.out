@@ -2,6 +2,11 @@ QA output created by 1637
 pmlogconf: Error: TMP/foo/0 define missing <name>
 pmlogconf: Error: TMP/foo/1 define missing = after <name>
 pmlogconf: Error: TMP/foo/2 define missing <expr> after =
+pmlogconf: Error: TMP/foo/6 define pmRegisterDerivedMetric: failed: Error: pmRegisterDerivedMetric("fumble_log", ...)
+sample.colour[red]
+^
+Duplicate global derived metric name
+
 Creating config file "TMP.out" using default settings ...
 ...
 #pmlogconf 2.0
