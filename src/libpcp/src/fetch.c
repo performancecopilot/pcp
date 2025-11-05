@@ -246,8 +246,14 @@ __pmFetch(__pmContext *ctxp, int numpmid, pmID *pmidlist, __pmResult **result)
 	/*
 	 * pmUnregisterDerived() introduces the possibility of a stale
 	 * PMID being used in fetch => PMID 511.?.? or PM_ID_NULL passed
-	 * to PMCD which returns PM_ERR_NOAGENT ... remap error code here
-	 * if we have a valid pmResult
+	 * to PMCD which returns PM_ERR_NOAGENT, which is NQR.
+	 *
+	 * Historically PM_ID_NULL was always possible, because that's what
+	 * pmLookupName() will set the PMID to for an unknown name in the
+	 * PMNS, and PM_ERR_AGENT in this case is also misleading.
+	 *
+	 * ... remap error code PM_ERR_AGENT to PM_ERR_PMID here for these
+	 * cases if we have a valid pmResult
 	 */
 	if (sts >= 0) {
 	    for (i = 0; i < (*result)->numpmid; i++) {
