@@ -43,28 +43,42 @@ The top section displays host information, uptime, user count, and CPU load aver
 .PP
 The process table displays the following per-process fields:
 .TS
-lfB  lfB  lfB
-l    l    l.
-HEADER	DESCRIPTION	DETAILS
-_	_	_
+l    l.
+HEADER	DESCRIPTION
+_	_
 PID	Process ID.
-USER	User name.	Truncated to 6 characters.
+USER	User name.
 PR	Scheduler priority value of the process.
 NI	Niceness of the process.
-VIRT	Virtual memory size.	Displayed in gigabytes (g) when over 1 GiB.
-RES	Resident memory size.	Displayed in gigabytes (g) if over 1 GiB.
+VIRT	Virtual memory size.
+RES	Resident memory size.
 SHR	Shared memory.
-STATE	Process state.	Usually single letter: R (running), S (sleeping), etc.
+STATE	Process state.
 %CPU	Percentage of CPU used by the process in last interval.
 %MEM	Percentage of total physical memory used.
-START	Process execution time (user+system time, MM:SS).
-COMMAND	Command name (truncated, up to 40 chars).
+START	Process execution time.
+COMMAND	Command name.
 .TE
 .PP
+Field details:
+.TP
+.B USER
+Truncated to 6 characters.
+.TP
+.B VIRT, RES
+Displayed in gigabytes (g) when over 1 GiB.
+.TP
+.B STATE
+Usually single letter: R (running), S (sleeping), etc.
+.TP
+.B START
+User+system time, displayed as MM:SS.
+.TP
+.B COMMAND
+Truncated, up to 40 characters.
 The header also shows:
 .TS
-lfB  lfB
-l    lx.
+l    l.
 FIELD	DESCRIPTION
 _	_
 Uptime	Time since last boot.
@@ -148,9 +162,3 @@ Variables affecting PCP tools are documented in
 .BR top (1),
 .BR pmParseInterval (3),
 .BR environ (7)
-
-.\" control lines for scripts/man-spell
-.\" +ok+ PR NI VIRT RES SHR VSZ PID
-.\" +ok+ top pcp-top COMMAND PCP
-.\" +ok+ loadavg%cpu %mem START
-.\" +ok+ process state
