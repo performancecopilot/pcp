@@ -391,25 +391,24 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
     /* else no config file: Just monitor local ports */
 
     for (i=0; i < n; i++) {
-		print(hcas[i]);
-		if (umad_get_ca(hcas[i], &st[i].ca) == 0) {
-			int e = pmdaCacheStore(itab[IB_HCA_INDOM].it_indom, PMDA_CACHE_ADD,
-						st[i].ca.ca_name, &st[i].ca);
+	if (umad_get_ca(hcas[i], &st[i].ca) == 0) {
+	    sts = pmdaCacheStore(itab[IB_HCA_INDOM].it_indom, PMDA_CACHE_ADD,
+					st[i].ca.ca_name, &st[i].ca);
 
-			if (e < 0) {
-				pmNotifyErr(LOG_ERR, 
-					"Cannot add instance for %s to the cache - %s\n",
-					st[i].ca.ca_name, pmErrStr(e));
-				continue;
-			}
+	    if (sts < 0) {
+		pmNotifyErr(LOG_ERR, 
+			"Cannot add instance for %s to the cache - %s\n",
+			st[i].ca.ca_name, pmErrStr(sts));
+		continue;
+	    }
 
-			foreachport(st+i, openumadport, NULL);
-			if (fconf == NULL)
-			/* No config file - monitor local ports */
-			foreachport(st+i, monitorport, itab);
-			if (writeconf)
-			foreachport(st+i, printportconfig, fconf);
-		}
+	    foreachport(st+i, openumadport, NULL);
+	    if (fconf == NULL)
+		/* No config file - monitor local ports */
+		foreachport(st+i, monitorport, itab);
+	    if (writeconf)
+		foreachport(st+i, printportconfig, fconf);
+	}
     }
 
     if (fconf) {
@@ -441,7 +440,6 @@ ib_load_config(const char *cp, int writeconf, pmdaIndom *itab, unsigned int nind
     for (i=0; i < ARRAYSZ(mad_cnt_descriptors); i++) {
 	itab[IB_CNT_INDOM].it_set[i].i_inst = i;
 	itab[IB_CNT_INDOM].it_set[i].i_name = mad_cnt_descriptors[i].name;
-
     }
 
     return 0;
@@ -591,13 +589,13 @@ char* read_sysfs_file(const char* filename)
     FILE *file;
     char *buffer = NULL;
     size_t total_size = 0;
-    size_t buffer_size = 0;
-	const size_t CHUNK_SIZE = 256;
+    size_t buffer_size;
+    const size_t CHUNK_SIZE = 256;
     char chunk[CHUNK_SIZE];
 
     file = fopen(filename, "r");
     if (file == NULL) {
-        pmNotifyErr(LOG_INFO, "Failed to open file");
+        pmNotifyErr(LOG_INFO, "Failed to open file: %s", filename);
         return NULL;
     }
 
@@ -631,7 +629,7 @@ char* read_sysfs_file(const char* filename)
     buffer[total_size] = '\0';
 
     if (ferror(file)) {
-        pmNotifyErr(LOG_INFO, "Error reading file");
+        pmNotifyErr(LOG_INFO, "Error reading sysfs file");
         free(buffer);
         buffer = NULL;
     }

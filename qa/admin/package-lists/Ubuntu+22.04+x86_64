@@ -136,8 +136,6 @@ smartmontools
 socat
 systemd
 sysstat
-systemtap
-systemtap-sdt-dev
 targetcli-fb
 time
 unbound

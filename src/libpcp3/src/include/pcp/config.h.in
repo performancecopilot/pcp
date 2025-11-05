@@ -474,7 +474,7 @@
 /* Define to 1 if you have the <standards.h> header file. */
 #undef HAVE_STANDARDS_H
 
-/* Static probes (dtrace, systemtap) */
+/* Static probes (USDT) */
 #undef HAVE_STATIC_PROBES
 
 /* timespec type */
@@ -497,9 +497,6 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
-
-/* Define to 1 if you have the `strchrnul' function. */
-#undef HAVE_STRCHRNUL
 
 /* strerror_r return */
 #undef HAVE_STRERROR_R_PTR

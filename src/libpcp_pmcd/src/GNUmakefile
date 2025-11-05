@@ -1,13 +1,13 @@
 #
-# Copyright (c) 2013-2015,2022 Red Hat.
+# Copyright (c) 2013-2015,2022,2025 Red Hat.
 # Copyright (c) 2008 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This library is free software; you can redistribute it and/or modify it
 # under the terms of the GNU Lesser General Public License as published
 # by the Free Software Foundation; either version 2.1 of the License, or
 # (at your option) any later version.
-# 
+#
 # This library is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU Lesser General Public
@@ -16,20 +16,12 @@
 
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
--include ./GNUlocaldefs
 
 CFILES = data.c trace.c client.c
+SCRIPT = pmcd.bt
 
 LCFLAGS = -I$(TOPDIR)/src/pmcd/src -I$(TOPDIR)/src/libpcp/src -DPMCD_INTERNAL
-LLDLIBS = -lpcp
-
-ifeq "$(ENABLE_PROBES)" "true"
-ifeq "$(TARGET_OS)" "linux"
-OBJECTS += probes.o
-endif
-LDIRT += probes.h pmcd.stp
-endif
-LDIRT += probes.o
+LLDLIBS = $(PCPLIB)
 
 ifeq "$(TARGET_OS)" "mingw"
 LIBTARGET = libpcp_pmcd.$(DSOSUFFIX)
@@ -39,44 +31,16 @@ STATICLIBTARGET = libpcp_pmcd.a
 LDIRT	+= libpcp_pmcd.$(DSOSUFFIX)
 endif
 
-default : $(LIBTARGET) $(STATICLIBTARGET)
+default : $(LIBTARGET) $(STATICLIBTARGET) $(SCRIPT)
 
-# Static probing for Linux, macOS and Solaris.
-ifeq "$(ENABLE_PROBES)" "true"
-ifneq "$(findstring $(TARGET_OS),linux darwin)" ""
-trace.o: probes.h
-probes.h: probes.d pmcd.stp
-	$(DTRACE) -h -s $< -o $@
-probes.o: probes.d
-	$(DTRACE) -G -s $< -o $@
-endif
-ifneq "$(findstring $(TARGET_OS),solaris freebsd netbsd)" ""
-$(STATICLIBTARGET): rewrite
-trace.o: probes.h
-probes.h: probes.d
-	$(DTRACE) -h -s $< -o $@
-rewrite: trace.o
-	$(DTRACE) -G -s probes.d trace.o
-	touch rewrite
-LDIRT += rewrite
-endif
-endif
-
-pmcd.stp : pmcd.stp.in
-	$(SED) -e 's;@path@;'$(PCP_BINADM_DIR)/pmcd';' $< > $@
+$(SCRIPT) : $(SCRIPT).in
+	$(SED) -e 's;@PMCD_PATH@;'$(PCP_BINADM_DIR)/pmcd';' $< > $@
 
 include $(BUILDRULES)
 
 install : default
 ifeq "$(TARGET_OS)" "mingw"
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
-endif
-
-ifeq "$(ENABLE_PROBES)" "true"
-ifeq "$(TARGET_OS)" "linux"
-	$(INSTALL) -m 755 -d $(PCP_SHARE_DIR)/../systemtap/tapset
-	$(INSTALL) -m 644 pmcd.stp $(PCP_SHARE_DIR)/../systemtap/tapset/pmcd.stp
-endif
 endif
 
 default_pcp : default

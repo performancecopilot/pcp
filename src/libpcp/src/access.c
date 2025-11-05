@@ -861,7 +861,7 @@ getHostAccessSpecs(const char *name, int *sts)
 	}
 	__pmHostEntFree(servInfo);
     }
-    else {
+    else if (hosterror()) {
 	char	errmsg[PM_MAXERRMSGLEN];
 	PM_LOCK(__pmLock_extcall);
 	pmstrncpy(errmsg, PM_MAXERRMSGLEN, hoststrerror());	/* THREADSAFE */

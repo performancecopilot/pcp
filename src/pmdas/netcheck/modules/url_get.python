@@ -131,7 +131,7 @@ class PCPNetcheckModule(PCPNetcheckModuleBase):
             handle = urlget.urlopen(req, context=ctx)
             while data:
                 data = handle.read()
-                content += data
+                content += str(data)
             end_time = time()
             hosts[host] = 0
             timings[host] = end_time - start_time

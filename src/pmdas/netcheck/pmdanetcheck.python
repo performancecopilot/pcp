@@ -19,6 +19,7 @@ try:
 except ImportError:
     import ConfigParser as configparser
 
+import multiprocessing as mp
 import importlib
 import traceback
 import hashlib
@@ -253,7 +254,7 @@ class NetcheckPMDA(PMDA):
             with open("/etc/chrony.conf") as chrony_conf:
                 for line in chrony_conf:
                     fields = line.strip().split()
-                    if fields and (fields[0] == 'server' or fields[0] == 'peer') and fields[1]:
+                    if fields and (fields[0] in ['server', 'peer', 'pool']) and fields[1]:
                         ntp.add(fields[1])
             return ",".join(ntp)
 
@@ -419,4 +420,5 @@ class NetcheckPMDA(PMDA):
 
 
 if __name__ == '__main__':
+    mp.set_start_method('fork')
     NetcheckPMDA('netcheck', 152).run()

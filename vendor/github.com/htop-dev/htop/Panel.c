@@ -11,6 +11,7 @@ in the source distribution for its full text.
 
 #include <assert.h>
 #include <ctype.h>
+#include <limits.h>
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
@@ -54,7 +55,7 @@ void Panel_init(Panel* this, int x, int y, int w, int h, const ObjectClass* type
    this->cursorX = 0;
    this->cursorY = 0;
    this->eventHandlerState = NULL;
-   this->items = Vector_new(type, owner, DEFAULT_SIZE);
+   this->items = Vector_new(type, owner, VECTOR_DEFAULT_SIZE);
    this->scrollV = 0;
    this->scrollH = 0;
    this->selected = 0;
@@ -79,7 +80,7 @@ void Panel_done(Panel* this) {
 
 void Panel_setCursorToSelection(Panel* this) {
    this->cursorY = this->y + this->selected - this->scrollV + 1;
-   this->cursorX = this->x + this->selectedLen - this->scrollH;
+   this->cursorX = this->x + (int)this->selectedLen - this->scrollH;
 }
 
 void Panel_setSelectionColor(Panel* this, ColorElements colorId) {
@@ -421,7 +422,7 @@ bool Panel_onKey(Panel* this, int key) {
 
       case KEY_CTRL('E'):
       case '$':
-         this->scrollH = MAXIMUM(this->selectedLen - this->w, 0);
+         this->scrollH = CLAMP((int)this->selectedLen - this->w, 0, INT_MAX);
          this->needsRedraw = true;
          break;
 

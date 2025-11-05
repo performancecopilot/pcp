@@ -138,8 +138,6 @@ sqlite
 sqlite-libs
 sysstat
 systemd-devel
-systemtap-devel
-systemtap-sdt-devel
 targetcli
 time
 valgrind

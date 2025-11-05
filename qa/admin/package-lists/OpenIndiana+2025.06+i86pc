@@ -19,7 +19,6 @@ developer/build/gnu-make
 developer/build/pkg-config
 developer/debug/gdb
 developer/debug/valgrind
-developer/dtrace
 developer/gcc-14
 developer/lexer/flex
 developer/parser/bison-38

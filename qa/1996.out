@@ -3,6 +3,7 @@ QA output created by 1996
 == Testing InfiniBand PMDA with mock libraries - ib-root-001.tgz ==
 
 === HCA (Host Channel Adapter) metrics ===
+pminfo[PID] Info: No IB ports found to monitor
 
 infiniband.hca.numports PMID: 91.0.2 [Number of ports on HCA]
     Data Type: 32-bit int  InDom: 91.0 0x16c00000
@@ -17,6 +18,7 @@ Help:
 Number of protection domains currently allocated on this HCA.
 
 === Port state metrics ===
+pminfo[PID] Info: No IB ports found to monitor
 
 infiniband.port.state PMID: 91.0.10 [Port's state]
     Data Type: string  InDom: 91.1 0x16c00001
@@ -25,6 +27,7 @@ Help:
 Port's state - can be Active, Down, NoChange, Armed or Initialize
 
 === Port performance counters ===
+pminfo[PID] Info: No IB ports found to monitor
 
 infiniband.port.in.bytes PMID: 91.1.0 [Bytes received]
     Data Type: 64-bit int  InDom: 91.1 0x16c00001
@@ -53,6 +56,7 @@ counter. When a value of saturated counter reaches predefined threshold,
 the counter is reset after its value is copied into internal state.
 
 === Sysfs-based metrics ===
+pminfo[PID] Info: No IB ports found to monitor
 
 infiniband.hca.board_id PMID: 91.0.17 [HCA board identifier]
     Data Type: string  InDom: 91.0 0x16c00000
@@ -72,6 +76,7 @@ Text description of the node this port belongs to.
 == Testing InfiniBand PMDA with mock libraries - ib-root-002.tgz ==
 
 === HCA (Host Channel Adapter) metrics ===
+pminfo[PID] Info: No IB ports found to monitor
 
 infiniband.hca.numports PMID: 91.0.2 [Number of ports on HCA]
     Data Type: 32-bit int  InDom: 91.0 0x16c00000
@@ -86,6 +91,7 @@ Help:
 Number of protection domains currently allocated on this HCA.
 
 === Port state metrics ===
+pminfo[PID] Info: No IB ports found to monitor
 
 infiniband.port.state PMID: 91.0.10 [Port's state]
     Data Type: string  InDom: 91.1 0x16c00001
@@ -94,6 +100,7 @@ Help:
 Port's state - can be Active, Down, NoChange, Armed or Initialize
 
 === Port performance counters ===
+pminfo[PID] Info: No IB ports found to monitor
 
 infiniband.port.in.bytes PMID: 91.1.0 [Bytes received]
     Data Type: 64-bit int  InDom: 91.1 0x16c00001
@@ -122,6 +129,7 @@ counter. When a value of saturated counter reaches predefined threshold,
 the counter is reset after its value is copied into internal state.
 
 === Sysfs-based metrics ===
+pminfo[PID] Info: No IB ports found to monitor
 
 infiniband.hca.board_id PMID: 91.0.17 [HCA board identifier]
     Data Type: string  InDom: 91.0 0x16c00000
