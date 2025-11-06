@@ -1,3 +1,6 @@
+pcp-6.3.9 (8 Novenber 2025)
+    - build: deb packaging update to resolve librrds perl issue
+
 pcp-6.3.8 (11 April 2025)
     - libpcp_web: fix selection and testing of exact match filtering
     - pmproxy: add After:valkey to the pmproxy systemd unit file

@@ -1,3 +1,9 @@
+pcp (6.3.9-1) testing; urgency=high
+
+  * Remove dependency on problematic librrds-perl package
+
+ -- Nathan Scott <nathans@debian.org>  Sat, 08 Nov 2025 19:56:56 +1100
+
 pcp (6.3.8-1) unstable; urgency=low
 
   * Do not re-generate debian/rules during the build (closes: #1102289)
