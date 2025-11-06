@@ -47,7 +47,7 @@ _log_filter()
 
 _value_filter()
 {
-    awk '/pmcd::PMCD_PDU/ && /value [1-9][0-9]*/ {print "OK"; exit}'
+    awk '/pmcd::recv_pdu/ && /value [1-9][0-9]*/ {print "OK"; exit}'
 }
 
 cat <<EOF >$tmp.conf
@@ -59,7 +59,7 @@ prefix = bcc.
 module = usdt_hits
 cluster = 101
 process = pmcd
-usdts = $PCP_BINADM_DIR/pmcd:PMCD,$PCP_BINADM_DIR/pmcd:PMCD_PDU
+usdts = $PCP_BINADM_DIR/pmcd:recv_pdu,$PCP_BINADM_DIR/pmcd:xmit_pdu
 EOF
 
 _pmdabcc_try_compile $tmp.conf
