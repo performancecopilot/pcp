@@ -1295,6 +1295,22 @@ AS_IF([test "x$do_perl" != "xno"], [
 AC_SUBST(pcp_perl_prog)
 AC_SUBST(have_perl)
 
+dnl check for additional Perl modules for optional components
+have_perl_rrds=false
+if $have_perl
+then
+    dnl RRDs module for ganglia2pcp
+    AC_MSG_CHECKING([if Perl RRDs module is installed])
+    $pcp_perl_prog -e "use RRDs" 2>/dev/null
+    if test $? -eq 0; then
+	have_perl_rrds=true
+	AC_MSG_RESULT([yes])
+    else
+	AC_MSG_RESULT([no])
+    fi
+fi
+AC_SUBST(have_perl_rrds)
+
 AC_MSG_CHECKING([if the SNMP PMDA should be included])
 pmda_snmp=false
 AS_IF([test "x$do_pmdasnmp" = "xyes"], [pmda_snmp=true])

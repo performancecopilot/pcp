@@ -115,16 +115,15 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTSAR) $(PCPIMPORTMRTG) $(PCPIMPORTSHEET) $(PCPIMPORTIOSTAT) \
 	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
-default: pcp.preinst pcp.postinst pcp.postrm rules pcp-gui.install
+default: pcp.preinst pcp.postinst pcp.postrm rules pcp-gui.install \
+	 pcp-testsuite.install pcp-import-ganglia2pcp.install
 
 include $(BUILDRULES)
 
 install: default
-	cp pcp-testsuite.install.in pcp-testsuite.install
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pcp.sysusers $(PCP_SYSTEMDSYSUSERS_DIR)/pcp.conf
 	$(INSTALL) -m 644 pcp-testsuite.sysusers $(PCP_SYSTEMDSYSUSERS_DIR)/pcp-testsuite.conf
-	echo "usr/lib/sysusers.d/pcp-testsuite.conf" >>pcp-testsuite.install
 endif
 ifeq ($(PACKAGE_DISTRIBUTION), debian)
 	$(INSTALL) -m 755 -d $(LINTDIR)
@@ -342,6 +341,19 @@ ifeq ($(HAVE_HICOLOR_ICONS), true)
 endif
 ifeq "$(ENABLE_QT3D)" "true"
 	cat pcp-gui.install.pmview >>pcp-gui.install
+endif
+
+# *.install files that have optional parts
+#
+pcp-testsuite.install: pcp-testsuite.install.in
+	cp pcp-testsuite.install.in pcp-testsuite.install
+ifeq ($(ENABLE_SYSTEMD),true)
+	echo "usr/lib/sysusers.d/pcp-testsuite.conf" >>pcp-testsuite.install
+endif
+pcp-import-ganglia2pcp.install: pcp-import-ganglia2pcp.install.in
+	cp pcp-import-ganglia2pcp.install.in pcp-import-ganglia2pcp.install
+ifeq ($(HAVE_PERL_RRDs),true)
+	echo "usr/bin/ganglia2pcp" >>pcp-import-ganglia2pcp.install
 endif
 
 # only make control from control.* pieces in Makepkgs build

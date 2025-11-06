@@ -69,7 +69,7 @@ Description: Tool for importing data from sar into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-import-ganglia2pcp
-Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, librrds-perl
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl
 Architecture: all
 Description: Tool for importing data from ganglia into PCP archive logs
  Performance Co-Pilot (PCP) front-end tool for importing data from ganglia

@@ -278,6 +278,9 @@ ENABLE_LZMA = @enable_lzma@
 # for code supporting any modern version of perl
 HAVE_PERL = @have_perl@
 
+# optonal perl modules
+HAVE_PERL_RRDs = @have_perl_rrds@
+
 # for code supporting any modern version of python3
 HAVE_PYTHON = @have_python@
 

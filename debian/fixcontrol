@@ -230,7 +230,6 @@ then
     echo 's/?{libdbd-mysql-perl}, /libdbd-mysql-perl, /' >>$tmp.sed
     echo 's/?{libextutils-autoinstall-perl}, /libextutils-autoinstall-perl, /' >>$tmp.sed
     echo 's/?{libxml-tokeparser-perl}, /libxml-tokeparser-perl, /' >>$tmp.sed
-    echo 's/?{librrds-perl}, /librrds-perl, /' >>$tmp.sed
     echo 's/?{libjson-perl}, /libjson-perl, /' >>$tmp.sed
     echo 's/?{libwww-perl}, /libwww-perl, /' >>$tmp.sed
     echo 's/?{libnet-snmp-perl}, /libnet-snmp-perl, /' >>$tmp.sed
@@ -240,7 +239,6 @@ else
     echo 's/?{libdbd-mysql-perl}, //' >>$tmp.sed
     echo 's/?{libextutils-autoinstall-perl}, //' >>$tmp.sed
     echo 's/?{libxml-tokeparser-perl}, //' >>$tmp.sed
-    echo 's/?{librrds-perl}, //' >>$tmp.sed
     echo 's/?{libjson-perl}, //' >>$tmp.sed
     echo 's/?{libwww-perl}, //' >>$tmp.sed
     echo 's/?{libnet-snmp-perl}, //' >>$tmp.sed
