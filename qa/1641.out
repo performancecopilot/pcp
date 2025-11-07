@@ -73,7 +73,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 --- value 42 for per-context derived metric in 2nd context only ---
-+ -h bozo.localdomain -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: foo.bar
++ -h HOSTNAME -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: foo.bar
 === std out ===
 === context[0]=0
 --- foo.bar
@@ -95,14 +95,14 @@ pmResult ... numpmid: 1
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/unregister -h bozo.localdomain -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: foo.bar
+Command: src/unregister -h HOSTNAME -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: foo.bar
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 --- per-context drived metric unregistered ---
-+ -h bozo.localdomain -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -u foo.bar foo.bar
++ -h HOSTNAME -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -u foo.bar foo.bar
 === std out ===
 === context[0]=0
 --- foo.bar
@@ -126,14 +126,14 @@ pmResult ... numpmid: 1
 unregister: pmUnregisterDerived(foo.bar) => 1
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/unregister -h bozo.localdomain -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -u foo.bar foo.bar
+Command: src/unregister -h HOSTNAME -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -u foo.bar foo.bar
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 --- value 42 in 2 contexts ---
-+ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain foo.bar
++ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h HOSTNAME foo.bar
 === std out ===
 === context[0]=0
 --- foo.bar
@@ -148,14 +148,14 @@ pmResult ... numpmid: 1
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/unregister -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain foo.bar
+Command: src/unregister -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h HOSTNAME foo.bar
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 --- name undefined in all contexts ---
-+ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain -u foo.bar foo.bar
++ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h HOSTNAME -u foo.bar foo.bar
 === std out ===
 === context[0]=0
 --- foo.bar
@@ -173,14 +173,14 @@ pmResult ... numpmid: 1
 unregister: pmUnregisterDerived(foo.bar) => 2
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/unregister -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain -u foo.bar foo.bar
+Command: src/unregister -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h HOSTNAME -u foo.bar foo.bar
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
 --- value 42 in the 1st context, name undefined in the 2nd context ---
-+ -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h bozo.localdomain foo.bar
++ -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h HOSTNAME foo.bar
 === std out ===
 === context[0]=0
 --- foo.bar
@@ -196,7 +196,7 @@ pmResult ... numpmid: 1
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/unregister -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h bozo.localdomain foo.bar
+Command: src/unregister -h local: -q foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h HOSTNAME foo.bar
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -213,7 +213,7 @@ definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 
-+ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain -q bar.foo=(8*sample.long.ten+4*sample.long.one)/2 -u foo.bar -u bar.foo foo.bar bar.foo
++ -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h HOSTNAME -q bar.foo=(8*sample.long.ten+4*sample.long.one)/2 -u foo.bar -u bar.foo foo.bar bar.foo
 === std out ===
 === context[0]=0
 --- foo.bar
@@ -242,7 +242,7 @@ unregister: pmUnregisterDerived(foo.bar) => 2
 unregister: pmUnregisterDerived(bar.foo) => 1
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: src/unregister -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h bozo.localdomain -q bar.foo=(8*sample.long.ten+4*sample.long.one)/2 -u foo.bar -u bar.foo foo.bar bar.foo
+Command: src/unregister -r foo.bar=(8*sample.long.ten+4*sample.long.one)/2 -h local: -h HOSTNAME -q bar.foo=(8*sample.long.ten+4*sample.long.one)/2 -u foo.bar -u bar.foo foo.bar bar.foo
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
