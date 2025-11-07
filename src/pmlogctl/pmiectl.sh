@@ -1,1 +1,0 @@
-pmlogctl.sh

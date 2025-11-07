@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# Control program for managing pmlogger and pmie instances.
+# Control script for managing pmlogger and pmie instances.
 #
 # Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
 # Copyright (c) 2021 Red Hat.
@@ -27,28 +27,16 @@
 #       (the latter is really hard)
 #
 
-. "$PCP_DIR/etc/pcp.env"
-
-# we are not an "rc" script, so dodge any special handling in
-# rc-proc.sh
-export PCPQA_NO_RC_STATUS=true
-. "$PCP_SHARE_DIR/lib/rc-proc.sh"
-
-. "$PCP_SHARE_DIR/lib/utilproc.sh"
-
-prog=`basename "$0"`
-case "$prog"
-in
-    pmlogctl*)	IAM=pmlogger
-		CONTROLFILE=$PCP_PMLOGGERCONTROL_PATH
-    		;;
-    pmiectl*)	IAM=pmie
-		CONTROLFILE=$PCP_PMIECONTROL_PATH
-    		;;
-    *)		echo >&2 "$0: who the hell are you, bozo?"
-    		exit 1
-		;;
-esac
+# caller must set program name (prog) and service name (IAM)
+if [ -z "$prog" -o -z "$IAM" ]; then
+    echo >&2 "$0: who the hell are you, bozo?"
+    exit 1
+fi
+# caller must also provide a path to a control file
+if [ ! -f "${CONTROLFILE}" ]; then
+    echo >&2 "$0: missing a control file path"
+    exit 1
+fi
 CONTROLDIR=${CONTROLFILE}.d
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/$prog.XXXXXXXXX"` || exit 1
@@ -2159,5 +2147,3 @@ in
 	    exit
 	    ;;
 esac
-
-exit
