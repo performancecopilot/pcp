@@ -26,16 +26,25 @@ test -f $here/src/libibverbs.$DSO_SUFFIX || \
 
 _filter()
 {
-    sed \
+    tee -a $seq_full \
+    | sed \
 	-e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g' \
 	-e 's/inst \[[0-9][0-9]* /inst [N /g' \
 	-e '/No value(s) available/d' \
+	-e '/No IB ports found to monitor/d' \
     #end
 }
 
 pmda=$PCP_PMDAS_DIR/infiniband/pmda_ib.$DSO_SUFFIX,ib_init
 pmns=$PCP_PMDAS_DIR/infiniband/root
 domain=91
+pminfo -L -K clear -K add,$domain,$pmda -d -n $pmns infiniband.hca.numports >$tmp.tmp 2>&1
+echo "-- initial test for IB support --" >>$seq_full
+cat $tmp.tmp >>$seq_full
+if grep -q 'No IB kernel support or incorrect ABI version' $tmp.tmp
+then
+    _notrun "No InfiniBand support here"
+fi
 
 # real QA test starts here
 root=$tmp.root
@@ -51,41 +60,32 @@ do
     base=`basename $tgz`
 
     echo
-    echo "== Testing InfiniBand PMDA with mock libraries - $base ==" | tee -a $seq.full
+    echo "== Testing InfiniBand PMDA with mock libraries - $base ==" | tee -a $seq_full
 
     # Test basic metric fetching
     echo
-    echo "=== HCA (Host Channel Adapter) metrics ===" | tee -a $seq.full
+    echo "=== HCA (Host Channel Adapter) metrics ===" | tee -a $seq_full
     metrics="infiniband.hca.numports infiniband.hca.res.pd"
     pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns $metrics 2>&1 | _filter
 
     echo
-    echo "=== Port state metrics ===" | tee -a $seq.full
+    echo "=== Port state metrics ===" | tee -a $seq_full
     metrics=infiniband.port.state
     pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns $metrics 2>&1 | _filter
 
     echo
-    echo "=== Port performance counters ===" | tee -a $seq.full
+    echo "=== Port performance counters ===" | tee -a $seq_full
     metrics="infiniband.port.in.bytes infiniband.port.out.bytes"
     pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns $metrics 2>&1 | _filter
 
     echo
-    echo "=== Sysfs-based metrics ===" | tee -a $seq.full
+    echo "=== Sysfs-based metrics ===" | tee -a $seq_full
     metrics="infiniband.hca.board_id infiniband.port.node_desc"
     pminfo -L -K clear -K add,$domain,$pmda -dfmtT -n $pmns $metrics 2>&1 | _filter
 
-    ( echo && echo "== done" && echo ) | tee -a $seq.full
+    ( echo && echo "== done" && echo ) | tee -a $seq_full
     cd $here
 done
-
-# Capture any log output
-if [ -f ib.log ]
-then
-    echo
-    echo "=== PMDA log output ===" | tee -a $seq.full
-    $sudo cat ib.log >>$seq.full
-    $sudo rm -f ib.log*
-fi
 
 # success, all done
 status=0
