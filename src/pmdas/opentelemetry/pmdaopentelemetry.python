@@ -478,16 +478,13 @@ class Source(object):
 
 
     def old_enough_for_refresh(self):
-        '''But what is "old"?  If it is empty (no metrics), then it
-        has probably never been connected to successfully.
-
-        OTOH, if it hasn't been fetched from "recently", there may
-        be new metrics.  So we could track the last time a fetch was
-        done to this source, and "time out" the PMNS from it.
+        '''If we haven't fetched "recently", there may be new metrics.
+        Check the previous time a fetch was performed for this source,
+        and "time out" the PMNS from it.
         '''
         now = time.time()
         last_try_age = now - self.refresh_time
-        return len(self.metrics_by_name) == 0 and last_try_age > empty_source_pmns_poll
+        return last_try_age > empty_source_pmns_poll
 
     def check_filter(self, name, entrytype):
         '''
