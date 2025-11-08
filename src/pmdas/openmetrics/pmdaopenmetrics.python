@@ -565,6 +565,7 @@ class Source(object):
         self.document = None
 
         self.refresh_time = 0 # "never"
+
         if not is_scripted:
             # source is a URL.  Create a session for it and initialize a few things
             self.requests = self.pmda.requests # allow persistent connections etc.
@@ -592,16 +593,13 @@ class Source(object):
         return help_text, help_oneline
 
     def old_enough_for_refresh(self):
-        '''But what is "old"?  If it is empty (no metrics), then it
-        has probably never been connected to successfully.
-
-        OTOH, if it hasn't been fetched from "recently", there may
-        be new metrics.  So we could track the last time a fetch was
-        done to this source, and "time out" the PMNS from it.
+        '''If we haven't fetched "recently", there may be new metrics.
+        Check the previous time a fetch was performed for this source,
+        and "time out" the PMNS from it.
         '''
         now = time.time()
         last_try_age = now - self.refresh_time
-        return len(self.metrics_by_name) == 0 or last_try_age > self.pmda.refresh_timeout
+        return last_try_age > self.pmda.refresh_timeout
 
     def check_filter(self, name, entrytype):
         '''
