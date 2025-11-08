@@ -84,7 +84,7 @@ Real-time result ...
 pmResult ... numpmid: 12
   75.1.2 (disk.all.total): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
   75.0.23 (kernel.all.pswitch): numval: 1 valfmt: 0-or-1 vlist[]:
    value NUMBER
   75.0.1 (kernel.all.cpu.user): numval: 1 valfmt: 0-or-1 vlist[]:
@@ -93,7 +93,7 @@ pmResult ... numpmid: 12
    value NUMBER
   75.0.56 (hinv.ncpu): numval: 1 valfmt: 0 vlist[]:
    value NUMBER
-  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
   30.0.34 (sampledso.aggregate.hullo): numval: 1 valfmt: 1 vlist[]:
    value STRING AGGREGATE
   29.0.2 (sample.dupnames.two.seconds, sample.seconds): numval: 1 valfmt: 0 vlist[]:
@@ -102,7 +102,7 @@ pmResult ... numpmid: 12
     inst [0 or "red"] value NUMBER
     inst [1 or "green"] value NUMBER
     inst [2 or "blue"] value NUMBER
-  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
-  PM_ID_NULL (<noname>): No PMDA, no values [filtered]
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 
 Unexpected failure for 0 of N PMAPI operations
