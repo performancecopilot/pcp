@@ -2062,7 +2062,7 @@ __pmSetClientId(const char *id)
      */
     vblen = 0;
     (void)gethostname(host, MAXHOSTNAMELEN);
-    if ((servInfo = __pmGetAddrInfo(host)) != NULL) {
+    if ((servInfo = __pmGetAddrInfo(host, NULL)) != NULL) {
 	__pmSockAddr	*addr;
 	void		*enumIx = NULL;
 	char        	*servInfoName = NULL;

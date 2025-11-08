@@ -116,11 +116,13 @@ http_client_connectto(const char *host, int port, struct timeval *timeout)
     int			fdFlags[FD_SETSIZE];
     int			i, fd, sts, maxFd;
 
-    if ((servInfo = __pmGetAddrInfo(host)) == NULL) {
-	if (pmDebugOptions.http)
-	    fprintf(stderr, "HTTP connect(%s, %d): hosterror=%d, ``%s''\n",
-		    host, port, hosterror(), hoststrerror());
-	return -EHOSTUNREACH;
+    if ((servInfo = __pmGetAddrInfo(host, &sts)) == NULL) {
+	if (pmDebugOptions.http) {
+	    char errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "HTTP connect(%s, %d): __pmGetAddrInfo: %s\n",
+		    host, port, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+	return sts;
     }
     /*
      * We want to respect the connect timeout that has been configured, but we

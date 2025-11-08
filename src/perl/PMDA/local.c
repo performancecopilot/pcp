@@ -163,9 +163,10 @@ local_sock(char *host, int port, scalar_t *callback, int cookie)
     void	 *enumIx;
     int		 sts = -1;
     int		 me, fd = -1;
+    int          lsts;
 
-    if ((servinfo = __pmGetAddrInfo(host)) == NULL) {
-	pmNotifyErr(LOG_ERR, "__pmGetAddrInfo (%s): %s", host, netstrerror());
+    if ((servinfo = __pmGetAddrInfo(host, &lsts)) == NULL) {
+	pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s): %s", host, pmErrStr(lsts));
 	exit(1);
     }
     /* Loop over the addresses resolved for this host name until one of them
@@ -293,7 +294,7 @@ local_reconnector(files_t *file)
 
     if (file->fd >= 0)		/* reconnect-needed flag */
 	return;
-    if ((servinfo = __pmGetAddrInfo(file->me.sock.host)) == NULL)
+    if ((servinfo = __pmGetAddrInfo(file->me.sock.host, NULL)) == NULL)
 	return;
     /* Loop over the addresses resolved for this host name until one of them
        connects. */

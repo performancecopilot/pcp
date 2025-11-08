@@ -74,7 +74,7 @@ prep_fqdn(void)
 	return;
     }
     host[MAXHOSTNAMELEN-1] = '\0';
-    if ((servInfo = __pmGetAddrInfo(host)) == NULL)
+    if ((servInfo = __pmGetAddrInfo(host, NULL)) == NULL)
 	fqdn = strdup(host);
     else {
 	fqdn = __pmHostEntGetName(servInfo);

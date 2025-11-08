@@ -36,6 +36,7 @@ main(int argc, char *argv[])
     struct timeval	*pstv;
     int			c;
     char		cc;
+    int			lsts;
 
     while ((c = getopt(argc, argv, "cv?")) != EOF) {
         switch (c) {
@@ -68,9 +69,9 @@ main(int argc, char *argv[])
 	goto done;
     }
 
-    if ((servInfo = __pmGetAddrInfo(argv[optind])) == NULL) {
+    if ((servInfo = __pmGetAddrInfo(argv[optind], &lsts)) == NULL) {
 	if (vflag)
-	    fprintf(stderr, "__pmGetAddrInfo: %s\n", hoststrerror());
+	    fprintf(stderr, "__pmGetAddrInfo: %s\n", pmErrStr(lsts));
 	goto done;
     }
 

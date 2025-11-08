@@ -943,16 +943,14 @@ __pmAuxConnectPMCDPort(const char *hostname, int pmcd_port)
     int			rc;
     int			i;
 
-    if ((servInfo = __pmGetAddrInfo(hostname)) == NULL) {
+    if ((servInfo = __pmGetAddrInfo(hostname, &sts)) == NULL) {
 	if (pmDebugOptions.context) {
-	    PM_LOCK(__pmLock_extcall);
-	    fprintf(stderr, "%s:__pmAuxConnectPMCDPort(%s, %d) : "
-			    "hosterror=%d, ``%s''\n",
-		    __FILE__, hostname, pmcd_port, hosterror(),
-		    hoststrerror());		/* THREADSAFE */
-	    PM_UNLOCK(__pmLock_extcall);
+	    char errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "__pmAuxConnectPMCDPort(%s, %d): __pmGetAddrInfo: %s\n",
+		    hostname, pmcd_port, 
+		    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
-	return -EHOSTUNREACH;
+	return sts;
     }
 
     /*
@@ -1315,11 +1313,14 @@ __pmGetNameInfo(__pmSockAddr *address)
 }
 
 __pmHostEnt *
-__pmGetAddrInfo(const char *hostName)
+__pmGetAddrInfo(const char *hostName, int *sts)
 {
     __pmHostEnt *hostEntry;
     struct addrinfo hints;
-    int sts;
+    int eai_sts;
+
+    if (sts != NULL)	/* punt on success */
+	*sts = 0;
 
     hostEntry = __pmHostEntAlloc();
     if (hostEntry != NULL) {
@@ -1330,15 +1331,36 @@ __pmGetAddrInfo(const char *hostName)
 #endif
 
 	PM_LOCK(__pmLock_extcall);
-	sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
+	eai_sts = getaddrinfo(hostName, NULL, &hints, &hostEntry->addresses);
 	PM_UNLOCK(__pmLock_extcall);
-	if (sts != 0) {
+	if (eai_sts != 0) {
 	    if (pmDebugOptions.desperate)
-		fprintf(stderr, "%s:__pmGetAddrInfo: getaddrinfo(%s, ...) -> %d %s\n", __FILE__, hostName, sts, gai_strerror(sts));
+		fprintf(stderr, "%s:__pmGetAddrInfo: getaddrinfo(%s, ...) -> %d %s\n", __FILE__, hostName, eai_sts, gai_strerror(eai_sts));
 	    __pmHostEntFree(hostEntry);
 	    hostEntry = NULL;
+	    if (sts != NULL) {
+		/*
+		 * map EAI_<err> => PM_ERR_<err>
+		 */
+		switch (eai_sts) {
+		    case EAI_AGAIN:
+			*sts = PM_ERR_AGAIN;
+			break;
+
+		    case EAI_MEMORY:
+			*sts = -ENOMEM;
+			break;
+
+		    default:
+			*sts = -EHOSTUNREACH;
+		}
+	    }
 	}
 	/* Leave the host name NULL. It will be looked up on demand in __pmHostEntGetName(). */
+    }
+    else {
+	if (sts != NULL)
+	    *sts = -ENOMEM;
     }
     if (pmDebugOptions.desperate) {
 	if (hostEntry == NULL)

@@ -348,6 +348,7 @@ addTarget(char *target, connectionOptions *options)
     size_t	bytes;
     char	*name;
     int		index;
+    int		sts;
 
     while (options->numTargets >= options->maxTargets) {
 	if (options->maxTargets == 0)
@@ -377,14 +378,11 @@ addTarget(char *target, connectionOptions *options)
     }
 
     /* Lookup address and stash target info into the array to scan */
-    if ((servInfo = __pmGetAddrInfo(target)) == NULL) {
+    if ((servInfo = __pmGetAddrInfo(target, &sts)) == NULL) {
 	if (pmDebugOptions.discovery) {
-	    const char  *errmsg;
-	    PM_LOCK(__pmLock_extcall);
-	    errmsg = hoststrerror();            /* THREADSAFE */
-	    fprintf(stderr, "%s:(%s) : hosterror=%d, ``%s''",
-		    PROBE, target, hosterror(), errmsg);
-	    PM_UNLOCK(__pmLock_extcall);
+	    char errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s:(%s): __pmGetAddrInfo: %s\n",
+		    PROBE, target, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	}
     } else if ((name = strndup(target, bytes)) == NULL) {
 	if (pmDebugOptions.discovery)

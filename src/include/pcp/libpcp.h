@@ -507,7 +507,7 @@ PCP_CALL extern char *	     __pmGetNameInfo(__pmSockAddr *);
 PCP_CALL extern __pmSockAddr *__pmStringToSockAddr(const char *);
 PCP_CALL extern __pmSockAddr *__pmLoopBackAddress(int);
 PCP_CALL extern __pmSockAddr *__pmHostEntGetSockAddr(const __pmHostEnt *, void **);
-PCP_CALL extern __pmHostEnt * __pmGetAddrInfo(const char *);
+PCP_CALL extern __pmHostEnt * __pmGetAddrInfo(const char *, int *);
 PCP_CALL extern void	     __pmHostEntFree(__pmHostEnt *);
 PCP_CALL extern char *	     __pmHostEntGetName(__pmHostEnt *);
 

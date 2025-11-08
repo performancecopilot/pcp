@@ -322,12 +322,12 @@ __pmIsLocalhost(const char *hostname)
 	if (gethostname(lhost, MAXHOSTNAMELEN) < 0)
 	   return -oserror();
 
-	if ((servInfo1 = __pmGetAddrInfo(lhost)) != NULL) {
+	if ((servInfo1 = __pmGetAddrInfo(lhost, NULL)) != NULL) {
 	    __pmHostEnt		*servInfo2;
 	    __pmSockAddr	*addr1, *addr2;
 	    void		*enumIx1, *enumIx2;
 
-	    if ((servInfo2 = __pmGetAddrInfo(hostname)) == NULL) {
+	    if ((servInfo2 = __pmGetAddrInfo(hostname, NULL)) == NULL) {
 		__pmHostEntFree(servInfo1);
 		return -EHOSTUNREACH;
 	    }

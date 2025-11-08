@@ -45,7 +45,7 @@ static int stomp_connect(const char *host_arg, int port_arg)
     int ret;
     int flags = 0;
 
-    if ((servinfo = __pmGetAddrInfo(host_arg)) == NULL)
+    if ((servinfo = __pmGetAddrInfo(host_arg, NULL)) == NULL)
 	return -1;
 
     fd = -1;

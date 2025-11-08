@@ -32,6 +32,7 @@ _filter()
 # real QA test starts here
 for host in nosuchhost.pcp.io no-such-host.pcp.io
 do
+    echo "=== $host ===" >>$seq_full
     cat <<End-of-File | pmlogger -l $tmp.log $tmp
 log mandatory on once { hinv.ncpu }
 
@@ -39,6 +40,7 @@ log mandatory on once { hinv.ncpu }
 allow $host:advisory,mandatory,enquire;
 End-of-File
 
+    cat $tmp.log >>$seq_full
     _filter_pmlogger_log <$tmp.log | _filter
 done
 

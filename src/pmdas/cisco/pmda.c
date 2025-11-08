@@ -259,7 +259,7 @@ main(int argc, char **argv)
 	    __pmHostEnt	*hostInfo = NULL;
 
 	    if (!no_lookups)
-		hostInfo = __pmGetAddrInfo(p);
+		hostInfo = __pmGetAddrInfo(p, NULL);
 
 	    if (!hostInfo && parse_only) {
 		FILE	*f;
