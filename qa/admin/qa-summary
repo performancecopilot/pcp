@@ -134,19 +134,21 @@ else
 fi
 rm -f $tmp.*
 
+artifacts_dir=$HOME/src/pcp-github/ci-qa
+
 # check integrity of symlinks and active directories across
 # the two repos that are used ...
 #
 if $lflag
 then
-    # from CI aka $HOME/src/qa-reports ... check links
+    # from CI aka $artifacts_dir ... check links
     #
-    ls -l $HOME/src/qa-reports >$tmp.tmp
+    ls -l "$artifacts_dir" >$tmp.tmp
     grep '^d.* test-' <$tmp.tmp \
     | while read line
     do
 	dir=`echo "$line" |  awk '{print $NF}'`
-	find $HOME/src/qa-reports/$dir -maxdepth 0 -a -mtime +7 \
+	find "$artifacts_dir"/$dir -maxdepth 0 -a -mtime +7 \
 	| while read old
 	do
 	    # no updates in the last week, is this no longer in use?
@@ -155,7 +157,7 @@ then
 	    _ask "Cull old dir $old"
 	    rm -rf $old
 	done
-	if [ -d $HOME/src/qa-reports/$dir ]
+	if [ -d "$artifacts_dir"/$dir ]
 	then
 	    if grep " -> $dir\$" <$tmp.tmp >/dev/null
 	    then
@@ -170,14 +172,14 @@ then
     do
 	dir=`echo "$line" |  awk '{print $NF}'`
 	symlink=`echo "$line" |  awk '{print $(NF-2)}'`
-	if [ ! -d $HOME/src/qa-reports/$dir ]
+	if [ ! -d "$artifacts_dir"/$dir ]
 	then
 	    _ask "Symlink $symlink -> missing dir ($dir), remove symlink"
-	    rm $HOME/src/qa-reports/$symlink
+	    rm "$artifacts_dir"/$symlink
 	fi
     done
 
-    # now make $HOME/Log/by-vm is compatibile with $HOME/src/qa-reports
+    # now make $HOME/Log/by-vm is compatibile with $artifacts_dir
     #
     here=`pwd`
     cd $HOME/Logs/by-vm
@@ -189,7 +191,7 @@ then
 	if [ ! -L $symlink ]
 	then
 	    _ask "Symlink for $symlink missing from Logs/by-vm, create it"
-	    ln -s ../../src/qa-reports/$dir $symlink
+	    ln -s "$artifacts_dir"/$dir $symlink
 	fi
     done
     ls -l >$tmp.tmp
@@ -311,10 +313,10 @@ do
 	touch $tmp.seen
 	if [ "$date" = test.log ]
 	then
-	    # this is from CI aka src/qa-reports ... get date from git
-	    # and machine's real name from /bin/pwd, but only of -C in play
+	    # this is from CI aka $artifacts_dir ... get date modification
+	    # time of test.log
 	    #
-	    _date=`git log --format=%cs`
+	    _date=`ls -l --time-style='+%Y-%m-%d' test.log | awk '{print $6}'`
 	    basevmname=`/bin/pwd | sed -e 's@.*/@@' | _map_ci_hostname`
 	else
 	    _date=$date

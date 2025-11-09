@@ -128,17 +128,19 @@ static char		myhostname[MAXHOSTNAMELEN+1];
 static int
 getmyhostid(void)
 {
+    int		sts;
     if (gethostname(myhostname, MAXHOSTNAMELEN) < 0) {
 	pmNotifyErr(LOG_ERR, "gethostname failure\n");
 	return -1;
     }
     myhostname[MAXHOSTNAMELEN-1] = '\0';
 
-    if ((myhostid = __pmGetAddrInfo(myhostname)) == NULL) {
-	if ((myhostid = __pmGetAddrInfo("localhost")) == NULL) {
+    if ((myhostid = __pmGetAddrInfo(myhostname, NULL)) == NULL) {
+	if ((myhostid = __pmGetAddrInfo("localhost", &sts)) == NULL) {
+	    char	errmsg[PM_MAXERRMSGLEN];
 	    pmNotifyErr(LOG_ERR,
-			"__pmGetAddrInfo failure for both %s and localhost\n",
-			myhostname);
+			"__pmGetAddrInfo failure for both %s and localhost: %s",
+			myhostname, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
 	    return -1;
 	}
     }
@@ -696,6 +698,7 @@ getHostAccessSpecs(const char *name, int *sts)
     void		*enumIx;
     int			family;
     int			isWildCard;
+    int			lsts;
     const char		*realname;
     const char		*p;
 
@@ -807,7 +810,7 @@ getHostAccessSpecs(const char *name, int *sts)
 	realname = name;
 
     *sts = -EHOSTUNREACH;
-    if ((servInfo = __pmGetAddrInfo(realname)) != NULL) {
+    if ((servInfo = __pmGetAddrInfo(realname, &lsts)) != NULL) {
 	/* Collect all of the resolved addresses. Check for the end of the list within the
 	   loop since we need to add an empty entry and the code to grow the list is within the
 	   loop. */
@@ -861,13 +864,11 @@ getHostAccessSpecs(const char *name, int *sts)
 	}
 	__pmHostEntFree(servInfo);
     }
-    else if (hosterror()) {
+    else {
 	char	errmsg[PM_MAXERRMSGLEN];
-	PM_LOCK(__pmLock_extcall);
-	pmstrncpy(errmsg, PM_MAXERRMSGLEN, hoststrerror());	/* THREADSAFE */
-	PM_UNLOCK(__pmLock_extcall);
-	pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s), %s\n",
-		      realname, errmsg);
+	pmNotifyErr(LOG_ERR, "__pmGetAddrInfo(%s): %s\n",
+		      realname, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
+	*sts = lsts;
     }
 
     /* Return NULL if nothing was discovered. *sts is already set. */

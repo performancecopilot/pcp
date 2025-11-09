@@ -1,16 +1,16 @@
 QA output created by 365
 Log for pmcd on HOST started DATE
 
-[DATE] pmcd(PID) Error: gethostbyname(no.such.host.pcp.io), No address associated with name
+[DATE] pmcd(PID) Error: gethostbyname(no.such.host.pcp.io): No route to host
 Warning: the following access control specification will be ignored
 pmcd config[line 8]: Warning: access control error for host 'no.such.host.pcp.io': No route to host
-[DATE] pmcd(PID) Error: gethostbyname(nohost.engr.sgi.com), No address associated with name
+[DATE] pmcd(PID) Error: gethostbyname(nohost.engr.sgi.com): No route to host
 Warning: the following access control specification will be ignored
 pmcd config[line 9]: Warning: access control error for host 'nohost.engr.sgi.com': No route to host
-[DATE] pmcd(PID) Error: gethostbyname(no.such.host.pcp.io), No address associated with name
+[DATE] pmcd(PID) Error: gethostbyname(no.such.host.pcp.io): No route to host
 Warning: the following access control specification will be ignored
 pmcd config[line 10]: Warning: access control error for host 'no.such.host.pcp.io': No route to host
-[DATE] pmcd(PID) Error: gethostbyname(nohost.melbourne.sgi.com), No address associated with name
+[DATE] pmcd(PID) Error: gethostbyname(nohost.melbourne.sgi.com): No route to host
 Warning: the following access control specification will be ignored
 pmcd config[line 11]: Warning: access control error for host 'nohost.melbourne.sgi.com': No route to host
 

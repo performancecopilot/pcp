@@ -35,6 +35,7 @@ main(int argc, char **argv)
     char	*name, *hename;
     char       	host[MAXHOSTNAMELEN];
     __pmHostEnt	*hep;
+    int		sts;
 
     while (pmGetOptions(argc, argv, &opts) != EOF)
 	opts.errors++;
@@ -56,9 +57,9 @@ main(int argc, char **argv)
     else
 	name = argv[opts.optind];
 
-    hep = __pmGetAddrInfo(name);
+    hep = __pmGetAddrInfo(name, &sts);
     if (pmDebugOptions.appl0)
-	fprintf(stderr, "__pmGetAddrInfo() -> %p\n", hep);
+	fprintf(stderr, "__pmGetAddrInfo() -> %p sts=%d\n", hep, sts);
     if (hep == NULL) {
         printf("%s\n", name);
     }

@@ -240,6 +240,7 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 #endif
     int			originalPid;
     int			wasLocal;
+    int			lsts;
 
     if (pmDebugOptions.pmlc)
 	fprintf(stderr, "__pmConnectLogger(host=%s, pid=%d, port=%d)\n",
@@ -321,14 +322,11 @@ __pmConnectLogger(const char *connectionSpec, int *pid, int *port)
 		    fprintf(stderr, "__pmConnectLogger: __pmLogFindPort -> pid = %d\n", lpp->port);
 	    }
 
-	    if ((servInfo = __pmGetAddrInfo(connectionSpec)) == NULL) {
+	    if ((servInfo = __pmGetAddrInfo(connectionSpec, &lsts)) == NULL) {
 		if (pmDebugOptions.pmlc) {
-		    const char	*errmsg;
-		    PM_LOCK(__pmLock_extcall);
-		    errmsg = hoststrerror();		/* THREADSAFE */
-		    fprintf(stderr, "__pmConnectLogger: __pmGetAddrInfo: %s\n",
-			    errmsg);
-		    PM_UNLOCK(__pmLock_extcall);
+		    char errmsg[PM_MAXERRMSGLEN];
+		    fprintf(stderr, "__pmConnectLogger(%s, ...): __pmGetAddrInfo: %s\n",
+			connectionSpec, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 		}
 		return -EHOSTUNREACH;
 	    }

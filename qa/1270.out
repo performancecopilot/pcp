@@ -41,9 +41,9 @@ Real-time result ...
 pmResult dump from ADDR timestamp: DATESTAMP numpmid: 4
   511.0.3 (qa1270.a): numval: 1 valfmt: 0 vlist[]:
    value 1
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
 force 3nd pmAdd to fail
 TMP.config:3 pmAddDerived("qa1270.c", "sampledso.long.hundred") failed
 Error: pmAddDerivedMetric("qa1270.c", ...): returns -12409
@@ -87,5 +87,5 @@ pmResult dump from ADDR timestamp: DATESTAMP numpmid: 4
    value 1
   511.2047.1022 (qa1270.b): numval: 1 valfmt: 0 vlist[]:
    value 10
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
-  PM_ID_NULL (<noname>): No PMCD agent for domain of request
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier
+  PM_ID_NULL (<noname>): Unknown or illegal metric identifier

@@ -514,6 +514,7 @@ fi
 for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
 	    "$PCP_VAR_DIR"/config/pmlogger/crontab.docker \
 	    "$PCP_VAR_DIR"/config/pmie/crontab.docker \
+	    "$PCP_VAR_DIR"/config/pmlogconf/storage/farm \
 	    "$PCP_VAR_DIR"/pmns/xfs \
 	    "$PCP_BINADM_DIR"/pmmgr "$PCP_RC_DIR"/pmmgr /etc/init.d/pmmgr \
 	    "$PCP_SYSCONF_DIR"/pmrep/pmrep.conf \

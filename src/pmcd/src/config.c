@@ -1583,7 +1583,7 @@ ConnectSocketAgent(AgentInfo *aPtr)
 	__pmHostEnt	*host;
 	void		*enumIx;
 
-	if ((host = __pmGetAddrInfo("localhost")) == NULL) {
+	if ((host = __pmGetAddrInfo("localhost", NULL)) == NULL) {
 	    fputs("pmcd: Error getting inet address for localhost\n", stderr);
 	    goto error;
 	}

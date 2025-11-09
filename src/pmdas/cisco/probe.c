@@ -325,7 +325,7 @@ main(int argc, char **argv)
     }
 
     if (!Nflag)
-	hostInfo = __pmGetAddrInfo(argv[optind]);
+	hostInfo = __pmGetAddrInfo(argv[optind], NULL);
 
     if (hostInfo == NULL) {
 	FILE	*f;

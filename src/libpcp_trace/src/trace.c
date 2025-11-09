@@ -695,6 +695,7 @@ _pmauxtraceconnect(void)
     struct timeval	stv;
     struct timeval	*pstv;
     __pmFdSet		wfds;
+    int			lsts;
 
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_NOAGENT) {
@@ -734,13 +735,14 @@ _pmauxtraceconnect(void)
     if (getenv(TRACE_ENV_NOAGENT) != NULL)
 	__pmstate |= PMTRACE_STATE_NOAGENT;
 
-    if ((servinfo = __pmGetAddrInfo(hostname)) == NULL) {
+    if ((servinfo = __pmGetAddrInfo(hostname, &lsts)) == NULL) {
 #ifdef PMTRACE_DEBUG
-	if (__pmstate & PMTRACE_STATE_COMMS)
-	    fprintf(stderr, "_pmtraceconnect(__pmGetAddrInfo(hostname=%s): "
-		    "hosterror=%d, ``%s''\n", hostname, hosterror(),
-		    hoststrerror());
+	if (__pmstate & PMTRACE_STATE_COMMS) {
+	    char errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "_pmtraceconnect: __pmGetAddrInfo(hostname=%s): %s\n",
+		    hostname, pmErrStr_r(lsts, errmsg, sizeof(errmsg)));
 #endif
+	}
 	return -EHOSTUNREACH;
     }
 
