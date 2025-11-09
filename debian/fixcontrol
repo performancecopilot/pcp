@@ -5,11 +5,12 @@
 tmp=/var/tmp/fixcontrol-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
+echo 's/$/ /' >$tmp.sed
+
 # dh-python not always available ... this is not checked for in configure
 # so have to base it on the platform type and version
 #
 rm -f $tmp.no
-
 if [ -f /etc/os-release ]
 then
     NAME=`sed -n -e 's/"//'g -e '/^NAME=/s/NAME=//p' </etc/os-release`
@@ -42,9 +43,6 @@ then
 	    ;;
     esac
 fi
-
-echo 's/$/ /' >$tmp.sed
-
 if [ -f $tmp.no ]
 then
     echo 's/?{dh-python}, //' >>$tmp.sed
@@ -392,6 +390,38 @@ then
     echo 's/?{libsystemd-dev}, /libsystemd-dev, /' >>$tmp.sed
 else
     echo 's/?{libsystemd-dev}, //' >>$tmp.sed
+fi
+
+# add perl-xs-dev to Build-Depends for trixie or later (closes: #1102849)
+#
+
+rm -f $tmp.yes
+if [ -f /etc/os-release ]
+then
+    NAME=`sed -n -e 's/"//'g -e '/^NAME=/s/NAME=//p' </etc/os-release`
+    if [ "$NAME" = "Debian GNU/Linux" ]
+    then
+	VERSION_ID=`sed -n -e 's/"//'g -e '/^VERSION_ID=/s/VERSION_ID=//p' </etc/os-release`
+	# trixie is 13
+	#
+	[ "$VERSION_ID" -ge 13 ] && touch $tmp.yes
+    elif [ "$NAME" = "Ubuntu" ]
+    then
+	VERSION_ID=`sed -n -e 's/"//'g -e '/^VERSION_ID=/s/VERSION_ID=//p' </etc/os-release`
+	# Ubuntu 24.04 is trixie-based
+	#
+	[ `echo $VERSION_ID | sed -e 's/\.//'` -ge 2404 ] && touch $tmp.yes
+    fi
+elif [ -f /etc/debian_version ]
+then
+    VERSION_ID=`cat /etc/debian_version`
+    [ "$VERSION_ID" -ge 13 ] && touch $tmp.yes
+fi
+if [ -f $tmp.yes ]
+then
+    echo 's/?{perl-xs-dev}, /perl-xs-dev, /' >>$tmp.sed
+else
+    echo 's/?{perl-xs-dev}, //' >>$tmp.sed
 fi
 
 echo 's/ $//' >>$tmp.sed

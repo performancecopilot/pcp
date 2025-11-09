@@ -102,6 +102,7 @@ openjdk-21-jre-headless
 openssl
 perl
 perl-modules-5.38
+perl-xs-dev
 pkg-config
 postgresql-client-common
 psmisc
