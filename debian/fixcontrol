@@ -82,7 +82,7 @@ fi
 
 if $PMDA_BCC
 then
-    echo 's/?{python-bpfcc}, /python3-bpfcc [amd64 arm64 armhf ppc64el s390x ppc64], /' >>$tmp.sed
+    echo 's/?{python-bpfcc}, /python3-bpfcc [amd64 arm64 armhf s390x ppc64], /' >>$tmp.sed
 else
     echo 's/?{python-bpfcc}, //' >>$tmp.sed
 fi
