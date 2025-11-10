@@ -25,6 +25,7 @@
  * appl4	config parser
  * appl5	regexp matching for metric value changes and iname changes
  * appl6	lexical scanner
+ * appl7	temporal index generation diagnostics
  */
 
 #include <math.h>
@@ -75,6 +76,7 @@ static pmOptions opts = {
  *  Global variables
  */
 static int	needti = 0;		/* need time index record */
+static int	ti_idx = 0;		/* next slot for input temporal index */
 static int	first_datarec = 1;	/* first record flag */
 static char	bak_base[MAXPATHLEN+1];	/* basename for backup with -i */
 
@@ -1568,6 +1570,11 @@ do_newlabelsets(void)
 	    outarch.logctl.label.start = inarch.rp->timestamp;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
+	    if (pmDebugOptions.appl7) {
+		fprintf(stderr, "TI[%d] ", ti_idx);
+		__pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		fprintf(stderr, ": first data record (newlabelsets)\n");
+	    }
 	    needti = 1;
 	}
     }
@@ -1632,7 +1639,6 @@ main(int argc, char **argv)
     int		stslog;			/* sts from nextlog() */
     int		stsmeta = 0;		/* sts from nextmeta() */
     int		i;
-    int		ti_idx;			/* next slot for input temporal index */
     int		dir_fd = -1;		/* poinless initialization to humour gcc */
     int		doneti = 0;
     int		in_vol_missing = 0;	/* == 1 if one or more input data volumes missing */
@@ -1969,7 +1975,6 @@ main(int argc, char **argv)
     }
 
     first_datarec = 1;
-    ti_idx = 0;
 
     /*
      * loop
@@ -2006,6 +2011,11 @@ main(int argc, char **argv)
 		 * rewriting has forced an earlier volume change
 		 */
 		newvolume(outarch.archctl.ac_curvol+1);
+	    if (pmDebugOptions.appl7) {
+		fprintf(stderr, "TI[%d] ", ti_idx);
+		__pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		fprintf(stderr, ": volume change\n");
+	    }
 	    needti = 1;
 	}
 	if (pmDebugOptions.appl0) {
@@ -2023,6 +2033,11 @@ main(int argc, char **argv)
 		 * entry for input archive ... make sure matching temporal
 		 * index entry added to output archive
 		 */
+		if (pmDebugOptions.appl7) {
+		    fprintf(stderr, "TI[%d] ", ti_idx);
+		    __pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		    fprintf(stderr, ": same pmResult and TI timestamps\n");
+		}
 		needti = 1;
 		ti_idx++;
 	    }
@@ -2143,6 +2158,11 @@ main(int argc, char **argv)
 		if (stamp.sec == inarch.rp->timestamp.sec &&
 		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
+		if (pmDebugOptions.appl7) {
+		    fprintf(stderr, "TI[%d] ", ti_idx);
+		    __pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		    fprintf(stderr, ": V3 meta indom timestamp ahead of pmResult timestamp\n");
+		}
 		needti = 1;
 		do_indom(stsmeta);
 	    }
@@ -2159,6 +2179,11 @@ main(int argc, char **argv)
 		if (stamp.sec == inarch.rp->timestamp.sec &&
 		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
+		if (pmDebugOptions.appl7) {
+		    fprintf(stderr, "TI[%d] ", ti_idx);
+		    __pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		    fprintf(stderr, ": V2 meta indom timestamp ahead of pmResult timestamp\n");
+		}
 		needti = 1;
 		do_indom(stsmeta);
 	    }
@@ -2175,6 +2200,11 @@ main(int argc, char **argv)
 		if (stamp.sec == inarch.rp->timestamp.sec &&
 		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
+		if (pmDebugOptions.appl7) {
+		    fprintf(stderr, "TI[%d] ", ti_idx);
+		    __pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		    fprintf(stderr, ": V3 meta label timestamp ahead of pmResult timestamp\n");
+		}
 		needti = 1;
 		do_labelset();
 	    }
@@ -2191,10 +2221,20 @@ main(int argc, char **argv)
 		if (stamp.sec == inarch.rp->timestamp.sec &&
 		    stamp.nsec > inarch.rp->timestamp.nsec)
 		    break;
+		if (pmDebugOptions.appl7) {
+		    fprintf(stderr, "TI[%d] ", ti_idx);
+		    __pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		    fprintf(stderr, ": V2 meta label timestamp ahead of pmResult timestamp\n");
+		}
 		needti = 1;
 		do_labelset();
 	    }
 	    else if (stsmeta == TYPE_TEXT) {
+		if (pmDebugOptions.appl7) {
+		    fprintf(stderr, "TI[%d] ", ti_idx);
+		    __pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		    fprintf(stderr, ": meta text\n");
+		}
 		needti = 1;
 		do_text();
 	    }
@@ -2214,6 +2254,11 @@ main(int argc, char **argv)
 	    outarch.logctl.label.start = inarch.rp->timestamp;
 	    /* need to fix start-time in label records */
 	    writelabel(1);
+	    if (pmDebugOptions.appl7) {
+		fprintf(stderr, "TI[%d] ", ti_idx);
+		__pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		fprintf(stderr, ": first data record\n");
+	    }
 	    needti = 1;
 	}
 
@@ -2236,9 +2281,15 @@ main(int argc, char **argv)
 	old_log_offset = __pmFtell(outarch.archctl.ac_mfp);
 	assert(old_log_offset >= 0);
 
-	if (inarch.rp->numpmid == 0)
+	if (inarch.rp->numpmid == 0) {
 	    /* mark record, need index entry @ next log record */
+	    if (pmDebugOptions.appl7) {
+		fprintf(stderr, "TI[%d] ", ti_idx);
+		__pmPrintTimestamp(stderr, &inarch.rp->timestamp);
+		fprintf(stderr, ": <mark record>\n");
+	    }
 	    needti = 1;
+	}
 
 	do_result();
     }

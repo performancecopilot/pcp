@@ -73,8 +73,10 @@ cd $tmp
 for arch in ?.index
 do
     arch=`echo "$arch" | sed -e 's/\.index$//'`
-    echo "=== $arch ==="
-    pmlogrewrite -i $arch
+    echo "=== $arch ===" | tee -a $seq_full
+    pmlogrewrite -Dappl7 -i $arch 2>$tmp.err
+    cat $tmp.err >>$seq_full
+    grep -v '^TI\[' $tmp.err
 done
 cd $here
 
