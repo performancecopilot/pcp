@@ -1,5 +1,71 @@
-pcp-7.0.3 (27 Nobember 2025)
-    - Work-in-progress, not yet released.
+pcp-7.0.3 (12 November 2025)
+    - PMDA additions, enhancements and bug fixes:
+	pmdafarm: extend support for SCSI (SAS) FARM log
+	pmdafarm: correct help text lengths, missing indom help text
+	pmdafarm: update pmUnits for metrics
+	pmdainfiniband: add collection of additional metrics
+	pmdainfiniband: updated metrics help text, semantics and units
+	pmdadm: add support for collecting dmcrypt metrics
+	pmdadm: add dmcrypt indom help text
+	pmdahdb: fix selinux issue
+	pmdahdb: graceful fail when connection fails
+	pmdads389: add timeouts on connect/bind and fetch/search
+	pmdabpf: switch to using local-built library and headers
+	pmdabpf: updates to opensnoop and mountsnoop to match kernel
+	pmdanetcheck: updates for Python 3.14
+	pmdaopenmetrics: fix performance bug in refresh
+	pmdaopentelemetry: pmns refresh fix, same as for openmetrics
+	pmdaproc: fix process hog metrics
+    - Client tools and utilities:
+	pcp-dstat: add a vLLM plugin showing cache utilisation
+	pcp-uptime: assorted logic corrections
+	pcp2ganglia: make the build conditional on the Perl RRDs package
+	guidellm2pcp: updates for upcoming version (0.4) format changes
+    - Server-side utilities and log management scripts:
+	pmlogctl, pmiectl: refactor common code into a common script
+	pmlogctl: fix intermittent qa/1483 failure relating to a diagnostic
+	pmlogconf: clarify scope rules for name in define control lines
+	pmlogconf: add support for (new) define control line
+	pmlogconf: add configuration for CIFS shares logging
+	pmlogconf: add configuration for FARM metrics logging
+	pmlogconf: add configuration for SMART metrics logging
+	pmlogconf: add collection of gfs2.glockfd metrics in base config
+	pmlogger: do not register SIG_DFL as signal handler (valgrind)
+	pmcd: generate bpftrace script, improve tracing output
+	pmcd: transition to simpler libbpf project usdt.h and macros
+	pmproxy: fix null pointer dereference
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: change __pmGetAddrInfo() API for improved error handling
+	libpcp: add pmUnregisterDerived() API
+	libpcp: remove local strchrnul definition entirely
+	libpcp: macOS getaddrinfo requires extra non-failure check
+	libpcp_web: report NULL pointer issues as errors instead of debug
+	libpcp_web: add checks for NULL pointer dereference during discovery
+	libpcp_web: add checks for NULL pointer when context is released
+	libpcp_web: tweak recent diagnostic update for uniqueness
+	libpcp_web: remove compiler warning
+	python: extend get_indom() to handle int as argument
+	python: replace strftime('%s') uses with timestamp()
+	python: pylint cleanup in pcp-uptime
+	pmieconf: switch to using termios API for macOS builds
+	pmlogrewrite: rework use of assert()
+    - Build, infrastructure, containers and packaging updates:
+	build: drop ppc64el from deb platforms with bpfcc
+	build: bump minimum clang version for BPF PMDA
+	build: deal with debian12 inability to compile bash bpf module
+	build: drop final reference to long-retired termio.h, fixing f43
+	build: try reorder static library linkage for Debian platforms
+	build: debian packaging list updates for ibverbs
+	build: update debian infiniband package requirements
+	build: fix version number in redhat.spec file
+	build: resolve CI failure on macOS with latest toolchain
+	ci: fedora43 is released now, add to automation
+	vendor: update htop to latest upstream
+	vendor: update libbpf, bpftool, usdt and bcc libraries
+	package lists: updates for Debian 13, CentOS Stream 10, openSUSE Leap 16.0
+	package lists: updates for FreeBSD, OpenBSD 7.8
+    - Documentation:
+	docs: switch from Mac OS X to macOS
 
 pcp-7.0.2 (15 October 2025)
     - PMDA additions, enhancements and bug fixes:

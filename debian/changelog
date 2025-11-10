@@ -1,11 +1,12 @@
-pcp (7.0.3-1) unstable; urgency=low
+pcp (7.0.3-1) unstable; urgency=high
 
   * New release (full details in CHANGELOG).
+  * Exclude pmdabcc builds on ppc64el until bpfcc #1077087 resolved (closes: #1117010)
   * Use libinih-dev where available [done some time ago] (closes: #958241)
   * Resolve install-doc --check issue [some time ago] (closes: #971414)
   * Add perl-xs-dev to Build-Depends for trixie or later (closes: #1102849)
 
- -- Nathan Scott <nathans@debian.org>  Thu, 27 Nov 2025 09:06:53 +1100
+ -- Nathan Scott <nathans@debian.org>  Wed, 12 Nov 2025 09:06:53 +1100
 
 pcp (7.0.2-1) unstable; urgency=low
 

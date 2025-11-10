@@ -92,7 +92,6 @@ OTHER_SUBDIRS += \
 	pmlock \
 	pmlogcheck \
 	pmlogconf \
-	pmlogctl \
 	pmlogdump \
 	pmlogextract \
 	pmlogger \
@@ -141,6 +140,7 @@ OTHER_SUBDIRS += \
 	derived \
 	selinux \
 	find-filter \
+	ctl-tools \
 	runaspcp \
 	pmcheck \
 	indomcachectl \
