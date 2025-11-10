@@ -1895,6 +1895,69 @@ Help:
 Contains amount of time in minutes over composite temp threshold
 No value(s) available!
 
+smart.nvme_error_log.cmdid PMID: 150.263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.error_count PMID: 150.263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+No value(s) available!
+
+smart.nvme_error_log.lba PMID: 150.263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+No value(s) available!
+
+smart.nvme_error_log.nsid PMID: 150.263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.param_error_loc PMID: 150.263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.sqid PMID: 150.263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.status_code PMID: 150.263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+No value(s) available!
+
+smart.nvme_error_log.status_field PMID: 150.263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+No value(s) available!
+
+smart.nvme_error_log.status_type PMID: 150.263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+No value(s) available!
+
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
@@ -4394,6 +4457,69 @@ smart.wwid.nvme_attributes.warning_composite_temperature_time PMID: 150.1255.15 
     Semantics: instant  Units: byte
 Help:
 Contains amount of time in minutes over composite temp
+No value(s) available!
+
+smart.wwid.nvme_error_log.cmdid PMID: 150.1263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.error_count PMID: 150.1263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+No value(s) available!
+
+smart.wwid.nvme_error_log.lba PMID: 150.1263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+No value(s) available!
+
+smart.wwid.nvme_error_log.nsid PMID: 150.1263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.param_error_loc PMID: 150.1263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.sqid PMID: 150.1263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_code PMID: 150.1263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_field PMID: 150.1263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
 No value(s) available!
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
@@ -7290,6 +7416,69 @@ Help:
 Contains amount of time in minutes over composite temp threshold
 No value(s) available!
 
+smart.nvme_error_log.cmdid PMID: 150.263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.error_count PMID: 150.263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+No value(s) available!
+
+smart.nvme_error_log.lba PMID: 150.263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+No value(s) available!
+
+smart.nvme_error_log.nsid PMID: 150.263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.param_error_loc PMID: 150.263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.sqid PMID: 150.263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.status_code PMID: 150.263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+No value(s) available!
+
+smart.nvme_error_log.status_field PMID: 150.263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+No value(s) available!
+
+smart.nvme_error_log.status_type PMID: 150.263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+No value(s) available!
+
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
@@ -9791,6 +9980,69 @@ Help:
 Contains amount of time in minutes over composite temp
 No value(s) available!
 
+smart.wwid.nvme_error_log.cmdid PMID: 150.1263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.error_count PMID: 150.1263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+No value(s) available!
+
+smart.wwid.nvme_error_log.lba PMID: 150.1263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+No value(s) available!
+
+smart.wwid.nvme_error_log.nsid PMID: 150.1263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.param_error_loc PMID: 150.1263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.sqid PMID: 150.1263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_code PMID: 150.1263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_field PMID: 150.1263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+No value(s) available!
+
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
@@ -10450,6 +10702,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 == done
 
 == Checking metric descriptors and values - smart-root-003.tgz
+cat: nvme0n1.error: No such file or directory
 
 smart.attributes.airflow_temp_celsius.id PMID: 150.190.0 [The given ID for SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -11257,7 +11510,8 @@ Normalised worst recorded value for the given SMART metric
 No value(s) available!
 
 smart.attributes.power_off_retract_count.id PMID: 150.192.0 [The given ID for SMART metric]
-    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800cat: nvme0n1.error: No such file or directory
+000
     Semantics: instant  Units: byte
 Help:
 The given ID for SMART metric
@@ -12172,7 +12426,9 @@ smart.nvme_attributes.available_spare PMID: 150.255.2 [Normalized percentage of 
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
-Normalized percentage of remaining spare capacity
+Normalized percentage of remaining cat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+spare capacity
     inst [0 or "nvme0n1"] value 100
 
 smart.nvme_attributes.available_spare_threshold PMID: 150.255.3 [Normalized percentage below spare capacity]
@@ -12342,6 +12598,69 @@ smart.nvme_attributes.warning_composite_temperature_time PMID: 150.255.15 [Conta
 Help:
 Contains amount of time in minutes over composite temp threshold
     inst [0 or "nvme0n1"] value 0
+
+smart.nvme_error_log.cmdid PMID: 150.263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.error_count PMID: 150.263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+No value(s) available!
+
+smart.nvme_error_log.lba PMID: 150.263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+No value(s) available!
+
+smart.nvme_error_log.nsid PMID: 150.263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.param_error_loc PMID: 150.263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.sqid PMID: 150.263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.status_code PMID: 150.263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+No value(s) available!
+
+smart.nvme_error_log.status_field PMID: 150.263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+No value(s) available!
+
+smart.nvme_error_log.status_type PMID: 150.263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+No value(s) available!
 
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -12978,7 +13297,8 @@ smart.wwid.attributes.airflow_temp_celsius.thresh PMID: 150.1190.3 [Normalised t
     Semantics: instant  Units: byte
 Help:
 Normalised threshold value for the given SMART metric
-No value(s) available!
+No value(s) availablcat: nvme0n1.error: No such file or directory
+e!
 
 smart.wwid.attributes.airflow_temp_celsius.value PMID: 150.1190.1 [Normalised current recorded value for the given SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -13965,7 +14285,9 @@ smart.wwid.attributes.read_soft_error_rate.value PMID: 150.1013.1 [Normalised cu
     Semantics: instant  Units: byte
 Help:
 Normalised current recorded value for the given SMART metric
-No value(s) available!
+No value(s) availablcat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+e!
 
 smart.wwid.attributes.read_soft_error_rate.worst PMID: 150.1013.2 [Normalised worst recorded value for the given SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -14838,11 +15160,76 @@ Contains the number of unsafe shutdowns
     inst [0 or "8ce38e0500882b63"] value 134
 
 smart.wwid.nvme_attributes.warning_composite_temperature_time PMID: 150.1255.15 [Contains amount of time in minutes over composite temp]
-    Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
+    Data Type: 32-bit unsigned incat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+t  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
 Contains amount of time in minutes over composite temp
     inst [0 or "8ce38e0500882b63"] value 0
+
+smart.wwid.nvme_error_log.cmdid PMID: 150.1263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.error_count PMID: 150.1263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+No value(s) available!
+
+smart.wwid.nvme_error_log.lba PMID: 150.1263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+No value(s) available!
+
+smart.wwid.nvme_error_log.nsid PMID: 150.1263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.param_error_loc PMID: 150.1263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.sqid PMID: 150.1263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_code PMID: 150.1263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_field PMID: 150.1263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+No value(s) available!
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -15483,6 +15870,7 @@ smart.nvme_info.active_power_state
 smart.nvme_power_states.power_state_1.state
 No value(s) available!
 === std err ===
+cat: nvme0n1.error: No such file or directory
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read smart.nvme_info.serial_number smart.nvme_info.active_power_state smart.nvme_power_states.power_state_1.state
@@ -15494,6 +15882,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 == done
 
 == Checking metric descriptors and values - smart-root-004.tgz
+cat: nvme0n1.error: No such file or directory
 
 smart.attributes.airflow_temp_celsius.id PMID: 150.190.0 [The given ID for SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -16301,7 +16690,8 @@ Normalised worst recorded value for the given SMART metric
 No value(s) available!
 
 smart.attributes.power_off_retract_count.id PMID: 150.192.0 [The given ID for SMART metric]
-    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
+    Data Type: 32-bit unsigned int  InDom: 150.0 0x25800cat: nvme0n1.error: No such file or directory
+000
     Semantics: instant  Units: byte
 Help:
 The given ID for SMART metric
@@ -17216,7 +17606,9 @@ smart.nvme_attributes.available_spare PMID: 150.255.2 [Normalized percentage of 
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
 Help:
-Normalized percentage of remaining spare capacity
+Normalized percentage of remaining spare cacat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+pacity
     inst [0 or "nvme0n1"] value 100
 
 smart.nvme_attributes.available_spare_threshold PMID: 150.255.3 [Normalized percentage below spare capacity]
@@ -17386,6 +17778,69 @@ smart.nvme_attributes.warning_composite_temperature_time PMID: 150.255.15 [Conta
 Help:
 Contains amount of time in minutes over composite temp threshold
     inst [0 or "nvme0n1"] value 0
+
+smart.nvme_error_log.cmdid PMID: 150.263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.error_count PMID: 150.263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+No value(s) available!
+
+smart.nvme_error_log.lba PMID: 150.263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+No value(s) available!
+
+smart.nvme_error_log.nsid PMID: 150.263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.param_error_loc PMID: 150.263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.sqid PMID: 150.263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+No value(s) available!
+
+smart.nvme_error_log.status_code PMID: 150.263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+No value(s) available!
+
+smart.nvme_error_log.status_field PMID: 150.263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+No value(s) available!
+
+smart.nvme_error_log.status_type PMID: 150.263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+No value(s) available!
 
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -18108,7 +18563,8 @@ Help:
 Normalised worst recorded value for the given SMART metric
 No value(s) available!
 
-smart.wwid.attributes.current_helium_level.id PMID: 150.1022.0 [The given ID for SMART metric]
+smart.wwid.attributes.current_helium_level.id PMID: 150.1022.0 [The gicat: nvme0n1.error: No such file or directory
+ven ID for SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
@@ -18998,7 +19454,9 @@ Raw metric value for the given SMART metric
 No value(s) available!
 
 smart.wwid.attributes.read_soft_error_rate.thresh PMID: 150.1013.3 [Normalised threshold value for the given SMART metric]
-    Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
+    Data Type:cat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+ 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
 Normalised threshold value for the given SMART metric
@@ -19872,7 +20330,9 @@ smart.wwid.nvme_attributes.temperature_sensor_two PMID: 150.1255.18 [Currrent te
     Semantics: instant  Units: byte
 Help:
 Currrent temperature as reported by temp sensor 2
-    inst [0 or "8ce38e0500882b63"] value 0
+    inst [0 or "8ce38e0500882b63"] valcat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+ue 0
 
 smart.wwid.nvme_attributes.unsafe_shutdowns PMID: 150.1255.12 [Contains the number of unsafe shutdowns]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -19887,6 +20347,69 @@ smart.wwid.nvme_attributes.warning_composite_temperature_time PMID: 150.1255.15 
 Help:
 Contains amount of time in minutes over composite temp
     inst [0 or "8ce38e0500882b63"] value 0
+
+smart.wwid.nvme_error_log.cmdid PMID: 150.1263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.error_count PMID: 150.1263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+No value(s) available!
+
+smart.wwid.nvme_error_log.lba PMID: 150.1263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+No value(s) available!
+
+smart.wwid.nvme_error_log.nsid PMID: 150.1263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.param_error_loc PMID: 150.1263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.sqid PMID: 150.1263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_code PMID: 150.1263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_field PMID: 150.1263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+No value(s) available!
+
+smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+No value(s) available!
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -20527,6 +21050,7 @@ smart.nvme_info.active_power_state
 smart.nvme_power_states.power_state_1.state
     inst [0 or "nvme0n1"] value 1
 === std err ===
+cat: nvme0n1.error: No such file or directory
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: pminfo -L -K clear -K add,150,PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init -f smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read smart.nvme_info.serial_number smart.nvme_info.active_power_state smart.nvme_power_states.power_state_1.state
@@ -22430,6 +22954,96 @@ smart.nvme_attributes.warning_composite_temperature_time PMID: 150.255.15 [Conta
 Help:
 Contains amount of time in minutes over composite temp threshold
     inst [0 or "nvme0n1"] value 0
+
+smart.nvme_error_log.cmdid PMID: 150.263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+    inst [0 or "nvme0n1::entry_0"] value 21
+    inst [1 or "nvme0n1::entry_1"] value 19
+    inst [2 or "nvme0n1::entry_2"] value 21
+    inst [3 or "nvme0n1::entry_3"] value 19
+
+smart.nvme_error_log.error_count PMID: 150.263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+    inst [0 or "nvme0n1::entry_0"] value 1181
+    inst [1 or "nvme0n1::entry_1"] value 1180
+    inst [2 or "nvme0n1::entry_2"] value 1179
+    inst [3 or "nvme0n1::entry_3"] value 1178
+
+smart.nvme_error_log.lba PMID: 150.263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+    inst [0 or "nvme0n1::entry_0"] value 0
+    inst [1 or "nvme0n1::entry_1"] value 2
+    inst [2 or "nvme0n1::entry_2"] value 22
+    inst [3 or "nvme0n1::entry_3"] value 334
+
+smart.nvme_error_log.nsid PMID: 150.263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+    inst [0 or "nvme0n1::entry_0"] value 0
+    inst [1 or "nvme0n1::entry_1"] value 1
+    inst [2 or "nvme0n1::entry_2"] value 11
+    inst [3 or "nvme0n1::entry_3"] value 222
+
+smart.nvme_error_log.param_error_loc PMID: 150.263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+    inst [0 or "nvme0n1::entry_0"] value 40
+    inst [1 or "nvme0n1::entry_1"] value 41
+    inst [2 or "nvme0n1::entry_2"] value 42
+    inst [3 or "nvme0n1::entry_3"] value 43
+
+smart.nvme_error_log.sqid PMID: 150.263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+    inst [0 or "nvme0n1::entry_0"] value 0
+    inst [1 or "nvme0n1::entry_1"] value 1
+    inst [2 or "nvme0n1::entry_2"] value 2
+    inst [3 or "nvme0n1::entry_3"] value 3
+
+smart.nvme_error_log.status_code PMID: 150.263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+    inst [0 or "nvme0n1::entry_0"] value "Feature Identifier Not Saveable"
+    inst [1 or "nvme0n1::entry_1"] value "Invalid Log Page"
+    inst [2 or "nvme0n1::entry_2"] value "Feature Identifier Not Saveable"
+    inst [3 or "nvme0n1::entry_3"] value "Invalid Log Page"
+
+smart.nvme_error_log.status_field PMID: 150.263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+    inst [0 or "nvme0n1::entry_0"] value 16922
+    inst [1 or "nvme0n1::entry_1"] value 16914
+    inst [2 or "nvme0n1::entry_2"] value 16922
+    inst [3 or "nvme0n1::entry_3"] value 16914
+
+smart.nvme_error_log.status_type PMID: 150.263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.2 0x25800002
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+    inst [0 or "nvme0n1::entry_0"] value "Command Specific Status"
+    inst [1 or "nvme0n1::entry_1"] value "Command Specific Status"
+    inst [2 or "nvme0n1::entry_2"] value "Command Specific Status"
+    inst [3 or "nvme0n1::entry_3"] value "Command Specific Status"
 
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
@@ -24931,6 +25545,96 @@ smart.wwid.nvme_attributes.warning_composite_temperature_time PMID: 150.1255.15 
 Help:
 Contains amount of time in minutes over composite temp
     inst [0 or "002538d211514cfa"] value 0
+
+smart.wwid.nvme_error_log.cmdid PMID: 150.1263.2 [Command id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Command id of the command that the error is associated with
+    inst [0 or "002538d211514cfa::entry_1"] value 21
+    inst [1 or "002538d211514cfa::entry_2"] value 19
+    inst [2 or "002538d211514cfa::entry_3"] value 21
+    inst [3 or "002538d211514cfa::entry_4"] value 19
+
+smart.wwid.nvme_error_log.error_count PMID: 150.1263.0 [Incrementing error count (unique id for error)]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Incrementing error count (unique id for error)
+    inst [0 or "002538d211514cfa::entry_1"] value 1181
+    inst [1 or "002538d211514cfa::entry_2"] value 1180
+    inst [2 or "002538d211514cfa::entry_3"] value 1179
+    inst [3 or "002538d211514cfa::entry_4"] value 1178
+
+smart.wwid.nvme_error_log.lba PMID: 150.1263.7 [Logical Block Address I/O command set specific data about the error, if any]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Logical Block Address I/O command set specific data about the error, if any
+    inst [0 or "002538d211514cfa::entry_1"] value 0
+    inst [1 or "002538d211514cfa::entry_2"] value 2
+    inst [2 or "002538d211514cfa::entry_3"] value 22
+    inst [3 or "002538d211514cfa::entry_4"] value 334
+
+smart.wwid.nvme_error_log.nsid PMID: 150.1263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Namespace identifier (NSID) of the namespace of which the error is associated with
+    inst [0 or "002538d211514cfa::entry_1"] value 0
+    inst [1 or "002538d211514cfa::entry_2"] value 1
+    inst [2 or "002538d211514cfa::entry_3"] value 11
+    inst [3 or "002538d211514cfa::entry_4"] value 222
+
+smart.wwid.nvme_error_log.param_error_loc PMID: 150.1263.6 [Byte and bit of the command parameter that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Byte and bit of the command parameter that the error is associated with
+    inst [0 or "002538d211514cfa::entry_1"] value 40
+    inst [1 or "002538d211514cfa::entry_2"] value 41
+    inst [2 or "002538d211514cfa::entry_3"] value 42
+    inst [3 or "002538d211514cfa::entry_4"] value 43
+
+smart.wwid.nvme_error_log.sqid PMID: 150.1263.1 [Submission queue id of the command that the error is associated with]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Submission queue id of the command that the error is associated with
+    inst [0 or "002538d211514cfa::entry_1"] value 0
+    inst [1 or "002538d211514cfa::entry_2"] value 1
+    inst [2 or "002538d211514cfa::entry_3"] value 2
+    inst [3 or "002538d211514cfa::entry_4"] value 3
+
+smart.wwid.nvme_error_log.status_code PMID: 150.1263.5 [Decoded status code for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code for the error
+    inst [0 or "002538d211514cfa::entry_1"] value "Feature Identifier Not Saveable"
+    inst [1 or "002538d211514cfa::entry_2"] value "Invalid Log Page"
+    inst [2 or "002538d211514cfa::entry_3"] value "Feature Identifier Not Saveable"
+    inst [3 or "002538d211514cfa::entry_4"] value "Invalid Log Page"
+
+smart.wwid.nvme_error_log.status_field PMID: 150.1263.3 [Status field from the completion queue]
+    Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Status field from the completion queue
+    inst [0 or "002538d211514cfa::entry_1"] value 16922
+    inst [1 or "002538d211514cfa::entry_2"] value 16914
+    inst [2 or "002538d211514cfa::entry_3"] value 16922
+    inst [3 or "002538d211514cfa::entry_4"] value 16914
+
+smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type for the error]
+    Data Type: string  InDom: 150.3 0x25800003
+    Semantics: instant  Units: none
+Help:
+Decoded status code type for the error
+    inst [0 or "002538d211514cfa::entry_1"] value "Command Specific Status"
+    inst [1 or "002538d211514cfa::entry_2"] value "Command Specific Status"
+    inst [2 or "002538d211514cfa::entry_3"] value "Command Specific Status"
+    inst [3 or "002538d211514cfa::entry_4"] value "Command Specific Status"
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001

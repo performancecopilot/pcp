@@ -22,6 +22,7 @@ smart {
 	nvme_info
 	nvme_attributes
 	nvme_power_states
+	nvme_error_log
 	wwid
 }
 
@@ -609,12 +610,25 @@ smart.nvme_power_states.power_state_5 {
 	exit_latency						SMART:262:10
 }
 
+smart.nvme_error_log {
+	error_count		SMART:263:0
+	sqid			SMART:263:1
+	cmdid			SMART:263:2
+	status_field		SMART:263:3
+	status_type		SMART:263:4
+	status_code		SMART:263:5
+	param_error_loc		SMART:263:6
+	lba			SMART:263:7
+	nsid			SMART:263:8
+}
+
 smart.wwid {
 	info
 	attributes
 	nvme_info
 	nvme_attributes
 	nvme_power_states
+	nvme_error_log
 }
 
 smart.wwid.info {
@@ -1199,4 +1213,16 @@ smart.wwid.nvme_power_states.power_state_5 {
 	relative_write_throughput				SMART:1262:8
 	entry_latency						SMART:1262:9
 	exit_latency						SMART:1262:10
+}
+
+smart.wwid.nvme_error_log {
+	error_count		SMART:1263:0
+	sqid			SMART:1263:1
+	cmdid			SMART:1263:2
+	status_field	SMART:1263:3
+	status_type		SMART:1263:4
+	status_code		SMART:1263:5
+	param_error_loc	SMART:1263:6
+	lba				SMART:1263:7
+	nsid			SMART:1263:8
 }

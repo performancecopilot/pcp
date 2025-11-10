@@ -26,9 +26,9 @@ static char *smart_setup_lsblk;
 pmdaIndom indomtable[] = {
 	{ .it_indom = DISK_INDOM },
 	{ .it_indom = UUID_INDOM },
+	{ .it_indom = DISK_NVME_LOG_INDOM },
+	{ .it_indom = UUID_NVME_LOG_INDOM },
 };
-
-#define INDOM(x) (indomtable[x].it_indom)
 
 /*
  * All metrics supported by this PMDA - one table entry for each metric
@@ -1472,6 +1472,43 @@ pmdaMetric metrictable[] = {
 		PMDA_PMID(CLUSTER_POWER_STATE_5, EXIT_LATENCY),
 		PM_TYPE_U32, DISK_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/*NMVE - Error Log */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_COUNT),
+		PM_TYPE_U64, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_SQID),
+		PM_TYPE_U64, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_CMDID),
+		PM_TYPE_U64, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_STATUS_FIELD),
+		PM_TYPE_U64, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_STATUS_TYPE),
+		PM_TYPE_STRING, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_STATUS_CODE),
+		PM_TYPE_STRING, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_PARAM_ERROR_LOC),
+		PM_TYPE_U64, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_LBA),
+		PM_TYPE_U64, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_NSID),
+		PM_TYPE_U64, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
 	/* UUID - General device information */
 	{ .m_desc = {
 		PMDA_PMID(CLUSTER_UUID_INFO, HEALTH),
@@ -2909,7 +2946,50 @@ pmdaMetric metrictable[] = {
 		PMDA_PMID(CLUSTER_UUID_POWER_STATE_5, EXIT_LATENCY),
 		PM_TYPE_U32, UUID_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(1,0,0,0,0,0) }, },
+	/*UUID NMVE - Error Log */
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_COUNT),
+		PM_TYPE_U64, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_SQID),
+		PM_TYPE_U64, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_CMDID),
+		PM_TYPE_U64, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_STATUS_FIELD),
+		PM_TYPE_U64, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_STATUS_TYPE),
+		PM_TYPE_STRING, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_STATUS_CODE),
+		PM_TYPE_STRING, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_PARAM_ERROR_LOC),
+		PM_TYPE_U64, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_LBA),
+		PM_TYPE_U64, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_NSID),
+		PM_TYPE_U64, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
+
+pmInDom
+smart_indom(int serial)
+{
+	return indomtable[serial].it_indom;
+}
 
 int
 metrictable_size(void)
@@ -3085,6 +3165,9 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 	if ((sts = uuid_instance_refresh()) < 0)
 		return sts;
 
+	if ((sts = nvme_error_log_refresh()) < 0)
+		return sts;
+
 	for (pmdaCacheOp(INDOM(DISK_INDOM), PMDA_CACHE_WALK_REWIND);;) {
 		if ((i= pmdaCacheOp(INDOM(DISK_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
 			break;
@@ -3230,6 +3313,13 @@ smart_fetch_refresh(pmdaExt *pmda, int *need_refresh)
                         need_refresh[CLUSTER_UUID_POWER_STATE_5])
 			nvme_power_refesh_data(dev->name, &dev->nvme_power_states, dev->is_nvme);
 	}
+	
+	if ((i = pmdaCacheOp(INDOM(DISK_INDOM), PMDA_CACHE_SIZE_ACTIVE)) > 0) {
+		if (need_refresh[CLUSTER_NVME_ERROR_LOG] ||
+			need_refresh[CLUSTER_UUID_NVME_ERROR_LOG])
+			nvme_error_log_refresh();
+	}
+	
 	return sts;
 }
 
@@ -3256,6 +3346,7 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	unsigned int 		item = pmID_item(mdesc->m_desc.pmid);
 	unsigned int		cluster = pmID_cluster(mdesc->m_desc.pmid);
 	struct block_dev 	*dev;
+	struct nvme_error_log	*nvme_error_log;
 	int 			sts;
 
 	switch (cluster) {
@@ -3339,6 +3430,12 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			if (sts < 0)
 				return sts;
 			return nvme_power_data_fetch(item, cluster, &dev->nvme_power_states, atom, dev->is_nvme);
+
+		case CLUSTER_NVME_ERROR_LOG:
+			sts = pmdaCacheLookup(INDOM(DISK_NVME_LOG_INDOM), inst, NULL, (void**)&nvme_error_log);
+			if (sts <0)
+				return sts;
+			return nvme_error_log_fetch(item, cluster, nvme_error_log, atom);
 
 		case CLUSTER_UUID_INFO:
 			sts = pmdaCacheLookup(INDOM(UUID_INDOM), inst, NULL, (void **)&dev);
@@ -3424,6 +3521,12 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			/* PNMS leaf values are 1000 more for the UUID metrics, offest this for cluster value
 			   when using cluster for array bounding with these metrics */
 			return nvme_power_data_fetch(item, (cluster - 1000), &dev->nvme_power_states, atom, dev->is_nvme);
+
+		case CLUSTER_UUID_NVME_ERROR_LOG:
+			sts = pmdaCacheLookup(INDOM(UUID_NVME_LOG_INDOM), inst, NULL, (void**)&nvme_error_log);
+			if (sts <0)
+				return sts;
+			return nvme_error_log_fetch(item, cluster, nvme_error_log, atom);
 
 		default:
 			return PM_ERR_PMID;
