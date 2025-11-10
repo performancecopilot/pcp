@@ -19,6 +19,6 @@ exit status is 1 (should be 1 with verbosity)
 connect: Connection refused
 exit: 1
 exit status is 1 (should be 1 with verbosity)
-gethostbyname: Unknown host
+gethostbyname: Connection refused
 exit: 1
 exit status is 1 (should be 1 with verbosity)
