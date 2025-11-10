@@ -31,7 +31,7 @@
 .SH DESCRIPTION
 The
 .B pcp-top
-command provides a dynamic, real-time view of the system's running processes and overall system health, similar to the classic
+command provides a dynamic top 100 process list, real-time view of the system's running processes and overall system health, similar to the classic
 .BR top (1)
 utility, but leveraging the Performance Co-Pilot (PCP) framework for metric collection.
 .PP
@@ -81,11 +81,19 @@ The header also shows:
 l    l.
 FIELD	DESCRIPTION
 _	_
-Uptime	Time since last boot.
-Users	Number of logged-in users.
-Load Average	1, 5, and 15-minute system load averages.
-Tasks	Summary of total, running, sleeping, stopped, and zombie processes.
+Uptime	Boot time
+Users	Logged-in users
+LoadAvg	1, 5, 15-min load avg
+Tasks	Total, running, sleeping, stopped, zombie
 .TE
+.PP
+Header field details:
+.TP
+.B LoadAvg
+Lists 1, 5, and 15-minute system load averages.
+.TP
+.B Tasks
+Summary shows total, running, sleeping, stopped, and zombie processes.
 .SH OPTIONS
 When invoked via the
 .BR pcp (1)
@@ -160,5 +168,6 @@ Variables affecting PCP tools are documented in
 .BR pcp (1),
 .BR pcp-ps (1),
 .BR top (1),
-.BR pmParseInterval (3),
 .BR environ (7)
+
+.\" control lines for scripts/man-spell

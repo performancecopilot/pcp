@@ -1,6 +1,6 @@
 #!/usr/bin/env pmpython
 #
-# Copyright (c) 2023 Oracle and/or its affiliates.
+# Copyright (c) 2025 Oracle and/or its affiliates.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -13,9 +13,9 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=bad-whitespace,too-many-lines,bad-continuation
 # pylint: disable=too-many-arguments,too-many-positional-arguments
 # pylint: disable=redefined-outer-name,unnecessary-lambda
+#
 #
 import signal
 import sys
