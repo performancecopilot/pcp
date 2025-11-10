@@ -47,15 +47,21 @@ pminfo \
 | uniq >>$tmp.config
 echo "}" >>$tmp.config
 
+echo "--- pmlogger config" >>$seq_full
+cat $tmp.config >>$seq_full
+
 pmlogger -l $tmp.log -c $tmp.config -s 1 $tmp
 cat $tmp.log >>$seq_full
 
-echo "values in the archive ..." >>$seq_full
+echo "--- values in the archive ..." >>$seq_full
 textgrep=""
 [ $PCP_PLATFORM = linux ] && textgrep="-a"
 pmdumplog $tmp \
 | grep $textgrep ' value ' \
 | wc -l >>$seq_full
+
+echo "--- sample.load in the archive ..." >>$seq_full
+pminfo -df -a $tmp sample.load >>$seq_full 2>&1
 
 echo "=== no change ==="
 _run_valgrind pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite -Dappl0,appl3 -q -i $tmp 2>&1 \
