@@ -70,10 +70,12 @@ _filter()
 		-e '/pmcd\[[0-9]*]: .* pmdaopentelemetry([0-9]*) Info:/d' \
 		-e '/pmcd\[[0-9]*]: \.*$/d' \
 		-e '/pmcd\[[0-9]*]: .*\.\.done$/d' \
-		-e '/pmcd\[[0-9]*]: Terminated$/d' \
+		-e '/pmcd\[[0-9]*]: Terminated/d' \
 		-e '/root\[[0-9]*]: pmcd_wait failed in /d' \
 		-e '/pmcd\[[0-9]*]: _pmda_setup: Interrupted!/d' \
 		-e '/pmcd\[[0-9]*]: _pmda_setup_cleanup: reset \.NeedInstall/d' \
+		-e '/pmcd\[[0-9]*]: .*\/pmcd: .* cannot start pmcd/d' \
+		-e '/systemctl\[[0-9]*]: .* pmcd\.service changed on disk/d' \
 	    #end
 	    ;;
 
@@ -92,6 +94,7 @@ _filter()
 	    # and pmie_check will fail during PCP builds
 	    # and this strange one but only on vm03
 	    # ... vm03.localdomain pmiectl[1013253]: mount: write error
+	    # and then just random QA noise
 	    #
 	    sed \
 		-e '/ pcp-pmie\[/d' \
@@ -107,6 +110,7 @@ _filter()
 		-e '/pmie_daily failed - see .*\/pmie_daily.log/d' \
 		-e '/pmiectl\[[0-9]*]: .* (localhost) defined multiple times,/d' \
 		-e '/ pmiectl\[[0-9]*]: mount: write error/d' \
+		-e '/pcp\[[0-9]*]: pmie_check start failed in/d' \
 	    # end
 	    ;;
 
@@ -121,7 +125,7 @@ _filter()
 	    # ... bozo.localdomain pmlogctl[1013253]: mount: write error
 	    # and fallout from qa/1213 if pmlogger_farm_check goes off
 	    # concurrently
-	    #
+	    # and then just random QA noise
 	    sed \
 		-e '/sudo\[[0-9]*]: /d' \
 		-e '/pmlogger_check failed - see .*\/pmlogger_check.log/d' \
@@ -142,6 +146,7 @@ _filter()
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmlogger\.service/d' \
 		-e '/rc\[[0-9]*]: .*\/pmsignal: .* No such process/d' \
+		-e '/pcp\[[0-9]*]: pmlogger_check_failed in/d' \
 	    # end
 	    ;;
 
