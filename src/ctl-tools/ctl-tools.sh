@@ -32,11 +32,6 @@ if [ -z "$prog" -o -z "$IAM" ]; then
     echo >&2 "$0: who the hell are you, bozo?"
     exit 1
 fi
-# caller must also provide a path to a control file
-if [ ! -f "${CONTROLFILE}" ]; then
-    echo >&2 "$0: missing a control file path"
-    exit 1
-fi
 CONTROLDIR=${CONTROLFILE}.d
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/$prog.XXXXXXXXX"` || exit 1
