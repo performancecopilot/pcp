@@ -12,11 +12,10 @@ sdsHashCallBack(const void *key)
 }
 
 static int
-sdsCompareCallBack(void *privdata, const void *key1, const void *key2)
+sdsCompareCallBack(const void *key1, const void *key2)
 {
     int		l1, l2;
 
-    (void)privdata;
     l1 = sdslen((sds)key1);
     l2 = sdslen((sds)key2);
     if (l1 != l2) return 0;
@@ -24,15 +23,14 @@ sdsCompareCallBack(void *privdata, const void *key1, const void *key2)
 }
 
 static void *
-sdsDupCallBack(void *privdata, const void *key)
+sdsDupCallBack(const void *key)
 {
     return sdsdup((sds)key);
 }
 
 static void
-sdsFreeCallBack(void *privdata, void *val)
+sdsFreeCallBack(void *val)
 {
-    (void)privdata;
     sdsfree(val);
 }
 

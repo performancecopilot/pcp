@@ -222,7 +222,9 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
     int			archive;
 
     if (params) {
-	if ((timeout = dictFetchValue(params, PARAM_POLLTIME)) != NULL) {
+	dictEntry *entry;
+	if ((entry = dictFind(params, PARAM_POLLTIME)) != NULL) {
+	    timeout = (sds)dictGetVal(entry);
 	    seconds = strtod(timeout, &endptr);
 	    if (*endptr != '\0')
 		return -EINVAL;
@@ -291,7 +293,7 @@ loggroup_timers_stop(struct loggroups *groups)
 static void
 loggroup_garbage_collect(struct loggroups *groups)
 {
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     archive_t		*ap;
     unsigned int	debug;
@@ -305,10 +307,10 @@ loggroup_garbage_collect(struct loggroups *groups)
     if (uv_mutex_trylock(&groups->mutex) != 0)
 	return;
 
-    iterator = dictGetSafeIterator(groups->archives);
-    for (entry = dictNext(iterator); entry;) {
+    dictInitIterator(&iter, groups->archives);
+    for (entry = dictNext(&iter); entry;) {
 	ap = (archive_t *)dictGetVal(entry);
-	entry = dictNext(iterator);
+	entry = dictNext(&iter);
 	if (ap->privdata != groups)
 	    continue;
 	if (ap->garbage)
@@ -327,7 +329,6 @@ loggroup_garbage_collect(struct loggroups *groups)
 	}
 	count++;
     }
-    dictReleaseIterator(iterator);
 
     if (groups->update) {
 	logpaths_stats_reset(groups);
@@ -357,7 +358,7 @@ loggroup_garbage_collect(struct loggroups *groups)
 static void
 loggroup_reset_archives(struct loggroups *groups)
 {
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     archive_t		*ap;
     unsigned int	debug, count = 0;
@@ -367,10 +368,10 @@ loggroup_reset_archives(struct loggroups *groups)
 	fprintf(stderr, "%s: started for groups %p\n", __FUNCTION__, groups);
 
     uv_mutex_lock(&groups->mutex);
-    iterator = dictGetSafeIterator(groups->archives);
-    for (entry = dictNext(iterator); entry;) {
+    dictInitIterator(&iter, groups->archives);
+    for (entry = dictNext(&iter); entry;) {
 	ap = (archive_t *)dictGetVal(entry);
-	entry = dictNext(iterator);
+	entry = dictNext(&iter);
 	if (ap->privdata != groups)
 	    continue;
 	ap->refcount++;
@@ -381,7 +382,6 @@ loggroup_reset_archives(struct loggroups *groups)
 	groups->update = 1;
 	count++;
     }
-    dictReleaseIterator(iterator);
 
     if (groups->update) {
 	logpaths_stats_reset(groups);
@@ -454,9 +454,12 @@ loggroup_lookup_archive(pmLogGroupSettings *sp, int id, struct archive **pp, voi
 			default_worker, default_worker);
     }
 
-    ap = (struct archive *)dictFetchValue(groups->archives, &id);
-    if (ap == NULL)
-	return -ESRCH;
+    {
+	dictEntry *entry;
+	if ((entry = dictFind(groups->archives, &id)) == NULL)
+	    return -ESRCH;
+	ap = (struct archive *)dictGetVal(entry);
+    }
     if ((ap = loggroup_use_archive(ap)) == NULL)
 	return -ENOTCONN;
     *pp = ap;
@@ -845,7 +848,7 @@ pmLogGroupSetup(pmLogGroupModule *module)
     srandom(pid ^ (unsigned int)ts.tv_sec ^ (unsigned int)ts.tv_nsec);
 
     /* setup a dictionary mapping archive number to data */
-    groups->archives = dictCreate(&intKeyDictCallBacks, NULL);
+    groups->archives = dictCreate(&intKeyDictCallBacks);
 
     return 0;
 }
@@ -865,14 +868,13 @@ pmLogGroupSetEventLoop(pmLogGroupModule *module, void *events)
 static void
 loggroup_free(struct loggroups *groups)
 {
-    dictIterator	*iterator;
+    dictIterator	iter;
     dictEntry		*entry;
 
     /* walk the archives, stop timers and free resources */
-    iterator = dictGetIterator(groups->archives);
-    while ((entry = dictNext(iterator)) != NULL)
+    dictInitIterator(&iter, groups->archives);
+    while ((entry = dictNext(&iter)) != NULL)
 	loggroup_drop_archive((archive_t *)dictGetVal(entry), NULL);
-    dictReleaseIterator(iterator);
     dictRelease(groups->archives);
     loggroup_timers_stop(groups);
     memset(groups, 0, sizeof(struct loggroups));
@@ -894,24 +896,31 @@ pmLogGroupSetConfiguration(pmLogGroupModule *module, dict *config)
     }
 
     /* allocate strings for parameter dictionary key lookups */
-    if ((value = dictFetchValue(config, WORK_TIMER)) == NULL) {
-	default_worker = DEFAULT_WORK_TIMER;
-    } else {
-	default_worker = strtoul(value, &endnum, 0);
-	if (*endnum != '\0')
+    {
+	dictEntry *entry;
+	if ((entry = dictFind(config, WORK_TIMER)) == NULL) {
 	    default_worker = DEFAULT_WORK_TIMER;
-    }
+	} else {
+	    value = (sds)dictGetVal(entry);
+	    default_worker = strtoul(value, &endnum, 0);
+	    if (*endnum != '\0')
+		default_worker = DEFAULT_WORK_TIMER;
+	}
 
-    if ((value = dictFetchValue(config, POLL_TIMEOUT)) == NULL) {
-	default_timeout = DEFAULT_POLL_TIMEOUT;
-    } else {
-	default_timeout = strtoul(value, &endnum, 0);
-	if (*endnum != '\0')
+	if ((entry = dictFind(config, POLL_TIMEOUT)) == NULL) {
 	    default_timeout = DEFAULT_POLL_TIMEOUT;
-    }
+	} else {
+	    value = (sds)dictGetVal(entry);
+	    default_timeout = strtoul(value, &endnum, 0);
+	    if (*endnum != '\0')
+		default_timeout = DEFAULT_POLL_TIMEOUT;
+	}
 
-    if ((value = dictFetchValue(config, CACHED_ONLY)) != NULL)
-	cached_only = (strcmp(value, "true") == 0);
+	if ((entry = dictFind(config, CACHED_ONLY)) != NULL) {
+	    value = (sds)dictGetVal(entry);
+	    cached_only = (strcmp(value, "true") == 0);
+	}
+    }
 
     if (groups) {
 	groups->config = config;
@@ -924,33 +933,32 @@ static void
 logpaths_stats_insts(struct loggroups *groups)
 {
     mmv_registry_t	*rp = groups->logpaths;
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     archive_t		*ap;
 
     /* walk archives, update instance domain */
-    iterator = dictGetIterator(groups->archives);
-    while ((entry = dictNext(iterator)) != NULL) {
+    dictInitIterator(&iter, groups->archives);
+    while ((entry = dictNext(&iter)) != NULL) {
 	ap = (archive_t *)dictGetVal(entry);
 	if (ap->privdata != groups || ap->inactive || ap->garbage)
 	    continue;
 	mmv_stats_add_instance(rp, LOGPATHS, ap->randomid, ap->idstring);
     }
-    dictReleaseIterator(iterator);
 }
 
 static void
 logpaths_stats_value(struct loggroups *groups)
 {
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     pmAtomValue		*atom;
     archive_t		*ap;
     uint32_t		count = 0;
 
     /* walk archives, update the value (archive path) for each instance */
-    iterator = dictGetIterator(groups->archives);
-    while ((entry = dictNext(iterator)) != NULL) {
+    dictInitIterator(&iter, groups->archives);
+    while ((entry = dictNext(&iter)) != NULL) {
 	ap = (archive_t *)dictGetVal(entry);
 	if (ap->privdata != groups || ap->inactive || ap->garbage)
 	    continue;
@@ -958,7 +966,6 @@ logpaths_stats_value(struct loggroups *groups)
 	mmv_set_string(groups->logmap, atom, ap->fullpath, sdslen(ap->fullpath));
 	count++;
     }
-    dictReleaseIterator(iterator);
     mmv_set(groups->logmap, groups->logmetrics[LOGPATHS_COUNT], &count);
 }
 

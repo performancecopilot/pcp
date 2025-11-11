@@ -56,7 +56,9 @@ init_pmda_metrics(struct agent_config* config) {
     ALLOC_CHECK(dict_data, "Unable to create priv PMDA metrics container data.");
     dict_data->config = config;
     dict_data->container = container;
-    metrics* m = dictCreate(&metric_dict_callbacks, dict_data);
+    dict_set_config(config);
+    metrics* m = dictCreate(&metric_dict_callbacks);
+    dict_clear_config();
     container->metrics = m;
     container->generation = 0;
     container->metrics_privdata = dict_data;
@@ -165,7 +167,9 @@ free_metric(struct agent_config* config, struct metric* item) {
         free_metric_metadata(item->meta);
     }
     if (item->children != NULL) {
-        dictRelease(item->children);
+	dict_set_config(config);
+	dictRelease(item->children);
+	dict_clear_config();
     }
     switch (item->type) {
         case METRIC_TYPE_COUNTER:
@@ -232,11 +236,12 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
         VERBOSE_LOG(0, "Unable to open file for output.");
         return;
     }
-    dictIterator* iterator = dictGetSafeIterator(m);
+    dictIterator iterator;
+    dictInitIterator(&iterator, m);
     dictEntry* current;
     long int count = 0;
-    while ((current = dictNext(iterator)) != NULL) {
-        struct metric* item = (struct metric*)current->v.val;
+    while ((current = dictNext(&iterator)) != NULL) {
+        struct metric* item = (struct metric*)dictGetVal(current);
         switch (item->type) {
             case METRIC_TYPE_COUNTER:
                 print_counter_metric(config, f, item);
@@ -253,7 +258,6 @@ write_metrics_to_file(struct agent_config* config, struct pmda_metrics_container
         }
         count++;
     }
-    dictReleaseIterator(iterator);
     fprintf(f, "----------------\n");
     fprintf(f, "Total number of records: %lu \n", count);
     fclose(f);    
@@ -280,7 +284,7 @@ find_metric_by_name(struct pmda_metrics_container* container, char* key, struct 
         return 0;
     }
     if (out != NULL) {
-        struct metric* item = (struct metric*)result->v.val;
+        struct metric* item = (struct metric*)dictGetVal(result);
         *out = item;
     }
     pthread_mutex_unlock(&container->mutex);

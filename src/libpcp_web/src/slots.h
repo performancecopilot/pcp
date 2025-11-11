@@ -14,7 +14,7 @@
 #ifndef SLOTS_H
 #define SLOTS_H
 
-#include <libvalkey/include/valkey/cluster.h>
+#include <valkey/cluster.h>
 #include <mmv_stats.h>
 #include "batons.h"
 #include "keys.h"

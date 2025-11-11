@@ -21,7 +21,7 @@
 #include <strings.h>
 #endif
 #if defined(HAVE_LIBUV)
-#include <libvalkey/include/valkey/adapters/libuv.h>
+#include <valkey/adapters/libuv.h>
 #else
 static int keyClusterLibuvAttach() { return RESP_OK; }
 #endif
@@ -162,7 +162,6 @@ keySlotsInit(dict *config, void *events)
     sds			def_servers = NULL;
     sds			username = NULL;
     sds			password = NULL;
-    int			sts = 0;
     struct timeval	connection_timeout = {5, 0}; // 5s
     struct timeval	command_timeout = {60, 0}; // 1m
 
@@ -174,10 +173,19 @@ keySlotsInit(dict *config, void *events)
 
     context->slots.state = SLOTS_DISCONNECTED;
     context->slots.events = events;
-    context->slots.keymap = dictCreate(&sdsKeyDictCallBacks, "keymap");
+    context->slots.keymap = malloc(sizeof(keyMap));
     if (context->slots.keymap == NULL) {
 	pmNotifyErr(LOG_ERR, "%s: failed to allocate keymap\n",
-			"keySlotsInit");
+		"keySlotsInit");
+	free(context);
+	return NULL;
+    }
+    context->slots.keymap->dict = dictCreate(&sdsKeyDictCallBacks);
+    context->slots.keymap->privdata = NULL;
+    if (context->slots.keymap->dict == NULL) {
+	pmNotifyErr(LOG_ERR, "%s: failed to allocate keymap dict\n",
+		"keySlotsInit");
+	free(context->slots.keymap);
 	free(context);
 	return NULL;
     }
@@ -251,7 +259,6 @@ keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
 		keysInfoCallBack info, keysDoneCallBack done,
 		void *userdata, void *events, void *arg, valkeyClusterOptions *opts)
 {
-    dictIterator	*iterator;
     dictEntry		*entry;
     static int		log_connection_errors = 1;
 
@@ -272,7 +279,15 @@ keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
     /* reset keySlots in case of reconnect */
     slots->cluster = 0;
     slots->search = 0;
-    dictEmpty(slots->keymap, NULL);
+    /* Clear the keymap by iterating and deleting all entries */
+    {
+	dictIterator iter;
+	dictEntry *e;
+	dictInitIterator(&iter, slots->keymap->dict);
+	while ((e = dictNext(&iter)) != NULL) {
+	    dictDelete(slots->keymap->dict, dictGetKey(e));
+	}
+    }
 
     /* Connect to the key server */
     /* libvalkey determines cluster mode during initial connect */
@@ -295,16 +310,17 @@ keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
 	 * is configured, but cluster mode is disabled
 	 * otherwise all other nodes silently don't get any data
 	 */
-	iterator = dictGetSafeIterator(slots->acc->cc.nodes);
-	entry = dictNext(iterator);
-	if (entry && dictNext(iterator)) {
-	    dictReleaseIterator(iterator);
-	    pmNotifyErr(LOG_ERR, "%s: more than one node is configured, "
-			"but cluster mode is disabled", "keySlotsReconnect");
-	    slots->state = SLOTS_ERR_FATAL;
-	    return;
+	{
+	    dictIterator iter;
+	    dictInitIterator(&iter, slots->acc->cc.nodes);
+	    entry = dictNext(&iter);
+	    if (entry && dictNext(&iter)) {
+		pmNotifyErr(LOG_ERR, "%s: more than one node is configured, "
+			    "but cluster mode is disabled", "keySlotsReconnect");
+		slots->state = SLOTS_ERR_FATAL;
+		return;
+	    }
 	}
-	dictReleaseIterator(iterator);
     }
     else {
 	if (log_connection_errors || pmDebugOptions.desperate) {
@@ -357,7 +373,12 @@ keySlotsFree(keySlots *slots)
 {
     keyClusterAsyncDisconnect(slots->acc);
     keyClusterAsyncFree(slots->acc);
-    dictRelease(slots->keymap);
+    if (slots->keymap) {
+	if (slots->keymap->privdata)
+	    sdsfree((sds)slots->keymap->privdata);
+	dictRelease(slots->keymap->dict);
+	free(slots->keymap);
+    }
     memset(slots, 0, sizeof(*slots));
     free(slots);
 }
@@ -539,7 +560,6 @@ int
 keySlotsRequestFirstNode(keySlots *slots, const sds cmd,
 		keyClusterCallbackFn *callback, void *arg)
 {
-    dictIterator	*iterator;
     dictEntry		*entry;
     valkeyClusterNode	*node;
     keySlotsReplyData	*srd;
@@ -553,9 +573,11 @@ keySlotsRequestFirstNode(keySlots *slots, const sds cmd,
     if (UNLIKELY(slots->state != SLOTS_CONNECTED && slots->state != SLOTS_READY))
 	return -ENOTCONN;
 
-    iterator = dictGetSafeIterator(slots->acc->cc.nodes);
-    entry = dictNext(iterator);
-    dictReleaseIterator(iterator);
+    {
+	dictIterator iter;
+	dictInitIterator(&iter, slots->acc->cc.nodes);
+	entry = dictNext(&iter);
+    }
     if (!entry) {
 	pmNotifyErr(LOG_ERR, "%s: No key server node configured.",
 			"keySlotsRequestFirstNode");
@@ -637,8 +659,8 @@ keySlotsProxyConnect(keySlots *slots, keysInfoCallBack info,
 	    reply->type == RESP_REPLY_MAP ||
 	    reply->type == RESP_REPLY_SET)
 	    cmd = sdsnew(reply->element[0]->str);
-	if (cmd && (entry = dictFind(slots->keymap, cmd)) != NULL) {
-	    position = dictGetSignedIntegerVal(entry);
+	if (cmd && (entry = dictFind(slots->keymap->dict, cmd)) != NULL) {
+	    position = *(int64_t *)dictGetVal(entry);
 	    if (position > 0 && position < reply->elements)
 		hasKey = 1;
 	}

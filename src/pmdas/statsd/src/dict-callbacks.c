@@ -18,31 +18,35 @@
 #include "dict-callbacks.h"
 #include "utils.h"
 
+/* Static variable to store config for callbacks that need it */
+static struct agent_config* current_dict_config = NULL;
+
 void
-metric_label_free_callback(void* privdata, void* val) 
+metric_label_free_callback(void* val) 
 {
-    struct agent_config* config = ((struct pmda_metrics_dict_privdata*)privdata)->config;
-    free_metric_label(config, (struct metric_label*)val);
+    if (current_dict_config != NULL) {
+	free_metric_label(current_dict_config, (struct metric_label*)val);
+    }
 }
 
 void
-metric_free_callback(void* privdata, void* val)
+metric_free_callback(void* val)
 {
-    struct agent_config* config = ((struct pmda_metrics_dict_privdata*)privdata)->config;
-    free_metric(config, (struct metric*)val);
+    if (current_dict_config != NULL) {
+	free_metric(current_dict_config, (struct metric*)val);
+    }
 }
 
 void
-str_hash_free_callback(void* privdata, void* key) {
+str_hash_free_callback(void* key) {
     if (key != NULL) {
         free(key);
     }
 }
 
 void*
-str_duplicate_callback(void* privdata, const void* key)
+str_duplicate_callback(const void* key)
 {
-    (void)privdata;
     size_t length = strlen(key) + 1;
     char* duplicate = malloc(length);
     ALLOC_CHECK(duplicate, "Unable to duplicate key.");
@@ -51,14 +55,27 @@ str_duplicate_callback(void* privdata, const void* key)
 }
 
 int
-str_compare_callback(void* privdata, const void* key1, const void* key2)
+str_compare_callback(const void* key1, const void* key2)
 {
-    (void)privdata;
     return strcmp((char*)key1, (char*)key2) == 0;
+}
+
+/* Helper function to set config for callbacks */
+void
+dict_set_config(struct agent_config* config)
+{
+    current_dict_config = config;
+}
+
+/* Helper function to clear config */
+void
+dict_clear_config(void)
+{
+    current_dict_config = NULL;
 }
 
 uint64_t
 str_hash_callback(const void* key)
 {
-    return dictGenCaseHashFunction((unsigned char*)key, strlen((char*)key));
+    return dictGenHashFunction((unsigned char*)key, strlen((char*)key));
 }

@@ -729,12 +729,14 @@ keys_series_metric(keySlots *slots, metric_t *metric,
     } else {
 	for (i = 0; i < metric->u.vlist->listcount; i++) {
 	    value = &metric->u.vlist->value[i];
-	    if ((instance = dictFetchValue(metric->indom->insts, &value->inst)) == NULL) {
+	    dictEntry *entry;
+	    if ((entry = dictFind(metric->indom->insts, &value->inst)) == NULL) {
 		if (pmDebugOptions.series)
 		    fprintf(stderr, "indom lookup failure for %s instance %u",
 				pmInDomStr(metric->indom->indom), value->inst);
 		continue;
 	    }
+	    instance = (instance_t *)dictGetVal(entry);
 	    assert(instance->name.sds != NULL);
 	    seriesBatonReference(baton, "keys_series_metric");
 	    keyGetMap(slots,
@@ -909,8 +911,10 @@ check_instances:
     } else {
 	for (i = 0; i < metric->u.vlist->listcount; i++) {
 	    value = &metric->u.vlist->value[i];
-	    if ((instance = dictFetchValue(metric->indom->insts, &value->inst)) == NULL)
+	    dictEntry *entry;
+	    if ((entry = dictFind(metric->indom->insts, &value->inst)) == NULL)
 		continue;
+	    instance = (instance_t *)dictGetVal(entry);
 	    keys_series_instance(slots, metric, instance, baton);
 	    if (metric->cached == 0 || instance->cached == 0)
 		keys_series_labelset(slots, metric, instance, baton);
@@ -924,8 +928,10 @@ check_instances:
 	}
 	for (i = 0; i < metric->u.vlist->listcount; i++) {
 	    value = &metric->u.vlist->value[i];
-	    if ((instance = dictFetchValue(metric->indom->insts, &value->inst)) == NULL)
+	    dictEntry *entry;
+	    if ((entry = dictFind(metric->indom->insts, &value->inst)) == NULL)
 		continue;
+	    instance = (instance_t *)dictGetVal(entry);
 	    instance->cached = 1;
 	}
 	metric->cached = 1;
@@ -1106,8 +1112,10 @@ keys_series_stream(keySlots *slots, sds stamp, metric_t *metric,
 
 		if (v->updated == 0)
 		    continue;
-		if ((inst = dictFetchValue(metric->indom->insts, &v->inst)) == NULL)
+		dictEntry *entry;
+		if ((entry = dictFind(metric->indom->insts, &v->inst)) == NULL)
 		    continue;
+		inst = (instance_t *)dictGetVal(entry);
 		name = sdscpylen(name, (const char *)inst->name.hash, sizeof(inst->name.hash));
 		stream = series_stream_value(stream, name, type, &v->atom);
 		count += 2;
@@ -1332,7 +1340,6 @@ decodeCommandKey(keySlotsBaton *baton, int index, respReply *reply)
 {
     keySlots		*slots = baton->slots;
     respReply		*node;
-    dictEntry		*entry;
     long long		position;
     sds			msg, cmd;
 
@@ -1367,13 +1374,37 @@ decodeCommandKey(keySlotsBaton *baton, int index, respReply *reply)
 			"NAME for %s element %d", COMMAND, index)) == NULL)
 	return -EINVAL;
 
-    if ((entry = dictAddRaw(slots->keymap, cmd, NULL)) != NULL) {
-	dictSetSignedIntegerVal(entry, position);
+    /* dictAddRaw replacement using libvalkey dict API */
+    /* Since libvalkey dict only stores void* values, we allocate an integer
+     * and store a pointer to it. This matches the behavior of dictSetSignedIntegerVal
+     * which would have stored the integer directly in PCP's dict union. */
+    {
+	int64_t *position_ptr;
+
+	/* Check if key already exists */
+	if (dictFind(slots->keymap->dict, cmd) != NULL) {
+	    sdsfree(cmd);
+	    return -ENOMEM; /* Key already exists */
+	}
+
+	/* Allocate integer for position value (libvalkey dict only stores void*) */
+	position_ptr = malloc(sizeof(int64_t));
+	if (position_ptr == NULL) {
+	    sdsfree(cmd);
+	    return -ENOMEM;
+	}
+	*position_ptr = position;
+
+	/* Use dictAdd to add the entry with the position pointer as value */
+	if (dictAdd(slots->keymap->dict, cmd, position_ptr) != DICT_OK) {
+	    free(position_ptr);
+	    sdsfree(cmd);
+	    return -ENOMEM;
+	}
+
 	sdsfree(cmd);
 	return 0;
     }
-    sdsfree(cmd);
-    return -ENOMEM;
 }
 
 static void

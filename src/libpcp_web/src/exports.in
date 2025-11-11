@@ -294,3 +294,10 @@ PCP_WEB_1.22 {
     pmLogPathsReset;
     pmLogPathsSetMetricRegistry;
 } PCP_WEB_1.21;
+
+PCP_WEB_1.23 {
+    dictGetVal;
+    dictGetKey;
+    dictInitIterator;
+    dictSetVal;
+} PCP_WEB_1.22;

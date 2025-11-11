@@ -51,7 +51,7 @@ static void
 labeladd(void *arg, const struct dictEntry *entry)
 {
     sds			*buffer = (sds *)arg;
-    sds			value = entry->v.val;
+    sds			value = (sds)dictGetVal(entry);
     const char		*type;
 
     if (value[0] == '"')
@@ -64,18 +64,17 @@ labeladd(void *arg, const struct dictEntry *entry)
     if (*buffer)
 	*buffer = sdscatfmt(*buffer,
 				",{\"key\":\"%S\",\"value\":{\"%s\":%S}}",
-				entry->key, type, value);
+				dictGetKey(entry), type, value);
     else /* first label: alloc empty start string, and no leading comma */
 	*buffer = sdscatfmt(sdsempty(),
 				"{\"key\":\"%S\",\"value\":{\"%s\":%S}}",
-				entry->key, type, value);
+				dictGetKey(entry), type, value);
 }
 
 /* convert an array of PCP labelsets into Open Telemetry form */
 void
 open_telemetry_labels(pmWebLabelSet *labels, struct dict **context, sds *buffer)
 {
-    unsigned long	cursor = 0;
     pmLabelSet		*labelset;
     pmLabel		*label;
     dictEntry		*entry;
@@ -93,7 +92,7 @@ open_telemetry_labels(pmWebLabelSet *labels, struct dict **context, sds *buffer)
 
     /* setup resource attributues based on the PCP context labels */
     if (labeldict == NULL) {
-	labeldict = dictCreate(&sdsOwnDictCallBacks, NULL);
+	labeldict = dictCreate(&sdsOwnDictCallBacks);
 	labelset = labels->sets[0];	/* context labels */
 	for (j = 0; j < labelset->nlabels; j++) {
 	    label = &labelset->labels[j];
@@ -111,7 +110,7 @@ open_telemetry_labels(pmWebLabelSet *labels, struct dict **context, sds *buffer)
 	*context = labeldict;
     }
 
-    metric_labels = dictCreate(&sdsOwnDictCallBacks, NULL);
+    metric_labels = dictCreate(&sdsOwnDictCallBacks);
 
     /* walk remaining labelsets in order adding labels to */
     for (i = 1; i < labels->nsets; i++) {
@@ -154,9 +153,14 @@ open_telemetry_labels(pmWebLabelSet *labels, struct dict **context, sds *buffer)
     /* finally produce the merged set of labels in the desired format */
     sdsfree(*buffer);
     *buffer = NULL;
-    do {
-	cursor = dictScan(metric_labels, cursor, labeladd, NULL, buffer);
-    } while (cursor);
+    {
+	dictIterator iter;
+	dictEntry *entry;
+	dictInitIterator(&iter, metric_labels);
+	while ((entry = dictNext(&iter)) != NULL) {
+	    labeladd(buffer, entry);
+	}
+    }
     dictRelease(metric_labels);
 }
 

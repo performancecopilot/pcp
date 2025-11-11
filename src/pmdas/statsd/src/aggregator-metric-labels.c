@@ -47,7 +47,9 @@ create_labels_dict(
         .keyDestructor  = str_hash_free_callback,
         .valDestructor  = metric_label_free_callback,
     };
-    labels* children = dictCreate(&metric_label_dict_callbacks, container->metrics_privdata);
+    dict_set_config(container->metrics_privdata->config);
+    labels* children = dictCreate(&metric_label_dict_callbacks);
+    dict_clear_config();
     item->children = children;
     pthread_mutex_unlock(&container->mutex);
 }
@@ -132,7 +134,7 @@ find_label_by_name(
         return 0;
     }
     if (out != NULL) {
-        struct metric_label* label = (struct metric_label*)result->v.val;
+        struct metric_label* label = (struct metric_label*)dictGetVal(result);
         *out = label;
     }
     pthread_mutex_unlock(&container->mutex);
@@ -308,11 +310,12 @@ print_label_meta(struct agent_config* config, FILE* f, struct metric_label_metad
 void
 print_labels(struct agent_config* config, FILE* f, labels* l) {
     if (l == NULL) return;
-    dictIterator* iterator = dictGetSafeIterator(l);
+    dictIterator iterator;
+    dictInitIterator(&iterator, l);
     dictEntry* current;
     long int count = 1;
-    while ((current = dictNext(iterator)) != NULL) {
-        struct metric_label* item = (struct metric_label*)current->v.val;
+    while ((current = dictNext(&iterator)) != NULL) {
+        struct metric_label* item = (struct metric_label*)dictGetVal(current);
         fprintf(f, "---\n");
         fprintf(f, "#%ld Label: \n", count);
         if (item->labels != NULL) {
@@ -341,7 +344,6 @@ print_labels(struct agent_config* config, FILE* f, labels* l) {
         count++;
     }
     fprintf(f, "---\n");
-    dictReleaseIterator(iterator);
 }
 
 /**

@@ -30,8 +30,8 @@
 #ifndef RESP_KEYS_H
 #define RESP_KEYS_H
 
-#include <libvalkey/include/valkey/valkey.h>
-#include <libvalkey/include/valkey/async.h>
+#include <valkey/valkey.h>
+#include <valkey/async.h>
 
 #define RESP_OK			VALKEY_OK
 #define RESP_ERR		VALKEY_ERR
