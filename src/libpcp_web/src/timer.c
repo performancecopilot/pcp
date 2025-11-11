@@ -188,13 +188,13 @@ server_metrics_refresh(void *map)
     mmv_set(map, server.metrics[SERVER_MEM_DATASZ], &datasz);
 
     /* update global maps size metrics */
-    value = contextmap? dictSize(contextmap) : 0;
+    value = contextmap? dictSize(contextmap->dict) : 0;
     mmv_set(map, server.metrics[SERVER_MAP_CONTEXT_SIZE], &value);
-    value = namesmap? dictSize(namesmap) : 0;
+    value = namesmap? dictSize(namesmap->dict) : 0;
     mmv_set(map, server.metrics[SERVER_MAP_METRIC_SIZE], &value);
-    value = labelsmap? dictSize(labelsmap) : 0;
+    value = labelsmap? dictSize(labelsmap->dict) : 0;
     mmv_set(map, server.metrics[SERVER_MAP_LABEL_SIZE], &value);
-    value = instmap? dictSize(instmap) : 0;
+    value = instmap? dictSize(instmap->dict) : 0;
     mmv_set(map, server.metrics[SERVER_MAP_INST_SIZE], &value);
 }
 

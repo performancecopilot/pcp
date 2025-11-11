@@ -53,15 +53,14 @@ labeladd(void *arg, const struct dictEntry *entry)
     pmWebLabelSet	*labels = (pmWebLabelSet *)arg;
 
     labels->buffer = (sdslen(labels->buffer) == 0) ?	/* first time */
-	sdscatfmt(labels->buffer, "%S=%S", entry->key, entry->v.val) :
-	sdscatfmt(labels->buffer, ",%S=%S", entry->key, entry->v.val);
+	sdscatfmt(labels->buffer, "%S=%S", dictGetKey(entry), dictGetVal(entry)) :
+	sdscatfmt(labels->buffer, ",%S=%S", dictGetKey(entry), dictGetVal(entry));
 }
 
 /* convert an array of PCP labelsets into Open Metrics form */
 void
 open_metrics_labels(pmWebLabelSet *labels)
 {
-    unsigned long	cursor = 0;
     pmLabelSet		*labelset;
     pmLabel		*label;
     dict		*labeldict;
@@ -76,7 +75,7 @@ open_metrics_labels(pmWebLabelSet *labels)
     if (instid == NULL)
 	instid = sdsnewlen("instid", 6);
 
-    labeldict = dictCreate(&sdsOwnDictCallBacks, NULL);
+    labeldict = dictCreate(&sdsOwnDictCallBacks);
 
     /* walk labelset in order adding labels to a temporary dictionary */
     for (i = 0; i < labels->nsets; i++) {
@@ -117,9 +116,14 @@ open_metrics_labels(pmWebLabelSet *labels)
     }
 
     /* finally produce the merged set of labels in the desired format */
-    do {
-	cursor = dictScan(labeldict, cursor, labeladd, NULL, labels);
-    } while (cursor);
+    {
+	dictIterator iter;
+	dictEntry *entry;
+	dictInitIterator(&iter, labeldict);
+	while ((entry = dictNext(&iter)) != NULL) {
+	    labeladd(labels, entry);
+	}
+    }
 
     dictRelease(labeldict);
 }
