@@ -593,13 +593,13 @@ add_dict_attribute(void *arg, const struct dictEntry *entry)
 {
     sds		*out = (sds *)arg;
 
-    *out = add_sds_attribute(*out, entry->key, entry->v.val);
+    *out = add_sds_attribute(*out, dictGetKey(entry), dictGetVal(entry));
 }
 
 static sds
 add_metrics_resource_attributes(pmWebGroupBaton *baton, sds result)
 {
-    unsigned long	cursor = 0, count = 0;
+    unsigned long	count = 0;
 
     assert(sdslen(result) == 0);
     result = sdscatlen(result, "{\"resourceMetrics\":[", 20);
@@ -608,10 +608,15 @@ add_metrics_resource_attributes(pmWebGroupBaton *baton, sds result)
 
     result = sdscatlen(result, "{\"resource\":{\"attributes\":[", 27);
     baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
-    do {
-	cursor = dictScan(baton->labels, cursor, add_dict_attribute, NULL, &result);
-	count++;
-    } while (cursor);
+    {
+	dictIterator iter;
+	dictEntry *entry;
+	dictInitIterator(&iter, baton->labels);
+	while ((entry = dictNext(&iter)) != NULL) {
+	    add_dict_attribute(&result, entry);
+	    count++;
+	}
+    }
     if (count)
 	result = chop_final_character(result);
     return sdscatlen(result, "]},", 3); /* end attributes, resources */
@@ -1066,7 +1071,7 @@ pmwebapi_request_body(struct client *client, const char *content, size_t length)
     if (baton->restkey == RESTKEY_DERIVE &&
 	client->u.http.parser.method == HTTP_POST) {
 	if (client->u.http.parameters == NULL)
-	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks);
 	dictAdd(client->u.http.parameters,
 			sdsnewlen(PARAM_EXPR, sdslen(PARAM_EXPR)),
 			sdsnewlen(content, length));
@@ -1074,7 +1079,7 @@ pmwebapi_request_body(struct client *client, const char *content, size_t length)
     if (baton->restkey == RESTKEY_STORE &&
 	client->u.http.parser.method == HTTP_POST) {
 	if (client->u.http.parameters == NULL)
-	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks);
 	dictAdd(client->u.http.parameters,
 			sdsnewlen(PARAM_VALUE, sdslen(PARAM_VALUE)),
 			sdsnewlen(content, length));

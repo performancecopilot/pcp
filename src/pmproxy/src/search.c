@@ -403,10 +403,17 @@ pmsearch_setup_request_parameters(struct client *client,
 		sdsfreesplitres(values, nvalues);
 	    }
 	}
-	if ((value = (sds)dictFetchValue(parameters, PARAM_LIMIT)))
-	    baton->request.count = strtoul(value, NULL, 0);
-	if ((value = (sds)dictFetchValue(parameters, PARAM_OFFSET)))
-	    baton->request.offset = strtoul(value, NULL, 0);
+	{
+	    dictEntry *entry;
+	    entry = dictFind(parameters, PARAM_LIMIT);
+	    value = entry ? (sds)dictGetVal(entry) : NULL;
+	    if (value)
+		baton->request.count = strtoul(value, NULL, 0);
+	    entry = dictFind(parameters, PARAM_OFFSET);
+	    value = entry ? (sds)dictGetVal(entry) : NULL;
+	    if (value)
+		baton->request.offset = strtoul(value, NULL, 0);
+	}
 	break;
 
     case RESTKEY_SUGGEST:
@@ -423,8 +430,13 @@ pmsearch_setup_request_parameters(struct client *client,
 	}
 	/* optional parameters - flags, result count and pagination offset */
 	baton->request.flags = 0;
-	if ((value = (sds)dictFetchValue(parameters, PARAM_LIMIT)))
-	    baton->request.count = strtoul(value, NULL, 0);
+	{
+	    dictEntry *entry;
+	    entry = dictFind(parameters, PARAM_LIMIT);
+	    value = entry ? (sds)dictGetVal(entry) : NULL;
+	    if (value)
+		baton->request.count = strtoul(value, NULL, 0);
+	}
 	break;
 
     case RESTKEY_INFO:

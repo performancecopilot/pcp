@@ -29,15 +29,15 @@ endif
 LIBVALKEY_HFILES = $(addprefix deps/libvalkey/, \
 	include/valkey/alloc.h include/valkey/async.h src/async_private.h src/fmacros.h include/valkey/valkey.h include/valkey/net.h \
 	include/valkey/read.h include/valkey/visibility.h src/sds.h src/sdsalloc.h include/valkey/sockcompat.h src/win32.h include/valkey/adapters/libuv.h \
-	src/adlist.h src/command.h src/vkutil.h include/valkey/cluster.h src/valkey_private.h src/cmddef.h)
+	src/adlist.h src/command.h src/vkutil.h include/valkey/cluster.h src/valkey_private.h src/cmddef.h src/dict.h)
 LIBVALKEY_CFILES = $(addprefix deps/libvalkey/, \
 	src/alloc.c src/async.c src/valkey.c src/net.c src/sds.c src/sockcompat.c src/read.c \
-	src/adlist.c src/command.c src/crc16.c src/vkutil.c src/cluster.c src/conn.c)
+	src/adlist.c src/command.c src/crc16.c src/vkutil.c src/cluster.c src/conn.c src/dict.c)
 LIBVALKEY_XFILES = $(LIBVALKEY_HFILES) $(LIBVALKEY_CFILES)
 
 CFILES = jsmn.c http_client.c http_parser.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
-	 keys.c dict.c maps.c batons.c encoding.c \
+	 keys.c maps.c batons.c encoding.c \
 	 search.c json_helpers.c config.c \
 	 $(LIBVALKEY_CFILES)
 ifneq "$(HAVE_LIBINIH)" "true"
@@ -45,7 +45,7 @@ ifneq "$(HAVE_LIBINIH)" "true"
 endif
 HFILES = jsmn.h http_client.h http_parser.h zmalloc.h \
 	 query.h schema.h load.h sha1.h util.h slots.h \
-	 keys.h dict.h maps.h batons.h encoding.h \
+	 keys.h maps.h batons.h encoding.h \
 	 search.h discover.h private.h \
 	 $(LIBVALKEY_HFILES)
 ifneq "$(HAVE_LIBINIH)" "true"
@@ -53,7 +53,7 @@ ifneq "$(HAVE_LIBINIH)" "true"
 endif
 YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
-	 sha1.c sha1.h siphash.c dict.c dict.h
+	 sha1.c sha1.h siphash.c
 
 LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH) $(LIB_FOR_REGEX)
 ifeq "$(TARGET_OS)" "mingw"
@@ -67,7 +67,7 @@ ifneq "$(HAVE_LIBINIH)" "true"
 LCFLAGS += -Iinih
 endif
 
-LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps -Ideps/libvalkey/include/valkey
+LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps -Ideps/libvalkey/include/valkey -Ideps/libvalkey/include -Ideps/libvalkey/src
 
 ifeq "$(HAVE_LIBUV)" "true"
 CFILES += discover.c loggroup.c webgroup.c timer.c
