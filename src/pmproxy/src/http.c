@@ -341,9 +341,11 @@ http_response_header(struct client *client, unsigned int length, http_code_t sts
 static sds
 http_header_value(struct client *client, sds header)
 {
+    dictEntry *entry;
     if (client->u.http.headers == NULL)
 	return NULL;
-    return (sds)dictFetchValue(client->u.http.headers, header);
+    entry = dictFind(client->u.http.headers, header);
+    return entry ? (sds)dictGetVal(entry) : NULL;
 }
 
 static sds
@@ -413,10 +415,12 @@ http_response_trace(struct client *client, int sts)
 		sts, http_status_mapping(sts), HEADER_CONNECTION);
     header = sdscatfmt(header, "%S: %u\r\n", HEADER_CONTENT_LENGTH, 0);
 
-    iterator = dictGetSafeIterator(client->u.http.headers);
-    while ((entry = dictNext(iterator)) != NULL)
-	header = sdscatfmt(header, "%S: %S\r\n", dictGetKey(entry), dictGetVal(entry));
-    dictReleaseIterator(iterator);
+    {
+	dictIterator iterator;
+	dictInitIterator(&iterator, client->u.http.headers);
+	while ((entry = dictNext(&iterator)) != NULL)
+	    header = sdscatfmt(header, "%S: %S\r\n", dictGetKey(entry), dictGetVal(entry));
+    }
 
     header = sdscatfmt(header, "Date: %s\r\n\r\n",
 		http_date_string(time(NULL), buffer, sizeof(buffer)));
@@ -797,7 +801,7 @@ http_parameters(const char *url, size_t length, dict **parameters)
     const char		*p, *name, *value = NULL;
     int			sts = 0, namelen = 0, valuelen = 0;
 
-    *parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+    *parameters = dictCreate(&sdsOwnDictCallBacks);
     for (p = name = url; p < end; p++) {
 	if (*p == '=') {
 	    namelen = p - name;
@@ -912,14 +916,14 @@ on_url(http_parser *request, const char *offset, size_t length)
 		client->u.http.parser.method == HTTP_TRACE ||
 		client->u.http.parser.method == HTTP_HEAD)
 		client->u.http.flags |= HTTP_FLAG_NO_BODY;
-	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
+	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks);
 	}
     }
     /* server options - https://tools.ietf.org/html/rfc7231#section-4.3.7 */
     else if (client->u.http.parser.method == HTTP_OPTIONS) {
 	if (length == 1 && *offset == '*') {
 	    client->u.http.flags |= HTTP_FLAG_NO_BODY;
-	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
+	    client->u.http.headers = dictCreate(&sdsOwnDictCallBacks);
 	} else {
 	    sts = client->u.http.parser.status_code = HTTP_STATUS_BAD_REQUEST;
 	    http_error(client, sts, "no handler for OPTIONS");
@@ -928,7 +932,7 @@ on_url(http_parser *request, const char *offset, size_t length)
     /* server trace - https://tools.ietf.org/html/rfc7231#section-4.3.8 */
     else if (client->u.http.parser.method == HTTP_TRACE) {
 	client->u.http.flags |= HTTP_FLAG_NO_BODY;
-	client->u.http.headers = dictCreate(&sdsOwnDictCallBacks, NULL);
+	client->u.http.headers = dictCreate(&sdsOwnDictCallBacks);
     }
     /* nothing available to respond to this request - inform the client */
     else {
@@ -973,7 +977,23 @@ on_header_field(http_parser *request, const char *offset, size_t length)
      * Insert this header into the dictionary (name only so far);
      * track this header for associating the value to it (below).
      */
-    client->u.http.privdata = dictAddRaw(client->u.http.headers, field, NULL);
+    /* dictAddRaw replacement using libvalkey dict API */
+    {
+	dictEntry *entry;
+	entry = dictFind(client->u.http.headers, field);
+	if (entry == NULL) {
+	    /* Key doesn't exist, add it with NULL value */
+	    if (dictAdd(client->u.http.headers, field, NULL) == DICT_OK) {
+		/* Get the newly added entry */
+		client->u.http.privdata = dictFind(client->u.http.headers, field);
+	    } else {
+		client->u.http.privdata = NULL;
+	    }
+	} else {
+	    /* Key already exists, return the existing entry */
+	    client->u.http.privdata = entry;
+	}
+    }
     return 0;
 }
 
@@ -1090,7 +1110,7 @@ on_headers_complete(http_parser *request)
 
     if (client->u.http.username) {
 	if (!client->u.http.parameters)
-	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks);
 	http_add_parameter(client->u.http.parameters, "auth.username", 13,
 		client->u.http.username, sdslen(client->u.http.username));
 	if (client->u.http.password)
