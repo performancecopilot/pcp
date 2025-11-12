@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2015,2020 Red Hat.
+# Copyright (c) 2015,2020,2025 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -24,7 +24,7 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
-CFILES		= pmda.c kernel.c disk.c network.c
+CFILES		= pmda.c kernel.c disk.c network.c version.c
 HFILES		= disk.h network.h
 
 LSRCFILES	= help root pmns

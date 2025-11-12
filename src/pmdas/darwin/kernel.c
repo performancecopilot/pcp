@@ -181,16 +181,4 @@ refresh_hinv(void)
     if (sysctl(mib, 2, hw_model, &size, NULL, 0) == -1)
 	return -oserror();
     return 0;
-#if 0
-sysctl...others
-hw.machine = Power Macintosh
-hw.model = PowerMac4,2
-hw.busfrequency = 99837332
-hw.cpufrequency = 700000000
-hw.cachelinesize = 32
-hw.l1icachesize = 32768
-hw.l1dcachesize = 32768
-hw.l2settings = 2147483648
-hw.l2cachesize = 262144
-#endif
 }

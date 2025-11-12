@@ -25,6 +25,7 @@ kernel.uname {
     sysname		DARWIN:2:25
     machine		DARWIN:2:26
     nodename		DARWIN:2:27
+    distro		DARWIN:2:30
 }
 
 kernel.all {

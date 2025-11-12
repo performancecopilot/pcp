@@ -1,15 +1,14 @@
 /*
- * MacOS X kernel PMDA
- * "darwin" is easier to type than "macosx",  especially for Aussies. ;-)
+ * Darwin kernel (macOS) PMDA
  *
- * Copyright (c) 2012 Red Hat.
+ * Copyright (c) 2012,2025 Red Hat.
  * Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
- * 
+ *
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2 of the License, or (at your
  * option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
@@ -89,6 +88,8 @@ extern int refresh_nfs(struct nfsstats *);
 
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
+
+extern char *macos_version(void);
 
 /*
  * Metric Instance Domains (statically initialized ones only)
@@ -259,31 +260,35 @@ static pmdaMetric metrictab[] = {
 /* kernel.uname.release */
   { mach_uname.release,
     { PMDA_PMID(CLUSTER_KERNEL_UNAME, 23), PM_TYPE_STRING, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* kernel.uname.version */
   { mach_uname.version,
     { PMDA_PMID(CLUSTER_KERNEL_UNAME, 24), PM_TYPE_STRING, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* kernel.uname.sysname */
   { mach_uname.sysname,
     { PMDA_PMID(CLUSTER_KERNEL_UNAME, 25), PM_TYPE_STRING, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* kernel.uname.machine */
   { mach_uname.machine,
     { PMDA_PMID(CLUSTER_KERNEL_UNAME, 26), PM_TYPE_STRING, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* kernel.uname.nodename */
   { mach_uname.nodename,
     { PMDA_PMID(CLUSTER_KERNEL_UNAME, 27), PM_TYPE_STRING, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.uname.distro */
+  { NULL,
+    { PMDA_PMID(CLUSTER_KERNEL_UNAME, 30), PM_TYPE_STRING, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* pmda.uname */
   { NULL,
     { PMDA_PMID(CLUSTER_KERNEL_UNAME, 28), PM_TYPE_STRING, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 /* pmda.version */
   { NULL,
     { PMDA_PMID(CLUSTER_KERNEL_UNAME, 29), PM_TYPE_STRING, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* kernel.all.load */
   { NULL,
@@ -828,6 +833,9 @@ fetch_uname(unsigned int item, pmAtomValue *atom)
 	return 1;
     case 29: /* pmda.version */
 	atom->cp = pmGetConfig("PCP_VERSION");
+	return 1;
+    case 30: /* kernel.all.distro */
+	atom->cp = macos_version();
 	return 1;
     }
     return PM_ERR_PMID;
