@@ -114,6 +114,8 @@ const MeterClass* const Platform_meterTypes[] = {
    &ZfsArcMeter_class,
    &ZfsCompressedArcMeter_class,
    &ZramMeter_class,
+   &DiskIORateMeter_class,
+   &DiskIOTimeMeter_class,
    &DiskIOMeter_class,
    &NetworkIOMeter_class,
    &SysArchMeter_class,
@@ -259,6 +261,8 @@ static const char* Platform_metricNames[] = {
 
    [PCP_METRIC_COUNT] = NULL
 };
+
+static void Platform_setRelease(void);
 
 #ifndef HAVE_PMLOOKUPDESCS
 /*
@@ -417,7 +421,7 @@ bool Platform_init(void) {
 
    /* first sample (fetch) performed above, save constants */
    Platform_getBootTime();
-   Platform_getRelease(0);
+   Platform_setRelease();
    Platform_getMaxCPU();
    Platform_getMaxPid();
 
@@ -656,14 +660,7 @@ void Platform_getHostname(char* buffer, size_t size) {
    String_safeStrncpy(buffer, hostname, size);
 }
 
-void Platform_getRelease(char** string) {
-   /* fast-path - previously-formatted string */
-   if (string) {
-      *string = pcp->release;
-      return;
-   }
-
-   /* first call, extract just-sampled values */
+static void Platform_setRelease(void) {
    pmAtomValue sysname, release, machine, distro;
    if (!Metric_values(PCP_UNAME_SYSNAME, &sysname, 1, PM_TYPE_STRING))
       sysname.cp = NULL;
@@ -715,6 +712,13 @@ void Platform_getRelease(char** string) {
    free(machine.cp);
    free(release.cp);
    free(sysname.cp);
+}
+
+void Platform_getRelease(const char** string) {
+   if (pcp->release == NULL)
+      Platform_setRelease();
+
+   *string = pcp->release;
 }
 
 char* Platform_getProcessEnv(pid_t pid) {

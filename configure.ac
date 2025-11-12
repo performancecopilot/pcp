@@ -112,8 +112,8 @@ AC_ARG_ENABLE(
    [static],
    [AS_HELP_STRING(
       [--enable-static],
-      [build a static htop binary @<:@default=no@:>@])
-   ],
+      [build a static htop binary @<:@default=no@:>@]
+   )],
    [],
    [enable_static=no]
 )
@@ -140,8 +140,8 @@ AC_ARG_ENABLE(
    [pcp],
    [AS_HELP_STRING(
       [--enable-pcp],
-      [build a pcp-htop binary @<:@default=no@:>@])
-   ],
+      [build a pcp-htop binary @<:@default=no@:>@]
+   )],
    [],
    [enable_pcp=no]
 )
@@ -403,7 +403,6 @@ fi
 AC_SEARCH_LIBS([clock_gettime], [rt])
 
 AC_CHECK_FUNCS([ \
-   clock_gettime \
    dladdr \
    faccessat \
    fstatat \
@@ -1197,22 +1196,6 @@ esac
 
 
 AC_ARG_WITH(
-   [os-release],
-   [AS_HELP_STRING(
-      [--with-os-release=FILE],
-      [location of an os-release file @<:@default=/etc/os-release@:>@]
-   )],
-   [],
-   [with_os_release=/etc/os-release]
-)
-if test -n "$with_os_release" && test ! -f "$with_os_release"; then
-   if test -f "/usr/lib/os-release"; then
-      with_os_release="/usr/lib/os-release"
-   fi
-fi
-AC_DEFINE_UNQUOTED([OSRELEASEFILE], ["$with_os_release"], [File with OS release details.])
-
-AC_ARG_WITH(
    [config],
    [AS_HELP_STRING(
       [--with-config=DIR],
@@ -1608,7 +1591,6 @@ AC_MSG_RESULT([
   ${PACKAGE_NAME} ${VERSION}
 
   platform:                  $my_htop_platform ($host_os)
-  os-release file:           $with_os_release
   (Linux) proc directory:    $with_proc
   (Linux) openvz:            $enable_openvz
   (Linux) vserver:           $enable_vserver
