@@ -1,7 +1,8 @@
 pcp (7.0.3-1) unstable; urgency=high
 
   * New release (full details in CHANGELOG).
-  * Exclude pmdabcc builds on ppc64el until bpfcc #1077087 resolved (closes: #1117010)
+  * Exclude pmdabcc ppc64el builds until bpfcc #1077087 resolved (closes: #1117010)
+  * Fix pmlogger.service "protocol-error" issue [some time ago] (closes: #1005325)
   * Use libinih-dev where available [done some time ago] (closes: #958241)
   * Resolve install-doc --check issue [some time ago] (closes: #971414)
   * Add perl-xs-dev to Build-Depends for trixie or later (closes: #1102849)
