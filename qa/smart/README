@@ -16,5 +16,6 @@ Recipe for adding case #007
   $ cat /sys/block/xxx/device/wwid > 007/smart/wwid
 
 - capture output from into xxx.nvme for any nvme drives
+  # smartctl - l error /dev/nvmexxx > 007/smart/xxx.error
   $ nvme get-feature -f 0x0c -H /dev/nvmexxx
   $ nvme get-feature -f 0x07 -H /dev/nvmexxx

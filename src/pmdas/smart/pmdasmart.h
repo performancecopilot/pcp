@@ -19,6 +19,9 @@
 
 #include "smart_stats.h"
 
+extern pmInDom smart_indom(int);
+#define INDOM(i) smart_indom(i)
+
 enum {
 	CLUSTER_DEVICE_INFO = 0,					/* 0 - General disk information */
 	CLUSTER_RAW_READ_ERROR_RATE = 1,
@@ -76,6 +79,7 @@ enum {
 	CLUSTER_POWER_STATE_3 = 260,
 	CLUSTER_POWER_STATE_4 = 261,
 	CLUSTER_POWER_STATE_5 = 262,
+	CLUSTER_NVME_ERROR_LOG = 263,
 	CLUSTER_UUID_INFO = 1000,
 	CLUSTER_UUID_RAW_READ_ERROR_RATE = 1001,
 	CLUSTER_UUID_THROUGHPUT_PERFORMANCE = 1002,
@@ -132,12 +136,15 @@ enum {
 	CLUSTER_UUID_POWER_STATE_3 = 1260,
 	CLUSTER_UUID_POWER_STATE_4 = 1261,
 	CLUSTER_UUID_POWER_STATE_5 = 1262,
+	CLUSTER_UUID_NVME_ERROR_LOG = 1263,
 	NUM_CLUSTERS
 };
 
 enum {
 	DISK_INDOM = 0,						/* 0 - Detected disk names      */
 	UUID_INDOM = 1,						/* 1 - Instances by UUID	*/
+	DISK_NVME_LOG_INDOM = 2,					/* 2 - Disk NVME Error Log*/
+	UUID_NVME_LOG_INDOM = 3,					/* 3 - UUID NVME Error Log*/
 	NUM_INDOMS
 };
 

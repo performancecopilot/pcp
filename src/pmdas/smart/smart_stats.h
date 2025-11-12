@@ -174,6 +174,19 @@ enum {
 	NUM_POWER_STATS
 };
 
+enum {
+	ERROR_COUNT = 0,
+	ERROR_SQID,
+	ERROR_CMDID,
+	ERROR_STATUS_FIELD,
+	ERROR_STATUS_TYPE,
+	ERROR_STATUS_CODE,
+	ERROR_PARAM_ERROR_LOC,
+	ERROR_LBA,
+	ERROR_NSID,
+	NUM_ERROR_STATS
+};
+
 struct device_info {
 	char			health[9];
 	char			model_family[41];
@@ -263,6 +276,18 @@ struct nvme_power_states {
 	uint32_t		exit_latency[NUM_POWER_STATES];
 };
 
+struct nvme_error_log {
+	uint64_t 	error_count;
+	uint64_t 	sqid;
+	uint64_t 	cmdid;
+	uint64_t 	status_field;
+	char 		status_type[64];
+	char 		status_code[128];
+	uint64_t 	param_error_loc;
+	uint64_t 	lba;
+	uint64_t 	nsid;
+};
+
 extern int smart_device_info_fetch(int, struct device_info *, pmAtomValue *);
 extern int smart_refresh_device_info(const char *, struct device_info *, int);
 
@@ -277,6 +302,9 @@ extern int nvme_smart_refresh_data(const char *, struct nvme_smart_data *, int);
 
 extern int nvme_power_data_fetch(int, int, struct nvme_power_states *, pmAtomValue *, int);
 extern int nvme_power_refesh_data(const char *, struct nvme_power_states *, int);
+
+extern int nvme_error_log_fetch(int, int, struct nvme_error_log *, pmAtomValue *);
+extern int nvme_error_log_refresh(void);
 
 extern void smart_stats_setup(void);
 

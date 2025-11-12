@@ -4,6 +4,7 @@
 # $ ../../smartctl.sh -Hi /dev/sda
 # $ ../../smartctl.sh -A /dev/sda
 # $ ../../smartctl.sh -c /dev/sda
+# $ ../../smartctl.sh -l error /dev/sda
 
 option="$1"
 device=`echo "$2" | sed -e 's,/dev/,,g'`
@@ -14,6 +15,10 @@ then
 elif [ "$option" = "-A" ]
 then
     cat $device.data
+elif [ "$option" = "-l" ]
+then
+    device=`echo "$3" | sed -e 's,/dev/,,g'`
+    cat $device.error
 elif [ "$option" = "-c" ]
 then
     test -f $device.power && cat $device.power
