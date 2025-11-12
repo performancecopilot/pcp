@@ -1,3 +1,6 @@
+pcp-7.1.0 (4 February 2026)
+    - Work-in-progress.
+
 pcp-7.0.3 (12 November 2025)
     - PMDA additions, enhancements and bug fixes:
 	pmdafarm: extend support for SCSI (SAS) FARM log
