@@ -522,6 +522,12 @@ If you're short of space, or have long-standing VMs that you'd like to
 minimize update times for, the following list of packages are ones that
 are commonly installed and are not needed for PCP builds nor QA.
 
+Debian packages removed but not purged
+    $ dpkg-query -Wf '${Package}\t${Status}\n' | grep 'deinstall ok config-files' | awk '{print $1}'
+
+Debian installed (and not purged) packages sorted by size:
+    $ dpkg-query -Wf '${Installed-Size}\t${Package}\t${Status}\n' | grep -v deinstall | awk '{print $1,$2}' | sort -nr | head -20
+
     qt4-doc qt5-doc nodejs-docs libx11-doc
     imagemagick libreoffice* libfreerdp freerdp*
     cups foomatic-filters foomatic-db-filesystem hplip*
