@@ -22,6 +22,9 @@
 """
 Python implementation of the "rds" Performance Metrics Domain Agent.
 """
+from modules.rds_ping import rds_ping_all_avlbl_dest
+from modules.ping import ping_all_avlbl_dest
+from modules.rds_info import RdsInfo
 
 import os
 import sys
@@ -31,9 +34,9 @@ from enum import Enum
 from collections import defaultdict, namedtuple
 
 import cpmapi as c_api
+from cpmda import PMDA_FETCH_NOVALUES
 from pcp.pmda import PMDA, pmdaMetric
 from pcp.pmapi import pmUnits
-from cpmda import PMDA_FETCH_NOVALUES
 from pcp.pmapi import pmContext as PCP
 
 PMDA_DIR = PCP.pmGetConfig('PCP_PMDAS_DIR')
@@ -41,10 +44,6 @@ MODULES_DIR = os.path.join(PMDA_DIR, "rds", "modules")
 
 sys.path.append(os.path.dirname(MODULES_DIR))  # Enables: from modules.xyz import ...
 sys.path.append(MODULES_DIR)                   # Enables: importing sibling modules inside the modules directory
-
-from modules.rds_ping import rds_ping_all_avlbl_dest
-from modules.ping import ping_all_avlbl_dest
-from modules.rds_info import RdsInfo
 
 Metric = namedtuple("Metric", ["key", "name", "type", "units"])
 
@@ -260,7 +259,7 @@ class RDSPMDA(PMDA):
 
     def get_ip_neighbour_stats(self):
         try:
-            result = subprocess.run(['ip', '-s', 'neighbour'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            result = subprocess.run(['ip', '-s', 'neighbour'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, check=True)
             output = result.stdout
             return output
         except subprocess.CalledProcessError as e:
@@ -391,7 +390,6 @@ class RDSPMDA(PMDA):
         """Register metrics based on the METRICS structure."""
         null_indom = c_api.PM_INDOM_NULL
         inst_sem = c_api.PM_SEM_INSTANT
-        count_sem = c_api.PM_SEM_COUNTER
 
         for cluster, metrics in self.METRICS.items():
             for item, metric in enumerate(metrics):
