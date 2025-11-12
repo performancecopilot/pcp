@@ -1,0 +1,166 @@
+#!/bin/sh
+#
+# Dredge github for most recent CI QA failure corpses
+#
+# Usage: update [run_id]
+#
+
+sts=1
+if [ $# -gt 0 -a X"$1" = X"-d" ]
+then
+    shift
+    tmp=tmp
+    verbose=true
+else
+    tmp=/var/tmp/ci-qa-update-$$
+    verbose=false
+fi
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+rm -f save.html
+
+if [ $# -eq 0 ]
+then
+    # get Actions page, filtered by QA and scheduled
+    #
+    if wget -O $tmp.actions -q 'https://github.com/performancecopilot/pcp/actions?query=workflow%3AQA+event%3Aschedule'
+    then
+	:
+    else
+	echo "Arrgh! wget failed for Actions page"
+	exit
+    fi
+
+    grep '/performancecopilot/pcp/actions/runs/[0-9][0-9]*"' $tmp.actions \
+    | sed -e 's@.*/actions/runs/@@' -e 's/".*//' >$tmp.runs
+    run_id=`sed -n -e 1p <$tmp.runs`
+    if [ -z "$run_id" ]
+    then
+	echo "Arrgh! failed to get RunId from Actions page"
+	echo "HTML is in save.html"
+	cp $tmp.actions save.html
+	exit
+    fi
+elif [ $# -ne 1 -o X"$1" = X"-?" -o X"$1" = X"--help" ]
+then
+    echo "Usage: update [-d] [run_id]"
+    exit
+else
+    run_id="$1"
+fi
+
+echo "QA RunId: $run_id"
+
+if wget -O $tmp.run -q "https://github.com/performancecopilot/pcp/actions/runs/$run_id"
+then
+    :
+else
+    echo "Arrgh! wget failed for Artifacts page"
+    exit
+fi
+
+# for jobs still running, there is a N/M line and for completed jobs
+# there is just M on the line, in either case this line comes BEFORE
+# the "job completed" or "jobs completed" line in the HTML
+#
+lineno=`sed -n -e '/jobs* completed/=' $tmp.run`
+if [ -z "$lineno" ]
+then
+    echo "Arrgh! No jobs* completed text in Artifacts page"
+    echo "HTML is in save.html"
+    cp $tmp.run save.html
+    exit
+fi
+lineno=`expr $lineno - 1`
+eval `sed -n <$tmp.run -e "$lineno"'{
+s/^[ 	]*/done=/
+s@/@\njobs=@
+p
+}'`
+
+$verbose && echo "done=\"$done\" jobs=\"$jobs\""
+
+if echo "$done$jobs" | grep -q '^[0-9][0-9]*[0-9]$'
+then
+    if [ -n "$jobs" ]
+    then
+	echo "Still running, $done of $jobs jobs completed"
+	if [ -s $tmp.runs ]
+	then
+	    echo "Recent completed runs ..."
+	    sed <$tmp.runs -e 1d -e 's/^/    /' -e 4q
+	fi
+	sts=0
+	exit
+    fi
+else
+    echo "Arrgh! Failed to extract done ($done) and/or jobs ($jobs) from Artifacts page"
+    echo "HTML is in save.html"
+    cp $tmp.run save.html
+    exit
+fi
+
+# each QA "host" name is on a line by itself with leading whitespace
+# then test-...
+#
+sed -e 's/^[ 	]*//' <$tmp.run \
+| awk '/^test-/	{ print; next }' >$tmp.hosts
+
+if [ ! -s $tmp.hosts ]
+then
+    echo "No result artifacts yet"
+    sts=0
+    exit
+fi
+
+
+if [ -f last_run_id ]
+then
+    $verbose && echo "last_run_id=`cat last_run_id`"
+    if [ "`cat last_run_id`" = "$run_id" ]
+    then
+	echo "Already processed, nothing to do"
+	sts=0
+	exit
+    fi
+fi
+echo "$run_id" >last_run_id
+
+rm -rf test-*
+
+cat $tmp.hosts \
+| while read host
+do
+    echo -n "$host:"
+    if mkdir "$host"
+    then
+	:
+    else
+	echo
+	echo "Arrgh! mkdir failed"
+	exit
+    fi
+    cd "$host"
+    if gh run download $run_id --name "$host" >$tmp.err 2>&1
+    then
+	nfail=`ls *.out.bad 2>/dev/null | wc -l | sed -e 's/ //g'`
+	if [ "$nfail" = 0 ]
+	then
+	    echo " all tests passed"
+	else
+	    echo " $nfail tests failed"
+	fi
+    else
+	cat $tmp.err
+	echo "Arrgh! gh-run-download failed"
+	exit
+    fi
+
+    cd ..
+done
+
+# fix symlinks and short names for qa-summary
+#
+./cleanup
+
+sts=0

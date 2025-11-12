@@ -1,0 +1,16 @@
+Setup
+    - ensure gh(1) is installed ... for Debian this means installing
+      the gh package
+    $ cd to-here
+    $ gh repo set-default https://github.com/performancecopilot/pcp
+
+Get latest failure files
+    $ ./update
+
+Redo latest get
+    $ rm -f last_run_id
+    $ ./update
+
+Get failure files from a specific QA run
+    $ ./update <run_id>
+

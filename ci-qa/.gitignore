@@ -1,0 +1,8 @@
+last_run_id
+# runners in CI
+test-*
+# short-form names, symlinks to test-* runners
+[cdfu][1-9]
+[cdfu][1-9][0-9]
+u[c3][1-9][0-9]
+frh

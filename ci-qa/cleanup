@@ -1,0 +1,147 @@
+#!/bin/sh
+#
+# Cleanup symlinks to match artifacts for CI QA runs
+#
+
+tmp=/var/tmp/ci-qa-cleanup-$$
+status=1
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+SHOW_ME=false
+
+if $SHOW_ME
+then
+    LN='echo + ln'
+    RM='echo + rm'
+else
+    LN=ln
+    RM=rm
+fi
+
+_shortname()
+{
+    case "$1"
+    in
+	test-centos-stream*)
+	    echo "$1" | sed -e 's/test-centos-stream/c/' -e 's/-container//'
+	    ;;
+	test-debian*)
+	    echo "$1" | sed -e 's/test-debian/d/' -e 's/-container//'
+	    ;;
+	test-fedora-rawhide-*)
+	    echo "$1" | sed -e 's/test-fedora-rawhide/frh/' -e 's/-container//'
+	    ;;
+	test-fedora*)
+	    echo "$1" | sed -e 's/test-fedora/f/' -e 's/-container//'
+	    ;;
+	test-ubuntu????-i386-*)
+	    echo "$1" | sed -e 's/test-ubuntu/u3/' -e 's/..-i386//' -e 's/-container//'
+	    ;;
+	test-ubuntu????-container)
+	    echo "$1" | sed -e 's/test-ubuntu/uc/' -e 's/..-container//'
+	    ;;
+	test-ubuntu????)
+	    echo "$1" | sed -e 's/test-ubuntu/u/' -e 's/..$//'
+	    ;;
+	*)
+	    echo >&2 "_shortname: Botch cannot handle $1"
+	    ;;
+    esac
+}
+
+artifacts_dir="$HOME/src/pcp/ci-qa"
+if [ ! -d "$artifacts_dir" ]
+then
+    echo "No $artifacts_dir directory, I give up"
+    pwd
+    exit
+fi
+
+cd "$artifacts_dir"
+
+ls -d * \
+| while read dirent
+do
+    if [ -d "$dirent" ]
+    then
+	case "$dirent"
+	in
+	    test-*)
+		# make local short platform name link if not already there
+		#
+		short=`_shortname "$dirent"`
+		if [ -n "$short" -a ! -L "$short" ]
+		then
+		    echo "$artifacts_dir/$dirent: $short symlink created"
+		    $LN -s "$dirent" $short
+		fi
+		# remember for later
+		#
+		echo "$dirent" >>$tmp.dirs
+	    ;;
+	esac
+    elif [ -L "$dirent" ]
+    then
+	# cull dangling symlinks
+	#
+	path=`realpath "$dirent" 2>/dev/null`
+	if [ ! -d "$path" ]
+	then
+	    echo "$artifacts_dir/$dirent: dangling symlink. Removed"
+	    $RM -f "$dirent"
+	fi
+    else
+	#debug# echo ".../qa-reports/$dirent: Skipped"
+	:
+    fi
+done
+
+farm_dir="$HOME/Logs/by-vm"
+if cd "$farm_dir"
+then
+    ls -d * \
+    | while read dirent
+    do
+	if [ -L "$dirent" ]
+	then
+	    # cull dangling symlinks
+	    #
+	    path=`realpath "$dirent" 2>/dev/null`
+	    if [ ! -d "$path" ]
+	    then
+		echo "$farm_dir/$dirent: wrong or dangling symlink. Removed"
+		$RM -f "$dirent"
+	    else
+		case "$path"
+		in
+
+		    "$artifacts_dir"/test-*)
+			;;
+		    *)
+			echo "$farm_dir/$dirent => $path: wrong symlink. Removed"
+			$RM -f "$dirent"
+			;;
+		esac
+	    fi
+	fi
+    done
+
+    cat $tmp.dirs \
+    | while read dirent
+    do
+	# make local short platform name link if not already there
+	#
+	short=`_shortname "$dirent"`
+	[ -z "$short" ] && continue
+	if [ ! -L "$short" ]
+	then
+	    echo "$farm_dir/$dirent: $short symlink created"
+	    $LN -s "$artifacts_dir/$dirent" $short
+	fi
+    done
+else
+    echo "No $farm_dir directory, I give up"
+    exit
+fi
+
+status=0
+exit
