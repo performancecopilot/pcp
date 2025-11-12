@@ -113,6 +113,7 @@ python3-libvirt
 python3-lxml
 python3-minimal
 python3-openpyxl
+python3-pandas
 python3-pil
 python3-prometheus-client
 python3-psycopg2
@@ -133,7 +134,7 @@ smartmontools
 socat
 sudo
 sysstat
-systemd-dev
+systemd
 targetcli-fb
 time
 unbound

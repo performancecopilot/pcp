@@ -1675,4 +1675,4 @@ pkg_add?	unzip			[unzip]
 rpm?		/usr/sbin/service|/sbin/service	[initscripts or aaa_base]
 dpkg?		/usr/src/linux-headers-*	[linux-headers-.*]
 # perl-xs-dev is a virtual package for Debian trixie of later
-dpkg?		no-installed-file	[perl-xs-dev]
+dpkg?		no-installed-file	[perl-xs-dev or libperl-dev]

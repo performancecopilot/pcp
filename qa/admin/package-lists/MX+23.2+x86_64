@@ -100,7 +100,9 @@ openjdk-17-jre-headless
 openssl
 perl
 perl-modules-5.36
-perl-xs-dev
+# perl-xs-dev is a virtual package and libperl-dev is an alias at least up to
+# Debian 13 (trixie)
+libperl-dev
 pkg-config
 postgresql-client-common
 psmisc
