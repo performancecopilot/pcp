@@ -168,17 +168,6 @@ ExcludeArch: %{ix86}
 %global disable_systemd 1
 %endif
 
-# static probes, missing before el6 and on some architectures
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
-%global disable_sdt 0
-%else
-%ifnarch ppc ppc64
-%global disable_sdt 0
-%else
-%global disable_sdt 1
-%endif
-%endif
-
 # libuv async event library
 %if 0%{?fedora} >= 28 || 0%{?rhel} > 7
 %global disable_libuv 0
@@ -659,6 +648,7 @@ Summary: Performance Co-Pilot tools for importing ganglia data into PCP archive 
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
+BuildRequires: rrdtool-perl
 
 %description import-ganglia2pcp
 Performance Co-Pilot (PCP) front-end tools for importing ganglia data
