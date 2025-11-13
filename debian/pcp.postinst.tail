@@ -89,25 +89,27 @@ chmod 644 /etc/pcp/pmlogger/control
 # figure out what sort if init|systemctl|... we're using to
 # launch daemons and services
 do_systemctl=false
-do_systemd_helper=false
-do_update_rc=false
-do_invoke_rc=false
 if which systemctl >/dev/null 2>&1
 then
     # we have a systemctl executable, but it might be disabled,
-    # e.g. on MX Linux
-    systemctl -q is-active local-fs.target >/dev/null 2>&1 && do_systemctl=true
+    # e.g. on MX Linux or in a container with no systemd running
+    systemctl whoami >/dev/null 2>&1 && do_systemctl=true
 fi
+do_systemd_helper=false
 if $do_systemctl
 then
     which deb-systemd-helper >/dev/null 2>&1 && do_systemd_helper=true
-else
-    # not using systemctl(1), maybe need to install System-V style
-    # init script links with update-rc.d(1) and start/stop with
-    # invoke-rc.d(1)
-    which update-rc.d >/dev/null 2>&1 && do_update_rc=true
-    which invoke-rc.d >/dev/null 2>&1 && do_invoke_rc=true
 fi
+do_sysv=false
+if which update-rc.d >/dev/null 2>&1
+then
+    if which runlevel >/dev/null 2>&1
+    then
+	# System-V init installed and running
+	do_sysv=true
+    fi
+fi
+
 # only need to check pmcd.service, if it is here they will all
 # be here
 if [ -f /lib/systemd/system/pmcd.service ]
@@ -122,8 +124,7 @@ if [ -f /etc/init.d/pmlogger ]
 then
     :
 else
-    do_update_rc=false
-    do_invoke_rc=false
+    do_sysv=false
 fi
 
 if $do_systemd_helper
@@ -133,7 +134,7 @@ then
     deb-systemd-helper enable pmlogger.service >/dev/null
     deb-systemd-helper enable pmie.service >/dev/null
     deb-systemd-helper enable pmproxy.service >/dev/null
-elif $do_update_rc
+elif $do_sysv
 then
     update-rc.d -f pmcd remove >/dev/null
     update-rc.d pmcd defaults >/dev/null
@@ -151,7 +152,7 @@ then
     systemctl start pcp-reboot-init.service >/dev/null
     systemctl start pmcd.service >/dev/null
     systemctl start pmlogger.service >/dev/null
-elif $do_invoke_rc
+elif $do_sysv
 then
     invoke-rc.d pmcd start
     invoke-rc.d pmlogger start
