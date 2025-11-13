@@ -1,0 +1,62 @@
+#!/bin/sh
+#
+# remake the pcp-top archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log advisory on once{
+        kernel.uname.sysname
+        kernel.uname.release
+        kernel.uname.nodename
+        kernel.uname.machine
+        hinv.ncpu
+}
+log advisory on 10 seconds {
+        mem.physmem
+        hinv.pagesize
+        kernel.all.boottime
+        kernel.all.nusers
+        kernel.all.uptime
+        kernel.all.load
+        proc.psinfo.pid
+        proc.psinfo.utime
+        proc.psinfo.stime
+        proc.psinfo.guest_time
+        proc.psinfo.vsize
+        proc.psinfo.rss
+        proc.psinfo.priority
+        proc.psinfo.nice
+        proc.psinfo.cmd
+        proc.psinfo.psargs
+        proc.psinfo.sname
+        proc.psinfo.start_time
+        proc.psinfo.policy
+        proc.id.uid_nm
+        proc.nprocs
+        proc.runq.runnable
+        proc.runq.swapped
+        proc.runq.sleeping
+        proc.runq.stopped
+        proc.runq.defunct
+        proc.memory.share
+}
+End-of-File
+
+rm -f pcp-top.*
+
+if pmlogger -T 60sec -t 10sec -c $tmp.config pcp-top; then
+        xz pcp-top.0
+        xz pcp-top.index
+        xz pcp-top.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
