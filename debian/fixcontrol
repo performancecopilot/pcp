@@ -394,7 +394,6 @@ fi
 
 # add perl-xs-dev to Build-Depends for trixie or later (closes: #1102849)
 #
-
 rm -f $tmp.yes
 if [ -f /etc/os-release ]
 then
@@ -428,3 +427,14 @@ echo 's/ $//' >>$tmp.sed
 sed -f $tmp.sed <control.pcp >$tmp.out
 diff -u control.pcp $tmp.out >&2
 cat $tmp.out
+
+# add transitional packages for (incorrect) Ubuntu package renaming
+#
+if [ -f /etc/os-release ]
+then
+    NAME=`sed -n -e 's/"//'g -e '/^NAME=/s/NAME=//p' </etc/os-release`
+    if [ "$NAME" = "Ubuntu" ]
+    then
+	cat control.ubuntu
+    fi
+fi

@@ -71,8 +71,7 @@ Description: transitional package
 Package: libpcp4
 Depends: ${shlibs:Depends}, ${misc:Depends}, pcp-conf (= ${binary:Version})
 Conflicts: pgpool2
-Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5), libpcp3t64 (<< 6.3.2)
-Replaces: libpcp3t64 (<< 6.3.2)
+Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot library
@@ -110,8 +109,6 @@ Description: Performance Co-Pilot graphical client tools library and headers
 
 Package: libpcp-gui2
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Breaks: libpcp-gui2t64 (<< 6.3.2)
-Replaces: libpcp-gui2t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library
@@ -139,8 +136,6 @@ Description: Performance Co-Pilot Memory Mapped Value library and headers
 
 Package: libpcp-mmv1
 Depends: ${shlibs:Depends}, ${misc:Depends}
-Breaks: libpcp-mmv1t64 (<< 6.3.2)
-Replaces: libpcp-mmv1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value client library
@@ -173,8 +168,6 @@ Description: Performance Co-Pilot Domain Agent library and headers
 
 Package: libpcp-pmda3
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Breaks: libpcp-pmda3t64 (<< 6.3.2)
-Replaces: libpcp-pmda3t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library
@@ -201,8 +194,6 @@ Description: Performance Co-Pilot application tracing library and headers
 
 Package: libpcp-trace2
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Breaks: libpcp-trace2t64 (<< 6.3.2)
-Replaces: libpcp-trace2t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot application tracing library
@@ -232,8 +223,6 @@ Description: Performance Co-Pilot data import library and headers
 
 Package: libpcp-import1
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Breaks: libpcp-import1t64 (<< 6.3.2)
-Replaces: libpcp-import1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
@@ -263,8 +252,6 @@ Description: Performance Co-Pilot web tooling
 
 Package: libpcp-web1
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Breaks: libpcp-web1t64 (<< 6.3.2)
-Replaces: libpcp-web1t64 (<< 6.3.2)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
@@ -292,8 +279,7 @@ Description: Performance Co-Pilot archive writing library and headers
 
 Package: libpcp-archive1
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Breaks: pcp (<< 6.0.1), libpcp-archive1t64 (<< 6.3.2)
-Replaces: libpcp-archive1t64 (<< 6.3.2)
+Breaks: pcp (<< 6.0.1)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot archive writing library

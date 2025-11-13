@@ -1,0 +1,80 @@
+
+Package: libpcp3t64
+Depends: libpcp4, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to handle the historical misnaming
+ of PCP packages in Ubuntu.
+ It can safely be removed once libpcp4 is installed.
+
+Package: libpcp-gui2t64
+Depends: libpcp-gui2, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to handle the historical misnaming
+ of PCP packages in Ubuntu.
+ It can safely be removed once libpcp-gui2 is installed.
+
+Package: libpcp-mmv1t64
+Depends: libpcp-mmv1, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to handle the historical misnaming
+ of PCP packages in Ubuntu.
+ It can safely be removed once libpcp-mmv1 is installed.
+
+Package: libpcp-pmda3t64
+Depends: libpcp-pmda3, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to handle the historical misnaming
+ of PCP packages in Ubuntu.
+ It can safely be removed once libpcp-pmda3 is installed.
+
+Package: libpcp-trace2t64
+Depends: libpcp-trace2, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to handle the historical misnaming
+ of PCP packages in Ubuntu.
+ It can safely be removed once libpcp-trace2 is installed.
+
+Package: libpcp-import1t64
+Depends: libpcp-import1, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to handle the historical misnaming
+ of PCP packages in Ubuntu.
+ It can safely be removed once libpcp-import1 is installed.
+
+Package: libpcp-web1t64
+Depends: libpcp-web1, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to handle the historical misnaming
+ of PCP packages in Ubuntu.
+ It can safely be removed once libpcp-web1 is installed.
+
+Package: libpcp-archive1t64
+Depends: libpcp-archive1, ${misc:Depends}
+Architecture: all
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package to handle the historical misnaming
+ of PCP packages in Ubuntu.
+ It can safely be removed once libpcp-archive1 is installed.
