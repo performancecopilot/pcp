@@ -54,15 +54,25 @@ then
     systemctl stop pmcd.service >/dev/null
 elif $do_sysv
 then
-    invoke-rc.d pmlogger stop
-    invoke-rc.d pmproxy stop
-    invoke-rc.d pmie stop
-    invoke-rc.d pmcd stop
+    for svc in pmproxy pmie pmlogger pmcd
+    do
+	if invoke-rc.d $svc stop
+	then
+	    :
+	else
+	    echo >&2 "pcp.prerm: Warning: invoke-rc.d $svc stop failed"
+	fi
+    done
 else
-    /etc/init.d/pmlogger stop
-    /etc/init.d/pmproxy stop
-    /etc/init.d/pmie stop
-    /etc/init.d/pmcd stop
+    for svc in pmproxy pmie pmlogger pmcd
+    do
+	if /etc/init.d/$svc stop
+	then
+	    :
+	else
+	    echo >&2 "pcp.prerm: Warning: /etc/init.d/$svc stop failed"
+	fi
+    done
 fi
 
 rm -f /var/lib/pcp/pmns/.NeedRebuild

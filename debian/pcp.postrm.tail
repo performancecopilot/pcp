@@ -6,7 +6,7 @@ if which systemctl >/dev/null 2>&1
 then
     # we have a systemctl executable, but it might be disabled,
     # e.g. on MX Linux or in a container with no systemd running
-    systemctl -q is-active local-fs.target >/dev/null 2>&1 && do_systemctl=true
+    systemctl whoami >/dev/null 2>&1 && do_systemctl=true
 fi
 do_systemd_helper=false
 if $do_systemctl
@@ -74,10 +74,15 @@ then
 	done
     elif $do_sysv
     then
-	update-rc.d pmproxy remove >/dev/null
-	update-rc.d pmie remove >/dev/null
-	update-rc.d pmlogger remove >/dev/null
-	update-rc.d pmcd remove >/dev/null
+	for svc in pmproxy pmie pmlogger pmcd
+	do
+	    if update-rc.d $svc remove >/dev/null
+	    then
+		:
+	    else
+		echo >&2 "pcp.postrm: Warning: update-rc.d $svc remove failed"
+	    fi
+	done
     fi
 fi
 
