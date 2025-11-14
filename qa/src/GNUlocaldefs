@@ -677,11 +677,11 @@ sha1ext2int:	sha1ext2int.o
 
 check_fault_injection: check_fault_injection.c
 	rm -f $@
-	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c -lpcp_fault -lpcp -lpcp_pmda
+	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c $(LDLIBS) -lpcp_fault -lpcp -lpcp_pmda
 
 exercise_fault: exercise_fault.c
 	rm -f $@
-	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c -lpcp_fault -lpcp -lpcp_pmda
+	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c $(LDLIBS) -lpcp_fault -lpcp -lpcp_pmda
 
 # --- need lib for pthreads
 #
@@ -843,7 +843,7 @@ dumpstack:	dumpstack.c
 ifeq "$(TOPDIR)" ""
 	$(CC) -I$(PCP_INC_DIR) -I. $(PCFLAGS) -o $@ -rdynamic $^ -lpcp
 else
-	$(CC) -I$(TOPDIR)/src/include -I. $(PCFLAGS) -o $@ -rdynamic $^ -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) -lpcp
+	$(CC) -I$(TOPDIR)/src/include -I. $(PCFLAGS) -o $@ -rdynamic $^ -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) $(LDLIBS) -lpcp
 endif
 
 ifneq ($(NVIDIAQALIB),)
