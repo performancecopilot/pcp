@@ -16,10 +16,16 @@ fi
 do_sysv=false
 if which update-rc.d >/dev/null 2>&1
 then
-    if which runlevel >/dev/null 2>&1
+    if which invoke-rc.d >/dev/null 2>&1
     then
-	# System-V init installed and running
-	do_sysv=true
+	if which runlevel >/dev/null 2>&1
+	then
+	    if runlevel >/dev/null 2>&1
+	    then
+		# System-V init installed and running
+		do_sysv=true
+	    fi
+	fi
     fi
 fi
 

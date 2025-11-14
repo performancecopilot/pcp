@@ -103,10 +103,16 @@ fi
 do_sysv=false
 if which update-rc.d >/dev/null 2>&1
 then
-    if which runlevel >/dev/null 2>&1
+    if which invoke-rc.d >/dev/null 2>&1
     then
-	# System-V init installed and running
-	do_sysv=true
+	if which runlevel >/dev/null 2>&1
+	then
+	    if runlevel >/dev/null 2>&1
+	    then
+		# System-V init installed and running
+		do_sysv=true
+	    fi
+	fi
     fi
 fi
 
@@ -136,29 +142,61 @@ then
     deb-systemd-helper enable pmproxy.service >/dev/null
 elif $do_sysv
 then
-    update-rc.d -f pmcd remove >/dev/null
-    update-rc.d pmcd defaults >/dev/null
-    update-rc.d -f pmlogger remove >/dev/null
-    update-rc.d pmlogger defaults >/dev/null
-    update-rc.d -f pmie remove >/dev/null
-    update-rc.d pmie defaults >/dev/null
-    update-rc.d -f pmproxy remove >/dev/null
-    update-rc.d pmproxy defaults >/dev/null
+    for svc in pmcd pmlogger pmie pmproxy
+    do
+	if update-rc.d -f $svc remove >/dev/null
+	then
+	    :
+	else
+	    echo >&2 "pcp.postinstall: Warning: update-rc.d $svc remove failed"
+	fi
+	if update-rc.d $svc defaults >/dev/null
+	then
+	    :
+	else
+	    echo >&2 "pcp.postinstall: Warning: update-rc.d $svc defaults failed"
+	fi
+    done
 fi
 
 if $do_systemctl
 then
-    systemctl daemon-reload >/dev/null
-    systemctl start pcp-reboot-init.service >/dev/null
-    systemctl start pmcd.service >/dev/null
-    systemctl start pmlogger.service >/dev/null
+    if systemctl daemon-reload >/dev/null
+    then
+	:
+    else
+	echo >&2 "pcp.postinstall: Warning: systemctl daemon-reload failed"
+    fi
+    for svc in pcp-reboot-init pmcd pmlogger
+    do
+	if systemctl start $svc.service >/dev/null
+	then
+	    :
+	else
+	    echo >&2 "pcp.postinstall: Warning: systemctl start $svc failed"
+	fi
+    done
 elif $do_sysv
 then
-    invoke-rc.d pmcd start
-    invoke-rc.d pmlogger start
+    for svc in pmcd pmlogger
+    do
+	if invoke-rc.d $svc start
+	then
+	    :
+	else
+	    echo >&2 "pcp.postinstall: Warning: invoke-rc.d $svc start failed"
+	fi
+    done
 else
-    /etc/init.d/pmcd start
-    /etc/init.d/pmlogger start
+    for svc in pmcd pmlogger
+    do
+	if /etc/init.d/$svc start
+	then
+	    :
+	else
+	    echo >&2 "pcp.postinstall: Warning: /etc/init.d/$svc start failed"
+	fi
+    done
 fi
 
 exit 0
