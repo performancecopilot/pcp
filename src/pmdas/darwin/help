@@ -39,6 +39,7 @@
 @ kernel.uname.sysname name of the implementation of the operating system
 @ kernel.uname.machine name of the hardware type the system is running on
 @ kernel.uname.nodename host name of this node on the network
+@ kernel.uname.distro version of macOS installed
 
 @ kernel.all.cpu.user total user time for all processors
 @ kernel.all.cpu.nice total nice time for all processors

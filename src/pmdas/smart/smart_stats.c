@@ -15,11 +15,13 @@
  */
 
 #include <inttypes.h>
+#include <ctype.h>
 
 #include "pmapi.h"
 #include "libpcp.h"
 #include "pmda.h"
 
+#include "pmdasmart.h"
 #include "smart_stats.h"
 
 static char *smart_setup_stats;
@@ -56,6 +58,213 @@ smart_strip_input(char *units)
 	do while (*r == ' ') r++; while (((*units++) = *r++));
 
 	return *units;
+}
+
+/*
+ * Trim leading space from the output for NVMe Error Log
+ * entries.
+ *
+ */
+char
+*strtrim(char * str)
+{
+    // Trim leading space
+    while(isspace((unsigned char)*str)) str++;
+    
+    return str;
+}
+
+/*
+ * From a given NVME Error Log entry status_field value decode to both our
+ * status_type and status_code in order to reference our string based error
+ * descriptions.
+ *
+ * We right shift to remove the Phase Tag and then apply a mask of "0x7ff"
+ * to extract the lower 11 bytes.
+ *
+ * From the remaining value:
+ *     - The first 3 bytes are the status code type
+ *     - The following 8 bytes are the status code
+ *
+ */
+void 
+process_nvme_error(unsigned int error_code, unsigned int *status_type, unsigned int *status_code)
+{
+    unsigned int shifted = error_code >> 1;
+    unsigned int masked = shifted & 0x7ff;
+
+    // Extract upper 3 bits as status code type
+    *status_type = (masked >> 8) & 0x7;
+
+    // Extract lower 8 bits as status code
+    *status_code = masked & 0xff;
+}
+
+/*
+ * Table of status_type values to string literals.
+ *
+ */
+static const char * 
+get_status_type(unsigned int status_type)
+{
+    switch (status_type) {
+        case 0x0: return "Generic Command Status";
+        case 0x1: return "Command Specific Status";
+        case 0x2: return "Media and Data Integrity Error";
+        case 0x3: return "Path Related Status";
+        case 0x7: return "Vendor Specific Status";
+        default: return "Unknown Status";
+    }
+    return 0;
+}
+
+/*
+ * Table of status_code to string literatls.
+ *
+ */
+static const char * 
+get_status_code(unsigned int status_type, unsigned int status_code)
+{
+    switch (status_type) {
+        case 0x0:
+            switch (status_code) {
+                case 0x00: return "Successful Completion";
+                case 0x01: return "Invalid Command Opcode";
+                case 0x02: return "Invalid Field in Command";
+                case 0x03: return "Command ID Conflict";
+                case 0x04: return "Data Transfer Error";
+                case 0x05: return "Commands Aborted due to Power Loss Notification";
+                case 0x06: return "Internal Error";
+                case 0x07: return "Command Abort Requested";
+                case 0x08: return "Command Aborted due to SQ Deletion";
+                case 0x09: return "Command Aborted due to Failed Fused Command";
+                case 0x0a: return "Command Aborted due to Missing Fused Command";
+                case 0x0b: return "Invalid Namespace or Format";
+                case 0x0c: return "Command Sequence Error";
+                case 0x0d: return "Invalid SGL Segment Descriptor";
+                case 0x0e: return "Invalid Number of SGL Descriptors";
+                case 0x0f: return "Data SGL Length Invalid";
+                case 0x10: return "Metadata SGL Length Invalid";
+                case 0x11: return "SGL Descriptor Type Invalid";
+                case 0x12: return "Invalid Use of Controller Memory Buffer";
+                case 0x13: return "PRP Offset Invalid";
+                case 0x14: return "Atomic Write Unit Exceeded";
+                case 0x15: return "Operation Denied";
+                case 0x16: return "SGL Offset Invalid";
+                case 0x18: return "Host Identifier Inconsistent Format";
+                case 0x19: return "Keep Alive Timer Expired";
+                case 0x1a: return "Keep Alive Timeout Invalid";
+                case 0x1b: return "Command Aborted due to Preempt and Abort";
+                case 0x1c: return "Sanitize Failed";
+                case 0x1d: return "Sanitize In Progress";
+                case 0x1e: return "SGL Data Block Granularity Invalid";
+                case 0x1f: return "Command Not Supported for Queue in CMB";
+                case 0x20: return "Namespace is Write Protected";
+                case 0x21: return "Command Interrupted";
+                case 0x22: return "Transient Transport Error";
+                case 0x23: return "Command Prohibited by Command and Feature Lockdown";
+                case 0x24: return "Admin Command Media Not Ready";
+                case 0x80: return "LBA Out of Range";
+                case 0x81: return "Capacity Exceeded";
+                case 0x82: return "Namespace Not Ready";
+                case 0x83: return "Reservation Conflict";
+                case 0x84: return "Format In Progress";
+                case 0x85: return "Invalid Value Size";
+                case 0x86: return "Invalid Key Size";
+                case 0x87: return "KV Key Does Not Exist";
+                case 0x88: return "Unrecovered Error";
+                case 0x89: return "Key Exists";    
+            }
+            break;
+        case 0x1:
+            switch (status_code) {
+                case 0x00: return "Completion Queue Invalid";
+                case 0x01: return "Invalid Queue Identifier";
+                case 0x02: return "Invalid Queue Size";
+                case 0x03: return "Abort Command Limit Exceeded";
+                case 0x04: return "Abort Command Is Missing";
+                case 0x05: return "Asynchronous Event Request Limit Exceeded";
+                case 0x06: return "Invalid Firmware Slot";
+                case 0x07: return "Invalid Firmware Image";
+                case 0x08: return "Invalid Interrupt Vector";
+                case 0x09: return "Invalid Log Page";
+                case 0x0a: return "Invalid Format";
+                case 0x0b: return "Firmware Activation Requires Conventional Reset";
+                case 0x0c: return "Invalid Queue Deletion";
+                case 0x0d: return "Feature Identifier Not Saveable";
+                case 0x0e: return "Feature Not Changeable";
+                case 0x0f: return "Feature Not Namespace Specific";
+                case 0x10: return "Firmware Activation Requires NVM Subsystem Reset";
+                case 0x11: return "Firmware Activation Requires Controller Level Reset";
+                case 0x12: return "Firmware Activation Requires Maximum Time Violation";
+                case 0x13: return "Firmware Activation Prohibited";
+                case 0x14: return "Overlapping Range";
+                case 0x15: return "Namespace Insufficient Capacity";
+                case 0x16: return "Namespace Identifier Unavailable";
+                case 0x18: return "Namespace Already Attached";
+                case 0x19: return "Namespace Is Private";
+                case 0x1a: return "Namespace Not Attached";
+                case 0x1b: return "Thin Provisioning Not Supported";
+                case 0x1c: return "Controller List Invalid";
+                case 0x1d: return "Device Self-test In Progress";
+                case 0x1e: return "Boot Partition Write Prohibited";
+                case 0x1f: return "Invalid Controller Identifier";
+                case 0x20: return "Invalid Secondary Controller State";
+                case 0x21: return "Invalid Number of Controller Resources";
+                case 0x22: return "Invalid Resource Identifier";
+                case 0x23: return "Sanitize Prohibited While Persistent Memory Region is Enabled";
+                case 0x24: return "ANA Group Identifier Invalid";
+                case 0x25: return "ANA Attach Failed";
+                case 0x26: return "Insufficient Capacity";
+                case 0x27: return "Namespace Attachment Limit Exceeded";
+                case 0x28: return "Prohibition of Command Execution Not Supported";
+                case 0x29: return "I/O Command Set Not Supported";
+                case 0x2a: return "I/O Command Set Not Enabled";
+                case 0x2b: return "I/O Command Set Combination Rejected";
+                case 0x2c: return "Invalid I/O Command Set";
+                case 0x2d: return "Identifier Unavailable";
+                case 0x80: return "Conflicting Attributes";
+                case 0x81: return "Invalid Protection Information";
+                case 0x82: return "Attempted Write to Read Only Range";
+                case 0x83: return "Command Size Limit Exceeded";
+                case 0xb8: return "Zoned Boundary Error";
+                case 0xb9: return "Zone Is Full";
+                case 0xba: return "Zone Is Read Only";
+                case 0xbb: return "Zone Is Offline";
+                case 0xbc: return "Zone Invalid Write";
+                case 0xbd: return "Too Many Active Zones";
+                case 0xbe: return "Too Many Open Zones";
+                case 0xbf: return "Invalid Zone State Transition";
+            }
+            break;
+        case 0x2:
+            switch (status_code) {
+                case 0x80: return "Write Fault";
+                case 0x81: return "Unrecovered Read Error";
+                case 0x82: return "End-to-end Guard Check Error";
+                case 0x83: return "End-to-end Application Tag Check Error";
+                case 0x84: return "End-to-end Reference Tag Check Error";
+                case 0x85: return "Compare Failure";
+                case 0x86: return "Access Denied";
+                case 0x87: return "Deallocated or Unwritten Logical Block";
+                case 0x88: return "End-to-end Storage Tag Check Error";
+            }
+            break;
+        case 0x3:
+            switch (status_code) {
+                case 0x00: return "Internal Path Error";
+                case 0x01: return "Asymmetric Access Persistent Loss";
+                case 0x02: return "Asymmetric Access Inaccessible";
+                case 0x03: return "Asymmetric Access Transition";
+                case 0x60: return "Controller Pathing Error";
+                case 0x70: return "Host Pathing Error";
+                case 0x71: return "Command Aborted by Host";
+            }
+            break;
+
+        default: return "Unknown Code";
+    }
+    return 0;
 }
 
 int
@@ -523,6 +732,54 @@ nvme_power_data_fetch(int item, int cluster, struct nvme_power_states *nvme_powe
                         	atom->ul = nvme_power_states->exit_latency[cluster];
                         	return 1;
                         }
+
+		default:
+			return PM_ERR_PMID;
+	}
+	/* NOTREACHED */
+	return PMDA_FETCH_NOVALUES;
+}
+
+int
+nvme_error_log_fetch(int item, int cluster, struct nvme_error_log *nvme_error_log, pmAtomValue *atom)
+{
+	switch (item) {
+
+		case ERROR_COUNT:
+			atom->ull = nvme_error_log->error_count;
+			return PMDA_FETCH_STATIC;
+
+		case ERROR_SQID:
+			atom->ull = nvme_error_log->sqid;
+			return PMDA_FETCH_STATIC;
+
+		case ERROR_CMDID:
+			atom->ull = nvme_error_log->cmdid;
+			return PMDA_FETCH_STATIC;
+
+		case ERROR_STATUS_FIELD:
+			atom->ull = nvme_error_log->status_field;
+			return PMDA_FETCH_STATIC;
+
+		case ERROR_STATUS_TYPE:
+			atom->cp = nvme_error_log->status_type;
+			return PMDA_FETCH_STATIC;
+
+		case ERROR_STATUS_CODE:
+			atom->cp = nvme_error_log->status_code;
+			return PMDA_FETCH_STATIC;
+
+		case ERROR_PARAM_ERROR_LOC:
+			atom->ull = nvme_error_log->param_error_loc;
+			return PMDA_FETCH_STATIC;
+
+		case ERROR_LBA:
+			atom->ull = nvme_error_log->lba;
+			return PMDA_FETCH_STATIC;
+
+		case ERROR_NSID:
+			atom->ull = nvme_error_log->nsid;
+			return PMDA_FETCH_STATIC;
 
 		default:
 			return PM_ERR_PMID;
@@ -1143,6 +1400,122 @@ nvme_power_refesh_data(const char *name, struct nvme_power_states *nvme_power_st
         }
 
         return 0;
+}
+
+int
+nvme_error_log_refresh(void)
+{
+	char inst_name[128], uuid_name[128], *dev_name;
+	char buffer[4096] = {'\0'};
+	FILE *pf;
+	struct block_dev *dev;
+	int inst, sts;
+
+	pmInDom disk_indom = INDOM(DISK_INDOM);
+	
+	pmInDom disk_error_indom = INDOM(DISK_NVME_LOG_INDOM);
+	pmInDom uuid_error_indom = INDOM(UUID_NVME_LOG_INDOM);
+	
+	pmdaCacheOp(disk_error_indom, PMDA_CACHE_INACTIVE);
+	pmdaCacheOp(uuid_error_indom, PMDA_CACHE_INACTIVE);
+	
+	for (pmdaCacheOp(disk_indom, PMDA_CACHE_WALK_REWIND);;) {
+		if ((inst = pmdaCacheOp(disk_indom, PMDA_CACHE_WALK_NEXT)) <0)
+			break;
+
+		if (!pmdaCacheLookup(disk_indom, inst, &dev_name, (void **)&dev) || !dev)
+			continue;
+
+		// We only want nvme disks
+		if (!dev->is_nvme)
+			continue;
+		
+		int found_nvme_log = 0;
+		int count = 0;
+		int total;
+
+		pmsprintf(buffer, sizeof(buffer), "%s -l error /dev/%s", smart_setup_stats, dev_name);
+
+		if ((pf = popen(buffer, "r")) == NULL)
+			return -oserror();
+
+		while (fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+			if (strstr(buffer, "Error Information (NVMe Log 0x01")) {
+				found_nvme_log = 1;
+				sscanf(buffer, "Error Information (NVMe Log 0x01, %d of %*s entries)", &total);
+				continue;
+			}
+
+			if (found_nvme_log && strstr(buffer, "No Errors Logged"))
+				// No error entries head to next drive
+				break;
+
+			if (found_nvme_log && strstr(buffer, "Num"))
+				// Skip over log entry header line
+				continue;
+			
+			if (found_nvme_log && (count < total)) {
+				// Look at collecting error entry and adding indom entry
+				pmsprintf(inst_name, sizeof(inst_name), "%s::entry_%d", dev_name, count);
+				
+				struct nvme_error_log *nvme_error_log;
+				
+				sts = pmdaCacheLookupName(disk_error_indom, inst_name, NULL, (void **)&nvme_error_log);
+					if (sts == PM_ERR_INST || (sts >=0 && nvme_error_log == NULL )) {
+						nvme_error_log = calloc(1, sizeof(struct nvme_error_log));
+						if (nvme_error_log == NULL) {
+						        pclose(pf);
+							return PM_ERR_AGAIN;
+						}
+					} 
+					else if (sts < 0)
+					        continue;
+
+				sscanf(strtrim(buffer), "%*d %"SCNu64" %"SCNu64" %"SCNx64" %"SCNx64" %"SCNx64" %"SCNu64" %"SCNu64"",
+					&nvme_error_log->error_count,
+					&nvme_error_log->sqid,
+					&nvme_error_log->cmdid,
+					&nvme_error_log->status_field,
+					&nvme_error_log->param_error_loc,
+					&nvme_error_log->lba,
+					&nvme_error_log->nsid);
+				
+				unsigned int status_type, status_code;
+				process_nvme_error(nvme_error_log->status_field, &status_type, &status_code);
+				
+				pmsprintf(nvme_error_log->status_type, sizeof(nvme_error_log->status_type), "%s", get_status_type(status_type));
+				pmsprintf(nvme_error_log->status_code, sizeof(nvme_error_log->status_code), "%s", get_status_code(status_type, status_code));
+				
+				count++;
+
+				pmdaCacheStore(disk_error_indom, PMDA_CACHE_ADD, inst_name, (void *)nvme_error_log);
+				
+				// Add a corresponding WWID entry if UUID field is not empty
+				if (dev->device_info.uuid[0] != '\0') {
+					pmsprintf(uuid_name, sizeof(uuid_name), "%s::entry_%d", dev->device_info.uuid, count);
+
+					struct nvme_error_log *uuid_nvme_error_log;
+
+					sts = pmdaCacheLookupName(uuid_error_indom, uuid_name, NULL, (void **)&uuid_nvme_error_log);
+					if (sts == PM_ERR_INST || (sts >=0 && uuid_nvme_error_log == NULL )) {
+						uuid_nvme_error_log = calloc(1, sizeof(struct nvme_error_log));
+						if (uuid_nvme_error_log == NULL) {
+						        pclose(pf);
+							return PM_ERR_AGAIN;
+						}
+					} 
+					else if (sts < 0)
+					        continue;
+					
+					memcpy(uuid_nvme_error_log, nvme_error_log, sizeof(struct nvme_error_log));
+					
+					pmdaCacheStore(uuid_error_indom, PMDA_CACHE_ADD, uuid_name, (void *)uuid_nvme_error_log);
+				}
+			}
+		}
+		pclose(pf);
+	}
+	return 0;
 }
 
 void

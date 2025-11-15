@@ -461,6 +461,16 @@ Whether the given drive has PASSED or FAILED SMART the self-test
 @smart.nvme_power_states.power_state_5.entry_latency Entry latency going into this power state
 @smart.nvme_power_states.power_state_5.exit_latency	Exit latency leaving from this power state
 
+@smart.nvme_error_log.error_count Incrementing error count (unique id for error)
+@smart.nvme_error_log.sqid Submission queue id of the command that the error is associated with
+@smart.nvme_error_log.cmdid Command id of the command that the error is associated with
+@smart.nvme_error_log.status_field Status field from the completion queue
+@smart.nvme_error_log.status_type Decoded status code type for the error
+@smart.nvme_error_log.status_code Decoded status code for the error
+@smart.nvme_error_log.param_error_loc Byte and bit of the command parameter that the error is associated with
+@smart.nvme_error_log.lba Logical Block Address I/O command set specific data about the error, if any
+@smart.nvme_error_log.nsid Namespace identifier (NSID) of the namespace of which the error is associated with
+
 @smart.wwid.info.model_family Model Family
 Listed model family name of the disk drive
 
@@ -892,3 +902,13 @@ The given block device name for the disk drive.
 @smart.wwid.nvme_power_states.power_state_5.relative_write_throughput Relative write throughput for this power state
 @smart.wwid.nvme_power_states.power_state_5.entry_latency Entry latency going into this power state
 @smart.wwid.nvme_power_states.power_state_5.exit_latency	Exit latency leaving from this power state
+
+@smart.wwid.nvme_error_log.error_count Incrementing error count (unique id for error)
+@smart.wwid.nvme_error_log.sqid Submission queue id of the command that the error is associated with
+@smart.wwid.nvme_error_log.cmdid Command id of the command that the error is associated with
+@smart.wwid.nvme_error_log.status_field Status field from the completion queue
+@smart.wwid.nvme_error_log.status_type Decoded status code type for the error
+@smart.wwid.nvme_error_log.status_code Decoded status code for the error
+@smart.wwid.nvme_error_log.param_error_loc Byte and bit of the command parameter that the error is associated with
+@smart.wwid.nvme_error_log.lba Logical Block Address I/O command set specific data about the error, if any
+@smart.wwid.nvme_error_log.nsid Namespace identifier (NSID) of the namespace of which the error is associated with

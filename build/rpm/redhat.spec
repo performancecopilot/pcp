@@ -1,5 +1,5 @@
 Name:    pcp
-Version: 7.0.3
+Version: 7.1.0
 Release: 1%{?dist}
 Summary: System-level performance monitoring and performance management
 License: GPL-2.0-or-later AND LGPL-2.1-or-later AND CC-BY-3.0
@@ -166,17 +166,6 @@ ExcludeArch: %{ix86}
 %global disable_systemd 0
 %else
 %global disable_systemd 1
-%endif
-
-# static probes, missing before el6 and on some architectures
-%if 0%{?rhel} == 0 || 0%{?rhel} > 5
-%global disable_sdt 0
-%else
-%ifnarch ppc ppc64
-%global disable_sdt 0
-%else
-%global disable_sdt 1
-%endif
 %endif
 
 # libuv async event library
@@ -659,6 +648,7 @@ Summary: Performance Co-Pilot tools for importing ganglia data into PCP archive 
 URL: https://pcp.io
 Requires: pcp-libs = %{version}-%{release}
 Requires: perl-PCP-LogImport = %{version}-%{release}
+BuildRequires: rrdtool-perl
 
 %description import-ganglia2pcp
 Performance Co-Pilot (PCP) front-end tools for importing ganglia data
@@ -3432,5 +3422,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Nov 12 2025 Nathan Scott <nathans@redhat.com> - 7.0.3-1
+* Wed Feb 4 2025 Nathan Scott <nathans@redhat.com> - 7.1.0-1
 - Latest release.
