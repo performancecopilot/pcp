@@ -11,6 +11,10 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
+
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=no-member
+
 import argparse
 from collections import defaultdict
 import fcntl
@@ -25,7 +29,7 @@ import time
 import json
 from time import perf_counter
 
-from rds_info import RdsInfo
+from modules.rds_info import RdsInfo
 
 rds_pings_json = {}
 
@@ -220,7 +224,7 @@ def print_latencies(latencies_dict):
 
 def main(argv):
     parser = argparse.ArgumentParser(description='python version of rds-ping utility.',
-                                     epilog="sample usage: rds-ping.py -d \"dst_ip1,dst_ip2\" -I saddr -Q tos")
+                                     epilog="sample usage: rds_ping.python -d \"dst_ip1,dst_ip2\" -I saddr -Q tos")
     parser.add_argument('-d', '--destination_ip', type=str, help="Comma-separated list of destination IP addresses")
     parser.add_argument('-Q', '--tos', type=str, default=0, help="Type of Service (QoS)")
     parser.add_argument('-I', '--source_ip', type=str, help="Source IP address")
@@ -250,7 +254,10 @@ def main(argv):
         except KeyboardInterrupt:
             sys.exit(1)
     else:
-        print("Error: Both source_ip (-I) and dest_ip (-d) must be provided for single or multiple connection ping.", file=sys.stderr)
+        print(
+            "Error: Both source_ip (-I) and dest_ip (-d) must be provided for single or multiple connection ping.",
+            file=sys.stderr
+            )
         sys.exit(1)
 
 

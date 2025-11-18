@@ -14,6 +14,10 @@
 """
 Python implementation of ping
 """
+
+# pylint: disable=too-many-arguments,too-many-positional-arguments
+# pylint: disable=global-statement,no-member
+
 from collections import defaultdict
 import json
 import socket
@@ -29,7 +33,7 @@ import threading
 import signal
 import re
 import concurrent.futures
-from rds_info import RdsInfo
+from modules.rds_info import RdsInfo
 
 ICMP_ECHO = 8
 ICMP_MAX_RECV = 2048
@@ -39,7 +43,7 @@ RDS_INFO_IB_CONNECTIONS = 10008
 
 pings_sent = 0
 pending = 0
-own_id = os.getpid() & 0xFFFF
+OWN_ID = os.getpid() & 0xFFFF
 pings_json = {}
 
 
@@ -116,16 +120,15 @@ def htosi(data, signed):
 
 def send_ping(sock_fd, src_ip, dst_ip_list, send_timestamps):
     seq_number = 0
-    global own_id
     global pings_sent
 
     for dst_ip in dst_ip_list:
         checksum = 0
         header = struct.pack("!BBHHH", ICMP_ECHO, 0,
-                             checksum, own_id, seq_number)
+                             checksum, OWN_ID, seq_number)
         checksum = calculate_checksum(header)
         header = struct.pack("!BBHHH", ICMP_ECHO, 0,
-                             checksum, own_id, seq_number)
+                             checksum, OWN_ID, seq_number)
         packet = header
         try:
             sock_fd.sendto(packet, (dst_ip, 1))
@@ -158,7 +161,7 @@ def recv_pong(sock_fd, src_ip, num_dest, timeout, send_timestamps, print_all):
                 packet_data, (ipaddr, _) = sock_fd.recvfrom(ICMP_MAX_RECV)
                 icmp_header = struct.unpack("!BBHHH", packet_data[20:28])
 
-                if icmp_header[3] == own_id:
+                if icmp_header[3] == OWN_ID:
                     latency = datetime.now() - send_timestamps[ipaddr]
                     lat_data = ("%s %s - %.3f |" %
                                 (src_ip, ipaddr, latency.microseconds))
@@ -175,7 +178,7 @@ def recv_pong(sock_fd, src_ip, num_dest, timeout, send_timestamps, print_all):
         select_timeout_msec = select_timeout_msec - time_elapsed
         if select_timeout_msec < 0:
             for keys, _ in send_timestamps.items():
-                lat_data = ("%s %s - timeout |" % (src_ip, keys))
+                lat_data = "%s %s - timeout |" % (src_ip, keys)
                 latencies_info = latencies_info + lat_data
                 conn = "%s-%s" % (src_ip, keys)
                 pings_json[conn] = -1
@@ -188,7 +191,7 @@ def recv_pong(sock_fd, src_ip, num_dest, timeout, send_timestamps, print_all):
 
         if not (readable or writable or exceptional):
             for keys, _ in send_timestamps.items():
-                lat_data = ("%s %s - timeout |" % (src_ip, keys))
+                lat_data = "%s %s - timeout |" % (src_ip, keys)
                 latencies_info = latencies_info + lat_data
                 conn = "%s-%s" % (src_ip, keys)
                 pings_json[conn] = -1
@@ -284,7 +287,7 @@ def main(argv):
     parser.add_argument(dest='destination_ip',
                         help="destination ip is mandatory")
     parser = argparse.ArgumentParser(description='python version of ping utility.',
-                                     epilog="sample usage: ping.py -d \"dst_ip_1 dst_ip_2\" -I src_ip")
+                                     epilog="sample usage: ping.python -d \"dst_ip_1 dst_ip_2\" -I src_ip")
     parser.add_argument('-d', '--list', type=str)
     parser.add_argument('-I', '--source_ip', type=str)
     parser.add_argument('-t', '--timeout', type=float, default=3)

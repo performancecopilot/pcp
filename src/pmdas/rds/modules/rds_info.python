@@ -58,7 +58,7 @@ class RdsInfo:
     """Class to implement standard RDS info operations."""
 
     USAGE_MSG = (
-        "Usage: python rds_info.py <option>\n"
+        "Usage: python rds_info.python <option>\n"
         "Available options:\n"
         "  -I: Get RDS InfiniBand connections\n"
         "  -T: Get RDS TCP Connections\n"
