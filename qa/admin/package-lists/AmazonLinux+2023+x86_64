@@ -53,7 +53,6 @@ llvm-devel
 lm_sensors
 make
 man-db
-mandoc
 memcached
 mesa-dri-drivers
 ncurses-devel
