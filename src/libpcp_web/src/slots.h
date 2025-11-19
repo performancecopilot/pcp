@@ -83,6 +83,8 @@ typedef void (*keyPhase)(keySlots *, void *);	/* phased operations */
 typedef struct keySlotsContext {
     keySlots			slots;		/* the key slots structure */
     valkeyClusterOptions	opts;		/* original connection options */
+    struct timeval		connection_timeout;	/* connect timeout storage */
+    struct timeval		command_timeout;	/* command timeout storage */
 } keySlotsContext;
 
 extern void keySlotsSetupMetrics(keySlots *);
@@ -92,6 +94,7 @@ extern keySlotsContext *keySlotsConnect(dict *, keySlotsFlags,
 		keysInfoCallBack, keysDoneCallBack, void *, void *, void *);
 extern void keySlotsReconnect(keySlots *, keySlotsFlags,
 		keysInfoCallBack, keysDoneCallBack, void *, void *, void *, valkeyClusterOptions *);
+extern void keySlotsContextFree(keySlotsContext *);
 extern uint64_t keySlotsInflightRequests(keySlots *);
 extern int keySlotsRequest(keySlots *, sds, keyClusterCallbackFn *, void *);
 extern int keySlotsRequestFirstNode(keySlots *slots, const sds cmd,

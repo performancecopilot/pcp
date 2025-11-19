@@ -300,4 +300,5 @@ PCP_WEB_1.23 {
     dictGetKey;
     dictInitIterator;
     dictSetVal;
+    keySlotsContextFree;
 } PCP_WEB_1.22;
