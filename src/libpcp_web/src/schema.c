@@ -133,7 +133,7 @@ key_map_publish(keyMapBaton *baton)
     sdsfree(msg);
     sdsfree(key);
 
-    keySlotsRequest(baton->slots, cmd, key_map_publish_callback, baton);
+    keySlotsRequestFirstNode(baton->slots, cmd, key_map_publish_callback, baton);
     sdsfree(cmd);
 }
 
