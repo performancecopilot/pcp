@@ -1,0 +1,107 @@
+#!/bin/sh -e
+#
+# Run just the Debian packaging part of dpkg-buildpackage ...
+#
+# To use this ...
+# - run Makepkgs at least to the point where deb/build/pcp-X.Y.Z has
+#   been created and populated
+# - make any changes for packaging in the (top-level) debian directory
+# - $ cd build/deb
+# - if the PCP scripts dir is on your $PATH
+#   $ deb-pkg-me
+# - otherwise
+#   $ ../../scripts/deb-pkg-me
+# - this script is interactive so be prepared to answer questions
+#
+
+# _ask <question> <default>
+#
+_ask()
+{
+    while true
+    do
+	echo >&2 -n "$1? [$2] "
+	read ans </dev/tty
+	if [ -z "$ans" ]
+	then
+	    echo "$2"
+	    break
+	elif [ "$ans" = y -o "$ans" = n ]
+	then
+	    echo "$ans"
+	    break
+	else
+	    echo >&2 "Answer the question, y or n, bozo"
+	fi
+    done
+}
+
+# do we have a healthy build tree to work with?
+#
+if [ ! -f ../../VERSION.pcp ]
+then
+    echo >&2 "deb-pkg-me: Error: no ../../VERSION.pcp ... are you in the right place?"
+    echo >&2 "        pwd=`pwd`"
+    exit 1
+fi
+
+. ../../VERSION.pcp
+version=$PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION
+version=7.0.3
+if [ ! -d pcp-$version ]
+then
+    echo >&2 "deb-pkg-me: Error: no pcp-$version dir ... has Makepkgs been run?"
+    exit 1
+fi
+cd pcp-$version
+
+# qa/src is the last serious directory descended into for
+# "make default" and unregister.c is near the end of the non-optioanl
+# $(CFILES), so if unregister exists, there is a fair chance the build was
+# completed
+#
+# Note: Makepkgs ends up running a make clean, so the first time this
+#       script is used after Makepkgs, this test will fail and we'll
+#       be up for the cost and delay of a full rebuild
+#
+if [ ! -f qa/src/unregister ]
+then
+    echo >&2 "deb-pkg-me: Warning: looks like pcp-$version tree has been cleaned"
+    echo >&2 "        so this will take a while to re-make everything"
+    if [ "`_ask "ok to proceed" y`" = n ]
+    then
+	echo >&2 "Goodbye."
+	exit 0
+    fi
+fi
+
+# now conditionally overlay the debian directory with the current
+# files from the git tree ... this allows changes to be made there,
+# then applied to the (re-)packaging here
+#
+here=`pwd`
+if [ -d ../../../debian ]
+then
+    cd ../../../debian
+    git ls-files . \
+    | while read file
+    do
+	if diff -u "$file" "$here/debian/$file"
+	then
+	    :
+	else
+	    if [ "`_ask "overlay $file" y`" = y ]
+	    then
+		cp "$file" "$here/debian/$file"
+	    fi
+	fi
+    done
+else
+    echo >&2 "deb-pkg-me: Error: from pcp-$version git dir ../../../debian not found"
+    exit 1
+fi
+cd $here
+
+# now build the packages
+#
+dpkg-buildpackage -T binary
