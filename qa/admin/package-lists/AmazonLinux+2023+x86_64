@@ -1,11 +1,8 @@
 # PCP required package list for Amazon Linux 2023 x86_64
 # cloned from Fedora 43 list
+# Done by kvalin on a container Wed Nov 19 09:57:41 AM EST 2025
 #
-389-ds-base
-Coin4-devel
-HdrHistogram_c-devel
 #RediSearch - switch to ValkeySearch when available
-SoQt-devel
 Spreadsheet::Read cpan
 audit
 autoconf
@@ -17,12 +14,11 @@ bcc-tools
 bind-utils
 bison
 bpftrace
-chan-devel
 clang
-coreutils
+coreutils-single
 cppcheck
 cronie
-curl
+curl-minimal
 cyrus-sasl
 cyrus-sasl-devel
 cyrus-sasl-lib
@@ -36,7 +32,6 @@ gawk
 gcc
 gcc-c++
 gdb
-gfs2-utils
 git
 git-core
 grep
@@ -44,10 +39,7 @@ inih-devel
 iproute
 httpd
 initscripts
-java-latest-openjdk-headless
 jq
-kubernetes
-kubernetes-client
 libbpf
 libbpf-devel
 libcmocka-devel
@@ -56,15 +48,12 @@ libicu-devel
 libpfm-devel
 libselinux-devel
 libuv-devel
-libvirt-daemon
-libvirt-daemon-driver-qemu
 llvm
 llvm-devel
 lm_sensors
 make
 man-db
 mandoc
-mariadb
 memcached
 mesa-dri-drivers
 ncurses-devel
@@ -83,7 +72,6 @@ perl-LDAP
 perl-List-MoreUtils
 perl-Net-SNMP
 perl-Spreadsheet-WriteExcel
-perl-Spreadsheet-XLSX
 perl-Text-CSV_XS
 perl-Time-HiRes
 perl-TimeDate
@@ -94,35 +82,21 @@ perl-autodie
 perl-interpreter
 perl-libwww-perl
 pkgconf-pkg-config
-podman-docker
 postfix-perl-scripts
-postgresql
 psmisc
-pylint
 python3
 python3-bcc
 python3-devel
-python3-elasticsearch
 python3-libs
-python3-libvirt
 python3-lxml
 python3-openpyxl
-python3-pandas
 python3-pillow
-python3-prometheus_client
 python3-psycopg2
-python3-pyarrow
-python3-pylint
 python3-pymongo
-python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
 python3-six
-qt5-qtbase-devel
-qt5-qtsvg-devel
-qtchooser
-ragel
 rdma-core-devel
 readline-devel
 rpm-build
@@ -148,5 +122,4 @@ valkey
 xfsprogs
 xkeyboard-config
 xz-devel
-zabbix-agent
 zstd
