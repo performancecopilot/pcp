@@ -1,0 +1,109 @@
+#!/bin/sh
+#
+# Compare file contents for all packages between two PCP Debian builds
+#
+# To use this ...
+# - have a previous set of .deb packages salted away in <somepath>
+# - have completed a recent Debian build, with .deb packages in
+#   build/deb
+# - $ cd build/deb
+# - if the PCP scripts dir is on your $PATH
+#   $ check-deb-contents <somepath>
+# - otherwise
+#   $ ../../scripts/check-deb-contents <somepath>
+#
+
+if [ $# -ne 1 ]
+then
+    echo >&2 "Usage: check-deb-contents otherdir"
+    exit 1
+fi
+
+if [ ! -d "$1" ]
+then
+    echo >&2 "check-deb-contents: Error: otherdir ($1) not found"
+    exit 1
+fi
+
+tmp=/var/tmp/check-deb-contents-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+ls *.deb *.ddeb 2>/dev/null >$tmp.here
+( cd "$1"; ls *.deb *.ddeb ) 2>/dev/null >$tmp.there
+echo 0 >$tmp.same
+echo 0 >$tmp.different
+echo 0 >$tmp.missing
+echo 0 >$tmp.botched
+
+# work through all packages here ...
+#
+cat $tmp.here \
+| while read pkg
+do
+    # pkg is like pcp_7.0.3-1_amd64.deb, need to strip version
+    # and build no. then look for match
+    generic_pkg=`echo "$pkg" | sed -e 's/_.*//'`
+    pat=`echo "$pkg" | sed -e 's/_[^_]*_/_.*_/'`
+    there_pkg=`grep "^$pat\$" $tmp.there`
+    if [ -z "$there_pkg" ]
+    then
+	echo "$generic_pkg: missing from $1"
+	missing=`expr $missing + 1`
+	continue
+    fi
+    if [ `echo "$there_pkg" | wc -l | sed -e 's/ //g'` -gt 1 ]
+    then
+	echo "$pkg: pattern $pat matches more than one package in $1: $there_pkg"
+    fi
+    if ! dpkg-deb -c "$pkg" | awk '{print $NF}' >$tmp.here-c
+    then
+	echo "$pkg: cannot extract contents"
+	expr `cat $tmp.botched` + 1 >$tmp.botched
+	rm -f $tmp.here-c
+    fi
+    if ! dpkg-deb -c "$1/$there_pkg" | awk '{print $NF}' >$tmp.there-c
+    then
+	echo "$1/$there_pkg: cannot extract contents"
+	expr `cat $tmp.botched` + 1 >$tmp.botched
+	continue
+    fi
+    if [ -f $tmp.here-c -a -f $tmp.there-c ]
+    then
+	if diff -u $tmp.here-c $tmp.there-c
+	then
+	    expr `cat $tmp.same` + 1 >$tmp.same
+	else
+	    expr `cat $tmp.different` + 1 >$tmp.different
+	fi
+    fi
+done
+
+# work through all packages in <somepath>, looking for ones not here
+#
+cat $tmp.there \
+| while read there_pkg
+do
+    generic_pkg=`echo "$there_pkg" | sed -e 's/_.*//'`
+    pat=`echo "$there_pkg" | sed -e 's/_[^_]*_/_.*_/'`
+    pkg=`grep "^$pat\$" $tmp.here`
+    if [ -z "$pkg" ]
+    then
+	echo "$generic_pkg: missing from ."
+	expr `cat $tmp.missing` + 1 >$tmp.missing
+	continue
+    fi
+    if [ `echo "$pkg" | wc -l | sed -e 's/ //g'` -gt 1 ]
+    then
+	echo "$1/$there_pkg: pattern $pat matches more than one package in .: $pkg"
+    fi
+    # one matching package here, diffs done above
+    #
+done
+
+echo
+echo -n "Summary:"
+[ `cat $tmp.same` -gt 0 ] && echo -n " same: `cat $tmp.same`"
+[ `cat $tmp.different` -gt 0 ] && echo -n " different: `cat $tmp.different`"
+[ `cat $tmp.missing` -gt 0 ] && echo -n " missing: `cat $tmp.missing`"
+[ `cat $tmp.botched` -gt 0 ] && echo -n " botched: `cat $tmp.botched`"
+echo
