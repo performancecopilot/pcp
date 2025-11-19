@@ -47,9 +47,7 @@ create_labels_dict(
         .keyDestructor  = str_hash_free_callback,
         .valDestructor  = metric_label_free_callback,
     };
-    dict_set_config(container->metrics_privdata->config);
     labels* children = dictCreate(&metric_label_dict_callbacks);
-    dict_clear_config();
     item->children = children;
     pthread_mutex_unlock(&container->mutex);
 }
@@ -204,6 +202,7 @@ create_label(
     ALLOC_CHECK(meta, "Unable to allocate memory for metric label metadata.");
     (*out)->meta = meta;
     (*out)->type = METRIC_TYPE_NONE;
+    (*out)->config = config;
     meta->instance_label_segment_str = NULL;
     char* label_segment_identifier = create_instance_label_segment_str(datagram->tags);
     if (label_segment_identifier == NULL) {
