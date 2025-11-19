@@ -18,22 +18,21 @@
 #include "dict-callbacks.h"
 #include "utils.h"
 
-/* Static variable to store config for callbacks that need it */
-static struct agent_config* current_dict_config = NULL;
-
 void
 metric_label_free_callback(void* val) 
 {
-    if (current_dict_config != NULL) {
-	free_metric_label(current_dict_config, (struct metric_label*)val);
+    struct metric_label* label = (struct metric_label*)val;
+    if (label != NULL && label->config != NULL) {
+        free_metric_label(label->config, label);
     }
 }
 
 void
 metric_free_callback(void* val)
 {
-    if (current_dict_config != NULL) {
-	free_metric(current_dict_config, (struct metric*)val);
+    struct metric* metric = (struct metric*)val;
+    if (metric != NULL && metric->config != NULL) {
+        free_metric(metric->config, metric);
     }
 }
 
@@ -58,20 +57,6 @@ int
 str_compare_callback(const void* key1, const void* key2)
 {
     return strcmp((char*)key1, (char*)key2) == 0;
-}
-
-/* Helper function to set config for callbacks */
-void
-dict_set_config(struct agent_config* config)
-{
-    current_dict_config = config;
-}
-
-/* Helper function to clear config */
-void
-dict_clear_config(void)
-{
-    current_dict_config = NULL;
 }
 
 uint64_t

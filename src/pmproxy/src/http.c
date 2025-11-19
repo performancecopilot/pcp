@@ -401,7 +401,6 @@ static sds
 http_response_trace(struct client *client, int sts)
 {
     struct http_parser	*parser = &client->u.http.parser;
-    dictIterator	*iterator;
     dictEntry		*entry;
     char		buffer[64];
     sds			header;

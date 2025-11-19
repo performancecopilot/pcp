@@ -64,7 +64,6 @@ open_metrics_labels(pmWebLabelSet *labels)
     pmLabelSet		*labelset;
     pmLabel		*label;
     dict		*labeldict;
-    dictEntry		*entry;
     const char		*offset;
     static sds		instname, instid;
     sds			key, value;
@@ -92,12 +91,15 @@ open_metrics_labels(pmWebLabelSet *labels)
 	    value = sdscatrepr(sdsempty(), offset, length);
 
 	    /* overwrite entries from earlier passes: label hierarchy */
-	    if ((entry = dictFind(labeldict, key)) == NULL) {
-		dictAdd(labeldict, key, value);	/* new entry */
-	    } else {
-		sdsfree(key);
-		sdsfree(dictGetVal(entry));
-		dictSetVal(labeldict, entry, value);
+	    {
+		dictEntry *entry;
+		if ((entry = dictFind(labeldict, key)) == NULL) {
+		    dictAdd(labeldict, key, value);	/* new entry */
+		} else {
+		    sdsfree(key);
+		    sdsfree(dictGetVal(entry));
+		    dictSetVal(labeldict, entry, value);
+		}
 	    }
 	}
     }

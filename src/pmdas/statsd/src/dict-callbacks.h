@@ -33,11 +33,4 @@ str_compare_callback(const void* key1, const void* key2);
 extern uint64_t
 str_hash_callback(const void* key);
 
-/* Helper functions to set/clear config for callbacks that need it */
-extern void
-dict_set_config(struct agent_config* config);
-
-extern void
-dict_clear_config(void);
-
 #endif

@@ -32,6 +32,7 @@
 
 #include <valkey/valkey.h>
 #include <valkey/async.h>
+#include <valkey/cluster.h>
 
 #define RESP_OK			VALKEY_OK
 #define RESP_ERR		VALKEY_ERR
@@ -90,6 +91,9 @@
 #define keyClusterAsyncSetDisconnectCallback valkeyClusterOptions.async_disconnect_callback
 #define keyClusterAsyncFormattedCommand valkeyClusterAsyncFormattedCommand
 #define keyClusterAsyncFormattedCommandToNode valkeyClusterAsyncFormattedCommandToNode
+
+/* valkey cluster options */
+#define KEYOPT_BLOCKING_INITIAL_UPDATE VALKEY_OPT_BLOCKING_INITIAL_UPDATE
 
 extern const char *resp_reply_type(respReply *);
 extern int keysAsyncEnableKeepAlive(keysAsyncContext *);

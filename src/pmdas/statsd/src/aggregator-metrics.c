@@ -51,17 +51,9 @@ init_pmda_metrics(struct agent_config* config) {
         (struct pmda_metrics_container*) malloc(sizeof(struct pmda_metrics_container));
     ALLOC_CHECK(container, "Unable to create PMDA metrics container.");
     pthread_mutex_init(&container->mutex, NULL);
-    struct pmda_metrics_dict_privdata* dict_data = 
-        (struct pmda_metrics_dict_privdata*) malloc(sizeof(struct pmda_metrics_dict_privdata));    
-    ALLOC_CHECK(dict_data, "Unable to create priv PMDA metrics container data.");
-    dict_data->config = config;
-    dict_data->container = container;
-    dict_set_config(config);
     metrics* m = dictCreate(&metric_dict_callbacks);
-    dict_clear_config();
     container->metrics = m;
     container->generation = 0;
-    container->metrics_privdata = dict_data;
     return container;
 }
 
@@ -167,9 +159,7 @@ free_metric(struct agent_config* config, struct metric* item) {
         free_metric_metadata(item->meta);
     }
     if (item->children != NULL) {
-	dict_set_config(config);
-	dictRelease(item->children);
-	dict_clear_config();
+        dictRelease(item->children);
     }
     switch (item->type) {
         case METRIC_TYPE_COUNTER:
@@ -310,6 +300,7 @@ create_metric(struct agent_config* config, struct statsd_datagram* datagram, str
     (*out)->meta = create_metric_meta(datagram);
     (*out)->children = NULL;
     (*out)->committed = 0;
+    (*out)->config = config;
     int status = 0; 
     (*out)->value = NULL;
     // this metric doesn't have root value

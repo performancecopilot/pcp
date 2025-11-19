@@ -554,7 +554,7 @@ pmsearch_servlet_setup(struct proxy *proxy)
     PARAM_LIMIT = sdsnew("limit");
     PARAM_OFFSET = sdsnew("offset");
 
-    pmSearchSetSlots(&pmsearch_settings.module, proxy->slots);
+    pmSearchSetSlots(&pmsearch_settings.module, &proxy->slotsctx->slots);
     pmSearchSetEventLoop(&pmsearch_settings.module, proxy->events);
     pmSearchSetConfiguration(&pmsearch_settings.module, proxy->config);
     pmSearchSetMetricRegistry(&pmsearch_settings.module, metric_registry);
