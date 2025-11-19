@@ -77,7 +77,6 @@ open_telemetry_labels(pmWebLabelSet *labels, struct dict **context, sds *buffer)
 {
     pmLabelSet		*labelset;
     pmLabel		*label;
-    dictEntry		*entry;
     const char		*offset;
     static sds		instname, instid;
     struct dict		*labeldict = *context;
@@ -127,12 +126,15 @@ open_telemetry_labels(pmWebLabelSet *labels, struct dict **context, sds *buffer)
 	    value = sdscatrepr(sdsempty(), offset, length);
 
 	    /* overwrite entries from earlier passes: label hierarchy */
-	    if ((entry = dictFind(metric_labels, key)) == NULL) {
-		dictAdd(metric_labels, key, value);	/* new entry */
-	    } else {
-		sdsfree(key);
-		sdsfree(dictGetVal(entry));
-		dictSetVal(metric_labels, entry, value);
+	    {
+		dictEntry *entry;
+		if ((entry = dictFind(metric_labels, key)) == NULL) {
+		    dictAdd(metric_labels, key, value);	/* new entry */
+		} else {
+		    sdsfree(key);
+		    sdsfree(dictGetVal(entry));
+		    dictSetVal(metric_labels, entry, value);
+		}
 	    }
 	}
     }

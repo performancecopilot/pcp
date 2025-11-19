@@ -20,6 +20,8 @@
 #ifdef HAVE_STRINGS_H
 #include <strings.h>
 #endif
+#include <valkey/alloc.h>
+#include "adlist.h"
 #if defined(HAVE_LIBUV)
 #include <valkey/adapters/libuv.h>
 #else
@@ -289,11 +291,50 @@ keySlotsReconnect(keySlots *slots, keySlotsFlags flags,
 	}
     }
 
+    /* Free old internal structures of cc before replacing with new connection.
+     * We need to free the internals that were allocated by valkeyClusterContextInit
+     * when the context was first created, to avoid leaking them when we overwrite
+     * the structure below. Note: we can't call valkeyClusterFree because cc is
+     * embedded (not a pointer), so it would try to free the embedded structure
+     * itself, causing a crash. We manually free just the internals. */
+    if (slots->acc->cc.nodes) {
+	dictRelease(slots->acc->cc.nodes);
+	slots->acc->cc.nodes = NULL;
+    }
+    if (slots->acc->cc.requests) {
+	listRelease(slots->acc->cc.requests);
+	slots->acc->cc.requests = NULL;
+    }
+    if (slots->acc->cc.table) {
+	vk_free(slots->acc->cc.table);
+	slots->acc->cc.table = NULL;
+    }
+    if (slots->acc->cc.connect_timeout) {
+	vk_free(slots->acc->cc.connect_timeout);
+	slots->acc->cc.connect_timeout = NULL;
+    }
+    if (slots->acc->cc.command_timeout) {
+	vk_free(slots->acc->cc.command_timeout);
+	slots->acc->cc.command_timeout = NULL;
+    }
+    if (slots->acc->cc.username) {
+	vk_free(slots->acc->cc.username);
+	slots->acc->cc.username = NULL;
+    }
+    if (slots->acc->cc.password) {
+	vk_free(slots->acc->cc.password);
+	slots->acc->cc.password = NULL;
+    }
+
     /* Connect to the key server */
     /* libvalkey determines cluster mode during initial connect */
     valkeyClusterContext *tmp = keyClusterConnect2(opts);
     if (tmp) {
         slots->acc->cc = *tmp;
+        /* Free only the outer structure, not its internals which are now
+         * owned by slots->acc->cc after the structure copy above.
+         * Use vk_free since the structure was allocated with vk_calloc. */
+        vk_free(tmp);
     }
     if (slots->acc->cc.err == 0) {
 	slots->cluster = 1;
@@ -381,6 +422,24 @@ keySlotsFree(keySlots *slots)
     }
     memset(slots, 0, sizeof(*slots));
     free(slots);
+}
+
+void
+keySlotsContextFree(keySlotsContext *context)
+{
+    if (context == NULL)
+	return;
+
+    keyClusterAsyncDisconnect(context->slots.acc);
+    keyClusterAsyncFree(context->slots.acc);
+    if (context->slots.keymap) {
+	if (context->slots.keymap->privdata)
+	    sdsfree((sds)context->slots.keymap->privdata);
+	dictRelease(context->slots.keymap->dict);
+	free(context->slots.keymap);
+    }
+    memset(context, 0, sizeof(*context));
+    free(context);
 }
 
 static inline uint64_t

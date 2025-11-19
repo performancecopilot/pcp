@@ -92,6 +92,7 @@ extern keySlotsContext *keySlotsConnect(dict *, keySlotsFlags,
 		keysInfoCallBack, keysDoneCallBack, void *, void *, void *);
 extern void keySlotsReconnect(keySlots *, keySlotsFlags,
 		keysInfoCallBack, keysDoneCallBack, void *, void *, void *, valkeyClusterOptions *);
+extern void keySlotsContextFree(keySlotsContext *);
 extern uint64_t keySlotsInflightRequests(keySlots *);
 extern int keySlotsRequest(keySlots *, sds, keyClusterCallbackFn *, void *);
 extern int keySlotsRequestFirstNode(keySlots *slots, const sds cmd,
