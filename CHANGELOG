@@ -1,3 +1,7 @@
+pcp-7.1.0 (4 February 2026)
+    - Note: Ubuntu Resolute feature freeze is in February
+    - Work-in-progress.
+
 pcp-7.0.4 (20 November 2025)
     - PMDA additions, enhancements and bug fixes:
 	pmdasmart: Support for collecting NVMe error log (0x01) entries
