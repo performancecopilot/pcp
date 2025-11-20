@@ -792,8 +792,8 @@ static void
 close_proxy(struct proxy *proxy)
 {
     close_pcp_module(proxy);
-    close_http_module(proxy);
     close_keys_module(proxy);
+    close_http_module(proxy);
     close_secure_module(proxy);
 }
 

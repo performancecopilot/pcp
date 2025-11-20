@@ -430,6 +430,10 @@ keySlotsContextFree(keySlotsContext *context)
     if (context == NULL)
 	return;
 
+    /* Set state to disconnected BEFORE invoking callbacks to prevent
+     * callbacks from issuing new requests during shutdown */
+    context->slots.state = SLOTS_DISCONNECTED;
+
     keyClusterAsyncDisconnect(context->slots.acc);
     keyClusterAsyncFree(context->slots.acc);
     if (context->slots.keymap) {
@@ -603,7 +607,8 @@ keySlotsRequest(keySlots *slots, const sds cmd,
 		    keySlotsReplyCallback, srd, cmd, size)) != RESP_OK) {
 	mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_ERROR]);
 	pmNotifyErr(LOG_ERR, "%s: %s (%s)\n", "keySlotsRequest",
-			slots->acc->errstr, cmd);
+		slots->acc->errstr, cmd);
+	keySlotsReplyDataFree(srd);
 	return -ENOMEM;
     }
 
@@ -656,11 +661,12 @@ keySlotsRequestFirstNode(keySlots *slots, const sds cmd,
 	return -ENOMEM;
     }
     sts = keyClusterAsyncFormattedCommandToNode(slots->acc, node,
-			keySlotsReplyCallback, srd, cmd, size);
+		keySlotsReplyCallback, srd, cmd, size);
     if (sts != RESP_OK) {
 	mmv_inc(slots->map, slots->metrics[SLOT_REQUESTS_ERROR]);
 	pmNotifyErr(LOG_ERR, "%s: %s (%s)\n",
-			"keySlotsRequestFirstNode", slots->acc->errstr, cmd);
+		"keySlotsRequestFirstNode", slots->acc->errstr, cmd);
+	keySlotsReplyDataFree(srd);
 	return -ENOMEM;
     }
 

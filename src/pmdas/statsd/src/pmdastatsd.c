@@ -158,11 +158,7 @@ free_shared_data(struct agent_config* config, struct pmda_data_extension* data) 
     // frees config
     free(config->debug_output_filename);
     // remove metrics dictionary and related
-    dict_set_config(data->metrics_storage->metrics_privdata->config);
     dictRelease(data->metrics_storage->metrics);
-    dict_clear_config();
-    // privdata will be left behind, need to remove manually
-    free(data->metrics_storage->metrics_privdata);
     pthread_mutex_destroy(&data->metrics_storage->mutex);
     free(data->metrics_storage);
     // remove stats dictionary and related
