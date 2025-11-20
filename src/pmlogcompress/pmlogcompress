@@ -74,18 +74,18 @@ _xz_setup()
 {
     if [ -z "${xz_args+onetrip}" ]
     then
-	if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
+	if xz -3 --block-size=10MiB </dev/null >/dev/null 2>&1
 	then
 	    # want minimal overheads, -0 is the same as --fast ...
 	    # these options were selected after extensive analysis
 	    # for original settings in pmlogger_daily
 	    #
-	    xz_args="-0 --block-size=10MiB"
-	elif xz -0 </dev/null >/dev/null 2>&1
+	    xz_args="-3 --block-size=10MiB"
+	elif xz -3 </dev/null >/dev/null 2>&1
 	then
 	    # no --block-size in older versions of xz
 	    #
-	    xz_args="-0"
+	    xz_args="-3"
 	else
 	    xz_args=''
 	fi
