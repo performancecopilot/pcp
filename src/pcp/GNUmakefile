@@ -39,6 +39,7 @@ SUBDIRS = \
 	ss \
 	summary \
 	tapestat \
+	top \
 	uptime \
 	verify \
 	vmstat \
