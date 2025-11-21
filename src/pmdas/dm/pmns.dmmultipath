@@ -1,0 +1,42 @@
+/*
+ * Copyright (c) 2025 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+ 
+dmmultipath {
+    name				DM:7:0
+    wwid				DM:7:1
+    device				DM:7:2
+    vendor				DM:7:3
+    product_name		DM:7:4
+    size				DM:7:5
+    features			DM:7:6
+    hardware_handler	DM:7:7
+    permissions			DM:7:8
+    path
+}
+ 
+dmmultipath.path {
+    selector_algorithm	DM:8:0
+    priority			DM:8:1
+    status				DM:8:2
+    device
+}
+
+dmmultipath.path.device {
+    bus_id				DM:9:0
+    dev_name			DM:9:1
+    dev_id				DM:9:2
+    device_status		DM:9:3
+    path_status			DM:9:4
+    kernel_status		DM:9:5
+}

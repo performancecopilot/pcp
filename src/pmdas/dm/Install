@@ -19,7 +19,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=dm
-pmns_name="dmcache dmthin dmstats vdo dmcrypt"
+pmns_name="dmcache dmthin dmstats vdo dmcrypt dmmultipath"
 
 which dmsetup >/dev/null 2>&1
 if [ $? -ne 0 ]

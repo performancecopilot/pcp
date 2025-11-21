@@ -17,7 +17,7 @@ include	$(TOPDIR)/src/include/builddefs
 
 IAM		= dm
 DOMAIN		= DM
-PMNSFILES	= pmns.dmcache pmns.dmthin pmns.dmstats pmns.vdo pmns.dmcrypt
+PMNSFILES	= pmns.dmcache pmns.dmthin pmns.dmstats pmns.vdo pmns.dmcrypt pmns.dmmultipath
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
@@ -26,8 +26,8 @@ PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMIEDIR		= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
 PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 
-CFILES		= pmda.c dmthin.c dmcache.c vdo.c dmcrypt.c
-HFILES		= indom.h dmthin.h dmcache.h dmstats.h vdo.h dmcrypt.h
+CFILES		= pmda.c dmthin.c dmcache.c vdo.c dmcrypt.c dmmultipath.c
+HFILES		= indom.h dmthin.h dmcache.h dmstats.h vdo.h dmcrypt.h dmmultipath.h
 LLDLIBS		= $(PCP_PMDALIB)
 LCFLAGS		= $(INVISIBILITY)
 
@@ -85,6 +85,7 @@ pmda.o dmthin.o: dmthin.h
 ifeq "$(HAVE_DEVMAPPER)" "true"
 pmda.o dmstats.o: dmstats.h
 pmda.o dmcrypt.o: dmcrypt.h
+pmda.o dmmultipath.0: dmmultipath.h
 endif
 pmda.o vdo.o: vdo.h
 

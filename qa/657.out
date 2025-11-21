@@ -11,6 +11,7 @@ Check dmcache metrics have appeared ... 16 metrics and X values
 Check dmthin metrics have appeared ... 13 metrics and X values
 Check dmstats metrics have appeared ... 15 metrics and X values
 Check dmcrypt metrics have appeared ... 13 metrics and X values
+Check dmmultipath metrics have appeared ... 18 metrics and X values
 
 === Check dm-cache metrics ===
 
@@ -322,3 +323,215 @@ dmcrypt.flags PMID: 129.6.12 [Flags for the crypt device]
 Help:
 Flags for the crypt device
     inst [0 or "luks-4456fe89-d09e-416f-8721-bedb66abda85"] value "discards"
+
+=== Check dm-multipath metrics ===
+
+dmmultipath.name PMID: 129.7.0 [The map name (alias - user friendly name)]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+The map name (alias - user friendly name)
+    inst [0 or "dm-1"] value "mpatha"
+    inst [1 or "dm-4"] value "mpathb"
+
+dmmultipath.wwid PMID: 129.7.1 [The map World Wide Identifier (WWID)]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+The map World Wide Identifier (WWID)
+    inst [0 or "dm-1"] value "3600c0ff000123456789012345000000"
+    inst [1 or "dm-4"] value "36005076303ffc56200000000000010aa"
+
+dmmultipath.device PMID: 129.7.2 [The device node name of the map device in device mapper]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+The device node name of the map device in device mapper
+    inst [0 or "dm-1"] value "dm-1"
+    inst [1 or "dm-4"] value "dm-4"
+
+dmmultipath.vendor PMID: 129.7.3 [The vendor name]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+The vendor name
+    inst [0 or "dm-1"] value "HITACHI"
+    inst [1 or "dm-4"] value "Pure Storage"
+
+dmmultipath.product_name PMID: 129.7.4 [The product name]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+The product name
+    inst [0 or "dm-1"] value "DF400F"
+    inst [1 or "dm-4"] value "FlashArray"
+
+dmmultipath.size PMID: 129.7.5 [The total size of the device]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+The total size of the device
+    inst [0 or "dm-1"] value "500G"
+    inst [1 or "dm-4"] value "1.5T"
+
+dmmultipath.features PMID: 129.7.6 [Device features]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+Device features
+    inst [0 or "dm-1"] value "1 queue_if_no_path"
+    inst [1 or "dm-4"] value "3 queue_if_no_path pg_init_retries 50"
+
+dmmultipath.hardware_handler PMID: 129.7.7 [The hardware handler used]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+The hardware handler used
+    inst [0 or "dm-1"] value "0"
+    inst [1 or "dm-4"] value "1 alua"
+
+dmmultipath.permissions PMID: 129.7.8 [Write premissions]
+    Data Type: string  InDom: 129.7 0x20400007
+    Semantics: instant  Units: none
+Help:
+Write premissions
+    inst [0 or "dm-1"] value "rw"
+    inst [1 or "dm-4"] value "rw"
+
+dmmultipath.path.selector_algorithm PMID: 129.8.0 [The I/O load balancing policy]
+    Data Type: string  InDom: 129.8 0x20400008
+    Semantics: instant  Units: none
+Help:
+The I/O load balancing policy
+    inst [0 or "dm-1:path_0"] value "round-robin 0"
+    inst [1 or "dm-1:path_1"] value "round-robin 0"
+    inst [2 or "dm-4:path_0"] value "service-time 0"
+    inst [3 or "dm-4:path_1"] value "service-time 0"
+
+dmmultipath.path.priority PMID: 129.8.1 [The priority of the path group]
+    Data Type: 64-bit unsigned int  InDom: 129.8 0x20400008
+    Semantics: instant  Units: none
+Help:
+The priority of the path group
+    inst [0 or "dm-1:path_0"] value 50
+    inst [1 or "dm-1:path_1"] value 10
+    inst [2 or "dm-4:path_0"] value 100
+    inst [3 or "dm-4:path_1"] value 10
+
+dmmultipath.path.status PMID: 129.8.2 [The status of the path group]
+    Data Type: string  InDom: 129.8 0x20400008
+    Semantics: instant  Units: none
+Help:
+The status of the path group
+    inst [0 or "dm-1:path_0"] value "active"
+    inst [1 or "dm-1:path_1"] value "enabled"
+    inst [2 or "dm-4:path_0"] value "active"
+    inst [3 or "dm-4:path_1"] value "enabled"
+
+dmmultipath.path.device.bus_id PMID: 129.9.0 [The SCSI Host:Channel:Target:LUN identifier]
+    Data Type: string  InDom: 129.9 0x20400009
+    Semantics: instant  Units: none
+Help:
+The SCSI Host:Channel:Target:LUN identifier
+    inst [0 or "dm-1:path_0:sda"] value "1:0:0:1"
+    inst [1 or "dm-1:path_0:sdc"] value "2:0:0:1"
+    inst [2 or "dm-1:path_0:sde"] value "3:0:0:1"
+    inst [3 or "dm-1:path_0:sdg"] value "4:0:0:1"
+    inst [4 or "dm-1:path_1:sdb"] value "1:0:1:1"
+    inst [5 or "dm-1:path_1:sdd"] value "2:0:1:1"
+    inst [6 or "dm-1:path_1:sdf"] value "3:0:1:1"
+    inst [7 or "dm-1:path_1:sdh"] value "4:0:1:1"
+    inst [8 or "dm-4:path_0:sdi"] value "5:0:0:1"
+    inst [9 or "dm-4:path_0:sdk"] value "6:0:0:1"
+    inst [10 or "dm-4:path_1:sdj"] value "5:0:1:1"
+    inst [11 or "dm-4:path_1:sdl"] value "6:0:1:1"
+
+dmmultipath.path.device.dev_name PMID: 129.9.1 [The kernel standard device node name]
+    Data Type: string  InDom: 129.9 0x20400009
+    Semantics: instant  Units: none
+Help:
+The kernel standard device node name
+    inst [0 or "dm-1:path_0:sda"] value "sda"
+    inst [1 or "dm-1:path_0:sdc"] value "sdc"
+    inst [2 or "dm-1:path_0:sde"] value "sde"
+    inst [3 or "dm-1:path_0:sdg"] value "sdg"
+    inst [4 or "dm-1:path_1:sdb"] value "sdb"
+    inst [5 or "dm-1:path_1:sdd"] value "sdd"
+    inst [6 or "dm-1:path_1:sdf"] value "sdf"
+    inst [7 or "dm-1:path_1:sdh"] value "sdh"
+    inst [8 or "dm-4:path_0:sdi"] value "sdi"
+    inst [9 or "dm-4:path_0:sdk"] value "sdk"
+    inst [10 or "dm-4:path_1:sdj"] value "sdj"
+    inst [11 or "dm-4:path_1:sdl"] value "sdl"
+
+dmmultipath.path.device.dev_id PMID: 129.9.2 [The Major/Minor device numbers]
+    Data Type: string  InDom: 129.9 0x20400009
+    Semantics: instant  Units: none
+Help:
+The Major/Minor device numbers
+    inst [0 or "dm-1:path_0:sda"] value "8:0"
+    inst [1 or "dm-1:path_0:sdc"] value "8:32"
+    inst [2 or "dm-1:path_0:sde"] value "8:64"
+    inst [3 or "dm-1:path_0:sdg"] value "8:96"
+    inst [4 or "dm-1:path_1:sdb"] value "8:16"
+    inst [5 or "dm-1:path_1:sdd"] value "8:48"
+    inst [6 or "dm-1:path_1:sdf"] value "8:80"
+    inst [7 or "dm-1:path_1:sdh"] value "8:112"
+    inst [8 or "dm-4:path_0:sdi"] value "8:128"
+    inst [9 or "dm-4:path_0:sdk"] value "8:160"
+    inst [10 or "dm-4:path_1:sdj"] value "8:144"
+    inst [11 or "dm-4:path_1:sdl"] value "8:176"
+
+dmmultipath.path.device.device_status PMID: 129.9.3 [The Device Mapper (DM) Status]
+    Data Type: string  InDom: 129.9 0x20400009
+    Semantics: instant  Units: none
+Help:
+The Device Mapper (DM) Status
+    inst [0 or "dm-1:path_0:sda"] value "active"
+    inst [1 or "dm-1:path_0:sdc"] value "active"
+    inst [2 or "dm-1:path_0:sde"] value "active"
+    inst [3 or "dm-1:path_0:sdg"] value "active"
+    inst [4 or "dm-1:path_1:sdb"] value "active"
+    inst [5 or "dm-1:path_1:sdd"] value "active"
+    inst [6 or "dm-1:path_1:sdf"] value "active"
+    inst [7 or "dm-1:path_1:sdh"] value "active"
+    inst [8 or "dm-4:path_0:sdi"] value "active"
+    inst [9 or "dm-4:path_0:sdk"] value "active"
+    inst [10 or "dm-4:path_1:sdj"] value "failed"
+    inst [11 or "dm-4:path_1:sdl"] value "active"
+
+dmmultipath.path.device.path_status PMID: 129.9.4 [The Path Status (from the path checker)]
+    Data Type: string  InDom: 129.9 0x20400009
+    Semantics: instant  Units: none
+Help:
+The Path Status (from the path checker)
+    inst [0 or "dm-1:path_0:sda"] value "ready"
+    inst [1 or "dm-1:path_0:sdc"] value "ready"
+    inst [2 or "dm-1:path_0:sde"] value "ready"
+    inst [3 or "dm-1:path_0:sdg"] value "ready"
+    inst [4 or "dm-1:path_1:sdb"] value "ready"
+    inst [5 or "dm-1:path_1:sdd"] value "ready"
+    inst [6 or "dm-1:path_1:sdf"] value "ready"
+    inst [7 or "dm-1:path_1:sdh"] value "ready"
+    inst [8 or "dm-4:path_0:sdi"] value "ready"
+    inst [9 or "dm-4:path_0:sdk"] value "ready"
+    inst [10 or "dm-4:path_1:sdj"] value "faulty"
+    inst [11 or "dm-4:path_1:sdl"] value "ready"
+
+dmmultipath.path.device.kernel_status PMID: 129.9.5 [The state of the path device in the kernel]
+    Data Type: string  InDom: 129.9 0x20400009
+    Semantics: instant  Units: none
+Help:
+The state of the path device in the kernel
+    inst [0 or "dm-1:path_0:sda"] value "running"
+    inst [1 or "dm-1:path_0:sdc"] value "running"
+    inst [2 or "dm-1:path_0:sde"] value "running"
+    inst [3 or "dm-1:path_0:sdg"] value "running"
+    inst [4 or "dm-1:path_1:sdb"] value "running"
+    inst [5 or "dm-1:path_1:sdd"] value "running"
+    inst [6 or "dm-1:path_1:sdf"] value "running"
+    inst [7 or "dm-1:path_1:sdh"] value "running"
+    inst [8 or "dm-4:path_0:sdi"] value "running"
+    inst [9 or "dm-4:path_0:sdk"] value "running"
+    inst [10 or "dm-4:path_1:sdj"] value "detached"
+    inst [11 or "dm-4:path_1:sdl"] value "running""
