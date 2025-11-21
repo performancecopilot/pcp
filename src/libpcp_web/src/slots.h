@@ -83,6 +83,8 @@ typedef void (*keyPhase)(keySlots *, void *);	/* phased operations */
 typedef struct keySlotsContext {
     keySlots			slots;		/* the key slots structure */
     valkeyClusterOptions	opts;		/* original connection options */
+    struct timeval		connection_timeout;	/* connect timeout storage */
+    struct timeval		command_timeout;	/* command timeout storage */
 } keySlotsContext;
 
 extern void keySlotsSetupMetrics(keySlots *);
