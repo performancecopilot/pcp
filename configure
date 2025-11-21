@@ -6606,9 +6606,18 @@ _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
 
-printf "%s\n" "#define HAVE_STATIC_PROBES 1" >>confdefs.h
- { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+if test $target_cpu = "armv8l"; then
+     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+     result=0
+else
+     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
 printf "%s\n" "yes" >&6; }
+     result=1
+fi
+
+printf "%s\n" "#define HAVE_STATIC_PROBES $result" >>confdefs.h
+
 else case e in #(
   e) { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; } ;;

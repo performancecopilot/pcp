@@ -1,6 +1,5 @@
-pcp-7.1.0 (4 February 2026)
-    - Note: Ubuntu Resolute feature freeze is in February
-    - Work-in-progress.
+pcp-7.0.5 (21 November 2025)
+    - build: disable usdt.h use in configure script on armv8l (Debian)
 
 pcp-7.0.4 (20 November 2025)
     - PMDA additions, enhancements and bug fixes:
