@@ -8,7 +8,7 @@
 # The things we're culling are
 # - false warnings, often from older toolchains
 # - warnings from code the is not part of PCP proper, e.g. the qwt library
-#   and the vendor code (hiredis, hiredis-cluster, jasonl, libbpf-tools,
+#   and the vendor code (libvalkey, jasonl, libbpf-tools,
 #   bpftool, htop, etc) ... we assume fixed these is "someone else's
 #   problem"
 # - things's we triaged and decided are OK, e.g. rand() or random() use
@@ -56,10 +56,9 @@ mv $tmp.out $tmp.in
 sed <$tmp.in >$tmp.out \
     -e '/^qwt_/d' \
     -e '/^\.\/qwt_/d' \
-    -e '/^deps\/hiredis\/async.c[ :].* unused variable /d' \
-    -e '/^deps\/hiredis\/sds.h[ :].* declaration of .sh. shadows a previous local/d' \
-    -e '/^deps\/hiredis\/sds.c[ :].* declaration of .sh. shadows a previous local/d' \
-    -e '/^deps\/hiredis\/sds.c[ :].* declaration shadows a local variable/d' \
+    -e '/^deps\/libvalkey\/src\/sds.h[ :].* declaration of .sh. shadows a previous local/d' \
+    -e '/^deps\/libvalkey\/src\/sds.c[ :].* declaration of .sh. shadows a previous local/d' \
+    -e '/^deps\/libvalkey\/src\/sds.c[ :].* declaration shadows a local variable/d' \
     -e '/\/selinux\/.*\.if[ :].* duplicate definition of /d' \
     -e '/^libbpf.c[ :].* comparison of integer expressions of different signedness/d' \
     -e '/^libbpf.c[ :].* comparison between signed and unsigned integer expressions/d' \
