@@ -812,9 +812,18 @@ dnl subsequent configure checks rely on $EGREP being set
 AC_PROG_EGREP
 
 AC_MSG_CHECKING([if USDT probes should be used])
-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
-    #include "vendor/github.com/libbpf/usdt/usdt.h"
-]], [[ USDT(pcp, check, 1); ]])], [AC_DEFINE(HAVE_STATIC_PROBES, [1], [Static probes (USDT)]) AC_MSG_RESULT(yes)], [AC_MSG_RESULT(no)])
+AC_LINK_IFELSE([AC_LANG_SOURCE([
+#include "vendor/github.com/libbpf/usdt/usdt.h"
+void main() { USDT(pcp, check, 1); }])], [
+if test $target_cpu = "armv8l"; then
+     AC_MSG_RESULT(no)
+     result=0
+else
+     AC_MSG_RESULT(yes)
+     result=1
+fi
+AC_DEFINE_UNQUOTED(HAVE_STATIC_PROBES, $result, [Static probes (USDT)])],
+[AC_MSG_RESULT(no)])
 
 dnl Check for gperftools
 AS_IF([test "x$use_gperftools" != "xno"], [

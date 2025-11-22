@@ -1,3 +1,21 @@
+pcp (7.1.0-1) unstable; urgency=high
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Wed, 04 Feb 2026 13:01:35 +1100
+
+pcp (7.0.5-1) unstable; urgency=high
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Fri, 21 Nov 2025 11:08:59 +1100
+
+pcp (7.0.4-1) unstable; urgency=high
+
+  * New release (full details in CHANGELOG).
+
+ -- Nathan Scott <nathans@debian.org>  Thu, 20 Nov 2025 09:17:30 +1100
+
 pcp (7.0.3-1) unstable; urgency=high
 
   * New release (full details in CHANGELOG).

@@ -3422,5 +3422,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Wed Feb 4 2025 Nathan Scott <nathans@redhat.com> - 7.1.0-1
+* Wed Feb 04 2026 Nathan Scott <nathans@redhat.com> - 7.1.0-1
 - Latest release.
