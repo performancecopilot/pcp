@@ -1,5 +1,7 @@
 #!/usr/bin/env pmpython
 
+import json
+
 data = {
   "resourceMetrics": [
     {
@@ -34,7 +36,7 @@ data = {
               "description": "I am a Counter",
               "sum": {
                 "aggregationTemporality": 1,
-                "isMonotonic": true,
+                "isMonotonic": True,
                 "dataPoints": [
                   {
                     "asInt": 10,

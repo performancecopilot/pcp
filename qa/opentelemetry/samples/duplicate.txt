@@ -32,7 +32,7 @@
               "description": "metric to test duplicate labels",
               "sum": {
                 "aggregationTemporality": 1,
-                "isMonotonic": "true",
+                "isMonotonic": true,
                 "dataPoints": [
                   {
                     "asDouble": "5",

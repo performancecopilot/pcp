@@ -32,7 +32,7 @@
               "description": "I am a Counter Metric to test the labels",
               "sum": {
                 "aggregationTemporality": 1,
-                "isMonotonic": "true",
+                "isMonotonic": true,
                 "dataPoints": [
                   {
                     "asInt": "5",

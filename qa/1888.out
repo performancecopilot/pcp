@@ -11,6 +11,9 @@ opentelemetry.duplicate.somemetric
 opentelemetry.labelfiltering.labelMetric
     labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"label1":"someLabel","machineid":MACHINEID,"random":"someValue","some_optional_label":"someValue","source":"labelfiltering","url":FILEURL,"userid":NUM}
 
+opentelemetry.python_scripted.some_python_scripted_metric
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"my_counter_attr":"someValue","script":"PCP_PMDAS_DIR/opentelemetry/config.d/python_scripted.python","source":"python_scripted","userid":NUM}
+
 opentelemetry.simplemetric.metric1
     labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"my_counter_attr":"someValue","source":"simplemetric","url":FILEURL,"userid":NUM}
 
@@ -36,6 +39,9 @@ opentelemetry.duplicate.somemetric
 
 opentelemetry.labelfiltering.labelMetric
     labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"label1":"someLabel","machineid":MACHINEID,"random":"someValue","some_optional_label":"someValue","source":"labelfiltering","url":FILEURL,"userid":NUM}
+
+opentelemetry.python_scripted.some_python_scripted_metric
+    labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"my_counter_attr":"someValue","script":"PCP_PMDAS_DIR/opentelemetry/config.d/python_scripted.python","source":"python_scripted","userid":NUM}
 
 opentelemetry.simplemetric.metric1
     labels {"agent":"opentelemetry","domainname":DOMAINNAME,"groupid":NUM,"hostname":HOSTNAME,"machineid":MACHINEID,"my_counter_attr":"someValue","source":"simplemetric","url":FILEURL,"userid":NUM}

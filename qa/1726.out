@@ -23,6 +23,13 @@ Help:
 I am a Counter Metric to test the labels
     value 5
 
+opentelemetry.python_scripted.some_python_scripted_metric [I am a Counter]
+    Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: none
+Help:
+I am a Counter
+    value 10
+
 opentelemetry.simplemetric.metric1 [I am a Counter]
     Data Type: 64-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: none
