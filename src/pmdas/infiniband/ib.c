@@ -777,7 +777,7 @@ read_cm_msgs(const char *ca_name, int portnum, const char *request_type, const c
     }
 
     uint64_t metric_value;
-    if (fscanf(file, "%lu", &metric_value) != 1) {
+    if (fscanf(file, "%" FMT_UINT64, &metric_value) != 1) {
         pmNotifyErr(LOG_INFO, "Failed to read from file %s", filepath);
         fclose(file);
         return -1; 
@@ -802,7 +802,7 @@ read_diag_counters(const char *ca_name, int portnum, const char *filename)
     }
 
     uint64_t metric_value;
-    if (fscanf(file, "%lu", &metric_value) != 1) {
+    if (fscanf(file, "%" FMT_UINT64, &metric_value) != 1) {
         pmNotifyErr(LOG_INFO, "Failed to read from file %s", filepath);
         fclose(file);
         return -1; 
