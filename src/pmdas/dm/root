@@ -14,6 +14,7 @@ root {
     dmstats
     vdo
     dmcrypt
+    dmmultipath
 }
 
 #include "pmns.dmcache"
@@ -21,3 +22,4 @@ root {
 #include "pmns.dmstats"
 #include "pmns.vdo"
 #include "pmns.dmcrypt"
+#include "pmns.dmmultipath"

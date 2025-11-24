@@ -24,17 +24,21 @@
 #include "dmstats.h"
 #include "vdo.h"
 #include "dmcrypt.h"
+#include "dmmultipath.h"
 
 static int		_isDSO = 1; /* for local contexts */
 
 enum {
-    CLUSTER_CACHE = 0,		/* DM-Cache Caches */
-    CLUSTER_POOL = 1,		/* DM-Thin Pools */
-    CLUSTER_VOL = 2,		/* DM-Thin Volumes */
-    CLUSTER_DM_COUNTER = 3,	/* Dmstats basic counter */
-    CLUSTER_DM_HISTOGRAM = 4,	/* Dmstats latency histogram */
-    CLUSTER_VDODEV = 5,		/* VDO per-device statistics */
-    CLUSTER_DM_CRYPT = 6, 	/* DM-Crypt Targets */
+    CLUSTER_CACHE = 0,			/* DM-Cache Caches */
+    CLUSTER_POOL = 1,			/* DM-Thin Pools */
+    CLUSTER_VOL = 2,			/* DM-Thin Volumes */
+    CLUSTER_DM_COUNTER = 3,		/* Dmstats basic counter */
+    CLUSTER_DM_HISTOGRAM = 4,		/* Dmstats latency histogram */
+    CLUSTER_VDODEV = 5,			/* VDO per-device statistics */
+    CLUSTER_DM_CRYPT = 6, 		/* DM-Crypt Targets */
+    CLUSTER_DM_MULTIPATH_INFO = 7,	/* DM-Multipath Info */
+    CLUSTER_DM_MULTIPATH_PATH = 8,	/* DM-Multipath Path */
+    CLUSTER_DM_MULTIPATH_DEVICE = 9,	/* DM-Mulitpath Device */
     NUM_CLUSTERS
 };
 
@@ -1092,6 +1096,79 @@ static pmdaMetric metrictable[] = {
         PMDA_PMID(CLUSTER_DM_CRYPT, CRYPT_FLAGS),
         PM_TYPE_STRING, DM_CRYPT_INDOM, PM_SEM_INSTANT,
         PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    /* DM Multipath stats */
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_NAME),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_WWID),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_DEVICE),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_VENDOR),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_PRODUCT_NAME),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_SIZE),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_FEATURES),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_HARDWARE_HANDLER),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_INFO, MULTIPATH_PERMISSIONS),
+        PM_TYPE_STRING, DM_MULTI_INFO_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_PATH, MULTIPATH_PATH_SELECTOR_ALGORITHM),
+        PM_TYPE_STRING, DM_MULTI_PATH_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_PATH, MULTIPATH_PATH_PRIORITY),
+        PM_TYPE_U64, DM_MULTI_PATH_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_PATH, MULTIPATH_PATH_STATUS),
+        PM_TYPE_STRING, DM_MULTI_PATH_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_DEVICE, MULTIPATH_DEVICE_BUS_ID),
+        PM_TYPE_STRING, DM_MULTI_DEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_DEVICE, MULTIPATH_DEVICE_DEV_NAME),
+        PM_TYPE_STRING, DM_MULTI_DEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_DEVICE, MULTIPATH_DEVICE_DEV_ID),
+        PM_TYPE_STRING, DM_MULTI_DEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_DEVICE, MULTIPATH_DEVICE_DEVICE_STATUS),
+        PM_TYPE_STRING, DM_MULTI_DEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_DEVICE, MULTIPATH_DEVICE_PATH_STATUS),
+        PM_TYPE_STRING, DM_MULTI_DEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
+    { .m_desc = {
+        PMDA_PMID(CLUSTER_DM_MULTIPATH_DEVICE, MULTIPATH_DEVICE_KERNEL_STATUS),
+        PM_TYPE_STRING, DM_MULTI_DEV_INDOM, PM_SEM_INSTANT,
+        PMDA_PMUNITS(0,0,0,0,0,0) }, },
 };
 
 static pmdaIndom indomtable[] = {
@@ -1102,6 +1179,9 @@ static pmdaIndom indomtable[] = {
     { .it_indom = DM_HISTOGRAM_INDOM },
     { .it_indom = DM_VDODEV_INDOM },
     { .it_indom = DM_CRYPT_INDOM },
+    { .it_indom = DM_MULTI_INFO_INDOM },
+    { .it_indom = DM_MULTI_PATH_INDOM },
+    { .it_indom = DM_MULTI_DEV_INDOM },
 };
 
 pmInDom
@@ -1123,6 +1203,7 @@ dm_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *p
 	dm_thin_pool_instance_refresh();
 	dm_thin_vol_instance_refresh();
 	dm_crypt_instance_refresh();
+	dm_multipath_instance_refresh();
     }
 
     (void)pm_dm_stats_instance_refresh();
@@ -1255,6 +1336,12 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
                 dm_refresh_crypt(name, crypt);
         }
     }
+    
+    if ((need_refresh[CLUSTER_DM_MULTIPATH_INFO] ||
+         need_refresh[CLUSTER_DM_MULTIPATH_PATH] ||
+         need_refresh[CLUSTER_DM_MULTIPATH_DEVICE]) && privilege) {
+         dm_multipath_instance_refresh();
+    }
 
     return 0;
 }
@@ -1287,7 +1374,10 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     struct pool_stats *pool;
     struct vol_stats *vol;
     struct pm_wrap *pw;
-    struct crypt_stats * crypt;
+    struct crypt_stats *crypt;
+    struct multipath_info *info;
+    struct multipath_path *path;
+    struct multipath_device *dev;
     char *device;
     int sts;
 
@@ -1334,6 +1424,24 @@ dm_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	        return sts;
 	    return dm_crypt_fetch(item, crypt, atom);
 
+        case CLUSTER_DM_MULTIPATH_INFO:
+	    sts = pmdaCacheLookup(dm_indom(DM_MULTI_INFO_INDOM), inst, NULL, (void **)&info);
+	    if (sts < 0)
+	        return sts;
+	    return dm_multipath_info_fetch(item, info, atom);
+
+        case CLUSTER_DM_MULTIPATH_PATH:
+	    sts = pmdaCacheLookup(dm_indom(DM_MULTI_PATH_INDOM), inst, NULL, (void **)&path);
+	    if (sts < 0)
+	        return sts;
+	    return dm_multipath_path_fetch(item, path, atom);
+
+        case CLUSTER_DM_MULTIPATH_DEVICE:
+	    sts = pmdaCacheLookup(dm_indom(DM_MULTI_DEV_INDOM), inst, NULL, (void **)&dev);
+	    if (sts < 0)
+	        return sts;
+	    return dm_multipath_device_fetch(item, dev, atom);
+
         default: /* unknown cluster */
 	    return PM_ERR_PMID;
     }
@@ -1367,6 +1475,7 @@ dm_init(pmdaInterface *dp)
     dm_thin_setup();
     dm_vdo_setup();
     dm_crypt_setup();
+    dm_multipath_setup();
 
     int	nindoms = sizeof(indomtable)/sizeof(indomtable[0]);
     int	nmetrics = sizeof(metrictable)/sizeof(metrictable[0]);
