@@ -760,6 +760,7 @@ Summary: Performance Co-Pilot (PCP) Python3 bindings and documentation
 URL: https://pcp.io
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
+BuildRequires: python3-pip
 Requires: python3
 Requires: pcp-libs = @package_version@
 
