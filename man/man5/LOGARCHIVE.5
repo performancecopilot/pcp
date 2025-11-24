@@ -396,7 +396,7 @@ and a set of (1 or more) names.
 .TS
 box,center;
 c | c | c
-r | r | l.
+r | r | lx.
 Offset	Length	Name
 _
 0	4	tag, TYPE_DESC=1
@@ -405,11 +405,23 @@ _
 12	4	instance domain identifier
 16	4	metric semantics (PM_SEM_*)
 20	4	units: bit-packed pmUnits
-4	4	number of alternative names for this PMID
+4	4	T{
+.ad l
+.hy 0
+number of alternative names for this PMID
+T}
 28	4	N: number of bytes in this name
-32	N	bytes of the name, no NULL terminator nor padding
+32	N	T{
+.ad l
+.hy 0
+bytes of the name, no NULL terminator nor padding
+T}
 32+N	4	N2: number of bytes in next name
-36+N	N2	bytes of the name, no NULL terminator nor padding
+36+N	N2	T{
+.ad l
+.hy 0
+bytes of the name, no NULL terminator nor padding
+T}
 \&...	...	...
 .TE
 

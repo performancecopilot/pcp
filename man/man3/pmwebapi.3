@@ -535,12 +535,24 @@ $ curl -s http://localhost:44322/series/sources?source=2cd6a38f9339f2dd1f0b4775b
 .TS
 box;
 c | c | cw(2.4i)
-lf(CR) | l | l.
+lf(CR) | l | lx.
 Parameters	Type	Explanation
 _
-series	string	Comma-separated list of series identifiers
-match	string	Glob pattern string to match on all instances
-client	string	Request identifier sent back with response
+series	string	T{
+.hy 0
+.ad l
+Comma-separated list of series identifiers
+T}
+match	string	T{
+.hy 0
+.ad l
+Glob pattern string to match on all instances
+T}
+client	string	T{
+.hy 0
+.ad l
+Request identifier sent back with response
+T}
 .TE
 .P
 Provide instance identifiers and names for one or more
