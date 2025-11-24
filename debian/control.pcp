@@ -16,6 +16,7 @@ Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python-bpfcc}, redis-server
 Provides: dstat, pcp-webapi, pcp-manager
 Replaces: dstat, pcp-webapi, pcp-manager
+Breaks: pcp-doc (<< 7.1.0)
 Architecture: any
 Description: System level performance monitoring and performance management
  Performance Co-Pilot (PCP) is a framework and services to
@@ -371,8 +372,8 @@ Description: Module for exporting PCP metrics to Zabbix agent
 Package: pcp-doc
 Section: doc
 Depends: ${misc:Depends}
-Breaks: pcp (<< 5.3.0), pcp-gui (<< 1.5.13)
-Replaces: pcp (<< 5.3.0), pcp-gui (<< 1.5.13)
+Breaks: pcp (<< 7.1.0), pcp-gui (<< 1.5.13)
+Replaces: pcp (<< 7.1.0), pcp-gui (<< 1.5.13)
 Suggests: pcp, pcp-gui
 Architecture: all
 Description: Documentation and tutorial for the Performance Co-Pilot

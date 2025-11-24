@@ -536,7 +536,7 @@ debian_buildpackage()
     else
 	(dpkg-buildpackage $opts || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
-    [ -f $tmp/failed ] && build_failure debian buildpackage
+    [ -f $tmp/failed ] && build_failure dpkg-buildpackage
 }
 
 prepare_debian_sources()

@@ -333,28 +333,33 @@ pcp.postrm:	pcp.postrm.head pcp.postrm.tail
 	rm -f $@
 	cat pcp.postrm.head pcp.postrm.tail > $@
 
-pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor pcp-gui.install.pmview
-	rm -f pcp-gui.install
-	cat pcp-gui.install.base >pcp-gui.install
-ifeq ($(HAVE_HICOLOR_ICONS), true)
-	cat pcp-gui.install.hicolor >>pcp-gui.install
-endif
-ifeq "$(ENABLE_QT3D)" "true"
-	cat pcp-gui.install.pmview >>pcp-gui.install
-endif
-
 # *.install files that have optional parts
 #
 pcp-testsuite.install: pcp-testsuite.install.in
-	cp pcp-testsuite.install.in pcp-testsuite.install
+	rm -f $@
+	cp pcp-testsuite.install.in $@
 ifeq ($(ENABLE_SYSTEMD),true)
-	echo "usr/lib/sysusers.d/pcp-testsuite.conf" >>pcp-testsuite.install
+	echo "usr/lib/sysusers.d/pcp-testsuite.conf" >>$@
 endif
+	chmod u-w $@
+
 pcp-import-ganglia2pcp.install: pcp-import-ganglia2pcp.install.in
-	cp pcp-import-ganglia2pcp.install.in pcp-import-ganglia2pcp.install
+	rm -f $@
+	cp pcp-import-ganglia2pcp.install.in $@
 ifeq ($(HAVE_PERL_RRDs),true)
-	echo "usr/bin/ganglia2pcp" >>pcp-import-ganglia2pcp.install
+	echo "usr/bin/ganglia2pcp" >>$@
 endif
+
+pcp-gui.install:	pcp-gui.install.base pcp-gui.install.hicolor pcp-gui.install.pmview
+	rm -f $@
+	cat pcp-gui.install.base >$@
+ifeq ($(HAVE_HICOLOR_ICONS), true)
+	cat pcp-gui.install.hicolor >>$@
+endif
+ifeq "$(ENABLE_QT3D)" "true"
+	cat pcp-gui.install.pmview >>$@
+endif
+	chmod u-w $@
 
 # only make control from control.* pieces in Makepkgs build
 #

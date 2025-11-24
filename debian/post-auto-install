@@ -1,0 +1,301 @@
+#!/bin/sh
+#
+# run after dh_auto_install to distribute installed files into
+# their appropriate per-package locations
+#
+
+iam=post-auto-install
+tmp=/var/tmp/$iam-$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+# -n for show-me
+# -v for increased verbosity
+# ... no real checking of args here
+#
+verbose=0
+showme=false
+RM=rm
+RMDIR=rmdir
+while [ $# -gt 0 ]
+do
+    if [ X"$1" = X-v ]
+    then
+	verbose=`expr $verbose + 1`
+    elif [ X"$1" = X-n ]
+    then
+	RM='echo + rm'
+	RMDIR='echo + rmdir'
+	showme=true
+    fi
+    shift
+done
+
+if [ -d debian ]
+then
+    cd debian
+else
+    # not run from dpkg-buildpackage, warn and continue
+    #
+    echo >&2 "$iam: Warning: debian not a dir below pwd, hope you know what you're doing"
+fi
+
+# from here on, everything is assumed to be happening from the
+# "debian" directory created by dpkg-buildpackage, e.g.
+# build/deb/pcp-X.Y.Z/debian
+#
+
+if [ ! -f control ]
+then
+    echo >&2 "$iam: Error: no control file"
+    exit
+fi
+
+# base package is the first one in control ... all files and dirs
+# not claimed by other packages will end up in this package
+#
+base_pkg=`sed <control -n -e '/^Package:/{
+s/^Package://
+s/[ 	]//g
+p
+q
+}'`
+if [ -z $base_pkg ]
+then
+    echo >&2 "$iam: Error: no Package: in the control file"
+    exit
+fi
+
+# check dh_auto_install did the expected thing ... we assume
+# rules overrides the dh_auto_install step with something like
+#	dh_auto_install --destdir=debian/<base_pkg>
+#
+if [ ! -d $base_pkg ]
+then
+    echo >&2 "$iam: Error: base package $base_pkg dir not found"
+    exit
+fi
+
+for pkg in `sed <control -n -e '/^Package:/{
+s/^Package://
+s/[ 	]//g
+p
+}'`
+do
+    if [ ! -d $pkg ]
+    then
+	if ! mkdir $pkg
+	then
+	    echo >&2 "$iam: Error: mkdir $pkg failed"
+	    exit
+	fi
+    fi
+
+    # skip the base package ... it will contain anything *not* distributed
+    # to the other packages
+    #
+    [ $pkg = $base_pkg ] && continue
+
+    # special-case handling for some packages ... the only part of
+    # this script that is not generic, and is specific to PCP ...
+    # we need special handling of the filelist here and at the removal
+    # step below
+    #
+    filelist=$pkg.install
+    rm -f $tmp.filelist
+    case "$pkg"
+    in
+	python3-pcp)
+		if [ ! -f ../python3-pcp.list ]
+		then
+		    echo >&2 "$iam: Error: python3-pcp expects ../python3-pcp.list"
+		    echo >&2 "pwd=`pwd`"
+		    ls >&2 -l ../*.list
+		    exit
+		fi
+ 		sed <../python3-pcp.list >$tmp.filelist \
+ 		    -e '/\/__pycache__\//d' \
+ 		    -e 's@^/@@' \
+ 		# end
+		filelist=$tmp.filelist
+		;;
+    esac
+
+    if [ -f $filelist ]
+    then
+	# cherry-pick files from $base_pkg to $pkg
+	#  - glob-expand any filenames in $filelist
+	#  - then copy them out with tar so we preserve any directories
+	#  - then remove them from $base_pkg
+	#
+	[ "$verbose" -gt 0 ] && echo >&2 "$iam: Info: processing $pkg filelist ($filelist)"
+	rm -f $tmp.bad $tmp.tmp
+	cat $filelist | while read file
+	do
+	    # special case if $file ends <path>/* use just <path> and tar
+	    # will pick up everything below <path> ... needed for
+	    # pcp-testsuite.install
+	    #
+	    case "$file"
+	    in
+		*/\*)
+		    [ "$verbose" -gt 1 ] && echo "$iam: $file: trim trailing /*"
+		    file=`echo "$file" | sed -e 's@/\*$@@'`
+		    ;;
+	    esac
+	    if [ -f "$base_pkg/$file" -o -d "$base_pkg/$file" -o -L "$base_pkg/$file" ]
+	    then
+		echo "$file" >>$tmp.tmp
+	    else
+		# try glob expansion
+		#
+		[ "$verbose" -gt 1 ] && echo >&2 "$iam: try glob expansion for $file"
+		for arg in `( cd $base_pkg; eval echo "$file" ) 2>/dev/null`
+		do
+		    [ "$verbose" -gt 1 ] && echo >&2 "$iam: glob: $file -> $arg"
+		    if [ -z "$arg" ]
+		    then
+			echo >&2 "$iam: Warning: $pkg: $filelist: $file: no glob expansion files"
+		    elif [ -f "$base_pkg/$arg" -o -d "$base_pkg/$arg" -o -L "$base_pkg/$arg" ]
+		    then
+			echo "$arg" >>$tmp.tmp
+		    else
+			echo >&2 "$iam: Warning: $pkg: $filelist: $file -> $arg: glob expansion file not found"
+			ls >&2 -ld "$base_pkg/$arg"
+		    fi
+		done
+	    fi
+	done
+	if [ -s $tmp.tmp ]
+	then
+	    # exit status from tar is not necessarily helpful, hence sniffing
+	    # stderr files
+	    #
+	    if $showme
+	    then
+		echo "+ ( cd $base_pkg; tar cf - -T tmp.tmp ) | ( cd $pkg; tar xpf - )"
+		echo "+ and tmp.tmp contains ..."
+		cat $tmp.tmp
+	    else
+		( cd $base_pkg; tar cf - -T $tmp.tmp 2>$tmp.tar.in.err ) | ( cd $pkg; tar xpf - 2>$tmp.tar.out.err || touch $tmp.bad )
+		if [ "$verbose" -gt 2 ]
+		then
+		    echo >&2 "$iam: tarball contents ..."
+		    ( cd $base_pkg; tar cf - -T $tmp.tmp ) | tar tvf - >&2
+		fi
+	    fi
+	    if [ -f $tmp.bad ] || [ -s $tmp.tar.in.err ] || [ -s $tmp.tar.out.err ]
+	    then
+		cat >&2 $tmp.tar.in.err $tmp.tar.out.err
+		echo >&2 "$iam: Error: extract files from $base_pkg to $pkg failed"
+		exit
+	    fi
+	else
+	    # hmm ... no files found?
+	    #
+	    echo >&2 "$iam: Warning: $pkg: $filelist: nothing to copy, already done?"
+	fi
+
+	# for python3-pcp remove the full list (especially the __pycache__
+	# dir that is not packaged)
+	#
+	case "$pkg"
+	in
+	    python3-pcp)
+ 		sed <../python3-pcp.list >$tmp.filelist \
+ 		    -e 's@^/@@' \
+ 		# end
+		filelist=$tmp.filelist
+		;;
+	esac
+
+	cat $filelist \
+	| while read file
+	do
+	    # remove files and symbolic links
+	    #
+	    # special case for "everthing below a dir" ... see note above
+	    #
+	    case "$file"
+	    in
+		*/\*)
+		    file=`echo "$file" | sed -e 's@/\*$@@'`
+		    ;;
+	    esac
+	    # may need glob expansion here, hence the unusual syntax
+	    #
+	    target=`echo $base_pkg/$file 2>/dev/null`
+	    if [ -n "$target" ]
+	    then
+		$RM -rf "$target"
+		# now cull any empty directories on the path to $file
+		# - leaf to root traversal
+		#
+		dir=`dirname "$target"`
+		while [ "$dir" != $base_pkg ]
+		do
+		    $RMDIR "$dir" >/dev/null 2>&1 || break
+		    dir=`dirname "$dir"`
+		done
+	    else
+		echo >&2 "$iam: Warning: $base_pkg/$file: removal failed (bad glob expansion?)"
+	    fi
+	done
+    fi
+    if [ -f $pkg.dirs ]
+    then
+	[ "$verbose" -gt 0 ] && echo >&2 "$iam: Info: processing $pkg.dirs"
+	cat $pkg.dirs \
+	| while read dir
+	do
+	    [ -d "$pkg/$dir" ] && continue
+	    if ! mkdir -p -m 755 "$pkg/$dir"
+	    then
+		echo >&2 "$iam: Error: failed to mkdir: $pkg/$dir"
+		exit
+	    fi
+	done
+    fi
+done
+
+# Perl needs special handling to run "make install_perl" in each Perl
+# source dir with DIST_ROOT set to the base dir for each package
+#
+
+if ( cd ..; debian/checkconf HAVE_PERL )
+then
+    if [ -z "$MAKE" ]
+    then
+	MAKE=`which make`
+	echo >&2 "$iam: Warning: \$MAKE not set, using $MAKE"
+    fi
+
+    # add new Perl packages here ...
+    #
+    cat <<End-of-File | sed -e '/^#/d' | while read srcdir pkg
+# src dir		package
+src/perl/MMV		libpcp-mmv-perl
+src/perl/PMDA		libpcp-pmda-perl
+src/perl/LogImport	libpcp-import-perl
+src/perl/LogSummary	libpcp-logsummary-perl
+End-of-File
+    do
+	if [ ! -d "../$srcdir" ]
+	then
+	    echo >&2 "$iam: Error: Perl ../$srcdir: source dir does not exist"
+	    exit
+	fi
+	if ! grep -q "^Package: $pkg$" control
+	then
+	    echo >&2 "$iam: Error: Perl package $pkg not in debian/control"
+	    exit
+	fi
+	echo >&2 "$iam: Info: Perl install src=../$srcdir pkg=$pkg"
+	DIST_ROOT=`pwd`/$pkg $MAKE -C "../$srcdir" install_perl
+    done
+else
+    echo >&2 "$iam: Warning: HAVE_PERL is false, nothing to do"
+fi
+
+sts=0
+exit
