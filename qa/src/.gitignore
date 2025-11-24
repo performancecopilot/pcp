@@ -121,6 +121,9 @@ keycache
 keycache2
 killparent
 labels
+libibmad.so.*
+libibumad.so.*
+libibverbs.so.*
 libpcp.h
 loadderived
 loadconfig2
