@@ -1122,40 +1122,54 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 
 	case METRIC_ib_hca_board_id:
-		atom->cp = ib_hca_get_board_id(hca);
-		break;
+	    atom->cp = ib_hca_get_board_id(hca);
+	    break;
 
 	case METRIC_ib_hca_vendor_id:
-		atom->cp = ib_hca_get_vendor_id(hca);
-		break;
+	    atom->cp = ib_hca_get_vendor_id(hca);
+	    break;
 
 	case METRIC_ib_hca_res_pd:
-		atom->ull = ib_hca_get_resources(hca, "pd");
-		break;
+	    atom->ull = ib_hca_get_resources(hca, "pd");
+	    if (atom->ull == UINT64_MAX)
+		return 0; /* No values available */
+	    break;
 
 	case METRIC_ib_hca_res_cq:
-		atom->ull = ib_hca_get_resources(hca, "cq");
-		break;
+	    atom->ull = ib_hca_get_resources(hca, "cq");
+	    if (atom->ull == UINT64_MAX)
+		return 0; /* No values available */
+	    break;
 
 	case METRIC_ib_hca_res_qp:
-		atom->ull = ib_hca_get_resources(hca, "qp");
-		break;
+	    atom->ull = ib_hca_get_resources(hca, "qp");
+	    if (atom->ull == UINT64_MAX)
+		return 0; /* No values available */
+	    break;
 
 	case METRIC_ib_hca_res_cm_id:
-		atom->ull = ib_hca_get_resources(hca, "cm_id");
-		break;
+	    atom->ull = ib_hca_get_resources(hca, "cm_id");
+	    if (atom->ull == UINT64_MAX)
+		return 0; /* No values available */
+	    break;
 
 	case METRIC_ib_hca_res_mr:
-		atom->ull = ib_hca_get_resources(hca, "mr");
-		break;
+	    atom->ull = ib_hca_get_resources(hca, "mr");
+	    if (atom->ull == UINT64_MAX)
+		return 0; /* No values available */
+	    break;
 
 	case METRIC_ib_hca_res_ctx:
-		atom->ull = ib_hca_get_resources(hca, "ctx");
-		break;
+	    atom->ull = ib_hca_get_resources(hca, "ctx");
+	    if (atom->ull == UINT64_MAX)
+		return 0; /* No values available */
+	    break;
 
 	case METRIC_ib_hca_res_srq:
-		atom->ull = ib_hca_get_resources(hca, "srq");
-		break;
+	    atom->ull = ib_hca_get_resources(hca, "srq");
+	    if (atom->ull == UINT64_MAX)
+		return 0; /* No values available */
+	    break;
 
 	case METRIC_ib_port_gid_prefix:
 	    atom->ull = mad_get_field64(pst->portinfo, 0, IB_PORT_GID_PREFIX_F);
@@ -1184,20 +1198,20 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	
 	case METRIC_ib_port_active_mtu:
-		atom->l = ib_port_get_active_mtu(pst, 1);
-		break;
+	    atom->l = ib_port_get_active_mtu(pst, 1);
+	    break;
 	
 	case METRIC_ib_port_link_layer:
-		atom->cp = pst->lport->ump->link_layer;
-		break;
+	    atom->cp = pst->lport->ump->link_layer;
+	    break;
 
 	case METRIC_ib_port_netdev_name:
-		atom->cp = get_netdev_name(pst->lport->ump->ca_name, pst->lport->ump->portnum);
-		break;
+	    atom->cp = get_netdev_name(pst->lport->ump->ca_name, pst->lport->ump->portnum);
+	    break;
 
 	case METRIC_ib_port_capmask:
-		atom->ull = mad_get_field(pst->portinfo, 0, IB_PORT_CAPMASK_F);
-		break;
+	    atom->ull = mad_get_field(pst->portinfo, 0, IB_PORT_CAPMASK_F);
+	    break;
 
 	case METRIC_ib_port_node_desc:
 	    atom->cp = get_node_desc(pst->lport->ump->ca_name);
@@ -1212,8 +1226,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (st < ARRAYSZ(port_phystates)) {
 	    	atom->cp = port_phystates[st];
 	    } else {
-		pmNotifyErr (LOG_INFO, "Unknown port PHY state %d on %s\n",
-			       st, name);
+		//pmNotifyErr (LOG_INFO, "Unknown port PHY state %d on %s\n", st, name);
 	        atom->cp = "Unknown";
 	    }
 	    break;
@@ -1231,8 +1244,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    if (st < ARRAYSZ(port_states)) {
 	    	atom->cp = port_states[st];
 	    } else {
-		pmNotifyErr (LOG_INFO, "Unknown port state %d on %s\n",
-			       st, name);
+		//pmNotifyErr (LOG_INFO, "Unknown port state %d on %s\n", st, name);
 	        atom->cp = "Unknown";
 	    }
 	    break;
@@ -1250,8 +1262,7 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
                 atom->cp = "10.0 Gbps";
                 break;
 	    default:
-		pmNotifyErr (LOG_INFO, "Unknown link speed %d on %s\n",
-				st, name);
+		//pmNotifyErr (LOG_INFO, "Unknown link speed %d on %s\n", st, name);
                 atom->cp  = "Unknown";
                 break;
 	    }
@@ -1307,20 +1318,20 @@ ib_fetch_val(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			+ ib_update_perfcnt(pst, IBPMDA_ERR_RCVCONSTR, &rv2));
 		break;
 
-		case METRIC_ib_port_in_upkts:
+	    case METRIC_ib_port_in_upkts:
 		atom->ll = ib_update_perfcnt(pst, IBPMDA_RCV_UPKTS, &rv1);
 		break;
 
 
-		case METRIC_ib_port_in_mpkts:
+	    case METRIC_ib_port_in_mpkts:
 		atom->ll = ib_update_perfcnt(pst, IBPMDA_RCV_MPKTS, &rv1);
 		break;
 
-		case METRIC_ib_port_out_upkts:
+	    case METRIC_ib_port_out_upkts:
 		atom->ll = ib_update_perfcnt(pst, IBPMDA_XMT_UPKTS, &rv1);
 		break;
 
-		case METRIC_ib_port_out_mpkts:
+	    case METRIC_ib_port_out_mpkts:
 		atom->ll = ib_update_perfcnt(pst, IBPMDA_XMT_MPKTS, &rv1);
 		break;
 
