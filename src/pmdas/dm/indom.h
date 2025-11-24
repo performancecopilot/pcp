@@ -25,6 +25,9 @@ enum {
     DM_HISTOGRAM_INDOM = 4,	/* Dmstats latency histogram */
     DM_VDODEV_INDOM = 5,	/* VDO devices */
     DM_CRYPT_INDOM = 6,		/* Dmcrypt*/
+    DM_MULTI_INFO_INDOM = 7,	/* Dm-multipath info */
+    DM_MULTI_PATH_INDOM = 8,	/* Dm-multipath per path */
+    DM_MULTI_DEV_INDOM = 9,	/* Dm-multipath per device*/
     NUM_INDOMS
 };
 
