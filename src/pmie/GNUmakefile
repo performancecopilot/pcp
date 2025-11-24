@@ -58,7 +58,7 @@ install:: default
 	$(INSTALL) -m 755 pmie_daily.sh $(PCP_BINADM_DIR)/pmie_daily$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmie2col.sh $(PCP_BIN_DIR)/pmie2col$(SHELLSUFFIX)
 	$(INSTALL) -m 755 rc_wrapper $(PCP_RC_DIR)/pmie
-	$(INSTALL) -m 755 rc_pmie $(PCP_SYSCONF_DIR)/pmie/rc
+	$(INSTALL) -m 755 rc_pmie $(PCP_SERVICES_DIR)/pmie
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmie.service $(PCP_SYSTEMDUNIT_DIR)/pmie.service
 	$(INSTALL) -m 644 pmie_daily.timer $(PCP_SYSTEMDUNIT_DIR)/pmie_daily.timer
@@ -84,6 +84,7 @@ install_pcp : install
 
 pmie.service : pmie.service.in
 	$(SED) <$< >$@ \
+	    -e 's;@PCP_SERVICES_DIR@;'$(PCP_SERVICES_DIR)';' \
 	    -e 's;@PCP_SYSCONF_DIR@;'$(PCP_SYSCONF_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \

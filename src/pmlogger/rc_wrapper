@@ -13,7 +13,7 @@
 # for more details.
 #
 # Wrapper script to start or Stop the Performance Co-Pilot pmlogger
-# processes.  The real work is done in $PCP_SYSCONF_DIR/pmlogger/rc.
+# processes.  The real work is done in $PCP_SERVICES_DIR/pmlogger.
 #
 # The following is for chkconfig on RedHat based systems
 # chkconfig: 2345 94 06
@@ -52,12 +52,12 @@ then
 
     # do the real startup as user $PCP_USER:$PCP_GROUP
     #
-    $PCP_BINADM_DIR/runaspcp "$PCP_SYSCONF_DIR/pmlogger/rc $*"
+    $PCP_BINADM_DIR/runaspcp "$PCP_SERVICES_DIR/pmlogger $*"
     exit $?
 else
     if [ "$1" = status ]
     then
-	$PCP_SYSCONF_DIR/pmlogger/rc status
+	$PCP_SERVICES_DIR/pmlogger status
     else
 	echo "$0: Error: You must be root (uid 0) to start or stop pmlogger via this script"
 	exit 1

@@ -41,9 +41,14 @@ PCP_ETC_DIR=@pcp_etc_dir@
 # Standard path: /etc/pcp
 PCP_SYSCONF_DIR=@pcp_sysconf_dir@
 
-# directory for rc/startup scripts
+# directory for Unix-like startup scripts
 # Standard path: /etc/init.d
 PCP_RC_DIR=@pcp_rc_dir@
+
+# directory for real PCP service startup scripts
+# Standard path is platform dependent, but generally one of
+# /usr/libexec/pcp/services or /usr/lib/pcp/services or /usr/share/pcp/services
+PCP_SERVICES_DIR=@pcp_services_dir@
 
 # directory for sysconfig controls
 # Standard path: /etc/sysconfig (empty if no sysconfig support)
@@ -53,7 +58,7 @@ PCP_SYSCONFIG_DIR=@pcp_sysconfig_dir@
 # Standard path: /usr/bin
 PCP_BIN_DIR=@pcp_bin_dir@
 
-# directory for private PCP binaries (not run directly by users)
+# directory for private PCP binaries and scripts (not run directly by users)
 # Standard path is platform dependent, but generally one of
 # /usr/libexec/pcp/bin or /usr/lib/pcp/bin or /usr/share/pcp/bin
 PCP_BINADM_DIR=@pcp_binadm_dir@
@@ -96,7 +101,7 @@ PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
 PCP_PMCDOPTIONS_PATH=@pcp_pmcdoptions_path@
 
 # path to site-local pmcd startup script
-# Standard path: $PCP_SYSCONF_DIR/pmcd/rc.local
+# Standard path: $PCP_SERVICES_DIR/pmcd.local
 PCP_PMCDRCLOCAL_PATH=@pcp_pmcdrclocal_path@
 
 # path to pmproxy options file

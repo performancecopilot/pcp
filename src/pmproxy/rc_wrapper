@@ -13,7 +13,7 @@
 # for more details.
 #
 # Wrapper script to start or Stop the Performance Co-Pilot pmproxy
-# process.  The real work is done in $PCP_SYSCONF_DIR/pmproxy/rc.
+# process.  The real work is done in $PCP_SERVICES_DIR/pmproxy
 #
 # The following is for chkconfig on RedHat based systems
 # chkconfig: 2345 95 05
@@ -52,12 +52,12 @@ then
 
     # do the real startup as user $PCP_USER:$PCP_GROUP
     #
-    $PCP_BINADM_DIR/runaspcp "$PCP_SYSCONF_DIR/pmproxy/rc $*"
+    $PCP_BINADM_DIR/runaspcp "$PCP_SERVICES_DIR/pmproxy $*"
     exit $?
 else
     if [ "$1" = status ]
     then
-	$PCP_SYSCONF_DIR/pmproxy/rc status
+	$PCP_SERVICES_DIR/pmproxy status
     else
 	echo "$0: Error: You must be root (uid 0) to start or stop pmproxy via this script"
 	exit 1

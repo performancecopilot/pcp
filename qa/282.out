@@ -34,7 +34,7 @@ $PCP_RC_DIR/pmcd: Warning: Forcing pmcd to terminate!
 === probe pmcd: OK
 
 === expect warning: PMLOGGER.CHECK moved, so no pmlogger ===
-$PCP_SYSCONF_DIR/pmlogger/rc:
+$PCP_SERVICES_DIR/pmlogger:
 Warning: Performance Co-Pilot installation is incomplete (at least the
          script "PMLOGGER.CHECK" is missing) and the PCP archive logger(s)
 	 cannot be started.
@@ -42,7 +42,7 @@ Warning: Performance Co-Pilot installation is incomplete (at least the
 === probe pmlogger: Unable to connect to primary pmlogger at HOST: Connection refused
 
 === expect error: pmlogger/control moved, so no pmlogger ===
-$PCP_SYSCONF_DIR/pmlogger/rc:
+$PCP_SERVICES_DIR/pmlogger:
 Error: PCP archive logger control file $PCP_PMLOGGERCONTROL_PATH ("$PCP_PMLOGGERCONTROL_PATH")
        is missing!  Cannot start any Performance Co-Pilot archive logger(s).
 === probe pmcd: OK

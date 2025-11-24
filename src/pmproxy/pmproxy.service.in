@@ -8,7 +8,7 @@ BindsTo=pmproxy_check.timer pmproxy_daily.timer
 Type=notify
 NotifyAccess=all
 Restart=always
-ExecStart=@PCP_SYSCONF_DIR@/pmproxy/rc start-systemd
+ExecStart=@PCP_SERVICES_DIR@/pmproxy start-systemd
 Group=@PCP_GROUP@
 User=@PCP_USER@
 

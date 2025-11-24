@@ -66,7 +66,7 @@ install: default $(SUBDIRS)
 	$(INSTALL) -m 755 pmlogger_merge.sh $(PCP_BINADM_DIR)/pmlogger_merge$(SHELLSUFFIX)
 	$(INSTALL) -m 755 pmlogger_rewrite.sh $(PCP_BINADM_DIR)/pmlogger_rewrite$(SHELLSUFFIX)
 	$(INSTALL) -m 755 rc_wrapper $(PCP_RC_DIR)/pmlogger
-	$(INSTALL) -m 755 rc_pmlogger $(PCP_SYSCONF_DIR)/pmlogger/rc
+	$(INSTALL) -m 755 rc_pmlogger $(PCP_SERVICES_DIR)/pmlogger
 ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 pmlogger.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger.service
 	$(INSTALL) -m 644 pmlogger_farm.service $(PCP_SYSTEMDUNIT_DIR)/pmlogger_farm.service
@@ -101,6 +101,7 @@ install_pcp : install
 
 pmlogger.service : pmlogger.service.in
 	$(SED) <$< >$@ \
+	    -e 's;@PCP_SERVICES_DIR@;'$(PCP_SERVICES_DIR)';' \
 	    -e 's;@PCP_SYSCONF_DIR@;'$(PCP_SYSCONF_DIR)';' \
 	    -e 's;@PCP_RUN_DIR@;'$(PCP_RUN_DIR)';' \
 	    -e 's;@PCP_GROUP@;'$(PCP_GROUP)';' \

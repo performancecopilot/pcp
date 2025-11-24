@@ -30,7 +30,7 @@
 
 PMPROXY=$PCP_BINADM_DIR/pmproxy
 PMPROXYENVS=$PCP_SYSCONFIG_DIR/pmproxy
-pmprog=$PCP_SYSCONF_DIR/pmproxy/rc
+pmprog=$PCP_SERVICES_DIR/pmproxy
 prog=$PCP_SYSCONF_DIR/pmproxy/`basename $0`
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmproxy_rc.XXXXXXXXX"` || exit 1

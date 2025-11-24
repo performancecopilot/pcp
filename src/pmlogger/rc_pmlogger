@@ -30,7 +30,7 @@
 
 PMLOGGER=$PCP_BINADM_DIR/pmlogger
 rcprog=$PCP_DIR/etc/init.d/pmlogger
-pmprog=$PCP_SYSCONF_DIR/pmlogger/rc
+pmprog=$PCP_SERVICES_DIR/pmlogger
 prog=$PCP_SYSCONF_DIR/pmlogger/`basename $0`
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmlogger_rc.XXXXXXXXX"` || exit 1
