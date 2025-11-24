@@ -9,6 +9,7 @@
 
 static int histo[128];
 static int vflag = 0;
+static int resize = -1;
 
 static void
 do_key(int i, int j, int k, char *name, int namelen, int *keylen, int *key)
@@ -89,6 +90,10 @@ load_n_go(pmInDom indom)
 		    }
 		    else
 			inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, 0, NULL, NULL);
+		    if (resize != -1 && inst > resize-1) {
+			fprintf(stderr, "load_n_go: Botch: inst %d > resize %d - 1\n", inst, resize);
+			exit(1);
+		    }
 		    if (kflag) {
 			int		c;
 			fprintf(stderr, "%d <- %s ", inst, name);
@@ -132,11 +137,11 @@ main(int argc, char **argv)
     int		kflag = 0;
     int		dflag = 0;
     int		lflag = 0;
-    char	*usage = "[-D debug] [-dkl]";
+    char	*usage = "[-D debug] [-dkl] [-r size]";
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "D:dklv")) != EOF) {
+    while ((c = getopt(argc, argv, "D:dklr:v")) != EOF) {
 	switch (c) {
 
 	case 'D':	/* debug options */
@@ -160,6 +165,10 @@ main(int argc, char **argv)
 	    lflag = 1;
 	    break;
 
+	case 'r':	/* resize */
+	    resize = atoi(optarg);
+	    break;
+
 	case 'v':	/* verbose */
 	    vflag = 1;
 	    break;
@@ -177,6 +186,13 @@ main(int argc, char **argv)
     }
 
     indom = pmInDom_build(42, 42);
+
+    if (resize != -1) {
+	sts = pmdaCacheResize(indom, resize);
+	fprintf(stderr, "pmdaCacheResize(%d) -> %d", resize, sts);
+	if (sts < 0) fprintf(stderr, ": %s", pmErrStr(sts));
+	fputc('\n', stderr);
+    }
 
     if (lflag) {
 	load_n_go(indom);
@@ -213,6 +229,10 @@ main(int argc, char **argv)
 		}
 		else
 		    inst = pmdaCacheStoreKey(indom, PMDA_CACHE_ADD, name, 0, NULL, NULL);
+		if (resize != -1 && inst > resize-1) {
+		    fprintf(stderr, "Botch: inst %d > resize %d - 1\n", inst, resize);
+		    exit(1);
+		}
 		if (kflag) {
 		    fprintf(stderr, "%d <- %s ", inst, name);
 		    for (c = 0; c < keylen/sizeof(int); c++) {
@@ -230,7 +250,10 @@ main(int argc, char **argv)
 		    fprintf(stderr, "pmdaCacheStoreKey failed: %s\n", pmErrStr(inst));
 		    continue;
 		}
-		histo[(int)(inst/(0x7fffffff/128))]++;
+		if (resize == -1)
+		    histo[(int)(inst/(0x7fffffff/128))]++;
+		else
+		    histo[(int)(inst/(resize/128))]++;
 		n++;
 	    }
 	    if (dflag && j == 3)

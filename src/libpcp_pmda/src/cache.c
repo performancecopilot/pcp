@@ -669,9 +669,10 @@ retry:
 	    for (e = h->first; e != NULL; e = e->next) {
 		if (inst < e->inst)
 		    break;
-		if (inst == h->maxinst) {
+		if ((uint32_t)inst == (uint32_t)h->maxinst + 1) {
 		    /*
-		     * 2^32-1 is the maximum number of instances we can have
+		     * maxinst is the maximum internal instance identifier
+		     * we're allowed, so maxinst+1 means we fail
 		     */
 		    char	strbuf[20];
 		    pmNotifyErr(LOG_ERR, 
@@ -1090,11 +1091,13 @@ pmdaCacheStore(pmInDom indom, int flags, const char *name, void *private)
 }
 
 /*
- * Generate a new 31-bit (positive) instance number from a key provided
- * as a ``hint'' via key[] (first keylen bytes) or name[] if keylen < 1
+ * Generate a (positive) instance number from a key provided as a
+ * ``hint'' via key[] (first keylen bytes) or name[] if keylen < 1
  * or key == NULL ... useful for compressing natural 64-bit or larger
- * instance identifiers into the 31-bits required for the PCP APIs
- * and PDUs.
+ * instance identifiers into an instance number of no more than 31-bits
+ * required for the PCP APIs and PDUs.
+ * The default maximum returned value is DEFAULT_MAXINST (2^32-1), else
+ * maxinst if pmdaCacheResize() has been called.
  */
 int
 pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const void *key, void *private)
@@ -1153,8 +1156,8 @@ pmdaCacheStoreKey(pmInDom indom, int flags, const char *name, int keylen, const 
 	/* we're in the inst guessing game ... */
 	for (i = 0; i < MAX_HASH_TRY; i++) {
 	    try = hash((const signed char *)mykey, mykeylen, try);
-	    /* strip top bit ... instance id must be positive */
-	    inst = try & ~(1 << (8*sizeof(__uint32_t)-1));
+	    /* scale hashed value to maxinst */
+	    inst = try % ((uint32_t)h->maxinst + 1);
 	    e = find_entry(h, NULL, inst, &sts);
 	    if (e == NULL) {
 		h->keyhash_cnt[i]++;
