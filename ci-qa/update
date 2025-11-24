@@ -1,29 +1,65 @@
 #!/bin/sh
 #
-# Dredge github for most recent CI QA failure corpses
+# Dredge github for most recent QA failure corpses
 #
-# Usage: update [run_id]
+# Default is to clear everything out and download all .full
+# and .out.bad files from the most recent nightly (full) QA
+# run.
+#
+# Usage: update [-d] [-c runner] [run_id]
+#
+# With -c, overlay downloads with the .full and .out.bad files
+# from the most recent CI QA run for just one runner (host).
 #
 
+usage="Usage: update [-d?] [-c runner] [run_id]"
+runner=''
+tmp=/var/tmp/ci-qa-update-$$
+debug=false
+while [ $# -gt 0 ]
+do
+    if [ X"$1" = X"-d" ]
+    then
+	shift
+	tmp=tmp
+	debug=true
+    elif [ X"$1" = X"-c" ]
+    then
+	if [ $# -gt 1 ]
+	then
+	    shift
+	    runner="$1"
+	    shift
+	else
+	    echo "Error: -c needs <runner> argument"
+	    exit 1
+	fi
+    elif [ X"$1" = X"-?" -o X"$1" = X"--help" ]
+    then
+	echo "$usage"
+	exit 0
+    else
+	echo "$usage"
+	exit 1
+    fi
+done
+
 sts=1
-if [ $# -gt 0 -a X"$1" = X"-d" ]
+if $debug
 then
-    shift
-    tmp=tmp
-    verbose=true
+    trap "exit \$sts" 0 1 2 3 15
 else
-    tmp=/var/tmp/ci-qa-update-$$
-    verbose=false
+    trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 fi
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 rm -f save.html
 
 if [ $# -eq 0 ]
 then
-    # get Actions page, filtered by QA and scheduled
+    # get Actions page
     #
-    if wget -O $tmp.actions -q 'https://github.com/performancecopilot/pcp/actions?query=workflow%3AQA+event%3Aschedule'
+    # if wget -O $tmp.actions -q 'https://github.com/performancecopilot/pcp/actions?query=workflow%3AQA+event%3Aschedule'
+    if wget -O $tmp.actions -q 'https://github.com/performancecopilot/pcp/actions'
     then
 	:
     else
@@ -31,8 +67,20 @@ then
 	exit
     fi
 
-    grep '/performancecopilot/pcp/actions/runs/[0-9][0-9]*"' $tmp.actions \
+    # we want these sort of lines from the Actions page ...
+    #
+    # <a href="/performancecopilot/pcp/actions/runs/19393745030" ... Run 2950 of QA. ...
+    # <a href="/performancecopilot/pcp/actions/runs/19385924511" ... Run 3425 of CI. ...
+    #
+    grep '/performancecopilot/pcp/actions/runs/[0-9][0-9]*"' $tmp.actions >$tmp.tmp
+    if [ -z "$runner" ]
+    then
+	grep  'Run [0-9][0-9]* of QA\.' <$tmp.tmp
+    else
+	grep  'Run [0-9][0-9]* of CI\.' <$tmp.tmp
+    fi \
     | sed -e 's@.*/actions/runs/@@' -e 's/".*//' >$tmp.runs
+
     run_id=`sed -n -e 1p <$tmp.runs`
     if [ -z "$run_id" ]
     then
@@ -41,15 +89,16 @@ then
 	cp $tmp.actions save.html
 	exit
     fi
-elif [ $# -ne 1 -o X"$1" = X"-?" -o X"$1" = X"--help" ]
-then
-    echo "Usage: update [-d] [run_id]"
-    exit
 else
     run_id="$1"
 fi
 
-echo "QA RunId: $run_id"
+if [ -z "$runner" ]
+then
+    echo "Nightly QA RunId: $run_id"
+else
+    echo "CI QA RunId: $run_id"
+fi
 
 if wget -O $tmp.run -q "https://github.com/performancecopilot/pcp/actions/runs/$run_id"
 then
@@ -78,9 +127,9 @@ s@/@\njobs=@
 p
 }'`
 
-$verbose && echo "done=\"$done\" jobs=\"$jobs\""
+$debug && echo "done=\"$done\" jobs=\"$jobs\""
 
-if echo "$done$jobs" | grep -q '^[0-9][0-9]*[0-9]$'
+if echo "$done$jobs" | grep -q '^[0-9][0-9]*$'
 then
     if [ -n "$jobs" ]
     then
@@ -100,67 +149,121 @@ else
     exit
 fi
 
-# each QA "host" name is on a line by itself with leading whitespace
+# each "runner" name is on a line by itself with leading whitespace
 # then test-...
 #
 sed -e 's/^[ 	]*//' <$tmp.run \
-| awk '/^test-/	{ print; next }' >$tmp.hosts
+| awk '/^test-/	{ print; next }' >$tmp.runners
 
-if [ ! -s $tmp.hosts ]
+if [ ! -s $tmp.runners ]
 then
     echo "No result artifacts yet"
     sts=0
     exit
 fi
 
-
-if [ -f last_run_id ]
+if [ -z "$runner" ]
 then
-    $verbose && echo "last_run_id=`cat last_run_id`"
-    if [ "`cat last_run_id`" = "$run_id" ]
+    if [ -f last_run_id ]
     then
-	echo "Already processed, nothing to do"
-	sts=0
+	$debug && echo "last_run_id=`cat last_run_id`"
+	if [ "`cat last_run_id`" = "$run_id" ]
+	then
+	    echo "Already processed, nothing to do"
+	    sts=0
+	    exit
+	fi
+    fi
+    echo "$run_id" >last_run_id
+
+    rm -rf test-*
+else
+    if grep -q "^$runner\$" $tmp.runners
+    then
+	echo "$runner" >$tmp.runners
+    else
+	echo "Arrgh! -c $runner, not in list of runners ..."
+	sed -e 's/^/    /' $tmp.runners
 	exit
     fi
 fi
-echo "$run_id" >last_run_id
 
-rm -rf test-*
-
-cat $tmp.hosts \
-| while read host
+export UNZIP=-o
+cat $tmp.runners \
+| while read runner
 do
-    echo -n "$host:"
-    if mkdir "$host"
+    echo -n "$runner:"
+    if [ ! -d "$runner" ]
     then
-	:
-    else
-	echo
-	echo "Arrgh! mkdir failed"
-	exit
-    fi
-    cd "$host"
-    if gh run download $run_id --name "$host" >$tmp.err 2>&1
-    then
-	nfail=`ls *.out.bad 2>/dev/null | wc -l | sed -e 's/ //g'`
-	if [ "$nfail" = 0 ]
+	if ! mkdir "$runner"
 	then
-	    echo " all tests passed"
-	else
-	    echo " $nfail tests failed"
+	    echo
+	    echo "Arrgh! mkdir $runner failed"
+	    exit
 	fi
-    else
+    fi
+    cd "$runner"
+    if [ -n "$runner" ]
+    then
+	if [ ! -d tmp ]
+	then
+	    if ! mkdir tmp
+	    then
+		echo
+		echo "Arrgh! mkdir $runner/tmp failed"
+		exit
+	    fi
+	fi
+	cd tmp
+    fi
+    if ! gh run download $run_id --name "$runner" >$tmp.err 2>&1
+    then
 	cat $tmp.err
-	echo "Arrgh! gh-run-download failed"
-	exit
+	echo "Warning: gh-run-download errors"
+    fi
+    rm -f $tmp.err
+    nfail=`ls *.out.bad 2>/dev/null | wc -l | sed -e 's/ //g'`
+    if [ "$nfail" = 0 ]
+    then
+	echo " all tests passed"
+    else
+	echo " $nfail tests failed"
+    fi
+    if [ -n "$runner" ]
+    then
+	for file in *
+	do
+	    if [ -f ../"$file" ]
+	    then
+		if diff -q "$file" ../"$file"
+		then
+		    rm -f $file
+		else
+		    echo "$file: duplicate, saving previous as $file.old"
+		    rm -f ../"$file".old
+		    mv ../"$file" ../"$file".old
+		    mv "$file" ../"$file"
+		fi
+	    else
+		mv "$file" ../"$file"
+	    fi
+	done
+	cd ..
+	if ! rmdir tmp
+	then
+	    echo "Oops! tmp not empty?"
+	    ls -la tmp
+	fi
     fi
 
     cd ..
 done
 
-# fix symlinks and short names for qa-summary
-#
-./cleanup
+if [ -z "$runner" ]
+then
+    # fix symlinks and short names for qa-summary
+    #
+    ./cleanup
+fi
 
 sts=0
