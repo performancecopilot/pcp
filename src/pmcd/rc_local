@@ -16,7 +16,7 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
-# rc.local - perform local Performance Co-Pilot boot/shutdown/restart actions
+# local - perform local Performance Co-Pilot boot/shutdown/restart actions
 #
 
 # Get standard environment
@@ -24,7 +24,7 @@
 
 _usage()
 {
-    echo "Usage: $PCP_SERVICES_DIR/pmcd.local [-v] {start|stop}"
+    echo "Usage: $PCP_SERVICES_DIR/local [-v] {start|stop}"
 }
 
 # defaults

@@ -1077,8 +1077,11 @@ PMDA starts, stops, additions and removals.
 .I $PCP_VAR_DIR/config
 Contains directories of configuration files for several PCP tools.
 .TP
-.I $PCP_SYSCONF_DIR/pmcd/rc.local
+.I $PCP_SERVICES_DIR/local
 Local script for controlling PCP boot, shutdown and restart actions.
+This was formerly located in
+.I $PCP_SYSCONF_DIR/pmcd/rc.local
+and a symbolic link is installed for that name to provide compatibility.
 .TP
 .I $PCP_VAR_DIR/pmns
 Directory containing the set of PMNS files for all installed PMDAs.

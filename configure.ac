@@ -3328,7 +3328,6 @@ pcp_sysconf_dir=`eval echo $sysconfdir/pcp`
 pcp_sysconf_dir=`eval echo $pcp_sysconf_dir`
 AC_SUBST(pcp_sysconf_dir)
 pcp_pmcdconf_path=$pcp_sysconf_dir/pmcd/pmcd.conf
-pcp_pmcdrclocal_path=$pcp_sysconf_dir/pmcd/rc.local
 pcp_pmcdoptions_path=$pcp_sysconf_dir/pmcd/pmcd.options
 pcp_pmproxyoptions_path=$pcp_sysconf_dir/pmproxy/pmproxy.options
 pcp_pmiecontrol_path=$pcp_sysconf_dir/pmie/control
@@ -3336,7 +3335,6 @@ pcp_pmsnapcontrol_path=$pcp_sysconf_dir/pmsnap/control
 pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
 AC_SUBST(pcp_pmcdconf_path)
 AC_SUBST(pcp_pmcdoptions_path)
-AC_SUBST(pcp_pmcdrclocal_path)
 AC_SUBST(pcp_pmproxyoptions_path)
 AC_SUBST(pcp_pmiecontrol_path)
 AC_SUBST(pcp_pmsnapcontrol_path)
@@ -3566,7 +3564,7 @@ pcp_desktop_dir=`eval echo $datarootdir/applications`
 pcp_desktop_dir=`eval echo $pcp_desktop_dir`
 AC_SUBST(pcp_desktop_dir)
 
-dnl rc/startup files
+dnl Unix-like startup files
 AC_ARG_WITH(rcdir,[AS_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]])],
                   [pcp_rc_dir=$withval], [
 if $enable_systemd
@@ -3582,6 +3580,14 @@ else
     pcp_rc_dir="$pcp_etc_dir/init.d"
 fi])
 AC_SUBST(pcp_rc_dir)
+
+dnl real PCP service start|stop scripts dir
+AC_ARG_WITH(servicesdir,[AS_HELP_STRING([--with-servicesdir],[PCP services script directory [LIBEXECDIR/services]])],
+                  [pcp_services_dir=$withval],
+                  [pcp_services_dir=$libexecdir/pcp/services])
+AC_SUBST(pcp_services_dir)
+pcp_pmcdrclocal_path=$pcp_services_dir/local
+AC_SUBST(pcp_pmcdrclocal_path)
 
 dnl rc sysconfig dir
 AC_ARG_WITH(sysconfigdir,[AS_HELP_STRING([--with-sysconfigdir],[sysconfig directory [SYSCONFDIR/sysconfig]])],
