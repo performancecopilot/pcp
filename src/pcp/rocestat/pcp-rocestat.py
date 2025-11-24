@@ -167,7 +167,9 @@ class ROCeStatReport:
     def report(self, manager):
         group = manager["rocestat"]
 
-        opts.pmGetOptionSamples()
+        # commented out by kenj to fix make check failure
+        # 25 Nov 2025
+        # opts.pmGetOptionSamples()
 
         timestamp = manager.pmLocaltime(group.timestamp.tv_sec)
         time_string = time.strftime("%x", timestamp.struct_time()) + " "
