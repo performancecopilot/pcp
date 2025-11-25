@@ -36,3 +36,7 @@
 # Setting PMLOGGER_CHECK_SKIP_JANITOR to yes disables pmlogger_janitor
 # and maybe useful for QA or special testing
 # PMLOGGER_CHECK_SKIP_JANITOR=yes
+
+# When pmlogger_janitor is run, optional additional arguments like
+# -V or -V -V can be set via PMLOGGER_JANITOR_ARGS
+# PMLOGGER_JANITOR_ARGS='-V'

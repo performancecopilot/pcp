@@ -231,7 +231,7 @@ else
 fi
 
 $VERBOSE && echo >&2 "Start [janitor]: `_datestamp`"
-$VERY_VERBOSE && _pstree_all $$
+$VERY_VERBOSE && _pstree_all >&2 $$
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
 # then save $MYPROGLOG there as well with a unique name that contains the date
@@ -341,7 +341,7 @@ _callback_log_control()
     then
 	pflag=''
 	[ $primary = y ] && pflag=' -P'
-	echo "Checking for: pmlogger$pflag -h $host ... in $dir ..."
+	echo >&2 "Checking for: pmlogger$pflag -h $host ... in $dir ..."
     fi
 
     pid=`_find_matching_pmlogger`
@@ -349,10 +349,36 @@ _callback_log_control()
     if [ -n "$pid" ]
     then
 	# found matching pmlogger ... cull this one from
-	$VERY_VERBOSE && echo "[$filename:$line] match PID $pid, nothing to be done"
+	if $VERY_VERBOSE
+	then
+	    echo >&2 "[$filename:$line] match PID $pid, nothing to be done"
+	elif $VERBOSE
+	then
+	    echo >&2 "Pass 3: PID $pid matches control [$filename:$line], nothing to be done"
+	fi
 	sed <$tmp/loggers >$tmp/tmp -e "/^$pid	/d"
 	mv $tmp/tmp $tmp/loggers
     fi
+}
+
+# for $VERBOSE debugging ...
+# report ps(1) info for pids from $1 file (in $tmp/loggers format)
+#
+_debug_report()
+{
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp/ps-all 2>&1
+    head -1 $tmp/ps-all
+    $PCP_AWK_PROG  <$1 '{ print $1 }' \
+    | while read pid
+    do
+	$PCP_AWK_PROG "\$2 == $pid { print }" <$tmp/ps-all >$tmp/debug
+	if [ -s $tmp/debug ]
+	then
+	    cat $tmp/debug
+	else
+	    echo "Warning: PID $pid matched but vanished from $PCP_PS_PROG $PCP_PS_ALL_FLAGS output"
+	fi
+    done
 }
 
 # Pass 1 - look in the pmlogger status files for those with -m "note"
@@ -377,9 +403,21 @@ NR == 4 && NF == 1	{ if ($1 == "pmlogger_check" ||
 			}'
     done
 fi
+if $VERBOSE
+then
+    if [ -s $tmp/loggers ]
+    then
+	echo >&2 "Pass 1: pmloggers from $PCP_TMP_DIR/pmlogger"
+	_debug_report >&2 $tmp/loggers
+    else
+	echo >&2 "Pass 1: no pmloggers from $PCP_TMP_DIR/pmlogger"
+	ls -l $PCP_TMP_DIR/pmlogger
+    fi
+fi
 
 # Pass 2 - look in the ps(1) output for processes with -m "note" args
 # that suggests they were started by pmlogger_check and friends
+rm -f $tmp/tmp
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 \
 | sed -n -e 's/$/ /' -e '/\/[p]mlogger /{
 /-m *pmlogger_check /bok
@@ -401,12 +439,23 @@ do
     do
 	if grep "^$pid	$dir\$" $tmp/loggers >/dev/null
 	then
-	    : already have this one from the status files
+	    :
 	else
-	    echo "$pid	$dir" >>$tmp/loggers
+	    echo "$pid	$dir" >>$tmp/tmp
 	fi
     done
 done
+if [ -s $tmp/tmp ]
+then
+    if $VERBOSE
+    then
+	echo >&2 "Pass 2: add pmloggers from $PCP_PS_PROG $PCP_PS_ALL_FLAGS"
+	_debug_report >&2 $tmp.tmp
+    fi
+    cat $tmp/tmp >>$tmp/loggers
+else
+    $VERBOSE && echo >&2 "Pass 2: no additional pmloggers from $PCP_PS_PROG $PCP_PS_ALL_FLAGS"
+fi
 
 # Pass 3 - parse the control file(s) culling pmlogger instances that
 # match, as these ones are still under the control of pmlogger_check
@@ -430,7 +479,7 @@ then
 	# minimal dir contents (.index file?)
 	if [ -d "$_host" ]
 	then
-	    $VERBOSE && echo "Info: processing archives from remote pmlogger on host $_host"
+	    $VERBOSE && echo >&2 "Info: processing archives from remote pmlogger on host $_host"
 	    echo '$version=1.1' >$tmp/control
 	    # optional global controls first
 	    [ -f "./control" ] && cat "./control" >>$tmp/control
@@ -475,7 +524,7 @@ do
 	touch $tmp/one-trip
     fi
     echo "Killing (TERM) pmlogger with PID $pid"
-    eval $KILL -s TERM $pid
+    $KILL -s TERM $pid
 done
 
 # Pass 5 - compress archives in orphans' directories
@@ -543,7 +592,7 @@ else
 	if $PCP_PS_PROG -p "$pid" >/dev/null 2>&1
 	then
 	    echo "Killing (KILL) pmlogger with PID $pid"
-	    eval $KILL -s KILL $pid >/dev/null 2>&1
+	    $KILL -s KILL $pid >/dev/null 2>&1
 	    delay=30        # tenths of a second
 	    while $PCP_PS_PROG -f -p "$pid" >$tmp/alive 2>&1
 	    do
@@ -553,7 +602,7 @@ else
 		    delay=`expr $delay - 1`
 		    continue
 		fi
-		echo "$prog: Error: pmlogger process(es) will not die"
+		echo "$prog: Error: pmlogger process PID $pid will not die"
 		cat $tmp/alive
 		status=1
 		break

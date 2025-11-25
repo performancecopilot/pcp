@@ -892,14 +892,19 @@ fi
 # something else via -c on the command line) and
 # $PMLOGGER_CHECK_SKIP_JANITOR is not "yes".
 #
+# Optional additional arguments for pmlogger_janitor come from 
+# $PMLOGGER_JANITOR_ARGS in $PCP_SYSCONFIG_DIR/pmlogger
+#
 # QA uses -c and we don't want the janitor to be run in that case,
 # because the legitimate pmloggers, like the primary pmlogger, may
 # not be included in the "test" control file(s).
 #
 if [ "$CONTROL" = "$PCP_PMLOGGERCONTROL_PATH" -a "$PMLOGGER_CHECK_SKIP_JANITOR" != "yes" ]
 then
-    $VERY_VERBOSE && echo "Running: pmlogger_janitor $daily_args"
-    $PCP_BINADM_DIR/pmlogger_janitor $daily_args
+    args="$daily_args"
+    [ -n "$PMLOGGER_JANITOR_ARGS" ] && args="$args $PMLOGGER_JANITOR_ARGS"
+    $VERY_VERBOSE && echo "Running: pmlogger_janitor $args"
+    $PCP_BINADM_DIR/pmlogger_janitor $args
 fi
 
 if [ -f $tmp/err ]
