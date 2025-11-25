@@ -672,6 +672,15 @@ configure_pcp()
     else
 	($configure $configopts 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
+    if [ -f src/include/pcp/autoheader-dummmy.h ]
+    then
+	# dodge autoheader(1) interference with configure.ac
+	# ... this file is created by configure.ac, but we don't
+	# want it included in the source tree handed to dpkg-buildpackage
+	# (it is irrelevant for all builds, not just the Debian ones)
+	#
+	rm -f src/include/pcp/autoheader-dummmy.h
+    fi
     if [ -f $tmp/failed ]
     then
 	test -f config.log && cat config.log | tee -a "$LOGDIR/pcp"
