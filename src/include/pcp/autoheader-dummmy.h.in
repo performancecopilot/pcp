@@ -1,0 +1,5 @@
+THIS IS NOT A REAL HEADER FILE
+
+This file only exists to pander to autoheader(1) when it is run
+in a Debian build, as it is named in the first AC_CONFIG_HEADERS()
+call in our configure.ac
