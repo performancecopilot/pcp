@@ -2333,9 +2333,9 @@ PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env
-CFGFILELIST=`ls -1 $BACKDIR/debian/pcp-conf.{install,dirs}`
-LIBFILELIST=`ls -1 $BACKDIR/debian/lib*.{install,dirs} | grep -F -v -- -dev.`
-DEVFILELIST=`ls -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
+CFGFILELIST=`ls 2>/dev/null -1 $BACKDIR/debian/pcp-conf.{install,dirs}`
+LIBFILELIST=`ls 2>/dev/null -1 $BACKDIR/debian/lib*.{install,dirs} | grep -F -v -- -dev.`
+DEVFILELIST=`ls 2>/dev/null -1 $BACKDIR/debian/lib*-dev.{install,dirs}`
 
 # Package split: pcp{-conf,-libs,-libs-devel,-testsuite,-import-*,-export-*}...
 # The above list is ordered by file selection; files for each package are
