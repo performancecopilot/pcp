@@ -461,6 +461,7 @@ _filter_top_pmns()
 	-e '/^    dbping /d' \
 	-e '/^    dmcache /d' \
 	-e '/^    dmcrypt /d' \
+	-e '/^    dmmultipath /d' \
 	-e '/^    dmstats /d' \
 	-e '/^    dmthin /d' \
 	-e '/^    dmf /d' \

@@ -33,6 +33,9 @@
 @ DM.4 Device mapper latency histogram bins
 @ DM.5 Virtual Data Optimization devices
 @ DM.6 Device mapper encrypted block devices
+@ DM.7 Device mapper multipath map information
+@ DM.8 Device mapper multipath map paths
+@ DM.9 Device mapper multipath map devices
 
 @ dmcache.size Size of each cache device
 The total size of each cache device in Kbytes.
@@ -367,3 +370,22 @@ added a new entry.
 @dmcrypt.size_bytes Crypt device size in bytes
 @dmcrypt.mode Current mode for the crypt device
 @dmcrypt.flags Flags for the crypt device
+
+@dmmultipath.name The map name (alias - user friendly name)
+@dmmultipath.wwid The map World Wide Identifier (WWID)
+@dmmultipath.device The device node name of the map device in device mapper
+@dmmultipath.vendor The vendor name
+@dmmultipath.product_name The product name
+@dmmultipath.size The total size of the device
+@dmmultipath.features Device features
+@dmmultipath.hardware_handler The hardware handler used
+@dmmultipath.permissions Write premissions
+@dmmultipath.path.selector_algorithm The I/O load balancing policy
+@dmmultipath.path.priority The priority of the path group
+@dmmultipath.path.status The status of the path group
+@dmmultipath.path.device.bus_id The SCSI Host:Channel:Target:LUN identifier
+@dmmultipath.path.device.dev_name The kernel standard device node name
+@dmmultipath.path.device.dev_id The Major/Minor device numbers
+@dmmultipath.path.device.device_status The Device Mapper (DM) Status
+@dmmultipath.path.device.path_status The Path Status (from the path checker)
+@dmmultipath.path.device.kernel_status The state of the path device in the kernel

@@ -30,8 +30,8 @@ _filter()
     | sed \
 	-e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g' \
 	-e 's/inst \[[0-9][0-9]* /inst [N /g' \
-	-e '/No value(s) available/d' \
 	-e '/No IB ports found to monitor/d' \
+	-e '/Unknown parameter/d' \
     #end
 }
 
@@ -49,6 +49,33 @@ fi
 # real QA test starts here
 root=$tmp.root
 export IB_STATSPATH=$root
+
+# Create versioned symlinks for mock libraries so the PMDA can find them
+# Determine version numbers from what the PMDA actually needs
+cd $here/src
+if [ -f $PCP_PMDAS_DIR/infiniband/pmda_ib.$DSO_SUFFIX ]; then
+    # Extract library versions that the PMDA links against
+    for lib in $(ldd $PCP_PMDAS_DIR/infiniband/pmda_ib.$DSO_SUFFIX 2>/dev/null | \
+                 grep -E 'libibmad|libibumad|libibverbs' | awk '{print $1}'); do
+        case "$lib" in
+            libibumad.so.*)
+                umad_ver=$(echo $lib | sed 's/libibumad\.so\.//')
+                ln -sf libibumad.$DSO_SUFFIX libibumad.$DSO_SUFFIX.$umad_ver
+                ;;
+            libibmad.so.*)
+                mad_ver=$(echo $lib | sed 's/libibmad\.so\.//')
+                # Our umad mock also provides mad functions
+                ln -sf libibumad.$DSO_SUFFIX libibmad.$DSO_SUFFIX.$mad_ver
+                ;;
+            libibverbs.so.*)
+                verbs_ver=$(echo $lib | sed 's/libibverbs\.so\.//')
+                ln -sf libibverbs.$DSO_SUFFIX libibverbs.$DSO_SUFFIX.$verbs_ver
+                ;;
+        esac
+    done
+fi
+cd $here
+
 export LD_LIBRARY_PATH=$here/src:$LD_LIBRARY_PATH
 
 for tgz in $here/infiniband/ib-root-*.tgz

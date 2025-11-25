@@ -27,6 +27,7 @@ export DM_SETUP_THINPOOL="cat $root/dmthin-pool"
 export DM_SETUP_THIN="cat $root/dmthin-thin"
 export DM_SETUP_CRYPT="cat $root/dmsetup-crypt"
 export DM_SETUP_CRYPTSETUP="cat $root/cryptsetup-status"
+export DM_SETUP_MULTIPATH="cat $root/multipathd"
 
 # don't want Install to possibly restart pmcd via systemctl, as this
 # will clobber the environment, ...
@@ -132,6 +133,31 @@ echo '/dev/mapper/luks-4456fe89-d09e-416f-8721-bedb66abda85 is disabled and is n
   size:    996853760 [512-byte units] (510389125120 [bytes])
   mode:    read/write
   flags:   discards' > $root/cryptsetup-status
+
+cat << 'MULTIPATHD_OUTPUT' > $root/multipathd
+mpatha (3600c0ff000123456789012345000000) dm-1 HITACHI,DF400F
+size=500G features='1 queue_if_no_path' hwhandler='0' wp=rw
+|-+- policy='round-robin 0' prio=50 status=active
+| |- 1:0:0:1 sda 8:0   active ready running
+| |- 2:0:0:1 sdc 8:32  active ready running
+| |- 3:0:0:1 sde 8:64  active ready running
+| `- 4:0:0:1 sdg 8:96  active ready running
+`-+- policy='round-robin 0' prio=10 status=enabled
+  |- 1:0:1:1 sdb 8:16  active ready running
+  |- 2:0:1:1 sdd 8:48  active ready running
+  |- 3:0:1:1 sdf 8:80  active ready running
+  `- 4:0:1:1 sdh 8:112 active ready running
+
+mpathb (36005076303ffc56200000000000010aa) dm-4 Pure Storage,FlashArray
+size=1.5T features='3 queue_if_no_path pg_init_retries 50' hwhandler='1 alua' wp=rw
+|-+- policy='service-time 0' prio=100 status=active
+| |- 5:0:0:1 sdi 8:128 active ready running
+| `- 6:0:0:1 sdk 8:160 active ready running
+`-+- policy='service-time 0' prio=10 status=enabled
+  |- 5:0:1:1 sdj 8:144 failed faulty detached
+  `- 6:0:1:1 sdl 8:176 active ready running"
+MULTIPATHD_OUTPUT
+
 cd $here
 
 echo
@@ -154,6 +180,10 @@ pminfo -dfmtT dmthin.vol
 echo
 echo "=== Check dm-crypt metrics for crypt metrics ==="
 pminfo -dfmtT dmcrypt
+
+echo
+echo "=== Check dm-multipath metrics ==="
+pminfo -dfmtT dmmultipath
 
 # cleanup
 _remove_pmda

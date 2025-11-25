@@ -360,6 +360,116 @@ umad_release_port(umad_port_t *port)
 
 /* MAD library function implementations */
 
+/*
+ * Mock implementations of mad field accessor functions.
+ * The real libibmad library uses complex bit-field packing according to IBA
+ * specifications. For our mock, we use an explicit mapping of field enums
+ * to offsets in the 256-byte MAD buffer, allocating 8-byte slots for each.
+ */
+
+static inline int
+mock_field_offset(enum MAD_FIELDS field)
+{
+    /*
+     * Explicit mapping for fields we actually use. This avoids collisions
+     * and ensures each field gets a unique 8-byte aligned slot.
+     */
+    switch (field) {
+        /* Port info fields - slots 0-15 (offsets 0-120) */
+        case IB_PORT_LID_F:              return 0;
+        case IB_PORT_SMLID_F:            return 8;
+        case IB_PORT_STATE_F:            return 16;
+        case IB_PORT_PHYS_STATE_F:       return 24;
+        case IB_PORT_LINK_WIDTH_ACTIVE_F: return 32;
+        case IB_PORT_LINK_SPEED_ACTIVE_F: return 40;
+        case IB_PORT_LMC_F:              return 48;
+        case IB_PORT_MTU_CAP_F:          return 56;
+        case IB_PORT_NEIGHBOR_MTU_F:     return 64;
+        case IB_PORT_CAPMASK_F:          return 72;
+        case IB_PORT_GID_PREFIX_F:       return 80;
+
+        /* Performance counter fields - slots 16-31 (offsets 128-248) */
+        case IB_PC_ERR_SYM_F:            return 128;
+        case IB_PC_LINK_RECOVERS_F:      return 136;
+        case IB_PC_LINK_DOWNED_F:        return 144;
+        case IB_PC_ERR_RCV_F:            return 152;
+        case IB_PC_XMT_BYTES_F:          return 160;
+        case IB_PC_RCV_BYTES_F:          return 168;
+        case IB_PC_XMT_PKTS_F:           return 176;
+        case IB_PC_RCV_PKTS_F:           return 184;
+        case IB_PC_EXT_XMT_BYTES_F:      return 192;
+        case IB_PC_EXT_RCV_BYTES_F:      return 200;
+        case IB_PC_EXT_XMT_PKTS_F:       return 208;
+        case IB_PC_EXT_RCV_PKTS_F:       return 216;
+        case IB_PC_EXT_XMT_UPKTS_F:      return 224;
+        case IB_PC_EXT_RCV_UPKTS_F:      return 232;
+        case IB_PC_EXT_XMT_MPKTS_F:      return 240;
+        case IB_PC_EXT_RCV_MPKTS_F:      return 248;
+
+        default:
+            /* For unknown fields, use a hash to avoid collisions */
+            return ((field * 7) % 16) * 8;  /* Maps to slots 0-15 */
+    }
+}
+
+uint32_t
+mad_get_field(void *buf, int base_offs, enum MAD_FIELDS field)
+{
+    uint32_t *ptr;
+    if (!buf || field < 0)
+        return 0;
+    ptr = (uint32_t *)((uint8_t *)buf + base_offs + mock_field_offset(field));
+    return *ptr;
+}
+
+uint64_t
+mad_get_field64(void *buf, int base_offs, enum MAD_FIELDS field)
+{
+    uint64_t *ptr;
+    if (!buf || field < 0)
+        return 0;
+    ptr = (uint64_t *)((uint8_t *)buf + base_offs + mock_field_offset(field));
+    return *ptr;
+}
+
+static void
+mad_set_field_mock(void *buf, int base_offs, enum MAD_FIELDS field, uint32_t val)
+{
+    uint32_t *ptr;
+    if (!buf || field < 0)
+        return;
+    ptr = (uint32_t *)((uint8_t *)buf + base_offs + mock_field_offset(field));
+    *ptr = val;
+}
+
+static void
+mad_set_field64_mock(void *buf, int base_offs, enum MAD_FIELDS field, uint64_t val)
+{
+    uint64_t *ptr;
+    if (!buf || field < 0)
+        return;
+    ptr = (uint64_t *)((uint8_t *)buf + base_offs + mock_field_offset(field));
+    *ptr = val;
+}
+
+void
+mad_decode_field(uint8_t *buf, enum MAD_FIELDS field, void *val)
+{
+    /*
+     * mad_decode_field extracts a field value and writes it to the pointer.
+     * For simplicity, we treat all fields as 64-bit and let the caller
+     * handle the actual size.
+     */
+    uint64_t *field_ptr;
+    uint64_t *dest = (uint64_t *)val;
+
+    if (!buf || !val || field < 0)
+        return;
+
+    field_ptr = (uint64_t *)((uint8_t *)buf + mock_field_offset(field));
+    *dest = *field_ptr;
+}
+
 struct ibmad_port *
 mad_rpc_open_port(char *dev_name, int dev_port, int *mgmt_classes, int num_classes)
 {
@@ -380,27 +490,27 @@ set_mock_portinfo(uint8_t *buf)
 {
     /* Set some basic port info fields */
     /* IB_PORT_LID_F */
-    mad_set_field(buf, 0, IB_PORT_LID_F, 1);
+    mad_set_field_mock(buf, 0, IB_PORT_LID_F, 1);
     /* IB_PORT_SMLID_F */
-    mad_set_field(buf, 0, IB_PORT_SMLID_F, 1);
+    mad_set_field_mock(buf, 0, IB_PORT_SMLID_F, 1);
     /* IB_PORT_STATE_F - Active */
-    mad_set_field(buf, 0, IB_PORT_STATE_F, 4);
+    mad_set_field_mock(buf, 0, IB_PORT_STATE_F, 4);
     /* IB_PORT_PHYS_STATE_F - LinkUp */
-    mad_set_field(buf, 0, IB_PORT_PHYS_STATE_F, 5);
+    mad_set_field_mock(buf, 0, IB_PORT_PHYS_STATE_F, 5);
     /* IB_PORT_LINK_WIDTH_ACTIVE_F - 4X */
-    mad_set_field(buf, 0, IB_PORT_LINK_WIDTH_ACTIVE_F, 2);
+    mad_set_field_mock(buf, 0, IB_PORT_LINK_WIDTH_ACTIVE_F, 2);
     /* IB_PORT_LINK_SPEED_ACTIVE_F - 10.0 Gbps */
-    mad_set_field(buf, 0, IB_PORT_LINK_SPEED_ACTIVE_F, 4);
+    mad_set_field_mock(buf, 0, IB_PORT_LINK_SPEED_ACTIVE_F, 4);
     /* IB_PORT_LMC_F */
-    mad_set_field(buf, 0, IB_PORT_LMC_F, 0);
+    mad_set_field_mock(buf, 0, IB_PORT_LMC_F, 0);
     /* IB_PORT_MTU_CAP_F - 4096 */
-    mad_set_field(buf, 0, IB_PORT_MTU_CAP_F, 5);
+    mad_set_field_mock(buf, 0, IB_PORT_MTU_CAP_F, 5);
     /* IB_PORT_NEIGHBOR_MTU_F - 4096 */
-    mad_set_field(buf, 0, IB_PORT_NEIGHBOR_MTU_F, 5);
+    mad_set_field_mock(buf, 0, IB_PORT_NEIGHBOR_MTU_F, 5);
     /* IB_PORT_CAPMASK_F */
-    mad_set_field(buf, 0, IB_PORT_CAPMASK_F, 0x02510a6a);
+    mad_set_field_mock(buf, 0, IB_PORT_CAPMASK_F, 0x02510a6a);
     /* IB_PORT_GID_PREFIX_F */
-    mad_set_field64(buf, 0, IB_PORT_GID_PREFIX_F, 0xfe80000000000000ULL);
+    mad_set_field64_mock(buf, 0, IB_PORT_GID_PREFIX_F, 0xfe80000000000000ULL);
 }
 
 static void
@@ -410,55 +520,55 @@ set_mock_perfdata(uint8_t *buf, int hca_idx, int port_idx)
         return;
 
     /* Set performance counter values */
-    mad_set_field(buf, 0, IB_PC_ERR_SYM_F,
+    mad_set_field_mock(buf, 0, IB_PC_ERR_SYM_F,
                   mock_perf_counters[hca_idx][port_idx].symbol_error_counter);
-    mad_set_field(buf, 0, IB_PC_LINK_RECOVERS_F,
+    mad_set_field_mock(buf, 0, IB_PC_LINK_RECOVERS_F,
                   mock_perf_counters[hca_idx][port_idx].link_error_recovery_counter);
-    mad_set_field(buf, 0, IB_PC_LINK_DOWNED_F,
+    mad_set_field_mock(buf, 0, IB_PC_LINK_DOWNED_F,
                   mock_perf_counters[hca_idx][port_idx].link_downed_counter);
-    mad_set_field(buf, 0, IB_PC_ERR_RCV_F,
+    mad_set_field_mock(buf, 0, IB_PC_ERR_RCV_F,
                   mock_perf_counters[hca_idx][port_idx].port_rcv_errors);
-    mad_set_field(buf, 0, IB_PC_ERR_PHYSRCV_F,
+    mad_set_field_mock(buf, 0, IB_PC_ERR_PHYSRCV_F,
                   mock_perf_counters[hca_idx][port_idx].port_rcv_remote_physical_errors);
-    mad_set_field(buf, 0, IB_PC_ERR_SWITCH_REL_F,
+    mad_set_field_mock(buf, 0, IB_PC_ERR_SWITCH_REL_F,
                   mock_perf_counters[hca_idx][port_idx].port_rcv_switch_relay_errors);
-    mad_set_field(buf, 0, IB_PC_XMT_DISCARDS_F,
+    mad_set_field_mock(buf, 0, IB_PC_XMT_DISCARDS_F,
                   mock_perf_counters[hca_idx][port_idx].port_xmit_discards);
-    mad_set_field(buf, 0, IB_PC_ERR_XMTCONSTR_F,
+    mad_set_field_mock(buf, 0, IB_PC_ERR_XMTCONSTR_F,
                   mock_perf_counters[hca_idx][port_idx].port_xmit_constraint_errors);
-    mad_set_field(buf, 0, IB_PC_ERR_RCVCONSTR_F,
+    mad_set_field_mock(buf, 0, IB_PC_ERR_RCVCONSTR_F,
                   mock_perf_counters[hca_idx][port_idx].port_rcv_constraint_errors);
-    mad_set_field(buf, 0, IB_PC_ERR_LOCALINTEG_F,
+    mad_set_field_mock(buf, 0, IB_PC_ERR_LOCALINTEG_F,
                   mock_perf_counters[hca_idx][port_idx].local_link_integrity_errors);
-    mad_set_field(buf, 0, IB_PC_ERR_EXCESS_OVR_F,
+    mad_set_field_mock(buf, 0, IB_PC_ERR_EXCESS_OVR_F,
                   mock_perf_counters[hca_idx][port_idx].excessive_buffer_overrun_errors);
-    mad_set_field(buf, 0, IB_PC_VL15_DROPPED_F,
+    mad_set_field_mock(buf, 0, IB_PC_VL15_DROPPED_F,
                   mock_perf_counters[hca_idx][port_idx].vl15_dropped);
-    mad_set_field(buf, 0, IB_PC_XMT_BYTES_F,
+    mad_set_field_mock(buf, 0, IB_PC_XMT_BYTES_F,
                   mock_perf_counters[hca_idx][port_idx].port_xmit_data);
-    mad_set_field(buf, 0, IB_PC_RCV_BYTES_F,
+    mad_set_field_mock(buf, 0, IB_PC_RCV_BYTES_F,
                   mock_perf_counters[hca_idx][port_idx].port_rcv_data);
-    mad_set_field(buf, 0, IB_PC_XMT_PKTS_F,
+    mad_set_field_mock(buf, 0, IB_PC_XMT_PKTS_F,
                   mock_perf_counters[hca_idx][port_idx].port_xmit_pkts);
-    mad_set_field(buf, 0, IB_PC_RCV_PKTS_F,
+    mad_set_field_mock(buf, 0, IB_PC_RCV_PKTS_F,
                   mock_perf_counters[hca_idx][port_idx].port_rcv_pkts);
 
     /* Extended counters */
-    mad_set_field64(buf, 0, IB_PC_EXT_XMT_BYTES_F,
+    mad_set_field64_mock(buf, 0, IB_PC_EXT_XMT_BYTES_F,
                     mock_perf_counters[hca_idx][port_idx].port_xmit_data_ext);
-    mad_set_field64(buf, 0, IB_PC_EXT_RCV_BYTES_F,
+    mad_set_field64_mock(buf, 0, IB_PC_EXT_RCV_BYTES_F,
                     mock_perf_counters[hca_idx][port_idx].port_rcv_data_ext);
-    mad_set_field64(buf, 0, IB_PC_EXT_XMT_PKTS_F,
+    mad_set_field64_mock(buf, 0, IB_PC_EXT_XMT_PKTS_F,
                     mock_perf_counters[hca_idx][port_idx].port_xmit_pkts_ext);
-    mad_set_field64(buf, 0, IB_PC_EXT_RCV_PKTS_F,
+    mad_set_field64_mock(buf, 0, IB_PC_EXT_RCV_PKTS_F,
                     mock_perf_counters[hca_idx][port_idx].port_rcv_pkts_ext);
-    mad_set_field64(buf, 0, IB_PC_EXT_XMT_UPKTS_F,
+    mad_set_field64_mock(buf, 0, IB_PC_EXT_XMT_UPKTS_F,
                     mock_perf_counters[hca_idx][port_idx].port_unicast_xmit_pkts);
-    mad_set_field64(buf, 0, IB_PC_EXT_RCV_UPKTS_F,
+    mad_set_field64_mock(buf, 0, IB_PC_EXT_RCV_UPKTS_F,
                     mock_perf_counters[hca_idx][port_idx].port_unicast_rcv_pkts);
-    mad_set_field64(buf, 0, IB_PC_EXT_XMT_MPKTS_F,
+    mad_set_field64_mock(buf, 0, IB_PC_EXT_XMT_MPKTS_F,
                     mock_perf_counters[hca_idx][port_idx].port_multicast_xmit_pkts);
-    mad_set_field64(buf, 0, IB_PC_EXT_RCV_MPKTS_F,
+    mad_set_field64_mock(buf, 0, IB_PC_EXT_RCV_MPKTS_F,
                     mock_perf_counters[hca_idx][port_idx].port_multicast_rcv_pkts);
 }
 
@@ -542,10 +652,14 @@ pma_query_via(void *rcvbuf, ib_portid_t *portid, int port,
 
     if (id == IB_GSI_PORT_COUNTERS_EXT) {
         /* Set extended counter values for switch */
-        mad_set_field64(rcvbuf, 0, IB_PC_EXT_XMT_BYTES_F, 5555555555ULL);
-        mad_set_field64(rcvbuf, 0, IB_PC_EXT_RCV_BYTES_F, 6666666666ULL);
-        mad_set_field64(rcvbuf, 0, IB_PC_EXT_XMT_PKTS_F, 55555555ULL);
-        mad_set_field64(rcvbuf, 0, IB_PC_EXT_RCV_PKTS_F, 66666666ULL);
+        mad_set_field64_mock(rcvbuf, 0, IB_PC_EXT_XMT_BYTES_F, 5555555555ULL);
+        mad_set_field64_mock(rcvbuf, 0, IB_PC_EXT_RCV_BYTES_F, 6666666666ULL);
+        mad_set_field64_mock(rcvbuf, 0, IB_PC_EXT_XMT_PKTS_F, 55555555ULL);
+        mad_set_field64_mock(rcvbuf, 0, IB_PC_EXT_RCV_PKTS_F, 66666666ULL);
+        return rcvbuf;
+    } else if (id == IB_GSI_PORT_COUNTERS) {
+        /* Set regular counter values */
+        set_mock_perfdata(rcvbuf, 0, 0);
         return rcvbuf;
     }
 
