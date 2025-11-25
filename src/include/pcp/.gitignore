@@ -1,3 +1,5 @@
+autoheader-dummmy.h.in
+autoheader-dummmy.h
 platform_defs.h
 platformsz.h
 configsz.h
