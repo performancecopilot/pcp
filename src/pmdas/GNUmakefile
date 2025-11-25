@@ -46,7 +46,12 @@ PYPMDAS = bcc gluster zswap unbound mic haproxy \
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
 LDIRT = pmcd.conf
 
+ifneq ("$(wildcard $(TOPDIR)/src/include/pcp/config.h)","")
 HAVE_UNIX_DOMAIN_SOCKETS = $(shell grep 'define HAVE_STRUCT_SOCKADDR_UN' $(TOPDIR)/src/include/pcp/config.h >/dev/null && echo yes)
+else
+    # after make clean in src/include/pcp, config.h is gone ... punt
+    HAVE_UNIX_DOMAIN_SOCKETS = no
+endif
 
 default :: default_pcp
 
