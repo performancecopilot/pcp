@@ -12,6 +12,7 @@ export DH_OPTIONS =
 here := $(shell pwd)
 
 # some globals we need
+#
 export GZIP = -9qn
 export DIST_TMPFILES = $(here)/install.tmpfiles
 export DIST_ROOT = $(here)/debian/pcp
@@ -32,29 +33,39 @@ configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --locals
 %:
 	dh $@
 
+# pass in all our configure magic
+#
 override_dh_auto_configure:
 	$(configure_tools) \
         ./configure $(configure_paths) $(configure_debug) $(configure_opts)
 
+# need some extra work here ...
+#
 override_dh_clean:
 	dh_clean
 	# stuff we leave behind after make clean
 	-rm -f qa/localconfig
 
 # post-auto-install flags
-# -v => TODO
-# -v -v => TODO
-# -v -v -v => as above dump plus tarball contents
+# -v => report per-package processing of .install (or other filelist) and
+#	.dirs
+# -v -v => as above plus report /* trimming from *.install, glob expansion
+# 	from *.install
+# -v -v -v => as above plus dump tarball contents used for copying from
+# 	pcp into the other packages
+#
 override_dh_auto_install:
 	dh_auto_install --destdir=debian/pcp
 	ls -l debian/pcp/usr/lib/pcp/bin/pcp-summary
 	debian/post-auto-install -v -v -v
 	ls -l debian/pcp/usr/lib/pcp/bin/pcp-summary
 
+# nothing to do here, all done in override_dh_auto_install
+# (really debian/post-auto-install)
+#
 override_dh_install:
-	# nothing to do here, all done in dh_auto_install +
-	# debian/post-auto-install
 
+# we have some "special" cases
 override_dh_fixperms:
 	dh_fixperms -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd -Xusr/lib/pcp/bin
 
