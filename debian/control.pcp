@@ -302,7 +302,7 @@ Description: Tool for importing data from collectl into PCP archive logs
  (such as pmie, pmlogsummary, pmchart or pmdumptext).
 
 Package: pcp-export-pcp2elasticsearch
-Depends: ?{python-pcp}, ?{python-requests}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ?{python-pcp}, ?{python-requests}, ${python3:Depends}, ${misc:Depends}
 Breaks: pcp (<< 5.3.0)
 Replaces: pcp (<< 5.3.0)
 Architecture: any
@@ -311,7 +311,7 @@ Description: Tool for exporting data from PCP to Elasticsearch
  into designated Elasticsearch instances.
 
 Package: pcp-export-pcp2graphite
-Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ?{python-pcp}, ${python3:Depends}, ${misc:Depends}
 Breaks: pcp (<< 5.2.4)
 Architecture: any
 Description: Tool for exporting data from PCP to Graphite
@@ -319,7 +319,7 @@ Description: Tool for exporting data from PCP to Graphite
  into designated Graphite (Carbon/Whisper) databases.
 
 Package: pcp-export-pcp2influxdb
-Depends: ?{python-pcp}, ?{python-requests}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ?{python-pcp}, ?{python-requests}, ${python3:Depends}, ${misc:Depends}
 Breaks: pcp (<< 5.2.4)
 Architecture: any
 Description: Tool for exporting data from PCP to InfluxDB
@@ -327,7 +327,7 @@ Description: Tool for exporting data from PCP to InfluxDB
  to InfluxDB (https://influxdata.com/time-series-platform/influxdb).
 
 Package: pcp-export-pcp2json
-Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ?{python-pcp}, ${python3:Depends}, ${misc:Depends}
 Breaks: pcp (<< 5.3.0)
 Replaces: pcp (<< 5.3.0)
 Architecture: any
@@ -336,7 +336,7 @@ Description: Tool for exporting data from PCP to JSON
  in JSON format.
 
 Package: pcp-export-pcp2spark
-Depends: ?{python-pcp}, ?{python-requests}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ?{python-pcp}, ?{python-requests}, ${python3:Depends}, ${misc:Depends}
 Breaks: pcp (<< 5.3.0)
 Replaces: pcp (<< 5.3.0)
 Architecture: any
@@ -345,7 +345,7 @@ Description: Tool for exporting data from PCP to Apache Spark
  to Apache Spark (https://spark.apache.org).
 
 Package: pcp-export-pcp2xml
-Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ?{python-pcp}, ${python3:Depends}, ${misc:Depends}
 Breaks: pcp (<< 5.3.0)
 Replaces: pcp (<< 5.3.0)
 Architecture: any
@@ -354,7 +354,7 @@ Description: Tool for exporting data from PCP to XML
  in XML format.
 
 Package: pcp-export-pcp2zabbix
-Depends: ?{python-pcp}, ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ?{python-pcp}, ${python3:Depends}, ${misc:Depends}
 Breaks: pcp (<< 5.3.0)
 Replaces: pcp (<< 5.3.0)
 Architecture: any
@@ -384,7 +384,7 @@ Description: Documentation and tutorial for the Performance Co-Pilot
  PCP utilities and daemons, and the PCP graphical tools.
 
 Package: pcp-zeroconf
-Depends: ${misc:Depends}, ${shlibs:Depends}, pcp (= ${binary:Version})
+Depends: ${misc:Depends}, pcp (= ${binary:Version})
 Breaks: pcp (<< 6.2.1)
 Replaces: pcp (<< 6.2.1)
 Architecture: any

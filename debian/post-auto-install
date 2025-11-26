@@ -113,6 +113,9 @@ do
 		    ls >&2 -l ../*.list
 		    exit
 		fi
+		# this one is special and outside the python3 build
+		#
+		echo "/usr/share/lintian/overrides/python3-pcp" >>../python3-pcp.list
  		sed <../python3-pcp.list >$tmp.filelist \
  		    -e '/\/__pycache__\//d' \
  		    -e 's@^/@@' \

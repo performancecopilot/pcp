@@ -364,22 +364,22 @@ endif
 # only make control from control.* pieces in Makepkgs build
 #
 control:
-	./fixcontrol >control
+	./fixcontrol control.pcp >control
 ifeq ($(ENABLE_PYTHON3), true)
-	cat control.python3 >>control
+	fixcontrol control.python3 >>control
 endif
 ifeq ($(ENABLE_QT), true)
-	cat control.pcpgui >>control
+	fixcontrol control.pcpgui >>control
 endif
 ifeq ($(HAVE_PYTHON_OPENPYXL), true)
-	cat control.pcp2xlsx >>control
+	fixcontrol control.pcp2xlsx >>control
 endif
 ifeq ($(HAVE_PYTHON_PYARROW), true)
-	cat control.pcp2arrow >>control
+	fixcontrol control.pcp2arrow >>control
 endif
 ifeq ($(PMDA_INFINIBAND), true)
-	cat control.pmdaib >>control
+	fixcontrol control.pmdaib >>control
 endif
 ifeq ($(HAVE_PERL), true)
-	cat control.perl >>control
+	fixcontrol control.perl >>control
 endif

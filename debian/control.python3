@@ -13,7 +13,7 @@ Description: Performance Co-Pilot Python3 PMAPI module
  that data.
 
 Package: pcp-import-benchmarks
-Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp-import1 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version})
 Breaks: pcp (<< 7.0.2), pcp-import-guidellm2pcp (<< 7.0.2)
 Replaces: pcp (<< 7.0.2), pcp-import-guidellm2pcp (<< 7.0.2)
 Architecture: any

@@ -1,9 +1,18 @@
 #!/bin/sh
 #
-# generate control preamble from control.pcp
+# generate control preamble from PCP-parameterized control stanza
+# file ($1)
 #
 tmp=/var/tmp/fixcontrol-$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+sts=0
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+if [ $# -ne 1 ]
+then
+    echo >&2 "Usage: fixcontrol input-control-file"
+    sts=1
+    exit
+fi
 
 echo 's/$/ /' >$tmp.sed
 
@@ -424,8 +433,8 @@ else
 fi
 
 echo 's/ $//' >>$tmp.sed
-sed -f $tmp.sed <control.pcp >$tmp.out
-diff -u control.pcp $tmp.out >&2
+sed -f $tmp.sed <"$1" >$tmp.out
+diff -u "$1" $tmp.out >&2
 cat $tmp.out
 
 # add transitional packages for (incorrect) Ubuntu package renaming
@@ -435,6 +444,13 @@ then
     NAME=`sed -n -e 's/"//'g -e '/^NAME=/s/NAME=//p' </etc/os-release`
     if [ "$NAME" = "Ubuntu" ]
     then
-	cat control.ubuntu
+	if grep -q 'Package: libpcp3t64' control 2>/dev/null
+	then
+	    # but do it only once and already done apparenty
+	    #
+	    :
+	else
+	    cat control.ubuntu
+	fi
     fi
 fi

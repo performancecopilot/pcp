@@ -1,6 +1,6 @@
 
 Package: pcp-export-pcp2xlsx
-Depends: ${python:Depends}, ${misc:Depends}, ${shlibs:Depends}
+Depends: ?{python-pcp}, ${python3:Depends}, ${misc:Depends}
 Breaks: pcp (<< 5.3.0)
 Replaces: pcp (<< 5.3.0)
 Architecture: any
