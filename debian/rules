@@ -3,9 +3,8 @@
 # verbose output from dpkg-buildpackage
 export DEB_BUILD_OPTIONS=debug
 # debhelper verbose mode
-export DH_VERBOSE=yes
-
-# Standard debhelper compatibility level
+# export DH_VERBOSE=yes
+# standard debhelper compatibility level
 export DH_OPTIONS =
 
 # expect this to be something like ../build/deb/pcp-X.Y.Z
@@ -56,9 +55,7 @@ override_dh_clean:
 #
 override_dh_auto_install:
 	dh_auto_install --destdir=debian/pcp
-	ls -l debian/pcp/usr/lib/pcp/bin/pcp-summary
-	debian/post-auto-install -v -v -v
-	ls -l debian/pcp/usr/lib/pcp/bin/pcp-summary
+	debian/post-auto-install -v -v
 
 # nothing to do here, all done in override_dh_auto_install
 # (really debian/post-auto-install)
@@ -66,11 +63,31 @@ override_dh_auto_install:
 override_dh_install:
 
 # we have some "special" cases
+#
 override_dh_fixperms:
 	dh_fixperms -Xvar/lib/pcp/tmp -Xvar/lib/pcp/pmcd -Xusr/lib/pcp/bin
 
-override_dh_auto_test:
-	# make check here fails for some man pages but does not fail
-	# outside the build
-	# TODO - understand and fix this
+# the "auto-generated" recipe is not well-matched to the PCP services
+# architecture, leading to things like this when the packages are installed
+# ...
+# pmie_daily.service is a disabled or a static unit not running, not starting...
+# ...
+# Could not execute systemctl:  at /usr/bin/deb-systemd-invoke line ...
+#
+# Leave all this to our roll-you-own methods in the *.pre* and *.post*
+# scripts
+#
+override_dh_systemd_enable:
+override_dh_systemd_start:
+override_dh_installinit:
 
+# up the verbosity here so we can see all the warnings
+#
+override_dh_shlibdeps:
+	dh_shlibdeps -v
+
+# make check here fails for some man pages but does not fail outside the
+# Debian build
+# TODO - understand and fix this
+#
+override_dh_auto_test:
