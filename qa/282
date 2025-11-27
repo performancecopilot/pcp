@@ -151,7 +151,7 @@ _cleanup()
     trap "" 0 1 2 3 15
     if $_needclean
     then
-	echo
+	echo | tee -a $seq_full
 	echo "Restore the state of the universe ..."
 	for file in $PCP_PMCDCONF_PATH $CHECK $PCP_PMLOGGEROPTIONS_PATH
 	do
@@ -188,7 +188,7 @@ touch $seq_full
 
 _exercise_rc_scripts()
 {
-    echo
+    echo | tee -a $seq_full
     echo '=== expect error: no $PCP_PMCDCONF_PATH ==='
     $sudo rm -f $PCP_PMCDCONF_PATH
     _poke_pmcd
@@ -235,30 +235,30 @@ End-of-File
 
     $sudo cp $tmp.out $PCP_PMCDCONF_PATH
 
-    echo
-    echo "=== simple case, no frills, no errors ==="
+    echo | tee -a $seq_full
+    echo "=== simple case, no frills, no errors ===" | tee -a $seq_full
     _poke_pmcd_n_logger
 
-    echo
-    echo "=== expected failure: a mere mortal ==="
+    echo | tee -a $seq_full
+    echo "=== expected failure: a mere mortal ===" | tee -a $seq_full
     sudo_save="$sudo"
     unset sudo
     _poke_pmcd
     sudo="$sudo_save"
-    echo "=== start again ==="
+    echo "=== start again ===" | tee -a $seq_full
     _poke_pmcd_n_logger
 
-    echo
-    echo "=== expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ==="
+    echo | tee -a $seq_full
+    echo "=== expect 2 x connect failure: pmcd is true(1), so hard for pmlogger ===" | tee -a $seq_full
     $sudo rm -f $PCP_PMCD_PROG.$seq
     $sudo mv $PCP_PMCD_PROG $PCP_PMCD_PROG.$seq
     $sudo cp `which true` $PCP_PMCD_PROG
     _poke_pmcd_n_logger
     $sudo mv $PCP_PMCD_PROG.$seq $PCP_PMCD_PROG
-    echo "=== start again ==="
+    echo "=== start again ===" | tee -a $seq_full
     _poke_pmcd_n_logger
 
-    echo "=== expect difficulty terminating pmcd ... it has been sent a SIGSTOP ==="
+    echo "=== expect difficulty terminating pmcd ... it has been sent a SIGSTOP ===" | tee -a $seq_full
     pid=`_get_pids_by_name pmcd`
     if [ -z "$pid" ]
     then
@@ -271,14 +271,14 @@ End-of-File
     $sudo kill -STOP $pid
     _poke_pmcd
 
-    echo
-    echo "=== expect warning: PMLOGGER.CHECK moved, so no pmlogger ==="
+    echo | tee -a $seq_full
+    echo "=== expect warning: PMLOGGER.CHECK moved, so no pmlogger ===" | tee -a $seq_full
     $sudo rm $CHECK
     _poke_pmcd_n_logger
     $sudo cp -p $CHECK.$seq $CHECK
 
-    echo
-    echo "=== expect error: pmlogger/control moved, so no pmlogger ==="
+    echo | tee -a $seq_full
+    echo "=== expect error: pmlogger/control moved, so no pmlogger ===" | tee -a $seq_full
     $sudo rm -f $PCP_PMLOGGERCONTROL_PATH
     _poke_pmcd_n_logger
 }

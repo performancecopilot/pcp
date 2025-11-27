@@ -52,7 +52,7 @@ then
 
     # do the real startup as user $PCP_USER:$PCP_GROUP
     #
-    $PCP_BINADM_DIR/runaspcp "$PCP_SERVICES_DIR/pmlogger $*"
+    $PCP_BINADM_DIR/runaspcp "$PCP_SERVICES_DIR/pmlogger -v $*"
     exit $?
 else
     if [ "$1" = status ]
