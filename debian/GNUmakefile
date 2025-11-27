@@ -366,20 +366,20 @@ endif
 control:
 	./fixcontrol control.pcp >control
 ifeq ($(ENABLE_PYTHON3), true)
-	fixcontrol control.python3 >>control
+	./fixcontrol control.python3 >>control
 endif
 ifeq ($(ENABLE_QT), true)
-	fixcontrol control.pcpgui >>control
+	./fixcontrol control.pcpgui >>control
 endif
 ifeq ($(HAVE_PYTHON_OPENPYXL), true)
-	fixcontrol control.pcp2xlsx >>control
+	./fixcontrol control.pcp2xlsx >>control
 endif
 ifeq ($(HAVE_PYTHON_PYARROW), true)
-	fixcontrol control.pcp2arrow >>control
+	./fixcontrol control.pcp2arrow >>control
 endif
 ifeq ($(PMDA_INFINIBAND), true)
-	fixcontrol control.pmdaib >>control
+	./fixcontrol control.pmdaib >>control
 endif
 ifeq ($(HAVE_PERL), true)
-	fixcontrol control.perl >>control
+	./fixcontrol control.perl >>control
 endif
