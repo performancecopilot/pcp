@@ -182,6 +182,7 @@ _usage()
     echo "Usage: $prog [-v] {start|start-systemd|faststart|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"
 }
 
+VERBOSE_CTL=off
 while getopts v c
 do
     case $c
@@ -198,7 +199,7 @@ do
 done
 shift `expr $OPTIND - 1`
 
-if [ $VERBOSE_CTL = on ]
+if [ "$VERBOSE_CTL" = on ]
 then				# For a verbose startup and shutdown
     ECHO=$PCP_ECHO_PROG
     VFLAG='-V'
