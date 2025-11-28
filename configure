@@ -16989,6 +16989,10 @@ else $as_nop
   pcp_services_dir=$libexecdir/pcp/services
 fi
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: libexecdir=$libexecdir" >&5
+printf "%s\n" "$as_me: libexecdir=$libexecdir" >&6;}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_services_dir=$pcp_services_dir" >&5
+printf "%s\n" "$as_me: pcp_services_dir=$pcp_services_dir" >&6;}
 
 pcp_pmcdrclocal_path=$pcp_services_dir/local
 
