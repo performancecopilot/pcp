@@ -16996,6 +16996,9 @@ printf "%s\n" "$as_me: before pcp_services_dir=$pcp_services_dir" >&6;}
 pcp_services_dir=`eval echo $pcp_services_dir`
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: after pcp_services_dir=$pcp_services_dir" >&5
 printf "%s\n" "$as_me: after pcp_services_dir=$pcp_services_dir" >&6;}
+pcp_services_dir=`eval echo $pcp_services_dir`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: to be sure, to be sure pcp_services_dir=$pcp_services_dir" >&5
+printf "%s\n" "$as_me: to be sure, to be sure pcp_services_dir=$pcp_services_dir" >&6;}
 
 pcp_pmcdrclocal_path=$pcp_services_dir/local
 
