@@ -3591,7 +3591,9 @@ AC_ARG_WITH(servicesdir,[AS_HELP_STRING([--with-servicesdir],[PCP services scrip
                   [pcp_services_dir=$withval],
                   [pcp_services_dir=$libexecdir/pcp/services])
 AC_MSG_NOTICE([libexecdir=$libexecdir])
-AC_MSG_NOTICE([pcp_services_dir=$pcp_services_dir])
+AC_MSG_NOTICE([before pcp_services_dir=$pcp_services_dir])
+pcp_services_dir=`eval echo $pcp_services_dir`
+AC_MSG_NOTICE([after pcp_services_dir=$pcp_services_dir])
 AC_SUBST(pcp_services_dir)
 pcp_pmcdrclocal_path=$pcp_services_dir/local
 AC_SUBST(pcp_pmcdrclocal_path)
