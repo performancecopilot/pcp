@@ -272,6 +272,9 @@ _collect_file()
 
     if [ ! -r $file ]
     then
+	_debug "Hunt for missing file ($file) ..."
+	leaf=`basename "$file"`
+	find $root -name "$leaf" -exec ls -ld '{}' ';'
 	_error "Unable to find $file"
     fi
 
