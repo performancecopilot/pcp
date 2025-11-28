@@ -3325,6 +3325,7 @@ dnl http://www.gnu.org/software/autoconf/manual/autoconf.html#Installation-Direc
 dnl
 pcp_etc_dir=`eval echo $sysconfdir`
 pcp_etc_dir=`eval echo $pcp_etc_dir`
+AC_MSG_NOTICE([pcp_etc_dir=$pcp_etc_dir])
 AC_SUBST(pcp_etc_dir)
 pcp_saslconf_dir=`eval echo $sysconfdir/sasl2`
 pcp_saslconf_dir=`eval echo $pcp_saslconf_dir`
@@ -3348,6 +3349,7 @@ AC_SUBST(pcp_pmloggercontrol_path)
 dnl shared PCP files (shareable for diskless)
 pcp_share_dir=`eval echo $datarootdir/pcp`
 pcp_share_dir=`eval echo $pcp_share_dir`
+AC_MSG_NOTICE([pcp_share_dir=$pcp_share_dir])
 AC_SUBST(pcp_share_dir)
 
 dnl security-enhanced-linux policy files
@@ -3363,6 +3365,7 @@ AC_SUBST(pcp_bashshare_dir)
 dnl private PCP executables
 pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
+AC_MSG_NOTICE([pcp_binadm_dir=$pcp_binadm_dir])
 AC_SUBST(pcp_binadm_dir)
 
 dnl private PCP libraries
@@ -3590,15 +3593,17 @@ dnl real PCP service start|stop scripts dir
 AC_ARG_WITH(servicesdir,[AS_HELP_STRING([--with-servicesdir],[PCP services script directory [LIBEXECDIR/services]])],
                   [pcp_services_dir=$withval],
                   [pcp_services_dir=$libexecdir/pcp/services])
-AC_MSG_NOTICE([libexecdir=$libexecdir])
-AC_MSG_NOTICE([before pcp_services_dir=$pcp_services_dir])
+dnl at least for the macOS build, pcp_services starts out as
+dnl ${exec_prefix}/libexec/pcp/services then one eval produces
+dnl ${prefix}/libexec/pcp/services and a second eval is needed
+dnl to get to /usr/local/libexec/pcp/services
 pcp_services_dir=`eval echo $pcp_services_dir`
-AC_MSG_NOTICE([after pcp_services_dir=$pcp_services_dir])
 pcp_services_dir=`eval echo $pcp_services_dir`
-AC_MSG_NOTICE([to be sure, to be sure pcp_services_dir=$pcp_services_dir])
 AC_SUBST(pcp_services_dir)
 pcp_pmcdrclocal_path=$pcp_services_dir/local
 AC_SUBST(pcp_pmcdrclocal_path)
+AC_MSG_NOTICE([libexecdir=$libexecdir])
+AC_MSG_NOTICE([pcp_services_dir=$pcp_services_dir])
 
 dnl rc sysconfig dir
 AC_ARG_WITH(sysconfigdir,[AS_HELP_STRING([--with-sysconfigdir],[sysconfig directory [SYSCONFDIR/sysconfig]])],
@@ -3613,6 +3618,7 @@ AC_ARG_WITH(logdir,[AS_HELP_STRING([--with-logdir],[log directory [LOCALSTATEDIR
 pcp_log_dir=`eval echo $pcp_log_dir`
 pcp_log_dir=`eval echo $pcp_log_dir`
 AC_SUBST(pcp_log_dir)
+AC_MSG_NOTICE([pcp_log_dir=$pcp_log_dir])
 
 pcp_archive_dir=$pcp_log_dir/pmlogger
 AC_SUBST(pcp_archive_dir)
@@ -3639,6 +3645,7 @@ fi])
 pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
+AC_MSG_NOTICE([pcp_run_dir=$pcp_run_dir])
 
 dnl world-writeable temporary files directory
 AC_ARG_WITH(tmpdir,[AS_HELP_STRING([--with-tmpdir],[tmp directory [LOCALSTATEDIR/tmp]])],

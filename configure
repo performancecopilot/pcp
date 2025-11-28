@@ -15947,6 +15947,8 @@ fi
 
 pcp_etc_dir=`eval echo $sysconfdir`
 pcp_etc_dir=`eval echo $pcp_etc_dir`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_etc_dir=$pcp_etc_dir" >&5
+printf "%s\n" "$as_me: pcp_etc_dir=$pcp_etc_dir" >&6;}
 
 pcp_saslconf_dir=`eval echo $sysconfdir/sasl2`
 pcp_saslconf_dir=`eval echo $pcp_saslconf_dir`
@@ -15969,6 +15971,8 @@ pcp_pmloggercontrol_path=$pcp_sysconf_dir/pmlogger/control
 
 pcp_share_dir=`eval echo $datarootdir/pcp`
 pcp_share_dir=`eval echo $pcp_share_dir`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_share_dir=$pcp_share_dir" >&5
+printf "%s\n" "$as_me: pcp_share_dir=$pcp_share_dir" >&6;}
 
 
 pcp_selinux_dir=`eval echo $datarootdir/selinux`
@@ -15981,6 +15985,8 @@ pcp_bashshare_dir=`eval echo $pcp_bashshare_dir`
 
 pcp_binadm_dir=`eval echo $libexecdir/pcp/bin`
 pcp_binadm_dir=`eval echo $pcp_binadm_dir`
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_binadm_dir=$pcp_binadm_dir" >&5
+printf "%s\n" "$as_me: pcp_binadm_dir=$pcp_binadm_dir" >&6;}
 
 
 pcp_libadm_dir=`eval echo $libexecdir/pcp/lib`
@@ -16989,19 +16995,15 @@ else $as_nop
   pcp_services_dir=$libexecdir/pcp/services
 fi
 
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: libexecdir=$libexecdir" >&5
-printf "%s\n" "$as_me: libexecdir=$libexecdir" >&6;}
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: before pcp_services_dir=$pcp_services_dir" >&5
-printf "%s\n" "$as_me: before pcp_services_dir=$pcp_services_dir" >&6;}
 pcp_services_dir=`eval echo $pcp_services_dir`
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: after pcp_services_dir=$pcp_services_dir" >&5
-printf "%s\n" "$as_me: after pcp_services_dir=$pcp_services_dir" >&6;}
 pcp_services_dir=`eval echo $pcp_services_dir`
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: to be sure, to be sure pcp_services_dir=$pcp_services_dir" >&5
-printf "%s\n" "$as_me: to be sure, to be sure pcp_services_dir=$pcp_services_dir" >&6;}
 
 pcp_pmcdrclocal_path=$pcp_services_dir/local
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: libexecdir=$libexecdir" >&5
+printf "%s\n" "$as_me: libexecdir=$libexecdir" >&6;}
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_services_dir=$pcp_services_dir" >&5
+printf "%s\n" "$as_me: pcp_services_dir=$pcp_services_dir" >&6;}
 
 
 # Check whether --with-sysconfigdir was given.
@@ -17026,6 +17028,8 @@ fi
 pcp_log_dir=`eval echo $pcp_log_dir`
 pcp_log_dir=`eval echo $pcp_log_dir`
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_log_dir=$pcp_log_dir" >&5
+printf "%s\n" "$as_me: pcp_log_dir=$pcp_log_dir" >&6;}
 
 pcp_archive_dir=$pcp_log_dir/pmlogger
 
@@ -17059,6 +17063,8 @@ fi
 pcp_run_dir=`eval echo $pcp_run_dir`
 pcp_run_dir=`eval echo $pcp_run_dir`
 
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: pcp_run_dir=$pcp_run_dir" >&5
+printf "%s\n" "$as_me: pcp_run_dir=$pcp_run_dir" >&6;}
 
 
 # Check whether --with-tmpdir was given.
