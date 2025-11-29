@@ -6,13 +6,14 @@
 # build and package).
 #
 # The things we're culling are
-# - false warnings, often from older toolchains
 # - warnings from code the is not part of PCP proper, e.g. the qwt library
 #   and the vendor code (hiredis, hiredis-cluster, jasonl, libbpf-tools,
 #   bpftool, htop, etc) ... we assume fixed these is "someone else's
 #   problem"
 # - things's we triaged and decided are OK, e.g. rand() or random() use
-#   in qa apps, safe uses of strcpy() or strcat() or sprintf()
+#   in qa apps, safe uses of strcpy() or strcat() or sprintf(), and false
+#   warnings, often from older toolchains, or things that are really
+#   FYI not real errors or warnings
 # - packaging warnings we can't do anything about
 #
 # This is a filter, so reads from stdin.
@@ -21,8 +22,7 @@
 tmp=/var/tmp/c-b-w-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
-# Gather all the lines of interest, add leading ' ' to make later
-# filtering easier
+# Gather all the lines of interest ...
 #
 sed >$tmp.out -n \
     -e 's/^ / /' \
@@ -30,24 +30,6 @@ sed >$tmp.out -n \
     -e '/ [Ee]rror: /p' \
     -e '/ [Ww][Aa][Rr][Nn][Ii][Nn][Gg]: /p' \
     -e 's/^ //' \
-# end
-mv $tmp.out $tmp.in
-
-# Cull false warnings
-#
-sed <$tmp.in >$tmp.out \
-    -e '/yyunput.* defined but not used/d' \
-    -e '/input.* defined but not used/d' \
-    -e '/jobserver unavailable: using -j1/d'\
-    -e '/pmprintf("%s: Warning: /d' \
-    -e '/^main.cpp:237:21: warning: .%s. directive argument is null/d' \
-    -e '/^qmc_metric.cpp:270:12: warning: variable .len. set but not used/d' \
-    -e '/^stackmod.cpp[ :].* warning: writing 1 byte into a region of size 0/d' \
-    -e '/ shadowed declaration is here/d' \
-    -e '/^lto-wrapper: warning: using serial compilation/d' \
-    -e '/^> .*Warning: /d' \
-    -e '/^> .*Error: /d' \
-    -e '/^pmdasample: cannot open log "sample.log" for writing : Permission denied/d' \
 # end
 mv $tmp.out $tmp.in
 
@@ -62,51 +44,53 @@ sed <$tmp.in >$tmp.out \
     -e '/^deps\/hiredis\/sds.c[ :].* declaration shadows a local variable/d' \
     -e '/\/selinux\/.*\.if[ :].* duplicate definition of /d' \
     -e '/^<stdin>:1:10: fatal error: .*: No such file or directory/d' \
+    -e "/^<stdin>:4:2: error: too many arguments to function /d" \
     -e '/^libbpf/d' \
     -e '/^[^ ]*..\/libbpf\/src\//d' \
     -e '/^btf_relocate.c[ :]/d' \
     -e '/^ringbuf.c[ :]/d' \
     -e '/^elf.c[ :]/d' \
+    -e '/^btf.c[ :]/d' \
+    -e '/^btf_dump.c[ :]/d' \
+    -e '/^gen_loader.c[ :]/d' \
+    -e '/^hashmap.h[ :]/d' \
+    -e '/^linker.c[ :]/d' \
+    -e '/^nlattr.c[ :]/d' \
+    -e '/^relo_core.c[ :]/d' \
+    -e '/^strset.c[ :]/d' \
+    -e '/^usdt.c[ :]/d' \
     -e '/^bpf.c[ :].* comparison of integer expressions of different signedness/d' \
     -e '/^bpf.c[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^btf.c[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^btf.c[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^btf.c[ :].* operand of .?:. changes signedness from /d' \
-    -e '/^btf.c[ :].* signed and unsigned type in conditional expression/d' \
     -e '/^query.c[ :].*missing.braces/d' \
     -e '/^query.c[ :].*near initialization for/d' \
     -e '/^query.c[ :].*zero-length-bounds/d' \
-    -e '/^btf_dump.c[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^btf_dump.c[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^gen_loader.c[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^gen_loader.c[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^hashmap.h[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^hashmap.h[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^linker.c[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^linker.c[ :].* comparison between signed and unsigned integer expressions/d' \
     -e '/^netlink.c[ :].* comparison of integer expressions of different signedness/d' \
     -e '/^netlink.c[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^nlattr.c[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^nlattr.c[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^relo_core.c[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^relo_core.c[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^strset.c[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^strset.c[ :].* comparison between signed and unsigned integer expressions/d' \
-    -e '/^usdt.c[ :].* comparison of integer expressions of different signedness/d' \
-    -e '/^usdt.c[ :].* comparison between signed and unsigned integer expressions/d' \
     -e '/^common.c[ :].*_GNU_SOURCE.* redefined/d' \
     -e '/^iter.c[ :].*_GNU_SOURCE.* redefined/d' \
     -e '/^net.c[ :].*_GNU_SOURCE.* redefined/d' \
     -e '/^perf.c[ :].*_GNU_SOURCE.* redefined/d' \
     -e '/^prog.c[ :].*_GNU_SOURCE.* redefined/d' \
     -e '/^xlated_dumper.c[ :].*_GNU_SOURCE.* redefined/d' \
-    -e '/^cp: warning: behaviou*r of -n is non-portable /d' \
+    -e "/^cc1: warning: unrecognized command line option '-Wno-unknown-warning-option'/d" \
 # end
 mv $tmp.out $tmp.in
 
 # Cull warnings that we've triaged and can ignore
 #
 sed <$tmp.in >$tmp.out \
+    -e '/yyunput.* defined but not used/d' \
+    -e '/input.* defined but not used/d' \
+    -e '/jobserver unavailable: using -j1/d'\
+    -e '/pmprintf("%s: Warning: /d' \
+    -e '/^main.cpp:237:21: warning: .%s. directive argument is null/d' \
+    -e '/^qmc_metric.cpp:270:12: warning: variable .len. set but not used/d' \
+    -e '/^stackmod.cpp[ :].* warning: writing 1 byte into a region of size 0/d' \
+    -e '/ shadowed declaration is here/d' \
+    -e '/^lto-wrapper: warning: using serial compilation/d' \
+    -e '/^> .*Warning: /d' \
+    -e '/^> .*Error: /d' \
+    -e '/^pmdasample: cannot open log "sample.log" for writing : Permission denied/d' \
     -e '/^configure: WARNING: unrecognized options: --disable-dependency-tracking/d' \
     -e '/\/qmc_config.h[ :].* warning: .Qt::fixed. defined but not used/d' \
     -e '/^qmc_config.h[ :].* warning: .Qt::fixed. defined but not used/d' \
@@ -136,6 +120,8 @@ sed <$tmp.in >$tmp.out \
     -e '/^dpkg-source: warning: ignoring deletion of file configure, use --include-removal to override/d' \
     -e '/^dpkg-shlibdeps: warning: diversions involved - output may be incorrect/d' \
     -e '/^dpkg-gencontrol: warning: Depends field of package .* \${python3:Depends} used, but is not defined/d' \
+    -e '/^cp: warning: behaviou*r of -n is non-portable /d' \
+    -e '/^post-auto-install: Warning: HAVE_PERL is false, nothing to do/d' \
 # end
 mv $tmp.out $tmp.in
 
