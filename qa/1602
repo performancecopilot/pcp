@@ -59,7 +59,9 @@ _filter_key_server_err()
 {
     sed \
     -e 's;ERR syntax error;expected error;' \
-    -e 's;Parse command error.*;expected error;'
+    -e 's;Failed to find keys of command.*;expected error;' \
+    -e 's;Unknown command.*;expected error;' \
+    -e 's;Command parse error;expected error;'
 }
 
 _stop_auto_restart pmproxy

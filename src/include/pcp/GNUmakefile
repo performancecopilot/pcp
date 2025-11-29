@@ -18,10 +18,9 @@ include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
 INIH_HFILES = ini.h
-SDSH_HFILES = sds.h sdsalloc.h
 USDT_HFILES = usdt.h
-VENDORED_HFILES = $(INIH_HFILES) $(SDSH_HFILES) $(USDT_HFILES)
-EXTERNAL_HFILES = dict.h
+VENDORED_HFILES = $(INIH_HFILES) $(USDT_HFILES)
+LIBVALKEY_HFILES = sds.h sdsalloc.h dict.h
 HFILES = pmapi.h impl.h pmda.h pmtime.h pmdaroot.h pmafm.h \
 	 trace.h trace_dev.h mmv_stats.h mmv_dev.h import.h \
 	 pmjson.h pmhttp.h pmdbg.h pmwebapi.h deprecated.h \
@@ -37,20 +36,18 @@ endif
 GENERATED_HFILES = $(CONFFILES)
 NOSHIP_HFILES = libpcp.h sdsalloc.h
 
-LDIRT = $(GENERATED_HFILES) $(VENDORED_HFILES) $(EXTERNAL_HFILES)
+LDIRT = $(GENERATED_HFILES) $(VENDORED_HFILES) $(LIBVALKEY_HFILES)
 
 default :: default_pcp
 
-default_pcp : $(HEADERS) $(GENERATED_HFILES) $(VENDORED_HFILES) $(EXTERNAL_HFILES)
+default_pcp : $(HEADERS) $(GENERATED_HFILES) $(VENDORED_HFILES) $(LIBVALKEY_HFILES)
 
 include $(BUILDRULES)
 
-$(EXTERNAL_HFILES):
-	$(LN_S) -f $(TOPDIR)/src/external/$@ .
+$(LIBVALKEY_HFILES):
+	$(LN_S) -f $(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src/$@ .
 $(INIH_HFILES):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/benhoyt/inih/$@ .
-$(SDSH_HFILES):
-	$(LN_S) -f $(TOPDIR)/vendor/github.com/redis/hiredis/$@ .
 $(USDT_HFILES):
 	$(LN_S) -f $(TOPDIR)/vendor/github.com/libbpf/usdt/$@ .
 

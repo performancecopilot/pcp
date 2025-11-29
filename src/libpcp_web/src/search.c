@@ -1090,9 +1090,9 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 	    return -ENOTSUP;
 
 	/* establish an initial connection to key server instance(s) */
-	data->slots = keySlotsConnect(
+	data->slots = &(keySlotsConnect(
 			data->config, flags, module->on_info,
-			module->on_setup, arg, data->events, arg);
+			module->on_setup, arg, data->events, arg))->slots;
 	data->shareslots = 0;
     }
     return 0;

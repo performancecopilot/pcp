@@ -56,6 +56,45 @@ _filter_opentelemetry_labels()
     # end
 }
 
+_reorder_labels()
+{
+    awk '
+    /^[^#].*{.*=.*}/ {
+        match($0, /^([^{]+){([^}]+)}(.*)$/, a)
+        metric = a[1]
+        labels_str = a[2]
+        rest = a[3]
+        
+        delete labels
+        n = split(labels_str, pairs, ",")
+        for (i = 1; i <= n; i++) {
+            match(pairs[i], /^([^=]+)=(.+)$/, kv)
+            key = kv[1]
+            value = kv[2]
+            labels[key] = value
+        }
+        
+        order = "url agent hostname domainname machineid source my_sum_attribute"
+        split(order, order_arr, " ")
+        
+        output = metric "{"
+        first = 1
+        for (i = 1; i <= length(order_arr); i++) {
+            key = order_arr[i]
+            if (key in labels) {
+                if (!first) output = output ","
+                output = output key "=" labels[key]
+                first = 0
+            }
+        }
+        output = output "}" rest
+        print output
+        next
+    }
+    {print}
+    '
+}
+
 need_restore=true
 _prepare_pmda opentelemetry
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -83,7 +122,7 @@ fi
 
 echo; echo === /metrics webapi listing. The instname label should appear only once.
 curl -Gs 'http://localhost:44322/metrics?names=opentelemetry.duplicate.somemetric' \
-| _filter_opentelemetry_labels
+| _filter_opentelemetry_labels | _reorder_labels
 
 echo; echo === verify metric name validity using pminfo
 pminfo -v opentelemetry
