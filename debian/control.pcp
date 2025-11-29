@@ -10,7 +10,7 @@ Standards-Version: 4.7.2
 X-Python3-Version: >= 3.6
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, gawk, procps, zstd, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, gawk, procps, zstd, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python-bpfcc}, redis-server
@@ -394,7 +394,7 @@ Description: Performance Co-Pilot (PCP) Zeroconf Package
  diagnosis, alerting and self-healing for the localhost.
 
 Package: pcp-testsuite
-Depends: ${misc:Depends}, ${shlibs:Depends}, time, pcp (= ${binary:Version}), python3
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, time, pcp (= ${binary:Version}), python3
 Architecture: any
 Suggests: valgrind
 Provides: pcpqa, pcp-gui-testsuite
