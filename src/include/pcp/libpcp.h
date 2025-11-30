@@ -570,6 +570,7 @@ typedef __uint64_t	__pmoff64_t;
 typedef struct {
     struct __pm_fops *fops;	/* I/O handler, assigned based on file type */
     void	*priv;		/* private data, e.g. for fd, blk cache, etc */
+    int		flags;		/* e.g. PM_FILE_PRE_DECOMPRESS */
 } __pmFILE;
 typedef struct __pm_fops {
     void	*(*__pmopen)(__pmFILE *, const char *, const char *);
@@ -592,6 +593,11 @@ typedef struct __pm_fops {
     int         (*__pmsetvbuf)(__pmFILE *, char *, int, size_t);
     int		(*__pmclose)(__pmFILE *);
 } __pm_fops;
+
+/* __pmFILE flags */
+#define PM_FILE_PRE_DECOMPRESS 0x1
+#define PM_FILE_DYNAMIC_DECOMPRESS 0x2
+#define PM_FILE_ANY_DECOMPRESS 0x3		/* mask */
 
 /* Provide a stdio-like API for __pmFILE */
 PCP_CALL extern int __pmAccess(const char *, int);
