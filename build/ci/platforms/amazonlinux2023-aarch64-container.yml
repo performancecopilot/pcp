@@ -2,7 +2,7 @@ type: container
 
 artifactory:
   package_type: rpm
-  deploy_path: /amazon/2023/x86_64/pcp
+  deploy_path: /amazon/2023/aarch64/pcp
 
 container:
   containerfile: |
