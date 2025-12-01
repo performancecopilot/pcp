@@ -38,11 +38,8 @@ mv $tmp.out $tmp.in
 sed <$tmp.in >$tmp.out \
     -e '/^qwt_/d' \
     -e '/^\.\/qwt_/d' \
-    -e '/^deps\/hiredis\/async.c[ :].* unused variable /d' \
-    -e '/^deps\/hiredis\/sds.h[ :].* declaration of .sh. shadows a previous local/d' \
-    -e '/^deps\/hiredis\/sds.c[ :].* declaration of .sh. shadows a previous local/d' \
-    -e '/^deps\/hiredis\/sds.c[ :].* declaration shadows a local variable/d' \
     -e '/\/selinux\/.*\.if[ :].* duplicate definition of /d' \
+    -e '/^deps\/hiredis\//d' \
     -e '/^<stdin>:1:10: fatal error: .*: No such file or directory/d' \
     -e "/^<stdin>:4:2: error: too many arguments to function /d" \
     -e '/^libbpf/d' \
@@ -119,7 +116,7 @@ sed <$tmp.in >$tmp.out \
     -e '/^dpkg-source: warning: ignoring deletion of file src\/pmlogconf\/openmetrics\/GNUmakefile/d' \
     -e '/^dpkg-source: warning: ignoring deletion of file configure, use --include-removal to override/d' \
     -e '/^dpkg-shlibdeps: warning: diversions involved - output may be incorrect/d' \
-    -e '/^dpkg-gencontrol: warning: Depends field of package .* \${python3:Depends} used, but is not defined/d' \
+    -e '/^dpkg-gencontrol: warning: Depends field of package .* unknown substitution variable \${python3:Depends}/d' \
     -e '/^cp: warning: behaviou*r of -n is non-portable /d' \
     -e '/^post-auto-install: Warning: HAVE_PERL is false, nothing to do/d' \
 # end
@@ -169,6 +166,13 @@ in
 	# c++ is just plain wrong here
 	sed \
 	    -e '/^main.cpp:238:38: warning: .%s. directive argument is null/d' \
+	# end
+	;;
+
+    vm30)
+	# RHEL 10 odd Qt here?
+	sed \
+	    -e '/^qed_colorpicker.cpp:.* QColor::setNamedColor(.* is deprecated:/d' \
 	# end
 	;;
 
