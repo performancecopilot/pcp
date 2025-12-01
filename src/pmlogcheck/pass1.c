@@ -46,7 +46,7 @@ pass1(__pmContext *ctxp, char *archname)
     else {
 	fprintf(stderr, "%s: warning archive version %d not known\n", archname, __pmLogVersion(log));
 	/* no offsets can be reported */
-	offset = -1;
+	ti_size = 0;
     }
 
     if (vflag)
@@ -202,7 +202,7 @@ pass1(__pmContext *ctxp, char *archname)
 	    /* one-trip, no further offset reporting or repairing */
 	    offset = -1;
 	}
-	else if (offset != -1)
+	else if (ti_size > 0)
 	    offset += ti_size;
 	lastp = tip;
     }
