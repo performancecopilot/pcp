@@ -216,6 +216,7 @@ badarchives/badti-2.index[entry 2]: illegal timestamp nsec value (902428473 sec,
 badarchives/badti-2.index[entry 3]: illegal negative timestamp value (-2 sec, -4000 nsec)
 badarchives/badti-2.index[entry 3]: timestamp (-2.-00004000) less than archive label timestamp (902428472.257504000)
 badarchives/badti-2.index[entry 3]: timestamp (-2.-00004000) went backwards in time (from 902428473.1000000000 at [entry 2])
+badarchives/badti-2.index: last valid record ends at offset 19 (of 192)
 badarchives/badti-2: start pass2
 badarchives/badti-2: start pass3
 Processed 9 pmResult records
@@ -250,6 +251,7 @@ badarchives/badti-4.index[entry 1]: offset to data volume 0 (1) before end of la
 badarchives/badti-4.index: last valid record ends at offset 132 (of 192)
 badarchives/badti-4.index[entry 2]: timestamp (800000000.248687000) less than archive label timestamp (902428472.257504000)
 badarchives/badti-4.index[entry 2]: timestamp (800000000.248687000) went backwards in time (from 902428472.257504000 at [entry 1])
+badarchives/badti-4.index: last valid record ends at offset 19 (of 192)
 badarchives/badti-4: start pass2
 badarchives/badti-4: start pass3
 Processed 9 pmResult records
