@@ -32,12 +32,29 @@ pass1(__pmContext *ctxp, char *archname)
     __pmLogTI		*tip;
     __pmLogTI		*lastp;
     __pmLogCtl		*log = ctxp->c_archctl->ac_log;
+    off_t		offset = __pmLogLabelSize(log);
+    int			ti_size;
+    int			save_state = index_state;
+
+    index_state = STATE_OK;
+
+    /* from e_index.c in libpcp */
+    if (__pmLogVersion(log) == PM_LOG_VERS03)
+        ti_size = 8 * sizeof(__int32_t);
+    else if (__pmLogVersion(log) == PM_LOG_VERS02)
+        ti_size = 5 * sizeof(__int32_t);
+    else {
+	fprintf(stderr, "%s: warning archive version %d not known\n", archname, __pmLogVersion(log));
+	/* no offsets can be reported */
+	offset = -1;
+    }
 
     if (vflag)
 	fprintf(stderr, "%s: start pass1 (check temporal index)\n", archname);
 
     if (log->numti <= 0) {
 	fprintf(stderr, "%s: warning temporal index is missing\n", archname);
+	index_state = save_state;
 	return STS_WARNING;
     }
 
@@ -85,7 +102,7 @@ pass1(__pmContext *ctxp, char *archname)
 	    }
 	}
 	if (tip->vol < 0) {
-	    fprintf(stderr, "%s.index[entry %d]: illegal negative volume number %d\n",
+	    fprintf(stderr, "%s.index[entry %d]: illegal negative data volume number %d\n",
 		    archname, i, tip->vol);
 	    index_state = STATE_BAD;
 	    log_size = -1;
@@ -101,7 +118,7 @@ pass1(__pmContext *ctxp, char *archname)
 		__pmFclose(fp);
 	    }
 	    if (log_size == -1) {
-		fprintf(stderr, "%s: file missing for log volume %d\n", path, tip->vol);
+		fprintf(stderr, "%s: file missing for data volume %d\n", path, tip->vol);
 	    }
 	}
 	if (tip->stamp.sec < 0 || tip->stamp.nsec < 0) {
@@ -125,18 +142,18 @@ pass1(__pmContext *ctxp, char *archname)
 	    index_state = STATE_BAD;
 	}
 	if (tip->off_data < __pmLogLabelSize(log)) {
-	    fprintf(stderr, "%s.index[entry %d]: offset to log (%lld) before end of label record (%zd)\n",
-		archname, i, (long long)tip->off_data, __pmLogLabelSize(log));
+	    fprintf(stderr, "%s.index[entry %d]: offset to data volume %d (%lld) before end of label record (%zd)\n",
+		archname, i, tip->vol, (long long)tip->off_data, __pmLogLabelSize(log));
 	    index_state = STATE_BAD;
 	}
 	if (log_size != -1 && tip->off_data > log_size) {
-	    fprintf(stderr, "%s.index[entry %d]: offset to log (%lld) past end of file (%lld)\n",
-		archname, i, (long long)tip->off_data, (long long)log_size);
+	    fprintf(stderr, "%s.index[entry %d]: offset to data volume %d (%lld) past end of file (%lld)\n",
+		archname, i, tip->vol, (long long)tip->off_data, (long long)log_size);
 	    index_state = STATE_BAD;
 	}
 	if (goldenstart.sec != 0) {
 	    if (__pmTimestampSub(&tip->stamp, &goldenstart) < 0) {
-		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09d) less than log label timestamp (%" FMT_INT64 ".%09d)\n",
+		fprintf(stderr, "%s.index[entry %d]: timestamp (%" FMT_INT64 ".%09d) less than archive label timestamp (%" FMT_INT64 ".%09d)\n",
 			archname, i,
 			tip->stamp.sec, tip->stamp.nsec,
 			goldenstart.sec, goldenstart.nsec);
@@ -152,7 +169,7 @@ pass1(__pmContext *ctxp, char *archname)
 		index_state = STATE_BAD;
 	    }
 	    if (tip->vol < lastp->vol) {
-		fprintf(stderr, "%s.index[entry %d]: volume number (%d) decreased (from %d at [entry %d])\n",
+		fprintf(stderr, "%s.index[entry %d]: data volume number (%d) decreased (from %d at [entry %d])\n",
 			archname, i, tip->vol, lastp->vol, i-1);
 		index_state = STATE_BAD;
 	    }
@@ -162,13 +179,36 @@ pass1(__pmContext *ctxp, char *archname)
 		index_state = STATE_BAD;
 	    }
 	    if (tip->vol == lastp->vol && tip->off_data < lastp->off_data) {
-		fprintf(stderr, "%s.index[entry %d]: offset to log (%lld) decreased (from %lld at [entry %d])\n",
-			archname, i, (long long)tip->off_data, (long long)lastp->off_data, i-1);
+		fprintf(stderr, "%s.index[entry %d]: offset to data volume %d (%lld) decreased (from %lld at [entry %d])\n",
+			archname, i, tip->vol, (long long)tip->off_data, (long long)lastp->off_data, i-1);
 		index_state = STATE_BAD;
 	    }
 	}
+	if (index_state != STATE_OK && offset != -1) {
+	    pmsprintf(path, sizeof(path), "%s.index", archname);
+	    if (stat(path, &sbuf) >= 0) {
+		fprintf(stderr, "%s: last valid record ends at offset %lld (of %lld)\n",
+			path, (long long)offset, (long long)sbuf.st_size);
+	    }
+	    else {
+		fprintf(stderr, "%s: last valid record ends at offset %lld of ??? bytes\n",
+			path, (long long)offset);
+		sbuf.st_size = 0;
+	    }
+	    if (try_truncate(path, offset, sbuf.st_size)) {
+		/* we're done here */
+		break;
+	    }
+	    /* one-trip, no further offset reporting or repairing */
+	    offset = -1;
+	}
+	else if (offset != -1)
+	    offset += ti_size;
 	lastp = tip;
     }
 
-    return STS_OK;
+    if (index_state == STATE_OK)
+	index_state = save_state;
+
+    return index_state == STATE_OK ? STS_OK : STS_WARNING;
 }

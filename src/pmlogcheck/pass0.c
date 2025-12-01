@@ -43,11 +43,6 @@ __pmTimestamp	goldenstart;
  * - for index files, following the label record there should be
  *   a number of complete records, each of which is a __pmLogTI
  *   record, with the fields converted network byte order
- *
- * TODO - repair
- * - truncate metadata and data files ... unconditional or interactive confirm?
- * - mark index as bad and needing rebuild
- * - move access check into here (if cannot open file for reading we're screwed)
  */
 
 /*
@@ -172,6 +167,11 @@ pass0(char *fname)
 	fprintf(stderr, "%s: cannot open file: %s\n", fname, osstrerror());
 	sts = STS_FATAL;
 	goto done;
+    }
+
+    if (repair && (f->flags & PM_FILE_ANY_DECOMPRESS)) {
+	fprintf(stderr, "Error: %s: compressed file, repair not allowed\n", fname);
+	exit(1);
     }
     
     pmstrncpy(logBase, sizeof(logBase), fname);
@@ -379,8 +379,19 @@ empty_check:
      */
 done:
     if (sts == STS_FATAL && offset > 0) {
-	fprintf(stderr, "%s: last valid record ends at offset %ld\n", fname, offset);
+	struct stat	sbuf;
+	if (stat(fname, &sbuf) >= 0) {
+	    fprintf(stderr, "%s: last valid record ends at offset %lld (of %lld)\n",
+		    fname, (long long)offset, (long long)sbuf.st_size);
+	}
+	else {
+	    fprintf(stderr, "%s: last valid record ends at offset %lld of ??? bytes\n",
+		    fname, (long long)offset);
+	    sbuf.st_size = 0;
+	}
+	try_truncate(fname, offset, sbuf.st_size);
     }
+
     if (is == IS_INDEX) {
 	if (sts == STS_OK)
 	    index_state = STATE_OK;

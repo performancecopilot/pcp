@@ -16,6 +16,7 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "logcheck.h"
+#include "../libpcp/src/internal.h"
 
 int
 pass2(__pmContext *ctxp, char *archname)
@@ -24,6 +25,16 @@ pass2(__pmContext *ctxp, char *archname)
     pmDesc		*dp;
     char		*name;
     int			sts;
+    __pmLogCtl		*lcp = ctxp->c_archctl->ac_log;
+    __pmFILE		*f;
+    __pmLogHdr		h;
+    int			n;
+    off_t		offset = 0;
+    __pmTimestamp	stamp;
+    __pmTimestamp	last_stamp = { 0, 0 };
+    __pmTimestamp	end = { 0, 0 };
+    int			nrec = 0;
+    int			nread;
 
     if (vflag)
 	fprintf(stderr, "%s: start pass2\n", archname);
@@ -130,6 +141,106 @@ next:
 
 	hp = __pmHashWalk(&ctxp->c_archctl->ac_log->hashpmid, PM_HASH_WALK_NEXT);
     }
+
+    /*
+     * check timestamps in selected metadata records ... need to mimic
+     * __pmLogLoadMeta() here
+     */
+    f = lcp->mdfp;
+    __pmGetArchiveEnd(ctxp->c_archctl, &end);
+    __pmFseek(f, (long)__pmLogLabelSize(lcp), SEEK_SET);
+    for ( ; ; ) {
+	if (offset != -1)
+	    offset = __pmFtell(f);
+	n = (int)__pmFread(&h, 1, sizeof(__pmLogHdr), f);
+	if (n != sizeof(h)) {
+	    /*
+	     * assume end of file ... other conditions picked
+	     * up in pass0
+	     */
+	    break;
+	}
+	/* swab hdr */
+        h.len = ntohl(h.len);
+        h.type = ntohl(h.type);
+	nread = 0;
+	if (h.type == TYPE_INDOM || h.type == TYPE_INDOM_DELTA || h.type == TYPE_INDOM_V2 || h.type == TYPE_LABEL || h.type == TYPE_LABEL_V2) {
+	    /* timestamp in next 3 (or 2) 32-bit words + indom */
+	    __int32_t	buf[4];
+	    pmInDom	indom;
+	    int		bad = 0;
+	    n = (int)__pmFread(buf, 1, sizeof(buf), f);
+	    if (n == sizeof(buf)) {
+		nread += sizeof(buf);
+		if (__pmLogVersion(lcp) == PM_LOG_VERS03) {
+		    __pmLoadTimestamp(buf, &stamp);
+		    indom = __ntohpmInDom(buf[3]);
+		}
+		else {
+		    __pmLoadTimeval(buf, &stamp);
+		    indom = __ntohpmInDom(buf[2]);
+		}
+		if (__pmTimestampSub(&stamp, &lcp->label.start) < 0) {
+		    fprintf(stderr, "%s.meta[record %d]: pmInDom %s: timestamp ",
+			archname, nrec, pmInDomStr(indom));
+		    __pmPrintTimestamp(stderr, &stamp);
+		    fprintf(stderr, " before archive start ");
+		    __pmPrintTimestamp(stderr, &lcp->label.start);
+		    fputc('\n', stderr);
+		    bad = 1;
+		}
+		else if (end.sec > 0 && __pmTimestampSub(&end, &stamp) < 0) {
+		    fprintf(stderr, "%s.meta[record %d]: pmInDom %s: timestamp ",
+			archname, nrec, pmInDomStr(indom));
+		    __pmPrintTimestamp(stderr, &stamp);
+		    fprintf(stderr, " after archive end ");
+		    __pmPrintTimestamp(stderr, &end);
+		    fputc('\n', stderr);
+		    bad = 1;
+		}
+		else if (last_stamp.sec > 0 && __pmTimestampSub(&stamp, &last_stamp) < 0) {
+		    fprintf(stderr, "%s.meta[record %d]: pmInDom %s: timestamp ",
+			archname, nrec, pmInDomStr(indom));
+		    __pmPrintTimestamp(stderr, &stamp);
+		    fprintf(stderr, " before previous metadata timestamp ");
+		    __pmPrintTimestamp(stderr, &last_stamp);
+		    fputc('\n', stderr);
+		    bad = 1;
+		}
+		if (bad && offset != -1) {
+		    char	path[MAXPATHLEN];
+		    struct stat	sbuf;
+		    pmsprintf(path, sizeof(path), "%s.meta", archname);
+		    if (stat(path, &sbuf) >= 0) {
+			fprintf(stderr, "%s: last valid record ends at offset %lld (of %lld)\n",
+				path, (long long)offset, (long long)sbuf.st_size);
+		    }
+		    else {
+			fprintf(stderr, "%s: last valid record ends at offset %lld of ??? bytes\n",
+				path, (long long)offset);
+			sbuf.st_size = 0;
+		    }
+		    if (try_truncate(path, offset, sbuf.st_size)) {
+			/* we're done here ... */
+			break;
+		    }
+		    /* one-trip, no further offset reporting or repairing */
+		    offset = -1;
+		}
+		last_stamp = stamp;	/* struct assignment */
+	    }
+	}
+	else if (h.type == TYPE_DESC || h.type == TYPE_TEXT) {
+	    /* no timestamps for these ones */
+	    ;
+	}
+	else {
+	    fprintf(stderr, "%s.meta[record %d]: Botch BAD type meta off=%ld type=%d\n", archname, nrec, offset, h.type);
+	}
+	__pmFseek(f, (long)h.len - sizeof(h) - nread, SEEK_CUR);
+	nrec++;
+    }
+
 
     return 0;
 }

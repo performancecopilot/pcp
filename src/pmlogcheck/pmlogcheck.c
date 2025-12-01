@@ -32,6 +32,8 @@ int		vflag;		/* verbose off by default */
 int		nowrap;		/* suppress wrap check */
 int		lflag;		/* no label by default */
 int		mflag;		/* check metadata only, suppress pass3 */
+int		fflag;		/* full check, off by default */
+int		repair;		/* repair if possible */
 int		index_state = STATE_MISSING;
 int		meta_state = STATE_MISSING;
 int		log_state = STATE_MISSING;
@@ -46,9 +48,12 @@ static int	new_scandir;	/* one-trip each time scandir() is called */
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
+    { "full", 0, 'f', 0, "full check, don't give up early" },
     { "label", 0, 'l', 0, "print the archive label" },
     { "metadataonly", 0, 'm', 0, "skip checking log data volumes" },
     PMOPT_NAMESPACE,
+    { "repair", 0, 'r', 0, "repair [interactive]" },
+    { "auto-repair", 0, 'R', 0, "repair [non-interactive]" },
     PMOPT_START,
     PMOPT_FINISH,
     { "verbose", 0, 'v', 0, "verbose output" },
@@ -61,7 +66,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_DONE | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "D:lmn:S:T:zvwZ:?",
+    .short_options = "D:flmn:rRS:T:zvwZ:?",
     .long_options = longopts,
     .short_usage = "[options] archive ...",
 };
@@ -286,7 +291,7 @@ doit(void)
 	    clock_gettime(CLOCK_MONOTONIC, &then_real);
 	    clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &then_cpu);
 	}
-	if (pass0(path) == STS_FATAL)
+	if (pass0(path) == STS_FATAL && fflag == 0)
 	    /* unrepairable or unrepaired error */
 	    sts = STS_FATAL;
 	if (pmDebugOptions.appl3) {
@@ -422,6 +427,84 @@ done:
     return sts;
 }
 
+/*
+ * return 1 if user answers "yes"
+ */
+int prompt(char *thing, char *question)
+{
+    int		c;
+    int		sts = 0;
+
+    for ( ; ; ) {
+	fprintf(stdout, "%s: %s? [yes|no] ", thing, question);
+	fflush(stdout);
+	c = fgetc(stdin);
+	if (c == 'y') {
+	    c = fgetc(stdin);
+	    if (c == 'e') {
+		c = fgetc(stdin);
+		if (c == 's') {
+		    c = fgetc(stdin);
+		    if (c == '\n') {
+			sts = 1;
+			break;
+		    }
+		}
+	    }
+	}
+	else if (c == 'n') {
+	    c = fgetc(stdin);
+	    if (c == 'o') {
+		c = fgetc(stdin);
+		if (c == '\n') {
+		    break;
+		}
+	    }
+	}
+	else if (c == EOF) {
+	    break;
+	}
+	while (c != EOF && c != '\n')
+	    c = fgetc(stdin);
+	fprintf(stdout, "Please answer the question, yes or no\n");
+    }
+
+    return sts;
+}
+
+/*
+ * if repairing, try to truncate the file ... return 1 if
+ * successful, else 0
+ */
+int
+try_truncate(char *fname, off_t offset, off_t curr_size)
+{
+    int	sts = 0;
+
+    if (repair) {
+	if (repair == 2 || prompt(fname, "Truncate")) {
+	    if (truncate(fname, offset) < 0) {
+		fprintf(stderr, "Error: truncate(%s,%lld) failed: %s\n",
+		    fname, (long long)offset, strerror(errno));
+	    }
+	    else {
+		/* success */
+		if (curr_size > 0) {
+		    fprintf(stderr, "Info: %s: truncated from %lld to %lld bytes\n",
+			fname, (long long)curr_size, (long long)offset);
+		}
+		else {
+		    fprintf(stderr, "Info: %s: truncated from ??? to %lld bytes\n",
+			fname, (long long)offset);
+		}
+		sts = 1;
+	    }
+	}
+    }
+
+    return sts;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -438,11 +521,27 @@ main(int argc, char *argv[])
 
     while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (c) {
+	case 'f':	/* full check */
+	    fflag = 1;
+	    break;
 	case 'l':	/* display the archive label */
 	    lflag = 1;
 	    break;
 	case 'm':	/* only check metadata */
 	    mflag = 1;
+	    break;
+	case 'r':	/* repair [interactive] */
+	    if (!isatty(fileno(stdin)) || !isatty(fileno(stdout))) {
+		fprintf(stderr, "Error: not interactive so repair not allowed\n");
+		fprintf(stderr, "       ... consider -R for non-interactive repair\n");
+		exit(1);
+	    }
+	    repair = 1;
+	    fflag = 1;
+	    break;
+	case 'R':	/* non-interactive (auto) repair */
+	    repair = 2;
+	    fflag = 1;
 	    break;
 	case 'v':	/* bump verbosity */
 	    vflag++;

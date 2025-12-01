@@ -94,7 +94,7 @@ badarchives/badlen-1.index: start pass0 ... found 4 records
 badarchives/badlen-1.meta: start pass0 ... found 12 records
 badarchives/badlen-1.0: start pass0 ... 
 badarchives/badlen-1.0[record 1]: length mismatch: header 132 != trailer 128
-badarchives/badlen-1.0: last valid record ends at offset 132
+badarchives/badlen-1.0: last valid record ends at offset 132 (of 1928)
 Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-10.meta:
@@ -111,7 +111,7 @@ badarchives/badlen-11.index: start pass0 ... found 4 records
 badarchives/badlen-11.meta: start pass0 ... found 12 records
 badarchives/badlen-11.0: start pass0 ... 
 badarchives/badlen-11.0[record 1]: unexpected EOF in record header, wanted 4, got 1 bytes
-badarchives/badlen-11.0: last valid record ends at offset 132
+badarchives/badlen-11.0: last valid record ends at offset 132 (of 133)
 Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-2.meta:
@@ -120,7 +120,7 @@ badarchives/badlen-2.index: start pass0 ... found 4 records
 badarchives/badlen-2.meta: start pass0 ... found 12 records
 badarchives/badlen-2.0: start pass0 ... 
 badarchives/badlen-2.0[record 1]: unexpected EOF in record trailer, wanted 4, got 0 bytes
-badarchives/badlen-2.0: last valid record ends at offset 132
+badarchives/badlen-2.0: last valid record ends at offset 132 (of 260)
 Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-3.meta:
@@ -129,7 +129,7 @@ badarchives/badlen-3.index: start pass0 ... found 4 records
 badarchives/badlen-3.meta: start pass0 ... found 12 records
 badarchives/badlen-3.0: start pass0 ... 
 badarchives/badlen-3.0[record 1]: unexpected EOF in record body, wanted 124, got 116 bytes
-badarchives/badlen-3.0: last valid record ends at offset 132
+badarchives/badlen-3.0: last valid record ends at offset 132 (of 252)
 Due to earlier errors, cannot continue ... bye
 
 badarchives/badlen-4.meta:
@@ -169,7 +169,7 @@ Scanning for components of archive "badarchives/badlen-9.meta"
 badarchives/badlen-9.index: start pass0 ... found 4 records
 badarchives/badlen-9.meta: start pass0 ... 
 badarchives/badlen-9.meta[record 11]: unexpected EOF in record body, wanted 46, got 38 bytes
-badarchives/badlen-9.meta: last valid record ends at offset 798
+badarchives/badlen-9.meta: last valid record ends at offset 798 (of 840)
 badarchives/badlen-9.0: start pass0 ... found 10 records
 Due to earlier errors, cannot continue ... bye
 
@@ -210,10 +210,11 @@ badarchives/badti-2.index: start pass0 ... found 4 records
 badarchives/badti-2.meta: start pass0 ... found 12 records
 badarchives/badti-2.0: start pass0 ... found 10 records
 badarchives/badti-2: start pass1 (check temporal index)
-badarchives/badti-2.index[entry 1]: illegal negative volume number -1
+badarchives/badti-2.index[entry 1]: illegal negative data volume number -1
+badarchives/badti-2.index: last valid record ends at offset 132 (of 192)
 badarchives/badti-2.index[entry 2]: illegal timestamp nsec value (902428473 sec, 1000000000 nsec)
 badarchives/badti-2.index[entry 3]: illegal negative timestamp value (-2 sec, -4000 nsec)
-badarchives/badti-2.index[entry 3]: timestamp (-2.-00004000) less than log label timestamp (902428472.257504000)
+badarchives/badti-2.index[entry 3]: timestamp (-2.-00004000) less than archive label timestamp (902428472.257504000)
 badarchives/badti-2.index[entry 3]: timestamp (-2.-00004000) went backwards in time (from 902428473.1000000000 at [entry 2])
 badarchives/badti-2: start pass2
 badarchives/badti-2: start pass3
@@ -227,10 +228,11 @@ badarchives/badti-3.index: start pass0 ... found 4 records
 badarchives/badti-3.meta: start pass0 ... found 12 records
 badarchives/badti-3.0: start pass0 ... found 10 records
 badarchives/badti-3: start pass1 (check temporal index)
-badarchives/badti-3.2: file missing for log volume 2
+badarchives/badti-3.2: file missing for data volume 2
 badarchives/badti-3.index[entry 3]: offset to metadata (852) past end of file (851)
-badarchives/badti-3.index[entry 3]: offset to log (1977) past end of file (1976)
-badarchives/badti-3.index[entry 3]: volume number (0) decreased (from 2 at [entry 2])
+badarchives/badti-3.index[entry 3]: offset to data volume 0 (1977) past end of file (1976)
+badarchives/badti-3.index[entry 3]: data volume number (0) decreased (from 2 at [entry 2])
+badarchives/badti-3.index: last valid record ends at offset 172 (of 192)
 badarchives/badti-3: start pass2
 badarchives/badti-3: start pass3
 Processed 9 pmResult records
@@ -244,8 +246,9 @@ badarchives/badti-4.meta: start pass0 ... found 12 records
 badarchives/badti-4.0: start pass0 ... found 10 records
 badarchives/badti-4: start pass1 (check temporal index)
 badarchives/badti-4.index[entry 1]: offset to metadata (131) before end of label record (132)
-badarchives/badti-4.index[entry 1]: offset to log (1) before end of label record (132)
-badarchives/badti-4.index[entry 2]: timestamp (800000000.248687000) less than log label timestamp (902428472.257504000)
+badarchives/badti-4.index[entry 1]: offset to data volume 0 (1) before end of label record (132)
+badarchives/badti-4.index: last valid record ends at offset 132 (of 192)
+badarchives/badti-4.index[entry 2]: timestamp (800000000.248687000) less than archive label timestamp (902428472.257504000)
 badarchives/badti-4.index[entry 2]: timestamp (800000000.248687000) went backwards in time (from 902428472.257504000 at [entry 1])
 badarchives/badti-4: start pass2
 badarchives/badti-4: start pass3
@@ -259,7 +262,7 @@ badarchives/badlog-1.index: start pass0 ... found 4 records
 badarchives/badlog-1.meta: start pass0 ... found 12 records
 badarchives/badlog-1.0: start pass0 ... 
 badarchives/badlog-1.0[record 3]: unexpected EOF in record body, wanted 204, got 200 bytes
-badarchives/badlog-1.0: last valid record ends at offset 496
+badarchives/badlog-1.0: last valid record ends at offset 496 (of 700)
 Due to earlier errors, cannot continue ... bye
 
 badarchives/badlog-2.0:
@@ -301,6 +304,10 @@ badarchives/badlog-4.meta: start pass0 ... found 12 records
 badarchives/badlog-4.0: start pass0 ... found 10 records
 badarchives/badlog-4: start pass1 (check temporal index)
 badarchives/badlog-4: start pass2
+badarchives/badlog-4.meta[record 1]: pmInDom 2.1: timestamp 04:34:32.257504000 before archive start 04:34:35.258377000
+badarchives/badlog-4.meta: last valid record ends at offset 190 (of 851)
+badarchives/badlog-4.meta[record 7]: pmInDom 29.2: timestamp 04:34:33.248687000 before archive start 04:34:35.258377000
+badarchives/badlog-4.meta[record 9]: pmInDom 29.1: timestamp 04:34:33.248687000 before archive start 04:34:35.258377000
 badarchives/badlog-4: start pass3
 badarchives/badlog-4.0:[04:34:32.257]: timestamp before label timestamp: 04:34:35.258
 badarchives/badlog-4.0:[04:34:33.248]: timestamp before label timestamp: 04:34:35.258

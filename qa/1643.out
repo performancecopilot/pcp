@@ -1,0 +1,174 @@
+QA output created by 1643
+QA output created by 1642 --valgrind
+
+=== -r_needs_tty ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -r foo+
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Error: not interactive so repair not allowed
+       ... consider -R for non-interactive repair
+No diffs
+
+=== do_nothing_v3 ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -wR sample-proc_v3
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+No diffs
+
+=== trunc_data_v3 ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -wR sample-proc_v3
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+sample-proc_v3.0[record 14]: unexpected EOF in record body, wanted 584, got 304 bytes
+sample-proc_v3.0: last valid record ends at offset 7884 (of 8192)
+Info: sample-proc_v3.0: truncated from 8192 to 7884 bytes
+sample-proc_v3.index[entry 11]: offset to data volume 0 (9660) past end of file (7884)
+sample-proc_v3.index: last valid record ends at offset 1128 (of 1256)
+Info: sample-proc_v3.index: truncated from 1256 to 1128 bytes
+sample-proc_v3.meta[record 38]: pmInDom 29.12: timestamp 01:30:12.685442437 after archive end 01:30:12.445339956
+sample-proc_v3.meta: last valid record ends at offset 5160 (of 6247)
+Info: sample-proc_v3.meta: truncated from 6247 to 5160 bytes
+Diffs ...
+--- _arch_info before ...
++++ _arch_info after ...
+@@ -9,10 +9,6 @@
+ index[8] 01:30:11.690793828 vol 0 meta 4765 data 5900
+ index[9] 01:30:12.188016161 vol 0 meta 4949 data 6892
+ index[10] 01:30:12.685442437 vol 0 meta 5160 data 7884
+-index[11] 01:30:13.442145243 vol 0 meta 5422 data 9660
+-index[12] 01:30:13.939978120 vol 0 meta 5660 data 10940
+-index[13] 01:30:14.438839259 vol 0 meta 5949 data 12316
+-index[14] 01:30:14.439953665 vol 0 meta 6247 data 13052
+ meta[0] archive label @ 01:30:09.731999173
+ meta[1] metric 2.3.3 (pmcd.pmlogger.host)
+ meta    Data Type: string  InDom: 2.1 0x800001
+@@ -93,12 +89,4 @@
+ meta[36] metric label @ 01:30:11.690793828 type=instances ident=121634828 nsets=9
+ meta[37] @ 01:30:12.188016161 delta indom 29.12 numinst 2
+ meta[38] metric label @ 01:30:12.188016161 type=instances ident=121634828 nsets=9
+-meta[39] @ 01:30:12.685442437 delta indom 29.12 numinst 2
+-meta[40] metric label @ 01:30:12.685442437 type=instances ident=121634828 nsets=11
+-meta[41] @ 01:30:13.442145243 delta indom 29.12 numinst 1
+-meta[42] metric label @ 01:30:13.442145243 type=instances ident=121634828 nsets=12
+-meta[43] @ 01:30:13.939978120 delta indom 29.12 numinst 3
+-meta[44] metric label @ 01:30:13.939978120 type=instances ident=121634828 nsets=13
+-meta[45] @ 01:30:14.438839259 delta indom 29.12 numinst 3
+-meta[46] metric label @ 01:30:14.438839259 type=instances ident=121634828 nsets=14
+-sample-proc_v3.0 [14] body read error: 588 not 304 as expected
++sample-proc_v3.0 13 data records found
+
+=== trunc_data_v2 ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -wR sample-proc_v2
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+sample-proc_v2.0[record 15]: unexpected EOF in record body, wanted 580, got 444 bytes
+sample-proc_v2.0: last valid record ends at offset 7744 (of 8192)
+Info: sample-proc_v2.0: truncated from 8192 to 7744 bytes
+sample-proc_v2.index[entry 11]: offset to data volume 0 (8920) past end of file (7744)
+sample-proc_v2.index: last valid record ends at offset 332 (of 412)
+Info: sample-proc_v2.index: truncated from 412 to 332 bytes
+sample-proc_v2.meta[record 40]: pmInDom 29.12: timestamp 01:30:08.397230000 after archive end 01:30:07.642035000
+sample-proc_v2.meta: last valid record ends at offset 7018 (of 8735)
+Info: sample-proc_v2.meta: truncated from 8735 to 7018 bytes
+Diffs ...
+--- _arch_info before ...
++++ _arch_info after ...
+@@ -9,10 +9,6 @@
+ index[8] 01:30:06.646852 vol 0 meta 5708 data 5188
+ index[9] 01:30:07.144926 vol 0 meta 6116 data 6172
+ index[10] 01:30:07.642035 vol 0 meta 6524 data 7156
+-index[11] 01:30:08.397230 vol 0 meta 7018 data 8920
+-index[12] 01:30:08.896660 vol 0 meta 7550 data 10192
+-index[13] 01:30:09.396836 vol 0 meta 8125 data 11560
+-index[14] 01:30:09.398117 vol 0 meta 8735 data 12292
+ meta[0] archive label @ 01:30:04.653187000
+ meta[1] metric 2.3.3 (pmcd.pmlogger.host)
+ meta    Data Type: string  InDom: 2.1 0x800001
+@@ -95,10 +91,4 @@
+ meta[38] metric label @ 01:30:07.144926000 type=instances ident=121634828 nsets=9
+ meta[39] @ 01:30:07.642035000 indom 29.12 numinst 11
+ meta[40] metric label @ 01:30:07.642035000 type=instances ident=121634828 nsets=11
+-meta[41] @ 01:30:08.397230000 indom 29.12 numinst 12
+-meta[42] metric label @ 01:30:08.397230000 type=instances ident=121634828 nsets=12
+-meta[43] @ 01:30:08.896660000 indom 29.12 numinst 13
+-meta[44] metric label @ 01:30:08.896660000 type=instances ident=121634828 nsets=13
+-meta[45] @ 01:30:09.396836000 indom 29.12 numinst 14
+-meta[46] metric label @ 01:30:09.396836000 type=instances ident=121634828 nsets=14
+-sample-proc_v2.0 [15] body read error: 584 not 444 as expected
++sample-proc_v2.0 14 data records found
+
+=== extra_index ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -wR foo+
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+foo+.index[record 5]: unexpected EOF in index entry, wanted 20, got 4 bytes
+No diffs
+
+=== dup_index ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -wR foo+
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+foo+.index[entry 5]: timestamp (1422868396.586568000) went backwards in time (from 1422868410.586636000 at [entry 4])
+foo+.index[entry 5]: offset to metadata (132) decreased (from 2584 at [entry 4])
+foo+.index[entry 5]: offset to data volume 0 (132) decreased (from 8732 at [entry 4])
+foo+.index: last valid record ends at offset 212 (of 292)
+Info: foo+.index: truncated from 292 to 212 bytes
+Diffs ...
+--- _arch_info before ...
++++ _arch_info after ...
+@@ -3,10 +3,6 @@
+ index[2] 09:13:16.587195 vol 0 meta 351 data 276
+ index[3] 09:13:17.586683 vol 0 meta 1355 data 1108
+ index[4] 09:13:30.586636 vol 0 meta 2584 data 8732
+-index[5] 09:13:16.586568 vol 0 meta 132 data 132
+-index[6] 09:13:16.587195 vol 0 meta 351 data 276
+-index[7] 09:13:17.586683 vol 0 meta 1355 data 1108
+-index[8] 09:13:30.586636 vol 0 meta 2584 data 8732
+ meta[0] archive label @ 09:13:16.586568000
+ meta[1] metric 2.3.3 (pmcd.pmlogger.host)
+ meta    Data Type: string  InDom: 2.1 0x800001
+
+=== dup_meta ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -wR foo+
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+foo+.meta[record 37]: pmInDom 29.2: timestamp 09:13:16.587195000 before previous metadata timestamp 09:13:17.586683000
+foo+.meta: last valid record ends at offset 2584 (of 2756)
+Info: foo+.meta: truncated from 2756 to 2584 bytes
+Diffs ...
+--- _arch_info before ...
++++ _arch_info after ...
+@@ -107,5 +107,4 @@
+ meta[37] metric 30.0.135 (sampledso.event.param_aggregate)
+ meta    Data Type: aggregate  InDom: PM_INDOM_NULL 0xffffffff
+ meta    Semantics: instant  Units: none
+-meta[38] @ 09:13:16.587195000 indom 29.2 numinst 9
+ foo+.0 16 data records found

@@ -1,0 +1,175 @@
+#!/bin/sh
+# PCP QA Test No. 1642
+# pmlogcheck -r -R [repair]
+#
+# non-valgrind variant, see qa/1643 for the valgrind variant
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1643 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# produce a summary of an archive
+#
+_arch_info()
+{
+    rm -f $tmp.index $tmp.meta $tmp.data
+    for file in $1*
+    do
+	case $file
+	in
+	    *.index)
+		$here/src/scanindex "$1".index 2>&1 \
+		| sed -e 's/^/index/' >$tmp.index
+		;;
+
+	    *.meta.*)
+		t=$tmp.meta.`echo $file | sed -e 's/.*\.\([^.]*\)$/\1/'`
+		cp "$file" "$t"
+		pmlogdecompress "$t"
+		$here/src/scanmeta -a "$t" 2>&1 \
+		| sed -e 's/^/meta/' >$tmp.meta
+		;;
+
+	    *.meta)
+		$here/src/scanmeta -a "$file" 2>&1 \
+		| sed -e 's/^/meta/' >$tmp.meta
+		;;
+
+	    *)
+		$here/src/scandata "$file" 2>&1 \
+		| sed -e "s/^/$file /" \
+		| _filter >$tmp.data
+	esac 
+    done
+    [ -f $tmp.index ] && cat $tmp.index
+    [ -f $tmp.meta ] && cat $tmp.meta
+    [ -f $tmp.data ] && cat $tmp.data
+}
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e 's/TMP\.before[ 	].*/_arch_info before .../' \
+	-e 's/TMP\.after[ 	].*/_arch_info after .../' \
+    # end
+}
+cat <<End-of-File >$tmp.cases
+# test		# archive			# pmlogcheck args
+-r_needs_tty	archives/foo+			-r
+do_nothing_v3	archives/sample-proc_v3		-wR
+trunc_data_v3	archives/sample-proc_v3		-wR
+trunc_data_v2	archives/sample-proc_v2		-wR
+extra_index	archives/foo+			-wR
+dup_index	archives/foo+			-wR
+dup_meta	archives/foo+			-wR
+End-of-File
+
+mkdir $tmp || _exit 1
+
+# cannot afford timezone differences for timestamps
+#
+export TZ=UTC
+
+# real QA test starts here
+
+sed -e '/^#/d' -e '/^$/d' <$tmp.cases \
+| while read testcase archive args
+do
+    echo
+    echo "=== $testcase ==="
+
+    rm -f $tmp/*
+    if ! pmlogcp $archive $tmp/`basename $archive`
+    then
+	echo "Botch: pmlogcp failed"
+	continue
+    fi
+    cd $tmp || _exit 1
+    archive=`basename $archive`
+
+    case "$testcase"
+    in
+	trunc_data_v3|trunc_data_v2)
+		truncate -s 8192 $archive.0
+		;;
+	extra_index)
+		echo foo >>$archive.index
+		;;
+	dup_index)
+		# this is archives/foo+.0 which is a V2 archive and
+		# hence skip 132 bytes for the archive label record
+		#
+		dd ibs=1 iseek=132 if=$archive.index >$tmp.extra 2>/dev/null
+		cat $tmp.extra >>$archive.index
+		;;
+	dup_meta)
+		# from src/scanmeta -ao archives/foo+.0
+		# ...
+		# [6] +414 @ 20:13:16.587195000 indom 29.2 numinst 9
+		# [7] +586 metric 29.0.109 (sample.longlong.bin)
+		dd ibs=1 iseek=414 count=172 if=$archive.meta >$tmp.extra 2>/dev/null
+		cat $tmp.extra >>$archive.meta
+		;;
+	*)
+		# do nothing by default
+		;;
+    esac
+    _arch_info $archive >$tmp.before
+
+    if $do_valgrind
+    then
+	_run_valgrind --save-output pmlogcheck $args $archive
+    else
+	pmlogcheck $args $archive >$tmp.out 2>$tmp.err
+    fi
+    cat $tmp.err $tmp.out | _filter
+
+    _arch_info $archive >$tmp.after
+    if diff $tmp.before $tmp.after >/dev/null
+    then
+	echo "No diffs"
+    else
+	echo "Diffs ..."
+	diff -u $tmp.before $tmp.after | _filter
+    fi
+
+    cd $here || _exit 1
+done
+
+# success, all done
+exit
