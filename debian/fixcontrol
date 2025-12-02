@@ -159,16 +159,18 @@ else
     echo 's/?{libsystemd-dev}, //' >>$tmp.sed
 fi
 
-echo 's/?{python-dev}, //' >>$tmp.sed
-echo 's/?{python-all}, //' >>$tmp.sed
 
 if $ENABLE_PYTHON3
 then
-    echo 's/?{python-pcp}, /python3-pcp, /' >>$tmp.sed
     echo 's/?{python}, /python3, /' >>$tmp.sed
+    echo 's/?{python-all}, /python3-all, /' >>$tmp.sed
+    echo 's/?{python-dev}, /python3-dev, /' >>$tmp.sed
+    echo 's/?{python-pcp}, /python3-pcp, /' >>$tmp.sed
 else
-    echo 's/?{python-pcp}, //' >>$tmp.sed
     echo 's/?{python}, //' >>$tmp.sed
+    echo 's/?{python-all}, //' >>$tmp.sed
+    echo 's/?{python-dev}, //' >>$tmp.sed
+    echo 's/?{python-pcp}, //' >>$tmp.sed
 fi
 
 if $HAVE_PYTHON_OPENPYXL
