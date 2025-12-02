@@ -27,13 +27,13 @@ check=false
 
 if [ ! -d .git ]
 then
-    echo "Error: can only be run from within the PCP git repository"
+    echo "Error: can only be run from the top of a PCP git repository"
     exit 1
 fi
 
 if [ ! -f VERSION.pcp ]
 then
-    echo "Error: can only be run from within the PCP source tree"
+    echo "Error: can only be run from the top of the PCP source tree"
     exit 1
 fi
 
@@ -41,8 +41,32 @@ fi
 export STRING_DATE_EPOCH=`date +%s`
 export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$STRING_DATE_EPOCH}"
 
+# put VERSION.pcp back, remove temp files and exit
+#
+_cleanup()
+{
+    cd $topdir
+    if [ -f VERSION.pcp ]
+    then
+	if [ -z "`git status -s VERSION.pcp`" ]
+	then
+	    # nothing to fix
+	    :
+	else
+	    echo "Reinstate VERSION.pcp ..."
+	    git checkout -- VERSION.pcp
+	fi
+    else
+	echo "Botch: VERSION.pcp vanished from $topdir"
+	git checkout -- VERSION.pcp
+    fi
+    rm -rf $tmp
+}
+
+topdir=`pwd`
 tmp=`mktemp -d /tmp/pcp.XXXXXXXXX` || exit 1
-trap "rm -rf $tmp" 0 1 2 3 15
+sts=1		# failure is the default
+trap "_cleanup; exit \$sts" 0 1 2 3 15
 target=`uname -s | tr 'A-Z' 'a-z'`
 
 # Find where a GNU tool is hiding, look for this line in the
@@ -100,7 +124,7 @@ want == 1			{ print; exit }'
 	    fi
 	done
 	echo >&2 "$prefix: can't find GNU $oldcmd in the commands $oldcmd or $@"
-	[ $prefix = Error ] && exit 1
+	[ $prefix = Error ] && exit
 	return 1
     fi
 
@@ -112,7 +136,7 @@ want == 1			{ print; exit }'
     if [ -z "$command" ]
     then
 	echo >&2 "$prefix: $oldcmd (from the environment) does not exist!"
-	[ $prefix = Error ] && exit 1
+	[ $prefix = Error ] && exit
 	return 1
     fi
     echo $command
@@ -229,7 +253,7 @@ if $dodeb && $dorpm
 then
     echo >&2 "Do not know how to build RPM and Debian packages at the same time!"
     echo >&2 "Suggest --nonrpm or --nondeb on the command line."
-    exit 1
+    exit
 fi
 
 configenv=''
@@ -373,7 +397,38 @@ build_failure()
 	echo "$@ failed, see log in $LOGDIR/pcp"
 	tail "$LOGDIR/pcp"
     fi
-    exit 1
+    exit
+}
+
+# VERSION.pcp.dev is the same as VERSION.pcp except the PACKAGE_BUILD
+# value increases each time Makepkgs is run and VERSION.pcp.dev will
+# be used in place of VERSION.pcp for this build
+#
+bump_build_number()
+{
+    if [ ! -f VERSION.pcp.dev ]
+    then
+	# first build, ever
+	#
+	cp VERSION.pcp VERSION.pcp.dev
+    else
+	diff VERSION.pcp VERSION.pcp.dev >$tmp/tmp
+	if grep -q -E 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <$tmp/tmp
+	then
+	    # different PCP release, do an initial build
+	    #
+	    cp VERSION.pcp VERSION.pcp.dev
+	else
+	    # same PCP release as last build, bump away
+	    awk -F= <VERSION.pcp.dev '
+BEGIN			{ OFS = "=" }
+$1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",$2+1; next }
+			{ print }' \
+	    | sed -e 's/=$//' >$tmp/tmp
+	    cp $tmp/tmp VERSION.pcp.dev
+	fi
+    fi
+    cp VERSION.pcp.dev VERSION.pcp
 }
 
 clean_packaging()
@@ -401,7 +456,7 @@ fix_version()
     else
 	echo "Arrgh ... expect both these to exist ..."
 	ls -l "$1" "$2"
-	exit 1
+	exit
     fi
 }
 
@@ -418,7 +473,7 @@ src_tar_build()
 	then
 	    echo "Arrgh, modified src files and either no tar ($TAR) or no --transform"
 	    echo "support in tar, so local changes would not be included in the build."
-	    exit 1
+	    exit
 	fi
 	git archive --format=tar --prefix=$source/ HEAD | $ZIP > "$SRCTAR"
     else
@@ -435,7 +490,7 @@ src_tar_build()
 	    :
 	else
 	    echo "Error: debian/pre-build failed when creating debian/control"
-	    exit 1
+	    exit
 	fi
 	cd ..
 	echo "debian/control" >> .gitcensus
@@ -502,7 +557,7 @@ sanity_check_settings()
 	if ! $ok
 	then
 	    echo "Refer to Debian/Ubuntu notes in PCP's ./INSTALL"
-	    exit 1
+	    exit
 	fi
 	# as of Debian 6.0.1 and Ubuntu 10.10, build flags are hidden and
 	# extracted using dpkg-buildflags which fortunately honours some
@@ -545,9 +600,9 @@ prepare_debian_sources()
     rm -rf "$SRCDIR"
     mkdir -p "$SRCDIR" 2>/dev/null
 
-    cd "$SRCDIR" || exit 1
-    $TAR -zxf "$SRCTAR" || exit 1
-    cd "$SRCTREE" || exit 1
+    cd "$SRCDIR" || exit
+    $TAR -zxf "$SRCTAR" || exit
+    cd "$SRCTREE" || exit
 
     fix_version "$topdir"/VERSION.pcp VERSION.pcp
 
@@ -556,7 +611,7 @@ prepare_debian_sources()
     if [ ! -f debian/changelog ]
     then
 	echo "Arrgh! No debian/changelog below `pwd`"
-	exit 1
+	exit
     fi
     if head -1 debian/changelog | grep -q "^pcp ($PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION-$PACKAGE_BUILD)"
     then
@@ -611,13 +666,13 @@ debian_build()
     if [ ! -f debian/rules ]
     then
 	echo "Botch: cannot find debian/rules"
-	exit 1
+	exit
     fi
     debian_paths=`sed -n <debian/rules -e '/^configure_paths/s/^[^=]*= *//p'`
     if [ -z "$debian_paths" ]
     then
 	echo "Botch: cannot get config options from configure_paths in debian/rules"
-	exit 1
+	exit
     fi
     configopts="$debian_paths $configopts"
     debian_env=`sed -n <debian/rules -e '/^configure_tools/{
@@ -629,7 +684,7 @@ p
     if [ -z "$debian_env" ]
     then
 	echo "Botch: cannot get env settings from configure_tools in debian/rules"
-	exit 1
+	exit
     fi
     configenv="$debian_env"
     configure_pcp
@@ -654,7 +709,7 @@ prepare_build()
 
     if [ ! -d "$SRCDIR" ]; then
 	# extract gzipped tar archive
-	$TAR -xz --file="$SRCTAR" || exit 1
+	$TAR -xz --file="$SRCTAR" || exit
 	fix_version VERSION.pcp "$SRCDIR"/VERSION.pcp
     fi
 }
@@ -751,6 +806,7 @@ packaging_rpm()
 }
 
 # real build starts here
+bump_build_number
 clean_packaging
 src_tar_build
 $srconly && exit 0
@@ -795,7 +851,7 @@ do
     if [ ! -d "$dir" ]
     then
 	echo "Error: \"make check\" setup: $dir not found"
-	exit 1
+	exit
     fi
     cd $dir
     make
@@ -808,4 +864,6 @@ check_pcp		# static checking (should be last).
 if ! $verbose ; then
     grep '^Wrote:' "$LOGDIR/pcp" | sed -e 's/\.\.\/\.\.\///'
 fi
-exit 0
+
+sts=0
+exit

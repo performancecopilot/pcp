@@ -149,21 +149,11 @@ _script_git_pull()
 # e.g. in PCP 3.x -> PCP 4.0 migration of source base
 # not needed any longer - 26 Mar 2013
 #\${MAKE:-make} clean >>\$HOME/daily.log 2>&1
-# only VERSION.pcp is expected to be modified, sometimes!
-mv VERSION.pcp VERSION.tmp
-git checkout -- VERSION.pcp
 if git checkout $pcp_branch >>\$HOME/daily.log 2>&1
 then
     echo "Info: pcp git checkout $pcp_branch" | tee -a \$HOME/daily.log
-    rm VERSION.tmp
 else
     echo "Error: pcp git checkout $pcp_branch failed!" | tee -a \$HOME/daily.log
-    if [ -f VERSION.pcp ]
-    then
-	rm VERSION.tmp
-    else
-	mv VERSION.tmp VERSION.pcp
-    fi
     exit 1
 fi
 # on some VMs, there is a problem with the shutdown that deletes
@@ -193,27 +183,6 @@ then
     fi
 fi
 ok=false
-# if needed, bump build number for pcp-daily
-if [ ! -f VERSION.pcp.daily ]
-then
-    cp VERSION.pcp VERSION.pcp.daily
-else
-    diff VERSION.pcp VERSION.pcp.daily >\$tmp.tmp
-    if grep -E 'PACKAGE_MAJOR|PACKAGE_MINOR|PACKAGE_REVISION' <\$tmp.tmp >/dev/null
-    then
-	# different PCP release, do an initial build
-	cp VERSION.pcp VERSION.pcp.daily
-    else
-	# same PCP release, bump away
-	awk -F= <VERSION.pcp.daily '
-BEGIN	{ OFS = "=" }
-\$1 == "PACKAGE_BUILD"	{ print "PACKAGE_BUILD",\$2+1; next }
-			{ print }' \\
-| sed -e 's/=\$//' >\$tmp.version
-	cp \$tmp.version VERSION.pcp.daily
-    fi
-fi
-cp VERSION.pcp.daily VERSION.pcp
 # if we're using systemctl, then need to stop PCP services
 # to prevent autorestart banging its head against the wall
 # once the libraries are removed and the packages are being
@@ -248,15 +217,9 @@ else
 	echo "Warning: Makepkgs failed to sign dpkg's" | tee -a \$HOME/daily.log
     else
 	echo "Error: Makepkgs failed!" | tee -a \$HOME/daily.log
-	# restore build number
-	rm -f VERSION.pcp
-	git checkout -- VERSION.pcp
 	exit 1
     fi
 fi
-# restore build number
-rm -f VERSION.pcp
-git checkout -- VERSION.pcp
 # Look for errors/warnings in the build logs ...
 #
 # In the seds below are for "errors" and "warnings" that are:
