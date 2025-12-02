@@ -133,7 +133,9 @@ pmfstring(FILE *f, char **str)
  * pad the remainder of the dest[] beyond the terminator null-byte.
  *
  * Notes:
- * 1) size and dest args swapped compared to strcpy()
+ * 1) destlen is total size of dest[], not max # chars to copy, so
+ *    the src and "len" arguments are swapped compared to strncpy()
+ * 2) src[] must be NULL byte terminated
  *
  * Returns 0/-1 for success/truncation (of src in dest)
  */
@@ -158,8 +160,9 @@ pmstrncpy(char *dest, size_t destlen, const char *src)
  * pad the remainder of the dest[] beyond the terminator null-byte.
  *
  * Notes:
- * 1) size and dest args swapped compared to strcat()
- * 2) destlen is total size of dest[], not max # chars to copy
+ * 1) destlen is total size of dest[], not max # chars to copy, so
+ *    the src and "len" arguments are swapped compared to strncat()
+ * 2) src[] must be NULL byte terminated
  *
  * Returns 0/-1 for success/truncation (of src in dest)
  */

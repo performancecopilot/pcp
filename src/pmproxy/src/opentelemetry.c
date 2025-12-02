@@ -282,23 +282,23 @@ pmUnits_to_UCUM(pmUnits pmunits, char *ucum_string, size_t bytes)
     /* Process the space dimension */
     if (pmunits.dimSpace != 0) {
 	if (!first_unit)
-	    strcat(ucum_string, "."); /* multiplication dot */
+	    pmstrncat(ucum_string, bytes, "."); /* multiplication dot */
 	first_unit = 0;
 
 	prefix = UCUM_space_prefix(pmunits.scaleSpace);
 	snprintf(component, sizeof(component), "%sBy", prefix);
 
-	strcat(ucum_string, component);
+	pmstrncat(ucum_string, bytes, component);
 	if (pmunits.dimSpace != 1) { /* add exponent if not 1 */
 	    snprintf(component, sizeof(component), "%d", pmunits.dimSpace);
-	    strcat(ucum_string, component);
+	    pmstrncat(ucum_string, bytes, component);
 	}
     }
 
     /* Process the time dimension */
     if (pmunits.dimTime != 0) {
 	if (!first_unit)
-	    strcat(ucum_string, "."); /* multiplication dot */
+	    pmstrncat(ucum_string, bytes, "."); /* multiplication dot */
 	first_unit = 0;
 
 	prefix = UCUM_time_prefix(pmunits.scaleTime);
@@ -310,17 +310,17 @@ pmUnits_to_UCUM(pmUnits pmunits, char *ucum_string, size_t bytes)
 	    snprintf(component, sizeof(component), "%ss", prefix);
 	else /* min, h (minutes, hours) are standalone UCUM units */
 	    snprintf(component, sizeof(component), "%s", prefix);
-	strcat(ucum_string, component);
+	pmstrncat(ucum_string, bytes, component);
 	if (pmunits.dimTime != 1) { /* add exponent if not 1 */
 	    snprintf(component, sizeof(component), "%d", pmunits.dimTime);
-	    strcat(ucum_string, component);
+	    pmstrncat(ucum_string, bytes, component);
 	}
     }
 
     /* Process the count dimension */
     if (pmunits.dimCount != 0) {
 	if (!first_unit)
-	    strcat(ucum_string, "."); /* multiplication dot */
+	    pmstrncat(ucum_string, bytes, "."); /* multiplication dot */
 	first_unit = 0;
 
 	prefix = UCUM_count_prefix(pmunits.scaleCount);
@@ -335,16 +335,16 @@ pmUnits_to_UCUM(pmUnits pmunits, char *ucum_string, size_t bytes)
 	else
 	     snprintf(component, sizeof(component), "%s{count}", prefix);
 
-	strcat(ucum_string, component);
+	pmstrncat(ucum_string, bytes, component);
 	if (pmunits.dimCount != 1) { /* add exponent if not 1 */
 	    snprintf(component, sizeof(component), "%d", pmunits.dimCount);
-	    strcat(ucum_string, component);
+	    pmstrncat(ucum_string, bytes, component);
 	}
     }
 
     /* Finally, handle the dimensionless case */
     if (first_unit)
-	strcpy(ucum_string, "1"); /* UCUM standard for dimensionless */
+	pmstrncpy(ucum_string, bytes, "1"); /* UCUM standard for dimensionless */
 
     return ucum_string;
 }

@@ -21,7 +21,7 @@ store(char const* name, char const* inst)
 {
     char buf[128];
 
-    sprintf(buf, "pmstore %s %s > /dev/null\n", name, inst);
+    pmsprintf(buf, sizeof(buf), "pmstore %s %s > /dev/null\n", name, inst);
     cout << name << ' ' << inst << Qt::endl;
     if (system(buf) < 0) {
 	pmprintf("%s: cannot run system(%s)\n", pmGetProgname(), buf);

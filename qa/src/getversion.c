@@ -36,6 +36,11 @@ main(int argc, char **argv)
 	}
     }
 
+    if (errflag || optind != argc) {
+	fprintf(stderr, "Usage: getversion [-D]\n");
+	exit(1);
+    }
+
 #if PM_VERSION_CURRENT < PM_VERSION(3,10,5)
     fprintf(stderr, "PCP version 0x%x too old, should be >= 0x30a05\n", PM_VERSION_CURRENT);
 #else

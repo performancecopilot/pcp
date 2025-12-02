@@ -41,8 +41,6 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     int		type = 0;
-    int		force = 0;
-    int 	verbose = 0;
     char	*host = NULL;			/* pander to gcc */
     char 	*configfile = (char *)0;
     char 	*logfile = (char *)0;
@@ -63,7 +61,7 @@ main(int argc, char **argv)
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:c:D:fl:n:s:t:VzZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:c:D:l:n:s:t:zZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -91,10 +89,6 @@ main(int argc, char **argv)
 		errflag++;
 	    }
 	    break;
-
-	case 'f':	/* force */
-	    force++; 
-	    break;	
 
 	case 'h':	/* contact PMCD on this hostname */
 	    if (type != 0) {
@@ -127,10 +121,6 @@ main(int argc, char **argv)
 		fprintf(stderr, "%s: -t requires floating point argument\n", pmGetProgname());
 		errflag++;
 	    }
-	    break;
-
-	case 'V':	/* verbose */
-	    verbose++;
 	    break;
 
 	case 'z':	/* timezone from host */
@@ -169,13 +159,11 @@ Options\n\
   -a   archive	  metrics source is an archive\n\
   -c   configfile file to load configuration from\n\
   -D   debugspec  standard PCP debugging options\n\
-  -f		  force .. \n\
   -h   host	  metrics source is PMCD on host\n\
   -l   logfile	  redirect diagnostics and trace output\n\
   -n   namespace  use an alternative PMNS\n\
   -s   samples	  terminate after this many iterations\n\
   -t   delta	  sample interval in seconds(float) [default 1.0]\n\
-  -V 	          verbose/diagnostic output\n\
   -z              set reporting timezone to local time for host from -a or -h\n\
   -Z   timezone   set reporting timezone\n",
 		pmGetProgname());

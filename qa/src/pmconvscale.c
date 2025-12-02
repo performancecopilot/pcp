@@ -92,8 +92,8 @@ main(int argc, char **argv)
 		units.scaleSpace--;
 		sts = pmConvScale(PM_TYPE_FLOAT, &value, &myunits, &newvalue, &units);
 		if (sts < 0) {
-		    strcpy(olds, pmUnitsStr(&oldunits));
-		    strcpy(news, pmUnitsStr(&units));
+		    pmstrncpy(olds, sizeof(olds), pmUnitsStr(&oldunits));
+		    pmstrncpy(news, sizeof(news), pmUnitsStr(&units));
 		    fprintf(stderr, "pmConvScale \"%s\" -> \"%s\" failed: %s\n", olds, news, pmErrStr(sts));
 		    exit(1);
 		}
@@ -108,8 +108,8 @@ main(int argc, char **argv)
 		units.scaleSpace++;
 		sts = pmConvScale(PM_TYPE_FLOAT, &value, &myunits, &newvalue, &units);
 		if (sts < 0) {
-		    strcpy(olds, pmUnitsStr(&oldunits));
-		    strcpy(news, pmUnitsStr(&units));
+		    pmstrncpy(olds, sizeof(olds), pmUnitsStr(&oldunits));
+		    pmstrncpy(news, sizeof(news), pmUnitsStr(&units));
 		    fprintf(stderr, "pmConvScale \"%s\" -> \"%s\" failed: %s\n", olds, news, pmErrStr(sts));
 		    exit(1);
 		}
@@ -139,8 +139,8 @@ main(int argc, char **argv)
 	else if (mode == 3)
 	    units.scaleTime = tscales[i];
 
-	strcpy(olds, pmUnitsStr(&oldunits));
-	strcpy(news, pmUnitsStr(&units));
+	pmstrncpy(olds, sizeof(olds), pmUnitsStr(&oldunits));
+	pmstrncpy(news, sizeof(news), pmUnitsStr(&units));
 
 	sts = pmConvScale(PM_TYPE_FLOAT, &value, &oldunits, &newvalue, &units);
 	if (sts < 0) {

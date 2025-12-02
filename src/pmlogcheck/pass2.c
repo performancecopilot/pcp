@@ -235,7 +235,7 @@ next:
 	    ;
 	}
 	else {
-	    fprintf(stderr, "%s.meta[record %d]: Botch BAD type meta off=%ld type=%d\n", archname, nrec, offset, h.type);
+	    fprintf(stderr, "%s.meta[record %d]: Botch BAD type meta off=%lld type=%d\n", archname, nrec, (long long)offset, h.type);
 	}
 	__pmFseek(f, (long)h.len - sizeof(h) - nread, SEEK_CUR);
 	nrec++;

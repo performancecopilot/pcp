@@ -84,10 +84,12 @@ main(int argc, char **argv)
 
 	case 'f':	/* my flag */
 	    fflag++;
+	    fprintf(stderr, "fflag=%d ... make BSD cc(1) happy\n", fflag);
 	    break;
 
 	case 'i':	/* my instances */
 	    iflag++;
+	    fprintf(stderr, "iflag=%d ... make BSD cc(1) happy\n", iflag);
 	    /* TODO extract instances from opts.optarg */
 	    break;
 

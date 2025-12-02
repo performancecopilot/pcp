@@ -1412,7 +1412,7 @@ stream_metadata(pmDiscover *p, int mtype, uint32_t *buf, size_t len)
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "%s: type %s, len = %zu\n", __FUNCTION__,
 		mtype == (PM_LOG_MAGIC | PM_LOG_VERS02) ? "PM_LOG_MAGICv2"
-		: (type == (PM_LOG_MAGIC | PM_LOG_VERS03) ? "PM_LOG_MAGICv3"
+		: (mtype == (PM_LOG_MAGIC | PM_LOG_VERS03) ? "PM_LOG_MAGICv3"
 		: "UNKNOWN"), len);
 	return PM_ERR_LOGREC;
     }

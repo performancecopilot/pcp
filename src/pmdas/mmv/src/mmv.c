@@ -765,7 +765,7 @@ map_stats(pmdaExt *pmda)
 			    pmsprintf(path, sizeof(path), "%s.", ap->prefix);
 			else
 			    pmsprintf(path, sizeof(path), "%s.%s.", ap->prefix, s->name);
-			strcat(path, buf);
+			pmstrncat(path, sizeof(path), buf);
 
 			if (verify_metric_name(ap, path, k, s) != 0)
 			    continue;

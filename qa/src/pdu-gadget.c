@@ -246,7 +246,7 @@ main(int argc, char **argv)
     int		convert;
     __pmContext		*ctxp;
 
-    sprintf(pmcdspec, "localhost");
+    pmsprintf(pmcdspec, sizeof(pmcdspec), "localhost");
 
     pmSetProgname(argv[0]);
 
@@ -254,7 +254,7 @@ main(int argc, char **argv)
 	switch (c) {
 
 	case 'p':	/* pmcd port */
-	    sprintf(pmcdspec, "localhost:%s", opts.optarg);
+	    pmsprintf(pmcdspec, sizeof(pmcdspec), "localhost:%s", opts.optarg);
 	    break;	
 
 	case 'v':	/* verbose output */

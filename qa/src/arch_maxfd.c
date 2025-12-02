@@ -59,6 +59,11 @@ main(int argc, char **argv)
 	}
     }
 
+    if (errflag || optind != argc) {
+	fprintf(stderr, "Usage: arch_maxfd [-D]\n");
+	exit(1);
+    }
+
     sts = getrlimit(RLIMIT_NOFILE, &top);
 
     for (max_nofile = 30; max_nofile > 20; max_nofile--) {

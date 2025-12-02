@@ -78,23 +78,23 @@ int QedApp::getopts(const char *options)
 
 	case 'a':
 	    my.archives.append(optarg);
-	    break;
+	    continue;
 
 	case 'h':
 	    my.hosts.append(optarg);
-	    break;
+	    continue;
 
 	case 'L':		/* local context */
 	    my.Lflag = 1;
-	    break;
+	    continue;
 
 	case 'n':		/* alternative PMNS */
 	    my.pmnsfile = optarg;
-	    break;
+	    continue;
 
 	case 'O':		/* sample offset */
 	    my.Oflag = optarg;
-	    break;
+	    continue;
 
 	case 'p':		/* existing pmtime port */
 	    my.port = (int)strtol(optarg, &endnum, 10);
@@ -102,11 +102,11 @@ int QedApp::getopts(const char *options)
 		pmprintf("%s: -p requires a numeric argument\n", pmGetProgname());
 		errflg++;
 	    }
-	    break;
+	    continue;
 
 	case 'S':		/* start run time */
 	    my.Sflag = optarg;
-	    break;
+	    continue;
 
 	case 't':		/* sampling interval */
 	    if (pmParseInterval(optarg, &ts, &msg) < 0) {
@@ -120,7 +120,7 @@ int QedApp::getopts(const char *options)
 
 	case 'T':		/* run time */
 	    my.Tflag = optarg;
-	    break;
+	    continue;
 
 	case 'V':		/* version */
 	    printf("%s %s\n", pmGetProgname(), pmGetConfig("PCP_VERSION"));
@@ -135,7 +135,7 @@ int QedApp::getopts(const char *options)
 		errflg++;
 	    }
 	    my.zflag++;
-	    break;
+	    continue;
 
 	case 'Z':		/* $TZ timezone */
 	    if (my.zflag) {
@@ -144,13 +144,18 @@ int QedApp::getopts(const char *options)
 		errflg++;
 	    }
 	    my.tz = optarg;
-	    break;
+	    continue;
 
 	default:
 	    unknown = 1;
-	    break;
+	    continue;
 	}
-    } while (!unknown);
+    } while (!unknown && !errflg);
+
+    if (errflg) {
+	pmflush();
+	exit(1);
+    }
 
     return c;
 }

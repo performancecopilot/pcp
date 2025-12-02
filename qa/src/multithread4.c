@@ -131,8 +131,8 @@ main(int argc, char **argv)
 	}
     }
 
-    if (optind != argc) {
-	printf("Usage: multithread4\n");
+    if (errflag || optind != argc) {
+	printf("Usage: multithread4 [-D]\n");
 	exit(1);
     }
 

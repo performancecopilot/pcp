@@ -24,7 +24,6 @@ main(int argc, char **argv)
     int		sts;
     int		errflag = 0;
     int		type = 0;
-    int 	verbose = 0;
     char	*host = NULL;			/* pander to gcc */
     int		mode = PM_MODE_INTERP;		/* mode for archives */
     char 	*configfile = NULL;
@@ -52,7 +51,7 @@ main(int argc, char **argv)
 
     pmSetProgname(argv[0]);
 
-    while ((c = getopt(argc, argv, "a:A:c:D:h:l:Ln:O:s:S:t:T:U:VzZ:?")) != EOF) {
+    while ((c = getopt(argc, argv, "a:A:c:D:h:l:Ln:O:s:S:t:T:U:zZ:?")) != EOF) {
 	switch (c) {
 
 	case 'a':	/* archive name */
@@ -151,10 +150,6 @@ main(int argc, char **argv)
 	    host = optarg;
 	    break;
 
-	case 'V':	/* verbose */
-	    verbose++;
-	    break;
-
 	case 'z':	/* timezone from host */
 	    if (tz != NULL) {
 		fprintf(stderr, "%s: at most one of -Z and/or -z allowed\n", pmGetProgname());
@@ -202,7 +197,6 @@ Options\n\
   -t delta	sample interval in seconds(float) [default 1.0]\n\
   -T finish	finish at this time\n\
   -U archive	metrics source is an uninterpolated archive\n\
-  -V            verbose/diagnostic output\n\
   -z            set reporting timezone to local time for host from -a, -h or -U\n\
   -Z timezone   set reporting timezone\n",
 		pmGetProgname());
