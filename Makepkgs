@@ -378,18 +378,6 @@ esac
 #
 [ -n "$cmdline_configopts" ] && configopts="$configopts $cmdline_configopts"
 
-. ./VERSION.pcp
-VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
-
-LOGDIR="$topdir/Logs"
-rm -rf "$LOGDIR"
-mkdir -p "$LOGDIR"
-
-source="pcp-$VERSION"
-SRCDIR="$topdir/$source"
-SRCTREE="$topdir/$source"
-SRCTAR="$topdir/build/tar/$source.src.tar.gz"
-
 build_failure()
 {
     # only print in non-verbose mode, otherwise we see double
@@ -807,6 +795,19 @@ packaging_rpm()
 
 # real build starts here
 bump_build_number
+
+. ./VERSION.pcp
+VERSION=${PACKAGE_MAJOR}.${PACKAGE_MINOR}.${PACKAGE_REVISION}
+
+LOGDIR="$topdir/Logs"
+rm -rf "$LOGDIR"
+mkdir -p "$LOGDIR"
+
+source="pcp-$VERSION"
+SRCDIR="$topdir/$source"
+SRCTREE="$topdir/$source"
+SRCTAR="$topdir/build/tar/$source.src.tar.gz"
+
 clean_packaging
 src_tar_build
 $srconly && exit 0
