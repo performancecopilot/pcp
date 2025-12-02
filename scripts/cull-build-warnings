@@ -120,6 +120,7 @@ sed <$tmp.in >$tmp.out \
     -e '/^dpkg-source: warning: ignoring deletion of file configure, use --include-removal to override/d' \
     -e '/^dpkg-shlibdeps: warning: diversions involved - output may be incorrect/d' \
     -e '/^dpkg-gencontrol: warning: Depends field of package .* unknown substitution variable \${python3:Depends}/d' \
+    -e '/^dpkg-gencontrol: warning: Depends field of package .* substitution variable \${python3:Depends} used, but is not defined/d' \
     -e '/^cp: warning: behaviou*r of -n is non-portable /d' \
     -e '/^post-auto-install: Warning: HAVE_PERL is false, nothing to do/d' \
 # end
@@ -164,6 +165,15 @@ in
 	    -e '/^pacemaker.c:641: warning: .tofree. may be used uninitialized/d' \
 	# end
 	;;
+
+    vm11)
+	# gcc gets this wrong
+	#
+	sed \
+	    -e '/drawbar.c[ :].*[‘]isp[’] may be used uninitialized/d' \
+	# end
+	;;
+	
 
     vm21)
 	# c++ is just plain wrong here
