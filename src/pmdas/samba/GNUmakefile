@@ -32,6 +32,11 @@ default: build-me check_domain
 
 include $(BUILDRULES)
 
+ifneq ($(POD2MAN),)
+pmda$(IAM).1: pmda$(IAM).pl
+	$(POD_MAKERULE)
+endif
+
 ifeq "$(HAVE_PERL)" "true"
 build-me: $(MAN_PAGES)
 install: default
@@ -40,9 +45,6 @@ install: default
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/pmda$(IAM).pl pmda$(IAM).pl $(PMDAADMDIR)/pmda$(IAM).pl
 	@$(INSTALL_MAN)
-
-pmda$(IAM).1: pmda$(IAM).pl
-	$(POD_MAKERULE)
 else
 build-me:
 install:
