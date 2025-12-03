@@ -96,6 +96,14 @@ mem.compressor {
     uncompressed_pages	DARWIN:1:134
 }
 
+swap {
+    length		DARWIN:1:24
+    used		DARWIN:1:25
+    free		DARWIN:1:26
+    pagesin		DARWIN:1:27
+    pagesout		DARWIN:1:28
+}
+
 filesys {
     capacity		DARWIN:5:32
     used		DARWIN:5:33

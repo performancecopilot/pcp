@@ -20,6 +20,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <sys/mount.h>
+#include <sys/sysctl.h>
 #include <sys/utsname.h>
 #include <mach/mach.h>
 #include "pmapi.h"
@@ -61,6 +62,10 @@ extern int refresh_cpuload(struct host_cpu_load_info *);
 int			mach_vmstat_error = 0;
 struct vm_statistics64	mach_vmstat = { 0 };
 extern int refresh_vmstat(struct vm_statistics64 *);
+
+int			mach_swap_error = 0;
+struct xsw_usage	mach_swap = { 0 };
+extern int refresh_swap(struct xsw_usage *);
 
 int			mach_fs_error = 0;
 struct statfs		*mach_fs = NULL;
@@ -261,6 +266,26 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_VMSTAT,23), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* swap.length */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,24), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* swap.used */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,25), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* swap.free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,26), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* swap.pagesin */
+  { &mach_vmstat.pageins,
+    { PMDA_PMID(CLUSTER_VMSTAT,27), PM_TYPE_32, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* swap.pagesout */
+  { &mach_vmstat.pageouts,
+    { PMDA_PMID(CLUSTER_VMSTAT,28), PM_TYPE_32, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* kernel.uname.release */
   { mach_uname.release,
@@ -763,8 +788,10 @@ darwin_refresh(int *need_refresh)
 	mach_loadavg_error = refresh_loadavg(mach_loadavg);
     if (need_refresh[CLUSTER_CPULOAD])
 	mach_cpuload_error = refresh_cpuload(&mach_cpuload);
-    if (need_refresh[CLUSTER_VMSTAT])
+    if (need_refresh[CLUSTER_VMSTAT]) {
 	mach_vmstat_error = refresh_vmstat(&mach_vmstat);
+	mach_swap_error = refresh_swap(&mach_swap);
+    }
     if (need_refresh[CLUSTER_KERNEL_UNAME])
 	mach_uname_error = refresh_uname(&mach_uname);
     if (need_refresh[CLUSTER_FILESYS])
@@ -868,6 +895,21 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	return 1;
     case 23: /* mem.util.used */
 	atom->ull = page_count_to_kb(mach_vmstat.wire_count+mach_vmstat.active_count+mach_vmstat.inactive_count);
+	return 1;
+    case 24: /* swap.length */
+	if (mach_swap_error)
+	    return mach_swap_error;
+	atom->ull = mach_swap.xsu_total >> 10;  // bytes to KB
+	return 1;
+    case 25: /* swap.used */
+	if (mach_swap_error)
+	    return mach_swap_error;
+	atom->ull = mach_swap.xsu_used >> 10;   // bytes to KB
+	return 1;
+    case 26: /* swap.free */
+	if (mach_swap_error)
+	    return mach_swap_error;
+	atom->ull = mach_swap.xsu_avail >> 10;  // bytes to KB
 	return 1;
     case 130: /* mem.util.compressed */
 	atom->ull = page_count_to_kb(mach_vmstat.compressor_page_count);

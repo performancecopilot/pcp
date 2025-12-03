@@ -98,6 +98,24 @@ The total number of pages that are currently stored in compressed form,
 measured in their original (uncompressed) size. This shows how many pages
 of memory are being represented by the compressed storage.
 
+@ swap.length total swap space configured
+Total amount of swap space available to the system in kilobytes.
+Obtained from sysctl vm.swapusage on macOS.
+@ swap.used swap space currently in use
+Amount of swap space currently being used in kilobytes.
+Obtained from sysctl vm.swapusage on macOS.
+@ swap.free swap space currently free
+Amount of swap space currently available in kilobytes.
+Obtained from sysctl vm.swapusage on macOS.
+@ swap.pagesin pages swapped in from disk
+Cumulative count of pages that have been swapped in from disk since boot.
+This is an alias to the same data as mem.pageins, provided for compatibility
+with pmstat and other cross-platform tools.
+@ swap.pagesout pages swapped out to disk
+Cumulative count of pages that have been swapped out to disk since boot.
+This is an alias to the same data as mem.pageouts, provided for compatibility
+with pmstat and other cross-platform tools.
+
 @ hinv.nfilesys number of file systems currently mounted
 @ filesys.capacity total capacity of mounted filesystem (Kbytes)
 @ filesys.used total space used on mounted filesystem (Kbytes)    

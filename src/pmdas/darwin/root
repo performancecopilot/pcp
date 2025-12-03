@@ -4,6 +4,7 @@ root {
     kernel
     pmda
     mem
+    swap
     hinv
     filesys
     disk
