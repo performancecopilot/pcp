@@ -696,7 +696,8 @@ p
 	    sed -e 's,\.$,,g' -e "s,',,g" -e "s,\.\.,$topdir/build/deb,g" | \
 	    awk '{ print "Wrote:", $NF }'
     fi
-    exit 0
+    sts=0
+    exit
 }
 
 prepare_build()
@@ -738,7 +739,11 @@ configure_pcp()
 	test -f config.log && cat config.log | tee -a "$LOGDIR/pcp"
 	build_failure Configure
     fi
-    $cfgonly && exit 0
+    if $cfgonly
+    then
+	sts=0
+	exit
+    fi
 }
 
 check_pcp()
@@ -819,7 +824,11 @@ SRCTAR="$topdir/build/tar/$source.src.tar.gz"
 
 clean_packaging
 src_tar_build
-$srconly && exit 0
+if $srconly
+then
+    sts=0
+    exit
+fi
 
 # short-circuit for performing builds with dpkg-buildpackage
 if $dodeb
