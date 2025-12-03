@@ -66,6 +66,46 @@ struct statsrc {
     int			sts[num_items];
 };
 
+/* Column group definitions */
+enum column_groups {
+    COL_LOADAVG,
+    COL_MEMORY,
+    COL_SWAP,
+    COL_IO,
+    COL_SYSTEM,
+    COL_CPU,
+    NUM_COL_GROUPS
+};
+
+/* Individual column visibility tracking */
+struct display_columns {
+    /* Memory group */
+    int show_swap_used;
+    int show_mem_free;
+    int show_mem_buf;
+    int show_mem_cached;
+
+    /* Swap group */
+    int show_swap_in;
+    int show_swap_out;
+
+    /* IO group */
+    int show_blk_read;
+    int show_blk_write;
+
+    /* System group */
+    int show_interrupts;
+    int show_pswitch;
+
+    /* CPU group - optional extended metrics */
+    int show_cpu_wait;
+    int show_cpu_steal;
+    int show_cpu_guest;
+
+    /* Group-level visibility (computed from individual columns) */
+    int show_group[NUM_COL_GROUPS];
+};
+
 pmLongOptions longopts[] = {
     PMAPI_GENERAL_OPTIONS,
     PMOPT_DEBUG,
@@ -91,6 +131,7 @@ static int rows = 21;
 static int header;
 static float period;
 static pmTimeControls defaultcontrols;
+static struct display_columns display;
 
 
 static struct statsrc *
@@ -243,6 +284,166 @@ destroyContext(struct statsrc *s)
     }
 }
 
+/*
+ * Analyze metric availability across all contexts.
+ * If ANY context lacks a metric, mark it as unavailable globally.
+ * This ensures consistent column layout across all hosts.
+ */
+static void
+detectColumnAvailability(struct statsrc **ctxList, int ctxCount)
+{
+    int i, any_unavailable = 0;
+
+    /* Start optimistic - assume all columns available */
+    memset(&display, 1, sizeof(display));
+
+    /* Check each context */
+    for (i = 0; i < ctxCount; i++) {
+	struct statsrc *s = ctxList[i];
+
+	/* Memory group */
+	if (s->sts[swap_used]) display.show_swap_used = 0;
+	if (s->sts[mem_free]) display.show_mem_free = 0;
+	if (s->sts[mem_buf]) display.show_mem_buf = 0;
+	if (s->sts[mem_cached]) display.show_mem_cached = 0;
+
+	/* Swap group */
+	if (s->sts[swap_in]) display.show_swap_in = 0;
+	if (s->sts[swap_out]) display.show_swap_out = 0;
+
+	/* IO group */
+	if (s->sts[blk_read]) display.show_blk_read = 0;
+	if (s->sts[blk_write]) display.show_blk_write = 0;
+
+	/* System group */
+	if (s->sts[interrupts]) display.show_interrupts = 0;
+	if (s->sts[pswitch]) display.show_pswitch = 0;
+
+	/* CPU optional metrics */
+	if (s->sts[cpu_wait]) display.show_cpu_wait = 0;
+	if (s->sts[cpu_steal]) display.show_cpu_steal = 0;
+	if (s->sts[cpu_guest] && s->sts[cpu_guest_nice])
+	    display.show_cpu_guest = 0;
+    }
+
+    /* Determine group-level visibility */
+    display.show_group[COL_LOADAVG] = 1;  /* Always show if we have any data */
+
+    display.show_group[COL_MEMORY] =
+	display.show_swap_used || display.show_mem_free ||
+	display.show_mem_buf || display.show_mem_cached;
+
+    display.show_group[COL_SWAP] =
+	display.show_swap_in || display.show_swap_out;
+
+    display.show_group[COL_IO] =
+	display.show_blk_read || display.show_blk_write;
+
+    display.show_group[COL_SYSTEM] =
+	display.show_interrupts || display.show_pswitch;
+
+    display.show_group[COL_CPU] = 1;  /* CPU always shown */
+
+    /* Verbose reporting - only if debugging enabled */
+    if (pmDebugOptions.appl0) {
+	fprintf(stderr, "Column availability analysis:\n");
+
+	/* Report unavailable individual metrics */
+	if (!display.show_swap_used) {
+	    fprintf(stderr, "  Unavailable: swap.used\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_mem_free) {
+	    fprintf(stderr, "  Unavailable: mem.util.free\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_mem_buf) {
+	    fprintf(stderr, "  Unavailable: mem.util.bufmem/mem.bufmem\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_mem_cached) {
+	    fprintf(stderr, "  Unavailable: mem.util.cached\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_swap_in) {
+	    fprintf(stderr, "  Unavailable: swap.pagesin/swap.in\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_swap_out) {
+	    fprintf(stderr, "  Unavailable: swap.pagesout/swap.out\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_blk_read) {
+	    fprintf(stderr, "  Unavailable: disk.all.blkread/disk.all.read\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_blk_write) {
+	    fprintf(stderr, "  Unavailable: disk.all.blkwrite/disk.all.write\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_interrupts) {
+	    fprintf(stderr, "  Unavailable: kernel.all.intr\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_pswitch) {
+	    fprintf(stderr, "  Unavailable: kernel.all.pswitch\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_cpu_wait) {
+	    fprintf(stderr, "  Unavailable: kernel.all.cpu.wait.total\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_cpu_steal) {
+	    fprintf(stderr, "  Unavailable: kernel.all.cpu.steal\n");
+	    any_unavailable = 1;
+	}
+	if (!display.show_cpu_guest) {
+	    fprintf(stderr, "  Unavailable: kernel.all.cpu.guest/guest_nice\n");
+	    any_unavailable = 1;
+	}
+
+	/* Report suppressed columns */
+	fprintf(stderr, "\nSuppressed columns:\n");
+	if (!display.show_pswitch)
+	    fprintf(stderr, "  - pswitch (cs)\n");
+	if (!display.show_mem_buf)
+	    fprintf(stderr, "  - mem.bufmem (buff)\n");
+	if (!display.show_cpu_wait && extraCpuStats)
+	    fprintf(stderr, "  - cpu.wait (wa)\n");
+	if (!display.show_cpu_steal && extraCpuStats)
+	    fprintf(stderr, "  - cpu.steal (st)\n");
+	if (!display.show_cpu_guest && extraCpuStats)
+	    fprintf(stderr, "  - cpu.guest (gu)\n");
+
+	/* Report group visibility */
+	fprintf(stderr, "\nGroup visibility:\n");
+	if (!display.show_group[COL_MEMORY])
+	    fprintf(stderr, "  - memory group: HIDDEN (no metrics available)\n");
+	else
+	    fprintf(stderr, "  - memory group: visible\n");
+
+	if (!display.show_group[COL_SWAP])
+	    fprintf(stderr, "  - swap group: HIDDEN (no metrics available)\n");
+	else
+	    fprintf(stderr, "  - swap group: visible\n");
+
+	if (!display.show_group[COL_IO])
+	    fprintf(stderr, "  - io group: HIDDEN (no metrics available)\n");
+	else
+	    fprintf(stderr, "  - io group: visible\n");
+
+	if (!display.show_group[COL_SYSTEM])
+	    fprintf(stderr, "  - system group: HIDDEN (no metrics available)\n");
+	else
+	    fprintf(stderr, "  - system group: visible\n");
+
+	if (!any_unavailable)
+	    fprintf(stderr, "  All metrics available\n");
+
+	fprintf(stderr, "\n");
+    }
+}
+
 static void
 scalePrint(struct statsrc *s, int m)
 {
@@ -331,6 +532,104 @@ resize(int sig)
 	rows = win.ws_row - 3;
 }
 #endif
+
+/*
+ * Calculate display width for the system group based on visible columns.
+ */
+static int
+calculateSystemWidth(void)
+{
+    int width = 0;
+    if (display.show_interrupts) width += 5;  /* " %4s" */
+    if (display.show_pswitch) width += 5;
+    return width;
+}
+
+/*
+ * Print column headers dynamically based on availability.
+ */
+static void
+printColumnHeaders(int multiHost)
+{
+    if (multiHost)
+	printf("%8s", "");  /* Align with node name */
+
+    /* Load average */
+    printf("%7s", "1 min");
+
+    /* Memory group - always shown with these columns */
+    printf(" %6s", "swpd");
+    if (multiHost)
+	printf(" %6s", "");  /* skip "free" label in multi-host */
+    else
+	printf(" %6s", "free");
+    if (!multiHost)  /* buff only in single host mode */
+	printf(" %6s", "buff");
+    printf(" %6s", "cache");
+
+    /* Swap group - always shown */
+    printf("   %c%1s", swapOp, "i");
+    printf("   %c%1s", swapOp, "o");
+
+    /* IO group - always shown */
+    printf(" %4s", "bi");
+    printf(" %4s", "bo");
+
+    /* System group - conditional */
+    if (display.show_interrupts)
+	printf(" %4s", "in");
+    if (display.show_pswitch)
+	printf(" %4s", "cs");
+
+    /* CPU group - always shown */
+    printf(" %3s %3s %3s", "us", "sy", "id");
+    if (extraCpuStats) {
+	if (display.show_cpu_wait)
+	    printf(" %3s", "wa");
+	if (display.show_cpu_steal)
+	    printf(" %3s", "st");
+	if (display.show_cpu_guest)
+	    printf(" %3s", "gu");
+    }
+
+    printf("\n");
+}
+
+static void
+printGroupHeaders(int multiHost)
+{
+    int sys_width;
+
+    if (multiHost)
+	printf("%-7s", "node");
+
+    printf("%8s", "loadavg");
+
+    /* Memory group - fixed width in current implementation */
+    printf("%21s", "memory");
+
+    /* Swap group - fixed width */
+    printf("%10s", "swap");
+
+    /* IO group - fixed width */
+    printf("%10s", "io");
+
+    /* System group - dynamic width based on available columns */
+    sys_width = calculateSystemWidth();
+    if (sys_width > 0)
+	printf("%*s", sys_width, "system");
+
+    /* CPU group - dynamic width based on extended stats */
+    if (extraCpuStats) {
+	int cpu_width = 12;  /* Base: us sy id */
+	if (display.show_cpu_wait) cpu_width += 4;
+	if (display.show_cpu_steal) cpu_width += 4;
+	if (display.show_cpu_guest) cpu_width += 4;
+	printf("%*s\n", cpu_width, "cpu");
+    } else {
+	printf("%*s\n", 12, "cpu");
+    }
+}
 
 static int
 setupTimeOptions(int ctx, pmOptions *optsp, char **tzlabel)
@@ -455,6 +754,9 @@ main(int argc, char *argv[])
 	exit(1);
     }
 
+    /* Detect which columns can be displayed based on metric availability */
+    detectColumnAvailability(ctxList, ctxCount);
+
 #if defined(TIOCGWINSZ)
 # if defined(SIGWINCH)
     __pmSetSignalHandler(SIGWINCH, resize);
@@ -532,32 +834,8 @@ main(int argc, char *argv[])
 			   ctxList[0]->timestamp.tv_nsec / 1.0e9);
 	    printf("@ %s", pmCtime(&now, tbuf));
 
-	    if (ctxCount > 1) {
-		printf("%-7s%8s%21s%10s%10s%10s%*s\n",
-			"node", "loadavg","memory","swap","io","system",
-			extraCpuStats ? 24 : 12, "cpu");
-		if (extraCpuStats)
-		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s %3s\n",
-			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
-			"in","cs","us","sy","id","wa","st","gu");
-		else
-		    printf("%8s%7s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
-			"", "1 min","swpd","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
-			"in","cs","us","sy","id");
-
-	    } else {
-		printf("%8s%28s%10s%10s%10s%*s\n",
-		       "loadavg","memory","swap","io","system",
-			extraCpuStats ? 24 : 12, "cpu");
-		if (extraCpuStats)
-		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s %3s %3s %3s\n",
-			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
-			"in","cs","us","sy","id","wa","st","gu");
-		else
-		    printf(" %7s %6s %6s %6s %6s   %c%1s   %c%1s %4s %4s %4s %4s %3s %3s %3s\n",
-			"1 min","swpd","free","buff","cache", swapOp,"i",swapOp,"o","bi","bo",
-			"in","cs","us","sy","id");
-	    }
+	    printGroupHeaders(ctxCount > 1);
+	    printColumnHeaders(ctxCount > 1);
 	    header = 0;
 	}
 
@@ -650,8 +928,10 @@ check:
 		scalePrint(s, blk_write);
 
 		/* system interrupts */
-		scalePrint(s, interrupts);
-		scalePrint(s, pswitch);
+		if (display.show_interrupts)
+		    scalePrint(s, interrupts);
+		if (display.show_pswitch)
+		    scalePrint(s, pswitch);
 
 		/*
 		 * CPU utilization - report percentage of total.
