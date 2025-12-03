@@ -8358,6 +8358,29 @@ fi
 done
 test -n "$PYLINT" || PYLINT="true"
 
+if test "$PYLINT" != true
+then
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking pylint version" >&5
+printf %s "checking pylint version... " >&6; }
+    version=`$PYLINT --version | sed -n -e '/^pylint /s///p'`
+    if test -z "$version"
+    then
+	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
+printf "%s\n" "unknown" >&6; }
+	PYLINT=true
+    else
+	case "$version"
+	in
+	    1.*|2.*)	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $version too old" >&5
+printf "%s\n" "$version too old" >&6; }
+			PYLINT=true
+			;;
+	    *)		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $version ok" >&5
+printf "%s\n" "$version ok" >&6; }
+	    		;;
+	esac
+    fi
+fi
 
 
 for ac_prog in python3

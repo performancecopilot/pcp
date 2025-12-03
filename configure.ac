@@ -971,6 +971,26 @@ AC_CHECK_PROGS(GIT, git)
 AC_SUBST(GIT)
 
 AC_CHECK_PROGS(PYLINT, pylint, true)
+dnl if pylint found we need at least a version 3.x.x one
+if test "$PYLINT" != true
+then
+    AC_MSG_CHECKING([pylint version])
+    version=`$PYLINT --version | sed -n -e '/^pylint /s///p'`
+    if test -z "$version"
+    then
+	AC_MSG_RESULT([unknown])
+	PYLINT=true
+    else
+	case "$version"
+	in
+	    1.*|2.*)	AC_MSG_RESULT([$version too old])
+			PYLINT=true
+			;;
+	    *)		AC_MSG_RESULT([$version ok])
+	    		;;
+	esac
+    fi
+fi
 AC_SUBST(PYLINT)
 
 dnl check if python3 available for the build and runtime
