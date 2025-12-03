@@ -8362,7 +8362,7 @@ if test "$PYLINT" != true
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking $PYLINT version" >&5
 printf %s "checking $PYLINT version... " >&6; }
-    version=`$PYLINT --version 2>/dev/null | sed -n -e '/^pylint /s///p'`
+    version=`$PYLINT --version 2>/dev/null | $AWK '$1 == "pylint" { print $2 }'`
     if test -z "$version"
     then
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: unknown" >&5
@@ -8371,7 +8371,7 @@ printf "%s\n" "unknown" >&6; }
     else
 	case "$version"
 	in
-	    012.*)	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $version too old" >&5
+	    1.*|2.*)	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $version too old" >&5
 printf "%s\n" "$version too old" >&6; }
 			PYLINT=true
 			;;

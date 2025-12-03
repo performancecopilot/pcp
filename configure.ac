@@ -975,7 +975,7 @@ dnl if pylint found we need at least a version 3.x.x one
 if test "$PYLINT" != true
 then
     AC_MSG_CHECKING([$PYLINT version])
-    version=`$PYLINT --version 2>/dev/null | sed -n -e '/^pylint /s///p'`
+    version=`$PYLINT --version 2>/dev/null | $AWK '$1 == "pylint" { print $2 }'`
     if test -z "$version"
     then
 	AC_MSG_RESULT([unknown])
@@ -983,7 +983,7 @@ then
     else
 	case "$version"
 	in
-	    [012].*)	AC_MSG_RESULT([$version too old])
+	    1.*|2.*)	AC_MSG_RESULT([$version too old])
 			PYLINT=true
 			;;
 	    *)		AC_MSG_RESULT([$version ok])
