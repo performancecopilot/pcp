@@ -668,6 +668,7 @@ Error Parsing ASCII PMNS: Cannot open "davenamespace"
 template: Cannot load namespace from "davenamespace": No such file or directory
 
 Trying ... -a hoges.arh -f -l
+fflag=1 ... make BSD cc(1) happy
 template: Cannot open archive "hoges.arh": No such file or directory
 
 Trying ... -h hoges -l

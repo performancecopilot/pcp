@@ -59,7 +59,7 @@ main(int argc, char **argv)
 	}
     }
 
-    if (errflag || optind != argc) {
+    if (errflag || optind != argc-1) {
 	fprintf(stderr, "Usage: arch_maxfd [-D]\n");
 	exit(1);
     }
