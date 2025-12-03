@@ -54,7 +54,16 @@ _cleanup()
 	    :
 	else
 	    echo "Reinstate VERSION.pcp ..."
-	    git checkout -- VERSION.pcp
+	    if git checkout -- VERSION.pcp
+	    then
+		# ok
+		:
+	    else
+		echo "Hmm, exit status $? from git checkout"
+		echo "pwd=`pwd` topdir=$topdir"
+		ls -l VERSION.pcp
+		git status -s -- VERSION.pcp
+	    fi
 	fi
     else
 	echo "Botch: VERSION.pcp vanished from $topdir"
