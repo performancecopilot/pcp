@@ -144,13 +144,12 @@ dm_multipath_device_fetch(int item, struct multipath_device *dev, pmAtomValue *a
 int
 dm_multipath_instance_refresh(void)
 {
-    char info_name[128], path_name[128], dev_name[128];
+    char info_name[128] = {'\0'}, path_name[128] = {'\0'}, dev_name[128];
     char device[128];
     char buffer[BUFSIZ];
     FILE *fp;
     
     int sts;
-    __pmExecCtl_t *argp = NULL;
     
     pmInDom info_indom = dm_indom(DM_MULTI_INFO_INDOM);
     pmInDom path_indom = dm_indom(DM_MULTI_PATH_INDOM);
@@ -160,17 +159,16 @@ dm_multipath_instance_refresh(void)
     pmdaCacheOp(path_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(dev_indom, PMDA_CACHE_INACTIVE);
 
-    if ((sts = __pmProcessUnpickArgs(&argp, dm_setup_dmmultipathd)) < 0)
-	return sts;
-    if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0)
-	return sts;
+    pmsprintf(buffer, sizeof(buffer), "%s", dm_setup_dmmultipathd);
+    if ((fp = popen(buffer, "r")) == NULL)
+        return PM_ERR_AGAIN;
 
     int path_count = 0;
 
-    while (fgets(buffer, sizeof(buffer) -1, fp)) {
-        char *trimmed = trim_whitespace(buffer);
+    struct multipath_info *info = {0};
 
-        struct multipath_info *info;
+    while (fgets(buffer, sizeof(buffer) -1, fp) != NULL) {
+        char *trimmed = trim_whitespace(buffer);
 
         // No entries found
         if (strstr(buffer, "multipath.conf does not exist"))
@@ -207,15 +205,16 @@ dm_multipath_instance_refresh(void)
                     info->vendor,
                     info->product_name);
 
-                // Remove intial and trailing parenthesis from WWID entry
+                // Remove initial and trailing parenthesis from WWID entry
                 memmove(info->wwid, info->wwid+1, strlen(info->wwid));
                 info->wwid[strlen(info->wwid) - 1] = '\0';
             } else {
                 // Second information line of current map, can collect and save
                 // info indom
 
-                if (!info)
-                    continue; // Something has gone wrong with part 1 of map allocation
+                if (info == NULL) {
+                    break; // Something has gone wrong with part 1 of map allocation
+                }
 
                 sscanf(trimmed, "size=%s features='%255[^']' hwhandler='%127[^']' wp=%s",
                     info->size,
@@ -238,6 +237,7 @@ dm_multipath_instance_refresh(void)
             if (sts == PM_ERR_INST || (sts >=0 && path == NULL )) {
                 path = calloc(1, sizeof(struct multipath_path));
                 if (path == NULL) {
+                    free(info);
                     __pmProcessPipeClose(fp);
                     return PM_ERR_AGAIN;
                 }
@@ -274,6 +274,7 @@ dm_multipath_instance_refresh(void)
             if (sts == PM_ERR_INST || (sts >=0 && dev == NULL )) {
                 dev = calloc(1, sizeof(struct multipath_device));
                 if (dev == NULL) {
+                    free(info);
                     __pmProcessPipeClose(fp);
                     return PM_ERR_AGAIN;
                 }
@@ -293,26 +294,14 @@ dm_multipath_instance_refresh(void)
         }
     }
     
-    sts = __pmProcessPipeClose(fp);
-    if (sts <= 0)
-        return sts;
-    if (sts == 2000)
-	pmNotifyErr(LOG_ERR, "%s: pipe (%s) terminated with unknown error\n",
-			__FUNCTION__, dm_setup_dmmultipathd);
-    else if (sts > 1000)
-	pmNotifyErr(LOG_ERR, "%s: pipe (%s) terminated with signal %d\n",
-			__FUNCTION__, dm_setup_dmmultipathd, sts - 1000);
-    else
-	pmNotifyErr(LOG_ERR, "%s: pipe (%s) terminated with exit status %d\n",
-			__FUNCTION__, dm_setup_dmmultipathd, sts);
-
-    return PM_ERR_GENERIC;   
+    pclose(fp);
+    return 0; 
 }
 
 void
 dm_multipath_setup(void)
 {
-    static char multipathd_command[] = "multipathd show topology";
+    static char multipathd_command[] = "multipathd show topology 2>/dev/null";
     char *env_command;
 
     /* allow override at startup for QA testing */
