@@ -285,6 +285,145 @@ destroyContext(struct statsrc *s)
 }
 
 /*
+ * Report unavailable metrics for debugging purposes.
+ */
+static int
+reportUnavailableMetrics(void)
+{
+    int any_unavailable = 0;
+
+    if (!display.show_swap_used) {
+	fprintf(stderr, "  Unavailable: swap.used\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_mem_free) {
+	fprintf(stderr, "  Unavailable: mem.util.free\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_mem_buf) {
+	fprintf(stderr, "  Unavailable: mem.util.bufmem/mem.bufmem\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_mem_cached) {
+	fprintf(stderr, "  Unavailable: mem.util.cached\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_swap_in) {
+	fprintf(stderr, "  Unavailable: swap.pagesin/swap.in\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_swap_out) {
+	fprintf(stderr, "  Unavailable: swap.pagesout/swap.out\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_blk_read) {
+	fprintf(stderr, "  Unavailable: disk.all.blkread/disk.all.read\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_blk_write) {
+	fprintf(stderr, "  Unavailable: disk.all.blkwrite/disk.all.write\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_interrupts) {
+	fprintf(stderr, "  Unavailable: kernel.all.intr\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_pswitch) {
+	fprintf(stderr, "  Unavailable: kernel.all.pswitch\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_cpu_wait) {
+	fprintf(stderr, "  Unavailable: kernel.all.cpu.wait.total\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_cpu_steal) {
+	fprintf(stderr, "  Unavailable: kernel.all.cpu.steal\n");
+	any_unavailable = 1;
+    }
+    if (!display.show_cpu_guest) {
+	fprintf(stderr, "  Unavailable: kernel.all.cpu.guest/guest_nice\n");
+	any_unavailable = 1;
+    }
+
+    return any_unavailable;
+}
+
+/*
+ * Report suppressed columns for debugging purposes.
+ */
+static void
+reportSuppressedColumns(void)
+{
+    fprintf(stderr, "\nSuppressed columns:\n");
+
+    if (!display.show_pswitch)
+	fprintf(stderr, "  - pswitch (cs)\n");
+    if (!display.show_mem_buf)
+	fprintf(stderr, "  - mem.bufmem (buff)\n");
+    if (!display.show_swap_in)
+	fprintf(stderr, "  - swap.in (si)\n");
+    if (!display.show_swap_out)
+	fprintf(stderr, "  - swap.out (so)\n");
+    if (!display.show_mem_cached)
+	fprintf(stderr, "  - mem.cached (cache)\n");
+    if (!display.show_cpu_wait && extraCpuStats)
+	fprintf(stderr, "  - cpu.wait (wa)\n");
+    if (!display.show_cpu_steal && extraCpuStats)
+	fprintf(stderr, "  - cpu.steal (st)\n");
+    if (!display.show_cpu_guest && extraCpuStats)
+	fprintf(stderr, "  - cpu.guest (gu)\n");
+}
+
+/*
+ * Report group visibility for debugging purposes.
+ */
+static void
+reportGroupVisibility(void)
+{
+    fprintf(stderr, "\nGroup visibility:\n");
+
+    if (!display.show_group[COL_MEMORY])
+	fprintf(stderr, "  - memory group: HIDDEN (no metrics available)\n");
+    else
+	fprintf(stderr, "  - memory group: visible\n");
+
+    if (!display.show_group[COL_SWAP])
+	fprintf(stderr, "  - swap group: HIDDEN (no metrics available)\n");
+    else
+	fprintf(stderr, "  - swap group: visible\n");
+
+    if (!display.show_group[COL_IO])
+	fprintf(stderr, "  - io group: HIDDEN (no metrics available)\n");
+    else
+	fprintf(stderr, "  - io group: visible\n");
+
+    if (!display.show_group[COL_SYSTEM])
+	fprintf(stderr, "  - system group: HIDDEN (no metrics available)\n");
+    else
+	fprintf(stderr, "  - system group: visible\n");
+}
+
+/*
+ * Report diagnostic information about column availability.
+ */
+static void
+reportAvailabilityDiagnostics(void)
+{
+    int any_unavailable;
+
+    fprintf(stderr, "Column availability analysis:\n");
+
+    any_unavailable = reportUnavailableMetrics();
+    reportSuppressedColumns();
+    reportGroupVisibility();
+
+    if (!any_unavailable)
+	fprintf(stderr, "\n  All metrics available\n");
+
+    fprintf(stderr, "\n");
+}
+
+/*
  * Analyze metric availability across all contexts.
  * If ANY context lacks a metric, mark it as unavailable globally.
  * This ensures consistent column layout across all hosts.
@@ -292,7 +431,7 @@ destroyContext(struct statsrc *s)
 static void
 detectColumnAvailability(struct statsrc **ctxList, int ctxCount)
 {
-    int i, any_unavailable = 0;
+    int i;
 
     /* Start optimistic - assume all columns available */
     memset(&display, 1, sizeof(display));
@@ -345,103 +484,8 @@ detectColumnAvailability(struct statsrc **ctxList, int ctxCount)
     display.show_group[COL_CPU] = 1;  /* CPU always shown */
 
     /* Verbose reporting - only if debugging enabled */
-    if (pmDebugOptions.appl0) {
-	fprintf(stderr, "Column availability analysis:\n");
-
-	/* Report unavailable individual metrics */
-	if (!display.show_swap_used) {
-	    fprintf(stderr, "  Unavailable: swap.used\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_mem_free) {
-	    fprintf(stderr, "  Unavailable: mem.util.free\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_mem_buf) {
-	    fprintf(stderr, "  Unavailable: mem.util.bufmem/mem.bufmem\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_mem_cached) {
-	    fprintf(stderr, "  Unavailable: mem.util.cached\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_swap_in) {
-	    fprintf(stderr, "  Unavailable: swap.pagesin/swap.in\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_swap_out) {
-	    fprintf(stderr, "  Unavailable: swap.pagesout/swap.out\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_blk_read) {
-	    fprintf(stderr, "  Unavailable: disk.all.blkread/disk.all.read\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_blk_write) {
-	    fprintf(stderr, "  Unavailable: disk.all.blkwrite/disk.all.write\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_interrupts) {
-	    fprintf(stderr, "  Unavailable: kernel.all.intr\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_pswitch) {
-	    fprintf(stderr, "  Unavailable: kernel.all.pswitch\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_cpu_wait) {
-	    fprintf(stderr, "  Unavailable: kernel.all.cpu.wait.total\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_cpu_steal) {
-	    fprintf(stderr, "  Unavailable: kernel.all.cpu.steal\n");
-	    any_unavailable = 1;
-	}
-	if (!display.show_cpu_guest) {
-	    fprintf(stderr, "  Unavailable: kernel.all.cpu.guest/guest_nice\n");
-	    any_unavailable = 1;
-	}
-
-	/* Report suppressed columns */
-	fprintf(stderr, "\nSuppressed columns:\n");
-	if (!display.show_pswitch)
-	    fprintf(stderr, "  - pswitch (cs)\n");
-	if (!display.show_mem_buf)
-	    fprintf(stderr, "  - mem.bufmem (buff)\n");
-	if (!display.show_cpu_wait && extraCpuStats)
-	    fprintf(stderr, "  - cpu.wait (wa)\n");
-	if (!display.show_cpu_steal && extraCpuStats)
-	    fprintf(stderr, "  - cpu.steal (st)\n");
-	if (!display.show_cpu_guest && extraCpuStats)
-	    fprintf(stderr, "  - cpu.guest (gu)\n");
-
-	/* Report group visibility */
-	fprintf(stderr, "\nGroup visibility:\n");
-	if (!display.show_group[COL_MEMORY])
-	    fprintf(stderr, "  - memory group: HIDDEN (no metrics available)\n");
-	else
-	    fprintf(stderr, "  - memory group: visible\n");
-
-	if (!display.show_group[COL_SWAP])
-	    fprintf(stderr, "  - swap group: HIDDEN (no metrics available)\n");
-	else
-	    fprintf(stderr, "  - swap group: visible\n");
-
-	if (!display.show_group[COL_IO])
-	    fprintf(stderr, "  - io group: HIDDEN (no metrics available)\n");
-	else
-	    fprintf(stderr, "  - io group: visible\n");
-
-	if (!display.show_group[COL_SYSTEM])
-	    fprintf(stderr, "  - system group: HIDDEN (no metrics available)\n");
-	else
-	    fprintf(stderr, "  - system group: visible\n");
-
-	if (!any_unavailable)
-	    fprintf(stderr, "  All metrics available\n");
-
-	fprintf(stderr, "\n");
-    }
+    if (pmDebugOptions.appl0)
+	reportAvailabilityDiagnostics();
 }
 
 static void
