@@ -8310,7 +8310,7 @@ done
 
 
 
-for ac_prog in pylint-3
+for ac_prog in pylint-3 pylint
 do
   # Extract the first word of "$ac_prog", so it can be a program name with args.
 set dummy $ac_prog; ac_word=$2
@@ -8324,7 +8324,7 @@ else $as_nop
   ac_cv_prog_PYLINT="$PYLINT" # Let the user override the test.
 else
 as_save_IFS=$IFS; IFS=$PATH_SEPARATOR
-for as_dir in true
+for as_dir in $PATH
 do
   IFS=$as_save_IFS
   case $as_dir in #(((
@@ -8356,12 +8356,12 @@ fi
 
   test -n "$PYLINT" && break
 done
-test -n "$PYLINT" || PYLINT="pylint"
+test -n "$PYLINT" || PYLINT="true"
 
 if test "$PYLINT" != true
 then
-    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking pylint version" >&5
-printf %s "checking pylint version... " >&6; }
+    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking $PYLINT version" >&5
+printf %s "checking $PYLINT version... " >&6; }
     version=`$PYLINT --version 2>/dev/null | sed -n -e '/^pylint /s///p'`
     if test -z "$version"
     then
@@ -8371,7 +8371,7 @@ printf "%s\n" "unknown" >&6; }
     else
 	case "$version"
 	in
-	    1.*|2.*)	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $version too old" >&5
+	    012.*)	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $version too old" >&5
 printf "%s\n" "$version too old" >&6; }
 			PYLINT=true
 			;;
