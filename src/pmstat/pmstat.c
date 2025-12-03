@@ -534,6 +534,44 @@ resize(int sig)
 #endif
 
 /*
+ * Calculate display width for the memory group based on visible columns.
+ */
+static int
+calculateMemoryWidth(int multiHost)
+{
+    int width = 0;
+    if (display.show_swap_used) width += 7;  /* " %6s" */
+    if (display.show_mem_free) width += 7;
+    if (display.show_mem_buf && !multiHost) width += 7;
+    if (display.show_mem_cached) width += 7;
+    return width;
+}
+
+/*
+ * Calculate display width for the swap group based on visible columns.
+ */
+static int
+calculateSwapWidth(void)
+{
+    int width = 0;
+    if (display.show_swap_in) width += 5;   /* "   %c%1s" */
+    if (display.show_swap_out) width += 5;
+    return width;
+}
+
+/*
+ * Calculate display width for the IO group based on visible columns.
+ */
+static int
+calculateIoWidth(void)
+{
+    int width = 0;
+    if (display.show_blk_read) width += 5;  /* " %4s" */
+    if (display.show_blk_write) width += 5;
+    return width;
+}
+
+/*
  * Calculate display width for the system group based on visible columns.
  */
 static int
@@ -555,25 +593,33 @@ printColumnHeaders(int multiHost)
 	printf("%8s", "");  /* Align with node name */
 
     /* Load average */
-    printf("%7s", "1 min");
+    printf(" %7s", "1 min");
 
-    /* Memory group - always shown with these columns */
-    printf(" %6s", "swpd");
-    if (multiHost)
-	printf(" %6s", "");  /* skip "free" label in multi-host */
-    else
-	printf(" %6s", "free");
-    if (!multiHost)  /* buff only in single host mode */
+    /* Memory group - conditional */
+    if (display.show_swap_used)
+	printf(" %6s", "swpd");
+    if (display.show_mem_free) {
+	if (multiHost)
+	    printf(" %6s", "");  /* skip "free" label in multi-host */
+	else
+	    printf(" %6s", "free");
+    }
+    if (display.show_mem_buf && !multiHost)
 	printf(" %6s", "buff");
-    printf(" %6s", "cache");
+    if (display.show_mem_cached)
+	printf(" %6s", "cache");
 
-    /* Swap group - always shown */
-    printf("   %c%1s", swapOp, "i");
-    printf("   %c%1s", swapOp, "o");
+    /* Swap group - conditional */
+    if (display.show_swap_in)
+	printf("   %c%1s", swapOp, "i");
+    if (display.show_swap_out)
+	printf("   %c%1s", swapOp, "o");
 
-    /* IO group - always shown */
-    printf(" %4s", "bi");
-    printf(" %4s", "bo");
+    /* IO group - conditional */
+    if (display.show_blk_read)
+	printf(" %4s", "bi");
+    if (display.show_blk_write)
+	printf(" %4s", "bo");
 
     /* System group - conditional */
     if (display.show_interrupts)
@@ -598,21 +644,27 @@ printColumnHeaders(int multiHost)
 static void
 printGroupHeaders(int multiHost)
 {
-    int sys_width;
+    int mem_width, swap_width, io_width, sys_width;
 
     if (multiHost)
 	printf("%-7s", "node");
 
     printf("%8s", "loadavg");
 
-    /* Memory group - fixed width in current implementation */
-    printf("%21s", "memory");
+    /* Memory group - dynamic width based on available columns */
+    mem_width = calculateMemoryWidth(multiHost);
+    if (mem_width > 0)
+	printf("%*s", mem_width, "memory");
 
-    /* Swap group - fixed width */
-    printf("%10s", "swap");
+    /* Swap group - dynamic width based on available columns */
+    swap_width = calculateSwapWidth();
+    if (swap_width > 0)
+	printf("%*s", swap_width, "swap");
 
-    /* IO group - fixed width */
-    printf("%10s", "io");
+    /* IO group - dynamic width based on available columns */
+    io_width = calculateIoWidth();
+    if (io_width > 0)
+	printf("%*s", io_width, "io");
 
     /* System group - dynamic width based on available columns */
     sys_width = calculateSystemWidth();
@@ -913,19 +965,26 @@ check:
 		    printf(" %7.2f", s->val[load_avg].f);
 
 		/* Memory state */
-		scaleKPrint(s, swap_used);
-		scaleKPrint(s, mem_free);
-		if (ctxCount <= 1)	/* Report only for single host case */
+		if (display.show_swap_used)
+		    scaleKPrint(s, swap_used);
+		if (display.show_mem_free)
+		    scaleKPrint(s, mem_free);
+		if (display.show_mem_buf && ctxCount <= 1)
 		    scaleKPrint(s, mem_buf);
-		scaleKPrint(s, mem_cached);
+		if (display.show_mem_cached)
+		    scaleKPrint(s, mem_cached);
 
 		/* Swap in/out */
-		scalePrint(s, swap_in);
-		scalePrint(s, swap_out);
+		if (display.show_swap_in)
+		    scalePrint(s, swap_in);
+		if (display.show_swap_out)
+		    scalePrint(s, swap_out);
 
-		/* io in/out */
-		scalePrint(s, blk_read);
-		scalePrint(s, blk_write);
+		/* IO in/out */
+		if (display.show_blk_read)
+		    scalePrint(s, blk_read);
+		if (display.show_blk_write)
+		    scalePrint(s, blk_write);
 
 		/* system interrupts */
 		if (display.show_interrupts)
