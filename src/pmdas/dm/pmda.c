@@ -1340,7 +1340,8 @@ dm_fetch_refresh(pmdaExt *pmda, int *need_refresh)
     if ((need_refresh[CLUSTER_DM_MULTIPATH_INFO] ||
          need_refresh[CLUSTER_DM_MULTIPATH_PATH] ||
          need_refresh[CLUSTER_DM_MULTIPATH_DEVICE]) && privilege) {
-         dm_multipath_instance_refresh();
+         if ((sts = dm_multipath_instance_refresh()) < 0)
+             return sts;
     }
 
     return 0;

@@ -37,6 +37,8 @@ _filter()
     sed \
 	-e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
 	-e '/Warning: built without support for dmstats metrics/d' \
+	-e '/Warning: dm_multipath_instance_refresh/d' \
+	-e '/Error: dm_multipath_instance_refresh/d' \
     #end
 }
 
