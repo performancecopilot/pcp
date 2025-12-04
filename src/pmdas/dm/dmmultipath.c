@@ -26,6 +26,9 @@
 
 static char *dm_setup_dmmultipathd;
 
+static int multipathd_found = 1;
+static int multipath_maps_paths_found = 1;
+
 /* multipathd command output is padded with a leading tab layout,
  * trim this out from the output to make comparisons easier.
  */
@@ -159,9 +162,12 @@ dm_multipath_instance_refresh(void)
     pmdaCacheOp(path_indom, PMDA_CACHE_INACTIVE);
     pmdaCacheOp(dev_indom, PMDA_CACHE_INACTIVE);
 
+    if (!multipathd_found || !multipath_maps_paths_found)
+        return 0;
+
     pmsprintf(buffer, sizeof(buffer), "%s", dm_setup_dmmultipathd);
     if ((fp = popen(buffer, "r")) == NULL)
-        return PM_ERR_AGAIN;
+        return -oserror();
 
     int path_count = 0;
 
@@ -170,9 +176,23 @@ dm_multipath_instance_refresh(void)
     while (fgets(buffer, sizeof(buffer) -1, fp) != NULL) {
         char *trimmed = trim_whitespace(buffer);
 
-        // No entries found
-        if (strstr(buffer, "multipath.conf does not exist"))
+        // mulitipathd not installed
+        if (strstr(buffer, "command not found")) {
+            pmNotifyErr(LOG_ERR, "%s: multipathd executable not found\n", 
+                        __FUNCTION__);
+
+            multipathd_found = 0;
             break;
+        }
+
+        // No entries found
+        if (strstr(buffer, "multipath.conf does not exist")) {
+            pmNotifyErr(LOG_WARNING, "%s: multipath.conf, no map/path configuration found\n", 
+                            __FUNCTION__);
+            
+            multipath_maps_paths_found = 0;
+            break;
+        }
 
         if (trimmed[0] == '\0')
             // Skip empty lines
@@ -301,7 +321,7 @@ dm_multipath_instance_refresh(void)
 void
 dm_multipath_setup(void)
 {
-    static char multipathd_command[] = "multipathd show topology 2>/dev/null";
+    static char multipathd_command[] = "multipathd show topology 2>&1";
     char *env_command;
 
     /* allow override at startup for QA testing */
