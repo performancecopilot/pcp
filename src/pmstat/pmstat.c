@@ -113,6 +113,7 @@ pmLongOptions longopts[] = {
     PMOPT_HOSTSFILE,
     PMOPT_LOCALPMDA,
     PMAPI_OPTIONS_HEADER("Reporting options"),
+    { "compact", 0, 'C', 0, "suppress columns for unavailable metrics" },
     { "suffix", 0, 'l', 0, "print last 7 charcters of the host name(s)" },
     { "pause", 0, 'P', 0, "pause between updates for archive replay" },
     { "xcpu", 0, 'x', 0, "extended CPU statistics reporting" },
@@ -121,11 +122,12 @@ pmLongOptions longopts[] = {
 
 pmOptions opts = {
     .flags = PM_OPTFLAG_MULTI | PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = PMAPI_OPTIONS "H:LlPx",
+    .short_options = PMAPI_OPTIONS "CH:LlPx",
     .long_options = longopts,
 };
 
 static int extraCpuStats;
+static int compactMode;
 static char swapOp = 'p';
 static int rows = 21;
 static int header;
@@ -436,7 +438,25 @@ detectColumnAvailability(struct statsrc **ctxList, int ctxCount)
     /* Start optimistic - assume all columns available */
     memset(&display, 1, sizeof(display));
 
-    /* Check each context */
+    /*
+     * If not in compact mode, show all columns regardless of availability.
+     * Unavailable metrics will be displayed as "?" in the output.
+     */
+    if (!compactMode) {
+	/* Set all group visibility to show all groups */
+	for (i = 0; i < NUM_COL_GROUPS; i++)
+	    display.show_group[i] = 1;
+
+	/* Verbose reporting - only if debugging enabled */
+	if (pmDebugOptions.appl0)
+	    reportAvailabilityDiagnostics();
+	return;
+    }
+
+    /*
+     * Compact mode: analyze availability and suppress unavailable columns.
+     * Check each context and mark columns unavailable if ANY context lacks them.
+     */
     for (i = 0; i < ctxCount; i++) {
 	struct statsrc *s = ctxList[i];
 
@@ -766,6 +786,9 @@ main(int argc, char *argv[])
 
     while ((sts = pmGetOptions(argc, argv, &opts)) != EOF) {
 	switch (sts) {
+	case 'C':	/* compact mode - suppress unavailable columns */
+	    compactMode = 1;
+	    break;
 	case 'l':	/* print last 7 characters of hostname(s) */
 	    printTail++;
 	    break;
