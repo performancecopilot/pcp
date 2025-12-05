@@ -636,7 +636,7 @@ class NFSCLIENTPMDA(PMDA):
                         line = STATS.readline()
                         if line == '':
                             break
-                        m = re.match(r'\s*([A-Z_]*): (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*)$', line)
+                        m = re.match(r'\s*([A-Z_]*): (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*) (\d*)$', line)
                         if not m:
                             break
                         opname = m.group(1).lower()
