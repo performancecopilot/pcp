@@ -84,17 +84,16 @@ jobs:
       - name: Verify Installation
         if: success() && steps.install-test.conclusion == 'success'
         run: |
-          # Check critical binaries exist
+          # Check critical binaries exist (will fail build if not found)
           echo "Checking for installed binaries..."
-          which pmcd && echo "✓ pmcd found at $(which pmcd)" || echo "✗ pmcd not found in PATH"
-          which pminfo && echo "✓ pminfo found at $(which pminfo)" || echo "✗ pminfo not found in PATH"
-          which pmval && echo "✓ pmval found at $(which pmval)" || echo "✗ pmval not found in PATH"
-          which pmlogger && echo "✓ pmlogger found at $(which pmlogger)" || echo "✗ pmlogger not found in PATH"
+          which pminfo && echo "✓ pminfo found at $(which pminfo)"
+          which pmval && echo "✓ pmval found at $(which pmval)"
+          which pmlogger && echo "✓ pmlogger found at $(which pmlogger)"
 
-          # Check for expected directories
+          # Check for expected directories (will fail build if not found)
           echo "Checking for expected directories..."
-          test -d /etc/pcp && echo "✓ /etc/pcp exists" || echo "✗ /etc/pcp not found"
-          test -d /var/lib/pcp && echo "✓ /var/lib/pcp exists" || echo "✗ /var/lib/pcp not found"
+          test -d /etc/pcp && echo "✓ /etc/pcp exists"
+          test -d /var/lib/pcp && echo "✓ /var/lib/pcp exists"
       - name: Cleanup - Unmount DMG
         if: always()
         run: |
