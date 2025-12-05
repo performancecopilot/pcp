@@ -1,17 +1,17 @@
 #!/bin/sh
 #
 # Copyright (c) 2003-2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
@@ -42,25 +42,62 @@ then
     exit 1
 fi
 
-echo "Stopping PCP..."
-/Library/StartupItems/pcp/pmlogger stop
-/Library/StartupItems/pcp/pmcd stop
-sleep 5
+echo "Stopping PCP services..."
+
+# Unload and remove launchd services
+for service in io.pcp.pmcd io.pcp.pmie io.pcp.pmlogger io.pcp.pmproxy
+do
+    if launchctl list "$service" >/dev/null 2>&1; then
+        echo "  Stopping $service..."
+        # Try modern bootout first (macOS 10.11+), fall back to unload for older systems
+        launchctl bootout system "/Library/LaunchDaemons/${service}.plist" 2>/dev/null || \
+        launchctl unload "/Library/LaunchDaemons/${service}.plist" 2>/dev/null || true
+    fi
+done
+
+sleep 2
 
 if [ -x $BINADM_DIR/install-pcp -a -r $BINADM_DIR/idb ]
 then
-    echo "Removing Receipts"
+    echo "Removing package receipts..."
+
+    # Modern macOS package receipt removal
+    if pkgutil --pkgs | grep -q "io.pcp.performancecopilot" 2>/dev/null; then
+        pkgutil --forget io.pcp.performancecopilot 2>/dev/null || true
+    fi
+
+    # Also remove old-style receipts if they exist (for upgrades from old versions)
     if [ -d /Library/Receipts/pcp-*.pkg ]; then
 	rm -rf /Library/Receipts/pcp-*.pkg
     fi
+
+    echo "Removing LaunchDaemons plists..."
+    for plist in io.pcp.pmcd io.pcp.pmie io.pcp.pmlogger io.pcp.pmproxy
+    do
+        if [ -f "/Library/LaunchDaemons/${plist}.plist" ]; then
+            rm -f "/Library/LaunchDaemons/${plist}.plist"
+        fi
+    done
+
     echo "Uninstall in background to remove all running scripts"
     # Copy to /tmp since inst will remove itself and this script
     cp $BINADM_DIR/install-pcp $BINADM_DIR/idb /tmp
     # create tidy up script
     echo '#!/bin/sh' > /tmp/_pcp_tidy.sh
-    echo '/tmp/install-pcp -r -l /var/log/pcp_inst.log /tmp/idb && /bin/rm -rf /Library/Receipts/pcp-*' >> /tmp/_pcp_tidy.sh
+    echo '/tmp/install-pcp -r -l /var/log/pcp_inst.log /tmp/idb' >> /tmp/_pcp_tidy.sh
+    echo 'pkgutil --forget io.pcp.performancecopilot 2>/dev/null || true' >> /tmp/_pcp_tidy.sh
+    echo '/bin/rm -rf /Library/Receipts/pcp-* 2>/dev/null || true' >> /tmp/_pcp_tidy.sh
     echo '/bin/rm -f /tmp/install-pcp /tmp/idb /tmp/_pcp_tidy.sh' >> /tmp/_pcp_tidy.sh
-    echo 'echo Done' >> /tmp/_pcp_tidy.sh
+    echo 'echo ""' >> /tmp/_pcp_tidy.sh
+    echo 'echo "PCP uninstall complete."' >> /tmp/_pcp_tidy.sh
+    echo 'echo ""' >> /tmp/_pcp_tidy.sh
+    echo 'echo "Note: Configuration and log files have been left in place:"' >> /tmp/_pcp_tidy.sh
+    echo 'echo "  - /etc/pcp/"' >> /tmp/_pcp_tidy.sh
+    echo 'echo "  - /var/lib/pcp/"' >> /tmp/_pcp_tidy.sh
+    echo 'echo "  - /var/log/pcp/"' >> /tmp/_pcp_tidy.sh
+    echo 'echo ""' >> /tmp/_pcp_tidy.sh
+    echo 'echo "You may manually remove these directories if desired."' >> /tmp/_pcp_tidy.sh
+    echo 'echo ""' >> /tmp/_pcp_tidy.sh
     chmod u+x /tmp/_pcp_tidy.sh
     # Run remove, overriding this shell
     exec /tmp/_pcp_tidy.sh
@@ -68,4 +105,3 @@ else
     echo "Unable to find $BINADM_DIR/install-pcp. Remove failed"
     exit 1
 fi
-
