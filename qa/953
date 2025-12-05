@@ -44,11 +44,11 @@ _filter_ncpu()
 # and
 # 192.0.2.10 -111 (Connection refused)
 # and
-# 192.0.2.22 -60 (Operation timed out, Mac OS X)
+# 192.0.2.22 -60 (Operation timed out, macOS)
 # and
-# 192.0.2.22 -51 (Network is unreachable, Mac OS X)
+# 192.0.2.22 -51 (Network is unreachable, macOS)
 # and
-# 192.0.2.22 -65 (No route to host, Mac OS X)
+# 192.0.2.22 -65 (No route to host, macOS)
 # and
 # 192.0.2.22 -61 (Connection refused. *BSD)
 # so treat 'em as equivalent here ...

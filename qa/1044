@@ -67,7 +67,7 @@ head -2 $seq_full			# check the initial lines generated OK
 
 echo
 echo "=== check generated config.pmie is good pmie syntax"
-# Mac OS X issue ... swap.pagesout is not supported, so we get
+# macOS issue ... swap.pagesout is not supported, so we get
 # pmie: metric swap.pagesout not in namespace for host Colleens-iMac.local
 # pmLookupName failed: Unknown metric name
 #

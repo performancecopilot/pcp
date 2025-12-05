@@ -201,7 +201,7 @@ main()
 #if darwin_hack
     /*
      * This is just too bizarre!
-     * On Mac OS X, if one falls into the "CoreFoundation" libraries
+     * On macOS, if one falls into the "CoreFoundation" libraries
      * in a thread, without first having run the initialization code
      * from the mainline, you die with a SIGTRAP!  Calling dlopen() with
      * doomed to fail parameters suffices.
