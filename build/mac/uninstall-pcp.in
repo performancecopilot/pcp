@@ -121,7 +121,16 @@ then
     echo '#!/bin/sh' > "$tidyscript"
     echo "tmpdir=\"$tmpdir\"" >> "$tidyscript"
     echo 'cd "$tmpdir"' >> "$tidyscript"
-    echo './install-pcp -r -l /var/log/pcp_inst.log ./idb' >> "$tidyscript"
+
+    # In force mode, suppress "Directory not empty" warnings from install-pcp
+    # since we'll be removing those directories with rm -rf anyway
+    if $FORCE
+    then
+        echo './install-pcp -r -l /var/log/pcp_inst.log ./idb 2>/dev/null' >> "$tidyscript"
+    else
+        echo './install-pcp -r -l /var/log/pcp_inst.log ./idb' >> "$tidyscript"
+    fi
+
     echo 'pkgutil --forget io.pcp.performancecopilot 2>/dev/null || true' >> "$tidyscript"
     echo '/bin/rm -rf /Library/Receipts/pcp-* 2>/dev/null || true' >> "$tidyscript"
 
