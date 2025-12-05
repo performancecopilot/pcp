@@ -58,7 +58,7 @@
                         <key>TitleKey</key>
                         <string>OsVerTitleKey</string>
                         <key>MessageKey</key>
-                        <string>Need MacOS X version 10.@macos_version@ or higher</string>
+                        <string>Need macOS version 10.@macos_version@ or higher</string>
                 </dict>
         </array>
 </dict>
