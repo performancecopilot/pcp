@@ -81,6 +81,17 @@ refresh_loadavg(float *loadavg)
 }
 
 int
+refresh_swap(struct xsw_usage *swapusage)
+{
+    int		mib[2] = { CTL_VM, VM_SWAPUSAGE };
+    size_t	size = sizeof(struct xsw_usage);
+
+    if (sysctl(mib, 2, swapusage, &size, NULL, 0) == -1)
+	return -oserror();
+    return 0;
+}
+
+int
 refresh_uptime(unsigned int *uptime)
 {
     static struct timeval	boottime;
@@ -181,4 +192,5 @@ refresh_hinv(void)
     if (sysctl(mib, 2, hw_model, &size, NULL, 0) == -1)
 	return -oserror();
     return 0;
+
 }
