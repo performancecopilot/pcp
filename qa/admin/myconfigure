@@ -128,7 +128,7 @@ then
     fi
 elif [ $target = darwin ]
 then
-    # On Mac OS X platforms, we're using brew ...
+    # On macOS platforms, we're using brew ...
     #
     export CC=clang
     export CXX=clang

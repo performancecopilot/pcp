@@ -12,7 +12,7 @@
 
 _filter_compression()
 {
-    # Mac OS X, FreeBSD, OpenBSD and Solaris strangeness
+    # macOS, FreeBSD, OpenBSD and Solaris strangeness
     tee -a $seq_full \
     | sed \
 	-e '/: Undefined error: 0/s//: Success/' \

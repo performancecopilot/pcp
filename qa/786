@@ -18,7 +18,7 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 host=`hostname`
 
-# errno mapping -65 (EHOSTUNREACH on Mac OS X) -> -113 (EHOSTUNREACH on
+# errno mapping -65 (EHOSTUNREACH on macOS) -> -113 (EHOSTUNREACH on
 # Linux)
 # errno mapping -148 (EHOSTUNREACH on Solaris/OpenIndiana) -> -113
 # (EHOSTUNREACH on Linux)

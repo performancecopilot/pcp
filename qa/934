@@ -41,7 +41,7 @@ s/"/'"'"'/g
 _report()
 {
     # ./: lines are there for Linux, not for ls(1) on other platforms
-    # like Mac OS X
+    # like macOS
     #
     ls -lR | $PCP_AWK_PROG '
 NF < 4		{ print; next }
