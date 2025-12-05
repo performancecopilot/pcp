@@ -61,6 +61,45 @@ jobs:
           ls -la /usr/local/bin | grep python
           df -h
           brew list
+      # Installation testing steps
+      - name: Mount DMG and Install PKG
+        if: success()
+        id: install-test
+        run: |
+          # Find the generated DMG
+          DMG_PATH=$(find pcp-**/build/mac -name "pcp-*.dmg" | head -1)
+          echo "Found DMG: $DMG_PATH"
+
+          # Mount the DMG
+          MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" | tail -1)
+          VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | awk '{print $3}')
+          echo "Mounted at: $VOLUME_PATH"
+
+          # Find and install the PKG
+          PKG_PATH=$(find "$VOLUME_PATH" -name "*.pkg" | head -1)
+          echo "Found PKG: $PKG_PATH"
+
+          # Install (sudo is passwordless in GitHub Actions)
+          sudo installer -pkg "$PKG_PATH" -target / -verbose
+      - name: Verify Installation
+        if: success() && steps.install-test.conclusion == 'success'
+        run: |
+          # Check critical binaries exist
+          echo "Checking for installed binaries..."
+          which pmcd && echo "✓ pmcd found at $(which pmcd)" || echo "✗ pmcd not found in PATH"
+          which pminfo && echo "✓ pminfo found at $(which pminfo)" || echo "✗ pminfo not found in PATH"
+          which pmval && echo "✓ pmval found at $(which pmval)" || echo "✗ pmval not found in PATH"
+          which pmlogger && echo "✓ pmlogger found at $(which pmlogger)" || echo "✗ pmlogger not found in PATH"
+
+          # Check for expected directories
+          echo "Checking for expected directories..."
+          test -d /etc/pcp && echo "✓ /etc/pcp exists" || echo "✗ /etc/pcp not found"
+          test -d /var/lib/pcp && echo "✓ /var/lib/pcp exists" || echo "✗ /var/lib/pcp not found"
+      - name: Cleanup - Unmount DMG
+        if: always()
+        run: |
+          # Unmount any mounted PCP volumes
+          hdiutil detach /Volumes/pcp* 2>/dev/null || true
       # New steps for handling releases on version tags below
       - name: Check if version tag
         if: github.ref_type == 'tag'
