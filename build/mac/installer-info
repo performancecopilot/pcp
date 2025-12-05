@@ -52,13 +52,13 @@
                         <key>TestOperator</key>
                         <string>&gt;=</string>
                         <key>TestObject</key>
-                        <string>10.@macosx_version@</string>
+                        <string>10.@macos_version@</string>
                         <key>LabelKey</key>
                         <string>OsVerLabelKey</string>
                         <key>TitleKey</key>
                         <string>OsVerTitleKey</string>
                         <key>MessageKey</key>
-                        <string>Need MacOS X version 10.@macosx_version@ or higher</string>
+                        <string>Need MacOS X version 10.@macos_version@ or higher</string>
                 </dict>
         </array>
 </dict>

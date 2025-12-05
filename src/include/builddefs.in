@@ -682,7 +682,7 @@ endif
 
 # Create perl manifest files explicitly for some distributions
 ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
-                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+                -o '$(PACKAGE_DISTRIBUTION)' = macos \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
@@ -738,7 +738,7 @@ PYTHON3_INSTALL = \
 	done
 else
 ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
-                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+                -o '$(PACKAGE_DISTRIBUTION)' = macos \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
