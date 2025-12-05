@@ -1,0 +1,204 @@
+device sysfs mounted on /sys with fstype sysfs
+device proc mounted on /proc with fstype proc
+device devtmpfs mounted on /dev with fstype devtmpfs
+device securityfs mounted on /sys/kernel/security with fstype securityfs
+device tmpfs mounted on /dev/shm with fstype tmpfs
+device devpts mounted on /dev/pts with fstype devpts
+device tmpfs mounted on /run with fstype tmpfs
+device tmpfs mounted on /sys/fs/cgroup with fstype tmpfs
+device cgroup mounted on /sys/fs/cgroup/systemd with fstype cgroup
+device pstore mounted on /sys/fs/pstore with fstype pstore
+device efivarfs mounted on /sys/firmware/efi/efivars with fstype efivarfs
+device bpf mounted on /sys/fs/bpf with fstype bpf
+device cgroup mounted on /sys/fs/cgroup/freezer with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/cpuset with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/pids with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/blkio with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/cpu,cpuacct with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/rdma with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/devices with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/misc with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/hugetlb with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/perf_event with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/net_cls,net_prio with fstype cgroup
+device cgroup mounted on /sys/fs/cgroup/memory with fstype cgroup
+device none mounted on /sys/kernel/tracing with fstype tracefs
+device configfs mounted on /sys/kernel/config with fstype configfs
+device /dev/mapper/ocivolume-root mounted on / with fstype xfs
+device rpc_pipefs mounted on /var/lib/nfs/rpc_pipefs with fstype rpc_pipefs
+device selinuxfs mounted on /sys/fs/selinux with fstype selinuxfs
+device systemd-1 mounted on /proc/sys/fs/binfmt_misc with fstype autofs
+device mqueue mounted on /dev/mqueue with fstype mqueue
+device hugetlbfs mounted on /dev/hugepages with fstype hugetlbfs
+device debugfs mounted on /sys/kernel/debug with fstype debugfs
+device /dev/mapper/ocivolume-oled mounted on /var/oled with fstype xfs
+device /dev/sda2 mounted on /boot with fstype xfs
+device /dev/sda1 mounted on /boot/efi with fstype vfat
+device fusectl mounted on /sys/fs/fuse/connections with fstype fusectl
+device tmpfs mounted on /run/user/986 with fstype tmpfs
+device tracefs mounted on /sys/kernel/debug/tracing with fstype tracefs
+device ol-node-02:/nfs-share mounted on /nfs-mount with fstype nfs4 statvers=1.1
+        opts:   rw,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.168,local_lock=none
+        age:    142673
+        impl_id:        name='',domain='',date='0,0'
+        caps:   caps=0xfffbc03f,wtmult=512,dtsize=1048576,bsize=0,namlen=255
+        nfsv4:  bm0=0xfdffbfff,bm1=0x40fdbe3e,bm2=0x60803,acl=0x3,sessions,pnfs=not configured,lease_time=90,lease_expired=0
+        sec:    flavor=1,pseudoflavor=1
+        events: 27 81 1 15 2 4 221 0 0 15 0 0 4 11 100 0 0 50 0 10 0 0 0 0 0 0 0
+        bytes:  380000000 0 0 12884901888 10000000 12884901888 2442 0
+        RPC iostats version: 1.1  p/v: 100003/4 (nfs)
+        xprt:   tcp 0 0 2 0 22 14790 14790 0 48650 0 31 320271 30578
+        per-op statistics
+                NULL: 1 1 0 44 24 2 0 2 0
+                READ: 15 15 0 3180 10001560 0 132 133 0
+               WRITE: 12288 12288 0 12887556096 1376256 49846208 329955 50176306 0
+              COMMIT: 12 12 0 2352 1248 0 180398 180398 0
+                OPEN: 2 2 0 616 776 0 98 98 0
+        OPEN_CONFIRM: 0 0 0 0 0 0 0 0 0
+         OPEN_NOATTR: 12 12 0 3168 3984 0 5 6 0
+        OPEN_DOWNGRADE: 0 0 0 0 0 0 0 0 0
+               CLOSE: 14 14 0 3048 2432 0 6 8 0
+             SETATTR: 10 10 0 2360 2720 0 220 221 0
+              FSINFO: 1 1 0 188 168 0 0 0 0
+               RENEW: 0 0 0 0 0 0 0 0 0
+         SETCLIENTID: 0 0 0 0 0 0 0 0 0
+        SETCLIENTID_CONFIRM: 0 0 0 0 0 0 0 0 0
+                LOCK: 0 0 0 0 0 0 0 0 0
+               LOCKT: 0 0 0 0 0 0 0 0 0
+               LOCKU: 0 0 0 0 0 0 0 0 0
+              ACCESS: 3 3 0 572 504 0 1 1 0
+             GETATTR: 30 30 0 5500 7216 0 15 16 0
+              LOOKUP: 4 4 0 824 384 0 1 1 4
+         LOOKUP_ROOT: 0 0 0 0 0 0 0 0 0
+              REMOVE: 2 2 0 368 232 0 104 104 0
+              RENAME: 0 0 0 0 0 0 0 0 0
+                LINK: 0 0 0 0 0 0 0 0 0
+             SYMLINK: 0 0 0 0 0 0 0 0 0
+              CREATE: 0 0 0 0 0 0 0 0 0
+            PATHCONF: 1 1 0 180 116 0 0 0 0
+              STATFS: 0 0 0 0 0 0 0 0 0
+            READLINK: 0 0 0 0 0 0 0 0 0
+             READDIR: 2 2 0 416 6096 0 0 0 0
+         SERVER_CAPS: 4 4 0 752 656 0 1 1 0
+         DELEGRETURN: 2 2 0 432 332 0 1 1 0
+              GETACL: 13 13 0 2496 2444 0 4 4 0
+              SETACL: 0 0 0 0 0 0 0 0 0
+        FS_LOCATIONS: 1 1 0 176 148 0 0 0 0
+        RELEASE_LOCKOWNER: 0 0 0 0 0 0 0 0 0
+             SECINFO: 0 0 0 0 0 0 0 0 0
+        FSID_PRESENT: 0 0 0 0 0 0 0 0 0
+         EXCHANGE_ID: 2 2 0 568 232 0 0 0 0
+        CREATE_SESSION: 1 1 0 216 124 0 0 0 0
+        DESTROY_SESSION: 0 0 0 0 0 0 0 0 0
+            SEQUENCE: 2310 2310 0 295680 184800 151 1533 1730 0
+        GET_LEASE_TIME: 0 0 0 0 0 0 0 0 0
+        RECLAIM_COMPLETE: 1 1 0 136 88 0 4 4 0
+           LAYOUTGET: 0 0 0 0 0 0 0 0 0
+        GETDEVICEINFO: 0 0 0 0 0 0 0 0 0
+        LAYOUTCOMMIT: 0 0 0 0 0 0 0 0 0
+        LAYOUTRETURN: 0 0 0 0 0 0 0 0 0
+        SECINFO_NO_NAME: 0 0 0 0 0 0 0 0 0
+        TEST_STATEID: 0 0 0 0 0 0 0 0 0
+        FREE_STATEID: 0 0 0 0 0 0 0 0 0
+        GETDEVICELIST: 0 0 0 0 0 0 0 0 0
+        BIND_CONN_TO_SESSION: 0 0 0 0 0 0 0 0 0
+        DESTROY_CLIENTID: 0 0 0 0 0 0 0 0 0
+                SEEK: 0 0 0 0 0 0 0 0 0
+            ALLOCATE: 0 0 0 0 0 0 0 0 0
+          DEALLOCATE: 0 0 0 0 0 0 0 0 0
+         LAYOUTSTATS: 0 0 0 0 0 0 0 0 0
+               CLONE: 0 0 0 0 0 0 0 0 0
+                COPY: 0 0 0 0 0 0 0 0 0
+        OFFLOAD_CANCEL: 0 0 0 0 0 0 0 0 0
+             LOOKUPP: 0 0 0 0 0 0 0 0 0
+         LAYOUTERROR: 0 0 0 0 0 0 0 0 0
+         COPY_NOTIFY: 0 0 0 0 0 0 0 0 0
+            GETXATTR: 0 0 0 0 0 0 0 0 0
+            SETXATTR: 0 0 0 0 0 0 0 0 0
+          LISTXATTRS: 0 0 0 0 0 0 0 0 0
+         REMOVEXATTR: 0 0 0 0 0 0 0 0 0
+           READ_PLUS: 0 0 0 0 0 0 0 0 0
+
+device ol-node-02:/nfs-share-2 mounted on /nfs-mount-2 with fstype nfs4 statvers=1.1
+        opts:   rw,vers=4.2,rsize=1048576,wsize=1048576,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.168,local_lock=none
+        age:    142673
+        impl_id:        name='',domain='',date='0,0'
+        caps:   caps=0xfffbc03f,wtmult=512,dtsize=1048576,bsize=0,namlen=255
+        nfsv4:  bm0=0xfdffbfff,bm1=0x40fdbe3e,bm2=0x60803,acl=0x3,sessions,pnfs=not configured,lease_time=90,lease_expired=0
+        sec:    flavor=1,pseudoflavor=1
+        events: 27 81 1 15 2 4 221 0 0 15 0 0 4 11 100 0 0 50 0 10 0 0 0 0 0 0 0
+        bytes:  380000000 0 0 12884901888 10000000 12884901888 2442 0
+        RPC iostats version: 1.1  p/v: 100003/4 (nfs)
+        xprt:   tcp 0 0 2 0 22 14790 14790 0 48650 0 31 320271 30578
+        per-op statistics
+                NULL: 1 1 0 44 24 2 0 2 0
+                READ: 15 15 0 3180 10001560 0 132 133 0
+               WRITE: 12288 12288 0 12887556096 1376256 49846208 329955 50176306 0
+              COMMIT: 12 12 0 2352 1248 0 180398 180398 0
+                OPEN: 2 2 0 616 776 0 98 98 0
+        OPEN_CONFIRM: 0 0 0 0 0 0 0 0 0
+         OPEN_NOATTR: 12 12 0 3168 3984 0 5 6 0
+        OPEN_DOWNGRADE: 0 0 0 0 0 0 0 0 0
+               CLOSE: 14 14 0 3048 2432 0 6 8 0
+             SETATTR: 10 10 0 2360 2720 0 220 221 0
+              FSINFO: 1 1 0 188 168 0 0 0 0
+               RENEW: 0 0 0 0 0 0 0 0 0
+         SETCLIENTID: 0 0 0 0 0 0 0 0 0
+        SETCLIENTID_CONFIRM: 0 0 0 0 0 0 0 0 0
+                LOCK: 0 0 0 0 0 0 0 0 0
+               LOCKT: 0 0 0 0 0 0 0 0 0
+               LOCKU: 0 0 0 0 0 0 0 0 0
+              ACCESS: 3 3 0 572 504 0 1 1 0
+             GETATTR: 30 30 0 5500 7216 0 15 16 0
+              LOOKUP: 4 4 0 824 384 0 1 1 4
+         LOOKUP_ROOT: 0 0 0 0 0 0 0 0 0
+              REMOVE: 2 2 0 368 232 0 104 104 0
+              RENAME: 0 0 0 0 0 0 0 0 0
+                LINK: 0 0 0 0 0 0 0 0 0
+             SYMLINK: 0 0 0 0 0 0 0 0 0
+              CREATE: 0 0 0 0 0 0 0 0 0
+            PATHCONF: 1 1 0 180 116 0 0 0 0
+              STATFS: 0 0 0 0 0 0 0 0 0
+            READLINK: 0 0 0 0 0 0 0 0 0
+             READDIR: 2 2 0 416 6096 0 0 0 0
+         SERVER_CAPS: 4 4 0 752 656 0 1 1 0
+         DELEGRETURN: 2 2 0 432 332 0 1 1 0
+              GETACL: 13 13 0 2496 2444 0 4 4 0
+              SETACL: 0 0 0 0 0 0 0 0 0
+        FS_LOCATIONS: 1 1 0 176 148 0 0 0 0
+        RELEASE_LOCKOWNER: 0 0 0 0 0 0 0 0 0
+             SECINFO: 0 0 0 0 0 0 0 0 0
+        FSID_PRESENT: 0 0 0 0 0 0 0 0 0
+         EXCHANGE_ID: 2 2 0 568 232 0 0 0 0
+        CREATE_SESSION: 1 1 0 216 124 0 0 0 0
+        DESTROY_SESSION: 0 0 0 0 0 0 0 0 0
+            SEQUENCE: 2310 2310 0 295680 184800 151 1533 1730 0
+        GET_LEASE_TIME: 0 0 0 0 0 0 0 0 0
+        RECLAIM_COMPLETE: 1 1 0 136 88 0 4 4 0
+           LAYOUTGET: 0 0 0 0 0 0 0 0 0
+        GETDEVICEINFO: 0 0 0 0 0 0 0 0 0
+        LAYOUTCOMMIT: 0 0 0 0 0 0 0 0 0
+        LAYOUTRETURN: 0 0 0 0 0 0 0 0 0
+        SECINFO_NO_NAME: 0 0 0 0 0 0 0 0 0
+        TEST_STATEID: 0 0 0 0 0 0 0 0 0
+        FREE_STATEID: 0 0 0 0 0 0 0 0 0
+        GETDEVICELIST: 0 0 0 0 0 0 0 0 0
+        BIND_CONN_TO_SESSION: 0 0 0 0 0 0 0 0 0
+        DESTROY_CLIENTID: 0 0 0 0 0 0 0 0 0
+                SEEK: 0 0 0 0 0 0 0 0 0
+            ALLOCATE: 0 0 0 0 0 0 0 0 0
+          DEALLOCATE: 0 0 0 0 0 0 0 0 0
+         LAYOUTSTATS: 0 0 0 0 0 0 0 0 0
+               CLONE: 0 0 0 0 0 0 0 0 0
+                COPY: 0 0 0 0 0 0 0 0 0
+        OFFLOAD_CANCEL: 0 0 0 0 0 0 0 0 0
+             LOOKUPP: 0 0 0 0 0 0 0 0 0
+         LAYOUTERROR: 0 0 0 0 0 0 0 0 0
+         COPY_NOTIFY: 0 0 0 0 0 0 0 0 0
+            GETXATTR: 0 0 0 0 0 0 0 0 0
+            SETXATTR: 0 0 0 0 0 0 0 0 0
+          LISTXATTRS: 0 0 0 0 0 0 0 0 0
+         REMOVEXATTR: 0 0 0 0 0 0 0 0 0
+           READ_PLUS: 0 0 0 0 0 0 0 0 0
+
+device tmpfs mounted on /run/user/1000 with fstype tmpfs
