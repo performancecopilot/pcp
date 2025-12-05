@@ -25,8 +25,7 @@ default: $(SUBDIRS)
 
 install: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
-ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
-                -o '$(PACKAGE_DISTRIBUTION)' = macos \
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = macos \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
 	      ] && echo 1)" "1"
