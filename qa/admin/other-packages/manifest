@@ -460,6 +460,17 @@ S_pkg?	/usr/lib/python3.*/*-packages/setuptools/dist.py	[library/python/setuptoo
 slackpkg?	/usr/lib*/python*/*-packages/setuptools/dist.py	[python-setuptools]
 pacman?	/usr/lib/python3.*/*-packages/setuptools/dist.py	[extra/python-setuptools]
 brew?	/usr/local/lib/python3.*/*-packages/setuptools/dist.py	[pip3(setuptools)]
+# -- python pip
+dpkg?	/usr/bin/pip3	[python3-pip]
+rpm?	/usr/bin/pip3	[python3-pip or python3[0-9]*-pip]
+emerge?	/usr/bin/pip3	[dev-python/pip]
+pkgin?	/usr/pkg/bin/pip3	[py3[0-9]*-pip]
+pkg_add?	/usr/local/bin/pip3	[py3-pip]
+F_pkg?	/usr/local/bin/pip3	[py3[0-9]*-pip]
+S_pkg?	/usr/bin/pip3	[library/python/pip-[0-9][0-9]*]
+slackpkg?	/usr/bin/pip3	[python-pip]
+pacman?	/usr/bin/pip3	[extra/python-pip]
+brew?	/usr/local/bin/pip3	[pip3(pip)]
 # -- python libvirt and lxml for libvirt PMDA
 dpkg?	/usr/lib/python3/*-packages/libvirt.py	[python3-libvirt (build optional)]
 rpm?	/usr/lib*/python3.*/*-packages/libvirt.py	[libvirt-python3 or python3[0-9]*-libvirt python3[0-9]*-libvirt-python (build optional)]
