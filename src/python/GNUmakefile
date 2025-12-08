@@ -65,7 +65,7 @@ build_python3: $(SETUP_PY) $(CFILES)
 	touch build_python3
 
 install_python3: build_python3
-	export $(ENV); $(PYTHON3) -m pip install --no-build-isolation --root="$${DIST_ROOT:-/}" --prefix=$(PYTHON_PREFIX) .
+	export $(ENV); $(PYTHON3) -m pip install --no-build-isolation --root="$${DIST_ROOT:-/}" --prefix=$(PYTHON_PREFIX) --record=$(TOPDIR)/python3-pcp.list .
 	export $(ENV); $(PYTHON3_INSTALL)
 else
 build_python3:
