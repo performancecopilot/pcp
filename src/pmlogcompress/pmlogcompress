@@ -18,6 +18,12 @@
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
+# Arguments to compression programs are handled thusly:
+# if -A	use all the arg arguments literally, ignore everything else
+# else if $PCP_COMPRESS_<PROG>_ARGS set in the environment, use that
+# else if $PCP_COMPRESS_<PROG>_ARGS set in /etc/pcp/pmlogcompress/defaults
+#         then use that
+# else use nothing
 
 . $PCP_DIR/etc/pcp.env
 
@@ -34,6 +40,7 @@ cat <<'End-of-File' >$tmp.usage
 
 Options:
   -A=ARG, --arg=ARG		argument for compression program
+  -C=conffile, --config=conffile	alternate defaults configuration file
   -c=PROGLIST, --command=PROGLIST	candidate compression program(s)
   -f=PROG, --use=PROG		use this compression program
   -l=LIMIT, --lower-limit=LIMIT	do no compress files smaller than LIMIT
@@ -68,29 +75,65 @@ _size()
     ls -l "$1" | awk '{print $5}'
 }
 
-# determine correct args to use for xz(1)
+
+# configuration file of PCP_COMPRESS_* defaults
 #
-_xz_setup()
+conffile=$PCP_SYSCONF_DIR/pmlogcompress/defaults
+
+# establish value for variable ($1) either from the environment
+# or /etc/pcp/pmlogcompress/defaults
+# optional $2 is default if $1 not found elsewhere
+#
+_get_var()
 {
-    if [ -z "${xz_args+onetrip}" ]
+    VAR="$1"
+    _check=`eval echo "\\\$$VAR"`
+    if [ -n "$_check" ]
     then
-	if xz -0 --block-size=10MiB </dev/null >/dev/null 2>&1
+	# should have already been reported where this was set from,
+	# so don't add babble here
+	#
+	# [ $verbose -gt 1 ] && echo >&2 "Info: $VAR ignore defaults, already set: $_check"
+	return
+    fi
+    _val=''
+    if [ -f "$conffile" ]
+    then
+	if grep -q "^$VAR=" $conffile 2>/dev/null
 	then
-	    # want minimal overheads, -0 is the same as --fast ...
-	    # these options were selected after extensive analysis
-	    # for original settings in pmlogger_daily
-	    #
-	    xz_args="-0 --block-size=10MiB"
-	elif xz -0 </dev/null >/dev/null 2>&1
+	    eval `grep "^$VAR=" $conffile 2>/dev/null`
+	    _val=`eval echo "\\\$$VAR"`
+	    [ $verbose -gt 1 ] && echo >&2 "Info: $VAR set from $conffile: $_val"
+	else
+	    if [ $# -eq 2 ]
+	    then
+		_val="$2"
+		[ $verbose -gt 1 ] && echo >&2 "Info: $VAR not set in $conffile, using default $2"
+	    else
+
+		[ $verbose -gt 1 ] && echo >&2 "Info: $VAR not set in $conffile"
+	    fi
+	fi
+    else
+	echo >&2 "$prog: Error: configuration file ($conffile) vanished"
+    fi
+
+    # some variables need special handling
+    #
+    if [ "$VAR" = "PCP_COMPRESS_XZ_ARGS" ]
+    then
+	# to get here, we must have a xz(1) executable ...
+	if xz --block-size=10MiB </dev/null >/dev/null 2>&1
 	then
+	    :
+	else
 	    # no --block-size in older versions of xz
 	    #
-	    xz_args="-0"
-	else
-	    xz_args=''
+	    _val=`echo "$_val" | sed -e 's/^/ /' -e 's/--block-size=[^ ]*//' -e 's/^ //'`
 	fi
     fi
-    $verbose && echo >&2 "xz_setup: compression args=\"$xz_args\""
+
+    eval $VAR=\"$_val\"
 }
 
 # component archive filenames are arguments
@@ -109,12 +152,12 @@ _optimize()
 	in
 	    *.xz|*.lzma|*.bz2|*.bz|*.gz|*.Z|*.z|*.zst)
 		    # already compressed
-		    $verbose && echo >&2 "$file: skipped, already compressed"
+		    [ $verbose -gt 0 ] && echo >&2 "Info: $file: skipped, already compressed"
 		    continue
 		    ;;
 	esac
 	size=`_size "$file"`
-	if [ "$size" -ge "$min_size" -a "$size" -gt "$largest" ]
+	if [ "$size" -ge "$PCP_COMPRESS_MIN_FILESIZE" -a "$size" -gt "$largest" ]
 	then
 	    pick="$file"
 	    largest=$size
@@ -122,15 +165,15 @@ _optimize()
     done
     if [ -z "$pick" ]
     then
-	$verbose && echo >&2 "optimize: failed to find a candidate file, defaulting to xz"
+	[ $verbose -gt 0 ] && echo >&2 "Info: optimize: failed to find a candidate file, defaulting to xz"
 	use_prog=xz
 	return
     fi
-    $verbose && echo >&2 "$pick: ($largest bytes) selected as candidate for optimize measurements"
+    [ $verbose -gt 0 ] && echo >&2 "Info: $pick: ($largest bytes) selected as candidate for optimize measurements"
     pick_size=''
     pick_cpu=''
     use_prog=''
-    for tool in `echo $proglist | sed -e 's/:/ /g'` 
+    for tool in `echo $PCP_COMPRESS_PROGS | sed -e 's/:/ /g'` 
     do
 	case "$tool"
 	in
@@ -141,7 +184,7 @@ _optimize()
 		    then
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
-			$verbose && echo >&2 "$pick: zstd size=$size cpu=$cpu"
+			[ $verbose -gt 0 ] && echo >&2 "Info: $pick: zstd size=$size cpu=$cpu"
 			if [ "$optimize" = space ]
 			then
 			    if [ -z "$pick_size" -o $size -lt 0$pick_size ]
@@ -157,10 +200,10 @@ _optimize()
 			    fi
 			fi
 		    else
-			if $verbose
+			if [ $verbose -gt 0 ]
 			then
 			    cat >&2 $tmp.time
-			    echo >&2 "$file: optimize test with zstd failed"
+			    echo >&2 "Info: $file: optimize test with zstd failed"
 			fi
 		    fi
 		fi
@@ -170,17 +213,17 @@ _optimize()
 		if $have_xz
 		then
 		    if [ -n "$args" ]
-		    then 
+		    then
 			largs=" $args"
 		    else
-			[ -z "${xz_args+onetrip}" ] && _xz_setup
-			largs=" $xz_args"
+			[ -z "${PCP_COMPRESS_XZ_ARGS+onetrip}" ] && _get_var PCP_COMPRESS_XZ_ARGS
+			largs=" $PCP_COMPRESS_XZ_ARGS"
 		    fi
 		    if time -f '%U %S' xz$largs -zc -q "$pick" >$tmp.tmp 2>$tmp.time
 		    then
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
-			$verbose && echo >&2 "$pick: xz size=$size cpu=$cpu"
+			[ $verbose -gt 0 ] && echo >&2 "Info: $pick: xz size=$size cpu=$cpu"
 			if [ "$optimize" = space ]
 			then
 			    if [ -z "$pick_size" -o $size -lt 0$pick_size ]
@@ -196,10 +239,10 @@ _optimize()
 			    fi
 			fi
 		    else
-			if $verbose
+			if [ $verbose -gt 0 ]
 			then
 			    cat >&2 $tmp.time
-			    echo >&2 "$file: optimize test with xz failed"
+			    echo >&2 "Info: $file: optimize test with xz failed"
 			fi
 		    fi
 		fi
@@ -212,7 +255,7 @@ _optimize()
 		    then
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
-			$verbose && echo >&2 "$pick: bzip2 size=$size cpu=$cpu"
+			[ $verbose -gt 0 ] && echo >&2 "Info: $pick: bzip2 size=$size cpu=$cpu"
 			if [ "$optimize" = space ]
 			then
 			    if [ -z "$pick_size" -o $size -lt $pick_size ]
@@ -228,10 +271,10 @@ _optimize()
 			    fi
 			fi
 		    else
-			if $verbose
+			if [ $verbose -gt 0 ]
 			then
 			    cat >&2 $tmp.time
-			    echo >&2 "$file: optimize test with bzip2 failed"
+			    echo >&2 "Info: $file: optimize test with bzip2 failed"
 			fi
 		    fi
 		fi
@@ -244,7 +287,7 @@ _optimize()
 		    then
 			size=`_size "$tmp.tmp"`
 			cpu=`awk <$tmp.time '{ print 1000*($1+$2) }'`
-			$verbose && echo >&2 "$pick: gzip size=$size cpu=$cpu"
+			[ $verbose -gt 0 ] && echo >&2 "Info: $pick: gzip size=$size cpu=$cpu"
 			if [ "$optimize" = space ]
 			then
 			    if [ -z "$pick_size" -o $size -lt 0$pick_size ]
@@ -260,10 +303,10 @@ _optimize()
 			    fi
 			fi
 		    else
-			if $verbose
+			if [ $verbose -gt 0 ]
 			then
 			    cat >&2 $tmp.time
-			    echo >&2 "$file: optimize test with gzip failed"
+			    echo >&2 "Info: $file: optimize test with gzip failed"
 			fi
 		    fi
 		fi
@@ -275,7 +318,7 @@ _optimize()
 
 	esac
     done
-    $verbose && echo >&2 "optimize: pick $use_prog"
+    [ $verbose -gt 0 ] && echo >&2 "Info: optimize: pick $use_prog"
 }
 
 _compress()
@@ -290,7 +333,7 @@ _compress()
 	# assume it is an archive basename
 	#
 	archbase="`pmlogbasename $1`"
-	$verbose && echo >&2 "archbase=$archbase"
+	[ $verbose -gt 0 ] && echo >&2 "Info: archbase=$archbase"
 	filelist=`echo ${archbase}*`
     fi
     [ -n "$optimize" ] && _optimize $filelist
@@ -305,7 +348,7 @@ _compress()
 	in
 	    *.xz|*.lzma|*.bz2|*.bz|*.gz|*.Z|*.z|*.zst)
 			# already compressed
-			$verbose && echo >&2 "$file: skipped, already compressed"
+			[ $verbose -gt 0 ] && echo >&2 "Info: $file: skipped, already compressed"
 			continue
 			;;
 
@@ -314,30 +357,35 @@ _compress()
 			;;
 	esac
 	size=`_size "$file"`
-	if [ "$size" -lt "$min_size" ]
+	if [ "$size" -lt "$PCP_COMPRESS_MIN_FILESIZE" ]
 	then
-	    $verbose && echo >&2 "$file: skipped, size $size < limit $min_size"
+	    [ $verbose -gt 0 ] && echo >&2 "Info: $file: skipped, size $size < limit $PCP_COMPRESS_MIN_FILESIZE"
 	    continue
 	fi
 
-	for tool in $use_prog `echo $proglist | sed -e 's/:/ /g'` 
+	for tool in $use_prog `echo $PCP_COMPRESS_PROGS | sed -e 's/:/ /g'` 
 	do
 	    case "$tool"
 	    in
 		zstd)
 		    if $have_zstd || [ "$use_prog" = zstd ]
 		    then
-			if [ "$size" -ge "$min_zstd_size" ] || [ "$use_prog" = zstd ]
+			if [ "$size" -ge "$PCP_COMPRESS_ZSTD_MIN_FILESIZE" ] || [ "$use_prog" = zstd ]
 			then
-			    largs=" --rm --quiet"
-			    [ -n "$args" ] && largs=" $args"
+			    if [ -n "$args" ]
+			    then
+				largs=" $args"
+			    else
+				[ -z "${PCP_COMPRESS_ZSTD_ARGS+onetrip}" ] && _get_var PCP_COMPRESS_ZSTD_ARGS
+				largs=" $PCP_COMPRESS_ZSTD_ARGS"
+			    fi
 			    if $showme
 			    then
 				echo >&2 "+ zstd$largs $file"
 			    else
 				if zstd$largs "$file"
 				then
-				    $verbose && echo >&2 "$file: compressed with zstd"
+				    [ $verbose -gt 0 ] && echo >&2 "Info: $file: compressed with zstd"
 				else
 				    echo >&2 "$file: zstd failed!"
 				    rm -f "$file.zst"
@@ -346,7 +394,7 @@ _compress()
 			    fi
 			    break
 			else
-			    $verbose && echo >&2 "$file: size $size too small for zstd"
+			    [ $verbose -gt 0 ] && echo >&2 "Info:: $file: size $size too small for zstd"
 			fi
 		    fi
 		    ;;
@@ -355,11 +403,11 @@ _compress()
 		    if $have_xz || [ "$use_prog" = xz ]
 		    then
 			if [ -n "$args" ]
-			then 
+			then
 			    largs=" $args"
 			else
-			    [ -z "${xz_args+onetrip}" ] && _xz_setup
-			    largs=" $xz_args"
+			    [ -z "${PCP_COMPRESS_XZ_ARGS+onetrip}" ] && _get_var PCP_COMPRESS_XZ_ARGS
+			    largs=" $PCP_COMPRESS_XZ_ARGS"
 			fi
 			if $showme
 			then
@@ -367,7 +415,7 @@ _compress()
 			else
 			    if xz$largs "$file"
 			    then
-				$verbose && echo >&2 "$file: compressed with xz"
+				[ $verbose -gt 0 ] && echo >&2 "Info: $file: compressed with xz"
 			    else
 				echo >&2 "$file: xz failed!"
 				exit
@@ -380,15 +428,20 @@ _compress()
 		bzip2)
 		    if $have_bzip2 || [ "$use_prog" = bzip2 ]
 		    then
-			largs=''
-			[ -n "$args" ] && largs=" $args"
+			if [ -n "$args" ]
+			then
+			    largs=" $args"
+			else
+			    [ -z "${PCP_COMPRESS_BZIP2_ARGS+onetrip}" ] && _get_var PCP_COMPRESS_BZIP2_ARGS
+			    largs=" $PCP_COMPRESS_BZIP2_ARGS"
+			fi
 			if $showme
 			then
 			    echo >&2 "+ bzip2$largs $file"
 			else
 			    if bzip2$largs "$file"
 			    then
-				$verbose && echo >&2 "$file: compressed with bzip2"
+				[ $verbose -gt 0 ] && echo >&2 "Info: $file: compressed with bzip2"
 			    else
 				echo >&2 "$file: bzip2 failed!"
 				exit
@@ -401,15 +454,20 @@ _compress()
 		gzip)
 		    if $have_gzip || [ "$use_prog" = gzip ]
 		    then
-			largs=''
-			[ -n "$args" ] && largs=" $args"
+			if [ -n "$args" ]
+			then
+			    largs=" $args"
+			else
+			    [ -z "${PCP_COMPRESS_GZIP_ARGS+onetrip}" ] && _get_var PCP_COMPRESS_GZIP_ARGS
+			    largs=" $PCP_COMPRESS_GZIP_ARGS"
+			fi
 			if $showme
 			then
 			    echo >&2 "+ gzip$largs $file"
 			else
 			    if gzip$largs "$file"
 			    then
-				$verbose && echo >&2 "$file: compressed with gzip"
+				[ $verbose -gt 0 ] && echo >&2 "Info: $file: compressed with gzip"
 			    else
 				echo >&2 "$file: gzip failed!"
 				exit
@@ -436,7 +494,7 @@ _compress()
 
 args=''
 showme=false
-verbose=false
+verbose=0
 dir=''
 optimize=''
 min_size=''
@@ -461,6 +519,11 @@ do
 	    shift
 	    ;;
 
+	-C)	# alternate config file for defaults
+	    conffile="$2"
+	    shift
+	    ;;
+
 	-c)	# candidate compression program(s)
 	    if [ -z "$proglist" ]
 	    then
@@ -477,7 +540,14 @@ do
 	    ;;
 
 	-l)	# lower limit on file size for compression
-	    min_size="$2"
+	    check=`echo "$2" | sed -e 's/[0-9]//g'`
+	    if [ -z "$check" ]
+	    then
+		min_size="$2"
+	    else
+		echo >&2 "$prog: Error: -l value ($2) must be numeric"
+		exit
+	    fi
 	    shift
 	    ;;
 
@@ -495,7 +565,7 @@ do
 		    optimize=time
 		    ;;
 		*)
-		    echo >&2 "$prog: -o option must be space or time"
+		    echo >&2 "$prog: Error: -o option must be space or time"
 		    exit
 		    ;;
 	    esac
@@ -503,11 +573,18 @@ do
 	    ;;
 
 	-V)
-	    verbose=true
+	    verbose=`expr $verbose + 1`
 	    ;;
 
 	-Z)	# lower limit on file size for zstd compression
-	    min_zstd_size="$2"
+	    check=`echo "$2" | sed -e 's/[0-9]//g'`
+	    if [ -z "$check" ]
+	    then
+		min_zstd_size="$2"
+	    else
+		echo >&2 "$prog: Error: -Z value ($2) must be numeric"
+		exit
+	    fi
 	    shift
 	    ;;
 
@@ -538,14 +615,64 @@ if [ -n "$optimize" ]
 then
     if [ -n "$use_prog" ]
     then
-	echo >&2 "$prog: -f [$use_prog] not allowed when compressing with -o"
+	echo >&2 "$prog: Error: -f [$use_prog] not allowed when compressing with -o"
 	exit
     fi
 fi
 
-[ -z "$min_size" ] && min_size=4096
-[ -z "$min_zstd_size" ] && min_zstd_size=52428800
-[ -z "$proglist" -a -z "$use_prog" ] && proglist='zstd:xz:bzip2:gzip'
+if [ ! -f "$conffile" ]
+then
+    echo >&2 "$prog: Error: configuration file ($conffile) not found"
+    exit
+fi
+
+if [ $verbose -gt 1 ]
+then
+    # report key variables set from the environment
+    #
+    if [ -f "$conffile" ]
+    then
+	sed <$conffile \
+	    -e '/^#/d' \
+	    -e '/^[ 	]*$/d' \
+	    -e 's/=.*//' \
+	| while read VAR
+	do
+	    eval _set=`eval echo "\$\{$VAR+onetrip}"`
+	    if [ -n "$_set" ]
+	    then
+		_val=`eval echo "\\\$$VAR"`
+		echo >&2 "Info: $VAR set from environment: $_val"
+	    fi
+	done
+    else
+	echo >&2 "$prog: Error: configuration file ($conffile) vanished"
+    fi
+fi
+
+# now command line args overrride environment settings
+#
+if [ -n "$min_size" ]
+then
+    PCP_COMPRESS_MIN_FILESIZE="$min_size"
+    [ $verbose -gt 1 ] && echo >&2 "Info: PCP_COMPRESS_MIN_FILESIZE set from command line: $min_size"
+else
+    _get_var PCP_COMPRESS_MIN_FILESIZE 4096
+fi
+if [ -n "$min_zstd_size" ]
+then
+    PCP_COMPRESS_ZSTD_MIN_FILESIZE="$min_zstd_size"
+    [ $verbose -gt 1 ] && echo >&2 "Info: PCP_COMPRESS_ZSTD_MIN_FILESIZE set from command line: $min_zstd_size"
+else
+    _get_var PCP_COMPRESS_ZSTD_MIN_FILESIZE 52428800
+fi
+if [ -n "$proglist" ]
+then
+    PCP_COMPRESS_PROGS="$proglist"
+    [ $verbose -gt 1 ] && echo >&2 "Info: PCP_COMPRESS_PROGS set from command line: $proglist"
+else
+    _get_var PCP_COMPRESS_PROGS 'zstd:xz:bzip2:gzip'
+fi
 
 have_zstd=false
 have_xz=false
@@ -563,7 +690,7 @@ then
 else
     # work through the -c [or default] list ...
     #
-    for try in `echo $proglist | sed -e 's/:/ /g'` 
+    for try in `echo $PCP_COMPRESS_PROGS | sed -e 's/:/ /g'` 
     do
 	case "$try"
 	in
@@ -580,14 +707,14 @@ else
 		which gzip >/dev/null 2>&1 && have_gzip=true
 		;;
 	    *)
-		echo >&2 "Warning: no clue how to deal with \"compression\" program $try"
+		echo >&2 "$prog: Warning: no clue how to deal with \"compression\" program $try"
 		;;
 	esac
     done
 
     if [ "$have_zstd$have_xz$have_bzip2$have_gzip" = "falsefalsefalsefalse" ]
     then
-	echo >&2 "$prog: cannot find a compression program (tried $proglist)"
+	echo >&2 "$prog: cannot find a compression program (tried $PCP_COMPRESS_PROGS)"
 	exit
     fi
 fi
@@ -600,3 +727,4 @@ done
 
 status=0
 exit
+
