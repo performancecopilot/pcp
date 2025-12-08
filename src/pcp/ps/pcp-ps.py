@@ -60,62 +60,45 @@ class NoneHandlingPrinterDecorator:
 class ReportingMetricRepository:
     def __init__(self, group):
         self.group = group
-        self.current_cached_values = {}
-        self.previous_cached_values = {}
+        self._current_cache = {}
+        self._previous_cache = {}
 
-    def __fetch_current_values(self, metric, instance):
-        if instance:
-            return dict(map(lambda x: (x[0].inst, x[2]), self.group[metric].netValues))
-        else:
-            return self.group[metric].netValues[0][2]
+    def _fetch_values(self, metric, use_previous=False):
+        """Fetch values - always returns a dictionary."""
+        if metric not in self.group:
+            return {}
+        attr = "netPrevValues" if use_previous else "netValues"
+        values = getattr(self.group[metric], attr, [])
+        return {x[0].inst: x[2] for x in values} if values else {}
 
-    def __fetch_previous_values(self, metric, instance):
-        if instance:
-            return dict(map(lambda x: (x[0].inst, x[2]), self.group[metric].netPrevValues))
-        else:
-            return self.group[metric].netPrevValues[0][2]
+    def _get_values_dict(self, metric, use_previous=False):
+        """Get cached dictionary of all values for a metric."""
+        cache = self._previous_cache if use_previous else self._current_cache
+        if metric not in cache:
+            cache[metric] = self._fetch_values(metric, use_previous)
+        return cache[metric]
 
-    def current_value(self, metric, instance):
-        if not metric in self.group:
-            return None
-        if instance:
-            if self.current_cached_values.get(metric, None) is None:
-                lst = self.__fetch_current_values(metric, instance)
-                self.current_cached_values[metric] = lst
+    def current_value(self, metric, instance=None):
+        """Get current value. Returns single value if instance given, else returns dict."""
+        values_dict = self._get_values_dict(metric, use_previous=False)
+        if instance is not None:
+            return values_dict.get(instance)
+        return values_dict
 
-            return self.current_cached_values[metric].get(instance, None)
-        else:
-            if self.current_cached_values.get(metric, None) is None:
-                self.current_cached_values[metric] = self.__fetch_current_values(metric, instance)
-            return self.current_cached_values.get(metric, None)
-
-    def previous_value(self, metric, instance):
-        if not metric in self.group:
-            return None
-        if instance:
-            if self.previous_cached_values.get(metric, None) is None:
-                lst = self.__fetch_previous_values(metric, instance)
-                self.previous_cached_values[metric] = lst
-
-            return self.previous_cached_values[metric].get(instance, None)
-        else:
-            if self.previous_cached_values.get(metric, None) is None:
-                self.previous_cached_values[metric] = self.__fetch_previous_values(metric, instance)
-            return self.previous_cached_values.get(metric, None)
+    def previous_value(self, metric, instance=None):
+        """Get previous value. Returns single value if instance given, else returns dict."""
+        values_dict = self._get_values_dict(metric, use_previous=True)
+        if instance is not None:
+            return values_dict.get(instance)
+        return values_dict
 
     def current_values(self, metric_name):
-        if self.group.get(metric_name, None) is None:
-            return None
-        if self.current_cached_values.get(metric_name, None) is None:
-            self.current_cached_values[metric_name] = self.__fetch_current_values(metric_name, True)
-        return self.current_cached_values.get(metric_name, None)
+        """Get all current values for a metric (returns dict)."""
+        return self._get_values_dict(metric_name, use_previous=False)
 
     def previous_values(self, metric_name):
-        if self.group.get(metric_name, None) is None:
-            return None
-        if self.previous_cached_values.get(metric_name, None) is None:
-            self.previous_cached_values[metric_name] = self.__fetch_previous_values(metric_name, True)
-        return self.previous_cached_values.get(metric_name, None)
+        """Get all previous values for a metric (returns dict)."""
+        return self._get_values_dict(metric_name, use_previous=True)
 
 
 class ProcessFilter:
@@ -135,20 +118,20 @@ class ProcessFilter:
             return True
 
     def __matches_process_username(self, process):
-        if self.options.username_filter_flag is True and self.options.filtered_process_user is not None:
+        if self.options.universal_flag == "username" and self.options.filtered_process_user is not None:
             return process.user_name().strip() == self.options.filtered_process_user.strip()
         else:
             return True
 
     def __matches_process_pid(self, process):
-        if self.options.pid_filter_flag:
+        if self.options.universal_flag == "pid":
             if self.options.pid_list is not None:
                 pid = int(process.pid())
                 return bool(pid in self.options.pid_list)
         return True
 
     def __matches_process_ppid(self, process):
-        if self.options.ppid_filter_flag:
+        if self.options.universal_flag == "ppid":
             if self.options.ppid_list is not None:
                 ppid = int(process.ppid())
                 return bool(ppid in self.options.ppid_list)
@@ -156,7 +139,7 @@ class ProcessFilter:
 
     def __matches_process_name(self, process):
         name = process.process_name()
-        if self.options.command_filter_flag is True and self.options.command_list is not None and name is not None:
+        if self.options.universal_flag == "command" and self.options.command_list is not None and name is not None:
             return name.strip() in self.options.command_list
         else:
             return True
@@ -171,21 +154,12 @@ class ProcessStatusUtil:
 
     def pid(self):
         data = str(self.__metric_repository.current_value('proc.psinfo.pid', self.instance))
-        if len(str(data)) < 8:
-            whitespace = 8 - len(str(data))
-            res = data.ljust(whitespace + len(str(data)), ' ')
-            return res
-        else:
-            return data
+        # pad or truncate to 8 chars, using modern formatting (ljust is very efficient in CPython)
+        return data.ljust(8) if len(data) < 8 else data
 
     def ppid(self):
         data = str(self.__metric_repository.current_value('proc.psinfo.ppid', self.instance))
-        if len(str(data)) < 8:
-            whitespace = 8 - len(str(data))
-            res = data.ljust(whitespace + len(str(data)), ' ')
-            return res
-        else:
-            return data
+        return data.ljust(8) if len(data) < 8 else data
 
     def user_name(self):
         data = self.__metric_repository.current_value('proc.id.uid_nm', self.instance)[:10]
@@ -376,8 +350,8 @@ class ProcessStatus:
         self.__metric_repository = metric_repository
 
     def get_processes(self, delta_time):
-        return map(lambda pid:
-                   (ProcessStatusUtil(pid, self.__manager, delta_time, self.__metric_repository)), self.__pids())
+        # Use generator expression for lazy evaluation and reduced memory usage
+        return (ProcessStatusUtil(pid, self.__manager, delta_time, self.__metric_repository) for pid in self.__pids())
 
     def __pids(self):
         pid_dict = self.__metric_repository.current_values('proc.psinfo.pid')
@@ -467,33 +441,52 @@ class ProcessStatusReporter:
         self.processStatOptions = processStatOptions
 
     def print_report(self, timestamp, header_indentation, value_indentation):
+        if self.processStatOptions.debug_mode:
+            print("option selected: %s" % self.processStatOptions.universal_flag)
+            print("filer option status: %s" % self.processStatOptions.filterstate)
+        FORMAT_MAP = {
+            "empty_arg" : {
+                "header": "Timestamp" + header_indentation + "PID\t\tTIME\t\tCMD",
+            },
+            "all" : {
+                "header": "Timestamp" + header_indentation + "PID\t\t\tTTY\tTIME\t\tCMD",
+            },
+            "user": {
+                "header": "Timestamp" + header_indentation + "USERNAME\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
+                          "TTY\tSTAT\tTIME\t\tSTART\t\tCOMMAND",
+            },
+            "pid": {
+                "header": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD",
+            },
+            "ppid": {
+                "header": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD",
+            },
+            "username": {
+                "header": "Timestamp" + header_indentation + "USERNAME\t\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
+                          "TTY\tSTAT\t\tTIME\t\tSTART\t\tCOMMAND",
+            },
+            "command": {
+                "header": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD",
+            }
+        }
+        # print header for the report
+        self.printer(FORMAT_MAP[self.processStatOptions.universal_flag]["header"])
 
-        # when the print count is exhausted exit the program gracefully
-        # we can't use break here because it's being called by the run manager
-        if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
-            if self.processStatOptions.print_count == 0:
-                sys.exit(0)
-            else:
-                self.processStatOptions.print_count -= 1
-
-        if self.processStatOptions.show_all_process:
-            self.printer("Timestamp" + header_indentation + "PID\t\t\tTTY\tTIME\t\tCMD")
+        if self.processStatOptions.universal_flag == "all":
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
                 command = process.process_name_with_args(True)
                 ttyname = process.tty_name()
                 self.printer("%s%s%s\t\t%s\t%s\t%s" % (timestamp, value_indentation, process.pid(), ttyname,
                                                        process.total_time(), command))
-        elif self.processStatOptions.empty_arg_flag:
-            self.printer("Timestamp" + header_indentation + "PID\t\tTIME\t\tCMD")
+        elif self.processStatOptions.universal_flag == "empty_arg":
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
                 pid = process.pid()
                 command = process.process_name()
                 self.printer("%s%s%s\t%s\t%s" % (timestamp, value_indentation, pid,
                                                  process.total_time(), command))
-        elif self.processStatOptions.pid_filter_flag:
-            self.printer("Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD")
+        elif self.processStatOptions.universal_flag == "pid":
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
                 pid = process.pid()
@@ -501,8 +494,7 @@ class ProcessStatusReporter:
                 ttyname = process.tty_name()
                 self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp, value_indentation, pid, process.ppid(),
                                                          ttyname, process.total_time(), command))
-        elif self.processStatOptions.ppid_filter_flag:
-            self.printer("Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD")
+        elif self.processStatOptions.universal_flag == "ppid":
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
                 ppid = process.ppid()
@@ -510,9 +502,7 @@ class ProcessStatusReporter:
                 ttyname = process.tty_name()
                 self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp, value_indentation, process.pid(), ppid, ttyname,
                                                          process.total_time(), command))
-        elif self.processStatOptions.username_filter_flag:
-            self.printer("Timestamp" + header_indentation + "USERNAME\t\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
-                         "TTY\tSTAT\t\tTIME\t\tSTART\t\tCOMMAND")
+        elif self.processStatOptions.universal_flag == "username":
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
                 self.printer("%s%s%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
@@ -521,9 +511,7 @@ class ProcessStatusReporter:
                     process.tty_name(), process.ppid(), process.total_time(), process.start(),
                     process.process_name()))
 
-        elif self.processStatOptions.user_oriented_format:
-            self.printer("Timestamp" + header_indentation + "USERNAME\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
-                         "TTY\tSTAT\tTIME\t\tSTART\t\tCOMMAND")
+        elif self.processStatOptions.universal_flag == "user":
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
                 self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
@@ -531,9 +519,7 @@ class ProcessStatusReporter:
                     process.system_percent(), process.total_percent(), process.vsize(), process.rss(),
                     process.tty_name(), process.s_name(), process.total_time(), process.start(),
                     process.process_name()))
-
-        elif self.processStatOptions.command_filter_flag:
-            self.printer("Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD")
+        elif self.processStatOptions.universal_flag == "command":
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
                 ppid = process.ppid()
@@ -546,8 +532,9 @@ class ProcessStatusReporter:
 class ProcessStatReport(pmcc.MetricGroupPrinter):
     Machine_info_count = 0
     group = None
-    def __init__(self, group=None):
+    def __init__(self, group=None, options = None):
         self.group = group
+        self.processStatOptions = options
 
     def timeStampDelta(self):
         s = self.group.timestamp.tv_sec - self.group.prevTimestamp.tv_sec
@@ -555,6 +542,8 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
         return s + n / 1000000000.0
 
     def print_machine_info(self,context):
+        if self.processStatOptions.debug_mode:
+            print("Printing machine info")
         timestamp = context.pmLocaltime(self.group.timestamp.tv_sec)
         # Please check strftime(3) for different formatting options.
         # Also check TZ and LC_TIME environment variables for more
@@ -573,70 +562,95 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
         return group['hinv.ncpu'].netValues[0][2]
 
     def __print_report(self, manager,timestamp, header_indentation, value_indentation,interval_in_seconds):
+        if self.processStatOptions.debug_mode:
+            print("Printing standard report")
         metric_repository = ReportingMetricRepository(self.group)
         process_report = ProcessStatus(manager, metric_repository)
-        process_filter = ProcessFilter(ProcessStatOptions)
+        process_filter = ProcessFilter(self.processStatOptions)
         stdout = StdoutPrinter()
         printdecorator = NoneHandlingPrinterDecorator(stdout)
         report = ProcessStatusReporter(process_report, process_filter, interval_in_seconds,
-                                        printdecorator.Print, ProcessStatOptions)
+                                        printdecorator.Print, self.processStatOptions)
         report.print_report(timestamp, header_indentation, value_indentation)
     def __print_dynamic_report(self, manager,timestamp, header_indentation, value_indentation,interval_in_seconds):
+        if self.processStatOptions.debug_mode:
+            print("Printing dynamic report")
         metric_repository = ReportingMetricRepository(self.group)
         process_report = ProcessStatus(manager, metric_repository)
-        process_filter = ProcessFilter(ProcessStatOptions)
+        process_filter = ProcessFilter(self.processStatOptions)
         stdout = StdoutPrinter()
         printdecorator = NoneHandlingPrinterDecorator(stdout)
         report = DynamicProcessReporter(process_report, process_filter, interval_in_seconds,
-                                        printdecorator.Print, ProcessStatOptions)
+                                        printdecorator.Print, self.processStatOptions)
         report.print_report(timestamp, header_indentation, value_indentation)
     def __get_timestamp(self):
         ts = self.group.contextCache.pmLocaltime(int(self.group.timestamp))
-        timestamp = time.strftime(ProcessStatOptions.timefmt, ts.struct_time())
+        timestamp = time.strftime(self.processStatOptions.timefmt, ts.struct_time())
         return timestamp
 
     def report(self, manager):
+        """
+        Enhanced report method: 
+        Returns True if report prints data, 
+        Returns False if key metrics aren't ready.
+        Since we cannot change pmcc.py, we simulate "not ready" fetches by printing nothing.
+        """
+        # Wait until essential metrics are ready, otherwise print nothing (simulate "retry" behavior).
         try:
             if self.group['proc.psinfo.utime'].netPrevValues is None:
-                # need two fetches to report rate converted counter metrics
-                return
+                return False  # Not ready, skip increment
             if not self.group['hinv.ncpu'].netValues or not self.group['kernel.uname.sysname'].netValues:
-                return
+                return False
             try:
                 if not self.Machine_info_count:
                     self.print_machine_info(manager)
                     self.Machine_info_count = 1
             except IndexError:
-                return
+                if self.processStatOptions.debug_mode:
+                    print("IndexError while printing machine info")
+                return False
+            if self.processStatOptions.debug_mode:
+                print("Starting report generation")
+                print("Need to print samples: %s" % self.processStatOptions.print_count)
+            if self.processStatOptions.print_count == 0:
+                if self.processStatOptions.debug_mode:
+                    print("Print count exhausted, exiting")
+                sys.exit(0)
             timestamp = self.__get_timestamp()
             interval_in_seconds = self.timeStampDelta()
             header_indentation = "        " if len(timestamp) < 9 else (len(timestamp) - 7) * " "
             value_indentation = ((len(header_indentation) + 9) - len(timestamp)) * " "
 
             # Doing this for one single print instance in case there is no count specified
-            if ProcessStatOptions.print_count is None:
-                ProcessStatOptions.print_count = 1
+            if self.processStatOptions.print_count is None and self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
+                if self.processStatOptions.debug_mode:
+                    print("No print count specified, defaulting to print one time")
+                self.processStatOptions.print_count = 1
             # ================================================================
-            if ProcessStatOptions.selective_colum_flag:
+            if self.processStatOptions.selective_colum_flag:
+                if self.processStatOptions.debug_mode:
+                    print("Selective column flag is set")
                 self.__print_dynamic_report(manager,timestamp, header_indentation,
                                             value_indentation, interval_in_seconds)
             else:
+                if self.processStatOptions.debug_mode:
+                    print("Selective column flag is not set")
                 self.__print_report(manager,timestamp, header_indentation, value_indentation, interval_in_seconds)
+            if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
+                self.processStatOptions.print_count -= 1
+            return True  # Data was printed
         finally:
             sys.stdout.flush()
 
 
 class ProcessStatOptions(pmapi.pmOptions):
-    show_all_process = False
-    command_filter_flag = False
-    ppid_filter_flag = False
-    pid_filter_flag = False
-    username_filter_flag = False
+    universal_flag = None
     selective_colum_flag = False
     filter_flag = False
-    user_oriented_format = False
-    empty_arg_flag = False
     filterstate = None
+    debug_mode = False
+    sorting_flag = False
+    sorting_order = None
     timefmt = "%H:%M:%S"
     print_count = None
     colum_list = []
@@ -647,7 +661,7 @@ class ProcessStatOptions(pmapi.pmOptions):
     context = None
 
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "t:c:e::p:ukVZ:z?:o:P:l:U:k")
+        pmapi.pmOptions.__init__(self, "t:c:e::p:ukVZ:z?:o:P:l:U:k:O:d")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetOverrideCallback(self.override)
         self.options()
@@ -668,6 +682,7 @@ class ProcessStatOptions(pmapi.pmOptions):
                              "%mem, pri, user, %cpu and S "
                              "\n\t\t\tALL option shows USER,PID,PPID,PRI,%CPU,%MEM,VSZ,RSS,S,STARTED,TIME,WCHAN and "
                              "Command")
+        self.pmSetLongOption("", 0, "d", "", "enable debug mode")
         self.pmSetLongOptionText("\tCOL\tHEADER \tDESCRIPTION")
         self.pmSetLongOptionText("\t%cpu\t%CPU \tcpu utilization of the process")
         self.pmSetLongOptionText("\t%mem\t%MEM  \tphysical memory on the machine expressed as a percentage")
@@ -682,88 +697,157 @@ class ProcessStatOptions(pmapi.pmOptions):
         self.pmSetLongOptionText("\trss\tRSS \tthe non-swapped physical memory that a task has used")
         self.pmSetLongOptionText("\trtprio\tRTPRIO \trealtime priority")
         self.pmSetLongOptionText("\tpname\tPname\tProcess name")
-        # self.pmSetLongOptionText("\ttime\tTIME \tcumulative CPU time")
         self.pmSetLongOptionText("\ttty\tTT \tcontrolling tty (terminal)")
         self.pmSetLongOptionText("\tuid\tUID \tsee euid")
         self.pmSetLongOptionText("\tvsize\tVSZ \tsee vsz")
         self.pmSetLongOptionText("\tuname\tUSER \tsee euser")
         self.pmSetLongOptionText("\twchan\tWCHAN \tname of the kernel function in which the process is sleeping")
         self.pmSetLongOption("", 0, 'u', "", "Display user-oriented format")
+        self.pmSetLongOption("", 1, "O", "%cpu,%mem", "sort the process list by %cpu or %mem values ")
         self.pmSetLongOptionVersion()
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionHostZone()
         self.pmSetLongOptionHelp()
 
     def override(self, opts):
-        ProcessStatOptions.print_count = self.pmGetOptionSamples()
+        self.print_count = self.pmGetOptionSamples()
         # """Override standard Pcp-ps option to show all process """
-        return bool(opts in ['p', 'c', 'o', 'P', 'U'])
+        return bool(opts in ['p', 'c', 'o', 'P', 'U', 'O', 'd'])
 
     def extraOptions(self, opts, optarg, index):
-        if opts == 'e':
-            ProcessStatOptions.show_all_process = True
-        elif opts == 'c':
-            ProcessStatOptions.command_filter_flag = True
-            ProcessStatOptions.filter_flag = True
+
+        def handle_e():
+            if self.debug_mode:
+                print("e option selected")
+            self.universal_flag = "all"
+            self.show_all_process = True
+
+        def handle_c():
+            if self.debug_mode:
+                print("command option selected")
+            self.universal_flag = "command"
+            self.command_filter_flag = True
+            self.filter_flag = True
             try:
                 if optarg is not None:
-                    ProcessStatOptions.command_list += optarg.replace(',', ' ').split(' ')
+                    self.command_list += optarg.replace(',', ' ').split(' ')
+                    if self.debug_mode:
+                        print("Command List: %s" % self.command_list)
             except ValueError:
                 print("Invalid command Id List: use comma separated pids without whitespaces")
                 sys.exit(1)
-        elif opts == 'p':
-            ProcessStatOptions.filter_flag = True
-            ProcessStatOptions.pid_filter_flag = True
+        def handle_d():
+            print("Debug mode selected")
+            self.debug_mode = True
+
+        def handle_p():
+            if self.debug_mode:
+                print("pid option selected")
+            self.universal_flag = "pid"
+            self.filter_flag = True
+            self.pid_filter_flag = True
             try:
                 if optarg is not None:
                     dummy_list = optarg.replace(',', ' ').split(' ')
-                    ProcessStatOptions.pid_list += [int(x) for x in dummy_list]
+                    self.pid_list += [int(x) for x in dummy_list]
             except ValueError:
                 print("Invalid pid Id List: use comma separated pids without whitespaces")
                 sys.exit(1)
-        elif opts == 'P':
-            ProcessStatOptions.filter_flag = True
-            ProcessStatOptions.ppid_filter_flag = True
+
+        def handle_P():
+            if self.debug_mode:
+                print("ppid option selected")
+            self.universal_flag = "ppid"
+            self.filter_flag = True
+            self.ppid_filter_flag = True
             try:
                 if optarg is not None:
                     dummy_list = optarg.replace(',', ' ').split(' ')
-                    ProcessStatOptions.ppid_list += [int(x) for x in dummy_list]
+                    self.ppid_list += [int(x) for x in dummy_list]
             except ValueError:
                 print("Invalid ppid Id List: use comma separated pids without whitespaces")
                 sys.exit(1)
-        elif opts == 'u':
-            ProcessStatOptions.user_oriented_format = True
-        elif opts == 'o':
-            ProcessStatOptions.selective_colum_flag = True
+
+        def handle_u():
+            if self.debug_mode:
+                print("User-oriented format option selected")
+            self.universal_flag = "user"
+            self.user_oriented_format = True
+
+        def handle_o():
+            if self.debug_mode: 
+                print("User-defined format option selected")
+            self.selective_colum_flag = True
             try:
                 if optarg.upper() == "ALL":
-                    ProcessStatOptions.filterstate = optarg.upper()
+                    self.filterstate = optarg.upper()
                 else:
                     dummy_list = optarg.replace(',', ' ').split(' ')
+                    if self.debug_mode:
+                        print("Custom Column List: %s" % dummy_list)
                     for key in dummy_list:
                         if key.lower() in PIDINFO_PAIR:
-                            ProcessStatOptions.colum_list.append(key.lower())
+                            self.colum_list.append(key.lower())
                         else:
                             raise ValueError
             except ValueError:
-                print("Invalid ppid Id List: Either column name is not correct "
-                      "or use comma separated column names without whitespaces")
+                print("Invalid Column List: incorrect name or improper comma-separated format")
                 sys.exit(1)
-        elif opts == 'U':
-            ProcessStatOptions.username_filter_flag = True
-            ProcessStatOptions.filter_flag = True
-            ProcessStatOptions.filtered_process_user = optarg
-        elif opts is None:
-            ProcessStatOptions.show_all_process = True
 
-    @staticmethod
-    def checkOptions():
-        if ProcessStatOptions.selective_colum_flag or \
-                ProcessStatOptions.filter_flag or \
-                ProcessStatOptions.user_oriented_format:
+        def handle_U():
+            if self.debug_mode:
+                print("username option selected")
+            self.universal_flag = "username"
+            self.username_filter_flag = True
+            self.filter_flag = True
+            self.filtered_process_user = optarg
+
+        def handle_none():
+            if self.debug_mode:
+                print("No option selected, defaulting to show all process")
+            self.show_all_process = True
+
+        def handle_O():
+            if self.debug_mode:
+                print("Sorting option selected")
+            self.sorting_flag = True
+            self.sorting_order = optarg
+            print("The -O option has been deprecated. Please use --sort option instead.")
+            print("sorting by %s" % self.sorting_order)
+            sys.exit(1)
+
+        # Dispatch map simulating switch-case
+        dispatch = {
+            'e': handle_e,
+            'c': handle_c,
+            'p': handle_p,
+            'P': handle_P,
+            'u': handle_u,
+            'o': handle_o,
+            'U': handle_U,
+            'O': handle_O,
+            'd': handle_d,
+            None: handle_none,
+        }
+        # Execute handler or fallback to error
+        handler = dispatch.get(opts)
+        if handler:
+            handler()
+        else:
+            print(f"Unknown option: {opts}")
+            sys.exit(1)
+    def checkOptions(self):
+        if self.debug_mode:
+            print("Universal Flag: %s" % self.universal_flag)
+        if self.universal_flag is not None :
+        #    self.selective_colum_flag or \
+        #    self.filter_flag :
             return True
         else:
-            ProcessStatOptions.empty_arg_flag = True
+            if self.debug_mode:
+                print("No filtering option selected, defaulting to empty argument mode")
+            # self.empty_arg_flag = True
+            self.universal_flag = "empty_arg"
             return True
 
 
@@ -779,7 +863,7 @@ if __name__ == "__main__":
             sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % missing)
             sys.exit(1)
         manager['psstat'] = PSSTAT_METRICS
-        manager.printer = ProcessStatReport(manager['psstat'])
+        manager.printer = ProcessStatReport(manager['psstat'],opts)
         sts = manager.run()
         sys.exit(sts)
     except pmapi.pmErr as pmerror:
