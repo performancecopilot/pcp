@@ -39,6 +39,12 @@ pcp $archive_first -s2 ps -p 1,2
 echo && echo pcp-ps output : Display the selected process ppid 1,2,3,4 and 5
 pcp $archive_first -s2 ps -P 1,2,3,4,5
 
+echo && echo pcp-ps output : Display only user selected process command
+pcp $archive_first -s2 ps -c systemd
+
+echo && echo pcp-ps output : Display only selected user process
+pcp $archive_first -s2 ps -U root
+
 echo && echo pcp-ps output : Display the begining 10 process to test broken pipe
 pcp $archive_first ps -u | head -10
 
@@ -47,6 +53,8 @@ pcp $archive_first -s2 ps -o pid,ppid,args,tty,wchan
 
 echo && echo pcp-ps output : Display the colum "args" in the end of -o option colum list
 pcp $archive_first -s2 ps -o pid,ppid,tty,args
+
+
 
 status=0
 exit
