@@ -5,7 +5,28 @@ import yaml
 import sys
 import os
 import tempfile
+import platform as platform_module
 from datetime import datetime
+
+
+def get_host_os():
+    """Get the host operating system name."""
+    return platform_module.system()
+
+
+def get_host_architecture():
+    """Get the host machine architecture."""
+    return platform_module.machine()
+
+
+def is_macos():
+    """Check if running on macOS."""
+    return get_host_os() == "Darwin"
+
+
+def is_arm64():
+    """Check if running on ARM64 architecture."""
+    return get_host_architecture() in ("arm64", "aarch64")
 
 
 class DirectRunner:
@@ -111,27 +132,43 @@ class ContainerRunner:
         self.container_name = f"pcp-ci-{self.platform_name}"
         self.image_name = f"{self.container_name}-image"
         self.command_preamble = "set -eux\nexport runner=container\n"
+        self.platform_flags = []
 
         # on Ubuntu, systemd inside the container only works with sudo
         # also don't run as root in general on Github actions,
         # otherwise the direct runner would run everything as root
         self.sudo = []
         self.security_opts = []
-        with open("/etc/os-release", encoding="utf-8") as f:
-            for line in f:
-                k, v = line.rstrip().split("=")
-                if k == "NAME":
-                    if v == '"Ubuntu"':
-                        self.sudo = ["sudo", "-E", "XDG_RUNTIME_DIR="]
-                        self.security_opts = ["--security-opt", "label=disable"]
-                    break
+
+        # Handle platform detection - macOS doesn't have /etc/os-release
+        if is_macos():
+            # macOS doesn't require sudo for podman
+            self.sudo = []
+            self.security_opts = []
+            # On macOS with ARM64, inject --platform flag for amd64 emulation
+            if is_arm64():
+                self.platform_flags = ["--platform", "linux/amd64"]
+        else:
+            # Linux systems - check if Ubuntu for special handling
+            try:
+                with open("/etc/os-release", encoding="utf-8") as f:
+                    for line in f:
+                        k, v = line.rstrip().split("=")
+                        if k == "NAME":
+                            if v == '"Ubuntu"':
+                                self.sudo = ["sudo", "-E", "XDG_RUNTIME_DIR="]
+                                self.security_opts = ["--security-opt", "label=disable"]
+                            break
+            except FileNotFoundError:
+                # If /etc/os-release doesn't exist, assume no special handling needed
+                pass
 
     def setup(self, pcp_path):
         containerfile = self.platform["container"]["containerfile"]
 
         # build a new image
         subprocess.run(
-            [*self.sudo, "podman", "build", "--squash", "-t", self.image_name, "-f", "-"],
+            [*self.sudo, "podman", "build", *self.platform_flags, "--squash", "-t", self.image_name, "-f", "-"],
             input=containerfile.encode(),
             check=True,
         )
@@ -143,6 +180,7 @@ class ContainerRunner:
                 *self.sudo,
                 "podman",
                 "run",
+                *self.platform_flags,
                 "-dt",
                 "--name",
                 self.container_name,
