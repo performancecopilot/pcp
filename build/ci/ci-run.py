@@ -195,9 +195,25 @@ class ContainerRunner:
             check=True,
         )
 
+        # Copy PCP sources
         subprocess.run(
             [*self.sudo, "podman", "cp", f"{pcp_path}/", f"{self.container_name}:/home/pcpbuild/pcp"], check=True
         )
+
+        # Handle git worktree - if pcp_path is inside a git worktree, we need to fix the .git reference
+        git_file_path = os.path.join(pcp_path, ".git")
+        if os.path.isfile(git_file_path):
+            # This is a git worktree - read the worktree reference and resolve the actual git dir
+            with open(git_file_path) as f:
+                content = f.read()
+                if content.startswith("gitdir:"):
+                    # Extract the git directory path
+                    git_dir = content.replace("gitdir:", "").strip()
+                    # The git dir in the container will be relative to the pcp dir
+                    # For now, we'll handle this by initializing a fresh git repo in the container
+                    # This is a workaround for git worktree support
+                    self.exec("cd /home/pcpbuild/pcp && git init && git config user.email 'ci@pcp.io' && git config user.name 'PCP CI'")
+
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
