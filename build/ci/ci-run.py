@@ -209,7 +209,8 @@ class ContainerRunner:
                 if content.startswith("gitdir:"):
                     # Create a minimal .git directory in the container to make Makepkgs happy
                     # We don't need full git functionality, just something that marks it as a repo
-                    self.exec("rm -f /home/pcpbuild/pcp/.git && mkdir -p /home/pcpbuild/pcp/.git && touch /home/pcpbuild/pcp/.git/config")
+                    # Use sudo to remove the worktree .git file and replace it with a directory
+                    self.exec("sudo rm -f /home/pcpbuild/pcp/.git && sudo mkdir -p /home/pcpbuild/pcp/.git && sudo touch /home/pcpbuild/pcp/.git/config")
 
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
