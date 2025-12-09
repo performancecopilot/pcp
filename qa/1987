@@ -17,44 +17,43 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 pcp_ps="$PCP_BINADM_DIR/pcp-ps"
 test -x $pcp_ps || _notrun "No pcp-ps(1) installed"
 pcp_ps="$python $pcp_ps"
+samples=2
 
 # real QA test starts here
 echo && echo pcp-ps output : Display default output
 PCP_ARCHIVE="archives/pcp-ps" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_ps
 
-archive_first="-a archives/pcp-ps -z -O +1"
+archive_first="-a archives/pcp-ps -z -O +1 -s$samples"
 
 echo && echo pcp-ps output : Display all process and all archive data
 pcp $archive_first ps -e
 
 echo && echo pcp-ps output : Display the user oriented format
-pcp $archive_first -s2 ps -u
+pcp $archive_first ps -u
 
 echo && echo pcp-ps output : Display the colum pid,ppid,tty,uname,wchan
-pcp $archive_first -s2 ps -o pid,ppid,tty,uname,wchan
+pcp $archive_first ps -o pid,ppid,tty,uname,wchan
 
 echo && echo pcp-ps output : Display the selected process pid 1 and 2
-pcp $archive_first -s2 ps -p 1,2
+pcp $archive_first ps -p 1,2
 
 echo && echo pcp-ps output : Display the selected process ppid 1,2,3,4 and 5
-pcp $archive_first -s2 ps -P 1,2,3,4,5
+pcp $archive_first ps -P 1,2,3,4,5
 
 echo && echo pcp-ps output : Display only user selected process command
-pcp $archive_first -s2 ps -c systemd
+pcp $archive_first ps -c systemd
 
 echo && echo pcp-ps output : Display only selected user process
-pcp $archive_first -s2 ps -U root
+pcp $archive_first ps -U root
 
 echo && echo pcp-ps output : Display the begining 10 process to test broken pipe
 pcp $archive_first ps -u | head -10
 
 echo && echo pcp-ps output : Display the colum "args" in between of -o option colum list
-pcp $archive_first -s2 ps -o pid,ppid,args,tty,wchan
+pcp $archive_first ps -o pid,ppid,args,tty,wchan
 
 echo && echo pcp-ps output : Display the colum "args" in the end of -o option colum list
-pcp $archive_first -s2 ps -o pid,ppid,tty,args
-
-
+pcp $archive_first ps -o pid,ppid,tty,args
 
 status=0
 exit
