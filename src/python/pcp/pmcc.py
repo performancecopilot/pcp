@@ -684,10 +684,14 @@ class MetricGroupManager(dict, MetricCache):
                     break
                 if finish is not None and self._ts2float(curtime) >= self._ts2float(finish):
                     break
-                self._printer.report(self)
+                self._printer_flag = self._printer.report(self)
                 timer.sleep()
                 curtime = self.fetch()
-                self._counter += 1
+                # For backwards compatibility with existing tools,
+                # treat None as a successful report
+                # and increment the counter
+                if self._printer_flag is None or self._printer_flag is True:
+                    self._counter += 1
         except SystemExit as code:
             return code
         except KeyboardInterrupt:
