@@ -126,13 +126,14 @@ class VirtualMachineRunner:
 
 
 class ContainerRunner:
-    def __init__(self, platform_name: str, platform):
+    def __init__(self, platform_name: str, platform, use_native_arch: bool = False):
         self.platform_name = platform_name
         self.platform = platform
         self.container_name = f"pcp-ci-{self.platform_name}"
         self.image_name = f"{self.container_name}-image"
         self.command_preamble = "set -eux\nexport runner=container\n"
         self.platform_flags = []
+        self.use_native_arch = use_native_arch
 
         # on Ubuntu, systemd inside the container only works with sudo
         # also don't run as root in general on Github actions,
@@ -145,9 +146,12 @@ class ContainerRunner:
             # macOS doesn't require sudo for podman
             self.sudo = []
             self.security_opts = []
-            # On macOS with ARM64, inject --platform flag for amd64 emulation
+            # On macOS with ARM64, inject --platform flag based on use_native_arch
             if is_arm64():
-                self.platform_flags = ["--platform", "linux/amd64"]
+                if use_native_arch:
+                    self.platform_flags = ["--platform", "linux/arm64"]
+                else:
+                    self.platform_flags = ["--platform", "linux/amd64"]
         else:
             # Linux systems - check if Ubuntu for special handling
             try:
@@ -253,6 +257,16 @@ class ContainerRunner:
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pcp_path", default=".")
+    parser.add_argument(
+        "--native-arch",
+        action="store_true",
+        help="Use native host architecture instead of amd64 (useful on macOS for faster builds)"
+    )
+    parser.add_argument(
+        "--emulate",
+        action="store_true",
+        help="Force amd64 emulation even on native ARM64 systems (default on non-macOS)"
+    )
     parser.add_argument("platform")
     subparsers = parser.add_subparsers(dest="main_command")
 
@@ -279,12 +293,22 @@ def main():
     with open(platform_def_path, encoding="utf-8") as f:
         platform = yaml.safe_load(f)
     platform_type = platform.get("type")
+
+    # Determine architecture to use
+    use_native_arch = False
+    if is_macos():
+        # On macOS: default to native arch unless --emulate is specified
+        use_native_arch = not args.emulate
+    # On Linux or with --native-arch flag: respect explicit --native-arch
+    if args.native_arch:
+        use_native_arch = True
+
     if platform_type == "direct":
         runner = DirectRunner(args.platform, platform)
     elif platform_type == "vm":
         runner = VirtualMachineRunner(args.platform, platform)
     elif platform_type == "container":
-        runner = ContainerRunner(args.platform, platform)
+        runner = ContainerRunner(args.platform, platform, use_native_arch=use_native_arch)
 
     if args.main_command == "setup":
         try:
