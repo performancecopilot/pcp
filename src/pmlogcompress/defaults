@@ -1,0 +1,26 @@
+# default compression arguments for pmlogcompress
+#
+# sh(1) syntax rules apply:
+# - no spaces around =
+# - value may optionally be enclosed in single or double quotes
+# - value will be eval'd once before use
+#
+
+# colon separated list of compression programs to choose from
+#
+PCP_COMPRESS_PROGS='zstd:xz:bzip2:gzip'
+
+# minimum file size ... smaller than this and no compression is applied
+#
+PCP_COMPRESS_MIN_FILESIZE=4096
+
+# minimum file size for zstd compression
+#
+PCP_COMPRESS_ZSTD_MIN_FILESIZE=52428800
+
+# default command line options for each supported compression program
+#
+PCP_COMPRESS_ZSTD_ARGS='--rm --quiet'
+PCP_COMPRESS_XZ_ARGS='-2 --block-size=10MiB'
+PCP_COMPRESS_BZIP2_ARGS=''
+PCP_COMPRESS_GZIP_ARGS=''
