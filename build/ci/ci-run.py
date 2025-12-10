@@ -119,7 +119,10 @@ def _execute_command(runner, args, platform_name=None):
         elif args.main_command == "shell":
             runner.shell()
         elif args.main_command == "reproduce":
-            all_tasks = ["setup", "build", "install", "init_qa", "qa"]
+            all_tasks = list(runner.platform["tasks"].keys())
+            if args.until not in all_tasks:
+                print(f"Error: Unknown task '{args.until}'. Available tasks: {', '.join(all_tasks)}", file=sys.stderr)
+                sys.exit(1)
             run_tasks = all_tasks[: all_tasks.index(args.until) + 1]
 
             if platform_name:
@@ -137,7 +140,7 @@ def _execute_command(runner, args, platform_name=None):
             print(f"\n[{platform_name if platform_name else 'CI'}] Tasks completed, took {duration_min:.0f}m.")
 
             if not platform_name:  # Only show in non-quick mode
-                if all_tasks.index(args.until) >= all_tasks.index("install"):
+                if "install" in all_tasks and all_tasks.index(args.until) >= all_tasks.index("install"):
                     print("\nPlease run:\n")
                     print("    sudo -u pcpqa -i ./check XXX\n")
                     print("to run a QA test. PCP is already installed, from sources located in './pcp'.")
@@ -323,6 +326,9 @@ class ContainerRunner:
         )
 
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
+        # Ensure .git directory exists so Makepkgs can run
+        # The worktree pointer file won't work in the container, so replace with a directory
+        self.exec("rm -f .git; mkdir -p .git")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
     def destroy(self):
