@@ -326,9 +326,10 @@ class ContainerRunner:
         )
 
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
-        # Ensure .git directory exists so Makepkgs can run
-        # The worktree pointer file won't work in the container, so replace with a directory
-        self.exec("rm -f .git; mkdir -p .git")
+        # Ensure .git is a directory (Makepkgs checks for this)
+        # On macOS with worktrees, .git is a file pointing to the actual repo, which won't work in a container
+        # Only fix it if .git is not already a directory
+        self.exec("if [ ! -d .git ]; then rm -f .git; mkdir -p .git; fi")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
     def destroy(self):
