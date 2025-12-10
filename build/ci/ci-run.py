@@ -10,33 +10,38 @@ from datetime import datetime
 
 
 def get_host_os():
-    """Get the host operating system name."""
     return platform_module.system()
 
 
 def get_host_architecture():
-    """Get the host machine architecture."""
     return platform_module.machine()
 
 
 def is_macos():
-    """Check if running on macOS."""
     return get_host_os() == "Darwin"
 
 
 def is_arm64():
-    """Check if running on ARM64 architecture."""
     return get_host_architecture() in ("arm64", "aarch64")
 
 
-def load_quick_platforms(cli_platforms=None, env_platforms=None, config_file=None):
+def _parse_platform_string(value, separator):
+    """Parse a string into a list of platform names, handling both delimiters and empty values."""
+    if not value:
+        return None
+    # Use separator as primary delimiter, then split on whitespace
+    platforms = [p.strip() for p in value.replace(separator, ' ').split() if p.strip()]
+    return platforms if platforms else None
+
+
+def resolve_platforms_to_run(cli_platforms=None, env_platforms=None, config_file=None):
     """
-    Load quick mode platforms with priority hierarchy.
+    Resolve platforms to run with priority hierarchy.
 
     Priority:
-    1. CLI arguments (comma-separated or space-separated list)
-    2. Environment variable PCP_CI_QUICK_PLATFORMS (newline or comma-separated)
-    3. Config file .pcp-ci-quick (line-separated)
+    1. CLI arguments (comma or space-separated)
+    2. Environment variable PCP_CI_QUICK_PLATFORMS
+    3. Config file .pcp-ci-quick (line-separated, comments ignored)
     4. None - requires user to specify platforms
 
     Args:
@@ -50,32 +55,26 @@ def load_quick_platforms(cli_platforms=None, env_platforms=None, config_file=Non
     if config_file is None:
         config_file = ".pcp-ci-quick"
 
-    # Priority 1: CLI arguments (can be space or comma separated)
-    if cli_platforms:
-        # Split on comma or space, filter out empty strings
-        platforms = [p.strip() for p in cli_platforms.replace(',', ' ').split() if p.strip()]
-        if platforms:
-            return platforms
+    # Priority 1: CLI arguments
+    platforms = _parse_platform_string(cli_platforms, ',')
+    if platforms:
+        return platforms
 
     # Priority 2: Environment variable
-    if env_platforms:
-        # Split on newline or comma, filter out empty strings
-        platforms = [p.strip() for p in env_platforms.replace(',', '\n').split('\n') if p.strip()]
-        if platforms:
-            return platforms
+    platforms = _parse_platform_string(env_platforms, ',')
+    if platforms:
+        return platforms
 
     # Priority 3: Config file
     if os.path.isfile(config_file):
         try:
             with open(config_file, encoding="utf-8") as f:
-                # Read line-separated list, filter out empty lines and comments
                 platforms = [line.strip() for line in f if line.strip() and not line.strip().startswith('#')]
                 if platforms:
                     return platforms
-        except (IOError, OSError):
-            pass
+        except (IOError, OSError) as e:
+            print(f"Warning: Could not read config file {config_file}: {e}", file=sys.stderr)
 
-    # No platforms found
     return None
 
 
@@ -252,6 +251,28 @@ class VirtualMachineRunner:
 
 
 class ContainerRunner:
+    def _setup_macos_config(self):
+        """Configure podman for macOS (no sudo, platform flags for ARM64)."""
+        self.sudo = []
+        self.security_opts = []
+        if is_arm64():
+            # Specify container architecture explicitly on ARM64 macOS
+            arch = "linux/arm64" if self.use_native_arch else "linux/amd64"
+            self.platform_flags = ["--platform", arch]
+
+    def _setup_linux_config(self):
+        """Configure podman for Linux (sudo for Ubuntu, system labels)."""
+        try:
+            with open("/etc/os-release", encoding="utf-8") as f:
+                for line in f:
+                    k, v = line.rstrip().split("=")
+                    if k == "NAME" and v == '"Ubuntu"':
+                        self.sudo = ["sudo", "-E", "XDG_RUNTIME_DIR="]
+                        self.security_opts = ["--security-opt", "label=disable"]
+                        break
+        except FileNotFoundError:
+            pass
+
     def __init__(self, platform_name: str, platform, use_native_arch: bool = False):
         self.platform_name = platform_name
         self.platform = platform
@@ -260,50 +281,25 @@ class ContainerRunner:
         self.command_preamble = "set -eux\nexport runner=container\n"
         self.platform_flags = []
         self.use_native_arch = use_native_arch
-
-        # on Ubuntu, systemd inside the container only works with sudo
-        # also don't run as root in general on Github actions,
-        # otherwise the direct runner would run everything as root
         self.sudo = []
         self.security_opts = []
 
-        # Handle platform detection - macOS doesn't have /etc/os-release
         if is_macos():
-            # macOS doesn't require sudo for podman
-            self.sudo = []
-            self.security_opts = []
-            # On macOS with ARM64, inject --platform flag based on use_native_arch
-            if is_arm64():
-                if use_native_arch:
-                    self.platform_flags = ["--platform", "linux/arm64"]
-                else:
-                    self.platform_flags = ["--platform", "linux/amd64"]
+            self._setup_macos_config()
         else:
-            # Linux systems - check if Ubuntu for special handling
-            try:
-                with open("/etc/os-release", encoding="utf-8") as f:
-                    for line in f:
-                        k, v = line.rstrip().split("=")
-                        if k == "NAME":
-                            if v == '"Ubuntu"':
-                                self.sudo = ["sudo", "-E", "XDG_RUNTIME_DIR="]
-                                self.security_opts = ["--security-opt", "label=disable"]
-                            break
-            except FileNotFoundError:
-                # If /etc/os-release doesn't exist, assume no special handling needed
-                pass
+            self._setup_linux_config()
 
     def setup(self, pcp_path):
         containerfile = self.platform["container"]["containerfile"]
 
-        # build a new image
+        # platform_flags specifies container architecture (e.g., --platform linux/arm64)
+        # on ARM64 macOS, allowing explicit control over native vs emulated builds
         subprocess.run(
             [*self.sudo, "podman", "build", *self.platform_flags, "--squash", "-t", self.image_name, "-f", "-"],
             input=containerfile.encode(),
             check=True,
         )
 
-        # start a new container
         subprocess.run([*self.sudo, "podman", "rm", "-f", self.container_name], stderr=subprocess.DEVNULL, check=False)
         subprocess.run(
             [
@@ -382,6 +378,43 @@ class ContainerRunner:
         )
 
 
+def _determine_use_native_arch(args):
+    """Determine whether to use native architecture based on platform and flags."""
+    use_native_arch = False
+    if is_macos():
+        # On macOS: default to native arch unless --emulate is specified
+        use_native_arch = not args.emulate
+    # On Linux or with --native-arch flag: respect explicit --native-arch
+    if args.native_arch:
+        use_native_arch = True
+    return use_native_arch
+
+
+def _create_runner(platform_name, platform, use_native_arch):
+    """Create the appropriate runner for the given platform type."""
+    platform_type = platform.get("type")
+    if platform_type == "direct":
+        return DirectRunner(platform_name, platform)
+    elif platform_type == "vm":
+        return VirtualMachineRunner(platform_name, platform)
+    elif platform_type == "container":
+        return ContainerRunner(platform_name, platform, use_native_arch=use_native_arch)
+    else:
+        print(f"Error: Unknown platform type: {platform_type}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _load_platform_definition(platform_name):
+    """Load platform YAML definition file."""
+    platform_def_path = os.path.join(os.path.dirname(__file__), f"platforms/{platform_name}.yml")
+    try:
+        with open(platform_def_path, encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        print(f"Error: Platform definition not found: {platform_def_path}", file=sys.stderr)
+        sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pcp_path", default=".")
@@ -428,8 +461,7 @@ def main():
 
     # Handle quick mode
     if args.quick is not None:
-        # Quick mode enabled
-        quick_platforms = load_quick_platforms(
+        quick_platforms = resolve_platforms_to_run(
             cli_platforms=args.platform if args.quick is True else args.quick,
             env_platforms=os.environ.get("PCP_CI_QUICK_PLATFORMS")
         )
@@ -438,47 +470,19 @@ def main():
             print_quick_mode_help()
             sys.exit(1)
 
-        # Quick mode doesn't use the platform argument, so we need the subcommand
         if not args.main_command:
             print("Error: Quick mode requires a subcommand (setup, task, reproduce, etc.)", file=sys.stderr)
             sys.exit(1)
 
-        # Run quick mode on all platforms
+        use_native_arch = _determine_use_native_arch(args)
+
         for platform_name in quick_platforms:
             print(f"\n{'='*60}")
             print(f"Running on platform: {platform_name}")
             print(f"{'='*60}\n")
 
-            # Load platform definition
-            platform_def_path = os.path.join(os.path.dirname(__file__), f"platforms/{platform_name}.yml")
-            try:
-                with open(platform_def_path, encoding="utf-8") as f:
-                    platform = yaml.safe_load(f)
-            except FileNotFoundError:
-                print(f"Error: Platform definition not found: {platform_def_path}", file=sys.stderr)
-                sys.exit(1)
-
-            platform_type = platform.get("type")
-
-            # Determine architecture to use
-            use_native_arch = False
-            if is_macos():
-                use_native_arch = not args.emulate
-            if args.native_arch:
-                use_native_arch = True
-
-            # Create runner
-            if platform_type == "direct":
-                runner = DirectRunner(platform_name, platform)
-            elif platform_type == "vm":
-                runner = VirtualMachineRunner(platform_name, platform)
-            elif platform_type == "container":
-                runner = ContainerRunner(platform_name, platform, use_native_arch=use_native_arch)
-            else:
-                print(f"Error: Unknown platform type: {platform_type}", file=sys.stderr)
-                sys.exit(1)
-
-            # Execute quick mode command
+            platform = _load_platform_definition(platform_name)
+            runner = _create_runner(platform_name, platform, use_native_arch)
             _execute_command(runner, args, platform_name)
 
         sys.exit(0)
@@ -488,28 +492,10 @@ def main():
         print("Error: Platform argument required (unless using --quick mode)", file=sys.stderr)
         sys.exit(1)
 
-    platform_def_path = os.path.join(os.path.dirname(__file__), f"platforms/{args.platform}.yml")
-    with open(platform_def_path, encoding="utf-8") as f:
-        platform = yaml.safe_load(f)
-    platform_type = platform.get("type")
+    platform = _load_platform_definition(args.platform)
+    use_native_arch = _determine_use_native_arch(args)
+    runner = _create_runner(args.platform, platform, use_native_arch)
 
-    # Determine architecture to use
-    use_native_arch = False
-    if is_macos():
-        # On macOS: default to native arch unless --emulate is specified
-        use_native_arch = not args.emulate
-    # On Linux or with --native-arch flag: respect explicit --native-arch
-    if args.native_arch:
-        use_native_arch = True
-
-    if platform_type == "direct":
-        runner = DirectRunner(args.platform, platform)
-    elif platform_type == "vm":
-        runner = VirtualMachineRunner(args.platform, platform)
-    elif platform_type == "container":
-        runner = ContainerRunner(args.platform, platform, use_native_arch=use_native_arch)
-
-    # Execute the command
     _execute_command(runner, args)
 
 
