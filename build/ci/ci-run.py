@@ -326,18 +326,6 @@ class ContainerRunner:
             [*self.sudo, "podman", "cp", f"{pcp_path}/", f"{self.container_name}:/home/pcpbuild/pcp"], check=True
         )
 
-        # Handle git worktree - if pcp_path is inside a git worktree, we need to fix the .git reference
-        git_file_path = os.path.join(pcp_path, ".git")
-        if os.path.isfile(git_file_path):
-            # This is a git worktree - create a minimal .git directory to satisfy Makepkgs
-            with open(git_file_path) as f:
-                content = f.read()
-                if content.startswith("gitdir:"):
-                    # Create a minimal .git directory in the container to make Makepkgs happy
-                    # We don't need full git functionality, just something that marks it as a repo
-                    # Use sudo to remove the worktree .git file and replace it with a directory
-                    self.exec("sudo rm -f /home/pcpbuild/pcp/.git && sudo mkdir -p /home/pcpbuild/pcp/.git && sudo touch /home/pcpbuild/pcp/.git/config")
-
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
