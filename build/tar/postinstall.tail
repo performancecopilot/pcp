@@ -539,6 +539,10 @@ for file in "$PCP_VAR_DIR"/config/pmieconf/pcp/pmda_status \
 	    "$PCP_ETC_DIR"/pcp/pmie/crontab.docker \
 	    "$PCP_ETC_DIR"/pcp/pmproxy/pmproxy.defaults \
 	    "$PCP_ETC_DIR"/pcp/pmrep/xtract-names \
+	    "$PCP_ETC_DIR"/pcp/pmlogger/rc \
+	    "$PCP_ETC_DIR"/pcp/pmproxy/rc \
+	    "$PCP_ETC_DIR"/pcp/pmie/rc \
+	    "$PCP_ETC_DIR"/pcp/pmlogconf/storage/farm \
     # end
 do
     [ -f "$file" -o -L "$file" ] && $RM -f "$file"

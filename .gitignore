@@ -37,7 +37,7 @@ release
 *.Debug
 *.Release
 Makefile
-VERSION.pcp.daily
+VERSION.pcp.dev
 .vagrant
 qaresults
 .idea

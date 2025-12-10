@@ -1,4 +1,4 @@
-'\"macro stdmacro
+'\" t
 .\"
 .\" Copyright (c) 2024 Ken McDonell.  All Rights Reserved.
 .\"
@@ -19,6 +19,7 @@
 \fBpmlogcompress\fR
 [\fB\-NV?\fR]
 [\fB\-A\fR \fIarg\fR]
+[\fB\-C\fR \fIconffile\fR]
 [\fB\-c\fR \fIproglist\fR]
 [\fB\-f\fR \fIprog\fR]
 [\fB\-l\fR \fIlimit\fR]
@@ -89,6 +90,17 @@ the
 arguments will be used.
 .RE
 .TP
+\fB\-C\fR \fIconffile\fR, \fB\-\-config\fR=\fIconffile\fR
+As described below variables that control the behaviour of
+.B pmlogcompress
+are defined in the configuration file
+.IR $PCP_SYSCONF_DIR/pmlogcompress/defaults .
+The
+.I \-C
+option allows for an alternate configuration file,
+.IR conffile ,
+to be used.
+.TP
 \fB\-c\fR \fIproglist\fR, \fB\-\-command\fR=\fIproglist\fR
 Depending on other command line options, and the availability of installed
 compression programs, the choice if program when compressing may vary.
@@ -118,7 +130,7 @@ may be specified using the
 option.
 The effect is the same as if only one
 .B \-c
-option was used, and
+option was used and
 .I proglist
 contained exactly one program name, namely
 .IR prog .
@@ -262,7 +274,11 @@ is 52428800
 \fB\-?\fR, \fB\-\-help\fR
 Display usage message and exit.
 .SH NOTE
-For most users these tools will not be used directly because
+For most users
+.B pmlogcompress
+and
+.B pmlogdecompress
+will not be used directly because
 explicit compression and decompression of PCP archives is not
 required.
 .PP
@@ -271,11 +287,137 @@ done indirectly from the PCP archive managements scripts
 .BR pmlogger_check (1),
 .BR pmlogger_daily (1)
 and
-.BR pmlogger_rewrite (1).
+.B pmlogger_rewrite (1)
+using
+.BR pmlogcompress .
 .PP
 Decompression is handled transparently during archive replay
 by the routines that implement the
 Performance Metrics Programming Interface (PMAPI).
+.SH VARIABLES
+.B pmlogcompress
+uses a number of variables that can be used to customize the behaviour.
+Defaults are defined in the configuration file
+.IR $PCP_SYSCONF_DIR/pmlogcompress/defaults ,
+but these can be over-ridden by setting variables of the same name
+in the environment.
+And some command line options over-ride variables set in either the
+configuration file or the environment.
+.PP
+The table below describes the variables and their equivalence to some of the command line
+options.
+.TS
+box,center;
+lfB | lfB | lfB
+l   | l   | lx.
+Variable	T{
+Command line option
+T}	Description
+_
+PCP_COMPRESS_PROGS	\fB\-c\fR \fIproglist\fR	T{
+.ad l
+.hy 0
+A colon separated list of programs to be considered in turn.
+If only one program appears in the list, then all compression will consider
+using only that program.
+T}
+	\fB\-f\fR \fIprog\fR	T{
+.ad l
+.hy 0
+Short-hand for a
+.I proglist
+with just one
+.I prog
+in it.
+T}
+_
+PCP_COMPRESS_MIN_FILESIZE	\fB\-l\fR \fIlimit\fR	T{
+.ad l
+.hy 0
+Archive files smaller than this will never be compressed.
+T}
+_
+PCP_COMPRESS_ZSTD_MIN_FILESIZE	\fB\-f\fR \fIprog\fR	T{
+.ad l
+.hy 0
+Archive files smaller than this will never be compressed with
+.BR zstd (1).
+T}
+_
+PCP_COMPRESS_ZSTD_ARGS	T{
+.ad l
+.hy 0
+\fB\-A\fR \fIarg\fR
+\fB\-f zstd\fR
+T}	T{
+.ad l
+.hy 0
+Command line arguments to be used with
+.BR zstd (1).
+T}
+_
+PCP_COMPRESS_XZ_ARGS	T{
+.ad l
+.hy 0
+\fB\-A\fR \fIarg\fR
+\fB\-f xz\fR
+T}	T{
+.ad l
+.hy 0
+Command line arguments to be used with
+.BR xz (1).
+T}
+_
+PCP_COMPRESS_BZIP2_ARGS	T{
+.ad l
+.hy 0
+\fB\-A\fR \fIarg\fR
+\fB\-f bzip2\fR
+T}	T{
+.ad l
+.hy 0
+Command line arguments to be used with
+.BR bzip2 (1).
+T}
+_
+PCP_COMPRESS_GZIP_ARGS	T{
+.ad l
+.hy 0
+\fB\-A\fR \fIarg\fR
+\fB\-f gzip\fR
+T}	T{
+.ad l
+.hy 0
+Command line arguments to be used with
+.BR gzip (1).
+T}
+.TE
+.SH FILES
+.PD 0
+.TP 10
+.I $PCP_SYSCONF_DIR/pmlogcompress/defaults
+default settings for variables used by
+.B pmlogcompress
+.PD
+.SH "PCP ENVIRONMENT"
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names
+used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative
+configuration file,
+as described in
+.BR pcp.conf (4).
+.PP
+.B pmlogcompress
+has additional private variables with default values in
+.I $PCP_SYSCONF_DIR/pmlogcompress/defaults
+as described above.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR bzip2 (1),
@@ -293,3 +435,8 @@ and
 
 .\" control lines for scripts/man-spell
 .\" +ok+ xstd zstd
+.\" +ok+ PCP_COMPRESS_GZIP_ARGS PCP_COMPRESS_MIN_FILESIZE
+.\" +ok+ PCP_COMPRESS_PROGS PCP_COMPRESS_XZ_ARGS PCP_COMPRESS_ZSTD_ARGS
+.\" +ok+ PCP_COMPRESS_ZSTD_MIN_FILESIZE
+.\" +ok+ {man-spell splitting PCP_COMPRESS_BZIP2_ARGS} PCP_COMPRESS_BZIP _ARGS
+

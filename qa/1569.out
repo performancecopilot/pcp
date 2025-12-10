@@ -7,6 +7,8 @@ Usage: pmlogcompress [options] archive ...
 
 Options:
   -A ARG, --arg=ARG     argument for compression program
+  -C conffile, --config=conffile
+                        alternate defaults configuration file
   -c PROGLIST, --command=PROGLIST
                         candidate compression program(s)
   -f PROG, --use=PROG   use this compression program
@@ -41,7 +43,7 @@ pmlogdecompress: -t: TMP is not an existing directory
 exit status 1
 --- pmlogcompress -NV no-such-archive ---
 stderr ...
-archbase=no-such-archive
+Info: archbase=no-such-archive
 pmlogcompress: Warning: no PCP archive files match "no-such-archive"
 --- pmlogdecompress -t TMP archives/pcp-meminfo ---
 stderr ...
@@ -112,11 +114,11 @@ Options:
 Decompression program is selected based on file extension.
 --- pmlogcompress -o foo foobar ---
 stderr ...
-pmlogcompress: -o option must be space or time
+pmlogcompress: Error: -o option must be space or time
 exit status 1
 --- pmlogcompress -l 0 -c no-such-prog TMP/foo+ ---
 stderr ...
-Warning: no clue how to deal with "compression" program no-such-prog
+pmlogcompress: Warning: no clue how to deal with "compression" program no-such-prog
 pmlogcompress: cannot find a compression program (tried no-such-prog)
 exit status 1
 --- pmlogcompress -l 0 -f no-such-prog TMP/foo+ ---
@@ -125,8 +127,8 @@ pmlogcompress: cannot find a compression program (no-such-prog)
 exit status 1
 --- pmlogcompress -l 0 -c no-such-prog:even-less-likely-prog TMP/foo+ ---
 stderr ...
-Warning: no clue how to deal with "compression" program no-such-prog
-Warning: no clue how to deal with "compression" program even-less-likely-prog
+pmlogcompress: Warning: no clue how to deal with "compression" program no-such-prog
+pmlogcompress: Warning: no clue how to deal with "compression" program even-less-likely-prog
 pmlogcompress: cannot find a compression program (tried no-such-prog:even-less-likely-prog)
 exit status 1
 --- pmlogcompress -f xz -o space foobar ---
@@ -219,21 +221,21 @@ foo+.index 212
 foo+.meta 2584
 --- pmlogcompress -NV -l10240 foo+ ---
 stderr ...
-archbase=foo+
-foo+.0: skipped, size 9272 < limit 10240
-foo+.meta: skipped, size 2584 < limit 10240
+Info: archbase=foo+
+Info: foo+.0: skipped, size 9272 < limit 10240
+Info: foo+.meta: skipped, size 2584 < limit 10240
 --- pmlogcompress --lower-limit=0 --show-me --verbose foo+ ---
 stderr ...
-archbase=foo+
-foo+.0: size 9272 too small for zstd
-+ xz -0 --block-size=10MiB foo+.0
-foo+.meta: size 2584 too small for zstd
-+ xz -0 --block-size=10MiB foo+.meta
+Info: archbase=foo+
+Info:: foo+.0: size 9272 too small for zstd
++ xz -2 --block-size=10MiB foo+.0
+Info:: foo+.meta: size 2584 too small for zstd
++ xz -2 --block-size=10MiB foo+.meta
 --- pmlogcompress -l 0 -V -c gzip foo+ ---
 stderr ...
-archbase=foo+
-foo+.0: compressed with gzip
-foo+.meta: compressed with gzip
+Info: archbase=foo+
+Info: foo+.0: compressed with gzip
+Info: foo+.meta: compressed with gzip
 foo+.0.gz 1927
 foo+.index 212
 foo+.meta.gz 815
@@ -243,12 +245,12 @@ foo+.index 212
 foo+.meta 2584
 --- pmlogcompress -l0 -c no-such-prog -c gzip -c bzip2 -V foo+ ---
 stderr ...
-Warning: no clue how to deal with "compression" program no-such-prog
-archbase=foo+
+pmlogcompress: Warning: no clue how to deal with "compression" program no-such-prog
+Info: archbase=foo+
 foo+.0: Botch: no compression recipe for no-such-prog program
-foo+.0: compressed with gzip
+Info: foo+.0: compressed with gzip
 foo+.meta: Botch: no compression recipe for no-such-prog program
-foo+.meta: compressed with gzip
+Info: foo+.meta: compressed with gzip
 foo+.0.gz 1927
 foo+.index 212
 foo+.meta.gz 815
@@ -263,14 +265,14 @@ stderr ...
 --- pmlogcompress -l0 -f xz pcp-meminfo ---
 --- pmlogcompress -l0 -f xz -V pcp-meminfo ---
 stderr ...
-archbase=pcp-meminfo
-pcp-meminfo.0.xz: skipped, already compressed
-pcp-meminfo.meta.xz: skipped, already compressed
-pcp-meminfo.0.xz 956
+Info: archbase=pcp-meminfo
+Info: pcp-meminfo.0.xz: skipped, already compressed
+Info: pcp-meminfo.meta.xz: skipped, already compressed
+pcp-meminfo.0.xz 948
 pcp-meminfo.index 192
-pcp-meminfo.meta.xz 3892
+pcp-meminfo.meta.xz 3776
 --- pmlogdecompress pcp-meminfo.meta.xz ---
-pcp-meminfo.0.xz 956
+pcp-meminfo.0.xz 948
 pcp-meminfo.index 192
 pcp-meminfo.meta 12518
 --- pmlogdecompress pcp-meminfo.0.xz blah ---
@@ -282,10 +284,10 @@ pcp-meminfo.meta 12518
 --- pmlogcompress -l0 -f xz pcp-meminfo.meta ---
 pcp-meminfo.0 16048
 pcp-meminfo.index 192
-pcp-meminfo.meta.xz 3892
+pcp-meminfo.meta.xz 3776
 --- pmlogcompress -l0 -f xz pcp-meminfo.0 blah ---
 stderr ...
 pmlogcompress: Warning: no PCP archive files match "blah"
-pcp-meminfo.0.xz 956
+pcp-meminfo.0.xz 948
 pcp-meminfo.index 192
-pcp-meminfo.meta.xz 3892
+pcp-meminfo.meta.xz 3776

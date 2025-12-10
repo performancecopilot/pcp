@@ -478,19 +478,10 @@ src_tar_build()
 	#
 	git ls-files > .gitcensus
 
-	# but first ensure a "build everything" debian/control has been
-	# recreated
+	# add debian/control ... will be replaced later
 	#
-	cd debian
-	if ./pre-build
-	then
-	    :
-	else
-	    echo "Error: debian/pre-build failed when creating debian/control"
-	    exit
-	fi
-	cd ..
-	echo "debian/control" >> .gitcensus
+	[ -f debian/control ] || touch debian/control
+	echo "debian/control" >>.gitcensus
 
 	$TAR -cz --transform="s,^,$source/,S" --files-from=.gitcensus \
 		--file="$SRCTAR"
@@ -636,9 +627,12 @@ prepare_debian_control()
     echo
     echo "== Preparing source tree for dpkg-buildpackage"
     parent=`realpath ..`
-    source="$parent/pcp_$VERSION.orig.tar.gz"
-    mv "$SRCTAR" "$source"
-    echo "Wrote: $source"
+    orig="$parent/pcp_$VERSION.orig.tar"
+    mv "$SRCTAR" "$orig.gz"
+    echo "Renamed: $SRCTAR -> $orig.gz"
+    # now we've run configure in this build tree, so now we can
+    # remake debian/control and update the source tarball
+    #
     rm -f $tmp/failed debian/control
     if $verbose ; then
 	($MAKE -C debian control 2>&1 || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"
@@ -646,6 +640,11 @@ prepare_debian_control()
 	($MAKE -C debian control 2>&1 || touch $tmp/failed) >>"$LOGDIR/pcp" 2>&1
     fi
     [ -f $tmp/failed ] && build_failure debian control
+    $ZIP -d "$orig.gz"
+    $TAR -f "$orig" --delete "$source/debian/control"
+    $TAR -f "$orig" --transform="s,^,$source/,S" --append debian/control
+    $ZIP "$orig"
+    echo "Replaced: debian/control in $orig.gz"
 }
 
 debian_build()

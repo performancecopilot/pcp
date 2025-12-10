@@ -1,0 +1,78 @@
+QA output created by 1645
+=== pmlogcompress -C ./defaults -N -V ok-mv-bar
+Info: archbase=ok-mv-bar
++ xz -2 --block-size=10MiB ok-mv-bar.0
++ xz -2 --block-size=10MiB ok-mv-bar.1
++ xz -2 --block-size=10MiB ok-mv-bar.2
+Info: ok-mv-bar.3: skipped, size 852 < limit 1024
+Info: ok-mv-bar.meta: skipped, size 700 < limit 1024
+
+=== pmlogcompress -C ./defaults ok-mv-bar
+fake-xz: args ...
+  [1]: "-2"
+  [2]: "--block-size=10MiB"
+  [3]: "ok-mv-bar.0"
+fake-xz: args ...
+  [1]: "-2"
+  [2]: "--block-size=10MiB"
+  [3]: "ok-mv-bar.1"
+fake-xz: args ...
+  [1]: "-2"
+  [2]: "--block-size=10MiB"
+  [3]: "ok-mv-bar.2"
+
+=== pmlogcompress -l 4096 -V -C ./defaults ok-mv-bar
+Info: archbase=ok-mv-bar
+Info: ok-mv-bar.0: skipped, size 1720 < limit 4096
+Info: ok-mv-bar.1: skipped, size 1572 < limit 4096
+Info: ok-mv-bar.2: skipped, size 1572 < limit 4096
+Info: ok-mv-bar.3: skipped, size 852 < limit 4096
+Info: ok-mv-bar.meta: skipped, size 700 < limit 4096
+
+=== PCP_COMPRESS_MIN_FILESIZE=4096 pmlogcompress -V -C ./defaults ok-mv-bar
+Info: archbase=ok-mv-bar
+Info: ok-mv-bar.0: skipped, size 1720 < limit 4096
+Info: ok-mv-bar.1: skipped, size 1572 < limit 4096
+Info: ok-mv-bar.2: skipped, size 1572 < limit 4096
+Info: ok-mv-bar.3: skipped, size 852 < limit 4096
+Info: ok-mv-bar.meta: skipped, size 700 < limit 4096
+
+=== pmlogcompress -A '--foobar=mumble -xyz' -V -C ./defaults ok-mv-bar
+Info: archbase=ok-mv-bar
+fake-xz: args ...
+  [1]: "--foobar=mumble"
+  [2]: "-xyz"
+  [3]: "ok-mv-bar.0"
+Info: ok-mv-bar.0: compressed with xz
+fake-xz: args ...
+  [1]: "--foobar=mumble"
+  [2]: "-xyz"
+  [3]: "ok-mv-bar.1"
+Info: ok-mv-bar.1: compressed with xz
+fake-xz: args ...
+  [1]: "--foobar=mumble"
+  [2]: "-xyz"
+  [3]: "ok-mv-bar.2"
+Info: ok-mv-bar.2: compressed with xz
+Info: ok-mv-bar.3: skipped, size 852 < limit 1024
+Info: ok-mv-bar.meta: skipped, size 700 < limit 1024
+
+=== PCP_COMPRESS_XZ_ARGS='--foobar=mumble -xyz' pmlogcompress -V -C ./defaults ok-mv-bar
+Info: archbase=ok-mv-bar
+fake-xz: args ...
+  [1]: "--foobar=mumble"
+  [2]: "-xyz"
+  [3]: "ok-mv-bar.0"
+Info: ok-mv-bar.0: compressed with xz
+fake-xz: args ...
+  [1]: "--foobar=mumble"
+  [2]: "-xyz"
+  [3]: "ok-mv-bar.1"
+Info: ok-mv-bar.1: compressed with xz
+fake-xz: args ...
+  [1]: "--foobar=mumble"
+  [2]: "-xyz"
+  [3]: "ok-mv-bar.2"
+Info: ok-mv-bar.2: compressed with xz
+Info: ok-mv-bar.3: skipped, size 852 < limit 1024
+Info: ok-mv-bar.meta: skipped, size 700 < limit 1024
