@@ -326,10 +326,11 @@ class ContainerRunner:
         )
 
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
-        # Ensure .git is a directory (Makepkgs checks for this)
+        # Ensure .git is a valid git repository (Makepkgs requires it)
         # On macOS with worktrees, .git is a file pointing to the actual repo, which won't work in a container
-        # Only fix it if .git is not already a directory
-        self.exec("if [ ! -d .git ]; then rm -f .git; mkdir -p .git; fi")
+        # On Linux, .git might be a real directory with submodule references that don't work
+        # Solution: Reinitialize as a git repo if not already a valid one
+        self.exec("if ! git rev-parse --git-dir >/dev/null 2>&1; then rm -rf .git && git init; fi")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
     def destroy(self):
