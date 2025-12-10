@@ -18,6 +18,9 @@ sts=0
 trap "rm -rf $tmp; exit \$sts" 0 1 2 3 15
 rm -f $tmp.err exports
 
+# debug=true => dump generated awk script on stderr for debugging
+debug=false
+
 if [ ! -f ../../include/pcp.conf ]
 then
     echo "mk.exports: Botch: ../../include/pcp.conf missing: configure not run yet?"
@@ -26,22 +29,47 @@ then
 fi
 . ../../include/pcp.conf
 
-if [ ! -f ../../include/builddefs ]
-then
-    echo "mk.exports: Botch: ../../include/builddefs missing: configure not run yet?"
-    sts=1
-    exit
-fi
+def_files="../../include/builddefs ../../include/pcp/platform_defs.h ../../include/pcp/config.h"
+
+for file in $def_files
+do
+    if [ ! -f $file  ]
+    then
+	echo "mk.exports: Botch: $file missing: configure not run yet?"
+	sts=1
+	exit
+    fi
+done
 
 echo 'BEGIN {' >$tmp.awk
-sed -E  -n <../../include/builddefs >>$tmp.awk \
-    -e '/^(ENABLE|HAVE)_/{
+
+for file in $def_files
+do
+    sed -E  -n <$file >>$tmp.awk \
+	-e '/^(ENABLE|HAVE)_/{
 s/ //g
-s/^[^=]*/    builddefs["&/
+s/^[^=]*/    defines["&/
 s/=/"]="/
 s/$/"/
 p
-}'
+}' \
+	-e '/^#define HAVE_.* 1$/{
+s/[ 	][ 	]*/ /g
+s/^#define /defines["/
+s/ 1$/"]="true"/
+s/^/    /
+p
+}' \
+	-e '/ #undef HAVE_.* /{
+s/[ 	][ 	]*/ /g
+s/.* #undef /defines["/
+s/ .*/"]="false"/
+s/^/    /
+p
+}' \
+    # end
+done
+
 cat <<End-of-File >>$tmp.awk
 }
 
@@ -51,23 +79,34 @@ cat <<End-of-File >>$tmp.awk
 		    exit
 		  }
 		  inif = NR
-		  if (\$2 == "$PCP_PLATFORM") {
-		    skip = 0
+		  if (\$2 == "!") {
+		    negate = 1
+		    check = \$3
 		  }
-		  else if (\$2 !~ /^ENABLE_/ && \$2 !~ /^HAVE_/) {
+		  else {
+		    negate = 0
+		    check = \$2
+		  }
+		  if (check == "$PCP_PLATFORM") {
+		    if (negate)
+			skip = 1
+		    else
+			skip = 0
+		  }
+		  else if (check !~ /^ENABLE_/ && check !~ /^HAVE_/) {
 		    skip = 1
 		  }
-		  else if (builddefs[\$2] == "") {
-		    print "mk.exports: Error: exports.in[" NR "] " \$2 " not defined in ../../include/builddefs" >"$tmp/err"
+		  else if (defines[check] == "") {
+		    print "mk.exports: Error: exports.in[" NR "] " check " not defined in ../../include/*" >"$tmp/err"
 		    inif = 0
 		    exit
 		  }
-		  else if (builddefs[\$2] != "true" && builddefs[\$2] != "false") {
-		    print "mk.exports: Error: exports.in[" NR "] " \$2 " unexpected value (" builddefs[\$2] ") from ../../include/builddefs" >"$tmp/err"
+		  else if (defines[check] != "true" && defines[check] != "false") {
+		    print "mk.exports: Error: exports.in[" NR "] " check " unexpected value (" defines[\$2] ") from ../../include/*" >"$tmp/err"
 		    inif = 0
 		    exit
 		  }
-		  else if (builddefs[\$2] == "true") {
+		  else if (negate == 0 && defines[check] == "true" || negate == 1 && defines[check] == "false") {
 		    skip = 0
 		  }
 		  else {
@@ -95,7 +134,7 @@ cat <<End-of-File >>$tmp.awk
 skip == 1	{ next }
 		{ print }
 END		{ if (inif) {
-		    print "mk.exports: Error: exports.maser[" inif "] missing #endif" >"$tmp/err"
+		    print "mk.exports: Error: exports.in[" inif "] missing #endif" >"$tmp/err"
 		    exit
 		  }
 		}
@@ -109,6 +148,8 @@ cat <<End-of-File >exports
 #
 
 End-of-File
+
+$debug && cat >&2 $tmp.awk
 
 $PCP_AWK_PROG -f $tmp.awk <exports.in \
 | sed -e '/^#/d' >>exports
