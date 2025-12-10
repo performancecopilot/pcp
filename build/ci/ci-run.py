@@ -5,7 +5,156 @@ import yaml
 import sys
 import os
 import tempfile
+import platform as platform_module
 from datetime import datetime
+
+
+def get_host_os():
+    return platform_module.system()
+
+
+def get_host_architecture():
+    return platform_module.machine()
+
+
+def is_macos():
+    return get_host_os() == "Darwin"
+
+
+def is_arm64():
+    return get_host_architecture() in ("arm64", "aarch64")
+
+
+def _parse_platform_string(value, separator):
+    """Parse a string into a list of platform names, handling both delimiters and empty values."""
+    if not value:
+        return None
+    # Use separator as primary delimiter, then split on whitespace
+    platforms = [p.strip() for p in value.replace(separator, ' ').split() if p.strip()]
+    return platforms if platforms else None
+
+
+def resolve_platforms_to_run(cli_platforms=None, env_platforms=None, config_file=None):
+    """
+    Resolve platforms to run with priority hierarchy.
+
+    Priority:
+    1. CLI arguments (comma or space-separated)
+    2. Environment variable PCP_CI_QUICK_PLATFORMS
+    3. Config file .pcp-ci-quick (line-separated, comments ignored)
+    4. None - requires user to specify platforms
+
+    Args:
+        cli_platforms: String of platforms from command line
+        env_platforms: String of platforms from environment variable
+        config_file: Path to config file (default: .pcp-ci-quick)
+
+    Returns:
+        List of platform names, or None if no platforms found
+    """
+    if config_file is None:
+        config_file = ".pcp-ci-quick"
+
+    # Priority 1: CLI arguments
+    platforms = _parse_platform_string(cli_platforms, ',')
+    if platforms:
+        return platforms
+
+    # Priority 2: Environment variable
+    platforms = _parse_platform_string(env_platforms, ',')
+    if platforms:
+        return platforms
+
+    # Priority 3: Config file
+    if os.path.isfile(config_file):
+        try:
+            with open(config_file, encoding="utf-8") as f:
+                platforms = [line.strip() for line in f if line.strip() and not line.strip().startswith('#')]
+                if platforms:
+                    return platforms
+        except (IOError, OSError) as e:
+            print(f"Warning: Could not read config file {config_file}: {e}", file=sys.stderr)
+
+    return None
+
+
+def print_quick_mode_help():
+    """Print helpful error message for quick mode."""
+    print("\nError: No platforms specified for --quick mode.", file=sys.stderr)
+    print("\nPlease specify platforms using one of these methods:\n", file=sys.stderr)
+    print("  1. Command line (comma or space-separated):", file=sys.stderr)
+    print("     python3 build/ci/ci-run.py --quick ubuntu2404-container,fedora43-container reproduce\n", file=sys.stderr)
+    print("  2. Environment variable:", file=sys.stderr)
+    print("     export PCP_CI_QUICK_PLATFORMS='ubuntu2404-container fedora43-container'", file=sys.stderr)
+    print("     python3 build/ci/ci-run.py --quick reproduce\n", file=sys.stderr)
+    print("  3. Config file (.pcp-ci-quick in repo root):", file=sys.stderr)
+    print("     ubuntu2404-container", file=sys.stderr)
+    print("     fedora43-container", file=sys.stderr)
+    print("     centos-stream10-container", file=sys.stderr)
+    print("     python3 build/ci/ci-run.py --quick reproduce\n", file=sys.stderr)
+
+
+def _execute_command(runner, args, platform_name=None):
+    """
+    Execute the appropriate command on the runner.
+
+    Args:
+        runner: The runner instance (ContainerRunner, etc.)
+        args: Parsed command-line arguments
+        platform_name: Optional platform name for logging (used in quick mode)
+    """
+    try:
+        if args.main_command == "setup":
+            runner.setup(args.pcp_path)
+            runner.task("setup")
+        elif args.main_command == "destroy":
+            runner.destroy()
+        elif args.main_command == "task":
+            runner.task(args.task_name)
+        elif args.main_command == "artifacts":
+            runner.task(f"copy_{args.artifact}_artifacts")
+            runner.get_artifacts(args.artifact, args.path)
+        elif args.main_command == "exec":
+            runner.exec(" ".join(args.command), check=False)
+        elif args.main_command == "shell":
+            runner.shell()
+        elif args.main_command == "reproduce":
+            all_tasks = list(runner.platform["tasks"].keys())
+            if args.until not in all_tasks:
+                print(f"Error: Unknown task '{args.until}'. Available tasks: {', '.join(all_tasks)}", file=sys.stderr)
+                sys.exit(1)
+            run_tasks = all_tasks[: all_tasks.index(args.until) + 1]
+
+            if platform_name:
+                # In quick mode, shorten the message
+                print(f"[{platform_name}] Running tasks: {', '.join(run_tasks)}")
+            else:
+                print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...")
+
+            started = datetime.now()
+            runner.setup(args.pcp_path)
+            for task in run_tasks:
+                print(f"\n[{platform_name if platform_name else 'CI'}] Running task {task}...")
+                runner.task(task)
+            duration_min = (datetime.now() - started).total_seconds() / 60
+            print(f"\n[{platform_name if platform_name else 'CI'}] Tasks completed, took {duration_min:.0f}m.")
+
+            if not platform_name:  # Only show in non-quick mode
+                if "install" in all_tasks and all_tasks.index(args.until) >= all_tasks.index("install"):
+                    print("\nPlease run:\n")
+                    print("    sudo -u pcpqa -i ./check XXX\n")
+                    print("to run a QA test. PCP is already installed, from sources located in './pcp'.")
+                print("Starting a shell in the new virtual environment...\n")
+                runner.shell()
+        else:
+            print(f"Error: Unknown command {args.main_command}", file=sys.stderr)
+            sys.exit(1)
+    except subprocess.CalledProcessError as e:
+        print(f"Error on {platform_name or 'command'}: {e}", file=sys.stderr)
+        # In quick mode, continue to next platform instead of exiting
+        if platform_name:
+            return
+        sys.exit(1)
 
 
 class DirectRunner:
@@ -105,44 +254,62 @@ class VirtualMachineRunner:
 
 
 class ContainerRunner:
-    def __init__(self, platform_name: str, platform):
+    def _setup_macos_config(self):
+        """Configure podman for macOS (no sudo, platform flags for ARM64)."""
+        self.sudo = []
+        self.security_opts = []
+        if is_arm64():
+            # Specify container architecture explicitly on ARM64 macOS
+            arch = "linux/arm64" if self.use_native_arch else "linux/amd64"
+            self.platform_flags = ["--platform", arch]
+
+    def _setup_linux_config(self):
+        """Configure podman for Linux (sudo for Ubuntu, system labels)."""
+        try:
+            with open("/etc/os-release", encoding="utf-8") as f:
+                for line in f:
+                    k, v = line.rstrip().split("=")
+                    if k == "NAME" and v == '"Ubuntu"':
+                        self.sudo = ["sudo", "-E", "XDG_RUNTIME_DIR="]
+                        self.security_opts = ["--security-opt", "label=disable"]
+                        break
+        except FileNotFoundError:
+            pass
+
+    def __init__(self, platform_name: str, platform, use_native_arch: bool = False):
         self.platform_name = platform_name
         self.platform = platform
         self.container_name = f"pcp-ci-{self.platform_name}"
         self.image_name = f"{self.container_name}-image"
         self.command_preamble = "set -eux\nexport runner=container\n"
-
-        # on Ubuntu, systemd inside the container only works with sudo
-        # also don't run as root in general on Github actions,
-        # otherwise the direct runner would run everything as root
+        self.platform_flags = []
+        self.use_native_arch = use_native_arch
         self.sudo = []
         self.security_opts = []
-        with open("/etc/os-release", encoding="utf-8") as f:
-            for line in f:
-                k, v = line.rstrip().split("=")
-                if k == "NAME":
-                    if v == '"Ubuntu"':
-                        self.sudo = ["sudo", "-E", "XDG_RUNTIME_DIR="]
-                        self.security_opts = ["--security-opt", "label=disable"]
-                    break
+
+        if is_macos():
+            self._setup_macos_config()
+        else:
+            self._setup_linux_config()
 
     def setup(self, pcp_path):
         containerfile = self.platform["container"]["containerfile"]
 
-        # build a new image
+        # platform_flags specifies container architecture (e.g., --platform linux/arm64)
+        # on ARM64 macOS, allowing explicit control over native vs emulated builds
         subprocess.run(
-            [*self.sudo, "podman", "build", "--squash", "-t", self.image_name, "-f", "-"],
+            [*self.sudo, "podman", "build", *self.platform_flags, "--squash", "-t", self.image_name, "-f", "-"],
             input=containerfile.encode(),
             check=True,
         )
 
-        # start a new container
         subprocess.run([*self.sudo, "podman", "rm", "-f", self.container_name], stderr=subprocess.DEVNULL, check=False)
         subprocess.run(
             [
                 *self.sudo,
                 "podman",
                 "run",
+                *self.platform_flags,
                 "-dt",
                 "--name",
                 self.container_name,
@@ -153,9 +320,12 @@ class ContainerRunner:
             check=True,
         )
 
+        # Copy PCP sources including .git directory
+        # Makepkgs requires a valid git repository for status, checkout, and archive operations
         subprocess.run(
-            [*self.sudo, "podman", "cp", f"{pcp_path}/", f"{self.container_name}:/home/pcpbuild/pcp"], check=True
+            [*self.sudo, "podman", "cp", f"{pcp_path}/.", f"{self.container_name}:/home/pcpbuild/pcp"], check=True
         )
+
         self.exec("sudo chown -R pcpbuild:pcpbuild .")
         self.exec("mkdir -p ../artifacts/build ../artifacts/test")
 
@@ -212,10 +382,65 @@ class ContainerRunner:
         )
 
 
+def _determine_use_native_arch(args):
+    """Determine whether to use native architecture based on platform and flags."""
+    use_native_arch = False
+    if is_macos():
+        # On macOS: default to native arch unless --emulate is specified
+        use_native_arch = not args.emulate
+    # On Linux or with --native-arch flag: respect explicit --native-arch
+    if args.native_arch:
+        use_native_arch = True
+    return use_native_arch
+
+
+def _create_runner(platform_name, platform, use_native_arch):
+    """Create the appropriate runner for the given platform type."""
+    platform_type = platform.get("type")
+    if platform_type == "direct":
+        return DirectRunner(platform_name, platform)
+    elif platform_type == "vm":
+        return VirtualMachineRunner(platform_name, platform)
+    elif platform_type == "container":
+        return ContainerRunner(platform_name, platform, use_native_arch=use_native_arch)
+    else:
+        print(f"Error: Unknown platform type: {platform_type}", file=sys.stderr)
+        sys.exit(1)
+
+
+def _load_platform_definition(platform_name):
+    """Load platform YAML definition file."""
+    platform_def_path = os.path.join(os.path.dirname(__file__), f"platforms/{platform_name}.yml")
+    try:
+        with open(platform_def_path, encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        print(f"Error: Platform definition not found: {platform_def_path}", file=sys.stderr)
+        sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--pcp_path", default=".")
-    parser.add_argument("platform")
+    parser.add_argument(
+        "--native-arch",
+        action="store_true",
+        help="Use native host architecture instead of amd64 (useful on macOS for faster builds)"
+    )
+    parser.add_argument(
+        "--emulate",
+        action="store_true",
+        help="Force amd64 emulation even on native ARM64 systems (default on non-macOS)"
+    )
+    parser.add_argument(
+        "--quick",
+        nargs="?",
+        const=True,
+        metavar="PLATFORMS",
+        help="Quick mode: run multiple platforms. Platforms can be comma or space-separated, "
+             "or loaded from PCP_CI_QUICK_PLATFORMS env var or .pcp-ci-quick config file"
+    )
+    parser.add_argument("platform", nargs="?")
     subparsers = parser.add_subparsers(dest="main_command")
 
     subparsers.add_parser("setup")
@@ -237,65 +462,45 @@ def main():
     parser_reproduce.add_argument("--until", default="init_qa")
 
     args = parser.parse_args()
-    platform_def_path = os.path.join(os.path.dirname(__file__), f"platforms/{args.platform}.yml")
-    with open(platform_def_path, encoding="utf-8") as f:
-        platform = yaml.safe_load(f)
-    platform_type = platform.get("type")
-    if platform_type == "direct":
-        runner = DirectRunner(args.platform, platform)
-    elif platform_type == "vm":
-        runner = VirtualMachineRunner(args.platform, platform)
-    elif platform_type == "container":
-        runner = ContainerRunner(args.platform, platform)
 
-    if args.main_command == "setup":
-        try:
-            runner.setup(args.pcp_path)
-            runner.task("setup")
-        except subprocess.CalledProcessError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            sys.exit(1)
-    elif args.main_command == "destroy":
-        try:
-            runner.destroy()
-        except subprocess.CalledProcessError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            sys.exit(1)
-    elif args.main_command == "task":
-        try:
-            runner.task(args.task_name)
-        except subprocess.CalledProcessError as e:
-            print(f"Error: {e}", file=sys.stderr)
-            sys.exit(1)
-    elif args.main_command == "artifacts":
-        runner.task(f"copy_{args.artifact}_artifacts")
-        runner.get_artifacts(args.artifact, args.path)
-    elif args.main_command == "exec":
-        runner.exec(" ".join(args.command), check=False)
-    elif args.main_command == "shell":
-        runner.shell()
-    elif args.main_command == "reproduce":
-        all_tasks = ["setup", "build", "install", "init_qa", "qa"]
-        run_tasks = all_tasks[: all_tasks.index(args.until) + 1]
+    # Handle quick mode
+    if args.quick is not None:
+        quick_platforms = resolve_platforms_to_run(
+            cli_platforms=args.platform if args.quick is True else args.quick,
+            env_platforms=os.environ.get("PCP_CI_QUICK_PLATFORMS")
+        )
 
-        print("Preparing a new virtual environment with PCP preinstalled, this will take about 20 minutes...")
-        started = datetime.now()
-        runner.setup(args.pcp_path)
-        for task in run_tasks:
-            print(f"\nRunning task {task}...")
-            runner.task(task)
-        duration_min = (datetime.now() - started).total_seconds() / 60
-        print(f"\nVirtual environment setup done, took {duration_min:.0f}m.")
+        if not quick_platforms:
+            print_quick_mode_help()
+            sys.exit(1)
 
-        if all_tasks.index(args.until) >= all_tasks.index("install"):
-            print("\nPlease run:\n")
-            print("    sudo -u pcpqa -i ./check XXX\n")
-            print("to run a QA test. PCP is already installed, from sources located in './pcp'.")
-        print("Starting a shell in the new virtual environment...\n")
-        runner.shell()
-    else:
-        parser.print_help()
+        if not args.main_command:
+            print("Error: Quick mode requires a subcommand (setup, task, reproduce, etc.)", file=sys.stderr)
+            sys.exit(1)
+
+        use_native_arch = _determine_use_native_arch(args)
+
+        for platform_name in quick_platforms:
+            print(f"\n{'='*60}")
+            print(f"Running on platform: {platform_name}")
+            print(f"{'='*60}\n")
+
+            platform = _load_platform_definition(platform_name)
+            runner = _create_runner(platform_name, platform, use_native_arch)
+            _execute_command(runner, args, platform_name)
+
+        sys.exit(0)
+
+    # Normal (non-quick) mode
+    if not args.platform:
+        print("Error: Platform argument required (unless using --quick mode)", file=sys.stderr)
         sys.exit(1)
+
+    platform = _load_platform_definition(args.platform)
+    use_native_arch = _determine_use_native_arch(args)
+    runner = _create_runner(args.platform, platform, use_native_arch)
+
+    _execute_command(runner, args)
 
 
 if __name__ == "__main__":
