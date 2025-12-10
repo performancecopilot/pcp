@@ -177,7 +177,7 @@ dm_multipath_instance_refresh(void)
         char *trimmed = trim_whitespace(buffer);
 
         // mulitipathd not installed
-        if (strstr(buffer, "command not found")) {
+        if (strstr(buffer, "not found")) {
             pmNotifyErr(LOG_ERR, "%s: multipathd executable not found\n", 
                         __FUNCTION__);
 
@@ -209,9 +209,11 @@ dm_multipath_instance_refresh(void)
 
                 sts = pmdaCacheLookupName(info_indom, info_name, NULL, (void **)&info);
                 if (sts == PM_ERR_INST || (sts >=0 && info == NULL )) {
+                    if (info != NULL)
+                        free(info);
                     info = calloc(1, sizeof(struct multipath_info));
                     if (info == NULL) {
-                        __pmProcessPipeClose(fp);
+                        pclose(fp);
                         return PM_ERR_AGAIN;
                     }
                 }
@@ -243,6 +245,8 @@ dm_multipath_instance_refresh(void)
                     info->permissions);
 
                 pmdaCacheStore(info_indom, PMDA_CACHE_ADD, info_name, (void *)info);
+                // info stashed in cache now
+                info = NULL;
             }
         }
 
@@ -258,7 +262,7 @@ dm_multipath_instance_refresh(void)
                 path = calloc(1, sizeof(struct multipath_path));
                 if (path == NULL) {
                     free(info);
-                    __pmProcessPipeClose(fp);
+                    pclose(fp);
                     return PM_ERR_AGAIN;
                 }
             }
@@ -295,7 +299,7 @@ dm_multipath_instance_refresh(void)
                 dev = calloc(1, sizeof(struct multipath_device));
                 if (dev == NULL) {
                     free(info);
-                    __pmProcessPipeClose(fp);
+                    pclose(fp);
                     return PM_ERR_AGAIN;
                 }
             }
