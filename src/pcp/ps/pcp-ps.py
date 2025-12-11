@@ -102,48 +102,44 @@ class ReportingMetricRepository:
 
 
 class ProcessFilter:
+    """
+    Optimized filtering of processes based on user-provided options.
+    Precomputes filter predicates at instantiation to minimize overhead per process, 
+    and leverages generator expressions with all() for efficiency.
+    """
     def __init__(self, options):
         self.options = options
+        self._predicates = []
+        flag = getattr(options, "universal_flag", None)
+        # Username filter
+        if flag == "username" and getattr(options, "filtered_process_user", None) is not None:
+            required_user = options.filtered_process_user.strip()
+            self._predicates.append(lambda proc: proc.user_name().strip() == required_user)
+        # PID filter
+        if flag == "pid" and getattr(options, "pid_list", None) is not None:
+            try:
+                pids = set(int(pid) for pid in options.pid_list)
+                self._predicates.append(lambda proc: int(proc.pid()) in pids)
+            except Exception:
+                self._predicates.append(lambda proc: False)
+        # PPID filter
+        if flag == "ppid" and getattr(options, "ppid_list", None) is not None:
+            try:
+                ppids = set(int(ppid) for ppid in options.ppid_list)
+                self._predicates.append(lambda proc: int(proc.ppid()) in ppids)
+            except Exception:
+                self._predicates.append(lambda proc: False)
+        # Command name filter
+        if flag == "command" and getattr(options, "command_list", None) is not None:
+            commands = set(cmd.strip() for cmd in options.command_list if cmd is not None)
+            self._predicates.append(lambda proc: (proc.process_name() or "").strip() in commands)
+        # If no filter flag: no filter
+        if not getattr(options, "filter_flag", False) or not self._predicates:
+            self._predicates.append(lambda proc: True)
 
     def filter_processes(self, processes):
-        return filter(lambda p: self.__predicate(p), processes)
-
-    def __predicate(self, process):
-        if self.options.filter_flag:
-            return bool(self.__matches_process_username(process)
-                        and self.__matches_process_pid(process)
-                        and self.__matches_process_name(process)
-                        and self.__matches_process_ppid(process))
-        else:
-            return True
-
-    def __matches_process_username(self, process):
-        if self.options.universal_flag == "username" and self.options.filtered_process_user is not None:
-            return process.user_name().strip() == self.options.filtered_process_user.strip()
-        else:
-            return True
-
-    def __matches_process_pid(self, process):
-        if self.options.universal_flag == "pid":
-            if self.options.pid_list is not None:
-                pid = int(process.pid())
-                return bool(pid in self.options.pid_list)
-        return True
-
-    def __matches_process_ppid(self, process):
-        if self.options.universal_flag == "ppid":
-            if self.options.ppid_list is not None:
-                ppid = int(process.ppid())
-                return bool(ppid in self.options.ppid_list)
-        return True
-
-    def __matches_process_name(self, process):
-        name = process.process_name()
-        if self.options.universal_flag == "command" and self.options.command_list is not None and name is not None:
-            return name.strip() in self.options.command_list
-        else:
-            return True
-
+        """Yield processes matching all active predicates."""
+        return (proc for proc in processes if all(pred(proc) for pred in self._predicates))
 
 class ProcessStatusUtil:
     def __init__(self, instance, manager, delta_time, metrics_repository):
@@ -152,97 +148,84 @@ class ProcessStatusUtil:
         self.__delta_time = delta_time
         self.__metric_repository = metrics_repository
 
+    def __get_value(self, metric, instance=None):
+        return self.__metric_repository.current_value(metric, instance)
+    def __get_previous_value(self, metric, instance=None):
+        return self.__metric_repository.previous_value(metric, instance)
+
     def pid(self):
-        data = str(self.__metric_repository.current_value('proc.psinfo.pid', self.instance))
-        # pad or truncate to 8 chars, using modern formatting (ljust is very efficient in CPython)
+        data = str(self.__get_value('proc.psinfo.pid', self.instance))
         return data.ljust(8) if len(data) < 8 else data
 
+
     def ppid(self):
-        data = str(self.__metric_repository.current_value('proc.psinfo.ppid', self.instance))
+        data = str(self.__get_value('proc.psinfo.ppid', self.instance))
         return data.ljust(8) if len(data) < 8 else data
 
     def user_name(self):
-        data = self.__metric_repository.current_value('proc.id.uid_nm', self.instance)[:10]
-        if len(data) < 10:
-            whitespace = 10 - len(data)
-            res = data.ljust(whitespace + len(data), ' ')
-            return res
-        else:
+        data = self.__get_value('proc.id.uid_nm', self.instance)
+        if data is None:
             return data
+        return data.ljust(10) if len(data) < 10 else data[:10]
 
     def process_name(self):
-        try:
-            data = self.__metric_repository.current_value('proc.psinfo.cmd', self.instance)[:20]
-            if len(data) < 20:
-                whitespace = 20 - len(data)
-                res = data.ljust(whitespace + len(data), ' ')
-                return res
-            else:
-                return data
-        except TypeError:
-            data = '-'
-            return data
+        data = self.__get_value('proc.psinfo.cmd', self.instance)
+        if data is None:
+            return '-'
+        return data.ljust(20) if len(data) < 20 else data[:20]
 
-    def process_name_with_args(self,flag = False):
-        if flag is True:
-            data = self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)
-        else:
-            data = self.__metric_repository.current_value('proc.psinfo.psargs', self.instance)[:30]
-        if len(data) < 30:
-            whitespace = 30 - len(data)
-            res = data.ljust(whitespace + len(data), ' ')
-            return res
-        else:
+    def process_name_with_args(self, flag=False):
+        data = self.__get_value('proc.psinfo.psargs', self.instance)
+        if data is None:
             return data
+        max_length = 30
+        if not flag:
+            return data[:max_length].ljust(max_length)
+        else:
+            return data[:max_length] if len(data) <= max_length else data
 
     def process_name_with_args_last(self):
         return self.process_name_with_args(True)
     def vsize(self):
-        return self.__metric_repository.current_value('proc.psinfo.vsize', self.instance)
+        return self.__get_value('proc.psinfo.vsize', self.instance)
 
     def rss(self):
-        return self.__metric_repository.current_value('proc.psinfo.rss', self.instance)
-
+        return self.__get_value('proc.psinfo.rss', self.instance)
     def mem(self):
-        total_mem = self.__metric_repository.current_value('mem.physmem', None)
-        rss = self.__metric_repository.current_value('proc.psinfo.rss', self.instance)
+        total_mem = self.__get_value('mem.physmem', None)
+        rss = self.__get_value('proc.psinfo.rss', self.instance)
         if total_mem is not None and rss is not None:
             return float("%.2f" % (100 * float(rss) / total_mem))
         else:
             return None
 
     def s_name(self):
-        return self.__metric_repository.current_value('proc.psinfo.sname', self.instance)
+        return self.__get_value('proc.psinfo.sname', self.instance)
 
     def cpu_number(self):
-        return self.__metric_repository.current_value('proc.psinfo.processor', self.instance)
+        return self.__get_value('proc.psinfo.processor', self.instance)
 
     def system_percent(self):
-        c_systemtime = self.__metric_repository.current_value('proc.psinfo.stime', self.instance)
-        p_systemtime = self.__metric_repository.previous_value('proc.psinfo.stime', self.instance)
+        c_systemtime = self.__get_value('proc.psinfo.stime', self.instance)
+        p_systemtime = self.__get_previous_value('proc.psinfo.stime', self.instance)
         if c_systemtime is not None and p_systemtime is not None:
-            percent_of_time = 100 * float(c_systemtime - p_systemtime) / float(1000 * self.__delta_time)
+            system_time_diff = float(c_systemtime - p_systemtime)
+            delta_time_in_ms = float(1000 * self.__delta_time)
+            percent_of_time = 100 * system_time_diff / delta_time_in_ms
             return float("%.2f" % percent_of_time)
         else:
             return None
 
     def wchan_s(self):
-        process = self.__metric_repository.current_value('proc.psinfo.wchan_s', self.instance)
-        if process is None:
-            process = '-'
-            return process
-        elif len(process) < 30:
-            whitespace = 30 - len(process)
-            res = process.ljust(whitespace + len(process), ' ')
-            return res
-        return process[:30]
+        process = self.__get_value('proc.psinfo.wchan_s', self.instance)
+        return process.ljust(30) if process is not None and len(process) < 30 else process[:30] if process is not None else '-'
 
     def priority(self):
-        return self.__metric_repository.current_value('proc.psinfo.priority', self.instance)
+        return self.__get_value('proc.psinfo.priority', self.instance)
 
     def user_percent(self):
-        c_usertime = self.__metric_repository.current_value('proc.psinfo.utime', self.instance)
-        p_usertime = self.__metric_repository.previous_value('proc.psinfo.utime', self.instance)
+        c_usertime = self.__get_value('proc.psinfo.utime', self.instance)
+        p_usertime = self.__get_previous_value('proc.psinfo.utime', self.instance)
         if c_usertime is not None and p_usertime is not None:
             percent_of_time = 100 * float(c_usertime - p_usertime) / float(1000 * self.__delta_time)
             return float("%.2f" % percent_of_time)
@@ -250,8 +233,8 @@ class ProcessStatusUtil:
             return None
 
     def guest_percent(self):
-        c_guesttime = self.__metric_repository.current_value('proc.psinfo.guest_time', self.instance)
-        p_guesttime = self.__metric_repository.previous_value('proc.psinfo.guest_time', self.instance)
+        c_guesttime = self.__get_value('proc.psinfo.guest_time', self.instance)
+        p_guesttime = self.__get_previous_value('proc.psinfo.guest_time', self.instance)
         if c_guesttime is not None and p_guesttime is not None:
             percent_of_time = 100 * float(c_guesttime - p_guesttime) / float(1000 * self.__delta_time)
             return float("%.2f" % percent_of_time)
@@ -265,8 +248,8 @@ class ProcessStatusUtil:
             return None
 
     def stime(self):
-        c_systime = self.__metric_repository.current_value('proc.psinfo.stime', self.instance)
-        p_systime = self.__metric_repository.previous_value('proc.psinfo.stime', self.instance)
+        c_systime = self.__get_value('proc.psinfo.stime', self.instance)
+        p_systime = self.__get_previous_value('proc.psinfo.stime', self.instance)
         # sometimes the previous_value seems to be Nonetype, not sure why
         if p_systime is None:  # print a '?' here
             return '?'
@@ -274,21 +257,28 @@ class ProcessStatusUtil:
             return c_systime - p_systime
 
     def start(self):
-        s_time = self.__metric_repository.current_value('proc.psinfo.start_time', self.instance)
+        s_time = self.__get_value('proc.psinfo.start_time', self.instance)
         group = self.manager['psstat']
-        kernel_boottime = group['kernel.all.boottime'].netValues[0][2]
-        ts = group.contextCache.pmLocaltime(int(kernel_boottime + (s_time / 1000)))
-        if group.timestamp.tv_sec - (kernel_boottime + s_time / 1000) >= 24*60*60:
-            # started one day or more ago, use MmmDD HH:MM
+        try:
+            kernel_boottime = group['kernel.all.boottime'].netValues[0][2]
+        except (KeyError, IndexError, TypeError, AttributeError):
+            return '?'
+        if s_time is None or kernel_boottime is None:
+            return '?'
+        ts_val = kernel_boottime + (s_time / 1000.0)
+        try:
+            ts = group.contextCache.pmLocaltime(int(ts_val))
+        except Exception:
+            return '?'
+        if group.timestamp.tv_sec - ts_val >= 24*60*60:
             return time.strftime("%b%d %H:%M", ts.struct_time())
         else:
-            # started less than one day ago, use HH:MM:SS
             return time.strftime("%H:%M:%S", ts.struct_time())
 
 
     def total_time(self):
-        c_usertime = self.__metric_repository.current_value('proc.psinfo.stime', self.instance)
-        p_guesttime = self.__metric_repository.previous_value('proc.psinfo.utime', self.instance)
+        c_usertime = self.__get_value('proc.psinfo.stime', self.instance)
+        p_guesttime = self.__get_previous_value('proc.psinfo.utime', self.instance)
         timefmt = "%H:%M:%S"
         if c_usertime and p_guesttime is not None:
             total_time = (c_usertime / 1000) + (p_guesttime / 1000)
@@ -297,16 +287,16 @@ class ProcessStatusUtil:
         return time.strftime(timefmt, time.gmtime(total_time))
 
     def tty_name(self):
-        return self.__metric_repository.current_value('proc.psinfo.ttyname', self.instance)
+        return self.__get_value('proc.psinfo.ttyname', self.instance)
 
     def user_id(self):
-        return self.__metric_repository.current_value('proc.id.uid', self.instance)
+        return self.__get_value('proc.id.uid', self.instance)
 
     def start_time(self):
-        return self.__metric_repository.current_value('proc.psinfo.start_time', self.instance)
+        return self.__get_value('proc.psinfo.start_time', self.instance)
 
     def func_state(self):
-        s_name = self.__metric_repository.current_value('proc.psinfo.sname', self.instance)
+        s_name = self.__get_value('proc.psinfo.sname', self.instance)
         if s_name == 'R':
             return 'N/A'
         elif s_name is None:
@@ -315,7 +305,7 @@ class ProcessStatusUtil:
             return self.wchan_s()
 
     def policy(self):
-        policy_int = self.__metric_repository.current_value('proc.psinfo.policy', self.instance)
+        policy_int = self.__get_value('proc.psinfo.policy', self.instance)
         if policy_int is not None and policy_int <= len(SCHED_POLICY):
             # return policy_int
             return SCHED_POLICY[policy_int]
@@ -376,15 +366,13 @@ class DynamicProcessReporter:
         if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
             if self.processStatOptions.print_count == 0:
                 sys.exit(0)
-            else:
-                self.processStatOptions.print_count -= 1
-
         if self.processStatOptions.filterstate is not None:
             self.printer("Timestamp" + header_indentation +
                          "USER\t\tPID\t\tPPID\t\tPRI\t%CPU\t%MEM\tVSZ\tRSS\tS\tSTARTED\t\tTIME\t\tWCHAN\t\t\t\tCommand")
             processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
             for process in processes:
                 total_percent = process.total_percent()
+                # print("total percent: %s" % total_percent)
                 current_process_pid = process.pid()
                 current_process_sname = process.s_name()
                 if process.wchan_s() is not None:
@@ -445,89 +433,82 @@ class ProcessStatusReporter:
             print("option selected: %s" % self.processStatOptions.universal_flag)
             print("filer option status: %s" % self.processStatOptions.filterstate)
         FORMAT_MAP = {
-            "empty_arg" : {
-                "header": "Timestamp" + header_indentation + "PID\t\tTIME\t\tCMD",
-            },
-            "all" : {
-                "header": "Timestamp" + header_indentation + "PID\t\t\tTTY\tTIME\t\tCMD",
-            },
-            "user": {
-                "header": "Timestamp" + header_indentation + "USERNAME\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
-                          "TTY\tSTAT\tTIME\t\tSTART\t\tCOMMAND",
-            },
-            "pid": {
-                "header": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD",
-            },
-            "ppid": {
-                "header": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD",
-            },
-            "username": {
-                "header": "Timestamp" + header_indentation + "USERNAME\t\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
-                          "TTY\tSTAT\t\tTIME\t\tSTART\t\tCOMMAND",
-            },
-            "command": {
-                "header": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD",
-            }
+            "empty_arg" : "Timestamp" + header_indentation + "PID\t\tTIME\t\tCMD",
+            "all" : "Timestamp" + header_indentation + "PID\t\t\tTTY\tTIME\t\tCMD",
+            "user": "Timestamp" + header_indentation + "USERNAME\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
+                    "TTY\tSTAT\tTIME\t\tSTART\t\tCOMMAND",
+            "pid": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD",
+            "ppid": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD",
+            "username": "Timestamp" + header_indentation + "USERNAME\t\tPID\t\t%CPU\t%MEM\tVSZ\tRSS\t" +
+                         "TTY\tSTAT\t\tTIME\t\tSTART\t\tCOMMAND",
+            "command": "Timestamp" + header_indentation + "PID\t\tPPID\t\tTTY\tTIME\t\tCMD"
         }
-        # print header for the report
-        self.printer(FORMAT_MAP[self.processStatOptions.universal_flag]["header"])
-
-        if self.processStatOptions.universal_flag == "all":
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+        selected_flag = self.processStatOptions.universal_flag
+        header = FORMAT_MAP.get(selected_flag, FORMAT_MAP["all"])
+        # Bulk buffer for all rows, print all at once for efficiency
+        output_rows = []
+        cpu_idx , mem_idx = 0, 0
+        processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+        if selected_flag == "all":
             for process in processes:
-                command = process.process_name_with_args(True)
-                ttyname = process.tty_name()
-                self.printer("%s%s%s\t\t%s\t%s\t%s" % (timestamp, value_indentation, process.pid(), ttyname,
-                                                       process.total_time(), command))
-        elif self.processStatOptions.universal_flag == "empty_arg":
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+                output_rows.append("%s%s%s\t\t%s\t%s\t%s" % (
+                    timestamp, value_indentation, process.pid(), process.tty_name(),
+                    process.total_time(), process.process_name_with_args(True)))
+        elif selected_flag == "empty_arg":
             for process in processes:
-                pid = process.pid()
-                command = process.process_name()
-                self.printer("%s%s%s\t%s\t%s" % (timestamp, value_indentation, pid,
-                                                 process.total_time(), command))
-        elif self.processStatOptions.universal_flag == "pid":
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+                output_rows.append("%s%s%s\t%s\t%s" % (
+                    timestamp, value_indentation, process.pid(),
+                    process.total_time(), process.process_name()))
+        elif selected_flag == "pid":
             for process in processes:
-                pid = process.pid()
-                command = process.process_name()
-                ttyname = process.tty_name()
-                self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp, value_indentation, pid, process.ppid(),
-                                                         ttyname, process.total_time(), command))
-        elif self.processStatOptions.universal_flag == "ppid":
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+                output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
+                    timestamp, value_indentation, process.pid(), process.ppid(),
+                    process.tty_name(), process.total_time(), process.process_name()))
+        elif selected_flag == "ppid":
             for process in processes:
-                ppid = process.ppid()
-                command = process.process_name()
-                ttyname = process.tty_name()
-                self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp, value_indentation, process.pid(), ppid, ttyname,
-                                                         process.total_time(), command))
-        elif self.processStatOptions.universal_flag == "username":
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+                output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
+                    timestamp, value_indentation, process.pid(), process.ppid(), process.tty_name(),
+                    process.total_time(), process.process_name()))
+        elif selected_flag == "username":
             for process in processes:
-                self.printer("%s%s%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
+                output_rows.append("%s%s%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
                     timestamp, value_indentation, process.user_name(), process.pid(),
                     process.system_percent(), process.total_percent(), process.vsize(), process.rss(),
                     process.tty_name(), process.ppid(), process.total_time(), process.start(),
                     process.process_name()))
-
-        elif self.processStatOptions.universal_flag == "user":
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+            cpu_idx = 5
+            mem_idx = 6
+        elif selected_flag == "user":
             for process in processes:
-                self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
+                output_rows.append("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
                     timestamp, value_indentation, process.user_name(), process.pid(),
                     process.system_percent(), process.total_percent(), process.vsize(), process.rss(),
                     process.tty_name(), process.s_name(), process.total_time(), process.start(),
                     process.process_name()))
-        elif self.processStatOptions.universal_flag == "command":
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+            cpu_idx = 5
+            mem_idx = 6
+        elif selected_flag == "command":
             for process in processes:
-                ppid = process.ppid()
-                command = process.process_name()
-                ttyname = process.tty_name()
-                self.printer("%s%s%s\t%s\t%s\t%s\t%s" % (timestamp, value_indentation, process.pid(), ppid, ttyname,
-                                                         process.total_time(), command))
-
+                output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
+                    timestamp, value_indentation, process.pid(), process.ppid(), process.tty_name(),
+                    process.total_time(), process.process_name()))
+        else:  # default fallback, print nothing extra
+            pass
+        if self.processStatOptions.sorting_flag:
+            if cpu_idx == 0 and mem_idx == 0:
+                raise ValueError("Sorting indices not set for selected flag, please remove sorting flag or choose another flag for output")
+            if self.processStatOptions.sorting_order == '%cpu':
+                output_rows.sort(
+                key=lambda x: float(x.split()[cpu_idx]) if x.split()[cpu_idx].replace('.', '', 1).isdigit() else float('-inf'),
+                reverse=True)
+                # output_rows.sort(key=lambda x: float(x.split()[5]), reverse=True)
+            elif self.processStatOptions.sorting_order == '%mem':
+                output_rows.sort(
+                key=lambda x: float(x.split()[mem_idx]) if x.split()[mem_idx].replace('.', '', 1).isdigit() else float('-inf'),
+                reverse=True)
+        if output_rows:
+            self.printer(header)
+            self.printer('\n'.join(output_rows))
 
 class ProcessStatReport(pmcc.MetricGroupPrinter):
     Machine_info_count = 0
@@ -589,13 +570,6 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
         return timestamp
 
     def report(self, manager):
-        """
-        Enhanced report method: 
-        Returns True if report prints data, 
-        Returns False if key metrics aren't ready.
-        Since we cannot change pmcc.py, we simulate "not ready" fetches by printing nothing.
-        """
-        # Wait until essential metrics are ready, otherwise print nothing (simulate "retry" behavior).
         try:
             if self.group['proc.psinfo.utime'].netPrevValues is None:
                 return False  # Not ready, skip increment
@@ -720,7 +694,6 @@ class ProcessStatOptions(pmapi.pmOptions):
             if self.debug_mode:
                 print("e option selected")
             self.universal_flag = "all"
-            self.show_all_process = True
 
         def handle_c():
             if self.debug_mode:
@@ -805,16 +778,18 @@ class ProcessStatOptions(pmapi.pmOptions):
         def handle_none():
             if self.debug_mode:
                 print("No option selected, defaulting to show all process")
-            self.show_all_process = True
+            self.universal_flag = "all"
+            # self.show_all_process = True
 
         def handle_O():
             if self.debug_mode:
                 print("Sorting option selected")
             self.sorting_flag = True
-            self.sorting_order = optarg
-            print("The -O option has been deprecated. Please use --sort option instead.")
-            print("sorting by %s" % self.sorting_order)
-            sys.exit(1)
+            if optarg.lower() not in ['%cpu', '%mem']:
+                print("Invalid sorting option, defaulting to %cpu")
+                self.sorting_order = '%cpu'  # default to %cpu
+                return
+            self.sorting_order = optarg.lower()
 
         # Dispatch map simulating switch-case
         dispatch = {
@@ -834,7 +809,7 @@ class ProcessStatOptions(pmapi.pmOptions):
         if handler:
             handler()
         else:
-            print(f"Unknown option: {opts}")
+            print("Unknown option: %s" % opts)
             sys.exit(1)
     def checkOptions(self):
         if self.debug_mode:
@@ -870,6 +845,9 @@ if __name__ == "__main__":
         sys.stderr.write('%s\n' % (pmerror.message()))
     except pmapi.pmUsageErr as usage:
         usage.message()
+        sys.exit(1)
+    except ValueError as e:
+        sys.stderr.write(f"{e}\n")
         sys.exit(1)
     except IOError:
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
