@@ -31,12 +31,32 @@ jobs:
         id: install-brew-deps
         run: |
           brew install autoconf unixodbc
+      - name: Configure PCP
+        id: configure
+        run: |
+          echo "Configuring PCP..."
+          ./configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var
       - name: Build on macOS
         id: Build
         run: |
           source pybuilddeps/bin/activate
           xcodebuild -version
           ./Makepkgs -verbose
+      # Darwin PMDA Unit Tests (pre-installation)
+      - name: Run Darwin PMDA Unit Tests
+        id: unit-tests
+        if: success()
+        run: |
+          echo "Running Darwin PMDA unit tests..."
+          cd scripts/darwin/test/unit
+          ./run-unit-tests.sh
+      - name: Debug on unit test failure
+        if: failure() && steps.unit-tests.conclusion == 'failure'
+        run: |
+          echo "Unit tests failed. Checking build artifacts..."
+          find . -name "pmda_darwin.dylib" -o -name "pmdadarwin"
+          echo "Checking for pmcd build..."
+          find . -name "dbpmda"
       - name: Debug on failure
         if: failure() && steps.Build.conclusion == 'failure'
         run: |
@@ -94,6 +114,51 @@ jobs:
           echo "Checking for expected directories..."
           test -d /etc/pcp && echo "✓ /etc/pcp exists"
           test -d /var/lib/pcp && echo "✓ /var/lib/pcp exists"
+      # Darwin PMDA Integration Tests (post-installation)
+      - name: Start pmcd daemon
+        if: success() && steps.install-test.conclusion == 'success'
+        id: start-pmcd
+        run: |
+          echo "Starting pmcd..."
+          # Try launchctl first (macOS standard)
+          sudo launchctl load /Library/LaunchDaemons/org.pcp.pmcd.plist 2>/dev/null || \
+          # Fall back to direct pmcd start
+          sudo pmcd start || \
+          # Last resort - run pmcd directly
+          sudo /usr/local/bin/pmcd
+
+          # Wait for pmcd to be ready
+          sleep 3
+
+          # Verify pmcd is running
+          pgrep pmcd && echo "✓ pmcd is running" || echo "✗ pmcd failed to start"
+      - name: Run Darwin PMDA Integration Tests
+        id: integration-tests
+        if: success() && steps.start-pmcd.conclusion == 'success'
+        run: |
+          echo "Running Darwin PMDA integration tests..."
+          cd scripts/darwin/test/integration
+          ./run-integration-tests.sh
+      - name: Test pmstat with Darwin metrics
+        if: success() && steps.integration-tests.conclusion == 'success'
+        run: |
+          echo "Testing pmstat output..."
+          cd scripts/darwin/test/integration
+          ./test-pmstat.sh
+      - name: Debug on integration test failure
+        if: failure() && (steps.integration-tests.conclusion == 'failure' || steps.start-pmcd.conclusion == 'failure')
+        run: |
+          echo "Integration tests failed. Collecting diagnostics..."
+          echo "=== pmcd status ==="
+          pgrep pmcd || echo "pmcd not running"
+          echo "=== pmcd log ==="
+          sudo cat /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd log found"
+          echo "=== darwin PMDA status ==="
+          pminfo -f pmcd.agent.status 2>/dev/null | grep darwin || echo "Darwin PMDA not loaded"
+          echo "=== Available PMDAs ==="
+          ls -la /usr/local/lib/pcp/pmdas/ 2>/dev/null || ls -la /Library/PCP/pmdas/ 2>/dev/null
+          echo "=== Test a simple metric ==="
+          pminfo -f hinv.ncpu 2>&1 || echo "pminfo failed"
       - name: Cleanup - Unmount DMG
         if: always()
         run: |

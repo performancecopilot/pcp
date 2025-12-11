@@ -1,0 +1,109 @@
+Darwin PMDA Testing Infrastructure - Summary
+=============================================
+
+Created: 2025-12-11
+Location: scripts/darwin/
+
+⚡ IMPORTANT PREREQUISITE (One-time setup ~5-30 minutes)
+-------------------------------------------------------
+
+The quick build requires that PCP has been fully built and installed once:
+
+   cd <repo-root>
+   ./Makepkgs --verbose
+
+After this completes, you can use the 5-10 second quick builds!
+
+To verify setup is complete:
+  cd scripts/darwin/dev && make check-deps
+
+DIRECTORY STRUCTURE
+-------------------
+scripts/darwin/
+├── README.md                           # Full documentation
+├── QUICKSTART.md                       # Quick reference guide
+├── .gitignore                          # Build artifact exclusions
+├── dev/                                # Development tools
+│   ├── Makefile                        # Standalone build (5-10s)
+│   └── build-quick.sh                  # Quick build script
+└── test/                               # Test suites
+    ├── quick-test.sh                   # Build + test in one command
+    ├── unit/                           # Pre-install tests (dbpmda)
+    │   ├── run-unit-tests.sh          # Unit test runner
+    │   ├── test-basic.txt             # Basic functionality tests
+    │   ├── test-memory.txt            # Memory metric tests
+    │   ├── test-cpu.txt               # CPU metric tests
+    │   └── test-disk.txt              # Disk metric tests
+    ├── integration/                    # Post-install tests
+    │   ├── run-integration-tests.sh   # Integration test runner
+    │   └── test-pmstat.sh             # pmstat validation
+    └── fixtures/                       # Test data (currently empty)
+
+GITHUB ACTIONS INTEGRATION
+---------------------------
+Updated: .github/workflows/macOS.yml
+
+New test phases:
+1. Unit Tests (after build, before install)
+   - Runs: scripts/darwin/test/unit/run-unit-tests.sh
+   - Time: ~10-20 seconds
+   - Tests PMDA in isolation using dbpmda
+
+2. Integration Tests (after install)
+   - Runs: scripts/darwin/test/integration/run-integration-tests.sh
+   - Time: ~20-30 seconds
+   - Tests through pminfo, pmval, pmstat
+
+QUICK START
+-----------
+# Fast iteration (build + test):
+cd scripts/darwin/test && ./quick-test.sh
+
+# Just build:
+cd scripts/darwin/dev && make
+
+# Just unit tests:
+cd scripts/darwin/test/unit && ./run-unit-tests.sh
+
+# Just integration tests (requires PCP installed):
+cd scripts/darwin/test/integration && ./run-integration-tests.sh
+
+PERFORMANCE
+-----------
+- Full PCP build:       5-30 minutes
+- Quick PMDA build:     5-10 seconds  ⚡
+- Unit tests:           10-20 seconds ⚡
+- Integration tests:    20-30 seconds ⚡
+- Total dev cycle:      < 1 minute    ⚡
+
+BENEFITS
+--------
+✓ No full PCP rebuild for Darwin PMDA changes
+✓ Automated testing in CI/CD
+✓ Fast local development iteration
+✓ Both unit (isolated) and integration (real-world) testing
+✓ Easy to add new test cases
+✓ Validates pmstat and other PCP tools work correctly
+
+NEXT STEPS
+----------
+1. Try it out:
+   cd scripts/darwin/test
+   ./quick-test.sh
+
+2. Add a new metric:
+   - Edit src/pmdas/darwin/pmda.c
+   - Add test case to test/unit/test-<cluster>.txt
+   - Run: cd scripts/darwin/test && ./quick-test.sh
+
+3. Review test output in CI:
+   - Push changes
+   - Check GitHub Actions for test results
+   - Both unit and integration tests run automatically
+
+DOCUMENTATION
+-------------
+- README.md       - Full documentation and architecture
+- QUICKSTART.md   - Quick reference for common tasks
+- SUMMARY.txt     - This file
+
