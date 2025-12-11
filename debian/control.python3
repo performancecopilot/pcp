@@ -22,7 +22,7 @@ Description: Tool for importing JSON benchmark results into PCP archive logs
  results into PCP archives for replay with PCP analysis tools.
 
 Package: pcp-import-guidellm2pcp
-Depends: pcp-import-benchmarks ${misc:Depends}
+Depends: pcp-import-benchmarks, ${misc:Depends}
 Architecture: all
 Priority: optional
 Section: oldlibs
