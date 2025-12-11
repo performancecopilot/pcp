@@ -55,5 +55,11 @@ pcp $archive_first ps -o pid,ppid,args,tty,wchan
 echo && echo pcp-ps output : Display the colum "args" in the end of -o option colum list
 pcp $archive_first ps -o pid,ppid,tty,args
 
+echo && echo pcp-ps output : Display the value as per %cpu sorted
+pcp $archive_first ps -u -O %cpu | head -10
+
+echo && echo pcp-ps output : Display the value as per %mem sorted
+pcp $archive_first ps -u -O %mem | head -10
+
 status=0
 exit
