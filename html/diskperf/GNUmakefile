@@ -1,10 +1,10 @@
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
-BUNDLE = cpuperf
+BUNDLE = diskperf
 BINTAR = $(BUNDLE).tar.gz
 PCPLOGS = $(shell echo *.0 *.meta *.index)
-CONFIGS = 
+CONFIGS = waitio.view
 LSRCFILES = $(PCPLOGS) $(CONFIGS)
 LDIRT = $(BINTAR) manifest
 

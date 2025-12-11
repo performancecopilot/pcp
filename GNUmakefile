@@ -40,7 +40,7 @@ SUBDIRS = vendor src
 ifneq ($(TARGET_OS),mingw)
 SUBDIRS += qa
 endif
-SUBDIRS += man images build debian
+SUBDIRS += man html images build debian
 
 default :: default_pcp
 
