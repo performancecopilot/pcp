@@ -1,0 +1,10 @@
+# Build artifacts
+dev/pmdadarwin
+dev/pmda_darwin.dylib
+dev/*.o
+dev/*.log
+
+# Test outputs
+test/**/*.out
+test/**/*.log
+test/**/tmp.*
