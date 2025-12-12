@@ -5,15 +5,42 @@ Homepage: https://pcp.io
 Maintainer: PCP Development Team <pcp@groups.io>
 Uploaders: Nathan Scott <nathans@debian.org>, Ken McDonell <kenj@kenj.id.au>
 Rules-Requires-Root: no
-Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 11), ?{perl (>= 5.6)}, libreadline-dev | libreadline5-dev | libreadline-gplv2-dev, chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any], ?{python-all}, ?{python-dev}, python3-setuptools, libsasl2-dev, ?{libuv1-dev}, ?{libssl-dev}, libavahi-common-dev, ?{qt-dev}, autotools-dev, zlib1g-dev, autoconf, ?{libclass-dbi-perl}, ?{libdbd-mysql-perl}, ?{python-psycopg2}, ?{python-openpyxl}, ?{dh-python}, ?{libpfm4-dev}, libncurses-dev, ?{python-six}, ?{python-requests}, ?{libextutils-autoinstall-perl}, ?{libxml-tokeparser-perl}, ?{libjson-perl}, ?{libwww-perl}, ?{libnet-snmp-perl}, ?{liblzma-dev}, ?{systemd-pkgconfig}, ?{libsystemd-dev}, ?{python-bpfcc}, ?{bpftrace}, ?{clang}, ?{llvm}, ?{libibumad-dev}, ?{libibmad-dev}, ?{libibverbs-dev}, ?{libinih-dev}, ?{postfix}, ?{libxml-libxml-perl}, ?{libfile-slurp-perl}, ?{libyaml-libyaml-perl}, ?{python-rtslib-fb}, ?{python-libvirt}, ?{python-lxml}, ?{libdrm-dev}, ?{python-pymongo}, ?{python-urllib3}, ?{libdbi-perl}, ?{python-pyodbc}, ?{perl-xs-dev}, manpages
+Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 11),
+	?{perl (>= 5.6)},
+	libreadline-dev | libreadline5-dev | libreadline-gplv2-dev,
+	chrpath, libbsd-dev [kfreebsd-any], libkvm-dev [kfreebsd-any],
+	?{python-all}, ?{python-dev}, python3-setuptools, libsasl2-dev,
+	?{libuv1-dev}, ?{libssl-dev}, libavahi-common-dev,
+	?{qt-dev},
+	autotools-dev, zlib1g-dev, autoconf, ?{libclass-dbi-perl},
+	?{libdbd-mysql-perl}, ?{python-psycopg2}, ?{python-openpyxl},
+	?{dh-python}, ?{libpfm4-dev}, libncurses-dev, ?{python-six},
+	?{python-requests}, ?{libextutils-autoinstall-perl},
+	?{libxml-tokeparser-perl}, ?{libjson-perl}, ?{libwww-perl},
+	?{libnet-snmp-perl}, ?{liblzma-dev}, ?{systemd-pkgconfig},
+	?{libsystemd-dev}, ?{clang},
+	?{python-bpfcc},
+	?{bpftrace},
+	?{llvm}, ?{libibumad-dev}, ?{libibmad-dev}, ?{libibverbs-dev},
+	?{libinih-dev}, ?{postfix}, ?{libxml-libxml-perl},
+	?{libfile-slurp-perl}, ?{libyaml-libyaml-perl},
+	?{python-rtslib-fb}, ?{python-libvirt}, ?{python-lxml},
+	?{libdrm-dev}, ?{python-pymongo}, ?{python-urllib3},
+	?{libdbi-perl}, ?{python-pyodbc}, ?{perl-xs-dev}, manpages
 Standards-Version: 4.7.2
 X-Python3-Version: >= 3.6
 
 Package: pcp
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, gawk, procps, zstd, ?{python-pcp}, ?{python}, libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}), libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends},
+	gawk, procps, zstd, ?{python-pcp}, ?{python},
+	libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}),
+	libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}),
+	libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
-Suggests: pcp-gui, libpcp-import-perl, ?{bpftrace}, ?{python-bpfcc}, redis-server
+Suggests: pcp-gui, libpcp-import-perl, redis-server,
+	?{bpftrace},
+	?{python-bpfcc}
 Provides: dstat, pcp-webapi, pcp-manager
 Replaces: dstat, pcp-webapi, pcp-manager
 Breaks: pcp-doc (<< 7.1.0)
@@ -47,8 +74,10 @@ Description: Performance Co-Pilot runtime configuration
 Package: libpcp4-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp4 (= ${binary:Version}), libc6-dev | libc-dev
-Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0), pcp-manager (<< 5.2.0)
-Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0), pcp-manager (<< 5.2.0)
+Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
+	pcp-manager (<< 5.2.0)
+Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
+	pcp-manager (<< 5.2.0)
 Architecture: any
 Description: Performance Co-Pilot library and headers
  The libpcp4-dev package contains the base Performance Co-Pilot (PCP)
@@ -95,7 +124,8 @@ Description: transitional package
 
 Package: libpcp-gui2-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}), libpcp4 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}),
+	libpcp4 (= ${binary:Version})
 Conflicts: libpcp-gui1-dev
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
@@ -123,7 +153,8 @@ Description: Performance Co-Pilot graphical client tools library
 
 Package: libpcp-mmv1-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-mmv1 (= ${binary:Version}), libpcp4 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-mmv1 (= ${binary:Version}),
+	libpcp4 (= ${binary:Version})
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value library and headers
  The libpcp-mmv1-dev package contains the Performance Co-Pilot (PCP)
@@ -151,7 +182,8 @@ Description: Performance Co-Pilot Memory Mapped Value client library
 
 Package: libpcp-pmda3-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-pmda3 (= ${binary:Version}), libpcp4 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-pmda3 (= ${binary:Version}),
+	libpcp4 (= ${binary:Version})
 Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 3.11.10~)
 Replaces: libpcp3-dev (<< 3.11.10~)
 Architecture: any
@@ -179,7 +211,8 @@ Description: Performance Co-Pilot Domain Agent library
 
 Package: libpcp-trace2-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-trace2 (= ${binary:Version}), libpcp4 (= ${binary:Version})
+Depends: ${misc:Depends}, libpcp-trace2 (= ${binary:Version}),
+	libpcp4 (= ${binary:Version})
 Breaks: pcp (<< 2.8.0)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
@@ -236,7 +269,7 @@ Description: Performance Co-Pilot data import library
  all of the interesting performance data in a system, and allows
  client applications to easily retrieve and process any subset of
  that data.
- 
+
 Package: libpcp-web1-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-web1 (= ${binary:Version}), libpcp4-dev
@@ -394,7 +427,8 @@ Description: Performance Co-Pilot (PCP) Zeroconf Package
  diagnosis, alerting and self-healing for the localhost.
 
 Package: pcp-testsuite
-Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, time, pcp (= ${binary:Version}), python3
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, time,
+	pcp (= ${binary:Version}), python3
 Architecture: any
 Suggests: valgrind
 Provides: pcpqa, pcp-gui-testsuite

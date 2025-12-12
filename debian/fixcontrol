@@ -14,7 +14,25 @@ then
     exit
 fi
 
-echo 's/$/ /' >$tmp.sed
+# set debug=true to save the sed script
+#
+debug=false
+
+# The convention in our control files is that in the Build-Depends,
+# Depends, Suggests, etc lines we use <tab> for the continutation
+# and <space> for the continution in the Description stanza.
+# A line that begins with 2 or more spaces is a potential problem
+# when we need <tab> to strip empty lines after ?{foo}
+# substitutions.
+#
+awk <"$1" >$tmp.tmp '
+/^  /	{ print "'"$1"':" NR ": Error: line begins with 2 or more spaces" }'
+if [ -s $tmp.tmp ]
+then
+    cat >&2 $tmp.tmp
+    sts=1
+    exit
+fi
 
 # dh-python not always available ... this is not checked for in configure
 # so have to base it on the platform type and version
@@ -54,9 +72,9 @@ then
 fi
 if [ -f $tmp.no ]
 then
-    echo 's/?{dh-python}, //' >>$tmp.sed
+    echo 's/\?\{dh-python}(, *|$)//' >>$tmp.sed
 else
-    echo 's/?{dh-python}, /dh-python, /' >>$tmp.sed
+    echo 's/\?\{dh-python}(, *|$)/dh-python\\1/' >>$tmp.sed
 fi
 
 # for some others we rely on what configure has discovered
@@ -71,55 +89,55 @@ eval `grep -E '^(ENABLE_|PMDA_|HAVE_|QT_)' ../src/include/builddefs | sed -e 's/
 
 if $PMDA_PERFEVENT
 then
-    echo 's/?{libpfm4-dev}, /libpfm4-dev, /' >>$tmp.sed
+    echo 's/\?\{libpfm4-dev}(, *|$)/libpfm4-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{libpfm4-dev}, //' >>$tmp.sed
+    echo 's/\?\{libpfm4-dev}(, *|$)//' >>$tmp.sed
 fi
 
 if $PMDA_INFINIBAND
 then
-    echo 's/?{libibverbs-dev}, /libibverbs-dev, /' >>$tmp.sed
-    echo 's/?{libibumad-dev}, /libibumad-dev, /' >>$tmp.sed
-    echo 's/?{libibmad-dev}, /libibmad-dev, /' >>$tmp.sed
+    echo 's/\?\{libibverbs-dev}(, *|$)/libibverbs-dev\\1/' >>$tmp.sed
+    echo 's/\?\{libibumad-dev}(, *|$)/libibumad-dev\\1/' >>$tmp.sed
+    echo 's/\?\{libibmad-dev}(, *|$)/libibmad-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{libibverbs-dev}, //' >>$tmp.sed
-    echo 's/?{libibumad-dev}, //' >>$tmp.sed
-    echo 's/?{libibmad-dev}, //' >>$tmp.sed
+    echo 's/\?\{libibverbs-dev}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libibumad-dev}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libibmad-dev}(, *|$)//' >>$tmp.sed
 fi
 
 if $PMDA_BCC
 then
-    echo 's/?{python-bpfcc}, /python3-bpfcc [amd64 arm64 armhf s390x ppc64], /' >>$tmp.sed
+    echo 's/\?\{python-bpfcc}(, *|$)/python3-bpfcc [amd64 arm64 armhf s390x ppc64]\\1/' >>$tmp.sed
 else
-    echo 's/?{python-bpfcc}, //' >>$tmp.sed
+    echo 's/\?\{python-bpfcc}(, *|$)//' >>$tmp.sed
 fi
 
 if $PMDA_BPFTRACE
 then
-    echo 's/?{bpftrace}, /bpftrace (>= 0.9.2) [amd64 arm64], /' >>$tmp.sed
+    echo 's/\?\{bpftrace}(, *|$)/bpftrace (>= 0.9.2) [amd64 arm64]\\1/' >>$tmp.sed
 else
-    echo 's/?{bpftrace}, //' >>$tmp.sed
+    echo 's/\?\{bpftrace}(, *|$)//' >>$tmp.sed
 fi
 
 if $PMDA_BPF
 then
-    echo 's/?{clang}, /clang, /' >>$tmp.sed
-    echo 's/?{llvm}, /llvm, /' >>$tmp.sed
+    echo 's/\?\{clang}(, *|$)/clang\\1/' >>$tmp.sed
+    echo 's/\?\{llvm}(, *|$)/llvm\\1/' >>$tmp.sed
 else
-    echo 's/?{clang}, //' >>$tmp.sed
-    echo 's/?{llvm}, //' >>$tmp.sed
+    echo 's/\?\{clang}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{llvm}(, *|$)//' >>$tmp.sed
 fi
 
 if $PMDA_POSTGRESQL
 then
     if $ENABLE_PYTHON3
     then
-	echo 's/?{python-psycopg2}, /python3-psycopg2, /' >>$tmp.sed
+	echo 's/\?\{python-psycopg2}(, *|$)/python3-psycopg2\\1/' >>$tmp.sed
     else
-	echo 's/?{python-psycopg2}, /python-psycopg2, /' >>$tmp.sed
+	echo 's/\?\{python-psycopg2}(, *|$)/python-psycopg2\\1/' >>$tmp.sed
     fi
 else
-    echo 's/?{python-psycopg2}, //' >>$tmp.sed
+    echo 's/\?\{python-psycopg2}(, *|$)//' >>$tmp.sed
 fi
 
 if $ENABLE_SYSTEMD
@@ -135,15 +153,15 @@ then
 	pkg=`dpkg-query -S /usr/share/pkgconfig/systemd.pc 2>/dev/null | sed -e 's/: .*//'`
 	if [ -n "$pkg" ]
 	then
-	    echo "s/?{systemd-pkgconfig}, /$pkg, /" >>$tmp.sed
+	    echo 's/\?\{systemd-pkgconfig}(, *|$)/'"$pkg"'\\1/' >>$tmp.sed
 	else
-	    echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
+	    echo 's/\?\{systemd-pkgconfig}(, *|$)//' >>$tmp.sed
 	fi
     else
-	echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
+	echo 's/\?\{systemd-pkgconfig}(, *|$)//' >>$tmp.sed
     fi
 else
-    echo 's/?{systemd-pkgconfig}, //' >>$tmp.sed
+    echo 's/\?\{systemd-pkgconfig}(, *|$)//' >>$tmp.sed
 fi
 
 # PMDA_SYSTEMD is only true if we have libsystemd ...
@@ -154,103 +172,103 @@ fi
 #
 if $PMDA_SYSTEMD
 then
-    echo 's/?{libsystemd-dev}, /libsystemd-dev, /' >>$tmp.sed
+    echo 's/\?\{libsystemd-dev}(, *|$)/libsystemd-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{libsystemd-dev}, //' >>$tmp.sed
+    echo 's/\?\{libsystemd-dev}(, *|$)//' >>$tmp.sed
 fi
 
 
 if $ENABLE_PYTHON3
 then
-    echo 's/?{python}, /python3, /' >>$tmp.sed
-    echo 's/?{python-all}, /python3-all, /' >>$tmp.sed
-    echo 's/?{python-dev}, /python3-dev, /' >>$tmp.sed
-    echo 's/?{python-pcp}, /python3-pcp, /' >>$tmp.sed
+    echo 's/\?\{python}(, *|$)/python3\\1/' >>$tmp.sed
+    echo 's/\?\{python-all}(, *|$)/python3-all\\1/' >>$tmp.sed
+    echo 's/\?\{python-dev}(, *|$)/python3-dev\\1/' >>$tmp.sed
+    echo 's/\?\{python-pcp}(, *|$)/python3-pcp\\1/' >>$tmp.sed
 else
-    echo 's/?{python}, //' >>$tmp.sed
-    echo 's/?{python-all}, //' >>$tmp.sed
-    echo 's/?{python-dev}, //' >>$tmp.sed
-    echo 's/?{python-pcp}, //' >>$tmp.sed
+    echo 's/\?\{python}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{python-all}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{python-dev}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{python-pcp}(, *|$)//' >>$tmp.sed
 fi
 
 if $HAVE_PYTHON_OPENPYXL
 then
-    echo 's/?{python-openpyxl}, /python3-openpyxl, /' >>$tmp.sed
+    echo 's/\?\{python-openpyxl}(, *|$)/python3-openpyxl\\1/' >>$tmp.sed
 else
-    echo 's/?{python-openpyxl}, //' >>$tmp.sed
+    echo 's/\?\{python-openpyxl}(, *|$)//' >>$tmp.sed
 fi
 
 if $HAVE_PYTHON_REQUESTS
 then
-    echo 's/?{python-requests}, /python3-requests, /' >>$tmp.sed
+    echo 's/\?\{python-requests}(, *|$)/python3-requests\\1/' >>$tmp.sed
 else
-    echo 's/?{python-requests}, //' >>$tmp.sed
+    echo 's/\?\{python-requests}(, *|$)//' >>$tmp.sed
 fi
 
 if $HAVE_PYTHON_SIX
 then
-    echo 's/?{python-six}, /python3-six, /' >>$tmp.sed
+    echo 's/\?\{python-six}(, *|$)/python3-six\\1/' >>$tmp.sed
 else
-    echo 's/?{python-six}, //' >>$tmp.sed
+    echo 's/\?\{python-six}(, *|$)//' >>$tmp.sed
 fi
 
 if $ENABLE_LZMA
 then
-    echo 's/?{liblzma-dev}, /liblzma-dev, /' >>$tmp.sed
+    echo 's/\?\{liblzma-dev}(, *|$)/liblzma-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{liblzma-dev}, //' >>$tmp.sed
+    echo 's/\?\{liblzma-dev}(, *|$)//' >>$tmp.sed
 fi
 
 if [ "$QT_VERSION" -ge 5 ]
 then
-    echo 's/?{qt-dev}, /qtbase5-dev, qtbase5-dev-tools, libqt5svg5-dev, qtchooser, /' >>$tmp.sed
+    echo 's/\?\{qt-dev}(, *|$)/qtbase5-dev, qtbase5-dev-tools, libqt5svg5-dev, qtchooser\\1/' >>$tmp.sed
 elif [ "$QT_VERSION" -ge 4 ]
 then
-    echo 's/?{qt-dev}, /libqt4-dev, qt4-qmake, /' >>$tmp.sed
+    echo 's/\?\{qt-dev}(, *|$)/libqt4-dev, qt4-qmake\\1/' >>$tmp.sed
 else
-    echo 's/?{qt-dev}, //' >>$tmp.sed
+    echo 's/\?\{qt-dev}(, *|$)//' >>$tmp.sed
 fi
 
 if $HAVE_OPENSSL
 then
-    echo 's/?{libssl-dev}, /libssl-dev, /' >>$tmp.sed
+    echo 's/\?\{libssl-dev}(, *|$)/libssl-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{libssl-dev}, //' >>$tmp.sed
+    echo 's/\?\{libssl-dev}(, *|$)//' >>$tmp.sed
 fi
 
 if $HAVE_LIBUV
 then
-    echo 's/?{libuv1-dev}, /libuv1-dev, /' >>$tmp.sed
+    echo 's/\?\{libuv1-dev}(, *|$)/libuv1-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{libuv1-dev}, //' >>$tmp.sed
+    echo 's/\?\{libuv1-dev}(, *|$)//' >>$tmp.sed
 fi
 
 if $HAVE_LIBINIH
 then
-    echo 's/?{libinih-dev}, /libinih-dev, /' >>$tmp.sed
+    echo 's/\?\{libinih-dev}(, *|$)/libinih-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{libinih-dev}, //' >>$tmp.sed
+    echo 's/\?\{libinih-dev}(, *|$)//' >>$tmp.sed
 fi
 
 if $HAVE_PERL
 then
-    echo 's/?{\\(perl[^}]*\\)}, /\\1, /' >>$tmp.sed
-    echo 's/?{libclass-dbi-perl}, /libclass-dbi-perl, /' >>$tmp.sed
-    echo 's/?{libdbd-mysql-perl}, /libdbd-mysql-perl, /' >>$tmp.sed
-    echo 's/?{libextutils-autoinstall-perl}, /libextutils-autoinstall-perl, /' >>$tmp.sed
-    echo 's/?{libxml-tokeparser-perl}, /libxml-tokeparser-perl, /' >>$tmp.sed
-    echo 's/?{libjson-perl}, /libjson-perl, /' >>$tmp.sed
-    echo 's/?{libwww-perl}, /libwww-perl, /' >>$tmp.sed
-    echo 's/?{libnet-snmp-perl}, /libnet-snmp-perl, /' >>$tmp.sed
+    echo 's/\?\{(perl[^}]*)}(, *|$)/\\1\\2/' >>$tmp.sed
+    echo 's/\?\{libclass-dbi-perl}(, *|$)/libclass-dbi-perl\\1/' >>$tmp.sed
+    echo 's/\?\{libdbd-mysql-perl}(, *|$)/libdbd-mysql-perl\\1/' >>$tmp.sed
+    echo 's/\?\{libextutils-autoinstall-perl}(, *|$)/libextutils-autoinstall-perl\\1/' >>$tmp.sed
+    echo 's/\?\{libxml-tokeparser-perl}(, *|$)/libxml-tokeparser-perl\\1/' >>$tmp.sed
+    echo 's/\?\{libjson-perl}(, *|$)/libjson-perl\\1/' >>$tmp.sed
+    echo 's/\?\{libwww-perl}(, *|$)/libwww-perl\\1/' >>$tmp.sed
+    echo 's/\?\{libnet-snmp-perl}(, *|$)/libnet-snmp-perl\\1/' >>$tmp.sed
 else
-    echo 's/?{perl[^}]*}, //' >>$tmp.sed
-    echo 's/?{libclass-dbi-perl}, //' >>$tmp.sed
-    echo 's/?{libdbd-mysql-perl}, //' >>$tmp.sed
-    echo 's/?{libextutils-autoinstall-perl}, //' >>$tmp.sed
-    echo 's/?{libxml-tokeparser-perl}, //' >>$tmp.sed
-    echo 's/?{libjson-perl}, //' >>$tmp.sed
-    echo 's/?{libwww-perl}, //' >>$tmp.sed
-    echo 's/?{libnet-snmp-perl}, //' >>$tmp.sed
+    echo 's/\?\{perl[^}]*}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libclass-dbi-perl}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libdbd-mysql-perl}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libextutils-autoinstall-perl}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libxml-tokeparser-perl}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libjson-perl}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libwww-perl}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libnet-snmp-perl}(, *|$)//' >>$tmp.sed
     echo '/^Recommends: libpcp-pmda-perl/d' >>$tmp.sed
     echo '/^Suggests: pcp-gui, libpcp-import-perl, /s/libpcp-import-perl, //' >>$tmp.sed
 fi
@@ -259,20 +277,20 @@ fi
 #
 if $PMDA_POSTFIX
 then
-    echo 's/?{postfix}, /postfix, /' >>$tmp.sed
+    echo 's/\?\{postfix}(, *|$)/postfix\\1/' >>$tmp.sed
 else
-    echo 's/?{postfix}, //' >>$tmp.sed
+    echo 's/\?\{postfix}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs libxml-libxml-perl and libfile-slurp-perl for bind2 PMDA (closes: #929376)
 #
 if $PMDA_BIND2
 then
-    echo 's/?{libxml-libxml-perl}, /libxml-libxml-perl, /' >>$tmp.sed
-    echo 's/?{libfile-slurp-perl}, /libfile-slurp-perl, /' >>$tmp.sed
+    echo 's/\?\{libxml-libxml-perl}(, *|$)/libxml-libxml-perl\\1/' >>$tmp.sed
+    echo 's/\?\{libfile-slurp-perl}(, *|$)/libfile-slurp-perl\\1/' >>$tmp.sed
 else
-    echo 's/?{libxml-libxml-perl}, //' >>$tmp.sed
-    echo 's/?{libfile-slurp-perl}, //' >>$tmp.sed
+    echo 's/\?\{libxml-libxml-perl}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{libfile-slurp-perl}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs libyaml-libyaml-perl and libjson-perl for nutcracker PMDA (closes: #929377)
@@ -280,65 +298,65 @@ fi
 #
 if $PMDA_NUTCRACKER
 then
-    echo 's/?{libyaml-libyaml-perl}, /libyaml-libyaml-perl, /' >>$tmp.sed
+    echo 's/\?\{libyaml-libyaml-perl}(, *|$)/libyaml-libyaml-perl\\1/' >>$tmp.sed
 else
-    echo 's/?{libyaml-libyaml-perl}, //' >>$tmp.sed
+    echo 's/\?\{libyaml-libyaml-perl}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs libjson-perl for activemq PMDA
 #
 if $PMDA_ACTIVEMQ
 then
-    echo 's/?{libjson-perl}, /libjson-perl, /' >>$tmp.sed
+    echo 's/\?\{libjson-perl}(, *|$)/libjson-perl\\1/' >>$tmp.sed
 else
-    echo 's/?{libjson-perl}, //' >>$tmp.sed
+    echo 's/\?\{libjson-perl}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs python3-rtslib-fb for lio PMDA (closes: #929378)
 #
 if $PMDA_LIO
 then
-    echo 's/?{python-rtslib-fb}, /python3-rtslib-fb, /' >>$tmp.sed
+    echo 's/\?\{python-rtslib-fb}(, *|$)/python3-rtslib-fb\\1/' >>$tmp.sed
 else
-    echo 's/?{python-rtslib-fb}, //' >>$tmp.sed
+    echo 's/\?\{python-rtslib-fb}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs python3-libvirt and python3-lxml for libvirt PMDA (closes: #929379)
 #
 if $PMDA_LIBVIRT
 then
-    echo 's/?{python-libvirt}, /python3-libvirt, /' >>$tmp.sed
-    echo 's/?{python-lxml}, /python3-lxml, /' >>$tmp.sed
+    echo 's/\?\{python-libvirt}(, *|$)/python3-libvirt\\1/' >>$tmp.sed
+    echo 's/\?\{python-lxml}(, *|$)/python3-lxml\\1/' >>$tmp.sed
 else
-    echo 's/?{python-libvirt}, //' >>$tmp.sed
-    echo 's/?{python-lxml}, //' >>$tmp.sed
+    echo 's/\?\{python-libvirt}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{python-lxml}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs libdrm-dev for amdgpu PMDA
 #
 if $PMDA_AMDGPU
 then
-    echo 's/?{libdrm-dev}, /libdrm-dev, /' >>$tmp.sed
+    echo 's/\?\{libdrm-dev}(, *|$)/libdrm-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{libdrm-dev}, //' >>$tmp.sed
+    echo 's/\?\{libdrm-dev}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs python3-pymongo for mongodb PMDA
 #
 if $PMDA_MONGODB
 then
-    echo 's/?{python-pymongo}, /python3-pymongo, /' >>$tmp.sed
+    echo 's/\?\{python-pymongo}(, *|$)/python3-pymongo\\1/' >>$tmp.sed
 else
-    echo 's/?{python-pymongo}, //' >>$tmp.sed
+    echo 's/\?\{python-pymongo}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs python3-urllib3 for elasticsearch PMDA
 #
 if $PMDA_ELASTICSEARCH
 then
-    echo 's/?{python-urllib3}, /python3-urllib3, /' >>$tmp.sed
+    echo 's/\?\{python-urllib3}(, *|$)/python3-urllib3\\1/' >>$tmp.sed
 else
-    echo 's/?{python-urllib3}, //' >>$tmp.sed
+    echo 's/\?\{python-urllib3}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs libdbi-perl and libdbd-mysql-perl for mysql and
@@ -347,18 +365,18 @@ fi
 #
 if $PMDA_MYSQL || $PMDA_ORACLE
 then
-    echo 's/?{libdbi-perl}, /libdbi-perl, /' >>$tmp.sed
+    echo 's/\?\{libdbi-perl}(, *|$)/libdbi-perl\\1/' >>$tmp.sed
 else
-    echo 's/?{libdbi-perl}, //' >>$tmp.sed
+    echo 's/\?\{libdbi-perl}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs python3-pyodbc for mssql PMDA
 #
 if $PMDA_MSSQL
 then
-    echo 's/?{python-pyodbc}, /python3-pyodbc, /' >>$tmp.sed
+    echo 's/\?\{python-pyodbc}(, *|$)/python3-pyodbc\\1/' >>$tmp.sed
 else
-    echo 's/?{python-pyodbc}, //' >>$tmp.sed
+    echo 's/\?\{python-pyodbc}(, *|$)//' >>$tmp.sed
 fi
 
 # build needs python3-requests and OrderedDict module (from libpython
@@ -398,9 +416,9 @@ fi
 #
 if $PMDA_SYSTEMD
 then
-    echo 's/?{libsystemd-dev}, /libsystemd-dev, /' >>$tmp.sed
+    echo 's/\?\{libsystemd-dev}(, *|$)/libsystemd-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{libsystemd-dev}, //' >>$tmp.sed
+    echo 's/\?\{libsystemd-dev}(, *|$)//' >>$tmp.sed
 fi
 
 # add perl-xs-dev to Build-Depends for trixie or later (closes: #1102849)
@@ -429,15 +447,21 @@ then
 fi
 if [ -f $tmp.yes ]
 then
-    echo 's/?{perl-xs-dev}, /perl-xs-dev, /' >>$tmp.sed
+    echo 's/\?\{perl-xs-dev}(, *|$)/perl-xs-dev\\1/' >>$tmp.sed
 else
-    echo 's/?{perl-xs-dev}, //' >>$tmp.sed
+    echo 's/\?\{perl-xs-dev}(, *|$)//' >>$tmp.sed
 fi
 
-echo 's/ $//' >>$tmp.sed
-sed -f $tmp.sed <"$1" >$tmp.out
+echo '/^	$/d' >>$tmp.sed
+sed -E -f $tmp.sed <"$1" >$tmp.out
 diff -u "$1" $tmp.out >&2
 cat $tmp.out
+if $debug
+then
+    echo >&2 "Debug: sed saved to tmp.sed"
+    rm -f tmp.sed
+    mv $tmp.sed tmp.sed
+fi
 
 # add transitional packages for (incorrect) Ubuntu package renaming
 #
