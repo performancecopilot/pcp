@@ -182,7 +182,7 @@ class ProcessStatusUtil:
         if not flag:
             return data[:max_length].ljust(max_length)
         else:
-            return data[:max_length] if len(data) <= max_length else data
+            return data
 
     def process_name_with_args_last(self):
         return self.process_name_with_args(True)
@@ -193,6 +193,8 @@ class ProcessStatusUtil:
         return self.__get_value('proc.psinfo.rss', self.instance)
     def mem(self):
         total_mem = self.__get_value('mem.physmem', None)
+        if isinstance(total_mem, dict):
+            total_mem = next(iter(total_mem.values()), None)
         rss = self.__get_value('proc.psinfo.rss', self.instance)
         if total_mem is not None and rss is not None:
             return float("%.2f" % (100 * float(rss) / total_mem))
@@ -214,11 +216,13 @@ class ProcessStatusUtil:
             percent_of_time = 100 * system_time_diff / delta_time_in_ms
             return float("%.2f" % percent_of_time)
         else:
-            return None
+            return '-'
 
     def wchan_s(self):
         process = self.__get_value('proc.psinfo.wchan_s', self.instance)
-        return process.ljust(30) if process is not None and len(process) < 30 else process[:30] if process is not None else '-'
+        if process is None or process == "0" or process == '':
+            return '-' + ' ' * 29
+        return process.ljust(30) if len(process) < 30 else process[:30]
 
     def priority(self):
         return self.__get_value('proc.psinfo.priority', self.instance)
@@ -298,18 +302,17 @@ class ProcessStatusUtil:
     def func_state(self):
         s_name = self.__get_value('proc.psinfo.sname', self.instance)
         if s_name == 'R':
-            return 'N/A'
+            return '-'
         elif s_name is None:
-            return '?'
+            return '-'
         else:
             return self.wchan_s()
 
     def policy(self):
         policy_int = self.__get_value('proc.psinfo.policy', self.instance)
-        if policy_int is not None and policy_int <= len(SCHED_POLICY):
-            # return policy_int
+        if isinstance(policy_int, int) and 0 <= policy_int < len(SCHED_POLICY):
             return SCHED_POLICY[policy_int]
-        return None
+        return '?'
 
 
 PIDINFO_PAIR = {"%cpu": ('%CPU', ProcessStatusUtil.system_percent),
@@ -317,16 +320,16 @@ PIDINFO_PAIR = {"%cpu": ('%CPU', ProcessStatusUtil.system_percent),
                 "start": ("START\t", ProcessStatusUtil.start),
                 "time": ("TIME\t", ProcessStatusUtil.total_time),
                 "cls": ("CLS", ProcessStatusUtil.policy),
-                "cmd": ("Command\t\t\t", ProcessStatusUtil.process_name),
+                "cmd": ("Command\t\t", ProcessStatusUtil.process_name),
                 "args": ("Command\t\t\t", ProcessStatusUtil.process_name_with_args),
-                "args_last": ("Command\t\t\t", ProcessStatusUtil.process_name_with_args_last),
+                "args_last": ("Command", ProcessStatusUtil.process_name_with_args_last),
                 "pid": ("PID\t", ProcessStatusUtil.pid),
                 "ppid": ("PPID\t", ProcessStatusUtil.ppid),
                 "pri": ("PRI", ProcessStatusUtil.priority),
                 "state": ("S", ProcessStatusUtil.s_name),
                 "rss": ("RSS", ProcessStatusUtil.rss),
                 "rtprio": ("RTPRIO", ProcessStatusUtil.priority),
-                "tty": ("TTY\t", ProcessStatusUtil.tty_name),
+                "tty": ("TTY", ProcessStatusUtil.tty_name),
                 "pname": ("Pname\t\t", ProcessStatusUtil.process_name),
                 "vsize": ("VSZ", ProcessStatusUtil.vsize),
                 "uname": ("USER\t", ProcessStatusUtil.user_name),
@@ -361,63 +364,94 @@ class DynamicProcessReporter:
         self.processStatOptions.colum_list.index(key) == len(self.processStatOptions.colum_list) - 1
     def print_report(self, timestamp, header_indentation, value_indentation):
 
-        # when the print count is exhausted exit the program gracefully
-        # we can't use break here because it's being called by the run manager
-        if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
-            if self.processStatOptions.print_count == 0:
-                sys.exit(0)
+        # Exit logic for non-archive context
+        if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE and self.processStatOptions.print_count == 0:
+            sys.exit(0)
+        # Sorting validations
+        if self.processStatOptions.sorting_flag:
+            print("Sorting by %s" % self.processStatOptions.filterstate)
+            if (self.processStatOptions.sorting_order not in self.processStatOptions.colum_list
+                    and self.processStatOptions.filterstate is None):
+                raise ValueError("%s is not selected in output columns" %
+                                self.processStatOptions.sorting_order)
+
+        # Always compute process list ONCE
+        processes = self.process_filter.filter_processes(
+            self.process_report.get_processes(self.delta_time)
+        )
+
+        # -------- PATH 1: With filterstate -------- #
         if self.processStatOptions.filterstate is not None:
-            self.printer("Timestamp" + header_indentation +
-                         "USER\t\tPID\t\tPPID\t\tPRI\t%CPU\t%MEM\tVSZ\tRSS\tS\tSTARTED\t\tTIME\t\tWCHAN\t\t\t\tCommand")
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+            # Precompute format string
+            fmt = (
+                "{ts}{indent}{user}\t{pid}\t{ppid}\t{pri}\t{cpu}\t{mem}\t"
+                "{vsz}\t{rss}\t{s}\t{started}\t{time}\t{wchan}\t{cmd}"
+            )
+            # Print header
+            self.printer(
+                "Timestamp" + header_indentation +
+                "USER\t\tPID\t\tPPID\t\tPRI\t%CPU\t%MEM\tVSZ\tRSS\tS\tSTARTED\t\tTIME\t\tWCHAN\t\t\t\tCommand"
+            )
             for process in processes:
-                total_percent = process.total_percent()
-                # print("total percent: %s" % total_percent)
-                current_process_pid = process.pid()
-                current_process_sname = process.s_name()
-                if process.wchan_s() is not None:
-                    wchan = process.wchan_s()
-                else:
-                    wchan = '-'
-                key = (current_process_sname, current_process_pid)
-                if key in process_state_info:
-                    process_state_info[key] = process_state_info[key] + self.delta_time
-                else:
-                    process_state_info[key] = self.delta_time
-                process_name = process.process_name_with_args()
-                if 7 < len(wchan) < 15:
-                    self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\t%s" %
-                                 (timestamp, value_indentation, process.user_name(), process.pid(), process.ppid(),
-                                  process.priority(), total_percent, process.system_percent(), process.vsize(),
-                                  process.rss(), current_process_sname, process.start(), process.total_time(), wchan,
-                                  process_name))
-                elif len(wchan) >= 15:
-                    self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" %
-                                 (timestamp, value_indentation, process.user_name(), process.pid(), process.ppid(),
-                                  process.priority(), total_percent, process.system_percent(), process.vsize(),
-                                  process.rss(), current_process_sname, process.start(), process.total_time(), wchan,
-                                  process_name))
-                else:
-                    self.printer("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t\t\t%s" %
-                                 (timestamp, value_indentation, process.user_name(), process.pid(), process.ppid(),
-                                  process.priority(), total_percent, process.system_percent(), process.vsize(),
-                                  process.rss(), current_process_sname, process.start(), process.total_time(), wchan,
-                                  process_name))
+                # Cache heavy calls
+                user = process.user_name()
+                pid = process.pid()
+                ppid = process.ppid()
+                pri = process.priority()
+                cpu = process.total_percent()
+                mem = process.system_percent()
+                vsz = process.vsize()
+                rss = process.rss()
+                sname = process.s_name()
+                started = process.start()
+                ttime = process.total_time()
+                wchan = process.wchan_s()
+                cmd = process.process_name_with_args()
+                # Align command if wchan is short
+                # if len(wchan) < 8:
+                #     cmd = "\t\t\t" + cmd
+
+                # Maintain state info
+                key = (sname, pid)
+                process_state_info[key] = process_state_info.get(key, 0) + self.delta_time
+                # Unified printing path
+                self.printer(fmt.format(
+                    ts=timestamp,
+                    indent=value_indentation,
+                    user=user,
+                    pid=pid,
+                    ppid=ppid,
+                    pri=pri,
+                    cpu=cpu,
+                    mem=mem,
+                    vsz=vsz,
+                    rss=rss,
+                    s=sname,
+                    started=started,
+                    time=ttime,
+                    wchan=wchan,
+                    cmd=cmd
+                ))
+
+        # -------- PATH 2: Customized column list -------- #
         elif self.processStatOptions.colum_list is not None:
-            header = "Timestamp" + '\t'
+
+            header = "Timestamp\t"
             for key in self.processStatOptions.colum_list:
                 if key in PIDINFO_PAIR:
-                    header += PIDINFO_PAIR[key][0] + '\t\t'
+                    header += PIDINFO_PAIR[key][0] + "\t"
             print(header)
-            processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+
             for process in processes:
-                data_to_print = timestamp + '\t'
+                row = [timestamp]
+
                 for key in self.processStatOptions.colum_list:
                     if self._is_last_and_args(key):
-                        data_to_print += str(PIDINFO_PAIR["args_last"][1](process)) + '\t\t'
+                        row.append(str(PIDINFO_PAIR["args_last"][1](process)))
                     elif key in PIDINFO_PAIR:
-                        data_to_print += str(PIDINFO_PAIR[key][1](process)) + '\t\t'
-                print(data_to_print)
+                        row.append(str(PIDINFO_PAIR[key][1](process)))
+
+                print("\t".join(row))
 
 
 class ProcessStatusReporter:
@@ -501,7 +535,6 @@ class ProcessStatusReporter:
                 output_rows.sort(
                 key=lambda x: float(x.split()[cpu_idx]) if x.split()[cpu_idx].replace('.', '', 1).isdigit() else float('-inf'),
                 reverse=True)
-                # output_rows.sort(key=lambda x: float(x.split()[5]), reverse=True)
             elif self.processStatOptions.sorting_order == '%mem':
                 output_rows.sort(
                 key=lambda x: float(x.split()[mem_idx]) if x.split()[mem_idx].replace('.', '', 1).isdigit() else float('-inf'),
