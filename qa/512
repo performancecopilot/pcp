@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
+
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection & lock tracing enabled"
 
@@ -95,7 +97,6 @@ _post()
 }
 
 # real QA test starts here
-export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
 
 
 echo "== pminfo ==" | tee -a $seq_full
@@ -152,7 +153,7 @@ desc simple.color
 fetch simple.color
 instance 253.0
 End-of-File
-$sudo -u $PCP_USER sh -c "export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; $SRC/dbpmda/src/dbpmda.debug -Dlock -n $PCP_PMDAS_DIR/simple/root -ie" <$tmp.in >$tmp.out 2>$tmp.err
+$sudo -u $PCP_USER sh -c "LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so $SRC/dbpmda/src/dbpmda.debug -Dlock -n $PCP_PMDAS_DIR/simple/root -ie" <$tmp.in >$tmp.out 2>$tmp.err
 _post $SRC/dbpmda/src dbpmda
 _filter <$tmp.out
 _filter <$tmp.err
