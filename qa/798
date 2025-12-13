@@ -16,6 +16,10 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
+# need nfsclient PMDA running to get the PMNS
+#
+( pmprobe -I pmcd.agent.status | grep -q '"nfsclient"' ) || _notrun "nfsclient PMNDA not installed and running"
+
 status=1
 rm -f $seq.out
 wordsize=`$python -c 'import ctypes; print(ctypes.sizeof(ctypes.c_long))'`
@@ -114,7 +118,9 @@ script=pmdanfsclient.python
 cd "$PCP_PMDAS_DIR/nfsclient"
 
 # create a root namespace file for dbpmda to use
-PCP_PYTHON_PMNS=root $python $script > $tmp.root
+# PCP_PYTHON_PMNS=root $python $script > $tmp.root
+$here/src/genpmns nfsclient >$tmp.root
+cat $tmp.root >>$seq_full
 
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
