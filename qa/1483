@@ -96,14 +96,21 @@ _filter()
 	    # ... vm03.localdomain pmiectl[1013253]: mount: write error
 	    # and then just random QA noise
 	    #
+
 	    sed \
 		-e '/ pcp-pmie\[/d' \
 		-e '/rc\[[0-9]*]: .*\/rc:$/d' \
+		-e '/pmie\[[0-9]*]: '"`echo "$PCP_SERVICES_DIR" | sed -e 's@/@\\\\/@g'`"':$/d' \
 		-e '/rc\[[0-9]*]: Error: .* \$PCP_PMIECONTROL_PATH/d' \
+		-e '/pmie\[[0-9]*]: Error: .* \$PCP_PMIECONTROL_PATH/d' \
 		-e '/rc\[[0-9]*]: .*is missing!/d' \
-		-e '/rc\[[0-9]*]: .*not permanently enabled\./d' \
+		-e '/pmie\[[0-9]*]: .*is missing!/d' \
+		-e '/rc\[[0-9]*]: .*not permanently enabled/d' \
+		-e '/pmie\[[0-9]*]: *not permanently enabled/d' \
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
+		-e '/pmie\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmie\.service/d' \
+		-e '/pmie\[[0-9]*]: .*systemctl enable pmie\.service/d' \
 		-e '/rc\[[0-9]*]: Terminated$/d' \
 		-e '/pmie_farm\[[0-9]*]: End:/d' \
 		-e '/pmie_check failed - see .*\/pmie_check.log/d' \
