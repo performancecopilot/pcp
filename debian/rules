@@ -1,9 +1,9 @@
 #!/usr/bin/make -f
 
 # verbose output from dpkg-buildpackage
-DEB_BUILD_OPTIONS=debug; export DEB_BUILD_OPTIONS
+export DEB_BUILD_OPTIONS=debug
 # debhelper verbose mode
-# DH_VERBOSE=yes; export DH_VERBOSE
+# export DH_VERBOSE=yes
 # standard debhelper compatibility level
 export DH_OPTIONS =
 
@@ -15,9 +15,9 @@ here := $(shell pwd)
 export GZIP = -9qn
 export DIST_TMPFILES = $(here)/install.tmpfiles
 export DIST_ROOT = $(here)/debian/pcp
-NO_CHOWN=true; export NO_CHOWN
+export NO_CHOWN=true
 
-configure_tools = QT_SELECT=5; export QT_SELECT;
+configure_tools = export QT_SELECT=5;
 # Note: configure options come from $(configure_paths) _plus_ any
 #       passed in from the environment via $(configure_opts)
 # Makepkgs uses the latter mechanism to refine the configure options
