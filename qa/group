@@ -2144,6 +2144,7 @@ telnet-probe
 1643 pmlogcheck pmlogcp pmlogdump local valgrind
 1644 pmda.perfevent local
 1645 pmlogcompress local
+1646 other local
 1647 pmda.opentelemetry local
 1653 pmda.denki local
 1658 pmda.linux local

@@ -64,7 +64,7 @@ _do_arch()
 }
 
 # avoid derived metrics
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 
 # setup mutiarchive dir
 # - pmlogrewrite to "fix" hostname and timezone
@@ -89,8 +89,8 @@ do
 done
 
 # setup using libpcp_fault
-export PM_FAULT_CONTROL=$tmp.control
-export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+PM_FAULT_CONTROL=$tmp.control; export PM_FAULT_CONTROL
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 
 # real QA test starts here
 

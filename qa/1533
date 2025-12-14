@@ -61,7 +61,7 @@ $sudo rm -fr $root
 mkdir $root || _fail "root in use when processing $tgz"
 cd $root
 $sudo tar xzf $tgz
-export ZFS_PATH=$root/zfs
+ZFS_PATH=$root/zfs; export ZFS_PATH
 metrics=`pminfo -n $pmns zfs | LC_COLLATE=POSIX sort`
 echo "== Valgrind checking metric descriptors and values"
 _run_valgrind pminfo -L -K clear -K add,153,$pmda -n $pmns -dfmtT $metrics | _filter

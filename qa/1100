@@ -21,7 +21,7 @@ echo "PCPQA_CLOSE_X_SERVER=$PCPQA_CLOSE_X_SERVER" >>$seq_full
 status=1       # failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-export PCP_STDERR=$tmp.err
+PCP_STDERR=$tmp.err; export PCP_STDERR
 
 # these may not be available if needed modules missing
 #

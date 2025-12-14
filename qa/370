@@ -139,7 +139,7 @@ unxz < sadist/sa-sysstat-$file_version.xz > sadist/sa-sysstat-$file_version
 # For this test, don't load any global derived metric configs by default. 
 # So the PCP_DERIVED_CONFIG environment variable is initially set to an
 # empty string, except below where PCP_DERIVED_CONFIG is used for sar's -u view
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 echo "Using sa-sysstat-$file_version" >>$seq_full
 
@@ -184,7 +184,7 @@ echo "check user CPU time ..."
 # also need to relax tolerance in comparison, 'cause sar seems to get
 # the arithmetic "not quite right" (tm)
 echo "user = kernel.all.cpu.user + kernel.all.cpu.guest" >$tmp.config
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pmval -f 8 -t 5 -a $tmp user \
 | sed -n '/^[0-2][0-9]:/{
 s/\.[0-9][0-9]*[0-9]//
@@ -208,7 +208,7 @@ echo "check sys CPU time ..."
 # also need to relax tolerance in comparison, 'cause sar seems to get
 # the arithmetic "not quite right" (tm)
 echo "system = kernel.all.cpu.sys + kernel.all.cpu.intr" >$tmp.config
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pmval -f 8 -t 5 -a $tmp system \
 | sed -n '/^[0-2][0-9]:/{
 s/\.[0-9][0-9][0-9]//

@@ -304,7 +304,7 @@ End-of-File
 test="$here/nfsclient"
 for file in $test/*.qa
 do
-    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    NFSCLIENT_MOUNTSTATS_PATH="$file"; export NFSCLIENT_MOUNTSTATS_PATH
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
@@ -317,7 +317,7 @@ done
 # iterate over pre-canned nfsv3 mountstat files
 for file in $test/*3.qa
 do
-    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    NFSCLIENT_MOUNTSTATS_PATH="$file"; export NFSCLIENT_MOUNTSTATS_PATH
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
@@ -330,7 +330,7 @@ done
 # iterate over pre-canned nfsv4.2 mountstat files
 for file in $test/*42.qa
 do
-    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    NFSCLIENT_MOUNTSTATS_PATH="$file"; export NFSCLIENT_MOUNTSTATS_PATH
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
@@ -343,7 +343,7 @@ done
 # iterate over pre-canned rpcv1.[01] mountstat files
 for file in $test/*rpc-v*.qa
 do
-    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    NFSCLIENT_MOUNTSTATS_PATH="$file"; export NFSCLIENT_MOUNTSTATS_PATH
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \

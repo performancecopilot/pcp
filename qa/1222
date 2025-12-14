@@ -123,7 +123,7 @@ proc_pmda=$PCP_PMDAS_DIR/proc/pmda_proc,proc_init
 
 # bypass access controls, so proc indom is expanded and used
 #
-export PROC_ACCESS=1
+PROC_ACCESS=1; export PROC_ACCESS
 
 # order of proc metrics is non-deterministic ... take control
 #

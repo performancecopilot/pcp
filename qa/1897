@@ -45,14 +45,14 @@ $sudo ./Install </dev/null >$tmp.out 2>&1
 cat $tmp.out >> $seq_full
 
 root=$tmp.root
-export HACLUSTER_SETUP_CIBADMIN="./cibadmin.sh"
-export HACLUSTER_SETUP_CRM_MON="./crm_mon.sh"
-export HACLUSTER_SETUP_QUORUM="./corosync-quorumtool.sh"
-export HACLUSTER_SETUP_CFG="./corosync-cfgtool.sh"
-export HACLUSTER_SETUP_SBD="./sbd.sh"
-export HACLUSTER_SETUP_SBD_PATH="./sbd"
-export HACLUSTER_SETUP_DRBD="./drbdsetup.sh"
-export HACLUSTER_SETUP_DRBD_SPLITBRAIN="./"
+HACLUSTER_SETUP_CIBADMIN="./cibadmin.sh"; export HACLUSTER_SETUP_CIBADMIN
+HACLUSTER_SETUP_CRM_MON="./crm_mon.sh"; export HACLUSTER_SETUP_CRM_MON
+HACLUSTER_SETUP_QUORUM="./corosync-quorumtool.sh"; export HACLUSTER_SETUP_QUORUM
+HACLUSTER_SETUP_CFG="./corosync-cfgtool.sh"; export HACLUSTER_SETUP_CFG
+HACLUSTER_SETUP_SBD="./sbd.sh"; export HACLUSTER_SETUP_SBD
+HACLUSTER_SETUP_SBD_PATH="./sbd"; export HACLUSTER_SETUP_SBD_PATH
+HACLUSTER_SETUP_DRBD="./drbdsetup.sh"; export HACLUSTER_SETUP_DRBD
+HACLUSTER_SETUP_DRBD_SPLITBRAIN="./"; export HACLUSTER_SETUP_DRBD_SPLITBRAIN
 pmda=$PCP_PMDAS_DIR/hacluster/pmda_hacluster.so,hacluster_init
 metrics=`pminfo -L -K clear -K add,155,$pmda ha_cluster | LC_COLLATE=POSIX sort`
 memcheck="ha_cluster.pacemaker.config_last_change ha_cluster.corosync.quorate ha_cluster.sbd.devices.path ha_cluster.drbd.split_brain"

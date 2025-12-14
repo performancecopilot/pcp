@@ -69,14 +69,14 @@ desc named.interval
 fetch named.interval
 End-of-File
 
-export NAMED_STATS_USER=`id -u -n`
-export NAMED_STATS_PROG=`which true`
+NAMED_STATS_USER=`id -u -n`; export NAMED_STATS_USER
+NAMED_STATS_PROG=`which true`; export NAMED_STATS_PROG
 
 # iterate over all of the pre-canned staticstics files
 test="$here/named"
 for file in $test/*.txt
 do
-    export NAMED_STATS_FILE="$file"
+    NAMED_STATS_FILE="$file"; export NAMED_STATS_FILE
     PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
     echo === Test case: `basename $file`

@@ -561,7 +561,10 @@ _check_logger()
     # max delay (secs) before timing out our pmlc request ... if this
     # pmlogger is just started, we may need to be a little patient
     #
-    [ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=10
+    if [ -z "$PMLOGGER_REQUEST_TIMEOUT" ]
+    then
+	PMLOGGER_REQUEST_TIMEOUT=10; export PMLOGGER_REQUEST_TIMEOUT
+    fi
 
     # wait for maximum time of a connection and 20 requests
     #

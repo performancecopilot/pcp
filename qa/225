@@ -24,7 +24,7 @@ fi
 
 # For this test, don't load any global derived metric configs by default.
 # So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -114,7 +114,7 @@ End-of-File
 pminfo -Dderive,appl0 -c $tmp.config -n $tmp.pmns >$tmp.out 2>&1
 _filter
 
-export PCP_DERIVED_CONFIG=/no/such/file
+PCP_DERIVED_CONFIG=/no/such/file; export PCP_DERIVED_CONFIG
 pminfo -Dderive -d no.such.metric
 
 # success, all done

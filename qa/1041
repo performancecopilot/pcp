@@ -69,7 +69,7 @@ EOF
 
     echo
     echo "=== libvirt agent installation ==="
-    export PCPQA_CHECK_DELAY=10
+    PCPQA_CHECK_DELAY=10; export PCPQA_CHECK_DELAY
     $sudo ./Install </dev/null >$tmp.out 2>&1
     cat $tmp.out >>$seq_full
     # Check metrics have appeared ... X metrics and Y values

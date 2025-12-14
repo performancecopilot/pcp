@@ -1795,7 +1795,7 @@ _check_display()
 	_notrun "\$PCPQA_CLOSE_X_SERVER not set in ./common.config"
 	# NOTREACHED
     fi
-    export DISPLAY=$PCPQA_CLOSE_X_SERVER
+    DISPLAY=$PCPQA_CLOSE_X_SERVER; export DISPLAY
     if which xdpyinfo >/dev/null 2>&1
     then
 	xdpyinfo >/dev/null 2>&1 || \
@@ -1808,7 +1808,7 @@ _check_display()
 	# QStandardPaths: XDG_RUNTIME_DIR not set, defaulting to '/tmp/...'
 	mkdir -p "$tmp/xdg-runtime"
 	chmod 0700 "$tmp/xdg-runtime"
-	export XDG_RUNTIME_DIR="$tmp/xdg-runtime"
+	XDG_RUNTIME_DIR="$tmp/xdg-runtime"; export XDG_RUNTIME_DIR
     fi
 }
 
@@ -3619,7 +3619,7 @@ _private_pmcd()
     echo "pmcd_port=$port" >>$seq_full
     $PCP_BINADM_DIR/pmcd $pmcd_args -f -c ./pmcd.conf -s ./pmcd.socket -p $pmcd_port  >pmcd.out 2>pmcd.err &
     pmcd_pid=$!
-    export PMCD_PORT=$pmcd_port
+    PMCD_PORT=$pmcd_port; export PMCD_PORT
     _wait_for_pmcd || _exit 1
     cd $here
     return 0

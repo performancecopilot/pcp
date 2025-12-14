@@ -26,7 +26,7 @@ prog=`basename $0`
 
 # need consistent sorting for sort(1) and join(1)
 #
-export LC_ALL=POSIX
+LC_ALL=POSIX; export LC_ALL
 
 cat > $tmp/usage << EOF
 # Usage: [options] archive1 [archive2]

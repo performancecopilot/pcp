@@ -32,7 +32,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 
 root=$tmp.root
-export LINUX_STATSPATH=$root
+LINUX_STATSPATH=$root; export LINUX_STATSPATH
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 
 rm -fr $root

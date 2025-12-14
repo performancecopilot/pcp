@@ -71,7 +71,7 @@ a.err.m2 = mkconst(123.456, type=32)
 a.err.m3 = mkconst(123, semantics="foo bar")
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 pminfo -Dderive -fd a >$tmp.out 2>&1
 _filter

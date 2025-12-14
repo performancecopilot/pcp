@@ -26,7 +26,7 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 
 echo "This works ..."
 _run_valgrind pmval -z -S@"6 June 2018" -T@"7 June 2018" -a archives/20180606 -t 4hr pmcd.seqnum

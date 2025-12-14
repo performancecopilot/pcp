@@ -15,7 +15,7 @@ date '+%Y' -d today >/dev/null || _notrun "date(1) does not support +fmt -d ... 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
-export TZ=UTC
+TZ=UTC; export TZ
 echo "now: $(date '+%Y-%m-%d')" >>$seq_full
 echo "yesterday: $(date '+%Y-%m-%d' -d 'yesterday')" >>$seq_full
 echo "tomorrow: $(date '+%Y-%m-%d' -d 'tomorrow')" >>$seq_full

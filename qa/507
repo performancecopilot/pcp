@@ -119,7 +119,7 @@ do
     echo "=== -h localhost args ===" >>$seq_full
     pcp -h localhost 2>&1 | tee -a $seq_full | _filter > $tmp.local
     statusll=$?
-    export PMCD_HOST=$qahost
+    PMCD_HOST=$qahost; export PMCD_HOST
     echo "=== \$PMCD_HOST=$PMCD_HOST args ===" >>$seq_full
     pcp 2>&1 | tee -a $seq_full | _filter > $tmp.localnoh
     statusln=$?

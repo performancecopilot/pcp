@@ -12,7 +12,7 @@ echo "QA output created by $seq"
 tmpdir=/tmp/$seq.$$
 rm -rf $tmpdir
 mkdir -p $tmpdir/pmlogger
-export PCP_TMP_DIR=$tmpdir
+PCP_TMP_DIR=$tmpdir; export PCP_TMP_DIR
 
 # get standard environment, filters and checks
 . ./common.product

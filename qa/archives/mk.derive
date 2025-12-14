@@ -42,7 +42,7 @@ End-of-File
 rm -f derive.index derive.meta derive.0
 # need sample.derived *plus* disk.dev.await from iostat.conf
 #
-export PCP_DERIVED_CONFIG=$tmp.derive:$PCP_VAR_DIR/config/derived/iostat.conf
+PCP_DERIVED_CONFIG=$tmp.derive:$PCP_VAR_DIR/config/derived/iostat.conf; export PCP_DERIVED_CONFIG
 if pmlogger -c $tmp.config -s 5 derive
 then
     :

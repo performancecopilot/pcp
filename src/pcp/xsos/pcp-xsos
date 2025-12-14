@@ -154,20 +154,20 @@ do
     case "$1" in
       # pcp options
       -a)
-        export PCP_ARCHIVE="$2"
+        PCP_ARCHIVE="$2"; export PCP_ARCHIVE
         batch="-b 1"
         shift
         ;;
       -h)
-        export PCP_HOST="$2"
+        PCP_HOST="$2"; export PCP_HOST
         shift
         ;;
       -O)
-        export PCP_ORIGIN="$2"
+        PCP_ORIGIN="$2"; export PCP_ORIGIN
         shift
         ;;
       -S)
-        export PCP_START_TIME="$2"
+        PCP_START_TIME="$2"; export PCP_START_TIME
         shift
         ;;
       # pcp-xsos options
@@ -305,7 +305,7 @@ fi
 # kernel_all_load_value[15]=0.06
 # kernel_cpu_util_user_error="No value(s) available!"
 
-export PCP_SQUASH_NEWLINES=1
+PCP_SQUASH_NEWLINES=1; export PCP_SQUASH_NEWLINES
 if ! pminfo $batch --fetch ${metrics[*]} > $tmp/metrics 2>$tmp/error
 then
     if grep "^pminfo:" $tmp/error > /dev/null 2>&1

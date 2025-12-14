@@ -38,7 +38,7 @@ then
 } END {
 	print "export", exports
 }'`
-    export PCP_ENV_DONE=y
+    PCP_ENV_DONE=y; export PCP_ENV_DONE
 fi
 . $PCP_SHARE_DIR/lib/bashproc.sh
 # --- end common preamble

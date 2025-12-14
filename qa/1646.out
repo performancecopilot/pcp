@@ -1,0 +1,42 @@
+QA output created by 1646
+2c2
+<     export PCP_ENV_DONE=y
+---
+>     PCP_ENV_DONE=y; export PCP_ENV_DONE
+4c4
+< 	@export perldomain=`sed -n \
+---
+> 	@perldomain=`sed -n \
+7c7
+< 		$(AWK) '{ print $$NF }'`; foobar
+---
+> 		$(AWK) '{ print $$NF }'`; export perldomain; foobar
+9c9
+< 	export PCP_TOPDIR="`cd $(TOPDIR) && pwd`"; \
+---
+> 	PCP_TOPDIR="`cd $(TOPDIR) && pwd`"; export PCP_TOPDIR; \
+11,15c11,15
+< QTMAKE = rm -f Makefile.new Makefile.fix; export CC='$(CC)'
+< QTMAKE = rm -f Makefile.new Makefile.fix; export CC="$(CC)"
+< QTMAKE = rm -f Makefile.new Makefile.fix; export CC='$(CC)'; foo
+< QTMAKE = rm -f Makefile.new Makefile.fix; export CC="$(CC)"; foo
+< QTMAKE = rm -f Makefile.new Makefile.fix; export CC='$(CC)'; export CXX='$(CXX)'; CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE)
+---
+> QTMAKE = rm -f Makefile.new Makefile.fix; CC='$(CC)'; export CC
+> QTMAKE = rm -f Makefile.new Makefile.fix; CC="$(CC)"; export CC
+> QTMAKE = rm -f Makefile.new Makefile.fix; CC='$(CC)'; export CC; foo
+> QTMAKE = rm -f Makefile.new Makefile.fix; CC="$(CC)"; export CC; foo
+> QTMAKE = rm -f Makefile.new Makefile.fix; CC='$(CC)'; export CC; CXX='$(CXX)'; export CXX; CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE)
+17c17
+< export PCP_DERIVED_CONFIG=
+---
+> PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
+19c19
+< ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
+---
+> ssh -f -t -q $build_user@$host "sync; sleep 2; sync; PATH=\$PATH:/sbin:/usr/sbin; export PATH; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
+21c21
+< 	$ export PCP_DIR=/c/MinGW/msys/1.0
+---
+> 	$ PCP_DIR=/c/MinGW/msys/1.0; export PCP_DIR
+TMP.input: changed

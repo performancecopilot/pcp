@@ -154,7 +154,7 @@ echo
 _check_key_server_version $key_server_port
 
 # prepare logging location and config
-export PCP_ARCHIVE_DIR=$tmp.log/pmlogger
+PCP_ARCHIVE_DIR=$tmp.log/pmlogger; export PCP_ARCHIVE_DIR
 mkdir -p $PCP_ARCHIVE_DIR
 
 cat >$tmp.pmlogger.conf << End-Of-File

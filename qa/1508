@@ -127,7 +127,7 @@ qa.meta.c = mkconst(123.456, meta=sample.byte_rate_perhour,type=float,semantics=
 qa.meta.d = 1 ? novalue(units="mbyte/sec",meta=sample.byte_rate_perhour) : 0
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 if $do_valgrind
 then

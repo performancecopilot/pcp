@@ -17,7 +17,7 @@ echo "QA output created by $seq"
 #
 if [ -f $PCP_LIB_DIR/libpcp_fault.so ]
 then
-    export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+    LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 fi
 
 $PCP_BINADM_DIR/pmconfig -L | grep lock_debug=true >/dev/null || _notrun libpcp not built with -DPM_MULTI_THREAD_DEBUG
@@ -44,7 +44,7 @@ echo "qa.b = sample.long.hundred" >$tmp.c2
 
 # no extra derived metrics, thanks
 #
-export PCP_DERIVED_CONFIG=''
+PCP_DERIVED_CONFIG=''; export PCP_DERIVED_CONFIG
 
 # real QA test starts here
 echo "=== one config ===" | tee -a $seq_full

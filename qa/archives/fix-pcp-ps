@@ -19,7 +19,7 @@ $debug && echo hostname=$hostname
 
 # get the target archive's timezone
 #
-export TZ=`pmdumplog pcp-ps -L | sed -n -e '/Archive timezone: /s///p'`
+TZ=`pmdumplog pcp-ps -L | sed -n -e '/Archive timezone: /s///p'`; export TZ
 
 # get the target archive's starting timestamp
 #

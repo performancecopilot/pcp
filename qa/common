@@ -22,7 +22,7 @@ _setenvironment()
     MSGVERB="text:action"
     export MSGVERB
     export PCP_BINADM_DIR
-    export PCP_DERIVED_CONFIG=""
+    PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 }
 
 _log_fyi()
@@ -358,7 +358,10 @@ then
 N
 s/.*MAKE[ 	]*=[ 	]*//p
 }'`
-    [ -n "$__make" ] && export MAKE=$__make
+    if [ -n "$__make" ]
+    then
+	MAKE=$__make; export MAKE
+    fi
 fi
 
 if $__check
@@ -604,7 +607,7 @@ show-me options
 
 	-CI)	# run in CI environment
 		# TODO still need -x x11 -x remote -x not_in_ci
-	    export PCPQA_IN_CI=yes
+	    PCPQA_IN_CI=yes; export PCPQA_IN_CI
 	    __xpand=false
 	    ;;
 

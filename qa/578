@@ -322,7 +322,7 @@ fi
 #
 # need to do this indirectly because system sudo cleanses the environment
 #
-echo "export PMCD_PORT=$PMCD_PORT" >$tmp.start
+echo "PMCD_PORT=$PMCD_PORT"; export PMCD_PORT >$tmp.start
 echo "$PCP_RC_DIR/pmcd start" >>$tmp.start
 $sudo sh $tmp.start | _filter_pcp_start | _filter_init 2>&1
 _wait_for_pmcd || _exit 1

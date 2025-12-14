@@ -27,7 +27,7 @@ cat <<End-of-File >$tmp.config
 no.such.metric > 0 -> print "botch";
 End-of-File
 
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 pmie -Dappl2 -t 25 -c $tmp.config 2>$tmp.err &
 
 # expect back off 5 + 10 + 20 + 25 + 25 ... = 85 + 25 + ...

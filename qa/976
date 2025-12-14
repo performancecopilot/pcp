@@ -36,8 +36,8 @@ script=pmdalustre.pl
 cd "$PCP_PMDAS_DIR/lustre"
 
 # create a root namespace file for dbpmda to use
-export LUSTRE_LLITE_PATH="$here/lustre/llite/"
-export LUSTRE_LNET_PATH="$here/lustre/lnet/"
+LUSTRE_LLITE_PATH="$here/lustre/llite/"; export LUSTRE_LLITE_PATH
+LUSTRE_LNET_PATH="$here/lustre/lnet/"; export LUSTRE_LNET_PATH
 PCP_PERL_PMNS=root /usr/bin/env perl $script 2>/dev/null > $tmp.root
 
 # create a set of commands for dbpmda

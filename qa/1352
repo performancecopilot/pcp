@@ -49,7 +49,7 @@ _cull_special()
     # end
 }
 
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 
 # real QA test starts here
 echo "Silence is golden ..."

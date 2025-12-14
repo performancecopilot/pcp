@@ -36,7 +36,7 @@ _filter()
     # done
 }
 
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 
 # real QA test starts here
 echo "log mandatory on once {" >$tmp.config

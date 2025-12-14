@@ -59,7 +59,7 @@ pmda=$PCP_PMDAS_DIR/sockets/pmda_sockets.$DSO_SUFFIX,sockets_init
 for f in `ls -1 sockets/*.txt | LC_COLLATE=POSIX sort`; do
     echo === testing $f ===
     $sudo rm -f $PCP_VAR_DIR/config/pmda/$qadomain.0 # reset indom
-    export PCPQA_PMDA_SOCKETS="$f"
+    PCPQA_PMDA_SOCKETS="$f"; export PCPQA_PMDA_SOCKETS
     _run_valgrind pminfo -L -K clear -K add,$qadomain,$pmda -dfm -n $pmns network.persocket | _filter
 done
 

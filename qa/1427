@@ -95,7 +95,7 @@ chmod 755 md5sum
 # Make sure $PATH includes . ... was causing failures in CI
 # containers
 #
-export PATH=.:$PATH
+PATH=.:$PATH; export PATH
 rm -f foo+.*
 pmlogcp ../archives/foo+ .
 rm -f $tmpdir/foo+.*

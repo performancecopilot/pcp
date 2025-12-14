@@ -61,7 +61,7 @@ a.m12 = ! sample.long.hundred < sample.long.ten + 89
 a.m13 = ! (sample.long.hundred < (sample.long.ten + 89))
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 pmprobe -Dderive,appl0 -v a >$tmp.out 2>&1
 _filter

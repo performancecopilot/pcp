@@ -336,12 +336,12 @@ The following example shows how this might be done.
 .sp
 .ft CR
 .nf
-$ export PM_FAULT_CONTROL=/tmp/control
+$ PM_FAULT_CONTROL=/tmp/control; export PM_FAULT_CONTROL
 $ cat $PM_FAULT_CONTROL
 # ok for 2 trips, then inject errors
 libpcp/events.c:1  >2
 
-$ export LD_PRELOAD=/usr/lib/libpcp_fault.so
+$ LD_PRELOAD=/usr/lib/libpcp_fault.so; export LD_PRELOAD
 $ pmevent -Dfault -s 3 sample.event.records
 host:      localhost
 samples:   3

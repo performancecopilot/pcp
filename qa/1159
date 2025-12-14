@@ -48,7 +48,7 @@ log mandatory on 200 msec {
 }
 End-of-File
 
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 pmlogger -c $tmp.conf -T 10sec -l $tmp.log -m qa/$seq $tmp &
 pid=$!
 

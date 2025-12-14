@@ -153,7 +153,7 @@ mkdir $tmp
 cd $tmp
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 
 echo "+++ -N, do nothing +++" | tee -a $seq_full
 _setup

@@ -101,7 +101,7 @@ skip == 0							{ print }'
 }
 
 
-export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+PMLOGGER_CHECK_SKIP_LOGCONF=yes; export PMLOGGER_CHECK_SKIP_LOGCONF
 
 # real QA test starts here
 _save_config $PCP_ETC_DIR/pcp/pmlogger

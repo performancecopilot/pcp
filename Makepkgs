@@ -38,8 +38,8 @@ then
 fi
 
 # set SOURCE_DATE_EPOCH for tools like rpmbuild
-export STRING_DATE_EPOCH=`date +%s`
-export SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$STRING_DATE_EPOCH}"
+STRING_DATE_EPOCH=`date +%s`; export STRING_DATE_EPOCH
+SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$STRING_DATE_EPOCH}"; export SOURCE_DATE_EPOCH
 
 # put VERSION.pcp back, remove temp files and exit
 #
@@ -152,9 +152,9 @@ want == 1			{ print; exit }'
     return 0
 }
 
-export MAKE=`gnu_tool Error "$MAKE" make gmake`
-export TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`
-export ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`
+MAKE=`gnu_tool Error "$MAKE" make gmake`; export MAKE
+TAR=`gnu_tool Warning "$TAR" tar gtar gnutar`; export TAR
+ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`; export ZIP
 
 # check if tar supports --transform else we must use git-archive later on (e.g. RHEL5)
 [ -n "$TAR" ] && $TAR --help | 2>&1 grep -q transform || USE_GIT_ARCHIVE=1
@@ -304,7 +304,7 @@ then
     etc=`realpath /etc`
     var=`realpath /var`
     configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-qt=no"
-    export PKGBUILD=`which pkgbuild`
+    PKGBUILD=`which pkgbuild`; export PKGBUILD
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin places things
@@ -351,10 +351,10 @@ in
 	target=mingw
 	dorpm=false
 	configopts="$configopts --disable-ssp --without-python3"
-	export configure="/usr/bin/mingw64-configure"
-	export MAKE="/usr/bin/mingw64-make"
-	export QMAKE="/usr/bin/mingw64-qmake-qt6"
-	export PKG_CONFIG="/usr/bin/mingw64-pkg-config"
+	configure="/usr/bin/mingw64-configure"; export configure
+	MAKE="/usr/bin/mingw64-make"; export MAKE
+	QMAKE="/usr/bin/mingw64-qmake-qt6"; export QMAKE
+	PKG_CONFIG="/usr/bin/mingw64-pkg-config"; export PKG_CONFIG
 	;;
     linux)
 	ARCH=`uname -m`
@@ -363,8 +363,8 @@ in
     sunos|SunOS|solaris)
 	ARCH=`isainfo -k`
 	[ "$ARCH" = amd64 -o "$ARCH" = sparcv9 ] && configopts="$configopts --libdir=/usr/lib/64"
-	export YACC=bison
-	export LEX=flex
+	YACC=bison; export YACC
+	LEX=flex; export LEX
 	;;
 esac
 
@@ -378,8 +378,8 @@ in
 	configopts="$configopts --with-optimization=no"
 	# over-ride the settings from dpkg-buildflags
 	#
-	export DEB_CFLAGS_SET=''
-	export DEB_CXXFLAGS_SET=''
+	DEB_CFLAGS_SET=''; export DEB_CFLAGS_SET
+	DEB_CXXFLAGS_SET=''; export DEB_CXXFLAGS_SET
 	;;
 esac
 
@@ -551,9 +551,9 @@ sanity_check_settings()
 	# extracted using dpkg-buildflags which fortunately honours some
 	# environment variable settings
 	#
-	export DEB_CFLAGS_SET=''
-	export DEB_CXXFLAGS_SET=''
-	export DEB_LDFLAGS_SET=''
+	DEB_CFLAGS_SET=''; export DEB_CFLAGS_SET
+	DEB_CXXFLAGS_SET=''; export DEB_CXXFLAGS_SET
+	DEB_LDFLAGS_SET=''; export DEB_LDFLAGS_SET
     fi
 }
 
@@ -658,7 +658,7 @@ debian_build()
     #       debian_buildpackage, but we need to make sure the same
     #       configure options are used in both places
     #
-    export configure_opts="$configopts"
+    configure_opts="$configopts"; export configure_opts
     if [ ! -f debian/rules ]
     then
 	echo "Botch: cannot find debian/rules"
@@ -795,7 +795,7 @@ packaging_rpm()
     echo "== Building rpm packages, log is in $LOGDIR/pcp" | tee -a "$LOGDIR/pcp"
 
     rm -f $tmp/failed
-    export DIST_ROOT="$topdir/build/rpm/$source"
+    DIST_ROOT="$topdir/build/rpm/$source"; export DIST_ROOT
     # sign if --signed and $RPM_SIGN_KEYID set in the environment
     $signed && [ -z "$RPM_SIGN_KEYID" ] && unset RPM_SIGN_KEYID
     if $verbose ; then

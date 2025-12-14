@@ -38,7 +38,7 @@ postinstall: postinstall.head postinstall.tail
 
 pack_pcp : 
 	@ BINTAR=$(PACKAGE_NAME)-$(PACKAGE_VERSION)-$(PACKAGE_BUILD).tar.gz \
-	; export HERE=`pwd` \
+	; HERE=`pwd`; export HERE \
 	; ./pack-perl $${DIST_ROOT:-/} \
 	; ./listfiles $${DIST_ROOT:-/} \
 	| ( cd $${DIST_ROOT:-/} ; $(TAR) -T - -cf - ) \

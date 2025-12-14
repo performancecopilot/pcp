@@ -57,8 +57,8 @@ _setup_zswap_novalues()
 }
 
 domain=125
-export ZSWAP_PAGESIZE=4096
-export ZSWAP_STATS_PATH="$tmp.zswap"
+ZSWAP_PAGESIZE=4096; export ZSWAP_PAGESIZE
+ZSWAP_STATS_PATH="$tmp.zswap"; export ZSWAP_STATS_PATH
 
 # real QA test starts here
 _setup_zswap_values

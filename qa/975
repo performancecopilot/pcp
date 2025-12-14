@@ -192,7 +192,7 @@ $4+0 == 0	{
 }
 
 # real QA test starts here
-export S_TIME_FORMAT=ISO
+S_TIME_FORMAT=ISO; export S_TIME_FORMAT
 
 # three samples, one second apart (ignore first though)
 iostat -t 1 3 > $tmp.iostat

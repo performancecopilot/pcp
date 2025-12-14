@@ -7,7 +7,7 @@
 
 usage="Usage: audit-man-dict [-d] [-i seed-file] [-[sS] save-file] [-D save-dict] [man-src-file ...]"
 
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 
 if which ispell >/dev/null 2>&1
 then

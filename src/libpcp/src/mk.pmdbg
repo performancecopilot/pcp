@@ -47,7 +47,7 @@
 #    - newie should NOT be listed on the Debug options: line
 #    $ sudo make install
 # 6. $ cd ../../../qa
-#    $ export PCPQA_VALGRIND=both
+#    $ PCPQA_VALGRIND=both; export PCPQA_VALGRIND
 #    $ ./remake 1277 1278 1359
 #    $ ./check -g pmdbg
 #    - and remake/fix any other QA failures

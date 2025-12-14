@@ -32,11 +32,11 @@ _filter()
 }
 
 # real QA test starts here
-export PMLOGGER_REQUEST_TIMEOUT=10
+PMLOGGER_REQUEST_TIMEOUT=10; export PMLOGGER_REQUEST_TIMEOUT
 src/logcontrol -P $primary_port enquire sample.long.write_me
 
 echo
-export PMLOGGER_REQUEST_TIMEOUT=10ABC
+PMLOGGER_REQUEST_TIMEOUT=10ABC; export PMLOGGER_REQUEST_TIMEOUT
 src/logcontrol -P$primary_port enquire sample.long.write_me 2>&1 \
 | _filter
 unset PMLOGGER_REQUEST_TIMEOUT

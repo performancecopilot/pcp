@@ -45,7 +45,7 @@ dd if=/dev/zero ibs=1 count=1024 >>bad.0 2>/dev/null
 # causes the -z option to report the wrong time, at least for some
 # times of the year
 #
-export TZ=EST-10
+TZ=EST-10; export TZ
 
 # real QA test starts here
 

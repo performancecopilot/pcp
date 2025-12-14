@@ -36,7 +36,7 @@ _filter()
 pmda=$PCP_PMDAS_DIR/zfs/pmda_zfs.so,zfs_init
 pmns=$PCP_PMDAS_DIR/zfs/root
 opts="-L -K clear -K add,153,$pmda -n $pmns"
-export ZFS_PATH=
+ZFS_PATH=; export ZFS_PATH
 poolname=pmdazfs_test
 root=$tmp.root
 $sudo rm -f $PCP_VAR_DIR/config/pmda/153.*

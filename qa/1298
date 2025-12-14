@@ -52,7 +52,7 @@ _filter()
 
 # real QA test starts here
 echo "qa.rss = delta(proc.psinfo.rss)" >$tmp.derive
-export PCP_DERIVED_CONFIG=$tmp.derive
+PCP_DERIVED_CONFIG=$tmp.derive; export PCP_DERIVED_CONFIG
 pminfo -d -a archives/20201109 qa.rss
 
 if $do_valgrind

@@ -136,7 +136,7 @@ sleep 1
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
-export PMCD_SOCKET=$tmp/pmcd.socket
+PMCD_SOCKET=$tmp/pmcd.socket; export PMCD_SOCKET
 _hunt_pmcd_socket
 $PCP_PMCD_PROG -f -n $pmns -l $tmp.log 2>$tmp.err &
 pmcd=$!

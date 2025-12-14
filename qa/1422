@@ -48,7 +48,7 @@ mmv_pmda=$PCP_PMDAS_DIR/mmv/pmda_mmv,mmv_init
 
 # location of MMV files for pmdammv (appends "/mmv" itself)
 mkdir -p $tmp/mmv || exit 1
-export PCP_TMP_DIR=$tmp
+PCP_TMP_DIR=$tmp; export PCP_TMP_DIR
 
 # prepare test data
 $sudo rm -f $tmp/mmv/KeyboardReader

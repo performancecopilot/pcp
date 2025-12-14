@@ -33,7 +33,7 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 if [ "$1" = "--valgrind" ]
 then
     _run_valgrind src/ctx_derive

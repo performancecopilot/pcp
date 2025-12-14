@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 # For this test, don't load any global derived metric configs by default.
 # So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 status=0	# success is the default!
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -129,7 +129,7 @@ sampledso.suba.subb.subc.subd.six = 6*sampledso.longlong.one
 End-of-File
 echo | tee -a $seq_full
 cat $tmp.config | tee -a $seq_full
-export PMDA_LOCAL_SAMPLE=yes
+PMDA_LOCAL_SAMPLE=yes; export PMDA_LOCAL_SAMPLE
 
 for args in sampledso.suba.subb.subc.subd.six sampledso.suba.subb sampledso \
     sampledso.one.bad sampledso.suba.subb.subc.bad
@@ -150,7 +150,7 @@ want == 1		{ print }'
     $sudo_local_ctx pminfo -L -c $tmp.config -n $PCP_VAR_DIR/pmns/root $args >$tmp.out 2>&1
     _filter
     echo "=== -n .../root ===" | tee -a $seq_full
-    export PCP_DERIVED_CONFIG=$tmp.config
+    PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
     src/nameall -n $PCP_VAR_DIR/pmns/root $args >$tmp.out 2>&1
     _filter | sed -e '/Name space load:/s/[0-9.]* msec/N.NN msec/'
     unset PCP_DERIVED_CONFIG
@@ -201,7 +201,7 @@ sample.long.derived = sample.long.one
 sample.long.foo.bar.derived = sample.long.one
 End-of-File
 cat $tmp.config
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 #debug# src/torture_pmns -Dall -h local: derived.tree >$tmp.out 2>&1
 src/torture_pmns -Dderive,appl1,appl2 -h local: derived.tree >$tmp.out 2>&1
 _filter | _filter2

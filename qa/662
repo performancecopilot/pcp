@@ -62,7 +62,7 @@ _sighup_pmcd || _exit 1
 # being compared (pminfo is run within test_webapi.py, which is
 # affected by this (qa/common unsets this).
 #
-export PCP_DERIVED_CONFIG="$PCP_VAR_DIR/config/derived"
+PCP_DERIVED_CONFIG="$PCP_VAR_DIR/config/derived"; export PCP_DERIVED_CONFIG
 
 if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 

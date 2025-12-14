@@ -64,7 +64,7 @@ _cleanup()
 	&& $sudo sh $tmp.cmd
 	if $restore_pcpqa_systemd
 	then
-	    export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+	    PCPQA_SYSTEMD="$save_pcpqa_systemd"; export PCPQA_SYSTEMD
 	else
 	    unset PCPQA_SYSTEMD
 	fi
@@ -111,13 +111,13 @@ then
 else
     restore_pcpqa_systemd=false
 fi
-export PCPQA_SYSTEMD=no
+PCPQA_SYSTEMD=no; export PCPQA_SYSTEMD
 
 echo "pmcd with PMCD_PORT=$PMCD_PORT, pmlogger with PMLOGGER_PORT=$PMLOGGER_PORT"
 # need to do this indirectly because system sudo cleanses the environment
 #
-echo "export PMCD_PORT=$PMCD_PORT" >$tmp.start
-echo "export PMLOGGER_PORT=$PMLOGGER_PORT" >>$tmp.start
+echo "PMCD_PORT=$PMCD_PORT"; export PMCD_PORT >$tmp.start
+echo "PMLOGGER_PORT=$PMLOGGER_PORT"; export PMLOGGER_PORT >>$tmp.start
 echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
 echo "$PCP_RC_DIR/pmlogger restart" >>$tmp.start
 

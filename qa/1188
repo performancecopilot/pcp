@@ -44,7 +44,7 @@ _filter()
 
 # real QA test starts here
 root=$tmp.root
-export DM_VDO_STATSPATH=$root/sys/kvdo
+DM_VDO_STATSPATH=$root/sys/kvdo; export DM_VDO_STATSPATH
 pmda=$PCP_PMDAS_DIR/dm/pmda_dm,dm_init
 
 echo

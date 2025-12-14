@@ -108,7 +108,7 @@ cat <<'End-of-File' >$tmp.xconfirm
 exit 0
 End-of-File
 chmod 755 $tmp.xconfirm
-export PCP_XCONFIRM_PROG=$tmp.xconfirm
+PCP_XCONFIRM_PROG=$tmp.xconfirm; export PCP_XCONFIRM_PROG
 
 # real QA test starts here
 

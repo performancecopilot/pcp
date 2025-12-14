@@ -26,7 +26,7 @@ _filter()
 
 # real QA test starts here
 root=$tmp.root
-export XFS_STATSPATH=$root
+XFS_STATSPATH=$root; export XFS_STATSPATH
 pmda=$PCP_PMDAS_DIR/xfs/pmda_xfs.so,xfs_init
 
 for tgz in $here/linux/xfs-*.tgz

@@ -130,8 +130,8 @@ elif [ $target = darwin ]
 then
     # On Mac OS X platforms, we're using brew ...
     #
-    export CC=clang
-    export CXX=clang
+    CC=clang; export CC
+    CXX=clang; export CXX
     configopts="`brew diy --version=$version --name=pcp`"
 elif [ $target = netbsd ]
 then

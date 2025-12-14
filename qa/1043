@@ -22,7 +22,7 @@ trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 mkdir -p $tmp.root/proc
 cp -a /proc/stat $tmp.root/proc/stat
 
-export LINUX_STATSPATH=$tmp.root
+LINUX_STATSPATH=$tmp.root; export LINUX_STATSPATH
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 
 echo && echo "Checking non-existent softirqs data"

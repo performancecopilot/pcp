@@ -19,7 +19,7 @@ pcp_pidstat="$python $pcp_pidstat"
 pcp_archive="-z -a archives/pcp-pidstat"
 
 # real QA test starts here
-export LC_TIME=POSIX
+LC_TIME=POSIX; export LC_TIME
 
 echo && echo === pcp-pidstat without filters
 pcp $pcp_archive pidstat

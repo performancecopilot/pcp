@@ -68,7 +68,7 @@ fi | _filter_pcp_start
 
 echo
 echo "checking client, secure connection.  should pass..." | tee -a $seq_full
-export PCP_SECURE_SOCKETS=1
+PCP_SECURE_SOCKETS=1; export PCP_SECURE_SOCKETS
 yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 # verify that pmcd still starts and accepts insecure connections

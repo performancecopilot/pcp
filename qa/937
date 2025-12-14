@@ -53,7 +53,7 @@ a.m8 = -sampledso.double.million/sampledso.float.ten/sampledso.float.hundred
 a.m9 = -sampledso.string.hullo
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 pmprobe -Dderive,appl0 -v a >$tmp.out 2>&1
 _filter

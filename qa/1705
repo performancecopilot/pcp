@@ -60,7 +60,7 @@ _filter_kprobe()
 
 # this shoud be the default, just to be sure, to be sure, ...
 #
-export BPFTRACE_MAX_PROBES=512
+BPFTRACE_MAX_PROBES=512; export BPFTRACE_MAX_PROBES
 
 # real QA test starts here
 cat <<EOF | _pmdabpftrace_install

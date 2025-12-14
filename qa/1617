@@ -99,7 +99,7 @@ _filter_context_debug()
     # end
 }
 
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 archive=$here/archives/ok-mv-bigbin
 
 # need to check *just* the metrics from the target archive
@@ -166,9 +166,9 @@ enabled = true
 End-Of-File
 
 mkdir -p $tmp.pmproxy/pmproxy
-export PCP_RUN_DIR=$tmp.pmproxy
-export PCP_TMP_DIR=$tmp.pmproxy
-export PCP_REMOTE_ARCHIVE_DIR=$tmp.pmproxy/pmproxy
+PCP_RUN_DIR=$tmp.pmproxy; export PCP_RUN_DIR
+PCP_TMP_DIR=$tmp.pmproxy; export PCP_TMP_DIR
+PCP_REMOTE_ARCHIVE_DIR=$tmp.pmproxy/pmproxy; export PCP_REMOTE_ARCHIVE_DIR
 
 echo "Start test pmproxy ..."
 archive_host=`hostname`

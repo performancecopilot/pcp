@@ -19,7 +19,7 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
 # use our own libmicmgmt stub for QA
-export PMDAMIC_MPSS_PYTHON_DIR="$here/mic"
+PMDAMIC_MPSS_PYTHON_DIR="$here/mic"; export PMDAMIC_MPSS_PYTHON_DIR
 
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; $sudo rm -f mic.log*; exit \$status" 0 1 2 3 15

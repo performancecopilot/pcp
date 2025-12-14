@@ -37,8 +37,8 @@ _filter()
 	-e 's/Not enough space/Cannot allocate memory/'
 }
 
-export PM_FAULT_CONTROL=$tmp.control
-export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+PM_FAULT_CONTROL=$tmp.control; export PM_FAULT_CONTROL
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 
 # real QA test starts here
 cat >$tmp.control <<End-of-File

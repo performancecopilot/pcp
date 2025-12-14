@@ -40,7 +40,7 @@ shms="ipc.shm.key ipc.shm.owner ipc.shm.perms ipc.shm.segsz ipc.shm.nattch ipc.s
 msgs="ipc.msg.key ipc.msg.owner ipc.msg.perms ipc.msg.msgsz ipc.msg.messages ipc.msg.last_send_pid ipc.msg.last_recv_pid"
 sems="ipc.sem.key ipc.sem.owner ipc.sem.perms ipc.sem.nsems"
 root=$tmp.root
-export LINUX_STATSPATH=$root
+LINUX_STATSPATH=$root; export LINUX_STATSPATH
 
 for tgz in $here/linux/sysvipc-root-*.tgz
 do

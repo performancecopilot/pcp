@@ -80,7 +80,7 @@ _filter()
 }
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 # man page xxx xxx xxx xxx
 #                      global

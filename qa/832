@@ -20,7 +20,7 @@ test $? -eq 0 || _notrun 'No client support for plain authentication'
 $pluginviewer -s | grep 'Plugin "plain"' >/dev/null 2>&1
 test $? -eq 0 || _notrun 'No server support for plain authentication'
 
-export PCP_CONSOLE=none
+PCP_CONSOLE=none; export PCP_CONSOLE
 
 _cleanup()
 {

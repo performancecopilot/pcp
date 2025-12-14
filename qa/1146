@@ -33,7 +33,7 @@ if ! _service pmlogger stop; then _exit 1; fi \
 | _filter_pcp_stop
 _wait_pmlogger_end $pid || _exit 1
 
-export PCPQA_SYSTEMD=no
+PCPQA_SYSTEMD=no; export PCPQA_SYSTEMD
 
 # real QA test starts here
 for i in 1 2 3 4

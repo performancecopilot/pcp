@@ -48,7 +48,7 @@ _filter_result()
 domain=132
 test="$here/unbound"
 $sudo rm -f unbound.log* /tmp/unbound-qa.txt	 # the latter from test.sh
-export UNBOUND_STATS="$here/unbound/test.sh"
+UNBOUND_STATS="$here/unbound/test.sh"; export UNBOUND_STATS
 
 # real QA test starts here
 PCP_PYTHON_PMNS=root $python "$pmda_script" > $tmp.root

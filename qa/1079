@@ -52,7 +52,7 @@ echo "Replay with atop hotproc support"
 PCP_HOSTZONE=1 $ATOP --hotproc -r $here/archives/pcp-hotatop 1 2
 
 echo "Checking sample count and interval"
-export PCP_ARCHIVE=$here/archives/pcp-atop
+PCP_ARCHIVE=$here/archives/pcp-atop; export PCP_ARCHIVE
 pcp -z atop -m 2 3 > $tmp.mem1
 pcp -z -t 2 -s 3 atop -m > $tmp.mem2
 unset PCP_ARCHIVE

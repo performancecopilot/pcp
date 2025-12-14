@@ -758,7 +758,7 @@ do
 	bozo|vm03)
 	    # run both the valgrind and the non-valgrind variants of tests
 	    #
-	    valgrind_opt='export PCPQA_VALGRIND=both'
+	    valgrind_opt='PCPQA_VALGRIND=both'; export PCPQA_VALGRIND
 	    ;;
 
 	oracle)
@@ -900,7 +900,7 @@ do
 		    # exclude the valgrind group and force the non-valgrind
 		    # variants to be run
 		    #
-		    valgrind_opt='export PCPQA_VALGRIND=both'
+		    valgrind_opt='PCPQA_VALGRIND=both'; export PCPQA_VALGRIND
 		    [ X"$what" = Xall ] && check_what="$check_what -x valgrind"
 		    echo "Exclude valgrind group for distro=$distro"
 		    ;;
@@ -1205,7 +1205,7 @@ End-of-File
 		    # not only unexecutable but us unreadable for mere
 		    # mortals) ... sigh
 		    # 
-		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
+		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; PATH=\$PATH:/sbin:/usr/sbin; export PATH; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
 		    i=0
 		    rm -f $tmp.done
 		    while [ $i -lt 60 ]

@@ -5,7 +5,7 @@
 # Used in concert with pcp-daily -q
 #
 
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 
 _usage()
 {

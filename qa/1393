@@ -35,7 +35,7 @@ _sort_instname()
 mkdir -p $tmp
 tar -C $tmp -xf linux/sysfs-numa-001.tgz
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
-export LINUX_STATSPATH="$tmp"
+LINUX_STATSPATH="$tmp"; export LINUX_STATSPATH
 
 metrics="hinv.map.cpu_node hinv.node.online \
   kernel.percpu.cpu.idle kernel.percpu.cpu.user kernel.pernode.cpu.idle \

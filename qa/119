@@ -87,7 +87,7 @@ fi
 $sudo cp $PCP_PMLOGGERCONTROL_PATH $tmp.control
 $sudo mv $PCP_PMLOGGERCONTROL_PATH.d $PCP_PMLOGGERCONTROL_PATH.d-$seq
 
-export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+PMLOGGER_CHECK_SKIP_LOGCONF=yes; export PMLOGGER_CHECK_SKIP_LOGCONF
 
 cat <<End-of-File >$tmp.tmp
 # dummy file created by qa/$seq on `date`

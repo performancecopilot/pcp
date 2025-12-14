@@ -39,8 +39,8 @@ _filter()
 }
 
 # real QA test starts here
-export PCP_HOSTZONE=1
-export PCP_ARCHIVE=$here/archives/pcp-atop-log
+PCP_HOSTZONE=1; export PCP_HOSTZONE
+PCP_ARCHIVE=$here/archives/pcp-atop-log; export PCP_ARCHIVE
 
 echo && echo "=== Check memory allocation issue:"
 $PCP_BINADM_DIR/pcp-atopsar -x -R 5 2 10 | _filter
@@ -49,7 +49,7 @@ echo && echo "=== Check time window issue:"
 $PCP_BINADM_DIR/pcp-atopsar -x -b 16:14:29 -e 16:14:33 1 | _filter
 
 echo && echo "=== Argument handling issue:"
-export PCP_ARCHIVE_DIR=$tmp.archives
+PCP_ARCHIVE_DIR=$tmp.archives; export PCP_ARCHIVE_DIR
 mkdir -p "$PCP_ARCHIVE_DIR/$hostname"
 cp $PCP_ARCHIVE.* "$PCP_ARCHIVE_DIR/$hostname"
 unset PCP_HOSTZONE PCP_ARCHIVE

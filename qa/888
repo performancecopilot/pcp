@@ -24,13 +24,13 @@ status=1	# failure is the default!
 trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-export LINUX_PAGESIZE=4096
+LINUX_PAGESIZE=4096; export LINUX_PAGESIZE
 $sudo rm -f $PCP_VAR_DIR/config/pmda/60.*
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.$DSO_SUFFIX,linux_init
 root=$tmp.root
 
 # prepare a root matching the shared library calls
-export LINUX_STATSPATH=$root
+LINUX_STATSPATH=$root; export LINUX_STATSPATH
 mkdir -p $root || _fail "root in use when processing $tgz"
 cd $root
 $sudo tar xzf $here/linux/sysvipc-root-002.tgz

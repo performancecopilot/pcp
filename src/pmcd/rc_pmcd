@@ -316,7 +316,10 @@ _start_pmcheck()
 			 -e 's/  / /' \
 			 -e 's/^/ /' \
 			 -e 's/ -s *//gp'`
-	[ -n "$sock_option" ] && export PMCD_SOCKET="$sock_option"
+	if [ -n "$sock_option" ]
+	then
+	    PMCD_SOCKET="$sock_option"; export PMCD_SOCKET
+	fi
     fi
 
     if $PCP_BINADM_DIR/pmcd_wait $wait_option

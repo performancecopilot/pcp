@@ -29,7 +29,7 @@ $1 == "sampledso.event.param_aggregate"	{ want = 1 }
 }
 
 # real QA test starts here
-export PCP_LITE_SAMPLE=yes
+PCP_LITE_SAMPLE=yes; export PCP_LITE_SAMPLE
 
 # logic here is little strange ... sample uses a static buffer and
 # PM_CONTEXT_LOCAL always starts from case 0 in the event record enumeration

@@ -45,9 +45,9 @@ $sudo ./Install </dev/null >$tmp.out 2>&1
 cat $tmp.out >> $seq_full
 
 root=$tmp.root
-export FARM_SETUP_LSBLK="$here/farm/lsblk.sh"
-export FARM_SETUP_SMARTCTL="$here/farm/smartctl.sh"
-export FARM_SETUP="$here/farm/smartctl.sh"
+FARM_SETUP_LSBLK="$here/farm/lsblk.sh"; export FARM_SETUP_LSBLK
+FARM_SETUP_SMARTCTL="$here/farm/smartctl.sh"; export FARM_SETUP_SMARTCTL
+FARM_SETUP="$here/farm/smartctl.sh"; export FARM_SETUP
 pmda=$PCP_PMDAS_DIR/farm/pmda_farm.so,farm_init
 metrics=`pminfo -L -K clear -K add,160,$pmda farm | LC_COLLATE=POSIX sort`
 memcheck="farm.ata.drive_information.device_capacity_in_sectors"

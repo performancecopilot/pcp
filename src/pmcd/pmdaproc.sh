@@ -451,7 +451,7 @@ __check_domain()
 				    }'`
     if [ "X$__root" != X ]	# restore ROOT if it was set before
     then
-	export ROOT="$__root"
+	ROOT="$__root"; export ROOT
     else
 	unset ROOT
     fi

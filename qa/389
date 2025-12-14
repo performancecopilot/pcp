@@ -53,7 +53,7 @@ echo | tee -a $seq_full
 echo "=== non-empty config, reconnect when pmcd restarted ===" | tee -a $seq_full
 # force quick reconnection to pmcd for pmlogger
 #
-export PMCD_RECONNECT_TIMEOUT=1
+PMCD_RECONNECT_TIMEOUT=1; export PMCD_RECONNECT_TIMEOUT
 $sudo rm -f $tmp.*		# refactor-ok
 echo "log mandatory on 1 sec pmcd.version" >$tmp.config
 _start_up_pmlogger -c $tmp.config -l $tmp.log $tmp

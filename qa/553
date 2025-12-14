@@ -41,11 +41,11 @@ _filter_result()
 
 domain=118
 test="$here/gluster"
-export GLUSTER_HOME="$test"
-export GLUSTER_VOL_INFO="$test/test.sh info info-single"
-export GLUSTER_VOL_STATS="$test/test.sh stats profile-%s-info"
-export GLUSTER_VOL_STOP="$test/test.sh stop %s $seq $tmp.stop"
-export GLUSTER_VOL_START="$test/test.sh start %s $seq $tmp.start"
+GLUSTER_HOME="$test"; export GLUSTER_HOME
+GLUSTER_VOL_INFO="$test/test.sh info info-single"; export GLUSTER_VOL_INFO
+GLUSTER_VOL_STATS="$test/test.sh stats profile-%s-info"; export GLUSTER_VOL_STATS
+GLUSTER_VOL_STOP="$test/test.sh stop %s $seq $tmp.stop"; export GLUSTER_VOL_STOP
+GLUSTER_VOL_START="$test/test.sh start %s $seq $tmp.start"; export GLUSTER_VOL_START
 
 # real QA test starts here
 PCP_PYTHON_PMNS=root $python "$pmda_script" > $tmp.root

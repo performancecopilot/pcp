@@ -121,7 +121,7 @@ state == 0		{ print }'
 }
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 pmlogger -Doptfetch -h localhost -r -c $tmp.config -m qa_$seq -l $tmp.log $tmp &
 pid=$!
 

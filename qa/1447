@@ -55,7 +55,7 @@ _filter()
 
 # real QA test starts here
 
-export PCP_DERIVED_CONFIG=$tmp.derive
+PCP_DERIVED_CONFIG=$tmp.derive; export PCP_DERIVED_CONFIG
 
 cat <<'End-of-File' >$tmp.derive
 qa.c = sample.bin + sampledso.bin
@@ -112,7 +112,7 @@ nch=`expr $nch - 1`
 dd if=$tmp.equiv of=$tmp.tmp ibs=1 count=$nch 2>>$seq_full
 mv $tmp.tmp $tmp.equiv
 nl -b a $tmp.equiv
-export PCP_INDOM_CONFIG=$tmp.equiv
+PCP_INDOM_CONFIG=$tmp.equiv; export PCP_INDOM_CONFIG
 if $do_valgrind
 then
     _run_valgrind pminfo -v qa 2>&1
@@ -137,7 +137,7 @@ End-of-File
 
 echo
 echo '=== without mapping ==='
-export PCP_INDOM_CONFIG=
+PCP_INDOM_CONFIG=; export PCP_INDOM_CONFIG
 if $do_valgrind
 then
     _run_valgrind pminfo -f qa 2>&1
@@ -148,7 +148,7 @@ fi \
 
 echo
 echo '=== with mapping ==='
-export PCP_INDOM_CONFIG=$tmp.equiv
+PCP_INDOM_CONFIG=$tmp.equiv; export PCP_INDOM_CONFIG
 if $do_valgrind
 then
     _run_valgrind pminfo -f -Dindom qa 2>&1

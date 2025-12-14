@@ -82,7 +82,7 @@ dir="$PCP_ARCHIVE_DIR/qa$seq"
 trap "_cleanup; exit \$status" 0 1 2 3 15
 src/time_stamp $tmp.stamp begin >>$seq_full
 
-export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+PMLOGGER_CHECK_SKIP_LOGCONF=yes; export PMLOGGER_CHECK_SKIP_LOGCONF
 
 # first remove all the old, stale, archives (the ones that might have
 # accumulated for hosts other than this one during previous QA runs)

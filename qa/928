@@ -17,7 +17,7 @@ status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-export TZ=UTC
+TZ=UTC; export TZ
 
 echo "+++ __pmLogPutresult() +++"
 src/chklogputresult -b $tmp.1

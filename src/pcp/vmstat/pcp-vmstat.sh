@@ -48,8 +48,14 @@ do
       --)       # end of options, start of arguments
         shift
         [ $# -gt 2 ] && _usage "Too many arguments"
-        [ $# -gt 1 ] && export PCP_SAMPLES="$2"
-        [ $# -gt 0 ] && export PCP_INTERVAL="$1"
+        if [ $# -gt 1 ]
+	then
+	    PCP_SAMPLES="$2"; export PCP_SAMPLES
+	fi
+        if [ $# -gt 0 ]
+	then
+	    PCP_INTERVAL="$1"; export PCP_INTERVAL
+	fi
         break
         ;;
     esac

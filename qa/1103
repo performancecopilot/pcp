@@ -45,7 +45,7 @@ qa.b = (scalar(sample.bin[bin-100]) + scalar(sample.bin[bin-200]) + scalar(sampl
 qa.c = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.bin)) + scalar(sample.bin[bin-300])) / 3
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pminfo -df -Dderive,appl1,appl2 qa >$tmp.out 2>&1
 cat $tmp.out >>$seq_full
 _filter
@@ -57,7 +57,7 @@ qa.p = 123 + scalar(sample.bin
 qa.q = 123 + scalar(^name)
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pminfo -df -Dderive,appl1,appl2 qa >$tmp.out 2>&1
 cat $tmp.out >>$seq_full
 _filter

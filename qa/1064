@@ -67,7 +67,7 @@ a.err.m1 = rescale(sample.long.hundred, "Kbyte/sec")
 a.err.m2 = rescale(sample.string.hullo, "millisec/count")
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 pminfo -Dderive,appl0,appl1 -fd a >$tmp.out 2>&1
 _filter \

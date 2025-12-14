@@ -68,7 +68,7 @@ End-of-File
 # lines in $tmp.list look like
 #     'bind2.memory.total.InUse',		5,
 #
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 
 sed <$tmp.list \
     -e "s/^[ 	]*'//" \

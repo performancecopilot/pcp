@@ -48,7 +48,7 @@ fi
 
 # real QA test starts here
 root=$tmp.root
-export IB_STATSPATH=$root
+IB_STATSPATH=$root; export IB_STATSPATH
 
 # Create versioned symlinks for mock libraries so the PMDA can find them
 # Determine version numbers from what the PMDA actually needs
@@ -76,7 +76,7 @@ if [ -f $PCP_PMDAS_DIR/infiniband/pmda_ib.$DSO_SUFFIX ]; then
 fi
 cd $here
 
-export LD_LIBRARY_PATH=$here/src:$LD_LIBRARY_PATH
+LD_LIBRARY_PATH=$here/src:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
 
 for tgz in $here/infiniband/ib-root-*.tgz
 do

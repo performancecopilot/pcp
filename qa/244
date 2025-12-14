@@ -197,8 +197,8 @@ echo '<END>'
 # Use a different port to avoid interference by remote monitors
 #
 port=`_find_free_port 5432`
-export PMCD_PORT=$port
-export PMCD_SOCKET=$tmp/pmcd.socket
+PMCD_PORT=$port; export PMCD_PORT
+PMCD_SOCKET=$tmp/pmcd.socket; export PMCD_SOCKET
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 # Also figure out which user we will run pmcd and its pmdas as
@@ -215,9 +215,9 @@ ls -l $PCP_RUN_DIR >>$seq_full
 
 cat >$tmp.sh <<END
 #!/bin/sh
-export PATH=$here/src:$PATH
-export PMCD_PORT=$port
-export PMCD_SOCKET=$tmp/pmcd.socket
+PATH=$here/src:$PATH; export PATH
+PMCD_PORT=$port; export PMCD_PORT
+PMCD_SOCKET=$tmp/pmcd.socket; export PMCD_SOCKET
 $PCP_PMCD_PROG -f -t 2 2>>$tmp.full &
 echo \$!
 END

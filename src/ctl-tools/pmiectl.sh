@@ -19,14 +19,14 @@
 
 # we are not an "rc" script, so dodge any special handling in
 # rc-proc.sh
-export PCPQA_NO_RC_STATUS=true
+PCPQA_NO_RC_STATUS=true; export PCPQA_NO_RC_STATUS
 . "$PCP_SHARE_DIR/lib/rc-proc.sh"
 
 . "$PCP_SHARE_DIR/lib/utilproc.sh"
 
-export IAM=pmie
-export prog=pmiectl
-export CONTROLFILE=$PCP_PMIECONTROL_PATH
+IAM=pmie; export IAM
+prog=pmiectl; export prog
+CONTROLFILE=$PCP_PMIECONTROL_PATH; export CONTROLFILE
 . "$PCP_SHARE_DIR/lib/ctl-tools.sh"
 
 exit

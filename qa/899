@@ -39,7 +39,7 @@ filter_host()
 
 
 # real QA test starts here
-export PM_OPTFLAG_MULTI=true
+PM_OPTFLAG_MULTI=true; export PM_OPTFLAG_MULTI
 
 echo '== Host list (multi) =='
 $here/src/getoptions --host-list=www.acme.com,foo.bar.org,oss.sgi.com

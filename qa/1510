@@ -68,7 +68,7 @@ false.both = sampledso.long.hundred != 100 ? sampledso.double.bin_ctr : sampleds
 End-of-File
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 # real QA test starts here
 

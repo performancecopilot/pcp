@@ -55,7 +55,7 @@ done
 End-of-File
 chmod 755 ./fake-xz
 ln fake-xz xz
-export PATH=.:$PATH
+PATH=.:$PATH; export PATH
 
 sed <$PCP_SYSCONF_DIR/pmlogcompress/defaults >defaults \
     -e '/^PCP_COMPRESS_PROGS=/s/=.*/=xz/' \

@@ -121,7 +121,7 @@ echo
 echo "=== sample metrics this time ==="
 # need to copy DSO so running sample_init() only once per DSO
 cp $PCP_VAR_DIR/pmdas/sample/pmda_sample.$DSO_SUFFIX $tmp.$DSO_SUFFIX
-export PMDA_LOCAL_SAMPLE=yes
+PMDA_LOCAL_SAMPLE=yes; export PMDA_LOCAL_SAMPLE
 $sudo pminfo -b 1 -fmL -n $tmp.pmns -K add,400,$tmp.$DSO_SUFFIX,sample_init qa.colour sample.colour
 
 echo

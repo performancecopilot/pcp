@@ -25,7 +25,7 @@ pcp_archive2="-z -a archives/pcp-mpstat2"
 pcp_archive3="-z -a archives/pcp-mpstat3"
 
 # real QA test starts here
-export LC_TIME=POSIX
+LC_TIME=POSIX; export LC_TIME
 
 echo && echo === pcp-mpstat without any options
 pcp $pcp_archive mpstat

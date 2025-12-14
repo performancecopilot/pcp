@@ -47,7 +47,7 @@ cases=`ls -1 $tmp.pmcd.conf.* | sed -e 's/.*pmcd.conf.//g' | LC_COLLATE=POSIX so
 for case in $cases
 do
     config="$tmp.pmcd.conf.$case"
-    export PCP_PMCDCONF_PATH=$config
+    PCP_PMCDCONF_PATH=$config; export PCP_PMCDCONF_PATH
     echo "== Upgrade test case $case"
     ./Upgrade
     cat $config | _filter

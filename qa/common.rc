@@ -147,7 +147,7 @@ $sudo rm -rf $tmp $tmp.*
 # platforms this demands LC_COLLATE to be POSIX to avoid case
 # insensitive matching
 #
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 
 # take care of the umask ... we expect 022, and warn if this is
 # not the prevailing umask before forcing it to be so
@@ -175,6 +175,6 @@ in
 	# F => more extensive double free and write after free checks
 	# G => guard pages after page size or larger allocations
 	#
-    	export MALLOC_OPTIONS="CFG"
+    	MALLOC_OPTIONS="CFG"; export MALLOC_OPTIONS
 	;;
 esac

@@ -188,7 +188,7 @@ else
     fi
 fi
 
-export UNZIP=-o
+UNZIP=-o; export UNZIP
 cat $tmp.runners \
 | while read runner
 do

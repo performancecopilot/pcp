@@ -85,7 +85,7 @@ a.err.m8 = sample.colour > 200 ? sample.ulong.hundred : sample.ulong.ten
 a.err.m9 = sample.string.hullo ? 1 : 2
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 pminfo -Dderive,appl0,appl1 -fd a >$tmp.out 2>&1
 _filter

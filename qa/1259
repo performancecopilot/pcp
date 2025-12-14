@@ -24,7 +24,7 @@ _check_valgrind
 
 # For this test, don't load any global derived metric configs by default.
 # So the PCP_DERIVED_CONFIG environment variable is set to an empty string.
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 _cleanup()
 {

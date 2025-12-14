@@ -64,13 +64,13 @@ esac
 case "$PCP_PLATFORM"
 in
     darwin)
-       export ZBXPCP=zbxpcp.dylib
+       ZBXPCP=zbxpcp.dylib; export ZBXPCP
        ;;
     mingw)
-       export ZBXPCP=zbxpcp.dll
+       ZBXPCP=zbxpcp.dll; export ZBXPCP
        ;;
     *)
-       export ZBXPCP=zbxpcp.so
+       ZBXPCP=zbxpcp.so; export ZBXPCP
        ;;
 esac
 

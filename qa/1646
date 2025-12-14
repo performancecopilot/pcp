@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 1646
+# testing for fix-exports script ... this is not part of shipped PCP,
+# I'm just leveraging the QA infrastructure
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f ../scripts/fix-exports ] || _notrun "no ../scripts/fix-exports here"
+
+echo "QA output created by $seq"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+cat <<'End-of-File' >$tmp.input
+# from pcp.env
+    export PCP_ENV_DONE=y
+# from builddefs.in
+	@export perldomain=`sed -n \
+	        -e '/PCP::PMDA->new/s/[^0-9]*$$//' \
+		-e '/PCP::PMDA->new/s/^[^0-9]*//p' pmda$(IAM).pl | \
+		$(AWK) '{ print $$NF }'`; foobar
+
+	export PCP_TOPDIR="`cd $(TOPDIR) && pwd`"; \
+	TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
+QTMAKE = rm -f Makefile.new Makefile.fix; export CC='$(CC)'
+QTMAKE = rm -f Makefile.new Makefile.fix; export CC="$(CC)"
+QTMAKE = rm -f Makefile.new Makefile.fix; export CC='$(CC)'; foo
+QTMAKE = rm -f Makefile.new Makefile.fix; export CC="$(CC)"; foo
+QTMAKE = rm -f Makefile.new Makefile.fix; export CC='$(CC)'; export CXX='$(CXX)'; CFLAGS='$(CFLAGS)' CXXFLAGS='$(CXXFLAGS)' LDFLAGS='$(LDFLAGS)' $(QMAKE)
+# from qa/672 et al
+export PCP_DERIVED_CONFIG=
+# from admin/pcp-daily
+ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
+# from Win32-NOTES (problem was \r\n not \n line termination)
+	$ export PCP_DIR=/c/MinGW/msys/1.0
+End-of-File
+
+# real QA test starts here
+../scripts/fix-exports --force $tmp.input 2>&1 | _filter
+
+# success, all done
+exit

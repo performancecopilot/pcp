@@ -206,7 +206,7 @@ nss_setup_empty_userdb()
     mkdir -p -m 0755 $usersdb
     certutil -N -d $PCP_SECURE_DB_METHOD$usersdb -f $tmp.empty
 
-    export PCP_SECURE_DB_PATH="$usersdb"
+    PCP_SECURE_DB_PATH="$usersdb"; export PCP_SECURE_DB_PATH
 }
 
 nss_import_cert_userdb()

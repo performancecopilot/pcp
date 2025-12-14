@@ -119,8 +119,8 @@ startXvfb()
     pid=$!
     pmsleep 0.2
     kill -0 $pid 2>/dev/null || return
-    export XAUTHORITY=$tmp/xauth
-    export DISPLAY=":$server"
+    XAUTHORITY=$tmp/xauth; export XAUTHORITY
+    DISPLAY=":$server"; export DISPLAY
     echo $pid
 }
 

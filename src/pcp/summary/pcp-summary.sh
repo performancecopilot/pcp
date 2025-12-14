@@ -102,7 +102,7 @@ while [ $# -gt 0 ]
 do
     case "$1" in
       -a)
-	export PCP_ARCHIVE="$2"
+	PCP_ARCHIVE="$2"; export PCP_ARCHIVE
 	BATCH="-b 1"
 	shift
 	;;
@@ -110,15 +110,15 @@ do
 	debug=true
 	;;
       -h)
-	export PCP_HOST="$2"
+	PCP_HOST="$2"; export PCP_HOST
 	shift
 	;;
       -n)
-	export PCP_NAMESPACE="$2"
+	PCP_NAMESPACE="$2"; export PCP_NAMESPACE
 	shift
 	;;
       -O)
-	export PCP_ORIGIN="$2"
+	PCP_ORIGIN="$2"; export PCP_ORIGIN
 	shift
 	;;
       -P)
@@ -147,7 +147,10 @@ then
 					   printf "pcp_hostzone=true\n", $0
 					}'`
     [ -z "$pcp_host" ] && pcp_host="unknown host"
-    [ -z "$pcp_hostzone" ] || export PCP_HOSTZONE="$pcp_hostzone"
+    if [ -n "$pcp_hostzone" ]
+    then
+	PCP_HOSTZONE="$pcp_hostzone"; export PCP_HOSTZONE
+    fi
 else
     pcp_host="$PCP_HOST"
     [ -z "$pcp_host" ] && pcp_host=`hostname`

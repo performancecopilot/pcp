@@ -103,7 +103,7 @@ mkdir $tmp || _exit 1
 
 # cannot afford timezone differences for timestamps
 #
-export TZ=UTC
+TZ=UTC; export TZ
 
 # real QA test starts here
 

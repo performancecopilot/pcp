@@ -25,8 +25,8 @@ trap _cleanup 0 1 2 3 15
 # back-to-back may be a problem, so avoid the derived metric chatter at
 # pmNewContext() and increase the pmcd connect timeout
 #
-export PCP_DERIVED_CONFIG=''
-export PMCD_CONNECT_TIMEOUT=60
+PCP_DERIVED_CONFIG=''; export PCP_DERIVED_CONFIG
+PMCD_CONNECT_TIMEOUT=60; export PMCD_CONNECT_TIMEOUT
 
 # real QA test starts here
 

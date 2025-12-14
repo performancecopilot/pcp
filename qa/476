@@ -29,7 +29,7 @@ _filter()
 
 
 # real QA test starts here
-export PM_FAULT_CONTROL=$tmp.control
+PM_FAULT_CONTROL=$tmp.control; export PM_FAULT_CONTROL
 
 echo "control file parsing ..."
 cat >$tmp.control <<End-of-File

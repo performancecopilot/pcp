@@ -67,9 +67,9 @@ _filter()
     | _filter_ls -u -g
 }
 
-export PCP_LOG_DIR=$tmp
-export PCP_ARCHIVE_DIR=$tmp/pmlogger
-export PCP_REMOTE_ARCHIVE_DIR=$tmp/pmproxy
+PCP_LOG_DIR=$tmp; export PCP_LOG_DIR
+PCP_ARCHIVE_DIR=$tmp/pmlogger; export PCP_ARCHIVE_DIR
+PCP_REMOTE_ARCHIVE_DIR=$tmp/pmproxy; export PCP_REMOTE_ARCHIVE_DIR
 
 mkdir -p $PCP_REMOTE_ARCHIVE_DIR/qahost || exit 1
 mkdir -p $PCP_ARCHIVE_DIR || exit 1

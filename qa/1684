@@ -46,7 +46,7 @@ echo "c=sample.bin*hinv.ncpu" >>$tmp/b
 echo "d = +" >>$tmp/b
 
 # Don't load any global derived metric configs by default
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 # real QA test starts here
 echo "## Missing file - outright failure"

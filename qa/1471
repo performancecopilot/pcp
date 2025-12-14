@@ -56,7 +56,7 @@ DISTRIB_DESCRIPTION="FooBarMumbleFratz 22.04.13"
 End-of-File
 
 cat <<End-of-File >$tmp.sh
-export LINUX_STATSPATH=$tmp
+LINUX_STATSPATH=$tmp; export LINUX_STATSPATH
 dbpmda <<EOF
 open pipe `which valgrind` $PCP_VAR_DIR/pmdas/linux/pmdalinux -l $tmp.log
 fetch kernel.uname.distro

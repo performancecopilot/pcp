@@ -39,7 +39,7 @@ a.noval_op1 = sample.bad.novalues > 0 ? 1 : 2
 a.err_op1 = sample.bad.fetch.again > 0 ? 1 : 2
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 pminfo -f a
 

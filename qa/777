@@ -26,7 +26,7 @@ qa.instant.pmlogger.port = instant(pmcd.pmlogger.port)
 End-of-File
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pmprobe -v qa.instant.milliseconds sample.milliseconds >$tmp.out
 cat $tmp.out >>$seq_full
 # expect 3rd value to be the same in these two lines of output ...

@@ -95,7 +95,7 @@ for config in $tmp.config.*
 do
     echo
     echo "=== `echo $config | sed -e 's;.*config\.;config.;'` ==="
-    export PCP_DERIVED_CONFIG=$config
+    PCP_DERIVED_CONFIG=$config; export PCP_DERIVED_CONFIG
 
     if [ "$1" = "--valgrind" ]
     then

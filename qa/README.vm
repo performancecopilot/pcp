@@ -295,7 +295,7 @@ FreeBSD
     #
     # release upgrade recipe
     $ sudo freebsd-update fetch; sudo freebsd-update install
-    $ export rel=13.2
+    $ rel=13.2; export rel
     # has to be a N.M-RELEASE version for -r
     $ sudo -E freebsd-update upgrade -r $rel-RELEASE; sudo freebsd-update install
     $ sudo reboot

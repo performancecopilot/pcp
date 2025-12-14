@@ -5,5 +5,5 @@ gpg --recv-keys $options D87805D281D85A13539CB4BFA51D3ADCDEA2C114 F7ABE8761E6FE6
 gpg --list-keys pcp-maintainers
 
 echo "For builds:"
-echo export RPM_SIGN_KEYID=pcp-maintainers
-echo export DEB_SIGN_KEYID=0xFE0842EE36DD8C0C
+echo RPM_SIGN_KEYID=pcp-maintainers; export RPM_SIGN_KEYID
+echo DEB_SIGN_KEYID=0xFE0842EE36DD8C0C; export DEB_SIGN_KEYID

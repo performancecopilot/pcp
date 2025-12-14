@@ -155,7 +155,7 @@ else
 fi
 
 # give the PMDA + socket a chance to be setup before pminfo check
-export PCPQA_CHECK_DELAY=3
+PCPQA_CHECK_DELAY=3; export PCPQA_CHECK_DELAY
 
 echo
 echo "=== Unix socket daemon agent ==="

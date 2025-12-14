@@ -125,7 +125,7 @@ then
     echo "== Found archive files =="
     ls -l $archive_path | LC_COLLATE=POSIX sort -n | _filter_ls
     echo "== Found archive metrics =="
-    export PCP_DERIVED_CONFIG=''
+    PCP_DERIVED_CONFIG=''; export PCP_DERIVED_CONFIG
     pminfo -a $archive_path | LC_COLLATE=POSIX sort
 else
     echo "Archive push failed: $archive_path directory not created"

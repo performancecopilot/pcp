@@ -150,7 +150,7 @@ then
     exit 1
 fi
 
-export PCP_TRACE_HOST=$qahost
+PCP_TRACE_HOST=$qahost; export PCP_TRACE_HOST
 
 echo '=== Running demo program (app2) ==='
 # use app2 process to bump the number of connections.
