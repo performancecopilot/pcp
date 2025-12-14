@@ -24,9 +24,7 @@
 #debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmie.log
 #debug# env >>$PCP_LOG_DIR/rc_pmie.log
 
-rcprog=$PCP_DIR/etc/init.d/pmie
-pmprog=$PCP_SERVICES_DIR/pmie
-prog=$PCP_SYSCONF_DIR/pmie/`basename $0`
+prog=$PCP_SERVICES_DIR/pmie
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmie_rc.XXXXXXXXX"` || exit 1
 status=1
@@ -44,16 +42,9 @@ then
     $PCP_BINADM_DIR/pmpost "$logmsg"
 fi
 
-if [ $pmprog = $prog -o $rcprog = $prog ]
-then
-    VERBOSE_CTL=on
-else
-    VERBOSE_CTL=off
-fi
-
 _usage()
 {
-    echo "Usage: $pmprog [-v] {start|start-systemd|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"
+    echo "Usage: $prog [-v] {start|start-systemd|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"
 }
 
 # Note: _start_pmcheck() starts some or all pmies configured in the
@@ -125,7 +116,7 @@ _shutdown()
     _get_pids_by_name pmie >$tmp/pmies 2>&1
     if [ ! -s $tmp/pmies ]
     then
-	[ "$1" = verbose ] && echo "$pmprog: pmie not running"
+	[ "$1" = verbose ] && echo "$prog: pmie not running"
 	rm -f $PCP_RUN_DIR/pmie.pid
 	return 0
     fi
@@ -152,9 +143,10 @@ _shutdown()
     fi
     rm -f $PCP_RUN_DIR/pmie.pid
     rm -fr "$tmp/pmie" "$PCP_TMP_DIR"/pmie/*
-    $PCP_BINADM_DIR/pmpost "stop pmie from $pmprog"
+    $PCP_BINADM_DIR/pmpost "stop pmie from $prog"
 }
 
+VERBOSE_CTL=off
 while getopts v c
 do
     case $c
@@ -199,8 +191,7 @@ case "$1" in
 	    if is_chkconfig_on pmie
 	    then
 		:
-	    elif [ "$0" = "$pmprog" -o "$0" = "$rcprog" ]
-	    then
+	    else
 		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled."
 		chkconfig_on_msg pmie
 	    fi
