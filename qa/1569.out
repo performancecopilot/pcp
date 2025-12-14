@@ -133,11 +133,11 @@ pmlogcompress: cannot find a compression program (tried no-such-prog:even-less-l
 exit status 1
 --- pmlogcompress -f xz -o space foobar ---
 stderr ...
-pmlogcompress: -f [xz] not allowed when compressing with -o
+pmlogcompress: Error: -f [xz] not allowed when compressing with -o
 exit status 1
 --- pmlogcompress -o time -f bzip foobar ---
 stderr ...
-pmlogcompress: -f [bzip] not allowed when compressing with -o
+pmlogcompress: Error: -f [bzip] not allowed when compressing with -o
 exit status 1
 
 === some decompress success cases ===
