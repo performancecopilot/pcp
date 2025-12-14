@@ -39,4 +39,8 @@ QA output created by 1646
 < 	$ export PCP_DIR=/c/MinGW/msys/1.0
 ---
 > 	$ PCP_DIR=/c/MinGW/msys/1.0; export PCP_DIR
+23c23
+< echo "export PMCD_PORT=$port" >$tmp.start
+---
+> echo "PMCD_PORT=$port; export PMCD_PORT" >$tmp.start
 TMP.input: changed

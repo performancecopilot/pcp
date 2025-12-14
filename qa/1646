@@ -55,6 +55,8 @@ export PCP_DERIVED_CONFIG=
 ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
 # from Win32-NOTES (problem was \r\n not \n line termination)
 	$ export PCP_DIR=/c/MinGW/msys/1.0
+# from qa/956 and others
+echo "export PMCD_PORT=$port" >$tmp.start
 End-of-File
 
 # real QA test starts here

@@ -90,8 +90,8 @@ $sudo cp $tmp.newoptions $PCP_PMCDOPTIONS_PATH
 # may cleanse the environment, which also means we cannot use
 # the _service wrapper
 #
-echo "PMCD_PORT=$port"; export PMCD_PORT >$tmp.start
-echo "PMCD_SOCKET=$tmp.socket"; export PMCD_SOCKET >>$tmp.start
+echo "PMCD_PORT=$port; export PMCD_PORT" >$tmp.start
+echo "PMCD_SOCKET=$tmp.socket; export PMCD_SOCKET" >>$tmp.start
 echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
 $sudo sh $tmp.start 2>&1 | _filter_pcp_start
 PMCD_PORT=$port; export PMCD_PORT
