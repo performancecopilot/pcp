@@ -139,7 +139,7 @@ mumble
 fumble
 ---------------- 8b -----------------
 # white space after include filename
-# spaces, no comment ... this was Nathan's Mac OS X failure */
+# spaces, no comment ... this was Nathan's macOS failure */
 foo
 # tab this time
 bar

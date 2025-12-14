@@ -46,7 +46,7 @@ p
     fi
 elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = netbsd -o $PCP_PLATFORM = openbsd ]
 then
-    # same output for Mac OS X and FreeBSD and NetBSD and OpenBSD
+    # same output for macOS and FreeBSD and NetBSD and OpenBSD
     ln $seq.darwin $seq.out || exit 1
 elif [ $PCP_PLATFORM = solaris ]
 then

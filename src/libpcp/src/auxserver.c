@@ -829,7 +829,7 @@ __pmServerSetLocalCreds(int fd, __pmHashCtl *attrs)
 	return -oserror();
     return SetCredentialAttrs(attrs, ucred.pid, ucred.uid, ucred.gid);
 
-#elif defined(HAVE_GETPEEREID)		/* MacOSX */
+#elif defined(HAVE_GETPEEREID)		/* macOS */
     uid_t uid;
     gid_t gid;
 

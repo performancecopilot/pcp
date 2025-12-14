@@ -20,7 +20,7 @@ in
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	;;
     darwin|solaris|freebsd|openbsd)
-	# same output config for Mac OS X, OpenSolaris and *BSD
+	# same output config for macOS, OpenSolaris and *BSD
 	ln $seq.darwin $seq.out || exit 1
 	;;
     *)
@@ -68,7 +68,7 @@ log mandatory on default {
 End-of-File
 elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = openbsd ]
 then
-    # same pmlogger config for Mac OS X, OpenSolaris and FreeBSD
+    # same pmlogger config for macOS, OpenSolaris and FreeBSD
     cat > $tmp.pmlogger.in <<End-of-File
 log mandatory on default {
 	kernel.all.load
@@ -109,7 +109,7 @@ then
 		done
 elif [ $PCP_PLATFORM = darwin -o $PCP_PLATFORM = solaris -o $PCP_PLATFORM = freebsd -o $PCP_PLATFORM = openbsd ]
 then
-		# same metrics for Mac OS X, OpenSolaris and *BSD
+		# same metrics for macOS, OpenSolaris and *BSD
 		for args in "kernel.all disk.dev network.interface.in network.interface.out" "kernel disk network" "kernel.all.load kernel.all.cpu.idle kernel.all.cpu.sys kernel.all.cpu.user disk.dev.read disk.dev.write disk.dev.total network.interface.in.bytes network.interface.out.bytes"
 		do
 			echo

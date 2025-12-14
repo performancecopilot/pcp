@@ -346,7 +346,7 @@ in
 esac
 $notfound && if [ -f pcp-$buildversion/build/mac/pcp-[0-9]*[0-9].dmg ]
 then
-    # Mac OS X "pkg in a disk image" packaging
+    # macOS "pkg in a disk image" packaging
     here=`pwd`
     cd pcp-$buildversion/build/mac
     if ./cmdline-install >>$HOME/daily.log 2>&1

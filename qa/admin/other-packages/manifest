@@ -876,7 +876,7 @@ F_pkg?		valgrind	[valgrind (QA optional)]
 S_pkg?		valgrind	[developer/debug/valgrind (QA optional)]
 slackpkg?	valgrind	[valgrind (QA optional)]
 pacman?		valgrind	[extra/valgrind (QA optional)]
-brew?		valgrind	[N/A (QA optional)] # valgrind is "available" for Mac OS X, just fails to install on Mohave as of 30 Nov 2018
+brew?		valgrind	[N/A (QA optional)] # valgrind is "available" for macOS, just fails to install on Mohave as of 30 Nov 2018
 # -- avahi-browse(1)
 dpkg?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]
 rpm?	avahi-browse		[avahi-tools or avahi-utils (QA optional)]

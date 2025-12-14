@@ -74,7 +74,7 @@ pwd
 #_do rm -f census census.gz
 
 echo "Updating version information..."
-MACOSX_VERSION=`expr \`uname -r | cut -d. -f1\` - 4`
+MACOS_VERSION=`expr \`uname -r | cut -d. -f1\` - 4`
 BUILD_DATE=`date +'%Y%m%d'`
 
 for f in installer-info installer-description; do
@@ -82,7 +82,7 @@ for f in installer-info installer-description; do
 	sed -e"s/@package_version@/$PACKAGE_VERSION/g" \
 	    -e"s/@package_major@/$PACKAGE_MAJOR/g" \
 	    -e"s/@package_minor@/$PACKAGE_MINOR/g" \
-	    -e"s/@macosx_version@/$MACOSX_VERSION/g" \
+	    -e"s/@macos_version@/$MACOS_VERSION/g" \
 	    -e"s/@build_date@/$BUILD_DATE/g" \
 	    < $f > $nf || exit 1
 done

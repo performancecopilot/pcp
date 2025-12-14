@@ -564,7 +564,7 @@ fi
 #	S_pkg - pkg(1) on OpenIndiana
 #	slackpkg - Slackware
 #	pacman - Arch Linux
-#	brew - Mac OS X
+#	brew - macOS
 #
 # later on we will select EXACTLY one of the $pkgtypes to be $mytype
 #
