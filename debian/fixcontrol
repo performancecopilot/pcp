@@ -252,7 +252,7 @@ fi
 
 if $HAVE_PERL
 then
-    echo 's/\?\{(perl[^}]*)}(, *|$)/\\1\\2/' >>$tmp.sed
+    echo 's/\?\{(perl [^}]*)}(, *|$)/\\1\\2/' >>$tmp.sed
     echo 's/\?\{libclass-dbi-perl}(, *|$)/libclass-dbi-perl\\1/' >>$tmp.sed
     echo 's/\?\{libdbd-mysql-perl}(, *|$)/libdbd-mysql-perl\\1/' >>$tmp.sed
     echo 's/\?\{libextutils-autoinstall-perl}(, *|$)/libextutils-autoinstall-perl\\1/' >>$tmp.sed
@@ -261,7 +261,7 @@ then
     echo 's/\?\{libwww-perl}(, *|$)/libwww-perl\\1/' >>$tmp.sed
     echo 's/\?\{libnet-snmp-perl}(, *|$)/libnet-snmp-perl\\1/' >>$tmp.sed
 else
-    echo 's/\?\{perl[^}]*}(, *|$)//' >>$tmp.sed
+    echo 's/\?\{perl [^}]*}(, *|$)//' >>$tmp.sed
     echo 's/\?\{libclass-dbi-perl}(, *|$)//' >>$tmp.sed
     echo 's/\?\{libdbd-mysql-perl}(, *|$)//' >>$tmp.sed
     echo 's/\?\{libextutils-autoinstall-perl}(, *|$)//' >>$tmp.sed
