@@ -367,71 +367,65 @@ class DynamicProcessReporter:
         # Exit logic for non-archive context
         if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE and self.processStatOptions.print_count == 0:
             sys.exit(0)
+
         # Sorting validations
+        sorting_idx = None
         if self.processStatOptions.sorting_flag:
-            print("Sorting by %s" % self.processStatOptions.filterstate)
-            if (self.processStatOptions.sorting_order not in self.processStatOptions.colum_list
-                    and self.processStatOptions.filterstate is None):
-                raise ValueError("%s is not selected in output columns" %
-                                self.processStatOptions.sorting_order)
+            if self.processStatOptions.filterstate == "ALL":
+                if self.processStatOptions.sorting_order == '%mem':
+                    sorting_idx = 7
+                elif self.processStatOptions.sorting_order == '%cpu':
+                    sorting_idx = 8
+            else:
+                sorting_idx = next((idx for idx, key in enumerate(self.processStatOptions.colum_list)
+                    if key == self.processStatOptions.sorting_order),
+                None)
+                if sorting_idx is None:
+                    raise ValueError("Sorting order not found in output columns")
+                # Adjust for timestamp column
+                sorting_idx += 1
 
         # Always compute process list ONCE
         processes = self.process_filter.filter_processes(
             self.process_report.get_processes(self.delta_time)
         )
 
-        # -------- PATH 1: With filterstate -------- #
-        if self.processStatOptions.filterstate is not None:
-            # Precompute format string
-            fmt = (
-                "{ts}{indent}{user}\t{pid}\t{ppid}\t{pri}\t{cpu}\t{mem}\t"
-                "{vsz}\t{rss}\t{s}\t{started}\t{time}\t{wchan}\t{cmd}"
-            )
-            # Print header
-            self.printer(
-                "Timestamp" + header_indentation +
-                "USER\t\tPID\t\tPPID\t\tPRI\t%CPU\t%MEM\tVSZ\tRSS\tS\tSTARTED\t\tTIME\t\tWCHAN\t\t\t\tCommand"
-            )
-            for process in processes:
-                # Cache heavy calls
-                user = process.user_name()
-                pid = process.pid()
-                ppid = process.ppid()
-                pri = process.priority()
-                cpu = process.total_percent()
-                mem = process.system_percent()
-                vsz = process.vsize()
-                rss = process.rss()
-                sname = process.s_name()
-                started = process.start()
-                ttime = process.total_time()
-                wchan = process.wchan_s()
-                cmd = process.process_name_with_args()
-                # Align command if wchan is short
-                # if len(wchan) < 8:
-                #     cmd = "\t\t\t" + cmd
+        output_list = []
+        header = None
 
+        # -------- PATH 1: With filterstate -------- #
+        if self.processStatOptions.filterstate == "ALL":
+            header = (
+                "Timestamp\tUSER\t\tPID\t\tPPID\t\tPRI\t%CPU\t%MEM\tVSZ"
+                +"\tRSS\tS\tSTARTED\t\tTIME\t\tWCHAN\t\t\t\tCommand"
+            )
+
+            # Precompute format string
+            # fmt = (
+            #     "{ts}{indent}{user}\t{pid}\t{ppid}\t{pri}\t{cpu}\t{mem}\t"
+            #     "{vsz}\t{rss}\t{s}\t{started}\t{time}\t{wchan}\t{cmd}"
+            # )
+            for process in processes:
                 # Maintain state info
-                key = (sname, pid)
+                key = (process.s_name(), process.pid())
                 process_state_info[key] = process_state_info.get(key, 0) + self.delta_time
-                # Unified printing path
-                self.printer(fmt.format(
-                    ts=timestamp,
-                    indent=value_indentation,
-                    user=user,
-                    pid=pid,
-                    ppid=ppid,
-                    pri=pri,
-                    cpu=cpu,
-                    mem=mem,
-                    vsz=vsz,
-                    rss=rss,
-                    s=sname,
-                    started=started,
-                    time=ttime,
-                    wchan=wchan,
-                    cmd=cmd
-                ))
+                row = [timestamp]
+                row.extend([
+                    process.user_name(),
+                    process.pid(),
+                    process.ppid(),
+                    process.priority(),
+                    process.total_percent(),
+                    process.system_percent(),
+                    process.vsize(),
+                    process.rss(),
+                    process.s_name(),
+                    process.start(),
+                    process.total_time(),
+                    process.wchan_s(),
+                    process.process_name_with_args_last()[:45]
+                ])
+                output_list.append("\t".join(str(x) if x is not None else '' for x in row))
 
         # -------- PATH 2: Customized column list -------- #
         elif self.processStatOptions.colum_list is not None:
@@ -440,18 +434,33 @@ class DynamicProcessReporter:
             for key in self.processStatOptions.colum_list:
                 if key in PIDINFO_PAIR:
                     header += PIDINFO_PAIR[key][0] + "\t"
-            print(header)
 
             for process in processes:
                 row = [timestamp]
-
                 for key in self.processStatOptions.colum_list:
                     if self._is_last_and_args(key):
                         row.append(str(PIDINFO_PAIR["args_last"][1](process)))
                     elif key in PIDINFO_PAIR:
                         row.append(str(PIDINFO_PAIR[key][1](process)))
+                # print(row)
+                output_list.append("\t".join(str(x) if x is not None else '' for x in row))
 
-                print("\t".join(row))
+        # -------- PATH 3: Invalid filterstate or column list -------- #
+        # This should never happen, but just in case
+        else:
+            raise ValueError("No valid filterstate or column list provided")
+
+        # Sorting logic
+        if self.processStatOptions.sorting_flag and sorting_idx is not None:
+            output_list.sort(
+                key=lambda x: (sorting_idx, float('inf') if len(x.split()) <= sorting_idx or not x.split()[sorting_idx].replace('.', '', 1).isdigit() else float(x.split()[sorting_idx])),
+                reverse=True
+            )
+
+        # --------- Print output  --------- #
+        self.printer(header)
+        self.printer('\n'.join(output_list))
+
 
 
 class ProcessStatusReporter:
@@ -483,49 +492,52 @@ class ProcessStatusReporter:
         output_rows = []
         cpu_idx , mem_idx = 0, 0
         processes = self.process_filter.filter_processes(self.process_report.get_processes(self.delta_time))
+        def safe_str(val):
+            return '' if val is None else str(val)
         if selected_flag == "all":
             for process in processes:
                 output_rows.append("%s%s%s\t\t%s\t%s\t%s" % (
-                    timestamp, value_indentation, process.pid(), process.tty_name(),
-                    process.total_time(), process.process_name_with_args(True)))
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()),
+                    safe_str(process.tty_name()), safe_str(process.total_time()),
+                    safe_str(process.process_name_with_args(True))))
         elif selected_flag == "empty_arg":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s" % (
-                    timestamp, value_indentation, process.pid(),
-                    process.total_time(), process.process_name()))
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()),
+                    safe_str(process.total_time()), safe_str(process.process_name())))
         elif selected_flag == "pid":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
-                    timestamp, value_indentation, process.pid(), process.ppid(),
-                    process.tty_name(), process.total_time(), process.process_name()))
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()), safe_str(process.ppid()),
+                    safe_str(process.tty_name()), safe_str(process.total_time()), safe_str(process.process_name())))
         elif selected_flag == "ppid":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
-                    timestamp, value_indentation, process.pid(), process.ppid(), process.tty_name(),
-                    process.total_time(), process.process_name()))
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()), safe_str(process.ppid()), safe_str(process.tty_name()),
+                    safe_str(process.total_time()), safe_str(process.process_name())))
         elif selected_flag == "username":
             for process in processes:
                 output_rows.append("%s%s%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
-                    timestamp, value_indentation, process.user_name(), process.pid(),
-                    process.system_percent(), process.total_percent(), process.vsize(), process.rss(),
-                    process.tty_name(), process.ppid(), process.total_time(), process.start(),
-                    process.process_name()))
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.user_name()), safe_str(process.pid()),
+                    safe_str(process.system_percent()), safe_str(process.total_percent()), safe_str(process.vsize()), safe_str(process.rss()),
+                    safe_str(process.tty_name()), safe_str(process.ppid()), safe_str(process.total_time()), safe_str(process.start()),
+                    safe_str(process.process_name())))
             cpu_idx = 5
             mem_idx = 6
         elif selected_flag == "user":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
-                    timestamp, value_indentation, process.user_name(), process.pid(),
-                    process.system_percent(), process.total_percent(), process.vsize(), process.rss(),
-                    process.tty_name(), process.s_name(), process.total_time(), process.start(),
-                    process.process_name()))
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.user_name()), safe_str(process.pid()),
+                    safe_str(process.system_percent()), safe_str(process.total_percent()), safe_str(process.vsize()), safe_str(process.rss()),
+                    safe_str(process.tty_name()), safe_str(process.s_name()), safe_str(process.total_time()), safe_str(process.start()),
+                    safe_str(process.process_name())))
             cpu_idx = 5
             mem_idx = 6
         elif selected_flag == "command":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
-                    timestamp, value_indentation, process.pid(), process.ppid(), process.tty_name(),
-                    process.total_time(), process.process_name()))
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()), safe_str(process.ppid()), safe_str(process.tty_name()),
+                    safe_str(process.total_time()), safe_str(process.process_name())))
         else:  # default fallback, print nothing extra
             pass
         if self.processStatOptions.sorting_flag:
@@ -881,7 +893,8 @@ if __name__ == "__main__":
         sys.exit(1)
     except ValueError as e:
         sys.stderr.write(f"{e}\n")
-        sys.exit(1)
+        print(f"{e}\n")
+        sys.exit(0)
     except IOError:
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     except KeyboardInterrupt:
