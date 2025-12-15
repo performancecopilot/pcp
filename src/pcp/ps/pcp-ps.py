@@ -104,7 +104,7 @@ class ReportingMetricRepository:
 class ProcessFilter:
     """
     Optimized filtering of processes based on user-provided options.
-    Precomputes filter predicates at instantiation to minimize overhead per process, 
+    Precomputes filter predicates at instantiation to minimize overhead per process,
     and leverages generator expressions with all() for efficiency.
     """
     def __init__(self, options):
@@ -397,7 +397,8 @@ class DynamicProcessReporter:
         if self.processStatOptions.filterstate == "ALL":
             header = (
                 "Timestamp\tUSER\t\tPID\t\tPPID\t\tPRI\t%CPU\t%MEM\tVSZ"
-                +"\tRSS\tS\tSTARTED\t\tTIME\t\tWCHAN\t\t\t\tCommand"
+                "\tRSS\tS\tSTARTED\t\tTIME\t\t"
+                "WCHAN\t\t\t\tCommand"
             )
 
             # Precompute format string
@@ -425,7 +426,11 @@ class DynamicProcessReporter:
                     process.wchan_s(),
                     process.process_name_with_args_last()[:45]
                 ])
-                output_list.append("\t".join(str(x) if x is not None else '' for x in row))
+                output_list.append(
+                    "\t".join(
+                        str(x) if x is not None else '' for x in row
+                    )
+                )
 
         # -------- PATH 2: Customized column list -------- #
         elif self.processStatOptions.colum_list is not None:
@@ -453,7 +458,13 @@ class DynamicProcessReporter:
         # Sorting logic
         if self.processStatOptions.sorting_flag and sorting_idx is not None:
             output_list.sort(
-                key=lambda x: (sorting_idx, float('inf') if len(x.split()) <= sorting_idx or not x.split()[sorting_idx].replace('.', '', 1).isdigit() else float(x.split()[sorting_idx])),
+                key=lambda x: (
+                    sorting_idx,
+                    float('inf') if (
+                        len(x.split()) <= sorting_idx or
+                        not x.split()[sorting_idx].replace('.', '', 1).isdigit()
+                    ) else float(x.split()[sorting_idx])
+                ),
                 reverse=True
             )
 
@@ -513,43 +524,53 @@ class ProcessStatusReporter:
         elif selected_flag == "ppid":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
-                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()), safe_str(process.ppid()), safe_str(process.tty_name()),
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()),
+                    safe_str(process.ppid()), safe_str(process.tty_name()),
                     safe_str(process.total_time()), safe_str(process.process_name())))
         elif selected_flag == "username":
             for process in processes:
                 output_rows.append("%s%s%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
-                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.user_name()), safe_str(process.pid()),
-                    safe_str(process.system_percent()), safe_str(process.total_percent()), safe_str(process.vsize()), safe_str(process.rss()),
-                    safe_str(process.tty_name()), safe_str(process.ppid()), safe_str(process.total_time()), safe_str(process.start()),
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.user_name()),
+                    safe_str(process.pid()),safe_str(process.system_percent()), safe_str(process.total_percent()),
+                    safe_str(process.vsize()), safe_str(process.rss()),
+                    safe_str(process.tty_name()), safe_str(process.ppid()), safe_str(process.total_time()),
+                    safe_str(process.start()),
                     safe_str(process.process_name())))
             cpu_idx = 5
             mem_idx = 6
         elif selected_flag == "user":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
-                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.user_name()), safe_str(process.pid()),
-                    safe_str(process.system_percent()), safe_str(process.total_percent()), safe_str(process.vsize()), safe_str(process.rss()),
-                    safe_str(process.tty_name()), safe_str(process.s_name()), safe_str(process.total_time()), safe_str(process.start()),
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.user_name()),
+                    safe_str(process.pid()),
+                    safe_str(process.system_percent()), safe_str(process.total_percent()),
+                    safe_str(process.vsize()), safe_str(process.rss()),
+                    safe_str(process.tty_name()), safe_str(process.s_name()),
+                    safe_str(process.total_time()), safe_str(process.start()),
                     safe_str(process.process_name())))
             cpu_idx = 5
             mem_idx = 6
         elif selected_flag == "command":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
-                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()), safe_str(process.ppid()), safe_str(process.tty_name()),
+                    safe_str(timestamp), safe_str(value_indentation), safe_str(process.pid()),
+                    safe_str(process.ppid()), safe_str(process.tty_name()),
                     safe_str(process.total_time()), safe_str(process.process_name())))
         else:  # default fallback, print nothing extra
             pass
         if self.processStatOptions.sorting_flag:
             if cpu_idx == 0 and mem_idx == 0:
-                raise ValueError("Sorting indices not set for selected flag, please remove sorting flag or choose another flag for output")
+                raise ValueError("Sorting indices not set for selected flag, "
+                                 "please remove sorting flag or choose another flag for output")
             if self.processStatOptions.sorting_order == '%cpu':
                 output_rows.sort(
-                key=lambda x: float(x.split()[cpu_idx]) if x.split()[cpu_idx].replace('.', '', 1).isdigit() else float('-inf'),
+                key=lambda x: float(x.split()[cpu_idx]) if x.split()[cpu_idx].replace('.', '', 1).isdigit()
+                else float('-inf'),
                 reverse=True)
             elif self.processStatOptions.sorting_order == '%mem':
                 output_rows.sort(
-                key=lambda x: float(x.split()[mem_idx]) if x.split()[mem_idx].replace('.', '', 1).isdigit() else float('-inf'),
+                key=lambda x: float(x.split()[mem_idx]) if x.split()[mem_idx].replace('.', '', 1).isdigit()
+                else float('-inf'),
                 reverse=True)
         if output_rows:
             self.printer(header)
@@ -641,7 +662,8 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
             value_indentation = ((len(header_indentation) + 9) - len(timestamp)) * " "
 
             # Doing this for one single print instance in case there is no count specified
-            if self.processStatOptions.print_count is None and self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
+            if self.processStatOptions.print_count is None \
+                and self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
                 if self.processStatOptions.debug_mode:
                     print("No print count specified, defaulting to print one time")
                 self.processStatOptions.print_count = 1
@@ -695,34 +717,74 @@ class ProcessStatOptions(pmapi.pmOptions):
                              "Select the process by process ID")
         self.pmSetLongOption("", 1, "P", "[ppid1,ppid2,...]", "Select the process by process parent ID")
         self.pmSetLongOption("", 1, "U", "[User Name]", "Select the process by user name")
-        self.pmSetLongOption("", 1, "o", "[col1,col2,... Or ALL]", "User -defined format " +
-                             "USE -o [all] or -B [col1, col2 , ...]" +
-                             "\n\t\t\tsupported user defined colums are command, wchan, started, Time, pid, ppid, "
-                             "%mem, pri, user, %cpu and S "
-                             "\n\t\t\tALL option shows USER,PID,PPID,PRI,%CPU,%MEM,VSZ,RSS,S,STARTED,TIME,WCHAN and "
-                             "Command")
-        self.pmSetLongOption("", 0, "d", "", "enable debug mode")
+        self.pmSetLongOption(
+            "",
+            1,
+            "o",
+            "[col1,col2,... Or ALL]",
+            (
+                "User -defined format USE -o [all] or -B [col1, col2 , ...]\n"
+                "\t\t\tsupported user defined colums are command, wchan, started, Time, pid, ppid, "
+                "%mem, pri, user, %cpu and S\n"
+                "\t\t\tALL option shows USER,PID,PPID,PRI,%CPU,%MEM,VSZ,RSS,S,STARTED,TIME,WCHAN and\n"
+                "Command"
+            ),
+        )
         self.pmSetLongOptionText("\tCOL\tHEADER \tDESCRIPTION")
         self.pmSetLongOptionText("\t%cpu\t%CPU \tcpu utilization of the process")
         self.pmSetLongOptionText("\t%mem\t%MEM  \tphysical memory on the machine expressed as a percentage")
         self.pmSetLongOptionText("\tstart\tSTART \ttime the command started")
         self.pmSetLongOptionText("\ttime\tTIME \taccumulated cpu time, user + system")
-        self.pmSetLongOptionText("\tcls\tCLS \tscheduling class of the process")
-        self.pmSetLongOptionText("\tcmd\tCMD\tsee args.  (alias args, command).")
-        self.pmSetLongOptionText("\tpid\tPID \tthe process ID")
-        self.pmSetLongOptionText("\tppid\tPPID\tparent process ID")
-        self.pmSetLongOptionText("\tpri\tPRI \tpriority of the process")
-        self.pmSetLongOptionText("\tstate\tS \tsee s")
-        self.pmSetLongOptionText("\trss\tRSS \tthe non-swapped physical memory that a task has used")
-        self.pmSetLongOptionText("\trtprio\tRTPRIO \trealtime priority")
-        self.pmSetLongOptionText("\tpname\tPname\tProcess name")
-        self.pmSetLongOptionText("\ttty\tTT \tcontrolling tty (terminal)")
-        self.pmSetLongOptionText("\tuid\tUID \tsee euid")
-        self.pmSetLongOptionText("\tvsize\tVSZ \tsee vsz")
-        self.pmSetLongOptionText("\tuname\tUSER \tsee euser")
-        self.pmSetLongOptionText("\twchan\tWCHAN \tname of the kernel function in which the process is sleeping")
-        self.pmSetLongOption("", 0, 'u', "", "Display user-oriented format")
-        self.pmSetLongOption("", 1, "O", "%cpu,%mem", "sort the process list by %cpu or %mem values ")
+        self.pmSetLongOptionText(
+            "\tcls\tCLS \tscheduling class of the process"
+        )
+        self.pmSetLongOptionText(
+            "\tcmd\tCMD\tsee args.  (alias args, command)."
+        )
+        self.pmSetLongOptionText(
+            "\tpid\tPID \tthe process ID"
+        )
+        self.pmSetLongOptionText(
+            "\tppid\tPPID\tparent process ID"
+        )
+        self.pmSetLongOptionText(
+            "\tpri\tPRI \tpriority of the process"
+        )
+        self.pmSetLongOptionText(
+            "\tstate\tS \tsee s"
+        )
+        self.pmSetLongOptionText(
+            "\trss\tRSS \tthe non-swapped physical memory that a task has used"
+        )
+        self.pmSetLongOptionText(
+            "\trtprio\tRTPRIO \trealtime priority"
+        )
+        self.pmSetLongOptionText(
+            "\tpname\tPname\tProcess name"
+        )
+        self.pmSetLongOptionText(
+            "\ttty\tTT \tcontrolling tty (terminal)"
+        )
+        self.pmSetLongOptionText(
+            "\tuid\tUID \tsee euid"
+        )
+        self.pmSetLongOptionText(
+            "\tvsize\tVSZ \tsee vsz"
+        )
+        self.pmSetLongOptionText(
+            "\tuname\tUSER \tsee euser"
+        )
+        self.pmSetLongOptionText(
+            "\twchan\tWCHAN \tname of the kernel function in which the process is sleeping"
+        )
+        self.pmSetLongOption("", 0, 'u', "",
+                             "Display user-oriented format"
+        )
+        self.pmSetLongOption(
+            "", 1, "O", "%cpu,%mem",
+            "sort the process list by %cpu or %mem values "
+        )
+        self.pmSetLongOption("", 0, "d", "", "enable debug mode")
         self.pmSetLongOptionVersion()
         self.pmSetLongOptionTimeZone()
         self.pmSetLongOptionHostZone()
@@ -793,7 +855,7 @@ class ProcessStatOptions(pmapi.pmOptions):
             self.user_oriented_format = True
 
         def handle_o():
-            if self.debug_mode: 
+            if self.debug_mode:
                 print("User-defined format option selected")
             self.selective_colum_flag = True
             try:
