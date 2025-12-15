@@ -100,13 +100,13 @@ _filter()
 	    sed \
 		-e '/ pcp-pmie\[/d' \
 		-e '/rc\[[0-9]*]: .*\/rc:$/d' \
-		-e '/pmie\[[0-9]*]: '"`echo "$PCP_SERVICES_DIR" | sed -e 's@/@\\\\/@g'`"':$/d' \
+		-e '/pmie\[[0-9]*]: '"`echo "$PCP_SERVICES_DIR" | sed -e 's@/@\\\\/@g'`"'\/pmie:$/d' \
 		-e '/rc\[[0-9]*]: Error: .* \$PCP_PMIECONTROL_PATH/d' \
 		-e '/pmie\[[0-9]*]: Error: .* \$PCP_PMIECONTROL_PATH/d' \
 		-e '/rc\[[0-9]*]: .*is missing!/d' \
 		-e '/pmie\[[0-9]*]: .*is missing!/d' \
 		-e '/rc\[[0-9]*]: .*not permanently enabled/d' \
-		-e '/pmie\[[0-9]*]: *not permanently enabled/d' \
+		-e '/pmie\[[0-9]*]: .*not permanently enabled/d' \
 		-e '/rc\[[0-9]*]: .*run the following as root:/d' \
 		-e '/pmie\[[0-9]*]: .*run the following as root:/d' \
 		-e '/rc\[[0-9]*]: .*systemctl enable pmie\.service/d' \
