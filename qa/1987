@@ -61,5 +61,14 @@ pcp $archive_first ps -u -O %cpu | head -10
 echo && echo pcp-ps output : Display the value as per %mem sorted
 pcp $archive_first ps -u -O %mem | head -10
 
+echo && echo pcp-ps output : Display the value as per %mem in user selected format\(failure case\)
+pcp $archive_first ps -o pid,ppid,tty,args -O %mem
+
+echo && echo pcp-ps output : Display the value as per %mem in user selected format
+pcp $archive_first ps -o pid,ppid,tty,args,%mem -O %mem | head -10
+
+echo && echo pcp-ps output : Display the value as per %cpu in user selected format
+pcp $archive_first ps -o ALL -O %cpu | head -10
+
 status=0
 exit
