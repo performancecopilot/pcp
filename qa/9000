@@ -53,7 +53,7 @@ $verbose && printf "$fmt" "Unit" "LoadState" "UnitFileState" "ActiveState" "Trig
 | while read unit
 do
     [ -f "$PCP_SYSTEMDUNIT_DIR/$unit" ] || continue
-    systemctl status -l --no-pager "$unit" >>$seq_full
+    $sudo systemctl status -l --no-pager "$unit" >>$seq_full
     systemctl show --no-pager "$unit" >$tmp.tmp
     LoadState='missing'
     eval `grep ^LoadState= $tmp.tmp`
@@ -86,9 +86,10 @@ do
     fi
     # pcp-reboot-init.service is a special "one" shot and
     # the resulting ActiveState (SubState) can be "inactive (dead)" or
-    # "active (exited)"
+    # "active (exited)".
+    # Ditto for pcp-geolocate.
     #
-    if [ "$unit" = pcp-reboot-init.service ]
+    if [ "$unit" = pcp-reboot-init.service -o "$unit" = pcp-geolocate.service ]
     then
 	if [ "$ActiveState+$SubState" = "active+exited" -o \
 	     "$ActiveState+$SubState" = "inactive+dead" ]
@@ -99,11 +100,11 @@ do
     if [ "$SubState" = dead ]
     then
 	echo "$unit: BAD LoadState=$LoadState UnitFileState=$UnitFileState ActiveState=$ActiveState Substate=dead TriggeredBy=$TriggeredBy"
-	systemctl status -l --no-pager "$unit"
+	$sudo systemctl status -l --no-pager "$unit"
 	continue
     fi
     echo "$unit: BAD Unclassified LoadState=$LoadState UnitFileState=$UnitFileState ActiveState=$ActiveState TriggeredBy=$TriggeredBy SubState=$SubState"
-    systemctl status -l --no-pager "$unit"
+    $sudo systemctl status -l --no-pager "$unit"
 done
 
 # success, all done
