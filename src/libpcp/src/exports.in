@@ -708,6 +708,10 @@ PCP_4.0 {
     srandom;
 #endif
 
+#if solaris
+    cfmakeraw;
+#endif
+
   local: *;
 };
 
