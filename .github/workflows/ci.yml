@@ -77,7 +77,7 @@ jobs:
         # always() is required here to run this step even if the build fails
         # otherwise the platform will be skipped in the test report (it should be flagged as broken)
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: build-${{ matrix.platform }}
           path: artifacts/build
@@ -99,7 +99,7 @@ jobs:
 
       - name: Upload test results
         if: always() && steps.init_qa.outcome == 'success'
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: test-${{ matrix.platform }}
           path: artifacts/test
