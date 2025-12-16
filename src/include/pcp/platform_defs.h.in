@@ -325,7 +325,6 @@ PCP_CALL extern int fsync(int);
 PCP_CALL extern int symlink(const char *, const char *);
 PCP_CALL extern int readlink(const char *, char *, size_t);
 PCP_CALL extern void setlinebuf(FILE *);
-PCP_CALL extern char *strcasestr(const char *, const char *);
 PCP_CALL extern char *strsep(char **, const char *);
 PCP_CALL extern long int lrand48(void);
 PCP_CALL extern void srand48(long int);
@@ -408,6 +407,9 @@ PCP_CALL extern char *dirname(char *);
 #endif
 #ifndef HAVE_BASENAME
 PCP_CALL extern char *basename(char *);
+#endif
+#ifndef HAVE_STRCASESTR
+PCP_CALL extern char *strcasestr(const char *, const char *);
 #endif
 #ifndef HAVE_STRNDUP
 PCP_CALL extern char *strndup(const char *, size_t);

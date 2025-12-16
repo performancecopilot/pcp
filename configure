@@ -13618,6 +13618,12 @@ then :
   printf "%s\n" "#define HAVE_STRNDUP 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "strcasestr" "ac_cv_func_strcasestr"
+if test "x$ac_cv_func_strcasestr" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRCASESTR 1" >>confdefs.h
+
+fi
 
 ac_fn_c_check_func "$LINENO" "getgrent" "ac_cv_func_getgrent"
 if test "x$ac_cv_func_getgrent" = xyes
@@ -13703,6 +13709,13 @@ ac_fn_c_check_func "$LINENO" "trace_back_stack" "ac_cv_func_trace_back_stack"
 if test "x$ac_cv_func_trace_back_stack" = xyes
 then :
   printf "%s\n" "#define HAVE_TRACE_BACK_STACK 1" >>confdefs.h
+
+fi
+
+ac_fn_c_check_func "$LINENO" "cfmakeraw" "ac_cv_func_cfmakeraw"
+if test "x$ac_cv_func_cfmakeraw" = xyes
+then :
+  printf "%s\n" "#define HAVE_CFMAKERAW 1" >>confdefs.h
 
 fi
 
