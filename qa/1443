@@ -54,14 +54,23 @@ _filter()
 	-e '/ PPID /d' \
 	-e '/check .*-g pmlogger/d' \
 	-e '/^pcp /d' \
+	-e '/^Start \[/d' \
+	-e '/^End \[/d' \
+	-e '/^Pass /d' \
+	-e '/^Info: processing archives from remote pmlogger /d' \
 	-e 's/2[0-9][0-9][0-9][01][0-9][0-3][0-9]\.[0-5][0-9]\.[0-5][0-9]/TIMESTAMP/g' \
 	-e 's/TIMESTAMP-[0-9][0-9]/TIMESTAMP/g' \
 	-e "s@$PCP_ARCHIVE_DIR/@PCP_ARCHIVE_DIR/@g" \
+	-e "s@$PCP_TMP_DIR/@PCP_TMP_DIR/@g" \
 	-e "s/$hostname/HOSTNAME/g" \
 	-e "s/PID $pid_1\$/PID PID_1/" \
 	-e "s/PID $pid_2\$/PID PID_2/" \
+	-e "/PID $$/s/$$/MYPID/g" \
 	-e '/^Warning: ignoring packaging backup control file/d' \
-    # end
+    | $PCP_AWK_PROG '
+$1 == "PID" && $NF == "CMD"	{ skip = 2 }
+skip > 0			{ skip--; next }
+				{ print }'
 }
 
 # real QA test starts here
@@ -137,14 +146,32 @@ do
     $sudo rm -f /etc/pcp/pmlogger/control.d/orphan-$host
 done
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger ( |$)' >>$seq_full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
+
+# customer issue from sagar.sagar AT oracle.com
+# stale file, $PCP_TMP_DIR/pmlogger/<pid> from an old pmlogger that
+# is long-gone, but now <pid> is an active process that is NOT a 
+# pmlogger ... the janitor was trying to kill <pid>
+#
+cat <<End-of-File >$tmp.mapfile
+12345
+no.such.host
+/no/such/path
+pmlogger_check
+End-of-File
+# use the QA test's PID, to make sure we don't kill a non-pmlogger
+# process
+#
+echo "I am PID $$ [not a pmlogger]" >>$seq_full
+$sudo -u $PCP_USER cp $tmp.mapfile $PCP_TMP_DIR/pmlogger/$$
+ls -l $PCP_TMP_DIR/pmlogger >>$seq_full
 
 # now run the janitor ...
 #
 # need to be a place the user $PCP_USER can cd to from pmlogger_janitor
 #
 cd /var/tmp
-$sudo -u $PCP_USER $PCP_BINADM_DIR/pmlogger_janitor -l /var/tmp/janitor-$seq.log
+$sudo -u $PCP_USER $PCP_BINADM_DIR/pmlogger_janitor -V -l /var/tmp/janitor-$seq.log
 cd $here
 cat /var/tmp/janitor-$seq.log >>$seq_full
 _filter </var/tmp/janitor-$seq.log >$tmp.tmp
