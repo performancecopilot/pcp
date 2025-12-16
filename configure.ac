@@ -2251,10 +2251,11 @@ AC_CHECK_FUNCS(chown fchmod fchown getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
-AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup)
+AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup strcasestr)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack)
+AC_CHECK_FUNCS(cfmakeraw)
 
 dnl checking for backtrace() needs a little more care ..
 dnl check if backtrace functions come from libexeinfo (OpenBSD 7.0)

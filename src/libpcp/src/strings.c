@@ -299,3 +299,23 @@ invalid_input:
     free(out_start);
     return -EINVAL;
 }
+
+#ifndef HAVE_STRCASESTR
+char *
+strcasestr(const char *string, const char *substr)
+{
+    int i, j;
+    int sublen = strlen(substr);
+    int length = strlen(string) - sublen + 1;
+
+    for (i = 0; i < length; i++) {
+        for (j = 0; j < sublen; j++)
+            if (toupper(string[i+j]) != toupper(substr[j]))
+                goto outerloop;
+        return (char *) substr + i;
+    outerloop:
+        continue;
+    }
+    return NULL;
+}
+#endif

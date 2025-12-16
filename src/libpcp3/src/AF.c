@@ -173,14 +173,14 @@ AFrearm(void)
  */
 
 static void
-printdelta(FILE *f, struct timeval *tp)
+printtimedelta(FILE *f, struct timeval *tp)
 {
     struct tm	*tmp;
     struct tm	gmtbuf;
     time_t	tt =  (time_t)tp->tv_sec;
 
     tmp = gmtime_r(&tt, &gmtbuf);
-    fprintf(stderr, "%02d:%02d:%02d.%06ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
+    fprintf(f, "%02d:%02d:%02d.%06ld", tmp->tm_hour, tmp->tm_min, tmp->tm_sec, (long)tp->tv_usec);
 }
 
 /*
@@ -374,7 +374,7 @@ onalarm(int dummy)
 	    if (pmDebugOptions.af) {
 		pmPrintStamp(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
-		printdelta(stderr, &interval);
+		printtimedelta(stderr, &interval);
 		fputc('\n', stderr);
 	    }
 	    AFsetitimer(&interval);
@@ -427,7 +427,7 @@ __pmAFsetup(const struct timeval *start, const struct timeval *delta, void *data
 	if (pmDebugOptions.af) {
 	    pmPrintStamp(stderr, &now);
 	    fprintf(stderr, " AFsetitimer for delta ");
-	    printdelta(stderr, &interval);
+	    printtimedelta(stderr, &interval);
 	    fputc('\n', stderr);
 	}
 	AFsetitimer(&interval);
@@ -484,7 +484,7 @@ __pmAFunregister(int id)
 	    if (pmDebugOptions.af) {
 		pmPrintStamp(stderr, &now);
 		fprintf(stderr, " AFsetitimer for delta ");
-		printdelta(stderr, &interval);
+		printtimedelta(stderr, &interval);
 		fputc('\n', stderr);
 	    }
 	    AFsetitimer(&interval);

@@ -44,6 +44,9 @@
 /* compiler casts u64 to double */
 #undef HAVE_CAST_U64_DOUBLE
 
+/* Define to 1 if you have the `cfmakeraw' function. */
+#undef HAVE_CFMAKERAW
+
 /* Define to 1 if you have the `chown' function. */
 #undef HAVE_CHOWN
 
@@ -500,6 +503,9 @@
 
 /* Define to 1 if you have the <stdlib.h> header file. */
 #undef HAVE_STDLIB_H
+
+/* Define to 1 if you have the `strcasestr' function. */
+#undef HAVE_STRCASESTR
 
 /* strerror_r return */
 #undef HAVE_STRERROR_R_PTR
