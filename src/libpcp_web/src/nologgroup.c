@@ -15,6 +15,8 @@
 /* Stub routines for platforms lacking necessary features (UV, SSL) */
 #include "pmwebapi.h"
 
+struct mmv_registry;
+
 int
 pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length, struct dict *dp, void *arg)
 {
@@ -75,4 +77,17 @@ void
 pmLogGroupClose(pmLogGroupModule *module)
 {
     (void)module;
+}
+
+void
+pmLogPathsReset(pmLogGroupModule *module)
+{
+    (void)module;
+}
+
+int
+pmLogPathsSetMetricRegistry(pmLogGroupModule *module, struct mmv_registry *logpaths)
+{
+    (void)module; (void)logpaths;
+    return -EOPNOTSUPP;
 }
