@@ -1,0 +1,35 @@
+#!/bin/sh
+# PCP QA Test No. 1997
+# Exercise various pcp-nfsiostat(1) command options.
+#
+# Copyright (c) 2023 Oracle and/or its affiliates.
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+status=1        # failure is the default!
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+pcp_nfsiostat="$PCP_BINADM_DIR/pcp-nfsiostat"
+test -x $pcp_nfsiostat || _notrun "No pcp-nfsiostat(1) installed"
+pcp_nfsiostat="$python $pcp_nfsiostat"
+
+# real QA test starts here
+echo && echo pcp-nfsiostat output : Display default output
+PCP_ARCHIVE="archives/pcp-nfsiostat" PCP_HOSTZONE=1 $pcp_nfsiostat
+
+archive_first="-a archives/pcp-nfsiostat -z -O +1"
+
+echo && echo pcp-nfsiostat output : Display output
+pcp $archive_first nfsiostat
+
+echo && echo pcp-nfsiostat output : Display output when given specified number of samples
+pcp $archive_first nfsiostat -s 3
+
+status=0
+exit
+
