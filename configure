@@ -13624,6 +13624,12 @@ then :
   printf "%s\n" "#define HAVE_STRCASESTR 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "strsep" "ac_cv_func_strsep"
+if test "x$ac_cv_func_strsep" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRSEP 1" >>confdefs.h
+
+fi
 
 ac_fn_c_check_func "$LINENO" "getgrent" "ac_cv_func_getgrent"
 if test "x$ac_cv_func_getgrent" = xyes

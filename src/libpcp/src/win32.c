@@ -726,33 +726,6 @@ rindex(const char *string, int marker)
     return NULL;
 }
 
-char *
-strsep(char **stringp, const char *delim)
-{
-    char	*ss, *se;
-    const char	*dp;
-
-    if ((ss = *stringp) == NULL)
-	return NULL;
-
-    for (se = ss; *se; se++) {
-	for (dp = delim; *dp; dp++) {
-	    if (*se == *dp)
-		break;
-	}
-    }
-
-    if (*se != '\0') {
-	/* match: terminate and update stringp to point past match */
-	*se++ = '\0';
-	*stringp = se;
-    }
-    else
-	*stringp = NULL;
-
-    return ss;
-}
-
 void *
 dlopen(const char *filename, int flag)
 {
