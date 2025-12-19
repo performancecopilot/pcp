@@ -2,3 +2,4 @@ usr/bin/guidellm2pcp
 usr/bin/vllmbench2pcp
 usr/share/man/man1/guidellm2pcp.1.gz
 usr/share/man/man1/vllmbench2pcp.1.gz
+usr/share/lintian/overrides/pcp-import-benchmarks
