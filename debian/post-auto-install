@@ -200,15 +200,19 @@ do
 	fi
 
 	# for python3-pcp remove the full list (especially the __pycache__
-	# dir that is not packaged)
+	# dir that is not packaged and is populated with files in addition
+	# to those mentioned in python3-pcp.list)
 	#
 	case "$pkg"
 	in
 	    python3-pcp)
- 		sed <../python3-pcp.list >$tmp.filelist \
- 		    -e 's@^/@@' \
+ 		sed -n <../python3-pcp.list >>$filelist -e '/__pycache__/{
+s@^/@@
+s@/[^/]*$@/*@
+p
+q
+}'
  		# end
-		filelist=$tmp.filelist
 		;;
 	esac
 
@@ -259,6 +263,7 @@ do
 	    fi
 	done
     fi
+
 done
 
 # Perl needs special handling to run "make install_perl" in each Perl
