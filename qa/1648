@@ -1,0 +1,83 @@
+#!/bin/sh
+# PCP QA Test No. 1648
+# run lintian on all .debs
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+# lintian takes a long time, longer than our default check timeouts
+# :no_timeout:
+# hence don't run this in CI
+# :not_in_ci:
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d ../build/deb ] || _notrun "not a Debian build or not in a dev tree"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+cd ../build/deb || exit 1
+
+rm -f $tmp.onetrip
+for pkg in *.deb
+do
+    case "$pkg"
+    in
+	'*.deb')
+	    _notrun "no Debian packages in ../build/deb"
+	    ;;
+	*-dbgsym_*|lib*t64_*)
+	    continue;
+	    ;;
+    esac
+    if [ ! -f $tmp.onetrip ]
+    then
+	echo "Silence is golden ..."
+	touch $tmp.onetrip
+    fi
+    # no pager or line chopping ... send output to a file
+    #
+    lintian $pkg >$tmp.tmp
+    if [ -s $tmp.tmp ]
+    then
+	echo
+	echo "=== echo $pkg ==="
+	cat $tmp.tmp
+	echo
+    else
+	$PCP_ECHO_PROG $PCP_ECHO_N .
+    fi
+done
+echo
+
+# success, all done
+exit
