@@ -601,11 +601,13 @@ prepare_debian_sources()
 	echo "Arrgh! No debian/changelog below `pwd`"
 	exit
     fi
-    if head -1 debian/changelog | grep -q "^pcp ($PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION-$PACKAGE_BUILD)"
+    if head -1 debian/changelog | grep -q "^pcp ($PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION-"
     then
-	: all OK
+	# correct version, even if $PACKAGE_BUILD is different
+	#
+	:
     else
-	# add dummy stanza for this (developer build)
+	# new|different version, add dummy stanza for this (developer build)
 	#
 	[ -z "$GIT_AUTHOR_NAME" ] && GIT_AUTHOR_NAME="Bozo the Clown"
 	[ -z "$GIT_AUTHOR_EMAIL" ] && GIT_AUTHOR_EMAIL="bozo@kenj.id.au"
