@@ -541,7 +541,7 @@ The
 .B \-m
 option allows the string
 .I note
-to be appended to the map file for this instance of
+to be appended to the port map file for this instance of
 .B pmlogger
 in the
 .B $PCP_TMP_DIR/pmlogger
@@ -1191,13 +1191,27 @@ archive
 .TP
 .B $PCP_TMP_DIR/pmlogger
 .B pmlogger
-maintains the files in this directory as the map between the
+maintains the files in this directory as the port map between the
 process id of the
 .B pmlogger
-instance and the IPC port that may be used to control each
+instance, the IPC port that may be used to control each
 .B pmlogger
 instance (as used by
-.BR pmlc (1))
+.BR pmlc (1)),
+the name of the host where
+.BR pmcd (1)
+is providing the metrics for
+.BR pmlogger ,
+the remote connection string
+for the remote HTTP server that is receiving the logged data
+or the full path to the archive base name for a local logger
+and any annotation from the
+.B \-m
+or
+.B \-x
+options;
+all of this information is also available via the pmcd.pmlogger.*
+metrics, e.g. $ pminfo -f pmcd.pmlogger
 .TP
 .B $PCP_VAR_DIR/config/pmlogger/config.default
 default configuration file for the primary logger instance

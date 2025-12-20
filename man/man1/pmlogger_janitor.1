@@ -1,0 +1,281 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMLOGGER_JANITOR 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmlogger_janitor\f1 \- management helper for Performance Co-Pilot archive files
+.SH SYNOPSIS
+.B $PCP_BINADM_DIR/pmlogger_janitor
+[\f3\-NV?\f1]
+[\f3\-c\f1 \f2control\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-X\f1 \f2program\f1]
+[\f3\-Y\f1 \f2regex\f1]
+.SH DESCRIPTION
+Typically
+.B pmlogger_janitor
+is not used directly, rather it is called from
+.BR pmlogger_check (1)
+to clean up any residual processes and state files associated with
+moribund instances of
+.BR pmlogger (1).
+.PP
+If
+.B pmlogger_janitor
+is run directly, it needs to be run as the user
+.BR $PCP_USER ;
+the only exception is when the
+.B \-N
+option is used.
+.SH OPTIONS
+.TP 5
+\fB\-c\fR \fIcontrol\fR, \fB\-\-control\fR=\fIcontrol\fR
+Like
+.B pmlogger_check (1)
+and
+.BR pmlogger_daily (1),
+.B pmlogger_janitor
+is controlled by PCP logger control file(s)
+that specify the
+.B pmlogger
+instances to be managed.
+The default
+.I control
+file is
+.B $PCP_PMLOGGERCONTROL_PATH
+but an alternate may be specified using the
+.B \-c
+option.
+If the directory
+.B $PCP_PMLOGGERCONTROL_PATH.d
+(or
+.IB control .d
+from the
+.B \-c
+option) exists, then the contents of any additional
+.I control
+files therein will be appended to the main control file (which must exist).
+.TP 5
+\fB\-l\fR \fIfile\fR, \fB\-\-logfile\fR=\fIfile\fR
+In order to ensure that mail is not unintentionally sent when this
+script is run from
+.BR cron (8)
+or
+.BR systemd (1)
+diagnostics are always sent to log files.
+By default, this file is
+.B $PCP_LOG_DIR/pmlogger/pmlogger_janitor.log
+but this can be changed using the
+.B \-l
+option.
+If this log
+.I file
+already exists when the script starts, it will be
+renamed with a
+.B .prev
+suffix (overwriting any log file saved earlier) before diagnostics
+are generated to the log file.
+.TP 5
+\fB\-N\fR, \fB\-\-showme\fR
+This option enables a ``show me'' mode, where the actions are
+echoed, but not executed, in the style of ``make \-n''.
+Using
+.B \-N
+in conjunction with
+.B \-V
+maximizes the diagnostic capabilities for debugging.
+.TP 5
+\fB\-V\fR, \fB\-\-verbose\fR
+The
+.B \-V
+option enables verbose tracing.
+By default
+.B pmlogger_janitor
+generates no output unless some error or warning
+condition is encountered.
+A second
+.B \-V
+increases the verbosity.
+Using
+.B \-N
+in conjunction with
+.B \-V
+maximizes the diagnostic capabilities for debugging.
+.TP 5
+\fB\-X\fR \fIprogram\fR, \fB\-\-compressor\fR=\fIprogram\fR
+This option specifies the program to use for compression.
+Refer to
+.BR pmlogger_daily (1)
+for details.
+.TP 5
+\fB\-Y\fR \fIregex\fR, \fB\-\-regex\fR=\fIregex\fR
+This option allows a regular expression to be specified causing files in
+the set of files matched for compression to be omitted.
+Refer to
+.BR pmlogger_daily (1)
+for details.
+.TP 5
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH OPERATION
+.B pmlogger_janitor
+operates in a number of passes looking for things to cleanup.
+.TP 7n
+.I "Pass 1"
+Scan the
+.B pmlogger
+port map files in the
+.B $PCP_TMP_DIR/pmlogger
+directory.
+Use the process id (PID) from the name of the port map file and
+.BR ps (1)
+to check and if the process exists and it ``looks like'' an active
+.BR pmlogger ;
+if so
+append the PID and the directory where the archive is being
+written (extracted from the port map file) to a list of interest,
+otherwise the port map file is assumed to be associated with a
+.B pmlogger
+that has exited and the port map file is removed.
+.TP 7n
+.I "Pass 2"
+Use
+.BR ps (1)
+to scan all processes and identify any
+.B pmlogger
+instances that were started by
+.BR pmlogger_check (3)
+or
+.BR pmlogger_daily (3),
+these will have a signature
+.BR \-m
+option in their arguments.
+Append the PIDs and directories where the archive is being
+written (extracted from the command line arguments) to the list of interest.
+.TP 7n
+.I "Pass 3"
+Parse all of the
+.BR pmlogger.control (5)
+files from either the standard places, or
+.I control
+if the
+.B \-c
+option is used.
+For each
+.B pmlogger
+instance, it should be in the list of interest,
+and if so remove it from that list.
+.RS 7n
+.PP
+If the list of interest is empty at the end of this Pass, we're done.
+.RE
+.TP 7n
+.I "Pass 4"
+Each process remaining in the list of interest is a
+.B pmlogger
+that is running, but should not be; probably as a result of a change
+to the
+.BR pmlogger.control (5)
+files.
+Send each process a SIGTERM.
+.TP 7n
+.I "Pass 5"
+For each process remaining in the list of interest after
+.I "Pass 3"
+compress any archives
+in the directory
+.B pmlogger
+was writing into.
+This is the only step where the
+.B \-X
+and
+.B \-Y
+options might be used.
+.TP 7n
+.I "Pass 6"
+For each
+.B pmlogger
+sent a SIGTERM in
+.I "Pass 4"
+check that it has exited and if not send it a SIGKILL.
+.SH FILES
+.TP 5
+.B $PCP_LOG_DIR/pmlogger/pmlogger_janitor.log
+if the previous execution of
+.B pmlogger_janitor
+produced any output it is saved here.
+The normal case is no output in which case the file does not exist.
+.TP 5
+.B $PCP_ARCHIVE_DIR/SaveLogs
+if this directory exists,
+then the log file from the
+.B \-l
+argument for
+.B pmlogger_janitor
+will be saved in this directory with the name of the format
+<date>-\fBpmlogger_janitor\fP.\fBlog\fP.<pid>
+This allows the log file to be inspected at a later time, even if
+several
+.B pmlogger_janitor
+executions have been launched in the interim.
+.B $PCP_ARCHIVE_DIR/SaveLogs
+needs to be owned by the user
+.BR $PCP_USER .
+.TP 5
+.B $PCP_TMP_DIR/pmlogger
+.B pmlogger
+maintains the files in this directory as the port map between the
+PID of the
+.B pmlogger
+instance, the IPC port that may be used to control each
+.B pmlogger
+instance (as used by
+.BR pmlc (1)),
+the name of the host where
+.BR pmcd (1)
+is providing the metrics for
+.BR pmlogger ,
+the remote connection string
+for the remote HTTP server that is receiving the logged data
+or the full path to the archive base name for a local logger
+and any annotation from the
+.B \-m
+or
+.B \-x
+options;
+all of this information is also available via the pmcd.pmlogger.*
+metrics, e.g. $ pminfo -f pmcd.pmlogger
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fP contains the local values for these variables.
+The \fB$PCP_CONF\fP variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fP(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmlc (1),
+.BR pmlogctl (1),
+.BR pmlogger (1),
+.BR pmlogger_check (1),
+.BR pmlogger_daily (1),
+.BR ps (1),
+.BR systemd (1),
+.BR pmlogger.control (5)
+and
+.BR cron (8).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ SaveLogs prev {from .prev suffix}
