@@ -384,6 +384,18 @@ primary pmlogger has an extra instance with the instance name "primary"
 and an instance ID of zero (in addition to its normal process ID
 instance).
 
+@ pmcd.pmlogger.note annotation for active pmloggers
+The -x or -m options from the command line for each pmlogger instance.
+
+For -m the most common values would be "pmlogger_check" for an
+instance started by pmlogger_check(1) or "reexec" for an instance
+restarted by pmlogger rotation from pmlogger_daily(1).
+
+The instance names are process IDs of the active pmloggers.  The
+primary pmlogger has an extra instance with the instance name "primary"
+and an instance ID of zero (in addition to its normal process ID
+instance).
+
 @ pmcd.timezone local $TZ
 Value for the $TZ environment variable where the PMCD is running.
 Enables determination of "local" time for timestamps returned via
