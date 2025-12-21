@@ -161,6 +161,9 @@ s/value ".*"*/value "<kprobes error babble>"/
 n
 /^ERROR: Error attaching probe: kprobe:/d
 }' \
+    -e '/value "Unable to attach probe: kprobe:dbg_get_reg. /{
+s/value ".*"/value "<kprobes error babble>"/
+}'
     # end
 pminfo -f bpftrace.scripts.test4.exit_code \
 | sed -e '/value/s/ 255$/ 1/'
