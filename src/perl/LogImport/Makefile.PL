@@ -15,7 +15,7 @@ if ($ENV{TARGET_OS} eq "mingw") {
 else {
     $ldfrom = "LogImport.o",
     $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
-    $libs = ["-lpcp_import -lpcp"];
+    $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_import/src -lpcp_import -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
     $lddlflags = "-bundle -undefined dynamic_lookup";
