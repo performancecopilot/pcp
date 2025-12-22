@@ -83,3 +83,11 @@ pmDiscoverClose(pmDiscoverModule *module)
 {
     (void)module;
 }
+
+int
+pmDiscoverSetHostSpec(pmDiscoverModule *module, sds hostspec)
+{
+    (void)module;
+    (void)hostspec;
+    return -ENOTSUP;	/* deprecated, use pmDiscoverSetConfiguration */
+}
