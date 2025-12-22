@@ -2,10 +2,10 @@
 #
 # Recipes for making badmeta-* family of archives.
 # 
-# Each one is based on a version of ../archives/ok-foo, with binary
+# Most are based on a version of ../archives/ok-foo, with binary
 # editing using bvi (or similar) and cut-n-paste with dd.
 #
-# This is the good V2 .meta file
+# This is the good V2 .meta file for ok-foo
 #
 # Byte offsets into ok-foo.meta
 # 0	start label record
@@ -69,6 +69,9 @@
 # ...
 # 797	start sample.seconds
 #	
+# Some are based on whatever archives I found on the local host in
+# ../tmparch/sample-proc_v{2,3}
+#
 
 src=../archives/ok-foo
 
@@ -142,6 +145,20 @@ in
 	cp ../tmparch/sample-proc_v3.meta badmeta-$X.meta
         # skip=132 gets us past the V2 label record
 	dd if=../tmparch/sample-proc_v2.meta ibs=1 skip=132 >>badmeta-$X.meta
+	;;
+
+    8)	# .0 truncated, so metadata records and TI entries have timestamps
+    	# past the end of the archive
+	mid=`../src/scandata -o ../tmparch/sample-proc_v3.0 2>&1 \
+	     | sed -n -e '/\[11] /s/.*=//p'`
+	if [ -z "$mid" ]
+	then
+	    echo "Error: failed to get mid-point offset from ../tmparch/sample-proc_v3.0"
+	    exit 1
+	fi
+	dd if=../tmparch/sample-proc_v3.0 ibs=1 count=$mid >badmeta-$X.0
+	cp ../tmparch/sample-proc_v3.index badmeta-$X.index
+	cp ../tmparch/sample-proc_v3.meta badmeta-$X.meta
 	;;
 
     *)
