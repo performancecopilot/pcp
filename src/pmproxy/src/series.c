@@ -1021,7 +1021,7 @@ pmseries_servlet_setup(struct proxy *proxy)
     PARAM_FINISH = sdsnew("finish");
     PARAM_ZONE = sdsnew("zone");
 
-    pmSeriesSetSlots(&pmseries_settings.module, proxy->slots);
+    pmSeriesSetSlots(&pmseries_settings.module, &proxy->slotsctx->slots);
     pmSeriesSetEventLoop(&pmseries_settings.module, proxy->events);
     pmSeriesSetConfiguration(&pmseries_settings.module, proxy->config);
     pmSeriesSetMetricRegistry(&pmseries_settings.module, metric_registry);

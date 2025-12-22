@@ -159,8 +159,6 @@ free_shared_data(struct agent_config* config, struct pmda_data_extension* data) 
     free(config->debug_output_filename);
     // remove metrics dictionary and related
     dictRelease(data->metrics_storage->metrics);
-    // privdata will be left behind, need to remove manually
-    free(data->metrics_storage->metrics_privdata);
     pthread_mutex_destroy(&data->metrics_storage->mutex);
     free(data->metrics_storage);
     // remove stats dictionary and related
@@ -239,7 +237,7 @@ init_data_ext(
     create_statsd_hardcoded_instances(data);
     data->metrics_storage = metrics_storage;
     data->stats_storage = stats_storage;
-    data->instance_map = dictCreate(&instance_map_callbacks, NULL);
+    data->instance_map = dictCreate(&instance_map_callbacks);
     data->generation = -1; // trigger first mapping of metrics for PMNS 
     data->notify = 0;
 }

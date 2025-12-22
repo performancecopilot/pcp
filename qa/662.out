@@ -344,115 +344,115 @@ metrics: success
 #### PCP5 sample.dupnames.five.bin 29.0.6 32 29.2 instant none
 #### HELP sample_dupnames_five_bin Several constant instances
 #### TYPE sample_dupnames_five_bin gauge
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
-sample_dupnames_five_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_dupnames_five_bin{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="100"} 100
+sample_dupnames_five_bin{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="200"} 200
+sample_dupnames_five_bin{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="300"} 300
+sample_dupnames_five_bin{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="400"} 400
+sample_dupnames_five_bin{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="500"} 500
+sample_dupnames_five_bin{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="600"} 600
+sample_dupnames_five_bin{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="700"} 700
+sample_dupnames_five_bin{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="800"} 800
+sample_dupnames_five_bin{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="900"} 900
 #### PCP5 sample.dupnames.four.bin 29.0.6 32 29.2 instant none
 #### HELP sample_dupnames_four_bin Several constant instances
 #### TYPE sample_dupnames_four_bin gauge
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
-sample_dupnames_four_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_dupnames_four_bin{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="100"} 100
+sample_dupnames_four_bin{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="200"} 200
+sample_dupnames_four_bin{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="300"} 300
+sample_dupnames_four_bin{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="400"} 400
+sample_dupnames_four_bin{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="500"} 500
+sample_dupnames_four_bin{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="600"} 600
+sample_dupnames_four_bin{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="700"} 700
+sample_dupnames_four_bin{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="800"} 800
+sample_dupnames_four_bin{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="900"} 900
 #### PCP5 sample.dupnames.three.bin 29.0.6 32 29.2 instant none
 #### HELP sample_dupnames_three_bin Several constant instances
 #### TYPE sample_dupnames_three_bin gauge
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
-sample_dupnames_three_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_dupnames_three_bin{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="100"} 100
+sample_dupnames_three_bin{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="200"} 200
+sample_dupnames_three_bin{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="300"} 300
+sample_dupnames_three_bin{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="400"} 400
+sample_dupnames_three_bin{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="500"} 500
+sample_dupnames_three_bin{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="600"} 600
+sample_dupnames_three_bin{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="700"} 700
+sample_dupnames_three_bin{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="800"} 800
+sample_dupnames_three_bin{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="900"} 900
 #### PCP5 sample.dupnames.two.bin 29.0.6 32 29.2 instant none
 #### HELP sample_dupnames_two_bin Several constant instances
 #### TYPE sample_dupnames_two_bin gauge
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
-sample_dupnames_two_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_dupnames_two_bin{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="100"} 100
+sample_dupnames_two_bin{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="200"} 200
+sample_dupnames_two_bin{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="300"} 300
+sample_dupnames_two_bin{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="400"} 400
+sample_dupnames_two_bin{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="500"} 500
+sample_dupnames_two_bin{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="600"} 600
+sample_dupnames_two_bin{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="700"} 700
+sample_dupnames_two_bin{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="800"} 800
+sample_dupnames_two_bin{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="900"} 900
 #### PCP5 sample.bin 29.0.6 32 29.2 instant none
 #### HELP sample_bin Several constant instances
 #### TYPE sample_bin gauge
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
-sample_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_bin{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="100"} 100
+sample_bin{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="200"} 200
+sample_bin{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="300"} 300
+sample_bin{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="400"} 400
+sample_bin{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="500"} 500
+sample_bin{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="600"} 600
+sample_bin{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="700"} 700
+sample_bin{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="800"} 800
+sample_bin{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="900"} 900
 
 context #### metrics target=sample.float.bin response code 200
 metrics: success
 #### PCP5 sample.float.bin 29.0.107 float 29.2 instant none
 #### HELP sample_float_bin like sample.bin but type FLOAT
 #### TYPE sample_float_bin gauge
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
-sample_float_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_float_bin{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="100"} 100
+sample_float_bin{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="200"} 200
+sample_float_bin{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="300"} 300
+sample_float_bin{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="400"} 400
+sample_float_bin{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="500"} 500
+sample_float_bin{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="600"} 600
+sample_float_bin{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="700"} 700
+sample_float_bin{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="800"} 800
+sample_float_bin{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="900"} 900
 
 context #### metrics target=sample.double.one response code 200
 metrics: success
 #### PCP5 sample.double.one 29.0.25 double PM_INDOM_NULL instant none
 #### HELP sample_double_one 1 as a 64-bit floating point value
 #### TYPE sample_double_one gauge
-sample_double_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAIN",machineid="MACHINE"} 1
+sample_double_one{hostname="HOSTNAME",agent="sample",domainname="DOMAIN",cluster="zero",role="testing",machineid="MACHINE"} 1
 
 context #### metrics target=sample.long.bin_ctr response code 200
 metrics: success
 #### PCP5 sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
 #### HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 #### TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_long_bin_ctr{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="100"} 100
+sample_long_bin_ctr{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="200"} 200
+sample_long_bin_ctr{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="300"} 300
+sample_long_bin_ctr{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="400"} 400
+sample_long_bin_ctr{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="500"} 500
+sample_long_bin_ctr{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="600"} 600
+sample_long_bin_ctr{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="700"} 700
+sample_long_bin_ctr{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="800"} 800
+sample_long_bin_ctr{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="900"} 900
 
 context #### metrics target=sample.ulong.bin_ctr response code 200
 metrics: success
 #### PCP5 sample.ulong.bin_ctr 29.0.106 u32 29.2 counter Kbyte
 #### HELP sample_ulong_bin_ctr like sample.bin but type U32, SEM_COUNTER and SPACE_KBYTE
 #### TYPE sample_ulong_bin_ctr counter
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAIN",machineid="MACHINE",bin="100"} 100
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAIN",machineid="MACHINE",bin="200"} 200
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAIN",machineid="MACHINE",bin="300"} 300
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAIN",machineid="MACHINE",bin="400"} 400
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAIN",machineid="MACHINE",bin="500"} 500
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAIN",machineid="MACHINE",bin="600"} 600
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAIN",machineid="MACHINE",bin="700"} 700
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAIN",machineid="MACHINE",bin="800"} 800
-sample_ulong_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAIN",machineid="MACHINE",bin="900"} 900
+sample_ulong_bin_ctr{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="100"} 100
+sample_ulong_bin_ctr{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="200"} 200
+sample_ulong_bin_ctr{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="300"} 300
+sample_ulong_bin_ctr{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="400"} 400
+sample_ulong_bin_ctr{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="500"} 500
+sample_ulong_bin_ctr{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="600"} 600
+sample_ulong_bin_ctr{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="700"} 700
+sample_ulong_bin_ctr{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="800"} 800
+sample_ulong_bin_ctr{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINE",role="testing",cluster="zero",domainname="DOMAIN",bin="900"} 900
 
 sleeping briefly to expire contexts
 context #### metadata names=kernel.all.nprocs response code 400
