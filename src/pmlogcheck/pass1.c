@@ -199,10 +199,14 @@ pass1(__pmContext *ctxp, char *archname)
 		/* we're done here */
 		break;
 	    }
-	    /* one-trip, no further offset reporting or repairing */
+	    /*
+	     * not repairing or truncation failed, set offset to -1 as a
+	     * one-trip guard, so no further "last valid" reporting or
+	     * repairing
+	     */
 	    offset = -1;
 	}
-	else if (ti_size > 0)
+	else if (ti_size > 0 && offset != -1)
 	    offset += ti_size;
 	lastp = tip;
     }

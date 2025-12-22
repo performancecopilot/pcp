@@ -2146,6 +2146,7 @@ telnet-probe
 1645 pmlogcompress local
 1646 other local
 1647 pmda.opentelemetry local
+1648 other local not_in_ci
 1653 pmda.denki local
 1658 pmda.linux local
 1660 libpcp labels local

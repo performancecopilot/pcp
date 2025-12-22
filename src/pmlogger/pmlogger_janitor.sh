@@ -348,7 +348,8 @@ _callback_log_control()
 
     if [ -n "$pid" ]
     then
-	# found matching pmlogger ... cull this one from
+	# found matching pmlogger ... cull this one from $tmp/loggers
+	#
 	if $VERY_VERBOSE
 	then
 	    echo "[$filename:$line] match PID $pid, nothing to be done"
@@ -402,8 +403,11 @@ then
 	    # ps(1) -p output should be something like this ...
 	    #     PID TTY          TIME CMD
 	    #   14298 ?        00:00:00 pmlogger
+	    # or this (for *BSD)
+	    #   PID TT  STAT    TIME COMMAND
+	    # 22839  1  S    0:00.04 /usr/libexec/pcp/bin/pmlogger -N -P ...
 	    #
-	    if sed -n -e 2p <$tmp/tmp | grep -q 'pmlogger$'
+	    if sed -n -e 2p <$tmp/tmp | grep -E -q '( pmlogger$)|(/bin/pmlogger )'
 	    then
 		: OK
 	    else
@@ -509,36 +513,6 @@ do
     _parse_log_control "$c"
 done
 
-# check for any archives from remote pmloggers via pmproxy or
-# pmlogpush ... if found, synthesize a control file for them
-#
-here=`pwd`
-if cd "$PCP_REMOTE_ARCHIVE_DIR"
-then
-    for _host in *
-    do
-	# TODO - does this need to be smarter?  e.g. check for some
-	# minimal dir contents (.index file?)
-	if [ -d "$_host" ]
-	then
-	    $VERBOSE && echo "Info: processing archives from remote pmlogger on host $_host"
-	    echo '$version=1.1' >$tmp/control
-	    # optional global controls first
-	    [ -f "./control" ] && cat "./control" >>$tmp/control
-	    # optional per-host controls next
-	    [ -f "$_host/control" ] && cat "$_host/control" >>$tmp/control
-	    echo "$_host	n n PCP_REMOTE_ARCHIVE_DIR/$_host +" >>$tmp/control
-	    if $VERY_VERBOSE
-	    then
-		echo "Synthesized control file ..."
-		cat $tmp/control
-	    fi
-	    _parse_log_control $tmp/control
-	fi
-    done
-    cd $here
-fi
-
 if [ ! -s $tmp/loggers ]
 then
     # Take early exit if nothing to be done
@@ -622,7 +596,8 @@ fi
 #
 sleep 3
 
-# check all the SIGTERM'd loggers really died - if not, use a bigger hammer.
+# Pass 6 - check all the SIGTERM'd loggers really died
+# - if not, use a bigger hammer.
 # 
 if $SHOWME
 then
@@ -633,7 +608,7 @@ else
     do
 	if $PCP_PS_PROG -p "$pid" >/dev/null 2>&1
 	then
-	    echo "Killing (KILL) pmlogger with PID $pid"
+	    echo "Pass 6: Killing (KILL) pmlogger with PID $pid"
 	    $KILL -s KILL $pid >/dev/null 2>&1
 	    delay=30        # tenths of a second
 	    while $PCP_PS_PROG -f -p "$pid" >$tmp/alive 2>&1

@@ -18,6 +18,18 @@
 #include "logcheck.h"
 #include "../libpcp/src/internal.h"
 
+static void
+print_stamp_nsec(FILE *f, __pmTimestamp *tp)
+{
+    struct tm   tmp;
+    time_t      now;
+
+    now = (time_t)tp->sec;
+    pmLocaltime(&now, &tmp);
+    fprintf(f, "%02d:%02d:%02d.%09d",
+	    tmp.tm_hour, tmp.tm_min, tmp.tm_sec, (int)(tp->nsec));
+}
+
 int
 pass2(__pmContext *ctxp, char *archname)
 {
@@ -173,37 +185,49 @@ next:
 	    if (n == sizeof(buf)) {
 		nread += sizeof(buf);
 		if (__pmLogVersion(lcp) == PM_LOG_VERS03) {
+		    /*
+		     * sanity check ... if wrong record type for archive
+		     * version, found and reported in pass 0 so skip timestamp
+		     * checks here
+		     */
+		    if (h.type == TYPE_INDOM_V2 || h.type == TYPE_LABEL_V2)
+			goto skip;
 		    __pmLoadTimestamp(buf, &stamp);
 		    indom = __ntohpmInDom(buf[3]);
 		}
 		else {
+		    /*
+		     * sanity check ... see comment above
+		     */
+		    if (h.type == TYPE_INDOM || h.type == TYPE_INDOM_DELTA || h.type == TYPE_LABEL)
+			goto skip;
 		    __pmLoadTimeval(buf, &stamp);
 		    indom = __ntohpmInDom(buf[2]);
 		}
 		if (__pmTimestampSub(&stamp, &lcp->label.start) < 0) {
 		    fprintf(stderr, "%s.meta[record %d]: pmInDom %s: timestamp ",
 			archname, nrec, pmInDomStr(indom));
-		    __pmPrintTimestamp(stderr, &stamp);
+		    print_stamp_nsec(stderr, &stamp);
 		    fprintf(stderr, " before archive start ");
-		    __pmPrintTimestamp(stderr, &lcp->label.start);
+		    print_stamp_nsec(stderr, &lcp->label.start);
 		    fputc('\n', stderr);
 		    bad = 1;
 		}
 		else if (end.sec > 0 && __pmTimestampSub(&end, &stamp) < 0) {
 		    fprintf(stderr, "%s.meta[record %d]: pmInDom %s: timestamp ",
 			archname, nrec, pmInDomStr(indom));
-		    __pmPrintTimestamp(stderr, &stamp);
+		    print_stamp_nsec(stderr, &stamp);
 		    fprintf(stderr, " after archive end ");
-		    __pmPrintTimestamp(stderr, &end);
+		    print_stamp_nsec(stderr, &end);
 		    fputc('\n', stderr);
 		    bad = 1;
 		}
 		else if (last_stamp.sec > 0 && __pmTimestampSub(&stamp, &last_stamp) < 0) {
 		    fprintf(stderr, "%s.meta[record %d]: pmInDom %s: timestamp ",
 			archname, nrec, pmInDomStr(indom));
-		    __pmPrintTimestamp(stderr, &stamp);
+		    print_stamp_nsec(stderr, &stamp);
 		    fprintf(stderr, " before previous metadata timestamp ");
-		    __pmPrintTimestamp(stderr, &last_stamp);
+		    print_stamp_nsec(stderr, &last_stamp);
 		    fputc('\n', stderr);
 		    bad = 1;
 		}
@@ -224,7 +248,11 @@ next:
 			/* we're done here ... */
 			break;
 		    }
-		    /* one-trip, no further offset reporting or repairing */
+		    /*
+		     * not repairing or truncation failed, set offset to
+		     * -1 as a one-trip guard, so no further "last valid"
+		     * reporting or repairing
+		     */
 		    offset = -1;
 		}
 		last_stamp = stamp;	/* struct assignment */
@@ -237,6 +265,7 @@ next:
 	else {
 	    fprintf(stderr, "%s.meta[record %d]: Botch BAD type meta off=%lld type=%d\n", archname, nrec, (long long)offset, h.type);
 	}
+skip:
 	__pmFseek(f, (long)h.len - sizeof(h) - nread, SEEK_CUR);
 	nrec++;
     }

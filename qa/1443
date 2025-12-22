@@ -52,6 +52,9 @@ _filter()
     tee -a $seq_full \
     | sed \
 	-e '/ PPID /d' \
+	-e '/ TIME /d' \
+	-e "/sh \\.\/$seq\$/d" \
+	-e "/^[1-9][0-9]* .* $seq\$/d" \
 	-e '/check .*-g pmlogger/d' \
 	-e '/^pcp /d' \
 	-e '/^Start \[/d' \

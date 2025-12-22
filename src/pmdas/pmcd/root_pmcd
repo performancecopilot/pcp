@@ -126,6 +126,7 @@ pmcd.pmlogger {
     port		PMCD:3:0
     archive		PMCD:3:2
     pmcd_host		PMCD:3:1
+    note		PMCD:3:4
 }
 
 pmcd.agent {

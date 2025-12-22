@@ -1,17 +1,31 @@
 QA output created by 1382
 QA output created by 1381 --valgrind
 === std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogcheck badarchives/badmeta-6
+Command: pmlogcheck -z badarchives/badmeta-6
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 === std out ===
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogcheck badarchives/badmeta-7
+Command: pmlogcheck -z badarchives/badmeta-7
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+=== std out ===
+Note: timezone set to local timezone of host "vm01.localdomain" from archive
+
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogcheck -z badarchives/badmeta-8
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

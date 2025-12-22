@@ -346,6 +346,7 @@ pmlogger_daily
 pmlogger_daily_report
 pmlogger_farm
 pmlogger_farm_check
+pmlogger_janitor
 pmlogger_merge
 pmlogger_rewrite
 pmloglabel

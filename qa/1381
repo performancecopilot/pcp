@@ -52,13 +52,13 @@ _filter()
 
 # real QA test starts here
 
-for x in 6 7
+for x in 6 7 8
 do
     if $do_valgrind
     then
-	_run_valgrind pmlogcheck badarchives/badmeta-$x
+	_run_valgrind pmlogcheck -z badarchives/badmeta-$x
     else
-	pmlogcheck badarchives/badmeta-$x 2>&1
+	pmlogcheck -z badarchives/badmeta-$x 2>&1
     fi \
     | sed -e "s@$tmp@TMP@g" \
     | _filter

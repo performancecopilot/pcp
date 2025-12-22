@@ -464,7 +464,19 @@ do
 	    ./check.callback --precheck $seq >$tmp.callback.pre 2>&1
 	fi
 
+	# if the test contains a "# :no_timeout:" line in the first
+	# comment block, then do not use timeout
+	#
+	do_timeout=false
 	if $use_timeout
+	then
+	    if [ -z "`sed -n <$seq -e '/^# :no_timeout:$/p' -e '/^$/q'`" ]
+	    then
+		do_timeout=true
+	    fi
+	fi
+
+	if $do_timeout
 	then
 	    # -s 6 => SIGABRT ... see trap in common.rc
 	    #

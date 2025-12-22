@@ -26,7 +26,7 @@ _script_id_filter()
 #
 if which bpftrace >/dev/null
 then
-    if $sudo bpftrace -e 'BEGIN { printf("foo\n"); exit() }' >$tmp.tmp
+    if $sudo bpftrace -e 'BEGIN { printf("foo\n"); exit() }' >$tmp.tmp 2>&1
     then
 	if grep '^foo$' $tmp.tmp >/dev/null
 	then

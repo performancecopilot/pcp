@@ -152,15 +152,41 @@ End-of-File
 $debug && cat >&2 $tmp.awk
 
 $PCP_AWK_PROG -f $tmp.awk <exports.in \
-| sed -e '/^#/d' >>exports
+| sed -e '/^#/d' >>$tmp/tmp
 
 if [ -f $tmp/err ]
 then
     cat $tmp/err
     rm -f exports
     sts=1
-else
-    chmod a-w exports
+    exit
 fi
+
+# conditionals may lead to empty versions for example:
+#	PCP_4.2 {
+#	    global:
+#	#if ! HAVE_FOO
+#	    foo;
+#	#endif
+#	} PCP_4.1;
+# when HAVE_FOO is false ... so cull any empty versions
+#
+$PCP_AWK_PROG <$tmp/tmp >$tmp/sed '
+/^PCP_.*{/	{ start = NR; wc = 0; next }
+$1 == "global:"	{ next }
+$1 == "local:"	{ next }
+/^} PCP_/	{ if (wc == 0) print start "," NR "d" }
+		{ wc += NF }'
+
+if [ -s $tmp/sed ]
+then
+    sed -f $tmp/sed <$tmp/tmp >>exports
+else
+    cat $tmp/tmp >>exports
+fi
+
+# don't want exports to be edited ...
+#
+chmod a-w exports
 
 exit

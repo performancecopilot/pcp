@@ -121,8 +121,6 @@ sed <$tmp.in >$tmp.out \
     -e '/^dpkg-source: warning: ignoring deletion of file src\/pmlogconf\/openmetrics\/GNUmakefile/d' \
     -e '/^dpkg-source: warning: ignoring deletion of file configure, use --include-removal to override/d' \
     -e '/^dpkg-shlibdeps: warning: diversions involved - output may be incorrect/d' \
-    -e '/^dpkg-gencontrol: warning: Depends field of package .* unknown substitution variable \${python3:Depends}/d' \
-    -e '/^dpkg-gencontrol: warning: Depends field of package .* substitution variable \${python3:Depends} used, but is not defined/d' \
     -e '/^cp: warning: behaviou*r of -n is non-portable /d' \
     -e '/^post-auto-install: Warning: HAVE_PERL is false, nothing to do/d' \
 # end

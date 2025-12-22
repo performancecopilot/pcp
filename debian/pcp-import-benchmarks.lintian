@@ -1,0 +1,3 @@
+# /usr/bin/pmpython is an OK wrapper for python in PCPland
+pcp-import-benchmarks: unusual-interpreter /usr/bin/pmpython [usr/bin/guidellm2pcp]
+pcp-import-benchmarks: unusual-interpreter /usr/bin/pmpython [usr/bin/vllmbench2pcp]

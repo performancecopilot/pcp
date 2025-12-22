@@ -2,7 +2,7 @@
 Package: python3-pcp
 Section: python
 Architecture: any
-Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends},
+Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends}, python3,
 	libpcp4 (= ${binary:Version}), libpcp-pmda3 (= ${binary:Version}),
 	libpcp-mmv1 (= ${binary:Version}), libpcp-gui2 (= ${binary:Version}),
 	libpcp-import1 (= ${binary:Version})
