@@ -25,7 +25,14 @@ fi
 . ./common.filter
 . ./common.check
 
-[ -d ../build/deb ] || _notrun "not a Debian build or not in a dev tree"
+[ -d ../build/deb ] || _notrun "not a Debian build or not in a developer tree"
+which lintian >/dev/null 2>&1 || _notrun "lintian not installed"
+
+case `admin/whatami`
+in
+    *Ubuntu\ 18.04*)	_notrun "Ubuntu 18.04 too old for lintian"
+    			;;
+esac
 
 _cleanup()
 {
