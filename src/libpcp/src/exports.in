@@ -714,8 +714,8 @@ PCP_4.0 {
 
 PCP_4.1 {
   global:
-    pmUnregisterDerived;
     __pmContextWalk;
+    pmUnregisterDerived;
 } PCP_4.0;
 
 PCP_4.2 {
@@ -725,6 +725,12 @@ PCP_4.2 {
 #endif
 #if ! HAVE_STRCASESTR
     strcasestr;
+#endif
+#if ! HAVE_STRNDUP
+    strndup;
+#endif
+#if ! HAVE_STRSEP
+    strsep;
 #endif
 } PCP_4.1;
 

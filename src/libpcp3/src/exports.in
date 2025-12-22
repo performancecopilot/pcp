@@ -874,3 +874,9 @@ PCP_3.42 {
 PCP_3.43.1 {
     __pmEqualLabelSet;
 } PCP_3.42;
+
+PCP_3.43 {
+#if ! HAVE_STRCASESTR
+    strcasestr;
+#endif
+} PCP_3.42;
