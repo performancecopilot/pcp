@@ -713,13 +713,13 @@ PCP_4.0 {
 };
 
 PCP_4.1 {
-    global:
+  global:
     pmUnregisterDerived;
     __pmContextWalk;
 } PCP_4.0;
 
 PCP_4.2 {
-    global:
+  global:
 #if ! HAVE_CFMAKERAW
     cfmakeraw;
 #endif

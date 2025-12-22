@@ -180,9 +180,9 @@ $1 == "local:"	{ next }
 
 if [ -s $tmp/sed ]
 then
-    sed -f $tmp/sed <$tmp/tmp >exports
+    sed -f $tmp/sed <$tmp/tmp >>exports
 else
-    cp $tmp/tmp exports
+    cat $tmp/tmp >>exports
 fi
 
 # don't want exports to be edited ...
