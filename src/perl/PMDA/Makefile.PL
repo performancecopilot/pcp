@@ -15,13 +15,13 @@ if ($ENV{TARGET_OS} eq "mingw") {
 else {
     $ldfrom = "local.o PMDA.o";
     $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
-    $libs = ["-lpcp_pmda -lpcp"];
+    $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp_pmda/src -L$ENV{PCP_TOPDIR}/src/libpcp/src -lpcp_pmda -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
     $lddlflags = "-bundle -undefined dynamic_lookup";
 }
 else {
-    $lddlflags = "-shared -Wl,--rpath-link=$ENV{PCP_TOPDIR}/src/libpcp_pmda/src:$ENV{PCP_TOPDIR}/src/libpcp/src \$(OPTIMIZE) \$(LDFLAGS)";
+    $lddlflags = "-shared \$(OPTIMIZE) \$(LDFLAGS)";
 }
 if ($ENV{TARGET_OS} eq "solaris") {
     # for OpenSolaris Makefile ends up with -KPIC instead of -fPIC otherwise
