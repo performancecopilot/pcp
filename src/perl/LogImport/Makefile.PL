@@ -15,13 +15,13 @@ if ($ENV{TARGET_OS} eq "mingw") {
 else {
     $ldfrom = "LogImport.o",
     $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
-    $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp/src -L$ENV{PCP_TOPDIR}/src/libpcp_import/src -lpcp_import -lpcp"];
+    $libs = ["-lpcp_import -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
     $lddlflags = "-bundle -undefined dynamic_lookup";
 }
 else {
-    $lddlflags = "-shared \$(OPTIMIZE) \$(LDFLAGS)";
+    $lddlflags = "-shared -Wl,--rpath-link=$ENV{PCP_TOPDIR}/src/libpcp_import/src:$ENV{PCP_TOPDIR}/src/libpcp/src \$(OPTIMIZE) \$(LDFLAGS)";
 }
 if ($ENV{TARGET_OS} eq "solaris") {
     # for OpenSolaris Makefile ends up with -KPIC instead of -fPIC otherwise
