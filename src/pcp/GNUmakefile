@@ -30,6 +30,7 @@ SUBDIRS = \
 	mpstat \
 	netstat \
 	numastat \
+	nfsiostat \
 	pidstat \
 	ps \
 	python \

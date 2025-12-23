@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# remake the pcp-nfsiostat archive ...
+# this archive is intended to be checked in and not remade, this script is
+# simply a record of how it was created
+#
+
+. /etc/pcp.env
+
+tmp=/var/tmp/$$
+rm -f $tmp.*
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+cat <<End-of-File >>$tmp.config
+log advisory on once{
+        kernel.uname.sysname
+        kernel.uname.release
+        kernel.uname.nodename
+        kernel.uname.machine
+        hinv.ncpu
+}
+log advisory on 30 seconds {
+        nfsclient.mountpoint
+        nfsclient.export
+        nfsclient.age
+        nfsclient.xprt.sends
+        nfsclient.xprt.backlog_u
+        nfsclient.ops.read.ops
+        nfsclient.ops.read.errors
+        nfsclient.ops.read.execute
+        nfsclient.ops.read.rtt
+        nfsclient.ops.read.queue
+        nfsclient.ops.read.bytes_recv
+        nfsclient.ops.read.bytes_sent
+        nfsclient.ops.read.ntrans
+        nfsclient.ops.write.ops
+        nfsclient.ops.write.errors
+        nfsclient.ops.write.execute
+        nfsclient.ops.write.rtt
+        nfsclient.ops.write.queue
+        nfsclient.ops.write.bytes_recv
+        nfsclient.ops.write.bytes_sent
+        nfsclient.ops.write.ntrans
+}
+End-of-File
+
+rm -f pcp-nfsiostat.*
+
+if pmlogger -T 60sec -t 10sec -c $tmp.config pcp-nfsiostat; then
+        xz pcp-nfsiostat.0
+        xz pcp-nfsiostat.index
+        xz pcp-nfsiostat.meta
+else
+    echo "Argh: pmlogger failed ..."
+    cat pmlogger.log
+fi
