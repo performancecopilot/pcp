@@ -1,0 +1,36 @@
+#!/bin/sh
+#
+# Helper script for developer install of PCP Perl bits over
+# the top of an existing installation.
+#
+# We assume you know what you're doing!
+#
+
+tmp=/var/tmp/install-dev-$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+. /etc/pcp.conf
+
+if ! $PCP_MAKE_PROG
+then
+    echo "make failed, you lose!"
+    exit
+fi
+
+DEST_ROOT=/
+
+# install_perl modules
+#
+for dir in LogImport LogSummary MMV PMDA
+do
+    cd $dir
+    if ! sudo $PCP_MAKE_PROG -f Makefile install_vendor DESTDIR=$DIST_ROOT
+    then
+	echo "make install_vendor failed for $dir ... things are likely botched"
+	exit
+    fi
+    cd ..
+done
+
+sts=0
