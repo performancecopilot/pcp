@@ -613,7 +613,7 @@ endif
 
 PERL_MAKE_MAKEFILE = \
 	PCP_TOPDIR="`cd $(TOPDIR) && pwd`"; export PCP_TOPDIR; \
-        TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
+        TARGET_OS="$(TARGET_OS)" CC="$(CC) $(CFLAGS_ABI)" perl Makefile.PL verbose $(MAKEMAKER_EXTRA_OPTIONS) $(MAKEMAKER_OPTIONS)
 
 # Collect files from a Perl "make -f Makefile install" below
 # src/perl to build the PCP Perl packaging list, and also clean up
