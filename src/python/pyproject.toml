@@ -1,0 +1,59 @@
+# Build script for the PCP python package
+#
+# Copyright (C) 2012-2019,2021,2025 Red Hat.
+# Copyright (C) 2009-2012 Michael T. Werner
+#
+# This file is part of the "pcp" module, the python interfaces for the
+# Performance Co-Pilot toolkit.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pcp"
+version = "7.0"
+description = "Performance Co-Pilot collector, monitor and instrumentation APIs"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+license = "GPL-2.0-or-later AND LGPL-2.1-or-later"
+authors = [
+    {name = "Performance Co-Pilot Development Team", email = "pcp@groups.io"}
+]
+keywords = ["performance", "analysis", "monitoring"]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: System Administrators",
+    "Intended Audience :: Information Technology",
+    "Natural Language :: English",
+    "Operating System :: macOS :: macOS",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX",
+    "Operating System :: POSIX :: AIX",
+    "Operating System :: POSIX :: BSD :: NetBSD",
+    "Operating System :: POSIX :: BSD :: OpenBSD",
+    "Operating System :: POSIX :: BSD :: FreeBSD",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: POSIX :: SunOS/Solaris",
+    "Operating System :: Unix",
+    "Topic :: System :: Logging",
+    "Topic :: System :: Monitoring",
+    "Topic :: System :: Networking :: Monitoring",
+    "Topic :: Software Development :: Libraries",
+]
+
+[project.urls]
+Homepage = "https://pcp.io"
+
+[tool.setuptools]
+packages = {find = {}}
