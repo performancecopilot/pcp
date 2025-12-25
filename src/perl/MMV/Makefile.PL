@@ -15,13 +15,13 @@ if ($ENV{TARGET_OS} eq "mingw") {
 else {
     $ldfrom = "MMV.o";
     $inc = "-I$ENV{PCP_TOPDIR}/src/include/pcp -I/usr/include/pcp";
-    $libs = ["-L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -L$ENV{PCP_TOPDIR}/src/libpcp/src -lpcp_mmv -lpcp"];
+    $libs = ["-lpcp_mmv -lpcp"];
 }
 if ($ENV{TARGET_OS} eq "darwin") {
     $lddlflags = "-bundle -undefined dynamic_lookup";
 }
 else {
-    $lddlflags = "-shared \$(OPTIMIZE) \$(LDFLAGS)";
+    $lddlflags = "-shared -L$ENV{PCP_TOPDIR}/src/libpcp_mmv/src -L$ENV{PCP_TOPDIR}/src/libpcp/src \$(OPTIMIZE) \$(LDFLAGS)";
 }
 if ($ENV{TARGET_OS} eq "solaris") {
     # for OpenSolaris Makefile ends up with -KPIC instead of -fPIC otherwise
