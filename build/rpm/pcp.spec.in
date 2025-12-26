@@ -28,8 +28,9 @@ ExcludeArch: %{ix86}
 # not be required.
 # ... this fix suggested by Google Gemini and resolved a problem
 # in Fedora 41 builds circa Dec 2025
-%global __perl_requires /bin/true
-%global __perl_provides /bin/true
+# Plan A - include these next 2 lines
+#%global __perl_requires /bin/true
+#%global __perl_provides /bin/true
 
 # UsrMerge was completed in EL 7, however the latest 'hostname' package in EL 7 contains "Provides: /bin/hostname".  Likewise for /bin/ps from procps[-ng] packages.
 %if 0%{?rhel} >= 8 || 0%{?fedora} >= 17
@@ -168,6 +169,7 @@ Requires: initscripts
 %global perl_interpreter perl
 %endif
 
+# Perl .so library mangliing - Plan B drop all of this ...
 # There is a problem here ... some distros are resisting adding more
 # repackaged perl-Foo-Bar rpms, but the default find-requires script
 # will turn all perl module we use into rpm package Requires clauses.
@@ -180,12 +182,12 @@ Requires: initscripts
 # http://fedoraproject.org/wiki/PackagingDrafts/FilteringAutomaticDependencies#Disabling_dependency_auto-generation
 #
 # override the default automatic requires/provides generation
-%define _use_internal_dependency_generator 0
+#%define _use_internal_dependency_generator 0
 # remember the real find-requires path (%%global avoids recursive %%define)
 # macros below
-%global __find_requires_save %{__find_requires}
+#%global __find_requires_save %{__find_requires}
 # slip our filter into place
-%define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
+#%define __find_requires %{_builddir}/%{?buildsubdir}/build/rpm/filter-requires -v %{_vendor} -f 0%{?fedora} -r 0%{?rhel} %{__find_requires_save}
 
 %global pmda_remove() %{expand:
 if [ %1 -eq 0 ]
