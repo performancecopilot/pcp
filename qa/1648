@@ -10,6 +10,9 @@
 # :not_in_ci:
 #
 
+verbose=false
+#debug# verbose=true
+
 if [ $# -eq 0 ]
 then
     seq=`basename $0`
@@ -76,15 +79,13 @@ do
     lintian $pkg >$tmp.tmp
     if [ -s $tmp.tmp ]
     then
-	echo
-	echo "=== echo $pkg ==="
+	echo "=== $pkg ==="
 	cat $tmp.tmp
 	echo
     else
-	$PCP_ECHO_PROG $PCP_ECHO_N .
+	$verbose && echo "=== $pkg ok"
     fi
 done
-echo
 
 # success, all done
 exit
