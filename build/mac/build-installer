@@ -49,8 +49,8 @@ _do()
 
 _run()
 {
-    echo $*
-    eval $*
+    echo "$@"
+    "$@"
 }
 
 echo "Verifying IDB file is valid"
@@ -96,8 +96,22 @@ pkgroot=`mktemp -d /tmp/macos-pkg.XXXXXXXXX`
 cp -RP installer-files/* $pkgroot/
 cp -RP installer-resources/* $pkgroot/
 
+# WORKAROUND: Write package to /tmp first to avoid virtiofs XAR corruption
+# then copy to final location in build directory
+# without this, the pkgbuild produces a corrupted archive inside a Tart VM
+pkgout="/tmp/pcp-pkg.$$"
+
 # pkgbuild must be run by the user logged into the localhost desktop.
-_run $PKGBUILD --identifier io.pcp.performancecopilot --version $PACKAGE_VERSION --nopayload --scripts $pkgroot $HERE/$PKG
+_run "$PKGBUILD" --identifier io.pcp.performancecopilot --version "$PACKAGE_VERSION" --nopayload --scripts "$pkgroot" "$pkgout"
+
+if [ ! -s "$pkgout" ]
+then
+    echo "$prog: Package generation failed"
+    exit 1
+fi
+
+# Copy package from /tmp to build directory
+cp "$pkgout" "$HERE/$PKG"
 
 if [ ! -s $HERE/$PKG ]
 then
@@ -110,6 +124,9 @@ _do rm -rf $DMG $TEMPDMG $PACKAGE
 
 _do mkdir $PACKAGE
 _do mv $PKG $PACKAGE
+
+# Clean up temporary files
+rm -rf "$pkgroot" "$pkgout"
 
 _do $HDIUTIL makehybrid -quiet -o $PACKAGE.tmp $PACKAGE \
 	-hfs-openfolder dmg.tmp/$DMG -hfs
