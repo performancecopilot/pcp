@@ -20,17 +20,6 @@ ExcludeArch: %{ix86}
 %global __requires_exclude ^perl-LDAP$
 %endif
 
-# The PCP Perl modules (PMDA.so, MMV.so, etc) are sometimes
-# being incorrectly stripped of library information and in
-# particular stripping the libpcp.so and libpcp_foo.so dependencies.
-# We have explicit Requires: clauses for the PCP packages that
-# use the PCP::FOO modules, so auto dependency detection should
-# not be required.
-# ... this fix suggested by Google Gemini and resolved a problem
-# in Fedora 41 builds circa Dec 2025
-%global __perl_requires /bin/true
-%global __perl_provides /bin/true
-
 # UsrMerge was completed in EL 7, however the latest 'hostname' package in EL 7 contains "Provides: /bin/hostname".  Likewise for /bin/ps from procps[-ng] packages.
 %if 0%{?rhel} >= 8 || 0%{?fedora} >= 17
 %global _hostname_executable /usr/bin/hostname
