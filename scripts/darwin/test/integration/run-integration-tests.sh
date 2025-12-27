@@ -85,7 +85,7 @@ check_prerequisites() {
         sleep 1
     fi
 
-    if pminfo darwin.kernel.all.uptime > /dev/null 2>&1; then
+    if pminfo kernel.all.uptime > /dev/null 2>&1; then
         echo -e "${GREEN}✓ Darwin PMDA is loaded and responding${NC}"
     else
         echo -e "${RED}✗ Darwin PMDA is not responding${NC}"
