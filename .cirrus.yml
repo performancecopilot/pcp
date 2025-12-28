@@ -60,6 +60,12 @@ task:
       echo "ERROR: pcp service failed to start within $TIMEOUT seconds"
       exit 1
     fi
+  run_unit_tests_script: |
+    cd scripts/darwin/test/unit
+    ./run-unit-tests.sh
+  run_integration_tests_script: |
+    cd scripts/darwin/test/integration
+    ./run-integration-tests.sh
   pause_script: |
     if [ "$PCP_PAUSE_AFTER_INSTALL" == "true" ]; then
       echo "VM IP: $(ipconfig getifaddr en0)"
