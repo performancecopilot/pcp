@@ -2,6 +2,7 @@
 # created by nathans on fedora.localdomain Tue 13 Jun 2023 09:46:08 +1000
 #
 Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
 HdrHistogram_c
 389-ds-base
 audit

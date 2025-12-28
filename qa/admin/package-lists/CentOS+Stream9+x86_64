@@ -5,6 +5,7 @@
 Coin4-devel
 HdrHistogram_c
 Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
 389-ds-base
 avahi-devel
 avahi-tools
