@@ -166,7 +166,12 @@ socket
 Unix
 '"$tmp.fifo-1" | $sudo ./Install -e >>$tmp.out 2>&1
 echo "+++ fifo-1 PMDA log +++" >>$seq_full
-cat $PMDA_LOG_PATH >>$seq_full
+if [ -f $PMDA_LOG_PATH ]
+then
+    cat $PMDA_LOG_PATH >>$seq_full
+else
+    echo "$PMDA_LOG_PATH: file not found" >>$seq_full
+fi
 ls -ld "$tmp.fifo-1" `dirname "$tmp.fifo-1"` >>$seq_full
 $sudo rm -f $PMDA_LOG_PATH
 echo 'daemon
@@ -174,7 +179,12 @@ socket
 Unix
 '"$tmp.fifo-2" | $sudo ./Install -e >>$tmp.out 2>&1
 echo "+++ fifo-2 PMDA log +++" >>$seq_full
-cat $PMDA_LOG_PATH >>$seq_full
+if [ -f $PMDA_LOG_PATH ]
+then
+    cat $PMDA_LOG_PATH >>$seq_full
+else
+    echo "$PMDA_LOG_PATH: file not found" >>$seq_full
+fi
 ls -ld "$tmp.fifo-2" `dirname "$tmp.fifo-2"` >>$seq_full
 _full
 
