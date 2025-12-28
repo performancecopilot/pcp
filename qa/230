@@ -19,10 +19,9 @@ trap "_cleanup" 0 1 2 3 15
 
 _cleanup()
 {
-    if [ -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq ]
+    if [ -f $tmp.primary ]
     then
-	$sudo cp $PCP_TMP_DIR/pmlogger/primary.qa.$seq $PCP_TMP_DIR/pmlogger/primary
-	$sudo rm -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq
+	$sudo cp $tmp.primary $PCP_TMP_DIR/pmlogger/primary
     fi
     _restore_auto_restart pmlogger
     _restore_primary_logger
@@ -96,9 +95,9 @@ if ! _service pmlogger restart >/dev/null 2>&1; then _exit 1; fi
 _wait_for_pmlogger || _exit 1
 _stop_auto_restart pmlogger
 
-$sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.primary
-$sudo cp $PCP_TMP_DIR/pmlogger/primary $PCP_TMP_DIR/pmlogger/primary.qa.$seq
-$sudo cp $tmp.primary $PCP_TMP_DIR/pmlogger/primary
+$sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.tmp
+$sudo cp $PCP_TMP_DIR/pmlogger/primary $tmp.primary
+$sudo cp $tmp.tmp $PCP_TMP_DIR/pmlogger/primary
 
 echo "=== Hang on Connection Cases ===" | tee -a $seq_full
 
@@ -155,13 +154,13 @@ echo "=== Timeout on pmlc commands cases ===" | tee -a $seq_full
 
 # put port info back to original state
 #
-if [ -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq ]
+if [ -f $tmp.primary ]
 then
-    $sudo cp $PCP_TMP_DIR/pmlogger/primary.qa.$seq $PCP_TMP_DIR/pmlogger/primary
-    $sudo rm -f $PCP_TMP_DIR/pmlogger/primary.qa.$seq
+    $sudo cp $tmp.primary $PCP_TMP_DIR/pmlogger/primary
+    $sudo rm -f $tmp.primary
 else
-    echo "Arrgh ... $PCP_TMP_DIR/pmlogger/primary.qa.$seq went away"
-    ls -l $PCP_TMP_DIR/pmlogger
+    echo "Arrgh ... $tmp.primary went away"
+    ls -l $tmp
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)'
     _exit 1
 fi
