@@ -403,11 +403,14 @@ then
 	    # ps(1) -p output should be something like this ...
 	    #     PID TTY          TIME CMD
 	    #   14298 ?        00:00:00 pmlogger
-	    # or this (for *BSD)
+	    # or this (for FreeBSD)
 	    #   PID TT  STAT    TIME COMMAND
 	    # 22839  1  S    0:00.04 /usr/libexec/pcp/bin/pmlogger -N -P ...
+	    # or this (for OpenBSD)
+	    #   PID TT  STAT        TIME COMMAND
+	    #   10619 p1- S        0:00.01 pmlogger -L -c ...
 	    #
-	    if sed -n -e 2p <$tmp/tmp | grep -E -q '( pmlogger$)|(/bin/pmlogger )'
+	    if sed -n -e 2p <$tmp/tmp | grep -E -q '( pmlogger$)|(/bin/pmlogger )|( pmlogger )'
 	    then
 		: OK
 	    else
