@@ -45,11 +45,10 @@ _remote_signal()
 
     cat <<end-of-file >$tmp.cmd
 . \$PCP_DIR/etc/pcp.env
-\$PCP_BINADM_DIR/pmsignal -s TERM $pid
+sudo -u pcp \$PCP_BINADM_DIR/pmsignal -s TERM $pid $base
 sleep 1
-\$PCP_BINADM_DIR/pmsignal -s KILL $pid
-test -k \$PCP_TMP_DIR/pmlogger || sudo chmod o-w \$PCP_TMP_DIR/pmlogger
-rm -f /tmp/$base.*
+sudo -u pcp \$PCP_BINADM_DIR/pmsignal -s KILL $pid $base
+sudo rm -f /tmp/$base.*
 end-of-file
     scp -q $tmp.cmd pcpqa@$host:$tmp.cmd
     ssh -q pcpqa@$host /bin/sh $tmp.cmd >/dev/null 2>&1
@@ -75,9 +74,14 @@ echo "log mandatory on once { hinv.ncpu }" >>/tmp/\$$.config
 echo >>/tmp/\$$.config
 echo "[access]" >>/tmp/\$$.config
 echo "allow * : all;" >>/tmp/\$$.config
-test -k \$PCP_TMP_DIR/pmlogger || sudo chmod o+w \$PCP_TMP_DIR/pmlogger
-( pmlogger -L -c /tmp/\$$.config -l /tmp/\$$.log /tmp/\$$ </dev/null >/dev/null 2>&1 ) &
-echo pid=\$! base=\$$
+( sudo -u pcp pmlogger -L -c /tmp/\$$.config -l /tmp/\$$.log /tmp/\$$ </dev/null >/dev/null 2>&1 ) &
+sleep 2
+pid=\`sed -n </tmp/\$$.log -e '/Info: Start/{
+s/.*(//
+s/).*//
+p
+}'\`
+echo pid=\$pid base=\$\$
 End-of-File
 
     echo >>$seq_full
@@ -89,15 +93,16 @@ End-of-File
 
     eval `cat $tmp.tmp`
 
-    if [ -z "$pid" ]
-    then
-	echo "Arrgh ... failed to get remote pmlogger pid for host $host"
-	exit
-    fi
-
     if [ -z "$base" ]
     then
 	echo "Arrgh ... failed to get remote archive basename for host $host"
+	exit
+    fi
+
+    if [ -z "$pid" ]
+    then
+	echo "Arrgh ... failed to get remote pmlogger pid for host $host"
+	ssh -q pcpqa@$host "cat /tmp/$base.log"
 	exit
     fi
 
@@ -114,9 +119,11 @@ End-of-File
 	    if [ $i = 10 ]
 	    then
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
-		ssh -q pcpqa@$host "ps | grep $pid"
+		ssh -q pcpqa@$host "ps -ef | grep -E '$pid|pmlogger'"
 		ssh -q pcpqa@$host "ls -l /tmp/$base.*"
 		ssh -q pcpqa@$host "cat /tmp/$base.log"
+		ssh -q pcpqa@$host pmdumplog -dilmst /tmp/$base
+		ssh -q pcpqa@$host "ls -l $PCP_TMP_DIR/pmlogger"
 		exit 1
 	    fi
 	fi

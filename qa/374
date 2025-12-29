@@ -51,14 +51,13 @@ _remote_signal()
     cat <<End-of-File >$tmp.cmd
 . \$PCP_DIR/etc/pcp.env
 ls -l \$PCP_TMP_DIR/pmlogger >&2
-\$PCP_BINADM_DIR/pmsignal -s TERM $pid
+sudo -u pcp \$PCP_BINADM_DIR/pmsignal -s TERM $pid $base
 sleep 1
-\$PCP_BINADM_DIR/pmsignal -s KILL $pid
+sudo -u pcp \$PCP_BINADM_DIR/pmsignal -s KILL $pid $base
 sleep 1
 ls -l \$PCP_TMP_DIR/pmlogger >&2
-[ -k \$PCP_TMP_DIR/pmlogger ] || sudo chmod o-w \$PCP_TMP_DIR/pmlogger 2>/dev/null
 ls -ld \$PCP_TMP_DIR/pmlogger >&2
-rm -f /tmp/$base.*
+sudo rm -f /tmp/$base.*
 End-of-File
     scp -q $tmp.cmd pcpqa@$host:$seq.cmd
     ssh -q pcpqa@$host sh ./$seq.cmd >$tmp.out 2>$tmp.err
@@ -86,23 +85,20 @@ else
     exit 1
 fi
 rm -f /tmp/\$\$.*
-[ -k \$PCP_TMP_DIR/pmlogger ] || sudo chmod o+w \$PCP_TMP_DIR/pmlogger
 ls -ld \$PCP_TMP_DIR/pmlogger >&2
-if [ -w \$PCP_TMP_DIR/pmlogger ]
-then
-    :
-else
-    echo "Error: unable to make \$PCP_TMP_DIR/pmlogger writeable" >&2
-    exit 1
-fi
 # force one pmResult into the archive to trigger log label
 # and preamble writing
 #
 echo "log mandatory on once sampledso.long.ten" >/tmp/\$\$.config
-( pmlogger -T5min -L -c /tmp/\$\$.config -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
-sleep 1
+( sudo -u pcp pmlogger -T5min -L -c /tmp/\$\$.config -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
+sleep 2
+pid=\`sed -n </tmp/\$$.log -e '/Info: Start/{
+s/.*(//
+s/).*//
+p
+}'\`
+echo pid=\$pid base=\$\$
 ls -l \$PCP_TMP_DIR/pmlogger >&2
-echo pid=\$! base=\$\$
 End-of-File
     scp -q $tmp.cmd pcpqa@$host:$seq.cmd
     ssh -q pcpqa@$host sh ./$seq.cmd >$tmp.out 2>$tmp.err
@@ -119,15 +115,16 @@ End-of-File
 
     eval `cat $tmp.out`
 
-    if [ -z "$pid" ]
-    then
-	echo "Arrgh ... failed to get remote pmlogger pid for host $host"
-	exit
-    fi
-
     if [ -z "$base" ]
     then
 	echo "Arrgh ... failed to get remote archive basename for host $host"
+	exit
+    fi
+
+    if [ -z "$pid" ]
+    then
+	echo "Arrgh ... failed to get remote pmlogger pid for host $host"
+	ssh -q pcpqa@$host "cat /tmp/$base.log"
 	exit
     fi
 
@@ -140,11 +137,11 @@ End-of-File
 	    if [ $i = 10 ]
 	    then
 		echo "Arrgh ... pmlogger (pid=$pid) on host $host failed to start after 20 seconds"
-		ssh -q pcpqa@$host ps -ef | grep pmlogger
-		ssh -q pcpqa@$host ls -l /tmp/$base.*
+		ssh -q pcpqa@$host "ps -ef | grep -E '$pid|pmlogger'"
+		ssh -q pcpqa@$host "ls -l /tmp/$base.*"
+		ssh -q pcpqa@$host "cat /tmp/$base.log"
 		ssh -q pcpqa@$host pmdumplog -dilmst /tmp/$base
-		ssh -q pcpqa@$host cat /tmp/$base.log
-		sleep 60
+		ssh -q pcpqa@$host "ls -l $PCP_TMP_DIR/pmlogger"
 		exit 1
 	    fi
 	fi
