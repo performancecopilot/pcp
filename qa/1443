@@ -54,6 +54,7 @@ _filter()
 	-e '/ PPID /d' \
 	-e '/ TIME /d' \
 	-e "/sh \\.\/$seq\$/d" \
+	-e "/ $seq\$/d" \
 	-e "/^[1-9][0-9]* .* $seq\$/d" \
 	-e '/check .*-g pmlogger/d' \
 	-e '/^pcp /d' \
