@@ -51,9 +51,9 @@ _remote_signal()
     cat <<End-of-File >$tmp.cmd
 . \$PCP_DIR/etc/pcp.env
 ls -l \$PCP_TMP_DIR/pmlogger >&2
-sudo -u pcp \$PCP_BINADM_DIR/pmsignal -s TERM $pid $base
+sudo -u \$PCP_USER \$PCP_BINADM_DIR/pmsignal -s TERM $pid $base
 sleep 1
-sudo -u pcp \$PCP_BINADM_DIR/pmsignal -s KILL $pid $base
+sudo -u \$PCP_USER \$PCP_BINADM_DIR/pmsignal -s KILL $pid $base
 sleep 1
 ls -l \$PCP_TMP_DIR/pmlogger >&2
 ls -ld \$PCP_TMP_DIR/pmlogger >&2
@@ -90,7 +90,7 @@ ls -ld \$PCP_TMP_DIR/pmlogger >&2
 # and preamble writing
 #
 echo "log mandatory on once sampledso.long.ten" >/tmp/\$\$.config
-( sudo -u pcp pmlogger -T5min -L -c /tmp/\$\$.config -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
+( sudo -u \$PCP_USER pmlogger -T5min -L -c /tmp/\$\$.config -l /tmp/\$\$.log /tmp/\$\$ </dev/null >/dev/null 2>&1 ) &
 sleep 2
 pid=\`sed -n </tmp/\$$.log -e '/Info: Start/{
 s/.*(//
