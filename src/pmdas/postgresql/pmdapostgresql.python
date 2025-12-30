@@ -33,7 +33,7 @@ try:
     import configparser
 except ImportError:
     import ConfigParser as configparser
-from pcp.pmapi import pmUnits
+from pcp.pmapi import pmUnits, pmContext
 from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
 import cpmapi as c_api
 if sys.version >= '3':
@@ -834,8 +834,8 @@ class POSTGRESQLPMDA(PMDA):
             # column number of the instid column name in this table
             instnamecol = self.table_column_dict["%s.%s" % (table, instname_column_name)]
 
-            self.debug("pg_refresh: indom=0x%04x table=%s instcol=%s (col %d), instnamecol=%s (col %d)" %
-                (indom, table, inst_column_name, instcol, instname_column_name, instnamecol))
+            self.debug("pg_refresh: indom=%s table=%s instcol=%s (col %d), instnamecol=%s (col %d)" %
+                (pmContext.pmInDomStr(indom), table, inst_column_name, instcol, instname_column_name, instnamecol))
 
             # query and extract row data (i.e. metric values)
             cur = self.pg_cursor()
@@ -843,7 +843,7 @@ class POSTGRESQLPMDA(PMDA):
                 cur.execute('SELECT * FROM %s ORDER BY %s' % (table, inst_column_name))
             except (psycopg.DatabaseError) as error: # pylint disable: broad-except
                 # recover from aborted transaction block and skip this table
-                self.debug("pg_refresh: indom 0x%04x: warning, table %s not available: %s" % (indom, table, error))
+                self.debug("pg_refresh: indom %s: warning, table %s not available: %s" % (pmContext.pmInDomStr(indom), table, error))
                 cur.close()
                 return # fail
 
@@ -862,7 +862,7 @@ class POSTGRESQLPMDA(PMDA):
                     # So use the instid table.column and it's stringified value
                     instname = "%s%d" % (inst_column_name, row[instcol])
                 self.instances[indom][instname] = c_int(1)
-                self.debug("pg_refresh: row loop indom=0x%04x instname=%s" % (indom, instname))
+                self.debug("pg_refresh: row loop indom=%s instname=%s" % (pmContext.pmInDomStr(indom), instname))
 
                 # rowdata is per-table dict of instname:[metric data]
                 # i.e. an array of metric values for the same indom and inst
@@ -871,7 +871,7 @@ class POSTGRESQLPMDA(PMDA):
 
             # update the indom
             self.replace_indom(indom, self.instances[indom])
-            self.debug("pg_refresh: indom=0x%04x instances=%s" % (indom, self.instances[indom]))
+            self.debug("pg_refresh: indom=%s instances=%s" % (pmContext.pmInDomStr(indom), self.instances[indom]))
 
         # success
         self.refreshed_tables.append(table)
@@ -913,8 +913,8 @@ class POSTGRESQLPMDA(PMDA):
         if table not in self.refreshed_tables:
             self.pg_refresh(pmid, False)
 
-        self.debug("pg_fetch_callback pmid 0x%04x '%s': cluster %d, item %d, inst %d, indom=0x%04x" %
-            (pmid, pmnsname, cluster, item, inst, indom))
+        self.debug("pg_fetch_callback pmid %s '%s': cluster %d, item %d, inst %d, indom=%s" %
+            (pmContext.pmIDStr(pmid), pmnsname, cluster, item, inst, pmContext.pmInDomStr(indom)))
         self.debug("pg_fetch_callback: dict rowdata[table]=%s" % self.rowdata[table])
 
         # get the rowdata for this indom and instance
@@ -925,14 +925,14 @@ class POSTGRESQLPMDA(PMDA):
             else:
                 instname = self.inst_name_lookup(indom, inst)
                 instid = self.inst_lookup(indom, inst)
-                self.debug("pg_fetch_callback: indom=0x%04x inst=%d instid=%s instname=%s" % (indom, inst, instid, instname))
+                self.debug("pg_fetch_callback: indom=%s inst=%d instid=%s instname=%s" % (pmContext.pmInDomStr(indom), inst, instid, instname))
                 if instname is None:
                     return [c_api.PM_ERR_INST, 0] # unknown instance for this pmid
                 inst_rowdata = self.rowdata[table][instname] # dict lookup
         except KeyError as error:
             # no values available
-            self.debug("pg_fetch_callback: PM_ERR_VALUE pmid=0x%04x name='%s' indom=0x%04x inst=%d instname=%s: %s" %
-                (pmid, pmnsname, indom, inst, instname, error))
+            self.debug("pg_fetch_callback: PM_ERR_VALUE pmid=%s name='%s' indom=%s inst=%d instname=%s: %s" %
+                (pmContext.pmIDStr(pmid), pmnsname, pmContext.pmInDomStr(indom), inst, instname, error))
             self.debug(traceback.format_exc())
             return [c_api.PM_ERR_VALUE, 0]
 
@@ -943,7 +943,7 @@ class POSTGRESQLPMDA(PMDA):
         if value is None:
             # The table and column exist, but the data is None
             # maybe this should return PM_ERR_VALUE?
-            self.debug("pg_fetch_callback: value is None")
+            self.debug("pg_fetch_callback: value is None, metric_col=%d, inst_rowdata=%s" % (metric_col, inst_rowdata))
             if self.metrictable[pmid][self.METRIC_PMDAMETRIC].m_desc.type == c_api.PM_TYPE_STRING:
                 value = ""
             else:
@@ -1013,8 +1013,8 @@ class POSTGRESQLPMDA(PMDA):
 
         # dump the mappings
         for pmid, column in self.pmid_column_dict.items():
-            self.debug("pmid_column_dict[pmid=0x%04x \"%s\"] = %s" %
-                (pmid, self.metrictable[pmid][self.METRIC_NAME], column))
+            self.debug("pmid_column_dict[pmid=%s \"%s\"] = %s" %
+                (pmContext.pmIDStr(pmid), self.metrictable[pmid][self.METRIC_NAME], column))
         for tablecol, column in self.table_column_dict.items():
             self.debug("table_column_dict[%s] = %s" % (tablecol, column))
 
@@ -1022,13 +1022,13 @@ class POSTGRESQLPMDA(PMDA):
         """ create indom table """
         for indom, data in self.indomtable.items():
             self.add_indom(data[self.INDOM_PMDAINDOM]) # pmdaIndom
-            self.debug("setup_indoms: added indom 0x%04x for table %s, inst column %s, name column %s" %
-                (indom, data[self.INDOM_TABLE], data[self.INDOM_INSTID], data[self.INDOM_INSTNAME]))
+            self.debug("setup_indoms: added indom %s for table %s, inst column %s, name column %s" %
+                (pmContext.pmInDomStr(indom), data[self.INDOM_TABLE], data[self.INDOM_INSTID], data[self.INDOM_INSTNAME]))
 
     def setup_metrics(self):
         """ create metric table """
         for pmid, metric in self.metrictable.items():
-            self.debug("Adding pmid 0x%04x '%s'" % (pmid, metric[self.METRIC_NAME]))
+            self.debug("Adding pmid %s '%s'" % (pmContext.pmIDStr(pmid), metric[self.METRIC_NAME]))
             self.add_metric(metric[self.METRIC_NAME], metric[self.METRIC_PMDAMETRIC])
 
     def config(self, filename='pmdapostgresql.conf', section='authentication'):

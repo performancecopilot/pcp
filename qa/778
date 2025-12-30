@@ -41,10 +41,15 @@ pmdapostgresql_install()
     # start from known starting points
     cd $PCP_PMDAS_DIR/postgresql
     $sudo mv $CONF $CONF.$seq
+    # server port default is 5432, but that not be the correct port number,
+    # so try to find correct port
+    #
+    port=`./get_server_port`
+    [ -n "$port" ] && port=5432
     cat <<EOF >$tmp.conf
 [authentication]
 host=local
-port=5432
+port=$port
 dbname=postgres
 user=postgres
 password=password

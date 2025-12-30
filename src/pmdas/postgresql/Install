@@ -31,9 +31,22 @@ if [ ! -f "$conf" ]; then
     exit
 fi
 
+port=`./get_server_port`
+if [ -n "$port" ]
+then
+    if grep "^port=$port$" $conf
+    then
+	: default is OK
+    else
+	echo "Info: rewriting pmdapostgresql.conf for port=$port"
+	sed <$conf >$tmp.tmp -e "/^port=/s/=.*/=$port/"
+	cp $tmp.tmp $conf
+    fi
+fi
+
 eval `grep "^osuser=" $conf`
 if [ -n "$osuser" ]; then
-    echo "OS user defined in $conf is \"$osuser\""
+    echo "Info: OS user defined in $conf is \"$osuser\""
     if ! id $osuser >/dev/null 2>&1; then
         echo "Error: no such user \"$osuser\" on this system"
         status=1
@@ -41,7 +54,7 @@ if [ -n "$osuser" ]; then
     fi
 
     gid=`id $osuser | sed -e 's/^.*gid=//' -e 's/(.*$//'`
-    echo "group id for user \"$osuser\" is \"$gid\""
+    echo "Info: group id for user \"$osuser\" is \"$gid\""
 
     mkdir -p "$PCP_VAR_DIR/config/pmda" 2>/dev/null
     indoms="0 1 2 3 4 5 6 7 8 9 10 11 12"
