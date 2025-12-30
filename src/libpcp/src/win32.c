@@ -687,7 +687,7 @@ random(void)
 void
 srandom(unsigned int seed)
 {
-    srandom(seed);
+    srand(seed);
 }
 
 long int
