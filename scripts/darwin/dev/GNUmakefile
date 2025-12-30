@@ -107,7 +107,7 @@ clean:
 
 # Development helpers
 check-configured:
-	@if [ -f $(TOPDIR)/src/include/pcp/platform_defs.h ]; then \
+	@if [ -f $(PCP_BUILD_DIR)/src/include/pcp/platform_defs.h ]; then \
 		echo "✓ PCP is configured"; \
 		exit 0; \
 	else \
@@ -115,7 +115,7 @@ check-configured:
 		echo ""; \
 		echo "To configure PCP:"; \
 		echo "  cd $(TOPDIR)"; \
-		echo "  ./configure"; \
+		echo "  ./Makepkgs --verbose"; \
 		echo ""; \
 		echo "This only needs to be done once."; \
 		exit 1; \
