@@ -58,8 +58,8 @@ struct host_cpu_load_info	mach_cpuload = { { 0 } };
 extern int refresh_cpuload(struct host_cpu_load_info *);
 
 int			mach_vmstat_error = 0;
-struct vm_statistics	mach_vmstat = { 0 };
-extern int refresh_vmstat(struct vm_statistics *);
+struct vm_statistics64	mach_vmstat = { 0 };
+extern int refresh_vmstat(struct vm_statistics64 *);
 
 int			mach_fs_error = 0;
 struct statfs		*mach_fs = NULL;

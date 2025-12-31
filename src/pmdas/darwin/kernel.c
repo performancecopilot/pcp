@@ -27,12 +27,12 @@ extern mach_port_t	mach_host;
 extern int		mach_hertz;
 
 int
-refresh_vmstat(struct vm_statistics *vmstat)
+refresh_vmstat(struct vm_statistics64 *vmstat)
 {
-    int error, info = HOST_VM_INFO;
-    natural_t count = HOST_VM_INFO_COUNT;
+    int error, info = HOST_VM_INFO64;
+    natural_t count = HOST_VM_INFO64_COUNT;
 
-    error = host_statistics(mach_host, info, (host_info_t)vmstat, &count);
+    error = host_statistics64(mach_host, info, (host_info_t)vmstat, &count);
     return (error != KERN_SUCCESS) ? -oserror() : 0;
 }
 

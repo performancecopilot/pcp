@@ -1,0 +1,75 @@
+# Test vm_statistics64 API upgrade
+# Verify all existing memory metrics still work after upgrading from
+# vm_statistics (32-bit) to vm_statistics64 (64-bit) API
+#
+# This is a BREAKING CHANGE: counter fields change from 32-bit to 64-bit
+# which affects archive compatibility.
+
+# Physical memory metrics
+desc mem.physmem
+fetch mem.physmem
+
+desc mem.freemem
+fetch mem.freemem
+
+desc mem.active
+fetch mem.active
+
+desc mem.inactive
+fetch mem.inactive
+
+# Memory utilization metrics
+desc mem.util.wired
+fetch mem.util.wired
+
+desc mem.util.active
+fetch mem.util.active
+
+desc mem.util.inactive
+fetch mem.util.inactive
+
+desc mem.util.free
+fetch mem.util.free
+
+desc mem.util.used
+fetch mem.util.used
+
+# Page count metrics
+desc mem.pages.free
+fetch mem.pages.free
+
+desc mem.pages.active
+fetch mem.pages.active
+
+desc mem.pages.inactive
+fetch mem.pages.inactive
+
+desc mem.pages.wired
+fetch mem.pages.wired
+
+desc mem.pages.reactivated
+fetch mem.pages.reactivated
+
+# Page fault metrics (these are 64-bit counters now)
+desc mem.pages.faults
+fetch mem.pages.faults
+
+desc mem.pages.cow_faults
+fetch mem.pages.cow_faults
+
+desc mem.pages.zero_filled
+fetch mem.pages.zero_filled
+
+# Page I/O metrics (these are 64-bit counters now)
+desc mem.pageins
+fetch mem.pageins
+
+desc mem.pageouts
+fetch mem.pageouts
+
+# Cache metrics (these are 64-bit counters now)
+desc mem.cache_hits
+fetch mem.cache_hits
+
+desc mem.cache_lookups
+fetch mem.cache_lookups
