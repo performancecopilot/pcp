@@ -49,7 +49,8 @@ _filter()
 
 _stop_loggers()
 {
-    $sudo $signal -a -s TERM pmlogger
+    _service pmlogger stop >>$seq_full 2>&1
+    _wait_pmlogger_end
 }
 
 _cleanup()
@@ -62,8 +63,9 @@ _cleanup()
     cd $here # get out of tmp directory so we can delete it
     $sudo rm -rf $tmp $tmp.*
 
-    $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check
     [ -f $NEEDREWRITE.$seq ] && $sudo mv $NEEDREWRITE.$seq $NEEDREWRITE
+    _service pmlogger restart >>$seq_full 2>&1
+    _wait_for_pmlogger
 }
 
 _setup()
