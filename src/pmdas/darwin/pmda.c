@@ -699,6 +699,27 @@ static pmdaMetric metrictab[] = {
      { PMDA_PMID(CLUSTER_FILESYS,129), PM_TYPE_U32, FILESYS_INDOM,
        PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* mem.util.compressed */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,130), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* mem.compressions */
+  { &mach_vmstat.compressions,
+    { PMDA_PMID(CLUSTER_VMSTAT,131), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.decompressions */
+  { &mach_vmstat.decompressions,
+    { PMDA_PMID(CLUSTER_VMSTAT,132), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.pages */
+  { &mach_vmstat.compressor_page_count,
+    { PMDA_PMID(CLUSTER_VMSTAT,133), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.uncompressed_pages */
+  { &mach_vmstat.total_uncompressed_pages_in_compressor,
+    { PMDA_PMID(CLUSTER_VMSTAT,134), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 };
 
 static void
@@ -811,6 +832,9 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	return 1;
     case 23: /* mem.util.used */
 	atom->ull = page_count_to_kb(mach_vmstat.wire_count+mach_vmstat.active_count+mach_vmstat.inactive_count);
+	return 1;
+    case 130: /* mem.util.compressed */
+	atom->ull = page_count_to_kb(mach_vmstat.compressor_page_count);
 	return 1;
     }
     return PM_ERR_PMID;

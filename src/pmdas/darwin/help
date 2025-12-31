@@ -78,6 +78,25 @@
 @ mem.util.used used memory
 Equals mem.util.wired + mem.util.active + mem.util.inactive.
 @ mem.util.free free memory
+@ mem.util.compressed compressed memory
+Memory pages that have been compressed by the macOS memory compressor.
+This represents the amount of memory that has been compressed and stored
+in the compressor cache, reducing physical memory pressure.
+@ mem.compressions cumulative count of memory compressions
+The total number of memory compression operations performed by the
+macOS memory compressor since system boot. Each compression occurs when
+the system moves a page from active or inactive memory into compressed storage.
+@ mem.decompressions cumulative count of memory decompressions
+The total number of memory decompression operations performed by the
+macOS memory compressor since system boot. Each decompression occurs when
+a compressed page is accessed and must be restored to normal memory.
+@ mem.compressor.pages number of pages stored in compressor
+The current number of memory pages stored in the macOS memory compressor
+cache. These pages have been compressed to reduce physical memory usage.
+@ mem.compressor.uncompressed_pages total uncompressed size of compressed pages
+The total number of pages that are currently stored in compressed form,
+measured in their original (uncompressed) size. This shows how many pages
+of memory are being represented by the compressed storage.
 
 @ hinv.nfilesys number of file systems currently mounted
 @ filesys.capacity total capacity of mounted filesystem (Kbytes)
