@@ -37,8 +37,6 @@ _filter()
 {
     sed \
 	-e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g' \
-	-e 's/or "gpu[0-9]::[0-9][0-9]*/or "gpuN::PID/g' \
-	-e 's/inst \[[0-9][0-9]* or "[0-9][0-9]*"/inst [PID or "PID"/g' \
     #end
 }
 

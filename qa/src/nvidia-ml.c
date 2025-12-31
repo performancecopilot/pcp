@@ -131,17 +131,17 @@ nvmlInit(void)
 	fprintf(stderr, "qa-nvidia-ml: nvmlInit [%d - %d]\n",
 		refcount - 1, refcount);
 
-    proc_table[MYSELF0].pinfo.pid = getpid();
+    proc_table[MYSELF0].pinfo.pid = 5678;
     proc_table[MYSELF0].pinfo.usedGpuMemory = stats_table[MYSELF0].maxMemoryUsage;
     proc_table[MYSELF0].stats = &stats_table[MYSELF0];
     proc_table[MYSELF0].gpu = &gpu_table[1];
 
-    proc_table[MYSELF1].pinfo.pid = getpid();
+    proc_table[MYSELF1].pinfo.pid = 5678;
     proc_table[MYSELF1].pinfo.usedGpuMemory = stats_table[MYSELF1].maxMemoryUsage;
     proc_table[MYSELF1].stats = &stats_table[MYSELF1];
     proc_table[MYSELF1].gpu = &gpu_table[0];
 
-    proc_table[PARENT0].pinfo.pid = getppid();
+    proc_table[PARENT0].pinfo.pid = 1234;
     proc_table[PARENT0].pinfo.usedGpuMemory = stats_table[PARENT0].maxMemoryUsage;
     proc_table[PARENT0].stats = &stats_table[PARENT0];
     proc_table[PARENT0].gpu = &gpu_table[1];
