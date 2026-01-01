@@ -115,14 +115,15 @@ jobs:
           test -d /etc/pcp && echo "✓ /etc/pcp exists"
           test -d /var/lib/pcp && echo "✓ /var/lib/pcp exists"
       # Darwin PMDA Integration Tests (post-installation)
-      - name: Start pmcd daemon
+      - name: Wait for pmcd to start
         if: success() && steps.install-test.conclusion == 'success'
-        id: start-pmcd
+        id: wait-for-pmcd
         run: |
-          echo "=== Pre-startup Configuration Check ==="
+          echo "=== Installation Verification ==="
           echo "PCP installation check:"
           which pmcd && echo "pmcd binary: $(which pmcd)" || echo "pmcd not in PATH"
           which pminfo && echo "pminfo binary: $(which pminfo)" || echo "pminfo not in PATH"
+          which pcp && echo "pcp binary: $(which pcp)" || echo "pcp not in PATH"
 
           echo ""
           echo "Critical directories:"
@@ -132,78 +133,84 @@ jobs:
           test -d /var/log/pcp/pmcd && echo "✓ /var/log/pcp/pmcd exists" || echo "✗ /var/log/pcp/pmcd MISSING"
 
           echo ""
-          echo "PMDA directories:"
-          ls -la /var/lib/pcp/pmdas/ 2>/dev/null | head -10 || echo "/var/lib/pcp/pmdas/ not found"
-
-          echo ""
-          echo "PCP configuration:"
-          pmconfig 2>&1 || echo "pmconfig failed"
-
-          echo ""
           echo "pmcd.conf contents:"
           cat /etc/pcp/pmcd/pmcd.conf 2>/dev/null || echo "pmcd.conf not found"
 
           echo ""
-          echo "PCP environment variables:"
-          env | grep PCP || echo "No PCP env vars set"
-
-          echo ""
           echo "Checking launchd plist:"
-          cat /Library/LaunchDaemons/org.pcp.pmcd.plist 2>/dev/null || echo "org.pcp.pmcd.plist not found"
+          test -f /Library/LaunchDaemons/org.pcp.pmcd.plist && echo "✓ org.pcp.pmcd.plist exists" || echo "✗ org.pcp.pmcd.plist MISSING"
 
           echo ""
-          echo "Starting pmcd..."
+          echo "=== Waiting for pmcd service to start (post-install) ==="
+          echo "The installer should have started pmcd via launchd..."
 
-          # Run pmcd directly without --verify flag to ensure it actually starts as daemon
-          echo "Starting pmcd as daemon (bypassing init scripts)..."
-          sudo /usr/local/libexec/pcp/bin/pmcd -f 2>&1 &
-          PMCD_PID=$!
-          echo "Started pmcd with PID: $PMCD_PID"
+          TIMEOUT=60  # Wait up to 60 seconds
+          ELAPSED=0
+          INTERVAL=3
 
-          # Wait for pmcd to be ready
-          sleep 5
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking if pmcd is responding (${ELAPSED}s elapsed)..."
+
+            # Check if pcp command works (like in .cirrus.yml)
+            if pcp 2>/dev/null; then
+              echo "✓ pmcd service is responding!"
+              break
+            fi
+
+            # Also check if pminfo can connect
+            if pminfo -h localhost -f hinv.ncpu 2>/dev/null; then
+              echo "✓ pmcd is accepting connections!"
+              break
+            fi
+
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "✗ ERROR: pmcd service failed to start within $TIMEOUT seconds"
+
+            echo ""
+            echo "=== Diagnostic Information ==="
+            echo "pmcd process status:"
+            pgrep pmcd && echo "pmcd is running (PID: $(pgrep pmcd))" || echo "pmcd NOT running"
+
+            echo ""
+            echo "pmcd full process details:"
+            ps aux | grep pmcd | grep -v grep || echo "No pmcd process found"
+
+            echo ""
+            echo "pmcd command line:"
+            sudo ps -p $(pgrep pmcd) -o pid,ppid,user,command 2>/dev/null || echo "Cannot get process details"
+
+            echo ""
+            echo "pmcd network connections:"
+            sudo lsof -i -P | grep pmcd || echo "No network connections"
+
+            echo ""
+            echo "pmcd log (last 30 lines):"
+            sudo tail -30 /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd.log"
+
+            echo ""
+            echo "launchd plist stdout/stderr:"
+            sudo cat /var/log/pcp/pmcd/plist.stdout 2>/dev/null || echo "No plist.stdout"
+            sudo cat /var/log/pcp/pmcd/plist.stderr 2>/dev/null || echo "No plist.stderr"
+
+            exit 1
+          fi
 
           echo ""
-          echo "=== Post-startup Verification ==="
+          echo "=== pmcd Service Verification ==="
           echo "pmcd process status:"
           pgrep pmcd && echo "✓ pmcd is running (PID: $(pgrep pmcd))" || echo "✗ pmcd failed to start"
 
           echo ""
-          echo "pmcd full process details:"
-          ps aux | grep pmcd | grep -v grep || echo "No pmcd process found"
-
-          echo ""
-          echo "pmcd command line and environment:"
+          echo "pmcd command line:"
           sudo ps -p $(pgrep pmcd) -o pid,ppid,user,command || echo "Cannot get process details"
-
-          echo ""
-          echo "Log directory status:"
-          ls -la /var/log/pcp/pmcd/ 2>/dev/null || echo "/var/log/pcp/pmcd/ does not exist"
-          test -d /var/log/pcp && echo "/var/log/pcp exists" || echo "/var/log/pcp does NOT exist"
-
-          echo ""
-          echo "Check for any pmcd output/errors:"
-          sudo tail -20 /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd.log file"
-
-          echo ""
-          echo "Check plist stdout/stderr (from launchd attempts):"
-          sudo cat /var/log/pcp/pmcd/plist.stdout 2>/dev/null || echo "No plist.stdout"
-          sudo cat /var/log/pcp/pmcd/plist.stderr 2>/dev/null || echo "No plist.stderr"
-
-          echo ""
-          sudo tail -20 /var/log/system.log 2>/dev/null | grep -i pmcd || echo "No pmcd entries in system.log"
 
           echo ""
           echo "pmcd listening ports:"
           sudo lsof -i -P | grep pmcd || echo "No network connections found for pmcd"
-
-          echo ""
-          echo "All open files for pmcd process:"
-          sudo lsof -p $(pgrep pmcd) 2>/dev/null | head -30 || echo "Cannot list pmcd file descriptors"
-
-          echo ""
-          echo "All listening ports:"
-          sudo lsof -i -P | grep LISTEN | grep -E ':(44321|44322)' || echo "pmcd default ports (44321/44322) not listening"
 
           echo ""
           echo "Test localhost connectivity to pmcd port (44321):"
@@ -214,7 +221,7 @@ jobs:
           nc -z 127.0.0.1 44321 && echo "✓ Can connect to 127.0.0.1:44321" || echo "✗ Cannot connect to 127.0.0.1:44321"
       - name: Run Darwin PMDA Integration Tests
         id: integration-tests
-        if: success() && steps.start-pmcd.conclusion == 'success'
+        if: success() && steps.wait-for-pmcd.conclusion == 'success'
         run: |
           echo "Running Darwin PMDA integration tests..."
           cd scripts/darwin/test/integration
@@ -226,7 +233,7 @@ jobs:
           cd scripts/darwin/test/integration
           ./test-pmstat.sh
       - name: Debug on integration test failure
-        if: failure() && (steps.integration-tests.conclusion == 'failure' || steps.start-pmcd.conclusion == 'failure')
+        if: failure() && (steps.integration-tests.conclusion == 'failure' || steps.wait-for-pmcd.conclusion == 'failure')
         run: |
           echo "Integration tests failed. Collecting diagnostics..."
 
