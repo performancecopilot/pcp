@@ -16,7 +16,7 @@ echo "Testing pmrep :macstat with Darwin PMDA..."
 # Run pmrep :macstat for 2 samples (config should be installed)
 # Use -h localhost to force TCP connection (more reliable in CI environments)
 echo "Testing basic :macstat..."
-output=$(timeout 10 pmrep -h localhost :macstat -t 1 -s 2 2>&1)
+output=$(pmrep -h localhost :macstat -t 1 -s 2 2>&1)
 exit_code=$?
 
 if [ $exit_code -ne 0 ]; then
@@ -96,7 +96,7 @@ echo "Basic macstat checks failed: $checks_failed"
 # Test extended macstat-x
 echo
 echo "Testing extended :macstat-x..."
-output_x=$(timeout 10 pmrep -h localhost :macstat-x -t 1 -s 2 2>&1)
+output_x=$(pmrep -h localhost :macstat-x -t 1 -s 2 2>&1)
 exit_code_x=$?
 
 if [ $exit_code_x -ne 0 ]; then

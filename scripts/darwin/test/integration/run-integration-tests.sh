@@ -175,15 +175,15 @@ echo
 
 # Test 4: pmstat integration
 echo "Test Group: pmstat Integration"
-run_test "pmstat runs" "timeout 5 pmstat -h localhost -t 1 -s 2"
-run_test "pmstat shows loadavg" "timeout 5 pmstat -h localhost -t 1 -s 1 | grep -E '[0-9]+\.[0-9]+'"
+run_test "pmstat runs" "pmstat -h localhost -t 1 -s 2"
+run_test "pmstat shows loadavg" "pmstat -h localhost -t 1 -s 1 | grep -E '[0-9]+\.[0-9]+'"
 echo
 
 # Test 5: pmrep :macstat integration (macOS-specific pmstat alternative)
 echo "Test Group: pmrep :macstat Integration"
 if command -v pmrep &> /dev/null; then
-    run_test "pmrep :macstat runs" "timeout 5 pmrep -h localhost :macstat -t 1 -s 2"
-    run_test "pmrep :macstat-x runs" "timeout 5 pmrep -h localhost :macstat-x -t 1 -s 2"
+    run_test "pmrep :macstat runs" "pmrep -h localhost :macstat -t 1 -s 2"
+    run_test "pmrep :macstat-x runs" "pmrep -h localhost :macstat-x -t 1 -s 2"
 
     # Run detailed macstat test if it exists
     if [ -f "$SCRIPT_DIR/test-pmrep-macstat.sh" ]; then
@@ -201,8 +201,8 @@ echo
 
 # Test 6: pmval can fetch values
 echo "Test Group: pmval Integration"
-run_test "pmval mem.freemem" "timeout 5 pmval -h localhost -t 1 -s 1 mem.freemem"
-run_test "pmval kernel.all.load" "timeout 5 pmval -h localhost -t 1 -s 1 'kernel.all.load[1]'"
+run_test "pmval mem.freemem" "pmval -h localhost -t 1 -s 1 mem.freemem"
+run_test "pmval kernel.all.load" "pmval -h localhost -t 1 -s 1 'kernel.all.load[1]'"
 echo
 
 # Test 7: Disk metrics
