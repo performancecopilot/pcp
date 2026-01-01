@@ -223,6 +223,29 @@ jobs:
         id: integration-tests
         if: success() && steps.wait-for-pmcd.conclusion == 'success'
         run: |
+          echo "=== Python and pmrep debugging ==="
+          echo "pmrep location:"
+          which pmrep
+          head -1 $(which pmrep)
+
+          echo ""
+          echo "Python versions available:"
+          which python3 && python3 --version || echo "python3 not found"
+          which python && python --version || echo "python not found"
+
+          echo ""
+          echo "Python sys.path for pmrep's Python:"
+          $(head -1 $(which pmrep) | sed 's/#!//') -c "import sys; print('\n'.join(sys.path))"
+
+          echo ""
+          echo "Looking for pcp module:"
+          find /usr/local -name "pcp.py" -o -name "pcp" -type d 2>/dev/null | grep -i python || echo "No pcp module found in /usr/local"
+
+          echo ""
+          echo "Check if pcp module is installed:"
+          $(head -1 $(which pmrep) | sed 's/#!//') -c "import pcp; print('pcp module location:', pcp.__file__)" 2>&1 || echo "pcp module not importable"
+
+          echo ""
           echo "Running Darwin PMDA integration tests..."
           cd scripts/darwin/test/integration
           ./run-integration-tests.sh
