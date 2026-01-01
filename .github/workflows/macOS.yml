@@ -119,6 +119,19 @@ jobs:
         if: success() && steps.install-test.conclusion == 'success'
         id: start-pmcd
         run: |
+          echo "=== Pre-startup Configuration Check ==="
+          echo "PCP configuration:"
+          pmconfig 2>&1 || echo "pmconfig failed"
+
+          echo ""
+          echo "pmcd.conf contents:"
+          cat /etc/pcp/pmcd/pmcd.conf 2>/dev/null || echo "pmcd.conf not found"
+
+          echo ""
+          echo "PCP environment variables:"
+          env | grep PCP || echo "No PCP env vars set"
+
+          echo ""
           echo "Starting pmcd..."
           # Try launchctl first (macOS standard)
           sudo launchctl load /Library/LaunchDaemons/org.pcp.pmcd.plist 2>/dev/null || \
@@ -130,8 +143,26 @@ jobs:
           # Wait for pmcd to be ready
           sleep 3
 
-          # Verify pmcd is running
-          pgrep pmcd && echo "✓ pmcd is running" || echo "✗ pmcd failed to start"
+          echo ""
+          echo "=== Post-startup Verification ==="
+          echo "pmcd process status:"
+          pgrep pmcd && echo "✓ pmcd is running (PID: $(pgrep pmcd))" || echo "✗ pmcd failed to start"
+
+          echo ""
+          echo "pmcd listening ports:"
+          sudo lsof -i -P | grep pmcd || echo "No network connections found for pmcd"
+
+          echo ""
+          echo "All listening ports:"
+          sudo lsof -i -P | grep LISTEN | grep -E ':(44321|44322)' || echo "pmcd default ports (44321/44322) not listening"
+
+          echo ""
+          echo "Test localhost connectivity to pmcd port (44321):"
+          nc -z localhost 44321 && echo "✓ Can connect to localhost:44321" || echo "✗ Cannot connect to localhost:44321"
+
+          echo ""
+          echo "Test 127.0.0.1 connectivity to pmcd port (44321):"
+          nc -z 127.0.0.1 44321 && echo "✓ Can connect to 127.0.0.1:44321" || echo "✗ Cannot connect to 127.0.0.1:44321"
       - name: Run Darwin PMDA Integration Tests
         id: integration-tests
         if: success() && steps.start-pmcd.conclusion == 'success'
@@ -149,16 +180,62 @@ jobs:
         if: failure() && (steps.integration-tests.conclusion == 'failure' || steps.start-pmcd.conclusion == 'failure')
         run: |
           echo "Integration tests failed. Collecting diagnostics..."
+
+          echo "=== PCP Configuration ==="
+          pmconfig 2>&1 || echo "pmconfig failed"
+
+          echo ""
+          echo "=== pmcd.conf contents ==="
+          cat /etc/pcp/pmcd/pmcd.conf 2>/dev/null || echo "pmcd.conf not found"
+
+          echo ""
           echo "=== pmcd status ==="
-          pgrep pmcd || echo "pmcd not running"
-          echo "=== pmcd log ==="
-          sudo cat /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd log found"
+          pgrep pmcd && echo "pmcd is running (PID: $(pgrep pmcd))" || echo "pmcd not running"
+
+          echo ""
+          echo "=== pmcd network connections ==="
+          sudo lsof -i -P | grep pmcd || echo "No network connections for pmcd"
+
+          echo ""
+          echo "=== All listening ports ==="
+          sudo lsof -i -P | grep LISTEN || echo "No listening ports found"
+
+          echo ""
+          echo "=== Connectivity tests ==="
+          nc -z localhost 44321 && echo "✓ localhost:44321 is reachable" || echo "✗ localhost:44321 is NOT reachable"
+          nc -z 127.0.0.1 44321 && echo "✓ 127.0.0.1:44321 is reachable" || echo "✗ 127.0.0.1:44321 is NOT reachable"
+
+          echo ""
+          echo "=== pmcd log (last 50 lines) ==="
+          sudo tail -50 /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd log found"
+
+          echo ""
+          echo "=== darwin PMDA log (last 50 lines) ==="
+          sudo tail -50 /var/log/pcp/pmcd/darwin.log 2>/dev/null || echo "No darwin PMDA log found"
+
+          echo ""
           echo "=== darwin PMDA status ==="
           pminfo -f pmcd.agent.status 2>/dev/null | grep darwin || echo "Darwin PMDA not loaded"
+
+          echo ""
           echo "=== Available PMDAs ==="
-          ls -la /usr/local/lib/pcp/pmdas/ 2>/dev/null || ls -la /Library/PCP/pmdas/ 2>/dev/null
-          echo "=== Test a simple metric ==="
-          pminfo -f hinv.ncpu 2>&1 || echo "pminfo failed"
+          ls -la /usr/local/lib/pcp/pmdas/ 2>/dev/null || ls -la /Library/PCP/pmdas/ 2>/dev/null || echo "PMDA directory not found"
+
+          echo ""
+          echo "=== Test simple metric with explicit localhost ==="
+          pminfo -h localhost -f hinv.ncpu 2>&1 || echo "pminfo with localhost failed"
+
+          echo ""
+          echo "=== Test simple metric with explicit 127.0.0.1 ==="
+          pminfo -h 127.0.0.1 -f hinv.ncpu 2>&1 || echo "pminfo with 127.0.0.1 failed"
+
+          echo ""
+          echo "=== Test simple metric with default host ==="
+          pminfo -f hinv.ncpu 2>&1 || echo "pminfo with default host failed"
+
+          echo ""
+          echo "=== PCP environment variables ==="
+          env | grep PCP || echo "No PCP env vars set"
       - name: Cleanup - Unmount DMG
         if: always()
         run: |
