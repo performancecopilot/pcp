@@ -214,6 +214,23 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ network.interface.total.drops total network connections dropped
 @ network.interface.total.mcasts total network multicasts
 
+@ network.udp.indatagrams total UDP datagrams received
+Total number of UDP datagrams delivered to UDP users.
+This is a cumulative counter from boot time.
+@ network.udp.outdatagrams total UDP datagrams sent
+Total number of UDP datagrams sent from this host.
+This is a cumulative counter from boot time.
+@ network.udp.noports UDP datagrams to port with no listener
+Total number of received UDP datagrams for which there was no listener
+at the destination port. This is a cumulative counter from boot time.
+@ network.udp.inerrors UDP input errors
+Total number of errors encountered on received UDP datagrams.
+This includes bad checksums, invalid headers, and truncated datagrams.
+Computed as the sum of header errors, checksum errors, and length errors.
+@ network.udp.rcvbuferrors UDP receive buffer errors
+Total number of UDP datagrams dropped due to full socket receive buffers.
+This occurs when the receiving application cannot keep up with incoming data.
+
 @ nfs3.client.calls
 @ nfs3.client.reqs
 @ nfs3.server.calls

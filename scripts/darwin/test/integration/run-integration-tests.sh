@@ -228,6 +228,17 @@ run_test "kernel.all.nprocs > 0" "validate_metric kernel.all.nprocs positive"
 run_test "kernel.all.nthreads > 0" "validate_metric kernel.all.nthreads positive"
 echo
 
+# Test 10: UDP protocol metrics
+echo "Test Group: UDP Protocol Metrics"
+run_test "network.udp.indatagrams exists" "pminfo -h localhost -f network.udp.indatagrams"
+run_test "network.udp.outdatagrams exists" "pminfo -h localhost -f network.udp.outdatagrams"
+run_test "network.udp.indatagrams >= 0" "validate_metric network.udp.indatagrams non-negative"
+run_test "network.udp.outdatagrams >= 0" "validate_metric network.udp.outdatagrams non-negative"
+run_test "network.udp.noports >= 0" "validate_metric network.udp.noports non-negative"
+run_test "network.udp.inerrors >= 0" "validate_metric network.udp.inerrors non-negative"
+run_test "network.udp.rcvbuferrors >= 0" "validate_metric network.udp.rcvbuferrors non-negative"
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"

@@ -31,6 +31,7 @@
 #include "disk.h"
 #include "network.h"
 #include "vfs.h"
+#include "udp.h"
 
 
 #define page_count_to_kb(x) (((__uint64_t)(x) << mach_page_shift) >> 10)
@@ -94,6 +95,9 @@ extern int refresh_nfs(struct nfsstats *);
 
 int			mach_vfs_error = 0;
 vfsstats_t		mach_vfs = { 0 };
+
+int			mach_udp_error = 0;
+udpstats_t		mach_udp = { 0 };
 
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
@@ -160,6 +164,7 @@ enum {
     CLUSTER_NETWORK,		/* 10 = networking statistics */
     CLUSTER_NFS,		/* 11 = nfs filesystem statistics */
     CLUSTER_VFS,		/* 12 = vfs statistics */
+    CLUSTER_UDP,		/* 13 = udp protocol statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
@@ -779,6 +784,27 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_VFS,141), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* network.udp.indatagrams */
+  { &mach_udp.ipackets,
+    { PMDA_PMID(CLUSTER_UDP,142), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.outdatagrams */
+  { &mach_udp.opackets,
+    { PMDA_PMID(CLUSTER_UDP,143), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.noports */
+  { &mach_udp.noport,
+    { PMDA_PMID(CLUSTER_UDP,144), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.inerrors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_UDP,145), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.rcvbuferrors */
+  { &mach_udp.fullsock,
+    { PMDA_PMID(CLUSTER_UDP,146), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 };
 
 static void
@@ -808,6 +834,8 @@ darwin_refresh(int *need_refresh)
 	mach_nfs_error = refresh_nfs(&mach_nfs);
     if (need_refresh[CLUSTER_VFS])
 	mach_vfs_error = refresh_vfs(&mach_vfs);
+    if (need_refresh[CLUSTER_UDP])
+	mach_udp_error = refresh_udp(&mach_udp);
 }
 
 static inline int
@@ -1275,6 +1303,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_NETWORK:	return fetch_network(item, inst, atom);
     case CLUSTER_NFS:		return fetch_nfs(item, inst, atom);
     case CLUSTER_VFS:		return fetch_vfs(item, atom);
+    case CLUSTER_UDP:		return fetch_udp(item, atom);
     }
     return 0;
 }

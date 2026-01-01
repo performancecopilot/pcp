@@ -155,6 +155,7 @@ disk.all {
 
 network {
     interface
+    udp
 }
 
 network.interface {
@@ -187,6 +188,14 @@ network.interface.total {
     errors		DARWIN:10:91
     drops		DARWIN:10:92
     mcasts		DARWIN:10:93
+}
+
+network.udp {
+    indatagrams	DARWIN:13:142
+    outdatagrams	DARWIN:13:143
+    noports		DARWIN:13:144
+    inerrors	DARWIN:13:145
+    rcvbuferrors	DARWIN:13:146
 }
 
 nfs3 {
