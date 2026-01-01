@@ -246,6 +246,15 @@ jobs:
           $(head -1 $(which pmrep) | sed 's/#!//') -c "import pcp; print('pcp module location:', pcp.__file__)" 2>&1 || echo "pcp module not importable"
 
           echo ""
+          echo "Setting PYTHONPATH to include PCP module location..."
+          export PYTHONPATH="/usr/local/lib/python3.13/site-packages:${PYTHONPATH:-}"
+          echo "PYTHONPATH=${PYTHONPATH}"
+
+          echo ""
+          echo "Verify pcp module is now importable:"
+          $(head -1 $(which pmrep) | sed 's/#!//') -c "import pcp; print('✓ pcp module found at:', pcp.__file__)"
+
+          echo ""
           echo "Running Darwin PMDA integration tests..."
           cd scripts/darwin/test/integration
           ./run-integration-tests.sh
