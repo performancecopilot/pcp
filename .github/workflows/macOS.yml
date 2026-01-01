@@ -120,6 +120,22 @@ jobs:
         id: start-pmcd
         run: |
           echo "=== Pre-startup Configuration Check ==="
+          echo "PCP installation check:"
+          which pmcd && echo "pmcd binary: $(which pmcd)" || echo "pmcd not in PATH"
+          which pminfo && echo "pminfo binary: $(which pminfo)" || echo "pminfo not in PATH"
+
+          echo ""
+          echo "Critical directories:"
+          test -d /etc/pcp && echo "✓ /etc/pcp exists" || echo "✗ /etc/pcp MISSING"
+          test -d /var/lib/pcp && echo "✓ /var/lib/pcp exists" || echo "✗ /var/lib/pcp MISSING"
+          test -d /var/log/pcp && echo "✓ /var/log/pcp exists" || echo "✗ /var/log/pcp MISSING"
+          test -d /var/log/pcp/pmcd && echo "✓ /var/log/pcp/pmcd exists" || echo "✗ /var/log/pcp/pmcd MISSING"
+
+          echo ""
+          echo "PMDA directories:"
+          ls -la /var/lib/pcp/pmdas/ 2>/dev/null | head -10 || echo "/var/lib/pcp/pmdas/ not found"
+
+          echo ""
           echo "PCP configuration:"
           pmconfig 2>&1 || echo "pmconfig failed"
 
@@ -133,12 +149,17 @@ jobs:
 
           echo ""
           echo "Starting pmcd..."
+
           # Try launchctl first (macOS standard)
-          sudo launchctl load /Library/LaunchDaemons/org.pcp.pmcd.plist 2>/dev/null || \
-          # Fall back to direct pmcd start
-          sudo pmcd start || \
-          # Last resort - run pmcd directly
-          sudo /usr/local/bin/pmcd
+          if sudo launchctl load /Library/LaunchDaemons/org.pcp.pmcd.plist 2>&1; then
+            echo "✓ Started via launchctl"
+          elif sudo pmcd start 2>&1; then
+            echo "✓ Started via 'pmcd start' command"
+          elif sudo /usr/local/bin/pmcd 2>&1 & then
+            echo "✓ Started via direct execution of /usr/local/bin/pmcd"
+          else
+            echo "✗ All pmcd start methods failed"
+          fi
 
           # Wait for pmcd to be ready
           sleep 3
@@ -149,8 +170,30 @@ jobs:
           pgrep pmcd && echo "✓ pmcd is running (PID: $(pgrep pmcd))" || echo "✗ pmcd failed to start"
 
           echo ""
+          echo "pmcd full process details:"
+          ps aux | grep pmcd | grep -v grep || echo "No pmcd process found"
+
+          echo ""
+          echo "pmcd command line and environment:"
+          sudo ps -p $(pgrep pmcd) -o pid,ppid,user,command || echo "Cannot get process details"
+
+          echo ""
+          echo "Log directory status:"
+          ls -la /var/log/pcp/pmcd/ 2>/dev/null || echo "/var/log/pcp/pmcd/ does not exist"
+          test -d /var/log/pcp && echo "/var/log/pcp exists" || echo "/var/log/pcp does NOT exist"
+
+          echo ""
+          echo "Check for any pmcd output/errors:"
+          sudo tail -20 /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd.log file"
+          sudo tail -20 /var/log/system.log 2>/dev/null | grep -i pmcd || echo "No pmcd entries in system.log"
+
+          echo ""
           echo "pmcd listening ports:"
           sudo lsof -i -P | grep pmcd || echo "No network connections found for pmcd"
+
+          echo ""
+          echo "All open files for pmcd process:"
+          sudo lsof -p $(pgrep pmcd) 2>/dev/null | head -30 || echo "Cannot list pmcd file descriptors"
 
           echo ""
           echo "All listening ports:"
