@@ -148,21 +148,20 @@ jobs:
           env | grep PCP || echo "No PCP env vars set"
 
           echo ""
+          echo "Checking launchd plist:"
+          cat /Library/LaunchDaemons/org.pcp.pmcd.plist 2>/dev/null || echo "org.pcp.pmcd.plist not found"
+
+          echo ""
           echo "Starting pmcd..."
 
-          # Try launchctl first (macOS standard)
-          if sudo launchctl load /Library/LaunchDaemons/org.pcp.pmcd.plist 2>&1; then
-            echo "✓ Started via launchctl"
-          elif sudo pmcd start 2>&1; then
-            echo "✓ Started via 'pmcd start' command"
-          elif sudo /usr/local/bin/pmcd 2>&1 & then
-            echo "✓ Started via direct execution of /usr/local/bin/pmcd"
-          else
-            echo "✗ All pmcd start methods failed"
-          fi
+          # Run pmcd directly without --verify flag to ensure it actually starts as daemon
+          echo "Starting pmcd as daemon (bypassing init scripts)..."
+          sudo /usr/local/libexec/pcp/bin/pmcd -f 2>&1 &
+          PMCD_PID=$!
+          echo "Started pmcd with PID: $PMCD_PID"
 
           # Wait for pmcd to be ready
-          sleep 3
+          sleep 5
 
           echo ""
           echo "=== Post-startup Verification ==="
@@ -185,6 +184,13 @@ jobs:
           echo ""
           echo "Check for any pmcd output/errors:"
           sudo tail -20 /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd.log file"
+
+          echo ""
+          echo "Check plist stdout/stderr (from launchd attempts):"
+          sudo cat /var/log/pcp/pmcd/plist.stdout 2>/dev/null || echo "No plist.stdout"
+          sudo cat /var/log/pcp/pmcd/plist.stderr 2>/dev/null || echo "No plist.stderr"
+
+          echo ""
           sudo tail -20 /var/log/system.log 2>/dev/null | grep -i pmcd || echo "No pmcd entries in system.log"
 
           echo ""
