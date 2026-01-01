@@ -13,7 +13,8 @@ NC='\033[0m'
 echo "Testing pmstat with Darwin PMDA..."
 
 # Run pmstat for 2 samples
-output=$(timeout 10 pmstat -t 1 -s 2 2>&1)
+# Use -h localhost to force TCP connection (more reliable in CI environments)
+output=$(timeout 10 pmstat -h localhost -t 1 -s 2 2>&1)
 exit_code=$?
 
 if [ $exit_code -ne 0 ]; then

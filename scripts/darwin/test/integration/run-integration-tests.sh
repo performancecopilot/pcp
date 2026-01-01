@@ -77,7 +77,8 @@ check_prerequisites() {
     echo -e "${GREEN}✓ pmcd is running${NC}"
 
     # Check if darwin PMDA is loaded
-    if ! pminfo -f pmcd.agent.status | grep -q darwin; then
+    # Use -h localhost to force TCP connection (more reliable in CI environments)
+    if ! pminfo -h localhost -f pmcd.agent.status | grep -q darwin; then
         echo -e "${YELLOW}⚠ Darwin PMDA not loaded in pmcd${NC}"
         echo "  Attempting to load darwin PMDA..."
         cd /usr/local/lib/pcp/pmdas/darwin 2>/dev/null || cd /Library/PCP/pmdas/darwin 2>/dev/null
@@ -85,7 +86,7 @@ check_prerequisites() {
         sleep 1
     fi
 
-    if pminfo kernel.all.uptime > /dev/null 2>&1; then
+    if pminfo -h localhost kernel.all.uptime > /dev/null 2>&1; then
         echo -e "${GREEN}✓ Darwin PMDA is loaded and responding${NC}"
     else
         echo -e "${RED}✗ Darwin PMDA is not responding${NC}"
@@ -121,7 +122,8 @@ validate_metric() {
     local metric="$1"
     local validation="$2"
 
-    local value=$(pminfo -f "$metric" 2>/dev/null | grep "value" | awk '{print $2}')
+    # Use -h localhost to force TCP connection
+    local value=$(pminfo -h localhost -f "$metric" 2>/dev/null | grep "value" | awk '{print $2}')
 
     if [ -z "$value" ]; then
         return 1
@@ -151,10 +153,10 @@ echo
 
 # Test 1: Basic metric availability
 echo "Test Group: Basic Metrics"
-run_test "hinv.ncpu exists" "pminfo -f hinv.ncpu"
-run_test "hinv.physmem exists" "pminfo -f hinv.physmem"
-run_test "kernel.all.uptime exists" "pminfo -f kernel.all.uptime"
-run_test "kernel.all.load exists" "pminfo -f 'kernel.all.load'"
+run_test "hinv.ncpu exists" "pminfo -h localhost -f hinv.ncpu"
+run_test "hinv.physmem exists" "pminfo -h localhost -f hinv.physmem"
+run_test "kernel.all.uptime exists" "pminfo -h localhost -f kernel.all.uptime"
+run_test "kernel.all.load exists" "pminfo -h localhost -f 'kernel.all.load'"
 echo
 
 # Test 2: Memory metrics
@@ -168,36 +170,56 @@ echo
 echo "Test Group: CPU Metrics"
 run_test "hinv.ncpu > 0" "validate_metric hinv.ncpu positive"
 run_test "kernel.all.cpu.idle >= 0" "validate_metric kernel.all.cpu.idle non-negative"
-run_test "kernel.percpu.cpu.user exists" "pminfo 'kernel.percpu.cpu.user'"
+run_test "kernel.percpu.cpu.user exists" "pminfo -h localhost 'kernel.percpu.cpu.user'"
 echo
 
 # Test 4: pmstat integration
 echo "Test Group: pmstat Integration"
-run_test "pmstat runs" "timeout 5 pmstat -t 1 -s 2"
-run_test "pmstat shows loadavg" "timeout 5 pmstat -t 1 -s 1 | grep -E '[0-9]+\.[0-9]+'"
+run_test "pmstat runs" "timeout 5 pmstat -h localhost -t 1 -s 2"
+run_test "pmstat shows loadavg" "timeout 5 pmstat -h localhost -t 1 -s 1 | grep -E '[0-9]+\.[0-9]+'"
 echo
 
-# Test 5: pmval can fetch values
+# Test 5: pmrep :macstat integration (macOS-specific pmstat alternative)
+echo "Test Group: pmrep :macstat Integration"
+if command -v pmrep &> /dev/null; then
+    run_test "pmrep :macstat runs" "timeout 5 pmrep -h localhost :macstat -t 1 -s 2"
+    run_test "pmrep :macstat-x runs" "timeout 5 pmrep -h localhost :macstat-x -t 1 -s 2"
+
+    # Run detailed macstat test if it exists
+    if [ -f "$SCRIPT_DIR/test-pmrep-macstat.sh" ]; then
+        echo "Running detailed pmrep :macstat validation..."
+        if "$SCRIPT_DIR/test-pmrep-macstat.sh"; then
+            echo -e "${GREEN}✓ Detailed pmrep :macstat validation passed${NC}"
+        else
+            echo -e "${YELLOW}⚠ Detailed pmrep :macstat validation had issues${NC}"
+        fi
+    fi
+else
+    echo -e "${YELLOW}⚠ pmrep not found, skipping :macstat tests${NC}"
+fi
+echo
+
+# Test 6: pmval can fetch values
 echo "Test Group: pmval Integration"
-run_test "pmval mem.freemem" "timeout 5 pmval -t 1 -s 1 mem.freemem"
-run_test "pmval kernel.all.load" "timeout 5 pmval -t 1 -s 1 'kernel.all.load[1]'"
+run_test "pmval mem.freemem" "timeout 5 pmval -h localhost -t 1 -s 1 mem.freemem"
+run_test "pmval kernel.all.load" "timeout 5 pmval -h localhost -t 1 -s 1 'kernel.all.load[1]'"
 echo
 
-# Test 6: Disk metrics
+# Test 7: Disk metrics
 echo "Test Group: Disk Metrics"
-run_test "hinv.ndisk exists" "pminfo -f hinv.ndisk"
+run_test "hinv.ndisk exists" "pminfo -h localhost -f hinv.ndisk"
 run_test "disk.all.total >= 0" "validate_metric disk.all.total non-negative"
 echo
 
-# Test 7: Network metrics
+# Test 8: Network metrics
 echo "Test Group: Network Metrics"
-run_test "network.interface.in.bytes exists" "pminfo 'network.interface.in.bytes'"
-run_test "network.interface.out.bytes exists" "pminfo 'network.interface.out.bytes'"
+run_test "network.interface.in.bytes exists" "pminfo -h localhost 'network.interface.in.bytes'"
+run_test "network.interface.out.bytes exists" "pminfo -h localhost 'network.interface.out.bytes'"
 echo
 
-# Test 8: VFS metrics
+# Test 9: VFS metrics
 echo "Test Group: VFS Metrics"
-run_test "vfs.files.count exists" "pminfo -f vfs.files.count"
+run_test "vfs.files.count exists" "pminfo -h localhost -f vfs.files.count"
 run_test "vfs.files.max > 0" "validate_metric vfs.files.max positive"
 run_test "vfs.files.free >= 0" "validate_metric vfs.files.free non-negative"
 run_test "vfs.vnodes.count >= 0" "validate_metric vfs.vnodes.count non-negative"
