@@ -252,7 +252,7 @@ openSUSE
 
 SUSE (SLES)
     https://www.suse.com/lifecycle/
-    18 Nov 2015: 11 SP4 and 12 SP1
+    01 Jan 2026: 15 SP7 and 16
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -274,8 +274,7 @@ SUSE (SLES)
 
 FreeBSD
     https://www.freebsd.org/releases/
-    11 Sep 2025: 13.5 and 14.3
-    (15.0 expected Dec 2025)
+    01 Jan 2026: 14.3 and 15.0
     # which packages are installed
     $ pkg info -a | sed -e 's/-[0-9].*//'
     # package search recipe (name and info or description)

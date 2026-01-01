@@ -1,5 +1,5 @@
-# PCP required package list for FreeBSD 14.0 i386
-# created by kenj on vm10 Wed Jan 10 16:40:10 AEDT 2024
+# PCP required package list for FreeBSD 15.0 amd64
+# created by kenj on vm10 Thu 01 Jan 2026 16:03:43 AEDT
 #
 apache24
 autoconf
@@ -26,8 +26,8 @@ inih
 jq
 kubectl
 libuv
-mariadb114-client
 memcached
+mariadb118-client
 ncurses
 nmap
 openssl
@@ -47,9 +47,9 @@ p5-XML-TokeParser
 p5-YAML-LibYAML
 perl5
 pkgconf
-postfix
-postgresql15-client
 pstree
+postfix
+postgresql17-client
 py311-elasticsearch
 py311-libvirt
 py311-lxml
@@ -57,12 +57,14 @@ py311-openpyxl
 py311-pandas
 py311-pillow
 py311-prometheus-client
+py311-psycopg2
+py311-pyarrow
 py311-requests
 py311-rtslib-fb
 py311-setuptools
 py311-six
 pylint-py311
-python3
+python39
 qt5-buildtools
 qt5-concurrent
 qt5-core
