@@ -10,6 +10,7 @@ root {
     network
     nfs3
     rpc
+    vfs
 }
 
 #include "pmns" 

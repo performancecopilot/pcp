@@ -195,6 +195,17 @@ run_test "network.interface.in.bytes exists" "pminfo 'network.interface.in.bytes
 run_test "network.interface.out.bytes exists" "pminfo 'network.interface.out.bytes'"
 echo
 
+# Test 8: VFS metrics
+echo "Test Group: VFS Metrics"
+run_test "vfs.files.count exists" "pminfo -f vfs.files.count"
+run_test "vfs.files.max > 0" "validate_metric vfs.files.max positive"
+run_test "vfs.files.free >= 0" "validate_metric vfs.files.free non-negative"
+run_test "vfs.vnodes.count >= 0" "validate_metric vfs.vnodes.count non-negative"
+run_test "vfs.vnodes.max > 0" "validate_metric vfs.vnodes.max positive"
+run_test "kernel.all.nprocs > 0" "validate_metric kernel.all.nprocs positive"
+run_test "kernel.all.nthreads > 0" "validate_metric kernel.all.nthreads positive"
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"

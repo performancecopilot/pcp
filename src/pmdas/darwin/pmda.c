@@ -29,6 +29,7 @@
 #include "darwin.h"
 #include "disk.h"
 #include "network.h"
+#include "vfs.h"
 
 
 #define page_count_to_kb(x) (((__uint64_t)(x) << mach_page_shift) >> 10)
@@ -85,6 +86,9 @@ extern void init_network(void);
 int			mach_nfs_error = 0;
 struct nfsstats		mach_nfs = { 0 };
 extern int refresh_nfs(struct nfsstats *);
+
+int			mach_vfs_error = 0;
+vfsstats_t		mach_vfs = { 0 };
 
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
@@ -150,6 +154,7 @@ enum {
     CLUSTER_UPTIME,		/*  9 = system uptime in seconds */
     CLUSTER_NETWORK,		/* 10 = networking statistics */
     CLUSTER_NFS,		/* 11 = nfs filesystem statistics */
+    CLUSTER_VFS,		/* 12 = vfs statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
@@ -720,6 +725,35 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_VMSTAT,134), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* vfs.files.count */
+  { &mach_vfs.num_files,
+    { PMDA_PMID(CLUSTER_VFS,135), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.files.max */
+  { &mach_vfs.max_files,
+    { PMDA_PMID(CLUSTER_VFS,136), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.files.free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VFS,137), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.vnodes.count */
+  { &mach_vfs.num_vnodes,
+    { PMDA_PMID(CLUSTER_VFS,138), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.vnodes.max */
+  { &mach_vfs.max_vnodes,
+    { PMDA_PMID(CLUSTER_VFS,139), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.all.nprocs */
+  { &mach_vfs.num_tasks,
+    { PMDA_PMID(CLUSTER_VFS,140), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.all.nthreads */
+  { &mach_vfs.num_threads,
+    { PMDA_PMID(CLUSTER_VFS,141), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 static void
@@ -745,6 +779,8 @@ darwin_refresh(int *need_refresh)
 	mach_net_error = refresh_network(&mach_net, &indomtab[NETWORK_INDOM]);
     if (need_refresh[CLUSTER_NFS])
 	mach_nfs_error = refresh_nfs(&mach_nfs);
+    if (need_refresh[CLUSTER_VFS])
+	mach_vfs_error = refresh_vfs(&mach_vfs);
 }
 
 static inline int
@@ -1196,6 +1232,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_CPU:		return fetch_cpu(item, inst, atom);
     case CLUSTER_NETWORK:	return fetch_network(item, inst, atom);
     case CLUSTER_NFS:		return fetch_nfs(item, inst, atom);
+    case CLUSTER_VFS:		return fetch_vfs(item, atom);
     }
     return 0;
 }

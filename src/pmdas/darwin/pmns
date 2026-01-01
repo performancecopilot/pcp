@@ -33,6 +33,8 @@ kernel.all {
     load		DARWIN:3:30
     uptime		DARWIN:9:76
     hz			DARWIN:0:1
+    nprocs		DARWIN:12:140
+    nthreads	DARWIN:12:141
 }
 
 kernel.all.cpu {
@@ -267,4 +269,20 @@ rpc.server.cache {
     nonidem		DARWIN:11:120
     idem		DARWIN:11:121
     misses		DARWIN:11:122
+}
+
+vfs {
+    files
+    vnodes
+}
+
+vfs.files {
+    count		DARWIN:12:135
+    max			DARWIN:12:136
+    free		DARWIN:12:137
+}
+
+vfs.vnodes {
+    count		DARWIN:12:138
+    max			DARWIN:12:139
 }

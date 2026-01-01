@@ -228,3 +228,25 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ rpc.server.cache.idem
 @ rpc.server.cache.misses
 @ rpc.server.vopwrites
+
+@ vfs.files.count current number of open files
+Current number of file descriptors (open files) in the system.
+This represents the actual count of files currently open across all processes.
+@ vfs.files.max maximum number of open files allowed
+System-wide maximum number of file descriptors that can be open simultaneously.
+This is a tunable kernel parameter (kern.maxfiles) that limits total open files.
+@ vfs.files.free number of available file descriptor slots
+The number of file descriptor slots available for new file opens.
+Computed as vfs.files.max minus vfs.files.count.
+@ vfs.vnodes.count current number of vnodes in use
+Current number of vnodes (virtual file system nodes) allocated in the kernel.
+Each open file, directory, or device typically requires at least one vnode.
+@ vfs.vnodes.max maximum number of vnodes allowed
+System-wide maximum number of vnodes that can exist simultaneously.
+This is a tunable kernel parameter (kern.maxvnodes) that limits vnode allocation.
+@ kernel.all.nprocs total number of processes
+Current number of tasks (processes) running in the system.
+This includes all processes across all users.
+@ kernel.all.nthreads total number of threads
+Current number of threads running in the system.
+This includes all threads across all processes and users.
