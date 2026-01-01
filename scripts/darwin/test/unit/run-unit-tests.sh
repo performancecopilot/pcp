@@ -48,14 +48,28 @@ check_prerequisites() {
     echo -e "${GREEN}✓ otool found${NC}"
 
     # Try to find the Darwin PMDA DSO
+    # Check multiple possible locations:
+    # 1. Dev build location (scripts/darwin/dev)
+    # 2. Source tree location (src/pmdas/darwin)
+    # 3. Makepkgs build location (pcp-*/src/pmdas/darwin)
     if [ -f "$DARWIN_DEV/pmda_darwin.dylib" ]; then
         PMDA_DSO="$DARWIN_DEV/pmda_darwin.dylib"
     elif [ -f "$DARWIN_SRC/pmda_darwin.dylib" ]; then
         PMDA_DSO="$DARWIN_SRC/pmda_darwin.dylib"
     else
-        echo -e "${RED}✗ Darwin PMDA DSO not found${NC}"
-        echo "  Please build PCP or run: cd scripts/darwin/dev && make"
-        return 2
+        # Check for build directory created by ./Makepkgs
+        for pcp_dir in "$REPO_ROOT"/pcp-*; do
+            if [ -f "$pcp_dir/src/pmdas/darwin/pmda_darwin.dylib" ]; then
+                PMDA_DSO="$pcp_dir/src/pmdas/darwin/pmda_darwin.dylib"
+                break
+            fi
+        done
+
+        if [ -z "${PMDA_DSO:-}" ]; then
+            echo -e "${RED}✗ Darwin PMDA DSO not found${NC}"
+            echo "  Please build PCP or run: cd scripts/darwin/dev && make"
+            return 2
+        fi
     fi
     echo -e "${GREEN}✓ Darwin PMDA DSO found at: $PMDA_DSO${NC}"
 
@@ -90,11 +104,14 @@ test_binary_build() {
     echo "Test 2: Binary executable built"
     TESTS_RUN=$((TESTS_RUN + 1))
 
-    if [ -x "$DARWIN_DEV/pmdadarwin" ]; then
-        echo -e "${GREEN}✓ PASSED${NC}: pmdadarwin binary exists and is executable"
+    # Find the binary in the same directory as the DSO
+    PMDA_BINARY="$(dirname "$PMDA_DSO")/pmdadarwin"
+
+    if [ -x "$PMDA_BINARY" ]; then
+        echo -e "${GREEN}✓ PASSED${NC}: pmdadarwin binary exists and is executable at $PMDA_BINARY"
         TESTS_PASSED=$((TESTS_PASSED + 1))
     else
-        echo -e "${RED}✗ FAILED${NC}: pmdadarwin binary not found or not executable"
+        echo -e "${RED}✗ FAILED${NC}: pmdadarwin binary not found or not executable at $PMDA_BINARY"
         TESTS_FAILED=$((TESTS_FAILED + 1))
     fi
     echo
@@ -138,11 +155,14 @@ test_binary_help() {
         fi
     done
 
+    # Use the same binary location we found earlier
+    PMDA_BINARY="$(dirname "$PMDA_DSO")/pmdadarwin"
+
     local output
     if [ -n "$libpath" ]; then
-        output=$(DYLD_LIBRARY_PATH="$libpath" "$DARWIN_DEV/pmdadarwin" --help 2>&1)
+        output=$(DYLD_LIBRARY_PATH="$libpath" "$PMDA_BINARY" --help 2>&1)
     else
-        output=$("$DARWIN_DEV/pmdadarwin" --help 2>&1)
+        output=$("$PMDA_BINARY" --help 2>&1)
     fi
 
     if echo "$output" | grep -q "Usage:"; then
@@ -160,7 +180,7 @@ check_prerequisites || exit $?
 
 echo "Running unit tests..."
 echo "PMDA DSO: $PMDA_DSO"
-echo "PMDA Binary: $DARWIN_DEV/pmdadarwin"
+echo "PMDA Binary: $(dirname "$PMDA_DSO")/pmdadarwin"
 echo
 
 # Run all tests
