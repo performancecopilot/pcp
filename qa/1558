@@ -76,6 +76,13 @@ _filter_diff()
     # end
 }
 
+# on amd64 FreeBSD 15.0 (vm10), the freebsd diff(1) produces
+# different output to GNU diff(1) ... the differences in the
+# files are the same, but the line numbers are different!
+#
+diff=diff
+which gdiff >/dev/null 2>&1 && diff=gdiff
+
 # run PMAPI_VERSION_4 and generate output as baseline, then
 # run other versions and diff outputs
 #
@@ -107,10 +114,10 @@ _do_work()
     fi
     _filter_err
     cat $tmp.err >>$seq_full
-    diff $tmp.err.base $tmp.err | _filter_diff
+    $diff $tmp.err.base $tmp.err | _filter_diff
     _filter_out
     cat $tmp.out >>$seq_full
-    diff $tmp.out.base $tmp.out | _filter_diff
+    $diff $tmp.out.base $tmp.out | _filter_diff
 }
 
 # real QA test starts here

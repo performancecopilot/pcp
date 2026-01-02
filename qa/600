@@ -166,8 +166,11 @@ then
     os_version=`uname -rs | sed -e 's/FreeBSD //' -e 's/-.*//'`
     case "$os_version"
     in
-	14.0|14.1)
+	14.*)
 		ln $seq.out.freebsd.1 $seq.out
+		;;
+	15.*)
+		ln $seq.out.freebsd.2 $seq.out
 		;;
 	*)
 		ln $seq.out.darwin $seq.out

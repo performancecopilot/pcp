@@ -126,7 +126,7 @@ then
 	13.*)
 	    ln $seq.solaris $seq.out
 	    ;;
-	14.*)
+	14.*|15.*)
 	    ln $seq.freebsd $seq.out
 	    ;;
 	*)

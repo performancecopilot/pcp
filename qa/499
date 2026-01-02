@@ -28,6 +28,13 @@ _filter()
 	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/"
 }
 
+# on amd64 FreeBSD 15.0 (vm10), the freebsd diff(1) -u produces
+# different output to GNU diff(1) -u ... the differences in the
+# files are the same, but the reporting is different!
+#
+diff=diff
+which gdiff >/dev/null 2>&1 && diff=gdiff
+
 _cmp()
 {
     ok=true
@@ -47,7 +54,7 @@ _cmp()
     $ok || return
     pmdumplog -z -dilmst $1 | tee -a $seq_full >$tmp.in
     pmdumplog -z -dilmst $2 | tee -a $seq_full >$tmp.out
-    diff -u $tmp.in $tmp.out | _filter
+    $diff -u $tmp.in $tmp.out | _filter
 }
 
 mkdir $tmp.conf.dir
