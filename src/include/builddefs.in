@@ -681,8 +681,7 @@ endif
 endif
 
 # Create perl manifest files explicitly for some distributions
-ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
-                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = macos \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
@@ -737,8 +736,7 @@ PYTHON3_INSTALL = \
 	    touch "$${DIST_ROOT-/}$$f"; \
 	done
 else
-ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = cocoa \
-                -o '$(PACKAGE_DISTRIBUTION)' = macosx \
+ifeq "$(shell [ '$(PACKAGE_DISTRIBUTION)' = macos \
                 -o '$(PACKAGE_DISTRIBUTION)' = gentoo \
                 -o '$(PACKAGE_DISTRIBUTION)' = solaris \
                 -o '$(PACKAGE_DISTRIBUTION)' = freebsd \
@@ -776,7 +774,7 @@ PYTHON3_INSTALL = \
 	    done; \
 	fi
 endif	# openbsd if
-endif	# cocoa ... freebsd if
+endif	# macos ... freebsd if
 endif	# linux && !gentoo if
 
 # Linux and Unix platforms:

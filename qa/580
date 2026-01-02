@@ -27,7 +27,7 @@ in
 	fi
 	;;
     darwin|solaris|freebsd|openbsd)
-	# same output for Mac OS X, OpenSolaris and *BSD
+	# same output for macOS, OpenSolaris and *BSD
 	ln $seq.out.darwin $seq.out || exit 1
 	;;
     *)

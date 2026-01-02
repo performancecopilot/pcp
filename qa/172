@@ -142,7 +142,7 @@ echo
 echo 'port from $PCP_TMP_DIR/pmlogger/primary'
 sed -e 1q $PCP_TMP_DIR/pmlogger/primary
 
-# For Mac OS X need to massage lines like ..
+# For macOS need to massage lines like ..
 # tcp4       0      0  *.42000                *.*                    LISTEN
 # tcp6       0      0  *.42000                *.*                    LISTEN
 # For OpenBSD ...
