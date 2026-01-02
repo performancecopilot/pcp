@@ -544,7 +544,6 @@ do
 		mv $tmp.out $seq.out.bad
 		state="Fail"
 	    else
-		callback_only_fail=true
 		# we have $seq.out (expected) and $tmp.out (observed)
 		# output files, first check if they match
 		#
@@ -565,7 +564,7 @@ do
 			echo
 			$__diff $seq.out $tmp.out
 			state="Fail"
-			callback_only_fail=false
+			[ $__color = true ] && tput sgr0 # reset
 		    fi
 		    done_nl=true
 		fi
@@ -593,7 +592,7 @@ do
 		    echo >>$tmp.out
 		    echo "*** Failed permissions/ownership checks ***" >>$tmp.out
 		    cat $tmp.tmp >>$tmp.out
-		    state="Fail"
+		    [ "$state" = "Pass" ] && state="Callback"
 		fi
 
 		# optional callback
@@ -622,7 +621,7 @@ do
 			    echo "+++ check.callback output +++" >>$tmp.out
 			    [ -f $tmp.callback.pre ] && cat $tmp.callback.pre >>$tmp.out
 			    cat $tmp.callback.post >>$tmp.out
-			    state="Fail"
+			    [ "$state" = "Pass" ] && state="Callback"
 			fi
 		    else
 			# check.callback suggests we should abandon the QA run ...
@@ -642,6 +641,7 @@ do
 			state="Fail"
 			echo "Check! [after $seq] Run aborted by check.callback @ `date`" >>check.log
 			touch $tmp.callback.abort
+			[ "$state" = "Pass" ] && state="Callback"
 		    fi
 		fi
 
@@ -663,18 +663,16 @@ do
 
     # come here for each test, except when $__showme is true
     #
-    if [ "$state" = "Fail" ]
+    if [ "$state" = "Callback" ]
     then
-	if $callback_only_fail
-	then
-	    callback="$bad $seq"
-	    n_callback=`expr $n_bad + 1`
-	    try=`expr $try + 1`
-	else
-	    bad="$bad $seq"
-	    n_bad=`expr $n_bad + 1`
-	    try=`expr $try + 1`
-	fi
+	callback="$bad $seq"
+	n_callback=`expr $n_bad + 1`
+	try=`expr $try + 1`
+    elif [ "$state" = "Fail" ]
+    then
+	bad="$bad $seq"
+	n_bad=`expr $n_bad + 1`
+	try=`expr $try + 1`
 	__quick=false
 	[ $__diff = true ] || echo "Check local PMCD is still alive ..."
 	$OPTION_AGENTS && _haveagents
