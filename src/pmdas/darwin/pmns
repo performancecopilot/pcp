@@ -157,6 +157,7 @@ network {
     interface
     udp
     icmp
+    sockstat
 }
 
 network.interface {
@@ -208,6 +209,19 @@ network.icmp {
     inechoreps		DARWIN:14:152
     outechos		DARWIN:14:153
     outechoreps		DARWIN:14:154
+}
+
+network.sockstat {
+    tcp
+    udp
+}
+
+network.sockstat.tcp {
+    inuse		DARWIN:15:155
+}
+
+network.sockstat.udp {
+    inuse		DARWIN:15:156
 }
 
 nfs3 {

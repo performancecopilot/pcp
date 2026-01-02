@@ -33,6 +33,7 @@
 #include "vfs.h"
 #include "udp.h"
 #include "icmp.h"
+#include "sockstat.h"
 
 
 #define page_count_to_kb(x) (((__uint64_t)(x) << mach_page_shift) >> 10)
@@ -103,6 +104,9 @@ udpstats_t		mach_udp = { 0 };
 int			mach_icmp_error = 0;
 icmpstats_t		mach_icmp = { 0 };
 
+int			mach_sockstat_error = 0;
+sockstats_t		mach_sockstat = { 0 };
+
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
 
@@ -170,6 +174,7 @@ enum {
     CLUSTER_VFS,		/* 12 = vfs statistics */
     CLUSTER_UDP,		/* 13 = udp protocol statistics */
     CLUSTER_ICMP,		/* 14 = icmp protocol statistics */
+    CLUSTER_SOCKSTAT,		/* 15 = socket statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
@@ -843,6 +848,15 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_ICMP,154), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* network.sockstat.tcp.inuse */
+  { &mach_sockstat.tcp_inuse,
+    { PMDA_PMID(CLUSTER_SOCKSTAT,155), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.sockstat.udp.inuse */
+  { &mach_sockstat.udp_inuse,
+    { PMDA_PMID(CLUSTER_SOCKSTAT,156), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 static void
@@ -876,6 +890,8 @@ darwin_refresh(int *need_refresh)
 	mach_udp_error = refresh_udp(&mach_udp);
     if (need_refresh[CLUSTER_ICMP])
 	mach_icmp_error = refresh_icmp(&mach_icmp);
+    if (need_refresh[CLUSTER_SOCKSTAT])
+	mach_sockstat_error = refresh_sockstat(&mach_sockstat);
 }
 
 static inline int

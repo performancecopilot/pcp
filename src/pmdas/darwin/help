@@ -257,6 +257,16 @@ This is a cumulative counter from boot time.
 Total number of ICMP Echo Reply messages sent (ping responses).
 This is a cumulative counter from boot time.
 
+@ network.sockstat.tcp.inuse TCP sockets in use
+Number of TCP protocol control blocks (PCBs) currently in use.
+This represents the number of active TCP connections and listening sockets.
+Retrieved via the net.inet.tcp.pcbcount sysctl.
+
+@ network.sockstat.udp.inuse UDP sockets in use
+Number of UDP protocol control blocks (PCBs) currently in use.
+This represents the number of active UDP sockets.
+Retrieved via the net.inet.udp.pcbcount sysctl.
+
 @ nfs3.client.calls
 @ nfs3.client.reqs
 @ nfs3.server.calls

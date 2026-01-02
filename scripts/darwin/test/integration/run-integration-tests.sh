@@ -253,6 +253,13 @@ run_test "network.icmp.outechos >= 0" "validate_metric network.icmp.outechos non
 run_test "network.icmp.outechoreps >= 0" "validate_metric network.icmp.outechoreps non-negative"
 echo
 
+echo "Test Group: Socket Statistics"
+run_test "network.sockstat.tcp.inuse exists" "pminfo -h localhost -f network.sockstat.tcp.inuse"
+run_test "network.sockstat.udp.inuse exists" "pminfo -h localhost -f network.sockstat.udp.inuse"
+run_test "network.sockstat.tcp.inuse > 0" "validate_metric network.sockstat.tcp.inuse positive"
+run_test "network.sockstat.udp.inuse >= 0" "validate_metric network.sockstat.udp.inuse non-negative"
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"
