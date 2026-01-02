@@ -267,6 +267,62 @@ Number of UDP protocol control blocks (PCBs) currently in use.
 This represents the number of active UDP sockets.
 Retrieved via the net.inet.udp.pcbcount sysctl.
 
+@ network.tcpconn.established TCP connections in ESTABLISHED state
+Number of TCP connections currently in the ESTABLISHED state.
+These are fully established connections actively transferring data.
+This is the primary state for active communication between client and server.
+
+@ network.tcpconn.syn_sent TCP connections in SYN_SENT state
+Number of TCP connections currently in the SYN_SENT state.
+The connection is attempting to open and has sent a SYN packet.
+This state indicates active connection establishment in progress.
+
+@ network.tcpconn.syn_recv TCP connections in SYN_RECEIVED state
+Number of TCP connections currently in the SYN_RECEIVED state.
+The server has received a SYN and sent a SYN-ACK response.
+This state indicates passive connection establishment in progress.
+
+@ network.tcpconn.fin_wait1 TCP connections in FIN_WAIT1 state
+Number of TCP connections currently in the FIN_WAIT1 state.
+The connection is closing and has sent a FIN packet.
+Waiting for acknowledgment or a connection termination request from remote.
+
+@ network.tcpconn.fin_wait2 TCP connections in FIN_WAIT2 state
+Number of TCP connections currently in the FIN_WAIT2 state.
+The local side has closed the connection and is waiting for a FIN from remote.
+This state occurs after receiving ACK for our FIN.
+
+@ network.tcpconn.time_wait TCP connections in TIME_WAIT state
+Number of TCP connections currently in the TIME_WAIT state.
+Connections waiting for enough time to pass to ensure the remote TCP
+received the acknowledgment of its connection termination request.
+High values may indicate many short-lived connections.
+
+@ network.tcpconn.close TCP connections in CLOSED state
+Number of TCP connections currently in the CLOSED state.
+This is the default state representing no connection.
+Typically this count should be zero or very low.
+
+@ network.tcpconn.close_wait TCP connections in CLOSE_WAIT state
+Number of TCP connections currently in the CLOSE_WAIT state.
+The remote end has closed the connection, waiting for local application to close.
+High values may indicate applications not closing connections properly.
+
+@ network.tcpconn.last_ack TCP connections in LAST_ACK state
+Number of TCP connections currently in the LAST_ACK state.
+The connection has received a FIN from remote and sent its own FIN.
+Waiting for the final acknowledgment.
+
+@ network.tcpconn.listen TCP connections in LISTEN state
+Number of TCP sockets currently in the LISTEN state.
+These are server sockets waiting for incoming connection requests.
+This represents the number of services listening for connections.
+
+@ network.tcpconn.closing TCP connections in CLOSING state
+Number of TCP connections currently in the CLOSING state.
+Both sides are closing simultaneously, waiting for final acknowledgments.
+This is a relatively rare state during simultaneous connection termination.
+
 @ nfs3.client.calls
 @ nfs3.client.reqs
 @ nfs3.server.calls

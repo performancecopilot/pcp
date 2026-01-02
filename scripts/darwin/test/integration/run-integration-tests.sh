@@ -260,6 +260,23 @@ run_test "network.sockstat.tcp.inuse > 0" "validate_metric network.sockstat.tcp.
 run_test "network.sockstat.udp.inuse >= 0" "validate_metric network.sockstat.udp.inuse non-negative"
 echo
 
+echo "Test Group: TCP Connection State Metrics"
+run_test "network.tcpconn.established exists" "pminfo -h localhost -f network.tcpconn.established"
+run_test "network.tcpconn.listen exists" "pminfo -h localhost -f network.tcpconn.listen"
+run_test "network.tcpconn.time_wait exists" "pminfo -h localhost -f network.tcpconn.time_wait"
+run_test "network.tcpconn.established >= 0" "validate_metric network.tcpconn.established non-negative"
+run_test "network.tcpconn.listen >= 0" "validate_metric network.tcpconn.listen non-negative"
+run_test "network.tcpconn.time_wait >= 0" "validate_metric network.tcpconn.time_wait non-negative"
+run_test "network.tcpconn.syn_sent >= 0" "validate_metric network.tcpconn.syn_sent non-negative"
+run_test "network.tcpconn.syn_recv >= 0" "validate_metric network.tcpconn.syn_recv non-negative"
+run_test "network.tcpconn.fin_wait1 >= 0" "validate_metric network.tcpconn.fin_wait1 non-negative"
+run_test "network.tcpconn.fin_wait2 >= 0" "validate_metric network.tcpconn.fin_wait2 non-negative"
+run_test "network.tcpconn.close >= 0" "validate_metric network.tcpconn.close non-negative"
+run_test "network.tcpconn.close_wait >= 0" "validate_metric network.tcpconn.close_wait non-negative"
+run_test "network.tcpconn.last_ack >= 0" "validate_metric network.tcpconn.last_ack non-negative"
+run_test "network.tcpconn.closing >= 0" "validate_metric network.tcpconn.closing non-negative"
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"

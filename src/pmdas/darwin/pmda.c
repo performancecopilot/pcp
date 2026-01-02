@@ -34,6 +34,7 @@
 #include "udp.h"
 #include "icmp.h"
 #include "sockstat.h"
+#include "tcpconn.h"
 
 
 #define page_count_to_kb(x) (((__uint64_t)(x) << mach_page_shift) >> 10)
@@ -107,6 +108,9 @@ icmpstats_t		mach_icmp = { 0 };
 int			mach_sockstat_error = 0;
 sockstats_t		mach_sockstat = { 0 };
 
+int			mach_tcpconn_error = 0;
+tcpconn_stats_t		mach_tcpconn = { 0 };
+
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
 
@@ -175,6 +179,7 @@ enum {
     CLUSTER_UDP,		/* 13 = udp protocol statistics */
     CLUSTER_ICMP,		/* 14 = icmp protocol statistics */
     CLUSTER_SOCKSTAT,		/* 15 = socket statistics */
+    CLUSTER_TCPCONN,		/* 16 = tcp connection states */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
@@ -857,6 +862,51 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SOCKSTAT,156), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* network.tcpconn.established */
+  { &mach_tcpconn.state[TCPS_ESTABLISHED],
+    { PMDA_PMID(CLUSTER_TCPCONN,157), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.syn_sent */
+  { &mach_tcpconn.state[TCPS_SYN_SENT],
+    { PMDA_PMID(CLUSTER_TCPCONN,158), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.syn_recv */
+  { &mach_tcpconn.state[TCPS_SYN_RECEIVED],
+    { PMDA_PMID(CLUSTER_TCPCONN,159), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.fin_wait1 */
+  { &mach_tcpconn.state[TCPS_FIN_WAIT_1],
+    { PMDA_PMID(CLUSTER_TCPCONN,160), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.fin_wait2 */
+  { &mach_tcpconn.state[TCPS_FIN_WAIT_2],
+    { PMDA_PMID(CLUSTER_TCPCONN,161), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.time_wait */
+  { &mach_tcpconn.state[TCPS_TIME_WAIT],
+    { PMDA_PMID(CLUSTER_TCPCONN,162), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.close */
+  { &mach_tcpconn.state[TCPS_CLOSED],
+    { PMDA_PMID(CLUSTER_TCPCONN,163), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.close_wait */
+  { &mach_tcpconn.state[TCPS_CLOSE_WAIT],
+    { PMDA_PMID(CLUSTER_TCPCONN,164), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.last_ack */
+  { &mach_tcpconn.state[TCPS_LAST_ACK],
+    { PMDA_PMID(CLUSTER_TCPCONN,165), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.listen */
+  { &mach_tcpconn.state[TCPS_LISTEN],
+    { PMDA_PMID(CLUSTER_TCPCONN,166), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.closing */
+  { &mach_tcpconn.state[TCPS_CLOSING],
+    { PMDA_PMID(CLUSTER_TCPCONN,167), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 static void
@@ -892,6 +942,8 @@ darwin_refresh(int *need_refresh)
 	mach_icmp_error = refresh_icmp(&mach_icmp);
     if (need_refresh[CLUSTER_SOCKSTAT])
 	mach_sockstat_error = refresh_sockstat(&mach_sockstat);
+    if (need_refresh[CLUSTER_TCPCONN])
+	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
 }
 
 static inline int

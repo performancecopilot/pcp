@@ -158,6 +158,7 @@ network {
     udp
     icmp
     sockstat
+    tcpconn
 }
 
 network.interface {
@@ -222,6 +223,20 @@ network.sockstat.tcp {
 
 network.sockstat.udp {
     inuse		DARWIN:15:156
+}
+
+network.tcpconn {
+    established	DARWIN:16:157
+    syn_sent	DARWIN:16:158
+    syn_recv	DARWIN:16:159
+    fin_wait1	DARWIN:16:160
+    fin_wait2	DARWIN:16:161
+    time_wait	DARWIN:16:162
+    close		DARWIN:16:163
+    close_wait	DARWIN:16:164
+    last_ack	DARWIN:16:165
+    listen		DARWIN:16:166
+    closing		DARWIN:16:167
 }
 
 nfs3 {
