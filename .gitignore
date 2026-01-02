@@ -52,3 +52,7 @@ provisioning/osxsierra.legally.ok
 *.gdb_history
 *vgcore.*
 tmpfiles.init.setup 
+
+# Claude Code working files
+.claude/
+DARWIN-PMDA-ENHANCEMENT-PLAN.md
