@@ -3,7 +3,7 @@
 ## Current Status
 
 **Last Updated:** 2026-01-02
-**Current Step:** Step 2.3 completed, Step 2.4 (next to investigate)
+**Current Step:** Step 2.4 completed, Step 2.5 (next step)
 
 ## Progress Tracker
 
@@ -15,8 +15,8 @@
 | 2.1 | COMPLETED | UDP protocol statistics (commit daf0f8c892) |
 | 2.2 | COMPLETED | ICMP protocol statistics (commit 14654a6e2a) |
 | 2.3 | COMPLETED | Socket counts (commit 50ab438ac3) |
-| 2.4 | NEXT | TCP connection states (investigation required) |
-| 2.5 | PENDING | TCP limitation documentation |
+| 2.4 | COMPLETED | TCP connection states (commit 96a4191fcd) |
+| 2.5 | NEXT | TCP limitation documentation |
 | 3.1 | PENDING | Process I/O statistics |
 | 3.2 | PENDING | Enhanced process metrics |
 | 4.1 | PENDING | Transform plan → permanent documentation |
@@ -280,13 +280,53 @@ mem.compressor {
 
 ---
 
-### Step 2.4: TCP Connection States (Investigation Required)
+### Step 2.4: TCP Connection States
 
-**API:** `sysctl("net.inet.tcp.pcblist")` returns binary xinpgen structures
+**Goal:** Add metrics for TCP connection state counts
 
-Potential metrics: `network.tcp.established`, `network.tcp.time_wait`, `network.tcp.listen`, etc.
+**Status:** COMPLETED
 
-**Note:** May be complex - requires parsing pcblist structures.
+**Commit:** `96a4191fcd`
+
+**Implementation Notes:**
+- All 11 TCP connection state metrics successfully implemented
+- **Code organization**: Created dedicated `tcpconn.c` and `tcpconn.h` files
+  - `tcpconn.h`: tcpconn_stats_t structure and function declaration
+  - `tcpconn.c`: refresh_tcpconn() implementation using binary PCB list parsing
+  - `pmda.c`: CLUSTER_TCPCONN (16) definition, metrictab entries, dispatch wiring
+  - `GNUmakefile`: Updated to compile tcpconn.c
+- **API**: Uses `sysctlbyname("net.inet.tcp.pcblist64")` for 64-bit PCB structures
+- **Parsing**: Binary structure iteration using xinpgen header and xtcpcb64 entries
+- **Performance**: 10MB hardcoded soft limit with debug-level logging for large buffers
+- **Cross-platform**: Metric namespace `network.tcpconn.*` matches Linux PMDA exactly
+
+**New Metrics** (all U32, INSTANT, PM_INDOM_NULL):
+
+| Metric | Item | TCP State | Description |
+|--------|------|-----------|-------------|
+| `network.tcpconn.established` | 157 | TCPS_ESTABLISHED | Active established connections |
+| `network.tcpconn.syn_sent` | 158 | TCPS_SYN_SENT | Active opening (SYN sent) |
+| `network.tcpconn.syn_recv` | 159 | TCPS_SYN_RECEIVED | Passive opening (SYN received) |
+| `network.tcpconn.fin_wait1` | 160 | TCPS_FIN_WAIT_1 | Active close, FIN sent |
+| `network.tcpconn.fin_wait2` | 161 | TCPS_FIN_WAIT_2 | Active close, FIN acked |
+| `network.tcpconn.time_wait` | 162 | TCPS_TIME_WAIT | 2MSL wait state |
+| `network.tcpconn.close` | 163 | TCPS_CLOSED | Closed connections |
+| `network.tcpconn.close_wait` | 164 | TCPS_CLOSE_WAIT | Passive close, waiting |
+| `network.tcpconn.last_ack` | 165 | TCPS_LAST_ACK | Passive close, FIN sent |
+| `network.tcpconn.listen` | 166 | TCPS_LISTEN | Listening for connections |
+| `network.tcpconn.closing` | 167 | TCPS_CLOSING | Simultaneous close |
+
+**Testing:**
+- Unit tests: `test-tcpconn.txt` covering all 11 metrics
+- Integration tests: 15 test cases validating existence and non-negative values
+- All tests passing via `macos-darwin-pmda-qa` agent
+
+**Code Review:**
+- pcp-code-reviewer verdict: **APPROVED - READY TO MERGE**
+- Excellent ratings across all categories (code quality, error handling, testing, documentation)
+- Follows fail-fast error handling pattern
+- Proper memory management (malloc/free)
+- Consistent with existing darwin PMDA patterns (sockstat, udp, icmp)
 
 ---
 
