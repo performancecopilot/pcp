@@ -21,33 +21,32 @@ int
 refresh_vfs(vfsstats_t *vfs)
 {
     size_t size;
-    int error = 0;
 
     size = sizeof(vfs->num_files);
     if (sysctlbyname("kern.num_files", &vfs->num_files, &size, NULL, 0) == -1)
-	error = -oserror();
+	return -oserror();
 
     size = sizeof(vfs->max_files);
     if (sysctlbyname("kern.maxfiles", &vfs->max_files, &size, NULL, 0) == -1)
-	error = -oserror();
+	return -oserror();
 
     size = sizeof(vfs->num_vnodes);
     if (sysctlbyname("kern.num_vnodes", &vfs->num_vnodes, &size, NULL, 0) == -1)
-	error = -oserror();
+	return -oserror();
 
     size = sizeof(vfs->max_vnodes);
     if (sysctlbyname("kern.maxvnodes", &vfs->max_vnodes, &size, NULL, 0) == -1)
-	error = -oserror();
+	return -oserror();
 
     size = sizeof(vfs->num_tasks);
     if (sysctlbyname("kern.num_tasks", &vfs->num_tasks, &size, NULL, 0) == -1)
-	error = -oserror();
+	return -oserror();
 
     size = sizeof(vfs->num_threads);
     if (sysctlbyname("kern.num_threads", &vfs->num_threads, &size, NULL, 0) == -1)
-	error = -oserror();
+	return -oserror();
 
-    return error;
+    return 0;
 }
 
 int
