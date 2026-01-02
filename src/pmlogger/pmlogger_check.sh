@@ -23,9 +23,6 @@
 
 PMLOGGER="$PCP_BINADM_DIR/pmlogger"
 PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
-PMLOGGERENVS="$PCP_SYSCONFIG_DIR/pmlogger"
-PMLOGGERFARMENVS="$PCP_SYSCONFIG_DIR/pmlogger_farm"
-PMLOGGERZEROCONFENVS="$PCP_SHARE_DIR/zeroconf/pmlogger"
 
 # error messages should go to stderr, not the GUI notifiers
 #
@@ -561,7 +558,10 @@ _check_logger()
     # max delay (secs) before timing out our pmlc request ... if this
     # pmlogger is just started, we may need to be a little patient
     #
-    [ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=10
+    if [ -z "$PMLOGGER_REQUEST_TIMEOUT" ]
+    then
+	PMLOGGER_REQUEST_TIMEOUT=10; export PMLOGGER_REQUEST_TIMEOUT
+    fi
 
     # wait for maximum time of a connection and 20 requests
     #
@@ -703,7 +703,7 @@ _callback_log_control()
 	if [ "X$primary" = Xy ]
 	then
 	    # User configuration takes precedence over pcp-zeroconf
-	    envs=`grep -h ^PMLOGGER "$PMLOGGERZEROCONFENVS" "$PMLOGGERENVS" 2>/dev/null`
+	    envs=`grep -h ^PMLOGGER "$PCP_SHARE_DIR/zeroconf/pmlogger" "$PCP_SYSCONFIG_DIR/pmlogger" 2>/dev/null`
 	    args="-P $args"
 	    iam=" primary"
 	    # clean up port-map, just in case
@@ -721,7 +721,7 @@ _callback_log_control()
 		return
 	    fi
 	else
-	    envs=`grep -h ^PMLOGGER "$PMLOGGERFARMENVS" 2>/dev/null`
+	    envs=`grep -h ^PMLOGGER "$PCP_SYSCONFIG_DIR/pmlogger_farm" 2>/dev/null`
 	    args="-h $host $args"
 	    iam=""
 	fi
@@ -899,6 +899,22 @@ fi
 # because the legitimate pmloggers, like the primary pmlogger, may
 # not be included in the "test" control file(s).
 #
+if [ -z "${PMLOGGER_CHECK_SKIP_JANITOR+is_set}" ]
+then
+    check=`grep '^PMLOGGER_CHECK_SKIP_JANITOR=' $PCP_SYSCONFIG_DIR/pmlogger`
+    if [ -n "$check" ]
+    then
+	eval $check
+    fi
+fi
+if [ -z "${PMLOGGER_JANITOR_ARGS+is_set}" ]
+then
+    check=`grep '^PMLOGGER_JANITOR_ARGS=' $PCP_SYSCONFIG_DIR/pmlogger`
+    if [ -n "$check" ]
+    then
+	eval $check
+    fi
+fi
 if [ "$CONTROL" = "$PCP_PMLOGGERCONTROL_PATH" -a "$PMLOGGER_CHECK_SKIP_JANITOR" != "yes" ]
 then
     args="$daily_args"

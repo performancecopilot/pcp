@@ -65,7 +65,7 @@ testme.bad = sample.no.such.metric
 End-of-File
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=$tmp.conf
+PCP_DERIVED_CONFIG=$tmp.conf; export PCP_DERIVED_CONFIG
 
 if [ "$1" = "--valgrind" ]
 then

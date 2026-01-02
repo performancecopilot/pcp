@@ -89,12 +89,12 @@ then
 fi
 
 mkdir -p $tmp.rundir
-export PCP_RUN_DIR=$tmp.rundir
+PCP_RUN_DIR=$tmp.rundir; export PCP_RUN_DIR
 proxyargs="-Dcontext -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 
 # real QA test starts here
-export PMPROXY_HOST=localhost
+PMPROXY_HOST=localhost; export PMPROXY_HOST
 pidlist=`sh -c "pmval -h $PMPROXY_HOST hinv.ncpu >$tmp.1 2>&1 & echo \\\$!"`
 echo "pmval pid=$pidlist" >>$seq_full
 pid=`sh -c "pmstat -h $PMPROXY_HOST >$tmp.2 2>&1 & echo \\\$!"`

@@ -89,7 +89,7 @@ _wait_pmcd_end || _exit 1
 
 # Note: start pmcd with -f so that its PID stays the same (no daemon)
 #
-export PMCD_SOCKET=$tmp/pmcd.socket
+PMCD_SOCKET=$tmp/pmcd.socket; export PMCD_SOCKET
 $PCP_PMCD_PROG -f -x err1 &
 my_pmcd_pid=$!
 

@@ -258,9 +258,13 @@ _python_probe_check()
     __probes=
     for __tplistcmd in /usr/share/bcc/tools/tplist tplist-bpfcc tplist
     do
-        which $__tplistcmd >/dev/null 2>&1 && \
+        if which $__tplistcmd >/dev/null 2>&1
+	then
             __probes=$($__tplistcmd -p $__pypid 2>/dev/null | grep function__entry)
-        [ -n "$__probes" ] && return 0
+	    echo "__tplistcmd=$__tplistcmd __pypid=$__pypid __probes=$__probes" >>$seq_full
+	    $__tplistcmd -p $__pypid >>$seq_full 2>&1
+	    [ -n "$__probes" ] && return 0
+	fi
     done
     _notrun "No Python USDT probes available"
 }

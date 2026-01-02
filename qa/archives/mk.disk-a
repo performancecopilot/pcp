@@ -21,7 +21,7 @@ find $(mount | awk '$5 == "xfs" || $5 ~ /ext/ { print $3}') -maxdepth 2 -type f 
 | xargs sum >/dev/null 2>&1 &
 kill_pid=$!
 
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 rm -f disk-a.index disk-a.meta disk-a.0
 pmlogger -c $tmp.config -s 5 disk-a
 

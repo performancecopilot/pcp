@@ -18,7 +18,7 @@ echo "QA output created by $seq"
 [ $PCP_PLATFORM = linux ] || _notrun "CIFS PMDA is Linux-specific (uses procfs)"
 
 root=$tmp.root
-export CIFS_STATSPATH=$root
+CIFS_STATSPATH=$root; export CIFS_STATSPATH
 
 # helper functions
 

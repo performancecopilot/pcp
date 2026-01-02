@@ -24,7 +24,7 @@ _filter()
 }
 
 # real QA test starts here
-export PMCD_CONNECT_TIMEOUT=1
+PMCD_CONNECT_TIMEOUT=1; export PMCD_CONNECT_TIMEOUT
 echo "Live mode failure:"
 pcp --host no.such.host.pcp.io 2>&1 \
 | _filter

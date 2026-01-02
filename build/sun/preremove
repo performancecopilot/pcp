@@ -3,7 +3,7 @@
 # Stop PCP related services before removing the package
 #
 
-export PATH=/usr/sbin:$PATH
+PATH=/usr/sbin:$PATH; export PATH
 
 svcs -H svc:/application/pcp/\* \
 | while read state ts svc; do

@@ -46,9 +46,9 @@ $sudo ./Install </dev/null >$tmp.out 2>&1
 cat $tmp.out >> $seq_full
 
 root=$tmp.root
-export SMART_SETUP_LSBLK="$here/smart/lsblk.sh"
-export SMART_SETUP="$here/smart/smartctl.sh"
-export NVME_CLI_SETUP="$here/smart/nvme_cli.sh"
+SMART_SETUP_LSBLK="$here/smart/lsblk.sh"; export SMART_SETUP_LSBLK
+SMART_SETUP="$here/smart/smartctl.sh"; export SMART_SETUP
+NVME_CLI_SETUP="$here/smart/nvme_cli.sh"; export NVME_CLI_SETUP
 pmda=$PCP_PMDAS_DIR/smart/pmda_smart.so,smart_init
 metrics=`pminfo -L -K clear -K add,150,$pmda smart | LC_COLLATE=POSIX sort`
 memcheck="smart.health smart.info.capacity_bytes smart.attributes.power_off_retract_count.worst smart.nvme_attributes.data_units_read smart.nvme_info.serial_number smart.nvme_info.active_power_state smart.nvme_power_states.power_state_1.state"
@@ -65,7 +65,7 @@ do
     count=`echo $base | sed -e 's,.*-root-,,g' -e 's,.tgz$,,g'`
     cd $count/smart
 
-    export SMART_SETUP_UUID="$root/$count/smart/wwid"
+    SMART_SETUP_UUID="$root/$count/smart/wwid"; export SMART_SETUP_UUID
 
     echo "== Checking metric descriptors and values - $base"
     pminfo -L -K clear -K add,150,$pmda -dfmtT $metrics 2>&1 \

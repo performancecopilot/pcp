@@ -7,28 +7,10 @@
 #    (for vanilla Debian builds that do not use ../Makepkgs).
 #
 
-tmp=/var/tmp/pre-build.$$
-rm -f $tmp
-status=1	# failure is the default
-trap "rm -f $tmp; exit \$status" 0 1 2 3 15
-
-for part in control.pcp
-do
-    if [ -f $part ]
-    then
-	sed <$part >>$tmp -e '/^Build-Depends:/{
-s/?{//g
-s/}/,/g
-}'
-    else
-	echo "$0: Arrgh ... expect $part to exist ..."
-	ls -l control*
-	exit
-    fi
-done
-
 rm -f control
-cp $tmp control
-status=0
-
-exit
+if make control
+then
+    exit 0
+else
+    exit 1
+fi

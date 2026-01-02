@@ -38,7 +38,7 @@ cat <<'End-of-File' >$tmp.config
 qa.a = matchinst(/^m-/, sample.mirage)
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pmval -t 20msec -a archives/mirage-3 sample.mirage >$tmp.out.base 2>$tmp.err
 if [ -s $tmp.err ]
 then

@@ -24,7 +24,7 @@ _cleanup()
     then
 	[ -f ${PCP_PMLOGGERCONTROL_PATH}.d/$remote ] \
 	    && $sudo rm -f ${PCP_PMLOGGERCONTROL_PATH}.d/$remote
-	export PMLOGGER_CHECK_SKIP_JANITOR=no
+	PMLOGGER_CHECK_SKIP_JANITOR=no; export PMLOGGER_CHECK_SKIP_JANITOR
 	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
 	_service pmlogger restart 2>&1 | _filter_pcp_restart
@@ -146,7 +146,7 @@ _wait_for_pmcd || _exit 1
 # uses pmlogger_janitor to kill off any "lost" pmlogger's, we don't want
 # pmlogger_janitor to kill the primary pmlogger we're about to start ...
 #
-export PMLOGGER_CHECK_SKIP_JANITOR=yes
+PMLOGGER_CHECK_SKIP_JANITOR=yes; export PMLOGGER_CHECK_SKIP_JANITOR
 
 $sudo rm -f $_logfile
 echo "[`date`]" >>$seq_full

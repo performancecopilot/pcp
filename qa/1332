@@ -68,7 +68,7 @@ state == 0	{ print }
 state == 1	{ print >"'$tmp.tmp'" }'
 mv $tmp.tmp $tmp.ondisk
 
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 sort $tmp.loaded >$tmp.loaded.sort
 sort $tmp.ondisk >$tmp.ondisk.sort
 diff $tmp.loaded.sort $tmp.ondisk.sort | _filter

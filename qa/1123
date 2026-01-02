@@ -63,8 +63,8 @@ pid=$!
 
 # things may be busy now ... 8^)
 #
-export PMCD_CONNECT_TIMEOUT=30
-export PMCD_REQUEST_TIMEOUT=30
+PMCD_CONNECT_TIMEOUT=30; export PMCD_CONNECT_TIMEOUT
+PMCD_REQUEST_TIMEOUT=30; export PMCD_REQUEST_TIMEOUT
 pmstore pmcd.control.timeout 30 >>$seq_full
 
 PCP_STDERR= $PCP_VAR_DIR/config/pmchart/BusyCPU \
@@ -111,7 +111,7 @@ chmod 755 $tmp.sh
 #
 cd `dirname $tmp`
 echo '-- first with . in $PATH ...'
-export PATH=.:$PATH
+PATH=.:$PATH; export PATH
 pmchart -c `basename $tmp.sh` -C -C 2>&1 \
 | _filter
 

@@ -103,7 +103,7 @@ mkdir $tmp || _exit 1
 
 # cannot afford timezone differences for timestamps
 #
-export TZ=UTC
+TZ=UTC; export TZ
 
 # real QA test starts here
 
@@ -135,6 +135,13 @@ do
 		# hence skip 132 bytes for the archive label record
 		#
 		dd ibs=1 iseek=132 if=$archive.index >$tmp.extra 2>/dev/null
+		if [ ! -s $tmp.extra ]
+		then
+		    # some bozo decided that after 50 years, making iseek=
+		    # go away for dd(1) was a good idea
+		    #
+		    dd ibs=1 skip=132 if=$archive.index >$tmp.extra 2>/dev/null
+		fi
 		cat $tmp.extra >>$archive.index
 		;;
 	dup_meta)
@@ -143,6 +150,12 @@ do
 		# [6] +414 @ 20:13:16.587195000 indom 29.2 numinst 9
 		# [7] +586 metric 29.0.109 (sample.longlong.bin)
 		dd ibs=1 iseek=414 count=172 if=$archive.meta >$tmp.extra 2>/dev/null
+		if [ ! -s $tmp.extra ]
+		then
+		    # see bozo comment above
+		    #
+		    dd ibs=1 skip=414 count=172 if=$archive.meta >$tmp.extra 2>/dev/null
+		fi
 		cat $tmp.extra >>$archive.meta
 		;;
 	*)

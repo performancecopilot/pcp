@@ -57,7 +57,7 @@ End-of-File
 
 # real QA test starts here
 
-export PCP_DERIVED_CONFIG=$tmp.derived
+PCP_DERIVED_CONFIG=$tmp.derived; export PCP_DERIVED_CONFIG
 if $do_valgrind
 then
     _run_valgrind pmdumptext -z -a archives/runq qa.a qa.b qa.c qa.d qa.e

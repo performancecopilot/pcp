@@ -29,7 +29,7 @@ _filter()
 
 # real QA test starts here
 root=$tmp.root
-export PROC_STATSPATH=$root
+PROC_STATSPATH=$root; export PROC_STATSPATH
 pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
 
 for tgz in $here/linux/proc-big-pid-*.tgz

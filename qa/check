@@ -11,6 +11,8 @@ needwrap=true
 try=0
 n_bad=0
 bad=""
+n_callback=0
+callback=""
 n_triaged=0
 triaged=""
 notrun=""
@@ -100,13 +102,26 @@ END	{ if (NR > 0) {
 		[ $__color = true ] && tput sgr0 # reset
 		echo "Triaged:$triaged" | fmt >>check.log
 	    fi
+	    if [ "$n_callback" != 0 ]
+	    then
+		[ $__color = true ] && tput bold && tput setaf 3 # orange
+		echo "Callback:$callback"
+		[ $__color = true ] && tput sgr0 # reset
+		echo "Callback:$callback" | fmt >>check.log
+	    fi
 	    if [ "$n_bad" != 0 ]
 	    then
 		[ $__color = true ] && tput bold && tput setaf 1 # red
 		echo "Failures:$bad"
-		echo "Failed $n_bad of $try tests"
 		[ $__color = true ] && tput sgr0 # reset
 		echo "Failures:$bad" | fmt >>check.log
+	    fi
+	    n_bad=`expr $n_bad + $n_callback`
+	    if [ "$n_bad" != 0 ]
+	    then
+		[ $__color = true ] && tput bold && tput setaf 1 # red
+		echo "Failed $n_bad of $try tests"
+		[ $__color = true ] && tput sgr0 # reset
 		echo "Failed $n_bad of $try tests" >>check.log
 	    else
 		try=`expr $try - $n_triaged`
@@ -464,7 +479,19 @@ do
 	    ./check.callback --precheck $seq >$tmp.callback.pre 2>&1
 	fi
 
+	# if the test contains a "# :no_timeout:" line in the first
+	# comment block, then do not use timeout
+	#
+	do_timeout=false
 	if $use_timeout
+	then
+	    if [ -z "`sed -n <$seq -e '/^# :no_timeout:$/p' -e '/^$/q'`" ]
+	    then
+		do_timeout=true
+	    fi
+	fi
+
+	if $do_timeout
 	then
 	    # -s 6 => SIGABRT ... see trap in common.rc
 	    #
@@ -517,6 +544,7 @@ do
 		mv $tmp.out $seq.out.bad
 		state="Fail"
 	    else
+		callback_only_fail=true
 		# we have $seq.out (expected) and $tmp.out (observed)
 		# output files, first check if they match
 		#
@@ -537,7 +565,7 @@ do
 			echo
 			$__diff $seq.out $tmp.out
 			state="Fail"
-			[ $__color = true ] && tput sgr0 # reset
+			callback_only_fail=false
 		    fi
 		    done_nl=true
 		fi
@@ -582,7 +610,7 @@ do
 			    # output from check.callback, this means something
 			    # bad has been detected ...
 			    #
-			    [ $__color = true ] && tput bold && tput setaf 1 # red
+			    [ $__color = true ] && tput bold && tput setaf 3 # orange
 			    if $done_nl
 			    then
 				echo "$seq ... - also badness detected by check.callback"
@@ -637,9 +665,16 @@ do
     #
     if [ "$state" = "Fail" ]
     then
-	bad="$bad $seq"
-	n_bad=`expr $n_bad + 1`
-	try=`expr $try + 1`
+	if $callback_only_fail
+	then
+	    callback="$bad $seq"
+	    n_callback=`expr $n_bad + 1`
+	    try=`expr $try + 1`
+	else
+	    bad="$bad $seq"
+	    n_bad=`expr $n_bad + 1`
+	    try=`expr $try + 1`
+	fi
 	__quick=false
 	[ $__diff = true ] || echo "Check local PMCD is still alive ..."
 	$OPTION_AGENTS && _haveagents

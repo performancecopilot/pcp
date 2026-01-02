@@ -98,8 +98,14 @@ echo "daemon=$daemon" >>/tmp/syslog.full
 
 # avoid systemd/systemctl wrapper
 #
-[ -f /etc/SuSE-release ] && export SYSTEMD_NO_WRAP=1
-[ -f /etc/fedora-release ] && export SYSTEMCTL_SKIP_REDIRECT=1
+if [ -f /etc/SuSE-release ]
+then
+    SYSTEMD_NO_WRAP=1; export SYSTEMD_NO_WRAP
+fi
+if [ -f /etc/fedora-release ]
+then
+    SYSTEMCTL_SKIP_REDIRECT=1; export SYSTEMCTL_SKIP_REDIRECT
+fi
 
 _cleanup()
 {

@@ -144,8 +144,8 @@ Create a TLS configuration file with this information::
 
 To establish a secure connection, in a shell enter::
 
-    $ export PCP_SECURE_SOCKETS=enforce
-    $ export PCP_TLSCONF_PATH=~/.pcp/tls.conf
+    $ PCP_SECURE_SOCKETS=enforce; export PCP_SECURE_SOCKETS
+    $ PCP_TLSCONF_PATH=~/.pcp/tls.conf; export PCP_TLSCONF_PATH
     $ pminfo --host localhost -f kernel.all.load
 
     kernel.all.load

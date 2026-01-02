@@ -52,7 +52,7 @@ qa.e = matchinst(/\\[1\\]100\//, sample.bin)
 End-of-File
 
 echo "=== simple cases ==="
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pminfo -d -Dderive,appl0 qa >$tmp.out 2>&1
 _filter
 

@@ -119,9 +119,9 @@ do
     case "$svc"
     in
 	pmcd)
-	if ! _service $svc start >>$seq_full 2>&1; then _exit 1; fi
-	_wait_for_pmcd || _exit 1
-	    ;;
+	    if ! _service $svc start >>$seq_full 2>&1; then _exit 1; fi
+	    _wait_for_pmcd || _exit 1
+		;;
 
 	pmlogger)
 	    if ! _service $svc start >>$seq_full 2>&1; then _exit 1; fi

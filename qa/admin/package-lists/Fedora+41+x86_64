@@ -7,6 +7,7 @@ HdrHistogram_c-devel
 #RediSearch - switch to ValkeySearch when available
 SoQt-devel
 Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
 audit
 autoconf
 avahi-devel

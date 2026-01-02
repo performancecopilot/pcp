@@ -18,7 +18,7 @@ then
 		;;
 	-x)	# rebuild and exclude /usr/include
 		rebuild=true
-		export INCDIR=
+		INCDIR=; export INCDIR
 		shift
 		;;
 	-3)	# rebuild and exclude src/libpcp3

@@ -39,8 +39,15 @@ PERLMAKE = $(MAKE)
 PMDA.o: Makefile PMDA.xs
 	$(PERLMAKE) -f Makefile
 
+# sed post-processing is to remove this nonsense ...
+# LD_RUN_PATH = /somepath/src/libpcp_pmda/src:/somepath/src/libpcp/src:/lib64
+# that MakeMaker adds from the -L's in the LIBS setting and removing the
+# -L's there leads to build and/or packaging breakage
+#
 Makefile: COPYING Makefile.PL
 	$(call PERL_MAKE_MAKEFILE)
+	sed <Makefile >Makefile.tmp -e '/^LD_RUN_PATH /s/=.*/=/'
+	mv Makefile.tmp Makefile
 
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING

@@ -57,7 +57,7 @@ _filter()
 unset PCP_NOTIFY_THROTTLE
 for limit in '' 7 '42bad'
 do
-    [ -n "$limit" ] && export PCP_NOTIFY_THROTTLE="$limit"
+    [ -n "$limit" ] && PCP_NOTIFY_THROTTLE="$limit"; export PCP_NOTIFY_THROTTLE
     echo "=== limit $limit ==="
 
     if $do_valgrind

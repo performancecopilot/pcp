@@ -30,7 +30,7 @@ _run()
 {
     echo
     echo "=== PCP_DERIVED_CONFIG=$1 ===" | _filter
-    export PCP_DERIVED_CONFIG="$1"
+    PCP_DERIVED_CONFIG="$1"; export PCP_DERIVED_CONFIG
     pminfo qa \
     | LC_COLLATE=POSIX sort \
     | xargs pminfo $debug -md 2>$tmp.err \

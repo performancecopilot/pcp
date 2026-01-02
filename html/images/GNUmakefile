@@ -1,4 +1,4 @@
-TOPDIR = ../../..
+TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 
 ICOFILES = $(shell echo *.ico)

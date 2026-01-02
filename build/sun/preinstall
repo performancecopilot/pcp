@@ -3,7 +3,7 @@
 # Install unprivileged user (and group) account for PCP daemons.
 #
 
-export PATH=/usr/sbin:$PATH
+PATH=/usr/sbin:$PATH; export PATH
 getent group pcp >/dev/null || groupadd pcp
 getent passwd pcp >/dev/null || \
   useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -s /usr/bin/false pcp

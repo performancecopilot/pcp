@@ -273,40 +273,40 @@ then
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
     test -f /etc/arch-release && target_distro=arch
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (macOS)])
-    target_distro=macos
-    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
+    target_distro=macosx
+    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
 then
     AC_DEFINE(IS_MINGW, [1], [Platform is MinGW (Windows)])
-    export CFLAGS="-fno-strict-aliasing"
+    CFLAGS="-fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths=''
     pcp_ps_all_flags=-efW
 elif test $target_os = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
-    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"
-    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
+    CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"; export CFLAGS_IF_GCC
+    CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"; export CFLAGS_IF_SUNCC
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix
 then
     AC_DEFINE(IS_AIX, [1], [Platform is AIX])
-    export CFLAGS="-qcpluscmt"
+    CFLAGS="-qcpluscmt"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = freebsd || test $target_os = kfreebsd
 then
     AC_DEFINE(IS_FREEBSD, [1], [Platform is FreeBSD])
     test -f /etc/debian_version && target_distro=debian
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     if test $target_os = kfreebsd
     then
 	pcp_ps_all_flags=-efw
@@ -320,21 +320,21 @@ elif test $target_os = gnu
 then
     AC_DEFINE(IS_GNU, [1], [Platform is GNU Hurd])
     test -f /etc/debian_version && target_distro=debian
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
 elif test $target_os = netbsdelf -o $target_os = netbsd
 then
     target_os=netbsd
     AC_DEFINE(IS_NETBSD, [1], [Platform is NetBSD])
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/pkg/bin'
     pcp_ps_all_flags=auxww
 elif test $target_os = openbsd
 then
     target_os=openbsd
     AC_DEFINE(IS_OPENBSD, [1], [Platform is OpenBSD])
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/local/bin'
     pcp_ps_all_flags="-axww -o user,pid,ppid,%cpu,start,tty,time,args"
     if test "$target_cpu" = "i386" -a "$host_os" = "openbsd6.8"
@@ -1064,7 +1064,7 @@ AS_IF([test "x$do_python3" != "xno"], [
 	enable_python3=false
     else
 	AC_MSG_CHECKING([Python3 version])
-	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 3; then
 	    echo WARNING: Python version 3.6 or later does not seem to be installed.
@@ -1587,14 +1587,14 @@ AS_IF([test "x$do_qt" != "xno"], [
 
     # Allow specifying the QT directory using --with-qt=/the/qt/dir
     case "$do_qt" in
-    /*) export QTDIR="$do_qt" ; do_qt="check" ;;
+    /*) QTDIR="$do_qt"; export QTDIR ; do_qt="check" ;;
     esac
 
     if test -z "$QMAKE"
     then
 	dnl NB: no longer use qtchooser, its deprecated and doesn't work for
 	dnl the second of two options we wish to support - Qt5 and Qt6.
-	export QTPATHS="/usr/lib64/qt6/bin:/usr/lib/qt6/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/bin/amd64"
+	QTPATHS="/usr/lib64/qt6/bin:/usr/lib/qt6/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/bin/amd64"; export QTPATHS
 	if test -n "$QTDIR"
 	then
 	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt6.sh qmake6 qmake-qt5.sh qmake-qt5],,
@@ -1611,7 +1611,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 	enable_qt=false
     else
 	AC_MSG_CHECKING([Qt version])
-	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
 	if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
 	    echo WARNING: cannot extract Qt version number from ...
@@ -2251,10 +2251,11 @@ AC_CHECK_FUNCS(chown fchmod fchown getcwd scandir mkstemp)
 AC_CHECK_FUNCS(brk sbrk posix_memalign memalign valloc)
 AC_CHECK_FUNCS(signal sighold sigrelse tcgetattr)
 AC_CHECK_FUNCS(regex regcmp regexec regcomp)
-AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup)
+AC_CHECK_FUNCS(strtod strtol strtoll strtoull strndup strcasestr strsep)
 AC_CHECK_FUNCS(getgrent getgrent_r getgrnam getgrnam_r getgrgid getgrgid_r)
 AC_CHECK_FUNCS(getpwent getpwent_r getpwnam getpwnam_r getpwuid getpwuid_r)
 AC_CHECK_FUNCS(sysinfo trace_back_stack)
+AC_CHECK_FUNCS(cfmakeraw)
 
 dnl checking for backtrace() needs a little more care ..
 dnl check if backtrace functions come from libexeinfo (OpenBSD 7.0)

@@ -74,13 +74,17 @@ do
 done
 
 # each unique ?{foo} in all control.* files should have ONE matching
-# s/?{foo}, // to exclude and ONE matching s/?{foo}, /something,/
+# s/\?\{foo}, // to exclude and ONE matching s/\?\{foo}, /something,/
 # to include in fixcontrol
 # 
 cat ../debian/control.* \
 | grep '?{' \
-| tr ',' '\012' \
-| sed -n -e '/?{/s/.*?{/?{/p' \
+| tr '}' '\012' \
+| sed -n -e '/.*?{/{
+s//{/
+s/$/}/
+p
+}' \
 | sort \
 | uniq \
 | tee $tmp.control \
@@ -90,15 +94,15 @@ do
     #
     case "$macro"
     in
-	\?{perl\ \(*|\?{python-all}|\?{python-dev})
+	{perl\ \(*)
 		continue
 		;;
     esac
-    if ! grep -q 's/'"$macro"', //' ../debian/fixcontrol
+    if ! grep -q 's/.*'"$macro"'.*//' ../debian/fixcontrol
     then
 	echo "fixcontrol: $macro no sed to exclude"
     fi
-    if ! grep -q 's/'"$macro"', /[^ ].*, /' ../debian/fixcontrol
+    if ! grep -q 's/.*'"$macro"'.*/[^ ][^/]*\\\\[0-9]/' ../debian/fixcontrol
     then
 	echo "fixcontrol: $macro no sed to include"
     fi

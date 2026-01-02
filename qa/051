@@ -168,7 +168,7 @@ _cleanup()
 	echo "Restarting pmcd"
 	echo "Restarting pmcd + pmlogger @ `date`" >>$seq_full
 	unset PMCD_SOCKET
-	export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+	PMLOGGER_CHECK_SKIP_LOGCONF=yes; export PMLOGGER_CHECK_SKIP_LOGCONF
 	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
 	_restore_auto_restart pmcd
@@ -223,7 +223,7 @@ fi
 echo
 echo "Running the scanner/parser tests (die.\*)"
 
-export PMCD_SOCKET=$tmp.pmcd.socket
+PMCD_SOCKET=$tmp.pmcd.socket; export PMCD_SOCKET
 for t in die.*
 do
     rm -f pmcd.log*

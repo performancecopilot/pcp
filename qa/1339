@@ -149,7 +149,7 @@ echo "=== socket Internet agent ===" | tee -a $seq_full
 
 # Give the PMDA + internet socket a chance to be setup before pminfo check
 #
-export PCPQA_CHECK_DELAY=3
+PCPQA_CHECK_DELAY=3; export PCPQA_CHECK_DELAY
 
 echo 'socket
 Internet

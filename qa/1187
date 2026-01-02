@@ -79,7 +79,7 @@ filter_info()
 }
 
 # real QA test starts here
-export TERM=ansi
+TERM=ansi; export TERM
 dstat "All defaults to EOL"
 dstat "Per CPU" --cpu -C 1,2,total --cpu-use
 dstat "CPU" --cpu-adv
@@ -127,18 +127,18 @@ echo "CSV instances complete" | tee -a $seq_full
 
 # verify no terminal size effects on CSV output
 dstat "CSV terminal default" -tfvnrl -o $tmp.csvterm0 | filter_info
-export SAVED_TPUT_COLUMNS=80 SAVED_COLUMNS=$COLUMNS SAVED_LINES=$LINES
-test -x /usr/bin/tput && export SAVED_TPUT_COLUMNS=`/usr/bin/tput cols`
+SAVED_TPUT_COLUMNS=80; export SAVED_TPUT_COLUMNS SAVED_COLUMNS=$COLUMNS SAVED_LINES=$LINES
+test -x /usr/bin/tput && SAVED_TPUT_COLUMNS=`/usr/bin/tput cols`; export SAVED_TPUT_COLUMNS
 # reduce terminal size, output should be unchanged
 test -x /usr/bin/stty && /usr/bin/stty cols 40 >/dev/null 2>&1
-export COLUMNS=40 LINES=40
+COLUMNS=40; export COLUMNS LINES=40
 dstat "CSV terminal reduced" -tfvnrl -o $tmp.csvterm1 | filter_info
 echo "CSV terminal contents" | tee -a $seq_full
 cat $tmp.csvterm1 | tee -a $seq_full | filter_info
 echo "CSV terminal compared" | tee -a $seq_full
 diff $tmp.csvterm0 $tmp.csvterm1 | tee -a $seq_full | filter_info
 echo "CSV terminal complete" | tee -a $seq_full
-export COLUMNS=$SAVED_COLUMNS LINES=$SAVED_LINES
+COLUMNS=$SAVED_COLUMNS; export COLUMNS LINES=$SAVED_LINES
 test -x /usr/bin/stty && /usr/bin/stty cols $SAVED_TPUT_COLUMNS >/dev/null 2>&1
 unset SAVED_TPUT_COLUMNS SAVED_COLUMNS SAVED_LINES
 

@@ -47,7 +47,7 @@ _filter()
 }
 
 # real QA test starts here
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 echo "== new diagnostics ==" >> $seq.full
 pmdumplog -dehIL tmparch/foo >> $seq.full
 echo "== pre diagnostic0 ==" >> $seq.full

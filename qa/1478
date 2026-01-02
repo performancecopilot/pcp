@@ -47,11 +47,11 @@ mkdir $tmp
 #
 mkdir $tmp/log
 $sudo chown pcpqa:pcpqa $tmp/log
-export PCP_LOG_DIR=$tmp/log
+PCP_LOG_DIR=$tmp/log; export PCP_LOG_DIR
 $sudo touch "$PCP_LOG_DIR"/NOTICES
 $sudo chown pcpqa:pcpqa "$PCP_LOG_DIR"/NOTICES
 
-export PCP_DIR=$tmp
+PCP_DIR=$tmp; export PCP_DIR
 unset PCP_ENV_DONE
 unset PCP_RUN_DIR
 unset PCP_USER

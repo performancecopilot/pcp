@@ -42,8 +42,8 @@ _filter()
 # real QA test starts here
 
 # don't use date +%Y ... so test will not fail next year!
-export year=`date +2015`
-export mydir=/some/path
+year=`date +2015`; export year
+mydir=/some/path; export mydir
 line=1
 
 cat <<End-of-File | while read stuff dir args

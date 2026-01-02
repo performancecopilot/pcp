@@ -252,21 +252,66 @@ else
     _usage "Cannot find a pcp-$command command to execute"
 fi
 
-$Aflag && export PCP_ALIGN_TIME="$pcp_align_time"
-$aflag && export PCP_ARCHIVE="$pcp_archive"
-$Dflag && export PCP_DEBUG="$pcp_debug"
-$gflag && export PCP_GUIMODE=true
-$hflag && export PCP_HOST="$pcp_host"
-$Lflag && export PCP_LOCALMODE=true
-$nflag && export PCP_NAMESPACE="$pcp_namespace"
-$Oflag && export PCP_ORIGIN_TIME="$pcp_origin_time"
-$pflag && export PCP_GUIPORT="$pcp_guiport"
-$Sflag && export PCP_START_TIME="$pcp_start_time"
-$sflag && export PCP_SAMPLES="$pcp_samples"
-$Tflag && export PCP_FINISH_TIME="$pcp_finish_time"
-$tflag && export PCP_INTERVAL="$pcp_interval"
-$Zflag && export PCP_TIMEZONE="$pcp_timezone"
-$zflag && export PCP_HOSTZONE=true
+if $Aflag
+then
+    PCP_ALIGN_TIME="$pcp_align_time"; export PCP_ALIGN_TIME
+fi
+if $aflag
+then
+    PCP_ARCHIVE="$pcp_archive"; export PCP_ARCHIVE
+fi
+if $Dflag
+then
+    PCP_DEBUG="$pcp_debug"; export PCP_DEBUG
+fi
+if $gflag
+then
+    PCP_GUIMODE=true; export PCP_GUIMODE
+fi
+if $hflag
+then
+    PCP_HOST="$pcp_host"; export PCP_HOST
+fi
+if $Lflag
+then
+    PCP_LOCALMODE=true; export PCP_LOCALMODE
+fi
+if $nflag
+then
+    PCP_NAMESPACE="$pcp_namespace"; export PCP_NAMESPACE
+fi
+if $Oflag
+then
+    PCP_ORIGIN_TIME="$pcp_origin_time"; export PCP_ORIGIN_TIME
+fi
+if $pflag
+then
+    PCP_GUIPORT="$pcp_guiport"; export PCP_GUIPORT
+fi
+if $Sflag
+then
+    PCP_START_TIME="$pcp_start_time"; export PCP_START_TIME
+fi
+if $sflag
+then
+    PCP_SAMPLES="$pcp_samples"; export PCP_SAMPLES
+fi
+if $Tflag
+then
+    PCP_FINISH_TIME="$pcp_finish_time"; export PCP_FINISH_TIME
+fi
+if $tflag
+then
+    PCP_INTERVAL="$pcp_interval"; export PCP_INTERVAL
+fi
+if $Zflag
+then
+    PCP_TIMEZONE="$pcp_timezone"; export PCP_TIMEZONE
+fi
+if $zflag
+then
+    PCP_HOSTZONE=true; export PCP_HOSTZONE
+fi
 
 rm -rf $tmp	# cleanup now, no trap handler post-exec
 exec $command $opts "$@"

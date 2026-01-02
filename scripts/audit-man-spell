@@ -7,7 +7,7 @@
 
 usage="Usage: audit-man-spell [-d] [man-src-file ...]"
 
-export LC_COLATE=POSIX
+LC_COLATE=POSIX; export LC_COLATE
 
 if which ispell >/dev/null 2>&1
 then

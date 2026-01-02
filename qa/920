@@ -87,7 +87,7 @@ control=$PCP_PMLOGGERCONTROL_PATH
 [ -f $PCP_PMLOGGERCONTROL_PATH.d/local ] && \
 control=$PCP_PMLOGGERCONTROL_PATH.d/local
 
-export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+PMLOGGER_CHECK_SKIP_LOGCONF=yes; export PMLOGGER_CHECK_SKIP_LOGCONF
 
 # real QA test starts here
 _remove_job_scheduler $tmp.cron $tmp.systemd $sudo

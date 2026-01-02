@@ -49,7 +49,7 @@ _unpack()
 
 # real QA test starts here
 root=$tmp.root
-export LINUX_STATSPATH=$root
+LINUX_STATSPATH=$root; export LINUX_STATSPATH
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 interrupts=`echo $here/linux/interrupts-* | LC_COLLATE=POSIX sort`
 softirqs=`echo $here/linux/softirqs-* | LC_COLLATE=POSIX sort`
@@ -86,7 +86,7 @@ do
     base=`basename $file`
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
     _make_proc_stat $root/proc/stat $ncpu
-    export LINUX_NCPUS=$ncpu
+    LINUX_NCPUS=$ncpu; export LINUX_NCPUS
 
     echo "== Checking interrupts metrics from $base ($ncpu CPU)"
     src/indom -v -r 10 -L -K clear -K add,$domain,$pmda kernel.percpu.intr kernel.percpu.interrupts
@@ -106,7 +106,7 @@ do
     base=`basename $file`
     ncpu=`echo $base | sed -e 's/.*-\([0-9][0-9]*\)cpu-.*/\1/'`
     _make_proc_stat $root/proc/stat $ncpu
-    export LINUX_NCPUS=$ncpu
+    LINUX_NCPUS=$ncpu; export LINUX_NCPUS
 
     echo "== Checking softirqs metrics from $base ($ncpu CPU)"
     src/indom -v -r 10 -L -K clear -K add,$domain,$pmda kernel.percpu.softirqs

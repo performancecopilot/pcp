@@ -64,7 +64,7 @@ EOF
 
 # real QA test starts here
 chmod 755 $tmp.pmfind
-export PMFIND=$tmp.pmfind
+PMFIND=$tmp.pmfind; export PMFIND
 $PCP_BINADM_DIR/pmfind_check -N -V 2>&1 | tee -a $seq_full | _filter
 status=$?
 exit

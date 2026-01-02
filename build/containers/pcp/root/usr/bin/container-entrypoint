@@ -2,10 +2,10 @@
 
 ALL_PCP_SERVICES='pmcd,pmie,pmlogger,pmproxy'
 
-export PCP_SERVICES=${PCP_SERVICES:-${ALL_PCP_SERVICES}}
-export PCP_DOMAIN_AGENTS=${PCP_DOMAIN_AGENTS:-''}
-export HOST_MOUNT=${HOST_MOUNT:-''}
-export KEY_SERVERS=${KEY_SERVERS:-'localhost:6379'}
+PCP_SERVICES=${PCP_SERVICES:-${ALL_PCP_SERVICES}}; export PCP_SERVICES
+PCP_DOMAIN_AGENTS=${PCP_DOMAIN_AGENTS:-''}; export PCP_DOMAIN_AGENTS
+HOST_MOUNT=${HOST_MOUNT:-''}; export HOST_MOUNT
+KEY_SERVERS=${KEY_SERVERS:-'localhost:6379'}; export KEY_SERVERS
 
 mkdir -p /etc/systemd/system/pmcd.service.d
 # shellcheck disable=SC2016

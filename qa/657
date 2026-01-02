@@ -22,12 +22,12 @@ grep -qs "without support for dmstats" $PCP_PMDAS_DIR/dm/pmdadm && _notrun "PMDA
 which dmsetup >/dev/null 2>&1 || _notrun "dmsetup from device-mapper package is not installed"
 
 root=$tmp.root
-export DM_SETUP_CACHE="cat $root/dmcache-caches"
-export DM_SETUP_THINPOOL="cat $root/dmthin-pool"
-export DM_SETUP_THIN="cat $root/dmthin-thin"
-export DM_SETUP_CRYPT="cat $root/dmsetup-crypt"
-export DM_SETUP_CRYPTSETUP="cat $root/cryptsetup-status"
-export DM_SETUP_MULTIPATH="cat $root/multipathd"
+DM_SETUP_CACHE="cat $root/dmcache-caches"; export DM_SETUP_CACHE
+DM_SETUP_THINPOOL="cat $root/dmthin-pool"; export DM_SETUP_THINPOOL
+DM_SETUP_THIN="cat $root/dmthin-thin"; export DM_SETUP_THIN
+DM_SETUP_CRYPT="cat $root/dmsetup-crypt"; export DM_SETUP_CRYPT
+DM_SETUP_CRYPTSETUP="cat $root/cryptsetup-status"; export DM_SETUP_CRYPTSETUP
+DM_SETUP_MULTIPATH="cat $root/multipathd"; export DM_SETUP_MULTIPATH
 
 # don't want Install to possibly restart pmcd via systemctl, as this
 # will clobber the environment, ...
@@ -46,7 +46,7 @@ then
 else
     restore_pcpqa_systemd=false
 fi
-export PCPQA_SYSTEMD=no
+PCPQA_SYSTEMD=no; export PCPQA_SYSTEMD
 
 # helper functions
 
@@ -85,7 +85,7 @@ _cleanup()
 {
     if $restore_pcpqa_systemd
     then
-	export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+	PCPQA_SYSTEMD="$save_pcpqa_systemd"; export PCPQA_SYSTEMD
     else
 	unset PCPQA_SYSTEMD
     fi

@@ -22,7 +22,7 @@ mine.derived = sample.bin
 End-of-File
 
 # set the derived metrics configuration for all tools invoked below
-export PCP_DERIVED_CONFIG=$tmp.def
+PCP_DERIVED_CONFIG=$tmp.def; export PCP_DERIVED_CONFIG
 
 echo 'log mandatory on default mine' | pmlogger -t 0.2s -s 2 $tmp.pcplog
 # this pminfo invocation should produce no warnings

@@ -48,8 +48,8 @@ do
     $sudo rm -f $PCP_VAR_DIR/config/pmda/60.*
 
     ncpus=`echo $machine | sed -e 's/cpu.*//g'`
-    export LINUX_STATSPATH=$tmp.root
-    export LINUX_NCPUS=$ncpus
+    LINUX_STATSPATH=$tmp.root; export LINUX_STATSPATH
+    LINUX_NCPUS=$ncpus; export LINUX_NCPUS
 
     mkdir -p $LINUX_STATSPATH/proc
     cp $here/linux/interrupts-$machine $LINUX_STATSPATH/proc/interrupts

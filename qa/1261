@@ -112,7 +112,7 @@ qa$seq.m51 = (scalar(sample.bin[bin-100]) + scalar(matchinst(/^bin-200$/,sample.
 qa$seq.m99 = anon(PM_TYPE_U64)
 End-of-File
 
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 
 # DEBUG=-Dderive,appl1
 DEBUG=

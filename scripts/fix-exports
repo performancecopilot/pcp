@@ -1,0 +1,146 @@
+#!/bin/sh
+#
+# Translate this Bash-ism: export FOO=bar
+# to this Bourne-shell-ism: FOO=bar; export FOO
+#
+
+tmp=/var/tmp/fix-export-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+force=false
+if [ $# -gt 1 -a X"$1" = X--force ]
+then
+    force=true
+    shift
+fi
+
+# _ask <question> <default>
+#
+_ask()
+{
+    while true
+    do
+	echo >&2 -n "$1? [$2] "
+	read ans </dev/tty
+	if [ -z "$ans" ]
+	then
+	    echo "$2"
+	    break
+	elif [ "$ans" = y -o "$ans" = n ]
+	then
+	    echo "$ans"
+	    break
+	else
+	    echo >&2 "Answer the question, y or n, bozo"
+	fi
+    done
+}
+
+guard='(^|[^A-Za-z0-9_])export[ 	][ 	]*([A-Za-z_][A-Za-z_0-9]*)'
+
+for file
+do
+    if [ ! -f "$file" ]
+    then
+	echo "$file: does not exist, giving up"
+	exit
+    fi
+    # test for candidates of interest
+    #
+    grep -E "$guard=" <"$file" >$tmp.pre
+    if [ -s $tmp.pre ]
+    then
+	# candidates found, there is possible work to be done
+	# cases:
+	#   export FOO=bar
+	#   export FOO="bar fumble"
+	#   export FOO='bar fumble'
+	#   export FOO=`bar fumble`
+	#
+	# Issues making this harder than it looks:
+	# - the end of the value could be any sh(1) separator,
+	#   i.e. [ <tab>;|<>&"'`], e.g.
+	#   + echo "export FOO=bar" >blah.sh
+	#   + export FOO=bar; some-other-command
+	#   + export FOO=bar|sh
+	# - all of the quoted cases can extend over multiple lines and
+	#   the following pattern is used for all 3 quoting cases:
+	#     :loop
+	#     s/<myquote>[not-myquote]*<myquote>/&/
+	#     t done	# found matching <myquote>
+	#     N		# get net line of input
+	#     b loop	# try again
+	#     :done	# good to go
+	# - labels in sed have half-baked global scope
+	# - because sed has no way to restart the cycle after a
+	#   change has been made, we keep trying to edit the file
+	#   until nothing changes
+	#
+	cp "$file" $tmp.last
+	while true
+	do
+	    sed -E <$tmp.last >$tmp.new \
+	    -e '/'"$guard"'=($|[^"`'"'"'][^ 	;|<>&"'"'"'`]*)/{
+s//\1\2=\3; export \2/
+}' \
+	    -e '/'"$guard"'="/{
+:loop1
+s/="[^"]*"/&/
+t done1
+N
+b loop1
+:done1
+s/'"$guard"'=("[^"]*")/\1\2=\3; export \2/
+}' \
+	    -e '/'"$guard"'='"'"'/{
+:loop2
+s/='"'"'[^'"'"']*'"'"'/&/
+t done2
+N
+b loop2
+:done2
+s/'"$guard"'=('"'"'[^'"'"']*'"'"')/\1\2=\3; export \2/
+}' \
+	    -e '/'"$guard"'=`/{
+:loop3
+s/=`[^`]*`/&/
+t done3
+N
+b loop3
+:done3
+s/'"$guard"'=(`[^`]*`)/\1\2=\3; export \2/
+}' \
+	    # end
+	    if diff -q $tmp.last $tmp.new >/dev/null 2>&1
+	    then
+		# no changes, we're done
+		break
+	    fi
+	    mv $tmp.new $tmp.last
+	done
+	grep "$guard=" <$tmp.new >$tmp.post
+	if diff "$file" $tmp.new
+	then
+	    echo "$file: no changes made ... but these candidates were found ..."
+	    cat $tmp.pre
+	else
+	    if [ -s $tmp.post ]
+	    then
+		echo "$file: some changes made ... but these candidates remain ..."
+		cat $tmp.post
+	    fi
+	    if $force
+	    then
+		cp $tmp.new "$file"
+		echo "$file: changed"
+	    else
+		if [ "`_ask "$file: accept" y`" = y ]
+		then
+		    cp $tmp.new "$file"
+		fi
+	    fi
+	fi
+    fi
+done
+
+exit

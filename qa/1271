@@ -50,15 +50,15 @@ End-of-File
 
 # real QA test starts here
 echo "global derived metrics ..."
-export PCP_DERIVED_CONFIG=$tmp.conf
-export PCP_STDERR=$tmp.err
+PCP_DERIVED_CONFIG=$tmp.conf; export PCP_DERIVED_CONFIG
+PCP_STDERR=$tmp.err; export PCP_STDERR
 rm -f $tmp.err
 src/torture_pmns -b -v qa$seq qa$seq.a qa$seq.b 2>&1 | _filter
 [ -f $tmp.err ] && _filter <$tmp.err
 
 echo
 echo "per-context derived metrics ..."
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 rm -f $tmp.err
 src/torture_pmns -b -v -C $tmp.conf qa$seq qa$seq.a qa$seq.b 2>&1 | _filter
 [ -f $tmp.err ] && _filter <$tmp.err

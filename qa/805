@@ -40,9 +40,9 @@ $sudo chown root:$grp $tmp.qshape
 $sudo chmod 755 $tmp.qshape
 touch $tmp.logfile
 
-export PMDA_POSTFIX_LOG=$tmp.logfile
-export PMDA_POSTFIX_REFRESH=1
-export PMDA_POSTFIX_QSHAPE=$tmp.qshape
+PMDA_POSTFIX_LOG=$tmp.logfile; export PMDA_POSTFIX_LOG
+PMDA_POSTFIX_REFRESH=1; export PMDA_POSTFIX_REFRESH
+PMDA_POSTFIX_QSHAPE=$tmp.qshape; export PMDA_POSTFIX_QSHAPE
 
 # don't want Install to possibly restart pmcd via systemctl, as this
 # will clobber the environment, ...
@@ -61,7 +61,7 @@ then
 else
     restore_pcpqa_systemd=false
 fi
-export PCPQA_SYSTEMD=no
+PCPQA_SYSTEMD=no; export PCPQA_SYSTEMD
 
 pmdapostfix_remove()
 {
@@ -97,7 +97,7 @@ _cleanup()
 {
     if $restore_pcpqa_systemd
     then
-	export PCPQA_SYSTEMD="$save_pcpqa_systemd"
+	PCPQA_SYSTEMD="$save_pcpqa_systemd"; export PCPQA_SYSTEMD
     else
 	unset PCPQA_SYSTEMD
     fi

@@ -48,7 +48,7 @@ End-of-File
 cd $here
 
 # avoid any PDUs associated with the definition of derived metrics
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 
 # # samples is sufficient to do all ops in multictx.c 2 times for
 # each of 3 metrics, so x6 altogether
@@ -63,7 +63,7 @@ src/multictx -s $samples sample.part_bin slow.seventeen pmcd.buf.alloc 2>&1 \
 
 echo 
 echo "Now with timeouts ..."
-export PMCD_REQUEST_TIMEOUT=2
+PMCD_REQUEST_TIMEOUT=2; export PMCD_REQUEST_TIMEOUT
 src/multictx -s $samples sample.part_bin slow.seventeen pmcd.buf.alloc 2>&1 \
 | _filter
 

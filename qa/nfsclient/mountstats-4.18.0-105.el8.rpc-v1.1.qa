@@ -42,67 +42,67 @@ device rhel8u0-node2-beta:/exports mounted on /mnt/nfsv4.2 with fstype nfs4 stat
 	RPC iostats version: 1.1  p/v: 100003/4 (nfs)
 	xprt:	tcp 699 0 1 0 23 29 29 0 30 0 2 1 1
 	per-op statistics
-	        NULL: 2 4 0 88 48 7 2 9 0
-	        READ: 0 0 0 0 0 0 0 0 0
-	       WRITE: 4 4 0 2098144 704 9 12 22 0
-	      COMMIT: 2 2 0 424 208 0 31 31 0
-	        OPEN: 2 2 0 656 752 0 14 14 0
-	OPEN_CONFIRM: 0 0 0 0 0 0 0 0 0
-	 OPEN_NOATTR: 0 0 0 0 0 0 0 0 0
-	OPEN_DOWNGRADE: 0 0 0 0 0 0 0 0 0
-	       CLOSE: 2 2 0 472 352 0 1 1 0
-	     SETATTR: 0 0 0 0 0 0 0 0 0
-	      FSINFO: 2 2 0 408 328 0 0 0 0
-	       RENEW: 0 0 0 0 0 0 0 0 0
-	 SETCLIENTID: 0 0 0 0 0 0 0 0 0
-	SETCLIENTID_CONFIRM: 0 0 0 0 0 0 0 0 0
-	        LOCK: 0 0 0 0 0 0 0 0 0
-	       LOCKT: 0 0 0 0 0 0 0 0 0
-	       LOCKU: 0 0 0 0 0 0 0 0 0
-	      ACCESS: 2 2 0 416 336 0 1 1 0
-	     GETATTR: 2 2 0 400 480 0 0 3 0
-	      LOOKUP: 0 0 0 0 0 0 0 0 0
-	 LOOKUP_ROOT: 0 0 0 0 0 0 0 0 0
-	      REMOVE: 0 0 0 0 0 0 0 0 0
-	      RENAME: 0 0 0 0 0 0 0 0 0
-	        LINK: 0 0 0 0 0 0 0 0 0
-	     SYMLINK: 0 0 0 0 0 0 0 0 0
-	      CREATE: 0 0 0 0 0 0 0 0 0
-	    PATHCONF: 2 2 0 392 232 0 0 0 0
-	      STATFS: 0 0 0 0 0 0 0 0 0
-	    READLINK: 0 0 0 0 0 0 0 0 0
-	     READDIR: 0 0 0 0 0 0 0 0 0
-	 SERVER_CAPS: 4 4 0 816 656 0 1 2 0
-	 DELEGRETURN: 0 0 0 0 0 0 0 0 0
-	      GETACL: 0 0 0 0 0 0 0 0 0
-	      SETACL: 0 0 0 0 0 0 0 0 0
-	FS_LOCATIONS: 0 0 0 0 0 0 0 0 0
-	RELEASE_LOCKOWNER: 0 0 0 0 0 0 0 0 0
-	     SECINFO: 0 0 0 0 0 0 0 0 0
-	FSID_PRESENT: 0 0 0 0 0 0 0 0 0
+	        NULL: 2 4 0 88 48 7 2 9 1
+	        READ: 0 0 0 0 0 0 0 0 2
+	       WRITE: 4 4 0 2098144 704 9 12 22 3
+	      COMMIT: 2 2 0 424 208 0 31 31 4
+	        OPEN: 2 2 0 656 752 0 14 14 5
+	OPEN_CONFIRM: 0 0 0 0 0 0 0 0 6
+	 OPEN_NOATTR: 0 0 0 0 0 0 0 0 7
+	OPEN_DOWNGRADE: 0 0 0 0 0 0 0 0 8
+	       CLOSE: 2 2 0 472 352 0 1 1 9
+	     SETATTR: 0 0 0 0 0 0 0 0 1
+	      FSINFO: 2 2 0 408 328 0 0 0 2
+	       RENEW: 0 0 0 0 0 0 0 0 3
+	 SETCLIENTID: 0 0 0 0 0 0 0 0 4
+	SETCLIENTID_CONFIRM: 0 0 0 0 0 0 0 0 5
+	        LOCK: 0 0 0 0 0 0 0 0 6
+	       LOCKT: 0 0 0 0 0 0 0 0 7
+	       LOCKU: 0 0 0 0 0 0 0 0 8
+	      ACCESS: 2 2 0 416 336 0 1 1 9
+	     GETATTR: 2 2 0 400 480 0 0 3 1
+	      LOOKUP: 0 0 0 0 0 0 0 0 2
+	 LOOKUP_ROOT: 0 0 0 0 0 0 0 0 3
+	      REMOVE: 0 0 0 0 0 0 0 0 4
+	      RENAME: 0 0 0 0 0 0 0 0 5
+	        LINK: 0 0 0 0 0 0 0 0 6
+	     SYMLINK: 0 0 0 0 0 0 0 0 7
+	      CREATE: 0 0 0 0 0 0 0 0 8
+	    PATHCONF: 2 2 0 392 232 0 0 0 9
+	      STATFS: 0 0 0 0 0 0 0 0 1
+	    READLINK: 0 0 0 0 0 0 0 0 2
+	     READDIR: 0 0 0 0 0 0 0 0 3
+	 SERVER_CAPS: 4 4 0 816 656 0 1 2 4
+	 DELEGRETURN: 0 0 0 0 0 0 0 0 5
+	      GETACL: 0 0 0 0 0 0 0 0 6
+	      SETACL: 0 0 0 0 0 0 0 0 7
+	FS_LOCATIONS: 0 0 0 0 0 0 0 0 8
+	RELEASE_LOCKOWNER: 0 0 0 0 0 0 0 0 9
+	     SECINFO: 0 0 0 0 0 0 0 0 1
+	FSID_PRESENT: 0 0 0 0 0 0 0 0 2
 	 EXCHANGE_ID: 12 12 0 1200 592 0 6 2589 8
-	CREATE_SESSION: 2 2 0 496 248 0 3 3 0
-	DESTROY_SESSION: 0 0 0 0 0 0 0 0 0
-	    SEQUENCE: 2 2 0 288 160 0 1 1 0
-	GET_LEASE_TIME: 0 0 0 0 0 0 0 0 0
-	RECLAIM_COMPLETE: 2 2 0 304 176 0 66 66 0
-	   LAYOUTGET: 0 0 0 0 0 0 0 0 0
-	GETDEVICEINFO: 0 0 0 0 0 0 0 0 0
-	LAYOUTCOMMIT: 0 0 0 0 0 0 0 0 0
-	LAYOUTRETURN: 0 0 0 0 0 0 0 0 0
-	SECINFO_NO_NAME: 0 0 0 0 0 0 0 0 0
-	TEST_STATEID: 0 0 0 0 0 0 0 0 0
-	FREE_STATEID: 0 0 0 0 0 0 0 0 0
-	GETDEVICELIST: 0 0 0 0 0 0 0 0 0
-	BIND_CONN_TO_SESSION: 0 0 0 0 0 0 0 0 0
-	DESTROY_CLIENTID: 0 0 0 0 0 0 0 0 0
-	        SEEK: 0 0 0 0 0 0 0 0 0
-	    ALLOCATE: 0 0 0 0 0 0 0 0 0
-	  DEALLOCATE: 0 0 0 0 0 0 0 0 0
-	 LAYOUTSTATS: 0 0 0 0 0 0 0 0 0
-	       CLONE: 0 0 0 0 0 0 0 0 0
-	        COPY: 0 0 0 0 0 0 0 0 0
-	     LOOKUPP: 0 0 0 0 0 0 0 0 0
+	CREATE_SESSION: 2 2 0 496 248 0 3 3 3
+	DESTROY_SESSION: 0 0 0 0 0 0 0 0 4
+	    SEQUENCE: 2 2 0 288 160 0 1 1 5
+	GET_LEASE_TIME: 0 0 0 0 0 0 0 0 6
+	RECLAIM_COMPLETE: 2 2 0 304 176 0 66 66 7
+	   LAYOUTGET: 0 0 0 0 0 0 0 0 8
+	GETDEVICEINFO: 0 0 0 0 0 0 0 0 9
+	LAYOUTCOMMIT: 0 0 0 0 0 0 0 0 1
+	LAYOUTRETURN: 0 0 0 0 0 0 0 0 2
+	SECINFO_NO_NAME: 0 0 0 0 0 0 0 0 3
+	TEST_STATEID: 0 0 0 0 0 0 0 0 4
+	FREE_STATEID: 0 0 0 0 0 0 0 0 5
+	GETDEVICELIST: 0 0 0 0 0 0 0 0 6
+	BIND_CONN_TO_SESSION: 0 0 0 0 0 0 0 0 7
+	DESTROY_CLIENTID: 0 0 0 0 0 0 0 0 8
+	        SEEK: 0 0 0 0 0 0 0 0 9
+	    ALLOCATE: 0 0 0 0 0 0 0 0 1
+	  DEALLOCATE: 0 0 0 0 0 0 0 0 2
+	 LAYOUTSTATS: 0 0 0 0 0 0 0 0 3
+	       CLONE: 0 0 0 0 0 0 0 0 4
+	        COPY: 0 0 0 0 0 0 0 0 5
+	     LOOKUPP: 0 0 0 0 0 0 0 0 6
 
 device rhel7u6-node2:/exports mounted on /mnt/nfsv4.1 with fstype nfs4 statvers=1.1
 	opts:	rw,vers=4.1,rsize=524288,wsize=524288,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.17,local_lock=none
@@ -132,16 +132,16 @@ device rhel7u6-node2:/exports mounted on /mnt/nfsv4.1 with fstype nfs4 statvers=
 	SETCLIENTID_CONFIRM: 0 0 0 0 0 0 0 0 0
 	        LOCK: 0 0 0 0 0 0 0 0 0
 	       LOCKT: 0 0 0 0 0 0 0 0 0
-	       LOCKU: 0 0 0 0 0 0 0 0 0
+	       LOCKU: 0 0 0 0 0 0 0 0 3
 	      ACCESS: 2 2 0 416 336 0 1 1 0
 	     GETATTR: 2 2 0 400 480 0 0 2 0
-	      LOOKUP: 0 0 0 0 0 0 0 0 0
-	 LOOKUP_ROOT: 0 0 0 0 0 0 0 0 0
-	      REMOVE: 0 0 0 0 0 0 0 0 0
-	      RENAME: 0 0 0 0 0 0 0 0 0
-	        LINK: 0 0 0 0 0 0 0 0 0
-	     SYMLINK: 0 0 0 0 0 0 0 0 0
-	      CREATE: 0 0 0 0 0 0 0 0 0
+	      LOOKUP: 0 0 0 0 0 0 0 0 1
+	 LOOKUP_ROOT: 0 0 0 0 0 0 0 0 2
+	      REMOVE: 0 0 0 0 0 0 0 0 3
+	      RENAME: 0 0 0 0 0 0 0 0 4
+	        LINK: 0 0 0 0 0 0 0 0 5
+	     SYMLINK: 0 0 0 0 0 0 0 0 6
+	      CREATE: 0 0 0 0 0 0 0 0 7
 	    PATHCONF: 2 2 0 392 232 0 0 0 0
 	      STATFS: 0 0 0 0 0 0 0 0 0
 	    READLINK: 0 0 0 0 0 0 0 0 0
@@ -170,13 +170,13 @@ device rhel7u6-node2:/exports mounted on /mnt/nfsv4.1 with fstype nfs4 statvers=
 	GETDEVICELIST: 0 0 0 0 0 0 0 0 0
 	BIND_CONN_TO_SESSION: 0 0 0 0 0 0 0 0 0
 	DESTROY_CLIENTID: 0 0 0 0 0 0 0 0 0
-	        SEEK: 0 0 0 0 0 0 0 0 0
-	    ALLOCATE: 0 0 0 0 0 0 0 0 0
-	  DEALLOCATE: 0 0 0 0 0 0 0 0 0
-	 LAYOUTSTATS: 0 0 0 0 0 0 0 0 0
-	       CLONE: 0 0 0 0 0 0 0 0 0
-	        COPY: 0 0 0 0 0 0 0 0 0
-	     LOOKUPP: 0 0 0 0 0 0 0 0 0
+	        SEEK: 0 0 0 0 0 0 0 0 1
+	    ALLOCATE: 0 0 0 0 0 0 0 0 2
+	  DEALLOCATE: 0 0 0 0 0 0 0 0 3
+	 LAYOUTSTATS: 0 0 0 0 0 0 0 0 4
+	       CLONE: 0 0 0 0 0 0 0 0 6
+	        COPY: 0 0 0 0 0 0 0 0 7
+	     LOOKUPP: 0 0 0 0 0 0 0 0 8
 
 device 192.168.122.27:/exports mounted on /mnt/nfsv4.0 with fstype nfs4 statvers=1.1
 	opts:	rw,vers=4.0,rsize=262144,wsize=262144,namlen=255,acregmin=3,acregmax=60,acdirmin=30,acdirmax=60,hard,proto=tcp,timeo=600,retrans=2,sec=sys,clientaddr=192.168.122.17,local_lock=none
@@ -282,5 +282,5 @@ device 192.168.122.24:/exports mounted on /mnt/nfsv3 with fstype nfs statvers=1.
 	      FSSTAT: 0 0 0 0 0 0 0 0 19
 	      FSINFO: 4 4 0 464 320 0 1 2 20
 	    PATHCONF: 2 2 0 232 112 0 0 0 21
-	      COMMIT: 2 2 0 272 256 0 7 7 22
+	      COMMIT: 2 2 0 272 256 0 7 7 50
 

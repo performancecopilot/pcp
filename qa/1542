@@ -40,7 +40,7 @@ _filter()
 
 # real QA test starts here
 pmlogrewrite -c $PCP_VAR_DIR/config/pmlogrewrite/bind2.conf archives/bind2-9.18 $tmp
-export PCP_DERIVED_CONFIG=0
+PCP_DERIVED_CONFIG=0; export PCP_DERIVED_CONFIG
 
 pminfo -a archives/bind2-9.18+ -m >$tmp.new
 echo "=== original PMIDs from archives/bind2-9.18+ ..." >>$seq_full

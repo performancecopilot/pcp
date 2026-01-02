@@ -114,7 +114,7 @@ echo
 echo "=== pmlogger won't stop ... stop case"
 # SIGHUP is change volume, will not terminate pmlogger
 #
-export PCPQA_KILL_SIGNAL=HUP
+PCPQA_KILL_SIGNAL=HUP; export PCPQA_KILL_SIGNAL
 $sudo pmlogctl -V -p $tmp.policy -c $seq stop localhost 2>&1 | _filter
 pmlogctl status localhost | _filter_status
 

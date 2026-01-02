@@ -456,7 +456,7 @@ $ ./configure --prefix=/some/path
 This will populate /some/path with a full PCP installation.  To use this
 ensure the following are set in the environment:
 ```
-$ export PCP_DIR=/some/path
+$ PCP_DIR=/some/path; export PCP_DIR
 ```
 Amend your shell's $PATH to include the PCP directories, found as follows:
 ```
@@ -466,16 +466,16 @@ $ PATH=$xtra:$PATH
 ```
 Ensure the new libraries can be found:
 ```
-$ export LD_LIBRARY_PATH=`grep '^PCP_LIB' etc/pcp.conf \
-     | sed -e 's/.*=//' | uniq | paste -s -d :`
+$ LD_LIBRARY_PATH=`grep '^PCP_LIB' etc/pcp.conf \
+     | sed -e 's/.*=//' | uniq | paste -s -d :`; export LD_LIBRARY_PATH
 ```
 Tell Perl where to find loadable modules:
 ```
-$ export PERL5LIB=$PCP_DIR/usr/lib/perl5:$PCP_DIR/usr/share/perl5
+$ PERL5LIB=$PCP_DIR/usr/lib/perl5:$PCP_DIR/usr/share/perl5; export PERL5LIB
 ```
 Allow man(1) to find the PCP manual pages:
 ```
-$ export MANPATH=`manpath`:$PCP_DIR/usr/share/man
+$ MANPATH=`manpath`; export MANPATH:$PCP_DIR/usr/share/man
 ```
 If your version is co-exiting with a running PCP in a default
 install, then alternative port numbers in your environment for pmcd

@@ -35,7 +35,7 @@ script=pmdagpfs.pl
 cd "$PCP_PMDAS_DIR/gpfs"
 
 # create a root namespace file for dbpmda to use
-export GPFS_MMPMON_CMD="cat $here/gpfs/mmpmon_fsios.txt"
+GPFS_MMPMON_CMD="cat $here/gpfs/mmpmon_fsios.txt"; export GPFS_MMPMON_CMD
 PCP_PERL_PMNS=root /usr/bin/env perl $script > $tmp.root
 
 # create a set of commands for dbpmda

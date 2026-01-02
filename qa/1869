@@ -51,8 +51,8 @@ _filter()
     # end
 }
 
-export PCP_LOG_DIR=$tmp
-export PCP_REMOTE_ARCHIVE_DIR=$tmp/pmproxy
+PCP_LOG_DIR=$tmp; export PCP_LOG_DIR
+PCP_REMOTE_ARCHIVE_DIR=$tmp/pmproxy; export PCP_REMOTE_ARCHIVE_DIR
 
 mkdir -p $PCP_REMOTE_ARCHIVE_DIR/qahost || exit 1
 # make dates an odd number of days back from now so

@@ -107,6 +107,8 @@ sed <$tmp.in >$tmp.out \
     -e '/^pass0.c[ :].* warning: .fp. may be used uninitialized/d' \
     -e '/^proc_pid.c[ :].* warning: ignoring return value of .strtoul/d' \
     -e '/^showgeneric.c[ :].* warning: ignoring return value of .strtol/d' \
+    -e '/mandoc: .* unknown font, skipping request: ft CR/d' \
+    -e '/mandoc: .* unknown font, skipping request: TS fB/d' \
 # end
 mv $tmp.out $tmp.in
 
@@ -119,8 +121,6 @@ sed <$tmp.in >$tmp.out \
     -e '/^dpkg-source: warning: ignoring deletion of file src\/pmlogconf\/openmetrics\/GNUmakefile/d' \
     -e '/^dpkg-source: warning: ignoring deletion of file configure, use --include-removal to override/d' \
     -e '/^dpkg-shlibdeps: warning: diversions involved - output may be incorrect/d' \
-    -e '/^dpkg-gencontrol: warning: Depends field of package .* unknown substitution variable \${python3:Depends}/d' \
-    -e '/^dpkg-gencontrol: warning: Depends field of package .* substitution variable \${python3:Depends} used, but is not defined/d' \
     -e '/^cp: warning: behaviou*r of -n is non-portable /d' \
     -e '/^post-auto-install: Warning: HAVE_PERL is false, nothing to do/d' \
 # end
@@ -206,12 +206,15 @@ in
 	    -e '/pmda.c:84(pmda.o:(main).* strcat() is almost always misused/d' \
 	    -e '/(pmda.o:(main).* strcat() is almost always misused/d' \
 	    -e '/(view.o:(OpenViewDialog::openView(.*)).* strcat() is almost always misused/d' \
+	    -e '/(mmv.o:(mmv_reload_maybe).* strcat() is almost always misused/d' \
+	    -e '/(util.o:(__pmSetClientId).* strcat() is almost always misused/d' \
 	    -e '/(derive_parser.tab.o:(__dmchildren).* strcpy() is almost always misused/d' \
 	    -e '/(rules.o:(set_attribute).* strcpy() is almost always misused/d' \
 	    -e '/(lex.o:(yylex).* strcpy() is almost always misused/d' \
 	    -e '/(dopdus.o:(DoPMNSTraverse).* strcpy() is almost always misused/d' \
 	    -e '/(trivial.o:(trivial_children).* strcpy() is almost always misused/d' \
 	    -e '/mmv_ondisk.c[ :].*(set_string).* strcpy() is almost always misused/d' \
+	    -e '/(mmv.o:(mmv_reload_maybe).* strcpy() is almost always misused/d' \
 	    -e '/(storepmcd.o:(store_container).* strcpy() is almost always misused/d' \
 	    -e '/(proc.o:(proc_handler).* strcpy() is almost always misused/d' \
 	    -e '/(logue.o:(do_logue).* strcpy() is almost always misused/d' \
@@ -220,6 +223,7 @@ in
 	    -e '/(mounts.o:(mounts_grab_config_info).* strcpy() is almost always misused/d' \
 	    -e '/(deps\/jsonsl\/jsonsl.o:(jsonsl_jpr_new).* strcpy() is almost always misused/d' \
 	    -e '/(view.o:(OpenViewDialog::openView(.*)).* strcpy() is almost always misused/d' \
+	    -e '/(pmns.o:(load).* strcpy() is almost always misused/d' \
 	# end
 	;;
 

@@ -34,7 +34,7 @@ _filter()
 
 # real QA test starts here
 root=$tmp.root
-export LINUX_STATSPATH=$root
+LINUX_STATSPATH=$root; export LINUX_STATSPATH
 pmda="60,$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init"
 rawmetrics=`pminfo network.rawconn network.rawconn6 | LC_COLLATE=POSIX sort`
 tcpmetrics=`pminfo network.tcpconn network.tcpconn6 | LC_COLLATE=POSIX sort`

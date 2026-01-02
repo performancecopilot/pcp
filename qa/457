@@ -156,7 +156,7 @@ $sudo cp $tmp.conf $PCP_VAR_DIR/config/logger/logger.conf
 
 # install PMDA accepting the defaults (esp config file)
 $sudo ./Remove < /dev/null >/dev/null 2>&1
-export PCP_DEBUG=appl0,appl1
+PCP_DEBUG=appl0,appl1; export PCP_DEBUG
 $sudo ./Install < /dev/null >$tmp.out 2>&1
 unset PCP_DEBUG
 cat $tmp.out | _filter | _filter_pmda_install

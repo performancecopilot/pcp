@@ -69,7 +69,7 @@ umask 2
 
 # for error messages from mkdir(1) ...
 #
-export LANG=POSIX
+LANG=POSIX; export LANG
 
 # real QA test starts here
 echo "Absolute path ... no chown"

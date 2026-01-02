@@ -28,8 +28,8 @@ _sort_instname()
 }
 
 # real QA test starts here
-export LINUX_HERTZ=100
-export LINUX_STATSPATH=$tmp.root
+LINUX_HERTZ=100; export LINUX_HERTZ
+LINUX_STATSPATH=$tmp.root; export LINUX_STATSPATH
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 local="-L -K clear -K add,60,$pmda"
 

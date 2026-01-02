@@ -204,6 +204,8 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(3,2), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* pmlogger.host */
     { PMDA_PMID(3,3), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* pmlogger.note */
+    { PMDA_PMID(3,4), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
 
 /* agent.type */
     { PMDA_PMID(4,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) },
@@ -1627,8 +1629,12 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
 			atom.ul = __pmPDUCntOut[item-1];
 		    break;
 
-	    case 3:	/* pmlogger control port, pmcd_host, archive and host */
-		    /* find all ports.  localhost => no recursive pmcd access */
+	    case 3: /*
+		     * pmlogger control port, pmcd_host,
+		     * archive pathname |connection string, note
+		     *
+		     * find all ports.  localhost => no recursive pmcd access
+		     */
 		    nports = __pmLogFindPort("localhost", PM_LOG_ALL_PIDS, &lpp);
 		    if (nports < 0) {
 			sts = nports;
@@ -1664,6 +1670,9 @@ pmcd_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
                                 if (!host)
 				    host = hostnameinfo();
                                 atom.cp = host;
+				break;
+			    case 4:		/* pmlogger.note */
+				atom.cp = lpp[j].note ?  lpp[j].note : "";
 				break;
 			    default:
 				sts = atom.l = PM_ERR_PMID;

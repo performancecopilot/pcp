@@ -73,8 +73,8 @@ pmseries $options --load "$here/archives/proc" | _filter_source
 
 # start pmproxy
 mkdir -p $tmp.pmproxy/pmproxy
-export PCP_RUN_DIR=$tmp.pmproxy
-export PCP_TMP_DIR=$tmp.pmproxy
+PCP_RUN_DIR=$tmp.pmproxy; export PCP_RUN_DIR
+PCP_TMP_DIR=$tmp.pmproxy; export PCP_TMP_DIR
 proxyport=`_find_free_port`
 $valgrind_clean_assert pmproxy -f -p $proxyport -r $key_server_port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!

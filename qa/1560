@@ -70,7 +70,7 @@ skip == 1			{ skip = 0 }
 }
 
 # real QA test starts here
-export TZ=UTC
+TZ=UTC; export TZ
 
 for data in pdudata/*
 do

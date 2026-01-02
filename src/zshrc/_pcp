@@ -586,9 +586,12 @@ _pcp () {
     _arguments -C -S -s \
       '(- *)'{-\?,--help}'[display help message]' \
       "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
+      "(-f --full $exargs)"{-f,--full}'[full check, do not give up early]' \
       "(-l --label $exargs)"{-l,--label}'[print archive label]' \
       "(-m,--metadataonly $exargs)"{-m,--metadataonly}'[skip checking log data volumes]' \
       "(-n --namespace $exargs)"{-n+,--namespace=}'[specify alternative PMNS]:pmnsfile:_files' \
+      "(-R --auto-repair $exargs)"{-R,--auto-repair}'[repair, non-interactive]' \
+      "(-r --repair $exargs)"{-r,--repair}'[repair, interactive]' \
       "(-S --start $exargs)"{-S+,--start=}'[set start of time window]:timespec:' \
       "(-T --finish $exargs)"{-T+,--finish=}'[set end of time window]:timespec:' \
       "(-v --verbose $exargs)"{-v,--verbose}'[verbose output]' \

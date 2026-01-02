@@ -15,7 +15,7 @@ echo "QA output created by $seq"
 
 # we're using our own Slurm Perl module for testing
 #
-export PERL5LIB=$here/slurm
+PERL5LIB=$here/slurm; export PERL5LIB
 
 [ -d $PCP_PMDAS_DIR/slurm ] || _notrun "slurm PMDA directory is not installed"
 [ -f $PCP_PMDAS_DIR/slurm/pmdaslurm.pl ] || _notrun "slurm PMDA is not installed"

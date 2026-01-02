@@ -80,7 +80,7 @@ pmdumplog -mh $tmp | tee -a $seq_full | _filter_pmdumplog | _filter
 
 echo | tee -a $seq_full
 echo "Now with derived metrics defined ..." | tee -a $seq_full
-export PCP_DERIVED_CONFIG=$tmp.derive
+PCP_DERIVED_CONFIG=$tmp.derive; export PCP_DERIVED_CONFIG
 pminfo -f  `grep sample $tmp.config`
 rm -f $tmp.0 $tmp.meta $tmp.index $tmp.log
 pmlogger -c $tmp.config -l $tmp.log -s 3 $tmp

@@ -2,7 +2,8 @@
 Package: libpcp-pmda-perl
 Section: perl
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-pmda3 (= ${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends},
+	libpcp-pmda3 (= ${binary:Version})
 Description: Performance Co-Pilot Domain Agent Perl module
  The PCP::PMDA Perl module contains the language bindings for
  building Performance Metric Domain Agents (PMDAs) using Perl.
@@ -18,7 +19,8 @@ Description: Performance Co-Pilot Domain Agent Perl module
 Package: libpcp-import-perl
 Section: perl
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, libpcp-import1 (= ${binary:Version})
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends},
+	libpcp-import1 (= ${binary:Version})
 Description: Performance Co-Pilot log import Perl module
  The PCP::LogImport Perl module contains the language bindings for
  building Perl applications that import performance data from a file
@@ -50,7 +52,8 @@ Description: Performance Co-Pilot historical log summary module
 Package: libpcp-mmv-perl
 Section: perl
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends}, libpcp-mmv1 (= ${binary:Version})
+Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends},
+	libpcp-mmv1 (= ${binary:Version})
 Description: Performance Co-Pilot Memory Mapped Value Perl module
  The PCP::MMV module contains the Perl language bindings for
  building scripts instrumented with the Performance Co-Pilot
@@ -61,7 +64,8 @@ Description: Performance Co-Pilot Memory Mapped Value Perl module
  and analysis with pmchart, pmie, pmlogger and other PCP tools.
 
 Package: pcp-import-sar2pcp
-Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, libxml-tokeparser-perl
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl,
+	libxml-tokeparser-perl
 Architecture: all
 Description: Tool for importing data from sar into PCP archive logs
  Performance Co-Pilot (PCP) front-end tool for importing data from sar
@@ -86,7 +90,8 @@ Description: Tool for importing data from MRTG into PCP archive logs
  pmchart or pmdumptext).
 
 Package: pcp-import-sheet2pcp
-Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl, libxml-tokeparser-perl, libspreadsheet-read-perl
+Depends: ${perl:Depends}, ${misc:Depends}, libpcp-import-perl,
+	libxml-tokeparser-perl, libspreadsheet-read-perl
 Architecture: all
 Description: Tool for importing data from a spreadsheet into PCP archive logs
  Performance Co-Pilot (PCP) front-end tool for importing spreadheet data

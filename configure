@@ -3863,7 +3863,7 @@ printf "%s\n" "#define IS_LINUX 1" >>confdefs.h
     test -f /etc/gentoo-release && target_distro=gentoo
     test -f /etc/mandriva-release && target_distro=mandriva
     test -f /etc/arch-release && target_distro=arch
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
 elif test $target_os = darwin
@@ -3872,7 +3872,7 @@ then
 printf "%s\n" "#define IS_DARWIN 1" >>confdefs.h
 
     target_distro=macosx
-    export CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"
+    CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
 elif test $target_os = mingw
@@ -3880,7 +3880,7 @@ then
 
 printf "%s\n" "#define IS_MINGW 1" >>confdefs.h
 
-    export CFLAGS="-fno-strict-aliasing"
+    CFLAGS="-fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths=''
     pcp_ps_all_flags=-efW
 elif test $target_os = solaris
@@ -3888,8 +3888,8 @@ then
 
 printf "%s\n" "#define IS_SOLARIS 1" >>confdefs.h
 
-    export CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"
-    export CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"
+    CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"; export CFLAGS_IF_GCC
+    CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"; export CFLAGS_IF_SUNCC
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = aix
@@ -3897,7 +3897,7 @@ then
 
 printf "%s\n" "#define IS_AIX 1" >>confdefs.h
 
-    export CFLAGS="-qcpluscmt"
+    CFLAGS="-qcpluscmt"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-ef
 elif test $target_os = freebsd || test $target_os = kfreebsd
@@ -3906,7 +3906,7 @@ then
 printf "%s\n" "#define IS_FREEBSD 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     if test $target_os = kfreebsd
     then
 	pcp_ps_all_flags=-efw
@@ -3922,7 +3922,7 @@ then
 printf "%s\n" "#define IS_GNU 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
 elif test $target_os = netbsdelf -o $target_os = netbsd
@@ -3931,7 +3931,7 @@ then
 
 printf "%s\n" "#define IS_NETBSD 1" >>confdefs.h
 
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/pkg/bin'
     pcp_ps_all_flags=auxww
 elif test $target_os = openbsd
@@ -3940,7 +3940,7 @@ then
 
 printf "%s\n" "#define IS_OPENBSD 1" >>confdefs.h
 
-    export CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"
+    CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/local/bin'
     pcp_ps_all_flags="-axww -o user,pid,ppid,%cpu,start,tty,time,args"
     if test "$target_cpu" = "i386" -a "$host_os" = "openbsd6.8"
@@ -8467,7 +8467,7 @@ then :
     else
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking Python3 version" >&5
 printf %s "checking Python3 version... " >&6; }
-	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
+	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
 printf "%s\n" "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 3; then
@@ -9527,12 +9527,12 @@ then :
 
     # Allow specifying the QT directory using --with-qt=/the/qt/dir
     case "$do_qt" in
-    /*) export QTDIR="$do_qt" ; do_qt="check" ;;
+    /*) QTDIR="$do_qt"; export QTDIR ; do_qt="check" ;;
     esac
 
     if test -z "$QMAKE"
     then
-			export QTPATHS="/usr/lib64/qt6/bin:/usr/lib/qt6/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/bin/amd64"
+			QTPATHS="/usr/lib64/qt6/bin:/usr/lib/qt6/bin:/usr/lib64/qt5/bin:/usr/lib/qt5/bin:/usr/bin/amd64"; export QTPATHS
 	if test -n "$QTDIR"
 	then
 	    for ac_prog in qmake qmake-qt6.sh qmake6 qmake-qt5.sh qmake-qt5
@@ -9648,7 +9648,7 @@ done
     else
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking Qt version" >&5
 printf %s "checking Qt version... " >&6; }
-	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "export QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
+	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $QT_MAJOR.$QT_MINOR.$QT_POINT" >&5
 printf "%s\n" "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 	if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
@@ -13618,6 +13618,18 @@ then :
   printf "%s\n" "#define HAVE_STRNDUP 1" >>confdefs.h
 
 fi
+ac_fn_c_check_func "$LINENO" "strcasestr" "ac_cv_func_strcasestr"
+if test "x$ac_cv_func_strcasestr" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRCASESTR 1" >>confdefs.h
+
+fi
+ac_fn_c_check_func "$LINENO" "strsep" "ac_cv_func_strsep"
+if test "x$ac_cv_func_strsep" = xyes
+then :
+  printf "%s\n" "#define HAVE_STRSEP 1" >>confdefs.h
+
+fi
 
 ac_fn_c_check_func "$LINENO" "getgrent" "ac_cv_func_getgrent"
 if test "x$ac_cv_func_getgrent" = xyes
@@ -13703,6 +13715,13 @@ ac_fn_c_check_func "$LINENO" "trace_back_stack" "ac_cv_func_trace_back_stack"
 if test "x$ac_cv_func_trace_back_stack" = xyes
 then :
   printf "%s\n" "#define HAVE_TRACE_BACK_STACK 1" >>confdefs.h
+
+fi
+
+ac_fn_c_check_func "$LINENO" "cfmakeraw" "ac_cv_func_cfmakeraw"
+if test "x$ac_cv_func_cfmakeraw" = xyes
+then :
+  printf "%s\n" "#define HAVE_CFMAKERAW 1" >>confdefs.h
 
 fi
 

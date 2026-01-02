@@ -38,7 +38,7 @@ _checkerr()
 # check pmchart can parse Iostat view
 #
 echo "=== parse Iostat view" | tee -a $seq_full
-export PCP_STDERR=$tmp.err
+PCP_STDERR=$tmp.err; export PCP_STDERR
 pmchart -C -c Iostat >$tmp.out 2>&1
 _filter_qt <$tmp.out
 _checkerr

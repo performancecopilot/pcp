@@ -27,7 +27,7 @@ Options:
  -d	debug
  -e	emit .\" +ok+  control lines'
 
-export LC_COLATE=POSIX
+LC_COLATE=POSIX; export LC_COLATE
 
 if which ispell >/dev/null 2>&1
 then
@@ -346,6 +346,7 @@ pmlogger_daily
 pmlogger_daily_report
 pmlogger_farm
 pmlogger_farm_check
+pmlogger_janitor
 pmlogger_merge
 pmlogger_rewrite
 pmloglabel

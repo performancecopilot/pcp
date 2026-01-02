@@ -169,8 +169,8 @@ echo "secure.enabled = false" >> $tmp.conf
 
 port=`_find_free_port`
 mkdir -p $tmp.pmproxy/pmproxy
-export PCP_RUN_DIR=$tmp.pmproxy
-export PCP_TMP_DIR=$tmp.pmproxy
+PCP_RUN_DIR=$tmp.pmproxy; export PCP_RUN_DIR
+PCP_TMP_DIR=$tmp.pmproxy; export PCP_TMP_DIR
 
 $valgrind_clean_assert pmproxy -f -l- --timeseries \
 	-c $tmp.conf -p $port -U $username \

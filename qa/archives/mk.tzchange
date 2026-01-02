@@ -20,8 +20,8 @@ $sudo $PCP_RC_DIR/pmcd stop
 
 for hr in 10 11 12
 do
-    export PCPQA_TZ=EST-$hr
-    export LD_PRELOAD=`pwd`/qa_timezone.so
+    PCPQA_TZ=EST-$hr; export PCPQA_TZ
+    LD_PRELOAD=`pwd`; export LD_PRELOAD/qa_timezone.so
     pmcd &
     rm -f tzchange-$hr-*
     for a in a b

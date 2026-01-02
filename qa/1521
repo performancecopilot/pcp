@@ -83,7 +83,7 @@ NF == 1 && $1 >= '$now'-20 && $1 <= '$now'	{ print "   close to <now>"; next }
 					{ print }'
 }
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 # real QA test starts here
 

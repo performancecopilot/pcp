@@ -123,9 +123,9 @@ _filter_common()
 }
 
 # real QA test starts here
-export PCP_PMCDCONF_PATH=$tmp.conf
-export PMCD_PORT=9876
-export PMCD_SOCKET=$tmp.pmcd.socket
+PCP_PMCDCONF_PATH=$tmp.conf; export PCP_PMCDCONF_PATH
+PMCD_PORT=9876; export PMCD_PORT
+PMCD_SOCKET=$tmp.pmcd.socket; export PMCD_SOCKET
 
 # user test cases
 cat <<End-of-File >$tmp.conf

@@ -1779,7 +1779,10 @@ _do_compress()
 		do
 		    # pmlc may race with pmlogger starting up here - a timeout is required
 		    # to avoid pmlc blocking forever and hanging pmlogger_daily. RHBZ#1892326
-		    [ -z "$PMLOGGER_REQUEST_TIMEOUT" ] && export PMLOGGER_REQUEST_TIMEOUT=2
+		    if [ -z "$PMLOGGER_REQUEST_TIMEOUT" ]
+		    then
+			PMLOGGER_REQUEST_TIMEOUT=2; export PMLOGGER_REQUEST_TIMEOUT
+		    fi
 		    if pmlc "$pid" </dev/null 2>&1 | tee $tmp/out \
 			    | grep "^Connected to .*pmlogger" >/dev/null
 		    then

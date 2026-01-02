@@ -28,7 +28,7 @@ trap "_cleanup; exit \$status" 0
 
 # don't need to regenerate config.default with pmlogconf
 #
-export PMLOGGER_CHECK_SKIP_LOGCONF=yes
+PMLOGGER_CHECK_SKIP_LOGCONF=yes; export PMLOGGER_CHECK_SKIP_LOGCONF
 
 _stop_auto_restart pmcd
 

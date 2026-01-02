@@ -33,9 +33,9 @@ _cleanup()
 }
 
 # real QA test starts here
-export PCP_PMCDCONF_PATH=$tmp.conf
-export PMCD_PORT=9876
-export PMCD_SOCKET=$tmp.pmcd.socket
+PCP_PMCDCONF_PATH=$tmp.conf; export PCP_PMCDCONF_PATH
+PMCD_PORT=9876; export PMCD_PORT
+PMCD_SOCKET=$tmp.pmcd.socket; export PMCD_SOCKET
 
 cat <<End-of-File >$tmp.conf
 pmcd	2	dso	pmcd_init	$PCP_PMDAS_DIR/pmcd/pmda_pmcd.$DSO_SUFFIX

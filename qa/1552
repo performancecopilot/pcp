@@ -41,7 +41,7 @@ _filter()
 }
 
 # real QA test starts here
-export PCP_TMP_DIR=$tmp
+PCP_TMP_DIR=$tmp; export PCP_TMP_DIR
 mkdir -p $PCP_TMP_DIR/mmv || exit 1
 src/mmv_ondisk
 

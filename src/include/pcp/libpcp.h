@@ -1295,6 +1295,7 @@ typedef struct {
     char	*pmcd_host;	/* host pmlogger is collecting from */
     char	*archive;	/* archive base pathname */
     char	*name;		/* file name (minus dirname) */
+    char	*note;		/* annotation from pmlogger -x or -m */
 } __pmLogPort;
 
 /* Returns control port info for a pmlogger given its pid.

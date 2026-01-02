@@ -39,7 +39,7 @@ fi
 
 # real QA test starts here
 echo "collecting commands"
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 
 # don't bother for some commands, either they don't support --help
 # (e.g. no options to describe) and/or are not intended for general
@@ -70,14 +70,14 @@ if [ -z "$PCPQA_CLOSE_X_SERVER" ]
 then
     X11=false
 fi
-export DISPLAY=$PCPQA_CLOSE_X_SERVER
+DISPLAY=$PCPQA_CLOSE_X_SERVER; export DISPLAY
 if which xdpyinfo >/dev/null 2>&1
 then
     xdpyinfo >/dev/null 2>&1 || \
 	X11=false
 fi
 
-export PCP_STDERR=$tmp.popup
+PCP_STDERR=$tmp.popup; export PCP_STDERR
 
 echo "run checks"
 for cmd in $(cat $tmp.cmds.txt); do

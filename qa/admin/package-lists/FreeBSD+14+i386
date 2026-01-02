@@ -1,13 +1,6 @@
 # PCP required package list for FreeBSD 14.0 i386
 # created by kenj on vm10 Wed Jan 10 16:40:10 AEDT 2024
 #
-Date::Format cpan
-Date::Parse cpan
-JSON cpan
-LWP::UserAgent cpan
-Spreadsheet::Read cpan
-Spreadsheet::ReadSXC cpan
-Spreadsheet::XLSX cpan
 apache24
 autoconf
 avahi

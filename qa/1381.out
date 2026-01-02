@@ -17,19 +17,8 @@ badarchives/badmeta-6.meta[record 65]: unexpected record type INDOM_DELTA (6) fo
 badarchives/badmeta-6.meta[record 66]: unexpected record type INDOM_DELTA (6) for V2 archive
 badarchives/badmeta-6.meta[record 67]: unexpected record type INDOM_DELTA (6) for V2 archive
 badarchives/badmeta-6.meta[record 68]: unexpected record type INDOM_DELTA (6) for V2 archive
-badarchives/badmeta-6.meta[record 35]: pmInDom 142.4037252: timestamp 15:52:51.000000000 before previous metadata timestamp 15:52:51.443272000
-badarchives/badmeta-6.meta: last valid record ends at offset 6798 (of 10136)
-badarchives/badmeta-6.meta[record 57]: pmInDom 28.2209753: timestamp 15:52:52.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 58]: pmInDom 88.599079: timestamp 15:52:52.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 59]: pmInDom 147.3102119: timestamp 15:52:52.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 60]: pmInDom 207.1455969: timestamp 15:52:52.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 61]: pmInDom 88.587796: timestamp 15:52:53.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 62]: pmInDom 147.3148725: timestamp 15:52:53.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 63]: pmInDom 28.2250329: timestamp 15:52:54.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 64]: pmInDom 147.3248496: timestamp 15:52:54.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 65]: pmInDom 88.655376: timestamp 15:52:55.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 66]: pmInDom 207.1472664: timestamp 15:52:55.000000000 after archive end 15:52:51.444112000
-badarchives/badmeta-6.meta[record 67]: pmInDom 88.660657: timestamp 15:52:56.000000000 after archive end 15:52:51.444112000
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
 badarchives/badmeta-7.meta[record 36]: unexpected record type INDOM_V2 (2) for V3 archive
 badarchives/badmeta-7.meta[record 42]: unexpected record type LABEL_V2 (3) for V3 archive
 badarchives/badmeta-7.meta[record 43]: unexpected record type LABEL_V2 (3) for V3 archive
@@ -48,22 +37,25 @@ badarchives/badmeta-7.meta[record 65]: unexpected record type INDOM_V2 (2) for V
 badarchives/badmeta-7.meta[record 66]: unexpected record type INDOM_V2 (2) for V3 archive
 badarchives/badmeta-7.meta[record 67]: unexpected record type INDOM_V2 (2) for V3 archive
 badarchives/badmeta-7.meta[record 68]: unexpected record type INDOM_V2 (2) for V3 archive
-badarchives/badmeta-7.meta[record 35]: pmInDom 0.1: timestamp 05:44:46.008388609 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta: last valid record ends at offset 4262 (of 10812)
-badarchives/badmeta-7.meta[record 41]: pmInDom PM_INDOM_NULL: timestamp 17:01:02.000000001 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 42]: pmInDom 0.29: timestamp 17:01:02.000000002 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 43]: pmInDom 29.0: timestamp 17:01:02.000000008 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 44]: pmInDom 29.12: timestamp 17:01:02.000000032 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 49]: pmInDom 0.14: timestamp 17:01:02.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 56]: pmInDom 0.13: timestamp 22:08:14.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 57]: pmInDom 0.11: timestamp 01:39:27.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 58]: pmInDom 0.11: timestamp 06:01:51.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 59]: pmInDom 0.10: timestamp 08:31:11.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 60]: pmInDom 0.11: timestamp 09:56:31.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 61]: pmInDom 0.10: timestamp 13:19:12.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 62]: pmInDom 0.9: timestamp 02:52:00.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 63]: pmInDom 0.9: timestamp 06:29:37.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 64]: pmInDom 0.11: timestamp 18:15:45.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 65]: pmInDom 0.12: timestamp 01:45:54.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 66]: pmInDom 0.13: timestamp 16:29:06.121634828 after archive end 15:52:56.370640609
-badarchives/badmeta-7.meta[record 67]: pmInDom 0.14: timestamp 22:14:43.121634828 after archive end 15:52:56.370640609
+Note: timezone set to local timezone of host "bozo.localdomain" from archive
+
+badarchives/badmeta-8.index[entry 9]: offset to data volume 0 (6896) past end of file (6400)
+badarchives/badmeta-8.index: last valid record ends at offset 1064 (of 1256)
+badarchives/badmeta-8.index[entry 10]: offset to data volume 0 (7888) past end of file (6400)
+badarchives/badmeta-8.index[entry 11]: offset to data volume 0 (9664) past end of file (6400)
+badarchives/badmeta-8.index[entry 12]: offset to data volume 0 (10944) past end of file (6400)
+badarchives/badmeta-8.index[entry 13]: offset to data volume 0 (12320) past end of file (6400)
+badarchives/badmeta-8.index[entry 14]: offset to data volume 0 (13056) past end of file (6400)
+badarchives/badmeta-8.meta[record 36]: pmInDom 29.12: timestamp 03:46:44.466256975 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta: last valid record ends at offset 4944 (of 6242)
+badarchives/badmeta-8.meta[record 37]: pmInDom 0.32: timestamp 03:46:44.466256975 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta[record 38]: pmInDom 29.12: timestamp 03:46:44.966261775 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta[record 39]: pmInDom 0.32: timestamp 03:46:44.966261775 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta[record 40]: pmInDom 29.12: timestamp 03:46:45.716144089 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta[record 41]: pmInDom 0.32: timestamp 03:46:45.716144089 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta[record 42]: pmInDom 29.12: timestamp 03:46:46.216185771 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta[record 43]: pmInDom 0.32: timestamp 03:46:46.216185771 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta[record 44]: pmInDom 29.12: timestamp 03:46:46.716138497 after archive end 03:46:43.966198928
+badarchives/badmeta-8.meta[record 45]: pmInDom 0.32: timestamp 03:46:46.716138497 after archive end 03:46:43.966198928
+Note: timezone set to local timezone of host "vm01.localdomain" from archive
+

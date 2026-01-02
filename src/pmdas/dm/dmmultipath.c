@@ -172,12 +172,13 @@ dm_multipath_instance_refresh(void)
     int path_count = 0;
 
     struct multipath_info *info = {0};
+    struct multipath_info *alloc_info = NULL;
 
     while (fgets(buffer, sizeof(buffer) -1, fp) != NULL) {
         char *trimmed = trim_whitespace(buffer);
 
         // mulitipathd not installed
-        if (strstr(buffer, "command not found")) {
+        if (strstr(buffer, "not found")) {
             pmNotifyErr(LOG_ERR, "%s: multipathd executable not found\n", 
                         __FUNCTION__);
 
@@ -209,9 +210,11 @@ dm_multipath_instance_refresh(void)
 
                 sts = pmdaCacheLookupName(info_indom, info_name, NULL, (void **)&info);
                 if (sts == PM_ERR_INST || (sts >=0 && info == NULL )) {
-                    info = calloc(1, sizeof(struct multipath_info));
+                    if (alloc_info != NULL)
+                        free(alloc_info);
+                    alloc_info = info = calloc(1, sizeof(struct multipath_info));
                     if (info == NULL) {
-                        __pmProcessPipeClose(fp);
+                        pclose(fp);
                         return PM_ERR_AGAIN;
                     }
                 }
@@ -243,6 +246,8 @@ dm_multipath_instance_refresh(void)
                     info->permissions);
 
                 pmdaCacheStore(info_indom, PMDA_CACHE_ADD, info_name, (void *)info);
+                // info stashed in cache now
+                alloc_info = info = NULL;
             }
         }
 
@@ -257,8 +262,9 @@ dm_multipath_instance_refresh(void)
             if (sts == PM_ERR_INST || (sts >=0 && path == NULL )) {
                 path = calloc(1, sizeof(struct multipath_path));
                 if (path == NULL) {
-                    free(info);
-                    __pmProcessPipeClose(fp);
+		    if (alloc_info != NULL)
+			free(alloc_info);
+                    pclose(fp);
                     return PM_ERR_AGAIN;
                 }
             }
@@ -294,8 +300,9 @@ dm_multipath_instance_refresh(void)
             if (sts == PM_ERR_INST || (sts >=0 && dev == NULL )) {
                 dev = calloc(1, sizeof(struct multipath_device));
                 if (dev == NULL) {
-                    free(info);
-                    __pmProcessPipeClose(fp);
+		    if (alloc_info != NULL)
+			free(alloc_info);
+                    pclose(fp);
                     return PM_ERR_AGAIN;
                 }
             }
@@ -314,6 +321,8 @@ dm_multipath_instance_refresh(void)
         }
     }
     
+    if (alloc_info != NULL)
+	free(alloc_info);
     pclose(fp);
     return 0; 
 }

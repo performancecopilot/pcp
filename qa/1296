@@ -52,7 +52,7 @@ hinv.ncpu > 0 -> print "I am alive";
 End-of-File
 
 # real QA test starts here
-export PMCD_RECONNECT_TIMEOUT=1
+PMCD_RECONNECT_TIMEOUT=1; export PMCD_RECONNECT_TIMEOUT
 pmie -c $tmp.config -l $tmp.log -U `id -un` >$tmp.out 2>&1 &
 pid=$!
 sleep 5

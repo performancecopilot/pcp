@@ -655,7 +655,7 @@ which are displayed by sar -d but are not provided by default by PCP:
 | disk.dev.await = 1000 \* (rate(disk.dev.read_rawactive) +             |
 | rate(disk.dev.write_rawactive)) / rate(disk.dev.total)                |
 |                                                                       |
-| $ export PCP_DERIVED_CONFIG=./pcp-derive-metrics.conf                 |
+| $ PCP_DERIVED_CONFIG=./pcp-derive-metrics.conf; export PCP_DERIVED_CONFIG                 |
 | $ pmval -t 2sec -f 3 disk.dev.avqsz                                   |
 | $ pmval -t 2sec -f 3 disk.dev.avrqsz -h acme.com                      |
 | $ pmval -t 2sec -f 3 disk.dev.await -a acme.com/20140902              |

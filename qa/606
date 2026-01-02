@@ -23,7 +23,7 @@ pcp_pidstat="$PCP_BINADM_DIR/pcp-pidstat"
 test -x $pcp_pidstat || _notrun "No pcp-pidstat(1) installed"
 
 # real QA test starts here
-export LC_TIME=POSIX
+LC_TIME=POSIX; export LC_TIME
 
 echo && echo === test various pcp tools can replay archives with all metrics present
 echo == pidstat ===; pcp -z -a archives/pcp-pidstat pidstat >/dev/null || exit

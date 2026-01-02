@@ -22,7 +22,7 @@ _setenvironment()
     MSGVERB="text:action"
     export MSGVERB
     export PCP_BINADM_DIR
-    export PCP_DERIVED_CONFIG=""
+    PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 }
 
 _log_fyi()
@@ -168,6 +168,7 @@ _haveagents()
 			cd $__here
 			_log_fyi $PCP_LOG_DIR/pmcd/pmcd.log $__agentlog
 			__reinstall=true
+			rm -f $tmp.restart
 		    else
 			echo "Cannot find PMDA directory ($__agentdir)"
 			echo "to re-install, ... giving up!"
@@ -232,10 +233,6 @@ End-of-File
 	    # go away
 	    _wait_pmlogger_end $__pid
 	fi
-	_service pmcd stop
-	_wait_pmcd_end
-	_service pmcd start
-	_wait_for_pmcd
 	_service pmlogger start
 	_wait_for_pmlogger
     fi
@@ -285,7 +282,7 @@ _havepmcdtrace()
     done
     if $__fix
     then
-	echo "fix options, and restart PMCD"
+	echo "fix options"
 	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
 	      PCP_PMCDOPTIONS_PATH="$PCP_SYSCONF_DIR/pmcd/pmcd.options"
 	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
@@ -296,18 +293,8 @@ _havepmcdtrace()
 -T 3
 End-of-File
 	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS
-	__grp=root
-	case $PCP_PLATFORM
-	in
-	    freebsd|netbsd|openbsd)
-		    __grp=wheel
-		    ;;
-	esac
-	$sudo chown root:$__grp $PCPQA_PMCDOPTIONS
-	_service pmcd restart
-	_wait_for_pmcd
+	touch $tmp.restart
     fi
-
 }
 
 _setpmcdlimits()
@@ -317,7 +304,7 @@ _setpmcdlimits()
     then
 	pminfo -h $QA_HOST -f pmcd.limits.contexts
 	echo "PMCD connection limits not 512 as required"
-	echo "fix options, and restart PMCD"
+	echo "fix options"
 	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
 	      PCP_PMCDOPTIONS_PATH="$PCP_SYSCONF_DIR/pmcd/pmcd.options"
 	PCPQA_PMCDOPTIONS="$PCP_PMCDOPTIONS_PATH"
@@ -328,16 +315,7 @@ _setpmcdlimits()
 -C 512
 End-of-File
 	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS
-	__grp=root
-	case $PCP_PLATFORM
-	in
-	    freebsd|netbsd|openbsd)
-		    __grp=wheel
-		    ;;
-	esac
-	$sudo chown root:$__grp $PCPQA_PMCDOPTIONS
-	_service pmcd restart
-	_wait_for_pmcd
+	touch $tmp.restart
     fi
 }
 
@@ -358,7 +336,10 @@ then
 N
 s/.*MAKE[ 	]*=[ 	]*//p
 }'`
-    [ -n "$__make" ] && export MAKE=$__make
+    if [ -n "$__make" ]
+    then
+	MAKE=$__make; export MAKE
+    fi
 fi
 
 if $__check
@@ -604,7 +585,7 @@ show-me options
 
 	-CI)	# run in CI environment
 		# TODO still need -x x11 -x remote -x not_in_ci
-	    export PCPQA_IN_CI=yes
+	    PCPQA_IN_CI=yes; export PCPQA_IN_CI
 	    __xpand=false
 	    ;;
 
@@ -925,11 +906,27 @@ then
 else
     ./mk.localconfig
 
-    $OPTION_AGENTS && _haveagents
-    $OPTION_LOGGER && _havelogger
-    $OPTION_REMOTE && _haveremote
+    rm -f $tmp.restart
     $OPTION_PMCD_TRACE && _havepmcdtrace
     $OPTION_PMCD_LIMITS && _setpmcdlimits
+    $OPTION_AGENTS && _haveagents
+
+    if [ -f $tmp.restart ]
+    then
+	__grp=root
+	case $PCP_PLATFORM
+	in
+	    freebsd|netbsd|openbsd)
+		    __grp=wheel
+		    ;;
+	esac
+	$sudo chown root:$__grp $PCPQA_PMCDOPTIONS
+	_service pmcd restart
+	_wait_for_pmcd
+    fi
+
+    $OPTION_REMOTE && _haveremote
+    $OPTION_LOGGER && _havelogger
 
     if [ -f GNUmakefile.install ]
     then

@@ -4,10 +4,15 @@
 #
 
 rm -f exports
-sed <../../libpcp/src/exports >exports \
-    -e '/ local: \*;/i\
-    __pmFault_malloc;\
-    __pmFault_realloc;\
-    __pmFault_strdup;\
+if [ ! -f ../../libpcp/src/exports ]
+then
+    echo "mk.exports: Missing: ../../libpcp/src/exports"
+    exit 1
+fi
 
-'
+awk <../../libpcp/src/exports >exports '
+			{ print }
+$1 == "global:"	{ print "    __pmFault_malloc;"
+		  print "    __pmFault_realloc;"
+		  print "    __pmFault_strdup;"
+		}'

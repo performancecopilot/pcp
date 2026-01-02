@@ -60,7 +60,7 @@ testme.bigbin = sample.bigbin
 End-of-File
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=$tmp.conf
+PCP_DERIVED_CONFIG=$tmp.conf; export PCP_DERIVED_CONFIG
 src/ctx_derive 2>&1 -c -l 2 -M 1 -P \
     testme.big testme.lights testme.bigbin \
 | _filter

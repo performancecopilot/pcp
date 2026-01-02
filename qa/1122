@@ -29,7 +29,7 @@ no.such.metric > 0 || sample.long.hundred > 99 -> print "OK disjunction";
 ! (some_inst (sample.bin == 42) && no.such.metric > 0) -> print "OK conjunction";
 End-of-File
 
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 pmie -t 1 -T 0.5 -c $tmp.config 2>$tmp.err \
 | sed \
     -e 's/[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9] [0-9][0-9][0-9][0-9]/DATE/' \

@@ -60,7 +60,6 @@ libjson-perl
 liblist-moreutils-perl
 liblzma-dev
 libncurses-dev
-libncurses5-dev
 libnet-snmp-perl
 libperl5.36
 libpfm4-dev

@@ -109,7 +109,7 @@ echo "\$@" > $tmp.kubectl.args
 EOF
 chmod 755 $tmp.kubectl.sh
 
-export PCP_KUBECTL_PROG=$tmp.kubectl.sh
+PCP_KUBECTL_PROG=$tmp.kubectl.sh; export PCP_KUBECTL_PROG
 
 echo "== discovery directory" >> $seq_full
 find $tmp.discover >> $seq_full

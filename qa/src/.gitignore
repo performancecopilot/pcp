@@ -85,6 +85,7 @@ fetchpdu
 fetchrate
 fetchrate_lite
 fetchrate_lite.c
+genpmns
 getconfig
 getcontexthost
 getdomainname

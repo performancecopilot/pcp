@@ -65,7 +65,7 @@ cat <<End-of-File >$tmp.config
 my.scramble.bin = sample.scramble.bin
 my.scramble.delta = delta(sample.scramble.bin)
 End-of-File
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pmstore sample.scramble.version 0 | _filter_store
 for i in 1 2 3 4 5 6
 do

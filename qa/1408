@@ -26,7 +26,7 @@ _cleanup()
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
-export DISPLAY=$PCPQA_CLOSE_X_SERVER
+DISPLAY=$PCPQA_CLOSE_X_SERVER; export DISPLAY
 _check_display
 
 _filter()
@@ -35,7 +35,7 @@ _filter()
 }
 
 # real QA test starts here
-export PCP_STDERR=$tmp.err
+PCP_STDERR=$tmp.err; export PCP_STDERR
 pmchart -C -a /no/such/file -z 2>&1 | _filter
 if [ -s $tmp.err ]
 then

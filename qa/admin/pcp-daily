@@ -289,42 +289,13 @@ in
 	;;
     *)
 	# Debian packaging ...
-	apt_ver=`apt-get -v | sed -n -e '/^apt/{
-s/apt //
-s/ .*//p
-}'`
-	case "$apt_ver"
-	in
-	    #0.*|1.0.*)
-	    *)
-		# the old-school dpkg way
-		#
-		if yes Y | sudo dpkg -i --auto-deconfigure --force-depends build/deb/*.deb >>$HOME/daily.log 2>&1
-		then
-		    echo "Info: dpkg install" | tee -a $HOME/daily.log
-		else
-		    echo "Error: dpkg failed!" | tee -a $HOME/daily.log
-		    exit 1
-		fi
-		;;
-	    #*)
-	    do-not-do-this-any-more)
-		# this does not work reliably ...
-		#
-		# the new-school apt-get way
-		#
-		here=`pwd`
-		cd build/deb
-		if sudo apt-get --yes --reinstall install ./*.deb >>$HOME/daily.log 2>&1
-		then
-		    echo "Info: apt-get install" | tee -a $HOME/daily.log
-		else
-		    echo "Error: apt-get failed!" | tee -a $HOME/daily.log
-		    exit 1
-		fi
-		cd $here
-		;;
-	esac
+	if yes Y | sudo dpkg -i --auto-deconfigure --force-depends `ls build/deb/*.deb | sed -e '/-dbgsym_/d'` >>$HOME/daily.log 2>&1
+	then
+	    echo "Info: dpkg install" | tee -a $HOME/daily.log
+	else
+	    echo "Error: dpkg failed!" | tee -a $HOME/daily.log
+	    exit 1
+	fi
 	notfound=false
 	;;
 esac
@@ -787,7 +758,7 @@ do
 	bozo|vm03)
 	    # run both the valgrind and the non-valgrind variants of tests
 	    #
-	    valgrind_opt='export PCPQA_VALGRIND=both'
+	    valgrind_opt='PCPQA_VALGRIND=both'; export PCPQA_VALGRIND
 	    ;;
 
 	oracle)
@@ -929,7 +900,7 @@ do
 		    # exclude the valgrind group and force the non-valgrind
 		    # variants to be run
 		    #
-		    valgrind_opt='export PCPQA_VALGRIND=both'
+		    valgrind_opt='PCPQA_VALGRIND=both'; export PCPQA_VALGRIND
 		    [ X"$what" = Xall ] && check_what="$check_what -x valgrind"
 		    echo "Exclude valgrind group for distro=$distro"
 		    ;;
@@ -1234,7 +1205,7 @@ End-of-File
 		    # not only unexecutable but us unreadable for mere
 		    # mortals) ... sigh
 		    # 
-		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; export PATH=\$PATH:/sbin:/usr/sbin; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
+		    ssh -f -t -q $build_user@$host "sync; sleep 2; sync; PATH=\$PATH:/sbin:/usr/sbin; export PATH; if sudo which poweroff >/dev/null 2>&1; then sudo poweroff; elif sudo which shutdown >/dev/null 2>&1; then if sudo shutdown -\? 2>&1 | grep 'usage.*-[a-z]*p' >/dev/null; then sudo shutdown -p now; else sudo shutdown -P now; fi; fi" </dev/null &
 		    i=0
 		    rm -f $tmp.done
 		    while [ $i -lt 60 ]

@@ -43,8 +43,8 @@ _slice_sort_reassemble()
 
 # real QA test starts here
 root=$tmp.root
-export LINUX_STATSPATH=$root
-export LINUX_MDADM=/bin/true
+LINUX_STATSPATH=$root; export LINUX_STATSPATH
+LINUX_MDADM=/bin/true; export LINUX_MDADM
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 metrics=`pminfo -L -K clear -K add,60,$pmda disk.dev disk.dm hinv.map.scsi_id | LC_COLLATE=POSIX sort`
 

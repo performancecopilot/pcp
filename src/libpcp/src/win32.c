@@ -687,7 +687,7 @@ random(void)
 void
 srandom(unsigned int seed)
 {
-    srandom(seed);
+    srand(seed);
 }
 
 long int
@@ -724,51 +724,6 @@ rindex(const char *string, int marker)
 	if (*p == marker)
 	    return p;
     return NULL;
-}
-
-char *
-strcasestr(const char *string, const char *substr)
-{
-    int i, j;
-    int sublen = strlen(substr);
-    int length = strlen(string) - sublen + 1;
-
-    for (i = 0; i < length; i++) {
-	for (j = 0; j < sublen; j++)
-	    if (toupper(string[i+j]) != toupper(substr[j]))
-		goto outerloop;
-	return (char *) substr + i;
-    outerloop:
-	continue;
-    }
-    return NULL;
-}
-
-char *
-strsep(char **stringp, const char *delim)
-{
-    char	*ss, *se;
-    const char	*dp;
-
-    if ((ss = *stringp) == NULL)
-	return NULL;
-
-    for (se = ss; *se; se++) {
-	for (dp = delim; *dp; dp++) {
-	    if (*se == *dp)
-		break;
-	}
-    }
-
-    if (*se != '\0') {
-	/* match: terminate and update stringp to point past match */
-	*se++ = '\0';
-	*stringp = se;
-    }
-    else
-	*stringp = NULL;
-
-    return ss;
 }
 
 void *

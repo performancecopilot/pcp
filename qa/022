@@ -20,6 +20,7 @@ pminfo proc.nprocs >/dev/null 2>&1 || _notrun "proc PMDA not installed"
 _get_libpcp_config
 target="-h localhost"
 $unix_domain_sockets && target="-h unix:"
+echo "target=$target" >>$seq_full
 
 rm -f $seq.out
 test -f $seq.out.$PCP_PLATFORM || _notrun "No validated output for $PCP_PLATFORM"
@@ -94,7 +95,7 @@ s/value \[.*\]/value BINARYDATA/
 
 # real QA test starts here
 
-echo "=== pminfo -F output ===" >$seq_full
+echo "=== pminfo -F output ===" >>$seq_full
 
 # try fetching all proc metrics
 # cull out the not supported msg component

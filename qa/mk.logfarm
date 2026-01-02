@@ -32,7 +32,7 @@ then
     echo "mk.logfarm: Error: cannot find PCP_BINADM_DIR from /etc/pcp.conf"
     exit
 fi
-export PATH=$PCP_BINADM_DIR:$PATH
+PATH=$PCP_BINADM_DIR:$PATH; export PATH
 if which pmlogrewrite >/dev/null 2>&1
 then
     :

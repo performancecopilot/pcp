@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 _filter()
 {

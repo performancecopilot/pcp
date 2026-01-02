@@ -31,7 +31,7 @@ _filter_instances()
 
 # real QA test starts here
 root=$tmp.root
-export LINUX_STATSPATH=$root
+LINUX_STATSPATH=$root; export LINUX_STATSPATH
 pmda=$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init
 local="-L -K clear -K add,60,$pmda"
 

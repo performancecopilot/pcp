@@ -27,7 +27,7 @@ _filter()
 
 
 root=$tmp.root
-export XFS_STATSPATH=$root
+XFS_STATSPATH=$root; export XFS_STATSPATH
 pmda=$PCP_PMDAS_DIR/xfs/pmda_xfs,xfs_init
 
 for tgz in $here/linux/xfs-*.tgz

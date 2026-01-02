@@ -36,9 +36,9 @@ _filter()
 
 # real QA test starts here
 mkdir $tmp.root
-export LINUX_NCPUS=8
-export LINUX_NNODES=1
-export LINUX_STATSPATH=$tmp.root
+LINUX_NCPUS=8; export LINUX_NCPUS
+LINUX_NNODES=1; export LINUX_NNODES
+LINUX_STATSPATH=$tmp.root; export LINUX_STATSPATH
 cd $tmp.root
 tar xzf $here/linux/meminfo-root-001.tgz
 cd $here

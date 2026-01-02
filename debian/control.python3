@@ -2,7 +2,10 @@
 Package: python3-pcp
 Section: python
 Architecture: any
-Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends}, libpcp4 (= ${binary:Version}), libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}), libpcp-gui2 (= ${binary:Version}), libpcp-import1 (= ${binary:Version})
+Depends: ${python3:Depends}, ${misc:Depends}, ${shlibs:Depends}, python3,
+	libpcp4 (= ${binary:Version}), libpcp-pmda3 (= ${binary:Version}),
+	libpcp-mmv1 (= ${binary:Version}), libpcp-gui2 (= ${binary:Version}),
+	libpcp-import1 (= ${binary:Version})
 Description: Performance Co-Pilot Python3 PMAPI module
  The PCP Python3 module contains the language bindings for
  building Performance Metric API client tools using Python3.
@@ -22,7 +25,7 @@ Description: Tool for importing JSON benchmark results into PCP archive logs
  results into PCP archives for replay with PCP analysis tools.
 
 Package: pcp-import-guidellm2pcp
-Depends: pcp-import-benchmarks ${misc:Depends}
+Depends: pcp-import-benchmarks, ${misc:Depends}
 Architecture: all
 Priority: optional
 Section: oldlibs

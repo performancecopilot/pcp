@@ -37,6 +37,8 @@ resize_logports(int newsize)
 		free(logport[i].pmcd_host);
 	    if (logport[i].archive != NULL)
 		free(logport[i].archive);
+	    if (logport[i].note != NULL)
+		free(logport[i].note);
 	    if (logport[i].name != NULL)
 		free(logport[i].name);
 	}
@@ -267,6 +269,21 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 		    if (q != NULL)
 			*q = '\0';
 		    lpp->archive = strdup(buf);
+		    if (fgets(buf, MAXPATHLEN, pfile) == NULL) {
+			/* no annotation */
+			lpp->note = NULL;
+		    }
+		    q = strchr(buf, '\n');
+		    if (q != NULL)
+			*q = '\0';
+		    if (q > buf) {
+			/* real annotation, e.g. reexec */
+			lpp->note = strdup(buf);
+		    }
+		    else {
+			/* empty annotation */
+			lpp->note = NULL;
+		    }
 		}
 	    }
 	    fclose(pfile);
@@ -280,6 +297,10 @@ __pmLogFindLocalPorts(int pid, __pmLogPort **result)
 		if (lpp->archive != NULL) {
 		    free(lpp->archive);
 		    lpp->archive = NULL;
+		}
+		if (lpp->note != NULL) {
+		    free(lpp->note);
+		    lpp->note = NULL;
 		}
 		break;
 	    }

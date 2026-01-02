@@ -15,7 +15,7 @@ _usage()
     exit 1
 }
 
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 
 verbose=false
 very_verbose=false

@@ -69,7 +69,7 @@ src/pmprintf foo bee doo
 
 # Expect something in an xconfirm
 echo "DISPLAY=$DISPLAY" >>$seq_full
-export PCP_STDERR=DISPLAY
+PCP_STDERR=DISPLAY; export PCP_STDERR
 if [ -z "$PCP_XCONFIRM_PROG" ]
 then
     echo 'Error: $PCP_XCONFIRM_PROG not set'

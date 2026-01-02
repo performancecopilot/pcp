@@ -76,7 +76,7 @@ End-of-File
 
 args="qa$seq.a qa$seq.sub.a qa$seq.sub.sub.a qa$seq.sub.sub.f qa$seq.sub"
 
-export PCP_DERIVED_CONFIG=$tmp.config.global
+PCP_DERIVED_CONFIG=$tmp.config.global; export PCP_DERIVED_CONFIG
 
 if [ "$1" = "--valgrind" ]
 then

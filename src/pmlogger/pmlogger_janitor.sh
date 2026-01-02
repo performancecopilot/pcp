@@ -77,7 +77,7 @@ _cleanup()
     lockfile=`cat $tmp/lock 2>/dev/null`
     [ -n "$lockfile" ] && rm -f "$lockfile"
     rm -rf $tmp
-    $VERBOSE && echo >&2 "End [janitor]: `_datestamp` status=$status"
+    $VERBOSE && echo "End [janitor]: `_datestamp` status=$status"
 }
 
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -230,8 +230,8 @@ else
     exec 3>&2 1>"$MYPROGLOG" 2>&1
 fi
 
-$VERBOSE && echo >&2 "Start [janitor]: `_datestamp`"
-$VERY_VERBOSE && _pstree_all >&2 $$
+$VERBOSE && echo "Start [janitor]: `_datestamp`"
+$VERY_VERBOSE && _pstree_all $$
 
 # if SaveLogs exists in the $PCP_LOG_DIR/pmlogger directory and is writeable
 # then save $MYPROGLOG there as well with a unique name that contains the date
@@ -341,20 +341,21 @@ _callback_log_control()
     then
 	pflag=''
 	[ $primary = y ] && pflag=' -P'
-	echo >&2 "Checking for: pmlogger$pflag -h $host ... in $dir ..."
+	echo "Checking for: pmlogger$pflag -h $host ... in $dir ..."
     fi
 
     pid=`_find_matching_pmlogger`
 
     if [ -n "$pid" ]
     then
-	# found matching pmlogger ... cull this one from
+	# found matching pmlogger ... cull this one from $tmp/loggers
+	#
 	if $VERY_VERBOSE
 	then
-	    echo >&2 "[$filename:$line] match PID $pid, nothing to be done"
+	    echo "[$filename:$line] match PID $pid, nothing to be done"
 	elif $VERBOSE
 	then
-	    echo >&2 "Pass 3: PID $pid matches control [$filename:$line], nothing to be done"
+	    echo "Pass 3: PID $pid matches control [$filename:$line], nothing to be done"
 	fi
 	sed <$tmp/loggers >$tmp/tmp -e "/^$pid	/d"
 	mv $tmp/tmp $tmp/loggers
@@ -391,6 +392,54 @@ then
     | while read file
     do
 	pid=`echo "$file" | sed -e "s@$PCP_TMP_DIR/pmlogger/@@"`
+	# sanity checks
+	# 1. does this process exist?
+	# 2. is it really pmlogger?
+	# if "no" to either case, remove this (stale) mapfile
+	# and move on ...
+	#
+	if $PCP_PS_PROG -p "$pid" >$tmp/tmp 2>&1
+	then
+	    # ps(1) -p output should be something like this ...
+	    #     PID TTY          TIME CMD
+	    #   14298 ?        00:00:00 pmlogger
+	    # or this (for FreeBSD)
+	    #   PID TT  STAT    TIME COMMAND
+	    # 22839  1  S    0:00.04 /usr/libexec/pcp/bin/pmlogger -N -P ...
+	    # or this (for OpenBSD)
+	    #   PID TT  STAT        TIME COMMAND
+	    #   10619 p1- S        0:00.01 pmlogger -L -c ...
+	    #
+	    if sed -n -e 2p <$tmp/tmp | grep -E -q '( pmlogger$)|(/bin/pmlogger )|( pmlogger )'
+	    then
+		: OK
+	    else
+		if $VERBOSE
+		then
+		    cat $tmp/tmp
+		    echo "Warning: PID $pid is not a pmlogger process, removing $file"
+		fi
+		if $SHOWME
+		then
+		    echo "+ rm $file"
+		else
+		    rm -f "$file"
+		fi
+		continue
+	    fi
+	else
+	    if $VERBOSE
+	    then
+		echo "Warning: PID $pid has vanished, removing $file"
+	    fi
+	    if $SHOWME
+	    then
+		echo "+ rm $file"
+	    else
+		rm -f "$file"
+	    fi
+	    continue
+	fi
 	# timing window here, file may have gone away between
 	# find(1) and awk(1), so just ignore any errors ...
 	#
@@ -407,10 +456,10 @@ if $VERBOSE
 then
     if [ -s $tmp/loggers ]
     then
-	echo >&2 "Pass 1: pmloggers from $PCP_TMP_DIR/pmlogger"
-	_debug_report >&2 $tmp/loggers
+	echo "Pass 1: pmloggers from $PCP_TMP_DIR/pmlogger"
+	_debug_report $tmp/loggers
     else
-	echo >&2 "Pass 1: no pmloggers from $PCP_TMP_DIR/pmlogger"
+	echo "Pass 1: no pmloggers from $PCP_TMP_DIR/pmlogger"
 	ls -l $PCP_TMP_DIR/pmlogger
     fi
 fi
@@ -449,12 +498,12 @@ if [ -s $tmp/tmp ]
 then
     if $VERBOSE
     then
-	echo >&2 "Pass 2: add pmloggers from $PCP_PS_PROG $PCP_PS_ALL_FLAGS"
-	_debug_report >&2 $tmp.tmp
+	echo "Pass 2: add pmloggers from $PCP_PS_PROG $PCP_PS_ALL_FLAGS"
+	_debug_report $tmp/tmp
     fi
     cat $tmp/tmp >>$tmp/loggers
 else
-    $VERBOSE && echo >&2 "Pass 2: no additional pmloggers from $PCP_PS_PROG $PCP_PS_ALL_FLAGS"
+    $VERBOSE && echo "Pass 2: no additional pmloggers from $PCP_PS_PROG $PCP_PS_ALL_FLAGS"
 fi
 
 # Pass 3 - parse the control file(s) culling pmlogger instances that
@@ -466,36 +515,6 @@ for c in $CONTROL $append
 do
     _parse_log_control "$c"
 done
-
-# check for any archives from remote pmloggers via pmproxy or
-# pmlogpush ... if found, synthesize a control file for them
-#
-here=`pwd`
-if cd "$PCP_REMOTE_ARCHIVE_DIR"
-then
-    for _host in *
-    do
-	# TODO - does this need to be smarter?  e.g. check for some
-	# minimal dir contents (.index file?)
-	if [ -d "$_host" ]
-	then
-	    $VERBOSE && echo >&2 "Info: processing archives from remote pmlogger on host $_host"
-	    echo '$version=1.1' >$tmp/control
-	    # optional global controls first
-	    [ -f "./control" ] && cat "./control" >>$tmp/control
-	    # optional per-host controls next
-	    [ -f "$_host/control" ] && cat "$_host/control" >>$tmp/control
-	    echo "$_host	n n PCP_REMOTE_ARCHIVE_DIR/$_host +" >>$tmp/control
-	    if $VERY_VERBOSE
-	    then
-		echo >&2 "Synthesized control file ..."
-		cat >&2 $tmp/control
-	    fi
-	    _parse_log_control $tmp/control
-	fi
-    done
-    cd $here
-fi
 
 if [ ! -s $tmp/loggers ]
 then
@@ -580,7 +599,8 @@ fi
 #
 sleep 3
 
-# check all the SIGTERM'd loggers really died - if not, use a bigger hammer.
+# Pass 6 - check all the SIGTERM'd loggers really died
+# - if not, use a bigger hammer.
 # 
 if $SHOWME
 then
@@ -591,7 +611,7 @@ else
     do
 	if $PCP_PS_PROG -p "$pid" >/dev/null 2>&1
 	then
-	    echo "Killing (KILL) pmlogger with PID $pid"
+	    echo "Pass 6: Killing (KILL) pmlogger with PID $pid"
 	    $KILL -s KILL $pid >/dev/null 2>&1
 	    delay=30        # tenths of a second
 	    while $PCP_PS_PROG -f -p "$pid" >$tmp/alive 2>&1

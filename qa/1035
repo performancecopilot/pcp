@@ -25,7 +25,7 @@ perl $PCP_PMDAS_DIR/oracle/connect.pl >$seq_full 2>&1
 [ $? -eq 0 ] || _notrun "Oracle database connectivity unavailable"
 
 # pick a sensible sounding default SID for oraenv
-[ -n "$ORACLE_SID" ] && export ORACLE_SID=master
+[ -n "$ORACLE_SID" ] && ORACLE_SID=master; export ORACLE_SID
 oraenv=`which oraenv 2>/dev/null`
 [ $? -eq 0 ] || _notrun "Oracle environment setup script (oraenv) not found"
 . $oraenv </dev/null >/dev/null

@@ -88,7 +88,7 @@ if grep -F "CONFIGURE-ME-PLEASE" $default_configfile >/dev/null
 then
     # nslookup(1) may be hiding, like for OpenIndiana
     #
-    export PATH=$PATH:/usr/sbin
+    PATH=$PATH:/usr/sbin; export PATH
     nslookup=`which nslookup 2>/dev/null`
     if [ -z "$nslookup" ]
     then

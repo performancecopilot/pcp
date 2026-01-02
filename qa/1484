@@ -69,7 +69,7 @@ _myls()
 
 umask 022
 mkdir $tmp
-export PCP_LOG_DIR=$tmp/log
+PCP_LOG_DIR=$tmp/log; export PCP_LOG_DIR
 
 # real QA test starts here
 

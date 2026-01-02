@@ -361,7 +361,7 @@ END		{ if (found != 1)
 # --- MAINLINE ---
 #
 
-export LC_COLLATE=POSIX
+LC_COLLATE=POSIX; export LC_COLLATE
 
 if [ -f /etc/pcp.conf ]
 then
@@ -527,7 +527,7 @@ do
 	then
 	    :
 	else
-	    export PATH="$PATH:$dir"
+	    PATH="$PATH:$dir"; export PATH
 	    #debug# echo add $dir to \$PATH
 	fi
     fi

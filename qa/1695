@@ -60,8 +60,8 @@ _check_key_server_version $key_server_port
 # start pmproxy
 port=`_find_free_port`
 mkdir -p $tmp.pmproxy/pmproxy
-export PCP_RUN_DIR=$tmp.pmproxy
-export PCP_TMP_DIR=$tmp.pmproxy
+PCP_RUN_DIR=$tmp.pmproxy; export PCP_RUN_DIR
+PCP_TMP_DIR=$tmp.pmproxy; export PCP_TMP_DIR
 
 $valgrind_clean_assert pmproxy -f -r $key_server_port -p $port -U $username -l- -c $tmp.conf >$tmp.valout 2>$tmp.valerr &
 pid=$!

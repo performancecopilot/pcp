@@ -25,8 +25,8 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 src/err 0
 
 echo
-export PM_FAULT_CONTROL=$tmp.control
-export LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+PM_FAULT_CONTROL=$tmp.control; export PM_FAULT_CONTROL
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 cat >$tmp.control <<End-of-File
 libpcp/err.c:1
 End-of-File

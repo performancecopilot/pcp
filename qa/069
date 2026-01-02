@@ -223,10 +223,10 @@ cat $config >>$seq_full
 # may cleanse the environment, which also means we cannot use
 # the _service wrapper
 #
-export PMCD_CONNECT_TIMEOUT=30
-export PMCD_PORT=$port
-echo "export PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT" >$tmp.start
-echo "export PMCD_PORT=$PMCD_PORT" >>$tmp.start
+PMCD_CONNECT_TIMEOUT=30; export PMCD_CONNECT_TIMEOUT
+PMCD_PORT=$port; export PMCD_PORT
+echo "PMCD_CONNECT_TIMEOUT=$PMCD_CONNECT_TIMEOUT; export PMCD_CONNECT_TIMEOUT" >$tmp.start
+echo "PMCD_PORT=$PMCD_PORT; export PMCD_PORT" >>$tmp.start
 echo "$PCP_RC_DIR/pmcd restart" >>$tmp.start
 $sudo sh $tmp.start 2>&1 \
 | tee -a $seq_full \

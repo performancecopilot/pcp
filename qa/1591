@@ -52,7 +52,7 @@ _filter()
 # we have no PMAPI contexts here ... so no timezone reporting, hence
 # force us into UTC
 #
-export TZ=UTC
+TZ=UTC; export TZ
 
 # real QA test starts here
 

@@ -130,7 +130,7 @@ mkdir $tmp
 cd $tmp
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 
 echo "=== merge fails because output archive already exists ==="
 _setup

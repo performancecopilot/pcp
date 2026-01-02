@@ -179,13 +179,13 @@ sleep 2
 $sudo netstat -t -l -4 -p | grep '4432[23]' >>$seq_full
 
 mkdir -p $tmp.rundir
-export PCP_RUN_DIR=$tmp.rundir
+PCP_RUN_DIR=$tmp.rundir; export PCP_RUN_DIR
 proxyargs="-Dcontext -U $username"
 $PCP_BINADM_DIR/pmproxy $proxyargs -l $tmp.log 2>&1 | _filter_pmproxy
 _wait_for_pmproxy || _exit 1
 $sudo netstat -t -l -4 -p | grep '4432[23]' >>$seq_full
 
-export PMPROXY_HOST=localhost
+PMPROXY_HOST=localhost; export PMPROXY_HOST
 $PCP_BINADM_DIR/pmcd_wait -t 5sec -h localhost@localhost
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)' >>$seq_full
 cat $tmp.log >> $seq_full

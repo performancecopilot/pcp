@@ -12,7 +12,7 @@
 # for more details.
 # 
 
-TOPDIR = ../..
+TOPDIR = ..
 include $(TOPDIR)/src/include/builddefs
 
 CSSFILES = $(shell echo *.css)

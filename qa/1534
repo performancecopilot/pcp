@@ -62,7 +62,7 @@ $sudo rm -fr $root
 mkdir $root || _fail "root in use when processing $tgz"
 cd $root
 $sudo tar xzf $tgz
-export ZFS_PATH=$root/zfs
+ZFS_PATH=$root/zfs; export ZFS_PATH
 echo "== Valgrind checking metric descriptors and values with 1 pool"
 _run_valgrind pminfo -L -K clear -K add,153,$pmda -dfmtT -n $pmns zfs.pool 2>&1 | _filter
 echo "== Valgrind checking metric descriptors and values with 2 pools"

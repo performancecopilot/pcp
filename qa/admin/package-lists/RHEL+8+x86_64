@@ -5,6 +5,7 @@ HdrHistogram_c
 List::MoreUtils cpan
 Net::SNMP cpan
 Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
 Spreadsheet::XLSX cpan
 audit
 autoconf

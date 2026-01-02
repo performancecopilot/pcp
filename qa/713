@@ -98,16 +98,16 @@ _wait_for_pmproxy || _exit 1
 # and no requirement to verify client certificate.
 echo
 echo "checking client, server certificate only.  should pass..." | tee -a $seq_full
-export PMPROXY_HOST=$hostname
-export PCP_SECURE_SOCKETS=enforce
+PMPROXY_HOST=$hostname; export PMPROXY_HOST
+PCP_SECURE_SOCKETS=enforce; export PCP_SECURE_SOCKETS
 yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 unset PMPROXY_HOST PCP_SECURE_SOCKETS
 
 # make the new certificate visible to just this user
 echo
 echo "checking client, user certificate only.  should pass..."
-export PMPROXY_HOST=$hostname
-export PCP_SECURE_SOCKETS=enforce
+PMPROXY_HOST=$hostname; export PMPROXY_HOST
+PCP_SECURE_SOCKETS=enforce; export PCP_SECURE_SOCKETS
 yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 # Try a second connection

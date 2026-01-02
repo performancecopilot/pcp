@@ -16,6 +16,10 @@ echo "QA output created by $seq"
 $python -c "from pcp import pmda" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
 
+# need nfsclient PMDA running to get the PMNS
+#
+( pmprobe -I pmcd.agent.status | grep -q '"nfsclient"' ) || _notrun "nfsclient PMNDA not installed and running"
+
 status=1
 rm -f $seq.out
 wordsize=`$python -c 'import ctypes; print(ctypes.sizeof(ctypes.c_long))'`
@@ -114,7 +118,9 @@ script=pmdanfsclient.python
 cd "$PCP_PMDAS_DIR/nfsclient"
 
 # create a root namespace file for dbpmda to use
-PCP_PYTHON_PMNS=root $python $script > $tmp.root
+# PCP_PYTHON_PMNS=root $python $script > $tmp.root
+$here/src/genpmns nfsclient >$tmp.root
+cat $tmp.root >>$seq_full
 
 # create a set of commands for dbpmda
 cat >$tmp.cmds <<End-of-File
@@ -298,7 +304,7 @@ End-of-File
 test="$here/nfsclient"
 for file in $test/*.qa
 do
-    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    NFSCLIENT_MOUNTSTATS_PATH="$file"; export NFSCLIENT_MOUNTSTATS_PATH
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
@@ -311,7 +317,7 @@ done
 # iterate over pre-canned nfsv3 mountstat files
 for file in $test/*3.qa
 do
-    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    NFSCLIENT_MOUNTSTATS_PATH="$file"; export NFSCLIENT_MOUNTSTATS_PATH
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
@@ -324,7 +330,7 @@ done
 # iterate over pre-canned nfsv4.2 mountstat files
 for file in $test/*42.qa
 do
-    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    NFSCLIENT_MOUNTSTATS_PATH="$file"; export NFSCLIENT_MOUNTSTATS_PATH
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \
@@ -337,7 +343,7 @@ done
 # iterate over pre-canned rpcv1.[01] mountstat files
 for file in $test/*rpc-v*.qa
 do
-    export NFSCLIENT_MOUNTSTATS_PATH="$file"
+    NFSCLIENT_MOUNTSTATS_PATH="$file"; export NFSCLIENT_MOUNTSTATS_PATH
     echo === Test case: `basename $file`
     $sudo rm -f nfsclient.log* $PCP_VAR_DIR/config/pmda/$domain.0
     $sudo TERM=ansi \

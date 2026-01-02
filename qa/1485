@@ -68,7 +68,7 @@ inerr == 0		{ print >"'"$tmp.out"'" }'
 }
 
 mkdir -p $tmp/root
-export LINUX_STATSPATH=$tmp/root
+LINUX_STATSPATH=$tmp/root; export LINUX_STATSPATH
 
 # real QA test starts here
 

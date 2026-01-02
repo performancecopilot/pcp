@@ -35,7 +35,7 @@ log mandatory on default {
 EOF
 
 # real QA test starts here
-export PMLOGGER_INTERVAL=1
+PMLOGGER_INTERVAL=1; export PMLOGGER_INTERVAL
 
 pmlogger -c $tmp.config -l $tmp.log -T 5sec $tmp.qa
 pmlogsummary -y $tmp.qa hinv.ncpu > $tmp.summary

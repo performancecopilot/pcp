@@ -1,0 +1,90 @@
+#!/bin/sh
+# PCP QA Test No. 1645
+# pmlogcompress - new parameterization and defaults
+#
+# Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+mkdir $tmp || exit 1
+pmlogcp archives/ok-mv-bar $tmp
+cd $tmp
+
+# fake-compress program
+#
+cat <<'End-of-File' >./fake-xz
+#!/bin/sh
+
+echo "fake-xz: args ..."
+i=1
+for arg
+do
+    echo "  [$i]: \"$arg\""
+    i=`expr $i + 1`
+done
+End-of-File
+chmod 755 ./fake-xz
+ln fake-xz xz
+PATH=.:$PATH; export PATH
+
+sed <$PCP_SYSCONF_DIR/pmlogcompress/defaults >defaults \
+    -e '/^PCP_COMPRESS_PROGS=/s/=.*/=xz/' \
+    -e '/^PCP_COMPRESS_MIN_FILESIZE=/s/=.*/=1024/' \
+# end
+
+# real QA test starts here
+echo "=== pmlogcompress -C ./defaults -N -V ok-mv-bar"
+pmlogcompress -C ./defaults -N -V ok-mv-bar
+
+echo
+echo "=== pmlogcompress -C ./defaults ok-mv-bar"
+pmlogcompress -C ./defaults ok-mv-bar
+
+echo
+echo "=== pmlogcompress -l 4096 -V -C ./defaults ok-mv-bar"
+pmlogcompress -l 4096 -V -C ./defaults ok-mv-bar
+
+echo
+echo "=== PCP_COMPRESS_MIN_FILESIZE=4096 pmlogcompress -V -C ./defaults ok-mv-bar"
+PCP_COMPRESS_MIN_FILESIZE=4096 pmlogcompress -V -C ./defaults ok-mv-bar
+
+echo
+echo "=== pmlogcompress -A '--foobar=mumble -xyz' -V -C ./defaults ok-mv-bar"
+pmlogcompress -A '--foobar=mumble -xyz' -V -C ./defaults ok-mv-bar
+
+echo
+echo "=== PCP_COMPRESS_XZ_ARGS='--foobar=mumble -xyz' pmlogcompress -V -C ./defaults ok-mv-bar"
+PCP_COMPRESS_XZ_ARGS='--foobar=mumble -xyz' pmlogcompress -V -C ./defaults ok-mv-bar
+
+# success, all done
+exit

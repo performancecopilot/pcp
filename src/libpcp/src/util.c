@@ -78,6 +78,9 @@
 #include <mach/clock.h>
 #include <mach/mach.h>
 #endif
+#ifdef HAVE_TERMIOS_H
+#include <termios.h>
+#endif
 
 #define STR2(x) #x
 #define STR(X) STR2(X)
@@ -2194,6 +2197,35 @@ basename(char *name)
 	return(p+1);
 }
 #endif /* HAVE_BASENAME */
+
+#ifndef HAVE_CFMAKERAW
+/*
+   cfmakeraw function from nut-0.45.0 package
+   common.c - common useful functions
+   Copyright (C) 2000  Russell Kroll <rkroll@exploits.org>
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 2 of the License, or
+   (at your option) any later version.
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software
+   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+int cfmakeraw(struct termios *termios_p)
+{
+  termios_p->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
+                          |INLCR|IGNCR|ICRNL|IXON);
+  termios_p->c_oflag &= ~OPOST;
+  termios_p->c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
+  termios_p->c_cflag &= ~(CSIZE|PARENB);
+  termios_p->c_cflag |= CS8;
+  return 0;
+}
+#endif /* HAVE_CFMAKERAW */
 
 #ifndef HAVE_DIRNAME
 char *

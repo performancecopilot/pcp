@@ -30,8 +30,7 @@
 
 PMPROXY=$PCP_BINADM_DIR/pmproxy
 PMPROXYENVS=$PCP_SYSCONFIG_DIR/pmproxy
-pmprog=$PCP_SERVICES_DIR/pmproxy
-prog=$PCP_SYSCONF_DIR/pmproxy/`basename $0`
+prog=$PCP_SERVICES_DIR/pmproxy
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmproxy_rc.XXXXXXXXX"` || exit 1
 status=1
@@ -49,12 +48,7 @@ then
     $PCP_BINADM_DIR/pmpost "$logmsg"
 fi
 
-if [ $pmprog = $prog ]
-then
-    VERBOSE_CTL=on
-else
-    VERBOSE_CTL=off
-fi
+VERBOSE_CTL=off
 
 case "$PCP_PLATFORM"
 in
@@ -86,7 +80,7 @@ _shutdown()
     _get_pids_by_name pmproxy >$tmp/tmp
     if [ ! -s $tmp/tmp ]
     then
-	[ "$1" = verbose ] && echo "$pmprog: pmproxy not running"
+	[ "$1" = verbose ] && echo "$prog: pmproxy not running"
 	rm -f $PCP_RUN_DIR/pmproxy.pid $PCP_RUN_DIR/pmproxy.socket
 	return 0
     fi
@@ -145,12 +139,12 @@ _shutdown()
 	true && $RC_STATUS -v
     fi
     rm -f $PCP_RUN_DIR/pmproxy.pid
-    $PCP_BINADM_DIR/pmpost "stop pmproxy from $pmprog"
+    $PCP_BINADM_DIR/pmpost "stop pmproxy from $prog"
 }
 
 _usage()
 {
-    echo "Usage: $pmprog [-v] {start|faststart|restart|condrestart|stop|status|reload|force-reload}"
+    echo "Usage: $prog [-v] {start|faststart|restart|condrestart|stop|status|reload|force-reload}"
 }
 
 while getopts v c
@@ -247,7 +241,7 @@ Error: pmproxy log directory $PCP_LOG_DIR/pmproxy ("'"$PCP_LOG_DIR/pmproxy"'") i
 			    -e 's/ $//' \
 		    | tr '\012' ' ' `
 
-	    $PCP_BINADM_DIR/pmpost "start pmproxy from $pmprog"
+	    $PCP_BINADM_DIR/pmpost "start pmproxy from $prog"
 
 	    if [ "$1" = "start-systemd" ]
 	    then

@@ -35,7 +35,7 @@ _filter()
 
 # real QA test starts here
 root=$tmp.root
-export LINUX_STATSPATH=$root
+LINUX_STATSPATH=$root; export LINUX_STATSPATH
 pmda="60,$PCP_PMDAS_DIR/linux/pmda_linux.so,linux_init"
 metrics=`pminfo kernel.all.pressure | LC_COLLATE=POSIX sort`
 

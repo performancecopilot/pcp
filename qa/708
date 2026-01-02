@@ -36,7 +36,7 @@ echo "expect OK ..."
 grep OK $tmp.err
 
 echo
-export PCP_DERIVED_CONFIG=''
+PCP_DERIVED_CONFIG=''; export PCP_DERIVED_CONFIG
 pminfo --desc --fetch -z -a $tmp.pcplog qa.one qa.two | _filter
 
 # success, all done

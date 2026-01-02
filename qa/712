@@ -89,22 +89,22 @@ fi | _filter_pcp_start
 
 echo
 echo "checking client, generic certificate.  should pass..."
-export PCP_SECURE_SOCKETS=1
+PCP_SECURE_SOCKETS=1; export PCP_SECURE_SOCKETS
 yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 echo
 echo "checking client, no certificate verify.  should pass..." | tee -a $seq_full
-export PCP_SECURE_SOCKETS=1
-export PCP_TLSCONF_PATH=/dev/null
+PCP_SECURE_SOCKETS=1; export PCP_SECURE_SOCKETS
+PCP_TLSCONF_PATH=/dev/null; export PCP_TLSCONF_PATH
 yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
-export PCP_TLSCONF_PATH=$original
+PCP_TLSCONF_PATH=$original; export PCP_TLSCONF_PATH
 
 echo
 echo "checking client, verify certificate setup.  should pass..." | tee -a $seq_full
 cp $tmp.tls.orig $tmp.tls.conf
 echo "tls-verify-clients = true" >> $tmp.tls.conf
 $sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
-export PCP_SECURE_SOCKETS=1
+PCP_SECURE_SOCKETS=1; export PCP_SECURE_SOCKETS
 yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 echo
@@ -117,8 +117,8 @@ if ! _service pmcd start; then _exit 1; fi \
 | _filter_pcp_start
 _wait_for_pmcd || _exit 1
 $sudo cp $tmp.tls.conf $PCP_TLSCONF_PATH
-export PCP_TLSCONF_PATH=$original
-export PCP_SECURE_SOCKETS=1
+PCP_TLSCONF_PATH=$original; export PCP_TLSCONF_PATH
+PCP_SECURE_SOCKETS=1; export PCP_SECURE_SOCKETS
 yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 # check mode where separate client/server certificates are used
@@ -136,7 +136,7 @@ yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 #echo
 #echo "checking both client and server certificates.  should pass..." | tee -a $seq_full
-#export PCP_SECURE_SOCKETS=1
+#PCP_SECURE_SOCKETS=1; export PCP_SECURE_SOCKETS
 #yes | pminfo -h $hostname -f hinv.ncpu 2>&1 | tee -a $seq_full | _filter_tls
 
 # success, all done

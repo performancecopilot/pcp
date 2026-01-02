@@ -217,7 +217,7 @@ $sudo chown $PCP_USER:$PCP_GROUP $tmp
 
 # this one is set via the environment
 #
-export qatmp=$tmp
+qatmp=$tmp; export qatmp
 
 # control file
 #

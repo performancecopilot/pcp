@@ -47,7 +47,7 @@ echo; echo == Top3 processes by memory
 pcp $allopts atopsar -r $here/archives/pcp-atop -G | _filter
 
 echo; echo == Checking sample count and interval
-export PCP_ARCHIVE=$here/archives/pcp-atop
+PCP_ARCHIVE=$here/archives/pcp-atop; export PCP_ARCHIVE
 pcp -z atopsar -m 2 3 > $tmp.mem1
 pcp -z -t 2 -s 3 atopsar -m > $tmp.mem2
 test -s $tmp.mem1 || echo "Unexpected empty file 1"

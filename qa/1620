@@ -113,7 +113,7 @@ if ! _service pmproxy start 2>&1; then _exit 1; fi | _filter_pmproxy_start
 _wait_for_pmproxy || _exit 1
 pmproxy_pid=`cat $PCP_RUN_DIR/pmproxy.pid`
 
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 # pmlogger config
 cat >$tmp.conf << End-Of-File

@@ -30,10 +30,10 @@ _filter()
 
 # real QA test starts here
 root=$tmp.root
-export PROC_STATSPATH=$root
-export PROC_PAGESIZE=4096
-export PROC_THREADS=0
-export PROC_HERTZ=100
+PROC_STATSPATH=$root; export PROC_STATSPATH
+PROC_PAGESIZE=4096; export PROC_PAGESIZE
+PROC_THREADS=0; export PROC_THREADS
+PROC_HERTZ=100; export PROC_HERTZ
 pmda=$PCP_PMDAS_DIR/proc/pmda_proc.so,proc_init
 
 for tgz in $here/linux/procpid-*-root-*.tgz

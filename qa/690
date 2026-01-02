@@ -46,7 +46,7 @@ qa.c = matchinst(!/bin-[1-5]00/, sample.bin)
 qa.d = sample.bin[bin-300] + sample.part_bin[bin-300]
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pminfo -df -Dderive,appl1,appl2 qa >$tmp.out 2>&1
 cat $tmp.out >>$seq_full
 _filter
@@ -59,7 +59,7 @@ qa.a = matchinst(/123/, sampledso.bin)
 qa.d = sample.bin[bin-345] + sample.part_bin[bin-345]
 End-of-File
 
-export PCP_DERIVED_CONFIG=$tmp.config
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 pminfo -df -Dderive,appl1,appl2 qa >$tmp.out 2>&1
 cat $tmp.out >>$seq_full
 _filter

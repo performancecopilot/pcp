@@ -35,7 +35,7 @@ _cleanup()
 {
     [ -z "$pmcd_pid" ] || $sudo $signal $pmcd_pid
     [ -z "$socat_pid" ] || $sudo $signal $socat_pid
-    export PMCD_PORT=$port1
+    PMCD_PORT=$port1; export PMCD_PORT
     _wait_pmcd_end
     unset PMCD_PORT
     _service pmcd restart 2>&1 | _filter_pcp_restart \
@@ -85,7 +85,7 @@ END
 # Filter the stderr of this using a temp file
 pmcd_pid=`$sudo sh $tmp.sh 2>$tmp.tmp`
 cat $tmp.tmp 1>&2
-export PMCD_PORT=$port1
+PMCD_PORT=$port1; export PMCD_PORT
 _wait_for_pmcd || _exit 1
 unset PMCD_PORT
 

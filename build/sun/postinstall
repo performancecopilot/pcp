@@ -4,7 +4,7 @@
 # when she's ready.
 #
 
-export PATH=/usr/sbin:$PATH
+PATH=/usr/sbin:$PATH; export PATH
 
 if [ -f /etc/pcp.conf ]
 then

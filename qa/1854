@@ -33,7 +33,7 @@ _filter_label()
 }
 
 # real QA test starts here
-export PCP_DERIVED_CONFIG=""
+PCP_DERIVED_CONFIG=""; export PCP_DERIVED_CONFIG
 
 cat >> $tmp.config <<EOF
 log mandatory on once { hinv.ncpu }

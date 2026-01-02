@@ -32,9 +32,9 @@ _filter()
 }
 
 # real QA test starts here
-export DEFAULT_HOST=`hostname`
+DEFAULT_HOST=`hostname`; export DEFAULT_HOST
 mkdir -p $tmp/pmlogger/$DEFAULT_HOST
-export PCP_ARCHIVE_DIR=$tmp/pmlogger
+PCP_ARCHIVE_DIR=$tmp/pmlogger; export PCP_ARCHIVE_DIR
 
 echo "== Exercise scanning for the default localhost archives"
 $here/src/getoptions -O today | _filter

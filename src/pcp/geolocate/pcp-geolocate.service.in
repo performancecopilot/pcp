@@ -1,7 +1,6 @@
 [Unit]
 Description=PCP geographical location label service
 Documentation=man:pcp-geolocate(1)
-ConditionPathExists=!@PCP_SYSCONF_DIR@/labels/optional/geolocate
 After=network-online.target
 Before=pmcd.service
 

@@ -24,8 +24,8 @@ _usage()
     exit
 }
 
-export PCP_DERIVED_CONFIG=
-# export LC_COLLATE=C
+PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
+# LC_COLLATE=C; export LC_COLLATE
 
 # default is to not report 32-bit vs 64-bit differences
 ignore_size=true
