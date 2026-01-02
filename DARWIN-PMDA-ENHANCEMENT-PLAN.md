@@ -27,9 +27,11 @@
 
 1. **Execute one step at a time** - complete implementation, tests, docs
 2. **Run test runner** after each step (or smaller units for feedback)
-3. **Pause for user review** - present changes for review
-4. **Wait for user approval** - user signals when to commit
-5. **Commit only after approval** - then proceed to next step
+3. **Run code review** - use `pcp-code-reviewer` agent to validate code quality and PCP standards
+4. **Fix any issues** - address critical and important findings from code review
+5. **Pause for user review** - present changes for review
+6. **Wait for user approval** - user signals when to commit
+7. **Commit only after approval** - then proceed to next step
 
 ---
 
@@ -348,6 +350,78 @@ Document that detailed TCP statistics (retransmits, timeouts, segment counts) ar
 3. **UDP/ICMP stats work** - via sysctl struct access
 4. **Each step independently committable** - with full test coverage
 5. **No Claude Code commit footer** - user preference
+
+---
+
+## Error Handling and Code Quality
+
+### Error Handling Pattern: Fail Fast
+
+The darwin PMDA uses a **fail-fast** error handling pattern throughout. This is the standard for all refresh functions:
+
+**✅ CORRECT Pattern (Fail Fast):**
+```c
+int refresh_example(example_t *data)
+{
+    size_t size = sizeof(data->field);
+
+    if (sysctlbyname("kern.example", &data->field, &size, NULL, 0) == -1)
+        return -oserror();  // Return immediately on error
+
+    // Only continues if sysctl succeeded
+    return 0;
+}
+```
+
+**❌ INCORRECT Pattern (Error Accumulation):**
+```c
+int refresh_example(example_t *data)
+{
+    size_t size;
+    int error = 0;  // DON'T DO THIS
+
+    size = sizeof(data->field1);
+    if (sysctlbyname("kern.field1", &data->field1, &size, NULL, 0) == -1)
+        error = -oserror();  // Sets error
+
+    size = sizeof(data->field2);
+    if (sysctlbyname("kern.field2", &data->field2, &size, NULL, 0) == -1)
+        error = -oserror();  // OVERWRITES previous error!
+
+    return error;  // Only returns LAST error
+}
+```
+
+**Why Fail Fast:**
+- Matches existing darwin PMDA conventions (refresh_vmstat, refresh_swap, etc.)
+- Prevents error information loss (early errors aren't overwritten)
+- On macOS, if one sysctl fails, it's often systemic (permissions, kernel version)
+- No resource cleanup needed (sysctls are direct kernel calls)
+- Cleaner, more readable code
+
+**Exception:** Only use try-all pattern when you have resources to cleanup (file handles, allocated memory). See Linux PMDA's `refresh_proc_sys_fs()` for this pattern.
+
+### Code Review Process
+
+**Use the `pcp-code-reviewer` agent** after implementing each step to validate:
+- Code quality and style consistency
+- Error handling patterns
+- PCP coding conventions
+- Documentation completeness
+- Integration with existing code
+
+**Example workflow:**
+1. Implement feature
+2. Run tests (`macos-darwin-pmda-qa` agent)
+3. **Run code review** (`pcp-code-reviewer` agent)
+4. Fix critical and important issues identified
+5. Re-test if code was modified
+6. Commit after approval
+
+**Lessons Learned:**
+- VFS implementation initially used error accumulation (fixed in commit d431bae047)
+- Code reviewer correctly identified the anti-pattern
+- Always validate error handling matches darwin PMDA conventions
 
 ---
 
