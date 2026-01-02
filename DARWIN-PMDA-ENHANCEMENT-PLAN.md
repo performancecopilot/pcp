@@ -3,7 +3,7 @@
 ## Current Status
 
 **Last Updated:** 2026-01-02
-**Current Step:** Step 2.2 completed, Step 2.3 (next to implement)
+**Current Step:** Step 2.3 completed, Step 2.4 (next to investigate)
 
 ## Progress Tracker
 
@@ -13,9 +13,9 @@
 | 1.1b | COMPLETED | Memory compression metrics (commit 9db0865001) |
 | 1.2 | COMPLETED | VFS statistics (commit 71f12b992a) |
 | 2.1 | COMPLETED | UDP protocol statistics (commit daf0f8c892) |
-| 2.2 | COMPLETED | ICMP protocol statistics (commit 18e6db341d) |
-| 2.3 | NEXT | Socket counts |
-| 2.4 | PENDING | TCP connection states (investigation required) |
+| 2.2 | COMPLETED | ICMP protocol statistics (commit 14654a6e2a) |
+| 2.3 | COMPLETED | Socket counts (commit 50ab438ac3) |
+| 2.4 | NEXT | TCP connection states (investigation required) |
 | 2.5 | PENDING | TCP limitation documentation |
 | 3.1 | PENDING | Process I/O statistics |
 | 3.2 | PENDING | Enhanced process metrics |
@@ -250,10 +250,31 @@ mem.compressor {
 
 ### Step 2.3: Socket Counts
 
+**New Cluster:** `CLUSTER_SOCKSTAT` (15)
+
+**API:** `sysctlbyname("net.inet.{tcp,udp}.pcbcount", ...)`
+
 | Metric | Item | Type | Source (sysctl) |
 |--------|------|------|-----------------|
 | `network.sockstat.tcp.inuse` | 155 | U32 | net.inet.tcp.pcbcount |
 | `network.sockstat.udp.inuse` | 156 | U32 | net.inet.udp.pcbcount |
+
+**Status:** COMPLETED
+
+**Implementation Notes:**
+- Both socket statistics successfully implemented following modular pattern
+- **Code organization**: Created dedicated `sockstat.c` and `sockstat.h` files (following vfs/udp/icmp pattern)
+  - `sockstat.h`: sockstats_t structure and function declarations
+  - `sockstat.c`: refresh_sockstat() implementation
+  - `pmda.c`: CLUSTER_SOCKSTAT definition, metrictab entries, dispatch wiring
+  - `GNUmakefile`: Updated to compile sockstat.c
+- PMNS namespace created with `network.sockstat.tcp.inuse` and `network.sockstat.udp.inuse`
+- Simpler implementation than UDP/ICMP: no computed values, direct metrictab pointers only
+- Metrics use sysctlbyname() to fetch PCB (Protocol Control Block) counts
+- PCB count represents active sockets/connections for each protocol
+- Unit tests created in `test-sockstat.txt` covering both metrics
+- Integration tests added to validate all metrics work correctly
+- All tests passing via `macos-darwin-pmda-qa` agent
 
 ---
 
