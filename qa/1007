@@ -11,9 +11,17 @@ trap "_cleanup_qt; exit \$status" 0 1 2 3 15
 
 which pmchart >/dev/null 2>&1 || _notrun "pmchart not installed"
 
+# looks like a Qt race, but onl seen on FreeBSD 14.3 (vm06)
+#
+_filter()
+{
+    _filter_views \
+    | sed -e '/QThreadStorage: entry [0-9] destroyed before end of thread /d'
+}
+
 # real QA test starts here
 echo "=== Valid, no error ==="
-cat <<End-of-File | pmchart -c - -C 2>&1 | _filter_views
+cat <<End-of-File | pmchart -c - -C 2>&1 | _filter
 #kmchart
 version 1
 tab "1" points 300 samples 300
@@ -24,28 +32,28 @@ tab "3" points 20 samples 200
 End-of-File
 
 echo "=== Bad syntax, no tab specification ==="
-cat <<End-of-File | pmchart -c - -C 2>&1 | _filter_views
+cat <<End-of-File | pmchart -c - -C 2>&1 | _filter
 #kmchart
 version 1
 tab
 End-of-File
 
 echo "=== Bad syntax, no point keyword ==="
-cat <<End-of-File | pmchart -c - -C 2>&1 | _filter_views
+cat <<End-of-File | pmchart -c - -C 2>&1 | _filter
 #kmchart
 version 1
 tab "Indexing Host" 300
 End-of-File
 
 echo "=== Bad syntax, no point value ==="
-cat <<End-of-File | pmchart -c - -C 2>&1 | _filter_views
+cat <<End-of-File | pmchart -c - -C 2>&1 | _filter
 #kmchart
 version 1
 tab "DB" points
 End-of-File
 
 echo "=== Bad syntax, no sample value ==="
-cat <<End-of-File | pmchart -c - -C 2>&1 | _filter_views
+cat <<End-of-File | pmchart -c - -C 2>&1 | _filter
 #kmchart
 version 1
 tab "App" points 34 samples
