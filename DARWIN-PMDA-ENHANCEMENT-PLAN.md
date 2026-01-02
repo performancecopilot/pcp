@@ -4,6 +4,7 @@
 
 **Last Updated:** 2026-01-02
 **Current Step:** Step 2.4 completed, Step 2.5 (next step)
+**Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
 
