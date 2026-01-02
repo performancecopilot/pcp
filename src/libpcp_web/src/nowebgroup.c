@@ -108,5 +108,4 @@ void
 pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 {
     (void)settings; (void)id; (void)arg;
-    return -EOPNOTSUPP;
 }
