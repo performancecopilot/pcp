@@ -156,6 +156,7 @@ disk.all {
 network {
     interface
     udp
+    icmp
 }
 
 network.interface {
@@ -196,6 +197,17 @@ network.udp {
     noports		DARWIN:13:144
     inerrors	DARWIN:13:145
     rcvbuferrors	DARWIN:13:146
+}
+
+network.icmp {
+    inmsgs		DARWIN:14:147
+    outmsgs		DARWIN:14:148
+    inerrors		DARWIN:14:149
+    indestunreachs	DARWIN:14:150
+    inechos		DARWIN:14:151
+    inechoreps		DARWIN:14:152
+    outechos		DARWIN:14:153
+    outechoreps		DARWIN:14:154
 }
 
 nfs3 {

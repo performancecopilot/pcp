@@ -24,8 +24,8 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
-CFILES		= pmda.c kernel.c disk.c network.c vfs.c udp.c version.c
-HFILES		= disk.h network.h vfs.h udp.h
+CFILES		= pmda.c kernel.c disk.c network.c vfs.c udp.c icmp.c version.c
+HFILES		= disk.h network.h vfs.h udp.h icmp.h
 
 LSRCFILES	= help root pmns
 

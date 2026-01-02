@@ -231,6 +231,32 @@ Computed as the sum of header errors, checksum errors, and length errors.
 Total number of UDP datagrams dropped due to full socket receive buffers.
 This occurs when the receiving application cannot keep up with incoming data.
 
+@ network.icmp.inmsgs total ICMP messages received
+Total number of ICMP messages received (sum of all ICMP message types).
+This is a cumulative counter from boot time.
+@ network.icmp.outmsgs total ICMP messages sent
+Total number of ICMP messages sent (sum of all ICMP message types).
+This is a cumulative counter from boot time.
+@ network.icmp.inerrors ICMP input errors
+Total number of errors encountered on received ICMP messages.
+Includes bad codes, truncated messages, checksum errors, and invalid lengths.
+This is a cumulative counter from boot time.
+@ network.icmp.indestunreachs ICMP destination unreachable messages received
+Total number of ICMP Destination Unreachable messages received.
+This is a cumulative counter from boot time.
+@ network.icmp.inechos ICMP echo requests received
+Total number of ICMP Echo Request messages received (ping requests).
+This is a cumulative counter from boot time.
+@ network.icmp.inechoreps ICMP echo replies received
+Total number of ICMP Echo Reply messages received (ping responses).
+This is a cumulative counter from boot time.
+@ network.icmp.outechos ICMP echo requests sent
+Total number of ICMP Echo Request messages sent (ping requests).
+This is a cumulative counter from boot time.
+@ network.icmp.outechoreps ICMP echo replies sent
+Total number of ICMP Echo Reply messages sent (ping responses).
+This is a cumulative counter from boot time.
+
 @ nfs3.client.calls
 @ nfs3.client.reqs
 @ nfs3.server.calls

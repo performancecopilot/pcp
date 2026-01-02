@@ -32,6 +32,7 @@
 #include "network.h"
 #include "vfs.h"
 #include "udp.h"
+#include "icmp.h"
 
 
 #define page_count_to_kb(x) (((__uint64_t)(x) << mach_page_shift) >> 10)
@@ -99,6 +100,9 @@ vfsstats_t		mach_vfs = { 0 };
 int			mach_udp_error = 0;
 udpstats_t		mach_udp = { 0 };
 
+int			mach_icmp_error = 0;
+icmpstats_t		mach_icmp = { 0 };
+
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
 
@@ -165,6 +169,7 @@ enum {
     CLUSTER_NFS,		/* 11 = nfs filesystem statistics */
     CLUSTER_VFS,		/* 12 = vfs statistics */
     CLUSTER_UDP,		/* 13 = udp protocol statistics */
+    CLUSTER_ICMP,		/* 14 = icmp protocol statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
@@ -805,6 +810,39 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_UDP,146), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* network.icmp.inmsgs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,147), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.outmsgs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,148), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.inerrors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,149), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.indestunreachs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,150), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.inechos */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,151), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.inechoreps */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,152), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.outechos */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,153), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.outechoreps */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,154), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 };
 
 static void
@@ -836,6 +874,8 @@ darwin_refresh(int *need_refresh)
 	mach_vfs_error = refresh_vfs(&mach_vfs);
     if (need_refresh[CLUSTER_UDP])
 	mach_udp_error = refresh_udp(&mach_udp);
+    if (need_refresh[CLUSTER_ICMP])
+	mach_icmp_error = refresh_icmp(&mach_icmp);
 }
 
 static inline int
@@ -1304,6 +1344,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_NFS:		return fetch_nfs(item, inst, atom);
     case CLUSTER_VFS:		return fetch_vfs(item, atom);
     case CLUSTER_UDP:		return fetch_udp(item, atom);
+    case CLUSTER_ICMP:		return fetch_icmp(item, atom);
     }
     return 0;
 }

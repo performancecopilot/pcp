@@ -239,6 +239,20 @@ run_test "network.udp.inerrors >= 0" "validate_metric network.udp.inerrors non-n
 run_test "network.udp.rcvbuferrors >= 0" "validate_metric network.udp.rcvbuferrors non-negative"
 echo
 
+# Test 11: ICMP protocol metrics
+echo "Test Group: ICMP Protocol Metrics"
+run_test "network.icmp.inmsgs exists" "pminfo -h localhost -f network.icmp.inmsgs"
+run_test "network.icmp.outmsgs exists" "pminfo -h localhost -f network.icmp.outmsgs"
+run_test "network.icmp.inmsgs >= 0" "validate_metric network.icmp.inmsgs non-negative"
+run_test "network.icmp.outmsgs >= 0" "validate_metric network.icmp.outmsgs non-negative"
+run_test "network.icmp.inerrors >= 0" "validate_metric network.icmp.inerrors non-negative"
+run_test "network.icmp.indestunreachs >= 0" "validate_metric network.icmp.indestunreachs non-negative"
+run_test "network.icmp.inechos >= 0" "validate_metric network.icmp.inechos non-negative"
+run_test "network.icmp.inechoreps >= 0" "validate_metric network.icmp.inechoreps non-negative"
+run_test "network.icmp.outechos >= 0" "validate_metric network.icmp.outechos non-negative"
+run_test "network.icmp.outechoreps >= 0" "validate_metric network.icmp.outechoreps non-negative"
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"
