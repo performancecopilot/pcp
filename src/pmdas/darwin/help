@@ -323,11 +323,6 @@ Number of TCP connections currently in the CLOSING state.
 Both sides are closing simultaneously, waiting for final acknowledgments.
 This is a relatively rare state during simultaneous connection termination.
 
-@ network.tcp TCP protocol statistics
-TCP protocol statistics from the macOS kernel.
-
-Note: Requires net.inet.tcp.disable_access_to_stats=0
-See pmdadarwin(1) for configuration.
 
 @ network.tcp.activeopens active TCP connection attempts
 Count of TCP connections that have transitioned from CLOSED to SYN_SENT state.
