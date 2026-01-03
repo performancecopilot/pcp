@@ -24,6 +24,11 @@ fi
 . ./common.filter
 . ./common.check
 
+# this test does not work if run on Jan 1, 2 or 3 as New
+# Year is too soon in the past
+#
+[ "`date +%j`" -lt 004 ] && _notrun "too soon after new year"
+
 _cleanup()
 {
     cd $here
