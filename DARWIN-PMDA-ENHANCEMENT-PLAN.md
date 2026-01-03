@@ -3,7 +3,7 @@
 ## Current Status
 
 **Last Updated:** 2026-01-04
-**Current Step:** Steps 2.5a and 2.5b completed (TCP implementation with detection/docs), Step 2.6 next (pmrep network view)
+**Current Step:** Steps 2.5a, 2.5b, and 2.6 completed (TCP + pmrep views), Phase 3 next (process metrics)
 **Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
@@ -21,7 +21,7 @@
 | 2.5a | COMPLETED | TCP protocol statistics - basic implementation (commits 2bf73ecef5, 540e5304b2) |
 | 2.5b | COMPLETED | TCP statistics - detection and documentation (warnings + man page) (commit f5c406e52a) |
 | 2.5c | DEFERRED | TCP statistics - auto-enable config (for maintainer discussion) |
-| 2.6 | PENDING | pmrep network monitoring view |
+| 2.6 | COMPLETED | pmrep macOS monitoring views - memory, disk, TCP, protocol overview (commit 9afb1b9e9d) |
 | 3.1 | PENDING | Process I/O statistics |
 | 3.2 | PENDING | Enhanced process metrics |
 | 4.1 | PENDING | Transform plan → permanent documentation |
@@ -629,80 +629,355 @@ Count of active TCP connection attempts (SYN sent)
 
 ---
 
-### Step 2.6: pmrep Network Monitoring View
+### Step 2.6: pmrep macOS System Monitoring Views
 
-**Goal:** Create dedicated pmrep configuration for comprehensive network monitoring
+**Goal:** Create comprehensive pmrep configurations for macOS system monitoring across memory, disk, and network subsystems
 
-**Status:** PENDING
+**Status:** COMPLETED
+
+**Commit:** `9afb1b9e9d`
 
 **Depends On:** Steps 2.1-2.5 complete (all networking metrics implemented)
 
 **Rationale:**
+- Phase 1 added memory compression and VFS metrics
 - Phase 2 added extensive networking metrics (UDP, ICMP, sockets, TCP conn states, TCP stats)
-- `:macstat` view currently exists but focuses on general system stats
-- Network administrators would benefit from a dedicated networking-focused view
-- Provides out-of-the-box network monitoring without custom pmrep configs
+- Disk metrics already exist and can be showcased better
+- Current `:macstat` and `:macstat-x` views provide basic overview but lack specialized deep-dive views
+- Network/memory/disk administrators would benefit from dedicated subsystem-focused views
+- Provides out-of-the-box monitoring without custom pmrep configs
+
+**Implementation Summary:**
+
+Six pmrep monitoring views successfully added to `src/pmrep/conf/macstat.conf`:
+
+1. **:macstat (enhanced)** - Added `network.interface.total.bytes` for integrated network overview
+2. **:macstat-x (enhanced)** - Added VFS metrics (files, vnodes) and disk byte I/O for extended analysis
+3. **:macstat-mem (new)** - Comprehensive memory deep-dive with:
+   - Memory breakdown (physmem, used, free, wired, active, inactive, compressed)
+   - Swap activity (pagesin/pagesout)
+   - Compression efficiency (compressions, decompressions, compressor pages)
+   - Paging activity (pageins, pageouts, faults, COW faults, zero-filled, reactivated)
+   - Cache efficiency with derived cache hit ratio metric
+4. **:macstat-dsk (new)** - Disk I/O deep-dive with:
+   - IOPS metrics (r/s, w/s, tot/s)
+   - Throughput metrics (rkB/s, wkB/s, tkB/s)
+   - Block-level I/O (rblk/s, wblk/s, tblk/s)
+   - Latency metrics (rms, wms, tms)
+5. **:macstat-tcp (new)** - TCP connection monitoring with:
+   - Connection activity (activeopens, passiveopens, established)
+   - All 11 TCP connection states (SYN_SENT, SYN_RECV, FIN_WAIT_1/2, TIME_WAIT, etc.)
+   - Error metrics (attemptfails, estabresets, retranssegs, inerrs, outrsts)
+   - Throughput (insegs, outsegs)
+   - Socket usage (tcpsock)
+6. **:macstat-proto (new)** - Network protocol overview with:
+   - Interface totals (bytes, packets, errors, drops)
+   - UDP statistics (indatagrams, outdatagrams, noports, inerrors, rcvbuferrors)
+   - ICMP statistics (inmsgs, outmsgs, inerrors, inechos, outechos)
+   - TCP summary (insegs, outsegs, retranssegs, inerrs)
+   - Socket usage (TCP and UDP)
+
+**Code Quality:**
+- All metric references verified against darwin PMDA pmns
+- Configuration syntax validated for pmrep format compliance
+- Abbreviation patterns follow PCP conventions (vmstat/iostat style)
+- Section comments provide clear purpose for each view
+- Derived metric (cache_hit_ratio) properly configured with correct unit (%)
+- File header updated with usage examples for all six views
+
+**Code Review Findings:**
+- All critical issues identified and fixed
+- Metric naming corrected (removed non-existent `.in.bytes`/`.out.bytes` paths)
+- Derived metric identifier and unit corrected
+- Documentation enhanced with view descriptions
+- Redundant section headers consolidated
+- Passes all PCP coding standards
+
+---
+
+#### Labeling Patterns (Based on Existing PCP Conventions)
+
+**Research findings from existing pmrep configs (vmstat.conf, iostat.conf, sar.conf, macstat.conf):**
+
+1. **Short abbreviations (2-8 chars)**: `swpd`, `free`, `wired`, `active`, `cmpr`, `inact`, `comp`, `deco`, `proc`, `thrd`
+2. **Two-letter activity codes** (following vmstat pattern): `si`/`so` (swap), `pi`/`po` (page), `bi`/`bo` (block), `ni`/`no` (network)
+3. **Read/write prefixes** (iostat pattern): `r/s`, `w/s`, `rkB/s`, `wkB/s`, `rtotal`, `wtotal`
+4. **Grouping via structure, NOT prefixes**:
+   - Use **comments** to separate logical sections
+   - Use **adjacent placement** of related metrics
+   - Use **consistent abbreviation style** within groups
+   - **NO underscores** for grouping (avoid `mem_free`, `tcp_estab`)
+
+**Visual grouping achieved through:**
+- Section comment headers
+- Consistent abbreviation patterns within sections
+- Logical column ordering
+
+---
+
+#### Mode 1: :macstat (Revised Basic Overview)
+
+**Purpose:** Quick system health overview - the "glance at the dashboard" view
+
+**Current metrics:**
+- Load: kernel.all.load
+- Memory: swap.used, mem.util.{free, wired, active, compressed}
+- Paging: mem.pageins, mem.pageouts
+- Disk: disk.all.{read, write}
+- CPU: user%, sys%, idle%
+
+**Add network metrics:**
+- `network.interface.total.in.bytes` = `ni` (network in bytes)
+- `network.interface.total.out.bytes` = `no` (network out bytes)
 
 **Changes Required:**
+1. Add two network metrics to existing `src/pmrep/conf/macstat.conf` [macstat] section
+2. Position after disk I/O, before CPU
+3. Use labels `ni` and `no` following the `pi`/`po`/`si`/`so` pattern
 
-1. **Create pmrep configuration file** - Location TBD:
-   - Option A: `src/pmdas/darwin/pmrep-network.conf` (PMDA-specific)
-   - Option B: Add to system-wide pmrep configs with darwin-specific sections
+---
 
-2. **Design view sections:**
-   - **TCP Overview**: activeopens, passiveopens, currestab, retranssegs, inerrs
-   - **TCP Connection States**: established, time_wait, syn_sent, fin_wait, listen
-   - **UDP Activity**: indatagrams, outdatagrams, noports, inerrors
-   - **ICMP Messages**: inmsgs, outmsgs, inechos, outechos, inerrors
-   - **Socket Usage**: tcp.inuse, udp.inuse
-   - **Network Interfaces**: existing interface stats (bytes, packets, errors)
+#### Mode 2: :macstat-x (Revised Extended Overview)
 
-3. **Example view format:**
-   ```
-   [darwin-network]
-   header = yes
-   unitinfo = no
-   globals = no
-   timestamp = yes
-   interval = 2s
+**Purpose:** Detailed system resource utilization for capacity planning
 
-   # TCP Protocol
-   network.tcp.activeopens = tcp_aopens,,,,8
-   network.tcp.passiveopens = tcp_popens,,,,8
-   network.tcp.currestab = tcp_estab,,,,8
-   network.tcp.retranssegs = tcp_retrans,,,,10
-   network.tcp.inerrs = tcp_errs,,,,8
+**Current metrics:**
+- Everything from :macstat
+- Additional memory: mem.util.inactive
+- Compression: mem.compressions, mem.decompressions
+- System resources: kernel.all.nprocs, kernel.all.nthreads
 
-   # TCP States
-   network.tcpconn.established = conn_est,,,,8
-   network.tcpconn.time_wait = conn_timew,,,,8
-   network.tcpconn.listen = conn_list,,,,8
+**Add VFS metrics:**
+- `vfs.files.count` = `files`
+- `vfs.files.max` = `fmax`
+- `vfs.vnodes.count` = `vnodes`
 
-   # UDP
-   network.udp.indatagrams = udp_in,,,,10
-   network.udp.outdatagrams = udp_out,,,,10
-   network.udp.inerrors = udp_err,,,,8
+**Add disk byte metrics:**
+- `disk.all.read_bytes` = `rkB/s` (or similar, with KB unit scale)
+- `disk.all.write_bytes` = `wkB/s`
 
-   # ICMP
-   network.icmp.inmsgs = icmp_in,,,,8
-   network.icmp.outmsgs = icmp_out,,,,8
-   ```
+**Changes Required:**
+1. Modify existing `src/pmrep/conf/macstat.conf` [macstat-x] section
+2. Add VFS metrics section (after process/thread counts)
+3. Enhance disk I/O section with byte metrics
+4. Adjust column widths as needed
 
-4. **Usage documentation:**
-   - Add to pmdadarwin(1) man page (created in Step 2.5b)
-   - Example: `pmrep :darwin-network` or `pmrep -c /path/to/pmrep-network.conf`
-   - Include sample output showing typical network monitoring session
+**Rationale:** VFS exhaustion (file/vnode limits) is a real macOS issue; byte-level disk I/O provides bandwidth context
 
-5. **Testing:**
-   - Verify config loads without errors
-   - Test that all metrics are fetchable
-   - Validate output formatting and column widths
-   - Ensure reasonable default refresh interval (2-5s)
+---
 
-**Integration Notes:**
-- Should complement existing `:macstat` view (general system overview)
-- Consider also creating `:darwin-tcp` (TCP-focused) and `:darwin-proto` (all protocols) variants
-- Align metric selection with common network troubleshooting workflows
+#### Mode 3: :macstat-mem (Memory Deep-Dive)
+
+**Purpose:** Detailed memory subsystem analysis - diagnose memory pressure and compression efficiency
+
+**File:** `src/pmrep/conf/macstat.conf` (add new [macstat-mem] section)
+
+**Metrics organized by section:**
+
+**Memory breakdown:**
+- `mem.physmem` = `phys` (total physical memory)
+- `mem.util.used` = `used`
+- `mem.util.free` = `free`
+- `mem.util.wired` = `wired`
+- `mem.util.active` = `actv`
+- `mem.util.inactive` = `inact`
+- `mem.util.compressed` = `cmpr`
+
+**Swap:**
+- `swap.used` = `swpd`
+- `swap.free` = `swfree`
+- `swap.pagesin` = `si`
+- `swap.pagesout` = `so`
+
+**Compression efficiency:**
+- `mem.compressions` = `comp`
+- `mem.decompressions` = `deco`
+- `mem.compressor.pages` = `cpages`
+- `mem.compressor.uncompressed_pages` = `upages`
+
+**Paging activity:**
+- `mem.pageins` = `pi`
+- `mem.pageouts` = `po`
+- `mem.pages.faults` = `faults`
+- `mem.pages.cow_faults` = `cow`
+- `mem.pages.zero_filled` = `zero`
+- `mem.pages.reactivated` = `react`
+
+**Cache efficiency:**
+- `mem.cache_lookups` = `lookups`
+- `mem.cache_hits` = `hits`
+- **Derived metric: cache hit ratio** = `hit%`
+  - Formula: `100 * mem.cache_hits / mem.cache_lookups`
+  - Type: Calculated in pmrep config (for now)
+  - **Future consideration:** Discuss with PCP maintainers about adding native PMDA metric
+
+**Note on cache metrics:**
+- `mem.cache_hits` and `mem.cache_lookups` are object cache statistics from `vm_statistics64.hits` and `vm_statistics64.lookups`
+- Cache hit ratio is mathematically valid: every lookup either hits or misses, so `hits/lookups` = hit rate
+
+---
+
+#### Mode 4: :macstat-dsk (Disk Deep-Dive)
+
+**Purpose:** Comprehensive disk I/O analysis - latency, throughput, and operation counts
+
+**File:** `src/pmrep/conf/macstat.conf` (add new [macstat-dsk] section)
+
+**Metrics organized by section:**
+
+**Operations (IOPS):**
+- `disk.all.read` = `r/s`
+- `disk.all.write` = `w/s`
+- `disk.all.total` = `tot/s`
+
+**Throughput (bandwidth):**
+- `disk.all.read_bytes` = `rkB/s` (with KB unit scale)
+- `disk.all.write_bytes` = `wkB/s`
+- `disk.all.total_bytes` = `tkB/s`
+
+**Block-level I/O:**
+- `disk.all.blkread` = `rblk/s`
+- `disk.all.blkwrite` = `wblk/s`
+- `disk.all.blktotal` = `tblk/s`
+
+**Latency (milliseconds):**
+- `disk.all.read_time` = `rms`
+- `disk.all.write_time` = `wms`
+- `disk.all.total_time` = `tms`
+
+**Rationale:** See both IOPS and bandwidth to understand if bottleneck is operations or throughput; latency metrics show performance
+
+---
+
+#### Mode 5: :macstat-tcp (TCP-Focused)
+
+**Purpose:** TCP connection lifecycle and health monitoring
+
+**File:** `src/pmrep/conf/macstat.conf` (add new [macstat-tcp] section)
+
+**Metrics organized by section:**
+
+**Connection activity:**
+- `network.tcp.activeopens` = `actopn`
+- `network.tcp.passiveopens` = `psvopn`
+- `network.tcp.currestab` = `estab`
+
+**Connection states (all 11 states):**
+- `network.tcpconn.established` = `estab`
+- `network.tcpconn.syn_sent` = `synst`
+- `network.tcpconn.syn_recv` = `synrv`
+- `network.tcpconn.fin_wait1` = `fin1`
+- `network.tcpconn.fin_wait2` = `fin2`
+- `network.tcpconn.time_wait` = `timew`
+- `network.tcpconn.close` = `close`
+- `network.tcpconn.close_wait` = `closew`
+- `network.tcpconn.last_ack` = `lack`
+- `network.tcpconn.listen` = `listn`
+- `network.tcpconn.closing` = `closg`
+
+**Errors and retransmissions:**
+- `network.tcp.attemptfails` = `fails`
+- `network.tcp.estabresets` = `resets`
+- `network.tcp.retranssegs` = `retran`
+- `network.tcp.inerrs` = `errs`
+- `network.tcp.outrsts` = `rsts`
+
+**Throughput:**
+- `network.tcp.insegs` = `isgmts`
+- `network.tcp.outsegs` = `osgmts`
+
+**Socket usage:**
+- `network.sockstat.tcp.inuse` = `tcpsock`
+
+**Rationale:** TCP-focused view for connection troubleshooting, state analysis, and retransmission monitoring
+
+---
+
+#### Mode 6: :macstat-proto (Protocol-Focused)
+
+**Purpose:** Network protocol overview - UDP, ICMP, interface stats, TCP summary
+
+**File:** `src/pmrep/conf/macstat.conf` (add new [macstat-proto] section)
+
+**Metrics organized by section:**
+
+**Interface totals:**
+- `network.interface.total.bytes` = `ifbytes`
+- `network.interface.total.packets` = `ifpkts`
+- `network.interface.total.errors` = `iferr`
+- `network.interface.total.drops` = `ifdrop`
+
+**UDP:**
+- `network.udp.indatagrams` = `udpin`
+- `network.udp.outdatagrams` = `udpout`
+- `network.udp.inerrors` = `udperr`
+- `network.udp.noports` = `udpnop`
+- `network.udp.rcvbuferrors` = `udpbuf`
+
+**ICMP:**
+- `network.icmp.inmsgs` = `icmpin`
+- `network.icmp.outmsgs` = `icmpout`
+- `network.icmp.inechos` = `iecho`
+- `network.icmp.outechos` = `oecho`
+- `network.icmp.inerrors` = `ierr`
+
+**TCP summary:**
+- `network.tcp.insegs` = `tcpin`
+- `network.tcp.outsegs` = `tcpout`
+- `network.tcp.retranssegs` = `tcpret`
+- `network.tcp.inerrs` = `tcperr`
+
+**Socket usage:**
+- `network.sockstat.tcp.inuse` = `tcpsock`
+- `network.sockstat.udp.inuse` = `udpsock`
+
+**Rationale:** Protocol-level overview for network troubleshooting - see all protocols at once
+
+---
+
+#### Implementation Notes
+
+**File location:** All modes in single file: `src/pmrep/conf/macstat.conf`
+- Modify existing [macstat] and [macstat-x] sections
+- Add new sections: [macstat-mem], [macstat-dsk], [macstat-tcp], [macstat-proto]
+
+**pmrep configuration format:**
+```
+[section-name]
+header = yes
+unitinfo = no
+globals = no
+timestamp = no  # or yes for timestamped output
+precision = 0
+delimiter = " "
+repeat_header = auto
+
+# Section comment for visual grouping
+metric.name.path = label,,unit/scale,,width
+
+# Derived metrics (if needed)
+derived_name = source.metric.name
+derived_name.label = label
+derived_name.formula = expression
+derived_name.unit = unit
+derived_name.width = width
+```
+
+**Testing:**
+1. Verify each config section loads without errors
+2. Test all metrics are fetchable on macOS
+3. Validate output formatting and column widths
+4. Test with `pmrep :macstat-mem`, `pmrep :macstat-tcp`, etc.
+5. Ensure column alignment and readability
+
+**Documentation:**
+- Update `pmdadarwin(1)` man page with usage examples
+- Document all new views with purpose and example output
+- Include in PMDA documentation or README
+
+**Future Consideration:**
+- Discuss with PCP maintainers about adding native calculated metrics in PMDA (e.g., cache hit ratio, compression ratio)
+- Consider whether some derived metrics should move from pmrep config to PMDA fetch functions
 
 ---
 
