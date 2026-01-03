@@ -3,7 +3,7 @@
 ## Current Status
 
 **Last Updated:** 2026-01-03
-**Current Step:** Step 2.5-pre completed, Step 2.5a next (TCP basic implementation)
+**Current Step:** Step 2.5a completed (TCP basic implementation), Step 2.5b next (Access control detection)
 **Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
@@ -17,9 +17,9 @@
 | 2.2 | COMPLETED | ICMP protocol statistics (commit 14654a6e2a) |
 | 2.3 | COMPLETED | Socket counts (commit 50ab438ac3) |
 | 2.4 | COMPLETED | TCP connection states (commit 96a4191fcd) |
-| 2.5-pre | COMPLETED | Enable TCP stats in Cirrus CI |
-| 2.5a | NEXT | TCP protocol statistics - basic implementation (15 metrics, Linux parity) |
-| 2.5b | PENDING | TCP statistics - detection and documentation (warnings + man page) |
+| 2.5-pre | COMPLETED | Enable TCP stats in Cirrus CI (commit 1d967ef777) |
+| 2.5a | COMPLETED | TCP protocol statistics - basic implementation (commits 2bf73ecef5, 540e5304b2) |
+| 2.5b | NEXT | TCP statistics - detection and documentation (warnings + man page) |
 | 2.5c | DEFERRED | TCP statistics - auto-enable config (for maintainer discussion) |
 | 3.1 | PENDING | Process I/O statistics |
 | 3.2 | PENDING | Enhanced process metrics |
@@ -776,6 +776,46 @@ int refresh_example(example_t *data)
 
 **Exception:** Only use try-all pattern when you have resources to cleanup (file handles, allocated memory). See Linux PMDA's `refresh_proc_sys_fs()` for this pattern.
 
+### Code Style Requirements
+
+**CRITICAL:** The darwin PMDA uses **TABS for indentation**, not spaces.
+
+**Indentation Rules:**
+- Use **tabs** (not spaces) for all indentation levels
+- Function bodies: tab-indented
+- Case statements: tab-indented after switch
+- Multi-line continuations: tabs + alignment spaces
+- NO 4-space or 2-space indentation anywhere
+
+**Verification:**
+```bash
+# Check for improper space indentation (should return nothing)
+grep -n "^    " src/pmdas/darwin/<file>.c
+
+# Compare with existing files (should show tabs)
+sed -n '25,35p' src/pmdas/darwin/udp.c | sed 's/\t/<TAB>/g'
+```
+
+**Example - CORRECT indentation:**
+```c
+int
+refresh_example(example_t *data)
+{
+<TAB>size_t size = sizeof(data->stats);
+
+<TAB>if (sysctlbyname("kern.example", &data->stats, &size, NULL, 0) == -1)
+<TAB><TAB>return -oserror();
+
+<TAB>return 0;
+}
+```
+
+**Lesson Learned:**
+- TCP implementation (commit 2bf73ecef5) initially used 4-space indentation (fixed in commit 540e5304b2)
+- Always verify tab usage before committing - reviewers will catch this but fix it proactively
+
+---
+
 ### Code Review Process
 
 **Use the `pcp-code-reviewer` agent** after implementing each step to validate:
@@ -789,14 +829,22 @@ int refresh_example(example_t *data)
 1. Implement feature
 2. Run tests (`macos-darwin-pmda-qa` agent)
 3. **Run code review** (`pcp-code-reviewer` agent)
-4. Fix critical and important issues identified
+4. **Fix ALL issues identified** - including minor ones (formatting, style, documentation)
 5. Re-test if code was modified
 6. Commit after approval
 
+**IMPORTANT:** Do not ignore "Minor" suggestions from code reviewer:
+- Minor issues accumulate and affect code quality
+- Style issues (indentation, formatting) should be fixed immediately
+- Documentation improvements should be applied
+- "Minor" doesn't mean "optional" - it means "not blocking but should fix"
+
 **Lessons Learned:**
 - VFS implementation initially used error accumulation (fixed in commit d431bae047)
-- Code reviewer correctly identified the anti-pattern
+- TCP implementation initially used 4-space indentation instead of tabs (fixed in commit 540e5304b2)
+- Code reviewer correctly identified both anti-patterns
 - Always validate error handling matches darwin PMDA conventions
+- Always fix style issues immediately, don't defer them
 
 ---
 
