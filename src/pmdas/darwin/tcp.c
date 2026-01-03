@@ -24,62 +24,62 @@
 int
 refresh_tcp(tcpstats_t *tcp)
 {
-    size_t size = sizeof(tcp->stats);
+	size_t size = sizeof(tcp->stats);
 
-    if (sysctlbyname("net.inet.tcp.stats", &tcp->stats, &size, NULL, 0) == -1)
-	return -oserror();
+	if (sysctlbyname("net.inet.tcp.stats", &tcp->stats, &size, NULL, 0) == -1)
+		return -oserror();
 
-    return 0;
+	return 0;
 }
 
 int
 fetch_tcp(unsigned int item, pmAtomValue *atom)
 {
-    extern tcpstats_t mach_tcp;
-    extern int mach_tcp_error;
-    extern tcpconn_stats_t mach_tcpconn;
+	extern tcpstats_t mach_tcp;
+	extern int mach_tcp_error;
+	extern tcpconn_stats_t mach_tcpconn;
 
-    if (mach_tcp_error)
-	return mach_tcp_error;
+	if (mach_tcp_error)
+		return mach_tcp_error;
 
-    switch (item) {
-    case 172: /* network.tcp.currestab */
-	/* Current established connections from tcpconn state */
-	atom->ul = mach_tcpconn.state[TCPS_ESTABLISHED];
-	return 1;
+	switch (item) {
+	case 172: /* network.tcp.currestab */
+		/* Current established connections from tcpconn state */
+		atom->ul = mach_tcpconn.state[TCPS_ESTABLISHED];
+		return 1;
 
-    case 176: /* network.tcp.inerrs */
-	/* Sum of various receive errors */
-	atom->ull = mach_tcp.stats.tcps_rcvbadsum +
-		    mach_tcp.stats.tcps_rcvbadoff +
-		    mach_tcp.stats.tcps_rcvshort +
-		    mach_tcp.stats.tcps_rcvmemdrop;
-	return 1;
+	case 176: /* network.tcp.inerrs */
+		/* Sum of various receive errors */
+		atom->ull = mach_tcp.stats.tcps_rcvbadsum +
+			    mach_tcp.stats.tcps_rcvbadoff +
+			    mach_tcp.stats.tcps_rcvshort +
+			    mach_tcp.stats.tcps_rcvmemdrop;
+		return 1;
 
-    case 177: /* network.tcp.outrsts */
-	/* Control segments sent (includes RST) */
-	atom->ull = mach_tcp.stats.tcps_sndctrl;
-	return 1;
+	case 177: /* network.tcp.outrsts */
+		/* Control segments sent (includes RST) */
+		atom->ull = mach_tcp.stats.tcps_sndctrl;
+		return 1;
 
-    case 179: /* network.tcp.rtoalgorithm */
-	/* Van Jacobson's algorithm = 4 (matches Linux) */
-	atom->ul = 4;
-	return 1;
+	case 179: /* network.tcp.rtoalgorithm */
+		/* Van Jacobson's algorithm = 4 (matches Linux) */
+		atom->ul = 4;
+		return 1;
 
-    case 180: /* network.tcp.rtomin */
-	/* Minimum RTO in milliseconds */
-	atom->ul = 200;
-	return 1;
+	case 180: /* network.tcp.rtomin */
+		/* Minimum RTO in milliseconds */
+		atom->ul = 200;
+		return 1;
 
-    case 181: /* network.tcp.rtomax */
-	/* Maximum RTO in milliseconds */
-	atom->ul = 64000;
-	return 1;
+	case 181: /* network.tcp.rtomax */
+		/* Maximum RTO in milliseconds */
+		atom->ul = 64000;
+		return 1;
 
-    case 182: /* network.tcp.maxconn */
-	/* No fixed connection limit, -1 indicates dynamic */
-	atom->l = -1;
-	return 1;
-    }
-    return PM_ERR_PMID;
+	case 182: /* network.tcp.maxconn */
+		/* No fixed connection limit, -1 indicates dynamic */
+		atom->l = -1;
+		return 1;
+	}
+	return PM_ERR_PMID;
 }
