@@ -2,8 +2,8 @@
 
 ## Current Status
 
-**Last Updated:** 2026-01-02
-**Current Step:** Step 2.4 completed, Step 2.5 (next step)
+**Last Updated:** 2026-01-03
+**Current Step:** Step 2.5-pre completed, Step 2.5a next (TCP basic implementation)
 **Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
@@ -17,7 +17,10 @@
 | 2.2 | COMPLETED | ICMP protocol statistics (commit 14654a6e2a) |
 | 2.3 | COMPLETED | Socket counts (commit 50ab438ac3) |
 | 2.4 | COMPLETED | TCP connection states (commit 96a4191fcd) |
-| 2.5 | NEXT | TCP limitation documentation |
+| 2.5-pre | COMPLETED | Enable TCP stats in Cirrus CI |
+| 2.5a | NEXT | TCP protocol statistics - basic implementation (15 metrics, Linux parity) |
+| 2.5b | PENDING | TCP statistics - detection and documentation (warnings + man page) |
+| 2.5c | DEFERRED | TCP statistics - auto-enable config (for maintainer discussion) |
 | 3.1 | PENDING | Process I/O statistics |
 | 3.2 | PENDING | Enhanced process metrics |
 | 4.1 | PENDING | Transform plan → permanent documentation |
@@ -331,9 +334,340 @@ mem.compressor {
 
 ---
 
-### Step 2.5: TCP Stats Limitation Documentation
+### Step 2.5: TCP Protocol Statistics (Multi-Part)
 
-Document that detailed TCP statistics (retransmits, timeouts, segment counts) are blocked by `net.inet.tcp.disable_access_to_stats=1` which is SIP-protected.
+**Goal:** Add TCP protocol statistics with Linux PMDA parity, proper access control handling, and documentation
+
+**Status:** PLANNING - Research complete, breaking into 3 implementable steps
+
+**Overall API:** `sysctlbyname("net.inet.tcp.stats", &tcpstat, &size, NULL, 0)`
+
+---
+
+#### Step 2.5-pre: Enable TCP Stats in Cirrus CI
+
+**Goal:** Configure test environment to enable TCP statistics before PCP installation
+
+**Status:** COMPLETED
+
+**Why First:** Validates we can control the test VM environment and ensures tests will pass for subsequent steps
+
+**Changes Made:**
+
+Added new script step in `.cirrus.yml` before `pcp_build_script`:
+
+```yaml
+  enable_tcp_stats_script: |
+    echo "Enabling TCP statistics for testing..."
+    sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+    echo "Verifying setting:"
+    sysctl net.inet.tcp.disable_access_to_stats
+```
+
+**Rationale:** Must be done before PCP build/install so PMCD starts with stats already enabled
+
+**Implementation Notes:**
+- Added as a separate script task in Cirrus CI pipeline
+- Runs after Homebrew cache setup but before PCP build
+- Uses `sudo sysctl -w` to set the kernel parameter
+- Verifies the setting was applied with a read-back check
+- This ensures TCP statistics are available when PMCD starts after installation
+
+**Testing:** Verify with `cirrus run` that the setting takes effect in CI environment
+
+---
+
+#### Step 2.5a: Basic TCP Statistics Implementation
+
+**Goal:** Implement core TCP statistics matching Linux PMDA parity
+
+**Status:** NOT STARTED
+
+**Assumption:** User has already set `net.inet.tcp.disable_access_to_stats=0` (or Cirrus CI has done it)
+
+**New Cluster:** `CLUSTER_TCP` (17)
+
+**Metrics to Implement** (15 core metrics for Linux parity):
+
+| Metric | Item | Type | Darwin Source (struct tcpstat) | Linux Equivalent |
+|--------|------|------|-------------------------------|------------------|
+| `network.tcp.activeopens` | 168 | U64 | tcps_connattempt | activeopens |
+| `network.tcp.passiveopens` | 169 | U64 | tcps_accepts | passiveopens |
+| `network.tcp.attemptfails` | 170 | U64 | tcps_conndrops | attemptfails |
+| `network.tcp.estabresets` | 171 | U64 | tcps_drops | estabresets |
+| `network.tcp.currestab` | 172 | U32 | computed from tcpconn state | currestab |
+| `network.tcp.insegs` | 173 | U64 | tcps_rcvtotal | insegs |
+| `network.tcp.outsegs` | 174 | U64 | tcps_sndtotal | outsegs |
+| `network.tcp.retranssegs` | 175 | U64 | tcps_sndrexmitpack | retranssegs |
+| `network.tcp.inerrs` | 176 | U64 | computed (see below) | inerrs |
+| `network.tcp.outrsts` | 177 | U64 | tcps_sndctrl (partial) | outrsts |
+| `network.tcp.incsumerrors` | 178 | U64 | tcps_rcvbadsum | incsumerrors |
+| `network.tcp.rtoalgorithm` | 179 | U32 | constant (4) | rtoalgorithm |
+| `network.tcp.rtomin` | 180 | U32 | constant (200) | rtomin |
+| `network.tcp.rtomax` | 181 | U32 | constant (64000) | rtomax |
+| `network.tcp.maxconn` | 182 | U32 | constant (-1) | maxconn |
+
+**Notes on Mappings:**
+- `currestab`: Use existing `network.tcpconn.established` value (already implemented in Step 2.4)
+- `inerrs`: Computed as `tcps_rcvbadsum + tcps_rcvbadoff + tcps_rcvshort + tcps_rcvmemdrop`
+- Algorithm/timing constants: Match Linux values (Van Jacobson's algorithm=4, 200ms min, 64s max)
+- `maxconn`: -1 indicates no fixed limit (same as Linux)
+
+**Changes Required:**
+
+1. **tcp.h** - Create header file:
+   ```c
+   typedef struct tcpstats {
+       struct tcpstat stats;  /* from netinet/tcp_var.h */
+   } tcpstats_t;
+
+   extern int refresh_tcp(tcpstats_t *);
+   ```
+
+2. **tcp.c** - Implement refresh function:
+   ```c
+   int refresh_tcp(tcpstats_t *tcp)
+   {
+       size_t size = sizeof(tcp->stats);
+       if (sysctlbyname("net.inet.tcp.stats", &tcp->stats, &size, NULL, 0) == -1)
+           return -oserror();
+       return 0;
+   }
+   ```
+
+3. **pmda.c**:
+   - Add `#include "tcp.h"`
+   - Add `CLUSTER_TCP` to cluster enum (value 17)
+   - Add globals: `int mach_tcp_error = 0; tcpstats_t mach_tcp = { 0 };`
+   - Add 15 metrictab entries (direct pointers for most, `fetch_tcp()` for computed)
+   - Add dispatch in `darwin_refresh()`: `if (need_refresh[CLUSTER_TCP]) mach_tcp_error = refresh_tcp(&mach_tcp);`
+   - Add `fetch_tcp()` function for computed metrics (inerrs, currestab)
+   - Add case in `darwin_fetchCallBack()` for CLUSTER_TCP
+
+4. **pmns** - Add `network.tcp.*` hierarchy (15 metrics)
+
+5. **help** - Add basic help text for 15 metrics (NO access control warnings yet)
+
+6. **GNUmakefile** - Add tcp.c and tcp.h to build
+
+7. **Unit tests** - Create `test-tcp.txt`:
+   ```
+   # Test TCP protocol statistics
+   desc network.tcp.activeopens
+   fetch network.tcp.activeopens
+   desc network.tcp.insegs
+   fetch network.tcp.insegs
+   # ... all 15 metrics
+   ```
+
+8. **Integration tests** - Add to `run-integration-tests.sh`:
+   ```bash
+   echo "Test Group: TCP Statistics"
+   run_test "tcp.activeopens exists" "pminfo -f network.tcp.activeopens"
+   run_test "tcp.insegs non-negative" "validate_metric network.tcp.insegs non-negative"
+   # ... test all 15 metrics
+   ```
+
+**What's NOT in this step:**
+- NO warning messages about access control
+- NO configuration file
+- NO man page
+- NO auto-enable feature
+
+**Testing:** With Cirrus CI having enabled the flag, all tests should pass
+
+---
+
+#### Step 2.5b: Access Control Detection and Documentation
+
+**Goal:** Add detection of disabled stats and comprehensive user documentation
+
+**Status:** NOT STARTED
+
+**Depends On:** Step 2.5a complete
+
+**Changes Required:**
+
+1. **pmda.c** - Add startup check in `darwin_init()`:
+
+```c
+static void
+check_tcp_stats_access(void)
+{
+    int flag_value = 1;
+    size_t len = sizeof(flag_value);
+
+    if (sysctlbyname("net.inet.tcp.disable_access_to_stats",
+                     &flag_value, &len, NULL, 0) == 0) {
+        if (flag_value != 0) {
+            pmNotifyErr(LOG_WARNING,
+                "TCP statistics access is DISABLED (net.inet.tcp.disable_access_to_stats=%d).\n"
+                "All network.tcp.* metrics will report zero values.\n"
+                "\n"
+                "To enable TCP statistics, run as root:\n"
+                "    sudo sysctl -w net.inet.tcp.disable_access_to_stats=0\n"
+                "\n"
+                "To make this permanent across reboots, add to /etc/sysctl.conf:\n"
+                "    net.inet.tcp.disable_access_to_stats=0\n"
+                "\n"
+                "See pmdadarwin(1) for more information.",
+                flag_value);
+        }
+    }
+}
+```
+
+Call from `darwin_init()` after `pmdaInit()`.
+
+2. **pmdadarwin.1** - Create first man page for darwin PMDA:
+
+```nroff
+.TH PMDADARWIN 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+pmdadarwin \- Darwin (macOS) kernel PMDA
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/darwin/pmdadarwin\f1
+[\f3\-d\f1 \f2domain\f1]
+[\f3\-l\f1 \f2logfile\f1]
+[\f3\-U\f1 \f2username\f1]
+.SH DESCRIPTION
+.B pmdadarwin
+is a Performance Metrics Domain Agent (PMDA) which extracts
+performance metrics from the macOS (Darwin) kernel...
+
+.SH TCP STATISTICS CONFIGURATION
+On macOS, access to detailed TCP protocol statistics is controlled
+by the kernel sysctl parameter
+.BR net.inet.tcp.disable_access_to_stats .
+By default, this is set to 1 (disabled) for privacy and security.
+
+When disabled, all
+.B network.tcp.*
+metrics (except connection state counts from network.tcpconn.*)
+will report zero values.
+
+.SS Manual Configuration
+To enable TCP statistics manually, run as root:
+.PP
+.in +4n
+.nf
+$ sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+.fi
+.in
+.PP
+To make this permanent across reboots, add to
+.BR /etc/sysctl.conf :
+.PP
+.in +4n
+.nf
+net.inet.tcp.disable_access_to_stats=0
+.fi
+.in
+.SH FILES
+.TP 5
+.B $PCP_PMDAS_DIR/darwin/help
+One line help text for each metric
+.TP
+.B $PCP_LOG_DIR/pmcd/darwin.log
+Log file for error and diagnostic messages
+.SH SEE ALSO
+.BR pmcd (1),
+.BR pminfo (1),
+.BR sysctl (8)
+```
+
+3. **help** - Update metric documentation to mention requirement:
+
+```
+@ network.tcp CLUSTER_TCP
+TCP protocol statistics from the macOS kernel.
+
+Note: Requires net.inet.tcp.disable_access_to_stats=0
+See pmdadarwin(1) for configuration.
+
+@ network.tcp.activeopens
+Count of active TCP connection attempts (SYN sent)
+...
+```
+
+4. **GNUmakefile** - Add man page installation
+
+**Testing:**
+- Verify warning appears in `$PCP_LOG_DIR/pmcd/darwin.log` on systems with stats disabled
+- Verify man page displays correctly: `man pmdadarwin`
+
+---
+
+#### Step 2.5c: Auto-Enable Configuration (Optional/Future)
+
+**Goal:** Allow users to configure automatic enabling of TCP statistics via config file
+
+**Status:** DEFERRED - For discussion with PCP maintainers
+
+**Why Deferred:** This feature changes kernel settings automatically, which may be controversial. Better to get feedback from maintainers before implementing.
+
+**Proposed Implementation** (when/if approved):
+
+1. Create `src/pmdas/darwin/darwin.conf`:
+   ```conf
+   # darwin.conf - Configuration for darwin PMDA
+   # auto_enable_tcp_stats = false
+   ```
+
+2. Add config loading and auto-enable in `pmda.c` (see earlier plan for code)
+
+3. Update man page with auto-enable documentation
+
+4. Update GNUmakefile to install config file
+
+**Discussion Points for Maintainers:**
+- Is it acceptable for PMDA to modify sysctl settings?
+- Should this be opt-in (default false) or opt-out?
+- Where should darwin.conf be installed? ($PCP_PMDAS_DIR/darwin or $PCP_SYSCONF_DIR/darwin?)
+
+---
+
+### Discovery: Access Control via Sysctl Flag (Background Research)
+
+Research (2026-01-03) revealed that TCP statistics ARE available on macOS, but controlled by a flag:
+
+**The `net.inet.tcp.disable_access_to_stats` Flag:**
+- Default value: `1` (disabled) on macOS for privacy/security
+- When set to `1`: `net.inet.tcp.stats` sysctl succeeds but returns all zeros
+- When set to `0`: Full TCP statistics available (228 fields from `struct tcpstat`)
+- **NOT SIP-protected** - can be changed as root
+- This is NOT a permissions failure, it's a deliberate data zeroing mechanism
+
+**Evidence:**
+```bash
+# With flag disabled (default):
+$ sysctl net.inet.tcp.disable_access_to_stats
+net.inet.tcp.disable_access_to_stats: 1
+$ ./test_program
+tcps_connattempt: 0  # All zeros!
+
+# With flag enabled:
+$ sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+$ ./test_program
+tcps_connattempt: 19374  # Real data!
+tcps_sndtotal: 10781426
+tcps_rcvtotal: 9957250
+```
+
+**How Other Tools Handle This:**
+
+1. **Prometheus node_exporter**: Does NOT implement TCP stats on Darwin (Linux-only feature)
+2. **Netdata**: DOES implement TCP stats via `net.inet.tcp.stats` sysctl but:
+   - Documentation says "No action required"
+   - Code does NOT check the flag
+   - Silently reports zeros when flag is disabled (confusing!)
+
+**Conclusion:** TCP statistics ARE available on macOS! Implementation broken into 3 manageable steps (see above).
+
+**References:**
+- Netdata implementation: [freebsd.plugin TCP stats](https://learn.netdata.cloud/docs/collecting-metrics/freebsd/net.inet.tcp.stats)
+- tcpstat structure: `/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/usr/include/netinet/tcp_var.h`
+- Research discussion: This conversation
 
 ---
 
