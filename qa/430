@@ -282,7 +282,7 @@ $host2	        n   n   $logdir.5 -c $logdir/config
 $host2	        n   n   $logdir.6 -c $logdir/config
 EOF
 
-# pmlogger_check runs as the user "pcp" ... fix ownership of output file
+# pmlogger_check runs as the user $PCP_USER ... fix ownership of output file
 #
 touch $tmp.log
 $sudo chown $PCP_USER:$PCP_GROUP $tmp.log
@@ -312,7 +312,11 @@ do
 
     echo "log mandatory on once pmcd.control.debug" >$logdir/config
     echo "--- pmlogger_check ---" >> $seq_full
+    # need to be a place the user $PCP_USER can cd to from pmlogger_daily
+    #
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -c $logdir/control -l $tmp.log"
+    cd $here
     $sudo cat $tmp.log | tee -a $seq_full | _filter
 done
 
@@ -377,7 +381,11 @@ $2 == '"$pid"' { print; exit(0) }'
     cat $PCP_TMP_DIR/pmlogger/$pid >>$seq_full
     $signal -s TERM $pid
     echo "Check ..." | tee -a $seq_full
+    # need to be a place the user $PCP_USER can cd to from pmlogger_check
+    #
+    cd /var/tmp
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -V -c $logdir/control -l $tmp.log"
+    cd $here
     if [ -f $tmp.log ]
     then
 	$sudo cat $tmp.log \
