@@ -323,6 +323,66 @@ Number of TCP connections currently in the CLOSING state.
 Both sides are closing simultaneously, waiting for final acknowledgments.
 This is a relatively rare state during simultaneous connection termination.
 
+@ network.tcp.activeopens active TCP connection attempts
+Count of TCP connections that have transitioned from CLOSED to SYN_SENT state.
+This represents outbound connection attempts initiated by the local host.
+
+@ network.tcp.passiveopens passive TCP connection attempts
+Count of TCP connections that have transitioned from LISTEN to SYN_RECEIVED state.
+This represents inbound connections accepted by listening sockets.
+
+@ network.tcp.attemptfails failed TCP connection attempts
+Count of TCP connection attempts that failed (SYN_SENT/SYN_RECEIVED to CLOSED).
+Includes timeouts, resets, and other connection establishment failures.
+
+@ network.tcp.estabresets TCP connections reset from ESTABLISHED
+Count of TCP connections that transitioned from ESTABLISHED to CLOSED.
+This typically indicates abnormal connection termination via RST.
+
+@ network.tcp.currestab current established TCP connections
+Current number of TCP connections in ESTABLISHED state.
+This is a snapshot count, not a cumulative counter like other TCP metrics.
+
+@ network.tcp.insegs TCP segments received
+Total number of TCP segments received, including those received in error.
+This is the total count of all TCP packets received by the host.
+
+@ network.tcp.outsegs TCP segments sent
+Total number of TCP segments sent, including those containing retransmitted data.
+This is the total count of all TCP packets transmitted by the host.
+
+@ network.tcp.retranssegs TCP segments retransmitted
+Count of TCP segments retransmitted due to timeout or loss detection.
+High values may indicate network congestion or packet loss.
+
+@ network.tcp.inerrs TCP input errors
+Count of TCP segments received with errors (bad checksum, bad offset, too short, etc).
+This aggregates multiple error types from the TCP input processing path.
+
+@ network.tcp.outrsts TCP reset segments sent
+Count of TCP RST (reset) segments sent.
+RST segments are used to abort connections or reject invalid connection attempts.
+
+@ network.tcp.incsumerrors TCP checksum errors on input
+Count of TCP segments discarded due to bad checksum.
+Subset of network.tcp.inerrs specifically for checksum failures.
+
+@ network.tcp.rtoalgorithm TCP retransmission timeout algorithm
+The algorithm used to determine TCP retransmission timeout (RTO).
+Value 4 indicates Van Jacobson's algorithm (RFC 6298), the modern standard.
+
+@ network.tcp.rtomin minimum TCP retransmission timeout
+Minimum value of TCP retransmission timeout in milliseconds.
+Default is 200ms, the lower bound before declaring packet loss.
+
+@ network.tcp.rtomax maximum TCP retransmission timeout
+Maximum value of TCP retransmission timeout in milliseconds.
+Default is 64000ms (64 seconds), the upper bound for retransmission backoff.
+
+@ network.tcp.maxconn maximum TCP connections supported
+Maximum number of TCP connections the system can support.
+Value -1 indicates no fixed limit (dynamically allocated).
+
 @ nfs3.client.calls
 @ nfs3.client.reqs
 @ nfs3.server.calls

@@ -277,6 +277,27 @@ run_test "network.tcpconn.last_ack >= 0" "validate_metric network.tcpconn.last_a
 run_test "network.tcpconn.closing >= 0" "validate_metric network.tcpconn.closing non-negative"
 echo
 
+echo "Test Group: TCP Protocol Statistics"
+run_test "network.tcp.activeopens exists" "pminfo -h localhost -f network.tcp.activeopens"
+run_test "network.tcp.passiveopens exists" "pminfo -h localhost -f network.tcp.passiveopens"
+run_test "network.tcp.insegs exists" "pminfo -h localhost -f network.tcp.insegs"
+run_test "network.tcp.outsegs exists" "pminfo -h localhost -f network.tcp.outsegs"
+run_test "network.tcp.activeopens >= 0" "validate_metric network.tcp.activeopens non-negative"
+run_test "network.tcp.passiveopens >= 0" "validate_metric network.tcp.passiveopens non-negative"
+run_test "network.tcp.attemptfails >= 0" "validate_metric network.tcp.attemptfails non-negative"
+run_test "network.tcp.estabresets >= 0" "validate_metric network.tcp.estabresets non-negative"
+run_test "network.tcp.currestab >= 0" "validate_metric network.tcp.currestab non-negative"
+run_test "network.tcp.insegs >= 0" "validate_metric network.tcp.insegs non-negative"
+run_test "network.tcp.outsegs >= 0" "validate_metric network.tcp.outsegs non-negative"
+run_test "network.tcp.retranssegs >= 0" "validate_metric network.tcp.retranssegs non-negative"
+run_test "network.tcp.inerrs >= 0" "validate_metric network.tcp.inerrs non-negative"
+run_test "network.tcp.outrsts >= 0" "validate_metric network.tcp.outrsts non-negative"
+run_test "network.tcp.incsumerrors >= 0" "validate_metric network.tcp.incsumerrors non-negative"
+run_test "network.tcp.rtoalgorithm == 4" "validate_metric network.tcp.rtoalgorithm positive"
+run_test "network.tcp.rtomin == 200" "validate_metric network.tcp.rtomin positive"
+run_test "network.tcp.rtomax == 64000" "validate_metric network.tcp.rtomax positive"
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"

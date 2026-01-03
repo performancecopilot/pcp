@@ -159,6 +159,7 @@ network {
     icmp
     sockstat
     tcpconn
+    tcp
 }
 
 network.interface {
@@ -237,6 +238,24 @@ network.tcpconn {
     last_ack	DARWIN:16:165
     listen		DARWIN:16:166
     closing		DARWIN:16:167
+}
+
+network.tcp {
+    activeopens	DARWIN:17:168
+    passiveopens	DARWIN:17:169
+    attemptfails	DARWIN:17:170
+    estabresets	DARWIN:17:171
+    currestab	DARWIN:17:172
+    insegs		DARWIN:17:173
+    outsegs		DARWIN:17:174
+    retranssegs	DARWIN:17:175
+    inerrs		DARWIN:17:176
+    outrsts		DARWIN:17:177
+    incsumerrors	DARWIN:17:178
+    rtoalgorithm	DARWIN:17:179
+    rtomin		DARWIN:17:180
+    rtomax		DARWIN:17:181
+    maxconn		DARWIN:17:182
 }
 
 nfs3 {

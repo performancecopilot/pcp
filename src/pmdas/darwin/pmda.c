@@ -35,6 +35,7 @@
 #include "icmp.h"
 #include "sockstat.h"
 #include "tcpconn.h"
+#include "tcp.h"
 
 
 #define page_count_to_kb(x) (((__uint64_t)(x) << mach_page_shift) >> 10)
@@ -111,6 +112,9 @@ sockstats_t		mach_sockstat = { 0 };
 int			mach_tcpconn_error = 0;
 tcpconn_stats_t		mach_tcpconn = { 0 };
 
+int			mach_tcp_error = 0;
+tcpstats_t		mach_tcp = { 0 };
+
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
 
@@ -180,6 +184,7 @@ enum {
     CLUSTER_ICMP,		/* 14 = icmp protocol statistics */
     CLUSTER_SOCKSTAT,		/* 15 = socket statistics */
     CLUSTER_TCPCONN,		/* 16 = tcp connection states */
+    CLUSTER_TCP,		/* 17 = tcp protocol statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
@@ -907,6 +912,67 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_TCPCONN,167), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* network.tcp.activeopens */
+  { &mach_tcp.stats.tcps_connattempt,
+    { PMDA_PMID(CLUSTER_TCP,168), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.passiveopens */
+  { &mach_tcp.stats.tcps_accepts,
+    { PMDA_PMID(CLUSTER_TCP,169), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.attemptfails */
+  { &mach_tcp.stats.tcps_conndrops,
+    { PMDA_PMID(CLUSTER_TCP,170), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.estabresets */
+  { &mach_tcp.stats.tcps_drops,
+    { PMDA_PMID(CLUSTER_TCP,171), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.currestab */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,172), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcp.insegs */
+  { &mach_tcp.stats.tcps_rcvtotal,
+    { PMDA_PMID(CLUSTER_TCP,173), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.outsegs */
+  { &mach_tcp.stats.tcps_sndtotal,
+    { PMDA_PMID(CLUSTER_TCP,174), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.retranssegs */
+  { &mach_tcp.stats.tcps_sndrexmitpack,
+    { PMDA_PMID(CLUSTER_TCP,175), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.inerrs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,176), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.outrsts */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,177), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.incsumerrors */
+  { &mach_tcp.stats.tcps_rcvbadsum,
+    { PMDA_PMID(CLUSTER_TCP,178), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.rtoalgorithm */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,179), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcp.rtomin */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,180), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,0,0,PM_TIME_MSEC,0) }, },
+/* network.tcp.rtomax */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,181), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,0,0,PM_TIME_MSEC,0) }, },
+/* network.tcp.maxconn */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,182), PM_TYPE_32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 static void
@@ -944,6 +1010,8 @@ darwin_refresh(int *need_refresh)
 	mach_sockstat_error = refresh_sockstat(&mach_sockstat);
     if (need_refresh[CLUSTER_TCPCONN])
 	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
+    if (need_refresh[CLUSTER_TCP])
+	mach_tcp_error = refresh_tcp(&mach_tcp);
 }
 
 static inline int
@@ -1413,6 +1481,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_VFS:		return fetch_vfs(item, atom);
     case CLUSTER_UDP:		return fetch_udp(item, atom);
     case CLUSTER_ICMP:		return fetch_icmp(item, atom);
+    case CLUSTER_TCP:		return fetch_tcp(item, atom);
     }
     return 0;
 }
