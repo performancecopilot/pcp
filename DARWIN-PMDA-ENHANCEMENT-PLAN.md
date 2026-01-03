@@ -2,8 +2,8 @@
 
 ## Current Status
 
-**Last Updated:** 2026-01-03
-**Current Step:** Step 2.5a completed (TCP basic implementation), Step 2.5b next (Access control detection)
+**Last Updated:** 2026-01-04
+**Current Step:** Steps 2.5a and 2.5b completed (TCP implementation with detection/docs), Step 2.6 next (pmrep network view)
 **Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
@@ -19,11 +19,13 @@
 | 2.4 | COMPLETED | TCP connection states (commit 96a4191fcd) |
 | 2.5-pre | COMPLETED | Enable TCP stats in Cirrus CI (commit 1d967ef777) |
 | 2.5a | COMPLETED | TCP protocol statistics - basic implementation (commits 2bf73ecef5, 540e5304b2) |
-| 2.5b | NEXT | TCP statistics - detection and documentation (warnings + man page) |
+| 2.5b | COMPLETED | TCP statistics - detection and documentation (warnings + man page) (commit f5c406e52a) |
 | 2.5c | DEFERRED | TCP statistics - auto-enable config (for maintainer discussion) |
+| 2.6 | PENDING | pmrep network monitoring view |
 | 3.1 | PENDING | Process I/O statistics |
 | 3.2 | PENDING | Enhanced process metrics |
 | 4.1 | PENDING | Transform plan → permanent documentation |
+| 4.2 | PENDING | Refactor pmda.c legacy code |
 
 ---
 
@@ -381,9 +383,9 @@ Added new script step in `.cirrus.yml` before `pcp_build_script`:
 
 **Goal:** Implement core TCP statistics matching Linux PMDA parity
 
-**Status:** NOT STARTED
+**Status:** COMPLETED
 
-**Assumption:** User has already set `net.inet.tcp.disable_access_to_stats=0` (or Cirrus CI has done it)
+**Commits:** `2bf73ecef5`, `540e5304b2`
 
 **New Cluster:** `CLUSTER_TCP` (17)
 
@@ -482,9 +484,9 @@ Added new script step in `.cirrus.yml` before `pcp_build_script`:
 
 **Goal:** Add detection of disabled stats and comprehensive user documentation
 
-**Status:** NOT STARTED
+**Status:** COMPLETED
 
-**Depends On:** Step 2.5a complete
+**Commit:** `f5c406e52a`
 
 **Changes Required:**
 
@@ -627,6 +629,83 @@ Count of active TCP connection attempts (SYN sent)
 
 ---
 
+### Step 2.6: pmrep Network Monitoring View
+
+**Goal:** Create dedicated pmrep configuration for comprehensive network monitoring
+
+**Status:** PENDING
+
+**Depends On:** Steps 2.1-2.5 complete (all networking metrics implemented)
+
+**Rationale:**
+- Phase 2 added extensive networking metrics (UDP, ICMP, sockets, TCP conn states, TCP stats)
+- `:macstat` view currently exists but focuses on general system stats
+- Network administrators would benefit from a dedicated networking-focused view
+- Provides out-of-the-box network monitoring without custom pmrep configs
+
+**Changes Required:**
+
+1. **Create pmrep configuration file** - Location TBD:
+   - Option A: `src/pmdas/darwin/pmrep-network.conf` (PMDA-specific)
+   - Option B: Add to system-wide pmrep configs with darwin-specific sections
+
+2. **Design view sections:**
+   - **TCP Overview**: activeopens, passiveopens, currestab, retranssegs, inerrs
+   - **TCP Connection States**: established, time_wait, syn_sent, fin_wait, listen
+   - **UDP Activity**: indatagrams, outdatagrams, noports, inerrors
+   - **ICMP Messages**: inmsgs, outmsgs, inechos, outechos, inerrors
+   - **Socket Usage**: tcp.inuse, udp.inuse
+   - **Network Interfaces**: existing interface stats (bytes, packets, errors)
+
+3. **Example view format:**
+   ```
+   [darwin-network]
+   header = yes
+   unitinfo = no
+   globals = no
+   timestamp = yes
+   interval = 2s
+
+   # TCP Protocol
+   network.tcp.activeopens = tcp_aopens,,,,8
+   network.tcp.passiveopens = tcp_popens,,,,8
+   network.tcp.currestab = tcp_estab,,,,8
+   network.tcp.retranssegs = tcp_retrans,,,,10
+   network.tcp.inerrs = tcp_errs,,,,8
+
+   # TCP States
+   network.tcpconn.established = conn_est,,,,8
+   network.tcpconn.time_wait = conn_timew,,,,8
+   network.tcpconn.listen = conn_list,,,,8
+
+   # UDP
+   network.udp.indatagrams = udp_in,,,,10
+   network.udp.outdatagrams = udp_out,,,,10
+   network.udp.inerrors = udp_err,,,,8
+
+   # ICMP
+   network.icmp.inmsgs = icmp_in,,,,8
+   network.icmp.outmsgs = icmp_out,,,,8
+   ```
+
+4. **Usage documentation:**
+   - Add to pmdadarwin(1) man page (created in Step 2.5b)
+   - Example: `pmrep :darwin-network` or `pmrep -c /path/to/pmrep-network.conf`
+   - Include sample output showing typical network monitoring session
+
+5. **Testing:**
+   - Verify config loads without errors
+   - Test that all metrics are fetchable
+   - Validate output formatting and column widths
+   - Ensure reasonable default refresh interval (2-5s)
+
+**Integration Notes:**
+- Should complement existing `:macstat` view (general system overview)
+- Consider also creating `:darwin-tcp` (TCP-focused) and `:darwin-proto` (all protocols) variants
+- Align metric selection with common network troubleshooting workflows
+
+---
+
 ### Discovery: Access Control via Sysctl Flag (Background Research)
 
 Research (2026-01-03) revealed that TCP statistics ARE available on macOS, but controlled by a flag:
@@ -715,6 +794,73 @@ tcps_rcvtotal: 9957250
 7. Consider whether any lessons learned should be added to help future contributors
 
 **Result:** The document becomes a guide for future darwin PMDA development, explaining established patterns and architectural decisions made during this enhancement effort.
+
+---
+
+### Step 4.2: Refactor pmda.c Legacy Code
+
+**Goal:** Extract legacy fetch functions from pmda.c into dedicated subsystem files
+
+**Status:** PENDING
+
+**Rationale:**
+- pmda.c has grown to over 2000+ lines with embedded fetch logic from earlier development
+- New subsystems (vfs, udp, icmp, sockstat, tcpconn, tcp) already follow modular pattern with dedicated .c/.h files
+- Older code should be refactored to match this cleaner architecture
+- Improves maintainability, testability, and code review
+- Reduces pmda.c to primarily coordination/dispatch logic
+
+**Approach:**
+
+1. **Audit pmda.c** - Identify fetch functions that should move to existing subsystem files:
+   - Disk-related fetch logic → move to `disk.c`
+   - Network interface fetch logic → move to `network.c`
+   - CPU/processor fetch logic → potentially extract to `cpu.c`
+   - Any other domain-specific logic embedded in pmda.c
+
+2. **Refactoring Pattern** (for each subsystem):
+   - Move `fetch_<subsystem>()` function from pmda.c to subsystem.c
+   - Update subsystem.h with function declarations
+   - Keep only metrictab entries and dispatch logic in pmda.c
+   - Ensure `extern` declarations are properly used
+
+3. **Example - Disk subsystem:**
+   ```c
+   // BEFORE: fetch_disk() embedded in pmda.c
+
+   // AFTER:
+   // - disk.h: extern int fetch_disk(unsigned int, unsigned int, pmAtomValue *);
+   // - disk.c: int fetch_disk(...) { /* implementation */ }
+   // - pmda.c: case CLUSTER_DISK: return fetch_disk(item, inst, atom);
+   ```
+
+4. **Constraints:**
+   - NO functional changes - pure code reorganization
+   - All existing tests must continue to pass
+   - Maintain binary compatibility (no ABI changes)
+   - Keep commit history clean with clear refactoring commits
+
+5. **Testing:**
+   - Run full test suite after each subsystem refactoring
+   - Verify no behavioral changes with integration tests
+   - Use `macos-darwin-pmda-qa` agent to validate
+
+6. **Benefits:**
+   - pmda.c becomes smaller, focused on coordination
+   - Each subsystem fully self-contained
+   - Easier to understand and modify individual subsystems
+   - Matches modern PCP PMDA architecture patterns
+
+**Candidates for Extraction** (to be determined during audit):
+- `fetch_disk()` - disk I/O metrics
+- `fetch_network()` - network interface metrics
+- Any fetch logic for cpu, hinv (hardware inventory), or other clusters
+- Helper functions that are subsystem-specific
+
+**Documentation:**
+- Update "Code Organization Pattern" section with lessons learned
+- Note which subsystems were refactored and why
+- Provide guidance for future contributors on modular design
 
 ---
 
