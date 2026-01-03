@@ -153,9 +153,9 @@ output_mem=$(pmrep -h localhost :macstat-mem -t 1 -s 2 2>&1)
 exit_code_mem=$?
 
 if [ $exit_code_mem -ne 0 ]; then
-    echo -e "${YELLOW}⚠ pmrep :macstat-mem failed to run${NC}"
+    echo -e "${RED}✗ pmrep :macstat-mem failed to run${NC}"
     echo "$output_mem"
-    # Don't fail the test, just warn
+    exit 1
 else
     echo "pmrep :macstat-mem output (first 10 lines):"
     echo "---"
@@ -171,7 +171,7 @@ else
         echo -e "${GREEN}✓ Memory breakdown columns present${NC}"
         checks_mem_passed=$((checks_mem_passed + 1))
     else
-        echo -e "${YELLOW}⚠ Memory breakdown columns missing${NC}"
+        echo -e "${RED}✗ Memory breakdown columns missing${NC}"
         checks_mem_failed=$((checks_mem_failed + 1))
     fi
 
@@ -180,7 +180,7 @@ else
         echo -e "${GREEN}✓ Compression metrics present${NC}"
         checks_mem_passed=$((checks_mem_passed + 1))
     else
-        echo -e "${YELLOW}⚠ Compression metrics missing${NC}"
+        echo -e "${RED}✗ Compression metrics missing${NC}"
         checks_mem_failed=$((checks_mem_failed + 1))
     fi
 
@@ -189,13 +189,18 @@ else
         echo -e "${GREEN}✓ Cache hit ratio metric present${NC}"
         checks_mem_passed=$((checks_mem_passed + 1))
     else
-        echo -e "${YELLOW}⚠ Cache hit ratio metric missing${NC}"
+        echo -e "${RED}✗ Cache hit ratio metric missing${NC}"
         checks_mem_failed=$((checks_mem_failed + 1))
     fi
 
     echo
     echo "Memory deep-dive checks passed: $checks_mem_passed"
     echo "Memory deep-dive checks failed: $checks_mem_failed"
+
+    if [ $checks_mem_failed -gt 0 ]; then
+        echo -e "${RED}✗ Memory deep-dive view validation failed${NC}"
+        exit 1
+    fi
 fi
 
 # Test disk deep-dive view
@@ -205,8 +210,9 @@ output_dsk=$(pmrep -h localhost :macstat-dsk -t 1 -s 2 2>&1)
 exit_code_dsk=$?
 
 if [ $exit_code_dsk -ne 0 ]; then
-    echo -e "${YELLOW}⚠ pmrep :macstat-dsk failed to run${NC}"
+    echo -e "${RED}✗ pmrep :macstat-dsk failed to run${NC}"
     echo "$output_dsk"
+    exit 1
 else
     echo "pmrep :macstat-dsk output (first 10 lines):"
     echo "---"
@@ -222,7 +228,7 @@ else
         echo -e "${GREEN}✓ IOPS metrics present${NC}"
         checks_dsk_passed=$((checks_dsk_passed + 1))
     else
-        echo -e "${YELLOW}⚠ IOPS metrics missing${NC}"
+        echo -e "${RED}✗ IOPS metrics missing${NC}"
         checks_dsk_failed=$((checks_dsk_failed + 1))
     fi
 
@@ -231,7 +237,7 @@ else
         echo -e "${GREEN}✓ Throughput metrics present${NC}"
         checks_dsk_passed=$((checks_dsk_passed + 1))
     else
-        echo -e "${YELLOW}⚠ Throughput metrics missing${NC}"
+        echo -e "${RED}✗ Throughput metrics missing${NC}"
         checks_dsk_failed=$((checks_dsk_failed + 1))
     fi
 
@@ -240,13 +246,18 @@ else
         echo -e "${GREEN}✓ Latency metrics present${NC}"
         checks_dsk_passed=$((checks_dsk_passed + 1))
     else
-        echo -e "${YELLOW}⚠ Latency metrics missing${NC}"
+        echo -e "${RED}✗ Latency metrics missing${NC}"
         checks_dsk_failed=$((checks_dsk_failed + 1))
     fi
 
     echo
     echo "Disk deep-dive checks passed: $checks_dsk_passed"
     echo "Disk deep-dive checks failed: $checks_dsk_failed"
+
+    if [ $checks_dsk_failed -gt 0 ]; then
+        echo -e "${RED}✗ Disk deep-dive view validation failed${NC}"
+        exit 1
+    fi
 fi
 
 # Test TCP-focused view
@@ -256,8 +267,9 @@ output_tcp=$(pmrep -h localhost :macstat-tcp -t 1 -s 2 2>&1)
 exit_code_tcp=$?
 
 if [ $exit_code_tcp -ne 0 ]; then
-    echo -e "${YELLOW}⚠ pmrep :macstat-tcp failed to run${NC}"
+    echo -e "${RED}✗ pmrep :macstat-tcp failed to run${NC}"
     echo "$output_tcp"
+    exit 1
 else
     echo "pmrep :macstat-tcp output (first 10 lines):"
     echo "---"
@@ -273,7 +285,7 @@ else
         echo -e "${GREEN}✓ TCP activity metrics present${NC}"
         checks_tcp_passed=$((checks_tcp_passed + 1))
     else
-        echo -e "${YELLOW}⚠ TCP activity metrics missing${NC}"
+        echo -e "${RED}✗ TCP activity metrics missing${NC}"
         checks_tcp_failed=$((checks_tcp_failed + 1))
     fi
 
@@ -282,7 +294,7 @@ else
         echo -e "${GREEN}✓ TCP connection state metrics present${NC}"
         checks_tcp_passed=$((checks_tcp_passed + 1))
     else
-        echo -e "${YELLOW}⚠ TCP connection state metrics missing${NC}"
+        echo -e "${RED}✗ TCP connection state metrics missing${NC}"
         checks_tcp_failed=$((checks_tcp_failed + 1))
     fi
 
@@ -291,13 +303,18 @@ else
         echo -e "${GREEN}✓ Error/retransmission metrics present${NC}"
         checks_tcp_passed=$((checks_tcp_passed + 1))
     else
-        echo -e "${YELLOW}⚠ Error/retransmission metrics missing${NC}"
+        echo -e "${RED}✗ Error/retransmission metrics missing${NC}"
         checks_tcp_failed=$((checks_tcp_failed + 1))
     fi
 
     echo
     echo "TCP-focused checks passed: $checks_tcp_passed"
     echo "TCP-focused checks failed: $checks_tcp_failed"
+
+    if [ $checks_tcp_failed -gt 0 ]; then
+        echo -e "${RED}✗ TCP-focused view validation failed${NC}"
+        exit 1
+    fi
 fi
 
 # Test protocol overview view
@@ -307,8 +324,9 @@ output_proto=$(pmrep -h localhost :macstat-proto -t 1 -s 2 2>&1)
 exit_code_proto=$?
 
 if [ $exit_code_proto -ne 0 ]; then
-    echo -e "${YELLOW}⚠ pmrep :macstat-proto failed to run${NC}"
+    echo -e "${RED}✗ pmrep :macstat-proto failed to run${NC}"
     echo "$output_proto"
+    exit 1
 else
     echo "pmrep :macstat-proto output (first 10 lines):"
     echo "---"
@@ -324,7 +342,7 @@ else
         echo -e "${GREEN}✓ UDP metrics present${NC}"
         checks_proto_passed=$((checks_proto_passed + 1))
     else
-        echo -e "${YELLOW}⚠ UDP metrics missing${NC}"
+        echo -e "${RED}✗ UDP metrics missing${NC}"
         checks_proto_failed=$((checks_proto_failed + 1))
     fi
 
@@ -333,7 +351,7 @@ else
         echo -e "${GREEN}✓ ICMP metrics present${NC}"
         checks_proto_passed=$((checks_proto_passed + 1))
     else
-        echo -e "${YELLOW}⚠ ICMP metrics missing${NC}"
+        echo -e "${RED}✗ ICMP metrics missing${NC}"
         checks_proto_failed=$((checks_proto_failed + 1))
     fi
 
@@ -342,13 +360,18 @@ else
         echo -e "${GREEN}✓ Socket metrics present${NC}"
         checks_proto_passed=$((checks_proto_passed + 1))
     else
-        echo -e "${YELLOW}⚠ Socket metrics missing${NC}"
+        echo -e "${RED}✗ Socket metrics missing${NC}"
         checks_proto_failed=$((checks_proto_failed + 1))
     fi
 
     echo
     echo "Protocol overview checks passed: $checks_proto_passed"
     echo "Protocol overview checks failed: $checks_proto_failed"
+
+    if [ $checks_proto_failed -gt 0 ]; then
+        echo -e "${RED}✗ Protocol overview view validation failed${NC}"
+        exit 1
+    fi
 fi
 
 echo
