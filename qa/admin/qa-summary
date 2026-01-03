@@ -285,7 +285,7 @@ BEGIN	{ OFS ="|" }
 
 echo "==== QA Summary ===="
 echo
-echo "Date        Run Pass Fail Nrun Trgd Host"
+echo "Date        Run Pass Fail Nrun Trgd Cbak Host"
 numqahosts=0
 for vm
 do
@@ -336,9 +336,10 @@ do
 	    awk <$date >$tmp.out '
 # states
 # 1 - looking for split Not run: list
-# 2 - looking for split Failures: list
-# 3 - looking for split Triaged: list
-# 4 - done (seen final Passed or Failed N of N line)
+# 2 - looking for split Callback: list
+# 3 - looking for split Failures: list
+# 4 - looking for split Triaged: list
+# 5 - done (seen final Passed or Failed N of N line)
 /^Not run:/	{ notrun = NF - 2
 		  nrlist = $3
 		  for (i = 4; i <= NF; i++) nrlist = nrlist " " $i
@@ -346,54 +347,58 @@ do
 		  state = 1
 		  next
 		}
+/^Callback:/	{ ncb = NF - 1
+		  cblist = $2
+		  for (i = 3; i <= NF; i++) flist = flist " " $i
+		  print NR,": Callback: start: ncb=" ncb >"'$tmp.dbg'"
+		  state = 2
+		  next
+		}
 /^Failures:/	{ nfail = NF - 1
 		  flist = $2
 		  for (i = 3; i <= NF; i++) flist = flist " " $i
 		  print NR,": Failures: start: nfail=" nfail >"'$tmp.dbg'"
-		  state = 2
+		  state = 3
+		  next
+		}
+/^Triaged:/	{ ntriag = NF - 1
+		  tlist = $2
+		  for (i = 3; i <= NF; i++) tlist = tlist " " $i
+		  print NR,": Triaged: start: ntriag=" ntriag >"'$tmp.dbg'"
+		  state = 4
 		  next
 		}
 /^Failed [0-9][0-9]* of [0-9][0-9]* tests/	{
 		  failed = $2
 		  run = $4
-		  state = 4
-		}
-/^Triaged:/	{ ntriag = NF - 1
-		  tlist = $2
-		  for (i = 3; i <= NF; i++) tlist = tlist " " $i
-		  print NR,": Triaged: start: nfail=" nfail >"'$tmp.dbg'"
-		  state = 4
-		  next
+		  state = 5
 		}
 /^Passed [0-9][0-9]* tests/	{
 		  failed = 0
 		  run = $2
 		  print NR,": Passed: " run >"'$tmp.dbg'"
-		  state = 4
+		  state = 5
 		}
 
 /^Passed all [0-9][0-9]* tests/	{
 		  failed = 0
 		  run = $3
 		  print NR,": Passed all: " run >"'$tmp.dbg'"
-		  state = 4
+		  state = 5
 		}
-state == 4	{ if (run >= '$minrun') printf "%s %4d %4d %4d %4d %4d|%s|%s+%s+%s\n","'$_date'",run,run-failed,failed,notrun,ntriag,"'$basevmname'",flist,nrlist,tlist
+state == 5	{ if (run >= '$minrun') printf "%s %4d %4d %4d %4d %4d %4d|%s|%s+%s+%s+%s\n","'$_date'",run,run-failed,failed,notrun,ntriag,ncb,"'$basevmname'",flist,nrlist,tlist,cblist
 		  else print NR,": results skipped: run (" run ") < minrun ('$minrun')" >"'$tmp.dbg'"
 		  state = 0
-		  notrun = 0
-		  nfail = 0
+		  notrun = ncb = nfail = ntriag = 0
 		}
 /^Info:/	{
 		  state = 0
-		  notrun = 0
-		  nfail = 0
+		  notrun = ncb = nfail = ntriag = 0
 		  next
 		}
 /^===/		{
 		  state = 0
-		  notrun = 0
-		  nfail = 0
+		  notrun = ncb = nfail = ntriag = 0
 		  next
 		}
 state == 1	{ # Not run: list broken over multiple lines
@@ -402,13 +407,19 @@ state == 1	{ # Not run: list broken over multiple lines
 		  print NR,": Not run: add",NF," notrun=" notrun >"'$tmp.dbg'"
 		  next
 		}
-state == 2	{ # Failures: list broken over multiple lines
+state == 2	{ # Callback: list broken over multiple lines
+		  ncb += NF
+		  for (i = 1; i <= NF; i++) cblist = cblist " " $i
+		  print NR,": Callback: add",NF," ncb=" ncb >"'$tmp.dbg'"
+		  next
+		}
+state == 3	{ # Failures: list broken over multiple lines
 		  nfail += NF
 		  for (i = 1; i <= NF; i++) flist = flist " " $i
 		  print NR,": Failures: add",NF," nfail=" nfail >"'$tmp.dbg'"
 		  next
 		}
-state == 3	{ # Triaged: list broken over multiple lines
+state == 4	{ # Triaged: list broken over multiple lines
 		  ntriag += NF
 		  for (i = 1; i <= NF; i++) tlist = tlist " " $i
 		  print NR,": Triaged: add",NF," ntriag=" ntriag >"'$tmp.dbg'"
@@ -428,7 +439,7 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 	    sort <$tmp.out --key=3,3nr --key=5,5n \
 	    | sed -e 1q >$tmp.tmp
 	    # $tmp.tmp line is ...
-	    # <date> <#run> <#passed> <#failed> <#notrun> <#triaged>|<hostname>|<failed list...>+<notrun list>+<triaged list>
+	    # <date> <#run> <#passed> <#failed> <#notrun> <#triaged> <#callback>|<hostname>|<failed list...>+<notrun list>+<triaged list>+<callback list>
 	    if [ -s $tmp.tmp ]
 	    then
 		if $debug
@@ -439,13 +450,23 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 		sed -e 's/|[^|]*$//' <$tmp.tmp | _what >>$tmp.found
 		# failed ...
 		#
-		nfail=`awk <$tmp.tmp '{print $4}'`
+		nfail=`sed -e 's/|.*//' <$tmp.tmp | awk '{print $4}'`
 		if [ $nfail -gt 0 ]
 		then
 		    awk <$tmp.tmp -F+ '{print $1}' \
 		    | sed -e 's/.*|//' \
 		    | tr ' ' '\012' \
 		    | sed -e "s/\$/ X $basevmname/" >>$tmp.map
+		fi
+
+		# callback ...
+		#
+		ncb=`sed -e 's/|.*//' <$tmp.tmp | awk '{print $7}'`
+		if [ $ncb -gt 0 ]
+		then
+		    awk <$tmp.tmp -F+ '{print $4}' \
+		    | tr ' ' '\012' \
+		    | sed -e "s/\$/ C $basevmname/" >>$tmp.map
 		fi
 
 		# not run ...
@@ -476,23 +497,18 @@ END		{ print NR,": END state=" state >"'$tmp.dbg'"
 		    fi
 		fi
 
-		if $aflag || [ $nfail -gt 0 -o $nnotrun -gt 0 -o $ntriag -gt 0 ]
+		if $aflag || [ $nfail -gt 0 -o $ncb -gt 0 -o $nnotrun -gt 0 -o $ntriag -gt 0 ]
 		then
 		    # pass lines look like:
-		    # [97%] 1055 16s ...
-		    # or
 		    # [97%] 1055
+		    # [97%] 1055 16s ...
 		    # and may contain " [fixup]"
 		    #
-		    sed <$date -n \
-				-e 's/ \[fixup]//' \
-		    		-e '/^[[0-9][0-9]*%] [0-9][0-9]* [0-9][0-9]*s \.\.\./{
+		    sed -E <$date -n \
+				-e 's/ [0-9][0-9]*s \.\.\.//' \
+		    		-e '/^[[0-9][0-9]*%] [0-9][0-9]*($|.*\[fixup])/{
 s/.*] //
 s/ .*//
-p
-}' \
-				-e '/^[[0-9][0-9]*%] [0-9][0-9]*$/{
-s/.*] //
 p
 }' \
 		    | sed -e "s/\$/ P $basevmname/" >>$tmp.map
@@ -530,10 +546,14 @@ done
 if [ -f $tmp.counts ]
 then
     awk <$tmp.counts '
-	{ nrun += $2; nfail += $4; ntriag += $6 }
+	{ nrun += $2; nfail += $4; nnotrun += $5; ntriag += $6; ncb +=$7 }
 END	{ printf "Summary: %d run, %d failed (%.2f%%)", nrun, nfail, 100*nfail/nrun
 	  if (ntriag > 0)
 	    printf ", %d triaged (%.2f%%)", ntriag, 100*ntriag/nrun
+	  if (ncb > 0)
+	    printf ", %d callbacks (%.2f%%)", ncb, 100*ncb/nrun
+	  if (nnotrun > 0)
+	    printf ", %d notrun (%.2f%%)", nnotrun, 100*nnotrun/nrun
 	  printf "\n"
 	}'
 fi
@@ -545,9 +565,19 @@ then
     echo
     if $nflag
     then
-	echo "==== QA Failure (X), Not Run (N) and Skipped (S) Map ===="
+	if $tflag
+	then
+	    echo "==== QA Failure (X), Triaged (T), Callback(C), Not Run (N) and Skipped (S) Map ===="
+	else
+	    echo "==== QA Failure (X), Callback(C), Not Run (N) and Skipped (S) Map ===="
+	fi
     else
-	echo "==== QA Failure (X) and Not Run or Skipped (-) Map ===="
+	if $tflag
+	then
+	    echo "==== QA Failure (X), Triaged (T), Callback(C) and Not Run or Skipped (-) Map ===="
+	else
+	    echo "==== QA Failure (X), Callback(C) and Not Run or Skipped (-) Map ===="
+	fi
     fi
     echo
     ( ( sed -e 's/.* //' <$tmp.map | sort | uniq ) \
@@ -651,9 +681,10 @@ $1 == "---"	{ heading()
 		}
 state == 0	{ host[nh] = $1; nh++; next }
 $1 != last	{ if (last != "---") {
-		      skip = nrun = bad = triag = pass = 0
+		      skip = nrun = bad = callback = triag = pass = 0
 		      for (i = 0; i < nh; i++) {
 			  if (fail[i] == "X") bad++
+			  if (fail[i] == "C") callback++
 			  if (fail[i] == "T") triag++
 			  if (fail[i] == "P") {
 			      pass++
@@ -668,7 +699,10 @@ $1 != last	{ if (last != "---") {
 			      if (nflag == 0) fail[i] = "-"
 			  }
 		      }
-		      if (bad > 0 || triag > 0 || aflag) {
+		      # for -n report tests where the test is not run on
+		      # more than 50% of the hosts
+		      #
+		      if (bad > 0 || callback > 0 || (tflag && triag > 0) || (nflag && nrun > 0.5*'$numqahosts') || aflag) {
 			  printf "%04d",last
 			  if (nflag && nrun == nh) {
 			    printf "   NOT RUN AT ALL "
@@ -677,7 +711,7 @@ $1 != last	{ if (last != "---") {
 			      if (cflag)
 				  printf "  %4d",bad
 			      else
-				  printf "  %3d%%",int(0.5+100*bad/'$numqahosts')
+				  printf "  %3d%%",int(0.5+100*(bad+callback)/'$numqahosts')
 			      if (nflag) {
 				  if (cflag) {
 				      printf "  %4d",pass
