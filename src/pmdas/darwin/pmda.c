@@ -145,7 +145,7 @@ static pmdaInstid nfs3_indom_id[] = {
  * Metric Instance Domain table
  * (enum now defined in darwin.h for use by refactored modules)
  */
-static pmdaIndom indomtab[] = {
+pmdaIndom indomtab[] = {
     { LOADAVG_INDOM,	3, loadavg_indom_id },
     { FILESYS_INDOM,	0, NULL },
     { DISK_INDOM,	0, NULL },
