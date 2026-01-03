@@ -174,3 +174,76 @@ refresh_nfs(struct nfsstats *stats)
 	return -oserror();
     return 0;
 }
+
+int
+fetch_network(unsigned int item, unsigned int inst, pmAtomValue *atom)
+{
+	extern netstats_t mach_net;
+	extern int mach_net_error;
+	extern pmdaIndom indomtab[];
+
+	if (mach_net_error)
+		return mach_net_error;
+	if (indomtab[NETWORK_INDOM].it_numinst == 0)
+		return 0;	/* no values available */
+	if (inst < 0 || inst >= indomtab[NETWORK_INDOM].it_numinst)
+		return PM_ERR_INST;
+	switch (item) {
+	case 77: /* network.interface.in.bytes */
+		atom->ull = mach_net.interfaces[inst].ibytes;
+		return 1;
+	case 78: /* network.interface.in.packets */
+		atom->ull = mach_net.interfaces[inst].ipackets;
+		return 1;
+	case 79: /* network.interface.in.errors */
+		atom->ull = mach_net.interfaces[inst].ierrors;
+		return 1;
+	case 80: /* network.interface.in.drops */
+		atom->ull = mach_net.interfaces[inst].iqdrops;
+		return 1;
+	case 81: /* network.interface.in.mcasts */
+		atom->ull = mach_net.interfaces[inst].imcasts;
+		return 1;
+	case 82: /* network.interface.out.bytes */
+		atom->ull = mach_net.interfaces[inst].obytes;
+		return 1;
+	case 83: /* network.interface.out.packets */
+		atom->ull = mach_net.interfaces[inst].opackets;
+		return 1;
+	case 84: /* network.interface.out.errors */
+		atom->ull = mach_net.interfaces[inst].oerrors;
+		return 1;
+	case 85: /* network.interface.out.mcasts */
+		atom->ull = mach_net.interfaces[inst].omcasts;
+		return 1;
+	case 86: /* network.interface.collisions */
+		atom->ull = mach_net.interfaces[inst].collisions;
+		return 1;
+	case 87: /* network.interface.mtu */
+		atom->ull = mach_net.interfaces[inst].mtu;
+		return 1;
+	case 88: /* network.interface.baudrate */
+		atom->ull = mach_net.interfaces[inst].baudrate;
+		return 1;
+	case 89: /* network.interface.total.bytes */
+		atom->ull = mach_net.interfaces[inst].ibytes +
+			    mach_net.interfaces[inst].obytes;
+		return 1;
+	case 90: /* network.interface.total.packets */
+		atom->ull = mach_net.interfaces[inst].ipackets +
+			    mach_net.interfaces[inst].opackets;
+		return 1;
+	case 91: /* network.interface.total.errors */
+		atom->ull = mach_net.interfaces[inst].ierrors +
+			    mach_net.interfaces[inst].oerrors;
+		return 1;
+	case 92: /* network.interface.total.drops */
+		atom->ull = mach_net.interfaces[inst].iqdrops;
+		return 1;
+	case 93: /* network.interface.total.mcasts */
+		atom->ull = mach_net.interfaces[inst].imcasts +
+			    mach_net.interfaces[inst].omcasts;
+		return 1;
+	}
+	return PM_ERR_PMID;
+}
