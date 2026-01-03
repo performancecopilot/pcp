@@ -24,6 +24,10 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
+MAN_SECTION	= 1
+MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
+MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
+
 CFILES		= pmda.c kernel.c disk.c network.c vfs.c udp.c icmp.c sockstat.c tcpconn.c tcp.c version.c
 HFILES		= disk.h network.h vfs.h udp.h icmp.h sockstat.h tcpconn.h tcp.h
 
@@ -54,6 +58,7 @@ install: build-me
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help.dir help.pag $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_darwin root_darwin $(PCP_PMNSADM_DIR)/root_darwin
+	@$(INSTALL_MAN)
 else
 build-me:
 install:
@@ -62,6 +67,9 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^
 
 help.dir help.pag: help root_darwin
 	$(NEWHELP) -n root_darwin -v 2 -o help < help

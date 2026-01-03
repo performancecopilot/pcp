@@ -1515,7 +1515,32 @@ darwin_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
-void 
+static void
+check_tcp_stats_access(void)
+{
+	int flag_value = 1;
+	size_t len = sizeof(flag_value);
+
+	if (sysctlbyname("net.inet.tcp.disable_access_to_stats",
+			 &flag_value, &len, NULL, 0) == 0) {
+		if (flag_value != 0) {
+			pmNotifyErr(LOG_WARNING,
+				"TCP statistics access is DISABLED (net.inet.tcp.disable_access_to_stats=%d).\n"
+				"All network.tcp.* metrics will report zero values.\n"
+				"\n"
+				"To enable TCP statistics, run as root:\n"
+				"    sudo sysctl -w net.inet.tcp.disable_access_to_stats=0\n"
+				"\n"
+				"To make this permanent across reboots, add to /etc/sysctl.conf:\n"
+				"    net.inet.tcp.disable_access_to_stats=0\n"
+				"\n"
+				"See pmdadarwin(1) for more information.",
+				flag_value);
+		}
+	}
+}
+
+void
 darwin_init(pmdaInterface *dp)
 {
     int		sts;
@@ -1549,6 +1574,7 @@ darwin_init(pmdaInterface *dp)
     if ((sts = refresh_hinv()) != 0)
 	fprintf(stderr, "darwin_init: refresh_hinv failed: %s\n", pmErrStr(sts));
     init_network();
+    check_tcp_stats_access();
 }
 
 static void
