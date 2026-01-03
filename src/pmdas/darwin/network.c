@@ -22,6 +22,7 @@
 #include <mach/mach.h>
 #include "pmapi.h"
 #include "pmda.h"
+#include "darwin.h"
 #include "network.h"
 
 void

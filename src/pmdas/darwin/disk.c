@@ -24,6 +24,7 @@
 #include "pmapi.h"
 #include "pmda.h"
 
+#include "darwin.h"
 #include "disk.h"
 
 /*
