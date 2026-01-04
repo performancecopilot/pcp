@@ -24,6 +24,7 @@
 #include "pmapi.h"
 #include "pmda.h"
 
+#include "darwin.h"
 #include "disk.h"
 
 /*
@@ -269,4 +270,104 @@ refresh_disks(struct diskstats *stats, pmdaIndom *indom)
     if (count)
 	status = update_disk_indom(stats, count, indom);
     return status;
+}
+
+int
+fetch_disk(unsigned int item, unsigned int inst, pmAtomValue *atom)
+{
+	extern diskstats_t mach_disk;
+	extern int mach_disk_error;
+	extern pmdaIndom indomtab[];
+
+	if (mach_disk_error)
+		return mach_disk_error;
+	if (item == 46) {	/* hinv.ndisk */
+		atom->ul = indomtab[DISK_INDOM].it_numinst;
+		return 1;
+	}
+	if (indomtab[DISK_INDOM].it_numinst == 0)
+		return 0;	/* no values available */
+	if (item < 59 && (inst < 0 || inst >= indomtab[DISK_INDOM].it_numinst))
+		return PM_ERR_INST;
+	switch (item) {
+	case 47: /* disk.dev.read */
+		atom->ull = mach_disk.disks[inst].read;
+		return 1;
+	case 48: /* disk.dev.write */
+		atom->ull = mach_disk.disks[inst].write;
+		return 1;
+	case 49: /* disk.dev.total */
+		atom->ull = mach_disk.disks[inst].read + mach_disk.disks[inst].write;
+		return 1;
+	case 50: /* disk.dev.read_bytes */
+		atom->ull = mach_disk.disks[inst].read_bytes >> 10;
+		return 1;
+	case 51: /* disk.dev.write_bytes */
+		atom->ull = mach_disk.disks[inst].write_bytes >> 10;
+		return 1;
+	case 52: /* disk.dev.total_bytes */
+		atom->ull = (mach_disk.disks[inst].read_bytes +
+				mach_disk.disks[inst].write_bytes) >> 10;
+		return 1;
+	case 53: /* disk.dev.blkread */
+		atom->ull = mach_disk.disks[inst].read_bytes /
+				mach_disk.disks[inst].blocksize;
+		return 1;
+	case 54: /* disk.dev.blkwrite */
+		atom->ull = mach_disk.disks[inst].write_bytes /
+				mach_disk.disks[inst].blocksize;
+		return 1;
+	case 55: /* disk.dev.blktotal */
+		atom->ull = (mach_disk.disks[inst].read_bytes +
+				 mach_disk.disks[inst].write_bytes) /
+					mach_disk.disks[inst].blocksize;
+		return 1;
+	case 56: /* disk.dev.read_time */
+		atom->ull = mach_disk.disks[inst].read_time;
+		return 1;
+	case 57: /* disk.dev.write_time */
+		atom->ull = mach_disk.disks[inst].write_time;
+		return 1;
+	case 58: /* disk.dev.total_time */
+		atom->ull = mach_disk.disks[inst].read_time +
+					mach_disk.disks[inst].write_time;
+		return 1;
+	case 59: /* disk.all.read */
+		atom->ull = mach_disk.read;
+		return 1;
+	case 60: /* disk.all.write */
+		atom->ull = mach_disk.write;
+		return 1;
+	case 61: /* disk.all.total */
+		atom->ull = mach_disk.read + mach_disk.write;
+		return 1;
+	case 62: /* disk.all.read_bytes */
+		atom->ull = mach_disk.read_bytes >> 10;
+		return 1;
+	case 63: /* disk.all.write_bytes */
+		atom->ull = mach_disk.write_bytes >> 10;
+		return 1;
+	case 64: /* disk.all.total_bytes */
+		atom->ull = (mach_disk.read_bytes + mach_disk.write_bytes) >> 10;
+		return 1;
+	case 65: /* disk.all.blkread */
+		atom->ull = mach_disk.blkread;
+		return 1;
+	case 66: /* disk.all.blkwrite */
+		atom->ull = mach_disk.blkwrite;
+		return 1;
+	case 67: /* disk.all.blktotal */
+		atom->ull = mach_disk.blkread + mach_disk.blkwrite;
+		return 1;
+	case 68: /* disk.all.read_time */
+		atom->ull = mach_disk.read_time;
+		return 1;
+	case 69: /* disk.all.write_time */
+		atom->ull = mach_disk.write_time;
+		return 1;
+	case 70: /* disk.all.total_time */
+		atom->ull = mach_disk.read_time + mach_disk.write_time;
+		return 1;
+	}
+	return PM_ERR_PMID;
 }

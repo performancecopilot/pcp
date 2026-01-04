@@ -20,6 +20,7 @@
 #include <syslog.h>
 #include <unistd.h>
 #include <sys/mount.h>
+#include <sys/sysctl.h>
 #include <sys/utsname.h>
 #include <mach/mach.h>
 #include "pmapi.h"
@@ -29,6 +30,12 @@
 #include "darwin.h"
 #include "disk.h"
 #include "network.h"
+#include "vfs.h"
+#include "udp.h"
+#include "icmp.h"
+#include "sockstat.h"
+#include "tcpconn.h"
+#include "tcp.h"
 
 
 #define page_count_to_kb(x) (((__uint64_t)(x) << mach_page_shift) >> 10)
@@ -58,8 +65,12 @@ struct host_cpu_load_info	mach_cpuload = { { 0 } };
 extern int refresh_cpuload(struct host_cpu_load_info *);
 
 int			mach_vmstat_error = 0;
-struct vm_statistics	mach_vmstat = { 0 };
-extern int refresh_vmstat(struct vm_statistics *);
+struct vm_statistics64	mach_vmstat = { 0 };
+extern int refresh_vmstat(struct vm_statistics64 *);
+
+int			mach_swap_error = 0;
+struct xsw_usage	mach_swap = { 0 };
+extern int refresh_swap(struct xsw_usage *);
 
 int			mach_fs_error = 0;
 struct statfs		*mach_fs = NULL;
@@ -85,6 +96,24 @@ extern void init_network(void);
 int			mach_nfs_error = 0;
 struct nfsstats		mach_nfs = { 0 };
 extern int refresh_nfs(struct nfsstats *);
+
+int			mach_vfs_error = 0;
+vfsstats_t		mach_vfs = { 0 };
+
+int			mach_udp_error = 0;
+udpstats_t		mach_udp = { 0 };
+
+int			mach_icmp_error = 0;
+icmpstats_t		mach_icmp = { 0 };
+
+int			mach_sockstat_error = 0;
+sockstats_t		mach_sockstat = { 0 };
+
+int			mach_tcpconn_error = 0;
+tcpconn_stats_t		mach_tcpconn = { 0 };
+
+int			mach_tcp_error = 0;
+tcpstats_t		mach_tcp = { 0 };
 
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
@@ -114,18 +143,9 @@ static pmdaInstid nfs3_indom_id[] = {
 
 /*
  * Metric Instance Domain table
+ * (enum now defined in darwin.h for use by refactored modules)
  */
-enum {
-    LOADAVG_INDOM,		/* 0 - 1, 5, 15 minute run queue averages */
-    FILESYS_INDOM,		/* 1 - set of all mounted filesystems */
-    DISK_INDOM,			/* 2 - set of all disk devices */
-    CPU_INDOM,			/* 3 - set of all processors */
-    NETWORK_INDOM,		/* 4 - set of all network interfaces */
-    NFS3_INDOM,			/* 5 - nfs v3 operations */
-    NUM_INDOMS			/* total number of instance domains */
-};
-
-static pmdaIndom indomtab[] = {
+pmdaIndom indomtab[] = {
     { LOADAVG_INDOM,	3, loadavg_indom_id },
     { FILESYS_INDOM,	0, NULL },
     { DISK_INDOM,	0, NULL },
@@ -150,6 +170,12 @@ enum {
     CLUSTER_UPTIME,		/*  9 = system uptime in seconds */
     CLUSTER_NETWORK,		/* 10 = networking statistics */
     CLUSTER_NFS,		/* 11 = nfs filesystem statistics */
+    CLUSTER_VFS,		/* 12 = vfs statistics */
+    CLUSTER_UDP,		/* 13 = udp protocol statistics */
+    CLUSTER_ICMP,		/* 14 = icmp protocol statistics */
+    CLUSTER_SOCKSTAT,		/* 15 = socket statistics */
+    CLUSTER_TCPCONN,		/* 16 = tcp connection states */
+    CLUSTER_TCP,		/* 17 = tcp protocol statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
@@ -256,6 +282,26 @@ static pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_VMSTAT,23), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* swap.length */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,24), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* swap.used */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,25), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* swap.free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,26), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* swap.pagesin */
+  { &mach_vmstat.pageins,
+    { PMDA_PMID(CLUSTER_VMSTAT,27), PM_TYPE_32, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* swap.pagesout */
+  { &mach_vmstat.pageouts,
+    { PMDA_PMID(CLUSTER_VMSTAT,28), PM_TYPE_32, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* kernel.uname.release */
   { mach_uname.release,
@@ -699,6 +745,225 @@ static pmdaMetric metrictab[] = {
      { PMDA_PMID(CLUSTER_FILESYS,129), PM_TYPE_U32, FILESYS_INDOM,
        PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* mem.util.compressed */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VMSTAT,130), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0) }, },
+/* mem.compressions */
+  { &mach_vmstat.compressions,
+    { PMDA_PMID(CLUSTER_VMSTAT,131), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.decompressions */
+  { &mach_vmstat.decompressions,
+    { PMDA_PMID(CLUSTER_VMSTAT,132), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.pages */
+  { &mach_vmstat.compressor_page_count,
+    { PMDA_PMID(CLUSTER_VMSTAT,133), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.uncompressed_pages */
+  { &mach_vmstat.total_uncompressed_pages_in_compressor,
+    { PMDA_PMID(CLUSTER_VMSTAT,134), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* vfs.files.count */
+  { &mach_vfs.num_files,
+    { PMDA_PMID(CLUSTER_VFS,135), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.files.max */
+  { &mach_vfs.max_files,
+    { PMDA_PMID(CLUSTER_VFS,136), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.files.free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_VFS,137), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.vnodes.count */
+  { &mach_vfs.num_vnodes,
+    { PMDA_PMID(CLUSTER_VFS,138), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.vnodes.max */
+  { &mach_vfs.max_vnodes,
+    { PMDA_PMID(CLUSTER_VFS,139), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.all.nprocs */
+  { &mach_vfs.num_tasks,
+    { PMDA_PMID(CLUSTER_VFS,140), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.all.nthreads */
+  { &mach_vfs.num_threads,
+    { PMDA_PMID(CLUSTER_VFS,141), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.udp.indatagrams */
+  { &mach_udp.ipackets,
+    { PMDA_PMID(CLUSTER_UDP,142), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.outdatagrams */
+  { &mach_udp.opackets,
+    { PMDA_PMID(CLUSTER_UDP,143), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.noports */
+  { &mach_udp.noport,
+    { PMDA_PMID(CLUSTER_UDP,144), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.inerrors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_UDP,145), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.rcvbuferrors */
+  { &mach_udp.fullsock,
+    { PMDA_PMID(CLUSTER_UDP,146), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.icmp.inmsgs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,147), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.outmsgs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,148), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.inerrors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,149), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.indestunreachs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,150), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.inechos */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,151), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.inechoreps */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,152), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.outechos */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,153), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.icmp.outechoreps */
+  { NULL,
+    { PMDA_PMID(CLUSTER_ICMP,154), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* network.sockstat.tcp.inuse */
+  { &mach_sockstat.tcp_inuse,
+    { PMDA_PMID(CLUSTER_SOCKSTAT,155), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.sockstat.udp.inuse */
+  { &mach_sockstat.udp_inuse,
+    { PMDA_PMID(CLUSTER_SOCKSTAT,156), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.tcpconn.established */
+  { &mach_tcpconn.state[TCPS_ESTABLISHED],
+    { PMDA_PMID(CLUSTER_TCPCONN,157), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.syn_sent */
+  { &mach_tcpconn.state[TCPS_SYN_SENT],
+    { PMDA_PMID(CLUSTER_TCPCONN,158), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.syn_recv */
+  { &mach_tcpconn.state[TCPS_SYN_RECEIVED],
+    { PMDA_PMID(CLUSTER_TCPCONN,159), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.fin_wait1 */
+  { &mach_tcpconn.state[TCPS_FIN_WAIT_1],
+    { PMDA_PMID(CLUSTER_TCPCONN,160), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.fin_wait2 */
+  { &mach_tcpconn.state[TCPS_FIN_WAIT_2],
+    { PMDA_PMID(CLUSTER_TCPCONN,161), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.time_wait */
+  { &mach_tcpconn.state[TCPS_TIME_WAIT],
+    { PMDA_PMID(CLUSTER_TCPCONN,162), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.close */
+  { &mach_tcpconn.state[TCPS_CLOSED],
+    { PMDA_PMID(CLUSTER_TCPCONN,163), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.close_wait */
+  { &mach_tcpconn.state[TCPS_CLOSE_WAIT],
+    { PMDA_PMID(CLUSTER_TCPCONN,164), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.last_ack */
+  { &mach_tcpconn.state[TCPS_LAST_ACK],
+    { PMDA_PMID(CLUSTER_TCPCONN,165), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.listen */
+  { &mach_tcpconn.state[TCPS_LISTEN],
+    { PMDA_PMID(CLUSTER_TCPCONN,166), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcpconn.closing */
+  { &mach_tcpconn.state[TCPS_CLOSING],
+    { PMDA_PMID(CLUSTER_TCPCONN,167), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* network.tcp.activeopens */
+  { &mach_tcp.stats.tcps_connattempt,
+    { PMDA_PMID(CLUSTER_TCP,168), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.passiveopens */
+  { &mach_tcp.stats.tcps_accepts,
+    { PMDA_PMID(CLUSTER_TCP,169), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.attemptfails */
+  { &mach_tcp.stats.tcps_conndrops,
+    { PMDA_PMID(CLUSTER_TCP,170), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.estabresets */
+  { &mach_tcp.stats.tcps_drops,
+    { PMDA_PMID(CLUSTER_TCP,171), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.currestab */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,172), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcp.insegs */
+  { &mach_tcp.stats.tcps_rcvtotal,
+    { PMDA_PMID(CLUSTER_TCP,173), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.outsegs */
+  { &mach_tcp.stats.tcps_sndtotal,
+    { PMDA_PMID(CLUSTER_TCP,174), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.retranssegs */
+  { &mach_tcp.stats.tcps_sndrexmitpack,
+    { PMDA_PMID(CLUSTER_TCP,175), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.inerrs */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,176), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.outrsts */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,177), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.incsumerrors */
+  { &mach_tcp.stats.tcps_rcvbadsum,
+    { PMDA_PMID(CLUSTER_TCP,178), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.rtoalgorithm */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,179), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcp.rtomin */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,180), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,0,0,PM_TIME_MSEC,0) }, },
+/* network.tcp.rtomax */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,181), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,-1,0,0,PM_TIME_MSEC,0) }, },
+/* network.tcp.maxconn */
+  { NULL,
+    { PMDA_PMID(CLUSTER_TCP,182), PM_TYPE_32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 static void
@@ -708,8 +973,10 @@ darwin_refresh(int *need_refresh)
 	mach_loadavg_error = refresh_loadavg(mach_loadavg);
     if (need_refresh[CLUSTER_CPULOAD])
 	mach_cpuload_error = refresh_cpuload(&mach_cpuload);
-    if (need_refresh[CLUSTER_VMSTAT])
+    if (need_refresh[CLUSTER_VMSTAT]) {
 	mach_vmstat_error = refresh_vmstat(&mach_vmstat);
+	mach_swap_error = refresh_swap(&mach_swap);
+    }
     if (need_refresh[CLUSTER_KERNEL_UNAME])
 	mach_uname_error = refresh_uname(&mach_uname);
     if (need_refresh[CLUSTER_FILESYS])
@@ -724,6 +991,18 @@ darwin_refresh(int *need_refresh)
 	mach_net_error = refresh_network(&mach_net, &indomtab[NETWORK_INDOM]);
     if (need_refresh[CLUSTER_NFS])
 	mach_nfs_error = refresh_nfs(&mach_nfs);
+    if (need_refresh[CLUSTER_VFS])
+	mach_vfs_error = refresh_vfs(&mach_vfs);
+    if (need_refresh[CLUSTER_UDP])
+	mach_udp_error = refresh_udp(&mach_udp);
+    if (need_refresh[CLUSTER_ICMP])
+	mach_icmp_error = refresh_icmp(&mach_icmp);
+    if (need_refresh[CLUSTER_SOCKSTAT])
+	mach_sockstat_error = refresh_sockstat(&mach_sockstat);
+    if (need_refresh[CLUSTER_TCPCONN])
+	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
+    if (need_refresh[CLUSTER_TCP])
+	mach_tcp_error = refresh_tcp(&mach_tcp);
 }
 
 static inline int
@@ -811,6 +1090,24 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	return 1;
     case 23: /* mem.util.used */
 	atom->ull = page_count_to_kb(mach_vmstat.wire_count+mach_vmstat.active_count+mach_vmstat.inactive_count);
+	return 1;
+    case 24: /* swap.length */
+	if (mach_swap_error)
+	    return mach_swap_error;
+	atom->ull = mach_swap.xsu_total >> 10;  // bytes to KB
+	return 1;
+    case 25: /* swap.used */
+	if (mach_swap_error)
+	    return mach_swap_error;
+	atom->ull = mach_swap.xsu_used >> 10;   // bytes to KB
+	return 1;
+    case 26: /* swap.free */
+	if (mach_swap_error)
+	    return mach_swap_error;
+	atom->ull = mach_swap.xsu_avail >> 10;  // bytes to KB
+	return 1;
+    case 130: /* mem.util.compressed */
+	atom->ull = page_count_to_kb(mach_vmstat.compressor_page_count);
 	return 1;
     }
     return PM_ERR_PMID;
@@ -901,102 +1198,6 @@ fetch_filesys(unsigned int item, unsigned int inst, pmAtomValue *atom)
 }
 
 static inline int
-fetch_disk(unsigned int item, unsigned int inst, pmAtomValue *atom)
-{
-    if (mach_disk_error)
-	return mach_disk_error;
-    if (item == 46) {	/* hinv.ndisk */
-	atom->ul = indomtab[DISK_INDOM].it_numinst;
-	return 1;
-    }
-    if (indomtab[DISK_INDOM].it_numinst == 0)
-	return 0;	/* no values available */
-    if (item < 59 && (inst < 0 || inst >= indomtab[DISK_INDOM].it_numinst))
-	return PM_ERR_INST;
-    switch (item) {
-    case 47: /* disk.dev.read */
-	atom->ull = mach_disk.disks[inst].read;
-	return 1;
-    case 48: /* disk.dev.write */
-	atom->ull = mach_disk.disks[inst].write;
-	return 1;
-    case 49: /* disk.dev.total */
-	atom->ull = mach_disk.disks[inst].read + mach_disk.disks[inst].write;
-	return 1;
-    case 50: /* disk.dev.read_bytes */
-	atom->ull = mach_disk.disks[inst].read_bytes >> 10;
-	return 1;
-    case 51: /* disk.dev.write_bytes */
-	atom->ull = mach_disk.disks[inst].write_bytes >> 10;
-	return 1;
-    case 52: /* disk.dev.total_bytes */
-	atom->ull = (mach_disk.disks[inst].read_bytes +
-			mach_disk.disks[inst].write_bytes) >> 10;
-	return 1;
-    case 53: /* disk.dev.blkread */
-	atom->ull = mach_disk.disks[inst].read_bytes /
-			mach_disk.disks[inst].blocksize;
-	return 1;
-    case 54: /* disk.dev.blkwrite */
-	atom->ull = mach_disk.disks[inst].write_bytes /
-			mach_disk.disks[inst].blocksize;
-	return 1;
-    case 55: /* disk.dev.blktotal */
-	atom->ull = (mach_disk.disks[inst].read_bytes +
-			 mach_disk.disks[inst].write_bytes) /
-				mach_disk.disks[inst].blocksize;
-	return 1;
-    case 56: /* disk.dev.read_time */
-	atom->ull = mach_disk.disks[inst].read_time;
-	return 1;
-    case 57: /* disk.dev.write_time */
-	atom->ull = mach_disk.disks[inst].write_time;
-	return 1;
-    case 58: /* disk.dev.total_time */
-	atom->ull = mach_disk.disks[inst].read_time +
-				mach_disk.disks[inst].write_time;
-	return 1;
-    case 59: /* disk.all.read */
-	atom->ull = mach_disk.read;
-	return 1;
-    case 60: /* disk.all.write */
-	atom->ull = mach_disk.write;
-	return 1;
-    case 61: /* disk.all.total */
-	atom->ull = mach_disk.read + mach_disk.write;
-	return 1;
-    case 62: /* disk.all.read_bytes */
-	atom->ull = mach_disk.read_bytes >> 10;
-	return 1;
-    case 63: /* disk.all.write_bytes */
-	atom->ull = mach_disk.write_bytes >> 10;
-	return 1;
-    case 64: /* disk.all.total_bytes */
-	atom->ull = (mach_disk.read_bytes + mach_disk.write_bytes) >> 10;
-	return 1;
-    case 65: /* disk.all.blkread */
-	atom->ull = mach_disk.blkread;
-	return 1;
-    case 66: /* disk.all.blkwrite */
-	atom->ull = mach_disk.blkwrite;
-	return 1;
-    case 67: /* disk.all.blktotal */
-	atom->ull = mach_disk.blkread + mach_disk.blkwrite;
-	return 1;
-    case 68: /* disk.all.read_time */
-	atom->ull = mach_disk.read_time;
-	return 1;
-    case 69: /* disk.all.write_time */
-	atom->ull = mach_disk.write_time;
-	return 1;
-    case 70: /* disk.all.total_time */
-	atom->ull = mach_disk.read_time + mach_disk.write_time;
-	return 1;
-    }
-    return PM_ERR_PMID;
-}
-
-static inline int
 fetch_cpu(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
     if (mach_cpu_error)
@@ -1025,75 +1226,6 @@ fetch_cpu(unsigned int item, unsigned int inst, pmAtomValue *atom)
     case 75: /* kernel.percpu.cpu.idle */
 	atom->ull = LOAD_SCALE * (double)
 			mach_cpu[inst].cpu_ticks[CPU_STATE_IDLE] / mach_hertz;
-	return 1;
-    }
-    return PM_ERR_PMID;
-}
-
-static inline int
-fetch_network(unsigned int item, unsigned int inst, pmAtomValue *atom)
-{
-    if (mach_net_error)
-	return mach_net_error;
-    if (indomtab[NETWORK_INDOM].it_numinst == 0)
-	return 0;	/* no values available */
-    if (inst < 0 || inst >= indomtab[NETWORK_INDOM].it_numinst)
-	return PM_ERR_INST;
-    switch (item) {
-    case 77: /* network.interface.in.bytes */
-	atom->ull = mach_net.interfaces[inst].ibytes;
-	return 1;
-    case 78: /* network.interface.in.packets */
-	atom->ull = mach_net.interfaces[inst].ipackets;
-	return 1;
-    case 79: /* network.interface.in.errors */
-	atom->ull = mach_net.interfaces[inst].ierrors;
-	return 1;
-    case 80: /* network.interface.in.drops */
-	atom->ull = mach_net.interfaces[inst].iqdrops;
-	return 1;
-    case 81: /* network.interface.in.mcasts */
-	atom->ull = mach_net.interfaces[inst].imcasts;
-	return 1;
-    case 82: /* network.interface.out.bytes */
-	atom->ull = mach_net.interfaces[inst].obytes;
-	return 1;
-    case 83: /* network.interface.out.packets */
-	atom->ull = mach_net.interfaces[inst].opackets;
-	return 1;
-    case 84: /* network.interface.out.errors */
-	atom->ull = mach_net.interfaces[inst].oerrors;
-	return 1;
-    case 85: /* network.interface.out.mcasts */
-	atom->ull = mach_net.interfaces[inst].omcasts;
-	return 1;
-    case 86: /* network.interface.collisions */
-	atom->ull = mach_net.interfaces[inst].collisions;
-	return 1;
-    case 87: /* network.interface.mtu */
-	atom->ull = mach_net.interfaces[inst].mtu;
-	return 1;
-    case 88: /* network.interface.baudrate */
-	atom->ull = mach_net.interfaces[inst].baudrate;
-	return 1;
-    case 89: /* network.interface.total.bytes */
-	atom->ull = mach_net.interfaces[inst].ibytes +
-		    mach_net.interfaces[inst].obytes;
-	return 1;
-    case 90: /* network.interface.total.packets */
-	atom->ull = mach_net.interfaces[inst].ipackets +
-		    mach_net.interfaces[inst].opackets;
-	return 1;
-    case 91: /* network.interface.total.errors */
-	atom->ull = mach_net.interfaces[inst].ierrors +
-		    mach_net.interfaces[inst].oerrors;
-	return 1;
-    case 92: /* network.interface.total.drops */
-	atom->ull = mach_net.interfaces[inst].iqdrops;
-	return 1;
-    case 93: /* network.interface.total.mcasts */
-	atom->ull = mach_net.interfaces[inst].imcasts +
-		    mach_net.interfaces[inst].omcasts;
 	return 1;
     }
     return PM_ERR_PMID;
@@ -1172,6 +1304,10 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_CPU:		return fetch_cpu(item, inst, atom);
     case CLUSTER_NETWORK:	return fetch_network(item, inst, atom);
     case CLUSTER_NFS:		return fetch_nfs(item, inst, atom);
+    case CLUSTER_VFS:		return fetch_vfs(item, atom);
+    case CLUSTER_UDP:		return fetch_udp(item, atom);
+    case CLUSTER_ICMP:		return fetch_icmp(item, atom);
+    case CLUSTER_TCP:		return fetch_tcp(item, atom);
     }
     return 0;
 }
@@ -1205,7 +1341,32 @@ darwin_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
     return pmdaFetch(numpmid, pmidlist, resp, pmda);
 }
 
-void 
+static void
+check_tcp_stats_access(void)
+{
+	int flag_value = 1;
+	size_t len = sizeof(flag_value);
+
+	if (sysctlbyname("net.inet.tcp.disable_access_to_stats",
+			 &flag_value, &len, NULL, 0) == 0) {
+		if (flag_value != 0) {
+			pmNotifyErr(LOG_WARNING,
+				"TCP statistics access is DISABLED (net.inet.tcp.disable_access_to_stats=%d).\n"
+				"All network.tcp.* metrics will report zero values.\n"
+				"\n"
+				"To enable TCP statistics, run as root:\n"
+				"    sudo sysctl -w net.inet.tcp.disable_access_to_stats=0\n"
+				"\n"
+				"To make this permanent across reboots, add to /etc/sysctl.conf:\n"
+				"    net.inet.tcp.disable_access_to_stats=0\n"
+				"\n"
+				"See pmdadarwin(1) for more information.",
+				flag_value);
+		}
+	}
+}
+
+void
 darwin_init(pmdaInterface *dp)
 {
     int		sts;
@@ -1239,6 +1400,7 @@ darwin_init(pmdaInterface *dp)
     if ((sts = refresh_hinv()) != 0)
 	fprintf(stderr, "darwin_init: refresh_hinv failed: %s\n", pmErrStr(sts));
     init_network();
+    check_tcp_stats_access();
 }
 
 static void

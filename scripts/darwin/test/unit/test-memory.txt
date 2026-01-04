@@ -1,0 +1,48 @@
+# Memory metrics test
+
+# Physical memory
+desc mem.physmem
+fetch mem.physmem
+
+desc hinv.physmem
+fetch hinv.physmem
+
+# Memory utilization
+desc mem.freemem
+fetch mem.freemem
+
+desc mem.active
+fetch mem.active
+
+desc mem.inactive
+fetch mem.inactive
+
+# Memory utils
+desc mem.util.wired
+fetch mem.util.wired
+
+desc mem.util.active
+fetch mem.util.active
+
+desc mem.util.free
+fetch mem.util.free
+
+desc mem.util.used
+fetch mem.util.used
+
+# Page counts
+desc mem.pages.free
+fetch mem.pages.free
+
+desc mem.pages.active
+fetch mem.pages.active
+
+desc mem.pages.wired
+fetch mem.pages.wired
+
+# Paging activity
+desc mem.pageins
+fetch mem.pageins
+
+desc mem.pageouts
+fetch mem.pageouts
