@@ -3,7 +3,7 @@
 ## Current Status
 
 **Last Updated:** 2026-01-04
-**Current Step:** Steps 2.5a, 2.5b, and 2.6 completed (TCP + pmrep views), Phase 3 next (process metrics)
+**Current Step:** Steps 2.5a, 2.5b, and 2.6 completed with QA fixes (TCP + pmrep views), Phase 3 next (process metrics)
 **Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
@@ -21,7 +21,7 @@
 | 2.5a | COMPLETED | TCP protocol statistics - basic implementation (commits 2bf73ecef5, 540e5304b2) |
 | 2.5b | COMPLETED | TCP statistics - detection and documentation (warnings + man page) (commit f5c406e52a) |
 | 2.5c | DEFERRED | TCP statistics - auto-enable config (for maintainer discussion) |
-| 2.6 | COMPLETED | pmrep macOS monitoring views - memory, disk, TCP, protocol overview (commit 9afb1b9e9d) |
+| 2.6 | COMPLETED | pmrep macOS monitoring views - memory, disk, TCP, protocol overview (commit 9afb1b9e9d + QA fixes 3a2e05e5da) |
 | 3.1 | PENDING | Process I/O statistics |
 | 3.2 | PENDING | Enhanced process metrics |
 | 4.1 | PENDING | Transform plan → permanent documentation |
@@ -693,6 +693,35 @@ Six pmrep monitoring views successfully added to `src/pmrep/conf/macstat.conf`:
 - Redundant section headers consolidated
 - Passes all PCP coding standards
 
+**QA Feedback and Fixes (commit 3a2e05e5da):**
+
+Post-implementation testing revealed three issues that were addressed:
+
+1. **Bug: cache_hit_ratio type mismatch error**
+   - Error: `Semantic error: derived metric cache_hit_ratio: mem.cache_lookups : 1: Different types for ternary operands`
+   - Root cause: Ternary operator mixed PM_TYPE_U64 (`mem.cache_lookups`) with PM_TYPE_32 (literal `1`)
+   - Fix: Restructured formula to return final value from both branches instead of divisor
+   - Before: `100 * mem.cache_hits / (mem.cache_lookups > 0 ? mem.cache_lookups : 1)`
+   - After: `mem.cache_lookups > 0 ? 100 * mem.cache_hits / mem.cache_lookups : 0`
+
+2. **Layout: :macstat view too wide with per-interface columns**
+   - Issue: `network.interface.total.bytes` expanded to one column per interface (lo0, gif0, stf0, XHC14, anpi0, en1, en0, utun0, utun1, utun2, utun3)
+   - Fix: Replaced per-interface metrics with aggregated totals using `sum()` function
+   - Added: `net_in` and `net_out` derived metrics using `sum(network.interface.in.bytes)` and `sum(network.interface.out.bytes)`
+   - Result: Compact view showing total network in/out bandwidth across all interfaces
+
+3. **Layout: :macstat-proto view extremely wide**
+   - Issue: Same per-interface expansion made protocol view unreadable (40+ columns)
+   - Fix: Added `colxrow = "     IFACE"` to display interfaces as rows instead of columns (similar to `sar -n DEV`)
+   - Benefit: Users can filter specific interfaces with `pmrep -i en0 :macstat-proto`
+   - Result: Readable output with each interface as a separate row
+
+**Lessons Learned:**
+- pmrep's `sum()` function aggregates metrics across all instances (discovered from `collectl.conf` examples)
+- Metrics with instance domains expand to multiple columns unless aggregated or displayed as rows via `colxrow`
+- Type compatibility in derived metrics requires both ternary branches to return same type
+- QA testing with real output is essential for catching usability issues that unit/integration tests miss
+
 ---
 
 #### Labeling Patterns (Based on Existing PCP Conventions)
@@ -719,21 +748,20 @@ Six pmrep monitoring views successfully added to `src/pmrep/conf/macstat.conf`:
 
 **Purpose:** Quick system health overview - the "glance at the dashboard" view
 
-**Current metrics:**
+**Implemented metrics:**
 - Load: kernel.all.load
 - Memory: swap.used, mem.util.{free, wired, active, compressed}
 - Paging: mem.pageins, mem.pageouts
 - Disk: disk.all.{read, write}
+- Network: Aggregated totals across all interfaces
+  - `net_in` (derived) = `sum(network.interface.in.bytes)` labeled as `netin`
+  - `net_out` (derived) = `sum(network.interface.out.bytes)` labeled as `netout`
 - CPU: user%, sys%, idle%
 
-**Add network metrics:**
-- `network.interface.total.in.bytes` = `ni` (network in bytes)
-- `network.interface.total.out.bytes` = `no` (network out bytes)
-
-**Changes Required:**
-1. Add two network metrics to existing `src/pmrep/conf/macstat.conf` [macstat] section
-2. Position after disk I/O, before CPU
-3. Use labels `ni` and `no` following the `pi`/`po`/`si`/`so` pattern
+**Implementation notes:**
+- Network metrics use pmrep's `sum()` function to aggregate across all interfaces
+- Provides single-number bandwidth indicators without excessive column width
+- Labels follow existing `pi`/`po` pattern for consistency
 
 ---
 
@@ -899,13 +927,17 @@ Six pmrep monitoring views successfully added to `src/pmrep/conf/macstat.conf`:
 
 **File:** `src/pmrep/conf/macstat.conf` (add new [macstat-proto] section)
 
+**Display format:** Uses `colxrow = "     IFACE"` to show each interface as a separate row (similar to `sar -n DEV`)
+
 **Metrics organized by section:**
 
-**Interface totals:**
-- `network.interface.total.bytes` = `ifbytes`
-- `network.interface.total.packets` = `ifpkts`
-- `network.interface.total.errors` = `iferr`
-- `network.interface.total.drops` = `ifdrop`
+**Interface totals (per-interface rows):**
+- `network.interface.total.bytes` = `bytes` (KB units)
+- `network.interface.total.packets` = `pkts`
+- `network.interface.total.errors` = `errs`
+- `network.interface.total.drops` = `drops`
+
+**User filtering:** Can filter specific interfaces with `pmrep -i en0 :macstat-proto` or `pmrep -i en0,en1 :macstat-proto`
 
 **UDP:**
 - `network.udp.indatagrams` = `udpin`
