@@ -1,7 +1,7 @@
 /*
  * HA Cluster Pacemaker statistics.
  *
- * Copyright (c) 2020 - 2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -18,6 +18,7 @@
 #include "libpcp.h"
 #include "pmda.h"
 
+#include "pmdahacluster.h"
 #include "pacemaker.h"
 
 #include <time.h>
@@ -166,7 +167,7 @@ hacluster_pacemaker_global_fetch(int item, pmAtomValue *atom)
 }
 
 int
-hacluster_pacemaker_fail_fetch(int item, struct fail_count *fail_count, pmAtomValue *atom)
+hacluster_pacemaker_fail_fetch(int item, struct pacemaker_fail *fail_count, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_PACEMAKER_FAIL_STATS)
@@ -190,7 +191,7 @@ hacluster_pacemaker_fail_fetch(int item, struct fail_count *fail_count, pmAtomVa
 }
 
 int
-hacluster_pacemaker_constraints_fetch(int item, struct location_constraints *locations_constraints, pmAtomValue *atom)
+hacluster_pacemaker_constraints_fetch(int item, struct pacemaker_constraints *locations_constraints, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_PACEMAKER_CONSTRAINTS_STATS)
@@ -229,7 +230,7 @@ hacluster_pacemaker_constraints_all_fetch(int item, pmAtomValue *atom)
 }
 
 int
-hacluster_pacemaker_nodes_fetch(int item, struct nodes *nodes, pmAtomValue *atom)
+hacluster_pacemaker_nodes_fetch(int item, struct pacemaker_nodes *nodes, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_PACEMAKER_NODES_STATS)
@@ -293,7 +294,7 @@ hacluster_pacemaker_nodes_fetch(int item, struct nodes *nodes, pmAtomValue *atom
 }
 
 int
-hacluster_pacemaker_node_attribs_fetch(int item, struct attributes *attributes, pmAtomValue *atom)
+hacluster_pacemaker_node_attribs_fetch(int item, struct pacemaker_node_attrib *attributes, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_PACEMAKER_NODE_ATTRIB_STATS)
@@ -320,7 +321,7 @@ hacluster_pacemaker_node_attribs_all_fetch(int item, pmAtomValue *atom)
 }
 
 int
-hacluster_pacemaker_resources_fetch(int item, struct resources *resources, pmAtomValue *atom)
+hacluster_pacemaker_resources_fetch(int item, struct pacemaker_resources *resources, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_PACEMAKER_RESOURCES_STATS)
@@ -424,28 +425,26 @@ hacluster_refresh_pacemaker_global()
 }
 
 int
-hacluster_refresh_pacemaker_fail(const char *instance_name, struct fail_count *fail_count)
+hacluster_pacemaker_fail_instance_refresh(void)
 {
-	char buffer[4096];
-	char *node, *resource_id, *tofree, *str;
-	int found_node_history = 0, found_node_name = 0;
-	FILE *pf;
+	int			sts;
+	char		buffer[4096], instance_name[256], node_name[128], resource_name[127];
+	int			found_node_history = 0, found_node_name = 0;
+	FILE		*pf;
+	pmInDom		indom = hacluster_indom(PACEMAKER_FAIL_INDOM);
+
+	/*
+	 * Update indom cache based off the reading of crm_mon listed in
+	 * the output from crm_mon
+	 */
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
 
 	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
-
-	/* 
-	 * We need to split our combined NODE:RESOURCE_ID instance names into their
-	 * separated NODE and RESOURCE_ID fields for matching in the output
-	 */
-	tofree = str = strdup(instance_name);
-	node = strsep(&str, ":");
-	resource_id = strsep(&str, ":");
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-
 		/* First we need to check whether we are in <node_history> section*/
 		if (strstr(buffer, "<node_history>")) {
 			found_node_history = 1;
@@ -453,7 +452,8 @@ hacluster_refresh_pacemaker_fail(const char *instance_name, struct fail_count *f
 		}
 
 		/* Find the node name for our resource */
-		if (strstr(buffer, "node name=") && strstr(buffer, node) && found_node_history ) {
+		if (strstr(buffer, "node name=") && found_node_history ) {
+			sscanf(buffer, "\t<node name=\"%[^\"]\">", node_name);
 			found_node_name = 1;
 			continue;
 		}
@@ -465,32 +465,67 @@ hacluster_refresh_pacemaker_fail(const char *instance_name, struct fail_count *f
 		}
 
 		/* Record our instance as node:resource-id and assign */
-		if (strstr(buffer, "resource_history id=") && strstr(buffer, resource_id) && found_node_name) {
-			sscanf(buffer, "%*s %*s %*s migration-threshold=\"%"SCNu64"\" fail-count=\"%"SCNu64"\"",
-				&fail_count->migration_threshold, 
-				&fail_count->fail_count
-			);
+		if (found_node_history && found_node_name) {
+
+			if (strstr(buffer, "resource_history id=")) {
+				sscanf(buffer, "\t<resource_history id=\"%[^\"]", resource_name);
+
+				/* 
+				 * Assign indom based upon our resource_name:volume by joining our node_name
+				 * with our volume number 
+				 */
+				snprintf(instance_name, sizeof(instance_name), "%s:%s", node_name, resource_name);
+
+				struct pacemaker_fail *fail;
+
+				sts = pmdaCacheLookupName(indom, instance_name, NULL, (void **)&fail);
+				if (sts == PM_ERR_INST || (sts >=0 && fail == NULL)) {
+					fail = calloc(1, sizeof(struct pacemaker_fail));
+					if (fail == NULL) {
+						pclose(pf);
+						return PM_ERR_AGAIN;
+					}
+				}
+				else if (sts < 0)
+					continue;
+				
+				sscanf(buffer, "%*s %*s %*s migration-threshold=\"%"SCNu64"\" fail-count=\"%"SCNu64"\"",
+					&fail->migration_threshold, 
+					&fail->fail_count
+				);
+
+				pmdaCacheStore(indom, PMDA_CACHE_ADD, instance_name, (void *)fail);
+			}
 		}
 	}
-	pclose(pf);
-	free(tofree);
+	pclose(pf);	
 	return 0;
 }
 
 int
-hacluster_refresh_pacemaker_constraints(const char *constraints_name, struct location_constraints *location_constraints)
+hacluster_pacemaker_constraints_instance_refresh(void)
 {
-	char buffer[4096];
-	int found_constraints = 0;
-	FILE *pf;
+	int			sts;
+	char		buffer[4096], constraint_name[256];
+	int			found_constraints = 0;
+	FILE		*pf;
+	pmInDom		indom = hacluster_indom(PACEMAKER_CONSTRAINTS_INDOM);
+	pmInDom		indom_all = hacluster_indom(PACEMAKER_CONSTRAINTS_ALL_INDOM);
+
+	/*
+	 * Update indom cache based off the reading of cibadmin listed in
+	 * the output from cibadmin
+	 */
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+	pmdaCacheOp(indom_all, PMDA_CACHE_INACTIVE);
 
 	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", cibadmin_command);
+	buffer[sizeof(buffer)-1] = '\0';
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-	
 		/* First we need to check whether we are in <constraints> section*/
 		if (strstr(buffer, "<constraints>")) {
 			found_constraints = 1;
@@ -498,36 +533,61 @@ hacluster_refresh_pacemaker_constraints(const char *constraints_name, struct loc
 		}
 
 		/* Find the node name for our resource */
-		if (strstr(buffer, "rsc_location id=") && strstr(buffer, constraints_name) && found_constraints) {
+		if (strstr(buffer, "rsc_location id=") && found_constraints) {
+			sscanf(buffer, "\t<rsc_location id=\"%[^\"]\"", constraint_name);
+
+			struct  pacemaker_constraints *constraints;
+
+			sts = pmdaCacheLookupName(indom, constraint_name, NULL, (void **)&constraints);
+			if (sts == PM_ERR_INST || (sts >=0 && constraints == NULL)) {
+				constraints = calloc(1, sizeof(struct pacemaker_constraints));
+				if (constraints == NULL) {
+					pclose(pf);
+					return PM_ERR_AGAIN;
+				}
+			}
+			else if (sts < 0)
+				continue;
+
 			sscanf(buffer, "%*s %*s rsc=\"%[^\"]\" role=\"%[^\"]\" node=\"%[^\"]\" score=\"%[^\"]\"",
-				location_constraints->resource, 
-				location_constraints->role, 
-				location_constraints->node, 
-				location_constraints->score
+				constraints->resource, 
+				constraints->role, 
+				constraints->node, 
+				constraints->score
 			); 
-		}	
+
+			pmdaCacheStore(indom, PMDA_CACHE_ADD, constraint_name, (void *)constraints);
+			pmdaCacheStore(indom_all, PMDA_CACHE_ADD, constraint_name, NULL);
+		}
 	}
 	pclose(pf);
 	return 0;
 }
 
 int
-hacluster_refresh_pacemaker_nodes(const char *node_name, struct nodes *nodes)
+hacluster_pacemaker_nodes_instance_refresh(void)
 {
-	char buffer[4096];
-	int found_nodes = 0;
-	FILE *pf;
+	int			sts;
+	char		buffer[4096], node_name[256];
+	int			found_nodes = 0;
+	FILE		*pf;
+	pmInDom		indom = hacluster_indom(PACEMAKER_NODES_INDOM);
 
 	char online[10], standby[10], standby_on_fail[10], maintenance[10], pending[10];
 	char unclean[10], shutdown[10], expected_up[10], dc[10];
 
+	/*
+	 * Update indom cache based off the reading of crm_mon listed in
+	 * the output from crm_mon
+	 */
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+
 	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-
 		/* First we need to check whether we are in <nodes> section*/
 		if (strstr(buffer, "<nodes>")) {
 			found_nodes = 1;
@@ -541,46 +601,65 @@ hacluster_refresh_pacemaker_nodes(const char *node_name, struct nodes *nodes)
 		}
 
 		/* Collect our node names */
-		if (found_nodes && strstr(buffer, node_name)) {
-		        if(strstr(buffer, "feature_set")) {
-		                sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" health=\"%9[^\"]\" feature_set =\"%9[^\"]\" shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%6[^\"]\"",
-				        online,
-				        standby,
-				        standby_on_fail,
-				        maintenance,
-				        pending,
-				        unclean,
-				        nodes->health,
-				        nodes->feature_set,
-				        shutdown,
-				        expected_up,
-				        dc,
-				        nodes->type
-			        );
-		        } else {
-			        sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%6[^\"]\"",
-				        online,
-				        standby,
-				        standby_on_fail,
-				        maintenance,
-				        pending,
-				        unclean,
-				        shutdown,
-				        expected_up,
-				        dc,
-				        nodes->type
-			        );
-			}
+		if (found_nodes) {
+			if (strstr(buffer, "node name=")) {
+				sscanf(buffer, "\t<node name=\"%[^\"]\"", node_name);
+
+				struct  pacemaker_nodes *pace_nodes;
+
+				sts = pmdaCacheLookupName(indom, node_name, NULL, (void **)&pace_nodes);
+				if (sts == PM_ERR_INST || (sts >=0 && pace_nodes == NULL)) {
+					pace_nodes = calloc(1, sizeof(struct pacemaker_nodes));
+					if (pace_nodes == NULL) {
+						pclose(pf);
+						return PM_ERR_AGAIN;
+					}
+				}
+				else if (sts < 0)
+					continue;
+
+				if(strstr(buffer, "feature_set")) {
+		                	sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" health=\"%9[^\"]\" feature_set =\"%9[^\"]\" shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%6[^\"]\"",
+					        online,
+					        standby,
+					        standby_on_fail,
+					        maintenance,
+					        pending,
+					        unclean,
+					        pace_nodes->health,
+					        pace_nodes->feature_set,
+					        shutdown,
+					        expected_up,
+				        	dc,
+				        	pace_nodes->type
+			        	);
+		        	} else {
+			        	sscanf(buffer, "%*s %*s %*s online=\"%9[^\"]\" standby=\"%9[^\"]\" standby_onfail=\"%9[^\"]\" maintenance=\"%9[^\"]\" pending=\"%9[^\"]\" unclean=\"%9[^\"]\" shutdown=\"%9[^\"]\" expected_up=\"%9[^\"]\" is_dc =\"%9[^\"]\" %*s type=\"%6[^\"]\"",
+					        online,
+					        standby,
+					        standby_on_fail,
+					        maintenance,
+				        	pending,
+					        unclean,
+					        shutdown,
+					        expected_up,
+					        dc,
+					        pace_nodes->type
+				        );
+				}
 									
-			nodes->online = bool_convert(online);
-			nodes->standby = bool_convert(standby);
-			nodes->standby_on_fail = bool_convert(standby_on_fail);
-			nodes->maintenance = bool_convert(maintenance);
-			nodes->pending = bool_convert(pending);
-			nodes->unclean = bool_convert(unclean);
-			nodes->shutdown = bool_convert(shutdown);
-			nodes->expected_up = bool_convert(expected_up);
-			nodes->dc = bool_convert(dc);
+				pace_nodes->online = bool_convert(online);
+				pace_nodes->standby = bool_convert(standby);
+				pace_nodes->standby_on_fail = bool_convert(standby_on_fail);
+				pace_nodes->maintenance = bool_convert(maintenance);
+				pace_nodes->pending = bool_convert(pending);
+				pace_nodes->unclean = bool_convert(unclean);
+				pace_nodes->shutdown = bool_convert(shutdown);
+				pace_nodes->expected_up = bool_convert(expected_up);
+				pace_nodes->dc = bool_convert(dc);
+
+				pmdaCacheStore(indom, PMDA_CACHE_ADD, node_name, (void *)pace_nodes);
+			}
 		}
 	}
 	pclose(pf);
@@ -588,28 +667,28 @@ hacluster_refresh_pacemaker_nodes(const char *node_name, struct nodes *nodes)
 }
 
 int
-hacluster_refresh_pacemaker_node_attribs(const char *attrib_name, struct attributes *attributes)
+hacluster_pacemaker_node_attrib_instance_refresh(void)
 {
-	char buffer[4096];
-	char *node_name, *attribute_name, *tofree, *str;
-	int found_node_attributes = 0, found_node_name = 0;
-	FILE *pf;
+	int			sts;
+	char		buffer[4096], node_name[128], attribute_name[127], instance_name[256];
+	int			found_node_attributes = 0, found_node_name = 0;
+	FILE		*pf;
+	pmInDom		indom = hacluster_indom(PACEMAKER_NODE_ATTRIB_INDOM);
+	pmInDom		indom_all = hacluster_indom(PACEMAKER_NODE_ATTRIB_ALL_INDOM);
+
+	/*
+	 * Update indom cache based off the reading of crm_mon listed in
+	 * the output from crm_mon
+	 */
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+	pmdaCacheOp(indom_all, PMDA_CACHE_INACTIVE);
 
 	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
 
 	if ((pf = popen(buffer, "r")) == NULL)
-		return -oserror();
-
-	/* 
-	 * We need to split our combined NODE:ATTRIBUTE_NAME instance names into their
-	 * separated NODE and ATTRIBUTE_NAME fields for matching in the output
-	 */
-	tofree = str = strdup(attrib_name);
-	node_name = strsep(&str, ":");
-	attribute_name = strsep(&str, ":");
+		return oserror();
 
 	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-	
 		/* First we need to check whether we are in <node_history> section*/
 		if (strstr(buffer, "<node_attributes>")) {
 			found_node_attributes = 1;
@@ -623,7 +702,8 @@ hacluster_refresh_pacemaker_node_attribs(const char *attrib_name, struct attribu
 		}
 
 		/* Find the node name for our node */
-		if (strstr(buffer, "node name=") && strstr(buffer, node_name) && found_node_attributes ) {
+		if (strstr(buffer, "node name=") && found_node_attributes ) {
+			sscanf(buffer, "\t<node name=\"%[^\"]\"", node_name);
 			found_node_name = 1;
 			continue;
 		}
@@ -635,17 +715,125 @@ hacluster_refresh_pacemaker_node_attribs(const char *attrib_name, struct attribu
 		}
 
 		/* Record our instance as node:resource-id and assign */
-		if (found_node_attributes && strstr(buffer, attribute_name) && found_node_name) {
-			sscanf(buffer, "%*s %*s value=\"%[^\"]\"", attributes->value);
+		if (found_node_attributes && found_node_name) {
+
+			if (strstr(buffer, "attribute name=")) {
+				sscanf(buffer, "\t<attribute name=\"%[^\"]\"", attribute_name);
+				
+				/* 
+				 * Assign indom based upon our node_name:attribute_name by joining our node_name
+				 * with our volume number 
+				 */
+				snprintf(instance_name, sizeof(instance_name), "%s:%s", node_name, attribute_name);
+
+				struct  pacemaker_node_attrib *node_attrib;
+
+				sts = pmdaCacheLookupName(indom, instance_name, NULL, (void **)&node_attrib);
+				if (sts == PM_ERR_INST || (sts >=0 && node_attrib == NULL)) {
+					node_attrib = calloc(1, sizeof(struct pacemaker_node_attrib));
+					if (node_attrib == NULL) {
+						pclose(pf);
+						return PM_ERR_AGAIN;
+					}
+				}
+				else if (sts < 0)
+					continue;
+				
+				sscanf(buffer, "%*s %*s value=\"%[^\"]\"", node_attrib->value);
+
+				pmdaCacheStore(indom, PMDA_CACHE_ADD, instance_name, (void *)node_attrib);
+				pmdaCacheStore(indom_all, PMDA_CACHE_ADD, instance_name, NULL);
+			}
 		}
 	}
 	pclose(pf);
-	free(tofree);
 	return 0;
 }
 
 int
-hacluster_refresh_pacemaker_resources(const char *instance_name, struct resources *resources)
+hacluster_pacemaker_resources_instance_refresh(void)
+{
+	int			sts;
+	char		buffer[4096], resource_id[128] = {'\0'}, node_name[127] = {'\0'}, instance_name[256];
+	int			found_resources = 0;
+	FILE		*pf;
+	pmInDom		indom= hacluster_indom(PACEMAKER_RESOURCES_INDOM);
+	pmInDom		indom_all = hacluster_indom(PACEMAKER_RESOURCES_ALL_INDOM);
+
+	/*
+	 * Update indom cache based off the reading of crm_mon listed in
+	 * the output from crm_mon
+	 */
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+	pmdaCacheOp(indom_all, PMDA_CACHE_INACTIVE);
+
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
+
+	if ((pf = popen(buffer, "r")) == NULL)
+		return oserror();
+
+	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+		/* First we need to check whether we are in <resources> section*/
+		if (strstr(buffer, "<resources>")) {
+			found_resources = 1;
+			continue;
+		}
+
+		/* Check to see if we pass in clones <clone id=...> */ 
+		if (strstr(buffer, "</resources>")) {
+			found_resources = 0;
+			continue;
+		}
+
+		/* Record our instance as node:resource-id and assign */
+		if (found_resources) {
+
+			if (strstr(buffer, "resource id=")) {
+				sscanf(buffer, "\t<resource id=\"%[^\"]\"", resource_id);
+			}
+
+			if (strstr(buffer, "node name=")) {
+				sscanf(buffer, "\t<node name=\"%[^\"]\"", node_name);
+			}
+
+			if (strstr(buffer, "/>")) {
+				/* 
+				 * Assign indom based upon our resource_name:node_id by joining our node_name
+				 * with our volume number but only if we have both a resource name and a node_id  
+				 */
+				if (node_name[0] == '\0') {
+					snprintf(instance_name, sizeof(instance_name), "%s", resource_id);
+				} else {
+					snprintf(instance_name, sizeof(instance_name), "%s:%s", resource_id, node_name);
+				}
+
+				struct pacemaker_resources *pace_resources;
+
+				sts = pmdaCacheLookupName(indom, instance_name, NULL, (void **)&pace_resources);
+				if (sts == PM_ERR_INST || (sts >=0 && pace_resources == NULL)) {
+					pace_resources = calloc(1, sizeof(struct pacemaker_resources));
+					if (pace_resources == NULL) {
+						pclose(pf);
+						return PM_ERR_AGAIN;
+					}
+				}
+				else if (sts < 0)
+					continue;
+
+				pmdaCacheStore(indom, PMDA_CACHE_ADD, instance_name, (void *)pace_resources);
+				pmdaCacheStore(indom_all, PMDA_CACHE_ADD, instance_name, NULL);
+
+				/* Clear node name in the event that a resource has not got a node attachment */
+				memset(node_name, '\0', sizeof(node_name));
+			}
+		}
+	}
+	pclose(pf);
+	return 0;
+}
+
+int
+hacluster_refresh_pacemaker_resources(const char *instance_name, struct pacemaker_resources *resources)
 {
 	char buffer[4096];
 	char *node, *resource_id, *tofree, *str;
