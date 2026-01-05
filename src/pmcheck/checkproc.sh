@@ -41,7 +41,7 @@ End-of-File
 
 _do_args()
 {
-    local args="`pmgetopt --progname=$prog --config=$tmp/_usage -- "$@"`"
+    __args="`pmgetopt --progname=$prog --config=$tmp/_usage -- "$@"`"
     if [ $? -ne 0 ]
     then
 	pmgetopt --progname=$prog --config=$tmp/_usage --usage
@@ -49,8 +49,8 @@ _do_args()
 	exit
     fi
 
-    eval set -- "$args"
-    unset args
+    eval set -- "$__args"
+    unset __args
 
     while [ $# -gt 0 ]
     do
@@ -112,11 +112,11 @@ _do_args()
 #
 _ctl_svc()
 {
-    local rc=0
-    local action="$1"
-    local svc="$2"
-    local state=''
-    local runlevel=''
+    __rc=0
+    __action="$1"
+    __svc="$2"
+    __state=''
+    __runlevel=''
 
     if [ -z "$1" -o -z "$2" ]
     then
@@ -124,22 +124,22 @@ _ctl_svc()
 	status=99
 	exit
     fi
-    case "$action"
+    case "$__action"
     in
 	state|start|stop|activate|deactivate)
 	    ;;
 	*)
-	    echo >&2 "$prog: _ctl_svc: Error: bad action argument ($action) for $svc service"
+	    echo >&2 "$prog: _ctl_svc: Error: bad action argument ($__action) for $__svc service"
 	    status=99
 	    exit
 	    ;;
     esac
 
-    if [ "$action" = state ]
+    if [ "$__action" = state ]
     then
 	if $__use_systemctl
 	then
-	    systemctl show $svc.service >$tmp/_ctl_svc 2>&1
+	    systemctl show $__svc.service >$tmp/_ctl_svc 2>&1
 	    if grep -q '^ActiveState=' <$tmp/_ctl_svc
 	    then
 		eval `grep '^ActiveState=' <$tmp/_ctl_svc`
@@ -156,46 +156,46 @@ _ctl_svc()
 		then
 		    if grep '^LoadError=.*\.service not found' <$tmp/_ctl_svc >/dev/null
 		    then
-			rc=2
-			echo "systemd's $svc.service unit is not installed"
+			__rc=2
+			echo "systemd's $__svc.service unit is not installed"
 		    else
-			rc=1
+			__rc=1
 		    fi
 		elif [ "$ActiveState" = failed ]
 		then
-		    rc=2
-		    echo "systemd's $svc.service unit has failed"
+		    __rc=2
+		    echo "systemd's $__svc.service unit has failed"
 		else
 		    # no clue ...
-		    rc=2
-		    echo "systemd $svc.service unit is status ($ActiveState) unexpected"
+		    __rc=2
+		    echo "systemd $__svc.service unit is status ($ActiveState) unexpected"
 		fi
 	    fi
 	elif $__use_update_invoke
 	then
-	    invoke-rc.d $svc status >$tmp/_ctl_svc 2>&1
-	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ -z "$state" ]
+	    invoke-rc.d $__svc status >$tmp/_ctl_svc 2>&1
+	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ -z "$__state" ]
 	    then
 		# some, like redis-server just say ... is running.
 		#
-		state=`sed -n -e "/^$svc is \([^ ][^ .]*\).*/s//\1/p" <$tmp/_ctl_svc`
+		__state=`sed -n -e "/^$__svc is \([^ ][^ .]*\).*/s//\1/p" <$tmp/_ctl_svc`
 	    fi
-	    case "$state"
+	    case "$__state"
 	    in
 		running)
 		    ;;
 		stopped)
-		    rc=1
+		    __rc=1
 		    ;;
 		*)
-		    rc=2
-		    if [ ! -f /etc/init.d/$svc ]
+		    __rc=2
+		    if [ ! -f /etc/init.d/$__svc ]
 		    then
-			echo "/etc/init.d/$svc is not installed"
-		    elif [ -n "$state" ]
+			echo "/etc/init.d/$__svc is not installed"
+		    elif [ -n "$__state" ]
 		    then
-			echo "state ($state) unknown"
+			echo "state ($__state) unknown"
 		    else
 			cat $tmp/_ctl_svc
 		    fi
@@ -203,10 +203,10 @@ _ctl_svc()
 	    esac
 	elif $__use_rc_script
 	then
-	    if [ ! -x "$PCP_RC_DIR/$svc" ]
+	    if [ ! -x "$PCP_RC_DIR/$__svc" ]
 	    then
-		rc=2
-		echo "$PCP_RC_DIR/$svc script is missing"
+		__rc=2
+		echo "$PCP_RC_DIR/$__svc script is missing"
 	    elif $__use_chkconfig
 	    then
 		# runlevel emits
@@ -217,45 +217,45 @@ _ctl_svc()
 		# chconfig emits ...
 		# pmcd           	0:off	1:off	2:on	3:on	4:on	5:on	6:off
 		# want                                            ^^
-		runlevel=`runlevel | cut -d ' ' -f 2`
-		[ "$runlevel" = unknown ] && runlevel=3
-		state=`chkconfig --list $svc 2>/dev/null | sed -e "s/.*$runlevel://" -e 's/[ 	].*//'`
-		case "$state"
+		__runlevel=`runlevel | cut -d ' ' -f 2`
+		[ "$__runlevel" = unknown ] && __runlevel=3
+		__state=`chkconfig --list $__svc 2>/dev/null | sed -e "s/.*$__runlevel://" -e 's/[ 	].*//'`
+		case "$__state"
 		in
 		    on)
 			;;
 		    off)
-			rc=1
+			__rc=1
 			;;
 		    *)
-			rc=2
-			echo "state ($state) from chkconfig unknown"
+			__rc=2
+			echo "state ($__state) from chkconfig unknown"
 			;;
 		esac
 	    fi
 	else
-	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to get state of $svc service"
+	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to get state of $__svc service"
 	    status=99
 	    exit
 	fi
-	return $rc
+	return $__rc
     fi
 
-    if [ "$action" = activate ]
+    if [ "$__action" = activate ]
     then
 	if $__use_systemctl
 	then
-	    if [ "`systemctl is-enabled $svc.service`" != enabled ]
+	    if [ "`systemctl is-enabled $__svc.service`" != enabled ]
 	    then
 		if $show_me
 		then
-		    echo "# systemctl enable $svc.service"
+		    echo "# systemctl enable $__svc.service"
 		else
-		    if systemctl enable $svc.service >$tmp/_ctl_svc 2>&1
+		    if systemctl enable $__svc.service >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
-			rc=1
+			__rc=1
 			[ "$verbose" -gt 0 ] && echo 'systemctl enable failed: 
 '"`cat $tmp/_ctl_svc`"
 		    fi
@@ -265,18 +265,18 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    if [ ! -f /etc/rc5.d/S*$svc ]
+	    if [ ! -f /etc/rc5.d/S*$__svc ]
 	    then
 		if $show_me
 		then
-		    echo "# update-rc.d $svc enable"
+		    echo "# update-rc.d $__svc enable"
 		else
 		    # no exit status from update-rc.d ...
 		    #
-		    update-rc.d $svc enable >$tmp/_ctl_svc 2>&1
-		    if [ ! -f /etc/rc5.d/S*$svc ]
+		    update-rc.d $__svc enable >$tmp/_ctl_svc 2>&1
+		    if [ ! -f /etc/rc5.d/S*$__svc ]
 		    then
-			rc=1
+			__rc=1
 			[ "$verbose" -gt 0 ] && echo 'update-rc.d enable failed:
 '"`cat $tmp/_ctl_svc`"
 		    fi
@@ -286,16 +286,16 @@ _ctl_svc()
 	    fi
 	elif $__use_chkconfig
 	then
-	    runlevel=`runlevel | cut -d ' ' -f 2`
-	    [ "$runlevel" = unknown ] && runlevel=3
-	    state=`chkconfig --list $svc 2>/dev/null | sed -e "s/.*$runlevel://" -e 's/[	].*//'`
-	    if [ "$state" = off -o -z "$state" ]
+	    __runlevel=`runlevel | cut -d ' ' -f 2`
+	    [ "$__runlevel" = unknown ] && __runlevel=3
+	    __state=`chkconfig --list $__svc 2>/dev/null | sed -e "s/.*$__runlevel://" -e 's/[	].*//'`
+	    if [ "$__state" = off -o -z "$__state" ]
 	    then
 		if $show_me
 		then
-		    echo "# chkconfig -add $svc"
+		    echo "# chkconfig -add $__svc"
 		else
-		    if chkconfig --add $svc >$tmp/_ctl_svc 2>&1
+		    if chkconfig --add $__svc >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
@@ -309,21 +309,21 @@ _ctl_svc()
 	fi
     fi
 
-    if [ "$action" = activate -o "$action" = start ]
+    if [ "$__action" = activate -o "$__action" = start ]
     then
 	if $__use_systemctl
 	then
-	    if [ "`systemctl is-active $svc.service`" != active ]
+	    if [ "`systemctl is-active $__svc.service`" != active ]
 	    then
 		if $show_me
 		then
-		    echo "# systemctl start $svc.service"
+		    echo "# systemctl start $__svc.service"
 		else
-		    if systemctl start $svc.service >$tmp/_ctl_svc 2>&1
+		    if systemctl start $__svc.service >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
-			rc=1
+			__rc=1
 			[ "$verbose" -gt 0 ] && echo 'systemctl start failed:
 '"`cat $tmp/_ctl_svc`"
 		    fi
@@ -333,19 +333,19 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
-	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ "$state" != running ]
+	    invoke-rc.d $__svc status 2>/dev/null >$tmp/_ctl_svc
+	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$__state" != running ]
 	    then
 		if $show_me
 		then
-		    echo "# invoke-rc.d $svc start"
+		    echo "# invoke-rc.d $__svc start"
 		else
-		    if invoke-rc.d $svc start >$tmp/_ctl_svc 2>&1
+		    if invoke-rc.d $__svc start >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
-			rc=1
+			__rc=1
 			[ "$verbose" -gt 0 ] && echo 'invoke-rc.d start failed:
 '"`cat $tmp/_ctl_svc`"
 		    fi
@@ -355,48 +355,48 @@ _ctl_svc()
 	    fi
 	elif $__use_rc_script
 	then
-	    $PCP_RC_DIR/$svc status 2>/dev/null >$tmp/_ctl_svc
-	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ "$state" = stopped ]
+	    $PCP_RC_DIR/$__svc status 2>/dev/null >$tmp/_ctl_svc
+	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$__state" = stopped ]
 		then
 		if $show_me
 		then
-		    echo "# $PCP_RC_DIR/$svc start"
+		    echo "# $PCP_RC_DIR/$__svc start"
 		else
-		    if "$PCP_RC_DIR/$svc" start >$tmp/_ctl_svc 2>&1
+		    if "$PCP_RC_DIR/$__svc" start >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
-			rc=1
-			[ "$verbose" -gt 0 ] && echo "$PCP_RC_DIR/$svc"' start failed:
+			__rc=1
+			[ "$verbose" -gt 0 ] && echo "$PCP_RC_DIR/$__svc"' start failed:
     '"`cat $tmp/_ctl_svc`"
 		    fi
 		fi
 	    else
-		[ "$verbose" -gt 0 ] && echo "already started via $PCP_RC_DIR/$svc"
+		[ "$verbose" -gt 0 ] && echo "already started via $PCP_RC_DIR/$__svc"
 	    fi
 	else
-	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to start $svc service"
+	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to start $__svc service"
 	    status=99
 	    exit
 	fi
     fi
 
-    if [ "$action" = deactivate -o "$action" = stop ]
+    if [ "$__action" = deactivate -o "$__action" = stop ]
     then
 	if $__use_systemctl
 	then
-	    if [ "`systemctl is-active $svc.service`" != inactive ]
+	    if [ "`systemctl is-active $__svc.service`" != inactive ]
 	    then
 		if $show_me
 		then
-		    echo "# systemctl stop $svc.service"
+		    echo "# systemctl stop $__svc.service"
 		else
-		    if systemctl stop $svc.service >$tmp/_ctl_svc 2>&1
+		    if systemctl stop $__svc.service >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
-			rc=1
+			__rc=1
 			[ "$verbose" -gt 0 ] && echo 'systemctl stop failed:
 '"`cat $tmp/_ctl_svc`"
 		    fi
@@ -406,19 +406,19 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    invoke-rc.d $svc status 2>/dev/null >$tmp/_ctl_svc
-	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ "$state" = running ]
+	    invoke-rc.d $__svc status 2>/dev/null >$tmp/_ctl_svc
+	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$__state" = running ]
 	    then
 		if $show_me
 		then
-		    echo "# invoke-rc.d $svc stop"
+		    echo "# invoke-rc.d $__svc stop"
 		else
-		    if invoke-rc.d $svc stop >$tmp/_ctl_svc 2>&1
+		    if invoke-rc.d $__svc stop >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
-			rc=1
+			__rc=1
 			[ "$verbose" -gt 0 ] && echo 'invoke-rc.d stop failed:
 '"`cat $tmp/_ctl_svc`"
 		    fi
@@ -428,48 +428,48 @@ _ctl_svc()
 	    fi
 	elif $__use_rc_script
 	then
-	    $PCP_RC_DIR/$svc status 2>/dev/null >$tmp/_ctl_svc
-	    state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
-	    if [ "$state" = running ]
+	    $PCP_RC_DIR/$__svc status 2>/dev/null >$tmp/_ctl_svc
+	    __state=`sed -n -e '/^Checking for/s/.*: //p' <$tmp/_ctl_svc`
+	    if [ "$__state" = running ]
 	    then
 		if $show_me
 		then
-		    echo "# $PCP_RC_DIR/$svc stop"
+		    echo "# $PCP_RC_DIR/$__svc stop"
 		else
-		    if "$PCP_RC_DIR/$svc" stop >$tmp/_ctl_svc 2>&1
+		    if "$PCP_RC_DIR/$__svc" stop >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
-			rc=1
-			[ "$verbose" -gt 0 ] && echo "$PCP_RC_DIR/$svc"' stop failed:
+			__rc=1
+			[ "$verbose" -gt 0 ] && echo "$PCP_RC_DIR/$__svc"' stop failed:
     '"`cat $tmp/_ctl_svc`"
 		    fi
 		fi
 	    else
-		[ "$verbose" -gt 0 ] && echo "already stopped via $PCP_RC_DIR/$svc"
+		[ "$verbose" -gt 0 ] && echo "already stopped via $PCP_RC_DIR/$__svc"
 	    fi
 	else
-	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to stop $svc service"
+	    echo >&2 "$prog: _ctl_svc: Botch: cannot determine how to stop $__svc service"
 	    status=99
 	    exit
 	fi
     fi
 
-    if [ "$action" = deactivate ]
+    if [ "$__action" = deactivate ]
     then
 	if $__use_systemctl
 	then
-	    if [ "`systemctl is-enabled $svc.service`" != disabled ]
+	    if [ "`systemctl is-enabled $__svc.service`" != disabled ]
 	    then
 		if $show_me
 		then
-		    echo "# systemctl disable $svc.service"
+		    echo "# systemctl disable $__svc.service"
 		else
-		    if systemctl disable $svc.service >$tmp/_ctl_svc 2>&1
+		    if systemctl disable $__svc.service >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
-			rc=1
+			__rc=1
 			[ "$verbose" -gt 0 ] && echo 'systemctl disable failed:
 '"`cat $tmp/_ctl_svc`"
 		    fi
@@ -479,18 +479,18 @@ _ctl_svc()
 	    fi
 	elif $__use_update_invoke
 	then
-	    if [ -f /etc/rc5.d/S*$svc ]
+	    if [ -f /etc/rc5.d/S*$__svc ]
 	    then
 		if $show_me
 		then
-		    echo "# update-rc.d $svc disable"
+		    echo "# update-rc.d $__svc disable"
 		else
 		    # no exit status from update-rc.d ...
 		    #
-		    update-rc.d $svc disable >$tmp/_ctl_svc 2>&1
-		    if [ -f /etc/rc5.d/S*$svc ]
+		    update-rc.d $__svc disable >$tmp/_ctl_svc 2>&1
+		    if [ -f /etc/rc5.d/S*$__svc ]
 		    then
-			rc=1
+			__rc=1
 			[ "$verbose" -gt 0 ] && echo 'update-rc.d disable failed:
 '"`cat $tmp/_ctl_svc`"
 		    fi
@@ -500,16 +500,16 @@ _ctl_svc()
 	    fi
 	elif $__use_chkconfig
 	then
-	    runlevel=`runlevel | cut -d ' ' -f 2`
-	    [ "$runlevel" = unknown ] && runlevel=3
-	    state=`chkconfig --list $svc 2>&1 | sed -e "s/.*$runlevel://" -e 's/[ 	].*//'`
-	    if [ "$state" = on ]
+	    __runlevel=`runlevel | cut -d ' ' -f 2`
+	    [ "$__runlevel" = unknown ] && __runlevel=3
+	    __state=`chkconfig --list $__svc 2>&1 | sed -e "s/.*$__runlevel://" -e 's/[ 	].*//'`
+	    if [ "$__state" = on ]
 	    then
 		if $show_me
 		then
-		    echo "# chkconfig -del $svc"
+		    echo "# chkconfig -del $__svc"
 		else
-		    if chkconfig --del $svc >$tmp/_ctl_svc 2>&1
+		    if chkconfig --del $__svc >$tmp/_ctl_svc 2>&1
 		    then
 			:
 		    else
@@ -523,7 +523,7 @@ _ctl_svc()
 	fi
     fi
 
-    return $rc
+    return $__rc
 }
 
 # control pmdas
@@ -535,14 +535,14 @@ _ctl_svc()
 #
 _ctl_pmda()
 {
-    local action="$1"
-    local name="$2"
-    local pre=0
-    local rc=0
-    local domain=0
-    local pid=0
-    local here=`pwd`
-    local input=''
+    __action="$1"
+    __name="$2"
+    __pre=0
+    __rc=0
+    __domain=0
+    __pid=0
+    __here=`pwd`
+    __input=''
 
     if [ -z "$1" -o -z "$2" ]
     then
@@ -550,10 +550,10 @@ _ctl_pmda()
 	status=99
 	exit
     fi
-    case "$name"
+    case "$__name"
     in
 	pmda-*)		# strip pmda- prefix from component name
-			name=`echo "$name" | sed -e s'/^pmda-//'`
+			__name=`echo "$__name" | sed -e s'/^pmda-//'`
 			;;
     esac
     # need a working pmcd
@@ -562,49 +562,49 @@ _ctl_pmda()
     if [ ! -s $tmp/tmp ]
     then
 	[ "$verbose" -gt 0 ] && echo "need to activate pmcd"
-	pre=1
+	__pre=1
     fi
     # need the PMDA pieces to be installed
     #
-    if [ ! -d "$PCP_VAR_DIR/pmdas/$name" ]
+    if [ ! -d "$PCP_VAR_DIR/pmdas/$__name" ]
     then
 	if [ "$verbose" -gt 0 ]
 	then
-	    echo "need to install the PCP package for the $name PMDA"
+	    echo "need to install the PCP package for the $__name PMDA"
 	fi
-	pre=2
-    elif [ "$action" = activate -a -n "$3" -a ! -f "$PCP_VAR_DIR/pmdas/$name/$3" ]
+	__pre=2
+    elif [ "$__action" = activate -a -n "$3" -a ! -f "$PCP_VAR_DIR/pmdas/$__name/$3" ]
     then
-	[ "$verbose" -gt 0 ] && echo "need to install the package for the $name PMDA"
-	pre=2
+	[ "$verbose" -gt 0 ] && echo "need to install the package for the $__name PMDA"
+	__pre=2
     fi
-    if [ $pre -eq 0 ]
+    if [ $__pre -eq 0 ]
     then
 	# OK so far, check PMDA installed & running status
 	# but don't issue -v verbage yet
 	#
-	if ! grep "\"$name\"]" <$tmp/tmp >/dev/null
+	if ! grep "\"$__name\"]" <$tmp/tmp >/dev/null
 	then
-	    if [ "$action" != activate ]
+	    if [ "$__action" != activate ]
 	    then
-		[ "$verbose" -gt 0 ] && echo "need to run the $name PMDA's Install script"
+		[ "$verbose" -gt 0 ] && echo "need to run the $__name PMDA's Install script"
 	    fi
-	    pre=3
-	elif ! grep "\"$name\"] value 0" <$tmp/tmp >/dev/null
+	    __pre=3
+	elif ! grep "\"$__name\"] value 0" <$tmp/tmp >/dev/null
 	then
 	    # pmcd.agent.status != 0
 	    #
 	    if [ "$verbose" -gt 0 ]
 	    then
-		rc=`sed -n <$tmp/tmp -e "/.*\"$name\"] value /s///p"`
-		echo "$pmda PMDA has failed (exit status=$rc)"
+		__rc=`sed -n <$tmp/tmp -e "/.*\"$__name\"] value /s///p"`
+		echo "$pmda PMDA has failed (exit status=$__rc)"
 	    fi
-	    pre=4
+	    __pre=4
 	fi
-	domain=`sed -n <$tmp/tmp -e "/.* inst \[\([0-9][0-9]*\).*\"$name\"] value .*/s//\1/p"`
+	__domain=`sed -n <$tmp/tmp -e "/.* inst \[\([0-9][0-9]*\).*\"$__name\"] value .*/s//\1/p"`
     fi
 
-    # now $pre values map to these cases:
+    # now $__pre values map to these cases:
     #  0  PMDA is installed and running (no output yet with -v)
     # (-v output already generated for the cases below)
     #  1  pmcd not running
@@ -612,43 +612,43 @@ _ctl_pmda()
     #  3  PMDA is not Installed
     #  4  PMDA is Installed, but has exited or failed
     #
-    rc=0
-    case "$action"
+    __rc=0
+    case "$__action"
     in
 
 	state)
-	    case "$pre"
+	    case "$__pre"
 	    in
 		0)	# PMDA installed and OK
 			if [ $verbose -gt 0 ]
 			then
-			    pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '/\/pmda'"$name'"' / { print $2 }'`
-			    if [ -n "$pid" -a -n "$domain" ]
+			    __pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | $PCP_AWK_PROG '/\/pmda'"$__name'"' / { print $2 }'`
+			    if [ -n "$__pid" -a -n "$__domain" ]
 			    then
-				echo "PID $pid, `pminfo -m | grep "PMID: $domain\\." | wc -l | sed -e 's/  *//g'` metrics"
-			    elif [ -n "$pid" ]
+				echo "PID $__pid, `pminfo -m | grep "PMID: $__domain\\." | wc -l | sed -e 's/  *//g'` metrics"
+			    elif [ -n "$__pid" ]
 			    then
-				echo "PID $pid"
-			    elif [ -n "$domain" ]
+				echo "PID $__pid"
+			    elif [ -n "$__domain" ]
 			    then
-				echo "`pminfo -m | grep "PMID: $domain\\." | wc -l | sed -e 's/  *//g'` metrics"
+				echo "`pminfo -m | grep "PMID: $__domain\\." | wc -l | sed -e 's/  *//g'` metrics"
 			    fi
 			fi
 			;;
 		1|2)	# pmcd not running or PMDA package not installed
-			rc=2
+			__rc=2
 			;;
 		3|4)	# PMDA not Installed or PMDA has failed
-			rc=1
+			__rc=1
 			;;
 	    esac
 	    ;;
 
 	activate)
-	    case "$pre"
+	    case "$__pre"
 	    in
 		0)	# PMDA installed and OK
-			[ $verbose -gt 0 ] && echo "$name PMDA already installed and active"
+			[ $verbose -gt 0 ] && echo "$__name PMDA already installed and active"
 			;;
 		1|2)	# pmcd not running or PMDA package not installed
 			;;
@@ -656,9 +656,9 @@ _ctl_pmda()
 			rm -f $tmp/out
 			if $show_me
 			then
-			    echo "$ cd $PCP_VAR_DIR/pmdas/$name"
+			    echo "$ cd $PCP_VAR_DIR/pmdas/$__name"
 			else
-			    if cd $PCP_VAR_DIR/pmdas/$name
+			    if cd $PCP_VAR_DIR/pmdas/$__name
 			    then
 				:
 			    else
@@ -666,23 +666,23 @@ _ctl_pmda()
 				exit
 			    fi
 			fi
-			input='/dev/null'
+			__input='/dev/null'
 			if [ -n "$4" ]
 			then
 			    # Install need's input
 			    #
-			    input="$4"
+			    __input="$4"
 			fi
 			if $show_me
 			then
-			    echo "# ./Install <$input"
+			    echo "# ./Install <$__input"
 			else
-			    if ./Install <$input >$tmp/out 2>&1
+			    if ./Install <$__input >$tmp/out 2>&1
 			    then
 				:
 			    else
 				cat $tmp/out
-				rc=1
+				__rc=1
 			    fi
 			fi
 			;;
@@ -697,25 +697,25 @@ _ctl_pmda()
 				:
 			    else
 				cat $tmp/out
-				rc=1
+				__rc=1
 			    fi
 			fi
 			;;
-		*)	rc=1
+		*)	__rc=1
 			;;
 	    esac
 	    ;;
 
 	deactivate)
-	    case "$pre"
+	    case "$__pre"
 	    in
 		0|4)	# PMDA installed and OK or PMDA has failed
 			rm -f $tmp/out
 			if $show_me
 			then
-			    echo "$ cd $PCP_VAR_DIR/pmdas/$name"
+			    echo "$ cd $PCP_VAR_DIR/pmdas/$__name"
 			else
-			    if cd $PCP_VAR_DIR/pmdas/$name
+			    if cd $PCP_VAR_DIR/pmdas/$__name
 			    then
 				:
 			    else
@@ -734,27 +734,27 @@ _ctl_pmda()
 				:
 			    else
 				cat $tmp/out
-				rc=1
+				__rc=1
 			    fi
 			fi
 			;;
 		1|2)	# pmcd not running or PMDA package not installed
-			rc=1
+			__rc=1
 			;;
 		3)	# PMDA not Installed
-			[ $verbose -gt 0 ] && echo "$name PMDA already deactivated"
+			[ $verbose -gt 0 ] && echo "$__name PMDA already deactivated"
 			;;
 	    esac
 	    ;;
 
 	*)
-	    echo >&2 "$prog: _ctl_pmda: Error: bad action argument ($action)"
+	    echo >&2 "$prog: _ctl_pmda: Error: bad action argument ($__action)"
 	    status=99
 	    exit
 	    ;;
     esac
 
-    return $rc
+    return $__rc
 }
 
 # determine what sort of systemd/init/... we're using
