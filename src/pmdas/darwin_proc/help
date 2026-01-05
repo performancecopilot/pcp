@@ -91,6 +91,13 @@ Instantaneous number of processes with virtual size of zero (kernel threads)
 @ proc.memory.size instantaneous virtual size of process
 @ proc.memory.rss instantaneous resident size of process
 
+@ proc.io.read_bytes cumulative bytes read from disk by process
+Cumulative count of bytes read from disk by this process since it started.
+Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
+@ proc.io.write_bytes cumulative bytes written to disk by process
+Cumulative count of bytes written to disk by this process since it started.
+Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
+
 @ proc.control.all.threads process indom includes threads
 If set to one, the process instance domain as reported by pmdaproc
 contains all threads as well as the processes that started them.

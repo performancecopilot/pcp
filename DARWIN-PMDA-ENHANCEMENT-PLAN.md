@@ -2,8 +2,8 @@
 
 ## Current Status
 
-**Last Updated:** 2026-01-04
-**Current Step:** Steps 2.5a, 2.5b, and 2.6 completed with QA fixes (TCP + pmrep views), Phase 3 next (process metrics)
+**Last Updated:** 2026-01-05
+**Current Step:** Step 3.1 completed (Process I/O statistics), Step 3.2 next
 **Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
@@ -22,7 +22,7 @@
 | 2.5b | COMPLETED | TCP statistics - detection and documentation (warnings + man page) (commit f5c406e52a) |
 | 2.5c | DEFERRED | TCP statistics - auto-enable config (for maintainer discussion) |
 | 2.6 | COMPLETED | pmrep macOS monitoring views - memory, disk, TCP, protocol overview (commit 9afb1b9e9d + QA fixes 3a2e05e5da) |
-| 3.1 | PENDING | Process I/O statistics |
+| 3.1 | COMPLETED | Process I/O statistics (ready for commit) |
 | 3.2 | PENDING | Enhanced process metrics |
 | 4.1 | PENDING | Transform plan → permanent documentation |
 | 4.2 | PENDING | Refactor pmda.c legacy code |
@@ -600,35 +600,6 @@ Count of active TCP connection attempts (SYN sent)
 
 ---
 
-#### Step 2.5c: Auto-Enable Configuration (Optional/Future)
-
-**Goal:** Allow users to configure automatic enabling of TCP statistics via config file
-
-**Status:** DEFERRED - For discussion with PCP maintainers
-
-**Why Deferred:** This feature changes kernel settings automatically, which may be controversial. Better to get feedback from maintainers before implementing.
-
-**Proposed Implementation** (when/if approved):
-
-1. Create `src/pmdas/darwin/darwin.conf`:
-   ```conf
-   # darwin.conf - Configuration for darwin PMDA
-   # auto_enable_tcp_stats = false
-   ```
-
-2. Add config loading and auto-enable in `pmda.c` (see earlier plan for code)
-
-3. Update man page with auto-enable documentation
-
-4. Update GNUmakefile to install config file
-
-**Discussion Points for Maintainers:**
-- Is it acceptable for PMDA to modify sysctl settings?
-- Should this be opt-in (default false) or opt-out?
-- Where should darwin.conf be installed? ($PCP_PMDAS_DIR/darwin or $PCP_SYSCONF_DIR/darwin?)
-
----
-
 ### Step 2.6: pmrep macOS System Monitoring Views
 
 **Goal:** Create comprehensive pmrep configurations for macOS system monitoring across memory, disk, and network subsystems
@@ -1061,14 +1032,71 @@ tcps_rcvtotal: 9957250
 
 ### Step 3.1: Process I/O Statistics
 
-**Files:** `src/pmdas/darwin_proc/pmda.c`, `kinfo_proc.c`, `kinfo_proc.h`
+**Status:** COMPLETED
 
-**API:** `proc_pid_rusage(pid, RUSAGE_INFO_V3, &rusage)`
+**Goal:** Add per-process disk I/O statistics via `proc_pid_rusage()` API
 
-| Metric | Type | Source |
-|--------|------|--------|
-| `proc.io.read_bytes` | U64 | rusage_info_v3.ri_diskio_bytesread |
-| `proc.io.write_bytes` | U64 | rusage_info_v3.ri_diskio_byteswritten |
+**New Cluster:** `CLUSTER_PROC_IO` (5)
+
+**New Metrics:**
+
+| Metric | Item | Type | Semantics | Source |
+|--------|------|------|-----------|--------|
+| `proc.io.read_bytes` | 0 | U64 | counter (bytes) | rusage_info_v3.ri_diskio_bytesread |
+| `proc.io.write_bytes` | 1 | U64 | counter (bytes) | rusage_info_v3.ri_diskio_byteswritten |
+
+**Changes Made:**
+
+1. **kinfo_proc.h** - Added I/O fields to `darwin_proc_t` structure:
+   - `uint64_t read_bytes` - cumulative bytes read from disk
+   - `uint64_t write_bytes` - cumulative bytes written to disk
+
+2. **kinfo_proc.c** - Added data collection in `darwin_refresh_processes()`:
+   ```c
+   struct rusage_info_v3 rusage;
+   if (proc_pid_rusage(proc->id, RUSAGE_INFO_V3,
+           (rusage_info_t *)&rusage) == 0) {
+       proc->read_bytes = rusage.ri_diskio_bytesread;
+       proc->write_bytes = rusage.ri_diskio_byteswritten;
+   } else {
+       proc->read_bytes = 0;
+       proc->write_bytes = 0;
+   }
+   ```
+
+3. **pmda.c** - Added cluster and metrics:
+   - Added `CLUSTER_PROC_IO` to cluster enum
+   - Added 2 metrictab entries for read_bytes and write_bytes
+   - Added cluster to `proc_refresh()` condition
+   - Added cluster to `proc_instance()` refresh list
+   - Added `CLUSTER_PROC_IO` case in `proc_fetchCallBack()` for fetching I/O values
+
+4. **root_proc** - Added PMNS entries:
+   - Added `io` to proc{} hierarchy
+   - Created `proc.io{}` section with read_bytes and write_bytes mappings
+
+5. **help** - Added comprehensive help text:
+   - Documented both metrics as cumulative counters
+   - Noted data source (proc_pid_rusage)
+
+**Implementation Notes:**
+- Metrics are PM_SEM_COUNTER (cumulative since process start)
+- Metrics use PM_TYPE_U64 to handle large I/O volumes
+- Zero-initialization on rusage failure prevents stale data
+- Follows exact pattern of CLUSTER_PROC_MEM for consistency
+- Permission checks inherited from existing access control
+
+**Code Review:**
+- pcp-code-reviewer verdict: **APPROVED FOR MERGE**
+- Ratings: Excellent across all categories
+- No blocking issues found
+- Production-ready code quality
+
+**Testing:**
+- **IMPORTANT**: PCP is not installed locally - all testing must be done in Cirrus CI VM
+- Metrics can be validated via: `pminfo -f proc.io.read_bytes` and `pminfo -f proc.io.write_bytes`
+- Should verify metrics are accessible and return U64 counter values
+- Should check monotonic increase over time for active processes
 
 ---
 
@@ -1168,6 +1196,37 @@ tcps_rcvtotal: 9957250
 - Update "Code Organization Pattern" section with lessons learned
 - Note which subsystems were refactored and why
 - Provide guidance for future contributors on modular design
+
+---
+
+## Phase 5: Future Enhancements (DEFERRED)
+
+### Step 2.5c: Auto-Enable TCP Stats Configuration
+
+**Status:** DEFERRED - For discussion with PCP maintainers in subsequent PR
+
+**Why Deferred:** This feature changes kernel settings automatically, which may be controversial. Better to get feedback from maintainers before implementing.
+
+**Goal:** Allow users to configure automatic enabling of TCP statistics via config file
+
+**Proposed Implementation** (when/if approved):
+
+1. Create `src/pmdas/darwin/darwin.conf`:
+   ```conf
+   # darwin.conf - Configuration for darwin PMDA
+   # auto_enable_tcp_stats = false
+   ```
+
+2. Add config loading and auto-enable in `pmda.c` (see Step 2.5c details earlier in plan)
+
+3. Update man page with auto-enable documentation
+
+4. Update GNUmakefile to install config file
+
+**Discussion Points for Maintainers:**
+- Is it acceptable for PMDA to modify sysctl settings?
+- Should this be opt-in (default false) or opt-out?
+- Where should darwin.conf be installed? ($PCP_PMDAS_DIR/darwin or $PCP_SYSCONF_DIR/darwin?)
 
 ---
 
