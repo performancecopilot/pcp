@@ -1,0 +1,93 @@
+#!/bin/sh
+# PCP QA Test No. 1904
+# [what am I here for?]
+#
+# Copyright (c) 2025 [who are you?].  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+# test for-some-thing || _notrun No support for some-thing
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+pcp_top="$PCP_BINADM_DIR/pcp-top"
+test -x $pcp_top || _notrun "No pcp-top(1) installed"
+pcp_top="$python $pcp_top"
+
+archive_first="-a archives/pcp-top.0.xz"
+
+echo
+echo pcp-top output : Display default output
+PCP_ARCHIVE="archives/pcp-top.0.xz" PCP_HOSTZONE=1 PCP_ORIGIN=1 $pcp_top
+
+echo
+echo pcp-top output : Display output sorted by memory
+$pcp_top $archive_first -o %mem
+
+echo
+echo pcp-top output : Display output sorted by cpu \(default\)
+$pcp_top $archive_first -o %cpu
+
+echo
+echo pcp-top output : Display top 5 processes by cpu
+$pcp_top $archive_first -o %cpu -c 5
+
+echo
+echo pcp-top output : Display top 5 processes by mem
+$pcp_top $archive_first -o %mem -c 5
+
+if $do_valgrind
+then
+    _run_valgrind [--save-output] true
+else
+    true 2>&1
+fi \
+| _filter
+
+# if really bad error
+status=1
+exit
+
+# optional stuff if your test has verbose output to help resolve problems
+#echo
+#echo "If failure, check $seq_full"
+
+# success, all done
+exit
