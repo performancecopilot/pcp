@@ -128,6 +128,9 @@ ps $PCP_PS_ALL_FLAGS | grep -E "PID|$pid" >>$seq_full
 
 $sudo kill -STOP $pid
 
+echo "after kill -STOP $pid" >>$seq_full
+ps $PCP_PS_ALL_FLAGS | grep -E "PID|$pid" >>$seq_full
+
 sleep 3		# make sure pmcd gets the SIGSTOP
 
 # this will hang, and then see a timeout failure when PMCD is

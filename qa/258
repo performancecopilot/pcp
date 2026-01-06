@@ -92,17 +92,17 @@ fi
 PCP_TRACE_RECONNECT=1
 export PCP_TRACE_RECONNECT
 
-( ( $PCP_DEMOS_DIR/trace/app2 >/dev/null 2>&1 & ) )
+( ( trap - 0; $PCP_DEMOS_DIR/trace/app2 >/dev/null 2>&1 & ) )
 sleep 3
 if ! _service pmcd restart 2>&1; then _exit 1; fi \
 | _filter_pcp_restart
-_wait_for_pmcd || _exit 1
+_wait_pmcd_end || _exit 1
 if ! _service pmlogger restart 2>&1; then _exit 1; fi \
 | _filter_pcp_restart
 _wait_for_pmlogger || _exit 1
 
 # time_sucker transaction sleeps for 10 secs - wait for this
-sleep 11
+sleep 12
 vals=`pminfo -f trace.transact.count | grep -F 'No value(s) available!' | wc -l`
 if [ $vals -eq 1 ]
 then

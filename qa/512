@@ -18,6 +18,8 @@ LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection & lock tracing enabled"
 
+unset LD_PRELOAD
+
 if [ -d ../src ]
 then
     SRC=../src
@@ -98,10 +100,9 @@ _post()
 
 # real QA test starts here
 
-
 echo "== pminfo ==" | tee -a $seq_full
 _pre $SRC/pminfo pminfo
-$SRC/pminfo/pminfo.debug -v -Dlock >/dev/null 2>$tmp.trace
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so $SRC/pminfo/pminfo.debug -v -Dlock >/dev/null 2>$tmp.trace
 _post $SRC/pminfo pminfo
 _filter <$tmp.trace
 
@@ -109,7 +110,7 @@ echo | tee -a $seq_full
 echo "== pmlogger ==" | tee -a $seq_full
 sed -e 's/1 sec/50 msec/' <tmparch/config.foo >$tmp.config
 _pre $SRC/pmlogger/src pmlogger
-$SRC/pmlogger/src/pmlogger.debug -Dlock -c $tmp.config -s 20 -l $tmp.log $tmp
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so $SRC/pmlogger/src/pmlogger.debug -Dlock -c $tmp.config -s 20 -l $tmp.log $tmp
 _post $SRC/pmlogger/src pmlogger
 _filter <$tmp.log
 
@@ -123,14 +124,14 @@ do
     done
 done
 _pre $SRC/pmlogextract pmlogextract
-$SRC/pmlogextract/pmlogextract.debug -Dlock $tmp-a $tmp-b $tmp-c $tmp-out 2>$tmp.trace
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so $SRC/pmlogextract/pmlogextract.debug -Dlock $tmp-a $tmp-b $tmp-c $tmp-out 2>$tmp.trace
 _post $SRC/pmlogextract pmlogextract
 _filter <$tmp.trace
 
 echo | tee -a $seq_full
 echo "== pmlogdump ==" | tee -a $seq_full
 _pre $SRC/pmlogdump pmlogdump
-$SRC/pmlogdump/pmlogdump.debug -dilmst -Dlock $tmp-out >$tmp.err 2>$tmp.out
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so $SRC/pmlogdump/pmlogdump.debug -dilmst -Dlock $tmp-out >$tmp.err 2>$tmp.out
 _post $SRC/pmlogdump pmlogdump
 cat $tmp.out $tmp.err | _filter
 
