@@ -1,0 +1,23 @@
+From: Nix Packaging
+Subject: Use portable ar fallback in configure script
+
+The configure script has a hardcoded fallback to /usr/bin/ar which doesn't
+exist on NixOS and other non-FHS systems. Change the fallback to just "ar"
+which will be found via PATH.
+
+This is a more portable default that works on any system where ar is in PATH.
+For Nix builds, AR is explicitly set in preConfigure for reproducibility,
+so this fallback only affects non-Nix builds.
+
+--- a/configure
++++ b/configure
+@@ -5947,7 +5947,7 @@ done
+
+   test -n "$AR" && break
+ done
+-test -n "$AR" || AR="/usr/bin/ar"
++test -n "$AR" || AR="ar"
+
+ fi
+ if test ! -x "$AR"; then
+
