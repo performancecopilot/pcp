@@ -65,7 +65,7 @@ promptformore(void)
     static int		first = 1;
     struct termios	ntty;
 #ifndef HAVE_CFMAKERAW
-    extern int cfmakeraw(struct termios *);
+    extern void cfmakeraw(struct termios *);
 #endif
 
     if (first) {
