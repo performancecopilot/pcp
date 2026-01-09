@@ -77,8 +77,7 @@ check_prerequisites() {
     echo -e "${GREEN}✓ pmcd is running${NC}"
 
     # Check if darwin PMDA is loaded
-    # Use -h localhost to force TCP connection (more reliable in CI environments)
-    if ! pminfo -h localhost -f pmcd.agent.status | grep -q darwin; then
+    if ! pminfo -f pmcd.agent.status | grep -q darwin; then
         echo -e "${YELLOW}⚠ Darwin PMDA not loaded in pmcd${NC}"
         echo "  Attempting to load darwin PMDA..."
         cd /usr/local/lib/pcp/pmdas/darwin 2>/dev/null || cd /Library/PCP/pmdas/darwin 2>/dev/null
@@ -86,7 +85,7 @@ check_prerequisites() {
         sleep 1
     fi
 
-    if pminfo -h localhost kernel.all.uptime > /dev/null 2>&1; then
+    if pminfo kernel.all.uptime > /dev/null 2>&1; then
         echo -e "${GREEN}✓ Darwin PMDA is loaded and responding${NC}"
     else
         echo -e "${RED}✗ Darwin PMDA is not responding${NC}"
@@ -122,8 +121,7 @@ validate_metric() {
     local metric="$1"
     local validation="$2"
 
-    # Use -h localhost to force TCP connection
-    local value=$(pminfo -h localhost -f "$metric" 2>/dev/null | grep "value" | awk '{print $2}')
+    local value=$(pminfo -f "$metric" 2>/dev/null | grep "value" | awk '{print $2}')
 
     if [ -z "$value" ]; then
         return 1
@@ -153,10 +151,10 @@ echo
 
 # Test 1: Basic metric availability
 echo "Test Group: Basic Metrics"
-run_test "hinv.ncpu exists" "pminfo -h localhost -f hinv.ncpu"
-run_test "hinv.physmem exists" "pminfo -h localhost -f hinv.physmem"
-run_test "kernel.all.uptime exists" "pminfo -h localhost -f kernel.all.uptime"
-run_test "kernel.all.load exists" "pminfo -h localhost -f 'kernel.all.load'"
+run_test "hinv.ncpu exists" "pminfo -f hinv.ncpu"
+run_test "hinv.physmem exists" "pminfo -f hinv.physmem"
+run_test "kernel.all.uptime exists" "pminfo -f kernel.all.uptime"
+run_test "kernel.all.load exists" "pminfo -f 'kernel.all.load'"
 echo
 
 # Test 2: Memory metrics
@@ -170,20 +168,20 @@ echo
 echo "Test Group: CPU Metrics"
 run_test "hinv.ncpu > 0" "validate_metric hinv.ncpu positive"
 run_test "kernel.all.cpu.idle >= 0" "validate_metric kernel.all.cpu.idle non-negative"
-run_test "kernel.percpu.cpu.user exists" "pminfo -h localhost 'kernel.percpu.cpu.user'"
+run_test "kernel.percpu.cpu.user exists" "pminfo 'kernel.percpu.cpu.user'"
 echo
 
 # Test 4: pmstat integration
 echo "Test Group: pmstat Integration"
-run_test "pmstat runs" "pmstat -h localhost -t 1 -s 2"
-run_test "pmstat shows loadavg" "pmstat -h localhost -t 1 -s 1 | grep -E '[0-9]+\.[0-9]+'"
+run_test "pmstat runs" "pmstat -t 1 -s 2"
+run_test "pmstat shows loadavg" "pmstat -t 1 -s 1 | grep -E '[0-9]+\.[0-9]+'"
 echo
 
 # Test 5: pmrep :macstat integration (macOS-specific pmstat alternative)
 echo "Test Group: pmrep :macstat Integration"
 if command -v pmrep &> /dev/null; then
-    run_test "pmrep :macstat runs" "pmrep -h localhost :macstat -t 1 -s 2"
-    run_test "pmrep :macstat-x runs" "pmrep -h localhost :macstat-x -t 1 -s 2"
+    run_test "pmrep :macstat runs" "pmrep :macstat -t 1 -s 2"
+    run_test "pmrep :macstat-x runs" "pmrep :macstat-x -t 1 -s 2"
 
     # Run detailed macstat test if it exists
     if [ -f "$SCRIPT_DIR/test-pmrep-macstat.sh" ]; then
@@ -201,25 +199,25 @@ echo
 
 # Test 6: pmval can fetch values
 echo "Test Group: pmval Integration"
-run_test "pmval mem.freemem" "pmval -h localhost -t 1 -s 1 mem.freemem"
-run_test "pmval kernel.all.load" "pmval -h localhost -t 1 -s 1 'kernel.all.load[1]'"
+run_test "pmval mem.freemem" "pmval -t 1 -s 1 mem.freemem"
+run_test "pmval kernel.all.load" "pmval -t 1 -s 1 'kernel.all.load[1]'"
 echo
 
 # Test 7: Disk metrics
 echo "Test Group: Disk Metrics"
-run_test "hinv.ndisk exists" "pminfo -h localhost -f hinv.ndisk"
+run_test "hinv.ndisk exists" "pminfo -f hinv.ndisk"
 run_test "disk.all.total >= 0" "validate_metric disk.all.total non-negative"
 echo
 
 # Test 8: Network metrics
 echo "Test Group: Network Metrics"
-run_test "network.interface.in.bytes exists" "pminfo -h localhost 'network.interface.in.bytes'"
-run_test "network.interface.out.bytes exists" "pminfo -h localhost 'network.interface.out.bytes'"
+run_test "network.interface.in.bytes exists" "pminfo 'network.interface.in.bytes'"
+run_test "network.interface.out.bytes exists" "pminfo 'network.interface.out.bytes'"
 echo
 
 # Test 9: VFS metrics
 echo "Test Group: VFS Metrics"
-run_test "vfs.files.count exists" "pminfo -h localhost -f vfs.files.count"
+run_test "vfs.files.count exists" "pminfo -f vfs.files.count"
 run_test "vfs.files.max > 0" "validate_metric vfs.files.max positive"
 run_test "vfs.files.free >= 0" "validate_metric vfs.files.free non-negative"
 run_test "vfs.vnodes.count >= 0" "validate_metric vfs.vnodes.count non-negative"
@@ -230,8 +228,8 @@ echo
 
 # Test 10: UDP protocol metrics
 echo "Test Group: UDP Protocol Metrics"
-run_test "network.udp.indatagrams exists" "pminfo -h localhost -f network.udp.indatagrams"
-run_test "network.udp.outdatagrams exists" "pminfo -h localhost -f network.udp.outdatagrams"
+run_test "network.udp.indatagrams exists" "pminfo -f network.udp.indatagrams"
+run_test "network.udp.outdatagrams exists" "pminfo -f network.udp.outdatagrams"
 run_test "network.udp.indatagrams >= 0" "validate_metric network.udp.indatagrams non-negative"
 run_test "network.udp.outdatagrams >= 0" "validate_metric network.udp.outdatagrams non-negative"
 run_test "network.udp.noports >= 0" "validate_metric network.udp.noports non-negative"
@@ -241,8 +239,8 @@ echo
 
 # Test 11: ICMP protocol metrics
 echo "Test Group: ICMP Protocol Metrics"
-run_test "network.icmp.inmsgs exists" "pminfo -h localhost -f network.icmp.inmsgs"
-run_test "network.icmp.outmsgs exists" "pminfo -h localhost -f network.icmp.outmsgs"
+run_test "network.icmp.inmsgs exists" "pminfo -f network.icmp.inmsgs"
+run_test "network.icmp.outmsgs exists" "pminfo -f network.icmp.outmsgs"
 run_test "network.icmp.inmsgs >= 0" "validate_metric network.icmp.inmsgs non-negative"
 run_test "network.icmp.outmsgs >= 0" "validate_metric network.icmp.outmsgs non-negative"
 run_test "network.icmp.inerrors >= 0" "validate_metric network.icmp.inerrors non-negative"
@@ -254,16 +252,16 @@ run_test "network.icmp.outechoreps >= 0" "validate_metric network.icmp.outechore
 echo
 
 echo "Test Group: Socket Statistics"
-run_test "network.sockstat.tcp.inuse exists" "pminfo -h localhost -f network.sockstat.tcp.inuse"
-run_test "network.sockstat.udp.inuse exists" "pminfo -h localhost -f network.sockstat.udp.inuse"
+run_test "network.sockstat.tcp.inuse exists" "pminfo -f network.sockstat.tcp.inuse"
+run_test "network.sockstat.udp.inuse exists" "pminfo -f network.sockstat.udp.inuse"
 run_test "network.sockstat.tcp.inuse > 0" "validate_metric network.sockstat.tcp.inuse positive"
 run_test "network.sockstat.udp.inuse >= 0" "validate_metric network.sockstat.udp.inuse non-negative"
 echo
 
 echo "Test Group: TCP Connection State Metrics"
-run_test "network.tcpconn.established exists" "pminfo -h localhost -f network.tcpconn.established"
-run_test "network.tcpconn.listen exists" "pminfo -h localhost -f network.tcpconn.listen"
-run_test "network.tcpconn.time_wait exists" "pminfo -h localhost -f network.tcpconn.time_wait"
+run_test "network.tcpconn.established exists" "pminfo -f network.tcpconn.established"
+run_test "network.tcpconn.listen exists" "pminfo -f network.tcpconn.listen"
+run_test "network.tcpconn.time_wait exists" "pminfo -f network.tcpconn.time_wait"
 run_test "network.tcpconn.established >= 0" "validate_metric network.tcpconn.established non-negative"
 run_test "network.tcpconn.listen >= 0" "validate_metric network.tcpconn.listen non-negative"
 run_test "network.tcpconn.time_wait >= 0" "validate_metric network.tcpconn.time_wait non-negative"
@@ -278,10 +276,10 @@ run_test "network.tcpconn.closing >= 0" "validate_metric network.tcpconn.closing
 echo
 
 echo "Test Group: TCP Protocol Statistics"
-run_test "network.tcp.activeopens exists" "pminfo -h localhost -f network.tcp.activeopens"
-run_test "network.tcp.passiveopens exists" "pminfo -h localhost -f network.tcp.passiveopens"
-run_test "network.tcp.insegs exists" "pminfo -h localhost -f network.tcp.insegs"
-run_test "network.tcp.outsegs exists" "pminfo -h localhost -f network.tcp.outsegs"
+run_test "network.tcp.activeopens exists" "pminfo -f network.tcp.activeopens"
+run_test "network.tcp.passiveopens exists" "pminfo -f network.tcp.passiveopens"
+run_test "network.tcp.insegs exists" "pminfo -f network.tcp.insegs"
+run_test "network.tcp.outsegs exists" "pminfo -f network.tcp.outsegs"
 run_test "network.tcp.activeopens >= 0" "validate_metric network.tcp.activeopens non-negative"
 run_test "network.tcp.passiveopens >= 0" "validate_metric network.tcp.passiveopens non-negative"
 run_test "network.tcp.attemptfails >= 0" "validate_metric network.tcp.attemptfails non-negative"
@@ -301,28 +299,28 @@ echo
 # Test 15: Process metrics (darwin_proc PMDA)
 echo "Test Group: Process Metrics"
 run_test "proc.nprocs > 0" "validate_metric proc.nprocs positive"
-run_test "proc.psinfo.pid exists" "pminfo -h localhost 'proc.psinfo.pid'"
-run_test "proc.psinfo.cmd exists" "pminfo -h localhost 'proc.psinfo.cmd'"
-run_test "proc.memory.size exists" "pminfo -h localhost 'proc.memory.size'"
-run_test "proc.memory.rss exists" "pminfo -h localhost 'proc.memory.rss'"
+run_test "proc.psinfo.pid exists" "pminfo 'proc.psinfo.pid'"
+run_test "proc.psinfo.cmd exists" "pminfo 'proc.psinfo.cmd'"
+run_test "proc.memory.size exists" "pminfo 'proc.memory.size'"
+run_test "proc.memory.rss exists" "pminfo 'proc.memory.rss'"
 echo
 
 # Test 16: Process I/O statistics (Step 3.1)
 echo "Test Group: Process I/O Statistics"
-run_test "proc.io.read_bytes exists" "pminfo -h localhost 'proc.io.read_bytes'"
-run_test "proc.io.write_bytes exists" "pminfo -h localhost 'proc.io.write_bytes'"
+run_test "proc.io.read_bytes exists" "pminfo 'proc.io.read_bytes'"
+run_test "proc.io.write_bytes exists" "pminfo 'proc.io.write_bytes'"
 # Note: We can't validate specific values as processes may have no I/O yet
 # Just verify the metrics are fetchable
-run_test "proc.io.read_bytes fetchable" "pminfo -h localhost -f 'proc.io.read_bytes'"
-run_test "proc.io.write_bytes fetchable" "pminfo -h localhost -f 'proc.io.write_bytes'"
+run_test "proc.io.read_bytes fetchable" "pminfo -f 'proc.io.read_bytes'"
+run_test "proc.io.write_bytes fetchable" "pminfo -f 'proc.io.write_bytes'"
 echo
 
 # Test 17: Process file descriptor count (Step 3.2)
 echo "Test Group: Process File Descriptor Count"
-run_test "proc.fd.count exists" "pminfo -h localhost 'proc.fd.count'"
-run_test "proc.fd.count fetchable" "pminfo -h localhost -f 'proc.fd.count'"
+run_test "proc.fd.count exists" "pminfo 'proc.fd.count'"
+run_test "proc.fd.count fetchable" "pminfo -f 'proc.fd.count'"
 # At least one process (pminfo itself) should have open FDs
-run_test "some process has FDs > 0" "pminfo -h localhost -f 'proc.fd.count' | grep -q 'value [1-9][0-9]*'"
+run_test "some process has FDs > 0" "pminfo -f 'proc.fd.count' | grep -q 'value [1-9][0-9]*'"
 echo
 
 # Summary
