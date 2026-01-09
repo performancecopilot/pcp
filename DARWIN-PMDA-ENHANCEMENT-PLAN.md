@@ -1093,10 +1093,14 @@ tcps_rcvtotal: 9957250
 - Production-ready code quality
 
 **Testing:**
-- **IMPORTANT**: PCP is not installed locally - all testing must be done in Cirrus CI VM
-- Metrics can be validated via: `pminfo -f proc.io.read_bytes` and `pminfo -f proc.io.write_bytes`
-- Should verify metrics are accessible and return U64 counter values
-- Should check monotonic increase over time for active processes
+- Unit tests added to `scripts/darwin/test/unit/test-proc.txt`:
+  - Tests proc.io.read_bytes and proc.io.write_bytes
+  - Validates metric descriptions and fetchability
+- Integration tests added to `scripts/darwin/test/integration/run-integration-tests.sh`:
+  - Test Group 16: Process I/O statistics
+  - Validates metrics exist and are fetchable
+  - Note: Cannot validate specific values as processes may have no I/O yet
+- Tests account for dynamic process list and varying I/O activity
 
 ---
 
@@ -1155,7 +1159,18 @@ tcps_rcvtotal: 9957250
 - Access control implemented via existing `have_access` pattern (same as other proc metrics)
 - Returns 0 if proc_pidinfo fails or process has no permission
 - Type U32 chosen as sufficient for file descriptor counts (max open files typically < 4 billion)
-- QA tests pending (to be validated in CI environment)
+
+**Testing:**
+- Unit tests added to `scripts/darwin/test/unit/test-proc.txt`:
+  - Tests proc.fd.count metric existence and fetchability
+  - Tests proc.io.read_bytes and proc.io.write_bytes (Step 3.1)
+  - Tests basic proc metrics (nprocs, psinfo, memory, runq)
+- Integration tests added to `scripts/darwin/test/integration/run-integration-tests.sh`:
+  - Test Group 15: Basic process metrics (proc.nprocs, psinfo, memory)
+  - Test Group 16: Process I/O statistics (Step 3.1)
+  - Test Group 17: Process FD count (Step 3.2) - validates at least one process has FDs > 0
+- All tests validate metric existence and fetchability
+- Integration tests account for dynamic process list (don't test specific values)
 
 **Note:** `proc.memory.vmsize` metric deferred - memory size already available via `proc.memory.size` (virtual size) and `proc.memory.rss` (resident size) from existing implementation.
 

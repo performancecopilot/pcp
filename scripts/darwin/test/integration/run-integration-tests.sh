@@ -298,6 +298,33 @@ run_test "network.tcp.rtomin == 200" "validate_metric network.tcp.rtomin positiv
 run_test "network.tcp.rtomax == 64000" "validate_metric network.tcp.rtomax positive"
 echo
 
+# Test 15: Process metrics (darwin_proc PMDA)
+echo "Test Group: Process Metrics"
+run_test "proc.nprocs > 0" "validate_metric proc.nprocs positive"
+run_test "proc.psinfo.pid exists" "pminfo -h localhost 'proc.psinfo.pid'"
+run_test "proc.psinfo.cmd exists" "pminfo -h localhost 'proc.psinfo.cmd'"
+run_test "proc.memory.size exists" "pminfo -h localhost 'proc.memory.size'"
+run_test "proc.memory.rss exists" "pminfo -h localhost 'proc.memory.rss'"
+echo
+
+# Test 16: Process I/O statistics (Step 3.1)
+echo "Test Group: Process I/O Statistics"
+run_test "proc.io.read_bytes exists" "pminfo -h localhost 'proc.io.read_bytes'"
+run_test "proc.io.write_bytes exists" "pminfo -h localhost 'proc.io.write_bytes'"
+# Note: We can't validate specific values as processes may have no I/O yet
+# Just verify the metrics are fetchable
+run_test "proc.io.read_bytes fetchable" "pminfo -h localhost -f 'proc.io.read_bytes'"
+run_test "proc.io.write_bytes fetchable" "pminfo -h localhost -f 'proc.io.write_bytes'"
+echo
+
+# Test 17: Process file descriptor count (Step 3.2)
+echo "Test Group: Process File Descriptor Count"
+run_test "proc.fd.count exists" "pminfo -h localhost 'proc.fd.count'"
+run_test "proc.fd.count fetchable" "pminfo -h localhost -f 'proc.fd.count'"
+# At least one process (pminfo itself) should have open FDs
+run_test "some process has FDs > 0" "pminfo -h localhost -f 'proc.fd.count' | grep -q 'value [1-9]'"
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"
