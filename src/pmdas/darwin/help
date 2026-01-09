@@ -70,8 +70,6 @@
 @ mem.pages.zero_filled the number of pages that have been zero-filled on demand
 @ mem.pageins the number of requests for pages from a pager
 @ mem.pageouts the number of pages that have been paged out
-@ mem.cache_hits the number of object cache hits
-@ mem.cache_lookups the number of object cache lookups
 @ mem.util.wired wired memory
 @ mem.util.active active memory
 @ mem.util.inactive inactive memory

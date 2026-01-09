@@ -67,9 +67,5 @@ fetch mem.pageins
 desc mem.pageouts
 fetch mem.pageouts
 
-# Cache metrics (these are 64-bit counters now)
-desc mem.cache_hits
-fetch mem.cache_hits
-
-desc mem.cache_lookups
-fetch mem.cache_lookups
+# Cache metrics removed - vm_statistics64.hits and lookups are not populated
+# on modern macOS (always return 0)

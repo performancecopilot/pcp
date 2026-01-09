@@ -63,8 +63,7 @@ mem {
     pages
     pageins		DARWIN:1:15
     pageouts		DARWIN:1:16
-    cache_hits		DARWIN:1:17
-    cache_lookups	DARWIN:1:18
+#   Items 17-18 reserved for deprecated cache_hits/cache_lookups (always 0 on modern macOS)
     compressions	DARWIN:1:131
     decompressions	DARWIN:1:132
     util

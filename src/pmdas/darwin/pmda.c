@@ -254,14 +254,13 @@ static pmdaMetric metrictab[] = {
   { &mach_vmstat.pageouts,
     { PMDA_PMID(CLUSTER_VMSTAT,16), PM_TYPE_32, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* mem.cache_hits */
-  { &mach_vmstat.hits,
-    { PMDA_PMID(CLUSTER_VMSTAT,17), PM_TYPE_32, PM_INDOM_NULL,
-      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* mem.cache_lookups */
-  { &mach_vmstat.lookups,
-    { PMDA_PMID(CLUSTER_VMSTAT,18), PM_TYPE_32, PM_INDOM_NULL,
-      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/*
+ * REMOVED: mem.cache_hits and mem.cache_lookups (CLUSTER_VMSTAT items 17, 18)
+ * These correspond to vm_statistics64.hits and vm_statistics64.lookups fields
+ * which exist in the kernel API but are not populated on modern macOS (always 0).
+ * Verified on macOS 15.x (Sequoia) - fields present but unused by kernel.
+ * Item numbers 17 and 18 are reserved for these deprecated metrics.
+ */
 /* mem.util.wired */
   { NULL,
     { PMDA_PMID(CLUSTER_VMSTAT,19), PM_TYPE_U64, PM_INDOM_NULL,
