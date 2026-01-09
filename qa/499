@@ -32,8 +32,20 @@ _filter()
 # different output to GNU diff(1) -u ... the differences in the
 # files are the same, but the reporting is different!
 #
-diff=diff
-which gdiff >/dev/null 2>&1 && diff=gdiff
+diff=''
+for prog in diff gdiff
+do
+    if which $prog >/dev/null 2>&1
+    then
+	if $prog --help | grep -q 'Report bugs to: .*@gnu.org'
+	then
+	    diff=$prog
+	    break
+	fi
+    fi
+done
+[ -n "$diff" ] || _notrun "cannot find GNU diff(1)"
+
 
 _cmp()
 {
