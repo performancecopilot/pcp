@@ -46,7 +46,6 @@ do
 done
 [ -n "$diff" ] || _notrun "cannot find GNU diff(1)"
 
-
 _cmp()
 {
     ok=true
