@@ -17,6 +17,7 @@ proc {
     id
     memory
     io
+    fd
     control
 }
 
@@ -78,6 +79,10 @@ proc.memory {
 proc.io {
     read_bytes		PROC:5:0
     write_bytes		PROC:5:1
+}
+
+proc.fd {
+    count		PROC:6:0
 }
 
 proc.control {

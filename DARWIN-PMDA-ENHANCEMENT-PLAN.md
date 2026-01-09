@@ -2,8 +2,8 @@
 
 ## Current Status
 
-**Last Updated:** 2026-01-05
-**Current Step:** Step 3.1 completed (Process I/O statistics), Step 3.2 next
+**Last Updated:** 2026-01-09
+**Current Step:** Step 3.2 completed (Process FD count), Phase 3 complete, Phase 4 next
 **Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
@@ -22,8 +22,8 @@
 | 2.5b | COMPLETED | TCP statistics - detection and documentation (warnings + man page) (commit f5c406e52a) |
 | 2.5c | DEFERRED | TCP statistics - auto-enable config (for maintainer discussion) |
 | 2.6 | COMPLETED | pmrep macOS monitoring views - memory, disk, TCP, protocol overview (commit 9afb1b9e9d + QA fixes 3a2e05e5da) |
-| 3.1 | COMPLETED | Process I/O statistics (ready for commit) |
-| 3.2 | PENDING | Enhanced process metrics |
+| 3.1 | COMPLETED | Process I/O statistics (commit e0b925a347) |
+| 3.2 | COMPLETED | Process file descriptor count (ready for commit) |
 | 4.1 | PENDING | Transform plan → permanent documentation |
 | 4.2 | PENDING | Refactor pmda.c legacy code |
 
@@ -1102,10 +1102,62 @@ tcps_rcvtotal: 9957250
 
 ### Step 3.2: Enhanced Process Metrics
 
-| Metric | Type | Source |
-|--------|------|--------|
-| `proc.memory.vmsize` | U64 | pti_virtual_size |
-| `proc.fd.count` | U32 | proc_pidinfo(PROC_PIDLISTFDS) |
+**Status:** COMPLETED (proc.fd.count only)
+
+**Goal:** Add enhanced per-process metrics for file descriptors and memory
+
+**New Cluster:** `CLUSTER_PROC_FD` (6)
+
+**New Metrics:**
+
+| Metric | Item | Type | Semantics | Source |
+|--------|------|------|-----------|--------|
+| `proc.fd.count` | 0 | U32 | instant (count) | proc_pidinfo(PROC_PIDLISTFDS) |
+
+**Changes Made:**
+
+1. **kinfo_proc.h** - Added FD count field to `darwin_proc_t` structure:
+   - `uint32_t fd_count` - instantaneous count of open file descriptors
+
+2. **kinfo_proc.c** - Added data collection in `darwin_process_set_taskinfo()`:
+   ```c
+   /* file descriptor count */
+   {
+       int bufsize = proc_pidinfo(proc->id, PROC_PIDLISTFDS, 0, NULL, 0);
+
+       if (bufsize > 0) {
+           proc->fd_count = bufsize / sizeof(struct proc_fdinfo);
+       } else {
+           proc->fd_count = 0;
+       }
+   }
+   ```
+
+3. **pmda.c** - Added cluster, metric definition, and fetch logic:
+   - Added `CLUSTER_PROC_FD` (6) to cluster enum
+   - Added metrictab entry for `proc.fd.count` (PM_TYPE_U32, PM_SEM_INSTANT)
+   - Added fetch callback case in `proc_fetchCallBack()` with access control
+   - Updated `proc_refresh()` to include CLUSTER_PROC_FD
+   - Updated `proc_instance()` to include CLUSTER_PROC_FD
+
+4. **root_proc** - Added PMNS namespace:
+   - Created `proc.fd` namespace
+   - Added `proc.fd.count` metric mapping (PROC:6:0)
+
+5. **help** - Added metric documentation:
+   - Help text explaining the metric measures instantaneous FD count
+   - Documents the source as `proc_pidinfo(PROC_PIDLISTFDS)`
+
+**Implementation Notes:**
+- Uses `proc_pidinfo(PROC_PIDLISTFDS)` to query buffer size needed for FD list
+- FD count calculated by dividing buffer size by `sizeof(struct proc_fdinfo)`
+- Fixed potential portability issue: uses `sizeof()` instead of `PROC_PIDLISTFD_SIZE` macro
+- Access control implemented via existing `have_access` pattern (same as other proc metrics)
+- Returns 0 if proc_pidinfo fails or process has no permission
+- Type U32 chosen as sufficient for file descriptor counts (max open files typically < 4 billion)
+- QA tests pending (to be validated in CI environment)
+
+**Note:** `proc.memory.vmsize` metric deferred - memory size already available via `proc.memory.size` (virtual size) and `proc.memory.rss` (resident size) from existing implementation.
 
 ---
 

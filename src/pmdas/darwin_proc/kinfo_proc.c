@@ -489,6 +489,17 @@ darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
 		}
 	}
 
+	/* file descriptor count */
+	{
+		int bufsize = proc_pidinfo(proc->id, PROC_PIDLISTFDS, 0, NULL, 0);
+
+		if (bufsize > 0) {
+			proc->fd_count = bufsize / sizeof(struct proc_fdinfo);
+		} else {
+			proc->fd_count = 0;
+		}
+	}
+
 	/* set process state and update run queue statistics */
 	if (pti.pti_numrunning > 0) {
 		pmsprintf(proc->state, sizeof(proc->state), "R");

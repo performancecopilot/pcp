@@ -58,6 +58,7 @@ typedef struct {
     uint32_t	majflt;
     uint32_t	threads;
     uint32_t	translated;
+    uint32_t	fd_count;	/* open file descriptor count */
     int32_t	usrpri;
     int32_t	priority;
     int32_t	nice;

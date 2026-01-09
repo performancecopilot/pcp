@@ -98,6 +98,10 @@ Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
 Cumulative count of bytes written to disk by this process since it started.
 Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
 
+@ proc.fd.count number of open file descriptors for process
+Instantaneous count of open file descriptors for this process.
+Obtained via proc_pidinfo(PROC_PIDLISTFDS).
+
 @ proc.control.all.threads process indom includes threads
 If set to one, the process instance domain as reported by pmdaproc
 contains all threads as well as the processes that started them.
