@@ -598,6 +598,15 @@ Count of active TCP connection attempts (SYN sent)
 - Verify warning appears in `$PCP_LOG_DIR/pmcd/darwin.log` on systems with stats disabled
 - Verify man page displays correctly: `man pmdadarwin`
 
+**IMPORTANT OPERATIONAL NOTE:**
+The `net.inet.tcp.disable_access_to_stats` flag must be set **before PMCD starts** (or PMCD must be restarted after changing it). The PMDA reads the TCP statistics during initialization, and if the flag is disabled at startup, the sysctl call succeeds but returns all zeros. Simply enabling the flag after PMCD is running will NOT make metrics start working - a PMCD restart is required.
+
+**Recommended workflow for users:**
+1. Enable TCP stats: `sudo sysctl -w net.inet.tcp.disable_access_to_stats=0`
+2. Make permanent: Add `net.inet.tcp.disable_access_to_stats=0` to `/etc/sysctl.conf`
+3. Restart PMCD: `sudo launchctl stop <pmcd-label> && sudo launchctl start <pmcd-label>`
+4. Verify: Check `/var/log/pcp/pmcd/darwin.log` for absence of TCP warning
+
 ---
 
 ### Step 2.6: pmrep macOS System Monitoring Views
@@ -1585,3 +1594,70 @@ For each new metric:
 12. Add unit test (test-*.txt) - see "Unit Test Pattern" below
 13. Add integration test validation - see "Integration Test Pattern" below
 14. **Invoke macos-darwin-pmda-qa agent** to run tests and validate changes
+
+---
+
+## Things to Note and Review with Maintainers
+
+### 1. TCP Statistics Access Control Behavior
+
+**Issue:** The `net.inet.tcp.disable_access_to_stats` sysctl flag controls access to TCP protocol statistics on macOS. When disabled (value=1, the default), the `sysctlbyname("net.inet.tcp.stats")` call **succeeds** but returns all zeros.
+
+**Critical Operational Requirement:** The flag must be set **before PMCD starts**, or PMCD must be restarted after enabling it. Simply changing the flag while PMCD is running will not make metrics start working.
+
+**Current Implementation:**
+- PMDA checks flag at startup and logs a warning if disabled
+- Man page documents how to enable permanently via `/etc/sysctl.conf`
+- Cirrus CI enables flag before PCP installation
+
+**For Discussion:**
+- Should the PMDA periodically re-check this flag and log warnings?
+- Should we provide a helper script to enable stats and restart PMCD?
+- Is the current "check once at startup" approach sufficient?
+
+### 2. Deprecated VM Statistics Fields
+
+**Issue:** The `vm_statistics64.hits` and `vm_statistics64.lookups` fields exist in the macOS kernel API but are not populated on modern macOS (always return 0).
+
+**Verified on:** macOS 15.x (Sequoia)
+
+**Decision Made:** Removed `mem.cache_hits` and `mem.cache_lookups` metrics entirely from the PMDA, with comments documenting why. Item numbers 17-18 in CLUSTER_VMSTAT are reserved for these deprecated metrics.
+
+**For Discussion:**
+- Is removing metrics the right approach, or should we keep them with deprecation warnings?
+- Should we monitor future macOS releases to see if Apple re-enables these fields?
+- PCP philosophy question: expose all kernel API fields (even if zero) vs. only expose useful metrics?
+
+### 3. Derived Metrics in pmrep vs. PMDA
+
+**Issue:** During development, we attempted to add a cache hit ratio derived metric (`100 * mem.cache_hits / mem.cache_lookups`) in pmrep configuration. This proved problematic due to:
+- Counter type restrictions (can't divide raw counters, need `rate()`)
+- Type/semantic matching requirements in ternary operators
+- Ultimately removed because base metrics were deprecated anyway
+
+**For Discussion:**
+- When should derived metrics be implemented in PMDA fetch functions vs. pmrep configs?
+- Are there guidelines for which approach to use?
+- Should complex calculations always live in the PMDA for better error handling?
+
+### 4. File Permissions for New Source Files
+
+**Issue:** During VFS implementation, new source files (`vfs.c`, `vfs.h`) were created with permissions 600 instead of 644, causing build isolation failures.
+
+**Lesson Learned:** All source files must have 644 permissions (rw-r--r--) for proper build system operation.
+
+**For Discussion:**
+- Should the build system validate file permissions?
+- Should we document this requirement more prominently?
+- Are there git hooks or CI checks we could add to catch this?
+
+### 5. PMNS "Disconnected Subtree" Errors
+
+**Issue:** When adding new top-level namespaces (e.g., `vfs`), the `src/pmdas/darwin/root` file must be updated to include the namespace in the `root{}` block. Forgetting this causes "Disconnected subtree" PMNS parsing errors during build.
+
+**For Discussion:**
+- Could the build system detect this automatically?
+- Should there be a validation tool for PMNS completeness?
+- Is the current manual process error-prone?
+
+---
