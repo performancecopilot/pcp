@@ -322,7 +322,7 @@ echo "Test Group: Process File Descriptor Count"
 run_test "proc.fd.count exists" "pminfo -h localhost 'proc.fd.count'"
 run_test "proc.fd.count fetchable" "pminfo -h localhost -f 'proc.fd.count'"
 # At least one process (pminfo itself) should have open FDs
-run_test "some process has FDs > 0" "pminfo -h localhost -f 'proc.fd.count' | grep -q 'value [1-9]'"
+run_test "some process has FDs > 0" "pminfo -h localhost -f 'proc.fd.count' | grep -q 'value [1-9][0-9]*'"
 echo
 
 # Summary
