@@ -46,6 +46,16 @@ from cpmapi import PM_LABEL_INDOM, PM_LABEL_INSTANCES
 from cpmapi import PM_LABEL_DOMAIN, PM_LABEL_CLUSTER, PM_LABEL_ITEM
 from cpmi import PMI_ERR_DUPINSTNAME, PMI_ERR_DUPTEXT
 
+# pmrep modules
+try:
+    from groups import GroupConfig, GroupHeaderFormatter
+except ImportError:
+    # Allow running from source tree without installing
+    import sys
+    import os
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from groups import GroupConfig, GroupHeaderFormatter
+
 # Default config
 DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep"]
 
@@ -220,6 +230,10 @@ class PMReporter(object):
         self.space_scale_force = None
         self.time_scale = None
         self.time_scale_force = None
+        self.groupheader = None  # Auto-detect based on group definitions
+        self.groupalign = 'center'  # Default alignment for group headers
+        self.groupsep = None  # No separator between groups by default
+        self.groupsep_data = False  # Don't apply separator to data rows
 
         # Not in pmrep.conf, won't overwrite
         self.outfile = None
@@ -236,6 +250,9 @@ class PMReporter(object):
         self.prev_insts = None
         self.static_header = 1
         self.repeat_header_auto = 0
+        self.group_configs = []  # List of GroupConfig objects
+        self.column_widths = {}  # Dict of column name -> width
+        self.group_formatter = None  # GroupHeaderFormatter instance
 
         # Performance metrics store
         # key - metric name
@@ -1029,6 +1046,14 @@ class PMReporter(object):
         if self.separate_header:
             self.write_separate_header(results)
             return
+
+        # Write group header row if enabled and groups are defined
+        if self.groupheader and self.group_formatter and self.column_widths:
+            group_header_row = self.group_formatter.format_group_header_row(self.column_widths)
+            if group_header_row:
+                # Add leading spaces for timestamp column (same as metric names row)
+                self.writer.write("  " + group_header_row + "\n")
+
         names = ["", self.delimiter] # no timestamp on header line
         insts = ["", self.delimiter] # no timestamp on instances line
         units = ["", self.delimiter] # no timestamp on units line
