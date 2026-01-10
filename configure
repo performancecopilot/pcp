@@ -5947,7 +5947,7 @@ fi
 
   test -n "$AR" && break
 done
-test -n "$AR" || AR="/usr/bin/ar"
+test -n "$AR" || AR="ar"
 
 fi
 if test ! -x "$AR"; then

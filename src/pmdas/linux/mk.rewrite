@@ -6,10 +6,10 @@
 #	platform dependent.
 #
 
-tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+tmp=${TMPDIR:-/tmp}/$$
+trap 'rm -f $tmp.*; exit 0' 0 1 2 3 15
 
-cat <<End-of-File >$tmp.c
+cat <<End-of-File >"$tmp".c
 #include <pcp/platform_defs.h>
 #if defined(HAVE_64BIT_LONG)
 KERNEL_ULONG=PM_TYPE_U64
@@ -20,8 +20,8 @@ KERNEL_ULONG=PM_TYPE_U32
 #endif
 End-of-File
 
-eval `${CPP-cpp} -I${INCDIR-.} $tmp.c \
-      | sed -n -e '/KERNEL_ULONG/s/PM_TYPE_//p'`
+eval "$(${CPP-cpp} -I"${INCDIR-.}" "$tmp".c \
+      | sed -n -e '/KERNEL_ULONG/s/PM_TYPE_//p')"
 
 cat <<End-of-File >kernel_ulong.conf
 # These metrics are all exported from the linux PMDA
