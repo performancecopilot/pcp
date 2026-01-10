@@ -6,6 +6,29 @@ on:
     - cron:  '0 18 * * *'
   workflow_dispatch:
     inputs:
+      platform:
+        description: 'Platform to test (default: all platforms)'
+        type: choice
+        default: 'all'
+        options:
+          - all
+          - debian11-container
+          - debian12-container
+          - debian13-container
+          - ubuntu1804-container
+          - ubuntu1804-i386-container
+          - ubuntu2004-container
+          - ubuntu2004
+          - ubuntu2204-container
+          - ubuntu2204
+          - ubuntu2404-container
+          - ubuntu2404
+          - fedora42-container
+          - fedora43-container
+          - fedora-rawhide-container
+          - centos-stream8-container
+          - centos-stream9-container
+          - centos-stream10-container
       pcp_qa_args:
         description: '(optional) overwrite ./check args (e.g. "-g pmproxy -g pmseries")'
 
@@ -13,7 +36,8 @@ jobs:
   run_qa:
     name: ${{ matrix.platform }}
     # do not run this workflow on schedule for forks of the main repository
-    if: github.event_name != 'schedule' || github.repository == 'performancecopilot/pcp'
+    # when triggered manually, optionally run only the selected platform
+    if: (github.event_name != 'schedule' || github.repository == 'performancecopilot/pcp') && (github.event_name != 'workflow_dispatch' || github.event.inputs.platform == 'all' || github.event.inputs.platform == matrix.platform)
     runs-on: ${{ matrix.os }}
     # do not mark the workflow as failed if an experimental distro (e.g. rawhide) fails
     continue-on-error: ${{ matrix.experimental }}
