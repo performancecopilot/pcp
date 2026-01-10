@@ -21,10 +21,10 @@
   - **Tests**: Created `test_config_parsing.py` with 5 TDD tests (all passing)
   - **Verification**: All 146 unit tests pass in 0.002s
 
-### 🔄 Phase 2: Documentation - IN PROGRESS
-- [ ] **PENDING**: Example configuration (`src/pmrep/conf/vmstat-grouped.conf`)
-- [ ] **PENDING**: Documentation comments (`src/pmrep/conf/00-defaults.conf`)
-- [ ] **PENDING**: Man page updates (`src/pmrep/pmrep.conf.5`, `src/pmrep/pmrep.1`)
+### ✅ Phase 2: Documentation - COMPLETE
+- [✅] **COMPLETE**: Example configuration (`src/pmrep/conf/vmstat-grouped.conf`)
+- [✅] **COMPLETE**: Documentation comments (`src/pmrep/conf/00-defaults.conf`)
+- [✅] **COMPLETE**: Man page updates (`src/pmrep/pmrep.conf.5`, `src/pmrep/pmrep.1`)
 - [ ] **PENDING**: QA integration tests (`qa/NNNN`)
 
 ### 📋 Testing Summary
@@ -40,9 +40,9 @@
 - **Manual Testing**: Pending VM validation
 
 ### 🎯 Next Steps
-1. **VM Testing**: Validate bug fix with actual PCP installation
-2. **Documentation**: Create example config and update man pages (Commits 2-3)
-3. **QA Tests**: Create integration tests for CI validation (Commit 4)
+1. **VM Testing**: Validate feature with actual PCP installation
+2. **QA Tests**: Create integration tests for CI validation (Commit 2)
+3. **Integration**: Validate with existing 43 pmrep QA tests for backwards compatibility
 
 ---
 
@@ -772,11 +772,11 @@ cd qa && ./check -g pmrep
 3. ✅ Fixed by adding 4 keys to `self.keys` tuple in pmrep.py
 4. ✅ All 146 tests passing
 
-### 🔄 Step 8: Documentation (IN PROGRESS)
-1. [ ] Create `src/pmrep/conf/vmstat-grouped.conf` example
-2. [ ] Add documentation comments to `src/pmrep/conf/00-defaults.conf`
-3. [ ] Update `man/man5/pmrep.conf.5` with group options
-4. [ ] Update `man/man1/pmrep.1` with brief mention
+### ✅ Step 8: Documentation (COMPLETE)
+1. [✅] Create `src/pmrep/conf/vmstat-grouped.conf` example
+2. [✅] Add documentation comments to `src/pmrep/conf/00-defaults.conf`
+3. [✅] Update `man/man5/pmrep.conf.5` with group options
+4. [✅] Update `man/man1/pmrep.1` with brief mention
 
 ### 📋 Step 9: QA Integration Tests (PENDING)
 1. [ ] Create `qa/NNNN` test file (will run in CI)
@@ -791,6 +791,7 @@ cd qa && ./check -g pmrep
 ### Development History
 - This plan was developed through analysis of `src/pmstat/pmstat.c` (for column grouping reference), `src/pmrep/pmrep.py`, `src/python/pcp/pmconfig.py`, and the QA test infrastructure.
 - **2026-01-11**: Bug fix completed (Commit 7b4e88fb1f) - Missing configuration keys caused PM_ERR_NAME errors
+- **2026-01-11**: Documentation phase completed - Example config, defaults documentation, and man pages updated
 - **Unit Testing**: Successfully consolidated information from `PLAN-pmrep-unit-testing.md` into this plan
 - **TDD Success**: Test-Driven Development methodology proven highly effective:
   - Fast feedback loop (146 tests in 0.002s)
