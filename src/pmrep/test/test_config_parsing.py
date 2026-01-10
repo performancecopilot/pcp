@@ -119,5 +119,126 @@ class TestGroupConfigParsing(unittest.TestCase):
         self.assertNotIn('mem.util.free', reporter.keys_ignore,
                         "mem.util.free should not be in keys_ignore")
 
+
+class TestMacstatConfigParsing(unittest.TestCase):
+    """Test that the full macstat config can be parsed without PM_ERR_NAME errors"""
+
+    def test_all_macstat_keys_are_recognized(self):
+        """Test that all keys from macstat config are either in keys or keys_ignore"""
+        reporter = pmrep.PMReporter()
+
+        # All keys from the [macstat] config section (excluding metric definitions)
+        macstat_config_keys = [
+            'header',
+            'unitinfo',
+            'globals',
+            'timestamp',
+            'precision',
+            'delimiter',
+            'repeat_header',
+            'groupalign',
+            'groupsep',
+            'groupsep_data',
+            'group.memory',
+            'group.memory.prefix',
+            'group.memory.label',
+        ]
+
+        # Verify each key is either recognized or ignored
+        for key in macstat_config_keys:
+            is_recognized = key in reporter.keys
+            is_ignored = key in reporter.keys_ignore
+            is_metric = '=' in key or ('.' in key and not key.startswith('group.'))
+
+            self.assertTrue(
+                is_recognized or is_ignored or is_metric,
+                f"Key '{key}' from macstat config is not recognized: "
+                f"not in keys={is_recognized}, not in keys_ignore={is_ignored}"
+            )
+
+    def test_macstat_group_keys_properly_ignored(self):
+        """Test that all group.* keys from macstat are in keys_ignore"""
+        reporter = pmrep.PMReporter()
+
+        macstat_group_keys = [
+            'group.memory',
+            'group.memory.prefix',
+            'group.memory.label',
+        ]
+
+        for key in macstat_group_keys:
+            self.assertIn(key, reporter.keys_ignore,
+                         f"macstat group key '{key}' should be in keys_ignore")
+
+    def test_macstat_option_keys_in_keys(self):
+        """Test that all option keys from macstat are in keys"""
+        reporter = pmrep.PMReporter()
+
+        macstat_option_keys = [
+            'header',
+            'unitinfo',
+            'globals',
+            'timestamp',
+            'precision',
+            'delimiter',
+            'repeat_header',
+            'groupalign',
+            'groupsep',
+            'groupsep_data',
+        ]
+
+        for key in macstat_option_keys:
+            self.assertIn(key, reporter.keys,
+                         f"macstat option '{key}' should be in keys")
+
+    def test_macstat_metrics_not_in_keys_or_ignore(self):
+        """Test that metric definitions are neither in keys nor keys_ignore"""
+        reporter = pmrep.PMReporter()
+
+        # Sample metric definitions from macstat (these should be parsed as metrics)
+        macstat_metrics = [
+            'kernel.all.load',
+            'mem.util.free',
+            'mem.util.wired',
+            'mem.util.active',
+            'mem.pageins',
+            'mem.pageouts',
+            'disk.all.read',
+            'disk.all.write',
+            'net_in',
+            'net_out',
+            'usr',
+            'sys',
+            'idle',
+        ]
+
+        for metric in macstat_metrics:
+            self.assertNotIn(metric, reporter.keys,
+                           f"Metric '{metric}' should not be in keys")
+            self.assertNotIn(metric, reporter.keys_ignore,
+                           f"Metric '{metric}' should not be in keys_ignore")
+
+    def test_macstat_derived_metric_attributes_not_in_keys(self):
+        """Test that derived metric attributes (formula, label, etc.) are not in keys"""
+        reporter = pmrep.PMReporter()
+
+        # Derived metric attribute keys from macstat
+        derived_attrs = [
+            'net_in.label',
+            'net_in.formula',
+            'net_in.unit',
+            'net_in.width',
+            'usr.label',
+            'usr.formula',
+            'usr.unit',
+            'usr.width',
+        ]
+
+        for attr in derived_attrs:
+            self.assertNotIn(attr, reporter.keys,
+                           f"Derived metric attribute '{attr}' should not be in keys")
+            self.assertNotIn(attr, reporter.keys_ignore,
+                           f"Derived metric attribute '{attr}' should not be in keys_ignore")
+
 if __name__ == '__main__':
     unittest.main()
