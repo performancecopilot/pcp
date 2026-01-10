@@ -152,7 +152,8 @@ class PMReporter(object):
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat', 'instinfo', 'include_labels', 'include_texts')
+                     'omit_flat', 'instinfo', 'include_labels', 'include_texts',
+                     'groupalign', 'groupheader', 'groupsep', 'groupsep_data')
 
         # The order of preference for options (as present):
         # 1 - command line options
