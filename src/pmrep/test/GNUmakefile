@@ -15,10 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-SCRIPT = pmrep.py
-MODULE = pcp_pmrep.py
-
-LDIRT = $(MODULE) __pycache__
+LDIRT = __pycache__
 
 default default_pcp build-me install install_pcp:
 
@@ -26,7 +23,6 @@ include $(BUILDRULES)
 
 ifeq "$(HAVE_PYTHON)" "true"
 test:
-	@rm -f $(MODULE)
-	$(LN_S) ../$(SCRIPT) $(MODULE)
-	$(PYTHON3) -m unittest discover -s . -p 'test_*.py' -v
+	$(PYTHON3) -m unittest discover -s . -p 'test_*.py' -v; \
+	status=$$?; rm -rf __pycache__; exit $$status
 endif
