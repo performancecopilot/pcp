@@ -64,6 +64,37 @@ OUTPUT_ARCHIVE = "archive"
 OUTPUT_CSV     = "csv"
 OUTPUT_STDOUT  = "stdout"
 
+
+# Pure functions - extracted for testability
+def parse_non_number(value, width=8):
+    """Check and handle float inf, -inf, and NaN"""
+    if math.isinf(value):
+        if value > 0:
+            return "inf" if width >= 3 else pmconfig.TRUNC
+        else:
+            return "-inf" if width >= 4 else pmconfig.TRUNC
+    elif math.isnan(value):
+        return "NaN" if width >= 3 else pmconfig.TRUNC
+    return value
+
+
+def remove_delimiter(value, delimiter):
+    """Remove delimiter if needed in string values"""
+    if isinstance(value, str) and delimiter and not delimiter.isspace():
+        if delimiter != "_":
+            return value.replace(delimiter, "_")
+        else:
+            return value.replace(delimiter, " ")
+    return value
+
+
+def option_override(opt):
+    """Override standard PCP options"""
+    if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
+        return 1
+    return 0
+
+
 class PMReporter(object):
     """ Report PCP metrics """
     def __init__(self):
@@ -258,10 +289,8 @@ class PMReporter(object):
         return opts
 
     def option_override(self, opt):
-        """ Override standard PCP options """
-        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
-            return 1
-        return 0
+        """Override standard PCP options"""
+        return option_override(opt)
 
     def option(self, opt, optarg, _index):
         """ Perform setup for individual command line option """
@@ -1163,24 +1192,12 @@ class PMReporter(object):
         self.prev_insts = insts
 
     def parse_non_number(self, value, width=8):
-        """ Check and handle float inf, -inf, and NaN """
-        if math.isinf(value):
-            if value > 0:
-                value = "inf" if width >= 3 else pmconfig.TRUNC
-            else:
-                value = "-inf" if width >= 4 else pmconfig.TRUNC
-        elif math.isnan(value):
-            value = "NaN" if width >= 3 else pmconfig.TRUNC
-        return value
+        """Check and handle float inf, -inf, and NaN"""
+        return parse_non_number(value, width)
 
     def remove_delimiter(self, value):
-        """ Remove delimiter if needed in string values """
-        if isinstance(value, str) and self.delimiter and not self.delimiter.isspace():
-            if self.delimiter != "_":
-                value = value.replace(self.delimiter, "_")
-            else:
-                value = value.replace(self.delimiter, " ")
-        return value
+        """Remove delimiter if needed in string values"""
+        return remove_delimiter(value, self.delimiter)
 
     def write_csv(self, timestamp):
         """ Write results in CSV format """
