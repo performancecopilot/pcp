@@ -27,7 +27,7 @@ from mock_pcp import install_mocks
 install_mocks()
 
 # Now we can import pmrep and its pure functions
-from pmrep import parse_non_number, remove_delimiter, option_override
+from pmrep import parse_non_number, remove_delimiter, option_override, format_stdout_value
 
 
 class TestParseNonNumber(unittest.TestCase):
@@ -185,6 +185,97 @@ class TestOptionOverride(unittest.TestCase):
         self.assertEqual(option_override('b'), 0)
         self.assertEqual(option_override('x'), 0)
         self.assertEqual(option_override('z'), 0)
+
+
+class TestFormatStdoutValue(unittest.TestCase):
+    """Tests for format_stdout_value function"""
+
+    def test_integer_fits(self):
+        """Integer that fits in width returns value and format string"""
+        val, fmt = format_stdout_value(42, width=8, precision=3)
+        self.assertEqual(val, 42)
+        self.assertIn("8d", fmt)
+
+    def test_integer_too_wide(self):
+        """Integer too wide for column returns truncation marker"""
+        val, fmt = format_stdout_value(123456789, width=5, precision=3)
+        self.assertEqual(val, '...')
+
+    def test_float_with_precision(self):
+        """Float formats with appropriate precision"""
+        val, fmt = format_stdout_value(3.14159, width=8, precision=3)
+        self.assertIsInstance(val, float)
+        self.assertIsNotNone(fmt)
+        self.assertIn("f", fmt)
+
+    def test_float_too_wide_becomes_int(self):
+        """Float too wide with decimals converts to integer"""
+        val, fmt = format_stdout_value(12345.67, width=6, precision=3)
+        self.assertIsInstance(val, int)
+        self.assertEqual(val, 12345)
+        self.assertIn("d", fmt)
+
+    def test_float_integer_part_too_wide(self):
+        """Float with integer part too wide returns truncation marker"""
+        val, fmt = format_stdout_value(1234567.89, width=5, precision=3)
+        self.assertEqual(val, '...')
+
+    def test_string_newline_escaped(self):
+        """Newlines in strings are escaped"""
+        val, fmt = format_stdout_value("foo\nbar", width=10, precision=3)
+        self.assertEqual(val, "foo\\nbar")
+        self.assertIsNone(fmt)
+
+    def test_string_delimiter_replaced(self):
+        """Delimiter in string is replaced"""
+        val, fmt = format_stdout_value("foo,bar", width=10, precision=3, delimiter=",")
+        self.assertEqual(val, "foo_bar")
+
+    def test_string_no_delimiter(self):
+        """String without delimiter passes through"""
+        val, fmt = format_stdout_value("foobar", width=10, precision=3)
+        self.assertEqual(val, "foobar")
+        self.assertIsNone(fmt)
+
+    def test_infinity_handled(self):
+        """Infinity delegates to parse_non_number"""
+        val, fmt = format_stdout_value(float('inf'), width=8, precision=3)
+        self.assertEqual(val, 'inf')
+        self.assertIsNone(fmt)
+
+    def test_negative_infinity_handled(self):
+        """Negative infinity delegates to parse_non_number"""
+        val, fmt = format_stdout_value(float('-inf'), width=8, precision=3)
+        self.assertEqual(val, '-inf')
+
+    def test_nan_handled(self):
+        """NaN delegates to parse_non_number"""
+        val, fmt = format_stdout_value(float('nan'), width=8, precision=3)
+        self.assertEqual(val, 'NaN')
+
+    def test_zero_integer(self):
+        """Zero as integer formats correctly"""
+        val, fmt = format_stdout_value(0, width=5, precision=3)
+        self.assertEqual(val, 0)
+        self.assertIn("5d", fmt)
+
+    def test_zero_float(self):
+        """Zero as float formats with decimals"""
+        val, fmt = format_stdout_value(0.0, width=8, precision=3)
+        self.assertEqual(val, 0.0)
+        self.assertIn("f", fmt)
+
+    def test_negative_integer(self):
+        """Negative integer includes sign in width calculation"""
+        val, fmt = format_stdout_value(-42, width=5, precision=3)
+        self.assertEqual(val, -42)
+        self.assertIn("d", fmt)
+
+    def test_precision_reduced_to_fit(self):
+        """Precision is reduced when needed to fit width"""
+        val, fmt = format_stdout_value(12.3456, width=5, precision=4)
+        self.assertIsInstance(val, float)
+        # Should fit in 5 chars like "12.35" or "12.3"
 
 
 if __name__ == '__main__':

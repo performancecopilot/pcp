@@ -95,6 +95,42 @@ def option_override(opt):
     return 0
 
 
+def format_stdout_value(value, width, precision, delimiter=None):
+    """Format value for stdout output, returns (value, format_string)"""
+    fmt_str = None
+
+    if isinstance(value, int):
+        if len(str(value)) > width:
+            value = pmconfig.TRUNC
+        else:
+            fmt_str = "{X:" + str(width) + "d}"
+    elif isinstance(value, float) and \
+         not math.isinf(value) and \
+         not math.isnan(value):
+        s = len(str(int(value)))
+        if s > width:
+            value = pmconfig.TRUNC
+        elif s + 2 > width:
+            fmt_str = "{X:" + str(width) + "d}"
+            value = int(value)
+        else:
+            c = precision
+            for _ in reversed(range(c+1)):
+                t = "{0:" + str(width) + "." + str(c) + "f}"
+                if len(t.format(value)) > width:
+                    c -= 1
+                else:
+                    fmt_str = t.replace("0:", "X:")
+                    break
+    elif isinstance(value, str):
+        value = remove_delimiter(value, delimiter)
+        value = value.replace("\n", "\\n")
+    else:
+        value = parse_non_number(value, width)
+
+    return value, fmt_str
+
+
 class PMReporter(object):
     """ Report PCP metrics """
     def __init__(self):
@@ -1266,38 +1302,10 @@ class PMReporter(object):
         self.writer.write(line + "\n")
 
     def format_stdout_value(self, value, width, precision, fmt, k):
-        """ Format value for stdout output """
-        if isinstance(value, int):
-            if len(str(value)) > width:
-                value = pmconfig.TRUNC
-            else:
-                #fmt[k] = "{:" + str(width) + "d}"
-                fmt[k] = "{X:" + str(width) + "d}"
-        elif isinstance(value, float) and \
-             not math.isinf(value) and \
-             not math.isnan(value):
-            s = len(str(int(value)))
-            if s > width:
-                value = pmconfig.TRUNC
-            elif s + 2 > width:
-                fmt[k] = "{X:" + str(width) + "d}"
-                value = int(value)
-            else:
-                c = precision
-                for _ in reversed(range(c+1)):
-                    t = "{0:" + str(width) + "." + str(c) + "f}"
-                    if len(t.format(value)) > width:
-                        c -= 1
-                    else:
-                        #fmt[k] = t.replace("0:", ":")
-                        fmt[k] = t.replace("0:", "X:")
-                        break
-        elif isinstance(value, str):
-            value = self.remove_delimiter(value)
-            value = value.replace("\n", "\\n")
-        else:
-            value = self.parse_non_number(value, width)
-
+        """Format value for stdout output"""
+        value, fmt_str = format_stdout_value(value, width, precision, self.delimiter)
+        if fmt_str is not None:
+            fmt[k] = fmt_str
         return value
 
     def write_stdout(self, timestamp):
