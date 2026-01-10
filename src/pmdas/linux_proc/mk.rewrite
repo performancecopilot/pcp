@@ -9,10 +9,10 @@
 #	to msec, requiring the type to be PM_TYPE_U64
 #
 
-tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+tmp=${TMPDIR:-/tmp}/$$
+trap 'rm -f $tmp.*; exit 0' 0 1 2 3 15
 
-cat <<End-of-File >$tmp.c
+cat <<End-of-File >"$tmp".c
 #include <pcp/platform_defs.h>
 #if defined(HAVE_64BIT_LONG)
 KERNEL_ULONG=PM_TYPE_U64
@@ -23,13 +23,13 @@ KERNEL_ULONG=PM_TYPE_U32
 #endif
 End-of-File
 
-eval `${CPP-cpp} -I${INCDIR-.} $tmp.c \
-      | sed -n -e '/KERNEL_ULONG/s/PM_TYPE_//p'`
+eval "$(${CPP-cpp} -I"${INCDIR-.}" "$tmp".c \
+      | sed -n -e '/KERNEL_ULONG/s/PM_TYPE_//p')"
 
 cat <<End-of-File >proc_kernel_ulong.conf
 # These metrics are all exported from the proc PMDA
 # using the KERNEL_ULONG type which might be PM_TYPE_U32
-# or could be PM_TYPE_U64. 
+# or could be PM_TYPE_U64.
 
 metric proc.psinfo.wchan { type -> $KERNEL_ULONG }
 metric proc.schedstat.pcount { type -> $KERNEL_ULONG }
