@@ -21,7 +21,7 @@ LNKTARGET = pcp2csv
 MAN_PAGES = pmrep.1 pmrep.conf.5
 BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 
-SUBDIRS = conf
+SUBDIRS = conf test
 
 include $(BUILDRULES)
 
@@ -40,6 +40,9 @@ endif
 default_pcp: default
 
 install_pcp: install
+
+check :: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
 
 check :: $(SCRIPT)
 	$(PYLINT) $^
