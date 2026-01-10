@@ -33,35 +33,58 @@ on:
         description: '(optional) overwrite ./check args (e.g. "-g pmproxy -g pmseries")'
 
 jobs:
+  setup:
+    name: Setup Matrix
+    # do not run this workflow on schedule for forks of the main repository
+    if: github.event_name != 'schedule' || github.repository == 'performancecopilot/pcp'
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+    steps:
+      - name: Set matrix
+        id: set-matrix
+        run: |
+          # Define all platforms with their configurations
+          ALL_PLATFORMS='[
+            {"platform": "debian11-container",        "os": "ubuntu-latest", "experimental": false},
+            {"platform": "debian12-container",        "os": "ubuntu-latest", "experimental": false},
+            {"platform": "debian13-container",        "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu1804-container",      "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu1804-i386-container", "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu2004-container",      "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu2004",                "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu2204-container",      "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu2204",                "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu2404-container",      "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu2404",                "os": "ubuntu-latest", "experimental": false},
+            {"platform": "fedora42-container",        "os": "ubuntu-22.04",  "experimental": false},
+            {"platform": "fedora43-container",        "os": "ubuntu-22.04",  "experimental": false},
+            {"platform": "fedora-rawhide-container",  "os": "ubuntu-22.04",  "experimental": true},
+            {"platform": "centos-stream8-container",  "os": "ubuntu-latest", "experimental": false},
+            {"platform": "centos-stream9-container",  "os": "ubuntu-22.04",  "experimental": false},
+            {"platform": "centos-stream10-container", "os": "ubuntu-22.04",  "experimental": false}
+          ]'
+
+          SELECTED_PLATFORM="${{ github.event.inputs.platform }}"
+
+          if [ -z "$SELECTED_PLATFORM" ] || [ "$SELECTED_PLATFORM" = "all" ]; then
+            # Run all platforms
+            echo "matrix={\"include\":$ALL_PLATFORMS}" >> $GITHUB_OUTPUT
+          else
+            # Filter to selected platform
+            FILTERED=$(echo "$ALL_PLATFORMS" | jq -c --arg p "$SELECTED_PLATFORM" '[.[] | select(.platform == $p)]')
+            echo "matrix={\"include\":$FILTERED}" >> $GITHUB_OUTPUT
+          fi
+
   run_qa:
     name: ${{ matrix.platform }}
-    # do not run this workflow on schedule for forks of the main repository
-    # when triggered manually, optionally run only the selected platform
-    if: (github.event_name != 'schedule' || github.repository == 'performancecopilot/pcp') && (github.event_name != 'workflow_dispatch' || github.event.inputs.platform == 'all' || github.event.inputs.platform == matrix.platform)
+    needs: setup
     runs-on: ${{ matrix.os }}
     # do not mark the workflow as failed if an experimental distro (e.g. rawhide) fails
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - {platform: debian11-container,        os: ubuntu-latest, experimental: false}
-          - {platform: debian12-container,        os: ubuntu-latest, experimental: false}
-          - {platform: debian13-container,        os: ubuntu-latest, experimental: false}
-          - {platform: ubuntu1804-container,      os: ubuntu-latest, experimental: false}
-          - {platform: ubuntu1804-i386-container, os: ubuntu-latest, experimental: false}
-          - {platform: ubuntu2004-container,      os: ubuntu-latest, experimental: false}
-          - {platform: ubuntu2004,                os: ubuntu-latest, experimental: false}
-          - {platform: ubuntu2204-container,      os: ubuntu-latest, experimental: false}
-          - {platform: ubuntu2204,                os: ubuntu-latest, experimental: false}
-          - {platform: ubuntu2404-container,      os: ubuntu-latest, experimental: false}
-          - {platform: ubuntu2404,                os: ubuntu-latest, experimental: false}
-          - {platform: fedora42-container,        os: ubuntu-22.04, experimental: false}
-          - {platform: fedora43-container,        os: ubuntu-22.04, experimental: false}
-          - {platform: fedora-rawhide-container,  os: ubuntu-22.04, experimental: true }
-          - {platform: centos-stream8-container,  os: ubuntu-latest, experimental: false}
-          - {platform: centos-stream9-container,  os: ubuntu-22.04, experimental: false}
-          - {platform: centos-stream10-container, os: ubuntu-22.04, experimental: false}
+      matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v6
