@@ -4,22 +4,33 @@
 
 **Latest Update**: 2026-01-11
 
-### ✅ Phase 1: Core Implementation - COMPLETE
+### 🔄 Phase 1: Core Implementation - IN PROGRESS
 - [✅] Configuration parsing (`src/pmrep/pmconfig.py`) - groups.py handles group config
 - [✅] Header formatting (`src/pmrep/header.py`) - extracts header formatter
 - [✅] Group header implementation (`src/pmrep/groups.py`) - GroupConfig, GroupHeaderFormatter
 - [✅] MetricRepository abstraction (`src/pmrep/metrics.py`) - enables mocking for tests
 - [✅] Configuration dataclasses (`src/pmrep/config.py`) - OutputConfig, FilterConfig, ScaleConfig
 - [✅] Unit test infrastructure (`src/pmrep/test/`) - fast local TDD workflow
-- [✅] Group header rendering in pmrep.py - integrated with write_header_stdout
+- [❌] **INCOMPLETE**: Integration into pmrep.py - group header rendering not wired up
+  - **Status**: `groups.py` module exists and is fully tested, but NOT imported or used in `pmrep.py`
+  - **Missing**: Config parsing for `group.*` definitions, GroupHeaderFormatter initialization, call to render group header
+  - **VM Testing Result**: Config parses without errors, but no group headers appear in output
 
-### ✅ Bug Fix - COMPLETE (Commit 7b4e88fb1f)
+### ✅ Bug Fix #1 - COMPLETE (Commit 7b4e88fb1f)
 - [✅] **Critical Bug Fixed**: Missing configuration keys in pmrep.py
   - **Issue**: `groupalign = center` caused `PM_ERR_NAME Unknown metric name` error
   - **Root Cause**: Keys `groupalign`, `groupheader`, `groupsep`, `groupsep_data` missing from `self.keys` tuple
   - **Fix**: Added 4 missing keys to `src/pmrep/pmrep.py` line 156
   - **Tests**: Created `test_config_parsing.py` with 5 TDD tests (all passing)
   - **Verification**: All 146 unit tests pass in 0.002s
+
+### ✅ Bug Fix #2 - COMPLETE (Commit 237a9eab29 & 1dddacfd41)
+- [✅] **Critical Bug Fixed**: `group.*` pattern keys treated as metric names
+  - **Issue**: `group.memory` etc. caused `PM_ERR_NAME Unknown metric name` error
+  - **Root Cause**: Config parser in pmconfig.py tried to look up `group.*` keys as PCP metrics
+  - **Fix**: Added `keys_ignore` attribute with `GroupKeysIgnore` pattern-matching container
+  - **Tests**: Added 6 TDD tests + 5 macstat config validation tests (all passing)
+  - **Verification**: All 157 unit tests pass in 0.003s
 
 ### ✅ Phase 2: Documentation - COMPLETE
 - [✅] **COMPLETE**: Example configuration (`src/pmrep/conf/vmstat-grouped.conf`)
@@ -28,21 +39,26 @@
 - [ ] **PENDING**: QA integration tests (`qa/NNNN`)
 
 ### 📋 Testing Summary
-- **Unit Tests**: 146 tests passing locally (<5 seconds)
-  - 5 config parsing tests (test_config_parsing.py)
+- **Unit Tests**: 157 tests passing locally (<5 seconds)
+  - 16 config parsing tests (test_config_parsing.py) - includes macstat validation
   - 16 formatting tests (test_formatting.py)
   - 16 config dataclass tests (test_config.py)
   - 29 group tests (test_groups.py)
   - 18 header tests (test_header.py)
   - 29 metrics tests (test_metrics.py)
   - 4 smoke tests (test_smoke.py)
-- **QA Tests**: Not yet created (will run in CI after documentation complete)
-- **Manual Testing**: Pending VM validation
+- **QA Tests**: Not yet created (will run in CI after integration complete)
+- **Manual Testing**: VM testing reveals config parses correctly, but group headers not rendering
 
 ### 🎯 Next Steps
-1. **VM Testing**: Validate feature with actual PCP installation
-2. **QA Tests**: Create integration tests for CI validation (Commit 2)
-3. **Integration**: Validate with existing 43 pmrep QA tests for backwards compatibility
+1. **CRITICAL**: Complete pmrep.py integration (Step 6)
+   - Parse `group.*` config entries to build GroupConfig objects
+   - Initialize GroupHeaderFormatter with parsed groups
+   - Wire up group header rendering in write_header_stdout()
+   - Add integration tests
+2. **VM Testing**: Re-validate feature with actual PCP installation after integration
+3. **QA Tests**: Create integration tests for CI validation
+4. **Backwards Compatibility**: Validate with existing 43 pmrep QA tests
 
 ---
 
@@ -761,16 +777,42 @@ cd qa && ./check -g pmrep
 3. ✅ Implemented to make tests pass
 4. ✅ Column span calculation, alignment (left/center/right), separators
 
-### ✅ Step 6: Integration (COMPLETE)
-1. ✅ Integrated GroupHeaderFormatter into pmrep.py
-2. ✅ Connected to write_header_stdout
-3. ✅ All features working together
+### ❌ Step 6: Integration (INCOMPLETE - CRITICAL)
+**Status**: `groups.py` module exists and is tested, but NOT integrated into `pmrep.py`
 
-### ✅ Step 7: Bug Fix - Missing Config Keys (COMPLETE - Commit 7b4e88fb1f)
+**What's Done**:
+- ✅ GroupConfig and GroupHeaderFormatter classes exist in `src/pmrep/groups.py`
+- ✅ 29 unit tests passing for group header formatting logic
+- ✅ Config keys recognized (groupalign, groupheader, groupsep, groupsep_data)
+- ✅ Pattern keys (group.*) properly ignored during metric parsing
+
+**What's Missing**:
+- [ ] Import `groups` module in pmrep.py
+- [ ] Parse `group.*` config entries from ConfigParser to build GroupConfig objects
+- [ ] Initialize instance variables: self.groupalign, self.groupheader, self.groupsep, self.groupsep_data
+- [ ] Create GroupHeaderFormatter instance with parsed groups
+- [ ] Call formatter.format_group_header_row() in write_header_stdout() before metric header
+- [ ] Handle column width mapping between metrics and group columns
+- [ ] Integration tests for end-to-end group header rendering
+
+**Next Session Tasks**:
+1. Write failing integration test that validates group headers appear in output
+2. Implement config parsing for `group.*` entries (with TDD)
+3. Wire up GroupHeaderFormatter in write_header_stdout()
+4. Verify with :macstat and :vmstat-grouped configs in VM
+
+### ✅ Step 7: Bug Fix #1 - Missing Config Keys (COMPLETE - Commit 7b4e88fb1f)
 1. ✅ Discovered bug: `groupalign = center` causing PM_ERR_NAME
 2. ✅ Wrote failing tests in `test_config_parsing.py` (5 tests)
 3. ✅ Fixed by adding 4 keys to `self.keys` tuple in pmrep.py
 4. ✅ All 146 tests passing
+
+### ✅ Step 7.5: Bug Fix #2 - group.* Keys Treated as Metrics (COMPLETE - Commits 237a9eab29 & 1dddacfd41)
+1. ✅ Discovered bug: `group.memory` etc. causing PM_ERR_NAME
+2. ✅ Wrote 6 failing tests in `test_config_parsing.py` (keys_ignore pattern matching)
+3. ✅ Added 5 macstat config validation tests
+4. ✅ Fixed by adding `keys_ignore` attribute with GroupKeysIgnore container
+5. ✅ All 157 tests passing
 
 ### ✅ Step 8: Documentation (COMPLETE)
 1. [✅] Create `src/pmrep/conf/vmstat-grouped.conf` example
@@ -790,13 +832,19 @@ cd qa && ./check -g pmrep
 
 ### Development History
 - This plan was developed through analysis of `src/pmstat/pmstat.c` (for column grouping reference), `src/pmrep/pmrep.py`, `src/python/pcp/pmconfig.py`, and the QA test infrastructure.
-- **2026-01-11**: Bug fix completed (Commit 7b4e88fb1f) - Missing configuration keys caused PM_ERR_NAME errors
-- **2026-01-11**: Documentation phase completed - Example config, defaults documentation, and man pages updated
+- **2026-01-11 (Morning)**: Bug fix #1 completed (Commit 7b4e88fb1f) - Missing configuration keys caused PM_ERR_NAME errors
+- **2026-01-11 (Morning)**: Documentation phase completed - Example config, defaults documentation, and man pages updated
+- **2026-01-11 (Afternoon)**: Bug fix #2 completed (Commits 237a9eab29 & 1dddacfd41) - `group.*` pattern keys treated as metrics
+- **2026-01-11 (Evening)**: **DISCOVERY** - VM testing revealed integration incomplete
+  - Config now parses without errors (both bugs fixed)
+  - But group headers don't render - `groups.py` module not wired into `pmrep.py`
+  - Updated plan to reflect Step 6 (Integration) is INCOMPLETE and CRITICAL for next session
 - **Unit Testing**: Successfully consolidated information from `PLAN-pmrep-unit-testing.md` into this plan
 - **TDD Success**: Test-Driven Development methodology proven highly effective:
-  - Fast feedback loop (146 tests in 0.002s)
-  - Bug discovered and fixed with TDD approach
+  - Fast feedback loop (157 tests in 0.003s)
+  - Two bugs discovered and fixed with TDD approach
   - Zero regressions throughout development
+  - Comprehensive test coverage including full macstat config validation
 
 ### Design & Implementation
 - The design prioritizes backwards compatibility - existing configurations work unchanged.
