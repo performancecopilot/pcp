@@ -155,6 +155,14 @@ class PMReporter(object):
                      'omit_flat', 'instinfo', 'include_labels', 'include_texts',
                      'groupalign', 'groupheader', 'groupsep', 'groupsep_data')
 
+        # Keys to ignore during metric parsing (handled separately by group implementation)
+        class GroupKeysIgnore:
+            """Container that matches group.* pattern keys"""
+            def __contains__(self, key):
+                return key.startswith('group.')
+
+        self.keys_ignore = GroupKeysIgnore()
+
         # The order of preference for options (as present):
         # 1 - command line options
         # 2 - options from configuration file(s)

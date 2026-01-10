@@ -75,5 +75,49 @@ class TestGroupConfigParsing(unittest.TestCase):
             self.assertIn(key, reporter.keys,
                          f"{key} missing from configuration keys")
 
+    def test_keys_ignore_exists(self):
+        """Test that keys_ignore attribute exists for pattern-based keys"""
+        reporter = pmrep.PMReporter()
+        self.assertTrue(hasattr(reporter, 'keys_ignore'),
+                       "PMReporter should have keys_ignore attribute")
+
+    def test_group_definition_keys_are_ignored(self):
+        """Test that group.<handle> keys are in keys_ignore"""
+        reporter = pmrep.PMReporter()
+        self.assertIn('group.memory', reporter.keys_ignore,
+                     "group.memory should be in keys_ignore")
+        self.assertIn('group.procs', reporter.keys_ignore,
+                     "group.procs should be in keys_ignore")
+        self.assertIn('group.cpu', reporter.keys_ignore,
+                     "group.cpu should be in keys_ignore")
+
+    def test_group_prefix_keys_are_ignored(self):
+        """Test that group.<handle>.prefix keys are in keys_ignore"""
+        reporter = pmrep.PMReporter()
+        self.assertIn('group.memory.prefix', reporter.keys_ignore,
+                     "group.memory.prefix should be in keys_ignore")
+
+    def test_group_label_keys_are_ignored(self):
+        """Test that group.<handle>.label keys are in keys_ignore"""
+        reporter = pmrep.PMReporter()
+        self.assertIn('group.memory.label', reporter.keys_ignore,
+                     "group.memory.label should be in keys_ignore")
+
+    def test_group_align_keys_are_ignored(self):
+        """Test that group.<handle>.align keys are in keys_ignore"""
+        reporter = pmrep.PMReporter()
+        self.assertIn('group.cpu.align', reporter.keys_ignore,
+                     "group.cpu.align should be in keys_ignore")
+
+    def test_non_group_keys_not_ignored(self):
+        """Test that non-group keys are not in keys_ignore"""
+        reporter = pmrep.PMReporter()
+        self.assertNotIn('header', reporter.keys_ignore,
+                        "header should not be in keys_ignore")
+        self.assertNotIn('groupalign', reporter.keys_ignore,
+                        "groupalign should not be in keys_ignore")
+        self.assertNotIn('mem.util.free', reporter.keys_ignore,
+                        "mem.util.free should not be in keys_ignore")
+
 if __name__ == '__main__':
     unittest.main()
