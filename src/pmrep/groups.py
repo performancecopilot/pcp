@@ -23,6 +23,12 @@ Example vmstat output with grouped headers:
      r    b   swpd   free  buff   si so   bi  bo    in   cs  us sy id wa st
 """
 
+import os
+try:
+    import configparser as ConfigParser
+except ImportError:
+    import ConfigParser
+
 
 class GroupConfig:
     """Configuration for a column group
@@ -157,3 +163,97 @@ class GroupHeaderFormatter:
         """
         spans = self.calculate_spans(column_widths)
         return self.format_header(spans)
+
+
+def parse_group_definitions(config_path, section, default_groupalign='center'):
+    """Parse group.* definitions from config file and build GroupConfig objects
+
+    Args:
+        config_path: Path to config file or directory containing config files
+        section: Config section name (e.g., 'macstat', 'vmstat-grouped')
+        default_groupalign: Default alignment for groups (default: 'center')
+
+    Returns:
+        List of GroupConfig objects in config file order, or empty list if no groups
+    """
+    # Get config files to read
+    conf_files = []
+    if config_path:
+        if os.path.isfile(config_path):
+            conf_files.append(config_path)
+        elif os.path.isdir(config_path):
+            for f in sorted(os.listdir(config_path)):
+                fn = os.path.join(config_path, f)
+                if fn.endswith(".conf") and os.access(fn, os.R_OK) and os.path.isfile(fn):
+                    conf_files.append(fn)
+
+    if not conf_files or not section:
+        return []
+
+    # Read config file
+    config = ConfigParser.ConfigParser()
+    config.optionxform = str  # Preserve case
+    for conf_file in conf_files:
+        config.read(conf_file)
+
+    if not config.has_section(section):
+        return []
+
+    # Find all group.* keys - preserve order from config file
+    group_handles = []
+    seen = set()
+    for key in config.options(section):
+        if key.startswith('group.'):
+            parts = key.split('.')
+            if len(parts) >= 2 and parts[1] not in seen:
+                group_handles.append(parts[1])
+                seen.add(parts[1])
+
+    # Read groupalign option if present (override default)
+    if config.has_option(section, 'groupalign'):
+        default_groupalign = config.get(section, 'groupalign')
+
+    # Parse each group
+    group_configs = []
+    for handle in group_handles:
+        # Get group definition (list of columns)
+        group_key = 'group.{}'.format(handle)
+        if not config.has_option(section, group_key):
+            continue
+
+        columns_raw = config.get(section, group_key)
+        columns = [col.strip() for col in columns_raw.split(',')]
+
+        # Get group options
+        prefix_key = '{}.prefix'.format(group_key)
+        label_key = '{}.label'.format(group_key)
+        align_key = '{}.align'.format(group_key)
+
+        prefix = config.get(section, prefix_key) if config.has_option(section, prefix_key) else None
+        label = config.get(section, label_key) if config.has_option(section, label_key) else handle
+        align = config.get(section, align_key) if config.has_option(section, align_key) else default_groupalign
+
+        # Apply prefix resolution: if column has no '.', prepend prefix
+        resolved_columns = []
+        for col in columns:
+            if '.' in col:
+                # FQDN - use as-is
+                resolved_columns.append(col)
+            elif prefix:
+                # Leaf name with prefix - prepend prefix
+                resolved_columns.append('{}.{}'.format(prefix, col))
+            else:
+                # Leaf name without prefix - use as-is
+                resolved_columns.append(col)
+
+        # Create GroupConfig object
+        group_config = GroupConfig(
+            handle=handle,
+            columns=resolved_columns,
+            label=label,
+            align=align,
+            prefix=prefix
+        )
+        group_configs.append(group_config)
+
+    return group_configs

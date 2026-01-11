@@ -26,8 +26,10 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from mock_pcp import install_mocks
 install_mocks()
 
-# Now we can import pmrep
+# Now we can import pmrep and groups
 import pmrep
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from groups import parse_group_definitions
 
 class TestGroupConfigParsing(unittest.TestCase):
     """Test that group configuration options are recognized as valid keys"""
@@ -239,6 +241,137 @@ class TestMacstatConfigParsing(unittest.TestCase):
                            f"Derived metric attribute '{attr}' should not be in keys")
             self.assertNotIn(attr, reporter.keys_ignore,
                            f"Derived metric attribute '{attr}' should not be in keys_ignore")
+
+class TestGroupDefinitionParsing(unittest.TestCase):
+    """TDD tests for parse_group_definitions() method"""
+
+    def setUp(self):
+        """Save original sys.argv and stderr"""
+        self.original_argv = sys.argv
+        self.original_stderr = sys.stderr
+        sys.stderr = StringIO()
+
+    def tearDown(self):
+        """Restore sys.argv and stderr"""
+        sys.argv = self.original_argv
+        sys.stderr = self.original_stderr
+
+    def test_parse_group_definitions_function_exists(self):
+        """parse_group_definitions function should exist in groups module"""
+        self.assertTrue(callable(parse_group_definitions),
+                       "parse_group_definitions should be a callable function")
+
+    def test_parses_simple_group(self):
+        """Should parse a simple group definition"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('header = yes\n')
+            f.write('group.memory = free, buff\n')
+            f.write('group.memory.prefix = mem.util\n')
+            f.write('group.memory.label = mem\n')
+            f.write('mem.util.free = free,,,,8\n')
+            f.write('mem.util.buff = buff,,,,8\n')
+            config_file = f.name
+
+        try:
+            # Call the function directly
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # Verify group_configs is populated
+            self.assertTrue(len(group_configs) > 0,
+                          "group_configs should contain at least one group")
+
+            # Verify the group was parsed correctly
+            self.assertEqual(group_configs[0].handle, 'memory',
+                           "First group should have handle 'memory'")
+            self.assertEqual(group_configs[0].label, 'mem',
+                           "First group should have label 'mem'")
+            self.assertListEqual(group_configs[0].columns, ['mem.util.free', 'mem.util.buff'],
+                               "First group should have correct columns")
+        finally:
+            os.unlink(config_file)
+
+    def test_parses_multiple_groups(self):
+        """Should parse multiple group definitions"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('header = yes\n')
+            f.write('group.memory = free, buff\n')
+            f.write('group.memory.prefix = mem.util\n')
+            f.write('group.cpu = user, sys\n')
+            f.write('group.cpu.prefix = kernel.all.cpu\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # Should have 2 groups
+            self.assertEqual(len(group_configs), 2,
+                           "Should parse 2 groups")
+            self.assertEqual(group_configs[0].handle, 'memory')
+            self.assertEqual(group_configs[1].handle, 'cpu')
+        finally:
+            os.unlink(config_file)
+
+    def test_prefix_resolution_fqdn_vs_leaf(self):
+        """Should apply prefix only to leaf names"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('group.mixed = swap.used, free, buff\n')
+            f.write('group.mixed.prefix = mem.util\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # swap.used has '.' so no prefix, free and buff get prefix
+            expected_columns = ['swap.used', 'mem.util.free', 'mem.util.buff']
+            self.assertListEqual(group_configs[0].columns, expected_columns,
+                               "Prefix should only apply to leaf names")
+        finally:
+            os.unlink(config_file)
+
+    def test_group_align_overrides_global(self):
+        """Per-group align should override global groupalign"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('groupalign = center\n')
+            f.write('group.memory = free\n')
+            f.write('group.cpu = user\n')
+            f.write('group.cpu.align = left\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # memory should use global default (center)
+            self.assertEqual(group_configs[0].align, 'center',
+                           "memory group should use global groupalign")
+            # cpu should override with left
+            self.assertEqual(group_configs[1].align, 'left',
+                           "cpu group should override with left")
+        finally:
+            os.unlink(config_file)
+
+    def test_label_defaults_to_handle(self):
+        """Label should default to handle if not specified"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('group.memory = free\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            self.assertEqual(group_configs[0].label, 'memory',
+                           "Label should default to handle name")
+        finally:
+            os.unlink(config_file)
 
 if __name__ == '__main__':
     unittest.main()

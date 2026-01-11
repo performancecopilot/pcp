@@ -22,7 +22,10 @@ default default_pcp build-me install install_pcp:
 include $(BUILDRULES)
 
 ifeq "$(HAVE_PYTHON)" "true"
-test:
+check ::
+	$(PYLINT) ../pmrep.py ../groups.py
+
+test: check
 	$(PYTHON3) -m unittest discover -s . -p 'test_*.py' -v; \
 	status=$$?; rm -rf __pycache__; exit $$status
 endif

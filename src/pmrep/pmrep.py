@@ -46,15 +46,15 @@ from cpmapi import PM_LABEL_INDOM, PM_LABEL_INSTANCES
 from cpmapi import PM_LABEL_DOMAIN, PM_LABEL_CLUSTER, PM_LABEL_ITEM
 from cpmi import PMI_ERR_DUPINSTNAME, PMI_ERR_DUPTEXT
 
-# pmrep modules
-try:
-    from groups import GroupConfig, GroupHeaderFormatter
-except ImportError:
+# pmrep modules - check installed location first, then source tree
+_pmrep_lib = os.environ.get('PCP_SHARE_DIR', '/usr/share/pcp') + '/lib/pmrep'
+if os.path.isdir(_pmrep_lib):
+    sys.path.insert(0, _pmrep_lib)
+else:
     # Allow running from source tree without installing
-    import sys
-    import os
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    from groups import GroupConfig, GroupHeaderFormatter
+
+from groups import GroupConfig, GroupHeaderFormatter, parse_group_definitions
 
 # Default config
 DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep"]
@@ -740,6 +740,37 @@ class PMReporter(object):
         #self.format = self.format[:-2]
         l = len(str(index-1)) + 2
         self.format = self.format[:-l]
+
+        # Calculate column widths for group header rendering
+        self.column_widths = {}
+        for metric in self.metrics:
+            # self.metrics[metric][4] is the column width
+            self.column_widths[metric] = int(self.metrics[metric][4])
+
+        # Find which config section is being used (look for :section in sys.argv)
+        section_arg = None
+        for arg in sys.argv[1:]:
+            if arg.startswith(':'):
+                section_arg = arg
+                break
+
+        # Parse group definitions if a section was specified
+        if section_arg:
+            section = section_arg.lstrip(':')
+            self.group_configs = parse_group_definitions(self.config, section, self.groupalign)
+
+            # Initialize group_formatter if groups were defined
+            if self.group_configs:
+                # Enable group header rendering if not explicitly disabled
+                if self.groupheader is None:
+                    self.groupheader = True
+
+                # Create the group formatter
+                self.group_formatter = GroupHeaderFormatter(
+                    groups=self.group_configs,
+                    delimiter=self.delimiter,
+                    groupsep=self.groupsep
+                )
 
     def prepare_stdout_colxrow(self, results=()):
         """ Prepare columns and rows swapped stdout output """
