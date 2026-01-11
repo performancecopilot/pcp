@@ -58,6 +58,7 @@ typedef struct {
     uint32_t	majflt;
     uint32_t	threads;
     uint32_t	translated;
+    uint32_t	fd_count;	/* open file descriptor count */
     int32_t	usrpri;
     int32_t	priority;
     int32_t	nice;
@@ -71,6 +72,8 @@ typedef struct {
     uint64_t	textrss;
     uint64_t	textsize;
     uint64_t	pswitch;
+    uint64_t	read_bytes;	/* disk I/O bytes read */
+    uint64_t	write_bytes;	/* disk I/O bytes written */
 
     /* string hash keys */
     int		cwd_id;

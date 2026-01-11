@@ -167,3 +167,10 @@ keep the differences minimal in order to ease future updates of vendored code.
 
 **All bugs and CVEs of a vendored library in turn become responsibilities of the
 PCP maintainers as well** (and fixes must be pushed upstream).
+
+## Platform-Specific Development
+
+### macOS with Tart VMs
+
+macOS developers can build in isolated VMs for clean, reproducible builds that match the CI environment. See [MACOS_DEVELOPMENT.md](MACOS_DEVELOPMENT.md) for details.
+
