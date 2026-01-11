@@ -52,15 +52,15 @@
   - 29 other tests
 - **Linting**: Passes with no errors (runs before tests)
 - **QA Tests**: Not yet created (will run in CI after VM testing)
-- **Manual Testing**: Ready for VM testing - full implementation complete
+- **Manual Testing**: ✅ VM testing complete - basic functionality working
+- **VM Testing Results**: Alignment limitation discovered with partially grouped metrics (see Future Enhancements)
 
 ### 🎯 Next Steps (Priority Order)
-1. **VM Testing**: Manual validation with actual PCP installation ⭐ READY
-   - Test `:macstat` config (includes group definitions)
-   - Test `:vmstat-grouped` config
-   - Verify group headers render correctly
-   - Test different alignment options
-   - Test group separators
+1. **VM Testing**: ✅ COMPLETE - Manual validation successful
+   - ✅ `:macstat` config tested with group definitions
+   - ✅ Group headers render correctly when all metrics grouped
+   - ✅ Group separators working correctly (appear between multiple groups)
+   - ⚠️ Alignment issue discovered with partially grouped metrics (see Future Enhancements)
 
 2. **QA Tests**: Create integration tests for CI validation (`qa/NNNN`)
    - Follow pattern from existing pmrep tests (035-1813)
@@ -169,14 +169,19 @@ Resolves to:
 |--------|-------------|---------|
 | `groupalign` | Default alignment for all groups | `center` |
 | `groupheader` | Enable/disable group header row | auto (yes if groups defined) |
-| `groupsep` | Separator character between groups | none |
+| `groupsep` | Separator character between groups (requires 2+ groups) | none |
 | `groupsep_data` | Apply separator to data rows too | `no` |
+
+**Note on `groupsep`**:
+- The separator appears **between groups**, not around a single group. You need at least 2 groups defined to see any separators. This is by design - a single group has nothing to separate from.
+- **Current limitation**: Separators only appear in the group header row, not in the metric names or data rows (see Future Enhancements).
 
 ### Design Decisions
 
 1. **Non-contiguous groups**: Not allowed - metrics in a group must be listed together in the group definition (the group definition controls ordering)
 
 2. **Ungrouped metrics**: Appear after all grouped columns with blank group header space above; emit warning during parsing
+   - **Known Limitation**: When ungrouped metrics appear BEFORE grouped metrics, group headers don't align properly with their child metrics (discovered during VM testing with `:macstat` config - see Future Enhancements)
 
 3. **Alignment default**: `center` (matches pmstat behavior)
 
@@ -353,10 +358,10 @@ h) Handle `dynamic_header` mode:
    - Call group header update in `dynamic_header_update()`
 
 i) Implement separator support:
-   - If `groupsep` is defined, insert separator character at group boundaries
-   - For header row: insert between group labels and between metric labels
-   - If `groupsep_data = yes`, also insert in data value rows
-   - Separator replaces the delimiter at group boundaries
+   - ✅ **PARTIAL**: Separators implemented in group header row only (via GroupHeaderFormatter)
+   - ❌ **TODO**: Insert separators in metric names row at group boundaries
+   - ❌ **TODO**: Insert separators in data rows when `groupsep_data = yes`
+   - Implementation note: Separator replaces the delimiter at group boundaries
 
 ### 1.3 Update Default Configuration
 
@@ -479,9 +484,86 @@ Add brief mention of column grouping feature with reference to pmrep.conf(5).
 
 | Feature | Description |
 |---------|-------------|
+| **Group separators in metric names row** | Apply `groupsep` to metric column names row, not just group header row |
+| **Group header alignment with mixed grouping** | Fix alignment when only some metrics are grouped - headers should align with their child metrics, accounting for ungrouped columns |
 | `grouporder` | Explicit ordering override: `grouporder = procs, memory, swap` |
 | Empty groups | Allow `group.spacer = ` for visual gaps |
 | Group underlines | Underline characters under group headers |
+
+### Group Separators in Metric Names Row (Discovered 2026-01-11 VM Testing)
+
+**Problem**: The `groupsep` separator currently only appears in the group header row, not in the metric column names row.
+
+**Current Output**:
+```
+          mem         |   paging  |     disk    |
+ load avg   free  wired active    pi    po   read  write   netin  netout  us  sy  id
+        1    225    974   3429   N/A   N/A    N/A    N/A     N/A     N/A N/A N/A N/A
+```
+
+**Desired Output** (matching plan's example):
+```
+          mem         |   paging  |     disk    |
+ load avg   free  wired | active    pi    po | read  write | netin  netout  us  sy  id
+        1    225    974 | 3429   N/A   N/A | N/A    N/A | N/A     N/A N/A N/A N/A
+```
+
+**Current Implementation**:
+- Group header row: Separators implemented in `GroupHeaderFormatter.format_header()` (lines 149-151 in groups.py)
+- Metric names row: Always uses `self.delimiter` - no group boundary detection (line 1101 in pmrep.py)
+- Data rows: Not implemented (would require `groupsep_data = yes` logic)
+
+**Implementation Requirements**:
+1. Track which group each metric belongs to during metric iteration
+2. Detect group boundaries (group-to-group, grouped-to-ungrouped, ungrouped-to-grouped)
+3. Substitute `self.groupsep` for `self.delimiter` at boundaries in metric names row
+4. Optionally apply same logic to data rows when `groupsep_data = yes`
+
+**Complexity**: Moderate - requires modifying the `write_header_stdout()` method to be group-aware during the metric names loop (lines 1110-1132 in pmrep.py).
+
+### Mixed Grouping Alignment Issue (Discovered 2026-01-11 VM Testing)
+
+**Problem**: When a configuration has some grouped metrics and some ungrouped metrics, and ungrouped metrics appear before grouped ones in the output, group headers don't align properly with their child metrics.
+
+**Example 1** (from `:macstat` config with single group - no separators):
+```
+       mem
+ load avg   free  wired active    pi    po   read  write   netin  netout  us  sy  id
+        2    336    968   3349   N/A   N/A    N/A    N/A     N/A     N/A N/A N/A N/A
+```
+
+In this output:
+- `load avg` is an ungrouped metric (appears first)
+- `free` and `wired` are in the `mem` group
+- The `mem` group header should be positioned over just the `free` and `wired` columns
+- Currently, the `mem` header is left-positioned, not accounting for the `load avg` column width
+
+**Example 2** (from `:macstat` config with multiple groups - separators working):
+```
+          mem         |   paging  |     disk    |
+ load avg   free  wired active    pi    po   read  write   netin  netout  us  sy  id
+        1    225    974   3429   N/A   N/A    N/A    N/A     N/A     N/A N/A N/A N/A
+        1    226    974   3428     0     0      0      0       0       0   2   2  96
+```
+
+In this output:
+- The `|` separators correctly appear between the `mem`, `paging`, and `disk` groups
+- However, the group headers still don't align properly with their child metrics due to the ungrouped `load avg` column at the start
+
+**Current Behavior**: Group headers calculate their position assuming grouped metrics start from the beginning of the output, not accounting for ungrouped columns that precede them.
+
+**Desired Behavior**: Group headers should:
+1. Calculate their starting position by summing the widths of all metrics that precede the first metric in the group (including ungrouped metrics and other groups)
+2. Calculate their span width based only on the metrics actually in the group
+3. Properly center (or align per configuration) the group label over its child metrics
+
+**Workaround**: Ensure all metrics are grouped, or that ungrouped metrics appear after grouped ones in the configuration.
+
+**Implementation Complexity**: Moderate - requires:
+- Tracking the final output order of all metrics (grouped and ungrouped)
+- Calculating absolute column positions for each metric in the output
+- Computing group header starting offsets based on preceding metric widths
+- Modifying `GroupHeaderFormatter.format_group_header_row()` to accept metric position information
 
 ### Terminal Table Libraries (Investigated)
 
@@ -892,7 +974,13 @@ cd qa && ./check -g pmrep
     - Easier to test in isolation, more reusable
     - Cleaner pmrep.py - just calls the function, doesn't implement parsing
   - ✅ All 166 unit tests passing, linting passes
-  - ⭐ **Ready for VM testing** - full end-to-end implementation complete
+  - ✅ **VM Testing Complete**: Feature working in practice
+    - `:macstat` config tested with multiple group configurations
+    - Group separators working in group header row - `groupsep = |` appears between groups (requires 2+ groups)
+    - Group headers and alignment work perfectly when all metrics are grouped
+    - **Discovered limitations** (documented in Future Enhancements):
+      - Group separators only in header row, not in metric names/data rows
+      - Group headers misalign when ungrouped metrics precede grouped ones
 - **Unit Testing**: Successfully consolidated information from `PLAN-pmrep-unit-testing.md` into this plan
 - **TDD Success**: Test-Driven Development methodology proven highly effective:
   - Fast feedback loop (157 tests in 0.003s)
