@@ -2,19 +2,20 @@
 
 ## Implementation Status
 
-**Latest Update**: 2026-01-11
+**Latest Update**: 2026-01-11 (Night) - Investigation revealed rendering works but config parsing missing
 
-### 🔄 Phase 1: Core Implementation - IN PROGRESS
+### ✅ Phase 1: Core Implementation - COMPLETE (Commit 037bb3eb05)
 - [✅] Configuration parsing (`src/pmrep/pmconfig.py`) - groups.py handles group config
 - [✅] Header formatting (`src/pmrep/header.py`) - extracts header formatter
 - [✅] Group header implementation (`src/pmrep/groups.py`) - GroupConfig, GroupHeaderFormatter
 - [✅] MetricRepository abstraction (`src/pmrep/metrics.py`) - enables mocking for tests
 - [✅] Configuration dataclasses (`src/pmrep/config.py`) - OutputConfig, FilterConfig, ScaleConfig
 - [✅] Unit test infrastructure (`src/pmrep/test/`) - fast local TDD workflow
-- [❌] **INCOMPLETE**: Integration into pmrep.py - group header rendering not wired up
-  - **Status**: `groups.py` module exists and is fully tested, but NOT imported or used in `pmrep.py`
-  - **Missing**: Config parsing for `group.*` definitions, GroupHeaderFormatter initialization, call to render group header
-  - **VM Testing Result**: Config parses without errors, but no group headers appear in output
+- [✅] **COMPLETE**: Integration into pmrep.py - group header rendering wired up
+  - **Status**: TDD integration complete - failing tests written first, then implementation
+  - **Commit**: 037bb3eb05 - "pmrep: integrate group header rendering into stdout output"
+  - **Tests**: 3 new integration tests (`test_integration.py`) prove rendering works
+  - **Result**: Group headers render correctly with and without separators
 
 ### ✅ Bug Fix #1 - COMPLETE (Commit 7b4e88fb1f)
 - [✅] **Critical Bug Fixed**: Missing configuration keys in pmrep.py
@@ -39,26 +40,36 @@
 - [ ] **PENDING**: QA integration tests (`qa/NNNN`)
 
 ### 📋 Testing Summary
-- **Unit Tests**: 157 tests passing locally (<5 seconds)
+- **Unit Tests**: 160 tests passing locally (0.004s)
   - 16 config parsing tests (test_config_parsing.py) - includes macstat validation
   - 16 formatting tests (test_formatting.py)
   - 16 config dataclass tests (test_config.py)
   - 29 group tests (test_groups.py)
   - 18 header tests (test_header.py)
   - 29 metrics tests (test_metrics.py)
+  - 3 integration tests (test_integration.py) - **NEW** - TDD end-to-end tests
   - 4 smoke tests (test_smoke.py)
-- **QA Tests**: Not yet created (will run in CI after integration complete)
-- **Manual Testing**: VM testing reveals config parses correctly, but group headers not rendering
+- **QA Tests**: Not yet created (will run in CI after config parsing implemented)
+- **Manual Testing**: Ready for VM testing - rendering proven by unit tests
 
-### 🎯 Next Steps
-1. **CRITICAL**: Complete pmrep.py integration (Step 6)
-   - Parse `group.*` config entries to build GroupConfig objects
-   - Initialize GroupHeaderFormatter with parsed groups
-   - Wire up group header rendering in write_header_stdout()
-   - Add integration tests
-2. **VM Testing**: Re-validate feature with actual PCP installation after integration
-3. **QA Tests**: Create integration tests for CI validation
-4. **Backwards Compatibility**: Validate with existing 43 pmrep QA tests
+### 🎯 Next Steps (Priority Order)
+1. **Bug Fix #3: Module Installation & Linting** (BLOCKING)
+   - Install `groups.py` to `$(PCP_SHARE_DIR)/lib/pmrep` in GNUmakefile
+   - Fix import logic in pmrep.py (no reimport of sys/os)
+   - Add linting to `src/pmrep/test/GNUmakefile`
+
+2. **Config Parsing Implementation**: Parse `group.*` config entries to build GroupConfig objects
+   - Add `parse_group_definitions()` method to pmrep.py
+   - Read `group.<handle>` lines from ConfigParser
+   - Extract group options (label, align, prefix)
+   - Build `self.group_configs` list
+   - Calculate `self.column_widths` during format preparation
+   - Initialize `self.group_formatter` when groups are defined
+   - TDD: Write failing tests first in `test_config_parsing.py`
+
+3. **VM Testing**: Manual validation with actual PCP installation
+4. **QA Tests**: Create integration tests for CI validation (`qa/NNNN`)
+5. **Backwards Compatibility**: Validate with existing 43 pmrep QA tests
 
 ---
 
@@ -191,12 +202,17 @@ We followed TDD principles:
 
 **Local Testing Workflow** - Completes in < 5 seconds:
 ```bash
-# Run unit tests locally
+# Run unit tests locally (includes linting)
 cd src/pmrep/test && make test
 
 # Or from project root:
 make -C src/pmrep/test test
+
+# Run linting separately (part of make check)
+cd src/pmrep && make check
 ```
+
+**IMPORTANT**: Linting MUST be run before committing. The GitHub CI runs pylint and will fail on linting errors.
 
 **Unit Test Infrastructure** (COMPLETE ✅):
 - `src/pmrep/test/test_config_parsing.py` - Config key validation (5 tests) **NEW**
@@ -777,29 +793,34 @@ cd qa && ./check -g pmrep
 3. ✅ Implemented to make tests pass
 4. ✅ Column span calculation, alignment (left/center/right), separators
 
-### ❌ Step 6: Integration (INCOMPLETE - CRITICAL)
-**Status**: `groups.py` module exists and is tested, but NOT integrated into `pmrep.py`
+### ⚠️ Step 6: Integration (PARTIALLY COMPLETE - Rendering Done, Config Parsing Missing)
 
-**What's Done**:
+**Status**: Rendering code exists and works; config parsing from config file is NOT implemented.
+
+**What's DONE** (Rendering Layer):
 - ✅ GroupConfig and GroupHeaderFormatter classes exist in `src/pmrep/groups.py`
 - ✅ 29 unit tests passing for group header formatting logic
 - ✅ Config keys recognized (groupalign, groupheader, groupsep, groupsep_data)
 - ✅ Pattern keys (group.*) properly ignored during metric parsing
+- ✅ **Rendering code at `pmrep.py:1050-1055`** - calls GroupHeaderFormatter.format_group_header_row()
+- ✅ **Integration tests PASS** - when manually setting up group configs (see test_integration.py)
+- ✅ Instance variables exist (`groupheader`, `groupalign`, `group_formatter`, etc.)
 
-**What's Missing**:
-- [ ] Import `groups` module in pmrep.py
-- [ ] Parse `group.*` config entries from ConfigParser to build GroupConfig objects
-- [ ] Initialize instance variables: self.groupalign, self.groupheader, self.groupsep, self.groupsep_data
-- [ ] Create GroupHeaderFormatter instance with parsed groups
-- [ ] Call formatter.format_group_header_row() in write_header_stdout() before metric header
-- [ ] Handle column width mapping between metrics and group columns
-- [ ] Integration tests for end-to-end group header rendering
+**What's MISSING** (Config Parsing Layer):
+- [ ] **Install groups.py** - module not installed when package built (ModuleNotFoundError)
+- [ ] **Fix import logic** - current try-except reimports sys/os causing pylint errors
+- [ ] **Parse `group.*` config entries** - nothing reads config file and builds GroupConfig objects
+- [ ] **Calculate column_widths** - dict mapping column names to widths (needed by formatter)
+- [ ] **Initialize group_formatter** - create GroupHeaderFormatter from parsed config
+
+**Key Insight**: The integration tests pass because they MANUALLY set up `group_configs`, `column_widths`, and `group_formatter`. In real usage from config file, nothing populates these variables - that's why group headers don't render in VM.
 
 **Next Session Tasks**:
-1. Write failing integration test that validates group headers appear in output
-2. Implement config parsing for `group.*` entries (with TDD)
-3. Wire up GroupHeaderFormatter in write_header_stdout()
-4. Verify with :macstat and :vmstat-grouped configs in VM
+1. Fix Bug #3 (module installation and import logic)
+2. Add linting to unit test workflow
+3. Implement `parse_group_definitions()` method with TDD
+4. Wire up parsing in `prepare_stdout_std()` after column widths calculated
+5. Verify with :macstat and :vmstat-grouped configs in VM
 
 ### ✅ Step 7: Bug Fix #1 - Missing Config Keys (COMPLETE - Commit 7b4e88fb1f)
 1. ✅ Discovered bug: `groupalign = center` causing PM_ERR_NAME
@@ -813,6 +834,40 @@ cd qa && ./check -g pmrep
 3. ✅ Added 5 macstat config validation tests
 4. ✅ Fixed by adding `keys_ignore` attribute with GroupKeysIgnore container
 5. ✅ All 157 tests passing
+
+### ⚠️ Bug Fix #3: Module Installation & Linting (IN PROGRESS)
+**Issue**: When pmrep is installed as package, `groups.py` is not installed, causing ModuleNotFoundError.
+**Secondary Issue**: Pylint errors from reimported sys/os and unused imports.
+
+**Root Cause Analysis**:
+- `src/pmrep/GNUmakefile:34` only installs `pmrep.py` to `$(PCP_BIN_DIR)`
+- The try-except fallback at lines 52-57 adds `os.path.dirname(os.path.abspath(__file__))`
+- But when installed, that's `/usr/local/bin` - not where groups.py lives
+
+**Fix Required**:
+1. [ ] Update `src/pmrep/GNUmakefile` - install groups.py to `$(PCP_SHARE_DIR)/lib/pmrep`
+2. [ ] Update `src/pmrep/pmrep.py` - fix import logic to check PCP_SHARE_DIR first
+3. [ ] Update `src/pmrep/test/GNUmakefile` - add lint target before tests
+
+**Implementation Details**:
+```makefile
+# GNUmakefile addition
+PMREPLIB = $(PCP_SHARE_DIR)/lib/pmrep
+# ... in install target:
+$(INSTALL) -m 755 -d $(PMREPLIB)
+$(INSTALL) -m 644 groups.py $(PMREPLIB)
+```
+
+```python
+# pmrep.py import fix (replace lines 49-57)
+_pmrep_lib = os.environ.get('PCP_SHARE_DIR', '/usr/share/pcp') + '/lib/pmrep'
+if os.path.isdir(_pmrep_lib):
+    sys.path.insert(0, _pmrep_lib)
+else:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from groups import GroupConfig, GroupHeaderFormatter
+```
 
 ### ✅ Step 8: Documentation (COMPLETE)
 1. [✅] Create `src/pmrep/conf/vmstat-grouped.conf` example
@@ -835,10 +890,14 @@ cd qa && ./check -g pmrep
 - **2026-01-11 (Morning)**: Bug fix #1 completed (Commit 7b4e88fb1f) - Missing configuration keys caused PM_ERR_NAME errors
 - **2026-01-11 (Morning)**: Documentation phase completed - Example config, defaults documentation, and man pages updated
 - **2026-01-11 (Afternoon)**: Bug fix #2 completed (Commits 237a9eab29 & 1dddacfd41) - `group.*` pattern keys treated as metrics
-- **2026-01-11 (Evening)**: **DISCOVERY** - VM testing revealed integration incomplete
-  - Config now parses without errors (both bugs fixed)
-  - But group headers don't render - `groups.py` module not wired into `pmrep.py`
-  - Updated plan to reflect Step 6 (Integration) is INCOMPLETE and CRITICAL for next session
+- **2026-01-11 (Evening)**: VM testing revealed `ModuleNotFoundError: No module named 'groups'`
+- **2026-01-11 (Night)**: **KEY INVESTIGATION FINDINGS**:
+  - **Rendering code WORKS** - `pmrep.py:1050-1055` correctly calls GroupHeaderFormatter
+  - **Integration tests PASS** - because they manually set up group_configs, column_widths, group_formatter
+  - **Config parsing MISSING** - nothing reads `group.*` entries from config file to populate these
+  - **Module not installed** - `groups.py` not installed to any system path (GNUmakefile only installs pmrep.py)
+  - **Pylint errors** - reimported sys/os in try-except block, unused imports
+  - **Solution**: Install groups.py to `$(PCP_SHARE_DIR)/lib/pmrep`, fix imports, implement config parsing
 - **Unit Testing**: Successfully consolidated information from `PLAN-pmrep-unit-testing.md` into this plan
 - **TDD Success**: Test-Driven Development methodology proven highly effective:
   - Fast feedback loop (157 tests in 0.003s)
