@@ -29,7 +29,7 @@ static char *sbd_status_healthy = "Healthy";
 static char *sbd_status_unhealthy = "Unhealthy";
 
 int
-hacluster_sbd_device_fetch(int item, struct sbd *sbd, pmAtomValue *atom)
+hacluster_sbd_device_fetch(int item, struct sbd_device *sbd, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_SBD_DEVICE_STATS)
@@ -76,7 +76,7 @@ hacluster_sbd_device_all_fetch(int item, pmAtomValue *atom)
 }
 
 int
-hacluster_refresh_sbd_device(const char *sbd_dev, struct sbd *sbd)
+hacluster_refresh_sbd_device(const char *sbd_dev, struct sbd_device *sbd)
 {
 	char buffer[4096];
 	FILE *pf;

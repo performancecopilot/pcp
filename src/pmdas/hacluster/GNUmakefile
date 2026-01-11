@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020 - 2021 Red Hat.
+# Copyright (c) 2020 - 2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -68,7 +68,7 @@ $(VERSION_SCRIPT):
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
 
-pmda.o:				pmdahacluster.h
+pmda.o pacemaker.o corosync.o: pmdahacluster.h
 pmda.o pacemaker.o: pacemaker.h
 pmda.o corosync.o:	corosync.h
 pmda.o sbd.o:		sbd.h
