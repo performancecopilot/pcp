@@ -1,0 +1,53 @@
+QA output created by 1862
+=== run script before ===
+fumble: foo="local foo" bar="local bar" $1="123" l1="local l2" l2=""
+main: foo="global foo" bar="global bar" l1="" l2=""
+8,17{
+/[ 	]*local[ 	]*l1$/d
+s/([ 	]*)local[ 	][ 	]*l1=/\1__l1=/
+s/([ 	]*)local[ 	][ 	]*l1;//
+s/(^|[^a-zA-Z_])l1=/\1__l1=/g
+s/\$l1($|[^a-zA-Z_])/$__l1\1/g
+s/([ 	]*)unset([ 	][ 	]*)l1($|[^a-zA-Z])/\1unset\2__l1\3/
+/[ 	]*local[ 	]*l2$/d
+s/([ 	]*)local[ 	][ 	]*l2=/\1__l2=/
+s/([ 	]*)local[ 	][ 	]*l2;//
+s/(^|[^a-zA-Z_])l2=/\1__l2=/g
+s/\$l2($|[^a-zA-Z_])/$__l2\1/g
+s/([ 	]*)unset([ 	][ 	]*)l2($|[^a-zA-Z])/\1unset\2__l2\3/
+/[ 	]*local[ 	]*foo$/d
+s/([ 	]*)local[ 	][ 	]*foo=/\1__foo=/
+s/([ 	]*)local[ 	][ 	]*foo;//
+s/(^|[^a-zA-Z_])foo=/\1__foo=/g
+s/\$foo($|[^a-zA-Z_])/$__foo\1/g
+s/([ 	]*)unset([ 	][ 	]*)foo($|[^a-zA-Z])/\1unset\2__foo\3/
+/[ 	]*local[ 	]*bar$/d
+s/([ 	]*)local[ 	][ 	]*bar=/\1__bar=/
+s/([ 	]*)local[ 	][ 	]*bar;//
+s/(^|[^a-zA-Z_])bar=/\1__bar=/g
+s/\$bar($|[^a-zA-Z_])/$__bar\1/g
+s/([ 	]*)unset([ 	][ 	]*)bar($|[^a-zA-Z])/\1unset\2__bar\3/
+}
+
+=== script diffs ===
+9,16c9,15
+<     local foo
+<     local bar="local bar"
+< local	l1;local l2;
+<     foo="local foo"
+<     l1='local l1'
+<     l1='local l2'
+<     echo "fumble: foo=\"$foo\" bar=\"$bar\" \$1=\"$1\" l1=\"$l1\" l2=\"$l2\""
+<     unset foo
+---
+>     __bar="local bar"
+> 
+>     __foo="local foo"
+>     __l1='local l1'
+>     __l1='local l2'
+>     echo "fumble: __foo=\"$__foo\" __bar=\"$__bar\" \$1=\"$1\" __l1=\"$__l1\" __l2=\"$__l2\""
+>     unset __foo
+
+=== run script after ===
+fumble: __foo="local foo" __bar="local bar" $1="123" __l1="local l2" __l2=""
+main: foo="global foo" bar="global bar" l1="" l2=""

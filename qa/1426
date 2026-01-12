@@ -20,6 +20,8 @@ fi
 . ./common.filter
 . ./common.check
 
+[ "$PCP_PLATFORM" = solaris ] && _notrun "No arguments in backtrace on Solaris"
+
 _cleanup()
 {
     cd $here

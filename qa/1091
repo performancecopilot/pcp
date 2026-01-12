@@ -42,9 +42,9 @@ End-of-File
 # pick some disk metrics that are always likely to be present
 #
 metrics=`pminfo -Dpmns disk.dev 2>$tmp.err \
-         | grep -E 'read|write|total' \
-	 | grep -E -v 'rawactive|_merge|_time|blk' \
+         | grep -E '\.read$|\.read_bytes$|\.total$|\.total_bytes$|\.write$|\.write_bytes$' \
 	 | LC_COLLATE=POSIX sort`
+echo "metrics=$metrics" >>$seq_full
 # real QA test starts here
 echo "PM_CONTEXT_LOCAL, default PMNS ..."
 pminfo -Dpmns -L $metrics >$tmp.out 2>$tmp.err

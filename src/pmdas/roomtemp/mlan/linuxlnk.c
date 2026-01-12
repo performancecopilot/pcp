@@ -86,6 +86,11 @@
 #include <time.h>
 #include <termios.h> 
 #include <sys/time.h>
+#include <pcp/pmapi.h>
+
+#ifndef HAVE_CFMAKERAW
+extern int cfmakeraw(struct termios *);
+#endif
 
 #include "mlan.h"
 #include "ds2480.h"

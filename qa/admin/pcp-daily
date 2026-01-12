@@ -923,10 +923,10 @@ do
 		    [ X"$what" = Xall ] && check_what="$check_what -g sanity"
 		    ;;
 
-		OpenIndiana)
+		OpenIndiana*)
 		    # Only selected groups at this stage for OpenIndiana
 		    #
-		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g libpcp"
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g pmcd -g dbpmda -g pmcheck -x valgrind -x python"
 		    ;;
 
 	    esac

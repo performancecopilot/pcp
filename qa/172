@@ -15,6 +15,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 which netstat >/dev/null 2>&1 || _notrun "netstat not installed"
+[ $PCP_PLATFORM = solaris ] && _notrun "netstat -an output format is just too differrent"
 
 pmlogctl status 2>&1 | tee -a $seq_full >$tmp.tmp
 nloggers=`sed -e 1d <$tmp.tmp | wc -l | sed -e 's/  *//g'`

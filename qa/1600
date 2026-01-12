@@ -206,7 +206,9 @@ cat $tmp.pmproxy.log >> $seq_full
 #cat $tmp.pmlogger.log
 #echo pmproxy:
 #cat $tmp.pmproxy.log
-#read
+#echo "options=$options"
+#echo "series=$series"
+#read x </dev/tty
 
 #
 # verify we have data loading and can issue various queries

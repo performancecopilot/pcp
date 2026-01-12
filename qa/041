@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = mingw ] && _notrun "Process stop signal not available on Win32"
+[ $PCP_PLATFORM = solaris ] && _notrun "SIGSTOP handled differently on solaris"
 
 _filter()
 {
@@ -127,6 +128,9 @@ echo "pmcd pid=$pid" >>$seq_full
 ps $PCP_PS_ALL_FLAGS | grep -E "PID|$pid" >>$seq_full
 
 $sudo kill -STOP $pid
+
+echo "after kill -STOP $pid" >>$seq_full
+ps $PCP_PS_ALL_FLAGS | grep -E "PID|$pid" >>$seq_full
 
 sleep 3		# make sure pmcd gets the SIGSTOP
 

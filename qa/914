@@ -27,6 +27,13 @@ _cleanup()
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+_filter()
+{
+    sed \
+	-e '/pmdasolaris: cannot open \/dev\/kmem/d' \
+    | grep -E -v 'include|exclude| numpmid=1 '
+}
+
 # real QA test starts here
 for args in "-h localhost,sampledso.hordes.one" \
 	    "-a archives/pcp-pidstat-process-args,nfs.server.reqs" \
@@ -60,7 +67,7 @@ do
    src/profilecrash -v $src -s 100 $metric >$tmp.out 2>$tmp.err
     cat $tmp.err $tmp.out >>$seq_full
     cat $tmp.err $tmp.out \
-    | grep -E -v 'include|exclude| numpmid=1 '
+    | _filter
 done
 
 # success, all done

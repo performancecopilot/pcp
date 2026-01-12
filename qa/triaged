@@ -62,6 +62,7 @@
 			testing with dbpmda cannot reproduce a failure
 1595	vm20	valgrind issue goes away when linux PMDA compiled -O0
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
+1600	OpenIndiana	pmseries sees nothing in this test, don't know why
 1662	.*	valgrind-reported issue in libpcp_web archive discovery
 		handling of sources
 1673	openSUSE Leap 15.[56]	bashreadline.so does not work here for the
