@@ -138,31 +138,6 @@ vmdealloc:
 }
 
 int
-refresh_filesys(struct statfs **filesys, pmdaIndom *indom)
-{
-    int	i, count = getmntinfo(filesys, MNT_NOWAIT);
-
-    if (count < 0) {
-	indom->it_numinst = 0;
-	indom->it_set = NULL;
-	return -oserror();
-    }
-    if (count > 0 && count != indom->it_numinst) {
-	i = sizeof(pmdaInstid) * count;
-	if ((indom->it_set = realloc(indom->it_set, i)) == NULL) {
-	    indom->it_numinst = 0;
-	    return -ENOMEM;
-	}
-    }
-    for (i = 0; i < count; i++) {
-	indom->it_set[i].i_name = (*filesys)[i].f_mntfromname;
-	indom->it_set[i].i_inst = i;
-    }
-    indom->it_numinst = count;
-    return 0;
-}
-
-int
 refresh_hinv(void)
 {
     int			mib[2] = { CTL_HW, HW_MODEL };

@@ -37,6 +37,7 @@
 #include "tcpconn.h"
 #include "tcp.h"
 #include "vmstat.h"
+#include "filesys.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -72,7 +73,6 @@ extern int refresh_swap(struct xsw_usage *);
 
 int			mach_fs_error = 0;
 struct statfs		*mach_fs = NULL;
-extern int refresh_filesys(struct statfs **, pmdaIndom *);
 
 int			mach_disk_error = 0;
 struct diskstats	mach_disk = { 0 };
@@ -258,65 +258,6 @@ fetch_uname(unsigned int item, pmAtomValue *atom)
 	return 1;
     case 30: /* kernel.all.distro */
 	atom->cp = macos_version();
-	return 1;
-    }
-    return PM_ERR_PMID;
-}
-
-static inline int
-fetch_filesys(unsigned int item, unsigned int inst, pmAtomValue *atom)
-{
-    __uint64_t	ull, used;
-
-    if (mach_fs_error)
-	return mach_fs_error;
-    if (item == 31) {	/* hinv.nfilesys */
-	atom->ul = indomtab[FILESYS_INDOM].it_numinst;
-	return 1;
-    }
-    if (indomtab[FILESYS_INDOM].it_numinst == 0)
-	return 0;	/* no values available */
-    if (inst < 0 || inst >= indomtab[FILESYS_INDOM].it_numinst)
-	return PM_ERR_INST;
-    switch (item) {
-    case 32: /* filesys.capacity */
-	ull = (__uint64_t)mach_fs[inst].f_blocks;
-	atom->ull = ull * mach_fs[inst].f_bsize >> 10;
-	return 1;
-    case 33: /* filesys.used */
-	used = (__uint64_t)(mach_fs[inst].f_blocks - mach_fs[inst].f_bfree);
-	atom->ull = used * mach_fs[inst].f_bsize >> 10;
-	return 1;
-    case 34: /* filesys.free */
-	ull = (__uint64_t)mach_fs[inst].f_bfree;
-	atom->ull = ull * mach_fs[inst].f_bsize >> 10;
-	return 1;
-    case 129: /* filesys.maxfiles */
-	atom->ul = mach_fs[inst].f_files;
-	return 1;
-    case 35: /* filesys.usedfiles */
-	atom->ul = mach_fs[inst].f_files - mach_fs[inst].f_ffree;
-	return 1;
-    case 36: /* filesys.freefiles */
-	atom->ul = mach_fs[inst].f_ffree;
-	return 1;
-    case 37: /* filesys.mountdir */
-	atom->cp = mach_fs[inst].f_mntonname;
-	return 1;
-    case 38: /* filesys.full */
-	used = (__uint64_t)(mach_fs[inst].f_blocks - mach_fs[inst].f_bfree);
-	ull = used + (__uint64_t)mach_fs[inst].f_bavail;
-	atom->d = (100.0 * (double)used) / (double)ull;
-	return 1;
-    case 39: /* filesys.blocksize */
-	atom->ul = mach_fs[inst].f_bsize;
-	return 1;
-    case 40: /* filesys.avail */
-	ull = (__uint64_t)mach_fs[inst].f_bavail;
-	atom->ull = ull * mach_fs[inst].f_bsize >> 10;
-	return 1;
-    case 41: /* filesys.type */
-	atom->cp = mach_fs[inst].f_fstypename;
 	return 1;
     }
     return PM_ERR_PMID;
