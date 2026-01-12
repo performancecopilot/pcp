@@ -55,6 +55,31 @@
 
 ---
 
+### ✅ Phase 2.2: Extract filesys (CLUSTER_FILESYS) (COMPLETED)
+
+**Commits:**
+- `6e49b5fc54` - Extract filesys cluster to separate module
+
+**Results:**
+- ✅ Build succeeds
+- ✅ Unit tests pass (dbpmda)
+- ✅ Integration tests pass (pminfo/pmval)
+- ✅ Code review: APPROVED FOR MERGE
+- ✅ Filesystem metrics fully functional
+
+**Files Created:**
+- `src/pmdas/darwin/filesys.c` (107 lines) - Filesystem refresh and fetch functions
+- `src/pmdas/darwin/filesys.h` (21 lines) - Type definitions and function declarations
+
+**Files Modified:**
+- `src/pmdas/darwin/pmda.c` - Removed fetch_filesys() function (58 lines), added filesys.h include, updated dispatch
+- `src/pmdas/darwin/kernel.c` - Moved refresh_filesys() to filesys.c
+- `src/pmdas/darwin/GNUmakefile` - Added filesys.c and filesys.h to build
+
+**QA Verification:** Passed in isolated Cirrus VM environment via macos-darwin-pmda-qa agent
+
+---
+
 ## Overview
 
 Refactor pmda.c to improve code organization and maintainability by:
