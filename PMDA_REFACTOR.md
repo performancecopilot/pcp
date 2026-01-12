@@ -106,6 +106,33 @@
 
 ---
 
+### ✅ Phase 2.4: Extract nfs (CLUSTER_NFS) (COMPLETED)
+
+**Commits:**
+- `5b1fcc7226` - Extract nfs cluster to separate module
+- `4f9cd763cd` - Fix NFS module compilation issues
+
+**Results:**
+- ✅ Build succeeds
+- ✅ Unit tests pass (dbpmda)
+- ✅ Integration tests pass (pminfo/pmval)
+- ✅ Code review: APPROVED FOR MERGE
+- ✅ NFS metrics fully functional
+
+**Files Created:**
+- `src/pmdas/darwin/nfs.c` (85 lines) - NFS refresh and fetch functions
+- `src/pmdas/darwin/nfs.h` (26 lines) - Type definitions and function declarations
+
+**Files Modified:**
+- `src/pmdas/darwin/pmda.c` - Removed fetch_nfs() function (30 lines), added nfs.h include, removed extern declaration for refresh_nfs()
+- `src/pmdas/darwin/network.c` - Moved refresh_nfs() to nfs.c (23 lines removed)
+- `src/pmdas/darwin/darwin.h` - Added NFS3_RPC_COUNT constant definition
+- `src/pmdas/darwin/GNUmakefile` - Added nfs.c and nfs.h to build
+
+**QA Verification:** Passed in isolated Cirrus VM environment via macos-darwin-pmda-qa agent
+
+---
+
 ## Overview
 
 Refactor pmda.c to improve code organization and maintainability by:
