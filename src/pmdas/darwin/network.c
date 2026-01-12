@@ -154,29 +154,6 @@ refresh_network(struct netstats *stats, pmdaIndom *indom)
 }
 
 int
-refresh_nfs(struct nfsstats *stats)
-{
-    int	name[3];
-    size_t length = sizeof(struct nfsclntstats);
-    static int nfstype = -1;
-
-    if (nfstype == -1) {
-	struct vfsconf vfsconf;
-
-	if (getvfsbyname("nfs", &vfsconf) == -1)
-	    return -oserror();
-	nfstype = vfsconf.vfc_typenum;
-    }
-
-    name[0] = CTL_VFS;
-    name[1] = nfstype;
-    name[2] = NFS_NFSSTATS;
-    if (sysctl(name, 3, &stats->client, &length, NULL, 0) == -1)
-	return -oserror();
-    return 0;
-}
-
-int
 fetch_network(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {
 	extern netstats_t mach_net;

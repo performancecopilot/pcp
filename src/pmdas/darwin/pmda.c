@@ -30,6 +30,7 @@
 #include "darwin.h"
 #include "disk.h"
 #include "network.h"
+#include "nfs.h"
 #include "vfs.h"
 #include "udp.h"
 #include "icmp.h"
@@ -94,7 +95,6 @@ extern void init_network(void);
 
 int			mach_nfs_error = 0;
 struct nfsstats		mach_nfs = { 0 };
-extern int refresh_nfs(struct nfsstats *);
 
 int			mach_vfs_error = 0;
 vfsstats_t		mach_vfs = { 0 };
@@ -263,40 +263,6 @@ fetch_uname(unsigned int item, pmAtomValue *atom)
     }
     return PM_ERR_PMID;
 }
-
-
-static inline int
-fetch_nfs(unsigned int item, unsigned int inst, pmAtomValue *atom)
-{
-    if (mach_nfs_error)
-	return mach_nfs_error;
-    switch (item) {
-    case 94: /* nfs3.client.calls */
-	for (atom->ull = 0, inst = 0; inst < NFS3_RPC_COUNT; inst++)
-	    atom->ull += mach_nfs.client.rpccntv3[inst];
-	return 1;
-    case 95: /* nfs3.client.reqs */
-	if (inst < 0 || inst >= NFS3_RPC_COUNT)
-	    return PM_ERR_INST;
-	atom->ull = mach_nfs.client.rpccntv3[inst];
-	return 1;
-    case 96: /* nfs3.server.calls */
-	for (atom->ull = 0, inst = 0; inst < NFS3_RPC_COUNT; inst++)
-	    atom->ull += mach_nfs.server.srvrpccntv3[inst];
-	return 1;
-    case 97: /* nfs3.server.reqs */
-	if (inst < 0 || inst >= NFS3_RPC_COUNT)
-	    return PM_ERR_INST;
-	atom->ull = mach_nfs.server.srvrpccntv3[inst];
-	return 1;
-    case 123:	/* rpc.server.nqnfs.leases    -- deprecated */
-    case 124:	/* rpc.server.nqnfs.maxleases -- deprecated */
-    case 125:	/* rpc.server.nqnfs.getleases -- deprecated */
-	return PM_ERR_APPVERSION;
-    }
-    return PM_ERR_PMID;
-}
-
 
 static int
 darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
