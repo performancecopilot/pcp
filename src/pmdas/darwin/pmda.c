@@ -38,6 +38,7 @@
 #include "tcp.h"
 #include "vmstat.h"
 #include "filesys.h"
+#include "cpu.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -80,7 +81,6 @@ extern int refresh_disks(struct diskstats *, pmdaIndom *);
 
 int			mach_cpu_error = 0;
 struct processor_cpu_load_info	*mach_cpu = NULL;
-extern int refresh_cpus(struct processor_cpu_load_info **, pmdaIndom *);
 
 int			mach_uptime_error = 0;
 unsigned int		mach_uptime = 0;
@@ -263,39 +263,6 @@ fetch_uname(unsigned int item, pmAtomValue *atom)
     return PM_ERR_PMID;
 }
 
-static inline int
-fetch_cpu(unsigned int item, unsigned int inst, pmAtomValue *atom)
-{
-    if (mach_cpu_error)
-	return mach_cpu_error;
-    if (item == 71) {	/* hinv.ncpu */
-	atom->ul = indomtab[CPU_INDOM].it_numinst;
-	return 1;
-    }
-    if (indomtab[CPU_INDOM].it_numinst == 0)	/* uh-huh. */
-	return 0;	/* no values available */
-    if (inst < 0 || inst >= indomtab[CPU_INDOM].it_numinst)
-	return PM_ERR_INST;
-    switch (item) {
-    case 72: /* kernel.percpu.cpu.user */
-	atom->ull = LOAD_SCALE * (double)
-			mach_cpu[inst].cpu_ticks[CPU_STATE_USER] / mach_hertz;
-	return 1;
-    case 73: /* kernel.percpu.cpu.nice */
-	atom->ull = LOAD_SCALE * (double)
-			mach_cpu[inst].cpu_ticks[CPU_STATE_NICE] / mach_hertz;
-	return 1;
-    case 74: /* kernel.percpu.cpu.sys */
-	atom->ull = LOAD_SCALE * (double)
-			mach_cpu[inst].cpu_ticks[CPU_STATE_SYSTEM] / mach_hertz;
-	return 1;
-    case 75: /* kernel.percpu.cpu.idle */
-	atom->ull = LOAD_SCALE * (double)
-			mach_cpu[inst].cpu_ticks[CPU_STATE_IDLE] / mach_hertz;
-	return 1;
-    }
-    return PM_ERR_PMID;
-}
 
 static inline int
 fetch_nfs(unsigned int item, unsigned int inst, pmAtomValue *atom)

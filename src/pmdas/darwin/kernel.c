@@ -90,52 +90,6 @@ refresh_uptime(unsigned int *uptime)
     return 0;
 }
 
-int
-refresh_cpus(struct processor_cpu_load_info **cpuload, pmdaIndom *indom)
-{
-    natural_t ncpu, icount;
-    processor_info_array_t iarray;
-    struct processor_cpu_load_info *cpuinfo;
-    int error, i, info = PROCESSOR_CPU_LOAD_INFO;
-
-    error = host_processor_info(mach_host, info, &ncpu, &iarray, &icount);
-    if (error != KERN_SUCCESS)
-	return -oserror();
-
-    cpuinfo = (struct processor_cpu_load_info *)iarray;
-    if (ncpu != indom->it_numinst) {
-	char	name[16];	/* 8 is real max atm, but be conservative */
-
-	error = -ENOMEM;
-	i = sizeof(unsigned long) * CPU_STATE_MAX * ncpu;
-	if ((*cpuload = realloc(*cpuload, i)) == NULL)
-	    goto vmdealloc;
-
-	i = sizeof(pmdaInstid) * ncpu;
-	if ((indom->it_set = realloc(indom->it_set, i)) == NULL) {
-	    free(*cpuload);
-	    *cpuload = NULL;
-	    indom->it_numinst = 0;
-	    goto vmdealloc;
-	}
-
-	for (i = 0; i < ncpu; i++) {
-	    pmsprintf(name, sizeof(name), "cpu%d", i);
-	    indom->it_set[i].i_name = strdup(name);
-	    indom->it_set[i].i_inst = i;
-	}
-	indom->it_numinst = ncpu;
-    }
-
-    error = 0;
-    for (i = 0; i < ncpu; i++)
-	memcpy(&(*cpuload)[i], &cpuinfo[i],
-		sizeof(unsigned long) * CPU_STATE_MAX);
-
-vmdealloc:
-    vm_deallocate(mach_host, (vm_address_t)iarray, icount);
-    return error;
-}
 
 int
 refresh_hinv(void)
