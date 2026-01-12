@@ -9,11 +9,6 @@
 __scriptname=show-me
 . ./common.rc
 
-HOST=`hostname`
-QA_HOST=
-QA_USER=
-QA_DIR=
-
 if [ -n "$PCPQA_DIFF" ]
 then
     DIFF="$PCPQA_DIFF"
@@ -41,103 +36,105 @@ trap "cd /; rm -rf $tmp $tmp.*; exit" 0 1 2 3 15
 rm -rf $tmp
 mkdir $tmp
 
-not_me=false
+nodiff=false
 local=true
-keep=false
 where=false
-while getopts d:h:klu:w c
+while getopts g:lnwx:h c
 do
    case $c in
-   d)       QA_DIR=$OPTARG
-	    not_me=true
+
+   g)	    # include group
+	    rm -f $tmp.tmp
+	    sed -n <group \
+		-e 's/\([0-9]\):retired /\1 /' \
+		-e 's/\([0-9]\):reserved /\1 /' \
+		-e 's/$/ /' \
+		-e "/^[0-9][0-9]*.* $OPTARG /"'{
+s/ .*//p
+}' \
+	    | while read seq
+	    do
+		[ -f "$seq.out.bad" ] && echo "$seq" >>$tmp.tmp
+	    done
+	    if [ -s $tmp.tmp ]
+	    then
+		touch $tmp.from-g
+		LC_COLLATE=POSIX sort -o $tmp.from-g $tmp.from-g $tmp.tmp
+	    else
+		echo "Group \"$OPTARG\" is empty or not defined; ignored" >&2
+	    fi
 	    ;;
 
-   h)       QA_HOST=$OPTARG
-	    local=false
+   n)	    # seq #'s, no diffs
+	    nodiff=true
 	    ;;
 
-   k)	    keep=true
-   	    ;;
-
-   l)	    DIFF="diff -c"
-	    ;;
-
-   u)       QA_USER=$OPTARG
-	    not_me=true
-	    ;;
-
-   w)       where=true
+   w)       # report dir
+	    where=true
 	    wdir=`pwd | sed -e "s;.*/;;"`
    	    ;;
 
-   \?)      echo "Usage: show-me [-lw] [-k] [-d dir] [-h host] [-u user] [test ...]"
-	    exit 2;;
+   x)	    # exclude group
+	    rm -f $tmp.tmp
+	    sed -n <group \
+		-e 's/\([0-9]\):retired /\1 /' \
+		-e 's/\([0-9]\):reserved /\1 /' \
+		-e 's/$/ /' \
+		-e "/^[0-9][0-9]*.* $OPTARG /"'{
+s/ .*//p
+}' \
+	    | while read seq
+	    do
+		[ -f "$seq.out.bad" ] && echo "$seq" >>$tmp.tmp
+	    done
+	    if [ -s $tmp.tmp ]
+	    then
+		touch $tmp.from-x
+		LC_COLLATE=POSIX sort -o $tmp.from-x $tmp.from-x $tmp.tmp
+	    else
+		echo "Group \"$OPTARG\" is empty or not defined; ignored" >&2
+	    fi
+	    ;;
+
+   h)      # usage
+	    echo "Usage: $0 [options] [seq[ seq...]]"'
+
+Options:
+    -l		line mode diff [xdiff]
+    -n		report failing tests, no diffs
+    -g group	include tests from this group (additive for multiple -g options)
+    -w		report directory
+    -x group	exclude tests from this group (additive for multiple -x options)
+
+Default (no -g) is to include all tests with a .out.bad file.'
+	    exit
+	    ;;
    esac
 done
 shift `expr $OPTIND - 1`
 
-if [ -z "$QA_DIR" ]
+if [ ! -f $tmp.from-g ]
 then
-    if [ -z "$QA_HOST" -o "$QA_HOST" = localhost -o "$QA_HOST" = "`hostname`" ]
-    then
-	if [ -z "$QA_USER" -o "$QA_USER" = "$LOGNAME" ]
-	then
-	    # local and really me
-	    QA_DIR_DEFAULT=`pwd`
-	else
-	    QA_DIR_DEFAULT=`ssh $QA_USER@$QA_HOST "/bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
-	fi
-    else
-	QA_DIR_DEFAULT=`ssh $QA_USER@$QA_HOST "/bin/ls -d isms/pcp[1-9]*/qa" 2>/dev/null | grep '^isms/' | tail -1`
-    fi
-    if [ "$QA_DIR_DEFAULT" = "" ]
-    then
-        QA_DIR_DEFAULT=isms/pcp/qa
-    fi
-    QA_DIR="$QA_DIR_DEFAULT"
+    ls -1 *.out.bad 2>/dev/null \
+    | sed -e 's/\.out\.bad$//' \
+    | LC_COLLATE=POSIX sort >$tmp.list
+else
+    mv $tmp.from-g $tmp.list
 fi
 
-if [ $# -eq -0 ]
+if [ -f $tmp.from-x ]
 then
-    if $local
-    then
-	list="`echo *.out.bad \
-	       | tr ' ' '\012' \
-	       | sed -e 's/\.out\.bad//' \
-	       | LC_COLLATE=POSIX sort -n`"
-	if [ "$list" = '*' ]
-	then
-	    echo "No failing tests!"
-	    exit
-	fi
-	set - `echo $list`
-    else
-	x=`ssh $QA_USER@$QA_HOST echo $QA_DIR/\[0-9]*.out.bad 2>$tmp.err`
-	if [ -z "$x" ]
-	then
-	    if [ -s $tmp.err ]
-	    then
-		echo "ssh failed?"
-		cat $tmp.err
-	    else
-		echo "No failing tests!"
-	    fi
-	    exit
-	fi
-	set - `echo "$x" \
-	       | tr ' ' '\012' \
-	       | sed -e 's/.*\///' -e 's/.out.bad//' \
-	       | LC_COLLATE=POSIX sort -n`
-	echo "Failing tests: $*"
-    fi
+    LC_COLLATE=POSIX comm -23 $tmp.list $tmp.from-x >$tmp.tmp
+    mv $tmp.tmp $tmp.list
 fi
 
-unset ROOT TOOLROOT MAKEFLAGS
-__quick=true
-__check=false
-. ./common
+if [ ! -s $tmp.list ]
+then
+    echo "No failing tests!" >&2
+    exit
+fi
 
-for id
+for id in `sort -n $tmp.list`
 do
     case "$id"
     in
@@ -149,23 +146,12 @@ do
 		;;
     esac
 
-    if [ "$QA_HOST" != $HOST ]
+    if $nodiff
     then
-	echo "Fetch files from $QA_USER@$QA_HOST:$QA_DIR ..."
-	rm -f $tmp/$id.out.bad $tmp/$id.out
-	scp $QA_USER@$QA_HOST:$QA_DIR/$id.out.bad $tmp
-	scp $QA_USER@$QA_HOST:$QA_DIR/$id.out $tmp
-	cd $tmp
-    elif $not_me
-    then
-	if [ -d $QA_DIR ]
-	then
-	    cd $QA_DIR
-	else
-	    echo "$id: No directory: $QA_DIR"
-	    exit 1
-	fi
+	$PCP_ECHO_PROG $PCP_ECHO_N "$id ""$PCP_ECHO_C"
+	continue
     fi
+
     if $where
     then
 	$PCP_ECHO_PROG $PCP_ECHO_N "$wdir/$id: ""$PCP_ECHO_C"
@@ -209,23 +195,7 @@ do
 	    $DIFF $ref$id.out $badref$id.out.bad
 	fi
     fi
-    if $keep
-    then
-	if [ -f $here/$id.out.bad ]
-	then
-	    if diff $here/$id.out.bad $id.out.bad >diff.tmp
-	    then
-		# same
-		:
-	    else
-		echo "Warning: overwriting $id.out.bad ... diffs"
-		cat diff.tmp
-		rm -f $here/$id.out.bad
-		mv $id.out.bad $here
-	    fi
-	else
-	    mv $id.out.bad $here
-	fi
-    fi
     cd $here
 done
+
+$nodiff && $PCP_ECHO_PROG

@@ -122,13 +122,13 @@ _haveagents()
 	__reinstall=false
 	while true
 	do
-	    if pminfo -h $QA_HOST -f $__probe 2>&1 \
+	    if pminfo -h $DEFAULT_HOST -f $__probe 2>&1 \
 	       | tail -1 \
 	       | grep -E "^[ 	]*((value)|(inst))[ 	]" >/dev/null
 	    then
 		break
 	    else
-		echo "PMDA probe: pminfo -h $QA_HOST -f $__probe"
+		echo "PMDA probe: pminfo -h $DEFAULT_HOST -f $__probe"
 		echo "PMDA $__agent is not responding"
 		if $__restart
 		then
@@ -272,10 +272,10 @@ _havepmcdtrace()
     __fix=false
     for __trace in traceconn tracepdu
     do
-	__bit=`pminfo -h $QA_HOST -f pmcd.control.$__trace | sed -n -e '/value/s/ *value *//p'`
+	__bit=`pminfo -h $DEFAULT_HOST -f pmcd.control.$__trace | sed -n -e '/value/s/ *value *//p'`
 	if [ "X$__bit" != X1 ]
 	then
-	    pminfo -h $QA_HOST -f pmcd.control.$__trace
+	    pminfo -h $DEFAULT_HOST -f pmcd.control.$__trace
 	    echo "PMCD event tracing not enabled!"
 	    __fix=true
 	fi
@@ -299,10 +299,10 @@ End-of-File
 
 _setpmcdlimits()
 {
-    __check=`pmprobe -h $QA_HOST -v pmcd.limits.contexts | $PCP_AWK_PROG 'NF == 3 && $2 == 1 { print $3 }'`
+    __check=`pmprobe -h $DEFAULT_HOST -v pmcd.limits.contexts | $PCP_AWK_PROG 'NF == 3 && $2 == 1 { print $3 }'`
     if [ -n "$__check" -a $__check != 512 ]
     then
-	pminfo -h $QA_HOST -f pmcd.limits.contexts
+	pminfo -h $DEFAULT_HOST -f pmcd.limits.contexts
 	echo "PMCD connection limits not 512 as required"
 	echo "fix options"
 	[ -z "PCP_PMCDOPTIONS_PATH" ] && \
@@ -382,7 +382,6 @@ __xgroup=false
 __exclude=false
 __rflag=false
 __selbygroup=false
-__snarf=''
 __showme=false
 __have_test_arg=false
 __check_config=false
@@ -519,23 +518,6 @@ BEGIN	{ for (t = '$__start'; t <= '$__end'; t++) printf "%03d\n",t }' \
 	fi
 	__exclude=false
 	continue
-
-    elif [ ! -z "$__snarf" ]
-    then
-	case $__snarf
-	in
-	    d)
-		QA_DIR=$__r
-		;;
-	    h)
-		QA_HOST=$__r
-		;;
-	    u)
-		QA_USER=$__r
-		;;
-	esac
-	__snarf=''
-	continue
     fi
 
     __xpand=true
@@ -544,14 +526,14 @@ BEGIN	{ for (t = '$__start'; t <= '$__end'; t++) printf "%03d\n",t }' \
     in
 
 	-\?)	# usage
-	    echo "Usage: $0 [options] [testlist]"'
+	    echo "Usage: $0 [options] [seq[ seq...]]"'
 
 check options
     -c		check configuration files [off]
     -C		color mode output [off]
     -CI		run in CI environment => set $PCPQA_IN_CI in environment
     		and -x x11 -x remote -x not_in_ci
-    -g group	include tests from these groups (multiple flags allowed)
+    -g group	include tests from this group (additive for multiple -g options)
     -G          report groups and number of tests per group
     -l		line mode diff [xdiff]
     -s		sssh mode diff [no diff, regular output]
@@ -560,14 +542,11 @@ check options
     -r		include reserved and retired tests
     -T		output timestamps
     -TT		write timestamps to check.timings
-    -x group	exclude tests from these groups (multiple flags allowed)
+    -x group	exclude tests from this group (additive for multiple -x options)
     -X seq[,seq...]
-		exclude these tests
+		exclude these tests (additive for multiple -X options)
 
-show-me options
-    -d QA_DIR		[isms/pcp2.0/qa]
-    -h QA_HOST		['`hostname`']
-    -u QA_USER		[pcpqa]
+And seq is a test number or a test number range, e.g. 000-009 or 1000
 '
 	    __aborted=false
 	    exit 0
@@ -586,11 +565,6 @@ show-me options
 	-CI)	# run in CI environment
 		# TODO still need -x x11 -x remote -x not_in_ci
 	    PCPQA_IN_CI=yes; export PCPQA_IN_CI
-	    __xpand=false
-	    ;;
-
-	-d)	# directory for show-me
-	    __snarf=d
 	    __xpand=false
 	    ;;
 
@@ -623,11 +597,6 @@ p
 
 	-g)	# -g group ... pick from group file
 	    __group=true
-	    __xpand=false
-	    ;;
-
-	-h)	# host for show-me
-	    __snarf=h
 	    __xpand=false
 	    ;;
 
@@ -664,11 +633,6 @@ p
 
 	-TT)	# turn on check.timings
 	    __timings_file=true
-	    __xpand=false
-	    ;;
-
-	-u)	# user for show-me
-	    __snarf=u
 	    __xpand=false
 	    ;;
 
@@ -733,18 +697,15 @@ p
 BEGIN	{ for (t = '$__start'; t <= '$__end'; t++) printf "%03d\n",t }' \
 	| while read __id
 	do
-	    # if test not present, silently forget about it
+	    # if test not present, forget about it
 	    if [ ! -f $__id ]
 	    then
-		if [ "$__scriptname" != "show-me" ]
+		if [ $__id = $__start ]
 		then
-		    if [ $__id = $__start ]
-		    then
-			echo "$__id - no such test, skipped"
-		    elif [ $__id = $__end ]
-		    then
-			echo "$__id - no such test, skipped"
-		    fi
+		    echo "$__id - no such test, skipped"
+		elif [ $__id = $__end ]
+		then
+		    echo "$__id - no such test, skipped"
 		fi
 		continue
 	    fi
@@ -831,8 +792,7 @@ rm -f $tmp.list $tmp.tmp $tmp.sed $tmp.exclude
 #
 . ./common.setup
 
-[ -z "$QA_HOST" ] && QA_HOST=$DEFAULT_HOST
-export QA_HOST QA_DIR QA_USER
+export QA_USER
 
 if $__check
 then
@@ -849,7 +809,7 @@ then
     # now try -h localhostname
     #
     $sudo rm -f $tmp.ok
-    __x=`pminfo -h $QA_HOST -v pmcd.control.timeout 2>&1`
+    __x=`pminfo -h $DEFAULT_HOST -v pmcd.control.timeout 2>&1`
     if [ -n "$__x" ]
     then
 	case "$__x"
@@ -866,7 +826,7 @@ then
 			_haveremote
 			_service pmcd restart
 			_wait_for_pmcd
-			__x=`pminfo -h $QA_HOST -v pmcd.control.timeout 2>&1`
+			__x=`pminfo -h $DEFAULT_HOST -v pmcd.control.timeout 2>&1`
 			[ -z "$__x" ] && touch $tmp.ok
 		    fi
 		fi
@@ -874,22 +834,14 @@ then
 	esac
 	if [ ! -f $tmp.ok ]
 	then
-	    echo "Is pmcd running on host $QA_HOST?  Simple test produces ..."
+	    echo "Is pmcd running on host $DEFAULT_HOST?  Simple test produces ..."
 	    echo "$__x"
 	    exit 1
 	fi
     fi
 fi
 
-case $__scriptname
-in
-    show-me)
-	# don't need sudo
-	;;
-    *)
-	_havesudo
-	;;
-esac
+_havesudo
 
 case $__scriptname
 in
