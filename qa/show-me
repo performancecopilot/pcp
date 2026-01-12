@@ -59,7 +59,7 @@ s/ .*//p
 	    if [ -s $tmp.tmp ]
 	    then
 		touch $tmp.from-g
-		LC_COLLATE=POSIX sort -o $tmp.from-g $tmp.from-g $tmp.tmp
+		LC_COLLATE=POSIX sort -u -o $tmp.from-g $tmp.from-g $tmp.tmp
 	    else
 		echo "Group \"$OPTARG\" is empty or not defined; ignored" >&2
 	    fi
@@ -90,7 +90,7 @@ s/ .*//p
 	    if [ -s $tmp.tmp ]
 	    then
 		touch $tmp.from-x
-		LC_COLLATE=POSIX sort -o $tmp.from-x $tmp.from-x $tmp.tmp
+		LC_COLLATE=POSIX sort -u -o $tmp.from-x $tmp.from-x $tmp.tmp
 	    else
 		echo "Group \"$OPTARG\" is empty or not defined; ignored" >&2
 	    fi
@@ -115,11 +115,30 @@ shift `expr $OPTIND - 1`
 
 if [ ! -f $tmp.from-g ]
 then
-    ls -1 *.out.bad 2>/dev/null \
-    | sed -e 's/\.out\.bad$//' \
-    | LC_COLLATE=POSIX sort >$tmp.list
+    if [ $# -eq 0 ]
+    then
+	# no seq ... on command line, consider all failures
+	#
+	ls -1 *.out.bad 2>/dev/null \
+	| sed -e 's/\.out\.bad$//' \
+	| LC_COLLATE=POSIX sort >$tmp.list
+    else
+	touch $tmp.list
+    fi
 else
     mv $tmp.from-g $tmp.list
+fi
+
+if [ $# -gt 0 ]
+then
+    # add seq ... from command line to list of candidate tests
+    #
+    rm -f $tmp.tmp
+    for seq
+    do
+	echo "$seq" >>$tmp.tmp
+    done
+    LC_COLLATE=POSIX sort -u -o $tmp.list $tmp.list $tmp.tmp
 fi
 
 if [ -f $tmp.from-x ]
@@ -187,15 +206,20 @@ do
     then
 	echo  "Could not find $id.out.bad in `pwd`"
     else
-	echo
-	if [ "$DIFF" = xxdiff ]
+	if cmp $ref$id.out $badref$id.out.bad >/dev/null
 	then
-	    $DIFF $ref$id.out $badref$id.out.bad >/dev/null 2>&1
+	    echo " .out.bad and out are the same"
 	else
-	    $DIFF $ref$id.out $badref$id.out.bad
+	    echo
+	    if [ "$DIFF" = xxdiff ]
+	    then
+		$DIFF $ref$id.out $badref$id.out.bad >/dev/null 2>&1
+	    else
+		$DIFF $ref$id.out $badref$id.out.bad
+	    fi
 	fi
     fi
     cd $here
 done
 
-$nodiff && $PCP_ECHO_PROG
+$nodiff && echo
