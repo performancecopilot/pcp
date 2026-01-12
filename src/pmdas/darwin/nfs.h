@@ -18,9 +18,8 @@
 #define NFS_H
 
 struct nfsstats;
-struct pmAtomValue;
 
 extern int refresh_nfs(struct nfsstats *);
-extern int fetch_nfs(unsigned int, unsigned int, struct pmAtomValue *);
+extern int fetch_nfs(unsigned int, unsigned int, pmAtomValue *);
 
 #endif /* NFS_H */

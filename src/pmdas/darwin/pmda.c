@@ -138,7 +138,6 @@ static pmdaInstid nfs3_indom_id[] = {
     { 21, "commit" },	{ 22, "getlease" },	{ 23, "vacate" },
     { 24, "evict" }
 };
-#define NFS3_RPC_COUNT	(sizeof(nfs3_indom_id)/sizeof(pmdaInstid))
 
 /*
  * Metric Instance Domain table

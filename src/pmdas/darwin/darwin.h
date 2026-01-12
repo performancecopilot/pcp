@@ -41,3 +41,8 @@ enum {
     NUM_CLUSTERS		/* total number of clusters */
 };
 
+/*
+ * NFS Instance Domain Constants
+ */
+#define NFS3_RPC_COUNT	25	/* number of NFS v3 RPC operations */
+
