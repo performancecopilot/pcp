@@ -7,6 +7,7 @@
 **Commits:**
 - `20656d75ba` - Extract metrictab to metrics.c/metrics.h
 - `9f4ec0952e` - Fix build: move CLUSTER enum to darwin.h and add headers to metrics.c
+- `a21fb52a1d` - Update PMDA_REFACTOR.md: mark Part 1 complete
 
 **Results:**
 - ✅ Build succeeds
@@ -23,6 +24,32 @@
 - `src/pmdas/darwin/pmda.c` - Removed metrictab array, updated pmdaInit call
 - `src/pmdas/darwin/darwin.h` - Added CLUSTER_* enum for cross-module visibility
 - `src/pmdas/darwin/GNUmakefile` - Added metrics.c and metrics.h to build
+
+**QA Verification:** Passed in isolated Cirrus VM environment via macos-darwin-pmda-qa agent
+
+---
+
+### ✅ Phase 2.1: Extract vmstat (CLUSTER_VMSTAT) (COMPLETED)
+
+**Commits:**
+- `f46c9344db` - Extract vmstat cluster to separate module
+- `23111c529b` - Fix vmstat code style issues
+
+**Results:**
+- ✅ Build succeeds
+- ✅ Unit tests pass (dbpmda)
+- ✅ Integration tests pass (pminfo/pmval)
+- ✅ Code review: PASSED (style issues corrected)
+- ✅ Memory and swap metrics fully functional
+
+**Files Created:**
+- `src/pmdas/darwin/vmstat.c` (114 lines) - VM statistics refresh and fetch functions
+- `src/pmdas/darwin/vmstat.h` (27 lines) - Type definitions and function declarations
+
+**Files Modified:**
+- `src/pmdas/darwin/pmda.c` - Removed fetch_vmstat() function, added vmstat.h include, updated dispatch
+- `src/pmdas/darwin/kernel.c` - Moved refresh_vmstat() and refresh_swap() to vmstat.c
+- `src/pmdas/darwin/GNUmakefile` - Added vmstat.c and vmstat.h to build
 
 **QA Verification:** Passed in isolated Cirrus VM environment via macos-darwin-pmda-qa agent
 
