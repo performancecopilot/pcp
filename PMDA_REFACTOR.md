@@ -133,6 +133,42 @@
 
 ---
 
+### ✅ Phase 2.5: Extract Low-Priority Subsystems (COMPLETED)
+
+**Commits:**
+- `b1ff808252` - Extract loadavg cluster to separate module
+- `9e4f79b2b6` - Extract cpuload cluster to separate module
+- `e563b70b6e` - Extract uname cluster to separate module
+
+**Results:**
+- ✅ Build succeeds
+- ✅ Unit tests pass (dbpmda)
+- ✅ Integration tests pass (pminfo/pmval)
+- ✅ Code review: APPROVED FOR MERGE
+- ✅ All metrics fully functional
+
+**Files Created:**
+- `src/pmdas/darwin/loadavg.c` (61 lines) - Load average refresh and fetch functions
+- `src/pmdas/darwin/loadavg.h` (30 lines) - Type definitions and function declarations
+- `src/pmdas/darwin/cpuload.c` (64 lines) - CPU load refresh and fetch functions
+- `src/pmdas/darwin/cpuload.h` (32 lines) - Type definitions and function declarations
+- `src/pmdas/darwin/uname.c` (57 lines) - Uname/version refresh and fetch functions
+- `src/pmdas/darwin/uname.h` (32 lines) - Type definitions and function declarations
+
+**Files Modified:**
+- `src/pmdas/darwin/pmda.c` - Removed fetch_loadavg() (18 lines), fetch_cpuload() (24 lines), fetch_uname() (23 lines); added includes; removed extern declarations (65 lines removed total)
+- `src/pmdas/darwin/kernel.c` - Moved refresh_loadavg() (13 lines), refresh_cpuload() (8 lines), refresh_uname() (4 lines) to respective modules (25 lines removed)
+- `src/pmdas/darwin/GNUmakefile` - Added loadavg.c/h, cpuload.c/h, uname.c/h to build
+
+**QA Verification:** All three extractions passed in isolated Cirrus VM environment via macos-darwin-pmda-qa agent
+
+**Decision Notes:**
+- Originally planned as DEFER (optional), but extracted for consistency with established modular pattern
+- All subsystems now follow the same architectural pattern
+- pmda.c is now purely coordination logic with no embedded fetch functions
+
+---
+
 ## Overview
 
 Refactor pmda.c to improve code organization and maintainability by:
@@ -431,13 +467,13 @@ Based on vfs.c, tcp.c, and other refactored subsystems:
 
 ---
 
-#### Phase 2.5: Low-Priority Subsystems (Optional)
+#### Phase 2.5: Extract Low-Priority Subsystems (COMPLETED)
 
-**Decision Point**: Evaluate whether to extract loadavg, cpuload, uname.
+**Decision**: Extract all three (loadavg, cpuload, uname) for consistency with established modular pattern.
 
-**Recommendation**: DEFER - These are small (18-24 lines) and simple. Extracting them provides minimal benefit and may over-engineer the code.
+**Rationale**: Although originally recommended to DEFER, extracting these subsystems achieves complete modularization and ensures all fetch logic follows the same architectural pattern. This eliminates special cases and makes the codebase more maintainable.
 
-**Alternative**: Leave them in pmda.c as "simple fetch functions" category, clearly documented.
+**Implementation**: Extract loadavg (CLUSTER_LOADAVG), cpuload (CLUSTER_CPULOAD), and uname (CLUSTER_KERNEL_UNAME) to separate modules following the established pattern (see Phase 2.5 results above).
 
 ---
 
