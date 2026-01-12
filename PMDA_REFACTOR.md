@@ -80,6 +80,32 @@
 
 ---
 
+### ✅ Phase 2.3: Extract cpu (CLUSTER_CPU) (COMPLETED)
+
+**Commits:**
+- `8b0bc27e58` - Extract cpu cluster to separate module
+- `90f530d4a2` - Add missing extern declaration for refresh_cpus
+
+**Results:**
+- ✅ Build succeeds
+- ✅ Unit tests pass (dbpmda)
+- ✅ Integration tests pass (pminfo/pmval)
+- ✅ Code review: PASSED after fix
+- ✅ Per-CPU metrics fully functional
+
+**Files Created:**
+- `src/pmdas/darwin/cpu.c` (109 lines) - CPU refresh and fetch functions
+- `src/pmdas/darwin/cpu.h` (26 lines) - Type definitions and function declarations
+
+**Files Modified:**
+- `src/pmdas/darwin/pmda.c` - Removed fetch_cpu() function (32 lines), added cpu.h include, added extern declaration for refresh_cpus()
+- `src/pmdas/darwin/kernel.c` - Moved refresh_cpus() to cpu.c (46 lines removed)
+- `src/pmdas/darwin/GNUmakefile` - Added cpu.c and cpu.h to build
+
+**QA Verification:** Passed in isolated Cirrus VM environment via macos-darwin-pmda-qa agent
+
+---
+
 ## Overview
 
 Refactor pmda.c to improve code organization and maintainability by:
