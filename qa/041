@@ -14,6 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ $PCP_PLATFORM = mingw ] && _notrun "Process stop signal not available on Win32"
+[ $PCP_PLATFORM = solaris ] && _notrun "SIGSTOP handled differently on solaris"
 
 _filter()
 {
