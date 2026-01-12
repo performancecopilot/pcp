@@ -155,31 +155,6 @@ pmdaIndom indomtab[] = {
     { NFS3_INDOM,	NFS3_RPC_COUNT, nfs3_indom_id },
 };
 
-/*
- * Fetch clusters and metric table
- */
-enum {
-    CLUSTER_INIT = 0,		/*  0 = values we know at startup */
-    CLUSTER_VMSTAT,		/*  1 = mach memory statistics */
-    CLUSTER_KERNEL_UNAME,	/*  2 = utsname information */
-    CLUSTER_LOADAVG,		/*  3 = run queue averages */
-    CLUSTER_HINV,		/*  4 = hardware inventory */
-    CLUSTER_FILESYS,		/*  5 = mounted filesystems */
-    CLUSTER_CPULOAD,		/*  6 = number of ticks in state */
-    CLUSTER_DISK,		/*  7 = disk device statistics */
-    CLUSTER_CPU,		/*  8 = per-cpu statistics */
-    CLUSTER_UPTIME,		/*  9 = system uptime in seconds */
-    CLUSTER_NETWORK,		/* 10 = networking statistics */
-    CLUSTER_NFS,		/* 11 = nfs filesystem statistics */
-    CLUSTER_VFS,		/* 12 = vfs statistics */
-    CLUSTER_UDP,		/* 13 = udp protocol statistics */
-    CLUSTER_ICMP,		/* 14 = icmp protocol statistics */
-    CLUSTER_SOCKSTAT,		/* 15 = socket statistics */
-    CLUSTER_TCPCONN,		/* 16 = tcp connection states */
-    CLUSTER_TCP,		/* 17 = tcp protocol statistics */
-    NUM_CLUSTERS		/* total number of clusters */
-};
-
 
 static void
 darwin_refresh(int *need_refresh)

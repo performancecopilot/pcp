@@ -14,10 +14,18 @@
  * for more details.
  */
 
+#include <sys/utsname.h>
+#include <mach/mach.h>
 #include "pmapi.h"
 #include "pmda.h"
 #include "darwin.h"
 #include "metrics.h"
+#include "network.h"
+#include "vfs.h"
+#include "udp.h"
+#include "sockstat.h"
+#include "tcpconn.h"
+#include "tcp.h"
 
 /*
  * External declarations for global data referenced in metrictab.
