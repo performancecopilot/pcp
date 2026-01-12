@@ -27,12 +27,6 @@ extern mach_port_t	mach_host;
 extern int		mach_hertz;
 
 int
-refresh_uname(struct utsname *utsname)
-{
-    return (uname(utsname) == -1) ? -oserror() : 0;
-}
-
-int
 refresh_hertz(unsigned int *hertz)
 {
     int			mib[2] = { CTL_KERN, KERN_CLOCKRATE };

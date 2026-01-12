@@ -42,6 +42,7 @@
 #include "cpu.h"
 #include "loadavg.h"
 #include "cpuload.h"
+#include "uname.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -57,7 +58,6 @@ extern int refresh_hertz(unsigned int *);
 
 int			mach_uname_error = 0;
 struct utsname		mach_uname = { { 0 } };
-extern int refresh_uname(struct utsname *);
 
 int			mach_loadavg_error = 0;
 float			mach_loadavg[3] = { 0,0,0 };
@@ -190,31 +190,6 @@ darwin_refresh(int *need_refresh)
 	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
     if (need_refresh[CLUSTER_TCP])
 	mach_tcp_error = refresh_tcp(&mach_tcp);
-}
-
-static inline int
-fetch_uname(unsigned int item, pmAtomValue *atom)
-{
-    static char mach_uname_all[(_SYS_NAMELEN*5)+8];
-
-    if (mach_uname_error)
-	return mach_uname_error;
-    switch (item) {
-    case 28: /* pmda.uname */
-	pmsprintf(mach_uname_all, sizeof(mach_uname_all), "%s %s %s %s %s",
-		mach_uname.sysname, mach_uname.nodename,
-		mach_uname.release, mach_uname.version,
-		mach_uname.machine);
-	atom->cp = mach_uname_all;
-	return 1;
-    case 29: /* pmda.version */
-	atom->cp = pmGetConfig("PCP_VERSION");
-	return 1;
-    case 30: /* kernel.all.distro */
-	atom->cp = macos_version();
-	return 1;
-    }
-    return PM_ERR_PMID;
 }
 
 static int
