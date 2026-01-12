@@ -81,6 +81,7 @@ extern int refresh_disks(struct diskstats *, pmdaIndom *);
 
 int			mach_cpu_error = 0;
 struct processor_cpu_load_info	*mach_cpu = NULL;
+extern int refresh_cpus(struct processor_cpu_load_info **, pmdaIndom *);
 
 int			mach_uptime_error = 0;
 unsigned int		mach_uptime = 0;
