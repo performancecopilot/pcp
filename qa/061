@@ -57,6 +57,11 @@ s/posn=[0-9]*/posn=NNN/g
 }' \
 	-e 's/msec numpmid/usec numpmid/' \
 	-e '/^check_local_creds:/d' \
+	-e '/connection accepted on/{
+s/fd=[0-9][0-9]*/fd=N/
+s/'`hostname`'/localhost/
+s/'`hostname -s`'/localhost/
+}' \
 	-e 's/fd=[0-9][0-9]*/fd=N/' \
 	-e 's/localhost\.[a-zA-Z0-9]*/localhost/' \
 	-e "/^control_req:/s/`hostname`/localhost/" \
