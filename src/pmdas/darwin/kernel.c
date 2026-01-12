@@ -27,16 +27,6 @@ extern mach_port_t	mach_host;
 extern int		mach_hertz;
 
 int
-refresh_cpuload(struct host_cpu_load_info *cpuload)
-{
-    int error, info = HOST_CPU_LOAD_INFO;
-    natural_t count = HOST_CPU_LOAD_INFO_COUNT;
-
-    error = host_statistics(mach_host, info, (host_info_t)cpuload, &count);
-    return (error != KERN_SUCCESS) ? -oserror() : 0;
-}
-
-int
 refresh_uname(struct utsname *utsname)
 {
     return (uname(utsname) == -1) ? -oserror() : 0;

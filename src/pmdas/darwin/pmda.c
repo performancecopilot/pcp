@@ -41,6 +41,7 @@
 #include "filesys.h"
 #include "cpu.h"
 #include "loadavg.h"
+#include "cpuload.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -63,7 +64,6 @@ float			mach_loadavg[3] = { 0,0,0 };
 
 int			mach_cpuload_error = 0;
 struct host_cpu_load_info	mach_cpuload = { { 0 } };
-extern int refresh_cpuload(struct host_cpu_load_info *);
 
 int			mach_vmstat_error = 0;
 struct vm_statistics64	mach_vmstat = { 0 };
@@ -190,32 +190,6 @@ darwin_refresh(int *need_refresh)
 	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
     if (need_refresh[CLUSTER_TCP])
 	mach_tcp_error = refresh_tcp(&mach_tcp);
-}
-
-static inline int
-fetch_cpuload(unsigned int item, pmAtomValue *atom)
-{
-    if (mach_cpuload_error)
-	return mach_cpuload_error;
-    switch (item) {
-    case 42: /* kernel.all.cpu.user */
-	atom->ull = LOAD_SCALE * (double)
-		mach_cpuload.cpu_ticks[CPU_STATE_USER] / mach_hertz;
-        return 1;
-    case 43: /* kernel.all.cpu.nice */
-	atom->ull = LOAD_SCALE * (double)
-		mach_cpuload.cpu_ticks[CPU_STATE_NICE] / mach_hertz;
-        return 1;
-    case 44: /* kernel.all.cpu.sys */
-	atom->ull = LOAD_SCALE * (double)
-		mach_cpuload.cpu_ticks[CPU_STATE_SYSTEM] / mach_hertz;
-        return 1;
-    case 45: /* kernel.all.cpu.idle */
-	atom->ull = LOAD_SCALE * (double)
-		mach_cpuload.cpu_ticks[CPU_STATE_IDLE] / mach_hertz;
-        return 1;
-    }
-    return PM_ERR_PMID;
 }
 
 static inline int
