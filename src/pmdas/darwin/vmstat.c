@@ -88,7 +88,9 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
 		atom->ull = page_count_to_kb(mach_vmstat.free_count);
 		return 1;
 	case 23: /* mem.util.used */
-		atom->ull = page_count_to_kb(mach_vmstat.wire_count+mach_vmstat.active_count+mach_vmstat.inactive_count);
+		atom->ull = page_count_to_kb(mach_vmstat.wire_count +
+				mach_vmstat.active_count +
+				mach_vmstat.inactive_count);
 		return 1;
 	case 24: /* swap.length */
 		if (mach_swap_error)
