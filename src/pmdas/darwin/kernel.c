@@ -27,16 +27,6 @@ extern mach_port_t	mach_host;
 extern int		mach_hertz;
 
 int
-refresh_vmstat(struct vm_statistics64 *vmstat)
-{
-    int error, info = HOST_VM_INFO64;
-    natural_t count = HOST_VM_INFO64_COUNT;
-
-    error = host_statistics64(mach_host, info, (host_info_t)vmstat, &count);
-    return (error != KERN_SUCCESS) ? -oserror() : 0;
-}
-
-int
 refresh_cpuload(struct host_cpu_load_info *cpuload)
 {
     int error, info = HOST_CPU_LOAD_INFO;
@@ -77,17 +67,6 @@ refresh_loadavg(float *loadavg)
     loadavg[0] = (float)loadavgs.ldavg[0] / (float)loadavgs.fscale;
     loadavg[1] = (float)loadavgs.ldavg[1] / (float)loadavgs.fscale;
     loadavg[2] = (float)loadavgs.ldavg[2] / (float)loadavgs.fscale;
-    return 0;
-}
-
-int
-refresh_swap(struct xsw_usage *swapusage)
-{
-    int		mib[2] = { CTL_VM, VM_SWAPUSAGE };
-    size_t	size = sizeof(struct xsw_usage);
-
-    if (sysctl(mib, 2, swapusage, &size, NULL, 0) == -1)
-	return -oserror();
     return 0;
 }
 

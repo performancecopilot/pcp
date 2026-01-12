@@ -36,11 +36,8 @@
 #include "sockstat.h"
 #include "tcpconn.h"
 #include "tcp.h"
+#include "vmstat.h"
 #include "metrics.h"
-
-
-#define page_count_to_kb(x) (((__uint64_t)(x) << mach_page_shift) >> 10)
-#define page_count_to_mb(x) (((__uint64_t)(x) << mach_page_shift) >> 20)
 
 static pmdaInterface		dispatch;
 static int			_isDSO = 1;	/* =0 I am a daemon */
@@ -237,68 +234,6 @@ fetch_cpuload(unsigned int item, pmAtomValue *atom)
 	atom->ull = LOAD_SCALE * (double)
 		mach_cpuload.cpu_ticks[CPU_STATE_IDLE] / mach_hertz;
         return 1;
-    }
-    return PM_ERR_PMID;
-}
-
-static inline int
-fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
-{
-    if (mach_vmstat_error)
-	return mach_vmstat_error;
-    switch (item) {
-    case 2: /* hinv.physmem */
-	atom->ul = (__uint32_t)page_count_to_mb(
-			mach_vmstat.free_count + mach_vmstat.wire_count +
-			mach_vmstat.active_count + mach_vmstat.inactive_count);
-	return 1;
-    case 3: /* mem.physmem */
-	atom->ull = page_count_to_kb(
-			mach_vmstat.free_count + mach_vmstat.wire_count +
-			mach_vmstat.active_count + mach_vmstat.inactive_count);
-	return 1;
-    case 4: /* mem.freemem */
-	atom->ull = page_count_to_kb(mach_vmstat.free_count);
-	return 1;
-    case 5: /* mem.active */
-	atom->ull = page_count_to_kb(mach_vmstat.active_count);
-	return 1;
-    case 6: /* mem.inactive */
-	atom->ull = page_count_to_kb(mach_vmstat.inactive_count);
-	return 1;
-    case 19: /* mem.util.wired */
-	atom->ull = page_count_to_kb(mach_vmstat.wire_count);
-	return 1;
-    case 20: /* mem.util.active */
-	atom->ull = page_count_to_kb(mach_vmstat.active_count);
-	return 1;
-    case 21: /* mem.util.inactive */
-	atom->ull = page_count_to_kb(mach_vmstat.inactive_count);
-	return 1;
-    case 22: /* mem.util.free */
-	atom->ull = page_count_to_kb(mach_vmstat.free_count);
-	return 1;
-    case 23: /* mem.util.used */
-	atom->ull = page_count_to_kb(mach_vmstat.wire_count+mach_vmstat.active_count+mach_vmstat.inactive_count);
-	return 1;
-    case 24: /* swap.length */
-	if (mach_swap_error)
-	    return mach_swap_error;
-	atom->ull = mach_swap.xsu_total >> 10;  // bytes to KB
-	return 1;
-    case 25: /* swap.used */
-	if (mach_swap_error)
-	    return mach_swap_error;
-	atom->ull = mach_swap.xsu_used >> 10;   // bytes to KB
-	return 1;
-    case 26: /* swap.free */
-	if (mach_swap_error)
-	    return mach_swap_error;
-	atom->ull = mach_swap.xsu_avail >> 10;  // bytes to KB
-	return 1;
-    case 130: /* mem.util.compressed */
-	atom->ull = page_count_to_kb(mach_vmstat.compressor_page_count);
-	return 1;
     }
     return PM_ERR_PMID;
 }
