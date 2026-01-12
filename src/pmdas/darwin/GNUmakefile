@@ -28,8 +28,8 @@ MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
 MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
 
-CFILES		= pmda.c kernel.c disk.c network.c nfs.c vfs.c udp.c icmp.c sockstat.c tcpconn.c tcp.c vmstat.c filesys.c cpu.c version.c metrics.c
-HFILES		= disk.h network.h nfs.h vfs.h udp.h icmp.h sockstat.h tcpconn.h tcp.h vmstat.h filesys.h cpu.h metrics.h
+CFILES		= pmda.c kernel.c disk.c network.c nfs.c vfs.c udp.c icmp.c sockstat.c tcpconn.c tcp.c vmstat.c filesys.c cpu.c loadavg.c version.c metrics.c
+HFILES		= disk.h network.h nfs.h vfs.h udp.h icmp.h sockstat.h tcpconn.h tcp.h vmstat.h filesys.h cpu.h loadavg.h metrics.h
 
 LSRCFILES	= help root pmns
 

@@ -40,6 +40,7 @@
 #include "vmstat.h"
 #include "filesys.h"
 #include "cpu.h"
+#include "loadavg.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -59,7 +60,6 @@ extern int refresh_uname(struct utsname *);
 
 int			mach_loadavg_error = 0;
 float			mach_loadavg[3] = { 0,0,0 };
-extern int refresh_loadavg(float *);
 
 int			mach_cpuload_error = 0;
 struct host_cpu_load_info	mach_cpuload = { { 0 } };
@@ -190,26 +190,6 @@ darwin_refresh(int *need_refresh)
 	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
     if (need_refresh[CLUSTER_TCP])
 	mach_tcp_error = refresh_tcp(&mach_tcp);
-}
-
-static inline int
-fetch_loadavg(unsigned int item, unsigned int inst, pmAtomValue *atom)
-{
-    if (mach_loadavg_error)
-	return mach_loadavg_error;
-    switch (item) {
-    case 30:  /* kernel.all.load */
-	if (inst == 1)
-	    atom->f = mach_loadavg[0];
-	else if (inst == 5)
-	    atom->f = mach_loadavg[1];
-	else if (inst == 15)
-	    atom->f = mach_loadavg[2];
-	else
-	    return PM_ERR_INST; 
-	return 1;
-    }
-    return PM_ERR_PMID;
 }
 
 static inline int

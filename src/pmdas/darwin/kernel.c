@@ -56,21 +56,6 @@ refresh_hertz(unsigned int *hertz)
 }
 
 int
-refresh_loadavg(float *loadavg)
-{
-    int			mib[2] = { CTL_VM, VM_LOADAVG };
-    size_t		size = sizeof(struct loadavg);
-    struct loadavg	loadavgs;
-
-    if (sysctl(mib, 2, &loadavgs, &size, NULL, 0) == -1)
-	return -oserror();
-    loadavg[0] = (float)loadavgs.ldavg[0] / (float)loadavgs.fscale;
-    loadavg[1] = (float)loadavgs.ldavg[1] / (float)loadavgs.fscale;
-    loadavg[2] = (float)loadavgs.ldavg[2] / (float)loadavgs.fscale;
-    return 0;
-}
-
-int
 refresh_uptime(unsigned int *uptime)
 {
     static struct timeval	boottime;
