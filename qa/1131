@@ -31,6 +31,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 A="$here/archives/rep"
+A1="$here/archives/20180606"
 hostname=`hostname`
 machineid=`_machine_id`
 domainid=`_domain_name`
@@ -97,6 +98,8 @@ echo "---"
 pcp2openmetrics -s1 -z hinv.ncpu | _filter_pcp2openmetrics
 echo "---"
 pcp2openmetrics -s2 -x hinv.ncpu | _filter_pcp2openmetrics
+echo "---"
+pcp2openmetrics -s2 -a $A1 hinv.ncpu disk.partitions.write | _archive_filter
 echo "---"
 pcp2opentelemetry -s1 -H -z hinv.ncpu | _filter_pcp2opentelemetry
 echo "---"
