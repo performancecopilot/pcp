@@ -51,7 +51,7 @@ fi
 # 
 _notrun()
 {
-    echo $@ >$here/$seq.notrun
+    echo "$@" >$here/$seq.notrun
     echo "$seq: [not run] `cat $here/$seq.notrun`"
     rm -f $here/$seq.pre-avc
     _exit 0
