@@ -45,6 +45,8 @@ do
 
    g)	    # include group
 	    rm -f $tmp.tmp
+	    touch $tmp.empty
+	    touch $tmp.from-g
 	    sed -n <group \
 		-e 's/\([0-9]\):retired /\1 /' \
 		-e 's/\([0-9]\):reserved /\1 /' \
@@ -54,13 +56,14 @@ s/ .*//p
 }' \
 	    | while read seq
 	    do
+		rm -f $tmp.empty
 		[ -f "$seq.out.bad" ] && echo "$seq" >>$tmp.tmp
 	    done
 	    if [ -s $tmp.tmp ]
 	    then
-		touch $tmp.from-g
 		LC_COLLATE=POSIX sort -u -o $tmp.from-g $tmp.from-g $tmp.tmp
-	    else
+	    elif [ -f $tmp.empty ]
+	    then
 		echo "Group \"$OPTARG\" is empty or not defined; ignored" >&2
 	    fi
 	    ;;
@@ -76,6 +79,8 @@ s/ .*//p
 
    x)	    # exclude group
 	    rm -f $tmp.tmp
+	    touch $tmp.empty
+	    touch $tmp.from-x
 	    sed -n <group \
 		-e 's/\([0-9]\):retired /\1 /' \
 		-e 's/\([0-9]\):reserved /\1 /' \
@@ -85,13 +90,15 @@ s/ .*//p
 }' \
 	    | while read seq
 	    do
+		rm -f $tmp.empty
 		[ -f "$seq.out.bad" ] && echo "$seq" >>$tmp.tmp
 	    done
 	    if [ -s $tmp.tmp ]
 	    then
 		touch $tmp.from-x
 		LC_COLLATE=POSIX sort -u -o $tmp.from-x $tmp.from-x $tmp.tmp
-	    else
+	    elif [ -f $tmp.empty ]
+	    then
 		echo "Group \"$OPTARG\" is empty or not defined; ignored" >&2
 	    fi
 	    ;;
