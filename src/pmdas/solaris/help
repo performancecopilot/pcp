@@ -27,6 +27,30 @@
 # blank lines before the @ line are ignored
 #
 
+# instance domains
+#
+@ 75.0 set of all disks
+@ 75.1 set of all CPUs
+@ 75.2 set of network interfaces
+@ 75.3 set of all ZFS storage pools (zpools)
+@ 75.4 set of ZFS datasets (filesystems, snapshots or volumes)
+@ 75.5 set of disks in each ZFS storage pool
+The instance name is of the form <storage_pool_name>.<disk_name>,
+e.g. "rpool.c2d1s0"
+@ 75.6 set of all network links
+@ 75.7 set of ZFS snapshots
+The instance name is of the form <dataset_name>@<timestamp>, e.g.
+"rpool/ROOT/mypool@install" or "rpool/ROOT/mypool@2026-01-07-20:48:48".
+@ 75.8 load averages for 1, 5, and 15 minutes
+@ 75.9 set of metric groups managed internally by the solaris PMDA
+@ 75.10 one instance for each metric exported from the solaris PMDA
+Used for internal monitoring of activity and time against the metrics.
+@ 75.11 set of mounted filesystems
+@ 75.12 set of mounted filesystem types
+For example: "zfs" or "tmpfs" or "nfsv4" or ...
+
+# metrics
+#
 @ kernel.all.cpu.idle Amount of time CPUs were idle
 @ kernel.all.cpu.user Amount of time spent executing userspace tasks
 @ kernel.all.cpu.sys Amount of time spent executing kernel code
