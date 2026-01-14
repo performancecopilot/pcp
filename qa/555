@@ -24,11 +24,14 @@ esac
 rm -f $seq.out
 case $PCP_PLATFORM
 in
+    solaris)
+	_notrun "cannot get sysligd to play on Solaris"
+	;;
     linux)
 	ln $seq.$PCP_PLATFORM $seq.out || exit 1
 	hostname=`hostname -f | sed -e 's/\..*//'`
 	;;
-    darwin|solaris|openbsd|freebsd)
+    darwin|openbsd|freebsd)
 	ln $seq.linux $seq.out || exit 1
 	hostname=`hostname | sed -e 's/\..*//'`
 	;;
@@ -83,7 +86,7 @@ elif [ -f /etc/syslog.conf ]
 then
     # regular old syslogd
     #
-    ( echo "smells like old syslogd"; ls -l /etc/rsyslog.conf ) >>/tmp/syslog.full 2>&1
+    ( echo "smells like old syslogd"; ls -l /etc/syslog.conf ) >>/tmp/syslog.full 2>&1
     daemon=syslogd
     config=/etc/syslog.conf
 else
@@ -182,10 +185,11 @@ setup()
 
 # real QA test starts here
 echo "ps before setup ..." >>/tmp/syslog.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[s]yslog( |$)' >>/tmp/syslog.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[s]yslogd( |$)' >>/tmp/syslog.full
 setup
 echo "ps after setup ..." >>/tmp/syslog.full
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[s]yslog( |$)' >>/tmp/syslog.full
+$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[s]yslogd( |$)' >>/tmp/syslog.full
+read x </dev/tty
 
 # syslog	logger -p
 # 5D		daemon.notice		<--- default
