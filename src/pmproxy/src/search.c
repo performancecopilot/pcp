@@ -82,7 +82,7 @@ pmsearch_data_release(struct client *client)
     pmSearchBaton	*baton = (pmSearchBaton *)client->u.http.data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: %p for client %p\n", "pmsearch_data_release",
+	fprintf(stderr, "%s: " PRINTF_P_PFX "%p for client " PRINTF_P_PFX "%p\n", "pmsearch_data_release",
 			baton, client);
 
     sdsfree(baton->suffix);
@@ -262,7 +262,7 @@ static void
 pmsearch_setup(void *arg)
 {
     if (pmDebugOptions.search)
-	fprintf(stderr, "search module setup (arg=%p)\n", arg);
+	fprintf(stderr, "search module setup (arg=" PRINTF_P_PFX "%p)\n", arg);
 }
 
 static void
@@ -466,7 +466,7 @@ static int
 pmsearch_request_headers(struct client *client, struct dict *headers)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "series servlet headers (client=%p)\n", client);
+	fprintf(stderr, "series servlet headers (client=" PRINTF_P_PFX "%p)\n", client);
     return 0;
 }
 
@@ -474,7 +474,7 @@ static int
 pmsearch_request_body(struct client *client, const char *content, size_t length)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "series servlet body (client=%p)\n", client);
+	fprintf(stderr, "series servlet body (client=" PRINTF_P_PFX "%p)\n", client);
     return 0;
 }
 

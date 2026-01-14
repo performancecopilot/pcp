@@ -152,7 +152,7 @@ loggroup_release_archive(uv_handle_t *handle)
     struct archive	*archive = (struct archive *)handle->data;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	fprintf(stderr, "releasing archive %p [refcount=%u]\n",
+	fprintf(stderr, "releasing archive " PRINTF_P_PFX "%p [refcount=%u]\n",
 			archive, archive->refcount);
     loggroup_free_archive(archive);
 }
@@ -161,7 +161,7 @@ static void
 loggroup_drop_archive(struct archive *archive, struct loggroups *groups)
 {
     if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	fprintf(stderr, "destroying archive %p [refcount=%u]\n",
+	fprintf(stderr, "destroying archive " PRINTF_P_PFX "%p [refcount=%u]\n",
 			archive, archive->refcount);
 
     if (loggroup_deref_archive(archive) == 0) {
@@ -185,7 +185,7 @@ loggroup_timeout_archive(uv_timer_t *arg)
     struct archive	*ap = (struct archive *)handle->data;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	fprintf(stderr, "archive %u timed out (%p)\n", ap->randomid, ap);
+	fprintf(stderr, "archive %u timed out (" PRINTF_P_PFX "%p)\n", ap->randomid, ap);
 
     /*
      * Cannot free data structures in the timeout handler, as
@@ -273,7 +273,7 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
     ap->setup = 1;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	fprintf(stderr, "new archive[%d] setup (%p)\n", archive, ap);
+	fprintf(stderr, "new archive[%d] setup (" PRINTF_P_PFX "%p)\n", archive, ap);
 
     return archive;
 }
@@ -299,7 +299,7 @@ loggroup_garbage_collect(struct loggroups *groups)
 
     debug = pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log;
     if (debug)
-	fprintf(stderr, "%s: started for groups %p\n", __FUNCTION__, groups);
+	fprintf(stderr, "%s: started for groups " PRINTF_P_PFX "%p\n", __FUNCTION__, groups);
 
     /* do archive GC if we get the lock */
     if (uv_mutex_trylock(&groups->mutex) != 0)
@@ -317,7 +317,7 @@ loggroup_garbage_collect(struct loggroups *groups)
 	    inactiveset++;
 	if (ap->garbage || (ap->inactive && ap->refcount == 0)) {
 	    if (debug)
-		fprintf(stderr, "GC dropping archive %u (%p)\n",
+		fprintf(stderr, "GC dropping archive %u (" PRINTF_P_PFX "%p)\n",
 				ap->randomid, ap);
 	    uv_mutex_unlock(&groups->mutex);
 	    loggroup_drop_archive(ap, groups);
@@ -338,7 +338,7 @@ loggroup_garbage_collect(struct loggroups *groups)
     /* if dropping the last remaining archive, do cleanup */
     if (groups->active && drops == count) {
 	if (debug)
-	    fprintf(stderr, "%s: freezing groups %p\n", __FUNCTION__, groups);
+	    fprintf(stderr, "%s: freezing groups " PRINTF_P_PFX "%p\n", __FUNCTION__, groups);
 	loggroup_timers_stop(groups);
     }
 
@@ -364,7 +364,7 @@ loggroup_reset_archives(struct loggroups *groups)
 
     debug = pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log;
     if (debug)
-	fprintf(stderr, "%s: started for groups %p\n", __FUNCTION__, groups);
+	fprintf(stderr, "%s: started for groups " PRINTF_P_PFX "%p\n", __FUNCTION__, groups);
 
     uv_mutex_lock(&groups->mutex);
     iterator = dictGetSafeIterator(groups->archives);
@@ -392,7 +392,7 @@ loggroup_reset_archives(struct loggroups *groups)
     /* if dropping the last remaining archive, do cleanup */
     if (groups->active || count) {
 	if (debug)
-	    fprintf(stderr, "%s: freezing groups %p\n", __FUNCTION__, groups);
+	    fprintf(stderr, "%s: freezing groups " PRINTF_P_PFX "%p\n", __FUNCTION__, groups);
 	loggroup_timers_stop(groups);
     }
 
@@ -423,7 +423,7 @@ loggroup_use_archive(struct archive *ap)
 	ap->refcount++;
 
 	if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	    fprintf(stderr, "archive %u timer set (%p) to %u msec\n",
+	    fprintf(stderr, "archive %u timer set (" PRINTF_P_PFX "%p) to %u msec\n",
 			ap->randomid, ap, ap->timeout);
 
 	/* refresh current time: https://github.com/libuv/libuv/issues/1068 */

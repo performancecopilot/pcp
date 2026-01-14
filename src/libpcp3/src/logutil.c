@@ -380,7 +380,7 @@ logFreeHashInDom(__pmHashCtl *hcp)
 	    for (idp = (__pmLogInDom *)hp->data, prior_idp = NULL;
 		idp != NULL; idp = idp->next) {
 		if ((idp->alloc & ~(PMLID_SELF|PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES)) != 0) {
-		    fprintf(stderr, "logFreeHashInDom(%p): Warning: bogus alloc flags: 0x%x for idp=%p\n",
+		    fprintf(stderr, "logFreeHashInDom(" PRINTF_P_PFX "%p): Warning: bogus alloc flags: 0x%x for idp=" PRINTF_P_PFX "%p\n",
 			hcp, idp->alloc & ~(PMLID_SELF|PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES), idp);
 		}
 

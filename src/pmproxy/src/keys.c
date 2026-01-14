@@ -113,7 +113,7 @@ on_key_client_read(struct proxy *proxy, struct client *client,
 		ssize_t nread, const uv_buf_t *buf)
 {
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: client %p\n", "on_key_client_read", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_key_client_read", client);
 
     if (key_server_resp == 0 || proxy->keys_setup == 0 ||
 	keySlotsProxyConnect(proxy->slots,
@@ -127,7 +127,7 @@ void
 on_key_client_write(struct client *client)
 {
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: client %p\n", "on_key_client_write", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_key_client_write", client);
 }
 
 void

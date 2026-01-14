@@ -112,7 +112,7 @@ pmseries_data_release(struct client *client)
     pmSeriesBaton	*baton = (pmSeriesBaton *)client->u.http.data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: %p for client %p\n", "pmseries_data_release",
+	fprintf(stderr, "%s: " PRINTF_P_PFX "%p for client " PRINTF_P_PFX "%p\n", "pmseries_data_release",
 			baton, client);
 
     if (baton->nsids)
@@ -179,7 +179,7 @@ on_pmseries_value(pmSID sid, pmSeriesValue *value, void *arg)
     sds			result = http_get_buffer(baton->client);
 
     if (pmDebugOptions.query && pmDebugOptions.desperate)
-	fprintf(stderr, "on_pmseries_value: arg=%p %s %s %s\n",
+	fprintf(stderr, "on_pmseries_value: arg=" PRINTF_P_PFX "%p %s %s %s\n",
 	    arg, value->timestamp, value->data, value->series);
 
 
@@ -542,7 +542,7 @@ on_pmseries_done(int status, void *arg)
     sds			msg;
 
     if (pmDebugOptions.query && pmDebugOptions.desperate)
-	fprintf(stderr, "on_pmseries_done: arg=%p status=%d\n", arg, status);
+	fprintf(stderr, "on_pmseries_done: arg=" PRINTF_P_PFX "%p status=%d\n", arg, status);
     if (status == 0) {
 	code = HTTP_STATUS_OK;
 	/* complete current response with JSON suffix if needed */
@@ -625,7 +625,7 @@ static void
 pmseries_setup(void *arg)
 {
     if (pmDebugOptions.series)
-	fprintf(stderr, "series module setup (arg=%p)\n", arg);
+	fprintf(stderr, "series module setup (arg=" PRINTF_P_PFX "%p)\n", arg);
 }
 
 static void
@@ -829,7 +829,7 @@ static int
 pmseries_request_headers(struct client *client, struct dict *headers)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "series servlet headers (client=%p)\n", client);
+	fprintf(stderr, "series servlet headers (client=" PRINTF_P_PFX "%p)\n", client);
     return 0;
 }
 
@@ -839,7 +839,7 @@ pmseries_request_body(struct client *client, const char *content, size_t length)
     pmSeriesBaton	*baton = (pmSeriesBaton *)client->u.http.data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "series servlet body (client=%p)\n", client);
+	fprintf(stderr, "series servlet body (client=" PRINTF_P_PFX "%p)\n", client);
 
     if (client->u.http.parser.method != HTTP_POST || client->u.http.parameters != NULL)
 	return 0;

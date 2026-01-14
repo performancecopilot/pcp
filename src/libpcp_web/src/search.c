@@ -348,7 +348,7 @@ pmSearchDiscoverText(pmDiscoverEvent *event,
     int			i, count;
 
     if (pmDebugOptions.discovery || pmDebugOptions.search)
-	fprintf(stderr, "%s: ident=%u type=%u arg=%p\n",
+	fprintf(stderr, "%s: ident=%u type=%u arg=" PRINTF_P_PFX "%p\n",
 			"pmSearchDiscoverText", ident, type, arg);
 
     if (baton == NULL || baton->slots == NULL || baton->slots->search <= 0)

@@ -141,7 +141,7 @@ dochn(char *name, int root)
 		tail = new;
 	    }
 	    if (pmDebugOptions.appl0)
-		fprintf(stderr, "new %p name %s head %p tail %p\n", new, new->name, head, tail);
+		fprintf(stderr, "new " PRINTF_P_PFX "%p name %s head " PRINTF_P_PFX "%p tail " PRINTF_P_PFX "%p\n", new, new->name, head, tail);
 	}
     }
 

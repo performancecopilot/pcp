@@ -131,7 +131,7 @@ pmwebapi_data_release(struct client *client)
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)client->u.http.data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: baton %p for client %p\n", "pmwebapi_data_release",
+	fprintf(stderr, "%s: baton " PRINTF_P_PFX "%p for client " PRINTF_P_PFX "%p\n", "pmwebapi_data_release",
 			baton, client);
 
     sdsfree(baton->name);
@@ -805,7 +805,7 @@ on_pmwebapi_scrape_labels(sds context, pmWebLabelSet *labelset, void *arg)
     struct client	*client = (struct client *)baton->client;
 
     if (pmDebugOptions.labels || pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p (ctx=%s)\n",
+	fprintf(stderr, "%s: client=" PRINTF_P_PFX "%p (ctx=%s)\n",
 			__FUNCTION__, client, context);
 
     if ((baton->client->u.http.flags & HTTP_FLAG_REQ_JSON))
@@ -822,7 +822,7 @@ on_pmwebapi_check(sds context, pmWebAccess *access,
     struct client	*client = (struct client *)baton->client;
 
     if (pmDebugOptions.auth || pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p (ctx=%s) user=%s pass=*** realm=%s\n",
+	fprintf(stderr, "%s: client=" PRINTF_P_PFX "%p (ctx=%s) user=%s pass=*** realm=%s\n",
 		"on_pmwebapi_check", client, context,
 		access->username, access->realm);
 
@@ -857,7 +857,7 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
     sds			quoted, msg;
 
     if (pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p (sts=%d,msg=%s)\n", "on_pmwebapi_done",
+	fprintf(stderr, "%s: client=" PRINTF_P_PFX "%p (sts=%d,msg=%s)\n", "on_pmwebapi_done",
 			client, status, message ? message : "");
 
     if (status == 0) {

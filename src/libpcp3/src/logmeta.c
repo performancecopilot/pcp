@@ -706,7 +706,7 @@ __pmLogLoadMeta(__pmArchCtl *acp)
     char		*recname[TYPE_MAX+1] = { "bad", "desc", "indomv2", "labelv2", "text", "indom", "delta", "label" };
 
     if (pmDebugOptions.logmeta)
-	fprintf(stderr, "__pmLogLoadMeta(acp=%p => name=%s)",
+	fprintf(stderr, "__pmLogLoadMeta(acp=" PRINTF_P_PFX "%p => name=%s)",
 	    acp, acp->ac_log->name);
 
     if (acp->ac_meta_loaded == 1) {
@@ -1159,18 +1159,18 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
     char		strbuf[20];
 
     if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	fprintf(stderr, "__pmLogUndeltaInDom(%s, %p): @", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), idp);
+	fprintf(stderr, "__pmLogUndeltaInDom(%s, " PRINTF_P_PFX "%p): @", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), idp);
 	StrTimestamp(&idp->stamp);
-	fprintf(stderr, " next=%p prior=%p numinst=%d isdelta=%d\n", idp->next, idp->prior, idp->numinst, idp->isdelta);
+	fprintf(stderr, " next=" PRINTF_P_PFX "%p prior=" PRINTF_P_PFX "%p numinst=%d isdelta=%d\n", idp->next, idp->prior, idp->numinst, idp->isdelta);
     }
     /*
      * "next" is in reverse chronological order
      */
     for (tidp = idp->next; tidp != NULL; tidp = tidp->next) {
 	if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	    fprintf(stderr, "try next: %p @", tidp);
+	    fprintf(stderr, "try next: " PRINTF_P_PFX "%p @", tidp);
 	    StrTimestamp(&tidp->stamp);
-	    fprintf(stderr, " next=%p prior=%p numinst=%d isdelta=%d\n", tidp->next, tidp->prior, tidp->numinst, tidp->isdelta);
+	    fprintf(stderr, " next=" PRINTF_P_PFX "%p prior=" PRINTF_P_PFX "%p numinst=%d isdelta=%d\n", tidp->next, tidp->prior, tidp->numinst, tidp->isdelta);
 	}
 	if (!tidp->isdelta)
 	    break;
@@ -1213,9 +1213,9 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	    /*NOTREACHED*/
 	}
 	if (pmDebugOptions.logmeta) {
-	    fprintf(stderr, "__pmLogUndeltaInDom(%s, %p): undelta %p @", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), idp, didp);
+	    fprintf(stderr, "__pmLogUndeltaInDom(%s, " PRINTF_P_PFX "%p): undelta " PRINTF_P_PFX "%p @", pmInDomStr_r(indom, strbuf, sizeof(strbuf)), idp, didp);
 	    StrTimestamp(&didp->stamp);
-	    fprintf(stderr, " next=%p prior=%p numinst=%d (-> %d) isdelta=%d\n", didp->next, didp->prior, didp->numinst, numinst, didp->isdelta);
+	    fprintf(stderr, " next=" PRINTF_P_PFX "%p prior=" PRINTF_P_PFX "%p numinst=%d (-> %d) isdelta=%d\n", didp->next, didp->prior, didp->numinst, numinst, didp->isdelta);
 	}
 	for (i = j = k = 0; i < tidp->numinst || j < didp->numinst; ) {
 	    if (i < tidp->numinst && j < didp->numinst) {
@@ -1893,40 +1893,40 @@ void
 __pmFreeLogInDom(__pmLogInDom *lidp)
 {
     if ((lidp->alloc & ~(PMLID_SELF|PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES)) != 0) {
-	fprintf(stderr, "__pmFreeLogInDom(%p): Warning: bogus alloc flags: 0x%x\n",
+	fprintf(stderr, "__pmFreeLogInDom(" PRINTF_P_PFX "%p): Warning: bogus alloc flags: 0x%x\n",
 		lidp, lidp->alloc & ~(PMLID_SELF|PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES));
     }
 
     if (pmDebugOptions.indom) {
-	fprintf(stderr, "__pmFreeLogInDom(%p) alloc 0x%x numinst %d",
+	fprintf(stderr, "__pmFreeLogInDom(" PRINTF_P_PFX "%p) alloc 0x%x numinst %d",
 		lidp, lidp->alloc, lidp->numinst);
 	if (lidp->instlist == NULL)
 	    fprintf(stderr, " instlist NULL");
 	else {
 	    if (lidp->numinst > 0) {
-		fprintf(stderr, " instlist %p", &lidp->instlist[0]);
+		fprintf(stderr, " instlist " PRINTF_P_PFX "%p", &lidp->instlist[0]);
 		if (lidp->numinst > 1)
-		    fprintf(stderr, "...%p", &lidp->instlist[lidp->numinst-1]);
+		    fprintf(stderr, "..." PRINTF_P_PFX "%p", &lidp->instlist[lidp->numinst-1]);
 	    }
 	}
 	if (lidp->namelist == NULL)
 	    fprintf(stderr, " namelist NULL");
 	else {
 	    if (lidp->numinst > 0) {
-		fprintf(stderr, " namelist %p", &lidp->namelist[0]);
+		fprintf(stderr, " namelist " PRINTF_P_PFX "%p", &lidp->namelist[0]);
 		if (lidp->numinst > 1)
-		    fprintf(stderr, "...%p", &lidp->namelist[lidp->numinst-1]);
+		    fprintf(stderr, "..." PRINTF_P_PFX "%p", &lidp->namelist[lidp->numinst-1]);
 	    }
 	    if (lidp->numinst > 0) {
 		if (lidp->namelist[0] == NULL)
 		    fprintf(stderr, " namelist[0] NULL");
 		else
-		    fprintf(stderr, " namelist[0] %p \"%s\"", lidp->namelist[0], lidp->namelist[0]);
+		    fprintf(stderr, " namelist[0] " PRINTF_P_PFX "%p \"%s\"", lidp->namelist[0], lidp->namelist[0]);
 		if (lidp->numinst > 1) {
 		    if (lidp->namelist[lidp->numinst-1] == NULL)
 			fprintf(stderr, " namelist[%d] NULL", lidp->numinst-1);
 		    else
-			fprintf(stderr, "... namelist[%d] %p \"%s\"", lidp->numinst-1, lidp->namelist[lidp->numinst-1], lidp->namelist[lidp->numinst-1]);
+			fprintf(stderr, "... namelist[%d] " PRINTF_P_PFX "%p \"%s\"", lidp->numinst-1, lidp->namelist[lidp->numinst-1], lidp->namelist[lidp->numinst-1]);
 		}
 	    }
 	}

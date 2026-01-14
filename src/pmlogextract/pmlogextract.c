@@ -172,22 +172,22 @@ dump_state(void)
 	if (inarch[i].pb[LOG] == NULL)
 	    fprintf(stderr, " NULL");
 	else
-	    fprintf(stderr, " %p", inarch[i].pb[LOG]);
+	    fprintf(stderr, " " PRINTF_P_PFX "%p", inarch[i].pb[LOG]);
 	fprintf(stderr, " META PDU");
 	if (inarch[i].pb[META] == NULL)
 	    fprintf(stderr, " NULL");
 	else
-	    fprintf(stderr, " %p", inarch[i].pb[META]);
+	    fprintf(stderr, " " PRINTF_P_PFX "%p", inarch[i].pb[META]);
 	fprintf(stderr, " result");
 	if (inarch[i]._result == NULL)
 	    fprintf(stderr, " NULL");
 	else
-	    fprintf(stderr, " %p", inarch[i]._result);
+	    fprintf(stderr, " " PRINTF_P_PFX "%p", inarch[i]._result);
 	fprintf(stderr, " Nresult");
 	if (inarch[i]._Nresult == NULL)
 	    fprintf(stderr, " NULL");
 	else
-	    fprintf(stderr, " %p", inarch[i]._Nresult);
+	    fprintf(stderr, " " PRINTF_P_PFX "%p", inarch[i]._Nresult);
 	fprintf(stderr, " laststamp ");
 	__pmPrintTimestamp(stderr, &inarch[i].laststamp);
 	fprintf(stderr, " mark %d", inarch[i].mark);

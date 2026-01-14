@@ -58,7 +58,7 @@ void
 __pmHostEntFree(__pmHostEnt *hostent)
 {
     if (pmDebugOptions.desperate)
-        fprintf(stderr, "%s:__pmHostEntFree(hostent=%p) name=%p (%s) addresses=%p\n", __FILE__, hostent, hostent->name, hostent->name, hostent-> addresses);
+        fprintf(stderr, "%s:__pmHostEntFree(hostent=" PRINTF_P_PFX "%p) name=" PRINTF_P_PFX "%p (%s) addresses=" PRINTF_P_PFX "%p\n", __FILE__, hostent, hostent->name, hostent->name, hostent-> addresses);
     if (hostent->name != NULL)
         free(hostent->name);
     if (hostent->addresses != NULL)

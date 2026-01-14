@@ -2345,7 +2345,7 @@ pmDiscoverRegister(const char *dir, pmDiscoverModule *module,
 		return -ENOMEM;
 	    discoverCallBackTable = cbp;
 	    if (pmDebugOptions.discovery)
-		fprintf(stderr, "%s: new handle [%d] for callbacks %p\n",
+		fprintf(stderr, "%s: new handle [%d] for callbacks " PRINTF_P_PFX "%p\n",
 			__FUNCTION__, avail_handle, callbacks);
 	}
 	handle = avail_handle;

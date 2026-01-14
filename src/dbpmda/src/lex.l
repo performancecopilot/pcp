@@ -291,7 +291,7 @@ dbpmdaGetc(char * inbuf)
 done:
 #endif
 #ifdef DESPERATE
-    fprintf(stderr, "dbpmdaGetc: yyin=%p (%d) using_readline=%d lastc=%x \"%c\" inch=%x \"%c\"\n", yyin, fileno(yyin), using_readline, lastc & 0xff, lastc, inch & 0xff, inch);
+    fprintf(stderr, "dbpmdaGetc: yyin=" PRINTF_P_PFX "%p (%d) using_readline=%d lastc=%x \"%c\" inch=%x \"%c\"\n", yyin, fileno(yyin), using_readline, lastc & 0xff, lastc, inch & 0xff, inch);
 #endif
     return inch;
 }

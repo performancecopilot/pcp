@@ -41,14 +41,14 @@ pdubufdump(void)
     if (buf_free != NULL) {
 	fprintf(stderr, "   free pdubuf[size]:");
 	for (pcp = buf_free; pcp != NULL; pcp = pcp->bc_next)
-	    fprintf(stderr, " 0x%p[%d]", pcp->bc_buf, pcp->bc_size);
+	    fprintf(stderr, " " PRINTF_P_PFX "%p[%d]", pcp->bc_buf, pcp->bc_size);
 	fputc('\n', stderr);
     }
 
     if (buf_pin != NULL) {
 	fprintf(stderr, "   pinned pdubuf[pincnt]:");
 	for (pcp = buf_pin; pcp != NULL; pcp = pcp->bc_next)
-	    fprintf(stderr, " 0x%p[%d]", pcp->bc_buf, pcp->bc_pincnt);
+	    fprintf(stderr, " " PRINTF_P_PFX "%p[%d]", pcp->bc_buf, pcp->bc_pincnt);
 	fputc('\n', stderr);
     }
 }
@@ -79,7 +79,7 @@ __pmtracefindPDUbuf(int need)
 
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDUBUF) {
-	fprintf(stderr, "__pmtracefindPDUbuf(%d) -> 0x%p\n", need, pcp->bc_buf);
+	fprintf(stderr, "__pmtracefindPDUbuf(%d) -> " PRINTF_P_PFX "%p\n", need, pcp->bc_buf);
 	pdubufdump();
     }
 #endif
@@ -123,7 +123,7 @@ __pmtracepinPDUbuf(void *handle)
 	else {
 #ifdef PMTRACE_DEBUG
 	    if (__pmstate & PMTRACE_STATE_PDUBUF) {
-		fprintf(stderr, "__pmtracepinPDUbuf: 0x%p not in pool!", handle);
+		fprintf(stderr, "__pmtracepinPDUbuf: " PRINTF_P_PFX "%p not in pool!", handle);
 		pdubufdump();
 	    }
 #endif
@@ -133,7 +133,7 @@ __pmtracepinPDUbuf(void *handle)
 
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDUBUF)
-	fprintf(stderr, "__pmtracepinPDUbuf(0x%p) -> pdubuf=0x%p, cnt=%d\n",
+	fprintf(stderr, "__pmtracepinPDUbuf(" PRINTF_P_PFX "%p) -> pdubuf=" PRINTF_P_PFX "%p, cnt=%d\n",
 	    handle, pcp->bc_buf, pcp->bc_pincnt);
 #endif
     return;
@@ -153,7 +153,7 @@ __pmtraceunpinPDUbuf(void *handle)
     if (pcp == NULL) {
 #ifdef PMTRACE_DEBUG
 	if (__pmstate & PMTRACE_STATE_PDUBUF) {
-	    fprintf(stderr, "__pmtraceunpinPDUbuf(0x%p) -> fails\n", handle);
+	    fprintf(stderr, "__pmtraceunpinPDUbuf(" PRINTF_P_PFX "%p) -> fails\n", handle);
 	    pdubufdump();
 	}
 #endif
@@ -174,7 +174,7 @@ __pmtraceunpinPDUbuf(void *handle)
 
 #ifdef PMTRACE_DEBUG
     if (__pmstate & PMTRACE_STATE_PDUBUF)
-	fprintf(stderr, "__pmtraceunpinPDUbuf(0x%p) -> pdubuf=0x%p, pincnt=%d\n",
+	fprintf(stderr, "__pmtraceunpinPDUbuf(" PRINTF_P_PFX "%p) -> pdubuf=" PRINTF_P_PFX "%p, pincnt=%d\n",
 		handle, pcp->bc_buf, pcp->bc_pincnt);
 #endif
 

@@ -94,7 +94,7 @@ webgroup_release_context(uv_handle_t *handle)
     struct context	*context = (struct context *)handle->data;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "releasing context %p [refcount=%u]\n",
+	fprintf(stderr, "releasing context " PRINTF_P_PFX "%p [refcount=%u]\n",
 			context, context->refcount);
     pmwebapi_free_context(context);
 }
@@ -103,7 +103,7 @@ static void
 webgroup_drop_context(struct context *context, struct webgroups *groups)
 {
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "destroying context %p [refcount=%u]\n",
+	fprintf(stderr, "destroying context " PRINTF_P_PFX "%p [refcount=%u]\n",
 			context, context->refcount);
 
     if (webgroup_deref_context(context) == 0) {
@@ -127,7 +127,7 @@ webgroup_timeout_context(uv_timer_t *arg)
     struct context	*cp = (struct context *)handle->data;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "context %u timed out (%p)\n", cp->randomid, cp);
+	fprintf(stderr, "context %u timed out (" PRINTF_P_PFX "%p)\n", cp->randomid, cp);
 
     /*
      * Cannot free data structures in the timeout handler, as
@@ -287,7 +287,7 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     cp->setup = 1;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "new context[%d] setup (%p)\n", cp->randomid, cp);
+	fprintf(stderr, "new context[%d] setup (" PRINTF_P_PFX "%p)\n", cp->randomid, cp);
 
     return cp;
 }
@@ -311,7 +311,7 @@ webgroup_garbage_collect(struct webgroups *groups)
     unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
-	fprintf(stderr, "%s: started for groups %p\n",
+	fprintf(stderr, "%s: started for groups " PRINTF_P_PFX "%p\n",
 			"webgroup_garbage_collect", groups);
 
     /* do context GC if we get the lock (else don't block here) */
@@ -328,7 +328,7 @@ webgroup_garbage_collect(struct webgroups *groups)
 		inactiveset++;
 	    if (cp->garbage || (cp->inactive && cp->refcount == 0)) {
 		if (pmDebugOptions.http || pmDebugOptions.libweb)
-		    fprintf(stderr, "GC dropping context %u (%p)\n",
+		    fprintf(stderr, "GC dropping context %u (" PRINTF_P_PFX "%p)\n",
 				    cp->randomid, cp);
 		uv_mutex_unlock(&groups->mutex);
 		webgroup_drop_context(cp, groups);
@@ -342,7 +342,7 @@ webgroup_garbage_collect(struct webgroups *groups)
 	/* if dropping the last remaining context, do cleanup */
 	if (groups->active && drops == count) {
 	    if (pmDebugOptions.http || pmDebugOptions.libweb)
-		fprintf(stderr, "%s: freezing groups %p\n",
+		fprintf(stderr, "%s: freezing groups " PRINTF_P_PFX "%p\n",
 				"webgroup_garbage_collect", groups);
 	    webgroup_timers_stop(groups);
 	}
@@ -393,7 +393,7 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 	}
 
 	if (pmDebugOptions.http || pmDebugOptions.libweb)
-	    fprintf(stderr, "context %u timer set (%p) to %u msec\n",
+	    fprintf(stderr, "context %u timer set (" PRINTF_P_PFX "%p) to %u msec\n",
 			cp->randomid, cp, cp->timeout);
 
 	/* refresh current time: https://github.com/libuv/libuv/issues/1068 */
@@ -477,7 +477,7 @@ pmWebGroupContext(pmWebGroupSettings *sp, sds id, dict *params, void *arg)
 	context.labels = cp->labels;
 
 	if (pmDebugOptions.libweb)
-	    fprintf(stderr, "%s: new context %p\n", "pmWebGroupContext", cp);
+	    fprintf(stderr, "%s: new context " PRINTF_P_PFX "%p\n", "pmWebGroupContext", cp);
 
 	sp->callbacks.on_context(id, &context, arg);
 	sdsfree(context.source);
@@ -505,7 +505,7 @@ pmWebGroupDestroy(pmWebGroupSettings *settings, sds id, void *arg)
 	gp = settings->module.privdata;
 
 	if (pmDebugOptions.libweb)
-	    fprintf(stderr, "%s: destroy context %p gp=%p\n", "pmWebGroupDestroy", cp, gp);
+	    fprintf(stderr, "%s: destroy context " PRINTF_P_PFX "%p gp=" PRINTF_P_PFX "%p\n", "pmWebGroupDestroy", cp, gp);
 
 	webgroup_deref_context(cp);
 	webgroup_drop_context(cp, gp);

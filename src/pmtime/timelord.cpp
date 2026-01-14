@@ -13,6 +13,7 @@
  */
 #include "timelord.h"
 #include <stdlib.h>
+#include <pcp/pmapi.h>
 
 TimeClient::TimeClient(QTcpSocket *s, QObject *p) : QObject(p)
 {
@@ -29,7 +30,7 @@ TimeClient::TimeClient(QTcpSocket *s, QObject *p) : QObject(p)
 
 TimeClient::~TimeClient()
 {
-    console->post(PmTime::DebugProtocol, "Destroying client %p", this);
+    console->post(PmTime::DebugProtocol, "Destroying client " PRINTF_P_PFX "%p", this);
     my.state = TimeClient::Disconnected;
     my.source = PmTime::NoSource;
     emit endConnect(this);
@@ -94,7 +95,7 @@ bool TimeClient::writeClient(PmTime::Packet *packet,
 	    break;
 	}
 	console->post(PmTime::DebugProtocol, "TimeClient::writeClient "
-			"SKIP STEP to pos=%llu.%u when client %p in NEED_ACK",
+			"SKIP STEP to pos=%llu.%u when client " PRINTF_P_PFX "%p in NEED_ACK",
 			(unsigned long long) packet->position.tv_sec,
 			(unsigned int) packet->position.tv_usec, this);
 	return false;
@@ -141,19 +142,19 @@ void TimeClient::readClient(void)
     char *payload = NULL;
     int bad = 0, len, sz;
 
-    console->post(PmTime::DebugProtocol, "Reading data from client %p", this);
+    console->post(PmTime::DebugProtocol, "Reading data from client " PRINTF_P_PFX "%p", this);
 
     len = my.socket->read((char *)&packet, sizeof(PmTime::Packet));
     if (len < 0) {
-	console->post(PmTime::DebugProtocol, "Read error on client %p", this);
+	console->post(PmTime::DebugProtocol, "Read error on client " PRINTF_P_PFX "%p", this);
 	bad = 1;
     } else if (packet.magic != PmTime::Magic) {
-	console->post(PmTime::DebugProtocol, "Bad magic (%x) from client %p",
+	console->post(PmTime::DebugProtocol, "Bad magic (%x) from client " PRINTF_P_PFX "%p",
 			packet.magic, this);
 	bad = 1;
     } else if (len != sizeof(PmTime::Packet)) {
 	console->post(PmTime::DebugProtocol,
-			"Bad 1st read (want %d, got %zu) on client %p",
+			"Bad 1st read (want %d, got %zu) on client " PRINTF_P_PFX "%p",
 			len, sizeof(PmTime::Packet), this);
 	bad = 1;
     } else if (packet.length > sizeof(PmTime::Packet)) {
@@ -161,19 +162,19 @@ void TimeClient::readClient(void)
 	payload = (char *)malloc(sz);
 	if (payload == NULL) {
 	    console->post(PmTime::DebugProtocol,
-				"No memory (%d) for second read on client %p",
+				"No memory (%d) for second read on client " PRINTF_P_PFX "%p",
 				sz, this);
 	    bad = 1;
 	} else if ((len = my.socket->read(payload, sz)) != sz) {
 	    console->post(PmTime::DebugProtocol,
-				"Bad 2nd read (want %d, got %d) on client %p",
+				"Bad 2nd read (want %d, got %d) on client " PRINTF_P_PFX "%p",
 				sz, len, this);
 	    bad = 1;
 	}
-	console->post(PmTime::DebugProtocol, "+%d message from client %p",
+	console->post(PmTime::DebugProtocol, "+%d message from client " PRINTF_P_PFX "%p",
 				sz, this);
     } else {
-	console->post(PmTime::DebugProtocol, "good message from client %p",
+	console->post(PmTime::DebugProtocol, "good message from client " PRINTF_P_PFX "%p",
 				this);
     }
 
@@ -184,7 +185,7 @@ void TimeClient::readClient(void)
 	case TimeClient::Disconnected:
 	    if (packet.command == PmTime::Set)
 		console->post(PmTime::DebugProtocol,
-				"%s got new SET from client %p",
+				"%s got new SET from client " PRINTF_P_PFX "%p",
 				__func__, this);
 	    if (packet.source == PmTime::HostSource) {
 		my.source = PmTime::HostSource;
@@ -201,7 +202,7 @@ void TimeClient::readClient(void)
 
 	case TimeClient::ClientConnectSET:
 	    console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"bad client %p command %d in ConnectSET state",
+				"bad client " PRINTF_P_PFX "%p command %d in ConnectSET state",
 				this, packet.command);
 	    break;
 
@@ -216,14 +217,14 @@ void TimeClient::readClient(void)
 	    if (packet.position.tv_sec == my.acktime.tv_sec &&
 		packet.position.tv_usec == my.acktime.tv_usec) {
 		console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"good ACK client=%p (%llu.%u)", this,
+				"good ACK client=" PRINTF_P_PFX "%p (%llu.%u)", this,
 				(unsigned long long) my.acktime.tv_sec,
 				(unsigned int) my.acktime.tv_usec);
 		my.state = TimeClient::ClientReady;
 		break;
 	    }
 	    console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"BAD ACK client=%p (got %llu.%u vs %llu.%u)",
+				"BAD ACK client=" PRINTF_P_PFX "%p (got %llu.%u vs %llu.%u)",
 				this,
 				(unsigned long long) packet.position.tv_sec,
 				(unsigned int) packet.position.tv_usec,
@@ -235,7 +236,7 @@ void TimeClient::readClient(void)
 	case TimeClient::ClientReady:
 	    if (packet.command == PmTime::ACK) {
 		console->post(PmTime::DebugProtocol, "TimeClient:: readClient "
-			      "unexpected client %p ACK in Ready state", this);
+			      "unexpected client " PRINTF_P_PFX "%p ACK in Ready state", this);
 	    }
 	    break;
 	}
@@ -244,7 +245,7 @@ void TimeClient::readClient(void)
 	case PmTime::GUIHide:
 	case PmTime::GUIShow:
 	    console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"HIDE/SHOW from client %p", this);
+				"HIDE/SHOW from client " PRINTF_P_PFX "%p", this);
 	    if (my.source == PmTime::HostSource)
 		my.hc->popup(packet.command == PmTime::GUIShow);
 	    if (my.source == PmTime::ArchiveSource)
@@ -252,14 +253,14 @@ void TimeClient::readClient(void)
 	    break;
 	case PmTime::Bounds:
 	    console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"BOUNDS from client %p", this);
+				"BOUNDS from client " PRINTF_P_PFX "%p", this);
 	    my.ac->addBound(&packet, payload);
 	    break;
 	case PmTime::ACK:
 	    break;
 	default:
 	    console->post(PmTime::DebugProtocol, "TimeClient::readClient "
-				"unknown command %d from client %p",
+				"unknown command %d from client " PRINTF_P_PFX "%p",
 				packet.command, this);
 	    bad = 1;
 	}
@@ -322,7 +323,7 @@ void TimeLord::newConnection(void)
 {
     TimeClient *c = new TimeClient(nextPendingConnection(), this);
 
-    console->post(PmTime::DebugProtocol, "Adding new client %p", c);
+    console->post(PmTime::DebugProtocol, "Adding new client " PRINTF_P_PFX "%p", c);
     c->setContext(my.ac, my.hc);
     connect(c, SIGNAL(endConnect(TimeClient *)),
 		 SLOT(endConnect(TimeClient *)));
@@ -331,7 +332,7 @@ void TimeLord::newConnection(void)
 
 void TimeLord::endConnect(TimeClient *client)
 {
-    console->post(PmTime::DebugProtocol, "Removing client %p", client);
+    console->post(PmTime::DebugProtocol, "Removing client " PRINTF_P_PFX "%p", client);
     my.clientlist.removeAll(client);
     if (my.clientlist.isEmpty()) {
 	console->post(PmTime::DebugProtocol, "No clients remain, exiting");

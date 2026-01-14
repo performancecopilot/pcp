@@ -302,7 +302,7 @@ findFetch(Host *h, Metric *m)
 		exit(1);
 	    }
 	    if (pmDebugOptions.appl1) {
-		fprintf(stderr, "findFetch: fetch=0x%p host=0x%p delta=%.6f handle=%d\n", f, h, h->task->delta, f->handle);
+		fprintf(stderr, "findFetch: fetch=" PRINTF_P_PFX "%p host=" PRINTF_P_PFX "%p delta=%.6f handle=%d\n", f, h, h->task->delta, f->handle);
 	    }
 	}
 	f->next = NULL;
@@ -650,7 +650,7 @@ init(Metric *m, int reinit)
     int		i, j;
 
     if (pmDebugOptions.appl1 && pmDebugOptions.desperate)
-	fprintf(stderr, "%sinitMetric(m=%p %s)\n", reinit ? "re" : "", m, mname);
+	fprintf(stderr, "%sinitMetric(m=" PRINTF_P_PFX "%p %s)\n", reinit ? "re" : "", m, mname);
 
     /* set up temporary context */
     if ((handle = newContext(&m->hname, hconn, 1)) < 0) {

@@ -49,9 +49,9 @@ moreinput(int fd, __pmTracePDU *pdubuf, int len)
 	char		*q;
 
 	jend = (php->len+(int)sizeof(__pmTracePDU)-1)/(int)sizeof(__pmTracePDU);
-	fprintf(stderr, "moreinput: fd=%d pdubuf=0x%p len=%d\n",
+	fprintf(stderr, "moreinput: fd=%d pdubuf=" PRINTF_P_PFX "%p len=%d\n",
 		fd, pdubuf, len);
-	fprintf(stderr, "Piggy-back PDU: %s addr=0x%p len=%d from=%d",
+	fprintf(stderr, "Piggy-back PDU: %s addr=" PRINTF_P_PFX "%p len=%d from=%d",
 		pdutypestr(php->type), php, php->len, php->from);
 	fprintf(stderr, "%03d: ", 0);
 	p = (__pmTracePDU *)php;

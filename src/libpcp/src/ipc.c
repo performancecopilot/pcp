@@ -310,7 +310,7 @@ __pmSetDataIPC(int fd, void *data)
     }
 
     if (pmDebugOptions.context)
-	fprintf(stderr, "__pmSetDataIPC: fd=%d data=%p(sz=%d)\n",
+	fprintf(stderr, "__pmSetDataIPC: fd=%d data=" PRINTF_P_PFX "%p(sz=%d)\n",
 		fd, data, (int)(ipcentrysize - sizeof(__pmIPC)));
 
     dest = ((char *)__pmIPCTablePtr(fd)) + sizeof(__pmIPC);
@@ -337,7 +337,7 @@ __pmDataIPC(int fd, void *data)
     }
     source = ((char *)__pmIPCTablePtr(fd)) + sizeof(__pmIPC);
     if (pmDebugOptions.context && pmDebugOptions.desperate)
-	fprintf(stderr, "__pmDataIPC: fd=%d, data=%p(sz=%d)\n",
+	fprintf(stderr, "__pmDataIPC: fd=%d, data=" PRINTF_P_PFX "%p(sz=%d)\n",
 		fd, source, (int)(ipcentrysize - sizeof(__pmIPC)));
     memcpy(data, source, ipcentrysize - sizeof(__pmIPC));
 

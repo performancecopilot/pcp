@@ -1283,7 +1283,7 @@ pmSeriesDiscoverSource(pmDiscoverEvent *event, void *arg)
     cp = &baton->pmapi.context;
 
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s: new source %s context=%p ctxid=%d\n",
+	fprintf(stderr, "%s: new source %s context=" PRINTF_P_PFX "%p ctxid=%d\n",
 			"pmSeriesDiscoverSource", p->context.name, cp, p->ctx);
 
     cp->context = p->ctx;
@@ -1567,7 +1567,7 @@ pmSeriesDiscoverText(pmDiscoverEvent *event,
 		int ident, int type, char *text, void *arg)
 {
     if (pmDebugOptions.discovery)
-	fprintf(stderr, "%s: ident=%u type=%u arg=%p\n",
+	fprintf(stderr, "%s: ident=%u type=%u arg=" PRINTF_P_PFX "%p\n",
 			"pmSeriesDiscoverText", ident, type, arg);
     (void)event;
 }

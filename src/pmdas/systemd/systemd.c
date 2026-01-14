@@ -227,7 +227,7 @@ systemd_journal_event_filter (void *rp, void *data, size_t size)
 
     assert (ugt == & ctxtab[pmdaGetContext()]);
     if (pmDebugOptions.appl0)
-        pmNotifyErr(LOG_DEBUG, "filter (%d) uid=%d gid=%d data=%p bytes=%u\n",
+        pmNotifyErr(LOG_DEBUG, "filter (%d) uid=%d gid=%d data=" PRINTF_P_PFX "%p bytes=%u\n",
                       pmdaGetContext(), ugt->uid, ugt->gid, data, (unsigned)size);
 
     /* The data/size pair gives the object in the event queue, i.e.,

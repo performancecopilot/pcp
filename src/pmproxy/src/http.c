@@ -332,7 +332,7 @@ http_response_header(struct client *client, unsigned int length, http_code_t sts
 		http_date_string(time(NULL), date, sizeof(date)));
 
     if (pmDebugOptions.http && pmDebugOptions.desperate) {
-	fprintf(stderr, "reply headers for response to client %p\n", client);
+	fprintf(stderr, "reply headers for response to client " PRINTF_P_PFX "%p\n", client);
 	fputs(header, stderr);
     }
     return header;
@@ -422,7 +422,7 @@ http_response_trace(struct client *client, int sts)
 		http_date_string(time(NULL), buffer, sizeof(buffer)));
 
     if (pmDebugOptions.http && pmDebugOptions.desperate) {
-	fprintf(stderr, "trace response to client %p\n", client);
+	fprintf(stderr, "trace response to client " PRINTF_P_PFX "%p\n", client);
 	fputs(header, stderr);
     }
     return header;
@@ -475,7 +475,7 @@ http_response_access(struct client *client, http_code_t sts, http_options_t opti
 		http_date_string(time(NULL), buffer, sizeof(buffer)));
 
     if (pmDebugOptions.http && pmDebugOptions.desperate) {
-	fprintf(stderr, "access response to client %p\n", client);
+	fprintf(stderr, "access response to client " PRINTF_P_PFX "%p\n", client);
 	fputs(header, stderr);
     }
     return header;
@@ -493,7 +493,7 @@ http_reply(struct client *client, sds message,
 
 	if (pmDebugOptions.http)
 	    fprintf(stderr,
-		    "Final streaming HTTP %s response len=%lu (client=%p)\n",
+		    "Final streaming HTTP %s response len=%lu (client=" PRINTF_P_PFX "%p)\n",
 		    http_method_str(client->u.http.parser.method),
 		    client->buffer ? (long unsigned)sdslen(client->buffer) : 0, client);
 
@@ -547,12 +547,12 @@ http_reply(struct client *client, sds message,
 
     if (pmDebugOptions.http) {
 	if (flags & (HTTP_FLAG_GZIP | HTTP_FLAG_DEFLATE))
-	    fprintf(stderr, "HTTP %s compressed response (client=%p) "
+	    fprintf(stderr, "HTTP %s compressed response (client=" PRINTF_P_PFX "%p) "
 			    "len(buffer)=%lu len(suffix)=%lu\n",
 			http_method_str(client->u.http.parser.method), client,
 			(long unsigned)sdslen(buffer), suffix ? (long unsigned)sdslen(suffix) : 0);
 	else
-	    fprintf(stderr, "HTTP %s response (client=%p)\nbuffer=%ssuffix=%s",
+	    fprintf(stderr, "HTTP %s response (client=" PRINTF_P_PFX "%p)\nbuffer=%ssuffix=%s",
 			http_method_str(client->u.http.parser.method), client,
 			buffer, suffix ? suffix : "");
     }
@@ -574,7 +574,7 @@ http_flush(struct client *client)
     buffer = prepare_buffer(client, NULL, flags, 1);
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "HTTP %s compressed flush len=%lu (client=%p)\n",
+	fprintf(stderr, "HTTP %s compressed flush len=%lu (client=" PRINTF_P_PFX "%p)\n",
 		http_method_str(client->u.http.parser.method),
 		buffer ? (long unsigned)sdslen(buffer) : 0, client);
 
@@ -637,7 +637,7 @@ http_error(struct client *client, http_code_t status, const char *errstr)
 		pmGetProgname(), PCP_VERSION);
 
     if (pmDebugOptions.http || pmDebugOptions.desperate) {
-	fprintf(stderr, "sending error %s (%d) to client %p\n",
+	fprintf(stderr, "sending error %s (%d) to client " PRINTF_P_PFX "%p\n",
 			mapping, status, client);
 	if (pmDebugOptions.desperate)
 	    fputs(message, stderr);
@@ -664,7 +664,7 @@ http_transfer(struct client *client)
     if (sdslen(client->buffer) >= chunked_transfer_size) {
 	if (parser->http_major == 1 && parser->http_minor > 0) {
 	    if (pmDebugOptions.http)
-		fprintf(stderr, "Chunked HTTP %s transfer [%lu] (client=%p)\n",
+		fprintf(stderr, "Chunked HTTP %s transfer [%lu] (client=" PRINTF_P_PFX "%p)\n",
 			http_method_str(client->u.http.parser.method),
 			(unsigned long)sdslen(client->buffer), client);
 
@@ -700,11 +700,11 @@ http_transfer(struct client *client)
 		method = http_method_str(client->u.http.parser.method);
 		if (flags & (HTTP_FLAG_GZIP | HTTP_FLAG_DEFLATE))
 		    fprintf(stderr,
-			"HTTP %s compressed buffer (client %p, len=%lu)\n",
+			"HTTP %s compressed buffer (client " PRINTF_P_PFX "%p, len=%lu)\n",
 			method, client, (unsigned long)sdslen(buffer));
 		else
 		    fprintf(stderr,
-			"HTTP %s chunk buffer (client %p, len=%lu)\n%s",
+			"HTTP %s chunk buffer (client " PRINTF_P_PFX "%p, len=%lu)\n%s",
 			method, client, (unsigned long)sdslen(buffer), buffer);
 	    }
 	    client_write(client, buffer, suffix);
@@ -883,7 +883,7 @@ servlet_lookup(struct client *client, const char *offset, size_t length)
 	    break;
     }
     if (servlet && pmDebugOptions.http)
-	fprintf(stderr, "%s servlet accepts URL %s from client %p\n",
+	fprintf(stderr, "%s servlet accepts URL %s from client " PRINTF_P_PFX "%p\n",
 			servlet->name, url, client);
     sdsfree(url);
     return servlet;
@@ -945,7 +945,7 @@ on_body(http_parser *request, const char *offset, size_t length)
     struct servlet	*servlet = client->u.http.servlet;
 
     if (pmDebugOptions.http && pmDebugOptions.desperate)
-	printf("Body: %.*s\n(client=%p)\n", (int)length, offset, client);
+	printf("Body: %.*s\n(client=" PRINTF_P_PFX "%p)\n", (int)length, offset, client);
 
     if (servlet && servlet->on_body)
 	return servlet->on_body(client, offset, length);
@@ -968,7 +968,7 @@ on_header_field(http_parser *request, const char *offset, size_t length)
 
     field = sdsnewlen(offset, length);
     if (pmDebugOptions.http)
-	fprintf(stderr, "Header field: %s (client=%p)\n", field, client);
+	fprintf(stderr, "Header field: %s (client=" PRINTF_P_PFX "%p)\n", field, client);
     /*
      * Insert this header into the dictionary (name only so far);
      * track this header for associating the value to it (below).
@@ -991,7 +991,7 @@ on_header_value(http_parser *request, const char *offset, size_t length)
 
     value = sdsnewlen(offset, length);
     if (pmDebugOptions.http)
-	fprintf(stderr, "Header value: %s (client=%p)\n", value, client);
+	fprintf(stderr, "Header value: %s (client=" PRINTF_P_PFX "%p)\n", value, client);
     entry = (dictEntry *)client->u.http.privdata;
     dictSetVal(client->u.http.headers, entry, value);
     field = (sds)dictGetKey(entry);
@@ -1084,7 +1084,7 @@ on_headers_complete(http_parser *request)
     int			sts = 0;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "HTTP headers complete (client=%p)\n", client);
+	fprintf(stderr, "HTTP headers complete (client=" PRINTF_P_PFX "%p)\n", client);
     if (client->u.http.parser.status_code || !client->u.http.headers)
 	return 0;	/* already in process of failing connection */
 
@@ -1119,7 +1119,7 @@ on_message_begin(http_parser *request)
     struct client	*client = (struct client *)request->data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "HTTP message begin (client=%p)\n", client);
+	fprintf(stderr, "HTTP message begin (client=" PRINTF_P_PFX "%p)\n", client);
     return 0;
 }
 
@@ -1132,7 +1132,7 @@ on_message_complete(http_parser *request)
     int			sts;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "HTTP message complete (client=%p)\n", client);
+	fprintf(stderr, "HTTP message complete (client=" PRINTF_P_PFX "%p)\n", client);
 
     if (servlet) {
 	if (servlet->on_done)
@@ -1159,7 +1159,7 @@ void
 on_http_client_close(struct client *client)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "HTTP client close (client=%p)\n", client);
+	fprintf(stderr, "HTTP client close (client=" PRINTF_P_PFX "%p)\n", client);
 
     http_client_release(client);
     memset(&client->u.http, 0, sizeof(client->u.http));
@@ -1169,7 +1169,7 @@ void
 on_http_client_write(struct client *client)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: client %p\n", "on_http_client_write", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_http_client_write", client);
 
     /*
      * If further compressed writes to process, continue doing so
@@ -1204,7 +1204,7 @@ on_http_client_read(struct proxy *proxy, struct client *client,
     size_t		bytes;
 
     if (pmDebugOptions.http || pmDebugOptions.query)
-	fprintf(stderr, "%s: %lld bytes from HTTP client %p\n",
+	fprintf(stderr, "%s: %lld bytes from HTTP client " PRINTF_P_PFX "%p\n",
 		"on_http_client_read", (long long)nread, client);
 
     if (nread <= 0)
