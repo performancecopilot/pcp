@@ -575,7 +575,6 @@ class ProcessStatusReporter:
         if output_rows:
             self.printer(header)
             self.printer('\n'.join(output_rows))
-
 class ProcessStatReport(pmcc.MetricGroupPrinter):
     Machine_info_count = 0
     group = None
@@ -702,7 +701,7 @@ class ProcessStatOptions(pmapi.pmOptions):
     context = None
 
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "t:c:e::p:ukVZ:z?:o:P:l:U:k:O:d")
+        pmapi.pmOptions.__init__(self, "t:c:e::p:ukVZ:z?:o:P:l:U:k:S:d")
         self.pmSetOptionCallback(self.extraOptions)
         self.pmSetOverrideCallback(self.override)
         self.options()
@@ -723,8 +722,8 @@ class ProcessStatOptions(pmapi.pmOptions):
             "o",
             "[col1,col2,... Or ALL]",
             (
-                "User -defined format USE -o [all] or -B [col1, col2 , ...]\n"
-                "\t\t\tsupported user defined colums are command, wchan, started, Time, pid, ppid, "
+                "User-defined format USE -o [all] or -B [col1, col2 , ...]\n"
+                "\t\t\tsupported user defined columns are command, wchan, started, Time, pid, ppid, "
                 "%mem, pri, user, %cpu and S\n"
                 "\t\t\tALL option shows USER,PID,PPID,PRI,%CPU,%MEM,VSZ,RSS,S,STARTED,TIME,WCHAN and\n"
                 "Command"
@@ -781,7 +780,7 @@ class ProcessStatOptions(pmapi.pmOptions):
                              "Display user-oriented format"
         )
         self.pmSetLongOption(
-            "", 1, "O", "%cpu,%mem",
+            "sort", 1, "S", "%cpu,%mem",
             "sort the process list by %cpu or %mem values "
         )
         self.pmSetLongOption("", 0, "d", "", "enable debug mode")
@@ -793,7 +792,7 @@ class ProcessStatOptions(pmapi.pmOptions):
     def override(self, opts):
         self.print_count = self.pmGetOptionSamples()
         # """Override standard Pcp-ps option to show all process """
-        return bool(opts in ['p', 'c', 'o', 'P', 'U', 'O', 'd'])
+        return bool(opts in ['p', 'c', 'o', 'P', 'U', 'S', 'd'])
 
     def extraOptions(self, opts, optarg, index):
 
@@ -888,7 +887,7 @@ class ProcessStatOptions(pmapi.pmOptions):
             self.universal_flag = "all"
             # self.show_all_process = True
 
-        def handle_O():
+        def handle_S():
             if self.debug_mode:
                 print("Sorting option selected")
             self.sorting_flag = True
@@ -907,7 +906,7 @@ class ProcessStatOptions(pmapi.pmOptions):
             'u': handle_u,
             'o': handle_o,
             'U': handle_U,
-            'O': handle_O,
+            'S': handle_S,
             'd': handle_d,
             None: handle_none,
         }
