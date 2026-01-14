@@ -189,7 +189,6 @@ $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[s]yslogd( |$)' >>/tmp/syslog.
 setup
 echo "ps after setup ..." >>/tmp/syslog.full
 $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[s]yslogd( |$)' >>/tmp/syslog.full
-read x </dev/tty
 
 # syslog	logger -p
 # 5D		daemon.notice		<--- default
