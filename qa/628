@@ -124,16 +124,12 @@ fi
 # real QA test starts here
 pminfo -fm simple.numfetch | tee $tmp.check
 
-if false
+if grep 'No value' $tmp.check >/dev/null 2>&1
 then
+    echo "Bad pminfo trap (No values for simple.numfetch)"
     # enable this trap to debug the infamous e_ext_t bug
     #
-    if grep 'No value' $tmp.check >/dev/null 2>&1
-    then
-	echo "Bad pminfo trap (No values for simple.numfetch)"
-	echo "Continue?"
-	read ans </dev/tty
-    fi
+    #debug# if [ -e /dev/tty ]; then echo "Continue?"; read ans </dev/tty; fi
 fi
 
 echo "=== pmcd log after first pminfo simple ===" >>$seq_full

@@ -67,7 +67,7 @@ fi \
 
 cat $tmp.conf
 
-pmlogconf -D appl0,appl1,appl2 -d $tmp $tmp.conf </dev/tty
+pmlogconf -D appl0,appl1,appl2 -d $tmp $tmp.conf </dev/null
 cat $tmp.conf
 
 # success, all done
