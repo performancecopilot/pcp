@@ -213,7 +213,7 @@ do
     then
 	echo  "Could not find $id.out.bad in `pwd`"
     else
-	if cmp $ref$id.out $badref$id.out.bad >/dev/null
+	if cmp $ref$id.out $badref$id.out.bad >/dev/null 2>&1
 	then
 	    echo " .out.bad and out are the same"
 	else
