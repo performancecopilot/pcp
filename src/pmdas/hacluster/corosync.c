@@ -1,7 +1,7 @@
 /*
  * HA Cluster Corosync statistics.
  *
- * Copyright (c) 2020 - 2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -21,6 +21,7 @@
 #include "libpcp.h"
 #include "pmda.h"
 
+#include "pmdahacluster.h"
 #include "corosync.h"
 
 static char *quorumtool_command;
@@ -29,7 +30,7 @@ static char *cfgtool_command;
 static struct corosync_global global_stats;
 
 int
-hacluster_corosync_node_fetch(int item, struct member_votes *node, pmAtomValue *atom)
+hacluster_corosync_node_fetch(int item, struct corosync_node *node, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_COROSYNC_MEMBER_STATS)
@@ -97,7 +98,7 @@ hacluster_corosync_global_fetch(int item, pmAtomValue *atom)
 }
 
 int
-hacluster_corosync_ring_fetch(int item, struct rings *rings, pmAtomValue *atom)
+hacluster_corosync_ring_fetch(int item, struct corosync_ring *rings, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_COROSYNC_RINGS_STATS)
@@ -140,7 +141,128 @@ hacluster_corosync_ring_all_fetch(int item, pmAtomValue *atom)
 }
 
 int
-hacluster_refresh_corosync_node(const char *node_name, struct member_votes *node)
+hacluster_corosync_node_instance_refresh(void)
+{
+	int			sts, node_id;
+	char		buffer[4096], node_name[128];
+	char		*buffer_ptr;
+	FILE		*pf;
+	pmInDom		indom = hacluster_indom(COROSYNC_NODE_INDOM);
+
+	/*
+	 * Update indom cache based off number of nodes listed in the
+	 * membership information section of corosync-quorumtool output
+	 */
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+	
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", quorumtool_command);
+
+	if ((pf = popen(buffer, "r")) == NULL)
+		return oserror();
+
+	while (fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+		/* Clear whitespace at start of each line */
+		buffer_ptr = buffer;
+		while(isspace((unsigned char)*buffer_ptr)) buffer_ptr++;
+	
+		if(isdigit(buffer_ptr[0])) {
+			/* 
+			 * corosync-quorumtool membership information layout:
+			 * Nodeid	Votes	Qdevice	Name
+			 */
+			sscanf(buffer_ptr, "%d %*d %*s %s", &node_id, node_name);
+			
+			if (node_id == 0) {
+				memset(node_name, '\0', sizeof(node_name));
+				memcpy(node_name, "Qdevice", strlen("Qdevice"));
+			}
+			
+			/* 
+			* At this point node_name contains our device name this will be used to
+		 	* map stats to node instances 
+		 	*/
+			struct  corosync_node *node;
+
+			sts = pmdaCacheLookupName(indom, node_name, NULL, (void **)&node);
+			if (sts == PM_ERR_INST || (sts >=0 && node == NULL)) {
+				node = calloc(1, sizeof(struct corosync_node));
+				if (node == NULL) {
+					pclose(pf);
+					return PM_ERR_AGAIN;
+				}
+			}
+			else if (sts < 0)
+				continue;
+
+			pmdaCacheStore(indom, PMDA_CACHE_ADD, node_name, (void *)node);			
+		}
+	}
+	pclose(pf);
+	return(0);
+}
+
+int
+hacluster_corosync_ring_instance_refresh(void)
+{
+	int			sts;
+	char		buffer[4096], ring_name[128];
+	FILE		*pf;
+	pmInDom		indom = hacluster_indom(COROSYNC_RING_INDOM);
+	pmInDom		indom_all = hacluster_indom(COROSYNC_RING_ALL_INDOM);
+
+	/*
+	 * Update indom cache based off number of nodes listed in the
+	 * membership information section of corosync-quorumtool output
+	 */
+	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
+	pmdaCacheOp(indom_all, PMDA_CACHE_INACTIVE);
+	
+	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", cfgtool_command);
+	
+	if ((pf = popen(buffer, "r")) == NULL)
+		return oserror();
+
+	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
+
+		/* 
+		 * The aim is to find the id and status lines for our corresponding
+		 * ring indom based on the ring id (ring_name)
+		 *
+		 * Check for the exact match that we are in the RING (corosync < v2.99)
+		 * or LINK (corosync v2.99.0+)  details section for our given ring by 
+		 * its ring id (ring_name)
+		 */
+		if (strstr(buffer, "RING ID") || strstr(buffer, "LINK ID")) {
+			/* Collect the ring number while are matching to our ring_name */
+			sscanf(buffer, "%*s %*s %s", ring_name);
+
+			/* 
+			 * At this point node_name contains our device name this will be used to
+			 * map stats to node instances 
+			 */
+			struct  corosync_ring *ring;
+
+			sts = pmdaCacheLookupName(indom, ring_name, NULL, (void **)&ring);
+			if (sts == PM_ERR_INST || (sts >=0 && ring == NULL)) {
+				ring = calloc(1, sizeof(struct corosync_ring));
+				if (ring == NULL) {
+					pclose(pf);
+					return PM_ERR_AGAIN;
+				}
+			}
+			else if (sts < 0)
+				continue;
+
+			pmdaCacheStore(indom, PMDA_CACHE_ADD, ring_name, (void *)ring);
+			pmdaCacheStore(indom_all, PMDA_CACHE_ADD, ring_name, NULL);
+		}
+	}
+	pclose(pf);
+	return(0);
+}
+
+int
+hacluster_refresh_corosync_node(const char *node_name, struct corosync_node *node)
 {
 	char buffer[4096], local[8];
 	char *buffer_ptr;
@@ -240,7 +362,7 @@ hacluster_refresh_corosync_global()
 }
 
 int
-hacluster_refresh_corosync_ring(const char *ring_name, struct rings *rings)
+hacluster_refresh_corosync_ring(const char *ring_name, struct corosync_ring *rings)
 {
 	char buffer[4096];
 	char *buffer_ptr;
