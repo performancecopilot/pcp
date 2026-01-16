@@ -926,7 +926,7 @@ do
 		OpenIndiana*)
 		    # Only selected groups at this stage for OpenIndiana
 		    #
-		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g threads -g logutil -g dbpmda -g pmcheck -g pmlc -x valgrind -x python"
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g threads -g logutil -g dbpmda -g pmcheck -g pmlc -g pmlogdump -x valgrind -x python"
 		    ;;
 
 	    esac
