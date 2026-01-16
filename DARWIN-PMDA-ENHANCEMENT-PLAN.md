@@ -24,9 +24,9 @@
 | 2.6 | COMPLETED | pmrep macOS monitoring views - memory, disk, TCP, protocol overview (commit 9afb1b9e9d + QA fixes 3a2e05e5da) |
 | 3.1 | COMPLETED | Process I/O statistics (commit e0b925a347) |
 | 3.2 | COMPLETED | Process file descriptor count (ready for commit) |
-| 3B.1 | PENDING | PR Feedback: Copyright header updates |
-| 3B.2 | PENDING | PR Feedback: Test infrastructure relocation |
-| 3B.3 | PENDING | PR Feedback: TCP granular error metrics |
+| 3B.1 | COMPLETED | PR Feedback: Copyright header updates (commit d9678a39a0) |
+| 3B.2 | COMPLETED | PR Feedback: Test infrastructure relocation (commit 1f521b1ad1) |
+| 3B.3 | COMPLETED | PR Feedback: TCP granular error metrics (commit 459ab13d36) |
 | 3B.4 | PENDING | PR Feedback: UDP granular error metrics |
 | 3B.5 | PENDING | PR Feedback: TCP state validation logging |
 | 4.1 | PENDING | Transform plan → permanent documentation |
@@ -1212,7 +1212,7 @@ tcps_rcvtotal: 9957250
 
 ### Step 3B.1: Copyright Header Updates
 
-**Status:** PENDING
+**Status:** COMPLETED (commit d9678a39a0)
 
 **Goal:** Add "Paul Smith" to copyright headers in all new/modified darwin PMDA files per PCP project standards.
 
@@ -1254,7 +1254,7 @@ tcps_rcvtotal: 9957250
 
 ### Step 3B.2: Test Infrastructure Relocation
 
-**Status:** PENDING
+**Status:** COMPLETED (commit 1f521b1ad1)
 
 **Goal:** Move `dev/darwin/` to `dev/darwin/` for better discoverability and maintainability.
 
@@ -1299,7 +1299,7 @@ dev/darwin/test/quick-test.sh
 
 ### Step 3B.3: TCP Granular Error Metrics
 
-**Status:** PENDING
+**Status:** COMPLETED (commit 459ab13d36)
 
 **Goal:** Add hierarchical TCP error metrics for diagnostic visibility into individual error types.
 
