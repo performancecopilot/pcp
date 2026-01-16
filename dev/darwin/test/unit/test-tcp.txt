@@ -28,9 +28,21 @@ fetch network.tcp.outsegs
 desc network.tcp.retranssegs
 fetch network.tcp.retranssegs
 
-# TCP error metrics
-desc network.tcp.inerrs
-fetch network.tcp.inerrs
+# TCP error metrics (granular breakdown)
+desc network.tcp.inerrs.total
+fetch network.tcp.inerrs.total
+
+desc network.tcp.inerrs.badsum
+fetch network.tcp.inerrs.badsum
+
+desc network.tcp.inerrs.badoff
+fetch network.tcp.inerrs.badoff
+
+desc network.tcp.inerrs.short
+fetch network.tcp.inerrs.short
+
+desc network.tcp.inerrs.memdrop
+fetch network.tcp.inerrs.memdrop
 
 desc network.tcp.outrsts
 fetch network.tcp.outrsts

@@ -354,9 +354,27 @@ This is the total count of all TCP packets transmitted by the host.
 Count of TCP segments retransmitted due to timeout or loss detection.
 High values may indicate network congestion or packet loss.
 
-@ network.tcp.inerrs TCP input errors
-Count of TCP segments received with errors (bad checksum, bad offset, too short, etc).
-This aggregates multiple error types from the TCP input processing path.
+@ network.tcp.inerrs CLUSTER_TCP
+TCP input error statistics broken down by error type for diagnostic visibility.
+
+@ network.tcp.inerrs.total Total TCP input errors
+Aggregate count of all TCP input errors (sum of badsum, badoff, short, memdrop).
+
+@ network.tcp.inerrs.badsum Bad checksum errors
+TCP segments received with bad checksum. May indicate NIC hardware issues,
+transmission line problems, or network equipment failures.
+
+@ network.tcp.inerrs.badoff Bad offset errors
+TCP segments received with bad header offset. May indicate malformed packets
+or potential security attacks.
+
+@ network.tcp.inerrs.short Truncated packets
+TCP segments received that are too short (truncated). May indicate MTU mismatches,
+packet fragmentation issues, or incomplete transmissions.
+
+@ network.tcp.inerrs.memdrop Memory exhaustion drops
+TCP segments dropped due to memory exhaustion during receive processing.
+Indicates system resource pressure.
 
 @ network.tcp.outrsts TCP reset segments sent
 Count of TCP RST (reset) segments sent.

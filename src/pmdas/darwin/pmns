@@ -248,13 +248,21 @@ network.tcp {
     insegs		DARWIN:17:173
     outsegs		DARWIN:17:174
     retranssegs	DARWIN:17:175
-    inerrs		DARWIN:17:176
+    inerrs
     outrsts		DARWIN:17:177
     incsumerrors	DARWIN:17:178
     rtoalgorithm	DARWIN:17:179
     rtomin		DARWIN:17:180
     rtomax		DARWIN:17:181
     maxconn		DARWIN:17:182
+}
+
+network.tcp.inerrs {
+    total	DARWIN:17:176
+    badsum	DARWIN:17:183
+    badoff	DARWIN:17:184
+    short	DARWIN:17:185
+    memdrop	DARWIN:17:186
 }
 
 nfs3 {

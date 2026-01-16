@@ -288,12 +288,23 @@ run_test "network.tcp.currestab >= 0" "validate_metric network.tcp.currestab non
 run_test "network.tcp.insegs >= 0" "validate_metric network.tcp.insegs non-negative"
 run_test "network.tcp.outsegs >= 0" "validate_metric network.tcp.outsegs non-negative"
 run_test "network.tcp.retranssegs >= 0" "validate_metric network.tcp.retranssegs non-negative"
-run_test "network.tcp.inerrs >= 0" "validate_metric network.tcp.inerrs non-negative"
+run_test "network.tcp.inerrs.total >= 0" "validate_metric network.tcp.inerrs.total non-negative"
 run_test "network.tcp.outrsts >= 0" "validate_metric network.tcp.outrsts non-negative"
 run_test "network.tcp.incsumerrors >= 0" "validate_metric network.tcp.incsumerrors non-negative"
 run_test "network.tcp.rtoalgorithm == 4" "validate_metric network.tcp.rtoalgorithm positive"
 run_test "network.tcp.rtomin == 200" "validate_metric network.tcp.rtomin positive"
 run_test "network.tcp.rtomax == 64000" "validate_metric network.tcp.rtomax positive"
+echo
+
+echo "Test Group: TCP Granular Error Metrics"
+run_test "network.tcp.inerrs.badsum exists" "pminfo -f network.tcp.inerrs.badsum"
+run_test "network.tcp.inerrs.badoff exists" "pminfo -f network.tcp.inerrs.badoff"
+run_test "network.tcp.inerrs.short exists" "pminfo -f network.tcp.inerrs.short"
+run_test "network.tcp.inerrs.memdrop exists" "pminfo -f network.tcp.inerrs.memdrop"
+run_test "network.tcp.inerrs.badsum >= 0" "validate_metric network.tcp.inerrs.badsum non-negative"
+run_test "network.tcp.inerrs.badoff >= 0" "validate_metric network.tcp.inerrs.badoff non-negative"
+run_test "network.tcp.inerrs.short >= 0" "validate_metric network.tcp.inerrs.short non-negative"
+run_test "network.tcp.inerrs.memdrop >= 0" "validate_metric network.tcp.inerrs.memdrop non-negative"
 echo
 
 # Test 15: Process metrics (darwin_proc PMDA)

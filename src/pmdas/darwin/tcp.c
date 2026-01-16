@@ -48,8 +48,8 @@ fetch_tcp(unsigned int item, pmAtomValue *atom)
 		atom->ul = mach_tcpconn.state[TCPS_ESTABLISHED];
 		return 1;
 
-	case 176: /* network.tcp.inerrs */
-		/* Sum of various receive errors */
+	case 176: /* network.tcp.inerrs.total */
+		/* Aggregate of all TCP input errors (items 183-186 provide granular breakdown) */
 		atom->ull = mach_tcp.stats.tcps_rcvbadsum +
 			    mach_tcp.stats.tcps_rcvbadoff +
 			    mach_tcp.stats.tcps_rcvshort +

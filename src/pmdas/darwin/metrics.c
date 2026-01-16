@@ -800,7 +800,7 @@ pmdaMetric metrictab[] = {
   { &mach_tcp.stats.tcps_sndrexmitpack,
     { PMDA_PMID(CLUSTER_TCP,175), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* network.tcp.inerrs */
+/* network.tcp.inerrs.total */
   { NULL,
     { PMDA_PMID(CLUSTER_TCP,176), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
@@ -828,6 +828,22 @@ pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_TCP,182), PM_TYPE_32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* network.tcp.inerrs.badsum */
+  { &mach_tcp.stats.tcps_rcvbadsum,
+    { PMDA_PMID(CLUSTER_TCP,183), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.inerrs.badoff */
+  { &mach_tcp.stats.tcps_rcvbadoff,
+    { PMDA_PMID(CLUSTER_TCP,184), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.inerrs.short */
+  { &mach_tcp.stats.tcps_rcvshort,
+    { PMDA_PMID(CLUSTER_TCP,185), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.tcp.inerrs.memdrop */
+  { &mach_tcp.stats.tcps_rcvmemdrop,
+    { PMDA_PMID(CLUSTER_TCP,186), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 };
 
