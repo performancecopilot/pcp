@@ -256,6 +256,7 @@ BEGIN           { i = 0 }
 	[ $? -eq 0 ] && _PWDCMD="$_PWDCMD -P"
     fi
     _here=`$_PWDCMD`
+    $VERY_VERBOSE && echo >&2 "_parse_log_control: initial pwd=$_here"
 
     if echo "$1" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$'
     then
@@ -270,7 +271,13 @@ BEGIN           { i = 0 }
     | while read host primary socks dir args
     do
 	# start in one place for each iteration (beware of relative paths)
-	cd "$_here"
+	if cd "$_here"
+	then
+	    $VERY_VERBOSE && echo >&2 "_parse_log_control: cd back to $_here"
+	else
+	    _error "_parse_log_control: failed to cd back to $_here"
+	    continue
+	fi
 	line=`expr $line + 1`
 
 	if $VERY_VERBOSE
@@ -659,6 +666,11 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
 
     done
+    if ! cd "$_here"
+    then
+	_error "_parse_log_control: failed to cd back to $_here at return"
+    fi
+    $VERY_VERBOSE && echo >&2 "_parse_log_control: current dir at return: `$_PWDCMD`"
 }
 
 # Called from _callback_log_control() [in pmlogger_check and pmlogger_janitor]
