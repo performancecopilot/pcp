@@ -2,8 +2,8 @@
 
 ## Current Status
 
-**Last Updated:** 2026-01-09
-**Current Step:** Step 3.2 completed (Process FD count), Phase 3 complete, Phase 4 next
+**Last Updated:** 2026-01-17
+**Current Step:** Phase 3 complete, addressing PR #2442 review feedback before Phase 4
 **Pull Request:** https://github.com/performancecopilot/pcp/pull/2442
 
 ## Progress Tracker
@@ -24,6 +24,11 @@
 | 2.6 | COMPLETED | pmrep macOS monitoring views - memory, disk, TCP, protocol overview (commit 9afb1b9e9d + QA fixes 3a2e05e5da) |
 | 3.1 | COMPLETED | Process I/O statistics (commit e0b925a347) |
 | 3.2 | COMPLETED | Process file descriptor count (ready for commit) |
+| 3B.1 | PENDING | PR Feedback: Copyright header updates |
+| 3B.2 | PENDING | PR Feedback: Test infrastructure relocation |
+| 3B.3 | PENDING | PR Feedback: TCP granular error metrics |
+| 3B.4 | PENDING | PR Feedback: UDP granular error metrics |
+| 3B.5 | PENDING | PR Feedback: TCP state validation logging |
 | 4.1 | PENDING | Transform plan → permanent documentation |
 | 4.2 | PENDING | Refactor pmda.c legacy code |
 
@@ -49,8 +54,8 @@
 | `src/pmdas/darwin/kernel.c` | Data collection: refresh_*() functions |
 | `src/pmdas/darwin/darwin.h` | Structure definitions |
 | `src/pmdas/darwin/help` | Metric documentation |
-| `scripts/darwin/test/unit/test-*.txt` | Unit tests (dbpmda) |
-| `scripts/darwin/test/integration/run-integration-tests.sh` | Integration tests |
+| `dev/darwin/test/unit/test-*.txt` | Unit tests (dbpmda) |
+| `dev/darwin/test/integration/run-integration-tests.sh` | Integration tests |
 
 ---
 
@@ -125,7 +130,7 @@ mem.compressor {
 ```
 
 **Tests:**
-- Create `scripts/darwin/test/unit/test-memory-compression.txt` (see "Unit Test Pattern")
+- Create `dev/darwin/test/unit/test-memory-compression.txt` (see "Unit Test Pattern")
 - Add integration test validation to `run-integration-tests.sh` (see "Integration Test Pattern")
 - Invoke `macos-darwin-pmda-qa` agent to validate changes
 
@@ -1102,10 +1107,10 @@ tcps_rcvtotal: 9957250
 - Production-ready code quality
 
 **Testing:**
-- Unit tests added to `scripts/darwin/test/unit/test-proc.txt`:
+- Unit tests added to `dev/darwin/test/unit/test-proc.txt`:
   - Tests proc.io.read_bytes and proc.io.write_bytes
   - Validates metric descriptions and fetchability
-- Integration tests added to `scripts/darwin/test/integration/run-integration-tests.sh`:
+- Integration tests added to `dev/darwin/test/integration/run-integration-tests.sh`:
   - Test Group 16: Process I/O statistics
   - Validates metrics exist and are fetchable
   - Note: Cannot validate specific values as processes may have no I/O yet
@@ -1170,11 +1175,11 @@ tcps_rcvtotal: 9957250
 - Type U32 chosen as sufficient for file descriptor counts (max open files typically < 4 billion)
 
 **Testing:**
-- Unit tests added to `scripts/darwin/test/unit/test-proc.txt`:
+- Unit tests added to `dev/darwin/test/unit/test-proc.txt`:
   - Tests proc.fd.count metric existence and fetchability
   - Tests proc.io.read_bytes and proc.io.write_bytes (Step 3.1)
   - Tests basic proc metrics (nprocs, psinfo, memory, runq)
-- Integration tests added to `scripts/darwin/test/integration/run-integration-tests.sh`:
+- Integration tests added to `dev/darwin/test/integration/run-integration-tests.sh`:
   - Test Group 15: Basic process metrics (proc.nprocs, psinfo, memory)
   - Test Group 16: Process I/O statistics (Step 3.1)
   - Test Group 17: Process FD count (Step 3.2) - validates at least one process has FDs > 0
@@ -1182,6 +1187,313 @@ tcps_rcvtotal: 9957250
 - Integration tests account for dynamic process list (don't test specific values)
 
 **Note:** `proc.memory.vmsize` metric deferred - memory size already available via `proc.memory.size` (virtual size) and `proc.memory.rss` (resident size) from existing implementation.
+
+---
+
+## Phase 3B: Address PR #2442 Review Feedback
+
+**Context:** Ken McDonell reviewed PR #2442 and provided feedback requiring changes before merge. This phase addresses all review comments.
+
+**PR Review:** https://github.com/performancecopilot/pcp/pull/2442#pullrequestreview-3668265761
+
+**Key Feedback Items:**
+1. Copyright attribution - Add contributor name to new files
+2. Test infrastructure location - Move to top-level for discoverability
+3. TCP/UDP error metrics - Add granular breakdown for diagnostics
+4. TCP state validation - Add logging for unexpected states
+
+**Testing Strategy:**
+- Phases 3B.1-3B.2: No testing needed (non-functional changes)
+- Phase 3B.3: Run full test suite after TCP metrics implementation
+- Phases 3B.4-3B.5: Verify with existing test suite
+- Use Cirrus VM for all testing (local testing not available)
+
+---
+
+### Step 3B.1: Copyright Header Updates
+
+**Status:** PENDING
+
+**Goal:** Add "Paul Smith" to copyright headers in all new/modified darwin PMDA files per PCP project standards.
+
+**Files to Update** (12 total):
+
+| File | Current Copyright | Required Change |
+|------|------------------|-----------------|
+| `src/pmdas/darwin/tcp.c` | `Copyright (c) 2026 Red Hat.` | Add `, Paul Smith` |
+| `src/pmdas/darwin/tcp.h` | `Copyright (c) 2026 Red Hat.` | Add `, Paul Smith` |
+| `src/pmdas/darwin/udp.c` | `Copyright (c) 2026 Red Hat.` | Add `, Paul Smith` |
+| `src/pmdas/darwin/udp.h` | `Copyright (c) 2026 Red Hat.` | Add `, Paul Smith` |
+| `src/pmdas/darwin/icmp.c` | `Copyright (c) 2026 Red Hat.` | Add `, Paul Smith` |
+| `src/pmdas/darwin/icmp.h` | `Copyright (c) 2026 Red Hat.` | Add `, Paul Smith` |
+| `src/pmdas/darwin/sockstat.c` | `Copyright (c) 2026 Red Hat.` | Add `, Paul Smith` |
+| `src/pmdas/darwin/sockstat.h` | `Copyright (c) 2026 Red Hat.` | Add `, Paul Smith` |
+| `src/pmdas/darwin/tcpconn.c` | `Copyright (c) 2024 Red Hat.` | Update to 2026, add `, Paul Smith` |
+| `src/pmdas/darwin/tcpconn.h` | `Copyright (c) 2024 Red Hat.` | Update to 2026, add `, Paul Smith` |
+| `src/pmdas/darwin/vfs.c` | `Copyright (c) 2025 Red Hat.` | Update to 2026, add `, Paul Smith` |
+| `src/pmdas/darwin/vfs.h` | `Copyright (c) 2025 Red Hat.` | Update to 2026, add `, Paul Smith` |
+
+**Pattern:**
+```c
+// BEFORE:
+ * Copyright (c) YYYY Red Hat.
+
+// AFTER:
+ * Copyright (c) 2026 Red Hat, Paul Smith.
+```
+
+**Changes Required:**
+- Edit copyright line in each file header
+- No functional code changes
+
+**Testing:** None required (non-functional change)
+
+**Commit Message:** "Update copyright headers for Darwin PMDA contributors"
+
+---
+
+### Step 3B.2: Test Infrastructure Relocation
+
+**Status:** PENDING
+
+**Goal:** Move `dev/darwin/` to `dev/darwin/` for better discoverability and maintainability.
+
+**Current Structure:**
+```
+dev/darwin/
+├── README.md
+├── .gitignore
+├── dev/                    # Build environment
+└── test/                   # Test infrastructure
+    ├── unit/              # 13 unit test files
+    └── integration/       # Integration test scripts
+```
+
+**Target Structure:**
+```
+dev/darwin/
+├── README.md
+├── .gitignore
+├── dev/                    # Build environment
+└── test/                   # Test infrastructure
+    ├── unit/              # 13 unit test files
+    └── integration/       # Integration test scripts
+```
+
+**Changes Required:**
+1. Create top-level `dev/` directory if needed
+2. Move `dev/darwin/` → `dev/darwin/`
+3. Update path references in:
+   - Documentation (README.md, this plan)
+   - `.cirrus.yml` lines 69 and 72: `dev/darwin/test/` → `dev/darwin/test/`
+
+**Testing:** Verify build and test scripts still work after move:
+```bash
+dev/darwin/dev/build-quick.sh
+dev/darwin/test/quick-test.sh
+```
+
+**Commit Message:** "Relocate darwin PMDA development infrastructure to dev/"
+
+---
+
+### Step 3B.3: TCP Granular Error Metrics
+
+**Status:** PENDING
+
+**Goal:** Add hierarchical TCP error metrics for diagnostic visibility into individual error types.
+
+**Current Implementation:**
+- Single aggregate: `network.tcp.inerrs` (item 176)
+- Computed as sum of 4 error types in `fetch_tcp()`
+
+**Target Implementation:**
+- Hierarchical namespace with 5 metrics (1 aggregate + 4 individual)
+
+**Item Number Allocation:**
+✅ **Verified safe** - TCP cluster 17 currently uses items 168-182, new items 183-186 available
+
+**New PMNS Structure** (`src/pmdas/darwin/pmns`):
+```
+network.tcp.inerrs {
+    total       DARWIN:17:176    # Aggregate (backward compat)
+    badsum      DARWIN:17:183    # Bad checksum errors
+    badoff      DARWIN:17:184    # Bad offset errors
+    short       DARWIN:17:185    # Truncated packets
+    memdrop     DARWIN:17:186    # Memory exhaustion drops
+}
+```
+
+**Metric Mappings:**
+
+| Metric | Item | Type | Source | Description |
+|--------|------|------|--------|-------------|
+| `network.tcp.inerrs.total` | 176 | U64 | computed | Total TCP input errors |
+| `network.tcp.inerrs.badsum` | 183 | U64 | `tcps_rcvbadsum` | Bad checksum (NIC/transmission issues) |
+| `network.tcp.inerrs.badoff` | 184 | U64 | `tcps_rcvbadoff` | Bad offset (malformed packets) |
+| `network.tcp.inerrs.short` | 185 | U64 | `tcps_rcvshort` | Truncated (MTU mismatches) |
+| `network.tcp.inerrs.memdrop` | 186 | U64 | `tcps_rcvmemdrop` | Memory exhaustion |
+
+**Code Changes:**
+
+1. **src/pmdas/darwin/pmns** - Replace single `inerrs` line with hierarchy block
+
+2. **src/pmdas/darwin/metrics.c** - Add 4 new metrictab entries (items 183-186):
+   ```c
+   /* network.tcp.inerrs.total - keep existing */
+   { NULL, { PMDA_PMID(CLUSTER_TCP,176), ... }, },
+
+   /* network.tcp.inerrs.badsum - direct pointer */
+   { &mach_tcp.stats.tcps_rcvbadsum,
+     { PMDA_PMID(CLUSTER_TCP,183), PM_TYPE_U64, PM_INDOM_NULL,
+       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+   /* ...similar for badoff (184), short (185), memdrop (186) */
+   ```
+
+3. **src/pmdas/darwin/tcp.c** - Update `fetch_tcp()` comment for item 176
+
+4. **src/pmdas/darwin/help** - Add help text for 5 metrics with diagnostic context
+
+5. **dev/darwin/test/unit/test-tcp.txt** - Add tests for all 5 metrics
+
+6. **dev/darwin/test/integration/run-integration-tests.sh** - Add test group
+
+**Diagnostic Value:**
+- **badsum**: Hardware/transmission problems
+- **badoff**: Malformed packets, potential attacks
+- **short**: MTU mismatches, packet fragmentation issues
+- **memdrop**: System resource pressure
+
+**Testing:** Run full test suite via Cirrus VM after implementation
+
+**Commit Message:** "Add granular TCP input error metrics for diagnostics"
+
+---
+
+### Step 3B.4: UDP Granular Error Metrics
+
+**Status:** PENDING
+
+**Goal:** Add hierarchical UDP error metrics (same pattern as TCP).
+
+**Current Implementation:**
+- Single aggregate: `network.udp.inerrors` (item 145)
+- Computed as sum of 3 error types in `fetch_udp()`
+
+**Target Implementation:**
+- Hierarchical namespace with 4 metrics (1 aggregate + 3 individual)
+
+**Item Number Allocation:**
+✅ **Verified safe** - UDP cluster 13 currently uses items 142-146, new items 147-149 available
+- Note: Item numbers are cluster-specific (PMID = DARWIN:cluster:item)
+- UDP cluster 13 item 147 does NOT conflict with ICMP cluster 14 item 147
+
+**New PMNS Structure** (`src/pmdas/darwin/pmns`):
+```
+network.udp.inerrors {
+    total       DARWIN:13:145    # Aggregate
+    hdrops      DARWIN:13:147    # Header drops
+    badsum      DARWIN:13:148    # Bad checksum
+    badlen      DARWIN:13:149    # Bad length
+}
+```
+
+**Metric Mappings:**
+
+| Metric | Item | Type | Source | Description |
+|--------|------|------|--------|-------------|
+| `network.udp.inerrors.total` | 145 | U64 | computed | Total UDP input errors |
+| `network.udp.inerrors.hdrops` | 147 | U64 | `hdrops` | Header error drops |
+| `network.udp.inerrors.badsum` | 148 | U64 | `badsum` | Bad checksum |
+| `network.udp.inerrors.badlen` | 149 | U64 | `badlen` | Bad length |
+
+**Code Changes:**
+
+1. **src/pmdas/darwin/pmns** - Replace single `inerrors` line with hierarchy block
+
+2. **src/pmdas/darwin/metrics.c** - Add 3 new metrictab entries (items 147-149):
+   ```c
+   /* network.udp.inerrors.total - keep existing */
+   { NULL, { PMDA_PMID(CLUSTER_UDP,145), ... }, },
+
+   /* Item 146 is rcvbuferrors - keep */
+
+   /* network.udp.inerrors.hdrops - direct pointer */
+   { &mach_udp.hdrops,
+     { PMDA_PMID(CLUSTER_UDP,147), PM_TYPE_U64, PM_INDOM_NULL,
+       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+   /* ...similar for badsum (148), badlen (149) */
+   ```
+
+3. **src/pmdas/darwin/udp.c** - Update `fetch_udp()` comment for item 145
+
+4. **src/pmdas/darwin/help** - Add help text for 4 metrics
+
+5. **dev/darwin/test/unit/test-udp.txt** - Add tests for all 4 metrics
+
+6. **dev/darwin/test/integration/run-integration-tests.sh** - Add test group
+
+**Testing:** Run test suite via Cirrus VM
+
+**Commit Message:** "Add granular UDP input error metrics for diagnostics"
+
+---
+
+### Step 3B.5: TCP Connection State Validation Enhancement
+
+**Status:** PENDING
+
+**Goal:** Add diagnostic logging for out-of-range TCP connection states with one-trip guard.
+
+**Current Implementation** (`src/pmdas/darwin/tcpconn.c`, lines 76-78):
+```c
+/* Validate state and increment counter */
+if (tp->t_state >= 0 && tp->t_state < TCP_NSTATES)
+    stats->state[tp->t_state]++;
+/* Out-of-range states silently skipped */
+```
+
+**Target Implementation:**
+- Add `pmNotifyErr()` logging for first invalid state occurrence
+- Use one-trip guard to prevent log flooding
+- Do NOT aggregate unknown states (avoid metric pollution)
+
+**Code Changes** (`src/pmdas/darwin/tcpconn.c`):
+
+```c
+/* Add at top of refresh_tcpconn() function */
+static int warned_invalid_state = 0;
+
+/* ... existing code ... */
+
+/* Enhanced validation (replace lines 76-78) */
+if (tp->t_state >= 0 && tp->t_state < TCP_NSTATES) {
+    stats->state[tp->t_state]++;
+} else if (!warned_invalid_state) {
+    /* One-trip guard: log once then suppress */
+    pmNotifyErr(LOG_WARNING,
+        "tcpconn: unexpected TCP state %d (expected 0-%d), ignoring connection. "
+        "This may indicate a kernel version mismatch. "
+        "(Further invalid states will be silently ignored)",
+        tp->t_state, TCP_NSTATES - 1);
+    warned_invalid_state = 1;
+}
+/* Invalid states are NOT counted - dropped to prevent metric pollution */
+```
+
+**Rationale:**
+- **pmNotifyErr vs pmDebug**: Ken McDonell recommended pmNotifyErr for visibility in logs
+- **One-trip guard**: Prevents log flooding if many connections have invalid states
+- **No aggregation**: Invalid states not counted to avoid polluting existing metrics
+- **Diagnostic message**: Explains issue and that further occurrences won't be logged
+
+**Testing:**
+- No unit test (requires kernel with unexpected states)
+- Manual verification: Check `/var/log/pcp/pmcd/darwin.log` after deployment
+
+**Commit Message:** "Add diagnostic logging for invalid TCP connection states"
 
 ---
 
@@ -1277,7 +1589,171 @@ tcps_rcvtotal: 9957250
 
 ## Phase 5: Future Enhancements (DEFERRED)
 
-### Step 2.5c: Auto-Enable TCP Stats Configuration
+### Step 5.1: Granular TCP/UDP Error Metrics (PR #2442 Review Feedback)
+
+**Status:** PROPOSED - Based on Ken McDonell's review feedback
+
+**Context:** PR #2442 review (https://github.com/performancecopilot/pcp/pull/2442#pullrequestreview-3668265761) raised the question of whether individual error metrics should be exported in addition to aggregate metrics.
+
+**Current State:**
+- **TCP:** `network.tcp.inerrs` aggregates: tcps_rcvbadsum + tcps_rcvbadoff + tcps_rcvshort + tcps_rcvmemdrop
+- **UDP:** `network.udp.inerrors` aggregates: hdrops + badsum + badlen
+
+**Rationale for Granular Metrics:**
+Different error types have different diagnostic implications:
+- **tcps_rcvbadsum** (bad checksums) → NIC issues, transmission line noise
+- **tcps_rcvbadoff** (bad offset) → malformed packets, potential attack patterns
+- **tcps_rcvshort** (truncated packets) → MTU mismatches, packet loss
+- **tcps_rcvmemdrop** (buffer exhaustion) → system resource pressure
+- **UDP errors** similarly provide distinct diagnostic value
+
+**Proposed New Metrics:**
+
+**TCP error breakdown** (4 new metrics):
+- `network.tcp.inerrs.badsum` → tcps_rcvbadsum
+- `network.tcp.inerrs.badoff` → tcps_rcvbadoff
+- `network.tcp.inerrs.short` → tcps_rcvshort
+- `network.tcp.inerrs.memdrop` → tcps_rcvmemdrop
+
+**UDP error breakdown** (3 new metrics):
+- `network.udp.inerrors.hdrops` → hdrops
+- `network.udp.inerrors.badsum` → badsum
+- `network.udp.inerrors.badlen` → badlen
+
+**Implementation:**
+1. Check Linux PMDA for consistency (do they export granular error metrics?)
+2. Add new metrictab entries for each granular metric
+3. Update PMNS with hierarchical error namespace
+4. Update help text with diagnostic guidance
+5. Keep aggregate metrics for backward compatibility
+
+**Discussion Points:**
+- Does this align with PCP philosophy of providing what the kernel provides?
+- Should these be documented as "expert-level" metrics?
+- Verify Linux PMDA approach for cross-platform consistency
+
+---
+
+### Step 5.2: TCP Connection State Defensive Validation (PR #2442 Review Feedback)
+
+**Status:** PROPOSED - Based on Ken McDonell's review feedback
+
+**Context:** Ken suggested adding defensive diagnostics for out-of-range TCP state values, as kernel enum values can advance without PMDA updates.
+
+**Goal:** Add validation to detect when macOS kernel introduces new TCP states that the PMDA doesn't know about yet.
+
+**Implementation:**
+
+In `tcpconn.c`'s `refresh_tcpconn()`:
+
+```c
+/* Validate state is within expected range (TCPS_CLOSED=0 to TCPS_CLOSING=11) */
+if (so.so_type == SOCK_STREAM) {
+    if (xt.xt_tp.t_state > TCPS_CLOSING) {
+        pmNotifyErr(LOG_WARNING,
+            "tcpconn: unexpected TCP state %d (expected 0-%d), treating as CLOSING",
+            xt.xt_tp.t_state, TCPS_CLOSING);
+        tcp->state[TCPS_CLOSING]++;  /* Fail-safe: count as CLOSING */
+    } else {
+        tcp->state[xt.xt_tp.t_state]++;
+    }
+}
+```
+
+**Alternative:** Use `pmDebug(DBG_TRACE_APPL0, ...)` instead of `pmNotifyErr` for lower-priority logging
+
+**Discussion Point:** Which logging approach is preferred for this scenario?
+
+---
+
+### Step 5.3: Test Infrastructure Generalization (PR #2442 Review Feedback)
+
+**Status:** PROPOSED - Based on Ken McDonell's review feedback
+
+**Context:** Ken noted that the `dev/darwin/test/integration/run-integration-tests.sh` was easily adaptable to Ubuntu with only minor changes, suggesting the test infrastructure could be generalized for other platforms.
+
+**Contributor perspective (psmith):**
+> "I do think it's possible we could consider making the unit/integration tests we've developed more general purpose... Your points about the differences between the Linux and macOS installation are still valid though, so it might actually make things trickier."
+
+**Current Platform-Specific Code:**
+- PMDA installation path resolution (Linux vs macOS paths)
+- PMCD startup mechanism (`systemctl`/`service` vs `launchctl`)
+- PMDA discovery in pmcd status
+
+**Proposed Approach:**
+
+1. **Evaluate feasibility:** Determine which test logic is truly platform-neutral vs platform-specific
+2. **Create shared framework:**
+   - Move core test functions (run_test, validate_metric, etc.) to `scripts/common/` or `qa/common/`
+   - Keep platform-specific drivers in platform directories
+3. **Platform abstraction layer:**
+   - Create platform detection utilities
+   - Abstract PMDA path resolution
+   - Abstract PMCD service management
+4. **Benefits:**
+   - All platform PMDAs can benefit from standardized test framework
+   - Reduces duplication across platform-specific test suites
+   - Improves test coverage consistency
+
+**Discussion Points:**
+- Is this worth the complexity trade-off?
+- Should this be part of a broader QA system refactoring (see Step 5.4)?
+- Where should generalized test infrastructure live (scripts/common vs qa/)?
+
+---
+
+### Step 5.4: Full PCP QA System Port to macOS (PR #2442 Review Feedback)
+
+**Status:** PROPOSED - Based on Ken McDonell's review feedback and ongoing work
+
+**Context:** Ken asked why the full PCP QA system is "currently difficult/impossible to run on macOS" given successful implementations on *BSD and OpenIndiana.
+
+**Current Barriers:**
+
+1. **Architecture Naming Mismatch (Critical):**
+   - macOS uses `arm64`, Linux uses `aarch64` for the same 64-bit ARM architecture
+   - QA system can't locate package lists due to this mismatch
+   - **Work in progress:** PR #2431 ("Fix local CI: Dynamic task lists and aarch64 support")
+   - Status: Proven more complex than expected, deferred while focusing on Darwin PMDA
+
+2. **Platform-Specific Assumptions:**
+   - QA scripts assume Linux-centric paths and utilities
+   - macOS deployment differs significantly (`/usr/local/lib/pcp` vs system defaults)
+   - Some QA tests reference Linux kernel interfaces
+
+3. **Container Build Issues:**
+   - Git repository detection failures in container builds
+   - Package resolution for Ubuntu 24.04 on ARM64 systems
+   - Dynamic task discovery for reproduce command
+
+**Proposed Path Forward:**
+
+1. **Phase 1 (Critical):** Complete PR #2431 work
+   - Resolve aarch64/arm64 architecture naming
+   - Fix dynamic task discovery
+   - Fix git repository detection in containers
+
+2. **Phase 2 (Platform Adaptation):**
+   - Add platform detection to QA scripts
+   - Create Darwin-specific test groups (similar to Linux-specific tests)
+   - Document macOS deployment paths and considerations
+
+3. **Phase 3 (Integration):**
+   - Integrate existing `dev/darwin/test/` framework with broader QA system
+   - Determine which tests should be platform-neutral vs platform-specific
+   - Create guidelines for future platform PMDA QA contributions
+
+**Contributor perspective (psmith):**
+> "We actually started a draft PR with trying to address this change (see #2431) but it's proven a tricky problem and we haven't got back to looking in to it (focused on the Darwin PMDA)."
+
+**Discussion Points:**
+- Should PR #2431 be prioritized and completed?
+- Is a full QA system port worth the effort compared to maintaining platform-specific test suites?
+- Can *BSD QA implementation serve as a reference model?
+
+---
+
+### Step 5.5: Auto-Enable TCP Stats Configuration
 
 **Status:** DEFERRED - For discussion with PCP maintainers in subsequent PR
 
@@ -1440,7 +1916,7 @@ refresh_example(example_t *data)
 
 ### Unit Test Pattern
 
-Unit tests are dbpmda command files located in `scripts/darwin/test/unit/test-*.txt`.
+Unit tests are dbpmda command files located in `dev/darwin/test/unit/test-*.txt`.
 
 **Format**: Simple text files with `desc` and `fetch` commands
 
@@ -1470,7 +1946,7 @@ fetch mem.compressor.uncompressed_pages
 ```
 
 **To add unit tests**:
-1. Create `scripts/darwin/test/unit/test-<feature>.txt`
+1. Create `dev/darwin/test/unit/test-<feature>.txt`
 2. Add `desc <metric>` and `fetch <metric>` for each new metric
 3. Include comments explaining what the metrics test
 4. Follow the pattern in existing test files like `test-basic.txt` and `test-memory-compression.txt`
@@ -1479,7 +1955,7 @@ fetch mem.compressor.uncompressed_pages
 
 Integration tests validate metrics through real PCP tools (pminfo, pmval, pmstat).
 
-**Location**: `scripts/darwin/test/integration/run-integration-tests.sh`
+**Location**: `dev/darwin/test/integration/run-integration-tests.sh`
 
 **Pattern**: Add test cases using the `run_test()` and `validate_metric()` helper functions
 
@@ -1499,7 +1975,7 @@ echo
 - `"non-negative"` - metric value >= 0
 
 **To add integration tests**:
-1. Open `scripts/darwin/test/integration/run-integration-tests.sh`
+1. Open `dev/darwin/test/integration/run-integration-tests.sh`
 2. Add a new test group section before the Summary
 3. Use `run_test()` for each metric validation
 4. Use appropriate validation (exists/positive/non-negative)

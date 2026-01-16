@@ -15,7 +15,7 @@ This takes 5-30 minutes and only needs to be done once. It generates headers, bu
 
 **Verify setup:**
 ```bash
-cd scripts/darwin/dev
+cd dev/darwin/dev
 make check-deps
 ```
 
@@ -23,7 +23,7 @@ make check-deps
 
 ### Build + Test (Recommended)
 ```bash
-cd scripts/darwin/test
+cd dev/darwin/test
 ./quick-test.sh
 ```
 
@@ -31,7 +31,7 @@ Builds PMDA (~5-10s) and runs unit tests (~10-20s). Runs integration tests if pm
 
 ### Build Only
 ```bash
-cd scripts/darwin/dev
+cd dev/darwin/dev
 make clean && make
 ```
 
@@ -39,13 +39,13 @@ make clean && make
 
 **Unit tests** (no installation needed):
 ```bash
-cd scripts/darwin/test/unit
+cd dev/darwin/test/unit
 ./run-unit-tests.sh
 ```
 
 **Integration tests** (requires PCP installed and pmcd running):
 ```bash
-cd scripts/darwin/test/integration
+cd dev/darwin/test/integration
 ./run-integration-tests.sh
 ```
 
@@ -53,7 +53,7 @@ cd scripts/darwin/test/integration
 
 1. Edit source: `src/pmdas/darwin/pmda.c`
 2. Update PMNS: `src/pmdas/darwin/pmns`
-3. Quick build: `cd scripts/darwin/dev && make`
+3. Quick build: `cd dev/darwin/dev && make`
 4. Add test: `test/unit/test-<cluster>.txt`
-5. Run tests: `cd scripts/darwin/test && ./quick-test.sh`
+5. Run tests: `cd dev/darwin/test && ./quick-test.sh`
 
