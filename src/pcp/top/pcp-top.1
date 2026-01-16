@@ -1,0 +1,173 @@
+'\" t
+.\"
+.\" Copyright (c) 2023 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PCP-TOP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pcp-top\f1 \- Top-like real-time system and process monitor using Performance Co-Pilot metrics
+.SH SYNOPSIS
+\f3pcp\f1
+[\f2pcp\ options\f1]
+\f3top\f1
+[\f3\-o\f1 \f2{cpu|mem}\f1]
+[\f3\-c\f1 \f2N\f1]
+[\f3\-a\f1 \f2archive\f1]
+[\f3\-s\f1 \f2samples\f1]
+[\f3\-Z\f1 \f2timezone\f1]
+[\f3\-z\f1]
+[\f3\-V\f1]
+[\f3\-?\f1]
+.SH DESCRIPTION
+The
+.B pcp-top
+command provides a dynamic top 100 process list, real-time view of the system's running processes and overall system health, similar to the classic
+.BR top (1)
+utility, but leveraging the Performance Co-Pilot (PCP) framework for metric collection.
+.PP
+By default,
+.B pcp-top
+shows live monitoring data for the local host unless an archive is specified.
+.PP
+The top section displays host information, uptime, user count, and CPU load averages. The summary row of process states (tasks) is followed by a table of active processes, showing fields such as CPU and memory usage.
+.PP
+The process table displays the following per-process fields:
+.TS
+l    l.
+HEADER	DESCRIPTION
+_	_
+PID	Process ID.
+USER	User name.
+PR	Scheduler priority value of the process.
+NI	Niceness of the process.
+VIRT	Virtual memory size.
+RES	Resident memory size.
+SHR	Shared memory.
+STATE	Process state.
+%CPU	Percentage of CPU used by the process in last interval.
+%MEM	Percentage of total physical memory used.
+START	Process execution time.
+COMMAND	Command name.
+.TE
+.PP
+Field details:
+.TP
+.B USER
+Truncated to 6 characters.
+.TP
+.B VIRT, RES
+Displayed in gigabytes (g) when over 1 GiB.
+.TP
+.B STATE
+Usually single letter: R (running), S (sleeping), etc.
+.TP
+.B START
+User+system time, displayed as MM:SS.
+.TP
+.B COMMAND
+Truncated, up to 40 characters.
+The header also shows:
+.TS
+l    l.
+FIELD	DESCRIPTION
+_	_
+Uptime	Boot time
+Users	Logged-in users
+LoadAvg	1, 5, 15-min load avg
+Tasks	Total, running, sleeping, stopped, zombie
+.TE
+.PP
+Header field details:
+.TP
+.B LoadAvg
+Lists 1, 5, and 15-minute system load averages.
+.TP
+.B Tasks
+Summary shows total, running, sleeping, stopped, and zombie processes.
+.SH OPTIONS
+When invoked via the
+.BR pcp (1)
+command, the
+.BR \-h /\c
+.BR \-\-host ,
+.BR \-O /\c
+.BR \-\-origin ,
+.BR \-t /\c
+.BR \-\-interval ,
+.BR \-Z /\c
+.BR \-\-timezone ,
+and other
+.I PCP options
+are also available; consult
+.BR PCPIntro (1)
+for details.
+.PP
+Mandatory or optional arguments to long options are also mandatory or optional for any corresponding short options.
+.PP
+The command line options specific to
+.B pcp-top
+are:
+.TP
+\fB\-o\fR \fI{cpu|mem}\fR
+Sort the process table by \fB%cpu\fR (default) or \fB%mem\fR usage.
+.TP
+\fB\-c\fR \fIN\fR
+Show only the top N processes by the selected sort key (default: 100).
+.TP
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Process PCP archive data from the given \fIarchive\fR file, rather than live metrics.
+.TP
+\fB\-s\fR \fIcount\fR, \fB\-\-samples\fR=\fIcount\fR
+Display output for the specified number of samples (default: unlimited, until interrupted).
+.TP
+\fB\-Z\fR \fItimezone\fR, \fB\-\-timezone\fR=\fItimezone\fR
+Set the reporting timezone to
+.I timezone
+in the format of the environment variable
+.B TZ.
+.TP
+\fB\-z\fR, \fB\-\-hostzone\fR
+Report times in the local timezone of the host that is the metric source.
+.TP
+\fB\-V\fR, \fB\-\-version\fR
+Display version information and exit.
+.TP
+\fB\-?\fR, \fB\-\-help\fR
+Display usage message and exit.
+.SH NOTES
+.B pcp-top
+collects process and system performance metrics via the PCP APIs. Most fields and their units match those of the standard
+.BR top (1)
+utility, but numerical values and process selection are affected by the underlying PCP metric set and sampling interval.
+.PP
+For more information about available metrics and PCP configuration, see
+.BR PCPIntro (1)
+and related pcp manuals.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fP are used to parameterize the file and directory names used by PCP. Each installation has an
+\fI/etc/pcp.conf\fP
+file containing local values for these variables. The
+\fB$PCP_CONF\fP
+variable may specify an alternative configuration file, as described in
+\fBpcp.conf\fP(5).
+.PP
+Variables affecting PCP tools are documented in
+\fBpmGetOptions\fP(3).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pcp (1),
+.BR pcp-ps (1),
+.BR top (1),
+.BR environ (7)
+
+.\" control lines for scripts/man-spell
