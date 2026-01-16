@@ -51,7 +51,11 @@ $3 == "traceback"	{ exit }
 	    -e 's/ __pmUnlock([^)]*)/ unlock/' \
 	    -e 's/ __pmLock([^)]*)/ lock/' \
 	# end
-    fi
+    fi \
+    | sed \
+	-e 's;Deadlock situation detected/avoided;Resource deadlock avoided;' \
+	-e 's/Not owner/Operation not permitted/' \
+    # end
 }
 
 # real QA test starts here

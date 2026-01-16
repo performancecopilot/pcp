@@ -77,7 +77,7 @@ YESTERDAY.17.18.meta
 YESTERDAY.index
 YESTERDAY.meta
 
-=== [verbose] regular show ===
+=== [-V] regular show ===
 Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOST in TMP ===
@@ -122,7 +122,7 @@ YESTERDAY.0
 YESTERDAY.index
 YESTERDAY.meta
 
-=== [verbose] nothing to do but cull some more ===
+=== [-V] nothing to do but cull some more ===
 Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOST in TMP ===
@@ -153,7 +153,7 @@ save.0
 save.index
 save.meta
 
-=== [verbose] error, output already exists ===
+=== [-V] error, output already exists ===
 Start [daily]: DATESTAMP
 
 === daily maintenance of PCP archives for host HOST in TMP ===
