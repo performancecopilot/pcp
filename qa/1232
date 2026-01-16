@@ -48,6 +48,7 @@ _filter()
 	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
 	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
 	-e "/migrate_pid_service/d" \
+	-e '/^_parse_log_control:/d' \
     # end
 }
 
