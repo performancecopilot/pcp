@@ -507,8 +507,8 @@ Series checked (indom)
     "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
     "instances": [
         {
-            "instance": 900,
-            "name": "bin-900",
+            "instance": 300,
+            "name": "bin-300",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -516,17 +516,8 @@ Series checked (indom)
             }
         },
         {
-            "instance": 100,
-            "name": "bin-100",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-                "machineid": "MACHINEID"
-            }
-        },
-        {
-            "instance": 800,
-            "name": "bin-800",
+            "instance": 700,
+            "name": "bin-700",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -543,6 +534,24 @@ Series checked (indom)
             }
         },
         {
+            "instance": 800,
+            "name": "bin-800",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
+            }
+        },
+        {
+            "instance": 100,
+            "name": "bin-100",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
+            }
+        },
+        {
             "instance": 500,
             "name": "bin-500",
             "labels": {
@@ -552,8 +561,8 @@ Series checked (indom)
             }
         },
         {
-            "instance": 300,
-            "name": "bin-300",
+            "instance": 900,
+            "name": "bin-900",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -572,15 +581,6 @@ Series checked (indom)
         {
             "instance": 600,
             "name": "bin-600",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-                "machineid": "MACHINEID"
-            }
-        },
-        {
-            "instance": 700,
-            "name": "bin-700",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -602,8 +602,8 @@ Series checked (indom)
     "text-help": "Universally 9 instances numbered 100 .. 900 in steps of 100, and named\u000A\u0022bin-100\u0022 .. \u0022bin-900\u0022",
     "instances": [
         {
-            "instance": 900,
-            "name": "bin-900",
+            "instance": 300,
+            "name": "bin-300",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -611,17 +611,8 @@ Series checked (indom)
             }
         },
         {
-            "instance": 100,
-            "name": "bin-100",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-                "machineid": "MACHINEID"
-            }
-        },
-        {
-            "instance": 800,
-            "name": "bin-800",
+            "instance": 700,
+            "name": "bin-700",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -638,6 +629,24 @@ Series checked (indom)
             }
         },
         {
+            "instance": 800,
+            "name": "bin-800",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
+            }
+        },
+        {
+            "instance": 100,
+            "name": "bin-100",
+            "labels": {
+                "domainname": "DOMAINNAME"
+                "hostname": "HOSTNAME"
+                "machineid": "MACHINEID"
+            }
+        },
+        {
             "instance": 500,
             "name": "bin-500",
             "labels": {
@@ -647,8 +656,8 @@ Series checked (indom)
             }
         },
         {
-            "instance": 300,
-            "name": "bin-300",
+            "instance": 900,
+            "name": "bin-900",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -667,15 +676,6 @@ Series checked (indom)
         {
             "instance": 600,
             "name": "bin-600",
-            "labels": {
-                "domainname": "DOMAINNAME"
-                "hostname": "HOSTNAME"
-                "machineid": "MACHINEID"
-            }
-        },
-        {
-            "instance": 700,
-            "name": "bin-700",
             "labels": {
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
@@ -971,16 +971,16 @@ Series checked (indom)
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+sample_long_one{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 1
 == scrape two metrics ==
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+sample_long_one{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 1
 # PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
 # HELP sample_long_ten 10 as a 32-bit integer
 # TYPE sample_long_ten gauge
-sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 10
+sample_long_ten{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 10
 == scrape bad metric name ==
 {
     "context": "CONTEXT"
@@ -991,82 +991,82 @@ sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+sample_long_one{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 1
 # PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
 # HELP sample_long_ten 10 as a 32-bit integer
 # TYPE sample_long_ten gauge
-sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 10
+sample_long_ten{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 10
 # PCP5 sample.long.hundred 29.0.12 32 PM_INDOM_NULL instant none
 # HELP sample_long_hundred 100 as a 32-bit integer
 # TYPE sample_long_hundred gauge
-sample_long_hundred{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 100
+sample_long_hundred{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 100
 # PCP5 sample.long.million 29.0.13 32 PM_INDOM_NULL instant none
 # HELP sample_long_million 1000000 as a 32-bit integer
 # TYPE sample_long_million gauge
-sample_long_million{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1000000
+sample_long_million{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 1000000
 # PCP5 sample.long.write_me 29.0.14 32 PM_INDOM_NULL instant none
 # HELP sample_long_write_me a 32-bit integer that can be modified
 # TYPE sample_long_write_me gauge
-sample_long_write_me{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID",changed="true"} 24
+sample_long_write_me{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",changed="true",cluster="zero",role="testing",machineid="MACHINEID"} 24
 # PCP5 sample.dupnames.five.long_bin 29.0.103 32 29.2 instant none
 # HELP sample_dupnames_five_long_bin like sample.bin but type 32
 # TYPE sample_dupnames_five_long_bin gauge
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
-sample_dupnames_five_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
+sample_dupnames_five_long_bin{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="100"} 100
+sample_dupnames_five_long_bin{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="200"} 200
+sample_dupnames_five_long_bin{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="300"} 300
+sample_dupnames_five_long_bin{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="400"} 400
+sample_dupnames_five_long_bin{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="500"} 500
+sample_dupnames_five_long_bin{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="600"} 600
+sample_dupnames_five_long_bin{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="700"} 700
+sample_dupnames_five_long_bin{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="800"} 800
+sample_dupnames_five_long_bin{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="900"} 900
 # PCP5 sample.long.bin 29.0.103 32 29.2 instant none
 # HELP sample_long_bin like sample.bin but type 32
 # TYPE sample_long_bin gauge
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
-sample_long_bin{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
+sample_long_bin{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="100"} 100
+sample_long_bin{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="200"} 200
+sample_long_bin{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="300"} 300
+sample_long_bin{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="400"} 400
+sample_long_bin{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="500"} 500
+sample_long_bin{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="600"} 600
+sample_long_bin{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="700"} 700
+sample_long_bin{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="800"} 800
+sample_long_bin{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="900"} 900
 # PCP5 sample.long.bin_ctr 29.0.104 32 29.2 counter Kbyte
 # HELP sample_long_bin_ctr like sample.bin but type 32, SEM_COUNTER and SPACE_KBYTE
 # TYPE sample_long_bin_ctr counter
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-100",instid="100",domainname="DOMAINNAME",machineid="MACHINEID",bin="100"} 100
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-200",instid="200",domainname="DOMAINNAME",machineid="MACHINEID",bin="200"} 200
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-300",instid="300",domainname="DOMAINNAME",machineid="MACHINEID",bin="300"} 300
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-400",instid="400",domainname="DOMAINNAME",machineid="MACHINEID",bin="400"} 400
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-500",instid="500",domainname="DOMAINNAME",machineid="MACHINEID",bin="500"} 500
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-600",instid="600",domainname="DOMAINNAME",machineid="MACHINEID",bin="600"} 600
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-700",instid="700",domainname="DOMAINNAME",machineid="MACHINEID",bin="700"} 700
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-800",instid="800",domainname="DOMAINNAME",machineid="MACHINEID",bin="800"} 800
-sample_long_bin_ctr{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",instname="bin-900",instid="900",domainname="DOMAINNAME",machineid="MACHINEID",bin="900"} 900
+sample_long_bin_ctr{instid="100",agent="sample",hostname="HOSTNAME",instname="bin-100",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="100"} 100
+sample_long_bin_ctr{instid="200",agent="sample",hostname="HOSTNAME",instname="bin-200",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="200"} 200
+sample_long_bin_ctr{instid="300",agent="sample",hostname="HOSTNAME",instname="bin-300",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="300"} 300
+sample_long_bin_ctr{instid="400",agent="sample",hostname="HOSTNAME",instname="bin-400",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="400"} 400
+sample_long_bin_ctr{instid="500",agent="sample",hostname="HOSTNAME",instname="bin-500",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="500"} 500
+sample_long_bin_ctr{instid="600",agent="sample",hostname="HOSTNAME",instname="bin-600",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="600"} 600
+sample_long_bin_ctr{instid="700",agent="sample",hostname="HOSTNAME",instname="bin-700",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="700"} 700
+sample_long_bin_ctr{instid="800",agent="sample",hostname="HOSTNAME",instname="bin-800",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="800"} 800
+sample_long_bin_ctr{instid="900",agent="sample",hostname="HOSTNAME",instname="bin-900",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME",bin="900"} 900
 == scrape metric instances ==
 # PCP5 sample.dupnames.four.colour 29.0.5 32 29.1 instant none
 # HELP sample_dupnames_four_colour Metrics with a "saw-tooth" trend over time
 # TYPE sample_dupnames_four_colour gauge
-sample_dupnames_four_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="red",instid="0",domainname="DOMAINNAME",machineid="MACHINEID"} 143
-sample_dupnames_four_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="green",instid="1",domainname="DOMAINNAME",machineid="MACHINEID"} 244
-sample_dupnames_four_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="blue",instid="2",domainname="DOMAINNAME",machineid="MACHINEID"} 345
+sample_dupnames_four_colour{instid="0",agent="sample",hostname="HOSTNAME",instname="red",model="RGB",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME"} 143
+sample_dupnames_four_colour{instid="1",agent="sample",hostname="HOSTNAME",instname="green",model="RGB",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME"} 244
+sample_dupnames_four_colour{instid="2",agent="sample",hostname="HOSTNAME",instname="blue",model="RGB",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME"} 345
 # PCP5 sample.colour 29.0.5 32 29.1 instant none
 # HELP sample_colour Metrics with a "saw-tooth" trend over time
 # TYPE sample_colour gauge
-sample_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="red",instid="0",domainname="DOMAINNAME",machineid="MACHINEID"} 143
-sample_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="green",instid="1",domainname="DOMAINNAME",machineid="MACHINEID"} 244
-sample_colour{role="testing",agent="sample",model="RGB",cluster="zero",hostname="HOSTNAME",instname="blue",instid="2",domainname="DOMAINNAME",machineid="MACHINEID"} 345
+sample_colour{instid="0",agent="sample",hostname="HOSTNAME",instname="red",model="RGB",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME"} 143
+sample_colour{instid="1",agent="sample",hostname="HOSTNAME",instname="green",model="RGB",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME"} 244
+sample_colour{instid="2",agent="sample",hostname="HOSTNAME",instname="blue",model="RGB",machineid="MACHINEID",role="testing",cluster="zero",domainname="DOMAINNAME"} 345
 == small curl compression command ==
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+sample_long_one{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 1
 == large curl compression command ==
 # PCP5 sample.dupnames.pid_daemon 29.0.1 u32 PM_INDOM_NULL instant none
 # HELP sample_dupnames_pid_daemon Process id of PMDA daemon
 # TYPE sample_dupnames_pid_daemon gauge
-sample_dupnames_pid_daemon{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} PID
+sample_dupnames_pid_daemon{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} PID
 # PCP5 sample.dupnames.daemon_pid 29.0.1 u32 PM_INDOM_NULL instant none
 # HELP sample_dupnames_daemon_pid Process id of PMDA daemon
 # TYPE sample_dupnames_daemon_pid gauge
@@ -1078,21 +1078,21 @@ pmproxy check passed
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+sample_long_one{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 1
 == good filter exact match ==
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+sample_long_one{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 1
 # PCP5 sample.long.ten 29.0.11 32 PM_INDOM_NULL instant none
 # HELP sample_long_ten 10 as a 32-bit integer
 # TYPE sample_long_ten gauge
-sample_long_ten{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 10
+sample_long_ten{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 10
 == good filter regex ==
 # PCP5 sample.long.one 29.0.10 32 PM_INDOM_NULL instant none
 # HELP sample_long_one 1 as a 32-bit integer
 # TYPE sample_long_one gauge
-sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero",domainname="DOMAINNAME",machineid="MACHINEID"} 1
+sample_long_one{hostname="HOSTNAME",agent="sample",domainname="DOMAINNAME",cluster="zero",role="testing",machineid="MACHINEID"} 1
 == bad filter match param ==
 {"context":CONTEXT,"message":"dummy - invalid 'match' parameter value","success":false}
 == scrape one metric ==
@@ -1108,15 +1108,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                         }
                     },
                     {
-                        "key": "machineid",
-                        "value": {
-                            "stringValue": "MACHINEID"
-                        }
-                    },
-                    {
                         "key": "domainname",
                         "value": {
                             "stringValue: "DOMAINNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
                         }
                     }
                 ]
@@ -1149,12 +1149,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
@@ -1164,6 +1158,12 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],
@@ -1192,15 +1192,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                         }
                     },
                     {
-                        "key": "machineid",
-                        "value": {
-                            "stringValue": "MACHINEID"
-                        }
-                    },
-                    {
                         "key": "domainname",
                         "value": {
                             "stringValue: "DOMAINNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
                         }
                     }
                 ]
@@ -1233,12 +1233,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
@@ -1248,6 +1242,12 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],
@@ -1278,12 +1278,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
@@ -1293,6 +1287,12 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],
@@ -1327,15 +1327,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                         }
                     },
                     {
-                        "key": "machineid",
-                        "value": {
-                            "stringValue": "MACHINEID"
-                        }
-                    },
-                    {
                         "key": "domainname",
                         "value": {
                             "stringValue: "DOMAINNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
                         }
                     }
                 ]
@@ -1368,12 +1368,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
@@ -1383,6 +1377,12 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],
@@ -1413,12 +1413,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
@@ -1428,6 +1422,12 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],
@@ -1458,12 +1458,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
@@ -1473,6 +1467,12 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],
@@ -1503,12 +1503,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
@@ -1518,6 +1512,12 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],
@@ -1548,15 +1548,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "changed",
+                                                "value": {
+                                                    "stringValue": "true"
                                                 }
                                             },
                                             {
@@ -1566,9 +1566,9 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "changed",
+                                                "key": "role",
                                                 "value": {
-                                                    "stringValue": "true"
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],
@@ -1599,24 +1599,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
-                                                }
-                                            },
-                                            {
                                                 "key": "instid",
                                                 "value": {
                                                     "intValue": 100
@@ -1629,9 +1611,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "100"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -1650,24 +1650,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -1683,9 +1665,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "200"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -1704,24 +1704,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -1737,9 +1719,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "300"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -1758,24 +1758,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -1791,9 +1773,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "400"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -1812,24 +1812,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -1845,9 +1827,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "500"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -1866,24 +1866,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -1899,9 +1881,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "600"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -1920,24 +1920,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -1953,9 +1935,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "700"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -1974,24 +1974,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2007,9 +1989,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "800"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2031,24 +2031,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
-                                                }
-                                            },
-                                            {
                                                 "key": "instid",
                                                 "value": {
                                                     "intValue": 900
@@ -2061,9 +2043,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "900"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2094,24 +2094,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
-                                                }
-                                            },
-                                            {
                                                 "key": "instid",
                                                 "value": {
                                                     "intValue": 100
@@ -2124,9 +2106,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "100"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2145,24 +2145,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2178,9 +2160,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "200"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2199,24 +2199,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2232,9 +2214,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "300"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2253,24 +2253,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2286,9 +2268,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "400"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2307,24 +2307,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2340,9 +2322,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "500"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2361,24 +2361,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2394,9 +2376,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "600"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2415,24 +2415,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2448,9 +2430,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "700"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2469,24 +2469,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2502,9 +2484,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "800"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2526,24 +2526,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
-                                                }
-                                            },
-                                            {
                                                 "key": "instid",
                                                 "value": {
                                                     "intValue": 900
@@ -2556,9 +2538,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "900"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2591,24 +2591,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
-                                                }
-                                            },
-                                            {
                                                 "key": "instid",
                                                 "value": {
                                                     "intValue": 100
@@ -2621,9 +2603,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "100"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2642,24 +2642,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2675,9 +2657,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "200"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2696,24 +2696,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2729,9 +2711,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "300"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2750,24 +2750,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2783,9 +2765,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "400"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2804,24 +2804,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2837,9 +2819,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "500"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2858,24 +2858,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2891,9 +2873,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "600"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2912,24 +2912,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2945,9 +2927,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "700"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -2966,24 +2966,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -2999,9 +2981,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "800"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -3023,24 +3023,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
-                                                }
-                                            },
-                                            {
                                                 "key": "instid",
                                                 "value": {
                                                     "intValue": 900
@@ -3053,9 +3035,27 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
                                                 "key": "bin",
                                                 "value": {
                                                     "stringValue": "900"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
                                                 }
                                             }
                                         ],
@@ -3084,15 +3084,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                         }
                     },
                     {
-                        "key": "machineid",
-                        "value": {
-                            "stringValue": "MACHINEID"
-                        }
-                    },
-                    {
                         "key": "domainname",
                         "value": {
                             "stringValue: "DOMAINNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
                         }
                     }
                 ]
@@ -3125,9 +3125,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
+                                                "key": "instid",
                                                 "value": {
-                                                    "stringValue": "testing"
+                                                    "intValue": 0
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "red"
                                                 }
                                             },
                                             {
@@ -3143,21 +3149,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
-                                                }
-                                            },
-                                            {
-                                                "key": "instid",
-                                                "value": {
-                                                    "intValue": 0
-                                                }
-                                            },
-                                            {
-                                                "key": "instname",
-                                                "value": {
-                                                    "stringValue": "red"
                                                 }
                                             }
                                         ],
@@ -3176,30 +3176,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "model",
-                                                "value": {
-                                                    "stringValue": "RGB"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -3213,6 +3189,30 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "value": {
                                                     "stringValue": "green"
                                                 }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "model",
+                                                "value": {
+                                                    "stringValue": "RGB"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
                                             }
                                         ],
                                         "timeUnixNano": NANOSECONDS,
@@ -3233,9 +3233,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
+                                                "key": "instid",
                                                 "value": {
-                                                    "stringValue": "testing"
+                                                    "intValue": 2
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "blue"
                                                 }
                                             },
                                             {
@@ -3251,21 +3257,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
-                                                }
-                                            },
-                                            {
-                                                "key": "instid",
-                                                "value": {
-                                                    "intValue": 2
-                                                }
-                                            },
-                                            {
-                                                "key": "instname",
-                                                "value": {
-                                                    "stringValue": "blue"
                                                 }
                                             }
                                         ],
@@ -3296,9 +3296,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
+                                                "key": "instid",
                                                 "value": {
-                                                    "stringValue": "testing"
+                                                    "intValue": 0
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "red"
                                                 }
                                             },
                                             {
@@ -3314,21 +3320,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
-                                                }
-                                            },
-                                            {
-                                                "key": "instid",
-                                                "value": {
-                                                    "intValue": 0
-                                                }
-                                            },
-                                            {
-                                                "key": "instname",
-                                                "value": {
-                                                    "stringValue": "red"
                                                 }
                                             }
                                         ],
@@ -3347,30 +3347,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "type",
                                                 "value": {
                                                     "stringValue": "32"
-                                                }
-                                            },
-                                            {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
-                                                "key": "agent",
-                                                "value": {
-                                                    "stringValue": "sample"
-                                                }
-                                            },
-                                            {
-                                                "key": "model",
-                                                "value": {
-                                                    "stringValue": "RGB"
-                                                }
-                                            },
-                                            {
-                                                "key": "cluster",
-                                                "value": {
-                                                    "stringValue": "zero"
                                                 }
                                             },
                                             {
@@ -3384,6 +3360,30 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "value": {
                                                     "stringValue": "green"
                                                 }
+                                            },
+                                            {
+                                                "key": "agent",
+                                                "value": {
+                                                    "stringValue": "sample"
+                                                }
+                                            },
+                                            {
+                                                "key": "model",
+                                                "value": {
+                                                    "stringValue": "RGB"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
+                                                "key": "cluster",
+                                                "value": {
+                                                    "stringValue": "zero"
+                                                }
                                             }
                                         ],
                                         "timeUnixNano": NANOSECONDS,
@@ -3404,9 +3404,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
+                                                "key": "instid",
                                                 "value": {
-                                                    "stringValue": "testing"
+                                                    "intValue": 2
+                                                }
+                                            },
+                                            {
+                                                "key": "instname",
+                                                "value": {
+                                                    "stringValue": "blue"
                                                 }
                                             },
                                             {
@@ -3422,21 +3428,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
+                                                }
+                                            },
+                                            {
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
-                                                }
-                                            },
-                                            {
-                                                "key": "instid",
-                                                "value": {
-                                                    "intValue": 2
-                                                }
-                                            },
-                                            {
-                                                "key": "instname",
-                                                "value": {
-                                                    "stringValue": "blue"
                                                 }
                                             }
                                         ],
@@ -3465,15 +3465,15 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                         }
                     },
                     {
-                        "key": "machineid",
-                        "value": {
-                            "stringValue": "MACHINEID"
-                        }
-                    },
-                    {
                         "key": "domainname",
                         "value": {
                             "stringValue: "DOMAINNAME"
+                        }
+                    },
+                    {
+                        "key": "machineid",
+                        "value": {
+                            "stringValue": "MACHINEID"
                         }
                     }
                 ]
@@ -3506,12 +3506,6 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 }
                                             },
                                             {
-                                                "key": "role",
-                                                "value": {
-                                                    "stringValue": "testing"
-                                                }
-                                            },
-                                            {
                                                 "key": "agent",
                                                 "value": {
                                                     "stringValue": "sample"
@@ -3521,6 +3515,12 @@ sample_long_one{role="testing",agent="sample",hostname="HOSTNAME",cluster="zero"
                                                 "key": "cluster",
                                                 "value": {
                                                     "stringValue": "zero"
+                                                }
+                                            },
+                                            {
+                                                "key": "role",
+                                                "value": {
+                                                    "stringValue": "testing"
                                                 }
                                             }
                                         ],

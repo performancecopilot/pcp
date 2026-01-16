@@ -8,7 +8,7 @@
  *     $ ./sha1ext2int --raw 09be7733f1b5ed42572d26928a5e56ccf91ea8b8
  */
 #include <pcp/pmapi.h>
-#include "sds.h"
+#include <pcp/sds.h>
 
 /* Input 40-byte SHA1 hash, output 20-byte representation */
 static unsigned char *

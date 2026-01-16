@@ -19,7 +19,16 @@
 #include "batons.h"
 
 struct keySlots;
-typedef dict keyMap;
+
+/*
+ * Wrapper for dict that includes privdata (metadata).
+ * This is needed because libvalkey dict doesn't have privdata field.
+ */
+typedef struct keyMap {
+    dict		*dict;		/* the actual dictionary */
+    void		*privdata;	/* private data (typically sds name) */
+} keyMap;
+
 typedef dictEntry keyMapEntry;
 
 /*

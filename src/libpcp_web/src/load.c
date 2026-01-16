@@ -61,9 +61,11 @@ pmidErr(seriesLoadBaton *baton, pmID pmid, const char *fmt, ...)
     char		**names;
     sds			msg;
 
-    if (dictFetchValue(baton->errors, &pmid) == NULL) {
-	dictAdd(baton->errors, &pmid, NULL);
-	if ((numnames = pmNameAll(pmid, &names)) < 1)
+    {
+	dictEntry *entry;
+	if ((entry = dictFind(baton->errors, &pmid)) == NULL) {
+	    dictAdd(baton->errors, &pmid, NULL);
+	    if ((numnames = pmNameAll(pmid, &names)) < 1)
 	    msg = sdsnew("<no metric names>");
 	else {
 	    msg = sdsnew(names[0]);
@@ -464,9 +466,11 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 	    continue;
 
 	/* check if in the restricted group (optional metric filter) */
-	if (dictSize(baton->wanted) &&
-	    dictFetchValue(baton->wanted, &vsp->pmid) == NULL)
-	    continue;
+	if (dictSize(baton->wanted)) {
+	    dictEntry *entry;
+	    if ((entry = dictFind(baton->wanted, &vsp->pmid)) == NULL)
+		continue;
+	}
 
 	/* check if metric to be skipped (optional metric exclusion) */
 	if (exclude && (dictFind(exclude, &vsp->pmid)) != NULL)
@@ -475,14 +479,18 @@ series_cache_update(seriesLoadBaton *baton, struct dict *exclude)
 	write_meta = write_inst = 0;
 
 	/* check if pmid already in hash list */
-	if ((metric = dictFetchValue(cp->pmids, &vsp->pmid)) == NULL) {
-	    /* create a new metric, and add it to load context */
-	    if ((metric = new_metric(baton, vsp)) == NULL)
-		continue;
-	    write_meta = 1;
-	} else {	/* pmid already observed */
-	    if ((write_meta = metric->cached) == 0)
-		get_metric_metadata(baton, metric);
+	{
+	    dictEntry *entry;
+	    if ((entry = dictFind(cp->pmids, &vsp->pmid)) == NULL) {
+		/* create a new metric, and add it to load context */
+		if ((metric = new_metric(baton, vsp)) == NULL)
+		    continue;
+		write_meta = 1;
+	    } else {	/* pmid already observed */
+		metric = (metric_t *)dictGetVal(entry);
+		if ((write_meta = metric->cached) == 0)
+		    get_metric_metadata(baton, metric);
+	    }
 	}
 
 	/* iterate through result instances and ensure metric_t is complete */
@@ -649,8 +657,6 @@ server_cache_window(void *arg)
 {
     seriesLoadBaton	*baton = (seriesLoadBaton *)arg;
     seriesGetContext	*context = &baton->pmapi;
-    uv_timer_t		*timer; /* adaptive delay for request balancing */
-    uint64_t		msecs;
 
     seriesBatonCheckMagic(baton, MAGIC_LOAD, "server_cache_window");
     seriesBatonCheckCount(context, "server_cache_window");
@@ -660,6 +666,8 @@ server_cache_window(void *arg)
 	fprintf(stderr, "%s: fetching next result\n", "server_cache_window");
 
 #if defined(HAVE_LIBUV)
+    uv_timer_t	*timer;
+    uint64_t	msecs;
     seriesBatonReference(baton, "server_cache_window");
     seriesBatonReference(context, "server_cache_window");
     context->done = server_cache_series_finished;
@@ -1095,10 +1103,10 @@ connect_keys_source_service(seriesLoadBaton *baton)
 	    if ((baton->flags & PM_SERIES_FLAG_TEXT))
 		flags |= SLOTS_SEARCH;
 	    baton->slots = data->slots =
-		keySlotsConnect(
+		&(keySlotsConnect(
 		    data->config, flags, baton->info,
 		    series_load_end_phase, baton->userdata,
-		    data->events, (void *)baton);
+		    data->events, (void *)baton))->slots;
 	}
     }
 }
@@ -1138,9 +1146,9 @@ initSeriesLoadBaton(seriesLoadBaton *baton, void *module, pmSeriesFlags flags,
     baton->userdata = userdata;
     baton->flags = flags;
 
-    baton->errors = dictCreate(&intKeyDictCallBacks, baton);
-    baton->wanted = dictCreate(&intKeyDictCallBacks, baton);
-    baton->exclude_pmids = dictCreate(&intKeyDictCallBacks, baton);
+    baton->errors = dictCreate(&intKeyDictCallBacks);
+    baton->wanted = dictCreate(&intKeyDictCallBacks);
+    baton->exclude_pmids = dictCreate(&intKeyDictCallBacks);
 }
 
 void
@@ -1438,8 +1446,10 @@ pmSeriesDiscoverLabels(pmDiscoverEvent *event,
 
 	for (i = 0; indom && i < nsets; i++) {
 	    id = sets[i].inst;
-	    if ((instance = dictFetchValue(indom->insts, &id)) == NULL)
+	    dictEntry *entry;
+	    if ((entry = dictFind(indom->insts, &id)) == NULL)
 		continue;
+	    instance = (instance_t *)dictGetVal(entry);
 	    if ((labels = pmwebapi_labelsetdup(&sets[i])) == NULL) {
 		infofmt(msg, "failed to dup indom %s instance label set: %s",
 			pmInDomStr_r(indom->indom, idbuf, sizeof(idbuf)),
