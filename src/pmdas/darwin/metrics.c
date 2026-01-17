@@ -672,13 +672,25 @@ pmdaMetric metrictab[] = {
   { &mach_udp.noport,
     { PMDA_PMID(CLUSTER_UDP,144), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
-/* network.udp.inerrors */
+/* network.udp.inerrors.total */
   { NULL,
     { PMDA_PMID(CLUSTER_UDP,145), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 /* network.udp.rcvbuferrors */
   { &mach_udp.fullsock,
     { PMDA_PMID(CLUSTER_UDP,146), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.inerrors.hdrops */
+  { &mach_udp.hdrops,
+    { PMDA_PMID(CLUSTER_UDP,147), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.inerrors.badsum */
+  { &mach_udp.badsum,
+    { PMDA_PMID(CLUSTER_UDP,148), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.udp.inerrors.badlen */
+  { &mach_udp.badlen,
+    { PMDA_PMID(CLUSTER_UDP,149), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* network.icmp.inmsgs */

@@ -12,8 +12,18 @@ fetch network.udp.outdatagrams
 desc network.udp.noports
 fetch network.udp.noports
 
-desc network.udp.inerrors
-fetch network.udp.inerrors
-
 desc network.udp.rcvbuferrors
 fetch network.udp.rcvbuferrors
+
+# UDP input error metrics (granular breakdown)
+desc network.udp.inerrors.total
+fetch network.udp.inerrors.total
+
+desc network.udp.inerrors.hdrops
+fetch network.udp.inerrors.hdrops
+
+desc network.udp.inerrors.badsum
+fetch network.udp.inerrors.badsum
+
+desc network.udp.inerrors.badlen
+fetch network.udp.inerrors.badlen

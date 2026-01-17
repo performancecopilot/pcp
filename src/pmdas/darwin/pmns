@@ -197,8 +197,15 @@ network.udp {
     indatagrams	DARWIN:13:142
     outdatagrams	DARWIN:13:143
     noports		DARWIN:13:144
-    inerrors	DARWIN:13:145
+    inerrors
     rcvbuferrors	DARWIN:13:146
+}
+
+network.udp.inerrors {
+    total	DARWIN:13:145
+    hdrops	DARWIN:13:147
+    badsum	DARWIN:13:148
+    badlen	DARWIN:13:149
 }
 
 network.icmp {

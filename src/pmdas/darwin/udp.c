@@ -50,7 +50,7 @@ fetch_udp(unsigned int item, pmAtomValue *atom)
 	return mach_udp_error;
 
     switch (item) {
-    case 145: /* network.udp.inerrors */
+    case 145: /* network.udp.inerrors.total */
 	atom->ull = mach_udp.hdrops + mach_udp.badsum + mach_udp.badlen;
 	return 1;
     }

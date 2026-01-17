@@ -221,10 +221,22 @@ This is a cumulative counter from boot time.
 @ network.udp.noports UDP datagrams to port with no listener
 Total number of received UDP datagrams for which there was no listener
 at the destination port. This is a cumulative counter from boot time.
-@ network.udp.inerrors UDP input errors
-Total number of errors encountered on received UDP datagrams.
-This includes bad checksums, invalid headers, and truncated datagrams.
-Computed as the sum of header errors, checksum errors, and length errors.
+@ network.udp.inerrors.total Total UDP input errors
+Aggregate count of all UDP input errors (sum of hdrops, badsum, badlen).
+Includes header errors, checksum errors, and length errors.
+
+@ network.udp.inerrors.hdrops Header error drops
+UDP datagrams dropped due to header errors. May indicate malformed packets
+or network transmission issues.
+
+@ network.udp.inerrors.badsum Bad checksum errors
+UDP datagrams received with bad checksum. May indicate NIC hardware issues,
+transmission line problems, or network equipment failures.
+
+@ network.udp.inerrors.badlen Bad length errors
+UDP datagrams dropped due to invalid length fields. May indicate malformed
+packets or protocol violations.
+
 @ network.udp.rcvbuferrors UDP receive buffer errors
 Total number of UDP datagrams dropped due to full socket receive buffers.
 This occurs when the receiving application cannot keep up with incoming data.

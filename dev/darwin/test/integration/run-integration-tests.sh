@@ -233,8 +233,17 @@ run_test "network.udp.outdatagrams exists" "pminfo -f network.udp.outdatagrams"
 run_test "network.udp.indatagrams >= 0" "validate_metric network.udp.indatagrams non-negative"
 run_test "network.udp.outdatagrams >= 0" "validate_metric network.udp.outdatagrams non-negative"
 run_test "network.udp.noports >= 0" "validate_metric network.udp.noports non-negative"
-run_test "network.udp.inerrors >= 0" "validate_metric network.udp.inerrors non-negative"
+run_test "network.udp.inerrors.total >= 0" "validate_metric network.udp.inerrors.total non-negative"
 run_test "network.udp.rcvbuferrors >= 0" "validate_metric network.udp.rcvbuferrors non-negative"
+echo
+
+echo "Test Group: UDP Granular Error Metrics"
+run_test "network.udp.inerrors.hdrops exists" "pminfo -f network.udp.inerrors.hdrops"
+run_test "network.udp.inerrors.badsum exists" "pminfo -f network.udp.inerrors.badsum"
+run_test "network.udp.inerrors.badlen exists" "pminfo -f network.udp.inerrors.badlen"
+run_test "network.udp.inerrors.hdrops >= 0" "validate_metric network.udp.inerrors.hdrops non-negative"
+run_test "network.udp.inerrors.badsum >= 0" "validate_metric network.udp.inerrors.badsum non-negative"
+run_test "network.udp.inerrors.badlen >= 0" "validate_metric network.udp.inerrors.badlen non-negative"
 echo
 
 # Test 11: ICMP protocol metrics
