@@ -81,6 +81,9 @@ class pmConfig(object):
         # Update PCP labels on instance changes
         self._prev_insts = []
 
+        # Track per-metric success/failure for --ignore-unknown
+        self.metric_sts = {}
+
     def set_signal_handler(self):
         """ Set default signal handler """
         def handler(_signum, _frame):
@@ -554,6 +557,7 @@ class pmConfig(object):
         """ Validate individual metric and get its details """
         try:
             pmid = self.util.context.pmLookupName(metric)[0]
+            self.metric_sts[metric] = 0  # Track successful lookup
             if pmid in self.pmids:
                 # Always ignore duplicates
                 return
@@ -643,6 +647,10 @@ class pmConfig(object):
             self.res_labels[metric] = [metric_labels, ri_labels]
         except pmapi.pmErr as error:
             if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
+                return
+            # Check ignore_unknown before exiting
+            if self.ignore_unknown_metrics():
+                self.metric_sts[metric] = error.args[0]
                 return
             sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
             sys.exit(1)
@@ -814,6 +822,10 @@ class pmConfig(object):
                 else:
                     self.util.metrics[metric] = metrics[metric]
             except pmapi.pmErr as error:
+                # Check ignore_unknown before exiting
+                if self.ignore_unknown_metrics():
+                    self.metric_sts[metric] = error.args[0]
+                    continue  # Try next metric instead of exit
                 sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
                 sys.exit(1)
 
