@@ -5063,7 +5063,7 @@ series_query_funcs_report_values(void *arg)
     seriesBatonReference(baton, "series_query_funcs_report_values");
 
     /* For function-type nodes, calculate actual values */
-    has_function = series_calculate(baton->query.root, 0, baton->userdata);
+    has_function = series_calculate(baton->query.root, 0, baton);
 
     /*
      * Store the canonical query to Redis if this query statement has

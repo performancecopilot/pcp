@@ -103,7 +103,7 @@ refresh_proc_scsi(pmInDom indom)
 	if (!failed) {
 	    sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)se);
 	    if (sts < 0) {
-		fprintf(stderr, "Warning: refresh_proc_scsi: pmdaCacheOp(%s, ADD, \"%s\", (%s)): %s\n",
+		fprintf(stderr, "Warning: refresh_proc_scsi: pmdaCacheStore(%s, ADD, \"%s\", (%s)): %s\n",
 		    pmInDomStr(indom), name, se->dev_name, pmErrStr(sts));
 		free(se->dev_name);
 		free(se);
