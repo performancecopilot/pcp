@@ -207,6 +207,10 @@ environment (your platform must at least have gmake).
 ```
 # MacOS - use Homebrew and ensure the following packages are installed 
 brew install gnu-tar pkg-config python3 python-setuptools autoconf
+
+# NOTE: Must have Homebrew's newer Python3 ahead in the path:
+(echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.zshrc
+source ~/.zshrc
 ```
 
 ---
