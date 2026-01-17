@@ -271,12 +271,9 @@ BEGIN           { i = 0 }
     | while read host primary socks dir args
     do
 	# start in one place for each iteration (beware of relative paths)
-	if cd "$_here"
+	if ! cd "$_here"
 	then
-	    $VERY_VERBOSE && echo >&2 "_parse_log_control: cd back to $_here"
-	else
-	    _error "_parse_log_control: failed to cd back to $_here"
-	    continue
+	    $VERY_VERBOSE && echo >&2 "_parse_log_control: failed to cd back to $_here"
 	fi
 	line=`expr $line + 1`
 
@@ -544,10 +541,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# check $dir, cd there, acquire lock
 	#
 	$SHOWME && echo "+ cd $dir"
-	if cd "$dir"
+	if ! cd "$dir"
 	then
-	    :
-	else
 	    if $SHOWME
 	    then
 		echo "+ ... cannot show any more for this control line"
@@ -668,9 +663,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
     done
     if ! cd "$_here"
     then
-	_error "_parse_log_control: failed to cd back to $_here at return"
+	$VERY_VERBOSE && echo >&2 "_parse_log_control: failed to cd back to $_here at return"
     fi
-    $VERY_VERBOSE && echo >&2 "_parse_log_control: current dir at return: `$_PWDCMD`"
 }
 
 # Called from _callback_log_control() [in pmlogger_check and pmlogger_janitor]
