@@ -51,4 +51,5 @@ CmakeLists.txt
 provisioning/osxsierra.legally.ok
 *.gdb_history
 *vgcore.*
-tmpfiles.init.setup 
+tmpfiles.init.setup
+CLAUDE.local.md
