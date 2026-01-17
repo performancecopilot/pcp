@@ -26,7 +26,7 @@
 | 3.2 | COMPLETED | Process file descriptor count (ready for commit) |
 | 3B.1 | COMPLETED | PR Feedback: Copyright header updates (commit d9678a39a0) |
 | 3B.2 | COMPLETED | PR Feedback: Test infrastructure relocation (commit 1f521b1ad1) |
-| 3B.3 | COMPLETED | PR Feedback: TCP granular error metrics (commit 459ab13d36) |
+| 3B.3 | COMPLETED | PR Feedback: TCP granular error metrics (commits 459ab13d36, 4cd20e6167) - Tested ✓ |
 | 3B.4 | PENDING | PR Feedback: UDP granular error metrics |
 | 3B.5 | PENDING | PR Feedback: TCP state validation logging |
 | 4.1 | PENDING | Transform plan → permanent documentation |
@@ -1299,7 +1299,7 @@ dev/darwin/test/quick-test.sh
 
 ### Step 3B.3: TCP Granular Error Metrics
 
-**Status:** COMPLETED (commit 459ab13d36)
+**Status:** COMPLETED (commits 459ab13d36, 4cd20e6167) - Fully tested ✓
 
 **Goal:** Add hierarchical TCP error metrics for diagnostic visibility into individual error types.
 
@@ -1365,9 +1365,16 @@ network.tcp.inerrs {
 - **short**: MTU mismatches, packet fragmentation issues
 - **memdrop**: System resource pressure
 
-**Testing:** Run full test suite via Cirrus VM after implementation
+**Testing:** ✅ Full test suite passed via Makepkgs build
 
-**Commit Message:** "Add granular TCP input error metrics for diagnostics"
+**Implementation Notes:**
+- Commit 459ab13d36: Initial TCP granular error metrics implementation
+- Commit 4cd20e6167: Fixed help file build error (removed non-leaf node entry for network.tcp.inerrs parent)
+- All build and QA tests pass successfully
+
+**Commit Messages:**
+- "Add granular TCP input error metrics for diagnostics"
+- "Fix darwin PMDA build error with help file"
 
 ---
 
