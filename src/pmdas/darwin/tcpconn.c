@@ -14,8 +14,10 @@
 
 #include "pmapi.h"
 #include "pmda.h"
+#include "darwin.h"
 #include "tcpconn.h"
 
+#include <syslog.h>
 #include <sys/sysctl.h>
 #include <netinet/in_pcb.h>
 #include <netinet/tcp_var.h>
@@ -74,8 +76,18 @@ refresh_tcpconn(tcpconn_stats_t *stats)
         tp = (struct xtcpcb64 *)xig;
 
         /* Validate state and increment counter */
-        if (tp->t_state >= 0 && tp->t_state < TCP_NSTATES)
+        if (tp->t_state >= 0 && tp->t_state < TCP_NSTATES) {
             stats->state[tp->t_state]++;
+        } else {
+            /* One-trip guard: log invalid state only once to prevent flooding */
+            static int logged_invalid_state = 0;
+            if (!logged_invalid_state) {
+                pmNotifyErr(LOG_WARNING,
+                    "refresh_tcpconn: invalid TCP state %d (valid range: 0-%d)",
+                    tp->t_state, TCP_NSTATES - 1);
+                logged_invalid_state = 1;
+            }
+        }
     }
 
     free(buf);
