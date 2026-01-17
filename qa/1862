@@ -1,0 +1,83 @@
+#!/bin/sh
+# PCP QA Test No. 1862
+# test unlocalvar script
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -x ../scripts/unlocalvar ] || _notrun "no ../scripts/unlocalvar"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+cat <<'End-of-File' >$tmp.in
+#!/bin/sh
+# foo
+# blah()
+# {
+# }
+
+fumble()
+{
+    local foo
+    local bar="local bar"
+local	l1;local l2;
+    foo="local foo"
+    l1='local l1'
+    l1='local l2'
+    echo "fumble: foo=\"$foo\" bar=\"$bar\" \$1=\"$1\" l1=\"$l1\" l2=\"$l2\""
+    unset foo
+}
+
+foo="global foo"
+bar="global bar"
+l1=''
+l2=''
+fumble 123
+echo "main: foo=\"$foo\" bar=\"$bar\" l1=\"$l1\" l2=\"$l2\""
+End-of-File
+
+echo "=== run script before ==="
+sh $tmp.in
+
+../scripts/unlocalvar -d -n $tmp.in >$tmp.out 2>$tmp.err
+cat $tmp.err
+echo
+echo "=== script diffs ==="
+diff $tmp.in $tmp.out
+
+echo
+echo "=== run script after ==="
+sh $tmp.out
+
+# success, all done
+exit

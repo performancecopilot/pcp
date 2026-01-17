@@ -20,7 +20,10 @@ echo "QA output created by $seq"
 
 case $PCP_PLATFORM
 in
-    linux|darwin|solaris|freebsd|openbsd)
+    solaris)
+	_notrun "SIGSTOP handled differently on solaris"
+	;;
+    linux|darwin|freebsd|openbsd)
 	;;
     *)
 	_notrun "$PCP_PLATFORM is not yet supported in test $seq"

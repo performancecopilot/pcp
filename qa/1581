@@ -87,12 +87,17 @@ _do_work()
     echo | tee -a $seq_full
     echo "=== $@ ===" | tee -a $seq_full
 
+    # for OpenIndiana we need to run src/api_abi_v2 in the src
+    # directory so that the relative path to libpcp3/src/libpcp.so.3
+    # matches the link-time path
+    #
+    cd src
     echo "--- PMAPI_VERSION_2 ---"
     if $do_valgrind
     then
-	_run_valgrind --save-output src/api_abi_v2 -Dpmapi "$@"
+	_run_valgrind --save-output ./api_abi_v2 -Dpmapi "$@"
     else
-	src/api_abi_v2 -Dpmapi "$@" 2>$tmp.err >$tmp.out
+	./api_abi_v2 -Dpmapi "$@" 2>$tmp.err >$tmp.out
     fi
     _filter_err
     cat $tmp.err | tee -a $seq_full
@@ -104,9 +109,9 @@ _do_work()
     echo "--- compat ---"
     if $do_valgrind
     then
-	_run_valgrind --save-output src/api_abi_compat -Dpmapi "$@"
+	_run_valgrind --save-output ./api_abi_compat -Dpmapi "$@"
     else
-	src/api_abi_compat -Dpmapi "$@" 2>$tmp.err >$tmp.out
+	./api_abi_compat -Dpmapi "$@" 2>$tmp.err >$tmp.out
     fi
     _filter_err
     cat $tmp.err >> $seq_full
@@ -114,12 +119,15 @@ _do_work()
     _filter_out
     cat $tmp.out >> $seq_full
     diff $tmp.out.base $tmp.out | _filter_diff
+    cd ..
 }
 
 # real QA test starts here
 
 _do_work -h local: -t 123.456 -Z UTC
-_do_work -a archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec
+# see OpenIndiana note in _do_work() to explain the ../archives here
+#
+_do_work -a ../archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec
 
 # success, all done
 exit

@@ -25,6 +25,7 @@ $PCP_BINADM_DIR/pmconfig -L | grep lock_debug=true >/dev/null || _notrun libpcp 
 _cleanup()
 {
     cd $here
+    unset LD_PRELOAD
     $sudo rm -rf $tmp $tmp.*
 }
 

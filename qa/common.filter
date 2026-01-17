@@ -402,6 +402,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[68 or "apache"]/d' \
         -e '/inst \[72 or "mounts"]/d' \
 	-e '/inst \[74 or "lmsensors"]/d' \
+	-e '/inst \[75 or "solaris"]/d' \
 	-e '/inst \[78 or "darwin"]/d' \
 	-e '/inst \[95 or "kvm"]/d' \
 	-e '/inst \[98 or "zimbra"]/d' \

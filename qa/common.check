@@ -616,6 +616,9 @@ _domain_name()
     [ -z "$__domainname" ] && __domainname=localdomain
     [ "$__domainname" = "(none)" ] && __domainname=localdomain
     [ "$__domainname" = "(null)" ] && __domainname=localdomain
+    # OpenIndiana sickness => domainname returns " "
+    #
+    [ "$__domainname" = " " ] && __domainname=localdomain
     echo "$__domainname"
 }
 

@@ -62,9 +62,9 @@ pmtimespec*: OK
 ---
 > pmHighResResult ... numpmid: 1
 
-=== -a archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec ===
+=== -a ../archives/omnibus_v3 -z -S +2msec -O +3msec -t 0.1 -T 5sec ===
 --- PMAPI_VERSION_2 ---
-pmNewContext(2, archives/omnibus_v3) <::> returns 0
+pmNewContext(2, ../archives/omnibus_v3) <::> returns 0
 pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
 pmUseContext(0) <::> returns 0
 pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
@@ -87,7 +87,7 @@ Options structure dump:
     context: 0x2 (archive)
     nhosts: 0
     narchives: 1
-    archives: archives/omnibus_v3
+    archives: ../archives/omnibus_v3
     start: 03/04/2022 16:50:55.403624
     finish: 03/04/2022 16:51:00.403624
     origin: 03/04/2022 16:50:55.406624
@@ -115,10 +115,10 @@ pmResult ... numpmid: 1
     inst [2 or "blue"] value NUMBER
 pm*InDomArchive*: OK
 --- compat ---
-< pmNewContext(2, archives/omnibus_v3) <::> returns 0
+< pmNewContext(2, ../archives/omnibus_v3) <::> returns 0
 < pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
 ---
-> pmNewContext(2, "archives/omnibus_v3") <::> returns 0
+> pmNewContext(2, "../archives/omnibus_v3") <::> returns 0
 4d2
 < pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623
 < pmFetch(1, pmid[0] 29.0.5, ...) <:pmGetArchiveEnd() <::> returns 0 end=16:51:04.732225623

@@ -2218,6 +2218,7 @@ telnet-probe
 1784 pmlogconf local
 1787 pmda.opentelemetry local python
 1788 pmda.linux local
+1791 pmrep python local
 1792 pmrep python local
 1793 pmrep pcp2xxx python local pmlogdump pmjson
 1794 pcp2arrow local
@@ -2251,6 +2252,7 @@ telnet-probe
 1854 pmlogger pmimport local
 1855 pmda.rabbitmq local
 1856 dstat python local derive
+1862 other local
 1869 logutil pmlogger_daily local
 1870 guidellm2pcp python pmimport libpcp_import local
 1871 pmsearch local
