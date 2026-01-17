@@ -277,6 +277,7 @@ cat <<'End-of-File' >$tmp.suppress
    fun:sdsll2str
    fun:sdscatfmt
    fun:keys_series_label
+   ...
    fun:keys_series_labelset
    fun:keys_series_metadata
    fun:keys_series_metric
@@ -289,6 +290,7 @@ cat <<'End-of-File' >$tmp.suppress
    fun:sdsll2str
    fun:sdscatfmt
    fun:keys_series_label
+   ...
    fun:keys_series_labelset
    fun:keys_series_metadata
    fun:keys_series_metric
@@ -300,6 +302,7 @@ cat <<'End-of-File' >$tmp.suppress
    fun:sdsll2str
    fun:sdscatfmt
    fun:keys_series_label
+   ...
    fun:keys_series_labelset
    fun:keys_series_metadata
    fun:keys_series_metric
@@ -322,8 +325,6 @@ cat <<'End-of-File' >$tmp.suppress
    fun:redisNetWrite
    fun:redisBufferWrite
    fun:redisAsyncWrite
-   fun:redisAsyncHandleWrite
-   fun:redisLibuvPoll
    ...
 }
 {
