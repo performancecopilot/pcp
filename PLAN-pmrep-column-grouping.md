@@ -33,6 +33,15 @@
   - **Tests**: Added 6 TDD tests + 5 macstat config validation tests (all passing)
   - **Verification**: All 157 unit tests pass in 0.003s
 
+### ✅ Bug Fix #4 - COMPLETE (Commit bdc4427c9c)
+- [✅] **Bug Fixed**: `--ignore-unknown` flag didn't work, still caused fatal exits
+  - **Issue**: [#2452](https://github.com/performancecopilot/pcp/issues/2452) - pmrep exited on unknown metrics even with `--ignore-unknown` set
+  - **Example**: `pmrep --ignore-unknown :vmstat` failed on macOS with "Invalid metric swap.used"
+  - **Root Cause**: Three exception handlers in pmconfig.py didn't check `ignore_unknown_metrics()` before calling `sys.exit(1)`
+  - **Fix**: Added per-metric failure tracking (`metric_sts` dict) and check `ignore_unknown` at all exception points
+  - **Tests**: Created `test_ignore_unknown.py` with 6 TDD tests (all passing)
+  - **Verification**: All unit tests pass, ready for manual integration testing
+
 ### ✅ Phase 2: Documentation - COMPLETE
 - [✅] **COMPLETE**: Example configuration (`src/pmrep/conf/vmstat-grouped.conf`)
 - [✅] **COMPLETE**: Documentation comments (`src/pmrep/conf/00-defaults.conf`)
@@ -40,13 +49,14 @@
 - [ ] **PENDING**: QA integration tests (`qa/NNNN`)
 
 ### 📋 Testing Summary
-- **Unit Tests**: 166 tests passing locally (0.009s)
+- **Unit Tests**: 172 tests passing locally (0.009s)
   - 22 config parsing tests (test_config_parsing.py) - includes 6 TDD parse tests + macstat validation
   - 16 formatting tests (test_formatting.py)
   - 16 config dataclass tests (test_config.py)
   - 29 group tests (test_groups.py)
   - 18 header tests (test_header.py)
   - 29 metrics tests (test_metrics.py)
+  - 6 ignore-unknown tests (test_ignore_unknown.py) - TDD tests for --ignore-unknown flag fix
   - 3 integration tests (test_integration.py)
   - 4 smoke tests (test_smoke.py)
   - 29 other tests
