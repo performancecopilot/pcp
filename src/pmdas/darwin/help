@@ -354,9 +354,6 @@ This is the total count of all TCP packets transmitted by the host.
 Count of TCP segments retransmitted due to timeout or loss detection.
 High values may indicate network congestion or packet loss.
 
-@ network.tcp.inerrs CLUSTER_TCP
-TCP input error statistics broken down by error type for diagnostic visibility.
-
 @ network.tcp.inerrs.total Total TCP input errors
 Aggregate count of all TCP input errors (sum of badsum, badoff, short, memdrop).
 
