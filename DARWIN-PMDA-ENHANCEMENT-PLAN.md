@@ -9,34 +9,34 @@
 
 ## Progress Tracker
 
-| Phase | Step | Description | Status | Commit |
-|-------|------|-------------|--------|--------|
-| **1** | **Memory Enhancement** | | | |
-| 1 | 1.1a | vm_statistics64 API upgrade | ✅ COMPLETED | b49d238c85 |
-| 1 | 1.1b | Memory compression metrics | ✅ COMPLETED | 9db0865001 |
-| 1 | 1.2 | VFS statistics | ✅ COMPLETED | 71f12b992a |
-| **2** | **Network Enhancement** | | | |
-| 2 | 2.1 | UDP protocol statistics | ✅ COMPLETED | daf0f8c892 |
-| 2 | 2.2 | ICMP protocol statistics | ✅ COMPLETED | 14654a6e2a |
-| 2 | 2.3 | Socket counts | ✅ COMPLETED | 50ab438ac3 |
-| 2 | 2.4 | TCP connection states | ✅ COMPLETED | 96a4191fcd |
-| 2 | 2.5-pre | Enable TCP stats in Cirrus CI | ✅ COMPLETED | 1d967ef777 |
-| 2 | 2.5a | TCP protocol statistics | ✅ COMPLETED | 2bf73ecef5, 540e5304b2 |
-| 2 | 2.5b | TCP access control detection/docs | ✅ COMPLETED | f5c406e52a |
-| 2 | 2.5c | TCP auto-enable config | ⏸️ DEFERRED | (for maintainer discussion) |
-| 2 | 2.6 | pmrep macOS monitoring views | ✅ COMPLETED | 9afb1b9e9d, 3a2e05e5da |
-| **3** | **Process Enhancement** | | | |
-| 3 | 3.1 | Process I/O statistics | ✅ COMPLETED | e0b925a347 |
-| 3 | 3.2 | Process file descriptor count | ✅ COMPLETED | (ready for commit) |
-| **3B** | **PR #2442 Review Feedback** | | | |
-| 3B | 3B.1 | Copyright header updates | ✅ COMPLETED | d9678a39a0 |
-| 3B | 3B.2 | Test infrastructure relocation | ✅ COMPLETED | 1f521b1ad1 |
-| 3B | 3B.3 | TCP granular error metrics | ✅ COMPLETED | 459ab13d36 |
-| 3B | 3B.4 | UDP granular error metrics | ✅ COMPLETED | 3e19fa6a45 |
-| 3B | 3B.5 | TCP state validation logging | ✅ COMPLETED | 8942c07d2a |
-| **4** | **Finalization** | | | |
-| 4 | 4.1 | Transform plan → documentation | 📋 PENDING | |
-| 4 | 4.2 | Refactor pmda.c legacy code | 📋 PENDING | |
+| Phase | Step | Description | Status | Commit                          |
+|-------|------|-------------|--------|---------------------------------|
+| **1** | **Memory Enhancement** | | |                                 |
+| 1 | 1.1a | vm_statistics64 API upgrade | ✅ COMPLETED | b49d238c85                      |
+| 1 | 1.1b | Memory compression metrics | ✅ COMPLETED | 9db0865001                      |
+| 1 | 1.2 | VFS statistics | ✅ COMPLETED | 71f12b992a                      |
+| **2** | **Network Enhancement** | | |                                 |
+| 2 | 2.1 | UDP protocol statistics | ✅ COMPLETED | daf0f8c892                      |
+| 2 | 2.2 | ICMP protocol statistics | ✅ COMPLETED | 14654a6e2a                      |
+| 2 | 2.3 | Socket counts | ✅ COMPLETED | 50ab438ac3                      |
+| 2 | 2.4 | TCP connection states | ✅ COMPLETED | 96a4191fcd                      |
+| 2 | 2.5-pre | Enable TCP stats in Cirrus CI | ✅ COMPLETED | 1d967ef777                      |
+| 2 | 2.5a | TCP protocol statistics | ✅ COMPLETED | 2bf73ecef5, 540e5304b2          |
+| 2 | 2.5b | TCP access control detection/docs | ✅ COMPLETED | f5c406e52a                      |
+| 2 | 2.5c | TCP auto-enable config | ⏸️ DEFERRED | (for maintainer discussion)     |
+| 2 | 2.6 | pmrep macOS monitoring views | ✅ COMPLETED | 9afb1b9e9d, 3a2e05e5da          |
+| **3** | **Process Enhancement** | | |                                 |
+| 3 | 3.1 | Process I/O statistics | ✅ COMPLETED | e0b925a347                      |
+| 3 | 3.2 | Process file descriptor count | ✅ COMPLETED | (ready for commit)              |
+| **3B** | **PR #2442 Review Feedback** | | |                                 |
+| 3B | 3B.1 | Copyright header updates | ✅ COMPLETED | d9678a39a0                      |
+| 3B | 3B.2 | Test infrastructure relocation | ✅ COMPLETED | 1f521b1ad1                      |
+| 3B | 3B.3 | TCP granular error metrics | ✅ COMPLETED | 459ab13d36                      |
+| 3B | 3B.4 | UDP granular error metrics | ✅ COMPLETED | 3e19fa6a45                      |
+| 3B | 3B.5 | TCP state validation logging | ✅ COMPLETED | 8942c07d2a                      |
+| **4** | **Finalization** | | |                                 |
+| 4 | 4.1 | Transform plan → documentation | 📋 PENDING |                                 |
+| 4 | 4.2 | Refactor pmda.c legacy code | ✅ COMPLETED | (Various commits - see history) |
 
 ---
 
