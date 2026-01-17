@@ -48,6 +48,49 @@ $1 == "cputime:" { printf "'"$1"': %.2fcpu (%.2fusr + %.2fsys)\n",$2+$3, $2, $3 
 $1 != "cputime:" { print }'
 }
 
+# deal with differences in time(1) ... stdout reports <user time> <sys time>
+# as floating point numbers of seconds
+# known variants  ...
+# real	0m0.002s
+# user	0m0.000s
+# sys	0m0.002s
+#
+# real        0.0
+# user        0.0
+# sys         0.0
+#
+# 0.60user 0.01system ...
+#
+_time()
+{
+    echo "_time: command: $*" >>$seq_full
+    $time $* >/dev/null 2>$tmp.clock
+    cat $tmp.clock >>$seq_full
+    sed -E  <$tmp.clock \
+	-e '/^(real|user|sys)[ 	]/{
+s/([0-9])m/\1 /
+s/([0-9])s$/\1/
+}' \
+	-e '/[0-9]user [0-9]/{
+s/user/ user/
+s/system/ system/
+}' \
+    | $PCP_AWK_PROG '
+BEGIN		{ u = "?"; s = "?" }
+$1 == "user"	{ if (NF == 3) u = 60*$2 + $3
+		  if (NF == 2) u = $2
+		}
+$1 == "sys"	{ if (NF == 3) s = 60*$2 + $3
+		  if (NF == 2) s = $2
+		}
+$2 == "user" && $4 == "system"	{
+		  u = $1
+		  s = $3
+		}
+END		{ print u,s }' \
+    | tee -a $seq_full
+}
+
 # archives/pcp-pidstat-process-args.0.xz is the largest QA archive(s)
 # we have (to date) at 361Mb expanded ...
 #
@@ -55,14 +98,14 @@ base=pcp-pidstat-process-args
 mkdir $tmp
 cd $tmp
 pmlogcp $here/archives/$base .
-$time  -f 'cputime: %U %S' xzcat $base.0.xz >/dev/null 2>$tmp.time
+_time xzcat $base.0.xz | sed -e 's/^/cputime: /' >$tmp.time
 _summary <$tmp.time "data uncompress" | tee -a $seq_full >$tmp.tmp
 data=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
 s/.* //p
 }'`
 echo "data=$data" >>$seq_full
-$time -f 'cputime: %U %S' xzcat $base.meta.xz >/dev/null 2>$tmp.time
+_time xzcat $base.meta.xz | sed -e 's/^/cputime: /' >$tmp.time
 _summary <$tmp.time "metadata uncompress" | tee -a $seq_full >$tmp.tmp
 metadata=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
@@ -71,7 +114,7 @@ s/.* //p
 echo "metadata=$metadata" >>$seq_full
 
 # real QA test starts here
-$time -f 'cputime: %U %S' pmlogrewrite -Dappl3 -qi $base 2>$tmp.time
+_time pmlogrewrite -Dappl3 -qi $base | sed -e 's/^/cputime: /' >$tmp.time
 _summary logrewrite <$tmp.time | tee -a $seq_full >$tmp.tmp
 rewrite=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{
 s/cpu (.*//
