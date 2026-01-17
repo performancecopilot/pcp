@@ -1,0 +1,97 @@
+#!/bin/sh
+# PCP QA Test No. 1791
+# Exercise pmrep additional metricset handling.
+#
+# Copyright (c) 2026 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+status=1  # failure is the default!
+trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+log="--archive $here/archives/20180102 -z"
+
+# real QA test starts here
+echo "== basic metricset handling"
+pmrep -p -u $log -B MB -S '@00:11:11' -s 2            :vmstat
+
+echo "== default unknown metricset handling"
+pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset
+pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset :vmstat
+
+echo "== ignore unknown metricset handling"
+pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset         --ignore-unknown
+pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset :vmstat --ignore-unknown
+
+echo "== create tmp config file"
+cfg=$tmp.config
+cat > $cfg <<EOF
+[test-ok]
+space_scale_force = MB
+mem.util.free = freemem
+vfs.files.count = files
+[test-incompat]
+space_scale_force = s
+mem.util.free = freemem
+vfs.files.count = files
+[test-incompat-derived]
+space_scale_force = MB
+mem.util.free = freemem
+vfs.files.count = files
+d_ok = disk.all.total_bytes
+d_ok.formula = delta(disk.all.read_bytes) + delta(disk.all.write_bytes)
+d_bad = incompat.metric
+d_bad.formula = disk.all.read_bytes + mem.util.free
+[test-unknown]
+mem.util.free = freemem
+vfs.files.count = files
+no.such.metric = nope
+[test-unknown-derived]
+mem.util.free = freemem
+vfs.files.count = files
+d_missing = not.here
+d_missing.formula = mem.util.free + no.such.metric
+EOF
+
+echo "== verify tmp config file"
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-ok
+
+echo "== verify derived metric handling"
+d="-e d_ok=delta(disk.all.read_bytes)+delta(disk.all.write_bytes)"
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg $d d_ok -B MB
+
+echo "== incompat metric in metricset handling"
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat --ignore-unknown
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat --ignore-incompat
+
+echo "== incompat derived metric in metricset handling"
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived --ignore-unknown
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived --ignore-incompat
+
+echo "== unknown metric in metricset handling"
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown --ignore-incompat
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown --ignore-unknown
+
+echo "== unknown derived metric in metricset handling"
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived
+#pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-incompat
+#pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-unknown
+
+# success, all done
+echo "== done"
+status=0
+exit

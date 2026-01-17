@@ -2218,6 +2218,7 @@ telnet-probe
 1784 pmlogconf local
 1787 pmda.opentelemetry local python
 1788 pmda.linux local
+1791 pmrep python local
 1792 pmrep python local
 1793 pmrep pcp2xxx python local pmlogdump pmjson
 1794 pcp2arrow local
