@@ -657,7 +657,12 @@ class pmConfig(object):
 
     def ignore_unknown_metrics(self):
         """ Check if unknown metrics are ignored """
-        if hasattr(self.util, 'ignore_unknown') and self.util.ignore_unknown:
+        has_attr = hasattr(self.util, 'ignore_unknown')
+        value = getattr(self.util, 'ignore_unknown', None) if has_attr else None
+        result = has_attr and self.util.ignore_unknown
+        # DEBUG
+        sys.stderr.write("DEBUG ignore_unknown_metrics(): has_attr=%s, value=%s, result=%s\n" % (has_attr, value, result))
+        if result:
             return True
         return False
 
