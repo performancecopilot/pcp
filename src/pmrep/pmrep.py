@@ -242,6 +242,7 @@ class PMReporter(object):
 
         # Internal
         self.format = None # stdout format
+        self.timestamp_width = 0  # Width of timestamp column for header alignment
         self.writer = None
         self.pmi = None
         self.lines = 0
@@ -715,10 +716,12 @@ class PMReporter(object):
             #self.format = "{:}{}"
             self.format = "{0:}{1}"
             index += 2
+            self.timestamp_width = 0
         else:
             tstamp = datetime.fromtimestamp(time.time()).strftime(self.timefmt)
+            self.timestamp_width = len(tstamp)
             #self.format = "{:<" + str(len(tstamp)) + "}{}"
-            self.format = "{" + str(index) + ":<" + str(len(tstamp)) + "}"
+            self.format = "{" + str(index) + ":<" + str(self.timestamp_width) + "}"
             index += 1
             self.format += "{" + str(index) + "}"
             index += 1
@@ -774,6 +777,11 @@ class PMReporter(object):
                     groupsep=self.groupsep
                 )
 
+                # Check for labels that will be truncated and warn user
+                label_warnings = self.group_formatter.check_label_widths(self.column_widths)
+                for warning in label_warnings:
+                    self.pmconfig.write_msg("pmrep", warning)
+
     def prepare_stdout_colxrow(self, results=()):
         """ Prepare columns and rows swapped stdout output """
         index = 0
@@ -782,9 +790,11 @@ class PMReporter(object):
         if self.timestamp == 0:
             self.format = "{0:}{1}"
             index += 2
+            self.timestamp_width = 0
         else:
             tstamp = datetime.fromtimestamp(time.time()).strftime(self.timefmt)
-            self.format = "{0:<" + str(len(tstamp)) + "." + str(len(tstamp)) + "}{1}"
+            self.timestamp_width = len(tstamp)
+            self.format = "{0:<" + str(self.timestamp_width) + "." + str(self.timestamp_width) + "}{1}"
             index += 2
 
         # Instance name
@@ -1084,8 +1094,9 @@ class PMReporter(object):
         if self.groupheader and self.group_formatter and self.column_widths:
             group_header_row = self.group_formatter.format_group_header_row(self.column_widths)
             if group_header_row:
-                # Add leading spaces for timestamp column (same as metric names row)
-                self.writer.write("  " + group_header_row + "\n")
+                # Add leading spaces for timestamp column (width = timestamp_width + delimiter)
+                timestamp_indent = " " * self.timestamp_width + self.delimiter
+                self.writer.write(timestamp_indent + group_header_row + "\n")
 
         names = ["", self.delimiter] # no timestamp on header line
         insts = ["", self.delimiter] # no timestamp on instances line

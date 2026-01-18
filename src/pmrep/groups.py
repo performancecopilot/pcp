@@ -142,8 +142,12 @@ class GroupHeaderFormatter:
                 formatted = label.ljust(width)
             elif align == 'right':
                 formatted = label.rjust(width)
-            else:  # center
-                formatted = label.center(width)
+            else:  # center - with consistent padding (extra padding on left for odd totals)
+                label_len = len(label)
+                total_padding = width - label_len
+                left_pad = (total_padding + 1) // 2  # Extra padding on left (not right)
+                right_pad = total_padding - left_pad
+                formatted = ' ' * left_pad + label + ' ' * right_pad
 
             parts.append(formatted)
 
@@ -164,6 +168,27 @@ class GroupHeaderFormatter:
         """
         spans = self.calculate_spans(column_widths)
         return self.format_header(spans)
+
+    def check_label_widths(self, column_widths):
+        """Check for group labels that will be truncated and return warnings
+
+        Args:
+            column_widths: Dict mapping column names to their display widths
+
+        Returns:
+            List of warning strings for labels wider than their spans
+        """
+        spans = self.calculate_spans(column_widths)
+        warnings = []
+
+        for group, (label, width, _) in zip(self.groups, spans):
+            if len(label) > width:
+                warnings.append(
+                    "Warning: Group label '{}' ({} chars) is wider than its span ({} chars) "
+                    "and will be truncated".format(label, len(label), width)
+                )
+
+        return warnings
 
 
 def parse_group_definitions(config_path, section, default_groupalign='center'):
