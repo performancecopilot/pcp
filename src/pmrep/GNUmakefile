@@ -22,6 +22,7 @@ MAN_PAGES = pmrep.1 pmrep.conf.5
 BASHDIR = $(PCP_BASHSHARE_DIR)/completions
 PMREPLIB = $(PCP_SHARE_DIR)/lib/pmrep
 PMREPMODULES = groups.py
+PYSCRIPTS = $(SCRIPT) groups.py metrics.py config.py header.py
 
 SUBDIRS = conf test
 
@@ -48,7 +49,7 @@ install_pcp: install
 check :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 
-check :: $(SCRIPT)
+check :: $(PYSCRIPTS)
 	$(PYLINT) $^
 
 check :: pmrep.1 pmrep.conf.5

@@ -54,7 +54,9 @@ else:
     # Allow running from source tree without installing
     sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from groups import GroupConfig, GroupHeaderFormatter, parse_group_definitions
+# pylint: disable=wrong-import-position
+# Import must occur after sys.path setup to support both installed and source tree usage
+from groups import GroupHeaderFormatter, parse_group_definitions
 
 # Default config
 DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep"]

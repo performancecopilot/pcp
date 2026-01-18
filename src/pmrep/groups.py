@@ -44,21 +44,22 @@ class GroupConfig:
         prefix: Optional prefix for column names (not currently used)
     """
 
-    def __init__(self, handle, columns, label=None, align='center', prefix=None):
+    def __init__(self, handle, columns, label=None, **options):
         """Initialize GroupConfig
 
         Args:
             handle: Unique identifier for the group
             columns: List of column names in this group
             label: Display label (defaults to handle if not specified)
-            align: Header alignment - 'left', 'center', or 'right'
-            prefix: Optional prefix for column names
+            **options: Optional keyword arguments:
+                align: Header alignment - 'left', 'center', or 'right' (default: 'center')
+                prefix: Optional prefix for column names
         """
         self.handle = handle
         self.columns = columns
         self.label = label if label is not None else handle
-        self.align = align
-        self.prefix = prefix
+        self.align = options.get('align', 'center')
+        self.prefix = options.get('prefix')
 
 
 class GroupHeaderFormatter:
