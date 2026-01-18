@@ -33,6 +33,16 @@ then
     fi
 fi
 
+# some AVCs have nothing to do with PCP or QA ... this list is built
+# based on past historical failures
+#
+_suppress_avc()
+{
+    sed \
+	-e '/profile="snap.thunderbird.thunderbird"/d' \
+    # end
+}
+
 # Security Enhanced Linux log messages
 audit=/var/log/audit/audit.log
 sudo=`which sudo`
@@ -91,7 +101,8 @@ then
     echo "--- start pre-check ---"
     ./941 --check $1
     ./870 --check $1
-    $sudo grep -E '^type=(AVC|SELINUX).*pcp' $audit >$1.pre-avc 2>/dev/null
+    $sudo grep -E '^type=(AVC|SELINUX).*pcp' $audit \
+    | _suppress_avc >$1.pre-avc 2>/dev/null
     echo "before `wc -l <$1.pre-avc` AVC errors"
     echo "--- end pre-check ---"
     exit
@@ -295,7 +306,8 @@ fi
 # Check audit log for any Security Enhanced Linux access denials
 # related to PCP ...
 #
-$sudo grep -E '^type=(AVC|SELINUX).*pcp' $audit 2>/dev/null >$1.post-avc
+$sudo grep -E '^type=(AVC|SELINUX).*pcp' $audit \
+| _suppress_avc 2>/dev/null >$1.post-avc
 if [ -f $1.pre-avc ]
 then
     diff $1.pre-avc $1.post-avc \
