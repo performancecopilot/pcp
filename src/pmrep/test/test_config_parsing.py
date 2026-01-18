@@ -315,8 +315,8 @@ class TestGroupDefinitionParsing(unittest.TestCase):
         finally:
             os.unlink(config_file)
 
-    def test_prefix_resolution_fqdn_vs_leaf(self):
-        """Should apply prefix only to leaf names"""
+    def test_prefix_resolution_applies_to_all(self):
+        """Should apply prefix to all column names when specified"""
         import tempfile
         with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
             f.write('[test]\n')
@@ -327,10 +327,10 @@ class TestGroupDefinitionParsing(unittest.TestCase):
         try:
             group_configs = parse_group_definitions(config_file, 'test')
 
-            # swap.used has '.' so no prefix, free and buff get prefix
-            expected_columns = ['swap.used', 'mem.util.free', 'mem.util.buff']
+            # When prefix specified, applies to all columns regardless of dots
+            expected_columns = ['mem.util.swap.used', 'mem.util.free', 'mem.util.buff']
             self.assertListEqual(group_configs[0].columns, expected_columns,
-                               "Prefix should only apply to leaf names")
+                               "Prefix should apply to all columns when specified")
         finally:
             os.unlink(config_file)
 

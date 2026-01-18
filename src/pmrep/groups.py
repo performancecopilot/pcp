@@ -233,17 +233,14 @@ def parse_group_definitions(config_path, section, default_groupalign='center'):
         label = config.get(section, label_key) if config.has_option(section, label_key) else handle
         align = config.get(section, align_key) if config.has_option(section, align_key) else default_groupalign
 
-        # Apply prefix resolution: if column has no '.', prepend prefix
+        # Apply prefix resolution: if prefix specified, always prepend it
         resolved_columns = []
         for col in columns:
-            if '.' in col:
-                # FQDN - use as-is
-                resolved_columns.append(col)
-            elif prefix:
-                # Leaf name with prefix - prepend prefix
+            if prefix:
+                # Prefix specified - prepend to create full metric name
                 resolved_columns.append('{}.{}'.format(prefix, col))
             else:
-                # Leaf name without prefix - use as-is
+                # No prefix - use column name as-is
                 resolved_columns.append(col)
 
         # Create GroupConfig object
