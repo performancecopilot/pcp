@@ -234,7 +234,7 @@ class TestFormatHeader(unittest.TestCase):
         self.assertEqual(len(header), 10)
 
     def test_multiple_spans_without_separator(self):
-        """Multiple spans without separator are concatenated"""
+        """Multiple spans without separator include delimiter for column spacing"""
         groups = [
             GroupConfig('a', ['x'], label='A'),
             GroupConfig('b', ['y'], label='B')
@@ -243,7 +243,8 @@ class TestFormatHeader(unittest.TestCase):
 
         header = formatter.format_header([('A', 5, 'center'), ('B', 5, 'center')])
 
-        self.assertEqual(len(header), 10)
+        # Length = 5 (span A) + 1 (delimiter) + 5 (span B) = 11
+        self.assertEqual(len(header), 11)
         self.assertIn('A', header)
         self.assertIn('B', header)
 
