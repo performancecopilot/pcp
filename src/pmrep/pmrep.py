@@ -1138,7 +1138,12 @@ class PMReporter(object):
                 prev_group[0] = metric_group
 
             names.extend([self.metrics[metric][0], self.delimiter])
-            insts.extend([name, self.delimiter])
+
+            # Avoid showing instance names that would be awkwardly truncated
+            inst_name = name
+            if name != self.delimiter and len(name) > int(self.metrics[metric][4]):
+                inst_name = self.delimiter
+            insts.extend([inst_name, self.delimiter])
             units.extend([self.metrics[metric][2][0], self.delimiter])
             if self.include_labels:
                 ins = self.get_labels_inst(i, j, n)
