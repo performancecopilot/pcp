@@ -1,0 +1,29 @@
+# Test UDP protocol statistics (net.inet.udp.stats sysctl)
+# These metrics provide insight into UDP protocol activity and errors.
+
+# UDP datagram counters
+desc network.udp.indatagrams
+fetch network.udp.indatagrams
+
+desc network.udp.outdatagrams
+fetch network.udp.outdatagrams
+
+# UDP error metrics
+desc network.udp.noports
+fetch network.udp.noports
+
+desc network.udp.rcvbuferrors
+fetch network.udp.rcvbuferrors
+
+# UDP input error metrics (granular breakdown)
+desc network.udp.inerrors.total
+fetch network.udp.inerrors.total
+
+desc network.udp.inerrors.hdrops
+fetch network.udp.inerrors.hdrops
+
+desc network.udp.inerrors.badsum
+fetch network.udp.inerrors.badsum
+
+desc network.udp.inerrors.badlen
+fetch network.udp.inerrors.badlen

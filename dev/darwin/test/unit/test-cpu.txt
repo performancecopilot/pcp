@@ -1,0 +1,28 @@
+# CPU metrics test
+
+# CPU count
+desc hinv.ncpu
+fetch hinv.ncpu
+
+# All CPU time
+desc kernel.all.cpu.user
+fetch kernel.all.cpu.user
+
+desc kernel.all.cpu.nice
+fetch kernel.all.cpu.nice
+
+desc kernel.all.cpu.sys
+fetch kernel.all.cpu.sys
+
+desc kernel.all.cpu.idle
+fetch kernel.all.cpu.idle
+
+# Per-CPU metrics (instance domain test)
+desc kernel.percpu.cpu.user
+fetch kernel.percpu.cpu.user
+
+desc kernel.percpu.cpu.sys
+fetch kernel.percpu.cpu.sys
+
+desc kernel.percpu.cpu.idle
+fetch kernel.percpu.cpu.idle

@@ -4,12 +4,14 @@ root {
     kernel
     pmda
     mem
+    swap
     hinv
     filesys
     disk
     network
     nfs3
     rpc
+    vfs
 }
 
 #include "pmns" 
