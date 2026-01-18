@@ -373,5 +373,157 @@ class TestGroupDefinitionParsing(unittest.TestCase):
         finally:
             os.unlink(config_file)
 
+    def test_alias_resolution_without_prefix(self):
+        """Should resolve metric aliases when no prefix is specified"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('# Define metric aliases\n')
+            f.write('usrp = kernel.all.cpu.usrp, us, s, , 4\n')
+            f.write('sysp = kernel.all.cpu.sysp, sy, s, , 4\n')
+            f.write('idlep = kernel.all.cpu.idlep, id, s, , 4\n')
+            f.write('\n')
+            f.write('# Group using aliases without prefix\n')
+            f.write('group.cpu = usrp, sysp, idlep\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # Aliases should resolve to actual metric names
+            expected = ['kernel.all.cpu.usrp', 'kernel.all.cpu.sysp', 'kernel.all.cpu.idlep']
+            self.assertListEqual(group_configs[0].columns, expected,
+                               "Aliases should resolve to actual metric names")
+        finally:
+            os.unlink(config_file)
+
+    def test_alias_resolution_with_prefix_skips_alias(self):
+        """Should not resolve aliases when prefix is specified"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('# Define an alias (should be ignored when prefix is used)\n')
+            f.write('load = some.other.metric\n')
+            f.write('\n')
+            f.write('# Group with prefix - should not resolve alias\n')
+            f.write('group.loadavg = all.load\n')
+            f.write('group.loadavg.prefix = kernel\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # Prefix should be applied, alias resolution skipped
+            expected = ['kernel.all.load']
+            self.assertListEqual(group_configs[0].columns, expected,
+                               "Prefix should apply without alias resolution")
+        finally:
+            os.unlink(config_file)
+
+    def test_mixed_aliases_and_literals(self):
+        """Should handle mix of aliases and non-alias columns"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('# Define some aliases\n')
+            f.write('usrp = kernel.all.cpu.user\n')
+            f.write('sysp = kernel.all.cpu.sys\n')
+            f.write('\n')
+            f.write('# Mix aliases and literal metric names\n')
+            f.write('group.mixed = usrp, kernel.all.cpu.idle, sysp\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # Aliases resolve, literals pass through
+            expected = ['kernel.all.cpu.user', 'kernel.all.cpu.idle', 'kernel.all.cpu.sys']
+            self.assertListEqual(group_configs[0].columns, expected,
+                               "Mix of aliases and literals should resolve correctly")
+        finally:
+            os.unlink(config_file)
+
+    def test_undefined_alias_passes_through(self):
+        """Should pass through column names that are not defined as aliases"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('# No alias defined for these\n')
+            f.write('group.metrics = undefined.metric, another.one\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # Undefined aliases should pass through as-is
+            expected = ['undefined.metric', 'another.one']
+            self.assertListEqual(group_configs[0].columns, expected,
+                               "Undefined aliases should pass through unchanged")
+        finally:
+            os.unlink(config_file)
+
+    def test_alias_with_formula_and_attributes(self):
+        """Should extract metric name from alias with formula and attributes"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[test]\n')
+            f.write('# Derived metric with formula\n')
+            f.write('usrp = kernel.all.cpu.usrp\n')
+            f.write('usrp.label = us\n')
+            f.write('usrp.formula = 100 * (kernel.all.cpu.user + kernel.all.cpu.nice) / hinv.ncpu\n')
+            f.write('usrp.unit = s\n')
+            f.write('usrp.width = 4\n')
+            f.write('\n')
+            f.write('group.cpu = usrp\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'test')
+
+            # Should extract first part (metric name) before comma
+            expected = ['kernel.all.cpu.usrp']
+            self.assertListEqual(group_configs[0].columns, expected,
+                               "Should extract metric name from full specification")
+        finally:
+            os.unlink(config_file)
+
+    def test_macstat_real_world_scenario(self):
+        """Should handle real macstat-test.conf scenario correctly"""
+        import tempfile
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.conf', delete=False) as f:
+            f.write('[macstat-test]\n')
+            f.write('# First group: prefix with partial name\n')
+            f.write('group.loadavg = all.load\n')
+            f.write('group.loadavg.prefix = kernel\n')
+            f.write('\n')
+            f.write('# Middle group: prefix with leaf names\n')
+            f.write('group.memory = free, wired\n')
+            f.write('group.memory.prefix = mem.util\n')
+            f.write('\n')
+            f.write('# Last group: aliases without prefix\n')
+            f.write('usrp = kernel.all.cpu.usrp, us, s, , 4\n')
+            f.write('sysp = kernel.all.cpu.sysp, sy, s, , 4\n')
+            f.write('idlep = kernel.all.cpu.idlep, id, s, , 4\n')
+            f.write('group.cpu = usrp, sysp, idlep\n')
+            config_file = f.name
+
+        try:
+            group_configs = parse_group_definitions(config_file, 'macstat-test')
+
+            # First group: prefix applied
+            self.assertListEqual(group_configs[0].columns, ['kernel.all.load'],
+                               "First group should apply prefix to partial name")
+
+            # Middle group: prefix applied to leaf names
+            self.assertListEqual(group_configs[1].columns, ['mem.util.free', 'mem.util.wired'],
+                               "Middle group should apply prefix to leaf names")
+
+            # Last group: aliases resolved
+            self.assertListEqual(group_configs[2].columns,
+                               ['kernel.all.cpu.usrp', 'kernel.all.cpu.sysp', 'kernel.all.cpu.idlep'],
+                               "Last group should resolve aliases to actual metrics")
+        finally:
+            os.unlink(config_file)
+
 if __name__ == '__main__':
     unittest.main()
