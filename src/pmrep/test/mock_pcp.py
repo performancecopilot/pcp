@@ -130,6 +130,15 @@ class MockPmContext:
         return MockPmContext()
 
     @staticmethod
+    def pmGetConfig(name):
+        """Mock pmGetConfig - returns dummy config paths"""
+        if name == "PCP_SYSCONF_DIR":
+            return "/etc/pcp"
+        elif name == "PCP_VAR_DIR":
+            return "/var/lib/pcp"
+        return "/tmp"
+
+    @staticmethod
     def pmID_domain(pmid):
         return 0
 
@@ -198,66 +207,9 @@ class MockFetchgroup:
 
 mock_pmapi.fetchgroup = MockFetchgroup
 
-# Create mock pmconfig module
-mock_pmconfig = MagicMock()
-mock_pmconfig.TRUNC = "..."
-
-class MockPmConfig:
-    metricspec = ('label', 'unit', 'width', 'precision', 'limit', 'formula')
-
-    def __init__(self, util):
-        self.util = util
-        self.pmids = []
-        self.descs = []
-        self.insts = []
-        self.texts = []
-        self.labels = []
-        self.res_labels = {}
-
-    def set_config_path(self, paths):
-        return None
-
-    def read_options(self):
-        pass
-
-    def read_cmd_line(self):
-        pass
-
-    def prepare_metrics(self):
-        pass
-
-    def set_signal_handler(self):
-        pass
-
-    def validate_common_options(self):
-        pass
-
-    def validate_metrics(self, curr_insts=True):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def fetch(self):
-        return 0
-
-    def pause(self):
-        pass
-
-    def get_ranked_results(self, valid_only=True):
-        return {}
-
-    def update_metrics(self, curr_insts=True):
-        pass
-
-    def parse_instances(self, inst_str):
-        return []
-
-    def get_labels_str(self, metric, inst, dynamic, json_fmt):
-        return ""
-
-mock_pmconfig.pmConfig = MockPmConfig
-mock_pmconfig.TRUNC = "..."
+# Don't mock pcp.pmconfig - let it be imported normally
+# It will use the mocked pmapi since that's in sys.modules
+# This is handled in install_mocks() by NOT registering a mock for pcp.pmconfig
 
 # Create mock pmi module
 mock_pmi = MagicMock()
@@ -272,17 +224,33 @@ mock_pmi.pmiLogImport = MagicMock
 # Create the mock pcp package
 mock_pcp = MagicMock()
 mock_pcp.pmapi = mock_pmapi
-mock_pcp.pmconfig = mock_pmconfig
 mock_pcp.pmi = mock_pmi
 
 
 def install_mocks():
     """Install mock PCP modules into sys.modules"""
+    # Only install once to avoid module reloading issues
+    if 'pcp' in sys.modules and 'pcp.pmapi' in sys.modules:
+        return
+
     sys.modules['cpmapi'] = mock_cpmapi
     sys.modules['cpmi'] = mock_cpmi
     sys.modules['pcp'] = mock_pcp
     sys.modules['pcp.pmapi'] = mock_pmapi
-    sys.modules['pcp.pmconfig'] = mock_pmconfig
+    # Load real pmconfig and register it in sys.modules so it can be imported normally
+    # It will use the mocked pmapi since that's already in sys.modules
+    import importlib
+    import os
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    src_dir = os.path.dirname(os.path.dirname(this_dir))
+    pmconfig_path = os.path.join(src_dir, 'python', 'pcp', 'pmconfig.py')
+    spec = importlib.util.spec_from_file_location('pcp.pmconfig', pmconfig_path)
+    real_pmconfig = importlib.util.module_from_spec(spec)
+    real_pmconfig.pmapi = mock_pmapi
+    spec.loader.exec_module(real_pmconfig)
+    sys.modules['pcp.pmconfig'] = real_pmconfig
+    # Set pmconfig TRUNC attribute on mock_pcp so pmrep can access it
+    mock_pcp.pmconfig.TRUNC = real_pmconfig.TRUNC
     sys.modules['pcp.pmi'] = mock_pmi
 
 

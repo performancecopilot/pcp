@@ -26,17 +26,13 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from test.mock_pcp import install_mocks
 install_mocks()
 
-# Add Python source directory for real pmconfig
+# Add Python source directory for imports
 parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 pcp_dir = os.path.join(os.path.dirname(parent_dir), 'python')
 sys.path.insert(0, pcp_dir)
 
-# Import real pmConfig (it will use mocked pmapi)
-import importlib.util
-spec = importlib.util.spec_from_file_location("pcp.pmconfig", os.path.join(pcp_dir, "pcp", "pmconfig.py"))
-pmconfig_module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(pmconfig_module)
-pmConfig = pmconfig_module.pmConfig
+# Import pmConfig - the mocks are already installed so it will use mocked pmapi
+from pcp.pmconfig import pmConfig
 
 # Error codes from pmapi.h
 PM_ERR_BASE = 12345
@@ -61,8 +57,7 @@ class TestCheckMetricWithIgnoreUnknown(unittest.TestCase):
         import pcp.pmapi as pmapi
 
         # Mock pmLookupName to raise error
-        error = pmapi.pmErr(PM_ERR_NAME)
-        error.args = (PM_ERR_NAME, "Unknown metric name")
+        error = pmapi.pmErr(PM_ERR_NAME, "Unknown metric name")
         self.mock_util.context.pmLookupName = Mock(side_effect=error)
 
         # Without ignore_unknown flag
@@ -80,8 +75,7 @@ class TestCheckMetricWithIgnoreUnknown(unittest.TestCase):
         import pcp.pmapi as pmapi
 
         # Mock pmLookupName to raise error
-        error = pmapi.pmErr(PM_ERR_NAME)
-        error.args = (PM_ERR_NAME, "Unknown metric name")
+        error = pmapi.pmErr(PM_ERR_NAME, "Unknown metric name")
         self.mock_util.context.pmLookupName = Mock(side_effect=error)
 
         # With ignore_unknown flag
@@ -143,8 +137,7 @@ class TestMetricStatusTracking(unittest.TestCase):
         import pcp.pmapi as pmapi
 
         # Mock failed pmLookupName
-        error = pmapi.pmErr(PM_ERR_NAME)
-        error.args = (PM_ERR_NAME, "Unknown metric name")
+        error = pmapi.pmErr(PM_ERR_NAME, "Unknown metric name")
         self.mock_util.context.pmLookupName = Mock(side_effect=error)
         self.mock_util.ignore_unknown = True
 
