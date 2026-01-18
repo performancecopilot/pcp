@@ -9,8 +9,13 @@ Performance Co-Pilot (PCP) is a mature, extensible, cross-platform toolkit for s
 ## Development Commands
 
 ### Linting
-Some modules support the `make check` rule to run linting (such as `pylint` and others) and other quality checks.  Ensure you run these either individually (if you're working in a single module) or at the project level (if working across modules
-to ensure that no code style violations occur.
+Some modules support the `make check` rule to run linting (such as `pylint`) and other quality checks. **Always run linting before committing code changes:**
+
+- For pmrep module: `cd src/pmrep && make check` - must achieve 10.00/10 pylint score to pass CI
+- For individual modules: `cd module/path && make check`
+- For project-wide: `make check` from root (if supported)
+
+Linting violations will block CI builds, so catch them locally first.
 
 ### Building and Packaging
 ```bash
