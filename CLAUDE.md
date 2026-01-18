@@ -33,7 +33,14 @@ make
 sudo make install
 ```
 
+### Testing
+Some modules support `make test` for fast unit tests. **Always run module tests before committing changes.**
+
+- Example: `cd src/pmrep && make test`
+
 ### Quality Assurance Testing
+More detailed, thorough QA/Integration tests can be performed.  These are relatively heavy-weight, but cover many detailed scenarios.
+
 ```bash
 # Run QA setup validation
 qa/admin/check-vm
