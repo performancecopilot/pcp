@@ -151,12 +151,13 @@ class GroupHeaderFormatter:
 
             parts.append(formatted)
 
-            # Add delimiter after each group (except last) to match column spacing
-            # Then add groupsep if defined
+            # Add delimiter or groupsep between groups (except after last)
+            # The groupsep replaces the delimiter position to maintain alignment
             if i < len(spans) - 1:
-                parts.append(self.delimiter)
                 if self.groupsep:
                     parts.append(self.groupsep)
+                else:
+                    parts.append(self.delimiter)
 
         return ''.join(parts)
 
