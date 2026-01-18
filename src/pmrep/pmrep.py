@@ -1109,8 +1109,34 @@ class PMReporter(object):
         prnti = 0
         hlabels = [] # header labels
 
+        # Build metric to group mapping for group separator placement
+        metric_to_group = {}
+        if self.group_configs:
+            for group_idx, group in enumerate(self.group_configs):
+                for col in group.columns:
+                    metric_to_group[col] = group_idx
+
+        # Track the previous group for separator insertion
+        prev_group = [None]  # Use list for mutable closure variable
+
         def add_header_items(metric, name, i, j, n=[PM_IN_NULL]): # pylint: disable=dangerous-default-value
             """ Helper to add items to header """
+            # Check if we're transitioning to a new group
+            if self.groupsep and self.group_configs and metric in metric_to_group:
+                metric_group = metric_to_group[metric]
+                # If transitioning to a new group, replace previous delimiter with groupsep
+                if prev_group[0] is not None and prev_group[0] != metric_group:
+                    # Replace the last delimiter (after previous metric) with groupsep
+                    if names and names[-1] == self.delimiter:
+                        names[-1] = self.groupsep
+                    if insts and insts[-1] == self.delimiter:
+                        insts[-1] = self.groupsep
+                    if units and units[-1] == self.delimiter:
+                        units[-1] = self.groupsep
+                    if self.include_labels and mlabels and mlabels[-1] == self.delimiter:
+                        mlabels[-1] = self.groupsep
+                prev_group[0] = metric_group
+
             names.extend([self.metrics[metric][0], self.delimiter])
             insts.extend([name, self.delimiter])
             units.extend([self.metrics[metric][2][0], self.delimiter])
