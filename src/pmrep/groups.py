@@ -113,6 +113,11 @@ class GroupHeaderFormatter:
                     # Add delimiter width between columns (not after last)
                     if i < len(group.columns) - 1:
                         total_width += delimiter_width
+                else:
+                    # DEBUG: Column not found
+                    import sys
+                    print(f"DEBUG: Column '{col}' not found in column_widths for group '{group.label}'", file=sys.stderr)
+                    print(f"DEBUG: Available keys: {list(column_widths.keys())}", file=sys.stderr)
 
             spans.append((group.label, total_width, group.align))
 
