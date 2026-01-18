@@ -113,11 +113,6 @@ class GroupHeaderFormatter:
                     # Add delimiter width between columns (not after last)
                     if i < len(group.columns) - 1:
                         total_width += delimiter_width
-                else:
-                    # DEBUG: Column not found
-                    import sys
-                    print(f"DEBUG: Column '{col}' not found in column_widths for group '{group.label}'", file=sys.stderr)
-                    print(f"DEBUG: Available keys: {list(column_widths.keys())}", file=sys.stderr)
 
             spans.append((group.label, total_width, group.align))
 
@@ -238,15 +233,25 @@ def parse_group_definitions(config_path, section, default_groupalign='center'):
         label = config.get(section, label_key) if config.has_option(section, label_key) else handle
         align = config.get(section, align_key) if config.has_option(section, align_key) else default_groupalign
 
-        # Apply prefix resolution: if prefix specified, always prepend it
+        # Apply prefix resolution and alias resolution
         resolved_columns = []
         for col in columns:
             if prefix:
                 # Prefix specified - prepend to create full metric name
+                # Don't resolve aliases when prefix is present
                 resolved_columns.append('{}.{}'.format(prefix, col))
             else:
-                # No prefix - use column name as-is
-                resolved_columns.append(col)
+                # No prefix - check if column is an alias that needs resolution
+                # If the column name is defined in config, resolve it to actual metric
+                # (e.g., usrp = kernel.all.cpu.usrp)
+                if config.has_option(section, col):
+                    metric_spec = config.get(section, col)
+                    # The first part before any comma/space is the metric name
+                    actual_metric = metric_spec.split(',')[0].strip()
+                    resolved_columns.append(actual_metric)
+                else:
+                    # Not an alias - use as-is
+                    resolved_columns.append(col)
 
         # Create GroupConfig object
         group_config = GroupConfig(
