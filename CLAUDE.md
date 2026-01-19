@@ -12,6 +12,7 @@ Performance Co-Pilot (PCP) is a mature, extensible, cross-platform toolkit for s
 Some modules support the `make check` rule to run linting (such as `pylint`) and other quality checks. **Always run linting before committing code changes:**
 
 - For pmrep module: `cd src/pmrep && make check` - must achieve 10.00/10 pylint score to pass CI
+  - will also require: `cd src/python && make check` - to cover off potential shared python library changes when working with pmrep
 - For individual modules: `cd module/path && make check`
 - For project-wide: `make check` from root (if supported)
 

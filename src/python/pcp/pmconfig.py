@@ -227,7 +227,11 @@ class pmConfig(object):
                         section = arg[1:]
                         self.read_section_options(config, section)
             except ConfigParser.Error as error:
-                lineno = str(error.lineno) if hasattr(error, 'lineno') else error.errors[0][0]
+                if hasattr(error, 'lineno'):
+                    lineno = str(error.lineno)
+                else:
+                    errors = getattr(error, 'errors', [('?', None)])
+                    lineno = str(errors[0][0])
                 sys.stderr.write("Failed to read configuration file '%s', line %s:\n%s\n"
                                  % (conf, lineno, str(error.message)))
                 sys.exit(1)
@@ -370,7 +374,11 @@ class pmConfig(object):
             try:
                 config.read(conf)
             except ConfigParser.Error as error:
-                lineno = str(error.lineno) if hasattr(error, 'lineno') else error.errors[0][0]
+                if hasattr(error, 'lineno'):
+                    lineno = str(error.lineno)
+                else:
+                    errors = getattr(error, 'errors', [('?', None)])
+                    lineno = str(errors[0][0])
                 sys.stderr.write("Failed to read configuration file '%s', line %s:\n%s\n"
                                  % (conf, lineno, str(error.message)))
                 sys.exit(1)
@@ -658,7 +666,6 @@ class pmConfig(object):
     def ignore_unknown_metrics(self):
         """ Check if unknown metrics are ignored """
         has_attr = hasattr(self.util, 'ignore_unknown')
-        value = getattr(self.util, 'ignore_unknown', None) if has_attr else None
         result = has_attr and self.util.ignore_unknown
         if result:
             return True
