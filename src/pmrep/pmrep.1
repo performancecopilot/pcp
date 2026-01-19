@@ -102,6 +102,18 @@ and more, see the \fBpmrep\fP configuration files in
 Tab completion for options, metrics, and metricsets
 is available for bash and zsh.
 .PP
+.B pmrep
+supports column grouping for organizing related metrics visually
+in stdout output.
+Group headers spanning multiple columns can be defined in configuration files,
+similar to tools like
+.BR vmstat (8)
+or
+.BR pmstat (1).
+See
+.BR pmrep.conf (5)
+for details on the column grouping syntax.
+.PP
 Unless directed to another host by the
 .B \-h
 option,

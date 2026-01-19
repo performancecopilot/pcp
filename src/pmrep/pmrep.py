@@ -46,6 +46,18 @@ from cpmapi import PM_LABEL_INDOM, PM_LABEL_INSTANCES
 from cpmapi import PM_LABEL_DOMAIN, PM_LABEL_CLUSTER, PM_LABEL_ITEM
 from cpmi import PMI_ERR_DUPINSTNAME, PMI_ERR_DUPTEXT
 
+# pmrep modules - check installed location first, then source tree
+_pmrep_lib = os.environ.get('PCP_SHARE_DIR', '/usr/share/pcp') + '/lib/pmrep'
+if os.path.isdir(_pmrep_lib):
+    sys.path.insert(0, _pmrep_lib)
+else:
+    # Allow running from source tree without installing
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+# pylint: disable=wrong-import-position
+# Import must occur after sys.path setup to support both installed and source tree usage
+from groups import GroupHeaderFormatter, parse_group_definitions
+
 # Default config
 DEFAULT_CONFIG = ["./pmrep.conf", "$HOME/.pmrep.conf", "$HOME/.pcp/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep/pmrep.conf", "$PCP_SYSCONF_DIR/pmrep"]
 
@@ -63,6 +75,73 @@ SINGULR = "="
 OUTPUT_ARCHIVE = "archive"
 OUTPUT_CSV     = "csv"
 OUTPUT_STDOUT  = "stdout"
+
+
+# Pure functions - extracted for testability
+def parse_non_number(value, width=8):
+    """Check and handle float inf, -inf, and NaN"""
+    if math.isinf(value):
+        if value > 0:
+            return "inf" if width >= 3 else pmconfig.TRUNC
+        else:
+            return "-inf" if width >= 4 else pmconfig.TRUNC
+    elif math.isnan(value):
+        return "NaN" if width >= 3 else pmconfig.TRUNC
+    return value
+
+
+def remove_delimiter(value, delimiter):
+    """Remove delimiter if needed in string values"""
+    if isinstance(value, str) and delimiter and not delimiter.isspace():
+        if delimiter != "_":
+            return value.replace(delimiter, "_")
+        else:
+            return value.replace(delimiter, " ")
+    return value
+
+
+def option_override(opt):
+    """Override standard PCP options"""
+    if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
+        return 1
+    return 0
+
+
+def format_stdout_value(value, width, precision, delimiter=None):
+    """Format value for stdout output, returns (value, format_string)"""
+    fmt_str = None
+
+    if isinstance(value, int):
+        if len(str(value)) > width:
+            value = pmconfig.TRUNC
+        else:
+            fmt_str = "{X:" + str(width) + "d}"
+    elif isinstance(value, float) and \
+         not math.isinf(value) and \
+         not math.isnan(value):
+        s = len(str(int(value)))
+        if s > width:
+            value = pmconfig.TRUNC
+        elif s + 2 > width:
+            fmt_str = "{X:" + str(width) + "d}"
+            value = int(value)
+        else:
+            c = precision
+            for _ in reversed(range(c+1)):
+                t = "{0:" + str(width) + "." + str(c) + "f}"
+                if len(t.format(value)) > width:
+                    c -= 1
+                else:
+                    fmt_str = t.replace("0:", "X:")
+                    break
+    elif isinstance(value, str):
+        value = remove_delimiter(value, delimiter)
+        value = value.replace("\n", "\\n")
+    else:
+        value = parse_non_number(value, width)
+
+    return value, fmt_str
+
 
 class PMReporter(object):
     """ Report PCP metrics """
@@ -85,7 +164,16 @@ class PMReporter(object):
                      'type_prefer', 'precision_force', 'limit_filter', 'limit_filter_force',
                      'live_filter', 'rank', 'invert_filter', 'predicate', 'names_change',
                      'speclocal', 'instances', 'ignore_incompat', 'ignore_unknown',
-                     'omit_flat', 'instinfo', 'include_labels', 'include_texts')
+                     'omit_flat', 'instinfo', 'include_labels', 'include_texts',
+                     'groupalign', 'groupheader', 'groupsep', 'groupsep_data')
+
+        # Keys to ignore during metric parsing (handled separately by group implementation)
+        class GroupKeysIgnore:
+            """Container that matches group.* pattern keys"""
+            def __contains__(self, key):
+                return key.startswith('group.')
+
+        self.keys_ignore = GroupKeysIgnore()
 
         # The order of preference for options (as present):
         # 1 - command line options
@@ -144,12 +232,17 @@ class PMReporter(object):
         self.space_scale_force = None
         self.time_scale = None
         self.time_scale_force = None
+        self.groupheader = None  # Auto-detect based on group definitions
+        self.groupalign = 'center'  # Default alignment for group headers
+        self.groupsep = None  # No separator between groups by default
+        self.groupsep_data = False  # Don't apply separator to data rows
 
         # Not in pmrep.conf, won't overwrite
         self.outfile = None
 
         # Internal
         self.format = None # stdout format
+        self.timestamp_width = 0  # Width of timestamp column for header alignment
         self.writer = None
         self.pmi = None
         self.lines = 0
@@ -160,6 +253,9 @@ class PMReporter(object):
         self.prev_insts = None
         self.static_header = 1
         self.repeat_header_auto = 0
+        self.group_configs = []  # List of GroupConfig objects
+        self.column_widths = {}  # Dict of column name -> width
+        self.group_formatter = None  # GroupHeaderFormatter instance
 
         # Performance metrics store
         # key - metric name
@@ -246,6 +342,7 @@ class PMReporter(object):
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
         opts.pmSetLongOption("dynamic-header", 0, "1", "", "update header dynamically on metric/instance changes")
         opts.pmSetLongOption("separate-header", 0, "g", "", "write separated header before metrics")
+        opts.pmSetLongOption("no-group-headers", 0, "", "", "suppress group headers")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("no-interpol", 0, "u", "", "disable interpolation mode with archives")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
@@ -258,10 +355,8 @@ class PMReporter(object):
         return opts
 
     def option_override(self, opt):
-        """ Override standard PCP options """
-        if opt in ('g', 'H', 'K', 'n', 'N', 'p'):
-            return 1
-        return 0
+        """Override standard PCP options"""
+        return option_override(opt)
 
     def option(self, opt, optarg, _index):
         """ Perform setup for individual command line option """
@@ -372,6 +467,8 @@ class PMReporter(object):
             self.dynamic_header = 1
         elif opt == 'g':
             self.separate_header = 1
+        elif opt == 'no-group-headers':
+            self.groupheader = 0
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':
@@ -622,10 +719,12 @@ class PMReporter(object):
             #self.format = "{:}{}"
             self.format = "{0:}{1}"
             index += 2
+            self.timestamp_width = 0
         else:
             tstamp = datetime.fromtimestamp(time.time()).strftime(self.timefmt)
+            self.timestamp_width = len(tstamp)
             #self.format = "{:<" + str(len(tstamp)) + "}{}"
-            self.format = "{" + str(index) + ":<" + str(len(tstamp)) + "}"
+            self.format = "{" + str(index) + ":<" + str(self.timestamp_width) + "}"
             index += 1
             self.format += "{" + str(index) + "}"
             index += 1
@@ -650,6 +749,42 @@ class PMReporter(object):
         l = len(str(index-1)) + 2
         self.format = self.format[:-l]
 
+        # Calculate column widths for group header rendering
+        self.column_widths = {}
+        for metric in self.metrics:
+            # self.metrics[metric][4] is the column width
+            self.column_widths[metric] = int(self.metrics[metric][4])
+
+        # Find which config section is being used (look for :section in sys.argv)
+        section_arg = None
+        for arg in sys.argv[1:]:
+            if arg.startswith(':'):
+                section_arg = arg
+                break
+
+        # Parse group definitions if a section was specified
+        if section_arg:
+            section = section_arg.lstrip(':')
+            self.group_configs = parse_group_definitions(self.config, section, self.groupalign)
+
+            # Initialize group_formatter if groups were defined
+            if self.group_configs:
+                # Enable group header rendering if not explicitly disabled
+                if self.groupheader is None:
+                    self.groupheader = True
+
+                # Create the group formatter
+                self.group_formatter = GroupHeaderFormatter(
+                    groups=self.group_configs,
+                    delimiter=self.delimiter,
+                    groupsep=self.groupsep
+                )
+
+                # Check for labels that will be truncated and warn user
+                label_warnings = self.group_formatter.check_label_widths(self.column_widths)
+                for warning in label_warnings:
+                    sys.stderr.write(warning + "\n")
+
     def prepare_stdout_colxrow(self, results=()):
         """ Prepare columns and rows swapped stdout output """
         index = 0
@@ -658,9 +793,11 @@ class PMReporter(object):
         if self.timestamp == 0:
             self.format = "{0:}{1}"
             index += 2
+            self.timestamp_width = 0
         else:
             tstamp = datetime.fromtimestamp(time.time()).strftime(self.timefmt)
-            self.format = "{0:<" + str(len(tstamp)) + "." + str(len(tstamp)) + "}{1}"
+            self.timestamp_width = len(tstamp)
+            self.format = "{0:<" + str(self.timestamp_width) + "." + str(self.timestamp_width) + "}{1}"
             index += 2
 
         # Instance name
@@ -955,6 +1092,15 @@ class PMReporter(object):
         if self.separate_header:
             self.write_separate_header(results)
             return
+
+        # Write group header row if enabled and groups are defined
+        if self.groupheader and self.group_formatter and self.column_widths:
+            group_header_row = self.group_formatter.format_group_header_row(self.column_widths)
+            if group_header_row:
+                # Add leading spaces for timestamp column (width = timestamp_width + delimiter)
+                timestamp_indent = " " * self.timestamp_width + self.delimiter
+                self.writer.write(timestamp_indent + group_header_row + "\n")
+
         names = ["", self.delimiter] # no timestamp on header line
         insts = ["", self.delimiter] # no timestamp on instances line
         units = ["", self.delimiter] # no timestamp on units line
@@ -966,10 +1112,41 @@ class PMReporter(object):
         prnti = 0
         hlabels = [] # header labels
 
+        # Build metric to group mapping for group separator placement
+        metric_to_group = {}
+        if self.group_configs:
+            for group_idx, group in enumerate(self.group_configs):
+                for col in group.columns:
+                    metric_to_group[col] = group_idx
+
+        # Track the previous group for separator insertion
+        prev_group = [None]  # Use list for mutable closure variable
+
         def add_header_items(metric, name, i, j, n=[PM_IN_NULL]): # pylint: disable=dangerous-default-value
             """ Helper to add items to header """
+            # Check if we're transitioning to a new group
+            if self.groupsep and self.group_configs and metric in metric_to_group:
+                metric_group = metric_to_group[metric]
+                # If transitioning to a new group, replace previous delimiter with groupsep
+                if prev_group[0] is not None and prev_group[0] != metric_group:
+                    # Replace the last delimiter (after previous metric) with groupsep
+                    if names and names[-1] == self.delimiter:
+                        names[-1] = self.groupsep
+                    if insts and insts[-1] == self.delimiter:
+                        insts[-1] = self.groupsep
+                    if units and units[-1] == self.delimiter:
+                        units[-1] = self.groupsep
+                    if self.include_labels and mlabels and mlabels[-1] == self.delimiter:
+                        mlabels[-1] = self.groupsep
+                prev_group[0] = metric_group
+
             names.extend([self.metrics[metric][0], self.delimiter])
-            insts.extend([name, self.delimiter])
+
+            # Avoid showing instance names that would be awkwardly truncated
+            inst_name = name
+            if name != self.delimiter and len(name) > int(self.metrics[metric][4]):
+                inst_name = self.delimiter
+            insts.extend([inst_name, self.delimiter])
             units.extend([self.metrics[metric][2][0], self.delimiter])
             if self.include_labels:
                 ins = self.get_labels_inst(i, j, n)
@@ -1163,24 +1340,12 @@ class PMReporter(object):
         self.prev_insts = insts
 
     def parse_non_number(self, value, width=8):
-        """ Check and handle float inf, -inf, and NaN """
-        if math.isinf(value):
-            if value > 0:
-                value = "inf" if width >= 3 else pmconfig.TRUNC
-            else:
-                value = "-inf" if width >= 4 else pmconfig.TRUNC
-        elif math.isnan(value):
-            value = "NaN" if width >= 3 else pmconfig.TRUNC
-        return value
+        """Check and handle float inf, -inf, and NaN"""
+        return parse_non_number(value, width)
 
     def remove_delimiter(self, value):
-        """ Remove delimiter if needed in string values """
-        if isinstance(value, str) and self.delimiter and not self.delimiter.isspace():
-            if self.delimiter != "_":
-                value = value.replace(self.delimiter, "_")
-            else:
-                value = value.replace(self.delimiter, " ")
-        return value
+        """Remove delimiter if needed in string values"""
+        return remove_delimiter(value, self.delimiter)
 
     def write_csv(self, timestamp):
         """ Write results in CSV format """
@@ -1249,38 +1414,10 @@ class PMReporter(object):
         self.writer.write(line + "\n")
 
     def format_stdout_value(self, value, width, precision, fmt, k):
-        """ Format value for stdout output """
-        if isinstance(value, int):
-            if len(str(value)) > width:
-                value = pmconfig.TRUNC
-            else:
-                #fmt[k] = "{:" + str(width) + "d}"
-                fmt[k] = "{X:" + str(width) + "d}"
-        elif isinstance(value, float) and \
-             not math.isinf(value) and \
-             not math.isnan(value):
-            s = len(str(int(value)))
-            if s > width:
-                value = pmconfig.TRUNC
-            elif s + 2 > width:
-                fmt[k] = "{X:" + str(width) + "d}"
-                value = int(value)
-            else:
-                c = precision
-                for _ in reversed(range(c+1)):
-                    t = "{0:" + str(width) + "." + str(c) + "f}"
-                    if len(t.format(value)) > width:
-                        c -= 1
-                    else:
-                        #fmt[k] = t.replace("0:", ":")
-                        fmt[k] = t.replace("0:", "X:")
-                        break
-        elif isinstance(value, str):
-            value = self.remove_delimiter(value)
-            value = value.replace("\n", "\\n")
-        else:
-            value = self.parse_non_number(value, width)
-
+        """Format value for stdout output"""
+        value, fmt_str = format_stdout_value(value, width, precision, self.delimiter)
+        if fmt_str is not None:
+            fmt[k] = fmt_str
         return value
 
     def write_stdout(self, timestamp):

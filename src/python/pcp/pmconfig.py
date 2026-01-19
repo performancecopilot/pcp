@@ -37,7 +37,7 @@ import re
 from pcp import pmapi
 
 # Common defaults (for applicable utils)
-TRUNC = "xxx"
+TRUNC = "..."
 VERSION = 1
 CURR_INSTS = False
 
@@ -80,6 +80,9 @@ class pmConfig(object):
 
         # Update PCP labels on instance changes
         self._prev_insts = []
+
+        # Track per-metric success/failure for --ignore-unknown
+        self.metric_sts = {}
 
     def set_signal_handler(self):
         """ Set default signal handler """
@@ -224,7 +227,11 @@ class pmConfig(object):
                         section = arg[1:]
                         self.read_section_options(config, section)
             except ConfigParser.Error as error:
-                lineno = str(error.lineno) if hasattr(error, 'lineno') else error.errors[0][0]
+                if hasattr(error, 'lineno'):
+                    lineno = str(error.lineno)
+                else:
+                    errors = getattr(error, 'errors', [('?', None)])
+                    lineno = str(errors[0][0])
                 sys.stderr.write("Failed to read configuration file '%s', line %s:\n%s\n"
                                  % (conf, lineno, str(error.message)))
                 sys.exit(1)
@@ -367,7 +374,11 @@ class pmConfig(object):
             try:
                 config.read(conf)
             except ConfigParser.Error as error:
-                lineno = str(error.lineno) if hasattr(error, 'lineno') else error.errors[0][0]
+                if hasattr(error, 'lineno'):
+                    lineno = str(error.lineno)
+                else:
+                    errors = getattr(error, 'errors', [('?', None)])
+                    lineno = str(errors[0][0])
                 sys.stderr.write("Failed to read configuration file '%s', line %s:\n%s\n"
                                  % (conf, lineno, str(error.message)))
                 sys.exit(1)
@@ -554,6 +565,7 @@ class pmConfig(object):
         """ Validate individual metric and get its details """
         try:
             pmid = self.util.context.pmLookupName(metric)[0]
+            self.metric_sts[metric] = 0  # Track successful lookup
             if pmid in self.pmids:
                 # Always ignore duplicates
                 return
@@ -644,12 +656,18 @@ class pmConfig(object):
         except pmapi.pmErr as error:
             if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
                 return
+            # Check ignore_unknown before exiting
+            if self.ignore_unknown_metrics():
+                self.metric_sts[metric] = error.args[0]
+                return
             sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
             sys.exit(1)
 
     def ignore_unknown_metrics(self):
         """ Check if unknown metrics are ignored """
-        if hasattr(self.util, 'ignore_unknown') and self.util.ignore_unknown:
+        has_attr = hasattr(self.util, 'ignore_unknown')
+        result = has_attr and self.util.ignore_unknown
+        if result:
             return True
         return False
 
@@ -814,6 +832,10 @@ class pmConfig(object):
                 else:
                     self.util.metrics[metric] = metrics[metric]
             except pmapi.pmErr as error:
+                # Check ignore_unknown before exiting
+                if self.ignore_unknown_metrics():
+                    self.metric_sts[metric] = error.args[0]
+                    continue  # Try next metric instead of exit
                 sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
                 sys.exit(1)
 

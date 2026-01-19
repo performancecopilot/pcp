@@ -20,8 +20,11 @@ SCRIPT = $(TARGET).py
 LNKTARGET = pcp2csv
 MAN_PAGES = pmrep.1 pmrep.conf.5
 BASHDIR = $(PCP_BASHSHARE_DIR)/completions
+PMREPLIB = $(PCP_SHARE_DIR)/lib/pmrep
+PMREPMODULES = groups.py
+PYSCRIPTS = $(SCRIPT) groups.py metrics.py config.py header.py
 
-SUBDIRS = conf
+SUBDIRS = conf test
 
 include $(BUILDRULES)
 
@@ -32,6 +35,8 @@ install: default $(SUBDIRS)
 ifeq "$(HAVE_PYTHON_ORDEREDDICT)" "true"
 	$(SUBDIRS_MAKERULE)
 	$(INSTALL) -m 755 $(SCRIPT) $(PCP_BIN_DIR)/$(TARGET)
+	$(INSTALL) -m 755 -d $(PMREPLIB)
+	$(INSTALL) -m 644 groups.py $(PMREPLIB)/groups.py
 	$(INSTALL) -S $(PCP_BIN_DIR)/$(TARGET) $(PCP_BIN_DIR)/$(LNKTARGET)
 	$(INSTALL) -S $(BASHDIR)/pcp $(BASHDIR)/$(TARGET)
 	@$(INSTALL_MAN)
@@ -41,7 +46,10 @@ default_pcp: default
 
 install_pcp: install
 
-check :: $(SCRIPT)
+check :: $(SUBDIRS)
+	$(SUBDIRS_MAKERULE)
+
+check :: $(PYSCRIPTS)
 	$(PYLINT) $^
 
 check :: pmrep.1 pmrep.conf.5
