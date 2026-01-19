@@ -185,7 +185,7 @@ class GroupHeaderFormatter:
         spans = self.calculate_spans(column_widths)
         warnings = []
 
-        for group, (label, width, _) in zip(self.groups, spans):
+        for _, (label, width, _) in zip(self.groups, spans):
             if len(label) > width:
                 warnings.append(
                     "Warning: Group label '{}' ({} chars) is wider than its span ({} chars) "

@@ -783,7 +783,7 @@ class PMReporter(object):
                 # Check for labels that will be truncated and warn user
                 label_warnings = self.group_formatter.check_label_widths(self.column_widths)
                 for warning in label_warnings:
-                    self.pmconfig.write_msg("pmrep", warning)
+                    sys.stderr.write(warning + "\n")
 
     def prepare_stdout_colxrow(self, results=()):
         """ Prepare columns and rows swapped stdout output """

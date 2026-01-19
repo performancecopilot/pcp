@@ -91,7 +91,7 @@ class HeaderFormatter:
         """
         result = ["", self.delimiter]  # Timestamp empty for headers
 
-        for i, value in enumerate(values):
+        for value in values:
             result.append(value)
             result.append(self.delimiter)
 
