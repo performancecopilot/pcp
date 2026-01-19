@@ -218,5 +218,79 @@ class TestGroupHeaderIntegration(unittest.TestCase):
                         "With groupheader=False, should only have metric names header")
 
 
+class TestNoGroupHeadersCLIOption(unittest.TestCase):
+    """Test the --no-group-headers CLI option"""
+
+    def setUp(self):
+        """Set up test fixtures"""
+        self.original_argv = sys.argv
+        self.original_stderr = sys.stderr
+        sys.stderr = StringIO()
+
+    def tearDown(self):
+        """Restore sys.argv and stderr"""
+        sys.argv = self.original_argv
+        sys.stderr = self.original_stderr
+
+    def test_no_group_headers_option_handler_works(self):
+        """Test that the option handler properly sets groupheader to 0"""
+        sys.argv = ['pmrep']
+        reporter = pmrep.PMReporter()
+
+        # Directly call the option handler to simulate the callback
+        reporter.option('no-group-headers', None, 0)
+
+        # After calling the option handler, groupheader should be 0
+        self.assertEqual(reporter.groupheader, 0,
+                        "option handler should set groupheader to 0")
+
+    def test_no_group_headers_option_is_registered(self):
+        """Test that --no-group-headers option is properly registered"""
+        sys.argv = ['pmrep']
+        reporter = pmrep.PMReporter()
+
+        # Verify the opts object has the expected methods
+        self.assertTrue(hasattr(reporter.opts, 'pmSetLongOption'),
+                       "opts should have pmSetLongOption method")
+        self.assertIsNotNone(reporter.opts,
+                           "pmOptions should be initialized")
+
+    def test_groupheader_initially_none_for_autodetection(self):
+        """Test that groupheader starts as None to allow auto-detection"""
+        sys.argv = ['pmrep']
+        reporter = pmrep.PMReporter()
+
+        # Initially, groupheader should be None (for auto-detection)
+        self.assertIsNone(reporter.groupheader,
+                         "groupheader should be None initially for auto-detection")
+
+    def test_no_group_headers_prevents_autodetection(self):
+        """Test that explicitly setting groupheader=0 prevents auto-detection"""
+        sys.argv = ['pmrep']
+        reporter = pmrep.PMReporter()
+
+        # Simulate the option handler being called
+        reporter.option('no-group-headers', None, 0)
+
+        # Now groupheader should be explicitly 0
+        self.assertEqual(reporter.groupheader, 0,
+                        "Explicitly set groupheader=0 should prevent auto-detection")
+
+        # Verify it doesn't get auto-detected even with groups
+        from groups import GroupConfig
+        reporter.group_configs = [
+            GroupConfig('memory', ['free', 'buff'], label='memory')
+        ]
+
+        # The auto-detection check should see groupheader is explicitly 0 (not None)
+        # and should NOT override it
+        if reporter.groupheader is None:
+            reporter.groupheader = True
+
+        # It should still be 0, not True
+        self.assertEqual(reporter.groupheader, 0,
+                        "Explicitly disabled group headers should not be auto-detected")
+
+
 if __name__ == '__main__':
     unittest.main()

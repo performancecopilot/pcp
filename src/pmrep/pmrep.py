@@ -342,6 +342,7 @@ class PMReporter(object):
         opts.pmSetLongOption("repeat-header", 1, "E", "N", "repeat stdout headers every N lines")
         opts.pmSetLongOption("dynamic-header", 0, "1", "", "update header dynamically on metric/instance changes")
         opts.pmSetLongOption("separate-header", 0, "g", "", "write separated header before metrics")
+        opts.pmSetLongOption("no-group-headers", 0, "", "", "suppress group headers")
         opts.pmSetLongOption("timestamp-format", 1, "f", "STR", "strftime string for timestamp format")
         opts.pmSetLongOption("no-interpol", 0, "u", "", "disable interpolation mode with archives")
         opts.pmSetLongOption("count-scale", 1, "q", "SCALE", "default count unit")
@@ -466,6 +467,8 @@ class PMReporter(object):
             self.dynamic_header = 1
         elif opt == 'g':
             self.separate_header = 1
+        elif opt == 'no-group-headers':
+            self.groupheader = 0
         elif opt == 'f':
             self.timefmt = optarg
         elif opt == 'u':
