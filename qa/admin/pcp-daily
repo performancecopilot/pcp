@@ -471,6 +471,7 @@ NF == 0	{ txt = ""; next }
 END	{ print txt }' \
 | awk '
 \$1 == "Triaged:"	{ want = 1 }
+\$1 == "Callback:"	{ want = 1 }
 \$1 == "Failures:"	{ want = 1 }
 \$1 == "Passed"		{ want = 1 }
 want == 1		{ print }'
