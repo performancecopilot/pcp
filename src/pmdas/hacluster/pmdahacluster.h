@@ -1,7 +1,7 @@
 /*
  * High Availability (HA) Cluster PMDA
  *
- * Copyright (c) 2020 -2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -66,45 +66,7 @@ enum {
 	NUM_INDOMS
 };
 
-struct pacemaker_fail {
-	struct fail_count fail_count;
-};
-
-struct pacemaker_constraints {
-	struct location_constraints location_constraints;
-};
-
-struct pacemaker_nodes {
-	struct nodes nodes;
-};
-
-struct pacemaker_node_attrib {
-	struct attributes attributes;
-};
-
-struct pacemaker_resources {
-	struct resources resources;
-};
-
-struct corosync_node {
-	struct member_votes	member_votes;
-};
-
-struct corosync_ring {
-	struct rings rings;
-};
-
-struct sbd_device {
-	struct sbd sbd;
-};
-
-struct drbd_resource {
-	struct resource resource;
-};
-
-struct drbd_peer_device {
-	struct peer_device peer_device;
-};
+extern pmInDom hacluster_indom(int);
 
 extern pmdaMetric metrictable[];
 extern int metrictable_size();
