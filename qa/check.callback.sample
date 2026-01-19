@@ -101,9 +101,12 @@ then
     echo "--- start pre-check ---"
     ./941 --check $1
     ./870 --check $1
-    $sudo grep -E '^type=(AVC|SELINUX).*pcp' $audit \
-    | _suppress_avc >$1.pre-avc 2>/dev/null
-    echo "before `wc -l <$1.pre-avc` AVC errors"
+    if [ -f "$audit" ]
+    then
+	$sudo grep -E '^type=(AVC|SELINUX).*pcp' "$audit" \
+	| _suppress_avc >$1.pre-avc 2>/dev/null
+	echo "before `wc -l <$1.pre-avc` AVC errors"
+    fi
     echo "--- end pre-check ---"
     exit
 fi
@@ -303,47 +306,50 @@ then
     $abort && status=1
 fi
 
-# Check audit log for any Security Enhanced Linux access denials
-# related to PCP ...
-#
-$sudo grep -E '^type=(AVC|SELINUX).*pcp' $audit \
-| _suppress_avc 2>/dev/null >$1.post-avc
-if [ -f $1.pre-avc ]
+if [ -f "$audit" ]
 then
-    diff $1.pre-avc $1.post-avc \
-    | sed -n -e '/> /s///p' >$tmp.out
-    # Now there are _some_ AVCs reported here that are selinux snarfoos
-    # rather than problems with PCP and the associated PCP policy files.
-    # These ones have been triaged up the wazoo, and can safely be ignored
-    # here.
+    # Check audit log for any Security Enhanced Linux access denials
+    # related to PCP ...
     #
-    case `admin/whatami`
-    in
-	vm39*RHEL\ 8.5*)
-	    sed <$tmp.out >$tmp.tmp \
-		-e '/{ write } .* comm="rpcinfo" name="rpcbind.sock" .* scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:rpcbind_var_run_t:s0 tclass=sock_file/d' \
-		-e '/{ sys_resource } .* comm="pmproxy" capability=24  scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability/d' \
-		-e '/{ sys_admin } .* comm="pmproxy" capability=21  scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability/d' \
-	    # end
-	    if diff $tmp.out $tmp.tmp >$tmp.new
-	    then
-		:
-	    else
-		echo "Note: check.callback chose to culled these new AVCs ..." >>$1.full
-		sed -n -e '/> /s///p' <$tmp.new >>$1.full
-		mv $tmp.tmp $tmp.out
-	    fi
-	    ;;
-    esac
-    if [ -s $tmp.out ]
+    $sudo grep -E '^type=(AVC|SELINUX).*pcp' "$audit" \
+    | _suppress_avc 2>/dev/null >$1.post-avc
+    if [ -f $1.pre-avc ]
     then
-	echo "check.callback: fail: new SELinux/AVC denials"
-	cat $tmp.out
-	echo "after `wc -l <$1.post-avc` AVC errors"
-	$abort && status=1
+	diff $1.pre-avc $1.post-avc \
+	| sed -n -e '/> /s///p' >$tmp.out
+	# Now there are _some_ AVCs reported here that are selinux snarfoos
+	# rather than problems with PCP and the associated PCP policy files.
+	# These ones have been triaged up the wazoo, and can safely be ignored
+	# here.
+	#
+	case `admin/whatami`
+	in
+	    vm39*RHEL\ 8.5*)
+		sed <$tmp.out >$tmp.tmp \
+		    -e '/{ write } .* comm="rpcinfo" name="rpcbind.sock" .* scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:rpcbind_var_run_t:s0 tclass=sock_file/d' \
+		    -e '/{ sys_resource } .* comm="pmproxy" capability=24  scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability/d' \
+		    -e '/{ sys_admin } .* comm="pmproxy" capability=21  scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:system_r:pcp_pmproxy_t:s0 tclass=capability/d' \
+		# end
+		if diff $tmp.out $tmp.tmp >$tmp.new
+		then
+		    :
+		else
+		    echo "Note: check.callback chose to culled these new AVCs ..." >>$1.full
+		    sed -n -e '/> /s///p' <$tmp.new >>$1.full
+		    mv $tmp.tmp $tmp.out
+		fi
+		;;
+	esac
+	if [ -s $tmp.out ]
+	then
+	    echo "check.callback: fail: new SELinux/AVC denials"
+	    cat $tmp.out
+	    echo "after `wc -l <$1.post-avc` AVC errors"
+	    $abort && status=1
+	fi
     fi
+    rm -f $1.pre-avc $1.post-avc
 fi
-rm -f $1.pre-avc $1.post-avc
 
 rm -f $here/onetrip
 
