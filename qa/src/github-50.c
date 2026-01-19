@@ -8,6 +8,7 @@
 
 #include <pcp/pmapi.h>
 #include "libpcp.h"
+#include <signal.h>
 
 int
 main(int argc, char **argv)
@@ -111,6 +112,8 @@ Options:\n\
 	    exit(1);
 	}
     }
+
+    signal(SIGABRT, SIG_IGN);
 
     if ((sts = pmGetArchiveLabel(&label)) < 0)
 	fprintf(stderr, "%s: Cannot get archive label record: %s\n",

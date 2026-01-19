@@ -49,6 +49,7 @@ _filter()
 	    -e '/^github-50.c:.*pmUnlock(/s/.*/Unlock Fail: Operation not permitted/' \
 	    -e '/^Aborted (core dumped)/d' \
 	    -e '/^Aborted$/d' \
+	    -e '/^Abort trap (core dumped)/d' \
 	| $PCP_AWK_PROG '
 $1 == "backtrace:"	{ exit }
 $3 == "traceback"	{ exit }
@@ -63,29 +64,31 @@ $3 == "traceback"	{ exit }
     fi
 }
 
+export LD_PRELOAD=$LD_PRELOAD
+
 # real QA test starts here
 echo "=== -x (no context) ==="
-( sh -c "LD_PRELOAD=$LD_PRELOAD src/github-50 -x" 2>&1 ) | _filter
+( src/github-50 2>&1 -x && exit 0 ) 2>&1 | _filter
 
 echo
 echo "=== no args, default context ==="
-( sh -c "LD_PRELOAD=$LD_PRELOAD src/github-50" 2>&1 ) | _filter
+( src/github-50 2>&1 && exit 0 ) 2>&1 | _filter
 
 echo
 echo "=== -h local: ==="
-( sh -c "LD_PRELOAD=$LD_PRELOAD src/github-50 -h 'local:'" 2>&1 ) | _filter
+( src/github-50 2>&1 -h 'local:' && exit 0 ) 2>&1 | _filter
 
 echo
 echo '=== -h `hostname` ==='
-( sh -c "LD_PRELOAD=$LD_PRELOAD src/github-50 -h `hostname`" 2>&1 ) | _filter
+( src/github-50 2>&1 -h `hostname` && exit 0 ) 2>&1 | _filter
 
 echo
 echo '=== -L ==='
-( $sudo_local_ctx sh -c "LD_PRELOAD=$LD_PRELOAD src/github-50 -L" 2>&1 ) | _filter
+( $sudo_local_ctx src/github-50 2>&1 -L && exit 0 ) 2>&1 | _filter
 
 echo
 echo '=== -a archives/ok-foo ==='
-( sh -c "LD_PRELOAD=$LD_PRELOAD src/github-50 -a archives/ok-foo" 2>&1 ) | _filter
+( src/github-50 2>&1 -a archives/ok-foo && exit 0 ) 2>&1 | _filter
 
 # this calls abort() on the error paths, so we may have core files ...
 # this is not cause for failing the test
