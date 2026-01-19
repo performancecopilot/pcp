@@ -81,7 +81,7 @@ idb: $(DIST_MANIFEST)
 	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmcd.plist io.pcp.pmcd.plist replace" >> idb
 	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmie.plist io.pcp.pmie.plist replace" >> idb
 	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmlogger.plist io.pcp.pmlogger.plist replace" >> idb
-	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmproxy.plist io.pcp.pmlogger.plist replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmproxy.plist io.pcp.pmproxy.plist replace" >> idb
 	@echo idb created
 
 extrabits: idb
