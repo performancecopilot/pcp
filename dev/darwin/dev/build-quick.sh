@@ -61,5 +61,5 @@ echo
 echo "Next steps:"
 echo "  1. Run unit tests:       cd ../test/unit && ./run-unit-tests.sh"
 echo "  2. Install to system:    make install"
-echo "  3. Test with pminfo:     pminfo -f darwin.mem.physmem"
+echo "  3. Test with pminfo:     pminfo -f mem.physmem"
 echo
