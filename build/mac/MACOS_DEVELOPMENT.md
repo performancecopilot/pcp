@@ -75,7 +75,7 @@ The `.cirrus.yml` file defines the build task:
 - **Verification**: Waits for pmcd service to start, validates installation
 - **Pause script**: Optionally pauses VM if `PCP_PAUSE_AFTER_INSTALL=true`
 
-See [.cirrus.yml](.cirrus.yml) for implementation details.
+See [.cirrus.yml](../../.cirrus.yml) for implementation details.
 
 ## Documentation
 

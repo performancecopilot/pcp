@@ -172,5 +172,5 @@ PCP maintainers as well** (and fixes must be pushed upstream).
 
 ### macOS with Tart VMs
 
-macOS developers can build in isolated VMs for clean, reproducible builds that match the CI environment. See [MACOS_DEVELOPMENT.md](MACOS_DEVELOPMENT.md) for details.
+macOS developers can build in isolated VMs for clean, reproducible builds that match the CI environment. See [MACOS_DEVELOPMENT.md](build/mac/MACOS_DEVELOPMENT.md) for details.
 

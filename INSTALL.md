@@ -210,7 +210,7 @@ environment (your platform must at least have gmake).
 brew install gnu-tar pkg-config python3 python-setuptools autoconf
 ```
 
-To build from source using isolated VMs, see [MACOS_DEVELOPMENT.md](MACOS_DEVELOPMENT.md).
+To build from source using isolated VMs, see [MACOS_DEVELOPMENT.md](build/mac/MACOS_DEVELOPMENT.md).
 
 ---
 
