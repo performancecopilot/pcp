@@ -15,18 +15,20 @@ PCP is a feature-rich, mature, extensible, cross-platform toolkit supporting bot
 * :doc:`QG/QuickGuides`
 * :doc:`UAG/AboutUserAdministratorsGuide`
 * :doc:`PG/AboutProgrammersGuide`
+* :doc:`HowTos/nix/index`
 * :doc:`HowTos/scaling/index`
 * `REST API Specification <api/>`_
 
 .. toctree::
    :caption: Guides
    :hidden:
-   
+
    HowTos/installation/index
    QG/QuickReferenceGuide
    QG/QuickGuides
    UAG/AboutUserAdministratorsGuide
    PG/AboutProgrammersGuide
+   HowTos/nix/index
    HowTos/scaling/index
    REST API Specification <https://pcp.readthedocs.io/en/latest/api/>
 
