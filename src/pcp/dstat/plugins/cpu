@@ -10,11 +10,11 @@ printtype = p
 colorstep = 34
 grouptype = 2
 filtertype = cpu
-usr = 100 * (rate(kernel.percpu.cpu.user) + rate(kernel.percpu.cpu.nice) + rate(kernel.percpu.cpu.irq.soft) + rate(kernel.percpu.cpu.irq.hard))
+usr = 100 * rate(kernel.percpu.cpu.user + kernel.percpu.cpu.nice + (defined(kernel.percpu.cpu.irq.soft) ? kernel.percpu.cpu.irq.soft : mkconst(0, meta=kernel.percpu.cpu.user)) + (defined(kernel.percpu.cpu.irq.hard) ? kernel.percpu.cpu.irq.hard : mkconst(0, meta=kernel.percpu.cpu.user)))
 sys = 100 * rate(kernel.percpu.cpu.sys)
 idl = 100 * rate(kernel.percpu.cpu.idle)
-wai = 100 * rate(kernel.percpu.cpu.wait.total)
-stl = 100 * rate(kernel.percpu.cpu.steal)
+wai = 100 * rate(defined(kernel.percpu.cpu.wait.total) ? kernel.percpu.cpu.wait.total : mkconst(0, meta=kernel.percpu.cpu.user))
+stl = 100 * rate(defined(kernel.percpu.cpu.steal) ? kernel.percpu.cpu.steal : mkconst(0, meta=kernel.percpu.cpu.user))
 
 [cpu-adv]
 width = 3
@@ -25,10 +25,10 @@ colorstep = 34
 usr = 100 * (rate(kernel.all.cpu.user) + rate(kernel.all.cpu.nice)) / hinv.ncpu
 sys = 100 * rate(kernel.all.cpu.sys) / hinv.ncpu
 idl = 100 * rate(kernel.all.cpu.idle) / hinv.ncpu
-wai = 100 * rate(kernel.all.cpu.wait.total) / hinv.ncpu
-hiq = 100 * rate(kernel.all.cpu.irq.hard) / hinv.ncpu
-siq = 100 * rate(kernel.all.cpu.irq.soft) / hinv.ncpu
-stl = 100 * rate(kernel.all.cpu.steal) / hinv.ncpu
+wai = 100 * rate(defined(kernel.all.cpu.wait.total) ? kernel.all.cpu.wait.total : mkconst(0, meta=kernel.all.cpu.user)) / hinv.ncpu
+hiq = 100 * rate((defined(kernel.all.cpu.irq.hard) ? kernel.all.cpu.irq.hard : mkconst(0, meta=kernel.all.cpu.user)))/ hinv.ncpu
+siq = 100 * rate((defined(kernel.all.cpu.irq.soft) ? kernel.all.cpu.irq.soft : mkconst(0, meta=kernel.all.cpu.user))) / hinv.ncpu
+stl = 100 * rate(defined(kernel.all.cpu.steal) ? kernel.all.cpu.steal : mkconst(0, meta=kernel.all.cpu.user)) / hinv.ncpu
 
 [cpu-use]
 width = 3
