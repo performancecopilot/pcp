@@ -589,8 +589,6 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
         return s + n / 1000000000.0
 
     def print_machine_info(self,context):
-        if self.processStatOptions.debug_mode:
-            print("Printing machine info")
         timestamp = context.pmLocaltime(self.group.timestamp.tv_sec)
         # Please check strftime(3) for different formatting options.
         # Also check TZ and LC_TIME environment variables for more
@@ -664,8 +662,6 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
             # Doing this for one single print instance in case there is no count specified
             if self.processStatOptions.print_count is None \
                 and self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
-                if self.processStatOptions.debug_mode:
-                    print("No print count specified, defaulting to print one time")
                 self.processStatOptions.print_count = 1
             # ================================================================
             if self.processStatOptions.selective_colum_flag:
@@ -674,8 +670,6 @@ class ProcessStatReport(pmcc.MetricGroupPrinter):
                 self.__print_dynamic_report(manager,timestamp, header_indentation,
                                             value_indentation, interval_in_seconds)
             else:
-                if self.processStatOptions.debug_mode:
-                    print("Selective column flag is not set")
                 self.__print_report(manager,timestamp, header_indentation, value_indentation, interval_in_seconds)
             if self.processStatOptions.context is not PM_CONTEXT_ARCHIVE:
                 self.processStatOptions.print_count -= 1
@@ -781,7 +775,7 @@ class ProcessStatOptions(pmapi.pmOptions):
                              "Display user-oriented format"
         )
         self.pmSetLongOption(
-            "", 1, "O", "%cpu,%mem",
+            "sort", 1, "O", "%cpu,%mem",
             "sort the process list by %cpu or %mem values "
         )
         self.pmSetLongOption("", 0, "d", "", "enable debug mode")
@@ -919,16 +913,11 @@ class ProcessStatOptions(pmapi.pmOptions):
             print("Unknown option: %s" % opts)
             sys.exit(1)
     def checkOptions(self):
-        if self.debug_mode:
-            print("Universal Flag: %s" % self.universal_flag)
         if self.universal_flag is not None :
-        #    self.selective_colum_flag or \
-        #    self.filter_flag :
             return True
         else:
             if self.debug_mode:
                 print("No filtering option selected, defaulting to empty argument mode")
-            # self.empty_arg_flag = True
             self.universal_flag = "empty_arg"
             return True
 

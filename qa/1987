@@ -70,5 +70,14 @@ pcp $archive_first ps -o pid,ppid,tty,args,%mem -O %mem | head -10
 echo && echo pcp-ps output : Display the value as per %cpu in user selected format
 pcp $archive_first ps -o ALL -O %cpu | head -10
 
+echo && echo pcp-ps output : Display user format with sort by %cpu \(custom columns, positive test\)
+pcp $archive_first ps -o pid,%cpu,args -O %cpu | head -10
+
+echo && echo pcp-ps output : Display user format using --sort \(long option\)
+pcp $archive_first ps -o pid,%mem,args --sort=%mem | head -10
+
+echo && echo pcp-ps output : Display user format with --sort on missing column \(negative test, should error\)
+pcp $archive_first ps -o pid,args --sort=%mem
+
 status=0
 exit

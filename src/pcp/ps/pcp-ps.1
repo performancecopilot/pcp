@@ -245,9 +245,14 @@ WCHAN and COMMAND.
 T}
 .TE
 .TP
-.BR \-O\ \fI%mem,%cpu\fR
-Sort the output processes for the given field name 
-(In case of wrong filed name output will default to Sorting %cpu).
+.BR \-O\ \fI%mem,%cpu\fR ", " \fB\-\-sort=\fI%mem,%cpu\fR
+Sort the output processes by the specified column. 
+This sorting can now be used in conjunction with the
+.BR \-o
+option to sort on any user-specified output column (e.g., -o pid,%mem -O %mem).
+The column given to -O/--sort must appear in the -o list.
+If the sorting column is missing from the output format, an error will be shown.
+(In case of an unsupported or missing field name, sorting will default to %cpu.)
 .TP
 .BR \-d\,
 debug mode
