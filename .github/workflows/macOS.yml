@@ -50,7 +50,7 @@ jobs:
         run: |
           echo "Unit tests failed. Checking build artifacts..."
           find . -name "pmda_darwin.dylib" -o -name "pmdadarwin"
-          echo "Checking for pmcd build..."
+          echo "Checking for dbpmda..."
           find . -name "dbpmda"
       - name: Debug on failure
         if: failure() && steps.Build.conclusion == 'failure'
