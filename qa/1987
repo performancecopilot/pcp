@@ -56,19 +56,19 @@ echo && echo pcp-ps output : Display the colum "args" in the end of -o option co
 pcp $archive_first ps -o pid,ppid,tty,args
 
 echo && echo pcp-ps output : Display the value as per %cpu sorted
-pcp $archive_first ps -u -S %cpu | head -10
+pcp $archive_first ps -u -O %cpu | head -10
 
 echo && echo pcp-ps output : Display the value as per %mem sorted
-pcp $archive_first ps -u -S %mem | head -10
+pcp $archive_first ps -u -O %mem | head -10
 
 echo && echo pcp-ps output : Display the value as per %mem in user selected format\(failure case\)
-pcp $archive_first ps -o pid,ppid,tty,args -S %mem
+pcp $archive_first ps -o pid,ppid,tty,args -O %mem
 
 echo && echo pcp-ps output : Display the value as per %mem in user selected format
-pcp $archive_first ps -o pid,ppid,tty,args,%mem -S %mem | head -10
+pcp $archive_first ps -o pid,ppid,tty,args,%mem -O %mem | head -10
 
 echo && echo pcp-ps output : Display the value as per %cpu in user selected format
-pcp $archive_first ps -o ALL -S %cpu | head -10
+pcp $archive_first ps -o ALL -O %cpu | head -10
 
 status=0
 exit

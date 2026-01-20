@@ -27,7 +27,7 @@
 [\f3\-P\f1 \f2pid1,pid2..\f1]
 [\f3\-p\f1 \f2pid1,pid2..\f1]
 [\f3\-o\f1 \f2col1,col2... or ALL\f1]
-[\f3\-S\f1 \f2%mem,%cpu\f1, \f3\-\-sort=\f2%mem,%cpu\f1]
+[\f3\-O\f1 \f2%mem,%cpu\f1]
 [\f3\-d\f1]
 [\f3\-Z\f1 \f2timezone\f1]
 [\f3\-z\f1]
@@ -49,8 +49,8 @@ When invoked via the
 command, the
 .BR \-h /\c
 .BR \-\-host ,
-.BR \-S /\c
-.BR \-\-sort ,
+.BR \-O /\c
+.BR \-\-origin ,
 .BR \-t /\c
 .BR \-\-interval ,
 .BR \-Z /\c
@@ -245,9 +245,9 @@ WCHAN and COMMAND.
 T}
 .TE
 .TP
-.BR \-S\ \fI%mem,%cpu\fR ", " \fB\-\-sort=\fI%mem,%cpu\fR
-Sort the output processes by the given field name (%mem or %cpu). 
-If an invalid field name is given, the output will default to sorting by %cpu.
+.BR \-O\ \fI%mem,%cpu\fR
+Sort the output processes for the given field name 
+(In case of wrong filed name output will default to Sorting %cpu).
 .TP
 .BR \-d\,
 debug mode
