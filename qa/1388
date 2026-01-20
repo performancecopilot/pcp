@@ -63,6 +63,12 @@ _cleanup()
     _service pmcd start >>$seq_full 2>&1
     _wait_for_pmcd
 
+    # and get pmlogger running again (change in pmcd status may have
+    # forced primary pmlogger to exit) ...
+    #
+    _service pmlogger start >>$seq_full 2>&1
+    _wait_for_pmlogger
+
     if $pmproxy_was_running
     then
 	echo "Restart pmproxy ..." >>$seq_full
