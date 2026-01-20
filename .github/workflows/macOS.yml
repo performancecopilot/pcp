@@ -31,11 +31,6 @@ jobs:
         id: install-brew-deps
         run: |
           brew install autoconf unixodbc
-      - name: Configure PCP
-        id: configure
-        run: |
-          echo "Configuring PCP..."
-          ./configure --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var
       - name: Build on macOS
         id: Build
         run: |
