@@ -1,9 +1,8 @@
-# PCP required package list for Debian 12 aarch64
+# PCP required package list for Ubuntu 22.04 (any)
 #
 Text::CSV_XS cpan
-apache2
 apache2-bin
-auditd
+auditd not4ci
 autoconf
 autotools-dev
 avahi-utils
@@ -13,6 +12,9 @@ bind9-host
 bison
 bpfcc-tools
 bpftrace
+# see https://wiki.ubuntu.com/Debug%20Symbol%20Packages to set up repo
+# for this one ...
+bpftrace-dbgsym not4ci
 bsd-mailx
 build-essential
 chrpath
@@ -23,8 +25,10 @@ cron
 curl
 debhelper
 dh-python
+docker.io not4ci
 dpkg-dev
 ed
+ethtool
 expect
 flex
 g++
@@ -37,29 +41,29 @@ grep
 iproute2
 jq
 libavahi-common-dev
-libbpf1
 libbpf-dev
+libbpf1
 libclass-dbi-perl
 libcmocka-dev
 libcoin-dev
-libdrm-dev
 libdbd-mysql-perl
 libdbd-pg-perl
 libdevmapper-dev
+libdrm-dev
 libextutils-autoinstall-perl
 libfile-slurp-perl
 libgl1-mesa-dri
 libibmad-dev
 libibumad-dev
 libibverbs-dev
-libicu72
+libicu74
 libinih-dev
 libjson-perl
 liblist-moreutils-perl
 liblzma-dev
 libncurses-dev
 libnet-snmp-perl
-libperl5.36
+libperl5.38t64
 libpfm4-dev
 libpython3-dev
 libpython3-stdlib
@@ -94,10 +98,13 @@ mariadb-client-core
 memcached
 net-tools
 nmap
-openjdk-17-jre-headless
+openjdk-21-jre-headless
 openssl
 perl
-perl-modules-5.36
+perl-modules-5.38
+# perl-xs-dev is a virtual package and libperl-dev is an alias at least up to
+# Debian 13 (trixie)
+libperl-dev
 pkg-config
 postgresql-client-common
 psmisc
@@ -111,6 +118,7 @@ python3-libvirt
 python3-lxml
 python3-minimal
 python3-openpyxl
+python3-pandas
 python3-pil
 python3-prometheus-client
 python3-psycopg2
@@ -122,20 +130,24 @@ python3-six
 qtbase5-dev
 qtbase5-dev-tools
 qtchooser
+redis-redisearch
 redis-server
 redis-tools
 sasl2-bin
 sed
 smartmontools
 socat
+sudo
 sysstat
-systemd
+systemd-dev
 targetcli-fb
 time
 unbound
+valkey-server
+valkey-tools
 valgrind
 xfsprogs
 xkb-data
-zabbix-agent
+zfsutils-linux
 zlib1g-dev
 zstd
