@@ -436,3 +436,4 @@ No value(s) available!
 Semantic error: derived metric baz: operand foo: Illegal nested derived metric
 Semantic error: derived metric bah: operand bar: Illegal nested derived metric
 Invalid metric baz (PM_ERR_NAME Unknown metric name).
+Invalid metric bah (PM_ERR_NAME Unknown metric name).

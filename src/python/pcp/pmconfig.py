@@ -803,6 +803,7 @@ class pmConfig(object):
         metrics = self.util.metrics
         self.util.metrics = OrderedDict()
 
+        some_invalid = False
         for metric in metrics:
             try:
                 l = len(self.pmids)
@@ -815,7 +816,11 @@ class pmConfig(object):
                     self.util.metrics[metric] = metrics[metric]
             except pmapi.pmErr as error:
                 sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
-                sys.exit(1)
+                some_invalid = True
+
+        # Exit if some were invalid
+        if some_invalid:
+            sys.exit(1)
 
         # Exit if no metrics with specified instances found
         if not self.insts and not self.ignore_unknown_metrics():
