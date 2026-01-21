@@ -34,6 +34,8 @@ jobs:
           - {platform: centos-stream8-container,  os: ubuntu-latest}
           - {platform: centos-stream9-container,  os: ubuntu-22.04}
           - {platform: centos-stream10-container, os: ubuntu-22.04}
+          - {platform: amazonlinux2023-container, os: ubuntu-22.04}
+          - {platform: amazonlinux2023-aarch64-container, os: ubuntu-22.04-arm}
     steps:
       - name: Checkout sources
         uses: actions/checkout@v5
