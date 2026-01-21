@@ -99,7 +99,7 @@ cp -RP installer-resources/* $pkgroot/
 # WORKAROUND: Write package to /tmp first to avoid virtiofs XAR corruption
 # then copy to final location in build directory
 # without this, the pkgbuild produces a corrupted archive inside a Tart VM
-pkgout="/tmp/pcp-pkg.$$"
+pkgout="$tmp/pcp-pkg.$$"
 
 # pkgbuild must be run by the user logged into the localhost desktop.
 _run "$PKGBUILD" --identifier io.pcp.performancecopilot --version "$PACKAGE_VERSION" --nopayload --scripts "$pkgroot" "$pkgout"
