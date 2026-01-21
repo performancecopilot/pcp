@@ -1,4 +1,4 @@
-# PCP required package list for Ubuntu 22.04 x86_64
+# PCP required package list for Ubuntu 22.04 (any)
 #
 Text::CSV_XS cpan
 apache2-bin
