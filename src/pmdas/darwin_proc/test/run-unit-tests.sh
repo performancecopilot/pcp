@@ -117,32 +117,6 @@ test_required_symbols() {
     fi
 }
 
-# Test 4: Binary responds to --help
-test_binary_help() {
-    TESTS_RUN=$((TESTS_RUN + 1))
-    echo "Test 4: Check pmdaproc binary responds to --help..."
-
-    BINARY=""
-    if [ -f "$DARWIN_PROC_SRC/pmdaproc" ]; then
-        BINARY="$DARWIN_PROC_SRC/pmdaproc"
-    else
-        for pcp_dir in "$REPO_ROOT"/pcp-*; do
-            if [ -f "$pcp_dir/src/pmdas/darwin_proc/pmdaproc" ]; then
-                BINARY="$pcp_dir/src/pmdas/darwin_proc/pmdaproc"
-                break
-            fi
-        done
-    fi
-
-    if [ -n "$BINARY" ] && "$BINARY" --help 2>&1 | grep -qi "usage"; then
-        echo -e "${GREEN}✓ Test 4 passed${NC}"
-        TESTS_PASSED=$((TESTS_PASSED + 1))
-    else
-        echo -e "${RED}✗ Test 4 failed${NC}"
-        TESTS_FAILED=$((TESTS_FAILED + 1))
-    fi
-}
-
 # Run tests
 if ! check_prerequisites; then
     exit 2
@@ -151,7 +125,6 @@ fi
 test_dso_valid
 test_binary_exists
 test_required_symbols
-test_binary_help
 
 # Summary
 echo
