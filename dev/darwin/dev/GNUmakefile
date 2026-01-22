@@ -42,15 +42,9 @@ LDFLAGS = -L$(PCP_LIB_DIR) -L$(PCP_PMDA_LIB_DIR)
 LDLIBS = -lpcp -lpcp_pmda $(FRAMEWORKS)
 
 # Source files
-SOURCES = $(SRCDIR)/pmda.c \
-          $(SRCDIR)/kernel.c \
-          $(SRCDIR)/disk.c \
-          $(SRCDIR)/network.c \
-          $(SRCDIR)/version.c
+SOURCES = $(SRCDIR)/*.c
 
-HEADERS = $(SRCDIR)/darwin.h \
-          $(SRCDIR)/disk.h \
-          $(SRCDIR)/network.h
+HEADERS = $(SRCDIR)/*.h
 
 OBJECTS = $(SOURCES:.c=.o)
 
