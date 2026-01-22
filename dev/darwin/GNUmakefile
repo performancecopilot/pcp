@@ -8,7 +8,7 @@
 #   make clean              # Clean build artifacts
 #   make test               # Run quick smoke test
 
-TOPDIR = ../../..
+TOPDIR = ../..
 SRCDIR = $(TOPDIR)/src/pmdas/darwin
 
 # Find the versioned build directory (Makepkgs creates pcp-X.Y.Z)

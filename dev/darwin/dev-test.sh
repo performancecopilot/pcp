@@ -11,7 +11,11 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+
+echo $SCRIPT_DIR
+echo $REPO_ROOT
+
 
 # Colors for output
 RED='\033[0;31m'

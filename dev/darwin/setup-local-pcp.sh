@@ -11,7 +11,7 @@
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 LOCAL_VAR="$SCRIPT_DIR/local-pcp-var"
 
 # Find the PCP build directory (Makepkgs creates pcp-X.Y.Z)

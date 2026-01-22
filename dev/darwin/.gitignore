@@ -1,14 +1,14 @@
 # Build artifacts
-dev/pmdadarwin
-dev/pmda_darwin.dylib
-dev/*.o
-dev/*.log
-dev/domain.h
-dev/*.dSYM/
+pmdadarwin
+pmda_darwin.dylib
+*.o
+*.log
+domain.h
+*.dSYM/
 
 # Local PCP development environment (created by setup-local-pcp.sh)
-dev/local-pcp.conf
-dev/local-pcp-var/
+local-pcp.conf
+local-pcp-var/
 
 # Test outputs
 test/**/*.out
