@@ -2642,7 +2642,7 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 
     /* prepare for optional metric and indom exclusion */
     if ((option = pmIniFileLookup(config, "discover", "exclude.metrics"))) {
-	if ((data->pmids = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	if ((data->pmids = dictCreate(&intKeyDictCallBacks)) == NULL)
 	    return -ENOMEM;
 	/* parse comma-separated metric name glob patterns, in 'option' */
 	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {
@@ -2653,7 +2653,7 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 	}
     }
     if ((option = pmIniFileLookup(config, "discover", "exclude.indoms"))) {
-	if ((data->indoms = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	if ((data->indoms = dictCreate(&intKeyDictCallBacks)) == NULL)
 	    return -ENOMEM;
 	/* parse comma-separated indoms in 'option', convert to pmInDom */
 	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {
