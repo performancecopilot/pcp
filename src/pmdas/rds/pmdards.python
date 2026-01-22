@@ -19,15 +19,13 @@
 # pylint: disable=c-extension-no-member, consider-iterating-dictionary
 # pylint: disable=too-many-locals, too-many-arguments, too-many-lines, unused-argument, line-too-long
 # pylint: disable=too-many-return-statements, too-many-branches, too-many-statements, bare-except
+# pylint: disable=wrong-import-position
 """
 Python implementation of the "rds" Performance Metrics Domain Agent.
 """
-from modules.rds_ping import rds_ping_all_avlbl_dest
-from modules.ping import ping_all_avlbl_dest
-from modules.rds_info import RdsInfo
 
+import importlib
 import os
-import sys
 import subprocess
 import threading
 from enum import Enum
@@ -42,8 +40,20 @@ from pcp.pmapi import pmContext as PCP
 PMDA_DIR = PCP.pmGetConfig('PCP_PMDAS_DIR')
 MODULES_DIR = os.path.join(PMDA_DIR, "rds", "modules")
 
-sys.path.append(os.path.dirname(MODULES_DIR))  # Enables: from modules.xyz import ...
-sys.path.append(MODULES_DIR)                   # Enables: importing sibling modules inside the modules directory
+# create a symlink for files with .python extension to support imports
+for filename in os.listdir(MODULES_DIR):
+    if filename.endswith('.python'):
+        src = os.path.join(MODULES_DIR, filename)
+        dst = os.path.join(MODULES_DIR, filename[:-4])
+        if not os.path.exists(dst):
+            os.symlink(src, dst)
+
+mod_rds_ping = importlib.import_module('modules.rds_ping')
+mod_ping = importlib.import_module('modules.ping')
+mod_rds_info = importlib.import_module('modules.rds_info')
+rds_ping_all_avlbl_dest = getattr(mod_rds_ping, 'rds_ping_all_avlbl_dest')
+ping_all_avlbl_dest = getattr(mod_ping, 'ping_all_avlbl_dest')
+RdsInfo = getattr(mod_rds_info, 'RdsInfo')
 
 Metric = namedtuple("Metric", ["key", "name", "type", "units"])
 
