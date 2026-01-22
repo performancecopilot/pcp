@@ -41,6 +41,7 @@ enum {
     DYNPROC_GROUP_SMAPS,
     DYNPROC_GROUP_AUTOGROUP,
     DYNPROC_GROUP_FDINFO,
+    DYNPROC_GROUP_DELAYACCT,
 
     NUM_DYNPROC_GROUPS
 };
@@ -71,6 +72,7 @@ static int proc_hotproc_cluster_list[][2] = {
 	{ CLUSTER_PID_CWD,	    CLUSTER_HOTPROC_PID_CWD },
 	{ CLUSTER_PID_AUTOGROUP,    CLUSTER_HOTPROC_PID_AUTOGROUP },
 	{ CLUSTER_PID_FDINFO,	    CLUSTER_HOTPROC_PID_FDINFO },
+	{ CLUSTER_PID_DELAYACCT,    CLUSTER_HOTPROC_PID_DELAYACCT },
 };
 
 
@@ -229,6 +231,12 @@ static dynproc_metric_t fd_metrics[] = {
         { .name = "count",   .cluster = 51,  .item=0 },
 };
 
+static dynproc_metric_t delayacct_metrics[] = {
+	{ .name = "cpu_time",	.cluster = CLUSTER_PID_DELAYACCT,	.item=0 },
+	{ .name = "blkio_time",	.cluster = CLUSTER_PID_DELAYACCT,	.item=1 },
+	{ .name = "swapin_time",.cluster = CLUSTER_PID_DELAYACCT,	.item=2 },
+};
+
 static dynproc_metric_t schedstat_metrics[] = {
 	{ .name = "cpu_time",	.cluster = CLUSTER_PID_SCHEDSTAT,	.item=0 },
 	{ .name = "run_delay",	.cluster = CLUSTER_PID_SCHEDSTAT,	.item=1 },
@@ -285,6 +293,7 @@ static dynproc_group_t dynproc_groups[] = {
 	[DYNPROC_GROUP_SMAPS]     = { .name = "smaps",	    .metrics = smaps_metrics,	    .nmetrics = sizeof(smaps_metrics)/sizeof(dynproc_metric_t)},
 	[DYNPROC_GROUP_AUTOGROUP] = { .name = "autogroup", .metrics = autogroup_metrics,   .nmetrics = sizeof(autogroup_metrics)/sizeof(dynproc_metric_t) },
 	[DYNPROC_GROUP_FDINFO]    = { .name = "fdinfo",	    .metrics = fdinfo_metrics,	    .nmetrics = sizeof(fdinfo_metrics)/sizeof(dynproc_metric_t) },
+	[DYNPROC_GROUP_DELAYACCT] = { .name = "delayacct",  .metrics = delayacct_metrics,   .nmetrics = sizeof(delayacct_metrics)/sizeof(dynproc_metric_t) },
 };
 
 /*
