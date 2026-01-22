@@ -12,3 +12,6 @@ pmseries: [Error] cannot parse given string
 kernel.all.load[badness]
                 ^ -- syntax error
 
+== Query parse error handling - invalid semantic
+pmseries: [Error] Both operands have the semantics of counter, only addition or subtraction is allowed.
+

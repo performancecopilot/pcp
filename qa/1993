@@ -32,7 +32,7 @@ $python -c "from pcp import pmda" >/dev/null 2>&1
 
 if [ ! -d /sys/class/infiniband ]; then
     # Check if Infiniband kernel module is loaded
-    lsmod | grep -q '^ib_core' || _notrun "IB kernel modules are not loaded"
+    $sudo lsmod | grep -q '^ib_core' || _notrun "IB kernel modules are not loaded"
     _notrun "No RoCE devices detected"
 fi
 

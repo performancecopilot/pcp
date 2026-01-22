@@ -53,3 +53,4 @@ typedef struct diskstats {
     diskstat_t	*disks;		/* space for highwater number of devices */
 } diskstats_t;
 
+extern int fetch_disk(unsigned int, unsigned int, pmAtomValue *);

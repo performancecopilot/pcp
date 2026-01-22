@@ -2345,7 +2345,7 @@ pmDiscoverRegister(const char *dir, pmDiscoverModule *module,
 		return -ENOMEM;
 	    discoverCallBackTable = cbp;
 	    if (pmDebugOptions.discovery)
-		fprintf(stderr, "%s: new handle [%d] for callbacks %p\n",
+		fprintf(stderr, "%s: new handle [%d] for callbacks " PRINTF_P_PFX "%p\n",
 			__FUNCTION__, avail_handle, callbacks);
 	}
 	handle = avail_handle;
@@ -2642,7 +2642,7 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 
     /* prepare for optional metric and indom exclusion */
     if ((option = pmIniFileLookup(config, "discover", "exclude.metrics"))) {
-	if ((data->pmids = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	if ((data->pmids = dictCreate(&intKeyDictCallBacks)) == NULL)
 	    return -ENOMEM;
 	/* parse comma-separated metric name glob patterns, in 'option' */
 	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {
@@ -2653,7 +2653,7 @@ pmDiscoverSetup(pmDiscoverModule *module, pmDiscoverCallBacks *cbs, void *arg)
 	}
     }
     if ((option = pmIniFileLookup(config, "discover", "exclude.indoms"))) {
-	if ((data->indoms = dictCreate(&intKeyDictCallBacks, NULL)) == NULL)
+	if ((data->indoms = dictCreate(&intKeyDictCallBacks)) == NULL)
 	    return -ENOMEM;
 	/* parse comma-separated indoms in 'option', convert to pmInDom */
 	if ((ids = sdssplitlen(option, sdslen(option), ",", 1, &nids))) {

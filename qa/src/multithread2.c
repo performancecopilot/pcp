@@ -28,7 +28,7 @@ static pthread_barrier_t barrier;
 static void
 wakeup(int tag, void *data)
 {
-    printf("Woops, wakeup(%d, %p) called?\n", tag, data);
+    printf("Woops, wakeup(%d, " PRINTF_P_PFX "%p) called?\n", tag, data);
 }
 
 static void *

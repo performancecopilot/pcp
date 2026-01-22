@@ -35,7 +35,7 @@ int main ()
 #define REPORT_UNPIN(ptr) do { \
         char *_p = ptr; \
         int _rc = __pmUnpinPDUBuf (_p); \
-        printf ("unpin (%p) -> %d\n", _p, _rc); \
+        printf ("unpin (" PRINTF_P_PFX "%p) -> %d\n", _p, _rc); \
         } while (0);
 
         REPORT_UNPIN(buf - INT*2); /* previous int; rc=0 */

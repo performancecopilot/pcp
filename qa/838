@@ -20,6 +20,7 @@ _filter()
 {
     sed \
 	-e '/Operation not permitted/d' \
+	-e '/^pmsignal: failing command: /d' \
 	-e '/^ *$/d'
     # end
 }

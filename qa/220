@@ -23,6 +23,9 @@ in
     openbsd)
 	netstat_args='-n -p tcp'
 	;;
+    solaris)
+	_notrun "netstat is so different here, too hard, move on"
+	;;
     *)
 	echo "Arrgh ... need netstat TCP+ESTABLISHED+IPADDR options for $PCP_PLATFORM"
 	exit

@@ -14,6 +14,11 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
+# Prepend libvalkey dict.h path so source.c finds it before PCP's dict.h
+# Using override to prepend our include path before the PCP includes that builddefs added
+ifeq "$(HAVE_LIBUV)" "true"
+override CFLAGS := -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src $(CFLAGS)
+endif
 
 CFILES = pmfind.c
 HFILES = groups.h

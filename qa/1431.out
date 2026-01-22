@@ -140,7 +140,7 @@ pmdaoverhead: Aborting due to configuration file errors
 parse(TMP.conf) ...
 parse: TMP.conf[6]: Error: bad pattern="bar[a-": Unmatched ...
 pmdaoverhead: Aborting due to configuration file errors
-do_config: "/dev/tty" is neither a directory nor a file
+do_config: "/dev/null" is neither a directory nor a file
 pmdaoverhead: Aborting due to configuration file errors
 
 === incomplete specifications ===

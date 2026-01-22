@@ -202,10 +202,11 @@ map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, s
     size_t label_index = 0;
     static size_t keywords_count = 9;
     // - iterate
-    dictIterator* iterator = dictGetSafeIterator(item->children);
+    dictIterator iterator;
+    dictInitIterator(&iterator, item->children);
     dictEntry* current;    
-    while ((current = dictNext(iterator)) != NULL) {
-        struct metric_label* label = (struct metric_label*)current->v.val;
+    while ((current = dictNext(&iterator)) != NULL) {
+        struct metric_label* label = (struct metric_label*)dictGetVal(current);
         // store on which instance domain instance index we find current label,
         item->meta->pcp_instance_map->labels[label_index] = label->labels;
         if (label->type == METRIC_TYPE_DURATION) {
@@ -236,7 +237,6 @@ map_labels_to_instances(struct metric* item, struct pmda_data_extension* data, s
         }
         label_index++;
     }
-    dictReleaseIterator(iterator);
     data->pcp_instance_domains[indom_i].it_numinst = indom_i_inst_cnt;
     data->pcp_instance_domains[indom_i].it_set = instances;
     VERBOSE_LOG(
@@ -430,14 +430,14 @@ statsd_map_stats(pmdaExt* pmda) {
     struct pmda_metrics_container* container = data->metrics_storage;
     pthread_mutex_lock(&container->mutex);
     metrics* m = container->metrics;
-    dictIterator* iterator = dictGetSafeIterator(m);
+    dictIterator iterator;
+    dictInitIterator(&iterator, m);
     dictEntry* current;
-    while ((current = dictNext(iterator)) != NULL) {
-        struct metric* item = (struct metric*)current->v.val;
-        char* key = (char*)current->key;
+    while ((current = dictNext(&iterator)) != NULL) {
+        struct metric* item = (struct metric*)dictGetVal(current);
+        char* key = (char*)dictGetKey(current);
         map_metric(key, item, pmda);
     }
-    dictReleaseIterator(iterator);
     data->generation = data->metrics_storage->generation;
     pthread_mutex_unlock(&container->mutex);
 
@@ -767,7 +767,7 @@ statsd_label_callback(pmInDom in_dom, unsigned int inst, pmLabelSet** lp) {
     if (entry == NULL) {
         return 0;
     }
-    char* metric_key = (char*)entry->v.val;
+    char* metric_key = (char*)dictGetVal(entry);
     struct metric* item;
     int metric_found = find_metric_by_name(data->metrics_storage, metric_key, &item);
     if (!metric_found) {

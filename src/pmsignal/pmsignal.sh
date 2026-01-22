@@ -118,12 +118,20 @@ if [ "$PCP_PLATFORM" = mingw ]
 then
     for pid in $pids ; do
 	$pmsignal pcp-setevent $signal $pid
-	[ $? -eq 0 ] || sts=$?
+	if [ $? -ne 0 ]
+	then
+	    echo "pmsignal: failing command: $pmsignal pcp-setevent $signal $pid"
+	    sts=1
+	fi
     done
 else
     for pid in $pids ; do
 	$pmsignal kill -$signal $pid
-	[ $? -eq 0 ] || sts=$?
+	if [ $? -ne 0 ]
+	then
+	    echo "pmsignal: failing command: $pmsignal kill  $signal $pid"
+	    sts=1
+	fi
     done
 fi 2>&1 \
 | sed -e '/^$/d'

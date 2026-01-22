@@ -13,6 +13,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_need_metric kernel.all.hz
+_need_metric hinv.pagesize
+
 _cleanup()
 {
     cd $here

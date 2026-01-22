@@ -204,14 +204,17 @@ optional" or "QA optional".
 The pcp package uses autoconf/configure and expects a GNU build
 environment (your platform must at least have gmake).
 
+#### macOS-specific pre-requisites 
 ```
-# MacOS - use Homebrew and ensure the following packages are installed 
+# use Homebrew and ensure the following packages are installed 
 brew install gnu-tar pkg-config python3 python-setuptools autoconf pylint
 
 # NOTE: Must have Homebrew's newer Python3 ahead in the path:
 (echo; echo 'eval "$(/opt/homebrew/bin/brew shellenv)"') >> ~/.zshrc
 source ~/.zshrc
 ```
+
+To build from source using isolated VMs, see [MACOS_DEVELOPMENT.md](build/mac/MACOS_DEVELOPMENT.md).
 
 ---
 

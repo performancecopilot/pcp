@@ -76,7 +76,7 @@ _filter()
     eval $cmd \
     | tee -a $seq_full \
     | sed \
-	-e '/pmlogger_daily.pid: Permission denied/d' \
+	-e '/pmlogger_daily.pid:.*[ []Permission denied/d' \
 	-e '/no pmlogger instance running for host/d' \
 	-e '/^pmlogger_daily:.*\.control:[0-9]]$/d' \
 	-e '/logging for host .* unchanged/d' \

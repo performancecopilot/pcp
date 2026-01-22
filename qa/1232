@@ -48,6 +48,7 @@ _filter()
 	-e "s;$PCP_TMPFILE_DIR/pmlogctl\.[^/]*;PCP_TMPFILE_DIR/pmlogctl.XXXXX;g" \
 	-e "s;$PCP_ETC_DIR/;PCP_ETC_DIR/;g" \
 	-e "/migrate_pid_service/d" \
+	-e '/^_parse_log_control:/d' \
     # end
 }
 
@@ -99,6 +100,10 @@ $sudo pmlogctl -V create localhost 2>&1 | _filter
 
 # real QA test starts here
 control=$PCP_ETC_DIR/pcp/pmlogger/control.d/localhost
+
+# pmlogger_daily needs to be able to cd back to here
+#
+cd /tmp
 
 echo
 echo "only one current archive, expect no culling"

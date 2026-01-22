@@ -59,7 +59,7 @@ main(int argc, char **argv)
 
     hep = __pmGetAddrInfo(name, &sts);
     if (pmDebugOptions.appl0)
-	fprintf(stderr, "__pmGetAddrInfo() -> %p sts=%d\n", hep, sts);
+	fprintf(stderr, "__pmGetAddrInfo() -> " PRINTF_P_PFX "%p sts=%d\n", hep, sts);
     if (hep == NULL) {
         printf("%s\n", name);
     }
@@ -68,7 +68,7 @@ main(int argc, char **argv)
 	if (pmDebugOptions.appl0) {
 	    __pmSockAddr	*addr;
 	    void		*enumIx = NULL;
-	    fprintf(stderr, "__pmHostEntGetName() -> %p", hep);
+	    fprintf(stderr, "__pmHostEntGetName() -> " PRINTF_P_PFX "%p", hep);
 	    if (hename != NULL)
 		fprintf(stderr, " \"%s\"", hename);
 	    /* just report the first IP addresss */

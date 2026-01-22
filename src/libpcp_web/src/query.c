@@ -1385,7 +1385,7 @@ on_series_solve_done(int status, void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_done");
     if (pmDebugOptions.query && pmDebugOptions.desperate)
-	fprintf(stderr, "%s: arg=%p status=%d\n", "on_series_solve_done", arg, status);
+	fprintf(stderr, "%s: arg=" PRINTF_P_PFX "%p status=%d\n", "on_series_solve_done", arg, status);
     baton->callbacks->on_done(status, baton->userdata);
 }
 
@@ -1396,7 +1396,7 @@ on_series_solve_value(pmSID sid, pmSeriesValue *value, void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_value");
     if (pmDebugOptions.query && pmDebugOptions.desperate)
-	fprintf(stderr, "%s: arg=%p %s %s %s\n", "on_series_solve_value",
+	fprintf(stderr, "%s: arg=" PRINTF_P_PFX "%p %s %s %s\n", "on_series_solve_value",
 		arg, value->timestamp, value->data, value->series);
     return baton->callbacks->on_value(sid, value, baton->userdata);
 }
@@ -1409,7 +1409,7 @@ on_series_solve_inst_done(int status, void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_inst_done");
     if (pmDebugOptions.query && pmDebugOptions.desperate)
-	fprintf(stderr, "%s: arg=%p status=%d\n", "on_series_solve_done", arg, status);
+	fprintf(stderr, "%s: arg=" PRINTF_P_PFX "%p status=%d\n", "on_series_solve_done", arg, status);
     /* on_done is called by series_query_finished */
     seriesBatonDereference(baton, "on_series_solve_inst_done");
 }
@@ -1427,7 +1427,7 @@ on_series_solve_inst_value(pmSID sid, pmSeriesValue *value, void *arg)
 
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "on_series_solve_inst_value");
     if (pmDebugOptions.query) {
-	fprintf(stderr, "%s: arg=%p %s %s %s\n", "on_series_solve_inst_value",
+	fprintf(stderr, "%s: arg=" PRINTF_P_PFX "%p %s %s %s\n", "on_series_solve_inst_value",
 		arg, value->timestamp, value->data, value->series);
     }
 
@@ -1487,8 +1487,8 @@ series_solve_sid_expr(pmSeriesSettings *settings, pmSeriesExpr *expr, void *arg)
     seriesBatonCheckMagic(baton, MAGIC_QUERY, "series_query_expr_reply");
 
     if (pmDebugOptions.query)
-	fprintf(stderr, "%s: SID %s, seriesQueryBaton=%p, "
-			"pmSeriesBaton=userdata=%p expr=\"%s\"\n",
+	fprintf(stderr, "%s: SID %s, seriesQueryBaton=" PRINTF_P_PFX "%p, "
+			"pmSeriesBaton=userdata=" PRINTF_P_PFX "%p expr=\"%s\"\n",
 			"series_solve_sid_expr",
 			sid->name, baton, baton->userdata, expr->query);
 
@@ -5141,10 +5141,10 @@ series_query_services(void *arg)
 	    baton->error = -ENOTSUP;
 	else
 	    baton->slots = data->slots =
-		keySlotsConnect(
+		&(keySlotsConnect(
 		    data->config, 1, baton->info,
 		    series_query_end_phase, baton->userdata,
-		    data->events, (void *)baton);
+		    data->events, (void *)baton))->slots;
     }
 }
 
@@ -6166,10 +6166,10 @@ series_lookup_services(void *arg)
 	    baton->error = -ENOTSUP;
 	else
 	    baton->slots = data->slots =
-		keySlotsConnect(
+		&(keySlotsConnect(
 		    data->config, 1, baton->info,
 		    series_query_end_phase, baton->userdata,
-		    data->events, (void *)baton);
+		    data->events, (void *)baton))->slots;
     }
 }
 

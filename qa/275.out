@@ -432,7 +432,7 @@ my.i3
 
 gcov.a = ( 1 / sample.mirage_longlong ) / (1 / sample.mirage )
 gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
-gcov.c = sample.seconds + disk.all.total
+gcov.c = sample.seconds + sample.pdu
 gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
 gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
 # avoid floating point rounding differences across platforms
@@ -446,7 +446,7 @@ Derived metric initialization from $PCP_DERIVED_CONFIG
 pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: global metric[2] gcov.a = ( 1 / sample.mirage_longlong ) / (1 / sample.mirage )
 pmRegisterDerived: global metric[3] gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
-pmRegisterDerived: global metric[4] gcov.c = sample.seconds + disk.all.total
+pmRegisterDerived: global metric[4] gcov.c = sample.seconds + sample.pdu
 pmRegisterDerived: global metric[5] gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
 pmRegisterDerived: global metric[6] gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
 pmRegisterDerived: global metric[7] gcov.f = 2*(1/sample.ulong.count.base) - (1/sample.ulong.count.kilo)
@@ -457,7 +457,7 @@ __dmtraverse: name="gcov" added "gcov.a"
 __dmgetpmid: metric "gcov.b" -> PMID 511.0.4
 __dmtraverse: name="gcov" added "gcov.b"
 __dmgetpmid: metric "gcov.c" -> PMID 511.0.5
-Semantic error: derived metric gcov.c: sample.seconds + disk.all.total: Dimensions are not the same
+Semantic error: derived metric gcov.c: sample.seconds + sample.pdu: Dimensions are not the same
 __dmbind: check_expr failed for metric[4] gcov.c
 Derived metric expr dump from <addr-0>...
 expr node <addr-0> type=PLUS left=<addr-1> right=<addr-2> save_last=0
@@ -468,8 +468,8 @@ expr node <addr-1> type=NAME left=(nil) right=(nil) save_last=0 [sample.seconds]
     PMID: 29.0.2 (29.0.2 from pmDesc) numval: 0
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: sec
-expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [disk.all.total] primary=0
-    PMID: DISK.ALL.TOTAL (DISK.ALL.TOTAL from pmDesc) numval: 0
+expr node <addr-2> type=NAME left=(nil) right=(nil) save_last=0 [sample.pdu] primary=0
+    PMID: 29.0.40 (29.0.40 from pmDesc) numval: 0
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 __dmtraverse: name="gcov", omitting invalid child gcov.c [511.0.5]

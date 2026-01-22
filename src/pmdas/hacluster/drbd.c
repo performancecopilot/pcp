@@ -1,7 +1,7 @@
 /*
  * HA Cluster DRDB statistics.
  *
- * Copyright (c) 2020 - 2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@ static char *drbdsetup_command;
 static char *split_brain_path;
 
 int
-hacluster_drbd_resource_fetch(int item, struct resource *resource, pmAtomValue *atom)
+hacluster_drbd_resource_fetch(int item, struct drbd_resource *resource, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_DRBD_RESOURCE_STATS)
@@ -98,7 +98,7 @@ hacluster_drbd_resource_all_fetch(int item, pmAtomValue *atom)
 }
 
 int
-hacluster_drbd_peer_device_fetch(int item, struct peer_device *peer_device, pmAtomValue *atom)
+hacluster_drbd_peer_device_fetch(int item, struct drbd_peer_device *peer_device, pmAtomValue *atom)
 {
 	/* check for bounds */
 	if (item < 0 || item >= NUM_DRBD_PEER_DEVICE_STATS)
@@ -161,7 +161,7 @@ hacluster_drbd_peer_device_all_fetch(int item, pmAtomValue *atom)
 }
 
 int
-hacluster_refresh_drbd_resource(const char *resource_name, struct resource *resource)
+hacluster_refresh_drbd_resource(const char *resource_name, struct drbd_resource *resource)
 {
 	char buffer[4096];
 	char *node, *volume;
@@ -277,7 +277,7 @@ hacluster_refresh_drbd_resource(const char *resource_name, struct resource *reso
 }
 
 int
-hacluster_refresh_drbd_peer_device(const char *peer_name, struct peer_device *peer_device)
+hacluster_refresh_drbd_peer_device(const char *peer_name, struct drbd_peer_device *peer_device)
 {
 	char buffer[4096];
 	char *node, *peer_node_id;

@@ -296,7 +296,7 @@ sysinfo_fetch(pmdaMetric *mdesc, int inst, pmAtomValue *atom)
 	    if (kstat_read(kc, ctl[i].ksp, &ctl[i].cpustat) == -1) {
 		if (ctl[i].err == 0) {
 		    fprintf(stderr, "Error: sysinfo_fetch(pmid=%s cpu=%d ...)\n", pmIDStr(mdesc->m_desc.pmid), i);
-		    fprintf(stderr, "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n", kc, ctl[i].ksp, osstrerror());
+		    fprintf(stderr, "kstat_read(kc=" PRINTF_P_PFX "%p, ksp=" PRINTF_P_PFX "%p, ...) failed: %s\n", kc, ctl[i].ksp, osstrerror());
 		}
 		ctl[i].err++;
 		ctl[i].fetched = -1;

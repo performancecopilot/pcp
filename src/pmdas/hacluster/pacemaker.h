@@ -1,7 +1,7 @@
 /*
  * HA Cluster Pacemaker statistics.
  *
- * Copyright (c) 2020 - 2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -78,19 +78,19 @@ struct pacemaker_global {
 	uint8_t stonith_enabled;
 };
 
-struct fail_count {
+struct pacemaker_fail {
 	uint64_t fail_count;
 	uint64_t migration_threshold;
 };
 
-struct location_constraints {
+struct pacemaker_constraints {
 	char node[128];
 	char resource[128];
 	char role[18];
 	char score[10];
 };
 
-struct nodes {
+struct pacemaker_nodes {
 	uint8_t online;
 	uint8_t standby;
 	uint8_t standby_on_fail;
@@ -105,11 +105,11 @@ struct nodes {
 	char feature_set[64];
 };
 
-struct attributes {
+struct pacemaker_node_attrib {
 	char value[256];
 };
 
-struct resources {
+struct pacemaker_resources {
 	char agent[128];
 	char clone[128];
 	char group[128];
@@ -125,23 +125,24 @@ struct resources {
 extern int hacluster_pacemaker_global_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_pacemaker_global();
 
-extern int hacluster_pacemaker_fail_fetch(int, struct fail_count *, pmAtomValue *);
-extern int hacluster_refresh_pacemaker_fail(const char *, struct fail_count *);
+extern int hacluster_pacemaker_fail_fetch(int, struct pacemaker_fail *, pmAtomValue *);
+extern int hacluster_pacemaker_fail_instance_refresh(void);
 
-extern int hacluster_pacemaker_constraints_fetch(int, struct location_constraints *, pmAtomValue *);
+extern int hacluster_pacemaker_constraints_fetch(int, struct pacemaker_constraints *, pmAtomValue *);
 extern int hacluster_pacemaker_constraints_all_fetch(int, pmAtomValue *);
-extern int hacluster_refresh_pacemaker_constraints(const char *, struct location_constraints *);
+extern int hacluster_pacemaker_constraints_instance_refresh(void);
 
-extern int hacluster_pacemaker_nodes_fetch(int, struct nodes *, pmAtomValue *);
-extern int hacluster_refresh_pacemaker_nodes(const char *, struct nodes *);
+extern int hacluster_pacemaker_nodes_fetch(int, struct pacemaker_nodes *, pmAtomValue *);
+extern int hacluster_pacemaker_nodes_instance_refresh(void);
 
-extern int hacluster_pacemaker_node_attribs_fetch(int, struct attributes *, pmAtomValue *);
+extern int hacluster_pacemaker_node_attribs_fetch(int, struct pacemaker_node_attrib *, pmAtomValue *);
 extern int hacluster_pacemaker_node_attribs_all_fetch(int, pmAtomValue *);
-extern int hacluster_refresh_pacemaker_node_attribs(const char *, struct attributes *);
+extern int hacluster_pacemaker_node_attrib_instance_refresh(void);
 
-extern int hacluster_pacemaker_resources_fetch(int, struct resources *, pmAtomValue *);
+extern int hacluster_pacemaker_resources_fetch(int, struct pacemaker_resources *, pmAtomValue *);
 extern int hacluster_pacemaker_resources_all_fetch(int, pmAtomValue *);
-extern int hacluster_refresh_pacemaker_resources(const char *, struct resources *);
+extern int hacluster_pacemaker_resources_instance_refresh(void);
+extern int hacluster_refresh_pacemaker_resources(const char *, struct pacemaker_resources *);
 
 extern void pacemaker_stats_setup(void);
 

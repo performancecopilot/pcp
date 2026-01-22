@@ -476,6 +476,22 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid ($runpid) is different.
 	    exit
 	fi
     done
+
+    # wait for process to really exit, which should ensure any
+    # TCP/IP sockets are also torn down
+    #
+    if [ -n "$runpid" ]
+    then
+	_wait_process_exit "pmcd shutdown" $runpid
+    else
+	for pid in $pidlist
+	do
+	    _wait_process_exit "pmcd shutdown" $pid
+	done
+    fi
+
+    # and to be sure, kill off any PMDAs
+    #
     _killpmdas
 
     if [ "$1" = quietly ]
@@ -604,6 +620,12 @@ Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot s
 	    then
 		echo $prog: pmcd --verify $OPTS failed, cannot start pmcd.
 		exit
+	    fi
+	    # When launched by launchctl on macOS, run in foreground mode to prevent
+	    # fork issues that cause launchctl to think pmcd has crashed
+	    if [ -n "$PMCD_LAUNCHED_BY_LAUNCHD" ]
+	    then
+		OPTS="$OPTS -f"
 	    fi
 	    $PMCD $OPTS
             _start_pmcheck

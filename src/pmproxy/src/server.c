@@ -46,7 +46,7 @@ proxylog(pmLogLevel level, sds message, void *arg)
 	state = "- EPOCH - ";
     }
     else
-	state = proxy->slots ? "" : "- DISCONNECTED - ";
+	state = proxy->slotsctx ? "" : "- DISCONNECTED - ";
 
     switch (level) {
     case PMLOG_TRACE:
@@ -221,7 +221,7 @@ void
 on_buffer_alloc(uv_handle_t *handle, size_t suggested_size, uv_buf_t *buf)
 {
     if (pmDebugOptions.desperate)
-	fprintf(stderr, "%s: handle %p buffer allocation of %lld bytes\n",
+	fprintf(stderr, "%s: handle " PRINTF_P_PFX "%p buffer allocation of %lld bytes\n",
 			"on_buffer_alloc", handle, (long long)suggested_size);
 
     if ((buf->base = sdsnewlen(NULL, suggested_size)) != NULL)
@@ -236,7 +236,7 @@ on_client_close(uv_handle_t *handle)
     struct client	*client = (struct client *)handle;
 
     if (pmDebugOptions.context || pmDebugOptions.desperate)
-	fprintf(stderr, "%s: client %p connection closed\n",
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p connection closed\n",
 			"on_client_close", client);
 
     client_put(client);
@@ -299,7 +299,7 @@ on_client_write(uv_write_t *writer, int status)
     struct stream_write_baton	*request = (struct stream_write_baton *)writer;
 
     if (pmDebugOptions.af)
-	fprintf(stderr, "%s: completed write [sts=%d] to client %p\n",
+	fprintf(stderr, "%s: completed write [sts=%d] to client " PRINTF_P_PFX "%p\n",
 			"on_client_write", status, client);
 
     if (status == 0) {
@@ -352,7 +352,7 @@ on_write_callback(uv_callback_t *handle, void *data)
 
     (void)handle;
     if (pmDebugOptions.af)
-	fprintf(stderr, "%s: client=%p\n", "on_write_callback", client);
+	fprintf(stderr, "%s: client=" PRINTF_P_PFX "%p\n", "on_write_callback", client);
 
     if (client->stream.secure == 0) {
 	sts = uv_write(&request->writer, (uv_stream_t *)&client->stream,
@@ -383,12 +383,12 @@ client_write(struct client *client, sds buffer, sds suffix)
 
     if ((request = calloc(1, sizeof(struct stream_write_baton))) != NULL) {
 	if (pmDebugOptions.af)
-	    fprintf(stderr, "%s: sending %ld bytes [0] to client %p\n",
+	    fprintf(stderr, "%s: sending %ld bytes [0] to client " PRINTF_P_PFX "%p\n",
 			"client_write", (long)sdslen(buffer), client);
 	request->buffer[nbuffers++] = uv_buf_init(buffer, sdslen(buffer));
 	if (suffix != NULL) {
 	    if (pmDebugOptions.af)
-		fprintf(stderr, "%s: sending %ld bytes [1] to client %p\n",
+		fprintf(stderr, "%s: sending %ld bytes [1] to client " PRINTF_P_PFX "%p\n",
 			"client_write", (long)sdslen(suffix), client);
 	    request->buffer[nbuffers++] = uv_buf_init(suffix, sdslen(suffix));
 	}
@@ -461,7 +461,7 @@ on_protocol_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     else {
 	if (pmDebugOptions.af)
 	    fprintf(stderr, "%s: unknown protocol key '%c' (0x%x)"
-			    " - disconnecting client %p\n", "on_protocol_read",
+			    " - disconnecting client " PRINTF_P_PFX "%p\n", "on_protocol_read",
 		    *buf->base, (unsigned int)*buf->base, proxy);
 	client_close(client);
     }
@@ -491,7 +491,7 @@ on_client_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     } else if (nread < 0) {
 	if (pmDebugOptions.af)
 	    fprintf(stderr, "%s: read error %ld "
-		    "- disconnecting client %p\n", "on_client_read",
+		    "- disconnecting client " PRINTF_P_PFX "%p\n", "on_client_read",
 		    (long)nread, client);
 	client_close(client);
     }
@@ -519,7 +519,7 @@ on_client_connection(uv_stream_t *stream, int status)
 	return;
     }
     if (pmDebugOptions.context || pmDebugOptions.af)
-	fprintf(stderr, "%s: accept new client %p\n",
+	fprintf(stderr, "%s: accept new client " PRINTF_P_PFX "%p\n",
 			"on_client_connection", client);
 
     /* prepare per-client lock for reference counting */
@@ -792,8 +792,8 @@ static void
 close_proxy(struct proxy *proxy)
 {
     close_pcp_module(proxy);
-    close_http_module(proxy);
     close_keys_module(proxy);
+    close_http_module(proxy);
     close_secure_module(proxy);
 }
 

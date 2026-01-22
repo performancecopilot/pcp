@@ -1,0 +1,30 @@
+# Basic Darwin PMDA functionality test
+# Tests that essential metrics are available and fetchable
+
+# Test basic system info metrics
+desc hinv.pagesize
+fetch hinv.pagesize
+
+desc hinv.ncpu
+fetch hinv.ncpu
+
+desc hinv.machine
+fetch hinv.machine
+
+# Test kernel info
+desc kernel.uname.sysname
+fetch kernel.uname.sysname
+
+desc kernel.uname.release
+fetch kernel.uname.release
+
+desc kernel.all.hz
+fetch kernel.all.hz
+
+# Test uptime
+desc kernel.all.uptime
+fetch kernel.all.uptime
+
+# Test load average
+desc kernel.all.load
+fetch kernel.all.load

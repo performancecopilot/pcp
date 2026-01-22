@@ -218,7 +218,7 @@ refresh_metrictable(pmdaMetric *source, pmdaMetric *dest, int lock)
     dest->m_desc.pmid = pmID_build(domain, cluster, item);
 
     if (pmDebugOptions.appl0)
-	fprintf(stderr, "GFS2 sbstats refresh_metrictable: (%p -> %p) "
+	fprintf(stderr, "GFS2 sbstats refresh_metrictable: (" PRINTF_P_PFX "%p -> " PRINTF_P_PFX "%p) "
 			"metric ID dup: %d.%d.%d -> %d.%d.%d\n",
 			source, dest, domain, cluster,
 			pmID_item(source->m_desc.pmid), domain, cluster, item);
