@@ -1,0 +1,27 @@
+# Test VFS statistics (kern.* sysctl metrics)
+# These metrics provide insight into system resource usage including
+# file descriptors, vnodes, processes and threads.
+
+# File descriptor metrics
+desc vfs.files.count
+fetch vfs.files.count
+
+desc vfs.files.max
+fetch vfs.files.max
+
+desc vfs.files.free
+fetch vfs.files.free
+
+# Vnode metrics
+desc vfs.vnodes.count
+fetch vfs.vnodes.count
+
+desc vfs.vnodes.max
+fetch vfs.vnodes.max
+
+# Process and thread counts
+desc kernel.all.nprocs
+fetch kernel.all.nprocs
+
+desc kernel.all.nthreads
+fetch kernel.all.nthreads

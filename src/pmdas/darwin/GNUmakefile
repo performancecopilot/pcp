@@ -24,8 +24,12 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
-CFILES		= pmda.c kernel.c disk.c network.c version.c
-HFILES		= disk.h network.h
+MAN_SECTION	= 1
+MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
+MAN_DEST	= $(PCP_MAN_DIR)/man$(MAN_SECTION)
+
+CFILES		= pmda.c kernel.c disk.c network.c nfs.c vfs.c udp.c icmp.c sockstat.c tcpconn.c tcp.c vmstat.c filesys.c cpu.c loadavg.c cpuload.c uname.c version.c metrics.c
+HFILES		= disk.h network.h nfs.h vfs.h udp.h icmp.h sockstat.h tcpconn.h tcp.h vmstat.h filesys.h cpu.h loadavg.h cpuload.h uname.h metrics.h
 
 LSRCFILES	= help root pmns
 
@@ -54,6 +58,7 @@ install: build-me
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help.dir help.pag $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_darwin root_darwin $(PCP_PMNSADM_DIR)/root_darwin
+	@$(INSTALL_MAN)
 else
 build-me:
 install:
@@ -62,6 +67,16 @@ endif
 default_pcp : default
 
 install_pcp : install
+
+check:: $(MAN_PAGES)
+	$(MANLINT) $^
+
+# Unit tests (no installation required)
+test: build-me
+	@echo "Running Darwin PMDA unit tests..."
+	@cd test && ./run-unit-tests.sh
+
+.PHONY: test
 
 help.dir help.pag: help root_darwin
 	$(NEWHELP) -n root_darwin -v 2 -o help < help

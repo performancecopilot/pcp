@@ -1,0 +1,46 @@
+# Test process metrics (darwin_proc PMDA)
+# These metrics provide per-process information and I/O statistics
+
+# Basic process metrics
+desc proc.nprocs
+fetch proc.nprocs
+
+desc proc.psinfo.pid
+fetch proc.psinfo.pid
+
+desc proc.psinfo.ppid
+fetch proc.psinfo.ppid
+
+desc proc.psinfo.cmd
+fetch proc.psinfo.cmd
+
+desc proc.psinfo.utime
+fetch proc.psinfo.utime
+
+desc proc.psinfo.stime
+fetch proc.psinfo.stime
+
+# Process I/O statistics (Step 3.1)
+desc proc.io.read_bytes
+fetch proc.io.read_bytes
+
+desc proc.io.write_bytes
+fetch proc.io.write_bytes
+
+# Process file descriptor count (Step 3.2)
+desc proc.fd.count
+fetch proc.fd.count
+
+# Process memory metrics
+desc proc.memory.size
+fetch proc.memory.size
+
+desc proc.memory.rss
+fetch proc.memory.rss
+
+# Process run queue states
+desc proc.runq.runnable
+fetch proc.runq.runnable
+
+desc proc.runq.sleeping
+fetch proc.runq.sleeping

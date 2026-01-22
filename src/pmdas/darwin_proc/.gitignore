@@ -3,3 +3,7 @@ pmdaproc
 pmda_proc.dylib
 help.dir
 help.pag
+
+# Test output artifacts
+test/*.log
+test/*.tmp
