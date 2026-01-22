@@ -25,6 +25,9 @@ in
     openbsd)
 	ln $seq.out.openbsd $seq.out || exit 1
 	;;
+    solaris)
+	ln $seq.out.solaris $seq.out || exit 1
+	;;
     *)
 	ln $seq.out.default $seq.out || exit 1
 	;;

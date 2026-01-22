@@ -1284,7 +1284,7 @@ debug_indom(self)
 	fprintf(stderr, "indom table size = %d\n", itab_size);
 	for (i = 0; i < itab_size; i++) {
 	    fprintf(stderr, "indom idx = %d\n\tindom = %d\n"
-			    "\tninst = %u\n\tiptr = 0x%p\n",
+			    "\tninst = %u\n\tiptr = " PRINTF_P_PFX "%p\n",
 		    i, *(int *)&indomtab[i].it_indom, indomtab[i].it_numinst,
 		    indomtab[i].it_set);
 	    for (j = 0; j < indomtab[i].it_numinst; j++) {

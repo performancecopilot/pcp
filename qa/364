@@ -29,18 +29,75 @@ _filter_solaris()
 	cat
     else
 	sed \
-	    -e '/^disk\.all\.blkdiscard .* Unknown metric name/d' \
+	    -e '/^disk\.all\.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.all\.blk.* Unknown metric name/d' \
 	    -e '/^disk\.all\.discard .* Unknown metric name/d' \
-	    -e '/^disk.dev.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.dev.avactive .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.aveq .* Unknown metric name/d' \
+	    -e '/^disk\.dev\.total_rawactive .* Unknown metric name/d' \
+	    -e '/^filesys.* Unknown metric name/d' \
 	    -e '/^network.icmp.* Unknown metric name/d' \
 	    -e '/^network.igmp.* Unknown metric name/d' \
 	    -e '/^network.ip.* Unknown metric name/d' \
 	    -e '/^network.tcp.* Unknown metric name/d' \
 	    -e '/^network.udp.* Unknown metric name/d' \
-	    -e '/^filesys.* Unknown metric name/d' \
+	    -e '/^proc\..* Unknown metric name/d' \
 	    -e '/^swap .* Unknown metric name/d' \
 	    -e '/^swap.pages.* Unknown metric name/d' \
 	    -e '/^swapdev .* Unknown metric name/d' \
+	    -e '/^hinv\.nnode .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.boottime .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.guest .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.guest_nice .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.intr .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.irq\.soft .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.nice .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.cpu\.steal .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.intr .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.io\.wcancel .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.nusers .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.pid_max .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.cpu\.some\.avg .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.io\.full\.avg .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.io\.some\.avg .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.memory\.full\.avg .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.pressure\.memory\.some\.avg .*Unknown metric name/d' \
+	    -e '/^kernel\.all\.uptime .*Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.guest .*Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.guest_nice .*Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.intr .*Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.irq\.soft .*Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.nice .*Unknown metric name/d' \
+	    -e '/^kernel\.percpu\.cpu\.steal .*Unknown metric name/d' \
+	    -e '/^kernel\.uname .*Unknown metric name/d' \
+	    -e '/^mem\.util\.available .*Unknown metric name/d' \
+	    -e '/^mem\.util\.bufmem .*Unknown metric name/d' \
+	    -e '/^mem\.util\.cached .*Unknown metric name/d' \
+	    -e '/^mem\.util\.free .*Unknown metric name/d' \
+	    -e '/^mem\.util\.shmem .*Unknown metric name/d' \
+	    -e '/^mem\.util\.slabReclaimable .*Unknown metric name/d' \
+	    -e '/^mem\.util\.swapCached .*Unknown metric name/d' \
+	    -e '/^mem\.util\.swapFree .*Unknown metric name/d' \
+	    -e '/^mem\.util\.swapTotal .*Unknown metric name/d' \
+	    -e '/^network\.all\.in\.bytes .*Unknown metric name/d' \
+	    -e '/^network\.all\.in\.packets .*Unknown metric name/d' \
+	    -e '/^network\.all\.out\.bytes .*Unknown metric name/d' \
+	    -e '/^network\.all\.out\.packets .*Unknown metric name/d' \
+	    -e '/^network\.interface\.collisions .*Unknown metric name/d' \
+	    -e '/^swap\.in .*Unknown metric name/d' \
+	    -e '/^swap\.out .*Unknown metric name/d' \
+	    -e '/^swap\.used .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.anon_size .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.bonus_size .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.c_max .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.compressed_size .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.dbuf_size .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.dnode_size .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.hdr_size .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.mfu\.size .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.mru\.size .*Unknown metric name/d' \
+	    -e '/^zfs\.arc\.uncompressed_size .*Unknown metric name/d' \
+	    -e '/^zram\..*Unknown metric name/d' \
 	# solaris
     fi
 }
@@ -152,9 +209,7 @@ _filter_freebsd()
 	    -e '/^proc\..* Unknown metric name/d' \
 	    -e '/^vfs\.files\.count .* Unknown metric name/d' \
 	    -e '/^vfs\.files\.max .* Unknown metric name/d' \
-	    -e '/^zram\.capacity .* Unknown metric name/d' \
-	    -e '/^zram\.mm_stat\.data_size\.compressed .* Unknown metric name/d' \
-	    -e '/^zram\.mm_stat\.data_size\.original .* Unknown metric name/d' \
+	    -e '/^zram\..* Unknown metric name/d' \
 	# freebsd
     fi
 }

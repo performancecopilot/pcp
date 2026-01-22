@@ -43,12 +43,18 @@ pmstat.o:	$(TOPDIR)/src/include/pcp/libpcp.h
 pmstat.pmlogger.options:
 	echo '# pmlogger config options for pmstat.config' >pmstat.pmlogger.options
 	echo >>pmstat.pmlogger.options
+	# default - have disk.*.blk* metrics
+	echo '%define have_disk_block_stats' >pmstat.pmlogger.tmp
 ifeq ($(PCP_PLATFORM),openbsd)
-	echo '# no disk block stats for OpenBSD' >>pmstat.pmlogger.options
-	echo '%undef have_disk_block_stats' >>pmstat.pmlogger.options
-else
-	echo '%define have_disk_block_stats' >>pmstat.pmlogger.options
+	echo '# no disk block stats for OpenBSD' >pmstat.pmlogger.tmp
+	echo '%undef have_disk_block_stats' >>pmstat.pmlogger.tmp
 endif
+ifeq ($(PCP_PLATFORM),solaris)
+	echo '# no disk block stats for OpenIndiana' >pmstat.pmlogger.tmp
+	echo '%undef have_disk_block_stats' >>pmstat.pmlogger.tmp
+endif
+	cat pmstat.pmlogger.tmp >>pmstat.pmlogger.options
+	rm -f pmstat.pmlogger.tmp
 ifeq ($(PCP_PLATFORM),linux)
 	echo '%define have_cpu_virt_stats' >>pmstat.pmlogger.options
 else

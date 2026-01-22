@@ -641,7 +641,7 @@ unparseHostSpec(__pmHostSpec *hostp, int count, char *string, size_t size, int p
 
 done:
     if (pmDebugOptions.context) {
-	fprintf(stderr, "__pmUnparseHostSpec([name=%s ports=%p nport=%d], count=%d, ...) -> ", hostp->name, hostp->ports, hostp->nports, count);
+	fprintf(stderr, "__pmUnparseHostSpec([name=%s ports=" PRINTF_P_PFX "%p nport=%d], count=%d, ...) -> ", hostp->name, hostp->ports, hostp->nports, count);
 	if (off < 0) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    pmErrStr_r(off, errmsg, sizeof(errmsg));

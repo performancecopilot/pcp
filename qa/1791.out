@@ -1,0 +1,51 @@
+QA output created by 1791
+== basic metricset handling
+           r   b    swpd     free    buff   cache    si    so     bi     bo    in     cs  us  sy  id  wa  st  gu
+00:11:11   3   0    1927     6713     949   10964   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A N/A
+00:12:11   2   0    1927     6587     949   11072     0     0    164   2274  2778   6646   2   1  94   1   0   2
+== default unknown metricset handling
+Metricset definition ':nosuchset' not found.
+Metricset definition ':nosuchset' not found.
+== unknown metricset handling with options
+Metricset definition ':nosuchset' not found.
+Metricset definition ':nosuchset' not found.
+Metricset definition ':nosuchset' not found.
+Metricset definition ':nosuchset' not found.
+== create tmp config file
+== verify tmp config file
+          freemem  files
+               MB       
+00:11:11  6713.00  15872
+00:12:11  6587.35  15840
+== verify derived metric handling
+          d_ok
+            MB
+00:11:11   N/A
+00:12:11   142
+== incompat metric in metricset handling
+pmrep: Impossible value or scale conversion
+pmrep: Impossible value or scale conversion
+          files
+               
+00:11:11  15872
+00:12:11  15840
+== incompat derived metric in metricset handling
+Semantic error: derived metric incompat.metric: disk.all.read_bytes + mem.util.free: Illegal operator for counter and non-counter
+Invalid metric incompat.metric (PM_ERR_BADDERIVE Derived metric definition failed).
+Semantic error: derived metric incompat.metric: disk.all.read_bytes + mem.util.free: Illegal operator for counter and non-counter
+Invalid metric incompat.metric (PM_ERR_BADDERIVE Derived metric definition failed).
+Semantic error: derived metric incompat.metric: disk.all.read_bytes + mem.util.free: Illegal operator for counter and non-counter
+          freemem  files  d.a.total_bytes
+               MB                    MB/s
+00:11:11  6713.00  15872              N/A
+00:12:11  6587.35  15840            2.382
+== unknown metric in metricset handling
+Invalid metric no.such.metric (PM_ERR_NAME Unknown metric name).
+Invalid metric no.such.metric (PM_ERR_NAME Unknown metric name).
+          freemem  files
+            Kbyte       
+00:11:11  6874112  15872
+00:12:11  6745448  15840
+== unknown derived metric in metricset handling
+Invalid metric not.here (PM_ERR_BADDERIVE Derived metric definition failed).
+== done

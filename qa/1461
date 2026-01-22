@@ -43,20 +43,32 @@ _cleanup()
 status=0	# success is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
+# tmparch/gap has these domain labels ...
+#  Domain 2 labels (16 bytes): {"agent":"pmcd"}
+#  Domain 29 labels (35 bytes): {"agent":"sample","role":"testing"}
+#  Domain N labels (x bytes): {"agent":"NAME"}
+#  for N=60, x=17 and NAME=linux
+#  or  N=75, x=19  and NAME=solaris
+#
+
 _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e '/ 60 .*"linux"/{
+s/ 60 / N /
+s/17 bytes/x bytes/
+s/"linux"/"PLATFORM"/
+}' \
+	-e '/ 75 .*"solaris"/{
+s/ 75 / N /
+s/19 bytes/x bytes/
+s/"solaris"/"PLATFORM"/
+}' \
     # end
 }
 
 # real QA test starts here
-
-# tmparch/gap has these domain labels ...
-#  Domain 2 labels (16 bytes): {"agent":"pmcd"}
-#  Domain 29 labels (35 bytes): {"agent":"sample","role":"testing"}
-#  Domain 60 labels (17 bytes): {"agent":"linux"}
-#
 
 for spec in \
     'label domain 2 { label -> "foo" }' \
@@ -92,7 +104,7 @@ do
     fi \
     | _filter
 
-    pmdumplog -e $tmp | grep Domain
+    pmdumplog -e $tmp | grep Domain | _filter
 done
 
 # success, all done

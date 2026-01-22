@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_need_metric proc.memory.rss
+
 _check_series
 
 _cleanup()

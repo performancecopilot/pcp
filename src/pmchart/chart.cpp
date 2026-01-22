@@ -85,12 +85,12 @@ Chart::Chart(Tab *chartTab, QWidget *parent) : QwtPlot(parent), Gadget(this)
     connect(this, SIGNAL(timeSelectionInactive(Gadget *)),
 	    my.tab->group(), SLOT(timeSelectionInactive(Gadget *)));
 
-    console->post("Chart::ctor complete(%p)", this);
+    console->post("Chart::ctor complete(" PRINTF_P_PFX "%p)", this);
 }
 
 Chart::~Chart()
 {
-    console->post("Chart::~Chart() for chart %p", this);
+    console->post("Chart::~Chart() for chart " PRINTF_P_PFX "%p", this);
 
     for (int i = 0; i < my.items.size(); i++)
 	delete my.items[i];
@@ -252,7 +252,7 @@ Chart::setCurrent(bool enable)
     QPalette palette;
     QwtText t;
 
-    console->post("Chart::setCurrent(%p) %s", this, enable ? "true" : "false");
+    console->post("Chart::setCurrent(" PRINTF_P_PFX "%p) %s", this, enable ? "true" : "false");
 
     // (Re)set title and y-axis highlight for new/old current chart.
     // For title, have to set both QwtText and QwtTextLabel because of
@@ -339,7 +339,7 @@ Chart::showItem(const QVariant &itemInfo, bool down)
     bool changed = false;
 
 #if DESPERATE
-    console->post(PmChart::DebugForce, "Chart::showItem %s for item %p",
+    console->post(PmChart::DebugForce, "Chart::showItem %s for item " PRINTF_P_PFX "%p",
 		down? "down":"up", item);
 #endif
 
@@ -402,7 +402,7 @@ Chart::addItem(pmMetricSpec *msp, const QString &legend)
     replot();
 
     my.items.append(item);
-    console->post("addItem %p nitems=%d", item, my.items.size());
+    console->post("addItem " PRINTF_P_PFX "%p nitems=%d", item, my.items.size());
 
     changeTitle(title(), true); // regenerate %h and/or %H expansion
     return my.items.size() - 1;

@@ -19,6 +19,8 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+# For OpenIndiana
+#   Not enough space => Cannot allocate memory 
 _filter()
 {
     sed \
@@ -27,6 +29,7 @@ _filter()
         -e '/^\(Log for [0-9][0-9]* on\) [^ ][^ ]*/s//\1 HOST/' \
 	-e '/qa_libpcp_compat/s/([0-9][0-9]*)/(PID)/' \
 	-e 's/(0x[0-9a-f][0-9a-f]*)/(ADDR)/' \
+	-e 's/Not enough space/Cannot allocate memory/' \
     # end
 }
 

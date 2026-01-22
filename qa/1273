@@ -42,6 +42,9 @@ _filter_disk_dev_read()
 	openbsd)
 		sed -e 's/PMID 139.2.0$/PMID 60.0.4/'
 		;;
+	solaris)
+		sed -e 's/PMID 75.1.10$/PMID 60.0.4/'
+		;;
 	*)
 		echo "Arrgh, need disk.dev.read PMID mapping for $PCP_PLATFORM"
 		exit

@@ -1,7 +1,7 @@
 /*
  * HA Cluster SBD statistics.
  *
- * Copyright (c) 2020 - 2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -27,7 +27,7 @@ enum {
 	NUM_SBD_DEVICE_STATS
 };
 
-struct sbd {
+struct sbd_device {
 	char		path[256];
 	char		status[11];
 	uint32_t	msgwait;
@@ -36,9 +36,9 @@ struct sbd {
 	uint32_t	watchdog;
 };
 
-extern int hacluster_sbd_device_fetch(int, struct sbd *, pmAtomValue *);
+extern int hacluster_sbd_device_fetch(int, struct sbd_device *, pmAtomValue *);
 extern int hacluster_sbd_device_all_fetch(int, pmAtomValue *);
-extern int hacluster_refresh_sbd_device(const char *, struct sbd *);
+extern int hacluster_refresh_sbd_device(const char *, struct sbd_device *);
 
 extern void sbd_stats_setup(void);
 

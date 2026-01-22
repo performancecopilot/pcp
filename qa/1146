@@ -35,6 +35,10 @@ _wait_pmlogger_end $pid || _exit 1
 
 PCPQA_SYSTEMD=no; export PCPQA_SYSTEMD
 
+# pmlogger_daily (called from pmlogger_check) needs to be able to cd
+# back to here
+cd /tmp
+
 # real QA test starts here
 for i in 1 2 3 4
 do
@@ -49,6 +53,8 @@ do
     echo "== $i ==="
     _filter_pcp_start <$tmp.$i
 done
+
+cd $here
 
 ./870 --check $seq
 

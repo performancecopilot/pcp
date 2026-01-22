@@ -51,7 +51,7 @@ pmlogrewrite in out foo
 echo
 pmlogrewrite -c no.such.file in out
 echo
-pmlogrewrite -c /dev/tty in out
+pmlogrewrite -c /dev/null in out
 echo
 touch $tmp.forbidden
 chmod 0 $tmp.forbidden

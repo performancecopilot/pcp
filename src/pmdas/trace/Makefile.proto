@@ -13,7 +13,7 @@
 # 
 
 SHELL	= /bin/sh
-CC	= cc
+CC	= $(shell grep '^PCP_CC_PROG=' /etc/pcp.conf | sed -e 's/.*="//' -e 's/"//')
 JC	= javac
 F77C	= f77
 F90C	= f90

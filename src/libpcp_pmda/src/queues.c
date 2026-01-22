@@ -58,7 +58,7 @@ queue_drop(event_clientq_t *clientq, event_queue_t *queue, void *data)
 	clientq->missed++;
 
 	if (pmDebugOptions.libpmda)
-	    logmsg(NULL, "Client missed queue %s event %p\n",
+	    logmsg(NULL, "Client missed queue %s event " PRINTF_P_PFX "%p\n",
 			queue->name, event);
     }
 }
@@ -75,7 +75,7 @@ queue_drop_bytes(int handle, event_queue_t *queue, size_t bytes)
 	next = TAILQ_NEXT(event, events);
 
 	if (pmDebugOptions.libpmda)
-	    logmsg(NULL, "Client dropped queue %s: e=%p sz=%d max=%d qsz=%d\n",
+	    logmsg(NULL, "Client dropped queue %s: e=" PRINTF_P_PFX "%p sz=%d max=%d qsz=%d\n",
 				    queue->name, event, (int)event->size,
 				    (int)queue->maxmemory, (int)queue->qsize);
 
@@ -83,7 +83,7 @@ queue_drop_bytes(int handle, event_queue_t *queue, size_t bytes)
 	client_iterate(queue_drop, handle, queue, event);
 
 	if (pmDebugOptions.libpmda)
-	    logmsg(NULL, "Client removing queue: %s event %p (%d bytes)\n",
+	    logmsg(NULL, "Client removing queue: %s event " PRINTF_P_PFX "%p (%d bytes)\n",
 				    queue->name, event, (int)event->size);
 
 	TAILQ_REMOVE(&queue->tailq, event, events);
@@ -246,7 +246,7 @@ pmdaEventQueueAppend(int handle, void *data, size_t bytes, struct timeval *tv)
     queue->qsize += bytes;
 
     if (pmDebugOptions.libpmda)
-	logmsg(NULL, "Inserted %s event %p (%ld bytes) clients = %d\n",
+	logmsg(NULL, "Inserted %s event " PRINTF_P_PFX "%p (%ld bytes) clients = %d\n",
 		queue->name, event, (long)event->size, event->count);
 
 done:
@@ -294,7 +294,7 @@ queue_fetch(event_queue_t *queue, event_clientq_t *clientq, pmAtomValue *atom,
     event = clientq->last;
 
     if (pmDebugOptions.libpmda)
-	logmsg(NULL, "queue_fetch start, last event=%p\n", event);
+	logmsg(NULL, "queue_fetch start, last event=" PRINTF_P_PFX "%p\n", event);
 
     sts = records = 0;
     key = queue->eventarray;
@@ -327,7 +327,7 @@ queue_fetch(event_queue_t *queue, event_clientq_t *clientq, pmAtomValue *atom,
 	/* Remove the current one (if its use count hits zero) */
 	if (--event->count <= 0) {
 	    if (pmDebugOptions.libpmda)
-		logmsg(NULL, "Removing %s event %p in fetch\n",
+		logmsg(NULL, "Removing %s event " PRINTF_P_PFX "%p in fetch\n",
 					queue->name, event);
 	    TAILQ_REMOVE(&queue->tailq, event, events);
 	    queue->qsize -= event->size;
@@ -448,7 +448,7 @@ queue_cleanup(int handle, event_clientq_t *clientq)
 	/* Remove the current event (if use count hits zero) */
 	if (--event->count <= 0) {
 	    if (pmDebugOptions.libpmda)
-		logmsg(NULL, "Removing %s event %p\n",
+		logmsg(NULL, "Removing %s event " PRINTF_P_PFX "%p\n",
 				queue->name, event);
 	    TAILQ_REMOVE(&queue->tailq, event, events);
 	    queue->qsize -= event->size;

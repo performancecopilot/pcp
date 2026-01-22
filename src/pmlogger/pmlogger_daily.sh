@@ -781,6 +781,8 @@ fi
 if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)"
+    echo "... I am here ... `pwd` ... and these files are here ..."
+    ls -l
     $NOERROR || status=1
     exit
 fi
@@ -2020,6 +2022,7 @@ else
     #
     if cd "$PCP_REMOTE_ARCHIVE_DIR"
     then
+	$VERY_VERBOSE && echo "Info: do_compress: cd to $PCP_REMOTE_ARCHIVE_DIR OK"
 	# one-trip guard if there is something to be done
 	#
 	rm -f $tmp/proxy_sighup
@@ -2080,7 +2083,16 @@ else
 		_parse_log_control $tmp/control
 	    fi
 	done
-	cd $here
+	if cd $here
+	then
+	    $VERY_VERBOSE && echo "Info: do_compress: cd back to $here OK"
+	else
+	    echo >&2 "Error: do_compress: failed to cd back to $here"
+	    $NOERROR || status=1
+	fi
+    else
+	echo >&2 "Error: do_compress: faild to cd to $PCP_REMOTE_ARCHIVE_DIR"
+	$NOERROR || status=1
     fi
 fi
 

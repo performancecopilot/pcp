@@ -55,9 +55,11 @@ $signal -s TERM $! 2>&1 \
     -e "s,^$PCP_BINADM_DIR/pmsignal\[[0-9][0-9]*]: ,," \
     -e "s,^$PCP_BINADM_DIR/pmsignal: ,," \
     -e 's/no such/No such/' \
+    -e '/^pmsignal: failing command: /d' \
     -e 's/such pid/such process/' \
     -e 's/kill: ([0-9][0-9]*) - //' \
     -e 's/kill: [0-9][0-9]*: //' \
     -e 's/[0-9][0-9]*: kill: //' \
     -e 's/^line [0-9][0-9]*: //' \
     -e '/^ *$/d'
+

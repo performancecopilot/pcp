@@ -644,7 +644,7 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
 	fprintf(stderr, "state type: %s offset: %ld level: %d nelem: %lu\n",
 		state_string(state), (long)state->pos_begin,
 		state->level, (unsigned long)state->nelem);
-	fprintf(stderr, "at: %p (%c)\n", at, *at);
+	fprintf(stderr, "at: " PRINTF_P_PFX "%p (%c)\n", at, *at);
 	fprintf(stderr, "pos: %llu\n", (unsigned long long)json->pos);
     }
 

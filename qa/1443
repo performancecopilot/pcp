@@ -20,6 +20,11 @@ fi
 . ./common.filter
 . ./common.check
 
+# this test needs to be able to scan *all* the command arguments in the
+# output of ps ...
+#
+[ "$PCP_PLATFORM" = solaris ] && _notrun "ps(1) args field limited to 80 chars on Solaris"
+
 _check_job_scheduler
 
 _cleanup()

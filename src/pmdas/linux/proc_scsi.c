@@ -65,7 +65,7 @@ refresh_proc_scsi(pmInDom indom)
 	    }
 	}
 
-	pmsprintf(name, sizeof(name), "scsi%d:%d:%d:%d %s",
+	pmsprintf(name, sizeof(name), "scsi%d:%d:%d:%d_%s",
 	    x.dev_host, x.dev_channel, x.dev_id, x.dev_lun, type);
 
 	failed = 0;
@@ -103,7 +103,7 @@ refresh_proc_scsi(pmInDom indom)
 	if (!failed) {
 	    sts = pmdaCacheStore(indom, PMDA_CACHE_ADD, name, (void *)se);
 	    if (sts < 0) {
-		fprintf(stderr, "Warning: refresh_proc_scsi: pmdaCacheOp(%s, ADD, \"%s\", (%s)): %s\n",
+		fprintf(stderr, "Warning: refresh_proc_scsi: pmdaCacheStore(%s, ADD, \"%s\", (%s)): %s\n",
 		    pmInDomStr(indom), name, se->dev_name, pmErrStr(sts));
 		free(se->dev_name);
 		free(se);

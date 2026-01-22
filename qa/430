@@ -30,6 +30,8 @@ hostsfile="/etc/hosts"
 grep -E '^[^#].*[ 	]'$realhost'([ 	]|$)' <$hostsfile >/dev/null || \
     _notrun "No entry for hostname of local host in $hostsfile"
 
+[ "$PCP_PLATFORM" = solaris ] && _notrun "127.0.0.x is not an alias for 127.0.0.1 on Solaris"
+
 signal="$sudo $PCP_BINADM_DIR/pmsignal"
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
@@ -64,6 +66,7 @@ _filter()
 	-e '/^\([0-9][0-9]*\) pmlogger_check/s/^[0-9][0-9]*/PID/' \
 	-e 's/^----------.*\/lock/.../' \
 	-e 's/^-r--r--r--.*\/lock/.../' \
+	-e '/^_parse_log_control:/d' \
     | $PCP_AWK_PROG '
 /^Called from:/			{ skip = 1; next }
 /^Contents of /			{ print; print "..."; skip = 1; next }

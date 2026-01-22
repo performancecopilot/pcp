@@ -596,7 +596,7 @@ __pmDecodeValueSet(__pmPDU *pdubuf, int pdulen, __pmPDU *data, char *pduend,
     offset = preamble + vsize;
 
     if (pmDebugOptions.pdu && pmDebugOptions.desperate) {
-	fprintf(stderr, "need: %d vsize: %d nvsize: %d vbsize: %d offset: %d pdulen: %d pduend: %p vsplit: %p (diff %d) pdubuf: %p (diff %d)\n",
+	fprintf(stderr, "need: %d vsize: %d nvsize: %d vbsize: %d offset: %d pdulen: %d pduend: " PRINTF_P_PFX "%p vsplit: " PRINTF_P_PFX "%p (diff %d) pdubuf: " PRINTF_P_PFX "%p (diff %d)\n",
 			need, vsize, nvsize, vbsize, offset, pdulen, pduend,
 			vsplit, (int)(pduend-vsplit),
 			pdubuf, (int)(pduend-(char *)pdubuf));

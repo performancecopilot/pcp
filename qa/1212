@@ -37,6 +37,9 @@ pmseries kernel.all.!bang
 echo "== Query parse error handling - invalid sample"
 pmseries kernel.all.load[badness]
 
+echo "== Query parse error handling - invalid semantic"
+pmseries 'kernel.all.pswitch[count:1] / kernel.all.pswitch[count:1]'
+
 # success, all done
 status=0
 exit

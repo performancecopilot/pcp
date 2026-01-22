@@ -24,7 +24,7 @@ on_server_close(uv_handle_t *handle)
     struct client	*client = (struct client *)handle;
 
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "client %p pmcd connection closed\n", client);
+	fprintf(stderr, "client " PRINTF_P_PFX "%p pmcd connection closed\n", client);
     client_put(client);
 }
 
@@ -49,7 +49,7 @@ server_write(struct client *client, sds buffer)
 
     if ((request = calloc(1, sizeof(struct stream_write_baton))) != NULL) {
 	if (pmDebugOptions.pdu)
-	    fprintf(stderr, "%s: %ld bytes from client %p to pmcd\n",
+	    fprintf(stderr, "%s: %ld bytes from client " PRINTF_P_PFX "%p to pmcd\n",
 			"server_write", (long)sdslen(buffer), client);
 	request->buffer[0] = uv_buf_init(buffer, sdslen(buffer));
 	request->nbuffers = 1;
@@ -69,7 +69,7 @@ on_server_read(uv_stream_t *stream, ssize_t nread, const uv_buf_t *buf)
     sds			buffer;
 
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: client %p read %ld bytes from pmcd\n",
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p read %ld bytes from pmcd\n",
 			"on_server_read", client, (long)nread);
 
     /* proxy data through to the client */
@@ -98,7 +98,7 @@ on_pcp_client_connect(uv_connect_t *connected, int status)
     sds			buffer;
 
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: client %p connected to pmcd (status=%d)\n",
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p connected to pmcd (status=%d)\n",
 			"on_pcp_client_connect", client, status);
 
     if (status != 0) {
@@ -155,7 +155,7 @@ pcp_consume_bytes(struct client *client, const char *base, ssize_t nread)
     sds		buffer;
 
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: client %p consuming %ld PDU bytes\n",
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p consuming %ld PDU bytes\n",
 			"pcp_consume_bytes", client, (long)nread);
 
     if ((buffer = client->buffer) == NULL)
@@ -235,7 +235,7 @@ on_pcp_client_read(struct proxy *proxy, struct client *client,
     size_t	bytes;
 
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: read %ld bytes from PCP client %p (state=%x)\n",
+	fprintf(stderr, "%s: read %ld bytes from PCP client " PRINTF_P_PFX "%p (state=%x)\n",
 		"on_pcp_client_read", (long)nread, client, client->u.pcp.state);
 
     if (nread <= 0)
@@ -287,7 +287,7 @@ void
 on_pcp_client_write(struct client *client)
 {
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: client %p\n", "on_pcp_client_write", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_pcp_client_write", client);
 }
 
 void

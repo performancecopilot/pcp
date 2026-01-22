@@ -171,7 +171,7 @@ typedef struct proxy {
     SSL_CTX		*ssl;
     __pmSecureConfig	tls;
 #endif
-    keySlots		*slots;		/* mapping of key names to servers */
+    keySlotsContext	*slotsctx;	/* key server context */
     struct servlet	*servlets;	/* linked list of http URL handlers */
     mmv_registry_t	*metrics[NUM_REGISTRY];	/* performance metrics */
     pmAtomValue		*values[NUM_VALUES]; /* local metric values */

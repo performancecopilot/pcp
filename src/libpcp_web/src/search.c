@@ -348,7 +348,7 @@ pmSearchDiscoverText(pmDiscoverEvent *event,
     int			i, count;
 
     if (pmDebugOptions.discovery || pmDebugOptions.search)
-	fprintf(stderr, "%s: ident=%u type=%u arg=%p\n",
+	fprintf(stderr, "%s: ident=%u type=%u arg=" PRINTF_P_PFX "%p\n",
 			"pmSearchDiscoverText", ident, type, arg);
 
     if (baton == NULL || baton->slots == NULL || baton->slots->search <= 0)
@@ -1090,9 +1090,9 @@ pmSearchSetup(pmSearchModule *module, void *arg)
 	    return -ENOTSUP;
 
 	/* establish an initial connection to key server instance(s) */
-	data->slots = keySlotsConnect(
+	data->slots = &(keySlotsConnect(
 			data->config, flags, module->on_info,
-			module->on_setup, arg, data->events, arg);
+			module->on_setup, arg, data->events, arg))->slots;
 	data->shareslots = 0;
     }
     return 0;

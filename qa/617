@@ -45,6 +45,9 @@ trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 _filter()
 {
+    # in dbpmda's fillValues() strto*() may set errno (OpenIndiana) or
+    # not (linux's), so the mapping at the end
+    #
     sed \
 	-e "s;$PMDADSO;PMDADSO;" \
 	-e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
@@ -58,6 +61,7 @@ _filter()
 	-e 's/Permission denied/No permission to perform requested operation/' \
         -e '/Error PDU/s/One-line/Oneline/' \
 	-e "s@$tmp@TMP@g" \
+	-e 's/Decoding value.*/Value "Hello there" is incompatible with metric type (PM_TYPE_32)/' \
     # end
 
 # last sed substitution thanks to pv:937345 which changed the wording

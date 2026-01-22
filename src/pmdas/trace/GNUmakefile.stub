@@ -36,7 +36,7 @@ $(error cannot set DSO_VERSION on this platform)
 endif
 
 SHELL	= /bin/sh
-CC	= cc
+CC	= $(shell echo $(PCP_CC_PROG))
 TARGETS	= lib/libpcp_trace.$(DSO_VERSION)
 ifeq "$(shell [ -f $(PCP_LIB_DIR)/libpcp_trace.$(DSO_SUFFIX) ] && echo 1)" "1"
 TARGETS	+= lib/libpcp_trace.$(DSO_SUFFIX) 

@@ -574,7 +574,7 @@ pmdaExtSetData(pmdaExt *pmda, void *data)
     e_ext_t	*extp = (e_ext_t *)pmda->e_ext;
 
     if (pmDebugOptions.libpmda)
-	logmsg(NULL,  "pmdaExtSetData: data=%p\n", data);
+	logmsg(NULL,  "pmdaExtSetData: data=" PRINTF_P_PFX "%p\n", data);
     extp->privdata = data;
 }
 

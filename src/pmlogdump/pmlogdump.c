@@ -1171,7 +1171,7 @@ rawdump(FILE *f)
     int		sts;
 
     if ((old = ftello(f)) < 0) {
-	fprintf(stderr, "rawdump: Botch: ftell(%p) -> %lld (%s)\n", f, (long long)old, pmErrStr(-errno));
+	fprintf(stderr, "rawdump: Botch: ftell(" PRINTF_P_PFX "%p) -> %lld (%s)\n", f, (long long)old, pmErrStr(-errno));
 	return;
     }
 

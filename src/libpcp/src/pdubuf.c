@@ -60,7 +60,7 @@ pdubufdump1(const void *nodep, const VISIT which, const int depth)
     const bufctl_t	*pcp = *(bufctl_t **)nodep;
 
     if (which == postorder || which == leaf)	/* called once per node */
-	fprintf(stderr, " " PRINTF_P_PFX "%p...%p[%d](%d)",
+	fprintf(stderr, " " PRINTF_P_PFX "%p..." PRINTF_P_PFX "%p[%d](%d)",
 		pcp->bc_buf, &pcp->bc_buf[pcp->bc_size - 1], pcp->bc_size,
 		pcp->bc_pincnt);
 }

@@ -47,7 +47,7 @@ create_labels_dict(
         .keyDestructor  = str_hash_free_callback,
         .valDestructor  = metric_label_free_callback,
     };
-    labels* children = dictCreate(&metric_label_dict_callbacks, container->metrics_privdata);
+    labels* children = dictCreate(&metric_label_dict_callbacks);
     item->children = children;
     pthread_mutex_unlock(&container->mutex);
 }
@@ -132,7 +132,7 @@ find_label_by_name(
         return 0;
     }
     if (out != NULL) {
-        struct metric_label* label = (struct metric_label*)result->v.val;
+        struct metric_label* label = (struct metric_label*)dictGetVal(result);
         *out = label;
     }
     pthread_mutex_unlock(&container->mutex);
@@ -202,6 +202,7 @@ create_label(
     ALLOC_CHECK(meta, "Unable to allocate memory for metric label metadata.");
     (*out)->meta = meta;
     (*out)->type = METRIC_TYPE_NONE;
+    (*out)->config = config;
     meta->instance_label_segment_str = NULL;
     char* label_segment_identifier = create_instance_label_segment_str(datagram->tags);
     if (label_segment_identifier == NULL) {
@@ -308,11 +309,12 @@ print_label_meta(struct agent_config* config, FILE* f, struct metric_label_metad
 void
 print_labels(struct agent_config* config, FILE* f, labels* l) {
     if (l == NULL) return;
-    dictIterator* iterator = dictGetSafeIterator(l);
+    dictIterator iterator;
+    dictInitIterator(&iterator, l);
     dictEntry* current;
     long int count = 1;
-    while ((current = dictNext(iterator)) != NULL) {
-        struct metric_label* item = (struct metric_label*)current->v.val;
+    while ((current = dictNext(&iterator)) != NULL) {
+        struct metric_label* item = (struct metric_label*)dictGetVal(current);
         fprintf(f, "---\n");
         fprintf(f, "#%ld Label: \n", count);
         if (item->labels != NULL) {
@@ -341,7 +343,6 @@ print_labels(struct agent_config* config, FILE* f, labels* l) {
         count++;
     }
     fprintf(f, "---\n");
-    dictReleaseIterator(iterator);
 }
 
 /**

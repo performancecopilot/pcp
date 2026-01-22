@@ -89,6 +89,21 @@ in
 	mv $tmp.tmp $tmp.config
 	;;
 
+    solaris)
+	sed <$tmp.config >$tmp.tmp \
+	    -e '/ filesys$/d' \
+	    -e '/ ipc$/d' \
+	    -e '/ quota$/d' \
+	    -e '/ rpc$/d' \
+	    -e '/ swap$/d' \
+	    -e '/ swapdev$/d' \
+	    -e '/ sysfs$/d' \
+	    -e '/ tmpfs$/d' \
+	    -e '/ vfs$/d' \
+	# end
+	mv $tmp.tmp $tmp.config
+	;;
+
     *)
 	echo "Arrgh ... need test customization for $PCP_PLATFORM"
 	exit

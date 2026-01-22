@@ -19,30 +19,33 @@
 #include "utils.h"
 
 void
-metric_label_free_callback(void* privdata, void* val) 
+metric_label_free_callback(void* val) 
 {
-    struct agent_config* config = ((struct pmda_metrics_dict_privdata*)privdata)->config;
-    free_metric_label(config, (struct metric_label*)val);
+    struct metric_label* label = (struct metric_label*)val;
+    if (label != NULL && label->config != NULL) {
+        free_metric_label(label->config, label);
+    }
 }
 
 void
-metric_free_callback(void* privdata, void* val)
+metric_free_callback(void* val)
 {
-    struct agent_config* config = ((struct pmda_metrics_dict_privdata*)privdata)->config;
-    free_metric(config, (struct metric*)val);
+    struct metric* metric = (struct metric*)val;
+    if (metric != NULL && metric->config != NULL) {
+        free_metric(metric->config, metric);
+    }
 }
 
 void
-str_hash_free_callback(void* privdata, void* key) {
+str_hash_free_callback(void* key) {
     if (key != NULL) {
         free(key);
     }
 }
 
 void*
-str_duplicate_callback(void* privdata, const void* key)
+str_duplicate_callback(const void* key)
 {
-    (void)privdata;
     size_t length = strlen(key) + 1;
     char* duplicate = malloc(length);
     ALLOC_CHECK(duplicate, "Unable to duplicate key.");
@@ -51,14 +54,13 @@ str_duplicate_callback(void* privdata, const void* key)
 }
 
 int
-str_compare_callback(void* privdata, const void* key1, const void* key2)
+str_compare_callback(const void* key1, const void* key2)
 {
-    (void)privdata;
     return strcmp((char*)key1, (char*)key2) == 0;
 }
 
 uint64_t
 str_hash_callback(const void* key)
 {
-    return dictGenCaseHashFunction((unsigned char*)key, strlen((char*)key));
+    return dictGenHashFunction((unsigned char*)key, strlen((char*)key));
 }

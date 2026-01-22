@@ -665,7 +665,7 @@ do
     #
     if [ "$state" = "Callback" ]
     then
-	callback="$bad $seq"
+	callback="$callback $seq"
 	n_callback=`expr $n_bad + 1`
 	try=`expr $try + 1`
     elif [ "$state" = "Fail" ]

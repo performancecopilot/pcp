@@ -50,7 +50,7 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 
-pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
+pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[ /][p]mlogger.*-P' | \
 grep -v grep | awk '{print $2}'`
 
 if [ ! -S "$PCP_RUN_DIR/pmlogger.$pid.socket" ]; then

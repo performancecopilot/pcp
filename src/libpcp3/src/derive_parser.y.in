@@ -1441,7 +1441,7 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	     */
 	    int	guard = eval_guard(parent->left);
 	    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-		fprintf(stderr, "check_expr: guard(%s) = %d [bind %s @ %p(%s)]\n",
+		fprintf(stderr, "check_expr: guard(%s) = %d [bind %s @ " PRINTF_P_PFX "%p(%s)]\n",
 		    __dmnode_type_str(parent->left->type), guard,
 		    guard == 1 ? "left" : (guard == 0 ? "right" : "both"),
 		    np, __dmnode_type_str(np->type));
