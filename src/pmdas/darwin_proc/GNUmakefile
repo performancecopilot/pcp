@@ -65,6 +65,13 @@ default_pcp : default
 
 install_pcp : install
 
+# Unit tests (no installation required)
+test: build-me
+	@echo "Running Darwin_proc PMDA unit tests..."
+	@cd test && ./run-unit-tests.sh
+
+.PHONY: test
+
 $(HELPTARGETS) : help
 	$(NEWHELP) -n root_proc -v 2 -o help < help
 

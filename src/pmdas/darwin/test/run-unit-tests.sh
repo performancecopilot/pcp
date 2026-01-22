@@ -17,7 +17,7 @@ set -u
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../../.." && pwd)"
 DARWIN_SRC="$REPO_ROOT/src/pmdas/darwin"
-DARWIN_DEV="$REPO_ROOT/scripts/darwin/dev"
+DARWIN_DEV="$REPO_ROOT/dev/darwin/dev"
 
 # Colors for output
 RED='\033[0;31m'

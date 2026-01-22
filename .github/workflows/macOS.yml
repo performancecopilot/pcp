@@ -42,8 +42,8 @@ jobs:
         id: unit-tests
         if: success()
         run: |
-          echo "Running Darwin PMDA unit tests..."
-          cd dev/darwin/test/unit
+          echo "Running all PMDA unit tests..."
+          cd build/mac/test
           ./run-unit-tests.sh
       - name: Debug on unit test failure
         if: failure() && steps.unit-tests.conclusion == 'failure'
@@ -251,13 +251,13 @@ jobs:
 
           echo ""
           echo "Running Darwin PMDA integration tests..."
-          cd dev/darwin/test/integration
+          cd build/mac/test/integration
           ./run-integration-tests.sh
       - name: Test pmstat with Darwin metrics
         if: success() && steps.integration-tests.conclusion == 'success'
         run: |
           echo "Testing pmstat output..."
-          cd dev/darwin/test/integration
+          cd build/mac/test/integration
           ./test-pmstat.sh
       - name: Debug on integration test failure
         if: failure() && (steps.integration-tests.conclusion == 'failure' || steps.wait-for-pmcd.conclusion == 'failure')

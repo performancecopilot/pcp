@@ -71,6 +71,13 @@ install_pcp : install
 check:: $(MAN_PAGES)
 	$(MANLINT) $^
 
+# Unit tests (no installation required)
+test: build-me
+	@echo "Running Darwin PMDA unit tests..."
+	@cd test && ./run-unit-tests.sh
+
+.PHONY: test
+
 help.dir help.pag: help root_darwin
 	$(NEWHELP) -n root_darwin -v 2 -o help < help
 

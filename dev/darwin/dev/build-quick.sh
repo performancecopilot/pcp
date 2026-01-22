@@ -59,7 +59,9 @@ echo "Binary: $(pwd)/pmdadarwin"
 echo "DSO:    $(pwd)/pmda_darwin.dylib"
 echo
 echo "Next steps:"
-echo "  1. Run unit tests:       cd ../test/unit && ./run-unit-tests.sh"
-echo "  2. Install to system:    make install"
+echo "  1. Run darwin tests:     cd ../../../src/pmdas/darwin/test && ./run-unit-tests.sh"
+echo "  2. Run darwin_proc tests: cd ../../../src/pmdas/darwin_proc/test && ./run-unit-tests.sh"
+echo "  3. Run all tests:        cd ../../../build/mac/test && ./run-all-tests.sh"
+echo "  4. Install to system:    make install"
 echo "  3. Test with pminfo:     pminfo -f mem.physmem"
 echo
