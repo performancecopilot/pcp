@@ -70,14 +70,49 @@
 @ mem.pages.zero_filled the number of pages that have been zero-filled on demand
 @ mem.pageins the number of requests for pages from a pager
 @ mem.pageouts the number of pages that have been paged out
-@ mem.cache_hits the number of object cache hits
-@ mem.cache_lookups the number of object cache lookups
 @ mem.util.wired wired memory
 @ mem.util.active active memory
 @ mem.util.inactive inactive memory
 @ mem.util.used used memory
 Equals mem.util.wired + mem.util.active + mem.util.inactive.
 @ mem.util.free free memory
+@ mem.util.compressed compressed memory
+Memory pages that have been compressed by the macOS memory compressor.
+This represents the amount of memory that has been compressed and stored
+in the compressor cache, reducing physical memory pressure.
+@ mem.compressions cumulative count of memory compressions
+The total number of memory compression operations performed by the
+macOS memory compressor since system boot. Each compression occurs when
+the system moves a page from active or inactive memory into compressed storage.
+@ mem.decompressions cumulative count of memory decompressions
+The total number of memory decompression operations performed by the
+macOS memory compressor since system boot. Each decompression occurs when
+a compressed page is accessed and must be restored to normal memory.
+@ mem.compressor.pages number of pages stored in compressor
+The current number of memory pages stored in the macOS memory compressor
+cache. These pages have been compressed to reduce physical memory usage.
+@ mem.compressor.uncompressed_pages total uncompressed size of compressed pages
+The total number of pages that are currently stored in compressed form,
+measured in their original (uncompressed) size. This shows how many pages
+of memory are being represented by the compressed storage.
+
+@ swap.length total swap space configured
+Total amount of swap space available to the system in kilobytes.
+Obtained from sysctl vm.swapusage on macOS.
+@ swap.used swap space currently in use
+Amount of swap space currently being used in kilobytes.
+Obtained from sysctl vm.swapusage on macOS.
+@ swap.free swap space currently free
+Amount of swap space currently available in kilobytes.
+Obtained from sysctl vm.swapusage on macOS.
+@ swap.pagesin pages swapped in from disk
+Cumulative count of pages that have been swapped in from disk since boot.
+This is an alias to the same data as mem.pageins, provided for compatibility
+with pmstat and other cross-platform tools.
+@ swap.pagesout pages swapped out to disk
+Cumulative count of pages that have been swapped out to disk since boot.
+This is an alias to the same data as mem.pageouts, provided for compatibility
+with pmstat and other cross-platform tools.
 
 @ hinv.nfilesys number of file systems currently mounted
 @ filesys.capacity total capacity of mounted filesystem (Kbytes)
@@ -177,6 +212,203 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ network.interface.total.drops total network connections dropped
 @ network.interface.total.mcasts total network multicasts
 
+@ network.udp.indatagrams total UDP datagrams received
+Total number of UDP datagrams delivered to UDP users.
+This is a cumulative counter from boot time.
+@ network.udp.outdatagrams total UDP datagrams sent
+Total number of UDP datagrams sent from this host.
+This is a cumulative counter from boot time.
+@ network.udp.noports UDP datagrams to port with no listener
+Total number of received UDP datagrams for which there was no listener
+at the destination port. This is a cumulative counter from boot time.
+@ network.udp.inerrors.total Total UDP input errors
+Aggregate count of all UDP input errors (sum of hdrops, badsum, badlen).
+Includes header errors, checksum errors, and length errors.
+
+@ network.udp.inerrors.hdrops Header error drops
+UDP datagrams dropped due to header errors. May indicate malformed packets
+or network transmission issues.
+
+@ network.udp.inerrors.badsum Bad checksum errors
+UDP datagrams received with bad checksum. May indicate NIC hardware issues,
+transmission line problems, or network equipment failures.
+
+@ network.udp.inerrors.badlen Bad length errors
+UDP datagrams dropped due to invalid length fields. May indicate malformed
+packets or protocol violations.
+
+@ network.udp.rcvbuferrors UDP receive buffer errors
+Total number of UDP datagrams dropped due to full socket receive buffers.
+This occurs when the receiving application cannot keep up with incoming data.
+
+@ network.icmp.inmsgs total ICMP messages received
+Total number of ICMP messages received (sum of all ICMP message types).
+This is a cumulative counter from boot time.
+@ network.icmp.outmsgs total ICMP messages sent
+Total number of ICMP messages sent (sum of all ICMP message types).
+This is a cumulative counter from boot time.
+@ network.icmp.inerrors ICMP input errors
+Total number of errors encountered on received ICMP messages.
+Includes bad codes, truncated messages, checksum errors, and invalid lengths.
+This is a cumulative counter from boot time.
+@ network.icmp.indestunreachs ICMP destination unreachable messages received
+Total number of ICMP Destination Unreachable messages received.
+This is a cumulative counter from boot time.
+@ network.icmp.inechos ICMP echo requests received
+Total number of ICMP Echo Request messages received (ping requests).
+This is a cumulative counter from boot time.
+@ network.icmp.inechoreps ICMP echo replies received
+Total number of ICMP Echo Reply messages received (ping responses).
+This is a cumulative counter from boot time.
+@ network.icmp.outechos ICMP echo requests sent
+Total number of ICMP Echo Request messages sent (ping requests).
+This is a cumulative counter from boot time.
+@ network.icmp.outechoreps ICMP echo replies sent
+Total number of ICMP Echo Reply messages sent (ping responses).
+This is a cumulative counter from boot time.
+
+@ network.sockstat.tcp.inuse TCP sockets in use
+Number of TCP protocol control blocks (PCBs) currently in use.
+This represents the number of active TCP connections and listening sockets.
+Retrieved via the net.inet.tcp.pcbcount sysctl.
+
+@ network.sockstat.udp.inuse UDP sockets in use
+Number of UDP protocol control blocks (PCBs) currently in use.
+This represents the number of active UDP sockets.
+Retrieved via the net.inet.udp.pcbcount sysctl.
+
+@ network.tcpconn.established TCP connections in ESTABLISHED state
+Number of TCP connections currently in the ESTABLISHED state.
+These are fully established connections actively transferring data.
+This is the primary state for active communication between client and server.
+
+@ network.tcpconn.syn_sent TCP connections in SYN_SENT state
+Number of TCP connections currently in the SYN_SENT state.
+The connection is attempting to open and has sent a SYN packet.
+This state indicates active connection establishment in progress.
+
+@ network.tcpconn.syn_recv TCP connections in SYN_RECEIVED state
+Number of TCP connections currently in the SYN_RECEIVED state.
+The server has received a SYN and sent a SYN-ACK response.
+This state indicates passive connection establishment in progress.
+
+@ network.tcpconn.fin_wait1 TCP connections in FIN_WAIT1 state
+Number of TCP connections currently in the FIN_WAIT1 state.
+The connection is closing and has sent a FIN packet.
+Waiting for acknowledgment or a connection termination request from remote.
+
+@ network.tcpconn.fin_wait2 TCP connections in FIN_WAIT2 state
+Number of TCP connections currently in the FIN_WAIT2 state.
+The local side has closed the connection and is waiting for a FIN from remote.
+This state occurs after receiving ACK for our FIN.
+
+@ network.tcpconn.time_wait TCP connections in TIME_WAIT state
+Number of TCP connections currently in the TIME_WAIT state.
+Connections waiting for enough time to pass to ensure the remote TCP
+received the acknowledgment of its connection termination request.
+High values may indicate many short-lived connections.
+
+@ network.tcpconn.close TCP connections in CLOSED state
+Number of TCP connections currently in the CLOSED state.
+This is the default state representing no connection.
+Typically this count should be zero or very low.
+
+@ network.tcpconn.close_wait TCP connections in CLOSE_WAIT state
+Number of TCP connections currently in the CLOSE_WAIT state.
+The remote end has closed the connection, waiting for local application to close.
+High values may indicate applications not closing connections properly.
+
+@ network.tcpconn.last_ack TCP connections in LAST_ACK state
+Number of TCP connections currently in the LAST_ACK state.
+The connection has received a FIN from remote and sent its own FIN.
+Waiting for the final acknowledgment.
+
+@ network.tcpconn.listen TCP connections in LISTEN state
+Number of TCP sockets currently in the LISTEN state.
+These are server sockets waiting for incoming connection requests.
+This represents the number of services listening for connections.
+
+@ network.tcpconn.closing TCP connections in CLOSING state
+Number of TCP connections currently in the CLOSING state.
+Both sides are closing simultaneously, waiting for final acknowledgments.
+This is a relatively rare state during simultaneous connection termination.
+
+
+@ network.tcp.activeopens active TCP connection attempts
+Count of TCP connections that have transitioned from CLOSED to SYN_SENT state.
+This represents outbound connection attempts initiated by the local host.
+
+@ network.tcp.passiveopens passive TCP connection attempts
+Count of TCP connections that have transitioned from LISTEN to SYN_RECEIVED state.
+This represents inbound connections accepted by listening sockets.
+
+@ network.tcp.attemptfails failed TCP connection attempts
+Count of TCP connection attempts that failed (SYN_SENT/SYN_RECEIVED to CLOSED).
+Includes timeouts, resets, and other connection establishment failures.
+
+@ network.tcp.estabresets TCP connections reset from ESTABLISHED
+Count of TCP connections that transitioned from ESTABLISHED to CLOSED.
+This typically indicates abnormal connection termination via RST.
+
+@ network.tcp.currestab current established TCP connections
+Current number of TCP connections in ESTABLISHED state.
+This is a snapshot count, not a cumulative counter like other TCP metrics.
+
+@ network.tcp.insegs TCP segments received
+Total number of TCP segments received, including those received in error.
+This is the total count of all TCP packets received by the host.
+
+@ network.tcp.outsegs TCP segments sent
+Total number of TCP segments sent, including those containing retransmitted data.
+This is the total count of all TCP packets transmitted by the host.
+
+@ network.tcp.retranssegs TCP segments retransmitted
+Count of TCP segments retransmitted due to timeout or loss detection.
+High values may indicate network congestion or packet loss.
+
+@ network.tcp.inerrs.total Total TCP input errors
+Aggregate count of all TCP input errors (sum of badsum, badoff, short, memdrop).
+
+@ network.tcp.inerrs.badsum Bad checksum errors
+TCP segments received with bad checksum. May indicate NIC hardware issues,
+transmission line problems, or network equipment failures.
+
+@ network.tcp.inerrs.badoff Bad offset errors
+TCP segments received with bad header offset. May indicate malformed packets
+or potential security attacks.
+
+@ network.tcp.inerrs.short Truncated packets
+TCP segments received that are too short (truncated). May indicate MTU mismatches,
+packet fragmentation issues, or incomplete transmissions.
+
+@ network.tcp.inerrs.memdrop Memory exhaustion drops
+TCP segments dropped due to memory exhaustion during receive processing.
+Indicates system resource pressure.
+
+@ network.tcp.outrsts TCP reset segments sent
+Count of TCP RST (reset) segments sent.
+RST segments are used to abort connections or reject invalid connection attempts.
+
+@ network.tcp.incsumerrors TCP checksum errors on input
+Count of TCP segments discarded due to bad checksum.
+Subset of network.tcp.inerrs specifically for checksum failures.
+
+@ network.tcp.rtoalgorithm TCP retransmission timeout algorithm
+The algorithm used to determine TCP retransmission timeout (RTO).
+Value 4 indicates Van Jacobson's algorithm (RFC 6298), the modern standard.
+
+@ network.tcp.rtomin minimum TCP retransmission timeout
+Minimum value of TCP retransmission timeout in milliseconds.
+Default is 200ms, the lower bound before declaring packet loss.
+
+@ network.tcp.rtomax maximum TCP retransmission timeout
+Maximum value of TCP retransmission timeout in milliseconds.
+Default is 64000ms (64 seconds), the upper bound for retransmission backoff.
+
+@ network.tcp.maxconn maximum TCP connections supported
+Maximum number of TCP connections the system can support.
+Value -1 indicates no fixed limit (dynamically allocated).
+
 @ nfs3.client.calls
 @ nfs3.client.reqs
 @ nfs3.server.calls
@@ -209,3 +441,25 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ rpc.server.cache.idem
 @ rpc.server.cache.misses
 @ rpc.server.vopwrites
+
+@ vfs.files.count current number of open files
+Current number of file descriptors (open files) in the system.
+This represents the actual count of files currently open across all processes.
+@ vfs.files.max maximum number of open files allowed
+System-wide maximum number of file descriptors that can be open simultaneously.
+This is a tunable kernel parameter (kern.maxfiles) that limits total open files.
+@ vfs.files.free number of available file descriptor slots
+The number of file descriptor slots available for new file opens.
+Computed as vfs.files.max minus vfs.files.count.
+@ vfs.vnodes.count current number of vnodes in use
+Current number of vnodes (virtual file system nodes) allocated in the kernel.
+Each open file, directory, or device typically requires at least one vnode.
+@ vfs.vnodes.max maximum number of vnodes allowed
+System-wide maximum number of vnodes that can exist simultaneously.
+This is a tunable kernel parameter (kern.maxvnodes) that limits vnode allocation.
+@ kernel.all.nprocs total number of processes
+Current number of tasks (processes) running in the system.
+This includes all processes across all users.
+@ kernel.all.nthreads total number of threads
+Current number of threads running in the system.
+This includes all threads across all processes and users.

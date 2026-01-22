@@ -4,3 +4,7 @@ help.pag
 root_darwin
 pmda_darwin.dylib
 pmdadarwin
+
+# Test output artifacts
+test/*.log
+test/*.tmp
