@@ -104,7 +104,7 @@ class PCP2OPENMETRICS(object):
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = TIMEFMT
-        self.interpol = 0
+        self.interpol = 1
         self.count_scale = None
         self.count_scale_force = None
         self.space_scale = None
@@ -121,7 +121,7 @@ class PCP2OPENMETRICS(object):
         self.http_pass = None
         self.http_timeout = TIMEOUT
         self.no_comment = False
-        self.header_flag = True
+        self.headers = []
 
         # Internal
         self.runtime = -1
@@ -476,12 +476,12 @@ class PCP2OPENMETRICS(object):
             help_dict = {}
             help_dict[metric] = context.pmLookupText(pmid[0])
 
-            if self.header_flag is True:
+            if metric not in self.headers:
                 if self.no_comment is False:
                     body += '# PCP5 %s %s %s %s %s %s\n' % (openmetrics_name(metric), pmIDStr, get_type_string(desc), pmIndomStr, semantics, units)
                 body += '# TYPE %s %s\n' % (openmetrics_name(metric), openmetrics_type(desc))
                 body += '# HELP %s %s\n' % (openmetrics_name(metric), help_dict[metric])
-                self.header_flag = False
+                self.headers.append(metric)
 
             for inst, name, value in results[metric]:
                 if isinstance(value, float):
