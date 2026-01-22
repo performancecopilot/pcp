@@ -96,7 +96,35 @@ fi
 
 echo; echo === /metrics webapi listing. The instname label should appear only once.
 curl -Gs 'http://localhost:44322/metrics?names=openmetrics.duplicate_instname_label.somemetric' \
-| _filter_openmetrics_labels
+| _filter_openmetrics_labels \
+| awk '{
+    if (match($0, /\{[^}]+\}/)) {
+        prefix = substr($0, 1, RSTART-1)
+        labels_str = substr($0, RSTART+1, RLENGTH-2)
+        suffix = substr($0, RSTART+RLENGTH)
+        
+        split("", labels)
+        n = split(labels_str, pairs, ",")
+        for (i = 1; i <= n; i++) {
+            split(pairs[i], kv, "=")
+            labels[kv[1]] = kv[2]
+        }
+        
+        order = "script agent hostname instid instname domainname machineid source"
+        split(order, keys, " ")
+        result = ""
+        for (i = 1; i <= 8; i++) {
+            key = keys[i]
+            if (key in labels) {
+                if (result != "") result = result ","
+                result = result key "=" labels[key]
+            }
+        }
+        print prefix "{" result "}" suffix
+    } else {
+        print
+    }
+}'
 
 echo; echo === verify metric name validity using pminfo
 pminfo -v openmetrics

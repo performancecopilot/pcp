@@ -64,6 +64,7 @@ typedef struct metric_label {
     struct metric_label_metadata* meta;
     enum METRIC_TYPE type; // either this or parent reference, so that we know how to free void* value
     void* value;
+    struct agent_config* config; // needed for cleanup callbacks (libvalkey compat)
 } metric_label;
 
 typedef struct metric {
@@ -73,6 +74,7 @@ typedef struct metric {
     labels* children;
     enum METRIC_TYPE type;
     void* value;
+    struct agent_config* config; // needed for cleanup callbacks (libvalkey compat)
 } metric;
 
 /**
@@ -92,15 +94,9 @@ typedef struct duration_values_meta {
 
 typedef struct pmda_metrics_container {
     metrics* metrics;
-    struct pmda_metrics_dict_privdata* metrics_privdata;
     size_t generation;
     pthread_mutex_t mutex;
 } pmda_metrics_container;
-
-typedef struct pmda_metrics_dict_privdata {
-    struct agent_config* config;
-    struct pmda_metrics_container* container;
-} pmda_metrics_dict_privdata;
 
 /**
  * Creates new pmda_metrics_container structure, initializes all stats to 0

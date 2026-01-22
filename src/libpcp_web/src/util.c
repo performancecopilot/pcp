@@ -576,11 +576,11 @@ pmwebapi_setup_context(context_t *cp)
 	fprintf(stderr, "pmwebapi_setup_context: SHA1=%s [%s]\n",
 			hashbuf, cp->name.sds);
     }
-    cp->pmids = dictCreate(&intKeyDictCallBacks, cp);	/* pmid: metric */
-    cp->metrics = dictCreate(&sdsKeyDictCallBacks, cp);	/* name: metric */
-    cp->indoms = dictCreate(&intKeyDictCallBacks, cp);	/* id: indom */
-    cp->domains = dictCreate(&intKeyDictCallBacks, cp);	/* id: domain */
-    cp->clusters = dictCreate(&intKeyDictCallBacks, cp);/* id: cluster */
+    cp->pmids = dictCreate(&intKeyDictCallBacks);	/* pmid: metric */
+    cp->metrics = dictCreate(&sdsKeyDictCallBacks);	/* name: metric */
+    cp->indoms = dictCreate(&intKeyDictCallBacks);	/* id: indom */
+    cp->domains = dictCreate(&intKeyDictCallBacks);	/* id: domain */
+    cp->clusters = dictCreate(&intKeyDictCallBacks);/* id: cluster */
 
     pmwebapi_locate_context(cp);
 }
@@ -640,7 +640,6 @@ pmwebapi_free_context(context_t *cp)
 void
 pmwebapi_release_context(context_t *cp)
 {
-    dictIterator	*iterator;
     dictEntry		*entry;
 
     if (cp->context >= 0) {
@@ -664,31 +663,31 @@ pmwebapi_release_context(context_t *cp)
 	dictRelease(cp->metrics);	/* but, one entry per name */
 
     if (cp->pmids) {
-	iterator = dictGetIterator(cp->pmids);
-	while ((entry = dictNext(iterator)) != NULL)
+	dictIterator iter;
+	dictInitIterator(&iter, cp->pmids);
+	while ((entry = dictNext(&iter)) != NULL)
 	    pmwebapi_free_metric((metric_t *)dictGetVal(entry));
-	dictReleaseIterator(iterator);
 	dictRelease(cp->pmids);
     }
     if (cp->clusters) {
-	iterator = dictGetIterator(cp->clusters);
-	while ((entry = dictNext(iterator)) != NULL)
+	dictIterator iter;
+	dictInitIterator(&iter, cp->clusters);
+	while ((entry = dictNext(&iter)) != NULL)
 	    pmwebapi_free_cluster((cluster_t *)dictGetVal(entry));
-	dictReleaseIterator(iterator);
 	dictRelease(cp->clusters);
     }
     if (cp->indoms) {
-	iterator = dictGetIterator(cp->indoms);
-	while ((entry = dictNext(iterator)) != NULL)
+	dictIterator iter;
+	dictInitIterator(&iter, cp->indoms);
+	while ((entry = dictNext(&iter)) != NULL)
 	    pmwebapi_free_indom((indom_t *)dictGetVal(entry));
-	dictReleaseIterator(iterator);
 	dictRelease(cp->indoms);
     }
     if (cp->domains) {
-	iterator = dictGetIterator(cp->domains);
-	while ((entry = dictNext(iterator)) != NULL)
+	dictIterator iter;
+	dictInitIterator(&iter, cp->domains);
+	while ((entry = dictNext(&iter)) != NULL)
 	    pmwebapi_free_domain((domain_t *)dictGetVal(entry));
-	dictReleaseIterator(iterator);
 	dictRelease(cp->domains);
     }
 }
@@ -804,7 +803,6 @@ pmwebapi_add_cluster_labels(struct context *context, struct cluster *cluster)
 void
 pmwebapi_free_indom(indom_t *indom)
 {
-    dictIterator	*iterator;
     dictEntry		*entry;
 
     sdsfree(indom->helptext);
@@ -815,10 +813,10 @@ pmwebapi_free_indom(indom_t *indom)
 	pmFreeLabelSets(indom->labelset, 1);
 
     if (indom->insts) {
-	iterator = dictGetIterator(indom->insts);
-	while ((entry = dictNext(iterator)) != NULL)
+	dictIterator iter;
+	dictInitIterator(&iter, indom->insts);
+	while ((entry = dictNext(&iter)) != NULL)
 	    pmwebapi_free_instance((instance_t *)dictGetVal(entry));
-	dictReleaseIterator(iterator);
 	dictRelease(indom->insts);
     }
 
@@ -835,7 +833,7 @@ pmwebapi_new_indom(context_t *context, domain_t *domain, pmInDom key)
 	return NULL;
     indom->indom = key;
     indom->domain = domain;
-    indom->insts = dictCreate(&intKeyDictCallBacks, indom);
+    indom->insts = dictCreate(&intKeyDictCallBacks);
     dictAdd(context->indoms, &key, (void *)indom);
     return indom;
 }
@@ -917,8 +915,10 @@ pmwebapi_add_instances_labels(struct context *context, struct indom *indom)
 	    if ((length = labelsetlen(labels)) == 0)
 		continue;
 	    inst = labelsets[i].inst;
-	    if ((instance = dictFetchValue(indom->insts, &inst)) == NULL)
+	    dictEntry *entry;
+	    if ((entry = dictFind(indom->insts, &inst)) == NULL)
 		continue;
+	    instance = (instance_t *)dictGetVal(entry);
 	    if ((labels = pmwebapi_labelsetdup(labels)) == NULL) {
 		if (pmDebugOptions.series)
 		    fprintf(stderr, "failed to dup %s instance labels: %s\n",
@@ -1003,16 +1003,20 @@ pmwebapi_add_instance(struct indom *indom, int inst, char *name)
     if (name == NULL || (length = strlen(name)) == 0)
 	return NULL;
 
-    if ((instance = dictFetchValue(indom->insts, &inst)) != NULL) {
-	/* has the external name changed for this internal identifier? */
-	if ((sdslen(instance->name.sds) != length) ||
-	    (strncmp(instance->name.sds, name, length) != 0)) {
-	    sdsclear(instance->name.sds);
-	    instance->name.sds = sdscatlen(instance->name.sds, name, length);
-	    pmwebapi_string_hash(instance->name.id, name, length);
-	    pmwebapi_instance_hash(indom, instance);
+    {
+	dictEntry *entry;
+	if ((entry = dictFind(indom->insts, &inst)) != NULL) {
+	    instance = (instance_t *)dictGetVal(entry);
+	    /* has the external name changed for this internal identifier? */
+	    if ((sdslen(instance->name.sds) != length) ||
+		(strncmp(instance->name.sds, name, length) != 0)) {
+		sdsclear(instance->name.sds);
+		instance->name.sds = sdscatlen(instance->name.sds, name, length);
+		pmwebapi_string_hash(instance->name.id, name, length);
+		pmwebapi_instance_hash(indom, instance);
+	    }
+	    return instance;
 	}
-	return instance;
     }
     return pmwebapi_new_instance(indom, inst, sdsnewlen(name, length));
 }
@@ -1037,18 +1041,19 @@ pmwebapi_add_indom_instances(struct context *context, struct indom *indom)
 {
     struct instance	*instance;
     unsigned int	count = 0;
-    dictIterator	*iterator;
     dictEntry		*entry;
     char		errmsg[PM_MAXERRMSGLEN], buffer[64], **namelist = NULL;
     int			*instlist = NULL, i, sts;
 
     /* refreshing instance domain entries so mark all out-of-date first */
-    iterator = dictGetIterator(indom->insts);
-    while ((entry = dictNext(iterator)) != NULL) {
-	instance = dictGetVal(entry);
-	instance->updated = 0;
+    {
+	dictIterator iter;
+	dictInitIterator(&iter, indom->insts);
+	while ((entry = dictNext(&iter)) != NULL) {
+	    instance = (instance_t *)dictGetVal(entry);
+	    instance->updated = 0;
+	}
     }
-    dictReleaseIterator(iterator);
 
     if ((sts = pmGetInDom(indom->indom, &instlist, &namelist)) >= 0) {
 	for (i = 0; i < sts; i++) {
@@ -1141,8 +1146,13 @@ pmwebapi_new_metric(context_t *cp, const sds name, pmDesc *desc,
     if (name && i == numnames)
 	numextra = 1;
 
-    if ((metric = dictFetchValue(cp->pmids, &desc->pmid)) != NULL)
-	return pmwebapi_add_metric(cp, name, desc, numnames, names);
+    {
+	dictEntry *entry;
+	if ((entry = dictFind(cp->pmids, &desc->pmid)) != NULL) {
+	    metric = (metric_t *)dictGetVal(entry);
+	    return pmwebapi_add_metric(cp, name, desc, numnames, names);
+	}
+    }
 
     if ((metric = calloc(1, sizeof(metric_t))) == NULL)
 	return NULL;
@@ -1183,16 +1193,25 @@ pmwebapi_add_metric(context_t *cp, const sds base, pmDesc *desc, int numnames, c
     int			i;
 
     /* search for a match on any of the given names */
-    if (base && (metric = dictFetchValue(cp->metrics, base)) != NULL)
-	return metric;
+    {
+	dictEntry *entry;
+	if (base && (entry = dictFind(cp->metrics, base)) != NULL) {
+	    metric = (metric_t *)dictGetVal(entry);
+	    return metric;
+	}
+    }
 
     name = sdsempty();
     for (i = 0; i < numnames; i++) {
 	sdsclear(name);
 	name = sdscat(name, names[i]);
-	if ((metric = dictFetchValue(cp->metrics, name)) != NULL) {
-	    sdsfree(name);
-	    return metric;
+	{
+	    dictEntry *entry;
+	    if ((entry = dictFind(cp->metrics, name)) != NULL) {
+		metric = (metric_t *)dictGetVal(entry);
+		sdsfree(name);
+		return metric;
+	    }
 	}
     }
     sdsfree(name);
@@ -1366,3 +1385,4 @@ pmwebapi_nsectimestamp(sds s, struct timespec *timestamp)
 			(unsigned int)timestamp->tv_nsec);
     return sdscatlen(s, buffer, length);
 }
+

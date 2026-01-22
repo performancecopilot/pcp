@@ -29,35 +29,32 @@ intHashCallBack(const void *key)
 {
     const unsigned int	*i = (const unsigned int *)key;
 
-    return dictGenHashFunction(i, sizeof(unsigned int));
+    return dictGenHashFunction((const unsigned char *)i, sizeof(unsigned int));
 }
 
 static int
-intCmpCallBack(void *privdata, const void *a, const void *b)
+intCmpCallBack(const void *a, const void *b)
 {
     const unsigned int	*ia = (const unsigned int *)a;
     const unsigned int	*ib = (const unsigned int *)b;
 
-    (void)privdata;
     return (*ia == *ib);
 }
 
 static void *
-intDupCallBack(void *privdata, const void *key)
+intDupCallBack(const void *key)
 {
-    unsigned int	*i = (unsigned int *)key;
+    const unsigned int	*i = (const unsigned int *)key;
     unsigned int	*k = (unsigned int *)malloc(sizeof(*i));
 
-    (void)privdata;
     if (k)
 	*k = *i;
     return k;
 }
 
 static void
-intFreeCallBack(void *privdata, void *value)
+intFreeCallBack(void *value)
 {
-    (void)privdata;
     if (value) free(value);
 }
 
@@ -75,11 +72,10 @@ sdsHashCallBack(const void *key)
 }
 
 static int
-sdsCompareCallBack(void *privdata, const void *key1, const void *key2)
+sdsCompareCallBack(const void *key1, const void *key2)
 {
     int		l1, l2;
 
-    (void)privdata;
     l1 = sdslen((sds)key1);
     l2 = sdslen((sds)key2);
     if (l1 != l2) return 0;
@@ -87,15 +83,14 @@ sdsCompareCallBack(void *privdata, const void *key1, const void *key2)
 }
 
 static void *
-sdsDupCallBack(void *privdata, const void *key)
+sdsDupCallBack(const void *key)
 {
     return sdsdup((sds)key);
 }
 
 static void
-sdsFreeCallBack(void *privdata, void *val)
+sdsFreeCallBack(void *val)
 {
-    (void)privdata;
     sdsfree(val);
 }
 
@@ -124,41 +119,53 @@ dictType sdsDictCallBacks = {
 void
 keyMapsInit(void)
 {
-    if (instmap == NULL)
-	instmap = dictCreate(&sdsDictCallBacks,
-				(void *)sdsnew("inst.name"));
-    if (namesmap == NULL)
-	namesmap = dictCreate(&sdsDictCallBacks,
-				(void *)sdsnew("metric.name"));
-    if (labelsmap == NULL)
-	labelsmap = dictCreate(&sdsDictCallBacks,
-				(void *)sdsnew("label.name"));
-    if (contextmap == NULL)
-	contextmap = dictCreate(&sdsDictCallBacks,
-				(void *)sdsnew("context.name"));
+    if (instmap == NULL) {
+	instmap = malloc(sizeof(keyMap));
+	instmap->dict = dictCreate(&sdsDictCallBacks);
+	instmap->privdata = sdsnew("inst.name");
+    }
+    if (namesmap == NULL) {
+	namesmap = malloc(sizeof(keyMap));
+	namesmap->dict = dictCreate(&sdsDictCallBacks);
+	namesmap->privdata = sdsnew("metric.name");
+    }
+    if (labelsmap == NULL) {
+	labelsmap = malloc(sizeof(keyMap));
+	labelsmap->dict = dictCreate(&sdsDictCallBacks);
+	labelsmap->privdata = sdsnew("label.name");
+    }
+    if (contextmap == NULL) {
+	contextmap = malloc(sizeof(keyMap));
+	contextmap->dict = dictCreate(&sdsDictCallBacks);
+	contextmap->privdata = sdsnew("context.name");
+    }
 }
 
 void
 keyMapsClose(void)
 {
     if (instmap) {
-	sdsfree(keyMapName(instmap));
-	dictRelease(instmap);
+	sdsfree((sds)instmap->privdata);
+	dictRelease(instmap->dict);
+	free(instmap);
 	instmap = NULL;
     }
     if (namesmap) {
-	sdsfree(keyMapName(namesmap));
-	dictRelease(namesmap);
+	sdsfree((sds)namesmap->privdata);
+	dictRelease(namesmap->dict);
+	free(namesmap);
 	namesmap = NULL;
     }
     if (labelsmap) {
-	sdsfree(keyMapName(labelsmap));
-	dictRelease(labelsmap);
+	sdsfree((sds)labelsmap->privdata);
+	dictRelease(labelsmap->dict);
+	free(labelsmap);
 	labelsmap = NULL;
     }
     if (contextmap) {
-	sdsfree(keyMapName(contextmap));
-	dictRelease(contextmap);
+	sdsfree((sds)contextmap->privdata);
+	dictRelease(contextmap->dict);
+	free(contextmap);
 	contextmap = NULL;
     }
 }
@@ -172,14 +179,17 @@ keyMapName(keyMap *map)
 keyMap *
 keyMapCreate(sds name)
 {
-    return dictCreate(&sdsDictCallBacks, (void *)name);
+    keyMap *map = malloc(sizeof(keyMap));
+    map->dict = dictCreate(&sdsDictCallBacks);
+    map->privdata = name;
+    return map;
 }
 
 keyMapEntry *
 keyMapLookup(keyMap *map, sds key)
 {
-    if (map)
-	return dictFind(map, key);
+    if (map && map->dict)
+	return dictFind(map->dict, key);
     return NULL;
 }
 
@@ -190,9 +200,9 @@ keyMapInsert(keyMap *map, sds key, sds value)
 
     if (entry) {
 	/* fix for Coverity CID323605 Resource Leak */
-	dictDelete(map, key);
+	dictDelete(map->dict, key);
     }
-    dictAdd(map, key, value);
+    dictAdd(map->dict, key, value);
 }
 
 sds
@@ -204,6 +214,9 @@ keyMapValue(keyMapEntry *entry)
 void
 keyMapRelease(keyMap *map)
 {
-    sdsfree(keyMapName(map));
-    dictRelease(map);
+    if (map) {
+	sdsfree((sds)map->privdata);
+	dictRelease(map->dict);
+	free(map);
+    }
 }

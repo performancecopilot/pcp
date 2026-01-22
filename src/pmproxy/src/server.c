@@ -46,7 +46,7 @@ proxylog(pmLogLevel level, sds message, void *arg)
 	state = "- EPOCH - ";
     }
     else
-	state = proxy->slots ? "" : "- DISCONNECTED - ";
+	state = proxy->slotsctx ? "" : "- DISCONNECTED - ";
 
     switch (level) {
     case PMLOG_TRACE:
@@ -792,8 +792,8 @@ static void
 close_proxy(struct proxy *proxy)
 {
     close_pcp_module(proxy);
-    close_http_module(proxy);
     close_keys_module(proxy);
+    close_http_module(proxy);
     close_secure_module(proxy);
 }
 

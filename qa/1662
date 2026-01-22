@@ -96,7 +96,7 @@ path = $dir
 EOF
 src/time_stamp $tmp.stamp 'pmproxy start' >>$seq_full
 grind_extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
-# skip valgrind errors in upstream non-PCP code, like hiredis ...
+# skip valgrind errors in upstream non-PCP code, like libvalkey ...
 # (seen on vm11 Debian 10.13)
 # ... same suppressions as for qa/1290
 #

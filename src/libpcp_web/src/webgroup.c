@@ -178,11 +178,14 @@ webgroup_access(struct context *cp, sds hostspec, dict *params,
 
     /* add username from Basic Auth header if none given in hostspec */
     if (params && cp->username == NULL) {
-	if ((value = dictFetchValue(params, AUTH_USERNAME)) != NULL) {
+	dictEntry *entry;
+	if ((entry = dictFind(params, AUTH_USERNAME)) != NULL) {
+	    value = (sds)dictGetVal(entry);
 	    __pmHashAdd(PCP_ATTR_USERNAME, strdup(value), &attrs);
 	    cp->username = sdsdup(value);
 	}
-	if ((value = dictFetchValue(params, AUTH_PASSWORD)) != NULL) {
+	if ((entry = dictFind(params, AUTH_PASSWORD)) != NULL) {
+	    value = (sds)dictGetVal(entry);
 	    __pmHashAdd(PCP_ATTR_PASSWORD, strdup(value), &attrs);
 	    cp->password = sdsdup(value);
 	}
@@ -213,10 +216,15 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     sds			hostspec = NULL, timeout;
 
     if (params) {
-	if ((hostspec = dictFetchValue(params, PARAM_HOSTSPEC)) == NULL)
-	    hostspec = dictFetchValue(params, PARAM_HOSTNAME);
+	dictEntry *entry;
+	if ((entry = dictFind(params, PARAM_HOSTSPEC)) == NULL) {
+	    entry = dictFind(params, PARAM_HOSTNAME);
+	}
+	if (entry != NULL)
+	    hostspec = (sds)dictGetVal(entry);
 
-	if ((timeout = dictFetchValue(params, PARAM_POLLTIME)) != NULL) {
+	if ((entry = dictFind(params, PARAM_POLLTIME)) != NULL) {
+	    timeout = (sds)dictGetVal(entry);
 	    seconds = strtod(timeout, &endptr);
 	    if (*endptr != '\0') {
 		infofmt(*message, "invalid timeout requested in polltime");
@@ -305,7 +313,7 @@ webgroup_timers_stop(struct webgroups *groups)
 static void
 webgroup_garbage_collect(struct webgroups *groups)
 {
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     context_t		*cp;
     unsigned int	count = 0, drops = 0, garbageset = 0, inactiveset = 0;
@@ -316,10 +324,10 @@ webgroup_garbage_collect(struct webgroups *groups)
 
     /* do context GC if we get the lock (else don't block here) */
     if (uv_mutex_trylock(&groups->mutex) == 0) {
-	iterator = dictGetSafeIterator(groups->contexts);
-	for (entry = dictNext(iterator); entry;) {
+	dictInitIterator(&iter, groups->contexts);
+	for (entry = dictNext(&iter); entry;) {
 	    cp = (context_t *)dictGetVal(entry);
-	    entry = dictNext(iterator);
+	    entry = dictNext(&iter);
 	    if (cp->privdata != groups)
 		continue;
 	    if (cp->garbage)
@@ -337,7 +345,6 @@ webgroup_garbage_collect(struct webgroups *groups)
 	    }
 	    count++;
 	}
-	dictReleaseIterator(iterator);
 
 	/* if dropping the last remaining context, do cleanup */
 	if (groups->active && drops == count) {
@@ -439,7 +446,14 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 	    *status = -EINVAL;
 	    return NULL;
 	}
-	cp = (struct context *)dictFetchValue(groups->contexts, &key);
+	{
+	    dictEntry *entry;
+	    entry = dictFind(groups->contexts, &key);
+	    if (entry == NULL)
+		cp = NULL;
+	    else
+		cp = (struct context *)dictGetVal(entry);
+	}
 	if (cp == NULL) {
 	    infofmt(*message, "unknown context identifier: %u", key);
 	    *status = -ENOTCONN;
@@ -600,8 +614,11 @@ pmWebGroupDerive(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     int			sts = 0;
 
     if (params) {
-	metric = dictFetchValue(params, PARAM_MNAME);
-	expr = dictFetchValue(params, PARAM_EXPR);
+	dictEntry *entry;
+	entry = dictFind(params, PARAM_MNAME);
+	metric = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_EXPR);
+	expr = entry ? (sds)dictGetVal(entry) : NULL;
     } else {
 	metric = expr = NULL;
     }
@@ -753,7 +770,11 @@ webgroup_fetch(pmWebGroupSettings *settings, context_t *cp,
 		    if (value->updated == 0)
 			continue;
 		    inst = value->inst;
-		    instance = dictFetchValue(indom->insts, &inst);
+		    {
+			dictEntry *e;
+			e = dictFind(indom->insts, &inst);
+			instance = e ? (struct instance *)dictGetVal(e) : NULL;
+		    }
 		    if (instance == NULL) {
 			/* found an instance not in existing indom cache */
 			indom->updated = 0;	/* invalidate this cache */
@@ -821,8 +842,14 @@ webgroup_lookup_pmid(pmWebGroupSettings *settings, context_t *cp, sds name, void
 			    "webgroup_lookup_pmid", name);
 	return NULL;
     }
-    if ((mp = (struct metric *)dictFetchValue(cp->pmids, &pmid)) != NULL)
-	return mp;
+    {
+	dictEntry *entry;
+	entry = dictFind(cp->pmids, &pmid);
+	if (entry != NULL) {
+	    mp = (struct metric *)dictGetVal(entry);
+	    return mp;
+	}
+    }
     return pmwebapi_new_pmid(cp, NULL, pmid, settings->module.on_info, arg);
 }
 
@@ -833,8 +860,14 @@ webgroup_lookup_metric(pmWebGroupSettings *settings, context_t *cp, sds name, vo
     pmID		pmid;
     int			sts;
 
-    if ((mp = dictFetchValue(cp->metrics, name)) != NULL)
-	return mp;
+    {
+	dictEntry *entry;
+	entry = dictFind(cp->metrics, name);
+	if (entry != NULL) {
+	    mp = (struct metric *)dictGetVal(entry);
+	    return mp;
+	}
+    }
     if ((sts = pmLookupName(1, (const char **)&name, &pmid)) < 0) {
 	if (sts == PM_ERR_IPC)
 	    cp->setup = 0;
@@ -898,10 +931,19 @@ pmWebGroupFetch(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     int			sts = 0, singular = 0, numnames = 0;
 
     if (params) {
-	if ((metrics = dictFetchValue(params, PARAM_MNAMES)) == NULL) {
-	    if ((metrics = dictFetchValue(params, PARAM_MNAME)) == NULL) {
-		if ((pmids = dictFetchValue(params, PARAM_PMIDS)) == NULL) {
-		    if ((pmids = dictFetchValue(params, PARAM_PMID)) != NULL)
+	dictEntry *entry;
+	entry = dictFind(params, PARAM_MNAMES);
+	metrics = entry ? (sds)dictGetVal(entry) : NULL;
+	if (metrics == NULL) {
+	    entry = dictFind(params, PARAM_MNAME);
+	    metrics = entry ? (sds)dictGetVal(entry) : NULL;
+	    if (metrics == NULL) {
+		entry = dictFind(params, PARAM_PMIDS);
+		pmids = entry ? (sds)dictGetVal(entry) : NULL;
+		if (pmids == NULL) {
+		    entry = dictFind(params, PARAM_PMID);
+		    pmids = entry ? (sds)dictGetVal(entry) : NULL;
+		    if (pmids != NULL)
 			singular = 1;
 		}
 	    } else {
@@ -994,7 +1036,12 @@ webgroup_cache_indom(struct context *cp, pmInDom indom)
     struct domain	*dp;
     struct indom	*ip;
 
-    if ((ip = (struct indom *)dictFetchValue(cp->indoms, &indom)) != NULL)
+    {
+	dictEntry *entry;
+	entry = dictFind(cp->indoms, &indom);
+	ip = entry ? (struct indom *)dictGetVal(entry) : NULL;
+    }
+    if (ip != NULL)
 	return ip;
     dp = pmwebapi_add_domain(cp, pmInDom_domain(indom));
     return pmwebapi_new_indom(cp, dp, indom);
@@ -1082,7 +1129,6 @@ webgroup_profile(struct context *cp, struct indom *ip,
 		sds instnames, sds instids)
 {
     struct instance	*instance;
-    dictIterator	*iterator;
     dictEntry		*entry;
     pmInDom		indom;
     regex_t		*regex;
@@ -1110,28 +1156,30 @@ webgroup_profile(struct context *cp, struct indom *ip,
 
     regex = name_match_setup(match, numnames, names);
 
-    iterator = dictGetIterator(ip->insts);
-    while (insts && (entry = dictNext(iterator)) != NULL) {
-	instance = (instance_t *)dictGetVal(entry);
-	if (instance->updated == 0)
-	    continue;
+    {
+	dictIterator iter;
+	dictInitIterator(&iter, ip->insts);
+	while (insts && (entry = dictNext(&iter)) != NULL) {
+	    instance = (instance_t *)dictGetVal(entry);
+	    if (instance->updated == 0)
+		continue;
 
-	found = 0;
-	if (numnames == 0 && numids == 0)
-	    found = 1;
-	else if (numnames > 0 &&
-	    instance_name_match(instance, numnames, names, match, regex))
-	    found = 1;
-	else if (numids > 0 && instance_id_match(instance, numids, ids))
-	    found = 1;
-	if (found == 0)
-	    continue;
+	    found = 0;
+	    if (numnames == 0 && numids == 0)
+		found = 1;
+	    else if (numnames > 0 &&
+		instance_name_match(instance, numnames, names, match, regex))
+		found = 1;
+	    else if (numids > 0 && instance_id_match(instance, numids, ids))
+		found = 1;
+	    if (found == 0)
+		continue;
 
-	/* add instance identifier to list */
-	insts[count] = instance->inst;
-	count++;
+	    /* add instance identifier to list */
+	    insts[count] = instance->inst;
+	    count++;
+	}
     }
-    dictReleaseIterator(iterator);
 
     name_match_free(regex, numnames);
     sdsfreesplitres(names, numnames);
@@ -1164,11 +1212,18 @@ pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     int			sts = 0;
 
     if (params) {
-	metric = dictFetchValue(params, PARAM_MNAME);
-	indomid = dictFetchValue(params, PARAM_INDOM);
-	inames = dictFetchValue(params, PARAM_INAME);
-	instids = dictFetchValue(params, PARAM_INSTANCE);
-	if ((expr = dictFetchValue(params, PARAM_EXPR)) != NULL) {
+	dictEntry *entry;
+	entry = dictFind(params, PARAM_MNAME);
+	metric = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_INDOM);
+	indomid = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_INAME);
+	inames = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_INSTANCE);
+	instids = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_EXPR);
+	expr = entry ? (sds)dictGetVal(entry) : NULL;
+	if (expr != NULL) {
 	    if (strcmp(expr, "add") == 0)
 		profile = PROFILE_ADD;
 	    else if (strcmp(expr, "del") != 0) {
@@ -1177,7 +1232,9 @@ pmWebGroupProfile(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 		goto done;
 	    }
 	}
-	if ((match = dictFetchValue(params, PARAM_MATCH)) != NULL) {
+	entry = dictFind(params, PARAM_MATCH);
+	match = entry ? (sds)dictGetVal(entry) : NULL;
+	if (match != NULL) {
 	    if (strcmp(match, "regex") == 0)
 		matches = MATCH_REGEX;
 	    else if (strcmp(match, "glob") == 0)
@@ -1247,8 +1304,15 @@ pmWebGroupChildren(pmWebGroupSettings *settings, sds id, dict *params, void *arg
     int			i, l, n, sts = 0, *status;
 
     if (params) {
-	if ((prefix = dictFetchValue(params, PARAM_PREFIX)) == NULL)
-	     prefix = dictFetchValue(params, PARAM_MNAME);
+	{
+	    dictEntry *entry;
+	    entry = dictFind(params, PARAM_PREFIX);
+	    prefix = entry ? (sds)dictGetVal(entry) : NULL;
+	    if (prefix == NULL) {
+		entry = dictFind(params, PARAM_MNAME);
+		prefix = entry ? (sds)dictGetVal(entry) : NULL;
+	    }
+	}
     }
 
     if (!(cp = webgroup_lookup_context(settings, &id, params, &sts, &msg, arg)))
@@ -1319,15 +1383,15 @@ webgroup_instances(pmWebGroupSettings *settings,
 {
     struct instance	*instance;
     pmWebInstance	webinst;
-    dictIterator	*iterator;
+    dictIterator	iter;
     dictEntry		*entry;
     regex_t		*regex;
     int			found;
 
     regex = name_match_setup(match, numnames, instnames);
 
-    iterator = dictGetIterator(ip->insts);
-    while ((entry = dictNext(iterator)) != NULL) {
+    dictInitIterator(&iter, ip->insts);
+    while ((entry = dictNext(&iter)) != NULL) {
 	instance = (instance_t *)dictGetVal(entry);
 	if (instance->updated == 0)
 	    continue;
@@ -1350,7 +1414,6 @@ webgroup_instances(pmWebGroupSettings *settings,
 
 	settings->callbacks.on_instance(cp->origin, &webinst, arg);
     }
-    dictReleaseIterator(iterator);
 
     name_match_free(regex, numnames);
 }
@@ -1371,11 +1434,18 @@ pmWebGroupInDom(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     int			sts = 0, count = 0, numids = 0, numnames = 0;
 
     if (params) {
-	metric = dictFetchValue(params, PARAM_MNAME);
-	indomid = dictFetchValue(params, PARAM_INDOM);
-	instids = dictFetchValue(params, PARAM_INSTANCE);
-	instnames = dictFetchValue(params, PARAM_INAME);
-	if ((match = dictFetchValue(params, PARAM_MATCH)) != NULL) {
+	dictEntry *entry;
+	entry = dictFind(params, PARAM_MNAME);
+	metric = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_INDOM);
+	indomid = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_INSTANCE);
+	instids = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_INAME);
+	instnames = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_MATCH);
+	match = entry ? (sds)dictGetVal(entry) : NULL;
+	if (match != NULL) {
 	    if (strcmp(match, "regex") == 0)
 		matches = MATCH_REGEX;
 	    else if (strcmp(match, "glob") == 0)
@@ -1595,9 +1665,17 @@ pmWebGroupMetric(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     int			i, sts = 0, numnames = 0;
 
     if (params) {
-	if ((prefix = dictFetchValue(params, PARAM_PREFIX)) == NULL &&
-	    (prefix = dictFetchValue(params, PARAM_MNAMES)) == NULL)
-	     prefix = dictFetchValue(params, PARAM_MNAME);
+	dictEntry *entry;
+	entry = dictFind(params, PARAM_PREFIX);
+	prefix = entry ? (sds)dictGetVal(entry) : NULL;
+	if (prefix == NULL) {
+	    entry = dictFind(params, PARAM_MNAMES);
+	    prefix = entry ? (sds)dictGetVal(entry) : NULL;
+	}
+	if (prefix == NULL) {
+	    entry = dictFind(params, PARAM_MNAME);
+	    prefix = entry ? (sds)dictGetVal(entry) : NULL;
+	}
 	if (prefix) {
 	    length = sdslen(prefix);
 	    names = sdssplitlen(prefix, length, ",", 1, &numnames);
@@ -1826,7 +1904,11 @@ webgroup_scrape(pmWebGroupSettings *settings, context_t *cp,
 		    value = &metric->u.vlist->value[k];
 		    if (value->updated == 0 || indom == NULL)
 			continue;
-		    instance = dictFetchValue(indom->insts, &value->inst);
+		    {
+			dictEntry *e;
+			e = dictFind(indom->insts, &value->inst);
+			instance = e ? (struct instance *)dictGetVal(e) : NULL;
+		    }
 		    if (instance == NULL)
 			continue;
 		    v = webgroup_encode_value(v, type, &value->atom);
@@ -1993,10 +2075,21 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     sds			msg = NULL, *names = NULL, metrics;
 
     if (params) {
-	if ((metrics = dictFetchValue(params, PARAM_MNAMES)) == NULL)
-	     if ((metrics = dictFetchValue(params, PARAM_MNAME)) == NULL)
-		if ((metrics = dictFetchValue(params, PARAM_PREFIX)) == NULL)
-		    metrics = dictFetchValue(params, PARAM_TARGET);
+	dictEntry *entry;
+	entry = dictFind(params, PARAM_MNAMES);
+	metrics = entry ? (sds)dictGetVal(entry) : NULL;
+	if (metrics == NULL) {
+	    entry = dictFind(params, PARAM_MNAME);
+	    metrics = entry ? (sds)dictGetVal(entry) : NULL;
+	}
+	if (metrics == NULL) {
+	    entry = dictFind(params, PARAM_PREFIX);
+	    metrics = entry ? (sds)dictGetVal(entry) : NULL;
+	}
+	if (metrics == NULL) {
+	    entry = dictFind(params, PARAM_TARGET);
+	    metrics = entry ? (sds)dictGetVal(entry) : NULL;
+	}
     } else {
 	metrics = NULL;
     }
@@ -2014,8 +2107,11 @@ pmWebGroupScrape(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
 
     /* Add filtering information to scrape */
     if (params) {
-	sds match = dictFetchValue(params, PARAM_MATCH);
-	sds filter = dictFetchValue(params, PARAM_FILTER);
+	dictEntry *entry;
+	entry = dictFind(params, PARAM_MATCH);
+	sds match = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_FILTER);
+	sds filter = entry ? (sds)dictGetVal(entry) : NULL;
 	scrape.numfilters = 0;
 
 	if (match != NULL) {
@@ -2115,14 +2211,14 @@ store_add_profile(struct instore *store)
 }
 
 static void
-store_found_insts(void *arg, const struct dictEntry *entry)
+store_found_insts(void *arg, dictEntry *entry)
 {
     struct instore	*store = (struct instore *)arg;
     pmValue		*value;
     int			i, id, sts;
 
     if (store->count < store->maximum) {
-	id = *(int *)entry->key;
+	id = *(int *)dictGetKey(entry);
 	i = store_add_instid(store, id);
 	value = &store->vset->vlist[i];
 	if ((sts = __pmStuffValue(store->atom, value, store->type)) < 0)
@@ -2134,7 +2230,7 @@ store_found_insts(void *arg, const struct dictEntry *entry)
 }
 
 static void
-store_named_insts(void *arg, const struct dictEntry *entry)
+store_named_insts(void *arg, dictEntry *entry)
 {
     struct instore	*store = (struct instore *)arg;
     struct instance	*instance = (instance_t *)dictGetVal(entry);
@@ -2158,7 +2254,6 @@ webgroup_store(struct context *context, struct metric *metric,
     pmValueSet		*valueset = NULL;
     pmResult		*result = NULL;
     size_t		bytes;
-    long		cursor = 0;
     int			i, id, sts, count;
 
     if ((sts = __pmStringValue(value, &atom, metric->desc.type)) < 0)
@@ -2213,10 +2308,14 @@ webgroup_store(struct context *context, struct metric *metric,
 	store.names = names;
 	store.maximum = count;
 	store.numnames = numnames;
-	do {
-	    cursor = dictScan(indom->insts, cursor,
-				store_named_insts, NULL, &store);
-	} while (cursor && store.status >= 0);
+	{
+	    dictIterator iter;
+	    dictEntry *entry;
+	    dictInitIterator(&iter, indom->insts);
+	    while ((entry = dictNext(&iter)) != NULL && store.status >= 0) {
+		store_named_insts(&store, entry);
+	    }
+	}
 	store_add_profile(&store);
 	sts = store.status;
     } else {
@@ -2247,11 +2346,17 @@ pmWebGroupStore(pmWebGroupSettings *settings, sds id, dict *params, void *arg)
     int			sts = 0, numids = 0, numnames = 0;
 
     if (params) {
-	metric = dictFetchValue(params, PARAM_MNAME);
-	value = dictFetchValue(params, PARAM_MVALUE);
-	pmid = dictFetchValue(params, PARAM_PMID);
-	instids = dictFetchValue(params, PARAM_INSTANCE);
-	instnames = dictFetchValue(params, PARAM_INAME);
+	dictEntry *entry;
+	entry = dictFind(params, PARAM_MNAME);
+	metric = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_MVALUE);
+	value = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_PMID);
+	pmid = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_INSTANCE);
+	instids = entry ? (sds)dictGetVal(entry) : NULL;
+	entry = dictFind(params, PARAM_INAME);
+	instnames = entry ? (sds)dictGetVal(entry) : NULL;
     } else {
 	metric = value = pmid = instids = instnames = NULL;
     }
@@ -2356,7 +2461,7 @@ pmWebGroupSetup(pmWebGroupModule *module)
     srandom(pid ^ (unsigned int)ts.tv_sec ^ (unsigned int)ts.tv_nsec);
 
     /* setup a dictionary mapping context number to data */
-    groups->contexts = dictCreate(&intKeyDictCallBacks, NULL);
+    groups->contexts = dictCreate(&intKeyDictCallBacks);
 
     return 0;
 }
@@ -2380,28 +2485,37 @@ pmWebGroupSetConfiguration(pmWebGroupModule *module, dict *config)
     char		*endnum;
     sds			value;
 
-    if ((value = dictFetchValue(config, WORK_TIMER)) == NULL) {
-	default_worker = DEFAULT_WORK_TIMER;
-    } else {
-	default_worker = strtoul(value, &endnum, 0);
-	if (*endnum != '\0')
+    {
+	dictEntry *entry;
+	entry = dictFind(config, WORK_TIMER);
+	value = entry ? (sds)dictGetVal(entry) : NULL;
+	if (value == NULL) {
 	    default_worker = DEFAULT_WORK_TIMER;
-    }
+	} else {
+	    default_worker = strtoul(value, &endnum, 0);
+	    if (*endnum != '\0')
+		default_worker = DEFAULT_WORK_TIMER;
+	}
 
-    if ((value = dictFetchValue(config, POLL_TIMEOUT)) == NULL) {
-	default_timeout = DEFAULT_POLL_TIMEOUT;
-    } else {
-	default_timeout = strtoul(value, &endnum, 0);
-	if (*endnum != '\0')
+	entry = dictFind(config, POLL_TIMEOUT);
+	value = entry ? (sds)dictGetVal(entry) : NULL;
+	if (value == NULL) {
 	    default_timeout = DEFAULT_POLL_TIMEOUT;
-    }
+	} else {
+	    default_timeout = strtoul(value, &endnum, 0);
+	    if (*endnum != '\0')
+		default_timeout = DEFAULT_POLL_TIMEOUT;
+	}
 
-    if ((value = dictFetchValue(config, BATCHSIZE)) == NULL) {
-	default_batchsize = DEFAULT_BATCHSIZE;
-    } else {
-	default_batchsize = strtoul(value, &endnum, 0);
-	if (*endnum != '\0')
+	entry = dictFind(config, BATCHSIZE);
+	value = entry ? (sds)dictGetVal(entry) : NULL;
+	if (value == NULL) {
 	    default_batchsize = DEFAULT_BATCHSIZE;
+	} else {
+	    default_batchsize = strtoul(value, &endnum, 0);
+	    if (*endnum != '\0')
+		default_batchsize = DEFAULT_BATCHSIZE;
+	}
     }
 
     if (groups) {
@@ -2457,15 +2571,16 @@ void
 pmWebGroupClose(pmWebGroupModule *module)
 {
     struct webgroups	*groups = (struct webgroups *)module->privdata;
-    dictIterator	*iterator;
     dictEntry		*entry;
 
     if (groups) {
 	/* walk the contexts, stop timers and free resources */
-	iterator = dictGetIterator(groups->contexts);
-	while ((entry = dictNext(iterator)) != NULL)
-	    webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
-	dictReleaseIterator(iterator);
+	{
+	    dictIterator iter;
+	    dictInitIterator(&iter, groups->contexts);
+	    while ((entry = dictNext(&iter)) != NULL)
+		webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
+	}
 	dictRelease(groups->contexts);
 	webgroup_timers_stop(groups);
 	memset(groups, 0, sizeof(struct webgroups));
