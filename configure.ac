@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2025 Red Hat.
+dnl Copyright (c) 2012-2026 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
