@@ -13,4 +13,6 @@ for the macOS operating system.
 * All unit & integration testing infrastructure is located in $PROJECT_ROOT/scripts/darwin/ directory tree
 * The existing overarching full PCP QA system is currently difficult/impossible to run on macOS - and is heavy-weight, so do not use that locally.  Instead, you should use the macOS-specific Tart VM/CirrusLabs setup - the `macos-darwin-pmda-qa` sub-agent will do this for you this and receive test results back that you can analyse
 
-
+## Related code areas
+* .github/workflows/macOS.yml - macOS-specific Github action which builds, packages and runs the unit tests.  ANy changes in the Darwin PMDA will impact this.  Consider any impact a change might have on this workflow file.
+* .cirrus.yml - local CI runner, acts similar to the macOS Github runner mentioned previously.  Also analyse any changes for impacts on this local runner too.
