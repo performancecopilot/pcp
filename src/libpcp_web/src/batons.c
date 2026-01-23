@@ -50,7 +50,7 @@ seriesBatonCheckMagic(void *arg, series_baton_magic magic, const char *caller)
     seriesBatonMagic	*baton = (seriesBatonMagic *)arg;
 
     if (UNLIKELY(baton->traced || pmDebugOptions.desperate || baton->magic != magic)) {
-	fprintf(stderr, "Baton [%s/%p] %s magic - %u (@ %s)\n",
+	fprintf(stderr, "Baton [%s/" PRINTF_P_PFX "%p] %s magic - %u (@ %s)\n",
 		magic_str(baton), baton, 
 		(baton->magic == magic) ? "verified" : "BAD",
 		baton->magic, caller);
@@ -64,7 +64,7 @@ seriesBatonCheckCount(void *arg, const char *caller)
     seriesBatonMagic	*baton = (seriesBatonMagic *)arg;
 
     if (UNLIKELY(baton->traced || pmDebugOptions.desperate || baton->refcount)) {
-	fprintf(stderr, "Baton [%s/%p] %u references - %s (@ %s)\n",
+	fprintf(stderr, "Baton [%s/" PRINTF_P_PFX "%p] %u references - %s (@ %s)\n",
 		magic_str(baton), baton, baton->refcount,
 		(baton->refcount == 0) ? "verified" : "BAD", caller);
     }
@@ -87,7 +87,7 @@ seriesBatonReferences(void *arg, unsigned int refcount, const char *caller)
 
     if (UNLIKELY(baton->traced || pmDebugOptions.series)) {
 	fprintf(stderr,
-		"Baton [%s/%p] references: %u -> %u (@ %s)\n",
+		"Baton [%s/" PRINTF_P_PFX "%p] references: %u -> %u (@ %s)\n",
 		magic_str(baton), baton, baton->refcount,
 		baton->refcount + refcount, caller);
     }
@@ -109,7 +109,7 @@ seriesBatonDereference(void *arg, const char *caller)
 
     if (UNLIKELY(baton->traced || pmDebugOptions.series)) {
 	fprintf(stderr,
-		"Baton [%s/%p] references: %u -> %u (@ %s)\n",
+		"Baton [%s/" PRINTF_P_PFX "%p] references: %u -> %u (@ %s)\n",
 		magic_str(baton), baton, baton->refcount, baton->refcount - 1,
 		caller);
     }
@@ -139,7 +139,7 @@ seriesPassBaton(seriesBatonPhase **head, void *arg, const char *caller)
 
     if (UNLIKELY(baton->traced || pmDebugOptions.series)) {
 	fprintf(stderr,
-		"Baton [%s/%p] references: %u -> %u (@ %s[%s])\n",
+		"Baton [%s/" PRINTF_P_PFX "%p] references: %u -> %u (@ %s[%s])\n",
 		magic_str(baton), baton, baton->refcount, baton->refcount - 1,
 		caller, "seriesPassBaton");
     }

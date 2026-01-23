@@ -157,7 +157,7 @@ static int
 __pmAuthLogCB(void *context, int priority, const char *message)
 {
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:%s enter ctx=%p pri=%d\n",
+	fprintf(stderr, "%s:%s enter ctx=" PRINTF_P_PFX "%p pri=%d\n",
 			__FILE__, "__pmAuthLogCB", context, priority);
 
     if (!message)
@@ -346,7 +346,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     const char *value = NULL;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:%s enter ctx=%p id=%#x\n",
+	fprintf(stderr, "%s:%s enter ctx=" PRINTF_P_PFX "%p id=%#x\n",
 			__FILE__, "__pmAuthRealmCB", context, id);
 
     if (id != SASL_CB_GETREALM)
@@ -356,7 +356,7 @@ __pmAuthRealmCB(void *context, int id, const char **realms, const char **result)
     *result = value;
 
     if (pmDebugOptions.auth) {
-	fprintf(stderr, "%s:%s ctx=%p, id=%#x, realms=(",
+	fprintf(stderr, "%s:%s ctx=" PRINTF_P_PFX "%p, id=%#x, realms=(",
 			__FILE__, "__pmAuthRealmCB" ,context, id);
 	if (realms) {
 	    if (*realms)
@@ -377,7 +377,7 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     int sts;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:%s enter ctx=%p id=%#x\n",
+	fprintf(stderr, "%s:%s enter ctx=" PRINTF_P_PFX "%p id=%#x\n",
 			__FILE__, "__pmAuthSimpleCB", context, id);
 
     if (!result)
@@ -401,7 +401,7 @@ __pmAuthSimpleCB(void *context, int id, const char **result, unsigned *len)
     *result = value;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:%s ctx=%p id=%#x -> sts=%d rslt=%p len=%d\n",
+	fprintf(stderr, "%s:%s ctx=" PRINTF_P_PFX "%p id=%#x -> sts=%d rslt=" PRINTF_P_PFX "%p len=%d\n",
 		__FILE__, "__pmAuthSimpleCB",
 		context, id, sts, *result, len ? *len : -1);
     return sts;
@@ -415,7 +415,7 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     const char *password;
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:%s enter ctx=%p id=%#x\n",
+	fprintf(stderr, "%s:%s enter ctx=" PRINTF_P_PFX "%p id=%#x\n",
 			__FILE__, "__pmAuthSecretCB", context, id);
 
     if (saslconn == NULL || secret == NULL || id != SASL_CB_PASS)
@@ -435,7 +435,7 @@ __pmAuthSecretCB(sasl_conn_t *saslconn, void *context, int id, sasl_secret_t **s
     }
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:%s done ctx=%p id=%#x\n",
+	fprintf(stderr, "%s:%s done ctx=" PRINTF_P_PFX "%p id=%#x\n",
 			__FILE__, "__pmAuthSecretCB", context, id);
 
     return SASL_OK;
@@ -448,7 +448,7 @@ __pmAuthPromptCB(void *context, int id, const char *challenge, const char *promp
     char *value, message[512];
 
     if (pmDebugOptions.auth)
-	fprintf(stderr, "%s:%s enter ctx=%p id=%#x\n",
+	fprintf(stderr, "%s:%s enter ctx=" PRINTF_P_PFX "%p id=%#x\n",
 			__FILE__, "__pmAuthPromptCB", context, id);
 
     if (id != SASL_CB_ECHOPROMPT && id != SASL_CB_NOECHOPROMPT)

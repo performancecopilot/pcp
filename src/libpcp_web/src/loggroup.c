@@ -152,7 +152,7 @@ loggroup_release_archive(uv_handle_t *handle)
     struct archive	*archive = (struct archive *)handle->data;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	fprintf(stderr, "releasing archive %p [refcount=%u]\n",
+	fprintf(stderr, "releasing archive " PRINTF_P_PFX "%p [refcount=%u]\n",
 			archive, archive->refcount);
     loggroup_free_archive(archive);
 }
@@ -161,7 +161,7 @@ static void
 loggroup_drop_archive(struct archive *archive, struct loggroups *groups)
 {
     if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	fprintf(stderr, "destroying archive %p [refcount=%u]\n",
+	fprintf(stderr, "destroying archive " PRINTF_P_PFX "%p [refcount=%u]\n",
 			archive, archive->refcount);
 
     if (loggroup_deref_archive(archive) == 0) {
@@ -185,7 +185,7 @@ loggroup_timeout_archive(uv_timer_t *arg)
     struct archive	*ap = (struct archive *)handle->data;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	fprintf(stderr, "archive %u timed out (%p)\n", ap->randomid, ap);
+	fprintf(stderr, "archive %u timed out (" PRINTF_P_PFX "%p)\n", ap->randomid, ap);
 
     /*
      * Cannot free data structures in the timeout handler, as
@@ -222,7 +222,9 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
     int			archive;
 
     if (params) {
-	if ((timeout = dictFetchValue(params, PARAM_POLLTIME)) != NULL) {
+	dictEntry *entry;
+	if ((entry = dictFind(params, PARAM_POLLTIME)) != NULL) {
+	    timeout = (sds)dictGetVal(entry);
 	    seconds = strtod(timeout, &endptr);
 	    if (*endptr != '\0')
 		return -EINVAL;
@@ -273,7 +275,7 @@ loggroup_new_archive(pmLogGroupSettings *sp, __pmLogLabel *label,
     ap->setup = 1;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	fprintf(stderr, "new archive[%d] setup (%p)\n", archive, ap);
+	fprintf(stderr, "new archive[%d] setup (" PRINTF_P_PFX "%p)\n", archive, ap);
 
     return archive;
 }
@@ -291,7 +293,7 @@ loggroup_timers_stop(struct loggroups *groups)
 static void
 loggroup_garbage_collect(struct loggroups *groups)
 {
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     archive_t		*ap;
     unsigned int	debug;
@@ -299,16 +301,16 @@ loggroup_garbage_collect(struct loggroups *groups)
 
     debug = pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log;
     if (debug)
-	fprintf(stderr, "%s: started for groups %p\n", __FUNCTION__, groups);
+	fprintf(stderr, "%s: started for groups " PRINTF_P_PFX "%p\n", __FUNCTION__, groups);
 
     /* do archive GC if we get the lock */
     if (uv_mutex_trylock(&groups->mutex) != 0)
 	return;
 
-    iterator = dictGetSafeIterator(groups->archives);
-    for (entry = dictNext(iterator); entry;) {
+    dictInitIterator(&iter, groups->archives);
+    for (entry = dictNext(&iter); entry;) {
 	ap = (archive_t *)dictGetVal(entry);
-	entry = dictNext(iterator);
+	entry = dictNext(&iter);
 	if (ap->privdata != groups)
 	    continue;
 	if (ap->garbage)
@@ -317,7 +319,7 @@ loggroup_garbage_collect(struct loggroups *groups)
 	    inactiveset++;
 	if (ap->garbage || (ap->inactive && ap->refcount == 0)) {
 	    if (debug)
-		fprintf(stderr, "GC dropping archive %u (%p)\n",
+		fprintf(stderr, "GC dropping archive %u (" PRINTF_P_PFX "%p)\n",
 				ap->randomid, ap);
 	    uv_mutex_unlock(&groups->mutex);
 	    loggroup_drop_archive(ap, groups);
@@ -327,7 +329,6 @@ loggroup_garbage_collect(struct loggroups *groups)
 	}
 	count++;
     }
-    dictReleaseIterator(iterator);
 
     if (groups->update) {
 	logpaths_stats_reset(groups);
@@ -338,7 +339,7 @@ loggroup_garbage_collect(struct loggroups *groups)
     /* if dropping the last remaining archive, do cleanup */
     if (groups->active && drops == count) {
 	if (debug)
-	    fprintf(stderr, "%s: freezing groups %p\n", __FUNCTION__, groups);
+	    fprintf(stderr, "%s: freezing groups " PRINTF_P_PFX "%p\n", __FUNCTION__, groups);
 	loggroup_timers_stop(groups);
     }
 
@@ -357,20 +358,20 @@ loggroup_garbage_collect(struct loggroups *groups)
 static void
 loggroup_reset_archives(struct loggroups *groups)
 {
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     archive_t		*ap;
     unsigned int	debug, count = 0;
 
     debug = pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log;
     if (debug)
-	fprintf(stderr, "%s: started for groups %p\n", __FUNCTION__, groups);
+	fprintf(stderr, "%s: started for groups " PRINTF_P_PFX "%p\n", __FUNCTION__, groups);
 
     uv_mutex_lock(&groups->mutex);
-    iterator = dictGetSafeIterator(groups->archives);
-    for (entry = dictNext(iterator); entry;) {
+    dictInitIterator(&iter, groups->archives);
+    for (entry = dictNext(&iter); entry;) {
 	ap = (archive_t *)dictGetVal(entry);
-	entry = dictNext(iterator);
+	entry = dictNext(&iter);
 	if (ap->privdata != groups)
 	    continue;
 	ap->refcount++;
@@ -381,7 +382,6 @@ loggroup_reset_archives(struct loggroups *groups)
 	groups->update = 1;
 	count++;
     }
-    dictReleaseIterator(iterator);
 
     if (groups->update) {
 	logpaths_stats_reset(groups);
@@ -392,7 +392,7 @@ loggroup_reset_archives(struct loggroups *groups)
     /* if dropping the last remaining archive, do cleanup */
     if (groups->active || count) {
 	if (debug)
-	    fprintf(stderr, "%s: freezing groups %p\n", __FUNCTION__, groups);
+	    fprintf(stderr, "%s: freezing groups " PRINTF_P_PFX "%p\n", __FUNCTION__, groups);
 	loggroup_timers_stop(groups);
     }
 
@@ -423,7 +423,7 @@ loggroup_use_archive(struct archive *ap)
 	ap->refcount++;
 
 	if (pmDebugOptions.http || pmDebugOptions.libweb || pmDebugOptions.log)
-	    fprintf(stderr, "archive %u timer set (%p) to %u msec\n",
+	    fprintf(stderr, "archive %u timer set (" PRINTF_P_PFX "%p) to %u msec\n",
 			ap->randomid, ap, ap->timeout);
 
 	/* refresh current time: https://github.com/libuv/libuv/issues/1068 */
@@ -454,9 +454,12 @@ loggroup_lookup_archive(pmLogGroupSettings *sp, int id, struct archive **pp, voi
 			default_worker, default_worker);
     }
 
-    ap = (struct archive *)dictFetchValue(groups->archives, &id);
-    if (ap == NULL)
-	return -ESRCH;
+    {
+	dictEntry *entry;
+	if ((entry = dictFind(groups->archives, &id)) == NULL)
+	    return -ESRCH;
+	ap = (struct archive *)dictGetVal(entry);
+    }
     if ((ap = loggroup_use_archive(ap)) == NULL)
 	return -ENOTCONN;
     *pp = ap;
@@ -845,7 +848,7 @@ pmLogGroupSetup(pmLogGroupModule *module)
     srandom(pid ^ (unsigned int)ts.tv_sec ^ (unsigned int)ts.tv_nsec);
 
     /* setup a dictionary mapping archive number to data */
-    groups->archives = dictCreate(&intKeyDictCallBacks, NULL);
+    groups->archives = dictCreate(&intKeyDictCallBacks);
 
     return 0;
 }
@@ -865,14 +868,13 @@ pmLogGroupSetEventLoop(pmLogGroupModule *module, void *events)
 static void
 loggroup_free(struct loggroups *groups)
 {
-    dictIterator	*iterator;
+    dictIterator	iter;
     dictEntry		*entry;
 
     /* walk the archives, stop timers and free resources */
-    iterator = dictGetIterator(groups->archives);
-    while ((entry = dictNext(iterator)) != NULL)
+    dictInitIterator(&iter, groups->archives);
+    while ((entry = dictNext(&iter)) != NULL)
 	loggroup_drop_archive((archive_t *)dictGetVal(entry), NULL);
-    dictReleaseIterator(iterator);
     dictRelease(groups->archives);
     loggroup_timers_stop(groups);
     memset(groups, 0, sizeof(struct loggroups));
@@ -894,24 +896,31 @@ pmLogGroupSetConfiguration(pmLogGroupModule *module, dict *config)
     }
 
     /* allocate strings for parameter dictionary key lookups */
-    if ((value = dictFetchValue(config, WORK_TIMER)) == NULL) {
-	default_worker = DEFAULT_WORK_TIMER;
-    } else {
-	default_worker = strtoul(value, &endnum, 0);
-	if (*endnum != '\0')
+    {
+	dictEntry *entry;
+	if ((entry = dictFind(config, WORK_TIMER)) == NULL) {
 	    default_worker = DEFAULT_WORK_TIMER;
-    }
+	} else {
+	    value = (sds)dictGetVal(entry);
+	    default_worker = strtoul(value, &endnum, 0);
+	    if (*endnum != '\0')
+		default_worker = DEFAULT_WORK_TIMER;
+	}
 
-    if ((value = dictFetchValue(config, POLL_TIMEOUT)) == NULL) {
-	default_timeout = DEFAULT_POLL_TIMEOUT;
-    } else {
-	default_timeout = strtoul(value, &endnum, 0);
-	if (*endnum != '\0')
+	if ((entry = dictFind(config, POLL_TIMEOUT)) == NULL) {
 	    default_timeout = DEFAULT_POLL_TIMEOUT;
-    }
+	} else {
+	    value = (sds)dictGetVal(entry);
+	    default_timeout = strtoul(value, &endnum, 0);
+	    if (*endnum != '\0')
+		default_timeout = DEFAULT_POLL_TIMEOUT;
+	}
 
-    if ((value = dictFetchValue(config, CACHED_ONLY)) != NULL)
-	cached_only = (strcmp(value, "true") == 0);
+	if ((entry = dictFind(config, CACHED_ONLY)) != NULL) {
+	    value = (sds)dictGetVal(entry);
+	    cached_only = (strcmp(value, "true") == 0);
+	}
+    }
 
     if (groups) {
 	groups->config = config;
@@ -924,33 +933,32 @@ static void
 logpaths_stats_insts(struct loggroups *groups)
 {
     mmv_registry_t	*rp = groups->logpaths;
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     archive_t		*ap;
 
     /* walk archives, update instance domain */
-    iterator = dictGetIterator(groups->archives);
-    while ((entry = dictNext(iterator)) != NULL) {
+    dictInitIterator(&iter, groups->archives);
+    while ((entry = dictNext(&iter)) != NULL) {
 	ap = (archive_t *)dictGetVal(entry);
 	if (ap->privdata != groups || ap->inactive || ap->garbage)
 	    continue;
 	mmv_stats_add_instance(rp, LOGPATHS, ap->randomid, ap->idstring);
     }
-    dictReleaseIterator(iterator);
 }
 
 static void
 logpaths_stats_value(struct loggroups *groups)
 {
-    dictIterator        *iterator;
+    dictIterator        iter;
     dictEntry           *entry;
     pmAtomValue		*atom;
     archive_t		*ap;
     uint32_t		count = 0;
 
     /* walk archives, update the value (archive path) for each instance */
-    iterator = dictGetIterator(groups->archives);
-    while ((entry = dictNext(iterator)) != NULL) {
+    dictInitIterator(&iter, groups->archives);
+    while ((entry = dictNext(&iter)) != NULL) {
 	ap = (archive_t *)dictGetVal(entry);
 	if (ap->privdata != groups || ap->inactive || ap->garbage)
 	    continue;
@@ -958,7 +966,6 @@ logpaths_stats_value(struct loggroups *groups)
 	mmv_set_string(groups->logmap, atom, ap->fullpath, sdslen(ap->fullpath));
 	count++;
     }
-    dictReleaseIterator(iterator);
     mmv_set(groups->logmap, groups->logmetrics[LOGPATHS_COUNT], &count);
 }
 

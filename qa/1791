@@ -30,8 +30,10 @@ echo "== default unknown metricset handling"
 pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset
 pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset :vmstat
 
-echo "== ignore unknown metricset handling"
+echo "== unknown metricset handling with options"
+pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset         --ignore-incompat
 pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset         --ignore-unknown
+pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset :vmstat --ignore-incompat
 pmrep -p -u $log -B MB -S '@00:11:11' -s 2 :nosuchset :vmstat --ignore-unknown
 
 echo "== create tmp config file"

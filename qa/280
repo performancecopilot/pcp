@@ -33,7 +33,6 @@ _filter()
 {
     [ -z "$PCP_PMLOGGERCONTROL_PATH" ] && \
 	PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
-    PCP_PMLOGGERCONTROL_PATH=`dirname "$PCP_PMLOGGERCONTROL_PATH"`
     sed \
 	-e 's/\.\.\.*/[dots]/' \
 	-e 's/control.d\/.*:[0-9][0-9]*]/control:LINE]/' \
@@ -163,6 +162,8 @@ sleep 2
 echo
 echo "Expect this to re-start the primary logger ..." | tee -a $seq_full
 cd /var/tmp
+#debug# echo "PCP_PMLOGGERCONTROL_PATH=$PCP_PMLOGGERCONTROL_PATH"
+#debug# ls -l $PCP_PMLOGGERCONTROL_PATH
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
 cd $here
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter

@@ -41,9 +41,9 @@ _filter()
     # - sort uniq longest name to shortest name
     # - build 2nd sed script on the fly
     #
-    HOSTNAME=`hostname`
-    HOSTNAME_F=`hostname -f`
-    PMHOSTNAME=`pmhostname`
+    HOSTNAME=`hostname 2>/dev/null`
+    HOSTNAME_F=`hostname -f 2>/dev/null`
+    PMHOSTNAME=`pmhostname 2>/dev/null`
     echo "hostname -> $HOSTNAME" >>$seq_full
     echo "hostname -f -> $HOSTNAME_F" >>$seq_full
     echo "pmhostname -> $PMHOSTNAME" >>$seq_full
@@ -53,7 +53,7 @@ $HOSTNAME
 $HOSTNAME_F
 $PMHOSTNAME
 End-of-File
-    $PCP_AWK_PROG <$tmp.tmp '{ print length($1),$1 }' \
+    $PCP_AWK_PROG <$tmp.tmp '{ if (length($1) > 0) print length($1),$1 }' \
     | sort -nr \
     | uniq \
     | $PCP_AWK_PROG '{ print $2 }' \

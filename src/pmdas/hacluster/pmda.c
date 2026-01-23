@@ -1,7 +1,7 @@
 /*
  * High Available (HA) Cluster PMDA
  *
- * Copyright (c) 2020 - 2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -51,7 +51,11 @@ pmdaIndom indomtable[] = {
 	{ .it_indom = DRBD_PEER_DEVICE_ALL_INDOM},
 };
 
-#define INDOM(x) (indomtable[x].it_indom)
+pmInDom
+hacluster_indom(int serial)
+{
+    return indomtable[serial].it_indom;
+}
 
 /*
  * All metrics supported by this PMDA - one table entry for each metric
@@ -393,478 +397,6 @@ metrictable_size(void)
 	return sizeof(metrictable)/sizeof(metrictable[0]);
 }
 
-int
-hacluster_pacemaker_fail_instance_refresh(void)
-{
-	int			sts;
-	char		buffer[4096], instance_name[256], node_name[128], resource_name[127];
-	int			found_node_history = 0, found_node_name = 0;
-	FILE		*pf;
-	pmInDom		indom = INDOM(PACEMAKER_FAIL_INDOM);
-
-	/*
-	 * Update indom cache based off the reading of crm_mon listed in
-	 * the output from crm_mon
-	 */
-	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-
-	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
-
-	if ((pf = popen(buffer, "r")) == NULL)
-		return oserror();
-
-	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-		/* First we need to check whether we are in <node_history> section*/
-		if (strstr(buffer, "<node_history>")) {
-			found_node_history = 1;
-			continue;
-		}
-
-		/* Find the node name for our resource */
-		if (strstr(buffer, "node name=") && found_node_history ) {
-			sscanf(buffer, "\t<node name=\"%[^\"]\">", node_name);
-			found_node_name = 1;
-			continue;
-		}
-
-		/* Check for when we overrun to another node */
-		if (strstr(buffer, "</node>")) {
-			found_node_name = 0;
-			continue;
-		}
-
-		/* Record our instance as node:resource-id and assign */
-		if (found_node_history && found_node_name) {
-
-			if (strstr(buffer, "resource_history id=")) {
-				sscanf(buffer, "\t<resource_history id=\"%[^\"]", resource_name);
-
-				/* 
-				 * Assign indom based upon our resource_name:volume by joining our node_name
-				 * with our volume number 
-				 */
-				snprintf(instance_name, sizeof(instance_name), "%s:%s", node_name, resource_name);
-
-				struct  pacemaker_fail *fail;
-
-				sts = pmdaCacheLookupName(indom, instance_name, NULL, (void **)&fail);
-				if (sts == PM_ERR_INST || (sts >=0 && fail == NULL)) {
-					fail = calloc(1, sizeof(struct pacemaker_fail));
-					if (fail == NULL) {
-						pclose(pf);
-						return PM_ERR_AGAIN;
-					}
-				}
-				else if (sts < 0)
-					continue;
-
-				pmdaCacheStore(indom, PMDA_CACHE_ADD, instance_name, (void *)fail);
-			}
-		}
-	}
-	pclose(pf);	
-	return 0;
-}
-
-int
-hacluster_pacemaker_constraints_instance_refresh(void)
-{
-	int			sts;
-	char		buffer[4096], constraint_name[256];
-	int			found_constraints = 0;
-	FILE		*pf;
-	pmInDom		indom = INDOM(PACEMAKER_CONSTRAINTS_INDOM);
-	pmInDom		indom_all = INDOM(PACEMAKER_CONSTRAINTS_ALL_INDOM);
-
-	/*
-	 * Update indom cache based off the reading of cibadmin listed in
-	 * the output from cibadmin
-	 */
-	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-	pmdaCacheOp(indom_all, PMDA_CACHE_INACTIVE);
-
-	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", cibadmin_command);
-	buffer[sizeof(buffer)-1] = '\0';
-
-	if ((pf = popen(buffer, "r")) == NULL)
-		return oserror();
-
-	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-		/* First we need to check whether we are in <constraints> section*/
-		if (strstr(buffer, "<constraints>")) {
-			found_constraints = 1;
-			continue;
-		}
-
-		/* Find the node name for our resource */
-		if (strstr(buffer, "rsc_location id=") && found_constraints) {
-			sscanf(buffer, "\t<rsc_location id=\"%[^\"]\"", constraint_name);
-
-			struct  pacemaker_constraints *constraints;
-
-			sts = pmdaCacheLookupName(indom, constraint_name, NULL, (void **)&constraints);
-			if (sts == PM_ERR_INST || (sts >=0 && constraints == NULL)) {
-				constraints = calloc(1, sizeof(struct pacemaker_constraints));
-				if (constraints == NULL) {
-					pclose(pf);
-					return PM_ERR_AGAIN;
-				}
-			}
-			else if (sts < 0)
-				continue;
-
-			pmdaCacheStore(indom, PMDA_CACHE_ADD, constraint_name, (void *)constraints);
-			pmdaCacheStore(indom_all, PMDA_CACHE_ADD, constraint_name, NULL);
-		}
-	}
-	pclose(pf);
-	return 0;
-}
-
-int
-hacluster_pacemaker_nodes_instance_refresh(void)
-{
-	int			sts;
-	char		buffer[4096], node_name[256];
-	int			found_nodes = 0;
-	FILE		*pf;
-	pmInDom		indom = INDOM(PACEMAKER_NODES_INDOM);
-
-	/*
-	 * Update indom cache based off the reading of crm_mon listed in
-	 * the output from crm_mon
-	 */
-	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-
-	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
-
-	if ((pf = popen(buffer, "r")) == NULL)
-		return oserror();
-
-	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-		/* First we need to check whether we are in <nodes> section*/
-		if (strstr(buffer, "<nodes>")) {
-			found_nodes = 1;
-			continue;
-		}
-
-		/* Check to see if we overun section */
-		if (strstr(buffer, "</nodes>")) {
-			found_nodes = 0;
-			continue;
-		}
-
-		/* Collect our node names */
-		if (found_nodes) {
-			if (strstr(buffer, "node name=")) {
-				sscanf(buffer, "\t<node name=\"%[^\"]\"", node_name);
-
-				struct  pacemaker_nodes *pace_nodes;
-
-				sts = pmdaCacheLookupName(indom, node_name, NULL, (void **)&pace_nodes);
-				if (sts == PM_ERR_INST || (sts >=0 && pace_nodes == NULL)) {
-					pace_nodes = calloc(1, sizeof(struct pacemaker_nodes));
-					if (pace_nodes == NULL) {
-						pclose(pf);
-						return PM_ERR_AGAIN;
-					}
-				}
-				else if (sts < 0)
-					continue;
-
-				pmdaCacheStore(indom, PMDA_CACHE_ADD, node_name, (void *)pace_nodes);
-			}
-		}
-	}
-	pclose(pf);
-	return 0;
-}
-
-int
-hacluster_pacemaker_node_attrib_instance_refresh(void)
-{
-	int			sts;
-	char		buffer[4096], node_name[128], attribute_name[127], instance_name[256];
-	int			found_node_attributes = 0, found_node_name = 0;
-	FILE		*pf;
-	pmInDom		indom = INDOM(PACEMAKER_NODE_ATTRIB_INDOM);
-	pmInDom		indom_all = INDOM(PACEMAKER_NODE_ATTRIB_ALL_INDOM);
-
-	/*
-	 * Update indom cache based off the reading of crm_mon listed in
-	 * the output from crm_mon
-	 */
-	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-	pmdaCacheOp(indom_all, PMDA_CACHE_INACTIVE);
-
-	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
-
-	if ((pf = popen(buffer, "r")) == NULL)
-		return oserror();
-
-	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-		/* First we need to check whether we are in <node_history> section*/
-		if (strstr(buffer, "<node_attributes>")) {
-			found_node_attributes = 1;
-			continue;
-		}
-
-		/* Check to see if we pass </node_attributes> */ 
-		if (strstr(buffer, "</node_attributes>")) {
-			found_node_attributes = 0;
-			continue;
-		}
-
-		/* Find the node name for our node */
-		if (strstr(buffer, "node name=") && found_node_attributes ) {
-			sscanf(buffer, "\t<node name=\"%[^\"]\"", node_name);
-			found_node_name = 1;
-			continue;
-		}
-
-		/* Check for when we overrun to another node */
-		if (strstr(buffer, "</node>")) {
-			found_node_name = 0;
-			continue;
-		}
-
-		/* Record our instance as node:resource-id and assign */
-		if (found_node_attributes && found_node_name) {
-
-			if (strstr(buffer, "attribute name=")) {
-				sscanf(buffer, "\t<attribute name=\"%[^\"]\"", attribute_name);
-				
-				/* 
-				 * Assign indom based upon our node_name:attribute_name by joining our node_name
-				 * with our volume number 
-				 */
-				snprintf(instance_name, sizeof(instance_name), "%s:%s", node_name, attribute_name);
-
-				struct  pacemaker_node_attrib *node_attrib;
-
-				sts = pmdaCacheLookupName(indom, instance_name, NULL, (void **)&node_attrib);
-				if (sts == PM_ERR_INST || (sts >=0 && node_attrib == NULL)) {
-					node_attrib = calloc(1, sizeof(struct pacemaker_node_attrib));
-					if (node_attrib == NULL) {
-						pclose(pf);
-						return PM_ERR_AGAIN;
-					}
-				}
-				else if (sts < 0)
-					continue;
-
-				pmdaCacheStore(indom, PMDA_CACHE_ADD, instance_name, (void *)node_attrib);
-				pmdaCacheStore(indom_all, PMDA_CACHE_ADD, instance_name, NULL);
-			}
-		}
-	}
-	pclose(pf);
-	return 0;
-}
-
-int
-hacluster_pacemaker_resources_instance_refresh(void)
-{
-	int			sts;
-	char		buffer[4096], resource_id[128] = {'\0'}, node_name[127] = {'\0'}, instance_name[256];
-	int			found_resources = 0;
-	FILE		*pf;
-	pmInDom		indom= INDOM(PACEMAKER_RESOURCES_INDOM);
-	pmInDom		indom_all = INDOM(PACEMAKER_RESOURCES_ALL_INDOM);
-
-	/*
-	 * Update indom cache based off the reading of crm_mon listed in
-	 * the output from crm_mon
-	 */
-	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-	pmdaCacheOp(indom_all, PMDA_CACHE_INACTIVE);
-
-	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", crm_mon_command);
-
-	if ((pf = popen(buffer, "r")) == NULL)
-		return oserror();
-
-	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-		/* First we need to check whether we are in <resources> section*/
-		if (strstr(buffer, "<resources>")) {
-			found_resources = 1;
-			continue;
-		}
-
-		/* Check to see if we pass in clones <clone id=...> */ 
-		if (strstr(buffer, "</resources>")) {
-			found_resources = 0;
-			continue;
-		}
-
-		/* Record our instance as node:resource-id and assign */
-		if (found_resources) {
-
-			if (strstr(buffer, "resource id=")) {
-				sscanf(buffer, "\t<resource id=\"%[^\"]\"", resource_id);
-			}
-
-			if (strstr(buffer, "node name=")) {
-				sscanf(buffer, "\t<node name=\"%[^\"]\"", node_name);
-			}
-
-			if (strstr(buffer, "/>")) {
-				/* 
-				 * Assign indom based upon our resource_name:node_id by joining our node_name
-				 * with our volume number but only if we have both a resource name and a node_id  
-				 */
-				if (node_name[0] == '\0') {
-					snprintf(instance_name, sizeof(instance_name), "%s", resource_id);
-				} else {
-					snprintf(instance_name, sizeof(instance_name), "%s:%s", resource_id, node_name);
-				}
-
-				struct pacemaker_resources *pace_resources;
-
-				sts = pmdaCacheLookupName(indom, instance_name, NULL, (void **)&pace_resources);
-				if (sts == PM_ERR_INST || (sts >=0 && pace_resources == NULL)) {
-					pace_resources = calloc(1, sizeof(struct pacemaker_resources));
-					if (pace_resources == NULL) {
-						pclose(pf);
-						return PM_ERR_AGAIN;
-					}
-				}
-				else if (sts < 0)
-					continue;
-
-				pmdaCacheStore(indom, PMDA_CACHE_ADD, instance_name, (void *)pace_resources);
-				pmdaCacheStore(indom_all, PMDA_CACHE_ADD, instance_name, NULL);
-
-				/* Clear node name in the event that a resource has not got a node attachment */
-				memset(node_name, '\0', sizeof(node_name));
-			}
-		}
-	}
-	pclose(pf);
-	return 0;
-}
-
-int
-hacluster_corosync_node_instance_refresh(void)
-{
-	int			sts, node_id;
-	char		buffer[4096], node_name[128];
-	char		*buffer_ptr;
-	FILE		*pf;
-	pmInDom		indom = INDOM(COROSYNC_NODE_INDOM);
-
-	/*
-	 * Update indom cache based off number of nodes listed in the
-	 * membership information section of corosync-quorumtool output
-	 */
-	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-	
-	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", quorumtool_command);
-
-	if ((pf = popen(buffer, "r")) == NULL)
-		return oserror();
-
-	while (fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-		/* Clear whitespace at start of each line */
-		buffer_ptr = buffer;
-		while(isspace((unsigned char)*buffer_ptr)) buffer_ptr++;
-	
-		if(isdigit(buffer_ptr[0])) {
-			/* 
-			 * corosync-quorumtool membership information layout:
-			 * Nodeid	Votes	Qdevice	Name
-			 */
-			sscanf(buffer_ptr, "%d %*d %*s %s", &node_id, node_name);
-			
-			if (node_id == 0) {
-				memset(node_name, '\0', sizeof(node_name));
-				memcpy(node_name, "Qdevice", strlen("Qdevice"));
-			}
-			
-			/* 
-			* At this point node_name contains our device name this will be used to
-		 	* map stats to node instances 
-		 	*/
-			struct  corosync_node *node;
-
-			sts = pmdaCacheLookupName(indom, node_name, NULL, (void **)&node);
-			if (sts == PM_ERR_INST || (sts >=0 && node == NULL)) {
-				node = calloc(1, sizeof(struct corosync_node));
-				if (node == NULL) {
-					pclose(pf);
-					return PM_ERR_AGAIN;
-				}
-			}
-			else if (sts < 0)
-				continue;
-
-			pmdaCacheStore(indom, PMDA_CACHE_ADD, node_name, (void *)node);			
-		}
-	}
-	pclose(pf);
-	return(0);
-}
-
-static int
-hacluster_corosync_ring_instance_refresh(void)
-{
-	int			sts;
-	char		buffer[4096], ring_name[128];
-	FILE		*pf;
-	pmInDom		indom = INDOM(COROSYNC_RING_INDOM);
-	pmInDom		indom_all = INDOM(COROSYNC_RING_ALL_INDOM);
-
-	/*
-	 * Update indom cache based off number of nodes listed in the
-	 * membership information section of corosync-quorumtool output
-	 */
-	pmdaCacheOp(indom, PMDA_CACHE_INACTIVE);
-	pmdaCacheOp(indom_all, PMDA_CACHE_INACTIVE);
-	
-	pmsprintf(buffer, sizeof(buffer), "%s 2>&1", cfgtool_command);
-	
-	if ((pf = popen(buffer, "r")) == NULL)
-		return oserror();
-
-	while(fgets(buffer, sizeof(buffer)-1, pf) != NULL) {
-
-		/* 
-		 * The aim is to find the id and status lines for our corresponding
-		 * ring indom based on the ring id (ring_name)
-		 *
-		 * Check for the exact match that we are in the RING (corosync < v2.99)
-		 * or LINK (corosync v2.99.0+)  details section for our given ring by 
-		 * its ring id (ring_name)
-		 */
-		if (strstr(buffer, "RING ID") || strstr(buffer, "LINK ID")) {
-			/* Collect the ring number while are matching to our ring_name */
-			sscanf(buffer, "%*s %*s %s", ring_name);
-
-			/* 
-			 * At this point node_name contains our device name this will be used to
-			 * map stats to node instances 
-			 */
-			struct  corosync_ring *ring;
-
-			sts = pmdaCacheLookupName(indom, ring_name, NULL, (void **)&ring);
-			if (sts == PM_ERR_INST || (sts >=0 && ring == NULL)) {
-				ring = calloc(1, sizeof(struct corosync_ring));
-				if (ring == NULL) {
-					pclose(pf);
-					return PM_ERR_AGAIN;
-				}
-			}
-			else if (sts < 0)
-				continue;
-
-			pmdaCacheStore(indom, PMDA_CACHE_ADD, ring_name, (void *)ring);
-			pmdaCacheStore(indom_all, PMDA_CACHE_ADD, ring_name, NULL);
-		}
-	}
-	pclose(pf);
-	return(0);
-}
-
 static int
 hacluster_sbd_device_instance_refresh(void)
 {
@@ -873,8 +405,8 @@ hacluster_sbd_device_instance_refresh(void)
 	char		*token;
 	char		*buffer_ptr;
 	FILE		*fp;
-	pmInDom		indom = INDOM(SBD_DEVICE_INDOM);
-	pmInDom		indom_all = INDOM(SBD_DEVICE_ALL_INDOM);
+	pmInDom		indom = hacluster_indom(SBD_DEVICE_INDOM);
+	pmInDom		indom_all = hacluster_indom(SBD_DEVICE_ALL_INDOM);
 
 	/*
 	 * Update indom cache based off number of nodes listed in the
@@ -947,8 +479,8 @@ hacluster_drbd_resource_instance_refresh(void)
 	int			volume;
 	char		*buffer_ptr;
 	FILE		*pf;
-	pmInDom		indom = INDOM(DRBD_RESOURCE_INDOM);
-	pmInDom		indom_all = INDOM(DRBD_RESOURCE_ALL_INDOM);
+	pmInDom		indom = hacluster_indom(DRBD_RESOURCE_INDOM);
+	pmInDom		indom_all = hacluster_indom(DRBD_RESOURCE_ALL_INDOM);
 
 	int found_node = 0, found_volume = 0, nesting = 0;
 
@@ -1028,8 +560,8 @@ hacluster_drbd_peer_device_instance_refresh(void)
 	int			peer_node_id;
 	char		*buffer_ptr;
 	FILE		*pf;
-	pmInDom		indom = INDOM(DRBD_PEER_DEVICE_INDOM);
-	pmInDom		indom_all = INDOM(DRBD_PEER_DEVICE_ALL_INDOM);
+	pmInDom		indom = hacluster_indom(DRBD_PEER_DEVICE_INDOM);
+	pmInDom		indom_all = hacluster_indom(DRBD_PEER_DEVICE_ALL_INDOM);
 
 	int found_node = 0, found_peer_node = 0, nesting = 0;
 	
@@ -1120,166 +652,150 @@ hacluster_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmd
 static int
 hacluster_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 {
-	struct pacemaker_fail			*fail;
-	struct pacemaker_constraints	*constraints;
-	struct pacemaker_nodes			*pace_nodes;
-	struct pacemaker_node_attrib	*node_attribs;
-	struct pacemaker_resources		*pace_resources;
-	struct corosync_node			*node;
-	struct corosync_ring			*ring;
-	struct sbd_device				*sbd;
-	struct drbd_resource			*resource;
-	struct drbd_peer_device			*peer;
-	char 							*node_name, *ring_name, *sbd_dev, *resource_name, *peer_device; 
-	char							*instance_name, *constraint_name, *pace_node_name, *attrib_name;
-	char							*pace_resource_name;
-	int 							i, sts;
-		
-	if ((sts = hacluster_pacemaker_fail_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_pacemaker_constraints_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_pacemaker_nodes_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_pacemaker_node_attrib_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_pacemaker_resources_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_corosync_node_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_corosync_ring_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_sbd_device_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_drbd_resource_instance_refresh()) < 0)
-		return sts;
-		
-	if ((sts = hacluster_drbd_peer_device_instance_refresh()) < 0)
-		return sts;	
+	int i, sts = 0;
 
 	if (need_refresh[CLUSTER_PACEMAKER_GLOBAL])
 		hacluster_refresh_pacemaker_global();
-		
-	for (pmdaCacheOp(INDOM(PACEMAKER_FAIL_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(PACEMAKER_FAIL_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(PACEMAKER_FAIL_INDOM), i, &instance_name, (void **)&fail) || !fail)
-			continue;
 
-		if (need_refresh[CLUSTER_PACEMAKER_FAIL])
-			hacluster_refresh_pacemaker_fail(instance_name, &fail->fail_count);
-	}
-	
-	for (pmdaCacheOp(INDOM(PACEMAKER_CONSTRAINTS_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(PACEMAKER_CONSTRAINTS_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(PACEMAKER_CONSTRAINTS_INDOM), i, &constraint_name, (void **)&constraints) || !constraints)
-			continue;
-
-		if (need_refresh[CLUSTER_PACEMAKER_CONSTRAINTS] ||
-			need_refresh[CLUSTER_PACEMAKER_CONSTRAINTS_ALL])
-			hacluster_refresh_pacemaker_constraints(constraint_name, &constraints->location_constraints);
-	}
-	
-	for (pmdaCacheOp(INDOM(PACEMAKER_NODES_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(PACEMAKER_NODES_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(PACEMAKER_NODES_INDOM), i, &pace_node_name, (void **)&pace_nodes) || !pace_nodes)
-			continue;
-
-		if (need_refresh[CLUSTER_PACEMAKER_NODES])
-			hacluster_refresh_pacemaker_nodes(pace_node_name, &pace_nodes->nodes);
-	}
-	
-	for (pmdaCacheOp(INDOM(PACEMAKER_NODE_ATTRIB_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(PACEMAKER_NODE_ATTRIB_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(PACEMAKER_NODE_ATTRIB_INDOM), i, &attrib_name, (void **)&node_attribs) || !node_attribs)
-			continue;
-
-		if (need_refresh[CLUSTER_PACEMAKER_NODE_ATTRIB] ||
-			need_refresh[CLUSTER_PACEMAKER_NODE_ATTRIB_ALL])
-			hacluster_refresh_pacemaker_node_attribs(attrib_name, &node_attribs->attributes);
-	}
-	
-	for (pmdaCacheOp(INDOM(PACEMAKER_RESOURCES_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(PACEMAKER_RESOURCES_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(PACEMAKER_RESOURCES_INDOM), i, &pace_resource_name, (void **)&pace_resources) || !pace_resources)
-			continue;
-
-		if (need_refresh[CLUSTER_PACEMAKER_RESOURCES] ||
-			need_refresh[CLUSTER_PACEMAKER_RESOURCES_ALL])
-			hacluster_refresh_pacemaker_resources(pace_resource_name, &pace_resources->resources);
+	if (need_refresh[CLUSTER_PACEMAKER_FAIL]) {
+		if ((sts = hacluster_pacemaker_fail_instance_refresh()) < 0)
+			return sts;
 	}
 
-	for (pmdaCacheOp(INDOM(COROSYNC_NODE_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(COROSYNC_NODE_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(COROSYNC_NODE_INDOM), i, &node_name, (void **)&node) || !node)
-			continue;
-
-		if (need_refresh[CLUSTER_COROSYNC_NODE])
-			hacluster_refresh_corosync_node(node_name, &node->member_votes);
+	if (need_refresh[CLUSTER_PACEMAKER_CONSTRAINTS] || need_refresh[CLUSTER_PACEMAKER_CONSTRAINTS_ALL]) {
+		if ((sts = hacluster_pacemaker_constraints_instance_refresh()) <0)
+			return sts;
 	}
-	
+
+	if (need_refresh[CLUSTER_PACEMAKER_NODES]) {
+		if ((sts = hacluster_pacemaker_nodes_instance_refresh()) <0)
+			return sts;
+	}
+
+	if ((need_refresh[CLUSTER_PACEMAKER_NODE_ATTRIB] || need_refresh[CLUSTER_PACEMAKER_NODE_ATTRIB_ALL])) {
+		if ((sts = hacluster_pacemaker_node_attrib_instance_refresh()) <0)
+			return sts;
+	}
+
+	if ((need_refresh[CLUSTER_PACEMAKER_RESOURCES] || need_refresh[CLUSTER_PACEMAKER_RESOURCES_ALL])) {
+		struct pacemaker_resources *pace_resources;
+		char *pace_resource_name;
+
+		if ((sts = hacluster_pacemaker_resources_instance_refresh()) < 0)
+			return sts;
+
+		for (pmdaCacheOp(hacluster_indom(PACEMAKER_RESOURCES_INDOM), PMDA_CACHE_WALK_REWIND);;) {
+			if ((i= pmdaCacheOp(hacluster_indom(PACEMAKER_RESOURCES_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
+				break;
+			if (!pmdaCacheLookup(hacluster_indom(PACEMAKER_RESOURCES_INDOM), i, &pace_resource_name, (void **)&pace_resources) || !pace_resources)
+				continue;
+
+			if (need_refresh[CLUSTER_PACEMAKER_RESOURCES] ||
+		   	    need_refresh[CLUSTER_PACEMAKER_RESOURCES_ALL])
+				hacluster_refresh_pacemaker_resources(pace_resource_name, pace_resources);
+		}
+	}
+
+	if (need_refresh[CLUSTER_COROSYNC_NODE]) {
+		struct corosync_node *node;
+		char *node_name;
+
+		if ((sts = hacluster_corosync_node_instance_refresh()) < 0)
+			return sts;
+
+		for (pmdaCacheOp(hacluster_indom(COROSYNC_NODE_INDOM), PMDA_CACHE_WALK_REWIND);;) {
+			if ((i= pmdaCacheOp(hacluster_indom(COROSYNC_NODE_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
+				break;
+			if (!pmdaCacheLookup(hacluster_indom(COROSYNC_NODE_INDOM), i, &node_name, (void **)&node) || !node)
+				continue;
+
+			if (need_refresh[CLUSTER_COROSYNC_NODE])
+				hacluster_refresh_corosync_node(node_name, node);
+		}
+	}
+
 	if (need_refresh[CLUSTER_COROSYNC_GLOBAL])
 		hacluster_refresh_corosync_global();
-		
-	for (pmdaCacheOp(INDOM(COROSYNC_RING_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(COROSYNC_RING_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(COROSYNC_RING_INDOM), i, &ring_name, (void **)&ring) || !ring)
-			continue;
 
-		if (need_refresh[CLUSTER_COROSYNC_RING] ||
-			need_refresh[CLUSTER_COROSYNC_RING_ALL])
-			hacluster_refresh_corosync_ring(ring_name, &ring->rings);
+	if ((need_refresh[CLUSTER_COROSYNC_RING] || need_refresh[CLUSTER_COROSYNC_RING_ALL])) {
+		struct corosync_ring *ring;
+		char *ring_name;
+
+		if ((sts = hacluster_corosync_ring_instance_refresh()) < 0)
+			return sts;
+
+		for (pmdaCacheOp(hacluster_indom(COROSYNC_RING_INDOM), PMDA_CACHE_WALK_REWIND);;) {
+			if ((i= pmdaCacheOp(hacluster_indom(COROSYNC_RING_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
+				break;
+			if (!pmdaCacheLookup(hacluster_indom(COROSYNC_RING_INDOM), i, &ring_name, (void **)&ring) || !ring)
+				continue;
+
+			if (need_refresh[CLUSTER_COROSYNC_RING] ||
+			    need_refresh[CLUSTER_COROSYNC_RING_ALL])
+				hacluster_refresh_corosync_ring(ring_name, ring);
+		}
 	}
-	
-	for (pmdaCacheOp(INDOM(SBD_DEVICE_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(SBD_DEVICE_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(SBD_DEVICE_INDOM), i, &sbd_dev, (void **)&sbd) || !sbd)
-			continue;
 
-		if (need_refresh[CLUSTER_SBD_DEVICE] ||
-			need_refresh[CLUSTER_SBD_DEVICE_ALL])
-			hacluster_refresh_sbd_device(sbd_dev, &sbd->sbd);
+	if ((need_refresh[CLUSTER_SBD_DEVICE] || need_refresh[CLUSTER_SBD_DEVICE_ALL])) {
+		struct sbd_device *sbd;
+		char *sbd_dev;
+
+		if ((sts = hacluster_sbd_device_instance_refresh()) < 0)
+			return sts;
+
+		for (pmdaCacheOp(hacluster_indom(SBD_DEVICE_INDOM), PMDA_CACHE_WALK_REWIND);;) {
+			if ((i= pmdaCacheOp(hacluster_indom(SBD_DEVICE_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
+				break;
+			if (!pmdaCacheLookup(hacluster_indom(SBD_DEVICE_INDOM), i, &sbd_dev, (void **)&sbd) || !sbd)
+				continue;
+
+			if (need_refresh[CLUSTER_SBD_DEVICE] ||
+			    need_refresh[CLUSTER_SBD_DEVICE_ALL])
+				hacluster_refresh_sbd_device(sbd_dev, sbd);
+		}
 	}
-	
-	for (pmdaCacheOp(INDOM(DRBD_RESOURCE_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(DRBD_RESOURCE_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(DRBD_RESOURCE_INDOM), i, &resource_name, (void **)&resource) || !resource)
-			continue;
 
-		if (need_refresh[CLUSTER_DRBD_RESOURCE] ||
-			need_refresh[CLUSTER_DRBD_RESOURCE_ALL])
-			hacluster_refresh_drbd_resource(resource_name, &resource->resource);
+	if ((need_refresh[CLUSTER_DRBD_RESOURCE] || need_refresh[CLUSTER_DRBD_RESOURCE_ALL])) {
+		struct drbd_resource *resource;
+		char *resource_name;
+
+		if ((sts = hacluster_drbd_resource_instance_refresh()) < 0)
+			return sts;
+
+		for (pmdaCacheOp(hacluster_indom(DRBD_RESOURCE_INDOM), PMDA_CACHE_WALK_REWIND);;) {
+			if ((i= pmdaCacheOp(hacluster_indom(DRBD_RESOURCE_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
+				break;
+			if (!pmdaCacheLookup(hacluster_indom(DRBD_RESOURCE_INDOM), i, &resource_name, (void **)&resource) || !resource)
+				continue;
+
+			if (need_refresh[CLUSTER_DRBD_RESOURCE] ||
+			    need_refresh[CLUSTER_DRBD_RESOURCE_ALL])
+				hacluster_refresh_drbd_resource(resource_name, resource);
+		}
 	}
-	
-	for (pmdaCacheOp(INDOM(DRBD_PEER_DEVICE_INDOM), PMDA_CACHE_WALK_REWIND);;) {
-		if ((i= pmdaCacheOp(INDOM(DRBD_PEER_DEVICE_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
-			break;
-		if (!pmdaCacheLookup(INDOM(DRBD_PEER_DEVICE_INDOM), i, &peer_device, (void **)&peer) || !peer)
-			continue;
 
-		if (need_refresh[CLUSTER_DRBD_PEER_DEVICE] ||
-			need_refresh[CLUSTER_DRBD_PEER_DEVICE_ALL])
-			hacluster_refresh_drbd_peer_device(peer_device, &peer->peer_device);
+	if ((need_refresh[CLUSTER_DRBD_PEER_DEVICE] || need_refresh[CLUSTER_DRBD_PEER_DEVICE_ALL])) {
+		struct drbd_peer_device *peer;
+		char *peer_device; 
+
+		if ((sts = hacluster_drbd_peer_device_instance_refresh()) < 0)
+			return sts;
+
+		for (pmdaCacheOp(hacluster_indom(DRBD_PEER_DEVICE_INDOM), PMDA_CACHE_WALK_REWIND);;) {
+			if ((i= pmdaCacheOp(hacluster_indom(DRBD_PEER_DEVICE_INDOM), PMDA_CACHE_WALK_NEXT)) < 0)
+				break;
+			if (!pmdaCacheLookup(hacluster_indom(DRBD_PEER_DEVICE_INDOM), i, &peer_device, (void **)&peer) || !peer)
+				continue;
+
+			if (need_refresh[CLUSTER_DRBD_PEER_DEVICE] ||
+		   	    need_refresh[CLUSTER_DRBD_PEER_DEVICE_ALL])
+				hacluster_refresh_drbd_peer_device(peer_device, peer);
+		}
 	}
 	
 	return sts;
 }
+
 
 static int
 hacluster_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
@@ -1320,85 +836,85 @@ hacluster_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			return hacluster_pacemaker_global_fetch(item, atom);
 
 		case CLUSTER_PACEMAKER_FAIL:
-			sts = pmdaCacheLookup(INDOM(PACEMAKER_FAIL_INDOM), inst, NULL, (void **)&fail);
+			sts = pmdaCacheLookup(hacluster_indom(PACEMAKER_FAIL_INDOM), inst, NULL, (void **)&fail);
 			if (sts < 0)
 				return sts;
-			return hacluster_pacemaker_fail_fetch(item, &fail->fail_count, atom);
+			return hacluster_pacemaker_fail_fetch(item, fail, atom);
 			
 		case CLUSTER_PACEMAKER_CONSTRAINTS:
-			sts = pmdaCacheLookup(INDOM(PACEMAKER_CONSTRAINTS_INDOM), inst, NULL, (void **)&constraints);
+			sts = pmdaCacheLookup(hacluster_indom(PACEMAKER_CONSTRAINTS_INDOM), inst, NULL, (void **)&constraints);
 			if (sts < 0)
 				return sts;
-			return hacluster_pacemaker_constraints_fetch(item, &constraints->location_constraints, atom);
+			return hacluster_pacemaker_constraints_fetch(item, constraints, atom);
 			
 		case CLUSTER_PACEMAKER_CONSTRAINTS_ALL:
 			return hacluster_pacemaker_constraints_all_fetch(item, atom);			
 			
 		case CLUSTER_PACEMAKER_NODES:
-			sts = pmdaCacheLookup(INDOM(PACEMAKER_NODES_INDOM), inst, NULL, (void **)&pace_nodes);
+			sts = pmdaCacheLookup(hacluster_indom(PACEMAKER_NODES_INDOM), inst, NULL, (void **)&pace_nodes);
 			if (sts < 0)
 				return sts;
-			return hacluster_pacemaker_nodes_fetch(item, &pace_nodes->nodes, atom);
+			return hacluster_pacemaker_nodes_fetch(item, pace_nodes, atom);
 			
 		case CLUSTER_PACEMAKER_NODE_ATTRIB:
-			sts = pmdaCacheLookup(INDOM(PACEMAKER_NODE_ATTRIB_INDOM), inst, NULL, (void **)&pace_attribs);
+			sts = pmdaCacheLookup(hacluster_indom(PACEMAKER_NODE_ATTRIB_INDOM), inst, NULL, (void **)&pace_attribs);
 			if (sts < 0)
 				return sts;
-			return hacluster_pacemaker_node_attribs_fetch(item, &pace_attribs->attributes, atom);
+			return hacluster_pacemaker_node_attribs_fetch(item, pace_attribs, atom);
 
 		case CLUSTER_PACEMAKER_NODE_ATTRIB_ALL:
 			return hacluster_pacemaker_node_attribs_all_fetch(item, atom);
 			
 		case CLUSTER_PACEMAKER_RESOURCES:
-			sts = pmdaCacheLookup(INDOM(PACEMAKER_RESOURCES_INDOM), inst, NULL, (void **)&pace_resources);
+			sts = pmdaCacheLookup(hacluster_indom(PACEMAKER_RESOURCES_INDOM), inst, NULL, (void **)&pace_resources);
 			if (sts < 0)
 				return sts;
-			return hacluster_pacemaker_resources_fetch(item, &pace_resources->resources, atom);
+			return hacluster_pacemaker_resources_fetch(item, pace_resources, atom);
 
 		case CLUSTER_PACEMAKER_RESOURCES_ALL:
 			return hacluster_pacemaker_resources_all_fetch(item, atom);
 
 		case CLUSTER_COROSYNC_NODE:
-			sts = pmdaCacheLookup(INDOM(COROSYNC_NODE_INDOM), inst, NULL, (void **)&node);
+			sts = pmdaCacheLookup(hacluster_indom(COROSYNC_NODE_INDOM), inst, NULL, (void **)&node);
 			if (sts < 0)
 				return sts;
-			return hacluster_corosync_node_fetch(item, &node->member_votes, atom);
+			return hacluster_corosync_node_fetch(item, node, atom);
 
 		case CLUSTER_COROSYNC_GLOBAL:
 			return hacluster_corosync_global_fetch(item, atom);
 			
 		case CLUSTER_COROSYNC_RING:
-			sts = pmdaCacheLookup(INDOM(COROSYNC_RING_INDOM), inst, NULL, (void **)&ring);
+			sts = pmdaCacheLookup(hacluster_indom(COROSYNC_RING_INDOM), inst, NULL, (void **)&ring);
 			if (sts < 0)
 				return sts;
-			return hacluster_corosync_ring_fetch(item, &ring->rings, atom);
+			return hacluster_corosync_ring_fetch(item, ring, atom);
 
 		case CLUSTER_COROSYNC_RING_ALL:
 			return hacluster_corosync_ring_all_fetch(item, atom);
 			
 		case CLUSTER_SBD_DEVICE:
-			sts = pmdaCacheLookup(INDOM(SBD_DEVICE_INDOM), inst, NULL, (void **)&sbd);
+			sts = pmdaCacheLookup(hacluster_indom(SBD_DEVICE_INDOM), inst, NULL, (void **)&sbd);
 			if (sts < 0)
 				return sts;
-			return hacluster_sbd_device_fetch(item, &sbd->sbd, atom);
+			return hacluster_sbd_device_fetch(item, sbd, atom);
 
 		case CLUSTER_SBD_DEVICE_ALL:
 			return hacluster_sbd_device_all_fetch(item, atom);
 			
 		case CLUSTER_DRBD_RESOURCE:
-			sts = pmdaCacheLookup(INDOM(DRBD_RESOURCE_INDOM), inst, NULL, (void **)&resource);
+			sts = pmdaCacheLookup(hacluster_indom(DRBD_RESOURCE_INDOM), inst, NULL, (void **)&resource);
 			if (sts < 0)
 				return sts;
-			return hacluster_drbd_resource_fetch(item, &resource->resource, atom);	
+			return hacluster_drbd_resource_fetch(item, resource, atom);	
 
 		case CLUSTER_DRBD_RESOURCE_ALL:
 			return hacluster_drbd_resource_all_fetch(item, atom);	
 		
 		case CLUSTER_DRBD_PEER_DEVICE:
-			sts = pmdaCacheLookup(INDOM(DRBD_PEER_DEVICE_INDOM), inst, NULL, (void **)&peer);
+			sts = pmdaCacheLookup(hacluster_indom(DRBD_PEER_DEVICE_INDOM), inst, NULL, (void **)&peer);
 			if (sts < 0)
 				return sts;
-			return hacluster_drbd_peer_device_fetch(item, &peer->peer_device, atom);
+			return hacluster_drbd_peer_device_fetch(item, peer, atom);
 
 		case CLUSTER_DRBD_PEER_DEVICE_ALL:
 			return hacluster_drbd_peer_device_all_fetch(item, atom);
@@ -1493,13 +1009,13 @@ hacluster_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda)
 static int
 hacluster_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 {
-	struct location_constraints		*constraints;
-	struct attributes 				*attributes;
-	struct resources 				*resources;
-	struct rings					*ring;
-	struct sbd						*sbd;
-	struct resource					*resource;
-	struct peer_device				*peer_device;
+	struct pacemaker_constraints		*constraints;
+	struct pacemaker_node_attrib 				*attributes;
+	struct pacemaker_resources 				*resources;
+	struct corosync_ring					*ring;
+	struct sbd_device						*sbd;
+	struct drbd_resource					*resource;
+	struct drbd_peer_device				*peer_device;
 
 	int 							sts;
 	int								no_node_attachment = 0;
@@ -1511,7 +1027,7 @@ hacluster_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 
 	switch (pmInDom_serial(indom)) {
 		case PACEMAKER_CONSTRAINTS_ALL_INDOM:
-			sts = pmdaCacheLookup(INDOM(PACEMAKER_CONSTRAINTS_INDOM), inst, &name, (void **)&constraints);
+			sts = pmdaCacheLookup(hacluster_indom(PACEMAKER_CONSTRAINTS_INDOM), inst, &name, (void **)&constraints);
 			if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 				return 0;
 			return pmdaAddLabels(lp, "{\"constraint\":\"%s\", \"node\":\"%s\", \"resource\":\"%s\", \"role\":\"%s\", \"score\":\"%s\"}",
@@ -1523,7 +1039,7 @@ hacluster_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 			);
 
 		case PACEMAKER_NODE_ATTRIB_ALL_INDOM:
-			sts = pmdaCacheLookup(INDOM(PACEMAKER_NODE_ATTRIB_INDOM), inst, &name, (void **)&attributes);
+			sts = pmdaCacheLookup(hacluster_indom(PACEMAKER_NODE_ATTRIB_INDOM), inst, &name, (void **)&attributes);
 			if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 				return 0;
 			/* 
@@ -1543,7 +1059,7 @@ hacluster_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 			return sts;
 			
 		case PACEMAKER_RESOURCES_ALL_INDOM:
-			sts = pmdaCacheLookup(INDOM(PACEMAKER_RESOURCES_INDOM), inst, &name, (void **)&resources);
+			sts = pmdaCacheLookup(hacluster_indom(PACEMAKER_RESOURCES_INDOM), inst, &name, (void **)&resources);
 			if (sts < 0 || sts == PMDA_CACHE_INACTIVE)
 				return 0;
 				
@@ -1572,7 +1088,7 @@ hacluster_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 			return sts;
 			
 		case COROSYNC_RING_ALL_INDOM:
-			sts = pmdaCacheLookup(INDOM(COROSYNC_RING_INDOM), inst, &name, (void **)&ring);
+			sts = pmdaCacheLookup(hacluster_indom(COROSYNC_RING_INDOM), inst, &name, (void **)&ring);
 			if (sts <0 || sts == PMDA_CACHE_INACTIVE)
 				return 0;
 				
@@ -1584,7 +1100,7 @@ hacluster_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 			);
 
 		case SBD_DEVICE_ALL_INDOM:
-			sts = pmdaCacheLookup(INDOM(SBD_DEVICE_INDOM), inst, &name, (void**)&sbd);
+			sts = pmdaCacheLookup(hacluster_indom(SBD_DEVICE_INDOM), inst, &name, (void**)&sbd);
 			if (sts <0 || sts == PMDA_CACHE_INACTIVE)
 				return 0;
 				
@@ -1594,7 +1110,7 @@ hacluster_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 			);
 
 		case DRBD_RESOURCE_ALL_INDOM:
-			sts = pmdaCacheLookup(INDOM(DRBD_RESOURCE_INDOM), inst, &name, (void**)&resource);
+			sts = pmdaCacheLookup(hacluster_indom(DRBD_RESOURCE_INDOM), inst, &name, (void**)&resource);
 			if (sts <0 || sts == PMDA_CACHE_INACTIVE)
 				return 0;
 				
@@ -1606,7 +1122,7 @@ hacluster_labelCallBack(pmInDom indom, unsigned int inst, pmLabelSet **lp)
 			);
 			
 		case DRBD_PEER_DEVICE_ALL_INDOM:
-			sts = pmdaCacheLookup(INDOM(DRBD_PEER_DEVICE_INDOM), inst, &name, (void**)&peer_device);
+			sts = pmdaCacheLookup(hacluster_indom(DRBD_PEER_DEVICE_INDOM), inst, &name, (void**)&peer_device);
 			if (sts <0 || sts == PMDA_CACHE_INACTIVE)
 				return 0;
 				

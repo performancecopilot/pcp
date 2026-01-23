@@ -614,3 +614,62 @@ $3 == "pstree"	{ exit }
 	fi
     fi
 }
+
+# wait for a process to exit ...
+# Usage:
+#   _wait_process_end [tag] pid
+# [borrowed from PCP's qa/common.check]
+#
+_wait_process_exit()
+{
+    if [ $# -eq 2 -a -n "$2" ]
+    then
+	__tag="$1"
+	__pid="$2"
+    elif [ $# -eq 1 -a -n "$1" ]
+    then
+	__tag="_wait_process_end"
+	__pid="$1"
+    else
+	echo >&2 "Usage: _wait_process_end [tag] pid \$#=$# \$1=\"$1\""
+	return 1
+    fi
+    __i=0
+    while true
+    do
+	# expect this to be running as root, so this should work
+	# for any process
+	#
+	if kill -s 0 $__pid 2>/dev/null
+	then
+	    # process still exists
+	    #
+	    __i=`expr $__i + 1`
+	    if [ "$__i" -ge 100 ]
+	    then
+		# may exist, but is defunct so we should treat this
+		# as "exited" ...
+		# <defunct> for Linux-style ps(1)
+		# (command) for BSD-style ps(1)
+		#
+		__ppid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+		        | $PCP_AWK_PROG '
+$2 == '$__pid' && $NF ~ /<defunct>/ { print $3 }
+$2 == '$__pid' && $NF ~ /^([^)]*)$/ { print $3 }
+'`
+		if [ -n "$__ppid" ]
+		then
+		    echo "$__tag: pid $__pid is defunct"
+		    _pstree_all $__pid
+		    return 0
+		fi
+		echo "$__tag: failed to see pid $__pid exit after 10sec"
+		return 1
+	    fi
+	    pmsleep 0.1
+	else
+	    # process has really exited
+	    return 0
+	fi
+    done
+}

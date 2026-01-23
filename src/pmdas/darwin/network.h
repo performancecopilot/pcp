@@ -55,3 +55,5 @@ typedef struct nfsstats {
     struct nfsclntstats	client;
     struct nfsrvstats	server;
 } nfsstats_t;
+
+extern int fetch_network(unsigned int, unsigned int, pmAtomValue *);

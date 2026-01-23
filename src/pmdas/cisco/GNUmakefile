@@ -65,7 +65,7 @@ $(IAM)$(EXECSUFFIX):	$(OBJECTS)
 probe$(EXECSUFFIX):	probe.o interface.o telnet.o
 	$(CCF) -o $@ $(LDFLAGS) probe.o interface.o telnet.o $(LDLIBS)
 
-$(OBJECTS): domain.h
+$(OBJECTS) probe.o: domain.h
 
 domain.h:	../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
@@ -74,4 +74,4 @@ default_pcp:	default
 
 install_pcp:	install
 
-$(OBJECTS):	$(TOPDIR)/src/include/pcp/libpcp.h
+$(OBJECTS) probe.o:	$(TOPDIR)/src/include/pcp/libpcp.h

@@ -65,7 +65,7 @@ refresh_proc_scsi(pmInDom indom)
 	    }
 	}
 
-	pmsprintf(name, sizeof(name), "scsi%d:%d:%d:%d %s",
+	pmsprintf(name, sizeof(name), "scsi%d:%d:%d:%d_%s",
 	    x.dev_host, x.dev_channel, x.dev_id, x.dev_lun, type);
 
 	failed = 0;

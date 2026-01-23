@@ -237,7 +237,7 @@ again:
 #ifdef PM_MULTI_THREAD_DEBUG
 	fprintf(stderr, "(%s)", lockname(lock));
 #else
-	fprintf(stderr, "(%p)", lock);
+	fprintf(stderr, "(" PRINTF_P_PFX "%p)", lock);
 #endif
     }
     if (report) {
@@ -458,7 +458,7 @@ __pmLock(void *lock, const char *file, int line)
 #ifdef PM_MULTI_THREAD_DEBUG
 	fprintf(stderr, "%s:%d: __pmLock(%s) failed: %s\n", file, line, lockname(lock), pmErrStr(sts));
 #else
-	fprintf(stderr, "%s:%d: __pmLock(%p) failed: %s\n", file, line, lock, pmErrStr(sts));
+	fprintf(stderr, "%s:%d: __pmLock(" PRINTF_P_PFX "%p) failed: %s\n", file, line, lock, pmErrStr(sts));
 #endif
 #ifdef BUILD_WITH_LOCK_ASSERTS
 	__pmDumpStack();
@@ -486,13 +486,13 @@ __pmIsLocked(void *lock)
 	    return 1;
 	sts = -sts;
 	if (pmDebugOptions.desperate)
-	    fprintf(stderr, "islocked: trylock %p failed: %s\n", lock, pmErrStr(sts));
+	    fprintf(stderr, "islocked: trylock " PRINTF_P_PFX "%p failed: %s\n", lock, pmErrStr(sts));
 	return 0;
     }
     if ((sts = pthread_mutex_unlock(lock)) != 0) {
 	sts = -sts;
 	if (pmDebugOptions.desperate)
-	    fprintf(stderr, "islocked: unlock %p failed: %s\n", lock, pmErrStr(sts));
+	    fprintf(stderr, "islocked: unlock " PRINTF_P_PFX "%p failed: %s\n", lock, pmErrStr(sts));
     }
     return 0;
 }
@@ -517,7 +517,7 @@ __pmCheckIsUnlocked(void *lock, char *file, int line)
 #ifdef PM_MULTI_THREAD_DEBUG
 	   fprintf(stderr, "__pmCheckIsUnlocked(%s): [%s:%d] __lock=%d __count=%d\n", lockname(lockp), file, line, lockp->__data.__lock, lockp->__data.__count);
 #else
-	   fprintf(stderr, "__pmCheckIsUnlocked(%p): [%s:%d] __lock=%d __count=%d\n", lockp, file, line, lockp->__data.__lock, lockp->__data.__count);
+	   fprintf(stderr, "__pmCheckIsUnlocked(" PRINTF_P_PFX "%p): [%s:%d] __lock=%d __count=%d\n", lockp, file, line, lockp->__data.__lock, lockp->__data.__count);
 #endif
 #else
 	   fprintf(stderr, "__pmCheckIsUnlocked(%s): [%s:%d] locked\n", lockname(lockp), file, line);
@@ -551,7 +551,7 @@ __pmUnlock(void *lock, const char *file, int line)
 #ifdef PM_MULTI_THREAD_DEBUG
 	fprintf(stderr, "%s:%d: __pmUnlock(%s) failed: %s\n", file, line, lockname(lock), pmErrStr(sts));
 #else
-	fprintf(stderr, "%s:%d: __pmUnlock(%p) failed: %s\n", file, line, lock, pmErrStr(sts));
+	fprintf(stderr, "%s:%d: __pmUnlock(" PRINTF_P_PFX "%p) failed: %s\n", file, line, lock, pmErrStr(sts));
 #endif
 #ifdef BUILD_WITH_LOCK_ASSERTS
 	__pmDumpStack();

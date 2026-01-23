@@ -131,7 +131,7 @@ pmwebapi_data_release(struct client *client)
     pmWebGroupBaton	*baton = (pmWebGroupBaton *)client->u.http.data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: baton %p for client %p\n", "pmwebapi_data_release",
+	fprintf(stderr, "%s: baton " PRINTF_P_PFX "%p for client " PRINTF_P_PFX "%p\n", "pmwebapi_data_release",
 			baton, client);
 
     sdsfree(baton->name);
@@ -593,13 +593,13 @@ add_dict_attribute(void *arg, const struct dictEntry *entry)
 {
     sds		*out = (sds *)arg;
 
-    *out = add_sds_attribute(*out, entry->key, entry->v.val);
+    *out = add_sds_attribute(*out, dictGetKey(entry), dictGetVal(entry));
 }
 
 static sds
 add_metrics_resource_attributes(pmWebGroupBaton *baton, sds result)
 {
-    unsigned long	cursor = 0, count = 0;
+    unsigned long	count = 0;
 
     assert(sdslen(result) == 0);
     result = sdscatlen(result, "{\"resourceMetrics\":[", 20);
@@ -608,10 +608,15 @@ add_metrics_resource_attributes(pmWebGroupBaton *baton, sds result)
 
     result = sdscatlen(result, "{\"resource\":{\"attributes\":[", 27);
     baton->suffix = json_push_suffix(baton->suffix, JSON_FLAG_OBJECT);
-    do {
-	cursor = dictScan(baton->labels, cursor, add_dict_attribute, NULL, &result);
-	count++;
-    } while (cursor);
+    {
+	dictIterator iter;
+	dictEntry *entry;
+	dictInitIterator(&iter, baton->labels);
+	while ((entry = dictNext(&iter)) != NULL) {
+	    add_dict_attribute(&result, entry);
+	    count++;
+	}
+    }
     if (count)
 	result = chop_final_character(result);
     return sdscatlen(result, "]},", 3); /* end attributes, resources */
@@ -805,7 +810,7 @@ on_pmwebapi_scrape_labels(sds context, pmWebLabelSet *labelset, void *arg)
     struct client	*client = (struct client *)baton->client;
 
     if (pmDebugOptions.labels || pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p (ctx=%s)\n",
+	fprintf(stderr, "%s: client=" PRINTF_P_PFX "%p (ctx=%s)\n",
 			__FUNCTION__, client, context);
 
     if ((baton->client->u.http.flags & HTTP_FLAG_REQ_JSON))
@@ -822,7 +827,7 @@ on_pmwebapi_check(sds context, pmWebAccess *access,
     struct client	*client = (struct client *)baton->client;
 
     if (pmDebugOptions.auth || pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p (ctx=%s) user=%s pass=*** realm=%s\n",
+	fprintf(stderr, "%s: client=" PRINTF_P_PFX "%p (ctx=%s) user=%s pass=*** realm=%s\n",
 		"on_pmwebapi_check", client, context,
 		access->username, access->realm);
 
@@ -857,7 +862,7 @@ on_pmwebapi_done(sds context, int status, sds message, void *arg)
     sds			quoted, msg;
 
     if (pmDebugOptions.series)
-	fprintf(stderr, "%s: client=%p (sts=%d,msg=%s)\n", "on_pmwebapi_done",
+	fprintf(stderr, "%s: client=" PRINTF_P_PFX "%p (sts=%d,msg=%s)\n", "on_pmwebapi_done",
 			client, status, message ? message : "");
 
     if (status == 0) {
@@ -1066,7 +1071,7 @@ pmwebapi_request_body(struct client *client, const char *content, size_t length)
     if (baton->restkey == RESTKEY_DERIVE &&
 	client->u.http.parser.method == HTTP_POST) {
 	if (client->u.http.parameters == NULL)
-	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks);
 	dictAdd(client->u.http.parameters,
 			sdsnewlen(PARAM_EXPR, sdslen(PARAM_EXPR)),
 			sdsnewlen(content, length));
@@ -1074,7 +1079,7 @@ pmwebapi_request_body(struct client *client, const char *content, size_t length)
     if (baton->restkey == RESTKEY_STORE &&
 	client->u.http.parser.method == HTTP_POST) {
 	if (client->u.http.parameters == NULL)
-	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks, NULL);
+	    client->u.http.parameters = dictCreate(&sdsOwnDictCallBacks);
 	dictAdd(client->u.http.parameters,
 			sdsnewlen(PARAM_VALUE, sdslen(PARAM_VALUE)),
 			sdsnewlen(content, length));

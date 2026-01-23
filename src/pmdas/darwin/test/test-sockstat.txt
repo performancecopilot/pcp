@@ -1,0 +1,11 @@
+# Test socket statistics metrics
+# These metrics track active socket counts via pcbcount sysctls
+# and provide visibility into TCP and UDP connection usage.
+
+# TCP socket count
+desc network.sockstat.tcp.inuse
+fetch network.sockstat.tcp.inuse
+
+# UDP socket count
+desc network.sockstat.udp.inuse
+fetch network.sockstat.udp.inuse

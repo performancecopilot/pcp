@@ -1,0 +1,11 @@
+#!/bin/sh
+#
+# script to replace bare '%p' (presumed to be in a printf() or
+# similar) by the portable '%p" PRINTF_P_PFX "' ... so we always
+# get the '0x' prefix before the (hex) address
+#
+
+for file
+do
+    sed -E -i "$file" -e 's/0x%p/%p/g' -e 's/([^"])%p($|[^a-z0-9_])/\1" PRINTF_P_PFX "%p\2/g'
+done

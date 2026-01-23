@@ -3076,7 +3076,7 @@ __pmDumpStack(void)
 	    else if (symbols != NULL)
 		fprintf(stderr, "  %s", symbols[i]);
 	    else
-		fprintf(stderr, "  %p ??unknown??", backaddr[i]);
+		fprintf(stderr, "  " PRINTF_P_PFX "%p ??unknown??", backaddr[i]);
 	    if (text_start != NULL) {
 		/*
 		 * report address offset from the base of the text segment

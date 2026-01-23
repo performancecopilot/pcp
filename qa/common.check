@@ -51,7 +51,7 @@ fi
 # 
 _notrun()
 {
-    echo $@ >$here/$seq.notrun
+    echo "$@" >$here/$seq.notrun
     echo "$seq: [not run] `cat $here/$seq.notrun`"
     rm -f $here/$seq.pre-avc
     _exit 0
@@ -1645,11 +1645,18 @@ _check_series()
 #
 _check_key_server_version()
 {
-    if which valkey-cli >/dev/null 2>&1 && [ -n "$(_get_pids_by_name valkey-server)" ]
+    if [ $# -ne 1 ]
+    then
+	echo "_check_key_server_version: botch: needs port# as only argument"
+	return
+    fi
+
+    
+    if which valkey-cli >/dev/null 2>&1 && test -n `_get_pids_by_name valkey-server`
     then
 	keys_cli=valkey-cli
 	keys_ver=valkey_version
-    elif which redis-cli >/dev/null 2>&1 && [ -n "$(_get_pids_by_name redis-server)" ]
+    elif which redis-cli >/dev/null 2>&1 && test -n _get_pids_by_name redis-server
     then
 	keys_cli=redis-cli
 	keys_ver=redis_version
@@ -1658,6 +1665,7 @@ _check_key_server_version()
     fi
     eval __key_server_version=`$keys_cli -p "$1" info server |
 	grep "$keys_ver:" | sed -e 's/^.*://g' -e 's/\..*//g'`
+    [ -z "$__key_server_version" ] && _notrun "No key server version extracted"
     [ $__key_server_version -ge 5 ] || _notrun "Key server @ port $1: version $__key_server_version too old"
 }
 
@@ -2364,7 +2372,7 @@ _restore_job_scheduler()
     __rc_sudo=${3:-sudo}
 
     if [ -s $__rc_systemd_state ]; then
-	for __i in $(cat $__rc_systemd_state); do
+	for __i in `cat $__rc_systemd_state`; do
 	    $__rc_sudo systemctl start $__i >/dev/null
 	done
 	rm -f $__rc_systemd_state

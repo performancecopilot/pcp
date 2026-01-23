@@ -332,7 +332,7 @@ etw_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     etw_event_t	*etw;
     int		sts = PMDA_FETCH_STATIC;
 
-    pmNotifyErr(LOG_WARNING, "called %s, mdesc=%p", __FUNCTION__, mdesc);
+    pmNotifyErr(LOG_WARNING, "called %s, mdesc=" PRINTF_P_PFX "%p", __FUNCTION__, mdesc);
 
     switch (pmID_cluster(mdesc->m_desc.pmid)) {
     case CLUSTER_KERNEL_PROCESS:

@@ -129,7 +129,7 @@ sed
 smartmontools
 socat
 sysstat
-systemd-dev
+systemd
 targetcli-fb
 time
 unbound

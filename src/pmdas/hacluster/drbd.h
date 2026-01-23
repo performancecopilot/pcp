@@ -1,7 +1,7 @@
 /*
  * HA Cluster DRDB statistics.
  *
- * Copyright (c) 2020 - 2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -54,7 +54,7 @@ enum {
 	NUM_DRBD_PEER_DEVICE_STATS
 };
 
-struct resource {
+struct drbd_resource {
 	char resource[128];
 	char role[10];
 	char volume[128];
@@ -69,7 +69,7 @@ struct resource {
 	uint8_t split_brain;
 };
 
-struct peer_device {
+struct drbd_peer_device {
 	char resource[128];
 	char peer_node_id[128];
 	char peer_role[10];
@@ -82,13 +82,13 @@ struct peer_device {
 	uint32_t connections_unacked;
 };
 
-extern int hacluster_drbd_resource_fetch(int, struct resource *, pmAtomValue *);
+extern int hacluster_drbd_resource_fetch(int, struct drbd_resource *, pmAtomValue *);
 extern int hacluster_drbd_resource_all_fetch(int, pmAtomValue *);
-extern int hacluster_refresh_drbd_resource(const char *, struct resource *);
+extern int hacluster_refresh_drbd_resource(const char *, struct drbd_resource *);
 
-extern int hacluster_drbd_peer_device_fetch(int, struct peer_device *, pmAtomValue *);
+extern int hacluster_drbd_peer_device_fetch(int, struct drbd_peer_device *, pmAtomValue *);
 extern int hacluster_drbd_peer_device_all_fetch(int, pmAtomValue *);
-extern int hacluster_refresh_drbd_peer_device(const char *, struct peer_device *);
+extern int hacluster_refresh_drbd_peer_device(const char *, struct drbd_peer_device *);
 
 extern void drbd_stats_setup(void);
 

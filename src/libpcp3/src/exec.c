@@ -656,7 +656,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":7", PM_FAULT_ALLOC);
 	map[i].pid = pid;
 	map[i].fp = *fp;
 	if (pmDebugOptions.exec) {
-	    fprintf(stderr, "__pmProcessPipe: map[%d of %d] child pid=%" FMT_PID " fp=%p\n" , i, nmap, map[i].pid, map[i].fp);
+	    fprintf(stderr, "__pmProcessPipe: map[%d of %d] child pid=%" FMT_PID " fp=" PRINTF_P_PFX "%p\n" , i, nmap, map[i].pid, map[i].fp);
 	}
 	PM_UNLOCK(exec_lock);
 

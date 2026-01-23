@@ -408,7 +408,7 @@ do_sysctl(mib_t *mp, size_t xpect)
      * and current
      */
     if (pmDebugOptions.appl0) {
-	fprintf(stderr, "do_sysctl(%s, %d) m_data=%p m_datalen=%d m_fetched=%d\n", 
+	fprintf(stderr, "do_sysctl(%s, %d) m_data=" PRINTF_P_PFX "%p m_datalen=%d m_fetched=%d\n", 
 	    mp->m_name, (int)xpect, mp->m_data, (int)mp->m_datalen, mp->m_fetched);
     }
     for ( ; mp->m_fetched == 0; ) {

@@ -178,7 +178,6 @@ then
     echo "Arrgh ..."
     $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|[.]pipe|pmda[l]ogger|$seq[.]"
     cat $PCP_LOG_DIR/pmcd/logger.log >>$seq_full
-    read x </dev/tty
     _fail "PID file from command pipe not found"
 fi
 

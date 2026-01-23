@@ -46,7 +46,7 @@ void Tab::addGadget(Gadget *gadget)
     if (my.currentGadget == -1)
 	setCurrentGadget(gadgetCount() - 1);
     gadget->showWidget();
-    console->post("Tab::addChart: [%d]->Chart %p", my.currentGadget, gadget);
+    console->post("Tab::addChart: [%d]->Chart " PRINTF_P_PFX "%p", my.currentGadget, gadget);
 }
 
 int Tab::deleteCurrent(void)

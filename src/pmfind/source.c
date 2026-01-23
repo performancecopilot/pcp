@@ -52,7 +52,7 @@ sources_release(void *arg, const struct dictEntry *entry)
 {
     sources_t	*sp = (sources_t *)arg;
     context_t	*cp = (context_t *)dictGetVal(entry);
-    sds		ctx = (sds)entry->key;
+    sds		ctx = (sds)dictGetKey(entry);
 
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "releasing context %s\n", ctx);
@@ -92,7 +92,21 @@ on_source_context(sds id, pmWebSource *src, void *arg)
 
     uv_mutex_lock(&sp->mutex);
     dictAdd(sp->contexts, id, cp);
-    entry = dictAddRaw(sp->uniq, src->source, NULL);
+    /* dictAddRaw replacement using libvalkey dict API */
+    /* Check if key already exists */
+    entry = dictFind(sp->uniq, src->source);
+    if (entry == NULL) {
+	/* Key doesn't exist, add it with NULL value */
+	if (dictAdd(sp->uniq, src->source, NULL) == DICT_OK) {
+	    /* Get the newly added entry */
+	    entry = dictFind(sp->uniq, src->source);
+	} else {
+	    entry = NULL;
+	}
+    } else {
+	/* Key already exists, return NULL to indicate it was not newly discovered */
+	entry = NULL;
+    }
     uv_mutex_unlock(&sp->mutex);
 
     if (entry) {	/* source just discovered */
@@ -157,10 +171,13 @@ on_source_done(sds context, int status, sds message, void *arg)
     }
 
     if (release) {
-	unsigned long	cursor = 0;
-	do {
-	    cursor = dictScan(sp->contexts, cursor, sources_release, NULL, sp);
-	} while (cursor);
+	/* dictScan replacement using libvalkey iterator API */
+	dictIterator iter;
+	dictEntry *entry;
+	dictInitIterator(&iter, sp->contexts);
+	while ((entry = dictNext(&iter)) != NULL) {
+	    sources_release(sp, entry);
+	}
     } else if (pmDebugOptions.discovery) {
 	fprintf(stderr, "not yet releasing (count=%d)\n", count);
     }
@@ -183,7 +200,7 @@ sources_discovery_start(uv_timer_t *arg)
 {
     uv_handle_t	*handle = (uv_handle_t *)arg;
     sources_t	*sp = (sources_t *)handle->data;
-    dict	*dp = dictCreate(&sdsOwnDictCallBacks, NULL);
+    dict	*dp = dictCreate(&sdsOwnDictCallBacks);
     sds		name, value;
     int		i, fail = 0, total = sp->count;
 
@@ -238,10 +255,10 @@ source_discovery(int count, char **urls)
     uv_mutex_init(&find.mutex);
     find.urls = urls;
     find.count = count;	/* at least one PMWEBAPI request for each url */
-    find.uniq = dictCreate(&sdsKeyDictCallBacks, NULL);
-    find.params = dictCreate(&sdsOwnDictCallBacks, NULL);
+    find.uniq = dictCreate(&sdsKeyDictCallBacks);
+    find.params = dictCreate(&sdsOwnDictCallBacks);
     dictAdd(find.params, sdsnew("name"), sdsnew("containers.state.running"));
-    find.contexts = dictCreate(&sdsKeyDictCallBacks, NULL);
+    find.contexts = dictCreate(&sdsKeyDictCallBacks);
 
     /*
      * Setup an async event loop and prepare for pmWebGroup API use

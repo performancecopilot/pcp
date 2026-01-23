@@ -9,6 +9,11 @@
             <string>/etc/init.d/pmcd</string>
             <string>start</string>
         </array>
+        <key>EnvironmentVariables</key>
+        <dict>
+            <key>PMCD_LAUNCHED_BY_LAUNCHD</key>
+            <string>1</string>
+        </dict>
         <key>Disabled</key>
         <false/>
         <key>UserName</key>
@@ -16,7 +21,7 @@
         <key>UserGroup</key>
         <string>wheel</string>
         <key>KeepAlive</key>
-        <false/>
+        <true/>
         <key>ThrottleInterval</key>
         <integer>30</integer>
         <key>RunAtLoad</key>

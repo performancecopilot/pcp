@@ -1,0 +1,30 @@
+# Test ICMP protocol statistics (net.inet.icmp.stats sysctl)
+# These metrics provide insight into ICMP protocol activity and errors.
+
+# ICMP message totals
+desc network.icmp.inmsgs
+fetch network.icmp.inmsgs
+
+desc network.icmp.outmsgs
+fetch network.icmp.outmsgs
+
+# ICMP error metrics
+desc network.icmp.inerrors
+fetch network.icmp.inerrors
+
+# Specific ICMP message types (input)
+desc network.icmp.indestunreachs
+fetch network.icmp.indestunreachs
+
+desc network.icmp.inechos
+fetch network.icmp.inechos
+
+desc network.icmp.inechoreps
+fetch network.icmp.inechoreps
+
+# Specific ICMP message types (output)
+desc network.icmp.outechos
+fetch network.icmp.outechos
+
+desc network.icmp.outechoreps
+fetch network.icmp.outechoreps

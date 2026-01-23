@@ -16,6 +16,8 @@ proc {
     runq
     id
     memory
+    io
+    fd
     control
 }
 
@@ -72,6 +74,15 @@ proc.id {
 proc.memory {
     size		PROC:4:0
     rss			PROC:4:1
+}
+
+proc.io {
+    read_bytes		PROC:5:0
+    write_bytes		PROC:5:1
+}
+
+proc.fd {
+    count		PROC:6:0
 }
 
 proc.control {

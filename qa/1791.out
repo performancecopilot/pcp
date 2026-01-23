@@ -6,13 +6,11 @@ QA output created by 1791
 == default unknown metricset handling
 Metricset definition ':nosuchset' not found.
 Metricset definition ':nosuchset' not found.
-== ignore unknown metricset handling
-Ignoring unknown metricset ':nosuchset'.
-No metrics specified.
-Ignoring unknown metricset ':nosuchset'.
-           r   b    swpd     free    buff   cache    si    so     bi     bo    in     cs  us  sy  id  wa  st  gu
-00:11:11   3   0    1927     6713     949   10964   N/A   N/A    N/A    N/A   N/A    N/A N/A N/A N/A N/A N/A N/A
-00:12:11   2   0    1927     6587     949   11072     0     0    164   2274  2778   6646   2   1  94   1   0   2
+== unknown metricset handling with options
+Metricset definition ':nosuchset' not found.
+Metricset definition ':nosuchset' not found.
+Metricset definition ':nosuchset' not found.
+Metricset definition ':nosuchset' not found.
 == create tmp config file
 == verify tmp config file
           freemem  files

@@ -70,7 +70,7 @@ echo Using control file: > $seq_full
 cat control >> $seq_full
 echo pmlogger_check out: >> $seq_full
 PCP_COMPRESSAFTER=0; export PCP_COMPRESSAFTER
-$sudo $PCP_BINADM_DIR/pmlogger_check -V -N -c control >$tmp.log  2>$tmp.err
+$sudo -u $PCP_USER $PCP_BINADM_DIR/pmlogger_check -V -N -c control >$tmp.log  2>$tmp.err
 cat $tmp.err $tmp.log | tee -a $seq_full | _filter
 
 echo pmlogger_check end: >> $seq_full

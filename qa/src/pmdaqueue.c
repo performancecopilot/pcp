@@ -68,7 +68,7 @@ int decode_event(int key, void *event, size_t size,
     for (i = 0; i < size; i++)
 	if (buffer[i] != 0xA)
 	    ok = 0;
-    fprintf(stderr, "queue#%d client#%d event: %p, size=%d check=%s\n",
+    fprintf(stderr, "queue#%d client#%d event: " PRINTF_P_PFX "%p, size=%d check=%s\n",
 	    queueid, context, event, (int)size, ok? "ok" : "bad");
     return 0;
 }
