@@ -78,6 +78,7 @@ derive_lex() -> type=L_NAME "sample.bin"
 derive_lex() -> type=L_MINUS "-"
 derive_lex() -> type=L_INTEGER "50"
 derive_lex() -> type=L_EOS ""
+__dmbind(derive_locked=0, ctx=0, metric[4] testme.one, async= 0)
 __dmgetpmid: metric "testme.one" -> PMID 511.2047.1023
 pmAddDerived(ctx->0): per-context metric[4] testme.one = sample.bin - 50
 Derived metric expr dump from ADDR...
@@ -135,6 +136,7 @@ ctx[1]: testme.lights: 1 values: <COLOR>
 
 === State 4 ===
 ctx[1]: DEBUG_SEMANTICS=1 (derive=1 appl1=1)
+__dmbind(derive_locked=0, ctx=1, metric[4] testme.two, async= 0)
 __dmgetpmid: metric "testme.two" -> PMID 511.2047.1023
 pmAddDerived(ctx->1): per-context metric[4] testme.two = sample.long.ten + sample.long.one * 3
 testme.sub.two: Error: pmAddDerivedMetric("testme.sub.two", ...): returns -12409
@@ -266,7 +268,9 @@ __dmgetpmid: metric "testme.sub.sub.three" -> Unknown metric name
 __dmgetpmid: metric "testme.big" -> PMID 511.0.3
 __dmgetpmid: metric "testme.lights" -> PMID 511.0.4
 __dmgetpmid: metric "testme.bigbin" -> Unknown metric name
+__dmbind(derive_locked=0, ctx=2, metric[2] testme.big, async= 1)
 __dmgetpmid: metric "testme.big" -> PMID 511.0.3
+__dmbind(derive_locked=0, ctx=2, metric[3] testme.lights, async= 1)
 __dmgetpmid: metric "testme.lights" -> PMID 511.0.4
 ctx[0]: testme.one: not in PMNS
 ctx[0]: testme.two: not in PMNS

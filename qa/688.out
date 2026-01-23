@@ -94,14 +94,20 @@ Derived metric expr dump from <addr-24>...
 expr node <addr-24> type=FILTERINST left=<addr-25> right=<addr-26> save_last=0
 expr node <addr-25> type=PATTERN pattern: \[1\]100/ type: regex used=0
 expr node <addr-26> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] primary=1
+__dmtraverse(ctx=0, name="qa", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] qa.a, async= 1)
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmtraverse: name="qa" added "qa.a"
+__dmbind(derive_locked=1, ctx=0, metric[3] qa.b, async= 1)
 __dmgetpmid: metric "qa.b" -> PMID 511.0.4
 __dmtraverse: name="qa" added "qa.b"
+__dmbind(derive_locked=1, ctx=0, metric[4] qa.c, async= 1)
 __dmgetpmid: metric "qa.c" -> PMID 511.0.5
 __dmtraverse: name="qa" added "qa.c"
+__dmbind(derive_locked=1, ctx=0, metric[5] qa.d, async= 1)
 __dmgetpmid: metric "qa.d" -> PMID 511.0.6
 __dmtraverse: name="qa" added "qa.d"
+__dmbind(derive_locked=1, ctx=0, metric[6] qa.e, async= 1)
 __dmgetpmid: metric "qa.e" -> PMID 511.0.7
 __dmtraverse: name="qa" added "qa.e"
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
@@ -167,4 +173,5 @@ unterminated instance name
  matchinst(/10[/, sample.bin)
            ^                 
 bad regular expression: 'Invalid regular expression'
+__dmtraverse(ctx=0, name="qa", ...)
 Error: qa: Unknown metric name

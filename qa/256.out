@@ -870,22 +870,44 @@ pmRegisterDerived: global metric[8] sample.long.derived = sample.long.one
 pmRegisterDerived: global metric[9] sample.long.foo.bar.derived = sample.long.one
 __dmopencontext(->ctx 0) called, 10 derived metrics
 __dmgetpmid: metric "derived.tree" -> Unknown metric name
+__dmchildren(ctx=0, derive_locked=0, name="derived.tree", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] derived.tree.one, async= 1)
+__dmgetpmid: metric "derived.tree.one" -> PMID 511.0.3
+__dmchildren: offspring[0] one (status=0)
+__dmbind(derive_locked=1, ctx=0, metric[3] derived.tree.ten, async= 1)
+__dmgetpmid: metric "derived.tree.ten" -> PMID 511.0.4
+__dmchildren: offspring[1] ten (status=0)
+__dmbind(derive_locked=1, ctx=0, metric[4] derived.tree.hundred, async= 1)
+__dmgetpmid: metric "derived.tree.hundred" -> PMID 511.0.5
+__dmchildren: offspring[2] hundred (status=0)
+__dmbind(derive_locked=1, ctx=0, metric[5] derived.tree.a.million, async= 1)
+__dmgetpmid: metric "derived.tree.a.million" -> PMID 511.0.6
+__dmchildren: offspring[3] a (status=1)
+__dmbind(derive_locked=1, ctx=0, metric[6] derived.tree.b.million, async= 1)
+__dmgetpmid: metric "derived.tree.b.million" -> PMID 511.0.7
+__dmchildren: offspring[4] b (status=1)
+__dmbind(derive_locked=1, ctx=0, metric[7] derived.tree.b.cmillion, async= 1)
+__dmgetpmid: metric "derived.tree.b.cmillion" -> PMID 511.0.8
+pmGetChildren(name="derived.tree") no regular children (Unknown metric name), 5 derived children
+__dmchildren(ctx=0, derive_locked=0, name="derived.tree", ...)
 __dmchildren: offspring[0] one (status=0)
 __dmchildren: offspring[1] ten (status=0)
 __dmchildren: offspring[2] hundred (status=0)
 __dmchildren: offspring[3] a (status=1)
 __dmchildren: offspring[4] b (status=1)
 pmGetChildren(name="derived.tree") no regular children (Unknown metric name), 5 derived children
-__dmchildren: offspring[0] one (status=0)
-__dmchildren: offspring[1] ten (status=0)
-__dmchildren: offspring[2] hundred (status=0)
-__dmchildren: offspring[3] a (status=1)
-__dmchildren: offspring[4] b (status=1)
-pmGetChildren(name="derived.tree") no regular children (Unknown metric name), 5 derived children
+__dmchildren(ctx=0, derive_locked=0, name="", ...)
+__dmbind(derive_locked=1, ctx=0, metric[0] event.flags, async= 1)
 __dmchildren: offspring[0] event (status=1)
+__dmbind(derive_locked=1, ctx=0, metric[1] event.missed, async= 1)
 __dmchildren: offspring[1] derived (status=1)
+__dmbind(derive_locked=1, ctx=0, metric[8] sample.long.derived, async= 1)
+__dmgetpmid: metric "sample.long.derived" -> PMID 511.0.9
 __dmchildren: offspring[2] sample (status=1)
+__dmbind(derive_locked=1, ctx=0, metric[9] sample.long.foo.bar.derived, async= 1)
+__dmgetpmid: metric "sample.long.foo.bar.derived" -> PMID 511.0.10
 pmGetChildren(name="") N regular children, 3 derived children
+__dmchildren(ctx=0, derive_locked=0, name="", ...)
 __dmchildren: offspring[0] event (status=1)
 __dmchildren: offspring[1] derived (status=1)
 __dmchildren: offspring[2] sample (status=1)

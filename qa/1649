@@ -1,0 +1,188 @@
+#!/bin/sh
+# PCP QA Test No. 1649
+# pmrep -5|--ignore-unknown and -I|--ignore-incompat workout
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# pmrep args are $1 ...
+# loop live pmcd and then archive
+#    loop without --ignore-unknown then with --ignore-unknown
+#
+_doit()
+{
+    for src in "-h local:" "-a archives/omnibus-nomark_v3 -S +1sec"
+    do
+	for opt in "" $ignore
+	do
+	    echo "-- $opt $src $*" | _filter
+	    if $do_valgrind
+	    then
+		_run_valgrind pmrep -s 1 -w 12 $opt $src $*
+	    else
+		pmrep -s 1 -w 12 $opt $src $* 2>&1
+	    fi \
+	    | _filter
+	done
+    done
+}
+
+PCP_DERIVED_CONFIG=$tmp.derived
+export PCP_DERIVED_CONFIG
+touch $PCP_DERIVED_CONFIG
+
+ignore='--ignore-unknown'
+
+# real QA test starts here
+
+echo "=== metrics on command line ==="
+echo "++ one bad"
+_doit foo.bar
+echo
+echo "++ one bad and one good"
+_doit foo.bar sample.long.million
+echo
+echo "++ one good, one bad and one good"
+_doit sample.long.million foo.bar sample.string.hullo
+echo
+echo "++ one bad, one good, one bad and one good"
+_doit fumble.mumble sample.long.million foo.bar sample.string.hullo
+
+echo
+echo "=== metrics in a metrics set ==="
+echo "++ one bad"
+cat <<End-of-File >$tmp.metricset
+[qa]
+foo.bar			= badboy,,,,12
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one bad and one good"
+cat <<End-of-File >$tmp.metricset
+[qa]
+foo.bar			= badboy,,,,12
+sample.long.million	= goodie,,,,12
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one good, one bad and one good"
+cat <<End-of-File >$tmp.metricset
+[qa]
+sample.long.million	= goodie,,,,12
+foo.bar			= badboy,,,,12
+sample.string.hullo	= g'day,,,,12
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one bad, one good, one bad and one good"
+cat <<End-of-File >$tmp.metricset
+[qa]
+fumble.mumble		= badgirl,,,,12
+sample.long.million	= goodie,,,,12
+foo.bar			= badboy,,,,12
+sample.string.hullo	= g'day,,,,12
+End-of-File
+_doit -c $tmp.metricset :qa
+
+echo "=== derived metrics on command line (syntax errors) ==="
+echo "++ one bad"
+cat <<End-of-File >$tmp.derived
+foo.bar = a + 
+End-of-File
+_doit foo.bar
+echo
+echo "++ one bad and one good"
+cat <<End-of-File >$tmp.derived
+foo.bar = a + 
+goodboy = sample.long.million
+End-of-File
+_doit foo.bar goodboy
+echo
+echo "++ one good, one bad and one good"
+cat <<End-of-File >$tmp.derived
+goodboy = sample.long.million
+foo.bar = a + 
+goodgirl = sample.string.hullo
+End-of-File
+_doit goodboy foo.bar goodgirl
+echo
+echo "++ one bad, one good, one bad and one good"
+cat <<End-of-File >$tmp.derived
+fumble.mumble =
+goodboy = sample.long.million
+foo.bar = a + 
+goodgirl = sample.string.hullo
+End-of-File
+_doit fumble.mumble goodboy foo.bar goodgirl
+
+echo "=== derived metrics on command line (semantic errors) ==="
+echo "++ one bad"
+cat <<End-of-File >$tmp.derived
+foo.bar = hinv.ndisk + disk.all.total
+End-of-File
+_doit foo.bar
+echo
+echo "++ one bad and one good"
+cat <<End-of-File >$tmp.derived
+foo.bar = hinv.ndisk + disk.all.total
+goodboy = sample.long.million
+End-of-File
+_doit foo.bar goodboy
+#echo
+#echo "++ one good, one bad and one good"
+#cat <<End-of-File >$tmp.derived
+#goodboy = sample.long.million
+#foo.bar = hinv.ndisk + disk.all.total
+#goodgirl = sample.string.hullo
+#End-of-File
+#_doit goodboy foo.bar goodgirl
+#echo
+#echo "++ one bad, one good, one bad and one good"
+#cat <<End-of-File >$tmp.derived
+#fumble.mumble =
+#goodboy = sample.long.million
+#foo.bar = hinv.ndisk + disk.all.total
+#goodgirl = sample.string.hullo
+#End-of-File
+#_doit fumble.mumble goodboy foo.bar goodgirl
+
+# success, all done
+exit

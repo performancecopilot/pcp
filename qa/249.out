@@ -25,6 +25,8 @@ myname.o = sample.bin * sample.double.ten
 myname.p = sample.double.ten * sample.bin
 
 === myname.const ===
+__dmtraverse(ctx=0, name="myname.const", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] myname.const, async= 1)
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmtraverse: name="myname.const" added "myname.const"
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
@@ -43,6 +45,8 @@ myname.const
     value 123456
 
 === myname.a ===
+__dmtraverse(ctx=0, name="myname.a", ...)
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmtraverse: name="myname.a" added "myname.a"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
@@ -62,38 +66,56 @@ myname.a
     value 1000000
 
 === myname ===
+__dmtraverse(ctx=0, name="myname", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] myname.const, async= 1)
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmtraverse: name="myname" added "myname.const"
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmtraverse: name="myname" added "myname.a"
+__dmbind(derive_locked=1, ctx=0, metric[4] myname.b, async= 1)
 __dmgetpmid: metric "myname.b" -> PMID 511.0.5
 __dmtraverse: name="myname" added "myname.b"
+__dmbind(derive_locked=1, ctx=0, metric[5] myname.c, async= 1)
 __dmgetpmid: metric "myname.c" -> PMID 511.0.6
 __dmtraverse: name="myname" added "myname.c"
+__dmbind(derive_locked=1, ctx=0, metric[6] myname.d, async= 1)
 __dmgetpmid: metric "myname.d" -> PMID 511.0.7
 __dmtraverse: name="myname" added "myname.d"
+__dmbind(derive_locked=1, ctx=0, metric[7] myname.e, async= 1)
 __dmgetpmid: metric "myname.e" -> PMID 511.0.8
 __dmtraverse: name="myname" added "myname.e"
+__dmbind(derive_locked=1, ctx=0, metric[8] myname.f, async= 1)
 __dmgetpmid: metric "myname.f" -> PMID 511.0.9
 __dmtraverse: name="myname" added "myname.f"
+__dmbind(derive_locked=1, ctx=0, metric[9] myname.g, async= 1)
 __dmgetpmid: metric "myname.g" -> PMID 511.0.10
 __dmtraverse: name="myname" added "myname.g"
+__dmbind(derive_locked=1, ctx=0, metric[10] myname.h, async= 1)
 __dmgetpmid: metric "myname.h" -> PMID 511.0.11
 __dmtraverse: name="myname" added "myname.h"
+__dmbind(derive_locked=1, ctx=0, metric[11] myname.i, async= 1)
 __dmgetpmid: metric "myname.i" -> PMID 511.0.12
 __dmtraverse: name="myname" added "myname.i"
+__dmbind(derive_locked=1, ctx=0, metric[12] myname.j, async= 1)
 __dmgetpmid: metric "myname.j" -> PMID 511.0.13
 __dmtraverse: name="myname" added "myname.j"
+__dmbind(derive_locked=1, ctx=0, metric[13] myname.k, async= 1)
 __dmgetpmid: metric "myname.k" -> PMID 511.0.14
 __dmtraverse: name="myname" added "myname.k"
+__dmbind(derive_locked=1, ctx=0, metric[14] myname.l, async= 1)
 __dmgetpmid: metric "myname.l" -> PMID 511.0.15
 __dmtraverse: name="myname" added "myname.l"
+__dmbind(derive_locked=1, ctx=0, metric[15] myname.m, async= 1)
 __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmtraverse: name="myname" added "myname.m"
+__dmbind(derive_locked=1, ctx=0, metric[16] myname.n, async= 1)
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmtraverse: name="myname" added "myname.n"
+__dmbind(derive_locked=1, ctx=0, metric[17] myname.o, async= 1)
 __dmgetpmid: metric "myname.o" -> PMID 511.0.18
 __dmtraverse: name="myname" added "myname.o"
+__dmbind(derive_locked=1, ctx=0, metric[18] myname.p, async= 1)
 __dmgetpmid: metric "myname.p" -> PMID 511.0.19
 __dmtraverse: name="myname" added "myname.p"
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
@@ -741,8 +763,11 @@ myname.p
     inst [900 or "bin-900"] value 9000
 
 === myname.a sample.long ===
+__dmtraverse(ctx=0, name="myname.a", ...)
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmtraverse: name="myname.a" added "myname.a"
+__dmtraverse(ctx=0, name="sample.long", ...)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmpostvalueset: [0] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
 expr node <addr-0> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.million] primary=0
@@ -826,6 +851,9 @@ sample.long.bin_ctr
     inst [900 or "bin-900"] value 900
 
 === sample.long myname.a ===
+__dmtraverse(ctx=0, name="sample.long", ...)
+__dmtraverse(ctx=0, name="myname.a", ...)
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmtraverse: name="myname.a" added "myname.a"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
@@ -911,10 +939,16 @@ myname.a
     value 1000000
 
 === sample.longlong myname.a myname.b sample.long ===
+__dmtraverse(ctx=0, name="sample.longlong", ...)
+__dmtraverse(ctx=0, name="myname.a", ...)
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmtraverse: name="myname.a" added "myname.a"
+__dmtraverse(ctx=0, name="myname.b", ...)
+__dmbind(derive_locked=1, ctx=0, metric[4] myname.b, async= 1)
 __dmgetpmid: metric "myname.b" -> PMID 511.0.5
 __dmtraverse: name="myname.b" added "myname.b"
+__dmtraverse(ctx=0, name="sample.long", ...)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmgetpmid: metric "myname.b" -> PMID 511.0.5
 __dmpostvalueset: [7] root node 511.0.4: numval=1 vset[0]: inst=-1 l=1000000
@@ -1077,39 +1111,60 @@ sample.long.bin_ctr
     inst [900 or "bin-900"] value 900
 
 === sample.string myname.f sample.bin myname ===
+__dmtraverse(ctx=0, name="sample.string", ...)
+__dmtraverse(ctx=0, name="myname.f", ...)
+__dmbind(derive_locked=1, ctx=0, metric[8] myname.f, async= 1)
 __dmgetpmid: metric "myname.f" -> PMID 511.0.9
 __dmtraverse: name="myname.f" added "myname.f"
+__dmtraverse(ctx=0, name="sample.bin", ...)
+__dmtraverse(ctx=0, name="myname", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] myname.const, async= 1)
 __dmgetpmid: metric "myname.const" -> PMID 511.0.3
 __dmtraverse: name="myname" added "myname.const"
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.4
 __dmtraverse: name="myname" added "myname.a"
+__dmbind(derive_locked=1, ctx=0, metric[4] myname.b, async= 1)
 __dmgetpmid: metric "myname.b" -> PMID 511.0.5
 __dmtraverse: name="myname" added "myname.b"
+__dmbind(derive_locked=1, ctx=0, metric[5] myname.c, async= 1)
 __dmgetpmid: metric "myname.c" -> PMID 511.0.6
 __dmtraverse: name="myname" added "myname.c"
+__dmbind(derive_locked=1, ctx=0, metric[6] myname.d, async= 1)
 __dmgetpmid: metric "myname.d" -> PMID 511.0.7
 __dmtraverse: name="myname" added "myname.d"
+__dmbind(derive_locked=1, ctx=0, metric[7] myname.e, async= 1)
 __dmgetpmid: metric "myname.e" -> PMID 511.0.8
 __dmtraverse: name="myname" added "myname.e"
 __dmtraverse: name="myname" added "myname.f"
+__dmbind(derive_locked=1, ctx=0, metric[9] myname.g, async= 1)
 __dmgetpmid: metric "myname.g" -> PMID 511.0.10
 __dmtraverse: name="myname" added "myname.g"
+__dmbind(derive_locked=1, ctx=0, metric[10] myname.h, async= 1)
 __dmgetpmid: metric "myname.h" -> PMID 511.0.11
 __dmtraverse: name="myname" added "myname.h"
+__dmbind(derive_locked=1, ctx=0, metric[11] myname.i, async= 1)
 __dmgetpmid: metric "myname.i" -> PMID 511.0.12
 __dmtraverse: name="myname" added "myname.i"
+__dmbind(derive_locked=1, ctx=0, metric[12] myname.j, async= 1)
 __dmgetpmid: metric "myname.j" -> PMID 511.0.13
 __dmtraverse: name="myname" added "myname.j"
+__dmbind(derive_locked=1, ctx=0, metric[13] myname.k, async= 1)
 __dmgetpmid: metric "myname.k" -> PMID 511.0.14
 __dmtraverse: name="myname" added "myname.k"
+__dmbind(derive_locked=1, ctx=0, metric[14] myname.l, async= 1)
 __dmgetpmid: metric "myname.l" -> PMID 511.0.15
 __dmtraverse: name="myname" added "myname.l"
+__dmbind(derive_locked=1, ctx=0, metric[15] myname.m, async= 1)
 __dmgetpmid: metric "myname.m" -> PMID 511.0.16
 __dmtraverse: name="myname" added "myname.m"
+__dmbind(derive_locked=1, ctx=0, metric[16] myname.n, async= 1)
 __dmgetpmid: metric "myname.n" -> PMID 511.0.17
 __dmtraverse: name="myname" added "myname.n"
+__dmbind(derive_locked=1, ctx=0, metric[17] myname.o, async= 1)
 __dmgetpmid: metric "myname.o" -> PMID 511.0.18
 __dmtraverse: name="myname" added "myname.o"
+__dmbind(derive_locked=1, ctx=0, metric[18] myname.p, async= 1)
 __dmgetpmid: metric "myname.p" -> PMID 511.0.19
 __dmtraverse: name="myname" added "myname.p"
 __dmgetpmid: metric "myname.f" -> PMID 511.0.9
@@ -1855,60 +1910,89 @@ arith.eval.div.l_zero_f_r_f = 0 / sample.float.ten
 arith.eval.div.l_zero_d_r_d = 0 / sample.double.ten
 arith.eval.op.l_err = sample.needprofile + 1
 arith.eval.op.r_err = 1 + sample.needprofile
+__dmtraverse(ctx=0, name="arith", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] arith.l, async= 1)
 __dmgetpmid: metric "arith.l" -> PMID 511.0.3
 __dmtraverse: name="arith" added "arith.l"
+__dmbind(derive_locked=1, ctx=0, metric[3] arith.ul, async= 1)
 __dmgetpmid: metric "arith.ul" -> PMID 511.0.4
 __dmtraverse: name="arith" added "arith.ul"
+__dmbind(derive_locked=1, ctx=0, metric[4] arith.ll, async= 1)
 __dmgetpmid: metric "arith.ll" -> PMID 511.0.5
 __dmtraverse: name="arith" added "arith.ll"
+__dmbind(derive_locked=1, ctx=0, metric[5] arith.ull, async= 1)
 __dmgetpmid: metric "arith.ull" -> PMID 511.0.6
 __dmtraverse: name="arith" added "arith.ull"
+__dmbind(derive_locked=1, ctx=0, metric[6] arith.f, async= 1)
 __dmgetpmid: metric "arith.f" -> PMID 511.0.7
 __dmtraverse: name="arith" added "arith.f"
+__dmbind(derive_locked=1, ctx=0, metric[7] arith.d, async= 1)
 __dmgetpmid: metric "arith.d" -> PMID 511.0.8
 __dmtraverse: name="arith" added "arith.d"
+__dmbind(derive_locked=1, ctx=0, metric[8] arith.promote.l_l_r_ll, async= 1)
 __dmgetpmid: metric "arith.promote.l_l_r_ll" -> PMID 511.0.9
 __dmtraverse: name="arith" added "arith.promote.l_l_r_ll"
+__dmbind(derive_locked=1, ctx=0, metric[9] arith.promote.l_ll_r_l, async= 1)
 __dmgetpmid: metric "arith.promote.l_ll_r_l" -> PMID 511.0.10
 __dmtraverse: name="arith" added "arith.promote.l_ll_r_l"
+__dmbind(derive_locked=1, ctx=0, metric[10] arith.promote.l_ll_r_ul, async= 1)
 __dmgetpmid: metric "arith.promote.l_ll_r_ul" -> PMID 511.0.11
 __dmtraverse: name="arith" added "arith.promote.l_ll_r_ul"
+__dmbind(derive_locked=1, ctx=0, metric[11] arith.promote.l_ull_r_l, async= 1)
 __dmgetpmid: metric "arith.promote.l_ull_r_l" -> PMID 511.0.12
 __dmtraverse: name="arith" added "arith.promote.l_ull_r_l"
+__dmbind(derive_locked=1, ctx=0, metric[12] arith.promote.l_l_r_ull, async= 1)
 __dmgetpmid: metric "arith.promote.l_l_r_ull" -> PMID 511.0.13
 __dmtraverse: name="arith" added "arith.promote.l_l_r_ull"
+__dmbind(derive_locked=1, ctx=0, metric[13] arith.promote.l_ul_r_ull, async= 1)
 __dmgetpmid: metric "arith.promote.l_ul_r_ull" -> PMID 511.0.14
 __dmtraverse: name="arith" added "arith.promote.l_ul_r_ull"
+__dmbind(derive_locked=1, ctx=0, metric[14] arith.promote.l_ull_r_ul, async= 1)
 __dmgetpmid: metric "arith.promote.l_ull_r_ul" -> PMID 511.0.15
 __dmtraverse: name="arith" added "arith.promote.l_ull_r_ul"
+__dmbind(derive_locked=1, ctx=0, metric[15] arith.promote.l_l_r_f, async= 1)
 __dmgetpmid: metric "arith.promote.l_l_r_f" -> PMID 511.0.16
 __dmtraverse: name="arith" added "arith.promote.l_l_r_f"
+__dmbind(derive_locked=1, ctx=0, metric[16] arith.promote.l_ul_r_f, async= 1)
 __dmgetpmid: metric "arith.promote.l_ul_r_f" -> PMID 511.0.17
 __dmtraverse: name="arith" added "arith.promote.l_ul_r_f"
+__dmbind(derive_locked=1, ctx=0, metric[17] arith.promote.l_ll_r_f, async= 1)
 __dmgetpmid: metric "arith.promote.l_ll_r_f" -> PMID 511.0.18
 __dmtraverse: name="arith" added "arith.promote.l_ll_r_f"
+__dmbind(derive_locked=1, ctx=0, metric[18] arith.promote.l_ull_r_f, async= 1)
 __dmgetpmid: metric "arith.promote.l_ull_r_f" -> PMID 511.0.19
 __dmtraverse: name="arith" added "arith.promote.l_ull_r_f"
+__dmbind(derive_locked=1, ctx=0, metric[19] arith.promote.l_f_r_l, async= 1)
 __dmgetpmid: metric "arith.promote.l_f_r_l" -> PMID 511.0.20
 __dmtraverse: name="arith" added "arith.promote.l_f_r_l"
+__dmbind(derive_locked=1, ctx=0, metric[20] arith.promote.l_f_r_ul, async= 1)
 __dmgetpmid: metric "arith.promote.l_f_r_ul" -> PMID 511.0.21
 __dmtraverse: name="arith" added "arith.promote.l_f_r_ul"
+__dmbind(derive_locked=1, ctx=0, metric[21] arith.promote.l_f_r_ll, async= 1)
 __dmgetpmid: metric "arith.promote.l_f_r_ll" -> PMID 511.0.22
 __dmtraverse: name="arith" added "arith.promote.l_f_r_ll"
+__dmbind(derive_locked=1, ctx=0, metric[22] arith.promote.l_f_r_ull, async= 1)
 __dmgetpmid: metric "arith.promote.l_f_r_ull" -> PMID 511.0.23
 __dmtraverse: name="arith" added "arith.promote.l_f_r_ull"
+__dmbind(derive_locked=1, ctx=0, metric[23] arith.eval.mul.l_l_r_l, async= 1)
 __dmgetpmid: metric "arith.eval.mul.l_l_r_l" -> PMID 511.0.24
 __dmtraverse: name="arith" added "arith.eval.mul.l_l_r_l"
+__dmbind(derive_locked=1, ctx=0, metric[24] arith.eval.mul.l_ull_r_ull, async= 1)
 __dmgetpmid: metric "arith.eval.mul.l_ull_r_ull" -> PMID 511.0.25
 __dmtraverse: name="arith" added "arith.eval.mul.l_ull_r_ull"
+__dmbind(derive_locked=1, ctx=0, metric[25] arith.eval.div.l_f_r_f, async= 1)
 __dmgetpmid: metric "arith.eval.div.l_f_r_f" -> PMID 511.0.26
 __dmtraverse: name="arith" added "arith.eval.div.l_f_r_f"
+__dmbind(derive_locked=1, ctx=0, metric[26] arith.eval.div.l_zero_f_r_f, async= 1)
 __dmgetpmid: metric "arith.eval.div.l_zero_f_r_f" -> PMID 511.0.27
 __dmtraverse: name="arith" added "arith.eval.div.l_zero_f_r_f"
+__dmbind(derive_locked=1, ctx=0, metric[27] arith.eval.div.l_zero_d_r_d, async= 1)
 __dmgetpmid: metric "arith.eval.div.l_zero_d_r_d" -> PMID 511.0.28
 __dmtraverse: name="arith" added "arith.eval.div.l_zero_d_r_d"
+__dmbind(derive_locked=1, ctx=0, metric[28] arith.eval.op.l_err, async= 1)
 __dmgetpmid: metric "arith.eval.op.l_err" -> PMID 511.0.29
 __dmtraverse: name="arith" added "arith.eval.op.l_err"
+__dmbind(derive_locked=1, ctx=0, metric[29] arith.eval.op.r_err, async= 1)
 __dmgetpmid: metric "arith.eval.op.r_err" -> PMID 511.0.30
 __dmtraverse: name="arith" added "arith.eval.op.r_err"
 __dmgetpmid: metric "arith.l" -> PMID 511.0.3
@@ -2718,16 +2802,23 @@ myname.e = sample.noinst
 myname.f = ( sample.long.hundred + sample.long.one ) * ( sample.noinst - 1 )
 
 === myname ===
+__dmtraverse(ctx=0, name="myname", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmtraverse: name="myname" added "myname.a"
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.b, async= 1)
 __dmgetpmid: metric "myname.b" -> PMID 511.0.4
 __dmtraverse: name="myname" added "myname.b"
+__dmbind(derive_locked=1, ctx=0, metric[4] myname.c, async= 1)
 __dmgetpmid: metric "myname.c" -> PMID 511.0.5
 __dmtraverse: name="myname" added "myname.c"
+__dmbind(derive_locked=1, ctx=0, metric[5] myname.d, async= 1)
 __dmgetpmid: metric "myname.d" -> PMID 511.0.6
 __dmtraverse: name="myname" added "myname.d"
+__dmbind(derive_locked=1, ctx=0, metric[6] myname.e, async= 1)
 __dmgetpmid: metric "myname.e" -> PMID 511.0.7
 __dmtraverse: name="myname" added "myname.e"
+__dmbind(derive_locked=1, ctx=0, metric[7] myname.f, async= 1)
 __dmgetpmid: metric "myname.f" -> PMID 511.0.8
 __dmtraverse: name="myname" added "myname.f"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
