@@ -818,8 +818,13 @@ class pmConfig(object):
                 sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
                 some_invalid = True
 
-        # Exit if some were invalid
-        if some_invalid:
+        # Exit if some were invalid, unless --ignore-unknown
+        if some_invalid and not self.ignore_unknown_metrics():
+            sys.exit(1)
+
+        # Exit if no metric was valid
+        if not self.util.metrics:
+            sys.stderr.write("All metrics are invalid, quitting.\n")
             sys.exit(1)
 
         # Exit if no metrics with specified instances found
