@@ -36,6 +36,7 @@ BEGIN {
 $1 ~ /^debian/ || /^ubuntu/ { print dist[$1] }
 $1 ~ /^fedora/ { match($1, /fedora([1-9][0-9]*$)/, m); printf "fedora/%s\n", m[1] }
 $1 ~ /^centos/ { match($1, /cent.*([1-9][0-9]*$)/, m); printf "el/%s\n", m[1] }
+$1 ~ /^amazonlinux/ { match($1, /amazonlinux([1-9][0-9]*).*$/, m); printf "amazon/%s\n", m[1] }
 '`
     [ -z "$dist" ] && continue
 
