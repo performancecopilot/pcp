@@ -1709,7 +1709,7 @@ parse_proc_schedstat(proc_pid_entry_t *ep, size_t buflen, char *buf)
     ep->schedstat.count = strtoull(++p, &p, 10);
 }
 
-static int 
+static int
 refresh_proc_pid_schedstat(proc_pid_entry_t *ep)
 {
     int			fd, sts;
@@ -1741,6 +1741,37 @@ fetch_proc_pid_schedstat(int id, proc_pid_t *proc_pid, int *sts)
     if (!(ep->fetched & PROC_PID_FLAG_SCHEDSTAT)) {
 	*sts = refresh_proc_pid_schedstat(ep);
 	ep->fetched |= PROC_PID_FLAG_SCHEDSTAT;
+    }
+    return (*sts < 0) ? NULL : ep;
+}
+
+static int
+refresh_proc_pid_delayacct(proc_pid_entry_t *ep)
+{
+    int			sts;
+
+    if (ep->success & PROC_PID_FLAG_DELAYACCT)
+	return 0;
+    if ((sts = delayacct_info(ep->id, &ep->delayacct)) >= 0)
+	ep->success |= PROC_PID_FLAG_DELAYACCT;
+    return sts;
+}
+
+/*
+ * fetch delayacct data via netlink (libnl) for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_delayacct(int id, proc_pid_t *proc_pid, int *sts)
+{
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+
+    if (!(ep->fetched & PROC_PID_FLAG_DELAYACCT)) {
+	*sts = refresh_proc_pid_delayacct(ep);
+	ep->fetched |= PROC_PID_FLAG_DELAYACCT;
     }
     return (*sts < 0) ? NULL : ep;
 }
