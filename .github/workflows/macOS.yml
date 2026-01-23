@@ -235,6 +235,7 @@ jobs:
           echo ""
           echo "Looking for pcp module:"
           find /usr/local -name "pcp.py" -o -name "pcp" -type d 2>/dev/null | grep -i python || echo "No pcp module found in /usr/local"
+          cat python3-pcp.list || echo "Doesn't look like the Python3 installation bit triggered"
 
           echo ""
           echo "Check if pcp module is installed:"
