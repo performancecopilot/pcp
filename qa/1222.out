@@ -16,6 +16,9 @@ proc.autogroup.enabled: 1 value
 proc.control.all.threads: 1 value
 proc.control.perclient.cgroups: 1 value
 proc.control.perclient.threads: 1 value
+proc.delayacct.blkio_time: >10 values
+proc.delayacct.cpu_time: >10 values
+proc.delayacct.swapin_time: >10 values
 proc.fd.count: >10 values
 proc.id.egid: >10 values
 proc.id.egid_nm: >10 values
