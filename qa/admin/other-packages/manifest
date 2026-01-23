@@ -435,17 +435,6 @@ slackpkg?	/usr/include/ncurses/ncurses.h		[ncurses]
 pacman?	/usr/include/ncurses.h		[core/ncurses]
 brew?	/usr/local/opt/ncurses/include/ncurses.h	[ncurses]
 # python modules
-# -- python six
-dpkg?	/usr/lib/python3/*-packages/six.py	[python3-six]
-rpm?	/usr/lib*/python3.*/*-packages/six.py	[python3[0-9]*-six]
-emerge?	/usr/lib/python3.*/*-packages/six.py	[dev-python/six]
-pkgin?	/usr/pkg/lib/python3.*/*-packages/six.py	[py36-six]
-pkg_add?	/usr/local/lib/python3.*/*-packages/six.py	[py3-six]
-F_pkg?	/usr/local/lib/python3.*/*-packages/six.py	[py3[0-9]*-six]
-S_pkg?	/usr/lib/python3.*/*-packages/*/*/six.py	[library/python/pip-[0-9][0-9]*]
-slackpkg?	/usr/lib*/python*/*-packages/*/*/six.py	[python-setuptools]
-pacman?	/usr/lib/python3.*/*-packages/six.py	[extra/python-six]
-brew?	/usr/local/lib/python3.*/*-packages/six.py	[pip3(six)]
 # -- python rtslib for lio PMDA
 rpm?	/usr/lib*/python3.*/*-packages/rtslib		[python3-rtslib or python3[0-9]*-rtslib-fb]
 F_pkg?	/usr/local/lib/python3.*/*-packages/rtslib	[py3[0-9]*-rtslib-fb]

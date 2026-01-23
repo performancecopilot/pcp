@@ -285,7 +285,6 @@ HAVE_PERL_RRDs = @have_perl_rrds@
 HAVE_PYTHON = @have_python@
 
 # python dependent bits
-HAVE_PYTHON_SIX = @have_python_six@
 HAVE_PYTHON_REQUESTS = @have_python_requests@
 HAVE_PYTHON_SETUPTOOLS = @have_python_setuptools@
 HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
