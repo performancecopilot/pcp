@@ -192,7 +192,7 @@ bpf_load_modules(dict *cfg)
     int failure_count = 0;
     char *module_name;
     module *bpf_module;
-    dictIterator *iterator;
+    dictIterator iterator;
     dictEntry *entry;
     sds entry_key;
     sds entry_val;
@@ -206,8 +206,8 @@ bpf_load_modules(dict *cfg)
 
     pmNotifyErr(LOG_INFO, "loading modules");
 
-    iterator = dictGetIterator(cfg);
-    while((entry = dictNext(iterator)) != NULL)
+    dictInitIterator(&iterator, cfg);
+    while((entry = dictNext(&iterator)) != NULL)
     {
         entry_key = dictGetKey(entry);
         entry_val = dictGetVal(entry);
@@ -271,7 +271,6 @@ bpf_load_modules(dict *cfg)
         module_count++;
     }
 
-    dictReleaseIterator(iterator);
     pmdaCacheOp(clusters, PMDA_CACHE_SAVE);
     if (failure_count > 0)
 	pmNotifyErr(LOG_INFO, "loaded modules (%d), failed modules (%d)", module_count, failure_count);
@@ -496,7 +495,7 @@ bpf_config_load()
 	}
     }
 
-    config = dictCreate(&sdsDictCallBacks, NULL);
+    config = dictCreate(&sdsDictCallBacks);
     if (config == NULL)
     {
         pmNotifyErr(LOG_ERR, "could not init dictionary");

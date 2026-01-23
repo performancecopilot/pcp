@@ -30,10 +30,10 @@ REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE	= "proc	3	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 3"
 
 CFILES		= pmda.c acct.c cgroups.c contexts.c proc_pid.c proc_dynamic.c \
-		  getinfo.c gram_node.c config.c error.c hotproc.c
+		  getinfo.c delayacct.c gram_node.c config.c error.c hotproc.c
 
 HFILES		= clusters.h indom.h config.h contexts.h hotproc.h gram_node.h \
-		  acct.h cgroups.h proc_pid.h getinfo.h
+		  acct.h cgroups.h proc_pid.h getinfo.h delayacct.h
 
 LFILES		= lex.l
 YFILES		= gram.y
@@ -47,8 +47,12 @@ HELPTARGETS	= help.dir help.pag
 LDIRT		= $(HELPTARGETS) domain.h $(VERSION_SCRIPT) $(YFILES:%.y=%.tab.?) \
 		  proc_kernel_ulong.conf proc_jiffies.conf proc_kernel_ulong_migrate.conf
 
-LLDLIBS		= $(PCP_PMDALIB)
+LLDLIBS		= $(PCP_PMDALIB) $(LIB_FOR_DLOPEN)
 LCFLAGS		= $(INVISIBILITY)
+
+ifeq "$(HAVE_DELAYACCT)" "true"
+LCFLAGS		+= -DHAVE_DELAYACCT $(CFLAGS_FOR_LIBNL3)
+endif
 
 # Uncomment these flags for profiling
 # LCFLAGS	+= -pg

@@ -76,6 +76,8 @@ enum {
     CLUSTER_PROC_RUNQ,
     CLUSTER_PROC_ID,
     CLUSTER_PROC_MEM,
+    CLUSTER_PROC_IO,
+    CLUSTER_PROC_FD,
     NUM_CLUSTERS
 };
 static pmdaMetric metrictab[] = {
@@ -223,6 +225,17 @@ static pmdaMetric metrictab[] = {
   { NULL, { PMDA_PMID(CLUSTER_PROC_MEM, 1), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
+/* proc.io.read_bytes */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_IO, 0), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+/* proc.io.write_bytes */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_IO, 1), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+
+/* proc.fd.count */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_FD, 0), PM_TYPE_U32, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+
 /*
  * Metrics control cluster
  */
@@ -248,7 +261,9 @@ proc_refresh(pmdaExt *pmda, int *need_refresh)
     if (need_refresh[CLUSTER_PROCS] ||
 	need_refresh[CLUSTER_PROC_RUNQ] ||
 	need_refresh[CLUSTER_PROC_ID] ||
-	need_refresh[CLUSTER_PROC_MEM]) {
+	need_refresh[CLUSTER_PROC_MEM] ||
+	need_refresh[CLUSTER_PROC_IO] ||
+	need_refresh[CLUSTER_PROC_FD]) {
 	darwin_refresh_processes(&indomtab[PROC_INDOM], &procs, &run_queue,
 			proc_ctx_threads(pmda->e_context, threads));
     }
@@ -269,6 +284,8 @@ proc_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt 
 	need_refresh[CLUSTER_PROC_RUNQ]++;
 	need_refresh[CLUSTER_PROC_ID]++;
 	need_refresh[CLUSTER_PROC_MEM]++;
+	need_refresh[CLUSTER_PROC_IO]++;
+	need_refresh[CLUSTER_PROC_FD]++;
         break;
     }
 
@@ -534,6 +551,37 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 1: /* proc.memory.rss */
 	    atom->ull = proc->rss;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_PROC_IO:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if ((proc = darwin_proc_lookup(inst)) == NULL)
+	    return 0;
+	switch (item) {
+	case 0: /* proc.io.read_bytes */
+	    atom->ull = proc->read_bytes;
+	    break;
+	case 1: /* proc.io.write_bytes */
+	    atom->ull = proc->write_bytes;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_PROC_FD:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if ((proc = darwin_proc_lookup(inst)) == NULL)
+	    return 0;
+	switch (item) {
+	case 0: /* proc.fd.count */
+	    atom->ul = proc->fd_count;
 	    break;
 	default:
 	    return PM_ERR_PMID;

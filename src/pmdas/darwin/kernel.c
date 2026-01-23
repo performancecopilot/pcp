@@ -27,32 +27,6 @@ extern mach_port_t	mach_host;
 extern int		mach_hertz;
 
 int
-refresh_vmstat(struct vm_statistics *vmstat)
-{
-    int error, info = HOST_VM_INFO;
-    natural_t count = HOST_VM_INFO_COUNT;
-
-    error = host_statistics(mach_host, info, (host_info_t)vmstat, &count);
-    return (error != KERN_SUCCESS) ? -oserror() : 0;
-}
-
-int
-refresh_cpuload(struct host_cpu_load_info *cpuload)
-{
-    int error, info = HOST_CPU_LOAD_INFO;
-    natural_t count = HOST_CPU_LOAD_INFO_COUNT;
-
-    error = host_statistics(mach_host, info, (host_info_t)cpuload, &count);
-    return (error != KERN_SUCCESS) ? -oserror() : 0;
-}
-
-int
-refresh_uname(struct utsname *utsname)
-{
-    return (uname(utsname) == -1) ? -oserror() : 0;
-}
-
-int
 refresh_hertz(unsigned int *hertz)
 {
     int			mib[2] = { CTL_KERN, KERN_CLOCKRATE };
@@ -62,21 +36,6 @@ refresh_hertz(unsigned int *hertz)
     if (sysctl(mib, 2, &clockrate, &size, NULL, 0) == -1)
 	return -oserror();
     *hertz = clockrate.hz;
-    return 0;
-}
-
-int
-refresh_loadavg(float *loadavg)
-{
-    int			mib[2] = { CTL_VM, VM_LOADAVG };
-    size_t		size = sizeof(struct loadavg);
-    struct loadavg	loadavgs;
-
-    if (sysctl(mib, 2, &loadavgs, &size, NULL, 0) == -1)
-	return -oserror();
-    loadavg[0] = (float)loadavgs.ldavg[0] / (float)loadavgs.fscale;
-    loadavg[1] = (float)loadavgs.ldavg[1] / (float)loadavgs.fscale;
-    loadavg[2] = (float)loadavgs.ldavg[2] / (float)loadavgs.fscale;
     return 0;
 }
 
@@ -100,77 +59,6 @@ refresh_uptime(unsigned int *uptime)
     return 0;
 }
 
-int
-refresh_cpus(struct processor_cpu_load_info **cpuload, pmdaIndom *indom)
-{
-    natural_t ncpu, icount;
-    processor_info_array_t iarray;
-    struct processor_cpu_load_info *cpuinfo;
-    int error, i, info = PROCESSOR_CPU_LOAD_INFO;
-
-    error = host_processor_info(mach_host, info, &ncpu, &iarray, &icount);
-    if (error != KERN_SUCCESS)
-	return -oserror();
-
-    cpuinfo = (struct processor_cpu_load_info *)iarray;
-    if (ncpu != indom->it_numinst) {
-	char	name[16];	/* 8 is real max atm, but be conservative */
-
-	error = -ENOMEM;
-	i = sizeof(unsigned long) * CPU_STATE_MAX * ncpu;
-	if ((*cpuload = realloc(*cpuload, i)) == NULL)
-	    goto vmdealloc;
-
-	i = sizeof(pmdaInstid) * ncpu;
-	if ((indom->it_set = realloc(indom->it_set, i)) == NULL) {
-	    free(*cpuload);
-	    *cpuload = NULL;
-	    indom->it_numinst = 0;
-	    goto vmdealloc;
-	}
-
-	for (i = 0; i < ncpu; i++) {
-	    pmsprintf(name, sizeof(name), "cpu%d", i);
-	    indom->it_set[i].i_name = strdup(name);
-	    indom->it_set[i].i_inst = i;
-	}
-	indom->it_numinst = ncpu;
-    }
-
-    error = 0;
-    for (i = 0; i < ncpu; i++)
-	memcpy(&(*cpuload)[i], &cpuinfo[i],
-		sizeof(unsigned long) * CPU_STATE_MAX);
-
-vmdealloc:
-    vm_deallocate(mach_host, (vm_address_t)iarray, icount);
-    return error;
-}
-
-int
-refresh_filesys(struct statfs **filesys, pmdaIndom *indom)
-{
-    int	i, count = getmntinfo(filesys, MNT_NOWAIT);
-
-    if (count < 0) {
-	indom->it_numinst = 0;
-	indom->it_set = NULL;
-	return -oserror();
-    }
-    if (count > 0 && count != indom->it_numinst) {
-	i = sizeof(pmdaInstid) * count;
-	if ((indom->it_set = realloc(indom->it_set, i)) == NULL) {
-	    indom->it_numinst = 0;
-	    return -ENOMEM;
-	}
-    }
-    for (i = 0; i < count; i++) {
-	indom->it_set[i].i_name = (*filesys)[i].f_mntfromname;
-	indom->it_set[i].i_inst = i;
-    }
-    indom->it_numinst = count;
-    return 0;
-}
 
 int
 refresh_hinv(void)
@@ -181,4 +69,5 @@ refresh_hinv(void)
     if (sysctl(mib, 2, hw_model, &size, NULL, 0) == -1)
 	return -oserror();
     return 0;
+
 }

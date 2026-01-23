@@ -440,6 +440,15 @@ static pmdaMetric metrictab[] = {
 /* proc.schedstat.pcount */
   { NULL, { PMDA_PMID(CLUSTER_PID_SCHEDSTAT,2), KERNEL_ULONG, PROC_INDOM,
     PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE)}},
+/* proc.delayacct.cpu_time */
+  { NULL, { PMDA_PMID(CLUSTER_PID_DELAYACCT,0), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0)}},
+/* proc.delayacct.blkio_time */
+  { NULL, { PMDA_PMID(CLUSTER_PID_DELAYACCT,1), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0)}},
+/* proc.delayacct.swapin_time */
+  { NULL, { PMDA_PMID(CLUSTER_PID_DELAYACCT,2), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0)}},
 /* proc.io.rchar */
   { NULL, { PMDA_PMID(CLUSTER_PID_IO,0), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0)}},
@@ -2101,6 +2110,32 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 2: /* proc.schedstat.pcount */
 	    _pm_assign_ulong(atom, entry->schedstat.count);
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+    	break;
+
+    case CLUSTER_HOTPROC_PID_DELAYACCT:
+	active_proc_pid = &hotproc_pid;
+	/*FALLTHROUGH*/
+    case CLUSTER_PID_DELAYACCT:
+	if (!have_access)
+	    return PM_ERR_PERMISSION;
+	if ((entry = fetch_proc_pid_delayacct(inst, active_proc_pid, &sts)) == NULL)
+	    return sts;
+	if (!(entry->success & PROC_PID_FLAG_DELAYACCT))
+	    return 0;
+
+	switch (item) {
+	case 0: /* proc.delayacct.cpu_time */
+	    atom->ull = entry->delayacct.cpu_delay_total;
+	    break;
+	case 1: /* proc.delayacct.blkio_time */
+	    atom->ull = entry->delayacct.blkio_delay_total;
+	    break;
+	case 2: /* proc.delayacct.swapin_time */
+	    atom->ull = entry->delayacct.swapin_delay_total;
 	    break;
 	default:
 	    return PM_ERR_PMID;

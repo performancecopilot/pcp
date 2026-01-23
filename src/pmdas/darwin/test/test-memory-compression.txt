@@ -1,0 +1,21 @@
+# Test memory compression metrics (vm_statistics64 exclusive)
+# These metrics are only available via the vm_statistics64 API
+# and provide insight into macOS memory compression activity.
+
+# Compressed memory utilization
+desc mem.util.compressed
+fetch mem.util.compressed
+
+# Compression activity counters
+desc mem.compressions
+fetch mem.compressions
+
+desc mem.decompressions
+fetch mem.decompressions
+
+# Compressor state metrics
+desc mem.compressor.pages
+fetch mem.compressor.pages
+
+desc mem.compressor.uncompressed_pages
+fetch mem.compressor.uncompressed_pages

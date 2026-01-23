@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2025 Red Hat.
+dnl Copyright (c) 2012-2026 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -2053,6 +2053,9 @@ AC_CHECK_LIB(inih, ini_parse,
 )
 AC_SUBST(HAVE_LIBINIH, [$have_libinih])
 AC_SUBST(lib_for_inih)
+
+PKG_CHECK_MODULES([libnl3], [libnl-3.0], [have_delayacct=true], [have_delayacct=false])
+AC_SUBST(HAVE_DELAYACCT, [$have_delayacct])
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])

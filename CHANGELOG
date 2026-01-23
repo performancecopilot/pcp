@@ -1,6 +1,37 @@
-pcp-7.1.0 (4 February 2026)
-    - Note: Ubuntu Resolute feature freeze is in February
-    - Work-in-progress.
+pcp-7.1.0 (28 January 2026)
+    - PMDA additions, enhancements and bug fixes:
+	pmdadarwin: major refactoring to modular cluster-based architecture
+	pmdadarwin: add swap, ICMP, UDP, TCP, socket and VFS statistics
+	pmdadarwin: add memory compression and process I/O metrics
+	pmdaproc: add delayacct metrics used in iotop and htop
+	pmdadm: add support for collecting dm-multipath metrics
+	pmdanfsclient: fix regex to correctly parse NFS op stats
+	pmdalinux: change external instance names for indom 60.11 (SCSI devices)
+	pmdahacluster: pacemaker metrics fetch reduction and optimizations
+    - Client tools and utilities:
+	pcp-nfsiostat: introduce PCP implementation of nfsiostat parser
+	pcp-ps: add -O option for sorting by %cpu and %mem
+	pmrep: add comprehensive monitoring views for macOS (macstat)
+	pcp2openmetrics: resolves RHEL-138467
+    - Server-side utilities and log management scripts:
+	pmlogcheck: add archive repair facility
+	pmlogcompress: parameterization via defaults file
+	pmlogger: service script rework
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libvalkey: migration from hiredis to libvalkey
+	libpcp: add compatibility support for strcasestr and cfmakeraw
+	libpcp_pmda: fix pmdaCacheResize() issue
+	pmseries: fix core dumps for invalid expressions
+    - Build, infrastructure, containers and packaging updates:
+	build: add Amazon Linux 2023 support and package lists
+	build: fix macOS launchctl pmcd fork issue
+	build: rename macosx to macos throughout build system
+	build: use libncurses instead of libncurses5 for Debian
+	debian: major refactor of build and packaging
+	package lists: updates for FreeBSD 14.3, 15.0 and OpenBSD 7.8
+    - Documentation:
+	docs: add CLAUDE.md file for Claude Code integration
+	man: document pmlogger_janitor
 
 pcp-7.0.5 (21 November 2025)
     - build: disable usdt.h use in configure script on armv8l (Debian)

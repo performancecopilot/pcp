@@ -621,6 +621,12 @@ Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot s
 		echo $prog: pmcd --verify $OPTS failed, cannot start pmcd.
 		exit
 	    fi
+	    # When launched by launchctl on macOS, run in foreground mode to prevent
+	    # fork issues that cause launchctl to think pmcd has crashed
+	    if [ -n "$PMCD_LAUNCHED_BY_LAUNCHD" ]
+	    then
+		OPTS="$OPTS -f"
+	    fi
 	    $PMCD $OPTS
             _start_pmcheck
 	    $RC_STATUS -v

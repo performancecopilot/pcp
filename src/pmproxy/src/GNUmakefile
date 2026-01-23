@@ -24,6 +24,8 @@ LDIRT = $(XFILES)
 LCFLAGS = $(PIECFLAGS) \
 	-I$(TOPDIR)/src/libpcp_web/src \
 	-I$(TOPDIR)/src/libpcp_web/src/deps \
+	-I$(TOPDIR)/src/libpcp_web/src/deps/libvalkey/include \
+	-I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/include \
 	-I$(TOPDIR)/src/libpcp_mmv/src
 LLDFLAGS = $(PIELDFLAGS)
 LLDLIBS	= -lpcp_mmv $(PCP_WEBLIB)

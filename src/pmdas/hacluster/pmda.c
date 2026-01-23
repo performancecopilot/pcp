@@ -652,7 +652,7 @@ hacluster_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmd
 static int
 hacluster_fetch_refresh(pmdaExt *pmda, int *need_refresh)
 {
-	int i, sts;
+	int i, sts = 0;
 
 	if (need_refresh[CLUSTER_PACEMAKER_GLOBAL])
 		hacluster_refresh_pacemaker_global();
