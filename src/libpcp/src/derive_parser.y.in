@@ -3434,6 +3434,13 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     if (ctxp != NULL)
 	PM_LOCK(ctxp->c_lock);
 
+    if (pmDebugOptions.derive) {
+	if (ctxp != NULL)
+	    fprintf(stderr, "__dmtraverse(ctx=%d, name=\"%s\", ...)\n", ctxp->c_handle, name);
+	else
+	    fprintf(stderr, "__dmtraverse(ctx=NULL, name=\"%s\", ...)\n", name);
+    }
+
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -3516,6 +3523,14 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
     size_t	need = 0;
     ctl_t       *cp;
 
+    if (pmDebugOptions.derive) {
+	if (ctxp != NULL)
+	    fprintf(stderr, "__dmchildren(ctx=%d", ctxp->c_handle);
+	else
+	    fprintf(stderr, "__dmchildren(ctx=NULL");
+	fprintf(stderr, ", derive_locked=%d, name=\"%s\", ...)\n", derive_locked, name);
+    }
+
     if (derive_locked == PM_NOT_LOCKED) {
 	PM_LOCK(registered.mutex);
 	__dminit();
@@ -3547,10 +3562,25 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
 	     (cp->mlist[i].name[matchlen] == '.' ||
 	      cp->mlist[i].name[matchlen] == '\0'))) {
 	    /*
-	     * we have a match ... do not bind here as it causes nested
-	     * context locking when __dmbind() calls pmLookupName_ctx()
+	     * we have a match ... try binding the first time we see
+	     * this one in the current context (if we have one) ... if
+	     * binding this fails we will skip the metric
 	     */
+	    if ((cp->mlist[i].flags & DM_BIND) == 0) {
+		__pmContext	*l_ctxp = ctxp;
 
+		if (ctxp == NULL) {
+		    int		ctx = pmWhichContext();
+		    if (ctx >= 0)
+			l_ctxp = __pmHandleToPtr(ctx);
+		}
+		if (l_ctxp != NULL) {
+		    __dmbind(PM_LOCKED, l_ctxp, i, 1);
+		    if (ctxp == NULL && l_ctxp != ctxp)
+			/* context locked in __pmHandleToPtr() above) */
+			PM_UNLOCK(ctxp->c_lock);
+		}
+	    }
 	    /* skip invalid derived metrics, e.g. due to missing operands */
 	    if (!cp->mlist[i].anon) {
 		if ((cp->mlist[i].flags & DM_BIND) && cp->mlist[i].expr == NULL) {
@@ -3848,6 +3878,10 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
     }
 
     cp = (ctl_t *)ctxp->c_dm;
+
+    if (pmDebugOptions.derive) {
+	fprintf(stderr, "__dmbind(derive_locked=%d, ctx=%d, metric[%d] %s, async= %d)\n", derive_locked, ctxp->c_handle, i, cp->mlist[i].name, async);
+    }
 
     if (!cp->mlist[i].anon) {
 	/*
