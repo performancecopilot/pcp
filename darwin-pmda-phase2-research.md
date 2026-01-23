@@ -528,7 +528,7 @@ bool is_apple_silicon = (ret == 1);
 
 ## Related Issues
 
-- GitHub Issue: TBD (to be created)
+- GitHub Issue: [#2465 - Darwin PMDA Phase 2: Expand macOS metrics for Apple Silicon](https://github.com/performancecopilot/pcp/issues/2465)
 
 ---
 
