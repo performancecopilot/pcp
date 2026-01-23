@@ -30,7 +30,7 @@ jobs:
       - name: Install Homebrew deps
         id: install-brew-deps
         run: |
-          brew install autoconf unixodbc
+          brew install autoconf unixodbc valkey libuv
       - name: Build on macOS
         id: Build
         run: |
