@@ -13,6 +13,11 @@ proc.control.all.threads
     Semantics: instant  Units: none
     value 0
 
+proc.delayacct.blkio_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+No value(s) available!
+
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: instant  Units: count
@@ -693,6 +698,11 @@ proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
     value 0
+
+proc.delayacct.blkio_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+No value(s) available!
 
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
@@ -1426,6 +1436,11 @@ proc.control.all.threads
     Semantics: instant  Units: none
     value 0
 
+proc.delayacct.blkio_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+No value(s) available!
+
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: instant  Units: count
@@ -1984,6 +1999,11 @@ proc.control.all.threads
     Semantics: instant  Units: none
     value 0
 
+proc.delayacct.blkio_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+No value(s) available!
+
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: instant  Units: count
@@ -2062,6 +2082,11 @@ proc.control.all.threads
     Semantics: instant  Units: none
     value 0
 
+proc.delayacct.blkio_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+No value(s) available!
+
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: instant  Units: count
@@ -2137,6 +2162,11 @@ proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
     value 0
+
+proc.delayacct.blkio_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+No value(s) available!
 
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
@@ -2527,6 +2557,11 @@ proc.control.all.threads
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
     value 0
+
+proc.delayacct.blkio_time
+    Data Type: 64-bit unsigned int  InDom: 3.9 0xc00009
+    Semantics: counter  Units: nanosec
+No value(s) available!
 
 proc.fd.count
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
