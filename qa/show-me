@@ -68,6 +68,10 @@ s/ .*//p
 	    fi
 	    ;;
 
+   l)	    # line-mode diff
+	    DIFF='diff -c'
+	    ;;
+
    n)	    # seq #'s, no diffs
 	    nodiff=true
 	    ;;
