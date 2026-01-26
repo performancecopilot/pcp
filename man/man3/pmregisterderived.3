@@ -451,6 +451,21 @@ units	T{
 a specification of dimension and scale (together forming the units), in the syntax accepted by \fBpmParseUnitsStr\fP(3).
 T}
 _
+indom	T{
+.fi
+.ad l
+an instance domain number specified as
+.B NULL
+for
+.B PM_INDOM_NULL
+(the default) or
+\fIdomain\fB.\fIserial\fR where
+.I domain
+is in the range [0,510] and
+.I serial
+is in the range [0,4194303].
+T}
+_
 meta	T{
 a metric name and that metric provides the base metadata that may be modified by other parameters
 T}
