@@ -34,7 +34,7 @@ echo
 echo "Now with the derived metrics ..."
 pminfo -Dderive -c $tmp.config -f sample.long 2>$tmp.err >$tmp.out
 cat $tmp.err >>$seq_full
-grep '^bind_expr:' $tmp.err
+grep -E '^(bind_expr:|Semantic error:)' $tmp.err
 cat $tmp.out
 
 # success, all done
