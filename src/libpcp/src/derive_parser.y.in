@@ -5,12 +5,12 @@
  * This parser is heavily based on the (much older) pmie parser.
  *
  * Debug flags
- *   DERIVE & APPL0
+ *   derive && appl0
  *	pmRegisterDerived(), lexical scanner, syntactic checks
  *	and pmUnregisterDerived()
- *   DERIVE & APPL1
+ *   derive && appl1
  *	_dmopencontext(), refresh(), semantic checks
- *   DERIVE & APPL2
+ *   derive && appl2
  *	_dmchildren(), PMNS ops, pmFetch ops, pmDesc ops,
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
@@ -442,6 +442,10 @@ free_expr_ctx(node_t *np)
     free_expr(np);
 }
 
+/*
+ * name is the derived metric name (global or per-context)
+ * np is the node where the problem was found
+ */
 static void
 report_sem_error(char *name, node_t *np)
 {
@@ -715,19 +719,24 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	    }
 	    if (async) {
 		/*
-		 * We used to unconditionally report the error here,
-		 * but it is better to be silent because the offending
-		 * metric may never be accessed.
-		 * Using -Dderive will expose the error message if needed.
+		 * async reporting considerations ...
+		 *
+		 * We've tossed and turned here between making this
+		 * reporting unconditional vs conditional on -Dderive.
+		 * Conditional was motivated by formulas in the system
+		 * derived metrics configurations that use metrics that are
+		 * not universally available, but the associated derived
+		 * metric may never be user, leading to distracting error
+		 * messages for every PMAPI client ... the addition of the
+		 * defined(x) function for derived metrics means these
+		 * cases can be handled in a more elegant manner, hence we
+		 * now warn unconditionally here.
 		 */
-		if (pmDebugOptions.derive) {
-		    char	errmsg[PM_MAXERRMSGLEN];
-		    if (is_global)
-			pmprintf("bind_expr: error: global derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		    else
-			pmprintf("bind_expr: error: per-context derived metric %s: operand: %s: %s\n", cp->mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		    pmflush();
-		}
+		PM_TPD(derive_errmsg) = "Unknown operand metric";
+		if (is_global)
+		    report_sem_error(registered.mlist[n].name, np);
+		else
+		    report_sem_error(cp->mlist[n].name, np);
 	    }
 	    else {
 		PM_TPD(derive_errmsg) = "Unknown operand metric";
@@ -767,20 +776,15 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	if (sts < 0) {
 	    if (async) {
 		/*
-		 * We used to unconditionally report the error here,
-		 * but it is better to be silent because the offending
-		 * metric may never be accessed.
-		 * Using -Dderive will expose the error message if needed.
+		 * async reporting considerations ...
+		 *
+		 * See comments above.
 		 */
-		if (pmDebugOptions.derive) {
-		    char	strbuf[20];
-		    char	errmsg[PM_MAXERRMSGLEN];
-		    if (is_global)
-			pmprintf("bind_expr: error: global derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		    else
-			pmprintf("bind_expr: error: per-context derived metric %s: operand (%s [%s]): %s\n", cp->mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		    pmflush();
-		}
+		 PM_TPD(derive_errmsg) = "Metadata for operand metric not available";
+		if (is_global)
+		    report_sem_error(registered.mlist[n].name, np);
+		else
+		    report_sem_error(cp->mlist[n].name, np);
 	    }
 	    else {
 		 PM_TPD(derive_errmsg) = "Metadata for operand metric not available";

@@ -644,7 +644,7 @@ class pmConfig(object):
         except pmapi.pmErr as error:
             if hasattr(self.util, 'ignore_incompat') and self.util.ignore_incompat:
                 return
-            sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
+            sys.stderr.write("Incompatible metric %s (%s).\n" % (metric, str(error)))
             sys.exit(1)
 
     def ignore_unknown_metrics(self):
@@ -764,8 +764,9 @@ class pmConfig(object):
                         err = "Unidentified error"
                     finally:
                         if err:
-                            sys.stderr.write("Failed to register derived metric:\n%s.\n" % err)
-                            sys.exit(1)
+                            sys.stderr.write("Failed to register derived metric:\n%s\n" % err.strip())
+                            if not self.ignore_unknown_metrics():
+                                sys.exit(1)
 
         if not hasattr(self.util, 'leaf_only') or not self.util.leaf_only:
             # Prepare for non-leaf metrics while preserving metric order
@@ -803,7 +804,7 @@ class pmConfig(object):
         metrics = self.util.metrics
         self.util.metrics = OrderedDict()
 
-        some_invalid = False
+        some_unknown = False
         for metric in metrics:
             try:
                 l = len(self.pmids)
@@ -815,16 +816,11 @@ class pmConfig(object):
                 else:
                     self.util.metrics[metric] = metrics[metric]
             except pmapi.pmErr as error:
-                sys.stderr.write("Invalid metric %s (%s).\n" % (metric, str(error)))
-                some_invalid = True
+                sys.stderr.write("Unknown metric %s (%s).\n" % (metric, str(error)))
+                some_unknown = True
 
-        # Exit if some were invalid, unless --ignore-unknown
-        if some_invalid and not self.ignore_unknown_metrics():
-            sys.exit(1)
-
-        # Exit if no metric was valid
-        if not self.util.metrics:
-            sys.stderr.write("All metrics are invalid, quitting.\n")
+        # Exit if some were unknown, unless --ignore-unknown
+        if some_unknown and not self.ignore_unknown_metrics():
             sys.exit(1)
 
         # Exit if no metrics with specified instances found
@@ -834,6 +830,11 @@ class pmConfig(object):
             if self.util.instances:
                 print("\nRequested global instances:")
                 print(self.util.instances)
+            sys.exit(1)
+
+        # Exit if no metric was valid
+        if not self.util.metrics:
+            sys.stderr.write("All metrics are unknown, quitting.\n")
             sys.exit(1)
 
         # Dynamically set fetchgroup max instances

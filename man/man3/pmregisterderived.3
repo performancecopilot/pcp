@@ -293,7 +293,9 @@ applies to all instances.
 .IP (f) 4n
 If the ``guard'' expression has a set of values and one or more of
 the other operand expressions involves an instance domain, the ``guard''
-is evaluated once for each instance (there must be one instance
+is evaluated once for each instance (there must be
+.B exactly
+one instance
 domain as per rule (b) above).
 .IP (g) 4n
 If one of the operand expressions has a singular value and the other has
@@ -911,8 +913,8 @@ _
 global	511.0.1	T{
 .hy 0
 Metrics are assigned \fIascending\fP PMIDs as they are registered
-via \fBpmRegisterDerived\fP or \fBpmRegister-DerivedMetric\fP, or
-\fBpmLoad-DerivedConfig\fP(3).
+via \fBpmRegisterDerived\fP or \fBpmRegisterDerivedMetric\fP, or
+\fBpmLoadDerivedConfig\fP(3).
 T}
 _
 per-context	511.2047.1023	T{
@@ -943,10 +945,10 @@ masked by other metrics of the same name.
 The following table describes which metric will be used when one
 of these multiply-defined names is presented to the PMAPI.
 .TS
-box,center,expand;
+box,center;
 cf(R)  | cf(R)   s       s     | cf(R)
 ^      | cf(R) | cf(R) | cf(R) | ^
-l1f(R) | lf(R) | lf(R) | lf(R) | lf(R).
+l1f(R) | lf(R) | lf(R) | lf(R) | lf(R)x.
 base metric	derived metric	chosen metric
 _
 	remapped	per-context	global	
@@ -1052,8 +1054,60 @@ caller is responsible for calling
 .BR free (3)
 to release the space allocated for
 .IR errmsg .
+.PP
+The debugging option
+.B derive
+(see
+.BR pmdbg (1))
+may be use to provide additional diagnostic information about
+the parsing, binding and evaluation of derived metric expressions.
+Additional debugging options may be used with
+.B derive
+to provide even more information, as outlined below.
+Alternatively,
+.BR pmSetDerivedControl (3)
+may be used by an application to achieve the same result.
+.TS
+box;
+lf(B) | lf(B) | lf(B)
+^     | lf(B) | ^
+lf(B) | lf(B) | lxf(R) .
+Option	pmSetDerivedControl	Description
+	argument	
+_
+appl0	PCP_DERIVED_DEBUG_SYNTAX	T{
+.ad l
+.BR pmRegisterDerived ,
+.BR pmAddDerived (3),
+the lexical scanner, syntactic checks and
+.BR pmUnregisterDerived (3).
+T}
+_
+appl1	PCP_DERIVED_DEBUG_SEMANTICS	T{
+.ad l
+Actions when a new PMAPI context is created, semantic checks, detailed
+error reports for binding failures, updates
+to catch global derived metrics registered after the PMAPI context
+was created.
+T}
+_
+appl2	PCP_DERIVED_DEBUG_EVAL	T{
+.ad l
+PMNS operations,
+.BR pmFetch (3)
+and
+.BR pmLookupDesc (3).
+T}
+.TE
+And for even more detail, add the
+.B desperate
+debugging option to any of the above, e.g.
+.B \-Dderive,appl1,desperate
+shows the binding of every expression node for every derived metric
+when a new PMAPI context is created.
 .SH SEE ALSO
 .BR PCPIntro (1),
+.BR pmdbg (1),
 .BR pmlogger (1),
 .BR PMAPI (3),
 .BR free (3),
@@ -1061,16 +1115,22 @@ to release the space allocated for
 .BR pmAddDerivedMetric (3),
 .BR pmDerivedErrStr (3),
 .BR pmFetch (3),
+.BR pmFetchArchive (3),
 .BR pmLoadDerivedConfig (3),
+.BR pmLookupDesc (3),
+.BR pmLookupName (3),
 .BR pmNewContext (3),
+.BR pmParseUnitsStr (3),
 .BR pmReconnectContext (3),
+.BR pmSetDerivedControl (3),
 .BR pmUnregisterDerived (3),
-.BR pmprintf (3)
+.BR pmprintf (3),
+.BR regex (3)
 and
 .BR PMNS (5).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ pmUnregisterDerived instance_name total_bytes
+.\" +ok+ instance_name total_bytes undefine
 .\" +ok+ avg_io_size matchinst unitless novalue somemetric
 .\" +ok+ RESCALE mkconst PM_SEM_ kbyte avgsz vbir eth avg op
 .\" +ok+ fw {from fw.bytes}

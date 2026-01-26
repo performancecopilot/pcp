@@ -23,29 +23,51 @@ Metricset definition ':nosuchset' not found.
 00:11:11   N/A
 00:12:11   142
 == incompat metric in metricset handling
+++ no --ignore
 pmrep: Impossible value or scale conversion
+++ --ignore-unknown
 pmrep: Impossible value or scale conversion
+++ --ignore-incompat
           files
                
 00:11:11  15872
 00:12:11  15840
 == incompat derived metric in metricset handling
+++ no --ignore
 Semantic error: derived metric incompat.metric: disk.all.read_bytes + mem.util.free: Illegal operator for counter and non-counter
-Invalid metric incompat.metric (PM_ERR_BADDERIVE Derived metric definition failed).
+Unknown metric incompat.metric (PM_ERR_NAME Unknown metric name).
+++ --ignore-unknown
 Semantic error: derived metric incompat.metric: disk.all.read_bytes + mem.util.free: Illegal operator for counter and non-counter
-Invalid metric incompat.metric (PM_ERR_BADDERIVE Derived metric definition failed).
-Semantic error: derived metric incompat.metric: disk.all.read_bytes + mem.util.free: Illegal operator for counter and non-counter
+Unknown metric incompat.metric (PM_ERR_NAME Unknown metric name).
           freemem  files  d.a.total_bytes
                MB                    MB/s
 00:11:11  6713.00  15872              N/A
 00:12:11  6587.35  15840            2.382
+++ --ignore-incompat
+Semantic error: derived metric incompat.metric: disk.all.read_bytes + mem.util.free: Illegal operator for counter and non-counter
+Unknown metric incompat.metric (PM_ERR_NAME Unknown metric name).
 == unknown metric in metricset handling
-Invalid metric no.such.metric (PM_ERR_NAME Unknown metric name).
-Invalid metric no.such.metric (PM_ERR_NAME Unknown metric name).
+++ no --ignore
+Unknown metric no.such.metric (PM_ERR_NAME Unknown metric name).
+++ --ignore-incompat
+Unknown metric no.such.metric (PM_ERR_NAME Unknown metric name).
+++ --ignore-unknown
           freemem  files
             Kbyte       
 00:11:11  6874112  15872
 00:12:11  6745448  15840
 == unknown derived metric in metricset handling
-Invalid metric not.here (PM_ERR_BADDERIVE Derived metric definition failed).
+++ no --ignore
+Semantic error: derived metric not.here: operand no.such.metric: Unknown operand metric
+Unknown metric not.here (PM_ERR_NAME Unknown metric name).
+++ --ignore-incompat
+Semantic error: derived metric not.here: operand no.such.metric: Unknown operand metric
+Unknown metric not.here (PM_ERR_NAME Unknown metric name).
+++ --ignore-unknown
+Semantic error: derived metric not.here: operand no.such.metric: Unknown operand metric
+Unknown metric not.here (PM_ERR_NAME Unknown metric name).
+          freemem  files
+            Kbyte       
+00:11:11  6874112  15872
+00:12:11  6745448  15840
 == done
