@@ -23006,7 +23006,6 @@ pcp-ps output : Display the value as per %mem in user selected format(failure ca
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
 Sorting order not found in output columns
 
-
 pcp-ps output : Display the value as per %mem in user selected format
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
 Timestamp	PID		PPID		TTY	Command				%MEM	
@@ -23030,3 +23029,31 @@ Timestamp	USER		PID		PPID		PRI	%CPU	%MEM	VSZ	RSS	S	STARTED		TIME		WCHAN				Comma
 06:20:31	root      	6219    	5729    	0	0.1	0.0	770024	50580	S	06:32:45	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/tracker-store
 06:20:31	root      	6834    	5729    	0	0.0	0.0	537140	49588	S	06:32:55	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/gnome-terminal-server
 06:20:31	root      	897     	838     	0	0.0	0.0	198164	44248	S	06:32:24	00:00:00	ep_poll                       	/usr/libexec/sssd/sssd_nss --uid 0 --gid 0 --
+
+pcp-ps output : Display user format with sort by %cpu (custom columns, positive test)
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Timestamp	PID		%CPU	Command				
+06:20:31	5857    	0.2	/usr/bin/gnome-shell
+06:20:31	186     	0.1	(kworker/3:2-cgroup_pidlist_destroy)
+06:20:31	1106    	0.1	/usr/sbin/NetworkManager --no-daemon
+06:20:31	1120    	0.1	/usr/libexec/platform-python -Es /usr/sbin/tuned -l -P
+06:20:31	1650    	0.1	/var/lib/pcp/pmdas/proc/pmdaproc -A -d 3
+06:20:31	1682    	0.1	/var/lib/pcp/pmdas/linux/pmdalinux -A
+06:20:31	5766    	0.1	/usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+06:20:31	6254    	0.1	/usr/libexec/tracker-miner-fs
+
+pcp-ps output : Display user format using --sort (long option)
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Timestamp	PID		%MEM	Command				
+06:20:31	4978    	2.25	/usr/libexec/packagekitd
+06:20:31	5857    	2.16	/usr/bin/gnome-shell
+06:20:31	6224    	1.01	/usr/bin/gnome-software --gapplication-service
+06:20:31	5976    	0.45	/usr/libexec/ibus-x11 --kill-daemon
+06:20:31	5916    	0.37	/usr/bin/Xwayland :0 -rootless -terminate -accessx -core -auth /run/user/0/.mutter-Xwaylandauth.Q6AEX1 -listen 4 -listen 5 -displayfd 6
+06:20:31	6219    	0.36	/usr/libexec/tracker-store
+06:20:31	6834    	0.35	/usr/libexec/gnome-terminal-server
+06:20:31	884     	0.31	/usr/libexec/platform-python -s /usr/sbin/firewalld --nofork --nopid
+
+pcp-ps output : Display user format with --sort on missing column (negative test, should error)
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Sorting order not found in output columns
