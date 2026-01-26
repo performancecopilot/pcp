@@ -25,7 +25,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 __dmtraverse(ctx=0, name="qa.bad", ...)
 __dmbind(derive_locked=1, ctx=0, metric[2] qa.bad.b02, async= 1)
-bind_expr: error: global derived metric qa.bad.b02: operand: samples.string.hullo: Unknown metric name
+Semantic error: derived metric qa.bad.b02: operand samples.string.hullo: Unknown operand metric
 __dmbind: bind_expr failed for metric[2] qa.bad.b02
 Error: qa.bad: Unknown metric name
 --- qa.bad.b03 = delta(sample.bad.unknown)
@@ -38,7 +38,7 @@ indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
 __dmtraverse(ctx=0, name="qa.bad", ...)
 __dmbind(derive_locked=1, ctx=0, metric[2] qa.bad.b03, async= 1)
-bind_expr: error: global derived metric qa.bad.b03: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+Semantic error: derived metric qa.bad.b03: operand sample.bad.unknown: Metadata for operand metric not available
 __dmbind: bind_expr failed for metric[2] qa.bad.b03
 Error: qa.bad: Unknown metric name
 --- qa.bad.b04 = rate(sample.string.hullo)
