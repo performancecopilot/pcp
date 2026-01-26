@@ -23,6 +23,7 @@ pcp-7.1.0 (28 January 2026)
 	libpcp: add compatibility support for strcasestr and cfmakeraw
 	libpcp: tidied up some derived metric error path logic
 	libpcp_pmda: fix pmdaCacheResize() issue
+	python api: removed uses of the python six module
 	pmseries: fix core dumps for invalid expressions
     - Build, infrastructure, containers and packaging updates:
 	build: add Amazon Linux 2023 support and package lists
