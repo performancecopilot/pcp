@@ -943,10 +943,8 @@ if __name__ == "__main__":
         usage.message()
         sys.exit(1)
     except ValueError as e:
-        # instead of stderr print to stdout
-        # this is to resolve 1987 qa test failure
-        sys.stdout.write("%s\n" % str(e))
-        sys.exit(0)
+        sys.stderr.write("%s\n" % str(e))
+        sys.exit(1)
     except IOError:
         signal.signal(signal.SIGPIPE, signal.SIG_DFL)
     except KeyboardInterrupt:
