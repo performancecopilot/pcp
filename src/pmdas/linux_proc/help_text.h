@@ -169,4 +169,7 @@ help_text_t  help_text[] = {
 { .name = "fdinfo.amd_requested_gtt",  .shorthelp = "Accumulation of the amd-requested-gtt field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "How much GTT memory userspace asked for" },
 { .name = "fdinfo.amd_requested_visible_vram",  .shorthelp = "Accumulation of the amd-requested-visible-vram field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "How much visible VRAM userspace asked for" },
 { .name = "fdinfo.amd_requested_vram",  .shorthelp = "Accumulation of the amd-requested-vram field from /proc/<pid>/fdinfo/* file descriptors",  .longhelp = "How much VRAM userspace asked for, includes visible VRAM" },
+{ .name = "delayacct.cpu_time",  .shorthelp = "time spent waiting for a CPU while runnable",  .longhelp = "Time in nanoseconds that a process has been waiting for a CPU while\nrunnable, since starting.  Requires sysctl kernel.task_delayacct=1\n" },
+{ .name = "delayacct.blkio_time",  .shorthelp = "time spent waiting for sync block I/O",  .longhelp = "Time in nanoseconds that a process has waited for synchronous block\nI/O, since starting.  Requires sysctl kernel.task_delayacct=1\n" },
+{ .name = "delayacct.swapin_time",  .shorthelp = "time spent swapping in pages",  .longhelp = "Length of time in nanoseconds that a process has spent swapping in pages\nsince starting.  Requires sysctl kernel.task_delayacct=1\n" },
 };

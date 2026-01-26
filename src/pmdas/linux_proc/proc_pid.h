@@ -1,7 +1,7 @@
 /*
  * Linux /proc/<pid>/... Clusters
  *
- * Copyright (c) 2013-2015,2018-2022 Red Hat.
+ * Copyright (c) 2013-2015,2018-2026 Red Hat.
  * Copyright (c) 2000,2004 Silicon Graphics, Inc.  All Rights Reserved.
  *
  * This program is free software; you can redistribute it and/or modify it
@@ -18,6 +18,7 @@
 #define _PROC_PID_H
 
 #include "hotproc.h"
+#include "delayacct.h"
 
 /*
  * Maximim length of psargs and proc instance name.
@@ -245,6 +246,7 @@ enum {
     PROC_PID_FLAG_EXE		= 1<<15,
     PROC_PID_FLAG_AUTOGROUP	= 1<<16,
     PROC_PID_FLAG_FDINFO	= 1<<17,
+    PROC_PID_FLAG_DELAYACCT	= 1<<18,
 };
 
 typedef struct {
@@ -313,6 +315,10 @@ typedef struct {
 
     /* /proc/<pid>/fdinfo cluster */
     proc_pid_fdinfo_t	fdinfo;
+
+    /* netlink delay acct cluster */
+    delayacct_t		delayacct;
+
 } proc_pid_entry_t;
 
 typedef struct {
@@ -401,5 +407,8 @@ extern proc_pid_entry_t *fetch_proc_pid_autogroup(int, proc_pid_t *, int *);
 
 /* fetch data from proc/<pid>/fdinfo/ entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_fdinfo(int, proc_pid_t *, int *);
+
+/* fetch delayacct data via netlink (libnl) for pid */
+extern proc_pid_entry_t *fetch_proc_pid_delayacct(int, proc_pid_t *, int *);
 
 #endif /* _PROC_PID_H */

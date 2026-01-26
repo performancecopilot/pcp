@@ -14,6 +14,12 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
+
+# Set LCFLAGS before the override CFLAGS so it gets included
+ifeq "$(HAVE_LIBUV)" "true"
+LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
+endif
+
 # Prepend libvalkey dict.h path so source.c finds it before PCP's dict.h
 # Using override to prepend our include path before the PCP includes that builddefs added
 ifeq "$(HAVE_LIBUV)" "true"
@@ -28,7 +34,6 @@ LDIRT = crontab pmfind.service
 ifeq "$(HAVE_LIBUV)" "true"
 CFILES += source.c
 LLDLIBS = $(PCP_WEBLIB)
-LCFLAGS += $(LIBUVCFLAGS) -DHAVE_LIBUV=1
 else
 CFILES += nosource.c
 LLDLIBS = $(PCPLIB)

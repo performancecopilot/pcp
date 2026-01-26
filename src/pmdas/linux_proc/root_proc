@@ -447,6 +447,7 @@ proc {
     runq
     id			PROC:*:*
     io			PROC:*:*
+    delayacct		PROC:*:*
     schedstat		PROC:*:*
     fd			PROC:*:*
     fdinfo		PROC:*:*
@@ -462,6 +463,7 @@ hotproc {
     memory		PROC:*:*
     id			PROC:*:*
     io			PROC:*:*
+    delayacct		PROC:*:*
     schedstat		PROC:*:*
     fd			PROC:*:*
     fdinfo		PROC:*:*
