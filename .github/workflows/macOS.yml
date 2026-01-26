@@ -26,7 +26,7 @@ jobs:
           source pybuilddeps/bin/activate
           pip3 install setuptools wheel
           python3 -c "import setuptools; print(setuptools.__version__)"
-          python3 -m pip install lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests six
+          python3 -m pip install lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests six pylint
       - name: Install Homebrew deps
         id: install-brew-deps
         run: |

@@ -507,6 +507,39 @@ Like \fBtime_scale\fP but overrides possible per-metric specifications.
 Corresponding command line option is \fB\-Y\fP.
 Undefined by default.
 .RE
+.PP
+groupalign (string)
+.RS 4
+Indicates the default alignment for group headers.
+Allowed values are \fBleft\fP, \fBcenter\fP, or \fBright\fP.
+Defaults to \fBcenter\fP.
+See \fBCOLUMN GROUPING\fP section below.
+.RE
+.PP
+groupheader (boolean)
+.RS 4
+Indicates whether to display group headers.
+Auto-enabled when \fBgroup.*\fP definitions exist.
+Explicitly set to \fBno\fP to suppress.
+Defaults to auto-detection.
+See \fBCOLUMN GROUPING\fP section below.
+.RE
+.PP
+groupsep (string)
+.RS 4
+Indicates the separator character to display between column groups.
+Separator appears in the header rows between group boundaries.
+Undefined (no separator) by default.
+See \fBCOLUMN GROUPING\fP section below.
+.RE
+.PP
+groupsep_data (boolean)
+.RS 4
+Indicates whether to apply group separators to data rows as well as headers.
+Only effective when \fBgroupsep\fP is defined.
+Defaults to \fBno\fP.
+See \fBCOLUMN GROUPING\fP section below.
+.RE
 .SS The [global] section
 The
 .B [global]
@@ -613,6 +646,82 @@ Defines precision for numeric non-integer output values.
 .I limit
 Defines value limit filter for numeric metric values.
 .RE
+.SH COLUMN GROUPING
+Column grouping allows visual organization of metrics into labeled groups,
+similar to the output format of tools like
+.BR pmstat (1)
+or
+.BR vmstat (8).
+Group headers span multiple columns and appear above the metric headers.
+.PP
+Groups are defined in custom metricset sections using the following syntax:
+.RS 4
+.TP 2
+.B group.<handle> = metric1, metric2, ...
+Defines a group with the specified identifier (handle) containing the
+listed metrics.
+The order of groups and metrics within groups determines the display order.
+.TP
+.B group.<handle>.prefix = prefix.path
+Optional common prefix prepended to metrics in the group that don't
+contain a dot.
+Metrics containing a dot are treated as fully-qualified and used as-is.
+.TP
+.B group.<handle>.label = Label
+Optional display label for the group.
+If not specified, the handle name is used.
+.TP
+.B group.<handle>.align = left|center|right
+Optional alignment override for this group.
+If not specified, the global \fBgroupalign\fP value is used.
+.RE
+.PP
+When any \fBgroup.*\fP definition exists, a group header row is
+automatically displayed above the metric headers (unless \fBgroupheader\fP
+is explicitly set to \fBno\fP).
+The \fBgroupsep\fP option can specify a separator character (such as
+``|'') to visually mark group boundaries in the output.
+.PP
+Metrics must be defined in the group definition before they can be included.
+Metrics not included in any group will appear after all grouped columns
+with blank space in the group header row.
+.PP
+Example group definition:
+.sp 1
+.RS 4
+.nf
+[vmstat\-grouped]
+header = yes
+groupalign = center
+groupsep = |
+
+group.memory = free, bufmem, cache
+group.memory.prefix = mem.util
+group.memory.label = memory
+
+group.cpu = user, sys, idle
+group.cpu.prefix = kernel.all.cpu
+
+mem.util.free = free,,KB,,8
+mem.util.bufmem = buff,,KB,,8
+mem.util.cache = cache,,KB,,8
+kernel.all.cpu.user = us,,,,3
+kernel.all.cpu.sys = sy,,,,3
+kernel.all.cpu.idle = id,,,,3
+.fi
+.RE
+.sp 1
+.PP
+This produces output with group headers spanning their respective columns:
+.sp 1
+.RS 4
+.nf
+      memory      | cpu
+ free buff cache | us sy id
+ 1234 5678  9012 |  5 10 85
+.fi
+.RE
+.sp 1
 .SH EXAMPLE
 The following example contains a short \fB[options]\fP section setting
 some locally wanted default values.
@@ -706,3 +815,4 @@ and
 .\" +ok+ metricspec time_scale postgresql metricset METRICSET omit_flat
 .\" +ok+ extheader cacheall allcache unitinfo instinfo timefmt
 .\" +ok+ colxrow pswitch bufmem extcsv cswch pre zsh db {from db1}
+.\" +ok+ groupalign groupheader groupsep groupsep_data GROUPING

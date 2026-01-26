@@ -8,6 +8,16 @@ Performance Co-Pilot (PCP) is a mature, extensible, cross-platform toolkit for s
 
 ## Development Commands
 
+### Linting
+Some modules support the `make check` rule to run linting (such as `pylint`) and other quality checks. **Always run linting before committing code changes:**
+
+- For pmrep module: `cd src/pmrep && make check` - must achieve 10.00/10 pylint score to pass CI
+  - will also require: `cd src/python && make check` - to cover off potential shared python library changes when working with pmrep
+- For individual modules: `cd module/path && make check`
+- For project-wide: `make check` from root (if supported)
+
+Linting violations will block CI builds, so catch them locally first.
+
 ### Building and Packaging
 ```bash
 # Configure and build from source (requires autotools)
@@ -24,7 +34,14 @@ make
 sudo make install
 ```
 
+### Testing
+Some modules support `make test` for fast unit tests. **Always run module tests before committing changes.**
+
+- Example: `cd src/pmrep && make test`
+
 ### Quality Assurance Testing
+More detailed, thorough QA/Integration tests can be performed.  These are relatively heavy-weight, but cover many detailed scenarios.
+
 ```bash
 # Run QA setup validation
 qa/admin/check-vm
