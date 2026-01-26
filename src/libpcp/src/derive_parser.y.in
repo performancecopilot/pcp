@@ -4492,23 +4492,19 @@ expr	: L_LPAREN expr L_RPAREN
 		}
 	;
 
-novalue : L_NOVALUE L_LPAREN L_RPAREN
+novalue : L_NOVALUE L_LPAREN
 		{ np = newnode(N_NOVALUE);
 		  /*
 		   * defaults ... not needed, but makes __dmdumpexpr()
 		   * happy in case is is called
 		   */
-		  np->desc.pmid = PM_ID_NULL;
-		  np->desc.type = PM_TYPE_32;
-		  np->desc.indom = PM_INDOM_NULL;
-		  np->desc.sem = PM_SEM_DISCRETE;
-		  np->desc.units = noUnits;
-		  $$ = np;
-		}
-	| L_NOVALUE L_LPAREN speclist L_RPAREN
-		{ np = newnode(N_NOVALUE);
-		  np->desc = specdesc;	/* struct copy */
-		  np->desc.pmid = PM_ID_NULL;
+		  specdesc.pmid = PM_ID_NULL;
+		  specdesc.type = PM_TYPE_32;
+		  specdesc.indom = PM_INDOM_NULL;
+		  specdesc.sem = PM_SEM_DISCRETE;
+		  specdesc.units = noUnits;
+		} novalueparam
+		{ np->desc = specdesc;	/* struct copy */
 		  if (specmeta != NULL) {
 		      np->left = specmeta;
 		      specmeta = NULL;
@@ -4516,9 +4512,13 @@ novalue : L_NOVALUE L_LPAREN L_RPAREN
 		  np->flags = specflags;
 		  specflags = 0;
 		  $$ = np;
-		}
+		} 
 	| L_NOVALUE L_LPAREN error
 		{ gramerr("metadata keyword", follow, "novalue("); YYERROR; }
+	;
+
+novalueparam :	L_RPAREN
+	| speclist L_RPAREN
 	;
 
 regexpr	: opt_bang L_PATTERN
