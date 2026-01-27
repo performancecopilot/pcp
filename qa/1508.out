@@ -415,7 +415,7 @@ qa.novalues.c
 No value(s) available!
 
 qa.novalues.d
-    Data Type: float  InDom: 0.0 0x0
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Mbyte / hour
 No value(s) available!
 
