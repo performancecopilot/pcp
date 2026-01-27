@@ -4240,6 +4240,7 @@ PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
 %token      L_TYPE
 %token      L_SEMANTICS
 %token      L_UNITS
+%token      L_INDOM
 %token      L_ASSIGN
 %token      L_COMMA
 
@@ -4681,9 +4682,32 @@ spec	: L_TYPE L_ASSIGN specval
 		  specflags |= META_UNITS;
 		  $$ = specdesc;
 		}
+	| L_INDOM L_ASSIGN specval
+		{ int		ok = 1;
+		  if (strcasecmp($3, "null") == 0) {
+		      specdesc.indom = PM_INDOM_NULL;
+		  }
+		  else {
+		      unsigned int	domain;
+		      unsigned int	serial;
+		      if (sscanf($3, "%u.%u", &domain, &serial) == 2 &&
+		          domain >= 0 && domain < 511 && serial >= 0 && serial < (1<<22)) {
+			  specdesc.indom = pmInDom_build(domain, serial);
+		      }
+		      else
+			ok = 0;
+		  }
+		  if (!ok) {
+		      gramerr("Illegal indom:", NULL, $3);
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  specflags |= META_INDOM;
+		  $$ = specdesc;
+		}
 	| L_META L_ASSIGN L_NAME
-		{ specmeta = newnode(N_NAME);
-		  specmeta->value = $3;
+{ specmeta = newnode(N_NAME);
+    specmeta->value = $3;
 		  $$ = specdesc;	/* not used from this rule */
 		}
 	;
@@ -4691,6 +4715,7 @@ spec	: L_TYPE L_ASSIGN specval
 specval	: L_STRING
 	| L_NAME
 	| L_INTEGER
+	| L_DOUBLE
 	;
 
 func	: L_ANON L_LPAREN L_NAME L_RPAREN
@@ -4885,6 +4910,7 @@ static struct {
     { L_TYPE,		0,		"TYPE",		NULL },
     { L_SEMANTICS,	0,		"SEMANTICS",	NULL },
     { L_UNITS,		0,		"UNITS",	NULL },
+    { L_INDOM,		0,		"INDOM",	NULL },
     { L_ASSIGN,		0,		"ASSIGN",	"=" },
     { L_COMMA,		0,		"COMMA",	"," },
     { L_STRING,		0,		"STRING",	NULL },
@@ -5216,6 +5242,10 @@ derive_lex(void)
 		}
 		else if (strcmp(tokbuf, "units") == 0) {
 		    ret = L_UNITS;
+		    break;
+		}
+		else if (strcmp(tokbuf, "indom") == 0) {
+		    ret = L_INDOM;
 		    break;
 		}
 		else if (strcmp(tokbuf, "meta") == 0) {

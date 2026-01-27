@@ -2148,6 +2148,7 @@ telnet-probe
 1647 pmda.opentelemetry local
 1648 other local not_in_ci
 1649 pmrep python local derive
+1650 derive local
 1653 pmda.denki local
 1658 pmda.linux local
 1660 libpcp labels local
