@@ -62,6 +62,22 @@ void test_valkey_parse_too_long_cmd(void) {
     command_destroy(c);
 }
 
+/* Parse a subcommand longer than the 64 char limit */
+void test_valkey_parse_too_long_subcommand(void) {
+    char subcmd[66];
+    memset(subcmd, 'A', 65);
+    subcmd[65] = '\0';
+
+    struct cmd *c = command_get();
+    int len = valkeyFormatCommand(&c->cmd, "XGROUP %s", subcmd);
+    ASSERT_MSG(len >= 0, "Format command error");
+    c->clen = len;
+    valkey_parse_cmd(c);
+    ASSERT_MSG(c->result == CMD_PARSE_ERROR, "Unexpected parse success");
+    ASSERT_MSG(!strncmp(c->errstr, "Unknown command XGROUP AAAAAAA", 30), c->errstr);
+    command_destroy(c);
+}
+
 void test_valkey_parse_unknown_cmd(void) {
     struct cmd *c = command_get();
     int len = valkeyFormatCommand(&c->cmd, "OIOIOI");
@@ -223,9 +239,24 @@ void test_valkey_parse_cmd_georadius_ro_ok(void) {
     command_destroy(c);
 }
 
+void test_valkey_parse_cmd_sadd_ok(void) {
+    char key[201];
+    memset(key, 'A', 200);
+    key[200] = '\0';
+
+    struct cmd *c = command_get();
+    int len = valkeyFormatCommand(&c->cmd, "SADD %s value", key);
+    ASSERT_MSG(len >= 0, "Format command error");
+    c->clen = len;
+    valkey_parse_cmd(c);
+    ASSERT_KEY(c, key);
+    command_destroy(c);
+}
+
 int main(void) {
     test_valkey_parse_error_nonresp();
     test_valkey_parse_too_long_cmd();
+    test_valkey_parse_too_long_subcommand();
     test_valkey_parse_unknown_cmd();
     test_valkey_parse_cmd_get();
     test_valkey_parse_cmd_mset();
@@ -240,5 +271,6 @@ int main(void) {
     test_valkey_parse_cmd_restore_ok();
     test_valkey_parse_cmd_restore_asking_ok();
     test_valkey_parse_cmd_georadius_ro_ok();
+    test_valkey_parse_cmd_sadd_ok();
     return 0;
 }
