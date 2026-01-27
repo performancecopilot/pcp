@@ -23004,7 +23004,6 @@ Timestamp        USERNAME	PID		%CPU	%MEM	VSZ	RSS	TTY	STAT	TIME		START		COMMAND
 
 pcp-ps output : Display the value as per %mem in user selected format(failure case)
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
-Sorting order not found in output columns
 
 pcp-ps output : Display the value as per %mem in user selected format
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
@@ -23056,4 +23055,3 @@ Timestamp	PID		%MEM	Command
 
 pcp-ps output : Display user format with --sort on missing column (negative test, should error)
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
-Sorting order not found in output columns
