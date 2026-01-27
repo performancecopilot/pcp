@@ -24,6 +24,7 @@ _filter()
 	-e '/Metric not supported by this version of monitored application/d' \
 	-e '/cgroup\.groups: pmLookupName: Unknown metric name/d' \
 	-e '/proc\.id\.container: No data available/d' \
+	-e '/proc\.delayacct.*: Missing metric value(s)/d' \
 	-e '/proc\.psinfo\.cgroups: No data available/d' \
 	-e '/^sample\.needprofile:/d' \
 	-e '/^sample\.bad\.unknown:/d' \
@@ -45,7 +46,6 @@ _filter()
 	-e '/^proc\.id.*: No permission/d' \
 	-e '/^proc\.fd.*: No permission/d' \
 	-e '/^proc\.io.*: /d' \
-	-e '/^proc\.delayacct.*: /d' \
 	-e '/^proc\.namespaces.*: /d' \
 	-e '/^pipe\..*: Not Connected/d' \
 	-e '/^openmetrics: pmLookupDesc: Unknown or illegal metric identifier/d' \

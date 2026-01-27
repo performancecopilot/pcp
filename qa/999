@@ -42,6 +42,7 @@ _filter()
 	-e '/^postgresql\..*: Missing metric value(s)/d' \
 	-e '/^hotproc.id.container: No data available/d' \
 	-e '/^hotproc.psinfo.cgroups: No data available/d' \
+	-e '/^hotproc.delayacct.swapin_time: Missing metric value(s)/d' \
     #end
 }
 
