@@ -1167,8 +1167,6 @@ PCP_CHECK_PYTHON_MODULE(requests)
 AC_SUBST(have_python_requests)
 PCP_CHECK_PYTHON_MODULE(libvirt)
 AC_SUBST(have_python_libvirt)
-PCP_CHECK_PYTHON_MODULE(six)
-AC_SUBST(have_python_six)
 
 AC_MSG_CHECKING([if the python InfluxDB support should be included])
 have_python_influxdb=false

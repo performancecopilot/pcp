@@ -16,10 +16,10 @@
 
 import time
 import re
-from six.moves import queue
+import queue
 import threading
 import socket
-from six.moves import BaseHTTPServer
+from http.server import HTTPServer, BaseHTTPRequestHandler
 import argparse
 
 
@@ -33,7 +33,7 @@ def write_endpoint_metadata(args=None, endpoint=None):
     f.close()
 
 
-class FakeEndpoint(BaseHTTPServer.BaseHTTPRequestHandler):
+class FakeEndpoint(BaseHTTPRequestHandler):
     def sample_gauge_data(self, iteration=None, instances=None, metrics=None, endpointNum=None):
         gauge_value = 12.1
         instance_scale = 1
@@ -176,7 +176,7 @@ class PrometheusEndpoint(threading.Thread):
             pass
 
         finally:
-            httpd = BaseHTTPServer.HTTPServer(self.args.addr, FakeEndpoint, False)
+            httpd = HTTPServer(self.args.addr, FakeEndpoint, False)
             httpd.socket = self.args.sock
             httpd.pqueue = self.pqueue
             httpd.delay = self.args.delay
