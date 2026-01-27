@@ -242,7 +242,7 @@ int
 delayacct_info(int pid, delayacct_t *dap)
 {
     (void)pid; (void)dap;
-    return -EOPNOTSUPP;
+    return PM_ERR_APPVERSION;
 }
 
 void
