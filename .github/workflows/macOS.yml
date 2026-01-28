@@ -260,6 +260,50 @@ jobs:
           echo "Testing pmstat output..."
           cd build/mac/test/integration
           ./test-pmstat.sh
+      - name: Wait for pmproxy to start
+        id: wait-for-pmproxy
+        if: success() && steps.integration-tests.conclusion == 'success'
+        run: |
+          echo "=== Waiting for pmproxy service to start ==="
+          echo "The installer should have started pmproxy via launchd..."
+
+          TIMEOUT=60
+          ELAPSED=0
+          INTERVAL=3
+
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking pmproxy (${ELAPSED}s elapsed)..."
+
+            # Check if pmproxy responds to ping
+            if curl -s http://localhost:44322/series/ping 2>/dev/null | grep -q '"success":true'; then
+              echo "✓ pmproxy is responding!"
+              break
+            fi
+
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "✗ Timeout waiting for pmproxy"
+            exit 1
+          fi
+
+          echo ""
+          echo "=== pmproxy connectivity checks ==="
+          nc -z localhost 44322 && echo "✓ Port 44322 open" || echo "✗ Port 44322 closed"
+
+          echo ""
+          echo "=== pmproxy process status ==="
+          pgrep pmproxy && echo "✓ pmproxy running (PID: $(pgrep pmproxy))" || echo "✗ pmproxy not running"
+
+          echo ""
+          echo "pmproxy command line:"
+          sudo ps -p $(pgrep pmproxy) -o pid,ppid,user,command 2>/dev/null || echo "Cannot get process details"
+
+          echo ""
+          echo "pmproxy listening ports:"
+          sudo lsof -i -P | grep pmproxy || echo "No network connections found for pmproxy"
       - name: Debug on integration test failure
         if: failure() && (steps.integration-tests.conclusion == 'failure' || steps.wait-for-pmcd.conclusion == 'failure')
         run: |
