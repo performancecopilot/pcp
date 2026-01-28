@@ -353,6 +353,7 @@ Options:
   -E,--expunge            expunge metrics with metadata inconsistencies when merging archives
   -f,--force              force actions (intended for QA, not production)
   -k=TIME,--discard=TIME  remove archives after TIME (format DD[:HH[:MM]])
+  -d=size,--disk=size     set maximum disk usage for $PCP_LOG_DIR
   -K                      compress, but no other changes
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -m=ADDRs,--mail=ADDRs   send daily NOTICES entries to email addresses
@@ -404,6 +405,8 @@ DO_DAILY_REPORT=true
 NOPROXY=false
 PROXYONLY=false
 NOERROR=false
+SIZE_LIMIT_FLAG=false
+SIZE_LIMIT=0
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -578,6 +581,11 @@ do
 		;;
 	--)	shift
 		break
+		;;
+	-d) SIZE_LIMIT_FLAG=true
+		SIZE_LIMIT="$2"
+		shift
+		echo "Info: Size limit set to $SIZE_LIMIT GB for $PCP_ARCHIVE_DIR"
 		;;
 	-\?)	_usage
 		;;
@@ -786,6 +794,34 @@ then
     $NOERROR || status=1
     exit
 fi
+
+__calculate_archive_size()
+{
+	local archive_size=0
+	local log_dir_name="${PCP_ARCHIVE_DIR}/$(hostname)"
+	archive_size=`du -sc $log_dir_name | grep total$ | awk '{print $1}'`
+	echo $archive_size
+}
+__check_size_limit()
+{
+	local dir_size=0
+	if [ $SIZE_LIMIT -gt 0 ]
+	then
+		dir_size=$(__calculate_archive_size)
+		# convert to kilobytes
+		size_limit_kb=$((SIZE_LIMIT * 1024 * 1024))
+		if [ "$dir_size" -gt "$size_limit_kb" ];
+		then
+			echo "Warning: size limit of $SIZE_LIMIT GB exceeded for host $(hostname) "
+			return 1
+		else
+			$VERBOSE && echo "Info: size limit of $SIZE_LIMIT GB not exceeded, continuing"
+			return 0
+		fi
+	fi
+}
+
+
 
 _skipping()
 {
@@ -1063,6 +1099,7 @@ BEGIN	{ seenslash = 0; inshell = 0; out = "" }
 	}
 END	{ print out }'
 }
+
 
 # come here from _parse_log_control() once per valid line in a control
 # file ... see utilproc.sh for interface definitions
@@ -1454,7 +1491,7 @@ _autosave()
 #
 _do_cull()
 {
-    CULLAFTER="$PCP_CULLAFTER"
+	CULLAFTER="$PCP_CULLAFTER"
     [ -z "$CULLAFTER" ] && CULLAFTER="$CULLAFTER_CMDLINE"
     [ -z "$CULLAFTER" ] && CULLAFTER="$CULLAFTER_DEFAULT"
     $VERY_VERBOSE && echo >&2 "CULLAFTER=$CULLAFTER"
@@ -1523,6 +1560,46 @@ _do_cull()
 	    $VERY_VERBOSE && echo >&2 "Warning: no archive files found to cull"
 	fi
     fi
+
+    # --- BEGIN size-based culling extension ---
+    if $SIZE_LIMIT_FLAG && [ $SIZE_LIMIT -gt 0 ]; then
+        # Calculate initial dir size in KB
+        dir_size=$(__calculate_archive_size)
+        size_limit_kb=$((SIZE_LIMIT * 1024 * 1024))
+        if [ "$dir_size" -gt "$size_limit_kb" ]; then
+            $VERBOSE && echo "Size limit exceeded for $PCP_ARCHIVE_DIR/$(hostname) (${dir_size}KB > ${size_limit_kb}KB): removing oldest archives..."
+            # Build a sorted list of candidate archives to remove (oldest to newest), EXCLUDING the current_base if set
+            find "$PCP_ARCHIVE_DIR/$(hostname)" -type f \
+                | $PCP_BINADM_DIR/find-filter mtime +0 \
+                | _filter_filename \
+                | LC_COLLATE=POSIX sort \
+                > $tmp/size_candidates
+            if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]; then
+                current_base=`sed -n -e '3s;.*/;;p' <"$PCP_TMP_DIR/pmlogger/$pid"`
+                if [ -n "$current_base" ]; then
+                    sed -e "/^$current_base/d" <$tmp/size_candidates >$tmp/tmp
+                    mv $tmp/tmp $tmp/size_candidates
+                fi
+            fi
+            while [ "$dir_size" -gt "$size_limit_kb" ]; do
+                oldest_file=`head -n 1 $tmp/size_candidates`
+                [ -z "$oldest_file" ] && break
+                if $VERBOSE; then
+                    echo "Removing $oldest_file to reduce archive dir size"
+                fi
+                if $SHOWME; then
+                    echo "+ rm -f $oldest_file"
+                else
+                    rm -f "$oldest_file"
+                fi
+                sed -e "1d" $tmp/size_candidates >$tmp/tmp
+                mv $tmp/tmp $tmp/size_candidates
+                dir_size=$(__calculate_archive_size)
+            done
+            rm -f $tmp/size_candidates
+        fi
+    fi
+    # --- END size-based culling extension ---
 }
 
 # Merge partial archives into a single archive covering one day.
@@ -1990,6 +2067,8 @@ p
     fi
 }
 
+
+
 # .NeedRewrite in $PCP_LOG_DIR/pmlogger is just like -R, but needs
 # only be done once, e.g. after software upgrade with new pmlogrewrite(1)
 # configuration files
@@ -2012,6 +2091,18 @@ else
 	_parse_log_control $CONTROLDIR/$extra
     done
 fi
+
+if $SIZE_LIMIT_FLAG && [ $SIZE_LIMIT -gt 0 ]
+then
+	if ! __check_size_limit;
+	then
+		$VERBOSE && echo "Info: Size limit of $SIZE_LIMIT GB exceeded , do not continue"
+		_do_cull
+	fi
+	exit
+fi
+
+
 
 if $NOPROXY
 then
