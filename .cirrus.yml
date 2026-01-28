@@ -19,7 +19,7 @@ task:
       echo "Populating Homebrew cache..."
       # Homebrew is already in base images, but we can ensure update if needed
       brew update --quiet || true
-      brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf || true  # idempotent
+      brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf valkey || true  # idempotent
     # Optional: clean up non-deterministic files before cache upload
     before_cache_script: |
       brew cleanup --prune=all || true
