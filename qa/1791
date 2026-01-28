@@ -74,24 +74,36 @@ d="-e d_ok=delta(disk.all.read_bytes)+delta(disk.all.write_bytes)"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg $d d_ok -B MB
 
 echo "== incompat metric in metricset handling"
+echo "++ no --ignore"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat
+echo "++ --ignore-unknown"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat --ignore-unknown
+echo "++ --ignore-incompat"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat --ignore-incompat
 
 echo "== incompat derived metric in metricset handling"
+echo "++ no --ignore"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived
+echo "++ --ignore-unknown"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived --ignore-unknown
+echo "++ --ignore-incompat"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived --ignore-incompat
 
 echo "== unknown metric in metricset handling"
+echo "++ no --ignore"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown
+echo "++ --ignore-incompat"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown --ignore-incompat
+echo "++ --ignore-unknown"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown --ignore-unknown
 
 echo "== unknown derived metric in metricset handling"
+echo "++ no --ignore"
 pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived
-#pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-incompat
-#pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-unknown
+echo "++ --ignore-incompat"
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-incompat
+echo "++ --ignore-unknown"
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-unknown
 
 # success, all done
 echo "== done"

@@ -247,28 +247,41 @@ expr node <addr-80> type=EQ left=<addr-81> right=<addr-82> save_last=0
 expr node <addr-81> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=1
 expr node <addr-82> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=1
 __dmopencontext(->ctx 0) called, 14 derived metrics
+__dmtraverse(ctx=0, name="qa_927", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] qa_927.bin_2_5, async= 1)
 __dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3
 __dmtraverse: name="qa_927" added "qa_927.bin_2_5"
+__dmbind(derive_locked=1, ctx=0, metric[3] qa_927.bin_frac, async= 1)
 __dmgetpmid: metric "qa_927.bin_frac" -> PMID 511.0.4
 __dmtraverse: name="qa_927" added "qa_927.bin_frac"
+__dmbind(derive_locked=1, ctx=0, metric[4] qa_927.bin_frac2, async= 1)
 __dmgetpmid: metric "qa_927.bin_frac2" -> PMID 511.0.5
 __dmtraverse: name="qa_927" added "qa_927.bin_frac2"
+__dmbind(derive_locked=1, ctx=0, metric[5] qa_927.rel_lt, async= 1)
 __dmgetpmid: metric "qa_927.rel_lt" -> PMID 511.0.6
 __dmtraverse: name="qa_927" added "qa_927.rel_lt"
+__dmbind(derive_locked=1, ctx=0, metric[6] qa_927.rel_leq, async= 1)
 __dmgetpmid: metric "qa_927.rel_leq" -> PMID 511.0.7
 __dmtraverse: name="qa_927" added "qa_927.rel_leq"
+__dmbind(derive_locked=1, ctx=0, metric[7] qa_927.rel_neq, async= 1)
 __dmgetpmid: metric "qa_927.rel_neq" -> PMID 511.0.8
 __dmtraverse: name="qa_927" added "qa_927.rel_neq"
+__dmbind(derive_locked=1, ctx=0, metric[8] qa_927.rel_true, async= 1)
 __dmgetpmid: metric "qa_927.rel_true" -> PMID 511.0.9
 __dmtraverse: name="qa_927" added "qa_927.rel_true"
+__dmbind(derive_locked=1, ctx=0, metric[9] qa_927.rel_false, async= 1)
 __dmgetpmid: metric "qa_927.rel_false" -> PMID 511.0.10
 __dmtraverse: name="qa_927" added "qa_927.rel_false"
+__dmbind(derive_locked=1, ctx=0, metric[10] qa_927.rel_eq, async= 1)
 __dmgetpmid: metric "qa_927.rel_eq" -> PMID 511.0.11
 __dmtraverse: name="qa_927" added "qa_927.rel_eq"
+__dmbind(derive_locked=1, ctx=0, metric[11] qa_927.bool.and_true, async= 1)
 __dmgetpmid: metric "qa_927.bool.and_true" -> PMID 511.0.12
 __dmtraverse: name="qa_927" added "qa_927.bool.and_true"
+__dmbind(derive_locked=1, ctx=0, metric[12] qa_927.bool.and_false, async= 1)
 __dmgetpmid: metric "qa_927.bool.and_false" -> PMID 511.0.13
 __dmtraverse: name="qa_927" added "qa_927.bool.and_false"
+__dmbind(derive_locked=1, ctx=0, metric[13] qa_927.bool.or_complex, async= 1)
 __dmgetpmid: metric "qa_927.bool.or_complex" -> PMID 511.0.14
 __dmtraverse: name="qa_927" added "qa_927.bool.or_complex"
 __dmgetpmid: metric "qa_927.bin_2_5" -> PMID 511.0.3

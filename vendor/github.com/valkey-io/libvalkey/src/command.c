@@ -97,7 +97,7 @@ static inline void to_upper(char *dst, const char *src, uint32_t len) {
  * or NULL on failure. */
 cmddef *valkey_lookup_cmd(const char *arg0, uint32_t arg0_len, const char *arg1,
                           uint32_t arg1_len) {
-    if (arg0_len > MAX_COMMAND_LEN || arg1_len > MAX_COMMAND_LEN)
+    if (arg0_len > MAX_COMMAND_LEN)
         return NULL;
     char cmd[MAX_COMMAND_LEN];
     char subcmd[MAX_COMMAND_LEN] = "";
@@ -116,8 +116,8 @@ cmddef *valkey_lookup_cmd(const char *arg0, uint32_t arg0_len, const char *arg1,
 
         /* If command name matches, compare subcommand if any */
         if (cmp == 0 && c->subname != NULL) {
-            if (arg1 == NULL) {
-                /* Command has subcommands, but none given. */
+            if (arg1 == NULL || arg1_len == 0 || arg1_len > MAX_COMMAND_LEN) {
+                /* Command has subcommands, but none given or is too long. */
                 return NULL;
             }
             if (subcmd[0] == '\0')

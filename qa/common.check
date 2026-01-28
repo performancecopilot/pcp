@@ -2283,8 +2283,8 @@ EOF
 
   # fix up min, max precision for output
   # can vary for 5.3, 6.2
-  __min=`echo $__min | sed -e 's/0*$//'` # get rid of trailling zeroes
-  __max=`echo $__max | sed -e 's/0*$//'` # get rid of trailling zeroes
+  __min=`echo $__min | sed -e 's/\(.\)0*$/\1/'` # get rid of trailing zeroes
+  __max=`echo $__max | sed -e 's/\(.\)0*$/\1/'` # get rid of trailing zeroes
 
   if [ $__in_range -eq 1 ] 
   then
