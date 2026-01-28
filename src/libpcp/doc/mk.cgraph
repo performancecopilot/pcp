@@ -5,13 +5,12 @@
 # Assumes libpcp source and cscope index are in ../src
 #
 
-tmp=/var/tmp/$$
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+tmp=${TMPDIR:-/tmp}/$$
+sts=1
+trap 'rm -f $tmp.*; exit $sts' 0 1 2 3 15
 
 rm -f $tmp.*
 touch $tmp.stop
-
-sts=1
 recursive=true
 eflag=false
 fflag=false

@@ -6,9 +6,10 @@
 # Check error codes exposure in QA tests.
 #
 
-tmp=/var/tmp/check-errorcodes-$$
-rm -f $tmp.err
-trap "sts=0; [ -f $tmp.err ] && sts=1; rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+tmp=${TMPDIR:-/tmp}/check-errorcodes-$$
+sts=0
+rm -f "$tmp".err
+trap '[ -f $tmp.err ] && sts=1; rm -f $tmp.*; exit $sts' 0 1 2 3 15
 
 for file in ../../include/pcp/pmapi.h \
 	    ../../perl/PMDA/PMDA.pm ../../python/pmapi.c

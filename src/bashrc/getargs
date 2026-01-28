@@ -5,7 +5,7 @@
 #
 
 verbose=false
-if [ $# -gt 1 -a X"$1" = X-v ]
+if [ $# -gt 1 ] && [ "$1" = -v ]
 then
 verbose=true
 shift
@@ -17,9 +17,9 @@ echo "Usage: $0 source-file ..."
 exit 1
 fi
 
-tmp=/var/tmp/bashrc-getargs-$$
+tmp=${TMPDIR:-/tmp}/bashrc-getargs-$$
 status=1
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+trap 'rm -f $tmp.*; exit $status' 0 1 2 3 15
 
 for file
 do
@@ -56,7 +56,7 @@ $verbose && ( echo "+ source lines"; cat $tmp.work )
 if [ ! -s $tmp.work ]
 then
     echo "Error: no pmSetShortOptions call or .short_options assignment, nothing to work with"
-elif [ `wc -l <$tmp.work | sed -e 's/ //g'` -gt 1 ]
+elif [ "$(wc -l <"$tmp".work | sed -e 's/ //g')" -gt 1 ]
 then
     cat $tmp.work
     echo "Error: more than one pmSetShortOptions call or .short_options assignment, I am confused"
