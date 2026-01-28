@@ -96,6 +96,7 @@ python39-lxml
 # broken install on RHEL 8.10 (vm39) 20 Sep 2024
 #python3-pandas
 python3-pillow
+python3-pip
 python3-prometheus_client
 python39-psycopg2
 python3-pylint
