@@ -4703,6 +4703,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      return -1;
 		  }
 		  specflags |= META_INDOM;
+		  free($3);
 		  $$ = specdesc;
 		}
 	| L_META L_ASSIGN L_NAME
