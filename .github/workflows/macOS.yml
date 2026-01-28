@@ -284,6 +284,25 @@ jobs:
             ELAPSED=$((ELAPSED + INTERVAL))
           done
 
+          echo ""
+          echo "=== pmproxy log files debug ==="
+          if [ -d /var/log/pcp/pmproxy ]; then
+            echo "✓ pmproxy log directory exists"
+            echo "Log directory contents:"
+            ls -la /var/log/pcp/pmproxy/ 2>/dev/null || echo "Cannot list directory"
+
+            echo ""
+            for logfile in /var/log/pcp/pmproxy/*.log; do
+              if [ -f "$logfile" ]; then
+                echo "=== Contents of $logfile ==="
+                sudo cat "$logfile" 2>/dev/null || echo "Cannot read $logfile"
+                echo ""
+              fi
+            done
+          else
+            echo "✗ pmproxy log directory does not exist"
+          fi
+
           if [ $ELAPSED -ge $TIMEOUT ]; then
             echo "✗ Timeout waiting for pmproxy"
             exit 1

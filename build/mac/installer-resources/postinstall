@@ -105,4 +105,31 @@ launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmcd.plist
 # ...and then started by launchctl - it would get picked up by a reboot, but this leaves pmcd running after install
 launchctl kickstart -p -k system/io.pcp.pmcd
 
+# Ensure pmproxy is loaded...
+echo "$prog: Starting pmproxy service"
+echo "$prog: Starting pmproxy service" >> /var/log/pcp_inst.log
+launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmproxy.plist
+# ...and then started by launchctl
+launchctl kickstart -p -k system/io.pcp.pmproxy
+
+# Debug: Check for pmproxy log files for troubleshooting
+echo "$prog: Checking for pmproxy logs"
+echo "$prog: Checking for pmproxy logs" >> /var/log/pcp_inst.log
+if [ -d /var/log/pcp/pmproxy ]; then
+    echo "$prog: pmproxy log directory exists"
+    echo "$prog: pmproxy log directory exists" >> /var/log/pcp_inst.log
+    for logfile in /var/log/pcp/pmproxy/*.log; do
+        if [ -f "$logfile" ]; then
+            echo "$prog: Found log file: $logfile"
+            echo "$prog: Found log file: $logfile" >> /var/log/pcp_inst.log
+            echo "$prog: Contents of $logfile:"
+            echo "$prog: Contents of $logfile:" >> /var/log/pcp_inst.log
+            cat "$logfile" | tee -a /var/log/pcp_inst.log
+        fi
+    done
+else
+    echo "$prog: pmproxy log directory does not exist yet"
+    echo "$prog: pmproxy log directory does not exist yet" >> /var/log/pcp_inst.log
+fi
+
 status=0
