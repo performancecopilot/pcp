@@ -205,13 +205,6 @@ else
     echo 's/\?\{python-requests}(, *|$)//' >>$tmp.sed
 fi
 
-if $HAVE_PYTHON_SIX
-then
-    echo 's/\?\{python-six}(, *|$)/python3-six\\1/' >>$tmp.sed
-else
-    echo 's/\?\{python-six}(, *|$)//' >>$tmp.sed
-fi
-
 if $ENABLE_LZMA
 then
     echo 's/\?\{liblzma-dev}(, *|$)/liblzma-dev\\1/' >>$tmp.sed

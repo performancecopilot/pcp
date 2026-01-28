@@ -235,22 +235,31 @@ expr node <addr> type=RESCALE left=<addr> right=<addr> save_last=0
 expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.string.hullo] primary=1
 expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [millisec / count]
 __dmopencontext(->ctx 0) called, 11 derived metrics
+__dmtraverse(ctx=0, name="a", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] a.m1, async= 1)
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmtraverse: name="a" added "a.m1"
+__dmbind(derive_locked=1, ctx=0, metric[3] a.m2, async= 1)
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
 __dmtraverse: name="a" added "a.m2"
+__dmbind(derive_locked=1, ctx=0, metric[4] a.m3, async= 1)
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
 __dmtraverse: name="a" added "a.m3"
+__dmbind(derive_locked=1, ctx=0, metric[5] a.m4, async= 1)
 __dmgetpmid: metric "a.m4" -> PMID 511.0.6
 __dmtraverse: name="a" added "a.m4"
+__dmbind(derive_locked=1, ctx=0, metric[6] a.m5, async= 1)
 __dmgetpmid: metric "a.m5" -> PMID 511.0.7
 __dmgetpmid: metric "sample.long.not_million" -> Unknown metric name
 __dmtraverse: name="a" added "a.m5"
+__dmbind(derive_locked=1, ctx=0, metric[7] a.m6, async= 1)
 __dmgetpmid: metric "a.m6" -> PMID 511.0.8
 __dmtraverse: name="a" added "a.m6"
+__dmbind(derive_locked=1, ctx=0, metric[8] a.m7, async= 1)
 __dmgetpmid: metric "a.m7" -> PMID 511.0.9
 __dmgetpmid: metric "sample.long.bozo" -> Unknown metric name
 __dmtraverse: name="a" added "a.m7"
+__dmbind(derive_locked=1, ctx=0, metric[9] a.err.m1, async= 1)
 __dmgetpmid: metric "a.err.m1" -> PMID 511.0.10
 Semantic error: derived metric a.err.m1: sample.long.hundred RESCALE Kbyte / sec: Incompatible dimensions
 __dmbind: check_expr failed for metric[9] a.err.m1
@@ -265,6 +274,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundr
     Semantics: instant  Units: none
 expr node <addr> type=SCALE left=(nil) right=(nil) save_last=0 [Kbyte / sec]
 __dmtraverse: name="a", omitting invalid child a.err.m1 [511.0.10]
+__dmbind(derive_locked=1, ctx=0, metric[10] a.err.m2, async= 1)
 __dmgetpmid: metric "a.err.m2" -> PMID 511.0.11
 Semantic error: derived metric a.err.m2: sample.string.hullo RESCALE millisec / count: Non-arithmetic operand for function
 __dmbind: check_expr failed for metric[10] a.err.m2

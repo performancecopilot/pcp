@@ -553,56 +553,83 @@ expr node <addr-198> type=INTEGER left=(nil) right=(nil) save_last=0 [101] prima
 expr node <addr-199> type=GT left=<addr-200> right=<addr-201> save_last=0
 expr node <addr-200> type=NAME left=(nil) right=(nil) save_last=0 [sample.long.hundred] primary=1
 expr node <addr-201> type=INTEGER left=(nil) right=(nil) save_last=0 [100] primary=1
+__dmtraverse(ctx=0, name="a", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] a.m1, async= 1)
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmtraverse: name="a" added "a.m1"
+__dmbind(derive_locked=1, ctx=0, metric[3] a.m2, async= 1)
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
 __dmtraverse: name="a" added "a.m2"
+__dmbind(derive_locked=1, ctx=0, metric[4] a.m3, async= 1)
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
 __dmtraverse: name="a" added "a.m3"
+__dmbind(derive_locked=1, ctx=0, metric[5] a.m4, async= 1)
 __dmgetpmid: metric "a.m4" -> PMID 511.0.6
 __dmtraverse: name="a" added "a.m4"
+__dmbind(derive_locked=1, ctx=0, metric[6] a.m5, async= 1)
 __dmgetpmid: metric "a.m5" -> PMID 511.0.7
 __dmtraverse: name="a" added "a.m5"
+__dmbind(derive_locked=1, ctx=0, metric[7] a.m6, async= 1)
 __dmgetpmid: metric "a.m6" -> PMID 511.0.8
 __dmtraverse: name="a" added "a.m6"
+__dmbind(derive_locked=1, ctx=0, metric[8] a.m7, async= 1)
 __dmgetpmid: metric "a.m7" -> PMID 511.0.9
 __dmtraverse: name="a" added "a.m7"
+__dmbind(derive_locked=1, ctx=0, metric[9] a.m8, async= 1)
 __dmgetpmid: metric "a.m8" -> PMID 511.0.10
 __dmtraverse: name="a" added "a.m8"
+__dmbind(derive_locked=1, ctx=0, metric[10] a.m9, async= 1)
 __dmgetpmid: metric "a.m9" -> PMID 511.0.11
 __dmtraverse: name="a" added "a.m9"
+__dmbind(derive_locked=1, ctx=0, metric[11] a.m10, async= 1)
 __dmgetpmid: metric "a.m10" -> PMID 511.0.12
 __dmtraverse: name="a" added "a.m10"
+__dmbind(derive_locked=1, ctx=0, metric[12] a.m11, async= 1)
 __dmgetpmid: metric "a.m11" -> PMID 511.0.13
 __dmtraverse: name="a" added "a.m11"
+__dmbind(derive_locked=1, ctx=0, metric[13] a.m12, async= 1)
 __dmgetpmid: metric "a.m12" -> PMID 511.0.14
 __dmtraverse: name="a" added "a.m12"
+__dmbind(derive_locked=1, ctx=0, metric[14] a.m13, async= 1)
 __dmgetpmid: metric "a.m13" -> PMID 511.0.15
 __dmtraverse: name="a" added "a.m13"
+__dmbind(derive_locked=1, ctx=0, metric[15] a.m14, async= 1)
 __dmgetpmid: metric "a.m14" -> PMID 511.0.16
 __dmtraverse: name="a" added "a.m14"
+__dmbind(derive_locked=1, ctx=0, metric[16] a.m15, async= 1)
 __dmgetpmid: metric "a.m15" -> PMID 511.0.17
 __dmtraverse: name="a" added "a.m15"
+__dmbind(derive_locked=1, ctx=0, metric[17] a.m16, async= 1)
 __dmgetpmid: metric "a.m16" -> PMID 511.0.18
 __dmtraverse: name="a" added "a.m16"
+__dmbind(derive_locked=1, ctx=0, metric[18] a.m17, async= 1)
 __dmgetpmid: metric "a.m17" -> PMID 511.0.19
 __dmtraverse: name="a" added "a.m17"
+__dmbind(derive_locked=1, ctx=0, metric[19] a.m18, async= 1)
 __dmgetpmid: metric "a.m18" -> PMID 511.0.20
 __dmtraverse: name="a" added "a.m18"
+__dmbind(derive_locked=1, ctx=0, metric[20] a.m19, async= 1)
 __dmgetpmid: metric "a.m19" -> PMID 511.0.21
 __dmtraverse: name="a" added "a.m19"
+__dmbind(derive_locked=1, ctx=0, metric[21] a.m20, async= 1)
 __dmgetpmid: metric "a.m20" -> PMID 511.0.22
 __dmtraverse: name="a" added "a.m20"
+__dmbind(derive_locked=1, ctx=0, metric[22] a.m21, async= 1)
 __dmgetpmid: metric "a.m21" -> PMID 511.0.23
 __dmtraverse: name="a" added "a.m21"
+__dmbind(derive_locked=1, ctx=0, metric[23] a.m22, async= 1)
 __dmgetpmid: metric "a.m22" -> PMID 511.0.24
 __dmtraverse: name="a" added "a.m22"
+__dmbind(derive_locked=1, ctx=0, metric[24] a.m23, async= 1)
 __dmgetpmid: metric "a.m23" -> PMID 511.0.25
 __dmtraverse: name="a" added "a.m23"
+__dmbind(derive_locked=1, ctx=0, metric[25] a.m24, async= 1)
 __dmgetpmid: metric "a.m24" -> PMID 511.0.26
 __dmtraverse: name="a" added "a.m24"
+__dmbind(derive_locked=1, ctx=0, metric[26] a.m25, async= 1)
 __dmgetpmid: metric "a.m25" -> PMID 511.0.27
 __dmtraverse: name="a" added "a.m25"
+__dmbind(derive_locked=1, ctx=0, metric[27] a.m26, async= 1)
 __dmgetpmid: metric "a.m26" -> PMID 511.0.28
 __dmtraverse: name="a" added "a.m26"
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3

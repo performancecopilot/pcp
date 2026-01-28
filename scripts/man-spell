@@ -1884,6 +1884,7 @@ pmUnitsStr_r
 pmUnloadNameSpace
 pmUnpackEventRecords
 pmUnpackHighResEventRecords
+pmUnregisterDerived
 pmUsageMessage
 pmUseContext
 pmUseZone

@@ -319,8 +319,33 @@ and \fBabort\fP (exit the program if such an event occurs).
 \fIupdate\fP implies \fB\-\-dynamic\-header\fP.
 .TP
 \fB\-5\fR, \fB\-\-ignore\-unknown\fR
-Silently ignore any metric name that cannot be resolved.
-At least one metric must be found for the tool to start.
+A metric that
+.B pmrep
+is asked to report may be ``unknown'' for a number of reasons:
+the metric is not in the PMNS of the requested source of metrics (\c
+.BR pmcd (1)
+for live metrics from a host, or a PCP archive for historical metrics),
+or one or more operand metrics in a derived metric definition is not available,
+or a derived metric definition contains syntax errors.
+By default,
+.B pmrep
+will report errors and exit if
+.B any
+requested metric is unknown.
+The
+.B \-5
+option changes the default behaviour and
+.B pmrep
+will silently ignore any metric that is unknown, provided
+at least one known metric remains to be reported.
+.RS
+.PP
+If an unknown metric is associated with a derived metric definition,
+refer to
+.BR pmRegisterDerivedMetric (3)
+for a deeper explanation of derived metrics and the options available
+for diagnosing issues with their definition and evaluation.
+.RE
 .TP
 \fB\-6\fR, \fB\-\-sort\-metric\fR=\fIsort-metric\fR
 Specify a sort reference metric to sort output by values with
@@ -464,8 +489,8 @@ In case of issues with derived metrics, review the aforementioned manual
 pages in detail and ensure all the required metrics are available,
 especially when using archives.
 Use
-.B -Dderive
-to see additional debug information about parsing derived metrics.
+.B \-Dderive
+to see additional debug information about parsing and evaluating derived metrics.
 .RE
 .TP
 \fB\-E\fR \fIlines\fR, \fB\-\-repeat\-header\fR=\fIlines\fR
@@ -618,16 +643,30 @@ $ pmrep \-i '1 minute','5 minute' 'kernel.all.load,,.*'
 .RE
 .TP
 \fB\-I\fR, \fB\-\-ignore\-incompat\fR
-Ignore incompatible metrics.
-By default incompatible metrics (that is,
-their type is unsupported or they cannot be scaled as requested)
-will cause
+Similar to unknown metrics described above for the
+.B \-5
+option, a metric that
 .B pmrep
-to terminate with an error message.
-With this option all incompatible metrics are silently omitted
-from reporting.
+is asked to report may be considered ``incompatible'' for a number of reasons:
+a metric type that is not supported by
+.B pmrep
+(e.g. PM_TYPE_AGGREGATE or PM_TYPE_EVENT),
+or a derived metric definition that contains semantic errors, 
+or the metric is known in the PMNS but the metric's metadata is not available.
+By default,
+.B pmrep
+will report errors and exit if
+.B any
+requested metric is incompatible.
+The
+.B \-I
+option changes the default behaviour and
+.B pmrep
+will silently ignore any metric that is incompatible, provided
+at least one compatible metric remains to be reported.
 This may be especially useful when requesting
-non-leaf nodes of the PMNS tree for reporting.
+non-leaf nodes of the PMNS tree for reporting when the
+associated metrics have different metadata.
 .TP
 \fB\-\-include\-texts\fR
 When writing a PCP archive,
@@ -1224,7 +1263,7 @@ Option	Description
 _
 appl1	T{
 .ad l
-dump keywords for configs and specs
+dump keywords for configurations and specifications
 T}
 _
 derive	T{
@@ -1282,4 +1321,6 @@ and
 .\" +ok+ xfs xfs_inode zsh
 .\" +ok+ ds {from ds389} gp gUJ {all from command line -xxx args}
 .\" +ok+ sp {from .sp in troff macro} un {from (un)available)}
-.\" +ok+ alt {from --overall-rank-alt}
+.\" +ok+ Dderive {from -Dderive}
+.\" +ok+ PCP_DISCRETE_ONCE {from pmrep-only env var}
+
