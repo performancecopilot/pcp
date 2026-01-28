@@ -19,13 +19,6 @@ _pmdaopentelemetry_check()
     return 0
 }
 
-_have_python266()
-{
-    __v=`python -V 2>&1 | awk '{print $NF}'`
-    [ "$__v" = "2.6.6" ] && return 0
-    return 1
-}
-
 _pmdaopentelemetry_remove()
 {
     echo

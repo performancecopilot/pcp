@@ -92,7 +92,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python2-devel
 python3-bcc
 python3-elasticsearch
 python3-libs
