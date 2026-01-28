@@ -457,9 +457,28 @@ Each open file, directory, or device typically requires at least one vnode.
 @ vfs.vnodes.max maximum number of vnodes allowed
 System-wide maximum number of vnodes that can exist simultaneously.
 This is a tunable kernel parameter (kern.maxvnodes) that limits vnode allocation.
+@ vfs.vnodes.recycled recycled vnode count
+The number of vnodes that have been recycled (freed and reused) by the
+kernel. This counter indicates how often the vnode cache reaches capacity
+and must reclaim entries.
 @ kernel.all.nprocs total number of processes
 Current number of tasks (processes) running in the system.
 This includes all processes across all users.
 @ kernel.all.nthreads total number of threads
 Current number of threads running in the system.
 This includes all threads across all processes and users.
+
+@ kernel.limits.maxproc maximum processes (system-wide)
+System-wide limit on the total number of processes that can exist simultaneously.
+This is a tunable kernel parameter (kern.maxproc) that sets the global process limit.
+@ kernel.limits.maxprocperuid maximum processes per user
+Per-user limit on the number of processes each user can create.
+This is a tunable kernel parameter (kern.maxprocperuid) that prevents a single
+user from consuming all process slots.
+@ kernel.limits.maxfiles maximum file descriptors (system-wide)
+System-wide limit on the total number of open file descriptors.
+This is a tunable kernel parameter (kern.maxfiles) identical to vfs.files.max.
+@ kernel.limits.maxfilesperproc maximum file descriptors per process
+Per-process limit on the number of file descriptors that can be open.
+This is a tunable kernel parameter (kern.maxfilesperproc) that limits each
+process's resource consumption.

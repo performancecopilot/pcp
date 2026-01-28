@@ -857,6 +857,27 @@ pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_TCP,186), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* kernel.limits.maxproc */
+  { &mach_vfs.maxproc,
+    { PMDA_PMID(CLUSTER_LIMITS,0), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.limits.maxprocperuid */
+  { &mach_vfs.maxprocperuid,
+    { PMDA_PMID(CLUSTER_LIMITS,1), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.limits.maxfiles */
+  { &mach_vfs.maxfiles,
+    { PMDA_PMID(CLUSTER_LIMITS,2), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.limits.maxfilesperproc */
+  { &mach_vfs.maxfilesperproc,
+    { PMDA_PMID(CLUSTER_LIMITS,3), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* vfs.vnodes.recycled */
+  { &mach_vfs.recycled_vnodes,
+    { PMDA_PMID(CLUSTER_LIMITS,4), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
 };
 
 int metrictab_sz = sizeof(metrictab) / sizeof(metrictab[0]);

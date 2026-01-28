@@ -316,7 +316,16 @@ run_test "network.tcp.inerrs.short >= 0" "validate_metric network.tcp.inerrs.sho
 run_test "network.tcp.inerrs.memdrop >= 0" "validate_metric network.tcp.inerrs.memdrop non-negative"
 echo
 
-# Test 15: Process metrics (darwin_proc PMDA)
+# Test 15: System Limits
+echo "Test Group: System Limits"
+run_test "kernel.limits.maxproc > 0" "validate_metric kernel.limits.maxproc positive"
+run_test "kernel.limits.maxprocperuid > 0" "validate_metric kernel.limits.maxprocperuid positive"
+run_test "kernel.limits.maxfiles > 0" "validate_metric kernel.limits.maxfiles positive"
+run_test "kernel.limits.maxfilesperproc > 0" "validate_metric kernel.limits.maxfilesperproc positive"
+run_test "vfs.vnodes.recycled >= 0" "validate_metric vfs.vnodes.recycled non-negative"
+echo
+
+# Test 16: Process metrics (darwin_proc PMDA)
 echo "Test Group: Process Metrics"
 run_test "proc.nprocs > 0" "validate_metric proc.nprocs positive"
 run_test "proc.psinfo.pid exists" "pminfo 'proc.psinfo.pid'"
@@ -325,7 +334,7 @@ run_test "proc.memory.size exists" "pminfo 'proc.memory.size'"
 run_test "proc.memory.rss exists" "pminfo 'proc.memory.rss'"
 echo
 
-# Test 16: Process I/O statistics (Step 3.1)
+# Test 17: Process I/O statistics (Step 3.1)
 echo "Test Group: Process I/O Statistics"
 run_test "proc.io.read_bytes exists" "pminfo 'proc.io.read_bytes'"
 run_test "proc.io.write_bytes exists" "pminfo 'proc.io.write_bytes'"
@@ -335,7 +344,7 @@ run_test "proc.io.read_bytes fetchable" "pminfo -f 'proc.io.read_bytes'"
 run_test "proc.io.write_bytes fetchable" "pminfo -f 'proc.io.write_bytes'"
 echo
 
-# Test 17: Process file descriptor count (Step 3.2)
+# Test 18: Process file descriptor count (Step 3.2)
 echo "Test Group: Process File Descriptor Count"
 run_test "proc.fd.count exists" "pminfo 'proc.fd.count'"
 run_test "proc.fd.count fetchable" "pminfo -f 'proc.fd.count'"
