@@ -207,7 +207,7 @@ environment (your platform must at least have gmake).
 #### macOS-specific pre-requisites 
 ```
 # use Homebrew and ensure the following packages are installed 
-brew install gnu-tar pkg-config python3 python-setuptools autoconf
+brew install gnu-tar pkg-config python3 python-setuptools autoconf valkey libuv
 ```
 
 To build from source using isolated VMs, see [MACOS_DEVELOPMENT.md](build/mac/MACOS_DEVELOPMENT.md).
