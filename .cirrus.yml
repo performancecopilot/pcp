@@ -35,6 +35,8 @@ task:
     sysctl net.inet.tcp.disable_access_to_stats
   pcp_build_script: |
      [ "$PCP_SKIP_BUILD" == "true" ] && echo "SKIPPING BUILD" || ./Makepkgs --verbose
+  start_valkey_script: |
+     brew services start valkey
   pcp_install_script: |
      DMG_PATH=$(find pcp-**/build/mac -name "pcp-*.dmg" | head -1) # Find the generated DMG
      echo "Found DMG: $DMG_PATH"

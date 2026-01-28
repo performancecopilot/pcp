@@ -76,6 +76,9 @@ jobs:
           ls -la /usr/local/bin | grep python
           df -h
           brew list
+      # Start valkey before install so pmproxy can connect on startup
+      - name: Start valkey
+        run: brew services start valkey
       # Installation testing steps
       - name: Mount DMG and Install PKG
         if: success()
