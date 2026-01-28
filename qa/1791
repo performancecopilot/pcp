@@ -75,35 +75,47 @@ pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg $d d_ok -B MB
 
 echo "== incompat metric in metricset handling"
 echo "++ no --ignore"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 echo "++ --ignore-unknown"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat --ignore-unknown
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat --ignore-unknown >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 echo "++ --ignore-incompat"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat --ignore-incompat
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat --ignore-incompat >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 
 echo "== incompat derived metric in metricset handling"
 echo "++ no --ignore"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 echo "++ --ignore-unknown"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived --ignore-unknown
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived --ignore-unknown >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 echo "++ --ignore-incompat"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived --ignore-incompat
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-incompat-derived --ignore-incompat >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 
 echo "== unknown metric in metricset handling"
 echo "++ no --ignore"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 echo "++ --ignore-incompat"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown --ignore-incompat
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown --ignore-incompat >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 echo "++ --ignore-unknown"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown --ignore-unknown
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown --ignore-unknown >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 
 echo "== unknown derived metric in metricset handling"
 echo "++ no --ignore"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 echo "++ --ignore-incompat"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-incompat
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-incompat >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 echo "++ --ignore-unknown"
-pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-unknown
+pmrep -p -u $log -S '@00:11:11' -s 2 -c $cfg :test-unknown-derived --ignore-unknown >$tmp.out 2>$tmp.err
+cat $tmp.err $tmp.out
 
 # success, all done
 echo "== done"
