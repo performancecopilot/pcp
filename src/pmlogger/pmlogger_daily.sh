@@ -405,7 +405,7 @@ DO_DAILY_REPORT=true
 NOPROXY=false
 PROXYONLY=false
 NOERROR=false
-SIZE_LIMIT_FLAG=false
+SIZE_LIMIT_FLAG=
 SIZE_LIMIT=0
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
@@ -582,10 +582,10 @@ do
 	--)	shift
 		break
 		;;
-	-d) SIZE_LIMIT_FLAG=true
+	-d) SIZE_LIMIT_FLAG=1
 		SIZE_LIMIT="$2"
 		shift
-		echo "Info: Size limit set to $SIZE_LIMIT GB for $PCP_ARCHIVE_DIR"
+		$VERBOSE && echo "Info: Size limit set to $SIZE_LIMIT GB for $PCP_ARCHIVE_DIR"
 		;;
 	-\?)	_usage
 		;;
@@ -797,10 +797,10 @@ fi
 
 __calculate_archive_size()
 {
-	local archive_size=0
-	local log_dir_name="${PCP_ARCHIVE_DIR}/$(hostname)"
-	archive_size=`du -sc $log_dir_name | grep total$ | awk '{print $1}'`
-	echo $archive_size
+    local log_dir_name="${PCP_ARCHIVE_DIR}/$(hostname)"
+    local archive_size
+    archive_size=$(du -sk "$log_dir_name" | awk '{print $1}')
+    echo "$archive_size"
 }
 __check_size_limit()
 {
@@ -1561,45 +1561,6 @@ _do_cull()
 	fi
     fi
 
-    # --- BEGIN size-based culling extension ---
-    if $SIZE_LIMIT_FLAG && [ $SIZE_LIMIT -gt 0 ]; then
-        # Calculate initial dir size in KB
-        dir_size=$(__calculate_archive_size)
-        size_limit_kb=$((SIZE_LIMIT * 1024 * 1024))
-        if [ "$dir_size" -gt "$size_limit_kb" ]; then
-            $VERBOSE && echo "Size limit exceeded for $PCP_ARCHIVE_DIR/$(hostname) (${dir_size}KB > ${size_limit_kb}KB): removing oldest archives..."
-            # Build a sorted list of candidate archives to remove (oldest to newest), EXCLUDING the current_base if set
-            find "$PCP_ARCHIVE_DIR/$(hostname)" -type f \
-                | $PCP_BINADM_DIR/find-filter mtime +0 \
-                | _filter_filename \
-                | LC_COLLATE=POSIX sort \
-                > $tmp/size_candidates
-            if [ -f "$PCP_TMP_DIR/pmlogger/$pid" ]; then
-                current_base=`sed -n -e '3s;.*/;;p' <"$PCP_TMP_DIR/pmlogger/$pid"`
-                if [ -n "$current_base" ]; then
-                    sed -e "/^$current_base/d" <$tmp/size_candidates >$tmp/tmp
-                    mv $tmp/tmp $tmp/size_candidates
-                fi
-            fi
-            while [ "$dir_size" -gt "$size_limit_kb" ]; do
-                oldest_file=`head -n 1 $tmp/size_candidates`
-                [ -z "$oldest_file" ] && break
-                if $VERBOSE; then
-                    echo "Removing $oldest_file to reduce archive dir size"
-                fi
-                if $SHOWME; then
-                    echo "+ rm -f $oldest_file"
-                else
-                    rm -f "$oldest_file"
-                fi
-                sed -e "1d" $tmp/size_candidates >$tmp/tmp
-                mv $tmp/tmp $tmp/size_candidates
-                dir_size=$(__calculate_archive_size)
-            done
-            rm -f $tmp/size_candidates
-        fi
-    fi
-    # --- END size-based culling extension ---
 }
 
 # Merge partial archives into a single archive covering one day.
@@ -2092,15 +2053,6 @@ else
     done
 fi
 
-if $SIZE_LIMIT_FLAG && [ $SIZE_LIMIT -gt 0 ]
-then
-	if ! __check_size_limit;
-	then
-		$VERBOSE && echo "Info: Size limit of $SIZE_LIMIT GB exceeded , do not continue"
-		_do_cull
-	fi
-	exit
-fi
 
 
 
@@ -2212,6 +2164,61 @@ fi
 if $PCP_LOG_RC_SCRIPTS
 then
     $PCP_BINADM_DIR/pmpost "end pid:$$ $prog status=$status"
+fi
+
+_do_purge()
+{
+    $VERBOSE && echo "Info: starting purging of $PCP_ARCHIVE_DIR/$(hostname)..."
+    if [ "$SIZE_LIMIT_FLAG" ] && [ $SIZE_LIMIT -gt 0 ]; then
+        dir_size=$(__calculate_archive_size)
+        size_limit_kb=$((SIZE_LIMIT * 1024 * 1024))
+        if [ "$dir_size" -le "$size_limit_kb" ]; then
+            $VERBOSE && echo "Info: No purging required, archive size ($dir_size KB) <= size limit ($size_limit_kb KB)"
+            return
+        fi
+        # Find files sorted by modification time (oldest first), skip active
+        # We'll simulate (not actually delete) the files that SHOULD be deleted to reach under the limit
+        cur_total=$dir_size
+        purge_total=0
+        # Use a temp list to store candidates, oldest first
+        find $PCP_ARCHIVE_DIR/$(hostname) -maxdepth 1 -type f | sort -n | head -n -5 > $PCP_TMP_DIR/purge_candidates
+        purge_files=""
+        for file in $(cat $PCP_TMP_DIR/purge_candidates); do
+            # Skip file if total is already under limit
+            if [ "$cur_total" -le "$size_limit_kb" ]; then
+                break
+            fi
+            file_size=$(du -sk "$file" | awk '{print $1}')
+            purge_files="$purge_files $file"
+            cur_total=$((cur_total - file_size))
+            purge_total=$((purge_total + file_size))
+        done
+        if [ -n "$purge_files" ]; then
+            echo "The following files should be purged to enforce archive size limit:"
+            for f in $purge_files; do
+                echo "[PURGE CANDIDATE] $f"
+            done
+            $VERBOSE && echo "Info: Would purge $purge_total KB to reach size limit"
+        else
+            $VERBOSE && echo "Info: Unable to identify files to purge, or already under limit"
+        fi
+    fi
+}
+
+if [ "$SIZE_LIMIT_FLAG" ] && [ $SIZE_LIMIT -gt 0 ]; then
+    size_limit_kb=$((SIZE_LIMIT * 1024 * 1024))
+    dir_size=$(__calculate_archive_size)
+    if [ "$dir_size" -gt "$size_limit_kb" ]; then
+        $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT GB exceeded, attempting compress to check if it can be reduced"
+        _do_compress
+        dir_size=$(__calculate_archive_size)
+        if [ "$dir_size" -gt "$size_limit_kb" ]; then
+            $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT GB exceeded after compress/merge, going to purge"
+            _do_purge
+        fi
+    else
+        echo "Info: $SIZE_LIMIT GB not exceeded, doing nothing"
+    fi
 fi
 
 exit
