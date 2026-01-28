@@ -65,4 +65,12 @@ Illegal indom: '511.0'
  defined(foo) ? foo : novalue(indom="0.4194304")
                                     ^           
 Illegal indom: '0.4194304'
+[TMP.config:7] Error: pmRegisterDerived(qa.bad.g, ...) syntax error
+ defined(foo) ? foo : novalue(indom="123")
+                                    ^     
+Illegal indom: '123'
+[TMP.config:8] Error: pmRegisterDerived(qa.bad.h, ...) syntax error
+ defined(foo) ? foo : novalue(indom="123.456foo")
+                                    ^            
+Illegal indom: '123.456foo'
 Error: qa: Unknown metric name

@@ -58,6 +58,8 @@ qa.bad.c = defined(foo) ? foo : novalue(indom=-1.0)
 qa.bad.d = defined(foo) ? foo : novalue(indom=0.-2)
 qa.bad.e = defined(foo) ? foo : novalue(indom="511.0")
 qa.bad.f = defined(foo) ? foo : novalue(indom="0.4194304")
+qa.bad.g = defined(foo) ? foo : novalue(indom="123")
+qa.bad.h = defined(foo) ? foo : novalue(indom="123.456foo")
 End-of-File
 PCP_DERIVED_CONFIG=$tmp.config pminfo -df qa 2>&1 | _filter
 
