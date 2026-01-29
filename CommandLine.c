@@ -37,6 +37,8 @@ in the source distribution for its full text.
 #include "Process.h"
 #include "ProcessTable.h"
 #include "ScreenManager.h"
+#include "ScreensPanel.h"
+#include "ScreenTabsPanel.h"
 #include "Settings.h"
 #include "Table.h"
 #include "UsersTable.h"
@@ -118,6 +120,14 @@ static CommandLineStatus parseArguments(int argc, char** argv, CommandLineSettin
       .hideMeters = false,
       .hideFunctionBar = false,
    };
+
+   {
+      // Implement NO_COLOR env support, cf. https://no-color.org/
+      const char* no_color = getenv("NO_COLOR");
+      if (no_color && no_color[0] != '\0') {
+         flags->useColors = false;
+      }
+   }
 
    const struct option long_opts[] =
    {
@@ -357,6 +367,8 @@ int CommandLine_run(int argc, char** argv) {
    Header* header = Header_new(host, 2);
    Header_populateFromSettings(header);
 
+   int colorSchemeFromConfig = settings->colorScheme;
+
    if (flags.delay != -1)
       settings->delay = flags.delay;
    if (!flags.useColors)
@@ -384,6 +396,12 @@ int CommandLine_run(int argc, char** argv) {
 
    host->iterationsRemaining = flags.iterationsRemaining;
    CRT_init(settings, flags.allowUnicode, flags.iterationsRemaining != -1);
+
+   // Do not save the color scheme override to 'htoprc'.
+   // 'settings' will keep the original color scheme until the user
+   // changes it in the Setup.
+   // ('CRT_colorScheme' holds the current, active color scheme.)
+   settings->colorScheme = colorSchemeFromConfig;
 
    MainPanel* panel = MainPanel_new();
    Machine_setTablesPanel(host, (Panel*) panel);
@@ -426,7 +444,7 @@ int CommandLine_run(int argc, char** argv) {
 #endif /* NDEBUG */
       int r = Settings_write(settings, false);
       if (r < 0)
-         fprintf(stderr, "Can not save configuration to %s: %s\n", settings->filename, strerror(-r));
+         fprintf(stderr, "Cannot save configuration to %s: %s\n", settings->filename, strerror(-r));
    }
 
    Header_delete(header);
@@ -434,6 +452,8 @@ int CommandLine_run(int argc, char** argv) {
 
    ScreenManager_delete(scr);
    MetersPanel_cleanup();
+   ScreensPanel_cleanup();
+   ScreenTabsPanel_cleanup();
 
    UsersTable_delete(ut);
 
