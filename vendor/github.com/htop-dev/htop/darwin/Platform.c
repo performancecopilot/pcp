@@ -15,11 +15,11 @@ in the source distribution for its full text.
 #include <math.h>
 #include <stdlib.h>
 #include <unistd.h>
-#include <net/if.h>
 #include <net/if_types.h>
 #include <net/route.h>
 #include <sys/socket.h>
 #include <mach/port.h>
+#include <net/if.h> // After `sys/socket.h` for struct `sockaddr` (for iOS6 SDK)
 
 #include <CoreFoundation/CFBase.h>
 #include <CoreFoundation/CFDictionary.h>
@@ -36,7 +36,6 @@ in the source distribution for its full text.
 #include "ClockMeter.h"
 #include "CPUMeter.h"
 #include "CRT.h"
-#include "DateMeter.h"
 #include "DateTimeMeter.h"
 #include "FileDescriptorMeter.h"
 #include "GPUMeter.h"
@@ -129,6 +128,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &HostnameMeter_class,
    &SysArchMeter_class,
    &UptimeMeter_class,
+   &SecondsUptimeMeter_class,
    &AllCPUsMeter_class,
    &AllCPUs2Meter_class,
    &AllCPUs4Meter_class,
@@ -365,14 +365,9 @@ void Platform_setGPUValues(Meter* mtr, double* totalUsage, unsigned long long* t
       return;
    }
 
-   CFMutableDictionaryRef properties = NULL;
-   kern_return_t ret = IORegistryEntryCreateCFProperties(dhost->GPUService, &properties, kCFAllocatorDefault, kNilOptions);
-   if (ret != KERN_SUCCESS || !properties)
-      return;
-
-   CFDictionaryRef perfStats = CFDictionaryGetValue(properties, CFSTR("PerformanceStatistics"));
+   CFDictionaryRef perfStats = IORegistryEntryCreateCFProperty(dhost->GPUService, CFSTR("PerformanceStatistics"), kCFAllocatorDefault, kNilOptions);
    if (!perfStats)
-      goto cleanup;
+      return;
 
    assert(CFGetTypeID(perfStats) == CFDictionaryGetTypeID());
 
@@ -387,7 +382,7 @@ void Platform_setGPUValues(Meter* mtr, double* totalUsage, unsigned long long* t
    prevMonotonicMs = host->monotonicMs;
 
 cleanup:
-   CFRelease(properties);
+   CFRelease(perfStats);
 
    mtr->values[0] = *totalUsage;
 }
@@ -402,17 +397,27 @@ void Platform_setMemoryValues(Meter* mtr) {
    double page_K = (double)vm_page_size / (double)1024;
 
    mtr->total = dhost->host_info.max_mem / 1024;
+
 #ifdef HAVE_STRUCT_VM_STATISTICS64
-   natural_t used = vm->active_count + vm->inactive_count +
-              vm->speculative_count + vm->wire_count +
-              vm->compressor_page_count - vm->purgeable_count - vm->external_page_count;
-   mtr->values[MEMORY_METER_USED] = (double)(used - vm->compressor_page_count) * page_K;
+   #ifdef HAVE_STRUCT_VM_STATISTICS64_EXTERNAL_PAGE_COUNT
+   const natural_t external_page_count = vm->external_page_count;
+   #else
+   const natural_t external_page_count = 0;
+   #endif
+   const natural_t used_counts_from_statistics64 = vm->inactive_count + vm->speculative_count
+                    - vm->purgeable_count - external_page_count;
 #else
-   mtr->values[MEMORY_METER_USED] = (double)(vm->active_count + vm->wire_count) * page_K;
-#endif
+   const natural_t used_counts_from_statistics64 = 0;
+#endif // HAVE_STRUCT_VM_STATISTICS64
+   const natural_t used_count = vm->active_count + vm->wire_count + used_counts_from_statistics64;
+   mtr->values[MEMORY_METER_USED] = (double)used_count * page_K;
    // mtr->values[MEMORY_METER_SHARED] = "shared memory, like tmpfs and shm"
 #ifdef HAVE_STRUCT_VM_STATISTICS64
+#ifdef HAVE_STRUCT_VM_STATISTICS64_COMPRESSOR_PAGE_COUNT
    mtr->values[MEMORY_METER_COMPRESSED] = (double)vm->compressor_page_count * page_K;
+#else
+   // mtr->values[MEMORY_METER_COMPRESSED] = "compressed memory not available"
+#endif
 #else
    // mtr->values[MEMORY_METER_COMPRESSED] = "compressed memory, like zswap on linux"
 #endif
@@ -728,58 +733,73 @@ void Platform_gettime_monotonic(uint64_t* msec) {
 
 }
 
-#define OSRELEASEFILE "/System/Library/CoreServices/SystemVersion.plist"
-
 static void Platform_getOSRelease(char* buffer, size_t bufferLen) {
-   const UInt8* osfile = (const UInt8 *)OSRELEASEFILE;
-   const size_t length = sizeof(OSRELEASEFILE) - 1;
-   CFURLRef url = CFURLCreateFromFileSystemRepresentation(NULL, osfile, length, false);
-   if (!url) {
-      xSnprintf(buffer, bufferLen, "No OS Release");
+   static const CFStringRef osfiles[] = {
+#ifdef OSRELEASEFILE
+      CFSTR(OSRELEASEFILE) /* Custom path for testing; undefined by default */,
+#endif
+      CFSTR("/System/Library/CoreServices/SystemVersion.plist"),
+   };
+
+   if (!bufferLen)
       return;
+
+   CFPropertyListRef plist = NULL;
+   for (size_t i = 0; i < ARRAYSIZE(osfiles); i++) {
+      CFURLRef url = CFURLCreateWithFileSystemPath(kCFAllocatorDefault, osfiles[i], kCFURLPOSIXPathStyle, /*isDirectory*/false);
+      if (!url)
+         continue;
+
+      CFReadStreamRef stream = CFReadStreamCreateWithFile(kCFAllocatorDefault, url);
+      CFRelease(url);
+
+      if (!stream)
+         continue;
+
+      bool canRead = CFReadStreamOpen(stream);
+      if (canRead) {
+         plist = CFPropertyListCreateWithStream(kCFAllocatorDefault, stream, 0, kCFPropertyListImmutable, NULL, NULL);
+         CFReadStreamClose(stream);
+      }
+      CFRelease(stream);
+
+      if (canRead)
+         break;
    }
 
-   CFReadStreamRef stream = CFReadStreamCreateWithFile(NULL, url);
-   CFRelease(url);
-    if (!stream || !CFReadStreamOpen(stream)) {
-      if (stream) CFRelease(stream);
-      xSnprintf(buffer, bufferLen, "Bad OS Release");
-      return;
-   }
+   if (!plist)
+      goto fail;
 
-   CFMutableDataRef data = CFDataCreateMutable(NULL, 0);
-   UInt8 bytes[4096];
-   CFIndex bytesRead;
-   while ((bytesRead = CFReadStreamRead(stream, bytes, sizeof(bytes))) > 0) {
-      CFDataAppendBytes(data, bytes, bytesRead);
-   }
-   CFReadStreamClose(stream);
-   CFRelease(stream);
-   if (bytesRead < 0) {
-      xSnprintf(buffer, bufferLen, "Bad OS Release");
-      CFRelease(data);
-      return;
-   }
+   CFStringRef str = NULL;
+   if (CFGetTypeID(plist) == CFDictionaryGetTypeID()) {
+      CFDictionaryRef dict = (CFDictionaryRef)plist;
 
-   CFPropertyListRef plist = CFPropertyListCreateWithData(NULL, data, kCFPropertyListImmutable, NULL, NULL);
-   CFRelease(data);
-   if (!plist || CFGetTypeID(plist) != CFDictionaryGetTypeID()) {
-      xSnprintf(buffer, bufferLen, "Bad OS Release");
-      if (plist) CFRelease(plist);
-      return;
-   }
+      CFStringRef productName = CFDictionaryGetValue(dict, CFSTR("ProductName"));
+      CFStringRef productVersion = CFDictionaryGetValue(dict, CFSTR("ProductVersion"));
+      CFStringRef separator = productName && productVersion ? CFSTR(" ") : CFSTR("");
 
-   char name[256], version[256];
-   CFDictionaryRef dict = (CFDictionaryRef)plist;
-   CFStringRef productName = CFDictionaryGetValue(dict, CFSTR("ProductName"));
-   CFStringRef productVersion = CFDictionaryGetValue(dict, CFSTR("ProductVersion"));
-   if (CFStringGetCString(productName, name, sizeof(name), kCFStringEncodingUTF8) &&
-       CFStringGetCString(productVersion, version, sizeof(version), kCFStringEncodingUTF8))
-      xSnprintf(buffer, bufferLen, "%s %s", name, version);
-   else
-      xSnprintf(buffer, bufferLen, "Bad OS Release");
+      if (!productName)
+         productName = CFSTR("");
+      if (!productVersion)
+         productVersion = CFSTR("");
+
+      str = CFStringCreateWithFormat(kCFAllocatorDefault, NULL, CFSTR("%@%@%@"), productName, separator, productVersion);
+   }
+   CFRelease(plist);
+
+   if (!str)
+      goto fail;
+
+   bool ok = CFStringGetCString(str, buffer, bufferLen, kCFStringEncodingUTF8);
+   CFRelease(str);
+
+   if (ok)
+      return;
+
+fail:
+   buffer[0] = '\0';
 }
 
-void Platform_getRelease(const char** string) {
-   *string = Generic_unameRelease(Platform_getOSRelease);
+const char* Platform_getRelease(void) {
+   return Generic_unameRelease(Platform_getOSRelease);
 }

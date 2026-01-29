@@ -19,6 +19,7 @@ in the source distribution for its full text.
 #include <sys/param.h>
 #include <sys/proc.h>
 #include <sys/sched.h>
+#include <sys/stat.h>
 #include <sys/sysctl.h>
 #include <sys/types.h>
 #include <uvm/uvmexp.h>
@@ -200,7 +201,7 @@ static void OpenBSDProcessTable_scanProcs(OpenBSDProcessTable* this) {
       proc->nice = kproc->p_nice - 20;
       proc->time = 100 * (kproc->p_rtime_sec + ((kproc->p_rtime_usec + 500000) / 1000000));
       proc->priority = kproc->p_priority - PZERO;
-      proc->processor = kproc->p_cpuid;
+      proc->processor = (int) kproc->p_cpuid;
       proc->minflt = kproc->p_uru_minflt;
       proc->majflt = kproc->p_uru_majflt;
       proc->nlwp = 1;
