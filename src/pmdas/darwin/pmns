@@ -17,6 +17,7 @@ kernel {
     uname
     all
     percpu
+    limits
 }
 
 kernel.uname {
@@ -35,6 +36,13 @@ kernel.all {
     hz			DARWIN:0:1
     nprocs		DARWIN:12:140
     nthreads	DARWIN:12:141
+}
+
+kernel.limits {
+    maxproc		DARWIN:18:0
+    maxprocperuid	DARWIN:18:1
+    maxfiles		DARWIN:18:2
+    maxfilesperproc	DARWIN:18:3
 }
 
 kernel.all.cpu {
@@ -376,4 +384,5 @@ vfs.files {
 vfs.vnodes {
     count		DARWIN:12:138
     max			DARWIN:12:139
+    recycled		DARWIN:18:4
 }

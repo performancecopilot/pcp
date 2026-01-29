@@ -46,6 +46,26 @@ refresh_vfs(vfsstats_t *vfs)
     if (sysctlbyname("kern.num_threads", &vfs->num_threads, &size, NULL, 0) == -1)
 	return -oserror();
 
+    size = sizeof(vfs->maxproc);
+    if (sysctlbyname("kern.maxproc", &vfs->maxproc, &size, NULL, 0) == -1)
+	return -oserror();
+
+    size = sizeof(vfs->maxprocperuid);
+    if (sysctlbyname("kern.maxprocperuid", &vfs->maxprocperuid, &size, NULL, 0) == -1)
+	return -oserror();
+
+    size = sizeof(vfs->maxfiles);
+    if (sysctlbyname("kern.maxfiles", &vfs->maxfiles, &size, NULL, 0) == -1)
+	return -oserror();
+
+    size = sizeof(vfs->maxfilesperproc);
+    if (sysctlbyname("kern.maxfilesperproc", &vfs->maxfilesperproc, &size, NULL, 0) == -1)
+	return -oserror();
+
+    size = sizeof(vfs->recycled_vnodes);
+    if (sysctlbyname("kern.num_recycledvnodes", &vfs->recycled_vnodes, &size, NULL, 0) == -1)
+	return -oserror();
+
     return 0;
 }
 
