@@ -463,3 +463,19 @@ This includes all processes across all users.
 @ kernel.all.nthreads total number of threads
 Current number of threads running in the system.
 This includes all threads across all processes and users.
+
+@ kernel.all.nusers number of user sessions on the system
+Count of currently logged-in user sessions obtained from the utmpx database.
+This includes both regular users and root sessions. This metric is used by
+pcp-uptime and other tools to display user counts, similar to the system
+uptime command.
+
+@ kernel.all.nroots number of root user sessions on the system
+Count of currently logged-in root user sessions from the utmpx database.
+This is a subset of kernel.all.nusers counting only sessions where the
+username is "root".
+
+@ kernel.all.nsessions total number of utmpx session records
+Total count of session records in the utmpx database. This includes all
+session types, not just USER_PROCESS entries, providing a count of all
+tracked login events.
