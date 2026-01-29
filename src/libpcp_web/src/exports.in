@@ -248,6 +248,11 @@ PCP_WEB_1.18 {
     pmWebTimerSetup;
 } PCP_WEB_1.17;
 
+PCP_WEB_1.19 {
+  global:
+    dictGenHashFunction;
+} PCP_WEB_1.18;
+
 PCP_WEB_1.20 {
   global:
     pmSeriesWindow;
