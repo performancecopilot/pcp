@@ -1,3 +1,6 @@
+pcp-7.1.1 (30 March 2026)
+    - Work-in-progress.
+
 pcp-7.1.0 (28 January 2026)
     - PMDA additions, enhancements and bug fixes:
 	pmdadarwin: major refactoring to modular cluster-based architecture

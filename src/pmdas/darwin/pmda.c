@@ -43,6 +43,7 @@
 #include "loadavg.h"
 #include "cpuload.h"
 #include "uname.h"
+#include "login.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -113,6 +114,9 @@ tcpconn_stats_t		mach_tcpconn = { 0 };
 
 int			mach_tcp_error = 0;
 tcpstats_t		mach_tcp = { 0 };
+
+int			mach_login_error = 0;
+login_info_t		mach_login = { 0 };
 
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
@@ -190,6 +194,8 @@ darwin_refresh(int *need_refresh)
 	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
     if (need_refresh[CLUSTER_TCP])
 	mach_tcp_error = refresh_tcp(&mach_tcp);
+    if (need_refresh[CLUSTER_LOGIN])
+	mach_login_error = refresh_login(&mach_login);
 }
 
 static int

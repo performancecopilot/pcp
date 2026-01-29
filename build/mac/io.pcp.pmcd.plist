@@ -11,7 +11,7 @@
         </array>
         <key>EnvironmentVariables</key>
         <dict>
-            <key>PMCD_LAUNCHED_BY_LAUNCHD</key>
+            <key>LAUNCHED_BY_LAUNCHD</key>
             <string>1</string>
         </dict>
         <key>Disabled</key>

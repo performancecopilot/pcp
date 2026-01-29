@@ -88,10 +88,10 @@ if [ ! -f "$PLIST_PATH" ]; then
     exit 1
 fi
 
-if grep -q "PMCD_LAUNCHED_BY_LAUNCHD" "$PLIST_PATH"; then
-    echo "✓ PMCD_LAUNCHED_BY_LAUNCHD environment variable present"
+if grep -q "LAUNCHED_BY_LAUNCHD" "$PLIST_PATH"; then
+    echo "✓ LAUNCHED_BY_LAUNCHD environment variable present"
 else
-    echo "✗ PMCD_LAUNCHED_BY_LAUNCHD environment variable missing"
+    echo "✗ LAUNCHED_BY_LAUNCHD environment variable missing"
     exit 1
 fi
 
@@ -303,7 +303,7 @@ fi
 echo -e "\n=== All tests passed! ==="
 echo ""
 echo "Summary:"
-echo "  ✓ Configuration correct (PMCD_LAUNCHED_BY_LAUNCHD + KeepAlive)"
+echo "  ✓ Configuration correct (LAUNCHED_BY_LAUNCHD + KeepAlive)"
 echo "  ✓ pmcd runs in foreground mode (-f flag)"
 echo "  ✓ No fork issues (single pmcd process)"
 echo "  ✓ launchctl properly tracks pmcd"
