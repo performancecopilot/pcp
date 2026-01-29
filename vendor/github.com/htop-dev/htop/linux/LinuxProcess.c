@@ -26,7 +26,7 @@ in the source distribution for its full text.
 #include "RowField.h"
 #include "Scheduling.h"
 #include "Settings.h"
-#include "XUtils.h"
+#include "linux/Compat.h"
 #include "linux/IOPriority.h"
 #include "linux/LinuxMachine.h"
 
@@ -138,8 +138,8 @@ void Process_delete(Object* cast) {
 [1] Note that before kernel 2.6.26 a process that has not asked for
 an io priority formally uses "none" as scheduling class, but the
 io scheduler will treat such processes as if it were in the best
-effort class. The priority within the best effort class will  be
-dynamically  derived  from  the  cpu  nice level of the process:
+effort class. The priority within the best effort class will be
+dynamically derived from the cpu nice level of the process:
 io_priority = (cpu_nice + 20) / 5. -- From ionice(1) man page
 */
 static int LinuxProcess_effectiveIOPriority(const LinuxProcess* this) {
@@ -185,7 +185,7 @@ bool LinuxProcess_rowSetIOPriority(Row* super, Arg ioprio) {
 
 bool LinuxProcess_isAutogroupEnabled(void) {
    char buf[16];
-   if (xReadfile(PROCDIR "/sys/kernel/sched_autogroup_enabled", buf, sizeof(buf)) < 0)
+   if (Compat_readfile(PROCDIR "/sys/kernel/sched_autogroup_enabled", buf, sizeof(buf)) < 0)
       return false;
    return buf[0] == '1';
 }

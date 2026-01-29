@@ -331,10 +331,15 @@ static bool Settings_read(Settings* this, const char* fileName, const Machine* h
             return false;
          }
       } else {
-         // Check if this is a regular file
+         // Write the config only if the file is:
+         // (1) a regular file (not a device file like /dev/null)
+         // (2) owned by the effective user ID
+         // (3) has write permission for owner
+         //     (the root user usually bypasses access control
+         //     by default; see CAP_DAC_OVERRIDE on Linux)
          struct stat sb;
          int err = fstat(fd, &sb);
-         this->writeConfig = !err && S_ISREG(sb.st_mode);
+         this->writeConfig = !err && S_ISREG(sb.st_mode) && (sb.st_mode & S_IWUSR) && sb.st_uid == geteuid();
       }
    }
 
@@ -660,6 +665,7 @@ int Settings_write(const Settings* this, bool onCrash) {
       }
       fp = fdopen(fdtmp, "w");
       if (!fp) {
+         close(fdtmp);
          free(tmpFilename);
          return -errno;
       }

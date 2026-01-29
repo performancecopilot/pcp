@@ -12,4 +12,6 @@ in the source distribution for its full text.
 
 extern const MeterClass UptimeMeter_class;
 
+extern const MeterClass SecondsUptimeMeter_class;
+
 #endif

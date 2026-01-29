@@ -14,7 +14,6 @@ in the source distribution for its full text.
 
 #include "CPUMeter.h"
 #include "ClockMeter.h"
-#include "DateMeter.h"
 #include "DateTimeMeter.h"
 #include "FileDescriptorMeter.h"
 #include "HostnameMeter.h"
@@ -59,6 +58,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &HostnameMeter_class,
    &SysArchMeter_class,
    &UptimeMeter_class,
+   &SecondsUptimeMeter_class,
    &AllCPUsMeter_class,
    &AllCPUs2Meter_class,
    &AllCPUs4Meter_class,
@@ -160,6 +160,6 @@ void Platform_getHostname(char* buffer, size_t size) {
    String_safeStrncpy(buffer, Platform_unsupported, size);
 }
 
-void Platform_getRelease(const char** string) {
-   *string = Platform_unsupported;
+const char* Platform_getRelease(void) {
+   return Platform_unsupported;
 }

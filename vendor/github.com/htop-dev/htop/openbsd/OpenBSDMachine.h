@@ -10,7 +10,7 @@ in the source distribution for its full text.
 
 #include <kvm.h>
 #include <stdbool.h>
-#include <sys/types.h>
+#include <stddef.h>
 
 #include "Machine.h"
 
@@ -45,8 +45,8 @@ typedef struct OpenBSDMachine_ {
 
    long fscale;
    int cpuSpeed;
-   int pageSize;
-   int pageSizeKB;
+   size_t pageSize;
+   size_t pageSizeKB;
 
 } OpenBSDMachine;
 
