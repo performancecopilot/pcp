@@ -882,14 +882,16 @@ report(void)
 		/* assert(j <= i); */
 		if (j != i) {
 		    /*
-		     * swap names, so that free() works at the end
-		     * and shuffle PMIDs
+		     * swap names and PMIDs, so that free() works at the end
 		     */
-		    char	*tmp;
-		    tmp = namelist[j];
+		    char	*tmp_name;
+		    pmID	tmp_pmid;
+		    tmp_name = namelist[j];
 		    namelist[j] = namelist[i];
-		    namelist[i] = tmp;
+		    namelist[i] = tmp_name;
+		    tmp_pmid = pmidlist[j];
 		    pmidlist[j] = pmidlist[i];
+		    pmidlist[i] = tmp_pmid;
 		}
 		j++;
 	    }
@@ -931,21 +933,24 @@ report(void)
 			/* no metadata, find out why ...  */
 			lsts = pmLookupDesc(pmidlist[i], &desclist[i]);
 			printf("%s: pmLookupDesc: %s\n", namelist[i], pmErrStr(lsts));
+		    }
+		    else {
 			/* assert(j <= i); */
 			if (j != i) {
 			    /*
-			     * swap names, so that free() works at the end
-			     * and shuffle PMIDs
+			     * swap names and PMIDs, so that free() works at the end
 			     */
-			    char	*tmp;
-			    tmp = namelist[j];
+			    char	*tmp_name;
+			    pmID	tmp_pmid;
+			    tmp_name = namelist[j];
 			    namelist[j] = namelist[i];
-			    namelist[i] = tmp;
+			    namelist[i] = tmp_name;
+			    tmp_pmid = pmidlist[j];
 			    pmidlist[j] = pmidlist[i];
+			    pmidlist[i] = tmp_pmid;
 			}
-		    }
-		    else
 			j++;
+		    }
 		}
 		batch = j;
 	    }
