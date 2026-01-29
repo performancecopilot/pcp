@@ -99,8 +99,14 @@ mem.util {
 }
 
 mem.compressor {
-    pages		DARWIN:1:133
-    uncompressed_pages	DARWIN:1:134
+    pages			DARWIN:1:133
+    uncompressed_pages		DARWIN:1:134
+    swapouts_under_30s		DARWIN:1:135
+    swapouts_under_60s		DARWIN:1:136
+    swapouts_under_300s		DARWIN:1:137
+    thrashing_detected		DARWIN:1:138
+    major_compactions		DARWIN:1:139
+    lz4_compressions		DARWIN:1:140
 }
 
 swap {

@@ -1,0 +1,27 @@
+# Test Memory Compression Deep Dive Metrics
+# These metrics provide detailed timing and health information about macOS memory compression
+
+# Test existing compressor metrics first
+desc mem.compressor.pages
+fetch mem.compressor.pages
+desc mem.compressor.uncompressed_pages
+fetch mem.compressor.uncompressed_pages
+
+# Test new timing bucket metrics (Phase 2)
+desc mem.compressor.swapouts_under_30s
+fetch mem.compressor.swapouts_under_30s
+desc mem.compressor.swapouts_under_60s
+fetch mem.compressor.swapouts_under_60s
+desc mem.compressor.swapouts_under_300s
+fetch mem.compressor.swapouts_under_300s
+
+# Test new health metrics (Phase 2)
+desc mem.compressor.thrashing_detected
+fetch mem.compressor.thrashing_detected
+desc mem.compressor.major_compactions
+fetch mem.compressor.major_compactions
+desc mem.compressor.lz4_compressions
+fetch mem.compressor.lz4_compressions
+
+# Verify all Phase 2 metrics are counters (PM_SEM_COUNTER)
+# Note: Values may be 0 on systems without memory pressure

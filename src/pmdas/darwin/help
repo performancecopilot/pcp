@@ -95,6 +95,30 @@ cache. These pages have been compressed to reduce physical memory usage.
 The total number of pages that are currently stored in compressed form,
 measured in their original (uncompressed) size. This shows how many pages
 of memory are being represented by the compressed storage.
+@ mem.compressor.swapouts_under_30s swapouts completed within 30 seconds
+Number of memory compressor swapout operations that completed within 30
+seconds since system boot. Part of timing bucket metrics for swapout
+performance analysis.
+@ mem.compressor.swapouts_under_60s swapouts completed within 60 seconds
+Number of memory compressor swapout operations that completed within 60
+seconds since system boot. Part of timing bucket metrics for swapout
+performance analysis.
+@ mem.compressor.swapouts_under_300s swapouts completed within 300 seconds
+Number of memory compressor swapout operations that completed within 300
+seconds (5 minutes) since system boot. Part of timing bucket metrics for
+swapout performance analysis.
+@ mem.compressor.thrashing_detected memory thrashing detections
+Counter of memory thrashing events detected by the compressor swapper.
+Indicates periods of excessive memory pressure where the system is spending
+significant time swapping compressed memory.
+@ mem.compressor.major_compactions major compaction operations completed
+Total number of major memory compaction operations completed by the
+compressor. Major compactions reorganize compressed memory segments to
+improve efficiency and reclaim space.
+@ mem.compressor.lz4_compressions LZ4 compression operations
+Total number of LZ4 compression operations performed. LZ4 is a fast
+compression algorithm used by macOS for memory compression in certain
+scenarios.
 
 @ swap.length total swap space configured
 Total amount of swap space available to the system in kilobytes.

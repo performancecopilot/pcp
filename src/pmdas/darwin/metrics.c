@@ -22,6 +22,7 @@
 #include "metrics.h"
 #include "network.h"
 #include "vfs.h"
+#include "vmstat.h"
 #include "udp.h"
 #include "sockstat.h"
 #include "tcpconn.h"
@@ -36,6 +37,7 @@ extern vm_size_t mach_page_size;
 extern unsigned int mach_hertz;
 extern char hw_model[];
 extern struct vm_statistics64 mach_vmstat;
+extern struct compressor_stats mach_compressor;
 extern struct utsname mach_uname;
 extern unsigned int mach_uptime;
 extern struct nfsstats mach_nfs;
@@ -630,6 +632,30 @@ pmdaMetric metrictab[] = {
   { &mach_vmstat.total_uncompressed_pages_in_compressor,
     { PMDA_PMID(CLUSTER_VMSTAT,134), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.swapouts_under_30s */
+  { &mach_compressor.swapouts_under_30s,
+    { PMDA_PMID(CLUSTER_VMSTAT,135), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.swapouts_under_60s */
+  { &mach_compressor.swapouts_under_60s,
+    { PMDA_PMID(CLUSTER_VMSTAT,136), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.swapouts_under_300s */
+  { &mach_compressor.swapouts_under_300s,
+    { PMDA_PMID(CLUSTER_VMSTAT,137), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.thrashing_detected */
+  { &mach_compressor.thrashing_detected,
+    { PMDA_PMID(CLUSTER_VMSTAT,138), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.major_compactions */
+  { &mach_compressor.major_compactions,
+    { PMDA_PMID(CLUSTER_VMSTAT,139), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* mem.compressor.lz4_compressions */
+  { &mach_compressor.lz4_compressions,
+    { PMDA_PMID(CLUSTER_VMSTAT,140), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* vfs.files.count */
   { &mach_vfs.num_files,

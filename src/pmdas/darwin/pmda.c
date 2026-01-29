@@ -73,6 +73,10 @@ int			mach_swap_error = 0;
 struct xsw_usage	mach_swap = { 0 };
 extern int refresh_swap(struct xsw_usage *);
 
+int			mach_compressor_error = 0;
+struct compressor_stats	mach_compressor = { 0 };
+extern int refresh_compressor_stats(struct compressor_stats *);
+
 int			mach_fs_error = 0;
 struct statfs		*mach_fs = NULL;
 
@@ -163,6 +167,7 @@ darwin_refresh(int *need_refresh)
     if (need_refresh[CLUSTER_VMSTAT]) {
 	mach_vmstat_error = refresh_vmstat(&mach_vmstat);
 	mach_swap_error = refresh_swap(&mach_swap);
+	mach_compressor_error = refresh_compressor_stats(&mach_compressor);
     }
     if (need_refresh[CLUSTER_KERNEL_UNAME])
 	mach_uname_error = refresh_uname(&mach_uname);
