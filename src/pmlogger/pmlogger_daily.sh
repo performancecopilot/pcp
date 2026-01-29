@@ -168,6 +168,30 @@ _timespec()
     done
 }
 
+convert_to_kb() {
+	local input=$1
+	local num unit kb
+	# Extract number and unit 
+	num=$(echo "$input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\1/')
+	unit=$(echo "$input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\2/')
+
+	case "$unit" in
+		G|GB|g|gb)
+			kb=$((num * 1024 * 1024))
+			;;
+		M|MB|m|mb)
+			kb=$((num * 1024))
+			;;
+		K|KB|k|kb|"")
+			kb=$num
+			;;
+		*)
+			echo "Unknown unit: $unit" >&2
+			return 1
+			;;
+	esac
+	echo "$kb"
+}
 # replacement for fmt(1) that is the same on every platform ... mimics
 # the FSF version with a maximum line length of 75 columns
 #
@@ -583,9 +607,9 @@ do
 		break
 		;;
 	-d) SIZE_LIMIT_FLAG=1
-		SIZE_LIMIT="$2"
+		SIZE_LIMIT=$(convert_to_kb "$2" | awk '{print $1}')
 		shift
-		$VERBOSE && echo "Info: Size limit set to $SIZE_LIMIT GB for $PCP_ARCHIVE_DIR"
+		$VERBOSE && echo "Info: Size limit set to $SIZE_LIMIT KB for $PCP_ARCHIVE_DIR"
 		;;
 	-\?)	_usage
 		;;
@@ -805,17 +829,18 @@ __calculate_archive_size()
 __check_size_limit()
 {
 	local dir_size=0
-	if [ $SIZE_LIMIT -gt 0 ]
+	if [ "$SIZE_LIMIT" -gt 0 ]
 	then
 		dir_size=$(__calculate_archive_size)
-		# convert to kilobytes
-		size_limit_kb=$((SIZE_LIMIT * 1024 * 1024))
-		if [ "$dir_size" -gt "$size_limit_kb" ];
-		then
-			echo "Warning: size limit of $SIZE_LIMIT GB exceeded for host $(hostname) "
+		# compare integer values: remove units, handle possible "N KB" format
+		# Remove ' KB' if present in SIZE_LIMIT (in case)
+		local size_limit_kb
+		size_limit_kb=$(echo "$SIZE_LIMIT" | awk '{print $1}')
+		if [ "$dir_size" -gt "$size_limit_kb" ]; then
+			echo "Warning: size limit of $size_limit_kb KB exceeded for host $(hostname)"
 			return 1
 		else
-			$VERBOSE && echo "Info: size limit of $SIZE_LIMIT GB not exceeded, continuing"
+			$VERBOSE && echo "Info: size limit of $size_limit_kb KB not exceeded, continuing"
 			return 0
 		fi
 	fi
@@ -2171,53 +2196,66 @@ _do_purge()
     $VERBOSE && echo "Info: starting purging of $PCP_ARCHIVE_DIR/$(hostname)..."
     if [ "$SIZE_LIMIT_FLAG" ] && [ $SIZE_LIMIT -gt 0 ]; then
         dir_size=$(__calculate_archive_size)
-        size_limit_kb=$((SIZE_LIMIT * 1024 * 1024))
-        if [ "$dir_size" -le "$size_limit_kb" ]; then
-            $VERBOSE && echo "Info: No purging required, archive size ($dir_size KB) <= size limit ($size_limit_kb KB)"
+        if [ "$dir_size" -le "$SIZE_LIMIT" ]; then
+            $VERBOSE && echo "Info: No purging required, archive size ($dir_size KB) <= size limit ($SIZE_LIMIT KB)"
             return
         fi
-        # Find files sorted by modification time (oldest first), skip active
-        # We'll simulate (not actually delete) the files that SHOULD be deleted to reach under the limit
-        cur_total=$dir_size
-        purge_total=0
-        # Use a temp list to store candidates, oldest first
-        find $PCP_ARCHIVE_DIR/$(hostname) -maxdepth 1 -type f | sort -n | head -n -5 > $PCP_TMP_DIR/purge_candidates
-        purge_files=""
-        for file in $(cat $PCP_TMP_DIR/purge_candidates); do
-            # Skip file if total is already under limit
-            if [ "$cur_total" -le "$size_limit_kb" ]; then
-                break
-            fi
-            file_size=$(du -sk "$file" | awk '{print $1}')
-            purge_files="$purge_files $file"
-            cur_total=$((cur_total - file_size))
-            purge_total=$((purge_total + file_size))
-        done
-        if [ -n "$purge_files" ]; then
-            echo "The following files should be purged to enforce archive size limit:"
-            for f in $purge_files; do
-                echo "[PURGE CANDIDATE] $f"
-            done
-            $VERBOSE && echo "Info: Would purge $purge_total KB to reach size limit"
+
+        candidate_file="$tmp/purge_candidates"
+        find "$PCP_ARCHIVE_DIR/$(hostname)" -maxdepth 1 -type f | sort > "$candidate_file"
+        TODAY=`date +%Y%m%d`
+
+        # Filter out today's files and known files not to be purged
+        sed -i "/$TODAY/d" "$candidate_file"
+        sed -i '/Latest/d;/\.log.*/d' "$candidate_file"
+
+        if [ ! -s "$candidate_file" ]; then
+            $VERBOSE && echo "Info: Nothing to purge, exiting."
+            return
+        fi
+
+        size_to_purge=$(($dir_size - $SIZE_LIMIT))
+        purged_size=0
+        purge_list=""
+        while read file; do
+            # Double-check file exists and is not empty
+            [ -f "$file" ] || continue
+            file_size=$(du -k "$file" | awk '{print $1}')
+            purge_list="$purge_list$file"$'\n'
+            purged_size=$(($purged_size + $file_size))
+            [ $purged_size -ge $size_to_purge ] && break
+        done < "$candidate_file"
+
+        if [ -z "$purge_list" ]; then
+            $VERBOSE && echo "Info: No suitable files found to purge, exiting."
+            return
+        fi
+
+        $VERBOSE && echo "Info: Purging files to reclaim $size_to_purge KB:"
+        $VERBOSE && echo "$purge_list"
+        if $SHOWME; then
+            echo "+ rm -f"
+            printf "%s" "$purge_list"
         else
-            $VERBOSE && echo "Info: Unable to identify files to purge, or already under limit"
+            for file in $purge_list; do
+                [ -f "$file" ] && rm -f "$file"
+            done
         fi
     fi
 }
 
 if [ "$SIZE_LIMIT_FLAG" ] && [ $SIZE_LIMIT -gt 0 ]; then
-    size_limit_kb=$((SIZE_LIMIT * 1024 * 1024))
     dir_size=$(__calculate_archive_size)
-    if [ "$dir_size" -gt "$size_limit_kb" ]; then
-        $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT GB exceeded, attempting compress to check if it can be reduced"
+    if [ "$dir_size" -gt "$SIZE_LIMIT" ]; then
+        $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT KB exceeded, attempting compress to check if it can be reduced"
         _do_compress
         dir_size=$(__calculate_archive_size)
-        if [ "$dir_size" -gt "$size_limit_kb" ]; then
-            $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT GB exceeded after compress/merge, going to purge"
+        if [ "$dir_size" -gt "$SIZE_LIMIT" ]; then
+            $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT KB exceeded after compress/merge, going to purge"
             _do_purge
         fi
     else
-        echo "Info: $SIZE_LIMIT GB not exceeded, doing nothing"
+        echo "Info: $SIZE_LIMIT KB size limit not exceeded, doing nothing"
     fi
 fi
 
