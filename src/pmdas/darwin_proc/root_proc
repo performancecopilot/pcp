@@ -74,11 +74,13 @@ proc.id {
 proc.memory {
     size		PROC:4:0
     rss			PROC:4:1
+    footprint		PROC:4:2
 }
 
 proc.io {
     read_bytes		PROC:5:0
     write_bytes		PROC:5:1
+    logical_writes	PROC:5:2
 }
 
 proc.fd {

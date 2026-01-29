@@ -477,16 +477,36 @@ darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
 
 	/* disk I/O statistics from proc_pid_rusage */
 	{
+#if defined(RUSAGE_INFO_V4)
+		struct rusage_info_v4 rusage;
+
+		if (proc_pid_rusage(proc->id, RUSAGE_INFO_V4,
+			(rusage_info_t *)&rusage) == 0) {
+			proc->read_bytes = rusage.ri_diskio_bytesread;
+			proc->write_bytes = rusage.ri_diskio_byteswritten;
+			proc->logical_writes = rusage.ri_logical_writes;
+			proc->phys_footprint = rusage.ri_phys_footprint;
+		} else {
+			proc->read_bytes = 0;
+			proc->write_bytes = 0;
+			proc->logical_writes = 0;
+			proc->phys_footprint = 0;
+		}
+#else
 		struct rusage_info_v3 rusage;
 
 		if (proc_pid_rusage(proc->id, RUSAGE_INFO_V3,
 			(rusage_info_t *)&rusage) == 0) {
 			proc->read_bytes = rusage.ri_diskio_bytesread;
 			proc->write_bytes = rusage.ri_diskio_byteswritten;
+			proc->phys_footprint = rusage.ri_phys_footprint;
 		} else {
 			proc->read_bytes = 0;
 			proc->write_bytes = 0;
+			proc->phys_footprint = 0;
 		}
+		proc->logical_writes = 0;	/* not available in v3 */
+#endif
 	}
 
 	/* file descriptor count */

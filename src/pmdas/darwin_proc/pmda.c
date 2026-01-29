@@ -224,6 +224,9 @@ static pmdaMetric metrictab[] = {
 /* proc.memory.rss */
   { NULL, { PMDA_PMID(CLUSTER_PROC_MEM, 1), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+/* proc.memory.footprint */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_MEM, 2), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* proc.io.read_bytes */
   { NULL, { PMDA_PMID(CLUSTER_PROC_IO, 0), PM_TYPE_U64, PROC_INDOM,
@@ -231,6 +234,9 @@ static pmdaMetric metrictab[] = {
 /* proc.io.write_bytes */
   { NULL, { PMDA_PMID(CLUSTER_PROC_IO, 1), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+/* proc.io.logical_writes */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_IO, 2), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* proc.fd.count */
   { NULL, { PMDA_PMID(CLUSTER_PROC_FD, 0), PM_TYPE_U32, PROC_INDOM,
@@ -552,6 +558,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 1: /* proc.memory.rss */
 	    atom->ull = proc->rss;
 	    break;
+	case 2: /* proc.memory.footprint */
+	    atom->ull = proc->phys_footprint;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -568,6 +577,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 1: /* proc.io.write_bytes */
 	    atom->ull = proc->write_bytes;
+	    break;
+	case 2: /* proc.io.logical_writes */
+	    atom->ull = proc->logical_writes;
 	    break;
 	default:
 	    return PM_ERR_PMID;
