@@ -39,10 +39,8 @@ TOPCFILES = \
 	ColumnsPanel.c \
 	CommandLine.c \
 	CommandScreen.c \
-	Compat.c \
 	CPUMeter.c \
 	CRT.c \
-	DateMeter.c \
 	DateTimeMeter.c \
 	DiskIOMeter.c \
 	DisplayOptionsPanel.c \
@@ -120,11 +118,10 @@ TOPHFILES = \
 	ColumnsPanel.h \
 	CommandLine.h \
 	CommandScreen.h \
-	Compat.h \
 	CPUMeter.h \
 	CRT.h \
-	DateMeter.h \
 	DateTimeMeter.h \
+	Debug.h \
 	DiskIOMeter.h \
 	DisplayOptionsPanel.h \
 	DynamicColumn.h \
