@@ -26,6 +26,7 @@
 #include "sockstat.h"
 #include "tcpconn.h"
 #include "tcp.h"
+#include "login.h"
 
 /*
  * External declarations for global data referenced in metrictab.
@@ -44,6 +45,7 @@ extern udpstats_t mach_udp;
 extern sockstats_t mach_sockstat;
 extern tcpconn_stats_t mach_tcpconn;
 extern tcpstats_t mach_tcp;
+extern login_info_t mach_login;
 
 pmdaMetric metrictab[] = {
 
@@ -856,6 +858,19 @@ pmdaMetric metrictab[] = {
   { &mach_tcp.stats.tcps_rcvmemdrop,
     { PMDA_PMID(CLUSTER_TCP,186), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* kernel.all.nusers */
+  { &mach_login.nusers,
+    { PMDA_PMID(CLUSTER_LOGIN,187), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.all.nroots */
+  { &mach_login.nroots,
+    { PMDA_PMID(CLUSTER_LOGIN,188), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* kernel.all.nsessions */
+  { &mach_login.nsessions,
+    { PMDA_PMID(CLUSTER_LOGIN,189), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 };
 

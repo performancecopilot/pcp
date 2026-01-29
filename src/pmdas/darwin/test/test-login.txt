@@ -1,0 +1,15 @@
+# Test login/session metrics (utmpx database)
+# These metrics track currently logged-in users and sessions,
+# used by pcp-uptime and other tools to display user counts.
+
+# User session count (includes root)
+desc kernel.all.nusers
+fetch kernel.all.nusers
+
+# Root session count (subset of nusers)
+desc kernel.all.nroots
+fetch kernel.all.nroots
+
+# Total utmpx session records
+desc kernel.all.nsessions
+fetch kernel.all.nsessions

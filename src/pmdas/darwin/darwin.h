@@ -38,6 +38,7 @@ enum {
     CLUSTER_SOCKSTAT,		/* 15 = socket statistics */
     CLUSTER_TCPCONN,		/* 16 = tcp connection states */
     CLUSTER_TCP,		/* 17 = tcp protocol statistics */
+    CLUSTER_LOGIN,		/* 18 = login/session statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
