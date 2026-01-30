@@ -484,9 +484,12 @@ src/pmdas/darwin_proc/
 | 8. Scheduler | ~3 | 🔲 Not Started | 0/3 |
 | 9. Device Enumeration | ~6 | 🔲 Not Started | 0/6 |
 | 10. Memory Compression | ~6 | ✅ **Complete** | **6/6** |
-| **TOTAL** | **~100** | **19% Complete** | **19/99** |
+| 11. pmrep Views | 3 views + 2 updates | ⏳ Partial | **2/5** |
+| **TOTAL** | **~100 metrics** | **19% Complete** | **19/99** |
 
 **Legend**: ✅ Complete | ⏳ In Progress | 🔲 Not Started
+
+*Category 11 tracks pmrep view configurations, not metrics. Views ready: macstat-gpu, macstat-x/mem updates. Blocked: macstat-pwr (Cat 3), macstat-thermal (Cat 1).*
 
 ---
 
@@ -589,6 +592,164 @@ bool is_apple_silicon = (ret == 1);
 
 // On Intel Macs, SMC metrics return PM_ERR_APPVERSION (not available)
 ```
+
+---
+
+### Category 11: pmrep View Configurations
+
+**Why It Matters**: The new Phase 2 metrics need user-facing views. macstat.conf provides macOS-specific pmrep configurations - adding GPU, power, and thermal views makes the new metrics immediately useful.
+
+#### 11.1 New Views Overview
+
+| View | Purpose | Dependencies | Status |
+|------|---------|--------------|--------|
+| `macstat-gpu` | GPU utilization & VRAM monitoring | GPU metrics (Cat 2) ✅ | Ready |
+| `macstat-pwr` | Battery health, charge, power source | Battery metrics (Cat 3) 🔲 | Blocked |
+| `macstat-thermal` | CPU/GPU temps, fans, throttling | SMC metrics (Cat 1) 🔲 | Blocked |
+
+#### 11.2 Updates to Existing Views
+
+| View | Update | Dependencies | Status |
+|------|--------|--------------|--------|
+| `macstat-x` | Add `gpu.util` summary metric | GPU metrics ✅ | Ready |
+| `macstat-mem` | Add compression timing buckets | Compression metrics ✅ | Ready |
+
+#### 11.3 `macstat-gpu` - GPU Monitoring View
+
+**Purpose**: Monitor Apple Silicon GPU utilization and memory for video editing, ML workloads, gaming.
+
+```ini
+[macstat-gpu]
+header = yes
+unitinfo = no
+globals = no
+timestamp = no
+precision = 0
+delimiter = " "
+repeat_header = auto
+
+# GPU inventory
+hinv.ngpu = ngpu,,,,5
+
+# GPU utilization
+gpu.util = util%,,,,6
+
+# GPU memory
+gpu.memory.used = used,,MB,,8
+gpu.memory.free = free,,MB,,8
+
+# Derived: total VRAM and utilization percentage
+gpu_mem_total = gpu.memory.total
+gpu_mem_total.label = total
+gpu_mem_total.formula = gpu.memory.used + gpu.memory.free
+gpu_mem_total.unit = MB
+gpu_mem_total.width = 8
+
+gpu_mem_pct = gpu.memory.pct
+gpu_mem_pct.label = mem%
+gpu_mem_pct.formula = 100 * gpu.memory.used / (gpu.memory.used + gpu.memory.free)
+gpu_mem_pct.width = 5
+```
+
+#### 11.4 `macstat-pwr` - Power & Battery View
+
+**Purpose**: Laptop battery health, charge status, power source monitoring.
+
+```ini
+[macstat-pwr]
+header = yes
+unitinfo = no
+globals = no
+timestamp = no
+precision = 0
+delimiter = " "
+repeat_header = auto
+
+# Power source
+power.ac.connected = AC,,,,3
+power.battery.charging = chrg,,,,4
+
+# Battery status
+power.battery.charge = pct%,,,,5
+power.battery.time_remaining = mins,,,,5
+
+# Battery health
+power.battery.health = hlth%,,,,5
+power.battery.cycle_count = cycles,,,,6
+
+# Battery details
+power.battery.temperature = temp,,°C,,5
+power.battery.voltage = volt,,mV,,6
+power.battery.amperage = amps,,mA,,6
+
+# Derived: power draw in watts
+bat_watts = power.battery.watts
+bat_watts.label = watts
+bat_watts.formula = (power.battery.voltage * power.battery.amperage) / 1000000
+bat_watts.width = 6
+```
+
+#### 11.5 `macstat-thermal` - Thermal Monitoring View
+
+**Purpose**: Diagnose thermal throttling, fan behavior, temperature trends.
+
+```ini
+[macstat-thermal]
+header = yes
+unitinfo = no
+globals = no
+timestamp = no
+precision = 0
+delimiter = " "
+repeat_header = auto
+
+# Temperature sensors
+thermal.cpu.die = cpu,,°C,,5
+thermal.gpu.die = gpu,,°C,,5
+thermal.package = pkg,,°C,,5
+thermal.ambient = amb,,°C,,5
+
+# Thermal pressure
+thermal.pressure.level = press,,,,5
+
+# Fan metrics (per-fan instance display)
+hinv.nfan = nfan,,,,4
+thermal.fan.speed = rpm,,,,6
+thermal.fan.target = tgt,,,,5
+```
+
+#### 11.6 Updates to `macstat-x` (Extended View)
+
+Add GPU utilization as a quick summary metric:
+
+```ini
+# Add after existing disk I/O metrics:
+gpu.util = gpu%,,,,4
+```
+
+#### 11.7 Updates to `macstat-mem` (Memory Deep-Dive)
+
+Add compression timing buckets for memory pressure analysis:
+
+```ini
+# Add after existing compression efficiency metrics:
+# Compression timing analysis (swapout latency distribution)
+mem.compressor.swapouts_under_30s = <30s,,,,6
+mem.compressor.swapouts_under_60s = <60s,,,,6
+mem.compressor.swapouts_under_300s = <5m,,,,6
+mem.compressor.thrashing_detected = thrash,,,,6
+```
+
+#### 11.8 Implementation Wave Integration
+
+| Wave | pmrep Updates | Notes |
+|------|---------------|-------|
+| Wave 2 | `macstat-gpu`, update `macstat-x` | GPU metrics complete |
+| Wave 2 | Update `macstat-mem` | Compression timing complete |
+| Wave 2 | `macstat-pwr` | After battery metrics |
+| Wave 3 | `macstat-thermal` | After SMC thermal metrics |
+
+**Implementation Complexity**: LOW - follows existing macstat.conf patterns exactly
 
 ---
 
