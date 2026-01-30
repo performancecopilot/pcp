@@ -76,6 +76,5 @@ Quick test runners available in `build/mac/test/`:
 
 For in-depth procedures and troubleshooting:
 - `MACOS_DEVELOPMENT.md` - Tart VM setup for clean-room builds
-- `TESTING_GUIDE.md` - Comprehensive uninstaller testing
 - `qa/TESTING.md` - pmcd launchctl test plan
 
