@@ -906,7 +906,7 @@ pmdaMetric metrictab[] = {
 
 /* hinv.ngpu */
   { NULL,
-    { PMDA_PMID(CLUSTER_HINV,99), PM_TYPE_U32, PM_INDOM_NULL,
+    { PMDA_PMID(CLUSTER_GPU,99), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 /* darwin.gpu.util */
