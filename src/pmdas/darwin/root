@@ -13,6 +13,7 @@ root {
     rpc
     vfs
     gpu
+    ipc
 }
 
 #include "pmns" 
