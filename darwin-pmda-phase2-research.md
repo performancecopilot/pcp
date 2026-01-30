@@ -25,9 +25,9 @@ This document presents comprehensive research on additional macOS metrics that c
 - **Darwin_proc PMDA**: ~35 per-process metrics
 
 ### Updated Totals (After Phase 2 Progress So Far)
-- **Darwin PMDA**: ~198 metrics across 13 clusters (+12 metrics, +1 GPU cluster)
+- **Darwin PMDA**: ~202 metrics across 14 clusters (+16 metrics, +2 clusters: GPU, IPC)
 - **Darwin_proc PMDA**: ~37 per-process metrics (+2 metrics: logical_writes, footprint)
-- **Phase 2 metrics added**: 17 metrics (17% of planned ~100)
+- **Phase 2 metrics added**: 21 metrics (21% of planned ~100)
 - **Note**: proc.io.read_bytes/write_bytes were Phase 1 (commit e0b925a347, Jan 5)
 
 ---
@@ -58,13 +58,16 @@ This document presents comprehensive research on additional macOS metrics that c
   - gpu.util
   - gpu.memory.used, gpu.memory.free
 
-**Total Phase 2 metrics added so far**: 17 metrics (5+6+1+1+4)
+#### ✅ Wave 1 Final Items (Commits: abfab40ceb, 20c9d64a0d)
+- [x] **IPC & Socket Pool** (Category 7.2) - 4 metrics
+  - ipc.mbuf.clusters, maxsockbuf, somaxconn, socket.defunct
+
+**Total Phase 2 metrics added so far**: 21 metrics (5+6+1+1+4+4)
 
 ### Remaining Work
 
-#### ⏳ Wave 1 (Partially Complete)
-- [ ] **IPC & Socket Pool** (Category 7.2) - 4 metrics
-  - ipc.mbuf.clusters, maxsockbuf, somaxconn, socket.defunct
+#### ✅ Wave 1 (COMPLETE)
+All Wave 1 items have been implemented and tested.
 
 #### ⏳ Wave 2 (Partially Complete)
 - [ ] **Battery Status** (Category 3.1-3.2) - 13 metrics
