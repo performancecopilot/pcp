@@ -5,7 +5,7 @@ hinv {
     ncpu		DARWIN:8:71
     nfilesys		DARWIN:5:31
     ndisk		DARWIN:7:46
-    ngpu		DARWIN:4:99
+    ngpu		DARWIN:19:99
     machine		DARWIN:0:2
 }
 

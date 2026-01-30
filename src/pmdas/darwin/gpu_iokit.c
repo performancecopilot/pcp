@@ -45,6 +45,8 @@ gpu_iokit_enumerate(struct gpustats *stats)
     if (!stats)
         return PM_ERR_AGAIN;
 
+    pmNotifyErr(LOG_DEBUG, "gpu_iokit_enumerate: entry (count mode: %s)", stats->gpus ? "no" : "yes");
+
     /* Get IOAccelerator services (works for both Apple Silicon and Intel GPUs) */
     kern_return_t kr = IOServiceGetMatchingServices(
         kIOMainPortDefault,
@@ -53,6 +55,7 @@ gpu_iokit_enumerate(struct gpustats *stats)
     );
 
     if (kr != KERN_SUCCESS || !iterator) {
+        pmNotifyErr(LOG_DEBUG, "gpu_iokit_enumerate: IOServiceGetMatchingServices failed or no iterator (kr=%d)", kr);
         if (iterator)
             IOObjectRelease(iterator);
         stats->count = 0;
@@ -87,6 +90,7 @@ gpu_iokit_enumerate(struct gpustats *stats)
             perf_stats = CFDictionaryGetValue(properties, CFSTR("PerformanceStatistics"));
 
             if (perf_stats && CFGetTypeID(perf_stats) == CFDictionaryGetTypeID()) {
+                pmNotifyErr(LOG_DEBUG, "gpu_iokit_enumerate: GPU %d has PerformanceStatistics", gpu_index);
                 /* Try "Device Utilization %" first (primary key) */
                 number = CFDictionaryGetValue(perf_stats, CFSTR("Device Utilization %"));
                 if (!number) {
@@ -98,6 +102,9 @@ gpu_iokit_enumerate(struct gpustats *stats)
                     int util = 0;
                     CFNumberGetValue(number, kCFNumberIntType, &util);
                     stats->gpus[gpu_index].utilization = util;
+                    pmNotifyErr(LOG_DEBUG, "gpu_iokit_enumerate: GPU %d utilization = %d%%", gpu_index, util);
+                } else {
+                    pmNotifyErr(LOG_DEBUG, "gpu_iokit_enumerate: GPU %d utilization key not found", gpu_index);
                 }
 
                 /* Extract memory statistics if available */
@@ -117,9 +124,13 @@ gpu_iokit_enumerate(struct gpustats *stats)
                 }
 
                 ret = 0; /* At least one GPU successfully enumerated */
+            } else {
+                pmNotifyErr(LOG_DEBUG, "gpu_iokit_enumerate: GPU %d has no PerformanceStatistics", gpu_index);
             }
 
             CFRelease(properties);
+        } else {
+            pmNotifyErr(LOG_DEBUG, "gpu_iokit_enumerate: GPU %d IORegistryEntryCreateCFProperties failed (kr=%d)", gpu_index, kr);
         }
 
         IOObjectRelease(service);
@@ -127,6 +138,8 @@ gpu_iokit_enumerate(struct gpustats *stats)
     }
 
     IOObjectRelease(iterator);
+
+    pmNotifyErr(LOG_DEBUG, "gpu_iokit_enumerate: exit (found %d GPUs, ret=%d)", gpu_index, ret);
 
     /* Update count if we were just counting */
     if (!stats->gpus) {

@@ -20,17 +20,20 @@ ngpu_output=$(pminfo -f hinv.ngpu 2>&1)
 ngpu_exit=$?
 
 if [ $ngpu_exit -eq 0 ]; then
-    # Extract value (format: "value N" or just "N")
-    ngpu_value=$(echo "$ngpu_output" | grep -Eo 'value [0-9]+' | awk '{print $2}')
-    if [ -z "$ngpu_value" ]; then
-        ngpu_value=$(echo "$ngpu_output" | grep -Eo '\s[0-9]+$' | tr -d ' ')
-    fi
+    # Extract value - pminfo -f format is "    value N"
+    ngpu_value=$(echo "$ngpu_output" | grep -E '^\s+value' | grep -Eo '[0-9]+')
 
     if [ -n "$ngpu_value" ] && [ "$ngpu_value" -ge 0 ] && [ "$ngpu_value" -le 4 ]; then
-        echo -e "${GREEN}✓ GPU count metric present (darwin.hinv.ngpu = $ngpu_value)${NC}"
+        if [ "$ngpu_value" -eq 0 ]; then
+            echo -e "${GREEN}✓ GPU count metric present (hinv.ngpu = $ngpu_value) - no GPUs in VM${NC}"
+        else
+            echo -e "${GREEN}✓ GPU count metric present (hinv.ngpu = $ngpu_value)${NC}"
+        fi
         checks_passed=$((checks_passed + 1))
     else
         echo -e "${RED}✗ GPU count value invalid: $ngpu_value${NC}"
+        echo "Full output:"
+        echo "$ngpu_output"
         checks_failed=$((checks_failed + 1))
     fi
 else

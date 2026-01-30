@@ -78,20 +78,25 @@ refresh_gpus(struct gpustats *stats, pmdaIndom *indom)
     int i, status;
 
     if (!inited) {
+        pmNotifyErr(LOG_DEBUG, "refresh_gpus: initializing GPU monitoring");
         memset(stats, 0, sizeof(struct gpustats));
 
         /* Discover GPU count */
         status = gpu_iokit_enumerate(stats);
         if (status != 0) {
             /* No GPUs or IOKit access failed */
+            pmNotifyErr(LOG_DEBUG, "refresh_gpus: GPU enumeration failed (status=%d)", status);
             indom->it_numinst = 0;
             return PM_ERR_AGAIN;
         }
+
+        pmNotifyErr(LOG_DEBUG, "refresh_gpus: discovered %d GPUs", stats->count);
 
         /* Allocate GPU array if we found any */
         if (stats->count > 0) {
             stats->gpus = calloc(stats->count, sizeof(struct gpustat));
             if (!stats->gpus) {
+                pmNotifyErr(LOG_ERR, "refresh_gpus: failed to allocate GPU array");
                 stats->count = 0;
                 return -ENOMEM;
             }
@@ -108,9 +113,12 @@ refresh_gpus(struct gpustats *stats, pmdaIndom *indom)
 
     /* Refresh GPU statistics */
     if (stats->gpus && stats->count > 0) {
+        pmNotifyErr(LOG_DEBUG, "refresh_gpus: refreshing stats for %d GPUs", stats->count);
         status = gpu_iokit_enumerate(stats);
         if (status == 0)
             count = stats->count;
+        else
+            pmNotifyErr(LOG_DEBUG, "refresh_gpus: refresh enumeration failed (status=%d)", status);
     }
 
     /* Update instance domain */
