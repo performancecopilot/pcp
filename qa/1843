@@ -1,0 +1,114 @@
+#!/bin/sh
+# PCP QA Test No. 1843
+# Test pmdaopentelemetry metric removal
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.opentelemetry
+
+_pmdaopentelemetry_check || _notrun "opentelemetry pmda not installed"
+
+status=1        # failure is the default!
+
+_cleanup()
+{
+    cd $here
+    _pmdaopentelemetry_cleanup
+    $sudo rm -rf $tmp $tmp.*
+}
+
+_prepare_pmda opentelemetry
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+_pmdaopentelemetry_save_config
+
+# add all the sample text files as urls.
+# need to be a place the user $PCP_USER (pmcd) can read
+#
+( cd $here/opentelemetry/samples; ls -1 *.txt ) | sort | while read file
+do
+    cp $here/opentelemetry/samples/$file $tmp.$file
+    urlbase=`basename "$file" .txt | tr .- _`
+    echo 'file://'$tmp.$file >$tmp.tmp
+    $sudo cp $tmp.tmp $PCP_PMDAS_DIR/opentelemetry/config.d/$urlbase.url
+done
+ls -l $PCP_PMDAS_DIR/openmetrics/config.d >>$seq_full
+
+# add all the sample scripts
+cp -a $here/opentelemetry/scripts/* $PCP_PMDAS_DIR/opentelemetry/config.d
+find $PCP_PMDAS_DIR/opentelemetry/config.d -name GNU\* -exec rm -f {} ";"
+
+_pmdaopentelemetry_install
+
+iam=opentelemetry
+# append -R option to pmcd config
+sed < $PCP_PMCDCONF_PATH \
+        -e "/^$iam.*/s/$/ -R 1/" \
+        > $tmp.conf
+$sudo cp $tmp.conf $PCP_PMCDCONF_PATH
+if ! _service pmcd restart 2>&1; then _exit 1; fi \
+| _filter_pcp_restart
+sleep 2
+
+if ! _pmdaopentelemetry_wait_for_metric opentelemetry.simplemetric
+then
+    status=1
+    exit
+fi
+
+echo "-- metric removal of new source/metric --"
+$sudo rm $PCP_PMDAS_DIR/opentelemetry/config.d/simplemetric.url
+pminfo opentelemetry.simplemetric
+echo
+
+echo "-- check control metrics disappeared --"
+pminfo -dfmt opentelemetry.control.status_code
+echo
+
+echo "-- source re-addition --"
+# same access controls logic as above, user $PCP_USER needs to be
+# able to read the file at the end of the URL
+#
+cp $here/opentelemetry/samples/simplemetric.txt $tmp.simplemetric.txt
+echo 'file:///'$tmp.simplemetric.txt > $PCP_PMDAS_DIR/opentelemetry/config.d/simplemetric.url
+pminfo opentelemetry.simplemetric
+echo
+
+echo "-- check control metrics reappeared --"
+pminfo -dfmt opentelemetry.control.status_code
+echo
+
+echo "-- metric removal of recognized source/metric --"
+$sudo rm $PCP_PMDAS_DIR/opentelemetry/config.d/simplemetric.url
+pminfo opentelemetry.simplemetric
+echo
+
+echo "-- source re-addition with epoch timestamp --"
+cp $here/opentelemetry/samples/simplemetric.txt $tmp.simplemetric.txt
+echo 'file:///'$tmp.simplemetric.txt > $PCP_PMDAS_DIR/opentelemetry/config.d/simplemetric.url
+$sudo touch -t 197001010000 $PCP_PMDAS_DIR/opentelemetry/config.d/simplemetric.url
+pminfo opentelemetry.simplemetric
+echo
+
+echo "-- metric removal by modifying source file, source persists --"
+$sudo sed -i -e '52,72d' $tmp'.simplemetric.txt'
+
+echo "-- sleep to allow for old_enough_for_refresh() --"
+sleep 2
+echo
+
+echo "-- metric2 removed --"
+pminfo opentelemetry.simplemetric
+sleep 10
+
+
+_pmdaopentelemetry_remove >/dev/null 2>&1
+
+# success, all done
+status=0
+exit
