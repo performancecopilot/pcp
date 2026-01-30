@@ -243,6 +243,7 @@ BuildRequires: zlib-devel
 %if !%{disable_python3}
 BuildRequires: python3-devel
 BuildRequires: python3-setuptools
+BuildRequires: python3-pip
 %endif
 BuildRequires: ncurses-devel
 BuildRequires: readline-devel

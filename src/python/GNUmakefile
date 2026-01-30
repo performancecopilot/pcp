@@ -57,7 +57,6 @@ default default_pcp: pre_build build_python3
 
 ifeq "$(ENABLE_PYTHON3)" "true"
 PY3_BUILD_OPTS = $(SETUP_PY_BUILD_OPTIONS)
-PY3_INSTALL_OPTS = $(SETUP_PY_INSTALL_OPTIONS) --record=$(TOPDIR)/python3-pcp.list
 build_python3: $(SETUP_PY) $(CFILES)
 	export $(ENV); $(PYTHON3) $(SETUP_PY) build_ext $(PY3_BUILD_OPTS)
 	export $(ENV); $(PYTHON3) $(SETUP_PY) build
@@ -65,7 +64,8 @@ build_python3: $(SETUP_PY) $(CFILES)
 	touch build_python3
 
 install_python3: build_python3
-	export $(ENV); $(PYTHON3) $(SETUP_PY) install $(PY3_INSTALL_OPTS)
+	export $(ENV); $(PYTHON3) -m pip install --no-build-isolation --no-deps --ignore-installed --root="$${DIST_ROOT:-/}" --prefix=$(PYTHON_PREFIX) --no-compile .
+	(cd "$${DIST_ROOT:-/}" && find . -type f \( -path '*/site-packages/pcp/*' -o -path '*/site-packages/pcp-*.dist-info/*' -o -path '*/site-packages/test/*' -o -path '*/site-packages/*.cpython-*.so' \) | sed 's|^\./||') > $(TOPDIR)/python3-pcp.list
 	export $(ENV); $(PYTHON3_INSTALL)
 else
 build_python3:

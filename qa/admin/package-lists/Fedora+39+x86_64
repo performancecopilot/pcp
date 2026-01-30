@@ -109,6 +109,7 @@ python3-lxml
 python3-openpyxl
 python3-pandas
 python3-pillow
+python3-pip
 python3-prometheus_client
 python3-psycopg2
 python3-pyarrow
