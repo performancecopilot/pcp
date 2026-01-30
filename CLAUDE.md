@@ -98,6 +98,10 @@ PMDAs collect metrics from specific subsystems. Key directories in `src/pmdas/`:
 - **libpcp_trace**: Event trace instrumentation
 - **libpcp_import**: Data import for PCP archives
 
+## Available Agents
+
+- `pcp-code-reviewer` - Reviews code against PCP project standards (whitespace, naming, structure, PCP patterns)
+
 ## Development Guidelines
 
 ### QA Testing Philosophy
@@ -142,6 +146,26 @@ PCP supports Linux, macOS, Windows (MinGW), AIX, and Solaris. Tests should be wr
 ## macOS Development (Darwin Platform Only)
 
 When developing on macOS (`Platform: darwin` in environment):
+
+### ⚠️ Critical Constraints
+
+1. **PCP is NOT installed on the development host**
+   - NEVER run `pminfo`, `pmval`, `pmprobe` locally - they won't work
+   - To check metrics: Read `src/pmdas/darwin/pmns` directly
+
+2. **Git commit required before VM tests**
+   - The Tart VM clones the git repository
+   - Uncommitted local changes are INVISIBLE to the VM
+   - This includes changes in `src/pmdas/darwin*` AND `build/mac/`
+   - Always commit before running `/macos-qa-test`
+
+3. **Test environments**
+   - Unit tests: Run locally (no PCP needed)
+   - Integration tests: Tart VM only (`/macos-qa-test`)
+
+### macOS-Specific Agent
+
+- `macos-darwin-pmda-qa` - Runs integration tests in isolated Tart VM
 
 ### Quick Start
 ```bash
