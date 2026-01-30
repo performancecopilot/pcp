@@ -82,7 +82,7 @@ if [ -n "${ngpu_value:-}" ] && [ "$ngpu_value" -gt 0 ]; then
     fi
 
     # Test 6: Utilization value in valid range (0-100)
-    util_value=$(echo "$util_output" | grep -A1 'inst \[0' | grep value | grep -Eo '[0-9]+')
+    util_value=$(echo "$util_output" | grep -A1 'inst \[0' | grep value | grep -Eo '[0-9]+' | head -1)
     if [ -n "$util_value" ]; then
         if [ "$util_value" -ge 0 ] && [ "$util_value" -le 100 ]; then
             echo -e "${GREEN}✓ Utilization value in valid range (0-100): $util_value${NC}"
@@ -98,10 +98,10 @@ if [ -n "${ngpu_value:-}" ] && [ "$ngpu_value" -gt 0 ]; then
 
     # Test 7: Memory values are non-negative
     mem_used_output=$(pminfo -f gpu.memory.used 2>&1)
-    mem_used_value=$(echo "$mem_used_output" | grep -A1 'inst \[0' | grep value | grep -Eo '[0-9]+')
+    mem_used_value=$(echo "$mem_used_output" | grep -A1 'inst \[0' | grep value | grep -Eo '[0-9]+' | head -1)
 
     mem_free_output=$(pminfo -f gpu.memory.free 2>&1)
-    mem_free_value=$(echo "$mem_free_output" | grep -A1 'inst \[0' | grep value | grep -Eo '[0-9]+')
+    mem_free_value=$(echo "$mem_free_output" | grep -A1 'inst \[0' | grep value | grep -Eo '[0-9]+' | head -1)
 
     if [ -n "$mem_used_value" ] && [ -n "$mem_free_value" ]; then
         if [ "$mem_used_value" -ge 0 ] && [ "$mem_free_value" -ge 0 ]; then
