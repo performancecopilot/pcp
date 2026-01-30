@@ -16,7 +16,7 @@ checks_passed=0
 checks_failed=0
 
 # Test 1: GPU count metric exists and returns valid value
-ngpu_output=$(pminfo -f darwin.hinv.ngpu 2>&1)
+ngpu_output=$(pminfo -f hinv.ngpu 2>&1)
 ngpu_exit=$?
 
 if [ $ngpu_exit -eq 0 ]; then
@@ -40,7 +40,7 @@ else
 fi
 
 # Test 2: GPU utilization metric exists
-if pminfo darwin.gpu.util >/dev/null 2>&1; then
+if pminfo gpu.util >/dev/null 2>&1; then
     echo -e "${GREEN}✓ GPU utilization metric exists${NC}"
     checks_passed=$((checks_passed + 1))
 else
@@ -49,7 +49,7 @@ else
 fi
 
 # Test 3: GPU memory.used metric exists
-if pminfo darwin.gpu.memory.used >/dev/null 2>&1; then
+if pminfo gpu.memory.used >/dev/null 2>&1; then
     echo -e "${GREEN}✓ GPU memory.used metric exists${NC}"
     checks_passed=$((checks_passed + 1))
 else
@@ -58,7 +58,7 @@ else
 fi
 
 # Test 4: GPU memory.free metric exists
-if pminfo darwin.gpu.memory.free >/dev/null 2>&1; then
+if pminfo gpu.memory.free >/dev/null 2>&1; then
     echo -e "${GREEN}✓ GPU memory.free metric exists${NC}"
     checks_passed=$((checks_passed + 1))
 else
@@ -68,7 +68,7 @@ fi
 
 # Test 5: Instance domain validation (only if GPUs present)
 if [ -n "${ngpu_value:-}" ] && [ "$ngpu_value" -gt 0 ]; then
-    util_output=$(pminfo -f darwin.gpu.util 2>&1)
+    util_output=$(pminfo -f gpu.util 2>&1)
     if echo "$util_output" | grep -q "gpu0"; then
         echo -e "${GREEN}✓ Instance domain shows gpu0${NC}"
         checks_passed=$((checks_passed + 1))
@@ -89,10 +89,10 @@ if [ -n "${ngpu_value:-}" ] && [ "$ngpu_value" -gt 0 ]; then
     fi
 
     # Test 7: Memory values are non-negative
-    mem_used_output=$(pminfo -f darwin.gpu.memory.used 2>&1)
+    mem_used_output=$(pminfo -f gpu.memory.used 2>&1)
     mem_used_value=$(echo "$mem_used_output" | grep -A1 'inst \[0' | grep value | grep -Eo '[0-9]+')
 
-    mem_free_output=$(pminfo -f darwin.gpu.memory.free 2>&1)
+    mem_free_output=$(pminfo -f gpu.memory.free 2>&1)
     mem_free_value=$(echo "$mem_free_output" | grep -A1 'inst \[0' | grep value | grep -Eo '[0-9]+')
 
     if [ -n "$mem_used_value" ] && [ "$mem_used_value" -ge 0 ] && [ -n "$mem_free_value" ] && [ "$mem_free_value" -ge 0 ]; then
