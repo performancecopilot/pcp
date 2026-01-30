@@ -352,6 +352,23 @@ run_test "proc.fd.count fetchable" "pminfo -f 'proc.fd.count'"
 run_test "some process has FDs > 0" "pminfo -f 'proc.fd.count' | grep -q 'value [1-9][0-9]*'"
 echo
 
+# Test 19: GPU metrics
+echo "Test Group: GPU Metrics"
+if [ -f "$SCRIPT_DIR/test-gpu-metrics.sh" ]; then
+    echo "Running GPU metrics validation..."
+    if "$SCRIPT_DIR/test-gpu-metrics.sh"; then
+        echo -e "${GREEN}✓ GPU metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ GPU metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ GPU metrics test not found, skipping${NC}"
+fi
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"

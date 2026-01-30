@@ -44,7 +44,6 @@ struct pmdaIndom;
 extern int refresh_gpus(struct gpustats *stats, struct pmdaIndom *indom);
 
 /* Fetch GPU metrics */
-union pmAtomValue;
-extern int fetch_gpu(unsigned int item, unsigned int inst, union pmAtomValue *atom);
+extern int fetch_gpu(unsigned int item, unsigned int inst, pmAtomValue *atom);
 
 #endif /* GPU_H */

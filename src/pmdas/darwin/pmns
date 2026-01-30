@@ -5,6 +5,7 @@ hinv {
     ncpu		DARWIN:8:71
     nfilesys		DARWIN:5:31
     ndisk		DARWIN:7:46
+    ngpu		DARWIN:4:99
     machine		DARWIN:0:2
 }
 
@@ -391,4 +392,14 @@ vfs.vnodes {
     count		DARWIN:12:138
     max			DARWIN:12:139
     recycled		DARWIN:18:4
+}
+
+gpu {
+    util		DARWIN:19:0
+    memory
+}
+
+gpu.memory {
+    used		DARWIN:19:1
+    free		DARWIN:19:2
 }

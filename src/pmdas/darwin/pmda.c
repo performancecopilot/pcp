@@ -43,6 +43,7 @@
 #include "loadavg.h"
 #include "cpuload.h"
 #include "uname.h"
+#include "gpu.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -118,6 +119,9 @@ tcpconn_stats_t		mach_tcpconn = { 0 };
 int			mach_tcp_error = 0;
 tcpstats_t		mach_tcp = { 0 };
 
+int			mach_gpu_error = 0;
+struct gpustats		mach_gpu = { 0 };
+
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
 
@@ -154,6 +158,7 @@ pmdaIndom indomtab[] = {
     { CPU_INDOM,	0, NULL },
     { NETWORK_INDOM,	0, NULL },
     { NFS3_INDOM,	NFS3_RPC_COUNT, nfs3_indom_id },
+    { GPU_INDOM,	0, NULL },
 };
 
 
@@ -195,6 +200,8 @@ darwin_refresh(int *need_refresh)
 	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
     if (need_refresh[CLUSTER_TCP])
 	mach_tcp_error = refresh_tcp(&mach_tcp);
+    if (need_refresh[CLUSTER_GPU])
+	mach_gpu_error = refresh_gpus(&mach_gpu, &indomtab[GPU_INDOM]);
 }
 
 static int
@@ -241,6 +248,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_UDP:		return fetch_udp(item, atom);
     case CLUSTER_ICMP:		return fetch_icmp(item, atom);
     case CLUSTER_TCP:		return fetch_tcp(item, atom);
+    case CLUSTER_GPU:		return fetch_gpu(item, inst, atom);
     }
     return 0;
 }
@@ -255,6 +263,7 @@ darwin_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
     case DISK_INDOM:	need_refresh[CLUSTER_DISK]++; break;
     case CPU_INDOM:	need_refresh[CLUSTER_CPU]++; break;
     case NETWORK_INDOM:	need_refresh[CLUSTER_NETWORK]++; break;
+    case GPU_INDOM:	need_refresh[CLUSTER_GPU]++; break;
     }
     darwin_refresh(need_refresh);
     return pmdaInstance(indom, inst, name, result, pmda);
@@ -333,6 +342,7 @@ darwin_init(pmdaInterface *dp)
     if ((sts = refresh_hinv()) != 0)
 	fprintf(stderr, "darwin_init: refresh_hinv failed: %s\n", pmErrStr(sts));
     init_network();
+    init_gpu();
     check_tcp_stats_access();
 }
 

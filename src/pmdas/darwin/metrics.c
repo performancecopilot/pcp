@@ -904,6 +904,26 @@ pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_LIMITS,4), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
+/* hinv.ngpu */
+  { NULL,
+    { PMDA_PMID(CLUSTER_HINV,99), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* darwin.gpu.util */
+  { NULL,
+    { PMDA_PMID(CLUSTER_GPU,0), PM_TYPE_U32, GPU_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.gpu.memory.used */
+  { NULL,
+    { PMDA_PMID(CLUSTER_GPU,1), PM_TYPE_U64, GPU_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* darwin.gpu.memory.free */
+  { NULL,
+    { PMDA_PMID(CLUSTER_GPU,2), PM_TYPE_U64, GPU_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
 };
 
 int metrictab_sz = sizeof(metrictab) / sizeof(metrictab[0]);

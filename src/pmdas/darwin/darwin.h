@@ -13,6 +13,7 @@ enum {
     CPU_INDOM,			/* 3 - set of all processors */
     NETWORK_INDOM,		/* 4 - set of all network interfaces */
     NFS3_INDOM,			/* 5 - nfs v3 operations */
+    GPU_INDOM,			/* 6 - set of all GPUs */
     NUM_INDOMS			/* total number of instance domains */
 };
 
@@ -39,6 +40,7 @@ enum {
     CLUSTER_TCPCONN,		/* 16 = tcp connection states */
     CLUSTER_TCP,		/* 17 = tcp protocol statistics */
     CLUSTER_LIMITS,		/* 18 = system resource limits */
+    CLUSTER_GPU,		/* 19 = gpu statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 

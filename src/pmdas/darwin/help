@@ -506,3 +506,18 @@ This is a tunable kernel parameter (kern.maxfiles) identical to vfs.files.max.
 Per-process limit on the number of file descriptors that can be open.
 This is a tunable kernel parameter (kern.maxfilesperproc) that limits each
 process's resource consumption.
+
+@ hinv.ngpu number of GPUs
+Number of GPUs (Graphics Processing Units) available in the system.
+Includes both integrated and discrete GPUs on Intel Macs and
+integrated GPUs on Apple Silicon Macs.
+@ gpu.util GPU utilization percentage
+Current GPU utilization percentage (0-100) representing how busy
+the GPU is processing graphics and compute workloads.
+@ gpu.memory.used GPU VRAM used
+Amount of GPU video memory (VRAM) currently in use, in bytes.
+This represents memory allocated for graphics buffers, textures,
+and compute operations.
+@ gpu.memory.free GPU VRAM free
+Amount of GPU video memory (VRAM) currently available, in bytes.
+Calculated as total VRAM minus used VRAM.
