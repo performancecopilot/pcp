@@ -162,4 +162,3 @@ cd build/mac/test && ./run-all-tests.sh  # Daily: build + test (20-30s)
 
 - `build/mac/CLAUDE.md` - Development workflow, test commands
 - `build/mac/MACOS_DEVELOPMENT.md` - Tart VM clean-room builds
-- `build/mac/TESTING_GUIDE.md` - Uninstaller testing procedures
