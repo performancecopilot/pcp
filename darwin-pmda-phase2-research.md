@@ -20,9 +20,74 @@ This document presents comprehensive research on additional macOS metrics that c
 - **TCP Protocol**: 15 metrics (opens, failures, segments, retransmits, errors)
 - **Socket Stats**: TCP/UDP socket counts
 
-### Current Totals
+### Current Totals (After Phase 1)
 - **Darwin PMDA**: ~186 metrics across 12 clusters
 - **Darwin_proc PMDA**: ~35 per-process metrics
+
+### Updated Totals (After Phase 2 Progress So Far)
+- **Darwin PMDA**: ~199 metrics across 13 clusters (+13 metrics, +1 GPU cluster)
+- **Darwin_proc PMDA**: ~39 per-process metrics (+4 metrics: I/O and memory footprint)
+- **Phase 2 metrics added**: 19 metrics (19% of planned ~100)
+
+---
+
+## Implementation Progress Tracker
+
+### Completed in Phase 2 (This Branch)
+
+#### ✅ Wave 1 Items (Commits: 42f270870c, fde9fed3f5, 91c1cb386c)
+- [x] **System Limits** (Category 7.1) - 5 metrics
+  - kernel.limits.maxproc, maxprocperuid, maxfiles, maxfilesperproc
+  - vfs.vnodes.recycled
+- [x] **Memory Compression Deep Dive** (Category 10) - 6 metrics
+  - mem.compressor.swapouts_under_30s/60s/300s
+  - mem.compressor.thrashing_detected, major_compactions, lz4_compressions
+- [x] **Process I/O Statistics** (Category 4.1) - 3 metrics
+  - proc.io.read_bytes, write_bytes, logical_writes
+- [x] **Process Memory Footprint** (Category 4.3 partial) - 1 metric
+  - proc.memory.footprint
+
+#### ✅ Wave 2 Items (Commits: 0283412223, 11d49b86f9)
+- [x] **GPU Monitoring** (Category 2) - 4 metrics
+  - hinv.ngpu
+  - gpu.util
+  - gpu.memory.used, gpu.memory.free
+
+**Total Phase 2 metrics added so far**: 19 metrics
+
+### Remaining Work
+
+#### ⏳ Wave 1 (Partially Complete)
+- [ ] **IPC & Socket Pool** (Category 7.2) - 4 metrics
+  - ipc.mbuf.clusters, maxsockbuf, somaxconn, socket.defunct
+
+#### ⏳ Wave 2 (Partially Complete)
+- [ ] **Battery Status** (Category 3.1-3.2) - 13 metrics
+  - power.battery.* (present, charging, charge, health, cycles, temperature, voltage, etc.)
+  - power.ac.connected, power.source
+- [ ] **Enhanced Network IPv6** (Category 5.1) - 6 metrics
+  - network.ip6.* (inreceives, outforwarded, discards, fragments, etc.)
+- [ ] **Process QoS CPU Time** (Category 4.2) - 5 metrics
+  - proc.cpu.qos.{default,background,utility,user_initiated,user_interactive}
+- [ ] **Process File Descriptors** (Category 4.4) - 1 metric
+  - proc.fd.count (registered but needs implementation verification)
+
+#### 🔲 Wave 3 (Not Started)
+- [ ] **Thermal & Temperature** (Category 1) - ~15 metrics
+  - thermal.cpu.die, gpu.die, package, ambient
+  - thermal.fan.* (speed, target, mode, min, max)
+  - thermal.pressure.level, state
+- [ ] **Process Network Connections** (Category 4.5) - 2 metrics
+  - proc.net.tcp_count, udp_count
+- [ ] **Disk Queue & APFS** (Category 6) - ~10 metrics
+  - disk.dev.queue_depth, inflight, await, util
+  - disk.apfs.* (snapshots, encryption, container metrics)
+
+#### 🔲 Wave 4 (Optional/Specialized)
+- [ ] **Device Enumeration** (Category 9) - ~6 metrics
+- [ ] **Power Consumption** (Category 3.3) - ~4 metrics (requires root)
+- [ ] **Scheduler Counters** (Category 8) - ~3 metrics
+- [ ] **Advanced TCP Metrics** (Category 5.2-5.3) - ~9 metrics
 
 ---
 
@@ -407,19 +472,21 @@ src/pmdas/darwin_proc/
 
 ## Metric Count Summary by Category
 
-| Category | Estimated Metrics | Complexity |
-|----------|-------------------|------------|
-| 1. Thermal & Temperature | ~15 | HIGH |
-| 2. GPU & Graphics | ~7 | MEDIUM |
-| 3. Power & Battery | ~15 | LOW-HIGH |
-| 4. Process I/O & Resources | ~15 | MEDIUM |
-| 5. Enhanced Network | ~15 | LOW-MEDIUM |
-| 6. Disk & Storage | ~10 | MEDIUM |
-| 7. System Limits & IPC | ~10 | LOW |
-| 8. Scheduler | ~3 | LOW |
-| 9. Device Enumeration | ~6 | MEDIUM |
-| 10. Memory Compression | ~6 | LOW |
-| **TOTAL** | **~100** | |
+| Category | Estimated Metrics | Status | Completed |
+|----------|-------------------|--------|-----------|
+| 1. Thermal & Temperature | ~15 | 🔲 Not Started | 0/15 |
+| 2. GPU & Graphics | ~7 | ✅ **Complete** | **4/4** |
+| 3. Power & Battery | ~15 | 🔲 Not Started | 0/15 |
+| 4. Process I/O & Resources | ~15 | ⏳ Partial | **4/15** |
+| 5. Enhanced Network | ~15 | 🔲 Not Started | 0/15 |
+| 6. Disk & Storage | ~10 | 🔲 Not Started | 0/10 |
+| 7. System Limits & IPC | ~10 | ⏳ Partial | **5/10** |
+| 8. Scheduler | ~3 | 🔲 Not Started | 0/3 |
+| 9. Device Enumeration | ~6 | 🔲 Not Started | 0/6 |
+| 10. Memory Compression | ~6 | ✅ **Complete** | **6/6** |
+| **TOTAL** | **~100** | **19% Complete** | **19/99** |
+
+**Legend**: ✅ Complete | ⏳ In Progress | 🔲 Not Started
 
 ---
 
@@ -428,70 +495,76 @@ src/pmdas/darwin_proc/
 Based on complexity, value, and dependencies:
 
 ### Wave 1: Quick Wins (LOW complexity, HIGH value)
-**Estimated: ~25 metrics**
+**Estimated: ~25 metrics** | **Completed: 15/25**
 
-1. **System Limits & IPC** (Category 7)
+1. **✅ System Limits** (Category 7.1) - **DONE** (commits: 42f270870c)
    - Simple sysctl reads, follows existing patterns
-   - Files: extend `kernel.c` or new `resources.c`
-   - Metrics: maxproc, maxfiles, IPC pools
+   - Files: extended `vfs.c` and `metrics.c`
+   - Metrics: maxproc, maxprocperuid, maxfiles, maxfilesperproc, vnodes.recycled
 
-2. **Memory Compression Deep Dive** (Category 10)
+2. **✅ Memory Compression Deep Dive** (Category 10) - **DONE** (commits: fde9fed3f5)
    - Simple sysctl reads for timing buckets
-   - Files: extend `kernel.c`
-   - Metrics: swapout timing, thrashing detection
+   - Files: extended `vmstat.c` and `metrics.c`
+   - Metrics: swapout timing (30s/60s/300s), thrashing_detected, major_compactions, lz4_compressions
 
-3. **Process I/O Statistics** (Category 4.1)
+3. **✅ Process I/O Statistics** (Category 4.1) - **DONE** (commits: 91c1cb386c)
    - Uses existing `proc_pid_rusage()` pattern
-   - Files: new `proc_io.c` in darwin_proc
-   - Metrics: read_bytes, write_bytes per process
+   - Files: extended `kinfo_proc.c` in darwin_proc
+   - Metrics: read_bytes, write_bytes, logical_writes per process
+
+4. **⏳ IPC & Socket Pool** (Category 7.2) - **TODO**
+   - Simple sysctl reads for IPC metrics
+   - Files: extend `kernel.c` or new `ipc.c`
+   - Metrics: mbuf.clusters, maxsockbuf, somaxconn, socket.defunct
 
 ### Wave 2: Medium Effort (MEDIUM complexity, HIGH value)
-**Estimated: ~30 metrics**
+**Estimated: ~30 metrics** | **Completed: 5/30**
 
-4. **GPU Monitoring** (Category 2)
-   - IOKit pattern exists in htop vendor code
-   - Files: new `gpu.c`
-   - Metrics: utilization, VRAM, model
+5. **✅ GPU Monitoring** (Category 2) - **DONE** (commits: 0283412223, 11d49b86f9)
+   - IOKit pattern implemented using IOAccelerator
+   - Files: new `gpu.c`, `gpu_iokit.c`
+   - Metrics: hinv.ngpu, utilization, VRAM used/free
 
-5. **Battery Status** (Category 3.1-3.2)
+6. **⏳ Battery Status** (Category 3.1-3.2) - **TODO**
    - IOPowerSources API is well-documented
    - Files: new `power.c`
-   - Metrics: charge, health, cycles, voltage
+   - Metrics: charge, health, cycles, voltage, temperature, amperage
 
-6. **Enhanced Network IPv6** (Category 5)
+7. **⏳ Enhanced Network IPv6** (Category 5) - **TODO**
    - sysctl pattern matches existing TCP/UDP
    - Files: new `ipv6.c`
-   - Metrics: IPv6 packet counts, errors
+   - Metrics: IPv6 packet counts, errors, fragments
 
-7. **Process QoS & Memory** (Category 4.2-4.4)
+8. **⏳ Process QoS & Memory** (Category 4.2-4.3) - **PARTIAL** (memory.footprint done in 91c1cb386c)
    - Extends existing libproc usage
    - Files: extend `kinfo_proc.c`
-   - Metrics: QoS CPU time, memory footprint, FD count
+   - Metrics: QoS CPU time (5 levels), ✅ memory.footprint, FD count
 
 ### Wave 3: Higher Effort (HIGH complexity, HIGH value)
-**Estimated: ~25 metrics**
+**Estimated: ~25 metrics** | **Completed: 0/25**
 
-8. **Thermal & Temperature** (Category 1)
+9. **🔲 Thermal & Temperature** (Category 1) - **TODO**
    - SMC interface requires careful implementation
    - Files: new `thermal.c` with `smc.c` helper
    - Metrics: CPU/GPU temps, fan speeds, thermal pressure
 
-9. **Process Network Connections** (Category 4.5)
-   - Requires FD enumeration + socket inspection
-   - Files: new `proc_network.c`
-   - Metrics: TCP/UDP connection counts per process
+10. **🔲 Process Network Connections** (Category 4.5) - **TODO**
+    - Requires FD enumeration + socket inspection
+    - Files: new `proc_network.c`
+    - Metrics: TCP/UDP connection counts per process
 
-10. **Disk Queue & APFS** (Category 6)
+11. **🔲 Disk Queue & APFS** (Category 6) - **TODO**
     - IOKit storage properties investigation needed
     - Files: extend `disk.c`
     - Metrics: queue depth, APFS specifics
 
 ### Wave 4: Optional/Specialized
-**Estimated: ~20 metrics**
+**Estimated: ~20 metrics** | **Completed: 0/20**
 
-11. **Device Enumeration** (Category 9) - USB/Thunderbolt inventory
-12. **Power Consumption** (Category 3.3) - IOReport (requires root)
-13. **Scheduler Counters** (Category 8) - Specialized use
+12. **🔲 Device Enumeration** (Category 9) - USB/Thunderbolt inventory
+13. **🔲 Power Consumption** (Category 3.3) - IOReport (requires root)
+14. **🔲 Scheduler Counters** (Category 8) - Specialized use
+15. **🔲 Advanced TCP/IGMP** (Category 5.2-5.3) - Advanced network tuning visibility
 
 ---
 
