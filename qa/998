@@ -67,27 +67,33 @@ $3 == "traceback"	{ exit }
 export LD_PRELOAD=$LD_PRELOAD
 
 # real QA test starts here
-echo "=== -x (no context) ==="
+echo "=== -x (no context) ===" | tee -a $seq_full
 ( src/github-50 2>&1 -x && exit 0 ) 2>&1 | _filter
 
-echo
-echo "=== no args, default context ==="
+echo | tee -a $seq_full
+echo "=== no args, default context ===" | tee -a $seq_full
 ( src/github-50 2>&1 && exit 0 ) 2>&1 | _filter
 
-echo
-echo "=== -h local: ==="
+echo | tee -a $seq_full
+echo "=== -h local: ===" | tee -a $seq_full
 ( src/github-50 2>&1 -h 'local:' && exit 0 ) 2>&1 | _filter
 
-echo
-echo '=== -h `hostname` ==='
+echo | tee -a $seq_full
+echo '=== -h `hostname` ===' | tee -a $seq_full
 ( src/github-50 2>&1 -h `hostname` && exit 0 ) 2>&1 | _filter
 
-echo
-echo '=== -L ==='
-( $sudo_local_ctx src/github-50 2>&1 -L && exit 0 ) 2>&1 | _filter
+# strangely on OpenBSD (vm37) this reports the error but does not
+# dump core, leading two "Unlock Fail: Operation not permitted" lines,
+# hence the fluffin' about at the end
+#
+echo | tee -a $seq_full
+echo '=== -L ===' | tee -a $seq_full
+( $sudo_local_ctx src/github-50 2>&1 -L && exit 0 ) 2>&1 | _filter >$tmp.tmp
+grep -v 'Unlock Fail' <$tmp.tmp
+grep 'Unlock Fail' $tmp.tmp | sort | uniq
 
-echo
-echo '=== -a archives/ok-foo ==='
+echo | tee -a $seq_full
+echo '=== -a archives/ok-foo ===' | tee -a $seq_full
 ( src/github-50 2>&1 -a archives/ok-foo && exit 0 ) 2>&1 | _filter
 
 # this calls abort() on the error paths, so we may have core files ...
