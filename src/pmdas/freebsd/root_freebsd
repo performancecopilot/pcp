@@ -59,6 +59,7 @@ kernel.all {
     hz		FREEBSD:0:13
     load	FREEBSD:0:2
     uptime	FREEBSD:1:19
+    nusers	FREEBSD:1:22
     cpu
 }
 
