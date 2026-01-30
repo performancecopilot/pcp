@@ -138,3 +138,28 @@ cd qa && ./check -g archive # Archive tests
 
 ### Platform Support
 PCP supports Linux, macOS, Windows (MinGW), AIX, and Solaris. Tests should be written to be portable or use `_notrun()` for platform-specific limitations.
+
+## macOS Development (Darwin Platform Only)
+
+When developing on macOS (`Platform: darwin` in environment):
+
+### Quick Start
+```bash
+./Makepkgs --verbose              # One-time: full build (5-30 min)
+cd build/mac/test && ./run-all-tests.sh  # Daily: build + test (20-30s)
+```
+
+### Key Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `build/mac/` | Test orchestration, PKG packaging, Tart VMs |
+| `dev/darwin/` | Quick-compile tools (~10s vs 30min) |
+| `src/pmdas/darwin/` | Darwin PMDA source code |
+| `src/pmdas/darwin_proc/` | Darwin process PMDA source |
+
+### Documentation
+
+- `build/mac/CLAUDE.md` - Development workflow, test commands
+- `build/mac/MACOS_DEVELOPMENT.md` - Tart VM clean-room builds
+- `build/mac/TESTING_GUIDE.md` - Uninstaller testing procedures

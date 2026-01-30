@@ -15,7 +15,7 @@ This takes 5-30 minutes and only needs to be done once. It generates headers, bu
 
 **Verify setup:**
 ```bash
-cd dev/darwin/dev
+cd dev/darwin
 make check-deps
 ```
 
@@ -31,7 +31,7 @@ Builds PMDA (~5-10s) and runs unit tests (~10-20s). Runs integration tests if pm
 
 ### Build Only
 ```bash
-cd dev/darwin/dev
+cd dev/darwin
 make clean && make
 ```
 
@@ -68,7 +68,14 @@ Quick test runners available in `build/mac/test/`:
 
 1. Edit source: `src/pmdas/darwin/pmda.c`
 2. Update PMNS: `src/pmdas/darwin/pmns`
-3. Quick build: `cd dev/darwin/dev && make`
+3. Quick build: `cd dev/darwin && make`
 4. Add test: `src/pmdas/darwin/test/test-<cluster>.txt`
 5. Run tests: `cd build/mac/test && ./run-all-tests.sh`
+
+## Detailed Documentation
+
+For in-depth procedures and troubleshooting:
+- `MACOS_DEVELOPMENT.md` - Tart VM setup for clean-room builds
+- `TESTING_GUIDE.md` - Comprehensive uninstaller testing
+- `qa/TESTING.md` - pmcd launchctl test plan
 
