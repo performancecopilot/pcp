@@ -37,6 +37,32 @@ git commit -m "description"
 * Keep the code-style inline with other code in this directory
 * Code can be reviewed by the `pcp-code-reviewer` sub-agent
 
+## Adding New Metrics
+
+### Pattern: Follow VFS Module Template
+When adding new metric clusters, use `vfs.h`/`vfs.c` as the reference pattern:
+- Create `<name>.h` with typedef struct and refresh/fetch prototypes
+- Create `<name>.c` with `refresh_<name>()` using `sysctlbyname()` calls
+- Add `CLUSTER_<NAME>` to `darwin.h` enum
+- Wire into `pmda.c`: include header, add global vars, add to `darwin_refresh()` and `darwin_fetchCallBack()`
+- Add metrics to `metrics.c`: include header, extern declaration, metric entries
+- Add to `GNUmakefile` CFILES and HFILES
+
+### CRITICAL: PMNS Root Namespace
+When adding new top-level metric namespaces:
+1. Define metrics in `pmns` file (e.g., `ipc { ... }`)
+2. **MUST** add namespace to `root` file's root block (e.g., add `ipc` to root list)
+3. Failure to update `root` causes "Disconnected subtree" PMNS parsing errors during build
+
+**Example:**
+```diff
+root {
+    kernel
+    ...
++   ipc
+}
+```
+
 ## Testing & QA
 
 ### Unit Tests (Run Locally)
