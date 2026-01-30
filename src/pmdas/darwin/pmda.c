@@ -44,6 +44,7 @@
 #include "cpuload.h"
 #include "uname.h"
 #include "gpu.h"
+#include "ipc.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -121,6 +122,9 @@ tcpstats_t		mach_tcp = { 0 };
 
 int			mach_gpu_error = 0;
 struct gpustats		mach_gpu = { 0 };
+
+int			mach_ipc_error = 0;
+ipcstats_t		mach_ipc = { 0 };
 
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
@@ -202,6 +206,8 @@ darwin_refresh(int *need_refresh)
 	mach_tcp_error = refresh_tcp(&mach_tcp);
     if (need_refresh[CLUSTER_GPU])
 	mach_gpu_error = refresh_gpus(&mach_gpu, &indomtab[GPU_INDOM]);
+    if (need_refresh[CLUSTER_IPC])
+	mach_ipc_error = refresh_ipc(&mach_ipc);
 }
 
 static int
@@ -249,6 +255,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_ICMP:		return fetch_icmp(item, atom);
     case CLUSTER_TCP:		return fetch_tcp(item, atom);
     case CLUSTER_GPU:		return fetch_gpu(item, inst, atom);
+    case CLUSTER_IPC:		return fetch_ipc(item, atom);
     }
     return 0;
 }

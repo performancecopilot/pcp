@@ -27,6 +27,7 @@
 #include "sockstat.h"
 #include "tcpconn.h"
 #include "tcp.h"
+#include "ipc.h"
 
 /*
  * External declarations for global data referenced in metrictab.
@@ -46,6 +47,7 @@ extern udpstats_t mach_udp;
 extern sockstats_t mach_sockstat;
 extern tcpconn_stats_t mach_tcpconn;
 extern tcpstats_t mach_tcp;
+extern ipcstats_t mach_ipc;
 
 pmdaMetric metrictab[] = {
 
@@ -923,6 +925,26 @@ pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_GPU,2), PM_TYPE_U64, GPU_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* darwin.ipc.mbuf.clusters */
+  { &mach_ipc.mbuf_clusters,
+    { PMDA_PMID(CLUSTER_IPC,0), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* darwin.ipc.maxsockbuf */
+  { &mach_ipc.max_sockbuf,
+    { PMDA_PMID(CLUSTER_IPC,1), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
+/* darwin.ipc.somaxconn */
+  { &mach_ipc.somaxconn,
+    { PMDA_PMID(CLUSTER_IPC,2), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* darwin.ipc.socket.defunct */
+  { &mach_ipc.defunct_calls,
+    { PMDA_PMID(CLUSTER_IPC,3), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
 };
 

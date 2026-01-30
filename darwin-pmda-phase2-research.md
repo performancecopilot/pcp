@@ -25,13 +25,17 @@ This document presents comprehensive research on additional macOS metrics that c
 - **Darwin_proc PMDA**: ~35 per-process metrics
 
 ### Updated Totals (After Phase 2 Progress So Far)
-- **Darwin PMDA**: ~199 metrics across 13 clusters (+13 metrics, +1 GPU cluster)
-- **Darwin_proc PMDA**: ~39 per-process metrics (+4 metrics: I/O and memory footprint)
-- **Phase 2 metrics added**: 19 metrics (19% of planned ~100)
+- **Darwin PMDA**: ~198 metrics across 13 clusters (+12 metrics, +1 GPU cluster)
+- **Darwin_proc PMDA**: ~37 per-process metrics (+2 metrics: logical_writes, footprint)
+- **Phase 2 metrics added**: 17 metrics (17% of planned ~100)
+- **Note**: proc.io.read_bytes/write_bytes were Phase 1 (commit e0b925a347, Jan 5)
 
 ---
 
 ## Implementation Progress Tracker
+
+**Branch**: darwin-pmda-phase2-apple-silicon (created Jan 23, 2026)
+**Scope**: Only metrics added *after* branch creation count toward Phase 2 progress.
 
 ### Completed in Phase 2 (This Branch)
 
@@ -42,8 +46,9 @@ This document presents comprehensive research on additional macOS metrics that c
 - [x] **Memory Compression Deep Dive** (Category 10) - 6 metrics
   - mem.compressor.swapouts_under_30s/60s/300s
   - mem.compressor.thrashing_detected, major_compactions, lz4_compressions
-- [x] **Process I/O Statistics** (Category 4.1) - 3 metrics
-  - proc.io.read_bytes, write_bytes, logical_writes
+- [x] **Process I/O Statistics** (Category 4.1) - 1 metric (Phase 2 only)
+  - proc.io.logical_writes
+  - **Note**: read_bytes, write_bytes were Phase 1 (e0b925a347, Jan 5)
 - [x] **Process Memory Footprint** (Category 4.3 partial) - 1 metric
   - proc.memory.footprint
 
@@ -53,7 +58,7 @@ This document presents comprehensive research on additional macOS metrics that c
   - gpu.util
   - gpu.memory.used, gpu.memory.free
 
-**Total Phase 2 metrics added so far**: 19 metrics
+**Total Phase 2 metrics added so far**: 17 metrics (5+6+1+1+4)
 
 ### Remaining Work
 
@@ -477,7 +482,7 @@ src/pmdas/darwin_proc/
 | 1. Thermal & Temperature | ~15 | 🔲 Not Started | 0/15 |
 | 2. GPU & Graphics | ~7 | ✅ **Complete** | **4/4** |
 | 3. Power & Battery | ~15 | 🔲 Not Started | 0/15 |
-| 4. Process I/O & Resources | ~15 | ⏳ Partial | **4/15** |
+| 4. Process I/O & Resources | ~15 | ⏳ Partial | **2/15** (Phase 2 only) |
 | 5. Enhanced Network | ~15 | 🔲 Not Started | 0/15 |
 | 6. Disk & Storage | ~10 | 🔲 Not Started | 0/10 |
 | 7. System Limits & IPC | ~10 | ⏳ Partial | **5/10** |
@@ -485,7 +490,7 @@ src/pmdas/darwin_proc/
 | 9. Device Enumeration | ~6 | 🔲 Not Started | 0/6 |
 | 10. Memory Compression | ~6 | ✅ **Complete** | **6/6** |
 | 11. pmrep Views | 3 views + 2 updates | ⏳ Partial | **2/5** |
-| **TOTAL** | **~100 metrics** | **19% Complete** | **19/99** |
+| **TOTAL** | **~100 metrics** | **17% Complete** | **17/99** |
 
 **Legend**: ✅ Complete | ⏳ In Progress | 🔲 Not Started
 
@@ -498,7 +503,7 @@ src/pmdas/darwin_proc/
 Based on complexity, value, and dependencies:
 
 ### Wave 1: Quick Wins (LOW complexity, HIGH value)
-**Estimated: ~25 metrics** | **Completed: 15/25**
+**Estimated: ~25 metrics** | **Completed: 13/25** (5+6+2)
 
 1. **✅ System Limits** (Category 7.1) - **DONE** (commits: 42f270870c)
    - Simple sysctl reads, follows existing patterns
@@ -510,10 +515,11 @@ Based on complexity, value, and dependencies:
    - Files: extended `vmstat.c` and `metrics.c`
    - Metrics: swapout timing (30s/60s/300s), thrashing_detected, major_compactions, lz4_compressions
 
-3. **✅ Process I/O Statistics** (Category 4.1) - **DONE** (commits: 91c1cb386c)
+3. **✅ Process I/O Statistics** (Category 4.1) - **PARTIAL** (commit: 91c1cb386c)
    - Uses existing `proc_pid_rusage()` pattern
    - Files: extended `kinfo_proc.c` in darwin_proc
-   - Metrics: read_bytes, write_bytes, logical_writes per process
+   - **Phase 2 metrics**: proc.io.logical_writes (1 metric)
+   - **Phase 1 metrics**: proc.io.read_bytes, write_bytes (e0b925a347, Jan 5)
 
 4. **⏳ IPC & Socket Pool** (Category 7.2) - **TODO**
    - Simple sysctl reads for IPC metrics
@@ -521,7 +527,7 @@ Based on complexity, value, and dependencies:
    - Metrics: mbuf.clusters, maxsockbuf, somaxconn, socket.defunct
 
 ### Wave 2: Medium Effort (MEDIUM complexity, HIGH value)
-**Estimated: ~30 metrics** | **Completed: 5/30**
+**Estimated: ~30 metrics** | **Completed: 4/30** (GPU only)
 
 5. **✅ GPU Monitoring** (Category 2) - **DONE** (commits: 0283412223, 11d49b86f9)
    - IOKit pattern implemented using IOAccelerator
@@ -538,10 +544,11 @@ Based on complexity, value, and dependencies:
    - Files: new `ipv6.c`
    - Metrics: IPv6 packet counts, errors, fragments
 
-8. **⏳ Process QoS & Memory** (Category 4.2-4.3) - **PARTIAL** (memory.footprint done in 91c1cb386c)
+8. **⏳ Process QoS & Memory** (Category 4.2-4.3) - **PARTIAL** (1 metric done)
    - Extends existing libproc usage
    - Files: extend `kinfo_proc.c`
-   - Metrics: QoS CPU time (5 levels), ✅ memory.footprint, FD count
+   - **Phase 2 complete**: ✅ proc.memory.footprint (91c1cb386c)
+   - **Remaining**: QoS CPU time (5 levels), FD count (registered but needs impl check)
 
 ### Wave 3: Higher Effort (HIGH complexity, HIGH value)
 **Estimated: ~25 metrics** | **Completed: 0/25**

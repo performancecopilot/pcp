@@ -403,3 +403,18 @@ gpu.memory {
     used		DARWIN:19:1
     free		DARWIN:19:2
 }
+
+ipc {
+    mbuf
+    maxsockbuf	DARWIN:20:1
+    somaxconn	DARWIN:20:2
+    socket
+}
+
+ipc.mbuf {
+    clusters	DARWIN:20:0
+}
+
+ipc.socket {
+    defunct		DARWIN:20:3
+}

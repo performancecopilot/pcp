@@ -41,6 +41,7 @@ enum {
     CLUSTER_TCP,		/* 17 = tcp protocol statistics */
     CLUSTER_LIMITS,		/* 18 = system resource limits */
     CLUSTER_GPU,		/* 19 = gpu statistics */
+    CLUSTER_IPC,		/* 20 = ipc statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
