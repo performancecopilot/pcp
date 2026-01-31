@@ -104,7 +104,7 @@ End-of-File
 
 # need to be a place the user $PCP_USER can cd to from pmlogger_daily
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -x never -c $tmp.control -V -l $tmp.log"
 cd $here
 _filter <$tmp.log

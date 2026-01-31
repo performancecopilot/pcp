@@ -3,7 +3,7 @@
 # Report failures by group ..
 #
 
-tmp=/var/tmp/bad
+tmp=${TMPDIR:-/tmp}/bad-by-group-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 LC_COLLATE=POSIX

@@ -3,7 +3,7 @@
 # generate a new xml stats file from named on localhost
 #
 
-tmp=/var/tmp/getxml-$$
+tmp=${TMPDIR:-/tmp}/getxml-$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

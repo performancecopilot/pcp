@@ -241,7 +241,7 @@ echo "PCP_TMP_DIR=$PCP_TMP_DIR" >>$seq_full
 echo "pmlogger_check #1" | tee -a $seq_full
 # need to be a place the user $PCP_USER can cd to from pmlogger_check
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 cd $here
 if [ -s $tmp/log ]
@@ -262,7 +262,7 @@ sleep 1
 _stop_loggers
 
 echo "pmlogger_check #2" | tee -a $seq_full
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 cd $here
 if [ -s $tmp/log ]
@@ -298,7 +298,7 @@ fi
 
 echo
 echo "pmlogger_daily"
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -P -D -Z -VV -x never -c $tmp/control -l $tmp/log"
 cd $here
 if [ -s $tmp/log ]

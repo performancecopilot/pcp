@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 522
-# #655108 $PCP_RC_DIR scripts leave files in /var/tmp
+# #655108 $PCP_RC_DIR scripts leave files in ${TMPDIR:-/tmp}
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -24,7 +24,7 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-$sudo rm -f /var/tmp/*.pmcheck
+$sudo rm -f ${TMPDIR:-/tmp}/*.pmcheck
 _change_config pmlogger on || _exit 1
 _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
@@ -55,7 +55,7 @@ done
 rm -f $tmp.ps
 
 echo "Expect no files ..."
-echo /var/tmp/*.pmcheck
+echo ${TMPDIR:-/tmp}/*.pmcheck 2>&1 | sed -e "s@${TMPDIR:-/tmp}/@TMP/@"
 
 # success, all done
 status=0

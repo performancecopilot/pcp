@@ -11,7 +11,7 @@
 
 . ./common.rc
 
-tmp=/var/tmp/daily-cleanup-$$
+tmp=${TMPDIR:-/tmp}/daily-cleanup-$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 verbose=true

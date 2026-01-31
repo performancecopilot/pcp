@@ -4,7 +4,7 @@
 # logging that threatens to fill the filesystem on small QA machines
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/cull-pmlogger-config-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 . $PCP_DIR/etc/pcp.env

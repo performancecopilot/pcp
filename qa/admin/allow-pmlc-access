@@ -21,7 +21,7 @@ fi
 
 . $home/packages.rc
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/allow-pmlc-access-$$
 sts=0
 very_verbose=false
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15

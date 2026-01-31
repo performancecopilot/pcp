@@ -5,7 +5,7 @@
 
 . /etc/pcp.env
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.mmv.help-$$
 trap 'rm -f '"$tmp"'.*; sudo rm -f '"$PCP_TMP_DIR"'/mmv/qa; exit 0' 0 1 2 3 15
 
 sudo rm -f "$PCP_TMP_DIR"/mmv/qa

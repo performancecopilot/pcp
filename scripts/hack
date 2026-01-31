@@ -3,7 +3,7 @@
 #
 
 sts=1
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/hack-$$
 trap "rm -f $tmp.tmp; exit \$sts" 0 1 2 3 15
 
 _usage()

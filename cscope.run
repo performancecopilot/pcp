@@ -3,7 +3,7 @@
 # Run cscope for PCP source (src and qa)
 #
 
-tmp=/var/tmp/cscope.run.$$
+tmp=${TMPDIR:-/tmp}/cscope.run.$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 rebuild=false

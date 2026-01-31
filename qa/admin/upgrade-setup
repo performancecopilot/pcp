@@ -55,7 +55,7 @@ if $very_verbose
 then
     tmp=tmp
 else
-    tmp=/var/tmp/$$
+    tmp=${TMPDIR:-/tmp}/upgrade-setup-$$
     trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 fi
 rm -f $tmp.*

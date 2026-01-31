@@ -9,7 +9,7 @@
 #	to msec, requiring the type to be PM_TYPE_U64
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.rewrite-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.c

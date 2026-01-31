@@ -19,7 +19,7 @@ fi
 name=$1
 shift
 
-tmp=/var/tmp/var-use-$$
+tmp=${TMPDIR:-/tmp}/var-use-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 for script

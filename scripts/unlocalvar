@@ -3,7 +3,7 @@
 # Replace local foo usage for shell variables in shell scripts
 #
 
-tmp=/var/tmp/unlocalvar-$$
+tmp=${TMPDIR:-/tmp}/unlocalvar-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

@@ -5,7 +5,7 @@
 # Usage: indomdelta [indom ...] archive
 #
 
-tmp=/var/tmp/indomdelta$$
+tmp=${TMPDIR:-/tmp}/indomdelta-$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

@@ -7,7 +7,7 @@
 # the values are deterministic with known input values
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.sample_expr-$$
 rm -f $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 

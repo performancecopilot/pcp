@@ -4,7 +4,7 @@
 # test-from-commits -b main -t pcp -r 6bad98e4b0537c2e99b3906ca7a36f4998ea3419..HEAD
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/tests-from-commits-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # find QA tests containing a particular qa application (qa/src/foo) or

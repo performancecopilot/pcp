@@ -14,7 +14,7 @@
 
 usage="Usage: update [-d?] [-c runner] [run_id]"
 runner=''
-tmp=/var/tmp/ci-qa-update-$$
+tmp=${TMPDIR:-/tmp}/ci-qa-update-$$
 debug=false
 while [ $# -gt 0 ]
 do

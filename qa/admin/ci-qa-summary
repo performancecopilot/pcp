@@ -61,7 +61,7 @@ then
     tmp=`pwd`/tmp-summary
     trap "exit \$sts" 0 1 2 3 15
 else
-    tmp=/var/tmp/$$
+    tmp=${TMPDIR:-/tmp}/ci-qa-summary-$$
     trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 fi
 rm -f $tmp.*

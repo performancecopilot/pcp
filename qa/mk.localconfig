@@ -8,7 +8,7 @@
 # generic initialization
 . ./common.rc
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.localconfig-$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 eval `./mk.pcpversion $PCP_VERSION`

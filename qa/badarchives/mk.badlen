@@ -5,7 +5,7 @@
 # Every one is based on a version of ./ok-foo, with binary editing using
 # bvi (or similar) and cut-n-paste with dd.
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.badlen-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # Set up for a new badlen-X archive

@@ -4,7 +4,7 @@
 # ... this is foo + dups in the PMNS + event records
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.foo+-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.config

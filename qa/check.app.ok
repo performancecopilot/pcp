@@ -6,7 +6,7 @@
 #
 
 sts=1
-tmp=/var/tmp/check_app_ok_$$
+tmp=${TMPDIR:-/tmp}/check.app.ok-$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 for app

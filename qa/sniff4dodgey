@@ -7,7 +7,7 @@
 # Farm.
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/sniff4dodgey-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

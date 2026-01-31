@@ -9,7 +9,7 @@
 # (and .full) files for the failing tests.
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/show-me-all-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

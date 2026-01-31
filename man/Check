@@ -19,7 +19,7 @@
 # - make check
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/Check-$$
 status=0
 
 LC_COLLATE=POSIX; export LC_COLLATE

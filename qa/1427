@@ -24,7 +24,7 @@ fi
 #
 myfs=`df -P . | sed -n -e '$s/ .*//p'`
 tmpdir=''
-for d in /tmp /var/tmp
+for d in /tmp ${TMPDIR:-/tmp}
 do
     if [ "$myfs" != `df -P "$d" | sed -n -e '$s/ .*//p'` ]
     then
@@ -32,7 +32,7 @@ do
 	break
     fi
 done
-[ -z "$tmpdir" ] && _notrun "need /tmp or /var/tmp on a different filesystem to $myfs"
+[ -z "$tmpdir" ] && _notrun "need /tmp or ${TMPDIR:-/tmp} on a different filesystem to $myfs"
 
 _cleanup()
 {

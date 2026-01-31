@@ -9,7 +9,7 @@ then
     exit 1
 fi
 
-tmp=/var/tmp/show-proc-file-$$
+tmp=${TMPDIR:-/tmp}/show-proc-file-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 awk <"$1" '{print $1}' \

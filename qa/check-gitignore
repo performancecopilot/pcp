@@ -3,7 +3,7 @@
 # check .gitignore
 #
 
-tmp=/var/tmp/check-gitignore-$$
+tmp=${TMPDIR:-/tmp}/check-gitignore-$$
 #debug# tmp=`pwd`/tmp
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
