@@ -25,9 +25,9 @@ This document presents comprehensive research on additional macOS metrics that c
 - **Darwin_proc PMDA**: ~35 per-process metrics
 
 ### Updated Totals (After Phase 2 Progress So Far)
-- **Darwin PMDA**: ~202 metrics across 14 clusters (+16 metrics, +2 clusters: GPU, IPC)
+- **Darwin PMDA**: ~215 metrics across 15 clusters (+29 metrics, +3 clusters: GPU, IPC, Power)
 - **Darwin_proc PMDA**: ~37 per-process metrics (+2 metrics: logical_writes, footprint)
-- **Phase 2 metrics added**: 21 metrics (21% of planned ~100)
+- **Phase 2 metrics added**: 34 metrics (34% of planned ~100)
 - **Note**: proc.io.read_bytes/write_bytes were Phase 1 (commit e0b925a347, Jan 5)
 
 ---
@@ -62,7 +62,12 @@ This document presents comprehensive research on additional macOS metrics that c
 - [x] **IPC & Socket Pool** (Category 7.2) - 4 metrics
   - ipc.mbuf.clusters, maxsockbuf, somaxconn, socket.defunct
 
-**Total Phase 2 metrics added so far**: 21 metrics (5+6+1+1+4+4)
+#### ✅ Wave 2 Battery/Power Items (Commit: f0ce1253c8)
+- [x] **Battery Status** (Category 3.1-3.2) - 13 metrics
+  - power.battery.* (present, charging, charge, time_remaining, health, cycle_count, temperature, voltage, amperage, capacity.design, capacity.max)
+  - power.ac.connected, power.source
+
+**Total Phase 2 metrics added so far**: 34 metrics (5+6+1+1+4+4+13)
 
 ### Remaining Work
 
@@ -70,7 +75,7 @@ This document presents comprehensive research on additional macOS metrics that c
 All Wave 1 items have been implemented and tested.
 
 #### ⏳ Wave 2 (Partially Complete)
-- [ ] **Battery Status** (Category 3.1-3.2) - 13 metrics
+- [x] **Battery Status** (Category 3.1-3.2) - 13 metrics
   - power.battery.* (present, charging, charge, health, cycles, temperature, voltage, etc.)
   - power.ac.connected, power.source
 - [ ] **Enhanced Network IPv6** (Category 5.1) - 6 metrics
@@ -484,16 +489,16 @@ src/pmdas/darwin_proc/
 |----------|-------------------|--------|-----------|
 | 1. Thermal & Temperature | ~15 | 🔲 Not Started | 0/15 |
 | 2. GPU & Graphics | ~7 | ✅ **Complete** | **4/4** |
-| 3. Power & Battery | ~15 | 🔲 Not Started | 0/15 |
+| 3. Power & Battery | ~15 | ⏳ Partial | **13/15** (3.1-3.2 done, 3.3 needs root) |
 | 4. Process I/O & Resources | ~15 | ⏳ Partial | **2/15** (Phase 2 only) |
 | 5. Enhanced Network | ~15 | 🔲 Not Started | 0/15 |
 | 6. Disk & Storage | ~10 | 🔲 Not Started | 0/10 |
-| 7. System Limits & IPC | ~10 | ⏳ Partial | **5/10** |
+| 7. System Limits & IPC | ~10 | ✅ **Complete** | **9/9** |
 | 8. Scheduler | ~3 | 🔲 Not Started | 0/3 |
 | 9. Device Enumeration | ~6 | 🔲 Not Started | 0/6 |
 | 10. Memory Compression | ~6 | ✅ **Complete** | **6/6** |
 | 11. pmrep Views | 3 views + 2 updates | ⏳ Partial | **2/5** |
-| **TOTAL** | **~100 metrics** | **17% Complete** | **17/99** |
+| **TOTAL** | **~100 metrics** | **32% Complete** | **32/99** |
 
 **Legend**: ✅ Complete | ⏳ In Progress | 🔲 Not Started
 
@@ -506,7 +511,7 @@ src/pmdas/darwin_proc/
 Based on complexity, value, and dependencies:
 
 ### Wave 1: Quick Wins (LOW complexity, HIGH value)
-**Estimated: ~25 metrics** | **Completed: 13/25** (5+6+2)
+**Estimated: ~25 metrics** | **Completed: 17/25** (5+6+1+1+4)
 
 1. **✅ System Limits** (Category 7.1) - **DONE** (commits: 42f270870c)
    - Simple sysctl reads, follows existing patterns
@@ -524,23 +529,25 @@ Based on complexity, value, and dependencies:
    - **Phase 2 metrics**: proc.io.logical_writes (1 metric)
    - **Phase 1 metrics**: proc.io.read_bytes, write_bytes (e0b925a347, Jan 5)
 
-4. **⏳ IPC & Socket Pool** (Category 7.2) - **TODO**
+4. **✅ IPC & Socket Pool** (Category 7.2) - **DONE** (commits: abfab40ceb, 20c9d64a0d)
    - Simple sysctl reads for IPC metrics
-   - Files: extend `kernel.c` or new `ipc.c`
+   - Files: new `ipc.c`, `ipc.h`
    - Metrics: mbuf.clusters, maxsockbuf, somaxconn, socket.defunct
 
 ### Wave 2: Medium Effort (MEDIUM complexity, HIGH value)
-**Estimated: ~30 metrics** | **Completed: 4/30** (GPU only)
+**Estimated: ~30 metrics** | **Completed: 17/30** (GPU 4 + Power 13)
 
 5. **✅ GPU Monitoring** (Category 2) - **DONE** (commits: 0283412223, 11d49b86f9)
    - IOKit pattern implemented using IOAccelerator
    - Files: new `gpu.c`, `gpu_iokit.c`
    - Metrics: hinv.ngpu, utilization, VRAM used/free
 
-6. **⏳ Battery Status** (Category 3.1-3.2) - **TODO**
-   - IOPowerSources API is well-documented
-   - Files: new `power.c`
-   - Metrics: charge, health, cycles, voltage, temperature, amperage
+6. **✅ Battery Status** (Category 3.1-3.2) - **DONE** (commit: f0ce1253c8)
+   - IOPowerSources API for high-level battery info
+   - AppleSmartBattery IOKit for detailed metrics
+   - Files: new `power.c`, `power.h`
+   - Metrics: present, charging, charge %, time_remaining, health %, cycle_count, temperature, voltage (mV), amperage (mA), design/max capacity (mAh), ac.connected, source string
+   - Note: Desktop Macs gracefully report battery_present=0
 
 7. **⏳ Enhanced Network IPv6** (Category 5) - **TODO**
    - sysctl pattern matches existing TCP/UDP
