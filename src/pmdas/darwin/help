@@ -521,3 +521,54 @@ and compute operations.
 @ gpu.memory.free GPU VRAM free
 Amount of GPU video memory (VRAM) currently available, in bytes.
 Calculated as total VRAM minus used VRAM.
+
+@ power.battery.present battery present flag
+Boolean flag (1/0) indicating whether a battery is present in the system.
+Desktop Macs will typically show 0, while MacBooks will show 1.
+@ power.battery.charging battery charging status
+Boolean flag (1/0) indicating whether the battery is currently charging.
+Only meaningful when battery is present and AC power is connected.
+@ power.battery.charge current battery charge percentage
+Current battery charge level as a percentage (0-100).
+Represents the current capacity relative to the maximum capacity.
+@ power.battery.time_remaining minutes to empty or full
+Estimated time in minutes until the battery is fully charged (when charging)
+or fully discharged (when on battery power). Returns -1 if the estimate
+is unavailable or unreliable.
+@ power.battery.health battery health percentage
+Battery health as a percentage (0-100), calculated as the ratio of
+current maximum capacity to design capacity. Indicates battery degradation
+over time. A value below 80% typically indicates significant wear.
+@ power.battery.cycle_count battery charge cycle count
+Number of complete charge-discharge cycles the battery has undergone.
+A cycle is counted when 100% of battery capacity has been used, though
+not necessarily in a single charge/discharge. Higher cycle counts indicate
+more battery wear.
+@ power.battery.temperature battery temperature
+Battery temperature in degrees Celsius × 100 (for precision).
+For example, a value of 2500 represents 25.00°C. Used for thermal
+monitoring and battery health assessment.
+@ power.battery.voltage battery voltage
+Current battery voltage in millivolts (mV). Voltage varies with
+charge level and battery chemistry. Typical MacBook batteries operate
+in the 10000-13000 mV range.
+@ power.battery.amperage battery discharge/charge rate
+Current flow in milliamps (mA). Negative values indicate discharging
+(battery powering the system), positive values indicate charging.
+Magnitude indicates power consumption or charging speed.
+@ power.battery.capacity.design design capacity
+Battery design capacity in milliamp-hours (mAh). This is the original
+rated capacity when the battery was new. Used as baseline for calculating
+battery health.
+@ power.battery.capacity.max current maximum capacity
+Current maximum battery capacity in milliamp-hours (mAh). This value
+decreases over time as the battery ages and degrades. Compare with
+design capacity to assess battery wear.
+@ power.ac.connected AC power connected flag
+Boolean flag (1/0) indicating whether AC power adapter is connected.
+When 1, the system is running on external power; when 0, running on
+battery (if present).
+@ power.source power source type
+String indicating the current power source: "AC Power" when running on
+external power adapter, "Battery Power" when running on battery, or
+"Unknown" if power source cannot be determined.

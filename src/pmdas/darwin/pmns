@@ -418,3 +418,31 @@ ipc.mbuf {
 ipc.socket {
     defunct		DARWIN:20:3
 }
+
+power {
+    battery
+    ac
+    source		DARWIN:21:12
+}
+
+power.battery {
+    present		DARWIN:21:0
+    charging		DARWIN:21:1
+    charge		DARWIN:21:2
+    time_remaining	DARWIN:21:3
+    health		DARWIN:21:4
+    cycle_count		DARWIN:21:5
+    temperature		DARWIN:21:6
+    voltage		DARWIN:21:7
+    amperage		DARWIN:21:8
+    capacity
+}
+
+power.battery.capacity {
+    design		DARWIN:21:9
+    max			DARWIN:21:10
+}
+
+power.ac {
+    connected		DARWIN:21:11
+}
