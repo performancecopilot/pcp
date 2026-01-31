@@ -369,6 +369,40 @@ else
 fi
 echo
 
+# Test 20: Power metrics
+echo "Test Group: Power Metrics"
+if [ -f "$SCRIPT_DIR/test-power-metrics.sh" ]; then
+    echo "Running Power metrics validation..."
+    if "$SCRIPT_DIR/test-power-metrics.sh"; then
+        echo -e "${GREEN}✓ Power metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Power metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Power metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 21: IPC metrics
+echo "Test Group: IPC Metrics"
+if [ -f "$SCRIPT_DIR/test-ipc-metrics.sh" ]; then
+    echo "Running IPC metrics validation..."
+    if "$SCRIPT_DIR/test-ipc-metrics.sh"; then
+        echo -e "${GREEN}✓ IPC metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ IPC metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ IPC metrics test not found, skipping${NC}"
+fi
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"
