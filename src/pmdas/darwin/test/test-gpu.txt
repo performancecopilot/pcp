@@ -1,0 +1,18 @@
+# Test GPU statistics via IOKit IOAccelerator
+# Provides GPU utilization and memory usage for both Apple Silicon and Intel GPUs.
+# On VMs or systems without accessible GPU info, metrics return 0 or safe defaults.
+
+# GPU count (from hinv namespace)
+desc hinv.ngpu
+fetch hinv.ngpu
+
+# GPU utilization percentage (0-100)
+desc gpu.util
+fetch gpu.util
+
+# GPU memory metrics in bytes
+desc gpu.memory.used
+fetch gpu.memory.used
+
+desc gpu.memory.free
+fetch gpu.memory.free

@@ -1,0 +1,18 @@
+# Test IPC and socket pool statistics via sysctl
+# These metrics expose kernel IPC resource limits and usage.
+
+# mbuf cluster count (kern.ipc.nmbclusters)
+desc ipc.mbuf.clusters
+fetch ipc.mbuf.clusters
+
+# Maximum socket buffer size in bytes (kern.ipc.maxsockbuf)
+desc ipc.maxsockbuf
+fetch ipc.maxsockbuf
+
+# Maximum listen backlog (kern.ipc.somaxconn)
+desc ipc.somaxconn
+fetch ipc.somaxconn
+
+# Defunct socket calls count (net.local.dgram.pcbcount)
+desc ipc.socket.defunct
+fetch ipc.socket.defunct
