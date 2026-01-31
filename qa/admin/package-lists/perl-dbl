@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# find cpan and perl- package double listing
+#
+
+[ $# -eq 0 ] && set -- *+*+*
+
+for file
+do
+    grep " cpan" $file \
+    | while read module tag
+    do
+	pkg=`echo $module | sed -e 's/::/-/g' -e 's/^/perl-/'`
+	if grep "^$pkg\$" $file >/dev/null
+	then
+	    echo "$file: $module and $pkg"
+	fi
+    done
+done
+
+exit
