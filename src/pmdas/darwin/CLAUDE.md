@@ -35,7 +35,7 @@ git commit -m "description"
 * Keep method lengths short, with the "Single Responsibility principal" in mind
 * Make the method names descriptive and readable
 * Keep the code-style inline with other code in this directory
-* Code can be reviewed by the `pcp-code-reviewer` sub-agent
+* Code **MUST** be reviewed and approved by the `pcp-code-reviewer` sub-agent
 
 ## Adding New Metrics
 
