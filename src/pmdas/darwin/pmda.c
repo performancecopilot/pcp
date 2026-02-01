@@ -34,6 +34,7 @@
 #include "vfs.h"
 #include "udp.h"
 #include "icmp.h"
+#include "ipv6.h"
 #include "sockstat.h"
 #include "tcpconn.h"
 #include "tcp.h"
@@ -111,6 +112,9 @@ udpstats_t		mach_udp = { 0 };
 
 int			mach_icmp_error = 0;
 icmpstats_t		mach_icmp = { 0 };
+
+int			mach_ipv6_error = 0;
+ipv6stats_t		mach_ipv6 = { 0 };
 
 int			mach_sockstat_error = 0;
 sockstats_t		mach_sockstat = { 0 };
@@ -214,6 +218,8 @@ darwin_refresh(int *need_refresh)
 	mach_ipc_error = refresh_ipc(&mach_ipc);
     if (need_refresh[CLUSTER_POWER])
 	mach_power_error = refresh_power(&mach_power);
+    if (need_refresh[CLUSTER_IPV6])
+	mach_ipv6_error = refresh_ipv6(&mach_ipv6);
 }
 
 static int
@@ -263,6 +269,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_GPU:		return fetch_gpu(item, inst, atom);
     case CLUSTER_IPC:		return fetch_ipc(item, atom);
     case CLUSTER_POWER:		return fetch_power(item, atom);
+    case CLUSTER_IPV6:		return fetch_ipv6(item, atom);
     }
     return 0;
 }

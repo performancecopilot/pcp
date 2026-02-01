@@ -887,6 +887,31 @@ pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_TCP,186), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* network.ipv6.inreceives */
+  { NULL,
+    { PMDA_PMID(CLUSTER_IPV6,187), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.ipv6.outforwarded */
+  { NULL,
+    { PMDA_PMID(CLUSTER_IPV6,188), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.ipv6.indiscards */
+  { NULL,
+    { PMDA_PMID(CLUSTER_IPV6,189), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.ipv6.outdiscards */
+  { NULL,
+    { PMDA_PMID(CLUSTER_IPV6,190), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.ipv6.fragcreates */
+  { NULL,
+    { PMDA_PMID(CLUSTER_IPV6,191), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.ipv6.reasmoks */
+  { NULL,
+    { PMDA_PMID(CLUSTER_IPV6,192), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /* kernel.limits.maxproc */
   { &mach_vfs.maxproc,
     { PMDA_PMID(CLUSTER_LIMITS,0), PM_TYPE_U32, PM_INDOM_NULL,

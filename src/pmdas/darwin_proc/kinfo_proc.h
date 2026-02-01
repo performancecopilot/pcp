@@ -77,6 +77,15 @@ typedef struct {
     uint64_t	logical_writes;	/* logical disk write operations */
     uint64_t	phys_footprint;	/* physical memory footprint */
 
+    /* QoS-tier CPU time accounting (RUSAGE_INFO_V4) */
+    uint64_t	qos_default;
+    uint64_t	qos_maintenance;
+    uint64_t	qos_background;
+    uint64_t	qos_utility;
+    uint64_t	qos_legacy;
+    uint64_t	qos_user_initiated;
+    uint64_t	qos_user_interactive;
+
     /* string hash keys */
     int		cwd_id;
     int		exe_id;

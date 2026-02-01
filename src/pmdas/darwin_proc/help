@@ -95,6 +95,34 @@ Instantaneous physical memory footprint for this process, reported by the
 kernel. This is typically more accurate than RSS for macOS memory accounting.
 Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
 
+@ proc.cpu.qos.default CPU time at default QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the default
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.maintenance CPU time at maintenance QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the maintenance
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.background CPU time at background QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the background
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.utility CPU time at utility QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the utility
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.legacy CPU time at legacy QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the legacy
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.user_initiated CPU time at user-initiated QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the user-initiated
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.user_interactive CPU time at user-interactive QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the user-interactive
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
 @ proc.io.read_bytes cumulative bytes read from disk by process
 Cumulative count of bytes read from disk by this process since it started.
 Obtained via proc_pid_rusage(RUSAGE_INFO_V3).

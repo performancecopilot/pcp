@@ -16,6 +16,7 @@ proc {
     runq
     id
     memory
+    cpu
     io
     fd
     control
@@ -75,6 +76,20 @@ proc.memory {
     size		PROC:4:0
     rss			PROC:4:1
     footprint		PROC:4:2
+}
+
+proc.cpu {
+    qos
+}
+
+proc.cpu.qos {
+    default		PROC:7:0
+    maintenance		PROC:7:1
+    background		PROC:7:2
+    utility		PROC:7:3
+    legacy		PROC:7:4
+    user_initiated	PROC:7:5
+    user_interactive	PROC:7:6
 }
 
 proc.io {

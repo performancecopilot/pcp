@@ -291,6 +291,36 @@ This is a cumulative counter from boot time.
 Total number of ICMP Echo Reply messages sent (ping responses).
 This is a cumulative counter from boot time.
 
+@ network.ipv6.inreceives IPv6 packets received
+Total number of IPv6 packets received.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.outforwarded IPv6 packets forwarded
+Number of IPv6 packets forwarded to other destinations.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.indiscards IPv6 input packets discarded
+Number of IPv6 packets discarded on input due to being too short or too small.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.outdiscards IPv6 output packets discarded
+Number of IPv6 packets dropped on output due to buffer exhaustion or other errors.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.fragcreates IPv6 fragment packets created
+Number of IPv6 packet fragments created for transmission.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.reasmoks IPv6 packets successfully reassembled
+Number of IPv6 packets successfully reassembled from fragments.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
 @ network.sockstat.tcp.inuse TCP sockets in use
 Number of TCP protocol control blocks (PCBs) currently in use.
 This represents the number of active TCP connections and listening sockets.

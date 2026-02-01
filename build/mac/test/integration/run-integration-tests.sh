@@ -403,6 +403,40 @@ else
 fi
 echo
 
+# Test 22: IPv6 metrics
+echo "Test Group: IPv6 Metrics"
+if [ -f "$SCRIPT_DIR/test-ipv6-metrics.sh" ]; then
+    echo "Running IPv6 metrics validation..."
+    if "$SCRIPT_DIR/test-ipv6-metrics.sh"; then
+        echo -e "${GREEN}✓ IPv6 metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ IPv6 metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ IPv6 metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 23: Process QoS CPU time metrics
+echo "Test Group: Process QoS CPU Time Metrics"
+if [ -f "$SCRIPT_DIR/test-proc-qos-metrics.sh" ]; then
+    echo "Running Process QoS metrics validation..."
+    if "$SCRIPT_DIR/test-proc-qos-metrics.sh"; then
+        echo -e "${GREEN}✓ Process QoS metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Process QoS metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Process QoS metrics test not found, skipping${NC}"
+fi
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"

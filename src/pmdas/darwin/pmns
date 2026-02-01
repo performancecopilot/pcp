@@ -171,6 +171,7 @@ network {
     interface
     udp
     icmp
+    ipv6
     sockstat
     tcpconn
     tcp
@@ -232,6 +233,15 @@ network.icmp {
     inechoreps		DARWIN:14:152
     outechos		DARWIN:14:153
     outechoreps		DARWIN:14:154
+}
+
+network.ipv6 {
+    inreceives		DARWIN:22:187
+    outforwarded	DARWIN:22:188
+    indiscards		DARWIN:22:189
+    outdiscards		DARWIN:22:190
+    fragcreates		DARWIN:22:191
+    reasmoks		DARWIN:22:192
 }
 
 network.sockstat {

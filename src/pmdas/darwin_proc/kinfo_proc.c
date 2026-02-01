@@ -486,11 +486,25 @@ darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
 			proc->write_bytes = rusage.ri_diskio_byteswritten;
 			proc->logical_writes = rusage.ri_logical_writes;
 			proc->phys_footprint = rusage.ri_phys_footprint;
+			proc->qos_default = rusage.ri_cpu_time_qos_default;
+			proc->qos_maintenance = rusage.ri_cpu_time_qos_maintenance;
+			proc->qos_background = rusage.ri_cpu_time_qos_background;
+			proc->qos_utility = rusage.ri_cpu_time_qos_utility;
+			proc->qos_legacy = rusage.ri_cpu_time_qos_legacy;
+			proc->qos_user_initiated = rusage.ri_cpu_time_qos_user_initiated;
+			proc->qos_user_interactive = rusage.ri_cpu_time_qos_user_interactive;
 		} else {
 			proc->read_bytes = 0;
 			proc->write_bytes = 0;
 			proc->logical_writes = 0;
 			proc->phys_footprint = 0;
+			proc->qos_default = 0;
+			proc->qos_maintenance = 0;
+			proc->qos_background = 0;
+			proc->qos_utility = 0;
+			proc->qos_legacy = 0;
+			proc->qos_user_initiated = 0;
+			proc->qos_user_interactive = 0;
 		}
 #else
 		struct rusage_info_v3 rusage;
@@ -506,6 +520,13 @@ darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
 			proc->phys_footprint = 0;
 		}
 		proc->logical_writes = 0;	/* not available in v3 */
+		proc->qos_default = 0;		/* not available in v3 */
+		proc->qos_maintenance = 0;
+		proc->qos_background = 0;
+		proc->qos_utility = 0;
+		proc->qos_legacy = 0;
+		proc->qos_user_initiated = 0;
+		proc->qos_user_interactive = 0;
 #endif
 	}
 

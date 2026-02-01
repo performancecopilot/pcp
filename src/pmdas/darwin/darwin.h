@@ -43,6 +43,7 @@ enum {
     CLUSTER_GPU,		/* 19 = gpu statistics */
     CLUSTER_IPC,		/* 20 = ipc statistics */
     CLUSTER_POWER,		/* 21 = power/battery statistics */
+    CLUSTER_IPV6,		/* 22 = ipv6 protocol statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
