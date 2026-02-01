@@ -864,7 +864,6 @@ libelf_LIBS
 libelf_CFLAGS
 PMDA_BCC
 have_python_influxdb
-have_python_six
 have_python_libvirt
 have_python_requests
 have_python_setuptools
@@ -6058,10 +6057,10 @@ fi
 
   test -n "$AR" && break
 done
-test -n "$AR" || AR="/usr/bin/ar"
+test -n "$AR" || AR="ar"
 
 fi
-if test ! -x "$AR"; then
+if ! $AR --version >/dev/null 2>&1; then
     as_fn_error $? "cannot find a valid 'ar' command." "$LINENO" 5
 fi
 ar=$AR
@@ -8902,28 +8901,6 @@ printf "%s\n" "yes" >&6; }
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 	eval have_python_libvirt=false
-    fi
-
-
- { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Python module six" >&5
-printf %s "checking for Python module six... " >&6; }
-    if test -n ""
-    then
-	txt=""
-    else
-	txt="import six"
-    fi
-    $pcp_python_prog -c 'import sys;
-'"$txt" >>config.log 2>&1
-    if test "$?" = 0
-    then
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-	eval have_python_six=true
-    else
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-	eval have_python_six=false
     fi
 
 
