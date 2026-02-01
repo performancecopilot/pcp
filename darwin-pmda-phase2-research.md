@@ -96,6 +96,90 @@ Updates research doc with completion status"
 
 ### Remaining Work
 
+---
+
+## 🔴 HIGH PRIORITY: Quality Assurance Tasks
+
+### PMID Consistency Validator
+
+**Priority**: HIGH - Should be implemented before continuing with Wave 3b/3c or Wave 4
+
+**Problem**: Wave 3a exposed a PMID mismatch bug (disk.apfs.container.bytes_written used PMID 93 instead of 91) that was caught by GitHub Actions CI but passed initial Cirrus VM tests. This indicates our validation is insufficient.
+
+**Solution**: Create automated PMID consistency validator that runs in both CI environments.
+
+#### Implementation Task
+
+**Create**: `build/mac/test/integration/test-pmid-consistency.sh`
+
+**What It Should Validate**:
+
+1. **PMNS → metrics.c consistency**
+   - Every metric in `pmns` has a corresponding descriptor in `metrics.c`
+   - Every PMID in `pmns` (e.g., `DARWIN:7:71`) matches the `PMDA_PMID(CLUSTER,item)` in `metrics.c`
+   - Parse both files and cross-reference item numbers
+
+2. **Unique PMID enforcement**
+   - No duplicate item IDs within the same cluster
+   - Flag any gaps in item ID sequences (e.g., 71-78, then 79-86)
+
+3. **Instance domain validation**
+   - Metrics using instance domains reference valid INDOM constants
+   - Instance domains declared in `darwin.h` exist in `indomtab[]` in `pmda.c`
+
+4. **Cluster coverage**
+   - All clusters in `darwin.h` enum have corresponding `fetch_*()` cases in `pmda.c`
+   - All clusters have metrics defined in `metrics.c`
+
+**Implementation Approach**:
+
+```bash
+#!/bin/bash
+# test-pmid-consistency.sh
+
+# 1. Parse pmns file to extract all metric names and PMIDs
+#    Format: metric_name    DARWIN:cluster:item
+# 2. Parse metrics.c to extract all PMDA_PMID declarations
+#    Format: PMDA_PMID(CLUSTER_NAME,item)
+# 3. Cross-reference and report:
+#    - Metrics in pmns but not in metrics.c
+#    - Duplicate PMIDs
+#    - PMID mismatches (pmns says 71, metrics.c says 72)
+# 4. Exit 1 if any inconsistencies found
+```
+
+**Integration Points**:
+
+Add to both CI workflows BEFORE integration tests:
+
+```yaml
+# .github/workflows/macOS.yml (after unit tests, before integration tests)
+- name: Validate PMID Consistency
+  run: |
+    cd build/mac/test/integration
+    ./test-pmid-consistency.sh
+
+# .cirrus.yml (add as new script step)
+validate_pmid_consistency_script: |
+  cd build/mac/test/integration
+  ./test-pmid-consistency.sh
+```
+
+**Success Criteria**:
+- ✅ Script detects the Wave 3a PMID mismatch when tested against commit afdf044067
+- ✅ Script passes on commit 8f2c3a4d65 (after fix)
+- ✅ Runs in < 5 seconds
+- ✅ Provides clear error messages pointing to exact file/line with mismatch
+- ✅ Integrated into both CI pipelines
+
+**Why This Matters**:
+- Prevents PMID bugs that cause metric descriptor mismatches
+- Catches copy-paste errors during metric addition
+- Ensures pmns and metrics.c stay in sync
+- Provides faster feedback than waiting for full integration tests
+
+---
+
 #### ✅ Wave 1 (COMPLETE)
 All Wave 1 items have been implemented and tested.
 
