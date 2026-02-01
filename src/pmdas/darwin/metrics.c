@@ -994,7 +994,7 @@ pmdaMetric metrictab[] = {
       PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* disk.apfs.container.bytes_written */
   { NULL,
-    { PMDA_PMID(CLUSTER_APFS,93), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+    { PMDA_PMID(CLUSTER_APFS,91), PM_TYPE_U64, APFS_CONTAINER_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 /* disk.apfs.container.read_requests */
   { NULL,

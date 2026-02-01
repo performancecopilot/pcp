@@ -50,9 +50,9 @@ Updates research doc with completion status"
 - **Darwin_proc PMDA**: ~35 per-process metrics
 
 ### Updated Totals (After Phase 2 Progress So Far)
-- **Darwin PMDA**: ~215 metrics across 15 clusters (+29 metrics, +3 clusters: GPU, IPC, Power)
+- **Darwin PMDA**: ~245 metrics across 16 clusters (+59 metrics, +4 clusters: GPU, IPC, Power, APFS)
 - **Darwin_proc PMDA**: ~37 per-process metrics (+2 metrics: logical_writes, footprint)
-- **Phase 2 metrics added**: 34 metrics (34% of planned ~100)
+- **Phase 2 metrics added**: 77 metrics (77% of planned ~100)
 - **Note**: proc.io.read_bytes/write_bytes were Phase 1 (commit e0b925a347, Jan 5)
 
 ---
@@ -92,7 +92,7 @@ Updates research doc with completion status"
   - power.battery.* (present, charging, charge, time_remaining, health, cycle_count, temperature, voltage, amperage, capacity.design, capacity.max)
   - power.ac.connected, power.source
 
-**Total Phase 2 metrics added so far**: 47 metrics (5+6+1+1+4+4+13+6+7)
+**Total Phase 2 metrics added so far**: 77 metrics (5+6+1+1+4+4+13+6+7+30)
 
 ### Remaining Work
 
@@ -112,16 +112,31 @@ All Wave 2 items have been implemented and tested.
 - [x] **Process File Descriptors** (Category 4.4) - 1 metric
   - proc.fd.count (implemented in Wave 1, verified in Wave 2)
 
-#### 🔲 Wave 3 (Not Started)
+#### 🟡 Wave 3 (PARTIAL - 30/~27 metrics) - Commit: afdf044067
+**Wave 3a: Disk & APFS Metrics (COMPLETE)**
+
+- [x] **Extended Disk I/O Metrics** (Category 6 partial) - 16 metrics
+  - disk.dev.{read_errors, write_errors, read_retries, write_retries}
+  - disk.dev.{total_read_time, total_write_time}
+  - disk.dev.{avgrq_sz, await} (derived metrics)
+  - disk.all.* aggregates (8 metrics)
+- [x] **APFS Statistics** (Category 6 partial) - 14 metrics
+  - disk.apfs.{ncontainer, nvolume}
+  - disk.apfs.container.* (block_size, bytes_read/written, read/write_requests, transactions, cache_hits/evictions, read/write_errors)
+  - disk.apfs.volume.{encrypted, locked}
+
+**Wave 3a Notes**:
+- queue_depth, inflight, util NOT implemented (IOKit doesn't expose these)
+- APFS snapshot metrics NOT implemented (per-volume complexity)
+- APFS container size/free NOT implemented (not in IORegistry)
+
+**Wave 3b/3c: Remaining Items**
 - [ ] **Thermal & Temperature** (Category 1) - ~15 metrics
   - thermal.cpu.die, gpu.die, package, ambient
   - thermal.fan.* (speed, target, mode, min, max)
   - thermal.pressure.level, state
 - [ ] **Process Network Connections** (Category 4.5) - 2 metrics
   - proc.net.tcp_count, udp_count
-- [ ] **Disk Queue & APFS** (Category 6) - ~10 metrics
-  - disk.dev.queue_depth, inflight, await, util
-  - disk.apfs.* (snapshots, encryption, container metrics)
 
 #### 🔲 Wave 4 (Optional/Specialized)
 - [ ] **Device Enumeration** (Category 9) - ~6 metrics
