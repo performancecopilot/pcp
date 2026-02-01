@@ -326,6 +326,38 @@ pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_DISK,58), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+/* disk.dev.read_errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,71), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.dev.write_errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,72), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.dev.read_retries */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,73), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.dev.write_retries */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,74), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.dev.total_read_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,75), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+/* disk.dev.total_write_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,76), PM_TYPE_U64, DISK_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+/* disk.dev.avgrq_sz */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,77), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+/* disk.dev.await */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,78), PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
 /* disk.all.read */
   { NULL,
     { PMDA_PMID(CLUSTER_DISK,59), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
@@ -373,6 +405,38 @@ pmdaMetric metrictab[] = {
 /* disk.all.total_time */
   { NULL,
     { PMDA_PMID(CLUSTER_DISK,70), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+/* disk.all.read_errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,79), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.all.write_errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,80), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.all.read_retries */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,81), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.all.write_retries */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,82), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.all.total_read_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,83), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+/* disk.all.total_write_time */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,84), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
+/* disk.all.avgrq_sz */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,85), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+/* disk.all.await */
+  { NULL,
+    { PMDA_PMID(CLUSTER_DISK,86), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_INSTANT,
       PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) }, },
 
 /* hinv.ncpu */
@@ -911,6 +975,63 @@ pmdaMetric metrictab[] = {
   { NULL,
     { PMDA_PMID(CLUSTER_IPV6,192), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* disk.apfs.ncontainer */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,87), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* disk.apfs.nvolume */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,88), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* disk.apfs.container.block_size */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,89), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+/* disk.apfs.container.bytes_read */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,90), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+/* disk.apfs.container.bytes_written */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,93), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+/* disk.apfs.container.read_requests */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,92), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.apfs.container.write_requests */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,93), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.apfs.container.transactions */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,94), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.apfs.container.cache_hits */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,95), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.apfs.container.cache_evictions */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,96), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.apfs.container.read_errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,97), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.apfs.container.write_errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,98), PM_TYPE_U64, APFS_CONTAINER_INDOM,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* disk.apfs.volume.encrypted */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,99), PM_TYPE_U32, APFS_VOLUME_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+/* disk.apfs.volume.locked */
+  { NULL,
+    { PMDA_PMID(CLUSTER_APFS,100), PM_TYPE_U32, APFS_VOLUME_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 /* kernel.limits.maxproc */
   { &mach_vfs.maxproc,

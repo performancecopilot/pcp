@@ -135,6 +135,7 @@ filesys {
 disk {
     dev
     all
+    apfs
 }
 
 disk.dev {
@@ -150,6 +151,14 @@ disk.dev {
     read_time		DARWIN:7:56
     write_time		DARWIN:7:57
     total_time		DARWIN:7:58
+    read_errors		DARWIN:7:71
+    write_errors	DARWIN:7:72
+    read_retries	DARWIN:7:73
+    write_retries	DARWIN:7:74
+    total_read_time	DARWIN:7:75
+    total_write_time	DARWIN:7:76
+    avgrq_sz		DARWIN:7:77
+    await		DARWIN:7:78
 }
 
 disk.all {
@@ -165,6 +174,39 @@ disk.all {
     read_time		DARWIN:7:68
     write_time		DARWIN:7:69
     total_time		DARWIN:7:70
+    read_errors		DARWIN:7:79
+    write_errors	DARWIN:7:80
+    read_retries	DARWIN:7:81
+    write_retries	DARWIN:7:82
+    total_read_time	DARWIN:7:83
+    total_write_time	DARWIN:7:84
+    avgrq_sz		DARWIN:7:85
+    await		DARWIN:7:86
+}
+
+disk.apfs {
+    ncontainer		DARWIN:23:87
+    nvolume		DARWIN:23:88
+    container
+    volume
+}
+
+disk.apfs.container {
+    block_size		DARWIN:23:89
+    bytes_read		DARWIN:23:90
+    bytes_written	DARWIN:23:91
+    read_requests	DARWIN:23:92
+    write_requests	DARWIN:23:93
+    transactions	DARWIN:23:94
+    cache_hits		DARWIN:23:95
+    cache_evictions	DARWIN:23:96
+    read_errors		DARWIN:23:97
+    write_errors	DARWIN:23:98
+}
+
+disk.apfs.volume {
+    encrypted		DARWIN:23:99
+    locked		DARWIN:23:100
 }
 
 network {

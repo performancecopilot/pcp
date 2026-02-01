@@ -186,9 +186,74 @@ boot time (subject to counter wrap).
 @ disk.dev.read_time i dunno either
 @ disk.dev.write_time i dunno either
 @ disk.dev.total_time i dunno either
+
+@ disk.dev.read_errors per-disk read error count
+Cumulative number of read errors reported by IOBlockStorageDriver since
+system boot time (subject to counter wrap).
+
+@ disk.dev.write_errors per-disk write error count
+Cumulative number of write errors reported by IOBlockStorageDriver since
+system boot time (subject to counter wrap).
+
+@ disk.dev.read_retries per-disk read retry count
+Cumulative number of read retries performed by IOBlockStorageDriver since
+system boot time (subject to counter wrap).
+
+@ disk.dev.write_retries per-disk write retry count
+Cumulative number of write retries performed by IOBlockStorageDriver since
+system boot time (subject to counter wrap).
+
+@ disk.dev.total_read_time per-disk cumulative read time
+Total time spent performing read operations in nanoseconds, as reported by
+IOBlockStorageDriver since system boot time (subject to counter wrap).
+
+@ disk.dev.total_write_time per-disk cumulative write time
+Total time spent performing write operations in nanoseconds, as reported by
+IOBlockStorageDriver since system boot time (subject to counter wrap).
+
+@ disk.dev.avgrq_sz per-disk average request size
+Average I/O request size in bytes, calculated as total bytes transferred
+divided by total operations (read + write). Instantaneous value.
+
+@ disk.dev.await per-disk average wait time
+Average I/O wait time in nanoseconds per operation, calculated as total
+I/O time divided by total operations (read + write). Instantaneous value.
+
 @ disk.all.read_time i dunno either
 @ disk.all.write_time i dunno either
 @ disk.all.total_time i dunno either
+
+@ disk.all.read_errors total read errors, summed for all disks
+Cumulative number of read errors since system boot time (subject to counter
+wrap), summed over all disk devices.
+
+@ disk.all.write_errors total write errors, summed for all disks
+Cumulative number of write errors since system boot time (subject to counter
+wrap), summed over all disk devices.
+
+@ disk.all.read_retries total read retries, summed for all disks
+Cumulative number of read retries since system boot time (subject to counter
+wrap), summed over all disk devices.
+
+@ disk.all.write_retries total write retries, summed for all disks
+Cumulative number of write retries since system boot time (subject to counter
+wrap), summed over all disk devices.
+
+@ disk.all.total_read_time total cumulative read time, summed for all disks
+Total time spent performing read operations in nanoseconds since system boot
+time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.total_write_time total cumulative write time, summed for all disks
+Total time spent performing write operations in nanoseconds since system boot
+time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.avgrq_sz average request size across all disks
+Average I/O request size in bytes across all disks, calculated as total bytes
+transferred divided by total operations. Instantaneous value.
+
+@ disk.all.await average wait time across all disks
+Average I/O wait time in nanoseconds per operation across all disks, calculated
+as total I/O time divided by total operations. Instantaneous value.
 
 @ disk.all.read total read operations, summed for all disks
 Cumulative number of disk read operations since system boot time
@@ -602,3 +667,59 @@ battery (if present).
 String indicating the current power source: "AC Power" when running on
 external power adapter, "Battery Power" when running on battery, or
 "Unknown" if power source cannot be determined.
+
+@ disk.apfs.ncontainer number of APFS containers
+Number of APFS containers visible via IOKit (AppleAPFSContainer class).
+Instantaneous value.
+
+@ disk.apfs.nvolume number of APFS volumes
+Number of APFS volumes visible via IOKit (AppleAPFSVolume class).
+Instantaneous value.
+
+@ disk.apfs.container.block_size APFS container block size
+Block size in bytes for the APFS container as reported by ContainerBlockSize.
+Discrete value per container instance.
+
+@ disk.apfs.container.bytes_read APFS container bytes read
+Cumulative bytes read from the block device backing this APFS container
+since system boot (subject to counter wrap).
+
+@ disk.apfs.container.bytes_written APFS container bytes written
+Cumulative bytes written to the block device backing this APFS container
+since system boot (subject to counter wrap).
+
+@ disk.apfs.container.read_requests APFS container read requests
+Cumulative number of read requests sent to the block device backing this
+APFS container since system boot (subject to counter wrap).
+
+@ disk.apfs.container.write_requests APFS container write requests
+Cumulative number of write requests sent to the block device backing this
+APFS container since system boot (subject to counter wrap).
+
+@ disk.apfs.container.transactions APFS container transactions flushed
+Cumulative number of APFS transactions flushed to the container since
+system boot (subject to counter wrap).
+
+@ disk.apfs.container.cache_hits APFS container object cache hits
+Cumulative number of object cache hits in the APFS container since
+system boot (subject to counter wrap).
+
+@ disk.apfs.container.cache_evictions APFS container object cache evictions
+Cumulative number of object cache evictions from the APFS container since
+system boot (subject to counter wrap).
+
+@ disk.apfs.container.read_errors APFS container metadata read errors
+Cumulative number of metadata read errors encountered by the APFS container
+since system boot (subject to counter wrap).
+
+@ disk.apfs.container.write_errors APFS container metadata write errors
+Cumulative number of metadata write errors encountered by the APFS container
+since system boot (subject to counter wrap).
+
+@ disk.apfs.volume.encrypted APFS volume encryption status
+Boolean flag (1/0) indicating whether the APFS volume is encrypted.
+Instantaneous value per volume instance.
+
+@ disk.apfs.volume.locked APFS volume locked status
+Boolean flag (1/0) indicating whether the APFS volume is currently locked
+(requires password to unlock). Instantaneous value per volume instance.

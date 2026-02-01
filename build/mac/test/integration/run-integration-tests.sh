@@ -437,6 +437,40 @@ else
 fi
 echo
 
+# Test 24: Extended disk I/O metrics
+echo "Test Group: Extended Disk I/O Metrics"
+if [ -f "$SCRIPT_DIR/test-disk-extended-metrics.sh" ]; then
+    echo "Running Extended Disk I/O metrics validation..."
+    if "$SCRIPT_DIR/test-disk-extended-metrics.sh"; then
+        echo -e "${GREEN}✓ Extended Disk I/O metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Extended Disk I/O metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Extended Disk I/O metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 25: APFS metrics
+echo "Test Group: APFS Metrics"
+if [ -f "$SCRIPT_DIR/test-apfs-metrics.sh" ]; then
+    echo "Running APFS metrics validation..."
+    if "$SCRIPT_DIR/test-apfs-metrics.sh"; then
+        echo -e "${GREEN}✓ APFS metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ APFS metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ APFS metrics test not found, skipping${NC}"
+fi
+echo
+
 # Summary
 echo "========================================"
 echo "Test Summary"

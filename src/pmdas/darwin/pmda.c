@@ -47,6 +47,7 @@
 #include "gpu.h"
 #include "ipc.h"
 #include "power.h"
+#include "apfs.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -134,6 +135,9 @@ ipcstats_t		mach_ipc = { 0 };
 int			mach_power_error = 0;
 powerstats_t		mach_power = { 0 };
 
+int			mach_apfs_error = 0;
+struct apfs_stats	mach_apfs = { 0 };
+
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
 
@@ -164,13 +168,15 @@ static pmdaInstid nfs3_indom_id[] = {
  * (enum now defined in darwin.h for use by refactored modules)
  */
 pmdaIndom indomtab[] = {
-    { LOADAVG_INDOM,	3, loadavg_indom_id },
-    { FILESYS_INDOM,	0, NULL },
-    { DISK_INDOM,	0, NULL },
-    { CPU_INDOM,	0, NULL },
-    { NETWORK_INDOM,	0, NULL },
-    { NFS3_INDOM,	NFS3_RPC_COUNT, nfs3_indom_id },
-    { GPU_INDOM,	0, NULL },
+    { LOADAVG_INDOM,		3, loadavg_indom_id },
+    { FILESYS_INDOM,		0, NULL },
+    { DISK_INDOM,		0, NULL },
+    { CPU_INDOM,		0, NULL },
+    { NETWORK_INDOM,		0, NULL },
+    { NFS3_INDOM,		NFS3_RPC_COUNT, nfs3_indom_id },
+    { GPU_INDOM,		0, NULL },
+    { APFS_CONTAINER_INDOM,	0, NULL },
+    { APFS_VOLUME_INDOM,	0, NULL },
 };
 
 
@@ -220,6 +226,10 @@ darwin_refresh(int *need_refresh)
 	mach_power_error = refresh_power(&mach_power);
     if (need_refresh[CLUSTER_IPV6])
 	mach_ipv6_error = refresh_ipv6(&mach_ipv6);
+    if (need_refresh[CLUSTER_APFS])
+	mach_apfs_error = refresh_apfs(&mach_apfs,
+				       &indomtab[APFS_CONTAINER_INDOM],
+				       &indomtab[APFS_VOLUME_INDOM]);
 }
 
 static int
@@ -270,6 +280,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_IPC:		return fetch_ipc(item, atom);
     case CLUSTER_POWER:		return fetch_power(item, atom);
     case CLUSTER_IPV6:		return fetch_ipv6(item, atom);
+    case CLUSTER_APFS:		return fetch_apfs(item, inst, atom);
     }
     return 0;
 }
