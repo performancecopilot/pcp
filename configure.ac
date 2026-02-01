@@ -730,9 +730,9 @@ which=$WHICH
 AC_SUBST(which)
 
 if test -z "$AR"; then
-    AC_PATH_PROGS(AR, [gcc-ar ar], /usr/bin/ar)
+    AC_PATH_PROGS(AR, [gcc-ar ar], ar)
 fi
-if test ! -x "$AR"; then
+if ! $AR --version >/dev/null 2>&1; then
     AC_MSG_ERROR([cannot find a valid 'ar' command.])
 fi
 ar=$AR
