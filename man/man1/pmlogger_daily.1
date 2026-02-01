@@ -208,6 +208,27 @@ In this case, the
 period (re)starts from the time of compression.
 .RE
 .TP 5
+\fB\-d\fR \fIsize\fR, \fB\-\-disk\fR=\fIsize\fR
+This option allows a maximum total disk size limit to be set for PCP archive files stored in
+.IR $PCP_ARCHIVE_DIR .
+.I size
+may be specified as an integer number of kilobytes, or with a suffix
+.B K
+for kilobytes,
+.B M
+for megabytes,
+.B G
+for gigabytes (e.g., 500M, 10G).
+If the total disk usage of archives for the current host exceeds
+.I size
+after normal daily log processing (compression, merging, culling by age, etc.),
+then additional archive files will be purged, oldest first, until usage is below the limit.
+This purging operation never deletes archive files with today's date,
+and always preserves the most recent archives required by active
+.BR pmlogger (1)
+processes.
+.RE
+.TP 5
 \fB\-K\fR
 When this option is specified for
 .B pmlogger_daily

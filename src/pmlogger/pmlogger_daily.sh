@@ -168,6 +168,30 @@ _timespec()
     done
 }
 
+convert_to_kb() {
+	local input=$1
+	local num unit kb
+	# Extract number and unit 
+	num=$(echo "$input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\1/')
+	unit=$(echo "$input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\2/')
+
+	case "$unit" in
+		G|GB|g|gb)
+			kb=$((num * 1024 * 1024))
+			;;
+		M|MB|m|mb)
+			kb=$((num * 1024))
+			;;
+		K|KB|k|kb|"")
+			kb=$num
+			;;
+		*)
+			echo "Unknown unit: $unit" >&2
+			return 1
+			;;
+	esac
+	echo "$kb"
+}
 # replacement for fmt(1) that is the same on every platform ... mimics
 # the FSF version with a maximum line length of 75 columns
 #
@@ -353,6 +377,7 @@ Options:
   -E,--expunge            expunge metrics with metadata inconsistencies when merging archives
   -f,--force              force actions (intended for QA, not production)
   -k=TIME,--discard=TIME  remove archives after TIME (format DD[:HH[:MM]])
+  -d=size,--disk=size     set maximum disk usage for $PCP_LOG_DIR
   -K                      compress, but no other changes
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -m=ADDRs,--mail=ADDRs   send daily NOTICES entries to email addresses
@@ -404,6 +429,8 @@ DO_DAILY_REPORT=true
 NOPROXY=false
 PROXYONLY=false
 NOERROR=false
+SIZE_LIMIT_FLAG=
+SIZE_LIMIT=0
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -578,6 +605,11 @@ do
 		;;
 	--)	shift
 		break
+		;;
+	-d) SIZE_LIMIT_FLAG=1
+		SIZE_LIMIT=$(convert_to_kb "$2" | awk '{print $1}')
+		shift
+		$VERBOSE && echo "Info: Size limit set to $SIZE_LIMIT KB for $PCP_ARCHIVE_DIR"
 		;;
 	-\?)	_usage
 		;;
@@ -786,6 +818,35 @@ then
     $NOERROR || status=1
     exit
 fi
+
+__calculate_archive_size()
+{
+    local log_dir_name="${PCP_ARCHIVE_DIR}/$(hostname)"
+    local archive_size
+    archive_size=$(du -sk "$log_dir_name" | awk '{print $1}')
+    echo "$archive_size"
+}
+__check_size_limit()
+{
+	local dir_size=0
+	if [ "$SIZE_LIMIT" -gt 0 ]
+	then
+		dir_size=$(__calculate_archive_size)
+		# compare integer values: remove units, handle possible "N KB" format
+		# Remove ' KB' if present in SIZE_LIMIT (in case)
+		local size_limit_kb
+		size_limit_kb=$(echo "$SIZE_LIMIT" | awk '{print $1}')
+		if [ "$dir_size" -gt "$size_limit_kb" ]; then
+			echo "Warning: size limit of $size_limit_kb KB exceeded for host $(hostname)"
+			return 1
+		else
+			$VERBOSE && echo "Info: size limit of $size_limit_kb KB not exceeded, continuing"
+			return 0
+		fi
+	fi
+}
+
+
 
 _skipping()
 {
@@ -1063,6 +1124,7 @@ BEGIN	{ seenslash = 0; inshell = 0; out = "" }
 	}
 END	{ print out }'
 }
+
 
 # come here from _parse_log_control() once per valid line in a control
 # file ... see utilproc.sh for interface definitions
@@ -1454,7 +1516,7 @@ _autosave()
 #
 _do_cull()
 {
-    CULLAFTER="$PCP_CULLAFTER"
+	CULLAFTER="$PCP_CULLAFTER"
     [ -z "$CULLAFTER" ] && CULLAFTER="$CULLAFTER_CMDLINE"
     [ -z "$CULLAFTER" ] && CULLAFTER="$CULLAFTER_DEFAULT"
     $VERY_VERBOSE && echo >&2 "CULLAFTER=$CULLAFTER"
@@ -1523,6 +1585,7 @@ _do_cull()
 	    $VERY_VERBOSE && echo >&2 "Warning: no archive files found to cull"
 	fi
     fi
+
 }
 
 # Merge partial archives into a single archive covering one day.
@@ -1990,6 +2053,8 @@ p
     fi
 }
 
+
+
 # .NeedRewrite in $PCP_LOG_DIR/pmlogger is just like -R, but needs
 # only be done once, e.g. after software upgrade with new pmlogrewrite(1)
 # configuration files
@@ -2012,6 +2077,9 @@ else
 	_parse_log_control $CONTROLDIR/$extra
     done
 fi
+
+
+
 
 if $NOPROXY
 then
@@ -2121,6 +2189,74 @@ fi
 if $PCP_LOG_RC_SCRIPTS
 then
     $PCP_BINADM_DIR/pmpost "end pid:$$ $prog status=$status"
+fi
+
+_do_purge()
+{
+    $VERBOSE && echo "Info: starting purging of $PCP_ARCHIVE_DIR/$(hostname)..."
+    if [ "$SIZE_LIMIT_FLAG" ] && [ $SIZE_LIMIT -gt 0 ]; then
+        dir_size=$(__calculate_archive_size)
+        if [ "$dir_size" -le "$SIZE_LIMIT" ]; then
+            $VERBOSE && echo "Info: No purging required, archive size ($dir_size KB) <= size limit ($SIZE_LIMIT KB)"
+            return
+        fi
+
+        candidate_file="$tmp/purge_candidates"
+        find "$PCP_ARCHIVE_DIR/$(hostname)" -maxdepth 1 -type f | sort > "$candidate_file"
+        TODAY=`date +%Y%m%d`
+
+        # Filter out today's files and known files not to be purged
+        sed -i "/$TODAY/d" "$candidate_file"
+        sed -i '/Latest/d;/\.log.*/d' "$candidate_file"
+
+        if [ ! -s "$candidate_file" ]; then
+            $VERBOSE && echo "Info: Nothing to purge, exiting."
+            return
+        fi
+
+        size_to_purge=$(($dir_size - $SIZE_LIMIT))
+        purged_size=0
+        purge_list=""
+        while read file; do
+            # Double-check file exists and is not empty
+            [ -f "$file" ] || continue
+            file_size=$(du -k "$file" | awk '{print $1}')
+            purge_list="$purge_list$file"$'\n'
+            purged_size=$(($purged_size + $file_size))
+            [ $purged_size -ge $size_to_purge ] && break
+        done < "$candidate_file"
+
+        if [ -z "$purge_list" ]; then
+            $VERBOSE && echo "Info: No suitable files found to purge, exiting."
+            return
+        fi
+
+        $VERBOSE && echo "Info: Purging files to reclaim $size_to_purge KB:"
+        $VERBOSE && echo "$purge_list"
+        if $SHOWME; then
+            echo "+ rm -f"
+            printf "%s" "$purge_list"
+        else
+            for file in $purge_list; do
+                [ -f "$file" ] && rm -f "$file"
+            done
+        fi
+    fi
+}
+
+if [ "$SIZE_LIMIT_FLAG" ] && [ $SIZE_LIMIT -gt 0 ]; then
+    dir_size=$(__calculate_archive_size)
+    if [ "$dir_size" -gt "$SIZE_LIMIT" ]; then
+        $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT KB exceeded, attempting compress to check if it can be reduced"
+        _do_compress
+        dir_size=$(__calculate_archive_size)
+        if [ "$dir_size" -gt "$SIZE_LIMIT" ]; then
+            $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT KB exceeded after compress/merge, going to purge"
+            _do_purge
+        fi
+    else
+        echo "Info: $SIZE_LIMIT KB size limit not exceeded, doing nothing"
+    fi
 fi
 
 exit
