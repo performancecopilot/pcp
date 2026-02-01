@@ -15,18 +15,22 @@ echo "QA output created by $seq"
 . ./common.check
 
 status=1	# failure is the default!
-trap "cd $here; unset LD_PRELOAD; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "cd $here; $sudo rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+
+# need hostname before we dink with LD_PRELOAD
+#
+hostname=`hostname`
 
 # libpcp_fault WILL have lock_asserts=true, if it is installed
 #
-if [ -f $PCP_LIB_DIR/libpcp_fault.so ]
+if [ -f $PCP_LIB_DIR/libpcp_fault.so.4 ]
 then
-    LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so
+    preload=$PCP_LIB_DIR/libpcp_fault.so.4
 else
-    LD_PRELOAD=''
+    preload=''
 fi
 
-eval `LD_PRELOAD=$LD_PRELOAD $PCP_BINADM_DIR/pmconfig -L lock_asserts`
+eval `LD_PRELOAD=$preload $PCP_BINADM_DIR/pmconfig -L lock_asserts`
 echo "lock_asserts=$lock_asserts" >>$seq_full
 
 # The alternate filter is required if libpcp is built with
@@ -64,23 +68,21 @@ $3 == "traceback"	{ exit }
     fi
 }
 
-export LD_PRELOAD=$LD_PRELOAD
-
 # real QA test starts here
 echo "=== -x (no context) ===" | tee -a $seq_full
-( src/github-50 2>&1 -x && exit 0 ) 2>&1 | _filter
+( LD_PRELOAD=$preload src/github-50 2>&1 -x && exit 0 ) 2>&1 | _filter
 
 echo | tee -a $seq_full
 echo "=== no args, default context ===" | tee -a $seq_full
-( src/github-50 2>&1 && exit 0 ) 2>&1 | _filter
+( LD_PRELOAD=$preload src/github-50 2>&1 && exit 0 ) 2>&1 | _filter
 
 echo | tee -a $seq_full
 echo "=== -h local: ===" | tee -a $seq_full
-( src/github-50 2>&1 -h 'local:' && exit 0 ) 2>&1 | _filter
+( LD_PRELOAD=$preload src/github-50 2>&1 -h 'local:' && exit 0 ) 2>&1 | _filter
 
 echo | tee -a $seq_full
-echo '=== -h `hostname` ===' | tee -a $seq_full
-( src/github-50 2>&1 -h `hostname` && exit 0 ) 2>&1 | _filter
+echo "=== -h hostname ===" | tee -a $seq_full
+( LD_PRELOAD=$preload src/github-50 2>&1 -h $hostname && exit 0 ) 2>&1 | _filter
 
 # strangely on OpenBSD (vm37) this reports the error but does not
 # dump core, leading two "Unlock Fail: Operation not permitted" lines,
@@ -88,13 +90,13 @@ echo '=== -h `hostname` ===' | tee -a $seq_full
 #
 echo | tee -a $seq_full
 echo '=== -L ===' | tee -a $seq_full
-( $sudo_local_ctx src/github-50 2>&1 -L && exit 0 ) 2>&1 | _filter >$tmp.tmp
+( $sudo_local_ctx sh -c "LD_PRELOAD=$preload src/github-50 2>&1 -L" && exit 0 ) 2>&1 | _filter >$tmp.tmp
 grep -v 'Unlock Fail' <$tmp.tmp
 grep 'Unlock Fail' $tmp.tmp | sort | uniq
 
 echo | tee -a $seq_full
 echo '=== -a archives/ok-foo ===' | tee -a $seq_full
-( src/github-50 2>&1 -a archives/ok-foo && exit 0 ) 2>&1 | _filter
+( LD_PRELOAD=$preload src/github-50 2>&1 -a archives/ok-foo && exit 0 ) 2>&1 | _filter
 
 # this calls abort() on the error paths, so we may have core files ...
 # this is not cause for failing the test
