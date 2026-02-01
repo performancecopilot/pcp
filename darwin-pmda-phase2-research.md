@@ -8,6 +8,31 @@ This document presents comprehensive research on additional macOS metrics that c
 
 ---
 
+## 🔴 CRITICAL: Document Maintenance Requirement
+
+**THIS DOCUMENT MUST BE UPDATED IMMEDIATELY AFTER ANY IMPLEMENTATION WORK.**
+
+After completing any Wave, category, or metric implementation:
+
+1. **Update completion checkboxes** - Mark items as `[x]` when done
+2. **Update metric counts** - Increment totals in "Total Phase 2 metrics added so far"
+3. **Update Wave status** - Change from ⏳ to ✅ when complete
+4. **Add commit references** - Include commit SHAs for traceability
+5. **Update completion percentages** - Recalculate Category summary table totals
+6. **Commit the research doc** - Include in the same commit as the implementation
+
+**Example commit pattern:**
+```bash
+git add src/pmdas/darwin/* darwin-pmda-phase2-research.md
+git commit -m "Complete Wave X: Description
+
+Updates research doc with completion status"
+```
+
+**Failure to update this document creates confusion about project status and wastes time.**
+
+---
+
 ## Phase 1 Completion Status (PR #2442)
 
 ### Successfully Implemented
@@ -67,23 +92,25 @@ This document presents comprehensive research on additional macOS metrics that c
   - power.battery.* (present, charging, charge, time_remaining, health, cycle_count, temperature, voltage, amperage, capacity.design, capacity.max)
   - power.ac.connected, power.source
 
-**Total Phase 2 metrics added so far**: 34 metrics (5+6+1+1+4+4+13)
+**Total Phase 2 metrics added so far**: 47 metrics (5+6+1+1+4+4+13+6+7)
 
 ### Remaining Work
 
 #### ✅ Wave 1 (COMPLETE)
 All Wave 1 items have been implemented and tested.
 
-#### ⏳ Wave 2 (Partially Complete)
+#### ✅ Wave 2 (COMPLETE) - Commit: 68d095a6b1
+All Wave 2 items have been implemented and tested.
+
 - [x] **Battery Status** (Category 3.1-3.2) - 13 metrics
   - power.battery.* (present, charging, charge, health, cycles, temperature, voltage, etc.)
   - power.ac.connected, power.source
-- [ ] **Enhanced Network IPv6** (Category 5.1) - 6 metrics
-  - network.ip6.* (inreceives, outforwarded, discards, fragments, etc.)
-- [ ] **Process QoS CPU Time** (Category 4.2) - 5 metrics
-  - proc.cpu.qos.{default,background,utility,user_initiated,user_interactive}
-- [ ] **Process File Descriptors** (Category 4.4) - 1 metric
-  - proc.fd.count (registered but needs implementation verification)
+- [x] **Enhanced Network IPv6** (Category 5.1) - 6 metrics
+  - network.ipv6.* (inreceives, outforwarded, indiscards, outdiscards, fragcreates, reasmoks)
+- [x] **Process QoS CPU Time** (Category 4.2) - 7 metrics
+  - proc.cpu.qos.{default,maintenance,background,utility,legacy,user_initiated,user_interactive}
+- [x] **Process File Descriptors** (Category 4.4) - 1 metric
+  - proc.fd.count (implemented in Wave 1, verified in Wave 2)
 
 #### 🔲 Wave 3 (Not Started)
 - [ ] **Thermal & Temperature** (Category 1) - ~15 metrics
@@ -490,15 +517,15 @@ src/pmdas/darwin_proc/
 | 1. Thermal & Temperature | ~15 | 🔲 Not Started | 0/15 |
 | 2. GPU & Graphics | ~7 | ✅ **Complete** | **4/4** |
 | 3. Power & Battery | ~15 | ⏳ Partial | **13/15** (3.1-3.2 done, 3.3 needs root) |
-| 4. Process I/O & Resources | ~15 | ⏳ Partial | **2/15** (Phase 2 only) |
-| 5. Enhanced Network | ~15 | 🔲 Not Started | 0/15 |
+| 4. Process I/O & Resources | ~15 | ✅ **Complete** | **9/9** (io, qos, fd, footprint all done) |
+| 5. Enhanced Network | ~15 | ⏳ Partial | **6/15** (5.1 IPv6 done) |
 | 6. Disk & Storage | ~10 | 🔲 Not Started | 0/10 |
 | 7. System Limits & IPC | ~10 | ✅ **Complete** | **9/9** |
 | 8. Scheduler | ~3 | 🔲 Not Started | 0/3 |
 | 9. Device Enumeration | ~6 | 🔲 Not Started | 0/6 |
 | 10. Memory Compression | ~6 | ✅ **Complete** | **6/6** |
 | 11. pmrep Views | 3 views + 2 updates | ⏳ Partial | **2/5** |
-| **TOTAL** | **~100 metrics** | **32% Complete** | **32/99** |
+| **TOTAL** | **~100 metrics** | **47% Complete** | **47/99** |
 
 **Legend**: ✅ Complete | ⏳ In Progress | 🔲 Not Started
 
@@ -535,7 +562,7 @@ Based on complexity, value, and dependencies:
    - Metrics: mbuf.clusters, maxsockbuf, somaxconn, socket.defunct
 
 ### Wave 2: Medium Effort (MEDIUM complexity, HIGH value)
-**Estimated: ~30 metrics** | **Completed: 17/30** (GPU 4 + Power 13)
+**Estimated: ~30 metrics** | **Completed: 30/30** ✅ **COMPLETE**
 
 5. **✅ GPU Monitoring** (Category 2) - **DONE** (commits: 0283412223, 11d49b86f9)
    - IOKit pattern implemented using IOAccelerator
@@ -549,16 +576,17 @@ Based on complexity, value, and dependencies:
    - Metrics: present, charging, charge %, time_remaining, health %, cycle_count, temperature, voltage (mV), amperage (mA), design/max capacity (mAh), ac.connected, source string
    - Note: Desktop Macs gracefully report battery_present=0
 
-7. **⏳ Enhanced Network IPv6** (Category 5) - **TODO**
+7. **✅ Enhanced Network IPv6** (Category 5.1) - **DONE** (commit: 68d095a6b1)
    - sysctl pattern matches existing TCP/UDP
-   - Files: new `ipv6.c`
-   - Metrics: IPv6 packet counts, errors, fragments
+   - Files: new `ipv6.c`, `ipv6.h`
+   - Metrics: inreceives, outforwarded, indiscards, outdiscards, fragcreates, reasmoks
 
-8. **⏳ Process QoS & Memory** (Category 4.2-4.3) - **PARTIAL** (1 metric done)
-   - Extends existing libproc usage
-   - Files: extend `kinfo_proc.c`
-   - **Phase 2 complete**: ✅ proc.memory.footprint (91c1cb386c)
-   - **Remaining**: QoS CPU time (5 levels), FD count (registered but needs impl check)
+8. **✅ Process QoS & Memory** (Category 4.2-4.3) - **DONE** (commits: 91c1cb386c, 68d095a6b1)
+   - Extends existing libproc usage via RUSAGE_INFO_V4
+   - Files: extend `kinfo_proc.c`, `kinfo_proc.h`, `pmda.c`, `root_proc`, `help`
+   - **Complete**: proc.memory.footprint (91c1cb386c)
+   - **Complete**: QoS CPU time - 7 metrics (default, maintenance, background, utility, legacy, user_initiated, user_interactive) (68d095a6b1)
+   - **Complete**: proc.fd.count (verified working)
 
 ### Wave 3: Higher Effort (HIGH complexity, HIGH value)
 **Estimated: ~25 metrics** | **Completed: 0/25**
