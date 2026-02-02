@@ -1,2 +1,119 @@
 QA output created by 1556
-[skeleton from qa/new, replace me]
+Creating config file "TMP.conf" using default settings ...
+...
+#pmlogconf 2.0
+#
+# pmlogger(1) config file created and updated by pmlogconf
+#
+# DO NOT UPDATE THE INITIAL SECTION OF THIS FILE.
+# Any changes may be lost the next time pmlogconf is used
+# on this file.
+#
+#+ groupdir TMP
+#
+#+ bar:n:default:
+## bar - force available
+#----
+#+ foo:n:default:
+## foo - probe
+#----
+#+ fumble:y:default:
+## fumble - force include
+log advisory on default {
+	sample.float
+}
+#----
+#+ mumble:x::
+#----
+# DO NOT UPDATE THE FILE ABOVE THIS LINE
+# Otherwise any changes may be lost the next time pmlogconf is
+# used on this file.
+#
+# It is safe to make additions from here on ...
+#
+
+[access]
+disallow .* : all;
+disallow :* : all;
+allow local:* : enquire;
+
+Group: bar - force available
+Log this group? [n] Logging interval? [default] 
+Group: foo - probe
+Log this group? [n] Logging interval? [default] 
+Differences ...
+*** TMP.conf ...
+*** TMP.conf.new ...
+***************
+*** 8,18 ****
+  #
+  #+ groupdir TMP
+  #
+! #+ bar:n:default:
+  ## bar - force available
+  #----
+! #+ foo:n:default:
+  ## foo - probe
+  #----
+  #+ fumble:y:default:
+  ## fumble - force include
+--- 8,24 ----
+  #
+  #+ groupdir TMP
+  #
+! #+ bar:y:default:
+  ## bar - force available
++ log advisory on default {
++ 	sample.long
++ }
+  #----
+! #+ foo:y:default:
+  ## foo - probe
++ log advisory on default {
++ 	sample.longlong
++ }
+  #----
+  #+ fumble:y:default:
+  ## fumble - force include
+Keep changes? [y] 
+#pmlogconf 2.0
+#
+# pmlogger(1) config file created and updated by pmlogconf
+#
+# DO NOT UPDATE THE INITIAL SECTION OF THIS FILE.
+# Any changes may be lost the next time pmlogconf is used
+# on this file.
+#
+#+ groupdir TMP
+#
+#+ bar:y:default:
+## bar - force available
+log advisory on default {
+	sample.long
+}
+#----
+#+ foo:y:default:
+## foo - probe
+log advisory on default {
+	sample.longlong
+}
+#----
+#+ fumble:y:default:
+## fumble - force include
+log advisory on default {
+	sample.float
+}
+#----
+#+ mumble:x::
+#----
+# DO NOT UPDATE THE FILE ABOVE THIS LINE
+# Otherwise any changes may be lost the next time pmlogconf is
+# used on this file.
+#
+# It is safe to make additions from here on ...
+#
+
+[access]
+disallow .* : all;
+disallow :* : all;
+allow local:* : enquire;
