@@ -11,7 +11,9 @@
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-
+#
+# pylint: disable=line-too-long
+#
 
 """ PCP to OPENTELEMETRY Bridge """
 
@@ -29,16 +31,17 @@ import json
 
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
-from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_TIME_SEC
+from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_TIME_NSEC
 # Default config
-DEFAULT_CONFIG = ["./pcp2opentelemetry.conf", "$HOME/.pcp2opentelemetry.conf",
-                  "$HOME/.pcp/pcp2opentelemetry.conf", "$PCP_SYSCONF_DIR/pcp2opentelemetry.conf"]
+DEFAULT_CONFIG = ["./pcp2opentelemetry.conf", "$HOME/.pcp2opentelemetry.conf", "$HOME/.pcp/pcp2opentelemetry.conf", "$PCP_SYSCONF_DIR/pcp2opentelemetry.conf"]
 
 # Defaults
 CONFVER = 1
 INDENT = 2
 TIMEFMT = "%Y-%m-%d %H:%M:%S"
 TIMEOUT = 2.5 # seconds
+os.environ["TZ"] = "UTC"
+time.tzset()
 
 class PCP2OPENTELEMETRY(object):
     """ PCP to OPENTELEMETRY """
@@ -50,7 +53,7 @@ class PCP2OPENTELEMETRY(object):
         self.opts = self.options()
 
         # Configuration directives
-        self.keys = ('source', 'output', 'derived', 'header', 'globals',
+        self.keys = ('source', 'output', 'derived', 'globals',
                      'samples', 'interval', 'type', 'precision', 'daemonize',
                      'timefmt', 'everything',
                      'count_scale', 'space_scale', 'time_scale', 'version',
@@ -79,13 +82,12 @@ class PCP2OPENTELEMETRY(object):
         self.output = None # For pmrep conf file compat only
         self.speclocal = None
         self.derived = None
-        self.header = 1
         self.globals = 1
         self.samples = None # forever
         self.interval = pmapi.timeval(10)      # 10 sec
         self.opts.pmSetOptionInterval(str(10)) # 10 sec
         self.delay = 0
-        self.type = 0
+        self.type = 1
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.ignore_unknown = 0
@@ -102,7 +104,7 @@ class PCP2OPENTELEMETRY(object):
         self.precision = 3 # .3f
         self.precision_force = None
         self.timefmt = TIMEFMT
-        self.interpol = 0
+        self.interpol = 1
         self.count_scale = None
         self.count_scale_force = None
         self.space_scale = None
@@ -166,7 +168,6 @@ class PCP2OPENTELEMETRY(object):
         opts.pmSetLongOptionHelp()         # -?/--help
 
         opts.pmSetLongOptionHeader("Reporting options")
-        opts.pmSetLongOption("no-header", 0, "H", "", "omit headers")
         opts.pmSetLongOption("no-globals", 0, "G", "", "omit global metrics")
         opts.pmSetLongOptionAlign()        # -A/--align
         opts.pmSetLongOptionStart()        # -S/--start
@@ -236,8 +237,6 @@ class PCP2OPENTELEMETRY(object):
                 self.derived = ";" + optarg
             else:
                 self.derived = self.derived + ";" + optarg
-        elif opt == 'H':
-            self.header = 0
         elif opt == 'G':
             self.globals = 0
         elif opt == 'r':
@@ -343,11 +342,6 @@ class PCP2OPENTELEMETRY(object):
         # Common preparations
         self.context.prepare_execute(self.opts, False, self.interpol, self.interval)
 
-        # Headers
-        if self.header == 1:
-            self.header = 0
-            self.write_header()
-
         # Just checking
         if self.check == 1:
             return
@@ -391,32 +385,13 @@ class PCP2OPENTELEMETRY(object):
 
         self.write_opentelemetry(tstamp)
 
-    def write_header(self):
-        """ Write info header """
-        output = self.outfile if self.outfile else "stdout"
-        if self.context.type == PM_CONTEXT_ARCHIVE:
-            sys.stdout.write('{ "//": "Writing %d archived metrics to %s..." }\n{ "//": "(Ctrl-C to stop)" }\n'
-                             % (len(self.metrics), output))
-            return
-
-        sys.stdout.write('{ "//": "Waiting for %d metrics to be written to %s' % (len(self.metrics), output))
-        if self.runtime != -1:
-            sys.stdout.write(':" }\n{ "//": "%s samples(s) with %.1f sec interval ~ %d sec runtime." }\n' %
-                             (self.samples, float(self.interval), self.runtime))
-        elif self.samples:
-            duration = (self.samples - 1) * float(self.interval)
-            sys.stdout.write(':" }\n{ "//": "%s samples(s) with %.1f sec interval ~ %d sec runtime." }\n' %
-                             (self.samples, float(self.interval), duration))
-        else:
-            sys.stdout.write('..." }\n{ "//": "(Ctrl-C to stop)" }\n')
-
     def write_opentelemetry(self, timestamp):
         """ Write results in opentelemetry format """
         if timestamp is None:
             # Silent goodbye, close in finalize()
             return
 
-        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_SEC)
+        ts = self.context.datetime_to_secs(self.pmfg_ts(), PM_TIME_NSEC)
 
         if self.prev_ts is None:
             self.prev_ts = ts
@@ -618,9 +593,7 @@ class PCP2OPENTELEMETRY(object):
                     datapoint_dict["asString"] = value
                 else:
                     datapoint_dict["asDouble"] = value
-                if inst != PM_INDOM_NULL:
-                    datapoint_dict["instance"] = inst
-                datapoint_dict["timeUnixNano"] = ts
+                datapoint_dict["timeUnixNano"] = f"{ts:.0f}"
                 datapoint_dict["attributes"] = data_attribute_function(labels, context, desc, inst, name)
                 numdatapoints_list.append(datapoint_dict)
             return numdatapoints_list
@@ -665,7 +638,7 @@ class PCP2OPENTELEMETRY(object):
 
         self.data = {"resourceMetrics": [{"resource":  {"attributes": resource_attributes()},
                                           "scopeMetrics":[scope_metric_function(results)]}]}
-        data = json.dumps(self.data, indent=INDENT, sort_keys=False, ensure_ascii=False, separators=(',', ': '))
+        data = json.dumps(self.data, sort_keys=False, separators=(',', ': '))
 
         if self.url:
             auth = None
