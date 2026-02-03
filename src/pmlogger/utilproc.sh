@@ -354,6 +354,36 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 			    fi
 			    ;;
 
+			'export PCP_SIZE_LIMIT;'*)
+			    _old_value="$PCP_SIZE_LIMIT"
+			    _check=`echo "$_cmd" | sed -e 's/.*=//' -e 's/  *$//'`
+			    _kb=
+			    # Enforce explicit unit, do NOT accept empty unit as KB!
+			    if [ -n "$_check" ]; then
+			        _num=$(echo "$_check" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\1/')
+			        _unit=$(echo "$_check" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\2/')
+			        if [ -z "$_unit" ]; then
+			            _error "\$PCP_SIZE_LIMIT value ($_check) must include an explicit unit (e.g. 10G/100M/100K), change ignored; using previous value"
+			            continue
+			        fi
+			        _kb=$(_convert_to_kb "$_check")
+			        if [ $? != 0 ]; then
+			            _error "\$PCP_SIZE_LIMIT value ($_check) is invalid. Must be positive integer and unit (e.g. 10G/100M/100K)."
+			            continue
+			        fi
+			        $SHOWME && echo "+ $_cmd (normalized to $_kb KB)"
+			        export PCP_SIZE_LIMIT="$_kb"
+			        echo "export PCP_SIZE_LIMIT=$_kb" >>$tmp/_cmd
+			        # Make global (for parent) for main script after parse
+			        echo "export PCP_SIZE_LIMIT=$_kb" >>$tmp/env_exports
+			    fi
+			    eval $_cmd
+			    if [ -n "$_old_value" -a "$_old_value" != "$PCP_SIZE_LIMIT" ]
+			    then
+			        _warning "\$PCP_SIZE_LIMIT ($PCP_SIZE_LIMIT) reset from control file, previous value ($_old_value) ignored"
+			    fi
+			    ;;
+
 			'export PCP_COMPRESS;'*)
 			    _old_value="$PCP_COMPRESS"
 			    $SHOWME && echo "+ $_cmd"
@@ -863,6 +893,77 @@ END						{ exit sts }'
 	rm -f /tmp/is.archive.$$
 	return $__sts
     fi
+}
+
+# Converts a size string like 10G, 100M, 100KB to integer KB for limit checks.
+# Usage: _convert_to_kb size_string
+# Outputs: integer KB on stdout, returns 0 if OK, 1 if error
+_convert_to_kb() {
+	__input=$1
+	__num=
+	__unit=
+	__kb=
+	if [ -z "$__input" ]; then
+		echo "Error: _convert_to_kb(): missing argument" >&2
+		return 1
+	fi
+	__num=$(echo "$__input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\1/')
+	__unit=$(echo "$__input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\2/')
+	case "$__unit" in
+		G|GB|g|gb|M|MB|m|mb|K|KB|k|kb|"")
+			;;
+		*)
+			echo "Error: _convert_to_kb(): invalid unit '$__unit'" >&2
+			return 1
+			;;
+	esac
+	case "$__num" in
+		"" )
+			echo "Error: _convert_to_kb(): input '$__input' does not start with a number" >&2
+			return 1
+			;;
+		*[!0-9]* )
+			echo "Error: _convert_to_kb(): input '$__input' has non-numeric value '$__num'" >&2
+			return 1
+			;;
+		0 )
+			echo "Error: _convert_to_kb(): argument '$__input' resolves to zero (not allowed)" >&2
+			return 1
+			;;
+	esac
+	
+	MAX_INT32=2147483647
+
+	case "$__unit" in
+		G|GB|g|gb)
+			# Check before multiplying 
+			if (( __num > MAX_INT32 / (1024*1024) ));
+			then 
+				echo "Error: overflow, $__num GB too large for 32-bit signed int" >&2
+				return 1
+			fi
+			__kb=$((__num * 1024 * 1024))
+			;;
+		M|MB|m|mb)
+			# Check before multiplying
+			if (( __num > MAX_INT32 / 1024 )); 
+			then
+				echo "Error: overflow, $__num MB too large for 32-bit signed int" >&2 
+				return 1
+			fi
+			__kb=$((__num * 1024))
+			;;
+		K|KB|k|kb|"")
+			if (( __num > MAX_INT32 )); 
+			then
+				echo "Error: overflow, $__num KB too large for 32-bit signed int" >&2 
+				return 1
+			fi
+			__kb=$__num
+			;;
+	esac
+	echo "$__kb"
+	return 0
 }
 
 # current time to the highest precision available from date(1) and

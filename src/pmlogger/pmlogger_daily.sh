@@ -168,30 +168,6 @@ _timespec()
     done
 }
 
-convert_to_kb() {
-	local input=$1
-	local num unit kb
-	# Extract number and unit 
-	num=$(echo "$input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\1/')
-	unit=$(echo "$input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\2/')
-
-	case "$unit" in
-		G|GB|g|gb)
-			kb=$((num * 1024 * 1024))
-			;;
-		M|MB|m|mb)
-			kb=$((num * 1024))
-			;;
-		K|KB|k|kb|"")
-			kb=$num
-			;;
-		*)
-			echo "Unknown unit: $unit" >&2
-			return 1
-			;;
-	esac
-	echo "$kb"
-}
 # replacement for fmt(1) that is the same on every platform ... mimics
 # the FSF version with a maximum line length of 75 columns
 #
@@ -429,7 +405,7 @@ DO_DAILY_REPORT=true
 NOPROXY=false
 PROXYONLY=false
 NOERROR=false
-SIZE_LIMIT_FLAG=
+SIZE_LIMIT_FLAG=false
 SIZE_LIMIT=0
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
@@ -606,10 +582,9 @@ do
 	--)	shift
 		break
 		;;
-	-d) SIZE_LIMIT_FLAG=1
-		SIZE_LIMIT=$(convert_to_kb "$2" | awk '{print $1}')
+	-d)	SIZE_LIMIT_FLAG=true
+		SIZE_LIMIT_ARG="$2"
 		shift
-		$VERBOSE && echo "Info: Size limit set to $SIZE_LIMIT KB for $PCP_ARCHIVE_DIR"
 		;;
 	-\?)	_usage
 		;;
@@ -702,6 +677,20 @@ then
 	$VERBOSE && echo "Add compress callback from environment: $PCP_COMPRESS_CALLBACK"
     fi
 fi
+
+# purge callback initialization ...
+# values (script names) set in the environment first, then
+# (later) any values (script names) set in the control files
+#
+touch $tmp/purge_callback
+if [ -n "$PCP_PURGE_CALLBACK" ]
+then
+	if _add_callback "$PCP_PURGE_CALLBACK" $tmp/purge_callback
+	then
+		$VERBOSE && echo "Add purge callback from environment: $PCP_PURGE_CALLBACK"
+	fi
+fi
+
 
 if $PFLAG
 then
@@ -820,30 +809,27 @@ then
 fi
 
 __calculate_archive_size()
-{
-    local log_dir_name="${PCP_ARCHIVE_DIR}/$(hostname)"
-    local archive_size
-    archive_size=$(du -sk "$log_dir_name" | awk '{print $1}')
-    echo "$archive_size"
+{	
+	__log_dir_name="$1"
+    __archive_size=0
+    __archive_size=$(du -sk "$__log_dir_name" | awk '{print $1}')
+    echo "$__archive_size"
 }
 __check_size_limit()
-{
-	local dir_size=0
+{	
+	__log_dir_name="$1"
+	__dir_size=0
 	if [ "$SIZE_LIMIT" -gt 0 ]
 	then
-		dir_size=$(__calculate_archive_size)
-		# compare integer values: remove units, handle possible "N KB" format
-		# Remove ' KB' if present in SIZE_LIMIT (in case)
-		local size_limit_kb
-		size_limit_kb=$(echo "$SIZE_LIMIT" | awk '{print $1}')
-		if [ "$dir_size" -gt "$size_limit_kb" ]; then
-			echo "Warning: size limit of $size_limit_kb KB exceeded for host $(hostname)"
+		__dir_size=$(__calculate_archive_size $__log_dir_name)
+		if [ "$__dir_size" -ge "$SIZE_LIMIT" ]; then
+			$VERBOSE && echo "Info: archive $__log_dir_name ($__dir_size KB) >= size limit ($SIZE_LIMIT KB)"
 			return 1
 		else
-			$VERBOSE && echo "Info: size limit of $size_limit_kb KB not exceeded, continuing"
 			return 0
 		fi
 	fi
+	return 0
 }
 
 
@@ -1126,11 +1112,80 @@ END	{ print out }'
 }
 
 
+
+# Purge files from $__dir to reclaim $__dir_size - $SIZE_LIMIT KB from disk
+# Oldest files are purged first, and the most recent archives required by active
+# pmlogger (1) processes are never deleted.
+#
+# The candidate files are first filtered to exclude today's date and the special
+# files required by active pmlogger (1) processes. The remaining files are
+# purged in order of oldest first until the target size is reached.
+_do_purge()
+{
+	__dir="$1"
+	__hostname="$2"
+    __dir_size=$(__calculate_archive_size "$__dir")
+    if __check_size_limit "$__dir"
+	then
+        $VERBOSE && echo "Info: No purging required, archive size ($__dir_size KB) <= size limit ($SIZE_LIMIT KB)"
+        return
+    fi
+    candidate_file="$tmp/purge_candidates"
+    find "$PCP_ARCHIVE_DIR/$(hostname)" -maxdepth 1 -type f | sort > "$candidate_file"
+    TODAY=`date +%Y%m%d`
+
+    # Filter out today's files and known files not to be purged
+    sed -i "/$TODAY/d" "$candidate_file"
+    sed -i '/Latest/d;/\.log.*/d' "$candidate_file"
+
+    if [ ! -s "$candidate_file" ]; then
+        $VERBOSE && echo "Info: Nothing to purge, exiting."
+        return
+    fi
+
+    size_to_purge=$(($__dir_size - $SIZE_LIMIT))
+    purged_size=0
+    purge_list=""
+    while read file; do
+        # Double-check file exists and is not empty
+        [ -f "$file" ] || continue
+        file_size=$(du -k "$file" | awk '{print $1}')
+        purge_list="$purge_list$file"$'\n'
+        purged_size=$(($purged_size + $file_size))
+        [ $purged_size -ge $size_to_purge ] && break
+    done < "$candidate_file"
+
+    if [ -z "$purge_list" ]; then
+        $VERBOSE && echo "Info: No suitable files found to purge, exiting."
+        return
+    fi
+
+    $VERBOSE && echo "Info: Purging files to reclaim $size_to_purge KB:"
+    $VERBOSE && echo "$purge_list"
+    if $SHOWME; then
+        echo "+ rm -f"
+        printf "%s" "$purge_list"
+    else
+        for file in $purge_list; do
+            [ -f "$file" ] && rm -f "$file"
+        done
+    fi
+}
+
 # come here from _parse_log_control() once per valid line in a control
 # file ... see utilproc.sh for interface definitions
 #
 _callback_log_control()
 {
+    # Per-host/directory: assign SIZE_LIMIT from PCP_SIZE_LIMIT for callback context
+    if [ -n "$PCP_SIZE_LIMIT" ]; then
+        SIZE_LIMIT="$PCP_SIZE_LIMIT"
+        $VERBOSE && echo "Info: Size limit (from control/env) for $dir: $SIZE_LIMIT KB"
+    elif [ -n "$SIZE_LIMIT_ARG" ]; then		
+		SIZE_LIMIT=$(_convert_to_kb "$SIZE_LIMIT_ARG")
+        $VERBOSE && echo "Info: Size limit (from -d arg) for $dir: $SIZE_LIMIT KB"
+    fi
+	
     # nothing to do for pmlogger pushing to a remote pmproxy
     #
     $logpush && return
@@ -1488,6 +1543,12 @@ _callback_log_control()
 	    $VERY_VERBOSE && echo >&2 "Warning: no trace files found to cull"
 	fi
     fi
+
+	# purge old arhives
+	if $SIZE_LIMIT_FLAG && [ "$SIZE_LIMIT" -gt 0 ]
+	then
+		_do_purge "$dir" "$host"
+	fi
 }
 
 # Paranoid archive saving
@@ -2189,74 +2250,6 @@ fi
 if $PCP_LOG_RC_SCRIPTS
 then
     $PCP_BINADM_DIR/pmpost "end pid:$$ $prog status=$status"
-fi
-
-_do_purge()
-{
-    $VERBOSE && echo "Info: starting purging of $PCP_ARCHIVE_DIR/$(hostname)..."
-    if [ "$SIZE_LIMIT_FLAG" ] && [ $SIZE_LIMIT -gt 0 ]; then
-        dir_size=$(__calculate_archive_size)
-        if [ "$dir_size" -le "$SIZE_LIMIT" ]; then
-            $VERBOSE && echo "Info: No purging required, archive size ($dir_size KB) <= size limit ($SIZE_LIMIT KB)"
-            return
-        fi
-
-        candidate_file="$tmp/purge_candidates"
-        find "$PCP_ARCHIVE_DIR/$(hostname)" -maxdepth 1 -type f | sort > "$candidate_file"
-        TODAY=`date +%Y%m%d`
-
-        # Filter out today's files and known files not to be purged
-        sed -i "/$TODAY/d" "$candidate_file"
-        sed -i '/Latest/d;/\.log.*/d' "$candidate_file"
-
-        if [ ! -s "$candidate_file" ]; then
-            $VERBOSE && echo "Info: Nothing to purge, exiting."
-            return
-        fi
-
-        size_to_purge=$(($dir_size - $SIZE_LIMIT))
-        purged_size=0
-        purge_list=""
-        while read file; do
-            # Double-check file exists and is not empty
-            [ -f "$file" ] || continue
-            file_size=$(du -k "$file" | awk '{print $1}')
-            purge_list="$purge_list$file"$'\n'
-            purged_size=$(($purged_size + $file_size))
-            [ $purged_size -ge $size_to_purge ] && break
-        done < "$candidate_file"
-
-        if [ -z "$purge_list" ]; then
-            $VERBOSE && echo "Info: No suitable files found to purge, exiting."
-            return
-        fi
-
-        $VERBOSE && echo "Info: Purging files to reclaim $size_to_purge KB:"
-        $VERBOSE && echo "$purge_list"
-        if $SHOWME; then
-            echo "+ rm -f"
-            printf "%s" "$purge_list"
-        else
-            for file in $purge_list; do
-                [ -f "$file" ] && rm -f "$file"
-            done
-        fi
-    fi
-}
-
-if [ "$SIZE_LIMIT_FLAG" ] && [ $SIZE_LIMIT -gt 0 ]; then
-    dir_size=$(__calculate_archive_size)
-    if [ "$dir_size" -gt "$SIZE_LIMIT" ]; then
-        $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT KB exceeded, attempting compress to check if it can be reduced"
-        _do_compress
-        dir_size=$(__calculate_archive_size)
-        if [ "$dir_size" -gt "$SIZE_LIMIT" ]; then
-            $VERBOSE && echo "Info: Size limit of $SIZE_LIMIT KB exceeded after compress/merge, going to purge"
-            _do_purge
-        fi
-    else
-        echo "Info: $SIZE_LIMIT KB size limit not exceeded, doing nothing"
-    fi
 fi
 
 exit

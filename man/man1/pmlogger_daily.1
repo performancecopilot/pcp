@@ -209,8 +209,11 @@ period (re)starts from the time of compression.
 .RE
 .TP 5
 \fB\-d\fR \fIsize\fR, \fB\-\-disk\fR=\fIsize\fR
-This option allows a maximum total disk size limit to be set for PCP archive files stored in
-.IR $PCP_ARCHIVE_DIR .
+This option enforces a maximum total file system space usage per host directory for PCP archive files stored under each
+.IR $PCP_ARCHIVE_DIR/<hostname>
+and
+.IR $PCP_REMOTE_ARCHIVE_DIR/<hostname>
+location. The
 .I size
 may be specified as an integer number of kilobytes, or with a suffix
 .B K
@@ -219,14 +222,34 @@ for kilobytes,
 for megabytes,
 .B G
 for gigabytes (e.g., 500M, 10G).
-If the total disk usage of archives for the current host exceeds
-.I size
-after normal daily log processing (compression, merging, culling by age, etc.),
-then additional archive files will be purged, oldest first, until usage is below the limit.
+After normal daily log processing (compression, merging, culling by age, etc.) completes,
+if the total file system space consumed in any per-host archive directory exceeds
+.I size ,
+then additional archive files will be purged, oldest first, until usage is reduced below the limit.
 This purging operation never deletes archive files with today's date,
 and always preserves the most recent archives required by active
 .BR pmlogger (1)
 processes.
+Enforcement is only performed when
+.B pmlogger_daily
+runs, not continuously.
+Alternatively, the maximum per-host disk space limit may be set by exporting the
+.B $PCP_DISK_LIMIT
+environment variable, which is handled analogously to
+.B $PCP_CULLAFTER .
+If both
+.B $PCP_DISK_LIMIT
+and
+.B \-d
+are provided, the command line option takes precedence and a warning is issued.
+
+.PP
+\fiNote:\fR The enforcement of the disk usage limit can only be performed when
+.B pmlogger_daily
+runs (typically once a day). As a result, the total disk usage in any archive directory may temporarily exceed the configured maximum between runs (for example, as new archives are created or when archives are uncompressed for merging or compression).
+Enforcement will only occur after all daily log processing is complete, and the actual file system space may briefly exceed the maximum until
+.B pmlogger_daily
+has caught up at its scheduled interval.
 .RE
 .TP 5
 \fB\-K\fR
@@ -978,6 +1001,20 @@ if this file exists, then this is treated as equivalent to using
 on the command line and the file will be removed once all rewriting
 has been done.
 .SH PCP ENVIRONMENT
+.TP 5
+.B $PCP_DISK_LIMIT
+If set, specifies a maximum allowed total file system space (in kilobytes, or with optional K/M/G suffix as for the \-d option) for each per-host archive directory under
+.I $PCP_ARCHIVE_DIR
+or
+.I $PCP_REMOTE_ARCHIVE_DIR .
+This value is used by
+.B pmlogger_daily
+when enforcing archive retention limits for file system space, unless the
+.B \-d
+option is provided in which case the command line flag overrides the environment variable and a warning is issued. Enforcement occurs after each run of
+.B pmlogger_daily
+and only applies at that time—not continuously.
+.PP
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.
 On each installation, the
