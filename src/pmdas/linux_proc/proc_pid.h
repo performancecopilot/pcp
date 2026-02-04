@@ -204,6 +204,16 @@ typedef struct {
 } proc_pid_smaps_t;
 
 /*
+ * metrics in /proc/<pid>/numa_maps
+ */
+typedef struct {
+    int    huge_id;
+    int    heap_id;
+    int    stack_id;
+    int    private_id;
+} proc_pid_numa_maps_t;
+
+/*
  * metrics in /proc/<pid>/fdinfo/
  */
 typedef struct {
@@ -247,6 +257,7 @@ enum {
     PROC_PID_FLAG_AUTOGROUP	= 1<<16,
     PROC_PID_FLAG_FDINFO	= 1<<17,
     PROC_PID_FLAG_DELAYACCT	= 1<<18,
+    PROC_PID_FLAG_NUMA_MAPS	= 1<<19,
 };
 
 typedef struct {
@@ -280,6 +291,9 @@ typedef struct {
 
     /* /proc/<pid>/smaps_rollup cluster */
     proc_pid_smaps_t	smaps;
+
+    /* /proc/<pid>/numa_maps cluster */
+    proc_pid_numa_maps_t	numa_maps;
 
     /* /proc/<pid>/maps cluster */
     size_t		maps_buflen;
@@ -374,6 +388,9 @@ extern proc_pid_entry_t *fetch_proc_pid_status(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/smaps_rollup entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_smaps(int, proc_pid_t *, int *);
+
+/* fetch a proc/<pid>/numa_maps entry for pid */
+extern proc_pid_entry_t *fetch_proc_pid_numa_maps(int, proc_pid_t *, int *);
 
 /* fetch a proc/<pid>/maps entry for pid */
 extern proc_pid_entry_t *fetch_proc_pid_maps(int, proc_pid_t *, int *);
