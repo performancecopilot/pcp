@@ -34,7 +34,7 @@ import threading
 import subprocess
 from ctypes import c_int
 from socket import gethostname
-from stat import ST_MODE, S_IXUSR, ST_CTIME
+from stat import ST_MODE, S_IXUSR
 import requests
 import json
 
@@ -48,10 +48,6 @@ import cpmda
 # Config file list sorting is expensive with a large number of URLs
 # and/or scripts.  See the --nosort option to turn it off.
 sort_conf_list = True
-
-# Number of seconds to wait between poll attempts on a source that
-# we've never been able to connect to & collect a list of metrics from.
-empty_source_pmns_poll = 10.0
 
 MAX_CLUSTER = 0xfff    # ~ max. number of opentelemetry sources
 MAX_METRIC = 0x3ff     # ~ max. number of metrics per source
@@ -453,7 +449,7 @@ class Source(object):
         self.path = path # pathname to .url or executable file
         self.url = None
         self.parse_error = False
-        self.parse_url_time = 0 # timestamp of config file when it was last parsed
+        self.parse_time = 0 # last time config file was parsed
         self.is_scripted = is_scripted
         self.pmda = thispmda # the shared pmda
         self.requests = None
@@ -475,6 +471,8 @@ class Source(object):
 
         self.metrics_by_name = {} # name -> Metric
         self.metrics_by_num = {} # number (last component of pmid) -> Metric
+        self.metric_removal_flags = {}
+        self.metric_fullnames = {}
 
 
     def old_enough_for_refresh(self):
@@ -484,7 +482,7 @@ class Source(object):
         '''
         now = time.time()
         last_try_age = now - self.refresh_time
-        return last_try_age > empty_source_pmns_poll
+        return last_try_age > self.pmda.refresh_timeout
 
     def check_filter(self, name, entrytype):
         '''
@@ -580,7 +578,9 @@ class Source(object):
             self.pmda.debug("included_labels '%s'" % (included_labels)) if self.pmda.dbg else None
             self.pmda.debug("optional_labels '%s'" % (optional_labels)) if self.pmda.dbg else None
             if mname in self.metrics_by_name:
-                if fullname not in self.pmda.all_metrics and self.name in self.pmda.re_add_list:
+                self.metric_removal_flags[mname] = False
+                self.metric_fullnames[mname] = fullname
+                if fullname not in self.pmda.all_metrics:
                     # re-add metric to namespace
                     help_oneline, help_text = self.helptext(metric["description"])
                     try:
@@ -773,9 +773,9 @@ class Source(object):
         self.pmda.debug("num metrics: %s" % num_metrics) if self.pmda.dbg else None
         return num_metrics
 
-    def parse_url_config(self, filepath):
+    def parse_config(self, filepath):
         '''
-        Parse a URL config file. The first line is always the URL.
+        Parse a configuration file. The first line is always the URL.
         Remaining lines are prefixed with a keyword. Supported keywords
         include '#' for a comment, 'HEADER:' to add to the header passed
         to the headers dict parameter to the get() call. Note the ':' are
@@ -859,7 +859,6 @@ class Source(object):
         # clear cached values from all my metrics
         for _, m in self.metrics_by_name.items():
             m.clear_values()
-        # TODO: ditch metrics no longer found in document
 
         # bump the fetch call counter for this source, and for the total (cluster 0)
         self.pmda.stats_fetch_calls[self.cluster] += 1
@@ -873,12 +872,12 @@ class Source(object):
                 if not s[ST_MODE] & S_IXUSR:
                     self.pmda.err("cannot execute script '%s'" % self.path)
                     return
-            elif self.parse_url_time < s[ST_CTIME]:
+            elif self.parse_time is None or self.parse_time < s.st_mtime_ns:
                 # (re)parse the URL from given file
-                self.parse_url_config(self.path)
-                self.parse_url_time = s[ST_CTIME]
+                self.parse_config(self.path)
+                self.parse_time = s.st_mtime_ns
         except Exception as e:
-            self.pmda.err("cannot read %s: %s" % (self.path, e))
+            self.pmda.err("cannot stat %s: %s" % (self.path, e))
             return
 
         # fetch the document
@@ -918,6 +917,9 @@ class Source(object):
         if self.document is None: # error during fetch?
             return
 
+        for metric in self.metrics_by_name:
+            self.metric_removal_flags[metric] = True
+
         # parse and handle the opentelemetry formatted metric data
         parse_time = time.time()
         s = self.parse_lines(json.loads(self.document))
@@ -926,6 +928,19 @@ class Source(object):
         incr = int(1000 * (time.time() - parse_time))
         self.pmda.stats_parse_time[self.cluster] += incr
         self.pmda.stats_parse_time[0] += incr # total
+
+        for metric, value in self.metric_removal_flags.items():
+            remove_name = self.metric_fullnames[metric]
+            if value is True and remove_name in self.pmda.all_metrics:
+                self.pmda.debug("removing metric from existing source: %s" % metric) if self.pmda.dbg else None
+                try:
+                    remove_object = self.pmda.all_metrics[remove_name]
+                    self.pmda.remove_metric(remove_name, remove_object)
+                    self.pmda.set_need_refresh()
+                    del self.pmda.all_metrics[remove_name]
+                    self.pmda.removed_metrics[remove_name] = remove_object
+                except Exception as e:
+                    self.pmda.debug("cannot remove metric from existing source, see error: %s" % e)
 
         # save metric & indom lookup tables changes, if any
         for _, m in self.metrics_by_name.items():
@@ -951,7 +966,7 @@ class Source(object):
             return [c_api.PM_ERR_AGAIN, 0]
 
 class OpenTelemetryPMDA(PMDA):
-    def __init__(self, pmda_name, domain, config, timeout, user, debugflag, logfile):
+    def __init__(self, pmda_name, domain, config, timeout, refresh_timeout, user, debugflag, logfile):
         '''
         Initialize the PMDA. This can take a while for large configurations.
         The opentelemetry entry in pmcd.conf specifies to start up in "notready"
@@ -971,10 +986,13 @@ class OpenTelemetryPMDA(PMDA):
         # and the storable metric $(pmda_name).control.debug
         self.dbg = debugflag
 
+        # Number of seconds to wait between poll attempts on a source
+        self.refresh_timeout = refresh_timeout
+
         # now everything else may take time
         self.pmda_name = pmda_name
         self.config_dir = os.path.normpath(config)
-        self.config_dir_ctime = None
+        self.config_dir_mtime = 0.0
         self.timeout = timeout
 
         # a single central Session that all our sources can concurrently reuse
@@ -1087,33 +1105,33 @@ class OpenTelemetryPMDA(PMDA):
             assert s == self.source_by_name[s.name]
 
 
-    def traverse(self, directory, ctime):
+    def traverse(self, directory, mtime):
         ''' Return list of files below dir, recursively '''
         ret = []
-        m = os.path.getctime(directory)
-        if ctime is None or m > ctime:
-            ctime = m
+        m = os.path.getmtime(directory)
+        if mtime is None or m > mtime:
+            mtime = m
 
         for path, subdirs, files in os.walk(directory):
             for f in files:
                 if not f.startswith("."):
                     fname = os.path.join(path, f)
-                    m = os.path.getctime(fname)
-                    if ctime is None or m > ctime:
-                        ctime = m
+                    m = os.path.getmtime(fname)
+                    if mtime is None or m > mtime:
+                        mtime = m
                     ret.append(fname)
             for d in subdirs:
-                m, _ = self.traverse(os.path.join(path, d), ctime)
-                if ctime is None or m > ctime:
-                    ctime = m
-        return ctime, ret
+                m, _ = self.traverse(os.path.join(path, d), mtime)
+                if mtime is None or m > mtime:
+                    mtime = m
+        return mtime, ret
 
     def initialize_controls(self, cluster):
         # initalize statistics
         self.stats_fetch_calls[cluster] = 0
         self.stats_fetch_time[cluster] = 0
         self.stats_parse_time[cluster] = 0
-        self.stats_status[cluster] = 0
+        self.stats_status[cluster] = "unknown"
         self.stats_status_code[cluster] = 0
 
         self.controls[cluster] = 1
@@ -1138,17 +1156,16 @@ class OpenTelemetryPMDA(PMDA):
         '''
 
         traverse_time = time.time()
-        dir_ctime, conf_filelist = self.traverse(self.config_dir, self.config_dir_ctime)
+        dir_mtime, conf_filelist = self.traverse(self.config_dir, self.config_dir_mtime)
         traverse_time = time.time() - traverse_time
 
-        if self.config_dir_ctime is None or self.config_dir_ctime < dir_ctime:
-            self.config_dir_ctime = dir_ctime
+        if self.config_dir_mtime is None or self.config_dir_mtime < dir_mtime:
+            self.config_dir_mtime = dir_mtime
         else: # no new or changed conf files, don't rescan directory
             return
 
         self.log("Config change detected, traversed %d config entries in %.04fs, rescanning ..." % (len(conf_filelist), traverse_time))
         nickname_regexp = self.lookup_regex(r"^[A-Za-z][A-Za-z0-9_.]*$")
-
         self.re_add_list = []
 
         # calculate config entry nicknames
@@ -1559,6 +1576,11 @@ if __name__ == '__main__':
         default=2,
         help='HTTP GET timeout for each end-point URL (default 2 seconds)')
     parser.add_argument(
+        '-R', '--refresh',
+        type=int,
+        default=10,
+        help='timeout between cluster refreshes (default 10 seconds)')
+    parser.add_argument(
         '-u', '--user',
         type=str,
         default=None,
@@ -1577,7 +1599,7 @@ if __name__ == '__main__':
     # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
     # The "binary notready" setting can also be manually configured in pmcd.conf.
     # Default domain number is PMDA(164), see -d option.
-    pmda = OpenTelemetryPMDA(args.root, args.domain, args.config, args.timeout, args.user, args.debug, args.log)
+    pmda = OpenTelemetryPMDA(args.root, args.domain, args.config, args.timeout, args.refresh, args.user, args.debug, args.log)
 
     # Uncomment to force -D or use: $ pmstore opentelemetry.control.debug 1
     # pmda.dbg = True
