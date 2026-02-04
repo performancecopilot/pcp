@@ -244,13 +244,12 @@ and
 are provided, the command line option takes precedence and a warning is issued.
 
 .PP
-\fiNote:\fR The enforcement of the disk usage limit can only be performed when
+Note: The enforcement of the disk usage limit can only be performed when
 .B pmlogger_daily
 runs (typically once a day). As a result, the total disk usage in any archive directory may temporarily exceed the configured maximum between runs (for example, as new archives are created or when archives are uncompressed for merging or compression).
 Enforcement will only occur after all daily log processing is complete, and the actual file system space may briefly exceed the maximum until
 .B pmlogger_daily
 has caught up at its scheduled interval.
-.RE
 .TP 5
 \fB\-K\fR
 When this option is specified for
