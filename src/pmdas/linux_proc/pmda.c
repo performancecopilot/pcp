@@ -1404,6 +1404,23 @@ static pmdaMetric metrictab[] = {
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,12), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
 
+/*
+* numa_maps cluster
+*/
+
+/* proc.numa_maps.huge */
+  { NULL, { PMDA_PMID(CLUSTER_PID_NUMA_MAPS,0), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.numa_maps.heap */
+  { NULL, { PMDA_PMID(CLUSTER_PID_NUMA_MAPS,1), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.numa_maps.stack */
+  { NULL, { PMDA_PMID(CLUSTER_PID_NUMA_MAPS,2), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.numa_maps.private */
+  { NULL, { PMDA_PMID(CLUSTER_PID_NUMA_MAPS,3), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+
 };
 
 pmInDom
@@ -3569,6 +3586,34 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PMID;
 	}
 	break;
+    case CLUSTER_PID_NUMA_MAPS:
+        if (!have_access)
+          return PM_ERR_PERMISSION;
+        if ((entry = fetch_proc_pid_numa_maps(inst, active_proc_pid, &sts)) == NULL)
+          return sts;
+        if (!(entry->success & PROC_PID_FLAG_NUMA_MAPS))
+          return 0;
+
+	switch(item) {
+          case 0: /* proc.numa_maps.huge */
+	    atom->cp = proc_strings_lookup(entry->numa_maps.huge_id);
+            break;
+
+          case 1: /* proc.numa_maps.heap */
+	    atom->cp = proc_strings_lookup(entry->numa_maps.heap_id);
+            break;
+
+          case 2: /* proc.numa_maps.stack */
+	    atom->cp = proc_strings_lookup(entry->numa_maps.stack_id);
+            break;
+
+          case 3: /* proc.numa_maps.private */
+	    atom->cp = proc_strings_lookup(entry->numa_maps.private_id);
+            break;
+          default: /* unknown cluster */
+            return PM_ERR_PMID;
+	}
+        break;
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }

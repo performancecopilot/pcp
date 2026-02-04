@@ -455,6 +455,14 @@ proc {
     smaps		PROC:*:*
     autogroup		PROC:*:*
     control
+    numa_maps
+}
+
+proc.numa_maps {
+    huge		PROC:81:0
+    heap		PROC:81:1
+    stack		PROC:81:2
+    private		PROC:81:3
 }
 
 hotproc {
