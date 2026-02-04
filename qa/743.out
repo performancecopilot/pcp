@@ -1,399 +1,728 @@
 QA output created by 743
 
 1 node numastat output, at archive start, cmd width
-Linux  5.15.0-312.187.5.2.el8uek.x86_64  (ssosharm-ol8-2)  10/09/25  x86_64    (2 CPU)
-Timestamp            : 10/09/2025 01:58:51
+Linux  5.15.0-316.196.4.2.el8uek.x86_64  (localhost.localdomain)  03/10/26  x86_64    (1 CPU)
+Timestamp            : 03/10/2026 08:36:00
 NUMA memory allocation statistics (pages)
                               node0       
-Hit                  :    958691136
+Hit                  :    177421634
 Miss                 :            0
 Foreign              :            0
-Interleave_hit       :         2202
-Local_node           :    958674900
+Interleave_hit       :         2126
+Local_node           :    177421634
 Other_node           :            0
 
 
 1 node meminfo output with option -m, at archive start, cmd width
-Linux  5.15.0-312.187.5.2.el8uek.x86_64  (ssosharm-ol8-2)  10/09/25  x86_64    (2 CPU)
-Timestamp            : 10/09/2025 01:58:51
+Linux  5.15.0-316.196.4.2.el8uek.x86_64  (localhost.localdomain)  03/10/26  x86_64    (1 CPU)
+Timestamp            : 03/10/2026 08:36:00
 Per-node system memory usage (KB)
                               node0       
-Total                :      7830268
-Free                 :       740048
-Used                 :      7090220
-Active               :      3762820
-Inactive             :      2660596
-Active_anon          :       228268
-Inactive_anon        :       781604
-Active_file          :      3534552
-Inactive_file        :      1878992
-Unevictable          :        12468
-Mlocked              :        12468
-Dirty                :          344
+Total                :      1716004
+Free                 :       431224
+Used                 :      1284780
+Active               :       448788
+Inactive             :       549972
+Active_anon          :        19836
+Inactive_anon        :       164856
+Active_file          :       428952
+Inactive_file        :       385116
+Unevictable          :         4000
+Mlocked              :            0
+Dirty                :          376
 Writeback            :            0
-FilePages            :      5801156
-Mapped               :       307696
-Anonpages            :       613500
-Shmem                :       376144
-KernelStack          :         5280
-PageTables           :        16628
+FilePages            :       843032
+Mapped               :        66600
+Anonpages            :       160432
+Shmem                :        20732
+KernelStack          :         3232
+PageTables           :        10172
 NFS_Unstable         :            0
 Bounce               :            0
 WritebackTmp         :            0
-Filehugepages        :        81920
-Filepmdmapped        :        79872
-Slab                 :       395392
-SlabReclaimable      :       258984
-SlabUnreclaimable    :       136408
-Anonhugepages        :       323584
+Filehugepages        :            0
+Filepmdmapped        :            0
+Slab                 :       169112
+SlabReclaimable      :        94216
+SlabUnreclaimable    :        74896
+Anonhugepages        :        26624
 Shmemhugepages       :            0
 Shmempmdmapped       :            0
 HugepagesTotal       :            0
 HugepagesFree        :            0
 HugepagesSurp        :            0
-SwapCached           :          800
-Kreclaimable         :       258984
+SwapCached           :         8232
+Kreclaimable         :        94216
 
 
 1 node meminfo and numastat output with option -mn, at archive start, cmd width
-Linux  5.15.0-312.187.5.2.el8uek.x86_64  (ssosharm-ol8-2)  10/09/25  x86_64    (2 CPU)
-Timestamp            : 10/09/2025 01:58:51
+Linux  5.15.0-316.196.4.2.el8uek.x86_64  (localhost.localdomain)  03/10/26  x86_64    (1 CPU)
+Timestamp            : 03/10/2026 08:36:00
 Per-node system memory usage (KB)
                               node0       
-Total                :      7830268
-Free                 :       740048
-Used                 :      7090220
-Active               :      3762820
-Inactive             :      2660596
-Active_anon          :       228268
-Inactive_anon        :       781604
-Active_file          :      3534552
-Inactive_file        :      1878992
-Unevictable          :        12468
-Mlocked              :        12468
-Dirty                :          344
+Total                :      1716004
+Free                 :       431224
+Used                 :      1284780
+Active               :       448788
+Inactive             :       549972
+Active_anon          :        19836
+Inactive_anon        :       164856
+Active_file          :       428952
+Inactive_file        :       385116
+Unevictable          :         4000
+Mlocked              :            0
+Dirty                :          376
 Writeback            :            0
-FilePages            :      5801156
-Mapped               :       307696
-Anonpages            :       613500
-Shmem                :       376144
-KernelStack          :         5280
-PageTables           :        16628
+FilePages            :       843032
+Mapped               :        66600
+Anonpages            :       160432
+Shmem                :        20732
+KernelStack          :         3232
+PageTables           :        10172
 NFS_Unstable         :            0
 Bounce               :            0
 WritebackTmp         :            0
-Filehugepages        :        81920
-Filepmdmapped        :        79872
-Slab                 :       395392
-SlabReclaimable      :       258984
-SlabUnreclaimable    :       136408
-Anonhugepages        :       323584
+Filehugepages        :            0
+Filepmdmapped        :            0
+Slab                 :       169112
+SlabReclaimable      :        94216
+SlabUnreclaimable    :        74896
+Anonhugepages        :        26624
 Shmemhugepages       :            0
 Shmempmdmapped       :            0
 HugepagesTotal       :            0
 HugepagesFree        :            0
 HugepagesSurp        :            0
-SwapCached           :          800
-Kreclaimable         :       258984
+SwapCached           :         8232
+Kreclaimable         :        94216
 
 NUMA memory allocation statistics (pages)
                               node0       
-Hit                  :    958691136
+Hit                  :    177421634
 Miss                 :            0
 Foreign              :            0
-Interleave_hit       :         2202
-Local_node           :    958674900
+Interleave_hit       :         2126
+Local_node           :    177421634
 Other_node           :            0
 
 
 1 node numastat output with optin -n, at archive start, cmd width
-Linux  5.15.0-312.187.5.2.el8uek.x86_64  (ssosharm-ol8-2)  10/09/25  x86_64    (2 CPU)
-Timestamp            : 10/09/2025 01:58:51
+Linux  5.15.0-316.196.4.2.el8uek.x86_64  (localhost.localdomain)  03/10/26  x86_64    (1 CPU)
+Timestamp            : 03/10/2026 08:36:00
 NUMA memory allocation statistics (pages)
                               node0       
-Hit                  :    958691136
+Hit                  :    177421634
 Miss                 :            0
 Foreign              :            0
-Interleave_hit       :         2202
-Local_node           :    958674900
+Interleave_hit       :         2126
+Local_node           :    177421634
 Other_node           :            0
 
 
 1 node numastat output, at archive end, cmd width
-Linux  5.15.0-312.187.5.2.el8uek.x86_64  (ssosharm-ol8-2)  10/09/25  x86_64    (2 CPU)
-Timestamp            : 10/09/2025 01:58:51
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:34
 NUMA memory allocation statistics (pages)
-                              node0       
-Hit                  :    958691136
-Miss                 :            0
-Foreign              :            0
-Interleave_hit       :         2202
-Local_node           :    958674900
-Other_node           :            0
+                              node0       node1       node2       
+Hit                  :      7778725      390933     1718591
+                              node3       node4       node5       
+Hit                  :      1546998      269741      530654
+                              node6       node7       
+Hit                  :      1461771      282136
+                              node0       node1       node2       
+Miss                 :            0           0           0
+                              node3       node4       node5       
+Miss                 :            0           0           0
+                              node6       node7       
+Miss                 :            0           0
+                              node0       node1       node2       
+Foreign              :            0           0           0
+                              node3       node4       node5       
+Foreign              :            0           0           0
+                              node6       node7       
+Foreign              :            0           0
+                              node0       node1       node2       
+Interleave_hit       :        26847       26813       26848
+                              node3       node4       node5       
+Interleave_hit       :        26817       26845       26815
+                              node6       node7       
+Interleave_hit       :        26841       26810
+                              node0       node1       node2       
+Local_node           :      7555332      317817     1645685
+                              node3       node4       node5       
+Local_node           :      1474522      196934      475480
+                              node6       node7       
+Local_node           :      1257886      208813
+                              node0       node1       node2       
+Other_node           :       223393       73116       72906
+                              node3       node4       node5       
+Other_node           :        72476       72807       55174
+                              node6       node7       
+Other_node           :       203885       73323
 
 
 4 node numastat output, at archive end, large env width
-Linux  5.15.0-312.187.5.1.el8uek.x86_64  (ssosharm-pcp-test-vm)  10/08/25  x86_64    (256 CPU)
-Timestamp            : 10/08/2025 03:06:13
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:34
 NUMA memory allocation statistics (pages)
-                              node0       node1       node2       node3       
-Hit                  :      5526012     1668706      599469     3946390
-Miss                 :            0           0           0           0
-Foreign              :            0           0           0           0
-Interleave_hit       :       116943      117089      116944      117092
-Local_node           :      5269259     1491020      463015     3767812
-Other_node           :       256753      177686      136454      178578
+                              node0       node1       node2       node3       node4       node5       node6       node7       
+Hit                  :      7778725      390933     1718591     1546998      269741      530654     1461771      282136
+Miss                 :            0           0           0           0           0           0           0           0
+Foreign              :            0           0           0           0           0           0           0           0
+Interleave_hit       :        26847       26813       26848       26817       26845       26815       26841       26810
+Local_node           :      7555332      317817     1645685     1474522      196934      475480     1257886      208813
+Other_node           :       223393       73116       72906       72476       72807       55174      203885       73323
 
 
 4 node meminfo and numastat output with option -mn, at archive end, large env width
-Linux  5.15.0-312.187.5.1.el8uek.x86_64  (ssosharm-pcp-test-vm)  10/08/25  x86_64    (256 CPU)
-Timestamp            : 10/08/2025 03:06:13
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:34
 Per-node system memory usage (KB)
-                              node0       node1       node2       node3       
-Total                :    527706304   528451540   528463828   528445452
-Free                 :    520202476   526367896   526982800   526729080
-Used                 :      7503828     2083644     1481028     1716372
-Active               :       400372       73892       45292       28656
-Inactive             :      2674312      587220      151152       51028
-Active_anon          :         1124         128        2040          24
-Inactive_anon        :       648692      105548       14208         160
-Active_file          :       399248       73764       43252       28632
-Inactive_file        :      2025620      481672      136944       50868
-Unevictable          :        16000           0           0           0
-Mlocked              :        12928           0           0           0
-Dirty                :          184           8           0           0
-Writeback            :            0           0           0           0
-FilePages            :      2456664      556144      188420       79532
-Mapped               :       129836      151644       19008        6560
-Anonpages            :       616632      100392        5960         152
-Shmem                :        21028         700        8224          32
-KernelStack          :        13188       10532       12564        9332
-PageTables           :        15328        1876         188           8
-NFS_Unstable         :            0           0           0           0
-Bounce               :            0           0           0           0
-WritebackTmp         :            0           0           0           0
-Filehugepages        :        22528       16384           0           0
-Filepmdmapped        :        20480       10240           0           0
-Slab                 :       729896      188284      170424      450728
-SlabReclaimable      :       303968       41284       39348      285376
-SlabUnreclaimable    :       425928      147000      131076      165352
-Anonhugepages        :       157696       53248           0           0
-Shmemhugepages       :            0           0           0           0
-Shmempmdmapped       :            0           0           0           0
-HugepagesTotal       :            0           0           0           0
-HugepagesFree        :            0           0           0           0
-HugepagesSurp        :            0           0           0           0
-SwapCached           :            0           0           0           0
-Kreclaimable         :       303968       41284       39348      285376
+                              node0       node1       node2       node3       node4       node5       node6       node7       
+Total                :    395394544   396345396   396345396   396345396   396345396   396345396   396345396   396191872
+Free                 :    387723236   395335052   395301836   395340584   395489944   395342740   394823412   395314388
+Used                 :      7671308     1010344     1043560     1004812      855452     1002656     1521984      877484
+Active               :       432604         236       22772        6520           8         240        3336         356
+Inactive             :      3245732      116468       50588       75916         276        6628       81496       65420
+Active_anon          :         2448          20         100           8           0           8          24           4
+Inactive_anon        :       795080       82580       41396        9572         268        6256       40748       29864
+Active_file          :       430156         216       22672        6512           8         232        3312         352
+Inactive_file        :      2450652       33888        9192       66344           8         372       40748       35556
+Unevictable          :        12948           0           0           0           0           0           0           0
+Mlocked              :        12948           0           0           0           0           0           0           0
+Dirty                :         1688           0           0           0           0           0           0           0
+Writeback            :            0           0           0           0           0           0           0           0
+FilePages            :      2910280       34160       32700       72928          28         616       44104       35928
+Mapped               :       129092       31452        3492          64           0          56           0       19420
+Anonpages            :       765648       74064       32500        9508         256        5852       40728       29664
+Shmem                :        18708          56         836          72          12          12          44          20
+KernelStack          :        14256        9636        9588        9476       10196       11072        9984        9472
+PageTables           :        15152         892         332         264           4         216         132         368
+NFS_Unstable         :            0           0           0           0           0           0           0           0
+Bounce               :            0           0           0           0           0           0           0           0
+WritebackTmp         :            0           0           0           0           0           0           0           0
+Filehugepages        :         8192           0           0           0           0           0           0           0
+Filepmdmapped        :         8192           0           0           0           0           0           0           0
+Slab                 :       800568       93604      125544      152044      106200      152240      195792       86260
+SlabReclaimable      :       414968       15728       30600       52008       14444       30800       33964       13936
+SlabUnreclaimable    :       385600       77876       94944      100036       91756      121440      161828       72324
+Anonhugepages        :       116736       45056       18432        8192           0        2048        2048       22528
+Shmemhugepages       :            0           0           0           0           0           0           0           0
+Shmempmdmapped       :            0           0           0           0           0           0           0           0
+HugepagesTotal       :            0           0           0           0           0           0           0           0
+HugepagesFree        :            0           0           0           0           0           0           0           0
+HugepagesSurp        :            0           0           0           0           0           0           0           0
+SwapCached           :            0           0           0           0           0           0           0           0
+Kreclaimable         :       414968       15728       30600       52008       14444       30800       33964       13936
 
 NUMA memory allocation statistics (pages)
-                              node0       node1       node2       node3       
-Hit                  :      5526012     1668706      599469     3946390
-Miss                 :            0           0           0           0
-Foreign              :            0           0           0           0
-Interleave_hit       :       116943      117089      116944      117092
-Local_node           :      5269259     1491020      463015     3767812
-Other_node           :       256753      177686      136454      178578
+                              node0       node1       node2       node3       node4       node5       node6       node7       
+Hit                  :      7778725      390933     1718591     1546998      269741      530654     1461771      282136
+Miss                 :            0           0           0           0           0           0           0           0
+Foreign              :            0           0           0           0           0           0           0           0
+Interleave_hit       :        26847       26813       26848       26817       26845       26815       26841       26810
+Local_node           :      7555332      317817     1645685     1474522      196934      475480     1257886      208813
+Other_node           :       223393       73116       72906       72476       72807       55174      203885       73323
 
 
 4 node numastat output, at archive end, small env width
-Linux  5.15.0-312.187.5.1.el8uek.x86_64  (ssosharm-pcp-test-vm)  10/08/25  x86_64    (256 CPU)
-Timestamp            : 10/08/2025 03:06:13
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:34
 NUMA memory allocation statistics (pages)
                               node0       node1       
-Hit                  :      5526012     1668706
+Hit                  :      7778725      390933
                               node2       node3       
-Hit                  :       599469     3946390
+Hit                  :      1718591     1546998
+                              node4       node5       
+Hit                  :       269741      530654
+                              node6       node7       
+Hit                  :      1461771      282136
                               node0       node1       
 Miss                 :            0           0
                               node2       node3       
+Miss                 :            0           0
+                              node4       node5       
+Miss                 :            0           0
+                              node6       node7       
 Miss                 :            0           0
                               node0       node1       
 Foreign              :            0           0
                               node2       node3       
 Foreign              :            0           0
+                              node4       node5       
+Foreign              :            0           0
+                              node6       node7       
+Foreign              :            0           0
                               node0       node1       
-Interleave_hit       :       116943      117089
+Interleave_hit       :        26847       26813
                               node2       node3       
-Interleave_hit       :       116944      117092
+Interleave_hit       :        26848       26817
+                              node4       node5       
+Interleave_hit       :        26845       26815
+                              node6       node7       
+Interleave_hit       :        26841       26810
                               node0       node1       
-Local_node           :      5269259     1491020
+Local_node           :      7555332      317817
                               node2       node3       
-Local_node           :       463015     3767812
+Local_node           :      1645685     1474522
+                              node4       node5       
+Local_node           :       196934      475480
+                              node6       node7       
+Local_node           :      1257886      208813
                               node0       node1       
-Other_node           :       256753      177686
+Other_node           :       223393       73116
                               node2       node3       
-Other_node           :       136454      178578
+Other_node           :        72906       72476
+                              node4       node5       
+Other_node           :        72807       55174
+                              node6       node7       
+Other_node           :       203885       73323
 
 
 4 node meminfo and numastat output with option -mn, at archive end, small env width
-Linux  5.15.0-312.187.5.1.el8uek.x86_64  (ssosharm-pcp-test-vm)  10/08/25  x86_64    (256 CPU)
-Timestamp            : 10/08/2025 03:06:13
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:34
 Per-node system memory usage (KB)
                               node0       node1       
-Total                :    527706304   528451540
+Total                :    395394544   396345396
                               node2       node3       
-Total                :    528463828   528445452
+Total                :    396345396   396345396
+                              node4       node5       
+Total                :    396345396   396345396
+                              node6       node7       
+Total                :    396345396   396191872
                               node0       node1       
-Free                 :    520202476   526367896
+Free                 :    387723236   395335052
                               node2       node3       
-Free                 :    526982800   526729080
+Free                 :    395301836   395340584
+                              node4       node5       
+Free                 :    395489944   395342740
+                              node6       node7       
+Free                 :    394823412   395314388
                               node0       node1       
-Used                 :      7503828     2083644
+Used                 :      7671308     1010344
                               node2       node3       
-Used                 :      1481028     1716372
+Used                 :      1043560     1004812
+                              node4       node5       
+Used                 :       855452     1002656
+                              node6       node7       
+Used                 :      1521984      877484
                               node0       node1       
-Active               :       400372       73892
+Active               :       432604         236
                               node2       node3       
-Active               :        45292       28656
+Active               :        22772        6520
+                              node4       node5       
+Active               :            8         240
+                              node6       node7       
+Active               :         3336         356
                               node0       node1       
-Inactive             :      2674312      587220
+Inactive             :      3245732      116468
                               node2       node3       
-Inactive             :       151152       51028
+Inactive             :        50588       75916
+                              node4       node5       
+Inactive             :          276        6628
+                              node6       node7       
+Inactive             :        81496       65420
                               node0       node1       
-Active_anon          :         1124         128
+Active_anon          :         2448          20
                               node2       node3       
-Active_anon          :         2040          24
+Active_anon          :          100           8
+                              node4       node5       
+Active_anon          :            0           8
+                              node6       node7       
+Active_anon          :           24           4
                               node0       node1       
-Inactive_anon        :       648692      105548
+Inactive_anon        :       795080       82580
                               node2       node3       
-Inactive_anon        :        14208         160
+Inactive_anon        :        41396        9572
+                              node4       node5       
+Inactive_anon        :          268        6256
+                              node6       node7       
+Inactive_anon        :        40748       29864
                               node0       node1       
-Active_file          :       399248       73764
+Active_file          :       430156         216
                               node2       node3       
-Active_file          :        43252       28632
+Active_file          :        22672        6512
+                              node4       node5       
+Active_file          :            8         232
+                              node6       node7       
+Active_file          :         3312         352
                               node0       node1       
-Inactive_file        :      2025620      481672
+Inactive_file        :      2450652       33888
                               node2       node3       
-Inactive_file        :       136944       50868
+Inactive_file        :         9192       66344
+                              node4       node5       
+Inactive_file        :            8         372
+                              node6       node7       
+Inactive_file        :        40748       35556
                               node0       node1       
-Unevictable          :        16000           0
+Unevictable          :        12948           0
                               node2       node3       
 Unevictable          :            0           0
+                              node4       node5       
+Unevictable          :            0           0
+                              node6       node7       
+Unevictable          :            0           0
                               node0       node1       
-Mlocked              :        12928           0
+Mlocked              :        12948           0
                               node2       node3       
 Mlocked              :            0           0
+                              node4       node5       
+Mlocked              :            0           0
+                              node6       node7       
+Mlocked              :            0           0
                               node0       node1       
-Dirty                :          184           8
+Dirty                :         1688           0
                               node2       node3       
+Dirty                :            0           0
+                              node4       node5       
+Dirty                :            0           0
+                              node6       node7       
 Dirty                :            0           0
                               node0       node1       
 Writeback            :            0           0
                               node2       node3       
 Writeback            :            0           0
+                              node4       node5       
+Writeback            :            0           0
+                              node6       node7       
+Writeback            :            0           0
                               node0       node1       
-FilePages            :      2456664      556144
+FilePages            :      2910280       34160
                               node2       node3       
-FilePages            :       188420       79532
+FilePages            :        32700       72928
+                              node4       node5       
+FilePages            :           28         616
+                              node6       node7       
+FilePages            :        44104       35928
                               node0       node1       
-Mapped               :       129836      151644
+Mapped               :       129092       31452
                               node2       node3       
-Mapped               :        19008        6560
+Mapped               :         3492          64
+                              node4       node5       
+Mapped               :            0          56
+                              node6       node7       
+Mapped               :            0       19420
                               node0       node1       
-Anonpages            :       616632      100392
+Anonpages            :       765648       74064
                               node2       node3       
-Anonpages            :         5960         152
+Anonpages            :        32500        9508
+                              node4       node5       
+Anonpages            :          256        5852
+                              node6       node7       
+Anonpages            :        40728       29664
                               node0       node1       
-Shmem                :        21028         700
+Shmem                :        18708          56
                               node2       node3       
-Shmem                :         8224          32
+Shmem                :          836          72
+                              node4       node5       
+Shmem                :           12          12
+                              node6       node7       
+Shmem                :           44          20
                               node0       node1       
-KernelStack          :        13188       10532
+KernelStack          :        14256        9636
                               node2       node3       
-KernelStack          :        12564        9332
+KernelStack          :         9588        9476
+                              node4       node5       
+KernelStack          :        10196       11072
+                              node6       node7       
+KernelStack          :         9984        9472
                               node0       node1       
-PageTables           :        15328        1876
+PageTables           :        15152         892
                               node2       node3       
-PageTables           :          188           8
+PageTables           :          332         264
+                              node4       node5       
+PageTables           :            4         216
+                              node6       node7       
+PageTables           :          132         368
                               node0       node1       
 NFS_Unstable         :            0           0
                               node2       node3       
+NFS_Unstable         :            0           0
+                              node4       node5       
+NFS_Unstable         :            0           0
+                              node6       node7       
 NFS_Unstable         :            0           0
                               node0       node1       
 Bounce               :            0           0
                               node2       node3       
 Bounce               :            0           0
+                              node4       node5       
+Bounce               :            0           0
+                              node6       node7       
+Bounce               :            0           0
                               node0       node1       
 WritebackTmp         :            0           0
                               node2       node3       
 WritebackTmp         :            0           0
+                              node4       node5       
+WritebackTmp         :            0           0
+                              node6       node7       
+WritebackTmp         :            0           0
                               node0       node1       
-Filehugepages        :        22528       16384
+Filehugepages        :         8192           0
                               node2       node3       
 Filehugepages        :            0           0
+                              node4       node5       
+Filehugepages        :            0           0
+                              node6       node7       
+Filehugepages        :            0           0
                               node0       node1       
-Filepmdmapped        :        20480       10240
+Filepmdmapped        :         8192           0
                               node2       node3       
 Filepmdmapped        :            0           0
+                              node4       node5       
+Filepmdmapped        :            0           0
+                              node6       node7       
+Filepmdmapped        :            0           0
                               node0       node1       
-Slab                 :       729896      188284
+Slab                 :       800568       93604
                               node2       node3       
-Slab                 :       170424      450728
+Slab                 :       125544      152044
+                              node4       node5       
+Slab                 :       106200      152240
+                              node6       node7       
+Slab                 :       195792       86260
                               node0       node1       
-SlabReclaimable      :       303968       41284
+SlabReclaimable      :       414968       15728
                               node2       node3       
-SlabReclaimable      :        39348      285376
+SlabReclaimable      :        30600       52008
+                              node4       node5       
+SlabReclaimable      :        14444       30800
+                              node6       node7       
+SlabReclaimable      :        33964       13936
                               node0       node1       
-SlabUnreclaimable    :       425928      147000
+SlabUnreclaimable    :       385600       77876
                               node2       node3       
-SlabUnreclaimable    :       131076      165352
+SlabUnreclaimable    :        94944      100036
+                              node4       node5       
+SlabUnreclaimable    :        91756      121440
+                              node6       node7       
+SlabUnreclaimable    :       161828       72324
                               node0       node1       
-Anonhugepages        :       157696       53248
+Anonhugepages        :       116736       45056
                               node2       node3       
-Anonhugepages        :            0           0
+Anonhugepages        :        18432        8192
+                              node4       node5       
+Anonhugepages        :            0        2048
+                              node6       node7       
+Anonhugepages        :         2048       22528
                               node0       node1       
 Shmemhugepages       :            0           0
                               node2       node3       
+Shmemhugepages       :            0           0
+                              node4       node5       
+Shmemhugepages       :            0           0
+                              node6       node7       
 Shmemhugepages       :            0           0
                               node0       node1       
 Shmempmdmapped       :            0           0
                               node2       node3       
 Shmempmdmapped       :            0           0
+                              node4       node5       
+Shmempmdmapped       :            0           0
+                              node6       node7       
+Shmempmdmapped       :            0           0
                               node0       node1       
 HugepagesTotal       :            0           0
                               node2       node3       
+HugepagesTotal       :            0           0
+                              node4       node5       
+HugepagesTotal       :            0           0
+                              node6       node7       
 HugepagesTotal       :            0           0
                               node0       node1       
 HugepagesFree        :            0           0
                               node2       node3       
 HugepagesFree        :            0           0
+                              node4       node5       
+HugepagesFree        :            0           0
+                              node6       node7       
+HugepagesFree        :            0           0
                               node0       node1       
 HugepagesSurp        :            0           0
                               node2       node3       
+HugepagesSurp        :            0           0
+                              node4       node5       
+HugepagesSurp        :            0           0
+                              node6       node7       
 HugepagesSurp        :            0           0
                               node0       node1       
 SwapCached           :            0           0
                               node2       node3       
 SwapCached           :            0           0
+                              node4       node5       
+SwapCached           :            0           0
+                              node6       node7       
+SwapCached           :            0           0
                               node0       node1       
-Kreclaimable         :       303968       41284
+Kreclaimable         :       414968       15728
                               node2       node3       
-Kreclaimable         :        39348      285376
+Kreclaimable         :        30600       52008
+                              node4       node5       
+Kreclaimable         :        14444       30800
+                              node6       node7       
+Kreclaimable         :        33964       13936
 
 NUMA memory allocation statistics (pages)
                               node0       node1       
-Hit                  :      5526012     1668706
+Hit                  :      7778725      390933
                               node2       node3       
-Hit                  :       599469     3946390
+Hit                  :      1718591     1546998
+                              node4       node5       
+Hit                  :       269741      530654
+                              node6       node7       
+Hit                  :      1461771      282136
                               node0       node1       
 Miss                 :            0           0
                               node2       node3       
+Miss                 :            0           0
+                              node4       node5       
+Miss                 :            0           0
+                              node6       node7       
 Miss                 :            0           0
                               node0       node1       
 Foreign              :            0           0
                               node2       node3       
 Foreign              :            0           0
+                              node4       node5       
+Foreign              :            0           0
+                              node6       node7       
+Foreign              :            0           0
                               node0       node1       
-Interleave_hit       :       116943      117089
+Interleave_hit       :        26847       26813
                               node2       node3       
-Interleave_hit       :       116944      117092
+Interleave_hit       :        26848       26817
+                              node4       node5       
+Interleave_hit       :        26845       26815
+                              node6       node7       
+Interleave_hit       :        26841       26810
                               node0       node1       
-Local_node           :      5269259     1491020
+Local_node           :      7555332      317817
                               node2       node3       
-Local_node           :       463015     3767812
+Local_node           :      1645685     1474522
+                              node4       node5       
+Local_node           :       196934      475480
+                              node6       node7       
+Local_node           :      1257886      208813
                               node0       node1       
-Other_node           :       256753      177686
+Other_node           :       223393       73116
                               node2       node3       
-Other_node           :       136454      178578
+Other_node           :        72906       72476
+                              node4       node5       
+Other_node           :        72807       55174
+                              node6       node7       
+Other_node           :       203885       73323
+
+
+8 node process output with option -p, at archive end with multiple pids
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:33
+Per-node process memory usage (in MBs)
+PID                        Node 0           Node 1           Node 2           Node 3           Node 4           Node 5           Node 6           Node 7            Total
+----------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------
+1 (systemd)                 16.33             0.25             0.00             0.02             0.00             0.00             0.00             0.00            16.60
+2 (kthreadd)                 0.00             0.00             0.00             0.00             0.00             0.00             0.00             0.00             0.00
+----------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------
+Total                       16.33             0.25             0.00             0.02             0.00             0.00             0.00             0.00            16.60
+
+
+8 node process output with option -p, at archive end with single process name
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:34
+Per-node process memory usage (in MBs)
+PID                              Node 0           Node 1           Node 2           Node 3           Node 4           Node 5           Node 6           Node 7            Total
+----------------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------
+1 (systemd)                       16.33             0.25             0.00             0.02             0.00             0.00             0.00             0.00            16.60
+6267 (systemd-journal)            12.06             0.02             0.02             0.02             0.00             0.00             0.00             0.00            12.12
+6316 (systemd-udevd)              14.64             0.00             0.17             0.16             0.23             0.08             0.25             0.27            15.80
+8684 (systemd-logind)              9.71             0.00             0.00             0.00             0.00             0.00             0.00             0.00             9.71
+8700 (dbus-daemon)                 6.28             0.00             0.00             0.00             0.00             0.00             0.02             0.00             6.30
+13920 (systemd)                    9.51             0.00             0.00             0.00             0.00             0.00             0.00             0.00             9.51
+19096 (systemd)                    9.23             0.00             0.00             0.00             0.00             0.00             0.00             0.00             9.23
+19917 (systemd)                    9.27             0.14             0.00             0.00             0.00             0.00             0.00             0.00             9.41
+----------------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------
+Total                             87.03             0.41             0.19             0.20             0.23             0.08             0.27             0.27            88.68
+
+
+8 node process output with option -p, at archive end with single pid
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:33
+Per-node process memory usage (in MBs) for PID 1 (systemd)
+                           Node 0           Node 1           Node 2           Node 3           Node 4           Node 5           Node 6           Node 7            Total
+                  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------
+Huge                         0.00             0.00             0.00             0.00             0.00             0.00             0.00             0.00             0.00
+Heap                         5.89             0.25             0.00             0.02             0.00             0.00             0.00             0.00             6.16
+Stack                        0.05             0.00             0.00             0.00             0.00             0.00             0.00             0.00             0.05
+Private                     10.39             0.00             0.00             0.00             0.00             0.00             0.00             0.00            10.39
+----------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------  ---------------
+Total                       16.33             0.25             0.00             0.02             0.00             0.00             0.00             0.00            16.60
+
+
+8 node process output with option -p, at archive end with single pid
+Linux  5.15.0-316.196.4.1.el8uek.x86_64  (ssosharm-bm-01)  03/16/26  x86_64    (512 CPU)
+Timestamp            : 03/16/2026 15:48:33
+Per-node process memory usage (in MBs)
+PID                          Node 0
+------------------  ---------------
+1 (systemd)                   16.33
+8700 (dbus-daemon)             6.28
+------------------  ---------------
+Total                         22.61
+
+PID                          Node 1
+------------------  ---------------
+1 (systemd)                    0.25
+8700 (dbus-daemon)             0.00
+------------------  ---------------
+Total                          0.25
+
+PID                          Node 2
+------------------  ---------------
+1 (systemd)                    0.00
+8700 (dbus-daemon)             0.00
+------------------  ---------------
+Total                          0.00
+
+PID                          Node 3
+------------------  ---------------
+1 (systemd)                    0.02
+8700 (dbus-daemon)             0.00
+------------------  ---------------
+Total                          0.02
+
+PID                          Node 4
+------------------  ---------------
+1 (systemd)                    0.00
+8700 (dbus-daemon)             0.00
+------------------  ---------------
+Total                          0.00
+
+PID                          Node 5
+------------------  ---------------
+1 (systemd)                    0.00
+8700 (dbus-daemon)             0.00
+------------------  ---------------
+Total                          0.00
+
+PID                          Node 6
+------------------  ---------------
+1 (systemd)                    0.00
+8700 (dbus-daemon)             0.02
+------------------  ---------------
+Total                          0.02
+
+PID                          Node 7
+------------------  ---------------
+1 (systemd)                    0.00
+8700 (dbus-daemon)             0.00
+------------------  ---------------
+Total                          0.00
+
+PID                           Total
+------------------  ---------------
+1 (systemd)                   16.60
+8700 (dbus-daemon)             6.30
+------------------  ---------------
+Total                         22.90
 

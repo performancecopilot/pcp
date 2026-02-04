@@ -2561,3 +2561,271 @@ fetch_proc_pid_fdinfo(int id, proc_pid_t *proc_pid, int *sts)
 
     return (*sts < 0) ? NULL : ep;
 }
+
+#define PROCESS_HUGE_INDEX	0
+#define PROCESS_HEAP_INDEX	1
+#define PROCESS_STACK_INDEX	2
+#define PROCESS_PRIVATE_INDEX	3
+#define PROCESS_CATEGORY_COUNT	4
+
+#define MEGABYTE (1024.0 * 1024.0)
+
+static const char *process_mem_tokens[] = {
+    "huge",
+    "heap",
+    "stack",
+};
+
+typedef struct {
+    char	*s;
+    size_t	len;
+    size_t	cap;
+} strbuf_t;
+
+typedef struct {
+    int		node;
+    double	values[PROCESS_CATEGORY_COUNT];
+} numa_node_totals_t;
+
+static int
+append_numa_maps_node(strbuf_t *b, int node_num, double value_mb)
+{
+    char	tmp[64];
+    char	*newptr;
+    size_t	needed, newcap;
+    int		n;
+
+    n = pmsprintf(tmp, sizeof(tmp), "node%d:%.2f,", node_num, value_mb);
+    if (n < 0 || n >= (int)sizeof(tmp))
+	return -E2BIG;
+
+    if (b->s == NULL) {
+	b->cap = 128;
+	b->s = (char *)malloc(b->cap);
+	if (b->s == NULL)
+	    return -ENOMEM;
+	b->len = 0;
+	b->s[0] = '\0';
+    }
+
+    needed = b->len + (size_t)n + 1;
+    if (needed > b->cap) {
+	newcap = b->cap;
+	while (newcap < needed)
+	    newcap *= 2;
+
+	newptr = (char *)realloc(b->s, newcap);
+	if (newptr == NULL)
+	    return -ENOMEM;
+
+	b->s = newptr;
+	b->cap = newcap;
+    }
+
+    memcpy(b->s + b->len, tmp, (size_t)n);
+    b->len += (size_t)n;
+    b->s[b->len] = '\0';
+    return 0;
+}
+
+static int
+find_or_add_numa_node(numa_node_totals_t **nodes, int *node_count, int node)
+{
+    numa_node_totals_t	*new_nodes;
+    int			i;
+
+    for (i = 0; i < *node_count; i++) {
+	if ((*nodes)[i].node == node)
+	    return i;
+    }
+
+    new_nodes = (numa_node_totals_t *)realloc(*nodes,
+		(*node_count + 1) * sizeof(*new_nodes));
+    if (new_nodes == NULL)
+	return -ENOMEM;
+
+    *nodes = new_nodes;
+    (*nodes)[*node_count].node = node;
+    memset((*nodes)[*node_count].values, 0, sizeof((*nodes)[*node_count].values));
+    (*node_count)++;
+    return *node_count - 1;
+}
+
+static int
+compare_numa_node_totals(const void *a, const void *b)
+{
+    const numa_node_totals_t	*node_a = (const numa_node_totals_t *)a;
+    const numa_node_totals_t	*node_b = (const numa_node_totals_t *)b;
+
+    return node_a->node - node_b->node;
+}
+
+static int
+numa_maps_category(const char *line)
+{
+    char	*copy, *tok, *saveptr = NULL;
+    int		i;
+
+    if ((copy = strdup(line)) == NULL)
+	return PROCESS_PRIVATE_INDEX;
+
+    tok = strtok_r(copy, " \t", &saveptr);
+    while (tok != NULL) {
+	for (i = PROCESS_HUGE_INDEX; i <= PROCESS_STACK_INDEX; i++) {
+	    if (strcmp(tok, process_mem_tokens[i]) == 0) {
+		free(copy);
+		return i;
+	    }
+	}
+	tok = strtok_r(NULL, " \t", &saveptr);
+    }
+    free(copy);
+    return PROCESS_PRIVATE_INDEX;
+}
+
+static int
+parse_proc_numa_maps(proc_pid_entry_t *ep, size_t buflen, char *buf)
+{
+    strbuf_t		huge = {0}, heap = {0}, stack = {0}, priv = {0};
+    numa_node_totals_t	*nodes = NULL;
+    double		page_size_bytes, huge_page_size_bytes;
+    int			node_count = 0;
+    int			sts = 0;
+    char		*cur = buf;
+    char		*end;
+
+    if (buf == NULL || buflen == 0)
+	return 0;
+    /*
+     * Ensure the proc buffer is NUL-terminated so the string routines below
+     * cannot read past the end.  read_proc_entry() allocates len+1 bytes and
+     * uses buflen (len) for the bytes-read value passed here.
+     */
+    buf[buflen] = '\0';
+    end = buf + buflen;
+
+    page_size_bytes = (double)_pm_system_pagesize;
+    if (page_size_bytes <= 0.0)
+	page_size_bytes = 4096.0;
+
+    huge_page_size_bytes = (double)_pm_system_hugepagesize;
+    if (huge_page_size_bytes <= 0.0)
+	huge_page_size_bytes = page_size_bytes;
+
+    while (cur < end && *cur) {
+	char	*nl = memchr(cur, '\n', (size_t)(end - cur));
+	char	*tok, *saveptr = NULL;
+	int	category;
+
+	if (nl != NULL)
+	    *nl = '\0';
+
+	category = numa_maps_category(cur);
+	tok = strtok_r(cur, " \t", &saveptr);
+	while (tok != NULL) {
+	    int		node, index;
+	    double	pages, bytes;
+
+	    if (tok[0] == 'N' && sscanf(tok, "N%d=%lf", &node, &pages) == 2) {
+		index = find_or_add_numa_node(&nodes, &node_count, node);
+		if (index < 0) {
+		    sts = index;
+		    goto cleanup;
+		}
+
+		if (category == PROCESS_HUGE_INDEX)
+		    bytes = pages * huge_page_size_bytes;
+		else
+		    bytes = pages * page_size_bytes;
+
+		nodes[index].values[category] += bytes / MEGABYTE;
+	    }
+	    tok = strtok_r(NULL, " \t", &saveptr);
+	}
+
+	if (nl == NULL)
+	    break;
+	*nl = '\n';
+	cur = nl + 1;
+    }
+
+    if (node_count > 1)
+	qsort(nodes, node_count, sizeof(*nodes), compare_numa_node_totals);
+
+    for (int i = 0; i < node_count; i++) {
+	sts = append_numa_maps_node(&huge, nodes[i].node,
+				    nodes[i].values[PROCESS_HUGE_INDEX]);
+	if (sts < 0)
+	    goto cleanup;
+	sts = append_numa_maps_node(&heap, nodes[i].node,
+				    nodes[i].values[PROCESS_HEAP_INDEX]);
+	if (sts < 0)
+	    goto cleanup;
+	sts = append_numa_maps_node(&stack, nodes[i].node,
+				    nodes[i].values[PROCESS_STACK_INDEX]);
+	if (sts < 0)
+	    goto cleanup;
+	sts = append_numa_maps_node(&priv, nodes[i].node,
+				    nodes[i].values[PROCESS_PRIVATE_INDEX]);
+	if (sts < 0)
+	    goto cleanup;
+    }
+
+    if (huge.s != NULL)
+	ep->numa_maps.huge_id = proc_strings_insert(huge.s);
+    if (heap.s != NULL)
+	ep->numa_maps.heap_id = proc_strings_insert(heap.s);
+    if (stack.s != NULL)
+	ep->numa_maps.stack_id = proc_strings_insert(stack.s);
+    if (priv.s != NULL)
+	ep->numa_maps.private_id = proc_strings_insert(priv.s);
+
+cleanup:
+    free(nodes);
+    free(huge.s);
+    free(heap.s);
+    free(stack.s);
+    free(priv.s);
+    return sts;
+}
+
+static int
+refresh_proc_pid_numa_maps(proc_pid_entry_t *ep)
+{
+    int			fd, sts;
+
+    if (ep->success & PROC_PID_FLAG_NUMA_MAPS)
+	return 0;
+    if ((fd = proc_open("numa_maps", ep)) < 0)
+	return maperr();
+    ep->numa_maps.huge_id = -1;
+    ep->numa_maps.heap_id = -1;
+    ep->numa_maps.stack_id = -1;
+    ep->numa_maps.private_id = -1;
+    if ((sts = read_proc_entry(fd, &procbuflen, &procbuf)) >= 0) {
+	sts = parse_proc_numa_maps(ep, procbuflen, procbuf);
+	if (sts >= 0)
+	    ep->success |= PROC_PID_FLAG_NUMA_MAPS;
+    }
+    close(fd);
+    return sts;
+}
+
+/*
+ * fetch data from /proc/<pid>/numa_maps entries for pid
+ */
+proc_pid_entry_t *
+fetch_proc_pid_numa_maps(int id, proc_pid_t *proc_pid, int *sts)
+{
+    proc_pid_entry_t	*ep = proc_pid_entry_lookup(id, proc_pid);
+
+    *sts = 0;
+    if (!ep)
+	return NULL;
+
+    if (!(ep->fetched & PROC_PID_FLAG_NUMA_MAPS)) {
+	*sts = refresh_proc_pid_numa_maps(ep);
+	ep->fetched |= PROC_PID_FLAG_NUMA_MAPS;
+    }
+    return (*sts < 0) ? NULL : ep;
+}

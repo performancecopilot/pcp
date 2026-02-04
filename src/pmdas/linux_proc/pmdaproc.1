@@ -35,6 +35,10 @@ The
 PMDA exports metrics that measure the memory, processor and
 other resource use of each process, as well as summary information
 collated across all of the running processes.
+This includes per-process NUMA placement summaries from
+.I /proc/<pid>/numa_maps
+via the
+.BR proc.numa_maps.*\ metrics.
 The PMDA uses credentials passed from the
 .BR PMAPI (3)
 monitoring tool identifying the user requesting the information,
