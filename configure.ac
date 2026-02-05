@@ -224,22 +224,22 @@ FATAL ERROR: Cannot guess your target, try explicit specification
 else
     dnl Remove 4th name component, if present, from target, target_os,
     dnl  build and build_os. Squash all x86 cpus into one LCD form - i386
-    target=`echo $target | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
-    target_os=`echo $target_os | sed '[s/solaris2\..*/solaris/]'`
-    target_os=`echo $target_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
+    target=`echo "$target" | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
+    target_os=`echo "$target_os" | sed '[s/solaris2\..*/solaris/]'`
+    target_os=`echo "$target_os" | sed '[s/^\([^-][^-]*\)-.*$/\1/]' | sed '[s/[\.0-9]*//g]'`
 
-    build=`echo $build | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
-    build_os=`echo $build_os | sed '[s/solaris2\..*/solaris/]'`
-    build_os=`echo $build_os | sed '[s/^\([^-][^-]*\)-.*$/\1/]'`
+    build=`echo "$build" | sed '[s/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/]'`
+    build_os=`echo "$build_os" | sed '[s/solaris2\..*/solaris/]'`
+    build_os=`echo "$build_os" | sed '[s/^\([^-][^-]*\)-.*$/\1/]'`
 fi
 
-echo Building on $build for $target
+echo "Building on $build for $target"
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
 
 if test "$cross_compiling" = "yes"; then
-    if test -f ./config.$target_os; then
-	. ./config.$target_os
+    if test -f ./config."$target_os"; then
+	. ./config."$target_os"
     else
 	echo
 	echo "
@@ -256,7 +256,7 @@ dnl src/include/builddefs.in ... need to be the same in both places
 
 gcc_debug=true
 target_distro=$target_os
-if test $target_os = linux
+if test "$target_os" = linux
 then
     AC_DEFINE(IS_LINUX, [1], [Platform is Linux])
     test -f /etc/SuSE-release && target_distro=suse
@@ -276,38 +276,38 @@ then
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
-elif test $target_os = darwin
+elif test "$target_os" = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (macOS)])
     target_distro=macos
     CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
-elif test $target_os = mingw
+elif test "$target_os" = mingw
 then
     AC_DEFINE(IS_MINGW, [1], [Platform is MinGW (Windows)])
     CFLAGS="-fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths=''
     pcp_ps_all_flags=-efW
-elif test $target_os = solaris
+elif test "$target_os" = solaris
 then
     AC_DEFINE(IS_SOLARIS, [1], [Platform is Solaris])
     CFLAGS_IF_GCC="-fPIC -fno-strict-aliasing -D_XPG4_2 -D__EXTENSIONS__"; export CFLAGS_IF_GCC
     CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"; export CFLAGS_IF_SUNCC
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
-elif test $target_os = aix
+elif test "$target_os" = aix
 then
     AC_DEFINE(IS_AIX, [1], [Platform is AIX])
     CFLAGS="-qcpluscmt"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-ef
-elif test $target_os = freebsd || test $target_os = kfreebsd
+elif test "$target_os" = freebsd || test "$target_os" = kfreebsd
 then
     AC_DEFINE(IS_FREEBSD, [1], [Platform is FreeBSD])
     test -f /etc/debian_version && target_distro=debian
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
-    if test $target_os = kfreebsd
+    if test "$target_os" = kfreebsd
     then
 	pcp_ps_all_flags=-efw
     else
@@ -316,21 +316,21 @@ then
     pcp_platform_paths='/usr/bin/X11'
     test -d /usr/local/bin && pcp_platform_paths="$pcp_platform_paths:/usr/local/bin"
     test -d /usr/bsd && pcp_platform_paths="$pcp_platform_paths:/usr/bsd"
-elif test $target_os = gnu
+elif test "$target_os" = gnu
 then
     AC_DEFINE(IS_GNU, [1], [Platform is GNU Hurd])
     test -f /etc/debian_version && target_distro=debian
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
-elif test $target_os = netbsdelf -o $target_os = netbsd
+elif test "$target_os" = netbsdelf -o "$target_os" = netbsd
 then
     target_os=netbsd
     AC_DEFINE(IS_NETBSD, [1], [Platform is NetBSD])
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/pkg/bin'
     pcp_ps_all_flags=auxww
-elif test $target_os = openbsd
+elif test "$target_os" = openbsd
 then
     target_os=openbsd
     AC_DEFINE(IS_OPENBSD, [1], [Platform is OpenBSD])
@@ -377,7 +377,7 @@ fi
 dnl check if user wants their own C compiler
 cflags_abi=
 AC_PROG_CC(suncc egcc gcc cc clang)
-if test $target_os = solaris
+if test "$target_os" = solaris
 then
     AC_PATH_PROG(CCPATH,$CC,$CC)
     cc=$CCPATH
@@ -726,35 +726,35 @@ fi
 if test ! -x "$WHICH"; then
     AC_MSG_ERROR([cannot find a valid 'which' command.])
 fi
-which=$WHICH
+which="$WHICH"
 AC_SUBST(which)
 
 if test -z "$AR"; then
     AC_PATH_PROGS(AR, [gcc-ar ar], ar)
 fi
-if ! $AR --version >/dev/null 2>&1; then
+if ! "$AR" --version >/dev/null 2>&1; then
     AC_MSG_ERROR([cannot find a valid 'ar' command.])
 fi
-ar=$AR
+ar="$AR"
 AC_SUBST(ar)
 
 AC_PROG_LEX([noyywrap])
-lex=`$echo $LEX | awk '{print $1}'`
-lex=`$which "$lex"`
+lex=`"$echo" "$LEX" | awk '{print $1}'`
+lex=`"$which" "$lex"`
 if test ! -x "$lex"; then
     AC_MSG_ERROR([cannot find a valid 'lex'/'flex' command.])
 fi
-lex=$LEX
+lex="$LEX"
 AC_SUBST(lex)
 
 AC_PROG_YACC
-yacc=`$echo $YACC | awk '{print $1}'`
-yacc=`$which "$yacc"`
+yacc=`"$echo" "$YACC" | awk '{print $1}'`
+yacc=`"$which" "$yacc"`
 if test ! -x "$yacc"; then
     AC_MSG_ERROR([cannot find a valid 'yacc'/'bison' command.])
 fi
 dnl if this is bison, don't use the -y option
-yacc=`echo $YACC | sed -e '/^bison /{
+yacc=`echo "$YACC" | sed -e '/^bison /{
 s/$/ /
 s/ -y / /
 s/ $//
@@ -766,19 +766,19 @@ AC_SUBST(RAGEL)
 
 dnl check we don't get the Windows sort ...
 AC_MSG_CHECKING([where unix-like sort(1) lives])
-if test $target_os = mingw; then
+if test "$target_os" = mingw; then
     for d in /bin /usr/bin /mingw/bin /mingw/usr/bin
     do
-	if test -x $d/sort; then
+	if test -x "$d"/sort; then
 	    sort=$d/sort
 	    break
 	fi
     done
 else
-    sort=`$which sort`
+    sort=`"$which" sort`
 fi
 AC_MSG_RESULT($sort)
-$sort -n </dev/null
+"$sort" -n </dev/null
 if test $? != 0
 then
     echo
@@ -791,9 +791,9 @@ AC_SUBST(sort)
 dnl echo_n set to -n if echo understands -n to suppress newline
 dnl echo_c set to \c if echo understands \c to suppress newline
 AC_MSG_CHECKING([if echo uses -n or backslash-c to suppress newlines])
-if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
+if ( "$echo" "testing\c"; "$echo" 1,2,3 ) | grep c >/dev/null
 then
-  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
+  if ( "$echo" -n testing; "$echo" 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
   then
     echo_n= echo_c=
     AC_MSG_RESULT([neither?])
@@ -815,7 +815,7 @@ AC_MSG_CHECKING([if USDT probes should be used])
 AC_LINK_IFELSE([AC_LANG_SOURCE([
 #include "vendor/github.com/libbpf/usdt/usdt.h"
 void main() { USDT(pcp, check, 1); }])], [
-if test $target_cpu = "armv8l"; then
+if test "$target_cpu" = "armv8l"; then
      AC_MSG_RESULT(no)
      result=0
 else
@@ -1047,8 +1047,8 @@ AC_DEFUN([PCP_CHECK_PYTHON_HEADER],
         AC_MSG_RESULT([found in $PY_INCLUDE_DIRS])
     ], [
         AC_MSG_RESULT([not found])
-        echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
-        echo Proceeding with the Python $PY_MAJOR installation found, regardless.
+        echo "WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing."
+        echo "Proceeding with the Python $PY_MAJOR installation found, regardless."
     ])
 
     CPPFLAGS="$saved_CPPFLAGS"
@@ -1067,12 +1067,12 @@ AS_IF([test "x$do_python3" != "xno"], [
 	eval `$PYTHON3 -V 2>&1 | awk '/^Python/ { ver=2; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "PY_MAJOR=%d PY_MINOR=%d PY_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$PY_MAJOR.$PY_MINOR.$PY_POINT])
 	if test "$PY_MAJOR" -lt 3; then
-	    echo WARNING: Python version 3.6 or later does not seem to be installed.
+	    echo "WARNING: Python version 3.6 or later does not seem to be installed."
 	    enable_python3=false
 	else
 	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 6 ; then
-		echo WARNING: Python version 3.$PY_MINOR is too old.
-		echo Python version 3.6 or later is required for Python builds.
+		echo "WARNING: Python version 3.$PY_MINOR is too old."
+		echo "Python version 3.6 or later is required for Python builds."
 		enable_python3=false
 	    else
 		PCP_CHECK_PYTHON_HEADER([$PY_MAJOR], [$PY_MINOR])
@@ -1195,7 +1195,7 @@ clang=$CLANG
 AC_SUBST(clang)
 
 AC_MSG_CHECKING([clang major version installed])
-if which $CLANG >/dev/null 2>&1
+if which "$CLANG" >/dev/null 2>&1
 then
     clang_major_version=`$CLANG --version | sed -n -e 's/.*clang version \([[0-9]][[0-9]]*\).*/\1/p'`
 else
@@ -1231,7 +1231,7 @@ AS_IF([test "x$do_pmdabpf" = "xyes"], [pmda_bpf=true])
 AS_IF([test "x$do_pmdabpf" = "xcheck"], [
     dnl pmdabpf needs -lelf, clang 12+ and arch-specific vmlinux.h from bpftool
     $have_libelf && \
-	test $clang_major_version -ge 12 -a -f "$pmdabpf_vmlinuxh" && \
+	test "$clang_major_version" -ge 12 -a -f "$pmdabpf_vmlinuxh" && \
     pmda_bpf=true
 ])
 AC_SUBST(PMDA_BPF, $pmda_bpf)
@@ -1239,7 +1239,7 @@ if $pmda_bpf; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 if $pmda_bpf; then
     AC_MSG_CHECKING([which bpf PMDA modules should be included])
-    if test $clang_major_version -ge 15; then
+    if test "$clang_major_version" -ge 15; then
 	pmdabpf_modules="bashreadline.so"
     else
 	pmdabpf_modules=""
@@ -1601,7 +1601,7 @@ AS_IF([test "x$do_qt" != "xno"], [
 	    AC_PATH_PROGS(QMAKE, [qmake qmake-qt6.sh qmake6 qmake-qt5.sh qmake-qt5],,
 			  [/usr/bin:$QTPATHS:/usr/local/bin])
 	fi
-	test "x$cc_is_gcc" = xyes -a $target_os = solaris -a -n "$QMAKE" && QMAKE="$QMAKE -spec solaris-g++"
+	test "x$cc_is_gcc" = xyes -a "$target_os" = solaris -a -n "$QMAKE" && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
@@ -1612,19 +1612,19 @@ AS_IF([test "x$do_qt" != "xno"], [
 	eval `$qmake --version 2>&1 | awk '/Using Qt version/ { ver=4; print $ver }' | awk -F. '{ major=1; minor=2; point=3; printf "QT_MAJOR=%d QT_MINOR=%d QT_POINT=%d\n",$major,$minor,$point }'`
 	AC_MSG_RESULT([$QT_MAJOR.$QT_MINOR.$QT_POINT])
 	if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
-	    echo WARNING: cannot extract Qt version number from ...
+	    echo "WARNING: cannot extract Qt version number from ..."
 	    $qmake --version
-	    echo Cannot include the Qt components in the build.
+	    echo "Cannot include the Qt components in the build."
 	    enable_qt=false
 	    qt_version=0
 	elif test "$QT_MAJOR" -lt 5; then
-	    echo WARNING: Qt version 5.6 or later does not seem to be installed.
-	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
+	    echo "WARNING: Qt version 5.6 or later does not seem to be installed."
+	    echo "Cannot proceed with the Qt $QT_MAJOR installation found."
 	    enable_qt=false
 	    qt_version=0
 	elif test "$QT_MAJOR" -eq 5 -a "$QT_MINOR" -lt 6 ; then
-	    echo WARNING: Qt version 5.$QT_MINOR is too old.
-	    echo Qt version 5.6 or later is required for Qt builds.
+	    echo "WARNING: Qt version 5.$QT_MINOR is too old."
+	    echo "Qt version 5.6 or later is required for Qt builds."
 	    enable_qt=false
 	    qt_version=0
 	else
@@ -1675,13 +1675,13 @@ then
 	AC_MSG_CHECKING([for GNU make elsewhere])
 	for f in /usr/local/bin/gmake /usr/freeware/bin/gmake /usr/local/bin/make /opt/sfw/bin/gmake nowhere
 	do
-	    if test -x $f
+	    if test -x "$f"
 	    then
 		MAKE=$f
 		break
 	    fi
 	done
-	if test $f = nowhere
+	if test "$f" = nowhere
 	then
 	    # Check if /usr/bin/make is any good
             mver=`/usr/bin/make --version 2>/dev/null | sed -n -e1p | cut -c1-8`
@@ -1743,7 +1743,7 @@ dnl check if the tar program is available
 if test -z "$TAR"; then
     AC_PATH_PROGS(TAR, gtar tar, tar)
 fi
-if test $target_os = darwin -a -x /usr/bin/gnutar
+if test "$target_os" = darwin -a -x /usr/bin/gnutar
 then
     TAR=/usr/bin/gnutar
 fi
@@ -1830,7 +1830,7 @@ dnl check if the rpmbuild program is available
 if test -z "$RPMBUILD"; then
     AC_PATH_PROG(RPMBUILD, rpmbuild)
 fi
-test $target_distro = slackware && RPMBUILD=''
+test "$target_distro" = slackware && RPMBUILD=''
 rpmbuild=$RPMBUILD
 AC_SUBST(rpmbuild)
 
@@ -1838,7 +1838,7 @@ dnl check if the rpm program is available
 if test -z "$RPM"; then
     AC_PATH_PROG(RPM, rpm)
 fi
-test $target_distro = slackware && RPM=''
+test "$target_distro" = slackware && RPM=''
 rpm=$RPM
 AC_SUBST(rpm)
 
@@ -1890,7 +1890,7 @@ AC_SUBST(makepkg)
 
 dnl check if symbolic links are supported
 AC_PROG_LN_S
-if test $target_os = mingw; then
+if test "$target_os" = mingw; then
     as_ln_s=/bin/true
 fi
 
@@ -1904,7 +1904,7 @@ fi
 AC_SUBST(pcp_ps_prog)
 
 dnl set platform specific event logger
-if test $target_os = mingw
+if test "$target_os" = mingw
 then
     pcp_syslog_prog=pcp-eventlog
 else
@@ -1913,7 +1913,7 @@ fi
 AC_SUBST(pcp_syslog_prog)
 
 grep=grep
-if test $target_os = solaris
+if test "$target_os" = solaris
 then
     test -f /usr/xpg4/bin/grep && grep=/usr/xpg4/bin/grep
 fi
@@ -1934,7 +1934,7 @@ AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termios.h sys/termios.h)
 AC_CHECK_HEADERS(sys/ioctl.h sys/select.h sys/socket.h)
 AC_CHECK_HEADERS(netdb.h poll.h)
-if test $target_os = darwin -o $target_os = openbsd
+if test "$target_os" = darwin -o "$target_os" = openbsd
 then
     AC_CHECK_HEADERS(net/if.h, [], [], [#include <sys/types.h>
 #include <sys/socket.h>])
@@ -1980,7 +1980,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
 dnl check if regex functions come from libregex (mingw)
 AC_CHECK_LIB(regex, regcomp)
 lib_for_regex=""
-if test $ac_cv_lib_regex_regcomp = yes
+if test "$ac_cv_lib_regex_regcomp" = yes
 then
     lib_for_regex="-lregex"
 fi
@@ -1988,7 +1988,7 @@ AC_SUBST(lib_for_regex)
 
 have_ssl_trace=false
 PKG_CHECK_MODULES([openssl], [openssl >= 1.1.1], [have_openssl=true], [have_openssl=false])
-if test $have_openssl = true
+if test "$have_openssl" = true
 then
     dnl for OpenBSD, libcrypto does not include a BIO_write_ex(),
     dnl so we can't use libssl with pmproxy in particular
@@ -1997,7 +1997,7 @@ then
     AC_CHECK_LIB(ssl, SSL_trace, have_ssl_trace=true, )
 fi
 AC_SUBST(HAVE_OPENSSL, [$have_openssl])
-if test $have_ssl_trace = true
+if test "$have_ssl_trace" = true
 then
     AC_DEFINE(HAVE_SSL_TRACE, [1], [SSL_Trace() in libssl])
 fi
@@ -2064,7 +2064,7 @@ if $have_ncursesw
 then
     AC_DEFINE(HAVE_GETMOUSE, [1], [ncursesw getmouse])
     AC_DEFINE(HAVE_SET_ESCDELAY, [1], [ncursesw set_escdelay])
-    if test $target_os = freebsd
+    if test "$target_os" = freebsd
     then
 	dnl for FreeBSD (versions 12.x and 13.x at least) pkg-config reports
 	dnl the wrong library name (-lncurses instead of -lncursesw) ...
@@ -2109,7 +2109,7 @@ AS_IF([test "x$do_infiniband" != "xno"], [
     AC_CHECK_LIB(ibmad, madrpc_init)
     AC_CHECK_LIB(ibumad, umad_init)
     AC_CHECK_LIB(ibverbs, ibv_get_device_list)
-    if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
+    if test "$ac_cv_lib_ibmad_madrpc_init" = yes -a "$ac_cv_lib_ibumad_umad_init" = yes
     then
 	IB_CFLAGS=""
 	IB_LIBS="-libmad -libumad"
@@ -2129,10 +2129,13 @@ AS_IF([test "x$do_infiniband" != "xno"], [
 		have_pma_query_via=false
 		AC_MSG_RESULT(no))
 	LIBS=$savedLIBS
-	if test $have_pma_query_via -o $have_port_performance_query_via
+	dnl NB: test STRING -o STRING is always true for non-empty strings
+	dnl (including "false"); this should use = true comparisons, but
+	dnl leaving as-is to avoid changing existing behaviour
+	if test "$have_pma_query_via" -o "$have_port_performance_query_via"
 	then
 	    AC_MSG_CHECKING([if verbs API should be used])
-	    if test $ac_cv_header_infiniband_verbs_h = yes -a $ac_cv_lib_ibverbs_ibv_get_device_list = yes
+	    if test "$ac_cv_header_infiniband_verbs_h" = yes -a "$ac_cv_lib_ibverbs_ibv_get_device_list" = yes
 	    then
 		IB_LIBS="$IB_LIBS -libverbs"
 		AC_MSG_RESULT(yes)
@@ -2190,7 +2193,7 @@ AC_MSG_CHECKING([if the GFS2 PMDA should be included])
 pmda_gfs2=false
 AS_IF([test "x$do_pmdagfs2" = "xyes"], [pmda_gfs2=true])
 AS_IF([test "x$do_pmdagfs2" = "xcheck"], [
-       if test $target_os = linux; then
+       if test "$target_os" = linux; then
 	pmda_gfs2=true
        fi])
 AC_SUBST(PMDA_GFS2, $pmda_gfs2)
@@ -2262,7 +2265,7 @@ dnl checking for backtrace() needs a little more care ..
 dnl check if backtrace functions come from libexeinfo (OpenBSD 7.0)
 AC_CHECK_LIB(execinfo, backtrace)
 lib_for_backtrace=""
-if test $ac_cv_lib_execinfo_backtrace = yes
+if test "$ac_cv_lib_execinfo_backtrace" = yes
 then
     lib_for_backtrace="-lexecinfo"
 fi
@@ -2345,7 +2348,7 @@ then
 fi
 
 dnl typedefs missing from sys/types.h, stdlib.h or stddef.h
-if test $target_os = solaris
+if test "$target_os" = solaris
 then
    AC_CHECK_TYPE(__int32_t, int32_t)
    AC_CHECK_TYPE(__uint32_t, uint32_t)
@@ -2472,7 +2475,7 @@ End-of-File
 (eval $ac_compile) 2>conftest.out
 _ret=$?
 cat conftest.out >&5
-if test $_ret != 0
+if test "$_ret" != 0
 then
     AC_MSG_RESULT(no)
 else
@@ -2493,7 +2496,7 @@ End-of-File
 (eval $ac_compile) 2>conftest.out
 _ret=$?
 cat conftest.out >&5
-if test $_ret != 0
+if test "$_ret" != 0
 then
     AC_MSG_RESULT(no)
 else
@@ -2610,7 +2613,7 @@ $2 == "bozo"	{ t = $1
 	_fmt='ld'
 	;;
     'long long'|'long long int')
-        if test $target_os = mingw; then
+        if test "$target_os" = mingw; then
             _fmt='I64d'
         else
 	    _fmt='lld'
@@ -2620,7 +2623,7 @@ $2 == "bozo"	{ t = $1
 	_fmt='lu'
 	;;
     'unsigned long long'|'unsigned long long int')
-        if test $target_os = mingw; then
+        if test "$target_os" = mingw; then
             _fmt='I64u'
         else
 	    _fmt='llu'
@@ -2744,7 +2747,7 @@ End-of-File
 	if test -x ./conftest
 	then
 	    ans=`./conftest`
-	    if test $target_os = mingw -a "$ans" = "lld"; then
+	    if test "$target_os" = mingw -a "$ans" = "lld"; then
 		ans='I64d'
 	    fi
 	    echo "./conftest (second approach) -> \"$ans\"" >&5
@@ -2792,7 +2795,7 @@ fmt_int64=$ans
 AC_MSG_RESULT($fmt_int64)
 AC_SUBST(fmt_int64)
 dnl and the unsigned version of this ...
-fmt_uint64=`echo $fmt_int64 | sed -e 's/d$/u/'`
+fmt_uint64=`echo "$fmt_int64" | sed -e 's/d$/u/'`
 AC_SUBST(fmt_uint64)
 rm -rf conftest.* conftest
 
@@ -2877,7 +2880,7 @@ then
 	savedLIBS=$LIBS
 	if test -n "$cand"
 	then
-	    LIBS=`echo $LIBS -l$cand`
+	    LIBS=`echo "$LIBS" -l$cand`
 	fi
 	AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 	    #include <pthread.h>
@@ -2913,7 +2916,7 @@ End-of-File
 	dnl check if gcc supports __thread for thread private data
 	AC_MSG_CHECKING([if compiler supports __thread])
 	dnl __thread support is broken in some places
-	if test $target_os = netbsd
+	if test "$target_os" = netbsd
 	then
 	    AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <pthread.h>
 #if __GNUC__ < 4 || ( __GNUC__ == 4 && __GNUC_MINOR__ < 5 )
@@ -3117,14 +3120,14 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 dnl check if basename and dirname need -lgen, -lpcp or nothing to work
 dnl (assume both go together)
 AC_CHECK_FUNCS(basename)
-if test $ac_cv_func_basename = yes
+if test "$ac_cv_func_basename" = yes
 then
     AC_DEFINE(HAVE_BASENAME, [1], [basename API])
     AC_DEFINE(HAVE_DIRNAME, [1], [dirname API])
     lib_for_basename=""
 else
     AC_CHECK_LIB(gen, basename)
-    if test $ac_cv_lib_gen_basename = yes
+    if test "$ac_cv_lib_gen_basename" = yes
     then
 	AC_DEFINE(HAVE_BASENAME, [1], [basename API])
 	AC_DEFINE(HAVE_DIRNAME, [1], [dirname API])
@@ -3138,10 +3141,10 @@ AC_SUBST(lib_for_basename)
 dnl check if clock_gettime needs -lrt to work
 lib_for_clock_gettime=
 AC_CHECK_FUNCS(clock_gettime)
-if test $ac_cv_func_clock_gettime = no
+if test "$ac_cv_func_clock_gettime" = no
 then
     AC_CHECK_LIB(rt, clock_gettime)
-    if test $ac_cv_lib_rt_clock_gettime = yes
+    if test "$ac_cv_lib_rt_clock_gettime" = yes
     then
 	AC_DEFINE(HAVE_CLOCK_GETTIME, [1], [clock_gettime API])
 	lib_for_rt=-lrt
@@ -3152,10 +3155,10 @@ AC_SUBST(lib_for_rt)
 dnl check if dlopen et al need -ldl to work
 lib_for_dlopen=
 AC_CHECK_FUNCS(dlopen)
-if test $ac_cv_func_dlopen = no
+if test "$ac_cv_func_dlopen" = no
 then
     AC_CHECK_LIB(dl, dlopen)
-    if test $ac_cv_lib_dl_dlopen = yes
+    if test "$ac_cv_lib_dl_dlopen" = yes
     then
 	AC_DEFINE(HAVE_DLOPEN, [1], [dlopen API])
 	lib_for_dlopen=-ldl
@@ -3167,10 +3170,10 @@ dnl check if flog10, pow, fpclassify and isnanf are available
 dnl in the maths library
 lib_for_math=
 AC_CHECK_FUNCS(flog10)
-if test $ac_cv_func_flog10 = no
+if test "$ac_cv_func_flog10" = no
 then
     AC_CHECK_LIB(m, flog10)
-    if test $ac_cv_lib_m_flog10 = yes
+    if test "$ac_cv_lib_m_flog10" = yes
     then
 	AC_DEFINE(HAVE_FLOG10, [1], [flog10 math API])
 	lib_for_math=-lm
@@ -3179,10 +3182,10 @@ else
     AC_DEFINE(HAVE_FLOG10, [1], [flog10 math API])
 fi
 AC_CHECK_FUNCS(pow)
-if test $ac_cv_func_pow = no
+if test "$ac_cv_func_pow" = no
 then
     AC_CHECK_LIB(m, pow)
-    if test $ac_cv_lib_m_pow = yes
+    if test "$ac_cv_lib_m_pow" = yes
     then
 	AC_DEFINE(HAVE_POW, [1], [pow math API])
 	lib_for_math=-lm
@@ -3199,7 +3202,7 @@ AC_LINK_IFELSE([AC_LANG_PROGRAM([[
     if (fpclassify(x) == FP_NAN) return 1;
 ]])],[ac_cv_func_fpclassify=yes],[])
 AC_MSG_RESULT($ac_cv_func_fpclassify)
-if test $ac_cv_func_fpclassify = no
+if test "$ac_cv_func_fpclassify" = no
 then
     dnl try with -lm
     AC_MSG_CHECKING([for fpclassify() with -lm])
@@ -3212,33 +3215,33 @@ then
     if (fpclassify(x) == FP_NAN) return 1;
 ]])],[ac_cv_func_fpclassify=yes],[])
     AC_MSG_RESULT($ac_cv_func_fpclassify)
-    if test $ac_cv_func_fpclassify = yes
+    if test "$ac_cv_func_fpclassify" = yes
     then
 	lib_for_math=-lm
     fi
     LIBS=$savedLIBS
 fi
-if test $ac_cv_func_fpclassify = yes
+if test "$ac_cv_func_fpclassify" = yes
 then
     AC_DEFINE(HAVE_FPCLASSIFY, [1], [fpclassify math API])
 else
     dnl prefer fpclassify() but will take isnan() and isnanf() as
     dnl possible alternates
     AC_CHECK_FUNCS(isnan)
-    if test $ac_cv_func_isnan = no
+    if test "$ac_cv_func_isnan" = no
     then
 	AC_CHECK_LIB(m, isnan)
-	if test $ac_cv_lib_m_isnan = yes
+	if test "$ac_cv_lib_m_isnan" = yes
 	then
 	    AC_DEFINE(HAVE_ISNAN, [1], [isnan math API])
 	    lib_for_math=-lm
 	fi
     fi
     AC_CHECK_FUNCS(isnanf)
-    if test $ac_cv_func_isnanf = no
+    if test "$ac_cv_func_isnanf" = no
     then
 	AC_CHECK_LIB(m, isnanf)
-	if test $ac_cv_lib_m_isnanf = yes
+	if test "$ac_cv_lib_m_isnanf" = yes
 	then
 	    AC_DEFINE(HAVE_ISNANF, [1], [isnanf math API])
 	    lib_for_math=-lm
@@ -3280,49 +3283,49 @@ dnl			};
 dnl
 have_stat_type=false
 have_stat_name=false
-if test $have_stat_name = false
+if test "$have_stat_name" = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtimespec>>changequote([, ]),
     sys/stat.h, [ have_stat_name=true;
     AC_DEFINE(HAVE_ST_MTIME_WITH_SPEC, [1], [st_mtimespec stat field]) ])
 fi
-if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux -a $target_os != kfreebsd -a $target_os != netbsd
+if test "$have_stat_name" = false -a "$target_os" != darwin -a "$target_os" != linux -a "$target_os" != kfreebsd -a "$target_os" != netbsd
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<[ 	]st_mtime>>changequote([, ]),
     sys/stat.h, [ have_stat_name=true;
     AC_DEFINE(HAVE_ST_MTIME_WITH_E, [1], [st_mtime stat field]) ])
 fi
-if test $have_stat_type = false
+if test "$have_stat_type" = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timestruc_t[ 	][ 	]*st_mtim>>changequote([, ]),
     sys/stat.h, [ have_stat_type=true;
     AC_DEFINE(HAVE_STAT_TIMESTRUC, [1], [timestruc_t type]) ])
 fi
-if test $have_stat_type = false
+if test "$have_stat_type" = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timespec_t[ 	][ 	]*st_mtim>>changequote([, ]),
     sys/stat.h, [ have_stat_type=true;
     AC_DEFINE(HAVE_STAT_TIMESPEC_T, [1], [timespec_t type]) ])
 fi
-if test $have_stat_type = false
+if test "$have_stat_type" = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<timespec[ 	][ 	]*st_mtim>>changequote([, ]),
     sys/stat.h, [ have_stat_type=true;
     AC_DEFINE(HAVE_STAT_TIMESPEC, [1], [timespec type]) ])
 fi
-if test $have_stat_type = false
+if test "$have_stat_type" = false
 then
     AC_EGREP_HEADER(
     changequote(<<, >>)<<time_t[ 	][ 	]*st_mtim>>changequote([, ]),
     sys/stat.h, [ have_stat_type=true;
     AC_DEFINE(HAVE_STAT_TIME_T, [1], [time_t type]) ])
 fi
-if test $have_stat_type = false
+if test "$have_stat_type" = false
 then
     echo 'FATAL ERROR: Cannot determine struct stat time types.'
     rm -rf conftest conftest.*
@@ -3415,7 +3418,7 @@ AC_SUBST(pcp_pmdasadm_dir)
 dnl runtime shared libraries
 pcp_lib_dir=`eval echo $libdir`
 pcp_lib_dir=`eval echo $pcp_lib_dir`
-pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
+pcp_lib32_dir=`echo "$pcp_lib_dir" | sed -e s,64,, -e s,//,/,`
 AC_SUBST(pcp_lib_dir)
 AC_SUBST(pcp_lib32_dir)
 
@@ -3469,7 +3472,7 @@ for d in /usr/man /usr/share/man $pcp_man_dir
 do
     for sd in man1 sman1
     do
-	ls $d/$sd 2>/dev/null >conftest
+	ls "$d/$sd" 2>/dev/null >conftest
 	test -s conftest || continue
 	try=`grep '\.1\.gz$' conftest | head -1`
 	if test -n "$try"
@@ -3506,7 +3509,7 @@ do
 	try=`grep '\.1$' conftest | head -1`
 	if test -n "$try"
 	then
-	    man_header=`head -1 $d/$sd/$try`
+	    man_header=`head -1 "$d/$sd/$try"`
 	    have_manpages=true
 	    break
 	fi
@@ -3527,7 +3530,7 @@ else
     dnl For Debian packaging, we _must_ include the man pages, so
     dnl take the known and good settings ...
     dnl
-    if test $target_distro = debian
+    if test "$target_distro" = debian
     then
 	have_manpages=true
 	have_gzipped_manpages=true
@@ -3560,7 +3563,7 @@ pcp_inc_dir=`eval echo $pcp_inc_dir`
 AC_SUBST(pcp_inc_dir)
 
 dnl html files (GUI online help, tutorials)
-if test $target_os = linux; then
+if test "$target_os" = linux; then
     pcp_html_dir=`eval echo $datarootdir/doc/pcp-doc/html`
 else
     pcp_html_dir=`eval echo $datarootdir/doc/pcp/html`
@@ -3569,7 +3572,7 @@ pcp_html_dir=`eval echo $pcp_html_dir`
 AC_SUBST(pcp_html_dir)
 
 dnl icon pixmap files
-if test $target_os = linux; then
+if test "$target_os" = linux; then
     pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
 else
     pcp_icons_dir=`eval echo $datarootdir/pcp/pixmaps`
@@ -3600,10 +3603,10 @@ AC_ARG_WITH(rcdir,[AS_HELP_STRING([--with-rcdir],[rc directory [SYSCONFDIR/rc.d]
 if $enable_systemd
 then
     pcp_rc_dir="$pcp_libadm_dir"
-elif test $target_os = freebsd
+elif test "$target_os" = freebsd
 then
     pcp_rc_dir="/usr/local/etc/rc.d"
-elif test $target_os = netbsd -o $target_os = openbsd
+elif test "$target_os" = netbsd -o "$target_os" = openbsd
 then
     pcp_rc_dir="/etc/rc.d"
 else
@@ -3869,14 +3872,14 @@ AC_CHECK_FUNC(readline,,
 		AC_CHECK_LIB(readline, add_history,,,[-lcurses])
 	    ])
     ])
-if test $ac_cv_func_readline = yes
+if test "$ac_cv_func_readline" = yes
 then
     AC_DEFINE(HAVE_READLINE, [1], [readline API])
-elif test $ac_cv_lib_readline_readline = yes
+elif test "$ac_cv_lib_readline_readline" = yes
 then
     AC_DEFINE(HAVE_READLINE, [1], [readline API])
     lib_for_readline=-lreadline
-elif test $ac_cv_lib_readline_add_history = yes
+elif test "$ac_cv_lib_readline_add_history" = yes
 then
     AC_DEFINE(HAVE_READLINE, [1], [readline API])
     lib_for_curses=-lcurses
@@ -3910,7 +3913,7 @@ dnl to conftest.h which causes unrelated compilation failures
 AC_C_CONST
 AC_STRUCT_TM
 AC_C_INLINE
-if test $target_os = linux
+if test "$target_os" = linux
 then
     dnl the tests below fail miserably on some Linux hosts,
     dnl e.g. Debian 12.5, Ubuntu 22.04, ...
