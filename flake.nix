@@ -158,7 +158,6 @@
 
           patches = [
             ./nix/patches/gnumakefile-nix-fixes.patch
-            ./nix/patches/tmpdir-portability.patch
           ];
 
           postPatch = ''
@@ -174,10 +173,6 @@
           SYSTEMD_SYSTEMUNITDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/systemd/system";
           SYSTEMD_TMPFILESDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/tmpfiles.d";
           SYSTEMD_SYSUSERSDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/sysusers.d";
-
-          preConfigure = ''
-            export AR="${pkgs.stdenv.cc.bintools}/bin/ar"
-          '';
 
           postInstall = ''
             # Build the combined PMNS root file
