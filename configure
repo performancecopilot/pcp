@@ -3871,22 +3871,22 @@ FATAL ERROR: Cannot guess your target, try explicit specification
     rm -rf conftest conftest.*
     exit 1
 else
-            target=`echo "$target" | sed 's/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/'`
-    target_os=`echo "$target_os" | sed 's/solaris2\..*/solaris/'`
-    target_os=`echo "$target_os" | sed 's/^\([^-][^-]*\)-.*$/\1/' | sed 's/[\.0-9]*//g'`
+            target=`echo $target | sed 's/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/'`
+    target_os=`echo $target_os | sed 's/solaris2\..*/solaris/'`
+    target_os=`echo $target_os | sed 's/^\([^-][^-]*\)-.*$/\1/' | sed 's/[\.0-9]*//g'`
 
-    build=`echo "$build" | sed 's/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/'`
-    build_os=`echo "$build_os" | sed 's/solaris2\..*/solaris/'`
-    build_os=`echo "$build_os" | sed 's/^\([^-][^-]*\)-.*$/\1/'`
+    build=`echo $build | sed 's/^\([^-][^-]*-[^-][^-]*-[^-][^-]*\)-.*$/\1/'`
+    build_os=`echo $build_os | sed 's/solaris2\..*/solaris/'`
+    build_os=`echo $build_os | sed 's/^\([^-][^-]*\)-.*$/\1/'`
 fi
 
-echo "Building on $build for $target"
+echo Building on $build for $target
 echo "Build: os=$build_os cpu=$build_cpu"
 echo "Target: os=$target_os cpu=$target_cpu"
 
 if test "$cross_compiling" = "yes"; then
-    if test -f ./config."$target_os"; then
-	. ./config."$target_os"
+    if test -f ./config.$target_os; then
+	. ./config.$target_os
     else
 	echo
 	echo "
@@ -3901,7 +3901,7 @@ fi
 
 gcc_debug=true
 target_distro=$target_os
-if test "$target_os" = linux
+if test $target_os = linux
 then
 
 printf "%s\n" "#define IS_LINUX 1" >>confdefs.h
@@ -3923,7 +3923,7 @@ printf "%s\n" "#define IS_LINUX 1" >>confdefs.h
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
-elif test "$target_os" = darwin
+elif test $target_os = darwin
 then
 
 printf "%s\n" "#define IS_DARWIN 1" >>confdefs.h
@@ -3932,7 +3932,7 @@ printf "%s\n" "#define IS_DARWIN 1" >>confdefs.h
     CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
-elif test "$target_os" = mingw
+elif test $target_os = mingw
 then
 
 printf "%s\n" "#define IS_MINGW 1" >>confdefs.h
@@ -3940,7 +3940,7 @@ printf "%s\n" "#define IS_MINGW 1" >>confdefs.h
     CFLAGS="-fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths=''
     pcp_ps_all_flags=-efW
-elif test "$target_os" = solaris
+elif test $target_os = solaris
 then
 
 printf "%s\n" "#define IS_SOLARIS 1" >>confdefs.h
@@ -3949,7 +3949,7 @@ printf "%s\n" "#define IS_SOLARIS 1" >>confdefs.h
     CFLAGS_IF_SUNCC="-fPIC -xalias_level=any -D_XPG4_2 -D__EXTENSIONS__"; export CFLAGS_IF_SUNCC
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin:/opt/sfw/bin:/opt/csw/bin'
     pcp_ps_all_flags=-ef
-elif test "$target_os" = aix
+elif test $target_os = aix
 then
 
 printf "%s\n" "#define IS_AIX 1" >>confdefs.h
@@ -3957,14 +3957,14 @@ printf "%s\n" "#define IS_AIX 1" >>confdefs.h
     CFLAGS="-qcpluscmt"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-ef
-elif test "$target_os" = freebsd || test "$target_os" = kfreebsd
+elif test $target_os = freebsd || test $target_os = kfreebsd
 then
 
 printf "%s\n" "#define IS_FREEBSD 1" >>confdefs.h
 
     test -f /etc/debian_version && target_distro=debian
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
-    if test "$target_os" = kfreebsd
+    if test $target_os = kfreebsd
     then
 	pcp_ps_all_flags=-efw
     else
@@ -3973,7 +3973,7 @@ printf "%s\n" "#define IS_FREEBSD 1" >>confdefs.h
     pcp_platform_paths='/usr/bin/X11'
     test -d /usr/local/bin && pcp_platform_paths="$pcp_platform_paths:/usr/local/bin"
     test -d /usr/bsd && pcp_platform_paths="$pcp_platform_paths:/usr/bsd"
-elif test "$target_os" = gnu
+elif test $target_os = gnu
 then
 
 printf "%s\n" "#define IS_GNU 1" >>confdefs.h
@@ -3982,7 +3982,7 @@ printf "%s\n" "#define IS_GNU 1" >>confdefs.h
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
     pcp_ps_all_flags=-efw
-elif test "$target_os" = netbsdelf -o "$target_os" = netbsd
+elif test $target_os = netbsdelf -o $target_os = netbsd
 then
     target_os=netbsd
 
@@ -3991,7 +3991,7 @@ printf "%s\n" "#define IS_NETBSD 1" >>confdefs.h
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE -D_NETBSD_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/pkg/bin'
     pcp_ps_all_flags=auxww
-elif test "$target_os" = openbsd
+elif test $target_os = openbsd
 then
     target_os=openbsd
 
@@ -4870,7 +4870,7 @@ ac_compile='$CC -c $CFLAGS $CPPFLAGS conftest.$ac_ext >&5'
 ac_link='$CC -o conftest$ac_exeext $CFLAGS $CPPFLAGS $LDFLAGS conftest.$ac_ext $LIBS >&5'
 ac_compiler_gnu=$ac_cv_c_compiler_gnu
 
-if test "$target_os" = solaris
+if test $target_os = solaris
 then
     # Extract the first word of "$CC", so it can be a program name with args.
 set dummy $CC; ac_word=$2
@@ -6003,7 +6003,7 @@ fi
 if test ! -x "$WHICH"; then
     as_fn_error $? "cannot find a valid 'which' command." "$LINENO" 5
 fi
-which="$WHICH"
+which=$WHICH
 
 
 if test -z "$AR"; then
@@ -6060,10 +6060,10 @@ done
 test -n "$AR" || AR="ar"
 
 fi
-if ! "$AR" --version >/dev/null 2>&1; then
+if ! $AR --version >/dev/null 2>&1; then
     as_fn_error $? "cannot find a valid 'ar' command." "$LINENO" 5
 fi
-ar="$AR"
+ar=$AR
 
 
 for ac_prog in flex lex
@@ -6290,12 +6290,12 @@ fi
 rm -f conftest.l $LEX_OUTPUT_ROOT.c
 
 fi
-lex=`"$echo" "$LEX" | awk '{print $1}'`
-lex=`"$which" "$lex"`
+lex=`$echo $LEX | awk '{print $1}'`
+lex=`$which "$lex"`
 if test ! -x "$lex"; then
     as_fn_error $? "cannot find a valid 'lex'/'flex' command." "$LINENO" 5
 fi
-lex="$LEX"
+lex=$LEX
 
 
 for ac_prog in 'bison -y' byacc
@@ -6347,12 +6347,12 @@ fi
 done
 test -n "$YACC" || YACC="yacc"
 
-yacc=`"$echo" "$YACC" | awk '{print $1}'`
-yacc=`"$which" "$yacc"`
+yacc=`$echo $YACC | awk '{print $1}'`
+yacc=`$which "$yacc"`
 if test ! -x "$yacc"; then
     as_fn_error $? "cannot find a valid 'yacc'/'bison' command." "$LINENO" 5
 fi
-yacc=`echo "$YACC" | sed -e '/^bison /{
+yacc=`echo $YACC | sed -e '/^bison /{
 s/$/ /
 s/ -y / /
 s/ $//
@@ -6411,20 +6411,20 @@ done
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking where unix-like sort(1) lives" >&5
 printf %s "checking where unix-like sort(1) lives... " >&6; }
-if test "$target_os" = mingw; then
+if test $target_os = mingw; then
     for d in /bin /usr/bin /mingw/bin /mingw/usr/bin
     do
-	if test -x "$d"/sort; then
+	if test -x $d/sort; then
 	    sort=$d/sort
 	    break
 	fi
     done
 else
-    sort=`"$which" sort`
+    sort=`$which sort`
 fi
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $sort" >&5
 printf "%s\n" "$sort" >&6; }
-"$sort" -n </dev/null
+$sort -n </dev/null
 if test $? != 0
 then
     echo
@@ -6436,9 +6436,9 @@ fi
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if echo uses -n or backslash-c to suppress newlines" >&5
 printf %s "checking if echo uses -n or backslash-c to suppress newlines... " >&6; }
-if ( "$echo" "testing\c"; "$echo" 1,2,3 ) | grep c >/dev/null
+if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
 then
-  if ( "$echo" -n testing; "$echo" 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
+  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
   then
     echo_n= echo_c=
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: neither?" >&5
@@ -6616,7 +6616,7 @@ _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
 
-if test "$target_cpu" = "armv8l"; then
+if test $target_cpu = "armv8l"; then
      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
      result=0
@@ -8617,12 +8617,12 @@ printf %s "checking Python3 version... " >&6; }
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $PY_MAJOR.$PY_MINOR.$PY_POINT" >&5
 printf "%s\n" "$PY_MAJOR.$PY_MINOR.$PY_POINT" >&6; }
 	if test "$PY_MAJOR" -lt 3; then
-	    echo "WARNING: Python version 3.6 or later does not seem to be installed."
+	    echo WARNING: Python version 3.6 or later does not seem to be installed.
 	    enable_python3=false
 	else
 	    if test "$PY_MAJOR" -eq 3 -a "$PY_MINOR" -lt 6 ; then
-		echo "WARNING: Python version 3.$PY_MINOR is too old."
-		echo "Python version 3.6 or later is required for Python builds."
+		echo WARNING: Python version 3.$PY_MINOR is too old.
+		echo Python version 3.6 or later is required for Python builds.
 		enable_python3=false
 	    else
 		 PY_MAJOR="$PY_MAJOR"
@@ -8663,8 +8663,8 @@ else case e in #(
   e)
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: not found" >&5
 printf "%s\n" "not found" >&6; }
-        echo "WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing."
-        echo "Proceeding with the Python $PY_MAJOR installation found, regardless."
+        echo WARNING: Python version $PY_MAJOR.$PY_MINOR header file may be missing.
+        echo Proceeding with the Python $PY_MAJOR installation found, regardless.
      ;;
 esac
 fi
@@ -9061,7 +9061,7 @@ clang=$CLANG
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking clang major version installed" >&5
 printf %s "checking clang major version installed... " >&6; }
-if which "$CLANG" >/dev/null 2>&1
+if which $CLANG >/dev/null 2>&1
 then
     clang_major_version=`$CLANG --version | sed -n -e 's/.*clang version \([0-9][0-9]*\).*/\1/p'`
 else
@@ -9152,7 +9152,7 @@ if test "x$do_pmdabpf" = "xcheck"
 then :
 
         $have_libelf && \
-	test "$clang_major_version" -ge 12 -a -f "$pmdabpf_vmlinuxh" && \
+	test $clang_major_version -ge 12 -a -f "$pmdabpf_vmlinuxh" && \
     pmda_bpf=true
 
 fi
@@ -9165,7 +9165,7 @@ printf "%s\n" "no" >&6; }; fi
 if $pmda_bpf; then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking which bpf PMDA modules should be included" >&5
 printf %s "checking which bpf PMDA modules should be included... " >&6; }
-    if test "$clang_major_version" -ge 15; then
+    if test $clang_major_version -ge 15; then
 	pmdabpf_modules="bashreadline.so"
     else
 	pmdabpf_modules=""
@@ -9770,7 +9770,7 @@ fi
 done
 
 	fi
-	test "x$cc_is_gcc" = xyes -a "$target_os" = solaris -a -n "$QMAKE" && QMAKE="$QMAKE -spec solaris-g++"
+	test "x$cc_is_gcc" = xyes -a $target_os = solaris -a -n "$QMAKE" && QMAKE="$QMAKE -spec solaris-g++"
     fi
     qmake=$QMAKE
     if test -z "$QMAKE"
@@ -9783,19 +9783,19 @@ printf %s "checking Qt version... " >&6; }
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $QT_MAJOR.$QT_MINOR.$QT_POINT" >&5
 printf "%s\n" "$QT_MAJOR.$QT_MINOR.$QT_POINT" >&6; }
 	if test -z "$QT_MAJOR" -o -z "$QT_MINOR"; then
-	    echo "WARNING: cannot extract Qt version number from ..."
+	    echo WARNING: cannot extract Qt version number from ...
 	    $qmake --version
-	    echo "Cannot include the Qt components in the build."
+	    echo Cannot include the Qt components in the build.
 	    enable_qt=false
 	    qt_version=0
 	elif test "$QT_MAJOR" -lt 5; then
-	    echo "WARNING: Qt version 5.6 or later does not seem to be installed."
-	    echo "Cannot proceed with the Qt $QT_MAJOR installation found."
+	    echo WARNING: Qt version 5.6 or later does not seem to be installed.
+	    echo Cannot proceed with the Qt $QT_MAJOR installation found.
 	    enable_qt=false
 	    qt_version=0
 	elif test "$QT_MAJOR" -eq 5 -a "$QT_MINOR" -lt 6 ; then
-	    echo "WARNING: Qt version 5.$QT_MINOR is too old."
-	    echo "Qt version 5.6 or later is required for Qt builds."
+	    echo WARNING: Qt version 5.$QT_MINOR is too old.
+	    echo Qt version 5.6 or later is required for Qt builds.
 	    enable_qt=false
 	    qt_version=0
 	else
@@ -9893,13 +9893,13 @@ fi
 printf %s "checking for GNU make elsewhere... " >&6; }
 	for f in /usr/local/bin/gmake /usr/freeware/bin/gmake /usr/local/bin/make /opt/sfw/bin/gmake nowhere
 	do
-	    if test -x "$f"
+	    if test -x $f
 	    then
 		MAKE=$f
 		break
 	    fi
 	done
-	if test "$f" = nowhere
+	if test $f = nowhere
 	then
 	    # Check if /usr/bin/make is any good
             mver=`/usr/bin/make --version 2>/dev/null | sed -n -e1p | cut -c1-8`
@@ -10192,7 +10192,7 @@ done
 test -n "$TAR" || TAR="tar"
 
 fi
-if test "$target_os" = darwin -a -x /usr/bin/gnutar
+if test $target_os = darwin -a -x /usr/bin/gnutar
 then
     TAR=/usr/bin/gnutar
 fi
@@ -10675,7 +10675,7 @@ fi
 
 
 fi
-test "$target_distro" = slackware && RPMBUILD=''
+test $target_distro = slackware && RPMBUILD=''
 rpmbuild=$RPMBUILD
 
 
@@ -10727,7 +10727,7 @@ fi
 
 
 fi
-test "$target_distro" = slackware && RPM=''
+test $target_distro = slackware && RPM=''
 rpm=$RPM
 
 
@@ -11054,7 +11054,7 @@ else
 printf "%s\n" "no, using $LN_S" >&6; }
 fi
 
-if test "$target_os" = mingw; then
+if test $target_os = mingw; then
     as_ln_s=/bin/true
 fi
 
@@ -11066,7 +11066,7 @@ else
 fi
 
 
-if test "$target_os" = mingw
+if test $target_os = mingw
 then
     pcp_syslog_prog=pcp-eventlog
 else
@@ -11075,7 +11075,7 @@ fi
 
 
 grep=grep
-if test "$target_os" = solaris
+if test $target_os = solaris
 then
     test -f /usr/xpg4/bin/grep && grep=/usr/xpg4/bin/grep
 fi
@@ -11533,7 +11533,7 @@ then :
 
 fi
 
-if test "$target_os" = darwin -o "$target_os" = openbsd
+if test $target_os = darwin -o $target_os = openbsd
 then
     ac_fn_c_check_header_compile "$LINENO" "net/if.h" "ac_cv_header_net_if_h" "#include <sys/types.h>
 #include <sys/socket.h>
@@ -11866,7 +11866,7 @@ then :
 fi
 
 lib_for_regex=""
-if test "$ac_cv_lib_regex_regcomp" = yes
+if test $ac_cv_lib_regex_regcomp = yes
 then
     lib_for_regex="-lregex"
 fi
@@ -11944,7 +11944,7 @@ else
 printf "%s\n" "yes" >&6; }
         have_openssl=true
 fi
-if test "$have_openssl" = true
+if test $have_openssl = true
 then
             { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for BIO_write_ex in -lcrypto" >&5
 printf %s "checking for BIO_write_ex in -lcrypto... " >&6; }
@@ -12051,7 +12051,7 @@ fi
 fi
 HAVE_OPENSSL=$have_openssl
 
-if test "$have_ssl_trace" = true
+if test $have_ssl_trace = true
 then
 
 printf "%s\n" "#define HAVE_SSL_TRACE 1" >>confdefs.h
@@ -12721,7 +12721,7 @@ printf "%s\n" "#define HAVE_GETMOUSE 1" >>confdefs.h
 
 printf "%s\n" "#define HAVE_SET_ESCDELAY 1" >>confdefs.h
 
-    if test "$target_os" = freebsd
+    if test $target_os = freebsd
     then
 				ncursesw_LIBS=`echo "$ncursesw_LIBS" | sed -e 's/ -lncurses / -lncursesw /'`
     fi
@@ -13179,7 +13179,7 @@ then :
 
 fi
 
-    if test "$ac_cv_lib_ibmad_madrpc_init" = yes -a "$ac_cv_lib_ibumad_umad_init" = yes
+    if test $ac_cv_lib_ibmad_madrpc_init = yes -a $ac_cv_lib_ibumad_umad_init = yes
     then
 	IB_CFLAGS=""
 	IB_LIBS="-libmad -libumad"
@@ -13263,11 +13263,11 @@ fi
 rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 	LIBS=$savedLIBS
-				if test "$have_pma_query_via" -o "$have_port_performance_query_via"
+	if test $have_pma_query_via -o $have_port_performance_query_via
 	then
 	    { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if verbs API should be used" >&5
 printf %s "checking if verbs API should be used... " >&6; }
-	    if test "$ac_cv_header_infiniband_verbs_h" = yes -a "$ac_cv_lib_ibverbs_ibv_get_device_list" = yes
+	    if test $ac_cv_header_infiniband_verbs_h = yes -a $ac_cv_lib_ibverbs_ibv_get_device_list = yes
 	    then
 		IB_LIBS="$IB_LIBS -libverbs"
 		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
@@ -13503,7 +13503,7 @@ fi
 if test "x$do_pmdagfs2" = "xcheck"
 then :
 
-       if test "$target_os" = linux; then
+       if test $target_os = linux; then
 	pmda_gfs2=true
        fi
 fi
@@ -14141,7 +14141,7 @@ then :
 fi
 
 lib_for_backtrace=""
-if test "$ac_cv_lib_execinfo_backtrace" = yes
+if test $ac_cv_lib_execinfo_backtrace = yes
 then
     lib_for_backtrace="-lexecinfo"
 fi
@@ -14287,7 +14287,7 @@ then
         CFLAGS="$savedCFLAGS"
 fi
 
-if test "$target_os" = solaris
+if test $target_os = solaris
 then
    ac_fn_c_check_type "$LINENO" "__int32_t" "ac_cv_type___int32_t" "$ac_includes_default"
 if test "x$ac_cv_type___int32_t" = xyes
@@ -14799,7 +14799,7 @@ End-of-File
 (eval $ac_compile) 2>conftest.out
 _ret=$?
 cat conftest.out >&5
-if test "$_ret" != 0
+if test $_ret != 0
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
@@ -14824,7 +14824,7 @@ End-of-File
 (eval $ac_compile) 2>conftest.out
 _ret=$?
 cat conftest.out >&5
-if test "$_ret" != 0
+if test $_ret != 0
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
@@ -14949,7 +14949,7 @@ $2 == "bozo"	{ t = $1
 	_fmt='ld'
 	;;
     'long long'|'long long int')
-        if test "$target_os" = mingw; then
+        if test $target_os = mingw; then
             _fmt='I64d'
         else
 	    _fmt='lld'
@@ -14959,7 +14959,7 @@ $2 == "bozo"	{ t = $1
 	_fmt='lu'
 	;;
     'unsigned long long'|'unsigned long long int')
-        if test "$target_os" = mingw; then
+        if test $target_os = mingw; then
             _fmt='I64u'
         else
 	    _fmt='llu'
@@ -15083,7 +15083,7 @@ End-of-File
 	if test -x ./conftest
 	then
 	    ans=`./conftest`
-	    if test "$target_os" = mingw -a "$ans" = "lld"; then
+	    if test $target_os = mingw -a "$ans" = "lld"; then
 		ans='I64d'
 	    fi
 	    echo "./conftest (second approach) -> \"$ans\"" >&5
@@ -15129,7 +15129,7 @@ fmt_int64=$ans
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $fmt_int64" >&5
 printf "%s\n" "$fmt_int64" >&6; }
 
-fmt_uint64=`echo "$fmt_int64" | sed -e 's/d$/u/'`
+fmt_uint64=`echo $fmt_int64 | sed -e 's/d$/u/'`
 
 rm -rf conftest.* conftest
 
@@ -15258,7 +15258,7 @@ printf %s "checking where pthread_create() is defined... " >&6; }
 	savedLIBS=$LIBS
 	if test -n "$cand"
 	then
-	    LIBS=`echo "$LIBS" -l$cand`
+	    LIBS=`echo $LIBS -l$cand`
 	fi
 	cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -15311,7 +15311,7 @@ printf "%s\n" "$fmt_pthread" >&6; }
 
 		{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if compiler supports __thread" >&5
 printf %s "checking if compiler supports __thread... " >&6; }
-		if test "$target_os" = netbsd
+		if test $target_os = netbsd
 	then
 	    cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -15626,7 +15626,7 @@ then :
 
 fi
 
-if test "$ac_cv_func_basename" = yes
+if test $ac_cv_func_basename = yes
 then
 
 printf "%s\n" "#define HAVE_BASENAME 1" >>confdefs.h
@@ -15687,7 +15687,7 @@ then :
 
 fi
 
-    if test "$ac_cv_lib_gen_basename" = yes
+    if test $ac_cv_lib_gen_basename = yes
     then
 
 printf "%s\n" "#define HAVE_BASENAME 1" >>confdefs.h
@@ -15710,7 +15710,7 @@ then :
 
 fi
 
-if test "$ac_cv_func_clock_gettime" = no
+if test $ac_cv_func_clock_gettime = no
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for clock_gettime in -lrt" >&5
 printf %s "checking for clock_gettime in -lrt... " >&6; }
@@ -15763,7 +15763,7 @@ then :
 
 fi
 
-    if test "$ac_cv_lib_rt_clock_gettime" = yes
+    if test $ac_cv_lib_rt_clock_gettime = yes
     then
 
 printf "%s\n" "#define HAVE_CLOCK_GETTIME 1" >>confdefs.h
@@ -15781,7 +15781,7 @@ then :
 
 fi
 
-if test "$ac_cv_func_dlopen" = no
+if test $ac_cv_func_dlopen = no
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for dlopen in -ldl" >&5
 printf %s "checking for dlopen in -ldl... " >&6; }
@@ -15834,7 +15834,7 @@ then :
 
 fi
 
-    if test "$ac_cv_lib_dl_dlopen" = yes
+    if test $ac_cv_lib_dl_dlopen = yes
     then
 
 printf "%s\n" "#define HAVE_DLOPEN 1" >>confdefs.h
@@ -15852,7 +15852,7 @@ then :
 
 fi
 
-if test "$ac_cv_func_flog10" = no
+if test $ac_cv_func_flog10 = no
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for flog10 in -lm" >&5
 printf %s "checking for flog10 in -lm... " >&6; }
@@ -15905,7 +15905,7 @@ then :
 
 fi
 
-    if test "$ac_cv_lib_m_flog10" = yes
+    if test $ac_cv_lib_m_flog10 = yes
     then
 
 printf "%s\n" "#define HAVE_FLOG10 1" >>confdefs.h
@@ -15924,7 +15924,7 @@ then :
 
 fi
 
-if test "$ac_cv_func_pow" = no
+if test $ac_cv_func_pow = no
 then
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for pow in -lm" >&5
 printf %s "checking for pow in -lm... " >&6; }
@@ -15977,7 +15977,7 @@ then :
 
 fi
 
-    if test "$ac_cv_lib_m_pow" = yes
+    if test $ac_cv_lib_m_pow = yes
     then
 
 printf "%s\n" "#define HAVE_POW 1" >>confdefs.h
@@ -16016,7 +16016,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_fpclassify" >&5
 printf "%s\n" "$ac_cv_func_fpclassify" >&6; }
-if test "$ac_cv_func_fpclassify" = no
+if test $ac_cv_func_fpclassify = no
 then
         { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for fpclassify() with -lm" >&5
 printf %s "checking for fpclassify() with -lm... " >&6; }
@@ -16046,13 +16046,13 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
     conftest$ac_exeext conftest.$ac_ext
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_func_fpclassify" >&5
 printf "%s\n" "$ac_cv_func_fpclassify" >&6; }
-    if test "$ac_cv_func_fpclassify" = yes
+    if test $ac_cv_func_fpclassify = yes
     then
 	lib_for_math=-lm
     fi
     LIBS=$savedLIBS
 fi
-if test "$ac_cv_func_fpclassify" = yes
+if test $ac_cv_func_fpclassify = yes
 then
 
 printf "%s\n" "#define HAVE_FPCLASSIFY 1" >>confdefs.h
@@ -16065,7 +16065,7 @@ then :
 
 fi
 
-    if test "$ac_cv_func_isnan" = no
+    if test $ac_cv_func_isnan = no
     then
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for isnan in -lm" >&5
 printf %s "checking for isnan in -lm... " >&6; }
@@ -16118,7 +16118,7 @@ then :
 
 fi
 
-	if test "$ac_cv_lib_m_isnan" = yes
+	if test $ac_cv_lib_m_isnan = yes
 	then
 
 printf "%s\n" "#define HAVE_ISNAN 1" >>confdefs.h
@@ -16133,7 +16133,7 @@ then :
 
 fi
 
-    if test "$ac_cv_func_isnanf" = no
+    if test $ac_cv_func_isnanf = no
     then
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for isnanf in -lm" >&5
 printf %s "checking for isnanf in -lm... " >&6; }
@@ -16186,7 +16186,7 @@ then :
 
 fi
 
-	if test "$ac_cv_lib_m_isnanf" = yes
+	if test $ac_cv_lib_m_isnanf = yes
 	then
 
 printf "%s\n" "#define HAVE_ISNANF 1" >>confdefs.h
@@ -16321,7 +16321,7 @@ rm -f core conftest.err conftest.$ac_objext conftest.beam \
 
 have_stat_type=false
 have_stat_name=false
-if test "$have_stat_name" = false
+if test $have_stat_name = false
 then
 
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for egrep -e" >&5
@@ -16474,7 +16474,7 @@ fi
 rm -rf conftest*
 
 fi
-if test "$have_stat_name" = false -a "$target_os" != darwin -a "$target_os" != linux -a "$target_os" != kfreebsd -a "$target_os" != netbsd
+if test $have_stat_name = false -a $target_os != darwin -a $target_os != linux -a $target_os != kfreebsd -a $target_os != netbsd
 then
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -16492,7 +16492,7 @@ fi
 rm -rf conftest*
 
 fi
-if test "$have_stat_type" = false
+if test $have_stat_type = false
 then
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -16510,7 +16510,7 @@ fi
 rm -rf conftest*
 
 fi
-if test "$have_stat_type" = false
+if test $have_stat_type = false
 then
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -16528,7 +16528,7 @@ fi
 rm -rf conftest*
 
 fi
-if test "$have_stat_type" = false
+if test $have_stat_type = false
 then
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -16546,7 +16546,7 @@ fi
 rm -rf conftest*
 
 fi
-if test "$have_stat_type" = false
+if test $have_stat_type = false
 then
     cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 /* end confdefs.h.  */
@@ -16564,7 +16564,7 @@ fi
 rm -rf conftest*
 
 fi
-if test "$have_stat_type" = false
+if test $have_stat_type = false
 then
     echo 'FATAL ERROR: Cannot determine struct stat time types.'
     rm -rf conftest conftest.*
@@ -16638,7 +16638,7 @@ pcp_pmdasadm_dir=`eval echo $pcp_pmdasadm_dir`
 
 pcp_lib_dir=`eval echo $libdir`
 pcp_lib_dir=`eval echo $pcp_lib_dir`
-pcp_lib32_dir=`echo "$pcp_lib_dir" | sed -e s,64,, -e s,//,/,`
+pcp_lib32_dir=`echo $pcp_lib_dir | sed -e s,64,, -e s,//,/,`
 
 
 
@@ -17507,7 +17507,7 @@ for d in /usr/man /usr/share/man $pcp_man_dir
 do
     for sd in man1 sman1
     do
-	ls "$d/$sd" 2>/dev/null >conftest
+	ls $d/$sd 2>/dev/null >conftest
 	test -s conftest || continue
 	try=`grep '\.1\.gz$' conftest | head -1`
 	if test -n "$try"
@@ -17544,7 +17544,7 @@ do
 	try=`grep '\.1$' conftest | head -1`
 	if test -n "$try"
 	then
-	    man_header=`head -1 "$d/$sd/$try"`
+	    man_header=`head -1 $d/$sd/$try`
 	    have_manpages=true
 	    break
 	fi
@@ -17560,7 +17560,7 @@ if $have_manpages
 then
     :
 else
-                        if test "$target_distro" = debian
+                        if test $target_distro = debian
     then
 	have_manpages=true
 	have_gzipped_manpages=true
@@ -17592,7 +17592,7 @@ pcp_inc_dir=`eval echo $includedir/pcp`
 pcp_inc_dir=`eval echo $pcp_inc_dir`
 
 
-if test "$target_os" = linux; then
+if test $target_os = linux; then
     pcp_html_dir=`eval echo $datarootdir/doc/pcp-doc/html`
 else
     pcp_html_dir=`eval echo $datarootdir/doc/pcp/html`
@@ -17600,7 +17600,7 @@ fi
 pcp_html_dir=`eval echo $pcp_html_dir`
 
 
-if test "$target_os" = linux; then
+if test $target_os = linux; then
     pcp_icons_dir=`eval echo $datarootdir/pcp-gui/pixmaps`
 else
     pcp_icons_dir=`eval echo $datarootdir/pcp/pixmaps`
@@ -17680,10 +17680,10 @@ else case e in #(
 if $enable_systemd
 then
     pcp_rc_dir="$pcp_libadm_dir"
-elif test "$target_os" = freebsd
+elif test $target_os = freebsd
 then
     pcp_rc_dir="/usr/local/etc/rc.d"
-elif test "$target_os" = netbsd -o "$target_os" = openbsd
+elif test $target_os = netbsd -o $target_os = openbsd
 then
     pcp_rc_dir="/etc/rc.d"
 else
@@ -18572,18 +18572,18 @@ fi
 esac
 fi
 
-if test "$ac_cv_func_readline" = yes
+if test $ac_cv_func_readline = yes
 then
 
 printf "%s\n" "#define HAVE_READLINE 1" >>confdefs.h
 
-elif test "$ac_cv_lib_readline_readline" = yes
+elif test $ac_cv_lib_readline_readline = yes
 then
 
 printf "%s\n" "#define HAVE_READLINE 1" >>confdefs.h
 
     lib_for_readline=-lreadline
-elif test "$ac_cv_lib_readline_add_history" = yes
+elif test $ac_cv_lib_readline_add_history = yes
 then
 
 printf "%s\n" "#define HAVE_READLINE 1" >>confdefs.h
@@ -18942,7 +18942,7 @@ _ACEOF
     ;;
 esac
 
-if test "$target_os" = linux
+if test $target_os = linux
 then
             :
 else
