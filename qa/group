@@ -2255,6 +2255,8 @@ telnet-probe
 1855 pmda.rabbitmq local
 1856 dstat python local derive
 1862 other local
+1863 logutil pmlogger_daily local
+1864 logutil pmlogger_daily local
 1869 logutil pmlogger_daily local
 1870 guidellm2pcp python pmimport libpcp_import local
 1871 pmsearch local
