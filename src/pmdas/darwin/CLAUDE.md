@@ -48,6 +48,21 @@ When adding new metric clusters, use `vfs.h`/`vfs.c` as the reference pattern:
 - Add metrics to `metrics.c`: include header, extern declaration, metric entries
 - Add to `GNUmakefile` CFILES and HFILES
 
+### CRITICAL: Instance Domain Registration
+When adding new instance domains (standard PMDA requirement):
+1. Add enum entry to `darwin.h` (e.g., `FAN_INDOM`)
+2. **MUST** add corresponding entry to `indomtab[]` array in `pmda.c`
+3. Dynamic instance domains: `{ INDOM_NAME, 0, NULL }` (populated at runtime)
+4. Missing indomtab entry causes: "Undefined instance domain serial (N)" - entire PMDA fails to load
+
+### Instance Domain Update Pattern
+Standard PMDA pattern (see `disk.c:update_disk_indom()` or Linux PMDA `proc_buddyinfo.c`):
+```c
+indom->it_set = realloc(indom->it_set, count * sizeof(pmdaInstid));
+indom->it_numinst = count;
+```
+No helper function exists - directly manipulate `it_set` and `it_numinst`.
+
 ### CRITICAL: PMNS Root Namespace
 When adding new top-level metric namespaces:
 1. Define metrics in `pmns` file (e.g., `ipc { ... }`)
