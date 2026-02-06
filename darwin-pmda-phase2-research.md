@@ -92,7 +92,7 @@ Updates research doc with completion status"
   - power.battery.* (present, charging, charge, time_remaining, health, cycle_count, temperature, voltage, amperage, capacity.design, capacity.max)
   - power.ac.connected, power.source
 
-**Total Phase 2 metrics added so far**: 79 metrics (5+6+1+1+4+4+13+6+7+30+2)
+**Total Phase 2 metrics added so far**: 92 metrics (5+6+1+1+4+4+13+6+7+30+2+13)
 
 ### Remaining Work
 
@@ -195,7 +195,7 @@ All Wave 2 items have been implemented and tested.
 - [x] **Process File Descriptors** (Category 4.4) - 1 metric
   - proc.fd.count (implemented in Wave 1, verified in Wave 2)
 
-#### ✅ Wave 3 (COMPLETE - 32/~27 metrics)
+#### ✅ Wave 3 (COMPLETE - 45/~45 metrics)
 **Wave 3a: Disk & APFS Metrics (COMPLETE)** - Commit: afdf044067
 
 - [x] **Extended Disk I/O Metrics** (Category 6 partial) - 16 metrics
@@ -217,9 +217,11 @@ All Wave 2 items have been implemented and tested.
 - [x] **Process Network Connections** (Category 4.5) - 2 metrics
   - proc.net.tcp_count, udp_count (via PROC_PIDFDSOCKETINFO enumeration)
 
-**Wave 3b: Remaining Items**
-- [ ] **Thermal & Temperature** (Category 1) - ~15 metrics
-  - thermal.cpu.die, gpu.die, package, ambient
+**Wave 3b: Thermal Monitoring (COMPLETE)** - Commits: a89dace76b, b15b4a369c
+- [x] **Thermal & Temperature** (Category 1) - 13 metrics
+  - thermal.cpu.die, thermal.cpu.proximity, thermal.gpu.die
+  - thermal.package, thermal.ambient
+  - hinv.nfan
   - thermal.fan.* (speed, target, mode, min, max)
   - thermal.pressure.level, state
 
@@ -614,18 +616,18 @@ src/pmdas/darwin_proc/
 
 | Category | Estimated Metrics | Status | Completed |
 |----------|-------------------|--------|-----------|
-| 1. Thermal & Temperature | ~15 | 🔲 Not Started | 0/15 |
+| 1. Thermal & Temperature | ~15 | ✅ **Complete** | **13/15** |
 | 2. GPU & Graphics | ~7 | ✅ **Complete** | **4/4** |
 | 3. Power & Battery | ~15 | ⏳ Partial | **13/15** (3.1-3.2 done, 3.3 needs root) |
 | 4. Process I/O & Resources | ~15 | ✅ **Complete** | **11/11** (io, qos, fd, footprint, net all done) |
 | 5. Enhanced Network | ~15 | ⏳ Partial | **6/15** (5.1 IPv6 done) |
-| 6. Disk & Storage | ~10 | 🔲 Not Started | 0/10 |
+| 6. Disk & Storage | ~10 | ✅ **Complete** | **30/30** |
 | 7. System Limits & IPC | ~10 | ✅ **Complete** | **9/9** |
 | 8. Scheduler | ~3 | 🔲 Not Started | 0/3 |
 | 9. Device Enumeration | ~6 | 🔲 Not Started | 0/6 |
 | 10. Memory Compression | ~6 | ✅ **Complete** | **6/6** |
 | 11. pmrep Views | 3 views + 2 updates | ⏳ Partial | **2/5** |
-| **TOTAL** | **~100 metrics** | **49% Complete** | **49/99** |
+| **TOTAL** | **~100 metrics** | **~85% Complete** | **92/99** |
 
 **Legend**: ✅ Complete | ⏳ In Progress | 🔲 Not Started
 
@@ -691,10 +693,10 @@ Based on complexity, value, and dependencies:
 ### Wave 3: Higher Effort (HIGH complexity, HIGH value)
 **Estimated: ~45 metrics** | **Completed: 32/45** (Wave 3a: 30, Wave 3c: 2)
 
-9. **🔲 Thermal & Temperature** (Category 1) - **TODO**
-   - SMC interface requires careful implementation
-   - Files: new `thermal.c` with `smc.c` helper
-   - Metrics: CPU/GPU temps, fan speeds, thermal pressure
+9. **✅ Thermal & Temperature** (Category 1) - **DONE** (Commits: a89dace76b, b15b4a369c)
+   - SMC interface implemented with graceful degradation
+   - Files: new `thermal.c`, `thermal.h`, `smc.c`, `smc.h`
+   - Metrics: CPU/GPU temps (5), fan metrics (6), thermal pressure (2) = 13 total
 
 10. **✅ Process Network Connections** (Category 4.5) - **DONE** (Commit: 55c1740c3f)
     - Extended FD enumeration with socket inspection
@@ -749,8 +751,8 @@ bool is_apple_silicon = (ret == 1);
 | View | Purpose | Dependencies | Status |
 |------|---------|--------------|--------|
 | `macstat-gpu` | GPU utilization & VRAM monitoring | GPU metrics (Cat 2) ✅ | Ready |
-| `macstat-pwr` | Battery health, charge, power source | Battery metrics (Cat 3) 🔲 | Blocked |
-| `macstat-thermal` | CPU/GPU temps, fans, throttling | SMC metrics (Cat 1) 🔲 | Blocked |
+| `macstat-pwr` | Battery health, charge, power source | Battery metrics (Cat 3) ✅ | Ready |
+| `macstat-thermal` | CPU/GPU temps, fans, throttling | SMC metrics (Cat 1) ✅ | Ready |
 
 #### 11.2 Updates to Existing Views
 
