@@ -60,7 +60,7 @@ QA output created by 1134
 00:00:18                                       NaN
 00:00:29                               7654321.000
 --- 04
-Not one known metric found.
+All metrics are unknown, quitting.
 --- 05
                                        k.u.release
                                                   

@@ -6,7 +6,7 @@ Failed to read configuration from '/nosuchpath':
 No such file or directory.
 == create empty config dir
 == test dir with no conf files
-Invalid metric nosuchmetric (PM_ERR_NAME Unknown metric name).
+Unknown metric nosuchmetric (PM_ERR_NAME Unknown metric name).
 Metricset definition ':nosuchset' not found.
   m.u.free
 == populate config dir

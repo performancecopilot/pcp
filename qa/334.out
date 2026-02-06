@@ -15,14 +15,20 @@ pmRegisterDerived: global metric[3] my.x2 = sample.part_bin + sample.bin
 pmRegisterDerived: global metric[4] my.x3 = 2 * sample.part_bin
 pmRegisterDerived: global metric[5] my.x4 = sample.part_bin * 2
 pmRegisterDerived: global metric[6] my.x5 = (sample.bin + sample.part_bin) - (sample.part_bin + sample.bin)
+__dmtraverse(ctx=0, name="my", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] my.x1, async= 1)
 __dmgetpmid: metric "my.x1" -> PMID 511.0.3
 __dmtraverse: name="my" added "my.x1"
+__dmbind(derive_locked=1, ctx=0, metric[3] my.x2, async= 1)
 __dmgetpmid: metric "my.x2" -> PMID 511.0.4
 __dmtraverse: name="my" added "my.x2"
+__dmbind(derive_locked=1, ctx=0, metric[4] my.x3, async= 1)
 __dmgetpmid: metric "my.x3" -> PMID 511.0.5
 __dmtraverse: name="my" added "my.x3"
+__dmbind(derive_locked=1, ctx=0, metric[5] my.x4, async= 1)
 __dmgetpmid: metric "my.x4" -> PMID 511.0.6
 __dmtraverse: name="my" added "my.x4"
+__dmbind(derive_locked=1, ctx=0, metric[6] my.x5, async= 1)
 __dmgetpmid: metric "my.x5" -> PMID 511.0.7
 __dmtraverse: name="my" added "my.x5"
 __dmgetpmid: metric "my.x1" -> PMID 511.0.3

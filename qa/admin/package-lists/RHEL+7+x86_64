@@ -97,7 +97,6 @@ python-requests
 python-rtslib
 python-setuptools
 python-six
-python2-pylint
 qt5-qtbase-devel
 qt5-qtsvg-devel
 ragel

@@ -200,20 +200,8 @@ lock_ctx_and_pmns(__pmContext *ctxp, ctx_ctl_t *ccp)
     if (ccp->ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ccp->ctxp->c_lock);
 
-#if 0
-    if (PM_IS_LOCKED(pmns_lock)) {
-	/* this had better be recursive with the same context */
-	ccp->need_pmns_unlock = 0;
-    }
-    else {
-	PM_LOCK(pmns_lock);
-	ccp->need_pmns_unlock = 1;
-    }
-    PM_ASSERT_IS_LOCKED(pmns_lock);
-#else
-	PM_LOCK(pmns_lock);
-	ccp->need_pmns_unlock = 1;
-#endif
+    PM_LOCK(pmns_lock);
+    ccp->need_pmns_unlock = 1;
 
     return handle;
 }
@@ -2476,20 +2464,20 @@ getchildren(__pmContext *ctxp, int needlocks, const char *name, char ***offsprin
     }
 
 check:
-    /*
-     * must release pmns_lock before getting the registered mutex
-     * for derived metrics
-     */
-    if (ctx_ctl.need_pmns_unlock) {
-	PM_UNLOCK(pmns_lock);
-	ctx_ctl.need_pmns_unlock = 0;
-    }
 
     if (num != PM_ERR_AGAIN) {
 	/*
 	 * pmcd/PMDA is alive, see if there are derived metrics that qualify
+	 *
+	 * must release pmns_lock before getting the registered mutex
+	 * for derived metrics
 	 */
+	PM_UNLOCK(pmns_lock);
 	dm_num = __dmchildren(ctxp, PM_NOT_LOCKED, name, &dm_offspring, &dm_statuslist);
+	/*
+	 * and re-aquire the pmns_lock ...
+	 */
+	PM_LOCK(pmns_lock);
 
 	if (pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -3206,7 +3194,24 @@ pmapi_return:
 int
 pmTraversePMNS(const char *name, void(*func)(const char *))
 {
-    return TraversePMNS(name, func, NULL, NULL);
+    int		sts;
+
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmTraversePMNS(%s, ...) <:", name);
+
+    sts = TraversePMNS(name, func, NULL, NULL);
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    return sts;
 }
 
 int

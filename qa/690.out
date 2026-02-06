@@ -9,12 +9,17 @@ pmRegisterDerived: global metric[3] qa.b = matchinst(/[1-36-9]00/, sample.bin)
 pmRegisterDerived: global metric[4] qa.c = matchinst(!/bin-[1-5]00/, sample.bin)
 pmRegisterDerived: global metric[5] qa.d = sample.bin[bin-300] + sample.part_bin[bin-300]
 __dmopencontext(->ctx 0) called, 6 derived metrics
+__dmtraverse(ctx=0, name="qa", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] qa.a, async= 1)
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmtraverse: name="qa" added "qa.a"
+__dmbind(derive_locked=1, ctx=0, metric[3] qa.b, async= 1)
 __dmgetpmid: metric "qa.b" -> PMID 511.0.4
 __dmtraverse: name="qa" added "qa.b"
+__dmbind(derive_locked=1, ctx=0, metric[4] qa.c, async= 1)
 __dmgetpmid: metric "qa.c" -> PMID 511.0.5
 __dmtraverse: name="qa" added "qa.c"
+__dmbind(derive_locked=1, ctx=0, metric[5] qa.d, async= 1)
 __dmgetpmid: metric "qa.d" -> PMID 511.0.6
 __dmtraverse: name="qa" added "qa.d"
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
@@ -169,8 +174,11 @@ pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: global metric[2] qa.a = matchinst(/123/, sampledso.bin)
 pmRegisterDerived: global metric[3] qa.d = sample.bin[bin-345] + sample.part_bin[bin-345]
 __dmopencontext(->ctx 0) called, 4 derived metrics
+__dmtraverse(ctx=0, name="qa", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] qa.a, async= 1)
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3
 __dmtraverse: name="qa" added "qa.a"
+__dmbind(derive_locked=1, ctx=0, metric[3] qa.d, async= 1)
 __dmgetpmid: metric "qa.d" -> PMID 511.0.4
 __dmtraverse: name="qa" added "qa.d"
 __dmgetpmid: metric "qa.a" -> PMID 511.0.3

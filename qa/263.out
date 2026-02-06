@@ -691,88 +691,131 @@ Derived metric expr dump from <addr-100>...
 expr node <addr-100> type=COUNT left=<addr-101> right=(nil) save_last=0
 expr node <addr-101> type=NAME left=(nil) right=(nil) save_last=0 [sample.noinst] primary=1
 __dmopencontext(->ctx 0) called, 44 derived metrics
+__dmtraverse(ctx=0, name="aggr", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] aggr.max32, async= 1)
 __dmgetpmid: metric "aggr.max32" -> PMID 511.0.3
 __dmtraverse: name="aggr" added "aggr.max32"
+__dmbind(derive_locked=1, ctx=0, metric[3] aggr.min32, async= 1)
 __dmgetpmid: metric "aggr.min32" -> PMID 511.0.4
 __dmtraverse: name="aggr" added "aggr.min32"
+__dmbind(derive_locked=1, ctx=0, metric[4] aggr.maxu32_minu32, async= 1)
 __dmgetpmid: metric "aggr.maxu32_minu32" -> PMID 511.0.5
 __dmtraverse: name="aggr" added "aggr.maxu32_minu32"
+__dmbind(derive_locked=1, ctx=0, metric[5] aggr.max64_min64, async= 1)
 __dmgetpmid: metric "aggr.max64_min64" -> PMID 511.0.6
 __dmtraverse: name="aggr" added "aggr.max64_min64"
+__dmbind(derive_locked=1, ctx=0, metric[6] aggr.maxu64_minu64, async= 1)
 __dmgetpmid: metric "aggr.maxu64_minu64" -> PMID 511.0.7
 __dmtraverse: name="aggr" added "aggr.maxu64_minu64"
+__dmbind(derive_locked=1, ctx=0, metric[7] aggr.maxuf_minuf, async= 1)
 __dmgetpmid: metric "aggr.maxuf_minuf" -> PMID 511.0.8
 __dmtraverse: name="aggr" added "aggr.maxuf_minuf"
+__dmbind(derive_locked=1, ctx=0, metric[8] aggr.maxud_minud, async= 1)
 __dmgetpmid: metric "aggr.maxud_minud" -> PMID 511.0.9
 __dmtraverse: name="aggr" added "aggr.maxud_minud"
+__dmbind(derive_locked=1, ctx=0, metric[9] aggr.count32, async= 1)
 __dmgetpmid: metric "aggr.count32" -> PMID 511.0.10
 __dmtraverse: name="aggr" added "aggr.count32"
+__dmbind(derive_locked=1, ctx=0, metric[10] aggr.avg32, async= 1)
 __dmgetpmid: metric "aggr.avg32" -> PMID 511.0.11
 __dmtraverse: name="aggr" added "aggr.avg32"
+__dmbind(derive_locked=1, ctx=0, metric[11] aggr.max32_x, async= 1)
 __dmgetpmid: metric "aggr.max32_x" -> PMID 511.0.12
 __dmtraverse: name="aggr" added "aggr.max32_x"
+__dmbind(derive_locked=1, ctx=0, metric[12] aggr.min32_x, async= 1)
 __dmgetpmid: metric "aggr.min32_x" -> PMID 511.0.13
 __dmtraverse: name="aggr" added "aggr.min32_x"
+__dmbind(derive_locked=1, ctx=0, metric[13] aggr.sum32, async= 1)
 __dmgetpmid: metric "aggr.sum32" -> PMID 511.0.14
 __dmtraverse: name="aggr" added "aggr.sum32"
+__dmbind(derive_locked=1, ctx=0, metric[14] aggr.avgu32, async= 1)
 __dmgetpmid: metric "aggr.avgu32" -> PMID 511.0.15
 __dmtraverse: name="aggr" added "aggr.avgu32"
+__dmbind(derive_locked=1, ctx=0, metric[15] aggr.countu32, async= 1)
 __dmgetpmid: metric "aggr.countu32" -> PMID 511.0.16
 __dmtraverse: name="aggr" added "aggr.countu32"
+__dmbind(derive_locked=1, ctx=0, metric[16] aggr.maxu32, async= 1)
 __dmgetpmid: metric "aggr.maxu32" -> PMID 511.0.17
 __dmtraverse: name="aggr" added "aggr.maxu32"
+__dmbind(derive_locked=1, ctx=0, metric[17] aggr.minu32, async= 1)
 __dmgetpmid: metric "aggr.minu32" -> PMID 511.0.18
 __dmtraverse: name="aggr" added "aggr.minu32"
+__dmbind(derive_locked=1, ctx=0, metric[18] aggr.sumu32, async= 1)
 __dmgetpmid: metric "aggr.sumu32" -> PMID 511.0.19
 __dmtraverse: name="aggr" added "aggr.sumu32"
+__dmbind(derive_locked=1, ctx=0, metric[19] aggr.avgf, async= 1)
 __dmgetpmid: metric "aggr.avgf" -> PMID 511.0.20
 __dmtraverse: name="aggr" added "aggr.avgf"
+__dmbind(derive_locked=1, ctx=0, metric[20] aggr.countf, async= 1)
 __dmgetpmid: metric "aggr.countf" -> PMID 511.0.21
 __dmtraverse: name="aggr" added "aggr.countf"
+__dmbind(derive_locked=1, ctx=0, metric[21] aggr.maxf, async= 1)
 __dmgetpmid: metric "aggr.maxf" -> PMID 511.0.22
 __dmtraverse: name="aggr" added "aggr.maxf"
+__dmbind(derive_locked=1, ctx=0, metric[22] aggr.minf, async= 1)
 __dmgetpmid: metric "aggr.minf" -> PMID 511.0.23
 __dmtraverse: name="aggr" added "aggr.minf"
+__dmbind(derive_locked=1, ctx=0, metric[23] aggr.sumf, async= 1)
 __dmgetpmid: metric "aggr.sumf" -> PMID 511.0.24
 __dmtraverse: name="aggr" added "aggr.sumf"
+__dmbind(derive_locked=1, ctx=0, metric[24] aggr.avg64, async= 1)
 __dmgetpmid: metric "aggr.avg64" -> PMID 511.0.25
 __dmtraverse: name="aggr" added "aggr.avg64"
+__dmbind(derive_locked=1, ctx=0, metric[25] aggr.count64, async= 1)
 __dmgetpmid: metric "aggr.count64" -> PMID 511.0.26
 __dmtraverse: name="aggr" added "aggr.count64"
+__dmbind(derive_locked=1, ctx=0, metric[26] aggr.max64, async= 1)
 __dmgetpmid: metric "aggr.max64" -> PMID 511.0.27
 __dmtraverse: name="aggr" added "aggr.max64"
+__dmbind(derive_locked=1, ctx=0, metric[27] aggr.min64, async= 1)
 __dmgetpmid: metric "aggr.min64" -> PMID 511.0.28
 __dmtraverse: name="aggr" added "aggr.min64"
+__dmbind(derive_locked=1, ctx=0, metric[28] aggr.sum64, async= 1)
 __dmgetpmid: metric "aggr.sum64" -> PMID 511.0.29
 __dmtraverse: name="aggr" added "aggr.sum64"
+__dmbind(derive_locked=1, ctx=0, metric[29] aggr.seconds, async= 1)
 __dmgetpmid: metric "aggr.seconds" -> PMID 511.0.30
 __dmtraverse: name="aggr" added "aggr.seconds"
+__dmbind(derive_locked=1, ctx=0, metric[30] aggr.avgu64, async= 1)
 __dmgetpmid: metric "aggr.avgu64" -> PMID 511.0.31
 __dmtraverse: name="aggr" added "aggr.avgu64"
+__dmbind(derive_locked=1, ctx=0, metric[31] aggr.countu64, async= 1)
 __dmgetpmid: metric "aggr.countu64" -> PMID 511.0.32
 __dmtraverse: name="aggr" added "aggr.countu64"
+__dmbind(derive_locked=1, ctx=0, metric[32] aggr.maxu64, async= 1)
 __dmgetpmid: metric "aggr.maxu64" -> PMID 511.0.33
 __dmtraverse: name="aggr" added "aggr.maxu64"
+__dmbind(derive_locked=1, ctx=0, metric[33] aggr.minu64, async= 1)
 __dmgetpmid: metric "aggr.minu64" -> PMID 511.0.34
 __dmtraverse: name="aggr" added "aggr.minu64"
+__dmbind(derive_locked=1, ctx=0, metric[34] aggr.sumu64, async= 1)
 __dmgetpmid: metric "aggr.sumu64" -> PMID 511.0.35
 __dmtraverse: name="aggr" added "aggr.sumu64"
+__dmbind(derive_locked=1, ctx=0, metric[35] aggr.avgd, async= 1)
 __dmgetpmid: metric "aggr.avgd" -> PMID 511.0.36
 __dmtraverse: name="aggr" added "aggr.avgd"
+__dmbind(derive_locked=1, ctx=0, metric[36] aggr.countd, async= 1)
 __dmgetpmid: metric "aggr.countd" -> PMID 511.0.37
 __dmtraverse: name="aggr" added "aggr.countd"
+__dmbind(derive_locked=1, ctx=0, metric[37] aggr.maxd, async= 1)
 __dmgetpmid: metric "aggr.maxd" -> PMID 511.0.38
 __dmtraverse: name="aggr" added "aggr.maxd"
+__dmbind(derive_locked=1, ctx=0, metric[38] aggr.mind, async= 1)
 __dmgetpmid: metric "aggr.mind" -> PMID 511.0.39
 __dmtraverse: name="aggr" added "aggr.mind"
+__dmbind(derive_locked=1, ctx=0, metric[39] aggr.sumd, async= 1)
 __dmgetpmid: metric "aggr.sumd" -> PMID 511.0.40
 __dmtraverse: name="aggr" added "aggr.sumd"
+__dmbind(derive_locked=1, ctx=0, metric[40] aggr.count_err, async= 1)
 __dmgetpmid: metric "aggr.count_err" -> PMID 511.0.41
 __dmtraverse: name="aggr" added "aggr.count_err"
+__dmbind(derive_locked=1, ctx=0, metric[41] aggr.sum_err, async= 1)
 __dmgetpmid: metric "aggr.sum_err" -> PMID 511.0.42
 __dmtraverse: name="aggr" added "aggr.sum_err"
+__dmbind(derive_locked=1, ctx=0, metric[42] aggr.countblob, async= 1)
 __dmgetpmid: metric "aggr.countblob" -> PMID 511.0.43
 __dmtraverse: name="aggr" added "aggr.countblob"
+__dmbind(derive_locked=1, ctx=0, metric[43] aggr.count_noinst, async= 1)
 __dmgetpmid: metric "aggr.count_noinst" -> PMID 511.0.44
 __dmtraverse: name="aggr" added "aggr.count_noinst"
 __dmgetpmid: metric "aggr.max32" -> PMID 511.0.3
@@ -984,6 +1027,8 @@ Derived metric expr dump from <addr-4>...
 expr node <addr-4> type=MAX left=<addr-5> right=(nil) save_last=0
 expr node <addr-5> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] primary=1
 __dmopencontext(->ctx 0) called, 3 derived metrics
+__dmtraverse(ctx=0, name="aggr", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] aggr.non_arith, async= 1)
 __dmgetpmid: metric "aggr.non_arith" -> PMID 511.0.3
 Semantic error: derived metric aggr.non_arith: MAX(sample.lights): Non-arithmetic operand for function
 __dmbind: check_expr failed for metric[2] aggr.non_arith

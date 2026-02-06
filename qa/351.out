@@ -38,7 +38,7 @@ sample.long.bin_ctr
     inst [900 or "bin-900"] value 900
 
 Now with the derived metrics ...
-bind_expr: error: global derived metric sample.long.lots: operand: sample.million: Unknown metric name
+Semantic error: derived metric sample.long.lots: operand sample.million: Unknown operand metric
 
 sample.long.one
     value 1

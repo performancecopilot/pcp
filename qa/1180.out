@@ -124,7 +124,7 @@ Report created: ...
 
 #  Wed Mar 7 16:36:43.514833 2018
 # paging statistics
--- no report for config ":sar-B" because the metric "mem.vmstat.pgscan_kswapd" is not in the archive
+-- no report for config ":sar-B" because one or more metrics for the derived metric "mem.vmstat.pgscan_direct_all" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
@@ -144,7 +144,7 @@ Report created: ...
 
 #  Wed Mar 7 16:36:43.514833 2018
 # mounted filesystem statistics
--- no report for config ":sar-F" because the metric "filesys.free" is not in the archive
+-- no report for config ":sar-F" because one or more metrics for the derived metric "filesys.used_pct" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018
@@ -428,7 +428,7 @@ Report created: ...
 
 #  Wed Mar 7 16:36:43.514833 2018
 # NUMA hint fault statistics
--- no report for config ":numa-hint-faults" because the metric "mem.vmstat.numa_hint_faults" is not in the archive
+-- no report for config ":numa-hint-faults" because one or more metrics for the derived metric "mem.vmstat.numa_hint_faults_local_percent" is not in the archive
 
 
 #  Wed Mar 7 16:36:43.514833 2018

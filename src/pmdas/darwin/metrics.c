@@ -465,7 +465,7 @@ pmdaMetric metrictab[] = {
 /* kernel.all.uptime */
   { &mach_uptime,
     { PMDA_PMID(CLUSTER_UPTIME,76), PM_TYPE_U32, PM_INDOM_NULL,
-      PM_SEM_INSTANT, PMDA_PMUNITS(0,1,1,0,PM_TIME_SEC,PM_COUNT_ONE) }, },
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_SEC,0) }, },
 
 /* network.interface.in.bytes */
   { NULL,

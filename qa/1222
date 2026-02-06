@@ -115,6 +115,7 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 	-e '/^proc\.psinfo\.tty_pgrp:/d' \
 	-e '/^proc\.smaps\./d' \
 	-e '/^proc\.fdinfo\./d' \
+	-e '/^proc\.delayacct\./d' \
 	-e '/Warning: invalid file .* in syscall fstat/d' \
 	-e '/^Command: /s/,proc_init .*/,proc_init ... metrics .../' \
 	-e '/ERROR SUMMARY/q' \
@@ -122,8 +123,6 @@ NF == 0 && seen == 1		{ if (numval == 1) print metric ": 1 value"
 }
 
 # real QA test starts here
-$sudo sysctl kernel.task_delayacct=1 >/dev/null 2>&1
-
 linux_pmda=$PCP_PMDAS_DIR/linux/pmda_linux,linux_init
 proc_pmda=$PCP_PMDAS_DIR/proc/pmda_proc,proc_init
 

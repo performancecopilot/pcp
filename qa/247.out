@@ -42,24 +42,35 @@ pmRegisterDerived: global metric[8] myname.g = sample.bin + 100 - sample.bin - 1
 pmRegisterDerived: global metric[9] myname.h = sample.seconds + sample.milliseconds / 1000
 pmRegisterDerived: global metric[10] myname.i = sample.bin + sample.double.hundred
 pmRegisterDerived: global metric[11] myname.j = sample.double.hundred + sample.bin
+__dmtraverse(ctx=0, name="myname", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmtraverse: name="myname" added "myname.a"
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.b, async= 1)
 __dmgetpmid: metric "myname.b" -> PMID 511.0.4
 __dmtraverse: name="myname" added "myname.b"
+__dmbind(derive_locked=1, ctx=0, metric[4] myname.c, async= 1)
 __dmgetpmid: metric "myname.c" -> PMID 511.0.5
 __dmtraverse: name="myname" added "myname.c"
+__dmbind(derive_locked=1, ctx=0, metric[5] myname.d, async= 1)
 __dmgetpmid: metric "myname.d" -> PMID 511.0.6
 __dmtraverse: name="myname" added "myname.d"
+__dmbind(derive_locked=1, ctx=0, metric[6] myname.e, async= 1)
 __dmgetpmid: metric "myname.e" -> PMID 511.0.7
 __dmtraverse: name="myname" added "myname.e"
+__dmbind(derive_locked=1, ctx=0, metric[7] myname.f, async= 1)
 __dmgetpmid: metric "myname.f" -> PMID 511.0.8
 __dmtraverse: name="myname" added "myname.f"
+__dmbind(derive_locked=1, ctx=0, metric[8] myname.g, async= 1)
 __dmgetpmid: metric "myname.g" -> PMID 511.0.9
 __dmtraverse: name="myname" added "myname.g"
+__dmbind(derive_locked=1, ctx=0, metric[9] myname.h, async= 1)
 __dmgetpmid: metric "myname.h" -> PMID 511.0.10
 __dmtraverse: name="myname" added "myname.h"
+__dmbind(derive_locked=1, ctx=0, metric[10] myname.i, async= 1)
 __dmgetpmid: metric "myname.i" -> PMID 511.0.11
 __dmtraverse: name="myname" added "myname.i"
+__dmbind(derive_locked=1, ctx=0, metric[11] myname.j, async= 1)
 __dmgetpmid: metric "myname.j" -> PMID 511.0.12
 __dmtraverse: name="myname" added "myname.j"
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
@@ -134,71 +145,89 @@ pmRegisterDerived: global metric[15] myname.gcov.a = 42 + sample.bad.unknown
 pmRegisterDerived: global metric[16] myname.gcov.b = (disk.all.total + disk.dev.total) + 42 
 pmRegisterDerived: global metric[17] myname.gcov.c = 42 - (disk.all.total + disk.dev.total)
 pmRegisterDerived: global metric[18] myname.gcov.d = (sample.bin + sample.darkness)+42
+__dmtraverse(ctx=0, name="myname", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] myname.a, async= 1)
 __dmgetpmid: metric "myname.a" -> PMID 511.0.3
 __dmgetpmid: metric "no.such.metric" -> Unknown metric name
-bind_expr: error: global derived metric myname.a: operand: no.such.metric: Unknown metric name
+Semantic error: derived metric myname.a: operand no.such.metric: Unknown operand metric
 __dmbind: bind_expr failed for metric[2] myname.a
 __dmtraverse: name="myname", omitting invalid child myname.a [511.0.3]
+__dmbind(derive_locked=1, ctx=0, metric[3] myname.b, async= 1)
 __dmgetpmid: metric "myname.b" -> PMID 511.0.4
-bind_expr: error: global derived metric myname.b: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+Semantic error: derived metric myname.b: operand sample.bad.unknown: Metadata for operand metric not available
 __dmbind: bind_expr failed for metric[3] myname.b
 __dmtraverse: name="myname", omitting invalid child myname.b [511.0.4]
+__dmbind(derive_locked=1, ctx=0, metric[4] myname.c, async= 1)
 __dmgetpmid: metric "myname.c" -> PMID 511.0.5
 Semantic error: derived metric myname.c: disk.dev.read * disk.dev.write: Illegal operator for counters
 __dmbind: check_expr failed for metric[4] myname.c
 __dmtraverse: name="myname", omitting invalid child myname.c [511.0.5]
+__dmbind(derive_locked=1, ctx=0, metric[5] myname.d, async= 1)
 __dmgetpmid: metric "myname.d" -> PMID 511.0.6
 Semantic error: derived metric myname.d: sample.byte_ctr + sample.long.hundred: Illegal operator for counter and non-counter
 __dmbind: check_expr failed for metric[5] myname.d
 __dmtraverse: name="myname", omitting invalid child myname.d [511.0.6]
+__dmbind(derive_locked=1, ctx=0, metric[6] myname.e, async= 1)
 __dmgetpmid: metric "myname.e" -> PMID 511.0.7
 Semantic error: derived metric myname.e: 100 / sample.byte_ctr: Illegal operator for non-counter and counter
 __dmbind: check_expr failed for metric[6] myname.e
 __dmtraverse: name="myname", omitting invalid child myname.e [511.0.7]
+__dmbind(derive_locked=1, ctx=0, metric[7] myname.f, async= 1)
 __dmgetpmid: metric "myname.f" -> PMID 511.0.8
 Semantic error: derived metric myname.f: 3 + sample.lights: Non-arithmetic type for right operand
 __dmbind: check_expr failed for metric[7] myname.f
 __dmtraverse: name="myname", omitting invalid child myname.f [511.0.8]
+__dmbind(derive_locked=1, ctx=0, metric[8] myname.g, async= 1)
 __dmgetpmid: metric "myname.g" -> PMID 511.0.9
 Semantic error: derived metric myname.g: sample.sysinfo - 42: Non-arithmetic type for left operand
 __dmbind: check_expr failed for metric[8] myname.g
 __dmtraverse: name="myname", omitting invalid child myname.g [511.0.9]
+__dmbind(derive_locked=1, ctx=0, metric[9] myname.h, async= 1)
 __dmgetpmid: metric "myname.h" -> PMID 511.0.10
 Semantic error: derived metric myname.h: disk.dev.total + sample.long.hundred: Illegal operator for counter and non-counter
 __dmbind: check_expr failed for metric[9] myname.h
 __dmtraverse: name="myname", omitting invalid child myname.h [511.0.10]
+__dmbind(derive_locked=1, ctx=0, metric[10] myname.i, async= 1)
 __dmgetpmid: metric "myname.i" -> PMID 511.0.11
 Semantic error: derived metric myname.i: sample.long.hundred - disk.dev.total: Illegal operator for non-counter and counter
 __dmbind: check_expr failed for metric[10] myname.i
 __dmtraverse: name="myname", omitting invalid child myname.i [511.0.11]
+__dmbind(derive_locked=1, ctx=0, metric[11] myname.j, async= 1)
 __dmgetpmid: metric "myname.j" -> PMID 511.0.12
 Semantic error: derived metric myname.j: sample.mirage * sample.step_counter: Non-counter and not dimensionless for left operand
 __dmbind: check_expr failed for metric[11] myname.j
 __dmtraverse: name="myname", omitting invalid child myname.j [511.0.12]
+__dmbind(derive_locked=1, ctx=0, metric[12] myname.k, async= 1)
 __dmgetpmid: metric "myname.k" -> PMID 511.0.13
 Semantic error: derived metric myname.k: sample.step_counter / sample.mirage_longlong: Non-counter and not dimensionless for right operand
 __dmbind: check_expr failed for metric[12] myname.k
 __dmtraverse: name="myname", omitting invalid child myname.k [511.0.13]
+__dmbind(derive_locked=1, ctx=0, metric[13] myname.k2, async= 1)
 __dmgetpmid: metric "myname.k2" -> PMID 511.0.14
 Semantic error: derived metric myname.k2: sample.mirage_longlong * sample.step_counter: Non-counter and not dimensionless for left operand
 __dmbind: check_expr failed for metric[13] myname.k2
 __dmtraverse: name="myname", omitting invalid child myname.k2 [511.0.14]
+__dmbind(derive_locked=1, ctx=0, metric[14] myname.l, async= 1)
 __dmgetpmid: metric "myname.l" -> PMID 511.0.15
 Semantic error: derived metric myname.l: sample.bin + sample.darkness: Operands should have the same instance domain
 __dmbind: check_expr failed for metric[14] myname.l
 __dmtraverse: name="myname", omitting invalid child myname.l [511.0.15]
+__dmbind(derive_locked=1, ctx=0, metric[15] myname.gcov.a, async= 1)
 __dmgetpmid: metric "myname.gcov.a" -> PMID 511.0.16
-bind_expr: error: global derived metric myname.gcov.a: operand (sample.bad.unknown [29.0.54]): Unknown or illegal metric identifier
+Semantic error: derived metric myname.gcov.a: operand sample.bad.unknown: Metadata for operand metric not available
 __dmbind: bind_expr failed for metric[15] myname.gcov.a
 __dmtraverse: name="myname", omitting invalid child myname.gcov.a [511.0.16]
+__dmbind(derive_locked=1, ctx=0, metric[16] myname.gcov.b, async= 1)
 __dmgetpmid: metric "myname.gcov.b" -> PMID 511.0.17
 Semantic error: derived metric myname.gcov.b: <expr> + 42: Illegal operator for counter and non-counter
 __dmbind: check_expr failed for metric[16] myname.gcov.b
 __dmtraverse: name="myname", omitting invalid child myname.gcov.b [511.0.17]
+__dmbind(derive_locked=1, ctx=0, metric[17] myname.gcov.c, async= 1)
 __dmgetpmid: metric "myname.gcov.c" -> PMID 511.0.18
 Semantic error: derived metric myname.gcov.c: 42 - <expr>: Illegal operator for non-counter and counter
 __dmbind: check_expr failed for metric[17] myname.gcov.c
 __dmtraverse: name="myname", omitting invalid child myname.gcov.c [511.0.18]
+__dmbind(derive_locked=1, ctx=0, metric[18] myname.gcov.d, async= 1)
 __dmgetpmid: metric "myname.gcov.d" -> PMID 511.0.19
 Semantic error: derived metric myname.gcov.d: sample.bin + sample.darkness: Operands should have the same instance domain
 __dmbind: check_expr failed for metric[18] myname.gcov.d
