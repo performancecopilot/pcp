@@ -19,6 +19,7 @@ proc {
     cpu
     io
     fd
+    net
     control
 }
 
@@ -100,6 +101,11 @@ proc.io {
 
 proc.fd {
     count		PROC:6:0
+}
+
+proc.net {
+    tcp_count		PROC:8:0
+    udp_count		PROC:8:1
 }
 
 proc.control {

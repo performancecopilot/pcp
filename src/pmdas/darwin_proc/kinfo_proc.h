@@ -59,6 +59,8 @@ typedef struct {
     uint32_t	threads;
     uint32_t	translated;
     uint32_t	fd_count;	/* open file descriptor count */
+    uint32_t	tcp_count;	/* TCP socket count */
+    uint32_t	udp_count;	/* UDP socket count */
     int32_t	usrpri;
     int32_t	priority;
     int32_t	nice;

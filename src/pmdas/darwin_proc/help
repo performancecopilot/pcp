@@ -155,3 +155,11 @@ This setting is only visible to the active client context.  In other
 words, storing into this metric has no effect for other monitoring
 tools.  See proc.control.all.threads, if that is the desired outcome.
 Only pmStore(3) can effectively set this metric (pmstore(1) cannot).
+
+@ proc.net.tcp_count number of TCP sockets for this process
+Count of TCP (IPv4 and IPv6) sockets for this process.
+Obtained via proc_pidinfo(PROC_PIDLISTFDS) and proc_pidfdinfo(PROC_PIDFDSOCKETINFO).
+
+@ proc.net.udp_count number of UDP sockets for this process
+Count of UDP (IPv4 and IPv6) sockets for this process.
+Obtained via proc_pidinfo(PROC_PIDLISTFDS) and proc_pidfdinfo(PROC_PIDFDSOCKETINFO).

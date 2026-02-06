@@ -14,6 +14,9 @@
  */
 
 #include <assert.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #include "pmapi.h"
 #include "libpcp.h"
@@ -530,14 +533,48 @@ darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
 #endif
 	}
 
-	/* file descriptor count */
+	/* file descriptor and socket counts */
 	{
 		int bufsize = proc_pidinfo(proc->id, PROC_PIDLISTFDS, 0, NULL, 0);
+		proc->fd_count = 0;
+		proc->tcp_count = 0;
+		proc->udp_count = 0;
 
 		if (bufsize > 0) {
-			proc->fd_count = bufsize / sizeof(struct proc_fdinfo);
-		} else {
-			proc->fd_count = 0;
+			int fd_count = bufsize / sizeof(struct proc_fdinfo);
+			struct proc_fdinfo *fdinfo = malloc(bufsize);
+
+			if (fdinfo != NULL) {
+				int ret = proc_pidinfo(proc->id, PROC_PIDLISTFDS, 0, fdinfo, bufsize);
+
+				if (ret > 0) {
+					proc->fd_count = ret / sizeof(struct proc_fdinfo);
+
+					/* Count TCP and UDP sockets */
+					for (int i = 0; i < proc->fd_count; i++) {
+						if (fdinfo[i].proc_fdtype == PROX_FDTYPE_SOCKET) {
+							struct socket_fdinfo si;
+							int si_size = proc_pidfdinfo(proc->id, fdinfo[i].proc_fd,
+								PROC_PIDFDSOCKETINFO, &si, sizeof(si));
+
+							if (si_size > 0) {
+								/* Check for IPv4 or IPv6 sockets */
+								if (si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {
+									if (si.psi.soi_kind == SOCKINFO_TCP) {
+										proc->tcp_count++;
+									} else if (si.psi.soi_kind == SOCKINFO_IN) {
+										/* SOCKINFO_IN = UDP/ICMP; check socket type */
+										if (si.psi.soi_protocol == IPPROTO_UDP) {
+											proc->udp_count++;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				free(fdinfo);
+			}
 		}
 	}
 

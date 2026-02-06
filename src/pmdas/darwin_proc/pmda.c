@@ -79,6 +79,7 @@ enum {
     CLUSTER_PROC_IO,
     CLUSTER_PROC_FD,
     CLUSTER_PROC_QOS,
+    CLUSTER_PROCNET,
     NUM_CLUSTERS
 };
 static pmdaMetric metrictab[] = {
@@ -264,6 +265,13 @@ static pmdaMetric metrictab[] = {
 /* proc.cpu.qos.user_interactive */
   { NULL, { PMDA_PMID(CLUSTER_PROC_QOS, 6), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+
+/* proc.net.tcp_count */
+  { NULL, { PMDA_PMID(CLUSTER_PROCNET, 0), PM_TYPE_U32, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* proc.net.udp_count */
+  { NULL, { PMDA_PMID(CLUSTER_PROCNET, 1), PM_TYPE_U32, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
  * Metrics control cluster
@@ -647,6 +655,21 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    break;
 	case 6: /* proc.cpu.qos.user_interactive */
 	    atom->ull = proc->qos_user_interactive;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_PROCNET:
+	if ((proc = darwin_proc_lookup(inst)) == NULL)
+	    return 0;
+	switch (item) {
+	case 0: /* proc.net.tcp_count */
+	    atom->ul = proc->tcp_count;
+	    break;
+	case 1: /* proc.net.udp_count */
+	    atom->ul = proc->udp_count;
 	    break;
 	default:
 	    return PM_ERR_PMID;
