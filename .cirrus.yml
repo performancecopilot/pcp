@@ -35,6 +35,9 @@ task:
     sysctl net.inet.tcp.disable_access_to_stats
   pcp_build_script: |
      [ "$PCP_SKIP_BUILD" == "true" ] && echo "SKIPPING BUILD" || ./Makepkgs --verbose
+  validate_pmid_consistency_script: |
+     echo "Validating PMID consistency across pmns, metrics.c, and darwin.h..."
+     ./build/mac/test/integration/test-pmid-consistency.sh
   pcp_install_script: |
      DMG_PATH=$(find pcp-**/build/mac -name "pcp-*.dmg" | head -1) # Find the generated DMG
      echo "Found DMG: $DMG_PATH"
