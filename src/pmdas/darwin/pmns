@@ -6,6 +6,7 @@ hinv {
     nfilesys		DARWIN:5:31
     ndisk		DARWIN:7:46
     ngpu		DARWIN:19:99
+    nfan		DARWIN:24:5
     machine		DARWIN:0:2
 }
 
@@ -497,4 +498,35 @@ power.battery.capacity {
 
 power.ac {
     connected		DARWIN:21:11
+}
+
+thermal {
+    cpu
+    gpu
+    package		DARWIN:24:3
+    ambient		DARWIN:24:4
+    fan
+    pressure
+}
+
+thermal.cpu {
+    die			DARWIN:24:0
+    proximity		DARWIN:24:1
+}
+
+thermal.gpu {
+    die			DARWIN:24:2
+}
+
+thermal.fan {
+    speed		DARWIN:24:6
+    target		DARWIN:24:7
+    mode		DARWIN:24:8
+    min			DARWIN:24:9
+    max			DARWIN:24:10
+}
+
+thermal.pressure {
+    level		DARWIN:24:11
+    state		DARWIN:24:12
 }

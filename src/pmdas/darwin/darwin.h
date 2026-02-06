@@ -16,6 +16,7 @@ enum {
     GPU_INDOM,			/* 6 - set of all GPUs */
     APFS_CONTAINER_INDOM,	/* 7 - set of all APFS containers */
     APFS_VOLUME_INDOM,		/* 8 - set of all APFS volumes */
+    FAN_INDOM,			/* 9 - set of all fans */
     NUM_INDOMS			/* total number of instance domains */
 };
 
@@ -47,6 +48,7 @@ enum {
     CLUSTER_POWER,		/* 21 = power/battery statistics */
     CLUSTER_IPV6,		/* 22 = ipv6 protocol statistics */
     CLUSTER_APFS,		/* 23 = apfs statistics */
+    CLUSTER_THERMAL,		/* 24 = thermal/temperature monitoring */
     NUM_CLUSTERS		/* total number of clusters */
 };
 

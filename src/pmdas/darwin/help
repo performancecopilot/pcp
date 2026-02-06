@@ -723,3 +723,77 @@ Instantaneous value per volume instance.
 @ disk.apfs.volume.locked APFS volume locked status
 Boolean flag (1/0) indicating whether the APFS volume is currently locked
 (requires password to unlock). Instantaneous value per volume instance.
+
+@ hinv.nfan number of cooling fans
+Number of cooling fans in the system, detected via SMC (System Management
+Controller). On fanless MacBooks (M1/M2 MacBook Air), this will be 0.
+On MacBooks with active cooling, typically 1-2 fans. Desktop Macs may have
+more fans. Instantaneous value, no instance domain.
+
+@ thermal.cpu.die CPU die temperature
+CPU die temperature in degrees Celsius, read from SMC key Tp01 (Apple Silicon)
+or equivalent Intel key. Represents the hottest point on the CPU die.
+Typical operating range: 30-90°C. Returns PM_ERR_APPVERSION if sensor
+not available on this Mac model. Instantaneous value.
+
+@ thermal.cpu.proximity CPU proximity temperature
+Temperature measured near the CPU package (°C), read from SMC key TA0P.
+Generally lower than die temperature but responds quickly to CPU load changes.
+Useful for thermal trending. Instantaneous value.
+
+@ thermal.gpu.die GPU die temperature
+GPU die temperature in degrees Celsius, read from SMC key Tg01 (Apple Silicon
+integrated GPU) or equivalent discrete GPU key. Only available on Macs with
+discrete GPUs or Apple Silicon with GPU sensor support. Returns PM_ERR_APPVERSION
+if not available. Instantaneous value.
+
+@ thermal.package SoC package temperature
+System-on-chip package temperature (°C), read from SMC key TCXC. On Apple
+Silicon, represents the unified M-series chip temperature. On Intel Macs,
+represents the CPU package. Instantaneous value.
+
+@ thermal.ambient ambient air temperature
+Ambient air temperature inside the chassis (°C), read from SMC key TA0P.
+Represents intake air temperature before cooling. Useful for diagnosing
+thermal throttling and fan behavior. Instantaneous value.
+
+@ thermal.fan.speed fan speed
+Current fan speed in revolutions per minute (RPM), per-fan instance.
+Read from SMC keys F0Ac, F1Ac, etc. Value of 0 indicates fan stopped
+(unusual except during boot). Compare with target RPM to detect thermal
+throttling. Instantaneous value, FAN_INDOM instance domain.
+
+@ thermal.fan.target target fan speed
+Target fan speed in RPM that SMC is attempting to achieve, per-fan instance.
+When target > current speed, system is trying to increase cooling.
+Read from SMC keys F0Tg, F1Tg, etc. Instantaneous value, FAN_INDOM instance domain.
+
+@ thermal.fan.mode fan control mode
+Fan control mode: 0 = automatic (SMC-controlled based on temperature),
+1 = manual (user/software override). Most systems operate in automatic mode.
+Manual mode typically requires third-party software. Read from SMC keys
+F0Md, F1Md, etc. Instantaneous value, FAN_INDOM instance domain.
+
+@ thermal.fan.min minimum fan speed
+Minimum fan speed in RPM, per-fan instance. Fans will not spin slower than
+this value during normal operation. Typically 1200-2000 RPM for MacBooks.
+Read from SMC keys F0Mn, F1Mn, etc. Discrete value, FAN_INDOM instance domain.
+
+@ thermal.fan.max maximum fan speed
+Maximum fan speed in RPM, per-fan instance. Fans will not spin faster than
+this value even under extreme thermal load. Typically 5000-7000 RPM for MacBooks.
+Read from SMC keys F0Mx, F1Mx, etc. Discrete value, FAN_INDOM instance domain.
+
+@ thermal.pressure.level thermal pressure level
+macOS thermal pressure level (0-3) from notify API:
+  0 = Nominal (normal operation, no throttling)
+  1 = Fair (light thermal load, minimal throttling)
+  2 = Serious (high thermal load, active throttling)
+  3 = Critical (extreme thermal load, aggressive throttling)
+Always available, does not require SMC access. Instantaneous value.
+
+@ thermal.pressure.state thermal pressure state string
+Human-readable thermal pressure state: "Nominal", "Fair", "Serious", or
+"Critical". Corresponds to thermal.pressure.level numeric value. Useful for
+monitoring dashboards and alerts. Always available via notify API.
+Instantaneous value, string type.

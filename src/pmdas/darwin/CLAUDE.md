@@ -63,6 +63,51 @@ root {
 }
 ```
 
+## SMC (System Management Controller) Access
+
+The Darwin PMDA includes thermal monitoring via Apple's SMC (System Management Controller),
+which provides access to temperature sensors and fan metrics.
+
+### Important: Reverse-Engineered APIs
+
+SMC access is **community reverse-engineered** and **NOT officially supported by Apple**.
+The APIs may change between macOS versions and may require entitlements on newer systems.
+
+### Reference Documentation
+
+- **iSMC** (https://github.com/dkorunic/iSMC) - CLI tool with Apple Silicon support
+  - Reference for SMC key patterns on M1/M2/M3 Macs
+  - Demonstrates sp78 and fpe2 format conversions
+
+- **SMCKit** (https://github.com/beltex/SMCKit) - Comprehensive Swift library
+  - Extensive SMC key documentation for Intel and Apple Silicon
+  - Reference for fan control and thermal sensor keys
+
+### SMC Key Formats
+
+| Format | Type | Conversion | Usage |
+|--------|------|------------|-------|
+| sp78 | Signed fixed-point | ÷256 | Temperature (°C) |
+| fpe2 | Unsigned fixed-point | ÷4 | Fan RPM |
+| ui8 | Unsigned 8-bit | Direct | Fan count, flags |
+
+### Key Patterns by Platform
+
+**Apple Silicon (M1/M2/M3):**
+- Temperature: `Tp01` (CPU die), `Tg01` (GPU die), `TCXC` (package)
+- Fan: `FNum` (count), `F0Ac`/`F1Ac` (speed), `F0Tg`/`F1Tg` (target)
+
+**Intel Macs:**
+- Temperature: `TC0P` (CPU proximity), `TG0D` (GPU die)
+- Fan patterns same as Apple Silicon
+
+### Graceful Degradation
+
+The thermal subsystem degrades gracefully when SMC access fails:
+- Thermal pressure metrics always work (notify API, no SMC required)
+- Temperature/fan metrics return `PM_ERR_APPVERSION` if SMC unavailable
+- Fanless Macs (MacBook Air) report `hinv.nfan=0` correctly
+
 ## Testing & QA
 
 ### Unit Tests (Run Locally)

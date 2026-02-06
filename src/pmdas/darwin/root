@@ -15,6 +15,7 @@ root {
     gpu
     ipc
     power
+    thermal
 }
 
 #include "pmns" 

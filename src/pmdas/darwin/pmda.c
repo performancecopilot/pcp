@@ -48,6 +48,7 @@
 #include "ipc.h"
 #include "power.h"
 #include "apfs.h"
+#include "thermal.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -134,6 +135,9 @@ ipcstats_t		mach_ipc = { 0 };
 
 int			mach_power_error = 0;
 powerstats_t		mach_power = { 0 };
+
+int			mach_thermal_error = 0;
+thermalstats_t		mach_thermal = { 0 };
 
 int			mach_apfs_error = 0;
 struct apfs_stats	mach_apfs = { 0 };
@@ -224,6 +228,8 @@ darwin_refresh(int *need_refresh)
 	mach_ipc_error = refresh_ipc(&mach_ipc);
     if (need_refresh[CLUSTER_POWER])
 	mach_power_error = refresh_power(&mach_power);
+    if (need_refresh[CLUSTER_THERMAL])
+	mach_thermal_error = refresh_thermal(&mach_thermal, &indomtab[FAN_INDOM]);
     if (need_refresh[CLUSTER_IPV6])
 	mach_ipv6_error = refresh_ipv6(&mach_ipv6);
     if (need_refresh[CLUSTER_APFS])
@@ -279,6 +285,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_GPU:		return fetch_gpu(item, inst, atom);
     case CLUSTER_IPC:		return fetch_ipc(item, atom);
     case CLUSTER_POWER:		return fetch_power(item, atom);
+    case CLUSTER_THERMAL:	return fetch_thermal(item, inst, atom);
     case CLUSTER_IPV6:		return fetch_ipv6(item, atom);
     case CLUSTER_APFS:		return fetch_apfs(item, inst, atom);
     }
@@ -375,6 +382,7 @@ darwin_init(pmdaInterface *dp)
 	fprintf(stderr, "darwin_init: refresh_hinv failed: %s\n", pmErrStr(sts));
     init_network();
     init_gpu();
+    init_thermal(&indomtab[FAN_INDOM]);
     check_tcp_stats_access();
 }
 

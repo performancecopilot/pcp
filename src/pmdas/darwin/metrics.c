@@ -29,6 +29,7 @@
 #include "tcp.h"
 #include "ipc.h"
 #include "power.h"
+#include "thermal.h"
 
 /*
  * External declarations for global data referenced in metrictab.
@@ -50,6 +51,7 @@ extern tcpconn_stats_t mach_tcpconn;
 extern tcpstats_t mach_tcp;
 extern ipcstats_t mach_ipc;
 extern powerstats_t mach_power;
+extern thermalstats_t mach_thermal;
 
 pmdaMetric metrictab[] = {
 
@@ -1157,6 +1159,76 @@ pmdaMetric metrictab[] = {
 /* darwin.power.source */
   { &mach_power.power_source,
     { PMDA_PMID(CLUSTER_POWER,12), PM_TYPE_STRING, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/*
+ * Thermal monitoring cluster (temperature, fans, thermal pressure)
+ * Requires SMC access on Apple Silicon/Intel Macs
+ */
+
+/* darwin.thermal.cpu.die */
+  { NULL,  /* Fetched via fetch_thermal() */
+    { PMDA_PMID(CLUSTER_THERMAL,0), PM_TYPE_FLOAT, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.cpu.proximity */
+  { NULL,  /* Fetched via fetch_thermal() */
+    { PMDA_PMID(CLUSTER_THERMAL,1), PM_TYPE_FLOAT, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.gpu.die */
+  { NULL,  /* Fetched via fetch_thermal() */
+    { PMDA_PMID(CLUSTER_THERMAL,2), PM_TYPE_FLOAT, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.package */
+  { NULL,  /* Fetched via fetch_thermal() */
+    { PMDA_PMID(CLUSTER_THERMAL,3), PM_TYPE_FLOAT, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.ambient */
+  { NULL,  /* Fetched via fetch_thermal() */
+    { PMDA_PMID(CLUSTER_THERMAL,4), PM_TYPE_FLOAT, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.hinv.nfan */
+  { NULL,  /* Fetched via fetch_thermal() */
+    { PMDA_PMID(CLUSTER_THERMAL,5), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.fan.speed */
+  { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
+    { PMDA_PMID(CLUSTER_THERMAL,6), PM_TYPE_FLOAT, FAN_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.fan.target */
+  { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
+    { PMDA_PMID(CLUSTER_THERMAL,7), PM_TYPE_FLOAT, FAN_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.fan.mode */
+  { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
+    { PMDA_PMID(CLUSTER_THERMAL,8), PM_TYPE_U32, FAN_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.fan.min */
+  { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
+    { PMDA_PMID(CLUSTER_THERMAL,9), PM_TYPE_FLOAT, FAN_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.fan.max */
+  { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
+    { PMDA_PMID(CLUSTER_THERMAL,10), PM_TYPE_FLOAT, FAN_INDOM,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.pressure.level */
+  { NULL,  /* Fetched via fetch_thermal() */
+    { PMDA_PMID(CLUSTER_THERMAL,11), PM_TYPE_U32, PM_INDOM_NULL,
+      PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
+
+/* darwin.thermal.pressure.state */
+  { NULL,  /* Fetched via fetch_thermal() */
+    { PMDA_PMID(CLUSTER_THERMAL,12), PM_TYPE_STRING, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
 };
