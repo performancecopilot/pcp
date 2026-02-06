@@ -5957,10 +5957,10 @@ done
 test -n "$AR" || AR="ar"
 
 fi
-if ! $AR --version >/dev/null 2>&1; then
+ar=`$which $AR`
+if test ! -x "$ar"; then
     as_fn_error $? "cannot find a valid 'ar' command." "$LINENO" 5
 fi
-ar=$AR
 
 
 for ac_prog in flex lex
