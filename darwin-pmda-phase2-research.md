@@ -626,12 +626,12 @@ src/pmdas/darwin_proc/
 | 8. Scheduler | ~3 | 🔲 Not Started | 0/3 |
 | 9. Device Enumeration | ~6 | 🔲 Not Started | 0/6 |
 | 10. Memory Compression | ~6 | ✅ **Complete** | **6/6** |
-| 11. pmrep Views | 3 views + 2 updates | ⏳ Partial | **2/5** |
-| **TOTAL** | **~100 metrics** | **~85% Complete** | **92/99** |
+| 11. pmrep Views | 3 views + 2 updates | ✅ **Complete** | **5/5** |
+| **TOTAL** | **~100 metrics** | **~88% Complete** | **95/99** |
 
 **Legend**: ✅ Complete | ⏳ In Progress | 🔲 Not Started
 
-*Category 11 tracks pmrep view configurations, not metrics. Views ready: macstat-gpu, macstat-x/mem updates. Blocked: macstat-pwr (Cat 3), macstat-thermal (Cat 1).*
+*Category 11 tracks pmrep view configurations, not metrics. All views complete: macstat-gpu, macstat-pwr, macstat-thermal, macstat-x/mem updates.*
 
 ---
 
@@ -750,16 +750,16 @@ bool is_apple_silicon = (ret == 1);
 
 | View | Purpose | Dependencies | Status |
 |------|---------|--------------|--------|
-| `macstat-gpu` | GPU utilization & VRAM monitoring | GPU metrics (Cat 2) ✅ | Ready |
-| `macstat-pwr` | Battery health, charge, power source | Battery metrics (Cat 3) ✅ | Ready |
-| `macstat-thermal` | CPU/GPU temps, fans, throttling | SMC metrics (Cat 1) ✅ | Ready |
+| `macstat-gpu` | GPU utilization & VRAM monitoring | GPU metrics (Cat 2) ✅ | ✅ **Complete** |
+| `macstat-pwr` | Battery health, charge, power source | Battery metrics (Cat 3) ✅ | ✅ **Complete** |
+| `macstat-thermal` | CPU/GPU temps, fans, throttling | SMC metrics (Cat 1) ✅ | ✅ **Complete** |
 
 #### 11.2 Updates to Existing Views
 
 | View | Update | Dependencies | Status |
 |------|--------|--------------|--------|
-| `macstat-x` | Add `gpu.util` summary metric | GPU metrics ✅ | Ready |
-| `macstat-mem` | Add compression timing buckets | Compression metrics ✅ | Ready |
+| `macstat-x` | Add `gpu.util` summary metric | GPU metrics ✅ | ✅ **Complete** |
+| `macstat-mem` | Add compression timing buckets | Compression metrics ✅ | ✅ **Complete** |
 
 #### 11.3 `macstat-gpu` - GPU Monitoring View
 
@@ -891,12 +891,14 @@ mem.compressor.thrashing_detected = thrash,,,,6
 
 | Wave | pmrep Updates | Notes |
 |------|---------------|-------|
-| Wave 2 | `macstat-gpu`, update `macstat-x` | GPU metrics complete |
-| Wave 2 | Update `macstat-mem` | Compression timing complete |
-| Wave 2 | `macstat-pwr` | After battery metrics |
-| Wave 3 | `macstat-thermal` | After SMC thermal metrics |
+| Wave 2 | `macstat-gpu`, update `macstat-x` | ✅ Complete |
+| Wave 2 | Update `macstat-mem` | ✅ Complete |
+| Wave 2 | `macstat-pwr` | ✅ Complete |
+| Wave 3b | `macstat-thermal` | ✅ Complete |
 
 **Implementation Complexity**: LOW - follows existing macstat.conf patterns exactly
+
+**Status**: ✅ **COMPLETE** - All pmrep views implemented in `src/pmrep/conf/macstat.conf`
 
 ---
 
