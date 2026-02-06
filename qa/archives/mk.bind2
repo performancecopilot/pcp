@@ -13,7 +13,7 @@ base=bind2-9.18+
 
 . /etc/pcp.env
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.bind2-$$
 rm -f $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 

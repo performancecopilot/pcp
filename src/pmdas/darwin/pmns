@@ -38,6 +38,9 @@ kernel.all {
     hz			DARWIN:0:1
     nprocs		DARWIN:12:140
     nthreads	DARWIN:12:141
+    nusers		DARWIN:18:187
+    nroots		DARWIN:18:188
+    nsessions	DARWIN:18:189
 }
 
 kernel.limits {

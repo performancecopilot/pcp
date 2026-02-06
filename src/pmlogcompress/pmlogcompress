@@ -29,7 +29,7 @@
 
 prog=`basename $0`
 
-tmp=/var/tmp/pmlogcompress.$$
+tmp=${TMPDIR:-/tmp}/pmlogcompress.$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

@@ -9,7 +9,7 @@
 # below there)
 #
 
-tmp=/var/tmp/check-optimize-$$
+tmp=${TMPDIR:-/tmp}/check-optimize-$$
 here=`pwd`
 
 verbose=false

@@ -3,7 +3,7 @@
 #
 rm -f *.0 *meta *.index *.xz
 
-tmp=/var/tmp/mk.all.$$
+tmp=${TMPDIR:-/tmp}/mk.all-$$
 trap "rm -f $tmp.*; exit" 0 1 2 3 15
 
 # first archive, initial metrics and V3

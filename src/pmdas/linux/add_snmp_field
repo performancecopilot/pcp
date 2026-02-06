@@ -22,7 +22,7 @@
 # UdpLite: 0 0 0 ...
 #
 
-tmp=/var/tmp/add_snmp_field.$$
+tmp=${TMPDIR:-/tmp}/add_snmp_field.$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 usage="Usage: add_snmp_field tag field"

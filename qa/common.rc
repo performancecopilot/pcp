@@ -121,9 +121,9 @@ rm -f $seq_full
 #
 if which realpath >/dev/null 2>&1
 then
-    _tmp_dir=`realpath /var/tmp`
+    _tmp_dir=`realpath ${TMPDIR:-/tmp}`
 else
-    _tmp_dir=/var/tmp
+    _tmp_dir=${TMPDIR:-/tmp}
 fi
 
 if [ -z "$tmp" ]

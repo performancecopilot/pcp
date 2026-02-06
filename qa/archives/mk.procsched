@@ -5,7 +5,7 @@
 
 . $PCP_DIR/etc/pcp.env
 
-tmp=/tmp/$$
+tmp=/tmp/mk.procsched-$$
 rm -rf $tmp
 
 if pmprobe proc.psinfo.nice 2>&1 | grep -q 'Unknown metric name'

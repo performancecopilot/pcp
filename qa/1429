@@ -99,9 +99,9 @@ _setup()
     $sudo rm -f $tmp.log
     mkdir $tmp
     echo "s@$tmp@TMP@g" >$tmp.sed
-    # in case /tmp and /var/tmp are the same thing, in which case
+    # in case /tmp and ${TMPDIR:-/tmp} are the same thing, in which case
     # pmlogmv diagnostics sometimes use /tmp and sometimes use
-    # /var/tmp
+    # ${TMPDIR:-/tmp}
     #
     echo "s@/tmp/$seq-$$@TMP@g" >>$tmp.sed
     for day in 0 1 2 3
@@ -197,7 +197,7 @@ End-of-File
 
 # need to be a place the user $PCP_USER can cd to from pmlogger_daily
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
 cd $here
 if [ -f $tmp.log ]
@@ -225,7 +225,7 @@ chmod 555 $tmp.nowrite
 
 _setup
 
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/file $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
 cd $here
 if [ -f $tmp.log ]
@@ -256,7 +256,7 @@ $sudo chmod 775 $tmp.ok
 
 _setup
 
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
 cd $here
 if [ -f $tmp.log ]
@@ -304,7 +304,7 @@ done
 
 _setup
 
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
 cd $here
 if [ -f $tmp.log ]
@@ -350,7 +350,7 @@ done
 
 _setup
 
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
 cd $here
 if [ -f $tmp.log ]
@@ -394,7 +394,7 @@ End-of-File
 
 _setup
 
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_MERGE_CALLBACK=$tmp.merge $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -k 3 -l $tmp.log"
 cd $here
 if [ -f $tmp.log ]
@@ -435,13 +435,13 @@ End-of-File
 
 _setup
 
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -c $tmp.control -l $tmp.log"
 cd $here
 [ -f $tmp.log ] && $sudo cat $tmp.log >>$seq_full
 pmlogctl status >>$seq_full
 
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_COMPRESS_CALLBACK=$tmp.compress $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x 0 -l $tmp.log"
 cd $here
 if [ -f $tmp.log ]

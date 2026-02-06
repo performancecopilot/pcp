@@ -17,7 +17,7 @@ fi
 
 . /etc/pcp.env
 
-tmp=/var/tmp/new.$$
+tmp=${TMPDIR:-/tmp}/new.$$
 trap "rm -f $tmp.*; exit 1" 0 1 2 3 15
 
 lib=''

@@ -42,6 +42,7 @@ enum {
     CLUSTER_SOCKSTAT,		/* 15 = socket statistics */
     CLUSTER_TCPCONN,		/* 16 = tcp connection states */
     CLUSTER_TCP,		/* 17 = tcp protocol statistics */
+    CLUSTER_LOGIN,		/* 18 = login/session statistics */
     CLUSTER_LIMITS,		/* 18 = system resource limits */
     CLUSTER_GPU,		/* 19 = gpu statistics */
     CLUSTER_IPC,		/* 20 = ipc statistics */

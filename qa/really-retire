@@ -6,7 +6,7 @@
 # - replace all .out files with a one-line "retired" note
 #
 
-tmp=/var/tmp/really-retire-$$
+tmp=${TMPDIR:-/tmp}/really-retire-$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 4 15
 

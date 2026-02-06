@@ -192,8 +192,28 @@ main(int argc, char **argv)
     int		sts;
     FILE	*f;
 
+    /*
+     * quick and dirty, only -D supported
+     */
+    if (argc >= 2 && strncmp(argv[1], "-D", 2) == 0) {
+	char	*spec = NULL;
+	if (argv[1][2] != '\0')
+	    spec = &argv[1][2];
+	else if (argc >= 3) {
+	    spec = argv[2];
+	    argv++;
+	    argc--;
+	}
+	argv++;
+	argc--;
+	if ((sts = pmSetDebug(spec)) < 0) {
+	    fprintf(stderr, "Botch: debug \"%s\"?\n", spec);
+	    exit(1);
+	}
+    }
+
     if (argc != 2) {
-	printf("Usage: multithread3 tmpfile\n");
+	printf("Usage: multithread3 [-D debug] tmpfile\n");
 	exit(1);
     }
     pmnsfile = argv[1];

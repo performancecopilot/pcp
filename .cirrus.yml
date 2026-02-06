@@ -19,7 +19,7 @@ task:
       echo "Populating Homebrew cache..."
       # Homebrew is already in base images, but we can ensure update if needed
       brew update --quiet || true
-      brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf || true  # idempotent
+      brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf valkey libuv || true  # idempotent
     # Optional: clean up non-deterministic files before cache upload
     before_cache_script: |
       brew cleanup --prune=all || true
@@ -35,6 +35,8 @@ task:
     sysctl net.inet.tcp.disable_access_to_stats
   pcp_build_script: |
      [ "$PCP_SKIP_BUILD" == "true" ] && echo "SKIPPING BUILD" || ./Makepkgs --verbose
+  start_valkey_script: |
+     brew services start valkey
   validate_pmid_consistency_script: |
      echo "Validating PMID consistency across pmns, metrics.c, and darwin.h..."
      ./build/mac/test/integration/test-pmid-consistency.sh
@@ -74,6 +76,37 @@ task:
   run_integration_tests_script: |
     cd build/mac/test/integration
     ./run-integration-tests.sh
+  check_pmproxy_is_running_script: |
+    echo "Waiting for pmproxy service to start..."
+    TIMEOUT=60
+    ELAPSED=0
+    INTERVAL=3
+
+    while [ $ELAPSED -lt $TIMEOUT ]; do
+      echo "Checking pmproxy (${ELAPSED}s elapsed)..."
+
+      # Check if pmproxy responds to ping
+      if curl -s http://localhost:44322/series/ping 2>/dev/null | grep -q '"success":true'; then
+        echo "✓ pmproxy is responding!"
+        break
+      fi
+
+      sleep $INTERVAL
+      ELAPSED=$((ELAPSED + INTERVAL))
+    done
+
+    if [ $ELAPSED -ge $TIMEOUT ]; then
+      echo "✗ Timeout waiting for pmproxy"
+      exit 1
+    fi
+
+    echo ""
+    echo "pmproxy connectivity checks:"
+    nc -z localhost 44322 && echo "✓ Port 44322 open" || echo "✗ Port 44322 closed"
+
+    echo ""
+    echo "pmproxy process:"
+    pgrep pmproxy && echo "✓ pmproxy running (PID: $(pgrep pmproxy))" || echo "✗ pmproxy not running"
   pause_script: |
     if [ "$PCP_PAUSE_AFTER_INSTALL" == "true" ]; then
       echo "VM IP: $(ipconfig getifaddr en0)"

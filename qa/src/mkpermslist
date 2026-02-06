@@ -7,7 +7,7 @@
 
 . /etc/pcp.env
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mkpermslist-$$
 sts=0
 TOP=../..
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15

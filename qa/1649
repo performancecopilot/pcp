@@ -70,9 +70,9 @@ _doit()
 	    then
 		_run_valgrind pmrep $debug -s 1 -w 12 $opt $src $*
 	    else
-		pmrep $debug -s 1 -w 12 $opt $src $* 2>&1
-	    fi \
-	    | _filter
+		pmrep $debug -s 1 -w 12 $opt $src $* >$tmp.out 2>$tmp.err
+	    fi
+	    cat $tmp.err $tmp.out | _filter
 	done
     done
 }

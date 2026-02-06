@@ -474,7 +474,7 @@ class MSSQLPMDA(PMDA):
                 {}, 'Lock Wait Time (ms)'],
             self.PM_ID(4, 5) : ['mssql.locks.raw_average_wait_time',
                 pmdaMetric(self.PM_ID(4, 5), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(3), c_api.PM_SEM_INSTANT, zeroUnits),
+                    self.INDOM_ID(3), c_api.PM_SEM_INSTANT, msecUnits),
                 {}, 'Average Wait Time (ms)'],
             self.PM_ID(4, 6) : ['mssql.locks.raw_average_wait_time_base',
                 pmdaMetric(self.PM_ID(4, 6), c_api.PM_TYPE_U64,
@@ -1038,6 +1038,7 @@ class MSSQLPMDA(PMDA):
             self.trusted = self.intobool(conf_vars["authentication.trusted"])
         except:
             self.trusted = False
+        print("trusted?",self.trusted)
         # first try Assessment API credentials, else our local config file,
         # otherwise just use defaults of user 'pcp' with an empty password.
         self.username = pmContext.pmGetConfig('PCP_USER')

@@ -15,7 +15,7 @@ fi
 
 _setversions()
 {
-    [ -z "$tmp" ] && tmp=/var/tmp/$$
+    [ -z "$tmp" ] && tmp=${TMPDIR:-/tmp}/$$
     $home/whatami \
     | awk '{ for (i = 3; i <= NF; i++) printf $i " "; print "" }' \
     | sed \
@@ -69,7 +69,7 @@ s/ (Argon)//
 #
 _parse_file()
 {
-    [ -z "$tmp" ] && tmp=/var/tmp/$$
+    [ -z "$tmp" ] && tmp=${TMPDIR:-/tmp}/$$
     rm -f $tmp.matches
     sed <$1 \
 	-e 's/#.*//' \

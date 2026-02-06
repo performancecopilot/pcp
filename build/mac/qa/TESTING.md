@@ -60,7 +60,7 @@ wait_pmcd() {
 ```bash
 # Check plist has environment variable and KeepAlive
 cat /Library/LaunchDaemons/io.pcp.pmcd.plist | grep -A4 EnvironmentVariables
-# Should show: PMCD_LAUNCHED_BY_LAUNCHD = 1
+# Should show: LAUNCHED_BY_LAUNCHD = 1
 
 cat /Library/LaunchDaemons/io.pcp.pmcd.plist | grep -A1 KeepAlive
 # Should show: <true/>
@@ -202,7 +202,7 @@ pminfo -f pmcd.version
 
 ## Expected Results Summary
 
-✅ **Configuration**: PMCD_LAUNCHED_BY_LAUNCHD env var present, KeepAlive = true
+✅ **Configuration**: LAUNCHED_BY_LAUNCHD env var present, KeepAlive = true
 ✅ **Foreground mode**: pmcd runs with `-f` flag
 ✅ **No fork issues**: Only one pmcd process exists
 ✅ **launchctl tracking**: Service shows in `launchctl list` with PID

@@ -6,7 +6,7 @@
 . $PCP_DIR/etc/pcp.env
 
 here=`pwd`
-tmp=/tmp/$$
+tmp=/tmp/mk.diff-$$
 rm -rf $tmp
 
 cat <<End-of-File >$tmp.config

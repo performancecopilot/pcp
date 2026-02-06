@@ -4,7 +4,7 @@
 # in and not remade, this script is simply a record of how this was created
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.cputime-$$
 rm -f $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 

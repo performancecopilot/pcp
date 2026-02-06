@@ -44,6 +44,7 @@
 #include "loadavg.h"
 #include "cpuload.h"
 #include "uname.h"
+#include "login.h"
 #include "gpu.h"
 #include "ipc.h"
 #include "power.h"
@@ -126,6 +127,9 @@ tcpconn_stats_t		mach_tcpconn = { 0 };
 
 int			mach_tcp_error = 0;
 tcpstats_t		mach_tcp = { 0 };
+
+int			mach_login_error = 0;
+login_info_t		mach_login = { 0 };
 
 int			mach_gpu_error = 0;
 struct gpustats		mach_gpu = { 0 };
@@ -223,6 +227,8 @@ darwin_refresh(int *need_refresh)
 	mach_tcpconn_error = refresh_tcpconn(&mach_tcpconn);
     if (need_refresh[CLUSTER_TCP])
 	mach_tcp_error = refresh_tcp(&mach_tcp);
+    if (need_refresh[CLUSTER_LOGIN])
+	mach_login_error = refresh_login(&mach_login);
     if (need_refresh[CLUSTER_GPU])
 	mach_gpu_error = refresh_gpus(&mach_gpu, &indomtab[GPU_INDOM]);
     if (need_refresh[CLUSTER_IPC])

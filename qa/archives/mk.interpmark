@@ -64,7 +64,7 @@
 # section-c contains only one sample for the 500msec sampling data
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.interpmark-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 cat >$tmp.conf <<End-of-File

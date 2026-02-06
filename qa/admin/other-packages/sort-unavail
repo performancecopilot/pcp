@@ -4,7 +4,7 @@
 # any duplicates
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/sort-unavail-$$
 trap "rm -f $tmp; exit 0" 0 1 2 3 15
 
 sed -e 's/\\/\\\\/g' >$tmp

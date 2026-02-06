@@ -12,7 +12,7 @@ else
     exit 1
 fi
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.variant-$$
 rm -f $tmp.*
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15

@@ -7,7 +7,7 @@
 # (preferably in _cleanup())
 #
 
-tmp=/var/tmp/check-auto
+tmp=${TMPDIR:-/tmp}/check-auto
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 verbose=false

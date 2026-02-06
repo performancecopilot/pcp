@@ -3,7 +3,7 @@
 # Use the $min and $max from new to see how many test seq #s are available
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/new-seqs-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 _do_range()

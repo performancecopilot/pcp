@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.keys
 
+[ $PCP_PLATFORM = solaris ] && _notrun "pmseries log discovery not working for solaris"
+
 _check_series
 
 _cleanup()

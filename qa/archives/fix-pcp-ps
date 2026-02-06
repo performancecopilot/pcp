@@ -6,7 +6,7 @@
 # Copyright (c) 2023 Ken McDonell.  All Rights Reserved.
 #
 
-tmp=/var/tmp/fix-pcp-ps-$$
+tmp=${TMPDIR:-/tmp}/fix-pcp-ps-$$
 sts=1
 trap "rm -f $tmp; exit \$sts" 0 1 2 3 15
 

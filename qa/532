@@ -143,7 +143,7 @@ ls -l $tmp >>$seq_full
 echo
 # need to be a place the user $PCP_USER can cd to from pmlogger_daily
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -o -c $tmp/control -x never -k 3 $verbose -l $tmp.log"
 cd $here
 $sudo cat $tmp.log \

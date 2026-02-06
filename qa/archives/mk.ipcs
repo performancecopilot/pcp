@@ -7,7 +7,7 @@
 . $PCP_DIR/etc/pcp.env
 
 here=`pwd`
-tmp=/tmp/$$
+tmp=/tmp/mk.ipcs-$$
 
 if [ "$PCP_PLATFORM" != "linux" ]
 then

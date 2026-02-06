@@ -13,7 +13,7 @@
 #   $ make
 #
 
-tmp=/var/tmp/mk-daily-$$
+tmp=${TMPDIR:-/tmp}/mk.daily-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 cat <<End-of-File >$tmp.conf

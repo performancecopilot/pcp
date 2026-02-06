@@ -3,14 +3,8 @@
 #
 389-ds
 Coin4-devel
-List::MoreUtils cpan
-Net::SNMP cpan
 SoQt-devel
-Spreadsheet::Read cpan
 Spreadsheet::WriteExcel cpan
-Spreadsheet::XLSX cpan
-Text::CSV_XS cpan
-XML::LibXML cpan
 XML::TokeParser cpan
 aaa_base
 apache2

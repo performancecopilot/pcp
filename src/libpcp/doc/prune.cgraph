@@ -10,7 +10,7 @@
 # And repeat until there are no changes.
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/prune.cgraph-$$
 rm -f $tmp.*
 sts=0	# success by default
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15

@@ -29,7 +29,7 @@ REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 CONF_LINE	= "freebsd	85	dso	freebsd_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
-CFILES		= freebsd.c disk.c netif.c
+CFILES		= freebsd.c disk.c netif.c nusers.c
 HFILES		= freebsd.h
 CONFTARGETS	= freebsd_disk_units.conf freebsd_misc.conf
 

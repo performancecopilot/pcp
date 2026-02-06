@@ -119,14 +119,10 @@ PCP_WEB_1.6 {
     sdsDictCallBacks;
 
     dictAdd;
-    dictAddRaw;
     dictCreate;
     dictFind;
-    dictGenCaseHashFunction;
-    dictGetSafeIterator;
     dictNext;
     dictRelease;
-    dictReleaseIterator;
 } PCP_WEB_1.5;
 
 PCP_WEB_1.7 {
@@ -145,9 +141,7 @@ PCP_WEB_1.8 {
     base64_decode;
     base64_encode;
 
-    dictEmpty;
     dictReplace;
-    dictScan;
 
     http_errno_name;
     http_errno_description;
@@ -210,7 +204,6 @@ PCP_WEB_1.13 {
 
 PCP_WEB_1.14 {
   global:
-    dictFetchValue;
     http_method_str;
     http_body_is_final;
     http_parser_version;
@@ -258,13 +251,12 @@ PCP_WEB_1.18 {
 PCP_WEB_1.19 {
   global:
     dictGenHashFunction;
-    dictGetIterator;
 } PCP_WEB_1.18;
 
 PCP_WEB_1.20 {
   global:
     pmSeriesWindow;
-} PCP_WEB_1.19;
+} PCP_WEB_1.18;
 
 PCP_WEB_1.21 {
   global:

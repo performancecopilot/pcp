@@ -6,7 +6,7 @@
 . $PCP_DIR/etc/pcp.env
 
 here=`pwd`
-tmp=/tmp/$$
+tmp=/tmp/mk.mysql-$$
 rm -rf $tmp
 
 if pmprobe mysql 2>&1 | grep -q 'Unknown metric name'

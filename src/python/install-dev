@@ -6,7 +6,7 @@
 # We assume you know what you're doing!
 #
 
-tmp=/var/tmp/install-dev-$$
+tmp=${TMPDIR:-/tmp}/install-dev-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

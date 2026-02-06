@@ -16,7 +16,7 @@ _usage()
     exit 1
 }
 
-tmp=/var/tmp/mk.logfarm.$$
+tmp=${TMPDIR:-/tmp}/mk.logfarm.$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 # need to be able to find pmlogrewrite

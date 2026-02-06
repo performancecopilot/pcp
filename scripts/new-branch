@@ -9,7 +9,7 @@
 # github pull requests using the sister-scripts scripts/pcp-push
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/new-branch-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

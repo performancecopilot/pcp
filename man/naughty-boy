@@ -17,7 +17,7 @@
 
 usage="Usage: naughty-boy [-do] [file ...]"
 
-tmp=/var/tmp/naughty-boy-$$
+tmp=${TMPDIR:-/tmp}/naughty-boy-$$
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

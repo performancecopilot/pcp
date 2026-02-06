@@ -1,0 +1,83 @@
+#!/bin/sh
+# PCP QA Test No. 1863
+# checkout _convert_to_kb from utilproc.sh
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_SHARE_DIR/lib/utilproc.sh ] || _notrun "No $PCP_SHARE_DIR/lib/utilproc.sh?"
+
+. $PCP_SHARE_DIR/lib/utilproc.sh
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+echo "=== good cases ..."
+for args in 1K 1k 10M 10m 100G 100g '123 m'
+do
+    if _convert_to_kb "$args" >$tmp.out 2>$tmp.err
+    then
+	echo "$args -> `cat $tmp.out`"
+    else
+	echo "$args -> error (`cat $tmp.err`)"
+    fi
+done
+
+echo
+echo "=== overflow cases ..."
+# 2^31-1 = 2147483647
+# values below are 1 more than the max allowed
+#
+for args in 2147483648K 2097152m 2048G
+do
+    if _convert_to_kb "$args" >$tmp.out 2>$tmp.err
+    then
+	echo "$args -> `cat $tmp.out`"
+    else
+	echo "$args -> error (`cat $tmp.err`)"
+    fi
+done
+
+echo
+echo "=== bad cases ..."
+for args in 123 '' '1 2' mumble 0GB 1kbFumble
+do
+    if _convert_to_kb "$args" >$tmp.out 2>$tmp.err
+    then
+	echo "$args -> `cat $tmp.out`"
+    else
+	echo "$args -> error (`cat $tmp.err`)"
+    fi
+done
+
+# success, all done
+exit

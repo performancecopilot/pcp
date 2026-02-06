@@ -26,7 +26,7 @@ _ans()
     done
 }
 
-tmp=/var/tmp/mv-me-$$
+tmp=${TMPDIR:-/tmp}/mv-me-$$
 rm -rf $tmp $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 

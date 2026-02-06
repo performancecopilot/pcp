@@ -16,7 +16,7 @@
 # 	rand();
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/find-unsafe-$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 rm -f $tmp.*
