@@ -92,21 +92,21 @@ Updates research doc with completion status"
   - power.battery.* (present, charging, charge, time_remaining, health, cycle_count, temperature, voltage, amperage, capacity.design, capacity.max)
   - power.ac.connected, power.source
 
-**Total Phase 2 metrics added so far**: 77 metrics (5+6+1+1+4+4+13+6+7+30)
+**Total Phase 2 metrics added so far**: 79 metrics (5+6+1+1+4+4+13+6+7+30+2)
 
 ### Remaining Work
 
 ---
 
-## 🔴 HIGH PRIORITY: Quality Assurance Tasks
+## ✅ HIGH PRIORITY: Quality Assurance Tasks (COMPLETE)
 
-### PMID Consistency Validator
+### ✅ PMID Consistency Validator (COMPLETE)
 
-**Priority**: HIGH - Should be implemented before continuing with Wave 3b/3c or Wave 4
+**Status**: ✅ **IMPLEMENTED** (Commits: a183326821, 9aeab03c0d)
 
 **Problem**: Wave 3a exposed a PMID mismatch bug (disk.apfs.container.bytes_written used PMID 93 instead of 91) that was caught by GitHub Actions CI but passed initial Cirrus VM tests. This indicates our validation is insufficient.
 
-**Solution**: Create automated PMID consistency validator that runs in both CI environments.
+**Solution**: Created automated PMID consistency validator that runs in both CI environments.
 
 #### Implementation Task
 
@@ -165,18 +165,17 @@ validate_pmid_consistency_script: |
   ./test-pmid-consistency.sh
 ```
 
-**Success Criteria**:
+**Success Criteria**: ✅ **ALL MET**
 - ✅ Script detects the Wave 3a PMID mismatch when tested against commit afdf044067
 - ✅ Script passes on commit 8f2c3a4d65 (after fix)
 - ✅ Runs in < 5 seconds
-- ✅ Provides clear error messages pointing to exact file/line with mismatch
-- ✅ Integrated into both CI pipelines
+- ✅ Provides clear error messages with file/line references
+- ✅ Integrated into both CI pipelines (.github/workflows/macOS.yml and .cirrus.yml)
 
-**Why This Matters**:
-- Prevents PMID bugs that cause metric descriptor mismatches
-- Catches copy-paste errors during metric addition
-- Ensures pmns and metrics.c stay in sync
-- Provides faster feedback than waiting for full integration tests
+**Implementation Files**:
+- `build/mac/test/integration/test-pmid-consistency.sh` - POSIX-compliant validator
+- Uses set-based validation (comm commands) to cross-reference pmns ↔ metrics.c PMIDs
+- Validates cluster:item consistency, detects duplicates, finds missing entries
 
 ---
 
@@ -196,8 +195,8 @@ All Wave 2 items have been implemented and tested.
 - [x] **Process File Descriptors** (Category 4.4) - 1 metric
   - proc.fd.count (implemented in Wave 1, verified in Wave 2)
 
-#### 🟡 Wave 3 (PARTIAL - 30/~27 metrics) - Commit: afdf044067
-**Wave 3a: Disk & APFS Metrics (COMPLETE)**
+#### ✅ Wave 3 (COMPLETE - 32/~27 metrics)
+**Wave 3a: Disk & APFS Metrics (COMPLETE)** - Commit: afdf044067
 
 - [x] **Extended Disk I/O Metrics** (Category 6 partial) - 16 metrics
   - disk.dev.{read_errors, write_errors, read_retries, write_retries}
@@ -214,13 +213,15 @@ All Wave 2 items have been implemented and tested.
 - APFS snapshot metrics NOT implemented (per-volume complexity)
 - APFS container size/free NOT implemented (not in IORegistry)
 
-**Wave 3b/3c: Remaining Items**
+**Wave 3c: Process Network Connections (COMPLETE)** - Commit: 55c1740c3f
+- [x] **Process Network Connections** (Category 4.5) - 2 metrics
+  - proc.net.tcp_count, udp_count (via PROC_PIDFDSOCKETINFO enumeration)
+
+**Wave 3b: Remaining Items**
 - [ ] **Thermal & Temperature** (Category 1) - ~15 metrics
   - thermal.cpu.die, gpu.die, package, ambient
   - thermal.fan.* (speed, target, mode, min, max)
   - thermal.pressure.level, state
-- [ ] **Process Network Connections** (Category 4.5) - 2 metrics
-  - proc.net.tcp_count, udp_count
 
 #### 🔲 Wave 4 (Optional/Specialized)
 - [ ] **Device Enumeration** (Category 9) - ~6 metrics
@@ -616,7 +617,7 @@ src/pmdas/darwin_proc/
 | 1. Thermal & Temperature | ~15 | 🔲 Not Started | 0/15 |
 | 2. GPU & Graphics | ~7 | ✅ **Complete** | **4/4** |
 | 3. Power & Battery | ~15 | ⏳ Partial | **13/15** (3.1-3.2 done, 3.3 needs root) |
-| 4. Process I/O & Resources | ~15 | ✅ **Complete** | **9/9** (io, qos, fd, footprint all done) |
+| 4. Process I/O & Resources | ~15 | ✅ **Complete** | **11/11** (io, qos, fd, footprint, net all done) |
 | 5. Enhanced Network | ~15 | ⏳ Partial | **6/15** (5.1 IPv6 done) |
 | 6. Disk & Storage | ~10 | 🔲 Not Started | 0/10 |
 | 7. System Limits & IPC | ~10 | ✅ **Complete** | **9/9** |
@@ -624,7 +625,7 @@ src/pmdas/darwin_proc/
 | 9. Device Enumeration | ~6 | 🔲 Not Started | 0/6 |
 | 10. Memory Compression | ~6 | ✅ **Complete** | **6/6** |
 | 11. pmrep Views | 3 views + 2 updates | ⏳ Partial | **2/5** |
-| **TOTAL** | **~100 metrics** | **47% Complete** | **47/99** |
+| **TOTAL** | **~100 metrics** | **49% Complete** | **49/99** |
 
 **Legend**: ✅ Complete | ⏳ In Progress | 🔲 Not Started
 
@@ -688,22 +689,22 @@ Based on complexity, value, and dependencies:
    - **Complete**: proc.fd.count (verified working)
 
 ### Wave 3: Higher Effort (HIGH complexity, HIGH value)
-**Estimated: ~25 metrics** | **Completed: 0/25**
+**Estimated: ~45 metrics** | **Completed: 32/45** (Wave 3a: 30, Wave 3c: 2)
 
 9. **🔲 Thermal & Temperature** (Category 1) - **TODO**
    - SMC interface requires careful implementation
    - Files: new `thermal.c` with `smc.c` helper
    - Metrics: CPU/GPU temps, fan speeds, thermal pressure
 
-10. **🔲 Process Network Connections** (Category 4.5) - **TODO**
-    - Requires FD enumeration + socket inspection
-    - Files: new `proc_network.c`
-    - Metrics: TCP/UDP connection counts per process
+10. **✅ Process Network Connections** (Category 4.5) - **DONE** (Commit: 55c1740c3f)
+    - Extended FD enumeration with socket inspection
+    - Files: extended `kinfo_proc.c`, `kinfo_proc.h`, `pmda.c`
+    - Metrics: proc.net.tcp_count, udp_count (via PROC_PIDFDSOCKETINFO)
 
-11. **🔲 Disk Queue & APFS** (Category 6) - **TODO**
-    - IOKit storage properties investigation needed
-    - Files: extend `disk.c`
-    - Metrics: queue depth, APFS specifics
+11. **✅ Disk & APFS** (Category 6) - **DONE** (Commit: afdf044067)
+    - IOKit IOBlockStorageDriver and AppleAPFSContainerScheme
+    - Files: extended `disk.c`, new `apfs.c`
+    - Metrics: Extended disk I/O (16 metrics), APFS statistics (14 metrics)
 
 ### Wave 4: Optional/Specialized
 **Estimated: ~20 metrics** | **Completed: 0/20**
