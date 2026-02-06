@@ -143,4 +143,7 @@ The agent handles `cirrus run --dirty` and reports results.
 ### Code Review
 Use the `pcp-code-reviewer` agent to review changes against PCP project standards
 
+## Related code areas
+* .github/workflows/macOS.yml - macOS-specific Github action which builds, packages and runs the unit tests.  ANy changes in the Darwin PMDA will impact this.  Consider any impact a change might have on this workflow file.
+* .cirrus.yml - local CI runner, acts similar to the macOS Github runner mentioned previously.  Also analyse any changes for impacts on this local runner too.
 
