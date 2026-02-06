@@ -5,8 +5,8 @@ hinv {
     ncpu		DARWIN:8:71
     nfilesys		DARWIN:5:31
     ndisk		DARWIN:7:46
-    ngpu		DARWIN:19:99
-    nfan		DARWIN:24:5
+    ngpu		DARWIN:20:99
+    nfan		DARWIN:25:5
     machine		DARWIN:0:2
 }
 
@@ -44,10 +44,10 @@ kernel.all {
 }
 
 kernel.limits {
-    maxproc		DARWIN:18:0
-    maxprocperuid	DARWIN:18:1
-    maxfiles		DARWIN:18:2
-    maxfilesperproc	DARWIN:18:3
+    maxproc		DARWIN:19:0
+    maxprocperuid	DARWIN:19:1
+    maxfiles		DARWIN:19:2
+    maxfilesperproc	DARWIN:19:3
 }
 
 kernel.all.cpu {
@@ -189,28 +189,28 @@ disk.all {
 }
 
 disk.apfs {
-    ncontainer		DARWIN:23:87
-    nvolume		DARWIN:23:88
+    ncontainer		DARWIN:24:87
+    nvolume		DARWIN:24:88
     container
     volume
 }
 
 disk.apfs.container {
-    block_size		DARWIN:23:89
-    bytes_read		DARWIN:23:90
-    bytes_written	DARWIN:23:91
-    read_requests	DARWIN:23:92
-    write_requests	DARWIN:23:93
-    transactions	DARWIN:23:94
-    cache_hits		DARWIN:23:95
-    cache_evictions	DARWIN:23:96
-    read_errors		DARWIN:23:97
-    write_errors	DARWIN:23:98
+    block_size		DARWIN:24:89
+    bytes_read		DARWIN:24:90
+    bytes_written	DARWIN:24:91
+    read_requests	DARWIN:24:92
+    write_requests	DARWIN:24:93
+    transactions	DARWIN:24:94
+    cache_hits		DARWIN:24:95
+    cache_evictions	DARWIN:24:96
+    read_errors		DARWIN:24:97
+    write_errors	DARWIN:24:98
 }
 
 disk.apfs.volume {
-    encrypted		DARWIN:23:99
-    locked		DARWIN:23:100
+    encrypted		DARWIN:24:99
+    locked		DARWIN:24:100
 }
 
 network {
@@ -282,12 +282,12 @@ network.icmp {
 }
 
 network.ipv6 {
-    inreceives		DARWIN:22:187
-    outforwarded	DARWIN:22:188
-    indiscards		DARWIN:22:189
-    outdiscards		DARWIN:22:190
-    fragcreates		DARWIN:22:191
-    reasmoks		DARWIN:22:192
+    inreceives		DARWIN:23:187
+    outforwarded	DARWIN:23:188
+    indiscards		DARWIN:23:189
+    outdiscards		DARWIN:23:190
+    fragcreates		DARWIN:23:191
+    reasmoks		DARWIN:23:192
 }
 
 network.sockstat {
@@ -447,89 +447,89 @@ vfs.files {
 vfs.vnodes {
     count		DARWIN:12:138
     max			DARWIN:12:139
-    recycled		DARWIN:18:4
+    recycled		DARWIN:19:4
 }
 
 gpu {
-    util		DARWIN:19:0
+    util		DARWIN:20:0
     memory
 }
 
 gpu.memory {
-    used		DARWIN:19:1
-    free		DARWIN:19:2
+    used		DARWIN:20:1
+    free		DARWIN:20:2
 }
 
 ipc {
     mbuf
-    maxsockbuf	DARWIN:20:1
-    somaxconn	DARWIN:20:2
+    maxsockbuf	DARWIN:21:1
+    somaxconn	DARWIN:21:2
     socket
 }
 
 ipc.mbuf {
-    clusters	DARWIN:20:0
+    clusters	DARWIN:21:0
 }
 
 ipc.socket {
-    defunct		DARWIN:20:3
+    defunct		DARWIN:21:3
 }
 
 power {
     battery
     ac
-    source		DARWIN:21:12
+    source		DARWIN:22:12
 }
 
 power.battery {
-    present		DARWIN:21:0
-    charging		DARWIN:21:1
-    charge		DARWIN:21:2
-    time_remaining	DARWIN:21:3
-    health		DARWIN:21:4
-    cycle_count		DARWIN:21:5
-    temperature		DARWIN:21:6
-    voltage		DARWIN:21:7
-    amperage		DARWIN:21:8
+    present		DARWIN:22:0
+    charging		DARWIN:22:1
+    charge		DARWIN:22:2
+    time_remaining	DARWIN:22:3
+    health		DARWIN:22:4
+    cycle_count		DARWIN:22:5
+    temperature		DARWIN:22:6
+    voltage		DARWIN:22:7
+    amperage		DARWIN:22:8
     capacity
 }
 
 power.battery.capacity {
-    design		DARWIN:21:9
-    max			DARWIN:21:10
+    design		DARWIN:22:9
+    max			DARWIN:22:10
 }
 
 power.ac {
-    connected		DARWIN:21:11
+    connected		DARWIN:22:11
 }
 
 thermal {
     cpu
     gpu
-    package		DARWIN:24:3
-    ambient		DARWIN:24:4
+    package		DARWIN:25:3
+    ambient		DARWIN:25:4
     fan
     pressure
 }
 
 thermal.cpu {
-    die			DARWIN:24:0
-    proximity		DARWIN:24:1
+    die			DARWIN:25:0
+    proximity		DARWIN:25:1
 }
 
 thermal.gpu {
-    die			DARWIN:24:2
+    die			DARWIN:25:2
 }
 
 thermal.fan {
-    speed		DARWIN:24:6
-    target		DARWIN:24:7
-    mode		DARWIN:24:8
-    min			DARWIN:24:9
-    max			DARWIN:24:10
+    speed		DARWIN:25:6
+    target		DARWIN:25:7
+    mode		DARWIN:25:8
+    min			DARWIN:25:9
+    max			DARWIN:25:10
 }
 
 thermal.pressure {
-    level		DARWIN:24:11
-    state		DARWIN:24:12
+    level		DARWIN:25:11
+    state		DARWIN:25:12
 }

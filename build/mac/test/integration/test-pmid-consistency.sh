@@ -143,7 +143,7 @@ MISSING_IN_METRICS=$(comm -23 "$PMNS_PMIDS" "$METRICS_PMIDS")
 
 if [ -n "$MISSING_IN_METRICS" ]; then
     printf "${RED}ERROR: PMIDs defined in pmns but missing from metrics.c:${NC}\n"
-    echo "$MISSING_IN_METRICS" | while read pmid; do
+    while read pmid; do
         # Find metric name from pmns for better error message
         metric_name=$(awk -v pmid="$pmid" '$0 ~ "DARWIN:" pmid {print $1; exit}' "$PMNS_FILE")
         printf "  DARWIN:%s" "$pmid"
@@ -152,7 +152,9 @@ if [ -n "$MISSING_IN_METRICS" ]; then
         fi
         printf "\n"
         errors=$((errors + 1))
-    done
+    done <<EOF
+$MISSING_IN_METRICS
+EOF
 else
     printf "${GREEN}✓ All pmns PMIDs exist in metrics.c${NC}\n"
 fi
@@ -164,10 +166,12 @@ EXTRA_IN_METRICS=$(comm -13 "$PMNS_PMIDS" "$METRICS_PMIDS")
 
 if [ -n "$EXTRA_IN_METRICS" ]; then
     printf "${YELLOW}WARNING: PMIDs in metrics.c but not defined in pmns:${NC}\n"
-    echo "$EXTRA_IN_METRICS" | while read pmid; do
+    while read pmid; do
         printf "  DARWIN:%s\n" "$pmid"
         warnings=$((warnings + 1))
-    done
+    done <<EOF
+$EXTRA_IN_METRICS
+EOF
 else
     printf "${GREEN}✓ No extra PMIDs in metrics.c${NC}\n"
 fi
