@@ -128,11 +128,13 @@ then
     fi
 elif [ $target = darwin ]
 then
-    # On macOS platforms, we're using brew ...
+    # On macOS platforms, match Makepkgs configuration
     #
     CC=clang; export CC
     CXX=clang; export CXX
-    configopts="`brew diy --version=$version --name=pcp`"
+    etc=`realpath /etc`
+    var=`realpath /var`
+    configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-qt=no"
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin place things

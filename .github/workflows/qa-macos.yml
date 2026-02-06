@@ -1,0 +1,119 @@
+name: macOS QA
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+      - name: Update Homebrew
+        run: brew update
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install python deps
+        run: |
+          python3 --version
+          pip3 install --upgrade pip
+          python3 -m venv pybuilddeps
+          source pybuilddeps/bin/activate
+          pip3 install setuptools wheel lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests
+      - name: Install Homebrew deps
+        run: |
+          brew install autoconf unixodbc valkey libuv
+      - name: Enable TCP stats
+        run: |
+          echo "Enabling TCP statistics for testing..."
+          sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+          sysctl net.inet.tcp.disable_access_to_stats
+      - name: Build PCP
+        run: |
+          source pybuilddeps/bin/activate
+          ./Makepkgs --verbose
+      - name: Install PCP
+        run: |
+          DMG_PATH=$(find pcp-**/build/mac -name "pcp-*.dmg" | head -1)
+          echo "Found DMG: $DMG_PATH"
+          MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" | tail -1)
+          VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | awk '{print $3}')
+          echo "Mounted at: $VOLUME_PATH"
+          PKG_PATH=$(find "$VOLUME_PATH" -name "*.pkg" | head -1)
+          echo "Found PKG: $PKG_PATH"
+          sudo installer -pkg "$PKG_PATH" -target /
+      - name: Verify pmcd is running
+        run: |
+          echo "Waiting for pmcd to start..."
+          for i in {1..30}; do
+            if pminfo -f hinv.ncpu 2>/dev/null; then
+              echo "pmcd is running"
+              exit 0
+            fi
+            echo "Attempt $i: pmcd not ready yet..."
+            sleep 2
+          done
+          echo "pmcd failed to start"
+          exit 1
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pcp-build
+          path: |
+            /usr/local/
+            /Library/LaunchDaemons/com.github.performancecopilot.*.plist
+
+  qa:
+    needs: build
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ github.ref_name }}
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: pcp-build
+          path: /
+      - name: Create pcpqa user
+        run: |
+          echo "Creating pcpqa user for testing..."
+          if ! dscl . -read /Users/pcpqa &>/dev/null; then
+            NEXT_UID=$(dscl . -list /Users UniqueID | awk '{print $2}' | sort -n | tail -1)
+            NEXT_UID=$((NEXT_UID + 1))
+            sudo dscl . -create /Users/pcpqa
+            sudo dscl . -create /Users/pcpqa UserShell /bin/bash
+            sudo dscl . -create /Users/pcpqa RealName "PCP QA User"
+            sudo dscl . -create /Users/pcpqa UniqueID "$NEXT_UID"
+            sudo dscl . -create /Users/pcpqa PrimaryGroupID 20
+            sudo dscl . -create /Users/pcpqa NFSHomeDirectory /Users/pcpqa
+            sudo mkdir -p /Users/pcpqa
+            sudo chown pcpqa:staff /Users/pcpqa
+          fi
+      - name: Enable TCP stats
+        run: |
+          sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+      - name: Start pmcd
+        run: |
+          sudo launchctl bootstrap system /Library/LaunchDaemons/com.github.performancecopilot.pmcd.plist || true
+      - name: Verify pmcd
+        run: |
+          echo "Verifying pmcd is running..."
+          pminfo -f hinv.ncpu || { echo "pmcd not responding"; exit 1; }
+      - name: Initialize QA environment
+        run: |
+          cd qa
+          sudo ./admin/myconfigure
+      - name: Run QA tests
+        run: |
+          cd qa
+          ./check -l
+      - name: Upload QA logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: qa-logs
+          path: qa/*.bad

@@ -240,6 +240,19 @@ _restore_auto_restart()
     fi
 }
 
+# Map service names to launchd plist names on Darwin
+#
+_darwin_plist_name()
+{
+    case "$1" in
+        pmcd)       echo "com.github.performancecopilot.pmcd" ;;
+        pmie)       echo "com.github.performancecopilot.pmie" ;;
+        pmlogger)   echo "com.github.performancecopilot.pmlogger" ;;
+        pmproxy)    echo "com.github.performancecopilot.pmproxy" ;;
+        *)          echo "$1" ;;
+    esac
+}
+
 # Wrapper for PCP daemon init scripts ... use systemctl if available,
 # else run the PCP scripts directly
 #
@@ -356,6 +369,29 @@ _service()
 		else
 		    echo "_service $1 $2: Botch: don't know what state to expect, found state \"$ActiveState\"" >>$seq_full
 		fi
+		;;
+	esac
+    elif which launchctl >/dev/null 2>&1
+    then
+	# macOS launchd service management
+	__plist=`_darwin_plist_name $1`
+	case "$2" in
+	    start)
+		$__verbose && echo "_service: launchctl bootstrap system /Library/LaunchDaemons/$__plist.plist"
+		$sudo launchctl bootstrap system /Library/LaunchDaemons/$__plist.plist 2>&1 | grep -v "already bootstrapped"
+		;;
+	    stop)
+		$__verbose && echo "_service: launchctl bootout system /Library/LaunchDaemons/$__plist.plist"
+		$sudo launchctl bootout system /Library/LaunchDaemons/$__plist.plist 2>&1 | grep -v "not bootstrapped"
+		;;
+	    restart)
+		$__verbose && echo "_service: launchctl bootout+bootstrap system /Library/LaunchDaemons/$__plist.plist"
+		$sudo launchctl bootout system /Library/LaunchDaemons/$__plist.plist 2>&1 | grep -v "not bootstrapped"
+		$sudo launchctl bootstrap system /Library/LaunchDaemons/$__plist.plist 2>&1 | grep -v "already bootstrapped"
+		;;
+	    *)
+		echo "_service: launchctl does not support operation: $2"
+		return 1
 		;;
 	esac
     elif [ -f $PCP_RC_DIR/$1 ]
@@ -2834,45 +2870,32 @@ _change_config()
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
-	case $1 
+	# Use launchctl for service enable/disable on macOS
+	case $1
 	in
-	    pmcd)	__pat=PMCD ;;
-	    pmlogger)	__pat=PMLOGGER ;;
-	    pmie)	__pat=PMIE ;;
-	    pmproxy)	__pat=PMPROXY ;;
-	    verbose)	__pat="" ;;
-	    *)		__pat=$1 ;;
+	    pmcd|pmlogger|pmie|pmproxy)
+		__plist=`_darwin_plist_name $1`
+		if [ "$2" = "on" ]
+		then
+		    $sudo launchctl enable system/$__plist
+		    $sudo launchctl bootstrap system /Library/LaunchDaemons/$__plist.plist 2>&1 | grep -v "already bootstrapped"
+		elif [ "$2" = "off" ]
+		then
+		    $sudo launchctl disable system/$__plist
+		    $sudo launchctl bootout system /Library/LaunchDaemons/$__plist.plist 2>&1 | grep -v "not bootstrapped"
+		else
+		    echo "_change_config: Error: bad state ($2) should be on or off"
+		    return 1
+		fi
+		;;
+	    verbose)
+		# No action needed for verbose flag on Darwin
+		;;
+	    *)
+		echo "_change_config: Error: unknown service $1 for Darwin"
+		return 1
+		;;
 	esac
-	if [ -n "$__pat" ]
-	then
-	    __state=`sed -n -e "/^$__pat=/{"'
-s/.*=//
-s/-//g
-p
-}' /etc/hostconfig`
-	    if [ -z "$__state" ]
-	    then
-		echo "_change_config: Error: No $__pat control line in /etc/hostconfig"
-		echo "You need to add a $__pat=-YES- line to this file"
-		return 1
-	    fi
-	    if [ "$2" = "on" ]
-	    then
-		__req_state=YES
-	    elif [ "$2" = "off" ]
-	    then
-		__req_state=NO
-	    else
-		echo "_change_config: Error: bad state ($2) should be on or off"
-		return 1
-	    fi
-	    if [ "$__state" != "$__req_state" ]
-	    then
-		sed </etc/hostconfig >$tmp._state \
-		    -e "/^$__pat=/s/-.*/-$__req_state-/"
-		$sudo cp $tmp._state /etc/hostconfig
-	    fi
-	fi
     elif [ $PCP_PLATFORM = freebsd ]
     then
 	# no control for FreeBSD
@@ -3065,38 +3088,28 @@ _get_config()
 	fi
     elif [ $PCP_PLATFORM = darwin ]
     then
-	case $1 
+	# Use launchctl to check service status on macOS
+	case $1
 	in
-	    pmcd)	__pat=PMCD ;;
-	    pmlogger)	__pat=PMLOGGER ;;
-	    pmie)	__pat=PMIE ;;
-	    verbose)	__pat="" ;;
-	    *)		__pat=$1 ;;
-	esac
-	if [ -n "$__pat" ]
-	then
-	    __state=`sed -n -e "/^$__pat=/{"'
-s/.*=//
-s/-//g
-p
-}' /etc/hostconfig`
-	    if [ -z "$__state" ]
-	    then
-		echo "_get_config: Error: No $__pat control line in /etc/hostconfig" >&2
-		echo "You need to add a $__pat=-YES- line to this file" >&2
-		return 1
-	    fi
-	    if [ "$__state" = "YES" ]
-	    then
+	    pmcd|pmlogger|pmie|pmproxy)
+		__plist=`_darwin_plist_name $1`
+		# Check if service is disabled in launchd
+		if $sudo launchctl print-disabled system | grep -q "\"$__plist\" => disabled"
+		then
+		    echo off
+		else
+		    echo on
+		fi
+		;;
+	    verbose)
+		# Verbose is always considered "on"
 		echo on
-	    elif [ "$__state" = "NO" ]
-	    then
-		echo off
-	    else
-		echo "_get_config: Error: bad state ($__state) should be YES or NO" >&2
+		;;
+	    *)
+		echo "_get_config: Error: unknown service $1 for Darwin" >&2
 		return 1
-	    fi
-	fi
+		;;
+	esac
     elif [ $PCP_PLATFORM = freebsd ]
     then
 	# no control for FreeBSD

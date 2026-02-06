@@ -78,4 +78,38 @@ task:
     else
       echo "No pause required, finishing"
     fi
-    
+
+task:
+  name: macOS PCP QA
+  depends_on: macOS PCP Build
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-tahoe-base:latest
+  create_pcpqa_user_script: |
+    echo "Creating pcpqa user for testing..."
+    if ! dscl . -read /Users/pcpqa &>/dev/null; then
+      NEXT_UID=$(dscl . -list /Users UniqueID | awk '{print $2}' | sort -n | tail -1)
+      NEXT_UID=$((NEXT_UID + 1))
+      sudo dscl . -create /Users/pcpqa
+      sudo dscl . -create /Users/pcpqa UserShell /bin/bash
+      sudo dscl . -create /Users/pcpqa RealName "PCP QA User"
+      sudo dscl . -create /Users/pcpqa UniqueID "$NEXT_UID"
+      sudo dscl . -create /Users/pcpqa PrimaryGroupID 20
+      sudo dscl . -create /Users/pcpqa NFSHomeDirectory /Users/pcpqa
+      sudo mkdir -p /Users/pcpqa
+      sudo chown pcpqa:staff /Users/pcpqa
+      echo "pcpqa user created"
+    else
+      echo "pcpqa user already exists"
+    fi
+  verify_pmcd_script: |
+    echo "Verifying pmcd is running..."
+    pminfo -f hinv.ncpu || { echo "pmcd not responding"; exit 1; }
+  init_qa_script: |
+    echo "Initializing QA environment..."
+    cd qa
+    sudo ./admin/myconfigure
+  run_qa_tests_script: |
+    echo "Running QA tests..."
+    cd qa
+    ./check -l
+
