@@ -181,6 +181,7 @@ pmdaIndom indomtab[] = {
     { GPU_INDOM,		0, NULL },
     { APFS_CONTAINER_INDOM,	0, NULL },
     { APFS_VOLUME_INDOM,	0, NULL },
+    { FAN_INDOM,		0, NULL },
 };
 
 
