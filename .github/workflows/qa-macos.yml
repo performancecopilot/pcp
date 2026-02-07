@@ -2,6 +2,9 @@ name: macOS QA
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - macos-qa-uplift
 
 jobs:
   build:
