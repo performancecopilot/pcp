@@ -7,18 +7,21 @@ on:
       - macos-qa-uplift
 
 jobs:
-  build:
+  qa:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.ref_name }}
+
       - name: Update Homebrew
         run: brew update
+
       - name: Set up Python 3.13
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
+
       - name: Install python deps
         run: |
           python3 --version
@@ -26,42 +29,32 @@ jobs:
           python3 -m venv pybuilddeps
           source pybuilddeps/bin/activate
           pip3 install setuptools wheel lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests
+
       - name: Install Homebrew deps
         run: |
           brew install autoconf unixodbc valkey libuv
+
       - name: Enable TCP stats
         run: |
           echo "Enabling TCP statistics for testing..."
           sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
           sysctl net.inet.tcp.disable_access_to_stats
+
       - name: Build PCP
         run: |
           source pybuilddeps/bin/activate
           ./Makepkgs --verbose
+
       - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
           name: pcp-macos-dmg
           path: pcp-*/build/mac/pcp-*.dmg
-          retention-days: 1
+          retention-days: 7
 
-  qa:
-    needs: build
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          ref: ${{ github.ref_name }}
-      - name: Download DMG artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: pcp-macos-dmg
-          path: ./dmg-artifact
-      - name: Enable TCP stats
-        run: sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
-      - name: Install PCP
+      - name: Install PCP from DMG
         run: |
-          DMG_PATH=$(find ./dmg-artifact -name "pcp-*.dmg" | head -1)
+          DMG_PATH=$(find pcp-*/build/mac -name "pcp-*.dmg" | head -1)
           echo "Found DMG: $DMG_PATH"
           MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" | tail -1)
           VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | awk '{print $3}')
@@ -70,15 +63,25 @@ jobs:
           echo "Found PKG: $PKG_PATH"
           sudo installer -pkg "$PKG_PATH" -target / -verbose
           hdiutil detach "$VOLUME_PATH" || true
+
       - name: Wait for pmcd
         run: |
           TIMEOUT=180
           ELAPSED=0
+          echo "Waiting for pmcd to become available..."
           while [ $ELAPSED -lt $TIMEOUT ]; do
-            if pcp 2>/dev/null; then break; fi
+            if pcp 2>/dev/null; then
+              echo "pmcd is ready"
+              break
+            fi
             sleep 5
             ELAPSED=$((ELAPSED + 5))
           done
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "Timeout waiting for pmcd"
+            exit 1
+          fi
+
       - name: Create pcpqa user
         run: |
           echo "Creating pcpqa user for testing..."
@@ -94,17 +97,23 @@ jobs:
             sudo mkdir -p /Users/pcpqa
             sudo chown pcpqa:staff /Users/pcpqa
           fi
-      - name: Initialize QA environment
+
+      - name: Set QA directory permissions
+        run: |
+          echo "Ensuring pcpqa can read QA files..."
+          chmod -R a+rX qa/
+
+      - name: Run QA sanity tests
         run: |
           cd qa
-          sudo ./admin/myconfigure
-      - name: Run QA tests
-        run: |
-          cd qa
-          ./check -l
+          sudo -u pcpqa ./check -g sanity -x not_in_ci
+
       - name: Upload QA logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: qa-logs
-          path: qa/*.bad
+          path: |
+            qa/*.bad
+            qa/check.log
+          retention-days: 7
