@@ -138,3 +138,9 @@ cd qa && ./check -g archive # Archive tests
 
 ### Platform Support
 PCP supports Linux, macOS, Windows (MinGW), AIX, and Solaris. Tests should be written to be portable or use `_notrun()` for platform-specific limitations.
+
+## CI/CD and Automation Notes
+
+- **pmcd startup timing**: pmcd can take time to start (especially on macOS) - use retry loops with 3-second intervals, max 180s timeout
+- **GitHub Actions logs**: Use `gh run view <run-id> --log --job <job-id>` to fetch full logs (web UI requires authentication)
+- **Debug artifacts**: Always upload `/var/log/pcp/` in CI runs with `if: always()` to debug failures
