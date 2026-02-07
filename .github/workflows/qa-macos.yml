@@ -99,16 +99,54 @@ jobs:
         run: |
           sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmcd.plist
           sudo launchctl kickstart -p -k system/io.pcp.pmcd
+
           echo "Waiting for pmcd to become available..."
-          sleep 5
-          if ! pcp; then
-            echo "::error::pmcd failed to start"
+          TIMEOUT=180
+          ELAPSED=0
+          INTERVAL=3
+
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            echo "Checking if pmcd is responding (${ELAPSED}s elapsed)..."
+
+            if pcp 2>/dev/null; then
+              echo "✓ pmcd service is responding!"
+              break
+            fi
+
+            if pminfo -h localhost -f hinv.ncpu 2>/dev/null; then
+              echo "✓ pmcd is accepting connections!"
+              break
+            fi
+
+            sleep $INTERVAL
+            ELAPSED=$((ELAPSED + INTERVAL))
+          done
+
+          if [ $ELAPSED -ge $TIMEOUT ]; then
+            echo "::error::pmcd failed to start within $TIMEOUT seconds"
+            echo ""
+            echo "=== pmcd process status ==="
+            pgrep pmcd && echo "pmcd is running (PID: $(pgrep pmcd))" || echo "pmcd NOT running"
+            ps aux | grep pmcd | grep -v grep || echo "No pmcd process found"
+
+            echo ""
             echo "=== pmcd.log ==="
             sudo cat /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd.log found"
-            echo "=== launchctl list io.pcp.pmcd ==="
+
+            echo ""
+            echo "=== launchctl status ==="
             sudo launchctl list io.pcp.pmcd || echo "Service not in launchctl list"
+
+            echo ""
+            echo "=== pmcd network connections ==="
+            sudo lsof -i -P | grep pmcd || echo "No network connections"
+
             exit 1
           fi
+
+          echo ""
+          echo "pmcd started successfully"
+          pcp
 
       - name: Set QA directory permissions
         run: |
