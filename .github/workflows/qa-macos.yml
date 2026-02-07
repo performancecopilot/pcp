@@ -50,19 +50,28 @@ jobs:
           source pybuilddeps/bin/activate
           make -j$(sysctl -n hw.ncpu)
 
-      - name: Install PCP
-        run: sudo make install
-
-      - name: Start pmcd
+      - name: Create PCP users and groups
         run: |
-          sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmcd.plist
-          sudo launchctl kickstart -p -k system/io.pcp.pmcd
-          echo "Waiting for pmcd to become available..."
-          sleep 5
-          pcp
+          echo "Creating pcp user and group for daemons..."
+          if ! dscl . -read /Groups/pcp &>/dev/null; then
+            NEXT_GID=$(dscl . -list /Groups PrimaryGroupID | awk '{print $2}' | sort -n | tail -1)
+            NEXT_GID=$((NEXT_GID + 1))
+            sudo dscl . -create /Groups/pcp
+            sudo dscl . -create /Groups/pcp PrimaryGroupID "$NEXT_GID"
+            sudo dscl . -create /Groups/pcp RealName "PCP Group"
+          fi
+          if ! dscl . -read /Users/pcp &>/dev/null; then
+            NEXT_UID=$(dscl . -list /Users UniqueID | awk '{print $2}' | sort -n | tail -1)
+            NEXT_UID=$((NEXT_UID + 1))
+            PCP_GID=$(dscl . -read /Groups/pcp PrimaryGroupID | awk '{print $2}')
+            sudo dscl . -create /Users/pcp
+            sudo dscl . -create /Users/pcp UserShell /usr/bin/false
+            sudo dscl . -create /Users/pcp RealName "PCP System User"
+            sudo dscl . -create /Users/pcp UniqueID "$NEXT_UID"
+            sudo dscl . -create /Users/pcp PrimaryGroupID "$PCP_GID"
+            sudo dscl . -create /Users/pcp NFSHomeDirectory /var/empty
+          fi
 
-      - name: Create pcpqa user
-        run: |
           echo "Creating pcpqa user for testing..."
           if ! dscl . -read /Users/pcpqa &>/dev/null; then
             NEXT_UID=$(dscl . -list /Users UniqueID | awk '{print $2}' | sort -n | tail -1)
@@ -82,6 +91,17 @@ jobs:
           echo "Setting up passwordless sudo for pcpqa..."
           echo "pcpqa ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/pcpqa
           sudo chmod 0440 /etc/sudoers.d/pcpqa
+
+      - name: Install PCP
+        run: sudo make install
+
+      - name: Start pmcd
+        run: |
+          sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmcd.plist
+          sudo launchctl kickstart -p -k system/io.pcp.pmcd
+          echo "Waiting for pmcd to become available..."
+          sleep 5
+          pcp
 
       - name: Set QA directory permissions
         run: |
