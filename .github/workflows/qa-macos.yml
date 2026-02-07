@@ -95,6 +95,32 @@ jobs:
       - name: Install PCP
         run: sudo make install
 
+      - name: Rebuild PMNS
+        run: |
+          echo "Building PMNS root file from installed PMDA namespaces..."
+          . /etc/pcp.conf
+
+          echo "PMNS directory contents before rebuild:"
+          sudo ls -la $PCP_VAR_DIR/pmns/ || true
+
+          echo ""
+          echo "Running Rebuild script..."
+          cd $PCP_VAR_DIR/pmns
+          sudo ./Rebuild -v
+
+          echo ""
+          echo "PMNS directory contents after rebuild:"
+          sudo ls -la $PCP_VAR_DIR/pmns/
+
+          if [ -f "$PCP_VAR_DIR/pmns/root" ]; then
+            echo "✓ PMNS root file created successfully"
+            echo "First 20 lines of root file:"
+            sudo head -20 $PCP_VAR_DIR/pmns/root
+          else
+            echo "::error::PMNS root file was not created!"
+            exit 1
+          fi
+
       - name: Start pmcd
         run: |
           sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmcd.plist
