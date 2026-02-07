@@ -32,6 +32,34 @@ configparser.InterpolationSyntaxError: '%' must be followed by '%' or '(', found
 
 **Fix:** Double all `%` characters that should appear literally in output.
 
+## Unit Specifications
+
+**PCP's unit conversion system only recognizes standard units. Custom units cause `PM_ERR_CONV` errors.**
+
+### Supported Units
+
+- **Storage**: KB, MB, GB, TB, PB
+- **Time**: s, ms, us, ns
+- **Count**: count, none (dimensionless)
+
+### Unsupported Units
+
+If the darwin PMDA defines a metric as dimensionless (`PMDA_PMUNITS(0,0,0,0,0,0)`), omit the unit specification in pmrep config:
+
+**Wrong (causes PM_ERR_CONV):**
+```ini
+power.battery.temperature = temp,,dC,,5
+power.battery.capacity.design = design,,mAh,,7
+```
+
+**Correct:**
+```ini
+power.battery.temperature = temp,,,,5      # Raw Celsius value
+power.battery.capacity.design = design,,,,7  # Raw mAh value
+```
+
+Use comments and labels to indicate units - don't try to convert them.
+
 ## Configuration File Format
 
 pmrep configs use INI format with specific semantics:
