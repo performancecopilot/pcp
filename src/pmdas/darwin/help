@@ -95,6 +95,30 @@ cache. These pages have been compressed to reduce physical memory usage.
 The total number of pages that are currently stored in compressed form,
 measured in their original (uncompressed) size. This shows how many pages
 of memory are being represented by the compressed storage.
+@ mem.compressor.swapouts_under_30s swapouts completed within 30 seconds
+Number of memory compressor swapout operations that completed within 30
+seconds since system boot. Part of timing bucket metrics for swapout
+performance analysis.
+@ mem.compressor.swapouts_under_60s swapouts completed within 60 seconds
+Number of memory compressor swapout operations that completed within 60
+seconds since system boot. Part of timing bucket metrics for swapout
+performance analysis.
+@ mem.compressor.swapouts_under_300s swapouts completed within 300 seconds
+Number of memory compressor swapout operations that completed within 300
+seconds (5 minutes) since system boot. Part of timing bucket metrics for
+swapout performance analysis.
+@ mem.compressor.thrashing_detected memory thrashing detections
+Counter of memory thrashing events detected by the compressor swapper.
+Indicates periods of excessive memory pressure where the system is spending
+significant time swapping compressed memory.
+@ mem.compressor.major_compactions major compaction operations completed
+Total number of major memory compaction operations completed by the
+compressor. Major compactions reorganize compressed memory segments to
+improve efficiency and reclaim space.
+@ mem.compressor.lz4_compressions LZ4 compression operations
+Total number of LZ4 compression operations performed. LZ4 is a fast
+compression algorithm used by macOS for memory compression in certain
+scenarios.
 
 @ swap.length total swap space configured
 Total amount of swap space available to the system in kilobytes.
@@ -162,9 +186,74 @@ boot time (subject to counter wrap).
 @ disk.dev.read_time i dunno either
 @ disk.dev.write_time i dunno either
 @ disk.dev.total_time i dunno either
+
+@ disk.dev.read_errors per-disk read error count
+Cumulative number of read errors reported by IOBlockStorageDriver since
+system boot time (subject to counter wrap).
+
+@ disk.dev.write_errors per-disk write error count
+Cumulative number of write errors reported by IOBlockStorageDriver since
+system boot time (subject to counter wrap).
+
+@ disk.dev.read_retries per-disk read retry count
+Cumulative number of read retries performed by IOBlockStorageDriver since
+system boot time (subject to counter wrap).
+
+@ disk.dev.write_retries per-disk write retry count
+Cumulative number of write retries performed by IOBlockStorageDriver since
+system boot time (subject to counter wrap).
+
+@ disk.dev.total_read_time per-disk cumulative read time
+Total time spent performing read operations in nanoseconds, as reported by
+IOBlockStorageDriver since system boot time (subject to counter wrap).
+
+@ disk.dev.total_write_time per-disk cumulative write time
+Total time spent performing write operations in nanoseconds, as reported by
+IOBlockStorageDriver since system boot time (subject to counter wrap).
+
+@ disk.dev.avgrq_sz per-disk average request size
+Average I/O request size in bytes, calculated as total bytes transferred
+divided by total operations (read + write). Instantaneous value.
+
+@ disk.dev.await per-disk average wait time
+Average I/O wait time in nanoseconds per operation, calculated as total
+I/O time divided by total operations (read + write). Instantaneous value.
+
 @ disk.all.read_time i dunno either
 @ disk.all.write_time i dunno either
 @ disk.all.total_time i dunno either
+
+@ disk.all.read_errors total read errors, summed for all disks
+Cumulative number of read errors since system boot time (subject to counter
+wrap), summed over all disk devices.
+
+@ disk.all.write_errors total write errors, summed for all disks
+Cumulative number of write errors since system boot time (subject to counter
+wrap), summed over all disk devices.
+
+@ disk.all.read_retries total read retries, summed for all disks
+Cumulative number of read retries since system boot time (subject to counter
+wrap), summed over all disk devices.
+
+@ disk.all.write_retries total write retries, summed for all disks
+Cumulative number of write retries since system boot time (subject to counter
+wrap), summed over all disk devices.
+
+@ disk.all.total_read_time total cumulative read time, summed for all disks
+Total time spent performing read operations in nanoseconds since system boot
+time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.total_write_time total cumulative write time, summed for all disks
+Total time spent performing write operations in nanoseconds since system boot
+time (subject to counter wrap), summed over all disk devices.
+
+@ disk.all.avgrq_sz average request size across all disks
+Average I/O request size in bytes across all disks, calculated as total bytes
+transferred divided by total operations. Instantaneous value.
+
+@ disk.all.await average wait time across all disks
+Average I/O wait time in nanoseconds per operation across all disks, calculated
+as total I/O time divided by total operations. Instantaneous value.
 
 @ disk.all.read total read operations, summed for all disks
 Cumulative number of disk read operations since system boot time
@@ -266,6 +355,36 @@ This is a cumulative counter from boot time.
 @ network.icmp.outechoreps ICMP echo replies sent
 Total number of ICMP Echo Reply messages sent (ping responses).
 This is a cumulative counter from boot time.
+
+@ network.ipv6.inreceives IPv6 packets received
+Total number of IPv6 packets received.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.outforwarded IPv6 packets forwarded
+Number of IPv6 packets forwarded to other destinations.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.indiscards IPv6 input packets discarded
+Number of IPv6 packets discarded on input due to being too short or too small.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.outdiscards IPv6 output packets discarded
+Number of IPv6 packets dropped on output due to buffer exhaustion or other errors.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.fragcreates IPv6 fragment packets created
+Number of IPv6 packet fragments created for transmission.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
+
+@ network.ipv6.reasmoks IPv6 packets successfully reassembled
+Number of IPv6 packets successfully reassembled from fragments.
+This is a cumulative counter from boot time.
+Retrieved via the net.inet6.ip6.stats sysctl.
 
 @ network.sockstat.tcp.inuse TCP sockets in use
 Number of TCP protocol control blocks (PCBs) currently in use.
@@ -457,6 +576,10 @@ Each open file, directory, or device typically requires at least one vnode.
 @ vfs.vnodes.max maximum number of vnodes allowed
 System-wide maximum number of vnodes that can exist simultaneously.
 This is a tunable kernel parameter (kern.maxvnodes) that limits vnode allocation.
+@ vfs.vnodes.recycled recycled vnode count
+The number of vnodes that have been recycled (freed and reused) by the
+kernel. This counter indicates how often the vnode cache reaches capacity
+and must reclaim entries.
 @ kernel.all.nprocs total number of processes
 Current number of tasks (processes) running in the system.
 This includes all processes across all users.
@@ -479,3 +602,214 @@ username is "root".
 Total count of session records in the utmpx database. This includes all
 session types, not just USER_PROCESS entries, providing a count of all
 tracked login events.
+
+@ kernel.limits.maxproc maximum processes (system-wide)
+System-wide limit on the total number of processes that can exist simultaneously.
+This is a tunable kernel parameter (kern.maxproc) that sets the global process limit.
+@ kernel.limits.maxprocperuid maximum processes per user
+Per-user limit on the number of processes each user can create.
+This is a tunable kernel parameter (kern.maxprocperuid) that prevents a single
+user from consuming all process slots.
+@ kernel.limits.maxfiles maximum file descriptors (system-wide)
+System-wide limit on the total number of open file descriptors.
+This is a tunable kernel parameter (kern.maxfiles) identical to vfs.files.max.
+@ kernel.limits.maxfilesperproc maximum file descriptors per process
+Per-process limit on the number of file descriptors that can be open.
+This is a tunable kernel parameter (kern.maxfilesperproc) that limits each
+process's resource consumption.
+
+@ hinv.ngpu number of GPUs
+Number of GPUs (Graphics Processing Units) available in the system.
+Includes both integrated and discrete GPUs on Intel Macs and
+integrated GPUs on Apple Silicon Macs.
+@ gpu.util GPU utilization percentage
+Current GPU utilization percentage (0-100) representing how busy
+the GPU is processing graphics and compute workloads.
+@ gpu.memory.used GPU VRAM used
+Amount of GPU video memory (VRAM) currently in use, in bytes.
+This represents memory allocated for graphics buffers, textures,
+and compute operations.
+@ gpu.memory.free GPU VRAM free
+Amount of GPU video memory (VRAM) currently available, in bytes.
+Calculated as total VRAM minus used VRAM.
+
+@ power.battery.present battery present flag
+Boolean flag (1/0) indicating whether a battery is present in the system.
+Desktop Macs will typically show 0, while MacBooks will show 1.
+@ power.battery.charging battery charging status
+Boolean flag (1/0) indicating whether the battery is currently charging.
+Only meaningful when battery is present and AC power is connected.
+@ power.battery.charge current battery charge percentage
+Current battery charge level as a percentage (0-100).
+Represents the current capacity relative to the maximum capacity.
+@ power.battery.time_remaining minutes to empty or full
+Estimated time in minutes until the battery is fully charged (when charging)
+or fully discharged (when on battery power). Returns -1 if the estimate
+is unavailable or unreliable.
+@ power.battery.health battery health percentage
+Battery health as a percentage (0-100), calculated as the ratio of
+current maximum capacity to design capacity. Indicates battery degradation
+over time. A value below 80% typically indicates significant wear.
+@ power.battery.cycle_count battery charge cycle count
+Number of complete charge-discharge cycles the battery has undergone.
+A cycle is counted when 100% of battery capacity has been used, though
+not necessarily in a single charge/discharge. Higher cycle counts indicate
+more battery wear.
+@ power.battery.temperature battery temperature
+Battery temperature in degrees Celsius × 100 (for precision).
+For example, a value of 2500 represents 25.00°C. Used for thermal
+monitoring and battery health assessment.
+@ power.battery.voltage battery voltage
+Current battery voltage in millivolts (mV). Voltage varies with
+charge level and battery chemistry. Typical MacBook batteries operate
+in the 10000-13000 mV range.
+@ power.battery.amperage battery discharge/charge rate
+Current flow in milliamps (mA). Negative values indicate discharging
+(battery powering the system), positive values indicate charging.
+Magnitude indicates power consumption or charging speed.
+@ power.battery.capacity.design design capacity
+Battery design capacity in milliamp-hours (mAh). This is the original
+rated capacity when the battery was new. Used as baseline for calculating
+battery health.
+@ power.battery.capacity.max current maximum capacity
+Current maximum battery capacity in milliamp-hours (mAh). This value
+decreases over time as the battery ages and degrades. Compare with
+design capacity to assess battery wear.
+@ power.ac.connected AC power connected flag
+Boolean flag (1/0) indicating whether AC power adapter is connected.
+When 1, the system is running on external power; when 0, running on
+battery (if present).
+@ power.source power source type
+String indicating the current power source: "AC Power" when running on
+external power adapter, "Battery Power" when running on battery, or
+"Unknown" if power source cannot be determined.
+
+@ disk.apfs.ncontainer number of APFS containers
+Number of APFS containers visible via IOKit (AppleAPFSContainer class).
+Instantaneous value.
+
+@ disk.apfs.nvolume number of APFS volumes
+Number of APFS volumes visible via IOKit (AppleAPFSVolume class).
+Instantaneous value.
+
+@ disk.apfs.container.block_size APFS container block size
+Block size in bytes for the APFS container as reported by ContainerBlockSize.
+Discrete value per container instance.
+
+@ disk.apfs.container.bytes_read APFS container bytes read
+Cumulative bytes read from the block device backing this APFS container
+since system boot (subject to counter wrap).
+
+@ disk.apfs.container.bytes_written APFS container bytes written
+Cumulative bytes written to the block device backing this APFS container
+since system boot (subject to counter wrap).
+
+@ disk.apfs.container.read_requests APFS container read requests
+Cumulative number of read requests sent to the block device backing this
+APFS container since system boot (subject to counter wrap).
+
+@ disk.apfs.container.write_requests APFS container write requests
+Cumulative number of write requests sent to the block device backing this
+APFS container since system boot (subject to counter wrap).
+
+@ disk.apfs.container.transactions APFS container transactions flushed
+Cumulative number of APFS transactions flushed to the container since
+system boot (subject to counter wrap).
+
+@ disk.apfs.container.cache_hits APFS container object cache hits
+Cumulative number of object cache hits in the APFS container since
+system boot (subject to counter wrap).
+
+@ disk.apfs.container.cache_evictions APFS container object cache evictions
+Cumulative number of object cache evictions from the APFS container since
+system boot (subject to counter wrap).
+
+@ disk.apfs.container.read_errors APFS container metadata read errors
+Cumulative number of metadata read errors encountered by the APFS container
+since system boot (subject to counter wrap).
+
+@ disk.apfs.container.write_errors APFS container metadata write errors
+Cumulative number of metadata write errors encountered by the APFS container
+since system boot (subject to counter wrap).
+
+@ disk.apfs.volume.encrypted APFS volume encryption status
+Boolean flag (1/0) indicating whether the APFS volume is encrypted.
+Instantaneous value per volume instance.
+
+@ disk.apfs.volume.locked APFS volume locked status
+Boolean flag (1/0) indicating whether the APFS volume is currently locked
+(requires password to unlock). Instantaneous value per volume instance.
+
+@ hinv.nfan number of cooling fans
+Number of cooling fans in the system, detected via SMC (System Management
+Controller). On fanless MacBooks (M1/M2 MacBook Air), this will be 0.
+On MacBooks with active cooling, typically 1-2 fans. Desktop Macs may have
+more fans. Instantaneous value, no instance domain.
+
+@ thermal.cpu.die CPU die temperature
+CPU die temperature in degrees Celsius, read from SMC key Tp01 (Apple Silicon)
+or equivalent Intel key. Represents the hottest point on the CPU die.
+Typical operating range: 30-90°C. Returns PM_ERR_APPVERSION if sensor
+not available on this Mac model. Instantaneous value.
+
+@ thermal.cpu.proximity CPU proximity temperature
+Temperature measured near the CPU package (°C), read from SMC key TA0P.
+Generally lower than die temperature but responds quickly to CPU load changes.
+Useful for thermal trending. Instantaneous value.
+
+@ thermal.gpu.die GPU die temperature
+GPU die temperature in degrees Celsius, read from SMC key Tg01 (Apple Silicon
+integrated GPU) or equivalent discrete GPU key. Only available on Macs with
+discrete GPUs or Apple Silicon with GPU sensor support. Returns PM_ERR_APPVERSION
+if not available. Instantaneous value.
+
+@ thermal.package SoC package temperature
+System-on-chip package temperature (°C), read from SMC key TCXC. On Apple
+Silicon, represents the unified M-series chip temperature. On Intel Macs,
+represents the CPU package. Instantaneous value.
+
+@ thermal.ambient ambient air temperature
+Ambient air temperature inside the chassis (°C), read from SMC key TA0P.
+Represents intake air temperature before cooling. Useful for diagnosing
+thermal throttling and fan behavior. Instantaneous value.
+
+@ thermal.fan.speed fan speed
+Current fan speed in revolutions per minute (RPM), per-fan instance.
+Read from SMC keys F0Ac, F1Ac, etc. Value of 0 indicates fan stopped
+(unusual except during boot). Compare with target RPM to detect thermal
+throttling. Instantaneous value, FAN_INDOM instance domain.
+
+@ thermal.fan.target target fan speed
+Target fan speed in RPM that SMC is attempting to achieve, per-fan instance.
+When target > current speed, system is trying to increase cooling.
+Read from SMC keys F0Tg, F1Tg, etc. Instantaneous value, FAN_INDOM instance domain.
+
+@ thermal.fan.mode fan control mode
+Fan control mode: 0 = automatic (SMC-controlled based on temperature),
+1 = manual (user/software override). Most systems operate in automatic mode.
+Manual mode typically requires third-party software. Read from SMC keys
+F0Md, F1Md, etc. Instantaneous value, FAN_INDOM instance domain.
+
+@ thermal.fan.min minimum fan speed
+Minimum fan speed in RPM, per-fan instance. Fans will not spin slower than
+this value during normal operation. Typically 1200-2000 RPM for MacBooks.
+Read from SMC keys F0Mn, F1Mn, etc. Discrete value, FAN_INDOM instance domain.
+
+@ thermal.fan.max maximum fan speed
+Maximum fan speed in RPM, per-fan instance. Fans will not spin faster than
+this value even under extreme thermal load. Typically 5000-7000 RPM for MacBooks.
+Read from SMC keys F0Mx, F1Mx, etc. Discrete value, FAN_INDOM instance domain.
+
+@ thermal.pressure.level thermal pressure level
+macOS thermal pressure level (0-3) from notify API:
+  0 = Nominal (normal operation, no throttling)
+  1 = Fair (light thermal load, minimal throttling)
+  2 = Serious (high thermal load, active throttling)
+  3 = Critical (extreme thermal load, aggressive throttling)
+Always available, does not require SMC access. Instantaneous value.
+
+@ thermal.pressure.state thermal pressure state string
+Human-readable thermal pressure state: "Nominal", "Fair", "Serious", or
+"Critical". Corresponds to thermal.pressure.level numeric value. Useful for
+monitoring dashboards and alerts. Always available via notify API.
+Instantaneous value, string type.

@@ -59,6 +59,8 @@ typedef struct {
     uint32_t	threads;
     uint32_t	translated;
     uint32_t	fd_count;	/* open file descriptor count */
+    uint32_t	tcp_count;	/* TCP socket count */
+    uint32_t	udp_count;	/* UDP socket count */
     int32_t	usrpri;
     int32_t	priority;
     int32_t	nice;
@@ -74,6 +76,17 @@ typedef struct {
     uint64_t	pswitch;
     uint64_t	read_bytes;	/* disk I/O bytes read */
     uint64_t	write_bytes;	/* disk I/O bytes written */
+    uint64_t	logical_writes;	/* logical disk write operations */
+    uint64_t	phys_footprint;	/* physical memory footprint */
+
+    /* QoS-tier CPU time accounting (RUSAGE_INFO_V4) */
+    uint64_t	qos_default;
+    uint64_t	qos_maintenance;
+    uint64_t	qos_background;
+    uint64_t	qos_utility;
+    uint64_t	qos_legacy;
+    uint64_t	qos_user_initiated;
+    uint64_t	qos_user_interactive;
 
     /* string hash keys */
     int		cwd_id;

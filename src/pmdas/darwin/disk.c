@@ -86,6 +86,12 @@ update_disk_totals(struct diskstats *all, struct diskstat *disk)
     all->blkwrite	+= disk->write_bytes / disk->blocksize;
     all->read_time	+= disk->read_time;
     all->write_time	+= disk->write_time;
+    all->read_errors	+= disk->read_errors;
+    all->write_errors	+= disk->write_errors;
+    all->read_retries	+= disk->read_retries;
+    all->write_retries	+= disk->write_retries;
+    all->total_read_time	+= disk->total_read_time;
+    all->total_write_time	+= disk->total_write_time;
 }
 
 static void
@@ -99,6 +105,12 @@ clear_disk_totals(struct diskstats *all)
     all->blkwrite	= 0;
     all->read_time	= 0;
     all->write_time	= 0;
+    all->read_errors	= 0;
+    all->write_errors	= 0;
+    all->read_retries	= 0;
+    all->write_retries	= 0;
+    all->total_read_time	= 0;
+    all->total_write_time	= 0;
 }
 
 /*
@@ -166,6 +178,36 @@ update_disk_stats(struct diskstat *disk,
 	if (number)
 	    CFNumberGetValue(number, kCFNumberSInt64Type,
 					&disk->write_time);
+	number = (CFNumberRef) CFDictionaryGetValue(statistics,
+		CFSTR(kIOBlockStorageDriverStatisticsReadErrorsKey));
+	if (number)
+	    CFNumberGetValue(number, kCFNumberSInt64Type,
+					&disk->read_errors);
+	number = (CFNumberRef) CFDictionaryGetValue(statistics,
+		CFSTR(kIOBlockStorageDriverStatisticsWriteErrorsKey));
+	if (number)
+	    CFNumberGetValue(number, kCFNumberSInt64Type,
+					&disk->write_errors);
+	number = (CFNumberRef) CFDictionaryGetValue(statistics,
+		CFSTR(kIOBlockStorageDriverStatisticsReadRetriesKey));
+	if (number)
+	    CFNumberGetValue(number, kCFNumberSInt64Type,
+					&disk->read_retries);
+	number = (CFNumberRef) CFDictionaryGetValue(statistics,
+		CFSTR(kIOBlockStorageDriverStatisticsWriteRetriesKey));
+	if (number)
+	    CFNumberGetValue(number, kCFNumberSInt64Type,
+					&disk->write_retries);
+	number = (CFNumberRef) CFDictionaryGetValue(statistics,
+		CFSTR(kIOBlockStorageDriverStatisticsTotalReadTimeKey));
+	if (number)
+	    CFNumberGetValue(number, kCFNumberSInt64Type,
+					&disk->total_read_time);
+	number = (CFNumberRef) CFDictionaryGetValue(statistics,
+		CFSTR(kIOBlockStorageDriverStatisticsTotalWriteTimeKey));
+	if (number)
+	    CFNumberGetValue(number, kCFNumberSInt64Type,
+					&disk->total_write_time);
     }
     return 0;
 }
@@ -332,6 +374,48 @@ fetch_disk(unsigned int item, unsigned int inst, pmAtomValue *atom)
 		atom->ull = mach_disk.disks[inst].read_time +
 					mach_disk.disks[inst].write_time;
 		return 1;
+	case 71: /* disk.dev.read_errors */
+		atom->ull = mach_disk.disks[inst].read_errors;
+		return 1;
+	case 72: /* disk.dev.write_errors */
+		atom->ull = mach_disk.disks[inst].write_errors;
+		return 1;
+	case 73: /* disk.dev.read_retries */
+		atom->ull = mach_disk.disks[inst].read_retries;
+		return 1;
+	case 74: /* disk.dev.write_retries */
+		atom->ull = mach_disk.disks[inst].write_retries;
+		return 1;
+	case 75: /* disk.dev.total_read_time */
+		atom->ull = mach_disk.disks[inst].total_read_time;
+		return 1;
+	case 76: /* disk.dev.total_write_time */
+		atom->ull = mach_disk.disks[inst].total_write_time;
+		return 1;
+	case 77: /* disk.dev.avgrq_sz - derived metric */
+		{
+			__uint64_t total_ops = mach_disk.disks[inst].read +
+						mach_disk.disks[inst].write;
+			if (total_ops > 0) {
+				atom->ull = (mach_disk.disks[inst].read_bytes +
+						mach_disk.disks[inst].write_bytes) / total_ops;
+			} else {
+				atom->ull = 0;
+			}
+		}
+		return 1;
+	case 78: /* disk.dev.await - derived metric (in microseconds) */
+		{
+			__uint64_t total_ops = mach_disk.disks[inst].read +
+						mach_disk.disks[inst].write;
+			if (total_ops > 0) {
+				atom->ull = (mach_disk.disks[inst].total_read_time +
+						mach_disk.disks[inst].total_write_time) / total_ops;
+			} else {
+				atom->ull = 0;
+			}
+		}
+		return 1;
 	case 59: /* disk.all.read */
 		atom->ull = mach_disk.read;
 		return 1;
@@ -367,6 +451,44 @@ fetch_disk(unsigned int item, unsigned int inst, pmAtomValue *atom)
 		return 1;
 	case 70: /* disk.all.total_time */
 		atom->ull = mach_disk.read_time + mach_disk.write_time;
+		return 1;
+	case 79: /* disk.all.read_errors */
+		atom->ull = mach_disk.read_errors;
+		return 1;
+	case 80: /* disk.all.write_errors */
+		atom->ull = mach_disk.write_errors;
+		return 1;
+	case 81: /* disk.all.read_retries */
+		atom->ull = mach_disk.read_retries;
+		return 1;
+	case 82: /* disk.all.write_retries */
+		atom->ull = mach_disk.write_retries;
+		return 1;
+	case 83: /* disk.all.total_read_time */
+		atom->ull = mach_disk.total_read_time;
+		return 1;
+	case 84: /* disk.all.total_write_time */
+		atom->ull = mach_disk.total_write_time;
+		return 1;
+	case 85: /* disk.all.avgrq_sz - derived metric */
+		{
+			__uint64_t total_ops = mach_disk.read + mach_disk.write;
+			if (total_ops > 0) {
+				atom->ull = (mach_disk.read_bytes + mach_disk.write_bytes) / total_ops;
+			} else {
+				atom->ull = 0;
+			}
+		}
+		return 1;
+	case 86: /* disk.all.await - derived metric (in microseconds) */
+		{
+			__uint64_t total_ops = mach_disk.read + mach_disk.write;
+			if (total_ops > 0) {
+				atom->ull = (mach_disk.total_read_time + mach_disk.total_write_time) / total_ops;
+			} else {
+				atom->ull = 0;
+			}
+		}
 		return 1;
 	}
 	return PM_ERR_PMID;

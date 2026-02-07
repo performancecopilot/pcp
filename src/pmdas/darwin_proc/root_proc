@@ -16,8 +16,10 @@ proc {
     runq
     id
     memory
+    cpu
     io
     fd
+    net
     control
 }
 
@@ -74,15 +76,36 @@ proc.id {
 proc.memory {
     size		PROC:4:0
     rss			PROC:4:1
+    footprint		PROC:4:2
+}
+
+proc.cpu {
+    qos
+}
+
+proc.cpu.qos {
+    default		PROC:7:0
+    maintenance		PROC:7:1
+    background		PROC:7:2
+    utility		PROC:7:3
+    legacy		PROC:7:4
+    user_initiated	PROC:7:5
+    user_interactive	PROC:7:6
 }
 
 proc.io {
     read_bytes		PROC:5:0
     write_bytes		PROC:5:1
+    logical_writes	PROC:5:2
 }
 
 proc.fd {
     count		PROC:6:0
+}
+
+proc.net {
+    tcp_count		PROC:8:0
+    udp_count		PROC:8:1
 }
 
 proc.control {
