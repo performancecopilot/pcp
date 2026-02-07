@@ -20,7 +20,14 @@ LDIRT = $(wildcard pcp*.pkg) $(wildcard pcp*.dmg) \
 	idb installer-files info description uninstall-pcp
 SUBDIRS = English.lproj installer-resources
 
-default install install_pcp default_pcp :
+default install default_pcp :
+
+install_pcp:
+	$(INSTALL) -m 755 -d /Library/LaunchDaemons
+	$(INSTALL) -m 644 io.pcp.pmcd.plist /Library/LaunchDaemons/io.pcp.pmcd.plist
+	$(INSTALL) -m 644 io.pcp.pmie.plist /Library/LaunchDaemons/io.pcp.pmie.plist
+	$(INSTALL) -m 644 io.pcp.pmlogger.plist /Library/LaunchDaemons/io.pcp.pmlogger.plist
+	$(INSTALL) -m 644 io.pcp.pmproxy.plist /Library/LaunchDaemons/io.pcp.pmproxy.plist
 
 .PHONY: pack_pcp
 pack_pcp : extrabits

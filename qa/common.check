@@ -245,10 +245,10 @@ _restore_auto_restart()
 _darwin_plist_name()
 {
     case "$1" in
-        pmcd)       echo "com.github.performancecopilot.pmcd" ;;
-        pmie)       echo "com.github.performancecopilot.pmie" ;;
-        pmlogger)   echo "com.github.performancecopilot.pmlogger" ;;
-        pmproxy)    echo "com.github.performancecopilot.pmproxy" ;;
+        pmcd)       echo "io.pcp.pmcd" ;;
+        pmie)       echo "io.pcp.pmie" ;;
+        pmlogger)   echo "io.pcp.pmlogger" ;;
+        pmproxy)    echo "io.pcp.pmproxy" ;;
         *)          echo "$1" ;;
     esac
 }
