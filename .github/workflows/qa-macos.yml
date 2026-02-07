@@ -98,10 +98,16 @@ jobs:
             sudo chown pcpqa:staff /Users/pcpqa
           fi
 
+      - name: Configure sudo for pcpqa
+        run: |
+          echo "Setting up passwordless sudo for pcpqa..."
+          echo "pcpqa ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/pcpqa
+          sudo chmod 0440 /etc/sudoers.d/pcpqa
+
       - name: Set QA directory permissions
         run: |
-          echo "Ensuring pcpqa can read QA files..."
-          chmod -R a+rX qa/
+          echo "Giving pcpqa ownership of QA directory..."
+          sudo chown -R pcpqa:staff qa/
 
       - name: Run QA sanity tests
         run: |
