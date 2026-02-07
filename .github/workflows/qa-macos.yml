@@ -101,7 +101,14 @@ jobs:
           sudo launchctl kickstart -p -k system/io.pcp.pmcd
           echo "Waiting for pmcd to become available..."
           sleep 5
-          pcp
+          if ! pcp; then
+            echo "::error::pmcd failed to start"
+            echo "=== pmcd.log ==="
+            sudo cat /var/log/pcp/pmcd/pmcd.log 2>/dev/null || echo "No pmcd.log found"
+            echo "=== launchctl list io.pcp.pmcd ==="
+            sudo launchctl list io.pcp.pmcd || echo "Service not in launchctl list"
+            exit 1
+          fi
 
       - name: Set QA directory permissions
         run: |
@@ -121,4 +128,5 @@ jobs:
           path: |
             qa/*.bad
             qa/check.log
+            /var/log/pcp/
           retention-days: 7
