@@ -38,36 +38,12 @@ jobs:
         run: |
           source pybuilddeps/bin/activate
           ./Makepkgs --verbose
-      - name: Install PCP
-        run: |
-          DMG_PATH=$(find pcp-**/build/mac -name "pcp-*.dmg" | head -1)
-          echo "Found DMG: $DMG_PATH"
-          MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" | tail -1)
-          VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | awk '{print $3}')
-          echo "Mounted at: $VOLUME_PATH"
-          PKG_PATH=$(find "$VOLUME_PATH" -name "*.pkg" | head -1)
-          echo "Found PKG: $PKG_PATH"
-          sudo installer -pkg "$PKG_PATH" -target /
-      - name: Verify pmcd is running
-        run: |
-          echo "Waiting for pmcd to start..."
-          for i in {1..30}; do
-            if pminfo -f hinv.ncpu 2>/dev/null; then
-              echo "pmcd is running"
-              exit 0
-            fi
-            echo "Attempt $i: pmcd not ready yet..."
-            sleep 2
-          done
-          echo "pmcd failed to start"
-          exit 1
-      - name: Upload build artifacts
+      - name: Upload DMG artifact
         uses: actions/upload-artifact@v4
         with:
-          name: pcp-build
-          path: |
-            /usr/local/
-            /Library/LaunchDaemons/com.github.performancecopilot.*.plist
+          name: pcp-macos-dmg
+          path: pcp-*/build/mac/pcp-*.dmg
+          retention-days: 1
 
   qa:
     needs: build
@@ -76,11 +52,33 @@ jobs:
       - uses: actions/checkout@v6
         with:
           ref: ${{ github.ref_name }}
-      - name: Download build artifacts
+      - name: Download DMG artifact
         uses: actions/download-artifact@v4
         with:
-          name: pcp-build
-          path: /
+          name: pcp-macos-dmg
+          path: ./dmg-artifact
+      - name: Enable TCP stats
+        run: sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+      - name: Install PCP
+        run: |
+          DMG_PATH=$(find ./dmg-artifact -name "pcp-*.dmg" | head -1)
+          echo "Found DMG: $DMG_PATH"
+          MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" | tail -1)
+          VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | awk '{print $3}')
+          echo "Mounted at: $VOLUME_PATH"
+          PKG_PATH=$(find "$VOLUME_PATH" -name "*.pkg" | head -1)
+          echo "Found PKG: $PKG_PATH"
+          sudo installer -pkg "$PKG_PATH" -target / -verbose
+          hdiutil detach "$VOLUME_PATH" || true
+      - name: Wait for pmcd
+        run: |
+          TIMEOUT=180
+          ELAPSED=0
+          while [ $ELAPSED -lt $TIMEOUT ]; do
+            if pcp 2>/dev/null; then break; fi
+            sleep 5
+            ELAPSED=$((ELAPSED + 5))
+          done
       - name: Create pcpqa user
         run: |
           echo "Creating pcpqa user for testing..."
@@ -96,16 +94,6 @@ jobs:
             sudo mkdir -p /Users/pcpqa
             sudo chown pcpqa:staff /Users/pcpqa
           fi
-      - name: Enable TCP stats
-        run: |
-          sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
-      - name: Start pmcd
-        run: |
-          sudo launchctl bootstrap system /Library/LaunchDaemons/com.github.performancecopilot.pmcd.plist || true
-      - name: Verify pmcd
-        run: |
-          echo "Verifying pmcd is running..."
-          pminfo -f hinv.ncpu || { echo "pmcd not responding"; exit 1; }
       - name: Initialize QA environment
         run: |
           cd qa
