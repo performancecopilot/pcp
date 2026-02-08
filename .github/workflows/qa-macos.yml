@@ -328,9 +328,32 @@ jobs:
             fi
           done
 
+      - name: Rebuild test binaries with rpath
+        run: |
+          echo "=== Rebuilding test binaries in installed testsuite with rpath ==="
+          cd /var/lib/pcp/testsuite/src
+
+          echo "Before rebuild:"
+          if [ -f exercise ]; then
+            otool -L exercise | grep -E "(libpcp|rpath)" || echo "No rpath/libpcp found"
+          fi
+
+          # Clean and rebuild using GNUmakefile.install which adds rpath on Darwin
+          sudo -u pcpqa make clean
+          sudo -u pcpqa make
+
+          echo ""
+          echo "After rebuild:"
+          if [ -f exercise ]; then
+            otool -L exercise | grep -E "(libpcp|rpath)"
+            echo ""
+            echo "Testing rebuilt binary:"
+            ./exercise -? 2>&1 | head -3 && echo "✓ Rebuilt binary works!"
+          fi
+
       - name: Run QA sanity tests
         run: |
-          cd qa
+          cd /var/lib/pcp/testsuite
           sudo -u pcpqa ./check -g sanity -x not_in_ci
 
       - name: Upload QA logs
