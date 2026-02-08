@@ -53,3 +53,5 @@ provisioning/osxsierra.legally.ok
 *vgcore.*
 tmpfiles.init.setup 
 
+.env
+.mcp.json
