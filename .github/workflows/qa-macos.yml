@@ -100,23 +100,37 @@ jobs:
           echo "Building PMNS root file from installed PMDA namespaces..."
           . /etc/pcp.conf
 
+          echo "Available PCP environment variables:"
+          env | grep ^PCP_ | sort
+
+          echo ""
           echo "PMNS directory contents before rebuild:"
           sudo ls -la $PCP_VAR_DIR/pmns/ || true
 
           echo ""
-          echo "Checking if Rebuild script exists at real location..."
-          if [ -f "$PCP_PMNSADM_DIR/Rebuild" ]; then
-            echo "✓ Found at $PCP_PMNSADM_DIR/Rebuild"
-            ls -l $PCP_PMNSADM_DIR/Rebuild
+          echo "Determining Rebuild script location from symlink..."
+          REBUILD_SCRIPT=$(readlink $PCP_VAR_DIR/pmns/Rebuild)
+          if [ -n "$REBUILD_SCRIPT" ]; then
+            echo "Rebuild symlink points to: $REBUILD_SCRIPT"
+            REBUILD_PATH="$PCP_VAR_DIR/pmns/$REBUILD_SCRIPT"
+            echo "Full path: $REBUILD_PATH"
+
+            if [ -f "$REBUILD_PATH" ]; then
+              echo "✓ Rebuild script found at $REBUILD_PATH"
+              ls -l "$REBUILD_PATH"
+            else
+              echo "::error::Rebuild script not found at $REBUILD_PATH"
+              exit 1
+            fi
           else
-            echo "::error::Rebuild script not found at $PCP_PMNSADM_DIR/Rebuild"
+            echo "::error::Rebuild symlink not found at $PCP_VAR_DIR/pmns/Rebuild"
             exit 1
           fi
 
           echo ""
           echo "Running Rebuild script from real location..."
           cd $PCP_VAR_DIR/pmns
-          sudo $PCP_PMNSADM_DIR/Rebuild -v
+          sudo "$REBUILD_PATH" -v
 
           echo ""
           echo "PMNS directory contents after rebuild:"
