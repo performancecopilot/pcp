@@ -28,7 +28,8 @@ ifneq "$(PCP_INC_DIR)" "/usr/include/pcp"
 # for cc add -I<run-time-include-dir> (need /.. at the end so
 # #include <pcp/foo.h> works) when $(PCP_INC_DIR) may not be on
 # the default cpp include search path.
-CFLAGS		+= -I$(PCP_INC_DIR)/..
+# Also add -I$(PCP_INC_DIR) for internal headers like libpcp.h
+CFLAGS		+= -I$(PCP_INC_DIR)/.. -I$(PCP_INC_DIR)
 endif
 ifneq "$(PCP_LIB_DIR)" "/usr/lib"
 # for ld add -L<run-time-lib-dir> and include -rpath when
