@@ -76,7 +76,7 @@ if [ -f $PCP_PMDAS_DIR/infiniband/pmda_ib.$DSO_SUFFIX ]; then
 fi
 cd $here
 
-LD_LIBRARY_PATH=$here/src:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
+_add_lib_path $here/src
 
 for tgz in $here/infiniband/ib-root-*.tgz
 do

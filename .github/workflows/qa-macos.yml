@@ -274,6 +274,60 @@ jobs:
           echo "Giving pcpqa ownership of QA directory..."
           sudo chown -R pcpqa:staff qa/
 
+      - name: Verify library paths for QA
+        run: |
+          echo "=== Verifying DYLD_LIBRARY_PATH fix ==="
+
+          echo ""
+          echo "1. Checking PCP library installation..."
+          ls -la /usr/local/lib/libpcp* || echo "ERROR: No libpcp in /usr/local/lib"
+
+          echo ""
+          echo "2. Sourcing qa/common.rc and checking environment..."
+          cd qa
+          . ./common.rc
+          echo "PCP_PLATFORM=$PCP_PLATFORM"
+          echo "PCP_LIB_DIR=$PCP_LIB_DIR"
+          echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+
+          if [ "$PCP_PLATFORM" = "darwin" ]; then
+            if [ -z "$DYLD_LIBRARY_PATH" ]; then
+              echo "::error::DYLD_LIBRARY_PATH is not set on Darwin!"
+              exit 1
+            fi
+            if ! echo "$DYLD_LIBRARY_PATH" | grep -q "$PCP_LIB_DIR"; then
+              echo "::error::DYLD_LIBRARY_PATH does not contain PCP_LIB_DIR!"
+              exit 1
+            fi
+            echo "✓ DYLD_LIBRARY_PATH correctly set"
+          fi
+
+          echo ""
+          echo "3. Checking test binary linking..."
+          if [ -f src/exercise ]; then
+            otool -L src/exercise | head -20
+          elif [ -f src/pducheck ]; then
+            otool -L src/pducheck | head -20
+          else
+            echo "No test binaries found in qa/src/"
+            ls src/*.o 2>/dev/null | head -5 || echo "No object files either"
+          fi
+
+          echo ""
+          echo "4. Testing binary execution..."
+          cd src
+          for bin in exercise pducheck chkacc1; do
+            if [ -f "$bin" ]; then
+              echo "Testing $bin..."
+              if ./$bin -? 2>&1 | head -3; then
+                echo "✓ $bin executed successfully"
+              else
+                echo "✗ $bin failed (exit code $?)"
+              fi
+              break
+            fi
+          done
+
       - name: Run QA sanity tests
         run: |
           cd qa

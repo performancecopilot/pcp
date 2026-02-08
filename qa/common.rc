@@ -52,6 +52,18 @@ case $PCP_PLATFORM
 in
     darwin)
 	DSO_SUFFIX=dylib
+	# macOS requires DYLD_LIBRARY_PATH for runtime library lookup
+	# since qa/src binaries don't have rpath embedded during build
+	if [ -n "$PCP_LIB_DIR" ] && [ -d "$PCP_LIB_DIR" ]
+	then
+	    if [ -z "$DYLD_LIBRARY_PATH" ]
+	    then
+		DYLD_LIBRARY_PATH="$PCP_LIB_DIR"
+	    else
+		DYLD_LIBRARY_PATH="$PCP_LIB_DIR:$DYLD_LIBRARY_PATH"
+	    fi
+	    export DYLD_LIBRARY_PATH
+	fi
 	;;
     mingw*)
 	DSO_SUFFIX=dll
@@ -60,6 +72,26 @@ in
     	DSO_SUFFIX=so
 	;;
 esac
+
+# Helper to set library search path for mock/test libraries
+# Usage: _add_lib_path /path/to/libs
+# Works on both Darwin (DYLD_LIBRARY_PATH) and Linux (LD_LIBRARY_PATH)
+#
+_add_lib_path()
+{
+    __libpath="$1"
+    case $PCP_PLATFORM
+    in
+	darwin)
+	    DYLD_LIBRARY_PATH="${__libpath}${DYLD_LIBRARY_PATH:+:$DYLD_LIBRARY_PATH}"
+	    export DYLD_LIBRARY_PATH
+	    ;;
+	*)
+	    LD_LIBRARY_PATH="${__libpath}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+	    export LD_LIBRARY_PATH
+	    ;;
+    esac
+}
 
 # does sudo support -E?
 #
