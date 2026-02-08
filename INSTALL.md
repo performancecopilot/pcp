@@ -204,11 +204,56 @@ optional" or "QA optional".
 The pcp package uses autoconf/configure and expects a GNU build
 environment (your platform must at least have gmake).
 
-#### macOS-specific pre-requisites 
+#### macOS-specific pre-requisites
+
+**Homebrew packages** (required for building PCP on macOS):
+```bash
+brew install \
+  autoconf \
+  unixodbc \
+  valkey \
+  libuv \
+  coreutils \
+  gnu-tar \
+  pkg-config \
+  python3 \
+  python-setuptools \
+  cpanminus
 ```
-# use Homebrew and ensure the following packages are installed 
-brew install gnu-tar pkg-config python3 python-setuptools autoconf valkey libuv
+
+**Perl modules** (required for PCP Perl components like PCP::LogImport):
+```bash
+# Install required Perl modules via cpanm
+sudo cpanm --notest \
+  JSON \
+  Date::Parse \
+  Date::Format \
+  XML::TokeParser \
+  Spreadsheet::WriteExcel \
+  Text::CSV_XS \
+  Spreadsheet::XLSX \
+  Spreadsheet::Read
 ```
+
+**Python packages** (required for PCP Python tools and PMDAs):
+```bash
+pip3 install --upgrade pip
+pip3 install \
+  setuptools \
+  wheel \
+  lxml \
+  openpyxl \
+  OrderedDict \
+  psycopg2-binary \
+  prometheus_client \
+  pyarrow \
+  pyodbc \
+  requests
+```
+
+**Note**: The above dependencies are maintained in `.github/actions/install-macos-deps/action.yml`
+which is used by all macOS CI workflows. If you discover missing dependencies, please update
+both this documentation and the composite action.
 
 To build from source using isolated VMs, see [MACOS_DEVELOPMENT.md](build/mac/MACOS_DEVELOPMENT.md).
 
