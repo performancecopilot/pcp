@@ -104,32 +104,48 @@ jobs:
           env | grep ^PCP_ | sort
 
           echo ""
-          echo "PMNS directory contents before rebuild:"
+          echo "Checking where PMNS admin files were actually installed..."
+          echo "Checking /usr/local/libexec/pcp/pmns/:"
+          ls -la /usr/local/libexec/pcp/pmns/ 2>/dev/null || echo "Directory does not exist!"
+
+          echo ""
+          echo "Checking /usr/local/share/pcp/lib/pmns/:"
+          ls -la /usr/local/share/pcp/lib/pmns/ 2>/dev/null || echo "Directory does not exist!"
+
+          echo ""
+          echo "PMNS directory contents (symlinks):"
           sudo ls -la $PCP_VAR_DIR/pmns/ || true
 
           echo ""
-          echo "Determining Rebuild script location from symlink..."
-          REBUILD_SCRIPT=$(readlink $PCP_VAR_DIR/pmns/Rebuild)
-          if [ -n "$REBUILD_SCRIPT" ]; then
-            echo "Rebuild symlink points to: $REBUILD_SCRIPT"
-            REBUILD_PATH="$PCP_VAR_DIR/pmns/$REBUILD_SCRIPT"
-            echo "Full path: $REBUILD_PATH"
+          echo "Testing if Rebuild symlink is accessible..."
+          cd $PCP_VAR_DIR/pmns
+          if [ -f Rebuild ]; then
+            echo "✓ Rebuild symlink is accessible as a file"
+            ls -l Rebuild
 
-            if [ -f "$REBUILD_PATH" ]; then
-              echo "✓ Rebuild script found at $REBUILD_PATH"
-              ls -l "$REBUILD_PATH"
+            # Try to resolve to absolute path
+            if command -v realpath >/dev/null 2>&1; then
+              REBUILD_REAL=$(realpath Rebuild)
+              echo "Resolved to: $REBUILD_REAL"
+              if [ -f "$REBUILD_REAL" ]; then
+                echo "✓ Real file exists at $REBUILD_REAL"
+                REBUILD_PATH="$REBUILD_REAL"
+              else
+                echo "::error::Real file does not exist at $REBUILD_REAL"
+                exit 1
+              fi
             else
-              echo "::error::Rebuild script not found at $REBUILD_PATH"
-              exit 1
+              # Fallback: just use the symlink directly
+              echo "realpath not available, using symlink directly"
+              REBUILD_PATH="./Rebuild"
             fi
           else
-            echo "::error::Rebuild symlink not found at $PCP_VAR_DIR/pmns/Rebuild"
+            echo "::error::Rebuild is not accessible"
             exit 1
           fi
 
           echo ""
-          echo "Running Rebuild script from real location..."
-          cd $PCP_VAR_DIR/pmns
+          echo "Running Rebuild script: $REBUILD_PATH"
           sudo "$REBUILD_PATH" -v
 
           echo ""
