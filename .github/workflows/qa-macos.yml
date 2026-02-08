@@ -43,7 +43,11 @@ jobs:
       - name: Configure PCP
         run: |
           source pybuilddeps/bin/activate
-          ./configure --sysconfdir=/etc --localstatedir=/var --prefix=/usr/local --with-qt=no
+          # Use realpath to resolve macOS symlinks (/etc -> /private/etc, /var -> /private/var)
+          # This matches the configuration used in Makepkgs for darwin
+          ETC=$(realpath /etc)
+          VAR=$(realpath /var)
+          ./configure --sysconfdir=$ETC --localstatedir=$VAR --prefix=/usr/local --with-qt=no
 
       - name: Build PCP
         run: |
@@ -98,10 +102,24 @@ jobs:
       - name: Rebuild PMNS
         run: |
           echo "Building PMNS root file from installed PMDA namespaces..."
-          . /etc/pcp.conf
+
+          # Source pcp.conf from the real location (macOS resolves /etc -> /private/etc)
+          if [ -f /etc/pcp.conf ]; then
+            . /etc/pcp.conf
+          elif [ -f /private/etc/pcp.conf ]; then
+            . /private/etc/pcp.conf
+          else
+            echo "::error::pcp.conf not found in /etc or /private/etc"
+            exit 1
+          fi
 
           echo "Available PCP environment variables:"
           env | grep ^PCP_ | sort
+
+          if [ -z "$PCP_VAR_DIR" ]; then
+            echo "::error::PCP_VAR_DIR not set - pcp.conf not sourced correctly"
+            exit 1
+          fi
 
           echo ""
           echo "Checking where PMNS admin files were actually installed..."
