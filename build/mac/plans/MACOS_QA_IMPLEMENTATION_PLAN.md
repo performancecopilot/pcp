@@ -9,6 +9,152 @@ Enable QA testing for PCP on macOS through:
 
 ---
 
+## Status (2026-02-08)
+
+### ✅ Completed
+
+**Service Management Infrastructure Fixes** (Commit: 49ee3618e9)
+- Fixed pmlogger/pmie launchd plists with `StartInterval` for periodic health checks
+- Updated postinstall script to bootstrap and kickstart pmlogger/pmie services
+- Fixed `is_chkconfig_on()` in `src/pmcd/rc-proc.sh` - replaced ancient `/etc/hostconfig` check with modern `launchctl print-disabled`
+- Added localhost DNS verification to CI workflow
+- Added pmlogger/pmie startup to CI workflow
+
+**Verification**: All new CI steps pass:
+- ✓ Verify localhost DNS
+- ✓ Start pmcd
+- ✓ Start pmlogger (NEW - first time working!)
+- ✓ Start pmie (NEW - first time working!)
+
+### 🚨 CRITICAL BLOCKER DISCOVERED
+
+**DYLD_LIBRARY_PATH Not Set for QA Test Binaries** (Priority: HIGH)
+
+**Problem**: QA tests fail because test binaries in `qa/src/` cannot find `libpcp.dylib`:
+```
+dyld[51771]: Library not loaded: libpcp.4.dylib
+  Referenced from: /Users/runner/work/pcp/pcp/qa/src/pducheck
+  Reason: tried: 'libpcp.4.dylib' (no such file)
+Abort trap: 6
+```
+
+**Impact**: 44 of 70 sanity tests fail (exit code 44 in CI run 21793886742)
+
+**Root Cause**: The QA infrastructure doesn't set `DYLD_LIBRARY_PATH` on macOS, unlike Linux which uses `LD_LIBRARY_PATH`. Test binaries are linked against PCP libraries but can't find them at runtime.
+
+**Evidence**:
+- `DYLD_LIBRARY_PATH` is never set in `qa/common*` files
+- `LD_LIBRARY_PATH` appears only in specific test files (qa/744, qa/745, qa/1996)
+- CI run 21793886742 shows consistent dyld failures across all tests
+
+**Next Steps**: See "Phase 0" below for implementation plan.
+
+---
+
+## Phase 0: Fix DYLD_LIBRARY_PATH for Test Binaries (CRITICAL - HIGH PRIORITY)
+
+### Problem Statement
+
+Test binaries compiled in `qa/src/` are linked against PCP shared libraries but cannot load them at runtime on macOS because `DYLD_LIBRARY_PATH` is not set. This causes immediate crashes with "Library not loaded" errors.
+
+### 0.1 Set DYLD_LIBRARY_PATH in qa/common.rc
+
+**File**: `qa/common.rc`
+**Location**: In the environment setup section (around where `PCP_PLATFORM` is detected)
+
+**Add Darwin-specific library path setup**:
+```bash
+# macOS: Set DYLD_LIBRARY_PATH for test binaries to find PCP libraries
+if [ "$PCP_PLATFORM" = "darwin" ]
+then
+    # Check common installation locations
+    if [ -d /usr/local/lib ]
+    then
+        DYLD_LIBRARY_PATH="/usr/local/lib${DYLD_LIBRARY_PATH:+:}${DYLD_LIBRARY_PATH}"
+        export DYLD_LIBRARY_PATH
+    fi
+
+    # Also check build tree if running from source
+    if [ -d "$PCP_DIR/src/libpcp/src/.libs" ]
+    then
+        DYLD_LIBRARY_PATH="$PCP_DIR/src/libpcp/src/.libs${DYLD_LIBRARY_PATH:+:}${DYLD_LIBRARY_PATH}"
+        export DYLD_LIBRARY_PATH
+    fi
+fi
+```
+
+**Rationale**:
+- macOS uses `DYLD_LIBRARY_PATH` (not `LD_LIBRARY_PATH`) for dynamic library loading
+- Test binaries in `qa/src/` are built with `-lpcp` but don't have rpath set
+- PCP libraries are installed to `/usr/local/lib` on macOS
+- This mirrors Linux behavior where `LD_LIBRARY_PATH` would be set implicitly
+
+### 0.2 Alternative: Fix Test Binary Linking (Lower Priority)
+
+**File**: `qa/src/GNUmakefile`
+
+**Option**: Add `-Wl,-rpath,/usr/local/lib` to LDFLAGS for Darwin builds
+
+**Pros**: More robust, doesn't rely on environment variables
+**Cons**: Requires rebuild of all test binaries, more invasive change
+
+**Recommendation**: Do Phase 0.1 first for immediate fix, consider this for long-term solution.
+
+### 0.3 Update GitHub Workflow
+
+**File**: `.github/workflows/qa-macos.yml`
+**Location**: Before "Run QA sanity tests" step
+
+**Add library path verification**:
+```yaml
+      - name: Verify library paths
+        run: |
+          echo "=== Checking PCP library installation ==="
+          ls -la /usr/local/lib/libpcp* || echo "No libpcp in /usr/local/lib"
+
+          echo ""
+          echo "Setting DYLD_LIBRARY_PATH..."
+          export DYLD_LIBRARY_PATH="/usr/local/lib"
+
+          echo ""
+          echo "Testing a QA binary..."
+          cd qa/src
+          if [ -f pducheck ]; then
+            otool -L pducheck | grep libpcp
+            DYLD_LIBRARY_PATH=/usr/local/lib ./pducheck -? || echo "pducheck test"
+          fi
+```
+
+**Note**: `qa/common.rc` should handle this, but adding explicit verification helps debug CI issues.
+
+### Verification Steps
+
+After implementing Phase 0.1:
+
+1. **Local test** (on macOS with PCP installed):
+```bash
+cd qa
+. ./common.rc
+echo "DYLD_LIBRARY_PATH=$DYLD_LIBRARY_PATH"
+./src/pducheck -?  # Should run without dyld errors
+```
+
+2. **Run qa/001**:
+```bash
+cd qa
+./check 001  # Should pass - this was failing with dyld errors
+```
+
+3. **Run sanity suite**:
+```bash
+cd qa
+./check -g sanity -x not_in_ci
+```
+
+**Expected Result**: Significantly reduced test failures (from 44/70 to < 10/70)
+
+---
+
 ## Phase 1: Fix QA Infrastructure for macOS
 
 ### 1.1 Fix `qa/admin/myconfigure` Darwin Block
@@ -360,6 +506,20 @@ jobs:
 
 ## Implementation Order
 
+### Current Priority (As of 2026-02-08)
+
+**CRITICAL PATH**: Phase 0 must be completed first - all QA tests are currently blocked by DYLD_LIBRARY_PATH issue.
+
+1. **Phase 0.1**: 🚨 **FIX DYLD_LIBRARY_PATH** in `qa/common.rc` - **BLOCKING ALL TESTS**
+2. **Phase 0.3**: Add library path verification to CI workflow
+3. **Phase 1.1**: `qa/admin/myconfigure` - No dependencies
+4. **Phase 1.2**: Add `_darwin_plist_name()` helper - No dependencies
+5. **Phase 1.3-1.5**: Update service functions to use helper - Depends on 1.2
+6. **Phase 2**: `.cirrus.yml` QA task - Depends on Phase 0 + Phase 1
+7. **Phase 3**: GitHub workflow - Depends on Phase 0 + Phase 1
+
+### Original Order (Pre-DYLD Discovery)
+
 1. **Phase 1.1**: `qa/admin/myconfigure` - No dependencies
 2. **Phase 1.2**: Add `_darwin_plist_name()` helper - No dependencies
 3. **Phase 1.3-1.5**: Update service functions to use helper - Depends on 1.2
@@ -441,6 +601,60 @@ cd /var/lib/pcp/testsuite
 ---
 
 ## Known Issues & Technical Debt
+
+### 🚨 CRITICAL: DYLD_LIBRARY_PATH Not Set (HIGH PRIORITY - BLOCKING QA TESTS)
+
+**Status**: Discovered 2026-02-08, needs immediate fix
+
+**Problem**: Test binaries in `qa/src/` cannot load PCP shared libraries at runtime because `DYLD_LIBRARY_PATH` is not set on macOS.
+
+**Impact**:
+- 44 of 70 sanity tests fail with dyld errors
+- Test execution is completely blocked
+- CI run 21793886742 demonstrates the issue
+
+**Error Message**:
+```
+dyld[51771]: Library not loaded: libpcp.4.dylib
+  Referenced from: <UUID> /Users/runner/work/pcp/pcp/qa/src/pducheck
+  Reason: tried: 'libpcp.4.dylib' (no such file)
+Abort trap: 6
+```
+
+**Root Cause Analysis**:
+- macOS uses `DYLD_LIBRARY_PATH` (not `LD_LIBRARY_PATH`) for dynamic library search
+- `qa/common.rc` and `qa/common.check` never set this variable
+- Test binaries are linked with `-lpcp` but don't have rpath embedded
+- PCP libraries are installed to `/usr/local/lib` on macOS
+
+**Fix**: See Phase 0 above for implementation details
+
+**Files Affected**:
+- `qa/common.rc` - needs DYLD_LIBRARY_PATH setup
+- `qa/src/GNUmakefile` - alternative: add rpath to LDFLAGS
+
+**Priority**: CRITICAL - blocks all QA test execution on macOS
+
+---
+
+### ✅ RESOLVED: Service Management Infrastructure
+
+**Status**: Fixed in commit 49ee3618e9 (2026-02-08)
+
+**Problems Fixed**:
+1. pmlogger/pmie services never started - plists existed but were never bootstrapped
+2. `is_chkconfig_on()` in `src/pmcd/rc-proc.sh` used `/etc/hostconfig` (dead since macOS 10.6/2009)
+3. Slow pmcd startup due to potential localhost DNS issues
+
+**Solution Implemented**:
+- Added `StartInterval: 600` to pmlogger/pmie plists for periodic health checks (like systemd timers)
+- Updated postinstall script to bootstrap and kickstart pmlogger/pmie services
+- Replaced `/etc/hostconfig` check with modern `launchctl print-disabled`
+- Added localhost DNS verification step in CI workflow
+
+**Verification**: CI run 21793886742 shows all services starting successfully
+
+---
 
 ### PMNS Automatic Rebuild Not Working in CI
 
