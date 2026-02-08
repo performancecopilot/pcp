@@ -104,9 +104,19 @@ jobs:
           sudo ls -la $PCP_VAR_DIR/pmns/ || true
 
           echo ""
-          echo "Running Rebuild script..."
+          echo "Checking if Rebuild script exists at real location..."
+          if [ -f "$PCP_PMNSADM_DIR/Rebuild" ]; then
+            echo "✓ Found at $PCP_PMNSADM_DIR/Rebuild"
+            ls -l $PCP_PMNSADM_DIR/Rebuild
+          else
+            echo "::error::Rebuild script not found at $PCP_PMNSADM_DIR/Rebuild"
+            exit 1
+          fi
+
+          echo ""
+          echo "Running Rebuild script from real location..."
           cd $PCP_VAR_DIR/pmns
-          sudo ./Rebuild -v
+          sudo $PCP_PMNSADM_DIR/Rebuild -v
 
           echo ""
           echo "PMNS directory contents after rebuild:"
