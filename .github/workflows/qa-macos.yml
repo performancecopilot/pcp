@@ -179,6 +179,27 @@ jobs:
             exit 1
           fi
 
+      - name: Verify localhost DNS
+        run: |
+          echo "=== Checking localhost resolution ==="
+          echo "Contents of /etc/hosts:"
+          cat /etc/hosts
+
+          echo ""
+          echo "Checking for localhost entries..."
+          if ! grep -q "127.0.0.1.*localhost" /etc/hosts; then
+            echo "WARNING: No IPv4 localhost entry found - adding it"
+            echo "127.0.0.1 localhost" | sudo tee -a /etc/hosts
+          fi
+          if ! grep -q "::1.*localhost" /etc/hosts; then
+            echo "WARNING: No IPv6 localhost entry found - adding it"
+            echo "::1 localhost" | sudo tee -a /etc/hosts
+          fi
+
+          echo ""
+          echo "Testing DNS resolution speed..."
+          time dscacheutil -q host -a name localhost
+
       - name: Start pmcd
         run: |
           sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmcd.plist
@@ -231,6 +252,22 @@ jobs:
           echo ""
           echo "pmcd started successfully"
           pcp
+
+      - name: Start pmlogger
+        run: |
+          sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmlogger.plist
+          sudo launchctl kickstart -p -k system/io.pcp.pmlogger
+          sleep 3
+          echo "pmlogger instances:"
+          pgrep -l pmlogger || echo "No pmlogger processes yet (may take a moment)"
+
+      - name: Start pmie
+        run: |
+          sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmie.plist
+          sudo launchctl kickstart -p -k system/io.pcp.pmie
+          sleep 3
+          echo "pmie instances:"
+          pgrep -l pmie || echo "No pmie processes yet (may take a moment)"
 
       - name: Set QA directory permissions
         run: |

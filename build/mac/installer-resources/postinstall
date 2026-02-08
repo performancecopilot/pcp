@@ -112,6 +112,18 @@ launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmproxy.plist
 # ...and then started by launchctl
 launchctl kickstart -p -k system/io.pcp.pmproxy
 
+# Ensure pmlogger is loaded...
+echo "$prog: Starting pmlogger service"
+echo "$prog: Starting pmlogger service" >> /var/log/pcp_inst.log
+launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmlogger.plist
+launchctl kickstart -p -k system/io.pcp.pmlogger
+
+# Ensure pmie is loaded...
+echo "$prog: Starting pmie service"
+echo "$prog: Starting pmie service" >> /var/log/pcp_inst.log
+launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmie.plist
+launchctl kickstart -p -k system/io.pcp.pmie
+
 # Debug: Check for pmproxy log files for troubleshooting
 echo "$prog: Checking for pmproxy logs"
 echo "$prog: Checking for pmproxy logs" >> /var/log/pcp_inst.log

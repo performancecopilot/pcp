@@ -148,13 +148,20 @@ is_chkconfig_on()
 	_ret=0
     elif [ "$PCP_PLATFORM" = "darwin" ]
     then
-	$VERBOSE_CONFIG && echo "is_chkconfig_on: using /etc/hostconfig"
+	# Modern macOS uses launchctl - /etc/hostconfig hasn't existed since ~2009
+	$VERBOSE_CONFIG && echo "is_chkconfig_on: using launchctl"
 	case "$1"
-        in
-	pmcd)     [ "`. /etc/hostconfig; echo $PMCD`" = "-YES-" ] && _ret=0 ;;
-	pmlogger) [ "`. /etc/hostconfig; echo $PMLOGGER`" = "-YES-" ] && _ret=0 ;;
-	pmie)     [ "`. /etc/hostconfig; echo $PMIE`" = "-YES-" ] && _ret=0 ;;
-	pmproxy)  [ "`. /etc/hostconfig; echo $PMPROXY`" = "-YES-" ] && _ret=0 ;;
+	in
+	pmcd|pmlogger|pmie|pmproxy)
+	    __plist="io.pcp.$1"
+	    # Check if service is disabled in launchd
+	    if launchctl print-disabled system 2>/dev/null | grep -q "\"$__plist\" => disabled"
+	    then
+		_ret=1  # disabled = off
+	    else
+		_ret=0  # not disabled = on
+	    fi
+	    ;;
 	esac
     elif [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
     then

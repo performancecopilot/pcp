@@ -1,5 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+    pmlogger Health Check Service
+
+    This is NOT a long-running daemon. It's a periodic health-check that:
+    1. Runs at boot (RunAtLoad) and every 10 minutes (StartInterval)
+    2. Spawns pmlogger processes if they're not running
+    3. Verifies they're healthy, then exits
+
+    Linux equivalent: pmlogger_check.timer + pmlogger_check.service (systemd)
+
+    To reduce crash recovery time, decrease StartInterval (seconds).
+    Minimum recommended: 60 (1 minute). Default: 600 (10 minutes).
+-->
 <plist version="1.0">
     <dict>
         <key>Label</key>
@@ -21,6 +34,8 @@
         <integer>30</integer>
         <key>RunAtLoad</key>
         <true/>
+        <key>StartInterval</key>
+        <integer>600</integer>
         <key>StandardErrorPath</key>
         <string>/var/log/pcp/pmlogger/plist.stderr</string>
         <key>StandardOutPath</key>
