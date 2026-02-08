@@ -350,8 +350,10 @@ is false) are both taken from the keywords
 (include and disable the group in
 .I configfile
 \- a user action of
-.B y
-as described above is needed to enable the group and
+.BR y ,
+as described above when
+.I configfile
+already exists, is needed to enable the group and
 add the associated metrics into
 .IR configfile )
 or
@@ -560,6 +562,8 @@ _
 appl0	group file operations
 _
 appl1	metric probe operations
+_
+appl2	verbose dumping of internal group data structures
 .TE
 .SH SEE ALSO
 .BR pmcd (1),

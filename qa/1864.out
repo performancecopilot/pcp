@@ -1,0 +1,139 @@
+QA output created by 1864
+=== errors in control file ===
+Start [daily]: DATESTAMP
+pmlogger_daily: [TMP.control:2]
+Warning: in-line command is not a variable assignment, line ignored
+pmlogger_daily: [TMP.control:3]
+Warning: $PCP_SPACELIMIT from control file missing a value, will be ignored
+Error: _convert_to_kb(): argument 'foo' has a non-numeric value
+pmlogger_daily: [TMP.control:4]
+Warning: $PCP_SPACELIMIT value (foo) is invalid. Must be a positive integer and a unit (e.g. 100M)
+Error: _convert_to_kb(): missing unit after '123'
+pmlogger_daily: [TMP.control:5]
+Warning: $PCP_SPACELIMIT value (123) is invalid. Must be a positive integer and a unit (e.g. 100M)
+
+=== daily maintenance of PCP archives for host localhost in TMP/foo ===
+
+pmlogger_daily: [TMP.control:7]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:7]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Warning: no archives found to merge
+pmlogger_daily: [TMP.control:7]
+Warning: current volume of current pmlogger not known, compression skipped
+End [daily]: DATESTAMP status=1
+
+Changes ...
+
+=== command line errors ===
+Error: _convert_to_kb(): argument 'foo' has a non-numeric value
+Error: -d value (foo) not valid
+... errors from pmlogger_daily!
+Error: _convert_to_kb(): argument '-c' has a non-numeric value
+Error: -d value (-c) not valid
+... errors from pmlogger_daily!
+Error: _convert_to_kb(): missing unit after '1234'
+Error: -d value (1234) not valid
+... errors from pmlogger_daily!
+
+=== expect no purging ===
+Start [daily]: DATESTAMP
+
+=== daily maintenance of PCP archives for host localhost in TMP/foo ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:3]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Warning: no archives found to merge
+pmlogger_daily: [TMP.control:3]
+Warning: current volume of current pmlogger not known, compression skipped
+End [daily]: DATESTAMP status=1
+
+Changes ...
+
+=== -d 1020k ===
+Start [daily]: DATESTAMP
+
+=== daily maintenance of PCP archives for host localhost in TMP/foo ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:3]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Warning: no archives found to merge
+pmlogger_daily: [TMP.control:3]
+Warning: current volume of current pmlogger not known, compression skipped
+Info: archives for localhost ([>1050] Kbytes) >= size limit (1020 Kbytes)
+Info: purge 20260202, reclaims 36 Kbytes
+End [daily]: DATESTAMP status=1
+
+Changes ...
+1,3d0
+< foo/20260202.0
+< foo/20260202.index
+< foo/20260202.meta
+
+=== PCP_SPACELIMIT=1000k
+Start [daily]: DATESTAMP
+
+=== daily maintenance of PCP archives for host localhost in TMP/foo ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:3]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Warning: no archives found to merge
+pmlogger_daily: [TMP.control:3]
+Warning: current volume of current pmlogger not known, compression skipped
+Info: archives for localhost ([>1010] Kbytes) >= size limit (1000 Kbytes)
+Info: purge 20260203, reclaims 492 Kbytes
+End [daily]: DATESTAMP status=1
+
+Changes ...
+1,3d0
+< foo/20260203.0
+< foo/20260203.index
+< foo/20260203.meta
+
+=== ignore -d use value from env ===
+Warning: -d value (500K) ignored because $PCP_SPACELIMIT (1000k) set in environment
+Start [daily]: DATESTAMP
+
+=== daily maintenance of PCP archives for host localhost in TMP/foo ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:3]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Warning: no archives found to merge
+pmlogger_daily: [TMP.control:3]
+Warning: current volume of current pmlogger not known, compression skipped
+Info: No purging required for localhost, archives ([>510] Kbytes) <= size limit (1000 Kbytes)
+End [daily]: DATESTAMP status=1
+... errors from pmlogger_daily!
+
+=== ignore -d use value from control file ===
+Start [daily]: DATESTAMP
+pmlogger_daily: [TMP.control:2]
+Warning: $PCP_SPACELIMIT (1000K) reset from control file, -d value (500K) ignored
+
+=== daily maintenance of PCP archives for host localhost in TMP/foo ===
+
+pmlogger_daily: [TMP.control:4]
+Error: no pmlogger instance running for host "localhost"
+... logging for host "localhost" unchanged
+pmlogger_daily: [TMP.control:4]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Warning: no archives found to merge
+pmlogger_daily: [TMP.control:4]
+Warning: current volume of current pmlogger not known, compression skipped
+Info: No purging required for localhost, archives ([>510] Kbytes) <= size limit (1000 Kbytes)
+End [daily]: DATESTAMP status=1
+
+Changes ...

@@ -7,7 +7,7 @@
 # ones.
 #
 
-tmp=/var/tmp/recheck-$$
+tmp=${TMPDIR:-/tmp}/recheck-$$
 status=0
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

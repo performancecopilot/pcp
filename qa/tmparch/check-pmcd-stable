@@ -14,7 +14,7 @@
 #
 PATH=$PCP_BINADM_DIR:$PATH; export PATH
 
-tmp=/var/tmp/check-pmcd-stable-$$
+tmp=${TMPDIR:-/tmp}/check-pmcd-stable-$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

@@ -9,7 +9,7 @@ then
     exit 0
 fi
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/fixhosts-$$
 trap "rm -f $tmp; exit 0" 0 1 2 3 15
 
 awk </dev/null >$tmp '

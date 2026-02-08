@@ -17,7 +17,7 @@ echo "Usage: $0 source-file ..."
 exit 1
 fi
 
-tmp=/var/tmp/bashrc-getargs-$$
+tmp=${TMPDIR:-/tmp}/bashrc-getargs-$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

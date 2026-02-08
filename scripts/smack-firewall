@@ -4,7 +4,7 @@
 # for QA.
 #
 
-tmp=/var/tmp/smack-firewall-$$
+tmp=${TMPDIR:-/tmp}/smack-firewall-$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

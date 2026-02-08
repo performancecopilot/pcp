@@ -497,6 +497,7 @@ pdu.o
 pmns.o
     pmns_lock			# local mutex
     pmns_fix_lock		# local mutex
+    pmns_pmapi_lock		# local mutex
     lineno			# guarded by pmns_lock mutex
     export			# guarded by pmns_lock mutex
     fin				# guarded by pmns_lock mutex

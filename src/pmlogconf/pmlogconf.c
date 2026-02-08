@@ -1559,7 +1559,7 @@ update_groups(FILE *tempfile, const char *pattern)
 		putc('.', stdout);
 	    continue;
 	}
-	if (group->force)
+	if (group->force && group->saved_state != STATE_AVAILABLE)
 	    continue;
 	if (autocreate)
 	    state = "\n";

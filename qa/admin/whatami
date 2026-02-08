@@ -10,7 +10,7 @@ sts=0
 debug=false
 heading=false
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/whatami-$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 while [ $# -gt 0 ]

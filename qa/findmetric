@@ -6,7 +6,7 @@
 # from pminfo -d ... so metric names and metric descriptors
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/findmetric-$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

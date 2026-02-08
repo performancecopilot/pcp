@@ -131,7 +131,7 @@ $sudo chown $PCP_USER:$PCP_GROUP $tmp.log
 
 # need to be a place the user $PCP_USER can cd to from pmlogger_check
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
 cd $here
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter
@@ -161,7 +161,7 @@ sleep 2
 
 echo
 echo "Expect this to re-start the primary logger ..." | tee -a $seq_full
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 #debug# echo "PCP_PMLOGGERCONTROL_PATH=$PCP_PMLOGGERCONTROL_PATH"
 #debug# ls -l $PCP_PMLOGGERCONTROL_PATH
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
@@ -198,7 +198,7 @@ sleep 2
 
 echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq_full
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
 cd $here
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter
@@ -207,7 +207,7 @@ _try_pmlc
 echo
 echo "Expect this to get a mutex failure ..." | tee -a $seq_full
 $sudo touch $LOGGING_DIR/$LOCALHOST/lock
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
 cd $here
 if [ -f $tmp.log ]
@@ -222,7 +222,7 @@ echo
 echo "Expect this to cleanup an old lock file ..." | tee -a $seq_full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
 cd $here
 for i in 1 2 3 4 5 6 7 8 9 10

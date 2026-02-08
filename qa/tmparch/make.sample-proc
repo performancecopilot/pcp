@@ -7,7 +7,7 @@
 
 . $PCP_DIR/etc/pcp.env
 
-tmp=/var/tmp/make-sample.$$
+tmp=${TMPDIR:-/tmp}/make-sample-proc.$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3
 
 cat <<End-of-File >$tmp.config

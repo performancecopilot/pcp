@@ -1,0 +1,68 @@
+# PCP required package list for OpenIndiana 2025.10 i86pc
+# created by kenj on vm29 on 28 January 2026 at 10:19:01 pm AEDT
+#
+LWP::UserAgent cpan
+SUNWcs
+Spreadsheet::Read cpan
+Spreadsheet::ReadSXC cpan
+Spreadsheet::WriteExcel cpan
+Spreadsheet::XLSX cpan
+XML::TokeParser cpan
+compress/xz
+compress/zstd
+database/mariadb-114/client
+service/database/postgres-16
+database/redis
+database/sqlite-3
+developer/build/autoconf
+developer/build/gnu-make
+developer/build/pkg-config
+developer/debug/gdb
+developer/debug/valgrind
+developer/gcc-14
+developer/lexer/flex
+developer/parser/bison-38
+developer/versioning/git
+diagnostic/nmap
+diagnostic/pstree
+file/gnu-coreutils
+library/icu
+library/inih
+library/ncurses
+library/perl-5/file-slurp
+library/perl-5/json
+library/perl-5/list-moreutils
+library/perl-5/net-snmp
+library/perl-5/text-csv_xs
+library/perl-5/timedate
+library/perl-5/xml-libxml
+library/perl-5/yaml-libyaml
+library/python/pylint-39
+library/python/lxml-39
+library/python/pip-39
+library/python/setuptools-39
+library/qt5
+library/readline
+network/dns/bind
+network/socat
+runtime/perl-542
+runtime/python-39
+security/sudo
+service/memcached
+shell/bash
+shell/expect
+system/extended-system-utilities
+system/header/header-drm
+system/file-system/zfs
+system/header
+system/library/security/libsasl
+system/man
+system/network/avahi
+text/gawk
+text/gnu-grep
+text/gnu-sed
+text/jq
+web/curl
+web/server/apache-24
+x11/keyboard/data-xkb
+x11/library/libdrm

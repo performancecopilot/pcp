@@ -5,7 +5,7 @@
 # simply a record of how they were created.
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.mirage-$$
 rm -f $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 

@@ -92,7 +92,7 @@ then
 fi
 
 status=0
-tmp=/var/tmp/check.callback-$$
+tmp=${TMPDIR:-/tmp}/check.callback-$$
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
 if [ "$1" = "--precheck" ]

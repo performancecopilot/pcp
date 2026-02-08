@@ -13,7 +13,7 @@
 #   once those apps are rebuilt
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/rebuild-$$
 sts=1		# failure is the default until the end
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

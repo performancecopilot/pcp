@@ -3,7 +3,7 @@
 # Cleanup symlinks to match artifacts for CI QA runs
 #
 
-tmp=/var/tmp/ci-qa-cleanup-$$
+tmp=${TMPDIR:-/tmp}/ci-qa-cleanup-$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 SHOW_ME=false

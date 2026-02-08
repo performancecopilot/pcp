@@ -193,7 +193,7 @@ LOCALHOSTNAME	n   n	"'"$tmp"'/$(date +%Y-%m-%d)"	-c ./config'
     _fixperms
     # need to be a place the user $PCP_USER can cd to from pmlogger_daily
     #
-    cd /var/tmp
+    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -o -D -x forever -c $tmp.control -k 4 $verbose -l $tmp.log"
     cd $here
 
@@ -205,7 +205,7 @@ LOCALHOSTNAME	n   n	"'"$tmp"'/$(date +%Y-%m-%d)"	-c ./config'
     echo
     echo "=== [$verbose_text] no -o merge archives from before yesterday + rewrite all ==="
     echo "=== [$verbose_text] no -o merge archives from before yesterday + rewrite all ===" >>$seq_full
-    cd /var/tmp
+    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -R -D -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
@@ -222,7 +222,7 @@ LOCALHOSTNAME	n   n	"'"$tmp"'/$(date +%Y-%m-%d)"	-c ./config'
 	$sudo cp archives/arch_b.$ext $tmp/$yesterday_dir/$yesterday.19.20.$ext
     done
     _fixperms
-    cd /var/tmp
+    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -x forever -c $tmp.control -k 3 $verbose -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter

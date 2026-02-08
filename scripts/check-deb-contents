@@ -25,7 +25,7 @@ then
     exit 1
 fi
 
-tmp=/var/tmp/check-deb-contents-$$
+tmp=${TMPDIR:-/tmp}/check-deb-contents-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 ls *.deb *.ddeb 2>/dev/null >$tmp.here

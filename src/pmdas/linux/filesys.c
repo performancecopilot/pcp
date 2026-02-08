@@ -292,6 +292,7 @@ refresh_filesys(pmInDom filesys_indom, pmInDom tmpfs_indom,
      * may be requested (rather, we do it in linux_fetch, see pmda.c).
      */
     fclose(fp);
+    pmdaCacheOp(filesys_indom, PMDA_CACHE_SAVE);
 
     /*
      * update uuids

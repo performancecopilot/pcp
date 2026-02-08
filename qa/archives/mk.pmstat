@@ -9,7 +9,7 @@
 
 . /etc/pcp.conf
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.pmstat-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 rm -f pmstat-one.index pmstat-one.meta pmstat-one.0

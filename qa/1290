@@ -318,6 +318,15 @@ cat <<'End-of-File' >$tmp.suppress
    ...
 }
 {
+   sds.c: same as above when we don't have symbols, but different Memcheck
+   Memcheck:Value4
+   ...
+   fun:sdscatfmt
+   ...
+   fun:pmSeriesDiscoverValues
+   ...
+}
+{
    net.c: uninitialized buffer on async i/o path
    Memcheck:Param
    socketcall.send(msg)

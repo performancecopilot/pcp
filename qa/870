@@ -59,9 +59,9 @@ _check()
     _get_pids_by_name pmlogger >$tmp.pmids
     echo "_get_pids_by_name pmlogger ..." >>$seq_full
     cat $tmp.pmids >>$seq_full
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
-    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep /[p]mlogger ..." >>$seq_full
-    grep /[p]mlogger <$tmp.ps.out >>$seq_full
+    _ps_full_by_name pmlogger >$tmp.ps.out
+    echo "All pmlogger processes ..." >>$seq_full
+    cat $tmp.ps.out >>$seq_full
     if [ -s $tmp.pmids ]
     then
 	# at least one is running

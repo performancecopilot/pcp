@@ -3,13 +3,13 @@
 # recheck all QA tests that appear to use the test application src/$1
 # or src/$2 or src/$3 or ...
 #
-# /var/tmp/appcache is a cache of mappings between <seqno> and src/
+# ${TMPDIR:-/tmp}/appcache is a cache of mappings between <seqno> and src/
 # uses ... built if not already there, use -c to clear and rebuild the
 # cache
 #
 
-cache=/var/tmp/appcache
-tmp=/var/tmp/appchange-$$
+cache=${TMPDIR:-/tmp}/appcache
+tmp=${TMPDIR:-/tmp}/appchange-$$
 status=1
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 

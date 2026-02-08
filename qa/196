@@ -59,9 +59,9 @@ badif=`grep gonzo /etc/hosts | cut -f1`
 PMCD_PORT=4320
 export PMCD_PORT
 
-# Do this in /var/tmp
+# Do this in ${TMPDIR:-/tmp}
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 pmcdlog=$tmp.pmcd.log
 if [ -x $PCP_PMCD_PROG ]
 then

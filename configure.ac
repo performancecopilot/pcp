@@ -730,12 +730,12 @@ which=$WHICH
 AC_SUBST(which)
 
 if test -z "$AR"; then
-    AC_PATH_PROGS(AR, [gcc-ar ar], /usr/bin/ar)
+    AC_PATH_PROGS(AR, [gcc-ar ar], ar)
 fi
-if test ! -x "$AR"; then
+ar=`$which $AR`
+if test ! -x "$ar"; then
     AC_MSG_ERROR([cannot find a valid 'ar' command.])
 fi
-ar=$AR
 AC_SUBST(ar)
 
 AC_PROG_LEX([noyywrap])

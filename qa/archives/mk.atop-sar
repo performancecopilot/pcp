@@ -7,7 +7,7 @@
 
 . $PCP_DIR/etc/pcp.conf || exit 1
 
-tmp=/var/tmp/mk.atop-sar.$$
+tmp=${TMPDIR:-/tmp}/mk.atop-sar-$$
 
 trap "cd $here; rm -rf $tmp.* $tmp atop-sar; exit 0" 0 1 2 3 15
 

@@ -6,7 +6,7 @@
 
 . /etc/pcp.conf
 
-tmp=/var/tmp/check-archives.$$
+tmp=${TMPDIR:-/tmp}/check-archives-$$
 echo 0 >$tmp.sts
 trap "_exit; exit \$sts" 0 1 2 3 15
 

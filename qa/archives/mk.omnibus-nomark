@@ -10,7 +10,7 @@
 
 . $PCP_DIR/etc/pcp.env
 
-tmp=/var/tmp/make-sample.$$
+tmp=${TMPDIR:-/tmp}/mk.omnibus-nomark-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3
 
 cat <<End-of-File >$tmp.config

@@ -9,7 +9,7 @@
 # result of some flakiness in the QA test.
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/check-flakey-$$
 trap "[ -f $tmp.kenj ] && ( echo "" ; cat $tmp.kenj ); rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # This is the record that Ken uses in the QA Farm to try and track

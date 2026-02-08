@@ -329,6 +329,9 @@ static pmdaMetric metrictab[] = {
     { NULL,	/* pmda.version */
       { PMDA_PMID(CL_SPECIAL,21), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_DISCRETE, 
       PMDA_PMUNITS(0,0,0,0,0,0) } },
+    { NULL, 	/* kernel.all.nuser */
+      { PMDA_PMID(CL_SPECIAL,22), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT,
+	PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 };
 static int metrictablen = sizeof(metrictab) / sizeof(metrictab[0]);
@@ -768,6 +771,11 @@ freebsd_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 
 	    case 21: /* pmda.version */
 		atom->cp = pmGetConfig("PCP_VERSION");
+		sts = 1;
+		break;
+
+	    case 22: /* kernel.all.nusers */
+		atom->ul = refresh_nusers();
 		sts = 1;
 		break;
 

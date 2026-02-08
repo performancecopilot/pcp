@@ -14,7 +14,7 @@ then
     exit 1
 fi
 
-tmp=/var/tmp/chk-pdu-types-$$
+tmp=${TMPDIR:-/tmp}/chk-pdu-coverage-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # Notes

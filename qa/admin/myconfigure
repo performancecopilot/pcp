@@ -259,7 +259,7 @@ fi
 # check expected files are the same
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/myconfigure-$$
 trap "rm -rf $tmp.* $tmp; exit 0" 0 1 2 3 15
 
 eval `grep PCP_INC_DIR= src/include/pcp.conf`

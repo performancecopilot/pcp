@@ -5,7 +5,7 @@
 # Assumes libpcp source and cscope index are in ../src
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.cgraph-$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 rm -f $tmp.*

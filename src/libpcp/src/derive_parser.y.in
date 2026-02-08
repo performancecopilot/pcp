@@ -4690,8 +4690,16 @@ spec	: L_TYPE L_ASSIGN specval
 		  else {
 		      unsigned int	domain;
 		      unsigned int	serial;
-		      if (sscanf($3, "%u.%u", &domain, &serial) == 2 &&
-		          domain >= 0 && domain < 511 && serial >= 0 && serial < (1<<22)) {
+		      int		nscanned;
+		      /*
+		       * if strlen($3) != nscanned we have something bad
+		       * like "123.456foo"
+		       */
+		      if (sscanf($3, "%u.%u%n", &domain, &serial, &nscanned) == 2 &&
+			  (int)strlen($3) == nscanned &&
+		          domain >= 0 && domain < 511 &&
+			  serial >= 0 && serial < (1<<22)) {
+			  /* valid indom number */
 			  specdesc.indom = pmInDom_build(domain, serial);
 		      }
 		      else
@@ -4703,6 +4711,7 @@ spec	: L_TYPE L_ASSIGN specval
 		      return -1;
 		  }
 		  specflags |= META_INDOM;
+		  free($3);
 		  $$ = specdesc;
 		}
 	| L_META L_ASSIGN L_NAME

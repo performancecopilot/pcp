@@ -66,6 +66,7 @@ _filter()
 	-e '/^proc\.fdinfo\..*: No value(s) available/d' \
 	-e '/^proc\.delayacct\..*: Metric not supported/d' \
 	-e '/^proc\.delayacct\..*: No value(s) available/d' \
+	-e '/^proc\.delayacct\..*: Missing metric value(s)/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.11\.0\[.*]: No data available/d' \
 	-e '/pmdaFetch: Fetch callback error from metric PMID 3\.9\.7\[.*]: No such process/d' \
 	-e '/Warning: invalid file .* in syscall fstat/d' \

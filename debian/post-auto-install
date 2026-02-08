@@ -5,7 +5,7 @@
 #
 
 iam=post-auto-install
-tmp=/var/tmp/$iam-$$
+tmp=${TMPDIR:-/tmp}/$iam-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
