@@ -432,13 +432,14 @@ Options:\n\
 		fprintf(stderr, "Warning: systemctl returns %d\n", sts);
 	    sts = system("journalctl -xe");
 	    if (sts != 0)
-		fprintf(stderr, "Warning: jounralctl returns %d\n", sts);
+		fprintf(stderr, "Warning: journalctl returns %d\n", sts);
 	}
     }
 
-    sts = system(". $PCP_DIR/etc/pcp.env; ( cat common.check; echo _wait_for_pmlogger -P $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ) | sh");
+    sts = system("( tmp=/tmp/pmcdgone; . $PCP_DIR/etc/pcp.env; . ./common.check; _wait_for_pmlogger -P $PCP_LOG_DIR/pmlogger/`hostname`/pmlogger.log ) | sh");
     if (sts != 0)
 	fprintf(stderr, "Warning: _wait_for_pmlogger returns %d\n", sts);
+    unlink("/tmp/pmcdgone");
     /*
      * avoid race here, give pmlogger a chance to clean up after pmlc
      * is done using the control port in _wait_for_pmlogger

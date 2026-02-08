@@ -97,11 +97,9 @@ _filter()
 
 _check_pmcd_procs()
 {
-    n_pmcd=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
+    n_pmcd=`_ps_full_by_name pmcd \
 	    | tee $tmp.pmcd \
-	    | grep -F "$PCP_PMCD_PATH" \
-	    | grep -v pmcd_wait \
-	    | grep -v grep \
+	    | sed -e '/PPID/d' \
 	    | wc -l \
 	    | tr -d ' '`
     if [ "X$n_pmcd" != "X$1" ]

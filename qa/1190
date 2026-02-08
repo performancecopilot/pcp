@@ -165,7 +165,7 @@ else
     status=1
 fi
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger .*-P ' >$tmp.out
+_ps_full_by_name pmlogger -P >$tmp.out
 n=`grep -v PID <$tmp.out | wc -l | sed -e 's/ //g'`
 if [ "$n" -eq 0 ]
 then

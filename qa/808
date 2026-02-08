@@ -39,6 +39,19 @@ _cleanup()
     rm -rf $tmp.*
 }
 
+_primary_pmlogger_pid()
+{
+    __pid=`_ps_full_by_name pmlogger -P | $PCP_AWK_PROG '
+/PPID/	{ next }
+	{ print $2 }'`
+    if [ `echo "$__pid" | wc -w | sed -e 's/  *//g'` != 1 ]
+    then
+	echo "_primary_pmlogger_pid: Botch: expect one PID, got: \"$__pid\""
+	_exit
+    fi
+    echo "$__pid"
+}
+
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -50,8 +63,7 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 
-pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[ /][p]mlogger.*-P' | \
-grep -v grep | awk '{print $2}'`
+pid=`_primary_pmlogger_pid`
 
 if [ ! -S "$PCP_RUN_DIR/pmlogger.$pid.socket" ]; then
     echo FAIL no primary pmlogger running? pid=$pid
@@ -73,9 +85,7 @@ else
     | _filter_pcp_start
     _wait_for_pmlogger || _exit 1
 
-    newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
-	grep -v grep | awk '{print $2}'`
-
+    newpid=`_primary_pmlogger_pid`
     if [ -z "$newpid" ]; then
     	echo FAIL pmlogger failed to start 
 	echo pid of killed primary logger is $pid
@@ -94,9 +104,8 @@ else
 # Next test: check primary logger restarts with legacy hardlinks present
 # This is a corner case, but can happen.
 #
-    pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
-    grep -v grep | awk '{print $2}'`
 
+    pid=`_primary_pmlogger_pid`
     echo === checking with stale legacy hard links
     echo === killing the primary pmlogger with SIGKILL ===
     $sudo kill -9 $pid
@@ -119,9 +128,7 @@ else
     | _filter_pcp_start
     _wait_for_pmlogger || _exit 1
 
-    newpid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
-	grep -v grep | awk '{print $2}'`
-
+    newpid=`_primary_pmlogger_pid`
     if [ -z "$newpid" ]; then
     	echo FAIL pmlogger failed to start 
 	echo pid of killed primary logger is $pid

@@ -3,7 +3,7 @@ hotproc.control.refresh new value=1
 hotproc.control.config new value="fname == "pmdaproc""
 
 hotproc.nprocs
-    value 1
+    value [at least 1]
 
 hotproc.control.refresh
     value 1

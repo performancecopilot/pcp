@@ -756,7 +756,7 @@ _triage_pmcd()
 	fi
     done
 
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID]|/[p]mcd( |$)' >$tmp.triage 2>&1
+    _ps_full_by_name pmcd >$tmp.triage 2>&1
     if [ -s $tmp.triage ]
     then
 	echo "--- likely looking processes ..."
@@ -849,7 +849,7 @@ _wait_for_pmcd()
 	    *)
 		# assume a remote PMCD
 		#
-		ssh pcpqa@$__host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( \$PCP_PS_PROG \$PCP_PS_ALL_FLAGS | grep -E \"[P]PID|/[p]mcd( |\\\$)\" )'" </dev/null
+		ssh pcpqa@$__host "sh -c '. \$PCP_DIR/etc/pcp.env; echo; echo "=== pmcd.log ==="; [ -f \$PCP_LOG_DIR/pmcd/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd/pmcd.log; [ -f \$PCP_LOG_DIR/pmcd.log ] && cat \$PCP_LOG_DIR/pmcd.log; echo; echo likely looking processes ...; ( _ps_full_by_name pmcd )'" </dev/null
 		;;
 	esac
 	rm -f $tmp._wait_for_pmcd.err $tmp._wait_for_pmcd.out
@@ -891,7 +891,7 @@ _wait_for_pmcd_stop()
     else
 	date
 	echo "Arrgh ... pmcd failed to stop after $__can_wait seconds"
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mcd( |$)'
+	_ps_full_by_name pmcd
 	echo "=== successful pmprobes stdout ==="
 	cat $tmp._wait_for_pmcd_stop.out.all
 	echo "=== successful pmprobes stderr ==="
@@ -991,7 +991,7 @@ _wait_for_pmlogger()
     rm -f $tmp._wait_for_pmlogger.pmlc
     while [ $__i -lt $__maxdelay ]
     do
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$tmp._wait_for_pmlogger.pmlc
+	_ps_full_by_name pmlc >>$tmp._wait_for_pmlogger.pmlc
 	echo "pmlc $__pid" >>$tmp._wait_for_pmlogger.pmlc
 	# May need sudo -u $PCP_USER here in case we're doing credentials checks
 	# in pmlogger and this is the primary pmlogger (started by user
@@ -1181,7 +1181,7 @@ _wait_pmlogger_end()
 	# pmlogger process exists, so wait for PID file to go away
 	#
 	echo "pmlogger process $__pid present ..." >>$seq_full
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid" >>$seq_full
+	_ps_full_by_name pmlogger >>$seq_full
     else
 	# pmlogger process is not here, warn if PID file is here,
 	# and we're done
@@ -1205,7 +1205,7 @@ _wait_pmlogger_end()
 	    then
 		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$__pid removed after 100 iterations"
 		cat "$PCP_TMP_DIR/pmlogger/$__pid"
-		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|/[p]mlogger( |$)|$__pid"
+		_ps_full_by_name pmlogger
 		_systemctl_status pmlogger
 		return 1
 	    fi
@@ -1237,14 +1237,12 @@ _wait_pmcd_end()
     then
 	# no $PCP_RUN_DIR/pmcd.pid file, try ps(1) the hard way
 	#
-	__pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| sed -n -e 's/$/ /' -e '/\[p]mcd /{
-s/ $//
-s/^[^ 	]*//
-s/^[ 	]*//
-s/[ 	].*//
-p
-}'`
+	__pid=`_get_pids_by_name pmcd`
+	if [ `echo "$__pid" | wc -w | sed -e 's/  *//g'` -gt 1 ]
+	then
+	    echo "_wait_pmcd_end: Botch: expect at most one PID, got: \"$__pid\""
+	    return 0
+	fi
     fi
     if [ -z "$__pid" ]
     then
@@ -1296,14 +1294,7 @@ _wait_pmie_end()
 	# no $PCP_RUN_DIR/pmie.pid file, try ps(1) the hard way ...
 	# Note, this will wait for ALL pmie's running on the local machine.
 	#
-	__pidlist=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| sed -n -e 's/$/ /' -e '/\[p]mie /{
-s/ $//
-s/^[^ 	]*//
-s/^[ 	]*//
-s/[ 	].*//
-p
-}'`
+	__pidlist=`_get_pids_by_name pmie`
     fi
     if [ -z "$__pidlist" ]
     then
@@ -1316,7 +1307,7 @@ p
 	then
 	    continue
 	else
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mie( |$)'
+	    _ps_full_by_name pmie
 	    _systemctl_status pmie
 	    return 1
 	fi
@@ -1360,7 +1351,7 @@ _wait_for_pmproxy()
 	then
 	    echo "pmproxy failed to start on port $__port after $__maxdelay seconds"
 	    echo "likely looking processes ..."
-	    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mproxy( |$)'
+	    _ps_full_by_name pmproxy
 	    if [ -f "$__logfile" ]
 	    then
 		echo "pmproxy logfile ($__logfile) ..."
@@ -1418,14 +1409,12 @@ _wait_pmproxy_end()
     then
 	# no $PCP_RUN_DIR/proxy.pid file, try ps(1) the hard way
 	#
-	__pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS \
-	| sed -n -e 's/$/ /' -e '/\[p]mproxy /{
-s/ $//
-s/^[^ 	]*//
-s/^[ 	]*//
-s/[ 	].*//
-p
-}'`
+	__pid=`_get_pids_by_name pmcd`
+	if [ `echo "$__pid" | wc -w | sed -e 's/  *//g'` -gt 1 ]
+	then
+	    echo "_wait_pmproxy_end: Botch: expect at most one PID, got: \"$__pid\""
+	    return 0
+	fi
     fi
     if [ -z "$__pid" ]
     then
@@ -1449,18 +1438,19 @@ _writable_primary_logger()
 
     echo "_open_primary_logger checking config file: $__configfile" >>$seq_full
 
-    # first, move aside the default configuration file
+# first, move aside the default configuration file
     _save_config "$__configfile"
 
-    # next, create a new default configuration file
+# next, create a new default configuration file
     PMLOGCONF="$PCP_BINADM_DIR/pmlogconf"
     test -f "$__configfile" || \
 	$sudo $PMLOGCONF -q -h localhost "$__configfile" >>$seq_full 2>&1
 
-    # finally, open it up to local access from pmlc
+# finally, open it up to local access from pmlc
     sed <"$__configfile" >$tmp.sed-i \
 	-e 's/^allow localhost.*$/allow localhost : all;/g' \
-	-e 's/^allow local:.*$/allow local:* : all;/g'
+	-e 's/^allow local:.*$/allow local:* : all;/g' \
+    # end
     $sudo cp $tmp.sed-i "$__configfile"
     rm -f $tmp.sed-i
 }
@@ -1481,7 +1471,8 @@ _restore_primary_logger()
 	then
 	    sed <"$__configfile" >$tmp.sed-i \
 		-e 's/^allow localhost.*$/allow localhost : enquire;/g' \
-		-e 's/^allow local:.*$/allow local:* : enquire;/g'
+		-e 's/^allow local:.*$/allow local:* : enquire;/g' \
+	    # end
 	    $sudo cp $tmp.sed-i "$__configfile"
 	    rm -f $tmp.sed-i
 	fi
@@ -3849,3 +3840,42 @@ p
     esac
 }
 
+# same algorithm as _get_pids_by_name to determine if a process is
+# (PID == $1) is running in a container
+#
+_pid_in_container()
+{
+    if [ -f /proc/$1/cgroup ]
+    then
+	# check the last line of /proc/$1/cgroup ..
+	#
+	# known non-container patterns
+	# 0::/system.slice/
+	# 0::/user.slice/
+	# 1:name=systemd:/
+	#
+	# known container patterns
+	# 0::/machine.slice/libpod-<uuid>.scope/container/system.slice/
+	#
+	__cgroups=`tail -1 /proc/$1/cgroup 2>/dev/null`
+	case "$__cgroups"
+	in
+	    # if cgroup file goes away or cannot be read, silently
+	    # assume the process was not in a container
+	    #
+	    ''|0::/system.slice/*|0::/user.slice/*|1:name=systemd:/*)
+		    ;;
+	    0::/machine.slice/*/container/*)
+		    # skip this one
+		    return 0
+		    ;;
+	    *)
+		    echo >&2 "Warning: _get_pids_by_name: pid=$1: unknown cgroups: \"$__cgroups\""
+		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 | $PCP_AWK_PROG '
+$2 == "PID"	{ print }
+$2 == '"$1"'	{ print }' >&2
+		    ;;
+	esac
+    fi
+    return 1
+}

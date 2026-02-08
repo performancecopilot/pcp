@@ -467,8 +467,8 @@ fi
 # Pass 2 - look in the ps(1) output for processes with -m "note" args
 # that suggests they were started by pmlogger_check and friends
 rm -f $tmp/tmp
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 \
-| sed -n -e 's/$/ /' -e '/\/[p]mlogger /{
+_ps_full_by_name pmlogger -m \
+| sed -n -e '/pmlogger/{
 /-m *pmlogger_check /bok
 /-m *reexec /bok
 b
@@ -478,6 +478,7 @@ s/^[^ ]*  *//
 s/ .*//
 p
 }' \
+| tee /tmp/foo \
 | while read pid
 do
     grep "($pid) Info: Start" $PCP_ARCHIVE_DIR/*/pmlogger.log \
@@ -539,7 +540,7 @@ do
     #
     if [ ! -f $tmp/one-trip ]
     then
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]ID|/[p]mlogger( |$)'
+	_ps_full_by_name pmlogger
 	touch $tmp/one-trip
     fi
     echo "Killing (TERM) pmlogger with PID $pid"

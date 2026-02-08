@@ -61,7 +61,7 @@ _await_logger()
 {
     for i in 1 2 3 4 5
     do
-	if $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | grep -v sudo >/dev/null
+	if _ps_full_by_name pmlogger -P | grep -v PPID >/dev/null
 	then
 	    # if it's there and we're waiting for it, break
 	    $1 && break
@@ -71,7 +71,7 @@ _await_logger()
 	fi
 	sleep 2
     done
-    logger_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | grep -v sudo | $PCP_AWK_PROG '{ print $2 }'`
+    logger_pid=`_ps_full_by_name pmlogger P | $PCP_AWK_PROG '/PPID/ { next } { print $2 }'`
     if [ ! -z "$logger_pid" ]
     then
 	# it's alive...

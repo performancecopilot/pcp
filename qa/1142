@@ -55,6 +55,15 @@ End-of-File
 
 pmcd_full=`pminfo -f proc.psinfo.utime | grep ' [^ ]*pmcd"]' \
       | sed -e 's/.* or "//' -e 's/".*//'`
+numpmcd=`echo "$pmcd_full" | wc -l | sed -e 's/  *//g'`
+case "$numpmcd"
+in
+    1)	;;
+    0)	_error "pmcd not running?"
+    	;;
+    *)	_notrun "number of running pmcd's is $numpmcd, not 1 as expected"
+    	;;
+esac
 pmcd_pid=`echo "$pmcd_full" | sed -e 's/ .*//'`
 pmcd_trunc=`echo "$pmcd_pid" | sed -e 's/.$//'`
 echo pmcd_full=$pmcd_full pmcd_pid=$pmcd_pid pmcd_trunc=$pmcd_trunc >>$seq_full
