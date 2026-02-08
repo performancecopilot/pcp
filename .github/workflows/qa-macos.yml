@@ -322,6 +322,11 @@ jobs:
       - name: Rebuild test binaries with rpath
         run: |
           echo "=== Rebuilding test binaries in installed testsuite with rpath ==="
+
+          # Ensure pcpqa owns the installed testsuite directory
+          echo "Setting ownership of /var/lib/pcp/testsuite..."
+          sudo chown -R pcpqa:staff /var/lib/pcp/testsuite
+
           cd /var/lib/pcp/testsuite/src
 
           echo "Before rebuild:"
