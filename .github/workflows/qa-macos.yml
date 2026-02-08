@@ -22,17 +22,8 @@ jobs:
         with:
           python-version: '3.13'
 
-      - name: Install python deps
-        run: |
-          python3 --version
-          pip3 install --upgrade pip
-          python3 -m venv pybuilddeps
-          source pybuilddeps/bin/activate
-          pip3 install setuptools wheel lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests
-
-      - name: Install Homebrew deps
-        run: |
-          brew install autoconf unixodbc valkey libuv
+      - name: Install macOS dependencies
+        uses: ./.github/actions/install-macos-deps
 
       - name: Enable TCP stats
         run: |

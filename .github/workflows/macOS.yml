@@ -16,21 +16,11 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.13'
-      - name: Install python deps
-        id: install-python-deps
-        run: |
-          python3 --version
-          pip3 --version
-          pip3 install --upgrade pip
-          python3 -m venv pybuilddeps
-          source pybuilddeps/bin/activate
-          pip3 install setuptools wheel
-          python3 -c "import setuptools; print(setuptools.__version__)"
-          python3 -m pip install lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests
-      - name: Install Homebrew deps
-        id: install-brew-deps
-        run: |
-          brew install autoconf unixodbc valkey libuv
+
+      - name: Install macOS dependencies
+        id: install-deps
+        uses: ./.github/actions/install-macos-deps
+
       - name: Build on macOS
         id: Build
         run: |
@@ -57,7 +47,7 @@ jobs:
         run: |
           cat /Users/runner/work/pcp/pcp/Logs/pcp
       - name: Debug on Python installation failure
-        if: failure() && steps.install-python-deps.conclusion == 'failure'
+        if: failure() && steps.install-deps.conclusion == 'failure'
         run: |
           echo "Python 3.13 installation failed. Collecting debug info..."
           brew --version
@@ -67,7 +57,7 @@ jobs:
           df -h
           brew list
       - name: Debug on brew dependency installation failure
-        if: failure() && steps.install-brew-deps.conclusion == 'failure'
+        if: failure() && steps.install-deps.conclusion == 'failure'
         run: |
           echo "Dependency installation failed. Collecting debug info..."
           brew --version

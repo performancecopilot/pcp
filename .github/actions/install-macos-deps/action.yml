@@ -1,0 +1,69 @@
+name: 'Install macOS PCP Build Dependencies'
+description: 'Installs all dependencies required to build PCP on macOS (Homebrew, Python, Perl)'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install Homebrew dependencies
+      shell: bash
+      run: |
+        echo "Installing Homebrew packages for PCP build..."
+        brew update
+        brew install \
+          autoconf \
+          unixodbc \
+          valkey \
+          libuv \
+          coreutils \
+          gnu-tar \
+          pkg-config \
+          python3 \
+          python-setuptools
+
+    - name: Install Perl dependencies
+      shell: bash
+      run: |
+        echo "Installing Perl modules for PCP..."
+        # Install cpanm for easier CPAN module installation
+        brew install cpanminus || brew upgrade cpanminus
+
+        # Install required Perl modules
+        sudo cpanm --notest \
+          JSON \
+          Date::Parse \
+          Date::Format \
+          XML::TokeParser \
+          Spreadsheet::WriteExcel \
+          Text::CSV_XS \
+          Spreadsheet::XLSX \
+          Spreadsheet::Read
+
+        echo "✓ Perl modules installed"
+
+    - name: Install Python dependencies
+      shell: bash
+      run: |
+        echo "Installing Python packages for PCP..."
+        python3 --version
+        pip3 --version
+        pip3 install --upgrade pip
+
+        # Create venv for build dependencies
+        python3 -m venv pybuilddeps
+        source pybuilddeps/bin/activate
+
+        pip3 install setuptools wheel
+        python3 -c "import setuptools; print('setuptools version:', setuptools.__version__)"
+
+        # Install PCP Python dependencies
+        python3 -m pip install \
+          lxml \
+          openpyxl \
+          OrderedDict \
+          psycopg2-binary \
+          prometheus_client \
+          pyarrow \
+          pyodbc \
+          requests
+
+        echo "✓ Python packages installed"
