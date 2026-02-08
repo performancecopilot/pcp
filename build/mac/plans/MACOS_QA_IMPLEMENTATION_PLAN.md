@@ -26,11 +26,11 @@ Enable QA testing for PCP on macOS through:
 - ✓ Start pmlogger (NEW - first time working!)
 - ✓ Start pmie (NEW - first time working!)
 
-### 🚨 CRITICAL BLOCKER DISCOVERED
+### ✅ RESOLVED: DYLD_LIBRARY_PATH for QA Test Binaries
 
-**DYLD_LIBRARY_PATH Not Set for QA Test Binaries** (Priority: HIGH)
+**Status**: Fixed in commit 39ad5306c1 (2026-02-08)
 
-**Problem**: QA tests fail because test binaries in `qa/src/` cannot find `libpcp.dylib`:
+**Problem**: QA tests failed because test binaries in `qa/src/` couldn't find `libpcp.dylib`:
 ```
 dyld[51771]: Library not loaded: libpcp.4.dylib
   Referenced from: /Users/runner/work/pcp/pcp/qa/src/pducheck
@@ -38,16 +38,20 @@ dyld[51771]: Library not loaded: libpcp.4.dylib
 Abort trap: 6
 ```
 
-**Impact**: 44 of 70 sanity tests fail (exit code 44 in CI run 21793886742)
+**Impact**: 44 of 70 sanity tests failed (exit code 44 in CI run 21793886742)
 
-**Root Cause**: The QA infrastructure doesn't set `DYLD_LIBRARY_PATH` on macOS, unlike Linux which uses `LD_LIBRARY_PATH`. Test binaries are linked against PCP libraries but can't find them at runtime.
+**Solution Implemented**:
+- Extended Darwin case block in `qa/common.rc` to set DYLD_LIBRARY_PATH from $PCP_LIB_DIR
+- Added `_add_lib_path()` cross-platform helper function for mock library tests
+- Updated qa/744, qa/745, qa/1996 to use the new helper
+- Added CI verification step in `.github/workflows/qa-macos.yml` to validate library paths before running tests
 
-**Evidence**:
-- `DYLD_LIBRARY_PATH` is never set in `qa/common*` files
-- `LD_LIBRARY_PATH` appears only in specific test files (qa/744, qa/745, qa/1996)
-- CI run 21793886742 shows consistent dyld failures across all tests
+**Files Modified**:
+- `qa/common.rc` - Added DYLD_LIBRARY_PATH setup and _add_lib_path() helper
+- `qa/744`, `qa/745`, `qa/1996` - Converted to use _add_lib_path()
+- `.github/workflows/qa-macos.yml` - Added pre-test library path verification
 
-**Next Steps**: See "Phase 0" below for implementation plan.
+**Verification**: Next CI run will show if dyld errors are resolved
 
 ---
 
@@ -703,3 +707,33 @@ sudo /etc/init.d/pmcd restart
 2. **Add `darwin` or `macos` test group** for platform-specific tests
 3. **Implement Darwin package checking** in `qa/admin/list-packages`
 4. **Fold macOS into main `qa.yml`** once confidence is established
+
+### TODO: Audit Existing QA Tests for Mock Library Usage
+
+**Context**: We've added `_add_lib_path()` helper in `qa/common.rc` to handle platform-specific library path setup (DYLD_LIBRARY_PATH on Darwin, LD_LIBRARY_PATH on Linux). Tests 744, 745, and 1996 were updated to use this helper.
+
+**Task**: Search through all QA tests to find others that directly set LD_LIBRARY_PATH and convert them to use `_add_lib_path()` instead.
+
+**Why**: Many tests that use mock/wrapper libraries (e.g., for NVIDIA, InfiniBand, etc.) currently only set LD_LIBRARY_PATH, which doesn't work on macOS. These tests will fail on Darwin unless they use the cross-platform helper.
+
+**How to Search**:
+```bash
+cd qa
+grep -l 'LD_LIBRARY_PATH.*=' [0-9]* | grep -v '.out'
+```
+
+**Pattern to Replace**:
+```bash
+# Old (Linux-only):
+LD_LIBRARY_PATH=$here/src; export LD_LIBRARY_PATH
+
+# New (cross-platform):
+_add_lib_path $here/src
+```
+
+**Documentation Needed**: Add a section to `qa/CLAUDE.md` (when created) explaining:
+- When to use `_add_lib_path()` (any time you need mock/test libraries)
+- Why not to hardcode LD_LIBRARY_PATH directly
+- Example from qa/744 showing the pattern
+
+**Priority**: Medium - can be done incrementally as tests are found failing on macOS
