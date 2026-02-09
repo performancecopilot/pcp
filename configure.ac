@@ -275,7 +275,7 @@ then
     test -f /etc/arch-release && target_distro=arch
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
-    pcp_ps_all_flags=-efw
+    pcp_ps_all_flags=-efww
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (macOS)])
