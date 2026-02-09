@@ -303,7 +303,9 @@ then
     #
     etc=`realpath /etc`
     var=`realpath /var`
-    configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-qt=no"
+    # Discover Python prefix to install bindings to correct location (Homebrew vs system Python)
+    python_prefix=`python3 -c 'import sys; print(sys.prefix)' 2>/dev/null || echo '/usr/local'`
+    configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-python-prefix=$python_prefix --with-qt=no"
     PKGBUILD=`which pkgbuild`; export PKGBUILD
 elif [ $target = netbsd ]
 then

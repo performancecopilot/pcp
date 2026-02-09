@@ -23,7 +23,7 @@ jobs:
           python-version: '3.13'
 
       - name: Install macOS dependencies
-        uses: ./.github/actions/install-macos-deps
+        run: bash build/mac/scripts/install-deps.sh  # Install all deps (no --minimal)
 
       - name: Enable TCP stats
         run: |
@@ -38,7 +38,10 @@ jobs:
           # This matches the configuration used in Makepkgs for darwin
           ETC=$(realpath /etc)
           VAR=$(realpath /var)
-          ./configure --sysconfdir=$ETC --localstatedir=$VAR --prefix=/usr/local --with-qt=no
+          # Discover Homebrew Python prefix to install bindings to the right location
+          PYTHON_PREFIX=$(python3 -c 'import sys; print(sys.prefix)')
+          echo "Python prefix: $PYTHON_PREFIX"
+          ./configure --sysconfdir=$ETC --localstatedir=$VAR --prefix=/usr/local --with-python-prefix=$PYTHON_PREFIX --with-qt=no
 
       - name: Build PCP
         run: |
@@ -89,6 +92,35 @@ jobs:
 
       - name: Install PCP
         run: sudo make install
+
+      - name: Verify Python/Perl bindings installation
+        run: |
+          echo "=== Phase 2 Verification: Python/Perl Bindings ==="
+          echo "Python search paths:"
+          python3 -c "import sys; print('\n'.join(sys.path))"
+          echo ""
+          echo "Perl @INC paths:"
+          perl -e 'print join("\n", @INC), "\n"'
+          echo ""
+          echo "Testing Python pcp.pmapi import..."
+          python3 -c "from pcp import pmapi; print('✓ Python pcp.pmapi OK')" || {
+            echo "✗ Python pcp.pmapi FAILED - checking installation location"
+            find /usr/local/lib -name "pmapi.py" 2>/dev/null || echo "pmapi.py not found in /usr/local/lib"
+            PYTHON_PREFIX=$(python3 -c 'import sys; print(sys.prefix)')
+            find "$PYTHON_PREFIX/lib" -name "pmapi.py" 2>/dev/null || echo "pmapi.py not found in $PYTHON_PREFIX/lib either"
+            # Set PYTHONPATH as fallback
+            PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+            export PYTHONPATH="/usr/local/lib/python${PY_VER}/site-packages:${PYTHONPATH:-}"
+            echo "Setting PYTHONPATH=$PYTHONPATH as fallback"
+            echo "PYTHONPATH=$PYTHONPATH" >> $GITHUB_ENV
+          }
+          echo ""
+          echo "Testing Perl PCP::PMDA module..."
+          perl -e "use PCP::PMDA; print '✓ Perl PCP::PMDA OK\n'" || {
+            echo "✗ Perl PCP::PMDA FAILED - setting PERL5LIB"
+            export PERL5LIB="/usr/local/lib/perl5/site_perl:/usr/local/lib/perl5/vendor_perl:${PERL5LIB:-}"
+            echo "PERL5LIB=$PERL5LIB" >> $GITHUB_ENV
+          }
 
       - name: Rebuild PMNS
         run: |
@@ -347,6 +379,45 @@ jobs:
             ./exercise -? 2>&1 | head -3 && echo "✓ Rebuilt binary works!"
           fi
 
+      - name: Verify rpath in test binaries
+        run: |
+          echo "=== Phase 1 Verification: Test Binary rpath ==="
+          echo "Checking torture_cache binary..."
+          otool -L /var/lib/pcp/testsuite/src/torture_cache | grep libpcp || echo "ERROR: No libpcp reference found"
+          echo ""
+          echo "Checking LC_RPATH load command..."
+          otool -l /var/lib/pcp/testsuite/src/torture_cache | grep -A2 LC_RPATH || echo "ERROR: No LC_RPATH found"
+          echo ""
+          echo "Expected: Should show /usr/local/lib/libpcp.4.dylib and LC_RPATH with path /usr/local/lib"
+
+      - name: Fix PCP runtime directory permissions
+        run: |
+          echo "=== Fixing PCP runtime directory permissions for pcpqa ==="
+          . /etc/pcp.conf
+          sudo chown -R pcpqa:staff $PCP_RUN_DIR
+          sudo chmod -R 755 $PCP_RUN_DIR
+          echo "✓ Permissions fixed"
+          ls -ld $PCP_RUN_DIR
+          # Ensure user home directory exists for .pcp/run
+          sudo mkdir -p /Users/runner/.pcp/run
+          sudo chown -R runner:staff /Users/runner/.pcp
+          echo "✓ User .pcp directory configured"
+
+      - name: Verify environment configuration
+        run: |
+          echo "=== Phase 3 Verification: Environment ==="
+          echo "TERM=${TERM:-<not set>}"
+          echo "PYTHONPATH=${PYTHONPATH:-<not set>}"
+          echo "PERL5LIB=${PERL5LIB:-<not set>}"
+          echo ""
+          echo "PCP runtime directory permissions:"
+          . /etc/pcp.conf
+          ls -ld $PCP_RUN_DIR
+          ls -l $PCP_RUN_DIR | head -10 || echo "Directory empty"
+          echo ""
+          echo "pcpqa user home directory:"
+          ls -ld /Users/runner/.pcp 2>/dev/null || echo "/Users/runner/.pcp does not exist"
+
       - name: Debug testsuite state before QA
         run: |
           echo "=========================================="
@@ -436,8 +507,10 @@ jobs:
       - name: Run QA sanity tests
         env:
           MAKEFLAGS: ""  # Force serial make - no parallelism
+          TERM: xterm-256color  # Fix terminal errors in test output
         run: |
           cd /var/lib/pcp/testsuite
+          export TERM=xterm-256color  # Ensure TERM is set for subprocesses
 
           # If localconfig doesn't exist, make setup will run
           # Capture its output explicitly

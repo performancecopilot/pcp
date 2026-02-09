@@ -107,7 +107,7 @@ ifeq "$(findstring $(PCP_LIB_DIR), /usr/lib /usr/lib64)" ""
 # $(PCP_LIB_DIR) may not be on the default ld search path.
 #
 ifeq "$(PCP_PLATFORM)" "darwin"
-MY_LIBS		= -L$(PCP_LIB_DIR) -Wl,-rpath $(PCP_LIB_DIR)
+MY_LIBS		= -L$(PCP_LIB_DIR) -Wl,-rpath,$(PCP_LIB_DIR)
 else
 MY_LIBS		= -L$(PCP_LIB_DIR) -Wl,-rpath=$(PCP_LIB_DIR)
 endif

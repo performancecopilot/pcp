@@ -815,3 +815,431 @@ _add_lib_path $here/src
 - Example from qa/744 showing the pattern
 
 **Priority**: Medium - can be done incrementally as tests are found failing on macOS
+
+---
+
+## Phase N: Fix Remaining macOS QA Test Failures (2026-02-09)
+
+### Status: PLANNED
+
+### Context
+
+GitHub Actions macOS QA tests are now running but **17 of 70 sanity tests fail** with "output mismatch" and **10 tests skip** due to missing dependencies (CI run 21819356637). Root cause analysis reveals five critical issues blocking full test pass rates.
+
+### Problem Summary
+
+1. **Critical rpath bug**: Test binaries use WRONG linker syntax - space-separated `-Wl,-rpath $(VAR)` instead of comma-separated `-Wl,-rpath,$(VAR)`, causing `dyld: Library not loaded: libpcp.4.dylib` errors
+2. **Python/Perl binding mismatch**: Modules install to `/usr/local/lib/` but Homebrew Python searches `/opt/homebrew/lib/`, and system Perl's @INC doesn't include `/usr/local/lib/perl5/`
+3. **Terminal environment**: Tests run without TERM variable, causing "No entry for terminal type 'unknown'" errors
+4. **Permission errors**: pmlogger socket binding fails with "Permission denied" when tests run as pcpqa user
+5. **Dependency installation inconsistency**: GitHub Actions and Cirrus CI use different package lists, neither matches PCP's official `qa/admin/package-lists/Darwin*`
+
+### Implementation Phases
+
+**Order**: rpath (blocks execution) → bindings (enables tests) → environment (reduces mismatches) → DRY (maintainability)
+
+---
+
+### N.1: Fix rpath Linker Syntax (CRITICAL)
+
+**Problem**: macOS ld64 linker requires comma-separated rpath argument but makefiles use space-separated syntax
+
+**Impact**: Test binaries crash with "Library not loaded: libpcp.4.dylib" when spawned as subprocesses
+
+**Root Cause**:
+```makefile
+# BROKEN (current):
+-Wl,-rpath $(PCP_LIB_DIR)  # Space between -rpath and path
+
+# CORRECT (needed):
+-Wl,-rpath,$(PCP_LIB_DIR)  # Comma between -rpath and path
+```
+
+**Why**: macOS clang/ld64 treats `-Wl,-rpath VALUE` as "-rpath flag with no argument, then a separate file argument VALUE", which fails. The comma makes it a single argument: `-Wl,-rpath,VALUE`.
+
+**Files to Modify** (12 total):
+- `qa/src/GNUmakefile.install` (line 28)
+- `src/pmdas/trace/GNUmakefile` (line 110)
+- `src/pmdas/simple/GNUmakefile.install` (line 43)
+- `src/pmdas/trivial/GNUmakefile.install` (line 41)
+- `src/pmdas/sample/src/GNUmakefile.install` (line 42)
+- `src/pmdas/txmon/GNUmakefile.install` (line 43)
+- `qa/pmdas/dynamic/GNUmakefile.install` (line 41)
+- `qa/pmdas/dynamic/GNUmakefile` (line 39)
+- `qa/pmdas/schizo/GNUmakefile.install` (line 32)
+- `qa/pmdas/github-56/GNUmakefile.install` (line 32)
+- `qa/pmdas/broken/GNUmakefile.install` (line 34)
+- `qa/pmdas/bigun/GNUmakefile.install` (line 32)
+
+**Change Pattern** (identical in all files):
+```diff
+ ifeq "$(PCP_PLATFORM)" "darwin"
+-PCP_LIBS	+= -L$(PCP_LIB_DIR) -Wl,-rpath $(PCP_LIB_DIR)
++PCP_LIBS	+= -L$(PCP_LIB_DIR) -Wl,-rpath,$(PCP_LIB_DIR)
+ else
+ PCP_LIBS	+= -L$(PCP_LIB_DIR) -Wl,-rpath=$(PCP_LIB_DIR)
+ endif
+```
+
+**Verification** (add to CI after "Rebuild test binaries with rpath"):
+```yaml
+- name: Verify rpath in test binaries
+  run: |
+    echo "=== Phase N.1 Verification: Test Binary rpath ==="
+    echo "Checking torture_cache binary..."
+    otool -L /var/lib/pcp/testsuite/src/torture_cache | grep libpcp || echo "ERROR: No libpcp reference found"
+    echo ""
+    echo "Checking LC_RPATH load command..."
+    otool -l /var/lib/pcp/testsuite/src/torture_cache | grep -A2 LC_RPATH || echo "ERROR: No LC_RPATH found"
+    echo ""
+    echo "Expected: Should show /usr/local/lib/libpcp.4.dylib (absolute path, not just 'libpcp.4.dylib')"
+    echo "Expected: LC_RPATH section should show 'path /usr/local/lib'"
+```
+
+---
+
+### N.2: Fix Python/Perl Binding Installation
+
+**Problem**: PCP Python/Perl modules installed to `/usr/local/lib/` but interpreters can't find them
+
+**Root Cause**:
+- PCP configure uses `--prefix=/usr/local`, installing to:
+  - Python: `/usr/local/lib/python3.*/site-packages/`
+  - Perl: `/usr/local/lib/perl5/site_perl/` or `/usr/local/lib/perl5/vendor_perl/`
+- But interpreters search different locations:
+  - Homebrew Python: `/opt/homebrew/lib/python3.*/site-packages/`
+  - System Perl @INC: doesn't include `/usr/local/lib/perl5/`
+
+**Solution**: Configure PCP to install to Homebrew Python's location
+
+**Files to Modify**:
+
+1. **`.github/workflows/qa-macos.yml`** - Configure PCP step:
+```yaml
+- name: Configure PCP
+  run: |
+    ETC=$(realpath /etc)
+    VAR=$(realpath /var)
+    # Use Homebrew Python's installation prefix
+    PYTHON_PREFIX=$(python3 -c 'import sys; print(sys.prefix)')
+    ./configure \
+      --sysconfdir=$ETC \
+      --localstatedir=$VAR \
+      --prefix=/usr/local \
+      --with-python-prefix=$PYTHON_PREFIX \
+      --with-qt=no
+```
+
+2. **`Makepkgs`** - Darwin configuration block (line 306):
+```diff
+     etc=`realpath /etc`
+     var=`realpath /var`
+-    configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-qt=no"
++    python_prefix=$(python3 -c 'import sys; print(sys.prefix)')
++    configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-python-prefix=$python_prefix --with-qt=no"
+     PKGBUILD=`which pkgbuild`; export PKGBUILD
+```
+
+**Fallback** (if configure doesn't support --with-python-prefix):
+
+Add environment variables to CI (before "Run QA sanity tests"):
+```yaml
+- name: Configure Python/Perl module paths
+  run: |
+    PY_VER=$(python3 -c 'import sys; print(f"{sys.version_info.major}.{sys.version_info.minor}")')
+    echo "PYTHONPATH=/usr/local/lib/python${PY_VER}/site-packages:${PYTHONPATH:-}" >> $GITHUB_ENV
+    echo "PERL5LIB=/usr/local/lib/perl5/site_perl:/usr/local/lib/perl5/vendor_perl:${PERL5LIB:-}" >> $GITHUB_ENV
+```
+
+**Verification** (add to CI after "Install PCP"):
+```yaml
+- name: Verify Python/Perl bindings installation
+  run: |
+    echo "=== Phase N.2 Verification: Python/Perl Bindings ==="
+    echo "Python interpreter location:"
+    which python3
+    python3 -c "import sys; print('Python prefix:', sys.prefix)"
+    echo ""
+    echo "Python search paths:"
+    python3 -c "import sys; print('\n'.join(sys.path))"
+    echo ""
+    echo "Perl @INC paths:"
+    perl -e 'print join("\n", @INC), "\n"'
+    echo ""
+    echo "Testing Python pcp.pmapi import..."
+    python3 -c "from pcp import pmapi; print('✓ Python pcp.pmapi OK')" || echo "✗ Python pcp.pmapi FAILED"
+    echo ""
+    echo "Testing Perl PCP::PMDA module..."
+    perl -e "use PCP::PMDA; print '✓ Perl PCP::PMDA OK\n'" || echo "✗ Perl PCP::PMDA FAILED"
+    echo ""
+    echo "Checking where Python modules were installed:"
+    find /usr/local/lib -name "pmapi.py" 2>/dev/null || echo "pmapi.py not found in /usr/local/lib"
+    find /opt/homebrew/lib -name "pmapi.py" 2>/dev/null || echo "pmapi.py not found in /opt/homebrew/lib"
+    echo ""
+    echo "Expected: pmapi.py should be in the same prefix as 'python3 -c \"import sys; print(sys.prefix)\"'"
+```
+
+---
+
+### N.3: Fix Terminal Environment
+
+**Problem**: Tests spawn subprocesses without TERM environment variable set, causing ncurses/tput failures
+
+**Error**: `No entry for terminal type "unknown";`
+
+**Impact**: Output mismatches in tests that use terminal control sequences
+
+**Solution**: Set TERM before running QA tests
+
+**Files to Modify**:
+
+1. **`.github/workflows/qa-macos.yml`** - QA test step:
+```yaml
+- name: Run QA sanity tests
+  run: |
+    cd /var/lib/pcp/testsuite
+    export TERM=xterm-256color  # Set terminal type
+    sudo -u pcpqa ./check -g sanity -x not_in_ci
+```
+
+2. **`.cirrus.yml`** - QA test script:
+```yaml
+run_qa_tests_script: |
+  cd /var/lib/pcp/testsuite
+  export TERM=xterm-256color  # Set terminal type
+  sudo -u pcpqa ./check -g sanity -x not_in_ci
+```
+
+**Verification** (add before "Run QA sanity tests"):
+```yaml
+- name: Verify environment configuration
+  run: |
+    echo "=== Phase N.3 Verification: Environment ==="
+    echo "TERM=$TERM"
+    [ -n "$TERM" ] && echo "✓ TERM is set" || echo "✗ TERM is not set"
+    echo ""
+    echo "PYTHONPATH=${PYTHONPATH:-<not set>}"
+    echo "PERL5LIB=${PERL5LIB:-<not set>}"
+```
+
+---
+
+### N.4: Fix pmlogger Socket Permissions
+
+**Problem**: Tests run as `pcpqa` user but pmlogger tries to bind sockets in `/private/var/run/pcp/` owned by root/pcp
+
+**Error**: `__pmBind(/private/var/run/pcp/pmlogger.XXXXX.socket): Permission denied`
+
+**Impact**: Tests that spawn pmlogger instances fail to create control sockets
+
+**Solution**: Ensure pcpqa has write access to PCP runtime directories
+
+**Files to Modify**:
+
+1. **`.github/workflows/qa-macos.yml`** - Add before "Run QA sanity tests":
+```yaml
+- name: Fix PCP runtime directory permissions
+  run: |
+    . /etc/pcp.conf
+    echo "Setting permissions on $PCP_RUN_DIR for pcpqa user..."
+    sudo chown -R pcpqa:staff $PCP_RUN_DIR
+    sudo chmod -R 755 $PCP_RUN_DIR
+    # Also ensure user home directory exists for local socket fallback
+    sudo mkdir -p /Users/runner/.pcp/run
+    sudo chown -R runner:staff /Users/runner/.pcp
+```
+
+2. **`.cirrus.yml`** - Similar step before `run_qa_tests_script`
+
+**Verification** (add after permission fix):
+```yaml
+- name: Verify runtime directory permissions
+  run: |
+    echo "=== Phase N.4 Verification: Permissions ==="
+    . /etc/pcp.conf
+    echo "PCP runtime directory:"
+    ls -ld $PCP_RUN_DIR
+    echo ""
+    echo "PCP runtime directory contents:"
+    ls -la $PCP_RUN_DIR | head -10
+    echo ""
+    echo "pcpqa user home directory:"
+    ls -ld /Users/runner/.pcp 2>/dev/null || echo "/Users/runner/.pcp does not exist yet"
+    echo ""
+    echo "Expected: pcpqa should have write access to both locations"
+```
+
+---
+
+### N.5: Create Shared Dependency Installation Script (DRY)
+
+**Problem**: GitHub Actions and Cirrus CI duplicate dependency installation logic with different package lists
+
+**Analysis**: After reviewing `qa/admin/other-packages/manifest`:
+- **Build-required** (no optional marker): psycopg2, lxml, requests, JSON, Date::Parse/Format, Spreadsheet::WriteExcel, Text::CSV_XS
+- **Build-optional** (marked "build optional"): openpyxl, pyarrow, bcc, bpftrace
+- **QA-only** (marked "QA optional"): Spreadsheet::XLSX, Spreadsheet::Read, Spreadsheet::ReadSXC, PIL/Pillow
+
+**Solution**: Create shared script that installs build-required + build-optional by default
+
+**New File**: `build/mac/scripts/install-deps.sh`
+```bash
+#!/bin/bash
+set -euo pipefail
+
+# Install macOS build/test dependencies for PCP
+# Usage: ./install-deps.sh [--minimal]
+#   (no args): Install build-required + build-optional + QA-only packages (default)
+#   --minimal: Install only build-required + build-optional (skip QA-only)
+
+SKIP_QA_ONLY=false
+if [[ "${1:-}" == "--minimal" ]]; then
+  SKIP_QA_ONLY=true
+fi
+
+echo "=== Installing Homebrew dependencies ==="
+brew update --quiet || true
+brew install \
+  autoconf \
+  coreutils \
+  gnu-tar \
+  libuv \
+  pkg-config \
+  python3 \
+  python-setuptools \
+  unixodbc \
+  valkey || true
+
+echo "=== Installing Perl CPAN modules (build-required and build-optional) ==="
+brew install cpanminus || brew upgrade cpanminus
+sudo cpanm --notest \
+  JSON \
+  Date::Parse \
+  Date::Format \
+  XML::TokeParser \
+  Spreadsheet::WriteExcel \
+  Text::CSV_XS
+
+echo "=== Installing Python pip packages (build-required and build-optional) ==="
+pip3 install --user --break-system-packages \
+  lxml \
+  openpyxl \
+  psycopg2-binary \
+  prometheus_client \
+  pyarrow \
+  pyodbc \
+  requests \
+  setuptools \
+  wheel
+
+if [ "$SKIP_QA_ONLY" = false ]; then
+  echo "=== Installing QA-only packages ==="
+  sudo cpanm --notest \
+    Spreadsheet::XLSX \
+    Spreadsheet::Read
+  # Pillow (PIL) can be added here if needed:
+  # pip3 install --user --break-system-packages Pillow
+fi
+
+echo "✓ Dependencies installed successfully"
+```
+
+**Files to Modify**:
+
+1. **`.github/workflows/qa-macos.yml`** - Replace composite action:
+```yaml
+- name: Install macOS dependencies
+  run: bash build/mac/scripts/install-deps.sh  # Full install (no --minimal)
+```
+
+2. **`.cirrus.yml`** - Update homebrew cache populate script:
+```yaml
+populate_script: |
+  bash build/mac/scripts/install-deps.sh  # Full install
+```
+
+**Rationale**:
+- Most Python/Perl packages are used by PCP export tools (pcp2xlsx, pcp2postgresql, pmlogsummary), not just QA
+- Consolidates package lists into single source of truth
+- Both CI systems use identical dependencies
+- `--minimal` flag available for resource-constrained builds
+
+---
+
+### Implementation Checklist
+
+**Phase N.1 - rpath (12 files)**:
+- [ ] `qa/src/GNUmakefile.install`
+- [ ] `src/pmdas/trace/GNUmakefile`
+- [ ] `src/pmdas/simple/GNUmakefile.install`
+- [ ] `src/pmdas/trivial/GNUmakefile.install`
+- [ ] `src/pmdas/sample/src/GNUmakefile.install`
+- [ ] `src/pmdas/txmon/GNUmakefile.install`
+- [ ] `qa/pmdas/dynamic/GNUmakefile.install`
+- [ ] `qa/pmdas/dynamic/GNUmakefile`
+- [ ] `qa/pmdas/schizo/GNUmakefile.install`
+- [ ] `qa/pmdas/github-56/GNUmakefile.install`
+- [ ] `qa/pmdas/broken/GNUmakefile.install`
+- [ ] `qa/pmdas/bigun/GNUmakefile.install`
+
+**Phase N.2 - Python/Perl bindings**:
+- [ ] `.github/workflows/qa-macos.yml` - add --with-python-prefix to configure
+- [ ] `Makepkgs` - add --with-python-prefix to darwin configopts
+
+**Phase N.3 - Terminal**:
+- [ ] `.github/workflows/qa-macos.yml` - set TERM=xterm-256color
+- [ ] `.cirrus.yml` - set TERM=xterm-256color
+
+**Phase N.4 - Permissions**:
+- [ ] `.github/workflows/qa-macos.yml` - fix runtime directory permissions
+- [ ] `.cirrus.yml` - fix runtime directory permissions
+
+**Phase N.5 - DRY**:
+- [ ] Create `build/mac/scripts/install-deps.sh`
+- [ ] `.github/workflows/qa-macos.yml` - use shared script
+- [ ] `.cirrus.yml` - use shared script
+
+**Verification Steps** (all automated in CI):
+- [ ] Add rpath verification after test binary rebuild
+- [ ] Add Python/Perl binding verification after install
+- [ ] Add environment verification before QA tests
+- [ ] Add permissions verification after permission fix
+
+---
+
+### Success Criteria
+
+- ✅ `dyld: Library not loaded` errors eliminated (rpath fix)
+- ✅ "Python pcp pmapi module is not installed" eliminated (binding fix)
+- ✅ "perl PCP::PMDA module not installed" eliminated (binding fix)
+- ✅ "No entry for terminal type 'unknown'" errors eliminated (TERM fix)
+- ✅ pmlogger socket permission errors eliminated (permission fix)
+- ✅ Test failure count drops from 17 to <5 (ideally 0)
+- ✅ Both GitHub Actions and Cirrus CI use identical dependency script
+
+### Expected Impact
+
+**Current**: 17 failed, 10 skipped (not run), 43 passed
+**After N.1 (rpath)**: ~10 failed, 10 skipped, 50 passed (dylib loading fixed)
+**After N.2 (bindings)**: ~5 failed, 0 skipped, 65 passed (modules available)
+**After N.3 (TERM)**: ~2 failed, 0 skipped, 68 passed (terminal errors fixed)
+**After N.4 (permissions)**: ~0 failed, 0 skipped, 70 passed (socket creation works)
+
+---
+
+### Notes
+
+**Key Learnings**:
+1. **rpath syntax is platform-specific**: macOS requires comma-separated (`-Wl,-rpath,PATH`), Linux uses equals (`-Wl,-rpath=PATH`)
+2. **Python prefix matters**: Homebrew Python and system Python use different installation prefixes - PCP must match
+3. **Package classification**: Most Python/Perl packages are build-required for PCP export tools, not just QA
+4. **Root cause > workarounds**: Fixing `--with-python-prefix` is better than setting PYTHONPATH/PERL5LIB environment variables
+5. **CI verification essential**: Automated diagnostic output in logs reveals issues faster than manual investigation
+
+**Potential Remaining Issues**:
+- Some tests may still have platform-specific output differences (file paths, metric values)
+- These will need individual investigation and either:
+  - Platform-specific `.out.darwin` expected output files
+  - Filtering/normalization in test scripts
+  - Marking as `not_in_ci` if inherently non-portable
+

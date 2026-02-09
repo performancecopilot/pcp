@@ -125,8 +125,7 @@ task:
       brew --version
       brew list --versions | sort
     populate_script: |
-      brew update --quiet || true
-      brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf || true
+      bash build/mac/scripts/install-deps.sh  # Install all deps using shared script
 
   enable_tcp_stats_script: |
     sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
@@ -135,7 +134,10 @@ task:
     # Use realpath to resolve macOS symlinks (/etc -> /private/etc, /var -> /private/var)
     ETC=$(realpath /etc)
     VAR=$(realpath /var)
-    ./configure --sysconfdir=$ETC --localstatedir=$VAR --prefix=/usr/local --with-qt=no
+    # Discover Homebrew Python prefix to install bindings to the right location
+    PYTHON_PREFIX=$(python3 -c 'import sys; print(sys.prefix)')
+    echo "Python prefix: $PYTHON_PREFIX"
+    ./configure --sysconfdir=$ETC --localstatedir=$VAR --prefix=/usr/local --with-python-prefix=$PYTHON_PREFIX --with-qt=no
 
   build_script: |
     make -j$(sysctl -n hw.ncpu)
@@ -224,7 +226,14 @@ task:
     sudo -u pcpqa make clean
     sudo -u pcpqa make
 
+  fix_permissions_script: |
+    # Fix PCP runtime directory permissions for pcpqa user
+    . /etc/pcp.conf
+    sudo chown -R pcpqa:staff $PCP_RUN_DIR
+    sudo chmod -R 755 $PCP_RUN_DIR
+
   run_qa_tests_script: |
     cd /var/lib/pcp/testsuite
+    export TERM=xterm-256color  # Fix terminal errors in test output
     sudo -u pcpqa ./check -g sanity -x not_in_ci
 
