@@ -478,7 +478,6 @@ s/^[^ ]*  *//
 s/ .*//
 p
 }' \
-| tee /tmp/foo \
 | while read pid
 do
     grep "($pid) Info: Start" $PCP_ARCHIVE_DIR/*/pmlogger.log \
