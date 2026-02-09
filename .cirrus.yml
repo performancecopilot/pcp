@@ -203,7 +203,10 @@ task:
       sleep $INTERVAL
       ELAPSED=$((ELAPSED + INTERVAL))
     done
-    [ $ELAPSED -ge $TIMEOUT ] && { echo "pmcd failed to start"; exit 1; }
+    if [ $ELAPSED -ge $TIMEOUT ]; then
+      echo "pmcd failed to start"
+      exit 1
+    fi
 
   start_pmlogger_script: |
     sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmlogger.plist
