@@ -606,9 +606,87 @@ cd /var/lib/pcp/testsuite
 
 ## Known Issues & Technical Debt
 
-### 🚨 CRITICAL: DYLD_LIBRARY_PATH Not Set (HIGH PRIORITY - BLOCKING QA TESTS)
+### ✅ RESOLVED: Test PMDA Rebuild Failure - libpcp.h Not Found
 
-**Status**: Discovered 2026-02-08, needs immediate fix
+**Status**: Fixed 2026-02-09 (commit pending)
+
+**Problem**: The dynamic test PMDA failed to compile during QA setup on macOS with `'pcp/libpcp.h' file not found`, but worked on Linux.
+
+**Error Message**:
+```
+dynamic.c:11:10: fatal error: 'pcp/libpcp.h' file not found
+   11 | #include <pcp/libpcp.h>
+      |          ^~~~~~~~~~~~~~
+make[2]: *** [dynamic.o] Error 1
+```
+
+**Root Cause Analysis (via CI diagnostics)**:
+
+The GNUmakefile.install had platform-specific logic for finding internal headers:
+
+```makefile
+ifneq "$(PCP_INC_DIR)" "/usr/include/pcp"
+CFLAGS += -I$(PCP_INC_DIR)/.. -I$(PCP_INC_DIR)
+else
+CFLAGS += -I../../src
+endif
+```
+
+**On Linux**: `PCP_INC_DIR=/usr/include/pcp` → condition FALSE → uses `-I../../src` → finds `libpcp.h` in `/var/lib/pcp/testsuite/src/` ✓
+
+**On macOS**: `PCP_INC_DIR=/usr/local/include/pcp` → condition TRUE → uses `-I/usr/local/include/pcp` → `libpcp.h` NOT FOUND ✗
+
+The makefile assumed that if `PCP_INC_DIR != /usr/include/pcp`, then internal headers would be in the installed include directory. But `libpcp.h` is marked `NOSHIP` and is NEVER installed - it only exists in the testsuite's `src/` directory after `make install`.
+
+**Diagnostic Output Confirmed**:
+- ✓ `libpcp.h` exists at `/var/lib/pcp/testsuite/src/libpcp.h`
+- ✗ `libpcp.h` does NOT exist at `/usr/local/include/pcp/libpcp.h`
+- ✓ `../../src` resolves to `/var/lib/pcp/testsuite/src` from the dynamic PMDA directory
+- ✗ GNUmakefile condition chose wrong branch for macOS
+
+**Solution Implemented**:
+
+Added Darwin-specific case to `qa/pmdas/dynamic/GNUmakefile.install` that explicitly includes the testsuite src directory (where libpcp.h actually lives):
+
+```makefile
+# macOS: Always use testsuite src dir for internal headers like libpcp.h
+# which is marked NOSHIP and never installed to PCP_INC_DIR
+ifeq "$(PCP_PLATFORM)" "darwin"
+CFLAGS += -I../../src -I$(PCP_INC_DIR)/.. -I$(PCP_INC_DIR)
+else
+# Original logic for Linux and other platforms (unchanged)
+ifneq "$(PCP_INC_DIR)" "/usr/include/pcp"
+CFLAGS += -I$(PCP_INC_DIR)/.. -I$(PCP_INC_DIR)
+else
+CFLAGS += -I../../src
+endif
+endif
+```
+
+This conservative fix:
+- Adds `-I../../src` FIRST for Darwin (where libpcp.h is guaranteed to be)
+- Preserves all existing Linux/BSD/other platform behavior
+- Doesn't break anything that's currently working
+
+**Files Modified**:
+- `qa/pmdas/dynamic/GNUmakefile.install` - Added Darwin-specific include path handling
+
+**Why This Fix Is Safe**:
+- Linux path is completely unchanged (wrapped in `else` block)
+- macOS path explicitly adds the directory we KNOW contains libpcp.h
+- No other platforms affected
+
+**Key Learnings**:
+- Test PMDAs in `qa/pmdas/` legitimately use internal headers (unlike production PMDAs)
+- `libpcp.h` is intentionally not installed (marked NOSHIP)
+- The testsuite's `src/` directory is the authoritative location for libpcp.h post-install
+- Platform-specific prefix paths require platform-specific makefile logic
+
+---
+
+### ✅ RESOLVED: DYLD_LIBRARY_PATH Not Set
+
+**Status**: Fixed in commit 39ad5306c1 (2026-02-08)
 
 **Problem**: Test binaries in `qa/src/` cannot load PCP shared libraries at runtime because `DYLD_LIBRARY_PATH` is not set on macOS.
 
