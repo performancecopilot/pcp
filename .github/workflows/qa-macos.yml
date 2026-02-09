@@ -33,7 +33,6 @@ jobs:
 
       - name: Configure PCP
         run: |
-          source pybuilddeps/bin/activate
           # Use realpath to resolve macOS symlinks (/etc -> /private/etc, /var -> /private/var)
           # This matches the configuration used in Makepkgs for darwin
           ETC=$(realpath /etc)
@@ -45,7 +44,6 @@ jobs:
 
       - name: Build PCP
         run: |
-          source pybuilddeps/bin/activate
           make -j$(sysctl -n hw.ncpu)
 
       - name: Create PCP users and groups
