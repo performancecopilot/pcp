@@ -347,35 +347,110 @@ jobs:
             ./exercise -? 2>&1 | head -3 && echo "✓ Rebuilt binary works!"
           fi
 
-      - name: Debug dynamic PMDA GNUmakefile
+      - name: Debug testsuite state before QA
         run: |
-          echo "=== Checking installed GNUmakefile for dynamic PMDA ==="
-          echo ""
-          echo "GNUmakefile location:"
-          ls -la /var/lib/pcp/testsuite/pmdas/dynamic/GNUmakefile || echo "NOT FOUND!"
+          echo "=========================================="
+          echo "=== TESTSUITE STATE BEFORE QA TESTS ==="
+          echo "=========================================="
 
           echo ""
-          echo "GNUmakefile content (CFLAGS section):"
-          sed -n '20,30p' /var/lib/pcp/testsuite/pmdas/dynamic/GNUmakefile
-
-          echo ""
-          echo "PCP environment from pcp.conf:"
+          echo "=== 1. PCP Configuration ==="
           . /etc/pcp.conf
           echo "PCP_INC_DIR=$PCP_INC_DIR"
           echo "PCP_LIB_DIR=$PCP_LIB_DIR"
+          echo "PCP_VAR_DIR=$PCP_VAR_DIR"
+          echo "PCP_PLATFORM=$PCP_PLATFORM"
 
           echo ""
-          echo "Checking if libpcp.h exists at expected location:"
-          ls -la "$PCP_INC_DIR/libpcp.h" 2>&1 || echo "NOT FOUND at $PCP_INC_DIR/libpcp.h"
-          ls -la "$PCP_INC_DIR/../libpcp.h" 2>&1 || echo "NOT FOUND at $PCP_INC_DIR/../libpcp.h"
+          echo "=== 1b. Path Resolution Check (realpath) ==="
+          echo "/usr/local -> $(realpath /usr/local 2>/dev/null || echo 'FAILED')"
+          echo "/usr/local/include -> $(realpath /usr/local/include 2>/dev/null || echo 'FAILED')"
+          echo "PCP_INC_DIR resolved -> $(realpath "$PCP_INC_DIR" 2>/dev/null || echo 'FAILED')"
+          echo "Homebrew prefix: $(brew --prefix 2>/dev/null || echo 'not installed')"
+          echo ""
+          echo "Raw string comparison test:"
+          echo "  PCP_INC_DIR='$PCP_INC_DIR'"
+          echo "  Equals '/usr/include/pcp'? $([ "$PCP_INC_DIR" = "/usr/include/pcp" ] && echo YES || echo NO)"
+          echo "  Equals '/usr/local/include/pcp'? $([ "$PCP_INC_DIR" = "/usr/local/include/pcp" ] && echo YES || echo NO)"
 
           echo ""
-          echo "Checking builddefs location:"
-          ls -la "$PCP_INC_DIR/builddefs" 2>&1 || echo "NOT FOUND at $PCP_INC_DIR/builddefs"
+          echo "=== 2. Check for libpcp.h in ALL locations ==="
+          echo "Installed include dir:"
+          ls -la "$PCP_INC_DIR/libpcp.h" 2>&1 || echo "  NOT FOUND"
+          echo "Parent include dir:"
+          ls -la "$PCP_INC_DIR/../libpcp.h" 2>&1 || echo "  NOT FOUND"
+          echo "Testsuite src dir:"
+          ls -la /var/lib/pcp/testsuite/src/libpcp.h 2>&1 || echo "  NOT FOUND"
+
+          echo ""
+          echo "=== 3. Check pmdadynamic binary state ==="
+          DYNAMIC_DIR="/var/lib/pcp/testsuite/pmdas/dynamic"
+          echo "Directory contents:"
+          ls -la "$DYNAMIC_DIR/" | head -20
+          echo ""
+          echo "Binary exists and executable?"
+          if [ -x "$DYNAMIC_DIR/pmdadynamic" ]; then
+            echo "  YES - pmdadynamic is executable"
+            echo "  Timestamp: $(stat -f '%Sm' "$DYNAMIC_DIR/pmdadynamic")"
+            echo "  Size: $(stat -f '%z' "$DYNAMIC_DIR/pmdadynamic") bytes"
+          else
+            echo "  NO - pmdadynamic missing or not executable"
+          fi
+          echo ""
+          echo "Source file timestamp:"
+          stat -f '%Sm' "$DYNAMIC_DIR/dynamic.c" 2>&1 || echo "  dynamic.c not found"
+
+          echo ""
+          echo "=== 4. Check GNUmakefile in pmdas/dynamic ==="
+          echo "CFLAGS section (lines 20-35):"
+          sed -n '20,35p' "$DYNAMIC_DIR/GNUmakefile"
+
+          echo ""
+          echo "=== 5. Check localconfig existence ==="
+          TESTSUITE="/var/lib/pcp/testsuite"
+          if [ -f "$TESTSUITE/localconfig" ]; then
+            echo "localconfig EXISTS - contents:"
+            cat "$TESTSUITE/localconfig"
+          else
+            echo "localconfig DOES NOT EXIST - make setup will run"
+          fi
+
+          echo ""
+          echo "=== 6. Test include path resolution ==="
+          cd "$DYNAMIC_DIR"
+          echo "From $PWD:"
+          echo "  ../../src resolves to: $(cd ../../src 2>/dev/null && pwd || echo 'DOES NOT EXIST')"
+          echo "  Contents of ../../src (if exists):"
+          ls ../../src/*.h 2>/dev/null | head -5 || echo "    No .h files or dir doesn't exist"
+
+          echo ""
+          echo "=== 7. Dry-run make to see what would happen ==="
+          cd "$TESTSUITE"
+          echo "Running: make -n setup (dry run)"
+          sudo -u pcpqa make -n setup 2>&1 | head -50 || echo "make -n failed"
+
+          echo ""
+          echo "=== 8. Check MAKEFLAGS environment ==="
+          echo "MAKEFLAGS=${MAKEFLAGS:-'(not set)'}"
 
       - name: Run QA sanity tests
+        env:
+          MAKEFLAGS: ""  # Force serial make - no parallelism
         run: |
           cd /var/lib/pcp/testsuite
+
+          # If localconfig doesn't exist, make setup will run
+          # Capture its output explicitly
+          if [ ! -f localconfig ]; then
+            echo "=== localconfig missing, running make setup explicitly ==="
+            sudo -u pcpqa make setup 2>&1 | tee /tmp/make-setup.log || {
+              echo ""
+              echo "=== MAKE SETUP FAILED ==="
+              echo "Full output saved to /tmp/make-setup.log"
+              exit 1
+            }
+          fi
+
           sudo -u pcpqa ./check -g sanity -x not_in_ci
 
       - name: Upload QA logs
@@ -387,4 +462,5 @@ jobs:
             qa/*.bad
             qa/check.log
             /var/log/pcp/
+            /tmp/make-setup.log
           retention-days: 7
