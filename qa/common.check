@@ -655,6 +655,9 @@ _domain_name()
     # OpenIndiana sickness => domainname returns " "
     #
     [ "$__domainname" = " " ] && __domainname=localdomain
+    # macOS sickness => hostname -d returns "local" but PCP uses "localdomain"
+    #
+    [ "$__domainname" = "local" ] && __domainname=localdomain
     echo "$__domainname"
 }
 
