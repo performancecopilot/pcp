@@ -66,6 +66,7 @@ _filter_log()
 	-e '/^Start:/d' \
 	-e '/^End[: ]/d' \
 	-e '/^COMPRESSAFTER=/d' \
+	-e '/^Info: find_dirs=/d' \
 	-e '/^\+ /d' \
 	-e '/^\.\.\. try /d' \
 	-e '/^\.\.\. logging for /d' \
