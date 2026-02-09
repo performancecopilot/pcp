@@ -502,6 +502,92 @@ jobs:
           echo "=== 8. Check MAKEFLAGS environment ==="
           echo "MAKEFLAGS=${MAKEFLAGS:-'(not set)'}"
 
+      - name: Test Python bindings functionality
+        run: |
+          echo "=========================================="
+          echo "=== PYTHON BINDINGS DIAGNOSTIC ==="
+          echo "=========================================="
+
+          . /etc/pcp.conf
+          PYTHON=${PCP_PYTHON_PROG:-python3}
+
+          echo "Python version:"
+          $PYTHON --version
+          echo ""
+
+          echo "Python module search paths:"
+          $PYTHON -c "import sys; print('\n'.join(sys.path))"
+          echo ""
+
+          echo "=== Test 1: Import pcp.pmapi ==="
+          $PYTHON -c "from pcp import pmapi; print('✓ pcp.pmapi import OK')" || {
+            echo "✗ Failed to import pcp.pmapi"
+            echo "Checking installation location..."
+            find /usr/local -name "pmapi.py" 2>/dev/null || echo "pmapi.py not found"
+            exit 1
+          }
+          echo ""
+
+          echo "=== Test 2: Import cpmapi (C extension) ==="
+          $PYTHON -c "import cpmapi; print('✓ cpmapi import OK')" || {
+            echo "✗ Failed to import cpmapi"
+            echo "Checking for cpmapi.so..."
+            find /usr/local -name "cpmapi*.so" 2>/dev/null || echo "cpmapi.so not found"
+            echo ""
+            echo "Checking library dependencies..."
+            CPMAPI_SO=$(find /usr/local -name "cpmapi*.so" 2>/dev/null | head -1)
+            if [ -n "$CPMAPI_SO" ]; then
+              echo "Found: $CPMAPI_SO"
+              otool -L "$CPMAPI_SO" | grep libpcp || echo "No libpcp reference found"
+            fi
+            exit 1
+          }
+          echo ""
+
+          echo "=== Test 3: Check cpmapi library linking ==="
+          CPMAPI_SO=$(find /usr/local -name "cpmapi*.so" 2>/dev/null | head -1)
+          if [ -n "$CPMAPI_SO" ]; then
+            echo "cpmapi location: $CPMAPI_SO"
+            echo "Library dependencies:"
+            otool -L "$CPMAPI_SO"
+            echo ""
+            echo "Checking for rpath:"
+            otool -l "$CPMAPI_SO" | grep -A2 LC_RPATH || echo "No rpath found"
+          fi
+          echo ""
+
+          echo "=== Test 4: Create a PCP context ==="
+          $PYTHON <<'PYEOF'
+import sys
+try:
+    from pcp import pmapi
+    import cpmapi as api
+    print("Creating PM_CONTEXT_HOST context...")
+    ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "local:")
+    hostname = ctx.pmGetContextHostName()
+    print(f"✓ Context created, hostname: {hostname}")
+    del ctx
+    print("✓ Python bindings fully functional")
+except Exception as e:
+    print(f"✗ Failed to create context: {e}")
+    import traceback
+    traceback.print_exc()
+    sys.exit(1)
+PYEOF
+          echo ""
+
+          echo "=== Test 5: Run test_pcp.py with diagnostics ==="
+          cd /var/lib/pcp/testsuite
+          if [ -f src/test_pcp.py ]; then
+            echo "Attempting to run test_pcp.py on archive..."
+            timeout 10 $PYTHON src/test_pcp.py archives/pyapi.0 2>&1 | head -50 || {
+              echo "✗ test_pcp.py failed or timed out"
+              echo "Exit code: $?"
+            }
+          else
+            echo "test_pcp.py not found in testsuite"
+          fi
+
       - name: Run QA sanity tests
         env:
           MAKEFLAGS: ""  # Force serial make - no parallelism
