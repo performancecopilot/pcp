@@ -1,0 +1,119 @@
+#!/bin/sh
+# PCP QA Test No. 1651
+# Debian bug: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=1127416
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e '/^Roll .*\/NOTICES/d' \
+	-e '/^Start .*\/NOTICES/d' \
+	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
+	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_setup()
+{
+    cd $here
+    $sudo rm -rf $tmp/*
+    if ./mk.logfarm -c $tmp.farm $tmp >$tmp.out 2>&1
+    then
+	_filter <$tmp.out
+    else
+	cat $tmp.out
+	echo "Arrgh ... mk.logfarm failed!"
+	_exit
+    fi
+    cd $tmp
+    find * \
+    | while read f
+    do
+	case "$f"
+	in
+	    */..)	;;
+	    *)		$sudo chown $PCP_USER:$PCP_GROUP "$f"
+	    		;;
+	esac
+    done
+}
+
+_doit()
+{
+    ( cd $tmp; find * -type f ) | _filter | sort >$tmp.before
+    $sudo rm -f $tmp.log
+    $sudo -E -u $PCP_USER $PCP_BINADM_DIR/pmlogger_daily $@ -c $tmp.control -P -D -V -l $tmp.log >$tmp.err 2>&1
+    if [ -s $tmp.err ]
+    then
+	_filter <$tmp.err
+	[ -s $tmp.log ] && _filter <$tmp.log
+	echo "... errors from pmlogger_daily!"
+    else
+	[ -s $tmp.err ] && _filter <$tmp.err
+	[ -s $tmp.log ] && _filter <$tmp.log
+	echo
+	( cd $tmp; find * -type f ) | _filter | sort >$tmp.after
+	echo "Changes ..."
+	diff $tmp.before $tmp.after
+    fi
+}
+
+cat <<End-of-File >$tmp.farm
+foo	archives/ok-mv-bigbin	20260204
+foo	archives/ok-bigbin	20260203
+End-of-File
+
+mkdir $tmp
+
+# real QA test starts here
+
+# control file from bug
+# - change to non-primary and QA dir
+#
+cat <<End-of-File >$tmp.control
+\$version=1.1
+LOCALHOSTNAME	n   n	$tmp/foo	-r -T24h10m -c config.default -v 100Mb
+PCP_COMPRESS=blah
+End-of-File
+_setup
+_doit -f
+
+# fixed control file
+#
+cat <<End-of-File >$tmp.control
+\$version=1.1
+\$PCP_COMPRESS=blah
+LOCALHOSTNAME	n   n	$tmp/foo	-r -T24h10m -c config.default -v 100Mb
+End-of-File
+_setup
+_doit -f
+
+# success, all done
+exit
