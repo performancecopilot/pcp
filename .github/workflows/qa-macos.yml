@@ -347,6 +347,32 @@ jobs:
             ./exercise -? 2>&1 | head -3 && echo "✓ Rebuilt binary works!"
           fi
 
+      - name: Debug dynamic PMDA GNUmakefile
+        run: |
+          echo "=== Checking installed GNUmakefile for dynamic PMDA ==="
+          echo ""
+          echo "GNUmakefile location:"
+          ls -la /var/lib/pcp/testsuite/pmdas/dynamic/GNUmakefile || echo "NOT FOUND!"
+
+          echo ""
+          echo "GNUmakefile content (CFLAGS section):"
+          sed -n '20,30p' /var/lib/pcp/testsuite/pmdas/dynamic/GNUmakefile
+
+          echo ""
+          echo "PCP environment from pcp.conf:"
+          . /etc/pcp.conf
+          echo "PCP_INC_DIR=$PCP_INC_DIR"
+          echo "PCP_LIB_DIR=$PCP_LIB_DIR"
+
+          echo ""
+          echo "Checking if libpcp.h exists at expected location:"
+          ls -la "$PCP_INC_DIR/libpcp.h" 2>&1 || echo "NOT FOUND at $PCP_INC_DIR/libpcp.h"
+          ls -la "$PCP_INC_DIR/../libpcp.h" 2>&1 || echo "NOT FOUND at $PCP_INC_DIR/../libpcp.h"
+
+          echo ""
+          echo "Checking builddefs location:"
+          ls -la "$PCP_INC_DIR/builddefs" 2>&1 || echo "NOT FOUND at $PCP_INC_DIR/builddefs"
+
       - name: Run QA sanity tests
         run: |
           cd /var/lib/pcp/testsuite
