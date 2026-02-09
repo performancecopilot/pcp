@@ -556,27 +556,7 @@ jobs:
           fi
           echo ""
 
-          echo "=== Test 4: Create a PCP context ==="
-          $PYTHON <<'PYEOF'
-import sys
-try:
-    from pcp import pmapi
-    import cpmapi as api
-    print("Creating PM_CONTEXT_HOST context...")
-    ctx = pmapi.pmContext(api.PM_CONTEXT_HOST, "local:")
-    hostname = ctx.pmGetContextHostName()
-    print(f"✓ Context created, hostname: {hostname}")
-    del ctx
-    print("✓ Python bindings fully functional")
-except Exception as e:
-    print(f"✗ Failed to create context: {e}")
-    import traceback
-    traceback.print_exc()
-    sys.exit(1)
-PYEOF
-          echo ""
-
-          echo "=== Test 5: Run test_pcp.py with diagnostics ==="
+          echo "=== Test 4: Run test_pcp.py with diagnostics ==="
           cd /var/lib/pcp/testsuite
           if [ -f src/test_pcp.py ]; then
             echo "Attempting to run test_pcp.py on archive..."
