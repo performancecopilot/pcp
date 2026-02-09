@@ -114,35 +114,114 @@ task:
 
 task:
   name: macOS PCP QA
-  depends_on: macOS PCP Build
+  # NO depends_on - this task is completely standalone and self-contained
   macos_instance:
     image: ghcr.io/cirruslabs/macos-tahoe-base:latest
-  create_pcpqa_user_script: |
-    echo "Creating pcpqa user for testing..."
+
+  # Reuse homebrew cache from build task (same fingerprint, same packages)
+  homebrew_cache:
+    folder: /opt/homebrew
+    fingerprint_script: |
+      brew --version
+      brew list --versions | sort
+    populate_script: |
+      brew update --quiet || true
+      brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf || true
+
+  enable_tcp_stats_script: |
+    sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+
+  configure_script: |
+    # Use realpath to resolve macOS symlinks (/etc -> /private/etc, /var -> /private/var)
+    ETC=$(realpath /etc)
+    VAR=$(realpath /var)
+    ./configure --sysconfdir=$ETC --localstatedir=$VAR --prefix=/usr/local --with-qt=no
+
+  build_script: |
+    make -j$(sysctl -n hw.ncpu)
+
+  create_users_script: |
+    # Create pcp group and user
+    if ! dscl . -read /Groups/pcp &>/dev/null; then
+      NEXT_GID=$(dscl . -list /Groups PrimaryGroupID | awk '{print $2}' | sort -n | tail -1)
+      NEXT_GID=$((NEXT_GID + 1))
+      sudo dscl . -create /Groups/pcp
+      sudo dscl . -create /Groups/pcp PrimaryGroupID "$NEXT_GID"
+    fi
+    if ! dscl . -read /Users/pcp &>/dev/null; then
+      NEXT_UID=$(dscl . -list /Users UniqueID | awk '{print $2}' | sort -n | tail -1)
+      NEXT_UID=$((NEXT_UID + 1))
+      PCP_GID=$(dscl . -read /Groups/pcp PrimaryGroupID | awk '{print $2}')
+      sudo dscl . -create /Users/pcp
+      sudo dscl . -create /Users/pcp UserShell /usr/bin/false
+      sudo dscl . -create /Users/pcp UniqueID "$NEXT_UID"
+      sudo dscl . -create /Users/pcp PrimaryGroupID "$PCP_GID"
+      sudo dscl . -create /Users/pcp NFSHomeDirectory /var/empty
+    fi
+    # Create pcpqa user
     if ! dscl . -read /Users/pcpqa &>/dev/null; then
       NEXT_UID=$(dscl . -list /Users UniqueID | awk '{print $2}' | sort -n | tail -1)
       NEXT_UID=$((NEXT_UID + 1))
       sudo dscl . -create /Users/pcpqa
       sudo dscl . -create /Users/pcpqa UserShell /bin/bash
-      sudo dscl . -create /Users/pcpqa RealName "PCP QA User"
       sudo dscl . -create /Users/pcpqa UniqueID "$NEXT_UID"
       sudo dscl . -create /Users/pcpqa PrimaryGroupID 20
       sudo dscl . -create /Users/pcpqa NFSHomeDirectory /Users/pcpqa
       sudo mkdir -p /Users/pcpqa
       sudo chown pcpqa:staff /Users/pcpqa
-      echo "pcpqa user created"
-    else
-      echo "pcpqa user already exists"
     fi
-  verify_pmcd_script: |
-    echo "Verifying pmcd is running..."
-    pminfo -f hinv.ncpu || { echo "pmcd not responding"; exit 1; }
-  init_qa_script: |
-    echo "Initializing QA environment..."
-    cd qa
-    sudo ./admin/myconfigure
+
+  configure_sudo_script: |
+    echo "pcpqa ALL=(ALL) NOPASSWD: ALL" | sudo tee /etc/sudoers.d/pcpqa
+    sudo chmod 0440 /etc/sudoers.d/pcpqa
+
+  install_script: |
+    sudo make install
+
+  rebuild_pmns_script: |
+    # Source pcp.conf (realpath resolves /etc -> /private/etc on macOS)
+    . "$(realpath /etc)/pcp.conf"
+    cd $PCP_VAR_DIR/pmns
+    sudo ./Rebuild -v
+
+  verify_localhost_dns_script: |
+    # Ensure localhost entries exist in /etc/hosts
+    if ! grep -q "127.0.0.1.*localhost" /etc/hosts; then
+      echo "127.0.0.1 localhost" | sudo tee -a /etc/hosts
+    fi
+    if ! grep -q "::1.*localhost" /etc/hosts; then
+      echo "::1 localhost" | sudo tee -a /etc/hosts
+    fi
+
+  start_pmcd_script: |
+    sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmcd.plist
+    sudo launchctl kickstart -p -k system/io.pcp.pmcd
+    # Wait for pmcd with timeout
+    TIMEOUT=180; ELAPSED=0; INTERVAL=3
+    while [ $ELAPSED -lt $TIMEOUT ]; do
+      if pcp 2>/dev/null; then break; fi
+      sleep $INTERVAL
+      ELAPSED=$((ELAPSED + INTERVAL))
+    done
+    [ $ELAPSED -ge $TIMEOUT ] && { echo "pmcd failed to start"; exit 1; }
+
+  start_pmlogger_script: |
+    sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmlogger.plist
+    sudo launchctl kickstart -p -k system/io.pcp.pmlogger
+
+  start_pmie_script: |
+    sudo launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmie.plist
+    sudo launchctl kickstart -p -k system/io.pcp.pmie
+
+  rebuild_test_binaries_script: |
+    # CRITICAL: Rebuild with rpath for subprocess spawning
+    # Without this, DYLD_LIBRARY_PATH doesn't survive subprocess spawning (SIP)
+    sudo chown -R pcpqa:staff /var/lib/pcp/testsuite
+    cd /var/lib/pcp/testsuite/src
+    sudo -u pcpqa make clean
+    sudo -u pcpqa make
+
   run_qa_tests_script: |
-    echo "Running QA tests..."
-    cd qa
-    ./check -l
+    cd /var/lib/pcp/testsuite
+    sudo -u pcpqa ./check -g sanity -x not_in_ci
 
