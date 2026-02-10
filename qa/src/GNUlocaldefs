@@ -256,7 +256,30 @@ LDIRT	+= *.log domain.h help.pag help.dir \
 default default_pcp: \
 	$(CFILES_TARGETS) $(TARGETS) \
 	$(SRCARCHPART) \
-	$(PLFILES) $(PYFILES)
+	$(PLFILES) $(PYFILES) \
+	darwin-fixup
+
+# macOS: rewrite library paths in binaries to absolute paths
+# This is the same fixup that LINKER_MAKERULE does for production binaries
+# (see src/include/builddefs.in lines 442-450)
+# Required because libpcp's install_name is a bare filename, not @rpath/ prefixed
+#
+.PHONY: darwin-fixup
+ifeq "$(PCP_PLATFORM)" "darwin"
+darwin-fixup: $(TARGETS)
+	@echo "Fixing macOS library paths in test binaries..."
+	@for bin in $(TARGETS); do \
+	    if [ -f "$$bin" ] && file "$$bin" 2>/dev/null | grep -q "Mach-O"; then \
+	        for lib in $$(otool -L "$$bin" 2>/dev/null | awk '/libpcp/ {print $$1}'); do \
+	            install_name_tool -change "$$lib" "$(PCP_LIB_DIR)/$$lib" "$$bin" 2>/dev/null || true; \
+	        done; \
+	    fi; \
+	done
+	@echo "Done."
+else
+darwin-fixup:
+	@# No-op on non-Darwin platforms
+endif
 
 setup: libpcp.h default $(XTRATARGETS)
 
