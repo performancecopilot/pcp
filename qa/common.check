@@ -3855,6 +3855,7 @@ _pid_in_container()
 	# 0::/init.scope
 	# 1:name=systemd:/
 	# 1:cpuset:/
+	# 1:blkio:/
 	#
 	# known container patterns
 	# 0::/machine.slice/libpod-<uuid>.scope/container/system.slice/
@@ -3865,7 +3866,7 @@ _pid_in_container()
 	    # if cgroup file goes away or cannot be read, silently
 	    # assume the process was not in a container
 	    #
-	    ''|0::/system.slice/*|0::/user.slice/*|0::/init.scope|1:name=systemd:/*|1:cpuset:/*)
+	    ''|0::/system.slice/*|*/user.slice/*|0::/init.scope|1:name=systemd:/*|1:cpuset:/*|1:blkio:/*)
 		    ;;
 	    0::/machine.slice/*/container/*)
 		    # skip this one
