@@ -596,8 +596,9 @@ jobs:
         with:
           name: qa-logs
           path: |
-            qa/*.bad
-            qa/check.log
+            /var/lib/pcp/testsuite/*.bad
+            /var/lib/pcp/testsuite/*.full
+            /var/lib/pcp/testsuite/check.log
             /var/log/pcp/
             /tmp/make-setup.log
           retention-days: 7
