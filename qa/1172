@@ -14,6 +14,12 @@ _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7
 which ausyscall >/dev/null 2>&1 || _notrun "No ausyscall binary found"
 
+# if pmcd is running in another container, this test will not
+# produce the expected results
+#
+numpmcd=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mcd ' | wc -l | sed -e 's/  *//g'`
+[ $numpmcd -gt 1 ] && _notrun "pmcd running in another container?"
+
 status=1       # failure is the default!
 signal=$PCP_BINADM_DIR/pmsignal
 

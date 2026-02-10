@@ -5,6 +5,9 @@ proc.autogroup.nice
 proc.control.all.threads
 proc.control.perclient.cgroups
 proc.control.perclient.threads
+proc.delayacct.blkio_time
+proc.delayacct.cpu_time
+proc.delayacct.swapin_time
 proc.fdinfo.amd_evicted_visible_vram
 proc.fdinfo.amd_evicted_vram
 proc.fdinfo.amd_memory_visible_vram

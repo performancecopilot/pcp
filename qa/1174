@@ -44,7 +44,8 @@ s/ [0-9][0-9]* / /
 _filter4()
 {
     # traverse: found 1346 metrics, sts 29
-    $PCP_AWK_PROG '
+    tee -a $seq_full \
+    | $PCP_AWK_PROG '
 BEGIN			{ first = 1 }
 $1 == "traverse:" && $3 ~ /[0-9][0-9]*/ && $6 ~ /[0-9][0-9]*/	{
 			  if (first) {

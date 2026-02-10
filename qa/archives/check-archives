@@ -3,7 +3,7 @@
 # Check archives ...
 #
 
-tmp=/var/tmp/c-a-$$
+tmp=${TMPDIR:-/tmp}/check-archives-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 if [ $# -eq 0 ]

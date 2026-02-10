@@ -32,6 +32,8 @@ extern int	do_disk_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
 extern void	refresh_netif_metrics(void);
 extern int	do_netif_metrics(pmdaMetric *, unsigned int, pmAtomValue *);
 
+extern int	refresh_nusers(void);
+
 /*
  * kernel memory reader pieces
  */

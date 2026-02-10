@@ -256,6 +256,7 @@ BEGIN           { i = 0 }
 	[ $? -eq 0 ] && _PWDCMD="$_PWDCMD -P"
     fi
     _here=`$_PWDCMD`
+    $VERY_VERBOSE && echo >&2 "_parse_log_control: initial pwd=$_here"
 
     if echo "$1" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$'
     then
@@ -270,7 +271,10 @@ BEGIN           { i = 0 }
     | while read host primary socks dir args
     do
 	# start in one place for each iteration (beware of relative paths)
-	cd "$_here"
+	if ! cd "$_here"
+	then
+	    $VERY_VERBOSE && echo >&2 "_parse_log_control: failed to cd back to $_here"
+	fi
 	line=`expr $line + 1`
 
 	if $VERY_VERBOSE
@@ -347,6 +351,51 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 				    _warning "\$PCP_CULLAFTER ($PCP_CULLAFTER) reset from control file, -k value ($CULLAFTER_CMDLINE) ignored"
 				    CULLAFTER_CMDLINE=""
 				fi
+			    fi
+			    ;;
+
+			'export PCP_SPACELIMIT;'*)
+			    _old_value="$PCP_SPACELIMIT"
+			    _check=`echo "$_cmd" | sed -e 's/.*=//' -e 's/  *$//'`
+			    if [ -n "$_check" ]
+			    then
+				if [ "$_check" = unlimited ]
+				then
+				    # no conversion
+				    :
+				else
+				    # check syntax & convert to canonical Kbytes
+				    #
+				    _kb=`_convert_to_kb "$_check"`
+				    if [ $? != 0 ]
+				    then
+					_warning "\$PCP_SPACELIMIT value ($_check) is invalid. Must be a positive integer and a unit (e.g. 100M)"
+					_cmd=''
+				    else
+					$SHOWME && echo "+ $_cmd (normalized to $_kb Kbytes)"
+					# need to put back the "K" units here
+					# # because it will get re-processed by
+					# _convert_to_kb() later
+					#
+					_cmd=`echo "$_cmd" | sed -e "s/=.*/=${_kb}K/"`
+				    fi
+				fi
+				if [ -n "$_cmd" ]
+				then
+				    echo eval $_cmd >>$tmp/_cmd
+				    eval $_cmd
+				    if [ -n "$_old_value" -a "$_old_value" != "$PCP_SPACELIMIT" ]
+				    then
+					_warning "\$PCP_SPACELIMIT ($PCP_SPACELIMIT) reset from control file, previous value ($_old_value) ignored"
+				    fi
+				    if [ -n "$PCP_SPACELIMIT" -a -n "$SPACELIMIT_CMDLINE" -a "$PCP_SPACELIMIT" != "$SPACELIMIT_CMDLINE" ]
+				    then
+					_warning "\$PCP_SPACELIMIT ($PCP_SPACELIMIT) reset from control file, -d value ($SPACELIMIT_CMDLINE) ignored"
+					SPACELIMIT_CMDLINE=""
+				    fi
+			        fi
+			    else
+				_warning "\$PCP_SPACELIMIT from control file missing a value, will be ignored"
 			    fi
 			    ;;
 
@@ -537,10 +586,8 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	# check $dir, cd there, acquire lock
 	#
 	$SHOWME && echo "+ cd $dir"
-	if cd "$dir"
+	if ! cd "$dir"
 	then
-	    :
-	else
 	    if $SHOWME
 	    then
 		echo "+ ... cannot show any more for this control line"
@@ -659,6 +706,10 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	fi
 
     done
+    if ! cd "$_here"
+    then
+	$VERY_VERBOSE && echo >&2 "_parse_log_control: failed to cd back to $_here at return"
+    fi
 }
 
 # Called from _callback_log_control() [in pmlogger_check and pmlogger_janitor]
@@ -857,6 +908,89 @@ END						{ exit sts }'
 	rm -f /tmp/is.archive.$$
 	return $__sts
     fi
+}
+
+# Converts a size string like 10G, 100M, 100K to integer KBytes for limit
+# checks.
+# Usage: _convert_to_kb size_string
+# Outputs: integer KBytes on stdout, returns 0 if OK, 1 if error
+_convert_to_kb()
+{
+    __input="$1"
+    __num=
+    __unit=
+    __kb=
+    if [ -z "$__input" ]
+    then
+	echo "Error: _convert_to_kb(): missing argument" >&2
+	return 1
+    fi
+    __num=`echo "$__input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\1/'`
+    case "$__num"
+    in
+	"" )
+		echo "Error: _convert_to_kb(): argument '$__input' does not start with a number" >&2
+		return 1
+		;;
+	*[!0-9]* )
+		echo "Error: _convert_to_kb(): argument '$__input' has a non-numeric value" >&2
+		return 1
+		;;
+	0 )
+		echo "Error: _convert_to_kb(): argument '$__input' resolves to zero (not allowed)" >&2
+		return 1
+		;;
+    esac
+    __unit=`echo "$__input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\2/'`
+    case "$__unit"
+    in
+	G|g|M|m|K|k)
+		;;
+	'')
+		echo "Error: _convert_to_kb(): missing unit after '$__num'" >&2
+		return 1
+		;;
+	*)
+		echo "Error: _convert_to_kb(): invalid unit '$__unit'" >&2
+		return 1
+		;;
+    esac
+    
+    MAX_INT32=2147483647
+
+    case "$__unit"
+    in
+	G|g)
+		# Check before multiplying 
+		__max=`expr $MAX_INT32 / \( 1024 \* 1024 \)`
+		if [ $__num -gt $__max ]
+		then 
+		    echo "Error: overflow, $__num Gbytes too large for Kbytes in a 32-bit signed int" >&2
+		    return 1
+		fi
+		__kb=`expr $__num \* 1024 \* 1024`
+		;;
+	M|m)
+		# Check before multiplying
+		__max=`expr $MAX_INT32 / 1024`
+		if [ $__num -gt $__max ]
+		then
+		    echo "Error: overflow, $__num Mbytes too large for Kbytes in a 32-bit signed int" >&2 
+		    return 1
+		fi
+		__kb=`expr $__num \* 1024`
+		;;
+	K|k)
+		if [ $__num -gt $MAX_INT32 ]
+		then
+		    echo "Error: overflow, $__num Kbytes too large for 32-bit signed int" >&2 
+		    return 1
+		fi
+		__kb=$__num
+		;;
+    esac
+    echo "$__kb"
+    return 0
 }
 
 # current time to the highest precision available from date(1) and

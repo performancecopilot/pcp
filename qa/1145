@@ -13,12 +13,15 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection enabled"
+unset LD_PRELOAD
 
 _cleanup()
 {
     cd $here
+    unset LD_PRELOAD
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -29,12 +32,15 @@ PM_FAULT_CONTROL=$tmp.control; export PM_FAULT_CONTROL
 LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 
 # [Tue Feb  5 07:03:01] pcp(6045) Warning: vmprintf malloc: malloc(4096) failed: Cannot allocate memory
+# For OpenIndiana
+#   Not enough space => Cannot allocate memory 
 #
 _filter()
 {
     sed \
 	-e 's/pcp([0-9][0-9]*)/pcp(PID)/' \
 	-e 's/\[[A-Z][a-z][a-z] [A-Z][a-z][a-z]  *[0-9][0-9]* [0-9][0-9]:[0-9][0-9]:[0-9][0-9]]/[DATE]/' \
+	-e 's/Not enough space/Cannot allocate memory/' \
     # end
 }
 

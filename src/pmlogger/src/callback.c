@@ -675,7 +675,7 @@ do_work(task_t *tp)
     label_offset = __pmLogLabelSize(archctl.ac_log);
 
     if ((pmDebugOptions.appl2) && (pmDebugOptions.desperate))
-	pmNotifyErr(LOG_INFO, "do_work(tp=%p): afid=%d parse_done=%d exit_samples=%d", tp, tp->t_afid, parse_done, exit_samples);
+	pmNotifyErr(LOG_INFO, "do_work(tp=" PRINTF_P_PFX "%p): afid=%d parse_done=%d exit_samples=%d", tp, tp->t_afid, parse_done, exit_samples);
 
     if (!parse_done)
 	/* ignore callbacks until all of the config file has been parsed */
@@ -788,7 +788,7 @@ do_work(task_t *tp)
 	pdu_payload = pduresultbytes(resp);
 
 	if (pmDebugOptions.appl2)
-	    pmNotifyErr(LOG_INFO, "callback: fetch group %p (%d metrics, 0x%x change)", fp, fp->f_numpmid, changed);
+	    pmNotifyErr(LOG_INFO, "callback: fetch group " PRINTF_P_PFX "%p (%d metrics, 0x%x change)", fp, fp->f_numpmid, changed);
 
 	if (rflag) {
 	    /*

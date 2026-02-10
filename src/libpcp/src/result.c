@@ -127,7 +127,7 @@ __pmDumpResultPool(void)
 	size_t		n = 0;
 
 	for (pool = result_pool; pool != NULL; pool = pool->next) {
-	    fprintf(stderr, "__pmResult [%zu] %p -> rp %p\n", n, pool, pool->rp);
+	    fprintf(stderr, "__pmResult [%zu] " PRINTF_P_PFX "%p -> rp " PRINTF_P_PFX "%p\n", n, pool, pool->rp);
 	    n++;
 	}
 	if (n == 0)

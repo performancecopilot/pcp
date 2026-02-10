@@ -113,10 +113,10 @@ on_key_client_read(struct proxy *proxy, struct client *client,
 		ssize_t nread, const uv_buf_t *buf)
 {
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: client %p\n", "on_key_client_read", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_key_client_read", client);
 
     if (key_server_resp == 0 || proxy->keys_setup == 0 ||
-	keySlotsProxyConnect(proxy->slots,
+	keySlotsProxyConnect(&proxy->slotsctx->slots,
 		proxylog, &client->u.keys.reader,
 		buf->base, nread, on_key_server_reply, client) < 0) {
 	client_close(client);
@@ -127,7 +127,7 @@ void
 on_key_client_write(struct client *client)
 {
     if (pmDebugOptions.pdu)
-	fprintf(stderr, "%s: client %p\n", "on_key_client_write", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_key_client_write", client);
 }
 
 void
@@ -145,7 +145,7 @@ on_key_server_connected(void *arg)
     message = sdsnew("Key server slots");
     if (key_server_resp)
 	message = sdscat(message, ", command keys");
-    if ((search_queries = pmSearchEnabled(proxy->slots)))
+    if ((search_queries = pmSearchEnabled(&proxy->slotsctx->slots)))
 	message = sdscat(message, ", search");
     if (series_queries)
 	message = sdscat(message, ", schema version");
@@ -172,7 +172,7 @@ on_key_server_connected(void *arg)
 	pmDiscoverSetConfiguration(&key_server_discover.module, proxy->config);
 	pmDiscoverSetMetricRegistry(&key_server_discover.module, registry);
 	pmDiscoverSetup(&key_server_discover.module, &key_server_discover.callbacks, proxy);
-	pmDiscoverSetSlots(&key_server_discover.module, proxy->slots);
+	pmDiscoverSetSlots(&key_server_discover.module, &proxy->slotsctx->slots);
     }
 
     proxy->keys_setup = 1;
@@ -209,15 +209,15 @@ key_server_reconnect_worker(void *arg)
     /*
      * skip if server is disabled or state is not SLOTS_DISCONNECTED
      */
-    if (!proxy->slots || proxy->slots->state != SLOTS_DISCONNECTED)
+    if (!proxy->slotsctx || proxy->slotsctx->slots.state != SLOTS_DISCONNECTED)
 	return;
 
     if (pmDebugOptions.desperate)
-	proxylog(PMLOG_INFO, "Trying to connect to key server ...", arg);
+	proxylog(PMLOG_INFO, "Trying to connect to key server ...", proxy);
 
     keySlotsFlags	flags = get_key_slots_flags();
-    keySlotsReconnect(proxy->slots, flags, proxylog, on_key_server_connected,
-			proxy, proxy->events, proxy);
+    keySlotsReconnect(&proxy->slotsctx->slots, flags, proxylog, on_key_server_connected,
+			proxy, proxy->events, proxy, &proxy->slotsctx->opts);
 }
 
 /*
@@ -250,17 +250,19 @@ setup_keys_module(struct proxy *proxy)
     if ((option = pmIniFileLookup(config, "pmlogger", "enabled")))
 	archive_push = (strcmp(option, "true") == 0);
 
-    if (proxy->slots == NULL &&
+    if (proxy->slotsctx == NULL &&
 	(key_server_resp || series_queries || search_queries ||
 	 archive_discovery || archive_push)) {
 	mmv_registry_t	*registry = proxymetrics(proxy, METRICS_KEYS);
 	keySlotsFlags	flags = get_key_slots_flags();
 
-	proxy->slots = keySlotsConnect(proxy->config,
+	proxy->slotsctx = keySlotsConnect(proxy->config,
 			flags, proxylog, on_key_server_connected,
 			proxy, proxy->events, proxy);
-	keySlotsSetMetricRegistry(proxy->slots, registry);
-	keySlotsSetupMetrics(proxy->slots);
+
+	keySlotsSetMetricRegistry(&proxy->slotsctx->slots, registry);
+	keySlotsSetupMetrics(&proxy->slotsctx->slots);
+
 	pmWebTimerRegister(key_server_reconnect_worker, proxy);
     }
 }
@@ -268,7 +270,7 @@ setup_keys_module(struct proxy *proxy)
 void *
 get_keys_module(struct proxy *proxy)
 {
-    if (proxy->slots == NULL)
+    if (proxy->slotsctx == NULL)
 	setup_keys_module(proxy);
     return &key_server_discover.module;
 }
@@ -283,9 +285,9 @@ reset_keys_module(struct proxy *proxy)
 void
 close_keys_module(struct proxy *proxy)
 {
-    if (proxy->slots) {
-	keySlotsFree(proxy->slots);
-	proxy->slots = NULL;
+    if (proxy->slotsctx) {
+	keySlotsContextFree(proxy->slotsctx);
+	proxy->slotsctx = NULL;
     }
 
     if (archive_discovery || archive_push)

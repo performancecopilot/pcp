@@ -1,7 +1,7 @@
 /*
  * HA Cluster Corosync statistics.
  *
- * Copyright (c) 2020 - 2021 Red Hat.
+ * Copyright (c) 2020 - 2026 Red Hat.
  * 
  * This program is free software; you can redistribute it and/or modify it
  * under the terms of the GNU General Public License as published by the
@@ -43,7 +43,7 @@ enum {
 	NUM_COROSYNC_RINGS_STATS
 };
 
-struct member_votes {
+struct corosync_node {
 	uint32_t	votes;
 	uint8_t		local;
 	uint64_t	node_id;
@@ -58,7 +58,7 @@ struct corosync_global {
 	uint32_t	ring_errors;
 };
 
-struct rings {
+struct corosync_ring {
 	uint8_t	status;
 	char	address[40];
 	uint64_t	node_id;
@@ -66,15 +66,17 @@ struct rings {
 	char	ring_id[44];
 };
 
-extern int hacluster_corosync_node_fetch(int, struct member_votes *, pmAtomValue *);
-extern int hacluster_refresh_corosync_node(const char *, struct member_votes *);
+extern int hacluster_corosync_node_fetch(int, struct corosync_node *, pmAtomValue *);
+extern int hacluster_refresh_corosync_node(const char *, struct corosync_node *);
+extern int hacluster_corosync_node_instance_refresh(void);
 
 extern int hacluster_corosync_global_fetch(int, pmAtomValue *);
 extern int hacluster_refresh_corosync_global();
 
-extern int hacluster_corosync_ring_fetch(int, struct rings *, pmAtomValue *);
+extern int hacluster_corosync_ring_fetch(int, struct corosync_ring *, pmAtomValue *);
 extern int hacluster_corosync_ring_all_fetch(int, pmAtomValue *);
-extern int hacluster_refresh_corosync_ring(const char *, struct rings *);
+extern int hacluster_refresh_corosync_ring(const char *, struct corosync_ring *);
+extern int hacluster_corosync_ring_instance_refresh(void);
 
 extern void corosync_stats_setup(void);
 

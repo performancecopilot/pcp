@@ -204,7 +204,7 @@ main(int argc, char **argv)
 	    if (addr == (void *)&poke[key])
 		fprintf(stderr, " private ok");
 	    else
-		fprintf(stderr, " private? %p [expected %p]", &poke[key], addr);
+		fprintf(stderr, " private? " PRINTF_P_PFX "%p [expected " PRINTF_P_PFX "%p]", &poke[key], addr);
 	}
 	fputc('\n', stderr);
 
@@ -226,7 +226,7 @@ main(int argc, char **argv)
 	    if (addr == (void *)&poke[key])
 		fprintf(stderr, " private ok");
 	    else
-		fprintf(stderr, " private? %p [expected %p]", &poke[key], addr);
+		fprintf(stderr, " private? " PRINTF_P_PFX "%p [expected " PRINTF_P_PFX "%p]", &poke[key], addr);
 	}
 	fputc('\n', stderr);
 
@@ -262,7 +262,7 @@ main(int argc, char **argv)
 	    if (addr == (void *)&poke[key])
 		fprintf(stderr, " private ok");
 	    else
-		fprintf(stderr, " private? %p [expected %p]", &poke[key], addr);
+		fprintf(stderr, " private? " PRINTF_P_PFX "%p [expected " PRINTF_P_PFX "%p]", &poke[key], addr);
 	}
 	fputc('\n', stderr);
 

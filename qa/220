@@ -23,6 +23,9 @@ in
     openbsd)
 	netstat_args='-n -p tcp'
 	;;
+    solaris)
+	_notrun "netstat is so different here, too hard, move on"
+	;;
     *)
 	echo "Arrgh ... need netstat TCP+ESTABLISHED+IPADDR options for $PCP_PLATFORM"
 	exit
@@ -111,7 +114,7 @@ if ! _service pmcd stop 2>&1; then _exit 1; fi \
 _wait_pmcd_end || _exit 1
 [ -n "$_pid" ] && _wait_pmlogger_end $_pid
 echo "primary pmlogger processes?  expect none"
-ps $PCP_PS_ALL_FLAGS | grep '[p]mlogger.* -P'
+_ps_full_by_name pmlogger -P
 
 echo
 echo "primary port map? expect none"

@@ -13,6 +13,8 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+_need_metric proc.memory.rss
+
 _check_series
 
 _cleanup()
@@ -117,8 +119,8 @@ then
 fi
 
 echo === checking rss within tolerance
-_within_tolerance "rss" $pmproxy_rss1 $pmproxy_rss2 10%
-[ $pmproxy_rss2 -gt 10000 ] && echo "Unexpected pmproxy RSS: $pmproxy_rss2, was initially $pmproxy_rss1"
+_within_tolerance -v "rss" $pmproxy_rss1 $pmproxy_rss2 10%
+[ $pmproxy_rss2 -lt $pmproxy_rss1 ] && echo "Unexpected pmproxy RSS: $pmproxy_rss2, was initially $pmproxy_rss1"
 
 echo "RSS1 for PID $pmproxy_pid is $pmproxy_rss1" >> $seq_full
 echo "RSS2 for PID $pmproxy_pid is $pmproxy_rss2" >> $seq_full

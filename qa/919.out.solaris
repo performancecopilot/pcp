@@ -1,0 +1,6 @@
+QA output created by 919
+@ DATE
+ loadavg                      memory      swap        io    system         cpu
+ N min   swpd   free   buff  cache   si   so   bi   bo   in   cs  us  sy  id
+ N ? ? ? ? ? ? ? ? ? ? ? ? ?
+ N ? ? ? ? ? ? N N ? N N N N

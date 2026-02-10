@@ -4,7 +4,7 @@
 #
 
 seq=9999
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.mark_no_mark-$$
 myhere=`pwd`
 
 # get some useful stuff

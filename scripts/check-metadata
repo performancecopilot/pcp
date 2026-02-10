@@ -13,7 +13,7 @@
 # running something else.
 #
 
-tmp=/var/tmp/check-metadata-$$
+tmp=${TMPDIR:-/tmp}/check-metadata-$$
 tmp=tmp
 sts=1
 # trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15

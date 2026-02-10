@@ -633,8 +633,8 @@ kernel.all.cpu.idle
 
 kernel.all.load
     inst [1 or "1 minute"] value NUMBER
-    inst [5 or "5 minutes"] value NUMBER
-    inst [15 or "15 minutes"] value NUMBER
+    inst [5 or "5 minute"] value NUMBER
+    inst [15 or "15 minute"] value NUMBER
 
 sampledso.float.one
     value NUMBER
@@ -682,8 +682,8 @@ kernel.all.cpu.idle
 
 kernel.all.load
     inst [1 or "1 minute"] value NUMBER
-    inst [5 or "5 minutes"] value NUMBER
-    inst [15 or "15 minutes"] value NUMBER
+    inst [5 or "5 minute"] value NUMBER
+    inst [15 or "15 minute"] value NUMBER
 
 sampledso.float.one
     value NUMBER

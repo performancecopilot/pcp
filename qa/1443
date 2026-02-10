@@ -20,6 +20,11 @@ fi
 . ./common.filter
 . ./common.check
 
+# this test needs to be able to scan *all* the command arguments in the
+# output of ps ...
+#
+[ "$PCP_PLATFORM" = solaris ] && _notrun "ps(1) args field limited to 80 chars on Solaris"
+
 _check_job_scheduler
 
 _cleanup()
@@ -32,7 +37,7 @@ _cleanup()
 	_wait_for_pmlogger
 	needclean=false
     fi
-    $sudo rm -rf $tmp $tmp.* /var/tmp/janitor-$seq.log
+    $sudo rm -rf $tmp $tmp.* ${TMPDIR:-/tmp}/janitor-$seq.log
     for dir in orphan-$hostname orphan-localhost
     do
 	$sudo rm -rf "$PCP_ARCHIVE_DIR/$dir"
@@ -150,7 +155,7 @@ do
     $sudo rm -f /etc/pcp/pmlogger/control.d/orphan-$host
 done
 
-$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)' >>$seq_full
+_ps_full_by_name pmlogger >>$seq_full
 
 # customer issue from sagar.sagar AT oracle.com
 # stale file, $PCP_TMP_DIR/pmlogger/<pid> from an old pmlogger that
@@ -174,11 +179,11 @@ ls -l $PCP_TMP_DIR/pmlogger >>$seq_full
 #
 # need to be a place the user $PCP_USER can cd to from pmlogger_janitor
 #
-cd /var/tmp
-$sudo -u $PCP_USER $PCP_BINADM_DIR/pmlogger_janitor -V -l /var/tmp/janitor-$seq.log
+cd ${TMPDIR:-/tmp}
+$sudo -u $PCP_USER $PCP_BINADM_DIR/pmlogger_janitor -V -l ${TMPDIR:-/tmp}/janitor-$seq.log
 cd $here
-cat /var/tmp/janitor-$seq.log >>$seq_full
-_filter </var/tmp/janitor-$seq.log >$tmp.tmp
+cat ${TMPDIR:-/tmp}/janitor-$seq.log >>$seq_full
+_filter <${TMPDIR:-/tmp}/janitor-$seq.log >$tmp.tmp
 grep Killing <$tmp.tmp | LC_COLLATE=POSIX sort
 grep Compressing <$tmp.tmp | LC_COLLATE=POSIX sort
 grep -v Killing <$tmp.tmp | grep -v Compressing

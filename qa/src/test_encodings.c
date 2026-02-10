@@ -18,7 +18,7 @@
 #include <cmocka.h>
 #include <pcp/pmapi.h>
 #include "libpcp.h"
-#include "sds.h"
+#include <pcp/sds.h>
 
 static void test_urlencode(char *input, char *expected)
 {

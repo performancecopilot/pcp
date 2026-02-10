@@ -33,6 +33,11 @@ kernel.all {
     load		DARWIN:3:30
     uptime		DARWIN:9:76
     hz			DARWIN:0:1
+    nprocs		DARWIN:12:140
+    nthreads	DARWIN:12:141
+    nusers		DARWIN:18:187
+    nroots		DARWIN:18:188
+    nsessions	DARWIN:18:189
 }
 
 kernel.all.cpu {
@@ -61,9 +66,11 @@ mem {
     pages
     pageins		DARWIN:1:15
     pageouts		DARWIN:1:16
-    cache_hits		DARWIN:1:17
-    cache_lookups	DARWIN:1:18
+#   Items 17-18 reserved for deprecated cache_hits/cache_lookups (always 0 on modern macOS)
+    compressions	DARWIN:1:131
+    decompressions	DARWIN:1:132
     util
+    compressor
 }
 
 mem.pages {
@@ -83,6 +90,20 @@ mem.util {
     inactive		DARWIN:1:21
     free		DARWIN:1:22
     used		DARWIN:1:23
+    compressed	DARWIN:1:130
+}
+
+mem.compressor {
+    pages		DARWIN:1:133
+    uncompressed_pages	DARWIN:1:134
+}
+
+swap {
+    length		DARWIN:1:24
+    used		DARWIN:1:25
+    free		DARWIN:1:26
+    pagesin		DARWIN:1:27
+    pagesout		DARWIN:1:28
 }
 
 filesys {
@@ -136,6 +157,11 @@ disk.all {
 
 network {
     interface
+    udp
+    icmp
+    sockstat
+    tcpconn
+    tcp
 }
 
 network.interface {
@@ -168,6 +194,85 @@ network.interface.total {
     errors		DARWIN:10:91
     drops		DARWIN:10:92
     mcasts		DARWIN:10:93
+}
+
+network.udp {
+    indatagrams	DARWIN:13:142
+    outdatagrams	DARWIN:13:143
+    noports		DARWIN:13:144
+    inerrors
+    rcvbuferrors	DARWIN:13:146
+}
+
+network.udp.inerrors {
+    total	DARWIN:13:145
+    hdrops	DARWIN:13:147
+    badsum	DARWIN:13:148
+    badlen	DARWIN:13:149
+}
+
+network.icmp {
+    inmsgs		DARWIN:14:147
+    outmsgs		DARWIN:14:148
+    inerrors		DARWIN:14:149
+    indestunreachs	DARWIN:14:150
+    inechos		DARWIN:14:151
+    inechoreps		DARWIN:14:152
+    outechos		DARWIN:14:153
+    outechoreps		DARWIN:14:154
+}
+
+network.sockstat {
+    tcp
+    udp
+}
+
+network.sockstat.tcp {
+    inuse		DARWIN:15:155
+}
+
+network.sockstat.udp {
+    inuse		DARWIN:15:156
+}
+
+network.tcpconn {
+    established	DARWIN:16:157
+    syn_sent	DARWIN:16:158
+    syn_recv	DARWIN:16:159
+    fin_wait1	DARWIN:16:160
+    fin_wait2	DARWIN:16:161
+    time_wait	DARWIN:16:162
+    close		DARWIN:16:163
+    close_wait	DARWIN:16:164
+    last_ack	DARWIN:16:165
+    listen		DARWIN:16:166
+    closing		DARWIN:16:167
+}
+
+network.tcp {
+    activeopens	DARWIN:17:168
+    passiveopens	DARWIN:17:169
+    attemptfails	DARWIN:17:170
+    estabresets	DARWIN:17:171
+    currestab	DARWIN:17:172
+    insegs		DARWIN:17:173
+    outsegs		DARWIN:17:174
+    retranssegs	DARWIN:17:175
+    inerrs
+    outrsts		DARWIN:17:177
+    incsumerrors	DARWIN:17:178
+    rtoalgorithm	DARWIN:17:179
+    rtomin		DARWIN:17:180
+    rtomax		DARWIN:17:181
+    maxconn		DARWIN:17:182
+}
+
+network.tcp.inerrs {
+    total	DARWIN:17:176
+    badsum	DARWIN:17:183
+    badoff	DARWIN:17:184
+    short	DARWIN:17:185
+    memdrop	DARWIN:17:186
 }
 
 nfs3 {
@@ -258,4 +363,20 @@ rpc.server.cache {
     nonidem		DARWIN:11:120
     idem		DARWIN:11:121
     misses		DARWIN:11:122
+}
+
+vfs {
+    files
+    vnodes
+}
+
+vfs.files {
+    count		DARWIN:12:135
+    max			DARWIN:12:136
+    free		DARWIN:12:137
+}
+
+vfs.vnodes {
+    count		DARWIN:12:138
+    max			DARWIN:12:139
 }

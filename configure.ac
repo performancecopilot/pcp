@@ -1,5 +1,5 @@
 dnl
-dnl Copyright (c) 2012-2025 Red Hat.
+dnl Copyright (c) 2012-2026 Red Hat.
 dnl Copyright (c) 2008 Aconex.  All Rights Reserved.
 dnl Copyright (c) 2000-2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 dnl
@@ -275,7 +275,7 @@ then
     test -f /etc/arch-release && target_distro=arch
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
-    pcp_ps_all_flags=-efw
+    pcp_ps_all_flags=-efww
 elif test $target_os = darwin
 then
     AC_DEFINE(IS_DARWIN, [1], [Platform is Darwin (macOS)])
@@ -730,12 +730,12 @@ which=$WHICH
 AC_SUBST(which)
 
 if test -z "$AR"; then
-    AC_PATH_PROGS(AR, [gcc-ar ar], /usr/bin/ar)
+    AC_PATH_PROGS(AR, [gcc-ar ar], ar)
 fi
-if test ! -x "$AR"; then
+ar=`$which $AR`
+if test ! -x "$ar"; then
     AC_MSG_ERROR([cannot find a valid 'ar' command.])
 fi
-ar=$AR
 AC_SUBST(ar)
 
 AC_PROG_LEX([noyywrap])
@@ -1167,8 +1167,6 @@ PCP_CHECK_PYTHON_MODULE(requests)
 AC_SUBST(have_python_requests)
 PCP_CHECK_PYTHON_MODULE(libvirt)
 AC_SUBST(have_python_libvirt)
-PCP_CHECK_PYTHON_MODULE(six)
-AC_SUBST(have_python_six)
 
 AC_MSG_CHECKING([if the python InfluxDB support should be included])
 have_python_influxdb=false
@@ -2053,6 +2051,9 @@ AC_CHECK_LIB(inih, ini_parse,
 )
 AC_SUBST(HAVE_LIBINIH, [$have_libinih])
 AC_SUBST(lib_for_inih)
+
+PKG_CHECK_MODULES([libnl3], [libnl-3.0], [have_delayacct=true], [have_delayacct=false])
+AC_SUBST(HAVE_DELAYACCT, [$have_delayacct])
 
 PKG_CHECK_MODULES([ncurses], [ncurses], [have_ncurses=true], [have_ncurses=false])
 AC_SUBST(HAVE_NCURSES, [$have_ncurses])

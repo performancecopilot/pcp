@@ -1,0 +1,47 @@
+# Test TCP connection state metrics
+# These metrics provide counts of TCP connections in each state,
+# parsed from the net.inet.tcp.pcblist64 sysctl.
+
+# TCP connection state: ESTABLISHED
+desc network.tcpconn.established
+fetch network.tcpconn.established
+
+# TCP connection state: SYN_SENT
+desc network.tcpconn.syn_sent
+fetch network.tcpconn.syn_sent
+
+# TCP connection state: SYN_RECEIVED
+desc network.tcpconn.syn_recv
+fetch network.tcpconn.syn_recv
+
+# TCP connection state: FIN_WAIT1
+desc network.tcpconn.fin_wait1
+fetch network.tcpconn.fin_wait1
+
+# TCP connection state: FIN_WAIT2
+desc network.tcpconn.fin_wait2
+fetch network.tcpconn.fin_wait2
+
+# TCP connection state: TIME_WAIT
+desc network.tcpconn.time_wait
+fetch network.tcpconn.time_wait
+
+# TCP connection state: CLOSED
+desc network.tcpconn.close
+fetch network.tcpconn.close
+
+# TCP connection state: CLOSE_WAIT
+desc network.tcpconn.close_wait
+fetch network.tcpconn.close_wait
+
+# TCP connection state: LAST_ACK
+desc network.tcpconn.last_ack
+fetch network.tcpconn.last_ack
+
+# TCP connection state: LISTEN
+desc network.tcpconn.listen
+fetch network.tcpconn.listen
+
+# TCP connection state: CLOSING
+desc network.tcpconn.closing
+fetch network.tcpconn.closing

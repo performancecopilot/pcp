@@ -96,7 +96,7 @@ path = $dir
 EOF
 src/time_stamp $tmp.stamp 'pmproxy start' >>$seq_full
 grind_extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
-# skip valgrind errors in upstream non-PCP code, like hiredis ...
+# skip valgrind errors in upstream non-PCP code, like libvalkey ...
 # (seen on vm11 Debian 10.13)
 # ... same suppressions as for qa/1290
 #
@@ -108,6 +108,7 @@ cat <<'End-of-File' >$tmp.suppress
    fun:sdsll2str
    fun:sdscatfmt
    fun:keys_series_label
+   ...
    fun:keys_series_labelset
    fun:keys_series_metadata
    fun:keys_series_metric
@@ -120,6 +121,7 @@ cat <<'End-of-File' >$tmp.suppress
    fun:sdsll2str
    fun:sdscatfmt
    fun:keys_series_label
+   ...
    fun:keys_series_labelset
    fun:keys_series_metadata
    fun:keys_series_metric
@@ -131,6 +133,7 @@ cat <<'End-of-File' >$tmp.suppress
    fun:sdsll2str
    fun:sdscatfmt
    fun:keys_series_label
+   ...
    fun:keys_series_labelset
    fun:keys_series_metadata
    fun:keys_series_metric
@@ -144,8 +147,6 @@ cat <<'End-of-File' >$tmp.suppress
    fun:redisNetWrite
    fun:redisBufferWrite
    fun:redisAsyncWrite
-   fun:redisAsyncHandleWrite
-   fun:redisLibuvPoll
    ...
 }
 End-of-File

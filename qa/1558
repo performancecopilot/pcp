@@ -80,8 +80,19 @@ _filter_diff()
 # different output to GNU diff(1) ... the differences in the
 # files are the same, but the line numbers are different!
 #
-diff=diff
-which gdiff >/dev/null 2>&1 && diff=gdiff
+diff=''
+for prog in diff gdiff
+do
+    if which $prog >/dev/null 2>&1
+    then
+	if $prog --help 2>&1 | grep -q 'Report bugs to: .*@gnu.org'
+	then
+	    diff=$prog
+	    break
+	fi
+    fi
+done
+[ -n "$diff" ] || _notrun "cannot find GNU diff(1)"
 
 # run PMAPI_VERSION_4 and generate output as baseline, then
 # run other versions and diff outputs

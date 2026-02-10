@@ -24,6 +24,7 @@ TIMESTAMP ... numpmid: 1
 Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "derived.inst" -> PMID 511.0.3
+__dmbind(derive_locked=0, ctx=0, metric[2] derived.inst, async= 1)
 __dmgetpmid: metric "derived.inst" -> PMID 511.0.3
 metric:    derived.inst
 host:      HOST
@@ -113,6 +114,7 @@ TIMESTAMP ... numpmid: 1
 Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "derived.ctr" -> PMID 511.0.4
+__dmbind(derive_locked=0, ctx=0, metric[3] derived.ctr, async= 1)
 __dmgetpmid: metric "derived.ctr" -> PMID 511.0.4
 metric:    derived.ctr
 host:      HOST
@@ -202,6 +204,7 @@ TIMESTAMP ... numpmid: 1
 Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "derived.expr" -> PMID 511.0.5
+__dmbind(derive_locked=0, ctx=0, metric[4] derived.expr, async= 1)
 __dmgetpmid: metric "derived.expr" -> PMID 511.0.5
 metric:    derived.expr
 host:      HOST
@@ -331,6 +334,7 @@ TIMESTAMP ... numpmid: 1
 Note: timezone set to "TZ=UTC"
 
 __dmgetpmid: metric "derived.const" -> PMID 511.0.6
+__dmbind(derive_locked=0, ctx=0, metric[5] derived.const, async= 1)
 __dmgetpmid: metric "derived.const" -> PMID 511.0.6
 metric:    derived.const
 host:      HOST

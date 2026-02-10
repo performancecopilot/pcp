@@ -286,7 +286,7 @@ FindNextToken(const char *source)
 
     if (pmDebugOptions.appl2) {
 	fprintf(stderr, "FindNextToken() ");
-	fprintf(stderr, "scanInit=%d scanError=%d scanReadOnly=%d doingAccess=%d tokenQuoted=%d token=%p tokenend=%p\n", scanInit, scanError, scanReadOnly, doingAccess, tokenQuoted, token, tokenend);
+	fprintf(stderr, "scanInit=%d scanError=%d scanReadOnly=%d doingAccess=%d tokenQuoted=%d token=" PRINTF_P_PFX "%p tokenend=" PRINTF_P_PFX "%p\n", scanInit, scanError, scanReadOnly, doingAccess, tokenQuoted, token, tokenend);
     }
 
     do {
@@ -419,7 +419,7 @@ FindNextToken(const char *source)
 	fputs("TOKEN = '", stderr);
 	PrintToken(stderr);
 	fputs("' ", stderr);
-	fprintf(stderr, "scanInit=%d scanError=%d scanReadOnly=%d doingAccess=%d tokenQuoted=%d token=%p tokenend=%p\n", scanInit, scanError, scanReadOnly, doingAccess, tokenQuoted, token, tokenend);
+	fprintf(stderr, "scanInit=%d scanError=%d scanReadOnly=%d doingAccess=%d tokenQuoted=%d token=" PRINTF_P_PFX "%p tokenend=" PRINTF_P_PFX "%p\n", scanInit, scanError, scanReadOnly, doingAccess, tokenQuoted, token, tokenend);
     }
 }
 

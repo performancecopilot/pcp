@@ -5,12 +5,12 @@
  * This parser is heavily based on the (much older) pmie parser.
  *
  * Debug flags
- *   DERIVE & APPL0
+ *   derive && appl0
  *	pmRegisterDerived(), lexical scanner, syntactic checks
  *	and pmUnregisterDerived()
- *   DERIVE & APPL1
+ *   derive && appl1
  *	_dmopencontext(), refresh(), semantic checks
- *   DERIVE & APPL2
+ *   derive && appl2
  *	_dmchildren(), PMNS ops, pmFetch ops, pmDesc ops,
  *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
@@ -442,6 +442,10 @@ free_expr_ctx(node_t *np)
     free_expr(np);
 }
 
+/*
+ * name is the derived metric name (global or per-context)
+ * np is the node where the problem was found
+ */
 static void
 report_sem_error(char *name, node_t *np)
 {
@@ -715,19 +719,24 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	    }
 	    if (async) {
 		/*
-		 * We used to unconditionally report the error here,
-		 * but it is better to be silent because the offending
-		 * metric may never be accessed.
-		 * Using -Dderive will expose the error message if needed.
+		 * async reporting considerations ...
+		 *
+		 * We've tossed and turned here between making this
+		 * reporting unconditional vs conditional on -Dderive.
+		 * Conditional was motivated by formulas in the system
+		 * derived metrics configurations that use metrics that are
+		 * not universally available, but the associated derived
+		 * metric may never be user, leading to distracting error
+		 * messages for every PMAPI client ... the addition of the
+		 * defined(x) function for derived metrics means these
+		 * cases can be handled in a more elegant manner, hence we
+		 * now warn unconditionally here.
 		 */
-		if (pmDebugOptions.derive) {
-		    char	errmsg[PM_MAXERRMSGLEN];
-		    if (is_global)
-			pmprintf("bind_expr: error: global derived metric %s: operand: %s: %s\n", registered.mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		    else
-			pmprintf("bind_expr: error: per-context derived metric %s: operand: %s: %s\n", cp->mlist[n].name, new->value, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		    pmflush();
-		}
+		PM_TPD(derive_errmsg) = "Unknown operand metric";
+		if (is_global)
+		    report_sem_error(registered.mlist[n].name, np);
+		else
+		    report_sem_error(cp->mlist[n].name, np);
 	    }
 	    else {
 		PM_TPD(derive_errmsg) = "Unknown operand metric";
@@ -767,20 +776,15 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	if (sts < 0) {
 	    if (async) {
 		/*
-		 * We used to unconditionally report the error here,
-		 * but it is better to be silent because the offending
-		 * metric may never be accessed.
-		 * Using -Dderive will expose the error message if needed.
+		 * async reporting considerations ...
+		 *
+		 * See comments above.
 		 */
-		if (pmDebugOptions.derive) {
-		    char	strbuf[20];
-		    char	errmsg[PM_MAXERRMSGLEN];
-		    if (is_global)
-			pmprintf("bind_expr: error: global derived metric %s: operand (%s [%s]): %s\n", registered.mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		    else
-			pmprintf("bind_expr: error: per-context derived metric %s: operand (%s [%s]): %s\n", cp->mlist[n].name, new->value, pmIDStr_r(new->data.info->pmid, strbuf, sizeof(strbuf)), pmErrStr_r(sts, errmsg, sizeof(errmsg)));
-		    pmflush();
-		}
+		 PM_TPD(derive_errmsg) = "Metadata for operand metric not available";
+		if (is_global)
+		    report_sem_error(registered.mlist[n].name, np);
+		else
+		    report_sem_error(cp->mlist[n].name, np);
 	    }
 	    else {
 		 PM_TPD(derive_errmsg) = "Metadata for operand metric not available";
@@ -1450,7 +1454,7 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	     */
 	    int	guard = eval_guard(parent->left);
 	    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
-		fprintf(stderr, "check_expr: guard(%s) = %d [bind %s @ %p(%s)]\n",
+		fprintf(stderr, "check_expr: guard(%s) = %d [bind %s @ " PRINTF_P_PFX "%p(%s)]\n",
 		    __dmnode_type_str(parent->left->type), guard,
 		    guard == 1 ? "left" : (guard == 0 ? "right" : "both"),
 		    np, __dmnode_type_str(np->type));
@@ -3434,6 +3438,13 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     if (ctxp != NULL)
 	PM_LOCK(ctxp->c_lock);
 
+    if (pmDebugOptions.derive) {
+	if (ctxp != NULL)
+	    fprintf(stderr, "__dmtraverse(ctx=%d, name=\"%s\", ...)\n", ctxp->c_handle, name);
+	else
+	    fprintf(stderr, "__dmtraverse(ctx=NULL, name=\"%s\", ...)\n", name);
+    }
+
     PM_LOCK(registered.mutex);
     __dminit();
 
@@ -3516,6 +3527,14 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
     size_t	need = 0;
     ctl_t       *cp;
 
+    if (pmDebugOptions.derive) {
+	if (ctxp != NULL)
+	    fprintf(stderr, "__dmchildren(ctx=%d", ctxp->c_handle);
+	else
+	    fprintf(stderr, "__dmchildren(ctx=NULL");
+	fprintf(stderr, ", derive_locked=%d, name=\"%s\", ...)\n", derive_locked, name);
+    }
+
     if (derive_locked == PM_NOT_LOCKED) {
 	PM_LOCK(registered.mutex);
 	__dminit();
@@ -3547,10 +3566,25 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
 	     (cp->mlist[i].name[matchlen] == '.' ||
 	      cp->mlist[i].name[matchlen] == '\0'))) {
 	    /*
-	     * we have a match ... do not bind here as it causes nested
-	     * context locking when __dmbind() calls pmLookupName_ctx()
+	     * we have a match ... try binding the first time we see
+	     * this one in the current context (if we have one) ... if
+	     * binding this fails we will skip the metric
 	     */
+	    if ((cp->mlist[i].flags & DM_BIND) == 0) {
+		__pmContext	*l_ctxp = ctxp;
 
+		if (ctxp == NULL) {
+		    int		ctx = pmWhichContext();
+		    if (ctx >= 0)
+			l_ctxp = __pmHandleToPtr(ctx);
+		}
+		if (l_ctxp != NULL) {
+		    __dmbind(PM_LOCKED, l_ctxp, i, 1);
+		    if (ctxp == NULL && l_ctxp != ctxp)
+			/* context locked in __pmHandleToPtr() above) */
+			PM_UNLOCK(ctxp->c_lock);
+		}
+	    }
 	    /* skip invalid derived metrics, e.g. due to missing operands */
 	    if (!cp->mlist[i].anon) {
 		if ((cp->mlist[i].flags & DM_BIND) && cp->mlist[i].expr == NULL) {
@@ -3848,6 +3882,10 @@ __dmbind(int derive_locked, __pmContext *ctxp, int i, int async)
     }
 
     cp = (ctl_t *)ctxp->c_dm;
+
+    if (pmDebugOptions.derive) {
+	fprintf(stderr, "__dmbind(derive_locked=%d, ctx=%d, metric[%d] %s, async= %d)\n", derive_locked, ctxp->c_handle, i, cp->mlist[i].name, async);
+    }
 
     if (!cp->mlist[i].anon) {
 	/*
@@ -4202,6 +4240,7 @@ PUT-PREFIX-DECL-HERE ... see GNUmakefile and fix_derive_parser_y
 %token      L_TYPE
 %token      L_SEMANTICS
 %token      L_UNITS
+%token      L_INDOM
 %token      L_ASSIGN
 %token      L_COMMA
 
@@ -4454,23 +4493,19 @@ expr	: L_LPAREN expr L_RPAREN
 		}
 	;
 
-novalue : L_NOVALUE L_LPAREN L_RPAREN
+novalue : L_NOVALUE L_LPAREN
 		{ np = newnode(N_NOVALUE);
 		  /*
 		   * defaults ... not needed, but makes __dmdumpexpr()
 		   * happy in case is is called
 		   */
-		  np->desc.pmid = PM_ID_NULL;
-		  np->desc.type = PM_TYPE_32;
-		  np->desc.indom = PM_INDOM_NULL;
-		  np->desc.sem = PM_SEM_DISCRETE;
-		  np->desc.units = noUnits;
-		  $$ = np;
-		}
-	| L_NOVALUE L_LPAREN speclist L_RPAREN
-		{ np = newnode(N_NOVALUE);
-		  np->desc = specdesc;	/* struct copy */
-		  np->desc.pmid = PM_ID_NULL;
+		  specdesc.pmid = PM_ID_NULL;
+		  specdesc.type = PM_TYPE_32;
+		  specdesc.indom = PM_INDOM_NULL;
+		  specdesc.sem = PM_SEM_DISCRETE;
+		  specdesc.units = noUnits;
+		} novalueparam
+		{ np->desc = specdesc;	/* struct copy */
 		  if (specmeta != NULL) {
 		      np->left = specmeta;
 		      specmeta = NULL;
@@ -4478,9 +4513,13 @@ novalue : L_NOVALUE L_LPAREN L_RPAREN
 		  np->flags = specflags;
 		  specflags = 0;
 		  $$ = np;
-		}
+		} 
 	| L_NOVALUE L_LPAREN error
 		{ gramerr("metadata keyword", follow, "novalue("); YYERROR; }
+	;
+
+novalueparam :	L_RPAREN
+	| speclist L_RPAREN
 	;
 
 regexpr	: opt_bang L_PATTERN
@@ -4643,9 +4682,41 @@ spec	: L_TYPE L_ASSIGN specval
 		  specflags |= META_UNITS;
 		  $$ = specdesc;
 		}
+	| L_INDOM L_ASSIGN specval
+		{ int		ok = 1;
+		  if (strcasecmp($3, "null") == 0) {
+		      specdesc.indom = PM_INDOM_NULL;
+		  }
+		  else {
+		      unsigned int	domain;
+		      unsigned int	serial;
+		      int		nscanned;
+		      /*
+		       * if strlen($3) != nscanned we have something bad
+		       * like "123.456foo"
+		       */
+		      if (sscanf($3, "%u.%u%n", &domain, &serial, &nscanned) == 2 &&
+			  (int)strlen($3) == nscanned &&
+		          domain >= 0 && domain < 511 &&
+			  serial >= 0 && serial < (1<<22)) {
+			  /* valid indom number */
+			  specdesc.indom = pmInDom_build(domain, serial);
+		      }
+		      else
+			ok = 0;
+		  }
+		  if (!ok) {
+		      gramerr("Illegal indom:", NULL, $3);
+		      derive_error(NULL);
+		      return -1;
+		  }
+		  specflags |= META_INDOM;
+		  free($3);
+		  $$ = specdesc;
+		}
 	| L_META L_ASSIGN L_NAME
-		{ specmeta = newnode(N_NAME);
-		  specmeta->value = $3;
+{ specmeta = newnode(N_NAME);
+    specmeta->value = $3;
 		  $$ = specdesc;	/* not used from this rule */
 		}
 	;
@@ -4653,6 +4724,7 @@ spec	: L_TYPE L_ASSIGN specval
 specval	: L_STRING
 	| L_NAME
 	| L_INTEGER
+	| L_DOUBLE
 	;
 
 func	: L_ANON L_LPAREN L_NAME L_RPAREN
@@ -4847,6 +4919,7 @@ static struct {
     { L_TYPE,		0,		"TYPE",		NULL },
     { L_SEMANTICS,	0,		"SEMANTICS",	NULL },
     { L_UNITS,		0,		"UNITS",	NULL },
+    { L_INDOM,		0,		"INDOM",	NULL },
     { L_ASSIGN,		0,		"ASSIGN",	"=" },
     { L_COMMA,		0,		"COMMA",	"," },
     { L_STRING,		0,		"STRING",	NULL },
@@ -5178,6 +5251,10 @@ derive_lex(void)
 		}
 		else if (strcmp(tokbuf, "units") == 0) {
 		    ret = L_UNITS;
+		    break;
+		}
+		else if (strcmp(tokbuf, "indom") == 0) {
+		    ret = L_INDOM;
 		    break;
 		}
 		else if (strcmp(tokbuf, "meta") == 0) {

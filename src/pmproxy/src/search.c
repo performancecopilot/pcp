@@ -82,7 +82,7 @@ pmsearch_data_release(struct client *client)
     pmSearchBaton	*baton = (pmSearchBaton *)client->u.http.data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: %p for client %p\n", "pmsearch_data_release",
+	fprintf(stderr, "%s: " PRINTF_P_PFX "%p for client " PRINTF_P_PFX "%p\n", "pmsearch_data_release",
 			baton, client);
 
     sdsfree(baton->suffix);
@@ -262,7 +262,7 @@ static void
 pmsearch_setup(void *arg)
 {
     if (pmDebugOptions.search)
-	fprintf(stderr, "search module setup (arg=%p)\n", arg);
+	fprintf(stderr, "search module setup (arg=" PRINTF_P_PFX "%p)\n", arg);
 }
 
 static void
@@ -403,10 +403,17 @@ pmsearch_setup_request_parameters(struct client *client,
 		sdsfreesplitres(values, nvalues);
 	    }
 	}
-	if ((value = (sds)dictFetchValue(parameters, PARAM_LIMIT)))
-	    baton->request.count = strtoul(value, NULL, 0);
-	if ((value = (sds)dictFetchValue(parameters, PARAM_OFFSET)))
-	    baton->request.offset = strtoul(value, NULL, 0);
+	{
+	    dictEntry *entry;
+	    entry = dictFind(parameters, PARAM_LIMIT);
+	    value = entry ? (sds)dictGetVal(entry) : NULL;
+	    if (value)
+		baton->request.count = strtoul(value, NULL, 0);
+	    entry = dictFind(parameters, PARAM_OFFSET);
+	    value = entry ? (sds)dictGetVal(entry) : NULL;
+	    if (value)
+		baton->request.offset = strtoul(value, NULL, 0);
+	}
 	break;
 
     case RESTKEY_SUGGEST:
@@ -423,8 +430,13 @@ pmsearch_setup_request_parameters(struct client *client,
 	}
 	/* optional parameters - flags, result count and pagination offset */
 	baton->request.flags = 0;
-	if ((value = (sds)dictFetchValue(parameters, PARAM_LIMIT)))
-	    baton->request.count = strtoul(value, NULL, 0);
+	{
+	    dictEntry *entry;
+	    entry = dictFind(parameters, PARAM_LIMIT);
+	    value = entry ? (sds)dictGetVal(entry) : NULL;
+	    if (value)
+		baton->request.count = strtoul(value, NULL, 0);
+	}
 	break;
 
     case RESTKEY_INFO:
@@ -466,7 +478,7 @@ static int
 pmsearch_request_headers(struct client *client, struct dict *headers)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "series servlet headers (client=%p)\n", client);
+	fprintf(stderr, "series servlet headers (client=" PRINTF_P_PFX "%p)\n", client);
     return 0;
 }
 
@@ -474,7 +486,7 @@ static int
 pmsearch_request_body(struct client *client, const char *content, size_t length)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "series servlet body (client=%p)\n", client);
+	fprintf(stderr, "series servlet body (client=" PRINTF_P_PFX "%p)\n", client);
     return 0;
 }
 
@@ -542,7 +554,7 @@ pmsearch_servlet_setup(struct proxy *proxy)
     PARAM_LIMIT = sdsnew("limit");
     PARAM_OFFSET = sdsnew("offset");
 
-    pmSearchSetSlots(&pmsearch_settings.module, proxy->slots);
+    pmSearchSetSlots(&pmsearch_settings.module, &proxy->slotsctx->slots);
     pmSearchSetEventLoop(&pmsearch_settings.module, proxy->events);
     pmSearchSetConfiguration(&pmsearch_settings.module, proxy->config);
     pmSearchSetMetricRegistry(&pmsearch_settings.module, metric_registry);

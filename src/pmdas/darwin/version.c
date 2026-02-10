@@ -70,4 +70,6 @@ macos_version(void)
     if (CFStringGetCString(productName, name, sizeof(name), kCFStringEncodingUTF8) &&
 	CFStringGetCString(productVersion, version, sizeof(version), kCFStringEncodingUTF8))
 	pmsprintf(version_string, sizeof(version_string), "%s %s", name, version);
+    CFRelease(plist);
+    return version_string;
 }

@@ -350,6 +350,177 @@ darwin_invalidate_node(const __pmHashNode *node, void *data)
     return PM_HASH_WALK_NEXT;
 }
 
+/*
+ * Extract basic process information from kinfo_proc structures.
+ *
+ * Parameters:
+ *	proc	- process entry to populate
+ *	xproc	- kernel process structure from kinfo_proc
+ *	eproc	- extended process info from kinfo_proc
+ */
+static void
+darwin_process_set_basic_fields(darwin_proc_t *proc,
+		struct extern_proc *xproc, struct eproc *eproc)
+{
+	proc->flags = PROC_FLAG_VALID;	/* new or still running */
+	proc->ppid = eproc->e_ppid;
+	proc->pgid = eproc->e_pgid;
+	proc->tpgid = eproc->e_tpgid;
+	proc->suid = eproc->e_pcred.p_svuid;
+	proc->sgid = eproc->e_pcred.p_svgid;
+	proc->euid = eproc->e_pcred.p_ruid;
+	proc->egid = eproc->e_pcred.p_rgid;
+	proc->uid = eproc->e_ucred.cr_uid;
+	proc->gid = eproc->e_ucred.cr_ngroups > 0 ?
+		    eproc->e_ucred.cr_groups[0] : eproc->e_pcred.p_rgid;
+	proc->ngid = eproc->e_ucred.cr_ngroups;
+	proc->priority = xproc->p_priority;
+	proc->usrpri = xproc->p_usrpri;
+	proc->nice = xproc->p_nice;
+	proc->tty = eproc->e_tdev;
+	memcpy(proc->comm, xproc->p_comm, MAXCOMLEN);
+	proc->comm[MAXCOMLEN] = '\0';
+	memcpy(proc->wchan, eproc->e_wmesg, WMESGLEN);
+	proc->wchan[WMESGLEN] = '\0';
+	proc->wchan_addr = (uint64_t)xproc->p_wchan;
+	proc->start_time = xproc->p_starttime.tv_sec;
+	proc->translated = xproc->p_flag & P_TRANSLATED;
+	proc->threads = 1;
+
+	if (proc->msg_id == -1 && xproc->p_wmesg)
+		proc->msg_id = proc_strings_insert(xproc->p_wmesg);
+}
+
+/*
+ * Get command line, executable path, instance name, and working directory.
+ *
+ * Parameters:
+ *	proc	- process entry to populate with command information
+ */
+static void
+darwin_process_set_command_info(darwin_proc_t *proc)
+{
+	char	path[PROC_PIDPATHINFO_MAXSIZE];
+	char	pid[32];
+	char	*p;
+	size_t	bytes;
+
+	/* full command line arguments */
+	if (proc->cmd_id == -1) {
+		char cmd[PROC_CMD_MAXLEN];
+
+		if ((darwin_command_line(proc->id, cmd, sizeof(cmd))) == NULL)
+			pmstrncpy(cmd, sizeof(cmd), proc->comm);
+		proc->cmd_id = proc_strings_insert(cmd);
+		p = proc_strings_lookup(proc->cmd_id);
+		if ((proc->psargs = strchr(p, ' ')) != NULL)
+			proc->psargs++;	/* move past space character */
+	}
+
+	/* full path to the executable */
+	if (proc_pidpath(proc->id, path, sizeof(path)) <= 0)
+		pmstrncpy(path, sizeof(path), proc->comm);
+	proc->exe_id = proc_strings_insert(path);
+
+	/*
+	 * The external instance name is the PID followed by the
+	 * full executable path, e.g.  "012345 /path/to/command".
+	 * The full command line is the proc.psinfo.psargs value.
+	 */
+	if (proc->instname == NULL) {
+		bytes = pmsprintf(pid, sizeof(pid), "%06d ", proc->id);
+		bytes += strlen(path) + 1;
+		if ((proc->instname = (char *)malloc(bytes)) != NULL)
+			pmsprintf(proc->instname, bytes, "%s%s", pid, path);
+	}
+
+	/* current working directory */
+	if (proc->cwd_id == -1) {
+		struct proc_vnodepathinfo vpi;
+
+		if (proc_pidinfo(proc->id, PROC_PIDVNODEPATHINFO, 0, &vpi,
+			sizeof(vpi)) > 0 &&
+			vpi.pvi_cdir.vip_path[0] != '\0')
+			proc->cwd_id = proc_strings_insert(vpi.pvi_cdir.vip_path);
+	}
+}
+
+/*
+ * Get task statistics, I/O counters, and update run queue statistics.
+ *
+ * Parameters:
+ *	proc	- process entry to populate with task statistics
+ *	xproc	- kernel process structure for state information
+ *	runq	- run queue statistics to update
+ *
+ * Returns 1 on success, 0 if taskinfo cannot be obtained
+ */
+static int
+darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
+		darwin_runq_t *runq)
+{
+	struct proc_taskinfo pti;
+
+	/* additional stats from libproc.h interfaces */
+	if (proc_pidinfo(proc->id, PROC_PIDTASKINFO, 0, &pti,
+		PROC_PIDTASKINFO_SIZE) != PROC_PIDTASKINFO_SIZE)
+		return 0;
+
+	proc->flags |= PROC_FLAG_PINFO;
+	proc->majflt = pti.pti_faults;
+	proc->threads = pti.pti_threadnum;
+	proc->utime = darwin_ticks_to_nsecs(pti.pti_total_user);
+	proc->stime = darwin_ticks_to_nsecs(pti.pti_total_system);
+	proc->size = pti.pti_virtual_size / 1024;
+	proc->rss = pti.pti_resident_size / 1024;
+	proc->pswitch = pti.pti_csw;
+
+	/* disk I/O statistics from proc_pid_rusage */
+	{
+		struct rusage_info_v3 rusage;
+
+		if (proc_pid_rusage(proc->id, RUSAGE_INFO_V3,
+			(rusage_info_t *)&rusage) == 0) {
+			proc->read_bytes = rusage.ri_diskio_bytesread;
+			proc->write_bytes = rusage.ri_diskio_byteswritten;
+		} else {
+			proc->read_bytes = 0;
+			proc->write_bytes = 0;
+		}
+	}
+
+	/* file descriptor count */
+	{
+		int bufsize = proc_pidinfo(proc->id, PROC_PIDLISTFDS, 0, NULL, 0);
+
+		if (bufsize > 0) {
+			proc->fd_count = bufsize / sizeof(struct proc_fdinfo);
+		} else {
+			proc->fd_count = 0;
+		}
+	}
+
+	/* set process state and update run queue statistics */
+	if (pti.pti_numrunning > 0) {
+		pmsprintf(proc->state, sizeof(proc->state), "R");
+		runq->runnable++;
+	} else if (xproc->p_stat == SZOMB) {
+		pmsprintf(proc->state, sizeof(proc->state), "Z");
+		runq->defunct++;
+	} else if (xproc->p_stat == SSTOP) {
+		pmsprintf(proc->state, sizeof(proc->state), "T");
+		runq->stopped++;
+	} else if (xproc->p_stat == SIDL) {
+		pmsprintf(proc->state, sizeof(proc->state), "B");
+		runq->blocked++;
+	} else {
+		pmsprintf(proc->state, sizeof(proc->state), "S");
+		runq->sleeping++;
+	}
+
+	return 1;
+}
+
 static __pmHashWalkState
 darwin_update_instance(const __pmHashNode *node, void *data)
 {
@@ -408,128 +579,38 @@ darwin_refresh_processes(pmdaIndom *indomp, darwin_procs_t *processes,
     count = total = darwin_processes(&procs);
 
     for (i = 0; i < count; i++) {
-	struct proc_taskinfo pti;
 	struct extern_proc *xproc = &procs[i].kp_proc;
 	struct eproc	*eproc = &procs[i].kp_eproc;
 	darwin_proc_t	*proc;
 	__pmHashNode	*node;
-	char		path[PROC_PIDPATHINFO_MAXSIZE];
-	char		pid[32];
-	char		*p;
 
+	/* lookup existing process or create new entry */
 	if ((node = __pmHashSearch(xproc->p_pid, processes))) {
-	    proc = (darwin_proc_t *)node->data;
-	    assert(proc->id == xproc->p_pid);
+		proc = (darwin_proc_t *)node->data;
+		assert(proc->id == xproc->p_pid);
 	} else if ((proc = (darwin_proc_t *)calloc(1, sizeof(darwin_proc_t)))) {
-	    proc->cwd_id = proc->exe_id = proc->cmd_id = proc->msg_id = -1;
-	    proc->id = xproc->p_pid;
-	    __pmHashAdd(proc->id, (void *)proc, processes);
+		proc->cwd_id = proc->exe_id = proc->cmd_id = proc->msg_id = -1;
+		proc->id = xproc->p_pid;
+		__pmHashAdd(proc->id, (void *)proc, processes);
 	} else {
-	    total--;
-	    pmNotifyErr(LOG_ERR, "Out-of-memory processing PID %d", xproc->p_pid);
-	    continue;
+		total--;
+		pmNotifyErr(LOG_ERR, "Out-of-memory processing PID %d", xproc->p_pid);
+		continue;
 	}
 
-	proc->flags = PROC_FLAG_VALID;	/* new or still running */
-	proc->ppid = eproc->e_ppid;
-	proc->pgid = eproc->e_pgid;
-	proc->tpgid = eproc->e_tpgid;
-	proc->suid = eproc->e_pcred.p_svuid;
-	proc->sgid = eproc->e_pcred.p_svgid;
-	proc->euid = eproc->e_pcred.p_ruid;
-	proc->egid = eproc->e_pcred.p_rgid;
-	proc->uid = eproc->e_ucred.cr_uid;
-	proc->gid = eproc->e_ucred.cr_ngroups > 0 ?
-		    eproc->e_ucred.cr_groups[0] : eproc->e_pcred.p_rgid;
-	proc->ngid = eproc->e_ucred.cr_ngroups;
-	proc->priority = xproc->p_priority;
-	proc->usrpri = xproc->p_usrpri;
-	proc->nice = xproc->p_nice;
-	proc->tty = eproc->e_tdev;
-	memcpy(proc->comm, xproc->p_comm, MAXCOMLEN);
-	proc->comm[MAXCOMLEN] = '\0';
-	memcpy(proc->wchan, eproc->e_wmesg, WMESGLEN);
-	proc->wchan[WMESGLEN] = '\0';
-	proc->wchan_addr = (uint64_t)xproc->p_wchan;
-	proc->start_time = xproc->p_starttime.tv_sec;
-	proc->translated = xproc->p_flag & P_TRANSLATED;
-	proc->threads = 1;
+	/* extract basic process information from kinfo_proc */
+	darwin_process_set_basic_fields(proc, xproc, eproc);
 
-	if (proc->msg_id == -1 && xproc->p_wmesg)
-	    proc->msg_id = proc_strings_insert(xproc->p_wmesg);
+	/* get command line, executable path, and working directory */
+	darwin_process_set_command_info(proc);
 
-	/* full command line arguments */
-	if (proc->cmd_id == -1) {
-	    char cmd[PROC_CMD_MAXLEN];
-
-	    if ((darwin_command_line(proc->id, cmd, sizeof(cmd))) == NULL)
-		pmstrncpy(cmd, sizeof(cmd), proc->comm);
-	    proc->cmd_id = proc_strings_insert(cmd);
-	    p = proc_strings_lookup(proc->cmd_id);
-	    if ((proc->psargs = strchr(p, ' ')) != NULL)
-		proc->psargs++;	/* move past space character */
-	}
-
-	/* full path to the executable */
-	if (proc_pidpath(proc->id, path, sizeof(path)) <= 0)
-	    pmstrncpy(path, sizeof(path), proc->comm);
-	proc->exe_id = proc_strings_insert(path);
-
-	/*
-	 * The external instance name is the PID followed by the
-	 * full executable path, e.g.  "012345 /path/to/command".
-	 * The full command line is the proc.psinfo.psargs value.
-	 */
-	if (proc->instname == NULL) {
-	    bytes = pmsprintf(pid, sizeof(pid), "%06d ", proc->id);
-	    bytes += strlen(path) + 1;
-	    if ((proc->instname = (char *)malloc(bytes)) != NULL)
-		pmsprintf(proc->instname, bytes, "%s%s", pid, path);
-	}
-
-	/* current working directory */
-	if (proc->cwd_id == -1) {
-	    struct proc_vnodepathinfo vpi;
-
-	    if (proc_pidinfo(proc->id, PROC_PIDVNODEPATHINFO, 0, &vpi,
-		    sizeof(vpi)) > 0 &&
-		vpi.pvi_cdir.vip_path[0] != '\0')
-		proc->cwd_id = proc_strings_insert(vpi.pvi_cdir.vip_path);
-	}
-
+	/* collect thread information if enabled */
 	if (have_threads && want_threads)
-	    total += darwin_process_threads(processes, runq, proc);
+		total += darwin_process_threads(processes, runq, proc);
 
-	/* additional stats from libproc.h interfaces */
-	if (proc_pidinfo(proc->id, PROC_PIDTASKINFO, 0, &pti,
-		PROC_PIDTASKINFO_SIZE) != PROC_PIDTASKINFO_SIZE)
-	    continue;
-	proc->flags |= PROC_FLAG_PINFO;
-	proc->majflt = pti.pti_faults;
-	proc->threads = pti.pti_threadnum;
-	proc->utime = darwin_ticks_to_nsecs(pti.pti_total_user);
-	proc->stime = darwin_ticks_to_nsecs(pti.pti_total_system);
-	proc->size = pti.pti_virtual_size / 1024;
-	proc->rss = pti.pti_resident_size / 1024;
-	proc->pswitch = pti.pti_csw;
-
-	/* update the runq statistics */
-	if (pti.pti_numrunning > 0) {
-	    pmsprintf(proc->state, sizeof(proc->state), "R");
-	    runq->runnable++;
-	} else if (xproc->p_stat == SZOMB) {
-	    pmsprintf(proc->state, sizeof(proc->state), "Z");
-	    runq->defunct++;
-	} else if (xproc->p_stat == SSTOP) {
-	    pmsprintf(proc->state, sizeof(proc->state), "T");
-	    runq->stopped++;
-	} else if (xproc->p_stat == SIDL) {
-	    pmsprintf(proc->state, sizeof(proc->state), "B");
-	    runq->blocked++;
-	} else {
-	    pmsprintf(proc->state, sizeof(proc->state), "S");
-	    runq->sleeping++;
-	}
+	/* get task statistics, I/O counters, and update run queue stats */
+	if (!darwin_process_set_taskinfo(proc, xproc, runq))
+		continue;
     }
 
     free(procs);

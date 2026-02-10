@@ -3,7 +3,7 @@
 # pmdumplog -i -> pmlogsize sort of numbers
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/indom_check-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 # reduce output to strings of same length as the external representation

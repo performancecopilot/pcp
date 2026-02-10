@@ -43,7 +43,9 @@ LOGGING_DIR="$PCP_ARCHIVE_DIR"
 _filter_log()
 {
     sleep 1
-    _filter_pmcd_log <$log \
+    cat $log \
+    | tee -a $seq_full \
+    | _filter_pmcd_log \
     | grep -v "^access violation from host" \
     | grep -v "^endclient client" \
     | sed \

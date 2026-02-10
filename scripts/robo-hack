@@ -11,7 +11,7 @@
 # qa/src/somefile.c:  text
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/robo-hack-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 sed -e 's/:.*//' \

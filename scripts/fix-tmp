@@ -1,0 +1,22 @@
+#!/bin/sh
+#
+# - replace /var/tmp by ${TMPDIR:-/tmp}
+# - make tmp file prefix unabmbiguous
+#
+
+for file
+do
+    base=`basename $file`
+    sed -E -i "$file" \
+	-e 's@cd /var/tmp$@cd ${TMPDIR:-/tmp}@' \
+	-e 's@=/var/tmp$@=${TMPDIR:-/tmp}@' \
+	-e 's@([= ])/var/tmp(["`])@\1${TMPDIR:-/tmp}\2@' \
+	-e 's@([ <])/var/tmp(/| |$)@\1${TMPDIR:-/tmp}\2@' \
+	-e 's@=/var/tmp/@=${TMPDIR:-/tmp}/@' \
+	-e '/^([ 	]*)tmp=.*\/\$\$$/s@\$\$$@'"$base"'-\$\$@' \
+    # end
+    if grep /var/tmp "$file"
+    then
+	echo "$file: oops, still have /var/tmp references"
+    fi
+done

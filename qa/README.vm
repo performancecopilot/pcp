@@ -475,6 +475,11 @@ OpenIndiana
     $ zfs list -t snapshot
     # to remove zfs snapshots
     $ sudo zfs destroy [-R] <name@date>
+    # initial zoneinfo setup ... there is no /etc/localtime for
+    # Solaris|OpenIndiana
+    #
+    $ eval $(grep '^TZ=' /etc/TIMEZONE)
+    $ sudo ln -s /usr/share/lib/zoneinfo/$TZ /etc/localtime
 
 OpenBSD
     https://cdn.openbsd.org/pub/OpenBSD/

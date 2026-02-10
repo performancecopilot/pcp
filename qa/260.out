@@ -154,16 +154,23 @@ expr node <addr-38> type=NAME left=(nil) right=(nil) save_last=1 [sampledso.cons
 expr node <addr-39> type=DELTA left=<addr-40> right=(nil) save_last=0
 expr node <addr-40> type=NAME left=(nil) right=(nil) save_last=1 [sample.const_rate.value] primary=1
 __dmopencontext(->ctx 0) called, 8 derived metrics
+__dmtraverse(ctx=0, name="delta", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] delta.m1, async= 1)
 __dmgetpmid: metric "delta.m1" -> PMID 511.0.3
 __dmtraverse: name="delta" added "delta.m1"
+__dmbind(derive_locked=1, ctx=0, metric[3] delta.m2, async= 1)
 __dmgetpmid: metric "delta.m2" -> PMID 511.0.4
 __dmtraverse: name="delta" added "delta.m2"
+__dmbind(derive_locked=1, ctx=0, metric[4] delta.m3, async= 1)
 __dmgetpmid: metric "delta.m3" -> PMID 511.0.5
 __dmtraverse: name="delta" added "delta.m3"
+__dmbind(derive_locked=1, ctx=0, metric[5] delta.m4, async= 1)
 __dmgetpmid: metric "delta.m4" -> PMID 511.0.6
 __dmtraverse: name="delta" added "delta.m4"
+__dmbind(derive_locked=1, ctx=0, metric[6] delta.m5, async= 1)
 __dmgetpmid: metric "delta.m5" -> PMID 511.0.7
 __dmtraverse: name="delta" added "delta.m5"
+__dmbind(derive_locked=1, ctx=0, metric[7] delta.m6, async= 1)
 __dmgetpmid: metric "delta.m6" -> PMID 511.0.8
 __dmtraverse: name="delta" added "delta.m6"
 __dmgetpmid: metric "delta.m1" -> PMID 511.0.3

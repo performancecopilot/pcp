@@ -31,6 +31,13 @@ _filter_err()
     # end
 }
 
+_filter_no_values()
+{
+    sed \
+	-e '/ value [0-9]/d' \
+    # end
+}
+
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -43,11 +50,12 @@ End-of-File
 
 # real QA test starts here
 
-for verify in "" -d
+for verify in "" -d -f
 do
     echo | tee -a $seq_full
     echo "full PMNS traversal $verify ..." | tee -a $seq_full
     PCP_DERIVED_CONFIG=$tmp.derive pminfo -Dderive $verify 2>$tmp.err \
+    | tee -a $seq_full \
     | grep -E 'qa\.(hide|ok)'
     _filter_err <$tmp.err
 
@@ -60,7 +68,8 @@ do
     echo | tee -a $seq_full
     echo "exact matches in PMNS $verify ..." | tee -a $seq_full
     PCP_DERIVED_CONFIG=$tmp.derive pminfo -Dderive $verify 2>$tmp.err \
-	qa.hide.ok qa.hide.syntax qa.hide.semantic qa.ok
+	qa.hide.ok qa.hide.syntax qa.hide.semantic qa.ok \
+    | _filter_no_values
     _filter_err <$tmp.err
 
     echo | tee -a $seq_full

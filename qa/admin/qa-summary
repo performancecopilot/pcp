@@ -129,7 +129,7 @@ then
     tmp=`pwd`/tmp-summary
     trap "exit \$sts" 0 1 2 3 15
 else
-    tmp=/var/tmp/$$
+    tmp=${TMPDIR:-/tmp}/qa-summary-$$
     trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 fi
 rm -f $tmp.*
@@ -331,7 +331,7 @@ do
 	# Passed 67 tests (newer format)
 	#
 	rm -f $tmp.dbg
-	if grep -E '^((Not run:)|Failures:|(Failed [0-9][0-9]* of [0-9][0-9]* tests)|Triaged:|(Passed [0-9][0-9]* tests)|(Passed all [0-9][0-9]* tests)|Info:|===)' <$date >/dev/null
+	if grep -E '^((Not run:)|Failures:|(Failed [0-9][0-9]* of [0-9][0-9]* tests)|Callback:|Triaged:|(Passed [0-9][0-9]* tests)|(Passed all [0-9][0-9]* tests)|Info:|===)' <$date >/dev/null
 	then
 	    awk <$date >$tmp.out '
 # states
@@ -349,7 +349,7 @@ do
 		}
 /^Callback:/	{ ncb = NF - 1
 		  cblist = $2
-		  for (i = 3; i <= NF; i++) flist = flist " " $i
+		  for (i = 3; i <= NF; i++) cblist = cblist " " $i
 		  print NR,": Callback: start: ncb=" ncb >"'$tmp.dbg'"
 		  state = 2
 		  next

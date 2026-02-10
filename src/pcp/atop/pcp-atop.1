@@ -56,8 +56,6 @@ information is gathered about the processes (or threads) that
 are responsible for the utilization of the CPUs, memory and disks.
 Network load per process is shown only when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 metrics have been installed and configured.
 .SH BAR GRAPH MODE
 When running
@@ -392,8 +390,6 @@ Per-process and per-thread network activity can be measured by the
 .I netatop
 BPF module that can be separately installed with
 .BR pmdabpf (1).
-or
-.BR pmdabcc (1).
 .br
 When
 .B pcp-atop
@@ -445,8 +441,6 @@ accesses metrics with root privileges.
 .br
 When the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module
 .B netatop
 is loaded, the data transfer for send/receive
@@ -498,8 +492,6 @@ the network occupation percentage and process name.
 .br
 This information can only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module
 .I netatop
 is installed.
@@ -621,8 +613,6 @@ access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
 When the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module 'netproc' has been installed,
 the number of receive and send network calls are shown.
 .br
@@ -643,7 +633,7 @@ When
 access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
 When the
-.BR pmdabcc (1)
+.BR pmdabpf (1)
 module 'netproc' has been installed,
 the number of receive and send network calls are shown.
 .br
@@ -666,8 +656,6 @@ access metrics with root privileges,
 the accumulated read and write throughput on disk is shown.
 When the
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module 'netproc' has been installed,
 the number of receive and send network calls are shown.
 .br
@@ -719,8 +707,6 @@ A sorting order for disk is only possible when
 runs with root privileges.
 A sorting-order for network is only possible when the
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module 'netproc' has been installed.
 .PP
 Miscellaneous interactive commands:
@@ -1536,8 +1522,6 @@ on interface level (used bandwidth per interface).
 .br
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module 'netproc' has been installed.
 .TP 9
 .B BANDWO
@@ -1548,8 +1532,6 @@ on interface level (used bandwidth per interface).
 .br
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module 'netproc' has been installed.
 .TP 9
 .B BDELAY
@@ -1729,8 +1711,6 @@ of all processes during the last interval).
 .br
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module 'netproc' has been installed.
 .TP 9
 .B NICE
@@ -1823,8 +1803,6 @@ reflects the total resident size of the process at that moment.
 The number of TCP- and UDP packets received by this process.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netatop module is installed.
 .br
 If a process has finished during the last interval, no value is shown
@@ -1860,8 +1838,6 @@ The saved group-id of the process.
 The number of TCP and UDP packets transmitted by this process.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netatop module is installed.
 .TP 9
 .B ST
@@ -1919,32 +1895,24 @@ due to system call handling.
 The average size of a received TCP buffer in bytes.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is enabled.
 .TP 9
 .B TCPRCV
 The number of tcp_recvmsg()/tcp_cleanup_rbuf() calls from this process.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is enabled.
 .TP 9
 .B TCPSASZ
 The average size of a TCP buffer requested to be transmitted in bytes.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is enabled.
 .TP 9
 .B TCPSND
 The number of tcp_sendmsg() calls from this process.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is enabled.
 .TP 9
 .B THR
@@ -1979,32 +1947,24 @@ state 'uninterruptible sleeping' (D).
 The average size of a received UDP buffer in bytes.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is enabled.
 .TP 9
 .B UDPRCV
 The number of udp_recvmsg()/skb_consume_udp() calls from this process.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is enabled.
 .TP 9
 .B UDPSASZ
 The average size of a UDP buffer requested to be transmitted in bytes.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is enabled.
 .TP 9
 .B UDPSND
 The number of udp_sendmsg() calls from this process.
 This information will only be shown when the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is enabled.
 .TP 9
 .B USRCPU
@@ -2087,8 +2047,6 @@ For process-level statistics special labels are introduced:
 (disk, only if "storage accounting" is active) and "PRN" (only if
 the optional
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 netproc module is installed).
 .br
 With the label "ALL", all system and process level statistics are shown.
@@ -2495,8 +2453,6 @@ For every process one line is shown.
 Subsequent fields:
 PID, name (between parenthesis or underscores for spaces), state,
 .BR pmdabpf (1)
-or
-.BR pmdabcc (1)
 module 'netproc' loaded ('y' or 'n'),
 number of tcp_sendmsg() calls,
 cumulative size of TCP buffers requested to be transmitted,
@@ -2584,7 +2540,6 @@ are available. Refer to the documentation for
 .BR pmdanfsclient (1),
 .BR pmdanvidia (1),
 .BR pmdaperfevent (1)
-.BR pmdabcc (1)
 and
 .BR pmdabpf (1)
 for further details on activating these metrics.
@@ -2652,7 +2607,6 @@ appl1	metric and instance domain retrievals
 .BR pcp (1),
 .BR pcp-atopsar (1),
 .BR pmdaapache (1),
-.BR pmdabcc (1),
 .BR pmdabpf (1),
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),

@@ -6,10 +6,8 @@ qa1271.a: id[1] = 511.0.3
 qa1271.b: id[2] = PM_ID_NULL
 
 === metric 0 === name: qa1271 pmid PM_ID_NULL
-pmGetChildren() returns 1
-pmGetChildrenStatus() returns 1
-children of "qa1271" ...
-    a                   <s = 0>
+pmGetChildren() returns -12357 (Unknown metric name)
+pmGetChildrenStatus() returns -12357 (Unknown metric name)
 
 === metric 1 === name: qa1271.a pmid 511.0.3
 pmNameID() returns 0

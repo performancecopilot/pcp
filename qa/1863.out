@@ -1,0 +1,22 @@
+QA output created by 1863
+=== good cases ...
+1K -> 1
+1k -> 1
+10M -> 10240
+10m -> 10240
+100G -> 104857600
+100g -> 104857600
+123 m -> 125952
+
+=== overflow cases ...
+2147483648K -> error (Error: overflow, 2147483648 Kbytes too large for 32-bit signed int)
+2097152m -> error (Error: overflow, 2097152 Mbytes too large for Kbytes in a 32-bit signed int)
+2048G -> error (Error: overflow, 2048 Gbytes too large for Kbytes in a 32-bit signed int)
+
+=== bad cases ...
+123 -> error (Error: _convert_to_kb(): missing unit after '123')
+ -> error (Error: _convert_to_kb(): missing argument)
+1 2 -> error (Error: _convert_to_kb(): argument '1 2' has a non-numeric value)
+mumble -> error (Error: _convert_to_kb(): argument 'mumble' has a non-numeric value)
+0GB -> error (Error: _convert_to_kb(): argument '0GB' resolves to zero (not allowed))
+1kbFumble -> error (Error: _convert_to_kb(): invalid unit 'kbFumble')

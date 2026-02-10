@@ -28,11 +28,20 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 pid=`_get_primary_logger_pid`
-echo "+++ at the start primary pmlogger pid = $pid" >>$seq_full
+echo "+++ before shutdown the primary pmlogger pid = $pid" >>$seq_full
 _stop_auto_restart pmlogger
 if ! _service pmlogger stop; then _exit 1; fi \
 | _filter_pcp_stop
 _wait_pmlogger_end $pid || _exit 1
+pid=`_get_primary_logger_pid`
+echo "+++ after shutdown the primary pmlogger pid = $pid" >>$seq_full
+if [ -n "$pid" ]
+then
+    echo "primary pmlogger pid = $pid"
+    $PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E '[P]PID|/[p]mlogger( |$)'
+    _service pmlogger status
+    _fail "Failed to stop primary pmlogger"
+fi
 
 # real QA test starts here
 for i in 1 2 3 4

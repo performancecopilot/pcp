@@ -121,7 +121,7 @@ echo "pmproxy_pid=$pmproxy_pid" >>$seq_full
 # after 'c' to gdb, enter RETURN for shell running this script
 #
 #debug# echo "sudo gdb -p $pmproxy_pid $PCP_BINADM_DIR/pmproxy"
-#debug# read x </dev/tty
+#debug# if [ -e /dev/tty ]; then read x </dev/tty; fi
 
 src/time_stamp $tmp.stamp 'restart pmproxy' >>$seq_full
 

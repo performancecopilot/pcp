@@ -29,6 +29,15 @@ _cleanup()
     exit $status
 }
 
+longname=`pmhostname`
+if ! echo "$longname" | grep -q '\.'
+then
+    longname=`hostname`
+fi
+shortname=`echo $longname | sed -e 's/\..*//'`
+echo "longname=$longname" >>$seq_full
+echo "shortname=$shortname" >>$seq_full
+
 _check()
 {
     echo "_check $1" >>$seq_full
@@ -55,8 +64,8 @@ _filter()
     sed <$tmp.out \
 	-e 's/^\[.*]/[DATE]/' \
 	-e 's/pmlc([0-9][0-9]*)/pmlc(PID)/' \
-	-e "s/`pmhostname`/MYHOST/g" \
-	-e "s/`hostname`/MYHOST/g" \
+	-e "s/$longname/MYHOST/g" \
+	-e "s/$shortname/MYHOST/g" \
 	-e "s/localhost\.localdomain/MYHOST/g" \
 	-e "s/localhost/MYHOST/g" \
 	-e "s/local:/MYHOST/g" \

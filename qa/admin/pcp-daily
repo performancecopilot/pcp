@@ -65,7 +65,7 @@ then
     which \${MAKE:-make} >>\$HOME/$1.log 2>&1
 fi
 
-tmp=/var/tmp/\$\$
+tmp=${TMPDIR:-/tmp}/pcp-daily-\$\$
 trap "rm -f \$tmp.*; exit 0" 0 1 2 3 15
 End-of-File
     if $lflag
@@ -471,6 +471,7 @@ NF == 0	{ txt = ""; next }
 END	{ print txt }' \
 | awk '
 \$1 == "Triaged:"	{ want = 1 }
+\$1 == "Callback:"	{ want = 1 }
 \$1 == "Failures:"	{ want = 1 }
 \$1 == "Passed"		{ want = 1 }
 want == 1		{ print }'
@@ -543,7 +544,7 @@ End-of-File
 # Mainline starts here ...
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/pcp-daily-$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
@@ -923,10 +924,10 @@ do
 		    [ X"$what" = Xall ] && check_what="$check_what -g sanity"
 		    ;;
 
-		OpenIndiana)
+		OpenIndiana*)
 		    # Only selected groups at this stage for OpenIndiana
 		    #
-		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g libpcp"
+		    [ X"$what" = Xall ] && check_what="$check_what -g sanity -g trace -g libpcp -g kernel -g pmcd -g pminfo -g pmlogger -g threads -g logutil -g dbpmda -g pmcheck -g pmlc -g pmlogdump -g archive -x valgrind -x python"
 		    ;;
 
 	    esac
@@ -1174,7 +1175,7 @@ End-of-File
 	doit=false
 	case $host
 	in
-	    vm01|vm03|vm16|vm35|vm36)
+	    vm01|vm02|vm03|vm16|vm35|vm36)
 		# try to keep these VMs running, unless -f
 		$fflag && doit=true
 		;;

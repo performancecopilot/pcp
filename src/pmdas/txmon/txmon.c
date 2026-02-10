@@ -219,13 +219,13 @@ txmon_init(pmdaInterface *dp)
 
     pmdaSetFetchCallBack(dp, txmon_fetchCallBack);
     if (pmDebugOptions.appl0) {
-	fprintf(stderr, "after pmdaSetFetchCallBack() control @ %p\n", control);
+	fprintf(stderr, "after pmdaSetFetchCallBack() control @ " PRINTF_P_PFX "%p\n", control);
     }
 
     pmdaInit(dp, indomtab, 1, metrictab,
 	     sizeof(metrictab)/sizeof(metrictab[0]));
     if (pmDebugOptions.appl0) {
-	fprintf(stderr, "after pmdaInit() control @ %p\n", control);
+	fprintf(stderr, "after pmdaInit() control @ " PRINTF_P_PFX "%p\n", control);
     }
 }
 
@@ -326,7 +326,7 @@ main(int argc, char **argv)
 	exit(1);
     }
     if (pmDebugOptions.appl0) {
-	fprintf(stderr, "shmat -> control @ %p\n", control);
+	fprintf(stderr, "shmat -> control @ " PRINTF_P_PFX "%p\n", control);
     }
 
     /*
@@ -351,7 +351,7 @@ main(int argc, char **argv)
 	sp->max_time = -1.0;
 	sp->sum_time = 0.0;
 	if (pmDebugOptions.appl0) {
-	    fprintf(stderr, "index[%d]=%d @ %p name=\"%s\"\n", n, control->index[n], p, sp->type);
+	    fprintf(stderr, "index[%d]=%d @ " PRINTF_P_PFX "%p name=\"%s\"\n", n, control->index[n], p, sp->type);
 	}
 	p += RND_TO_CACHE_LINE(sizeof(stat_t));
 

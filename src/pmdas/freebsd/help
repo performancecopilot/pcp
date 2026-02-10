@@ -14,6 +14,7 @@ Microseconds per "hz" tick.
 @ kernel.all.pswitch count of context switches
 @ kernel.all.syscall count of system calls
 @ kernel.all.intr count of interrupts serviced
+@ kernel.all.nusers number of users on the system
 @ kernel.all.cpu.user total user CPU time for all CPUs
 @ kernel.all.cpu.nice total nice user CPU time for all CPUs
 @ kernel.all.cpu.sys total sys CPU time for all CPUs

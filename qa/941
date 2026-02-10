@@ -46,13 +46,10 @@ _get_pids_by_name pmcd >$tmp.pids
 num_pmcds=`cat $tmp.pids | wc -l | sed -e 's/ //g'`
 if $check
 then
-    echo "--- running 941 --check @ `date` ---"
-    echo "_get_pids_by_name pmcd ..."
-    cat $tmp.pids
-    $PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps.out
-    echo "$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep pmcd ..."
-    grep -E '[P]PID|/[p]mcd( |$)' <$tmp.ps.out
-    echo "num_pmcds=$num_pmcds (should be 1)"
+    echo "--- running 941 --check @ `date` ---" >>$seq_full
+    echo "All pmcd processes ..." >>$seq_full
+    _ps_full_by_name pmcd >>$seq_full
+    echo "num_pmcds=$num_pmcds (should be 1)" >>$seq_full
 fi
 case "$num_pmcds"
 in
@@ -66,17 +63,9 @@ in
     	;;
     *)
     	echo "Error: $num_pmcds pmcd processes running"
-	$PCP_PS_PROG $PCP_PS_ALL_FLAGS >$tmp.ps
-	for pid in `cat $tmp.pids`
+	_ps_full_by_name pmcd
+	for pid in `_get_pids_by_name pmcd`
 	do
-	    $PCP_AWK_PROG <$tmp.ps '$2 == '$pid' { print }' >$tmp.out
-	    if [ -s $tmp.out ]
-	    then
-		grep PPID $tmp.ps
-		cat $tmp.out
-	    else
-		echo "PID $pid has gone missing from ps(1) output?"
-	    fi
 	    for log in pmcd.log pmcd.log.prev
 	    do
 		if [ -f $PCP_LOG_DIR/pmcd/$log ]

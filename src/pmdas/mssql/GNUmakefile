@@ -35,6 +35,8 @@ PMIEDIR		= $(PCP_SYSCONF_DIR)/pmieconf/$(IAM)
 PMIEVARDIR	= $(PCP_VAR_DIR)/config/pmieconf/$(IAM)
 LOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf/$(IAM)
 LOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf/$(IAM)
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 default_pcp default: build-me
 
@@ -54,6 +56,7 @@ install_pcp install: default
 	$(INSTALL) -m 755 -d $(LOGCONFDIR)
 	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/mssql.conf rewrite.conf $(REWRITEDIR)/mssql.conf
 	@$(INSTALL_MAN)
 else
 build-me:

@@ -6,5 +6,5 @@ LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
 ERROR SUMMARY: 0 errors from 0 contexts ...
-bind_expr: error: global derived metric foo.bar: operand: non.existent: Unknown metric name
+Semantic error: derived metric foo.bar: operand non.existent: Unknown operand metric
 Error: foo.bar: Unknown metric name

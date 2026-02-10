@@ -126,7 +126,7 @@ pmIniFileSetup(const char *progname)
 {
     dict	*config;
 
-    if ((config = dictCreate(&sdsOwnDictCallBacks, "pmIniFileSetup")) == NULL)
+    if ((config = dictCreate(&sdsOwnDictCallBacks)) == NULL)
 	return NULL;
     if (pmIniFileParse(progname, dict_handler, config) == 0)
 	return config;

@@ -200,7 +200,7 @@ fetch_disk_data(kstat_ctl_t *kc, const pmdaMetric *mdesc, ctl_t *ctl,
 	if (ctl->err == 0) {
 	    pmNotifyErr(LOG_WARNING,
 			  "Error: disk_fetch(pmid=%s disk=%s ...) - "
-			   "kstat_read(kc=%p, ksp=%p, ...) failed: %s\n",
+			   "kstat_read(kc=" PRINTF_P_PFX "%p, ksp=" PRINTF_P_PFX "%p, ...) failed: %s\n",
 			   pmIDStr(mdesc->m_desc.pmid), diskname,
 			   kc, ctl->ksp, osstrerror());
 	    }

@@ -226,7 +226,7 @@ void PmTimeArch::init()
 			    &my.absoluteEnd, &my.pmtime.end);
     connect(my.bounds, SIGNAL(boundsChanged()), this, SLOT(doneBounds()));
 
-    console->post("PmTimeArch::init absS=%p S=%p absE=%p E=%p\n",
+    console->post("PmTimeArch::init absS=" PRINTF_P_PFX "%p S=" PRINTF_P_PFX "%p absE=" PRINTF_P_PFX "%p E=" PRINTF_P_PFX "%p\n",
 		   &my.absoluteStart, &my.pmtime.start,
 		   &my.absoluteEnd, &my.pmtime.end);
 }
@@ -516,7 +516,7 @@ void PmTimeArch::changeSpeed(double value)
 void PmTimeArch::showBounds()
 {
     my.bounds->reset();
-    console->post("PmTimeArch::showBounds: absS=%p S=%p absE=%p E=%p\n",
+    console->post("PmTimeArch::showBounds: absS=" PRINTF_P_PFX "%p S=" PRINTF_P_PFX "%p absE=" PRINTF_P_PFX "%p E=" PRINTF_P_PFX "%p\n",
 	&my.absoluteStart, &my.pmtime.start, &my.absoluteEnd, &my.pmtime.end);
     my.bounds->show();
 }

@@ -57,7 +57,7 @@ _filter()
 	-e "s/$myhost/LOCALHOST/g" \
 	-e "/UID.*PID/d" \
 	-e "/USER.*PID/d" \
-	-e "s/.* .*pmlogger .*-c .*/<pmlogger process>/" \
+	-e "s/.*[ /]pmlogger .*\/pmlogger_qa\/.*/<pmlogger process>/" \
 	-e "/Warning: creating directory/s/(.*\/\([^/][^/]*\))/(...\/\1)/" \
     | _filter_pmlogger_log
 }
@@ -176,7 +176,7 @@ echo >>$seq_full
 echo "=== pmlogger_check ===" >>$seq_full
 # need to be a place the user $PCP_USER can cd to from pmlogger_daily
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -l $PMCHECK_LOG
 cd $here
 # give any failing pmloggers a chance to exit
@@ -190,7 +190,7 @@ cat $PMCHECK_LOG >>$seq_full
 
 echo | tee -a $seq_full
 echo "=== pmlogger_check -T ===" | tee -a $seq_full
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP $PCP_BINADM_DIR/pmlogger_check -T -l $PMCHECK_LOG
 cd $here
 _filter < $PMCHECK_LOG

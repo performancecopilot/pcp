@@ -154,7 +154,7 @@ void NameSpace::setExpanded(bool expand, bool show)
 {
 #if DESPERATE
     console->post(PmChart::DebugUi, "NameSpace::setExpanded "
-		  "on %p %s (type=%d expanded=%s, expand=%s, show=%s)",
+		  "on " PRINTF_P_PFX "%p %s (type=%d expanded=%s, expand=%s, show=%s)",
 		  this, (const char *)metricName().toLatin1(),
 		  my.type,
 		  my.expanded? "y" : "n", expand? "y" : "n", show? "y" : "n");
@@ -194,7 +194,7 @@ void NameSpace::setSelectable(bool selectable)
 void NameSpace::setExpandable(bool expandable)
 {
     console->post(PmChart::DebugUi, "NameSpace::setExpandable "
-		  "on %p %s (expanded=%s, expandable=%s)",
+		  "on " PRINTF_P_PFX "%p %s (expanded=%s, expandable=%s)",
 		  this, (const char *)metricName().toLatin1(),
 		  my.expanded ? "y" : "n", expandable ? "y" : "n");
 
@@ -468,7 +468,7 @@ NameSpace *NameSpace::dup(QTreeWidget *, NameSpace *tree,
     n->my.type = my.type;
 
     if (my.type == NoType || my.type == ChildMinder) {
-	console->post("NameSpace::dup bad type=%d on %p %s)",
+	console->post("NameSpace::dup bad type=%d on " PRINTF_P_PFX "%p %s)",
 		  my.type, this, (const char *)metricName().toLatin1());
 	abort();
     }

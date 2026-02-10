@@ -98,7 +98,8 @@ umask 022
 
 
 # real QA test starts here
-unset verbose
+
+verbose=''
 for loop in 1 2
 do
     $sudo rm -rf $tmp		# refactor-ok
@@ -149,39 +150,39 @@ LOCALHOSTNAME	n   n	'"$tmp"'	-c ./config'
     $sudo chown $PCP_USER:$PCP_GROUP $tmp
 
     echo
-    echo "=== [${verbose+verbose}] regular show ==="
-    echo "=== [${verbose+verbose}] regular show ===" >>$seq_full
+    echo "=== [$verbose] regular show ==="
+    echo "=== [$verbose] regular show ===" >>$seq_full
     # need to be a place the user $PCP_USER can cd to from pmlogger_daily
     #
-    cd /var/tmp
+    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -o -x never -c $tmp.control -k 4 $verbose -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp.sed | LC_COLLATE=POSIX sort
 
     echo
-    echo "=== [${verbose+verbose}] nothing to do but cull some more ==="
-    echo "=== [${verbose+verbose}] nothing to do but cull some more ===" >>$seq_full
+    echo "=== [$verbose] nothing to do but cull some more ==="
+    echo "=== [$verbose] nothing to do but cull some more ===" >>$seq_full
     for ext in 0 index meta
     do
 	$sudo mv $tmp/$yesterday.$ext $tmp/save.$ext
     done
-    cd /var/tmp
+    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -o -x never -c $tmp.control -k 3 $verbose -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter
     ls $tmp | sed -f $tmp.sed | LC_COLLATE=POSIX sort
 
     echo
-    echo "=== [${verbose+verbose}] error, output already exists ==="
-    echo "=== [${verbose+verbose}] error, output already exists ===" >>$seq_full
+    echo "=== [$verbose] error, output already exists ==="
+    echo "=== [$verbose] error, output already exists ===" >>$seq_full
     for ext in 0 index meta
     do
 	$sudo cp archives/arch_a.$ext $tmp/$yesterday.17.18.$ext
 	$sudo chown $PCP_USER:$PCP_GROUP $tmp/$yesterday.17.18.$ext
 	$sudo mv $tmp/save.$ext $tmp/$yesterday.$ext
     done
-    cd /var/tmp
+    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -o -x never -c $tmp.control -k 3 $verbose -l $tmp.log"
     cd $here
     $sudo cat $tmp.log | _filter

@@ -1603,7 +1603,7 @@ telnet-probe
 1102 pmda.openmetrics local python
 1103 derive local
 1104 kernel local
-1105 derive local kernel
+1105 derive local kernel pminfo
 1106 libpcp local
 1107 pmie local
 1108 logutil local folio pmlogextract pmlogger_daily
@@ -1782,7 +1782,7 @@ telnet-probe
 1281 archive pmlogdump valgrind local
 1282:retired other local
 1283 dbpmda local
-1284 pmrep pmda.linux local
+1284 pmrep python pmda.linux local
 1285 pmlogsummary local
 1286 pmda.bcc local python
 1287 pmda.install pmda.openmetrics local python
@@ -1928,7 +1928,7 @@ telnet-probe
 1427 pmlogmv local
 1428 logutil pmrep python local pmlogger_daily_report derive pmlogmv
 1429 logutil pmlogextract pmlogdump pmlogrewrite local pmlogger_daily pmlogger_check
-1430 logutil pmlogconf pmlogger pmrep local pmlogger_daily_report
+1430 logutil pmlogconf pmlogger pmrep python local pmlogger_daily_report
 1431 pmda.ohead local
 1432 pmda.ohead local
 1433 pmproxy local pmconfig
@@ -2006,13 +2006,13 @@ telnet-probe
 1505 pmcheck local
 1506 pmval derive local
 1507 other local
-1508 derive local pmrep
+1508 derive local pmrep python
 1509 derive local
 1510 derive local
 1511 pmcd local pmda.sample
 1512 libpcp local
 1513 derive local
-1514 derive local pmrep valgrind
+1514 derive local pmrep python valgrind
 1515 pmda.denki local valgrind
 1516 derive local valgrind
 1517 derive local valgrind
@@ -2054,7 +2054,7 @@ telnet-probe
 1553 archive local
 1554 pmstat local
 1555 archive local valgrind
-1556:reserved pmlogconf local
+1556 pmlogconf local
 1557 libpcp local
 1558 libpcp local
 1559:reserved libpcp local
@@ -2121,7 +2121,7 @@ telnet-probe
 1620 pmlogger pmproxy pmlogpush libpcp_web local
 1621 pmlogger pmproxy pmlogpush libpcp_web local valgrind
 1622:retired local
-1623 libpcp_import local pmlogdump collectl2pcp pmrep
+1623 libpcp_import local pmlogdump collectl2pcp pmrep python
 1624 other local
 1625 pmlogrewrite pmlogextract archive pmlogdump archive_v3 local valgrind
 1626 pmproxy libpcp_web local
@@ -2147,6 +2147,9 @@ telnet-probe
 1646 other local
 1647 pmda.opentelemetry local
 1648 other local not_in_ci
+1649 pmrep python local derive
+1650 derive local
+1651 pmlogger_daily logutil local
 1653 pmda.denki local
 1658 pmda.linux local
 1660 libpcp labels local
@@ -2158,8 +2161,8 @@ telnet-probe
 1678 pmda.opentelemetry local python
 1679 pmlogconf local
 1680 openvswitch local
-1681 pmrep pcp2xxx pmlogconf local
-1682 pmrep pcp2xxx pmlogconf valgrind local
+1681 pmrep python pcp2xxx pmlogconf local
+1682 pmrep python pcp2xxx pmlogconf valgrind local
 1683 pmlogconf local valgrind
 1684 python derive local
 1688 pmieconf local
@@ -2218,6 +2221,7 @@ telnet-probe
 1784 pmlogconf local
 1787 pmda.opentelemetry local python
 1788 pmda.linux local
+1791 pmrep python local
 1792 pmrep python local
 1793 pmrep pcp2xxx python local pmlogdump pmjson
 1794 pcp2arrow local
@@ -2251,6 +2255,9 @@ telnet-probe
 1854 pmlogger pmimport local
 1855 pmda.rabbitmq local
 1856 dstat python local derive
+1862 other local
+1863 logutil pmlogger_daily local
+1864 logutil pmlogger_daily local
 1869 logutil pmlogger_daily local
 1870 guidellm2pcp python pmimport libpcp_import local
 1871 pmsearch local

@@ -1,0 +1,63 @@
+QA output created by 1651
+Start [daily]: DATESTAMP
+
+=== daily maintenance of PCP archives for host local: in TMP/foo ===
+
+pmlogger_daily: [TMP.control:2]
+Error: no pmlogger instance running for host "local:"
+... logging for host "local:" unchanged
+pmlogger_daily: [TMP.control:2]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Warning: no archives found to merge
+Archive files being compressed ...
+    20260203.0 20260203.meta 20260204.0 20260204.1 20260204.2 20260204.3
+    20260204.4 20260204.5 20260204.6 20260204.7 20260204.8 20260204.9
+    20260204.meta
+pmlogger_daily: [TMP.control:3]
+Error: insufficient fields in control file record
+... logging for host "PCP_COMPRESS=blah" unchanged
+End [daily]: DATESTAMP status=1
+
+Changes ...
+1c1
+< foo/20260203.0
+---
+> foo/20260203.0.xz
+4,13c4,13
+< foo/20260204.0
+< foo/20260204.1
+< foo/20260204.2
+< foo/20260204.3
+< foo/20260204.4
+< foo/20260204.5
+< foo/20260204.6
+< foo/20260204.7
+< foo/20260204.8
+< foo/20260204.9
+---
+> foo/20260204.0.xz
+> foo/20260204.1.xz
+> foo/20260204.2.xz
+> foo/20260204.3.xz
+> foo/20260204.4.xz
+> foo/20260204.5.xz
+> foo/20260204.6.xz
+> foo/20260204.7.xz
+> foo/20260204.8.xz
+> foo/20260204.9.xz
+Start [daily]: DATESTAMP
+
+=== daily maintenance of PCP archives for host local: in TMP/foo ===
+
+pmlogger_daily: [TMP.control:3]
+Error: no pmlogger instance running for host "local:"
+... logging for host "local:" unchanged
+pmlogger_daily: [TMP.control:3]
+Warning: skipping log rotation because we don't know which pmlogger to signal
+Warning: no archives found to merge
+pmlogger_daily: [TMP.control:3]
+Error: blah: compression program not found
+... logging for host "local:" unchanged
+End [daily]: DATESTAMP status=1
+
+Changes ...

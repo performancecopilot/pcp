@@ -407,22 +407,32 @@ expr node <addr> type=COLON left=<addr> right=<addr> save_last=0
 expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [1] primary=1
 expr node <addr> type=INTEGER left=(nil) right=(nil) save_last=0 [2] primary=1
 __dmopencontext(->ctx 0) called, 19 derived metrics
+__dmtraverse(ctx=0, name="a", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] a.m1, async= 1)
 __dmgetpmid: metric "a.m1" -> PMID 511.0.3
 __dmtraverse: name="a" added "a.m1"
+__dmbind(derive_locked=1, ctx=0, metric[3] a.m2, async= 1)
 __dmgetpmid: metric "a.m2" -> PMID 511.0.4
 __dmtraverse: name="a" added "a.m2"
+__dmbind(derive_locked=1, ctx=0, metric[4] a.m3, async= 1)
 __dmgetpmid: metric "a.m3" -> PMID 511.0.5
 __dmtraverse: name="a" added "a.m3"
+__dmbind(derive_locked=1, ctx=0, metric[5] a.m4, async= 1)
 __dmgetpmid: metric "a.m4" -> PMID 511.0.6
 __dmtraverse: name="a" added "a.m4"
+__dmbind(derive_locked=1, ctx=0, metric[6] a.m5, async= 1)
 __dmgetpmid: metric "a.m5" -> PMID 511.0.7
 __dmtraverse: name="a" added "a.m5"
+__dmbind(derive_locked=1, ctx=0, metric[7] a.m6, async= 1)
 __dmgetpmid: metric "a.m6" -> PMID 511.0.8
 __dmtraverse: name="a" added "a.m6"
+__dmbind(derive_locked=1, ctx=0, metric[8] a.m7, async= 1)
 __dmgetpmid: metric "a.m7" -> PMID 511.0.9
 __dmtraverse: name="a" added "a.m7"
+__dmbind(derive_locked=1, ctx=0, metric[9] a.m8, async= 1)
 __dmgetpmid: metric "a.m8" -> PMID 511.0.10
 __dmtraverse: name="a" added "a.m8"
+__dmbind(derive_locked=1, ctx=0, metric[10] a.err.m1, async= 1)
 __dmgetpmid: metric "a.err.m1" -> PMID 511.0.11
 Semantic error: ternary op type: left=64 right=32
 Semantic error: derived metric a.err.m1: sample.longlong.ten : sample.bin: Different types for ternary operands
@@ -457,6 +467,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.bin] prima
     Data Type: 32-bit int  InDom: 29.2 0x7400002
     Semantics: instant  Units: none
 __dmtraverse: name="a", omitting invalid child a.err.m1 [511.0.11]
+__dmbind(derive_locked=1, ctx=0, metric[11] a.err.m2, async= 1)
 __dmgetpmid: metric "a.err.m2" -> PMID 511.0.12
 Semantic error: ternary op units (space): left=byte (dim=1 scale=0) right=Kbyte (dim=1 scale=1)
 Semantic error: derived metric a.err.m2: sample.byte_ctr : sample.kbyte_ctr: Different units or scale (space) for ternary operands
@@ -483,6 +494,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.kbyte_ctr]
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: Kbyte
 __dmtraverse: name="a", omitting invalid child a.err.m2 [511.0.12]
+__dmbind(derive_locked=1, ctx=0, metric[12] a.err.m3, async= 1)
 __dmgetpmid: metric "a.err.m3" -> PMID 511.0.13
 Semantic error: ternary op type: left=32 right=STRING
 Semantic error: derived metric a.err.m3: sample.bin : sample.lights: Different types for ternary operands
@@ -509,6 +521,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.lights] pr
     Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
 __dmtraverse: name="a", omitting invalid child a.err.m3 [511.0.13]
+__dmbind(derive_locked=1, ctx=0, metric[13] a.err.m4, async= 1)
 __dmgetpmid: metric "a.err.m4" -> PMID 511.0.14
 Semantic error: ternary op indom: left=29.2 right=29.1
 Semantic error: derived metric a.err.m4: sample.bin : sample.colour: Different instance domains for ternary operands
@@ -535,6 +548,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.colour] pr
     Data Type: 32-bit int  InDom: 29.1 0x7400001
     Semantics: instant  Units: none
 __dmtraverse: name="a", omitting invalid child a.err.m4 [511.0.14]
+__dmbind(derive_locked=1, ctx=0, metric[14] a.err.m5, async= 1)
 __dmgetpmid: metric "a.err.m5" -> PMID 511.0.15
 Semantic error: ternary op semantics: left=counter right=instant
 Semantic error: derived metric a.err.m5: sample.seconds : sample.ulong.ten: Different semantics for ternary operands
@@ -561,6 +575,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 __dmtraverse: name="a", omitting invalid child a.err.m5 [511.0.15]
+__dmbind(derive_locked=1, ctx=0, metric[15] a.err.m6, async= 1)
 __dmgetpmid: metric "a.err.m6" -> PMID 511.0.16
 Semantic error: ternary op units (time): left=byte / sec right=byte / hour
 Semantic error: derived metric a.err.m6: sample.byte_rate : sample.byte_rate_perhour: Different units or scale (time) for ternary operands
@@ -587,6 +602,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.byte_rate_
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: byte / hour
 __dmtraverse: name="a", omitting invalid child a.err.m6 [511.0.16]
+__dmbind(derive_locked=1, ctx=0, metric[16] a.err.m7, async= 1)
 __dmgetpmid: metric "a.err.m7" -> PMID 511.0.17
 Semantic error: ternary op units (count): left= right=count
 Semantic error: derived metric a.err.m7: sample.long.hundred : sample.step: Different units or scale (count) for ternary operands
@@ -613,6 +629,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.step] prim
     Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 __dmtraverse: name="a", omitting invalid child a.err.m7 [511.0.17]
+__dmbind(derive_locked=1, ctx=0, metric[17] a.err.m8, async= 1)
 __dmgetpmid: metric "a.err.m8" -> PMID 511.0.18
 Semantic error: derived metric a.err.m8: <expr> ? sample.ulong.hundred : sample.ulong.ten: Non-scalar ternary guard with scalar expressions
 __dmbind: check_expr failed for metric[17] a.err.m8
@@ -646,6 +663,7 @@ expr node <addr> type=NAME left=(nil) right=(nil) save_last=0 [sample.ulong.ten]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 __dmtraverse: name="a", omitting invalid child a.err.m8 [511.0.18]
+__dmbind(derive_locked=1, ctx=0, metric[18] a.err.m9, async= 1)
 __dmgetpmid: metric "a.err.m9" -> PMID 511.0.19
 Semantic error: derived metric a.err.m9: sample.string.hullo ? 1 : 2: Non-arithmetic operand for ternary guard
 __dmbind: check_expr failed for metric[18] a.err.m9

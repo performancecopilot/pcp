@@ -37,8 +37,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 # real QA test starts here
 _stop_auto_restart pmlogger
 
-pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mlogger.*-P' | \
-grep -v grep | awk '{print $2}'`
+pid=`_ps_full_by_name pmlogger -P | sed -e '/PPID/d' | awk '{print $2}'`
 
 if [ ! -S "$PCP_RUN_DIR/pmlogger.$pid.socket" ]; then
     echo FAIL no primary pmlogger running? pid=$pid

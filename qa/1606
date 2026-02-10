@@ -22,8 +22,10 @@ fi
 . ./common.filter
 . ./common.check
 
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection enabled"
+unset LD_PRELOAD
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]

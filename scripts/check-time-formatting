@@ -8,7 +8,7 @@
 # any checking.
 #
 
-tmp=/var/tmp/c-t-f-$$
+tmp=${TMPDIR:-/tmp}/check-time-formatting-$$
 status=0
 verbose=false
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15

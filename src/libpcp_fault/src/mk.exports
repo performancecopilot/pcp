@@ -11,8 +11,10 @@ then
 fi
 
 awk <../../libpcp/src/exports >exports '
+BEGIN			{ onetrip = 1 }
 			{ print }
-$1 == "global:"	{ print "    __pmFault_malloc;"
+onetrip == 1 && $1 == "global:"	{ print "    __pmFault_malloc;"
 		  print "    __pmFault_realloc;"
 		  print "    __pmFault_strdup;"
+		  onetrip = 0;
 		}'

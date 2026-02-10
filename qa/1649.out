@@ -1,0 +1,457 @@
+QA output created by 1649
+=== metrics on command line ===
+++ one bad
+--  -h local: foo.bar
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: foo.bar
+All metrics are unknown, quitting.
+--  -a archives/omnibus-nomark_v3 -S +1sec foo.bar
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec foo.bar
+All metrics are unknown, quitting.
+
+++ one bad and one good
+--  -h local: foo.bar sample.long.million
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: foo.bar sample.long.million
+   s.l.million
+              
+       1000000
+--  -a archives/omnibus-nomark_v3 -S +1sec foo.bar sample.long.million
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec foo.bar sample.long.million
+   s.l.million
+              
+       1000000
+
+++ one good, one bad and one good
+--  -h local: sample.long.million foo.bar sample.string.hullo
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: sample.long.million foo.bar sample.string.hullo
+   s.l.million     s.s.hullo
+                            
+       1000000  hullo world!
+--  -a archives/omnibus-nomark_v3 -S +1sec sample.long.million foo.bar sample.string.hullo
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec sample.long.million foo.bar sample.string.hullo
+   s.l.million     s.s.hullo
+                            
+       1000000  hullo world!
+
+++ one bad, one good, one bad and one good
+--  -h local: fumble.mumble sample.long.million foo.bar sample.string.hullo
+Unknown metric fumble.mumble (PM_ERR_NAME Unknown metric name).
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: fumble.mumble sample.long.million foo.bar sample.string.hullo
+   s.l.million     s.s.hullo
+                            
+       1000000  hullo world!
+--  -a archives/omnibus-nomark_v3 -S +1sec fumble.mumble sample.long.million foo.bar sample.string.hullo
+Unknown metric fumble.mumble (PM_ERR_NAME Unknown metric name).
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec fumble.mumble sample.long.million foo.bar sample.string.hullo
+   s.l.million     s.s.hullo
+                            
+       1000000  hullo world!
+
+=== metrics in a metrics set ===
+++ one bad
+--  -h local: -c TMP.metricset :qa
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: -c TMP.metricset :qa
+All metrics are unknown, quitting.
+--  -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+All metrics are unknown, quitting.
+
+++ one bad and one good
+--  -h local: -c TMP.metricset :qa
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: -c TMP.metricset :qa
+        goodie
+              
+       1000000
+--  -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+        goodie
+              
+       1000000
+
+++ one good, one bad and one good
+--  -h local: -c TMP.metricset :qa
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: -c TMP.metricset :qa
+        goodie         g'day
+                            
+       1000000  hullo world!
+--  -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+        goodie         g'day
+                            
+       1000000  hullo world!
+
+++ one bad, one good, one bad and one good
+--  -h local: -c TMP.metricset :qa
+Unknown metric fumble.mumble (PM_ERR_NAME Unknown metric name).
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: -c TMP.metricset :qa
+        goodie         g'day
+                            
+       1000000  hullo world!
+--  -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Unknown metric fumble.mumble (PM_ERR_NAME Unknown metric name).
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+        goodie         g'day
+                            
+       1000000  hullo world!
+
+=== derived metrics on command line (syntax errors) ===
+++ one bad
+--  -h local: foo.bar
+[TMP.derived:1] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: foo.bar
+[TMP.derived:1] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+All metrics are unknown, quitting.
+--  -a archives/omnibus-nomark_v3 -S +1sec foo.bar
+[TMP.derived:1] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec foo.bar
+[TMP.derived:1] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+All metrics are unknown, quitting.
+
+++ one bad and one good
+--  -h local: foo.bar goodboy
+[TMP.derived:1] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: foo.bar goodboy
+[TMP.derived:1] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+       goodboy
+              
+       1000000
+--  -a archives/omnibus-nomark_v3 -S +1sec foo.bar goodboy
+[TMP.derived:1] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec foo.bar goodboy
+[TMP.derived:1] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+       goodboy
+              
+       1000000
+
+++ one good, one bad and one good
+--  -h local: goodboy foo.bar goodgirl
+[TMP.derived:2] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: goodboy foo.bar goodgirl
+[TMP.derived:2] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+       goodboy      goodgirl
+                            
+       1000000  hullo world!
+--  -a archives/omnibus-nomark_v3 -S +1sec goodboy foo.bar goodgirl
+[TMP.derived:2] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec goodboy foo.bar goodgirl
+[TMP.derived:2] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+       goodboy      goodgirl
+                            
+       1000000  hullo world!
+
+++ one bad, one good, one bad and one good
+--  -h local: fumble.mumble goodboy foo.bar goodgirl
+[TMP.derived:1] Error: pmLoadDerivedConfig: expression missing
+fumble.mumble =
+[TMP.derived:3] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+Unknown metric fumble.mumble (PM_ERR_NAME Unknown metric name).
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: fumble.mumble goodboy foo.bar goodgirl
+[TMP.derived:1] Error: pmLoadDerivedConfig: expression missing
+fumble.mumble =
+[TMP.derived:3] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+       goodboy      goodgirl
+                            
+       1000000  hullo world!
+--  -a archives/omnibus-nomark_v3 -S +1sec fumble.mumble goodboy foo.bar goodgirl
+[TMP.derived:1] Error: pmLoadDerivedConfig: expression missing
+fumble.mumble =
+[TMP.derived:3] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+Unknown metric fumble.mumble (PM_ERR_NAME Unknown metric name).
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec fumble.mumble goodboy foo.bar goodgirl
+[TMP.derived:1] Error: pmLoadDerivedConfig: expression missing
+fumble.mumble =
+[TMP.derived:3] Error: pmRegisterDerived(foo.bar, ...) syntax error
+ a + 
+    ^
+Arithmetic expression expected to follow PLUS
+       goodboy      goodgirl
+                            
+       1000000  hullo world!
+
+=== derived metrics on command line (semantic errors) ===
+... using a non-terminal PMNS name, so --ignore-unknown makes no difference
+... as soon as there is at least one good metric
+++ one bad
+--  -h local: foo.bar
+Semantic error: derived metric foo.bar: hinv.ndisk + disk.all.total: Illegal operator for non-counter and counter
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: foo.bar
+Semantic error: derived metric foo.bar: hinv.ndisk + disk.all.total: Illegal operator for non-counter and counter
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+All metrics are unknown, quitting.
+--  -a archives/omnibus-nomark_v3 -S +1sec foo.bar
+Semantic error: derived metric foo.bar: operand hinv.ndisk: Unknown operand metric
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec foo.bar
+Semantic error: derived metric foo.bar: operand hinv.ndisk: Unknown operand metric
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+All metrics are unknown, quitting.
+
+++ one bad and one good
+--  -h local: foo.bar goodboy
+Semantic error: derived metric foo.bar: hinv.ndisk + disk.all.total: Illegal operator for non-counter and counter
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: foo.bar goodboy
+Semantic error: derived metric foo.bar: hinv.ndisk + disk.all.total: Illegal operator for non-counter and counter
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+       goodboy
+              
+       1000000
+--  -a archives/omnibus-nomark_v3 -S +1sec foo.bar goodboy
+Semantic error: derived metric foo.bar: operand hinv.ndisk: Unknown operand metric
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec foo.bar goodboy
+Semantic error: derived metric foo.bar: operand hinv.ndisk: Unknown operand metric
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+       goodboy
+              
+       1000000
+
+++ one good, one bad and one good
+--  -h local: goodboy foo.bar goodgirl
+Semantic error: derived metric foo.bar: hinv.ndisk + disk.all.total: Illegal operator for non-counter and counter
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: goodboy foo.bar goodgirl
+Semantic error: derived metric foo.bar: hinv.ndisk + disk.all.total: Illegal operator for non-counter and counter
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+       goodboy      goodgirl
+                            
+       1000000  hullo world!
+--  -a archives/omnibus-nomark_v3 -S +1sec goodboy foo.bar goodgirl
+Semantic error: derived metric foo.bar: operand hinv.ndisk: Unknown operand metric
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec goodboy foo.bar goodgirl
+Semantic error: derived metric foo.bar: operand hinv.ndisk: Unknown operand metric
+Unknown metric foo.bar (PM_ERR_NAME Unknown metric name).
+       goodboy      goodgirl
+                            
+       1000000  hullo world!
+
+++ one bad, one good, one bad and one good (non-leaf in PMNS)
+--  -h local: foo
+Semantic error: derived metric foo.mumble: operand sample.pmid: Unknown operand metric
+Semantic error: derived metric foo.fumble: sample.lights + sample.colour: Non-arithmetic type for left operand
+     f.goodboy    f.goodgirl
+                            
+   1000000.000  hullo world!
+-- --ignore-unknown -h local: foo
+Semantic error: derived metric foo.mumble: operand sample.pmid: Unknown operand metric
+Semantic error: derived metric foo.fumble: sample.lights + sample.colour: Non-arithmetic type for left operand
+     f.goodboy    f.goodgirl
+                            
+   1000000.000  hullo world!
+--  -a archives/reduce-1 -S +10sec foo
+Semantic error: derived metric foo.mumble: operand sample.pmid: Unknown operand metric
+Semantic error: derived metric foo.fumble: operand sample.lights: Unknown operand metric
+     f.goodboy    f.goodgirl
+                            
+   1000000.000  hullo world!
+-- --ignore-unknown -a archives/reduce-1 -S +10sec foo
+Semantic error: derived metric foo.mumble: operand sample.pmid: Unknown operand metric
+Semantic error: derived metric foo.fumble: operand sample.lights: Unknown operand metric
+     f.goodboy    f.goodgirl
+                            
+   1000000.000  hullo world!
+
+=== formula in metrics set (syntax errors) ===
+++ one bad
+--  -h local: -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+-- --ignore-unknown -h local: -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+All metrics are unknown, quitting.
+--  -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+All metrics are unknown, quitting.
+
+++ one bad and one good
+--  -h local: -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+-- --ignore-unknown -h local: -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+       goodboy
+              
+       1000000
+--  -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+       goodboy
+              
+       1000000
+
+++ one good, one bad and one good
+--  -h local: -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+-- --ignore-unknown -h local: -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+       goodboy      goodgirl
+                            
+       1000000  hullo world!
+--  -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+-- --ignore-unknown -a archives/omnibus-nomark_v3 -S +1sec -c TMP.metricset :qa
+Failed to register derived metric:
+Impossible value or scale conversion Error: pmRegisterDerivedMetric("badboy", ...)
+a +
+  ^
+Arithmetic expression expected to follow PLUS
+       goodboy      goodgirl
+                            
+       1000000  hullo world!
+
+++ one bad, one good, one bad and one good
+--  -h local: -c TMP.metricset :qa
+Semantic error: derived metric badgirl: operand sample.pmid: Unknown operand metric
+Semantic error: derived metric badboy: sample.lights + sample.colour: Non-arithmetic type for left operand
+Unknown metric badgirl (PM_ERR_NAME Unknown metric name).
+Unknown metric badboy (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -h local: -c TMP.metricset :qa
+Semantic error: derived metric badgirl: operand sample.pmid: Unknown operand metric
+Semantic error: derived metric badboy: sample.lights + sample.colour: Non-arithmetic type for left operand
+Unknown metric badgirl (PM_ERR_NAME Unknown metric name).
+Unknown metric badboy (PM_ERR_NAME Unknown metric name).
+       goodboy      goodgirl
+                            
+   1000000.000  hullo world!
+--  -a archives/reduce-1 -S +10sec -c TMP.metricset :qa
+Semantic error: derived metric badgirl: operand sample.pmid: Unknown operand metric
+Semantic error: derived metric badboy: operand sample.lights: Unknown operand metric
+Unknown metric badgirl (PM_ERR_NAME Unknown metric name).
+Unknown metric badboy (PM_ERR_NAME Unknown metric name).
+-- --ignore-unknown -a archives/reduce-1 -S +10sec -c TMP.metricset :qa
+Semantic error: derived metric badgirl: operand sample.pmid: Unknown operand metric
+Semantic error: derived metric badboy: operand sample.lights: Unknown operand metric
+Unknown metric badgirl (PM_ERR_NAME Unknown metric name).
+Unknown metric badboy (PM_ERR_NAME Unknown metric name).
+       goodboy      goodgirl
+                            
+   1000000.000  hullo world!
+
+Marko's examples ...
+++ Invalid metric mem.util.free + no.such.thing (PM_ERR_NAME Unknown metric name)
+Semantic error: derived metric foo: operand no.such.thing: Unknown operand metric
+Unknown metric foo (PM_ERR_NAME Unknown metric name).
+++ Invalid metric mem.util.free + no.such.thing (PM_ERR_NAME Unknown metric name)
+Semantic error: derived metric foo: operand no.such.thing: Unknown operand metric
+Unknown metric foo (PM_ERR_NAME Unknown metric name).
+++ Invalid metric d_bad (PM_ERR_NAME Unknown metric name)
+Semantic error: derived metric d_bad: operand no.such.thing: Unknown operand metric
+Unknown metric d_bad (PM_ERR_NAME Unknown metric name).
+++ Invalid metric d_bad (PM_ERR_BADDERIVE Derived metric definition failed)
+Semantic error: derived metric d_bad: operand no.such.thing: Unknown operand metric
+Unknown metric d_bad (PM_ERR_NAME Unknown metric name).

@@ -43,7 +43,7 @@ void
 on_secure_client_close(struct client *client)
 {
     if (pmDebugOptions.auth || pmDebugOptions.http)
-	fprintf(stderr, "%s: client %p\n", "on_secure_client_close", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_secure_client_close", client);
 
     uv_mutex_lock(&client->proxy->write_mutex);
     remove_connection_from_queue(client);
@@ -83,7 +83,7 @@ static void
 setup_secure_client(struct proxy *proxy, struct client *client)
 {
     if (pmDebugOptions.auth || pmDebugOptions.http)
-	fprintf(stderr, "%s: SSL/TLS connection initiated by client %p\n",
+	fprintf(stderr, "%s: SSL/TLS connection initiated by client " PRINTF_P_PFX "%p\n",
 		"setup_secure_client", client);
 
     client->secure.ssl = SSL_new(proxy->ssl);
@@ -101,7 +101,7 @@ void
 on_secure_client_write(struct client *client)
 {
     if (pmDebugOptions.auth || pmDebugOptions.http)
-	fprintf(stderr, "%s: client %p\n", "on_secure_client_write", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_secure_client_write", client);
 }
 
 void
@@ -112,7 +112,7 @@ on_secure_client_read(struct proxy *proxy, struct client *client,
     int			sts;
 
     if (pmDebugOptions.auth || pmDebugOptions.http)
-	fprintf(stderr, "%s: client %p\n", "on_secure_client_read", client);
+	fprintf(stderr, "%s: client " PRINTF_P_PFX "%p\n", "on_secure_client_read", client);
 
     /* once-off per-client SSL setup first time through */
     if (client->stream.secure == 0) {

@@ -146,7 +146,7 @@ main(int argc, char **argv)
     dst[DST_SIZE+10] = '\0';
     p = strncpy(dst, src, len);
     if (p != dst)
-	fprintf(stderr, "Botch: strncpy() returns %p not %p\n", p, dst);
+	fprintf(stderr, "Botch: strncpy() returns " PRINTF_P_PFX "%p not " PRINTF_P_PFX "%p\n", p, dst);
     dump(dst, sizeof(dst), src, len);
 
     printf("pmstrncpy() ...\n");
@@ -171,7 +171,7 @@ main(int argc, char **argv)
 	lentocat = len;
     p = strncat(dst, src, lentocat);
     if (p != dst)
-	fprintf(stderr, "Botch: strncat() returns %p not %p\n", p, dst);
+	fprintf(stderr, "Botch: strncat() returns " PRINTF_P_PFX "%p not " PRINTF_P_PFX "%p\n", p, dst);
     dump(dst, sizeof(dst), src, len);
 
     printf("pmstrncat() ...\n");

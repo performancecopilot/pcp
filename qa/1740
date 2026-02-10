@@ -19,6 +19,12 @@ fi
 . ./common.check
 
 [ $PCP_PLATFORM = linux ] || _notrun "Linux-specific pmdaproc testing"
+case `admin/whatami`
+in
+    *Slackware\ 15\.0*)
+	    _notrun "accton does not work for me on Slackware 15.0"
+	    ;;
+esac
 
 _cleanup()
 {

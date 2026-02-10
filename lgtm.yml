@@ -113,7 +113,6 @@ extraction:
         - python3-psycopg2
         - python3-requests
         - python3-setuptools
-        - python3-six
         - qt4-qmake
         - qtbase5-dev
         - qtbase5-dev-tools

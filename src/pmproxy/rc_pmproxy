@@ -256,6 +256,8 @@ Error: pmproxy log directory $PCP_LOG_DIR/pmproxy ("'"$PCP_LOG_DIR/pmproxy"'") i
 
 	    # otherwise, use the historical approach
 	    #
+	    # When launched by launchctl on macOS, run in foreground mode
+	    [ -n "$LAUNCHED_BY_LAUNCHD" ] && OPTS="$OPTS -f"
 	    $PMPROXY $OPTS
 	    $RC_STATUS -v
 	fi

@@ -14,7 +14,7 @@ echo "QA output created by $seq"
 . ./common.check
 
 _check_series
-_check_key_server_version
+_check_key_server_version_offline
 
 _cleanup()
 {

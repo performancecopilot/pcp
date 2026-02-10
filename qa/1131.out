@@ -2279,6 +2279,18 @@ hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MAC
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
 ---
+# PCP5 hinv_ncpu 60.0.32 u32 PM_INDOM_NULL discrete 
+# TYPE hinv_ncpu gauge
+# HELP hinv_ncpu number of CPUs in the system
+hinv_ncpu{domainname="localdomain",groupid="999",hostname="vm01",machineid="3a6b3d7f3b7559c538a5934a24866658",userid="999",agent="linux"} 1 1528207821.599573
+# PCP5 disk_partitions_write 60.10.1 u32 60.10 counter count
+# TYPE disk_partitions_write counter
+# HELP disk_partitions_write write operations metric for storage partitions
+disk_partitions_write_total{domainname="localdomain",groupid="999",hostname="vm01",machineid="3a6b3d7f3b7559c538a5934a24866658",userid="999",instname="sda1",instid="1",agent="linux",device_type="block",indom_name="per partition"} 88156 1528207821.599573
+disk_partitions_write_total{domainname="localdomain",groupid="999",hostname="vm01",machineid="3a6b3d7f3b7559c538a5934a24866658",userid="999",instname="sda2",instid="2",agent="linux",device_type="block",indom_name="per partition"} 0 1528207821.599573
+disk_partitions_write_total{domainname="localdomain",groupid="999",hostname="vm01",machineid="3a6b3d7f3b7559c538a5934a24866658",userid="999",instname="sda5",instid="3",agent="linux",device_type="block",indom_name="per partition"} 2293 1528207821.599573
+# EOF
+---
 {
   "resourceMetrics": [
     {

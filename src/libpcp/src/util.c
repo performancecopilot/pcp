@@ -2215,7 +2215,7 @@ basename(char *name)
    along with this program; if not, write to the Free Software
    Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-int cfmakeraw(struct termios *termios_p)
+void cfmakeraw(struct termios *termios_p)
 {
   termios_p->c_iflag &= ~(IGNBRK|BRKINT|PARMRK|ISTRIP
                           |INLCR|IGNCR|ICRNL|IXON);
@@ -2223,7 +2223,7 @@ int cfmakeraw(struct termios *termios_p)
   termios_p->c_lflag &= ~(ECHO|ECHONL|ICANON|ISIG|IEXTEN);
   termios_p->c_cflag &= ~(CSIZE|PARENB);
   termios_p->c_cflag |= CS8;
-  return 0;
+  return;
 }
 #endif /* HAVE_CFMAKERAW */
 
@@ -3076,7 +3076,7 @@ __pmDumpStack(void)
 	    else if (symbols != NULL)
 		fprintf(stderr, "  %s", symbols[i]);
 	    else
-		fprintf(stderr, "  %p ??unknown??", backaddr[i]);
+		fprintf(stderr, "  " PRINTF_P_PFX "%p ??unknown??", backaddr[i]);
 	    if (text_start != NULL) {
 		/*
 		 * report address offset from the base of the text segment

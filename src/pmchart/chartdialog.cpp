@@ -341,7 +341,7 @@ void ChartDialog::availableMetricsItemSelectionChanged()
 void ChartDialog::availableMetricsItemExpanded(QTreeWidgetItem *item)
 {
     console->post(PmChart::DebugUi,
-		 "ChartDialog::availableMetricsItemExpanded %p", item);
+		 "ChartDialog::availableMetricsItemExpanded " PRINTF_P_PFX "%p", item);
     NameSpace *metricName = (NameSpace *)item;
     metricName->setExpanded(true, true);
 }

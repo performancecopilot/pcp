@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014,2018-2021 Red Hat.
+ * Copyright (c) 2013-2014,2018-2026 Red Hat.
  * Copyright (c) 2005,2007-2008 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -72,8 +72,10 @@
 #define CLUSTER_CGROUP2_IRQ_PRESSURE	76
 #define CLUSTER_PID_FDINFO		77 /* /proc/<pid>/fdinfo */
 #define CLUSTER_HOTPROC_PID_FDINFO	78 /* /proc/<pid>/fdinfo */
+#define CLUSTER_PID_DELAYACCT   	79 /* libnl (netlink) stats */
+#define CLUSTER_HOTPROC_PID_DELAYACCT   80 /* libnl (netlink) stats */
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define MAX_CLUSTER 79		/* one more than highest cluster number used */
+#define MAX_CLUSTER 81		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */

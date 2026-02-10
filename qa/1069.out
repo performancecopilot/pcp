@@ -32,7 +32,7 @@ HH:MM:SS        1
 20:36:51       1.00         1000.00
 20:36:53       1.00         1000.02
 == basic archive indom handling
-Invalid metric tape.dev.io_ns (PM_ERR_INDOM_LOG Instance domain identifier not defined in the PCP archive).
+Incompatible metric tape.dev.io_ns (PM_ERR_INDOM_LOG Instance domain identifier not defined in the PCP archive).
   m.u.used
      Kbyte
 == basic configuration file handling
@@ -411,7 +411,7 @@ Error while parsing options: Invalid output target specified.
 pcp: sample count must be a positive numeric argument
 Error while reading option precision: Non-negative integer expected.
 pmrep: Impossible value or scale conversion
-Invalid metric bogus (PM_ERR_NAME Unknown metric name).
+Unknown metric bogus (PM_ERR_NAME Unknown metric name).
 == invalid configuration file part 2
 Failed to read configuration file CONF_FILE, line 2:
 Source contains parsing errors: CONF_FILE
@@ -420,7 +420,7 @@ Source contains parsing errors: CONF_FILE
 Failed to read configuration file CONF_FILE:
 No value set for error in [test1].
 == unsupported metric type
-Invalid metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
+Incompatible metric sample.sysinfo (PM_ERR_TYPE Unknown or illegal metric type).
 == exercise non-integer options
 
   archive: QAPATH/archives/sample-secs
@@ -1228,7 +1228,7 @@ pmrep: Impossible value or scale conversion
   Kby
   xxx
 == handle empty/invalid/multiple metricsets in config file
-Invalid metric yes (PM_ERR_NAME Unknown metric name).
+Unknown metric yes (PM_ERR_NAME Unknown metric name).
 Failed to read configuration file CONF_FILE:
 Unknown option mem.util.free in [options].
 No metrics specified.

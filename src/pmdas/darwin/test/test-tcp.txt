@@ -1,0 +1,64 @@
+# Test TCP protocol statistics (net.inet.tcp.stats sysctl)
+# These metrics provide insight into TCP protocol activity and errors.
+# NOTE: Requires net.inet.tcp.disable_access_to_stats=0
+
+# TCP connection lifecycle metrics
+desc network.tcp.activeopens
+fetch network.tcp.activeopens
+
+desc network.tcp.passiveopens
+fetch network.tcp.passiveopens
+
+desc network.tcp.attemptfails
+fetch network.tcp.attemptfails
+
+desc network.tcp.estabresets
+fetch network.tcp.estabresets
+
+desc network.tcp.currestab
+fetch network.tcp.currestab
+
+# TCP segment counters
+desc network.tcp.insegs
+fetch network.tcp.insegs
+
+desc network.tcp.outsegs
+fetch network.tcp.outsegs
+
+desc network.tcp.retranssegs
+fetch network.tcp.retranssegs
+
+# TCP error metrics (granular breakdown)
+desc network.tcp.inerrs.total
+fetch network.tcp.inerrs.total
+
+desc network.tcp.inerrs.badsum
+fetch network.tcp.inerrs.badsum
+
+desc network.tcp.inerrs.badoff
+fetch network.tcp.inerrs.badoff
+
+desc network.tcp.inerrs.short
+fetch network.tcp.inerrs.short
+
+desc network.tcp.inerrs.memdrop
+fetch network.tcp.inerrs.memdrop
+
+desc network.tcp.outrsts
+fetch network.tcp.outrsts
+
+desc network.tcp.incsumerrors
+fetch network.tcp.incsumerrors
+
+# TCP configuration constants
+desc network.tcp.rtoalgorithm
+fetch network.tcp.rtoalgorithm
+
+desc network.tcp.rtomin
+fetch network.tcp.rtomin
+
+desc network.tcp.rtomax
+fetch network.tcp.rtomax
+
+desc network.tcp.maxconn
+fetch network.tcp.maxconn

@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 1650
+# exercise indom= added to speclist grammar for derived metrics
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+cat <<'End-of-File' >$tmp.config
+qa.default = defined(foo) ? foo : novalue()
+qa.null.a = defined(foo) ? foo : novalue(indom=null)
+qa.null.b = defined(foo) ? foo : novalue(indom="null")
+qa.indom.a = defined(foo) ? foo : novalue(indom=1.2)
+qa.indom.b = defined(foo) ? foo : novalue(indom="3.4")
+qa.indom.c = defined(foo) ? foo : novalue(indom=510.4194303)
+qa.combined.a = defined(foo) ? foo : novalue(units=Kbyte,semantics=counter,indom=1.2)
+qa.combined.b = defined(foo) ? foo : novalue(indom=1.2,type=u64,semantics=instant)
+End-of-File
+PCP_DERIVED_CONFIG=$tmp.config pminfo -Dderive,appl0 -df qa 2>>$seq_full
+
+echo
+echo "Some error cases ..."
+cat <<'End-of-File' >$tmp.config
+qa.bad.a = defined(foo) ? foo : novalue(indom=foo)
+qa.bad.b = defined(foo) ? foo : novalue(indom="bar")
+qa.bad.c = defined(foo) ? foo : novalue(indom=-1.0)
+qa.bad.d = defined(foo) ? foo : novalue(indom=0.-2)
+qa.bad.e = defined(foo) ? foo : novalue(indom="511.0")
+qa.bad.f = defined(foo) ? foo : novalue(indom="0.4194304")
+qa.bad.g = defined(foo) ? foo : novalue(indom="123")
+qa.bad.h = defined(foo) ? foo : novalue(indom="123.456foo")
+End-of-File
+PCP_DERIVED_CONFIG=$tmp.config pminfo -df qa 2>&1 | _filter
+
+# success, all done
+exit

@@ -20,7 +20,6 @@ in the source distribution for its full text.
 #include "BatteryMeter.h"
 #include "CPUMeter.h"
 #include "ClockMeter.h"
-#include "DateMeter.h"
 #include "DateTimeMeter.h"
 #include "DiskIOMeter.h"
 #include "DynamicColumn.h"
@@ -91,6 +90,7 @@ const MeterClass* const Platform_meterTypes[] = {
    &MemorySwapMeter_class,
    &TasksMeter_class,
    &UptimeMeter_class,
+   &SecondsUptimeMeter_class,
    &BatteryMeter_class,
    &HostnameMeter_class,
    &AllCPUsMeter_class,
@@ -714,11 +714,11 @@ static void Platform_setRelease(void) {
    free(sysname.cp);
 }
 
-void Platform_getRelease(const char** string) {
+const char* Platform_getRelease(void) {
    if (pcp->release == NULL)
       Platform_setRelease();
 
-   *string = pcp->release;
+   return pcp->release;
 }
 
 char* Platform_getProcessEnv(pid_t pid) {

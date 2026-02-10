@@ -167,6 +167,7 @@ extern int __pmIsLockLock(void *) _PCP_HIDDEN;
 extern int __pmIsLogutilLock(void *) _PCP_HIDDEN;
 extern int __pmIsPmnsLock(void *) _PCP_HIDDEN;
 extern int __pmIsPmnsFixLock(void *) _PCP_HIDDEN;
+extern int __pmIsPmnsPmapiLock(void *) _PCP_HIDDEN;
 extern int __pmIsAFLock(void *) _PCP_HIDDEN;
 extern int __pmIsresultLock(void *) _PCP_HIDDEN;
 extern int __pmIsSecureclientLock(void *) _PCP_HIDDEN;

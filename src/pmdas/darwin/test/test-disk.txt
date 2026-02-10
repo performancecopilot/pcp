@@ -1,0 +1,26 @@
+# Disk metrics test
+
+# Disk inventory
+desc hinv.ndisk
+fetch hinv.ndisk
+
+# Disk all metrics
+desc disk.all.read
+fetch disk.all.read
+
+desc disk.all.write
+fetch disk.all.write
+
+desc disk.all.total
+fetch disk.all.total
+
+desc disk.all.read_bytes
+fetch disk.all.read_bytes
+
+desc disk.all.write_bytes
+fetch disk.all.write_bytes
+
+# Per-disk metrics (if disks exist)
+desc disk.dev.read
+desc disk.dev.write
+desc disk.dev.total_bytes

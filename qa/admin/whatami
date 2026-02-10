@@ -10,7 +10,7 @@ sts=0
 debug=false
 heading=false
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/whatami-$$
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 while [ $# -gt 0 ]
@@ -130,6 +130,11 @@ then
     #
     os=`sed </etc/gentoo-release -e 's/ release / /' -e 's/ Base System / /'`
     $debug && from=' [/etc/gentoo-release]'
+elif [ -f /etc/amazon-linux-release ]
+then
+    #Amazon Linux release 2023.9.20251117 (Amazon Linux)
+    os=`sed < /etc/amazon-linux-release -e 's/ release//g' -e 's/(Amazon Linux)//g' -e 's/\..*//g' -e 's/Amazon Linux/AmazonLinux/g'`
+    $debug && from=' [/etc/amazon-linux-release]'
 elif [ -f /etc/system-release ]
 then
     # Fedora release 15 (Lovelock)

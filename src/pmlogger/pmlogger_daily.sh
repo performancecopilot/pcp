@@ -37,6 +37,7 @@ prog=`basename $0`
 PROGLOG=$PCP_LOG_DIR/pmlogger/$prog.log
 MYPROGLOG=$PROGLOG.$$
 USE_SYSLOG=true
+localhost=`hostname || echo localhost`
 
 # optional begin logging to $PCP_LOG_DIR/NOTICES
 #
@@ -353,6 +354,7 @@ Options:
   -E,--expunge            expunge metrics with metadata inconsistencies when merging archives
   -f,--force              force actions (intended for QA, not production)
   -k=TIME,--discard=TIME  remove archives after TIME (format DD[:HH[:MM]])
+  -d=fssize,--disk=fssize set maximum disk usage for archives for each pmlogger instance
   -K                      compress, but no other changes
   -l=FILE,--logfile=FILE  send important diagnostic messages to FILE
   -m=ADDRs,--mail=ADDRs   send daily NOTICES entries to email addresses
@@ -404,6 +406,8 @@ DO_DAILY_REPORT=true
 NOPROXY=false
 PROXYONLY=false
 NOERROR=false
+SPACELIMIT_CMDLINE=""
+SPACELIMIT_DEFAULT="unlimited"
 
 ARGS=`pmgetopt --progname=$prog --config=$tmp/usage -- "$@"`
 [ $? != 0 ] && exit 1
@@ -418,6 +422,24 @@ do
 		shift
 		;;
 	-D)	DO_DAILY_REPORT=false
+		;;
+	-d)	SPACELIMIT_CMDLINE="$2"
+		shift
+		if [ -n "$PCP_SPACELIMIT" -a "$PCP_SPACELIMIT" != "$SPACELIMIT_CMDLINE" ]
+		then
+		    echo "Warning: -d value ($SPACELIMIT_CMDLINE) ignored because \$PCP_SPACELIMIT ($PCP_SPACELIMIT) set in environment"
+		    SPACELIMIT_CMDLINE=""
+		    continue
+		fi
+		if [ "$SPACELIMIT_CMDLINE" != unlimited ]
+		then
+		    if ! _convert_to_kb "$SPACELIMIT_CMDLINE" >/dev/null
+		    then
+			echo "Error: -d value ($SPACELIMIT_CMDLINE) not valid"
+			$NOERROR || status=1
+			exit
+		    fi
+		fi
 		;;
 	-E)	EXPUNGE="-E"
 		;;
@@ -781,9 +803,48 @@ fi
 if [ ! -f "$CONTROL" ]
 then
     echo "$prog: Error: cannot find control file ($CONTROL)"
+    echo "... I am here ... `pwd` ... and these files are here ..."
+    ls -l
     $NOERROR || status=1
     exit
 fi
+
+# Given a list of candidate directories, calculate the total
+# size below them in Kbytes
+#
+_calculate_total_size()
+{	
+    du -sk "$@" 2>$tmp/cts_err \
+    | awk >$tmp/cts_out '
+BEGIN	{ kb = 0 }
+	{ kb += $1 }
+END	{ print kb }' >$tmp/cts_out
+    if [ -s $tmp/cts_err ] && $VERY_VERBOSE
+    then
+	echo >&2 "Warning: _calculate_total_size: du -sk $@ produced errors ..."
+	cat >&2 $tmp/cts_err
+    fi
+    $VERY_VERBOSE && echo >&2 "Info: _calculate_total_size -> `cat $tmp/cts_out` Kbytes"
+    cat $tmp/cts_out
+}
+
+# Calculate the total size of the archive with basename $1
+#
+_calculate_archive_size()
+{	
+    du -sk "$1".* 2>$tmp/cts_err \
+    | awk >$tmp/cts_out '
+BEGIN	{ kb = 0 }
+	{ kb += $1 }
+END	{ print kb }' >$tmp/cts_out
+    if [ -s $tmp/cts_err ] && $VERY_VERBOSE
+    then
+	echo >&2 "Warning: _calculate_archive_size: du -sk $1.* produced errors ..."
+	cat >&2 $tmp/cts_err
+    fi
+    $VERY_VERBOSE && echo >&2 "Info: _calculate_archive_size $1 -> `cat $tmp/cts_out` Kbytes"
+    cat $tmp/cts_out
+}
 
 _skipping()
 {
@@ -1062,15 +1123,93 @@ BEGIN	{ seenslash = 0; inshell = 0; out = "" }
 END	{ print out }'
 }
 
+
+
+# Check disk space allocation for one pmlogger instance, and if more
+# than $SPACELIMIT Kbytes, purge files to try and get the space
+# allocated to be not more than $SPACELIMIT Kbytes.
+#
+# Oldest files are purged first and the most recent archives for today
+# (including those required by active pmlogger (1) processes are
+# never deleted.
+#
+# On entry, $find_dirs is a list of one or more directories holding
+# archives for a pmlogger instance, set in _callback_log_control(),
+# and $host is the host name field from the control line, set in
+# _parse_log_control().
+#
+_do_purge()
+{
+    SPACELIMIT="$PCP_SPACELIMIT"
+    [ -z "$SPACELIMIT" ] && SPACELIMIT="$SPACELIMIT_CMDLINE"
+    [ -z "$SPACELIMIT" ] && SPACELIMIT="$SPACELIMIT_DEFAULT"
+    [ "$SPACELIMIT" = unlimited ] && return
+    if ! _convert_to_kb "$SPACELIMIT" >$tmp/tmp
+    then
+	_warning "skipping purging because of invalid space limit"
+	return
+    fi
+    SPACELIMIT=`cat $tmp/tmp`
+    $VERY_VERBOSE && echo >&2 "SPACELIMIT=$SPACELIMIT"
+    __total_size=`_calculate_total_size $find_dirs`
+    if [ "$__total_size" -le "$SPACELIMIT" ]
+    then
+        $VERBOSE && echo "Info: No purging required for $host, archives ($__total_size Kbytes) <= size limit ($SPACELIMIT Kbytes)"
+        return
+    fi
+    $VERBOSE && echo "Info: archives for $host ($__total_size Kbytes) >= size limit ($SPACELIMIT Kbytes)"
+
+    # algorithm to find archive basenames borrowed from _do_merge()
+    # output is in this format ...
+    # <directory>|<archive>
+    #
+    TODAY=`date +%Y%m%d`
+    find $find_dirs -maxdepth 1 -type f \
+    | sed -n \
+	-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.meta.*\)/s//\1|\2/p' \
+	-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2\3/p' \
+	-e '/\(.*\)\/\([12][0-9][0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2\3/p' \
+	-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.meta.*\)/s//\1|\2/p' \
+	-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]\)\(\.meta.*\)/s//\1|\2\3/p' \
+	-e '/\(.*\)\/\([0-9][0-9][0-1][0-9][0-3][0-9]\)\(\.[0-2][0-9].[0-5][0-9]-[0-9][0-9]\)\(\.meta.*\)/s//\1|\2\3/p' \
+    | sort -t'|' -n -k2,2 \
+    | $PCP_AWK_PROG -F'|' '
+$2 == "'$TODAY'"	{ next }
+$2 ~ /^'$TODAY'/	{ next }
+			{ print }' >$tmp/purge_candidates
+    if [ ! -s $tmp/purge_candidates ]
+    then
+        $VERBOSE && echo "Info: No candidates to purge."
+        return
+    fi
+
+    sed -e 's/|/ /' <$tmp/purge_candidates \
+    | while read __dir __file
+    do
+	[ "$__dir" != "." ] && __file="$__dir/$__file"
+        __arch_size=`_calculate_archive_size "$__file"`
+	if $SHOWME
+	then
+	    echo "+ rm `echo $__file.**`"
+	    __total_size=`expr $__total_size - $__arch_size`
+	else
+	    if rm "$__file".*
+	    then
+		$VERBOSE && echo "Info: purge $__file, reclaims $__arch_size Kbytes"
+		__total_size=`expr $__total_size - $__arch_size`
+	    else
+		$VERBOSE && echo "Warning: rm $__file.* failed"
+	    fi
+	fi
+	[ "$__total_size" -le "$SPACELIMIT" ] && break
+    done
+}
+
 # come here from _parse_log_control() once per valid line in a control
 # file ... see utilproc.sh for interface definitions
 #
 _callback_log_control()
 {
-    # nothing to do for pmlogger pushing to a remote pmproxy
-    #
-    $logpush && return
-
     if $VERBOSE
     then
 	echo
@@ -1130,6 +1269,10 @@ _callback_log_control()
 	find_dirs=`echo $orig_dir | _unbackquote`
 	$VERBOSE && echo "Embedded \`...\`: find_dirs=$find_dirs"
     fi
+    # and rewrite LOCALHOSTNAME if it is included
+    #
+    find_dirs=`echo "$find_dirs" | sed -e "s;LOCALHOSTNAME;$localhost;g"`
+    $VERY_VERBOSE && echo "Info: find_dirs=$find_dirs"
 
     # For archive rewriting (to make metadata consistent across
     # archives) find the rules as follows:
@@ -1423,6 +1566,14 @@ _callback_log_control()
 	else
 	    $VERY_VERBOSE && echo >&2 "Warning: no trace files found to cull"
 	fi
+    fi
+
+    # if space limit specified, potentially purge old archives if
+    # space limit exceeded
+    #
+    if [ -n "$PCP_SPACELIMIT" -o -n "$SPACELIMIT_CMDLINE" ]
+    then
+	_do_purge
     fi
 }
 
@@ -2020,6 +2171,7 @@ else
     #
     if cd "$PCP_REMOTE_ARCHIVE_DIR"
     then
+	$VERY_VERBOSE && echo "Info: do_compress: cd to $PCP_REMOTE_ARCHIVE_DIR OK"
 	# one-trip guard if there is something to be done
 	#
 	rm -f $tmp/proxy_sighup
@@ -2080,7 +2232,16 @@ else
 		_parse_log_control $tmp/control
 	    fi
 	done
-	cd $here
+	if cd $here
+	then
+	    $VERY_VERBOSE && echo "Info: do_compress: cd back to $here OK"
+	else
+	    echo >&2 "Error: do_compress: failed to cd back to $here"
+	    $NOERROR || status=1
+	fi
+    else
+	echo >&2 "Error: do_compress: faild to cd to $PCP_REMOTE_ARCHIVE_DIR"
+	$NOERROR || status=1
     fi
 fi
 

@@ -341,32 +341,59 @@ derive_lex() -> type=L_EOS ""
 pmRegisterDerived: global metric[19] myname.biggest.const = 4294967295
 Derived metric expr dump from <addr-119>...
 expr node <addr-119> type=INTEGER left=(nil) right=(nil) save_last=0 [4294967295] primary=1
+__dmchildren(ctx=NULL, derive_locked=0, name="", ...)
 pmGetChildren(name="") 1 regular children, 2 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="local_pmns_no_pmcd_connection", ...)
 pmGetChildren(name="local_pmns_no_pmcd_connection") 0 regular children, no derived children (Unknown metric name)
+__dmchildren(ctx=NULL, derive_locked=0, name="event", ...)
 pmGetChildren(name="event") no regular children (Unknown metric name), 2 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="event.flags", ...)
 pmGetChildren(name="event.flags") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="event.missed", ...)
 pmGetChildren(name="event.missed") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname", ...)
 pmGetChildren(name="myname") no regular children (Unknown metric name), 18 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.a", ...)
 pmGetChildren(name="myname.a") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.b", ...)
 pmGetChildren(name="myname.b") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.c", ...)
 pmGetChildren(name="myname.c") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.d", ...)
 pmGetChildren(name="myname.d") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.e", ...)
 pmGetChildren(name="myname.e") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.f", ...)
 pmGetChildren(name="myname.f") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.g", ...)
 pmGetChildren(name="myname.g") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.h", ...)
 pmGetChildren(name="myname.h") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.i", ...)
 pmGetChildren(name="myname.i") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.j", ...)
 pmGetChildren(name="myname.j") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.k", ...)
 pmGetChildren(name="myname.k") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.l", ...)
 pmGetChildren(name="myname.l") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.m", ...)
 pmGetChildren(name="myname.m") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.n", ...)
 pmGetChildren(name="myname.n") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.ABC", ...)
 pmGetChildren(name="myname.ABC") no regular children (Unknown metric name), 1 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.ABC.k42", ...)
 pmGetChildren(name="myname.ABC.k42") no regular children (Unknown metric name), 1 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.ABC.k42.x_1_3", ...)
 pmGetChildren(name="myname.ABC.k42.x_1_3") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.o", ...)
 pmGetChildren(name="myname.o") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.p", ...)
 pmGetChildren(name="myname.p") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.biggest", ...)
 pmGetChildren(name="myname.biggest") no regular children (Unknown metric name), 1 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.biggest.const", ...)
 pmGetChildren(name="myname.biggest.const") no regular children (Unknown metric name), derived leaf
 local_pmns_no_pmcd_connection
 event.flags
@@ -621,12 +648,19 @@ derive_lex() -> type=L_LPAREN "("
  sum(sample.bin) - min((sample.bin)
                        ^           
 Metric name expected to follow min(
+__dmchildren(ctx=NULL, derive_locked=0, name="", ...)
 pmGetChildren(name="") 1 regular children, 2 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="local_pmns_no_pmcd_connection", ...)
 pmGetChildren(name="local_pmns_no_pmcd_connection") 0 regular children, no derived children (Unknown metric name)
+__dmchildren(ctx=NULL, derive_locked=0, name="event", ...)
 pmGetChildren(name="event") no regular children (Unknown metric name), 2 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="event.flags", ...)
 pmGetChildren(name="event.flags") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="event.missed", ...)
 pmGetChildren(name="event.missed") no regular children (Unknown metric name), derived leaf
+__dmchildren(ctx=NULL, derive_locked=0, name="myname", ...)
 pmGetChildren(name="myname") no regular children (Unknown metric name), 1 derived children
+__dmchildren(ctx=NULL, derive_locked=0, name="myname.a", ...)
 pmGetChildren(name="myname.a") no regular children (Unknown metric name), derived leaf
 local_pmns_no_pmcd_connection
 event.flags
@@ -636,4 +670,5 @@ pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
 pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
 Derived metric initialization from $PCP_DERIVED_CONFIG
 Warning: derived metrics path component: /no/such/file: No such file or directory
+__dmtraverse(ctx=0, name="no.such.metric", ...)
 Error: no.such.metric: Unknown metric name

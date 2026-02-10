@@ -36,6 +36,7 @@ pmLoadDerivedConfig("TMP.config")
 pmRegisterDerived: global metric[2] my.scramble.bin = sample.scramble.bin
 pmRegisterDerived: global metric[3] my.scramble.delta = delta(sample.scramble.bin)
 __dmgetpmid: metric "my.scramble.delta" -> PMID 511.0.4
+__dmbind(derive_locked=0, ctx=0, metric[3] my.scramble.delta, async= 1)
 __dmgetpmid: metric "my.scramble.delta" -> PMID 511.0.4
 derived metrics prefetch added 1 metrics: 29.0.121
 __dmpostvalueset: [0] root node 511.0.4: numval=0

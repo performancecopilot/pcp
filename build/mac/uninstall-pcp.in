@@ -1,21 +1,46 @@
 #!/bin/sh
 #
 # Copyright (c) 2003-2004 Silicon Graphics, Inc.  All Rights Reserved.
-# 
+#
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
 # Free Software Foundation; either version 2 of the License, or (at your
 # option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License along
 # with this program; if not, write to the Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
+
+# Parse command line arguments
+FORCE=false
+while [ $# -gt 0 ]; do
+    case "$1" in
+        -f|--force)
+            FORCE=true
+            shift
+            ;;
+        -h|--help)
+            echo "Usage: $0 [-f|--force] [-h|--help]"
+            echo ""
+            echo "Options:"
+            echo "  -f, --force    Skip confirmation prompt and remove all PCP"
+            echo "                 configuration, data, and log directories"
+            echo "  -h, --help     Show this help message"
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            echo "Use --help for usage information"
+            exit 1
+            ;;
+    esac
+done
 
 if [ $USER != "root" ]
 then
@@ -24,13 +49,17 @@ then
     exit 1
 fi
 
-@echo@ @echo_n@ "Are you sure you want to uninstall PCP? [y/n] @echo_c@"
-read answer
-
-if [ "X$answer" != "Xy" -a "X$answer" != "XY" ]
+# Interactive confirmation unless force mode
+if ! $FORCE
 then
-    echo "Uninstall cancelled."
-    exit 1
+    @echo@ @echo_n@ "Are you sure you want to uninstall PCP? [y/n] @echo_c@"
+    read answer
+
+    if [ "X$answer" != "Xy" -a "X$answer" != "XY" ]
+    then
+        echo "Uninstall cancelled."
+        exit 1
+    fi
 fi
 
 here=`pwd`
@@ -42,30 +71,105 @@ then
     exit 1
 fi
 
-echo "Stopping PCP..."
-/Library/StartupItems/pcp/pmlogger stop
-/Library/StartupItems/pcp/pmcd stop
-sleep 5
+echo "Stopping PCP services..."
+
+# Unload and remove launchd services
+for service in io.pcp.pmcd io.pcp.pmie io.pcp.pmlogger io.pcp.pmproxy
+do
+    if launchctl list "$service" >/dev/null 2>&1; then
+        echo "  Stopping $service..."
+        # Try modern bootout first (macOS 10.11+), fall back to unload for older systems
+        launchctl bootout system "/Library/LaunchDaemons/${service}.plist" 2>/dev/null || \
+        launchctl unload "/Library/LaunchDaemons/${service}.plist" 2>/dev/null || true
+    fi
+done
+
+sleep 2
 
 if [ -x $BINADM_DIR/install-pcp -a -r $BINADM_DIR/idb ]
 then
-    echo "Removing Receipts"
+    echo "Removing package receipts..."
+
+    # Modern macOS package receipt removal
+    if pkgutil --pkgs | grep -q "io.pcp.performancecopilot" 2>/dev/null; then
+        pkgutil --forget io.pcp.performancecopilot 2>/dev/null || true
+    fi
+
+    # Also remove old-style receipts if they exist (for upgrades from old versions)
     if [ -d /Library/Receipts/pcp-*.pkg ]; then
 	rm -rf /Library/Receipts/pcp-*.pkg
     fi
+
+    echo "Removing LaunchDaemons plists..."
+    for plist in io.pcp.pmcd io.pcp.pmie io.pcp.pmlogger io.pcp.pmproxy
+    do
+        if [ -f "/Library/LaunchDaemons/${plist}.plist" ]; then
+            rm -f "/Library/LaunchDaemons/${plist}.plist"
+        fi
+    done
+
     echo "Uninstall in background to remove all running scripts"
-    # Copy to /tmp since inst will remove itself and this script
-    cp $BINADM_DIR/install-pcp $BINADM_DIR/idb /tmp
-    # create tidy up script
-    echo '#!/bin/sh' > /tmp/_pcp_tidy.sh
-    echo '/tmp/install-pcp -r -l /var/log/pcp_inst.log /tmp/idb && /bin/rm -rf /Library/Receipts/pcp-*' >> /tmp/_pcp_tidy.sh
-    echo '/bin/rm -f /tmp/install-pcp /tmp/idb /tmp/_pcp_tidy.sh' >> /tmp/_pcp_tidy.sh
-    echo 'echo Done' >> /tmp/_pcp_tidy.sh
-    chmod u+x /tmp/_pcp_tidy.sh
+
+    # Use mktemp for security instead of hardcoded /tmp paths
+    tmpdir=`mktemp -d /tmp/pcp-uninstall.XXXXXXXXX` || exit 1
+
+    # Copy to temp dir since install-pcp will remove itself and this script
+    cp $BINADM_DIR/install-pcp $BINADM_DIR/idb "$tmpdir/"
+
+    # Create tidy up script in temp directory
+    tidyscript="$tmpdir/_pcp_tidy.sh"
+    echo '#!/bin/sh' > "$tidyscript"
+    echo "tmpdir=\"$tmpdir\"" >> "$tidyscript"
+    echo 'cd "$tmpdir"' >> "$tidyscript"
+
+    # In force mode, suppress "Directory not empty" warnings from install-pcp
+    # since we'll be removing those directories with rm -rf anyway
+    if $FORCE
+    then
+        echo './install-pcp -r -l /var/log/pcp_inst.log ./idb 2>/dev/null' >> "$tidyscript"
+    else
+        echo './install-pcp -r -l /var/log/pcp_inst.log ./idb' >> "$tidyscript"
+    fi
+
+    echo 'pkgutil --forget io.pcp.performancecopilot 2>/dev/null || true' >> "$tidyscript"
+    echo '/bin/rm -rf /Library/Receipts/pcp-* 2>/dev/null || true' >> "$tidyscript"
+
+    # If force mode, aggressively remove PCP directories
+    if $FORCE
+    then
+        echo 'echo ""' >> "$tidyscript"
+        echo 'echo "Force mode: Removing all PCP configuration, data, and log files..."' >> "$tidyscript"
+        echo 'rm -rf /etc/pcp 2>/dev/null || true' >> "$tidyscript"
+        echo 'rm -rf /var/lib/pcp 2>/dev/null || true' >> "$tidyscript"
+        echo 'rm -rf /var/log/pcp 2>/dev/null || true' >> "$tidyscript"
+        echo 'echo "Complete removal finished."' >> "$tidyscript"
+    fi
+
+    # Clean up temp directory and script
+    echo 'cd /' >> "$tidyscript"
+    echo "rm -rf \"$tmpdir\"" >> "$tidyscript"
+    echo 'echo ""' >> "$tidyscript"
+    echo 'echo "PCP uninstall complete."' >> "$tidyscript"
+
+    # Show appropriate message based on force mode
+    if ! $FORCE
+    then
+        echo 'echo ""' >> "$tidyscript"
+        echo 'echo "Note: Configuration and log files have been left in place:"' >> "$tidyscript"
+        echo 'echo "  - /etc/pcp/"' >> "$tidyscript"
+        echo 'echo "  - /var/lib/pcp/"' >> "$tidyscript"
+        echo 'echo "  - /var/log/pcp/"' >> "$tidyscript"
+        echo 'echo ""' >> "$tidyscript"
+        echo 'echo "You may manually remove these directories if desired,"' >> "$tidyscript"
+        echo 'echo "or run this script with --force to remove everything."' >> "$tidyscript"
+    fi
+
+    echo 'echo ""' >> "$tidyscript"
+    chmod u+x "$tidyscript"
+
     # Run remove, overriding this shell
-    exec /tmp/_pcp_tidy.sh
+    exec "$tidyscript"
 else
     echo "Unable to find $BINADM_DIR/install-pcp. Remove failed"
     exit 1
 fi
-

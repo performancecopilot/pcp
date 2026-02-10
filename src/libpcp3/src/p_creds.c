@@ -38,7 +38,7 @@ __pmSendCreds(int fd, int from, int credcount, const __pmCred *credlist)
 
     if (credcount <= 0 || credcount > LIMIT_CREDS || credlist == NULL) {
 	if (pmDebugOptions.pdu) {
-	    fprintf(stderr, "__pmSendCreds: PM_ERR_IPC: credcount %d <= 0 or > LIMIT_CREDS %d or credlist NULL %p\n",
+	    fprintf(stderr, "__pmSendCreds: PM_ERR_IPC: credcount %d <= 0 or > LIMIT_CREDS %d or credlist NULL " PRINTF_P_PFX "%p\n",
 		credcount, LIMIT_CREDS, credlist);
 	}
 	return PM_ERR_IPC;

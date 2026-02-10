@@ -1,0 +1,281 @@
+#!/bin/sh
+# PCP QA Test No. 1649
+# pmrep -5|--ignore-unknown workout
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    tee -a $seq_full \
+    | sed \
+	-e '/^pmRegisterDerived: /d'  \
+	-e '/^Derived metric initialization /d' \
+	-e '/^pmLoadDerivedConfig(/d' \
+	-e '/^pmGetChildren(/d' \
+	-e '/^__dmtraverse(/d' \
+	-e '/^__dmtraverse: /d' \
+	-e '/^__dmchildren(/d' \
+	-e '/^__dmchildren: /d' \
+	-e '/^__dmbind(/d' \
+	-e '/^__dmbind: /d' \
+	-e '/^__dmgetpmid: /d' \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# pmrep args are $1 ...
+# loop live pmcd and then archive
+#    loop without --ignore-unknown then with --ignore-unknown
+#
+_doit()
+{
+    for src in "-h local:" "-a $archive $start"
+    do
+	for opt in "" $ignore
+	do
+	    echo "-- $opt $src $*" | _filter
+	    if $do_valgrind
+	    then
+		_run_valgrind pmrep $debug -s 1 -w 12 $opt $src $*
+	    else
+		pmrep $debug -s 1 -w 12 $opt $src $* >$tmp.out 2>$tmp.err
+	    fi
+	    cat $tmp.err $tmp.out | _filter
+	done
+    done
+}
+
+PCP_DERIVED_CONFIG=$tmp.derived
+export PCP_DERIVED_CONFIG
+touch $PCP_DERIVED_CONFIG
+
+ignore='--ignore-unknown'
+archive='archives/omnibus-nomark_v3'
+start='-S +1sec'
+debug=''
+
+# real QA test starts here
+
+echo "=== metrics on command line ==="
+echo "++ one bad"
+_doit foo.bar
+echo
+echo "++ one bad and one good"
+_doit foo.bar sample.long.million
+echo
+echo "++ one good, one bad and one good"
+_doit sample.long.million foo.bar sample.string.hullo
+echo
+echo "++ one bad, one good, one bad and one good"
+_doit fumble.mumble sample.long.million foo.bar sample.string.hullo
+
+echo
+echo "=== metrics in a metrics set ==="
+echo "++ one bad"
+cat <<End-of-File >$tmp.metricset
+[qa]
+foo.bar			= badboy,,,,12
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one bad and one good"
+cat <<End-of-File >$tmp.metricset
+[qa]
+foo.bar			= badboy,,,,12
+sample.long.million	= goodie,,,,12
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one good, one bad and one good"
+cat <<End-of-File >$tmp.metricset
+[qa]
+sample.long.million	= goodie,,,,12
+foo.bar			= badboy,,,,12
+sample.string.hullo	= g'day,,,,12
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one bad, one good, one bad and one good"
+cat <<End-of-File >$tmp.metricset
+[qa]
+fumble.mumble		= badgirl,,,,12
+sample.long.million	= goodie,,,,12
+foo.bar			= badboy,,,,12
+sample.string.hullo	= g'day,,,,12
+End-of-File
+_doit -c $tmp.metricset :qa
+
+echo
+echo "=== derived metrics on command line (syntax errors) ==="
+echo "++ one bad"
+cat <<End-of-File >$tmp.derived
+foo.bar = a + 
+End-of-File
+_doit foo.bar
+echo
+echo "++ one bad and one good"
+cat <<End-of-File >$tmp.derived
+foo.bar = a + 
+goodboy = sample.long.million
+End-of-File
+_doit foo.bar goodboy
+echo
+echo "++ one good, one bad and one good"
+cat <<End-of-File >$tmp.derived
+goodboy = sample.long.million
+foo.bar = a + 
+goodgirl = sample.string.hullo
+End-of-File
+_doit goodboy foo.bar goodgirl
+echo
+echo "++ one bad, one good, one bad and one good"
+cat <<End-of-File >$tmp.derived
+fumble.mumble =
+goodboy = sample.long.million
+foo.bar = a + 
+goodgirl = sample.string.hullo
+End-of-File
+_doit fumble.mumble goodboy foo.bar goodgirl
+
+echo
+echo "=== derived metrics on command line (semantic errors) ==="
+echo "... using a non-terminal PMNS name, so --ignore-unknown makes no difference"
+echo "... as soon as there is at least one good metric"
+#debug='-Dderive'
+echo "++ one bad"
+cat <<End-of-File >$tmp.derived
+foo.bar = hinv.ndisk + disk.all.total
+End-of-File
+_doit foo.bar
+echo
+echo "++ one bad and one good"
+cat <<End-of-File >$tmp.derived
+foo.bar = hinv.ndisk + disk.all.total
+goodboy = sample.long.million
+End-of-File
+_doit foo.bar goodboy
+echo
+echo "++ one good, one bad and one good"
+cat <<End-of-File >$tmp.derived
+goodboy = sample.long.million
+foo.bar = hinv.ndisk + disk.all.total
+goodgirl = sample.string.hullo
+End-of-File
+_doit goodboy foo.bar goodgirl
+echo
+echo "++ one bad, one good, one bad and one good (non-leaf in PMNS)"
+archive='archives/reduce-1'
+start='-S +10sec'
+cat <<End-of-File >$tmp.derived
+foo.mumble = sample.pmid + sample.string.hullo
+foo.goodboy = sample.float.million
+foo.fumble = sample.lights + sample.colour
+foo.goodgirl = sample.string.hullo
+End-of-File
+_doit foo
+archive='archives/omnibus-nomark_v3'
+start='-S +1sec'
+
+PCP_DERIVED_CONFIG=
+echo
+echo "=== formula in metrics set (syntax errors) ==="
+echo "++ one bad"
+cat <<End-of-File >$tmp.metricset
+[qa]
+badboy			= badboy,,,,12
+badboy.formula		= a + 
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one bad and one good"
+cat <<End-of-File >$tmp.metricset
+[qa]
+badboy			= badboy,,,,12
+badboy.formula		= a + 
+goodboy			= goodboy,,,,12
+goodboy.formula		= sample.long.million
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one good, one bad and one good"
+cat <<End-of-File >$tmp.metricset
+[qa]
+goodboy			= goodboy,,,,12
+goodboy.formula		= sample.long.million
+badboy			= badboy,,,,12
+badboy.formula		= a + 
+goodgirl		= goodgirl,,,,12
+goodgirl.formula	= sample.string.hullo
+End-of-File
+_doit -c $tmp.metricset :qa
+echo
+echo "++ one bad, one good, one bad and one good"
+archive='archives/reduce-1'
+start='-S +10sec'
+cat <<End-of-File >$tmp.metricset
+[qa]
+badgirl			= badgirl,,,,12
+badgirl.formula		= sample.pmid + sample.string.hullo
+goodboy			= goodboy,,,,12
+goodboy.formula		= sample.float.million
+badboy			= badboy,,,,12
+badboy.formula		= sample.lights + sample.colour
+goodgirl		= goodgirl,,,,12
+goodgirl.formula	= sample.string.hullo
+End-of-File
+_doit -c $tmp.metricset :qa
+archive='archives/omnibus-nomark_v3'
+start='-S +1sec'
+
+# and Marko's test cases from email to kenj 23 Jan 2026
+#
+cat <<End-of-File >$tmp.metricset
+[qa]
+foo		= foo,,,,12
+foo.formula	= mem.util.free + no.such.thing
+End-of-File
+echo
+echo "Marko's examples ..."
+echo '++ Invalid metric mem.util.free + no.such.thing (PM_ERR_NAME Unknown metric name)'
+pmrep -c $tmp.metricset :qa
+echo '++ Invalid metric mem.util.free + no.such.thing (PM_ERR_NAME Unknown metric name)'
+pmrep -c $tmp.metricset -a archives/20180102 :qa
+echo '++ Invalid metric d_bad (PM_ERR_NAME Unknown metric name)'
+pmrep -e 'd_bad = mem.util.free + no.such.thing' mem.util.free d_bad
+echo '++ Invalid metric d_bad (PM_ERR_BADDERIVE Derived metric definition failed)'
+pmrep -e 'd_bad = mem.util.free + no.such.thing' -a archives/20180102 mem.util.free d_bad
+
+# success, all done
+exit

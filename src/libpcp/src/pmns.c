@@ -114,8 +114,11 @@ static __pmnsNode *locate(const char *, __pmnsNode *);
 #ifdef PM_MULTI_THREAD
 static pthread_mutex_t	pmns_lock;
 static pthread_mutex_t	pmns_fix_lock;
+static pthread_mutex_t	pmns_pmapi_lock;
 #else
 void			*pmns_lock;
+void			*pmns_fix_lock
+void			*pmns_pmapi_lock
 #endif
 
 #if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
@@ -135,6 +138,14 @@ __pmIsPmnsFixLock(void *lock)
 {
     return lock == (void *)&pmns_fix_lock;
 }
+/*
+ * return true if lock == pmns_pmapi_lock
+ */
+int
+__pmIsPmnsPmapiLock(void *lock)
+{
+    return lock == (void *)&pmns_pmapi_lock;
+}
 #endif
 
 void
@@ -143,6 +154,7 @@ init_pmns_lock(void)
 #ifdef PM_MULTI_THREAD
     __pmInitMutex(&pmns_lock);
     __pmInitMutex(&pmns_fix_lock);
+    __pmInitMutex(&pmns_pmapi_lock);
 #endif
 }
 
@@ -200,20 +212,8 @@ lock_ctx_and_pmns(__pmContext *ctxp, ctx_ctl_t *ccp)
     if (ccp->ctxp != NULL)
 	PM_ASSERT_IS_LOCKED(ccp->ctxp->c_lock);
 
-#if 0
-    if (PM_IS_LOCKED(pmns_lock)) {
-	/* this had better be recursive with the same context */
-	ccp->need_pmns_unlock = 0;
-    }
-    else {
-	PM_LOCK(pmns_lock);
-	ccp->need_pmns_unlock = 1;
-    }
-    PM_ASSERT_IS_LOCKED(pmns_lock);
-#else
-	PM_LOCK(pmns_lock);
-	ccp->need_pmns_unlock = 1;
-#endif
+    PM_LOCK(pmns_lock);
+    ccp->need_pmns_unlock = 1;
 
     return handle;
 }
@@ -427,6 +427,9 @@ pmGetPMNSLocation(void)
     int		sts;
     ctx_ctl_t	ctx_ctl = { NULL, 0, 0 };
 
+    PM_INIT_LOCKS();
+    PM_LOCK(pmns_pmapi_lock);		/* demand PMAPI mutual exclusion */
+
     lock_ctx_and_pmns(NULL, &ctx_ctl);
 
     sts = pmGetPMNSLocation_ctx(ctx_ctl.ctxp);
@@ -435,6 +438,8 @@ pmGetPMNSLocation(void)
 	PM_UNLOCK(pmns_lock);
     if (ctx_ctl.need_ctx_unlock)
 	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
+
+    PM_UNLOCK(pmns_pmapi_lock);
 
     return sts;
 }
@@ -1615,6 +1620,9 @@ pmLoadNameSpace(const char *filename)
     int		sts;
     ctx_ctl_t	ctx_ctl = { NULL, 0, 0 };
 
+    PM_INIT_LOCKS();
+    PM_LOCK(pmns_pmapi_lock);		/* demand PMAPI mutual exclusion */
+
     lock_ctx_and_pmns(NULL, &ctx_ctl);
 
     havePmLoadCall = 1;
@@ -1625,6 +1633,8 @@ pmLoadNameSpace(const char *filename)
     if (ctx_ctl.need_ctx_unlock)
 	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
 
+    PM_UNLOCK(pmns_pmapi_lock);
+
     return sts;
 }
 
@@ -1633,6 +1643,9 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
 {
     int		sts;
     ctx_ctl_t	ctx_ctl = { NULL, 0, 0 };
+
+    PM_INIT_LOCKS();
+    PM_LOCK(pmns_pmapi_lock);		/* demand PMAPI mutual exclusion */
 
     lock_ctx_and_pmns(NULL, &ctx_ctl);
 
@@ -1643,6 +1656,8 @@ pmLoadASCIINameSpace(const char *filename, int dupok)
 	PM_UNLOCK(pmns_lock);
     if (ctx_ctl.need_ctx_unlock)
 	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
+
+    PM_UNLOCK(pmns_pmapi_lock);
 
     return sts;
 }
@@ -1685,8 +1700,10 @@ pmUnloadNameSpace(void)
 {
     ctx_ctl_t	ctx_ctl = { NULL, 0, 0 };
 
-    lock_ctx_and_pmns(NULL, &ctx_ctl);
     PM_INIT_LOCKS();
+    PM_LOCK(pmns_pmapi_lock);		/* demand PMAPI mutual exclusion */
+
+    lock_ctx_and_pmns(NULL, &ctx_ctl);
 
     havePmLoadCall = 0;
     __pmFreePMNS(main_pmns);
@@ -1700,6 +1717,8 @@ pmUnloadNameSpace(void)
 	PM_UNLOCK(pmns_lock);
     if (ctx_ctl.need_ctx_unlock)
 	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
+
+    PM_UNLOCK(pmns_pmapi_lock);
 }
 
 /*
@@ -2097,7 +2116,9 @@ int
 pmLookupName(int numpmid, const char *namelist[], pmID pmidlist[])
 {
     int	sts;
+
     sts = pmLookupName_ctx(NULL, PM_NOT_LOCKED, numpmid, namelist, pmidlist);
+
     return sts;
 }
 
@@ -2476,20 +2497,20 @@ getchildren(__pmContext *ctxp, int needlocks, const char *name, char ***offsprin
     }
 
 check:
-    /*
-     * must release pmns_lock before getting the registered mutex
-     * for derived metrics
-     */
-    if (ctx_ctl.need_pmns_unlock) {
-	PM_UNLOCK(pmns_lock);
-	ctx_ctl.need_pmns_unlock = 0;
-    }
 
     if (num != PM_ERR_AGAIN) {
 	/*
 	 * pmcd/PMDA is alive, see if there are derived metrics that qualify
+	 *
+	 * must release pmns_lock before getting the registered mutex
+	 * for derived metrics
 	 */
+	PM_UNLOCK(pmns_lock);
 	dm_num = __dmchildren(ctxp, PM_NOT_LOCKED, name, &dm_offspring, &dm_statuslist);
+	/*
+	 * and re-aquire the pmns_lock ...
+	 */
+	PM_LOCK(pmns_lock);
 
 	if (pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
@@ -2547,13 +2568,27 @@ pmapi_return:
 int
 pmGetChildrenStatus(const char *name, char ***offspring, int **statuslist)
 {
-    return getchildren(NULL, 1, name, offspring, statuslist);
+    int		sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(pmns_pmapi_lock);		/* demand PMAPI mutual exclusion */
+    sts = getchildren(NULL, 1, name, offspring, statuslist);
+    PM_UNLOCK(pmns_pmapi_lock);
+
+    return sts;
 }
 
 int
 pmGetChildren(const char *name, char ***offspring)
 {
-    return getchildren(NULL, 1, name, offspring, NULL);
+    int		sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(pmns_pmapi_lock);		/* demand PMAPI mutual exclusion */
+    sts = getchildren(NULL, 1, name, offspring, NULL);
+    PM_UNLOCK(pmns_pmapi_lock);
+
+    return sts;
 }
 
 static int
@@ -2948,7 +2983,9 @@ int
 pmNameAll(pmID pmid, char ***namelist)
 {
     int	sts;
+
     sts = pmNameAll_ctx(NULL, pmid, namelist);
+
     return sts;
 }
 
@@ -3206,7 +3243,29 @@ pmapi_return:
 int
 pmTraversePMNS(const char *name, void(*func)(const char *))
 {
-    return TraversePMNS(name, func, NULL, NULL);
+    int		sts;
+
+    PM_INIT_LOCKS();
+    PM_LOCK(pmns_pmapi_lock);		/* demand PMAPI mutual exclusion */
+
+    if (pmDebugOptions.pmapi)
+	fprintf(stderr, "pmTraversePMNS(%s, ...) <:", name);
+
+    sts = TraversePMNS(name, func, NULL, NULL);
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0)
+	    fprintf(stderr, "%d\n", sts);
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
+    PM_UNLOCK(pmns_pmapi_lock);
+
+    return sts;
 }
 
 int
@@ -3224,6 +3283,9 @@ pmTrimNameSpace(void)
     __pmHashNode *hp;
     int		pmns_location;
     ctx_ctl_t	ctx_ctl = { NULL, 0, 0 };
+
+    PM_INIT_LOCKS();
+    PM_LOCK(pmns_pmapi_lock);		/* demand PMAPI mutual exclusion */
 
     lock_ctx_and_pmns(NULL, &ctx_ctl);
 
@@ -3281,6 +3343,8 @@ pmapi_return:
 	PM_UNLOCK(pmns_lock);
     if (ctx_ctl.need_ctx_unlock)
 	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
+
+    PM_UNLOCK(pmns_pmapi_lock);
 
     return sts;
 }

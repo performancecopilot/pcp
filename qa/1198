@@ -14,6 +14,9 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+[ -f $PCP_VAR_DIR/config/pmlogrewrite/linux_disk_all_fixups.conf ] \
+    || _notrun "pmlogrewrite config linux_disk_all_fixups.conf not installed"
+
 _cleanup()
 {
     cd $here

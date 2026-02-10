@@ -29,6 +29,7 @@ _filter()
 	-e '/^hinv\.ncpu.*value/d' \
 	-e '/^kernel\.percpu\.cpu\.user.*value/d' \
 	-e '/^kernel\.percpu\.cpu\.user.*values/d' \
+	-e '/pmdasolaris: cannot open \/dev\/kmem/d' \
     #end
 }
 

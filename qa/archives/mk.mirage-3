@@ -4,7 +4,7 @@
 # not remade, this script is simply a record of how it was created
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/mk.mirage-3-$$
 rm -f $tmp.*
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 

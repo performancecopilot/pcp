@@ -6,16 +6,105 @@
 # We assume you know what you're doing!
 #
 
-tmp=/var/tmp/install-dev-$$
+tmp=${TMPDIR:-/tmp}/install-dev-$$
 sts=1
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
+# rpm packaging changes /usr/local/lib64/... from out packing list
+# into /usr/lib64/...
+#
+_rewrite_path()
+{
+    # add leading slash if not present
+    #
+    file=`echo "$1" | sed -e 's@^[^/]@/&@'`
+
+    if [ ! -f $tmp.rewrite ]
+    then
+	# first-time ...
+	#
+	echo 0 >$tmp.rewrite	# default, no rewriting
+	# TODO - may need guard here to be rpm-installed packages,
+	# not rpm executable installed
+	#
+	if which rpm >/dev/null 2>&1
+	then
+	    if rpm -ql python3-pcp >$tmp.tmp
+	    then
+		pkgdir=`grep '/pcp$' $tmp.tmp | sed -e 's@/pcp@@'`
+		listdir=`echo "$file" | sed -e 's@packages/.*@packages@'`
+		if [ "$pkgdir" != "$listdir" ]
+		then
+		    case "$listdir"
+		    in
+			/usr/local/lib*)
+			    case "$pkgdir"
+			    in
+				/usr/lib*)
+				    echo 1 >$tmp.rewrite
+				    ;;
+				*)
+				    echo >&2 "Warning: no rule to handle $pkgdir != $listdir"
+				    ;;
+			    esac
+			    ;;
+			*)
+			    echo >&2 "Warning: no rule to handle $listdir != /usr/local/lib*"
+			    ;;
+		    esac
+		fi
+	    else
+		echo >&2 "Arrgh: rpm -ql python3-pcp failed, you lose"
+		exit
+	    fi
+	else
+	    # TODO other packaging cases
+	    #
+	    :
+	fi
+    fi
+
+    case `cat $tmp.rewrite`
+    in
+	0)	# no rewrite
+		echo "$file"
+		;;
+	1)	# /usr/local/lib -> /usr/lib/64
+		echo "$file" | sed -e 's@^/usr/local/lib@/usr/lib@'
+		;;
+	*)	echo >&2 "Botch: _rewrite_path: no rule for rewrite case \"`cat $tmp.rewrite`\""
+		exit
+		;;
+    esac
+}
+
 . /etc/pcp.conf
 
-sudo $PCP_MAKE_PROG clean
-$PCP_MAKE_PROG
-$PCP_MAKE_PROG check
-sudo $PCP_MAKE_PROG install
+sudo $PCP_MAKE_PROG clean >/dev/null 2>&1
+if $PCP_MAKE_PROG >$tmp.out 2>&1
+then
+    echo >&2 "make: OK"
+else
+    cat $tmp.tmp
+    echo >&2 "Arrgh: make failed, you lose"
+    exit
+fi
+if $PCP_MAKE_PROG check >$tmp.out 2>&1
+then
+    echo >&2 "make check: OK"
+else
+    cat $tmp.tmp
+    echo >&2 "Arrgh: make check failed, you lose"
+    exit
+fi
+if sudo $PCP_MAKE_PROG install >$tmp.out 2>&1
+then
+    echo >&2 "sudo make install: OK"
+else
+    cat $tmp.tmp
+    echo >&2 "Arrgh: sudo make install failed, you lose"
+    exit
+fi
 
 packing_list=../../python3-pcp.list
 if [ ! -f "$packing_list" ]
@@ -50,21 +139,23 @@ fi
 
 find build pcp.egg-info -type f -print >$tmp.build
 
+rm -f $tmp.changes
 # sanity check
 #
 cat "$packing_list" \
 | while read dst
 do
+    dst=`_rewrite_path "$dst"`
     case "$dst"
     in
 	*/pcp/__pycache__/*)
 	    # blow these ones away
-	    sudo rm -f "/$dst"
+	    sudo rm -f "$dst"
 	    continue
 	    ;;
     esac
 
-    if [ ! -f "/$dst" ]
+    if [ ! -f "$dst" ]
     then
 	echo "Arrgh: $dst in packing list but not installed, you lose."
 	exit 1
@@ -78,13 +169,20 @@ do
 	exit
     fi
 
-    if cmp "/$dst" "$src" >/dev/null 2>&1
+    if cmp "$dst" "$src" >/dev/null 2>&1
     then
-	: echo "$base: no change"
+	#debug# echo "$dst: no change"
+	:
     else
-	echo "$base: updating"
-	sudo cp "$src" "/$dst"
+	echo "$dst: updating"
+	sudo cp "$src" "$dst"
+	touch $tmp.changes
     fi
 done
+
+if [ ! -f $tmp.changes ]
+then
+    echo "No changes."
+fi
 
 sts=0

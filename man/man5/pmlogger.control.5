@@ -92,6 +92,17 @@ $ PMCD_CONNECT_TIMEOUT=20
 .in -4n
 If the value to the right of the ``='' contains any white space,
 then the value should be enclosed in double (\[dq]) or single (\[aq]) quotes.
+.RS 4n
+.PP
+As the lines in each control file are processed in order, it is
+important that any environment variables should be set
+.B before
+a control line that specifies a
+.B pmlogger
+instance that might expect to use those environment variables, e.g. to
+control compression or culling of archives by
+.BR pmlogger_daily (1).
+.RE
 .IP 3. 4n
 There should
 be a version line in the control file of the form:

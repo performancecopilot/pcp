@@ -30,11 +30,6 @@ PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 # Derived metric expr dump from 0x8513a48...
 # expr node 0x867eb68 type=PLUS left=0x867eb98 right=0x867ed28
 #
-# handle different PMIDs for disk.all.total
-# - 60.0.29 (linux)
-# - 85.2.8 (FreeBSD)
-# - 139.2.8 (OpenBSD)
-#
 _filter()
 {
     cat $tmp.out >>$seq_full
@@ -49,9 +44,6 @@ $1 == "expr" && $2 == "node" && $3 ~ /^0x/	{ print "s/" $3 "/<addr-" n ">/"; n++
 	-e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*.*numpmid/TIMESTAMP ... numpmid/' \
 	-e 's/=0x0 /=(nil) /g' \
 	-e "s;$tmp;TMP;" \
-	-e 's/60\.0\.29 /DISK.ALL.TOTAL /g' \
-	-e 's/85\.2\.8 /DISK.ALL.TOTAL /g' \
-	-e 's/139\.2\.8 /DISK.ALL.TOTAL /g' \
 # -e 's/ val=[0-9][0-9]*/ val=<number>/g'
 }
 
@@ -116,7 +108,7 @@ echo "=== some more scale conversion tests ==="
 cat <<End-of-File >$tmp.config
 gcov.a = ( 1 / sample.mirage_longlong ) / (1 / sample.mirage )
 gcov.b = ( 1 / sample.mirage ) / (1 / sample.mirage_longlong )
-gcov.c = sample.seconds + disk.all.total
+gcov.c = sample.seconds + sample.pdu
 gcov.d = sample.ulong.count.base - sample.ulong.count.kilo
 gcov.e = sample.ulong.count.mega - sample.ulong.count.kilo
 # avoid floating point rounding differences across platforms

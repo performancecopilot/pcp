@@ -73,7 +73,7 @@ on_pmlogger_archive(int archive, void *arg)
     sds			result;
 
     if (pmDebugOptions.http || pmDebugOptions.log)
-	fprintf(stderr, "%s: arg=%p archive=%d\n", __FUNCTION__, arg, archive);
+	fprintf(stderr, "%s: arg=" PRINTF_P_PFX "%p archive=%d\n", __FUNCTION__, arg, archive);
 
     baton->logger = (unsigned int)archive;
 
@@ -101,7 +101,7 @@ on_pmlogger_done(int status, void *arg)
     sds			msg;
 
     if (pmDebugOptions.http || pmDebugOptions.log)
-	fprintf(stderr, "%s: arg=%p status=%d\n", __FUNCTION__, arg, status);
+	fprintf(stderr, "%s: arg=" PRINTF_P_PFX "%p status=%d\n", __FUNCTION__, arg, status);
 
     if (status >= 0) {
 	code = HTTP_STATUS_OK;
@@ -168,7 +168,7 @@ pmlogger_data_release(struct client *client)
     pmLoggerBaton	*baton = (pmLoggerBaton *)client->u.http.data;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: %p for client %p\n", "pmlogger_data_release",
+	fprintf(stderr, "%s: " PRINTF_P_PFX "%p for client " PRINTF_P_PFX "%p\n", "pmlogger_data_release",
 			baton, client);
 
     sdsfree(baton->body);
@@ -272,7 +272,7 @@ static int
 pmlogger_request_headers(struct client *client, struct dict *headers)
 {
     if (pmDebugOptions.http)
-	fprintf(stderr, "logger servlet headers (client=%p)\n", client);
+	fprintf(stderr, "logger servlet headers (client=" PRINTF_P_PFX "%p)\n", client);
     return 0;
 }
 
@@ -283,7 +283,7 @@ pmlogger_request_body(struct client *client, const char *content, size_t length)
     size_t		bytes;
 
     if (pmDebugOptions.http)
-	fprintf(stderr, "%s: logger servlet body (client=%p,length=%zu)\n",
+	fprintf(stderr, "%s: logger servlet body (client=" PRINTF_P_PFX "%p,length=%zu)\n",
 			__FUNCTION__, client, length);
 
     if (client->u.http.parser.status_code != 0)

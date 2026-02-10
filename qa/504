@@ -13,12 +13,15 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
+LD_PRELOAD=$PCP_LIB_DIR/libpcp_fault.so; export LD_PRELOAD
 src/check_fault_injection >/dev/null 2>&1 || \
     _notrun "libpcp not built with fault injection enabled"
+unset LD_PRELOAD
 
 _cleanup()
 {
     cd $here
+    unset LD_PRELOAD
     $sudo rm -rf $tmp $tmp.*
 }
 
@@ -28,6 +31,10 @@ _filter()
     #	35 => 11
     # ditto for ENOSYS
     #	78 => 38
+    # For OpenIndiana
+    #   Not enough space => Cannot allocate memory 
+    #   -23: File table overflow => -23: Too many open files in system
+    #   -89: Operation not applicable => -38: Function not implemented
     #
     sed \
 	-e 's/exectest([0-9][0-9]*)/exectest(PID)/' \
@@ -35,6 +42,9 @@ _filter()
 	-e 's/alloc([0-9][0-9]*)/alloc(N)/g' \
 	-e '/^__pmProcessExec/s/ -35 / -11 /' \
 	-e '/^__pmProcessPipe/s/ -78:/ -38:/' \
+	-e 's/Not enough space/Cannot allocate memory/' \
+	-e 's/-23: File table overflow/-23: Too many open files in system/' \
+	-e 's/-89: Operation not applicable/-38: Function not implemented/' \
     #
 }
 

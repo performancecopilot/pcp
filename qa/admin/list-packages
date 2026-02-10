@@ -344,7 +344,7 @@ if $very_verbose
 then
     tmp=tmp
 else
-    tmp=/var/tmp/$$
+    tmp=${TMPDIR:-/tmp}/list-packages-$$
     trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 fi
 rm -f $tmp.*
@@ -475,7 +475,7 @@ then
 	    apt-cache dumpavail | sed -n -e '/^Package: /s///p' >$tmp.allpkgs
 	    ;;
 
-	RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva)
+	RHEL|Fedora|CentOS|openSUSE|SUSE\ SLES|OpenMandriva|AmazonLinux)
 	    rpm -qa --qf '%{NAME}\n' >$tmp.installed
 	    if which zypper >/dev/null 2>&1
 	    then

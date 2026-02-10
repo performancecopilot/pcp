@@ -1,0 +1,10 @@
+Debian recipe for cleaning up (removing) old versions of postgresql.
+
+$ dpkg -l | sed -n '/^ii  postgresql-[0-9]/s/.*, version \(.*\) server/\1/p' | sort -nr
+
+produces a list of installed versions.  If the list contains one version
+number, you're done.
+
+$ vers=N.M
+$ sudo pg_dropcluster --stop $vers  main
+$ sudo apt-get -y --purge remove postgresql-$vers postgresql-client-$vers postgresql-contrib-$vers

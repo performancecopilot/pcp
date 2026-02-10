@@ -18,6 +18,7 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 which pmrep >/dev/null 2>&1 || _notrun "No pmrep binary installed"
 
 _need_metric kernel.all.nusers
+_need_metric kernel.all.runnable
 
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15

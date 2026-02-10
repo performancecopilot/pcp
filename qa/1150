@@ -13,6 +13,12 @@ echo "QA output created by $seq"
 _pmdabcc_check
 _pmdabcc_require_kernel_version 4 7
 
+# if pmcd is running in another container, this test will not
+# produce the expected results
+#
+numpmcd=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mcd ' | wc -l | sed -e 's/  *//g'`
+[ $numpmcd -gt 1 ] && _notrun "pmcd running in another container?"
+
 # If no PCP support for probes, also bail out
 _get_libpcp_config
 $static_probes || _notrun "No static probe support available in PCP build"

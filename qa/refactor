@@ -61,7 +61,7 @@ in
 		;;
 esac
 
-tmp=/var/tmp/refactor-$$
+tmp=${TMPDIR:-/tmp}/refactor-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 _check_trap()

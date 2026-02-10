@@ -402,6 +402,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[68 or "apache"]/d' \
         -e '/inst \[72 or "mounts"]/d' \
 	-e '/inst \[74 or "lmsensors"]/d' \
+	-e '/inst \[75 or "solaris"]/d' \
 	-e '/inst \[78 or "darwin"]/d' \
 	-e '/inst \[95 or "kvm"]/d' \
 	-e '/inst \[98 or "zimbra"]/d' \
@@ -1050,6 +1051,8 @@ _filter_views()
 {
     sed \
 	-e "s,^Load View: $PCP_VAR_DIR,Load View: PCP_VAR_DIR," \
+	-e '/QStandardPaths: XDG_RUNTIME_DIR not set/d' \
+	-e '/QStandardPaths: error creating runtime directory/d' \
 	-e '/QGtkStyle was unable to detect the current GTK+ theme\./d' \
 	-e '/GConf-WARNING \*\*: Client failed to connect to the D-BUS/d' \
 	-e '/Failed to connect to socket .*dbus.*: Connection refused/d' \

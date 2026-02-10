@@ -1,0 +1,96 @@
+#!/bin/sh
+#
+# Replace local foo usage for shell variables in shell scripts
+#
+
+tmp=${TMPDIR:-/tmp}/unlocalvar-$$
+sts=1
+trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+
+showme=false
+debug=false
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-n)
+	    showme=true
+	    shift
+	    ;;
+	-d)
+	    debug=true
+	    shift
+	    ;;
+	*)
+	    break
+	    ;;
+    esac
+done
+
+if [ $# -lt 1 ]
+then
+    echo "Usage: unlocalvar [-d] [-n] file [...]"
+    exit
+fi
+
+_do()
+{
+    # pass 1 scan for local use and build sed script fragments
+    # for each shell function containing local variables
+    #
+    awk <"$1" >$tmp.sed '
+/^#/		{ next }
+/[(][)]$/	{ gsub(/[(].*/, "", $0); fn=$0 }
+$1 == "{"	{ start=NR }
+/^(|[ 	]*[^'"'"'"])local[ 	]/	{
+		  split($0, line, /;/)
+		  for (l in line) {
+		      sub(/[ 	]*local[ 	][ 	]*/, "",  line[l])
+		      sub(/=.*/, "",  line[l])
+		      if (line[l] != "")
+			  var[line[l]] = 1
+		  }
+		}
+$1 == "}"	{ print start "," NR "{"
+		  for (foo in var) {
+		    # local foo => delete line
+		    print "/[ 	]*local[ 	]*" foo "$/d"
+		    # local foo=... => __foo=...
+		    print "s/([ 	]*)local[ 	][ 	]*" foo "=/\\1__" foo "=/"
+		    # local foo; => remove this text
+		    print "s/([ 	]*)local[ 	][ 	]*" foo ";//"
+		    # foo= => __foo=
+		    print "s/(^|[^a-zA-Z_])" foo "=/\\1__" foo "=/g"
+		    # $foo => $__foo
+		    print "s/\\$" foo "($|[^a-zA-Z_])/$__" foo "\\1/g"
+		    # unset foo => unset __foo
+		    print "s/([ 	]*)unset([ 	][ 	]*)" foo "($|[^a-zA-Z])/\\1unset\\2__" foo "\\3/"
+		    delete var[foo]
+		  }
+		  print "}"
+		}
+'
+
+    if [ -s $tmp.sed ]
+    then
+	# pass 2 make changes ...
+	#
+	$debug && cat >&2 $tmp.sed
+	sed -E -f $tmp.sed <"$1" >$tmp.tmp
+	if $showme
+	then
+	    cat $tmp.tmp
+	else
+	    mv $tmp.tmp "$1"
+	fi
+    fi
+}
+
+for file
+do
+    _do "$file"
+done
+
+sts=0
+
+exit

@@ -6,7 +6,7 @@
 # Check error codes exposure in QA tests.
 #
 
-tmp=/var/tmp/check-errorcodes-$$
+tmp=${TMPDIR:-/tmp}/check-errorcodes-$$
 rm -f $tmp.err
 trap "sts=0; [ -f $tmp.err ] && sts=1; rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 

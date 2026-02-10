@@ -1,0 +1,76 @@
+QA output created by 1650
+
+qa.default
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+No value(s) available!
+
+qa.null.a
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+No value(s) available!
+
+qa.null.b
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+No value(s) available!
+
+qa.indom.a
+    Data Type: 32-bit int  InDom: 1.2 0x400002
+    Semantics: discrete  Units: none
+No value(s) available!
+
+qa.indom.b
+    Data Type: 32-bit int  InDom: 3.4 0xc00004
+    Semantics: discrete  Units: none
+No value(s) available!
+
+qa.indom.c
+    Data Type: 32-bit int  InDom: 510.4194303 0x7fbfffff
+    Semantics: discrete  Units: none
+No value(s) available!
+
+qa.combined.a
+    Data Type: 32-bit int  InDom: 1.2 0x400002
+    Semantics: counter  Units: Kbyte
+No value(s) available!
+
+qa.combined.b
+    Data Type: 64-bit unsigned int  InDom: 1.2 0x400002
+    Semantics: instant  Units: none
+No value(s) available!
+
+Some error cases ...
+[TMP.config:1] Error: pmRegisterDerived(qa.bad.a, ...) syntax error
+ defined(foo) ? foo : novalue(indom=foo)
+                                    ^   
+Illegal indom: 'foo'
+[TMP.config:2] Error: pmRegisterDerived(qa.bad.b, ...) syntax error
+ defined(foo) ? foo : novalue(indom="bar")
+                                    ^     
+Illegal indom: 'bar'
+[TMP.config:3] Error: pmRegisterDerived(qa.bad.c, ...) syntax error
+ defined(foo) ? foo : novalue(indom=-1.0)
+                                    ^    
+metadata keyword expected to follow novalue(
+[TMP.config:4] Error: pmRegisterDerived(qa.bad.d, ...) syntax error
+ defined(foo) ? foo : novalue(indom=0.-2)
+                                    ^    
+Illegal indom: '0.'
+[TMP.config:5] Error: pmRegisterDerived(qa.bad.e, ...) syntax error
+ defined(foo) ? foo : novalue(indom="511.0")
+                                    ^       
+Illegal indom: '511.0'
+[TMP.config:6] Error: pmRegisterDerived(qa.bad.f, ...) syntax error
+ defined(foo) ? foo : novalue(indom="0.4194304")
+                                    ^           
+Illegal indom: '0.4194304'
+[TMP.config:7] Error: pmRegisterDerived(qa.bad.g, ...) syntax error
+ defined(foo) ? foo : novalue(indom="123")
+                                    ^     
+Illegal indom: '123'
+[TMP.config:8] Error: pmRegisterDerived(qa.bad.h, ...) syntax error
+ defined(foo) ? foo : novalue(indom="123.456foo")
+                                    ^            
+Illegal indom: '123.456foo'
+Error: qa: Unknown metric name

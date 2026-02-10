@@ -177,7 +177,7 @@ ls -l $tmp >>$seq_full
 #
 # need to be a place the user $PCP_USER can cd to from pmlogger_daily
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 echo
 echo "pmlogger_daily -D -P -k 5 -x never -V ..." >>$seq_full
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -P -c $tmp/control -k 5 -x never -V -l $tmp.log"

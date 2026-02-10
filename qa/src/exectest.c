@@ -104,7 +104,7 @@ Options:\n\
     h = NULL;
     while (optind < argc) {
 	sts = __pmProcessAddArg(&h, argv[optind]);
-	if (pmDebugOptions.desperate) printf("sts=%d h=%p\n", sts, h);
+	if (pmDebugOptions.desperate) printf("sts=%d h=" PRINTF_P_PFX "%p\n", sts, h);
 	if (h == NULL) {
 	    printf("__pmProcessAddArg: failed (handle is NULL) at argv[%d]: \"%s\"\n", optind-1, argv[optind]);
 	    exit(1);

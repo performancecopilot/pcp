@@ -529,7 +529,7 @@ pmdaFetch(int numpmid, pmID pmidlist[], pmdaResult **resp, pmdaExt *pmda)
     }
 
     if (extp->dispatch->version.any.ext != pmda)
-	fprintf(stderr, "Botch: pmdaFetch: PMDA domain=%d pmda=%p extp=%p backpointer=%p pmda-via-backpointer %p NOT EQUAL to pmda\n",
+	fprintf(stderr, "Botch: pmdaFetch: PMDA domain=%d pmda=" PRINTF_P_PFX "%p extp=" PRINTF_P_PFX "%p backpointer=" PRINTF_P_PFX "%p pmda-via-backpointer " PRINTF_P_PFX "%p NOT EQUAL to pmda\n",
 	    pmda->e_domain, pmda, extp, extp->dispatch, extp->dispatch->version.any.ext);
 
     version = extp->dispatch->comm.pmda_interface;

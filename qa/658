@@ -83,7 +83,7 @@ find $tmp/* -type d | xargs -r $sudo chown $PCP_USER:$PCP_GROUP
 # real QA test starts here
 # need to be a place the user $PCP_USER can cd to from pmlogger_daily
 #
-cd /var/tmp
+cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -l $tmp.log -V -k never -x 0 -f -c $tmp.control" \
 | _filter
 cd $here

@@ -771,6 +771,9 @@ ncursesw_CFLAGS
 HAVE_NCURSES
 ncurses_LIBS
 ncurses_CFLAGS
+HAVE_DELAYACCT
+libnl3_LIBS
+libnl3_CFLAGS
 lib_for_inih
 HAVE_LIBINIH
 HAVE_LIBUV
@@ -876,7 +879,6 @@ libelf_LIBS
 libelf_CFLAGS
 PMDA_BCC
 have_python_influxdb
-have_python_six
 have_python_libvirt
 have_python_requests
 have_python_setuptools
@@ -1116,6 +1118,8 @@ libdrm_amdgpu_CFLAGS
 libdrm_amdgpu_LIBS
 libuv_CFLAGS
 libuv_LIBS
+libnl3_CFLAGS
+libnl3_LIBS
 ncurses_CFLAGS
 ncurses_LIBS
 ncursesw_CFLAGS
@@ -1885,6 +1889,9 @@ Some influential environment variables:
   libuv_CFLAGS
               C compiler flags for libuv, overriding pkg-config
   libuv_LIBS  linker flags for libuv, overriding pkg-config
+  libnl3_CFLAGS
+              C compiler flags for libnl3, overriding pkg-config
+  libnl3_LIBS linker flags for libnl3, overriding pkg-config
   ncurses_CFLAGS
               C compiler flags for ncurses, overriding pkg-config
   ncurses_LIBS
@@ -3865,13 +3872,13 @@ printf "%s\n" "#define IS_LINUX 1" >>confdefs.h
     test -f /etc/arch-release && target_distro=arch
     CFLAGS="-fPIC -fno-strict-aliasing -D_GNU_SOURCE"; export CFLAGS
     pcp_platform_paths='/usr/bin/X11:/usr/local/bin'
-    pcp_ps_all_flags=-efw
+    pcp_ps_all_flags=-efww
 elif test $target_os = darwin
 then
 
 printf "%s\n" "#define IS_DARWIN 1" >>confdefs.h
 
-    target_distro=macosx
+    target_distro=macos
     CFLAGS="-fPIC -no-cpp-precomp -fno-strict-aliasing"; export CFLAGS
     pcp_platform_paths='/usr/local/bin:/opt/homebrew/bin'
     pcp_ps_all_flags="-axw -o user,pid,ppid,cpu,stime,tty,time,command"
@@ -5947,13 +5954,13 @@ fi
 
   test -n "$AR" && break
 done
-test -n "$AR" || AR="/usr/bin/ar"
+test -n "$AR" || AR="ar"
 
 fi
-if test ! -x "$AR"; then
+ar=`$which $AR`
+if test ! -x "$ar"; then
     as_fn_error $? "cannot find a valid 'ar' command." "$LINENO" 5
 fi
-ar=$AR
 
 
 for ac_prog in flex lex
@@ -8754,28 +8761,6 @@ printf "%s\n" "yes" >&6; }
 	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
 	eval have_python_libvirt=false
-    fi
-
-
- { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for Python module six" >&5
-printf %s "checking for Python module six... " >&6; }
-    if test -n ""
-    then
-	txt=""
-    else
-	txt="import six"
-    fi
-    $pcp_python_prog -c 'import sys;
-'"$txt" >>config.log 2>&1
-    if test "$?" = 0
-    then
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-	eval have_python_six=true
-    else
-	{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-	eval have_python_six=false
     fi
 
 
@@ -12268,6 +12253,80 @@ fi
 
 HAVE_LIBINIH=$have_libinih
 
+
+
+
+pkg_failed=no
+{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for libnl-3.0" >&5
+printf %s "checking for libnl-3.0... " >&6; }
+
+if test -n "$libnl3_CFLAGS"; then
+    pkg_cv_libnl3_CFLAGS="$libnl3_CFLAGS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnl-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libnl-3.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libnl3_CFLAGS=`$PKG_CONFIG --cflags "libnl-3.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+if test -n "$libnl3_LIBS"; then
+    pkg_cv_libnl3_LIBS="$libnl3_LIBS"
+ elif test -n "$PKG_CONFIG"; then
+    if test -n "$PKG_CONFIG" && \
+    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"libnl-3.0\""; } >&5
+  ($PKG_CONFIG --exists --print-errors "libnl-3.0") 2>&5
+  ac_status=$?
+  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
+  test $ac_status = 0; }; then
+  pkg_cv_libnl3_LIBS=`$PKG_CONFIG --libs "libnl-3.0" 2>/dev/null`
+		      test "x$?" != "x0" && pkg_failed=yes
+else
+  pkg_failed=yes
+fi
+ else
+    pkg_failed=untried
+fi
+
+
+
+if test $pkg_failed = yes; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+
+if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
+        _pkg_short_errors_supported=yes
+else
+        _pkg_short_errors_supported=no
+fi
+        if test $_pkg_short_errors_supported = yes; then
+                libnl3_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "libnl-3.0" 2>&1`
+        else
+                libnl3_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "libnl-3.0" 2>&1`
+        fi
+        # Put the nasty error message in config.log where it belongs
+        echo "$libnl3_PKG_ERRORS" >&5
+
+        have_delayacct=false
+elif test $pkg_failed = untried; then
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
+printf "%s\n" "no" >&6; }
+        have_delayacct=false
+else
+        libnl3_CFLAGS=$pkg_cv_libnl3_CFLAGS
+        libnl3_LIBS=$pkg_cv_libnl3_LIBS
+        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
+printf "%s\n" "yes" >&6; }
+        have_delayacct=true
+fi
+HAVE_DELAYACCT=$have_delayacct
 
 
 

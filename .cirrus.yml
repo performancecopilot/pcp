@@ -1,0 +1,114 @@
+task:
+  name: macOS PCP Build
+  macos_instance:
+    image: ghcr.io/cirruslabs/macos-tahoe-base:latest
+  # Cache Homebrew prefix + download cache
+  homebrew_cache:
+    folder: /opt/homebrew
+    # Also cache downloaded bottles to avoid re-downloading on cache miss/rebuild
+    # (you can list multiple folders)
+    # folders:
+    #   - /opt/homebrew
+    #   - ~/Library/Caches/Homebrew
+    fingerprint_script: |
+      brew --version
+      echo $HOMEBREW_NO_AUTO_UPDATE  # if you use it
+      brew list --versions | sort    # list installed formulae & versions
+    populate_script: |
+      # This runs only on cache miss — safe to install everything here
+      echo "Populating Homebrew cache..."
+      # Homebrew is already in base images, but we can ensure update if needed
+      brew update --quiet || true
+      brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf valkey libuv || true  # idempotent
+    # Optional: clean up non-deterministic files before cache upload
+    before_cache_script: |
+      brew cleanup --prune=all || true
+      rm -rf ~/Library/Caches/Homebrew/downloads  # optional, if too noisy
+  #brew_setup_script:
+    # Now this will be very fast if cache hit
+    #- echo "Setting up dependencies (cached!)"
+#    - brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf || true  # idempotent
+  enable_tcp_stats_script: |
+    echo "Enabling TCP statistics for testing..."
+    sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+    echo "Verifying setting:"
+    sysctl net.inet.tcp.disable_access_to_stats
+  pcp_build_script: |
+     [ "$PCP_SKIP_BUILD" == "true" ] && echo "SKIPPING BUILD" || ./Makepkgs --verbose
+  start_valkey_script: |
+     brew services start valkey
+  pcp_install_script: |
+     DMG_PATH=$(find pcp-**/build/mac -name "pcp-*.dmg" | head -1) # Find the generated DMG
+     echo "Found DMG: $DMG_PATH"
+     MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" | tail -1) # Mount the DMG
+     VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | awk '{print $3}')
+     echo "Mounted at: $VOLUME_PATH"
+     PKG_PATH=$(find "$VOLUME_PATH" -name "*.pkg" | head -1) # Find and install the PKG
+     echo "Found PKG: $PKG_PATH"
+     ls -alh $PKG_PATH
+     pkgutil --check-signature $PKG_PATH || true # this returns 1 when things are ok
+     sudo installer -pkg "$PKG_PATH" -target / -verbose # Install (sudo is passwordless in GitHub Actions)
+  check_pmcd_is_running_postinstall_script: |
+    echo "Waiting for pcp service to start (it can take a while after install)..."
+    TIMEOUT=180  # 3 minutes
+    ELAPSED=0
+    INTERVAL=5
+  
+    while [ $ELAPSED -lt $TIMEOUT ]; do
+      if pcp 2>/dev/null; then
+        echo "pcp service is responding"
+        break
+      fi
+      sleep $INTERVAL
+      ELAPSED=$((ELAPSED + INTERVAL))
+    done
+  
+    if [ $ELAPSED -ge $TIMEOUT ]; then
+      echo "ERROR: pcp service failed to start within $TIMEOUT seconds"
+      exit 1
+    fi
+  run_unit_tests_script: |
+    cd build/mac/test
+    ./run-unit-tests.sh
+  run_integration_tests_script: |
+    cd build/mac/test/integration
+    ./run-integration-tests.sh
+  check_pmproxy_is_running_script: |
+    echo "Waiting for pmproxy service to start..."
+    TIMEOUT=60
+    ELAPSED=0
+    INTERVAL=3
+
+    while [ $ELAPSED -lt $TIMEOUT ]; do
+      echo "Checking pmproxy (${ELAPSED}s elapsed)..."
+
+      # Check if pmproxy responds to ping
+      if curl -s http://localhost:44322/series/ping 2>/dev/null | grep -q '"success":true'; then
+        echo "✓ pmproxy is responding!"
+        break
+      fi
+
+      sleep $INTERVAL
+      ELAPSED=$((ELAPSED + INTERVAL))
+    done
+
+    if [ $ELAPSED -ge $TIMEOUT ]; then
+      echo "✗ Timeout waiting for pmproxy"
+      exit 1
+    fi
+
+    echo ""
+    echo "pmproxy connectivity checks:"
+    nc -z localhost 44322 && echo "✓ Port 44322 open" || echo "✗ Port 44322 closed"
+
+    echo ""
+    echo "pmproxy process:"
+    pgrep pmproxy && echo "✓ pmproxy running (PID: $(pgrep pmproxy))" || echo "✗ pmproxy not running"
+  pause_script: |
+    if [ "$PCP_PAUSE_AFTER_INSTALL" == "true" ]; then
+      echo "VM IP: $(ipconfig getifaddr en0)"
+      sleep 3600  # Keeps VM alive for an hour
+    else
+      echo "No pause required, finishing"
+    fi
+    

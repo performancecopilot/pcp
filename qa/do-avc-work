@@ -5,7 +5,7 @@
 #
 #
 
-tmp=/var/tmp/$$
+tmp=${TMPDIR:-/tmp}/do-avc-work-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
 if [ $# != 1 ]

@@ -68,7 +68,7 @@ init_namebuf(void)
 	    namebuflen = -1;		/* block one trip code in future */
 	}
 	if (pmDebugOptions.access)
-	    fprintf(stderr, "init_namebuf: namebuflen=%d namebuf=%p\n", namebuflen, namebuf);
+	    fprintf(stderr, "init_namebuf: namebuflen=%d namebuf=" PRINTF_P_PFX "%p\n", namebuflen, namebuf);
     }
 }
 

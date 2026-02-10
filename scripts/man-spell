@@ -163,12 +163,14 @@ PCP_PMSNAPCONTROL_PATH
 ! PCP_PS_PROG
 PCP_PYTHON_PROG
 PCP_RC_DIR
+PCP_REMOTE_ARCHIVE_DIR
 PCP_RUN_DIR
 PCP_SAMPLES		# from __pmStartOptions
 ! PCP_SASLCONF_DIR
 ! PCP_SA_DIR
 PCP_SHARE_DIR
 ! PCP_SORT_PROG
+PCP_SPACELIMIT		# from pmlogger_daily
 PCP_SPECLOCAL		# from __pmStartOptions
 PCP_START_TIME		# from __pmStartOptions
 PCP_STDERR
@@ -1884,6 +1886,7 @@ pmUnitsStr_r
 pmUnloadNameSpace
 pmUnpackEventRecords
 pmUnpackHighResEventRecords
+pmUnregisterDerived
 pmUsageMessage
 pmUseContext
 pmUseZone

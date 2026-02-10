@@ -6,7 +6,7 @@
 . $PCP_DIR/etc/pcp.env
 
 here=`pwd`
-tmp=/tmp/$$
+tmp=/tmp/mk.dstat-$$
 rm -rf $tmp
 
 PMLOGCONF=$PCP_BINADM_DIR/pmlogconf

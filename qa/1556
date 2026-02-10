@@ -1,6 +1,8 @@
 #!/bin/sh
 # PCP QA Test No. 1556
 # pmlogconf "force" clause
+# 
+# see https://github.com/performancecopilot/pcp/issues/2114
 #
 # Copyright (c) 2025 Ken McDonell.  All Rights Reserved.
 #
@@ -40,35 +42,66 @@ _filter()
 {
     sed \
 	-e "s@$tmp@TMP@g" \
+	-e 's/^\*\*\* TMP.conf	.*/*** TMP.conf .../' \
+	-e 's/^--- TMP.conf.new	.*/*** TMP.conf.new .../' \
     # end
 }
 
 # real QA test starts here
 mkdir $tmp || exit
 
-cat <<End-of-File >$tmp/$seq
+cat <<End-of-File >$tmp/bar
 #pmlogconf-setup 2.0
-ident	generic filesystem size, fullness and mount information
-probe	filesys.avail exists ? available : exclude
-#probe	filesys.foobar exists ? include : available
-#probe	filesys.foobar exists ? include : exclude
-#probe	filesys.avail exists ? include : exclude
-# force	available
-	filesys
+ident	bar - force available
+force	available
+	sample.long
 End-of-File
+cat <<End-of-File >$tmp/foo
+#pmlogconf-setup 2.0
+ident	foo - probe
+probe	sample.longlong.one exists ? available : exclude
+	sample.longlong
+End-of-File
+cat <<End-of-File >$tmp/fumble
+#pmlogconf-setup 2.0
+ident	fumble - force include
+force	include
+	sample.float
+End-of-File
+cat <<End-of-File >$tmp/mumble
+#pmlogconf-setup 2.0
+ident	mumble - force exclude
+force	exclude
+	sample.double
+End-of-File
+
+ls -lf $tmp >>$seq_full
+
+# answers to expected prompts when pmlogconf run for the second time
+#
+cat <<End-of-File >$tmp.ans
+y
+
+y
+
+y
+End-of-File
+
+# initial setup ...
+#
+pmlogconf -d $tmp $tmp.conf 2>&1 | _filter
+_filter <$tmp.conf
 
 if $do_valgrind
 then
     _run_valgrind ...your test goes here...
 else
-    pmlogconf -D appl0,appl1,appl2 -d $tmp $tmp.conf 2>&1
+    pmlogconf <$tmp.ans -d $tmp $tmp.conf 2>&1
 fi \
 | _filter
 
-cat $tmp.conf
-
-pmlogconf -D appl0,appl1,appl2 -d $tmp $tmp.conf </dev/tty
-cat $tmp.conf
+echo
+_filter <$tmp.conf
 
 # success, all done
 exit

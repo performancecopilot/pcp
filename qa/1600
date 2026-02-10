@@ -14,6 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 . ./common.keys
 
+[ $PCP_PLATFORM = solaris ] && _notrun "pmseries log discovery not working for solaris"
+
 _check_series
 
 _cleanup()
@@ -201,12 +203,17 @@ $keys_cli $options keys pcp:* >> $seq_full
 ls -lR $PCP_ARCHIVE_DIR >> $seq_full
 cat $tmp.pmproxy.log >> $seq_full
 
-#echo "pausing for diagnosis ($options ... $PCP_ARCHIVE_DIR)"
-#echo pmlogger:
-#cat $tmp.pmlogger.log
-#echo pmproxy:
-#cat $tmp.pmproxy.log
-#read
+# uncomment this block to pause the test so you can investigate the
+# new pmproxy, then enter RETURN for shell running this script to
+# continue the test
+#debug# echo "pausing for diagnosis ($options ... $PCP_ARCHIVE_DIR)"
+#debug# echo pmlogger:
+#debug# cat $tmp.pmlogger.log
+#debug# echo pmproxy:
+#debug# cat $tmp.pmproxy.log
+#debug# echo "options=$options"
+#debug# echo "series=$series"
+#debug# if [ -e /dev/tty ]; then read x </dev/tty; fi
 
 #
 # verify we have data loading and can issue various queries

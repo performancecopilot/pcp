@@ -3,7 +3,7 @@
 # generate control preamble from PCP-parameterized control stanza
 # file ($1)
 #
-tmp=/var/tmp/fixcontrol-$$
+tmp=${TMPDIR:-/tmp}/fixcontrol-$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
@@ -203,13 +203,6 @@ then
     echo 's/\?\{python-requests}(, *|$)/python3-requests\\1/' >>$tmp.sed
 else
     echo 's/\?\{python-requests}(, *|$)//' >>$tmp.sed
-fi
-
-if $HAVE_PYTHON_SIX
-then
-    echo 's/\?\{python-six}(, *|$)/python3-six\\1/' >>$tmp.sed
-else
-    echo 's/\?\{python-six}(, *|$)//' >>$tmp.sed
 fi
 
 if $ENABLE_LZMA
