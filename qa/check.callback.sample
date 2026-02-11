@@ -101,7 +101,7 @@ then
     echo "--- start pre-check ---"
     ./941 --check $1
     ./870 --check $1
-    if [ -f "$audit" ]
+    if $sudo test -f "$audit"
     then
 	$sudo grep -E '^type=(AVC|SELINUX).*pcp' "$audit" \
 	| _suppress_avc >$1.pre-avc 2>/dev/null
@@ -306,7 +306,7 @@ then
     $abort && status=1
 fi
 
-if [ -f "$audit" ]
+if $sudo test -f "$audit"
 then
     # Check audit log for any Security Enhanced Linux access denials
     # related to PCP ...
