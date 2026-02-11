@@ -1,12 +1,11 @@
-# PCP required package list for Fedora 39 x86_64
-# created by nathans on localhost.localdomain Thu 16 Feb 2023 16:06:24 AEDT
+# PCP required package list for Fedora 45 aarch64
+# cloned from Fedora 44 list
 #
 389-ds-base
 Coin4-devel
 HdrHistogram_c-devel
-RediSearch
+#valkey-search
 SoQt-devel
-Spreadsheet::Read cpan
 audit
 autoconf
 avahi-devel
@@ -21,7 +20,6 @@ chan-devel
 clang
 coreutils
 cppcheck
-cronie
 curl
 cyrus-sasl
 cyrus-sasl-devel
@@ -43,14 +41,13 @@ grep
 inih-devel
 iproute
 httpd
-initscripts
 java-latest-openjdk-headless
 jq
-kubernetes-client
-kubernetes-node
+kubernetes
 libbpf
 libbpf-devel
 libcmocka-devel
+libdrm-devel
 libicu-devel
 libpfm-devel
 libselinux-devel
@@ -60,7 +57,6 @@ libvirt-daemon-driver-qemu
 llvm
 llvm-devel
 lm_sensors
-mailx
 make
 man-db
 mandoc
@@ -125,10 +121,10 @@ qtchooser
 ragel
 rdma-core-devel
 readline-devel
-redis
 rpm-build
 rrdtool
 rrdtool-perl
+s-nail
 sed
 selinux-policy
 selinux-policy-devel
@@ -138,13 +134,15 @@ smartmontools
 socat
 sqlite
 sqlite-libs
+sudo
 sysstat
 systemd-devel
 targetcli
 time
 valgrind
+valkey
 xfsprogs
 xkeyboard-config
 xz-devel
 zabbix-agent
-zfs-fuse
+zstd

@@ -1,10 +1,10 @@
-# PCP required package list for Fedora 32 x86_64
-# created by kenj on vm03.localdomain Mon 12 Oct 2020 14:03:26 AEDT
+# PCP required package list for Fedora 44 x86_64
+# cloned from Fedora 44 list
 #
 389-ds-base
 Coin4-devel
 HdrHistogram_c-devel
-RediSearch
+#valkey-search
 SoQt-devel
 Spreadsheet::Read cpan
 audit
@@ -30,6 +30,7 @@ cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
 ed
+expect
 flex
 gawk
 gcc
@@ -39,24 +40,27 @@ gfs2-utils
 git
 git-core
 grep
+inih-devel
 iproute
 httpd
 initscripts
 java-latest-openjdk-headless
 jq
+kubernetes
 kubernetes-client
 libbpf
 libbpf-devel
 libcmocka-devel
+libdrm-devel
 libicu-devel
 libpfm-devel
+libselinux-devel
 libuv-devel
 libvirt-daemon
 libvirt-daemon-driver-qemu
 llvm
 llvm-devel
 lm_sensors
-mailx
 make
 man-db
 mandoc
@@ -95,10 +99,10 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
+python3
 python3-bcc
 python3-devel
-# broken dependencies, see https://bugzilla.redhat.com/show_bug.cgi?id=2066462
-# python3-elasticsearch
+python3-elasticsearch
 python3-libs
 python3-libvirt
 python3-lxml
@@ -121,10 +125,10 @@ qtchooser
 ragel
 rdma-core-devel
 readline-devel
-redis
 rpm-build
 rrdtool
 rrdtool-perl
+s-nail
 sed
 selinux-policy
 selinux-policy-devel
@@ -134,13 +138,15 @@ smartmontools
 socat
 sqlite
 sqlite-libs
+sudo
 sysstat
 systemd-devel
 targetcli
 time
 valgrind
+valkey
 xfsprogs
 xkeyboard-config
 xz-devel
 zabbix-agent
-zfs-fuse
+zstd
