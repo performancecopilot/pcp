@@ -1036,12 +1036,22 @@ allow pcp_pmproxy_t pcp_log_t:lnk_file read;
 allow pcp_pmcd_t fsadm_exec_t:file { execute execute_no_trans getattr open read };
 allow pcp_pmcd_t fixed_disk_device_t:blk_file { open read ioctl };
 
+#============= pmda-rocestat ==============
+optional_policy(`
+    require {
+	type ifconfig_exec_t;
+    }
+   # type=AVC msg=audit(N): avc:  denied  { execute_no_trans } for  pid=PID comm="python3" path="/usr/sbin/ethtool" dev=DEV ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:ifconfig_exec_t:s0 tclass=file permissive=0
+   # RHEL-132402
+   allow pcp_pmcd_t ifconfig_exec_t:file { execute execute_no_trans };
+')
+
 #============= pmda-nvidia ==============
 # type=AVC msg=audit(N): avc: denied { execute } for pid=PID comm="pmdanvidia" path="/usr/lib64/libnvidia-ml.so" dev="dm-2" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:default_t:s0 tclass=file permissive=0
 # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmdanvidia" name="nvidia-cap2" dev="devtmpfs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=unconfined_u:object_r:device_t:s0 tclass=chr_file permissive=0
 #RHEL-83594
 allow pcp_pmcd_t default_t:file { execute };
-allow pcp_pmcd_t device_t:chr_file { create open read setattr write };
+allow pcp_pmcd_t device_t:chr_file { create ioctl open read setattr write };
 allow pcp_pmcd_t device_t:dir { add_name remove_name write };
 allow pcp_pmcd_t device_t:lnk_file { create unlink };
 allow pcp_pmcd_t self:capability mknod;
@@ -1049,7 +1059,7 @@ allow pcp_pmcd_t dri_device_t:chr_file { ioctl open read write };
 allow pcp_pmcd_t device_t:dir write;
 allow pcp_pmcd_t device_t:dir { create setattr };
 allow pcp_pmcd_t sysctl_vm_t:file read;
-allow pcp_pmcd_t xserver_misc_device_t:chr_file { ioctl open read write };
+allow pcp_pmcd_t xserver_misc_device_t:chr_file { ioctl map open read write };
 
 # type=AVC msg=audit(N): avc: denied { sys_rawio } for pid=PID comm="pmdaX" name="/" dev="tracefs" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:pcp_pmcd_t:s0 tclass=capability permissive=0
 allow pcp_pmcd_t self:capability sys_rawio;

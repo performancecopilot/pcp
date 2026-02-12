@@ -2258,6 +2258,7 @@ telnet-probe
 1829 archive pmlogrewrite local archive_v3 pmlogdump local pmconfig
 1837 pmproxy local
 1838 pmda.linux kernel local
+1843 pmda.opentelemetry local
 1844 pmdumptext libpcp_qmc remote
 1845 logutil pmlogger_daily local
 1848 libpcp local valgrind
