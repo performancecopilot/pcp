@@ -72,9 +72,10 @@ static void LinuxMachine_updateCPUcount(LinuxMachine* this) {
          continue;
 
       char* endp;
-      unsigned long int id = strtoul(entry->d_name + 3, &endp, 10);
-      if (id == ULONG_MAX || endp == entry->d_name + 3 || *endp != '\0')
+      unsigned long int sysid = strtoul(entry->d_name + 3, &endp, 10);
+      if (sysid >= UINT_MAX || endp == entry->d_name + 3 || *endp != '\0')
          continue;
+      unsigned int cpuid = (unsigned int)sysid + 1;
 
 #ifdef HAVE_OPENAT
       int cpuDirFd = openat(xDirfd(dir), entry->d_name, O_DIRECTORY | O_PATH | O_NOFOLLOW);
@@ -88,7 +89,7 @@ static void LinuxMachine_updateCPUcount(LinuxMachine* this) {
       existing++;
 
       /* readdir() iterates with no specific order */
-      unsigned int max = MAXIMUM(existing, id + 1);
+      unsigned int max = MAXIMUM(existing, cpuid);
       if (max > currExisting) {
          this->cpuData = xReallocArrayZero(this->cpuData, currExisting ? (currExisting + 1) : 0, max + /* aggregate */ 1, sizeof(CPUData));
          this->cpuData[0].online = true; /* average is always "online" */
@@ -100,9 +101,9 @@ static void LinuxMachine_updateCPUcount(LinuxMachine* this) {
       /* If the file "online" does not exist or on failure count as active */
       if (res < 1 || buffer[0] != '0') {
          active++;
-         this->cpuData[id + 1].online = true;
+         this->cpuData[cpuid].online = true;
       } else {
-         this->cpuData[id + 1].online = false;
+         this->cpuData[cpuid].online = false;
       }
 
       Compat_openatArgClose(cpuDirFd);
@@ -204,12 +205,12 @@ static void LinuxMachine_scanMemoryInfo(LinuxMachine* this) {
     *    do not show twice by subtracting from Cached and do not subtract twice from used.
     */
    host->totalMem = totalMem;
-   host->cachedMem = cachedMem + sreclaimableMem - sharedMem;
-   host->sharedMem = sharedMem;
+   this->cachedMem = cachedMem + sreclaimableMem - sharedMem;
+   this->sharedMem = sharedMem;
    const memory_t usedDiff = freeMem + cachedMem + sreclaimableMem + buffersMem;
-   host->usedMem = (totalMem >= usedDiff) ? totalMem - usedDiff : totalMem - freeMem;
-   host->buffersMem = buffersMem;
-   host->availableMem = availableMem != 0 ? MINIMUM(availableMem, totalMem) : freeMem;
+   this->usedMem = (totalMem >= usedDiff) ? totalMem - usedDiff : totalMem - freeMem;
+   this->buffersMem = buffersMem;
+   this->availableMem = availableMem != 0 ? MINIMUM(availableMem, totalMem) : freeMem;
    host->totalSwap = swapTotalMem;
    host->usedSwap = swapTotalMem - swapFreeMem - swapCacheMem;
    host->cachedSwap = swapCacheMem;
