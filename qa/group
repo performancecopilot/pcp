@@ -2329,5 +2329,7 @@ telnet-probe
 1995 pmda.linux local
 1996 pmda.infiniband local
 1997 pcp nfsiostat python local
+1882 pmda.valkey local
+1883 pmda.valkey local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

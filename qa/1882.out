@@ -1,0 +1,170 @@
+QA output created by 1882
+Starting local valkey server ...
+== Installing valkey PMDA ==
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check valkey metrics have appeared ... X metrics and Y values
+
+== Check valkey metrics are available ==
+
+valkey.clients.blocked
+    value NUMBER
+
+valkey.clients.connected
+    value NUMBER
+
+valkey.clients.pubsub
+    value NUMBER
+
+valkey.clients.tracking
+    value NUMBER
+
+valkey.cpu.system
+    value NUMBER
+
+valkey.cpu.system_children
+    value NUMBER
+
+valkey.cpu.user
+    value NUMBER
+
+valkey.cpu.user_children
+    value NUMBER
+
+valkey.memory.fragmentation_ratio
+    value NUMBER
+
+valkey.memory.maxmemory
+    value NUMBER
+
+valkey.memory.total_system
+    value NUMBER
+
+valkey.memory.used
+    value NUMBER
+
+valkey.memory.used_dataset
+    value NUMBER
+
+valkey.memory.used_overhead
+    value NUMBER
+
+valkey.memory.used_peak
+    value NUMBER
+
+valkey.memory.used_rss
+    value NUMBER
+
+valkey.persistence.aof_enabled
+    value NUMBER
+
+valkey.persistence.rdb_changes_since_save
+    value NUMBER
+
+valkey.persistence.rdb_last_bgsave_status
+    value NUMBER
+
+valkey.persistence.rdb_last_bgsave_time_sec
+    value NUMBER
+
+valkey.persistence.rdb_last_save_time
+    value NUMBER
+
+valkey.server.config_file
+    value STRING
+
+valkey.server.hz
+    value NUMBER
+
+valkey.server.process_id
+    value NUMBER
+
+valkey.server.uptime_days
+    value NUMBER
+
+valkey.server.uptime_seconds
+    value NUMBER
+
+valkey.stats.evicted_keys
+    value NUMBER
+
+valkey.stats.expired_keys
+    value NUMBER
+
+valkey.stats.instantaneous_ops_per_sec
+    value NUMBER
+
+valkey.stats.keyspace_hits
+    value NUMBER
+
+valkey.stats.keyspace_misses
+    value NUMBER
+
+valkey.stats.rejected_connections
+    value NUMBER
+
+valkey.stats.total_commands
+    value NUMBER
+
+valkey.stats.total_connections
+    value NUMBER
+
+valkey.stats.total_net_input_bytes
+    value NUMBER
+
+valkey.stats.total_net_output_bytes
+    value NUMBER
+
+== Verify specific metric groups ==
+valkey.clients.blocked
+valkey.clients.connected
+valkey.clients.pubsub
+valkey.clients.tracking
+valkey.cpu.system
+valkey.cpu.system_children
+valkey.cpu.user
+valkey.cpu.user_children
+valkey.memory.fragmentation_ratio
+valkey.memory.maxmemory
+valkey.memory.total_system
+valkey.memory.used
+valkey.memory.used_dataset
+valkey.memory.used_overhead
+valkey.memory.used_peak
+valkey.memory.used_rss
+valkey.persistence.aof_enabled
+valkey.persistence.rdb_changes_since_save
+valkey.persistence.rdb_last_bgsave_status
+valkey.persistence.rdb_last_bgsave_time_sec
+valkey.persistence.rdb_last_save_time
+valkey.server.config_file
+valkey.server.hz
+valkey.server.process_id
+valkey.server.uptime_days
+valkey.server.uptime_seconds
+valkey.stats.evicted_keys
+valkey.stats.expired_keys
+valkey.stats.instantaneous_ops_per_sec
+valkey.stats.keyspace_hits
+valkey.stats.keyspace_misses
+valkey.stats.rejected_connections
+valkey.stats.total_commands
+valkey.stats.total_connections
+valkey.stats.total_net_input_bytes
+valkey.stats.total_net_output_bytes
+
+== Fetch some key metrics ==
+valkey.server.uptime_seconds NUMBER
+
+valkey.clients.connected NUMBER
+
+valkey.memory.used NUMBER
+
+valkey.stats.total_commands NUMBER
+
+== Removing valkey PMDA ==
+Culling the Performance Metrics Name Space ...
+valkey ... done
+Updating the PMCD control file, and notifying PMCD ...
+Check valkey metrics have gone away ... OK
