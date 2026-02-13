@@ -134,7 +134,7 @@ Debian
 
 Fedora
     https://fedoraproject.org/wiki/Releases
-    11 Sep 2025: 42 & 41
+    13 Feb 2026: 43 & 42
     # which packages are installed
     $ rpm -qa --qf '%{NAME}\n'
     # package search recipe (name and info or description)
@@ -154,7 +154,8 @@ Fedora
     $ ver=33
     $ sudo dnf -y --refresh upgrade
     $ sudo dnf -y system-upgrade download --allowerasing --releasever=$ver
-    $ sudo dnf system-upgrade reboot
+    $ (old) sudo dnf system-upgrade reboot
+    $ (new from Fedora 42) sudo dnf5 offline reboot
     # and then watch the console window ...
 
     # recipe below works (at least) for Fedora 34
