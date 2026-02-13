@@ -3840,8 +3840,9 @@ p
     esac
 }
 
-# same algorithm as _get_pids_by_name() in pcp.env to determine if
-# a process is (PID == $1) is running in a container
+# same algorithm as _get_pids_by_name() in pcp.env (but without
+# "known" pattern matching) to determine if a process is (PID == $1)
+# is running in a container
 #
 _pid_in_container()
 {
@@ -3849,34 +3850,15 @@ _pid_in_container()
     then
 	# check the last line of /proc/$1/cgroup ..
 	#
-	# known non-container patterns
-	# 0::/system.slice/
-	# 0::/user.slice/
-	# 0::/init.scope
-	# 1:name=systemd:/
-	# 1:cpuset:/
-	# 1:blkio:/
-	#
 	# known container patterns
 	# 0::/machine.slice/libpod-<uuid>.scope/container/system.slice/
 	#
 	__cgroups=`tail -1 /proc/$1/cgroup 2>/dev/null`
 	case "$__cgroups"
 	in
-	    # if cgroup file goes away or cannot be read, silently
-	    # assume the process was not in a container
-	    #
-	    ''|0::/system.slice/*|*/user.slice/*|0::/init.scope|1:name=systemd:/*|1:cpuset:/*|1:blkio:/*)
-		    ;;
 	    0::/machine.slice/*/container/*)
 		    # skip this one
 		    return 0
-		    ;;
-	    *)
-		    echo >&2 "Warning: _get_pids_by_name: pid=$1: unknown cgroups: \"$__cgroups\""
-		    $PCP_PS_PROG $PCP_PS_ALL_FLAGS 2>&1 | $PCP_AWK_PROG '
-$2 == "PID"	{ print }
-$2 == '"$1"'	{ print }' >&2
 		    ;;
 	esac
     fi
