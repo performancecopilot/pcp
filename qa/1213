@@ -13,9 +13,20 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-if pmlogctl -c default status 2>/dev/null | grep ' default ' >/dev/null
+if ! pmlogctl -c default status >$tmp.tmp 2>&1
+then
+    cat $tmp.tmp
+    _notrun "pmlogctl not happy, Jan"
+fi
+cat $tmp.tmp >>$seq_full
+sed -e '/^Warning:/d' <$tmp.tmp >$tmp.check
+if grep ' default ' <$tmp.check >>$seq_full
 then
     _notrun "at least one pmlogger already defined for \"default\" class"
+fi
+if grep ' >.* primary ' <$tmp.check >>$seq_full
+then
+    _notrun "primary pmlogger is sending to a remote pmproxy, timing in this test is problematic"
 fi
 
 _cleanup()
