@@ -1,11 +1,10 @@
 ## Deploy
-FROM quay.io/fedora/fedora:rawhide
+FROM quay.io/fedora/fedora:latest
 
 COPY build/containers/pcp/root /
 
-# pcp-zeroconf currently failing to install cleanly in rawhide
 RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
-    gettext-envsubst pcp pcp-pmda-* pcp-import-* pcp-export-* zstd && \
+    gettext-envsubst pcp-zeroconf pcp-pmda-* pcp-import-* pcp-export-* && \
     microdnf clean all
 
 # ensure pmcd and pmproxy ports are both accessible on startup
