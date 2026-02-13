@@ -1,0 +1,68 @@
+#!/bin/sh
+# PCP QA Test No. 1652
+# check derived metrics used by pcp-htop
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -d $PCP_SHARE_DIR/htop ] || _notrun "pcp-htop config files not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+#
+# extract derived metric defns
+#
+cd $PCP_SHARE_DIR/htop || _exit 1
+
+# find all derived metric definitions
+# names are prefixed my file pathname, e.g.
+# screens/filesystems:blockdev.metric = <expr> becomes
+# screens.filesystems.blockdev = <expr>
+grep -R 'metric *=' * \
+| sed -e 's/:/./' -e 's@/@.@' -e 's/\.metric//' >$tmp.raw
+# get unique top-level PMNS names from names (for pminfo)
+sed -e 's/\..*//' <$tmp.raw | sort | uniq >$tmp.basenames
+# some files contain more than one metric = line, so
+# find the duplicates
+sed <$tmp.raw -e 's/ .*//' \
+| sort \
+| uniq -c \
+| grep -v ' 1 ' >$tmp.dups
+# build awk script to mangle names and disambiguate duplicates
+sed <$tmp.dups >$tmp.awk \
+    -e 's/ *[0-9]* *//' \
+    -e 's/.*/$1 == "&" { if (x["&"] == "") { x["&"] = 1 } else { x["&"]++ }; $1 = $1 ".m_" x["&"] }/' \
+# end
+echo "{ print }" >>$tmp.awk
+# disambiguate
+awk -f $tmp.awk <$tmp.raw >$tmp.derived
+
+# real QA test starts here
+echo "Silence is golden ..."
+PCP_DERIVED_CONFIG=$tmp.derived pminfo -v `cat $tmp.basenames` 2>&1 \
+| grep -v 'No value(s) available'
+
+# success, all done
+exit

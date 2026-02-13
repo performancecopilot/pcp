@@ -229,6 +229,9 @@ network.mptcp.simultconnectfallback
 network.mptcp.fallbackfailed
     value 72
 
+network.mptcp.winprobe
+    value 73
+
 == Checking network.tcp metrics
 
 network.tcp.rtoalgorithm

@@ -1377,6 +1377,7 @@ network.mptcp {
     dssfallback		60:53:237
     simultconnectfallback		60:53:238
     fallbackfailed		60:53:239
+    winprobe		60:53:240
 }
 
 network.udp {
