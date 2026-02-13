@@ -1,0 +1,24 @@
+# Test process QoS CPU time metrics (RUSAGE_INFO_V4)
+# These metrics provide per-process QoS-tier CPU time accounting
+
+# QoS CPU time metrics
+desc proc.cpu.qos.default
+fetch proc.cpu.qos.default
+
+desc proc.cpu.qos.maintenance
+fetch proc.cpu.qos.maintenance
+
+desc proc.cpu.qos.background
+fetch proc.cpu.qos.background
+
+desc proc.cpu.qos.utility
+fetch proc.cpu.qos.utility
+
+desc proc.cpu.qos.legacy
+fetch proc.cpu.qos.legacy
+
+desc proc.cpu.qos.user_initiated
+fetch proc.cpu.qos.user_initiated
+
+desc proc.cpu.qos.user_interactive
+fetch proc.cpu.qos.user_interactive

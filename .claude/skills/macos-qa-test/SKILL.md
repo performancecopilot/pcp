@@ -38,10 +38,24 @@ Run this command to execute the darwin PMDA QA tests:
 
 ## When to Use
 
-- After making changes to `src/pmdas/darwin` or `src/pmdas/darwin_proc`
-- Before committing darwin PMDA changes
-- To validate new metrics or bug fixes
-- When you want to ensure changes work in a clean environment
+- After making AND COMMITTING changes to `src/pmdas/darwin` or `src/pmdas/darwin_proc`
+- To validate new metrics or bug fixes in a clean environment
+- Before pushing changes to remote
+
+## CRITICAL: Git Commit Required
+
+**You MUST commit all source code changes to git BEFORE running this skill.**
+
+The Tart VM clones the git repository. Uncommitted local changes are INVISIBLE to the VM.
+
+```bash
+# Correct workflow:
+git add <changed-files>
+git commit -m "Add new metric for X"
+/macos-qa-test              # NOW the VM will see your changes
+```
+
+If tests fail on code you just wrote, verify you committed the changes first
 
 ---
 

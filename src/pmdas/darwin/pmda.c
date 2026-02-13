@@ -34,6 +34,7 @@
 #include "vfs.h"
 #include "udp.h"
 #include "icmp.h"
+#include "ipv6.h"
 #include "sockstat.h"
 #include "tcpconn.h"
 #include "tcp.h"
@@ -44,6 +45,11 @@
 #include "cpuload.h"
 #include "uname.h"
 #include "login.h"
+#include "gpu.h"
+#include "ipc.h"
+#include "power.h"
+#include "apfs.h"
+#include "thermal.h"
 #include "metrics.h"
 
 static pmdaInterface		dispatch;
@@ -73,6 +79,10 @@ extern int refresh_vmstat(struct vm_statistics64 *);
 int			mach_swap_error = 0;
 struct xsw_usage	mach_swap = { 0 };
 extern int refresh_swap(struct xsw_usage *);
+
+int			mach_compressor_error = 0;
+struct compressor_stats	mach_compressor = { 0 };
+extern int refresh_compressor_stats(struct compressor_stats *);
 
 int			mach_fs_error = 0;
 struct statfs		*mach_fs = NULL;
@@ -106,6 +116,9 @@ udpstats_t		mach_udp = { 0 };
 int			mach_icmp_error = 0;
 icmpstats_t		mach_icmp = { 0 };
 
+int			mach_ipv6_error = 0;
+ipv6stats_t		mach_ipv6 = { 0 };
+
 int			mach_sockstat_error = 0;
 sockstats_t		mach_sockstat = { 0 };
 
@@ -117,6 +130,21 @@ tcpstats_t		mach_tcp = { 0 };
 
 int			mach_login_error = 0;
 login_info_t		mach_login = { 0 };
+
+int			mach_gpu_error = 0;
+struct gpustats		mach_gpu = { 0 };
+
+int			mach_ipc_error = 0;
+ipcstats_t		mach_ipc = { 0 };
+
+int			mach_power_error = 0;
+powerstats_t		mach_power = { 0 };
+
+int			mach_thermal_error = 0;
+thermalstats_t		mach_thermal = { 0 };
+
+int			mach_apfs_error = 0;
+struct apfs_stats	mach_apfs = { 0 };
 
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
@@ -148,12 +176,16 @@ static pmdaInstid nfs3_indom_id[] = {
  * (enum now defined in darwin.h for use by refactored modules)
  */
 pmdaIndom indomtab[] = {
-    { LOADAVG_INDOM,	3, loadavg_indom_id },
-    { FILESYS_INDOM,	0, NULL },
-    { DISK_INDOM,	0, NULL },
-    { CPU_INDOM,	0, NULL },
-    { NETWORK_INDOM,	0, NULL },
-    { NFS3_INDOM,	NFS3_RPC_COUNT, nfs3_indom_id },
+    { LOADAVG_INDOM,		3, loadavg_indom_id },
+    { FILESYS_INDOM,		0, NULL },
+    { DISK_INDOM,		0, NULL },
+    { CPU_INDOM,		0, NULL },
+    { NETWORK_INDOM,		0, NULL },
+    { NFS3_INDOM,		NFS3_RPC_COUNT, nfs3_indom_id },
+    { GPU_INDOM,		0, NULL },
+    { APFS_CONTAINER_INDOM,	0, NULL },
+    { APFS_VOLUME_INDOM,	0, NULL },
+    { FAN_INDOM,		0, NULL },
 };
 
 
@@ -167,6 +199,7 @@ darwin_refresh(int *need_refresh)
     if (need_refresh[CLUSTER_VMSTAT]) {
 	mach_vmstat_error = refresh_vmstat(&mach_vmstat);
 	mach_swap_error = refresh_swap(&mach_swap);
+	mach_compressor_error = refresh_compressor_stats(&mach_compressor);
     }
     if (need_refresh[CLUSTER_KERNEL_UNAME])
 	mach_uname_error = refresh_uname(&mach_uname);
@@ -196,6 +229,20 @@ darwin_refresh(int *need_refresh)
 	mach_tcp_error = refresh_tcp(&mach_tcp);
     if (need_refresh[CLUSTER_LOGIN])
 	mach_login_error = refresh_login(&mach_login);
+    if (need_refresh[CLUSTER_GPU])
+	mach_gpu_error = refresh_gpus(&mach_gpu, &indomtab[GPU_INDOM]);
+    if (need_refresh[CLUSTER_IPC])
+	mach_ipc_error = refresh_ipc(&mach_ipc);
+    if (need_refresh[CLUSTER_POWER])
+	mach_power_error = refresh_power(&mach_power);
+    if (need_refresh[CLUSTER_THERMAL])
+	mach_thermal_error = refresh_thermal(&mach_thermal, &indomtab[FAN_INDOM]);
+    if (need_refresh[CLUSTER_IPV6])
+	mach_ipv6_error = refresh_ipv6(&mach_ipv6);
+    if (need_refresh[CLUSTER_APFS])
+	mach_apfs_error = refresh_apfs(&mach_apfs,
+				       &indomtab[APFS_CONTAINER_INDOM],
+				       &indomtab[APFS_VOLUME_INDOM]);
 }
 
 static int
@@ -242,6 +289,12 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_UDP:		return fetch_udp(item, atom);
     case CLUSTER_ICMP:		return fetch_icmp(item, atom);
     case CLUSTER_TCP:		return fetch_tcp(item, atom);
+    case CLUSTER_GPU:		return fetch_gpu(item, inst, atom);
+    case CLUSTER_IPC:		return fetch_ipc(item, atom);
+    case CLUSTER_POWER:		return fetch_power(item, atom);
+    case CLUSTER_THERMAL:	return fetch_thermal(item, inst, atom);
+    case CLUSTER_IPV6:		return fetch_ipv6(item, atom);
+    case CLUSTER_APFS:		return fetch_apfs(item, inst, atom);
     }
     return 0;
 }
@@ -256,6 +309,7 @@ darwin_instance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaEx
     case DISK_INDOM:	need_refresh[CLUSTER_DISK]++; break;
     case CPU_INDOM:	need_refresh[CLUSTER_CPU]++; break;
     case NETWORK_INDOM:	need_refresh[CLUSTER_NETWORK]++; break;
+    case GPU_INDOM:	need_refresh[CLUSTER_GPU]++; break;
     }
     darwin_refresh(need_refresh);
     return pmdaInstance(indom, inst, name, result, pmda);
@@ -334,6 +388,8 @@ darwin_init(pmdaInterface *dp)
     if ((sts = refresh_hinv()) != 0)
 	fprintf(stderr, "darwin_init: refresh_hinv failed: %s\n", pmErrStr(sts));
     init_network();
+    init_gpu();
+    init_thermal(&indomtab[FAN_INDOM]);
     check_tcp_stats_access();
 }
 

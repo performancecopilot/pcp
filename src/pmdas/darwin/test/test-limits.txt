@@ -1,0 +1,17 @@
+# Test system resource limits (kern.* sysctl metrics)
+# These metrics expose system-wide resource configuration
+
+desc kernel.limits.maxproc
+fetch kernel.limits.maxproc
+
+desc kernel.limits.maxprocperuid
+fetch kernel.limits.maxprocperuid
+
+desc kernel.limits.maxfiles
+fetch kernel.limits.maxfiles
+
+desc kernel.limits.maxfilesperproc
+fetch kernel.limits.maxfilesperproc
+
+desc vfs.vnodes.recycled
+fetch vfs.vnodes.recycled
