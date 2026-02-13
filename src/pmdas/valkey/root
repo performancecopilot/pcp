@@ -1,0 +1,10 @@
+/*
+ * fake "root" for validating the Valkey PMDA install/remove scripts
+ */
+#include <stdpmid>
+
+root {
+    valkey
+}
+
+#include "pmns"

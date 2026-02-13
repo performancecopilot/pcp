@@ -1,0 +1,68 @@
+/*
+ * Metrics for Valkey PMDA
+ *
+ * Copyright (c) 2026 Red Hat.
+ */
+
+valkey {
+    server
+    clients
+    memory
+    stats
+    cpu
+    persistence
+}
+
+valkey.server {
+    uptime_seconds		VALKEY:0:0
+    process_id			VALKEY:0:1
+    uptime_days			VALKEY:0:2
+    hz				VALKEY:0:3
+    config_file			VALKEY:0:4
+}
+
+valkey.clients {
+    connected			VALKEY:1:0
+    blocked			VALKEY:1:1
+    tracking			VALKEY:1:2
+    pubsub			VALKEY:1:3
+}
+
+valkey.memory {
+    used			VALKEY:2:0
+    used_rss			VALKEY:2:1
+    used_peak			VALKEY:2:2
+    fragmentation_ratio		VALKEY:2:3
+    used_overhead		VALKEY:2:4
+    used_dataset		VALKEY:2:5
+    total_system		VALKEY:2:6
+    maxmemory			VALKEY:2:7
+}
+
+valkey.stats {
+    total_commands		VALKEY:3:0
+    total_connections		VALKEY:3:1
+    rejected_connections	VALKEY:3:2
+    keyspace_hits		VALKEY:3:3
+    keyspace_misses		VALKEY:3:4
+    evicted_keys		VALKEY:3:5
+    expired_keys		VALKEY:3:6
+    instantaneous_ops_per_sec	VALKEY:3:7
+    total_net_input_bytes	VALKEY:3:8
+    total_net_output_bytes	VALKEY:3:9
+}
+
+valkey.cpu {
+    system			VALKEY:4:0
+    user			VALKEY:4:1
+    system_children		VALKEY:4:2
+    user_children		VALKEY:4:3
+}
+
+valkey.persistence {
+    rdb_changes_since_save	VALKEY:5:0
+    rdb_last_save_time		VALKEY:5:1
+    rdb_last_bgsave_status	VALKEY:5:2
+    rdb_last_bgsave_time_sec	VALKEY:5:3
+    aof_enabled			VALKEY:5:4
+}

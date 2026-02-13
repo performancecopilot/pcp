@@ -1,0 +1,48 @@
+#
+# Copyright (c) 2026 Red Hat.
+#
+# This file is part of the PCP valkey PMDA.  It provides one-line help
+# text for each of the metrics exported by the PMDA.
+#
+
+@ valkey.server.uptime_seconds Number of seconds since Valkey server start
+@ valkey.server.process_id Process ID of the Valkey server
+@ valkey.server.uptime_days Number of days since Valkey server start
+@ valkey.server.hz Server's current frequency setting
+@ valkey.server.config_file Path to the Valkey configuration file
+
+@ valkey.clients.connected Number of client connections (excluding connections from replicas)
+@ valkey.clients.blocked Number of clients pending on a blocking call
+@ valkey.clients.tracking Number of clients being tracked
+@ valkey.clients.pubsub Number of clients in pub/sub mode
+
+@ valkey.memory.used Total number of bytes allocated by Valkey using its allocator
+@ valkey.memory.used_rss Number of bytes that Valkey allocated as seen by the operating system (resident set size)
+@ valkey.memory.used_peak Peak memory consumed by Valkey (in bytes)
+@ valkey.memory.fragmentation_ratio Ratio between used_memory_rss and used_memory
+@ valkey.memory.used_overhead Memory used for server overhead (internal data structures)
+@ valkey.memory.used_dataset Memory used for the dataset (user data)
+@ valkey.memory.total_system Total amount of memory available on the system
+@ valkey.memory.maxmemory Maximum memory limit configured for Valkey
+
+@ valkey.stats.total_commands Total number of commands processed by the server
+@ valkey.stats.total_connections Total number of connections accepted by the server
+@ valkey.stats.rejected_connections Number of connections rejected because of maxclients limit
+@ valkey.stats.keyspace_hits Number of successful lookup of keys in the main dictionary
+@ valkey.stats.keyspace_misses Number of failed lookup of keys in the main dictionary
+@ valkey.stats.evicted_keys Number of evicted keys due to maxmemory limit
+@ valkey.stats.expired_keys Total number of keys that have expired
+@ valkey.stats.instantaneous_ops_per_sec Number of commands processed per second
+@ valkey.stats.total_net_input_bytes Total number of bytes read from the network
+@ valkey.stats.total_net_output_bytes Total number of bytes written to the network
+
+@ valkey.cpu.system System CPU consumed by the Valkey server
+@ valkey.cpu.user User CPU consumed by the Valkey server
+@ valkey.cpu.system_children System CPU consumed by background processes
+@ valkey.cpu.user_children User CPU consumed by background processes
+
+@ valkey.persistence.rdb_changes_since_save Number of changes since last RDB save
+@ valkey.persistence.rdb_last_save_time Epoch-based timestamp of last successful RDB save
+@ valkey.persistence.rdb_last_bgsave_status Status of the last RDB save operation (1=ok, 0=failed)
+@ valkey.persistence.rdb_last_bgsave_time_sec Duration of the last RDB save operation in seconds
+@ valkey.persistence.aof_enabled Flag indicating if AOF logging is activated

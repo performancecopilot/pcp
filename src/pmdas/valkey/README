@@ -1,0 +1,61 @@
+This PMDA collects performance metrics from a Valkey server.
+
+Valkey (https://valkey.io) is an open source, in-memory data store
+forked from Redis.  It provides high performance key-value storage
+with support for various data structures.
+
+Metrics
+=======
+
+The PMDA collects metrics in the following categories:
+
+* Server - uptime, process ID, configuration information
+* Clients - connected clients, blocked clients, tracking and pub/sub clients
+* Memory - memory usage, fragmentation ratio, dataset and overhead memory
+* Stats - command and connection counts, keyspace hits/misses, evictions
+* CPU - CPU time consumed by server and child processes
+* Persistence - RDB snapshot and AOF status information
+
+Configuration
+=============
+
+The PMDA is configured via /etc/pcp/valkey/valkey.conf:
+
+    host=127.0.0.1
+    port=6379
+
+The default configuration connects to a Valkey server running on
+localhost on the default port 6379.
+
+Installation
+============
+
+ +  # cd $PCP_PMDAS_DIR/valkey
+
+ +  Check that there is no clash in the Performance Metrics Domain
+    defined in domain.h and the other PMDAs currently in use (see
+    $PCP_PMCDCONF_PATH).  If there is, edit domain.h to choose another
+    domain number.
+
+ +  Then simply use
+
+        # ./Install
+
+    and choose both the "collector" and "monitor" installation
+    configuration options.
+
+De-installation
+===============
+
+ +  Simply use
+
+        # cd $PCP_PMDAS_DIR/valkey
+        # ./Remove
+
+Troubleshooting
+===============
+
+ +  After installing or restarting the agent, the PMCD log file
+    ($PCP_LOG_DIR/pmcd/pmcd.log) and the PMDA log file
+    ($PCP_LOG_DIR/pmcd/valkey.log) should be checked for any warnings
+    or errors.
