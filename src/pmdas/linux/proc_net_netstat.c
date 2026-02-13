@@ -521,6 +521,8 @@ netstat_fields_t netstat_mptcp_fields[] = {
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_SIMULTCONNECTFALLBACK] },
     { .field = "FallbackFailed",
       .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_FALLBACKFAILED] },
+    { .field = "WinProbe",
+      .offset = &_pm_proc_net_netstat.mptcp[_PM_NETSTAT_MPTCPEXT_WINPROBE] },
 
     { .field = NULL, .offset = NULL }
 };
