@@ -4694,11 +4694,10 @@ spec	: L_TYPE L_ASSIGN specval
 		      /*
 		       * if strlen($3) != nscanned we have something bad
 		       * like "123.456foo"
+		       * - unsigned => no need for >= 0 test (thanks Coverity)
 		       */
 		      if (sscanf($3, "%u.%u%n", &domain, &serial, &nscanned) == 2 &&
-			  (int)strlen($3) == nscanned &&
-		          domain >= 0 && domain < 511 &&
-			  serial >= 0 && serial < (1<<22)) {
+			  (int)strlen($3) == nscanned && domain < 511 && serial < (1<<22)) {
 			  /* valid indom number */
 			  specdesc.indom = pmInDom_build(domain, serial);
 		      }
