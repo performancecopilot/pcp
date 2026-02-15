@@ -94,6 +94,9 @@ class PCP2ARROW(object):
         self.schema = None
         self.matrix = {}  # dict of value vectors, keyed by column name
         self.indoms = {}  # dict of dict, keyed by indom ID first, inst ID next
+        self.column_map = {}  # maps (metric_idx, inst_id) -> column_name for fast lookup
+        self.column_index = {}  # maps (metric_idx, inst_id) -> column_index for fast append
+        self.columns = []  # list of column data lists for faster indexed access
 
         # Performance metrics store
         # key - metric name
@@ -304,7 +307,9 @@ class PCP2ARROW(object):
             starting with the timestamp column then all metrics[+insts]
         """
         self.schema = [pa.field('timestamp', pa.timestamp('ns'))]
-        self.matrix['timestamp'] = []
+        timestamp_col = []
+        self.matrix['timestamp'] = timestamp_col
+        self.columns.append(timestamp_col)
 
         for i, metric in enumerate(self.metrics):
             desc = self.pmconfig.descs[i]
@@ -315,11 +320,18 @@ class PCP2ARROW(object):
                 indom = self.lookup_indom(desc)
                 for inst in indom.keys():
                     metricspec = metric + '[' + indom[inst] + ']'
-                    self.matrix[metricspec] = []
+                    col_data = []
+                    col_idx = len(self.columns)
+                    self.column_map[(i, inst)] = metricspec
+                    self.column_index[(i, inst)] = col_idx
+                    self.matrix[metricspec] = col_data
+                    self.columns.append(col_data)
                     field = pa.field(metricspec, patype())
                     self.schema.append(field)
             else:
-                self.matrix[metric] = []
+                col_data = []
+                self.matrix[metric] = col_data
+                self.columns.append(col_data)
                 field = pa.field(metric, patype())
                 self.schema.append(field)
 
@@ -330,12 +342,14 @@ class PCP2ARROW(object):
         if not self.schema:
             self.create_schema()
 
-        # Append to timestamp column first
-        self.matrix['timestamp'].append(timestamp)
+        # Append to timestamp column first (column 0)
+        self.columns[0].append(timestamp)
         #print('Step:', timestamp)
 
         # Append either value or an Arrow nul (None) to each column
         results = self.pmconfig.get_ranked_results(valid_only=True)
+        # Reuse dictionary to avoid allocations
+        values = {}
         for i, metric in enumerate(self.metrics):
             desc = self.pmconfig.descs[i]
             if desc.indom == PM_INDOM_NULL:
@@ -346,8 +360,8 @@ class PCP2ARROW(object):
                 self.matrix[metric].append(value)
                 continue
 
-            # Create a dictionary of values indexed by inst ID
-            values = {}
+            # Populate dictionary of values indexed by inst ID
+            values.clear()
             if metric in results:
                 for instid, _, value in results[metric]:
                     values[instid] = value
@@ -355,13 +369,9 @@ class PCP2ARROW(object):
             # Iterate all instances for the metric, use values
             indom = self.indoms[desc.indom]
             for instid in indom.keys():
-                name = indom[instid]
-                metricspec = metric + '[' + name + ']'
-                if instid not in values:
-                    value = None
-                else:
-                    value = values[instid]
-                self.matrix[metricspec].append(value)
+                col_idx = self.column_index[(i, instid)]
+                value = values.get(instid)
+                self.columns[col_idx].append(value)
 
     def flush(self):
         """ Create the table object and flush the dataset """
