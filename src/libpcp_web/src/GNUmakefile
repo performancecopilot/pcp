@@ -108,7 +108,8 @@ SYMTARGET =
 endif
 
 VERSION_SCRIPT = exports
-LDIRT = $(XFILES) $(YFILES) $(LIBVALKEY_XFILES) $(SYMTARGET) $(YFILES:%.y=%.tab.?)
+LDIRT = $(XFILES) $(YFILES) $(LIBVALKEY_XFILES) $(SYMTARGET) \
+	$(YFILES:%.y=%.tab.?) exports
 ifneq "$(HAVE_LIBINIH)" "true"
 	LDIRT += $(INIH_XFILES)
 endif

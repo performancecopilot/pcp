@@ -19,7 +19,7 @@ include $(TOPDIR)/src/include/builddefs
 
 SCRIPTS = cleanconfigs
 LSRCFILES = $(SCRIPTS) GNUlocaldefs.in
-LDIRT = pack_pcp.bin pack_pro.bin pro.src
+LDIRT = pack_pcp.bin pack_pro.bin pro.src GNUlocaldefs
 LDIRDIRT = deb $(TOPDIR)/$(PACKAGE_NAME)-?.?.?
 
 # for clean and clobber

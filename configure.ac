@@ -955,11 +955,6 @@ dnl generate PM_VERSION_CURRENT for header
 pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAGE_MINOR})*256+${PACKAGE_REVISION} }"`
 AC_SUBST(pm_version_current)
 
-dnl first AC_CONFIG_HEADERS() is a dummy (never used) but autoheader(1)
-dnl in the Debian build plucks this one and rewrites it ... we do NOT
-dnl want that happening to our config.h
-AC_CONFIG_HEADERS(src/include/pcp/autoheader-dummmy.h)
-
 dnl output header files with cpp defs HAVE_*, etc
 AC_CONFIG_HEADERS(src/include/pcp/config.h src/include/pcp/configsz.h)
 AC_CONFIG_HEADERS(src/libpcp3/src/include/pcp/config.h src/libpcp3/src/include/pcp/configsz.h)

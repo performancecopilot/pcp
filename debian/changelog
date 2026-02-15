@@ -1,6 +1,7 @@
 pcp (7.1.1-1) unstable; urgency=high
 
   * New release (full details in CHANGELOG).
+  * Rework to make build source after successful build work (closes: #1045430)
 
  -- Nathan Scott <nathans@debian.org>  Tue, 31 Mar 2026 16:22:40 +1100
 

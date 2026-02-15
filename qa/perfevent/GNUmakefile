@@ -5,7 +5,7 @@ TESTDIR = $(PCP_VAR_DIR)/testsuite/perfevent
 MYFILES = $(shell echo config/*.txt) perfevent.conf fakefs.tar.gz
 
 TESTHARNESS = perfevent_test perfevent_coverage
-LDIRT += $(TESTHARNESS) fakefs $(OUTDIR)
+LDIRT += $(TESTHARNESS) fakefs $(OUTDIR) *.gcno
 
 ifeq "$(PMDA_PERFEVENT)" "true"
 default setup default_pcp: $(TESTHARNESS)

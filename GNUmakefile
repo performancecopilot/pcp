@@ -33,7 +33,7 @@ LDIRT = config.cache config.status config.log files.rpm \
 	debug*.list devel_files libs_files conf_files \
 	base_files.rpm libs_files.rpm devel_files.rpm \
 	perl-pcp*.list* python3-pcp*.list* \
-	tmpfiles.init.setup
+	tmpfiles.init.setup pcp.lsm
 LDIRDIRT = pcp-[0-9]*.[0-9]*.[0-9]*  pcp-*-[0-9]*.[0-9]*.[0-9]*
 
 SUBDIRS = vendor src

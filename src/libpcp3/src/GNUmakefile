@@ -97,8 +97,8 @@ SYMTARGET =
 endif
 
 LDIRT += $(SYMTARGET) $(YFILES:%.y=%.tab.?) $(LIBCONFIG) \
-	getdate.h getdate.y derive_parser.y check.done $(GENERATED_HFILES) exports
-	
+	getdate.h getdate.y derive_parser.y check.done $(GENERATED_HFILES) \
+	exports
 
 base default : $(XFILES) $(JSONSL_XFILES) \
 	$(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) \

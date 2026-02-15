@@ -24,7 +24,8 @@ HEADERS = $(CLASSES) modobj.h
 GENERATED = gram.cpp lex.cpp 
 LFILES = lex.l
 YFILES = gram.y
-LDIRT = $(COMMAND) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h gram.c images
+LDIRT = $(COMMAND) $(WRAPPER) $(XMLFILE) $(GENERATED) gram.h gram.c \
+	images $(ICNFILE)
 
 SUBDIRS = front-ends
 

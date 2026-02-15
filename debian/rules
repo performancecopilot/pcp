@@ -29,6 +29,12 @@ configure_opts = --with-non-debug=yes
 endif
 configure_paths = --prefix=/usr --libexecdir=/usr/lib --sysconfdir=/etc --localstatedir=/var --with-rcdir=/etc/init.d --with-sysconfigdir=/etc/default --with-zip=/bin/gzip --with-tar=/bin/tar SED=/bin/sed ECHO=/bin/echo QMAKE=/usr/bin/qmake MAKEDEPEND=/bin/true BZIP2=/bin/bzip2
 
+# for dh_autoreconf, which runs autoreconf, there are some things we don't
+# want run
+#
+export AUTOCONF = true
+export AUTOHEADER = true
+
 %:
 	dh $@ --with python3
 
@@ -42,8 +48,15 @@ override_dh_auto_configure:
 #
 override_dh_clean:
 	dh_clean
-	# stuff we leave behind after make clean
-	-rm -f qa/localconfig
+	@# stuff we leave behind after make clean
+	-rm -f qa/localconfig src/include/builddefs src/include/pcp.conf
+
+# need less work here ...
+#
+override_dh_auto_clean:
+	make clean
+	@# stuff we leave behind after make clean
+	-rm -f qa/localconfig src/include/builddefs src/include/pcp.conf
 
 # post-auto-install flags
 # -v => report per-package processing of .install (or other filelist) and

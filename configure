@@ -6982,9 +6982,6 @@ fi
 pm_version_current=`awk </dev/null "BEGIN { print (${PACKAGE_MAJOR}*256+${PACKAGE_MINOR})*256+${PACKAGE_REVISION} }"`
 
 
-ac_config_headers="$ac_config_headers src/include/pcp/autoheader-dummmy.h"
-
-
 ac_config_headers="$ac_config_headers src/include/pcp/config.h src/include/pcp/configsz.h"
 
 ac_config_headers="$ac_config_headers src/libpcp3/src/include/pcp/config.h src/libpcp3/src/include/pcp/configsz.h"
@@ -7677,7 +7674,6 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "src/include/pcp/autoheader-dummmy.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/autoheader-dummmy.h" ;;
     "src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/config.h" ;;
     "src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/configsz.h" ;;
     "src/libpcp3/src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/libpcp3/src/include/pcp/config.h" ;;
@@ -19027,7 +19023,6 @@ cat >>$CONFIG_STATUS <<\_ACEOF || ac_write_fail=1
 for ac_config_target in $ac_config_targets
 do
   case $ac_config_target in
-    "src/include/pcp/autoheader-dummmy.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/autoheader-dummmy.h" ;;
     "src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/config.h" ;;
     "src/include/pcp/configsz.h") CONFIG_HEADERS="$CONFIG_HEADERS src/include/pcp/configsz.h" ;;
     "src/libpcp3/src/include/pcp/config.h") CONFIG_HEADERS="$CONFIG_HEADERS src/libpcp3/src/include/pcp/config.h" ;;

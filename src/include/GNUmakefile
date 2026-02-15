@@ -24,6 +24,11 @@ default :: default_pcp
 default_pcp : $(SUBDIRS) pcp.conf pcp.conf.install builddefs.install
 	$(SUBDIRS_MAKERULE)
 
+# Note: pcp.conf and builddefs are "special" ... without these make
+# 	will not work, so do *not* include them here
+#
+LDIRT	+= pcp.user pcp.conf.install builddefs.install
+
 include $(BUILDRULES)
 
 install :: default_pcp install_pcp

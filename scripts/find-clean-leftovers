@@ -1,0 +1,86 @@
+#!/bin/sh
+#
+# Files left behind after a make clean, and *not* in the git
+# repo present a potential problem for the Debian checking
+# sequence:
+# 	$ dpkg-buildpackage
+# 	$ dpkg-buildpackage -S
+#
+# The logic here ignores .gitignore which sometimes hides files
+# that need are then visible in a source rebuild.
+
+tmp=/var/tmp/f-c-l-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+here=`pwd`
+case "$here"
+in
+    */build/deb/pcp-*)
+    	# in a build tree after dpkg-buildpackage ...
+	# need to find the base of the git repo and the relative
+	# path to here
+	#
+	gitbase=`echo "$here" | sed -e 's@\(.*\)/build/deb/.*@\1@'`
+	relpath=`echo "$here" | sed -e "s@^$gitbase/build/deb/pcp-[^/]*@@"`
+	;;
+    */pcp/*)
+	gitbase=`echo "$here" | sed -e 's@\(.*/pcp\)/.*@\1@'`
+	relpath=`echo "$here" | sed -e "s@^$gitbase@@"`
+	;;
+    */pcp)
+	gitbase="$here"
+	relpath=`echo "$here" | sed -e "s@^$gitbase@@"`
+esac
+#debug# echo "gitbase=$gitbase"
+#debug# echo "relpath=$relpath"
+if [ ! -d "$gitbase/.git" ]
+then
+    echo "Arrgh! from $here I cannot find the base of a git repo"
+    exit
+fi
+if [ ! -f "$gitbase/VERSION.pcp" ]
+then
+    echo "Arrgh! from $gitbase does not look like the base of a PCP repo"
+    exit
+fi
+
+export LC_COLLATE=POSIX
+
+if cd "$gitbase$relpath"
+then
+    git ls-files \
+    | sort >$tmp.git
+    if ! cd "$here"
+    then
+	echo "Arrgh! failed to cd back to $here"
+	exit
+    fi
+else
+    echo "Arrgh! failed to cd to $gitbase$relpath"
+    exit
+fi
+sudo make clean >/dev/null
+
+find . -type f \
+| sed -e 's@^./@@' \
+| sort >$tmp.present
+
+touch $tmp.ok
+comm -23 $tmp.present $tmp.git >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "Files not in git repo ..."
+    sed -e 's/^/    /' <$tmp.tmp
+    rm -f $tmp.ok
+fi
+
+comm -13 $tmp.present $tmp.git >$tmp.tmp
+if [ -s $tmp.tmp ]
+then
+    echo "Files in git repo but removed (this is bad) ..."
+    sed -e 's/^/    /' <$tmp.tmp
+    rm -f $tmp.ok
+fi
+
+[ -f $tmp.ok ] && echo "All OK"
+

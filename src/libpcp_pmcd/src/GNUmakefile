@@ -19,6 +19,8 @@ include $(TOPDIR)/src/include/builddefs
 
 CFILES = data.c trace.c client.c
 SCRIPT = pmcd.bt
+# made from pmcd.bt.in by configure
+LDIRT	+= pmcd.bt
 
 LCFLAGS = -I$(TOPDIR)/src/pmcd/src -I$(TOPDIR)/src/libpcp/src -DPMCD_INTERNAL
 LLDLIBS = $(PCPLIB)
