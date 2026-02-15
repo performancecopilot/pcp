@@ -573,6 +573,11 @@ debian_buildpackage()
     # - unless new sub-packages exist then we need full build)
     $signed && [ -n "$DEB_SIGN_KEYID" ] && sign="--build=$TYPE"
     opts="$sign -r$SUDO -sa"
+
+    # let dpkg-buildpackage sort out SOURCE_DATE_EPOCH
+    #
+    unset SOURCE_DATE_EPOCH
+
     rm -f $tmp/failed
     if $verbose ; then
 	(dpkg-buildpackage $opts || touch $tmp/failed) 2>&1 | tee -a "$LOGDIR/pcp"

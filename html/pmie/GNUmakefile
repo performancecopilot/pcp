@@ -22,12 +22,12 @@ endif
 default: $(BINTAR)
 
 $(BINTAR): $(PCPLOGS) $(CONFIGS)
-	@ CDIR=`pwd`; cd ..; rm -f manifest; \
+	CDIR=`pwd`; cd ..; rm -f manifest; \
 	for f in `echo $^`; do \
 	    echo $(BUNDLE)/$$f >> $$CDIR/manifest; \
 	done; \
 	$(TAR) --format ustar -T $$CDIR/manifest --sort=name --mtime="$(BUILD_DATE)" --owner=0 --group=0 --numeric-owner --mode=u=wrX,og=rX -cf - | $(ZIP) --best --no-name > $$CDIR/$(BINTAR); \
-	echo "Created $(BINTAR)"
+	echo "Created $(BINTAR) SOURCE_DATE_EPOCH=$(SOURCE_DATE_EPOCH)"
 
 include $(BUILDRULES)
 
