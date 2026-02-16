@@ -42,8 +42,6 @@ iproute
 httpd
 initscripts
 jq
-kernel-libbpf
-kernel-libbpf-devel
 libcmocka-devel
 libdrm-devel
 libicu-devel
