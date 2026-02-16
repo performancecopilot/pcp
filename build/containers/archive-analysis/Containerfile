@@ -1,5 +1,5 @@
 ## Deploy
-FROM quay.io/fedora/fedora:rawhide
+FROM quay.io/fedora/fedora:latest
 
 COPY build/containers/archive-analysis/root /
 
