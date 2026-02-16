@@ -124,6 +124,7 @@ echo "=== errors in control file ==="
 #
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PCP_CULLAFTER=never
 \$PCP_SPACELIMIT
 \$PCP_SPACELIMIT=
 \$PCP_SPACELIMIT=foo
@@ -137,6 +138,7 @@ _doit
 #
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PCP_CULLAFTER=never
 #Host           P?  S?  directory       args
 localhost       n   n   $tmp/foo    -c /no/such/config
 End-of-File
@@ -171,6 +173,7 @@ unset PCP_SPACELIMIT
 #
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PCP_CULLAFTER=never
 \$PCP_SPACELIMIT=1000K
 #Host           P?  S?  directory       args
 localhost       n   n   $tmp/foo    -c /no/such/config
