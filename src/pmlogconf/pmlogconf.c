@@ -1620,7 +1620,7 @@ y         log this group\n\
 		*p = '\0';
 	    printf("Searching for \"%s\"\n", answer + 1);
 	    if ((group_pattern(&i, answer + 1)) != NULL) {
-		i--;	/* prepare for loop iteration */
+		back = 1;	/* stay on this group */
 		continue;
 	    }
 	    return answer + 1;
@@ -1628,7 +1628,7 @@ y         log this group\n\
 	default:
 	    printf("Error: you must answer \"m\", \"n\", \"q\", \"y\", \"?\" "
 		   "or \"/pattern\" ... try again\n");
-	    i--;
+	    back = 1;	/* stay on this group */
 	    continue;
 	}
 
