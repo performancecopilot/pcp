@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     container: almalinux:8
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Install dependencies
         run: |
@@ -35,7 +35,7 @@ jobs:
     runs-on: ubuntu-latest
     container: rockylinux:8
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install dependencies
         run: |
           dnf -y upgrade --refresh
@@ -61,10 +61,10 @@ jobs:
     runs-on: ubuntu-latest
     name:  FreeBSD
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Build in FreeBSD
-        uses: vmactions/freebsd-vm@a9c0dcaf5ed572d89ea1a59fe2217d3b3da4fd23 # v1.3.7
+        uses: vmactions/freebsd-vm@c9f815bc7aa0d34c9fdd0619b034a32d6ca7b57e # v1.4.2
         with:
           prepare: pkg install -y gmake cmake
           run: |
@@ -75,9 +75,9 @@ jobs:
     runs-on: ubuntu-latest
     name:  Solaris
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Build on Solaris
-        uses: vmactions/solaris-vm@61030aaba6acacac59cf375214a9668f46e94445 # v1.2.6
+        uses: vmactions/solaris-vm@69d382b4a775b25ea5955e6c1730e9d05047ca0d # v1.3.1
         with:
           prepare: pkgutil -y -i gmake gcc5core openssl_utils
           run: USE_TLS=1 gmake
@@ -97,7 +97,7 @@ jobs:
 
      steps:
        - name: Checkout
-         uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
        - name: Transfer Oracle Studio certificates
          run: |
@@ -108,7 +108,7 @@ jobs:
              > pkg.oracle.com.key.pem
 
        - name: Build on Solaris
-         uses: vmactions/solaris-vm@61030aaba6acacac59cf375214a9668f46e94445 # v1.2.6
+         uses: vmactions/solaris-vm@69d382b4a775b25ea5955e6c1730e9d05047ca0d # v1.3.1
          with:
            usesh: true
            prepare: |
@@ -154,7 +154,7 @@ jobs:
           - {target: mipsel,   host: mipsel-linux-gnu,        qemu: mipsel,   gccver: 10 }
           - {target: mips64el, host: mips64el-linux-gnuabi64, qemu: mips64el, gccver: 10 }
     steps:
-      - uses: actions/checkout@8e8c483db84b4bee98b60c0593521ed34d9990e8 # v6.0.1
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Prepare
         uses: awalsh128/cache-apt-pkgs-action@acb598e5ddbc6f68a970c5da0688d2f3a9f04d05 # v1.6.0
         with:
