@@ -20,6 +20,8 @@ fi
 . ./common.filter
 . ./common.check
 
+which pmdumptext >/dev/null 2>&1 || _notrun "pmdumptext is not installed"
+
 _cleanup()
 {
     cd $here

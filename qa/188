@@ -28,6 +28,9 @@ if [ $PCP_PLATFORM = linux ] ; then
 		ln $seq.linux $seq.out
 		;;
 	esac
+    elif [ -f /etc/amazon-linux-release ]
+    then
+	ln $seq.linux $seq.out
     elif [ -f /etc/redhat-release ]
     then
 	case `cat /etc/redhat-release`

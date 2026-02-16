@@ -846,7 +846,7 @@ pacman?		nmap		[extra/nmap (QA optional)]
 brew?		nmap		[nmap (QA optional)]
 # -- curl(1)
 dpkg?		curl		[curl (QA optional)]
-rpm?		curl		[curl (QA optional)]
+rpm?		curl		[curl or curl-minimal (QA optional)]
 emerge?		curl		[net-misc/curl (QA optional)]
 pkgin?		curl		[curl (QA optional)]
 pkg_add?	curl		[curl (QA optional)]
@@ -1443,6 +1443,19 @@ slackpkg?	ss		[iproute2 (QA optional)]
 pacman?		ss		[core/iproute2 (QA optional)]
 brew?		ss		[? (QA optional)]
 
+# -- tc sockets statistics tool (for bcc PMDA QA)
+#
+dpkg?		tc		[iproute2 (QA optional)]
+rpm?		tc		[iproute2 (QA optional)]
+emerge?		tc		[? (QA optional)]
+pkgin?		tc		[? (QA optional)]
+pkg_add?	tc		[N/A (QA optional)]
+F_pkg?		tc		[N/A (QA optional)]
+S_pkg?		tc		[N/A (QA optional)]
+slackpkg?	tc		[iproute2 (QA optional)]
+pacman?		tc		[core/iproute2 (QA optional)]
+brew?		tc		[? (QA optional)]
+
 # -- swrast graphics driver (for pmchart QA)
 #
 dpkg?		/usr/lib/*/dri/swrast_dri.so	[libgl1-mesa-dri (QA optional)]
@@ -1459,8 +1472,8 @@ brew?		swrast_dri.so		[? (QA optional)]
 # -- libbpf and libbpf-dev for bpf PMDA
 dpkg?		/usr/lib/*/libbpf.so.*	[libbpf[0-9] (build optional)]
 dpkg?		/usr/include/bpf/bpf.h	[libbpf-dev (build optional)]
-rpm?		/usr/lib*/libbpf.so.*	[libbpf (build optional)]
-rpm?		/usr/include/bpf/bpf.h	[libbpf-devel (build optional)]
+rpm?		/usr/lib*/libbpf.so.*	[libbpf or kernel-libbpf (build optional)]
+rpm?		/usr/include/bpf/bpf.h	[libbpf-devel or kernel-libbpf-devel (build optional)]
 dpkg?		/usr/include/bpf/bpf.h	[libbpf-devel (build optional)]
 emerge?		?			[? (build optional)]
 pkgin?		?			[? (build optional)]

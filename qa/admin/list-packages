@@ -63,7 +63,7 @@ _do_check()
     #
     cat <<End-of-File >$tmp.tags
 dpkg	Ubuntu Debian LinuxMint MX
-rpm	RHEL Fedora CentOS openSUSE SUSE SLES
+rpm	RHEL Fedora CentOS openSUSE SUSE SLES AmazonLinux
 emerge	Gentoo
 pkgin	NetBSD
 pkg_add	OpenBSD
@@ -202,18 +202,31 @@ END		{ exit sts }'
 		    if [ ! -f $tmp.havereq ]
 		    then
 			avail="`grep "^$pkg\$" <$tmp.allpkgs`"
+			installed="`grep "^$pkg\$" <$tmp.installed`"
 			if [ -n "$avail" ]
 			then
 			    if [ "$pkg" = "$avail" ]
 			    then
-				echo "manifest:$lineno $pkg: not in packing list, but available?"
+				if [ "$avail" = "$installed" ]
+				then
+				    echo "manifest:$lineno $pkg: not in packing list, but already installed?"
+				else
+				    echo "manifest:$lineno $pkg: not in packing list, but available?"
+				fi
 			    else
 				navail=`echo "$avail" | wc -w | sed -e 's/ //g'`
 				if [ "$navail" -eq 1 ]
 				then
-				    echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
+				    if [ "$avail" = "$installed" ]
+				    then
+					echo "manifest:$lineno $pkg: not in packing list, but $avail already installed?"
+				    else
+					echo "manifest:$lineno $pkg: not in packing list, but $avail available?"
+				    fi
 				elif [ "$navail" -le 2 ]
 				then
+				    # don't try already installed here ... it is too hard!
+				    #
 				    echo "manifest:$lineno $pkg: not in packing list, but `echo "$avail" | tr '\012' ' ' | sed -e 's/ $//' -e 's/ / and /'` available?"
 				else
 				    echo "manifest:$lineno $pkg: not in packing list, but `echo "$avail" | tr '\012' ' ' | sed -e 's/ .* \([^ ][^ ]*\) / ... \1/'` available?"

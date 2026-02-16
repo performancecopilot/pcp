@@ -15,7 +15,7 @@ bind-utils
 bison
 bpftrace
 clang
-coreutils-single
+coreutils-single | coreutils not4ci
 cppcheck
 cronie
 curl-minimal
@@ -25,7 +25,9 @@ cyrus-sasl-lib
 cyrus-sasl-md5
 cyrus-sasl-plain
 device-mapper-devel
+docker
 ed
+ethtool
 expect
 flex
 gawk
@@ -40,8 +42,8 @@ iproute
 httpd
 initscripts
 jq
-libbpf
-libbpf-devel
+kernel-libbpf
+kernel-libbpf-devel
 libcmocka-devel
 libdrm-devel
 libicu-devel
@@ -53,6 +55,7 @@ llvm-devel
 lm_sensors
 make
 man-db
+mandoc
 memcached
 mesa-dri-drivers
 ncurses-devel
@@ -95,7 +98,8 @@ python3-pymongo
 python3-requests
 python3-rtslib
 python3-setuptools
-python3-six
+redis6
+rdma-core
 rdma-core-devel
 readline-devel
 rpm-build
@@ -113,6 +117,7 @@ sqlite
 sqlite-libs
 sudo
 sysstat
+systemd
 systemd-devel
 targetcli
 time
