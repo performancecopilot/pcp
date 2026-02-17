@@ -19,8 +19,6 @@
 
 # New way, modern setup mechanisms for pypi
 from setuptools import setup, find_packages, Extension
-# To use a consistent encoding
-from codecs import open
 from os import path
 
 # Get the long description from the README file

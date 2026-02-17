@@ -104,6 +104,7 @@ python3-libs
 python3-libvirt
 python3-lxml
 python3-openpyxl
+python3-pip
 python3-pandas
 python3-pillow
 python3-prometheus_client
