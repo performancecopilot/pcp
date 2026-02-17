@@ -359,6 +359,8 @@ parseOptions(const char *mechanism, connectionOptions *options)
     unsigned		subnetBits;
     unsigned		subnetSize;
 
+    options->netAddress = NULL;
+
     /* Nothing to probe? */
     if (mechanism == NULL)
 	return -1;
@@ -545,8 +547,11 @@ __pmSubnetProbeDiscoverServices(const char *service,
 
     /* Interpret the mechanism string. */
     sts = parseOptions(mechanism, &options);
-    if (sts != 0)
+    if (sts != 0) {
+	if (options.netAddress != NULL)
+	    __pmSockAddrFree(options.netAddress);
 	return 0;
+    }
     options.globalOptions = globalOptions;
 
     /* Everything checks out. Now do the actual probing. */
