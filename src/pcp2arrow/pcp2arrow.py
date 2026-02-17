@@ -219,8 +219,10 @@ class PCP2ARROW(object):
         self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
         ctx = self.context.ctx
-        if pmSetContextOptions(ctx, self.opts.mode, self.opts.delta):
-            raise pmapi.pmUsageErr()
+        # Skip mode settings for raw archive mode (pmFetchArchive doesn't use interpolation)
+        if not (self.type == 1 and ctx_type == PM_CONTEXT_ARCHIVE):
+            if pmSetContextOptions(ctx, self.opts.mode, self.opts.delta):
+                raise pmapi.pmUsageErr()
 
         self.config = self.pmconfig.set_config_path(DEFAULT_CONFIG)
         self.pmconfig.read_options()
@@ -242,6 +244,10 @@ class PCP2ARROW(object):
 
     def execute(self):
         """ Fetch and append values """
+        # Use optimized pmFetchArchive for raw mode with archives
+        if self.type == 1 and self.context.type == PM_CONTEXT_ARCHIVE:
+            return self.execute_raw()
+
         # Common preparations
         self.context.prepare_execute(self.opts, False, 1, self.interval)
 
@@ -270,6 +276,140 @@ class PCP2ARROW(object):
                 self.samples -= 1
             if self.context.type != PM_CONTEXT_ARCHIVE and self.samples != 0:
                 self.pmconfig.pause()
+
+    def _iter_archive_raw(self):
+        """ Iterator for raw archive reading using pmFetchArchive
+
+        Yields (result, timestamp_ns) tuples for each sample in the archive.
+        Caller must free each result with context.pmFreeResult(result).
+        """
+        while True:
+            try:
+                result = self.context.pmFetchArchive()
+                # Convert timespec to nanoseconds
+                ts = result.contents.timestamp
+                timestamp_ns = ts.tv_sec * 1_000_000_000 + ts.tv_nsec
+                yield result, timestamp_ns
+            except pmapi.pmErr as error:
+                if error.args[0] == pmapi.c_api.PM_ERR_EOL:
+                    break
+                raise
+
+    def execute_raw(self):
+        """ Optimized execution using pmFetchArchive for raw archive reading """
+        # Just checking
+        if self.check == 1:
+            return
+
+        # Build PMID mapping for requested metrics
+        pmid_to_idx = {}
+        for i, metric in enumerate(self.metrics):
+            desc = self.pmconfig.descs[i]
+            pmid_to_idx[desc.pmid] = i
+
+        # Use iterator for raw archive reading
+        samples_read = 0
+        for result, timestamp_ns in self._iter_archive_raw():
+            # Process result
+            self._process_raw_result(result, timestamp_ns, pmid_to_idx)
+
+            # Free result
+            self.context.pmFreeResult(result)
+
+            samples_read += 1
+
+            if samples_read % 100 == 0:
+                if self.context.pmDebug("appl0"):
+                    sys.stderr.write("  Processed %d samples...\n" % samples_read)
+
+            # Check sample limit
+            if self.samples is not None and samples_read >= self.samples:
+                break
+
+        if self.context.pmDebug("appl0"):
+            sys.stderr.write("Read %d samples\n" % samples_read)
+
+    def _process_raw_result(self, result, timestamp_ns, pmid_to_idx):
+        """ Process pmFetchArchive result """
+        # Initialize schema on first result
+        if not self.schema:
+            self.create_schema()
+
+        # Append timestamp
+        self.matrix['timestamp'].append(timestamp_ns)
+        current_len = len(self.matrix['timestamp'])
+
+        # Build dict of values from result
+        # Key: (metric_idx, inst) -> value
+        result_values = {}
+
+        for i in range(result.contents.numpmid):
+            pmid = result.contents.get_pmid(i)
+
+            # Only process requested metrics
+            if pmid not in pmid_to_idx:
+                continue
+
+            metric_idx = pmid_to_idx[pmid]
+            metric_name = list(self.metrics.keys())[metric_idx]
+            desc = self.pmconfig.descs[metric_idx]
+            vset = result.contents.get_vset(i)
+
+            if vset.contents.numval < 0:
+                continue
+
+            # Extract values for each instance
+            for j in range(vset.contents.numval):
+                inst = result.contents.get_inst(i, j)
+
+                # Discover and add new instances dynamically
+                if desc.indom != PM_INDOM_NULL:
+                    if desc.indom not in self.indoms:
+                        self.indoms[desc.indom] = {}
+                    if inst not in self.indoms[desc.indom]:
+                        try:
+                            inst_name = self.context.pmNameInDom(desc, inst)
+                            self.indoms[desc.indom][inst] = inst_name
+                            # Add new column
+                            metricspec = metric_name + '[' + inst_name + ']'
+                            self.matrix[metricspec] = [None] * (current_len - 1)
+                        except:
+                            self.indoms[desc.indom][inst] = str(inst)
+                            metricspec = metric_name + '[' + str(inst) + ']'
+                            self.matrix[metricspec] = [None] * (current_len - 1)
+
+                try:
+                    vlist = result.contents.get_vlist(i, j)
+                    atom = self.context.pmExtractValue(
+                        vset.contents.valfmt,
+                        vlist,
+                        desc.type,
+                        desc.type)
+                    value = atom.dref(desc.type)
+                    result_values[(metric_idx, inst)] = value
+                except:
+                    pass
+
+        # Append values to columns (pad all columns that didn't get a value this sample)
+        for i, metric in enumerate(self.metrics):
+            desc = self.pmconfig.descs[i]
+
+            if desc.indom == PM_INDOM_NULL:
+                # Singular metric
+                value = result_values.get((i, PM_INDOM_NULL))
+                self.matrix[metric].append(value)
+            else:
+                # Metric with instances
+                if desc.indom in self.indoms:
+                    indom = self.indoms[desc.indom]
+                    for instid in indom.keys():
+                        name = indom[instid]
+                        metricspec = metric + '[' + name + ']'
+                        value = result_values.get((i, instid))
+                        # Ensure column exists and has correct length
+                        if metricspec not in self.matrix:
+                            self.matrix[metricspec] = [None] * (current_len - 1)
+                        self.matrix[metricspec].append(value)
 
     def lookup_indom(self, desc):
         if desc.indom in self.indoms:
