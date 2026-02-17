@@ -99,6 +99,7 @@ mkdir $tmp
 #
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PCP_CULLAFTER=never
 LOCALHOSTNAME	n   n	$tmp/foo	-r -T24h10m -c config.default -v 100Mb
 PCP_COMPRESS=blah
 End-of-File
@@ -109,6 +110,7 @@ _doit -f
 #
 cat <<End-of-File >$tmp.control
 \$version=1.1
+\$PCP_CULLAFTER=never
 \$PCP_COMPRESS=blah
 LOCALHOSTNAME	n   n	$tmp/foo	-r -T24h10m -c config.default -v 100Mb
 End-of-File
