@@ -94,6 +94,9 @@ class PCP2ARROW(object):
         self.schema = None
         self.matrix = {}  # dict of value vectors, keyed by column name
         self.indoms = {}  # dict of dict, keyed by indom ID first, inst ID next
+        self.column_map = {}  # maps (metric_idx, inst_id) -> column_name for fast lookup
+        self.column_index = {}  # maps (metric_idx, inst_id) -> column_index for fast append
+        self.columns = []  # list of column data lists for faster indexed access
 
         # Performance metrics store
         # key - metric name
@@ -216,8 +219,14 @@ class PCP2ARROW(object):
         self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
         ctx = self.context.ctx
-        if pmSetContextOptions(ctx, self.opts.mode, self.opts.delta):
-            raise pmapi.pmUsageErr()
+        # For raw archive mode, use PM_MODE_FORW to process -S/-T options
+        # pmFetchArchive ignores the mode but pmSetContextOptions needs a valid mode
+        if self.type == 1 and ctx_type == PM_CONTEXT_ARCHIVE:
+            if pmSetContextOptions(ctx, pmapi.c_api.PM_MODE_FORW, 0):
+                raise pmapi.pmUsageErr()
+        else:
+            if pmSetContextOptions(ctx, self.opts.mode, self.opts.delta):
+                raise pmapi.pmUsageErr()
 
         self.config = self.pmconfig.set_config_path(DEFAULT_CONFIG)
         self.pmconfig.read_options()
@@ -239,6 +248,11 @@ class PCP2ARROW(object):
 
     def execute(self):
         """ Fetch and append values """
+        # Use optimized pmFetchArchive for raw mode with archives
+        if self.type == 1 and self.context.type == PM_CONTEXT_ARCHIVE:
+            self.execute_raw()
+            return
+
         # Common preparations
         self.context.prepare_execute(self.opts, False, 1, self.interval)
 
@@ -267,6 +281,158 @@ class PCP2ARROW(object):
                 self.samples -= 1
             if self.context.type != PM_CONTEXT_ARCHIVE and self.samples != 0:
                 self.pmconfig.pause()
+
+    def _iter_archive_raw(self):
+        """ Iterator for raw archive reading using pmFetchArchive
+
+        Yields (result, timestamp) tuples for each sample in the archive.
+        Caller must free each result with context.pmFreeResult(result).
+        """
+        while True:
+            try:
+                result = self.context.pmFetchArchive()
+                # Wrap C timespec in Python pmapi.timespec for convenient float conversion
+                ts = result.contents.timestamp
+                timestamp = pmapi.timespec(ts.tv_sec, ts.tv_nsec)
+                yield result, timestamp
+            except pmapi.pmErr as pmerr:
+                if pmerr.args[0] == pmapi.c_api.PM_ERR_EOL:
+                    break
+                raise
+
+    def execute_raw(self):
+        """ Optimized execution using pmFetchArchive for raw archive reading """
+        # Just checking
+        if self.check == 1:
+            return
+
+        # Get time window bounds if specified
+        start_time = float(self.opts.pmGetOptionStart()) if self.opts.pmGetOptionStart() else None
+        finish_time = float(self.opts.pmGetOptionFinish()) if self.opts.pmGetOptionFinish() else None
+
+        # Build PMID mapping for requested metrics
+        pmid_to_idx = {}
+        for i, _ in enumerate(self.metrics):
+            desc = self.pmconfig.descs[i]
+            pmid_to_idx[desc.pmid] = i
+
+        # Use iterator for raw archive reading
+        samples_read = 0
+        for result, timestamp in self._iter_archive_raw():
+            # Check time window (use float() for comparison with start/finish)
+            timestamp_sec = float(timestamp)
+
+            # Skip samples before start time
+            if start_time is not None and timestamp_sec < start_time:
+                self.context.pmFreeResult(result)
+                continue
+
+            # Stop after finish time
+            if finish_time is not None and timestamp_sec > finish_time:
+                self.context.pmFreeResult(result)
+                break
+
+            # Process result (convert to nanoseconds for Arrow timestamp column)
+            timestamp_ns = timestamp.tv_sec * 1_000_000_000 + timestamp.tv_nsec
+            self._process_raw_result(result, timestamp_ns, pmid_to_idx)
+
+            # Free result
+            self.context.pmFreeResult(result)
+
+            samples_read += 1
+
+            if samples_read % 100 == 0:
+                if self.context.pmDebug("appl0"):
+                    sys.stderr.write("  Processed %d samples...\n" % samples_read)
+
+            # Check sample limit
+            if self.samples is not None and samples_read >= self.samples:
+                break
+
+        if self.context.pmDebug("appl0"):
+            sys.stderr.write("Read %d samples\n" % samples_read)
+
+    def _process_raw_result(self, result, timestamp_ns, pmid_to_idx):
+        """ Process pmFetchArchive result """
+        # Initialize schema on first result
+        if not self.schema:
+            self.create_schema()
+
+        # Append timestamp
+        self.matrix['timestamp'].append(timestamp_ns)
+        current_len = len(self.matrix['timestamp'])
+
+        # Build dict of values from result
+        # Key: (metric_idx, inst) -> value
+        result_values = {}
+
+        for i in range(result.contents.numpmid):
+            pmid = result.contents.get_pmid(i)
+
+            # Only process requested metrics
+            if pmid not in pmid_to_idx:
+                continue
+
+            metric_idx = pmid_to_idx[pmid]
+            metric_name = list(self.metrics.keys())[metric_idx]
+            desc = self.pmconfig.descs[metric_idx]
+            vset = result.contents.get_vset(i)
+
+            if vset.contents.numval < 0:
+                continue
+
+            # Extract values for each instance
+            for j in range(vset.contents.numval):
+                inst = result.contents.get_inst(i, j)
+
+                # Discover and add new instances dynamically
+                if desc.indom != PM_INDOM_NULL:
+                    if desc.indom not in self.indoms:
+                        self.indoms[desc.indom] = {}
+                    if inst not in self.indoms[desc.indom]:
+                        try:
+                            inst_name = self.context.pmNameInDom(desc, inst)
+                            self.indoms[desc.indom][inst] = inst_name
+                            # Add new column
+                            metricspec = metric_name + '[' + inst_name + ']'
+                            self.matrix[metricspec] = [None] * (current_len - 1)
+                        except Exception:
+                            self.indoms[desc.indom][inst] = str(inst)
+                            metricspec = metric_name + '[' + str(inst) + ']'
+                            self.matrix[metricspec] = [None] * (current_len - 1)
+
+                try:
+                    vlist = result.contents.get_vlist(i, j)
+                    atom = self.context.pmExtractValue(
+                        vset.contents.valfmt,
+                        vlist,
+                        desc.type,
+                        desc.type)
+                    value = atom.dref(desc.type)
+                    result_values[(metric_idx, inst)] = value
+                except Exception:
+                    pass
+
+        # Append values to columns (pad all columns that didn't get a value this sample)
+        for i, metric in enumerate(self.metrics):
+            desc = self.pmconfig.descs[i]
+
+            if desc.indom == PM_INDOM_NULL:
+                # Singular metric
+                value = result_values.get((i, PM_INDOM_NULL))
+                self.matrix[metric].append(value)
+            else:
+                # Metric with instances
+                if desc.indom in self.indoms:
+                    indom = self.indoms[desc.indom]
+                    for instid in indom.keys():
+                        name = indom[instid]
+                        metricspec = metric + '[' + name + ']'
+                        value = result_values.get((i, instid))
+                        # Ensure column exists and has correct length
+                        if metricspec not in self.matrix:
+                            self.matrix[metricspec] = [None] * (current_len - 1)
+                        self.matrix[metricspec].append(value)
 
     def lookup_indom(self, desc):
         if desc.indom in self.indoms:
@@ -304,7 +470,9 @@ class PCP2ARROW(object):
             starting with the timestamp column then all metrics[+insts]
         """
         self.schema = [pa.field('timestamp', pa.timestamp('ns'))]
-        self.matrix['timestamp'] = []
+        timestamp_col = []
+        self.matrix['timestamp'] = timestamp_col
+        self.columns.append(timestamp_col)
 
         for i, metric in enumerate(self.metrics):
             desc = self.pmconfig.descs[i]
@@ -315,11 +483,18 @@ class PCP2ARROW(object):
                 indom = self.lookup_indom(desc)
                 for inst in indom.keys():
                     metricspec = metric + '[' + indom[inst] + ']'
-                    self.matrix[metricspec] = []
+                    col_data = []
+                    col_idx = len(self.columns)
+                    self.column_map[(i, inst)] = metricspec
+                    self.column_index[(i, inst)] = col_idx
+                    self.matrix[metricspec] = col_data
+                    self.columns.append(col_data)
                     field = pa.field(metricspec, patype())
                     self.schema.append(field)
             else:
-                self.matrix[metric] = []
+                col_data = []
+                self.matrix[metric] = col_data
+                self.columns.append(col_data)
                 field = pa.field(metric, patype())
                 self.schema.append(field)
 
@@ -330,12 +505,14 @@ class PCP2ARROW(object):
         if not self.schema:
             self.create_schema()
 
-        # Append to timestamp column first
-        self.matrix['timestamp'].append(timestamp)
+        # Append to timestamp column first (column 0)
+        self.columns[0].append(timestamp)
         #print('Step:', timestamp)
 
         # Append either value or an Arrow nul (None) to each column
         results = self.pmconfig.get_ranked_results(valid_only=True)
+        # Reuse dictionary to avoid allocations
+        values = {}
         for i, metric in enumerate(self.metrics):
             desc = self.pmconfig.descs[i]
             if desc.indom == PM_INDOM_NULL:
@@ -346,8 +523,8 @@ class PCP2ARROW(object):
                 self.matrix[metric].append(value)
                 continue
 
-            # Create a dictionary of values indexed by inst ID
-            values = {}
+            # Populate dictionary of values indexed by inst ID
+            values.clear()
             if metric in results:
                 for instid, _, value in results[metric]:
                     values[instid] = value
@@ -355,13 +532,9 @@ class PCP2ARROW(object):
             # Iterate all instances for the metric, use values
             indom = self.indoms[desc.indom]
             for instid in indom.keys():
-                name = indom[instid]
-                metricspec = metric + '[' + name + ']'
-                if instid not in values:
-                    value = None
-                else:
-                    value = values[instid]
-                self.matrix[metricspec].append(value)
+                col_idx = self.column_index[(i, instid)]
+                value = values.get(instid)
+                self.columns[col_idx].append(value)
 
     def flush(self):
         """ Create the table object and flush the dataset """

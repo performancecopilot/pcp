@@ -1,0 +1,66 @@
+QA output created by 1883
+Starting local valkey server ...
+== Installing valkey PMDA ==
+Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Check valkey metrics have appeared ... X metrics and Y values
+
+== Verify metric data types and semantics ==
+
+valkey.server.uptime_seconds
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+valkey.server.process_id
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+
+valkey.clients.connected
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+valkey.memory.used
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+
+valkey.memory.fragmentation_ratio
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+
+valkey.stats.total_commands
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+valkey.stats.keyspace_hits
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+
+valkey.cpu.user
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+
+valkey.persistence.rdb_last_save_time
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+
+== Check that metrics return reasonable values ==
+uptime_seconds: OK
+process_id: OK
+connected_clients: OK
+used_memory: OK
+total_commands: OK (got commands)
+keyspace_hits: OK (got hit)
+keyspace_misses: OK (got miss)
+
+== Test metric value caching ==
+Metric caching: OK
+
+== Verify metrics update after cache timeout ==
+Metrics updating: OK
+
+== Removing valkey PMDA ==
+Culling the Performance Metrics Name Space ...
+valkey ... done
+Updating the PMCD control file, and notifying PMCD ...
+Check valkey metrics have gone away ... OK

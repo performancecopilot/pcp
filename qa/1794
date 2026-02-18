@@ -55,5 +55,30 @@ print('Shape:', df.shape)
 " | _filter
 done
 
+# Test raw mode (pmFetchArchive optimization)
+echo
+echo "=== Testing raw mode with --raw flag ==="
+for archive in viewqa1 moomba.client
+do
+    echo
+    echo === pcp2arrow --raw $archive
+    pcp2arrow -r -s 5 -o $tmp.raw.$archive -a archives/$archive kernel.all.load disk.all.read
+    find $tmp.raw.$archive >> $seq_full
+    $python -c "
+import pandas
+df = pandas.read_parquet('$tmp.raw.$archive')
+print('Columns:', sorted(df.columns))
+print('Shape:', df.shape)
+print('Has timestamp:', 'timestamp' in df.columns)
+# Verify timestamps are valid (not 1970 epoch)
+if 'timestamp' in df.columns and len(df) > 0:
+    ts = df['timestamp'].iloc[0]
+    if ts.year >= 1999:
+        print('Timestamp valid: True')
+    else:
+        print('Timestamp valid: False (year=%d)' % ts.year)
+" | _filter
+done
+
 # success, all done
 exit
