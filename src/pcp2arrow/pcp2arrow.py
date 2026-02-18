@@ -219,8 +219,12 @@ class PCP2ARROW(object):
         self.pmfg_ts = self.pmfg.extend_timeval()
         self.context = self.pmfg.get_context()
         ctx = self.context.ctx
-        # Skip mode settings for raw archive mode (pmFetchArchive doesn't use interpolation)
-        if not (self.type == 1 and ctx_type == PM_CONTEXT_ARCHIVE):
+        # For raw archive mode, use PM_MODE_FORW to process -S/-T options
+        # pmFetchArchive ignores the mode but pmSetContextOptions needs a valid mode
+        if self.type == 1 and ctx_type == PM_CONTEXT_ARCHIVE:
+            if pmSetContextOptions(ctx, pmapi.c_api.PM_MODE_FORW, 0):
+                raise pmapi.pmUsageErr()
+        else:
             if pmSetContextOptions(ctx, self.opts.mode, self.opts.delta):
                 raise pmapi.pmUsageErr()
 
@@ -280,16 +284,16 @@ class PCP2ARROW(object):
     def _iter_archive_raw(self):
         """ Iterator for raw archive reading using pmFetchArchive
 
-        Yields (result, timestamp_ns) tuples for each sample in the archive.
+        Yields (result, timestamp) tuples for each sample in the archive.
         Caller must free each result with context.pmFreeResult(result).
         """
         while True:
             try:
                 result = self.context.pmFetchArchive()
-                # Convert timespec to nanoseconds
+                # Wrap C timespec in Python pmapi.timespec for convenient float conversion
                 ts = result.contents.timestamp
-                timestamp_ns = ts.tv_sec * 1_000_000_000 + ts.tv_nsec
-                yield result, timestamp_ns
+                timestamp = pmapi.timespec(ts.tv_sec, ts.tv_nsec)
+                yield result, timestamp
             except pmapi.pmErr as error:
                 if error.args[0] == pmapi.c_api.PM_ERR_EOL:
                     break
@@ -301,6 +305,10 @@ class PCP2ARROW(object):
         if self.check == 1:
             return
 
+        # Get time window bounds if specified
+        start_time = float(self.opts.pmGetOptionStart()) if self.opts.pmGetOptionStart() else None
+        finish_time = float(self.opts.pmGetOptionFinish()) if self.opts.pmGetOptionFinish() else None
+
         # Build PMID mapping for requested metrics
         pmid_to_idx = {}
         for i, metric in enumerate(self.metrics):
@@ -309,8 +317,22 @@ class PCP2ARROW(object):
 
         # Use iterator for raw archive reading
         samples_read = 0
-        for result, timestamp_ns in self._iter_archive_raw():
-            # Process result
+        for result, timestamp in self._iter_archive_raw():
+            # Check time window (use float() for comparison with start/finish)
+            timestamp_sec = float(timestamp)
+
+            # Skip samples before start time
+            if start_time is not None and timestamp_sec < start_time:
+                self.context.pmFreeResult(result)
+                continue
+
+            # Stop after finish time
+            if finish_time is not None and timestamp_sec > finish_time:
+                self.context.pmFreeResult(result)
+                break
+
+            # Process result (convert to nanoseconds for Arrow timestamp column)
+            timestamp_ns = timestamp.tv_sec * 1_000_000_000 + timestamp.tv_nsec
             self._process_raw_result(result, timestamp_ns, pmid_to_idx)
 
             # Free result
