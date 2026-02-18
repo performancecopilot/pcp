@@ -28,7 +28,7 @@ CPMDAS = root pmcd \
 	gfs2 jbd2 cifs nvidia resctrl perfevent \
 	dm pipe openbsd docker smart podman statsd \
 	hacluster linux_sockets denki bpf overhead \
-	farm amdgpu
+	farm amdgpu valkey
 
 PLPMDAS = bonding netfilter zimbra postgresql \
 	dbping memcache mysql oracle kvm \
