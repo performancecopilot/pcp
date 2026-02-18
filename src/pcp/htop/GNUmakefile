@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020-2023 Red Hat.
+# Copyright (c) 2020-2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -15,7 +15,7 @@
 TOPDIR = ../../..
 include $(TOPDIR)/src/include/builddefs
 
-COPYRIGHT = "(C) 2004-2019 Hisham Muhammad. (C) 2020-2024 htop dev team."
+COPYRIGHT = "(C) 2004-2019 Hisham Muhammad. (C) 2020-2026 htop dev team."
 
 CMDTARGET = pcp-htop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
