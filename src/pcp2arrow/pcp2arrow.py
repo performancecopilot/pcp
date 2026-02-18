@@ -250,7 +250,8 @@ class PCP2ARROW(object):
         """ Fetch and append values """
         # Use optimized pmFetchArchive for raw mode with archives
         if self.type == 1 and self.context.type == PM_CONTEXT_ARCHIVE:
-            return self.execute_raw()
+            self.execute_raw()
+            return
 
         # Common preparations
         self.context.prepare_execute(self.opts, False, 1, self.interval)
@@ -294,8 +295,8 @@ class PCP2ARROW(object):
                 ts = result.contents.timestamp
                 timestamp = pmapi.timespec(ts.tv_sec, ts.tv_nsec)
                 yield result, timestamp
-            except pmapi.pmErr as error:
-                if error.args[0] == pmapi.c_api.PM_ERR_EOL:
+            except pmapi.pmErr as pmerr:
+                if pmerr.args[0] == pmapi.c_api.PM_ERR_EOL:
                     break
                 raise
 
@@ -311,7 +312,7 @@ class PCP2ARROW(object):
 
         # Build PMID mapping for requested metrics
         pmid_to_idx = {}
-        for i, metric in enumerate(self.metrics):
+        for i, _ in enumerate(self.metrics):
             desc = self.pmconfig.descs[i]
             pmid_to_idx[desc.pmid] = i
 
@@ -395,7 +396,7 @@ class PCP2ARROW(object):
                             # Add new column
                             metricspec = metric_name + '[' + inst_name + ']'
                             self.matrix[metricspec] = [None] * (current_len - 1)
-                        except:
+                        except Exception:
                             self.indoms[desc.indom][inst] = str(inst)
                             metricspec = metric_name + '[' + str(inst) + ']'
                             self.matrix[metricspec] = [None] * (current_len - 1)
@@ -409,7 +410,7 @@ class PCP2ARROW(object):
                         desc.type)
                     value = atom.dref(desc.type)
                     result_values[(metric_idx, inst)] = value
-                except:
+                except Exception:
                     pass
 
         # Append values to columns (pad all columns that didn't get a value this sample)
