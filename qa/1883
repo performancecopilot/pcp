@@ -33,9 +33,10 @@ _filter_info()
     sed \
 	-e "s/$valkey_port/VALKEY_PORT/g" \
 	-e '/^$/d' \
+	-e 's/value [0-9][0-9]*\.[0-9]*/value NUMBER/g' \
 	-e 's/value [0-9][0-9]*/value NUMBER/g' \
-	-e 's/value [0-9.][0-9.]*/value NUMBER/g' \
 	-e 's/value \"[^"]*\"/value STRING/g' \
+	-e 's/ [0-9][0-9]*$/ NUMBER/g' \
     #end
 }
 
@@ -61,19 +62,31 @@ $sudo sh -c "echo 'host=127.0.0.1' > $pmda_path/valkey.conf"
 $sudo sh -c "echo 'port=$valkey_port' >> $pmda_path/valkey.conf"
 
 echo "== Installing valkey PMDA =="
-_setup_pmda valkey
+_prepare_pmda_install valkey
+cd $PCP_PMDAS_DIR/valkey
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >>$seq_full
+cd $here
 
 echo
 echo "== Verify metric data types and semantics =="
 pminfo -dtT valkey.server.uptime_seconds
 pminfo -dtT valkey.server.process_id
+pminfo -dtT valkey.server.valkey_version
 pminfo -dtT valkey.clients.connected
+pminfo -dtT valkey.clients.maxclients
 pminfo -dtT valkey.memory.used
 pminfo -dtT valkey.memory.fragmentation_ratio
+pminfo -dtT valkey.memory.maxmemory_policy
 pminfo -dtT valkey.stats.total_commands
 pminfo -dtT valkey.stats.keyspace_hits
+pminfo -dtT valkey.stats.instantaneous_input_kbps
 pminfo -dtT valkey.cpu.user
+pminfo -dtT valkey.cpu.system_main_thread
 pminfo -dtT valkey.persistence.rdb_last_save_time
+pminfo -dtT valkey.persistence.rdb_saves
+pminfo -dtT valkey.replication.role
+pminfo -dtT valkey.eventloop.cycles
 
 echo
 echo "== Check that metrics return reasonable values =="
@@ -118,8 +131,8 @@ else
 fi
 
 echo
-echo "== Removing valkey PMDA =="
-_restore_pmda valkey
+echo "== Restoring valkey PMDA =="
+_restore_pmda_install valkey
 
 # success, all done
 status=0

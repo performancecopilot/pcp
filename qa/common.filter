@@ -365,6 +365,7 @@ _filter_optional_pmdas()
 	-e '/pmdatrivial/d' \
 	-e '/pmdatxmon/d' \
 	-e '/pmdauwsgi/d' \
+	-e '/pmdavalkey/d' \
 	-e '/pmdavmware/d' \
 	-e '/pmdawatch/d' \
 	-e '/pmdaweblog/d' \
@@ -539,6 +540,7 @@ _filter_top_pmns()
 	-e '/^    tty /d' \
 	-e '/^    txmon /d' \
 	-e '/^    uwsgi/d' \
+	-e '/^    valkey /d' \
 	-e '/^    vdo /d' \
 	-e '/^    vmware /d' \
 	-e '/^    web /d' \
@@ -1010,6 +1012,7 @@ _filter_torture_api()
 	-e '/^    tape /d' \
 	-e '/^    tmpfs /d' \
 	-e '/^    udf /d' \
+	-e '/^    valkey /d' \
 	-e '/^    vfs /d' \
 	-e '/^    vmware /d' \
 	-e '/^    waitio /d' \

@@ -32,8 +32,10 @@ _filter_valkey()
 {
     sed \
 	-e "s/$valkey_port/VALKEY_PORT/g" \
+	-e "s/value [0-9][0-9]*\.[0-9]*/value NUMBER/g" \
 	-e "s/value [0-9][0-9]*/value NUMBER/g" \
 	-e "s/value \".*\"/value STRING/g" \
+	-e 's/ [0-9][0-9]*$/ NUMBER/g' \
 	-e '/inst \[/d' \
     | _filter_dumpresult
 }
@@ -54,7 +56,11 @@ $sudo sh -c "echo 'host=127.0.0.1' > $pmda_path/valkey.conf"
 $sudo sh -c "echo 'port=$valkey_port' >> $pmda_path/valkey.conf"
 
 echo "== Installing valkey PMDA =="
-_setup_pmda valkey
+_prepare_pmda_install valkey
+cd $PCP_PMDAS_DIR/valkey
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >>$seq_full
+cd $here
 
 echo
 echo "== Check valkey metrics are available =="
@@ -68,6 +74,11 @@ pminfo valkey.memory | LC_COLLATE=POSIX sort
 pminfo valkey.stats | LC_COLLATE=POSIX sort
 pminfo valkey.cpu | LC_COLLATE=POSIX sort
 pminfo valkey.persistence | LC_COLLATE=POSIX sort
+pminfo valkey.replication | LC_COLLATE=POSIX sort
+pminfo valkey.keyspace | LC_COLLATE=POSIX sort
+pminfo valkey.errorstats | LC_COLLATE=POSIX sort
+pminfo valkey.modules | LC_COLLATE=POSIX sort
+pminfo valkey.eventloop | LC_COLLATE=POSIX sort
 
 echo
 echo "== Fetch some key metrics =="
@@ -77,8 +88,8 @@ pmprobe -v valkey.memory.used 2>&1 | _filter_valkey
 pmprobe -v valkey.stats.total_commands 2>&1 | _filter_valkey
 
 echo
-echo "== Removing valkey PMDA =="
-_restore_pmda valkey
+echo "== Restoring valkey PMDA =="
+_restore_pmda_install valkey
 
 # success, all done
 status=0

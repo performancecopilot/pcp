@@ -1,89 +1,151 @@
 QA output created by 1882
 Starting local valkey server ...
 == Installing valkey PMDA ==
-Updating the Performance Metrics Name Space (PMNS) ...
-Terminate PMDA if already installed ...
-Updating the PMCD control file, and notifying PMCD ...
-Check valkey metrics have appeared ... X metrics and Y values
 
 == Check valkey metrics are available ==
 
-valkey.clients.blocked
+valkey.server.uptime_seconds
     value NUMBER
 
-valkey.clients.connected
+valkey.server.process_id
     value NUMBER
 
-valkey.clients.pubsub
+valkey.server.uptime_days
     value NUMBER
 
-valkey.clients.tracking
-    value NUMBER
-
-valkey.cpu.system
-    value NUMBER
-
-valkey.cpu.system_children
-    value NUMBER
-
-valkey.cpu.user
-    value NUMBER
-
-valkey.cpu.user_children
-    value NUMBER
-
-valkey.memory.fragmentation_ratio
-    value NUMBER
-
-valkey.memory.maxmemory
-    value NUMBER
-
-valkey.memory.total_system
-    value NUMBER
-
-valkey.memory.used
-    value NUMBER
-
-valkey.memory.used_dataset
-    value NUMBER
-
-valkey.memory.used_overhead
-    value NUMBER
-
-valkey.memory.used_peak
-    value NUMBER
-
-valkey.memory.used_rss
-    value NUMBER
-
-valkey.persistence.aof_enabled
-    value NUMBER
-
-valkey.persistence.rdb_changes_since_save
-    value NUMBER
-
-valkey.persistence.rdb_last_bgsave_status
-    value NUMBER
-
-valkey.persistence.rdb_last_bgsave_time_sec
-    value NUMBER
-
-valkey.persistence.rdb_last_save_time
+valkey.server.hz
     value NUMBER
 
 valkey.server.config_file
     value STRING
 
-valkey.server.hz
+valkey.server.valkey_version
+    value STRING
+
+valkey.server.server_name
+    value STRING
+
+valkey.server.tcp_port
+    value VALKEY_PORT
+
+valkey.server.server_time_usec
     value NUMBER
 
-valkey.server.process_id
+valkey.server.arch_bits
     value NUMBER
 
-valkey.server.uptime_days
+valkey.server.multiplexing_api
+    value STRING
+
+valkey.server.run_id
+    value STRING
+
+valkey.server.io_threads_active
     value NUMBER
 
-valkey.server.uptime_seconds
+valkey.clients.connected
+    value NUMBER
+
+valkey.clients.blocked
+    value NUMBER
+
+valkey.clients.tracking
+    value NUMBER
+
+valkey.clients.pubsub
+    value NUMBER
+
+valkey.clients.maxclients
+    value NUMBER
+
+valkey.clients.cluster_connections
+    value NUMBER
+
+valkey.clients.watching_clients
+    value NUMBER
+
+valkey.clients.clients_in_timeout_table
+    value NUMBER
+
+valkey.clients.client_recent_max_input_buffer
+    value NUMBER
+
+valkey.clients.client_recent_max_output_buffer
+    value NUMBER
+
+valkey.memory.used
+    value NUMBER
+
+valkey.memory.used_rss
+    value NUMBER
+
+valkey.memory.used_peak
+    value NUMBER
+
+valkey.memory.fragmentation_ratio
+    value NUMBER
+
+valkey.memory.used_overhead
+    value NUMBER
+
+valkey.memory.used_dataset
+    value NUMBER
+
+valkey.memory.total_system
+    value NUMBER
+
+valkey.memory.maxmemory
+    value NUMBER
+
+valkey.memory.used_peak_perc
+    value NUMBER
+
+valkey.memory.used_startup
+    value NUMBER
+
+valkey.memory.used_scripts
+    value NUMBER
+
+valkey.memory.allocator_allocated
+    value NUMBER
+
+valkey.memory.allocator_active
+    value NUMBER
+
+valkey.memory.allocator_resident
+    value NUMBER
+
+valkey.memory.allocator_frag_ratio
+    value NUMBER
+
+valkey.memory.rss_overhead_ratio
+    value NUMBER
+
+valkey.memory.maxmemory_policy
+    value STRING
+
+valkey.memory.mem_clients_normal
+    value NUMBER
+
+valkey.memory.lazyfree_pending_objects
+    value NUMBER
+
+valkey.memory.lazyfreed_objects
+    value NUMBER
+
+valkey.stats.total_commands
+    value NUMBER
+
+valkey.stats.total_connections
+    value NUMBER
+
+valkey.stats.rejected_connections
+    value NUMBER
+
+valkey.stats.keyspace_hits
+    value NUMBER
+
+valkey.stats.keyspace_misses
     value NUMBER
 
 valkey.stats.evicted_keys
@@ -95,76 +157,303 @@ valkey.stats.expired_keys
 valkey.stats.instantaneous_ops_per_sec
     value NUMBER
 
-valkey.stats.keyspace_hits
-    value NUMBER
-
-valkey.stats.keyspace_misses
-    value NUMBER
-
-valkey.stats.rejected_connections
-    value NUMBER
-
-valkey.stats.total_commands
-    value NUMBER
-
-valkey.stats.total_connections
-    value NUMBER
-
 valkey.stats.total_net_input_bytes
     value NUMBER
 
 valkey.stats.total_net_output_bytes
     value NUMBER
 
+valkey.stats.total_reads_processed
+    value NUMBER
+
+valkey.stats.total_writes_processed
+    value NUMBER
+
+valkey.stats.total_error_replies
+    value NUMBER
+
+valkey.stats.sync_full
+    value NUMBER
+
+valkey.stats.sync_partial_ok
+    value NUMBER
+
+valkey.stats.sync_partial_err
+    value NUMBER
+
+valkey.stats.total_forks
+    value NUMBER
+
+valkey.stats.latest_fork_usec
+    value NUMBER
+
+valkey.stats.instantaneous_input_kbps
+    value NUMBER
+
+valkey.stats.instantaneous_output_kbps
+    value NUMBER
+
+valkey.stats.instantaneous_input_repl_kbps
+    value NUMBER
+
+valkey.stats.instantaneous_output_repl_kbps
+    value NUMBER
+
+valkey.stats.client_query_buffer_limit_disconnections
+    value NUMBER
+
+valkey.stats.client_output_buffer_limit_disconnections
+    value NUMBER
+
+valkey.stats.reply_buffer_shrinks
+    value NUMBER
+
+valkey.stats.reply_buffer_expands
+    value NUMBER
+
+valkey.stats.acl_access_denied_auth
+    value NUMBER
+
+valkey.stats.acl_access_denied_cmd
+    value NUMBER
+
+valkey.stats.acl_access_denied_key
+    value NUMBER
+
+valkey.stats.acl_access_denied_channel
+    value NUMBER
+
+valkey.cpu.system
+    value NUMBER
+
+valkey.cpu.user
+    value NUMBER
+
+valkey.cpu.system_children
+    value NUMBER
+
+valkey.cpu.user_children
+    value NUMBER
+
+valkey.cpu.system_main_thread
+    value NUMBER
+
+valkey.cpu.user_main_thread
+    value NUMBER
+
+valkey.persistence.rdb_changes_since_save
+    value NUMBER
+
+valkey.persistence.rdb_last_save_time
+    value NUMBER
+
+valkey.persistence.rdb_last_bgsave_status
+    value NUMBER
+
+valkey.persistence.rdb_last_bgsave_time_sec
+    value NUMBER
+
+valkey.persistence.aof_enabled
+    value NUMBER
+
+valkey.persistence.loading
+    value NUMBER
+
+valkey.persistence.rdb_bgsave_in_progress
+    value NUMBER
+
+valkey.persistence.rdb_saves
+    value NUMBER
+
+valkey.persistence.rdb_last_cow_size
+    value NUMBER
+
+valkey.persistence.rdb_current_bgsave_time_sec
+    value NUMBER
+
+valkey.persistence.aof_rewrite_in_progress
+    value NUMBER
+
+valkey.persistence.aof_rewrites
+    value NUMBER
+
+valkey.persistence.current_cow_size
+    value NUMBER
+
+valkey.persistence.current_cow_peak
+    value NUMBER
+
+valkey.replication.role
+    value STRING
+
+valkey.replication.connected_slaves
+    value NUMBER
+
+valkey.replication.master_repl_offset
+    value NUMBER
+
+valkey.replication.repl_backlog_active
+    value NUMBER
+
+valkey.replication.repl_backlog_size
+    value NUMBER
+
+valkey.replication.repl_backlog_histlen
+    value NUMBER
+
+valkey.replication.replicas_waiting_psync
+    value NUMBER
+
+valkey.keyspace.keys
+No value(s) available!
+
+valkey.keyspace.expires
+No value(s) available!
+
+valkey.keyspace.avg_ttl
+No value(s) available!
+
+valkey.errorstats.count
+No value(s) available!
+
+valkey.modules.name
+No value(s) available!
+
+valkey.modules.version
+No value(s) available!
+
+valkey.eventloop.cycles
+    value NUMBER
+
+valkey.eventloop.duration_sum
+    value NUMBER
+
+valkey.eventloop.duration_cmd_sum
+    value NUMBER
+
+valkey.eventloop.instantaneous_cycles_per_sec
+    value NUMBER
+
+valkey.eventloop.instantaneous_duration_usec
+    value NUMBER
+
 == Verify specific metric groups ==
+valkey.server.arch_bits
+valkey.server.config_file
+valkey.server.hz
+valkey.server.io_threads_active
+valkey.server.multiplexing_api
+valkey.server.process_id
+valkey.server.run_id
+valkey.server.server_name
+valkey.server.server_time_usec
+valkey.server.tcp_port
+valkey.server.uptime_days
+valkey.server.uptime_seconds
+valkey.server.valkey_version
 valkey.clients.blocked
+valkey.clients.client_recent_max_input_buffer
+valkey.clients.client_recent_max_output_buffer
+valkey.clients.clients_in_timeout_table
+valkey.clients.cluster_connections
 valkey.clients.connected
+valkey.clients.maxclients
 valkey.clients.pubsub
 valkey.clients.tracking
-valkey.cpu.system
-valkey.cpu.system_children
-valkey.cpu.user
-valkey.cpu.user_children
+valkey.clients.watching_clients
+valkey.memory.allocator_active
+valkey.memory.allocator_allocated
+valkey.memory.allocator_frag_ratio
+valkey.memory.allocator_resident
 valkey.memory.fragmentation_ratio
+valkey.memory.lazyfree_pending_objects
+valkey.memory.lazyfreed_objects
 valkey.memory.maxmemory
+valkey.memory.maxmemory_policy
+valkey.memory.mem_clients_normal
+valkey.memory.rss_overhead_ratio
 valkey.memory.total_system
 valkey.memory.used
 valkey.memory.used_dataset
 valkey.memory.used_overhead
 valkey.memory.used_peak
+valkey.memory.used_peak_perc
 valkey.memory.used_rss
-valkey.persistence.aof_enabled
-valkey.persistence.rdb_changes_since_save
-valkey.persistence.rdb_last_bgsave_status
-valkey.persistence.rdb_last_bgsave_time_sec
-valkey.persistence.rdb_last_save_time
-valkey.server.config_file
-valkey.server.hz
-valkey.server.process_id
-valkey.server.uptime_days
-valkey.server.uptime_seconds
+valkey.memory.used_scripts
+valkey.memory.used_startup
+valkey.stats.acl_access_denied_auth
+valkey.stats.acl_access_denied_channel
+valkey.stats.acl_access_denied_cmd
+valkey.stats.acl_access_denied_key
+valkey.stats.client_output_buffer_limit_disconnections
+valkey.stats.client_query_buffer_limit_disconnections
 valkey.stats.evicted_keys
 valkey.stats.expired_keys
+valkey.stats.instantaneous_input_kbps
+valkey.stats.instantaneous_input_repl_kbps
 valkey.stats.instantaneous_ops_per_sec
+valkey.stats.instantaneous_output_kbps
+valkey.stats.instantaneous_output_repl_kbps
 valkey.stats.keyspace_hits
 valkey.stats.keyspace_misses
+valkey.stats.latest_fork_usec
 valkey.stats.rejected_connections
+valkey.stats.reply_buffer_expands
+valkey.stats.reply_buffer_shrinks
+valkey.stats.sync_full
+valkey.stats.sync_partial_err
+valkey.stats.sync_partial_ok
 valkey.stats.total_commands
 valkey.stats.total_connections
+valkey.stats.total_error_replies
+valkey.stats.total_forks
 valkey.stats.total_net_input_bytes
 valkey.stats.total_net_output_bytes
+valkey.stats.total_reads_processed
+valkey.stats.total_writes_processed
+valkey.cpu.system
+valkey.cpu.system_children
+valkey.cpu.system_main_thread
+valkey.cpu.user
+valkey.cpu.user_children
+valkey.cpu.user_main_thread
+valkey.persistence.aof_enabled
+valkey.persistence.aof_rewrite_in_progress
+valkey.persistence.aof_rewrites
+valkey.persistence.current_cow_peak
+valkey.persistence.current_cow_size
+valkey.persistence.loading
+valkey.persistence.rdb_bgsave_in_progress
+valkey.persistence.rdb_changes_since_save
+valkey.persistence.rdb_current_bgsave_time_sec
+valkey.persistence.rdb_last_bgsave_status
+valkey.persistence.rdb_last_bgsave_time_sec
+valkey.persistence.rdb_last_cow_size
+valkey.persistence.rdb_last_save_time
+valkey.persistence.rdb_saves
+valkey.replication.connected_slaves
+valkey.replication.master_repl_offset
+valkey.replication.repl_backlog_active
+valkey.replication.repl_backlog_histlen
+valkey.replication.repl_backlog_size
+valkey.replication.replicas_waiting_psync
+valkey.replication.role
+valkey.keyspace.avg_ttl
+valkey.keyspace.expires
+valkey.keyspace.keys
+valkey.errorstats.count
+valkey.modules.name
+valkey.modules.version
+valkey.eventloop.cycles
+valkey.eventloop.duration_cmd_sum
+valkey.eventloop.duration_sum
+valkey.eventloop.instantaneous_cycles_per_sec
+valkey.eventloop.instantaneous_duration_usec
 
 == Fetch some key metrics ==
-valkey.server.uptime_seconds NUMBER
+valkey.server.uptime_seconds 1 NUMBER
+valkey.clients.connected 1 NUMBER
+valkey.memory.used 1 NUMBER
+valkey.stats.total_commands 1 NUMBER
 
-valkey.clients.connected NUMBER
-
-valkey.memory.used NUMBER
-
-valkey.stats.total_commands NUMBER
-
-== Removing valkey PMDA ==
-Culling the Performance Metrics Name Space ...
-valkey ... done
-Updating the PMCD control file, and notifying PMCD ...
-Check valkey metrics have gone away ... OK
+== Restoring valkey PMDA ==
