@@ -75,6 +75,7 @@ _filter()
 		-e '/pmcd\[[0-9]*]: _pmda_setup: Interrupted!/d' \
 		-e '/pmcd\[[0-9]*]: _pmda_setup_cleanup: reset \.NeedInstall/d' \
 		-e '/pmcd\[[0-9]*]: .*\/pmcd: .* cannot start pmcd/d' \
+		-e '/pmcd\[[0-9]*]: pmprobe: Cannot connect to PMCD on host "local:"/d' \
 		-e '/systemctl\[[0-9]*]: .* pmcd\.service changed on disk/d' \
 	    #end
 	    ;;
