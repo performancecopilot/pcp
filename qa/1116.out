@@ -1,50 +1,5 @@
 QA output created by 1116
+test really-retired by nathans on 20 Feb 2026
 
-=== bcc agent installation ===
-Info: Initializing, currently in 'notready' state.
-Info: Enabled modules:
-Info: ['bioperpid']
-Info: Configuring modules:
-Info: bioperpid
-Info: Modules configured.
-Info: Initializing modules:
-Info: bioperpid
-Info: bioperpid: Initialized.
-Info: Modules initialized.
-Info: Registering metrics:
-Info: bioperpid
-Info: Metrics registered.
-Info: Registering helpers:
-Info: bioperpid
-Info: Helpers registered.
-Info: Initializing, currently in 'notready' state.
-Info: Enabled modules:
-Info: ['bioperpid']
-Info: Configuring modules:
-Info: bioperpid
-Info: Modules configured.
-Info: Initializing modules:
-Info: bioperpid
-Info: bioperpid: Initialized.
-Info: Modules initialized.
-Info: Registering metrics:
-Info: bioperpid
-Info: Metrics registered.
-Info: Registering helpers:
-Info: bioperpid
-Info: Helpers registered.
-Updating the Performance Metrics Name Space (PMNS) ...
-Terminate PMDA if already installed ...
-[...install files, make output...]
-Updating the PMCD control file, and notifying PMCD ...
-Check bcc metrics have appeared ... X metrics and X values
-
-=== report metric values ===
-found value 20971520 +- 20%
-
-=== remove bcc agent ===
-Culling the Performance Metrics Name Space ...
-bcc ... done
-Updating the PMCD control file, and notifying PMCD ...
-[...removing files...]
-Check bcc metrics have gone away ... OK
+to see the original output
+ 	$ git diff 9a576b8076 -- 1116.out

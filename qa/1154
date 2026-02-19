@@ -5,87 +5,14 @@
 # Copyright (c) 2018 Andreas Gerstmayr.
 #
 
+# test really-retired by nathans on 20 Feb 2026
+#
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1154
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.bcc
-
-_pmdabcc_check
-which zpool >/dev/null 2>&1 || _notrun "zpool utility not installed"
-$sudo modprobe zfs >/dev/null 2>&1
-cat /proc/filesystems | awk '{ print $1 }' | grep '^zfs$' >/dev/null
-test $? -eq 0 || _notrun "ZFS kernel support unavailable"
-
-write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
-zfs_pool=pcp-qa-tank-$seq
-out_file=/$zfs_pool/tmpfile
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-_value_filter()
-{
-    awk '/value [1-9][0-9]*/ {print "OK"; exit}'
-}
-
-_mount_zfs()
-{
-    image=$tmp.loop.zfs.img
-
-    truncate -s 64M $image
-    $sudo zpool create $zfs_pool $image
-    $sudo chown $(id -u):$(id -g) /$zfs_pool
-}
-
-_unmount_zfs()
-{
-    $sudo zpool destroy -f $zfs_pool > /dev/null 2>&1 || :
-}
-
-# clean up any possible leftovers and get ready for a new test
-_unmount_zfs
-_mount_zfs
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = zfsdist
-prefix = bcc.
-[zfsdist]
-module = fs.zfsdist
-cluster = 7
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_unmount_zfs; _pmdabcc_cleanup; _unmount_zfs; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-# Generate system activity for the BCC zfsdist module
-dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
-dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
-
-echo "=== report metric values for open ==="
-pminfo -dfmtT bcc.fs.zfs.latency.open 2>&1 | tee -a $seq_full \
-| _value_filter
-
-echo "=== report metric values for read ==="
-pminfo -dfmtT bcc.fs.zfs.latency.read 2>&1 | tee -a $seq_full \
-| _value_filter
-
-echo "=== report metric values for write ==="
-pminfo -dfmtT bcc.fs.zfs.latency.write 2>&1 | tee -a $seq_full \
-| _value_filter
-
-echo "=== report metric values for fsync ==="
-pminfo -dfmtT bcc.fs.zfs.latency.fsync 2>&1 | tee -a $seq_full \
-| _value_filter
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

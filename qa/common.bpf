@@ -217,3 +217,25 @@ _value_filter_exact()
 {
     grep "value $1" > /dev/null && echo OK
 }
+
+_mount_filesystem()
+{
+    __fs=$1
+    __image=$tmp.loop.$__fs.img
+    __mountpoint=$tmp.mount.$__fs
+
+    truncate -s 350M $__image
+    echo y | mkfs.$__fs $__image >>$seq_full 2>&1
+    mkdir -p $__mountpoint
+    $sudo mount -t $__fs $__image $__mountpoint
+    $sudo chown $(id -u):$(id -g) $__mountpoint
+}
+
+_unmount_filesystem()
+{
+    __fs=$1
+    __mountpoint=$tmp.mount.$__fs
+
+    $sudo umount $__mountpoint
+    rm -r $__mountpoint
+}

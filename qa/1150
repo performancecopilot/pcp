@@ -5,93 +5,14 @@
 # Copyright (c) 2018 Red Hat.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-. ./common.bcc
-
-_pmdabcc_check
-_pmdabcc_require_kernel_version 4 7
-
-# if pmcd is running in another container, this test will not
-# produce the expected results
+# test really-retired by nathans on 20 Feb 2026
 #
-numpmcd=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mcd ' | wc -l | sed -e 's/  *//g'`
-[ $numpmcd -gt 1 ] && _notrun "pmcd running in another container?"
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1150
 
-# If no PCP support for probes, also bail out
-_get_libpcp_config
-$static_probes || _notrun "No static probe support available in PCP build"
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
 
-if [ -f /etc/lsb-release ]
-then
-    . /etc/lsb-release
-    if [ "$DISTRIB_ID" = Ubuntu ]
-    then
-	# This test failed for Ubuntu 16.*, 17.* and 18.* but it
-	# appears to work for 19.04, so assume others beyond this
-	# release are also OK
-	#
-	version=`echo $DISTRIB_RELEASE | sed -e 's/\..*//'`
-	if [ $version -lt 19 ]
-	then
-	    _notrun "bcc USDT does not work on Ubuntu $DISTRIB_RELEASE"
-	fi
-    fi
-fi
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-_log_filter()
-{
-    sed \
-        -e 's,Using PID.*,Found PMCD.,g' \
-	-e "s,$PCP_BINADM_DIR,PCP_BINADM_DIR,g" \
-    #end
-}
-
-_value_filter()
-{
-    awk '/pmcd::recv_pdu/ && /value [1-9][0-9]*/ {print "OK"; exit}'
-}
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = usdt_hits
-prefix = bcc.
-[usdt_hits]
-module = usdt_hits
-cluster = 101
-process = pmcd
-usdts = $PCP_BINADM_DIR/pmcd:recv_pdu,$PCP_BINADM_DIR/pmcd:xmit_pdu
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf | _log_filter
-if _pmdabcc_wait_for_metric
-then
-    echo "back from _pmdabcc_wait_for_metric: `date`" >>$seq_full
-else
-    exit
-fi
-
-# Generate system activity for the BCC uprobe hits module
-pminfo -f bcc >>$seq_full
-pminfo -f mem > /dev/null
-
-echo "=== report metric values ==="
-pminfo -dfmtT bcc.usdt.hits 2>&1 | tee -a $seq_full \
-| _value_filter
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

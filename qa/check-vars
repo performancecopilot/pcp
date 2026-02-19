@@ -74,7 +74,7 @@ End-of-File
 # these ones are exempted for various reasons
 #
 sed <<'End-of-File' -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.exempt
-p		# false match in common.bcc and common.bpf from sed(1) script
+p		# false match in common.bpf from sed(1) script
 secure_sockets	# false match in common.secure from pmconfig -L
 service_discovery	# false match in common.discovery from pmconfig -L
 version		# false match in common.check from pmlogger control file

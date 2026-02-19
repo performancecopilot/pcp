@@ -5,58 +5,14 @@
 # Copyright (c) 2018 Red Hat.
 #
 
+# test really-retired by nathans on 20 Feb 2026
+#
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1115
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.bcc
-
-_pmdabcc_check
-_bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-_value_filter()
-{
-    sed \
-	-e "s/value [0-9][0-9]*/value OK/g" \
-    #end
-}
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = sysfork
-prefix = bcc.
-[sysfork]
-module = sysfork
-cluster = 2
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-# Generate system activity for the BCC sysfork module so
-# that the metric value below will be over the threshold
-for i in 0 1 2 3 4 5 6 7 8 9 ; do /bin/true ; done
-
-echo "=== report metric values ==="
-metrics=`pminfo bcc | LC_COLLATE=POSIX sort`
-pminfo -dfmtT $metrics 2>&1 | _value_filter \
-| tee -a $seq_full
-
-echo "=== verify metric values ==="
-pminfo -v bcc 2>&1 \
-| tee -a $seq_full
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

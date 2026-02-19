@@ -211,7 +211,7 @@ pmda.install
 pmda.activemq
 pmda.apache
 pmda.bash
-#pmda.bcc
+#pmda.bcc		# note this group has been retired (20 Feb, 2026)
 pmda.bind2
 pmda.bpf
 pmda.bpftrace

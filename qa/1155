@@ -5,124 +5,14 @@
 # Copyright (c) 2018 Andreas Gerstmayr.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-. ./common.bcc
-
-_pmdabcc_check
-which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-[ "$(pmpython src/bcc_version_check.python)" = "0.6.1" ] \
-  && _notrun "Broken BCC version detected"
-case "`uname -srm`"
-in
-    Linux\ 5.2.*)
-    		_notrun "Bad Linux 5.2 kernel headers will cause BPF to fail"
-		;;
-esac
-
-target_ip=1.1.1.1
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-# Some combinations of distro and kernel are known to be "bad"
-# for some BPF modules
+# test really-retired by nathans on 20 Feb 2026
 #
-kernel=`uname -r`
-echo "$kernel" >>$seq_full
-case `admin/whatami`
-in
-    *Fedora\ 32\ *)
-	_notrun "bcc tcplife module will not compile on Fedora 32"
-	;;
-    *Ubuntu\ 19.10\ *)
-	_notrun "bcc tcplife module will not compile on Ubuntu 19.10"
-	;;
-    *Ubuntu\ 20.04\ *)
-	# works on 5.4 kernel, not on 5.8.0-1033-azure
-	#
-	case "$kernel"
-	in
-	    5.8.0-*-azure)
-		_notrun "bcc tcplife module will not compile on Ubuntu kernel $kernel"
-		;;
-	esac
-	;;
-    *openSUSE\ Leap\ 15.1\ *)
-	_notrun "bcc tcplife module will not compile on openSUSE 15.1"
-	;;
-esac
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1155
 
-_install_filter()
-{
-    sed \
-    -e "s/Using BPF source file .\+/Using BPF source file X/g" \
-    #end
-}
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
 
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = tcplife
-prefix = bcc.
-[tcplife]
-module = tcplife
-cluster = 3
-dport = 80
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-_pmdabcc_install <$tmp.conf | _install_filter
-_pmdabcc_wait_for_metric
-
-# Generate system activity for the BCC tcplife module
-curl -s http://${target_ip} > /dev/null
-
-_pmdabcc_wait_for_value bcc.proc.io.net.tcp.pid
-
-echo "=== report metric values for pid ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.pid 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-echo "=== report metric values for comm ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.comm 2>&1 | tee -a $seq_full \
-| _value_filter_exact '"curl"'
-
-echo "=== report metric values for laddr ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.laddr 2>&1 | tee -a $seq_full \
-| _value_filter_any
-
-echo "=== report metric values for lport ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.lport 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-echo "=== report metric values for daddr ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.daddr 2>&1 | tee -a $seq_full \
-| _value_filter_exact '"'${target_ip}'"'
-
-echo "=== report metric values for dport ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.dport 2>&1 | tee -a $seq_full \
-| _value_filter_exact 80
-
-echo "=== report metric values for tx ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.tx 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-echo "=== report metric values for rx ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.rx 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-echo "=== report metric values for duration ==="
-pminfo -dfmtT bcc.proc.io.net.tcp.duration 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

@@ -5,100 +5,14 @@
 # Copyright (c) 2018 Andreas Gerstmayr.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-. ./common.bcc
-
-_pmdabcc_check
-_bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
-case "`uname -srm`"
-in
-    Linux\ 5.2.*)
-    		_notrun "Bad Linux 5.2 kernel headers will cause BPF to fail"
-		;;
-esac
-
-# sch_netem is part of optional kernel-modules-extra on Fedora
-$sudo modprobe sch_netem
-lsmod | grep sch_netem >/dev/null 2>&1 \
-  || _notrun "sch_netem kernel module not available"
-which curl >/dev/null 2>&1 || _notrun "No curl binary installed"
-
-target_ip=1.1.1.1
-net_dev=$(ip route get ${target_ip} | awk '{print $5; exit}')
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-# Some combinations of distro and kernel are known to be "bad"
-# for some BPF modules
+# test really-retired by nathans on 20 Feb 2026
 #
-kernel=`uname -r`
-echo "$kernel" >>$seq_full
-case `admin/whatami`
-in
-    *Ubuntu\ 19.10\ *)
-	_notrun "bcc tcpretrans module will not compile on Ubuntu 19.10"
-	;;
-    *Ubuntu\ 20.04\ *)
-	# works on 5.4 kernel, not on 5.8.0-1033-azure
-	#
-	case "$kernel"
-	in
-	    5.8.0-*-azure)
-		_notrun "bcc tcpretrans module will not compile on Ubuntu kernel $kernel"
-		;;
-	esac
-	;;
-esac
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1157
 
-_simulate_network_troubles()
-{
-    echo Simulate packet loss
-    $sudo tc qdisc add dev ${net_dev} root netem loss 100%
-}
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
 
-_revert_network_troubles()
-{
-    echo Revert intentional packet loss
-    $sudo tc qdisc del dev ${net_dev} root 2>>$seq_full
-}
-
-_value_filter()
-{
-    awk '/inst .*::'${target_ip}':80"] value/ {print "OK"; exit}'
-}
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = tcpretrans
-prefix = bcc.
-[tcpretrans]
-module = tcpretrans
-cluster = 9
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_revert_network_troubles; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-# Generate system activity for the BCC tcpretrans module
-_simulate_network_troubles
-curl -s --connect-timeout 5 http://${target_ip}
-_revert_network_troubles
-
-echo "=== report metric values for count ==="
-pminfo -dfmtT bcc.io.net.tcp.retrans.count 2>&1 | tee -a $seq_full \
-| _value_filter
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'
