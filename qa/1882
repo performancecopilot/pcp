@@ -1,0 +1,96 @@
+#!/bin/sh
+# PCP QA Test No. 1882
+# Basic valkey PMDA functionality test - install, metrics, remove
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.keys
+
+_check_key_server_version_offline
+
+_cleanup()
+{
+    [ -n "$valkey_port" ] && $keys_cli -p $valkey_port shutdown
+    cd $here
+    _cleanup_pmda valkey
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_valkey()
+{
+    sed \
+	-e "s/$valkey_port/VALKEY_PORT/g" \
+	-e "s/value [0-9][0-9]*\.[0-9]*/value NUMBER/g" \
+	-e "s/value [0-9][0-9]*/value NUMBER/g" \
+	-e "s/value \".*\"/value STRING/g" \
+	-e 's/ [0-9][0-9]*$/ NUMBER/g' \
+	-e '/inst \[/d' \
+    | _filter_dumpresult
+}
+
+# real QA test starts here
+pmda_path="$PCP_PMDAS_DIR/valkey"
+pmda_script="$pmda_path/Install"
+
+# Start a local valkey server for testing
+echo "Starting local valkey server ..."
+valkey_port=`_find_free_port`
+$key_server --port $valkey_port --save "" > $tmp.valkey 2>&1 &
+_wait_for_key_server $valkey_port
+
+# Configure the PMDA to use our test valkey server
+$sudo rm -f $pmda_path/valkey.conf
+$sudo sh -c "echo 'host=127.0.0.1' > $pmda_path/valkey.conf"
+$sudo sh -c "echo 'port=$valkey_port' >> $pmda_path/valkey.conf"
+
+echo "== Installing valkey PMDA =="
+_prepare_pmda_install valkey
+cd $PCP_PMDAS_DIR/valkey
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >>$seq_full
+cd $here
+
+echo
+echo "== Check valkey metrics are available =="
+pminfo -f valkey 2>&1 | _filter_valkey
+
+echo
+echo "== Verify specific metric groups =="
+pminfo valkey.server | LC_COLLATE=POSIX sort
+pminfo valkey.clients | LC_COLLATE=POSIX sort
+pminfo valkey.memory | LC_COLLATE=POSIX sort
+pminfo valkey.stats | LC_COLLATE=POSIX sort
+pminfo valkey.cpu | LC_COLLATE=POSIX sort
+pminfo valkey.persistence | LC_COLLATE=POSIX sort
+pminfo valkey.replication | LC_COLLATE=POSIX sort
+pminfo valkey.keyspace | LC_COLLATE=POSIX sort
+pminfo valkey.errorstats | LC_COLLATE=POSIX sort
+pminfo valkey.modules | LC_COLLATE=POSIX sort
+pminfo valkey.eventloop | LC_COLLATE=POSIX sort
+
+echo
+echo "== Fetch some key metrics =="
+pmprobe -v valkey.server.uptime_seconds 2>&1 | _filter_valkey
+pmprobe -v valkey.clients.connected 2>&1 | _filter_valkey
+pmprobe -v valkey.memory.used 2>&1 | _filter_valkey
+pmprobe -v valkey.stats.total_commands 2>&1 | _filter_valkey
+
+echo
+echo "== Restoring valkey PMDA =="
+_restore_pmda_install valkey
+
+# success, all done
+status=0
+exit

@@ -1,0 +1,163 @@
+/*
+ * Metrics for Valkey PMDA
+ *
+ * Copyright (c) 2026 Red Hat.
+ */
+
+valkey {
+    server
+    clients
+    memory
+    stats
+    cpu
+    persistence
+    replication
+    keyspace
+    errorstats
+    modules
+    eventloop
+}
+
+valkey.server {
+    uptime_seconds		VALKEY:0:0
+    process_id			VALKEY:0:1
+    uptime_days			VALKEY:0:2
+    hz				VALKEY:0:3
+    config_file			VALKEY:0:4
+    valkey_version		VALKEY:0:5
+    server_name			VALKEY:0:6
+    tcp_port			VALKEY:0:7
+    server_time_usec		VALKEY:0:8
+    arch_bits			VALKEY:0:9
+    multiplexing_api		VALKEY:0:10
+    run_id			VALKEY:0:11
+    io_threads_active		VALKEY:0:12
+}
+
+valkey.clients {
+    connected			VALKEY:1:0
+    blocked			VALKEY:1:1
+    tracking			VALKEY:1:2
+    pubsub			VALKEY:1:3
+    maxclients			VALKEY:1:4
+    cluster_connections		VALKEY:1:5
+    watching_clients		VALKEY:1:6
+    clients_in_timeout_table	VALKEY:1:7
+    client_recent_max_input_buffer	VALKEY:1:8
+    client_recent_max_output_buffer	VALKEY:1:9
+}
+
+valkey.memory {
+    used			VALKEY:2:0
+    used_rss			VALKEY:2:1
+    used_peak			VALKEY:2:2
+    fragmentation_ratio		VALKEY:2:3
+    used_overhead		VALKEY:2:4
+    used_dataset		VALKEY:2:5
+    total_system		VALKEY:2:6
+    maxmemory			VALKEY:2:7
+    used_peak_perc		VALKEY:2:8
+    used_startup		VALKEY:2:9
+    used_scripts		VALKEY:2:10
+    allocator_allocated		VALKEY:2:11
+    allocator_active		VALKEY:2:12
+    allocator_resident		VALKEY:2:13
+    allocator_frag_ratio	VALKEY:2:14
+    rss_overhead_ratio		VALKEY:2:15
+    maxmemory_policy		VALKEY:2:16
+    mem_clients_normal		VALKEY:2:17
+    lazyfree_pending_objects	VALKEY:2:18
+    lazyfreed_objects		VALKEY:2:19
+}
+
+valkey.stats {
+    total_commands		VALKEY:3:0
+    total_connections		VALKEY:3:1
+    rejected_connections	VALKEY:3:2
+    keyspace_hits		VALKEY:3:3
+    keyspace_misses		VALKEY:3:4
+    evicted_keys		VALKEY:3:5
+    expired_keys		VALKEY:3:6
+    instantaneous_ops_per_sec	VALKEY:3:7
+    total_net_input_bytes	VALKEY:3:8
+    total_net_output_bytes	VALKEY:3:9
+    total_reads_processed	VALKEY:3:10
+    total_writes_processed	VALKEY:3:11
+    total_error_replies		VALKEY:3:12
+    sync_full			VALKEY:3:13
+    sync_partial_ok		VALKEY:3:14
+    sync_partial_err		VALKEY:3:15
+    total_forks			VALKEY:3:16
+    latest_fork_usec		VALKEY:3:17
+    instantaneous_input_kbps	VALKEY:3:18
+    instantaneous_output_kbps	VALKEY:3:19
+    instantaneous_input_repl_kbps	VALKEY:3:20
+    instantaneous_output_repl_kbps	VALKEY:3:21
+    client_query_buffer_limit_disconnections	VALKEY:3:22
+    client_output_buffer_limit_disconnections	VALKEY:3:23
+    reply_buffer_shrinks	VALKEY:3:24
+    reply_buffer_expands	VALKEY:3:25
+    acl_access_denied_auth	VALKEY:3:26
+    acl_access_denied_cmd	VALKEY:3:27
+    acl_access_denied_key	VALKEY:3:28
+    acl_access_denied_channel	VALKEY:3:29
+}
+
+valkey.cpu {
+    system			VALKEY:4:0
+    user			VALKEY:4:1
+    system_children		VALKEY:4:2
+    user_children		VALKEY:4:3
+    system_main_thread		VALKEY:4:4
+    user_main_thread		VALKEY:4:5
+}
+
+valkey.persistence {
+    rdb_changes_since_save	VALKEY:5:0
+    rdb_last_save_time		VALKEY:5:1
+    rdb_last_bgsave_status	VALKEY:5:2
+    rdb_last_bgsave_time_sec	VALKEY:5:3
+    aof_enabled			VALKEY:5:4
+    loading			VALKEY:5:5
+    rdb_bgsave_in_progress	VALKEY:5:6
+    rdb_saves			VALKEY:5:7
+    rdb_last_cow_size		VALKEY:5:8
+    rdb_current_bgsave_time_sec	VALKEY:5:9
+    aof_rewrite_in_progress	VALKEY:5:10
+    aof_rewrites		VALKEY:5:11
+    current_cow_size		VALKEY:5:12
+    current_cow_peak		VALKEY:5:13
+}
+
+valkey.replication {
+    role			VALKEY:6:0
+    connected_slaves		VALKEY:6:1
+    master_repl_offset		VALKEY:6:2
+    repl_backlog_active		VALKEY:6:3
+    repl_backlog_size		VALKEY:6:4
+    repl_backlog_histlen	VALKEY:6:5
+    replicas_waiting_psync	VALKEY:6:6
+}
+
+valkey.keyspace {
+    keys			VALKEY:7:0
+    expires			VALKEY:7:1
+    avg_ttl			VALKEY:7:2
+}
+
+valkey.errorstats {
+    count			VALKEY:8:0
+}
+
+valkey.modules {
+    name			VALKEY:9:0
+    version			VALKEY:9:1
+}
+
+valkey.eventloop {
+    cycles			VALKEY:10:0
+    duration_sum		VALKEY:10:1
+    duration_cmd_sum		VALKEY:10:2
+    instantaneous_cycles_per_sec	VALKEY:10:3
+    instantaneous_duration_usec	VALKEY:10:4
+}

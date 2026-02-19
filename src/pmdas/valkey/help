@@ -1,0 +1,128 @@
+#
+# Copyright (c) 2026 Red Hat.
+#
+# This file is part of the PCP valkey PMDA.  It provides one-line help
+# text for each of the metrics exported by the PMDA.
+#
+
+@ valkey.server.uptime_seconds Number of seconds since Valkey server start
+@ valkey.server.process_id Process ID of the Valkey server
+@ valkey.server.uptime_days Number of days since Valkey server start
+@ valkey.server.hz Server's current frequency setting
+@ valkey.server.config_file Path to the Valkey configuration file
+@ valkey.server.valkey_version Valkey server version string
+@ valkey.server.server_name Server name (typically "valkey")
+@ valkey.server.tcp_port TCP port the server is listening on
+@ valkey.server.server_time_usec Server time in microseconds
+@ valkey.server.arch_bits Architecture (32 or 64 bits)
+@ valkey.server.multiplexing_api Event loop multiplexing API in use (epoll, kqueue, etc)
+@ valkey.server.run_id Random value identifying this Valkey server instance
+@ valkey.server.io_threads_active Number of I/O threads currently active
+
+@ valkey.clients.connected Number of client connections (excluding connections from replicas)
+@ valkey.clients.blocked Number of clients pending on a blocking call
+@ valkey.clients.tracking Number of clients being tracked
+@ valkey.clients.pubsub Number of clients in pub/sub mode
+@ valkey.clients.maxclients Maximum number of clients that can connect simultaneously
+@ valkey.clients.cluster_connections Number of cluster bus connections
+@ valkey.clients.watching_clients Number of clients watching keys with WATCH command
+@ valkey.clients.clients_in_timeout_table Number of clients in the timeout table
+@ valkey.clients.client_recent_max_input_buffer Peak input buffer size recently used
+@ valkey.clients.client_recent_max_output_buffer Peak output buffer size recently used
+
+@ valkey.memory.used Total number of bytes allocated by Valkey using its allocator
+@ valkey.memory.used_rss Number of bytes that Valkey allocated as seen by the operating system (resident set size)
+@ valkey.memory.used_peak Peak memory consumed by Valkey (in bytes)
+@ valkey.memory.fragmentation_ratio Ratio between used_memory_rss and used_memory
+@ valkey.memory.used_overhead Memory used for server overhead (internal data structures)
+@ valkey.memory.used_dataset Memory used for the dataset (user data)
+@ valkey.memory.total_system Total amount of memory available on the system
+@ valkey.memory.maxmemory Maximum memory limit configured for Valkey
+@ valkey.memory.used_peak_perc Percentage of peak memory currently used
+@ valkey.memory.used_startup Initial memory used at startup
+@ valkey.memory.used_scripts Memory used by Lua scripts
+@ valkey.memory.allocator_allocated Memory allocated by the allocator
+@ valkey.memory.allocator_active Active memory in the allocator
+@ valkey.memory.allocator_resident Resident memory in the allocator
+@ valkey.memory.allocator_frag_ratio Allocator fragmentation ratio
+@ valkey.memory.rss_overhead_ratio RSS memory overhead ratio
+@ valkey.memory.maxmemory_policy Eviction policy when maxmemory is reached
+@ valkey.memory.mem_clients_normal Memory used by normal (non-replica) client buffers
+@ valkey.memory.lazyfree_pending_objects Number of objects pending lazy free
+@ valkey.memory.lazyfreed_objects Total number of objects freed lazily
+
+@ valkey.stats.total_commands Total number of commands processed by the server
+@ valkey.stats.total_connections Total number of connections accepted by the server
+@ valkey.stats.rejected_connections Number of connections rejected because of maxclients limit
+@ valkey.stats.keyspace_hits Number of successful lookup of keys in the main dictionary
+@ valkey.stats.keyspace_misses Number of failed lookup of keys in the main dictionary
+@ valkey.stats.evicted_keys Number of evicted keys due to maxmemory limit
+@ valkey.stats.expired_keys Total number of keys that have expired
+@ valkey.stats.instantaneous_ops_per_sec Number of commands processed per second
+@ valkey.stats.total_net_input_bytes Total number of bytes read from the network
+@ valkey.stats.total_net_output_bytes Total number of bytes written to the network
+@ valkey.stats.total_reads_processed Total number of read events processed
+@ valkey.stats.total_writes_processed Total number of write events processed
+@ valkey.stats.total_error_replies Total number of error replies sent to clients
+@ valkey.stats.sync_full Number of full resyncs with replicas
+@ valkey.stats.sync_partial_ok Number of successful partial resyncs
+@ valkey.stats.sync_partial_err Number of failed partial resyncs
+@ valkey.stats.total_forks Total number of fork operations
+@ valkey.stats.latest_fork_usec Duration of latest fork operation in microseconds
+@ valkey.stats.instantaneous_input_kbps Current input network bandwidth in KB/s
+@ valkey.stats.instantaneous_output_kbps Current output network bandwidth in KB/s
+@ valkey.stats.instantaneous_input_repl_kbps Current replication input bandwidth in KB/s
+@ valkey.stats.instantaneous_output_repl_kbps Current replication output bandwidth in KB/s
+@ valkey.stats.client_query_buffer_limit_disconnections Number of clients disconnected due to query buffer limits
+@ valkey.stats.client_output_buffer_limit_disconnections Number of clients disconnected due to output buffer limits
+@ valkey.stats.reply_buffer_shrinks Number of times reply buffers were shrunk
+@ valkey.stats.reply_buffer_expands Number of times reply buffers were expanded
+@ valkey.stats.acl_access_denied_auth Number of authentication commands rejected by ACL
+@ valkey.stats.acl_access_denied_cmd Number of commands rejected by ACL rules
+@ valkey.stats.acl_access_denied_key Number of key accesses rejected by ACL rules
+@ valkey.stats.acl_access_denied_channel Number of channel accesses rejected by ACL rules
+
+@ valkey.cpu.system System CPU consumed by the Valkey server
+@ valkey.cpu.user User CPU consumed by the Valkey server
+@ valkey.cpu.system_children System CPU consumed by background processes
+@ valkey.cpu.user_children User CPU consumed by background processes
+@ valkey.cpu.system_main_thread System CPU consumed by the main thread
+@ valkey.cpu.user_main_thread User CPU consumed by the main thread
+
+@ valkey.persistence.rdb_changes_since_save Number of changes since last RDB save
+@ valkey.persistence.rdb_last_save_time Epoch-based timestamp of last successful RDB save
+@ valkey.persistence.rdb_last_bgsave_status Status of the last RDB save operation (1=ok, 0=failed)
+@ valkey.persistence.rdb_last_bgsave_time_sec Duration of the last RDB save operation in seconds
+@ valkey.persistence.aof_enabled Flag indicating if AOF logging is activated
+@ valkey.persistence.loading Flag indicating if dataset is being loaded
+@ valkey.persistence.rdb_bgsave_in_progress Flag indicating if RDB save is in progress
+@ valkey.persistence.rdb_saves Total number of RDB saves performed
+@ valkey.persistence.rdb_last_cow_size Copy-on-write memory size during last RDB save
+@ valkey.persistence.rdb_current_bgsave_time_sec Duration of ongoing RDB save operation in seconds (-1 if none)
+@ valkey.persistence.aof_rewrite_in_progress Flag indicating if AOF rewrite is in progress
+@ valkey.persistence.aof_rewrites Total number of AOF rewrites performed
+@ valkey.persistence.current_cow_size Current copy-on-write memory allocation size
+@ valkey.persistence.current_cow_peak Peak copy-on-write memory allocation
+
+@ valkey.replication.role Role of this instance (master or slave)
+@ valkey.replication.connected_slaves Number of connected replicas
+@ valkey.replication.master_repl_offset Master replication offset
+@ valkey.replication.repl_backlog_active Flag indicating if replication backlog is active
+@ valkey.replication.repl_backlog_size Replication backlog buffer size in bytes
+@ valkey.replication.repl_backlog_histlen Replication backlog history length in bytes
+@ valkey.replication.replicas_waiting_psync Number of replicas waiting for partial resync
+
+@ valkey.keyspace.keys Number of keys in this database
+@ valkey.keyspace.expires Number of keys with expiration set in this database
+@ valkey.keyspace.avg_ttl Average TTL for keys with expiration in this database (milliseconds)
+
+@ valkey.errorstats.count Number of errors of this type
+
+@ valkey.modules.name Name of the loaded module
+@ valkey.modules.version Version number of the loaded module
+
+@ valkey.eventloop.cycles Total number of event loop iterations
+@ valkey.eventloop.duration_sum Cumulative time spent in event loop (microseconds)
+@ valkey.eventloop.duration_cmd_sum Cumulative time spent executing commands in event loop (microseconds)
+@ valkey.eventloop.instantaneous_cycles_per_sec Current event loop frequency (cycles per second)
+@ valkey.eventloop.instantaneous_duration_usec Current average event loop cycle duration (microseconds)

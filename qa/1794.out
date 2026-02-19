@@ -26,3 +26,17 @@ Shape: (5, 20)
 === pcp2arrow proc
 Columns: 26674
 Shape: (1, 26674)
+
+=== Testing raw mode with --raw flag ===
+
+=== pcp2arrow --raw viewqa1
+Columns: ['disk.all.read', 'timestamp']
+Shape: (3, 2)
+Has timestamp: True
+Timestamp valid: True
+
+=== pcp2arrow --raw moomba.client
+Columns: ['kernel.all.load[1 minute]', 'kernel.all.load[15 minute]', 'kernel.all.load[5 minute]', 'timestamp']
+Shape: (1, 4)
+Has timestamp: True
+Timestamp valid: True

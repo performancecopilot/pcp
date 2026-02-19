@@ -1,0 +1,124 @@
+QA output created by 1883
+Starting local valkey server ...
+== Installing valkey PMDA ==
+
+== Verify metric data types and semantics ==
+
+valkey.server.uptime_seconds [Number of seconds since Valkey server start]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+Help:
+Number of seconds since Valkey server start
+
+valkey.server.process_id [Process ID of the Valkey server]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Process ID of the Valkey server
+
+valkey.server.valkey_version [Valkey server version string]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Valkey server version string
+
+valkey.clients.connected [Number of client connections (excluding connections from replicas)]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Number of client connections (excluding connections from replicas)
+
+valkey.clients.maxclients [Maximum number of clients that can connect simultaneously]
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Maximum number of clients that can connect simultaneously
+
+valkey.memory.used [Total number of bytes allocated by Valkey using its allocator]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help:
+Total number of bytes allocated by Valkey using its allocator
+
+valkey.memory.fragmentation_ratio [Ratio between used_memory_rss and used_memory]
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Ratio between used_memory_rss and used_memory
+
+valkey.memory.maxmemory_policy [Eviction policy when maxmemory is reached]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Eviction policy when maxmemory is reached
+
+valkey.stats.total_commands [Total number of commands processed by the server]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total number of commands processed by the server
+
+valkey.stats.keyspace_hits [Number of successful lookup of keys in the main dictionary]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Number of successful lookup of keys in the main dictionary
+
+valkey.stats.instantaneous_input_kbps [Current input network bandwidth in KB/s]
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: Kbyte / sec
+Help:
+Current input network bandwidth in KB/s
+
+valkey.cpu.user [User CPU consumed by the Valkey server]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+Help:
+User CPU consumed by the Valkey server
+
+valkey.cpu.system_main_thread [System CPU consumed by the main thread]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: sec
+Help:
+System CPU consumed by the main thread
+
+valkey.persistence.rdb_last_save_time [Epoch-based timestamp of last successful RDB save]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: sec
+Help:
+Epoch-based timestamp of last successful RDB save
+
+valkey.persistence.rdb_saves [Total number of RDB saves performed]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total number of RDB saves performed
+
+valkey.replication.role [Role of this instance (master or slave)]
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Help:
+Role of this instance (master or slave)
+
+valkey.eventloop.cycles [Total number of event loop iterations]
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: counter  Units: count
+Help:
+Total number of event loop iterations
+
+== Check that metrics return reasonable values ==
+uptime_seconds: OK
+process_id: OK
+connected_clients: OK
+used_memory: OK
+total_commands: OK (got commands)
+keyspace_hits: OK (got hit)
+keyspace_misses: OK (got miss)
+
+== Test metric value caching ==
+Metric caching: OK
+
+== Verify metrics update after cache timeout ==
+Metrics updating: OK
+
+== Restoring valkey PMDA ==

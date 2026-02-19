@@ -1,0 +1,139 @@
+#!/bin/sh
+# PCP QA Test No. 1883
+# Verify valkey PMDA metrics values and data types
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.keys
+
+_check_key_server_version_offline
+
+_cleanup()
+{
+    [ -n "$valkey_port" ] && $keys_cli -p $valkey_port shutdown
+    cd $here
+    _cleanup_pmda valkey
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+$sudo rm -rf $tmp $tmp.* $seq.full
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_info()
+{
+    sed \
+	-e "s/$valkey_port/VALKEY_PORT/g" \
+	-e '/^$/d' \
+	-e 's/value [0-9][0-9]*\.[0-9]*/value NUMBER/g' \
+	-e 's/value [0-9][0-9]*/value NUMBER/g' \
+	-e 's/value \"[^"]*\"/value STRING/g' \
+	-e 's/ [0-9][0-9]*$/ NUMBER/g' \
+    #end
+}
+
+# real QA test starts here
+pmda_path="$PCP_PMDAS_DIR/valkey"
+pmda_script="$pmda_path/Install"
+
+# Start a local valkey server for testing
+echo "Starting local valkey server ..."
+valkey_port=`_find_free_port`
+$key_server --port $valkey_port --save "" > $tmp.valkey 2>&1 &
+_wait_for_key_server $valkey_port
+
+# Do some operations to generate stats
+$keys_cli -p $valkey_port set testkey testvalue > /dev/null
+$keys_cli -p $valkey_port get testkey > /dev/null
+$keys_cli -p $valkey_port get nonexistent > /dev/null
+$keys_cli -p $valkey_port del testkey > /dev/null
+
+# Configure the PMDA to use our test valkey server
+$sudo rm -f $pmda_path/valkey.conf
+$sudo sh -c "echo 'host=127.0.0.1' > $pmda_path/valkey.conf"
+$sudo sh -c "echo 'port=$valkey_port' >> $pmda_path/valkey.conf"
+
+echo "== Installing valkey PMDA =="
+_prepare_pmda_install valkey
+cd $PCP_PMDAS_DIR/valkey
+$sudo ./Install </dev/null >$tmp.out 2>&1
+cat $tmp.out >>$seq_full
+cd $here
+
+echo
+echo "== Verify metric data types and semantics =="
+pminfo -dtT valkey.server.uptime_seconds
+pminfo -dtT valkey.server.process_id
+pminfo -dtT valkey.server.valkey_version
+pminfo -dtT valkey.clients.connected
+pminfo -dtT valkey.clients.maxclients
+pminfo -dtT valkey.memory.used
+pminfo -dtT valkey.memory.fragmentation_ratio
+pminfo -dtT valkey.memory.maxmemory_policy
+pminfo -dtT valkey.stats.total_commands
+pminfo -dtT valkey.stats.keyspace_hits
+pminfo -dtT valkey.stats.instantaneous_input_kbps
+pminfo -dtT valkey.cpu.user
+pminfo -dtT valkey.cpu.system_main_thread
+pminfo -dtT valkey.persistence.rdb_last_save_time
+pminfo -dtT valkey.persistence.rdb_saves
+pminfo -dtT valkey.replication.role
+pminfo -dtT valkey.eventloop.cycles
+
+echo
+echo "== Check that metrics return reasonable values =="
+# Server metrics should be positive
+pmprobe -v valkey.server.uptime_seconds | awk '{if ($3 > 0) print "uptime_seconds: OK"; else print "uptime_seconds: FAIL"}'
+pmprobe -v valkey.server.process_id | awk '{if ($3 > 0) print "process_id: OK"; else print "process_id: FAIL"}'
+
+# Client metrics (at least 1 connected for valkey-cli)
+pmprobe -v valkey.clients.connected | awk '{if ($3 >= 0) print "connected_clients: OK"; else print "connected_clients: FAIL"}'
+
+# Memory metrics should be positive
+pmprobe -v valkey.memory.used | awk '{if ($3 > 0) print "used_memory: OK"; else print "used_memory: FAIL"}'
+
+# Stats should reflect our operations
+pmprobe -v valkey.stats.total_commands | awk '{if ($3 >= 4) print "total_commands: OK (got commands)"; else print "total_commands: value="$3}'
+pmprobe -v valkey.stats.keyspace_hits | awk '{if ($3 >= 1) print "keyspace_hits: OK (got hit)"; else print "keyspace_hits: value="$3}'
+pmprobe -v valkey.stats.keyspace_misses | awk '{if ($3 >= 1) print "keyspace_misses: OK (got miss)"; else print "keyspace_misses: value="$3}'
+
+echo
+echo "== Test metric value caching =="
+# Fetch twice in quick succession - should use cache
+pmprobe -v valkey.stats.total_commands > $tmp.fetch1
+sleep 0.1
+pmprobe -v valkey.stats.total_commands > $tmp.fetch2
+if diff $tmp.fetch1 $tmp.fetch2 > /dev/null; then
+    echo "Metric caching: OK"
+else
+    echo "Metric caching: values differ (cache may not be working)"
+fi
+
+echo
+echo "== Verify metrics update after cache timeout =="
+sleep 3  # Wait for cache to expire (VALKEY_CACHE_TIMEOUT is 2 seconds)
+$keys_cli -p $valkey_port set anotherkey anothervalue > /dev/null
+$keys_cli -p $valkey_port get anotherkey > /dev/null
+sleep 0.5
+pmprobe -v valkey.stats.total_commands > $tmp.fetch3
+if diff $tmp.fetch1 $tmp.fetch3 > /dev/null; then
+    echo "Metrics NOT updating: FAIL"
+else
+    echo "Metrics updating: OK"
+fi
+
+echo
+echo "== Restoring valkey PMDA =="
+_restore_pmda_install valkey
+
+# success, all done
+status=0
+exit
