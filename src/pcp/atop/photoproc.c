@@ -435,9 +435,6 @@ photoproc(struct tstat **tasks, unsigned long *taskslen)
 
 	thread_cpu_accumulation(tasks, count);
 
-	if (supportflags & NETATOP)
-		netproc_update_tasks(tasks, count);
-
 	if (supportflags & NETATOPBPF)
 		netbpfproc_update_tasks(tasks, count);
 

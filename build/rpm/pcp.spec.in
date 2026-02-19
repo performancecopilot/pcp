@@ -1458,23 +1458,6 @@ This package contains the PCP Performance Metrics Domain Agent (PMDA) for
 collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
 
-%if "@pmda_bcc@" == "true"
-#
-# pcp-pmda-bcc
-#
-%package pmda-bcc
-License: Apache-2.0 AND GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics from eBPF/BCC modules
-URL: https://pcp.io
-Requires: pcp = @package_version@ pcp-libs = @package_version@
-Requires: python3-bcc
-Requires: python3-pcp
-%description pmda-bcc
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-extracting performance metrics from eBPF/BCC Python modules.
-# end pcp-pmda-bcc
-%endif
-
 %if "@pmda_bpf@" == "true"
 #
 # pcp-pmda-bpf
@@ -1484,6 +1467,7 @@ License: Apache-2.0 AND GPL-2.0-or-later
 Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
 URL: https://pcp.io
 Requires: pcp = @package_version@ pcp-libs = @package_version@
+Obsoletes: pcp-pmda-bcc < 7.1.1
 BuildRequires: clang llvm
 %description pmda-bpf
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2322,7 +2306,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/activemq(/|$)' >pcp-pmda-activemq-files
 basic_manifest | keep '(etc/pcp|pmdas)/amdgpu(/|$)' >pcp-pmda-amdgpu-files
 basic_manifest | keep '(etc/pcp|pmdas)/apache(/|$)' >pcp-pmda-apache-files
 basic_manifest | keep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
-basic_manifest | keep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
 basic_manifest | keep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
 basic_manifest | keep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
 basic_manifest | keep '(etc/pcp|pmdas)/bpf(/|$)' >pcp-pmda-bpf-files
@@ -2401,7 +2384,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 rm -f packages.list
 for pmda_package in \
     activemq amdgpu apache \
-    bash bcc bind2 bonding bpf bpftrace \
+    bash bind2 bonding bpf bpftrace \
     cifs cisco \
     dbping denki docker dm ds389 ds389log \
     elasticsearch \
@@ -2804,11 +2787,6 @@ done
 %preun pmda-dm
 %{pmda_remove "$1" "dm"}
 
-%if "@pmda_bcc@" == "true"
-%preun pmda-bcc
-%{pmda_remove "$1" "bcc"}
-%endif
-
 %if "@pmda_bpf@" == "true"
 %preun pmda-bpf
 %{pmda_remove "$1" "bpf"}
@@ -3144,10 +3122,6 @@ fi
 %endif
 
 %files pmda-dm -f pcp-pmda-dm-files.rpm
-
-%if "@pmda_bcc@" == "true"
-%files pmda-bcc -f pcp-pmda-bcc-files.rpm
-%endif
 
 %if "@pmda_bpf@" == "true"
 %files pmda-bpf -f pcp-pmda-bpf-files.rpm
