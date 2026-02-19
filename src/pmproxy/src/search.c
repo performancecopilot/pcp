@@ -404,7 +404,6 @@ pmsearch_setup_request_parameters(struct client *client,
 	    }
 	}
 	{
-	    dictEntry *entry;
 	    entry = dictFind(parameters, PARAM_LIMIT);
 	    value = entry ? (sds)dictGetVal(entry) : NULL;
 	    if (value)
@@ -431,7 +430,6 @@ pmsearch_setup_request_parameters(struct client *client,
 	/* optional parameters - flags, result count and pagination offset */
 	baton->request.flags = 0;
 	{
-	    dictEntry *entry;
 	    entry = dictFind(parameters, PARAM_LIMIT);
 	    value = entry ? (sds)dictGetVal(entry) : NULL;
 	    if (value)
