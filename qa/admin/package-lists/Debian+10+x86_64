@@ -89,8 +89,6 @@ mariadb-client-core-10.3
 memcached
 net-tools
 nmap
-# openjdk-11-jre-headless botches the certificates setup
-openjdk-11-jre
 openssl
 perl
 perl-modules-5.28

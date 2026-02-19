@@ -5,55 +5,14 @@
 # Copyright (c) 2018 Red Hat.
 #
 
+# test really-retired by nathans on 20 Feb 2026
+#
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1173
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.bcc
-
-_pmdabcc_check
-_pmdabcc_require_kernel_version 4 18
-_python_probe_check
-$sudo [ -f /sys/kernel/tracing/uprobe_events ] || _notrun "/sys/kernel/tracing/uprobe_events not present"
-
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = ucalls
-prefix = bcc.
-[ucalls]
-module = ucalls
-cluster = 16
-process = .*/pmdabcc.python
-latency = True
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-echo "=== generate ucall activity ==="
-for i in `seq 1 10`; do pminfo -f bcc > /dev/null 2>&1 ; done
-echo done
-
-echo "=== report metric values for ucall count ==="
-pminfo -dfmtT bcc.proc.ucall.count 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-echo "=== report metric values for ucall cml lat ==="
-pminfo -dfmtT bcc.proc.ucall.latency.cml 2>&1 | grep refresh | tee -a $seq_full \
-| _value_filter_nonzero
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

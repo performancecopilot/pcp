@@ -11,7 +11,6 @@ audit
 autoconf
 bash
 bc
-bcc-tools
 bind-utils
 bison
 bpftrace
@@ -44,7 +43,6 @@ httpd
 inih-devel
 initscripts
 iproute
-java-21-openjdk-headless
 jq
 libbpf
 libbpf-devel
@@ -97,7 +95,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 python3
-python3-bcc
 python3-devel
 # python3-elasticsearch
 python3-libs

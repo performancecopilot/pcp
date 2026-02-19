@@ -9,7 +9,6 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 . ./common.bpf
-. ./common.bcc	# for _unmount_filesystem
 
 _pmdabpf_check
 which mkfs.ext4 >/dev/null 2>&1 || _notrun "mkfs.ext4 not installed"

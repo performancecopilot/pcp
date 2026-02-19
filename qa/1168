@@ -5,58 +5,14 @@
 # Copyright (c) 2019 Red Hat.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-. ./common.bcc
-
-_pmdabcc_check
-_pmdabcc_require_kernel_version 4 7
-
-# if pmcd is running in another container, this test will not
-# produce the expected results
+# test really-retired by nathans on 20 Feb 2026
 #
-numpmcd=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mcd ' | wc -l | sed -e 's/  *//g'`
-[ $numpmcd -gt 1 ] && _notrun "pmcd running in another container?"
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1168
 
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
 
-_instance_filter()
-{
-    sed \
-	-e 's/[0-9]//g' \
-	-e 's/".*"/"inst"/g' \
-	-e 's/\[  /\[ /' \
-    #end
-}
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = klockstat
-prefix = bcc.
-[klockstat]
-module = klockstat
-cluster = 31
-process = pmcd
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-echo "=== pmrep output ==="
-pmrep -g -r -1 -s 1 bcc.kernel.lock.mutex.spin.avg 2>&1 | tee -a $seq_full \
-| grep bcc.kernel.lock.mutex.spin.avg | _instance_filter | sort | uniq
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

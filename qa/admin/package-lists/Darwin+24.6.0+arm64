@@ -16,7 +16,6 @@ YAML::XS cpan
 autoconf
 bash
 bc
-bcc pip3
 bison
 cppcheck
 docker

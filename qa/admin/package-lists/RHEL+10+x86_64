@@ -11,7 +11,6 @@ avahi-devel
 avahi-tools
 bash
 bc
-bcc-tools
 bind-utils
 bison
 bpftrace
@@ -42,7 +41,6 @@ iproute
 httpd
 inih-devel
 initscripts
-java-latest-openjdk-headless
 jq
 libbpf
 libbpf-devel
@@ -95,7 +93,6 @@ psmisc
 pylint
 python3
 python3-devel
-python3-bcc
 python3-libs
 python3-libvirt
 python3-lxml

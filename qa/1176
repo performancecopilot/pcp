@@ -5,67 +5,14 @@
 # Copyright (c) 2018-2019 Red Hat.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-. ./common.bcc
-
-_pmdabcc_check
-_bcc_check_ArgString || _notrun "bcc is broken (ArgString bug) on this platform"
-
-# the cachestat BCC module uses kprobes that might attach to kernel symbols
-# that are not present ... add to the list below as required
+# test really-retired by nathans on 20 Feb 2026
 #
-for symbol in account_page_dirtied
-do
-    grep " T $symbol\$" /proc/kallsyms >/dev/null || _notrun "kernel does not contain required $symbol symbol"
-done
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1176
 
-# Only ext4 seems to be working currently:
-# https://github.com/iovisor/bcc/issues/1993
-fstype=$(df --output=fstype $(dirname $tmp) | grep -v Type)
-[ $fstype != ext4 ] && _notrun "only ext4 works reliably with cachestat"
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
 
-write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
-out_file=$tmp.tmpfile
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = cachestat
-prefix = bcc.
-[cachestat]
-module = cachestat
-cluster = 17
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-# Generate write activity the BCC cachestat module
-dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
-echo "=== report metric values for writes ==="
-pminfo -dfmtT bcc.mem.vmstat.dirtied 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-# Generate read activity the BCC cachestat module
-dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
-
-echo "=== report metric values for cached reads ==="
-pminfo -dfmtT bcc.mem.vmstat.hits 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

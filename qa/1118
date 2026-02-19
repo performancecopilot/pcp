@@ -5,60 +5,14 @@
 # Copyright (c) 2018 Andreas Gerstmayr.
 #
 
+# test really-retired by nathans on 20 Feb 2026
+#
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1118
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.bcc
-
-_pmdabcc_check
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-_label_filter()
-{
-    grep '"0-1"' | grep '"statistic":"histogram"' | grep '"lower_bound":0' | grep 'upper_bound":1' > /dev/null && echo 'OK'
-}
-
-_install_filter()
-{
-    sed \
-    -e "s/Using BPF source file .\+/Using BPF source file X/g" \
-    #end
-}
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = runqlat
-prefix = bcc.
-[runqlat]
-module = runqlat
-cluster = 4
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf | _install_filter
-_pmdabcc_wait_for_metric
-
-# Generate system activity for the BCC runqlat module
-dd if=/dev/urandom bs=`expr 20 \* 1024 \* 1024` count=1 2>/dev/null | bzip2 -9 >> /dev/null
-
-echo "=== report metric values ==="
-pminfo -dfmtT bcc.runq.latency 2>&1 | tee -a $seq_full \
-| _instances_filter_nonzero
-
-echo "=== check metric labels ==="
-pminfo -l bcc.runq.latency 2>&1 | tee -a $seq_full \
-| _label_filter
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

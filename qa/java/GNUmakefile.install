@@ -1,6 +1,0 @@
-#!gmake
-
-default default_pcp setup clean check:
-
-install install_pcp:
-

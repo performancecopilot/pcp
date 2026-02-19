@@ -5,65 +5,14 @@
 # Copyright (c) 2018 Andreas Gerstmayr.
 #
 
+# test really-retired by nathans on 20 Feb 2026
+#
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1126
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.bcc
-
-_pmdabcc_check
-which mkfs.ext4 >/dev/null 2>&1 || _notrun "mkfs.ext4 not installed"
-
-write_size=`expr 20 \* 1024 \* 1024` # number of bytes to write into testfile
-out_file=$tmp.mount.ext4/tmpfile
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = ext4dist
-prefix = bcc.
-[ext4dist]
-module = fs.ext4dist
-cluster = 5
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_unmount_filesystem ext4; _pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# mount ext4 before installing the PMDA, as mounting
-# ext4 may trigger loading the ext4 kernel module
-_mount_filesystem ext4
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-# Generate system activity for the BCC ext4dist module
-dd if=/dev/zero of=${out_file} bs=${write_size} count=1 conv=fsync 2>/dev/null
-dd if=${out_file} of=/dev/null bs=${write_size} count=1 2>/dev/null
-
-echo "=== report metric values for open ==="
-pminfo -dfmtT bcc.fs.ext4.latency.open 2>&1 | tee -a $seq_full \
-| _instances_filter_nonzero
-
-echo "=== report metric values for read ==="
-pminfo -dfmtT bcc.fs.ext4.latency.read 2>&1 | tee -a $seq_full \
-| _instances_filter_nonzero
-
-echo "=== report metric values for write ==="
-pminfo -dfmtT bcc.fs.ext4.latency.write 2>&1 | tee -a $seq_full \
-| _instances_filter_nonzero
-
-echo "=== report metric values for fsync ==="
-pminfo -dfmtT bcc.fs.ext4.latency.fsync 2>&1 | tee -a $seq_full \
-| _instances_filter_nonzero
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

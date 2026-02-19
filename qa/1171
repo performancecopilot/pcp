@@ -5,65 +5,14 @@
 # Copyright (c) 2018 Andreas Gerstmayr.
 #
 
+# test really-retired by nathans on 20 Feb 2026
+#
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1171
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.bcc
-
-_pmdabcc_check
-_pmdabcc_require_kernel_version 4 9
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = profile
-prefix = bcc.
-[profile]
-module = profile
-cluster = 14
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-echo "=== start profiling ==="
-pmstore bcc.proc.profile start
-for i in `seq 1 10`; do pminfo -f bcc.proc.profile | grep started > /dev/null && break; sleep 1; done
-if [ $i -ge 10 ]; then
-    echo Could not start profiling, test failed
-    pminfo -f bcc
-    exit
-fi
-
-echo
-echo "=== start test program ==="
-src/bcc_profile 5
-
-echo
-echo "=== stop profiling ==="
-pmstore bcc.proc.profile stop
-for i in `seq 1 10`; do pminfo -f bcc.proc.profile | grep stopped > /dev/null && break; sleep 1; done
-if [ $i -ge 10 ]; then
-    echo Could not stop profiling, test failed
-    pminfo -f bcc
-    exit
-fi
-
-echo
-echo "=== verify captured stack frames ==="
-pminfo -f bcc.proc.profile | grep bcc_profile > /dev/null && echo 'OK'
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

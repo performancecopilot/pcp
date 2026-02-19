@@ -11,7 +11,6 @@ avahi-tools
 autoconf
 bash
 bc
-bcc-tools
 bind-utils
 bison
 bpftrace
@@ -44,7 +43,6 @@ jq
 httpd
 initscripts
 # -latest- (aka 22) and -21- don't have USDT support, so go with -17-
-java-17-openjdk-headless
 libbpf
 libdrm-devel
 libicu-devel
@@ -92,7 +90,6 @@ postfix-perl-scripts
 postgresql
 psmisc
 pylint
-python3-bcc
 python3-elasticsearch
 python3-libs
 python3-libvirt

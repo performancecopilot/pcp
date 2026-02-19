@@ -10,7 +10,6 @@ audit
 autoconf
 bash
 bc
-bcc-tools
 bind-utils
 bison
 clang
@@ -39,7 +38,6 @@ httpd
 inih-devel
 initscripts
 iproute
-java-latest-openjdk-headless
 jq
 kubernetes-client
 kubernetes-node
