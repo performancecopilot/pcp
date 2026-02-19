@@ -13,14 +13,14 @@ container:
 tasks:
   setup: |
     sudo dnf install -y which hostname
-    sudo dnf install -y --no-gpgchecks $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
+    sudo dnf install -y $(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
   build: |
     ./Makepkgs --verbose
     rpm -qp --requires $(echo pcp-*/build/rpm/pcp-*.src.rpm | sed 's/src/x86_64/') | grep -q libuv.so
   copy_build_artifacts: |
     cp pcp-*/build/rpm/*.rpm ../artifacts/build
   install: |
-    sudo rpm -Uv pcp-*/build/rpm/*.rpm
+    sudo rpm -Uv --no-gpgchecks pcp-*/build/rpm/*.rpm
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
     sudo systemctl start valkey
