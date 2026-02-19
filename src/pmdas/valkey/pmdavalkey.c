@@ -500,11 +500,10 @@ static pmdaMetric metrictab[] = {
 };
 
 /* Valkey connection and cache */
-static valkeyContext *vk_conn = NULL;
-static char *vk_host = VALKEY_DEFAULT_HOST;
-static int vk_port = VALKEY_DEFAULT_PORT;
-static time_t last_fetch_time = 0;
-static char *cached_info = NULL;
+static valkeyContext *vk_conn;
+static char *vk_host;
+static int vk_port;
+static char *cached_info;
 
 /* Cached metric values */
 static struct {
@@ -650,13 +649,15 @@ static int
 valkey_connect(void)
 {
     struct timeval timeout = { VALKEY_TIMEOUT_SEC, VALKEY_TIMEOUT_USEC };
+    char *host = vk_host? vk_host : VALKEY_DEFAULT_HOST;
+    int port = vk_port? vk_port : VALKEY_DEFAULT_PORT;
 
     if (vk_conn != NULL) {
         valkeyFree(vk_conn);
         vk_conn = NULL;
     }
 
-    vk_conn = valkeyConnectWithTimeout(vk_host, vk_port, timeout);
+    vk_conn = valkeyConnectWithTimeout(host, port, timeout);
     if (vk_conn == NULL || vk_conn->err) {
         if (vk_conn) {
             pmNotifyErr(LOG_ERR, "Valkey connection error: %s", vk_conn->errstr);
@@ -680,6 +681,7 @@ valkey_fetch_info(void)
     valkeyReply *reply;
     char *line, *saveptr, *value;
     time_t now = time(NULL);
+    static time_t last_fetch_time;
 
     /* Check if cached data is still valid */
     if (vk_stats.valid && (now - last_fetch_time) < VALKEY_CACHE_TIMEOUT)
@@ -1570,7 +1572,7 @@ valkey_parse_config(void)
             value++;
 
         if (strcmp(key, "host") == 0) {
-            if (strcmp(vk_host, VALKEY_DEFAULT_HOST) != 0)
+            if (vk_host)
                 free(vk_host);
             vk_host = strdup(value);
         } else if (strcmp(key, "port") == 0) {
@@ -1680,6 +1682,8 @@ main(int argc, char **argv)
     pmdaMain(&dispatch);
 
     /* Cleanup */
+    if (vk_host)
+        free(vk_host);
     if (vk_conn)
         valkeyFree(vk_conn);
     if (cached_info)
