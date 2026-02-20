@@ -20,7 +20,7 @@ tasks:
   copy_build_artifacts: |
     cp pcp-*/build/rpm/*.rpm ../artifacts/build
   install: |
-    sudo rpm -Uv --no-gpgchecks pcp-*/build/rpm/*.rpm
+    sudo rpm -Uv --nosignature pcp-*/build/rpm/*.rpm
     echo 'pcpqa ALL=(ALL) NOPASSWD: ALL' | sudo tee /etc/sudoers.d/pcpqa
   init_qa: |
     sudo systemctl start valkey
