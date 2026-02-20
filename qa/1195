@@ -39,18 +39,17 @@ do
     echo >$tmp/0.$suff
 done
 
+# using fixed V3 archive now
+#
+labelsize=808
+
 # just the label record, and an OK archive
 #
 for suff in 0 meta index
 do
-    if [ "$PCP_ARCHIVE_VERSION" = 3 ]
-    then
-	labelsize=808
-    else
-	labelsize=132
-    fi
-    dd if=tmparch/foo.$suff of=$tmp/1.$suff ibs=1 count=$labelsize >/dev/null 2>&1
-    cp tmparch/foo.$suff $tmp/2.$suff
+
+    dd if=archives/ok-foo_v3.$suff of=$tmp/1.$suff ibs=1 count=$labelsize >/dev/null 2>&1
+    cp archives/ok-foo_v3.$suff $tmp/2.$suff
 done
 
 # and now compressed versions of the .meta and .0 files
@@ -80,7 +79,7 @@ do
 done
 cd $here
 
-pmdumplog -a tmparch/foo >$tmp.ref
+pmdumplog -a archives/ok-foo_v3 >$tmp.ref
 echo "=== foo:2 expect no diffs ==="
 pmdumplog -a $tmp/2 | diff - $tmp.ref
 echo "=== foo:5 expect no diffs ==="
@@ -88,8 +87,8 @@ pmdumplog -a $tmp/5 | diff - $tmp.ref
 
 # diags for CI failure
 #
-echo "--- TI tmparch/foo --" >>$seq_full
-pmdumplog -t tmparch/foo >>$seq_full
+echo "--- TI archives/ok-foo_v3 --" >>$seq_full
+pmdumplog -t archives/ok-foo_v3 >>$seq_full
 echo "--- TI 2 --" >>$seq_full
 pmdumplog -t $tmp/2 >>$seq_full
 echo "--- TI 5 --" >>$seq_full
