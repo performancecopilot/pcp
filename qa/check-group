@@ -11,6 +11,8 @@
 # Note: there are some special group aliases, like folio, logutil,
 #	pmclient where $1 is a group name, but expands to multiple
 #	commands
+# Note: for the pmda.foo groups, the group name is replaced by some
+#	other signature to check if the PMDA is really being tested
 #
 
 tmp=${TMPDIR:-/tmp}/check-group-$$
@@ -169,6 +171,40 @@ do
 	    ) && echo $seq >>$tmp.tmp
 	    ;;
 
+	# pmda.foo ones simpler, but need per-PMDA logic ... some are
+	# just too hard, like all of the kernel PMDAs
+	#
+	pmda.linux|pmda.darwin|pmda.freebsd|pmda.netbsd|pmda.openbsd|pmda.solaris|pmda.aix|pmda.proc)
+	    echo "Sorry, platform PMDAs (like `echo "$1" | sed -e 's/pmda\.//'`) are just too hard to check"
+	    exit
+	    ;;
+
+	pmda.sample)
+	    echo "Sorry, the sample PMDA is omnipresent in QA tests and too hard to check"
+	    exit
+	    ;;
+
+	pmda.bpf)
+	    grep -q '^_pmdabpf_check$' $seq && echo $seq >>$tmp.tmp
+	    ;;
+
+	pmda.bcc)
+	    grep -q '^_pmdabcc_check$' $seq && echo $seq >>$tmp.tmp
+	    ;;
+
+	pmda.openmetrics)
+	    grep -q -E '^_pmdaopenmetrics_check( |$)' $seq && echo $seq >>$tmp.tmp
+	    ;;
+
+	pmda.opentelemetry)
+	    grep -q -E '^_pmdaopentelemetry_check( |$)' $seq && echo $seq >>$tmp.tmp
+	    ;;
+
+	pmda.*)
+	    echo "Oops, no recipe (yet) for reliably identifying tests involving the `echo "$1" | sed -e 's/pmda\.//'` PMDA"
+	    exit
+	    ;;
+
 	*)
 	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E "(^[ 	]*$1([ '\"]|$))|([ /'\"\`]$1([ '\"\`]|$))" >$tmp.debug \
@@ -230,10 +266,30 @@ then
 fi
 
 comm -13 $tmp.scripts $tmp.group >$tmp.tmp
+# may have been retired via really-retire leaving a stub
+# test but :retired in the group file
+#
+mv $tmp.tmp $tmp.notintest
+cat $tmp.notintest \
+| while read seq
+do
+    if grep -q "^$seq:retired" group
+    then
+	echo "$seq" >>$tmp.retired
+    else
+	echo "$seq" >>$tmp.tmp
+    fi
+done
 if [ -s $tmp.tmp ]
 then
     echo "$report_group in group and NOT in QA scripts ..."
     sort -n $tmp.tmp | sed -e 's/^/    /'
+    echo
+fi
+if [ -s $tmp.retired ]
+then
+    echo "$report_group in group and NOT in retired QA scripts (these are OK) ..."
+    sort -n $tmp.retired | sed -e 's/^/    /'
     echo
 fi
 
