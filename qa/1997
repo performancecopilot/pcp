@@ -30,6 +30,12 @@ pcp $archive_first nfsiostat
 echo && echo pcp-nfsiostat output : Display output when given specified number of samples
 pcp $archive_first nfsiostat -s 3
 
+echo && echo pcp-nfsiostat output : Display output when given specified number of sample with specified sampling interval
+pcp $archive_first nfsiostat -t 5 -s 4
+
+echo && echo pcp-nfsiostat output : Display output when given no interpolation option
+pcp $archive_first nfsiostat -u
+
 status=0
 exit
 
