@@ -504,17 +504,6 @@ S_pkg?	/usr/lib/python3.*/*-packages/openpyxl	[N/A (build optional)]
 slackpkg?	/usr/lib*/python*/*-packages/openpyxl/conftest.py	[N/A (build optional)]
 pacman?	/usr/lib/python3.*/*-packages/openpyxl	[extra/python-openpyxl (build optional)]
 brew?	/usr/local/lib/python3.*/*-packages/openpyxl/conftest.py	[pip3(openpyxl) (build optional)]
-# -- python bcc
-dpkg?	/usr/lib/python3/*-packages/bcc/__init__.py	[python3-bpfcc (build optional)]
-rpm?	/usr/lib/python3.*/*-packages/bcc/__init__.py	[python3[0-9]*-bcc (build optional)]
-emerge?	/usr/lib/python3.*/*-packages/bcc.py	[N/A (build optional)]
-pkgin?	/usr/pkg/lib/python3.*/*-packages/bcc.py	[py36-bcc (build optional)]
-pkg_add?	bcc.py				[N/A (build optional)]
-F_pkg?	/usr/local/lib/python3.*/*-packages/*/bcc.py	[N/A (build optional)]
-S_pkg?	/usr/lib/python3.*/*-packages/*/bcc.py	[N/A (build optional)]
-slackpkg?	/usr/lib*/python*/*-packages/*/*/bcc.py	[N/A (build optional)]
-pacman?	/usr/lib/python3.*/*-packages/bcc.py	[python-bcc (build optional)]
-brew?	/usr/local/lib/python3.*/*-packages/bcc/bcc.py	[pip3(bcc) (build optional)]
 # -- bpftrace
 dpkg?	bpftrace	[bpftrace (build optional)]
 rpm?	bpftrace	[bpftrace (build optional)]
@@ -1328,7 +1317,7 @@ S_pkg?		sensors		[N/A (QA optional)]
 slackpkg?	sensors		[lm_sensors (QA optional)]
 pacman?		sensors		[extra/lm_sensors (QA optional)]
 brew?		sensors		[N/A (QA optional)]
-# -- mkfs.xfs (bcc PMDA QA)
+# -- mkfs.xfs (pmdaxfs QA)
 dpkg?		mkfs.xfs	[xfsprogs (QA optional)]
 rpm?		mkfs.xfs	[xfsprogs (QA optional)]
 emerge?		mkfs.xfs	[? (QA optional)]
@@ -1339,9 +1328,6 @@ S_pkg?		mkfs.xfs	[N/A (QA optional)]
 slackpkg?	mkfs.xfs	[xfsprogs (QA optional)]
 pacman?		mkfs.xfs	[core/xfsprogs (QA optional)]
 brew?		mkfs.xfs	[N/A (QA optional)]
-# -- java (bcc PMDA QA)
-dpkg?		/usr/lib/jvm/java-*/lib/server/libjvm.so [openjdk-[0-9][0-9]*-jre-headless or openjdk-[0-9][0-9]*-jre (QA optional)]
-rpm?		/usr/lib/jvm/java-*/lib/server/libjvm.so [java-latest-openjdk-headless or java-[0-9][0-9]*-openjdk-headless (QA optional)]
 # -- valkey (pmproxy, pmseries QA)
 dpkg?		valkey-server	[valkey-server (QA optional)]
 dpkg?		valkey-cli	[valkey-cli or valkey-tools (QA optional)]
@@ -1379,7 +1365,7 @@ S_pkg?		redisearch.so	[N/A (QA optional)]
 slackpkg?	redisearch.so	[N/A (QA optional)]
 pacman?		redisearch.so	[N/A (QA optional)]
 brew?		redisearch.dylib	[RediSearch (QA optional)]
-# -- zpool (bcc PMDA QA)	# may need contrib & non-free repos enabled
+# -- zpool (pmdazfs QA)	# may need contrib & non-free repos enabled
 dpkg?		zpool		[zfsutils-linux (QA optional)]
 rpm?		zpool		[zfs-fuse (QA optional)]
 emerge?		zpool		[? (QA optional)]
@@ -1430,7 +1416,7 @@ slackpkg?	pstree		[procps-ng (QA optional)]
 pacman?		pstree		[core/psmisc (QA optional)]
 brew?		pstree		[? (QA optional)]
 
-# -- ss sockets statistics tool (for bcc PMDA QA)
+# -- ss sockets statistics tool (pmdasockets QA)
 #
 dpkg?		ss		[iproute2 (QA optional)]
 rpm?		ss		[iproute or iproute2 (QA optional)]
@@ -1443,7 +1429,7 @@ slackpkg?	ss		[iproute2 (QA optional)]
 pacman?		ss		[core/iproute2 (QA optional)]
 brew?		ss		[? (QA optional)]
 
-# -- tc sockets statistics tool (for bcc PMDA QA)
+# -- tc sockets statistics tool (pmdalio QA)
 #
 dpkg?		tc		[iproute2 (QA optional)]
 rpm?		tc		[iproute2 (QA optional)]
@@ -1574,19 +1560,6 @@ S_pkg?		jq			[text/jq (QA optional)]
 slackpkg?	jq			[N/A (QA optional)]
 pacman?		jq			[? (QA optional)]
 brew?		jq			[? (QA optional)]
-
-# -- tplist or tplist-bpfcc (for bcc PMDA QA)
-#
-dpkg?		tplist|tplist-bpfcc		[bpfcc-tools (QA optional)]
-rpm?		/usr/share/bcc/tools/tplist	[bcc-tools (QA optional)]
-emerge?		tplist|tplist-bpfcc		[? (QA optional)]
-pkgin?		tplist|tplist-bpfcc		[? (QA optional)]
-pkg_add?	tplist|tplist-bpfcc		[N/A (QA optional)]
-F_pkg?		tplist|tplist-bpfcc		[N/A (QA optional)]
-S_pkg?		tplist|tplist-bpfcc		[N/A (QA optional)]
-slackpkg?	tplist|tplist-bpfcc		[N/A (QA optional)]
-pacman?		tplist|tplist-bpfcc		[? (QA optional)]
-brew?		tplist|tplist-bpfcc		[? (QA optional)]
 
 # -- bpftrace-dbgsym (for bpftrace PMDA QA?)
 #

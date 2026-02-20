@@ -5,134 +5,14 @@
 # Copyright (c) 2020 Red Hat.
 #
 
+# test really-retired by nathans on 20 Feb 2026
+#
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1286
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.bcc
-
-_pmdabcc_check
-_pmdabcc_require_kernel_version 4 6
-which ss >/dev/null 2>&1 || _notrun "No ss binary installed"
-
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
-
-# Some combinations of distro and kernel are known to be "bad"
-# for some BPF modules
-#
-kernel=`uname -r`
-echo "$kernel" >>$seq_full
-case `admin/whatami`
-in
-    *Fedora\ 32\ *)
-	_notrun "bcc netproc module will not compile on Fedora 32"
-	;;
-    *Ubuntu\ 20.04\ *)
-	# works on 5.4 kernel, not on 5.8.0-1033-azure
-	#
-	case "$kernel"
-	in
-	    5.8.0-*-azure)
-		_notrun "bcc netproc module will not compile on Ubuntu kernel $kernel"
-		;;
-	esac
-	;;
-esac
-
-# The netproc BCC module uses the lookup_or_try_init() method that was
-# introduced in bcc v0.12.0 (released 11 Dec 2019), so determine the
-# bcc version and _notrun as appropriate.
-#
-# Like most things in Pythonland, it would appear there are many (more
-# that 6 according to google) ways to determine the version of a module,
-# but none of them are guaranteed to work!  The recipe below seems robust
-# for the bcc module.
-#
-cat <<'End-of-File' >$tmp.py
-import bcc
-print(bcc.__version__)
-End-of-File
-echo "bcc version ..." >>$seq_full
-version=`pmpython $tmp.py 2>>$seq_full`
-echo "$version" >>$seq_full
-case "$version"
-in
-    '')
-	    # failed to extract version (see $seq.full for more info) ...
-	    # but punt on running the test
-	    ;;
-
-    0.0.*|0.1[0-1].*)
-	    _notrun "need version >= 0.12.0 (not $version) for bcc Python module"
-	    ;;
-esac
-
-_pid_filter()
-{
-    sed \
-      -e "s/0*$1/SERVERPID/g" \
-      -e "s/0*$2/CLIENTPID/g" \
-      -e '/inst \[[0-9]/d' \
-    #end
-}
-
-cat <<EOF >$tmp.conf
-[pmda]
-modules = netproc
-prefix = bcc.
-[netproc]
-module = netproc
-cluster = 40
-pmda_indom_cache = False
-remove_stopped_processes = False
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-# Generate system activity for the BCC netproc module
-$python src/bcc_netproc.py server >> "$seq_full" &
-server_pid=$!
-
-# wait for server to listen on specified port
-for i in `seq 1 10`; do ss -lnt | grep -q :1234 && break; sleep 1; done
-if [ $i -ge 10 ]; then
-    echo "Server didn't open tcp/1234 in time, test failed"
-    exit 1
-fi
-
-$python src/bcc_netproc.py client >> "$seq_full" &
-client_pid=$!
-
-wait ${client_pid}
-wait ${server_pid}
-echo "server PID: ${server_pid}" >> "$seq_full"
-echo "client PID: ${client_pid}" >> "$seq_full"
-
-for metric in bcc.proc.net.tcp.send.calls \
-              bcc.proc.net.tcp.send.bytes \
-              bcc.proc.net.tcp.recv.calls \
-              bcc.proc.net.tcp.recv.bytes \
-              bcc.proc.net.udp.send.calls \
-              bcc.proc.net.udp.send.bytes \
-              bcc.proc.net.udp.recv.calls \
-              bcc.proc.net.udp.recv.bytes
-do
-    echo && echo && echo "=== report metric values for $metric ==="
-    pminfo -dfmtT $metric 2>&1 | tee -a $seq_full \
-    | _pid_filter ${server_pid} ${client_pid} \
-    | sort # sort to fix the non deterministic instance order
-
-done
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

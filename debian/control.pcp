@@ -20,7 +20,6 @@ Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 11),
 	?{libxml-tokeparser-perl}, ?{libjson-perl}, ?{libwww-perl},
 	?{libnet-snmp-perl}, ?{liblzma-dev}, ?{systemd-pkgconfig},
 	?{libsystemd-dev}, ?{clang},
-	?{python-bpfcc},
 	?{bpftrace},
 	?{llvm}, ?{libibumad-dev}, ?{libibmad-dev}, ?{libibverbs-dev},
 	?{libinih-dev}, ?{postfix}, ?{libxml-libxml-perl},
@@ -40,8 +39,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends},
 Recommends: libpcp-pmda-perl
 Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, redis-server,
-	?{bpftrace},
-	?{python-bpfcc}
+	?{bpftrace}
 Provides: dstat, pcp-webapi, pcp-manager
 Replaces: dstat, pcp-webapi, pcp-manager
 Breaks: pcp-doc (<< 7.1.0)

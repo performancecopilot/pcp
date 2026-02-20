@@ -12,7 +12,6 @@ avahi-devel
 avahi-tools
 bash
 bc
-bcc-tools
 bind-utils
 bison
 bpftrace
@@ -41,7 +40,6 @@ grep
 inih-devel
 iproute
 httpd
-java-latest-openjdk-headless
 jq
 kubernetes
 libbpf
@@ -96,7 +94,6 @@ postgresql
 psmisc
 pylint
 python3
-python3-bcc
 python3-devel
 python3-elasticsearch
 python3-libs

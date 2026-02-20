@@ -16,7 +16,7 @@ TESTS	= $(shell sed -n -e '/^[0-9][0-9]*:retired/d' -e '/^[0-9][0-9]*:reserved/d
 
 SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  archives badarchives views qt linux unbound cifs gpfs lustre ganglia \
-	  java mmv postfix perl ceph slurm tmparch sheet smart admin hacluster \
+	  mmv postfix perl ceph slurm tmparch sheet smart admin hacluster \
 	  sockets denki gfs2 farm pdudata rocestat guidellm vllmbench
 
 ifeq "$(HAVE_PYTHON)" "true"
@@ -84,7 +84,7 @@ COMMON = common.check common.config common.filter \
 	 common.containers common.compress \
 	 common.discovery common.python \
 	 common.openmetrics common.opentelemetry \
-	 common.bcc common.bpf common.bpftrace common.keys
+	 common.bpf common.bpftrace common.keys
 
 OTHERS = group triaged qa_hosts.primary README sanity.coverage \
 	 $(shell echo valgrind-suppress* helgrind-suppress*)

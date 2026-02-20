@@ -1,8 +1,0 @@
-// Copyright (C) 2018 Marko Myllynen <myllynen@redhat.com>
-// Licensed under the Apache License, Version 2.0 (the "License")
-
-struct tp_t {
-    char tp[64];
-};
-
-BPF_HASH(stats, struct tp_t, u64, TRACEPOINT_COUNT);

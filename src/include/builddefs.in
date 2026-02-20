@@ -291,7 +291,6 @@ HAVE_PYTHON_ORDEREDDICT = @have_python_OrderedDict@
 HAVE_PYTHON_INFLUXDB = @have_python_influxdb@
 HAVE_PYTHON_OPENPYXL = @have_python_openpyxl@
 HAVE_PYTHON_PYARROW = @have_python_pyarrow@
-HAVE_PYTHON_BPF = @have_python_BPF@
 
 # for desktop icons in a variety of img sizes
 HAVE_HICOLOR_ICONS = @have_hicolor_icons@
@@ -344,7 +343,6 @@ SYSTEMD_CFLAGS = @SYSTEMD_CFLAGS@
 SYSTEMD_LIBS = @SYSTEMD_LIBS@
 PFM_LIBS = @PFM_LIBS@
 IB_LIBS = @IB_LIBS@
-PMDA_BCC = @PMDA_BCC@
 PMDA_BPF = @PMDA_BPF@
 PMDA_BPFTRACE = @PMDA_BPFTRACE@
 PMDA_GFS2 = @PMDA_GFS2@

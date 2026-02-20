@@ -211,7 +211,7 @@ pmda.install
 pmda.activemq
 pmda.apache
 pmda.bash
-pmda.bcc
+#pmda.bcc		# note this group has been retired (20 Feb, 2026)
 pmda.bind2
 pmda.bpf
 pmda.bpftrace
@@ -1624,19 +1624,19 @@ telnet-probe
 1112 pmda.linux local
 1113 pcp ipcs python local
 1114 archive pmval multi-archive local pmlogextract kernel
-1115 pmda.bcc local python
-1116 pmda.bcc local python
-1117 pmda.bcc local python labels kernel
-1118 pmda.bcc local python labels
+1115:retired pmda.bcc local python
+1116:retired pmda.bcc local python
+1117:retired pmda.bcc local python labels kernel
+1118:retired pmda.bcc local python labels
 1119 pmlogsummary archive multi-archive decompress-xz local pmlogextract
 1120 pmda.openmetrics local python
 1121 pmda.linux local kernel
 1122 pmie local
 1123 pmchart local kernel x11
-1124 pmda.bcc local python
+1124:retired pmda.bcc local python
 1125:retired pmcollect
-1126 pmda.bcc local python
-1127 pmda.bcc local python
+1126:retired pmda.bcc local python
+1127:retired pmda.bcc local python
 1128 pmie local
 1129 derive local kernel
 1130 pcp2elasticsearch python pcp2xxx local pmjson
@@ -1659,38 +1659,38 @@ telnet-probe
 1147 logutil local
 1148 logutil local pmlogger_check
 1149 pmlogrewrite local
-1150 pmda.bcc local python
-1151 pmda.bcc local python
+1150:retired pmda.bcc local python
+1151:retired pmda.bcc local python
 1152:retired pmda.bcc local python
-1153 pmda.bcc local python
-1154 pmda.bcc local python
-1155 pmda.bcc local python
-1156 pmda.bcc local python
-1157 pmda.bcc local python
-1158 pmda.bcc local python
+1153:retired pmda.bcc local python
+1154:retired pmda.bcc local python
+1155:retired pmda.bcc local python
+1156:retired pmda.bcc local python
+1157:retired pmda.bcc local python
+1158:retired pmda.bcc local python
 1159 pmlogger local pmlogdump kernel
 1160 pmda.netcheck local python
 1161 pmda.netcheck local python
 1162 find-filter local
 1163 pmlogrewrite local pmlogdump
 1164 pmda.linux local valgrind
-1165 pmda.bcc local python
+1165:retired pmda.bcc local python
 1166 libpcp local
 1167 pmlogdump labels archive local pmrep python kernel
-1168 pmrep pmda.bcc local python
+1168:retired pmrep pmda.bcc local python
 1169 pmrep python local kernel
-1170 pmda.bcc local python
-1171 pmda.bcc local python
-1172 pmda.bcc local python
-1173 pmda.bcc local python
+1170:retired pmda.bcc local python
+1171:retired pmda.bcc local python
+1172:retired pmda.bcc local python
+1173:retired pmda.bcc local python
 1174 threads valgrind local helgrind
-1175 pmda.bcc local python
-1176 pmda.bcc local python
+1175:retired pmda.bcc local python
+1176:retired pmda.bcc local python
 1177 pmns derive libpcp pmlogger local kernel
-1178 pmda.bcc local python
-1179 pmda.bcc local python
+1178:retired pmda.bcc local python
+1179:retired pmda.bcc local python
 1180 logutil local pmrep python pmlogger_daily_report
-1181 pmda.bcc local python
+1181:retired pmda.bcc local python
 1182 libpcp local
 1183 pmrep python archive local
 1184 pminfo pmseries local
@@ -1795,7 +1795,7 @@ telnet-probe
 1283 dbpmda local
 1284 pmrep python pmda.linux local
 1285 pmlogsummary local
-1286 pmda.bcc local python
+1286:retired pmda.bcc local python
 1287 pmda.install pmda.openmetrics local python
 1288 archive pmval local
 1289 pmval archive multi-archive decompress-xz local pmlogextract

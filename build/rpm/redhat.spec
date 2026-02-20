@@ -82,18 +82,7 @@ ExcludeArch: %{ix86}
 %global perl_interpreter perl
 %endif
 
-# support for pmdabcc, check bcc.spec for supported architectures of bcc
-%if 0%{?fedora} >= 25 || 0%{?rhel} > 6
-%ifarch x86_64 %{power64} aarch64 s390x riscv64
-%global disable_bcc 0
-%else
-%global disable_bcc 1
-%endif
-%else
-%global disable_bcc 1
-%endif
-
-# support for pmdabpf, check bcc.spec for supported architectures of libbpf-tools
+# pmdabpf, check bcc.spec for supported architectures of libbpf-tools
 %if 0%{?fedora} >= 37 || 0%{?rhel} > 8
 %ifarch x86_64 %{power64} aarch64 s390x riscv64
 %global disable_bpf 0
@@ -104,7 +93,7 @@ ExcludeArch: %{ix86}
 %global disable_bpf 1
 %endif
 
-# support for pmdabpftrace, check bpftrace.spec for supported architectures of bpftrace
+# pmdabpftrace, check bpftrace.spec for supported architectures of bpftrace
 %if 0%{?fedora} >= 30 || 0%{?rhel} > 7
 %ifarch x86_64 %{power64} aarch64 s390x riscv64
 %global disable_bpftrace 0
@@ -365,12 +354,6 @@ Requires: pcp-selinux = %{version}-%{release}
 %global _with_statsd --with-pmdastatsd=no
 %else
 %global _with_statsd --with-pmdastatsd=yes
-%endif
-
-%if %{disable_bcc}
-%global _with_bcc --with-pmdabcc=no
-%else
-%global _with_bcc --with-pmdabcc=yes
 %endif
 
 %if %{disable_bpf}
@@ -1440,23 +1423,6 @@ collecting metrics about the Device Mapper Cache and Thin Client.
 # end pcp-pmda-dm
 
 
-%if !%{disable_bcc}
-#
-# pcp-pmda-bcc
-#
-%package pmda-bcc
-License: Apache-2.0 AND GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics from eBPF/BCC modules
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: python3-bcc
-Requires: python3-pcp
-%description pmda-bcc
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-extracting performance metrics from eBPF/BCC Python modules.
-# end pcp-pmda-bcc
-%endif
-
 %if !%{disable_bpf}
 #
 # pcp-pmda-bpf
@@ -1467,6 +1433,7 @@ Summary: Performance Co-Pilot (PCP) metrics from eBPF ELF modules
 URL: https://pcp.io
 Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
 Requires: libbpf
+Obsoletes: pcp-pmda-bcc < 7.1.1
 BuildRequires: libbpf-devel clang llvm
 %description pmda-bpf
 This package contains the PCP Performance Metrics Domain Agent (PMDA) for
@@ -2269,7 +2236,7 @@ updated policy package.
 _build=`echo %{release} | sed -e 's/\..*$//'`
 sed -i "/PACKAGE_BUILD/s/=[0-9]*/=$_build/" VERSION.pcp
 
-%configure %{?_with_multilib} %{?_with_nondebug} %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bcc} %{?_with_bpf} %{?_with_bpftrace} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
+%configure %{?_with_multilib} %{?_with_nondebug} %{?_with_initd} %{?_with_doc} %{?_with_dstat} %{?_with_ib} %{?_with_gfs2} %{?_with_statsd} %{?_with_perfevent} %{?_with_bpf} %{?_with_bpftrace} %{?_with_mongodb} %{?_with_mysql} %{?_with_snmp} %{?_with_nutcracker}
 make %{?_smp_mflags} default_pcp
 
 %install
@@ -2462,7 +2429,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/activemq(/|$)' >pcp-pmda-activemq-files
 basic_manifest | keep '(etc/pcp|pmdas)/amdgpu(/|$)' >pcp-pmda-amdgpu-files
 basic_manifest | keep '(etc/pcp|pmdas)/apache(/|$)' >pcp-pmda-apache-files
 basic_manifest | keep '(etc/pcp|pmdas)/bash(/|$)' >pcp-pmda-bash-files
-basic_manifest | keep '(etc/pcp|pmdas)/bcc(/|$)' >pcp-pmda-bcc-files
 basic_manifest | keep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
 basic_manifest | keep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
 basic_manifest | keep '(etc/pcp|pmdas)/bpf(/|$)' >pcp-pmda-bpf-files
@@ -2542,7 +2508,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/zswap(/|$)' >pcp-pmda-zswap-files
 rm -f packages.list
 for pmda_package in \
     activemq amdgpu apache \
-    bash bcc bind2 bonding bpf bpftrace \
+    bash bind2 bonding bpf bpftrace \
     cifs cisco \
     dbping denki docker dm ds389 ds389log \
     elasticsearch \
@@ -2892,11 +2858,6 @@ exit 0
 
 %preun pmda-dm
 %{pmda_remove "$1" "dm"}
-
-%if !%{disable_bcc}
-%preun pmda-bcc
-%{pmda_remove "$1" "bcc"}
-%endif
 
 %if !%{disable_bpf}
 %preun pmda-bpf
@@ -3258,10 +3219,6 @@ fi
 %endif
 
 %files pmda-dm -f pcp-pmda-dm-files.rpm
-
-%if !%{disable_bcc}
-%files pmda-bcc -f pcp-pmda-bcc-files.rpm
-%endif
 
 %if !%{disable_bpf}
 %files pmda-bpf -f pcp-pmda-bpf-files.rpm

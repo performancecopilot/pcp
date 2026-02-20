@@ -1,2 +1,5 @@
 QA output created by 749
-PASS: probe_hits=NNNN
+test really-retired by nathans on 20 Feb 2026
+
+to see the original output
+ 	$ git diff 9a576b8076 -- 749.out

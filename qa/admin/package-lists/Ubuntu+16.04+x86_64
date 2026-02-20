@@ -87,7 +87,6 @@ memcached
 mysql-client-core-5.7
 net-tools
 nmap
-openjdk-9-jre-headless
 openssl
 perl
 perl-modules-5.22

@@ -141,11 +141,6 @@ AC_ARG_WITH([pmdastatsd],
     [do_pmdastatsd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdastatsd=$withval"],
     [do_pmdastatsd=check])
 
-AC_ARG_WITH([pmdabcc],
-    [AS_HELP_STRING([--with-pmdabcc],[enable BCC pmda (default is on)])],
-    [do_pmdabcc=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabcc=$withval"],
-    [do_pmdabcc=check])
-
 AC_ARG_WITH([pmdabpf],
     [AS_HELP_STRING([--with-pmdabpf],[enable BPF pmda (default is on)])],
     [do_pmdabpf=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-pmdabpf=$withval"],
@@ -1146,8 +1141,6 @@ AC_DEFUN([PCP_CHECK_PYTHON_MODULE],
 	eval have_python_$1=false
     fi
   ])
-PCP_CHECK_PYTHON_MODULE(BPF, [from bcc import BPF])
-AC_SUBST(have_python_BPF)
 PCP_CHECK_PYTHON_MODULE(OrderedDict, [from collections import OrderedDict])
 AC_SUBST(have_python_OrderedDict)
 PCP_CHECK_PYTHON_MODULE(openpyxl)
@@ -1171,16 +1164,6 @@ then
 fi
 AC_SUBST(have_python_influxdb)
 if $have_python_influxdb; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
-
-AC_MSG_CHECKING([if the bcc PMDA should be included])
-pmda_bcc=false
-AS_IF([test "x$do_pmdabcc" = "xyes"], [pmda_bcc=true])
-AS_IF([test "x$do_pmdabcc" = "xcheck"], [
-    dnl BCC PMDA needs OrderedDict and BPF Python modules
-    $have_python_BPF && $have_python_OrderedDict && pmda_bcc=true
-])
-AC_SUBST(PMDA_BCC, $pmda_bcc)
-if $pmda_bcc; then AC_MSG_RESULT(yes); else AC_MSG_RESULT(no); fi
 
 PKG_CHECK_MODULES([libelf], [libelf], [have_libelf=true], [have_libelf=false])
 AC_SUBST(HAVE_LIBELF, [$have_libelf])

@@ -13,7 +13,6 @@ autoconf
 avahi-utils
 bash
 bc
-bcc-tools
 bind-utils
 bison
 bpftrace
@@ -42,7 +41,6 @@ git
 git-core
 grep
 iproute2
-java-21-openjdk-headless
 jq
 libavahi-devel
 libbpf-devel
@@ -93,7 +91,6 @@ perl-rrdtool
 pkgconf-pkg-config
 postgresql
 psmisc
-python3-bcc
 python313-base
 python313-Pillow
 python313-curses

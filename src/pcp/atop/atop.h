@@ -258,10 +258,9 @@ char *		extract_string_index(struct pmResult *, struct pmDesc *, int, char *, in
 int		present_metric_value(struct pmResult *, int);
 
 /*
-** Optional pmdabpf(1) or pmdabcc(1) netproc eBPF module interfaces
+** Optional pmdabpf(1) netproc eBPF module interfaces
  */
 void		netproc_probe(void);
-void		netproc_update_tasks(struct tstat **, unsigned long);
 void		netbpfproc_update_tasks(struct tstat **, unsigned long);
 #define	netatop_signoff() do { } while (0)
 #define netatop_exiterase() do { } while (0)

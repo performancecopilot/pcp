@@ -105,13 +105,6 @@ else
     echo 's/\?\{libibmad-dev}(, *|$)//' >>$tmp.sed
 fi
 
-if $PMDA_BCC
-then
-    echo 's/\?\{python-bpfcc}(, *|$)/python3-bpfcc [amd64 arm64 armhf s390x ppc64]\\1/' >>$tmp.sed
-else
-    echo 's/\?\{python-bpfcc}(, *|$)//' >>$tmp.sed
-fi
-
 if $PMDA_BPFTRACE
 then
     echo 's/\?\{bpftrace}(, *|$)/bpftrace (>= 0.9.2) [amd64 arm64]\\1/' >>$tmp.sed

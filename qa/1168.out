@@ -1,52 +1,5 @@
 QA output created by 1168
+test really-retired by nathans on 20 Feb 2026
 
-=== bcc agent installation ===
-Info: Initializing, currently in 'notready' state.
-Info: Enabled modules:
-Info: ['klockstat']
-Info: Configuring modules:
-Info: klockstat
-Info: Modules configured.
-Info: Initializing modules:
-Info: klockstat
-Info: klockstat: Tracing PID.
-Info: klockstat: Initialized.
-Info: Modules initialized.
-Info: Registering metrics:
-Info: klockstat
-Info: Metrics registered.
-Info: Registering helpers:
-Info: klockstat
-Info: Helpers registered.
-Info: Initializing, currently in 'notready' state.
-Info: Enabled modules:
-Info: ['klockstat']
-Info: Configuring modules:
-Info: klockstat
-Info: Modules configured.
-Info: Initializing modules:
-Info: klockstat
-Info: klockstat: Tracing PID.
-Info: klockstat: Initialized.
-Info: Modules initialized.
-Info: Registering metrics:
-Info: klockstat
-Info: Metrics registered.
-Info: Registering helpers:
-Info: klockstat
-Info: Helpers registered.
-Updating the Performance Metrics Name Space (PMNS) ...
-Terminate PMDA if already installed ...
-[...install files, make output...]
-Updating the PMCD control file, and notifying PMCD ...
-Check bcc metrics have appeared ... X metrics and X values
-
-=== pmrep output ===
-[ ] - bcc.kernel.lock.mutex.spin.avg["inst"] - nanosec
-
-=== remove bcc agent ===
-Culling the Performance Metrics Name Space ...
-bcc ... done
-Updating the PMCD control file, and notifying PMCD ...
-[...removing files...]
-Check bcc metrics have gone away ... OK
+to see the original output
+ 	$ git diff 9a576b8076 -- 1168.out

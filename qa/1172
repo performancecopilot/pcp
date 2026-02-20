@@ -5,53 +5,14 @@
 # Copyright (c) 2018 Red Hat.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-. ./common.bcc
-
-_pmdabcc_check
-_pmdabcc_require_kernel_version 4 7
-which ausyscall >/dev/null 2>&1 || _notrun "No ausyscall binary found"
-
-# if pmcd is running in another container, this test will not
-# produce the expected results
+# test really-retired by nathans on 20 Feb 2026
 #
-numpmcd=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '/[p]mcd ' | wc -l | sed -e 's/  *//g'`
-[ $numpmcd -gt 1 ] && _notrun "pmcd running in another container?"
+# to see the original test
+# 	$ git diff 9a576b8076 -- 1172
 
-status=1       # failure is the default!
-signal=$PCP_BINADM_DIR/pmsignal
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
 
-cat <<EOF >$tmp.conf
-# Installed by PCP QA test $seq on `date`
-[pmda]
-modules = syscount
-prefix = bcc.
-[syscount]
-module = syscount
-cluster = 15
-process = pmcd
-EOF
-
-_pmdabcc_try_compile $tmp.conf
-
-_prepare_pmda bcc
-trap "_pmdabcc_cleanup; exit \$status" 0 1 2 3 15
-_stop_auto_restart pmcd
-
-# real QA test starts here
-_pmdabcc_install <$tmp.conf
-_pmdabcc_wait_for_metric
-
-echo "=== generate syscall activity ==="
-for i in `seq 1 10`; do pminfo -f bcc > /dev/null 2>&1 ; done
-
-echo "=== report metric values ==="
-pminfo -dfmtT bcc.proc.syscall.count 2>&1 | tee -a $seq_full \
-| _value_filter_nonzero
-
-_pmdabcc_remove
-
-status=0
-exit
+_notrun 'retired and culled'

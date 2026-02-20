@@ -37,7 +37,7 @@ PLPMDAS = bonding netfilter zimbra postgresql \
 	ds389 ds389log activemq lustre gpfs slurm \
 	bind2 redis nutcracker
 
-PYPMDAS = bcc gluster zswap unbound mic haproxy \
+PYPMDAS = gluster zswap unbound mic haproxy \
 	libvirt lio openmetrics opentelemetry \
 	elasticsearch bpftrace mssql netcheck \
 	rabbitmq openvswitch nfsclient mongodb \
