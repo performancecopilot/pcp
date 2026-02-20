@@ -316,7 +316,16 @@ run_test "network.tcp.inerrs.short >= 0" "validate_metric network.tcp.inerrs.sho
 run_test "network.tcp.inerrs.memdrop >= 0" "validate_metric network.tcp.inerrs.memdrop non-negative"
 echo
 
-# Test 15: Process metrics (darwin_proc PMDA)
+# Test 15: System Limits
+echo "Test Group: System Limits"
+run_test "kernel.limits.maxproc > 0" "validate_metric kernel.limits.maxproc positive"
+run_test "kernel.limits.maxprocperuid > 0" "validate_metric kernel.limits.maxprocperuid positive"
+run_test "kernel.limits.maxfiles > 0" "validate_metric kernel.limits.maxfiles positive"
+run_test "kernel.limits.maxfilesperproc > 0" "validate_metric kernel.limits.maxfilesperproc positive"
+run_test "vfs.vnodes.recycled >= 0" "validate_metric vfs.vnodes.recycled non-negative"
+echo
+
+# Test 16: Process metrics (darwin_proc PMDA)
 echo "Test Group: Process Metrics"
 run_test "proc.nprocs > 0" "validate_metric proc.nprocs positive"
 run_test "proc.psinfo.pid exists" "pminfo 'proc.psinfo.pid'"
@@ -325,7 +334,7 @@ run_test "proc.memory.size exists" "pminfo 'proc.memory.size'"
 run_test "proc.memory.rss exists" "pminfo 'proc.memory.rss'"
 echo
 
-# Test 16: Process I/O statistics (Step 3.1)
+# Test 17: Process I/O statistics (Step 3.1)
 echo "Test Group: Process I/O Statistics"
 run_test "proc.io.read_bytes exists" "pminfo 'proc.io.read_bytes'"
 run_test "proc.io.write_bytes exists" "pminfo 'proc.io.write_bytes'"
@@ -335,12 +344,131 @@ run_test "proc.io.read_bytes fetchable" "pminfo -f 'proc.io.read_bytes'"
 run_test "proc.io.write_bytes fetchable" "pminfo -f 'proc.io.write_bytes'"
 echo
 
-# Test 17: Process file descriptor count (Step 3.2)
+# Test 18: Process file descriptor count (Step 3.2)
 echo "Test Group: Process File Descriptor Count"
 run_test "proc.fd.count exists" "pminfo 'proc.fd.count'"
 run_test "proc.fd.count fetchable" "pminfo -f 'proc.fd.count'"
 # At least one process (pminfo itself) should have open FDs
 run_test "some process has FDs > 0" "pminfo -f 'proc.fd.count' | grep -q 'value [1-9][0-9]*'"
+echo
+
+# Test 19: GPU metrics
+echo "Test Group: GPU Metrics"
+if [ -f "$SCRIPT_DIR/test-gpu-metrics.sh" ]; then
+    echo "Running GPU metrics validation..."
+    if "$SCRIPT_DIR/test-gpu-metrics.sh"; then
+        echo -e "${GREEN}✓ GPU metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ GPU metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ GPU metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 20: Power metrics
+echo "Test Group: Power Metrics"
+if [ -f "$SCRIPT_DIR/test-power-metrics.sh" ]; then
+    echo "Running Power metrics validation..."
+    if "$SCRIPT_DIR/test-power-metrics.sh"; then
+        echo -e "${GREEN}✓ Power metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Power metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Power metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 21: IPC metrics
+echo "Test Group: IPC Metrics"
+if [ -f "$SCRIPT_DIR/test-ipc-metrics.sh" ]; then
+    echo "Running IPC metrics validation..."
+    if "$SCRIPT_DIR/test-ipc-metrics.sh"; then
+        echo -e "${GREEN}✓ IPC metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ IPC metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ IPC metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 22: IPv6 metrics
+echo "Test Group: IPv6 Metrics"
+if [ -f "$SCRIPT_DIR/test-ipv6-metrics.sh" ]; then
+    echo "Running IPv6 metrics validation..."
+    if "$SCRIPT_DIR/test-ipv6-metrics.sh"; then
+        echo -e "${GREEN}✓ IPv6 metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ IPv6 metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ IPv6 metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 23: Process QoS CPU time metrics
+echo "Test Group: Process QoS CPU Time Metrics"
+if [ -f "$SCRIPT_DIR/test-proc-qos-metrics.sh" ]; then
+    echo "Running Process QoS metrics validation..."
+    if "$SCRIPT_DIR/test-proc-qos-metrics.sh"; then
+        echo -e "${GREEN}✓ Process QoS metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Process QoS metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Process QoS metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 24: Extended disk I/O metrics
+echo "Test Group: Extended Disk I/O Metrics"
+if [ -f "$SCRIPT_DIR/test-disk-extended-metrics.sh" ]; then
+    echo "Running Extended Disk I/O metrics validation..."
+    if "$SCRIPT_DIR/test-disk-extended-metrics.sh"; then
+        echo -e "${GREEN}✓ Extended Disk I/O metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ Extended Disk I/O metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ Extended Disk I/O metrics test not found, skipping${NC}"
+fi
+echo
+
+# Test 25: APFS metrics
+echo "Test Group: APFS Metrics"
+if [ -f "$SCRIPT_DIR/test-apfs-metrics.sh" ]; then
+    echo "Running APFS metrics validation..."
+    if "$SCRIPT_DIR/test-apfs-metrics.sh"; then
+        echo -e "${GREEN}✓ APFS metrics validation passed${NC}"
+        TESTS_PASSED=$((TESTS_PASSED + 1))
+    else
+        echo -e "${RED}✗ APFS metrics validation failed${NC}"
+        TESTS_FAILED=$((TESTS_FAILED + 1))
+    fi
+    TESTS_RUN=$((TESTS_RUN + 1))
+else
+    echo -e "${YELLOW}⚠ APFS metrics test not found, skipping${NC}"
+fi
 echo
 
 # Summary

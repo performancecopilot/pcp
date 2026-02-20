@@ -90,12 +90,47 @@ Instantaneous number of processes with virtual size of zero (kernel threads)
 
 @ proc.memory.size instantaneous virtual size of process
 @ proc.memory.rss instantaneous resident size of process
+@ proc.memory.footprint physical memory footprint of process
+Instantaneous physical memory footprint for this process, reported by the
+kernel. This is typically more accurate than RSS for macOS memory accounting.
+Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
+
+@ proc.cpu.qos.default CPU time at default QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the default
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.maintenance CPU time at maintenance QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the maintenance
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.background CPU time at background QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the background
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.utility CPU time at utility QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the utility
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.legacy CPU time at legacy QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the legacy
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.user_initiated CPU time at user-initiated QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the user-initiated
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
+
+@ proc.cpu.qos.user_interactive CPU time at user-interactive QoS tier
+Cumulative CPU time (in nanoseconds) consumed by this process at the user-interactive
+Quality of Service tier. Obtained via proc_pid_rusage(RUSAGE_INFO_V4).
 
 @ proc.io.read_bytes cumulative bytes read from disk by process
 Cumulative count of bytes read from disk by this process since it started.
 Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
 @ proc.io.write_bytes cumulative bytes written to disk by process
 Cumulative count of bytes written to disk by this process since it started.
+Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
+@ proc.io.logical_writes cumulative logical write operations by process
+Cumulative count of logical write operations by this process since it started.
 Obtained via proc_pid_rusage(RUSAGE_INFO_V3).
 
 @ proc.fd.count number of open file descriptors for process
@@ -120,3 +155,11 @@ This setting is only visible to the active client context.  In other
 words, storing into this metric has no effect for other monitoring
 tools.  See proc.control.all.threads, if that is the desired outcome.
 Only pmStore(3) can effectively set this metric (pmstore(1) cannot).
+
+@ proc.net.tcp_count number of TCP sockets for this process
+Count of TCP (IPv4 and IPv6) sockets for this process.
+Obtained via proc_pidinfo(PROC_PIDLISTFDS) and proc_pidfdinfo(PROC_PIDFDSOCKETINFO).
+
+@ proc.net.udp_count number of UDP sockets for this process
+Count of UDP (IPv4 and IPv6) sockets for this process.
+Obtained via proc_pidinfo(PROC_PIDLISTFDS) and proc_pidfdinfo(PROC_PIDFDSOCKETINFO).

@@ -2,6 +2,25 @@
 
 Fast iteration tools for Darwin PMDA development on macOS.
 
+## ⚠️ macOS Development Constraints
+
+1. **PCP is NOT installed locally** - Don't run `pminfo`/`pmval`/`pmprobe`. Read `src/pmdas/darwin/pmns` instead.
+2. **Commit before VM tests** - Tart VM only sees committed git changes.
+3. **Unit tests = local, Integration tests = VM only**
+
+### Git Commit Requirement
+
+**ALL changes MUST be committed to git BEFORE running Tart VM tests.**
+
+This includes:
+- Source code changes (`src/pmdas/darwin*`)
+- Build/test scripts in THIS directory (`build/mac/`)
+- Installation scripts, test fixtures, etc.
+
+The Tart VM clones the git repository - uncommitted local changes are invisible to it.
+
+---
+
 ## Prerequisites (One-Time Setup)
 
 PCP must be fully built before using quick builds:
@@ -15,7 +34,7 @@ This takes 5-30 minutes and only needs to be done once. It generates headers, bu
 
 **Verify setup:**
 ```bash
-cd dev/darwin/dev
+cd dev/darwin
 make check-deps
 ```
 
@@ -31,7 +50,7 @@ Builds PMDA (~5-10s) and runs unit tests (~10-20s). Runs integration tests if pm
 
 ### Build Only
 ```bash
-cd dev/darwin/dev
+cd dev/darwin
 make clean && make
 ```
 
@@ -52,11 +71,15 @@ cd build/mac/test
 ./run-unit-tests.sh
 ```
 
-**Integration tests** (requires PCP installed and pmcd running):
-```bash
-cd build/mac/test/integration
-./run-integration-tests.sh
-```
+**Integration tests** (Tart VM only - do NOT run locally):
+
+Integration tests require PCP installed and pmcd running. The Tart VM provides this environment.
+
+**Before running:**
+1. Commit all changes to git (source code AND build/mac scripts)
+2. Use `/macos-qa-test` skill or `macos-darwin-pmda-qa` agent
+
+The VM clones the git repo, so uncommitted changes are invisible
 
 ### Centralized Test Orchestration
 Quick test runners available in `build/mac/test/`:
@@ -68,7 +91,13 @@ Quick test runners available in `build/mac/test/`:
 
 1. Edit source: `src/pmdas/darwin/pmda.c`
 2. Update PMNS: `src/pmdas/darwin/pmns`
-3. Quick build: `cd dev/darwin/dev && make`
+3. Quick build: `cd dev/darwin && make`
 4. Add test: `src/pmdas/darwin/test/test-<cluster>.txt`
 5. Run tests: `cd build/mac/test && ./run-all-tests.sh`
+
+## Detailed Documentation
+
+For in-depth procedures and troubleshooting:
+- `MACOS_DEVELOPMENT.md` - Tart VM setup for clean-room builds
+- `qa/TESTING.md` - pmcd launchctl test plan
 

@@ -78,6 +78,8 @@ enum {
     CLUSTER_PROC_MEM,
     CLUSTER_PROC_IO,
     CLUSTER_PROC_FD,
+    CLUSTER_PROC_QOS,
+    CLUSTER_PROCNET,
     NUM_CLUSTERS
 };
 static pmdaMetric metrictab[] = {
@@ -224,6 +226,9 @@ static pmdaMetric metrictab[] = {
 /* proc.memory.rss */
   { NULL, { PMDA_PMID(CLUSTER_PROC_MEM, 1), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+/* proc.memory.footprint */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_MEM, 2), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
 
 /* proc.io.read_bytes */
   { NULL, { PMDA_PMID(CLUSTER_PROC_IO, 0), PM_TYPE_U64, PROC_INDOM,
@@ -231,9 +236,41 @@ static pmdaMetric metrictab[] = {
 /* proc.io.write_bytes */
   { NULL, { PMDA_PMID(CLUSTER_PROC_IO, 1), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) } },
+/* proc.io.logical_writes */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_IO, 2), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) } },
 
 /* proc.fd.count */
   { NULL, { PMDA_PMID(CLUSTER_PROC_FD, 0), PM_TYPE_U32, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+
+/* proc.cpu.qos.default */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_QOS, 0), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+/* proc.cpu.qos.maintenance */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_QOS, 1), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+/* proc.cpu.qos.background */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_QOS, 2), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+/* proc.cpu.qos.utility */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_QOS, 3), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+/* proc.cpu.qos.legacy */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_QOS, 4), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+/* proc.cpu.qos.user_initiated */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_QOS, 5), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+/* proc.cpu.qos.user_interactive */
+  { NULL, { PMDA_PMID(CLUSTER_PROC_QOS, 6), PM_TYPE_U64, PROC_INDOM,
+    PM_SEM_COUNTER, PMDA_PMUNITS(0,1,0,0,PM_TIME_NSEC,0) } },
+
+/* proc.net.tcp_count */
+  { NULL, { PMDA_PMID(CLUSTER_PROCNET, 0), PM_TYPE_U32, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
+/* proc.net.udp_count */
+  { NULL, { PMDA_PMID(CLUSTER_PROCNET, 1), PM_TYPE_U32, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) } },
 
 /*
@@ -552,6 +589,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 1: /* proc.memory.rss */
 	    atom->ull = proc->rss;
 	    break;
+	case 2: /* proc.memory.footprint */
+	    atom->ull = proc->phys_footprint;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -569,6 +609,9 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	case 1: /* proc.io.write_bytes */
 	    atom->ull = proc->write_bytes;
 	    break;
+	case 2: /* proc.io.logical_writes */
+	    atom->ull = proc->logical_writes;
+	    break;
 	default:
 	    return PM_ERR_PMID;
 	}
@@ -582,6 +625,51 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	switch (item) {
 	case 0: /* proc.fd.count */
 	    atom->ul = proc->fd_count;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_PROC_QOS:
+	if ((proc = darwin_proc_lookup(inst)) == NULL)
+	    return 0;
+	switch (item) {
+	case 0: /* proc.cpu.qos.default */
+	    atom->ull = proc->qos_default;
+	    break;
+	case 1: /* proc.cpu.qos.maintenance */
+	    atom->ull = proc->qos_maintenance;
+	    break;
+	case 2: /* proc.cpu.qos.background */
+	    atom->ull = proc->qos_background;
+	    break;
+	case 3: /* proc.cpu.qos.utility */
+	    atom->ull = proc->qos_utility;
+	    break;
+	case 4: /* proc.cpu.qos.legacy */
+	    atom->ull = proc->qos_legacy;
+	    break;
+	case 5: /* proc.cpu.qos.user_initiated */
+	    atom->ull = proc->qos_user_initiated;
+	    break;
+	case 6: /* proc.cpu.qos.user_interactive */
+	    atom->ull = proc->qos_user_interactive;
+	    break;
+	default:
+	    return PM_ERR_PMID;
+	}
+	break;
+
+    case CLUSTER_PROCNET:
+	if ((proc = darwin_proc_lookup(inst)) == NULL)
+	    return 0;
+	switch (item) {
+	case 0: /* proc.net.tcp_count */
+	    atom->ul = proc->tcp_count;
+	    break;
+	case 1: /* proc.net.udp_count */
+	    atom->ul = proc->udp_count;
 	    break;
 	default:
 	    return PM_ERR_PMID;
