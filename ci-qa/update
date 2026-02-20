@@ -6,42 +6,52 @@
 # and .out.bad files from the most recent nightly (full) QA
 # run.
 #
-# Usage: update [-d] [-c runner] [run_id]
+# Usage: update [-do] [-c runner] [run_id]
 #
 # With -c, overlay downloads with the .full and .out.bad files
 # from the most recent CI QA run for just one runner (host).
 #
 
-usage="Usage: update [-d?] [-c runner] [run_id]"
+usage="Usage: update [-do?] [-c runner] [run_id]"
 runner=''
 tmp=${TMPDIR:-/tmp}/ci-qa-update-$$
 debug=false
+old=false
 while [ $# -gt 0 ]
 do
-    if [ X"$1" = X"-d" ]
-    then
-	shift
-	tmp=tmp
-	debug=true
-    elif [ X"$1" = X"-c" ]
-    then
-	if [ $# -gt 1 ]
-	then
+    case "$1"
+    in
+	-d)
 	    shift
-	    runner="$1"
-	    shift
-	else
-	    echo "Error: -c needs <runner> argument"
+	    tmp=`pwd`/tmp
+	    debug=true
+	    ;;
+	-c)
+	    if [ $# -gt 1 ]
+	    then
+		shift
+		runner="$1"
+		shift
+	    else
+		echo "Error: -c needs <runner> argument"
+		exit 1
+	    fi
+	    ;;
+	-o)	# old download algorithm
+	    old=true
+	    ;;
+	-?|--help)
+	    echo "$usage"
+	    exit 0
+	    ;;
+	-*)
+	    echo "$usage"
 	    exit 1
-	fi
-    elif [ X"$1" = X"-?" -o X"$1" = X"--help" ]
-    then
-	echo "$usage"
-	exit 0
-    else
-	echo "$usage"
-	exit 1
-    fi
+	    ;;
+	*)
+	    break
+	    ;;
+    esac
 done
 
 sts=1
@@ -54,6 +64,19 @@ fi
 
 rm -f save.html
 
+if ! $old
+then
+    # need cleartext (BIG SECURITY ALERT) github access token in
+    # $HOME/.github/token
+    #
+    if [ ! -f $HOME/.github/token ]
+    then
+	echo "Error: new download algorithm needs githun access token in \$HOME/.github/token"
+	exit 1
+    fi
+    GH_TOKEN=`cat $HOME/.github/token`
+fi
+
 if [ $# -eq 0 ]
 then
     # get Actions page
@@ -63,7 +86,7 @@ then
     then
 	:
     else
-	echo "Arrgh! wget failed for Actions page"
+	echo "Error: wget failed for Actions page"
 	exit
     fi
 
@@ -84,7 +107,7 @@ then
     run_id=`sed -n -e 1p <$tmp.runs`
     if [ -z "$run_id" ]
     then
-	echo "Arrgh! failed to get RunId from Actions page"
+	echo "Error: failed to get RunId from Actions page"
 	echo "HTML is in save.html"
 	cp $tmp.actions save.html
 	exit
@@ -104,7 +127,7 @@ if wget -O $tmp.run -q "https://github.com/performancecopilot/pcp/actions/runs/$
 then
     :
 else
-    echo "Arrgh! wget failed for Artifacts page"
+    echo "Error: wget failed for Artifacts page"
     exit
 fi
 
@@ -115,7 +138,7 @@ fi
 lineno=`sed -n -e '/jobs* completed/=' $tmp.run`
 if [ -z "$lineno" ]
 then
-    echo "Arrgh! No jobs* completed text in Artifacts page"
+    echo "Error: No jobs* completed text in Artifacts page"
     echo "HTML is in save.html"
     cp $tmp.run save.html
     exit
@@ -143,7 +166,7 @@ then
 	exit
     fi
 else
-    echo "Arrgh! Failed to extract done ($done) and/or jobs ($jobs) from Artifacts page"
+    echo "Error: Failed to extract done ($done) and/or jobs ($jobs) from Artifacts page"
     echo "HTML is in save.html"
     cp $tmp.run save.html
     exit
@@ -174,7 +197,6 @@ then
 	    exit
 	fi
     fi
-    echo "$run_id" >last_run_id
 
     rm -rf test-*
 else
@@ -182,12 +204,27 @@ else
     then
 	echo "$runner" >$tmp.runners
     else
-	echo "Arrgh! -c $runner, not in list of runners ..."
+	echo "Error: -c $runner, not in list of runners ..."
 	sed -e 's/^/    /' $tmp.runners
 	exit
     fi
 fi
 
+if ! $old
+then
+    # build runner -> artifact map
+    # <code id="artifact-5561229137-hash" style="white-space: ...
+    # <code id="artifact-5563176475-hash" ...
+    #                    ^^^^^^^^^^ here
+    #
+    sed -e 's/^[ 	]*//' <$tmp.run \
+    | awk '
+/^test-/	{ runner = $1 }
+/<code id=/	{ print runner " " $0 }' \
+    | sed -E -e 's/(.*)<code id="artifact-([0-9][0-9]*)-.*/\1 \2/' >$tmp.map
+fi
+
+rm -f $tmp.abort
 UNZIP=-o; export UNZIP
 cat $tmp.runners \
 | while read runner
@@ -198,7 +235,8 @@ do
 	if ! mkdir "$runner"
 	then
 	    echo
-	    echo "Arrgh! mkdir $runner failed"
+	    echo "Error: mkdir $runner failed"
+	    touch $tmp.abort
 	    exit
 	fi
     fi
@@ -207,20 +245,56 @@ do
     then
 	if [ ! -d tmp ]
 	then
-	    if ! mkdir tmp
-	    then
+	if ! mkdir tmp
+	then
 		echo
-		echo "Arrgh! mkdir $runner/tmp failed"
+		echo "Error: mkdir $runner/tmp failed"
+		touch $tmp.abort
 		exit
 	    fi
 	fi
 	cd tmp
     fi
-    if ! gh run download $run_id --name "$runner" >$tmp.err 2>&1
+    if $old
     then
-	cat $tmp.err
-	echo "Warning: gh-run-download errors"
+	if ! gh run download $run_id --name "$runner" >$tmp.err 2>&1
+	then
+	    cat $tmp.err
+	    echo "+ gh run download $run_id --name $runner"
+	    echo "Error: gh run download errors"
+	    touch $tmp.abort
+	    exit
+	fi
+    else
+	# gh run download ... --name ... is busted as of 19 Feb 2026
+	#
+	# this is truely groteque!  this week, URLs look like ...
+	# https://api.github.com/repos/performancecopilot/pcp/actions/artifacts/5567370890/zip
+	#
+	art_id=`grep "^$runner " <$tmp.map | sed -e 's/.* //'`
+	if [ -z "$art_id" ]
+	then
+	    cat $tmp.map
+	    echo "Error: no ArtifactId for RunId $runner in this list ..."
+	    touch $tmp.abort
+	    exit
+	fi
+	url="https://api.github.com/repos/performancecopilot/pcp/actions/artifacts/$art_id/zip"
+	if ! curl -s -H "Authorization: Bearer $GH_TOKEN" -L --output artifact.zip $url
+	then
+	    echo "Error: curl failed for ArtifactId $art_id"
+	    touch $tmp.abort
+	    exit
+	fi
+	if ! unzip -q -x artifact.zip
+	then
+	    echo "Error: unzip failed for ArtifactId $art_id"
+	    touch $tmp.abort
+	    exit
+	fi
+	$debug || rm artifact.zip
     fi
+
     rm -f $tmp.err
     nfail=`ls *.out.bad 2>/dev/null | wc -l | sed -e 's/ //g'`
     if [ "$nfail" = 0 ]
@@ -259,11 +333,17 @@ do
     cd ..
 done
 
+[ -f $tmp.abort ] && exit
+
 if [ -z "$runner" ]
 then
     # fix symlinks and short names for qa-summary
     #
     ./cleanup
 fi
+
+# don't need to do this one again
+#
+echo "$run_id" >last_run_id
 
 sts=0
