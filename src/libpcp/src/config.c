@@ -448,8 +448,15 @@ pmGetUsername(char **username)
  * Details of runtime features available in the built libpcp
  */
 
+/*
+ * either enabled() nor disabled() might *not* be used, depending
+ * on the platform, build options and phase of the moon
+ * ... these pragmas quieten gcc
+ */
+#pragma GCC diagnostic ignored "-Wunused-function"
 static const char *enabled(void) { return "true"; }
 static const char *disabled(void) { return "false"; }
+#pragma GCC diagnostic warning "-Wunused-function"
 
 #define STRINGIFY(s)		#s
 #define TO_STRING(s)		STRINGIFY(s)
