@@ -22,10 +22,10 @@
 \f3pcp-nfsiostat\f1 \- Emulate iostat for NFS mount points using /proc/self/mountstats
 
 .SH SYNOPSIS
-\fBpcp\fP [\fBpcp options\fP] \fBnfsiostat\fP [\fB-s\fP \fBsamples\fP] [\fB-a\fP \fBarchive\fP] [\fB-Z\fP \fB--timezone\fP] [\fB-z\fP \fB--hostzone\fP] [\fB-V\fP \fBVersion\fP]
+\fBpcp\fP [\fBpcp options\fP] \fBnfsiostat\fP [\fB-a\fP \fBarchive\fP] [\fB-S\fP \fBstart\fP] [\fB-T\fP \fBfinish\fP] [\fB-O\fP \fBorigin\fP] [\fB-s\fP \fBsamples\fP] [\fB-t\fP \fBinterval\fP] [\fB-Z\fP \fB--timezone\fP] [\fB-h\fP \fB--host\fP] [\fB-z\fP \fB--hostzone\fP] [\fB-V\fP \fBVersion\fP]
 
 .SH DESCRIPTION
-The\fB pcp-nfsiostat \fPcommand reports client-side\fB Network File System (NFS) \fPI/O statistics for each mounted NFS filesystem. For every NFS mountpoint, the output consists of a summary section followed by detailed read and write statistics blocks. These statistics include operation rates, data throughput, latency, retransmissions, queueing delays, and error counts. By default,\fB pcp-nfsiostat \fPmonitors NFS mountpoints on the local host and reports live metrics collected via the \fB PCP NFS PMDA\fP. When an archive is specified, historical metrics are reported instead.
+The\fB pcp-nfsiostat \fPcommand reports client-side\fB Network File System (NFS) \fPI/O statistics for each mounted NFS filesystem. For every NFS mountpoint, the output consists of a summary section followed by detailed read and write statistics blocks. These statistics include operation rates, data throughput, latency, retransmissions, queueing delays, and error counts. By default,\fB pcp-nfsiostat \fPmonitors NFS mountpoints on the local host and reports live metrics collected via the \fB PCP NFS PMDA\fP , or from an alternative host if specified. When an archive is specified, historical metrics are reported instead.
 
 .SH OUTPUT FORMAT
 Statistics are reported per mounted NFS filesystem using the following layout:
@@ -82,19 +82,39 @@ Number of failed operations and failure percentage.
 
 .SH OPTIONS
 .TP
-.BR \-a ", " \-\-archive " " I archive
+.BR \-a ", " \-\-archive " " \fI archive\fR
 Fetch NFS I/O statistics from the specified PCP archive.
 
 .TP
-.BR \-s ", " \-\-samples " " I samples
+.BR \-s ", " \-\-samples " " \fI samples\fR
 Number of samples to collect before exiting.
+
+.TP
+.BR \-t ", " \-\-interval " " \fI interval\fR
+Set the interval between two samples. The default is one second.
+
+.TP
+.BR \-S ", " \-\-start " " \fI start\fR
+Set the start of the time window when replaying an archive.
+
+.TP
+.BR \-T ", " \-\-finish " " \fI finish\fR
+Set the end of the time window when replaying an archive.
+
+.TP
+.BR \-O ", " \-\-origin " " \fI origin\fR
+Set the initial sample time within the time window when replaying an archive.
+
+.TP
+.BR \-h ", " \-\-host " " \fI host\fR
+Fetch NFS I/O statistics from the specified host.
 
 .TP
 .BR \-z ", " \-\-hostzone
 Set the reporting timezone to the local timezone of the metrics source.
 
 .TP
-.BR \-Z ", " \-\-timezone " " I tz
+.BR \-Z ", " \-\-timezone " " \fI tz\fR
 Set the reporting timezone.
 
 .TP
