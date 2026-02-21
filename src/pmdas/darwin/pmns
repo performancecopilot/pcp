@@ -5,6 +5,8 @@ hinv {
     ncpu		DARWIN:8:71
     nfilesys		DARWIN:5:31
     ndisk		DARWIN:7:46
+    ngpu		DARWIN:20:99
+    nfan		DARWIN:25:5
     machine		DARWIN:0:2
 }
 
@@ -17,6 +19,7 @@ kernel {
     uname
     all
     percpu
+    limits
 }
 
 kernel.uname {
@@ -38,6 +41,13 @@ kernel.all {
     nusers		DARWIN:18:187
     nroots		DARWIN:18:188
     nsessions	DARWIN:18:189
+}
+
+kernel.limits {
+    maxproc		DARWIN:19:0
+    maxprocperuid	DARWIN:19:1
+    maxfiles		DARWIN:19:2
+    maxfilesperproc	DARWIN:19:3
 }
 
 kernel.all.cpu {
@@ -94,8 +104,14 @@ mem.util {
 }
 
 mem.compressor {
-    pages		DARWIN:1:133
-    uncompressed_pages	DARWIN:1:134
+    pages			DARWIN:1:133
+    uncompressed_pages		DARWIN:1:134
+    swapouts_under_30s		DARWIN:1:135
+    swapouts_under_60s		DARWIN:1:136
+    swapouts_under_300s		DARWIN:1:137
+    thrashing_detected		DARWIN:1:138
+    major_compactions		DARWIN:1:139
+    lz4_compressions		DARWIN:1:140
 }
 
 swap {
@@ -123,6 +139,7 @@ filesys {
 disk {
     dev
     all
+    apfs
 }
 
 disk.dev {
@@ -138,6 +155,14 @@ disk.dev {
     read_time		DARWIN:7:56
     write_time		DARWIN:7:57
     total_time		DARWIN:7:58
+    read_errors		DARWIN:7:71
+    write_errors	DARWIN:7:72
+    read_retries	DARWIN:7:73
+    write_retries	DARWIN:7:74
+    total_read_time	DARWIN:7:75
+    total_write_time	DARWIN:7:76
+    avgrq_sz		DARWIN:7:77
+    await		DARWIN:7:78
 }
 
 disk.all {
@@ -153,12 +178,46 @@ disk.all {
     read_time		DARWIN:7:68
     write_time		DARWIN:7:69
     total_time		DARWIN:7:70
+    read_errors		DARWIN:7:79
+    write_errors	DARWIN:7:80
+    read_retries	DARWIN:7:81
+    write_retries	DARWIN:7:82
+    total_read_time	DARWIN:7:83
+    total_write_time	DARWIN:7:84
+    avgrq_sz		DARWIN:7:85
+    await		DARWIN:7:86
+}
+
+disk.apfs {
+    ncontainer		DARWIN:24:87
+    nvolume		DARWIN:24:88
+    container
+    volume
+}
+
+disk.apfs.container {
+    block_size		DARWIN:24:89
+    bytes_read		DARWIN:24:90
+    bytes_written	DARWIN:24:91
+    read_requests	DARWIN:24:92
+    write_requests	DARWIN:24:93
+    transactions	DARWIN:24:94
+    cache_hits		DARWIN:24:95
+    cache_evictions	DARWIN:24:96
+    read_errors		DARWIN:24:97
+    write_errors	DARWIN:24:98
+}
+
+disk.apfs.volume {
+    encrypted		DARWIN:24:99
+    locked		DARWIN:24:100
 }
 
 network {
     interface
     udp
     icmp
+    ipv6
     sockstat
     tcpconn
     tcp
@@ -220,6 +279,15 @@ network.icmp {
     inechoreps		DARWIN:14:152
     outechos		DARWIN:14:153
     outechoreps		DARWIN:14:154
+}
+
+network.ipv6 {
+    inreceives		DARWIN:23:187
+    outforwarded	DARWIN:23:188
+    indiscards		DARWIN:23:189
+    outdiscards		DARWIN:23:190
+    fragcreates		DARWIN:23:191
+    reasmoks		DARWIN:23:192
 }
 
 network.sockstat {
@@ -379,4 +447,89 @@ vfs.files {
 vfs.vnodes {
     count		DARWIN:12:138
     max			DARWIN:12:139
+    recycled		DARWIN:19:4
+}
+
+gpu {
+    util		DARWIN:20:0
+    memory
+}
+
+gpu.memory {
+    used		DARWIN:20:1
+    free		DARWIN:20:2
+}
+
+ipc {
+    mbuf
+    maxsockbuf	DARWIN:21:1
+    somaxconn	DARWIN:21:2
+    socket
+}
+
+ipc.mbuf {
+    clusters	DARWIN:21:0
+}
+
+ipc.socket {
+    defunct		DARWIN:21:3
+}
+
+power {
+    battery
+    ac
+    source		DARWIN:22:12
+}
+
+power.battery {
+    present		DARWIN:22:0
+    charging		DARWIN:22:1
+    charge		DARWIN:22:2
+    time_remaining	DARWIN:22:3
+    health		DARWIN:22:4
+    cycle_count		DARWIN:22:5
+    temperature		DARWIN:22:6
+    voltage		DARWIN:22:7
+    amperage		DARWIN:22:8
+    capacity
+}
+
+power.battery.capacity {
+    design		DARWIN:22:9
+    max			DARWIN:22:10
+}
+
+power.ac {
+    connected		DARWIN:22:11
+}
+
+thermal {
+    cpu
+    gpu
+    package		DARWIN:25:3
+    ambient		DARWIN:25:4
+    fan
+    pressure
+}
+
+thermal.cpu {
+    die			DARWIN:25:0
+    proximity		DARWIN:25:1
+}
+
+thermal.gpu {
+    die			DARWIN:25:2
+}
+
+thermal.fan {
+    speed		DARWIN:25:6
+    target		DARWIN:25:7
+    mode		DARWIN:25:8
+    min			DARWIN:25:9
+    max			DARWIN:25:10
+}
+
+thermal.pressure {
+    level		DARWIN:25:11
+    state		DARWIN:25:12
 }

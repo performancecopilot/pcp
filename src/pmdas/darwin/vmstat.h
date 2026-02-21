@@ -22,6 +22,20 @@
 
 struct xsw_usage;
 
+/*
+ * Memory compressor deep dive statistics
+ * Timing buckets and health metrics from sysctl
+ */
+struct compressor_stats {
+    uint64_t swapouts_under_30s;
+    uint64_t swapouts_under_60s;
+    uint64_t swapouts_under_300s;
+    uint64_t thrashing_detected;
+    uint64_t major_compactions;
+    uint64_t lz4_compressions;
+};
+
 extern int refresh_vmstat(struct vm_statistics64 *);
 extern int refresh_swap(struct xsw_usage *);
+extern int refresh_compressor_stats(struct compressor_stats *);
 extern int fetch_vmstat(unsigned int, unsigned int, pmAtomValue *);
