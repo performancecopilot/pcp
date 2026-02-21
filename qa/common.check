@@ -703,7 +703,7 @@ _systemctl_status()
 	LC_CTYPE=C SYSTEMD_COLORS=false systemctl --no-pager -l status "$1.service"
 	echo "--- end systemctl status for $1.service ---"
 	echo "--- start journalctl entries in last minute for -u $1 ---"
-	journalctl --since -1m -u $1 -l --no-page
+	$sudo journalctl --since -1m -u $1 -l --no-page
 	echo "--- end recent journalctl entries for -u $1 ---"
     fi
 }
