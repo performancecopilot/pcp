@@ -24,6 +24,10 @@ test -f $here/src/libibumad.$DSO_SUFFIX || \
 test -f $here/src/libibverbs.$DSO_SUFFIX || \
 	_notrun "No InfiniBand mock verbs library is available"
 
+# PMDA needs rdma(1)
+#
+which rdma >/dev/null 2>&1 || _notrun "rdma(1) not installed"
+
 _filter()
 {
     tee -a $seq_full \
@@ -45,6 +49,15 @@ if grep -q 'No IB kernel support or incorrect ABI version' $tmp.tmp
 then
     _notrun "No InfiniBand support here"
 fi
+
+# check rdma(1)
+#
+echo "+++ rdma res show +++" >>$seq_full 2>&1
+rdma res show >>$seq_full 2>&1
+echo "+++ rdma res show mlx5_0 +++" >>$seq_full 2>&1
+rdma res show mlx5_0 >>$seq_full 2>&1
+echo "+++ rdma res show mlx5_1 +++" >>$seq_full 2>&1
+rdma res show mlx5_1 >>$seq_full 2>&1
 
 # real QA test starts here
 root=$tmp.root
