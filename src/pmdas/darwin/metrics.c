@@ -1076,102 +1076,102 @@ pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_GPU,99), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* darwin.gpu.util */
+/* gpu.util */
   { NULL,
     { PMDA_PMID(CLUSTER_GPU,0), PM_TYPE_U32, GPU_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.gpu.memory.used */
+/* gpu.memory.used */
   { NULL,
     { PMDA_PMID(CLUSTER_GPU,1), PM_TYPE_U64, GPU_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
-/* darwin.gpu.memory.free */
+/* gpu.memory.free */
   { NULL,
     { PMDA_PMID(CLUSTER_GPU,2), PM_TYPE_U64, GPU_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
-/* darwin.ipc.mbuf.clusters */
+/* ipc.mbuf.clusters */
   { &mach_ipc.mbuf_clusters,
     { PMDA_PMID(CLUSTER_IPC,0), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* darwin.ipc.maxsockbuf */
+/* ipc.maxsockbuf */
   { &mach_ipc.max_sockbuf,
     { PMDA_PMID(CLUSTER_IPC,1), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 
-/* darwin.ipc.somaxconn */
+/* ipc.somaxconn */
   { &mach_ipc.somaxconn,
     { PMDA_PMID(CLUSTER_IPC,2), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* darwin.ipc.socket.defunct */
+/* ipc.socket.defunct */
   { &mach_ipc.defunct_calls,
     { PMDA_PMID(CLUSTER_IPC,3), PM_TYPE_U64, PM_INDOM_NULL,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* darwin.power.battery.present */
+/* power.battery.present */
   { &mach_power.battery_present,
     { PMDA_PMID(CLUSTER_POWER,0), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.battery.charging */
+/* power.battery.charging */
   { &mach_power.charging,
     { PMDA_PMID(CLUSTER_POWER,1), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.battery.charge */
+/* power.battery.charge */
   { &mach_power.charge_percent,
     { PMDA_PMID(CLUSTER_POWER,2), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.battery.time_remaining */
+/* power.battery.time_remaining */
   { &mach_power.time_remaining,
     { PMDA_PMID(CLUSTER_POWER,3), PM_TYPE_32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,1,0,0,PM_TIME_MIN,0) }, },
 
-/* darwin.power.battery.health */
+/* power.battery.health */
   { &mach_power.health_percent,
     { PMDA_PMID(CLUSTER_POWER,4), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.battery.cycle_count */
+/* power.battery.cycle_count */
   { &mach_power.cycle_count,
     { PMDA_PMID(CLUSTER_POWER,5), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
-/* darwin.power.battery.temperature */
+/* power.battery.temperature */
   { &mach_power.temperature,
     { PMDA_PMID(CLUSTER_POWER,6), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.battery.voltage */
+/* power.battery.voltage */
   { &mach_power.voltage_mv,
     { PMDA_PMID(CLUSTER_POWER,7), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.battery.amperage */
+/* power.battery.amperage */
   { &mach_power.amperage_ma,
     { PMDA_PMID(CLUSTER_POWER,8), PM_TYPE_32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.battery.capacity.design */
+/* power.battery.capacity.design */
   { &mach_power.design_capacity_mah,
     { PMDA_PMID(CLUSTER_POWER,9), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.battery.capacity.max */
+/* power.battery.capacity.max */
   { &mach_power.max_capacity_mah,
     { PMDA_PMID(CLUSTER_POWER,10), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.ac.connected */
+/* power.ac.connected */
   { &mach_power.ac_connected,
     { PMDA_PMID(CLUSTER_POWER,11), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.power.source */
+/* power.source */
   { &mach_power.power_source,
     { PMDA_PMID(CLUSTER_POWER,12), PM_TYPE_STRING, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
@@ -1181,67 +1181,67 @@ pmdaMetric metrictab[] = {
  * Requires SMC access on Apple Silicon/Intel Macs
  */
 
-/* darwin.thermal.cpu.die */
+/* thermal.cpu.die */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,0), PM_TYPE_FLOAT, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.cpu.proximity */
+/* thermal.cpu.proximity */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,1), PM_TYPE_FLOAT, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.gpu.die */
+/* thermal.gpu.die */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,2), PM_TYPE_FLOAT, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.package */
+/* thermal.package */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,3), PM_TYPE_FLOAT, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.ambient */
+/* thermal.ambient */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,4), PM_TYPE_FLOAT, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.hinv.nfan */
+/* hinv.nfan */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,5), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_DISCRETE, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.fan.speed */
+/* thermal.fan.speed */
   { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
     { PMDA_PMID(CLUSTER_THERMAL,6), PM_TYPE_FLOAT, FAN_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.fan.target */
+/* thermal.fan.target */
   { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
     { PMDA_PMID(CLUSTER_THERMAL,7), PM_TYPE_FLOAT, FAN_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.fan.mode */
+/* thermal.fan.mode */
   { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
     { PMDA_PMID(CLUSTER_THERMAL,8), PM_TYPE_U32, FAN_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.fan.min */
+/* thermal.fan.min */
   { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
     { PMDA_PMID(CLUSTER_THERMAL,9), PM_TYPE_FLOAT, FAN_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.fan.max */
+/* thermal.fan.max */
   { NULL,  /* Fetched via fetch_thermal(), per-fan instance */
     { PMDA_PMID(CLUSTER_THERMAL,10), PM_TYPE_FLOAT, FAN_INDOM,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.pressure.level */
+/* thermal.pressure.level */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,11), PM_TYPE_U32, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },
 
-/* darwin.thermal.pressure.state */
+/* thermal.pressure.state */
   { NULL,  /* Fetched via fetch_thermal() */
     { PMDA_PMID(CLUSTER_THERMAL,12), PM_TYPE_STRING, PM_INDOM_NULL,
       PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) }, },

@@ -157,13 +157,13 @@ fetch_gpu(unsigned int item, unsigned int inst, pmAtomValue *atom)
         return PM_ERR_INST;
 
     switch (item) {
-    case 0:  /* darwin.gpu.util */
+    case 0:  /* gpu.util */
         atom->ul = mach_gpu.gpus[inst].utilization;
         break;
-    case 1:  /* darwin.gpu.memory.used */
+    case 1:  /* gpu.memory.used */
         atom->ull = mach_gpu.gpus[inst].memory_used;
         break;
-    case 2:  /* darwin.gpu.memory.free */
+    case 2:  /* gpu.memory.free */
         atom->ull = mach_gpu.gpus[inst].memory_total - mach_gpu.gpus[inst].memory_used;
         break;
     default:

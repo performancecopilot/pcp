@@ -149,17 +149,12 @@ When developing on macOS (`Platform: darwin` in environment):
 
 ### ⚠️ Critical Constraints
 
-1. **PCP is NOT installed on the development host**
-   - NEVER run `pminfo`, `pmval`, `pmprobe` locally - they won't work
-   - To check metrics: Read `src/pmdas/darwin/pmns` directly
+1. **Stage changes before VM tests**
+   - The Tart VM accesses the filesystem directly — `git add` is the minimum required
+   - Unstaged changes in `src/pmdas/darwin*` AND `build/mac/` are INVISIBLE to the VM
+   - A full commit also works; either way, run `/macos-qa-test` after staging
 
-2. **Git commit required before VM tests**
-   - The Tart VM clones the git repository
-   - Uncommitted local changes are INVISIBLE to the VM
-   - This includes changes in `src/pmdas/darwin*` AND `build/mac/`
-   - Always commit before running `/macos-qa-test`
-
-3. **Test environments**
+2. **Test environments**
    - Unit tests: Run locally (no PCP needed)
    - Integration tests: Tart VM only (`/macos-qa-test`)
 
