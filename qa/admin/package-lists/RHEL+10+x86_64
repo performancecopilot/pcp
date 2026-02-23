@@ -107,7 +107,6 @@ python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
-python3-six
 qt6-qtbase-devel
 qt6-qtsvg-devel
 rdma-core

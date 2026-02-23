@@ -104,7 +104,6 @@ python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
-python3-six
 python36-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel

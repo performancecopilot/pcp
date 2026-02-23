@@ -60,7 +60,6 @@ py311-prometheus-client
 py311-requests
 py311-rtslib-fb
 py311-setuptools
-py311-six
 pylint-py311
 python3
 qt5-buildtools

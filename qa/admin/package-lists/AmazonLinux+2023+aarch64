@@ -93,7 +93,6 @@ python3-pymongo
 python3-requests
 python3-rtslib
 python3-setuptools
-python3-six
 rdma-core-devel
 readline-devel
 rpm-build

@@ -68,7 +68,6 @@ extra/python-psycopg2
 extra/python-pylint
 extra/python-requests
 extra/python-setuptools
-extra/python-six
 extra/qt5-base
 extra/qt5-svg
 core/readline

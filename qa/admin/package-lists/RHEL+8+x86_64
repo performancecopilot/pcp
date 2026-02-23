@@ -100,7 +100,6 @@ python3-pymongo
 python39-requests
 python3-rtslib
 python39-setuptools
-python39-six
 python39-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel

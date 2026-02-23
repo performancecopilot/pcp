@@ -120,7 +120,6 @@ python3-pymongo
 python3-pyodbc
 python3-requests
 python3-setuptools
-python3-six
 qtbase5-dev
 qtbase5-dev-tools
 qtchooser

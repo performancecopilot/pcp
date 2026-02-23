@@ -101,7 +101,6 @@ python36-libvirt
 python36-lxml
 python36-pillow
 python36-requests
-python36-six
 qt-devel
 qt5-qtbase-devel
 qt5-qtsvg-devel

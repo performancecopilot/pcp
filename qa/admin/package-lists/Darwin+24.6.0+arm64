@@ -48,7 +48,6 @@ readline
 requests pip3
 sed
 setuptools pip3
-six pip3
 smartmontools
 socat
 sqlite

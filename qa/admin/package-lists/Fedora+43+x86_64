@@ -115,7 +115,6 @@ python3-pyodbc
 python3-requests
 python3-rtslib
 python3-setuptools
-python3-six
 qt5-qtbase-devel
 qt5-qtsvg-devel
 qtchooser
