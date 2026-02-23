@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # GPU metrics validation test
-# Ensures darwin.gpu.* metrics work correctly on macOS
+# Ensures gpu.* metrics work correctly on macOS
 #
 
 set -u
