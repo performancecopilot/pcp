@@ -52,12 +52,12 @@ fi
 
 # check rdma(1)
 #
-echo "+++ rdma res show +++" >>$seq_full 2>&1
-rdma res show >>$seq_full 2>&1
-echo "+++ rdma res show mlx5_0 +++" >>$seq_full 2>&1
-rdma res show mlx5_0 >>$seq_full 2>&1
-echo "+++ rdma res show mlx5_1 +++" >>$seq_full 2>&1
-rdma res show mlx5_1 >>$seq_full 2>&1
+#debug# echo "+++ rdma res show +++" >>$seq_full 2>&1
+#debug# rdma res show >>$seq_full 2>&1
+#debug# echo "+++ rdma res show mlx5_0 +++" >>$seq_full 2>&1
+#debug# rdma res show mlx5_0 >>$seq_full 2>&1
+#debug# echo "+++ rdma res show mlx5_1 +++" >>$seq_full 2>&1
+#debug# rdma res show mlx5_1 >>$seq_full 2>&1
 
 # real QA test starts here
 root=$tmp.root
@@ -90,6 +90,10 @@ fi
 cd $here
 
 LD_LIBRARY_PATH=$here/src:$LD_LIBRARY_PATH; export LD_LIBRARY_PATH
+
+# for "fake" rdma(1)
+#
+PATH=$here/infiniband:$PATH; export PATH
 
 for tgz in $here/infiniband/ib-root-*.tgz
 do

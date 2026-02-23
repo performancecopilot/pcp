@@ -17,7 +17,8 @@ infiniband.hca.res.pd PMID: 91.0.19 [Protection domains allocated]
     Semantics: discrete  Units: none
 Help:
 Number of protection domains currently allocated on this HCA.
-No value(s) available!
+    inst [N or "mlx5_0"] value 42
+    inst [N or "mlx5_1"] value 43
 
 === Port state metrics ===
 
@@ -95,7 +96,8 @@ infiniband.hca.res.pd PMID: 91.0.19 [Protection domains allocated]
     Semantics: discrete  Units: none
 Help:
 Number of protection domains currently allocated on this HCA.
-No value(s) available!
+    inst [N or "mlx5_0"] value 42
+    inst [N or "mlx5_1"] value 43
 
 === Port state metrics ===
 

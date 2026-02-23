@@ -1,0 +1,21 @@
+#!/bin/sh
+#
+# fake rdma(1) for QA
+#
+# we have this from CI ...
+# $ rmda res show mlx5_0
+# produces
+# 0: mlx5_0: pd 2 cq 2 qp 0 cm_id 0 mr 0 ctx 0 srq 2 
+#
+
+if [ $# -ne 3 ]
+then
+    echo "fake-rdma: Error: only know how to do rdma res show <instance>"
+    exit 1
+fi
+
+slot=`echo $3 | sed -e 's/.*_//'`
+[ -z "$slot" ] && slot=0
+pd=`expr $slot + 42`
+echo "$slot: $3: pd $pd cq 2 qp 0 cm_id 0 mr 0 ctx 0 srq 2"
+exit 0
