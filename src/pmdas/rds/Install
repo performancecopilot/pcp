@@ -17,11 +17,9 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=rds
+domain=255
 python_opt=true
 daemon_opt=false
-
-
-$PCP_PYTHON_PROG $PCP_PMDAS_DIR/rds/pyprep
 
 #
 # See pmcd(1) man page. PMDA starts up in the "not ready" state.
