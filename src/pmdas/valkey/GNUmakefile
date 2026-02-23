@@ -35,7 +35,9 @@ LIBVALKEY_XFILES = $(LIBVALKEY_HFILES) $(LIBVALKEY_CFILES)
 
 CFILES		= pmdavalkey.c $(LIBVALKEY_CFILES)
 
-LLDLIBS		= $(PCP_PMDALIB)
+# deps/libvalkey/src/read.c calls isfinite(), so -lm needed
+#
+LLDLIBS		= $(PCP_PMDALIB) -lm
 LCFLAGS		= -I. -Ideps/libvalkey/include/valkey -Ideps/libvalkey/include -Ideps/libvalkey/src
 
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
