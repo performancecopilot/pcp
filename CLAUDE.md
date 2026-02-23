@@ -98,6 +98,10 @@ PMDAs collect metrics from specific subsystems. Key directories in `src/pmdas/`:
 - **libpcp_trace**: Event trace instrumentation
 - **libpcp_import**: Data import for PCP archives
 
+## Available Agents
+
+- `pcp-code-reviewer` - Reviews code against PCP project standards (whitespace, naming, structure, PCP patterns)
+
 ## Development Guidelines
 
 ### QA Testing Philosophy
@@ -138,3 +142,42 @@ cd qa && ./check -g archive # Archive tests
 
 ### Platform Support
 PCP supports Linux, macOS, Windows (MinGW), AIX, and Solaris. Tests should be written to be portable or use `_notrun()` for platform-specific limitations.
+
+## macOS Development (Darwin Platform Only)
+
+When developing on macOS (`Platform: darwin` in environment):
+
+### ⚠️ Critical Constraints
+
+1. **Stage changes before VM tests**
+   - The Tart VM accesses the filesystem directly — `git add` is the minimum required
+   - Unstaged changes in `src/pmdas/darwin*` AND `build/mac/` are INVISIBLE to the VM
+   - A full commit also works; either way, run `/macos-qa-test` after staging
+
+2. **Test environments**
+   - Unit tests: Run locally (no PCP needed)
+   - Integration tests: Tart VM only (`/macos-qa-test`)
+
+### macOS-Specific Agent
+
+- `macos-darwin-pmda-qa` - Runs integration tests in isolated Tart VM
+
+### Quick Start
+```bash
+./Makepkgs --verbose              # One-time: full build (5-30 min)
+cd build/mac/test && ./run-all-tests.sh  # Daily: build + test (20-30s)
+```
+
+### Key Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `build/mac/` | Test orchestration, PKG packaging, Tart VMs |
+| `dev/darwin/` | Quick-compile tools (~10s vs 30min) |
+| `src/pmdas/darwin/` | Darwin PMDA source code |
+| `src/pmdas/darwin_proc/` | Darwin process PMDA source |
+
+### Documentation
+
+- `build/mac/CLAUDE.md` - Development workflow, test commands
+- `build/mac/MACOS_DEVELOPMENT.md` - Tart VM clean-room builds

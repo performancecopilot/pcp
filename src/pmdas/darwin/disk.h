@@ -30,12 +30,18 @@ typedef struct diskstat {
     __uint64_t	read_time;
     __uint64_t	write_time;
     __uint64_t	blocksize;
+    __uint64_t	read_errors;
+    __uint64_t	write_errors;
+    __uint64_t	read_retries;
+    __uint64_t	write_retries;
+    __uint64_t	total_read_time;
+    __uint64_t	total_write_time;
     char	name[DEVNAMEMAX + 1];
 } diskstat_t;
 
 /*
  * Global statistics.
- * 
+ *
  * We avoid continually realloc'ing memory by keeping track
  * of the maximum number of devices we've allocated space for
  * so far, and only realloc new space if we go beyond that.
@@ -49,6 +55,12 @@ typedef struct diskstats {
     __uint64_t	blkwrite;
     __uint64_t	read_time;
     __uint64_t	write_time;
+    __uint64_t	read_errors;
+    __uint64_t	write_errors;
+    __uint64_t	read_retries;
+    __uint64_t	write_retries;
+    __uint64_t	total_read_time;
+    __uint64_t	total_write_time;
     int		highwater;	/* largest number of devices seen so far */
     diskstat_t	*disks;		/* space for highwater number of devices */
 } diskstats_t;

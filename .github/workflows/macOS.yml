@@ -37,6 +37,13 @@ jobs:
           source pybuilddeps/bin/activate
           xcodebuild -version
           ./Makepkgs -verbose
+      # Validate PMID consistency
+      - name: Validate PMID Consistency
+        id: pmid-validation
+        if: success()
+        run: |
+          echo "Validating PMID consistency across pmns, metrics.c, and darwin.h..."
+          ./build/mac/test/integration/test-pmid-consistency.sh
       # Darwin PMDA Unit Tests (pre-installation)
       - name: Run Darwin PMDA Unit Tests
         id: unit-tests

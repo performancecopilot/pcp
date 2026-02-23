@@ -1,0 +1,24 @@
+# Test IPv6 protocol statistics (net.inet6.ip6.stats sysctl)
+# These metrics provide insight into IPv6 protocol activity.
+
+# IPv6 reception metrics
+desc network.ipv6.inreceives
+fetch network.ipv6.inreceives
+
+# IPv6 forwarding
+desc network.ipv6.outforwarded
+fetch network.ipv6.outforwarded
+
+# IPv6 discard metrics
+desc network.ipv6.indiscards
+fetch network.ipv6.indiscards
+
+desc network.ipv6.outdiscards
+fetch network.ipv6.outdiscards
+
+# IPv6 fragmentation metrics
+desc network.ipv6.fragcreates
+fetch network.ipv6.fragcreates
+
+desc network.ipv6.reasmoks
+fetch network.ipv6.reasmoks

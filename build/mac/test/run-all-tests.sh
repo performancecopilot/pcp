@@ -10,7 +10,7 @@ echo
 
 # Step 1: Build
 echo "Step 1: Building Darwin PMDAs..."
-cd "$REPO_ROOT/dev/darwin/dev"
+cd "$REPO_ROOT/dev/darwin"
 ./build-quick.sh
 echo
 

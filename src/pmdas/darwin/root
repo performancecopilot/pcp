@@ -12,6 +12,10 @@ root {
     nfs3
     rpc
     vfs
+    gpu
+    ipc
+    power
+    thermal
 }
 
 #include "pmns" 
