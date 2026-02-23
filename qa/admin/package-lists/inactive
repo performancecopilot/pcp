@@ -1,0 +1,72 @@
+#!/bin/sh
+#
+# Check for package list files that are no longer being tested
+#
+# Usage: inactive [-v] [-v] [package-list-file ...]
+#
+
+verbose=0
+if [ X"$1" = X-v ]
+then
+    verbose=1
+    shift
+fi
+if [ X"$1" = X-v ]
+then
+    verbose=2
+    shift
+fi
+
+if [ ! -f $HOME/whatami.out ]
+then
+    echo "Sorry, no \$HOME/whatami.out that is the record of CI and QA Farm testing"
+    exit 1
+fi
+
+# default is to process all the package list files
+#
+[ $# -eq 0 ] && set -- *+*
+
+for file
+do
+    if [ ! -f "$file" ]
+    then
+	echo "Error: package list file $file not found"
+	exit 1
+    fi
+    # some special cases
+    #
+    case "$file"
+    in
+	*ArchLinux*)
+		input=`echo "$file" | sed -e 's/ArchLinux/Arch Linux/'`
+		;;
+	*)
+		input="$file"
+		;;
+    esac
+    case "$file"
+    in
+	*+?*+*)
+	    # has version number
+	    # turn OpenBSD+7.6+amd64 into pattern / amd64  *(OpenBSD 7\.6[ .]|OpenBSD [^0-9.]*7\.6[ .])/
+	    #
+	    pat="$(echo "$input" | sed -E -e 's/\./\\./g' -e 's/([^+]+)\+([^+]+)\+(.*)/ \3  *(\1 \2[ .]|\1 [^0-9.]*\2[ .])/' -e 's/ any / .* /')"
+	    ;;
+	*)
+	    # no version number
+	    # turn ArchLinux++x86_64 into pattern / x86_64  *ArchLinux /
+	    pat="$(echo "$input" | sed -E -e 's/\./\\./g' -e 's/([^+]+)\+\+(.*)/ \2  *\1 /' -e 's/ any / .* /')"
+	    ;;
+    esac
+    [ $verbose -gt 1 ] &&  echo "$file -> $pat"
+    workers=`grep -i -E "$pat" $HOME/whatami.out \
+    | sed -e 's/ .*//' \
+    | sort`
+    if [ -z "$workers" ]
+    then
+	echo "$file"
+    else
+	[ $verbose -gt 0 ] && echo "$file `echo $workers | tr '\012' ' '`"
+    fi
+done
