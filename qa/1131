@@ -31,7 +31,7 @@ signal=$PCP_BINADM_DIR/pmsignal
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 A="$here/archives/rep"
-A1="$here/archives/20180606"
+A1="$here/archives/20201109"
 hostname=`hostname`
 machineid=`_machine_id`
 domainid=`_domain_name`
@@ -62,6 +62,10 @@ _filter_pcp2openmetrics()
 	-e '/version=/s/version="*[^"]*"*/version="VERSION"/' \
 	-e '/agent=/s/agent="*[^"]*"*/agent="AGENT"/' \
 	-e 's/\(.*}\).*/\1 NCPU/' \
+	-e '/PCP5 kernel.all.load/{
+s/ 60.2.0 / PMID /
+s/ 60.2 / PMID /
+}' \
 	-e '/PCP5 hinv_ncpu/{
 s/ 60.0.32 / PMID /
 s/ 85.0.0 / PMID /
@@ -74,11 +78,11 @@ _filter_pcp2opentelemetry()
    tee -a $here/$seq.full \
    | col -b \
    | sed \
-       -e '/\"asInt\":/ s/[0-9][0-9]*/INTEGER/' \
-       -e '/\"asDouble\":/ s/[0-9][0-9]*/DOUBLE/' \
-       -e 's/\"version\": .*/\"version\": VERSION/' \
-       -e 's/\"stringValue\": \".*\"/\"stringValue\": \"STRING\"/' \
-       -e 's/\"timeUnixNano\": [0-9][0-9]*\.[0-9][0-9]*.*/\"timeUnixNano\": TIME/' \
+        -e 's/\"stringValue\": \"[^\"]*\"/\"stringValue\": \"VALUE\"/g'\
+	-e 's/\"timeUnixNano\": \"[^\"]*\"/\"timeUnixNano\": \"TIME\"/g'\
+	-e 's/\"version\": \"[^\"]*\"/\"version\": \"VERSION\"/g'\
+	-e 's/\"asInt\": [0-9]*/\"asInt\": \"INTEGER\"/g'\
+	-e 's/\"asDouble\": [0-9]*/\"asDouble\": \"DOUBLE\"/g'\
    # end
 }
 
@@ -99,9 +103,13 @@ pcp2openmetrics -s1 -z hinv.ncpu | _filter_pcp2openmetrics
 echo "---"
 pcp2openmetrics -s2 -x hinv.ncpu | _filter_pcp2openmetrics
 echo "---"
-pcp2openmetrics -s2 -a $A1 hinv.ncpu disk.partitions.write | _archive_filter
+pcp2openmetrics -s2 -a $A1 hinv.ncpu kernel.all.load | _filter_pcp2openmetrics | _archive_filter
 echo "---"
-pcp2opentelemetry -s1 -H -z hinv.ncpu | _filter_pcp2opentelemetry
+pcp2opentelemetry -s1 -z hinv.ncpu | _filter_pcp2opentelemetry
+echo "---"
+pcp2opentelemetry -s2 -z hinv.ncpu | _filter_pcp2opentelemetry
+echo "---"
+pcp2opentelemetry -s1 -a $A1 hinv.ncpu | _filter_pcp2opentelemetry
 echo "---"
 
 cat $tmp.outfile | _archive_filter
