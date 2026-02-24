@@ -35,18 +35,6 @@ import cpmapi as c_api
 from cpmda import PMDA_FETCH_NOVALUES
 from pcp.pmda import PMDA, pmdaMetric
 from pcp.pmapi import pmUnits
-from pcp.pmapi import pmContext as PCP
-
-PMDA_DIR = PCP.pmGetConfig('PCP_PMDAS_DIR')
-MODULES_DIR = os.path.join(PMDA_DIR, "rds", "modules")
-
-# create a symlink for files with .python extension to support imports
-for filename in os.listdir(MODULES_DIR):
-    if filename.endswith('.python'):
-        src = os.path.join(MODULES_DIR, filename)
-        dst = os.path.join(MODULES_DIR, filename[:-4])
-        if not os.path.exists(dst):
-            os.symlink(src, dst)
 
 mod_rds_ping = importlib.import_module('modules.rds_ping')
 mod_ping = importlib.import_module('modules.ping')
