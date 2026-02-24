@@ -15,6 +15,7 @@ core/bash
 extra/bc
 extra/bind
 core/bison
+extra/bpftrace
 extra/clang
 extra/cmocka
 core/coreutils
@@ -57,6 +58,7 @@ core/ncurses
 core/net-tools
 extra/nmap
 core/perl
+extra/perl-archive-zip
 extra/perl-cpanplus
 extra/perl-dbd-mysql
 extra/perl-file-slurp
@@ -67,12 +69,14 @@ extra/perl-timedate
 extra/perl-xml-libxml
 extra/perl-yaml-libyaml
 core/pkgconf
+extra/postfix
 extra/postgresql
 extra/postgresql-libs
 core/psmisc
 core/python
 extra/python-defusedxml
 extra/python-elasticsearch
+extra/python-pymongo
 extra/python-openpyxl
 extra/python-pillow
 extra/python-pandas

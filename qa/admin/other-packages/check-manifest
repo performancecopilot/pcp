@@ -1,0 +1,56 @@
+#!/bin/sh
+#
+# Look for incomplete blocks in the manifest
+#
+
+tmp=/var/tmp/whack-manifest-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# pass 1 .. build block start and end index
+#
+awk <manifest >$tmp.map '
+BEGIN		{ start = 0 }
+/^# -- /	{ if (start)
+		    print start,NR-1,tag
+		  start = NR
+		  tag = $3
+		  for (i = 4; i <= NF; i++)
+		    tag = tag " " $i
+		  next
+		}
+NF == 0		{ if (start)
+		    print start,NR-1,tag
+		  start = 0
+		}
+END		{ if (start)
+		    print start,NR-1,tag
+		}'
+
+# pass 2 ... find blocks that do not have lines for all platforms
+# or multiple lines for the same platform
+#
+cat $tmp.map \
+| while read start end tag
+do
+    awk <manifest '
+BEGIN		{ seen["dpkg?"] = 0
+		  seen["rpm?"] = 0
+		  seen["emerge?"] = 0
+		  seen["pkgin?"] = 0
+		  seen["pkg_add?"] = 0
+		  seen["F_pkg?"] = 0
+		  seen["S_pkg?"] = 0
+		  seen["slackpkg?"] = 0
+		  seen["pacman?"] = 0
+		  seen["brew?"] = 0
+		}
+NR < '"$start"'	{ next }
+$1 ~ /^[A-Za-z]/{ seen[$1]++; next }
+NR == '"$end"'	{ for (p in seen) {
+		    if (seen[p] == 0)
+			printf "%d,%d (%s): missing %s\n",'"$start"','"$end"',"'"$tag"'",p
+		    if (seen[p] > 1)
+			printf "%d,%d (%s): extra %s\n",'"$start"','"$end"',"'"$tag"'",p
+		  }
+		}'
+done

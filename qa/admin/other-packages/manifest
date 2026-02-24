@@ -46,7 +46,7 @@
 #
 # common executables
 #
-# --bash(1)
+# -- bash(1)
 dpkg?		bash		[bash]
 rpm?		bash		[bash]
 emerge?		bash		[bash]
@@ -57,7 +57,7 @@ S_pkg?		bash		[shell/bash]
 slackpkg?	bash		[bash]
 pacman?		bash		[core/bash]
 brew?		bash		[bash]
-# --sed(1)
+# -- sed(1)
 dpkg?		sed		[sed]
 rpm?		sed		[sed]
 emerge?		sed		[sed]
@@ -68,7 +68,7 @@ S_pkg?		sed		[text/gnu-sed]
 slackpkg?	sed		[sed]
 pacman?		sed		[core/sed]
 brew?		sed		[sed]
-# --grep(1)
+# -- grep(1)
 dpkg?		grep		[grep]
 rpm?		grep		[grep]
 emerge?		grep		[grep]
@@ -79,7 +79,7 @@ S_pkg?		grep		[text/gnu-grep]
 slackpkg?	grep		[grep]
 pacman?		grep		[core/grep]
 brew?		grep		[grep]
-# --ed(1)
+# -- ed(1)
 dpkg?		ed		[ed]
 rpm?		ed		[ed]
 emerge?		ed		[ed]
@@ -90,7 +90,7 @@ S_pkg?		ed		[SUNWcs]
 slackpkg?	ed		[ed]
 pacman?		ed		[extra/ed]
 brew?		ed		[ed]
-# --make(1)
+# -- make(1)
 dpkg?		make		[make]
 rpm?		make		[make]
 emerge?		make		[make]
@@ -101,7 +101,7 @@ S_pkg?		gmake		[developer/build/gnu-make]
 slackpkg?	make		[make]
 pacman?		make		[core/make]
 brew?		make		[make]
-# --flex(1)
+# -- flex(1)
 dpkg?		flex		[flex]
 rpm?		flex		[flex]
 emerge?		flex		[flex]
@@ -507,6 +507,7 @@ brew?	/usr/local/lib/python3.*/*-packages/openpyxl/conftest.py	[pip3(openpyxl) (
 # -- bpftrace
 dpkg?	bpftrace	[bpftrace (build optional)]
 rpm?	bpftrace	[bpftrace (build optional)]
+pacman?	bpftrace	[extra/bpftrace (build optional)]
 # -- python pillow
 dpkg?	/usr/lib/python3/*-packages/PIL/Image.py	[python3-pil (QA optional)]
 rpm?	/usr/lib*/python3.*/*-packages/PIL/Image.py	[python3[0-9]*-pillow or python3[0-9]*-Pillow (QA optional)]
@@ -531,9 +532,18 @@ brew?	/usr/local/lib/python3.*/*-packages/psycopg2	[pip3(psycopg2)]
 # -- python pyodbc (mssql PMDA)
 rpm?    /usr/lib*/python3.*/*-packages/pyodbc*          [python3-pyodbc]
 dpkg?	/usr/lib/python3/dist-packages/pyodbc.pyi	[python3-pyodbc]
+pacman?    /usr/lib*/python3.*/*-packages/pyodbc	[N/A]
 # -- python pymongo (mongodb PMDA)
-rpm?    /usr/lib*/python3.*/*-packages/pymongo*		[python3[0-9]*-pymongo]
 dpkg?	/usr/lib/python3/dist-packages/pymongo		[python3-pymongo]
+rpm?    /usr/lib*/python3.*/*-packages/pymongo*		[python3[0-9]*-pymongo]
+emerge?	?		[? {Gentoo}]
+pkgin?	?		[? {NetBSD}]
+pkg_add?	?		[? {OpenBSD}]
+F_pkg?	?		[? {FreeBSD}]
+S_pkg?	?		[? {Solaris}]
+slackpkg?	?		[? {Slackware}]
+pacman?    /usr/lib*/python3.*/*-packages/pymongo	[extra/python-pymongo]
+brew?	?		[? {MacOS?}]
 # perl modules
 # -- Time::HiRes
 dpkg?	Time::HiRes		[libperl[0-9][0-9.]* or libperl[0-9][0-9.]*t64]
@@ -638,7 +648,6 @@ S_pkg?	File::Slurp		[library/perl-5/file-slurp (QA optional)]
 slackpkg?	File::Slurp	[cpan(File::Slurp) (QA optional)]
 pacman?	File::Slurp		[extra/perl-file-slurp or cpan(File::Slurp) (QA optional)]
 brew?	File::Slurp		[base Darwin install (QA optional)]
-# -- Slurm::Hostlist ... skip this one, it comes in the pcp-testsuite package
 # -- List::MoreUtils
 dpkg?	List::MoreUtils		[liblist-moreutils-perl (QA optional)]
 rpm?	List::MoreUtils		[perl-List-MoreUtils or cpan(List::MoreUtils) (QA optional)]
@@ -762,7 +771,16 @@ slackpkg?	Net::SNMP	[cpan(Net::SNMP)]
 pacman?	Net::SNMP		[extra/perl-net-snmp]
 brew?	Net::SNMP		[base Darwin install]
 # -- Archive::Zip
-F_pkg?	Archive::Zip		[p5-Archive-Zip]
+dpkg?		?		[? {dpkg-based, Debian, Ubuntu, LinuxMint, MX, ...}]
+rpm?		?		[? {rpm-based, RHEL, Fedora, OpenSuSE, ...}]
+emerge?		?		[? {Gentoo}]
+pkgin?		?		[? {NetBSD}]
+pkg_add?	?		[? {OpenBSD}]
+F_pkg?		Archive::Zip	[p5-Archive-Zip]
+S_pkg?		?		[? {Solaris}]
+slackpkg?	?		[? {Slackware}]
+pacman?		Archive::Zip	[extra/perl-archive-zip]
+brew?		?		[? {MacOS?}]
 #
 # other run-time
 #
@@ -1502,7 +1520,7 @@ pkg_add?	llvm-strip			[N/A (build optional)] # no bpf PMDA here
 F_pkg?		llvm-strip			[N/A (build optional)]
 S_pkg?		llvm-strip			[N/A (build optional)]
 slackpkg?	llvm-strip			[N/A (build optional)]
-pacman?		llvm-strip-20			[extra/llvm20 (build optional)]
+pacman?		llvm-strip			[extra/llvm (build optional)]
 brew?		llvm-strip			[? (build optional)]
 
 # -- clang (for bpf PMDA)
@@ -1639,6 +1657,19 @@ slackpkg?	ibdev2netdev	[? {Slackware}]
 pacman?		ibdev2netdev	[N/A]
 brew?		ibdev2netdev	[? {MacOS?}]
 
+# -- qshape (for postfix PMDA)
+dpkg?		?		[? {dpkg-based, Debian, Ubuntu, LinuxMint, MX, ...}]
+rpm?		/usr/sbin/qshape	[postfix-perl-scripts]
+suse?		/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]
+emerge?		?		[? {Gentoo}]
+pkgin?		?		[? {NetBSD}]
+pkg_add?	?		[? {OpenBSD}]
+F_pkg?		/usr/local/bin/qshape	[postfix]
+S_pkg?		?		[? {Solaris}]
+slackpkg?	?		[? {Slackware}]
+pacman?		/usr/bin/qshape		[extra/postfix]
+brew?		?		[? {MacOS?}]
+
 # -- /usr/share/pkgconfig/systemd.pc needed for configure testing to
 # set systemd paths
 #
@@ -1647,11 +1678,6 @@ rpm?		/usr/share/pkgconfig/systemd.pc		[systemd]
 
 # misc
 #
-rpm?		/usr/sbin/qshape	[postfix-perl-scripts]
-mandriva?	/usr/sbin/qshape	[postfix]
-suse?		/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]
-arch?		/usr/bin/qshape		[N/A (build optional)]
-F_pkg?		/usr/local/bin/qshape	[postfix]
 F_pkg?		gdiff			[diffutils]
 netbsd?		gdiff			[diffutils]
 pkg_add?	gdiff			[gdiff]
