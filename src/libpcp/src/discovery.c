@@ -63,11 +63,12 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
 /*
  * Service discovery API entry points.
  */
-char *
+const char *
 __pmServiceDiscoveryParseTimeout(const char *s, struct timeval *timeout)
 {
     double		seconds;
-    char		*end, *result;
+    char		*end;
+    const char		*result;
 
     /*
      * The string is a floating point number representing the number of seconds
@@ -84,13 +85,13 @@ __pmServiceDiscoveryParseTimeout(const char *s, struct timeval *timeout)
     /* Set the specified timeout. */
     pmtimevalFromReal(seconds, timeout);
 
-    return end;
+    return (const char *)end;
 }
 
 static int
 parseOptions(const char *optionsString, __pmServiceDiscoveryOptions *options)
 {
-    char		*result;
+    const char		*result;
 
     if (optionsString == NULL)
 	return 0; /* no options to parse */

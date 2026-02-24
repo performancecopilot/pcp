@@ -315,7 +315,7 @@ typedef struct {
 extern int __pmAddDiscoveredService(__pmServiceInfo *,
 				const __pmServiceDiscoveryOptions *,
 				int, char ***) _PCP_HIDDEN;
-extern char *__pmServiceDiscoveryParseTimeout(const char *s,
+extern const char *__pmServiceDiscoveryParseTimeout(const char *s,
 				struct timeval *timeout) _PCP_HIDDEN;
 
 extern int __pmServiceAddPorts(const char *, int **, int) _PCP_HIDDEN;

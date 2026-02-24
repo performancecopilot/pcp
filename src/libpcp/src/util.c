@@ -1621,7 +1621,7 @@ static int
 debug(const char *spec, int action)
 {
     const char	*p;
-    char	*pend;
+    const char	*pend;
     int		i;
     int		sts = 0;
 
