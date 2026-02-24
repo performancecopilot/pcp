@@ -2279,101 +2279,27 @@ hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MAC
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
 ---
-# PCP5 hinv_ncpu 60.0.32 u32 PM_INDOM_NULL discrete 
-# TYPE hinv_ncpu gauge
-# HELP hinv_ncpu number of CPUs in the system
-hinv_ncpu{domainname="localdomain",groupid="999",hostname="vm01",machineid="3a6b3d7f3b7559c538a5934a24866658",userid="999",agent="linux"} 1 1528207821.599573
-# PCP5 disk_partitions_write 60.10.1 u32 60.10 counter count
-# TYPE disk_partitions_write counter
-# HELP disk_partitions_write write operations metric for storage partitions
-disk_partitions_write_total{domainname="localdomain",groupid="999",hostname="vm01",machineid="3a6b3d7f3b7559c538a5934a24866658",userid="999",instname="sda1",instid="1",agent="linux",device_type="block",indom_name="per partition"} 88156 1528207821.599573
-disk_partitions_write_total{domainname="localdomain",groupid="999",hostname="vm01",machineid="3a6b3d7f3b7559c538a5934a24866658",userid="999",instname="sda2",instid="2",agent="linux",device_type="block",indom_name="per partition"} 0 1528207821.599573
-disk_partitions_write_total{domainname="localdomain",groupid="999",hostname="vm01",machineid="3a6b3d7f3b7559c538a5934a24866658",userid="999",instname="sda5",instid="3",agent="linux",device_type="block",indom_name="per partition"} 2293 1528207821.599573
 # EOF
+# HELP hinv_ncpu number of CPUs in the system
+# HELP kernel_all_load 1, 5 and 15 minute load average
+# PCP5 hinv_ncpu PMID u32 PM_INDOM_NULL discrete
+# PCP5 kernel_all_load PMID float PMID instant
+# TYPE hinv_ncpu gauge
+# TYPE kernel_all_load gauge
+hinv_ncpu{,hostname="shard"} NCPU
+hinv_ncpu{,hostname="shard"} NCPU
+kernel_all_load{,hostname="shard",instname="1 minute",instid="1"} NCPU
+kernel_all_load{,hostname="shard",instname="15 minute",instid="15"} NCPU
+kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
 ---
-{
-  "resourceMetrics": [
-    {
-      "resource": {
-	"attributes": [
-	  {
-	    "key": "domainname",
-	    "value": {
-	      "stringValue": "STRING"
-	    }
-	  },
-	  {
-	    "key": "groupid",
-	    "value": {
-	      "stringValue": "STRING"
-	    }
-	  },
-	  {
-	    "key": "hostname",
-	    "value": {
-	      "stringValue": "STRING"
-	    }
-	  },
-	  {
-	    "key": "machineid",
-	    "value": {
-	      "stringValue": "STRING"
-	    }
-	  },
-	  {
-	    "key": "userid",
-	    "value": {
-	      "stringValue": "STRING"
-	    }
-	  }
-	]
-      },
-      "scopeMetrics": [
-	{
-	  "metrics": [
-	    {
-	      "name": "hinv.ncpu",
-	      "unit": "1",
-	      "description": "number of CPUs in the system",
-	      "gauge": {
-		"dataPoints": [
-		  {
-		    "asInt": INTEGER,
-		    "timeUnixNano": TIME
-		    "attributes": [
-		      {
-			"key": "semantics",
-			"value": {
-			  "stringValue": "STRING"
-			}
-		      },
-		      {
-			"key": "type",
-			"value": {
-			  "stringValue": "STRING"
-			}
-		      },
-		      {
-			"key": "agent",
-			"value": {
-			  "stringValue": "STRING"
-			}
-		      }
-		    ]
-		  }
-		]
-	      }
-	    }
-	  ],
-	  "scope": {
-	    "name": "performance-co-pilot",
-	    "version": VERSION
-	  }
-	}
-      ]
-    }
-  ]
-}
+{"resourceMetrics": [{"resource": {"attributes": [{"key": "domainname","value": {"stringValue": "VALUE"}},{"key": "groupid","value": {"stringValue": "VALUE"}},{"key": "hostname","value": {"stringValue": "VALUE"}},{"key": "machineid","value": {"stringValue": "VALUE"}},{"key": "userid","value": {"stringValue": "VALUE"}}]},"scopeMetrics": [{"metrics": [{"name": "hinv.ncpu","unit": "1","description": "number of CPUs in the system","gauge": {"dataPoints": [{"asInt": "INTEGER","timeUnixNano": "TIME","attributes": [{"key": "semantics","value": {"stringValue": "VALUE"}},{"key": "type","value": {"stringValue": "VALUE"}},{"key": "agent","value": {"stringValue": "VALUE"}}]}]}}],"scope": {"name": "performance-co-pilot","version": "VERSION"}}]}]}
+
+---
+{"resourceMetrics": [{"resource": {"attributes": [{"key": "domainname","value": {"stringValue": "VALUE"}},{"key": "groupid","value": {"stringValue": "VALUE"}},{"key": "hostname","value": {"stringValue": "VALUE"}},{"key": "machineid","value": {"stringValue": "VALUE"}},{"key": "userid","value": {"stringValue": "VALUE"}}]},"scopeMetrics": [{"metrics": [{"name": "hinv.ncpu","unit": "1","description": "number of CPUs in the system","gauge": {"dataPoints": [{"asInt": "INTEGER","timeUnixNano": "TIME","attributes": [{"key": "semantics","value": {"stringValue": "VALUE"}},{"key": "type","value": {"stringValue": "VALUE"}},{"key": "agent","value": {"stringValue": "VALUE"}}]}]}}],"scope": {"name": "performance-co-pilot","version": "VERSION"}}]}]}
+{"resourceMetrics": [{"resource": {"attributes": [{"key": "domainname","value": {"stringValue": "VALUE"}},{"key": "groupid","value": {"stringValue": "VALUE"}},{"key": "hostname","value": {"stringValue": "VALUE"}},{"key": "machineid","value": {"stringValue": "VALUE"}},{"key": "userid","value": {"stringValue": "VALUE"}}]},"scopeMetrics": [{"metrics": [{"name": "hinv.ncpu","unit": "1","description": "number of CPUs in the system","gauge": {"dataPoints": [{"asInt": "INTEGER","timeUnixNano": "TIME","attributes": [{"key": "semantics","value": {"stringValue": "VALUE"}},{"key": "type","value": {"stringValue": "VALUE"}},{"key": "agent","value": {"stringValue": "VALUE"}}]}]}}],"scope": {"name": "performance-co-pilot","version": "VERSION"}}]}]}
+
+---
+{"resourceMetrics": [{"resource": {"attributes": [{"key": "hostname","value": {"stringValue": "VALUE"}}]},"scopeMetrics": [{"metrics": [{"name": "hinv.ncpu","unit": "1","description": "number of CPUs in the system","gauge": {"dataPoints": [{"asInt": "INTEGER","timeUnixNano": "TIME","attributes": [{"key": "semantics","value": {"stringValue": "VALUE"}},{"key": "type","value": {"stringValue": "VALUE"}}]}]}}],"scope": {"name": "performance-co-pilot","version": "VERSION"}}]}]}
 
 ---
 {
