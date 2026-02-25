@@ -43,6 +43,41 @@
 
         # Import modular development shell
         devShells.default = import ./nix/shell.nix { inherit pkgs pcp; };
+
+        # ─── Apps (Linux only) ─────────────────────────────────────────────
+        apps = lib.optionalAttrs pkgs.stdenv.isLinux (
+          let
+            networkScripts = import ./nix/network-setup.nix { inherit pkgs; };
+            vmScripts = import ./nix/microvm-scripts.nix { inherit pkgs; };
+          in {
+            # Network management
+            pcp-check-host = {
+              type = "app";
+              program = "${networkScripts.check}/bin/pcp-check-host";
+            };
+            pcp-network-setup = {
+              type = "app";
+              program = "${networkScripts.setup}/bin/pcp-network-setup";
+            };
+            pcp-network-teardown = {
+              type = "app";
+              program = "${networkScripts.teardown}/bin/pcp-network-teardown";
+            };
+            # VM management
+            pcp-vm-check = {
+              type = "app";
+              program = "${vmScripts.check}/bin/pcp-vm-check";
+            };
+            pcp-vm-stop = {
+              type = "app";
+              program = "${vmScripts.stop}/bin/pcp-vm-stop";
+            };
+            pcp-vm-ssh = {
+              type = "app";
+              program = "${vmScripts.ssh}/bin/pcp-vm-ssh";
+            };
+          }
+        );
       }
     );
 }
