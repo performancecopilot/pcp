@@ -30,6 +30,9 @@
         packages = {
           default = pcp;
           inherit pcp;
+        } // lib.optionalAttrs pkgs.stdenv.isLinux {
+          # OCI container image (Linux only)
+          pcp-container = import ./nix/container.nix { inherit pkgs pcp; };
         };
 
         checks = lib.optionalAttrs pkgs.stdenv.isLinux {
