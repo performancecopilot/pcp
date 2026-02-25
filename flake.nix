@@ -8,6 +8,10 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    microvm = {
+      url = "github:astro/microvm.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -15,6 +19,7 @@
       self,
       nixpkgs,
       flake-utils,
+      microvm,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -25,15 +30,77 @@
         # Import modular package definition
         pcp = import ./nix/package.nix { inherit pkgs; };
 
+        # Import shared constants and variant definitions
+        constants = import ./nix/constants.nix;
+        variants = import ./nix/variants.nix { inherit constants; };
+        nixosModule = import ./nix/nixos-module.nix;
+
+        # ─── MicroVM Generator ───────────────────────────────────────────
+        # Creates a MicroVM runner with the specified configuration.
+        # See nix/microvm.nix for full parameter documentation.
+        mkMicroVM = {
+          networking ? "user",
+          debugMode ? true,
+          enablePmlogger ? true,
+          enableEvalTools ? false,
+          enablePmieTest ? false,
+          enableGrafana ? false,
+          enableBpf ? false,
+          enableBcc ? false,
+          portOffset ? 0,
+          variant ? "base",
+        }:
+          import ./nix/microvm.nix {
+            inherit pkgs lib pcp microvm nixosModule nixpkgs system;
+            inherit networking debugMode enablePmlogger enableEvalTools
+                    enablePmieTest enableGrafana enableBpf enableBcc
+                    portOffset variant;
+          };
+
+        # ─── Variant Package Generator ───────────────────────────────────
+        # Generates MicroVM packages for all variants and networking modes.
+        mkVariantPackages = lib.foldl' (acc: variantName:
+          let
+            def = variants.definitions.${variantName};
+            portOffset = constants.variantPortOffsets.${variantName};
+
+            # User-mode networking variant
+            userPkg = {
+              name = variants.mkPackageName variantName "user";
+              value = mkMicroVM ({
+                networking = "user";
+                inherit portOffset;
+                variant = variantName;
+              } // def.config);
+            };
+
+            # TAP networking variant (if supported)
+            tapPkg = lib.optionalAttrs def.supportsTap {
+              name = variants.mkPackageName variantName "tap";
+              value = mkMicroVM ({
+                networking = "tap";
+                inherit portOffset;
+                variant = variantName;
+              } // def.config);
+            };
+          in
+            acc // { ${userPkg.name} = userPkg.value; }
+            // lib.optionalAttrs (tapPkg ? name) { ${tapPkg.name} = tapPkg.value; }
+        ) {} variants.variantNames;
+
       in
       {
         packages = {
           default = pcp;
           inherit pcp;
-        } // lib.optionalAttrs pkgs.stdenv.isLinux {
-          # OCI container image (Linux only)
-          pcp-container = import ./nix/container.nix { inherit pkgs pcp; };
-        };
+        } // lib.optionalAttrs pkgs.stdenv.isLinux (
+          {
+            # OCI container image (Linux only)
+            pcp-container = import ./nix/container.nix { inherit pkgs pcp; };
+          }
+          # MicroVM packages for all variants
+          // mkVariantPackages
+        );
 
         checks = lib.optionalAttrs pkgs.stdenv.isLinux {
           vm-test = import ./nix/vm-test.nix {
