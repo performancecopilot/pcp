@@ -21,38 +21,21 @@ CMDTARGET	= pmdavalkey$(EXECSUFFIX)
 DFILES		= README help
 CONFIG		= valkey.conf
 
-LIBVALKEY_HFILES = $(addprefix deps/libvalkey/, \
-	include/valkey/alloc.h include/valkey/async.h include/valkey/cluster.h \
-	include/valkey/valkey.h include/valkey/net.h include/valkey/read.h \
-	include/valkey/visibility.h include/valkey/sockcompat.h src/adlist.h \
-	src/async_private.h src/cmddef.h src/command.h src/dict.h src/fmacros.h \
-	src/sds.h src/sdsalloc.h src/valkey_private.h src/vkutil.h src/win32.h)
-LIBVALKEY_CFILES = $(addprefix deps/libvalkey/, \
-	src/adlist.c src/alloc.c src/async.c src/cluster.c src/command.c \
-	src/conn.c src/crc16.c src/dict.c src/net.c src/read.c src/sds.c \
-	src/sockcompat.c src/valkey.c src/vkutil.c)
-LIBVALKEY_XFILES = $(LIBVALKEY_HFILES) $(LIBVALKEY_CFILES)
+CFILES		= pmdavalkey.c
 
-CFILES		= pmdavalkey.c $(LIBVALKEY_CFILES)
-
-LLDLIBS		= $(PCP_PMDALIB)
-LCFLAGS		= -I. -Ideps/libvalkey/include/valkey -Ideps/libvalkey/include -Ideps/libvalkey/src
+LLDLIBS		= $(PCP_PMDALIB) $(TOPDIR)/src/libvalkey/src/libvalkey.a
+LCFLAGS		= -I. -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/include \
+		  -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src
 
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 
-LDIRT		= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).$(DSOSUFFIX) $(LIBVALKEY_XFILES)
+LDIRT		= domain.h *.o $(IAM).log pmda$(IAM) pmda_$(IAM).$(DSOSUFFIX)
 
-default_pcp default:	$(LIBVALKEY_XFILES) $(CMDTARGET)
+default_pcp default:	$(CMDTARGET)
 
 include $(BUILDRULES)
-
-deps/libvalkey/include/valkey deps/libvalkey/src:
-	mkdir -p $@
-
-$(LIBVALKEY_XFILES): | deps/libvalkey/include/valkey deps/libvalkey/src
-	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/valkey-io/$(@:deps/%=%) $@
 
 install_pcp install:	default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
@@ -68,8 +51,6 @@ $(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
-
-%.o: $(LIBVALKEY_XFILES)
 
 pmdavalkey.o: pmdavalkey.c domain.h
 
