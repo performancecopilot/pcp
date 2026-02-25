@@ -38,27 +38,8 @@
           };
         };
 
-        devShells.default = pkgs.mkShell {
-          inputsFrom = [ pcp ];
-          packages = with pkgs; [
-            gdb
-            jp2a
-          ] ++ lib.optionals pkgs.stdenv.isLinux [
-            valgrind
-          ] ++ lib.optionals pkgs.stdenv.isDarwin [
-            lldb
-          ];
-
-          shellHook = ''
-            # Display PCP logo on shell entry
-            if [[ -f ./images/pcpicon-light.png ]]; then
-              jp2a --colors ./images/pcpicon-light.png 2>/dev/null || true
-            fi
-            echo "PCP Development Shell"
-            echo "Run './configure --help' to see build options"
-            echo "Otherwise use 'nix build' to build the package"
-          '';
-        };
+        # Import modular development shell
+        devShells.default = import ./nix/shell.nix { inherit pkgs pcp; };
       }
     );
 }
