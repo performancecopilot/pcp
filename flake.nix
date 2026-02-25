@@ -116,6 +116,39 @@
           let
             networkScripts = import ./nix/network-setup.nix { inherit pkgs; };
             vmScripts = import ./nix/microvm-scripts.nix { inherit pkgs; };
+
+            # ─── MicroVM Test Apps ────────────────────────────────────────────
+            # Generate test apps for each variant
+            mkTestApp = variant: networkMode:
+              let
+                testName = variants.mkTestAppName variant networkMode;
+                isTap = networkMode == "tap";
+                portOffset = constants.variantPortOffsets.${variant};
+                sshPort = constants.ports.sshForward + portOffset;
+                host = if isTap then constants.network.vmIp else "localhost";
+              in {
+                name = testName;
+                value = {
+                  type = "app";
+                  program = "${import ./nix/tests/microvm-test.nix {
+                    inherit pkgs lib;
+                    variant = "${variant}-${networkMode}";
+                    inherit host sshPort;
+                  }}/bin/pcp-test-${variant}-${networkMode}";
+                };
+              };
+
+            # Generate test apps for all variants
+            testApps = lib.foldl' (acc: variantName:
+              let
+                def = variants.definitions.${variantName};
+                userTest = mkTestApp variantName "user";
+                tapTest = lib.optionalAttrs def.supportsTap (mkTestApp variantName "tap");
+              in
+                acc // { ${userTest.name} = userTest.value; }
+                // lib.optionalAttrs (tapTest ? name) { ${tapTest.name} = tapTest.value; }
+            ) {} variants.variantNames;
+
           in {
             # Network management
             pcp-check-host = {
@@ -143,7 +176,14 @@
               type = "app";
               program = "${vmScripts.ssh}/bin/pcp-vm-ssh";
             };
+            # Comprehensive test runner
+            pcp-test-all-microvms = {
+              type = "app";
+              program = "${import ./nix/tests/test-all-microvms.nix { inherit pkgs lib; }}/bin/pcp-test-all-microvms";
+            };
           }
+          # Per-variant test apps
+          // testApps
         );
       }
     );
