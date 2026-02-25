@@ -28,7 +28,8 @@
         lib = pkgs.lib;
 
         # Import modular package definition
-        pcp = import ./nix/package.nix { inherit pkgs; };
+        # Pass self for stable source hashing - see nix/package.nix for details
+        pcp = import ./nix/package.nix { inherit pkgs; src = self; };
 
         # Import shared constants and variant definitions
         constants = import ./nix/constants.nix;
@@ -93,6 +94,11 @@
           import ./nix/lifecycle { inherit pkgs lib; }
         );
 
+        # Import container testing framework (Linux only)
+        containerTest = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/container-test { inherit pkgs lib pcp; }
+        );
+
       in
       {
         packages = {
@@ -107,6 +113,8 @@
           // mkVariantPackages
           # Lifecycle testing packages
           // lifecycle.packages
+          # Container testing packages
+          // containerTest.packages
         );
 
         checks = lib.optionalAttrs pkgs.stdenv.isLinux {
@@ -193,6 +201,8 @@
           // testApps
           # Lifecycle testing apps
           // lifecycle.apps
+          # Container testing apps
+          // containerTest.apps
         );
       }
     );

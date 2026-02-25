@@ -8,7 +8,12 @@
 # - Applies hardening overlays rather than rewriting units from scratch
 # - This preserves upstream ExecStartPre, EnvironmentFile, and other settings
 #
-{ config, pkgs, lib, ... }:
+# Cache optimization:
+# - The `pcp` argument should be passed via specialArgs from the flake
+# - This ensures all derivations use the same PCP package for cache reuse
+# - See microvm.nix line 88: specialArgs = { inherit pcp; };
+#
+{ config, pkgs, lib, pcp ? null, ... }:
 with lib;
 let
   cfg = config.services.pcp;
@@ -133,8 +138,10 @@ in
 
     package = mkOption {
       type = types.package;
-      default = pkgs.pcp or (throw "PCP package not found");
-      description = "The PCP package to use.";
+      default = if pcp != null then pcp
+                else throw "PCP package not found. Pass 'pcp' via specialArgs or set services.pcp.package explicitly.";
+      defaultText = lib.literalExpression "pcp (from specialArgs)";
+      description = "The PCP package to use. Passed via specialArgs from flake.nix for cache consistency.";
     };
 
     preset = mkOption {

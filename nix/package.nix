@@ -4,7 +4,17 @@
 # Version is automatically derived from VERSION.pcp (the configure script's
 # source of truth), eliminating manual maintenance when PCP is released.
 #
-{ pkgs }:
+# CACHE OPTIMIZATION: The `src` parameter should be `self` from flake.nix.
+# This ensures stable derivation hashes because:
+#   1. `self` in a flake references the git-tracked content
+#   2. For clean trees, the hash is based on the git commit
+#   3. For dirty trees, the hash is based on the filtered content
+#   4. Using `./..` directly would cause hash changes on every file modification
+#
+# The source filtering (cleanSourceWith) further improves cache hits by
+# excluding build artifacts, editor files, and other non-essential content.
+#
+{ pkgs, src }:
 let
   lib = pkgs.lib;
 
@@ -16,7 +26,7 @@ let
   #   PACKAGE_REVISION=1
   #   PACKAGE_BUILD=1
   #
-  versionFile = builtins.readFile ./../VERSION.pcp;
+  versionFile = builtins.readFile (src + "/VERSION.pcp");
 
   parseField = field:
     let
@@ -72,13 +82,18 @@ let
   # IMPORTANT: Only exclude top-level result* symlinks, not files like result.c
   # or result.o which are legitimate source/build files.
   #
+  # NOTE: We use the `src` parameter (passed from flake.nix as `self`) to
+  # ensure stable derivation hashes. This enables proper cache reuse
+  # between builds of the main package, microvms, and containers.
+  #
+  srcPath = toString src;
   cleanedSrc = lib.cleanSourceWith {
-    src = ./..;
+    inherit src;
     filter = path: type:
       let
         baseName = baseNameOf path;
         parentDir = dirOf path;
-        isTopLevel = parentDir == toString ./..;
+        isTopLevel = parentDir == srcPath;
         # Patterns to exclude
         isExcluded =
           # Build output symlinks (only at top level, and only exact matches or result-*)
