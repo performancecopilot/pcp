@@ -1748,6 +1748,21 @@ collecting statistics for nVidia RDMA over Converged Ethernet (RoCE) devices.
 # end pcp-pmda-rocestat
 %endif
 
+#
+# pcp-pmda-rds
+#
+%package pmda-rds
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for Reliable Datagram Sockets (RDS) protocol
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python3-pcp
+%description pmda-rds
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting statistics for RDS connections.
+# end pcp-pmda-rds
+%endif
+
 %if !%{disable_mongodb}
 #
 # pcp-pmda-mongodb
@@ -2482,6 +2497,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/podman(/|$)' >pcp-pmda-podman-files
 basic_manifest | keep '(etc/pcp|pmdas)/postfix(/|$)' >pcp-pmda-postfix-files
 basic_manifest | keep '(etc/pcp|pmdas)/postgresql(/|$)' >pcp-pmda-postgresql-files
 basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
+basic_manifest | keep '(etc/pcp|pmdas)/rds(/|$)' >pcp-pmda-rds-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
 basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
 basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
@@ -2522,7 +2538,7 @@ for pmda_package in \
     nutcracker nvidia \
     openmetrics opentelemetry openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq redis resctrl rocestat roomtemp rpm rsyslog \
+    rabbitmq rds redis resctrl rocestat roomtemp rpm rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
     unbound uwsgi \
@@ -2910,6 +2926,9 @@ exit 0
 %preun pmda-rocestat
 %{pmda_remove "$1" "rocestat"}
 
+%preun pmda-rds
+%{pmda_remove "$1" "rds"}
+
 %endif
 
 %preun pmda-apache
@@ -3260,6 +3279,8 @@ fi
 %files pmda-rabbitmq -f pcp-pmda-rabbitmq-files.rpm
 
 %files pmda-rocestat -f pcp-pmda-rocestat-files.rpm
+
+%files pmda-rds -f pcp-pmda-rds-files.rpm
 
 %files pmda-uwsgi -f pcp-pmda-uwsgi-files.rpm
 

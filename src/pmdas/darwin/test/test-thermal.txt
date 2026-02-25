@@ -1,0 +1,37 @@
+# Thermal metrics test
+# Tests temperature sensors, fan metrics, and thermal pressure monitoring
+# via SMC (System Management Controller) and thermal pressure API
+
+# Temperature sensor metrics
+desc thermal.cpu.die
+fetch thermal.cpu.die
+
+desc thermal.cpu.proximity
+fetch thermal.cpu.proximity
+
+desc thermal.gpu.die
+fetch thermal.gpu.die
+
+desc thermal.package
+fetch thermal.package
+
+desc thermal.ambient
+fetch thermal.ambient
+
+# Fan count (no instance domain)
+desc hinv.nfan
+fetch hinv.nfan
+
+# Fan metrics (per-fan instance domain)
+desc thermal.fan.speed
+desc thermal.fan.target
+desc thermal.fan.mode
+desc thermal.fan.min
+desc thermal.fan.max
+
+# Thermal pressure metrics (always available via notify API)
+desc thermal.pressure.level
+fetch thermal.pressure.level
+
+desc thermal.pressure.state
+fetch thermal.pressure.state

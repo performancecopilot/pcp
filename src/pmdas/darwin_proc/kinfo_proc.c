@@ -14,6 +14,9 @@
  */
 
 #include <assert.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netinet/tcp.h>
 
 #include "pmapi.h"
 #include "libpcp.h"
@@ -477,26 +480,101 @@ darwin_process_set_taskinfo(darwin_proc_t *proc, struct extern_proc *xproc,
 
 	/* disk I/O statistics from proc_pid_rusage */
 	{
+#if defined(RUSAGE_INFO_V4)
+		struct rusage_info_v4 rusage;
+
+		if (proc_pid_rusage(proc->id, RUSAGE_INFO_V4,
+			(rusage_info_t *)&rusage) == 0) {
+			proc->read_bytes = rusage.ri_diskio_bytesread;
+			proc->write_bytes = rusage.ri_diskio_byteswritten;
+			proc->logical_writes = rusage.ri_logical_writes;
+			proc->phys_footprint = rusage.ri_phys_footprint;
+			proc->qos_default = rusage.ri_cpu_time_qos_default;
+			proc->qos_maintenance = rusage.ri_cpu_time_qos_maintenance;
+			proc->qos_background = rusage.ri_cpu_time_qos_background;
+			proc->qos_utility = rusage.ri_cpu_time_qos_utility;
+			proc->qos_legacy = rusage.ri_cpu_time_qos_legacy;
+			proc->qos_user_initiated = rusage.ri_cpu_time_qos_user_initiated;
+			proc->qos_user_interactive = rusage.ri_cpu_time_qos_user_interactive;
+		} else {
+			proc->read_bytes = 0;
+			proc->write_bytes = 0;
+			proc->logical_writes = 0;
+			proc->phys_footprint = 0;
+			proc->qos_default = 0;
+			proc->qos_maintenance = 0;
+			proc->qos_background = 0;
+			proc->qos_utility = 0;
+			proc->qos_legacy = 0;
+			proc->qos_user_initiated = 0;
+			proc->qos_user_interactive = 0;
+		}
+#else
 		struct rusage_info_v3 rusage;
 
 		if (proc_pid_rusage(proc->id, RUSAGE_INFO_V3,
 			(rusage_info_t *)&rusage) == 0) {
 			proc->read_bytes = rusage.ri_diskio_bytesread;
 			proc->write_bytes = rusage.ri_diskio_byteswritten;
+			proc->phys_footprint = rusage.ri_phys_footprint;
 		} else {
 			proc->read_bytes = 0;
 			proc->write_bytes = 0;
+			proc->phys_footprint = 0;
 		}
+		proc->logical_writes = 0;	/* not available in v3 */
+		proc->qos_default = 0;		/* not available in v3 */
+		proc->qos_maintenance = 0;
+		proc->qos_background = 0;
+		proc->qos_utility = 0;
+		proc->qos_legacy = 0;
+		proc->qos_user_initiated = 0;
+		proc->qos_user_interactive = 0;
+#endif
 	}
 
-	/* file descriptor count */
+	/* file descriptor and socket counts */
 	{
 		int bufsize = proc_pidinfo(proc->id, PROC_PIDLISTFDS, 0, NULL, 0);
+		proc->fd_count = 0;
+		proc->tcp_count = 0;
+		proc->udp_count = 0;
 
 		if (bufsize > 0) {
-			proc->fd_count = bufsize / sizeof(struct proc_fdinfo);
-		} else {
-			proc->fd_count = 0;
+			int fd_count = bufsize / sizeof(struct proc_fdinfo);
+			struct proc_fdinfo *fdinfo = malloc(bufsize);
+
+			if (fdinfo != NULL) {
+				int ret = proc_pidinfo(proc->id, PROC_PIDLISTFDS, 0, fdinfo, bufsize);
+
+				if (ret > 0) {
+					proc->fd_count = ret / sizeof(struct proc_fdinfo);
+
+					/* Count TCP and UDP sockets */
+					for (int i = 0; i < proc->fd_count; i++) {
+						if (fdinfo[i].proc_fdtype == PROX_FDTYPE_SOCKET) {
+							struct socket_fdinfo si;
+							int si_size = proc_pidfdinfo(proc->id, fdinfo[i].proc_fd,
+								PROC_PIDFDSOCKETINFO, &si, sizeof(si));
+
+							if (si_size > 0) {
+								/* Check for IPv4 or IPv6 sockets */
+								if (si.psi.soi_family == AF_INET || si.psi.soi_family == AF_INET6) {
+									if (si.psi.soi_kind == SOCKINFO_TCP) {
+										proc->tcp_count++;
+									} else if (si.psi.soi_kind == SOCKINFO_IN) {
+										/* SOCKINFO_IN = UDP/ICMP; check socket type */
+										if (si.psi.soi_protocol == IPPROTO_UDP) {
+											proc->udp_count++;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				free(fdinfo);
+			}
 		}
 	}
 

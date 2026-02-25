@@ -1,0 +1,756 @@
+QA output created by 1998
+
+=== Installing RDS agent ===
+=== Report metric values ===
+
+rds.cong.cong_send_blocked PMID: 255.2.0 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.cong.cong_send_error PMID: 255.2.2 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.cong.cong_update_queued PMID: 255.2.1 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.cong.cong_update_received PMID: 255.2.3 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.conn.conn_reset PMID: 255.1.0 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.conn.qos_threshold_exceeded PMID: 255.1.1 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.ack.received PMID: 255.6.4 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.ack.send_delayed PMID: 255.6.2 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.ack.send_failure PMID: 255.6.1 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.ack.send_piggybacked PMID: 255.6.3 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.ack.sent PMID: 255.6.0 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.atomic.cswp PMID: 255.6.40 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.atomic.fadd PMID: 255.6.41 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.cm.watchdog_triggered PMID: 255.6.42 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.connect_raced PMID: 255.6.58 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.evt_handler_call PMID: 255.6.59 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.listen_closed_stale PMID: 255.6.62 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.1m_alloc PMID: 255.6.49 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.1m_free PMID: 255.6.50 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.1m_pool_depleted PMID: 255.6.54 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.1m_pool_flush PMID: 255.6.52 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.1m_pool_wait PMID: 255.6.53 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.1m_used PMID: 255.6.51 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.8k_alloc PMID: 255.6.43 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.8k_free PMID: 255.6.44 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.8k_pool_depleted PMID: 255.6.48 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.8k_pool_flush PMID: 255.6.46 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.8k_pool_wait PMID: 255.6.47 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rdma_mr.8k_used PMID: 255.6.45 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.alloc_limit PMID: 255.6.16 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.alloc PMID: 255.6.24 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.cache_added PMID: 255.6.30 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.cache_removed PMID: 255.6.31 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.free PMID: 255.6.25 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.get PMID: 255.6.20 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.get_miss PMID: 255.6.29 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.get_percpu PMID: 255.6.26 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.get_ready PMID: 255.6.28 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.nmb_cache_added PMID: 255.6.32 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.nmb_cache_removed PMID: 255.6.33 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.put PMID: 255.6.21 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.put_alloc PMID: 255.6.22 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.put_free PMID: 255.6.23 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cache.put_percpu PMID: 255.6.27 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.cq_event PMID: 255.6.10 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.credit_updates PMID: 255.6.19 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.refill_from_cm PMID: 255.6.12 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.refill_from_cq PMID: 255.6.13 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.refill_from_thread PMID: 255.6.14 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.refill_lock_taken PMID: 255.6.15 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.ring_empty PMID: 255.6.11 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.total_frags PMID: 255.6.17 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.rx.total_incs PMID: 255.6.18 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.srq.empty_refills PMID: 255.6.57 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.srq.lows PMID: 255.6.55 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.srq.refills PMID: 255.6.56 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.tasklet_call PMID: 255.6.60 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.tx.cq_event PMID: 255.6.61 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.tx.credit_updates PMID: 255.6.9 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.tx.ring_full PMID: 255.6.5 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.tx.sg_mapping_failure PMID: 255.6.7 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.tx.stalled PMID: 255.6.8 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.tx.throttle PMID: 255.6.6 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.yield.accepting PMID: 255.6.38 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.yield.expired PMID: 255.6.37 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.yield.right_of_way PMID: 255.6.35 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.yield.stale PMID: 255.6.36 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.yield.success PMID: 255.6.39 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.ib.yield.yielding PMID: 255.6.34 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.info.ib_conns PMID: 255.8.0 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+No value(s) available!
+
+rds.info.rds_conns PMID: 255.8.3 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+No value(s) available!
+
+rds.info.recv_queue PMID: 255.8.4 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+No value(s) available!
+
+rds.info.retrans_queue PMID: 255.8.6 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+No value(s) available!
+
+rds.info.send_queue PMID: 255.8.5 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+No value(s) available!
+
+rds.info.sockets PMID: 255.8.2 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+    value "0.0.0.0 0 0.0.0.0 0 106496 106496 1298273 0 27268 python3
+0.0.0.0 0 0.0.0.0 0 106496 106496 1298290 0 27268 python3
+0.0.0.0 0 0.0.0.0 0 106496 106496 1298291 0 27268 python3
+"
+
+rds.info.tcp_conns PMID: 255.8.1 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+No value(s) available!
+
+rds.lat.arp_cache PMID: 255.9.2 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+    value "10.211.9.162 dev eth0 lladdr 00:10:e0:e7:43:52 used 1749823/1749819/1749798 probes 4 STALE
+10.211.8.2 dev eth0 lladdr 58:ac:78:e3:66:7f used 3315483/3315543/3315483 probes 0 STALE
+10.211.8.3 dev eth0 lladdr 58:ac:78:e3:59:ff used 3315490/3315550/3315490 probes 0 STALE
+10.211.8.1 dev eth0 lladdr 00:00:0c:9f:f0:1f ref 1 used 38/4/33 probes 1 REACHABLE
+10.211.8.40 dev eth0 lladdr 56:6f:f5:fe:00:a9 used 9304/9299/9264 probes 1 STALE
+10.211.8.19 dev eth0 lladdr a4:4c:11:6c:c8:3f used 3299992/3300052/3299992 probes 0 STALE
+fe80::5aac:78ff:fee3:667f dev eth0 lladdr 58:ac:78:e3:66:7f router used 86/86/48 probes 1 STALE
+2606:b400:400:3451::2 dev eth0 lladdr 58:ac:78:e3:66:7f router used 18685/18685/18659 probes 1 STALE
+fe80::5:73ff:fea0:2 dev eth0 lladdr 00:05:73:a0:00:02 router used 91/91/52 probes 1 STALE
+"
+
+rds.lat.ping PMID: 255.9.0 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+    value ""
+
+rds.lat.rds_ping PMID: 255.9.1 []
+    Data Type: string  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help: <empty entry>
+    value "{}"
+
+rds.mem.copy_from_user PMID: 255.5.6 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.mem.copy_to_user PMID: 255.5.5 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.mem.page_allocs PMID: 255.5.0 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.mem.page_frees PMID: 255.5.2 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.mem.page_gets PMID: 255.5.1 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.mem.page_rem_hit PMID: 255.5.3 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.mem.page_rem_miss PMID: 255.5.4 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.ack_reqd PMID: 255.3.24 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.delayed_retry PMID: 255.3.23 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.drop.bad_csum PMID: 255.3.27 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.drop.dead_sock PMID: 255.3.30 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.drop.no_sock PMID: 255.3.29 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.drop.old_seq PMID: 255.3.28 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_deliver_raced PMID: 255.3.25 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_delivered PMID: 255.3.26 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_hb_ping PMID: 255.3.18 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_hb_pong PMID: 255.3.19 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_imm_retry PMID: 255.3.22 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_mprds_ping PMID: 255.3.20 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_mprds_pong PMID: 255.3.21 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_ping PMID: 255.3.16 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_pong PMID: 255.3.17 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_queued PMID: 255.3.14 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.rx.recv_rdma_bytes PMID: 255.3.15 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_ack_reqd PMID: 255.3.11 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_delayed_retry PMID: 255.3.10 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_drop_acked PMID: 255.3.12 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_hb_ping PMID: 255.3.5 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_hb_pong PMID: 255.3.6 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_imm_retry PMID: 255.3.9 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_mprds_ping PMID: 255.3.7 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_mprds_pong PMID: 255.3.8 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_ping PMID: 255.3.3 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_pong PMID: 255.3.4 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_queued PMID: 255.3.0 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_rdma PMID: 255.3.1 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_rdma_bytes PMID: 255.3.2 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 0
+
+rds.packet.tx.send_stuck_rm PMID: 255.3.13 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.sendq.q_empty PMID: 255.4.1 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.sendq.q_full PMID: 255.4.2 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.sendq.send_lock_contention PMID: 255.4.3 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.sendq.send_lock_q_raced PMID: 255.4.0 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count
+Help: <empty entry>
+    value 0
+
+rds.sock.bytes_added_to_sock PMID: 255.7.0 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 0
+
+rds.sock.bytes_freed_from_sock PMID: 255.7.1 []
+    Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: byte
+Help: <empty entry>
+    value 0
+
+=== Removing RDS agent ===

@@ -1,0 +1,77 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2025 Oracle and/or its affiliates.
+.\" DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMDARDS 1  "PCP" "Performance Co-Pilot" "General Commands Manual"
+.SH NAME
+\f3pmdards\f1 \- Performance Metrics Domain Agent (PMDA) for RDS
+.SH DESCRIPTION
+The
+.B RDS PMDA
+is a Performance Co-Pilot (PCP) module that collects and exports performance
+statistics for Reliable Datagram Sockets (RDS).
+.SH INSTALLATION
+To install the RDS PMDA, follow these steps:
+.RS
+.nf
+# cd $PCP_PMDAS_DIR/rds
+# ./Install
+.fi
+.RE
+
+To verify that the PMDA is running:
+.RS
+.nf
+$ pminfo -t rds
+.fi
+.RE
+
+.SH USAGE
+To query RDS metrics, use the following command:
+.RS
+.nf
+$ pminfo rds
+.fi
+.RE
+To retrieve specific metric values:
+.RS
+.nf
+$ pmval rds.packet.tx.send_queued
+.fi
+.RE
+
+.SH FILES
+.TP
+.I $PCP_PMDAS_DIR/rds/Install
+Installation script for RDS PMDA.
+.TP
+.I $PCP_PMDAS_DIR/rds/Remove
+Uninstallation script.
+.TP
+.I $PCP_LOG_DIR/pmcd/rds.log
+Log file for Rocestat PMDA events and errors.
+
+.SH PCP ENVIRONMENT
+Environment variables with the prefix PCP_ are used to parameterize the file and
+directory names used by PCP. On each installation, the file /etc/pcp.conf contains
+the local values for these variables. The $PCP_CONF variable may be used to specify
+an alternative configuration file, as described in pcp.conf(5).
+
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pminfo (1)
+and
+.BR PMDA (3).

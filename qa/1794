@@ -37,7 +37,7 @@ for archive in viewqa1 viewqa2 viewqa3 moomba.client proc
 do
     echo
     echo === pcp2arrow $archive
-    pcp2arrow -t 10 -o $tmp.$archive -a archives/$archive
+    pcp2arrow -z -t 10 -o $tmp.$archive -a archives/$archive
     find $tmp.$archive >> $seq_full
     $python -c "
 import pandas
@@ -62,7 +62,7 @@ for archive in viewqa1 moomba.client
 do
     echo
     echo === pcp2arrow --raw $archive
-    pcp2arrow -r -s 5 -o $tmp.raw.$archive -a archives/$archive kernel.all.load disk.all.read
+    pcp2arrow -z -r -s 5 -o $tmp.raw.$archive -a archives/$archive kernel.all.load disk.all.read
     find $tmp.raw.$archive >> $seq_full
     $python -c "
 import pandas
