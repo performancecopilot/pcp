@@ -122,6 +122,7 @@ rec {
   # Auto-detect and use docker or podman
   containerHelpers = ''
     CONTAINER_RUNTIME=""
+    CONTAINER_IP=""
 
     # Detect available container runtime
     detect_runtime() {
@@ -135,6 +136,12 @@ rec {
         exit 1
       fi
       info "Using container runtime: $CONTAINER_RUNTIME"
+    }
+
+    # Get container IP address (for direct connection, bypassing port mapping)
+    get_container_ip() {
+      local name="$1"
+      $CONTAINER_RUNTIME inspect "$name" --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 2>/dev/null
     }
 
     # Check if container exists (running or stopped)
@@ -176,13 +183,18 @@ rec {
 
   # ─── Port Verification Helpers ──────────────────────────────────────────
   portHelpers = ''
-    # Wait for a TCP port to be listening
+    # Wait for a TCP port to be listening (uses container IP)
     wait_for_port() {
       local port="$1"
       local timeout="$2"
       local elapsed=0
 
-      while ! nc -z localhost "$port" 2>/dev/null; do
+      # Get container IP if not set
+      if [[ -z "$CONTAINER_IP" ]]; then
+        CONTAINER_IP=$(get_container_ip "$CONTAINER_NAME")
+      fi
+
+      while ! nc -z "$CONTAINER_IP" "$port" 2>/dev/null; do
         sleep 1
         elapsed=$((elapsed + 1))
         if [[ $elapsed -ge $timeout ]]; then
@@ -192,19 +204,28 @@ rec {
       return 0
     }
 
-    # Check if port is listening
+    # Check if port is listening (uses container IP)
     port_is_open() {
       local port="$1"
-      nc -z localhost "$port" 2>/dev/null
+
+      # Get container IP if not set
+      if [[ -z "$CONTAINER_IP" ]]; then
+        CONTAINER_IP=$(get_container_ip "$CONTAINER_NAME")
+      fi
+
+      nc -z "$CONTAINER_IP" "$port" 2>/dev/null
     }
   '';
 
   # ─── Process Verification Helpers ───────────────────────────────────────
   processHelpers = ''
     # Check if a process is running inside the container
+    # Uses /proc/1/comm since the container runs pmcd as PID 1
     check_process_in_container() {
       local proc="$1"
-      container_exec pgrep -x "$proc" &>/dev/null
+      local comm
+      comm=$(container_exec cat /proc/1/comm 2>/dev/null || true)
+      [[ "$comm" == "$proc" ]]
     }
 
     # Wait for process to appear in container
@@ -226,10 +247,16 @@ rec {
 
   # ─── Metric Verification Helpers ────────────────────────────────────────
   metricHelpers = ''
-    # Check if a metric is available via pminfo
+    # Check if a metric is available via pminfo (uses container IP)
     check_metric() {
       local metric="$1"
-      pminfo -h localhost -f "$metric" &>/dev/null
+
+      # Get container IP if not set
+      if [[ -z "$CONTAINER_IP" ]]; then
+        CONTAINER_IP=$(get_container_ip "$CONTAINER_NAME")
+      fi
+
+      pminfo -h "$CONTAINER_IP" -f "$metric" &>/dev/null
     }
 
     # Verify all metrics in a space-separated list

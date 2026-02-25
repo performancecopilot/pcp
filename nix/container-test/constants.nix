@@ -34,11 +34,12 @@ rec {
     # Processes to verify inside container
     processes = [ "pmcd" ];
 
-    # Metrics to verify via pminfo -h localhost
+    # Metrics to verify via pminfo -h container
+    # Note: Use pmcd metrics since linux PMDA requires root
     metrics = [
-      "kernel.all.load"
-      "kernel.all.cpu.user"
-      "mem.physmem"
+      "pmcd.version"
+      "pmcd.numagents"
+      "pmcd.services"
     ];
   };
 

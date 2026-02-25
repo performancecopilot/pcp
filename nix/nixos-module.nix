@@ -62,13 +62,13 @@ let
     PCP_DIR = pcpDir;
     # Point to generated pmcd.conf (overrides default location)
     PCP_PMCDCONF_PATH = "/etc/pcp/pmcd/pmcd.conf";
-    # Mutable runtime paths (the Nix store versions are read-only)
-    PCP_LOG_DIR = "/var/log/pcp";
-    PCP_VAR_DIR = "/var/lib/pcp";
-    PCP_TMP_DIR = "/var/lib/pcp/tmp";
-    PCP_RUN_DIR = "/run/pcp";
+    # Mutable runtime paths (from constants.nix - Nix store versions are read-only)
+    PCP_LOG_DIR = constants.paths.logDir;
+    PCP_VAR_DIR = constants.paths.varDir;
+    PCP_TMP_DIR = constants.paths.tmpDir;
+    PCP_RUN_DIR = constants.paths.runDir;
     # pmlogger archive directory (must be writable)
-    PCP_ARCHIVE_DIR = "/var/log/pcp/pmlogger";
+    PCP_ARCHIVE_DIR = constants.paths.archiveDir;
     # Override hardcoded /bin/pwd path in shell scripts (see shell-portable-pwd.patch)
     PWDCMND = "pwd";
   };

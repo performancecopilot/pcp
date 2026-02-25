@@ -12,6 +12,40 @@
 # conflicts when testing. See variantPortOffsets below.
 #
 rec {
+  # ─── User/Group Configuration ─────────────────────────────────────────
+  # Standard PCP user/group IDs (matches upstream packages)
+  user = {
+    name = "pcp";
+    uid = 990;
+    gid = 990;
+    home = "/var/lib/pcp";
+    description = "Performance Co-Pilot";
+  };
+
+  # ─── PCP Directory Paths ──────────────────────────────────────────────
+  # Mutable paths that override Nix store defaults (read-only).
+  # Used by both nixos-module.nix and container.nix.
+  paths = {
+    logDir = "/var/log/pcp";
+    varDir = "/var/lib/pcp";
+    tmpDir = "/var/lib/pcp/tmp";
+    runDir = "/run/pcp";
+    archiveDir = "/var/log/pcp/pmlogger";
+  };
+
+  # Log subdirectories that need to be created
+  logSubdirs = [ "pmcd" "pmlogger" "pmie" "pmproxy" ];
+
+  # Symlinks from /var/lib/pcp/* to package store paths
+  # These provide access to read-only package data
+  storeSymlinks = [ "pmns" "pmdas" "pmcd" ];
+
+  # Config symlinks (read-only from package)
+  configSymlinks = [ "derived" "pmafm" "pmieconf" "pmlogconf" "pmlogredact" "pmlogrewrite" ];
+
+  # Config directories that need to be writable
+  configWritableDirs = [ "pmda" "pmie" "pmlogger" ];
+
   # ─── Network Configuration ─────────────────────────────────────────────
   # These are defaults. For custom deployments, override via module options.
   network = {

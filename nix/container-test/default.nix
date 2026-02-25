@@ -24,6 +24,9 @@ let
   # PCP tools for metric verification (use local package, not nixpkgs)
   pcpInputs = [ pcp ];
 
+  # PCP_CONF path for pminfo to find its configuration
+  pcpConfPath = "${pcp}/share/pcp/etc/pcp.conf";
+
   # ─── Full Lifecycle Test Script ─────────────────────────────────────────
   # Tests the complete container lifecycle:
   # Build -> Load -> Start -> Verify -> Shutdown -> Cleanup
@@ -33,6 +36,9 @@ let
     runtimeInputs = commonInputs ++ containerInputs ++ pcpInputs;
     text = ''
       set +e  # Don't exit on first failure
+
+      # Set PCP_CONF so pminfo can find its configuration
+      export PCP_CONF="${pcpConfPath}"
 
       ${colorHelpers}
       ${timingHelpers}
@@ -188,7 +194,7 @@ let
       port_passed=0
       port_failed=0
 
-      for port in $PMCD_PORT $PMPROXY_PORT; do
+      for port in $PMCD_PORT; do  # Only pmcd runs in container
         port_start=$(time_ms)
         if wait_for_port "$port" ${toString constants.timeouts.ready}; then
           result_pass "Port $port listening" "$(elapsed_ms "$port_start")"
@@ -299,6 +305,9 @@ let
     text = ''
       set +e
 
+      # Set PCP_CONF so pminfo can find its configuration
+      export PCP_CONF="${pcpConfPath}"
+
       ${colorHelpers}
       ${timingHelpers}
       ${containerHelpers}
@@ -354,7 +363,7 @@ let
       '') constants.checks.processes}
 
       # Verify ports
-      for port in $PMCD_PORT $PMPROXY_PORT; do
+      for port in $PMCD_PORT; do  # Only pmcd runs in container
         if port_is_open "$port"; then
           result_pass "Port $port listening"
           TOTAL_PASSED=$((TOTAL_PASSED + 1))
