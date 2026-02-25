@@ -31,12 +31,12 @@ Shape: (1, 26674)
 
 === pcp2arrow --raw viewqa1
 Columns: ['disk.all.read', 'timestamp']
-Shape: (3, 2)
+Shape: (5, 2)
 Has timestamp: True
 Timestamp valid: True
 
 === pcp2arrow --raw moomba.client
 Columns: ['kernel.all.load[1 minute]', 'kernel.all.load[15 minute]', 'kernel.all.load[5 minute]', 'timestamp']
-Shape: (1, 4)
+Shape: (5, 4)
 Has timestamp: True
 Timestamp valid: True
