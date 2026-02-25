@@ -90,6 +90,9 @@
 
       in
       {
+        # Import lifecycle testing framework
+        lifecycle = import ./nix/lifecycle { inherit pkgs lib; };
+
         packages = {
           default = pcp;
           inherit pcp;
@@ -100,6 +103,8 @@
           }
           # MicroVM packages for all variants
           // mkVariantPackages
+          # Lifecycle testing packages
+          // lifecycle.packages
         );
 
         checks = lib.optionalAttrs pkgs.stdenv.isLinux {
@@ -184,6 +189,8 @@
           }
           # Per-variant test apps
           // testApps
+          # Lifecycle testing apps
+          // lifecycle.apps
         );
       }
     );
