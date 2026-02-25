@@ -88,11 +88,13 @@
             // lib.optionalAttrs (tapPkg ? name) { ${tapPkg.name} = tapPkg.value; }
         ) {} variants.variantNames;
 
+        # Import lifecycle testing framework (Linux only)
+        lifecycle = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/lifecycle { inherit pkgs lib; }
+        );
+
       in
       {
-        # Import lifecycle testing framework
-        lifecycle = import ./nix/lifecycle { inherit pkgs lib; };
-
         packages = {
           default = pcp;
           inherit pcp;
