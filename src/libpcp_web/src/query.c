@@ -6333,11 +6333,12 @@ static void
 parsetime(seriesQueryBaton *baton, sds string, struct timespec *result, const char *source)
 {
     struct timespec	start = { 0, 0 };
-    struct timespec	end = { PM_MAX_TIME_T, 0 };
+    struct timespec	end;	/* wall clock — enables negative-relative branch */
     char		*error;
     sds			msg;
     int			sts;
 
+    pmtimespecNow(&end);
     if ((sts = __pmtimespecParse(string, &start, &end, result, &error)) < 0) {
 	msg = NULL;
 	infofmt(msg, "Cannot parse time %s with %s:\n%s",
@@ -6484,6 +6485,12 @@ pmSeriesValues(pmSeriesSettings *settings, pmSeriesTimeWindow *timing,
 	return -ENOMEM;
     initSeriesQueryBaton(baton, settings, arg);
     initSeriesGetValues(baton, nseries, series, timing);
+    if (baton->error) {
+	/* parse error or alloc failure — abort before launching async phases */
+	int sts = baton->error;
+	series_query_finished(baton);
+	return sts;
+    }
 
     baton->current = &baton->phases[0];
     baton->phases[i++].func = series_lookup_services;
