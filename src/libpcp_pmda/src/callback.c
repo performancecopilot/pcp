@@ -476,18 +476,18 @@ pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *
  * The first byte of the (unused) timestamp field has been
  * co-opted as a flags byte - now indicating state changes
  * that have happened within a PMDA and that need to later
- * be propogated through to any connected clients.
+ * be propagated through to any connected clients.
  */
 
 static void
 __pmdaEncodeStatus(pmdaResult *result, unsigned char byte)
 {
-    unsigned char	*flags;
+    uint64_t    *flags;
 
     memset(&result->timestamp, 0, sizeof(result->timestamp));
     if (byte) {
-	flags = (unsigned char *)&result->timestamp;
-	*flags |= byte;
+        flags = (uint64_t *)&result->timestamp;
+        *flags = byte;
     }
 }
 
