@@ -93,7 +93,7 @@ redoc = [
     },
 ]
 
-redoc_uri = 'https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'
+redoc_uri = 'https://cdn.jsdelivr.net/npm/redoc@next/bundle/redoc.standalone.js'
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
