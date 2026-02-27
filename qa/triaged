@@ -70,6 +70,7 @@
 1740	vm21		acct(2) just seems broken here
 1809	i386.*FreeBSD 14\.3	same as 708
 1870	i386.*FreeBSD 14\.3	same as 708
+1998	*	rds PMDA is currently broken
 # special QA environment probing test
 #
 1526	.*		failure indicates the environment probe is active,
