@@ -817,9 +817,8 @@ then
 	case "$__x"
 	in
 	    *'Connection refused')
-		# OK, now this might be a Fedora 27 style config set up
-		# where PMCD_LOCAL is set in the environment before the
-		# pmcd start up script is run
+		# PMCD_LOCAL is typically set by default in the environment
+		# before the pmcd start up script is run
 		#
 		if [ -n "$PCP_SYSCONFIG_DIR" -a -f $PCP_SYSCONFIG_DIR/pmcd ]
 		then
