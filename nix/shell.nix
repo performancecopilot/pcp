@@ -14,6 +14,10 @@ pkgs.mkShell {
     jp2a
   ] ++ lib.optionals pkgs.stdenv.isLinux [
     valgrind
+    # K8s testing tools
+    minikube
+    kubectl
+    docker
   ] ++ lib.optionals pkgs.stdenv.isDarwin [
     lldb
   ];

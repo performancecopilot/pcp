@@ -10,7 +10,7 @@
 #   containerTest.packages.pcp-container-test  - Full lifecycle test
 #   containerTest.apps.pcp-container-test      - App entry point
 #
-{ pkgs, lib, pcp }:
+{ pkgs, lib, pcp, containerInputsHash }:
 let
   constants = import ./constants.nix { };
   mainConstants = import ../constants.nix;
@@ -58,6 +58,8 @@ let
 
       # Metrics to verify
       METRICS="${lib.concatStringsSep " " constants.checks.metrics}"
+      KERNEL_METRICS="${lib.concatStringsSep " " constants.checks.kernelMetrics}"
+      BPF_METRICS="${lib.concatStringsSep " " constants.checks.bpfMetrics}"
 
       # Timing tracking
       declare -A PHASE_TIMES
@@ -66,6 +68,7 @@ let
       # Results tracking
       TOTAL_PASSED=0
       TOTAL_FAILED=0
+      TOTAL_SKIPPED=0
 
       record_result() {
         local phase="$1"
@@ -74,6 +77,8 @@ let
         PHASE_TIMES["$phase"]=$time_ms
         if [[ "$passed" == "true" ]]; then
           TOTAL_PASSED=$((TOTAL_PASSED + 1))
+        elif [[ "$passed" == "skip" ]]; then
+          TOTAL_SKIPPED=$((TOTAL_SKIPPED + 1))
         else
           TOTAL_FAILED=$((TOTAL_FAILED + 1))
         fi
@@ -123,19 +128,41 @@ let
       phase_header "1" "Load Image" "${toString constants.timeouts.load}"
       start_time=$(time_ms)
 
-      info "  Loading image into $CONTAINER_RUNTIME..."
-      if $CONTAINER_RUNTIME load < "$RESULT_LINK" 2>&1 | while read -r line; do
-        echo "    $line"
-      done; then
+      # Fast cache check using Nix inputs hash label
+      EXPECTED_HASH="${containerInputsHash}"
+      LOADED_HASH=""
+
+      # Check if image exists and get its inputs hash label
+      if $CONTAINER_RUNTIME image inspect "$IMAGE" &>/dev/null; then
+        LOADED_HASH=$($CONTAINER_RUNTIME inspect "$IMAGE" --format '{{index .Config.Labels "nix.inputs.hash"}}' 2>/dev/null || echo "")
+      fi
+
+      # Show cache check status
+      if [[ -n "$LOADED_HASH" ]]; then
+        info "  Cache: expected=$EXPECTED_HASH loaded=$LOADED_HASH"
+      else
+        info "  Cache: no existing image label found"
+      fi
+
+      if [[ -n "$EXPECTED_HASH" && "$EXPECTED_HASH" == "$LOADED_HASH" ]]; then
         elapsed=$(elapsed_ms "$start_time")
-        result_pass "Image loaded" "$elapsed"
+        result_pass "Image unchanged, skipping load" "$elapsed"
         record_result "load" "true" "$elapsed"
       else
-        elapsed=$(elapsed_ms "$start_time")
-        result_fail "Failed to load image" "$elapsed"
-        record_result "load" "false" "$elapsed"
-        cleanup
-        exit 1
+        info "  Loading image into $CONTAINER_RUNTIME..."
+        if $CONTAINER_RUNTIME load < "$RESULT_LINK" 2>&1 | while read -r line; do
+          echo "    $line"
+        done; then
+          elapsed=$(elapsed_ms "$start_time")
+          result_pass "Image loaded" "$elapsed"
+          record_result "load" "true" "$elapsed"
+        else
+          elapsed=$(elapsed_ms "$start_time")
+          result_fail "Failed to load image" "$elapsed"
+          record_result "load" "false" "$elapsed"
+          cleanup
+          exit 1
+        fi
       fi
 
       # ─── Phase 2: Start Container ─────────────────────────────────────────
@@ -149,9 +176,11 @@ let
         sleep 1
       fi
 
-      info "  Starting container with port mappings..."
+      info "  Starting container with port mappings (privileged + root for BPF)..."
       if $CONTAINER_RUNTIME run -d \
           --name "$CONTAINER_NAME" \
+          --privileged \
+          --user root \
           -p "$PMCD_PORT:$PMCD_PORT" \
           -p "$PMPROXY_PORT:$PMPROXY_PORT" \
           "$IMAGE" 2>&1; then
@@ -237,6 +266,87 @@ let
         record_result "metrics" "false" "$elapsed"
       fi
 
+      # ─── Phase 5b: Verify Kernel Metrics ─────────────────────────────────
+      phase_header "5b" "Verify Kernel Metrics" "${toString constants.timeouts.ready}"
+      start_time=$(time_ms)
+
+      kernel_passed=0
+      kernel_failed=0
+
+      for metric in $KERNEL_METRICS; do
+        met_start=$(time_ms)
+        if check_metric "$metric"; then
+          result_pass "$metric" "$(elapsed_ms "$met_start")"
+          kernel_passed=$((kernel_passed + 1))
+        else
+          result_fail "$metric not available" "$(elapsed_ms "$met_start")"
+          kernel_failed=$((kernel_failed + 1))
+        fi
+      done
+
+      elapsed=$(elapsed_ms "$start_time")
+      if [[ $kernel_failed -eq 0 ]]; then
+        record_result "kernel_metrics" "true" "$elapsed"
+      else
+        record_result "kernel_metrics" "false" "$elapsed"
+      fi
+
+      # ─── Phase 5c: Verify BPF Metrics ────────────────────────────────────
+      phase_header "5c" "Verify BPF Metrics" "${toString constants.timeouts.ready}"
+      start_time=$(time_ms)
+
+      BPF_AVAILABLE=true
+
+      # Check if BPF PMDA is loaded
+      if ! check_metric "bpf"; then
+        warn "  BPF PMDA not loaded - BPF metrics will be skipped"
+        BPF_AVAILABLE=false
+      fi
+
+      if $BPF_AVAILABLE; then
+        bpf_passed=0
+        bpf_failed=0
+
+        for metric in $BPF_METRICS; do
+          met_start=$(time_ms)
+          # BPF histogram metrics need time to populate, retry a few times
+          retry=0
+          max_retries=6
+          metric_ok=false
+
+          while [[ $retry -lt $max_retries ]]; do
+            if pminfo -h "$CONTAINER_IP" -f "$metric" 2>/dev/null | grep -qE '(inst|value)'; then
+              metric_ok=true
+              break
+            fi
+            sleep 5
+            retry=$((retry + 1))
+          done
+
+          if $metric_ok; then
+            result_pass "$metric" "$(elapsed_ms "$met_start")"
+            bpf_passed=$((bpf_passed + 1))
+          else
+            result_fail "$metric not available" "$(elapsed_ms "$met_start")"
+            bpf_failed=$((bpf_failed + 1))
+          fi
+        done
+
+        elapsed=$(elapsed_ms "$start_time")
+        if [[ $bpf_failed -eq 0 ]]; then
+          record_result "bpf_metrics" "true" "$elapsed"
+        else
+          record_result "bpf_metrics" "false" "$elapsed"
+        fi
+      else
+        for metric in $BPF_METRICS; do
+          result_skip "$metric (BPF unavailable)"
+          TOTAL_SKIPPED=$((TOTAL_SKIPPED + 1))
+        done
+        elapsed=$(elapsed_ms "$start_time")
+        record_result "bpf_metrics" "skip" "$elapsed"
+      fi
+
       # ─── Phase 6: Shutdown ────────────────────────────────────────────────
       phase_header "6" "Shutdown" "${toString constants.timeouts.shutdown}"
       start_time=$(time_ms)
@@ -273,7 +383,7 @@ let
       echo "  $(printf '─%.0s' {1..37})"
       printf "  %-20s %10s\n" "Phase" "Time (ms)"
       echo "  $(printf '─%.0s' {1..37})"
-      for phase in build load start process ports metrics shutdown cleanup; do
+      for phase in build load start process ports metrics kernel_metrics bpf_metrics shutdown cleanup; do
         if [[ -n "''${PHASE_TIMES[$phase]:-}" ]]; then
           printf "  %-20s %10s\n" "$phase" "''${PHASE_TIMES[$phase]}"
         fi
@@ -285,7 +395,11 @@ let
       echo ""
       bold "========================================"
       if [[ $TOTAL_FAILED -eq 0 ]]; then
-        success "  Result: ALL PHASES PASSED"
+        if [[ $TOTAL_SKIPPED -gt 0 ]]; then
+          success "  Result: PASSED ($TOTAL_SKIPPED skipped)"
+        else
+          success "  Result: ALL PHASES PASSED"
+        fi
         success "  Total time: $(format_ms "$TOTAL_ELAPSED")"
       else
         error "  Result: $TOTAL_FAILED CHECKS FAILED"

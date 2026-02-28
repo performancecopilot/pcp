@@ -1,122 +1,21 @@
 # nix/container-test/lib.nix
 #
 # Shell helper functions for PCP container lifecycle testing.
-# Provides reusable shell code for color output, timing, and container operations.
+# Provides container-specific operations on top of shared helpers.
 #
 { pkgs, lib }:
 let
-  constants = import ./constants.nix { };
-  mainConstants = import ../constants.nix;
+  # Import shared helpers
+  sharedHelpers = import ../test-common/shell-helpers.nix { };
+  sharedInputs = import ../test-common/inputs.nix { inherit pkgs; };
 in
 rec {
-  # Common runtime inputs for container test scripts
-  commonInputs = with pkgs; [
-    coreutils
-    gnugrep
-    gnused
-    gawk
-    procps
-    netcat-gnu
-    bc
-    util-linux
-    nix
-  ];
+  # Runtime inputs - use shared common + container-specific
+  commonInputs = sharedInputs.common;
+  containerInputs = sharedInputs.container;
 
-  # Container runtime inputs (docker or podman)
-  containerInputs = with pkgs; [
-    docker
-  ];
-
-  # ─── Color Helpers ──────────────────────────────────────────────────────
-  # ANSI color codes for terminal output (reused from lifecycle/lib.nix)
-  colorHelpers = ''
-    # ANSI color codes
-    _reset='\033[0m'
-    _bold='\033[1m'
-    _red='\033[31m'
-    _green='\033[32m'
-    _yellow='\033[33m'
-    _blue='\033[34m'
-    _cyan='\033[36m'
-
-    # Color output functions
-    info() { echo -e "''${_cyan}$*''${_reset}"; }
-    success() { echo -e "''${_green}$*''${_reset}"; }
-    warn() { echo -e "''${_yellow}$*''${_reset}"; }
-    error() { echo -e "''${_red}$*''${_reset}"; }
-    bold() { echo -e "''${_bold}$*''${_reset}"; }
-
-    # Phase header
-    phase_header() {
-      local phase="$1"
-      local name="$2"
-      local timeout="$3"
-      echo ""
-      echo -e "''${_bold}--- Phase $phase: $name (timeout: ''${timeout}s) ---''${_reset}"
-    }
-
-    # Pass/fail result with timing
-    result_pass() {
-      local msg="$1"
-      local time_ms="''${2:-}"
-      if [[ -n "$time_ms" ]]; then
-        echo -e "  ''${_green}PASS''${_reset}: $msg (''${time_ms}ms)"
-      else
-        echo -e "  ''${_green}PASS''${_reset}: $msg"
-      fi
-    }
-
-    result_fail() {
-      local msg="$1"
-      local time_ms="''${2:-}"
-      if [[ -n "$time_ms" ]]; then
-        echo -e "  ''${_red}FAIL''${_reset}: $msg (''${time_ms}ms)"
-      else
-        echo -e "  ''${_red}FAIL''${_reset}: $msg"
-      fi
-    }
-
-    result_warn() {
-      local msg="$1"
-      local time_ms="''${2:-}"
-      if [[ -n "$time_ms" ]]; then
-        echo -e "  ''${_yellow}WARN''${_reset}: $msg (''${time_ms}ms)"
-      else
-        echo -e "  ''${_yellow}WARN''${_reset}: $msg"
-      fi
-    }
-  '';
-
-  # ─── Timing Helpers ─────────────────────────────────────────────────────
-  # Millisecond timing for phase durations (reused from lifecycle/lib.nix)
-  timingHelpers = ''
-    # Get current time in milliseconds
-    time_ms() {
-      echo $(($(date +%s%N) / 1000000))
-    }
-
-    # Calculate elapsed time in milliseconds
-    elapsed_ms() {
-      local start="$1"
-      local now
-      now=$(time_ms)
-      echo $((now - start))
-    }
-
-    # Convert milliseconds to human-readable format
-    format_ms() {
-      local ms="$1"
-      if [[ $ms -lt 1000 ]]; then
-        echo "''${ms}ms"
-      elif [[ $ms -lt 60000 ]]; then
-        echo "$((ms / 1000)).$((ms % 1000 / 100))s"
-      else
-        local mins=$((ms / 60000))
-        local secs=$(((ms % 60000) / 1000))
-        echo "''${mins}m''${secs}s"
-      fi
-    }
-  '';
+  # Re-export shared shell helpers
+  inherit (sharedHelpers) colorHelpers timingHelpers;
 
   # ─── Container Runtime Helpers ──────────────────────────────────────────
   # Auto-detect and use docker or podman

@@ -71,7 +71,8 @@ rec {
 
     # Host-side port forwarding (user-mode networking)
     # These avoid conflicts with services running on the host
-    sshForward = 22022;
+    # Note: Base starts at 22122 to avoid conflicts with common services
+    sshForward = 22122;
     prometheusForward = 19090;
     grafanaForward = 13000;
   };
