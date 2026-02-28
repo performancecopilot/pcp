@@ -97,7 +97,7 @@ EOF
 src/time_stamp $tmp.stamp 'pmproxy start' >>$seq_full
 grind_extra="--track-origins=yes --read-var-info=yes --read-inline-info=yes"
 # skip valgrind errors in upstream non-PCP code, like libvalkey ...
-# (seen on vm11 Debian 10.13)
+# (seen on vm11 Debian 10.13 and vm21 i686 Debian 13.3)
 # ... same suppressions as for qa/1290
 #
 cat <<'End-of-File' >$tmp.suppress
@@ -128,6 +128,21 @@ cat <<'End-of-File' >$tmp.suppress
    ...
 }
 {
+   libvalkey version of previous one
+   Memcheck:Cond
+   fun:__udivdi3
+   fun:digits10
+   fun:ull2string
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
    sds.c: conditional: value and v seems well defined, so maybe valgrind botch
    Memcheck:Cond
    fun:sdsll2str
@@ -140,6 +155,90 @@ cat <<'End-of-File' >$tmp.suppress
    ...
 }
 {
+   libvalkey version of previous one
+   Memcheck:Cond
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+} 
+{
+   libvalkey similar to above, unsigned this time
+   Memcheck:Cond
+   fun:ull2string
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   libvalkey and again, different Memcheck this time
+   Memcheck:Value4
+   fun:ull2string
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   and a similar libvalkey one
+   Memcheck:Cond
+   fun:digits10
+   fun:ull2string
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   sds.c: same as above when we don't have symbols
+   Memcheck:Cond
+   ...
+   fun:sdscatfmt
+   ...
+   fun:pmSeriesDiscoverValues
+   ...
+}
+{
+   libvalkey variant of above, no symbols, very wide match
+   Memcheck:Cond
+   ...
+   fun:sdscatfmt
+   ...
+}
+{
+   sds.c: same as above when we don't have symbols, but different Memcheck
+   Memcheck:Value4
+   ...
+   fun:sdscatfmt
+   ...
+   fun:pmSeriesDiscoverValues
+   ...
+}
+{
+   libvalkey variant of above, no symbols, very wide match
+   Memcheck:Value4
+   ...
+   fun:sdscatfmt
+   ...
+}
+{
    net.c: uninitialized buffer on async i/o path
    Memcheck:Param
    socketcall.send(msg)
@@ -148,6 +247,38 @@ cat <<'End-of-File' >$tmp.suppress
    fun:redisBufferWrite
    fun:redisAsyncWrite
    ...
+}
+{
+   net.c: same as above when we don't have symbols
+   Memcheck:Param
+   socketcall.send(msg)
+   fun:send
+   ...
+   fun:uv__io_poll
+   fun:uv_run
+   ...
+}
+{
+   same for libvalkey
+   Memcheck:Param
+   socketcall.send(msg)
+   ...
+   fun:send
+   ...
+   fun:valkeyNetWrite
+   fun:valkeyBufferWrite
+   fun:valkeyAsyncWrite
+   fun:valkeyLibuvPoll
+   ...
+}
+{
+   and libvalkey, no symbols
+   Memcheck:Param
+   socketcall.send(msg)
+   ...
+   fun:send
+   ...
+   fun:uv_run
 }
 End-of-File
 grind_extra="$grind_extra --suppressions=$tmp.suppress"

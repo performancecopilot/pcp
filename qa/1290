@@ -266,8 +266,8 @@ else
     echo "Warning: no extra suppressions found for valgrind version $__version" >>$seq_full
 fi
 # skip valgrind errors in upstream non-PCP code, like libvalkey ...
-# (seen on vm11 Debian 10.13)
-# ... same suppressions as for qa/1662
+# (seen on vm11 Debian 10.13 and vm21 i686 Debian 13.3)
+# ... the same suppressions as for qa/1662
 #
 cat <<'End-of-File' >$tmp.suppress
 {
@@ -297,9 +297,76 @@ cat <<'End-of-File' >$tmp.suppress
    ...
 }
 {
+   libvalkey version of previous one
+   Memcheck:Cond
+   fun:__udivdi3
+   fun:digits10
+   fun:ull2string
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
    sds.c: conditional: value and v seems well defined, so maybe valgrind botch
    Memcheck:Cond
    fun:sdsll2str
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   libvalkey version of previous one
+   Memcheck:Cond
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+} 
+{
+   libvalkey similar to above, unsigned this time
+   Memcheck:Cond
+   fun:ull2string
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   libvalkey and again, different Memcheck this time
+   Memcheck:Value4
+   fun:ull2string
+   fun:ll2string
+   fun:sdscatfmt
+   fun:keys_series_label
+   ...
+   fun:keys_series_labelset
+   fun:keys_series_metadata
+   fun:keys_series_metric
+   ...
+}
+{
+   and a similar libvalkey one
+   Memcheck:Cond
+   fun:digits10
+   fun:ull2string
+   fun:ll2string
    fun:sdscatfmt
    fun:keys_series_label
    ...
@@ -318,12 +385,26 @@ cat <<'End-of-File' >$tmp.suppress
    ...
 }
 {
+   libvalkey variant of above, no symbols, very wide match
+   Memcheck:Cond
+   ...
+   fun:sdscatfmt
+   ...
+}
+{
    sds.c: same as above when we don't have symbols, but different Memcheck
    Memcheck:Value4
    ...
    fun:sdscatfmt
    ...
    fun:pmSeriesDiscoverValues
+   ...
+}
+{
+   libvalkey variant of above, no symbols, very wide match
+   Memcheck:Value4
+   ...
+   fun:sdscatfmt
    ...
 }
 {
@@ -345,6 +426,28 @@ cat <<'End-of-File' >$tmp.suppress
    fun:uv__io_poll
    fun:uv_run
    ...
+}
+{
+   same for libvalkey
+   Memcheck:Param
+   socketcall.send(msg)
+   ...
+   fun:send
+   ...
+   fun:valkeyNetWrite
+   fun:valkeyBufferWrite
+   fun:valkeyAsyncWrite
+   fun:valkeyLibuvPoll
+   ...
+}
+{
+   and libvalkey, no symbols
+   Memcheck:Param
+   socketcall.send(msg)
+   ...
+   fun:send
+   ...
+   fun:uv_run
 }
 End-of-File
 __extra="$__extra --suppressions=$tmp.suppress"
