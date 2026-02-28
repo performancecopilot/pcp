@@ -1,7 +1,29 @@
 #
 # flake.nix - PCP Nix packaging
 #
+# Quick Start:
+#   nix build                         # Build PCP package
+#   nix develop                       # Development shell
+#   nix flake show                    # List all outputs
+#
+# Run All Tests:
+#   nix run .#pcp-test-all            # Container + K8s + MicroVM tests
+#
+# Individual Tests:
+#   nix run .#pcp-container-test      # Docker/Podman lifecycle
+#   nix run .#pcp-k8s-test            # Kubernetes DaemonSet (needs minikube)
+#   nix run .#pcp-test-all-microvms   # All MicroVM variants
+#
+# MicroVM with TAP networking (for Grafana dashboards):
+#   nix run .#pcp-check-host                # Verify host environment
+#   sudo nix run .#pcp-network-setup        # Create TAP bridge (requires sudo)
+#   nix build .#pcp-microvm-grafana-tap && ./result/bin/microvm-run
+#   # Access Grafana at http://10.177.0.20:3000
+#   nix run .#pcp-vm-stop                   # Stop VM
+#   sudo nix run .#pcp-network-teardown     # Cleanup (requires sudo)
+#
 # See also: ./docs/HowTos/nix/index.rst
+#
 {
   description = "Performance Co-Pilot (PCP) - system performance monitoring toolkit";
 
@@ -94,9 +116,32 @@
           import ./nix/lifecycle { inherit pkgs lib; }
         );
 
+        # Import container module (Linux only) - returns { image, inputsHash }
+        containerModule = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/container.nix { inherit pkgs pcp; }
+        );
+
         # Import container testing framework (Linux only)
         containerTest = lib.optionalAttrs pkgs.stdenv.isLinux (
-          import ./nix/container-test { inherit pkgs lib pcp; }
+          import ./nix/container-test {
+            inherit pkgs lib pcp;
+            containerInputsHash = containerModule.inputsHash or "";
+          }
+        );
+
+        # Import Kubernetes testing framework (Linux only)
+        k8sTest = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/k8s-test {
+            inherit pkgs lib pcp;
+            containerInputsHash = containerModule.inputsHash or "";
+          }
+        );
+
+        # Import test-all runner (Linux only)
+        testAll = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/test-all {
+            inherit pkgs lib containerTest k8sTest;
+          }
         );
 
       in
@@ -107,7 +152,7 @@
         } // lib.optionalAttrs pkgs.stdenv.isLinux (
           {
             # OCI container image (Linux only)
-            pcp-container = import ./nix/container.nix { inherit pkgs pcp; };
+            pcp-container = containerModule.image;
           }
           # MicroVM packages for all variants
           // mkVariantPackages
@@ -115,6 +160,10 @@
           // lifecycle.packages
           # Container testing packages
           // containerTest.packages
+          # Kubernetes testing packages
+          // k8sTest.packages
+          # Test-all runner
+          // testAll.packages
         );
 
         checks = lib.optionalAttrs pkgs.stdenv.isLinux {
@@ -203,6 +252,10 @@
           // lifecycle.apps
           # Container testing apps
           // containerTest.apps
+          # Kubernetes testing apps
+          // k8sTest.apps
+          # Test-all runner
+          // testAll.apps
         );
       }
     );

@@ -293,6 +293,24 @@ Flake Outputs Reference
      - Check VM status (process, consoles, SSH)
    * - ``pcp-lifecycle-force-kill-<variant>``
      - Force kill a stuck VM
+   * - **Testing - Run All**
+     -
+   * - ``pcp-test-all``
+     - Run all tests sequentially (container + k8s + microvm)
+   * - **Container Testing**
+     -
+   * - ``pcp-container-test``
+     - Full container lifecycle test (build, run, verify, cleanup)
+   * - ``pcp-container-test-quick``
+     - Quick test (skip build, assume image loaded)
+   * - **Kubernetes Testing**
+     -
+   * - ``pcp-k8s-test``
+     - Full K8s DaemonSet lifecycle test (requires minikube)
+   * - ``pcp-k8s-test-quick``
+     - Quick test (skip build, assume image loaded)
+   * - ``pcp-minikube-start``
+     - Start minikube with optimal settings for PCP testing
    * - **Checks**
      -
    * - ``vm-test``
@@ -835,6 +853,44 @@ Test results are saved to ``test-results/<variant>/results.txt``.
    For fine-grained, phase-by-phase MicroVM testing with individual control over
    build, boot, console, service, and metric verification phases, see the
    :ref:`lifecycle-testing` section under NixOS MicroVMs.
+
+Running All Tests
+^^^^^^^^^^^^^^^^^
+
+The ``pcp-test-all`` command runs all test suites sequentially::
+
+    nix run .#pcp-test-all
+
+This executes three test suites in order:
+
+1. **Container test** - Builds and tests PCP in Docker/Podman
+2. **Kubernetes test** - Deploys PCP DaemonSet to minikube
+3. **MicroVM tests** - Tests all MicroVM variants (skips TAP)
+
+**Prerequisites:**
+
+- Docker or Podman installed and running
+- Minikube available (will be started automatically if not running)
+
+**Individual test suites:**
+
+.. list-table::
+   :header-rows: 1
+   :widths: 40 60
+
+   * - Command
+     - Description
+   * - ``nix run .#pcp-container-test``
+     - Container lifecycle only
+   * - ``nix run .#pcp-k8s-test``
+     - Kubernetes DaemonSet only
+   * - ``nix run .#pcp-test-all-microvms``
+     - All MicroVM variants only
+
+**Quick tests** (skip build phase, faster iteration)::
+
+    nix run .#pcp-container-test-quick
+    nix run .#pcp-k8s-test-quick
 
 .. _nixos-microvms:
 
@@ -1407,7 +1463,7 @@ direct network access (no port forwarding), use TAP networking:
     nix run .#pcp-check-host
 
     # Create bridge, TAP device, and NAT rules (requires sudo)
-    nix run .#pcp-network-setup
+    sudo nix run .#pcp-network-setup
 
     # Build and run TAP-enabled VM
     nix build .#pcp-microvm-eval-tap
@@ -1419,10 +1475,36 @@ direct network access (no port forwarding), use TAP networking:
 
     # Cleanup when done
     nix run .#pcp-vm-stop
-    nix run .#pcp-network-teardown
+    sudo nix run .#pcp-network-teardown
 
 TAP networking is useful for testing network-facing scenarios or when port
 forwarding is insufficient.
+
+Grafana MicroVM Example
+^^^^^^^^^^^^^^^^^^^^^^^
+
+The Grafana variant includes Prometheus and pre-configured dashboards. With TAP
+networking, you can access the Grafana web interface directly::
+
+    # 1. Verify host environment
+    nix run .#pcp-check-host
+
+    # 2. Setup TAP networking (requires sudo)
+    sudo nix run .#pcp-network-setup
+
+    # 3. Build and run Grafana VM
+    nix build .#pcp-microvm-grafana-tap -o result-grafana
+    ./result-grafana/bin/microvm-run &
+
+    # 4. Access services (VM IP: 10.177.0.20)
+    #    Grafana:    http://10.177.0.20:3000 (admin/admin)
+    #    Prometheus: http://10.177.0.20:9090
+    #    pmproxy:    http://10.177.0.20:44322
+    #    SSH:        ssh root@10.177.0.20 (password: pcp)
+
+    # 5. Cleanup
+    nix run .#pcp-vm-stop
+    sudo nix run .#pcp-network-teardown
 
 Services in the MicroVM
 ^^^^^^^^^^^^^^^^^^^^^^^
@@ -1660,6 +1742,64 @@ The container is configured with:
 - ``PCP_CONF`` pointing to the bundled pcp.conf
 - Working directory set to ``/var/lib/pcp``
 - Default command: ``pmcd -f`` (foreground mode)
+
+Container Testing
+^^^^^^^^^^^^^^^^^
+
+The container test verifies the full lifecycle::
+
+    nix run .#pcp-container-test
+
+**Test phases:**
+
+1. Build image (``nix build .#pcp-container``)
+2. Load into Docker/Podman
+3. Start container with port mappings
+4. Verify pmcd process running
+5. Verify port 44321 listening
+6. Verify kernel metrics (kernel.all.load, cpu.user, mem.physmem)
+7. Verify BPF metrics (if available)
+8. Graceful shutdown
+9. Cleanup
+
+**Quick test** (assumes image already loaded)::
+
+    nix run .#pcp-container-test-quick
+
+Kubernetes Testing
+^^^^^^^^^^^^^^^^^^
+
+The Kubernetes test deploys PCP as a privileged DaemonSet in minikube::
+
+    # Start minikube (if not running)
+    nix run .#pcp-minikube-start
+
+    # Run the full test
+    nix run .#pcp-k8s-test
+
+**Test phases:**
+
+1. Verify minikube is running
+2. Build container image
+3. Load image into minikube's Docker
+4. Deploy DaemonSet to ``pcp-test`` namespace
+5. Wait for pods to be ready (one per node)
+6. Verify pmcd process in each pod
+7. Verify ports 44321, 44322 listening
+8. Verify kernel metrics from each node
+9. Verify BPF metrics (if BTF available)
+10. Cleanup namespace
+
+**Quick test** (skip build, assumes image loaded)::
+
+    nix run .#pcp-k8s-test-quick
+
+**Minikube setup helper:**
+
+The ``pcp-minikube-start`` app configures minikube with optimal settings
+for PCP testing (4 CPUs, 8GB RAM, docker driver)::
+
+    nix run .#pcp-minikube-start
 
 Development Shell
 -----------------
