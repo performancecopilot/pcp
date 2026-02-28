@@ -63,10 +63,10 @@ fi
 # third archive, drop or replace some metrics and V3
 #
 sed <$tmp.config >$tmp.tmp \
-    -e '/sample.*long/s/sample/sampledso/' \
-    -e '/sample.\seconds/d' \
-    -e '/sample.\mirage/d' \
-    -e '/sample.\event\.records/d' \
+    -e '/sample\.*long/s/sample/sampledso/' \
+    -e '/sample\.seconds/d' \
+    -e '/sample\.mirage/d' \
+    -e '/sample\.event\.records/d' \
 # end
 mv $tmp.tmp $tmp.config
 if pmlogger -V3 -t 1sec -s 10 -c $tmp.config arch-2
