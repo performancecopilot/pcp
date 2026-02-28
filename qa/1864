@@ -42,14 +42,18 @@ _filter()
 	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
 	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e '/archives for localhost/{
-s/localhost (101[0-9] /localhost ([>1010] /
-s/localhost (102[0-9] /localhost ([>1010] /
-s/localhost (105[0-9] /localhost ([>1050] /
-s/localhost (106[0-9] /localhost ([>1050] /
+s/localhost (10[12][0-9] /localhost ([1010+] /
+s/localhost (10[56][0-9] /localhost ([1050+] /
 }' \
 	-e '/localhost, archives/{
-s/archives (51[0-9] /archives ([>510] /
-s/archives (52[0-9] /archives ([>510] /
+s/archives (5[0-2][0-9] /archives ([500+] /
+}' \
+	-e '/Info: purge 20260202/{
+s/reclaims 3[0-9] Kbyte/reclaims [30+] Kbyte/
+}' \
+	-e '/Info: purge 20260203/{
+s/reclaims 49[0-9] Kbyte/reclaims [490+] Kbyte/
+s/reclaims 5[01][0-9] Kbyte/reclaims [490+] Kbyte/
 }' \
 	-e "s@$tmp@TMP@g" \
     # end
@@ -77,6 +81,12 @@ _setup()
 	    *)		$sudo chown $PCP_USER:$PCP_GROUP "$f"
 	    		;;
 	esac
+    done
+    echo "setup() ..." >>$seq_full
+    find $tmp/* -type d \
+    | while read dir
+    do
+	du -sk $dir >>$seq_full
     done
 }
 
