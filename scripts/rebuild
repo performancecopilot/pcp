@@ -92,13 +92,13 @@ fi
 #
 
 here=`pwd`
-for dir in vendor \
+for dir in \
 	src/include src/libpcp src/libpcp_static src/libpcp_pmda \
 	src/pmcpp src/pmns \
 	src/newhelp \
 	src/libpcp_pmcd src/libpcp_gui \
 	src/libpcp_mmv src/libpcp_import src/libpcp_trace \
-	src/libvalkey src/libpcp_web 
+	src/libvalkey src/libpcp_web \
 	src/libpcp_qmc src/libpcp_fault src/libpcp3 \
 	qa/pmdas qa/perfevent qa/qt qa/src
 do
