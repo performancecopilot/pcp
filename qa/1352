@@ -1,5 +1,5 @@
 #!/bin/sh
-# PCP QA Test No. 1346
+# PCP QA Test No. 1352
 # dpkg packaging botches for old conffiles
 #
 # Copyright (c) 2021 Ken McDonell.  All Rights Reserved.

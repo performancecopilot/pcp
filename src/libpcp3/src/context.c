@@ -862,7 +862,7 @@ initarchive(__pmContext	*ctxp, const char *name)
     int			i;
     int			sts;
     char		*namelist = NULL;
-    const char		*current;
+    char		*current;
     char		*end;
     __pmArchCtl		*acp;
     __pmMultiLogCtl	*mlcp = NULL;

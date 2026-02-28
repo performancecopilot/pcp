@@ -31,6 +31,7 @@ LIBS_SUBDIRS = \
 	libpcp_qed \
 	libpcp_qmc \
 	libpcp_qwt \
+	libvalkey \
 	libpcp_web \
 	libpcp_fault \
 	#

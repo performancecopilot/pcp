@@ -322,8 +322,8 @@ __pmStringToSockAddr(const char *cp)
 	    else
 #endif
 	    if (strchr(cp, ':') != NULL) {
-		char *cp1;
-		char *scope;
+		char		*cp1;
+		const char	*scope;
 		/*
 		 * inet_pton(3) does not support the "%<interface>" extension for specifying the
 		 * scope of a link-local address. If one is present, then strip it out and

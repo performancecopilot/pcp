@@ -38,7 +38,7 @@ _cleanup()
 	_sighup_pmcd
     fi
     _restore_auto_restart pmproxy
-    $pmproxy_was_running && _service pmproxy restart >$seq_full 2>&1
+    $pmproxy_was_running && _service pmproxy restart >>$seq_full 2>&1
     $sudo rm -f $tmp.*
 }
 
@@ -66,7 +66,25 @@ PCP_DERIVED_CONFIG="$PCP_VAR_DIR/config/derived"; export PCP_DERIVED_CONFIG
 
 if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
 
+echo "+++ pmproxy before test_webapi.py ..." >>$seq_full
+_ps_full_by_name pmproxy >>$seq_full
 $python $here/src/test_webapi.py | _webapi_response_filter | _filter_labels
+echo "+++ pmproxy after test_webapi.py ..." >>$seq_full
+_ps_full_by_name pmproxy >>$seq_full
+
+# metrics from src/test_webapi.py are enumerated in these files
+# webapi-host and webapi-pmcd-host, and
+# webapi-host-kernel and webapi-pmcd-host-kernel
+#
+# help triage by checking lists of metrics ...
+#
+LC_COLLATE=POSIX; export LC_COLLATE
+echo "+++ webapi-host vs webapi-pmcd-host diffs ..." >>$seq_full
+sed -e 's/ \[.*//' <webapi-pmcd-host | sort >$tmp.tmp
+sort webapi-host | diff $tmp.tmp - >>$seq_full
+echo "+++ webapi-host-kernel vs webapi-pmcd-host-kernel diffs ..." >>$seq_full
+sed -e 's/ \[.*//' <webapi-pmcd-host-kernel | sort >$tmp.tmp
+sort webapi-host-kernel | diff $tmp.tmp - >>$seq_full
 
 echo >>$seq_full
 echo "=== pmproxy log ===" >>$seq_full

@@ -62,7 +62,7 @@ $sudo sh -c "echo 'host=127.0.0.1' > $pmda_path/valkey.conf"
 $sudo sh -c "echo 'port=$valkey_port' >> $pmda_path/valkey.conf"
 
 echo "== Installing valkey PMDA =="
-_prepare_pmda_install valkey
+_prepare_pmda valkey
 cd $PCP_PMDAS_DIR/valkey
 $sudo ./Install </dev/null >$tmp.out 2>&1
 cat $tmp.out >>$seq_full
@@ -132,7 +132,7 @@ fi
 
 echo
 echo "== Restoring valkey PMDA =="
-_restore_pmda_install valkey
+# done via _cleanup_pmda() in _cleanup()
 
 # success, all done
 status=0

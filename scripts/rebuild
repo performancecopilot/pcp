@@ -23,6 +23,13 @@ then
     exit
 fi
 
+# Optional local patching ... maybe required for vendor code when we're
+# waiting for an upstream fix that's otherwise killing the build.
+# If the script local.patch exists it is per-host and *NOT* expected
+# to be in the git tree.
+#
+[ -x local.patch ] && ./local.patch
+
 quick=false
 while [ $# -gt 0 ]
 do

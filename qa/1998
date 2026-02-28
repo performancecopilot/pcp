@@ -45,18 +45,18 @@ pmdards_remove()
 {
     cd $pmda_path
     echo
-    echo "=== Removing RDS agent ==="
-    $sudo ./Remove >$tmp.out 2>&1
+    echo "=== Removing RDS agent ===" | tee -a $seq_full
+    $sudo ./Remove >>$seq_full 2>&1
 }
 
 pmdards_install()
 {
     cd $pmda_path
-    $sudo ./Remove >/dev/null 2>&1
+    $sudo ./Remove >>$seq_full 2>&1
 
     echo
-    echo "=== Installing RDS agent ==="
-    $sudo ./Install </dev/null >$tmp.out 2>&1
+    echo "=== Installing RDS agent ===" | tee -a $seq_full
+    $sudo ./Install </dev/null >>$seq_full 2>&1
     cd $here
 }
 
@@ -65,11 +65,22 @@ _prepare_pmda rds
 
 pmdards_install
 
+if ! pminfo -f pmcd.agent.status 2>&1 | grep -q '"rds"'
+then
+    echo "Arrgh! PMDA install failed ... see $seq.full"
+    _exit 1
+fi
+
 echo "=== Report metric values ==="
 
 metrics=`pminfo rds | LC_COLLATE=POSIX sort`
-
-pminfo -dfmtT $metrics 2>&1
+echo "metric=$metrics" >>$seq_full
+if [ -z "$metrics" ]
+then
+    echo "Botch: no rds metrics in the PMNS"
+else
+    pminfo -dfmtT $metrics 2>&1
+fi
 
 pmdards_remove
 

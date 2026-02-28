@@ -41,6 +41,13 @@ fi
 STRING_DATE_EPOCH=`date +%s`; export STRING_DATE_EPOCH
 SOURCE_DATE_EPOCH="${SOURCE_DATE_EPOCH:-$STRING_DATE_EPOCH}"; export SOURCE_DATE_EPOCH
 
+# Optional local patching ... maybe required for vendor code when we're
+# waiting for an upstream fix that's otherwise killing the build.
+# If the script local.patch exists it is per-host and *NOT* expected
+# to be in the git tree.
+#
+[ -x local.patch ] && ./local.patch
+
 # put VERSION.pcp back, remove temp files and exit
 #
 _cleanup()

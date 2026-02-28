@@ -663,7 +663,7 @@ fi
 
 if $missing
 then
-    # special handling for cpan() packages
+    # special handling for cpan() and pip3() packages
     #
     $very_verbose && cp $tmp.list $tmp.list.before
     rm -f $tmp.sed
@@ -676,13 +676,35 @@ then
 	    echo "/cpan($module)/d" >>$tmp.sed
 	fi
     done
+    grep '^pip3(' $tmp.list \
+    | sed -e 's/pip3(//' -e 's/)//' \
+    | while read module
+    do
+	if which python3 >/dev/null 2>&1
+	then
+	    python=python3
+	elif which pmpython >/dev/null 2>&1
+	then
+	    python=pmpython
+	else
+	    python=''
+	    $very_verbose && echo >&2 "Warning cannot file python"
+	fi
+	if [ -n "$python" ]
+	then
+	    if $python -c "import $module" >/dev/null 2>&1
+	    then
+		echo "/pip3($module)/d" >>$tmp.sed
+	    fi
+	fi
+    done
     if [ -f $tmp.sed ]
     then
 	sed -f $tmp.sed <$tmp.list >$tmp.tmp
 	mv $tmp.tmp $tmp.list
 	if $very_verbose
 	then
-	    echo >&2 "Diffs after cpan() mangling ..."
+	    echo >&2 "Diffs after cpan() and pip3() mangling ..."
 	    diff $tmp.list.before $tmp.list
 	fi
     fi

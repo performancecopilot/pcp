@@ -106,6 +106,7 @@ libperl-dev
 pkg-config
 postgresql-client-common
 psmisc
+pyarrow pip3
 pylint
 python3-all
 python3-all-dev

@@ -114,7 +114,7 @@ keys_search_text_prep(sds s, int min_length, char *prefix, char *suffix)
     int			token_count, non_digit_found;
 
     for (i = 0; i < len; i++) {
-	char *is_found = strchr(delimiters, s[i]);
+	const char *is_found = strchr(delimiters, s[i]);
 	if (is_found != NULL) {
 	    result = sdscat(result, " ");
 	} else {
