@@ -439,7 +439,7 @@ __pmSetGuiPort(pmOptions *opts, char *arg)
 }
 
 static char *
-comma_or_end(const char *start)
+comma_or_end(char *start)
 {
     char *end;
 
@@ -1651,7 +1651,7 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 
     {
 	char c = *d->__nextchar++;
-	char *temp = strchr(optstring, c);
+	const char *temp = strchr(optstring, c);
 
 	/* Increment `optind' when we start to process its last character.  */
 	if (*d->__nextchar == '\0')

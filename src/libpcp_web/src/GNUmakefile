@@ -26,28 +26,17 @@ else
 INIH_XFILES =
 endif
 
-LIBVALKEY_HFILES = $(addprefix deps/libvalkey/, \
-	include/valkey/alloc.h include/valkey/async.h src/async_private.h src/fmacros.h include/valkey/valkey.h include/valkey/net.h \
-	include/valkey/read.h include/valkey/visibility.h src/sds.h src/sdsalloc.h include/valkey/sockcompat.h src/win32.h include/valkey/adapters/libuv.h \
-	src/adlist.h src/command.h src/vkutil.h include/valkey/cluster.h src/valkey_private.h src/cmddef.h src/dict.h)
-LIBVALKEY_CFILES = $(addprefix deps/libvalkey/, \
-	src/alloc.c src/async.c src/valkey.c src/net.c src/sds.c src/sockcompat.c src/read.c \
-	src/adlist.c src/command.c src/crc16.c src/vkutil.c src/cluster.c src/conn.c src/dict.c)
-LIBVALKEY_XFILES = $(LIBVALKEY_HFILES) $(LIBVALKEY_CFILES)
-
 CFILES = jsmn.c http_client.c http_parser.c siphash.c \
 	 query.c schema.c load.c sha1.c util.c slots.c \
 	 keys.c maps.c batons.c encoding.c \
-	 search.c json_helpers.c config.c \
-	 $(LIBVALKEY_CFILES)
+	 search.c json_helpers.c config.c
 ifneq "$(HAVE_LIBINIH)" "true"
 	 CFILES += $(INIH_CFILES)
 endif
 HFILES = jsmn.h http_client.h http_parser.h zmalloc.h \
 	 query.h schema.h load.h sha1.h util.h slots.h \
 	 keys.h maps.h batons.h encoding.h \
-	 search.h discover.h private.h \
-	 $(LIBVALKEY_HFILES)
+	 search.h discover.h private.h
 ifneq "$(HAVE_LIBINIH)" "true"
 	 HFILES += $(INIH_HFILES)
 endif
@@ -55,7 +44,8 @@ YFILES = query_parser.y
 XFILES = jsmn.c jsmn.h http_parser.c http_parser.h \
 	 sha1.c sha1.h siphash.c
 
-LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH) $(LIB_FOR_REGEX)
+LLDLIBS = $(PCPWEBLIB_EXTRAS) $(LIB_FOR_MATH) $(LIB_FOR_REGEX) \
+	  $(TOPDIR)/src/libvalkey/src/libvalkey.a
 ifeq "$(TARGET_OS)" "mingw"
 LLDLIBS += -lws2_32
 CFILES += fnmatch.c
@@ -67,7 +57,9 @@ ifneq "$(HAVE_LIBINIH)" "true"
 LCFLAGS += -Iinih
 endif
 
-LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps -Ideps/libvalkey/include/valkey -Ideps/libvalkey/include -Ideps/libvalkey/src
+LCFLAGS += $(C99_CFLAGS) -DJSMN_PARENT_LINKS=1 -DJSMN_STRICT=1 -DHTTP_PARSER_STRICT=0 -Ideps \
+	   -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/include \
+	   -I$(TOPDIR)/vendor/github.com/valkey-io/libvalkey/src
 
 ifeq "$(HAVE_LIBUV)" "true"
 CFILES += discover.c loggroup.c webgroup.c timer.c
@@ -108,13 +100,13 @@ SYMTARGET =
 endif
 
 VERSION_SCRIPT = exports
-LDIRT = $(XFILES) $(YFILES) $(LIBVALKEY_XFILES) $(SYMTARGET) \
+LDIRT = $(XFILES) $(YFILES) $(SYMTARGET) \
 	$(YFILES:%.y=%.tab.?) exports
 ifneq "$(HAVE_LIBINIH)" "true"
 	LDIRT += $(INIH_XFILES)
 endif
 
-default: $(XFILES) $(LIBVALKEY_XFILES) $(INIH_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
+default: $(XFILES) $(INIH_XFILES) $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET)
 
 include $(BUILDRULES)
 
@@ -144,10 +136,6 @@ $(INIH_XFILES):
 	mkdir -p deps/inih
 	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/benhoyt/$(@:deps/%=%) $@
 endif
-$(LIBVALKEY_XFILES):
-	mkdir -p deps/libvalkey/include/valkey/adapters
-	mkdir -p deps/libvalkey/src
-	$(LN_S) -f $(realpath $(TOPDIR))/vendor/github.com/valkey-io/$(@:deps/%=%) $@
 
 .NOTPARALLEL:
 query_parser.tab.h query_parser.tab.c: query_parser.y query.h
@@ -161,10 +149,10 @@ default_pcp:	default
 install_pcp:	install
 
 ifneq ($(LIBTARGET),)
-$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(LIBVALKEY_XFILES) $(INIH_XFILES)
+$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(INIH_XFILES)
 endif
 
-%.o: $(LIBVALKEY_XFILES) $(INIH_XFILES)
+%.o: $(INIH_XFILES)
 
 jsmn.o:		jsmn.c jsmn.h
 discover.o:	discover.h discover.c

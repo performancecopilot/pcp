@@ -421,11 +421,21 @@ _prepare_pmda()
     __agent=$1
     __names=$2
 
+    if [ -n "$__install_on_cleanup" ]
+    then
+	echo "Botch: _prepare_pmda($__agent,$__iopts) called twice"
+	_exit 1
+    fi
+
     iam=$__agent
     [ "X$__names" = "X" ] && __names=$iam
     __done_clean=false
-    __install_on_cleanup=false
-    pminfo $__names >/dev/null 2>&1 && __install_on_cleanup=true
+    if grep -q "^$iam[ 	]" $PCP_PMCDCONF_PATH
+    then
+	__install_on_cleanup=true
+    else
+	__install_on_cleanup=false
+    fi
     echo "_prepare_pmda(agent=$__agent, names=$__names) __install_on_cleanup=$__install_on_cleanup" >>$seq_full
     # copy the pmcd config file to restore state later.
     _save_config $PCP_PMCDCONF_PATH
@@ -437,9 +447,14 @@ _cleanup_pmda()
     __agent=$1
     __iopts=$2
 
-    if $__done_clean
+    if [ -z "$__done_clean" ]
     then
-	echo "_cleanup_pmda($__agent,$__iopts) called twice?" >>$seq_full
+	echo "Botch: _cleanup_pmda($__agent,$__iopts) called with no prior _prepare_pmda() call"
+	_exit 1
+    elif "$__done_clean"
+    then
+	echo "Botch: _cleanup_pmda($__agent,$__iopts) called twice"
+	_exit 1
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	_service pmcd restart 2>&1 | _filter_pcp_restart
@@ -447,7 +462,7 @@ _cleanup_pmda()
 	_restore_auto_restart pmcd
 	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
-	if $__install_on_cleanup
+	if "$__install_on_cleanup"
 	then
 	    [ "X$__iopts" = "X" ] && __iopts=/dev/null
 	    ( cd $PCP_PMDAS_DIR/$__agent; $sudo ./Install <$__iopts >/dev/null 2>&1 )

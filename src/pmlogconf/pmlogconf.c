@@ -1735,7 +1735,7 @@ void
 group_dircheck(const char *path)
 {
     size_t		length;
-    char		*end;
+    const char		*end;
 
     if ((end = strrchr(path, '\n')) == NULL)
 	return;

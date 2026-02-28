@@ -1623,7 +1623,7 @@ debug(const char *spec, int action, int style)
 	    break;
 	}
 
-	pend = strchr(p, ',');
+	pend = (char *)strchr(p, ',');
 	if (pend == NULL)
 	    pend = (char *)&p[strlen(p)];
 
