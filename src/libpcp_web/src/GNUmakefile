@@ -149,7 +149,8 @@ default_pcp:	default
 install_pcp:	install
 
 ifneq ($(LIBTARGET),)
-$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(INIH_XFILES)
+$(LIBTARGET): $(VERSION_SCRIPT) $(XFILES) $(INIH_XFILES) \
+		$(TOPDIR)/src/libvalkey/src/libvalkey.a
 endif
 
 %.o: $(INIH_XFILES)
