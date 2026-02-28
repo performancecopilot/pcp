@@ -67,8 +67,8 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 Warning: no archives found to merge
 pmlogger_daily: [TMP.control:4]
 Warning: current volume of current pmlogger not known, compression skipped
-Info: archives for localhost ([>1050] Kbytes) >= size limit (1020 Kbytes)
-Info: purge 20260202, reclaims 36 Kbytes
+Info: archives for localhost ([1050+] Kbytes) >= size limit (1020 Kbytes)
+Info: purge 20260202, reclaims [30+] Kbytes
 End [daily]: DATESTAMP status=1
 
 Changes ...
@@ -90,8 +90,8 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 Warning: no archives found to merge
 pmlogger_daily: [TMP.control:4]
 Warning: current volume of current pmlogger not known, compression skipped
-Info: archives for localhost ([>1010] Kbytes) >= size limit (1000 Kbytes)
-Info: purge 20260203, reclaims 492 Kbytes
+Info: archives for localhost ([1010+] Kbytes) >= size limit (1000 Kbytes)
+Info: purge 20260203, reclaims [490+] Kbytes
 End [daily]: DATESTAMP status=1
 
 Changes ...
@@ -114,7 +114,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 Warning: no archives found to merge
 pmlogger_daily: [TMP.control:4]
 Warning: current volume of current pmlogger not known, compression skipped
-Info: No purging required for localhost, archives ([>510] Kbytes) <= size limit (1000 Kbytes)
+Info: No purging required for localhost, archives ([500+] Kbytes) <= size limit (1000 Kbytes)
 End [daily]: DATESTAMP status=1
 ... errors from pmlogger_daily!
 
@@ -133,7 +133,7 @@ Warning: skipping log rotation because we don't know which pmlogger to signal
 Warning: no archives found to merge
 pmlogger_daily: [TMP.control:5]
 Warning: current volume of current pmlogger not known, compression skipped
-Info: No purging required for localhost, archives ([>510] Kbytes) <= size limit (1000 Kbytes)
+Info: No purging required for localhost, archives ([500+] Kbytes) <= size limit (1000 Kbytes)
 End [daily]: DATESTAMP status=1
 
 Changes ...

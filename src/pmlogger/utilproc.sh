@@ -925,7 +925,7 @@ _convert_to_kb()
 	echo "Error: _convert_to_kb(): missing argument" >&2
 	return 1
     fi
-    __num=`echo "$__input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\1/'`
+    __num=`echo "$__input" | sed -E 's/^([0-9]+)[ 	]*([a-zA-Z]*)$/\1/'`
     case "$__num"
     in
 	"" )
@@ -941,7 +941,7 @@ _convert_to_kb()
 		return 1
 		;;
     esac
-    __unit=`echo "$__input" | sed -E 's/^([0-9]+)\s*([a-zA-Z]*)$/\2/'`
+    __unit=`echo "$__input" | sed -E 's/^([0-9]+)[ 	]*([a-zA-Z]*)$/\2/'`
     case "$__unit"
     in
 	G|g|M|m|K|k)
