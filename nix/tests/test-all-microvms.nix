@@ -65,13 +65,7 @@ let
       checks = [ "pmcd" "pmproxy" "node_exporter" "bpf" ];
       description = "BPF PMDA (pre-compiled eBPF)";
     };
-    bcc = {
-      name = "pcp-microvm-bcc";
-      offset = constants.variantPortOffsets.bcc;
-      checks = [ "pmcd" "pmproxy" "node_exporter" "bcc" ];
-      extraTimeout = 120;  # BCC needs longer for eBPF compilation
-      description = "BCC PMDA (runtime eBPF, slow startup)";
-    };
+    # NOTE: BCC is deprecated - use BPF PMDA instead (CO-RE eBPF)
   };
 
   sshOpts = lib.concatStringsSep " " testLib.sshOpts;
@@ -140,11 +134,11 @@ pkgs.writeShellApplication {
           echo ""
           echo "Options:"
           echo "  --skip-tap       Skip TAP networking variants"
-          echo "  --only=VARIANT   Test only specified variant (base, eval, grafana, bpf, bcc)"
+          echo "  --only=VARIANT   Test only specified variant (base, eval, grafana, bpf)"
           echo "  --help, -h       Show this help"
           echo ""
           echo "Variants:"
-          echo "  base, base-tap, eval, eval-tap, grafana, grafana-tap, bpf, bcc"
+          echo "  base, base-tap, eval, eval-tap, grafana, grafana-tap, bpf"
           exit 0
           ;;
         *)
@@ -318,14 +312,7 @@ pkgs.writeShellApplication {
       run_ssh_check "$host" "$port" "BPF metrics available" \
         "pminfo bpf 2>/dev/null | grep -q bpf"
     }
-
-    # Check BCC metrics
-    check_bcc_metrics() {
-      local host="$1"
-      local port="$2"
-      run_ssh_check "$host" "$port" "BCC metrics available" \
-        "pminfo bcc 2>/dev/null | grep -q bcc"
-    }
+    # NOTE: BCC is deprecated - use BPF PMDA instead (CO-RE eBPF)
 
     # Stop all PCP MicroVMs
     stop_all_vms() {
@@ -376,6 +363,7 @@ pkgs.writeShellApplication {
       if ! wait_for_build "$name" "$result_link"; then
         RESULTS[$key]="BUILD_FAILED"
         DURATIONS[$key]=$(( $(date +%s) - start_time ))
+        TOTAL_FAILED=$((TOTAL_FAILED + 1))
         return 1
       fi
 
@@ -392,6 +380,7 @@ pkgs.writeShellApplication {
         log "VM process died immediately"
         RESULTS[$key]="VM_START_FAILED"
         DURATIONS[$key]=$(( $(date +%s) - start_time ))
+        TOTAL_FAILED=$((TOTAL_FAILED + 1))
         return 1
       fi
 
@@ -410,6 +399,7 @@ pkgs.writeShellApplication {
         rm -f "$result_link"
         RESULTS[$key]="SSH_FAILED"
         DURATIONS[$key]=$(( $(date +%s) - start_time ))
+        TOTAL_FAILED=$((TOTAL_FAILED + 1))
         return 1
       fi
 
@@ -520,15 +510,7 @@ pkgs.writeShellApplication {
           checks_failed=$((checks_failed + 1))
         fi
       fi
-
-      # Check BCC if in checks list
-      if [[ "$checks" == *"bcc"* ]]; then
-        if check_bcc_metrics "$ssh_host" "$ssh_port"; then
-          checks_passed=$((checks_passed + 1))
-        else
-          checks_failed=$((checks_failed + 1))
-        fi
-      fi
+      # NOTE: BCC is deprecated - use BPF PMDA instead (CO-RE eBPF)
 
       # Phase 5: Cleanup
       log ""
@@ -564,8 +546,8 @@ pkgs.writeShellApplication {
     # Ensure clean state
     stop_all_vms
 
-    # Define test order
-    VARIANT_ORDER=(base base-tap eval eval-tap grafana grafana-tap bpf bcc)
+    # Define test order (NOTE: BCC is deprecated - use BPF PMDA instead)
+    VARIANT_ORDER=(base base-tap eval eval-tap grafana grafana-tap bpf)
 
     for key in "''${VARIANT_ORDER[@]}"; do
       # Skip if --only specified and doesn't match
@@ -611,10 +593,7 @@ pkgs.writeShellApplication {
           test_variant "$key" "pcp-microvm-bpf" "${toString constants.variantPortOffsets.bpf}" "false" \
             "pmcd pmproxy node_exporter bpf" "0" "BPF PMDA (pre-compiled eBPF)"
           ;;
-        bcc)
-          test_variant "$key" "pcp-microvm-bcc" "${toString constants.variantPortOffsets.bcc}" "false" \
-            "pmcd pmproxy node_exporter bcc" "120" "BCC PMDA (runtime eBPF, slow startup)"
-          ;;
+        # NOTE: BCC is deprecated - use BPF PMDA instead (CO-RE eBPF)
       esac
     done
 
