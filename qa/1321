@@ -72,7 +72,7 @@ done
 
 # When new dynamic metrics are detected, the _next_ fetch will fetch them.
 # So wait for a bit so pmlogger has a chance to fetch the new metrics.
-sleep 2
+sleep 3
 
 # now kill pmlogger and check the new metrics appeared dynamically
 $sudo $PCP_BINADM_DIR/pmsignal -s TERM $pmlogger_pid >/dev/null 2>&1

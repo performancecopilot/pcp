@@ -356,9 +356,10 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 static int
 ExtractState(int i, void *timestamp)
 {
-    unsigned char	byte;
+    unsigned char byte;
+    struct timeval *tv = (struct timeval *)timestamp;
+    byte = (unsigned char)(tv->tv_sec & 0xff);
 
-    memcpy(&byte, timestamp, sizeof(unsigned char));
     /*
      * integrity checks on the state change ...
      * - only 7 bits defined in pmapi.h (so max value is 0x3f)

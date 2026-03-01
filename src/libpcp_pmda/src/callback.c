@@ -482,12 +482,9 @@ pmdaInstance(pmInDom indom, int inst, char *name, pmInResult **result, pmdaExt *
 static void
 __pmdaEncodeStatus(pmdaResult *result, unsigned char byte)
 {
-    unsigned char	*flags;
-
     memset(&result->timestamp, 0, sizeof(result->timestamp));
     if (byte) {
-	flags = (unsigned char *)&result->timestamp;
-	*flags |= byte;
+        result->timestamp.tv_sec |= (long)byte;
     }
 }
 
