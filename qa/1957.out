@@ -13,8 +13,8 @@ QA output created by 1957
 [ RUN      ] test_base64_basic
 [       OK ] test_base64_basic
 [==========] 5 test(s) run.
-=== std err ===
 [  PASSED  ] 5 test(s).
+=== std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/test_encodings
@@ -31,8 +31,8 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 [ RUN      ] test_hostspec_parse
 [       OK ] test_hostspec_parse
 [==========] 2 test(s) run.
-=== std err ===
 [  PASSED  ] 2 test(s).
+=== std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/test_hostspec

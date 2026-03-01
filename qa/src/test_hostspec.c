@@ -63,5 +63,9 @@ int main(void)
         cmocka_unit_test(test_hostspec_unparse),
         cmocka_unit_test(test_hostspec_parse),
     };
+
+    /* some versions of libcmocka mix stdout and stderr ... whack that */
+    dup2(STDOUT_FILENO, STDERR_FILENO);
+
     return cmocka_run_group_tests(tests, NULL, NULL);
 }
