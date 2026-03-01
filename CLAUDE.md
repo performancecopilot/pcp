@@ -65,7 +65,7 @@ pmprobe -v
 
 - **libpcp**: Main PCP library providing core functionality
 - **pmcd**: Performance Metrics Collection Daemon - central coordinator
-- **pmlogger**: Performance data logging daemon  
+- **pmlogger**: Performance data logging daemon
 - **pmie**: Performance Metrics Inference Engine - rule-based monitoring
 - **pmproxy**: Web API proxy and time series interface
 
@@ -136,7 +136,7 @@ cd qa && ./check 000
 
 # Check specific functionality
 cd qa && ./check -g pmcd    # PMCD tests
-cd qa && ./check -g pmda    # PMDA tests  
+cd qa && ./check -g pmda    # PMDA tests
 cd qa && ./check -g archive # Archive tests
 ```
 
@@ -147,7 +147,7 @@ PCP supports Linux, macOS, Windows (MinGW), AIX, and Solaris. Tests should be wr
 
 When developing on macOS (`Platform: darwin` in environment):
 
-### ⚠️ Critical Constraints
+### Critical Constraints
 
 1. **Stage changes before VM tests**
    - The Tart VM accesses the filesystem directly — `git add` is the minimum required
@@ -181,3 +181,14 @@ cd build/mac/test && ./run-all-tests.sh  # Daily: build + test (20-30s)
 
 - `build/mac/CLAUDE.md` - Development workflow, test commands
 - `build/mac/MACOS_DEVELOPMENT.md` - Tart VM clean-room builds
+
+## Nix Development
+
+Nix packaging is provided via `flake.nix` and the `nix/` directory.
+See `docs/HowTos/nix/index.rst` for full documentation.
+
+```bash
+nix build              # Build PCP package
+nix develop            # Development shell
+nix flake show         # List all packages and apps
+```

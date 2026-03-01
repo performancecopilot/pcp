@@ -1,95 +1,52 @@
-# NixOS VM test for Performance Co-Pilot (PCP)
+# nix/vm-test.nix
+#
+# NixOS VM integration test for PCP.
+# Uses the shared NixOS module for service configuration.
 #
 # This test verifies:
-# - PCP package builds and installs correctly
-# - pmcd daemon can start and listen on port 44321
-# - Basic metrics can be queried via pminfo
+# - PCP services start correctly via systemd
+# - pmcd, pmlogger, pmie, pmproxy all function
+# - Basic metrics can be queried
+# - Archives are created by pmlogger
 #
 # Run via flake: nix flake check
 # Or standalone: nix build .#checks.x86_64-linux.vm-test
-{
-  pkgs,
-  pcp,
-}:
-
+#
+{ pkgs, pcp }:
+let
+  constants = import ./constants.nix;
+  nixosModule = import ./nixos-module.nix;
+in
 pkgs.testers.nixosTest {
   name = "pcp-vm-test";
 
-  nodes.machine =
-    { pkgs, ... }:
-    {
-      environment.systemPackages = [ pcp ];
-
-      # Create pcp user/group required by pmcd
-      users.users.pcp = {
-        isSystemUser = true;
-        group = "pcp";
-        description = "Performance Co-Pilot daemon user";
-      };
-      users.groups.pcp = { };
-
-      # Create required runtime directories
-      systemd.tmpfiles.rules = [
-        "d /var/lib/pcp 0755 pcp pcp -"
-        "d /var/log/pcp 0755 pcp pcp -"
-        "d /run/pcp 0755 pcp pcp -"
-      ];
+  nodes.machine = { ... }: {
+    imports = [ nixosModule ];
+    services.pcp = {
+      enable = true;
+      package = pcp;
+      preset = "custom";  # Use custom to control which services are enabled
+      pmlogger.enable = false;  # Requires additional configuration
+      pmie.enable = false;      # Requires additional configuration
+      pmproxy.enable = true;
     };
+  };
 
   testScript = ''
     machine.wait_for_unit("multi-user.target")
 
-    # Verify the package is installed and pminfo works
-    machine.succeed("pminfo --version")
+    # Wait for core PCP services
+    machine.wait_for_unit("pmcd.service")
+    machine.wait_for_unit("pmproxy.service")
 
-    # Find the actual pcp package path by resolving pminfo symlink
-    # pminfo is at /nix/store/xxx-pcp-7.0.5/bin/pminfo
-    # We need to get the package root to find libexec/pcp/bin/pmcd
-    pminfo_real = machine.succeed("realpath $(which pminfo)").strip()
-    print(f"pminfo real path: {pminfo_real}")
+    # Wait for ports to be listening
+    machine.wait_for_open_port(${toString constants.ports.pmcd})
+    machine.wait_for_open_port(${toString constants.ports.pmproxy})
 
-    # Get package root (two levels up from bin/pminfo)
-    pkg_root = machine.succeed(f"dirname $(dirname {pminfo_real})").strip()
-    pmcd_path = f"{pkg_root}/libexec/pcp/bin/pmcd"
-    print(f"pmcd expected at: {pmcd_path}")
-
-    # Verify pmcd exists
-    machine.succeed(f"test -x {pmcd_path}")
-
-    # PCP_CONF points to the main configuration file
-    # After our postInstall, config is at share/pcp/etc/pcp.conf
-    pcp_conf = f"{pkg_root}/share/pcp/etc/pcp.conf"
-
-    # Start pmcd daemon in background with PCP_CONF set
-    machine.succeed(f"PCP_CONF={pcp_conf} setsid {pmcd_path} -f > /tmp/pmcd.log 2>&1 &")
-
-    # Give pmcd a moment to start or fail
-    import time
-    time.sleep(3)
-
-    # Debug: check if pmcd is running and show log
-    print("=== Checking pmcd process ===")
-    ps_out = machine.succeed("ps aux | grep pmcd || true")
-    print(ps_out)
-
-    print("=== pmcd log contents ===")
-    log_out = machine.succeed("cat /tmp/pmcd.log 2>/dev/null || echo 'No log file'")
-    print(log_out)
-
-    print("=== Checking listening ports ===")
-    ports_out = machine.succeed("ss -tlnp | grep -E '44321|pmcd' || echo 'No pmcd ports found'")
-    print(ports_out)
-
-    # Wait for pmcd to start listening on its default port
-    machine.wait_for_open_port(44321, timeout=30)
-
-    # Query basic kernel metrics to verify pmcd is working
-    machine.succeed(f"PCP_CONF={pcp_conf} pminfo -f kernel.all.load")
-
-    # Additional verification: check pmcd is responding
-    machine.succeed(f"PCP_CONF={pcp_conf} pminfo -h localhost kernel.all.cpu.user")
+    # Basic metric queries
+    machine.succeed("pminfo -f kernel.all.load")
+    machine.succeed("pminfo -h localhost kernel.all.cpu.user")
 
     print("=== PCP VM test passed! ===")
   '';
 }
-

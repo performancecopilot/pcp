@@ -51,6 +51,11 @@ CmakeLists.txt
 provisioning/osxsierra.legally.ok
 *.gdb_history
 *vgcore.*
-tmpfiles.init.setup 
+tmpfiles.init.setup
+
+# Nix build outputs
+result
+result-*
+test-results/ 
 
 /CLAUDE.local.md

@@ -1,13 +1,39 @@
 #
 # flake.nix - PCP Nix packaging
 #
+# Quick Start:
+#   nix build                         # Build PCP package
+#   nix develop                       # Development shell
+#   nix flake show                    # List all outputs
+#
+# Run All Tests:
+#   nix run .#pcp-test-all            # Container + K8s + MicroVM tests
+#
+# Individual Tests:
+#   nix run .#pcp-container-test      # Docker/Podman lifecycle
+#   nix run .#pcp-k8s-test            # Kubernetes DaemonSet (needs minikube)
+#   nix run .#pcp-test-all-microvms   # All MicroVM variants
+#
+# MicroVM with TAP networking (for Grafana dashboards):
+#   nix run .#pcp-check-host                # Verify host environment
+#   sudo nix run .#pcp-network-setup        # Create TAP bridge (requires sudo)
+#   nix build .#pcp-microvm-grafana-tap && ./result/bin/microvm-run
+#   # Access Grafana at http://10.177.0.20:3000
+#   nix run .#pcp-vm-stop                   # Stop VM
+#   sudo nix run .#pcp-network-teardown     # Cleanup (requires sudo)
+#
 # See also: ./docs/HowTos/nix/index.rst
+#
 {
   description = "Performance Co-Pilot (PCP) - system performance monitoring toolkit";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     flake-utils.url = "github:numtide/flake-utils";
+    microvm = {
+      url = "github:astro/microvm.nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -15,6 +41,7 @@
       self,
       nixpkgs,
       flake-utils,
+      microvm,
     }:
     flake-utils.lib.eachDefaultSystem (
       system:
@@ -22,255 +49,122 @@
         pkgs = nixpkgs.legacyPackages.${system};
         lib = pkgs.lib;
 
-        pcp = pkgs.stdenv.mkDerivation rec {
-          pname = "pcp";
-          version = "7.0.5";
+        # Import modular package definition
+        # Pass self for stable source hashing - see nix/package.nix for details
+        pcp = import ./nix/package.nix { inherit pkgs; src = self; };
 
-          src = ./.;
+        # Import shared constants and variant definitions
+        constants = import ./nix/constants.nix;
+        variants = import ./nix/variants.nix { inherit constants; };
+        nixosModule = import ./nix/nixos-module.nix;
 
-          outputs = [
-            "out"
-            "man"
-            "doc"
-          ];
-
-          nativeBuildInputs = with pkgs; [
-            autoconf
-            automake
-            pkg-config
-            bison
-            flex
-            which
-            perl
-            python3
-            python3.pkgs.setuptools
-          ] ++ lib.optionals withBpf [
-            llvmPackages.clang
-            llvmPackages.llvm
-          ];
-
-          buildInputs = with pkgs; [
-            zlib
-            ncurses
-            readline
-            openssl
-            libuv
-            cyrus_sasl
-            inih
-            xz
-            python3
-            perl
-            rrdtool
-          ] ++ lib.optionals pkgs.stdenv.isLinux [
-            avahi
-            lvm2
-          ] ++ lib.optionals withSystemd [
-            systemd
-          ] ++ lib.optionals withPfm [
-            libpfm
-          ] ++ lib.optionals withBpf [
-            libbpf
-            bcc
-            elfutils
-          ] ++ lib.optionals withSnmp [
-            net-snmp
-          ] ++ lib.optionals withPythonHttp [
-            python3.pkgs.requests
-          ] ++ lib.optionals withPerlHttp [
-            perlPackages.JSON
-            perlPackages.LWPUserAgent
-          ];
-
-          withSystemd = pkgs.stdenv.isLinux;
-          withPfm = pkgs.stdenv.isLinux;
-          withBpf = pkgs.stdenv.isLinux;
-          withSnmp = true;
-          withPythonHttp = true;
-          withPerlHttp = true;
-
-          configureFlags = lib.concatLists [
-
-            [
-              "--prefix=${placeholder "out"}"
-              "--sysconfdir=${placeholder "out"}/etc"
-              "--localstatedir=${placeholder "out"}/var"
-              "--with-rcdir=${placeholder "out"}/etc/init.d"
-              "--with-tmpdir=/tmp"
-              "--with-logdir=${placeholder "out"}/var/log/pcp"
-              "--with-rundir=/run/pcp"
-            ]
-
-            [
-              "--with-user=pcp"
-              "--with-group=pcp"
-            ]
-
-            [
-              "--with-make=make"
-              "--with-tar=tar"
-              "--with-python3=${lib.getExe pkgs.python3}"
-            ]
-
-            [
-              "--with-perl=yes"
-              "--with-threads=yes"
-            ]
-
-            [
-              "--with-secure-sockets=yes"
-              "--with-transparent-decompression=yes"
-            ]
-
-            (if pkgs.stdenv.isLinux then [ "--with-discovery=yes" ] else [ "--with-discovery=no" ])
-
-            [
-              "--with-dstat-symlink=no"
-              "--with-pmdamongodb=no"
-              "--with-pmdamysql=no"
-              "--with-pmdanutcracker=no"
-              "--with-qt=no"
-              "--with-infiniband=no"
-              "--with-selinux=no"
-            ]
-
-            (if withSystemd then [ "--with-systemd=yes" ] else [ "--with-systemd=no" ])
-            (if withPfm then [ "--with-perfevent=yes" ] else [ "--with-perfevent=no" ])
-            (
-              if withBpf then
-                [
-                  "--with-pmdabcc=yes"
-                  "--with-pmdabpf=yes"
-                  "--with-pmdabpftrace=yes"
-                ]
-              else
-                [
-                  "--with-pmdabcc=no"
-                  "--with-pmdabpf=no"
-                  "--with-pmdabpftrace=no"
-                ]
-            )
-
-            (if pkgs.stdenv.isLinux then [ "--with-devmapper=yes" ] else [ "--with-devmapper=no" ])
-
-            (if withSnmp then [ "--with-pmdasnmp=yes" ] else [ "--with-pmdasnmp=no" ])
-          ];
-
-
-          patches = [
-            ./nix/patches/gnumakefile-nix-fixes.patch
-          ];
-
-          postPatch = ''
-            # Fix shebangs (can't be done as static patch - needs Nix store paths)
-            patchShebangs src build configure scripts man
-          '';
-
-          hardeningDisable = lib.optionals withBpf [ "zerocallusedregs" ];
-
-          BPF_CFLAGS = lib.optionalString withBpf "-fno-stack-protector -Wno-error=unused-command-line-argument";
-          CLANG = lib.optionalString withBpf (lib.getExe pkgs.llvmPackages.clang);
-
-          SYSTEMD_SYSTEMUNITDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/systemd/system";
-          SYSTEMD_TMPFILESDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/tmpfiles.d";
-          SYSTEMD_SYSUSERSDIR = lib.optionalString withSystemd "${placeholder "out"}/lib/sysusers.d";
-
-          postInstall = ''
-            # Build the combined PMNS root file
-            # The individual root_* files exist but pmcd needs a combined 'root' file
-            # Use pmnsmerge to combine all the root_* files into one
-            (
-              cd $out/var/lib/pcp/pmns
-              export PCP_DIR=$out
-              export PCP_CONF=$out/etc/pcp.conf
-              . $out/etc/pcp.env
-
-              # Merge all the root_* files into the combined root file
-              # Order matters: root_root first (base), then others
-              $out/libexec/pcp/bin/pmnsmerge -a \
-                $out/libexec/pcp/pmns/root_root \
-                $out/libexec/pcp/pmns/root_pmcd \
-                $out/libexec/pcp/pmns/root_linux \
-                $out/libexec/pcp/pmns/root_proc \
-                $out/libexec/pcp/pmns/root_xfs \
-                $out/libexec/pcp/pmns/root_jbd2 \
-                $out/libexec/pcp/pmns/root_kvm \
-                $out/libexec/pcp/pmns/root_mmv \
-                $out/libexec/pcp/pmns/root_bpf \
-                $out/libexec/pcp/pmns/root_pmproxy \
-                root
-            )
-
-            # Remove runtime state directories
-            rm -rf $out/var/{run,log} $out/var/lib/pcp/tmp || true
-
-            # Move vendor config to share
-            if [ -d "$out/etc" ]; then
-              mkdir -p $out/share/pcp/etc
-              mv $out/etc/* $out/share/pcp/etc/
-              rmdir $out/etc || true
-
-              # Fix paths in pcp.conf to point to new locations
-              substituteInPlace $out/share/pcp/etc/pcp.conf \
-                --replace-quiet "$out/etc/pcp" "$out/share/pcp/etc/pcp" \
-                --replace-quiet "$out/etc/sysconfig" "$out/share/pcp/etc/sysconfig" \
-                --replace-quiet "PCP_ETC_DIR=$out/etc" "PCP_ETC_DIR=$out/share/pcp/etc"
-
-              # Fix symlinks that pointed to /etc/pcp/...
-              find $out/var/lib/pcp -type l | while read link; do
-                target=$(readlink "$link")
-                if [[ "$target" == *"/etc/pcp/"* ]]; then
-                  suffix="''${target#*/etc/pcp/}"
-                  rm "$link"
-                  ln -sf "$out/share/pcp/etc/pcp/$suffix" "$link"
-                fi
-              done
-            fi
-
-            # Fix broken symlinks with double /nix/store prefix
-            # These occur when the build system prepends a path to an already-absolute path
-            for broken_link in "$out/share/pcp/etc/pcp/pm"{search/pmsearch,series/pmseries}.conf; do
-              [[ -L "$broken_link" ]] && rm "$broken_link" && \
-                ln -sf "$out/share/pcp/etc/pcp/pmproxy/pmproxy.conf" "$broken_link"
-            done
-
-            # Fix pmcd/rc.local symlink (points to libexec/pcp/services/local)
-            if [[ -L "$out/share/pcp/etc/pcp/pmcd/rc.local" ]]; then
-              rm "$out/share/pcp/etc/pcp/pmcd/rc.local"
-              ln -sf "$out/libexec/pcp/services/local" "$out/share/pcp/etc/pcp/pmcd/rc.local"
-            fi
-
-            # Move man pages to $man output
-            if [ -d "$out/share/man" ]; then
-              mkdir -p $man/share
-              mv $out/share/man $man/share/
-            fi
-
-            # Move documentation to $doc output
-            for docdir in $out/share/doc/pcp*; do
-              if [ -d "$docdir" ]; then
-                mkdir -p $doc/share/doc
-                mv "$docdir" $doc/share/doc/
-              fi
-            done
-          '';
-
-          doCheck = false;
-          enableParallelBuilding = true;
-
-          meta = with lib; {
-            description = "Performance Co-Pilot - system performance monitoring toolkit";
-            homepage = "https://pcp.io";
-            license = licenses.gpl2Plus;
-            platforms = platforms.linux ++ platforms.darwin;
-            mainProgram = "pminfo";
+        # ─── MicroVM Generator ───────────────────────────────────────────
+        # Creates a MicroVM runner with the specified configuration.
+        # See nix/microvm.nix for full parameter documentation.
+        mkMicroVM = {
+          networking ? "user",
+          debugMode ? true,
+          enablePmlogger ? true,
+          enableEvalTools ? false,
+          enablePmieTest ? false,
+          enableGrafana ? false,
+          enableBpf ? false,
+          enableBcc ? false,
+          portOffset ? 0,
+          variant ? "base",
+        }:
+          import ./nix/microvm.nix {
+            inherit pkgs lib pcp microvm nixosModule nixpkgs system;
+            inherit networking debugMode enablePmlogger enableEvalTools
+                    enablePmieTest enableGrafana enableBpf enableBcc
+                    portOffset variant;
           };
-        };
+
+        # ─── Variant Package Generator ───────────────────────────────────
+        # Generates MicroVM packages for all variants and networking modes.
+        mkVariantPackages = lib.foldl' (acc: variantName:
+          let
+            def = variants.definitions.${variantName};
+            portOffset = constants.variantPortOffsets.${variantName};
+
+            # User-mode networking variant
+            userPkg = {
+              name = variants.mkPackageName variantName "user";
+              value = mkMicroVM ({
+                networking = "user";
+                inherit portOffset;
+                variant = variantName;
+              } // def.config);
+            };
+
+            # TAP networking variant (if supported)
+            tapPkg = lib.optionalAttrs def.supportsTap {
+              name = variants.mkPackageName variantName "tap";
+              value = mkMicroVM ({
+                networking = "tap";
+                inherit portOffset;
+                variant = variantName;
+              } // def.config);
+            };
+          in
+            acc // { ${userPkg.name} = userPkg.value; }
+            // lib.optionalAttrs (tapPkg ? name) { ${tapPkg.name} = tapPkg.value; }
+        ) {} variants.variantNames;
+
+        # Import lifecycle testing framework (Linux only)
+        lifecycle = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/lifecycle { inherit pkgs lib; }
+        );
+
+        # Import container module (Linux only) - returns { image, inputsHash }
+        containerModule = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/container.nix { inherit pkgs pcp; }
+        );
+
+        # Import container testing framework (Linux only)
+        containerTest = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/container-test {
+            inherit pkgs lib pcp;
+            containerInputsHash = containerModule.inputsHash or "";
+          }
+        );
+
+        # Import Kubernetes testing framework (Linux only)
+        k8sTest = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/k8s-test {
+            inherit pkgs lib pcp;
+            containerInputsHash = containerModule.inputsHash or "";
+          }
+        );
+
+        # Import test-all runner (Linux only)
+        testAll = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/test-all {
+            inherit pkgs lib containerTest k8sTest;
+          }
+        );
+
       in
       {
         packages = {
           default = pcp;
           inherit pcp;
-        };
+        } // lib.optionalAttrs pkgs.stdenv.isLinux (
+          {
+            # OCI container image (Linux only)
+            pcp-container = containerModule.image;
+          }
+          # MicroVM packages for all variants
+          // mkVariantPackages
+          # Lifecycle testing packages
+          // lifecycle.packages
+          # Container testing packages
+          // containerTest.packages
+          # Kubernetes testing packages
+          // k8sTest.packages
+          # Test-all runner
+          // testAll.packages
+        );
 
         checks = lib.optionalAttrs pkgs.stdenv.isLinux {
           vm-test = import ./nix/vm-test.nix {
@@ -278,28 +172,91 @@
           };
         };
 
-        devShells.default = pkgs.mkShell {
-          inputsFrom = [ pcp ];
-          packages = with pkgs; [
-            gdb
-            jp2a
-          ] ++ lib.optionals pkgs.stdenv.isLinux [
-            valgrind
-          ] ++ lib.optionals pkgs.stdenv.isDarwin [
-            lldb
-          ];
+        # Import modular development shell
+        devShells.default = import ./nix/shell.nix { inherit pkgs pcp; };
 
-          shellHook = ''
-            # Display PCP logo on shell entry
-            if [[ -f ./images/pcpicon-light.png ]]; then
-              jp2a --colors ./images/pcpicon-light.png 2>/dev/null || true
-            fi
-            echo "PCP Development Shell"
-            echo "Run './configure --help' to see build options"
-            echo "Otherwise use 'nix build' to build the package"
-          '';
-        };
+        # ─── Apps (Linux only) ─────────────────────────────────────────────
+        apps = lib.optionalAttrs pkgs.stdenv.isLinux (
+          let
+            networkScripts = import ./nix/network-setup.nix { inherit pkgs; };
+            vmScripts = import ./nix/microvm-scripts.nix { inherit pkgs; };
+
+            # ─── MicroVM Test Apps ────────────────────────────────────────────
+            # Generate test apps for each variant
+            mkTestApp = variant: networkMode:
+              let
+                testName = variants.mkTestAppName variant networkMode;
+                isTap = networkMode == "tap";
+                portOffset = constants.variantPortOffsets.${variant};
+                sshPort = constants.ports.sshForward + portOffset;
+                host = if isTap then constants.network.vmIp else "localhost";
+              in {
+                name = testName;
+                value = {
+                  type = "app";
+                  program = "${import ./nix/tests/microvm-test.nix {
+                    inherit pkgs lib;
+                    variant = "${variant}-${networkMode}";
+                    inherit host sshPort;
+                  }}/bin/pcp-test-${variant}-${networkMode}";
+                };
+              };
+
+            # Generate test apps for all variants
+            testApps = lib.foldl' (acc: variantName:
+              let
+                def = variants.definitions.${variantName};
+                userTest = mkTestApp variantName "user";
+                tapTest = lib.optionalAttrs def.supportsTap (mkTestApp variantName "tap");
+              in
+                acc // { ${userTest.name} = userTest.value; }
+                // lib.optionalAttrs (tapTest ? name) { ${tapTest.name} = tapTest.value; }
+            ) {} variants.variantNames;
+
+          in {
+            # Network management
+            pcp-check-host = {
+              type = "app";
+              program = "${networkScripts.check}/bin/pcp-check-host";
+            };
+            pcp-network-setup = {
+              type = "app";
+              program = "${networkScripts.setup}/bin/pcp-network-setup";
+            };
+            pcp-network-teardown = {
+              type = "app";
+              program = "${networkScripts.teardown}/bin/pcp-network-teardown";
+            };
+            # VM management
+            pcp-vm-check = {
+              type = "app";
+              program = "${vmScripts.check}/bin/pcp-vm-check";
+            };
+            pcp-vm-stop = {
+              type = "app";
+              program = "${vmScripts.stop}/bin/pcp-vm-stop";
+            };
+            pcp-vm-ssh = {
+              type = "app";
+              program = "${vmScripts.ssh}/bin/pcp-vm-ssh";
+            };
+            # Comprehensive test runner
+            pcp-test-all-microvms = {
+              type = "app";
+              program = "${import ./nix/tests/test-all-microvms.nix { inherit pkgs lib; }}/bin/pcp-test-all-microvms";
+            };
+          }
+          # Per-variant test apps
+          // testApps
+          # Lifecycle testing apps
+          // lifecycle.apps
+          # Container testing apps
+          // containerTest.apps
+          # Kubernetes testing apps
+          // k8sTest.apps
+          # Test-all runner
+          // testAll.apps
+        );
       }
     );
 }
-
