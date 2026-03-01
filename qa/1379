@@ -89,12 +89,16 @@ _filter_json()
 #  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
 #                                 Dload  Upload   Total   Spent    Left  Speed
 #^M  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0^M100   249  100   249    0     0   243k      0 --:--:-- --:--:-- --:--:--  243k
+# but on Fedora Rawhid circa Jab 2026, the --:--:-- was replaced by
+# spaces (sigh)
 _filter_curl()
 {
-    $PCP_AWK_PROG '
+    tee -a $seq_full \
+    | $PCP_AWK_PROG '
 /% Total /		{ next }
 / Dload  Upload /	{ next }
 /..:..:.. ..:..:../	{ next }
+/ 0  *0  *0  *0/	{ next }
 			{ print }'
 }
 
