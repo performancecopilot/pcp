@@ -38,28 +38,18 @@ _notrun "current time - $now_hr:$now_min - is too close to midnight"
 
 _filter()
 {
-    if fmt --help 2>&1 | grep '.-w, ' >/dev/null
+    if fmt -g 76 -w 76 </dev/null >/dev/null 2>&1
     then
-	# GNU-style fmt(1)
-	# -w, --width=WIDTH         maximum line width (default of 75 columns)
-	cmd="fmt -w 76"
-    elif fmt --help 2>&1 | grep '.-w .* width' >/dev/null
+	# GNU fmt(1) with -g
+	cmd='fmt -g 76 -w 76'
+    elif fmt 76 76 </dev/null >/dev/null 2>&1
     then
-	# FreeBSD-style fmt
-        # -w <n> set maximum width to <n>
-	cmd="fmt -w 76"
-    elif fmt --help 2>&1 | grep '.-w width' >/dev/null
-    then
-	# OpenBSD-style fmt
-        # -w width
-	cmd="fmt -w 76"
-    elif fmt --help 2>&1 | grep '.-[mg] ' >/dev/null
-    then
-	# NetBSD's version of fmt is different (may apply to other variants) ...
-	cmd="fmt -g 74 -m 75"
+	# FreeBSD fmt(1) with goal [maximum]
+	cmd='fmt 76 76'
     else
+	# don't know, punt on original fmt(1)
 	echo "Warning: no clue how to set max line length for fmt(1)"
-	cmd="fmt"
+	cmd='fmt -w 64'
     fi
     tee -a $seq_full \
     | $PCP_AWK_PROG '
