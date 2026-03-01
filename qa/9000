@@ -46,6 +46,17 @@ _filter()
 # real QA test starts here
 echo "Silence is golden ..."
 
+# pass 1, get ActiveState for every service unit
+#
+( cd $PCP_SYSTEMDUNIT_DIR; ls -d pcp-*.service pm*.service 2>/dev/null ) \
+| while read unit
+do
+    $sudo systemctl is-active "$unit" >/dev/null 2>&1 && echo "$unit" >>$tmp.active
+done
+cat $tmp.active >>$seq.full
+
+# pass 2, interrogate status of every unit
+#
 fmt="%-28.28s %-9.9s %-13.13s %-11.11s %-12.12s %-12.12s %-12.12s %-12.12s\n"
 $verbose && printf "$fmt" "Unit" "LoadState" "UnitFileState" "ActiveState" "TriggeredBy" "SubState" "ConditionResult"
 
@@ -84,6 +95,25 @@ do
 	echo "$unit: loaded and waiting for $TriggeredBy" >>$seq_full
 	continue
     fi
+
+    if [ "$LoadState" = loaded -a "$ActiveState" = inactive -a "$SubState" = dead -a "$TriggeredBy" = missing ]
+    then
+	# .timer units are special, if the associated service was active
+	# but is now not active, they end up with TriggeredBy = missing
+	#
+	case "$unit"
+	in
+	    *.timer)
+		    service_unit=`echo "$unit" | sed -e 's/_check//' -e 's/_daily//' -e 's/\.timer/.service/'`
+		    if ! grep -q "^$service_unit\$" $tmp.active
+		    then
+			echo "$unit: waiting but associated service unit ($service_unit) is not active" >>$seq_full
+			continue
+		    fi
+		    ;;
+	esac
+    fi
+
     # pcp-reboot-init.service is a special "one" shot and
     # the resulting ActiveState (SubState) can be "inactive (dead)" or
     # "active (exited)".
