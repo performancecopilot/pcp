@@ -22,7 +22,7 @@
 \f3pcp-nfsiostat\f1 \- Emulate iostat for NFS mount points using /proc/self/mountstats
 
 .SH SYNOPSIS
-\fBpcp\fP [\fBpcp options\fP] \fBnfsiostat\fP [\fB-s\fP \fBsamples\fP] [\fB-a\fP \fBarchive\fP] [\fB-Z\fP \fB--timezone\fP] [\fB-z\fP \fB--hostzone\fP] [\fB-V\fP \fBVersion\fP]
+\fBpcp\fP [\fBpcp options\fP] \fBnfsiostat\fP [\fB-s\fP \fBsamples\fP] [\fB-t\fP \fBinterval\fP] [\fB-a\fP \fBarchive\fP] [\fB-u\fP \fBno-interpolation\fP] [\fB-Z\fP \fB--timezone\fP] [\fB-z\fP \fB--hostzone\fP] [\fB-V\fP \fBVersion\fP]
 
 .SH DESCRIPTION
 The\fB pcp-nfsiostat \fPcommand reports client-side\fB Network File System (NFS) \fPI/O statistics for each mounted NFS filesystem. For every NFS mountpoint, the output consists of a summary section followed by detailed read and write statistics blocks. These statistics include operation rates, data throughput, latency, retransmissions, queueing delays, and error counts. By default,\fB pcp-nfsiostat \fPmonitors NFS mountpoints on the local host and reports live metrics collected via the \fB PCP NFS PMDA\fP. When an archive is specified, historical metrics are reported instead.
@@ -82,19 +82,27 @@ Number of failed operations and failure percentage.
 
 .SH OPTIONS
 .TP
-.BR \-a ", " \-\-archive " " I archive
+.BR \-a ", " \-\-archive " " \fI archive\fR
 Fetch NFS I/O statistics from the specified PCP archive.
 
 .TP
-.BR \-s ", " \-\-samples " " I samples
+.BR \-s ", " \-\-samples " " \fI samples\fR
 Number of samples to collect before exiting.
+
+.TP
+.BR \-t ", " \-\-interval " " \fI interval\fR
+Set the interval between two samples. The default is one second.
+
+.TP
+.BR \-u ", " \-\-no-interpol " " 
+Disable the default interpolation mode when replaying an archive.  With the -u option, interpolated  reporting  is  disabled  and each sample is reported according to native sampling intervals in the archive.  In this mode the -t option is ignored.  Additionally, non-interpolated replay makes sense only when replaying an archive (using the -a option described above), so the -a  option is mandatory when -u is specified.
 
 .TP
 .BR \-z ", " \-\-hostzone
 Set the reporting timezone to the local timezone of the metrics source.
 
 .TP
-.BR \-Z ", " \-\-timezone " " I tz
+.BR \-Z ", " \-\-timezone " " \fI tz\fR
 Set the reporting timezone.
 
 .TP

@@ -1,700 +1,2105 @@
 QA output created by 1997
 
 pcp-nfsiostat output : Display default output
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:02  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:02
+Linux  5.15.0-316.196.4.2.el8uek.x86_64  (localhost.localdomain)  02/27/2026 01:02:31  x86_64    (1 CPU)
+Timestamp         :02/27/2026 01:02:31
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+            411.934           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   306.579   78544.751      256.198    0 (0.0%)          0.806          1.070            0.050      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   84.172   21575.450      256.326    0 (0.0%)          0.740          1.086            0.156      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:04  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:04
+Timestamp         :02/27/2026 01:02:32
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:06  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:06
+Timestamp         :02/27/2026 01:02:33
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.060            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:08  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:08
+Timestamp         :02/27/2026 01:02:34
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:10  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:10
+Timestamp         :02/27/2026 01:02:35
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.156      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:12  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:12
+Timestamp         :02/27/2026 01:02:36
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:14  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:14
+Timestamp         :02/27/2026 01:02:37
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:16  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:16
+Timestamp         :02/27/2026 01:02:38
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.720          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:18  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:18
+Timestamp         :02/27/2026 01:02:39
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:20  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:20
+Timestamp         :02/27/2026 01:02:40
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      255.990    0 (0.0%)          0.727          1.060            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.056            0.155      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:22  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:22
+Timestamp         :02/27/2026 01:02:41
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:24  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:24
+Timestamp         :02/27/2026 01:02:42
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:26  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:26
+Timestamp         :02/27/2026 01:02:43
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:28  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:28
+Timestamp         :02/27/2026 01:02:44
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:30  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:30
+Timestamp         :02/27/2026 01:02:45
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
+Timestamp         :02/27/2026 01:02:46
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+             50.600           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   35.100    8993.798      256.234    0 (0.0%)          0.728          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   12.400    3181.492      256.572    0 (0.0%)          0.720          1.062            0.156      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:47
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:48
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:49
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:50
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:51
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:52
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.156      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:53
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.720          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:54
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:55
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:56
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:57
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.990    0 (0.0%)          0.728          1.060            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:58
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.156      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:59
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.060            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:00
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.718          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:01
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.066    0 (0.0%)          0.705          0.946            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.026    0 (0.0%)          0.779          1.110            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:02
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:03
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.793          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:04
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:05
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.109            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:06
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:07
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:08
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:09
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:10
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:11
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.793          1.109            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:12
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:13
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:14
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:15
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:16
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+            112.767           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   105.433   27004.127      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   5.833    1490.845      255.573    0 (0.0%)          0.783          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:17
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.109            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:18
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.789          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:19
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:20
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:21
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:22
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:23
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:24
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:25
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:26
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.793          1.109            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:27
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:28
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:29
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:30
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:31
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.178    0 (0.0%)          0.842          1.165            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.196    0 (0.0%)          1.074          1.853            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:32
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:33
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:34
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:35
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.272    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:36
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:37
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:38
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.081          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:39
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:40
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:41
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.081          1.862            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:42
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:43
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.272    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:44
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.081          1.865            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:45
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:46
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+            102.667           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   87.767   22483.632      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   11.867    3047.001      256.770    0 (0.0%)          1.079          1.862            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:47
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:48
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:49
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:50
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:51
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.272    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:52
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:53
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.857            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:54
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:55
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:56
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.857            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:57
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.865            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:58
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:59
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.272    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.081          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:04:00
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
 
 
 pcp-nfsiostat output : Display output
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:01  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:01
+Linux  5.15.0-316.196.4.2.el8uek.x86_64  (localhost.localdomain)  02/27/2026 01:02:31  x86_64    (1 CPU)
+Timestamp         :02/27/2026 01:02:31
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+            411.934           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   306.579   78544.751      256.198    0 (0.0%)          0.806          1.070            0.050      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   84.172   21575.450      256.326    0 (0.0%)          0.740          1.086            0.156      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:03  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:03
+Timestamp         :02/27/2026 01:02:32
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:05  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:05
+Timestamp         :02/27/2026 01:02:33
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.060            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:07  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:07
+Timestamp         :02/27/2026 01:02:34
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:09  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:09
+Timestamp         :02/27/2026 01:02:35
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.156      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:11  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:11
+Timestamp         :02/27/2026 01:02:36
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:13  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:13
+Timestamp         :02/27/2026 01:02:37
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:15  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:15
+Timestamp         :02/27/2026 01:02:38
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.720          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:17  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:17
+Timestamp         :02/27/2026 01:02:39
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:19  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:19
+Timestamp         :02/27/2026 01:02:40
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      255.990    0 (0.0%)          0.727          1.060            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.056            0.155      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:21  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:21
+Timestamp         :02/27/2026 01:02:41
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:23  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:23
+Timestamp         :02/27/2026 01:02:42
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:25  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:25
+Timestamp         :02/27/2026 01:02:43
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:27  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:27
+Timestamp         :02/27/2026 01:02:44
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:29  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:29
+Timestamp         :02/27/2026 01:02:45
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
+Timestamp         :02/27/2026 01:02:46
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+             50.600           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   35.100    8993.798      256.234    0 (0.0%)          0.728          1.061            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.068     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   12.400    3181.492      256.572    0 (0.0%)          0.720          1.062            0.156      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:47
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:48
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:49
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:50
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:51
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:52
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.156      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:53
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.720          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:54
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:55
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:56
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:57
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.990    0 (0.0%)          0.728          1.060            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.716          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:58
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.156      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:59
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.060            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:00
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.884    0 (0.0%)          0.718          1.059            0.153      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:01
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.066    0 (0.0%)          0.705          0.946            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.026    0 (0.0%)          0.779          1.110            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:02
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:03
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.793          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:04
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:05
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.109            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:06
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:07
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:08
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:09
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:10
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:11
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.793          1.109            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:12
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:13
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:14
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:15
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:16
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+            112.767           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   105.433   27004.127      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   5.833    1490.845      255.573    0 (0.0%)          0.783          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:17
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.109            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:18
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.789          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:19
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:20
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:21
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:22
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:23
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:24
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:25
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.166      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:26
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.793          1.109            0.172      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:27
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.109            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:28
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:29
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.125    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      255.573    0 (0.0%)          0.783          1.103            0.171      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:30
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.044    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      257.042    0 (0.0%)          0.787          1.115            0.167      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:31
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.178    0 (0.0%)          0.842          1.165            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.196    0 (0.0%)          1.074          1.853            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:32
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:33
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:34
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:35
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.272    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:36
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:37
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:38
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.081          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:39
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:40
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:41
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.081          1.862            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:42
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:43
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.272    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:44
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.081          1.865            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:45
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:46
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+            102.667           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   87.767   22483.632      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   11.867    3047.001      256.770    0 (0.0%)          1.079          1.862            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:47
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:48
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:49
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:50
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:51
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.272    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.256      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:52
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:53
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.857            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:54
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:55
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:56
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.078          1.857            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:57
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.845          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.079          1.865            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:58
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.857            0.255      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:59
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.272    0 (0.0%)          0.846          1.171            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.770    0 (0.0%)          1.081          1.862            0.253      0 (0.0%)
+
+Timestamp         :02/27/2026 01:04:00
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.175    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.050    0 (0.0%)          1.076          1.860            0.252      0 (0.0%)
 
 
 pcp-nfsiostat output : Display output when given specified number of samples
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:01  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:01
+Linux  5.15.0-316.196.4.2.el8uek.x86_64  (localhost.localdomain)  02/27/2026 01:02:31  x86_64    (1 CPU)
+Timestamp         :02/27/2026 01:02:31
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+            411.934           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   306.579   78544.751      256.198    0 (0.0%)          0.806          1.070            0.050      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   84.172   21575.450      256.326    0 (0.0%)          0.740          1.086            0.156      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:03  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:03
+Timestamp         :02/27/2026 01:02:32
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
-              ops/s       rpc bklog
-              0.076           0.000
-
-read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
-write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
-
-Linux  5.15.0-315.196.5.1.el8uek.x86_64  (ssosharm-ol8-1)  12/23/2025 16:53:05  x86_64    (2 CPU)
-Timestamp         :12/23/2025 16:53:05
+Timestamp         :02/27/2026 01:02:33
 
 ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+              0.000           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   0.000       0.000      256.234    0 (0.0%)          0.727          1.060            0.053      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   0.000       0.000      256.572    0 (0.0%)          0.718          1.062            0.153      0 (0.0%)
 
-ol-node-02:/nfs-share2 mounted on /nfs-mount-2:
+
+pcp-nfsiostat output : Display output when given specified number of sample with specified sampling interval
+Linux  5.15.0-316.196.4.2.el8uek.x86_64  (localhost.localdomain)  02/27/2026 01:02:31  x86_64    (1 CPU)
+Timestamp         :02/27/2026 01:02:31
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
               ops/s       rpc bklog
-              0.076           0.000
+            411.934           0.000
 
 read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.000       0.089      351.081    0 (0.0%)        146.393        511.714          365.071      0 (0.0%)
+                   306.579   78544.751      256.198    0 (0.0%)          0.806          1.070            0.050      0 (0.0%)
 write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
-                   0.056      57.083     1011.567    0 (0.0%)        115.876       6794.070         6678.122      0 (0.0%)
+                   84.172   21575.450      256.326    0 (0.0%)          0.740          1.086            0.156      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:36
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.434    0 (0.0%)          0.717          1.061            0.154      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:41
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+              0.000           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.185    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   0.000       0.000      256.296    0 (0.0%)          0.718          1.060            0.154      0 (0.0%)
+
+Timestamp         :02/27/2026 01:02:46
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+            253.100           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   175.500   44968.989      256.234    0 (0.0%)          0.728          1.061            0.054      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   62.067   15907.459      256.296    0 (0.0%)          0.718          1.061            0.154      0 (0.0%)
+
+
+pcp-nfsiostat output : Display output when given no interpolation option
+Timestamp         :02/27/2026 01:03:00
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+            459.735           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   338.776   86794.476      256.200    0 (0.0%)          0.796          1.068            0.050      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   96.651   24774.268      256.328    0 (0.0%)          0.736          1.082            0.156      0 (0.0%)
+
+Timestamp         :02/27/2026 01:03:30
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+           3381.933           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   3162.167  809730.129      256.068    0 (0.0%)          0.705          0.944            0.046      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   174.400   44703.625      256.328    0 (0.0%)          0.786          1.110            0.170      0 (0.0%)
+
+Timestamp         :02/27/2026 01:04:00
+
+ol-node-02:/nfs-share mounted on /nfs-mount:
+              ops/s       rpc bklog
+           3099.200           0.000
+
+read:              ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   2650.000  678897.143      256.188    0 (0.0%)          0.846          1.170            0.053      0 (0.0%)
+write:             ops/s        kB/s        kB/op     retrans   avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors
+                   358.933   92004.708      256.328    0 (0.0%)          1.078          1.860            0.254      0 (0.0%)
 
