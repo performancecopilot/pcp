@@ -925,8 +925,17 @@ class PidstatReport(pmcc.MetricGroupPrinter):
 
     def timeStampDelta(self, group):
         s = group.timestamp.tv_sec - group.prevTimestamp.tv_sec
-        n = group.timestamp.tv_nsec - group.prevTimestamp.tv_nsec
-        return s + n / 1000000000.0
+        # pmapi timestamps may provide sub-second resolution via tv_nsec (nanoseconds)
+        # or tv_usec (microseconds) depending on the collector. Prefer nanoseconds
+        # when available, but gracefully fall back to microseconds to avoid
+        if hasattr(group.timestamp, 'tv_nsec') and hasattr(group.prevTimestamp, 'tv_nsec'):
+            n = group.timestamp.tv_nsec - group.prevTimestamp.tv_nsec
+            return s + n / 1_000_000_000.0
+        elif hasattr(group.timestamp, 'tv_usec') and hasattr(group.prevTimestamp, 'tv_usec'):
+            u = group.timestamp.tv_usec - group.prevTimestamp.tv_usec
+            return s + u / 1_000_000.0
+        # it should not reach here
+        return s
 
     def print_machine_info(self,group, context):
         timestamp = context.pmLocaltime(group.timestamp.tv_sec)
