@@ -5,6 +5,15 @@
 # - stop with ^C (ugly) or touch ./grind.stop
 #
 
+# source the PCP configuration environment variables
+if [ -r $PCP_DIR/etc/pcp.env ]
+then
+    . $PCP_DIR/etc/pcp.env
+else
+    echo "Error: unable to read $PCP_DIR/etc/pcp.env!" >&2
+    exit 1
+fi
+
 tmp=${TMPDIR:-/tmp}/grind-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
@@ -71,7 +80,7 @@ do
 	echo "Botch: date_style=$date_style"
 	exit
     fi
-    echo -n "+++ iter $iter done, "
+    $PCP_ECHO_PROG $PCP_ECHO_N "+++ iter $iter done, ""$PCP_ECHO_C"
     if [ "$runtime" -lt 60 ]
     then
 	echo "`TZ=UTC date $date_arg +'%Ss'` elapsed time +++"
