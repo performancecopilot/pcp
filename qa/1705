@@ -82,7 +82,10 @@ echo
 echo "=== invalid probe ==="
 pmstore bpftrace.control.register "// name: test2
 does_not_exist { @c = count(); }"
-_pmdabpftrace_wait_for_value bpftrace.scripts.test2.status '"error"'
+# took 15sec to get started on vm40 x86_64 AmazonLinux 2023
+# - kenj 02 Mar 2026
+#
+_pmdabpftrace_wait_for_value bpftrace.scripts.test2.status '"error"' 20
 # error message changed between bpftrace versions
 pminfo -f bpftrace.scripts.test2.error >>$seq_full
 pminfo -f bpftrace.scripts.test2.error \
