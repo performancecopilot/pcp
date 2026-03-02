@@ -60,17 +60,17 @@ _plural()
 
 _fmt()
 {
-    if fmt -g 64 -w 64 </dev/null >/dev/null 2>&1
+    if fmt -g 68 -w 68 </dev/null >/dev/null 2>&1
     then
 	# GNU fmt(1) with -g
-	__args='-g 64 -w 64'
-    elif fmt 64 64 </dev/null >/dev/null 2>&1
+	__args='-g 68 -w 68'
+    elif fmt 68 68 </dev/null >/dev/null 2>&1
     then
 	# FreeBSD fmt(1) with goal [maximum]
-	__args='64 64'
+	__args='68 68'
     else
 	# don't know, punt on original fmt(1)
-	__args='-w 64'
+	__args='-w 68'
     fi
     fmt $__args \
     | tr -d '\r' | tr -s '\n' | $PCP_AWK_PROG '
