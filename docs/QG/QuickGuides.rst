@@ -43,15 +43,13 @@ This guide contains the following topics:
 
 15. :ref:`Establishing Secure Connections`, covers setting up secure connections between PCP collector and monitor components. Also, how network connections can be made secure against eavesdropping, data tampering and man-in-the-middle class attacks.
 
-16. :ref:`Establishing Secure Client Connections`, covers setting up secure connections between PCP collector and monitor components and discuss setting up certificates on both the collector and monitor hosts.
+16. :ref:`Setup Authenticated Connections`, covers setting up authenticated connections between PCP collector and monitor components.
 
-17. :ref:`Setup Authenticated Connections`, covers setting up authenticated connections between PCP collector and monitor components.
+17. :ref:`Importing data and creating PCP archives`, describes an alternative method of importing performance data into PCP by creating PCP archives from files or data streams that have no knowledge of PCP.
 
-18. :ref:`Importing data and creating PCP archives`, describes an alternative method of importing performance data into PCP by creating PCP archives from files or data streams that have no knowledge of PCP.
+18. :ref:`Using 3D views`, covers performance visualisation with *pmview*.
 
-19. :ref:`Using 3D views`, covers performance visualisation with *pmview*.
-
-20. :ref:`Compare Archives and Report Significant Differences`, introduces the *pmdiff* tool that compares the average values for every metric in a given time window, for changes that are likely to be of interest when searching for performance regressions.
+19. :ref:`Compare Archives and Report Significant Differences`, introduces the *pmdiff* tool that compares the average values for every metric in a given time window, for changes that are likely to be of interest when searching for performance regressions.
 
 Audience for This Guide
 ************************
