@@ -160,6 +160,15 @@ _filter()
 	    # end
 	    ;;
 
+	pmproxy)
+	    # QA fallout
+	    #
+	    sed \
+		-e '/pmproxy\[[0-9]*]: Terminated/d' \
+	    # end
+	    ;;
+
+
 	*)
 	    cat
 	    ;;
