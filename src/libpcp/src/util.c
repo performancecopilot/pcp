@@ -2987,6 +2987,7 @@ __pmDumpStack(void)
     int		res;
     int		i;
 
+    PM_LOCK(__pmLock_extcall);
     fprintf(stderr, "Procedure call traceback ...\n");
     for (i = 0; i < MAX_DEPTH; i++)
 	call_fn[i] = names[i];
@@ -2997,6 +2998,7 @@ __pmDumpStack(void)
 	else
 	    fprintf(stderr, "  0x%08lx [%s]\n", (__uint32_t)call_addr[i], call_fn[i]);
     }
+    PM_UNLOCK(__pmLock_extcall);
 }
 
 #elif HAVE_BACKTRACE
