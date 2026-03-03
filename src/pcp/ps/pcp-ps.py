@@ -249,7 +249,7 @@ class ProcessStatusUtil:
         if self.user_percent() is not None and self.guest_percent() is not None and self.system_percent() is not None:
             return float("%.2f" % (self.user_percent() + self.guest_percent() + self.system_percent()))
         else:
-            return None
+            return 0.0
 
     def stime(self):
         c_systime = self.__get_value('proc.psinfo.stime', self.instance)
@@ -359,6 +359,20 @@ class DynamicProcessReporter:
         self.printer = printer
         self.processStatOptions = processStatOptions
 
+    def __sort_by_idx(self, output_list, sorting_idx, reverse=True):
+        # Rows are tab-delimited; splitting on whitespace breaks when
+        # command/args contain spaces and shifts sortable column indexes.
+        return sorted(
+            output_list,
+            key=lambda row: (
+                float(row.split('\t')[sorting_idx].strip())
+                if sorting_idx < len(row.split('\t'))
+                and row.split('\t')[sorting_idx].strip().replace('.', '', 1).replace('-', '', 1).isdigit()
+                else float('-inf')
+            ),
+            reverse=reverse
+        )
+
     def _is_last_and_args(self, key):
         return (key == "args") and \
         self.processStatOptions.colum_list.index(key) == len(self.processStatOptions.colum_list) - 1
@@ -371,19 +385,15 @@ class DynamicProcessReporter:
         # Sorting validations
         sorting_idx = None
         if self.processStatOptions.sorting_flag:
-            if self.processStatOptions.filterstate == "ALL":
-                if self.processStatOptions.sorting_order == '%mem':
-                    sorting_idx = 7
-                elif self.processStatOptions.sorting_order == '%cpu':
-                    sorting_idx = 8
-            else:
-                sorting_idx = next((idx for idx, key in enumerate(self.processStatOptions.colum_list)
-                    if key == self.processStatOptions.sorting_order),
-                None)
-                if sorting_idx is None:
-                    raise ValueError("Sorting order not found in output columns")
-                # Adjust for timestamp column
-                sorting_idx += 1
+            # For dynamic output, sorting key must be present in selected columns.
+            if self.processStatOptions.sorting_order not in self.processStatOptions.colum_list:
+                raise ValueError("Sorting order not found in output columns")
+
+            # Find sorting column index and adjust for Timestamp at position 0.
+            sorting_idx = next((idx for idx, key in enumerate(self.processStatOptions.colum_list)
+                                if key == self.processStatOptions.sorting_order), None)
+            # to account for Timestamp colum
+            sorting_idx += 1
 
         # Always compute process list ONCE
         processes = self.process_filter.filter_processes(
@@ -393,47 +403,8 @@ class DynamicProcessReporter:
         output_list = []
         header = None
 
-        # -------- PATH 1: With filterstate -------- #
-        if self.processStatOptions.filterstate == "ALL":
-            header = (
-                "Timestamp\tUSER\t\tPID\t\tPPID\t\tPRI\t%CPU\t%MEM\tVSZ"
-                "\tRSS\tS\tSTARTED\t\tTIME\t\t"
-                "WCHAN\t\t\t\tCommand"
-            )
-
-            # Precompute format string
-            # fmt = (
-            #     "{ts}{indent}{user}\t{pid}\t{ppid}\t{pri}\t{cpu}\t{mem}\t"
-            #     "{vsz}\t{rss}\t{s}\t{started}\t{time}\t{wchan}\t{cmd}"
-            # )
-            for process in processes:
-                # Maintain state info
-                key = (process.s_name(), process.pid())
-                process_state_info[key] = process_state_info.get(key, 0) + self.delta_time
-                row = [timestamp]
-                row.extend([
-                    process.user_name(),
-                    process.pid(),
-                    process.ppid(),
-                    process.priority(),
-                    process.total_percent(),
-                    process.system_percent(),
-                    process.vsize(),
-                    process.rss(),
-                    process.s_name(),
-                    process.start(),
-                    process.total_time(),
-                    process.wchan_s(),
-                    process.process_name_with_args_last()[:45]
-                ])
-                output_list.append(
-                    "\t".join(
-                        str(x) if x is not None else '' for x in row
-                    )
-                )
-
-        # -------- PATH 2: Customized column list -------- #
-        elif self.processStatOptions.colum_list is not None:
+        # -------- Dynamic column list path -------- #
+        if self.processStatOptions.colum_list is not None:
 
             header = "Timestamp\t"
             for key in self.processStatOptions.colum_list:
@@ -450,23 +421,14 @@ class DynamicProcessReporter:
                 # print(row)
                 output_list.append("\t".join(str(x) if x is not None else '' for x in row))
 
-        # -------- PATH 3: Invalid filterstate or column list -------- #
+        # -------- Invalid column list -------- #
         # This should never happen, but just in case
         else:
             raise ValueError("No valid filterstate or column list provided")
 
         # Sorting logic
         if self.processStatOptions.sorting_flag and sorting_idx is not None:
-            output_list.sort(
-                key=lambda x: (
-                    sorting_idx,
-                    float('inf') if (
-                        len(x.split()) <= sorting_idx or
-                        not x.split()[sorting_idx].replace('.', '', 1).isdigit()
-                    ) else float(x.split()[sorting_idx])
-                ),
-                reverse=True
-            )
+            output_list = self.__sort_by_idx(output_list, sorting_idx, reverse=True)
 
         # --------- Print output  --------- #
         self.printer(header)
@@ -531,25 +493,25 @@ class ProcessStatusReporter:
             for process in processes:
                 output_rows.append("%s%s%s\t\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
                     safe_str(timestamp), safe_str(value_indentation), safe_str(process.user_name()),
-                    safe_str(process.pid()),safe_str(process.system_percent()), safe_str(process.total_percent()),
+                    safe_str(process.pid()),safe_str(process.system_percent()), safe_str(process.mem()),
                     safe_str(process.vsize()), safe_str(process.rss()),
                     safe_str(process.tty_name()), safe_str(process.ppid()), safe_str(process.total_time()),
                     safe_str(process.start()),
                     safe_str(process.process_name())))
-            cpu_idx = 5
-            mem_idx = 6
+            cpu_idx = 3
+            mem_idx = 4
         elif selected_flag == "user":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s" % (
                     safe_str(timestamp), safe_str(value_indentation), safe_str(process.user_name()),
                     safe_str(process.pid()),
-                    safe_str(process.system_percent()), safe_str(process.total_percent()),
+                    safe_str(process.system_percent()), safe_str(process.mem()),
                     safe_str(process.vsize()), safe_str(process.rss()),
                     safe_str(process.tty_name()), safe_str(process.s_name()),
                     safe_str(process.total_time()), safe_str(process.start()),
                     safe_str(process.process_name())))
-            cpu_idx = 5
-            mem_idx = 6
+            cpu_idx = 3
+            mem_idx = 4
         elif selected_flag == "command":
             for process in processes:
                 output_rows.append("%s%s%s\t%s\t%s\t%s\t%s" % (
@@ -855,6 +817,10 @@ class ProcessStatOptions(pmapi.pmOptions):
             try:
                 if optarg.upper() == "ALL":
                     self.filterstate = optarg.upper()
+                    self.colum_list = [
+                        "uname", "pid", "ppid", "pri", "%cpu", "%mem",
+                        "vsize", "rss", "state", "start", "time", "wchan", "args"
+                    ]
                 else:
                     dummy_list = optarg.replace(',', ' ').split(' ')
                     if self.debug_mode:

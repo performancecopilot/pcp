@@ -23002,33 +23002,143 @@ Timestamp        USERNAME	PID		%CPU	%MEM	VSZ	RSS	TTY	STAT	TIME		START		COMMAND
 06:20:31         root      	6834    	0.0	0.0	537140	49588	?	S	00:00:00	06:32:55	gnome-terminal-     
 06:20:31         root      	897     	0.0	0.0	198164	44248	?	S	00:00:00	06:32:24	sssd_nss            
 
-pcp-ps output : Display the value as per %mem in user selected format(failure case)
+pcp-ps output : Display user format with sort by %mem
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
-Sorting order not found in output columns
+Timestamp        USERNAME	PID		%CPU	%MEM	VSZ	RSS	TTY	STAT	TIME		START		COMMAND
+06:20:31         root      	4978    	0.0	0.0	858384	320344	?	S	00:00:05	06:32:28	packagekitd         
+06:20:31         root      	5857    	0.2	0.8	4157608	307268	tty2	S	00:00:07	06:32:44	gnome-shell         
+06:20:31         root      	6224    	0.0	0.0	1171516	143284	tty2	S	00:00:01	06:32:45	gnome-software      
+06:20:31         root      	5976    	0.0	0.0	546088	64308	tty2	S	00:00:00	06:32:44	ibus-x11            
+06:20:31         root      	5916    	0.0	0.0	269868	52816	tty2	S	00:00:00	06:32:44	Xwayland            
+06:20:31         root      	6219    	0.0	0.1	770024	50580	?	S	00:00:00	06:32:45	tracker-store       
+06:20:31         root      	6834    	0.0	0.0	537140	49588	?	S	00:00:00	06:32:55	gnome-terminal-     
+06:20:31         root      	897     	0.0	0.0	198164	44248	?	S	00:00:00	06:32:24	sssd_nss            
 
 pcp-ps output : Display the value as per %mem in user selected format
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
 Timestamp	PID		PPID		TTY	Command				%MEM	
-06:20:31	1       	0       	?	/usr/lib/systemd/systemd --swi	0.1
-06:20:31	786     	1       	?	/usr/bin/rpcbind -w -f        	0.04
-06:20:31	816     	1       	?	/usr/sbin/mcelog --ignorenodev	0.01
-06:20:31	818     	1       	?	/usr/bin/dbus-daemon --system 	0.06
-06:20:31	820     	1       	?	/usr/lib/polkit-1/polkitd --no	0.19
-06:20:31	821     	1       	?	/usr/sbin/irqbalance --foregro	0.03
-06:20:31	827     	1       	?	/usr/sbin/alsactl -s -n 19 -c 	0.01
-06:20:31	829     	1       	?	avahi-daemon: running [linux.l	0.04
+06:20:31	4978    	1       	?	/usr/libexec/packagekitd      	2.25
+06:20:31	5857    	5769    	tty2	/usr/bin/gnome-shell          	2.16
+06:20:31	6224    	5769    	tty2	/usr/bin/gnome-software --gapp	1.01
+06:20:31	5976    	1       	tty2	/usr/libexec/ibus-x11 --kill-d	0.45
+06:20:31	5916    	5857    	tty2	/usr/bin/Xwayland :0 -rootless	0.37
+06:20:31	6219    	5729    	?	/usr/libexec/tracker-store    	0.36
+06:20:31	6834    	5729    	?	/usr/libexec/gnome-terminal-se	0.35
+06:20:31	884     	1       	?	/usr/libexec/platform-python -	0.31
 
 pcp-ps output : Display the value as per %cpu in user selected format
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
-Timestamp	USER		PID		PPID		PRI	%CPU	%MEM	VSZ	RSS	S	STARTED		TIME		WCHAN				Command
-06:20:31	root      	4978    	1       	0	0.0	0.0	858384	320344	S	06:32:28	00:00:05	poll_schedule_timeout.constpro	/usr/libexec/packagekitd
-06:20:31	root      	5857    	5769    	0	0.8	0.2	4157608	307268	S	06:32:44	00:00:07	poll_schedule_timeout.constpro	/usr/bin/gnome-shell
-06:20:31	root      	6224    	5769    	0	0.0	0.0	1171516	143284	S	06:32:45	00:00:01	poll_schedule_timeout.constpro	/usr/bin/gnome-software --gapplication-servic
-06:20:31	root      	5976    	1       	0	0.0	0.0	546088	64308	S	06:32:44	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/ibus-x11 --kill-daemon
-06:20:31	root      	5916    	5857    	0	0.0	0.0	269868	52816	S	06:32:44	00:00:00	ep_poll                       	/usr/bin/Xwayland :0 -rootless -terminate -ac
-06:20:31	root      	6219    	5729    	0	0.1	0.0	770024	50580	S	06:32:45	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/tracker-store
-06:20:31	root      	6834    	5729    	0	0.0	0.0	537140	49588	S	06:32:55	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/gnome-terminal-server
-06:20:31	root      	897     	838     	0	0.0	0.0	198164	44248	S	06:32:24	00:00:00	ep_poll                       	/usr/libexec/sssd/sssd_nss --uid 0 --gid 0 --
+Timestamp	USER		PID		PPID		PRI	%CPU	%MEM	VSZ	RSS	S	START		TIME		WCHAN				Command				
+06:20:31	root      	5857    	5769    	0	0.2	2.16	4157608	307268	S	06:32:44	00:00:07	poll_schedule_timeout.constpro	/usr/bin/gnome-shell
+06:20:31	root      	186     	2       	0	0.1	0.0	0	0	I	06:32:21	00:00:00	worker_thread                 	(kworker/3:2-cgroup_pidlist_destroy)
+06:20:31	root      	1106    	1       	0	0.1	0.14	396836	20496	S	06:32:24	00:00:00	poll_schedule_timeout.constpro	/usr/sbin/NetworkManager --no-daemon
+06:20:31	root      	1120    	1       	0	0.1	0.23	483856	32504	S	06:32:24	00:00:02	poll_schedule_timeout.constpro	/usr/libexec/platform-python -Es /usr/sbin/tuned -l -P
+06:20:31	root      	1650    	1633    	0	0.1	0.06	100884	8848	R	06:32:25	00:00:00	-                             	/var/lib/pcp/pmdas/proc/pmdaproc -A -d 3
+06:20:31	root      	1682    	1633    	0	0.1	0.06	99880	8004	S	06:32:25	00:00:00	pipe_wait                     	/var/lib/pcp/pmdas/linux/pmdalinux -A
+06:20:31	root      	5766    	5729    	0	0.1	0.05	76556	6756	S	06:32:44	00:00:00	ep_poll                       	/usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+06:20:31	root      	6254    	5769    	0	0.1	0.21	788224	30540	S	06:32:45	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/tracker-miner-fs
+
+pcp-ps output : Display user format with explicit columns sorted by %cpu
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Timestamp	PID		USER		%CPU	%MEM	VSZ	RSS	TTY	S	TIME		START		
+06:20:31	5857    	root      	0.2	2.16	4157608	307268	tty2	S	00:00:07	06:32:44
+06:20:31	186     	root      	0.1	0.0	0	0	?	I	00:00:00	06:32:21
+06:20:31	1106    	root      	0.1	0.14	396836	20496	?	S	00:00:00	06:32:24
+06:20:31	1120    	root      	0.1	0.23	483856	32504	?	S	00:00:02	06:32:24
+06:20:31	1650    	root      	0.1	0.06	100884	8848	?	R	00:00:00	06:32:25
+06:20:31	1682    	root      	0.1	0.06	99880	8004	?	S	00:00:00	06:32:25
+06:20:31	5766    	root      	0.1	0.05	76556	6756	?	S	00:00:00	06:32:44
+06:20:31	6254    	root      	0.1	0.21	788224	30540	tty2	S	00:00:00	06:32:45
+06:20:31	6335    	root      	0.1	0.02	250248	2720	?	S	00:00:00	06:32:46
+06:20:31	9349    	root      	0.1	0.15	1173832	20680	?	R	00:00:00	06:37:42
+06:20:31	1       	root      	0.0	0.1	241324	14332	?	S	00:00:01	06:32:20
+06:20:31	2       	root      	0.0	0.0	0	0	?	S	00:00:00	06:32:20
+06:20:31	3       	root      	0.0	0.0	0	0	?	I	00:00:00	06:32:20
+
+pcp-ps output : Display user format with explicit columns sorted by %mem
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Timestamp	PID		USER		%CPU	%MEM	VSZ	RSS	TTY	S	TIME		START		
+06:20:31	4978    	root      	0.0	2.25	858384	320344	?	S	00:00:05	06:32:28
+06:20:31	5857    	root      	0.2	2.16	4157608	307268	tty2	S	00:00:07	06:32:44
+06:20:31	6224    	root      	0.0	1.01	1171516	143284	tty2	S	00:00:01	06:32:45
+06:20:31	5976    	root      	0.0	0.45	546088	64308	tty2	S	00:00:00	06:32:44
+06:20:31	5916    	root      	0.0	0.37	269868	52816	tty2	S	00:00:00	06:32:44
+06:20:31	6219    	root      	0.0	0.36	770024	50580	?	S	00:00:00	06:32:45
+06:20:31	6834    	root      	0.0	0.35	537140	49588	?	S	00:00:00	06:32:55
+06:20:31	884     	root      	0.0	0.31	308900	43444	?	S	00:00:00	06:32:24
+06:20:31	897     	root      	0.0	0.31	198164	44248	?	S	00:00:00	06:32:24
+06:20:31	6055    	root      	0.0	0.28	191080	40088	?	S	00:00:00	06:32:45
+06:20:31	6005    	root      	0.0	0.26	836252	36364	?	S	00:00:00	06:32:45
+06:20:31	864     	root      	0.0	0.23	447888	32184	?	S	00:00:00	06:32:24
+06:20:31	1120    	root      	0.1	0.23	483856	32504	?	S	00:00:02	06:32:24
+
+pcp-ps output : Display user format with args column sorted by %mem
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Timestamp	PID		USER		Command				%CPU	%MEM	VSZ	RSS	TTY	S	TIME		START		
+06:20:31	4978    	root      	/usr/libexec/packagekitd      	0.0	2.25	858384	320344	?	S	00:00:05	06:32:28
+06:20:31	5857    	root      	/usr/bin/gnome-shell          	0.2	2.16	4157608	307268	tty2	S	00:00:07	06:32:44
+06:20:31	6224    	root      	/usr/bin/gnome-software --gapp	0.0	1.01	1171516	143284	tty2	S	00:00:01	06:32:45
+06:20:31	5976    	root      	/usr/libexec/ibus-x11 --kill-d	0.0	0.45	546088	64308	tty2	S	00:00:00	06:32:44
+06:20:31	5916    	root      	/usr/bin/Xwayland :0 -rootless	0.0	0.37	269868	52816	tty2	S	00:00:00	06:32:44
+06:20:31	6219    	root      	/usr/libexec/tracker-store    	0.0	0.36	770024	50580	?	S	00:00:00	06:32:45
+06:20:31	6834    	root      	/usr/libexec/gnome-terminal-se	0.0	0.35	537140	49588	?	S	00:00:00	06:32:55
+06:20:31	884     	root      	/usr/libexec/platform-python -	0.0	0.31	308900	43444	?	S	00:00:00	06:32:24
+06:20:31	897     	root      	/usr/libexec/sssd/sssd_nss --u	0.0	0.31	198164	44248	?	S	00:00:00	06:32:24
+06:20:31	6055    	root      	/usr/libexec/sssd/sssd_kcm --u	0.0	0.28	191080	40088	?	S	00:00:00	06:32:45
+06:20:31	6005    	root      	/usr/libexec/goa-daemon       	0.0	0.26	836252	36364	?	S	00:00:00	06:32:45
+06:20:31	864     	root      	/opt/cisco/anyconnect/bin/vpna	0.0	0.23	447888	32184	?	S	00:00:00	06:32:24
+06:20:31	1120    	root      	/usr/libexec/platform-python -	0.1	0.23	483856	32504	?	S	00:00:02	06:32:24
+
+pcp-ps output : Display user format with args column sorted by %cpu
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Timestamp	PID		USER		Command				%CPU	%MEM	VSZ	RSS	TTY	S	TIME		START		
+06:20:31	5857    	root      	/usr/bin/gnome-shell          	0.2	2.16	4157608	307268	tty2	S	00:00:07	06:32:44
+06:20:31	186     	root      	(kworker/3:2-cgroup_pidlist_de	0.1	0.0	0	0	?	I	00:00:00	06:32:21
+06:20:31	1106    	root      	/usr/sbin/NetworkManager --no-	0.1	0.14	396836	20496	?	S	00:00:00	06:32:24
+06:20:31	1120    	root      	/usr/libexec/platform-python -	0.1	0.23	483856	32504	?	S	00:00:02	06:32:24
+06:20:31	1650    	root      	/var/lib/pcp/pmdas/proc/pmdapr	0.1	0.06	100884	8848	?	R	00:00:00	06:32:25
+06:20:31	1682    	root      	/var/lib/pcp/pmdas/linux/pmdal	0.1	0.06	99880	8004	?	S	00:00:00	06:32:25
+06:20:31	5766    	root      	/usr/bin/dbus-daemon --session	0.1	0.05	76556	6756	?	S	00:00:00	06:32:44
+06:20:31	6254    	root      	/usr/libexec/tracker-miner-fs 	0.1	0.21	788224	30540	tty2	S	00:00:00	06:32:45
+06:20:31	6335    	root      	/usr/bin/VBoxClient --dragandd	0.1	0.02	250248	2720	?	S	00:00:00	06:32:46
+06:20:31	9349    	root      	/usr/libexec/tracker-extract  	0.1	0.15	1173832	20680	?	R	00:00:00	06:37:42
+06:20:31	1       	root      	/usr/lib/systemd/systemd --swi	0.0	0.1	241324	14332	?	S	00:00:01	06:32:20
+06:20:31	2       	root      	(kthreadd)                    	0.0	0.0	0	0	?	S	00:00:00	06:32:20
+06:20:31	3       	root      	(rcu_gp)                      	0.0	0.0	0	0	?	I	00:00:00	06:32:20
+
+pcp-ps output : Display ALL columns sorted by %mem
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Timestamp	USER		PID		PPID		PRI	%CPU	%MEM	VSZ	RSS	S	START		TIME		WCHAN				Command				
+06:20:31	root      	4978    	1       	0	0.0	2.25	858384	320344	S	06:32:28	00:00:05	poll_schedule_timeout.constpro	/usr/libexec/packagekitd
+06:20:31	root      	5857    	5769    	0	0.2	2.16	4157608	307268	S	06:32:44	00:00:07	poll_schedule_timeout.constpro	/usr/bin/gnome-shell
+06:20:31	root      	6224    	5769    	0	0.0	1.01	1171516	143284	S	06:32:45	00:00:01	poll_schedule_timeout.constpro	/usr/bin/gnome-software --gapplication-service
+06:20:31	root      	5976    	1       	0	0.0	0.45	546088	64308	S	06:32:44	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/ibus-x11 --kill-daemon
+06:20:31	root      	5916    	5857    	0	0.0	0.37	269868	52816	S	06:32:44	00:00:00	ep_poll                       	/usr/bin/Xwayland :0 -rootless -terminate -accessx -core -auth /run/user/0/.mutter-Xwaylandauth.Q6AEX1 -listen 4 -listen 5 -displayfd 6
+06:20:31	root      	6219    	5729    	0	0.0	0.36	770024	50580	S	06:32:45	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/tracker-store
+06:20:31	root      	6834    	5729    	0	0.0	0.35	537140	49588	S	06:32:55	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/gnome-terminal-server
+06:20:31	root      	884     	1       	0	0.0	0.31	308900	43444	S	06:32:24	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/platform-python -s /usr/sbin/firewalld --nofork --nopid
+06:20:31	root      	897     	838     	0	0.0	0.31	198164	44248	S	06:32:24	00:00:00	ep_poll                       	/usr/libexec/sssd/sssd_nss --uid 0 --gid 0 --logger=files
+06:20:31	root      	6055    	1       	0	0.0	0.28	191080	40088	S	06:32:45	00:00:00	ep_poll                       	/usr/libexec/sssd/sssd_kcm --uid 0 --gid 0 --logger=files
+06:20:31	root      	6005    	5729    	0	0.0	0.26	836252	36364	S	06:32:45	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/goa-daemon
+06:20:31	root      	864     	1       	0	0.0	0.23	447888	32184	S	06:32:24	00:00:00	futex_wait_queue_me           	/opt/cisco/anyconnect/bin/vpnagentd -execv_instance
+06:20:31	root      	1120    	1       	0	0.1	0.23	483856	32504	S	06:32:24	00:00:02	poll_schedule_timeout.constpro	/usr/libexec/platform-python -Es /usr/sbin/tuned -l -P
+
+pcp-ps output : Display ALL columns sorted by %cpu
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Timestamp	USER		PID		PPID		PRI	%CPU	%MEM	VSZ	RSS	S	START		TIME		WCHAN				Command				
+06:20:31	root      	5857    	5769    	0	0.2	2.16	4157608	307268	S	06:32:44	00:00:07	poll_schedule_timeout.constpro	/usr/bin/gnome-shell
+06:20:31	root      	186     	2       	0	0.1	0.0	0	0	I	06:32:21	00:00:00	worker_thread                 	(kworker/3:2-cgroup_pidlist_destroy)
+06:20:31	root      	1106    	1       	0	0.1	0.14	396836	20496	S	06:32:24	00:00:00	poll_schedule_timeout.constpro	/usr/sbin/NetworkManager --no-daemon
+06:20:31	root      	1120    	1       	0	0.1	0.23	483856	32504	S	06:32:24	00:00:02	poll_schedule_timeout.constpro	/usr/libexec/platform-python -Es /usr/sbin/tuned -l -P
+06:20:31	root      	1650    	1633    	0	0.1	0.06	100884	8848	R	06:32:25	00:00:00	-                             	/var/lib/pcp/pmdas/proc/pmdaproc -A -d 3
+06:20:31	root      	1682    	1633    	0	0.1	0.06	99880	8004	S	06:32:25	00:00:00	pipe_wait                     	/var/lib/pcp/pmdas/linux/pmdalinux -A
+06:20:31	root      	5766    	5729    	0	0.1	0.05	76556	6756	S	06:32:44	00:00:00	ep_poll                       	/usr/bin/dbus-daemon --session --address=systemd: --nofork --nopidfile --systemd-activation --syslog-only
+06:20:31	root      	6254    	5769    	0	0.1	0.21	788224	30540	S	06:32:45	00:00:00	poll_schedule_timeout.constpro	/usr/libexec/tracker-miner-fs
+06:20:31	root      	6335    	6334    	0	0.1	0.02	250248	2720	S	06:32:46	00:00:00	futex_wait_queue_me           	/usr/bin/VBoxClient --draganddrop
+06:20:31	root      	9349    	5729    	0	0.1	0.15	1173832	20680	R	06:37:42	00:00:00	-                             	/usr/libexec/tracker-extract
+06:20:31	root      	1       	0       	0	0.0	0.1	241324	14332	S	06:32:20	00:00:01	ep_poll                       	/usr/lib/systemd/systemd --switched-root --system --deserialize 18
+06:20:31	root      	2       	0       	0	0.0	0.0	0	0	S	06:32:20	00:00:00	kthreadd                      	(kthreadd)
+06:20:31	root      	3       	2       	0	0.0	0.0	0	0	I	06:32:20	00:00:00	rescuer_thread                	(rcu_gp)
 
 pcp-ps output : Display user format with sort by %cpu (custom columns, positive test)
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
@@ -23055,5 +23165,9 @@ Timestamp	PID		%MEM	Command
 06:20:31	884     	0.31	/usr/libexec/platform-python -s /usr/sbin/firewalld --nofork --nopid
 
 pcp-ps output : Display user format with --sort on missing column (negative test, should error)
+Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
+Sorting order not found in output columns
+
+pcp-ps output : Display the value as per %mem in user selected format(failure case)
 Linux  5.4.17-2136.313.6.el8uek.x86_64  (localhost.localdomain)  12/14/22  x86_64    (4 CPU)
 Sorting order not found in output columns
