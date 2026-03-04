@@ -50,21 +50,22 @@
     flake-utils.lib.eachDefaultSystem (
       system:
       let
+        nixDir = ./build/nix;
         pkgs = nixpkgs.legacyPackages.${system};
         lib = pkgs.lib;
 
         # Import modular package definition
-        # Pass self for stable source hashing - see nix/package.nix for details
-        pcp = import ./nix/package.nix { inherit pkgs; src = self; };
+        # Pass self for stable source hashing - see build/nix/package.nix for details
+        pcp = import (nixDir + "/package.nix") { inherit pkgs; src = self; };
 
         # Import shared constants and variant definitions
-        constants = import ./nix/constants.nix;
-        variants = import ./nix/variants.nix { inherit constants; };
-        nixosModule = import ./nix/nixos-module.nix;
+        constants = import (nixDir + "/constants.nix");
+        variants = import (nixDir + "/variants.nix") { inherit constants; };
+        nixosModule = import (nixDir + "/nixos-module.nix");
 
         # ─── MicroVM Generator ───────────────────────────────────────────
         # Creates a MicroVM runner with the specified configuration.
-        # See nix/microvm.nix for full parameter documentation.
+        # See build/nix/microvm.nix for full parameter documentation.
         mkMicroVM = {
           networking ? "user",
           debugMode ? true,
@@ -76,7 +77,7 @@
           portOffset ? 0,
           variant ? "base",
         }:
-          import ./nix/microvm.nix {
+          import (nixDir + "/microvm.nix") {
             inherit pkgs lib pcp microvm nixosModule nixpkgs system;
             inherit networking debugMode enablePmlogger enableEvalTools
                     enablePmieTest enableGrafana enableBpf
@@ -116,17 +117,17 @@
 
         # Import lifecycle testing framework (Linux only)
         lifecycle = lib.optionalAttrs pkgs.stdenv.isLinux (
-          import ./nix/lifecycle { inherit pkgs lib; }
+          import (nixDir + "/lifecycle") { inherit pkgs lib; }
         );
 
         # Import container module (Linux only) - returns { image, inputsHash }
         containerModule = lib.optionalAttrs pkgs.stdenv.isLinux (
-          import ./nix/container.nix { inherit pkgs pcp; }
+          import (nixDir + "/container.nix") { inherit pkgs pcp; }
         );
 
         # Import container testing framework (Linux only)
         containerTest = lib.optionalAttrs pkgs.stdenv.isLinux (
-          import ./nix/container-test {
+          import (nixDir + "/container-test") {
             inherit pkgs lib pcp;
             containerInputsHash = containerModule.inputsHash or "";
           }
@@ -134,7 +135,7 @@
 
         # Import Kubernetes testing framework (Linux only)
         k8sTest = lib.optionalAttrs pkgs.stdenv.isLinux (
-          import ./nix/k8s-test {
+          import (nixDir + "/k8s-test") {
             inherit pkgs lib pcp;
             containerInputsHash = containerModule.inputsHash or "";
           }
@@ -142,12 +143,12 @@
 
         # Import standalone K8s manifest generator (Linux only)
         k8sManifests = lib.optionalAttrs pkgs.stdenv.isLinux (
-          import ./nix/k8s-manifests { inherit pkgs lib; }
+          import (nixDir + "/k8s-manifests") { inherit pkgs lib; }
         );
 
         # Import test-all runner (Linux only)
         testAll = lib.optionalAttrs pkgs.stdenv.isLinux (
-          import ./nix/test-all {
+          import (nixDir + "/test-all") {
             inherit pkgs lib containerTest k8sTest;
           }
         );
@@ -177,19 +178,19 @@
         );
 
         checks = lib.optionalAttrs pkgs.stdenv.isLinux {
-          vm-test = import ./nix/vm-test.nix {
+          vm-test = import (nixDir + "/vm-test.nix") {
             inherit pkgs pcp;
           };
         };
 
         # Import modular development shell
-        devShells.default = import ./nix/shell.nix { inherit pkgs pcp; };
+        devShells.default = import (nixDir + "/shell.nix") { inherit pkgs pcp; };
 
         # ─── Apps (Linux only) ─────────────────────────────────────────────
         apps = lib.optionalAttrs pkgs.stdenv.isLinux (
           let
-            networkScripts = import ./nix/network-setup.nix { inherit pkgs; };
-            vmScripts = import ./nix/microvm-scripts.nix { inherit pkgs; };
+            networkScripts = import (nixDir + "/network-setup.nix") { inherit pkgs; };
+            vmScripts = import (nixDir + "/microvm-scripts.nix") { inherit pkgs; };
 
             # ─── MicroVM Test Apps ────────────────────────────────────────────
             # Generate test apps for each variant
@@ -204,7 +205,7 @@
                 name = testName;
                 value = {
                   type = "app";
-                  program = "${import ./nix/tests/microvm-test.nix {
+                  program = "${import (nixDir + "/tests/microvm-test.nix") {
                     inherit pkgs lib;
                     variant = "${variant}-${networkMode}";
                     inherit host sshPort;
@@ -253,7 +254,7 @@
             # Comprehensive test runner
             pcp-test-all-microvms = {
               type = "app";
-              program = "${import ./nix/tests/test-all-microvms.nix { inherit pkgs lib; }}/bin/pcp-test-all-microvms";
+              program = "${import (nixDir + "/tests/test-all-microvms.nix") { inherit pkgs lib; }}/bin/pcp-test-all-microvms";
             };
           }
           # Per-variant test apps

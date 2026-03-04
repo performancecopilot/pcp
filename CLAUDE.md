@@ -184,7 +184,7 @@ cd build/mac/test && ./run-all-tests.sh  # Daily: build + test (20-30s)
 
 ## Nix Development
 
-Nix packaging is provided via `flake.nix` and the `nix/` directory.
+Nix packaging is provided via `flake.nix` and the `build/nix/` directory.
 See `docs/HowTos/nix/index.rst` for full documentation.
 
 ```bash
