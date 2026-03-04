@@ -12,7 +12,9 @@
 #   4. Using `./..` directly would cause hash changes on every file modification
 #
 # The source filtering (cleanSourceWith) further improves cache hits by
-# excluding build artifacts, editor files, and other non-essential content.
+# excluding build artifacts, editor files, Nix packaging infrastructure
+# (nix/, flake.nix, flake.lock), and other non-essential content.
+# This ensures that changes to .nix files don't trigger PCP rebuilds.
 #
 { pkgs, src }:
 let
@@ -69,7 +71,7 @@ let
   #
   withSystemd = pkgs.stdenv.isLinux;  # systemd service management
   withPfm = pkgs.stdenv.isLinux;      # hardware performance counters (libpfm)
-  withBpf = pkgs.stdenv.isLinux;      # eBPF tracing (bcc, bpf, bpftrace PMDAs)
+  withBpf = pkgs.stdenv.isLinux;      # eBPF tracing (bpf, bpftrace PMDAs)
   withSnmp = true;                    # SNMP network monitoring
   withPythonHttp = true;              # Python HTTP client (requests)
   withPerlHttp = true;                # Perl HTTP client (LWP)
@@ -99,6 +101,13 @@ let
           # Build output symlinks (only at top level, and only exact matches or result-*)
           (isTopLevel && (baseName == "result" || lib.hasPrefix "result-" baseName)) ||
           baseName == "test-results" ||
+          # Nix packaging infrastructure (not needed by PCP build)
+          # Changes to these should not trigger a full PCP rebuild
+          (isTopLevel && baseName == "nix") ||
+          (isTopLevel && baseName == "flake.nix") ||
+          (isTopLevel && baseName == "flake.lock") ||
+          (isTopLevel && baseName == "CLAUDE.md") ||
+          (isTopLevel && baseName == ".claude") ||
           # Editor/IDE artifacts
           baseName == ".vscode" ||
           baseName == ".idea" ||
@@ -164,7 +173,6 @@ pkgs.stdenv.mkDerivation rec {
     libpfm
   ] ++ lib.optionals withBpf [
     libbpf
-    bcc
     elfutils
   ] ++ lib.optionals withSnmp [
     net-snmp
@@ -225,13 +233,11 @@ pkgs.stdenv.mkDerivation rec {
     (
       if withBpf then
         [
-          "--with-pmdabcc=yes"
           "--with-pmdabpf=yes"
           "--with-pmdabpftrace=yes"
         ]
       else
         [
-          "--with-pmdabcc=no"
           "--with-pmdabpf=no"
           "--with-pmdabpftrace=no"
         ]

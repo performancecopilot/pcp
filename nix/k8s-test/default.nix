@@ -18,7 +18,7 @@ let
   constants = import ./constants.nix { };
   mainConstants = import ../constants.nix;
   helpers = import ./lib.nix { inherit pkgs lib; };
-  manifests = import ./manifests.nix { inherit pkgs lib; };
+  manifests = import ../k8s-manifests { inherit pkgs lib; namespaceOverride = constants.k8s.namespace; };
 
   inherit (helpers)
     colorHelpers timingHelpers k8sHelpers metricHelpers
@@ -576,25 +576,41 @@ let
       CPUS="${toString constants.minikube.cpus}"
       MEMORY="${toString constants.minikube.memory}"
       DISK="${constants.minikube.diskSize}"
+      K8S_VERSION="${constants.minikube.kubernetesVersion}"
 
-      # Check if minikube is already running
+      # Check if minikube is already running with the right version
       if minikube status --format='{{.Host}}' 2>/dev/null | grep -q "Running"; then
-        warn "Minikube is already running."
-        echo ""
-        info "Current configuration:"
-        minikube config view 2>/dev/null || true
-        echo ""
-        info "To recreate with optimal settings, run:"
-        echo "  minikube delete"
-        echo "  nix run .#pcp-minikube-start"
-        exit 0
+        CURRENT_K8S=$(minikube kubectl -- version --client=false -o json 2>/dev/null \
+          | jq -r '.serverVersion | "v\(.major).\(.minor).\(.patch // 0)"' 2>/dev/null || echo "unknown")
+        if [[ "$CURRENT_K8S" == "$K8S_VERSION"* ]]; then
+          success "Minikube is already running (Kubernetes $CURRENT_K8S)."
+          exit 0
+        else
+          warn "Minikube is running Kubernetes $CURRENT_K8S but we need $K8S_VERSION."
+          info "Deleting existing cluster to recreate with correct version..."
+          minikube delete
+          echo ""
+        fi
+      fi
+
+      # Check for a stopped cluster that may be incompatible
+      if minikube status &>/dev/null || minikube profile list 2>/dev/null | grep -q minikube; then
+        # A cluster exists but isn't running; delete to avoid version conflicts
+        EXISTING_K8S=$(minikube config view 2>/dev/null | grep -oP 'kubernetes-version:\s*\K.*' || echo "")
+        if [[ -n "$EXISTING_K8S" && "$EXISTING_K8S" != "$K8S_VERSION" ]]; then
+          warn "Existing stopped cluster uses Kubernetes $EXISTING_K8S (need $K8S_VERSION)."
+          info "Deleting stale cluster..."
+          minikube delete
+          echo ""
+        fi
       fi
 
       info "Starting minikube with settings for PCP testing:"
-      echo "  Driver: $DRIVER"
-      echo "  CPUs:   $CPUS"
-      echo "  Memory: $MEMORY MB"
-      echo "  Disk:   $DISK"
+      echo "  Driver:     $DRIVER"
+      echo "  CPUs:       $CPUS"
+      echo "  Memory:     $MEMORY MB"
+      echo "  Disk:       $DISK"
+      echo "  Kubernetes: $K8S_VERSION"
       echo ""
       info "Tip: For better I/O performance, use KVM2 driver:"
       echo "  minikube start --driver=kvm2 --cpus=$CPUS --memory=$MEMORY"
@@ -606,15 +622,33 @@ let
         --driver="$DRIVER" \
         --cpus="$CPUS" \
         --memory="$MEMORY" \
-        --disk-size="$DISK"; then
+        --disk-size="$DISK" \
+        --kubernetes-version="$K8S_VERSION"; then
         echo ""
         success "Minikube started successfully!"
         echo ""
         info "Run the PCP Kubernetes test:"
         echo "  nix run .#pcp-k8s-test"
       else
-        error "Failed to start minikube"
-        exit 1
+        # If start failed, try deleting and retrying once
+        warn "First attempt failed. Deleting cluster and retrying..."
+        minikube delete 2>/dev/null || true
+        echo ""
+        if minikube start \
+          --driver="$DRIVER" \
+          --cpus="$CPUS" \
+          --memory="$MEMORY" \
+          --disk-size="$DISK" \
+          --kubernetes-version="$K8S_VERSION"; then
+          echo ""
+          success "Minikube started successfully (after clean start)!"
+          echo ""
+          info "Run the PCP Kubernetes test:"
+          echo "  nix run .#pcp-k8s-test"
+        else
+          error "Failed to start minikube"
+          exit 1
+        fi
       fi
     '';
   };

@@ -84,6 +84,13 @@ File Structure
     ├── pmie-test.nix         # pmie testing module (stress-ng workload)
     │
     ├── container.nix         # OCI container image
+    │
+    ├── k8s-manifests/        # Standalone K8s manifest generator
+    │   ├── default.nix       # Entry point, produces dir + combined YAML
+    │   ├── constants.nix     # Deployment constants (namespace, resources)
+    │   ├── namespace.nix     # Namespace resource YAML
+    │   └── daemonset.nix     # DaemonSet resource YAML
+    │
     ├── network-setup.nix     # TAP/bridge network scripts
     ├── shell.nix             # Development shell
     ├── vm-test.nix           # NixOS VM integration test
@@ -311,6 +318,14 @@ Flake Outputs Reference
      - Quick test (skip build, assume image loaded)
    * - ``pcp-minikube-start``
      - Start minikube with optimal settings for PCP testing
+   * - **K8s Manifests** (no minikube needed)
+     -
+   * - ``pcp-k8s-manifests``
+     - Directory with all K8s manifests + README
+   * - ``pcp-k8s-manifest-namespace``
+     - Namespace YAML only
+   * - ``pcp-k8s-manifest-daemonset``
+     - DaemonSet YAML only
    * - **Checks**
      -
    * - ``vm-test``
@@ -1800,6 +1815,28 @@ The ``pcp-minikube-start`` app configures minikube with optimal settings
 for PCP testing (4 CPUs, 8GB RAM, docker driver)::
 
     nix run .#pcp-minikube-start
+
+Standalone K8s Manifests
+""""""""""""""""""""""""
+
+You can generate Kubernetes manifests without minikube or the full test suite.
+This is useful for inspecting the PCP DaemonSet deployment configuration or
+applying it to an existing cluster::
+
+    # Build all manifests into a directory
+    nix build .#pcp-k8s-manifests
+    ls result/    # README.md  combined.yaml  daemonset.yaml  namespace.yaml
+
+    # Apply to a cluster
+    cat result/combined.yaml | kubectl apply -f -
+
+    # Or build individual manifests
+    nix build .#pcp-k8s-manifest-daemonset
+    cat result
+
+The standalone manifests use the ``pcp`` namespace by default (the test suite
+overrides this to ``pcp-test`` for isolation). Resource limits, image settings,
+and host mount paths are all defined in ``nix/k8s-manifests/constants.nix``.
 
 Development Shell
 -----------------

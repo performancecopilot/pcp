@@ -1,22 +1,25 @@
 # nix/k8s-test/constants.nix
 #
 # Kubernetes DaemonSet testing configuration.
-# Provides constants for Minikube-based PCP testing with BPF metrics.
+# Imports shared deployment settings from k8s-manifests/constants.nix
+# and overrides namespace for test isolation.
 #
 { }:
 let
   common = import ../test-common/constants.nix { };
+  manifestConstants = import ../k8s-manifests/constants.nix { };
 in
 rec {
   # Re-export from shared constants
   inherit (common) ports user colors;
 
   # ─── Kubernetes Settings ───────────────────────────────────────────────
-  k8s = {
+  # Inherit deployment defaults, override namespace for test isolation
+  k8s = manifestConstants.k8s // {
     namespace = "pcp-test";
-    daemonSetName = "pcp";
-    imageName = "pcp";
-    imageTag = "latest";
+    # Flatten image attrs for backwards compatibility with test scripts
+    imageName = manifestConstants.k8s.image.name;
+    imageTag = manifestConstants.k8s.image.tag;
   };
 
   # ─── Timeouts (seconds) ────────────────────────────────────────────────
@@ -38,6 +41,7 @@ rec {
     cpus = 4;             # More CPUs for parallel workloads
     memory = 8192;        # 8GB RAM for comfortable operation
     diskSize = "20g";     # 20GB disk
+    kubernetesVersion = "v1.33.0"; # Pin to avoid version drift with nixpkgs minikube
   };
 
   # ─── Verification Checks ───────────────────────────────────────────────

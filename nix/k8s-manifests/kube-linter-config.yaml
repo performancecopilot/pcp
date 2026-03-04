@@ -1,0 +1,50 @@
+# nix/k8s-manifests/kube-linter-config.yaml
+#
+# KubeLinter configuration for PCP Kubernetes manifests.
+#
+# PCP is a node-level monitoring agent deployed as a privileged DaemonSet.
+# Many default security checks are intentionally suppressed because full
+# host access is fundamental to what PCP does (system metrics collection,
+# BPF tracing, process monitoring).
+#
+# Each suppression is documented with the rationale below.
+#
+checks:
+  exclude:
+    # ─── Host Access (required for node monitoring) ────────────────────
+    #
+    # PCP must see all processes on the node to collect per-process metrics.
+    - "host-pid"
+
+    # PCP mounts /, /proc, and /sys from the host to collect system metrics.
+    # This is the fundamental purpose of a node monitoring DaemonSet.
+    - "sensitive-host-mounts"
+
+    # ─── Privileged Mode (required for BPF and /proc) ─────────────────
+    #
+    # The BPF PMDA needs privileged mode to load eBPF programs for kernel
+    # tracing (runqueue latency, disk I/O latency, etc.).  Full /proc
+    # access also requires elevated privileges.
+    - "privileged-container"
+    - "privilege-escalation-container"
+
+    # PCP services (pmcd, pmlogger) run as root inside the container to
+    # access BPF syscalls and host /proc.  The container itself provides
+    # the isolation boundary.
+    - "run-as-non-root"
+
+    # ─── Filesystem (PCP needs writable state directories) ─────────────
+    #
+    # PCP writes to /var/lib/pcp (PMNS cache, PMDA state),
+    # /var/log/pcp (pmlogger archives), and /run/pcp (sockets).
+    # A read-only root filesystem would require extensive tmpfs mounts
+    # for all these paths with no meaningful security benefit given
+    # the container is already privileged.
+    - "no-read-only-root-fs"
+
+    # ─── Image Tag (local build, not from a registry) ──────────────────
+    #
+    # The PCP container image is built by Nix (nix build .#pcp-container)
+    # and loaded directly into minikube's Docker daemon.  There is no
+    # registry with versioned tags; "latest" is the only tag available.
+    - "latest-tag"

@@ -11,7 +11,6 @@
 #   enablePmieTest  - Enable stress-ng workload + pmie rules (default: false)
 #   enableGrafana   - Enable Grafana + Prometheus for visual monitoring (default: false)
 #   enableBpf       - Enable pre-compiled BPF PMDA (default: false)
-#   enableBcc       - Enable runtime BCC PMDA, requires 2GB (default: false)
 #
 # Helper scripts (see nix/microvm-scripts.nix):
 #   nix run .#pcp-vm-check  - List running PCP MicroVMs and show count
@@ -39,9 +38,8 @@
   enablePmieTest ? false,     # stress-ng + pmie rules
   enableGrafana ? false,      # Grafana + Prometheus
   enableBpf ? false,          # Pre-compiled CO-RE eBPF (lightweight)
-  enableBcc ? false,          # Runtime eBPF compilation (heavyweight, 2GB)
   portOffset ? 0,             # Port offset for all forwarded ports (see constants.variantPortOffsets)
-  variant ? "base",           # Variant name for console port allocation (base, eval, grafana, bpf, bcc)
+  variant ? "base",           # Variant name for console port allocation (base, eval, grafana, bpf)
 }:
 let
   constants = import ./constants.nix;
@@ -50,35 +48,17 @@ let
   # Get serial console ports for this variant
   consolePorts = constants.getConsolePorts variant;
 
-  # BCC overlay: change KERNEL_MODULES_DIR from /run/booted-system/... to /lib/modules
-  # This is required because /run/booted-system is a symlink to read-only Nix store,
-  # but we need to bind mount kernel dev headers at this location.
-  # See bcc.nix for the bind mount configuration.
-  bccOverlay = final: prev: {
-    bcc = prev.bcc.overrideAttrs (old: {
-      cmakeFlags = builtins.map (flag:
-        if builtins.match ".*BCC_KERNEL_MODULES_DIR.*" flag != null
-        then "-DBCC_KERNEL_MODULES_DIR=/lib/modules"
-        else flag
-      ) old.cmakeFlags;
-    });
-  };
-
   # Dynamic hostname based on enabled features
-  # Priority: bcc > grafana > bpf > eval > base
+  # Priority: grafana > bpf > eval > base
   # Note: grafana comes before bpf because grafana variant enables bpf for dashboards
   #       but should still be identified as grafana-vm for lifecycle testing
   hostname =
-    if enableBcc then "pcp-bcc-vm"
-    else if enableGrafana then "pcp-grafana-vm"
+    if enableGrafana then "pcp-grafana-vm"
     else if enableBpf then "pcp-bpf-vm"
     else if enableEvalTools || enablePmieTest then "pcp-eval-vm"
     else "pcp-vm";
 
-  # Dynamic memory: 2GB+ for BCC (clang/LLVM), 1GB otherwise
-  # Use 2049 instead of 2048 to avoid QEMU hang with exactly 2GB
-  # See: https://github.com/microvm-nix/microvm.nix/issues/171
-  memoryMB = if enableBcc then 2049 else constants.vm.memoryMB;
+  memoryMB = constants.vm.memoryMB;
 
   # Build a NixOS system with MicroVM support
   vmConfig = nixpkgs.lib.nixosSystem {
@@ -103,9 +83,6 @@ let
       # Import BPF module (provides services.pcp.bpf option)
       ./bpf.nix
 
-      # Import BCC module (provides services.pcp.bcc option)
-      ./bcc.nix
-
       # PCP service configuration
       ({ pcp, ... }: {
         services.pcp = {
@@ -129,10 +106,6 @@ let
         system.stateVersion = "26.05";
 
         nixpkgs.hostPlatform = system;
-
-        # Apply BCC overlay when BCC is enabled
-        # This changes BCC's KERNEL_MODULES_DIR to /lib/modules (see bccOverlay above)
-        nixpkgs.overlays = lib.optionals enableBcc [ bccOverlay ];
 
         microvm = {
           hypervisor = "qemu";
@@ -329,26 +302,6 @@ let
         ];
       })
 
-      # ─── BCC PMDA (Runtime-compiled eBPF) ───────────────────────────
-      # Runtime eBPF compilation: slow startup (~30-60s), 2GB memory.
-      # Required for: tcptop, tcplife metrics (Grafana eBPF/BCC Overview dashboard)
-      (lib.mkIf enableBcc {
-        services.pcp.bcc = {
-          enable = true;
-          moduleFailureFatal = false;  # Continue if some modules fail to compile
-        };
-
-        boot.kernelPatches = [
-          {
-            name = "btf-for-bcc";
-            patch = null;
-            structuredExtraConfig = with lib.kernel; {
-              DEBUG_INFO_BTF = yes;
-            };
-          }
-        ];
-      })
-
       # ─── Debug Mode Module ────────────────────────────────────────────
       # Enables password auth for quick local testing.
       (lib.mkIf debugMode {
@@ -365,14 +318,7 @@ let
         users.users.root.password = "pcp";
 
         environment.etc."motd".text = ''
-          ${lib.optionalString enableBcc ''
-          ╔═══════════════════════════════════════════════════════════════╗
-          ║  PCP MicroVM with BCC PMDA (runtime eBPF compilation)         ║
-          ╠═══════════════════════════════════════════════════════════════╣
-          ║  BCC modules take 30-60s to compile at pmcd startup.          ║
-          ║  Check status: journalctl -u pmcd -f                          ║
-          ╚═══════════════════════════════════════════════════════════════╝
-          ''}${lib.optionalString enableBpf ''
+          ${lib.optionalString enableBpf ''
           ╔═══════════════════════════════════════════════════════════════╗
           ║  PCP MicroVM with BPF PMDA (pre-compiled eBPF)                ║
           ╠═══════════════════════════════════════════════════════════════╣
@@ -385,7 +331,7 @@ let
           ║  Grafana:    http://localhost:${toString constants.ports.grafanaForward} (admin/pcp)     ║
           ║  Prometheus: http://localhost:${toString constants.ports.prometheusForward}                    ║
           ╚═══════════════════════════════════════════════════════════════╝
-          ''}${lib.optionalString (enableEvalTools && !enableGrafana && !enableBpf && !enableBcc) ''
+          ''}${lib.optionalString (enableEvalTools && !enableGrafana && !enableBpf ) ''
           ╔═══════════════════════════════════════════════════════════════╗
           ║  PCP Evaluation MicroVM                                       ║
           ╠═══════════════════════════════════════════════════════════════╣
@@ -393,7 +339,7 @@ let
           ║  node_exporter:  curl localhost:9100/metrics                  ║
           ║  below:          below live                                   ║
           ╚═══════════════════════════════════════════════════════════════╝
-          ''}${lib.optionalString (!enableEvalTools && !enableGrafana && !enableBpf && !enableBcc) ''
+          ''}${lib.optionalString (!enableEvalTools && !enableGrafana && !enableBpf ) ''
           ╔═══════════════════════════════════════════════════════════════╗
           ║  PCP Base MicroVM                                             ║
           ╠═══════════════════════════════════════════════════════════════╣

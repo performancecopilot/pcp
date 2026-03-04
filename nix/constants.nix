@@ -102,8 +102,6 @@ rec {
     pmcd = 2;      # src/pmdas/pmcd/domain.h
     linux = 60;    # src/pmdas/linux/domain.h
     bpf = 157;     # src/pmdas/bpf/domain.h (pre-compiled CO-RE eBPF)
-    # NOTE: BCC is deprecated - use BPF PMDA instead (CO-RE eBPF)
-    # bcc = 149;   # src/pmdas/bcc/domain.h (runtime-compiled eBPF)
   };
 
   # ─── Test Configuration ────────────────────────────────────────────────
@@ -131,8 +129,6 @@ rec {
     eval = 100;     # pcp-microvm-eval, pcp-microvm-eval-tap
     grafana = 200;  # pcp-microvm-grafana, pcp-microvm-grafana-tap
     bpf = 300;      # pcp-microvm-bpf
-    # NOTE: BCC is deprecated - use BPF PMDA instead
-    # bcc = 400;    # pcp-microvm-bcc
   };
 
   # ─── Serial Console Configuration ────────────────────────────────────
@@ -166,8 +162,6 @@ rec {
       eval = 10;     # 24510-24519
       grafana = 20;  # 24520-24529
       bpf = 30;      # 24530-24539
-      # NOTE: BCC is deprecated - use BPF PMDA instead
-      # bcc = 40;    # 24540-24549
     };
   };
 
@@ -205,12 +199,6 @@ rec {
       eval = {};
       grafana = { serviceReady = 90; };  # Grafana takes longer to start
       bpf = {};
-      # NOTE: BCC is deprecated - use BPF PMDA instead (CO-RE eBPF)
-      # BCC used runtime eBPF compilation which required longer timeouts
-      # bcc = {
-      #   serviceReady = 180;    # BCC modules compile at pmcd startup
-      #   metricsReady = 120;    # BCC metrics appear after compilation
-      # };
     };
   };
 

@@ -3,23 +3,16 @@
 # NixOS module for BPF PMDA (pre-compiled eBPF metrics).
 #
 # This module uses pmdabpf which loads pre-compiled CO-RE (Compile Once, Run Everywhere)
-# eBPF programs. Unlike pmdabcc, no runtime compilation is needed - the eBPF bytecode
-# is compiled at Nix build time and loaded directly by the kernel via libbpf.
+# eBPF programs.  No runtime compilation is needed — the eBPF bytecode is compiled at
+# Nix build time and loaded directly by the kernel via libbpf.
 #
-# Advantages over pmdabcc:
+# Characteristics:
 #   - Fast startup: No eBPF compilation at runtime
-#   - Low memory: No clang/LLVM needed in the VM (~512MB vs ~2GB)
-#   - Simpler: Just needs libbpf + BTF-enabled kernel
+#   - Low memory: No clang/LLVM needed in the VM (~512MB)
+#   - Simple: Just needs libbpf + BTF-enabled kernel
 #
-# Trade-offs:
-#   - Fewer modules available compared to pmdabcc
-#   - Missing: tcptop, tcplife (required for some Grafana BCC dashboards)
-#
-# If you need tcptop/tcplife metrics, see bcc.nix which uses pmdabcc with runtime
-# eBPF compilation. This requires:
-#   - 2GB+ VM memory (clang/LLVM are memory-hungry)
-#   - BTF-enabled kernel (CONFIG_DEBUG_INFO_BTF=y)
-#   - Extended pmcd timeout (-q 60) for module compilation
+# Note: pmdabcc (runtime BCC compilation) was removed from PCP upstream.
+# pmdabpf is the only supported eBPF PMDA.
 #
 # Available pmdabpf modules:
 #   - biolatency: Block device I/O latency histogram

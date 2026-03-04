@@ -14,6 +14,10 @@
 #   nix run .#pcp-k8s-test            # Kubernetes DaemonSet (needs minikube)
 #   nix run .#pcp-test-all-microvms   # All MicroVM variants
 #
+# K8s Manifests (no minikube needed):
+#   nix build .#pcp-k8s-manifests          # All manifests + README
+#   nix build .#pcp-k8s-manifest-daemonset # Individual DaemonSet YAML
+#
 # MicroVM with TAP networking (for Grafana dashboards):
 #   nix run .#pcp-check-host                # Verify host environment
 #   sudo nix run .#pcp-network-setup        # Create TAP bridge (requires sudo)
@@ -69,14 +73,13 @@
           enablePmieTest ? false,
           enableGrafana ? false,
           enableBpf ? false,
-          enableBcc ? false,
           portOffset ? 0,
           variant ? "base",
         }:
           import ./nix/microvm.nix {
             inherit pkgs lib pcp microvm nixosModule nixpkgs system;
             inherit networking debugMode enablePmlogger enableEvalTools
-                    enablePmieTest enableGrafana enableBpf enableBcc
+                    enablePmieTest enableGrafana enableBpf
                     portOffset variant;
           };
 
@@ -137,6 +140,11 @@
           }
         );
 
+        # Import standalone K8s manifest generator (Linux only)
+        k8sManifests = lib.optionalAttrs pkgs.stdenv.isLinux (
+          import ./nix/k8s-manifests { inherit pkgs lib; }
+        );
+
         # Import test-all runner (Linux only)
         testAll = lib.optionalAttrs pkgs.stdenv.isLinux (
           import ./nix/test-all {
@@ -162,6 +170,8 @@
           // containerTest.packages
           # Kubernetes testing packages
           // k8sTest.packages
+          # Standalone K8s manifests
+          // k8sManifests.packages
           # Test-all runner
           // testAll.packages
         );
