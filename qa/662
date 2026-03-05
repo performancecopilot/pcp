@@ -77,18 +77,7 @@ _wait_for_pmproxy || _exit 1
 echo "+++ pmproxy before test_webapi.py ..." >>$seq_full
 _ps_full_by_name pmproxy >>$seq_full
 
-if [ -f $seq.wait ]
-then
-    echo "pmproxy PID `_get_pids_by_name pmproxy` started."
-    echo "found $seq.wait, waiting ..."
-    i=0
-    while [ -f $seq.wait ]
-    do
-	sleep 1
-	i=`expr $i + 1`
-    done
-    echo "$seq.wait removed after $i seconds, continuing ..."
-fi
+_triage_wait_point "pmproxy PID `_get_pids_by_name pmproxy` started."
 
 $python $here/src/test_webapi.py | _webapi_response_filter | _filter_labels
 echo "+++ pmproxy after test_webapi.py ..." >>$seq_full

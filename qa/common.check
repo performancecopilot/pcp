@@ -3879,3 +3879,24 @@ _pid_in_container()
     fi
     return 1
 }
+
+# if $seq.wait exists, loop forever here until it is removed
+# the optional $1 provides a message that is output on stdout
+# before looping (typically the PID of an "interesting" process
+# to debug or attach to with gdb before continuing the test).
+#
+_triage_wait_point()
+{
+    if [ -f "$here/$seq.wait" ]
+    then
+	[ -n "$1" ] && echo "$1"
+	echo "_triage_wait_point: found $seq.wait, waiting ..."
+	__i=0
+	while [ -f $here/$seq.wait ]
+	do
+	    sleep 1
+	    __i=`expr $__i + 1`
+	done
+	echo "_triage_wait_point: $seq.wait removed after $__i seconds, continuing ..."
+    fi
+}
