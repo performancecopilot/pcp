@@ -49,7 +49,7 @@ See `pmLookupLabels(3) <https://man7.org/linux/man-pages/man3/pmLookupLabels.3.h
 detailed information about metric labels and other metric metadata used in each timeseries identifier hash calculation.
 
 The timeseries identifiers provide a higher level (and machine independent) identifier than the traditional PCP performance metric identifiers (pmID), 
-instance domain identifiers (pmInDom) and metric names. See `PCPIntro(1) <https://pcp.io/man/man1/pcpintro.1.html>`_ for more details about these 
+instance domain identifiers (pmInDom) and metric names. See `PCPIntro(1) <https://man7.org/linux/man-pages/man1/pcpintro.1.html>`_ for more details about these 
 traditional identifiers. However, **pmseries** uses timeseries identifiers in much the same way that `pminfo(1) <https://man7.org/linux/man-pages/man1/pminfo.1.html>`_ 
 uses the lower level indom, metric identifiers and metric names.
 
@@ -381,7 +381,7 @@ options                                    Description
                                            | and the **-l/--labels** option.
 ========================================== ===============================================================================================================================
 
-*References* : `pminfo(1) <https://pcp.io/man/man1/pminfo.1.html>`_ , `glob(7) <https://man7.org/linux/man-pages/man7/glob.7.html>`_ , `pmLookupLabels(3) <https://man7.org/linux/man-pages/man3/pmLookupLabels.3.html>`_ , `pmcd(1) <https://man7.org/linux/man-pages/man1/pmcd.1.html>`_
+*References* : `pminfo(1) <https://man7.org/linux/man-pages/man1/pminfo.1.html`_ , `glob(7) <https://man7.org/linux/man-pages/man7/glob.7.html>`_ , `pmLookupLabels(3) <https://man7.org/linux/man-pages/man3/pmLookupLabels.3.html>`_ , `pmcd(1) <https://man7.org/linux/man-pages/man1/pmcd.1.html>`_
 
 Timeseries Sources
 ====================
