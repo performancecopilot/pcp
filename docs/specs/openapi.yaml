@@ -100,6 +100,9 @@ paths:
         description: Append sample times (milliseconds since epoch), only relevent for the text response form as JSON response form includes times (nanoseconds since epoch) by default.
         schema:
           type: boolean
+      responses:
+        200:
+          description: OK
 
   /series/query:
     get:
@@ -672,6 +675,9 @@ paths:
         description: M results to include in response
         schema:
           type: number
+      responses:
+        200:
+          description: OK
 
   /search/info:
     get:
@@ -1548,7 +1554,10 @@ paths:
         description: Request identifier sent back with response
         schema:
           type: string
-    
+      responses:
+        200:
+          description: OK
+
 components:
   schemas:
     seriesIDs:
