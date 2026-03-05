@@ -18,6 +18,7 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
 which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
 which pcp2opentelemetry >/dev/null 2>&1 || _notrun "pcp2opentelemetry not installed"
+which jq >/dev/null 2>&1 || _notrun "jq not installed"
 
 _cleanup()
 {
