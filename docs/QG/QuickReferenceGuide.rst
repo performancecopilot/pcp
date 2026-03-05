@@ -643,23 +643,23 @@ by using simple arithmetic expressions (see
 The following example illustrates how to define corresponding metrics
 which are displayed by sar -d but are not provided by default by PCP:
 
-+-----------------------------------------------------------------------+
-| Create a file containing definitions of derived metrics               |
-| and point PCP_DERIVED_CONFIG to it when running PCP utilities::       |
-|                                                                       |
-| $ cat ./pcp-derive-metrics.conf                                       |
-|                                                                       |
-| disk.dev.avqsz = disk.dev.read_rawactive + disk.dev.write_rawactive   |
-| disk.dev.avrqsz = 2 \* rate(disk.dev.total_bytes) /                   |
-| rate(disk.dev.total)                                                  |
-| disk.dev.await = 1000 \* (rate(disk.dev.read_rawactive) +             |
-| rate(disk.dev.write_rawactive)) / rate(disk.dev.total)                |
-|                                                                       |
-| $ PCP_DERIVED_CONFIG=./pcp-derive-metrics.conf; export PCP_DERIVED_CONFIG                 |
-| $ pmval -t 2sec -f 3 disk.dev.avqsz                                   |
-| $ pmval -t 2sec -f 3 disk.dev.avrqsz -h acme.com                      |
-| $ pmval -t 2sec -f 3 disk.dev.await -a acme.com/20140902              |
-+-----------------------------------------------------------------------+
++---------------------------------------------------------------------------+
+| Create a file containing definitions of derived metrics                   |
+| and point PCP_DERIVED_CONFIG to it when running PCP utilities::           |
+|                                                                           |
+| $ cat ./pcp-derive-metrics.conf                                           |
+|                                                                           |
+| disk.dev.avqsz = disk.dev.read_rawactive + disk.dev.write_rawactive       |
+| disk.dev.avrqsz = 2 \* rate(disk.dev.total_bytes) /                       |
+| rate(disk.dev.total)                                                      |
+| disk.dev.await = 1000 \* (rate(disk.dev.read_rawactive) +                 |
+| rate(disk.dev.write_rawactive)) / rate(disk.dev.total)                    |
+|                                                                           |
+| $ PCP_DERIVED_CONFIG=./pcp-derive-metrics.conf; export PCP_DERIVED_CONFIG |
+| $ pmval -t 2sec -f 3 disk.dev.avqsz                                       |
+| $ pmval -t 2sec -f 3 disk.dev.avrqsz -h acme.com                          |
+| $ pmval -t 2sec -f 3 disk.dev.await -a acme.com/20140902                  |
++---------------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
 | Define a derived metric on the command line and monitor               |
