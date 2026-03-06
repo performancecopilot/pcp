@@ -375,7 +375,7 @@ class DynamicProcessReporter:
 
     def _is_last_and_args(self, key):
         return (key == "args") and \
-        self.processStatOptions.colum_list.index(key) == len(self.processStatOptions.colum_list) - 1
+        self.processStatOptions.column_list.index(key) == len(self.processStatOptions.column_list) - 1
     def print_report(self, timestamp, header_indentation, value_indentation):
 
         # Exit logic for non-archive context
@@ -386,11 +386,11 @@ class DynamicProcessReporter:
         sorting_idx = None
         if self.processStatOptions.sorting_flag:
             # For dynamic output, sorting key must be present in selected columns.
-            if self.processStatOptions.sorting_order not in self.processStatOptions.colum_list:
+            if self.processStatOptions.sorting_order not in self.processStatOptions.column_list:
                 raise ValueError("Sorting order not found in output columns")
 
             # Find sorting column index and adjust for Timestamp at position 0.
-            sorting_idx = next((idx for idx, key in enumerate(self.processStatOptions.colum_list)
+            sorting_idx = next((idx for idx, key in enumerate(self.processStatOptions.column_list)
                                 if key == self.processStatOptions.sorting_order), None)
             # to account for Timestamp colum
             sorting_idx += 1
@@ -404,16 +404,16 @@ class DynamicProcessReporter:
         header = None
 
         # -------- Dynamic column list path -------- #
-        if self.processStatOptions.colum_list is not None:
+        if self.processStatOptions.column_list is not None:
 
             header = "Timestamp\t"
-            for key in self.processStatOptions.colum_list:
+            for key in self.processStatOptions.column_list:
                 if key in PIDINFO_PAIR:
                     header += PIDINFO_PAIR[key][0] + "\t"
 
             for process in processes:
                 row = [timestamp]
-                for key in self.processStatOptions.colum_list:
+                for key in self.processStatOptions.column_list:
                     if self._is_last_and_args(key):
                         row.append(str(PIDINFO_PAIR["args_last"][1](process)))
                     elif key in PIDINFO_PAIR:
@@ -650,7 +650,7 @@ class ProcessStatOptions(pmapi.pmOptions):
     sorting_order = None
     timefmt = "%H:%M:%S"
     print_count = None
-    colum_list = []
+    column_list = []
     command_list = []
     pid_list = []
     ppid_list = []
@@ -817,7 +817,7 @@ class ProcessStatOptions(pmapi.pmOptions):
             try:
                 if optarg.upper() == "ALL":
                     self.filterstate = optarg.upper()
-                    self.colum_list = [
+                    self.column_list = [
                         "uname", "pid", "ppid", "pri", "%cpu", "%mem",
                         "vsize", "rss", "state", "start", "time", "wchan", "args"
                     ]
@@ -827,7 +827,7 @@ class ProcessStatOptions(pmapi.pmOptions):
                         print("Custom Column List: %s" % dummy_list)
                     for key in dummy_list:
                         if key.lower() in PIDINFO_PAIR:
-                            self.colum_list.append(key.lower())
+                            self.column_list.append(key.lower())
                         else:
                             raise ValueError
             except ValueError:
