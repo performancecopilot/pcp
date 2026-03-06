@@ -46,7 +46,7 @@ End-of-File
 
 rm -f pcp-nfsiostat.*
 
-if pmlogger -T 60sec -t 10sec -c $tmp.config pcp-nfsiostat; then
+if pmlogger -T 120sec -t 10sec -c $tmp.config pcp-nfsiostat; then
         xz pcp-nfsiostat.0
         xz pcp-nfsiostat.index
         xz pcp-nfsiostat.meta
