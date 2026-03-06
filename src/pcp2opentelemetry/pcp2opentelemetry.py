@@ -87,7 +87,7 @@ class PCP2OPENTELEMETRY(object):
         self.interval = pmapi.timeval(10)      # 10 sec
         self.opts.pmSetOptionInterval(str(10)) # 10 sec
         self.delay = 0
-        self.type = 1
+        self.type = 0
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.ignore_unknown = 0
@@ -570,15 +570,19 @@ class PCP2OPENTELEMETRY(object):
 
         # produce metric data point attributes
         def data_attribute_function(labels, context, desc, inst, name, pmid_str):
-            attribute_dict = {}
+            attribute_dict = OrderedDict()
             attribute_dict["semantics"] = self.context.pmSemStr(desc.contents.sem)
             attribute_dict["type"] = get_type_string(desc)
+
+            for key in labels:
+                attribute_dict.update(labels[key])
+
             attribute_dict["pcp.pmid"] = pmid_str
+
             if desc.indom != PM_INDOM_NULL:
                 attribute_dict["instname"] = name
                 attribute_dict["instid"] = inst
-            for key in labels:
-                attribute_dict.update(labels[key])
+
             attribute_list = attribute_converter(attribute_dict)
             return attribute_list
 
@@ -617,10 +621,9 @@ class PCP2OPENTELEMETRY(object):
             context = self.pmfg.get_context()
             metric_idx = {m: i for i, m in enumerate(self.metrics.keys())}
 
-            body = {
-                "scope": scope_function(context),
-                "metrics": [],
-            }
+            body = OrderedDict()
+            body["scope"] = scope_function(context)
+            body["metrics"] = []
 
             for metric in results:
                 try:
@@ -647,11 +650,10 @@ class PCP2OPENTELEMETRY(object):
                 desc = self.pmconfig.descs[i]
                 units = desc.contents.units
 
-                metric_dict = {
-                    "name": metric,
-                    "unit": unit_function(units),
-                    "description": context.pmLookupText(pmid[0]),
-                }
+                metric_dict = OrderedDict()
+                metric_dict["name"] = metric
+                metric_dict["unit"] = unit_function(units)
+                metric_dict["description"] = context.pmLookupText(pmid[0])
 
                 if desc.contents.sem == cpmapi.PM_SEM_COUNTER:
                     metric_dict["sum"] = sum_function(metric, results, labels, context, desc, pmid_str)
@@ -661,9 +663,13 @@ class PCP2OPENTELEMETRY(object):
                 body["metrics"].append(metric_dict)
 
             return body
+        
+        resource_metric = OrderedDict()
+        resource_metric["resource"] = {"attributes": resource_attributes()}
+        resource_metric["scopeMetrics"] = [scope_metric_function(results)]
+        self.data = OrderedDict()
+        self.data["resourceMetrics"] = [resource_metric]
 
-        self.data = {"resourceMetrics": [{"resource":  {"attributes": resource_attributes()},
-                                          "scopeMetrics":[scope_metric_function(results)]}]}
         data = json.dumps(self.data, sort_keys=False, separators=(',', ': '))
 
         if self.url:
