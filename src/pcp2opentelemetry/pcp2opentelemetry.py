@@ -299,7 +299,7 @@ class PCP2OPENTELEMETRY(object):
             self.http_timeout = float(optarg)
         elif opt == 'U':
             self.http_user = optarg
-        elif opt == 'P':
+        elif opt == 'p':
             self.http_pass = optarg
         else:
             raise pmapi.pmUsageErr()
@@ -569,10 +569,11 @@ class PCP2OPENTELEMETRY(object):
             return mtype
 
         # produce metric data point attributes
-        def data_attribute_function(labels, context, desc, inst, name):
+        def data_attribute_function(labels, context, desc, inst, name, pmid_str):
             attribute_dict = {}
             attribute_dict["semantics"] = self.context.pmSemStr(desc.contents.sem)
             attribute_dict["type"] = get_type_string(desc)
+            attribute_dict["pcp.pmid"] = pmid_str
             if desc.indom != PM_INDOM_NULL:
                 attribute_dict["instname"] = name
                 attribute_dict["instid"] = inst
@@ -582,7 +583,7 @@ class PCP2OPENTELEMETRY(object):
             return attribute_list
 
         # produce metric data points
-        def data_points_function(metric, results, labels, context, desc):
+        def data_points_function(metric, results, labels, context, desc, pmid_str):
             numdatapoints_list = []
             for inst, name, value in results[metric]:
                 datapoint_dict = {}
@@ -594,46 +595,68 @@ class PCP2OPENTELEMETRY(object):
                 else:
                     datapoint_dict["asDouble"] = value
                 datapoint_dict["timeUnixNano"] = f"{ts:.0f}"
-                datapoint_dict["attributes"] = data_attribute_function(labels, context, desc, inst, name)
+                datapoint_dict["attributes"] = data_attribute_function(labels, context, desc, inst, name, pmid_str)
                 numdatapoints_list.append(datapoint_dict)
             return numdatapoints_list
 
-        def sum_function(metric, results, labels, context, desc):
+        def sum_function(metric, results, labels, context, desc, pmid_str):
             sum_body = {}
             sum_body["aggregationTemporality"] = 1
             sum_body["isMonotonic"] = 'true'
-            sum_body["dataPoints"] = data_points_function(metric, results, labels, context, desc)
+            sum_body["dataPoints"] = data_points_function(metric, results, labels, context, desc, pmid_str)
             return sum_body
 
-        def gauge_function(metric, results, labels, context, desc):
+        def gauge_function(metric, results, labels, context, desc, pmid_str):
             gauge_body = {}
-            gauge_body["dataPoints"] = data_points_function(metric, results, labels, context, desc)
+            gauge_body["dataPoints"] = data_points_function(metric, results, labels, context, desc, pmid_str)
             return gauge_body
 
 
         # main loop; iterate through all metrics in 'results' variable
         def scope_metric_function(results):
-            body = {}
-            body["metrics"] = []
+            context = self.pmfg.get_context()
+            metric_idx = {m: i for i, m in enumerate(self.metrics)}
+
+            body = {
+                "scope": scope_function(context),
+                "metrics": [],
+            }
+
             for metric in results:
-                context = self.pmfg.get_context()
                 pmid = context.pmLookupName(metric)
-                i = list(self.metrics.keys()).index(metric)
+
+                try:
+                    pmid_str = context.pmIDStr(pmid[0])
+                except Exception:
+                    try:
+                        pmid_str = cpmapi.pmIDStr(pmid[0])
+                    except Exception:
+                        pmid_str = str(pmid[0])
+
+                i = metric_idx.get(metric)
+                if i is None:
+                    continue
+
                 labels = context.pmLookupLabels(pmid[0])
-                del labels[1] # delete resource attributes
+                if 1 in labels:
+                    del labels[1]
+
                 desc = self.pmconfig.descs[i]
                 units = desc.contents.units
 
-                body["scope"] = scope_function(context)
-                metric_dict = {}
-                metric_dict["name"] = metric
-                metric_dict["unit"] = unit_function(units)
-                metric_dict["description"] = context.pmLookupText(pmid[0])
-                if desc.sem == cpmapi.PM_SEM_COUNTER:
-                    metric_dict["sum"] = sum_function(metric, results, labels, context, desc)
+                metric_dict = {
+                    "name": metric,
+                    "unit": unit_function(units),
+                    "description": context.pmLookupText(pmid[0]),
+                }
+
+                if desc.contents.sem == cpmapi.PM_SEM_COUNTER:
+                    metric_dict["sum"] = sum_function(metric, results, labels, context, desc, pmid_str)
                 else:
-                    metric_dict["gauge"] = gauge_function(metric, results, labels, context, desc)
+                    metric_dict["gauge"] = gauge_function(metric, results, labels, context, desc, pmid_str)
+
                 body["metrics"].append(metric_dict)
+
             return body
 
         self.data = {"resourceMetrics": [{"resource":  {"attributes": resource_attributes()},
