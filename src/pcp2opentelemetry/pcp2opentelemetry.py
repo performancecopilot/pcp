@@ -615,7 +615,7 @@ class PCP2OPENTELEMETRY(object):
         # main loop; iterate through all metrics in 'results' variable
         def scope_metric_function(results):
             context = self.pmfg.get_context()
-            metric_idx = {m: i for i, m in enumerate(self.metrics)}
+            metric_idx = {m: i for i, m in enumerate(self.metrics.keys())}
 
             body = {
                 "scope": scope_function(context),
@@ -623,7 +623,10 @@ class PCP2OPENTELEMETRY(object):
             }
 
             for metric in results:
-                pmid = context.pmLookupName(metric)
+                try:
+                    pmid = context.pmLookupName(metric)
+                except Exception:
+                    continue
 
                 try:
                     pmid_str = context.pmIDStr(pmid[0])
