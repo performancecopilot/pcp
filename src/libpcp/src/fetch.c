@@ -312,6 +312,17 @@ pmFetch_v2(int numpmid, pmID *pmidlist, pmResult_v2 **result)
     return sts;
 }
 
+/*!
+ * @brief Fetch the next set of values for selected performance metrics.
+ *
+ * @param numpmid the number of metrics in pmidlist[]
+ * @param pmidlist the pmIDs that identify the metrics of interest
+ * @param result the returned data structure of metrics and values
+ *
+ * @returns less than 0 for an error, 0 for success and no state change, values
+ * greater than 0 indicate a state change for the underlying source of metrics,
+ * refer to pmFetch(1).
+ */
 int
 pmFetch(int numpmid, pmID *pmidlist, pmResult **result)
 {
