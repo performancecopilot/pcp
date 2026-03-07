@@ -36,15 +36,22 @@ sed <<'End-of-File' -e 's/[ 	]*#.*//' -e '/^$/d' >$tmp.reserved
 # $variable	where set
 # -- generic variables
 seq		# each test, test sequence number
+seq_full	# each test, full pathanme to $seq.full
 status		# common, common.check and every test, exit status
 tmp		# common.rc, temp filename prefix
 sudo		# common.rc, sudo with args
 sudo_local_ctx	# common.rc, sudo with args for PM_CONTEXT_LOCAL use
 here		# common, cwd when script or test sources common
 iam		# common.check, PMDA name from prepare/install/remove
+# -- common.check
+grind_extra	# used in run_valgrind() and _run_helgrind(), set by caller
+pmcd_args	# used in private_pmcd(), set by caller
+valgrind_clean_assert	# set for use in tests
 # -- function return side-values
 num_warn	# no. of warnings returned from _check_agent()
 pid		# pmlogger PID returned from _start_up_pmlogger()
+pmcd_pid	# pmcd PID returned from _private_pmcd()
+pmcd_port	# pmcd port returned from _private_pmcd()
 # -- common.secure
 usersdb		# $HOME/.pki/nssdb
 collectordb	# $tmp/pki/nssdb
@@ -63,12 +70,19 @@ docker		# $PCP_DOCKER_PROG unless $docker set earlier
 podman		# $PCP_PODMAN_PROG unless $podman set earlier
 # -- common.python
 python		# alias for $PCP_PYTHOON_PROG (this week's Python interpreter)
+python_basename	# basename of $PCP_PYTHON_PROG
+port		# used in _check_http_filter(), set by caller
 # -- common.keys
 keys_cli	# command line client interface for accessing keys
+keys_ver	# version for $keys_cli
 key_server	# command line server binary serving RESP protocol
 key_server_node1_port	# returned from _key_server_cluster_3nodes_start()
 key_server_node2_port	# returned from _key_server_cluster_3nodes_start()
 key_server_node3_port	# returned from _key_server_cluster_3nodes_start()
+# -- common.pmcd.pdu
+pdu_data	# set by caller
+grep_pattern	# set by caller
+valgrind_pid	# set so it can be used by caller
 End-of-File
 
 # these ones are exempted for various reasons
@@ -81,6 +95,7 @@ version		# false match in common.check from pmlogger control file
 count		# false match in common.gfs2 and common.secure from dd(1) args
 entry		# false match in common.filter from pmcd.conf control line
 scale		# false match in common.check from bc(1) input
+names		# false match in common.check from _prepare_pmda() diagnostic
 End-of-File
 
 # reserved variables and exemptions all sorted together

@@ -121,9 +121,9 @@ rm -f $seq_full
 #
 if which realpath >/dev/null 2>&1
 then
-    _tmp_dir=`realpath ${TMPDIR:-/tmp}`
+    __tmp_dir=`realpath ${TMPDIR:-/tmp}`
 else
-    _tmp_dir=${TMPDIR:-/tmp}
+    __tmp_dir=${TMPDIR:-/tmp}
 fi
 
 if [ -z "$tmp" ]
@@ -132,9 +132,9 @@ then
     #
     if [ -z "$seq" ]
     then
-	tmp=$_tmp_dir/$$
+	tmp=$__tmp_dir/$$
     else
-	tmp=$_tmp_dir/$seq-$$
+	tmp=$__tmp_dir/$seq-$$
     fi
 fi
 # make sure nothing remains from earlier runs (with the same PID)

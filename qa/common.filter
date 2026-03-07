@@ -1147,14 +1147,14 @@ _filter_optional_labels()
 	#
 	touch $tmp.filter.optional.labels
 	find /etc/pcp/labels/optional -type f \
-	| while read f
+	| while read __f
 	do
-	    cat $f \
+	    cat $__f \
 	    | sed -e 's/^{//' -e 's/}$//' \
 	    | tr ',' '\012' \
-	    | while read label
+	    | while read __label
 	    do
-		echo "s@${label},*@@g" >>$tmp.filter.optional.labels
+		echo "s@${__label},*@@g" >>$tmp.filter.optional.labels
 	    done
 	done
 	echo "=== optional context label filter ===" >>$seq_full
@@ -1212,19 +1212,19 @@ _cull_dup_lines()
 #
 _filter_ls()
 {
-    _fields='$1,$3,$4,$5,$9'
+    __fields='$1,$3,$4,$5,$9'
     while [ $# -ne 0 ]
     do
 	case "$1"
 	in
 	    -u)
-		_fields=`echo "$_fields" | sed -e 's/,\$3//'`
+		__fields=`echo "$__fields" | sed -e 's/,\$3//'`
 		;;
 	    -g)
-		_fields=`echo "$_fields" | sed -e 's/,\$4//'`
+		__fields=`echo "$__fields" | sed -e 's/,\$4//'`
 		;;
 	    -s)
-		_fields=`echo "$_fields" | sed -e 's/,\$5//'`
+		__fields=`echo "$__fields" | sed -e 's/,\$5//'`
 		;;
 	    *)
 		echo >&2 "_filter_ls: botch: arg $1 not -u or -g"
@@ -1234,7 +1234,7 @@ _filter_ls()
 	shift
     done
     $PCP_AWK_PROG '
-NF >= 9 && $1 ~ /^.[r-][w-][x-][r-][w-][x-][r-][w-][x-]/ { print '"$_fields"'; next }
+NF >= 9 && $1 ~ /^.[r-][w-][x-][r-][w-][x-][r-][w-][x-]/ { print '"$__fields"'; next }
 		{ print }' \
     | sed -e 's/^\(.[r-][w-][x-][r-][w-][x-][r-][w-][x-]\)\./\1/'
 }
