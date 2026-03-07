@@ -6,7 +6,7 @@
 # from pminfo -d ... so metric names and metric descriptors
 #
 
-tmp=${TMPDIR:-/tmp}/findmetric-$$
+tmp=${TMPDIR:-/tmp}/find-metric-$$
 sts=0
 trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
@@ -90,15 +90,15 @@ do
     if $arch
     then
 	cached=false
-	[ -f ".findmetric/$src" ] && cached=true
+	[ -f ".find-metric/$src" ] && cached=true
 	if [ "$cached" = false ]
 	then
 	    echo >&2 "build cache for $src ..."
-	    dir=".findmetric/`dirname "$src"`"
+	    dir=".find-metric/`dirname "$src"`"
 	    [ -d "$dir" ] || mkdir -p "$dir"
-	    _do_info -d -a $src >".findmetric/$src"
+	    _do_info -d -a $src >".find-metric/$src"
 	fi
-	cat ".findmetric/$src"
+	cat ".find-metric/$src"
     else
 	_do_info -d
     fi \
