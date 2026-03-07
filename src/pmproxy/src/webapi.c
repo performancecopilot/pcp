@@ -89,7 +89,7 @@ static pmWebRestCommand openmetrics[] = {
 
 static sds PARAM_NAMES, PARAM_NAME, PARAM_PMIDS, PARAM_PMID,
 	   PARAM_INDOM, PARAM_EXPR, PARAM_VALUE, PARAM_TIMES,
-	   PARAM_CONTEXT, PARAM_CLIENT, PMAPI_TYPE, PMAPI_SEMANTICS;
+	   PARAM_CONTEXT, PARAM_CLIENT, PMAPI_TYPE, PMAPI_SEMANTICS, PMAPI_PMID;
 
 
 static pmWebRestCommand *
@@ -686,6 +686,16 @@ add_metric_datapoint(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape, in
     result = sdscatlen(result, "{\"attributes\":[", 15);
     result = add_str_attribute(result, PMAPI_SEMANTICS, metric->sem);
     result = add_str_attribute(result, PMAPI_TYPE, metric->type);
+
+    {
+    char pmidstr[20];
+    sds pmid_sds;
+    pmIDStr_r(baton->pmid, pmidstr, sizeof(pmidstr));
+    pmid_sds = sdsnew(pmidstr);
+    result = add_str_attribute(result, PMAPI_PMID, pmid_sds);
+    sdsfree(pmid_sds);
+    }
+
     if (baton->buffer)
 	result = sdscatsds(result, baton->buffer);
     else
@@ -1258,6 +1268,7 @@ pmwebapi_servlet_setup(struct proxy *proxy)
     PARAM_CLIENT = sdsnew("client");
     PARAM_CONTEXT = sdsnew("context");
     PMAPI_SEMANTICS = sdsnew("semantics");
+    PMAPI_PMID = sdsnew("pcp.pmid");
     PMAPI_TYPE = sdsnew("type");
 
     pmWebGroupSetup(&pmwebapi_settings.module);
@@ -1283,6 +1294,7 @@ pmwebapi_servlet_close(struct proxy *proxy)
     sdsfree(PARAM_CLIENT);
     sdsfree(PARAM_CONTEXT);
     sdsfree(PMAPI_SEMANTICS);
+    sdsfree(PMAPI_PMID);
     sdsfree(PMAPI_TYPE);
 }
 
