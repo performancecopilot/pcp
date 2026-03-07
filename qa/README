@@ -92,7 +92,7 @@ Basic getting started
 	"pcp".
 
     Once you've modified common.config and qa_hosts.primary, then run
-    "chk.setup" to validate the settings.
+    "./check-setup" to validate the settings.
 
     For test 051 we need five local hostnames that are valid, although PCP
     does not need to be installed there, nor pmcd(1) running.  The five

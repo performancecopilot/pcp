@@ -19,10 +19,14 @@
 #include "../libpcp/src/internal.h"
 #include "pcp/archive.h"
 
-/*
- * Sort an indom into ascending external instance identifier order.
- * Since an indom is often already sorted, and we need to sort both
- * instlist[] and namelist[], it seems a bubble sort may be most
+/*!
+ * @brief Sort an instance domain into ascending external instance identifier
+ * order.
+ * 
+ * @param lidp the instance domain to be sorted
+ *
+ * @details Since an instance domain is often already sorted, and we need to
+ * sort both instlist[] and namelist[], it seems a bubble sort may be most
  * efficient
  */
 void
@@ -52,13 +56,14 @@ pmaSortInDom(__pmLogInDom *lidp)
     }
 }
 
-/*
- * Test if two observations of the same indom are identical ...
- * we know the indoms are both sorted.
+/*!
+ * @brief Test if two observations of the same instance domain are identical ...
+ * we know the instance domains are both sorted.
  *
- * Return value:
- * 1 => no difference
- * 0 => different
+ * @param old first instance domain
+ * @param new second instance domain
+ *
+ * @return 1 => no difference else 0 => different
  */
 int
 pmaSameInDom(__pmLogInDom *old, __pmLogInDom *new)
@@ -97,20 +102,21 @@ done:
 }
 
 
-/*
- * Test if two observations of the same indom are identical ...
- * we know the indoms are both sorted ... and if they are different,
- * check to see if a delta indom format would be more storage
- * efficient.
+/*!
+ * @brief Check if two observations of the same instance domain are identical
+ * ...  we know the indoms are both sorted ... and if they are different, check
+ * to see if a "delta indom" format would be more storage efficient.
  *
- * Return value:
- * 0 => no difference
- * 1 => use full indom
- * 2 => use delta indom (and populate *new_delta)
+ * @param old first instance domain
+ * @param new second instance domain
+ * @param new_delta if "delta indom" is best return a new instance domain here
  *
- * Only makes sense to be called for V3 archives ... an assumption we
- * cannot check here as the args don't give a way to determine the
- * associated archive version.
+ * @return 0 => no difference, or 1 => use full indom, or 2 => use delta indom
+ * (and populate *new_delta)
+ *
+ * @details Only makes sense to be called for V3 archives ... an assumption we
+ * cannot check here as the args don't give a way to determine the associated
+ * archive version.
  *
  * Note on alloc() errors in pmaDeltaInDom():
  *     report 'em and use pmaSameInDom() ... this simply falls back
@@ -297,16 +303,20 @@ done:
     return sts;
 }
 
-/*
- * Given an external metadata record that contains a "delta" indom
- * (in buf), find the corresponding __pmLogInDom structure from
- * lcp->hashindom.
+/*!
+ * @brief Given an external metadata record that contains a "delta" instance
+ * domain, find the corresponding __pmLogInDom structure from the archive's
+ * cached metadata.
  *
- * This assumes the archive has also been opened with pmNewContext
+ * @param lcp pointer to archive's __pmLogCtl (to access cached instance domain
+ * metadata)
+ * @param buf network encoded buffer with length prefix, indom and timestamp
+ * 
+ * @details This assumes the archive has also been opened with pmNewContext()
  * so that all of the metadata has been loaded.
- *
+ * 
  * The __pmLogInDom structure is expected to be found and the search
- * will also ensure the indom has been "undelta'd" in the process.
+ * will also ensure the instance domain has been "undelta'd" in the process.
  */
 __pmLogInDom *
 pmaUndeltaInDom(__pmLogCtl *lcp, __int32_t *buf)
@@ -358,24 +368,30 @@ typedef struct {
 }
 indom_ctl;
 
-/*
- * The input indom is provided either via lidp (an already loaded 
- * indom) or rbuf (a physical indom record) for a V3 archive ...
- * AND this must be the same for ALL calls to pmaTryDeltaInDom()
+/*!
+ * @brief Checks to see if "delta" instance domain encoding would be more
+ * efficient in terms of external record size.
+ *
+ * @param lcp pointer to archive's __pmLogCtl
+ * @param rbuf network encoded buffer with length prefix and instance domain metadata
+ * @param lidp loaded instance domain
+ *
+ * @details The input instance domain is provided either via lidp (an already
+ * loaded instance domain) or rbuf (a physical instance domain record) for a V3
+ * archive ...  AND this must be the same for ALL calls to pmaTryDeltaInDom()
  * for a given lcp.
  *
- * pmaTryDeltaInDom() checks to see if "delta" indom encoding would
- * be more efficient ... this involves maintaining a per-indom copy
- * of the last "full" indom that was seen by pmaTryDeltaInDom().
+ * If the "delta" format is preferred, a new insance domain is returned via
+ * lidpp or rbuf and the old one is free'd
  *
- * If "delta" indom format is preferred, a new indom is returned
- * via lidpp or rbuf and the old one is free'd
+ * The algorithm involves maintaining a per-instance-domain copy of the last
+ * "full" instance domain that was seen by pmaTryDeltaInDom() so the differences
+ * between that and the current instance domain can be determined.
  *
- * In the rbuf case we need to extract the __pmInDom from the
- * initial rbuf and this involves rewriting rbuf (at least some ntohl()
- * magic) and also because we keep the __pmInDom in a hashed cache
- * until the next time we see the same indom, pmaTryDeltaInDom() makes
- * a copy of rbuf.
+ * In the rbuf case we need to extract the __pmInDom from the initial rbuf and
+ * this involves rewriting rbuf (at least some ntohl() magic) and also because
+ * we keep the __pmInDom in a hashed cache until the next time we see the same
+ * indom, pmaTryDeltaInDom() makes a copy of rbuf.
  */
 int
 pmaTryDeltaInDom(__pmLogCtl *lcp, __int32_t **rbuf, __pmLogInDom *lidp)
