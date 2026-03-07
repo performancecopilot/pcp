@@ -73,7 +73,7 @@ _filter_metrics()
 _save_logs()
 {
     echo === pmlogger log >> $seq_full
-    cat pmlogger.log >> $seq_full
+    cat $tmp.pmlogger.log >> $seq_full
     echo === pmproxy log >> $seq_full
     cat $PCP_LOG_DIR/pmproxy/pmproxy.log >> $seq_full
 }
@@ -134,9 +134,9 @@ remote_mode="-c $tmp.conf -T 15sec http://localhost:44322"
 ((sleep 10; $sudo $signal -s HUP $pmproxy_pid)&) >/dev/null 2>&1
 if $do_valgrind
 then
-    _run_valgrind pmlogger $remote_mode
+    _run_valgrind pmlogger $remote_mode -l $tmp.pmlogger.log
 else
-    pmlogger $remote_mode
+    pmlogger $remote_mode -l $tmp.pmlogger.log
 fi \
 | _filter
 # pmlogger has been running for 15sec, plenty long enough
