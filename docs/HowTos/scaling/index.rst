@@ -144,7 +144,7 @@ Results and Analysis
 Centralized logging (pmlogger farm)
 -----------------------------------
 
-The following results were gathered on a :ref:`pmlogger farm<C. Centralized logging (pmlogger farm)>` deployment,
+The following results were gathered on a :ref:`pmlogger farm<C.1 Centralized logging (pmlogger farm)>` deployment,
 with a default **pcp-zeroconf 5.3.2** installation (version 5.3.1-3 on RHEL), where each remote host is an identical container instance
 running `pmcd(1)`_ on a server with 64 CPU cores, 376 GB RAM and 1 disk attached (as mentioned above, 64 CPUs increases per-CPU metric volume).
 The key server is co-located on the same host as pmlogger and pmproxy, and ``proc`` metrics of remote nodes are *not* included.
@@ -184,8 +184,8 @@ For further troubleshooting, please see the `High memory usage`_ section in the 
 Federated setup (multiple pmlogger farms)
 -----------------------------------------
 
-The following results were observed with a :ref:`federated setup<D. Federated setup (multiple pmlogger farms)>`
-consisting of three :ref:`pmlogger farms<C. Centralized logging (pmlogger farm)>`, where each pmlogger farm
+The following results were observed with a :ref:`federated setup<Federated setup (multiple pmlogger farms)>`
+consisting of three :ref:`pmlogger farms<C.1 Centralized logging (pmlogger farm)>`, where each pmlogger farm
 was monitoring 100 remote hosts, i.e. 300 hosts in total.
 The setup of the pmlogger farms was identical to the configuration above (60s logging interval), except that the key servers were operating in cluster mode.
 

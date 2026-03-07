@@ -41,8 +41,6 @@ with open('../VERSION.pcp') as f:
 # ones.
 extensions = [
     'sphinx.ext.autosectionlabel',
-    'sphinxcontrib.redoc',
-    'sphinxcontrib.openapi',
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -82,19 +80,6 @@ html_theme = 'sphinx_rtd_theme'
 
 html_logo = '../images/pcp_icon.png'
 
-redoc = [
-    {
-        'name': 'PMWEBAPI',
-        'page': 'api/index',
-        'spec': 'specs/openapi.yaml',
-        'opts': {
-            'lazy-rendering': True,
-        },
-    },
-]
-
-redoc_uri = 'https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js'
-
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
@@ -107,6 +92,10 @@ html_theme_options = {
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_extra_path = ['specs']
+
+html_additional_pages = {'api/index': 'redoc.html'}
 
 # These paths are either relative to html_static_path
 # or fully qualified paths (eg. https://...)

@@ -70,7 +70,7 @@ File Structure
 
 ::
 
-    nix/
+    build/nix/
     ├── package.nix           # PCP derivation (version from VERSION.pcp)
     ├── nixos-module.nix      # NixOS module for services.pcp
     ├── constants.nix         # Shared configuration constants
@@ -84,6 +84,13 @@ File Structure
     ├── pmie-test.nix         # pmie testing module (stress-ng workload)
     │
     ├── container.nix         # OCI container image
+    │
+    ├── k8s-manifests/        # Standalone K8s manifest generator
+    │   ├── default.nix       # Entry point, produces dir + combined YAML
+    │   ├── constants.nix     # Deployment constants (namespace, resources)
+    │   ├── namespace.nix     # Namespace resource YAML
+    │   └── daemonset.nix     # DaemonSet resource YAML
+    │
     ├── network-setup.nix     # TAP/bridge network scripts
     ├── shell.nix             # Development shell
     ├── vm-test.nix           # NixOS VM integration test
@@ -311,6 +318,14 @@ Flake Outputs Reference
      - Quick test (skip build, assume image loaded)
    * - ``pcp-minikube-start``
      - Start minikube with optimal settings for PCP testing
+   * - **K8s Manifests** (no minikube needed)
+     -
+   * - ``pcp-k8s-manifests``
+     - Directory with all K8s manifests + README
+   * - ``pcp-k8s-manifest-namespace``
+     - Namespace YAML only
+   * - ``pcp-k8s-manifest-daemonset``
+     - DaemonSet YAML only
    * - **Checks**
      -
    * - ``vm-test``
@@ -586,7 +601,7 @@ hardcode ``/var/tmp`` for temporary files, causing errors::
 - ``src/libpcp/doc/mk.cgraph``
 - ``src/pmlogcompress/check-optimize``
 
-**Solution**: The patch file ``nix/patches/tmpdir-portability.patch`` replaces
+**Solution**: The patch file ``build/nix/patches/tmpdir-portability.patch`` replaces
 ``/var/tmp`` with ``${TMPDIR:-/tmp}`` in all affected scripts. This is portable:
 
 - On Nix, ``$TMPDIR`` is set to a writable sandbox directory
@@ -614,7 +629,7 @@ Additionally, PCP's ``GNUmakefile`` has a hardcoded fallback to
        SYSTEMD_TMPFILESDIR = "${placeholder "out"}/lib/tmpfiles.d";
        SYSTEMD_SYSUSERSDIR = "${placeholder "out"}/lib/sysusers.d";
 
-2. The patch file ``nix/patches/gnumakefile-nix-fixes.patch`` redirects the
+2. The patch file ``build/nix/patches/gnumakefile-nix-fixes.patch`` redirects the
    tmpfiles installation from ``/usr/lib/tmpfiles.d`` to
    ``$(PCP_SHARE_DIR)/tmpfiles.d``.
 
@@ -638,7 +653,7 @@ reached. No patch is needed - the ``preConfigure`` export handles it completely.
 
 .. note::
 
-   The patch file ``nix/patches/configure-ar-portable.patch`` exists but is not
+   The patch file ``build/nix/patches/configure-ar-portable.patch`` exists but is not
    applied in ``flake.nix``. It changes the fallback to ``ar`` (PATH lookup)
    and could be submitted upstream to improve portability for non-Nix builds.
 
@@ -651,7 +666,7 @@ in the Nix sandbox::
 
     install: cannot change ownership: Operation not permitted
 
-**Solution**: The patch file ``nix/patches/gnumakefile-nix-fixes.patch`` removes
+**Solution**: The patch file ``build/nix/patches/gnumakefile-nix-fixes.patch`` removes
 the ownership flags from install commands. The NixOS module (when created) will
 handle proper ownership at activation time.
 
@@ -686,7 +701,7 @@ Patch Files
 ^^^^^^^^^^^
 
 The Nix-specific fixes have been implemented as proper ``.patch`` files in
-``nix/patches/`` rather than inline ``substituteInPlace`` calls:
+``build/nix/patches/`` rather than inline ``substituteInPlace`` calls:
 
 **Applied in flake.nix:**
 
@@ -744,7 +759,7 @@ entirely, avoiding slow shebang patching of test scripts.
 NixOS VM Test
 ^^^^^^^^^^^^^
 
-A NixOS VM integration test is provided in ``nix/vm-test.nix`` to verify the
+A NixOS VM integration test is provided in ``build/nix/vm-test.nix`` to verify the
 package works correctly in a real NixOS environment. The test:
 
 1. Boots a NixOS VM with PCP installed
@@ -807,7 +822,7 @@ Use ``-L`` to see test output in real-time::
     # >>> machine.succeed("pminfo --version")
     # >>> machine.shell_interact()  # Get a shell in the VM
 
-**Test configuration** (from ``nix/vm-test.nix``):
+**Test configuration** (from ``build/nix/vm-test.nix``):
 
 The VM is configured with:
 
@@ -835,7 +850,7 @@ journal health, and pmie functionality.
     # Clean up
     nix run .#pcp-vm-stop
 
-**Test phases** (from ``nix/tests/microvm-test.nix``):
+**Test phases** (from ``build/nix/tests/microvm-test.nix``):
 
 1. **SSH connectivity** - Wait for VM to accept SSH connections
 2. **Service status** - Verify pmcd, pmproxy, node_exporter are active
@@ -1801,6 +1816,28 @@ for PCP testing (4 CPUs, 8GB RAM, docker driver)::
 
     nix run .#pcp-minikube-start
 
+Standalone K8s Manifests
+""""""""""""""""""""""""
+
+You can generate Kubernetes manifests without minikube or the full test suite.
+This is useful for inspecting the PCP DaemonSet deployment configuration or
+applying it to an existing cluster::
+
+    # Build all manifests into a directory
+    nix build .#pcp-k8s-manifests
+    ls result/    # README.md  combined.yaml  daemonset.yaml  namespace.yaml
+
+    # Apply to a cluster
+    cat result/combined.yaml | kubectl apply -f -
+
+    # Or build individual manifests
+    nix build .#pcp-k8s-manifest-daemonset
+    cat result
+
+The standalone manifests use the ``pcp`` namespace by default (the test suite
+overrides this to ``pcp-test`` for isolation). Resource limits, image settings,
+and host mount paths are all defined in ``build/nix/k8s-manifests/constants.nix``.
+
 Development Shell
 -----------------
 
@@ -1862,7 +1899,7 @@ without rebuilding the package, via ``PCP_PMDA_PATH`` or similar mechanism.
 NixOS Module Enhancements
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
-The current NixOS module (``nix/nixos-module.nix``) provides basic functionality.
+The current NixOS module (``build/nix/nixos-module.nix``) provides basic functionality.
 Future enhancements could include:
 
 - Declarative PMDA configuration (enable/disable specific PMDAs)
