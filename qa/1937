@@ -32,7 +32,7 @@ log mandatory on once {
   xfs.perdev.buffer
 }
 End-of-File
-    pmlogger -r -c $tmp.log.conf -T 1sec $tmp.log
+    pmlogger -r -c $tmp.log.conf -T 1sec $tmp.log -l $tmp.pmlogger.log
     cat << 'End-of-File2' > $tmp.lrw.conf
 metric xfs.perdev.buffer.get { pmid -> 11.18.140 }
 metric xfs.perdev.buffer.create { pmid -> 11.18.141 }
