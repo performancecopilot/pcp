@@ -94,13 +94,13 @@ echo
 echo "== absolute timestamps (baseline)" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793"
 echo "$url" >> $seq_full
-curl --get --silent "$url" | tee -a $seq_full | _format_timestamps
+curl --get --silent "$url" | tr -d '\r' | tee -a $seq_full | _format_timestamps
 
 echo
 echo "== negative relative offset start=-30s" | tee -a $seq_full
 url="http://localhost:$proxyport/series/values?series=$series1&start=-30s"
 echo "$url" >> $seq_full
-curl --get --silent "$url" | tee -a $seq_full
+curl --get --silent "$url" | tr -d '\r' | tee -a $seq_full
 
 cat $tmp.pmproxy.log >> $seq_full
 status=0
