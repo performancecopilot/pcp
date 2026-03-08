@@ -61,7 +61,7 @@ LDIRT += 051.work 134.full.* \
 	 *.bak *.bad *.core *.full *.notrun *.raw *.o core a.out core.* \
 	 *.log *.log.prev eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
-	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time
+	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time \
 	 .find-metric
 
 # these ones are links to the real files created when the associated
