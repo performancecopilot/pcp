@@ -12,8 +12,6 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
 # for more details.
 #
-# pylint: disable=line-too-long
-#
 
 """ PCP to OPENTELEMETRY Bridge """
 
@@ -87,7 +85,7 @@ class PCP2OPENTELEMETRY(object):
         self.interval = pmapi.timeval(10)      # 10 sec
         self.opts.pmSetOptionInterval(str(10)) # 10 sec
         self.delay = 0
-        self.type = 0
+        self.type = 1
         self.type_prefer = self.type
         self.ignore_incompat = 0
         self.ignore_unknown = 0
@@ -133,6 +131,7 @@ class PCP2OPENTELEMETRY(object):
         # values - 0:txt label, 1:instance(s), 2:unit/scale, 3:type,
         #          4:width, 5:pmfg item, 6:precision, 7:limit
         self.metrics = OrderedDict()
+        self.metric_idx = None
         self.pmfg = None
         self.pmfg_ts = None
 
@@ -326,6 +325,7 @@ class PCP2OPENTELEMETRY(object):
 
         self.pmconfig.validate_metrics(curr_insts=not self.live_filter)
         self.pmconfig.finalize_options()
+        self.metric_idx = {m: i for i, m in enumerate(self.metrics.keys())}
 
     def execute(self):
         """ Fetch and report """
@@ -569,7 +569,7 @@ class PCP2OPENTELEMETRY(object):
             return mtype
 
         # produce metric data point attributes
-        def data_attribute_function(labels, context, desc, inst, name, pmid_str):
+        def data_attribute_function(labels, desc, inst, name, pmid_str):
             attribute_dict = OrderedDict()
             attribute_dict["semantics"] = self.context.pmSemStr(desc.contents.sem)
             attribute_dict["type"] = get_type_string(desc)
@@ -577,21 +577,22 @@ class PCP2OPENTELEMETRY(object):
             for key in labels:
                 attribute_dict.update(labels[key])
 
-            attribute_dict["pcp.pmid"] = pmid_str
+            attribute_dict["pmid"] = pmid_str
 
             if desc.indom != PM_INDOM_NULL:
                 attribute_dict["instname"] = name
                 attribute_dict["instid"] = inst
+                attribute_dict["indom"] = self.context.pmInDomStr(desc.indom)
 
             attribute_list = attribute_converter(attribute_dict)
             return attribute_list
 
         # produce metric data points
-        def data_points_function(metric, results, labels, context, desc, pmid_str):
+        def data_points_function(metric, results, labels, desc, pmid_str):
             numdatapoints_list = []
+            tmp_type = get_type_string(desc)
             for inst, name, value in results[metric]:
                 datapoint_dict = {}
-                tmp_type = get_type_string(desc)
                 if '32' in tmp_type or '64' in tmp_type:
                     datapoint_dict["asInt"] = value
                 elif tmp_type == "string":
@@ -599,27 +600,26 @@ class PCP2OPENTELEMETRY(object):
                 else:
                     datapoint_dict["asDouble"] = value
                 datapoint_dict["timeUnixNano"] = f"{ts:.0f}"
-                datapoint_dict["attributes"] = data_attribute_function(labels, context, desc, inst, name, pmid_str)
+                datapoint_dict["attributes"] = data_attribute_function(labels, desc, inst, name, pmid_str)
                 numdatapoints_list.append(datapoint_dict)
             return numdatapoints_list
 
-        def sum_function(metric, results, labels, context, desc, pmid_str):
+        def sum_function(metric, results, labels, desc, pmid_str):
             sum_body = {}
             sum_body["aggregationTemporality"] = 1
             sum_body["isMonotonic"] = 'true'
-            sum_body["dataPoints"] = data_points_function(metric, results, labels, context, desc, pmid_str)
+            sum_body["dataPoints"] = data_points_function(metric, results, labels, desc, pmid_str)
             return sum_body
 
-        def gauge_function(metric, results, labels, context, desc, pmid_str):
+        def gauge_function(metric, results, labels, desc, pmid_str):
             gauge_body = {}
-            gauge_body["dataPoints"] = data_points_function(metric, results, labels, context, desc, pmid_str)
+            gauge_body["dataPoints"] = data_points_function(metric, results, labels, desc, pmid_str)
             return gauge_body
 
 
         # main loop; iterate through all metrics in 'results' variable
         def scope_metric_function(results):
             context = self.pmfg.get_context()
-            metric_idx = {m: i for i, m in enumerate(self.metrics.keys())}
 
             body = OrderedDict()
             body["scope"] = scope_function(context)
@@ -639,7 +639,7 @@ class PCP2OPENTELEMETRY(object):
                     except Exception:
                         pmid_str = str(pmid[0])
 
-                i = metric_idx.get(metric)
+                i = self.metric_idx.get(metric)
                 if i is None:
                     continue
 
@@ -656,14 +656,14 @@ class PCP2OPENTELEMETRY(object):
                 metric_dict["description"] = context.pmLookupText(pmid[0])
 
                 if desc.contents.sem == cpmapi.PM_SEM_COUNTER:
-                    metric_dict["sum"] = sum_function(metric, results, labels, context, desc, pmid_str)
+                    metric_dict["sum"] = sum_function(metric, results, labels, desc, pmid_str)
                 else:
-                    metric_dict["gauge"] = gauge_function(metric, results, labels, context, desc, pmid_str)
+                    metric_dict["gauge"] = gauge_function(metric, results, labels, desc, pmid_str)
 
                 body["metrics"].append(metric_dict)
 
             return body
-        
+
         resource_metric = OrderedDict()
         resource_metric["resource"] = {"attributes": resource_attributes()}
         resource_metric["scopeMetrics"] = [scope_metric_function(results)]
