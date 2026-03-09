@@ -30,8 +30,14 @@ import json
 # PCP Python PMAPI
 from pcp import pmapi, pmconfig
 from cpmapi import PM_CONTEXT_ARCHIVE, PM_INDOM_NULL, PM_TIME_NSEC
+
 # Default config
-DEFAULT_CONFIG = ["./pcp2opentelemetry.conf", "$HOME/.pcp2opentelemetry.conf", "$HOME/.pcp/pcp2opentelemetry.conf", "$PCP_SYSCONF_DIR/pcp2opentelemetry.conf"]
+DEFAULT_CONFIG = [
+    "./pcp2opentelemetry.conf",
+    "$HOME/.pcp2opentelemetry.conf",
+    "$HOME/.pcp/pcp2opentelemetry.conf",
+    "$PCP_SYSCONF_DIR/pcp2opentelemetry.conf",
+]
 
 # Defaults
 CONFVER = 1
