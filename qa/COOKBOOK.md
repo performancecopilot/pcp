@@ -1,5 +1,5 @@
-![Alt text](./logo.png)
 # PCP QA Cookbook
+![Alt text](../images/pcplogo-80.png)
 
 # Table of contents
 <br>[1 Preamble](#preamble)
