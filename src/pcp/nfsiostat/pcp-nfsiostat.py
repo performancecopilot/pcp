@@ -17,129 +17,106 @@
 # pylint: disable=too-many-arguments,too-many-positional-arguments
 # pylint: disable=redefined-outer-name,unnecessary-lambda
 #
-
 import signal
 import sys
 import time
-from pcp import pmapi, pmcc
-from cpmapi import PM_CONTEXT_ARCHIVE
+from typing import Dict
+from typing import Union
 
-SYS_METRICS= ["kernel.uname.sysname","kernel.uname.release",
-               "kernel.uname.nodename","kernel.uname.machine","hinv.ncpu"]
-NFSIOSTAT_METRICS = ["nfsclient.mountpoint","nfsclient.export","nfsclient.age",
-                     "nfsclient.xprt.sends","nfsclient.xprt.backlog_u","nfsclient.ops.read.ops",
-                     "nfsclient.ops.read.errors","nfsclient.ops.read.execute","nfsclient.ops.read.rtt",
-                     "nfsclient.ops.read.queue","nfsclient.ops.read.bytes_recv","nfsclient.ops.read.bytes_sent",
-                     "nfsclient.ops.read.ntrans","nfsclient.ops.write.ops","nfsclient.ops.write.errors",
-                     "nfsclient.ops.write.execute","nfsclient.ops.write.rtt","nfsclient.ops.write.queue",
-                     "nfsclient.ops.write.bytes_recv","nfsclient.ops.write.bytes_sent","nfsclient.ops.write.ntrans"]
+from cpmapi import PM_CONTEXT_ARCHIVE
+from pcp import pmapi
+from pcp import pmcc
+
+SYS_METRICS = [
+    "kernel.uname.sysname",
+    "kernel.uname.release",
+    "kernel.uname.nodename",
+    "kernel.uname.machine",
+    "hinv.ncpu",
+]
+NFSIOSTAT_METRICS = [
+    "nfsclient.mountpoint",
+    "nfsclient.export",
+    "nfsclient.age",
+    "nfsclient.xprt.sends",
+    "nfsclient.xprt.backlog_u",
+    "nfsclient.ops.read.ops",
+    "nfsclient.ops.read.errors",
+    "nfsclient.ops.read.execute",
+    "nfsclient.ops.read.rtt",
+    "nfsclient.ops.read.queue",
+    "nfsclient.ops.read.bytes_recv",
+    "nfsclient.ops.read.bytes_sent",
+    "nfsclient.ops.read.ntrans",
+    "nfsclient.ops.write.ops",
+    "nfsclient.ops.write.errors",
+    "nfsclient.ops.write.execute",
+    "nfsclient.ops.write.rtt",
+    "nfsclient.ops.write.queue",
+    "nfsclient.ops.write.bytes_recv",
+    "nfsclient.ops.write.bytes_sent",
+    "nfsclient.ops.write.ntrans",
+]
 ALL_METRICS = NFSIOSTAT_METRICS + SYS_METRICS
+
 
 def adjust_length(name):
     return name.ljust(25)
+
+
 class ReportingMetricRepository:
+    def __init__(self, group):
+        self.group = group
+        self._current_cache = {}
+        self._previous_cache = {}
 
-    def __init__(self,group):
-        self.group=group
-        self.current_cached_values = {}
+    def _fetch_values(self, metric, use_previous=False):
+        """Fetch values - always returns a dictionary."""
+        if metric not in self.group:
+            return {}
+        attr = "netPrevValues" if use_previous else "netValues"
+        values = getattr(self.group[metric], attr, [])
+        return {x[0].inst: x[2] for x in values} if values else {}
 
-    def __sorted(self,data):
-        return dict(sorted(data.items(), key=lambda item: item[0].lower()))
+    def _get_values_dict(self, metric, use_previous=False):
+        """Get cached dictionary of all values for a metric."""
+        cache = self._previous_cache if use_previous else self._current_cache
+        if metric not in cache:
+            cache[metric] = self._fetch_values(metric, use_previous)
+        return cache[metric]
 
-    def __fetch_current_value(self,metric):
-        val=dict(map(lambda x: (x[1], x[2]), self.group[metric].netValues))
-        val=self.__sorted(val)
-        return dict(val)
+    def previous_value(self, metric, instance=None):
+        """Get previous value. Returns single value if instance given, else returns dict."""
+        values_dict = self._get_values_dict(metric, use_previous=True)
+        if instance is not None:
+            return values_dict.get(instance)
+        return values_dict
 
-    def current_value(self,metric):
-        if not metric in self.group:
-            return None
-        if self.current_cached_values.get(metric) is None:
-            first_value=self.__fetch_current_value(metric)
-            self.current_cached_values[metric]=first_value
-        return self.current_cached_values[metric]
+    def current_value(self, metric, instance=None):
+        """Get current value. Returns single value if instance given, else returns dict."""
+        values_dict = self._get_values_dict(metric, use_previous=False)
+        if instance is not None:
+            return values_dict.get(instance)
+        return values_dict
+
 
 class NfsioStatUtil:
-    def __init__(self,metrics_repository):
-        self.__metric_repository=metrics_repository
-        self.report=ReportingMetricRepository(self.__metric_repository)
+    def __init__(self, metrics_repository):
+        self.__metric_repository = metrics_repository
+        self.report = ReportingMetricRepository(self.__metric_repository)
 
-    def mount_point(self):
-        return self.report.current_value('nfsclient.mountpoint')
-
-    def mount_share(self):
-        return self.report.current_value('nfsclient.export')
-
-    def mount_share_keys(self):
-        data = self.report.current_value('nfsclient.export')
-        return data.keys()
-
-    def sample_time(self):
-        return self.report.current_value('nfsclient.age')
-
-    def xprt_sends(self):
-        return self.report.current_value('nfsclient.xprt.sends')
-
-    def xprt_backlog(self):
-        return self.report.current_value('nfsclient.xprt.backlog_u')
-
-    def readops(self):
-        return self.report.current_value('nfsclient.ops.read.ops')
-
-    def readerrors(self):
-        return self.report.current_value('nfsclient.ops.read.errors')
-
-    def readexecute(self):
-        return self.report.current_value('nfsclient.ops.read.execute')
-
-    def readrtt(self):
-        return self.report.current_value('nfsclient.ops.read.rtt')
-
-    def readqueue(self):
-        return self.report.current_value('nfsclient.ops.read.queue')
-
-    def readbytesrecv(self):
-        return self.report.current_value('nfsclient.ops.read.bytes_recv')
-
-    def readbytessent(self):
-        return self.report.current_value('nfsclient.ops.read.bytes_sent')
-
-    def readntrans(self):
-        return self.report.current_value('nfsclient.ops.read.ntrans')
-
-    def writeops(self):
-        return self.report.current_value('nfsclient.ops.write.ops')
-
-    def writeerrors(self):
-        return self.report.current_value('nfsclient.ops.write.errors')
-
-    def writeexecute(self):
-        return self.report.current_value('nfsclient.ops.write.execute')
-
-    def writertt(self):
-        return self.report.current_value('nfsclient.ops.write.rtt')
-
-    def writequeue(self):
-        return self.report.current_value('nfsclient.ops.write.queue')
-
-    def writebytesrecv(self):
-        return self.report.current_value('nfsclient.ops.write.bytes_recv')
-
-    def writebytessent(self):
-        return self.report.current_value('nfsclient.ops.write.bytes_sent')
-
-    def writentrans(self):
-        return self.report.current_value('nfsclient.ops.write.ntrans')
 
 class NfsiostatReport(pmcc.MetricGroupPrinter):
-    def __init__(self,opts,group):
+    machine_info_count = 0
+
+    def __init__(self, opts, group):
         self.opts = opts
         self.group = group
         self.samples = opts.samples
         self.context = opts.context
 
     def __get_ncpu(self, group):
-        return group['hinv.ncpu'].netValues[0][2]
+        return group["hinv.ncpu"].netValues[0][2]
 
     def __print_machine_info(self, context):
         timestamp = self.group.pmLocaltime(context.timestamp.tv_sec)
@@ -147,43 +124,134 @@ class NfsiostatReport(pmcc.MetricGroupPrinter):
         # Also check TZ and LC_TIME environment variables for more
         # information on how to override the default formatting of
         # the date display in the header
-        time_string = time.strftime("%m/%d/%Y %H:%M:%S", timestamp.struct_time())
-        header_string = ''
-        header_string += context['kernel.uname.sysname'].netValues[0][2] + '  '
-        header_string += context['kernel.uname.release'].netValues[0][2] + '  '
-        header_string += '(' + context['kernel.uname.nodename'].netValues[0][2] + ')  '
-        header_string += time_string + '  '
-        header_string += context['kernel.uname.machine'].netValues[0][2] + '  '
+        time_string = time.strftime(
+            "%m/%d/%Y %H:%M:%S", timestamp.struct_time()
+        )
+        header_string = ""
+        header_string += context["kernel.uname.sysname"].netValues[0][2] + "  "
+        header_string += context["kernel.uname.release"].netValues[0][2] + "  "
+        header_string += (
+            "(" + context["kernel.uname.nodename"].netValues[0][2] + ")  "
+        )
+        header_string += time_string + "  "
+        header_string += context["kernel.uname.machine"].netValues[0][2] + "  "
         print("%s  (%s CPU)" % (header_string, self.__get_ncpu(context)))
 
-    def __print_values(self,timestamp, nfsstatus):
-        n_shares = nfsstatus.mount_share_keys()
-        mountshare = nfsstatus.mount_share()
-        mountpoint = nfsstatus.mount_point()
-        sampletime = nfsstatus.sample_time()
-        sends = nfsstatus.xprt_sends()
-        backlog = nfsstatus.xprt_backlog()
-        readops = nfsstatus.readops()
-        readerrors = nfsstatus.readerrors()
-        readexecute = nfsstatus.readexecute()
-        readrtt = nfsstatus.readrtt()
-        readqueue = nfsstatus.readqueue()
-        readbytesrecv = nfsstatus.readbytesrecv()
-        readbytessent = nfsstatus.readbytessent()
-        readntrans = nfsstatus.readntrans()
-        writeops = nfsstatus.writeops()
-        writeerrors = nfsstatus.writeerrors()
-        writeexecute = nfsstatus.writeexecute()
-        writertt = nfsstatus.writertt()
-        writequeue = nfsstatus.writequeue()
-        writebytesrecv = nfsstatus.writebytesrecv()
-        writebytessent = nfsstatus.writebytessent()
-        writentrans = nfsstatus.writentrans()
+    def __collect(self, nfs):
+        return {
+            metric: nfs.report.current_value(metric)
+            for metric in NFSIOSTAT_METRICS
+        }
 
-        print("%-18s:%s"%("Timestamp", timestamp))
+    def __delta(
+        self,
+        new: Dict[str, Dict[str, Union[float, str]]],
+        nfs,
+    ) -> Dict[str, Dict[str, Union[float, str]]]:
+        delta: Dict[str, Dict[str, Union[float, str]]] = {}
+        old = {
+            metric: nfs.report.previous_value(metric)
+            for metric in NFSIOSTAT_METRICS
+        }
+
+        for metric in new:
+            delta[metric] = {}
+
+            for inst in new[metric]:
+                new_val = new[metric][inst]
+                old_val = old.get(metric, {}).get(inst, 0)
+
+                # If value is numeric → subtract
+                if isinstance(new_val, (int, float)):
+                    delta[metric][inst] = new_val - old_val
+                else:
+                    # If string → just copy (no subtraction)
+                    delta[metric][inst] = new_val
+
+        return delta
+
+    def __print_values(self, timestamp, delta):
+        sampletime = delta["nfsclient.age"]
+        readops = delta["nfsclient.ops.read.ops"]
+        writeops = delta["nfsclient.ops.write.ops"]
+        readbytesrecv = delta["nfsclient.ops.read.bytes_recv"]
+        writebytesrecv = delta["nfsclient.ops.write.bytes_recv"]
+        mountpoint = delta["nfsclient.mountpoint"]
+        mountshare = delta["nfsclient.export"]
+        sends = delta["nfsclient.xprt.sends"]
+        backlog = delta["nfsclient.xprt.backlog_u"]
+        readerrors = delta["nfsclient.ops.read.errors"]
+        readexecute = delta["nfsclient.ops.read.execute"]
+        readrtt = delta["nfsclient.ops.read.rtt"]
+        readqueue = delta["nfsclient.ops.read.queue"]
+        readbytessent = delta["nfsclient.ops.read.bytes_sent"]
+        readntrans = delta["nfsclient.ops.read.ntrans"]
+        writeerrors = delta["nfsclient.ops.write.errors"]
+        writeexecute = delta["nfsclient.ops.write.execute"]
+        writertt = delta["nfsclient.ops.write.rtt"]
+        writequeue = delta["nfsclient.ops.write.queue"]
+        writebytessent = delta["nfsclient.ops.write.bytes_sent"]
+        writentrans = delta["nfsclient.ops.write.ntrans"]
+
+        def _fit(text, width):
+            text = str(text)
+            if len(text) <= width:
+                return text.rjust(width)
+            return "#" * width
+
+        def _fmt_float(value, width, precision=3):
+            if not isinstance(value, (int, float)):
+                return _fit(value, width)
+            fixed = f"{value:.{precision}f}"
+            if len(fixed) <= width:
+                return fixed.rjust(width)
+            exp_precision = max(0, width - 7)
+            scientific = f"{value:.{exp_precision}e}"
+            if len(scientific) <= width:
+                return scientific.rjust(width)
+            return _fit(scientific, width)
+
+        def _fmt_count_percent(count, percent, width):
+            try:
+                count_value = int(count)
+            except (TypeError, ValueError):
+                count_value = 0
+            try:
+                percent_value = float(percent)
+            except (TypeError, ValueError):
+                percent_value = 0.0
+
+            formatted = f"{count_value} ({percent_value:.1f}%)"
+            if len(formatted) <= width:
+                return formatted.rjust(width)
+
+            formatted = f"{count_value} ({percent_value:.1e}%)"
+            if len(formatted) <= width:
+                return formatted.rjust(width)
+
+            exp_precision = max(0, width - 7)
+            formatted = f"{float(count_value):.{exp_precision}e}"
+            if len(formatted) <= width:
+                return formatted.rjust(width)
+
+            return _fit(formatted, width)
+
+        io_columns = [
+            ("ops/s", 11),
+            ("kB/s", 12),
+            ("kB/op", 13),
+            ("retrans", 16),
+            ("avg RTT (ms)", 15),
+            ("avg exe (ms)", 15),
+            ("avg queue (ms)", 17),
+            ("errors", 14),
+        ]
+        rpc_columns = [("ops/s", 11), ("rpc bklog", 16)]
+
+        print("%-18s:%s" % ("Timestamp", timestamp))
         print()
 
-        for name in n_shares:
+        for name in mountshare:
             # read
             r_kilobytes = (readbytessent[name] + readbytesrecv[name]) / 1024
             if sampletime[name] > 0:
@@ -238,52 +306,60 @@ class NfsiostatReport(pmcc.MetricGroupPrinter):
 
             print(f"{mountshare[name]} mounted on {mountpoint[name]}:")
 
-            print(f"{'':14}ops/s{'':7}rpc bklog")
-            print(f"{ops_per_sample:19.3f}{backlog[name]:16.3f}")
+            print(f"{'':14}" + "".join(f"{title:>{width}}" for title, width in rpc_columns))
+            print(f"{'':14}{_fmt_float(ops_per_sample, 11)}{_fmt_float(backlog[name], 16)}")
             print()
             print(
                 "read:              "
-                "ops/s        kB/s        kB/op     retrans   "
-                "avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors"
+                + "".join(f"{title:>{width}}" for title, width in io_columns)
             )
             print(
                 f"{'':19}"
-                f"{ops_per_sample_read:5.3f}"
-                f"{r_kilobytes_per_sample:12.3f}"
-                f"{r_kilobytes_per_op:13.3f}   "
-                f"{int(r_retrans):2d} ({r_retrans_percent:2.1f}%)"
-                f"{r_rtt_per_op:15.3f}"
-                f"{r_exe_per_op:15.3f}"
-                f"{r_queued_for_per_op:17.3f}   "
-                f"{int(readerrors[name]):4d} ({r_errs_percent:2.1f}%)"
+                f"{_fmt_float(ops_per_sample_read, 11)}"
+                f"{_fmt_float(r_kilobytes_per_sample, 12)}"
+                f"{_fmt_float(r_kilobytes_per_op, 13)}"
+                f"{_fmt_count_percent(r_retrans, r_retrans_percent, 16)}"
+                f"{_fmt_float(r_rtt_per_op, 15)}"
+                f"{_fmt_float(r_exe_per_op, 15)}"
+                f"{_fmt_float(r_queued_for_per_op, 17)}"
+                f"{_fmt_count_percent(readerrors[name], r_errs_percent, 14)}"
             )
 
             print(
                 "write:             "
-                "ops/s        kB/s        kB/op     retrans   "
-                "avg RTT (ms)   avg exe (ms)   avg queue (ms)        errors"
+                + "".join(f"{title:>{width}}" for title, width in io_columns)
             )
-
             print(
                 f"{'':19}"
-                f"{ops_per_sample_write:5.3f}"
-                f"{w_kilobytes_per_sample:12.3f}"
-                f"{w_kilobytes_per_op:13.3f}   "
-                f"{int(w_retrans):2d} ({w_retrans_percent:2.1f}%)"
-                f"{w_rtt_per_op:15.3f}"
-                f"{w_exe_per_op:15.3f}"
-                f"{w_queued_for_per_op:17.3f}   "
-                f"{int(writeerrors[name]):4d} ({w_errs_percent:2.1f}%)"
+                f"{_fmt_float(ops_per_sample_write, 11)}"
+                f"{_fmt_float(w_kilobytes_per_sample, 12)}"
+                f"{_fmt_float(w_kilobytes_per_op, 13)}"
+                f"{_fmt_count_percent(w_retrans, w_retrans_percent, 16)}"
+                f"{_fmt_float(w_rtt_per_op, 15)}"
+                f"{_fmt_float(w_exe_per_op, 15)}"
+                f"{_fmt_float(w_queued_for_per_op, 17)}"
+                f"{_fmt_count_percent(writeerrors[name], w_errs_percent, 14)}"
             )
             print()
 
-    def print_report(self,group,timestamp, manager_nfsiostat):
+    def get_timestamp(self, group):
+        t_s = group.contextCache.pmLocaltime(int(group.timestamp))
+        timestamp = time.strftime(NfsiostatOptions.timefmt, t_s.struct_time())
+        return timestamp
+
+    def print_report(self, manager_nfsiostat, mgr):
         def __print_nfs_status():
-            nfsstatus = NfsioStatUtil(manager_nfsiostat)
-            if nfsstatus.mount_share():
+            timestamp = self.get_timestamp(manager_nfsiostat)
+            nfs = NfsioStatUtil(manager_nfsiostat)
+            if nfs.report.current_value("nfsclient.export"):
                 try:
-                    self.__print_machine_info(group)
-                    self.__print_values(timestamp, nfsstatus)
+                    if self.machine_info_count == 0:
+                        self.__print_machine_info(manager_nfsiostat)
+                        self.machine_info_count = 1
+                    current = self.__collect(nfs)
+                    delta = self.__delta(current, nfs)
+                    self.__print_values(timestamp, delta)
+
                 except IndexError:
                     print("Incorrect machine info due to some missing metrics")
                 return
@@ -292,51 +368,59 @@ class NfsiostatReport(pmcc.MetricGroupPrinter):
 
         if self.context != PM_CONTEXT_ARCHIVE and self.samples is None:
             __print_nfs_status()
-            sys.exit(0)
         elif self.context == PM_CONTEXT_ARCHIVE and self.samples is None:
             __print_nfs_status()
-        elif self.samples >=1:
+        elif self.samples >= 1:
             __print_nfs_status()
-            self.samples-=1
+            self.samples -= 1
         else:
             pass
 
     def report(self, manager):
-        group = manager["sysinfo"]
         self.samples = self.opts.pmGetOptionSamples()
-        t_s = group.contextCache.pmLocaltime(int(group.timestamp))
-        timestamp = time.strftime(NfsiostatOptions.timefmt, t_s.struct_time())
-        self.print_report(group,timestamp,manager['nfsiostat'])
+        self.print_report(manager["nfsiostat"], manager)
+
 
 class NfsiostatOptions(pmapi.pmOptions):
     timefmt = "%m/%d/%Y %H:%M:%S"
+
     def __init__(self):
-        pmapi.pmOptions.__init__(self, "a:s:Z:zV?")
+        pmapi.pmOptions.__init__(self, "a:h:O:S:s:T:t:VZ:z?")
         self.pmSetLongOptionHeader("General options")
+        self.pmSetLongOptionHost()
         self.pmSetLongOptionHostZone()
         self.pmSetLongOptionTimeZone()
-        self.pmSetLongOptionHelp()
+        self.pmSetLongOptionArchive()
+        self.pmSetLongOptionOrigin()
+        self.pmSetLongOptionStart()
         self.pmSetLongOptionSamples()
+        self.pmSetLongOptionFinish()
+        self.pmSetLongOptionInterval()
+        self.pmSetLongOptionHelp()
         self.pmSetLongOptionVersion()
-        self.samples=None
-        self.context=None
+        self.context = None
+        self.samples = None
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     try:
         opts = NfsiostatOptions()
-        mngr = pmcc.MetricGroupManager.builder(opts,sys.argv)
-        opts.context=mngr.type
+        mngr = pmcc.MetricGroupManager.builder(opts, sys.argv)
+        opts.context = mngr.type
+
         missing = mngr.checkMissingMetrics(ALL_METRICS)
         if missing is not None:
-            sys.stderr.write('Error: not all required metrics are available\nMissing %s\n' % missing)
+            sys.stderr.write(
+                "Error: not all required metrics are available\nMissing %s\n"
+                % missing
+            )
             sys.exit(1)
         mngr["nfsiostat"] = ALL_METRICS
-        mngr["sysinfo"] = SYS_METRICS
-        mngr.printer = NfsiostatReport(opts,mngr)
+        mngr.printer = NfsiostatReport(opts, mngr)
         sts = mngr.run()
         sys.exit(sts)
     except pmapi.pmErr as error:
-        sys.stderr.write('%s\n' % (error.message()))
+        sys.stderr.write("%s\n" % (error.message()))
     except pmapi.pmUsageErr as usage:
         usage.message()
         sys.exit(1)
