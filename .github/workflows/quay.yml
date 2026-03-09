@@ -46,7 +46,7 @@ jobs:
           tags: type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push base image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./build/containers/pcp/Containerfile
@@ -56,7 +56,7 @@ jobs:
           platforms: ${{ env.PLATFORMS }}
 
       - name: Build and push archive-analysis image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: ./build/containers/archive-analysis/Containerfile
