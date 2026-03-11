@@ -77,10 +77,12 @@ _check_file()
 	    # end
 	    mv $tmp.tmp $tmp.out
 	    ;;
-	"$HOME"/.pki/nssdb/*.db)
-	    # nothing to see inside these database files
-	    #
-	    rm -f $tmp.out
+	"$PCP_SYSCONFIG_DIR"/pmcd)
+	    # we default to local now so this is common in QA
+	    sed <$tmp.out >$tmp.tmp \
+		-e '/^#PCP QA#/d' \
+	    # end
+	    mv $tmp.tmp $tmp.out
 	    ;;
 	"$PCP_TMP_DIR"/pmproxy/*)
 	    # most of these are PCP mmap'd files, in which case a match
@@ -246,7 +248,6 @@ fi
 for arg in \
     /etc/hosts \
     /etc/zabbix/zbxpcp-derived-metrics.conf \
-    '$HOME'/.pki/nssdb \
     '$PCP_ETC_DIR/pcp/labels' \
     '$PCP_ETC_DIR/pcp/pmlogger' \
     '$PCP_PMCDCONF_PATH' \
