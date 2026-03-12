@@ -25,7 +25,8 @@ usage='Usage: man-spell [-de] filename ...
 
 Options:
  -d	debug
- -e	emit .\" +ok+  control lines'
+ -e	emit .\" +ok+  control lines
+ -f     force even if filename is not troff source'
 
 LC_COLATE=POSIX; export LC_COLATE
 
@@ -58,13 +59,16 @@ _istroff()
 
 debug=0
 emit=false
-while getopts "de?" c
+force=false
+while getopts "def?" c
 do
     case $c
     in
 	d)	debug=`expr $debug + 1`
 		;;
 	e)	emit=true
+		;;
+	f)	force=true
 		;;
 	?)	echo >&2 "$usage"
 		exit
@@ -2510,7 +2514,7 @@ do
 	echo "Error: input file $file not found"
 	exit 1
     fi
-    if _istroff "$file"
+    if $force || _istroff "$file"
     then
 	:
     else
@@ -2755,6 +2759,8 @@ skip == 0			{ print }'
 	# e.g. it does not trip up over \*(Bz but \n(Az and \n+(Az
 	# .ds Bz ... and .nr Az and .ds ] ...  cause problems
 	# and groff extended string notation \[foo]
+	# and for markup files, some special characters confuse the
+	# word delimiting for ispell
 	#
 	sed <$tmp.in >$tmp.tmp \
 	    -e "s/^[.'][ 	]*ds [A-Za-z][A-Za-z]//" \
@@ -2770,6 +2776,7 @@ skip == 0			{ print }'
 	    -e "s/\\n+([A-Za-z][A-Za-z]//"g \
 	    -e "s/\\n-([A-Za-z][A-Za-z]//"g \
 	    -e 's/\\\[[A-Za-z][A-Za-z]*]//g' \
+	    -e 's/[*]//g' \
 	# end
 	mv $tmp.tmp $tmp.in
 	grep ' ds ' <$tmp.in
