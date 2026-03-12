@@ -1,0 +1,107 @@
+#!/bin/sh
+# PCP QA Test No. 1922
+# Exercise pmproxy REST API /series/values endpoint with negative
+# relative time offsets (e.g. start=-30s).  This is the end-to-end
+# integration test for the series/values time parsing fix
+# (GitHub issue #2503).
+#
+# Without the fix, pmproxy crashes or disconnects when it receives
+# a negative relative offset.  With the fix, it returns an empty
+# array (the archive data is from 2017, so -30s finds nothing).
+#
+# Copyright (c) 2024 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+. ./common.keys
+
+_check_series
+which curl >/dev/null 2>&1 || _notrun "curl not installed"
+
+_cleanup()
+{
+    cd $here
+    [ -n "$pmproxy_pid" ] && $signal -s TERM $pmproxy_pid
+    [ -n "$options" ] && $keys_cli $options shutdown
+    if $need_restore
+    then
+	need_restore=false
+        _restore_config $PCP_SYSCONF_DIR/pmproxy
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+signal=$PCP_BINADM_DIR/pmsignal
+
+username=`id -u -n`
+hostname=`hostname`
+
+need_restore=false
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_source()
+{
+    sed \
+        -e "s,$here,PATH,g" \
+        -e "s,$hostname,QAHOST,g" \
+    #end
+}
+
+_format_timestamps()
+{
+    jq '.[].timestamp |= ((. / 1000 | strftime("%Y-%m-%d %H:%M:%S")) + "." + (. * 1000 % 1000000 | tostring))'
+}
+
+# real QA test starts here
+_save_config $PCP_SYSCONF_DIR/pmproxy
+$sudo rm -f $PCP_SYSCONF_DIR/pmproxy/*
+need_restore=true
+
+echo "Start test key server ..."
+key_server_port=`_find_free_port`
+options="-p $key_server_port"
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
+echo
+
+_check_key_server_version $key_server_port
+
+# import some well-known test data into the key server
+pmseries $options --load "$here/archives/bozo-disk" | _filter_source
+
+# start pmproxy
+proxyport=`_find_free_port`
+proxyopts="-p $proxyport -r $key_server_port -t"
+pmproxy -f -U $username -x $seq_full -l $tmp.pmproxy.log $proxyopts &
+pmproxy_pid=$!
+
+# check pmproxy has started and is available for requests
+pmcd_wait -h localhost@localhost:$proxyport -v -t 5sec
+
+series1=`pmseries $options disk.all.read`
+[ -z "$series1" ] && _fail "Cannot find any timeseries matching disk.all.read"
+echo "Using series $series1 for disk.all.read"
+
+echo
+echo "== absolute timestamps (baseline)" | tee -a $seq_full
+url="http://localhost:$proxyport/series/values?series=$series1&start=1489620673&finish=1489620793"
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tr -d '\r' | tee -a $seq_full | _format_timestamps
+
+echo
+echo "== negative relative offset start=-30s" | tee -a $seq_full
+url="http://localhost:$proxyport/series/values?series=$series1&start=-30s"
+echo "$url" >> $seq_full
+curl --get --silent "$url" | tr -d '\r' | tee -a $seq_full
+
+cat $tmp.pmproxy.log >> $seq_full
+status=0
+exit
