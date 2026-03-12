@@ -1,0 +1,525 @@
+#!/bin/sh
+#
+# rewriter to address short-comings of markdown (.md)
+#
+# - renumber # N and ## N.M Headings
+#
+# - Table of Contents generated from Headings
+#   Table of Contents appears in the # Table of Contents section and
+#   this Heading must already exist.
+#
+# - the Index is generated from existing embedded index citations of
+#   the form <a id="idx+{ident}">{entry}</a> (all on the same line)
+#   where {ident} is either {tag} (for the General Index) or {list}+{tag}
+#   (for one of the optional Indices) and {entry} is a word or phrase
+#   to appear *both* in the document and the Index.
+#   {list} and {tag} should be constructed from the conservative
+#   character set [a-zA-Z0-9._+-] to avoid possible "special" interpretation
+#   by some renderers.
+#   For the optional indices some additional format specification
+#   needs to be embedded like this to define the Index order and the
+#   mapping from {list} to a text string to be used in the Index:
+#      <!--idxctl
+#      General Index|Index One|Index Two
+#      !|one|two
+#      -->
+#   where ! is required for the position of the General Index.
+#
+
+_usage()
+{
+    echo >&2 "Usage: fix-md [options] [infile]"
+    echo >&2 "Options:"
+    echo >&2 " -a	all changes, so -r, -t and -i [this is the default]"
+    echo >&2 " -c N	columns for Index (1..9) [default: 4]"
+    echo >&2 " -i	build|replace Index"
+    echo >&2 " -n	show me diffs"
+    echo >&2 " -o	overwrite infile"
+    echo >&2 " -r	renumber headings with numeric prefix"
+    echo >&2 " -t	build|replace Table of Contents"
+    echo >&2 " -v	verbose"
+    echo >&2 " -x	exit status only, 0 for no changes to be made"
+}
+
+_check()
+{
+    rm -f $tmp.done
+    [ -s $tmp.error ] && touch $tmp.done
+    for suff in error warn debug
+    do
+	if [ -s $tmp.$suff ]
+	then
+	    cat >&2 $tmp.$suff
+	    rm -f $tmp.$suff
+	fi
+    done
+    [ -f $tmp.done ] && exit
+}
+
+#tmp=/tmp/fix-md-$$
+sts=0
+#trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+tmp=tmp
+trap "exit \$sts" 0 1 2 3 15
+
+rm -f $tmp.*
+
+statusonly=false
+index=false
+numcol=4
+showme=false
+overwrite=false
+toc=false
+renumber=false
+verbose=false
+exitonly=false
+while getopts 'ac:inortvx?' p
+do
+    case "$p"
+    in
+	a)	renumber=true
+		toc=true
+		index=true
+		;;
+	c)	numcol=$OPTARG
+		case "$ncol"
+		in
+		    [0-9])
+		    	;;
+		    *)
+		    	echo >&2 "Error: illegal value ($numcol) for -c option"
+			sts=1
+			exit
+			;;
+		esac
+		;;
+	i)	index=true
+		;;
+	n)	showme=true
+		;;
+	o)	overwrite=true
+		;;
+	r)	renumber=true
+		;;
+	v)	verbose=true
+		;;
+	x)	exitonly=true
+		;;
+	?)	_usage
+		exit
+		;;
+    esac
+done
+shift `expr $OPTIND - 1`
+if [ $# -eq 0 ]
+then
+    # filter, no infile
+    if $overwrite
+    then
+	echo 2>&1 "Error: -o requires infile command line argument"
+	sts=1
+	exit
+    fi
+    cat >$tmp.in
+    set -- $tmp.in
+elif [ $# -ne 1 ]
+then
+    _usage
+    sts=1
+    exit
+fi
+
+if $overwrite && $exitonly
+then
+    echo 2>&1 "Error: -o and -x are mutually exclusive"
+    sts=1
+    exit
+fi
+
+if [ ! -f "$1" ]
+then
+    echo >&2 "$1: cannot open"
+    sts=1
+    exit
+fi
+
+if ! $renumber && ! $toc && ! $index
+then
+    # do everything
+    #
+    renumber=true
+    toc=true
+    index=true
+fi
+
+# do Heading renumbering first
+#
+if ! $renumber
+then
+    cat "$1" >$tmp.md
+else
+    awk <"$1" >$tmp.md '
+/^# / && $2 ~ /[0-9]/	{ if ($2 != ++l1) {
+			    print "'"$1"'[" NR "] Info: Heading renumbered from " $2 " to " l1 >"'$tmp.debug'"
+			    $2 = l1
+			  }
+			  l2 = 0
+			}
+/^## / && $2 ~ /[0-9]/	{ if ($2 != l1 "." ++l2) {
+			    print "'"$1"'[" NR "] Info: Heading renumbered from " $2 " to " l1 "." l2 >"'$tmp.debug'"
+			    $2 = l1 "." l2
+			  }
+			}
+/^####*/		{ print "'"$1"'[" NR "] Warning: no renumbering support for more than 2 levels of Heading" >"'$tmp.warn'" }
+			{ print }
+'
+fi
+_check
+
+# TOC
+#
+if $toc
+then
+    if grep -iq '^# table of contents$' <$tmp.md
+    then
+	awk <$tmp.md >$tmp.tmp '
+# anchor()
+# turn Heading text into something to be used in an HTML <a id="...">
+# anchor
+# - map to lowercase
+# - remove #, ##, #... and any initial heading number
+# - remove <...> inline HTML
+# - remove * and \
+# - map spaces to -
+function anchor(text) {
+    tmp = tolower(text)
+    gsub(/^##*  *[0-9][0-9.]*  */,"",tmp)
+    gsub(/^##*  */,"",tmp)
+    gsub(/<[^>]*>/,"",tmp)
+    gsub(/[*\\]/,"",tmp)
+    gsub(/  */,"-",tmp)
+    return tmp
+}
+
+tolower($0) ~ /^# table of contents$/	{ # marker for TOC, cull old TOC if any
+			  print
+			  skip = 1
+			  next
+			}
+skip == 1 && NF == 0	{ skip = 0 }
+skip == 1		{ next }
+/^<a id="/		{ if ($2 !~ /^name="idx+/) {
+			    # not an index citation
+			    save_a = $0
+			    next
+			  }
+			}
+/^##* /			{ if (onetrip == 0) {
+			    # assume first Header is not in TOC
+			    onetrip = 1
+			    print
+			    next
+			  }
+			  # convert header title to anchor
+			  a = anchor($0)
+			  if (a == "")
+			    print "'"$1"'[" NR "] Warning: failed to extract anchor from Heading: $0" >"'$tmp.warn'"
+			  else {
+			    # emit TOC line
+			    if ($1 == "#")
+			      pre = ""
+			    else
+			      pre = "&nbsp;&nbsp;&nbsp;"
+			    entry = $0
+			    # strip # marker
+			    gsub(/^##* */,"",entry)
+			    # and any inline HTML
+			    gsub(/<[^>]*>/,"",entry)
+			    print "<br>" pre "[" entry "](#" a ")" >"'$tmp.toc'"
+			    # force anchor *before* header
+			    if (save_a == "") {
+			      # add new anchor
+			      print "'"$1"'[" NR "] Info: anchor added: " a >"'$tmp.debug'"
+			    }
+			    else if (save_a != "<a id=\"" a "\"></a>") {
+			      # anchor changed, replace it
+			      old = save_a
+			      gsub(/^<a id="/,"",old)
+			      gsub(/"><\/a>/,"",old)
+			      print "'"$1"'[" NR "] Warning: anchor changed from " old " to " a >"'$tmp.warn'"
+			    }
+			    print "<a id=\"" a "\"></a>"
+			  }
+			  save_a = ""
+			}
+			{ print }'
+	_check
+	if [ -f $tmp.toc ]
+	then
+	    mv $tmp.tmp $tmp.md
+	    awk <$tmp.md >$tmp.tmp '
+					{ print }
+tolower($0) ~ /^# table of contents$/	{ exit }'
+	    cat $tmp.toc >>$tmp.tmp
+	    awk <$tmp.md >>$tmp.tmp '
+BEGIN					{ skip = 2 }
+tolower($0) ~ /^# table of contents$/	{ skip = 1; next }
+skip == 1 && NF == 0			{ skip = 0 }
+skip == 0				{ print }'
+	    mv $tmp.tmp $tmp.md
+	else
+	    echo "$1: Warning: no Heading lines, so no TOC"
+	    mv $tmp.tmp $tmp.md
+	fi
+    else
+	echo "$1: Warning: no \"# Table of contents\" (or similar) Heading, so don't know where to insert TOC"
+    fi
+fi
+
+LC_LOCALE=C
+export LC_LOCALE
+
+# Index
+#
+# Citations are of the form <a id="idx+{ident}">{entry}</a> (all on the
+# same line) where {ident} is either {tag} or {list}+{tag}
+#
+if $index
+then
+    # get each index citation on a line by itself
+    #
+    nl -ba <"$1" \
+    | sed -n -E -e '/<a id="idx+/{
+s/<a id="idx+/\n&/g
+p
+}' \
+    | awk >$tmp.tmp '
+/<a id="idx+/	{ print lineno,$0; next }
+		{ lineno = $1 }'
+
+    # missing </a> is a bad index citation ... drop 'em
+    #
+    if grep -v '</a>' <$tmp.tmp >$tmp.bad
+    then
+	sed <$tmp.bad -e "s/^/$1[/" -e 's/ <a id="/] Warning: index citation </' -e 's/".*/> missing <\/a>, not indexed/'
+	grep '</a>' <$tmp.tmp >$tmp.ok
+	mv $tmp.ok $tmp.tmp
+    fi
+
+    # {ident} should only contain a limited character set [a-zA-Z0-9.+_-]
+    #
+    sed <$tmp.tmp -e 's/ *<a id="idx+/ /' -e 's/">.*//' \
+    | awk >$tmp.warn '
+NF == 2	{ bad = ""
+	  for (i = 1; i <= length($2); i++) {
+	    c = substr($2, i, 1)
+	    if (c >= "a" && c <= "z") continue
+	    if (c >= "A" && c <= "Z") continue
+	    if (c >= "0" && c <= "9") continue
+	    if (c == "." || c == "+" || c == "-" || c == "_") continue
+	    bad = bad c
+	  }
+	  if (bad != "")
+	    print "'"$1"'[" $1 "] Warning: index citation <idx+" $2 "> contains doubtful characters (" bad ")"
+	}'
+    _check
+
+    # at this point we have good lines like this for each index entry ...
+    # {lineno} <a id="idx+{ident}">{entry}</a>...
+    # so turn this into a (<tab> separated) file of index citations with
+    # lines like:
+    # {lineno}	{list}	{tag}	{entry}
+    #
+    sed -E <$tmp.tmp \
+	-e 's/ /	/' \
+	-e 's/<a id="//' \
+	-e 's/">/	/' \
+	-e 's;</a>.*;;' \
+	-e 's/\\\*//g' \
+	-e 's/[*]//g' \
+	-e 's//\\*/g' \
+	-e 's/idx\+([^+]*	)/!	\1/' \
+	-e 's/idx\+([^+]*)\+([^+]*	)/\1	\2/' \
+    | sort >$tmp.idx -t '	' -k 2,2 -k 3,3 -k 1,1n
+
+    if $verbose
+    then
+	echo >&2 "Info: index citations"
+	echo >&2 "lineno	list	tag	entry"
+	echo >&2 "---	---	---	---"
+	cat >&2 $tmp.idx
+    fi
+
+    # check for duplicate anchors ... sorting in previous step means
+    # adjacent {tag} entries may be the same, but from different lists
+    #
+    awk <$tmp.idx >$tmp.tmp '
+BEGIN		{ lasttag = ""; lastlist = "" }
+$2 == lastlist && $3 == lasttag	{ # we have a problem Houston
+		    if ($2 == "!")
+			print "'"$1"'[" lastlineno "," $1 "] Warning: index citation <" $3 "> redefined, second one not indexed " >"'$tmp.warn'"
+		    else
+			print "'"$1"'[" lastlineno "," $1 "] Warning: index citation <" $2 "+" $3 "> redefined, second one not indexed " >"'$tmp.warn'"
+		    next
+		}
+		{ lasttag = $3
+		  lastlist = $2
+		  lastlineno = $1
+		  print
+		}'
+    _check
+    mv $tmp.tmp $tmp.idx
+
+    # expect something like this (a HTML comment) in the input ...
+    # First row is table headings, second is sort tags
+    # <!--idxctl
+    # |General|Commands and Scripts|Shell Functions|Shell Varialbles|
+    # |!|cmds|funcs|cmds|
+    # -->
+    #
+    awk -F '|' <$tmp.md >$tmp.map '
+/^<!--idxctl/	{ inctl = 1; next }
+inctl == 1	{ for (i = 1; i <= NF; i++) label[i] = $i
+		  inctl++
+		  next
+		}
+inctl == 2	{ if (NF != length(label)) {
+		    print "'"$1"'[" NR "] Error: idxctl: number of Labels (" length(label) ") != number of lists (" NF ")" >"'$tmp.error'"
+		    exit
+		  }
+		  bad = 0
+		  for (i = 1; i <= NF; i++) {
+		    for (j = i+1; j <= NF; j++) {
+			if ($i == $j) {
+			    print "'"$1"'[" NR "] Error: idxctl: list \"" $i "\" appears more than once" >"'$tmp.error'"
+			    bad = 1
+			}
+		    }
+		  }
+		  if (bad) exit
+		  for (i = 1; i <= NF; i++) {
+		    print $i "	" label[i]
+		  }
+		  exit
+		}'
+    _check
+
+    if $verbose
+    then
+	echo >&2 "Info: index map"
+	echo >&2 "list	label"
+	echo >&2 "---	---"
+	cat >&2 $tmp.map
+    fi
+
+    # TODO default map (just general index)
+
+    # sort index on "word or phrase"
+    #
+    sort -k 4,4 -o $tmp.idx $tmp.idx 
+
+    # generate full index, sorted by index tag in $tmp.map
+    # entries in $tmp.rawidx look like:
+    # {lineno}	{list}	{tag}	{entry}
+    #
+    cp $tmp.idx $tmp.togo
+    i=1
+    while true
+    do
+	ctl=`sed -n -e "${i}p" <$tmp.map`
+	[ -z "$ctl" ] && break
+	list=`echo "$ctl" | sed -e 's/	.*//'`
+	label=`echo "$ctl" | sed -e 's/.*	//'`
+	awk -F '	' <$tmp.idx >>$tmp.rawidx '
+$2 == "'$list'"	{ if (onetrip == 0) {
+		    # only emit label if there is at least one
+		    # matching index entry
+		    print "|**'"$label"'**"
+		    onetrip = 1
+		  }
+		  if ($2 == "!") {
+		    # General index (idx+tag)
+		    print "|[" $4 "](#idx+" $3 ")"
+		  }
+		  else {
+		    # other index (idx+list+tag)
+		    print "|[" $4 "](#idx+" $2 "+" $3 ")"
+		  }
+		  next
+		}'
+	awk <$tmp.togo >$tmp.tmp '
+$2 == "'$list'"	{ next }
+		{ print }'
+	mv $tmp.tmp $tmp.togo
+	i=`expr $i + 1`
+    done
+
+    if [ -s $tmp.togo ]
+    then
+	awk <$tmp.togo '
+     { print "'"$1"'[" $1 "] Warning: unknown list (" $2 ") in index citation" }'
+    fi
+
+    # now turn full index into multi-column table
+    #
+    nument=`wc -l <$tmp.rawidx | sed -e 's/ //g'`
+    numlabel=`wc -l <$tmp.map | sed -e 's/ //g'`
+    entpercol=`expr \( $nument + $numlabel + $numcol - 1 \) / $numcol`
+    if $verbose
+    then
+	echo >&2 "Info: index entries: $nument (across $numlabel index lists, $entpercol entries per column)"
+    fi
+
+    awk <$tmp.rawidx '
+BEGIN	{ want = '"$entpercol"'; ent = 0; col = 1 }
+/^\|[^[]/{ lastlabel = $0
+	  sub(/\**$/," ...&",lastlabel)
+	}
+	{ print >"'"$tmp."'" col
+	  if (NR == 1) print "|---" >"'"$tmp."'" col
+	  ent++
+	  if (ent == want) {
+	    col++
+	    print lastlabel >"'"$tmp."'" col
+	    print "|---" >"'"$tmp."'" col
+	    ent = 1
+	  }
+	}'
+
+    # cull from # Index heading to end of file
+    #
+    awk <$tmp.md >$tmp.tmp '
+$1 == "#" && $2 == "Index" && NF == 2	{ exit }
+					{ print }'
+
+    # append new Index
+    #
+    echo "# Index" >>$tmp.tmp
+    echo "" >>$tmp.tmp
+    paste $tmp.[0-9] | sed -e 's/	//g' -e 's/$/|/' >>$tmp.tmp
+    mv $tmp.tmp $tmp.md
+fi
+
+diff "$1" $tmp.md >$tmp.diff
+
+if [ -s $tmp.diff ]
+then
+    # something changed ...
+    #
+    if $showme
+    then
+	cat $tmp.diff
+    elif $exitonly
+    then
+	sts=1
+    elif $overwrite
+    then
+	rm -f "$1.orig"
+	mv "$1" "$1.orig"
+	echo "$1: original saved in $1.orig"
+	mv $tmp.md "$1"
+    else
+	cat $tmp.md
+    fi
+fi
+
