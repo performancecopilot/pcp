@@ -2298,7 +2298,9 @@ telnet-probe
 1912 pmie local
 1913 pmie local valgrind
 1914 atop local
+1920 libpcp_web local
 1921 pmda.sockets local
+1922 pmseries pmproxy libpcp_web local
 1927 pmda.sockets local
 1931 pmda.bpf local
 1936 other local pmclient
