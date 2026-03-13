@@ -17,9 +17,9 @@ pcp_numastat="$PCP_BINADM_DIR/pcp-numastat"
 test -x $pcp_numastat || _notrun "No pcp-numastat(1) installed"
 pcp_numastat="$python $pcp_numastat"
 
-archive1="$here/archives/pcp-numastat-1-node"
-archive2="-a $here/archives/pcp-numastat-1-node -z"
-archive3="-a $here/archives/numa -z"
+archive3="-a $here/archives/pcp-numastat-8-node"
+#archive2="-a $here/archives/pcp-numastat-1-node -z"
+archive1="$here/archives/numa"
 
 # real QA test starts here
 echo && echo 1 node numastat output, at archive start, cmd width
@@ -35,19 +35,31 @@ echo && echo 1 node numastat output with optin -n, at archive start, cmd width
 PCP_ARCHIVE="$archive1" PCP_HOSTZONE=1 PCP_ORIGIN=-1 $pcp_numastat -n --width=64
 
 echo && echo 1 node numastat output, at archive end, cmd width
-pcp $archive2 -O-1 numastat --width=64
+pcp $archive3 -O-1 numastat --width=64
 
 echo && echo 4 node numastat output, at archive end, large env width
-NUMASTAT_WIDTH=1000 pcp $archive3 -O-1 numastat
+NUMASTAT_WIDTH=1000 pcp $archive3 -O-1 numastat  
 
 echo && echo 4 node meminfo and  numastat output with option -mn, at archive end, large env width
 NUMASTAT_WIDTH=1000 pcp $archive3 -O-1 numastat -mn
 
 echo && echo 4 node numastat output, at archive end, small env width
-NUMASTAT_WIDTH=50 pcp $archive3 -O-1 numastat
+NUMASTAT_WIDTH=50 pcp $archive3 -O-1 numastat 
 
 echo && echo 4 node meminfo and numastat output with option -mn, at archive end, small env width
 NUMASTAT_WIDTH=50 pcp $archive3 -O-1 numastat -mn
+
+echo && echo 8 node process output with option -p, at archive end with multiple pids
+pcp $archive3 -O-2 numastat -p 1 2
+
+echo && echo 8 node process output with option -p, at archive end with single process name
+pcp $archive3 -O-1 numastat -p systemd
+
+echo && echo 8 node process output with option -p, at archive end with single pid
+pcp $archive3 -O-2 numastat -p 1
+
+echo && echo 8 node process output with option -p, at archive end with single pid
+pcp $archive3 -O-2 numastat -p 1 dbus -w 1
 
 # success, all done
 status=0

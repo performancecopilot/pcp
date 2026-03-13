@@ -74,8 +74,9 @@
 #define CLUSTER_HOTPROC_PID_FDINFO	78 /* /proc/<pid>/fdinfo */
 #define CLUSTER_PID_DELAYACCT   	79 /* libnl (netlink) stats */
 #define CLUSTER_HOTPROC_PID_DELAYACCT   80 /* libnl (netlink) stats */
+#define CLUSTER_PID_NUMA_MAPS		81 /* /proc/<pid>/numa_maps */
 
 #define MIN_CLUSTER  8		/* first cluster number we use here */
-#define MAX_CLUSTER 81		/* one more than highest cluster number used */
+#define MAX_CLUSTER 82		/* one more than highest cluster number used */
 
 #endif /* _CLUSTERS_H */
