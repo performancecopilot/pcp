@@ -1,0 +1,88 @@
+#!/usr/bin/expect -f
+#
+# vm-verify-pcp.exp - Verify PCP services are running via console
+#
+# Usage: vm-verify-pcp.exp <port> <timeout> <services...>
+#
+# Connects to the console and checks if the specified services are active.
+# Returns exit code 0 if all services are active, 1 otherwise.
+#
+# Example:
+#   vm-verify-pcp.exp 24500 30 pmcd pmproxy pmlogger
+#
+# Environment variables:
+#   VM_USERNAME   - Login username (default: root)
+#   VM_PASSWORD   - Login password (default: pcp)
+#   EXPECT_DEBUG  - Enable expect debug mode
+#
+
+source [file dirname [info script]]/vm-lib.exp
+
+if {$argc < 3} {
+    puts "Usage: vm-verify-pcp.exp <port> <timeout> <services...>"
+    puts "Example: vm-verify-pcp.exp 24500 30 pmcd pmproxy"
+    exit 1
+}
+
+set port [lindex $argv 0]
+set timeout [lindex $argv 1]
+set services [lrange $argv 2 end]
+
+vmlib::init
+vmlib::connect $port
+vmlib::login
+
+set passed 0
+set failed 0
+
+# Check each service
+foreach service $services {
+    set result [vmlib::check_service $service]
+    switch $result {
+        "active" {
+            puts "PASS: $service is active"
+            incr passed
+        }
+        "inactive" {
+            puts "FAIL: $service is inactive"
+            incr failed
+        }
+        "failed" {
+            puts "FAIL: $service has failed"
+            incr failed
+        }
+        "activating" {
+            puts "WARN: $service is still activating"
+            incr passed
+        }
+        "timeout" {
+            puts "FAIL: $service check timed out"
+            incr failed
+        }
+    }
+}
+
+# Check pminfo metrics
+set result [vmlib::check_pminfo]
+switch $result {
+    "ok" {
+        puts "PASS: pminfo returns metrics"
+        incr passed
+    }
+    "no_pmcd" {
+        puts "FAIL: pmcd not responding"
+        incr failed
+    }
+    "timeout" {
+        puts "FAIL: pminfo timed out"
+        incr failed
+    }
+}
+
+puts ""
+puts "Results: $passed passed, $failed failed"
+
+if {$failed > 0} {
+    exit 1
+}
+exit 0

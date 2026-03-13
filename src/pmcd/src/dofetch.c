@@ -356,9 +356,8 @@ SendFetch(DomPmidList *dpList, AgentInfo *aPtr, ClientInfo *cPtr, int ctxnum)
 static int
 ExtractState(int i, void *timestamp)
 {
-    unsigned char	byte;
+    uint64_t flag = *((uint64_t *) timestamp);
 
-    memcpy(&byte, timestamp, sizeof(unsigned char));
     /*
      * integrity checks on the state change ...
      * - only 7 bits defined in pmapi.h (so max value is 0x3f)
@@ -366,30 +365,30 @@ ExtractState(int i, void *timestamp)
      *   are set by pmcd, not a PMDA)
      * - ditto for the PMCD_HOSTNAME_CHANGE bit
      */
-    if (byte > 0x3f ||
-        (byte & PMCD_AGENT_CHANGE) ||
-	(byte & PMCD_HOSTNAME_CHANGE)) {
+    if (flag > 0x3f ||
+        (flag & PMCD_AGENT_CHANGE) ||
+	(flag & PMCD_HOSTNAME_CHANGE)) {
 	/*
 	 * mapping to at most PMCD_LABEL_CHANGE | PMCD_NAMES_CHANGE
 	 * is probably not right (the PMDA is broken), but this is a
 	 * pretty harmless state change for upstream clients,
 	 * e.g. won't kill pmlogger!
 	 */
-	unsigned char	new_byte = byte & (PMCD_LABEL_CHANGE | PMCD_NAMES_CHANGE);
+	unsigned char	new_flag = flag & (PMCD_LABEL_CHANGE | PMCD_NAMES_CHANGE);
 
 	pmNotifyErr(LOG_WARNING,
-	    "ExtractState: \"%s\" agent returned a bogus state change (0x%x) modified to 0x%x\n",
-	    agent[i].pmDomainLabel, byte, new_byte);
-	byte = new_byte;
+	    "ExtractState: \"%s\" agent returned a bogus state change (0x%lx) modified to 0x%x\n",
+	    agent[i].pmDomainLabel, flag, new_flag);
+	flag = new_flag;
     }
 
-    if (byte != 0 && pmDebugOptions.appl6) {
+    if (flag != 0 && pmDebugOptions.appl6) {
 	fprintf(stderr, "ExtractState: %s agent (dom %d) set ", agent[i].pmDomainLabel, agent[i].pmDomainId);
-	__pmDumpFetchFlags(stderr, byte);
+	__pmDumpFetchFlags(stderr, flag);
 	fputc('\n', stderr);
     }
 
-    return (int)byte;
+    return (int)flag;
 }
 
 /*

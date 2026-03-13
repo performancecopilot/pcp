@@ -323,7 +323,7 @@ in
 	    exit 1
 	fi
 	cd pcp-$buildversion/build/rpm
-	if sudo rpm -U --force `./cherrypick 2>$tmp.err` >$tmp.out 2>&1
+	if sudo rpm --nosignature -U --force `./cherrypick 2>$tmp.err` >$tmp.out 2>&1
 	then
 	    cat $tmp.out >>$HOME/daily.log
 	    cat $tmp.err >>$HOME/daily.log

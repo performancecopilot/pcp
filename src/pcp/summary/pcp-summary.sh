@@ -60,12 +60,19 @@ _plural()
 
 _fmt()
 {
-    if [ "$PCP_PLATFORM" = netbsd ]
+    if fmt -g 64 -w 64 </dev/null >/dev/null 2>&1
     then
-	fmt -g 64 -m 65
+	# GNU fmt(1) with -g
+	__args='-g 64 -w 64'
+    elif fmt 64 64 </dev/null >/dev/null 2>&1
+    then
+	# FreeBSD fmt(1) with goal [maximum]
+	__args='64 64'
     else
-	fmt -w 64
-    fi \
+	# don't know, punt on original fmt(1)
+	__args='-w 64'
+    fi
+    fmt $__args \
     | tr -d '\r' | tr -s '\n' | $PCP_AWK_PROG '
 NR > 1	{ printf "           %s\n", $0; next }
 	{ print }'

@@ -2181,14 +2181,6 @@ rm -f $DIST_MANIFEST $DIST_TMPFILES
 
 PCP_GUI='pmchart|pmconfirm|pmdumptext|pmmessage|pmquery|pmsnap|pmtime'
 
-%if 0%{?rhel} || 0%{?fedora}
-# Fedora and RHEL default local only access for pmcd, pmproxy and pmlogger
-if [ "$1" -eq 1 ]
-then
-    sed -i -e '/^# .*_LOCAL=1/s/^# //' $RPM_BUILD_ROOT/$PCP_SYSCONFIG_DIR/{pmcd,pmproxy,pmlogger}
-fi
-%endif
-
 PCP_CONF=$BACKDIR/src/include/pcp.conf
 export PCP_CONF
 . $BACKDIR/src/include/pcp.env

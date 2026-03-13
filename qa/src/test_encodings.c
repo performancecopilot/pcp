@@ -14,6 +14,7 @@
 
 #include <stdlib.h>
 #include <stdarg.h>
+#include <unistd.h>
 #include <setjmp.h>
 #include <cmocka.h>
 #include <pcp/pmapi.h>
@@ -107,5 +108,9 @@ int main(void)
         cmocka_unit_test(test_urldecode_invalid),
         cmocka_unit_test(test_base64_basic),
     };
+
+    /* some versions of libcmocka mix stdout and stderr ... whack that */
+    dup2(STDOUT_FILENO, STDERR_FILENO);
+
     return cmocka_run_group_tests(tests, NULL, NULL);
 }

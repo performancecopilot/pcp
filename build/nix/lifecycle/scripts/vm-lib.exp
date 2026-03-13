@@ -1,0 +1,172 @@
+#!/usr/bin/expect -f
+#
+# vm-lib.exp - Shared library for MicroVM console scripts
+#
+# Source this file from other scripts:
+#   source [file dirname [info script]]/vm-lib.exp
+#
+# Environment variables:
+#   VM_USERNAME   - Login username (default: root)
+#   VM_PASSWORD   - Login password (default: pcp)
+#   EXPECT_DEBUG  - Enable expect debug mode (exp_internal 1)
+#
+
+namespace eval vmlib {
+    # Configuration
+    variable prompt_pattern "root@pcp-.*:.*#"
+    variable wake_delay 0.5
+    variable debug 0
+
+    # Initialize library - call this at script start
+    proc init {} {
+        variable debug
+        if {[info exists ::env(EXPECT_DEBUG)] && $::env(EXPECT_DEBUG) ne ""} {
+            set debug 1
+            exp_internal 1
+        }
+    }
+
+    # Safe credential retrieval from environment
+    proc get_credentials {} {
+        set username "root"
+        set password "pcp"
+        if {[info exists ::env(VM_USERNAME)] && $::env(VM_USERNAME) ne ""} {
+            set username $::env(VM_USERNAME)
+        }
+        if {[info exists ::env(VM_PASSWORD)] && $::env(VM_PASSWORD) ne ""} {
+            set password $::env(VM_PASSWORD)
+        }
+        return [list $username $password]
+    }
+
+    # Connect to console via socat
+    proc connect {port} {
+        spawn socat -,rawer tcp:127.0.0.1:$port
+        expect {
+            "Connection refused" {
+                puts "ERROR: Connection refused on port $port"
+                exit 1
+            }
+            timeout {
+                puts "ERROR: Connection timeout on port $port"
+                exit 1
+            }
+            -re "." {
+                # Got some output, continue
+            }
+        }
+    }
+
+    # Wake console and handle login sequence
+    proc login {} {
+        variable prompt_pattern
+        variable wake_delay
+
+        lassign [get_credentials] username password
+
+        # Send newline to wake console
+        send "\r"
+        sleep $wake_delay
+
+        expect {
+            "login:" {
+                send "$username\r"
+                expect "Password:"
+                send "$password\r"
+                expect {
+                    -re $prompt_pattern {
+                        # Logged in successfully
+                    }
+                    "Login incorrect" {
+                        puts "ERROR: Login failed"
+                        exit 1
+                    }
+                    timeout {
+                        puts "ERROR: Login timeout"
+                        exit 1
+                    }
+                }
+            }
+            -re $prompt_pattern {
+                # Already logged in
+            }
+            "Welcome to NixOS" {
+                # System just booted, wait for login prompt
+                expect "login:"
+                send "$username\r"
+                expect "Password:"
+                send "$password\r"
+                expect -re $prompt_pattern
+            }
+            timeout {
+                puts "ERROR: No prompt received within timeout"
+                exit 1
+            }
+        }
+    }
+
+    # Run a command and wait for prompt
+    # Returns 1 on success, 0 on timeout
+    proc run_cmd {cmd} {
+        variable prompt_pattern
+        send "$cmd\r"
+        expect {
+            -re $prompt_pattern {
+                return 1
+            }
+            timeout {
+                puts "ERROR: Command timeout: $cmd"
+                return 0
+            }
+        }
+    }
+
+    # Run command and check output against patterns
+    # service_patterns is a dict: pattern -> {action incr_var}
+    # Returns the matched pattern or "timeout"
+    proc check_service {service} {
+        variable prompt_pattern
+        send "systemctl is-active $service\r"
+        expect {
+            "active\r" {
+                expect -re $prompt_pattern
+                return "active"
+            }
+            "inactive\r" {
+                expect -re $prompt_pattern
+                return "inactive"
+            }
+            "failed\r" {
+                expect -re $prompt_pattern
+                return "failed"
+            }
+            "activating\r" {
+                expect -re $prompt_pattern
+                return "activating"
+            }
+            timeout {
+                return "timeout"
+            }
+        }
+    }
+
+    # Run pminfo check for metrics
+    # Returns "ok", "no_pmcd", or "timeout"
+    proc check_pminfo {} {
+        variable prompt_pattern
+        send "pminfo -f kernel.all.load 2>&1 | head -3\r"
+        expect {
+            "value" {
+                expect -re $prompt_pattern
+                return "ok"
+            }
+            "No PMCD" {
+                expect -re $prompt_pattern
+                return "no_pmcd"
+            }
+            timeout {
+                return "timeout"
+            }
+        }
+    }
+}

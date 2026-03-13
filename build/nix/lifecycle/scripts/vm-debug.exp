@@ -1,0 +1,60 @@
+#!/usr/bin/expect -f
+#
+# vm-debug.exp - Run diagnostic commands on MicroVM via console
+#
+# Usage: vm-debug.exp <port> <timeout>
+#
+# Connects to the console and runs a series of diagnostic commands
+# to help debug MicroVM issues. Outputs all results to stdout.
+#
+# Environment variables:
+#   VM_USERNAME   - Login username (default: root)
+#   VM_PASSWORD   - Login password (default: pcp)
+#   EXPECT_DEBUG  - Enable expect debug mode
+#
+
+source [file dirname [info script]]/vm-lib.exp
+
+if {$argc < 2} {
+    puts "Usage: vm-debug.exp <port> <timeout>"
+    exit 1
+}
+
+set port [lindex $argv 0]
+set timeout [lindex $argv 1]
+
+vmlib::init
+vmlib::connect $port
+vmlib::login
+
+puts "\n=========================================="
+puts "  MicroVM Diagnostic Output"
+puts "==========================================\n"
+
+# Diagnostic commands
+set commands {
+    "echo '=== System Info ==='"
+    "uname -a"
+    "cat /etc/os-release | head -5"
+    "echo '=== Network ==='"
+    "ip addr show | grep -E 'inet |state '"
+    "ss -tlnp | head -10"
+    "echo '=== PCP Status ==='"
+    "systemctl is-active pmcd pmproxy pmlogger 2>/dev/null || true"
+    "pminfo --version 2>/dev/null || echo 'pminfo not available'"
+    "echo '=== Journal Errors ==='"
+    "journalctl -p err --no-pager -n 5 --no-hostname 2>/dev/null || true"
+    "echo '=== Memory ==='"
+    "free -h"
+    "echo '=== Disk ==='"
+    "df -h / /nix/store 2>/dev/null | head -5"
+}
+
+foreach cmd $commands {
+    if {![vmlib::run_cmd $cmd]} {
+        puts "WARNING: Command timed out: $cmd"
+    }
+}
+
+puts "\n==========================================\n"
+exit 0

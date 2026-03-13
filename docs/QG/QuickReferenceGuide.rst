@@ -69,7 +69,7 @@ Installing Collector Hosts
 +-----------------------------------------------------------------------+
 
 Here we enable the Performance Metrics Collector Daemon
-(`pmcd(1) <http://man7.org/linux/man-pages/man1/pmcd.1.html>`__) on the
+(`pmcd(1) <https://man7.org/linux/man-pages/man1/pmcd.1.html>`__) on the
 host which then in turn will control and request metrics on behalf of
 clients from various Performance Metrics Domain Agents (PMDAs). The
 PMDAs provide the actual data from different components (domains) in the
@@ -78,7 +78,7 @@ The default configuration includes over 1000 metrics with negligible
 overall overhead when queried. If no queries for metrics are sent to the
 agent, it doesn't do anything at all. Local PCP archives will also
 be enabled on the host for convenience with
-`pmlogger(1) <http://man7.org/linux/man-pages/man1/pmlogger.1.html>`__.
+`pmlogger(1) <https://man7.org/linux/man-pages/man1/pmlogger.1.html>`__.
 
 +-----------------------------------------------------------------------+
 | To enable PMDAs which are not enabled by default, for                 |
@@ -129,7 +129,7 @@ Note that a default configuration file (config.acme.com above) will be
 generated if it does not exist already. This process is optional (a
 custom configuration for each host can be provided instead), see the
 `pmlogconf(1) manual
-page <http://man7.org/linux/man-pages/man1/pmlogconf.1.html>`__ for
+page <https://man7.org/linux/man-pages/man1/pmlogconf.1.html>`__ for
 details on this.
 
 Dynamic Host Discovery
@@ -137,7 +137,7 @@ Dynamic Host Discovery
 
 In dynamic environments manually configuring every host is not feasible,
 perhaps even impossible. The discovery service
-(`pmfind(1) <http://man7.org/linux/man-pages/man1/pmfind.1.html>`__ can
+(`pmfind(1) <https://man7.org/linux/man-pages/man1/pmfind.1.html>`__ can
 be used to auto-discover and auto-configure new collector hosts and
 containers for logging and/or rule inference.
 
@@ -180,7 +180,7 @@ information. In the examples below **-h <host>** could be used to query
 a remote host, the default is the local host. Shell completion support
 for Bash and especially for Zsh allows completing available metrics,
 metricsets (with
-`pmrep <http://man7.org/linux/man-pages/man1/pmrep.1.html>`__), and
+`pmrep <https://man7.org/linux/man-pages/man1/pmrep.1.html>`__), and
 available command line options.
 
 Monitoring Live Performance Metrics
@@ -391,13 +391,13 @@ transfered to any machine for offline analysis.
 Visualizing iostat and sar Data
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-`iostat <http://man7.org/linux/man-pages/man1/iostat.1.html>`__ and
-`sar <http://man7.org/linux/man-pages/man1/sar.1.html>`__ data can be
+`iostat <https://man7.org/linux/man-pages/man1/iostat.1.html>`__ and
+`sar <https://man7.org/linux/man-pages/man1/sar.1.html>`__ data can be
 imported as PCP archives which then allows inspecting and visualizing
 the data with PCP tools. The
-`iostat2pcp(1) <http://man7.org/linux/man-pages/man1/iostat2pcp.1.html>`__
+`iostat2pcp(1) <https://man7.org/linux/man-pages/man1/iostat2pcp.1.html>`__
 importer is in the *pcp-import-iostat2pcp* package and the
-`sar2pcp(1) <http://man7.org/linux/man-pages/man1/sar2pcp.1.html>`__
+`sar2pcp(1) <https://man7.org/linux/man-pages/man1/sar2pcp.1.html>`__
 importer is in the *pcp-import-sar2pcp* package.
 
 +-----------------------------------------------------------------------+
@@ -481,7 +481,7 @@ be available under the namespace *hotproc*.
 Configuring processes to be monitored constantly using the *hotproc*
 namespace can be done using the configuration file
 /var/lib/pcp/pmdas/proc/hotproc.conf - see the
-`pmdaproc(1) <http://man7.org/linux/man-pages/man1/pmdaproc.1.html>`__
+`pmdaproc(1) <https://man7.org/linux/man-pages/man1/pmdaproc.1.html>`__
 manual page for details. This allows monitoring these processes
 regardless of their PIDs and also logging the metrics easily.
 
@@ -498,7 +498,7 @@ Application Instrumentation
 
 Applications can be instrumented in the PCP world by using Memory Mapped
 Values (MMVs).
-`pmdammv <http://man7.org/linux/man-pages/man1/pmdammv.1.html>`__ is a
+`pmdammv <https://man7.org/linux/man-pages/man1/pmdammv.1.html>`__ is a
 PMDA which exports application level performance metrics using memory
 mapped files. It offers an extremely low overhead instrumentation
 facility that is well-suited to long running, mission critical
@@ -519,7 +519,7 @@ Performance Metrics Inference
 =============================
 
 Performance Metrics Inference Engine
-(`pmie(1) <http://man7.org/linux/man-pages/man1/pmie.1.html>`__) can
+(`pmie(1) <https://man7.org/linux/man-pages/man1/pmie.1.html>`__) can
 evaluate rules and generate alarms, run scripts, or automate system
 management tasks based on live or past performance metrics.
 
@@ -569,8 +569,8 @@ Fast, Scalable Time Series Querying
 ===================================
 
 Performance Metrics Series
-(`pmseries(1) <http://man7.org/linux/man-pages/man1/pmseries.1.html>`__)
-works with pmlogger and key servers such as `Valkey <http://valkey.io>`__
+(`pmseries(1) <https://man7.org/linux/man-pages/man1/pmseries.1.html>`__)
+works with pmlogger and key servers such as `Valkey <https://valkey.io>`__
 to allow fast, scalable performance queries spanning multiple hosts.
 
 +-----------------------------------------------------------------------+
@@ -587,7 +587,7 @@ key servers for improved query performance, so adding more servers can
 significantly improve performance.
 
 Examples of the
-`pmseries <http://man7.org/linux/man-pages/man1/pmseries.1.html>`__
+`pmseries <https://man7.org/linux/man-pages/man1/pmseries.1.html>`__
 query language can be found on the man page. These queries can be
 executed from the command line utility, or from the
 `grafana-pcp <https://github.com/performancecopilot/grafana-pcp>`__
@@ -600,7 +600,7 @@ Performance Metrics REST APIs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Performance Metrics Proxy Daemon
-(`pmproxy(1) <http://man7.org/linux/man-pages/man1/pmproxy.1.html>`__)
+(`pmproxy(1) <https://man7.org/linux/man-pages/man1/pmproxy.1.html>`__)
 is a front-end to both PMCD and PCP archives, providing a REST API
 service (over HTTP/JSON) suitable for use by web-based tools wishing to
 access performance data over HTTP or HTTPS. Custom applications can
@@ -635,31 +635,31 @@ Derived Metrics
 PCP provides a wide range of performance metrics but still in some cases
 the readily available metrics may not exactly provide what is needed.
 Derived metrics (see
-`pmLoadDerivedConfig(3) <http://man7.org/linux/man-pages/man3/pmloadderivedconfig.3.html>`__)
+`pmLoadDerivedConfig(3) <https://man7.org/linux/man-pages/man3/pmloadderivedconfig.3.html>`__)
 may be used to extend the available metrics with new (derived) metrics
 by using simple arithmetic expressions (see
-`pmRegisterDerived(3) <http://man7.org/linux/man-pages/man3/pmregisterderived.3.html>`__).
+`pmRegisterDerived(3) <https://man7.org/linux/man-pages/man3/pmregisterderived.3.html>`__).
 
 The following example illustrates how to define corresponding metrics
 which are displayed by sar -d but are not provided by default by PCP:
 
-+-----------------------------------------------------------------------+
-| Create a file containing definitions of derived metrics               |
-| and point PCP_DERIVED_CONFIG to it when running PCP utilities::       |
-|                                                                       |
-| $ cat ./pcp-derive-metrics.conf                                       |
-|                                                                       |
-| disk.dev.avqsz = disk.dev.read_rawactive + disk.dev.write_rawactive   |
-| disk.dev.avrqsz = 2 \* rate(disk.dev.total_bytes) /                   |
-| rate(disk.dev.total)                                                  |
-| disk.dev.await = 1000 \* (rate(disk.dev.read_rawactive) +             |
-| rate(disk.dev.write_rawactive)) / rate(disk.dev.total)                |
-|                                                                       |
-| $ PCP_DERIVED_CONFIG=./pcp-derive-metrics.conf; export PCP_DERIVED_CONFIG                 |
-| $ pmval -t 2sec -f 3 disk.dev.avqsz                                   |
-| $ pmval -t 2sec -f 3 disk.dev.avrqsz -h acme.com                      |
-| $ pmval -t 2sec -f 3 disk.dev.await -a acme.com/20140902              |
-+-----------------------------------------------------------------------+
++---------------------------------------------------------------------------+
+| Create a file containing definitions of derived metrics                   |
+| and point PCP_DERIVED_CONFIG to it when running PCP utilities::           |
+|                                                                           |
+| $ cat ./pcp-derive-metrics.conf                                           |
+|                                                                           |
+| disk.dev.avqsz = disk.dev.read_rawactive + disk.dev.write_rawactive       |
+| disk.dev.avrqsz = 2 \* rate(disk.dev.total_bytes) /                       |
+| rate(disk.dev.total)                                                      |
+| disk.dev.await = 1000 \* (rate(disk.dev.read_rawactive) +                 |
+| rate(disk.dev.write_rawactive)) / rate(disk.dev.total)                    |
+|                                                                           |
+| $ PCP_DERIVED_CONFIG=./pcp-derive-metrics.conf; export PCP_DERIVED_CONFIG |
+| $ pmval -t 2sec -f 3 disk.dev.avqsz                                       |
+| $ pmval -t 2sec -f 3 disk.dev.avrqsz -h acme.com                          |
+| $ pmval -t 2sec -f 3 disk.dev.await -a acme.com/20140902                  |
++---------------------------------------------------------------------------+
 
 +-----------------------------------------------------------------------+
 | Define a derived metric on the command line and monitor               |

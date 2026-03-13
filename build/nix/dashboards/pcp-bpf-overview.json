@@ -1,0 +1,318 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "panels": [],
+      "title": "Latency Histograms",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "performancecopilot-vector-datasource", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "mappings": [],
+          "unit": "µs"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 1 },
+      "id": 2,
+      "options": {
+        "displayLabels": [],
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "pieType": "pie",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "expr": "bpf.runq.latency",
+          "format": "time_series",
+          "legendFormat": "$instance",
+          "refId": "A"
+        }
+      ],
+      "title": "Run Queue Latency Distribution",
+      "description": "Scheduler run queue latency - time tasks wait before being scheduled",
+      "type": "piechart"
+    },
+    {
+      "datasource": { "type": "performancecopilot-vector-datasource", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "mappings": [],
+          "unit": "µs"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 1 },
+      "id": 3,
+      "options": {
+        "displayLabels": [],
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true },
+        "pieType": "pie",
+        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
+        "tooltip": { "mode": "single", "sort": "none" }
+      },
+      "targets": [
+        {
+          "expr": "bpf.disk.all.latency",
+          "format": "time_series",
+          "legendFormat": "$instance",
+          "refId": "A"
+        }
+      ],
+      "title": "Block I/O Latency Distribution",
+      "description": "Block device I/O latency histogram - time to complete I/O operations",
+      "type": "piechart"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 9 },
+      "id": 4,
+      "panels": [],
+      "title": "Network I/O (per process)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "performancecopilot-vector-datasource", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 10 },
+      "id": 5,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "expr": "rate(bpf.proc.net.tcp.send.bytes)",
+          "format": "time_series",
+          "legendFormat": "TCP Send",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(bpf.proc.net.tcp.recv.bytes)",
+          "format": "time_series",
+          "legendFormat": "TCP Recv",
+          "refId": "B"
+        }
+      ],
+      "title": "TCP Network Throughput",
+      "description": "Per-process TCP network bytes sent and received",
+      "type": "timeseries"
+    },
+    {
+      "datasource": { "type": "performancecopilot-vector-datasource", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 10 },
+      "id": 6,
+      "options": {
+        "legend": { "calcs": ["mean", "max"], "displayMode": "table", "placement": "bottom", "showLegend": true },
+        "tooltip": { "mode": "multi", "sort": "desc" }
+      },
+      "targets": [
+        {
+          "expr": "rate(bpf.proc.net.udp.send.bytes)",
+          "format": "time_series",
+          "legendFormat": "UDP Send",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(bpf.proc.net.udp.recv.bytes)",
+          "format": "time_series",
+          "legendFormat": "UDP Recv",
+          "refId": "B"
+        }
+      ],
+      "title": "UDP Network Throughput",
+      "description": "Per-process UDP network bytes sent and received",
+      "type": "timeseries"
+    },
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 18 },
+      "id": 7,
+      "panels": [],
+      "title": "OOM Killer Events",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "performancecopilot-vector-datasource", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "red", "value": 1 }
+            ]
+          }
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 19 },
+      "id": 8,
+      "options": {
+        "cellHeight": "sm",
+        "footer": { "countRows": false, "fields": "", "reducer": ["sum"], "show": false },
+        "showHeader": true
+      },
+      "targets": [
+        {
+          "expr": "bpf.oomkill.tcomm",
+          "format": "time_series",
+          "legendFormat": "Triggered Comm",
+          "refId": "A"
+        },
+        {
+          "expr": "bpf.oomkill.tpid",
+          "format": "time_series",
+          "legendFormat": "Triggered PID",
+          "refId": "B"
+        },
+        {
+          "expr": "bpf.oomkill.fcomm",
+          "format": "time_series",
+          "legendFormat": "Killed Comm",
+          "refId": "C"
+        },
+        {
+          "expr": "bpf.oomkill.fpid",
+          "format": "time_series",
+          "legendFormat": "Killed PID",
+          "refId": "D"
+        },
+        {
+          "expr": "bpf.oomkill.pages",
+          "format": "time_series",
+          "legendFormat": "Pages",
+          "refId": "E"
+        }
+      ],
+      "title": "OOM Kill Events",
+      "description": "Out-of-memory killer events - processes killed due to memory pressure",
+      "type": "table"
+    }
+  ],
+  "refresh": "5s",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": ["pcp", "bpf", "ebpf"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data Source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "performancecopilot-vector-datasource",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": { "from": "now-5m", "to": "now" },
+  "timepicker": {},
+  "timezone": "",
+  "title": "PCP BPF Overview",
+  "uid": "pcp-bpf-overview",
+  "version": 1,
+  "weekStart": ""
+}

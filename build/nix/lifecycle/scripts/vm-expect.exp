@@ -1,0 +1,41 @@
+#!/usr/bin/expect -f
+#
+# vm-expect.exp - Connect to MicroVM serial/virtio console and wait for prompt
+#
+# Usage: vm-expect.exp <port> <timeout> [command]
+#
+# Connects to the specified TCP port (serial or virtio console),
+# waits for a shell prompt, optionally runs a command, and exits.
+#
+# Environment variables:
+#   VM_USERNAME   - Login username (default: root)
+#   VM_PASSWORD   - Login password (default: pcp)
+#   EXPECT_DEBUG  - Enable expect debug mode
+#
+
+source [file dirname [info script]]/vm-lib.exp
+
+if {$argc < 2} {
+    puts "Usage: vm-expect.exp <port> <timeout> \[command\]"
+    exit 1
+}
+
+set port [lindex $argv 0]
+set timeout [lindex $argv 1]
+set command ""
+if {$argc >= 3} {
+    set command [lindex $argv 2]
+}
+
+vmlib::init
+vmlib::connect $port
+vmlib::login
+
+if {$command ne ""} {
+    if {![vmlib::run_cmd $command]} {
+        exit 1
+    }
+}
+
+puts "SUCCESS: Console session established"
+exit 0
