@@ -919,9 +919,20 @@ class PMReporter(object):
         if self.extcsv:
             self.writer.write("Host,Interval,")
         self.writer.write("Time")
+        prefix_entries = []
+        unit_entries = []
+        blank_field = self.sanitize_header_field("")
+        if self.unitinfo:
+            if self.extcsv:
+                prefix_entries.extend([blank_field, blank_field])
+            prefix_entries.append(blank_field)
         for i, metric in enumerate(self.metrics):
             for j, n in self.get_results_iter(i, metric, results):
                 name = metric
+                unit_txt = ""
+                if self.unitinfo:
+                    raw_unit = self.metrics[metric][2][0]
+                    unit_txt = "" if raw_unit is None else str(raw_unit)
                 if not self.dynamic_header:
                     if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
                         # Always mark metrics with instance domain
@@ -932,19 +943,35 @@ class PMReporter(object):
                 else:
                     if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
                         name += "-" + n[1]
-                if self.delimiter:
-                    name = name.replace(self.delimiter, " ")
-                name = name.replace("\n", " ").replace("\"", " ")
-                self.writer.write(self.delimiter + "\"" + name + "\"")
+                name_field = self.sanitize_header_field(name)
+                self.writer.write(self.delimiter + "\"" + name_field + "\"")
+                if self.unitinfo:
+                    unit_entries.append(self.sanitize_header_field(unit_txt))
                 if self.include_labels:
                     ins = j if not self.dynamic_header else n[0]
                     labels = self.pmconfig.get_labels_str(metric, ins, self.dynamic_header, True)
                     if self.delimiter:
                         repl = ";" if self.delimiter == "," else ","
                         labels = labels.replace(self.delimiter, repl)
-                    labels = labels.replace("\n", " ").replace("\"", " ")
-                    self.writer.write(self.delimiter + "\"" + labels + "\"")
+                    label_field = self.sanitize_header_field(labels)
+                    self.writer.write(self.delimiter + "\"" + label_field + "\"")
+                    if self.unitinfo:
+                        unit_entries.append(blank_field)
         self.writer.write("\n")
+        if self.unitinfo:
+            entries = prefix_entries + unit_entries
+            if entries:
+                first = entries[0]
+                if first:
+                    self.writer.write("\"" + first + "\"")
+                else:
+                    self.writer.write("")
+                for entry in entries[1:]:
+                    self.writer.write(self.delimiter + "\"" + entry + "\"")
+            self.writer.write("\n")
+
+
+
 
     def write_header_stdout(self, repeat=False, results=()):
         """ Write info header for stdout output """
@@ -1181,6 +1208,15 @@ class PMReporter(object):
             else:
                 value = value.replace(self.delimiter, " ")
         return value
+
+    def sanitize_header_field(self, value):
+        """Sanitize header strings for CSV output."""
+        if value in (None, NO_VAL):
+            return ""
+        text = str(value)
+        if self.delimiter:
+            text = text.replace(self.delimiter, " ")
+        return text.replace("\n", " ").replace("\"", " ")
 
     def write_csv(self, timestamp):
         """ Write results in CSV format """
