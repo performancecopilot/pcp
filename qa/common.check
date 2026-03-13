@@ -247,7 +247,7 @@ _restore_auto_restart()
 # note this one has to do the $sudo and handle "pcp" as the special
 # non-service case ...
 #
-# Usage: _service [-v] <service> [on|off|restart|...]
+# Usage: _service [-v] <service> [stop|start|restart|...]
 #
 _service()
 {
