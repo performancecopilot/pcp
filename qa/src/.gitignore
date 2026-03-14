@@ -275,6 +275,7 @@ torture_trace
 traverse_return_codes
 tstate
 tztest
+undelta
 unpack
 unpickargs
 unregister
