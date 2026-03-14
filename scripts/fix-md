@@ -25,14 +25,17 @@
 #      -->
 #   where ! is required for the position of the General Index.
 #
+# - Link (#foo) and anchor <a id="foo"> integrity check
+#
 
 _usage()
 {
     echo >&2 "Usage: fix-md [options] [infile]"
     echo >&2 "Options:"
-    echo >&2 " -a	all changes, so -r, -t and -i [this is the default]"
+    echo >&2 " -a	all changes, so -r, -t, -i and -l [this is the default]"
     echo >&2 " -c N	columns for Index (1..9) [default: 4]"
     echo >&2 " -i	build|replace Index"
+    echo >&2 " -l	link and anchor check"
     echo >&2 " -n	show me diffs"
     echo >&2 " -o	overwrite infile"
     echo >&2 " -r	renumber headings with numeric prefix"
@@ -41,6 +44,8 @@ _usage()
     echo >&2 " -x	exit status only, 0 for no changes to be made"
 }
 
+# -c to continue, not exit on errors
+#
 _check()
 {
     rm -f $tmp.done
@@ -53,7 +58,11 @@ _check()
 	    rm -f $tmp.$suff
 	fi
     done
-    [ -f $tmp.done ] && exit
+    if [ -f $tmp.done -a X"$1" != X-c ]
+    then
+	sts=1
+	exit
+    fi
 }
 
 #tmp=/tmp/fix-md-$$
@@ -71,15 +80,17 @@ showme=false
 overwrite=false
 toc=false
 renumber=false
+lacheck=false
 verbose=false
 exitonly=false
-while getopts 'ac:inortvx?' p
+while getopts 'ac:ilnortvx?' p
 do
     case "$p"
     in
 	a)	renumber=true
 		toc=true
 		index=true
+		lacheck=true
 		;;
 	c)	numcol=$OPTARG
 		case "$ncol"
@@ -95,11 +106,15 @@ do
 		;;
 	i)	index=true
 		;;
+	l)	lacheck=true
+		;;
 	n)	showme=true
 		;;
 	o)	overwrite=true
 		;;
 	r)	renumber=true
+		;;
+	t)	toc=true
 		;;
 	v)	verbose=true
 		;;
@@ -143,13 +158,14 @@ then
     exit
 fi
 
-if ! $renumber && ! $toc && ! $index
+if ! $renumber && ! $toc && ! $index && ! $lacheck
 then
     # do everything
     #
     renumber=true
     toc=true
     index=true
+    lacheck=true
 fi
 
 # do Heading renumbering first
@@ -189,14 +205,15 @@ then
 # - map to lowercase
 # - remove #, ##, #... and any initial heading number
 # - remove <...> inline HTML
-# - remove * and \
-# - map spaces to -
+# - remove *, $ and \
+# - map spaces and _ to -
 function anchor(text) {
     tmp = tolower(text)
     gsub(/^##*  *[0-9][0-9.]*  */,"",tmp)
     gsub(/^##*  */,"",tmp)
     gsub(/<[^>]*>/,"",tmp)
-    gsub(/[*\\]/,"",tmp)
+    gsub(/[*$\\]/,"",tmp)
+    gsub(/[_]/,"-",tmp)
     gsub(/  */,"-",tmp)
     return tmp
 }
@@ -500,6 +517,73 @@ $1 == "#" && $2 == "Index" && NF == 2	{ exit }
     mv $tmp.tmp $tmp.md
 fi
 
+# Check integrity of internal links and anchors
+#
+if $lacheck
+then
+    # always have a $tmp.md, even if it is just a copy of "$1"
+    # from the ! $renumber check at the start
+    #
+    nl -ba <$tmp.md | grep -E '(<a )|(\(#)' >$tmp.lineno
+
+    # get <lineno> <attr> <anchor> one per line
+    #
+    sed <$tmp.lineno -n -e '/<a /{
+s/<a /\n&/g
+p
+}' \
+    | sed -e '/<a /{
+s/<a //
+s/="/ /
+s/".*//
+}' \
+    | awk >$tmp.anchors '
+$1 ~ /^[0-9][0-9]*$/	{ lineno = $1; next }
+			{ print lineno,$0 }'
+
+    # check and in the process translate to <anchor> <lineno>
+    # (excluding duplicates)
+    #
+    awk <$tmp.anchors >$tmp.tmp '
+{ if ($2 == "name")
+    print "'"$1"'[" NR "] Warning: Old anchor: <a name=\"" $3 "\"> ... prefer <a id=\"" $3 "\"> for HTML5" >"'$tmp.warn'"
+  else if ($2 != "id")
+    print "'"$1"'[" NR "] Error: Bad anchor: <a " $2 "=\"" $3 "\"> expected <a id=\"" $3 "\">" >"'$tmp.error'"
+  if (seen[$3] == "") {
+    seen[$3] = $1
+    print $3,$1
+  }
+  else
+    print "'"$1"'[" seen[$3] "," NR "] Error: Duplicate anchor: <a " $2 "=\"" $3 "\">" >"'$tmp.error'"
+}'
+    _check -c
+    sort -k1b,1 <$tmp.tmp >$tmp.anchors
+
+    # get <link> <lineno> one per line
+    #
+    sed <$tmp.lineno -n -e '/(#/{
+s/(#/\n&/g
+p
+}' \
+    | sed -e '/(#/{
+s/(#//
+s/).*//
+}' \
+    | awk '
+$1 ~ /^[0-9][0-9]*$/	{ lineno = $1; next }
+			{ print $0,lineno }' \
+    | sort -k1b,1 >$tmp.links
+
+    # join and check for mismatches
+    #
+    join -j1 -a1 -a2 -e '?' -o1.1,2.1,1.2,2.2 $tmp.links $tmp.anchors \
+    | awk '
+$1 == "?"	{ print "'"$1"'[" $4 "] Warning: No link matching anchor \"" $2 "\"" >"'$tmp.warn'" }
+$2 == "?"	{ print "'"$1"'[" $3 "] Error: Bad link, no anchor for \"" $1 "\"" >"'$tmp.error'" }'
+    _check
+
+fi
+
 diff "$1" $tmp.md >$tmp.diff
 
 if [ -s $tmp.diff ]
@@ -521,5 +605,6 @@ then
     else
 	cat $tmp.md
     fi
+else
+    $verbose && echo >&2 "Info: no changes"
 fi
-
