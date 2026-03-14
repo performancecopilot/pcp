@@ -393,7 +393,7 @@ MSG=false
 COUNT=0
 VERBOSE=false
 
-while getopts "a:b:De:h:Lm:n:Pp:s:v:V" c
+while getopts "a:b:De:h:Lm:n:Pp:s:v:V?" c
 do
     case $c
     in
