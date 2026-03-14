@@ -54,7 +54,7 @@ do
 	fi
     fi
 
-    echo "$script: $state"
+    [ -n "$state" ] && echo "$script: $state"
 
 done
 
