@@ -245,28 +245,34 @@ _haveremote()
     if test -f "${PCP_SYSCONFIG_DIR}/pmcd"
     then
 	sed <$PCP_SYSCONFIG_DIR/pmcd >$tmp.tmp \
-		-e '/^PMCD_LOCAL=1/s/^/#PCP QA# /g'
+	    -e '/^PMCD_LOCAL=/s/^/#PCP QA# /' \
+	# end
 	diff $PCP_SYSCONFIG_DIR/pmcd $tmp.tmp >/dev/null || \
-	$sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmcd
+	    $sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmcd
     fi
 
     if test -f "${PCP_SYSCONFIG_DIR}/pmproxy"
     then
 	sed <$PCP_SYSCONFIG_DIR/pmproxy >$tmp.tmp \
-		-e '/^PMPROXY_LOCAL=1/s/^/#/g'
+	    -e '/^PMPROXY_LOCAL=/s/^/#PCP QA# /' \
+	# end
 	diff $PCP_SYSCONFIG_DIR/pmproxy $tmp.tmp >/dev/null || \
-	$sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmproxy
+	    $sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmproxy
     fi
 
-    if test -f "${PCP_SYSCONFIG_DIR}/pmlogger"
-    then
-	sed <$PCP_SYSCONFIG_DIR/pmlogger >$tmp.tmp \
-		-e '/^PMLOGGER_LOCAL=1/s/^/#/g'
-	diff $PCP_SYSCONFIG_DIR/pmlogger $tmp.tmp >/dev/null || \
-	$sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/pmlogger
-    fi
+    for svc in pmlogger pmlogger_farm
+    do
+	if test -f "${PCP_SYSCONFIG_DIR}/$svc"
+	then
+	    sed <$PCP_SYSCONFIG_DIR/$svc >$tmp.tmp \
+		-e '/^PMLOGGER_LOCAL=/s/^/#PCP QA# /' \
+	    # end
+	    diff $PCP_SYSCONFIG_DIR/$svc $tmp.tmp >/dev/null || \
+		$sudo cp $tmp.tmp $PCP_SYSCONFIG_DIR/$svc
+	fi
+    done
+
 }
-
 _havepmcdtrace()
 {
     __fix=false
