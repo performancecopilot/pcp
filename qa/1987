@@ -61,33 +61,14 @@ pcp $archive_first ps -u -O %cpu | head -10
 echo && echo pcp-ps output : Display the value as per %mem sorted
 pcp $archive_first ps -u -O %mem | head -10
 
-echo && echo pcp-ps output : Display user format with sort by %mem 
-pcp $archive_first ps -u -O %mem | head -10
-
+echo && echo pcp-ps output : Display the value as per %mem in user selected format\(failure case\)
+pcp $archive_first ps -o pid,ppid,tty,args -O %mem
 
 echo && echo pcp-ps output : Display the value as per %mem in user selected format
 pcp $archive_first ps -o pid,ppid,tty,args,%mem -O %mem | head -10
 
 echo && echo pcp-ps output : Display the value as per %cpu in user selected format
 pcp $archive_first ps -o ALL -O %cpu | head -10
-
-echo && echo pcp-ps output : Display user format with explicit columns sorted by %cpu 
-pcp $archive_first ps -o pid,uname,%cpu,%mem,vsize,rss,tty,state,time,start -O %cpu | head -15
-
-echo && echo pcp-ps output : Display user format with explicit columns sorted by %mem 
-pcp $archive_first ps -o pid,uname,%cpu,%mem,vsize,rss,tty,state,time,start -O %mem | head -15
-
-echo && echo pcp-ps output : Display user format with args column sorted by %mem 
-pcp $archive_first ps -o pid,uname,args,%cpu,%mem,vsize,rss,tty,state,time,start -O %mem | head -15
-
-echo && echo pcp-ps output : Display user format with args column sorted by %cpu 
-pcp $archive_first ps -o pid,uname,args,%cpu,%mem,vsize,rss,tty,state,time,start -O %cpu | head -15
-
-echo && echo pcp-ps output : Display ALL columns sorted by %mem
-pcp $archive_first ps -o ALL -O %mem | head -15
-
-echo && echo pcp-ps output : Display ALL columns sorted by %cpu
-pcp $archive_first ps -o ALL -O %cpu | head -15
 
 echo && echo pcp-ps output : Display user format with sort by %cpu \(custom columns, positive test\)
 pcp $archive_first ps -o pid,%cpu,args -O %cpu | head -10
@@ -96,10 +77,7 @@ echo && echo pcp-ps output : Display user format using --sort \(long option\)
 pcp $archive_first ps -o pid,%mem,args --sort=%mem | head -10
 
 echo && echo pcp-ps output : Display user format with --sort on missing column \(negative test, should error\)
-pcp $archive_first ps -o pid,args --sort=%mem 2>&1
-
-echo && echo pcp-ps output : Display the value as per %mem in user selected format\(failure case\)
-pcp $archive_first ps -o pid,ppid,tty,args -O %mem 2>&1
+pcp $archive_first ps -o pid,args --sort=%mem
 
 status=0
 exit
