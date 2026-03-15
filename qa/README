@@ -1,36 +1,11 @@
 Notes on using the PCP QA Suite
 ===============================
 
+Refer to COOKBOOK.md which is a complete description of the
+PCP QA infrastructure and how to use it.
+
 Preliminaries
 -------------
-
-    The PCP QA Suite is designed with a philosophy that it is trying to
-    exercise the code in a context that is as close as possible to that
-    which an end-user would experience. For this reason, the PCP software to
-    be tested should be installed in the "usual" places, with the "usual"
-    permissions and operate on the "usual" ports.
-
-    In particular the QA Suite does not execute PCP applications like pmcd,
-    pmlogger, pminfo, pmie, pmval, etc from the source tree.  Rather they
-    need to have been built and packaged and installed on the local system
-    prior to starting any QA.  Refer to the ../Makepkgs script for a recipe
-    that may be used to build packages for a variety of platforms.
-
-    Further the PCP QA Suite exercises and tests aspects of the PCP
-    packaging, use of certain local accounts, interaction with system
-    daemons, init systems, a number of PCP-related system administrative
-    functions, e.g. to stop and start PCP services.  Refer to the notes
-    on sudo below.
-
-    But this also means the QA Suite may alter existing system configuration
-    files, and this introduces some risk, so PCP QA should not be run
-    on production systems.  Historically we have used developer systems
-    and dedicated QA systems for running the full QA Suite - VMs are
-    particularly well-suited to this task.
-
-    In addition to the base PCP package installation, the sample and simple
-    PMDAs need to be installed (however the QA infrastructure will take
-    care of this, e.g. by running ./check 0).
 
 Basic getting started
 ---------------------
@@ -98,16 +73,6 @@ Basic getting started
     does not need to be installed there, nor pmcd(1) running.  The five
     hosts listed in 051.hosts (the comments at the start of this file
     explain what is required) should suffice for most installations.
-
-    The PCP QA tests are designed to be run by a non-root user.  Where root
-    privileges are needed, e.g. to stop or start pmcd, install/remove
-    PMDAs, etc. the "sudo" application is used.  When using sudo for QA,
-    your current or pcpqa user needs to be able to execute commands as
-    root without being prompted for a password.  This can be achieved by
-    adding the following line to the /etc/sudoers file (or in more recent
-    versions of sudo, a /etc/sudoers.d/pcpqa file):
-
-	pcpqa   ALL=(ALL) NOPASSWD: ALL
 
     Some tests are graphical, and wish to make use of your display.
     For authentication to success, you may find you need to perform some
