@@ -38,7 +38,8 @@ mkdir $tmp
 
 nodiff=false
 local=true
-while getopts g:lnx:h? c
+where=false
+while getopts g:lnwx:h c
 do
    case $c in
 
@@ -75,6 +76,11 @@ s/ .*//p
 	    nodiff=true
 	    ;;
 
+   w)       # report dir
+	    where=true
+	    wdir=`pwd | sed -e "s;.*/;;"`
+   	    ;;
+
    x)	    # exclude group
 	    rm -f $tmp.tmp
 	    touch $tmp.empty
@@ -108,6 +114,7 @@ Options:
     -l		line mode diff [xdiff]
     -n		report failing tests, no diffs
     -g group	include tests from this group (additive for multiple -g options)
+    -w		report directory
     -x group	exclude tests from this group (additive for multiple -x options)
 
 Default (no -g) is to include all tests with a .out.bad file.'
@@ -175,7 +182,12 @@ do
 	continue
     fi
 
-    $PCP_ECHO_PROG $PCP_ECHO_N "$id: ""$PCP_ECHO_C"
+    if $where
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "$wdir/$id: ""$PCP_ECHO_C"
+    else
+	$PCP_ECHO_PROG $PCP_ECHO_N "$id: ""$PCP_ECHO_C"
+    fi
     ref=''
     if [ ! -f $id.out ]
     then

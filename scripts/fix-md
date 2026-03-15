@@ -40,7 +40,7 @@ _usage()
     echo >&2 " -o	overwrite infile"
     echo >&2 " -r	renumber headings with numeric prefix"
     echo >&2 " -t	build|replace Table of Contents"
-    echo >&2 " -v	verbose, second one for very verbose"
+    echo >&2 " -v	verbose"
     echo >&2 " -x	exit status only, 0 for no changes to be made"
 }
 
@@ -50,7 +50,7 @@ _check()
 {
     rm -f $tmp.done
     [ -s $tmp.error ] && touch $tmp.done
-    for suff in debug warn error
+    for suff in error warn debug
     do
 	if [ -s $tmp.$suff ]
 	then
@@ -60,15 +60,19 @@ _check()
     done
     if [ -f $tmp.done -a X"$1" != X-c ]
     then
-	echo >&2 "$prog: Quitting due to errors, no updates performed."
 	sts=1
 	exit
     fi
 }
 
+#tmp=/tmp/fix-md-$$
 sts=0
+#trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+tmp=tmp
+trap "exit \$sts" 0 1 2 3 15
 
-prog=`basename $0`
+rm -f $tmp.*
+
 statusonly=false
 index=false
 numcol=4
@@ -78,7 +82,6 @@ toc=false
 renumber=false
 lacheck=false
 verbose=false
-very_verbose=false
 exitonly=false
 while getopts 'ac:ilnortvx?' p
 do
@@ -113,12 +116,7 @@ do
 		;;
 	t)	toc=true
 		;;
-	v)	if $verbose
-		then
-		    very_verbose=true
-		else
-		    verbose=true
-		fi
+	v)	verbose=true
 		;;
 	x)	exitonly=true
 		;;
@@ -128,19 +126,6 @@ do
     esac
 done
 shift `expr $OPTIND - 1`
-
-if $very_verbose
-then
-    # debugging as well ... save tmp files
-    #
-    tmp=tmp
-    trap "exit \$sts" 0 1 2 3 15
-else
-    tmp=/tmp/fix-md-$$
-    trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
-fi
-rm -f $tmp.*
-
 if [ $# -eq 0 ]
 then
     # filter, no infile
@@ -207,28 +192,6 @@ else
 fi
 _check
 
-# safe anchor rewriting in awk(1)
-#
-cat <<'End-of-File' >$tmp.anchor
-# anchor()
-# turn Heading text into something to be used in an HTML <a id="...">
-# anchor
-# - map to lowercase
-# - remove #, ##, #... and any initial heading number
-# - remove <...> inline HTML
-# - remove _, *, $ and \
-# - map spaces to -
-function anchor(text) {
-    tmp = tolower(text)
-    gsub(/^##*  *[0-9][0-9.]*  */,"",tmp)
-    gsub(/^##*  */,"",tmp)
-    gsub(/<[^>]*>/,"",tmp)
-    gsub(/[_*$\\]/,"",tmp)
-    gsub(/  */,"-",tmp)
-    return tmp
-}
-End-of-File
-
 # TOC
 #
 if $toc
@@ -236,7 +199,24 @@ then
     if grep -iq '^# table of contents$' <$tmp.md
     then
 	awk <$tmp.md >$tmp.tmp '
-@include "'$tmp.anchor'"
+# anchor()
+# turn Heading text into something to be used in an HTML <a id="...">
+# anchor
+# - map to lowercase
+# - remove #, ##, #... and any initial heading number
+# - remove <...> inline HTML
+# - remove *, $ and \
+# - map spaces and _ to -
+function anchor(text) {
+    tmp = tolower(text)
+    gsub(/^##*  *[0-9][0-9.]*  */,"",tmp)
+    gsub(/^##*  */,"",tmp)
+    gsub(/<[^>]*>/,"",tmp)
+    gsub(/[*$\\]/,"",tmp)
+    gsub(/[_]/,"-",tmp)
+    gsub(/  */,"-",tmp)
+    return tmp
+}
 
 tolower($0) ~ /^# table of contents$/	{ # marker for TOC, cull old TOC if any
 			  print
@@ -304,7 +284,6 @@ tolower($0) ~ /^# table of contents$/	{ skip = 1; next }
 skip == 1 && NF == 0			{ skip = 0 }
 skip == 0				{ print }'
 	    mv $tmp.tmp $tmp.md
-	    $verbose && echo >&2 "Info: `wc -l <$tmp.toc | sed -e 's/ //g'` table of contents entries"
 	else
 	    echo "$1: Warning: no Heading lines, so no TOC"
 	    mv $tmp.tmp $tmp.md
@@ -344,15 +323,21 @@ p
 	mv $tmp.ok $tmp.tmp
     fi
 
-    # {ident} should only contain a limited character set [a-zA-Z0-9.+-]
+    # {ident} should only contain a limited character set [a-zA-Z0-9.+_-]
     #
     sed <$tmp.tmp -e 's/ *<a id="idx+/ /' -e 's/">.*//' \
     | awk >$tmp.warn '
-@include "'$tmp.anchor'"
-
-NF == 2	{ check = anchor($2)
-	  if (check != $2)
-	    print "'"$1"'[" $1 "] Warning: index citation contains doubtful characters " $2 " != " check
+NF == 2	{ bad = ""
+	  for (i = 1; i <= length($2); i++) {
+	    c = substr($2, i, 1)
+	    if (c >= "a" && c <= "z") continue
+	    if (c >= "A" && c <= "Z") continue
+	    if (c >= "0" && c <= "9") continue
+	    if (c == "." || c == "+" || c == "-" || c == "_") continue
+	    bad = bad c
+	  }
+	  if (bad != "")
+	    print "'"$1"'[" $1 "] Warning: index citation <idx+" $2 "> contains doubtful characters (" bad ")"
 	}'
     _check
 
@@ -374,16 +359,13 @@ NF == 2	{ check = anchor($2)
 	-e 's/idx\+([^+]*)\+([^+]*	)/\1	\2/' \
     | sort >$tmp.idx -t '	' -k 2,2 -k 3,3 -k 1,1n
 
-    if $very_verbose
+    if $verbose
     then
 	echo >&2 "Info: index citations"
 	echo >&2 "lineno	list	tag	entry"
 	echo >&2 "---	---	---	---"
 	cat >&2 $tmp.idx
     fi
-
-    # possible anchor re-writing to avoid dogey characters
-    #
 
     # check for duplicate anchors ... sorting in previous step means
     # adjacent {tag} entries may be the same, but from different lists
@@ -439,7 +421,7 @@ inctl == 2	{ if (NF != length(label)) {
 		}'
     _check
 
-    if $very_verbose
+    if $verbose
     then
 	echo >&2 "Info: index map"
 	echo >&2 "list	label"
@@ -502,7 +484,7 @@ $2 == "'$list'"	{ next }
     entpercol=`expr \( $nument + $numlabel + $numcol - 1 \) / $numcol`
     if $verbose
     then
-	echo >&2 "Info: $nument index citations (across $numlabel index lists, $entpercol entries per column)"
+	echo >&2 "Info: index entries: $nument (across $numlabel index lists, $entpercol entries per column)"
     fi
 
     awk <$tmp.rawidx '
