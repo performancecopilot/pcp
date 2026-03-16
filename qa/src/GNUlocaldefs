@@ -56,8 +56,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c \
 	strnfoo.c mmv_ondisk.c newcontext.c api_abi.c interp_bug3.c \
 	pmsetmode.c scanindex.c localtime.c httpcache.c unregister.c \
-	genpmns.c \
-	series_time_parse_test.c
+	genpmns.c undelta.c series_time_parse_test.c
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -484,6 +483,10 @@ unregister:	unregister.c
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 
 genpmns:	genpmns.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+
+undelta:	undelta.c libpcp.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
 

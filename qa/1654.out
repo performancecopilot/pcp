@@ -1,0 +1,44 @@
+QA output created by 1654
+=== malloc namelist[]
+== dump lidp1 after build() __pmLogInDom @ ADDR
+12:34:56.000000100 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 5
+[0] 0 "external 00" ADDR
+[1] 1 "external 01" ADDR
+[2] 2 "external 02" ADDR
+[3] 3 "external 03" ADDR
+[4] 4 "external 04" ADDR
+== dump lidp2 after build() __pmLogInDom @ ADDR
+12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 1 numinst: 4
+[0] 0 NULL
+[1] 2 NULL
+[2] 11 "external 11" ADDR
+[3] 13 "external 13" ADDR
+== dump lidp2 after __pmLogUndeltaInDom __pmLogInDom @ ADDR
+12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 5
+[0] 1 "external 01" ADDR
+[1] 3 "external 03" ADDR
+[2] 4 "external 04" ADDR
+[3] 11 "external 11" ADDR
+[4] 13 "external 13" ADDR
+
+=== namelist[] not malloc'd
+== dump lidp1 after build() __pmLogInDom @ ADDR
+12:34:56.000000100 alloc: SELF|INSTLIST|NAMELIST isdelta: 0 numinst: 5
+[0] 0 "external 00" ADDR
+[1] 1 "external 01" ADDR
+[2] 2 "external 02" ADDR
+[3] 3 "external 03" ADDR
+[4] 4 "external 04" ADDR
+== dump lidp2 after build() __pmLogInDom @ ADDR
+12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST isdelta: 1 numinst: 4
+[0] 0 NULL
+[1] 2 NULL
+[2] 11 "external 11" ADDR
+[3] 13 "external 13" ADDR
+== dump lidp2 after __pmLogUndeltaInDom __pmLogInDom @ ADDR
+12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 5
+[0] 1 "external 01" ADDR
+[1] 3 "external 03" ADDR
+[2] 4 "external 04" ADDR
+[3] 11 "external 11" ADDR
+[4] 13 "external 13" ADDR

@@ -67,6 +67,16 @@ _check()
 	# at least one is running
 	for pid in `cat $tmp.pmids`
 	do
+	    # on vm37 OpenBSD 7.7 observed a PID in $tmp.pmids that was
+	    # NOT in $tmp.ps.out ... catch this and try to triage
+	    #
+	    if ! $PCP_AWK_PROG '{print $2}' <$tmp.ps.out | grep -q "^$pid"
+	    then
+		echo "Botch: PID $pid from _get_pids_by_name() but not found by _ps_full_by_name()"
+		$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep -E "[P]PID|$pid"
+		$check && touch $tmp.err
+		continue
+	    fi
 	    $PCP_AWK_PROG <$tmp.ps.out >$tmp.ps.pid '
 $2 == '"$pid"'	{ print }'
 

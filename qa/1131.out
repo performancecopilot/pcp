@@ -1,5 +1,5 @@
 QA output created by 1131
----
+--- pcp2json -a archives/rep -H -I -z ""
 {
   "@pcp": {
     "@hosts": [
@@ -693,7 +693,7 @@ QA output created by 1131
     ]
   }
 }
----
+--- pcp2json -a archives/rep -H -I -z -E ""
 {
   "@pcp": {
     "@hosts": [
@@ -1387,7 +1387,7 @@ QA output created by 1131
     ]
   }
 }
----
+--- -a archives/rep -H -I -Z UTC+0 -x ""
 {
   "@pcp": {
     "@hosts": [
@@ -2265,20 +2265,20 @@ QA output created by 1131
     ]
   }
 }
----
----
+--- pcp2json -a archives/rep -H -I -z -X -b GB -P 2 -F TMP.outfile ""
+--- pcp2openmetrics -s1 -z hinv.ncpu
 # EOF
 # HELP hinv_ncpu number of CPUs in the system
 # PCP5 hinv_ncpu PMID u32 PM_INDOM_NULL discrete
 # TYPE hinv_ncpu gauge
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
----
+--- pcp2openmetrics -s2 -x hinv.ncpu
 # EOF
 # HELP hinv_ncpu number of CPUs in the system
 # TYPE hinv_ncpu gauge
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
----
+--- pcp2openmetrics -s2 -a archives/20201109 hinv.ncpu kernel.all.load
 # EOF
 # HELP hinv_ncpu number of CPUs in the system
 # HELP kernel_all_load 1, 5 and 15 minute load average
@@ -2291,16 +2291,311 @@ hinv_ncpu{,hostname="shard"} NCPU
 kernel_all_load{,hostname="shard",instname="1 minute",instid="1"} NCPU
 kernel_all_load{,hostname="shard",instname="15 minute",instid="15"} NCPU
 kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
----
-{"resourceMetrics": [{"resource": {"attributes": [{"key": "domainname","value": {"stringValue": "VALUE"}},{"key": "groupid","value": {"stringValue": "VALUE"}},{"key": "hostname","value": {"stringValue": "VALUE"}},{"key": "machineid","value": {"stringValue": "VALUE"}},{"key": "userid","value": {"stringValue": "VALUE"}}]},"scopeMetrics": [{"metrics": [{"name": "hinv.ncpu","unit": "1","description": "number of CPUs in the system","gauge": {"dataPoints": [{"asInt": "INTEGER","timeUnixNano": "TIME","attributes": [{"key": "semantics","value": {"stringValue": "VALUE"}},{"key": "type","value": {"stringValue": "VALUE"}},{"key": "agent","value": {"stringValue": "VALUE"}}]}]}}],"scope": {"name": "performance-co-pilot","version": "VERSION"}}]}]}
-
----
-{"resourceMetrics": [{"resource": {"attributes": [{"key": "domainname","value": {"stringValue": "VALUE"}},{"key": "groupid","value": {"stringValue": "VALUE"}},{"key": "hostname","value": {"stringValue": "VALUE"}},{"key": "machineid","value": {"stringValue": "VALUE"}},{"key": "userid","value": {"stringValue": "VALUE"}}]},"scopeMetrics": [{"metrics": [{"name": "hinv.ncpu","unit": "1","description": "number of CPUs in the system","gauge": {"dataPoints": [{"asInt": "INTEGER","timeUnixNano": "TIME","attributes": [{"key": "semantics","value": {"stringValue": "VALUE"}},{"key": "type","value": {"stringValue": "VALUE"}},{"key": "agent","value": {"stringValue": "VALUE"}}]}]}}],"scope": {"name": "performance-co-pilot","version": "VERSION"}}]}]}
-{"resourceMetrics": [{"resource": {"attributes": [{"key": "domainname","value": {"stringValue": "VALUE"}},{"key": "groupid","value": {"stringValue": "VALUE"}},{"key": "hostname","value": {"stringValue": "VALUE"}},{"key": "machineid","value": {"stringValue": "VALUE"}},{"key": "userid","value": {"stringValue": "VALUE"}}]},"scopeMetrics": [{"metrics": [{"name": "hinv.ncpu","unit": "1","description": "number of CPUs in the system","gauge": {"dataPoints": [{"asInt": "INTEGER","timeUnixNano": "TIME","attributes": [{"key": "semantics","value": {"stringValue": "VALUE"}},{"key": "type","value": {"stringValue": "VALUE"}},{"key": "agent","value": {"stringValue": "VALUE"}}]}]}}],"scope": {"name": "performance-co-pilot","version": "VERSION"}}]}]}
-
----
-{"resourceMetrics": [{"resource": {"attributes": [{"key": "hostname","value": {"stringValue": "VALUE"}}]},"scopeMetrics": [{"metrics": [{"name": "hinv.ncpu","unit": "1","description": "number of CPUs in the system","gauge": {"dataPoints": [{"asInt": "INTEGER","timeUnixNano": "TIME","attributes": [{"key": "semantics","value": {"stringValue": "VALUE"}},{"key": "type","value": {"stringValue": "VALUE"}}]}]}}],"scope": {"name": "performance-co-pilot","version": "VERSION"}}]}]}
-
+--- pcp2opentelemetry -s1 -z hinv.ncpu
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "domainname",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "groupid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "hostname",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "machineid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "userid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "metrics": [
+            {
+              "name": "hinv.ncpu",
+              "unit": "1",
+              "description": "number of CPUs in the system",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "asInt": "INTEGER",
+                    "timeUnixNano": "TIME",
+                    "attributes": [
+                      {
+                        "key": "semantics",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      },
+                      {
+                        "key": "type",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      },
+                      {
+                        "key": "agent",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "scope": {
+            "name": "performance-co-pilot",
+            "version": "VERSION"
+          }
+        }
+      ]
+    }
+  ]
+}
+--- pcp2opentelemetry -s2 -z hinv.ncpu
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "domainname",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "groupid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "hostname",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "machineid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "userid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "metrics": [
+            {
+              "name": "hinv.ncpu",
+              "unit": "1",
+              "description": "number of CPUs in the system",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "asInt": "INTEGER",
+                    "timeUnixNano": "TIME",
+                    "attributes": [
+                      {
+                        "key": "semantics",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      },
+                      {
+                        "key": "type",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      },
+                      {
+                        "key": "agent",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "scope": {
+            "name": "performance-co-pilot",
+            "version": "VERSION"
+          }
+        }
+      ]
+    }
+  ]
+}
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "domainname",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "groupid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "hostname",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "machineid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          },
+          {
+            "key": "userid",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "metrics": [
+            {
+              "name": "hinv.ncpu",
+              "unit": "1",
+              "description": "number of CPUs in the system",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "asInt": "INTEGER",
+                    "timeUnixNano": "TIME",
+                    "attributes": [
+                      {
+                        "key": "semantics",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      },
+                      {
+                        "key": "type",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      },
+                      {
+                        "key": "agent",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "scope": {
+            "name": "performance-co-pilot",
+            "version": "VERSION"
+          }
+        }
+      ]
+    }
+  ]
+}
+--- pcp2opentelemetry -s1 -a archives/20201109 hinv.ncpu
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "hostname",
+            "value": {
+              "stringValue": "VALUE"
+            }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "metrics": [
+            {
+              "name": "hinv.ncpu",
+              "unit": "1",
+              "description": "number of CPUs in the system",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "asInt": "INTEGER",
+                    "timeUnixNano": "TIME",
+                    "attributes": [
+                      {
+                        "key": "semantics",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      },
+                      {
+                        "key": "type",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+          ],
+          "scope": {
+            "name": "performance-co-pilot",
+            "version": "VERSION"
+          }
+        }
+      ]
+    }
+  ]
+}
 ---
 {
   "@pcp": {

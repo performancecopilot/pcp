@@ -62,7 +62,7 @@ LDIRT += 051.work 134.full.* \
 	 *.log *.log.prev eek* urk* so_locations tmp.* gmon.out oss.qa.tar.gz \
 	 *.full.ok *.new rc_cron_check.clean \
 	 make.out qa_hosts qa_outfiles stap_*.ko localconfig check.time \
-	 .findmetric
+	 .find-metric
 
 # these ones are links to the real files created when the associated
 # test is run
@@ -72,8 +72,8 @@ LDIRT += $(shell [ -f .gitignore ] && grep '\.out$$' .gitignore)
 LDIRDIRT += tmp
 
 SCRIPTS = mk.localconfig mk.pcpversion mk.qa_hosts mk.variant getpmcdhosts \
-	  new check recheck remake findmetric group-stats \
-	  check-gitignore check-group chk.setup show-me disk-work 008.helper \
+	  new check recheck remake find-metric group-stats \
+	  check-group check-setup show-me disk-work 008.helper \
 	  xlate_2_new_pmns common setup.051 mk.logfarm check.callback.sample \
 	  daily-cleanup refactor
 

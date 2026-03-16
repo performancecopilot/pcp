@@ -78,9 +78,24 @@ _check_file()
 	    mv $tmp.tmp $tmp.out
 	    ;;
 	"$PCP_SYSCONFIG_DIR"/pmcd)
-	    # we default to local now so this is common in QA
+	    # we default to local now so expect #PCP QA# in QA
 	    sed <$tmp.out >$tmp.tmp \
 		-e '/^#PCP QA#/d' \
+	    # end
+	    mv $tmp.tmp $tmp.out
+	    ;;
+	"$PCP_SYSCONFIG_DIR"/pmproxy)
+	    # we default to local now so expect #PCP QA# in QA
+	    sed <$tmp.out >$tmp.tmp \
+		-e '/^#PCP QA#/d' \
+	    # end
+	    mv $tmp.tmp $tmp.out
+	    ;;
+	"$PCP_SYSCONFIG_DIR"/pmlogger|"$PCP_SYSCONFIG_DIR"/pmlogger_farm)
+	    # we default to local now so expect #PCP QA# in QA
+	    sed <$tmp.out >$tmp.tmp \
+		-e '/^#PCP QA#/d' \
+		-e '/^# and maybe useful for QA or special testing/d' \
 	    # end
 	    mv $tmp.tmp $tmp.out
 	    ;;
@@ -97,12 +112,6 @@ _check_file()
 		    rm -f $tmp.out
 		    ;;
 	    esac
-	    ;;
-	"$PCP_SYSCONFIG_DIR"/pmlogger|"$PCP_SYSCONFIG_DIR"/pmlogger_farm)
-	    sed <$tmp.out >$tmp.tmp \
-		-e '/^# and maybe useful for QA or special testing/d' \
-	    # end
-	    mv $tmp.tmp $tmp.out
 	    ;;
     esac
     if [ -s $tmp.out ]
