@@ -538,6 +538,55 @@ pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_NETWORK,93), PM_TYPE_U64, NETWORK_INDOM,
       PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* network.all.in.bytes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,0), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+/* network.all.in.packets */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,1), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.all.in.errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,2), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.all.in.drops */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,3), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.all.out.bytes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,4), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+/* network.all.out.packets */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,5), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.all.out.errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,6), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.all.out.drops */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,7), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.all.total.bytes */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,8), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+/* network.all.total.packets */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,9), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.all.total.errors */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,10), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* network.all.total.drops */
+  { NULL,
+    { PMDA_PMID(CLUSTER_NETWORK_ALL,11), PM_TYPE_U64, PM_INDOM_NULL,
+      PM_SEM_COUNTER, PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
 /* nfs3.client.calls */
   { NULL,
     { PMDA_PMID(CLUSTER_NFS,94), PM_TYPE_U64, PM_INDOM_NULL,
