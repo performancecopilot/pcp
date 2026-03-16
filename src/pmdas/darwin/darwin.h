@@ -50,6 +50,7 @@ enum {
     CLUSTER_IPV6,		/* 23 = ipv6 protocol statistics */
     CLUSTER_APFS,		/* 24 = apfs statistics */
     CLUSTER_THERMAL,		/* 25 = thermal/temperature monitoring */
+    CLUSTER_NETWORK_ALL,	/* 26 = aggregate network statistics */
     NUM_CLUSTERS		/* total number of clusters */
 };
 
