@@ -101,6 +101,7 @@ extern int refresh_uptime(unsigned int *);
 
 int			mach_net_error = 0;
 struct netstats		mach_net = { 0 };
+net_all_t		mach_net_all = { 0 };
 extern int refresh_network(struct netstats *, pmdaIndom *);
 extern void init_network(void);
 
@@ -213,6 +214,11 @@ darwin_refresh(int *need_refresh)
 	mach_uptime_error = refresh_uptime(&mach_uptime);
     if (need_refresh[CLUSTER_NETWORK])
 	mach_net_error = refresh_network(&mach_net, &indomtab[NETWORK_INDOM]);
+    if (need_refresh[CLUSTER_NETWORK_ALL]) {
+	if (need_refresh[CLUSTER_NETWORK] == 0)
+	    mach_net_error = refresh_network(&mach_net, &indomtab[NETWORK_INDOM]);
+	refresh_network_all(&mach_net_all, &mach_net);
+    }
     if (need_refresh[CLUSTER_NFS])
 	mach_nfs_error = refresh_nfs(&mach_nfs);
     if (need_refresh[CLUSTER_VFS])
@@ -284,6 +290,7 @@ darwin_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
     case CLUSTER_DISK:		return fetch_disk(item, inst, atom);
     case CLUSTER_CPU:		return fetch_cpu(item, inst, atom);
     case CLUSTER_NETWORK:	return fetch_network(item, inst, atom);
+    case CLUSTER_NETWORK_ALL:	return fetch_network_all(item, atom);
     case CLUSTER_NFS:		return fetch_nfs(item, inst, atom);
     case CLUSTER_VFS:		return fetch_vfs(item, atom);
     case CLUSTER_UDP:		return fetch_udp(item, atom);
