@@ -215,6 +215,7 @@ disk.apfs.volume {
 
 network {
     interface
+    all
     udp
     icmp
     ipv6
@@ -253,6 +254,33 @@ network.interface.total {
     errors		DARWIN:10:91
     drops		DARWIN:10:92
     mcasts		DARWIN:10:93
+}
+
+network.all {
+    in
+    out
+    total
+}
+
+network.all.in {
+    bytes		DARWIN:26:0
+    packets		DARWIN:26:1
+    errors		DARWIN:26:2
+    drops		DARWIN:26:3
+}
+
+network.all.out {
+    bytes		DARWIN:26:4
+    packets		DARWIN:26:5
+    errors		DARWIN:26:6
+    drops		DARWIN:26:7
+}
+
+network.all.total {
+    bytes		DARWIN:26:8
+    packets		DARWIN:26:9
+    errors		DARWIN:26:10
+    drops		DARWIN:26:11
 }
 
 network.udp {

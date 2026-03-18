@@ -1,0 +1,41 @@
+# Network aggregate metrics test (network.all.*)
+# These metrics sum across all network interfaces
+
+# Inbound aggregate metrics
+desc network.all.in.bytes
+fetch network.all.in.bytes
+
+desc network.all.in.packets
+fetch network.all.in.packets
+
+desc network.all.in.errors
+fetch network.all.in.errors
+
+desc network.all.in.drops
+fetch network.all.in.drops
+
+# Outbound aggregate metrics
+desc network.all.out.bytes
+fetch network.all.out.bytes
+
+desc network.all.out.packets
+fetch network.all.out.packets
+
+desc network.all.out.errors
+fetch network.all.out.errors
+
+desc network.all.out.drops
+fetch network.all.out.drops
+
+# Total aggregate metrics (in + out)
+desc network.all.total.bytes
+fetch network.all.total.bytes
+
+desc network.all.total.packets
+fetch network.all.total.packets
+
+desc network.all.total.errors
+fetch network.all.total.errors
+
+desc network.all.total.drops
+fetch network.all.total.drops
