@@ -4,6 +4,13 @@
 #
 # Copyright (c) 2013-2015,2019 Red Hat.
 #
+# Debugging note:
+# 1. touch 662.wait
+# 2. ./662
+# 3. when pmproxy is setup, the test will wait for 662.wait to be
+#    removed, giving time to poke pmproxy, attach gdb, whatever
+#    before the test resumes
+#
 seq=`basename $0`
 echo "QA output created by $seq"
 
@@ -65,9 +72,13 @@ _sighup_pmcd || _exit 1
 PCP_DERIVED_CONFIG="$PCP_VAR_DIR/config/derived"; export PCP_DERIVED_CONFIG
 
 if ! _service pmproxy restart >/dev/null 2>&1; then _exit 1; fi
+_wait_for_pmproxy || _exit 1
 
 echo "+++ pmproxy before test_webapi.py ..." >>$seq_full
 _ps_full_by_name pmproxy >>$seq_full
+
+_triage_wait_point "pmproxy PID `_get_pids_by_name pmproxy` started."
+
 $python $here/src/test_webapi.py | _webapi_response_filter | _filter_labels
 echo "+++ pmproxy after test_webapi.py ..." >>$seq_full
 _ps_full_by_name pmproxy >>$seq_full

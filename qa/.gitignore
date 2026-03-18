@@ -2,7 +2,7 @@
 # cleaned up in "make clobber" should also be mentioned here ...
 #
 .rnd
-.findmetric/
+.find-metric/
 /*.full
 /*.notrun
 /*.full.ok

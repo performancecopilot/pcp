@@ -255,17 +255,19 @@ _make_checkfiles()
 		PCP_PMLOGGERCONTROL_PATH="$PCP_SYSCONF_DIR/pmlogger/control"
 	[ -z "$PCP_PMIECONTROL_PATH" ] && \
 		PCP_PMIECONTROL_PATH="$PCP_SYSCONF_DIR/pmie/control"
-	_checkfiles="$PCP_PMCDCONF_PATH \
-		$PCP_PMLOGGERCONTROL_PATH \
-		$PCP_VAR_DIR/config/pmlogger/config.default \
-		$PCP_PMLOGGERCONTROL_PATH \
-		$PCP_PMCDOPTIONS_PATH \
-		$PCP_DIR/etc/pcp.conf $PCP_DIR/etc/pcp.env \
-		$PCP_PMDAS_DIR/sample/dsohelp.dir \
-		$PCP_PMDAS_DIR/sample/dsohelp.pag \
-		$PCP_PMDAS_DIR/sample/help.dir \
-		$PCP_PMDAS_DIR/sample/help.pag \
-		$PCP_PMDAS_DIR/simple/simple.conf"
+	cat <<End-of-File >$tmp.checkfiles
+$PCP_PMCDCONF_PATH
+$PCP_PMLOGGERCONTROL_PATH
+$PCP_VAR_DIR/config/pmlogger/config.default
+$PCP_PMLOGGERCONTROL_PATH
+$PCP_PMCDOPTIONS_PATH
+$PCP_DIR/etc/pcp.conf $PCP_DIR/etc/pcp.env
+$PCP_PMDAS_DIR/sample/dsohelp.dir
+$PCP_PMDAS_DIR/sample/dsohelp.pag
+$PCP_PMDAS_DIR/sample/help.dir
+$PCP_PMDAS_DIR/sample/help.pag
+$PCP_PMDAS_DIR/simple/simple.conf
+End-of-File
     fi
 }
 

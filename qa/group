@@ -73,6 +73,9 @@ pmcpp
 pmchart
 # 3D scene app
 pmview
+# pmview frontend scripts
+dkvis
+mpvis
 # time control
 pmtime
 # dialog
@@ -209,6 +212,7 @@ pmda.install
 
 ## Assorted PMDAs
 pmda.activemq
+pmda.amdgpu
 pmda.apache
 pmda.bash
 #pmda.bcc		# note this group has been retired (20 Feb, 2026)
@@ -229,7 +233,9 @@ pmda.gluster
 pmda.gpfs
 pmda.hacluster
 pmda.haproxy
+pmda.hdb
 pmda.hotproc
+pmda.infiniband
 pmda.jbd2
 #pmda.json		# note this group has been retired
 pmda.kvm
@@ -243,8 +249,10 @@ pmda.mailq
 pmda.memcache
 pmda.mic
 pmda.mmv
+pmda.mongodb
 pmda.mounts
 pmda.mpi
+pmda.mssql
 pmda.mysql
 pmda.named
 pmda.netcheck
@@ -257,6 +265,7 @@ pmda.nvidia
 pmda.ohead
 pmda.openmetrics
 pmda.opentelemetry
+pmda.openvswitch
 pmda.oracle
 pmda.perfevent
 pmda.pipe
@@ -266,8 +275,10 @@ pmda.podman
 pmda.postfix
 pmda.postgresql
 pmda.proc
+pmda.rabbitmq
 pmda.redis
 pmda.resctrl
+pmda.rds
 pmda.rocestat
 pmda.root
 #pmda.rpm		# note this group has been retired
@@ -279,14 +290,18 @@ pmda.simple
 pmda.slurm
 pmda.smart
 pmda.sockets
+pmda.statsd
 pmda.summary
 pmda.systemd
 pmda.trace
 pmda.trivial
 pmda.txmon
 pmda.unbound
+pmda.uwsgi
+pmda.valkey
 pmda.weblog
 pmda.xfs
+pmda.zimbra
 pmda.zfs
 pmda.zswap
 
@@ -326,8 +341,9 @@ pmgadgets
 # tests that use purify
 purify
 
-# tests that use valgrind
+# tests that use valgrind or helgrind
 valgrind
+helgrind
 
 # pmcd_wait - wait for pmcd to be ready for connections
 pmcd_wait
@@ -454,28 +470,37 @@ pmlogcompress
 # pmlock
 pmlock
 
+# pmlogredact
+pmlogredact
+
+# pmlogpaste
+pmlogpaste
+
 # pmjson
 pmjson
 
 # pcp2... pcp2xxx is generic
 pcp2xxx
+pcp2arrow
 pcp2elasticsearch
 pcp2graphite
 pcp2influxdb
 pcp2json
+pcp2openmetrics
+pcp2opentelemetry
 pcp2spark
 pcp2xlsx
 pcp2xml
 pcp2zabbix
-pcp2openmetrics
-pcp2opentelemetry
 
 # ...2pcp
 collectl2pcp
-sheet2pcp
 ganglia2pcp
+guidellm2pcp
 iostat2pcp
 sar2pcp
+sheet2pcp
+vllmbench2pcp
 
 # man pages
 man
@@ -500,6 +525,9 @@ pmcd.pdu
 
 # telnet-probe app
 telnet-probe
+
+# these mean something special to SUSE ...
+suse
 
 # test-group association ... one line per test
 # add :retired or :reserved as a tag immediately after the test number
@@ -1928,9 +1956,9 @@ telnet-probe
 1416 pmlogrewrite local
 1417 iostat2pcp pmimport perl pmlogdump archive_v3 local libpcp_import
 1418 pmimport sanity pmlogdump perl archive_v3 local
-1419 pmlogger pmlogdump pmloglabel pmlc v3_archive local
-1420 pmlogreduce pmval pmlogextract v3_archive local pmlogdump
-1421 pmlogreduce pmval pmlogextract v3_archive local valgrind pmlogdump
+1419 pmlogger pmlogdump pmloglabel pmlc archive_v3 local
+1420 pmlogreduce pmval pmlogextract archive_v3 local pmlogdump
+1421 pmlogreduce pmval pmlogextract archive_v3 local valgrind pmlogdump
 1422 pmda.mmv local valgrind
 1423 pcp2spark python pcp2xxx local
 1424 logutil pmlogctl local
@@ -2076,7 +2104,7 @@ telnet-probe
 1564 pmda.linux pcp local
 1565 pmlogextract local
 1566 logutil libpcp local
-1567 pmie_util local
+1567 pmieutil local
 1568 pmlogbasename local
 1569 pmlogcheck pmlogcompress local pmlogmv
 1570 archive sanity pmlogdump local
@@ -2151,8 +2179,8 @@ telnet-probe
 1639 pmda.bpf local
 1640 derive local
 1641 derive local valgrind
-1642 pmlogcheck pmlogcp pmlogdump local
-1643 pmlogcheck pmlogcp pmlogdump local valgrind
+1642 pmlogcheck pmlogmv pmlogdump local
+1643 pmlogcheck pmlogmv pmlogdump local valgrind
 1644 pmda.perfevent local
 1645 pmlogcompress local
 1646 other local
@@ -2163,6 +2191,8 @@ telnet-probe
 1651 pmlogger_daily logutil local
 1652 htop pcp local
 1653 pmda.denki local
+1654 archive_v3 libpcp local
+1655 archive_v3 libpcp local valgrind
 1658 pmda.linux local
 1660 libpcp labels local
 1661 pmproxy libpcp_web pmlogger local pmlc
@@ -2172,7 +2202,7 @@ telnet-probe
 1673 pmda.bpf local
 1678 pmda.opentelemetry local python
 1679 pmlogconf local
-1680 openvswitch local
+1680 pmda.openvswitch local
 1681 pmrep python pcp2xxx pmlogconf local
 1682 pmrep python pcp2xxx pmlogconf valgrind local
 1683 pmlogconf local valgrind
@@ -2281,6 +2311,8 @@ telnet-probe
 1877 pmproxy libpcp_web local
 1878 other local
 1881 pcp local
+1882 pmda.valkey local
+1883 pmda.valkey local
 1886 pmseries libpcp_web local
 1888 pmda.opentelemetry local python
 1889 pmlogger local
@@ -2298,7 +2330,9 @@ telnet-probe
 1912 pmie local
 1913 pmie local valgrind
 1914 atop local
+1920 libpcp_web local
 1921 pmda.sockets local
+1922 pmseries pmproxy libpcp_web local
 1927 pmda.sockets local
 1931 pmda.bpf local
 1936 other local pmclient
@@ -2329,8 +2363,6 @@ telnet-probe
 1995 pmda.linux local
 1996 pmda.infiniband local
 1997 pcp nfsiostat python local
-1882 pmda.valkey local
-1883 pmda.valkey local
 1998 pmda.rds local python
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

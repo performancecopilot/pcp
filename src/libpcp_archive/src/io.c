@@ -20,14 +20,16 @@
 #include "../libpcp/src/internal.h"
 #include <assert.h>
 
-/*
- * raw read of next archive record ...
- * largely stolen from __pmLogRead in libpcp
+/*!
+ * @brief raw read of next archive record ... logic largely borrowed from
+ * __pmLogRead() in libpcp
  *
- * record buffer is malloc'd here and returned via rbuf
+ * @param acp pointer to archive's __pmArchCtl (to access any volume)
+ * @param vol archive volume number (PM_LOG_VOL_META, PM_LOG_VOL_TI or a data
+ * volume number)
+ * @param rbuf network encoded buffer with length prefix
  *
- * return 0 for success, PM_ERR_EOL for end of file, else some
- * other error code
+ * @return 0 for success, PM_ERR_EOL for end of file, else some other error code
  */
 int
 pmaGetLog(__pmArchCtl *acp, int vol, __int32_t **rbuf)
@@ -193,10 +195,13 @@ again:
     return 0;
 }
 
-/*
- * raw write of next record to an archive file
+/*!
+ * @brief raw write of next record to an archive file
  *
- * returns 0 on success, else error code
+ * @param f pointer to archive's __pmFILE
+ * @param rbuf network encoded buffer with length prefix
+ *
+ * @return 0 on success, else error code
  */
 int
 pmaPutLog(__pmFILE *f, __int32_t *rbuf)
@@ -217,14 +222,23 @@ pmaPutLog(__pmFILE *f, __int32_t *rbuf)
     return 0;
 }
 
-/*
- * rbuf is a physical data record (pmResult) from an archive
- *
- * pmaRewriteData() is used to rewrite (reformat) rbuf from version
- * invers format into the equivalent data record for a version
- * outvers archive.
+/*!
+ * @brief Used to rewrite (reformat) a physical archive data record from one
+ * archive version format into the equivalent data record for another archive
+ * version.
+ * 
+ * @param inlcp pointer to input archive's __pmLogCtl @param outlcp pointer to
+ * output archive's __pmLogCtl @param rbuf network encoded input buffer with a
+ * pmResult; may be re-alloc'd on return
+ * 
+ * @returns 0 for nothing to be done (input version equals output version), else
+ * PM_ERR_APPVERSION for impossible conversion, else another error code.
+ * 
+ * @todo This routine will (at best) return PM_ERR_NYI because there is no code
+ * to do the real work.  Obviously the routine is not used by any PCP code at
+ * present.
  */
-int
+ int
 pmaRewriteData(__pmLogCtl *inlcp, __pmLogCtl *outlcp, __int32_t **rbuf)
 {
     int		invers = __pmLogVersion(inlcp);
@@ -245,12 +259,20 @@ pmaRewriteData(__pmLogCtl *inlcp, __pmLogCtl *outlcp, __int32_t **rbuf)
     return PM_ERR_NYI;
 }
 
-/*
- * rbuf is a physical metadata record from an archive
+/*!
+ * @brief Used to rewrite (reformat) a physical archive metadata record from
+ * one archive version format into the equivalent metadata record for another
+ * archive version.
  *
- * pmaRewriteMeta() is used to rewrite (reformat) rbuf from version
- * invers format into the equivalent metadata record for a version
- * outvers archive.
+ * @param inlcp pointer to input archive's __pmLogCtl
+ * @param outlcp pointer to output archive's __pmLogCtl
+ * @param rbuf network encoded input buffer with a metadata record; may be
+ * re-alloc'd on return (in which case the old rbuf will have been free'd)
+ *
+ * @returns 0 for success or nothing to be done (input version equals output
+ * version), else 1 to indicate a fatal failure (diagnostic will have been
+ * written to stderr), else PM_ERR_APPVERSION for impossible conversion, else
+ * some another error code.
  */
 int
 pmaRewriteMeta(__pmLogCtl *inlcp, __pmLogCtl *outlcp, __int32_t **rbuf)

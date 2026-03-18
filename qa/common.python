@@ -51,6 +51,8 @@ _check_python3()
     _check_python36
 }
 
+# on entry, expect $port to be set by caller
+#
 _check_http_filter()
 {
    tee -a $here/$seq.full \

@@ -18,6 +18,7 @@ $python -c "from collections import OrderedDict" >/dev/null 2>&1
 which pcp2json >/dev/null 2>&1 || _notrun "pcp2json not installed"
 which pcp2openmetrics >/dev/null 2>&1 || _notrun "pcp2openmetrics not installed"
 which pcp2opentelemetry >/dev/null 2>&1 || _notrun "pcp2opentelemetry not installed"
+which jq >/dev/null 2>&1 || _notrun "jq not installed"
 
 _cleanup()
 {
@@ -76,7 +77,7 @@ s/ 85.0.0 / PMID /
 _filter_pcp2opentelemetry()
 {
    tee -a $here/$seq.full \
-   | col -b \
+   | jq \
    | sed \
         -e 's/\"stringValue\": \"[^\"]*\"/\"stringValue\": \"VALUE\"/g'\
 	-e 's/\"timeUnixNano\": \"[^\"]*\"/\"timeUnixNano\": \"TIME\"/g'\
@@ -90,25 +91,25 @@ _filter_pcp2opentelemetry()
 _save_config $PCP_SYSCONF_DIR/labels
 $sudo rm -rf $PCP_SYSCONF_DIR/labels/*
 
-echo "---"
+echo "--- pcp2json -a archives/rep -H -I -z \"\""
 pcp2json -a $A -H -I -z "" | _archive_filter
-echo "---"
+echo "--- pcp2json -a archives/rep -H -I -z -E \"\""
 pcp2json -a $A -H -I -z -E "" | _archive_filter | _value_filter
-echo "---"
+echo "--- -a archives/rep -H -I -Z UTC+0 -x \"\""
 pcp2json -a $A -H -I -Z UTC+0 -x "" | _archive_filter
-echo "---"
+echo "--- pcp2json -a archives/rep -H -I -z -X -b GB -P 2 -F TMP.outfile \"\""
 pcp2json -a $A -H -I -z -X -b GB -P 2 -F $tmp.outfile ""
-echo "---"
+echo "--- pcp2openmetrics -s1 -z hinv.ncpu"
 pcp2openmetrics -s1 -z hinv.ncpu | _filter_pcp2openmetrics
-echo "---"
+echo "--- pcp2openmetrics -s2 -x hinv.ncpu"
 pcp2openmetrics -s2 -x hinv.ncpu | _filter_pcp2openmetrics
-echo "---"
+echo "--- pcp2openmetrics -s2 -a archives/20201109 hinv.ncpu kernel.all.load"
 pcp2openmetrics -s2 -a $A1 hinv.ncpu kernel.all.load | _filter_pcp2openmetrics | _archive_filter
-echo "---"
+echo "--- pcp2opentelemetry -s1 -z hinv.ncpu"
 pcp2opentelemetry -s1 -z hinv.ncpu | _filter_pcp2opentelemetry
-echo "---"
+echo "--- pcp2opentelemetry -s2 -z hinv.ncpu"
 pcp2opentelemetry -s2 -z hinv.ncpu | _filter_pcp2opentelemetry
-echo "---"
+echo "--- pcp2opentelemetry -s1 -a archives/20201109 hinv.ncpu"
 pcp2opentelemetry -s1 -a $A1 hinv.ncpu | _filter_pcp2opentelemetry
 echo "---"
 

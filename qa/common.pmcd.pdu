@@ -27,10 +27,10 @@ which nc >/dev/null 2>&1 || _notrun "no nc executable installed"
 nc --help >$tmp.out 2>&1
 if grep -q '.-[^ ]*N' $tmp.out
 then
-    nc_opt=-N
+    __nc_opt=-N
 elif grep -q '.--send-only' $tmp.out
 then
-    nc_opt="--send-only"
+    __nc_opt="--send-only"
 else
     cat $tmp.out >>$seq_full
     _notrun 'nc --help is not helping ... see $seq_full'
@@ -61,30 +61,30 @@ $PCP_AWK_PROG <$PCP_PMCDCONF_PATH >>pmcd.conf '
 $1 == "[access]"	{ print ""; want = 1 }
 want == 1		{ print }'
 cat pmcd.conf >>$seq_full
-port=`_find_free_port`
-echo "port=$port" >>$seq_full
+__port=`_find_free_port`
+echo "__port=$__port" >>$seq_full
 
 # real QA test starts here
-valgrind --leak-check=full $PCP_BINADM_DIR/pmcd -f -Dpdu,appl3,attr -c ./pmcd.conf -s ./pmcd.socket -p $port  >out 2>err &
+valgrind --leak-check=full $PCP_BINADM_DIR/pmcd -f -Dpdu,appl3,attr -c ./pmcd.conf -s ./pmcd.socket -p $__port  >out 2>err &
 valgrind_pid=$!
 sleep 2
-pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
-echo "pmcd_pid=$pmcd_pid" >>$seq_full
+__pmcd_pid=`$PCP_PS_PROG $PCP_PS_ALL_FLAGS | grep '[p]mcd -f -Dpdu' | $PCP_AWK_PROG '{ print $2 }'`
+echo "__pmcd_pid=$__pmcd_pid" >>$seq_full
 case "`file $here/$pdu_data`"
 in
     *'ASCII text'*)
 	# assume ascii PDU specification as input to pdu-gadget
-	$here/src/pdu-gadget -p $port <$here/$pdu_data 2>$tmp.err
+	$here/src/pdu-gadget -p $__port <$here/$pdu_data 2>$tmp.err
 	;;
     *)
 	# assume binary data, e.g. SUSE reproducers
 	rm -f $tmp.err
-	nc $nc_opt <$here/$pdu_data localhost $port 2>&1 \
+	nc $__nc_opt <$here/$pdu_data localhost $__port 2>&1 \
 	;;
 esac \
 | od -X >>$seq_full
 sleep 2
-kill -TERM $pmcd_pid
+kill -TERM $__pmcd_pid
 wait
 
 [ -s $tmp.err ] && cat $tmp.err

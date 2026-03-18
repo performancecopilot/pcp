@@ -6,7 +6,6 @@ PMNS names w/out a PMDA ... OK
 Bad PMIDs in PMDA (other than sample or pmproxy) ... OK
 /etc/hosts ... OK
 /etc/zabbix/zbxpcp-derived-metrics.conf ... OK
-$HOME/.pki/nssdb ... OK
 $PCP_ETC_DIR/pcp/labels ... OK
 $PCP_ETC_DIR/pcp/pmlogger ... OK
 $PCP_PMCDCONF_PATH ... OK

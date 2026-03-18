@@ -59,9 +59,15 @@ ls -l \$PCP_TMP_DIR/pmlogger >&2
 ls -ld \$PCP_TMP_DIR/pmlogger >&2
 sudo rm -f /tmp/$base.*
 End-of-File
-    scp -q $tmp.cmd pcpqa@$host:$seq.cmd
-    ssh -q pcpqa@$host sh ./$seq.cmd >$tmp.out 2>$tmp.err
-    ssh -q pcpqa@$host "rm -f $seq.cmd"
+    if ! scp -q $tmp.cmd pcpqa@$host:/tmp/$seq-$$.cmd
+    then
+	echo "Arrgh: scp #1 failed"
+	ls -l $tmp.cmd
+	ssh pcpqa@$host ls -l $seq-$$.cmd
+	_exit 1
+    fi
+    ssh -q pcpqa@$host sh /tmp/$seq-$$.cmd >$tmp.out 2>$tmp.err
+    ssh -q pcpqa@$host "rm -f /tmp/$seq-$$.cmd"
 
     echo >>$seq_full
     echo "_remote_signal: ssh to $host ..." >>$seq_full
@@ -100,9 +106,15 @@ p
 echo pid=\$pid base=\$\$
 ls -l \$PCP_TMP_DIR/pmlogger >&2
 End-of-File
-    scp -q $tmp.cmd pcpqa@$host:$seq.cmd
-    ssh -q pcpqa@$host sh ./$seq.cmd >$tmp.out 2>$tmp.err
-    ssh -q pcpqa@$host "rm -f $seq.cmd"
+    if ! scp -q $tmp.cmd pcpqa@$host:/tmp/$seq-$$.cmd
+    then
+	echo "Arrgh: scp #2 failed"
+	ls -l $tmp.cmd
+	ssh pcpqa@$host ls -l $seq-$$.cmd
+	_exit 1
+    fi
+    ssh -q pcpqa@$host sh /tmp/$seq-$$.cmd >$tmp.out 2>$tmp.err
+    ssh -q pcpqa@$host "rm -f /tmp/$seq-$$.cmd"
 
     eval `ssh -q pcpqa@$host grep PCP_ARCHIVE_VERSION /etc/pcp.conf`
 

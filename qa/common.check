@@ -135,11 +135,11 @@ _save_config()
     case "$1"
     in
 	$PCP_PMLOGGERCONTROL_PATH.d/*)
-	    _src="$1"
-	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
-	    if [ ! -d `dirname $_dst` ]
+	    __src="$1"
+	    __dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
+	    if [ ! -d `dirname $__dst` ]
 	    then
-		if $sudo mkdir `dirname $_dst`
+		if $sudo mkdir `dirname $__dst`
 		then
 		    :
 		else
@@ -149,21 +149,21 @@ _save_config()
 	    fi
 	    ;;
 	*)
-	    _src="$1"
-	    _dst="$1.$seq"
+	    __src="$1"
+	    __dst="$1.$seq"
 	    ;;
     esac
 
-    if [ -f "$_src" ]
+    if [ -f "$__src" ]
     then
-	$sudo rm -f "$_dst"
-	$sudo mv "$_src" "$_dst"
-	$sudo cp "$_dst" "$_src"
-    elif [ -d "$_src" ]
+	$sudo rm -f "$__dst"
+	$sudo mv "$__src" "$__dst"
+	$sudo cp "$__dst" "$__src"
+    elif [ -d "$__src" ]
     then
-	$sudo rm -rf "_dst"
-	$sudo mv "$_src" "$_dst"
-	$sudo cp -r "$_dst" "$_src"
+	$sudo rm -rf "__dst"
+	$sudo mv "$__src" "$__dst"
+	$sudo cp -r "$__dst" "$__src"
     else
 	echo "Botch: _save_config: $1 does not exist"
     fi
@@ -180,24 +180,24 @@ _restore_config()
     case "$1"
     in
 	$PCP_PMLOGGERCONTROL_PATH.d/*)
-	    _src="$1"
-	    _dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
+	    __src="$1"
+	    __dst=`echo "$1" | sed -e 's@/control.d/@/save_control.d/@'`.$seq
 	    ;;
 	*)
-	    _src="$1"
-	    _dst="$1.$seq"
+	    __src="$1"
+	    __dst="$1.$seq"
 	    ;;
     esac
-    if [ -f "$_dst" ]
+    if [ -f "$__dst" ]
     then
-	$sudo rm -f "$_src"
-	$sudo mv "$_dst" "$_src"
-    elif [ -d "$_dst" ]
+	$sudo rm -f "$__src"
+	$sudo mv "$__dst" "$__src"
+    elif [ -d "$__dst" ]
     then
-	$sudo rm -rf "$_src"
-	$sudo mv "$_dst" "$_src"
+	$sudo rm -rf "$__src"
+	$sudo mv "$__dst" "$__src"
     else
-	echo "Warning: _restore_config: $_dst does not exist"
+	echo "Warning: _restore_config: $__dst does not exist"
     fi
 }
 
@@ -247,7 +247,7 @@ _restore_auto_restart()
 # note this one has to do the $sudo and handle "pcp" as the special
 # non-service case ...
 #
-# Usage: _service [-v] <service> [on|off|restart|...]
+# Usage: _service [-v] <service> [stop|start|restart|...]
 #
 _service()
 {
@@ -300,23 +300,23 @@ _service()
 		;;
 
 	    *)
-		_extra_svc=''
+		__extra_svc=''
 		case "$1"
 		in
 		    pmlogger)
-			    _extra_svc='pmlogger_daily pmlogger_check pmlogger_farm'
+			    __extra_svc='pmlogger_daily pmlogger_check pmlogger_farm'
 			    ;;
 		esac
 		# if service (or related service) is failed, need
 		# reset-failed before trying anything else
 		#
-		for _svc in $1 $_extra_svc
+		for __svc in $1 $__extra_svc
 		do
-		    if systemctl show --property=ActiveState $_svc.service 2>&1 \
+		    if systemctl show --property=ActiveState $__svc.service 2>&1 \
 		      | grep '=failed$' >/dev/null
 		    then
-			$__verbose && echo "_service: using systemctl: reset-failed $_svc"
-			$sudo systemctl reset-failed $_svc.service 2>>$seq_full
+			$__verbose && echo "_service: using systemctl: reset-failed $__svc"
+			$sudo systemctl reset-failed $__svc.service 2>>$seq_full
 		    fi
 		done
 
@@ -759,15 +759,15 @@ _ps_tcp_port()
 _triage_pmcd()
 {
     echo "=== triage for pmcd ==="
-    for log in pmcd.log.prev pmcd.log
+    for __log in pmcd.log.prev pmcd.log
     do
-	if [ -f $PCP_LOG_DIR/pmcd/$log ]
+	if [ -f $PCP_LOG_DIR/pmcd/$__log ]
 	then
-	    echo "--- start $log ---"
-	    cat $PCP_LOG_DIR/pmcd/$log
-	    echo "--- end $log ---"
+	    echo "--- start $__log ---"
+	    cat $PCP_LOG_DIR/pmcd/$__log
+	    echo "--- end $__log ---"
 	else
-	    echo "--- $log is missing"
+	    echo "--- $__log is missing"
 	fi
     done
 
@@ -938,10 +938,10 @@ __triage_systemd()
 
 	if which journalctl >/dev/null
 	then
-	    last=4
+	    __last=4
 	    echo
-	    echo "++ last $last journal entries for $1.service"
-	    $sudo journalctl -l -n $last -xeu $1.service | cat
+	    echo "++ last $__last journal entries for $1.service"
+	    $sudo journalctl -l -n $__last -xeu $1.service | cat
 	else
 	    echo "No journalctl for $1.service"
 	fi
@@ -1047,14 +1047,14 @@ _wait_for_pmlogger()
 	    ls -l $__logfile.prev
 	    __filter_pmlogger_log <$__logfile.prev
 	fi
-	for file in pmlogger_check.log pmlogger_check.log.prev \
+	for __file in pmlogger_check.log pmlogger_check.log.prev \
 	    pmlogger_janitor.log pmlogger_janitor.log.prev
 	do
-	    if [ -f "$PCP_ARCHIVE_DIR/$file" ]
+	    if [ -f "$PCP_ARCHIVE_DIR/$__file" ]
 	    then
-		echo "++ $PCP_ARCHIVE_DIR/$file"
-		ls -l $PCP_ARCHIVE_DIR/$file
-		cat $PCP_ARCHIVE_DIR/$file
+		echo "++ $PCP_ARCHIVE_DIR/$__file"
+		ls -l $PCP_ARCHIVE_DIR/$__file
+		cat $PCP_ARCHIVE_DIR/$__file
 	    fi
 	done
 	__triage_systemd pmcd
@@ -3633,7 +3633,7 @@ _private_pmcd()
     echo "=== private pmcd ..." >>$seq_full
     cat pmcd.conf >>$seq_full
     pmcd_port=`_find_free_port`
-    echo "pmcd_port=$port" >>$seq_full
+    echo "pmcd_port=$pmcd_port" >>$seq_full
     $PCP_BINADM_DIR/pmcd $pmcd_args -f -c ./pmcd.conf -s ./pmcd.socket -p $pmcd_port  >pmcd.out 2>pmcd.err &
     pmcd_pid=$!
     PMCD_PORT=$pmcd_port; export PMCD_PORT
@@ -3655,34 +3655,34 @@ _path_readable()
 	echo >&2 "Usage: _path_readable user path"
 	return 1
     fi
-    user="$1"
-    path="$2"
-    if $sudo -u $user id >/dev/null 2>&1
+    __user="$1"
+    __path="$2"
+    if $sudo -u $__user id >/dev/null 2>&1
     then
 	:
     else
-	echo >&2 "_path_readable: cannot run commands as user $user"
+	echo >&2 "_path_readable: cannot run commands as user $__user"
 	return 1
     fi
-    if [ ! -f "$path" ]
+    if [ ! -f "$__path" ]
     then
-	echo >&2 "_path_readable: bozo, $path does not exist!"
+	echo >&2 "_path_readable: bozo, $__path does not exist!"
 	return 1
     fi
-    if $sudo -u "$user" [ -r "$path" ]
+    if $sudo -u "$__user" [ -r "$__path" ]
     then
 	return 0
     else
-	echo >&2 "_path_readable: $path is not readable by the user $user"
-	tpath=''
-	for dir in `echo "$path" | sed -e 's/\// /g'`
+	echo >&2 "_path_readable: $__path is not readable by the user $__user"
+	__tpath=''
+	for __dir in `echo "$__path" | sed -e 's/\// /g'`
 	do
-	    tpath="$tpath/$dir"
-	    if $sudo -u "$user" [ -r "$tpath" ]
+	    __tpath="$__tpath/$__dir"
+	    if $sudo -u "$__user" [ -r "$__tpath" ]
 	    then
 		:
 	    else
-		echo >&2 "_path_readable: directory $tpath is unreadable"
+		echo >&2 "_path_readable: directory $__tpath is unreadable"
 		break
 	    fi
 	done
@@ -3832,24 +3832,24 @@ $3 == "pstree"	{ exit }
 #
 _check_local_primary_archive()
 {
-    _archive=`pminfo -f pmcd.pmlogger.archive 2>>$seq_full | sed -n -e '/"primary"]/{
+    __archive=`pminfo -f pmcd.pmlogger.archive 2>>$seq_full | sed -n -e '/"primary"]/{
 s/"$//
 s/.*"//
 p
 }'`
-    case "$_archive"
+    case "$__archive"
     in
     	/*)		# local file
 			return 0
 			;;
 
 	http://*)	# logpush
-			echo "_check_local_primary_archive: false: $_archive" >>$seq_full
+			echo "_check_local_primary_archive: false: $__archive" >>$seq_full
 			return 1
 			;;
 
 	*)		# botch
-			echo "_check_local_primary_archive: botch: _archive=\"$_archive\"" >>$seq_full
+			echo "_check_local_primary_archive: botch: __archive=\"$__archive\"" >>$seq_full
 			return 1
 			;;
     esac
@@ -3878,4 +3878,25 @@ _pid_in_container()
 	esac
     fi
     return 1
+}
+
+# if $seq.wait exists, loop forever here until it is removed
+# the optional $1 provides a message that is output on stdout
+# before looping (typically the PID of an "interesting" process
+# to debug or attach to with gdb before continuing the test).
+#
+_triage_wait_point()
+{
+    if [ -f "$here/$seq.wait" ]
+    then
+	[ -n "$1" ] && echo "$1"
+	echo "_triage_wait_point: found $seq.wait, waiting ..."
+	__i=0
+	while [ -f $here/$seq.wait ]
+	do
+	    sleep 1
+	    __i=`expr $__i + 1`
+	done
+	echo "_triage_wait_point: $seq.wait removed after $__i seconds, continuing ..."
+    fi
 }

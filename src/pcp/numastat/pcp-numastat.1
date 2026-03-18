@@ -18,7 +18,7 @@
 \f3pcp-numastat\f1 \- report on NUMA memory allocation
 .SH SYNOPSIS
 \f3pcp\f1 [\f2pcp\ options\f1] \f3numastat\f1
-[\fB\-mnV?\fR] [\fB\-w\fR \fIwidth\fR]
+[\fB\-mnV?\fR] [\fB\-w\fR \fIwidth\fR] [\fB\-p\fR [\fIprocess\fR ...]]
 .SH DESCRIPTION
 .B pcp-numastat
 displays NUMA allocation statistics from the kernel memory
@@ -68,6 +68,24 @@ Display meminfo-like system-wide memory usage.
 \fB\-n\fR, \fB\-\-numastat\fR
 Display the numastat statistics info.
 .TP
+\fB\-p\fR, \fB\-\-process\fR
+Display per-process NUMA memory usage from \fBproc.numa_maps\fR metrics.
+Any trailing \fIprocess\fR operands are treated as process IDs (when the
+operand is all digits) or regular expressions for command name matching.
+Matching for command names is performed against the full command line
+(as reported by \fBproc.psinfo.psargs\fR).
+When a single process ID operand is provided and it matches exactly one
+process, a detailed table of Hugepage, Heap, Stack and Private mappings is
+shown (as in \fBnumastat \-p\fR). When multiple process ID operands are
+provided, a per-process summary table is shown (also like
+\fBnumastat \-p\fR) and may be split into multiple node column blocks
+based on the available display width.
+.PP
+In the per-process view, node columns are always shown for all NUMA nodes
+present on the system (as reported by PCP NUMA inventory metrics), even if
+individual \fBproc.numa_maps\fR metric instances omit some nodes. Missing
+per-process metrics are reported as zero.
+.TP
 \fB\-V\fR, \fB\-\-version\fR
 Display the current version of the command.
 .TP
@@ -81,7 +99,8 @@ Display usage message and exit.
 .B pcp-numastat
 is inspired by the
 .BR numastat (1)
-command and produces exactly the same output.
+command and produces the same output for the system-wide views. The
+per-process view (\fB\-p\fR) follows the \fBnumastat \-p\fR layout.
 .SH PCP ENVIRONMENT
 Environment variables with the prefix \fBPCP_\fP are used to parameterize
 the file and directory names used by PCP.

@@ -138,6 +138,7 @@ echo
 echo "=== $iam agent installation (normal kernel mode) ==="
 $sudo cp $tmp.default.conf $PCP_PMDAS_DIR/kvm/kvm.conf
 $sudo ./Install </dev/null >$tmp.out 2>&1
+_triage_wait_point
 # Check kvm metrics have appeared ... X metrics and Y values
 _filter_pmda_install <$tmp.out \
 | $PCP_AWK_PROG '
@@ -147,9 +148,19 @@ _filter_pmda_install <$tmp.out \
 					{ print }'
 grep lockdown $PCP_LOG_DIR/pmcd/kvm.log | _filter
 
-if pminfo -v $iam
+if pminfo -v $iam >$tmp.tmp 2>&1
 then
-    :
+    # some of 'em may legitimately have no values ...
+    # observed on vm34 (Arch Linux), the directory
+    # /sys/kernel/debug/tracing/events/kvm does not exist, even though
+    # debugfs is mounted on /sys/kernel/debug
+    #
+    if [ ! -d /sys/kernel/debug/tracing/events/kvm ]
+    then
+	grep -v 'No value(s)' $tmp.tmp
+    else
+	cat $tmp.tmp
+    fi
 else
     echo "... failed! ... here is the Install log ..."
     cat $tmp.out

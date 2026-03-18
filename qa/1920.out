@@ -1,0 +1,27 @@
+QA output created by 1920
+series_time_parse_test: now = TIMESTAMP
+
+--- Bug demonstration: PM_MAX_TIME_T sentinel breaks negative offsets ---
+PASS: -30s fails with PM_MAX_TIME_T end sentinel (pre-fix behaviour)
+PASS: -7d fails with PM_MAX_TIME_T end sentinel (pre-fix behaviour)
+
+--- Fix verification: negative offsets work when end=now ---
+PASS: -30s parses without error when end=now
+PASS: -30s result is approximately 30 seconds before now
+PASS: -2m parses without error when end=now
+PASS: -2m result is approximately 2 minutes before now
+PASS: -1h parses without error when end=now
+PASS: -1h result is approximately 1 hour before now
+PASS: -7d parses without error when end=now
+PASS: -7d result is approximately 7 days before now
+
+--- Positive relative offsets (regression) ---
+PASS: +30s from epoch yields tv_sec == 30
+PASS: 30s (no sign) from epoch yields tv_sec == 30
+
+--- ISO-8601 with Z suffix (crash safety) ---
+INFO: __pmtimespecParse("2024-01-15T10:30:00Z") returned RETCODE
+PASS: 2024-01-15T10:30:00Z did not crash __pmtimespecParse
+PASS: "not-a-date" returns error from __pmtimespecParse
+
+=== Results: 14 passed, 0 failed ===

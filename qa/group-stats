@@ -9,19 +9,24 @@
 # 015 pdu local ostest sanity pmstore
 #
 
+tmp=/tmp/group-stats-$$
+trap "rm -f \$tmp.*; exit 0" 0 1 2 3 15
+
 awk <group '
-/^\#/		{ next }
+/^[#]/		{ next }
 NF == 0		{ next }
-/^[0-9]/	{ for (i = 2; i <= NF; i++) {
+/^[0-9]/	{ if ($1 ~ /:retired$/) next
+		  if ($1 ~ /:reserved$/) next
+		  for (i = 2; i <= NF; i++) {
 		    if (f[$i] == "") {
 			if ($i == "remote" || $i == "local" || $i == "sanity" ||
 			    $i == "ostest" ||
-			    $i ~ /^\#/ || $i ~ /patch/ || $i ~ /^@/) {
+			    $i ~ /^[#]/ || $i ~ /patch/ || $i ~ /^@/) {
 			    # control "groups" or sgi bug numbers or BAD group
 			    # annotation
 			    continue
 			}
-			printf "Warning[%d]: test %s: group \"%s\" not declared\n",NR,$1,$i
+			printf "Warning[%d]: test %s: group \"%s\" not declared\n",NR,$1,$i >"'"$tmp.warn"'"
 		    }
 		    else
 			f[$i]++
@@ -39,3 +44,5 @@ END		{ for (g in f) {
 		  }
 		}' \
 | sort -k 1,1nr -k2,2
+
+[ -f $tmp.warn ] && cat $tmp.warn
