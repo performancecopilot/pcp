@@ -70,8 +70,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz all-ubuntu.22.04.index \
 	  bind2-9.18.0.xz bind2-9.18.meta.xz bind2-9.18.index \
 	  bind2-9.18+.0.xz bind2-9.18+.meta.xz bind2-9.18+.index \
-	  pcp-numastat-1-node.0.xz pcp-numastat-1-node.meta.xz \
-	  pcp-numastat-1-node.index.xz gfs.0.xz gfs.meta gfs.index \
+	  pcp-numastat-8-node.0.xz pcp-numastat-8-node.meta.xz \
+	  pcp-numastat-8-node.index.xz gfs.0.xz gfs.meta gfs.index \
 	  numa.0.xz numa.meta.xz numa.index.xz \
 	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
 	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index

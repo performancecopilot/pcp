@@ -66,6 +66,7 @@ static int			autogroup = -1;	/* =1 autogroup enabled */
 static unsigned int		threads;	/* control.all.threads */
 static char *			cgroups;	/* control.all.cgroups */
 size_t				_pm_system_pagesize;
+size_t				_pm_system_hugepagesize;
 long				_pm_hertz;
 
 /*
@@ -1403,6 +1404,23 @@ static pmdaMetric metrictab[] = {
 /* proc.fdinfo.amd_requested_vram */
   { NULL, { PMDA_PMID(CLUSTER_PID_FDINFO,12), PM_TYPE_U64, PROC_INDOM,
     PM_SEM_INSTANT, PMDA_PMUNITS(1,0,0,PM_SPACE_KBYTE,0,0)}},
+
+/*
+* numa_maps cluster
+*/
+
+/* proc.numa_maps.hugepage */
+  { NULL, { PMDA_PMID(CLUSTER_PID_NUMA_MAPS,0), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.numa_maps.heap */
+  { NULL, { PMDA_PMID(CLUSTER_PID_NUMA_MAPS,1), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.numa_maps.stack */
+  { NULL, { PMDA_PMID(CLUSTER_PID_NUMA_MAPS,2), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
+/* proc.numa_maps.private */
+  { NULL, { PMDA_PMID(CLUSTER_PID_NUMA_MAPS,3), PM_TYPE_STRING, PROC_INDOM,
+    PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0)}},
 
 };
 
@@ -3569,6 +3587,34 @@ proc_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 	    return PM_ERR_PMID;
 	}
 	break;
+    case CLUSTER_PID_NUMA_MAPS:
+        if (!have_access)
+          return PM_ERR_PERMISSION;
+        if ((entry = fetch_proc_pid_numa_maps(inst, active_proc_pid, &sts)) == NULL)
+          return sts;
+        if (!(entry->success & PROC_PID_FLAG_NUMA_MAPS))
+          return 0;
+
+	switch(item) {
+          case 0: /* proc.numa_maps.hugepage */
+		    atom->cp = proc_strings_lookup(entry->numa_maps.huge_id);
+	            break;
+
+          case 1: /* proc.numa_maps.heap */
+	    atom->cp = proc_strings_lookup(entry->numa_maps.heap_id);
+            break;
+
+          case 2: /* proc.numa_maps.stack */
+	    atom->cp = proc_strings_lookup(entry->numa_maps.stack_id);
+            break;
+
+          case 3: /* proc.numa_maps.private */
+	    atom->cp = proc_strings_lookup(entry->numa_maps.private_id);
+            break;
+          default: /* unknown cluster */
+            return PM_ERR_PMID;
+	}
+        break;
     default: /* unknown cluster */
 	return PM_ERR_PMID;
     }
@@ -3931,6 +3977,25 @@ proc_gidname_lookup(int gid)
     return "";
 }
 
+static size_t
+proc_hugepagesize(void)
+{
+    unsigned long	huge_page_size_kb = 0;
+    char		buf[128];
+    FILE		*fs;
+
+    if ((fs = fopen("/proc/meminfo", "r")) == NULL)
+	return 0;
+
+    while (fgets(buf, sizeof(buf), fs)) {
+	if (sscanf(buf, "Hugepagesize: %lu kB", &huge_page_size_kb) == 1)
+	    break;
+    }
+    fclose(fs);
+
+    return huge_page_size_kb * 1024;
+}
+
 /*
  * Initialise the agent (both daemon and DSO).
  */
@@ -3952,6 +4017,10 @@ proc_init(pmdaInterface *dp)
 	_pm_system_pagesize = atoi(envpath);
     else
 	_pm_system_pagesize = getpagesize();
+    if ((envpath = getenv("PROC_HUGEPAGESIZE")) != NULL)
+	_pm_system_hugepagesize = atoi(envpath);
+    else
+	_pm_system_hugepagesize = proc_hugepagesize();
     if ((envpath = getenv("PROC_STATSPATH")) != NULL)
 	proc_statspath = envpath;
     if ((envpath = getenv("PROC_THREADS")) != NULL)
