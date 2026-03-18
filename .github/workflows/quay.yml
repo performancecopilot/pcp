@@ -33,14 +33,14 @@ jobs:
 
       - name: Extract tags and labels for base image
         id: meta_base
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.BASE_IMAGE }}
           tags: type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Extract tags and labels for archive image
         id: meta_archive
-        uses: docker/metadata-action@v5
+        uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.ARCHIVE_IMAGE }}
           tags: type=raw,value=latest,enable={{is_default_branch}}
