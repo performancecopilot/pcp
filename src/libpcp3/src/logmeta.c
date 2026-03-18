@@ -1233,7 +1233,10 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 			fprintf(stderr, "[%d] add from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
 		    assert (k < numinst);
 		    instlist[k] = didp->instlist[j];
-		    namelist[k] = strdup(didp->namelist[j]);
+                    if (didp->alloc & PMLID_NAMES)
+                       namelist[k] = didp->namelist[j];
+                    else
+                       namelist[k] = strdup(didp->namelist[j]);
 		    k++;
 		    j++;
 		    continue;
@@ -1245,7 +1248,10 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 		    fprintf(stderr, "[%d] dup from [%d] inst %d \"%s\"\n", k, i, tidp->instlist[i], tidp->namelist[i]);
 		assert(k < numinst);
 		instlist[k] = tidp->instlist[i];
-		namelist[k] = strdup(tidp->namelist[i]);
+                if (tidp->alloc & PMLID_NAMES)
+                   namelist[k] = tidp->namelist[i];
+                else
+                   namelist[k] = strdup(tidp->namelist[i]);
 		k++;
 		i++;
 	    }
@@ -1255,12 +1261,17 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 		    fprintf(stderr, "[%d] append from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
 		assert(k < numinst);
 		instlist[k] = didp->instlist[j];
-		namelist[k] = strdup(didp->namelist[j]);
+                if (didp->alloc & PMLID_NAMES)
+                   namelist[k] = didp->namelist[j];
+                else
+                   namelist[k] = strdup(didp->namelist[j]);
 		k++;
 		j++;
 	    }
 	}
 	didp->numinst = numinst;
+        if (didp->alloc & PMLID_INSTLIST)
+            free(didp->instlist);
 	didp->instlist = instlist;
 	if (didp->alloc & PMLID_NAMELIST)
 	    free(didp->namelist);
