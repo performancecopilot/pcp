@@ -153,6 +153,77 @@ refresh_network(struct netstats *stats, pmdaIndom *indom)
     return status;
 }
 
+/*
+ * Compute aggregate network statistics by summing across all interfaces.
+ * Mirrors Linux PMDA's network.all.* metrics (CLUSTER_NET_ALL).
+ */
+void
+refresh_network_all(net_all_t *all, struct netstats *stats)
+{
+    int i;
+
+    memset(all, 0, sizeof(net_all_t));
+    for (i = 0; i < stats->highwater; i++) {
+	all->in_bytes	+= stats->interfaces[i].ibytes;
+	all->in_packets	+= stats->interfaces[i].ipackets;
+	all->in_errors	+= stats->interfaces[i].ierrors;
+	all->in_drops	+= stats->interfaces[i].iqdrops;
+	all->out_bytes	+= stats->interfaces[i].obytes;
+	all->out_packets += stats->interfaces[i].opackets;
+	all->out_errors	+= stats->interfaces[i].oerrors;
+    }
+}
+
+int
+fetch_network_all(unsigned int item, pmAtomValue *atom)
+{
+    extern net_all_t mach_net_all;
+    extern int mach_net_error;
+
+    if (mach_net_error)
+	return mach_net_error;
+
+    switch (item) {
+    case 0: /* network.all.in.bytes */
+	atom->ull = mach_net_all.in_bytes;
+	return 1;
+    case 1: /* network.all.in.packets */
+	atom->ull = mach_net_all.in_packets;
+	return 1;
+    case 2: /* network.all.in.errors */
+	atom->ull = mach_net_all.in_errors;
+	return 1;
+    case 3: /* network.all.in.drops */
+	atom->ull = mach_net_all.in_drops;
+	return 1;
+    case 4: /* network.all.out.bytes */
+	atom->ull = mach_net_all.out_bytes;
+	return 1;
+    case 5: /* network.all.out.packets */
+	atom->ull = mach_net_all.out_packets;
+	return 1;
+    case 6: /* network.all.out.errors */
+	atom->ull = mach_net_all.out_errors;
+	return 1;
+    case 7: /* network.all.out.drops */
+	atom->ull = 0;  /* macOS does not track output drops */
+	return 1;
+    case 8: /* network.all.total.bytes */
+	atom->ull = mach_net_all.in_bytes + mach_net_all.out_bytes;
+	return 1;
+    case 9: /* network.all.total.packets */
+	atom->ull = mach_net_all.in_packets + mach_net_all.out_packets;
+	return 1;
+    case 10: /* network.all.total.errors */
+	atom->ull = mach_net_all.in_errors + mach_net_all.out_errors;
+	return 1;
+    case 11: /* network.all.total.drops */
+	atom->ull = mach_net_all.in_drops;  /* input drops only on macOS */
+	return 1;
+    }
+    return PM_ERR_PMID;
+}
+
 int
 fetch_network(unsigned int item, unsigned int inst, pmAtomValue *atom)
 {

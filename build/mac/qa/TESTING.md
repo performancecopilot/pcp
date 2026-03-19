@@ -58,10 +58,7 @@ wait_pmcd() {
 ### Test 1: Verify Configuration Changes
 
 ```bash
-# Check plist has environment variable and KeepAlive
-cat /Library/LaunchDaemons/io.pcp.pmcd.plist | grep -A4 EnvironmentVariables
-# Should show: LAUNCHED_BY_LAUNCHD = 1
-
+# Check plist has KeepAlive
 cat /Library/LaunchDaemons/io.pcp.pmcd.plist | grep -A1 KeepAlive
 # Should show: <true/>
 ```
@@ -87,9 +84,9 @@ wait_pmcd
 # Verify pmcd is running
 ps aux | grep pmcd | grep -v grep
 
-# Check that pmcd is running with -f flag (foreground mode)
-ps aux | grep '[p]mcd' | grep -- '-f'
-# Should see the -f flag in the command line
+# Check that pmcd is running with -F flag (foreground mode)
+ps aux | grep '[p]mcd' | grep -- '-F'
+# Should see the -F flag in the command line
 
 # Verify exactly one pmcd process (no fork issues)
 echo "pmcd process count: $(ps aux | grep '[p]mcd' | wc -l | tr -d ' ')"
@@ -202,8 +199,8 @@ pminfo -f pmcd.version
 
 ## Expected Results Summary
 
-✅ **Configuration**: LAUNCHED_BY_LAUNCHD env var present, KeepAlive = true
-✅ **Foreground mode**: pmcd runs with `-f` flag
+✅ **Configuration**: KeepAlive = true
+✅ **Foreground mode**: pmcd runs with `-F` flag
 ✅ **No fork issues**: Only one pmcd process exists
 ✅ **launchctl tracking**: Service shows in `launchctl list` with PID
 ✅ **KeepAlive works**: pmcd automatically restarts after crash
@@ -240,5 +237,5 @@ Check if rc_pmcd is detecting it:
 sudo launchctl unload /Library/LaunchDaemons/io.pcp.pmcd.plist
 sudo launchctl load /Library/LaunchDaemons/io.pcp.pmcd.plist
 wait_pmcd
-ps aux | grep '[p]mcd'  # Should show -f flag
+ps aux | grep '[p]mcd'  # Should show -F flag
 ```

@@ -51,9 +51,25 @@ typedef struct netstats {
     ifacestat_t	*interfaces;	/* space for highwater number of interfaces */
 } netstats_t;
 
+/*
+ * Aggregate network statistics across all interfaces.
+ * Mirrors Linux PMDA's network.all.* metrics.
+ */
+typedef struct net_all {
+    __uint64_t	in_bytes;
+    __uint64_t	in_packets;
+    __uint64_t	in_errors;
+    __uint64_t	in_drops;
+    __uint64_t	out_bytes;
+    __uint64_t	out_packets;
+    __uint64_t	out_errors;
+} net_all_t;
+
 typedef struct nfsstats {
     struct nfsclntstats	client;
     struct nfsrvstats	server;
 } nfsstats_t;
 
 extern int fetch_network(unsigned int, unsigned int, pmAtomValue *);
+extern void refresh_network_all(net_all_t *, struct netstats *);
+extern int fetch_network_all(unsigned int, pmAtomValue *);

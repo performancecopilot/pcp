@@ -88,13 +88,6 @@ if [ ! -f "$PLIST_PATH" ]; then
     exit 1
 fi
 
-if grep -q "LAUNCHED_BY_LAUNCHD" "$PLIST_PATH"; then
-    echo "✓ LAUNCHED_BY_LAUNCHD environment variable present"
-else
-    echo "✗ LAUNCHED_BY_LAUNCHD environment variable missing"
-    exit 1
-fi
-
 if grep -A1 "KeepAlive" "$PLIST_PATH" | grep -q "<true/>"; then
     echo "✓ KeepAlive enabled"
 else
@@ -137,13 +130,13 @@ else
     exit 1
 fi
 
-# Test 3: Verify foreground mode
-echo -e "\n[Test 3] Verifying foreground mode..."
+# Test 3: Verify managed mode
+echo -e "\n[Test 3] Verifying managed mode..."
 
-if ps aux | grep '[p]mcd' | grep -q -- '-f'; then
-    echo "✓ pmcd running in foreground mode (-f flag present)"
+if ps aux | grep '[p]mcd' | grep -q -- '-F'; then
+    echo "✓ pmcd running in managed mode (-F flag present)"
 else
-    echo "⚠ Warning: pmcd not running with -f flag"
+    echo "⚠ Warning: pmcd not running with -F flag"
     echo "Command line: $(ps aux | grep '[p]mcd')"
 fi
 
@@ -303,8 +296,8 @@ fi
 echo -e "\n=== All tests passed! ==="
 echo ""
 echo "Summary:"
-echo "  ✓ Configuration correct (LAUNCHED_BY_LAUNCHD + KeepAlive)"
-echo "  ✓ pmcd runs in foreground mode (-f flag)"
+echo "  ✓ Configuration correct (KeepAlive)"
+echo "  ✓ pmcd runs in managed mode (-F flag)"
 echo "  ✓ No fork issues (single pmcd process)"
 echo "  ✓ launchctl properly tracks pmcd"
 echo "  ✓ pmcd responds to queries"

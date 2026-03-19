@@ -301,6 +301,42 @@ boot time (subject to counter wrap), summed over all disk devices.
 @ network.interface.total.drops total network connections dropped
 @ network.interface.total.mcasts total network multicasts
 
+@ network.all.in.bytes total network receive bytes across all interfaces
+Sum of network.interface.in.bytes across all network interfaces.
+
+@ network.all.in.packets total network receive packets across all interfaces
+Sum of network.interface.in.packets across all network interfaces.
+
+@ network.all.in.errors total network receive errors across all interfaces
+Sum of network.interface.in.errors across all network interfaces.
+
+@ network.all.in.drops total network receive drops across all interfaces
+Sum of network.interface.in.drops across all network interfaces.
+
+@ network.all.out.bytes total network send bytes across all interfaces
+Sum of network.interface.out.bytes across all network interfaces.
+
+@ network.all.out.packets total network send packets across all interfaces
+Sum of network.interface.out.packets across all network interfaces.
+
+@ network.all.out.errors total network send errors across all interfaces
+Sum of network.interface.out.errors across all network interfaces.
+
+@ network.all.out.drops total network send drops across all interfaces
+Always zero on macOS - output drop tracking is not available.
+
+@ network.all.total.bytes total network bytes across all interfaces
+Sum of network.all.in.bytes and network.all.out.bytes.
+
+@ network.all.total.packets total network packets across all interfaces
+Sum of network.all.in.packets and network.all.out.packets.
+
+@ network.all.total.errors total network errors across all interfaces
+Sum of network.all.in.errors and network.all.out.errors.
+
+@ network.all.total.drops total network drops across all interfaces
+Sum of network.all.in.drops and network.all.out.drops.
+
 @ network.udp.indatagrams total UDP datagrams received
 Total number of UDP datagrams delivered to UDP users.
 This is a cumulative counter from boot time.

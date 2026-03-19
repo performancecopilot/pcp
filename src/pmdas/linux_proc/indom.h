@@ -62,6 +62,7 @@ extern FILE *proc_statsfile(const char *, char *, int);
 
 /* Generic globals setup during PMDA startup */
 extern size_t _pm_system_pagesize;
+extern size_t _pm_system_hugepagesize;
 extern long _pm_hertz;
 
 /*
