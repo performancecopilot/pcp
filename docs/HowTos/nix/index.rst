@@ -345,7 +345,6 @@ The following features are enabled by default:
 - **Core PCP tools and libraries**: pminfo, pmstat, pmrep, pmcd, etc.
 - **Python3 and Perl language bindings**
 - **Secure sockets**: SSL/TLS via OpenSSL
-- **Service discovery**: via Avahi/mDNS
 - **Transparent archive decompression**: via xz/lzma
 - **Systemd integration**: unit files, tmpfiles, sysusers
 - **Performance events**: via libpfm4

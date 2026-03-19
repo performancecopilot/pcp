@@ -290,14 +290,9 @@ extern char *__pmStringListFind(const char *, int, char **) _PCP_HIDDEN;
 /*
  * Representations of server presence on the network.
  */
-typedef struct __pmServerAvahiPresence __pmServerAvahiPresence;
-
 struct __pmServerPresence {
-    /* Common data. */
-    char			*serviceSpec;
-    int				port;
-    /* API-specific data. */
-    __pmServerAvahiPresence	*avahi;
+    char	*serviceSpec;
+    int		port;
 };
 
 /* Service discovery internals. */

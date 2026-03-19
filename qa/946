@@ -6,64 +6,14 @@
 # Copyright (c) 2014 Red Hat.  All Rights Reserved.
 #
 
-seq=`basename $0`
-echo "QA output created by $seq"
-
-. ./common.discovery
-_check_avahi_service
-
-# no pmcd servers found on vm14 (CentOS6.10) and no
-# good reason that is apparently related to PCP can
-# be found.
+# test really-retired by nathans on 19 Mar 2026
 #
-case `admin/whatami`
-in
-    *CentOS6.*)
-	_notrun "dodge avahi issue on CentOS 6"
-	;;
-esac
+# to see the original test
+# 	$ git diff 05a2c67246 -- 946
 
-status=1	# failure is the default!
-service=pmcd
-trap "_cleanup_avahi_service; exit \$status" 0 1 2 3 15
+seq=`basename $0`
+. ./common.product
+. ./common.filter
+. ./common.check
 
-# real QA test starts here
-_control_avahi_service
-
-echo "-m avahi" | tee -a $seq_full
-pmfind -m avahi | tee -a $seq_full | _filter_discovery_unresolved
-echo "Exit status: $?"
-
-echo "-s pmcd -m avahi -r" | tee -a $seq_full
-pmfind -s pmcd -m avahi -r | tee -a $seq_full | _filter_discovery_resolved
-echo "Exit status: $?"
-
-echo "-q -m avahi"
-pmfind -q -m avahi
-echo "Exit status: $?"
-
-echo "-q -s pmcd -m avahi"
-pmfind -q -s pmcd -m avahi
-echo "Exit status: $?"
-
-echo "-q -s pmcd -m avahi,timeout=5.0"
-pmfind -q -s pmcd -m avahi,timeout=5.0
-# up to 5 seconds may elapse here
-echo "Exit status: $?"
-
-echo "-q -s pmcd -m avahi with AVAHI_DISCOVERY_TIMEOUT=5"
-AVAHI_DISCOVERY_TIMEOUT=5 pmfind -q -s pmcd -m avahi
-# up to 5 seconds may elapse here
-echo "Exit status: $?"
-
-echo "-m all" | tee -a $seq_full
-pmfind -m all | tee -a $seq_full | _filter_discovery_unresolved
-echo "Exit status: $?"
-
-echo "-m all --resolve" | tee -a $seq_full
-pmfind -m all --resolve | tee -a $seq_full | _filter_discovery_resolved
-echo "Exit status: $?"
-
-# success, all done
-status=0
-exit
+_notrun 'retired and culled'

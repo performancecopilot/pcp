@@ -5,7 +5,6 @@ apache2-bin
 auditd not4ci
 autoconf
 autotools-dev
-avahi-utils
 bash
 bc
 bind9-host
@@ -39,7 +38,6 @@ git
 grep
 iproute2
 jq
-libavahi-common-dev
 libbpf-dev
 libbpf1
 libclass-dbi-perl

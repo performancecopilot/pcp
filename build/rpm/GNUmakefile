@@ -99,7 +99,6 @@ pcp.spec: pcp.spec.in
 	    -e's|@enable_systemd@|$(ENABLE_SYSTEMD)|g' \
 	    -e's|@enable_secure@|$(ENABLE_SECURE)|g' \
 	    -e's|@enable_probes@|$(ENABLE_PROBES)|g' \
-	    -e's|@enable_avahi@|$(ENABLE_AVAHI)|g' \
 	    -e's|@enable_dstat@|$(ENABLE_DSTAT)|g' \
 	    -e's|@enable_qt@|$(ENABLE_QT)|g' \
 	    -e's|@enable_selinux@|$(ENABLE_SELINUX)|g' \

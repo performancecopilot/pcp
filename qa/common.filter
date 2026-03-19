@@ -37,7 +37,6 @@ _filter_pmcd_log()
 	-e '/Using cipher /d' \
 	-e '/using .* kmem interface/d' \
 	-e '/pmcd_wait failed: exit status:/d' \
-	-e '/Failed to create avahi client:/d' \
 	-e 's/: host-based access control/: access control/g' \
 	-e '/^User access list empty: user-based access control turned off$/d' \
 	-e '/^Group access list empty: group-based access control turned off$/d' \
@@ -163,7 +162,6 @@ _filter_pmproxy_log()
 	-e '/^pmproxy: disabled time series,.*(missing)/d' \
 	-e '/Error: .*unsupported key server (got v/d' \
 	-e '/Info: TLS configured in pmproxy.conf/d' \
-	-e '/Failed to create avahi client:/d' \
 	-e '/Info: connected to .*key server.*/d' \
 	-e '/Info: .* setup$/d' \
 	-e '/Info: OpenSSL /d' \
@@ -662,7 +660,6 @@ s/Performance Co-Pilot starting archive loggers .../Starting pmlogger ... /
 	-e '/^[ 	]*$/d' \
 	-e '/is not a native service, redirecting to .*chkconfig/d' \
 	-e '/^Executing .*chkconfig pm.* --level=5/d' \
-	-e '/Failed to create avahi client:/d' \
 	-e '/pmsignal.* kill: [0-9][0-9]*: No such process/d' \
     | _filter_pcp_start_distro \
     | _filter_init_distro

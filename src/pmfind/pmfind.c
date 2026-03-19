@@ -72,7 +72,7 @@ static const char *services[] = {
 static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Discovery options"),
     PMOPT_DEBUG,
-    { "mechanism", 1, 'm', "NAME", "set the discovery method to use [avahi|shell|probe=<subnet>|all]" },
+    { "mechanism", 1, 'm', "NAME", "set the discovery method to use [shell|probe=<subnet>|all]" },
     { "resolve", 0, 'r', 0, "resolve addresses" },
     { "service", 1, 's', "NAME", "discover services [pmcd|pmproxy|all]" },
     { "timeout", 1, 't', "N.N", "timeout in seconds" },
