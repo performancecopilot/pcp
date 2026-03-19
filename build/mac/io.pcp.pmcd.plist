@@ -7,13 +7,8 @@
         <key>ProgramArguments</key>
         <array>
             <string>/etc/init.d/pmcd</string>
-            <string>start</string>
+            <string>start-launchd</string>
         </array>
-        <key>EnvironmentVariables</key>
-        <dict>
-            <key>LAUNCHED_BY_LAUNCHD</key>
-            <string>1</string>
-        </dict>
         <key>Disabled</key>
         <false/>
         <key>UserName</key>

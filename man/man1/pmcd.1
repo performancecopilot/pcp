@@ -19,7 +19,7 @@
 \f3pmcd\f1 \- performance metrics collector daemon
 .SH SYNOPSIS
 \f3pmcd\f1
-[\f3\-AfQSv?\f1]
+[\f3\-AfFQSv?\f1]
 [\f3\-c\f1 \f2config\f1]
 [\f3\-C\f1 \f2nctx\f1]
 [\f3\-D\f1 \f2debug\f1]
@@ -136,6 +136,17 @@ The
 option indicates that it should run in the foreground.
 This is most useful when trying to diagnose problems with misbehaving
 agents.
+.TP
+\f3\-F\f1, \f3\-\-managed\f1
+By default
+.B pmcd
+is started as a daemon.
+The
+.B \-F
+option indicates that it will be managed by a system service like
+.BR launchd (1).
+or
+.BR systemd (1)
 .TP
 \f3\-H\f1 \f2hostname\f1, \f3\-\-hostname\f1=\f2hostname\f1
 This option can be used to set the hostname that

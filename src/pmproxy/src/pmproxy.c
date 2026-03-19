@@ -28,7 +28,7 @@
 
 #define RUN_DAEMON	1		/* default */
 #define RUN_FOREGROUND	2		/* -f */
-#define RUN_SYSTEMD	3		/* -F */
+#define RUN_MANAGED	3		/* -F */
 
 static void	*info;			/* opaque server information */
 static struct pmproxy	*server;	/* proxy server implementation */
@@ -73,7 +73,7 @@ static pmLongOptions longopts[] = {
     { "", 0, 'A', 0, "disable service advertisement" },
     { "deprecated", 0, 'd', 0, "backward-compatibility mode; no REST APIs" },
     { "foreground", 0, 'f', 0, "run in the foreground" },
-    { "systemd", 0, 'F', 0, "run in systemd mode" },
+    { "managed", 0, 'F', 0, "run in managed (systemd/launchd) mode" },
     { "timeseries", 0, 't', 0, "automatic, scalable timeseries; REST APIs" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
@@ -143,7 +143,7 @@ ParseOptions(int argc, char *argv[], int *nports, int *maxpending)
 		opts.errors++;
 	    }
 	    else
-		run_mode = RUN_SYSTEMD;
+		run_mode = RUN_MANAGED;
 	    break;
 
 	case 'f':	/* foreground, i.e. do _not_ run as a daemon */
@@ -446,7 +446,7 @@ main(int argc, char *argv[])
 	fprintf(stderr, "%s: maxpending=%d from PMPROXY_MAXPENDING=%s in environment\n",
 			"Warning", maxpending, getenv("PMPROXY_MAXPENDING"));
 
-    if (run_mode == RUN_DAEMON || run_mode == RUN_SYSTEMD) {
+    if (run_mode == RUN_DAEMON || run_mode == RUN_MANAGED) {
 	/* notify service manager, if any, we are ready */
 	__pmServerNotifyServiceManagerReady(mainpid);
 	if (__pmServerCreatePIDFile(PM_SERVER_PROXY_SPEC, PM_FATAL_ERR) < 0)
