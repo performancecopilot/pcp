@@ -51,6 +51,7 @@ static int	maxReqPortFd;		/* Largest request port fd */
 static char	configFileName[MAXPATHLEN]; /* path to pmcd.conf */
 static char	*logfile = "pmcd.log";	/* log file name */
 static int	run_daemon = 1;		/* run as a daemon, see -f */
+static int	run_managed;		/* run under a manager, see -F */
 static char	*fatalfile = "/dev/tty";/* fatal messages at startup go here */
 static char	*pmnsfile = PM_NS_DEFAULT;
 static char	*username;
@@ -107,6 +108,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Service options"),
     { "", 0, 'A', 0, "disable service advertisement" },
     { "foreground", 0, 'f', 0, "run in the foreground" },
+    { "managed", 0, 'F', 0, "run in managed (systemd/launchd) mode" },
     { "hostname", 1, 'H', "HOST", "set the hostname to be used for pmcd.hostname metric" },
     { "username", 1, 'U', "USER", "in daemon mode, run as named user [default pcp]" },
     PMAPI_OPTIONS_HEADER("Configuration options"),
@@ -132,7 +134,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_POSIX,
-    .short_options = "AC:c:D:fH:i:l:L:M:N:n:p:q:Qs:St:T:U:vx:?",
+    .short_options = "AC:c:D:fFH:i:l:L:M:N:n:p:q:Qs:St:T:U:vx:?",
     .long_options = longopts,
 };
 
@@ -188,6 +190,12 @@ ParseOptions(int argc, char *argv[], int *nports)
 
 	    case 'f':
 		/* foreground, i.e. do _not_ run as a daemon */
+		run_daemon = 0;
+		break;
+
+	    case 'F':
+		/* managed, like foreground but do pidfile and uid work */
+		run_managed = 1;
 		run_daemon = 0;
 		break;
 
@@ -1189,7 +1197,7 @@ main(int argc, char *argv[])
 	DontStart();
     }
 
-    if (run_daemon) {
+    if (run_daemon || run_managed) {
 	/* notify service manager, if any, we are ready */
 	__pmServerNotifyServiceManagerReady(getpid());
 	if (__pmServerCreatePIDFile(PM_SERVER_SERVICE_SPEC, PM_FATAL_ERR) < 0)

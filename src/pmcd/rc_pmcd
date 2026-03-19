@@ -44,7 +44,7 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
-# for chasing arguments we're passed from init/systemd/...
+# for chasing arguments we're passed from init/systemd/launchd/...
 #
 #debug# echo "$*: `date`" >>$PCP_LOG_DIR/rc_pmcd.log
 #debug# env >>$PCP_LOG_DIR/rc_pmcd.log
@@ -505,7 +505,7 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid ($runpid) is different.
 
 _usage()
 {
-    echo "Usage: $prog [-v] {start|start-systemd|faststart|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"
+    echo "Usage: $prog [-v] {start|start-launchd|start-systemd|faststart|restart|condrestart|stop|stop-launchd|stop-systemd|status|reload|force-reload}"
 }
 
 VERBOSE_CTL=on
@@ -566,7 +566,7 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  start|start-systemd|faststart|restart|condrestart|reload|force-reload)
+  start|start-systemd|start-launchd|faststart|restart|condrestart|reload|force-reload)
 	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmcd
 	then
 	    status=0
@@ -598,7 +598,7 @@ Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot s
 	    fi
 	    cd "$LOGDIR"
 
-	    [ "$1" = "start-systemd" ] ||\
+	    [ "$1" = "start-systemd" -o "$1" = "start-launchd" ] ||\
 	    $ECHO $PCP_ECHO_N "Starting pmcd ..." "$PCP_ECHO_C"
 
 	    # only consider variables which start with PMCD or PCP
@@ -621,8 +621,8 @@ Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot s
 		echo $prog: pmcd --verify $OPTS failed, cannot start pmcd.
 		exit
 	    fi
-	    # When launched by launchctl on macOS, run in foreground mode
-	    [ -n "$LAUNCHED_BY_LAUNCHD" ] && OPTS="$OPTS -f"
+	    # on macOS under launchd run in "managed" mode
+	    [ "$1" = "start-launchd" ] && OPTS="$OPTS -F"
 	    $PMCD $OPTS
             _start_pmcheck
 	    $RC_STATUS -v
@@ -654,11 +654,11 @@ Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot s
 	status=0
         ;;
 
-  stop|stop-systemd)
+  stop|stop-systemd|stop-launchd)
 	# site-local customisations before pmcd shutdown
 	#
 	[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG stop
-	if [ "$1" = stop-systemd ]
+	if [ "$1" = stop-systemd -o "$1" = stop-launchd ]
 	then
 	    _shutdown quietly
 	else
