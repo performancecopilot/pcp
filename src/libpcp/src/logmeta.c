@@ -1139,10 +1139,19 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":5", PM_FAULT_ALLOC);
     return __pmHashAdd((int)dp->pmid, (void *)tdp, &acp->ac_log->hashpmid);
 }
 
+/*
+ * idp is the delta indom assumed to be in the (archive)
+ * hashindom hash from a __pmLogCtl
+ *
+ * Undelta'ing this indom involves going backwards in time from
+ * idp along the temporal chain until we find a "full" indom, then
+ * going forwards in time undelta'ing each indom until we reach
+ * and process idp.
+ */
 void
 __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 {
-    __pmLogInDom	*tidp;		/* full indom */
+    __pmLogInDom	*fidp;		/* full indom */
     __pmLogInDom	*didp;		/* delta indom */
     char		strbuf[20];
 
@@ -1154,20 +1163,20 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
     /*
      * "next" is in reverse chronological order
      */
-    for (tidp = idp->next; tidp != NULL; tidp = tidp->next) {
+    for (fidp = idp->next; fidp != NULL; fidp = fidp->next) {
 	if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
-	    fprintf(stderr, "try next: " PRINTF_P_PFX "%p @", tidp);
-	    StrTimestamp(&tidp->stamp);
-	    fprintf(stderr, " next=" PRINTF_P_PFX "%p prior=" PRINTF_P_PFX "%p numinst=%d isdelta=%d\n", tidp->next, tidp->prior, tidp->numinst, tidp->isdelta);
+	    fprintf(stderr, "try next: " PRINTF_P_PFX "%p @", fidp);
+	    StrTimestamp(&fidp->stamp);
+	    fprintf(stderr, " next=" PRINTF_P_PFX "%p prior=" PRINTF_P_PFX "%p numinst=%d isdelta=%d\n", fidp->next, fidp->prior, fidp->numinst, fidp->isdelta);
 	}
-	if (!tidp->isdelta)
+	if (!fidp->isdelta)
 	    break;
     }
-    if (tidp == NULL) {
+    if (fidp == NULL) {
 	pmprintf("__pmLogUndeltaInDom: Botch: InDom %s: no full indom record\n",  pmInDomStr_r(indom, strbuf, sizeof(strbuf)));
 	pmprintf("__pmLogInDom next chain:\n");
-	for (tidp = idp; tidp != NULL; tidp = tidp->next) {
-	    pmprintf("%p isdelta=%d numinst=%d\n", tidp, tidp->isdelta, tidp->numinst);
+	for (fidp = idp; fidp != NULL; fidp = fidp->next) {
+	    pmprintf("%p isdelta=%d numinst=%d\n", fidp, fidp->isdelta, fidp->numinst);
 	}
 	pmflush();
 	return;
@@ -1175,9 +1184,15 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 
     /*
      * found the previous full indom, now march forward in time replacing
-     * each delta indom with a reconstructed full indom
+     * each delta indom with a reconstructed full indom ... stop when we
+     * have replaced idp by a full indom
+     *
+     * The undelta'd indom has a newly alloc'd instlist[] and namelist[]
+     * and strdup'd namelist[i] entries to avoid any storage mangling
+     * between the full (input) indoms, the delta indoms and the full
+     * (output) indoms (PMLID_NAMES set in alloc bitfield).
      */
-    for (didp = tidp->prior ; didp != NULL; ) {
+    for (didp = fidp->prior ; didp != NULL; ) {
 	int	numinst;
 	int	*instlist;
 	char	**namelist;
@@ -1205,65 +1220,109 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	    StrTimestamp(&didp->stamp);
 	    fprintf(stderr, " next=" PRINTF_P_PFX "%p prior=" PRINTF_P_PFX "%p numinst=%d (-> %d) isdelta=%d\n", didp->next, didp->prior, didp->numinst, numinst, didp->isdelta);
 	}
-	for (i = j = k = 0; i < tidp->numinst || j < didp->numinst; ) {
-	    if (i < tidp->numinst && j < didp->numinst) {
-		if (didp->namelist[j] == NULL && tidp->instlist[i] == didp->instlist[j]) {
-		    /* delete old instance */
+	/*
+	 * need to process all instances from both the full indom and
+	 * the delta indom ...
+	 */
+	for (i = j = k = 0; i < fidp->numinst || j < didp->numinst; ) {
+	    if (i < fidp->numinst && j < didp->numinst &&
+		    fidp->instlist[i] == didp->instlist[j]) {
+		if (didp->namelist[j] != NULL) {
+		    /* Woops! */
+		    pmprintf("__pmLogUndeltaInDom: Botch: InDom %s: full inst[%d]=%d \"%s\" and redefined in delta inst[%d]=%d \"%s\", second one skipped\n",  pmInDomStr_r(indom, strbuf, sizeof(strbuf)), i, fidp->instlist[i], fidp->namelist[i], j, didp->instlist[j], didp->namelist[j]);
+		    pmflush();
+		    j++;
+		}
+		else {
+		    /*
+		     * inst id's are equal, but namelist[] from delta
+		     * indom is NULL => this instance was in the
+		     * indom but is no longer there (deleted), so simply
+		     * move over this one, and nothing goes in the
+		     * undelta'd indom
+		     */
 		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-			fprintf(stderr, "[-] del from [%d] inst %d \"%s\"\n", j, tidp->instlist[i], tidp->namelist[i]);
+			fprintf(stderr, "[-] del from full [%d] inst %d \"%s\"\n", i, fidp->instlist[i], fidp->namelist[i]);
 		    i++;
 		    j++;
-		    continue;
-		}
-		else if (didp->namelist[j] != NULL && tidp->instlist[i] > didp->instlist[j]) {
-		    /* add new instance in correct sorted position */
-		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-			fprintf(stderr, "[%d] add from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
-		    assert (k < numinst);
-		    instlist[k] = didp->instlist[j];
-		    namelist[k] = didp->namelist[j];
-		    k++;
-		    j++;
-		    continue;
 		}
 	    }
-	    if (i < tidp->numinst) {
-		/* copy instance from end of old indom */
+	    else if (i >= fidp->numinst || 
+		     (j < didp->numinst && didp->instlist[j] < fidp->instlist[i] )) {
+		/*
+		 * full indom all processed or inst id from delta indom is
+		 * less than inst id from full indom so add instance from
+		 * delta indom
+		 */
+		if (didp->namelist[j] == NULL) {
+		    /* Woops! */
+		    pmprintf("__pmLogUndeltaInDom: Botch: InDom %s: delta inst[%d]=%d delete but inst not in full indom, skipped\n",  pmInDomStr_r(indom, strbuf, sizeof(strbuf)), j, didp->instlist[j]);
+		    pmflush();
+		    j++;
+		}
+		else {
+		    if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
+			fprintf(stderr, "[%d] add from delta [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
+		    assert (k < numinst);
+		    instlist[k] = didp->instlist[j];
+		    if ((namelist[k] = strdup(didp->namelist[j])) == NULL) {
+			pmNoMem("__pmLogUndeltaInDom name from delta", strlen(didp->namelist[j]), PM_FATAL_ERR);
+			/* NOTREACHED */
+		    }
+		    k++;
+		    j++;
+		}
+	    }
+	    else {
+		/*
+		 * delta indom all processed or inst id from full indom is
+		 * less than inst id from delta indom so add instance from
+		 * full indom
+		 */
 		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-		    fprintf(stderr, "[%d] dup from [%d] inst %d \"%s\"\n", k, i, tidp->instlist[i], tidp->namelist[i]);
-		assert(k < numinst);
-		instlist[k] = tidp->instlist[i];
-		namelist[k] = tidp->namelist[i];
+		    fprintf(stderr, "[%d] add from full [%d] inst %d \"%s\"\n", k, i, fidp->instlist[i], fidp->namelist[i]);
+		assert(fidp->namelist[i] != NULL);
+		assert (k < numinst);
+		instlist[k] = fidp->instlist[i];
+		if ((namelist[k] = strdup(fidp->namelist[i])) == NULL) {
+		    pmNoMem("__pmLogUndeltaInDom name from full", strlen(fidp->namelist[j]), PM_FATAL_ERR);
+		}
 		k++;
 		i++;
 	    }
-	    else if (j < didp->numinst) {
-		/* add new instance at end of indom */
-		if (pmDebugOptions.logmeta && pmDebugOptions.desperate)
-		    fprintf(stderr, "[%d] append from [%d] inst %d \"%s\"\n", k, j, didp->instlist[j], didp->namelist[j]);
-		assert(k < numinst);
-		instlist[k] = didp->instlist[j];
-		namelist[k] = didp->namelist[j];
-		k++;
-		j++;
+	}
+
+	/*
+	 * didp is going to be totally replaced by instlist[] and namelist[]
+	 * constructed above, so free any space currently allocated to
+	 * didp
+	 */
+	if (didp->alloc & PMLID_NAMES) {
+	    for (j = 0; j < didp->numinst; j++) {
+		if (didp->namelist[j] != NULL)
+		    free(didp->namelist[j]);
 	    }
 	}
-	didp->numinst = numinst;
 	if (didp->alloc & PMLID_INSTLIST)
 	    free(didp->instlist);
-	didp->instlist = instlist;
 	if (didp->alloc & PMLID_NAMELIST)
 	    free(didp->namelist);
+	/* update didp */
+	didp->instlist = instlist;
+	didp->numinst = numinst;
 	didp->namelist = namelist;
 	didp->isdelta = 0;
-	didp->alloc |= PMLID_INSTLIST|PMLID_NAMELIST;
+	didp->alloc |= PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES;
 
 	if (didp == idp) {
 	    /* done when we're back to the starting point */
 	    break;
 	}
 
-	tidp = didp;
+	/*
+	 * "prior" is in chronological order
+	 */
+	fidp = didp;
 	didp = didp->prior;
     }
 }
@@ -1965,7 +2024,7 @@ __pmFreeLogInDom(__pmLogInDom *lidp)
 
     if (lidp->numinst >= 0) {
 
-	if (lidp->alloc & PMLID_NAMES && lidp->namelist != NULL) {
+	if ((lidp->alloc & PMLID_NAMES) && lidp->namelist != NULL) {
 	    int		i;
 	    for (i = 0; i < lidp->numinst; i++) {
 		if (lidp->namelist[i] != NULL) {
@@ -1975,10 +2034,10 @@ __pmFreeLogInDom(__pmLogInDom *lidp)
 	    }
 	}
 
-	if (lidp->alloc & PMLID_NAMELIST && lidp->namelist != NULL)
+	if ((lidp->alloc & PMLID_NAMELIST) && lidp->namelist != NULL)
 	    free(lidp->namelist);
 
-	if (lidp->alloc & PMLID_INSTLIST && lidp->instlist != NULL)
+	if ((lidp->alloc & PMLID_INSTLIST) && lidp->instlist != NULL)
 	    free(lidp->instlist);
 
     }
