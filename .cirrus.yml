@@ -13,13 +13,14 @@ task:
     fingerprint_script: |
       brew --version
       echo $HOMEBREW_NO_AUTO_UPDATE  # if you use it
-      brew list --versions | sort    # list installed formulae & versions
+      # Hash the package list so the cache busts when we add/remove packages
+      grep -v '^#' build/mac/brew-packages.txt | sort | shasum
     populate_script: |
       # This runs only on cache miss — safe to install everything here
       echo "Populating Homebrew cache..."
-      # Homebrew is already in base images, but we can ensure update if needed
       brew update --quiet || true
-      brew install coreutils gnu-tar pkg-config python3 python-setuptools autoconf valkey libuv || true  # idempotent
+      PACKAGES=$(grep -v '^#' build/mac/brew-packages.txt | grep -v '^$' | tr '\n' ' ')
+      brew install $PACKAGES || true
     # Optional: clean up non-deterministic files before cache upload
     before_cache_script: |
       brew cleanup --prune=all || true
@@ -33,6 +34,8 @@ task:
     sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
     echo "Verifying setting:"
     sysctl net.inet.tcp.disable_access_to_stats
+  setup_python_env_script: |
+    ./build/mac/setup-python-env.sh build/mac/requirements-build.txt
   pcp_build_script: |
      [ "$PCP_SKIP_BUILD" == "true" ] && echo "SKIPPING BUILD" || ./Makepkgs --verbose
   start_valkey_script: |
@@ -76,6 +79,25 @@ task:
   run_integration_tests_script: |
     cd build/mac/test/integration
     ./run-integration-tests.sh
+  verify_openmetrics_pmda_script: |
+    echo "Checking openmetrics PMDA status..."
+    if pminfo openmetrics 2>/dev/null | head -5; then
+      echo "openmetrics PMDA is active"
+    else
+      echo "WARNING: openmetrics PMDA not active"
+      test -f /var/lib/pcp/pmdas/openmetrics/.NeedInstall && echo ".NeedInstall marker exists (pending)" || true
+      test -f /var/lib/pcp/pmdas/openmetrics/.NeedInstall.failed && echo ".NeedInstall.failed exists" || true
+      sudo grep -i "openmetrics\|NeedInstall\|pmda_setup" /var/log/pcp/pmcd/pmcd.log 2>/dev/null | tail -20 || true
+    fi
+  verify_zeroconf_configs_script: |
+    echo "Checking for zeroconf pmlogconf configs..."
+    if test -d /var/lib/pcp/config/pmlogconf/zeroconf; then
+      echo "zeroconf configs installed:"
+      ls /var/lib/pcp/config/pmlogconf/zeroconf/
+    else
+      echo "ERROR: zeroconf config directory not found"
+      exit 1
+    fi
   check_pmproxy_is_running_script: |
     echo "Waiting for pmproxy service to start..."
     TIMEOUT=60

@@ -32,6 +32,17 @@ cd <repo-root>
 
 This takes 5-30 minutes and only needs to be done once. It generates headers, builds libraries, and installs PCP.
 
+### Python Build Environment
+
+PCP's Python PMDAs (openmetrics, opentelemetry) require Python packages that aren't available system-wide on modern macOS. Install them using `uv` (which bypasses Homebrew's `externally-managed-environment` restriction):
+
+```bash
+brew install uv                    # One-time: install uv package manager
+./build/mac/setup-python-env.sh    # Installs Python deps to system python
+```
+
+Run this before `./Makepkgs` or `./configure` so that `import requests` succeeds during configure checks.
+
 **Verify setup:**
 ```bash
 cd dev/darwin

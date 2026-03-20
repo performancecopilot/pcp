@@ -1,0 +1,9 @@
+# Python packages required to TEST PCP on macOS.
+# Includes build deps plus additional QA packages.
+-r requirements-build.txt
+lxml
+openpyxl
+prometheus_client
+psycopg2-binary
+pyarrow
+pyodbc

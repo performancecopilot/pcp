@@ -1,0 +1,8 @@
+# Python packages required to BUILD PCP on macOS.
+# These affect what ./configure detects and enables.
+# See: configure.ac lines 1154, 1505-1512
+#
+# Note: OrderedDict is in Python stdlib (collections.OrderedDict) since 3.1,
+# but configure.ac checks for it explicitly. No pip package needed.
+requests
+setuptools
