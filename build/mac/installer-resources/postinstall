@@ -100,6 +100,23 @@ do
     [ -d "$dir" ] && rm -rf "$dir"
 done
 
+# Auto-enable optional PMDAs (mirrors pcp-zeroconf behaviour on Linux).
+# The .NeedInstall marker tells pmcd's _pmda_setup() to run each PMDA's
+# Install script on first startup, adding it to pmcd.conf automatically.
+# See: src/pmcd/rc_pmcd _pmda_enact() for the mechanism.
+#
+if [ -f /etc/pcp.conf ]; then
+    . /etc/pcp.conf
+    for PMDA in openmetrics opentelemetry ; do
+        if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH" 2>/dev/null; then
+            if test -d "$PCP_PMDAS_DIR/$PMDA"; then
+                touch "$PCP_PMDAS_DIR/$PMDA/.NeedInstall"
+                echo "$prog: Queued $PMDA PMDA for auto-installation" | tee -a /var/log/pcp_inst.log
+            fi
+        fi
+    done
+fi
+
 # Ensure pmcd is loaded...
 launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmcd.plist
 # ...and then started by launchctl - it would get picked up by a reboot, but this leaves pmcd running after install
