@@ -72,6 +72,10 @@ proc.namespaces.pid
 proc.namespaces.sid
 proc.namespaces.tgid
 proc.nprocs
+proc.numa_maps.heap
+proc.numa_maps.hugepage
+proc.numa_maps.private
+proc.numa_maps.stack
 proc.psinfo.blocked
 proc.psinfo.blocked_s
 proc.psinfo.cgroups

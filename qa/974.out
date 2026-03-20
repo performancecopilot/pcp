@@ -458,6 +458,11 @@ proc.namespaces.envid
     Semantics: discrete  Units: none
 Error: Metric not supported by this version of monitored application
 
+proc.numa_maps.heap
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: instant  Units: none
+No value(s) available!
+
 proc.psinfo.blocked
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -1178,6 +1183,11 @@ proc.namespaces.envid
     Semantics: discrete  Units: none
 Error: Metric not supported by this version of monitored application
 
+proc.numa_maps.heap
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: instant  Units: none
+No value(s) available!
+
 proc.psinfo.blocked
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -1799,6 +1809,11 @@ proc.namespaces.envid
     Semantics: discrete  Units: none
 Error: Metric not supported by this version of monitored application
 
+proc.numa_maps.heap
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: instant  Units: none
+No value(s) available!
+
 proc.psinfo.blocked
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -2040,6 +2055,11 @@ proc.namespaces.envid
     Semantics: discrete  Units: none
 Error: Metric not supported by this version of monitored application
 
+proc.numa_maps.heap
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: instant  Units: none
+No value(s) available!
+
 proc.psinfo.blocked
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -2122,6 +2142,11 @@ proc.namespaces.envid
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
 Error: Metric not supported by this version of monitored application
+
+proc.numa_maps.heap
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: instant  Units: none
+No value(s) available!
 
 proc.psinfo.blocked
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
@@ -2392,6 +2417,11 @@ proc.namespaces.envid
     Semantics: discrete  Units: none
 Error: Metric not supported by this version of monitored application
 
+proc.numa_maps.heap
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: instant  Units: none
+No value(s) available!
+
 proc.psinfo.blocked
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
@@ -2601,6 +2631,11 @@ proc.namespaces.envid
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
     Semantics: discrete  Units: none
 Error: Metric not supported by this version of monitored application
+
+proc.numa_maps.heap
+    Data Type: string  InDom: 3.9 0xc00009
+    Semantics: instant  Units: none
+No value(s) available!
 
 proc.psinfo.blocked
     Data Type: 32-bit unsigned int  InDom: 3.9 0xc00009
