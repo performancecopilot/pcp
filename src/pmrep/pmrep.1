@@ -699,6 +699,9 @@ and
 \fB\-k\fR, \fB\-\-extended\-csv\fR
 Write extended CSV output, similar to
 .BR sadf (1).
+When unit information is enabled, the extended CSV header includes a
+second row containing unit strings (see
+.BR \-U ).
 .TP
 \fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
 When fetching metrics from a local context (see
@@ -813,6 +816,10 @@ Requires
 .TP
 .I csv
 Print metrics in CSV format (subject to formatting options).
+When unit information is enabled (the default), a second header row
+listing unit strings is emitted after the column names; use
+.BR \-U
+to omit the units row.
 .TP
 .I stdout
 Print metrics to stdout (format subject to formatting options).
@@ -1323,4 +1330,3 @@ and
 .\" +ok+ sp {from .sp in troff macro} un {from (un)available)}
 .\" +ok+ Dderive {from -Dderive}
 .\" +ok+ PCP_DISCRETE_ONCE {from pmrep-only env var}
-
