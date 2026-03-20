@@ -2595,7 +2595,8 @@ append_numa_maps_node(strbuf_t *b, int node_num, double value_mb)
     size_t	needed, newcap;
     int		n;
 
-    n = pmsprintf(tmp, sizeof(tmp), "node%d:%.2f,", node_num, value_mb);
+    n = pmsprintf(tmp, sizeof(tmp), "%snode%d:%.2f",
+		   b->len > 0 ? "," : "", node_num, value_mb);
     if (n < 0 || n >= (int)sizeof(tmp))
 	return -E2BIG;
 
