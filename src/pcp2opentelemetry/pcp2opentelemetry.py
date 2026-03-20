@@ -425,12 +425,15 @@ class PCP2OPENTELEMETRY(object):
 
         # produce resource & context attributes
         def resource_attributes():
-            metric = next(iter(results))
             context = self.pmfg.get_context()
-            pmid = context.pmLookupName(metric)
-            labels = context.pmLookupLabels(pmid[0])
-            resource_dict = attribute_converter(labels[1])
-            return resource_dict
+            for metric in results:
+                try:
+                    pmid = context.pmLookupName(metric)
+                    labels = context.pmLookupLabels(pmid[0])
+                    return attribute_converter(labels.get(1, {}))
+                except pmapi.pmErr:
+                    continue
+            return []
 
         # produce scope attributes
         def scope_function(context):
@@ -622,7 +625,6 @@ class PCP2OPENTELEMETRY(object):
             gauge_body["dataPoints"] = data_points_function(metric, results, labels, desc, pmid_str)
             return gauge_body
 
-
         # main loop; iterate through all metrics in 'results' variable
         def scope_metric_function(results):
             context = self.pmfg.get_context()
@@ -632,34 +634,38 @@ class PCP2OPENTELEMETRY(object):
             body["metrics"] = []
 
             for metric in results:
+                i = self.metric_idx.get(metric)
+                if i is None:
+                    continue
+
                 try:
                     pmid = context.pmLookupName(metric)
-                except Exception:
+                except pmapi.pmErr:
                     continue
 
                 try:
                     pmid_str = context.pmIDStr(pmid[0])
                 except Exception:
-                    try:
-                        pmid_str = cpmapi.pmIDStr(pmid[0])
-                    except Exception:
-                        pmid_str = str(pmid[0])
+                    pmid_str = str(pmid[0])
 
-                i = self.metric_idx.get(metric)
-                if i is None:
-                    continue
-
-                labels = context.pmLookupLabels(pmid[0])
-                if 1 in labels:
-                    del labels[1]
+                try:
+                    labels = context.pmLookupLabels(pmid[0])
+                    labels.pop(1, None)
+                except pmapi.pmErr:
+                    labels = {}
 
                 desc = self.pmconfig.descs[i]
                 units = desc.contents.units
 
+                try:
+                    description = context.pmLookupText(pmid[0])
+                except pmapi.pmErr:
+                    description = ""
+
                 metric_dict = OrderedDict()
                 metric_dict["name"] = metric
                 metric_dict["unit"] = unit_function(units)
-                metric_dict["description"] = context.pmLookupText(pmid[0])
+                metric_dict["description"] = description
 
                 if desc.contents.sem == cpmapi.PM_SEM_COUNTER:
                     metric_dict["sum"] = sum_function(metric, results, labels, desc, pmid_str)

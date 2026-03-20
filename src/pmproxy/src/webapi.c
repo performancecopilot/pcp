@@ -679,6 +679,10 @@ add_metric_datapoint(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape, in
     pmWebMetric		*metric = &scrape->metric;
     pmWebValue		*value = &scrape->value;
     unsigned long long	nanoseconds;
+    char		pmidstr[20];
+    sds			pmid_sds;
+    char		indomstr[20];
+    sds			indom_sds;
 
     if (!first)
 	result = sdscatlen(result, ",", 1);
@@ -687,22 +691,16 @@ add_metric_datapoint(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape, in
     result = add_str_attribute(result, PMAPI_SEMANTICS, metric->sem);
     result = add_str_attribute(result, PMAPI_TYPE, metric->type);
 
-    {
-    char pmidstr[20];
-    sds pmid_sds;
     pmIDStr_r(baton->pmid, pmidstr, sizeof(pmidstr));
     pmid_sds = sdsnew(pmidstr);
     result = add_str_attribute(result, PMAPI_PMID, pmid_sds);
     sdsfree(pmid_sds);
-    }
-    
+
     if (metric->indom != PM_INDOM_NULL) {
-    char indomstr[20];
-    sds indom_sds;
-    pmInDomStr_r(metric->indom, indomstr, sizeof(indomstr));
-    indom_sds = sdsnew(indomstr);
-    result = add_str_attribute(result, PMAPI_INDOM, indom_sds);
-    sdsfree(indom_sds);
+        pmInDomStr_r(metric->indom, indomstr, sizeof(indomstr));
+        indom_sds = sdsnew(indomstr);
+        result = add_str_attribute(result, PMAPI_INDOM, indom_sds);
+        sdsfree(indom_sds);
     }
 
     if (baton->buffer)
