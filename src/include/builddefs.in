@@ -133,7 +133,6 @@ PIECFLAGS = @PIECFLAGS@
 PIELDFLAGS = @PIELDFLAGS@
 INVISIBILITY = @INVISIBILITY@	# hide shared library symbols
 
-AVAHICFLAGS = @avahi_CFLAGS@
 LZMACFLAGS = @lzma_CFLAGS@
 LIBUVCFLAGS = @libuv_CFLAGS@
 OPENSSLCFLAGS = @openssl_CFLAGS@
@@ -265,7 +264,6 @@ CLANG_MAJOR_VERSION = @CLANG_MAJOR_VERSION@
 ENABLE_MULTILIB = @enable_multilib@
 ENABLE_SHARED = @enable_shared@
 ENABLE_SECURE = @enable_secure@
-ENABLE_AVAHI = @enable_avahi@
 ENABLE_DSTAT = @enable_dstat@
 ENABLE_QT = @enable_qt@
 ENABLE_QT3D = @enable_qt3d@
@@ -297,7 +295,6 @@ HAVE_HICOLOR_ICONS = @have_hicolor_icons@
 
 # additional libraries needed for particular functions
 LIB_FOR_ATOMIC = @lib_for_atomic@
-LIB_FOR_AVAHI = @lib_for_avahi@
 LIB_FOR_BASENAME = @lib_for_basename@
 LIB_FOR_CHAN = @lib_for_chan@
 LIB_FOR_CURSES = @lib_for_curses@

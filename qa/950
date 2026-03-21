@@ -5,29 +5,14 @@
 # Copyright (c) 2014 Red Hat.
 #
 
+# test really-retired by nathans on 19 Mar 2026
+#
+# to see the original test
+# 	$ git diff 05a2c67246 -- 950
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.discovery
-_check_avahi_service
-
-status=1	# failure is the default!
-service=pmproxy
-trap "_cleanup_avahi_service; exit \$status" 0 1 2 3 15
-
-_filter()
-{
-    sed \
-	-e "/Failed to resolve service '.*' of type '_pmproxy._tcp' in domain 'local': Timeout reached/d" \
-    # done
-}
-
-# real QA test starts here
-_control_avahi_service
-_wait_for_pmproxy || _exit 1
-sleep 5
-
-_verify_avahi_service 2>&1 | _filter
-
-status=0
-exit
+_notrun 'retired and culled'

@@ -165,7 +165,6 @@ pkgs.stdenv.mkDerivation rec {
     perl
     rrdtool
   ] ++ lib.optionals pkgs.stdenv.isLinux [
-    avahi
     lvm2
   ] ++ lib.optionals withSystemd [
     systemd

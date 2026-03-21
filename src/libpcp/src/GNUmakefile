@@ -44,7 +44,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	e_loglabel.c e_index.c e_indom.c e_labels.c throttle.c \
 	$(JSONSL_CFILES)
 HFILES = derive.h internal.h compiler.h pmdbg.h sha256.h sort_r.h \
-	avahi.h subnetprobe.h shellprobe.h \
+	subnetprobe.h shellprobe.h \
 	$(JSONSL_HFILES)
 XFILES = sha256.c sha256.h sort_r.h
 YFILES = getdate.y derive_parser.y
@@ -59,10 +59,6 @@ LLDLIBS += $(LIBPCP_LDLIBS) $(LIB_FOR_BACKTRACE)
 
 ifeq "$(ENABLE_SECURE)" "true"
 CFILES += secureserver.c secureconnect.c
-endif
-
-ifeq "$(ENABLE_AVAHI)" "true"
-CFILES += avahi.c
 endif
 
 ifeq "$(ENABLE_LZMA)" "true"

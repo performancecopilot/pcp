@@ -10,7 +10,6 @@ aaa_base
 apache2
 audit
 autoconf
-avahi-utils
 bash
 bc
 bind-utils
@@ -42,7 +41,6 @@ git-core
 grep
 iproute2
 jq
-libavahi-devel
 libbpf-devel
 libcmocka-devel
 libdrm-devel

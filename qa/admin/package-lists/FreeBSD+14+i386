@@ -3,8 +3,6 @@
 #
 apache24
 autoconf
-avahi
-avahi-app
 bash
 bison
 cmocka

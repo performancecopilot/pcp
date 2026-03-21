@@ -446,7 +446,6 @@ xz
 # libpcp_static libpcp_trace libpcp_web
 #
 ! ANY_SIZE
-AVAHI_DISCOVERY_TIMEOUT
 ! CVERSION
 ! DEFAULT_SECURITY_STRENGTH
 ! DYNAMIC_PMID
