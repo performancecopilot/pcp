@@ -110,6 +110,7 @@ build(int alloc)
     int			i;
     int			k;
 
+    /* full indom */
     lidp1 = (__pmLogInDom *)malloc(sizeof(__pmLogInDom));
     lidp1->alloc = PMLID_SELF|alloc|PMLID_NAMELIST|PMLID_INSTLIST;
     lidp1->next = lidp1->prior = NULL;
@@ -117,7 +118,7 @@ build(int alloc)
     lidp1->stamp.sec = 12 * 3600 + 34 * 60 + 56;		/* 12:34:56 UTC */
     lidp1->stamp.nsec = 100;
     lidp1->isdelta = 0;
-    num2 = lidp1->numinst = 5;
+    num2 = lidp1->numinst = 6;		/* needs to be an even number */
     lidp1->namelist = (char **)malloc(lidp1->numinst * sizeof(char *));
     if (name1 != NULL)
 	free(name1);
@@ -135,31 +136,60 @@ build(int alloc)
     }
     lidp1->buf = NULL;
 
+    /* delta indom */
     lidp2 = (__pmLogInDom *)malloc(sizeof(__pmLogInDom));
     lidp2->alloc = PMLID_SELF|alloc|PMLID_NAMELIST|PMLID_INSTLIST;
     lidp2->indom = indom;
     lidp2->stamp.sec = 12 * 3600 + 34 * 60 + 56;		/* 12:34:56 UTC */
     lidp2->stamp.nsec = 200;
     lidp2->isdelta = 1;
-    num2 = lidp2->numinst = lidp1->numinst - 1;
+    /*
+     * for plus 2 for the bad entries at the end
+     */
+    num2 = lidp2->numinst = lidp1->numinst + 2;
     lidp2->namelist = (char **)malloc(lidp2->numinst * sizeof(char *));
     if (name2 != NULL)
 	free(name2);
     name2 = (char **)malloc(lidp2->numinst * sizeof(char *));
     lidp2->instlist = (int *)malloc(lidp2->numinst * sizeof(int));
-    /* delete some instances */
+    /* 
+     * needs to be in instance identifier order ... so deletions
+     * first for all the even numbered instances
+     */
     k = 0;
-    for (i = 0; i < lidp2->numinst; i++) {
+    for (i = 0; i < lidp1->numinst; i++) {
 	if ((i & 1) == 0) {
 	    lidp2->instlist[k] = i;
 	    name2[k] = lidp2->namelist[k] = NULL;
 	    k++;
 	}
     }
-    /* add some instances */
-    for (i = 0; i < lidp2->numinst; i++) {
+
+    /*
+     * next a bad addition re-using the same instance id as the last
+     * one in the full indom (and different name)
+     */
+    lidp2->instlist[k] = lidp1->numinst - 1;
+    pmsprintf(p, sizeof(buf) - (p-buf), "redefined %02d", lidp1->numinst - 1);
+    if (alloc == PMLID_NAMES)
+	name2[k] = lidp2->namelist[k] = strdup(p);
+    else {
+	name2[k] = lidp2->namelist[k] = p;
+	p += strlen(p) + 1;
+    }
+    k++;
+
+    /* next a bad deletion for an instance *not* in the full indom */
+    lidp2->instlist[k] = lidp1->numinst + 1;
+    name2[k] = lidp2->namelist[k] = NULL;
+    k++;
+
+    /*
+     * add some instances with id's equal to the existing odd nummbered
+     * instances + 10
+     */
+    for (i = 0; i < lidp1->numinst; i++) {
 	if (i & 1) {
-	    /* add instance */
 	    lidp2->instlist[k] = i+10;
 	    pmsprintf(p, sizeof(buf) - (p-buf), "external %02d", i+10);
 	    if (alloc == PMLID_NAMES)
@@ -171,6 +201,7 @@ build(int alloc)
 	    k++;
 	}
     }
+
     lidp2->buf = NULL;
 
     /* link entries ... "next" is reverse chronological order */

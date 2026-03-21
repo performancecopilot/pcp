@@ -1200,13 +1200,15 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	int	j;		/* index over delta indom */
 	int	k;		/* index over new full indom we're building */
 	assert (didp->isdelta == 1);
-	numinst = didp->next->numinst;
-	for (j = 0; j < didp->numinst; j++) {
-	    if (didp->namelist[j] != NULL)
-		numinst++;
-	    else
-		numinst--;
-	}
+	assert(fidp == didp->next);
+	/*
+	 * we need to over estimate here, because if a delta indom entry
+	 * specifies delete for an instance (namelist[j] == NULL) we won't
+	 * reduce the number of instances in the output indom unless
+	 * instlist[j] matches some instlist[i] in the full indom, and
+	 * we won't discover that until later on in this routine.
+	 */
+	numinst = fidp->numinst + didp->numinst;
 	if ((instlist = (int *)malloc(numinst * sizeof(instlist[0]))) == NULL) {
 	    pmNoMem("__pmLogUndeltaInDom instlist", numinst * sizeof(instlist[0]), PM_FATAL_ERR);
 	    /*NOTREACHED*/
@@ -1228,9 +1230,14 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	    if (i < fidp->numinst && j < didp->numinst &&
 		    fidp->instlist[i] == didp->instlist[j]) {
 		if (didp->namelist[j] != NULL) {
-		    /* Woops! */
-		    pmprintf("__pmLogUndeltaInDom: Botch: InDom %s: full inst[%d]=%d \"%s\" and redefined in delta inst[%d]=%d \"%s\", second one skipped\n",  pmInDomStr_r(indom, strbuf, sizeof(strbuf)), i, fidp->instlist[i], fidp->namelist[i], j, didp->instlist[j], didp->namelist[j]);
-		    pmflush();
+		    if (strcmp(fidp->namelist[i], didp->namelist[j]) != 0) {
+			/*
+			 * Woops!
+			 * Redefined with different external instance name
+			 */
+			pmprintf("__pmLogUndeltaInDom: Botch: InDom %s: full inst[%d]=%d \"%s\" and redefined in delta inst[%d]=%d \"%s\", second one skipped\n",  pmInDomStr_r(indom, strbuf, sizeof(strbuf)), i, fidp->instlist[i], fidp->namelist[i], j, didp->instlist[j], didp->namelist[j]);
+			pmflush();
+		    }
 		    j++;
 		}
 		else {
@@ -1309,7 +1316,7 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	    free(didp->namelist);
 	/* update didp */
 	didp->instlist = instlist;
-	didp->numinst = numinst;
+	didp->numinst = k;
 	didp->namelist = namelist;
 	didp->isdelta = 0;
 	didp->alloc |= PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES;
