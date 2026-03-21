@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>io.pcp.pmlogger_farm_check</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/usr/local/bin/pmlogctl</string>
+            <string>-m</string>
+            <string>check</string>
+        </array>
+        <key>Disabled</key>
+        <false/>
+        <!-- Runs as root - pmlogctl handles privilege switching to pcp:pcp -->
+        <key>UserName</key>
+        <string>root</string>
+        <key>GroupName</key>
+        <string>wheel</string>
+        <key>StartCalendarInterval</key>
+        <array>
+            <dict>
+                <key>Minute</key>
+                <integer>21</integer>
+            </dict>
+            <dict>
+                <key>Minute</key>
+                <integer>51</integer>
+            </dict>
+        </array>
+        <key>StandardErrorPath</key>
+        <string>/var/log/pcp/pmlogger/pmlogger_farm_check.stderr</string>
+        <key>StandardOutPath</key>
+        <string>/var/log/pcp/pmlogger/pmlogger_farm_check.stdout</string>
+        <key>WorkingDirectory</key>
+        <string>/private/var/lib/pcp</string>
+    </dict>
+</plist>

@@ -22,8 +22,27 @@ trap "exit \$status" 0 1 2 15
 echo "$prog: PCP for macOS Upgrade"
 
 echo "$prog: Stopping PCP"
-/Library/StartupItems/pcp/pmlogger stop
-/Library/StartupItems/pcp/pmcd stop
+
+# Unload periodic maintenance tasks (may not exist on older installs)
+for plist in \
+    io.pcp.pmlogger_check \
+    io.pcp.pmlogger_daily \
+    io.pcp.pmlogger_farm_check \
+    io.pcp.pmie_check \
+    io.pcp.pmie_daily \
+    io.pcp.pmie_farm_check
+do
+    launchctl bootout system /Library/LaunchDaemons/${plist}.plist 2>/dev/null
+done
+
+# Stop core services
+launchctl bootout system /Library/LaunchDaemons/io.pcp.pmproxy.plist 2>/dev/null
+launchctl bootout system /Library/LaunchDaemons/io.pcp.pmlogger.plist 2>/dev/null
+launchctl bootout system /Library/LaunchDaemons/io.pcp.pmie.plist 2>/dev/null
+launchctl bootout system /Library/LaunchDaemons/io.pcp.pmcd.plist 2>/dev/null
+# Legacy fallback for very old installs
+/Library/StartupItems/pcp/pmlogger stop 2>/dev/null
+/Library/StartupItems/pcp/pmcd stop 2>/dev/null
 
 echo "$prog: Writing install log to /var/log/pcp_inst.log"
 

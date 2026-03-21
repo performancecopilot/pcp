@@ -112,6 +112,23 @@ launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmproxy.plist
 # ...and then started by launchctl
 launchctl kickstart -p -k system/io.pcp.pmproxy
 
+# Load periodic maintenance tasks (launchd scheduled jobs)
+# These are the macOS equivalent of systemd timers / cron on Linux.
+# They handle health checks and log rotation for pmlogger and pmie.
+echo "$prog: Loading periodic maintenance tasks"
+echo "$prog: Loading periodic maintenance tasks" >> /var/log/pcp_inst.log
+for plist in \
+    io.pcp.pmlogger_check \
+    io.pcp.pmlogger_daily \
+    io.pcp.pmlogger_farm_check \
+    io.pcp.pmie_check \
+    io.pcp.pmie_daily \
+    io.pcp.pmie_farm_check
+do
+    launchctl bootstrap system /Library/LaunchDaemons/${plist}.plist
+    echo "$prog: Loaded ${plist}" >> /var/log/pcp_inst.log
+done
+
 # Debug: Check for pmproxy log files for troubleshooting
 echo "$prog: Checking for pmproxy logs"
 echo "$prog: Checking for pmproxy logs" >> /var/log/pcp_inst.log
