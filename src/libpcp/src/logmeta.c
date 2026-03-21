@@ -1202,11 +1202,15 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	assert (didp->isdelta == 1);
 	assert(fidp == didp->next);
 	/*
-	 * we need to over estimate here, because if a delta indom entry
+	 * we need to over-allocate here, because if a delta indom entry
 	 * specifies delete for an instance (namelist[j] == NULL) we won't
 	 * reduce the number of instances in the output indom unless
 	 * instlist[j] matches some instlist[i] in the full indom, and
 	 * we won't discover that until later on in this routine.
+	 *
+	 * the upper bound is the number of instances in the full indom plus
+	 * the number of instances in the delta indom (for the all addition,
+	 * no deletions case)
 	 */
 	numinst = fidp->numinst + didp->numinst;
 	if ((instlist = (int *)malloc(numinst * sizeof(instlist[0]))) == NULL) {
@@ -1315,9 +1319,23 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 	if (didp->alloc & PMLID_NAMELIST)
 	    free(didp->namelist);
 	/* update didp */
-	didp->instlist = instlist;
-	didp->numinst = k;
-	didp->namelist = namelist;
+	if (k < numinst) {
+	    /* shrink arrays that were over-allocated */
+	    numinst = k;
+	    if ((didp->instlist = (int *)realloc(instlist, numinst * sizeof(instlist[0]))) == NULL) {
+		pmNoMem("__pmLogUndeltaInDom realloc instlist", numinst * sizeof(instlist[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	    if ((didp->namelist = (char  **)realloc(namelist, numinst * sizeof(namelist[0]))) == NULL) {
+		pmNoMem("__pmLogUndeltaInDom realloc namelist", numinst * sizeof(namelist[0]), PM_FATAL_ERR);
+		/*NOTREACHED*/
+	    }
+	}
+	else {
+	    didp->instlist = instlist;
+	    didp->namelist = namelist;
+	}
+	didp->numinst = numinst;
 	didp->isdelta = 0;
 	didp->alloc |= PMLID_INSTLIST|PMLID_NAMELIST|PMLID_NAMES;
 
