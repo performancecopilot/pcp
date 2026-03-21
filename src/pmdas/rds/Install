@@ -18,7 +18,7 @@
 . $PCP_SHARE_DIR/lib/pmdaproc.sh
 
 iam=rds
-domain=255
+domain=37
 python_opt=true
 daemon_opt=false
 

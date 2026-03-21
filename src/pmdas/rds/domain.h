@@ -1,1 +1,1 @@
-#define RDS 255
+#define RDS 37

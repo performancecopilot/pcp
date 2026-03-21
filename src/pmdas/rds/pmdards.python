@@ -436,7 +436,7 @@ if __name__ == "__main__":
     # This PMDA starts up in the "notready" state, see the Install script where
     # the IPC protocol is ipc_prot="binary notready". See also pmcd(1) man page.
     # The "binary notready" setting can also be manually configured in pmcd.conf.
-    pmda = RDSPMDA(name='rds', domain=255, user="root", logfile='rds.log')
+    pmda = RDSPMDA(name='rds', domain=37, user="root", logfile='rds.log')
 
     pmda.pmda_ready()
     if not pmda.in_pmda_setup():
