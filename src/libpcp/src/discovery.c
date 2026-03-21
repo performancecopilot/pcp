@@ -14,7 +14,6 @@
 #include "pmapi.h"
 #include "libpcp.h"
 #include "internal.h"
-#include "avahi.h"
 #include "shellprobe.h"
 #include "subnetprobe.h"
 
@@ -38,9 +37,8 @@ __pmServerAdvertisePresence(const char *serviceSpec, int port)
 
     /* Now advertise our presence using all available means. If a particular
      * method is not available or not configured, then the respective call
-     * will have no effect. Currently, only Avahi is supported.
+     * will have no effect.
      */
-    __pmServerAvahiAdvertisePresence(s);
     return s;
 }
 
@@ -55,7 +53,6 @@ __pmServerUnadvertisePresence(__pmServerPresence *s)
     /* Unadvertise our presence for all available means. If a particular
      * method is not active, then the respective call will have no effect.
      */
-    __pmServerAvahiUnadvertisePresence(s);
     free(s->serviceSpec);
     free(s);
 }
@@ -239,13 +236,6 @@ __pmDiscoverServicesWithOptions(const char *service,
 	 * Ensure that the return value from each mechanism is not an error
 	 * code before adding it to numUrls.
 	 */
-	sts = __pmAvahiDiscoverServices(service, mechanism, &options,
-					numUrls, urls);
-	if (sts < 0) {
-	    numUrls = sts;
-	    goto done;
-	}
-	numUrls += sts;
 	if (! flags || (*flags & PM_SERVICE_DISCOVERY_INTERRUPTED) == 0) {
 	    sts = __pmSubnetProbeDiscoverServices(service, mechanism, &options,
 					numUrls, urls);
@@ -264,10 +254,6 @@ __pmDiscoverServicesWithOptions(const char *service,
 	    }
 	    numUrls += sts;
 	}
-    }
-    else if (strncmp(mechanism, "avahi", sizeof("avahi")-1) == 0) {
-	numUrls = __pmAvahiDiscoverServices(service, mechanism, &options,
-					numUrls, urls);
     }
     else if (strncmp(mechanism, "probe", sizeof("probe")-1) == 0) {
 	numUrls = __pmSubnetProbeDiscoverServices(service, mechanism, &options,

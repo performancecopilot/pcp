@@ -9,7 +9,6 @@ apache2-bin
 auditd
 autoconf
 autotools-dev
-avahi-utils
 bash
 bc
 bind9-host
@@ -41,7 +40,6 @@ grep
 iproute2
 jq
 kubernetes-client
-libavahi-common-dev
 libbpf1
 libbpf-dev
 libclass-dbi-perl

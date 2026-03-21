@@ -1,6 +1,5 @@
 # for vagrant, these are the packages we don't want to install
 apache2-mpm-worker
-avahi-tools
 bsd-mailx
 cpan(Text::CSV_XS)
 libcoin-dev

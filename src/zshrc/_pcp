@@ -1087,9 +1087,6 @@ _pcp () {
   pmfind_mechs)
     if compset -P '*,'; then
       case "$IPREFIX" in
-      *avahi,)
-        _wanted timeout expl 'timeout' compadd -S = timeout && ret=0
-      ;;
       *probe=*)
         local -a opts
         [[ $IPREFIX != *timeout* ]] && opts+=( timeout )
@@ -1099,7 +1096,7 @@ _pcp () {
       ;;
       esac
     else
-      _wanted mechanisms expl 'mechanism' compadd -S '' avahi probe= && ret=0
+      _wanted mechanisms expl 'mechanism' compadd -S '' probe= && ret=0
     fi
   ;;
   pmiostat_extopts)

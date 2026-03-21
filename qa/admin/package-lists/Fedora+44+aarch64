@@ -8,8 +8,6 @@ HdrHistogram_c-devel
 SoQt-devel
 audit
 autoconf
-avahi-devel
-avahi-tools
 bash
 bc
 bind-utils

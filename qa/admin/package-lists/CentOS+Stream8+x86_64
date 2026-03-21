@@ -7,7 +7,6 @@ Net::SNMP cpan
 Spreadsheet::Read cpan
 Spreadsheet::XLSX cpan
 audit
-avahi-tools
 autoconf
 bash
 bc

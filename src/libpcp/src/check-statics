@@ -212,16 +212,6 @@ auxserver.o
     localSocketFd		# single-threaded server scope
     server_features		# single-threaded server scope
 discovery.o
-?avahi.o
-    nActiveServices		# single-threaded server scope
-    szActiveServices		# single-threaded server scope
-    activeServices		# single-threaded server scope
-    threadedPoll		# single-threaded server scope
-    simplePoll			# single-threaded server scope
-    client			# single-threaded server scope
-    group			# single-threaded server scope
-    done_default		# guarded by __pmLock_extcall mutex
-    def_timeout			# guarded by __pmLock_extcall mutex
 config.o
     ?__pmNativeConfig		# const
     config_lock			# local mutex

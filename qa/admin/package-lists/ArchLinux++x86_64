@@ -10,7 +10,6 @@ XML::TokeParser cpan
 extra/apache
 core/audit
 core/autoconf
-extra/avahi
 core/bash
 extra/bc
 extra/bind

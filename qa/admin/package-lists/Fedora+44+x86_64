@@ -9,8 +9,6 @@ SoQt-devel
 Spreadsheet::Read cpan
 audit
 autoconf
-avahi-devel
-avahi-tools
 bash
 bc
 bind-utils

@@ -6,8 +6,6 @@ Spreadsheet::ReadSXC cpan
 Spreadsheet::XLSX cpan
 XML::TokeParser cpan
 autoconf
-avahi
-avahi-libs
 bash
 bison
 cmocka

@@ -65,9 +65,6 @@ BuildRequires: procps autoconf bison flex
 
 BuildRequires: rpm-build
 
-%if "@enable_avahi@" == "true"
-BuildRequires: avahi-devel
-%endif
 %if "@enable_lzma@" == "true"
 BuildRequires: xz-devel
 %endif
