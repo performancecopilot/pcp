@@ -1296,7 +1296,7 @@ __pmLogUndeltaInDom(pmInDom indom, __pmLogInDom *idp)
 		assert (k < numinst);
 		instlist[k] = fidp->instlist[i];
 		if ((namelist[k] = strdup(fidp->namelist[i])) == NULL) {
-		    pmNoMem("__pmLogUndeltaInDom name from full", strlen(fidp->namelist[j]), PM_FATAL_ERR);
+		    pmNoMem("__pmLogUndeltaInDom name from full", strlen(fidp->namelist[i]), PM_FATAL_ERR);
 		}
 		k++;
 		i++;
