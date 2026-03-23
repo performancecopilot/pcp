@@ -2711,7 +2711,7 @@ parse_proc_numa_maps(proc_pid_entry_t *ep, size_t buflen, char *buf)
 
     huge_page_size_bytes = (double)_pm_system_hugepagesize;
     if (huge_page_size_bytes <= 0.0)
-	huge_page_size_bytes = page_size_bytes;
+	huge_page_size_bytes = 2048 * 1024; // Taking a common hugepagesize value as a fallback
 
     while (cur < end && *cur) {
 	char	*nl = memchr(cur, '\n', (size_t)(end - cur));
