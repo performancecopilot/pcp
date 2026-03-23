@@ -41,19 +41,16 @@ static pmLongOptions longopts[] = {
 static int overrides(int, pmOptions *);
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES | PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "A:a:D:gh:n:O:p:S:s:T:t:VZ:z?" "H:K:LN:c:fi:l:",
+    .short_options = "A:a:D:gh:n:O:p:S:T:t:VZ:z?" "H:K:LN:c:fi:l:s",
     .long_options = longopts,
     .short_usage = "[options] ...",
     .override = overrides,
 };
 
-int	sflag;			/* ==1 if -s seen on command line */
-
 static int
 overrides(int opt, pmOptions *optsp)
 {
-    if (opt == 's')
-	sflag++;
+    if (opt == 's') return 1;
     return 0;
 }
 
@@ -68,6 +65,7 @@ main(int argc, char **argv)
     int		fflag = 0;
     int		iflag = 0;
     int		lflag = 0;
+    int		sflag = 0;
 
     pmSetProgname(argv[0]);
 
@@ -105,6 +103,10 @@ main(int argc, char **argv)
 	    }
 	    lflag++;
 	    break;	
+
+	case 's':	/* my -s, not default samples */
+	    sflag++;
+	    break;
 
 	}
     }
@@ -176,7 +178,7 @@ main(int argc, char **argv)
     }
 
     if (sflag)
-	printf("Got -s \"%d\"\n", opts.samples);
+	printf("Got -s\n");
 
     if (opts.interval.tv_sec > 0 || opts.interval.tv_nsec > 0)
 	printf("Got -t %d.%09d (secs)\n",
