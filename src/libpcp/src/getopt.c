@@ -1390,6 +1390,55 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
     int quiet = (d->flags & PM_OPTFLAG_QUIET);
     int print_errors = d->opterr || !quiet;
 
+    if (pmDebugOptions.getopt) {
+	/* perform integrity checks ... */
+	if (optstring == NULL)
+	    fprintf(stderr, "Warning: pmOptions: short_options missing\n");
+	else if (longopts == NULL)
+	    fprintf(stderr, "Warning: pmOptions: long_options missing\n");
+	else {
+	    /* walk long options */
+	    pmLongOptions 	*p;
+	    char		*short_p;
+	    for (p = longopts; p->long_opt; p++) {
+		/*
+		 * expect ... short_opt to occur once in short_options
+		 * and there expect following : if has_arg == 1 else
+		 * no following : if has_arg == 0
+		 */
+		if (p->short_opt == '-')	/* PMAPI_OPTIONS_HEADER */
+		    continue;
+		if (p->short_opt == 0)		/* PMOPT_CONTAINER */
+		    continue;
+		short_p = strchr(optstring, p->short_opt);
+		if (short_p == NULL)
+		    fprintf(stderr, "Warning: pmOptions: '%c' in long_options but not in short_options\n", p->short_opt);
+		else {
+		    short_p++;
+		    if (p->has_arg && *short_p != ':')
+			fprintf(stderr, "Warning: pmOptions: '%c' with arg in long_options but no ':' in short_options\n", p->short_opt);
+		    else if (!p->has_arg && *short_p == ':')
+			fprintf(stderr, "Warning: pmOptions: '%c' with no arg in long_options but ':' in short_options\n", p->short_opt);
+		    short_p = strchr(short_p, p->short_opt);
+		    if (short_p != NULL)
+			fprintf(stderr, "Warning: pmOptions: '%c' in long_options appears more than once in short_options\n", p->short_opt);
+
+		}
+	    }
+	    /* walk short options */
+	    for (short_p = (char *)optstring; p->short_opt; short_p++) {
+		if (*short_p == ':')
+		    continue;
+		for (p = longopts; p->long_opt; p++) {
+		    if (p->short_opt == *short_p)
+			break;
+		}
+		if (! p->long_opt)
+		    fprintf(stderr, "Warning: pmOptions: '%c' in short_options but not in long_options\n", (int)*short_p);
+	    }
+	}
+    }
+
     if (argc < 1 || !optstring)
 	return -1;
 
