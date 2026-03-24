@@ -191,10 +191,6 @@ optional_policy(`
 
 optional_policy(`
     dbus_system_bus_client(pcp_pmcd_t)
-
-    optional_policy(`
-        avahi_dbus_chat(pcp_pmcd_t)
-    ')
 ')
 
 optional_policy(`
@@ -241,10 +237,6 @@ logging_send_syslog_msg(pcp_pmproxy_t)
 
 optional_policy(`
     dbus_system_bus_client(pcp_pmproxy_t)
-
-    optional_policy(`
-        avahi_dbus_chat(pcp_pmproxy_t)
-    ')
 ')
 
 ########################################

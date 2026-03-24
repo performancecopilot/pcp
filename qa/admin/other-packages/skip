@@ -87,11 +87,6 @@ Fedora       3[0-9]   -       community-mysql
 Fedora       3[0-9]   -       python-{.*} python2-{.*} 
 # these ones are SuSE packages, not in the RH ecosystem
 Fedora       -        -       kubectl libqt4-devel
-#-- Gentoo
-# observed on vm05
-# I cannot figure out how to remake this package with USE=utils so that
-# avahi-browse is built and installed (Ken)
-Gentoo       2\.4\.2  -       net-dns/avahi
 #-- LinuxMint
 # observed on vm18
 # libsoqt-dev -> libsoqt4-dev and all the other Qt pieces are Qt5

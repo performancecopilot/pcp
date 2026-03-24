@@ -3,48 +3,64 @@ QA output created by 1654 --valgrind
 === std out ===
 === malloc namelist[]
 == dump lidp1 after build() __pmLogInDom @ ADDR
-12:34:56.000000100 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 5
+12:34:56.000000100 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 6
 [0] 0 "external 00" ADDR
 [1] 1 "external 01" ADDR
 [2] 2 "external 02" ADDR
 [3] 3 "external 03" ADDR
 [4] 4 "external 04" ADDR
+[5] 5 "external 05" ADDR
 == dump lidp2 after build() __pmLogInDom @ ADDR
-12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 1 numinst: 4
+12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 1 numinst: 8
 [0] 0 NULL
 [1] 2 NULL
-[2] 11 "external 11" ADDR
-[3] 13 "external 13" ADDR
+[2] 4 NULL
+[3] 5 "redefined 05" ADDR
+[4] 7 NULL
+[5] 11 "external 11" ADDR
+[6] 13 "external 13" ADDR
+[7] 15 "external 15" ADDR
 == dump lidp2 after __pmLogUndeltaInDom __pmLogInDom @ ADDR
-12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 5
+12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 6
 [0] 1 "external 01" ADDR
 [1] 3 "external 03" ADDR
-[2] 4 "external 04" ADDR
+[2] 5 "external 05" ADDR
 [3] 11 "external 11" ADDR
 [4] 13 "external 13" ADDR
+[5] 15 "external 15" ADDR
 
 === namelist[] not malloc'd
 == dump lidp1 after build() __pmLogInDom @ ADDR
-12:34:56.000000100 alloc: SELF|INSTLIST|NAMELIST isdelta: 0 numinst: 5
+12:34:56.000000100 alloc: SELF|INSTLIST|NAMELIST isdelta: 0 numinst: 6
 [0] 0 "external 00" ADDR
 [1] 1 "external 01" ADDR
 [2] 2 "external 02" ADDR
 [3] 3 "external 03" ADDR
 [4] 4 "external 04" ADDR
+[5] 5 "external 05" ADDR
 == dump lidp2 after build() __pmLogInDom @ ADDR
-12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST isdelta: 1 numinst: 4
+12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST isdelta: 1 numinst: 8
 [0] 0 NULL
 [1] 2 NULL
-[2] 11 "external 11" ADDR
-[3] 13 "external 13" ADDR
+[2] 4 NULL
+[3] 5 "redefined 05" ADDR
+[4] 7 NULL
+[5] 11 "external 11" ADDR
+[6] 13 "external 13" ADDR
+[7] 15 "external 15" ADDR
 == dump lidp2 after __pmLogUndeltaInDom __pmLogInDom @ ADDR
-12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 5
+12:34:56.000000200 alloc: SELF|INSTLIST|NAMELIST|NAMES isdelta: 0 numinst: 6
 [0] 1 "external 01" ADDR
 [1] 3 "external 03" ADDR
-[2] 4 "external 04" ADDR
+[2] 5 "external 05" ADDR
 [3] 11 "external 11" ADDR
 [4] 13 "external 13" ADDR
+[5] 15 "external 15" ADDR
 === std err ===
+__pmLogUndeltaInDom: Botch: InDom 42.13: full inst[5]=5 "external 05" and redefined in delta inst[3]=5 "redefined 05", second one skipped
+__pmLogUndeltaInDom: Botch: InDom 42.13: delta inst[4]=7 delete but inst not in full indom, skipped
+__pmLogUndeltaInDom: Botch: InDom 42.13: full inst[5]=5 "external 05" and redefined in delta inst[3]=5 "redefined 05", second one skipped
+__pmLogUndeltaInDom: Botch: InDom 42.13: delta inst[4]=7 delete but inst not in full indom, skipped
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/undelta

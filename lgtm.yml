@@ -9,7 +9,6 @@ extraction:
         - auditd
         - autoconf
         - autotools-dev
-        - avahi-utils
         - bc
         - bind9-host
         - bison
@@ -33,7 +32,6 @@ extraction:
         - gfs2-utils
         - git
         - iproute2
-        - libavahi-common-dev
         - libclass-dbi-perl
         - libcoin-dev
         - libdbd-mysql-perl

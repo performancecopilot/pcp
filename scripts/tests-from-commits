@@ -33,8 +33,10 @@ _hunt_qa()
     in
 	# not implicated in any particular QA test
 	#
-	GNUmakefile*\
+	COOKBOOK.md\
+       |GNUmakefile*\
        |Makefile\
+       |README\
        |all-by-group\
        |bad-by-group\
        |buildbot/*\
@@ -42,8 +44,9 @@ _hunt_qa()
        |chk*\
        |cull-pmlogger-config\
        |disk-work\
-       |findmetric\
+       |find-metric\
        |getpmcdhosts\
+       |grind\
        |helgrind-suppress\
        |mk.*\
        |new\
@@ -55,6 +58,8 @@ _hunt_qa()
        |setup.051\
        |show-me\
        |sniff4dodgey\
+       |triaged\
+       |var-use\
        |xlate_2_new_pmns)		# not used in any QA test scripts
 	    ;;
 	[0-9][0-9][0-9][-.]*\
@@ -69,7 +74,8 @@ _hunt_qa()
        |archives/GNUmakefile*\
        |archives/idtohex\
        |archives/mk.*\
-       |archives/multi*/GNUmakefile*)	# not used in any QA test scripts
+       |archives/multi*/GNUmakefile*\
+       |archives/multi*/mk.*)	# not used in any QA test scripts
 	    ;;
 	# these files are not used in any QA test as far as we can tell
 	# ...
@@ -388,7 +394,7 @@ _hunt_qa()
     cd $here
 }
 
-# remove files that don't drive QA
+# remove files that don't drive QA independent of directory location
 #
 _cull()
 {
@@ -433,6 +439,7 @@ _cull()
 # hard work happens here ...
 #
 # map a pathname in the git tree onto QA group(s)
+#
 _map()
 {
     while read f
@@ -449,6 +456,13 @@ _map()
 		# but if it builds OK then check packaging
 		#
 		echo '-g verify'
+		;;
+	    cscope.run)			# not relevant to QA
+		;;
+	    docs/*)			# not relevant to QA
+		;;
+	    flake.nix\
+	    |nix/*)			# not relevant to our QA
 		;;
 	    man/*\
 	   |*.1)
@@ -529,6 +543,12 @@ _map()
 	    src/libpcp/*)
 		echo '-g libpcp'
 		;;
+	    src/libpcp3/*)
+		echo '-g compat'
+		;;
+	    src/libpcp_archive/*)
+		echo '-g pmlogextract -g pmlogreduce -g pmlogrewrite -g pmlogger'
+		;;
 	    src/libpcp_fault/*)
 		echo '-g fault'
 		;;
@@ -543,6 +563,9 @@ _map()
 		;;
 	    src/libpcp_*)
 		echo "$f" | sed -e 's/src\///' -e 's/\/.*//' -e 's/^/-g /'
+		;;
+	    src/libvalkey/*)
+		echo '-g pmda.valkey -g libpcp_web -g pmproxy'
 		;;
 	    src/newhelp/*)
 		echo '-g help'
@@ -723,7 +746,7 @@ _map()
 	    tools/*)			# not used in any QA test scripts
 		;;
 	    *)
-		echo >&2 "Warning: $f: no matching QA group from _map"
+		echo >&2 "Warning: $f: no matching QA group from _map()"
 		;;
 	esac
     done
@@ -760,7 +783,7 @@ _expand()
 
 _usage()
 {
-    echo >&2 "Usage: groups-to-test [options]"
+    echo >&2 "Usage: tests-from-commits [options]"
     echo >&2
     echo >&2 "options:"
     echo >&2 "  -b branch           [defaults to main]"

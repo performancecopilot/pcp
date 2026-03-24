@@ -9,7 +9,7 @@
 <br>&nbsp;&nbsp;&nbsp;[3.2 Dealing with the Known Unknowns](#dealing-with-the-known-unknowns)
 <br>[4 **check** script](#check-script)
 <br>&nbsp;&nbsp;&nbsp;[4.1 **check** setup](#check-setup)
-<br>&nbsp;&nbsp;&nbsp;[4.2 **check** command line options](#check-command-line-options)
+<br>&nbsp;&nbsp;&nbsp;[4.2 command line options for **check** ](#command-line-options-for-check-)
 <br>&nbsp;&nbsp;&nbsp;[4.3 **check.callback** script](#check.callback-script)
 <br>&nbsp;&nbsp;&nbsp;[4.4 *check.log* file](#check.log-file)
 <br>&nbsp;&nbsp;&nbsp;[4.5 *check.time* file](#check.time-file)
@@ -20,12 +20,13 @@
 <br>&nbsp;&nbsp;&nbsp;[7.1 Take control of stdout and stderr](#take-control-of-stdout-and-stderr)
 <br>&nbsp;&nbsp;&nbsp;[7.2 **$seq_full** file suggestions](#seqfull-file-suggestions)
 <br>[8 Shell functions from *common.check*](#shell-functions-from-common.check)
+<br>&nbsp;&nbsp;&nbsp;[8.1 **\_triage_wait_point**](#triagewaitpoint)
 <br>[9 Shell functions from *common.filter*](#shell-functions-from-common.filter)
 <br>[10 Control files](#control-files)
 <br>&nbsp;&nbsp;&nbsp;[10.1 The *group* file](#the-group-file)
 <br>&nbsp;&nbsp;&nbsp;[10.2 The *triaged* file](#the-triaged-file)
 <br>&nbsp;&nbsp;&nbsp;[10.3 The *localconfig* file](#the-localconfig-file)
-<br>[11 Other helper scripts](#other-helper-scripts)
+<br>[11 Helper scripts](#helper-scripts)
 <br>&nbsp;&nbsp;&nbsp;[Summary](#summary)
 <br>&nbsp;&nbsp;&nbsp;[11.1 **mk.logfarm** script](#mk.logfarm-script)
 <br>&nbsp;&nbsp;&nbsp;[11.2 **mk.qa_hosts** script](#mk.qahosts-script)
@@ -40,8 +41,14 @@
 <br>[15 *common* and *common.\** files](#common-and-common.-files)
 <br>[16 Selinux considerations](#selinux-considerations)
 <br>[17 Package lists](#package-lists)
+<br>[18 The last word](#the-last-word)
 <br>[Initial Setup Appendix](#initial-setup-appendix)
 <br>&nbsp;&nbsp;&nbsp;[**sudo** setup](#sudo-setup)
+<br>&nbsp;&nbsp;&nbsp;[Distributed QA](#distributed-qa)
+<br>&nbsp;&nbsp;&nbsp;[Firewall setup](#firewall-setup)
+<br>&nbsp;&nbsp;&nbsp;[*common.config* files](#common.config-files)
+<br>&nbsp;&nbsp;&nbsp;[Some special test cases](#some-special-test-cases)
+<br>&nbsp;&nbsp;&nbsp;[Take it for a test drive](#take-it-for-a-test-drive)
 <br>[PCP Acronyms Appendix](#pcp-acronyms-appendix)
 <br>[Index](#index)
 
@@ -51,7 +58,7 @@
 These notes are designed to help with building, running and maintaining QA
 (Quality Assurance) tests
 for the Performance Co-Pilot ([PCP](#idx+pcp)) project
-([www.pcp.io](http://www.pcp.io/) and
+([www.pcp.io](https://www.pcp.io/) and
 [https://github.com/performancecopilot/pcp](https://github.com/performancecopilot/pcp/)).
 
 The PCP QA infrastructure is designed with a philosophy that aims to
@@ -96,7 +103,7 @@ Some of these require "root" privileges, refer to the
 
 But this also means the QA tests may alter existing system configuration
 files, and this introduces some risk, so PCP QA should not be run
-on production systems.  Historically we have used developer systems
+on production systems. Historically we have used developer systems
 and dedicated QA systems for running QA - VMs are
 particularly well-suited to this task.
 
@@ -131,12 +138,12 @@ we'd ever have more than a thousand test scripts!
 # 2 The basic model
 
 Minimally each test consists of a shell script **$seq** and an expected output
-file **$seq.out**.
+file **$seq***.out*.
 
 When run under the control of **check**, **$seq** is executed and the
-output is captured and compared to **$seq.out**. If the two outputs are
+output is captured and compared to **$seq***.out*. If the two outputs are
 identical the test is deemed to have passed, else the (unexpected)
-output is saved to **$seq.out.bad**.
+output is saved to **$seq***.out.bad*.
 
 Central to this model is the fact that **$seq** must produce
 deterministic output, independent of hostname, filesystem pathname
@@ -149,11 +156,12 @@ The tests scripts are expected to exit with status 0, but may exit with
 a non-zero status in cases of catastrophic failure, e.g. some service to
 be exercised did not start correctly, so there is nothing to test.
 
-As tests are developed and evolve, the **remake** script is used to
-generate updated versions of **$seq.out**.
+As tests are developed and evolve, the [**remake**](#idx+cmds+remake)
+script is used to
+generate updated versions of **$seq***.out*.
 
 To assist with test failure triage, all tests also generate a
-**$seq.full** file that contains additional diagnostics and unfiltered
+**$seq***.full* file that contains additional diagnostics and unfiltered
 output.
 
 <a id="creating-a-new-test"></a>
@@ -249,7 +257,7 @@ determining their outcome as follows:
 |**notrun**|test called [**_notrun**](#idx+funcs+notrun)|
 |**callback**|same as **pass** but [**check.callback**](#check.callback-script) was run and detected a problem|
 |**fail**|test exit status was not 0|
-|**triaged**|special kind of **fail**, see [the *triaged* file](#the-triaged-file) section below
+|**triaged**|special kind of **fail**, see [the *triaged* file](#the-triaged-file) section below|
 
 The non-option command line arguments identify tests to
 be run using one or more *seqno* or a range *seqno*-*seqno*.
@@ -258,10 +266,10 @@ are removed.
 Leading zeroes may be omitted, so all of the following are equivalent.
 
 ```
-010 00? # assume the shell's glob will expand this
-010 009 008 007 006 005 004 003 002 001
-0-10 000
-000 1 002 3 4-9 10
+check 010 00? # assume the shell's glob will expand this
+check 010 009 008 007 006 005 004 003 002 001
+check 0-10 000
+check 000 1 002 3 4-9 10
 ```
 
 If no *seqno* is specified, the default is to select all tests
@@ -279,10 +287,11 @@ the following tasks before any test is run:<br>
 - ensure the **sample**, **sampledso** and **simple** [PMDAs](#idx+pmda) are installed and working
 - ensure **pmcd**(1), **pmproxy**(1) and **pmlogger**(1) are all configured to allow remote connections
 - ensure the primary **pmlogger**(1) instance is running
-- run `make setup` which will run `make setup` in multiple subdirectories, but most importantly *src* (so the QA apps are made), *tmparchive* (so the transient archives are present) and *pmdas* (so the QA [PMDAs](#idx+pmda) are up to date)
+- if [Distributed QA](#distributed-qa) has been enabled, check that the PCP setup on the remote systems is OK
+- run `make setup` which will run `make setup` in multiple subdirectories, but most importantly *src* (so the QA apps are made), *tmparch* (so the transient archives are present) and *pmdas* (so the QA [PMDAs](#idx+pmda) are up to date)
 
-<a id="check-command-line-options"></a>
-## 4.2 **check** command line options
+<a id="command-line-options-for-check-"></a>
+## 4.2 command line options for **check** 
 
 The parsing of command line arguments is a little Neanderthal, so best
 practice is to separate options with whitespace.
@@ -353,16 +362,16 @@ Refer to the [**mk.qa_hosts**](#mk.qahosts-script) section.
 Usage: **show-me** \[**-g** *group*] \[**-l**] \[**-n**] \[**-x** *group*] \[seqno ...]
 
 The **show-me** script is responsible for displaying the differences
-between the actual output (**$seq.out.bad**) and the expected output
-(**$seq.out**) for selected tests.
+between the actual output (**$seq***.out.bad*) and the expected output
+(**$seq***.out*) for selected tests.
 
 The command line options are:
 
 |**Option**|**Description**|
 |---|---|
 |**-g** *group*|Select the failed tests from the group *group*.|
-|**-l**|Simple **diff**(1), the default is to use a graphical diff tool if one can be found
-|**-n**|Show me, just report *seqno* for failing tests, no diffs
+|**-l**|Simple **diff**(1), the default is to use a graphical diff tool if one can be found|
+|**-n**|Show me, just report *seqno* for failing tests, no diffs|
 |**-x** *group*|Exclude the failed tests from the group *group*.|
 
 If no **-g** option and no *seqno* is specified on the command line,
@@ -383,7 +392,7 @@ and the following shell variables that may be used in your test script.
 |<a id="idx+vars+seqfull">**$seq_full**</a>|Proper pathname to the test's *.full* file. Always use this in preference to **$seq**.*full* because **$seq_full** works no matter where the test script might have **cd**'d to.|
 |<a id="idx+vars+status">**$status**</a>| Exit status for the test script.|
 |<a id="idx+vars+sudo">**$sudo**</a>|Proper invocation of **sudo**(1) that includes any per-platform additional command line options.|
-|<a id="idx+vars+tmp">**$tmp**</a>|Unique prefix for temporary files or directory. Use **$tmp.foo** or `$ mkdir $tmp` and then use **$tmp/foo** or both. The standard **trap** cleanup in each test will remove all these files and directories automatically when the test finishes, so save anything useful to **$seq_full**.|
+|<a id="idx+vars+tmp">**$tmp**</a>|Unique prefix for temporary files or directory. Use **$tmp***.foo* or `$ mkdir $tmp` and then use **$tmp***/foo* or both. The standard **trap** cleanup in each test will remove all these files and directories automatically when the test finishes, so save anything useful to **$seq_full**.|
 
 <a id="coding-style-suggestions-for-tests"></a>
 # 7 Coding style suggestions for tests
@@ -396,13 +405,24 @@ stderr or both, the test may need to take control to capture all the
 output and prevent platform-specific or libc-version-specific buffer
 flushing that makes the output non-deterministic.
 
-Instead of<br>
-`$ cmd | _filter`<br>
-the test may need to do<br>
-`$ cmd 2>&1 | _filter`<br>
-or even<br>
-`$ cmd >$tmp.out 2>$tmp.err`<br>
-`$ cat $tmp.err $tmp.out | _filter`
+Instead of
+
+```
+$ cmd | _filter
+```
+
+the test may need to do
+
+```
+$ cmd 2>&1 | _filter
+```
+
+or even
+
+```
+$ cmd >$tmp.out 2>$tmp.err
+$ cat $tmp.err $tmp.out | _filter
+```
 
 <a id="seqfull-file-suggestions"></a>
 ## 7.2 <a id="idx+files+seqfull">**$seq_full**</a> file suggestions
@@ -425,7 +445,7 @@ $ echo ... >>$seq_full
 $ cmd ... | tee -a $seq_full | ...
 ```
 
-Remember that **$seq_full** translates to file **$seq.full** (dot, not underscore) in the directory the **$seq** test is run from.
+Remember that **$seq_full** translates to file **$seq***.full* (dot, not underscore) in the directory the **$seq** test is run from.
 
 <a id="shell-functions-from-common.check"></a>
 # 8 Shell functions from *common.check*
@@ -455,7 +475,7 @@ handles:
 |<a id="idx+funcs+checkagent">**\_check_agent**</a>|Usage: **\_check_agent** *pmda* \[*verbose*]<br>Checks that the *pmda* [PMDA](#idx+pmda) is installed and responding to metric requests. Returns 0 if all is well, else returns 1 and emits diagnostics on stdout to explain why. If *verbose* is **true** emit diagnostics independent of return value.|
 |<a id="idx+funcs+checkcore">**\_check_core**</a>|TODO|
 |<a id="idx+funcs+checkdisplay">**\_check_display**</a>|TODO|
-|<a id="idx+funcs+checkfreespace">**\_check_freespace**</a>|Usage: **\_check_freespace** *need*<br> Returns 0 if there is more that *need* Mbytes of free space in the filesystem for the current working directory, else returns 1.
+|<a id="idx+funcs+checkfreespace">**\_check_freespace**</a>|Usage: **\_check_freespace** *need*<br> Returns 0 if there is more that *need* Mbytes of free space in the filesystem for the current working directory, else returns 1.|
 |<a id="idx+funcs+checkjobscheduler">**\_check_job_scheduler**</a>|TODO|
 |<a id="idx+funcs+checkkeyserver">**\_check_key_server**</a>|TODO|
 |<a id="idx+funcs+checkkeyserverping">**\_check_key_server_ping**</a>|TODO|
@@ -524,7 +544,7 @@ handles:
 |<a id="idx+funcs+stopautorestart">**\_stop_auto_restart**</a>|Usage: **\_stop_auto_restart** *service*<br>When testing error handling or timeout conditions for services it may be important to ensure the system does not try to restart a failed service (potentially leading to an hard loop of retry-fail-retry). **\_stop_auto_start** will change configuration to prevent restarting for *service* if the system supports this function.<br>Use <a id="idx+funcs+restoreautorestart">**\_restore_auto_restart**</a> with the same *service* to reinstate the configuration.|
 |<a id="idx+funcs+systemctlstatus">**\_systemctl_status**</a>|TODO|
 |<a id="idx+funcs+triagepmcd">**\_triage_pmcd**</a>|TODO|
-|<a id="idx+funcs+triagewaitpoint">**\_triage_wait_point**</a>|TODO|
+|<a id="idx+funcs+triagewaitpoint">**\_triage_wait_point**</a>|See the [**\_triage_wait_point**](#triagewaitpoint) section below.|
 |<a id="idx+funcs+trypmlc">**\_try_pmlc**</a>|TODO|
 |<a id="idx+funcs+waitforpmcd">**\_wait_for_pmcd**</a>|TODO|
 |<a id="idx+funcs+waitforpmcdstop">**\_wait_for_pmcd_stop**</a>|TODO|
@@ -544,6 +564,40 @@ handles:
 |<a id="idx+funcs+webapiresponsefilter">**\_webapi_response_filter**</a>|TODO|
 |<a id="idx+funcs+withintolerance">**\_within_tolerance**</a>|TODO|
 |<a id="idx+funcs+writableprimarylogger">**\_writable_primary_logger**</a>|TODO|
+
+<a id="triagewaitpoint"></a>
+## 8.1 **\_triage_wait_point**
+
+Usage: **\_triage_wait_point** [*message*]
+
+If you have a QA test that needs triaging after it has done some setup
+(e.g. start a QA version of a daemon, install a PMDA, or unpack a
+"fake" set of kernel stats files, create an archive), then add a call
+to **\_triage_wait_point** in the test once the setup has been done.
+
+If *message* is specified it will be echoed and
+this allows the test to disclose useful information from the setup, e.g. a process ID or the path to where the magic files have been unpacked.
+
+
+Now, to triage the test:
+
+```
+$ touch $seq.wait
+$ ./$seq
+```
+
+and when **\_triage_wait_point** is called it will emit *message*
+(if specified) on stdout, and go into a sleep-check loop waiting
+for **$seq***.wait* to disappear.
+So at this point the test is suspended and you can go poke a process, look
+at a log file, check an archive, ...
+
+When the triage is done,
+
+```
+$ rm $seq.wait
+```
+and the test will resume.
 
 <a id="shell-functions-from-common.filter"></a>
 # 9 Shell functions from *common.filter*
@@ -634,7 +688,7 @@ Comments within the file provide further information as to format.
 ## 10.2 The <a id="idx+files+triaged">*triaged*</a> file
 
 Some tests may fail in ways that after careful analysis are deemed to be
-a "test" failure, rather than a PCP failure or regression.  Causes might be
+a "test" failure, rather than a PCP failure or regression. Causes might be
 timing issues that are impossible to control or failures on slow VMs or
 caused by non-PCP code that's failing.
 
@@ -655,8 +709,8 @@ The *localconfig* file is generated by the **mk.localconfig** script.
 It defines the shell variables
 *localconfig* is sourced from **common.check** so every test script has access to these shell variables.
 
-<a id="other-helper-scripts"></a>
-# 11 Other helper scripts
+<a id="helper-scripts"></a>
+# 11 Helper scripts
 
 There are a large number of shell scripts in the QA directory that are
 intended for common QA development and triage tasks beyond simply
@@ -669,10 +723,10 @@ running tests with **check**.
 |---|---|
 |<a id="idx+cmds+all-by-group">**all-by-group**</a>|Report all tests (excluding those tagged **:retired** or **:reserved**) in *group* sorted by group.|
 |<a id="idx+cmds+appchange">**appchange**</a>|Options: \[**-c**] *app1* \[*app2* ...]<br>Recheck all QA tests that appear to use the test application src/*app1* or *src/app2* or ... *${TMPDIR:-/tmp}/appcache* is a cache of mappings between test sequence numbers and uses, for all applications in *src/* \... **appchange** will build the cache if it is not already there, use **-c** to clear and rebuild the cache.|
-|<a id="idx+cmds+bad-by-group">**bad-by-group**</a>|Use the *\*.out.bad* files to report failures by group.
+|<a id="idx+cmds+bad-by-group">**bad-by-group**</a>|Use the *\*.out.bad* files to report failures by group.|
 |<a id="idx+cmds+check.app.ok">**check.app.ok**</a>|Options: *app*<br>When the test application *src/app.c* (or similar) has been changed, this script<br>(a) remakes the application and checks **make**(1) status, and<br>(b) finds all the tests that appear to run the *src/app* application and runs **check** for these tests.|
 |<a id="idx+cmds+check-auto">**check-auto**</a>|Options: \[*seqno* ...]<br>Check that if a QA script uses **\_stop_auto_restart** for a (**systemd**) service, it also uses **\_restore_auto_restart** (preferably in \_cleanup()). If no *seqno* options are given then check all tests.|
-|<a id="idx+cmds+check-flakey">**check-flakey**</a>|Options: \[*seqno* ...\]<br>Recheck failed tests and try to classify them as "flakey" if they pass now, or determine if the failure is "hard" (same **$seqno.out.bad**) or some other sort of non-deterministic failure. If no *seqno* options are given then check all tests with a **\*.out.bad*** file.|
+|<a id="idx+cmds+check-flakey">**check-flakey**</a>|Options: \[*seqno* ...\]<br>Recheck failed tests and try to classify them as "flakey" if they pass now, or determine if the failure is "hard" (same *seqno.out.bad*) or some other sort of non-deterministic failure. If no *seqno* options are given then check all tests with a *\*.out.bad* file.|
 |<a id="idx+cmds+check-group">**check-group**</a>|Options: *query*<br>Check the *group* file and test scripts for a specific *query* that is assumed to be **both** the name of a command that appears in the test scripts (or part of a command, e.g. **purify** in **\_setup_purify**) and the name of a group in the *group* file. Report differences, e.g. *command* appears in the *group* file for a specific test but is not apparently used in that test, or *command* is used in a specific test but is not included in the *group* file entry for that test.<br>There are some special cases to handle the pcp-foo commands, aliases and [PMDAs](#idx+pmda) ... refer to **check-group** for details.<br>Special control lines like:<br>`# check-group-include: group ...`<br>`# check-group-exclude: group ...`<br>may be embedded in test scripts to over-ride the heuristics used by **check-group**.|
 |<a id="idx+cmds+check-pdu-coverage">**check-pdu-coverage**</a>|Check that PDU-related QA apps in *src* provide full coverage of all current PDU types.|
 |<a id="idx+cmds+check-setup">**check-setup**</a>|Check QA environment is as expected. Documented in *README* but not used otherwise.|
@@ -681,25 +735,24 @@ running tests with **check**.
 |<a id="idx+cmds+daily-cleanup">**daily-cleanup**</a>|Run from **check**, this script will try to make sure the **pmlogger_daily**(1) work has really been done; this is important for QA VMs that are only booted for QA and tend to miss the nightly **pmlogger_daily**(1) run.|
 |<a id="idx+cmds+find-app">**find-app**</a>|Options: *app*<br>Find and report tests that use a QA application *src/app*.|
 |<a id="idx+cmds+find-bound">**find-bound**</a>|Options: *archive* *timestamp* *metric* \[*instance*]<br>Scan *archive* for values of *metric* (optionally constrained to the one *instance*) within the interval *timestamp* (in the format HH:MM:SS, as per **pmlogdump**(1) and assuming a timezone as per **-z**).|
-|<a id="idx+cmds+find-metric">**find-metric**</a>|Options: \[**-a**\|**-h**] *pattern* ...<br>Search for metrics with name or metadata that matches *pattern*. With **-h** interrogate the local **pmcd**(1), else with **-a** (the default) search all the QA archives in the directories *archive* and *tmparchive*.<br>Multiple pattern arguments are treated as a disjunction in the search which uses **grep**(1) style regular expressions. Metadata matches are against the **pminfo**(1) **-d** output for the type, instance domain, semantics, and units.|
+|<a id="idx+cmds+find-metric">**find-metric**</a>|Options: \[**-a**\|**-h**] *pattern* ...<br>Search for metrics with name or metadata that matches *pattern*. With **-h** interrogate the local **pmcd**(1), else with **-a** (the default) search all the QA archives in the directories *archive* and *tmparch*.<br>Multiple pattern arguments are treated as a disjunction in the search which uses **grep**(1) style regular expressions. Metadata matches are against the **pminfo**(1) **-d** output for the type, instance domain, semantics, and units.|
 |<a id="idx+cmds+flakey-summary">**flakey-summary**</a>|Assuming the output from **check-flakey** has been kept for multiple QA runs across multiple hosts and saved in a file called *flakey*, this script will summarize the test failure classifications.|
 |<a id="idx+cmds+getpmcdhosts">**getpmcdhosts**</a>|Options: lots of them<br>Find a remote host matching a selection criteria based on hardware, operating system, installed [PMDA](#idx+pmda), primary logger running, etc. Use<br>`$ getpmcdhosts -?`<br>to see all options.|
 |<a id="idx+cmds+grind">**grind**</a>|Options: *seqno* \[...]<br>Run select test(s) in an loop until one of them fails and produces a **.out.bad** file. Stop with Ctl-C or for a more orderly end after the current iteration<br>`$ touch grind.stop`|
-|<a id="idx+cmds+grind-pmda">**grind-pmda**</a>|Options: *pmda* *seqno* \[...]<br> Exercise the *pmda* [PMDA](#idx+pmda) by running the PMDA's **Install** script, then using **check** to run all the selected tests, checking that the PMDA is still installed, running the PMDA's **Remove** script, then running the selected tests again and checking that the PMDA is still **not** installed.
-|<a id="idx+cmds+group-stats">**group-stats**</a>|Report test frequency by group, and report any group name anomalies.
-|<a id="idx+cmds+mk.localconfig">**mk.localconfig**</a>|Recreate the *localconfig* file that provides the platform and PCP version information and the *src/localconfig.h* file that can be used by C programs in the *src* directory.
-|**mk.logfarm**|See the [**mk.logfarm**](#mk.logfarm-script) section.
-|<a id="idx+cmds+mk.pcpversion">**mk.pcpversion**</a>|REMOVE NOT USED TODO
-|**mk.qa_hosts**|See the [**mk.qa_hosts**](#mk.qahosts-script) section.
-|<a id="idx+cmds+mk.variant">**mk.variant**</a>|TOO HARD TODO
-|**new**|See the [**new**](#the-new-script) section.
-|<a id="idx+cmds+new-dup">**new-dup**</a>|
-|<a id="new-grind"></a><a id="idx+cmds+new-grind">**new-grind**</a>|
-|<a id="idx+cmds+new-seqs">**new-seqs**</a>|
-|<a id="idx+cmds+really-retire">**really-retire**</a>|
-|<a id="idx+cmds+recheck">**recheck**</a>|
-|<a id="idx+cmds+remake">**remake**</a>|
-|<a id="idx+cmds+sameas">**sameas**</a>|Options: *seqno* \[...]<br>See if *seqno***.out** and *seqno***.out.bad** are identical except for line ordering. Useful to detect cases where non-determinism is caused by the order in which subtests were run, e.g. sensitive to directory entry order in the filesystem or metric name order in the [PMNS](#idx+pmns).
+|<a id="idx+cmds+grind-pmda">**grind-pmda**</a>|Options: *pmda* *seqno* \[...]<br> Exercise the *pmda* [PMDA](#idx+pmda) by running the PMDA's **Install** script, then using **check** to run all the selected tests, checking that the PMDA is still installed, running the PMDA's **Remove** script, then running the selected tests again and checking that the PMDA is still **not** installed.|
+|<a id="idx+cmds+group-stats">**group-stats**</a>|Report test frequency by group, and report any group name anomalies.|
+|<a id="idx+cmds+mk.localconfig">**mk.localconfig**</a>|Recreate the *localconfig* file that provides the platform and PCP version information and the *src/localconfig.h* file that can be used by C programs in the *src* directory.|
+|**mk.logfarm**|See the [**mk.logfarm**](#mk.logfarm-script) section.|
+|**mk.qa_hosts**|See the [**mk.qa_hosts**](#mk.qahosts-script) section below.|
+|<a id="idx+cmds+mk.variant">**mk.variant**</a>|Options: *seqno*<br>Sometimes a test has no choice other than to produce different output on different platforms. This script may be used to convert an existing test to accommodate multiple *seqno.out* files.|
+|**new**|See the [**new**](#the-new-script) section above.|
+|<a id="idx+cmds+new-dup">**new-dup**</a>|Options: \[**-n**] *seqno*<br>Make a copy of the test *seqno* using a new test number as assigned by [**new**](#the-new-script), including rewriting the old *seqno* in the new test and its new *.out* file. **-n** is "show me" mode and no changes are made.|
+|<a id="new-grind"></a><a id="idx+cmds+new-grind">**new-grind**</a>|Options: \[**-n**] \[**-v**] *seqno*<br>Make a copy of the test *seqno* using a new test number as assigned by [**new**](#the-new-script) and arrange matters so the new test runs the old test but selects the **valgrind**(1) sections of that test. **-n** is "show me" mode and no changes are made, use **-v** for more verbosity.|
+|<a id="idx+cmds+new-seqs">**new-seqs**</a>|Report the unallocated blocks of test sequence numbers from the *group* file.|
+|<a id="idx+cmds+really-retire">**really-retire**</a>|Options: *seqno* \[...]<br>Mark the selected tests as **:retired** in the *group* file and then replace the test and its *.out* file with boilerplate text that explains what has happened and unilaterally calls **_notrun** (in case the test is ever really run).|
+|<a id="idx+cmds+recheck">**recheck**</a>|Options: \[**-t**] \[*options*] \[*seqno* ...\]<br>Run **check** again for failed tests. If no *seqno* options are given then check all tests with a *\*.out.bad* file. By default tests that failed last time and were classified as **triaged** will not be rerun, but **-t** overrides this. Other *options* are any command line options that **check** understands.|
+|<a id="idx+cmds+remake">**remake**</a>|Options: \[*options*] *seqno* \[...]<br>Remake the *.out* file for the specified test(s). Command line parsing is the same as **check** so *seqno* can be a single test sequence number, or a range, or a **-g** *group* specification. Similarly **-l** selects **diff**(1) rather than a graphical diff tool to show the differences.<br>Since the *seqno.out* files are precious and reflect the state of the qualified and expected output, they should typically not be changed unless some change has been made to the *seqno* test or the applications the test runs produce different output or the filters in the test have changed.|
+|<a id="idx+cmds+sameas">**sameas**</a>|Options: *seqno* \[...]<br>See if *seqno.out* and *seqno.out.bad* are identical except for line ordering. Useful to detect cases where non-determinism is caused by the order in which subtests were run, e.g. sensitive to directory entry order in the filesystem or metric name order in the [PMNS](#idx+pmns).|
 |<a id="idx+cmds+var-use">**var-use**</a>|Options: *var* \[*seqno* ...]<br>Find assignment and uses of the shell variable \[**$**]*var* in tests. If *seqno* not specified, search all tests.|
 
 <br>
@@ -742,8 +795,13 @@ otherhost       archives/ok-foo 20011002.00.10-00
 <a id="mk.qahosts-script"></a>
 ## 11.2 <a id="idx+cmds+mk.qahosts">**mk.qa_hosts**</a> script
 
-The **mk.qa_hosts** script makes the
-The process uses the domain name for
+The **mk.qa_hosts** script includes heuristics for selecting
+and sorting the list of potential remote PCP QA hosts 
+*qa_hosts.primary*).
+Refer to the comments in *qa_hosts.primary*,
+and make appropriate changes.
+
+The heuristics use the domain name for
 the current host to choose a set of hosts that can be considered
 when running distributed tests, e.g. **pmlogger**(1) locally and
 **pmcd**(1) on a remote host. Anyone wishing to do this sort of
@@ -853,19 +911,32 @@ other-packages/manifest et al
 
 **admin/list-packages** ... -c ... -m ... -n ... -v ...
 
+<a id="the-last-word"></a>
+# 18 The last word
+
+If you find something that does not work or seem right, then
+either send email to  <a href="mailto:pcp@groups.io">pcp@groups.io</a>
+or join the Performance Co-Pilot chat at
+[www.performancecopilot.slack.com](https://www.performancecopilot.slack.com/) and
+and post to the **#pcpqa** channel.
+
+Better still, if you can fix the problem or create
+additional QA tests please commit these to **git** and open
+a Pull Request at
+[https://github.com/performancecopilot/pcp](https://github.com/performancecopilot/pcp)
+
+
 <a id="initial-setup-appendix"></a>
 # Initial Setup Appendix
-
-TODO - incorporate README info
 
 <a id="sudo-setup"></a>
 ## **sudo** setup
 
-The PCP tests are designed to be run by a non-root user.  Where "root"
+The PCP tests are designed to be run by a non-root user. Where "root"
 privileges are needed, e.g. to stop or start **pmcd**(1), **Install** or **Remove**
-PMDAs, etc. the **sudo**(1) application is used.  When using **sudo** for QA,
+PMDAs, etc. the **sudo**(1) application is used. When using **sudo** for QA,
 your current user login needs to be able to execute commands as
-root without being prompted for a password.  This can be achieved by
+root without being prompted for a password. This can be achieved by
 adding the following line to the */etc/sudoers* file:
 
 ```
@@ -877,13 +948,107 @@ and checked with
 $ sudo id
 ```
 
+<a id="distributed-qa"></a>
+## Distributed QA
+
+PCP employs a cient-server architecture, and so some parts of the
+QA infrastructure involve testing one component running on the local
+system and another component running on a remote system.  For example
+
+```
+$ pmrep -h remote
+```
+runs **pmrep**(1) locally which interacts with **pmcd**(1) on the
+host `remote`.
+
+To make this work, some additional effort is required in the QA setup
+both locally and on the remote system(s).
+
+Refer to the [**mk.qahosts** script](#mk.qahosts-script) section
+to see how the remote QA hosts are configured.
+
+For each of the potential remote PCP QA hosts, the following must be
+set up:
+
+1. PCP installed from packages,
+2. **pmcd**(1) running,
+3. a login for the user **pcpqa** needs to be created, and then set up in such a way that **ssh**(1) and **scp**(1) will work without the need for any password, i.e. these sorts of commands<br>`$ ssh pcpqa@pcp-qa-host some-command`<br>`$ scp some-file pcpqa@pcp-qa-host:some-dir`<br>must work correctly when run from the local host with no interactive input and no Password: prompt<br><br>On Selinux systems it may be necessary to execute the following command to make this work:<br>`$ sudo chcon -R unconfined_u:object_r:ssh_home_t:s0 ~pcpqa/.ssh`<br> so that the ssh_home_t attribute is set on ~pcpqa/.ssh and all the files below there.<br><br>The **pcpqa** user's environment must also be initialized so that their shell's path includes all of the PCP binary directories (identify these with `$ grep BIN /etc/pcp.conf`), so that all PCP commands are executable without full pathnames.  Of most concern would be auxilliary directory (usually */usr/lib/pcp/bin*, */usr/share/pcp/bin* or */usr/libexec/pcp/bin*) where commands like **pmlogger_daily**(1), **pmnsadd**(1), **newhelp**(1), **mkaf**(1)etc.) are installed.<br><br>And finally, the **pcpqa** user needs to be included in the group **pcp** in */etc/group*.
+
+Once you've setup the remote PCP QA hosts and modified *common.config*
+and *qa_hosts.primary* locally, then run validate the setup using [check-setup](#check-setup):
+
+```
+$ ./check-setup
+```
+
+<a id="firewall-setup"></a>
+## Firewall setup
+
+Network firewalls can get in the way, especially if you're attempting
+any {distributed QA](#distributed-qa).
+
+In addition to the standard **pmcd**(1) port(s)
+(TCP ports 44321, 44322 and 44323) one needs to open ports to allow
+incoming connections and outgoing connections on a range of ports
+for **pmdatrace**(1), **pmlogger**(1) connections via **pmlc**(1), and some QA tests.
+Opening the TCP range 4320 to 4350 (inclusive) should suffice for these
+additional ones.
+
+<a id="common.config-files"></a>
+## <a id="idx+files+common.config">*common.config*</a> files
+
+This script uses heuristics to set a number of
+interesting variables, specifically:
+
+|**Shell Variable**|**Description**|
+|---|---|
+|<a id="idx+vars+pcpqaclosexserver">**$PCPQA_CLOSE_X_SERVER**</a>|The **$DISPLAY** setting for an X server that is willing to accept connections from X clients running on the local machine. This is optional, and if not set any QA tests dependent on this will be skipped.|
+|<a id="idx+vars+pcpqafarpmcd">**$PCPQA_FAR_PMCD**</a>|The hostname for a host running **pmcd**(1), but the host is preferably a long way away (in terms of TCP/IP latency) for timing tests. This is optional, and if not set any QA tests dependent on this will be skipped.|
+|<a id="idx+vars+pcpqahyphenhost">**$PCPQA_HYPHEN_HOST**</a>|The hostname for a host running **pmcd**(1), with a hyphen (-) in the hostname. This is optional, and if not set any QA tests dependent on this will be skipped.|
+
+If relevant, edit this file to provide suitable settings for the local environment.
+
+<a id="some-special-test-cases"></a>
+## Some special test cases
+
+For test 051 we need five local hostnames that are valid, although PCP
+does not need to be installed there, nor pmcd(1) running.  The five
+hosts listed in 051.hosts (the comments at the start of this file
+explain what is required) should suffice for most installations.
+
+Some tests are graphical, and wish to make use of your display.
+For authentication to succeed, you may need to perform some
+access list updates, e.g. "xhost +local:" for such tests to pass
+(e.g. test 325).
+
+<a id="take-it-for-a-test-drive"></a>
+## Take it for a test drive
+
+You can now verify your QA setup, by running:
+
+```
+$ ./check 000
+```
+
+The first time you run [**check**](#check-script)  it will descend into the
+[*src*](#src) directory and make all of the QA test programs and then
+descend into the [*tmparch*](#tmparch) directory and recreate
+the transient PCP archives, so some patience may be required.
+
+If test 000 fails, it may be that you have locally developed PMDAs
+or optional PMDAs installed.  Edit *common.filter* and modify the
+[**_filter_top_pmns**](#idx+funcs+filtertoppmns) function to strip the top-level name components
+for any new metric names (there are lots of examples already there)
+... if these are distributed (shipped) PMDAs, please update the list
+in *common.filter* and commit the changes to **git**.
+
 <a id="pcp-acronyms-appendix"></a>
 # PCP Acronyms Appendix
 
 |**Acronym**|**Description**|
 |---|---|
 |<a id="idx+pcp">**PCP**</a>|**P**erformance **C**o-**P**ilot|
-|<a id="idx+pmapi">**PMAPI**</a>|**P**erformance **M**etrics **A**pplication **I**nterface: the public interfaces supported by *libpcp*||
+|<a id="idx+pmapi">**PMAPI**</a>|**P**erformance **M**etrics **A**pplication **I**nterface: the public interfaces supported by *libpcp*|
 |<a id="idx+pmcd">**PMCD**</a>|**P**erformance **M**etrics **C**ollection **D**aemon: aka **pmcd**(1), the source of all performance metric metadata and data on the local host, although the real work is delegated to the PMDAs|
 |<a id="idx+pmda">**PMDA**</a>|**P**erformance **M**etrics **D**omain **A**gent: a "plugin" for **pmcd**(1) that is responsible for an independent subset of the available performance metrics|
 |<a id="idx+pmns">**PMNS**</a>|**P**erformance **M**etrics **N**ame **S**pace: all of the metric names in a PCP archive or known to **pmcd**(1)|
@@ -892,7 +1057,7 @@ $ sudo id
 .\" control lines for scripts/man-spell -- need to fake troff comment here
 .\" +ok+ _restore_auto_restart _stop_auto_restart _setup_purify
 .\" +ok+ PCP_AWK_PROG getpmcdhosts localconfig pcpversion
-.\" +ok+ tmparchive wallclock datestamp testsuite timeshift not_in_ci
+.\" +ok+ tmparch wallclock datestamp testsuite timeshift not_in_ci
 .\" +ok+ appchange otherhost qa_hosts valgrind _cleanup PCP_star helgrind
 .\" +ok+ seq_full zeroconf thishost appcache precheck _service
 .\" +ok+ selinux Selinux _notrun logfarm rootdir sameas idxctl github
@@ -943,7 +1108,7 @@ $ sudo id
 .\" +ok+ _filter_dbg
 .\" +ok+ _get_config _get_endian _machine_id _pstree_all _run_purify
 .\" +ok+ _filter_ls _localhost _filesize _get_fqdn _get_port gitignore
-.\" +ok+ _try_pmlc _check_ dinking tmparch addrs _fail repo _ipv Sssh pre TT
+.\" +ok+ _try_pmlc _check_ dinking addrs _fail repo _ipv Sssh pre TT
 .\" +ok+ br {from <br>}
 .\" +ok+ fc te {selinux file suffixes}
 .\" +ok+ PCPQA_SYSTEMD {from $PCPQA_SYSTEMD}
@@ -961,57 +1126,58 @@ General Index|Commands and Scripts|Shell Functions|Shell Variables|Files
 
 |**General Index**|**Shell Functions ...**|**Shell Functions ...**|**Shell Functions ...**|
 |---|---|---|---|
-|[PCP](#idx+pcp)|[\_check_job_scheduler](#idx+funcs+checkjobscheduler)|[_filter_valgrind_possibly](#idx+funcs+filtervalgrindpossibly)|[\_setup_purify](#idx+funcs+setuppurify)|
-|[PMAPI](#idx+pmapi)|[\_check_key_server](#idx+funcs+checkkeyserver)|[_filter_views](#idx+funcs+filterviews)|[_show_pmie_errors](#idx+funcs+showpmieerrors)|
-|[PMCD](#idx+pmcd)|[\_check_key_server_ping](#idx+funcs+checkkeyserverping)|[\_find_free_port](#idx+funcs+findfreeport)|[_show_pmie_exit](#idx+funcs+showpmieexit)|
-|[PMDA](#idx+pmda)|[\_check_key_server_version](#idx+funcs+checkkeyserverversion)|[\_find_key_server_modules](#idx+funcs+findkeyservermodules)|[\_sighup_pmcd](#idx+funcs+sighuppmcd)|
-|[PMNS](#idx+pmns)|[\_check_key_server_version_offline](#idx+funcs+checkkeyserverversionoffline)|[\_find_key_server_name](#idx+funcs+findkeyservername)|[_sort_pmdumplog_d](#idx+funcs+sortpmdumplogd)|
-|**Commands and Scripts**|[\_check_local_primary_archive](#idx+funcs+checklocalprimaryarchive)|[\_find_key_server_search](#idx+funcs+findkeyserversearch)|[\_start_up_pmlogger](#idx+funcs+startuppmlogger)|
-|[all-by-group](#idx+cmds+all-by-group)|[\_check_metric](#idx+funcs+checkmetric)|[\_get_config](#idx+funcs+getconfig)|[\_stop_auto_restart](#idx+funcs+stopautorestart)|
-|[appchange](#idx+cmds+appchange)|[\_check_purify](#idx+funcs+checkpurify)|[\_get_endian](#idx+funcs+getendian)|[\_systemctl_status](#idx+funcs+systemctlstatus)|
-|[bad-by-group](#idx+cmds+bad-by-group)|[\_check_search](#idx+funcs+checksearch)|[\_get_fqdn](#idx+funcs+getfqdn)|[\_triage_pmcd](#idx+funcs+triagepmcd)|
-|[check](#idx+cmds+check)|[\_check_series](#idx+funcs+checkseries)|[\_get_libpcp_config](#idx+funcs+getlibpcpconfig)|[\_triage_wait_point](#idx+funcs+triagewaitpoint)|
-|[check.app.ok](#idx+cmds+check.app.ok)|[\_check_valgrind](#idx+funcs+checkvalgrind)|[\_get_port](#idx+funcs+getport)|[\_try_pmlc](#idx+funcs+trypmlc)|
-|[check-auto](#idx+cmds+check-auto)|[\_clean_display](#idx+funcs+cleandisplay)|[\_get_primary_logger_pid](#idx+funcs+getprimaryloggerpid)|[_value_filter_any](#idx+funcs+valuefilterany)|
-|[check-flakey](#idx+cmds+check-flakey)|[\_cleanup_pmda](#idx+funcs+cleanuppmda)|[\_get_word_size](#idx+funcs+getwordsize)|[_value_filter_nonzero](#idx+funcs+valuefilternonzero)|
-|[check-group](#idx+cmds+check-group)|[_cull_dup_lines](#idx+funcs+cullduplines)|[\_host_to_fqdn](#idx+funcs+hosttofqdn)|[\_wait_for_pmcd](#idx+funcs+waitforpmcd)|
-|[check-pdu-coverage](#idx+cmds+check-pdu-coverage)|[\_disable_loggers](#idx+funcs+disableloggers)|[\_host_to_ipaddr](#idx+funcs+hosttoipaddr)|[\_wait_for_pmcd_stop](#idx+funcs+waitforpmcdstop)|
-|[check-setup](#idx+cmds+check-setup)|[\_domain_name](#idx+funcs+domainname)|[\_host_to_ipv6addrs](#idx+funcs+hosttoipv6addrs)|[\_wait_for_pmie](#idx+funcs+waitforpmie)|
-|[check-vars](#idx+cmds+check-vars)|[\_exit](#idx+funcs+exit)|[_instances_filter_any](#idx+funcs+instancesfilterany)|[\_wait_for_pmlogger](#idx+funcs+waitforpmlogger)|
-|[cull-pmlogger-config](#idx+cmds+cull-pmlogger-config)|[\_fail](#idx+funcs+fail)|[_instances_filter_exact](#idx+funcs+instancesfilterexact)|[\_wait_for_pmproxy](#idx+funcs+waitforpmproxy)|
-|[daily-cleanup](#idx+cmds+daily-cleanup)|[\_filesize](#idx+funcs+filesize)|[_instances_filter_nonzero](#idx+funcs+instancesfilternonzero)|[\_wait_for_pmproxy_logfile](#idx+funcs+waitforpmproxylogfile)|
-|[find-app](#idx+cmds+find-app)|[_filterall_pcp_start](#idx+funcs+filterallpcpstart)|[_inst_value_filter](#idx+funcs+instvaluefilter)|[\_wait_for_pmproxy_metrics](#idx+funcs+waitforpmproxymetrics)|
-|[find-bound](#idx+cmds+find-bound)|[_filter_compiler_babble](#idx+funcs+filtercompilerbabble)|[\_ipaddr_to_host](#idx+funcs+ipaddrtohost)|[\_wait_for_port](#idx+funcs+waitforport)|
-|[find-metric](#idx+cmds+find-metric)|[_filter_console](#idx+funcs+filterconsole)|[\_ipv6_localhost](#idx+funcs+ipv6localhost)|[\_wait_pmcd_end](#idx+funcs+waitpmcdend)|
-|[flakey-summary](#idx+cmds+flakey-summary)|[_filter_cron_scripts](#idx+funcs+filtercronscripts)|[\_libvirt_is_ok](#idx+funcs+libvirtisok)|[\_wait_pmie_end](#idx+funcs+waitpmieend)|
-|[getpmcdhosts](#idx+cmds+getpmcdhosts)|[_filter_dbg](#idx+funcs+filterdbg)|[\_machine_id](#idx+funcs+machineid)|[\_wait_pmlogctl](#idx+funcs+waitpmlogctl)|
-|[grind](#idx+cmds+grind)|[_filter_dumpresult](#idx+funcs+filterdumpresult)|[\_make_helptext](#idx+funcs+makehelptext)|[\_wait_pmlogger_end](#idx+funcs+waitpmloggerend)|
-|[grind-pmda](#idx+cmds+grind-pmda)|[\_filter_helgrind](#idx+funcs+filterhelgrind)|[\_make_proc_stat](#idx+funcs+makeprocstat)|[\_wait_pmproxy_end](#idx+funcs+waitpmproxyend)|
-|[group-stats](#idx+cmds+group-stats)|[\_filter_init_distro](#idx+funcs+filterinitdistro)|[\_need_metric](#idx+funcs+needmetric)|[\_wait_process_end](#idx+funcs+waitprocessend)|
-|[mk.localconfig](#idx+cmds+mk.localconfig)|[_filter_install](#idx+funcs+filterinstall)|[\_notrun](#idx+funcs+notrun)|[\_webapi_header_filter](#idx+funcs+webapiheaderfilter)|
-|[mk.logfarm](#idx+cmds+mk.logfarm)|[_filter_ls](#idx+funcs+filterls)|[\_path_readable](#idx+funcs+pathreadable)|[\_webapi_response_filter](#idx+funcs+webapiresponsefilter)|
-|[mk.pcpversion](#idx+cmds+mk.pcpversion)|[_filter_optional_labels](#idx+funcs+filteroptionallabels)|[\_pid_in_container](#idx+funcs+pidincontainer)|[\_within_tolerance](#idx+funcs+withintolerance)|
-|[mk.qa_hosts](#idx+cmds+mk.qahosts)|[_filter_optional_pmda_instances](#idx+funcs+filteroptionalpmdainstances)|[\_prefer_valgrind](#idx+funcs+prefervalgrind)|[\_writable_primary_logger](#idx+funcs+writableprimarylogger)|
-|[mk.variant](#idx+cmds+mk.variant)|[_filter_optional_pmdas](#idx+funcs+filteroptionalpmdas)|[\_prepare_pmda](#idx+funcs+preparepmda)|**Shell Variables**|
-|[new](#idx+cmds+new)|[_filter_pcp_restart](#idx+funcs+filterpcprestart)|[\_prepare_pmda_install](#idx+funcs+preparepmdainstall)|[$here](#idx+vars+here)|
-|[new-dup](#idx+cmds+new-dup)|[_filter_pcp_start](#idx+funcs+filterpcpstart)|[\_prepare_pmda_mmv](#idx+funcs+preparepmdammv)|[$PCP_\*](#idx+vars+pcpstar)|
-|[new-grind](#idx+cmds+new-grind)|[_filter_pcp_start_distro](#idx+funcs+filterpcpstartdistro)|[\_private_pmcd](#idx+funcs+privatepmcd)|[$PCPQA_IN_CI](#idx+vars+pcpqainci)|
-|[new-seqs](#idx+cmds+new-seqs)|[_filter_pcp_stop](#idx+funcs+filterpcpstop)|[\_ps_tcp_port](#idx+funcs+pstcpport)|[$PCPQA_SYSTEMD](#idx+vars+pcpqasystemd)|
-|[really-retire](#idx+cmds+really-retire)|[_filter_pmcd_log](#idx+funcs+filterpmcdlog)|[\_pstree_all](#idx+funcs+pstreeall)|[$seq](#idx+vars+seq)|
-|[recheck](#idx+cmds+recheck)|[_filter_pmda_install](#idx+funcs+filterpmdainstall)|[\_pstree_oneline](#idx+funcs+pstreeoneline)|[$seq_full](#idx+vars+seqfull)|
-|[remake](#idx+cmds+remake)|[_filter_pmda_remove](#idx+funcs+filterpmdaremove)|[_quote_filter](#idx+funcs+quotefilter)|[$status](#idx+vars+status)|
-|[sameas](#idx+cmds+sameas)|[_filter_pmdumplog](#idx+funcs+filterpmdumplog)|[\_remove_job_scheduler](#idx+funcs+removejobscheduler)|[$sudo](#idx+vars+sudo)|
-|[show-me](#idx+cmds+show-me)|[_filter_pmdumptext](#idx+funcs+filterpmdumptext)|[\_restore_auto_restart](#idx+funcs+restoreautorestart)|[$tmp](#idx+vars+tmp)|
-|[var-use](#idx+cmds+var-use)|[_filter_pmie_log](#idx+funcs+filterpmielog)|[\_restore_config](#idx+funcs+restoreconfig)|**Files**|
-|**Shell Functions**|[_filter_pmie_start](#idx+funcs+filterpmiestart)|[\_restore_job_scheduler](#idx+funcs+restorejobscheduler)|[$seq_full](#idx+files+seqfull)|
-|[\_all_hostnames](#idx+funcs+allhostnames)|[_filter_pmie_stop](#idx+funcs+filterpmiestop)|[\_restore_loggers](#idx+funcs+restoreloggers)|[check.log](#idx+files+check.log)|
-|[\_all_ipaddrs](#idx+funcs+allipaddrs)|[_filter_pmlogger_log](#idx+funcs+filterpmloggerlog)|[\_restore_pmda_install](#idx+funcs+restorepmdainstall)|[check.time](#idx+files+check.time)|
-|[\_arch_start](#idx+funcs+archstart)|[_filter_pmproxy_log](#idx+funcs+filterpmproxylog)|[\_restore_pmda_mmv](#idx+funcs+restorepmdammv)|[common](#idx+files+common)|
-|[\_avail_metric](#idx+funcs+availmetric)|[_filter_pmproxy_start](#idx+funcs+filterpmproxystart)|[\_restore_pmlogger_control](#idx+funcs+restorepmloggercontrol)|[common.\*](#idx+files+common.star)|
-|[\_change_config](#idx+funcs+changeconfig)|[_filter_pmproxy_stop](#idx+funcs+filterpmproxystop)|[\_restore_primary_logger](#idx+funcs+restoreprimarylogger)|[group](#idx+files+group)|
-|[\_check_64bit_platform](#idx+funcs+check64bitplatform)|[_filter_post](#idx+funcs+filterpost)|[\_run_helgrind](#idx+funcs+runhelgrind)|[localconfig](#idx+files+localconfig)|
-|[\_check_agent](#idx+funcs+checkagent)|[\_filter_purify](#idx+funcs+filterpurify)|[\_run_purify](#idx+funcs+runpurify)|[qa_hosts](#idx+files+qahosts)|
-|[\_check_core](#idx+funcs+checkcore)|[_filter_slow_pmie](#idx+funcs+filterslowpmie)|[\_run_valgrind](#idx+funcs+runvalgrind)|[qa_hosts.primary](#idx+files+qahosts.primary)|
-|[\_check_display](#idx+funcs+checkdisplay)|[_filter_top_pmns](#idx+funcs+filtertoppmns)|[\_save_config](#idx+funcs+saveconfig)|[triaged](#idx+files+triaged)|
-|[\_check_freespace](#idx+funcs+checkfreespace)|[_filter_torture_api](#idx+funcs+filtertortureapi)|[\_service](#idx+funcs+service)|
-|[\_check_helgrind](#idx+funcs+checkhelgrind)|[\_filter_valgrind](#idx+funcs+filtervalgrind)|[\_set_dsosuffix](#idx+funcs+setdsosuffix)|
+|[PCP](#idx+pcp)|[\_check_key_server_ping](#idx+funcs+checkkeyserverping)|[\_find_key_server_modules](#idx+funcs+findkeyservermodules)|[_sort_pmdumplog_d](#idx+funcs+sortpmdumplogd)|
+|[PMAPI](#idx+pmapi)|[\_check_key_server_version](#idx+funcs+checkkeyserverversion)|[\_find_key_server_name](#idx+funcs+findkeyservername)|[\_start_up_pmlogger](#idx+funcs+startuppmlogger)|
+|[PMCD](#idx+pmcd)|[\_check_key_server_version_offline](#idx+funcs+checkkeyserverversionoffline)|[\_find_key_server_search](#idx+funcs+findkeyserversearch)|[\_stop_auto_restart](#idx+funcs+stopautorestart)|
+|[PMDA](#idx+pmda)|[\_check_local_primary_archive](#idx+funcs+checklocalprimaryarchive)|[\_get_config](#idx+funcs+getconfig)|[\_systemctl_status](#idx+funcs+systemctlstatus)|
+|[PMNS](#idx+pmns)|[\_check_metric](#idx+funcs+checkmetric)|[\_get_endian](#idx+funcs+getendian)|[\_triage_pmcd](#idx+funcs+triagepmcd)|
+|**Commands and Scripts**|[\_check_purify](#idx+funcs+checkpurify)|[\_get_fqdn](#idx+funcs+getfqdn)|[\_triage_wait_point](#idx+funcs+triagewaitpoint)|
+|[all-by-group](#idx+cmds+all-by-group)|[\_check_search](#idx+funcs+checksearch)|[\_get_libpcp_config](#idx+funcs+getlibpcpconfig)|[\_try_pmlc](#idx+funcs+trypmlc)|
+|[appchange](#idx+cmds+appchange)|[\_check_series](#idx+funcs+checkseries)|[\_get_port](#idx+funcs+getport)|[_value_filter_any](#idx+funcs+valuefilterany)|
+|[bad-by-group](#idx+cmds+bad-by-group)|[\_check_valgrind](#idx+funcs+checkvalgrind)|[\_get_primary_logger_pid](#idx+funcs+getprimaryloggerpid)|[_value_filter_nonzero](#idx+funcs+valuefilternonzero)|
+|[check](#idx+cmds+check)|[\_clean_display](#idx+funcs+cleandisplay)|[\_get_word_size](#idx+funcs+getwordsize)|[\_wait_for_pmcd](#idx+funcs+waitforpmcd)|
+|[check.app.ok](#idx+cmds+check.app.ok)|[\_cleanup_pmda](#idx+funcs+cleanuppmda)|[\_host_to_fqdn](#idx+funcs+hosttofqdn)|[\_wait_for_pmcd_stop](#idx+funcs+waitforpmcdstop)|
+|[check-auto](#idx+cmds+check-auto)|[_cull_dup_lines](#idx+funcs+cullduplines)|[\_host_to_ipaddr](#idx+funcs+hosttoipaddr)|[\_wait_for_pmie](#idx+funcs+waitforpmie)|
+|[check-flakey](#idx+cmds+check-flakey)|[\_disable_loggers](#idx+funcs+disableloggers)|[\_host_to_ipv6addrs](#idx+funcs+hosttoipv6addrs)|[\_wait_for_pmlogger](#idx+funcs+waitforpmlogger)|
+|[check-group](#idx+cmds+check-group)|[\_domain_name](#idx+funcs+domainname)|[_instances_filter_any](#idx+funcs+instancesfilterany)|[\_wait_for_pmproxy](#idx+funcs+waitforpmproxy)|
+|[check-pdu-coverage](#idx+cmds+check-pdu-coverage)|[\_exit](#idx+funcs+exit)|[_instances_filter_exact](#idx+funcs+instancesfilterexact)|[\_wait_for_pmproxy_logfile](#idx+funcs+waitforpmproxylogfile)|
+|[check-setup](#idx+cmds+check-setup)|[\_fail](#idx+funcs+fail)|[_instances_filter_nonzero](#idx+funcs+instancesfilternonzero)|[\_wait_for_pmproxy_metrics](#idx+funcs+waitforpmproxymetrics)|
+|[check-vars](#idx+cmds+check-vars)|[\_filesize](#idx+funcs+filesize)|[_inst_value_filter](#idx+funcs+instvaluefilter)|[\_wait_for_port](#idx+funcs+waitforport)|
+|[cull-pmlogger-config](#idx+cmds+cull-pmlogger-config)|[_filterall_pcp_start](#idx+funcs+filterallpcpstart)|[\_ipaddr_to_host](#idx+funcs+ipaddrtohost)|[\_wait_pmcd_end](#idx+funcs+waitpmcdend)|
+|[daily-cleanup](#idx+cmds+daily-cleanup)|[_filter_compiler_babble](#idx+funcs+filtercompilerbabble)|[\_ipv6_localhost](#idx+funcs+ipv6localhost)|[\_wait_pmie_end](#idx+funcs+waitpmieend)|
+|[find-app](#idx+cmds+find-app)|[_filter_console](#idx+funcs+filterconsole)|[\_libvirt_is_ok](#idx+funcs+libvirtisok)|[\_wait_pmlogctl](#idx+funcs+waitpmlogctl)|
+|[find-bound](#idx+cmds+find-bound)|[_filter_cron_scripts](#idx+funcs+filtercronscripts)|[\_machine_id](#idx+funcs+machineid)|[\_wait_pmlogger_end](#idx+funcs+waitpmloggerend)|
+|[find-metric](#idx+cmds+find-metric)|[_filter_dbg](#idx+funcs+filterdbg)|[\_make_helptext](#idx+funcs+makehelptext)|[\_wait_pmproxy_end](#idx+funcs+waitpmproxyend)|
+|[flakey-summary](#idx+cmds+flakey-summary)|[_filter_dumpresult](#idx+funcs+filterdumpresult)|[\_make_proc_stat](#idx+funcs+makeprocstat)|[\_wait_process_end](#idx+funcs+waitprocessend)|
+|[getpmcdhosts](#idx+cmds+getpmcdhosts)|[\_filter_helgrind](#idx+funcs+filterhelgrind)|[\_need_metric](#idx+funcs+needmetric)|[\_webapi_header_filter](#idx+funcs+webapiheaderfilter)|
+|[grind](#idx+cmds+grind)|[\_filter_init_distro](#idx+funcs+filterinitdistro)|[\_notrun](#idx+funcs+notrun)|[\_webapi_response_filter](#idx+funcs+webapiresponsefilter)|
+|[grind-pmda](#idx+cmds+grind-pmda)|[_filter_install](#idx+funcs+filterinstall)|[\_path_readable](#idx+funcs+pathreadable)|[\_within_tolerance](#idx+funcs+withintolerance)|
+|[group-stats](#idx+cmds+group-stats)|[_filter_ls](#idx+funcs+filterls)|[\_pid_in_container](#idx+funcs+pidincontainer)|[\_writable_primary_logger](#idx+funcs+writableprimarylogger)|
+|[mk.localconfig](#idx+cmds+mk.localconfig)|[_filter_optional_labels](#idx+funcs+filteroptionallabels)|[\_prefer_valgrind](#idx+funcs+prefervalgrind)|**Shell Variables**|
+|[mk.logfarm](#idx+cmds+mk.logfarm)|[_filter_optional_pmda_instances](#idx+funcs+filteroptionalpmdainstances)|[\_prepare_pmda](#idx+funcs+preparepmda)|[$here](#idx+vars+here)|
+|[mk.qa_hosts](#idx+cmds+mk.qahosts)|[_filter_optional_pmdas](#idx+funcs+filteroptionalpmdas)|[\_prepare_pmda_install](#idx+funcs+preparepmdainstall)|[$PCP_\*](#idx+vars+pcpstar)|
+|[mk.variant](#idx+cmds+mk.variant)|[_filter_pcp_restart](#idx+funcs+filterpcprestart)|[\_prepare_pmda_mmv](#idx+funcs+preparepmdammv)|[$PCPQA_CLOSE_X_SERVER](#idx+vars+pcpqaclosexserver)|
+|[new](#idx+cmds+new)|[_filter_pcp_start](#idx+funcs+filterpcpstart)|[\_private_pmcd](#idx+funcs+privatepmcd)|[$PCPQA_FAR_PMCD](#idx+vars+pcpqafarpmcd)|
+|[new-dup](#idx+cmds+new-dup)|[_filter_pcp_start_distro](#idx+funcs+filterpcpstartdistro)|[\_ps_tcp_port](#idx+funcs+pstcpport)|[$PCPQA_HYPHEN_HOST](#idx+vars+pcpqahyphenhost)|
+|[new-grind](#idx+cmds+new-grind)|[_filter_pcp_stop](#idx+funcs+filterpcpstop)|[\_pstree_all](#idx+funcs+pstreeall)|[$PCPQA_IN_CI](#idx+vars+pcpqainci)|
+|[new-seqs](#idx+cmds+new-seqs)|[_filter_pmcd_log](#idx+funcs+filterpmcdlog)|[\_pstree_oneline](#idx+funcs+pstreeoneline)|[$PCPQA_SYSTEMD](#idx+vars+pcpqasystemd)|
+|[really-retire](#idx+cmds+really-retire)|[_filter_pmda_install](#idx+funcs+filterpmdainstall)|[_quote_filter](#idx+funcs+quotefilter)|[$seq](#idx+vars+seq)|
+|[recheck](#idx+cmds+recheck)|[_filter_pmda_remove](#idx+funcs+filterpmdaremove)|[\_remove_job_scheduler](#idx+funcs+removejobscheduler)|[$seq_full](#idx+vars+seqfull)|
+|[remake](#idx+cmds+remake)|[_filter_pmdumplog](#idx+funcs+filterpmdumplog)|[\_restore_auto_restart](#idx+funcs+restoreautorestart)|[$status](#idx+vars+status)|
+|[sameas](#idx+cmds+sameas)|[_filter_pmdumptext](#idx+funcs+filterpmdumptext)|[\_restore_config](#idx+funcs+restoreconfig)|[$sudo](#idx+vars+sudo)|
+|[show-me](#idx+cmds+show-me)|[_filter_pmie_log](#idx+funcs+filterpmielog)|[\_restore_job_scheduler](#idx+funcs+restorejobscheduler)|[$tmp](#idx+vars+tmp)|
+|[var-use](#idx+cmds+var-use)|[_filter_pmie_start](#idx+funcs+filterpmiestart)|[\_restore_loggers](#idx+funcs+restoreloggers)|**Files**|
+|**Shell Functions**|[_filter_pmie_stop](#idx+funcs+filterpmiestop)|[\_restore_pmda_install](#idx+funcs+restorepmdainstall)|[$seq_full](#idx+files+seqfull)|
+|[\_all_hostnames](#idx+funcs+allhostnames)|[_filter_pmlogger_log](#idx+funcs+filterpmloggerlog)|[\_restore_pmda_mmv](#idx+funcs+restorepmdammv)|[check.log](#idx+files+check.log)|
+|[\_all_ipaddrs](#idx+funcs+allipaddrs)|[_filter_pmproxy_log](#idx+funcs+filterpmproxylog)|[\_restore_pmlogger_control](#idx+funcs+restorepmloggercontrol)|[check.time](#idx+files+check.time)|
+|[\_arch_start](#idx+funcs+archstart)|[_filter_pmproxy_start](#idx+funcs+filterpmproxystart)|[\_restore_primary_logger](#idx+funcs+restoreprimarylogger)|[common](#idx+files+common)|
+|[\_avail_metric](#idx+funcs+availmetric)|[_filter_pmproxy_stop](#idx+funcs+filterpmproxystop)|[\_run_helgrind](#idx+funcs+runhelgrind)|[common.\*](#idx+files+common.star)|
+|[\_change_config](#idx+funcs+changeconfig)|[_filter_post](#idx+funcs+filterpost)|[\_run_purify](#idx+funcs+runpurify)|[common.config](#idx+files+common.config)|
+|[\_check_64bit_platform](#idx+funcs+check64bitplatform)|[\_filter_purify](#idx+funcs+filterpurify)|[\_run_valgrind](#idx+funcs+runvalgrind)|[group](#idx+files+group)|
+|[\_check_agent](#idx+funcs+checkagent)|[_filter_slow_pmie](#idx+funcs+filterslowpmie)|[\_save_config](#idx+funcs+saveconfig)|[localconfig](#idx+files+localconfig)|
+|[\_check_core](#idx+funcs+checkcore)|[_filter_top_pmns](#idx+funcs+filtertoppmns)|[\_service](#idx+funcs+service)|[qa_hosts](#idx+files+qahosts)|
+|[\_check_display](#idx+funcs+checkdisplay)|[_filter_torture_api](#idx+funcs+filtertortureapi)|[\_set_dsosuffix](#idx+funcs+setdsosuffix)|[qa_hosts.primary](#idx+files+qahosts.primary)|
+|[\_check_freespace](#idx+funcs+checkfreespace)|[\_filter_valgrind](#idx+funcs+filtervalgrind)|[\_setup_purify](#idx+funcs+setuppurify)|[triaged](#idx+files+triaged)|
+|[\_check_helgrind](#idx+funcs+checkhelgrind)|[_filter_valgrind_possibly](#idx+funcs+filtervalgrindpossibly)|[_show_pmie_errors](#idx+funcs+showpmieerrors)||
+|[\_check_job_scheduler](#idx+funcs+checkjobscheduler)|[_filter_views](#idx+funcs+filterviews)|[_show_pmie_exit](#idx+funcs+showpmieexit)||
+|[\_check_key_server](#idx+funcs+checkkeyserver)|[\_find_free_port](#idx+funcs+findfreeport)|[\_sighup_pmcd](#idx+funcs+sighuppmcd)||

@@ -77,16 +77,16 @@ Instantaneous number of processes with virtual size of zero (kernel threads)
 
 @ proc.numa_maps.hugepage per-node hugepage mapped memory in MB (/proc/<pid>/numa_maps)
 Hugepage map values are reported as comma-separated node/value pairs, e.g.
-node0:0.00,node1:4.00, where each value is in megabytes.
+node0:0.00,node1:4.00 where each value is in megabytes.
 @ proc.numa_maps.heap per-node heap mapped memory in MB (/proc/<pid>/numa_maps)
 Heap map values are reported as comma-separated node/value pairs, e.g.
-node0:0.00,node1:4.00, where each value is in megabytes.
+node0:0.00,node1:4.00 where each value is in megabytes.
 @ proc.numa_maps.stack per-node stack mapped memory in MB (/proc/<pid>/numa_maps)
 Stack map values are reported as comma-separated node/value pairs, e.g.
-node0:0.00,node1:4.00, where each value is in megabytes.
+node0:0.00,node1:4.00 where each value is in megabytes.
 @ proc.numa_maps.private per-node private mapped memory in MB (/proc/<pid>/numa_maps)
 Private map values are reported as comma-separated node/value pairs, e.g.
-node0:0.00,node1:4.00, where each value is in megabytes.
+node0:0.00,node1:4.00 where each value is in megabytes.
 
 @ proc.control.all.threads process indom includes threads
 If set to one, the process instance domain as reported by pmdaproc

@@ -2595,7 +2595,8 @@ append_numa_maps_node(strbuf_t *b, int node_num, double value_mb)
     size_t	needed, newcap;
     int		n;
 
-    n = pmsprintf(tmp, sizeof(tmp), "node%d:%.2f,", node_num, value_mb);
+    n = pmsprintf(tmp, sizeof(tmp), "%snode%d:%.2f",
+		   b->len > 0 ? "," : "", node_num, value_mb);
     if (n < 0 || n >= (int)sizeof(tmp))
 	return -E2BIG;
 
@@ -2710,7 +2711,7 @@ parse_proc_numa_maps(proc_pid_entry_t *ep, size_t buflen, char *buf)
 
     huge_page_size_bytes = (double)_pm_system_hugepagesize;
     if (huge_page_size_bytes <= 0.0)
-	huge_page_size_bytes = page_size_bytes;
+	huge_page_size_bytes = 2048 * 1024; // Taking a common hugepagesize value as a fallback
 
     while (cur < end && *cur) {
 	char	*nl = memchr(cur, '\n', (size_t)(end - cur));

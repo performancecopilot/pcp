@@ -8,8 +8,6 @@ Spreadsheet::ReadSXC cpan
 389-ds-base
 audit
 autoconf
-avahi-devel
-avahi-tools
 bash
 bc
 bind-utils

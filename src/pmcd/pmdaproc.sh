@@ -1099,9 +1099,23 @@ _install()
 	# $PCP_MAKE_PROG may contain command line args ... executable
 	# is first word
 	#
-	if [ ! -f "`echo $PCP_MAKE_PROG | sed -e 's/ .*//'`" -o ! -f "$PCP_INC_DIR/pmda.h" ]
+	__make="`echo $PCP_MAKE_PROG | sed -e 's/ .*//'`"
+	if [ ! -f "$__make" ]
 	then
-	    echo "$prog: Arrgh, PCP devel environment required to install this PMDA"
+	    # not a full path? see if it can be found via $PATH
+	    #
+	    if ! which "$__make" >/dev/null 2>&1
+	    then
+		echo "$prog: Error: \$PCP_MAKE_PROG ($PCP_MAKE_PROG) not available"
+		echo "... PCP developer environment required to install this PMDA"
+		status=1
+		exit
+	    fi
+	fi
+	if [ ! -f "$PCP_INC_DIR/pmda.h" ]
+	then
+	    echo "$prog: Error: pmda.h not found in \$PCP_INC_DIR ($PCP_INC_DIR)"
+	    echo "... PCP developer environment required to install this PMDA"
 	    status=1
 	    exit
 	fi

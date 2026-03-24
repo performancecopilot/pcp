@@ -1,23 +1,5 @@
 QA output created by 775
-No arguments
-Discovered pmcd servers:
-Sought pmproxy servers
-Exit status: 0
--s pmcd -r
-Discovered pmcd servers:
-Exit status: 0
--m all
-Discovered pmcd servers:
-Sought pmproxy servers
-Exit status: 0
--s pmcd -m all --resolve
-Discovered pmcd servers:
-Exit status: 0
--q
-Exit status: 0
--q -s pmcd
-Exit status: 0
--q -m all
-Exit status: 0
--q -s pmcd -m all
-Exit status: 0
+test really-retired by nathans on 19 Mar 2026
+
+to see the original output
+ 	$ git diff 05a2c67246 -- 775.out

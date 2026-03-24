@@ -17,15 +17,6 @@
 /* Define to 1 if you have the `atexit' function. */
 #undef HAVE_ATEXIT
 
-/* Service discovery via Avahi */
-#undef HAVE_AVAHI
-
-/* Define to 1 if you have the <avahi-client/publish.h> header file. */
-#undef HAVE_AVAHI_CLIENT_PUBLISH_H
-
-/* Define to 1 if you have the <avahi-common/alternative.h> header file. */
-#undef HAVE_AVAHI_COMMON_ALTERNATIVE_H
-
 /* Define to 1 if you have the `backtrace' function. */
 #undef HAVE_BACKTRACE
 
@@ -773,9 +764,6 @@
 
 /* Define to `long int' if <sys/types.h> does not define. */
 #undef off_t
-
-/* Define to `int' if <sys/types.h> does not define. */
-#undef pid_t
 
 /* Define to `unsigned int' if <sys/types.h> does not define. */
 #undef size_t

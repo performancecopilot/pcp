@@ -57,7 +57,6 @@ system/file-system/zfs
 system/header
 system/library/security/libsasl
 system/man
-system/network/avahi
 text/gawk
 text/gnu-grep
 text/gnu-sed

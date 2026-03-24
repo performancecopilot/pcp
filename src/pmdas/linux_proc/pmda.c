@@ -3993,7 +3993,12 @@ proc_hugepagesize(void)
     }
     fclose(fs);
 
-    return huge_page_size_kb * 1024;
+    /* Guard against overflow (CID 502014) */
+    if (huge_page_size_kb > ULONG_MAX / 1024UL) {
+        return 0;
+    }
+
+    return huge_page_size_kb * 1024UL;
 }
 
 /*

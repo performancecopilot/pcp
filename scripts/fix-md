@@ -32,9 +32,10 @@ _usage()
 {
     echo >&2 "Usage: fix-md [options] [infile]"
     echo >&2 "Options:"
-    echo >&2 " -a	all changes, so -r, -t, -i and -l [this is the default]"
+    echo >&2 " -a	all changes, so -r, -t, -i, -k and -l [this is the default]"
     echo >&2 " -c N	columns for Index (1..9) [default: 4]"
     echo >&2 " -i	build|replace Index"
+    echo >&2 " -k	check tables"
     echo >&2 " -l	link and anchor check"
     echo >&2 " -n	show me diffs"
     echo >&2 " -o	overwrite infile"
@@ -76,11 +77,12 @@ showme=false
 overwrite=false
 toc=false
 renumber=false
+tables=false
 lacheck=false
 verbose=false
 very_verbose=false
 exitonly=false
-while getopts 'ac:ilnortvx?' p
+while getopts 'ac:iklnortvx?' p
 do
     case "$p"
     in
@@ -103,6 +105,8 @@ do
 		;;
 	i)	index=true
 		;;
+	k)	tables=true
+		;;
 	l)	lacheck=true
 		;;
 	n)	showme=true
@@ -122,7 +126,7 @@ do
 		;;
 	x)	exitonly=true
 		;;
-	?)	_usage
+	*)	_usage
 		exit
 		;;
     esac
@@ -173,13 +177,14 @@ then
     exit
 fi
 
-if ! $renumber && ! $toc && ! $index && ! $lacheck
+if ! $renumber && ! $toc && ! $index && ! $tables && ! $lacheck
 then
     # do everything
     #
     renumber=true
     toc=true
     index=true
+    tables=true
     lacheck=true
 fi
 
@@ -519,6 +524,11 @@ BEGIN	{ want = '"$entpercol"'; ent = 0; col = 1 }
 	    print "|---" >"'"$tmp."'" col
 	    ent = 1
 	  }
+	}
+END	{ while (ent < want) {
+	    print "|" >"'"$tmp."'" col
+	    ent++
+	  }
 	}'
 
     # cull from # Index heading to end of file
@@ -533,6 +543,46 @@ $1 == "#" && $2 == "Index" && NF == 2	{ exit }
     echo "" >>$tmp.tmp
     paste $tmp.[0-9] | sed -e 's/	//g' -e 's/$/|/' >>$tmp.tmp
     mv $tmp.tmp $tmp.md
+fi
+
+# Check tables
+#
+if $tables
+then
+    # need to strip | from "..." and `...` and escaped | so that
+    # split() does the right thing
+    #
+    nl -ba <$tmp.md \
+    | sed \
+	-e 's/"[^"]*"//g' \
+	-e 's/`[^`]*`//g' \
+	-e 's/\\|//g' \
+    | awk '
+intable == 0 && $2 ~ /^[|]/	{
+	    intable = 1
+	    ncol = split($0, cols, /[|]/)
+	    next
+	}
+intable == 1	{ if (NF == 1) {
+		    # end of table
+		    intable = 0
+		    next
+		  }
+		  if ($2 !~ /^[|]/) {
+		    print "'"$1"'[" NR "] Error: line does not start with | within a table" >"'$tmp.error'"
+		  }
+		  else {
+		      x = split($0, cols, /[|]/)
+		      if (x != ncol) {
+			print "'"$1"'[" NR "] Warning: table line contains " x " \"|\" (expecting " ncol ")" >"'$tmp.warn'" 
+			if ('"$very_verbose"' = "true") {
+			    for (i = 1; i <= x +1; i++)
+				print "col[" i "] \"" cols[i] "\"" >"'$tmp.warn'" 
+			}
+		      }
+		  }
+		}'
+    _check
 fi
 
 # Check integrity of internal links and anchors
@@ -563,6 +613,7 @@ $1 ~ /^[0-9][0-9]*$/	{ lineno = $1; next }
     # (excluding duplicates)
     #
     awk <$tmp.anchors >$tmp.tmp '
+$2 == "href"	{ next}
 { if ($2 == "name")
     print "'"$1"'[" NR "] Warning: Old anchor: <a name=\"" $3 "\"> ... prefer <a id=\"" $3 "\"> for HTML5" >"'$tmp.warn'"
   else if ($2 != "id")

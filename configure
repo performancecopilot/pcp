@@ -894,11 +894,6 @@ pcp_systemdsysusers_dir
 SYSTEMD_SYSUSERSDIR
 pcp_systemdtmpfiles_dir
 SYSTEMD_TMPFILESDIR
-enable_avahi
-enable_discovery
-lib_for_avahi
-avahi_LIBS
-avahi_CFLAGS
 sanitizer
 gperftools_LIBS
 gperftools_CFLAGS
@@ -1024,7 +1019,6 @@ with_static_probes
 with_infiniband
 with_user
 with_group
-with_discovery
 with_systemd
 with_selinux
 with_qt
@@ -1082,8 +1076,6 @@ YACC
 YFLAGS
 gperftools_CFLAGS
 gperftools_LIBS
-avahi_CFLAGS
-avahi_LIBS
 SYSTEMD_TMPFILESDIR
 SYSTEMD_SYSUSERSDIR
 SYSTEMD_SYSTEMUNITDIR
@@ -1768,7 +1760,6 @@ Optional Packages:
   --with-user             user account under which daemons run (default is
                           pcp)
   --with-group            user group under which daemons run (default is pcp)
-  --with-discovery        enable support for service discovery (default is on)
   --with-systemd          enable support for systemd services (default is on)
   --with-selinux          enable support for selinux (default is check)
   --with-qt               enable support for tools requiring Qt (default is
@@ -1839,9 +1830,6 @@ Some influential environment variables:
               C compiler flags for gperftools, overriding pkg-config
   gperftools_LIBS
               linker flags for gperftools, overriding pkg-config
-  avahi_CFLAGS
-              C compiler flags for avahi, overriding pkg-config
-  avahi_LIBS  linker flags for avahi, overriding pkg-config
   SYSTEMD_TMPFILESDIR
               value of tmpfilesdir for systemd, overriding pkg-config
   SYSTEMD_SYSUSERSDIR
@@ -3482,17 +3470,6 @@ else case e in #(
 esac
 fi
 
-
-
-
-# Check whether --with-discovery was given.
-if test ${with_discovery+y}
-then :
-  withval=$with_discovery; do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"
-else case e in #(
-  e) do_discovery=check ;;
-esac
-fi
 
 
 
@@ -6724,216 +6701,6 @@ if test "x$use_sanitizer" != "xno"; then
 fi
 
 
-ac_header= ac_cache=
-for ac_item in $ac_header_c_list
-do
-  if test $ac_cache; then
-    ac_fn_c_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
-    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
-      printf "%s\n" "#define $ac_item 1" >> confdefs.h
-    fi
-    ac_header= ac_cache=
-  elif test $ac_header; then
-    ac_cache=$ac_item
-  else
-    ac_header=$ac_item
-  fi
-done
-
-
-
-
-
-
-
-
-if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
-then :
-
-printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
-
-fi
-if test "x$do_discovery" != "xno"
-then :
-
-    # on macOS, dns_sd.h
-
-    # on Linux, aloha Avahi
-    enable_avahi=true
-
-pkg_failed=no
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi-client" >&5
-printf %s "checking for avahi-client... " >&6; }
-
-if test -n "$avahi_CFLAGS"; then
-    pkg_cv_avahi_CFLAGS="$avahi_CFLAGS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"avahi-client\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "avahi-client") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_avahi_CFLAGS=`$PKG_CONFIG --cflags "avahi-client" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-if test -n "$avahi_LIBS"; then
-    pkg_cv_avahi_LIBS="$avahi_LIBS"
- elif test -n "$PKG_CONFIG"; then
-    if test -n "$PKG_CONFIG" && \
-    { { printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$PKG_CONFIG --exists --print-errors \"avahi-client\""; } >&5
-  ($PKG_CONFIG --exists --print-errors "avahi-client") 2>&5
-  ac_status=$?
-  printf "%s\n" "$as_me:${as_lineno-$LINENO}: \$? = $ac_status" >&5
-  test $ac_status = 0; }; then
-  pkg_cv_avahi_LIBS=`$PKG_CONFIG --libs "avahi-client" 2>/dev/null`
-		      test "x$?" != "x0" && pkg_failed=yes
-else
-  pkg_failed=yes
-fi
- else
-    pkg_failed=untried
-fi
-
-
-
-if test $pkg_failed = yes; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-
-if $PKG_CONFIG --atleast-pkgconfig-version 0.20; then
-        _pkg_short_errors_supported=yes
-else
-        _pkg_short_errors_supported=no
-fi
-        if test $_pkg_short_errors_supported = yes; then
-                avahi_PKG_ERRORS=`$PKG_CONFIG --short-errors --print-errors --cflags --libs "avahi-client" 2>&1`
-        else
-                avahi_PKG_ERRORS=`$PKG_CONFIG --print-errors --cflags --libs "avahi-client" 2>&1`
-        fi
-        # Put the nasty error message in config.log where it belongs
-        echo "$avahi_PKG_ERRORS" >&5
-
-        enable_avahi=false
-elif test $pkg_failed = untried; then
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
-printf "%s\n" "no" >&6; }
-        enable_avahi=false
-else
-        avahi_CFLAGS=$pkg_cv_avahi_CFLAGS
-        avahi_LIBS=$pkg_cv_avahi_LIBS
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: yes" >&5
-printf "%s\n" "yes" >&6; }
-        { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking for avahi_client_new in -lavahi-client" >&5
-printf %s "checking for avahi_client_new in -lavahi-client... " >&6; }
-if test ${ac_cv_lib_avahi_client_avahi_client_new+y}
-then :
-  printf %s "(cached) " >&6
-else case e in #(
-  e) ac_check_lib_save_LIBS=$LIBS
-LIBS="-lavahi-client  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.
-   The 'extern "C"' is for builds by C++ compilers;
-   although this is not generally supported in C code supporting it here
-   has little cost and some practical benefit (sr 110532).  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char avahi_client_new (void);
-int
-main (void)
-{
-return avahi_client_new ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_c_try_link "$LINENO"
-then :
-  ac_cv_lib_avahi_client_avahi_client_new=yes
-else case e in #(
-  e) ac_cv_lib_avahi_client_avahi_client_new=no ;;
-esac
-fi
-rm -f core conftest.err conftest.$ac_objext conftest.beam \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS ;;
-esac
-fi
-{ printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avahi_client_avahi_client_new" >&5
-printf "%s\n" "$ac_cv_lib_avahi_client_avahi_client_new" >&6; }
-if test "x$ac_cv_lib_avahi_client_avahi_client_new" = xyes
-then :
-  lib_for_avahi="-lavahi-common -lavahi-client"
-else case e in #(
-  e) enable_avahi=false ;;
-esac
-fi
-
-
-fi
-           for ac_header in avahi-client/publish.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "avahi-client/publish.h" "ac_cv_header_avahi_client_publish_h" "$ac_includes_default"
-if test "x$ac_cv_header_avahi_client_publish_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_AVAHI_CLIENT_PUBLISH_H 1" >>confdefs.h
-
-else case e in #(
-  e) enable_avahi=false ;;
-esac
-fi
-
-done
-           for ac_header in avahi-common/alternative.h
-do :
-  ac_fn_c_check_header_compile "$LINENO" "avahi-common/alternative.h" "ac_cv_header_avahi_common_alternative_h" "$ac_includes_default"
-if test "x$ac_cv_header_avahi_common_alternative_h" = xyes
-then :
-  printf "%s\n" "#define HAVE_AVAHI_COMMON_ALTERNATIVE_H 1" >>confdefs.h
-
-else case e in #(
-  e) enable_avahi=false ;;
-esac
-fi
-
-done
-
-    if test "$enable_avahi" = "true"
-    then
-
-
-
-printf "%s\n" "#define HAVE_AVAHI 1" >>confdefs.h
-
-	enable_discovery=true
-    fi
-
-    if test "$do_discovery" != "check" -a "$enable_discovery" != "true"
-    then
-	as_fn_error $? "cannot enable service discovery - no supported mechanisms" "$LINENO" 5
-    fi
-    if test "$enable_discovery" = "true"
-    then
-
-printf "%s\n" "#define HAVE_SERVICE_DISCOVERY 1" >>confdefs.h
-
-    fi
-
-fi
-
-
-
 enable_systemd=false
 { printf "%s\n" "$as_me:${as_lineno-$LINENO}: checking if systemd should be used" >&5
 printf %s "checking if systemd should be used... " >&6; }
@@ -7048,7 +6815,36 @@ fi
 
 if $enable_systemd
 then
-                   for ac_header in systemd/sd-daemon.h
+            ac_header= ac_cache=
+for ac_item in $ac_header_c_list
+do
+  if test $ac_cache; then
+    ac_fn_c_check_header_compile "$LINENO" $ac_header ac_cv_header_$ac_cache "$ac_includes_default"
+    if eval test \"x\$ac_cv_header_$ac_cache\" = xyes; then
+      printf "%s\n" "#define $ac_item 1" >> confdefs.h
+    fi
+    ac_header= ac_cache=
+  elif test $ac_header; then
+    ac_cache=$ac_item
+  else
+    ac_header=$ac_item
+  fi
+done
+
+
+
+
+
+
+
+
+if test $ac_cv_header_stdlib_h = yes && test $ac_cv_header_string_h = yes
+then :
+
+printf "%s\n" "#define STDC_HEADERS 1" >>confdefs.h
+
+fi
+       for ac_header in systemd/sd-daemon.h
 do :
   ac_fn_c_check_header_compile "$LINENO" "systemd/sd-daemon.h" "ac_cv_header_systemd_sd_daemon_h" "$ac_includes_default"
 if test "x$ac_cv_header_systemd_sd_daemon_h" = xyes

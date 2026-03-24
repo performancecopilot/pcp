@@ -98,5 +98,5 @@ done
 
 for seq in $seqlist
 do
-    [ -f $seq.out.bad ] && echo "$seq failed, yipee!"
+    [ -f $seq.out.bad ] && echo "$seq failed at iter $iter, yipee!"
 done

@@ -86,11 +86,6 @@ AC_ARG_WITH([group],
     [pcp_group=pcp])
 AC_SUBST(pcp_group)
 
-AC_ARG_WITH([discovery],
-    [AS_HELP_STRING([--with-discovery],[enable support for service discovery (default is on)])],
-    [do_discovery=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-discovery=$withval"],
-    [do_discovery=check])
-
 AC_ARG_WITH([systemd],
     [AS_HELP_STRING([--with-systemd],[enable support for systemd services (default is on)])],
     [do_systemd=$withval; PACKAGE_CONFIGURE="$PACKAGE_CONFIGURE --with-systemd=$withval"],
@@ -831,40 +826,6 @@ if test "x$use_sanitizer" != "xno"; then
     sanitizer="-fsanitize=$use_sanitizer"
 fi
 AC_SUBST(sanitizer)
-
-dnl Check for service discovery mechanisms (DNS-SD, Avahi)
-AS_IF([test "x$do_discovery" != "xno"], [
-    # on macOS, dns_sd.h
-
-    # on Linux, aloha Avahi
-    enable_avahi=true
-    PKG_CHECK_MODULES([avahi], [avahi-client],
-        [AC_CHECK_LIB(avahi-client, avahi_client_new,
-    		      [lib_for_avahi="-lavahi-common -lavahi-client"],
-                      [enable_avahi=false])
-        ],[enable_avahi=false])
-    AC_CHECK_HEADERS([avahi-client/publish.h],, [enable_avahi=false])
-    AC_CHECK_HEADERS([avahi-common/alternative.h],, [enable_avahi=false])
-
-    if test "$enable_avahi" = "true"
-    then
-	AC_SUBST(lib_for_avahi)
-	AC_SUBST(avahi_CFLAGS)
-	AC_DEFINE(HAVE_AVAHI, [1], [Service discovery via Avahi])
-	enable_discovery=true
-    fi
-
-    if test "$do_discovery" != "check" -a "$enable_discovery" != "true"
-    then
-	AC_MSG_ERROR([cannot enable service discovery - no supported mechanisms])
-    fi
-    if test "$enable_discovery" = "true"
-    then
-	AC_DEFINE(HAVE_SERVICE_DISCOVERY, [1], [Service discovery mechanisms])
-    fi
-])
-AC_SUBST(enable_discovery)
-AC_SUBST(enable_avahi)
 
 dnl Check for systemd services
 enable_systemd=false

@@ -77,7 +77,7 @@ s/ 85.0.0 / PMID /
 _filter_pcp2opentelemetry()
 {
    tee -a $here/$seq.full \
-   | jq \
+   | jq . \
    | sed \
         -e 's/\"stringValue\": \"[^\"]*\"/\"stringValue\": \"VALUE\"/g'\
 	-e 's/\"timeUnixNano\": \"[^\"]*\"/\"timeUnixNano\": \"TIME\"/g'\
