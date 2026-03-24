@@ -71,11 +71,17 @@ pmrep $log -o csv -p -I -r -u $metrics
 echo "=== pmrep csv output - filter"
 pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics
 
+echo "=== pmrep csv output (no units)"
+pmrep $log -o csv -p -I -r -u -U $metrics
+
 echo "=== pmrep stdout output"
 pmrep $log -o stdout -p -I -r -u $metrics
 
 echo "=== pmrep stdout output - filter"
 pmrep $log -o stdout -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics
+
+echo "=== pmrep stdout output (no units)"
+pmrep $log -o stdout -p -I -r -u -U $metrics
 
 echo "=== pmrep colxrow output"
 pmrep $log -o stdout -p -I -r -u -X test $metrics
