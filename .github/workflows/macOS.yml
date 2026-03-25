@@ -12,29 +12,21 @@ jobs:
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
       - name: Update Homebrew
         run: brew update
-      - name: Set up Python 3.13
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.13'
-      - name: Install python deps
-        id: install-python-deps
-        run: |
-          python3 --version
-          pip3 --version
-          pip3 install --upgrade pip
-          python3 -m venv pybuilddeps
-          source pybuilddeps/bin/activate
-          pip3 install setuptools wheel
-          python3 -c "import setuptools; print(setuptools.__version__)"
-          python3 -m pip install lxml openpyxl OrderedDict psycopg2-binary prometheus_client pyarrow pyodbc requests
       - name: Install Homebrew deps
         id: install-brew-deps
         run: |
-          brew install autoconf unixodbc valkey libuv
+          PACKAGES=$(grep -v '^#' build/mac/brew-packages.txt | grep -v '^$' | tr '\n' ' ')
+          echo "Installing: $PACKAGES"
+          brew install $PACKAGES
+      - name: Set up Python build environment
+        id: install-python-deps
+        run: |
+          python3 --version
+          ./build/mac/setup-python-env.sh build/mac/requirements-test.txt
+          python3 -c "import requests; print('requests', requests.__version__)"
       - name: Build on macOS
         id: Build
         run: |
-          source pybuilddeps/bin/activate
           xcodebuild -version
           ./Makepkgs -verbose
       # Validate PMID consistency
@@ -66,7 +58,7 @@ jobs:
       - name: Debug on Python installation failure
         if: failure() && steps.install-python-deps.conclusion == 'failure'
         run: |
-          echo "Python 3.13 installation failed. Collecting debug info..."
+          echo "Python installation failed. Collecting debug info..."
           brew --version
           brew config
           brew doctor
@@ -257,15 +249,6 @@ jobs:
           $(head -1 $(which pmrep) | sed 's/#!//') -c "import pcp; print('pcp module location:', pcp.__file__)" 2>&1 || echo "pcp module not importable"
 
           echo ""
-          echo "Setting PYTHONPATH to include PCP module location..."
-          export PYTHONPATH="/usr/local/lib/python3.13/site-packages:${PYTHONPATH:-}"
-          echo "PYTHONPATH=${PYTHONPATH}"
-
-          echo ""
-          echo "Verify pcp module is now importable:"
-          $(head -1 $(which pmrep) | sed 's/#!//') -c "import pcp; print('✓ pcp module found at:', pcp.__file__)"
-
-          echo ""
           echo "Running Darwin PMDA integration tests..."
           cd build/mac/test/integration
           ./run-integration-tests.sh
@@ -275,6 +258,29 @@ jobs:
           echo "Testing pmstat output..."
           cd build/mac/test/integration
           ./test-pmstat.sh
+      - name: Verify openmetrics PMDA enabled
+        if: success() && steps.wait-for-pmcd.conclusion == 'success'
+        run: |
+          echo "Checking openmetrics PMDA status..."
+          if pminfo openmetrics 2>/dev/null | head -5; then
+            echo "openmetrics PMDA is active"
+          else
+            echo "WARNING: openmetrics PMDA not active (may need pmcd restart for .NeedInstall processing)"
+            test -f /var/lib/pcp/pmdas/openmetrics/.NeedInstall && echo ".NeedInstall marker exists (pending)" || true
+            test -f /var/lib/pcp/pmdas/openmetrics/.NeedInstall.failed && echo ".NeedInstall.failed exists (installation failed)" || true
+            sudo grep -i "openmetrics\|NeedInstall\|pmda_setup" /var/log/pcp/pmcd/pmcd.log 2>/dev/null | tail -20 || true
+          fi
+      - name: Verify zeroconf pmlogconf configs installed
+        if: success() && steps.install-test.conclusion == 'success'
+        run: |
+          echo "Checking for zeroconf pmlogconf configs..."
+          if test -d /var/lib/pcp/config/pmlogconf/zeroconf; then
+            echo "zeroconf configs installed:"
+            ls /var/lib/pcp/config/pmlogconf/zeroconf/
+          else
+            echo "ERROR: zeroconf config directory not found"
+            exit 1
+          fi
       - name: Wait for pmproxy to start
         id: wait-for-pmproxy
         if: success() && steps.integration-tests.conclusion == 'success'

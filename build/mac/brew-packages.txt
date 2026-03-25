@@ -1,0 +1,16 @@
+# Homebrew packages required to build and test PCP on macOS.
+# Used by both .github/workflows/macOS.yml and .cirrus.yml
+# Also used as the Cirrus CI cache fingerprint — changing this
+# file automatically invalidates the Homebrew cache.
+#
+# One package per line. Lines starting with # are ignored.
+autoconf
+coreutils
+gnu-tar
+libuv
+pkg-config
+python-setuptools
+python3
+unixodbc
+uv
+valkey
