@@ -1,22 +1,92 @@
 #!/bin/sh
 #
-# find QA tests that use a QA application ($1)
+# find QA tests that use a QA applications $1 $2 ...
+# with -f find QA tests that use a QA applications that use function $1 $2 ...
 #
 
 tmp=${TMPDIR:-/tmp}/find-app-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
-grep -E 'src/('"$1"'\$|'"$1"' |lib'"$1"'\.\$DSO_SUFFIX)' [0-9]*[0-9][0-9] \
+# change for debugging
+verbose=false
+
+dofunc=false
+if [ X"$1" = X-f ]
+then
+    dofunc=true
+    shift
+fi
+
+if [ $# -eq 0 ]
+then
+    echo >&2 "Usage: find-app [-f] app-or-func [...]"
+    exit 1
+fi
+
+if $dofunc
+then
+    func_pat=`echo $* | sed -e 's/ /|/g' -e 's/^/(/' -e 's/$/)/'`
+    grep -E -rIl '([^a-zA-Z_0-9]|^)'"$func_pat"'\(' src \
+    | while read src
+    do
+	case "$src"
+	in
+	    *.c)
+		exec=`echo "$src" | sed -e 's/\.c$//'`
+		if [ -x "$exec" ]
+		then
+		    exec=`echo "$exec" | sed -e 's;^src/;;'`
+		    echo "$exec" >>$tmp.list
+		else
+		    echo >&2 "Warning: cannot map C source $src to an executable"
+		fi
+		;;
+	    *.py|*.python)
+		rm -f $tmp.found
+		base=`echo "$src" | sed -e 's/\.py$//' -e 's/\.python$//'`
+		for suff in python py
+		do
+		    exec="$base.$suff"
+		    if [ -x "$exec" ]
+		    then
+			exec=`echo "$exec" | sed -e 's;^src/;;'`
+			echo "$exec" >>$tmp.list
+			touch $tmp.found
+		    fi
+		done
+		if [ ! -f $tmp.found ]
+		then
+		    echo >&2 "Warning: cannot map Python source $src to an executable"
+		fi
+		;;
+
+	    *)
+		echo >&2 "Warning: no rule to map $src to an executable"
+		;;
+	esac
+    done
+    if [ -s $tmp.list ]
+    then
+	set -- `cat $tmp.list`
+	$verbose && echo >&2 "apps: $*"
+    else
+	echo >&2 "$func_pat-not-used-in-any-QA-app"
+	exit
+    fi
+    $verbose && grep -E -rI '([^a-zA-Z_0-9]|^)'"$func_pat"'\(' src
+fi
+
+app_pat=`echo $* | sed -e 's/ /|/g' -e 's/^/(/' -e 's/$/)/'`
+grep -E '(src/|[ `(|;/]|^)'"$app_pat"'([ `)|;.]|$)' [0-9]*[0-9][0-9] \
 | sed \
     -e '/^[ 	]*#/d' \
     -e 's/:.*//' \
 | sort -n \
-| uniq \
-| fmt >$tmp.out
+| uniq >$tmp.out
 
 if [ -s $tmp.out ]
 then
-    cat $tmp.out
+    echo `cat $tmp.out`
 else
-    echo "$1-not-used-in-any-test"
+    echo >&2 "$app_pat-not-used-in-any-test"
 fi
