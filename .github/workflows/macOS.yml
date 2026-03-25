@@ -105,7 +105,12 @@ jobs:
           echo "Found PKG: $PKG_PATH"
 
           # Install (sudo is passwordless in GitHub Actions)
-          sudo installer -pkg "$PKG_PATH" -target / -verbose
+          sudo installer -pkg "$PKG_PATH" -target / -verbose -dumplog
+      - name: Debug on install failure
+        if: failure() && steps.install-test.conclusion == 'failure'
+        run: |
+          echo "=== /var/log/install.log (last 100 lines) ==="
+          sudo tail -100 /var/log/install.log
       - name: Verify Installation
         if: success() && steps.install-test.conclusion == 'success'
         run: |
