@@ -2,7 +2,7 @@
 # Original implementation by Troy Dawson (dawson@fnal.gov)
 #
 # Copyright (c) 2001,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2015,2020 Red Hat.
+# Copyright (c) 2015,2020,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,7 +22,6 @@ IAM	= lmsensors
 DOMAIN	= LMSENSORS
 PYSCRIPT = pmda$(IAM).python
 SCRIPTS	= Install Remove $(PYSCRIPT)
-DFILES	= README pmns help root
 
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
@@ -45,7 +44,7 @@ install :: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) README $(PMDAADMDIR)/README
 	@$(INSTALL_MAN)
 else
 build-me:

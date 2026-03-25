@@ -25,6 +25,8 @@ Build-Depends: bison, flex, gawk, procps, pkg-config, debhelper (>= 11),
 	?{libdrm-dev}, ?{python-pymongo}, ?{python-urllib3},
 	?{libdbi-perl}, ?{python-pyodbc}, ?{perl-xs-dev}, manpages
 Standards-Version: 4.7.2
+Vcs-Git: https://github.com/performancecopilot/pcp.git
+Vcs-Browser: https://github.com/performancecopilot/pcp
 X-Python3-Version: >= 3.6
 
 Package: pcp
