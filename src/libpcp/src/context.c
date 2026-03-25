@@ -1794,6 +1794,7 @@ PM_FAULT_POINT("libpcp/" __FILE__ ":9", PM_FAULT_MISC);
 	goto new_fail;
     }
     newcon = contexts[ctxnum];
+    initcontextlock(&newcon->c_lock);
     PM_LOCK(newcon->c_lock);
     PM_UNLOCK(contexts_lock);
     /*
