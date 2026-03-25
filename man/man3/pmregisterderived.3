@@ -663,7 +663,13 @@ A line ending with ``\e'' is treated as ``to be continued'' and the
 following line is appended after stripping the ``\e'' and the
 embedded newline.
 .IP \(bu 2n
-Lines beginning with ``#'' are treated as comments and ignored.
+Control lines begin with
+.B #control
+followed by settings for one or more derived metric controls or options
+as described in
+.BR pmSetDerivedControl (3).
+.IP \(bu 2n
+Other lines beginning with ``#'' are treated as comments and ignored.
 .IP \(bu 2n
 White space is ignored.
 .SH "SEMANTIC CHECKS AND RULES"
@@ -1119,6 +1125,50 @@ debugging option to any of the above, e.g.
 .B \-Dderive,appl1,desperate
 shows the binding of every expression node for every derived metric
 when a new PMAPI context is created.
+.SH OPTIONS
+In addition to the diagnostic control options,
+.B pmSetDerivedControl (3)
+may also be used to set the following option that controls
+the parsing and evaluation of derived metric expressions.
+.TS
+box;
+lf(B) | lf(B)
+lf(B) | lxf(R) .
+Option	Description
+_
+PCP_DERIVED_OPTION_NOVALUE	T{
+.ad l
+.hy 0
+If a metric operand in a derived metric expression is not available
+in the current PMAPI context, the default behaviour (when this
+option has the value
+.BR 0 )
+is to mark
+the expression as invalid and the associated derived metric name
+is not visible in the PMNS; so neither metadata nor values can
+be fetched.
+Setting this option to
+.B 1
+changes the behaviour so the unavailable operand is replaced by the
+\f(CRnovalue()\fP constructor with the default metadata
+of a singular discrete integer metric with no units.
+The derived metric remains in the PMNS, but
+attempts to retrieve values via
+.BR pmFetch (3)
+return likely will return
+.B PM_ERR_VALUE
+(Missing metric value(s)).
+T}
+.TE
+.PP
+Refer to
+.B pmSetDerivedControl (3)
+for alternative ways in which controls and options can be
+set via the
+.B PCP_DERIVED_CONTROL
+environment variable and/or
+.B #control
+lines in a the definition of a derived metric.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmdbg (1),
@@ -1149,7 +1199,6 @@ and
 .\" +ok+ RESCALE mkconst PM_SEM_ kbyte avgsz vbir eth avg op
 .\" +ok+ fw {from fw.bytes}
 .\" +ok+ sensical {from non-sensical}
-.\" +ok+ abc def {both from abc.def}
-.\" +ok+ bname {from operand <bname>}
-.\" +ok+ dname {from operand <dname>}
-.\" +ok+ Dderive {from -Dderive}
+.\" +ok+ abc def {both from abc.def} bc {a+b*c}
+.\" +ok+ bname {from operand <bname>} dname {from operand <dname>}
+.\" +ok+ Dderive {from -Dderive} etext sometext {from /some\e\e*text\e/}

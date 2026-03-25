@@ -1,4 +1,4 @@
-'\"! tbl | mmdoc
+'\" t
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2020 Ken McDonell.  All Rights Reserved.
@@ -52,7 +52,7 @@ and
 .PP
 The
 .I what
-argument selects a control, the
+argument selects a control or option, the
 .I value
 argument provides a value for
 .B pmSetDerivedControl
@@ -67,21 +67,33 @@ argument has one of the following values:
 .TP
 .B PCP_DERIVED_GLOBAL_LIMIT
 The maximum number of global derived metrics that may be defined.
-The value \-1 indicates no limit.
+The
+.I value
+should be greater than zero, or \-1 (for no limit).
+The initial value is \-1.
 .TP
 .B PCP_DERIVED_CONTEXT_LIMIT
 The maximum number of per-context derived metrics that may be defined.
-The value \-1 indicates no limit.
+The
+.I value
+should be greater than zero, or \-1 (for no limit).
+The initial value is \-1.
 .TP
 .B PCP_DERIVED_DEBUG_SYNTAX
 Debug diagnostics during parsing of derived metric expression.
-The value 1 enables the diagnostics, the value 0 disables them.
+The
+.I value
+1 enables the diagnostics, 0 disables them.
+The initial value is 0.
 .TP
 .B PCP_DERIVED_DEBUG_SEMANTICS
 Debug diagnostics for semantic checks
 during the binding of metrics in the derived
 metric expression to the available metrics in a new PMAPI context.
-The value 1 enables the diagnostics, the value 0 disables them.
+The
+.I value
+1 enables the diagnostics, 0 disables them.
+The initial value is 0.
 .TP
 .B PCP_DERIVED_DEBUG_EVAL
 Debug diagnostics when derived metrics are used in PMAPI operations
@@ -95,10 +107,104 @@ like
 .BR pmNameID (3)
 and
 .BR pmTraversePMNS (3).
+The
+.I value
+1 enables the diagnostics, 0 disables them.
+The initial value is 0.
+.TP
+.B PCP_DERIVED_OPTION_NOVALUE
+When a performance metric (used as an operand
+in a derived metric expression) is
+no available (e.g. missing from a PCP archive context or not
+provided by any PMDA for a host context), then the default behaviour
+is to mark the derived metric as undefined.
+If this option is set to 1 (the default is 0), then any metric
+that is not available is mapped to the
+.BR novalue ()
+constructor (refer to
+.BR pmRegisterDerived (3)
+for details), which in essence means the metric is defined, but
+attempts to retrieve values via
+.BR pmFetch (3)
+will return
+.B PM_ERR_VALUE
+(Missing metric value(s)).
 .SH "RETURN VALUES"
 Both routines return 0 on success, else a value less than 0
 that can be decoded using
 .BR pmErrStr (3).
+.PP
+Some overloading of error codes is needed to accommodate the
+unusual semantics of these routines, as described below.
+.TS
+box,center;
+cf(B) | cf(B)
+lf(B) | lf(R)x.
+Error	Meaning
+_
+PM_ERR_NAME	T{
+.I what
+is not one of the expected values
+T}
+_
+PM_ERR_ARG	T{
+the
+.I value
+provided to
+.B pmSetDerivedControl
+is not within the acceptable range
+T}
+_
+PM_ERR_NOCONTEXT	T{
+getting or setting
+.B PCP_DERIVED_CONTEXT_LIMIT
+only makes sense when there is a current PMAPI context
+T}
+_
+PM_ERR_AGAIN	T{
+.B pmSetDerivedControl
+request would violate precedence rules (see below)
+T}
+.TE
+.SH OTHER OPTIONS
+All of the controls and options that are exposed by
+.B pmSetDerivedControl
+can also be set in two other ways.
+.TP 4n
+1.
+Setting the
+.B PCP_DERIVED_CONTROL
+environment variable to a value of the form \fIname\fP=\fIinteger\fP where
+.I name
+is one of the
+.I what
+macros described above, stripped of the
+.B PCP_DERIVED_
+prefix, e.g.
+.CR novalue=1 \c
+\&.
+.I name
+is case insensitive and multiple specifications are allowed, separated by
+commas.  No whitespace is allowed.
+.TP 4n
+2.
+Use of a
+.B #control
+line in a derived metric configuration file, where the text following the
+.B #control
+follows exactly the same rules as for the
+.B PCP_DERIVED_CONTROL
+environment variable described above.
+.PP
+Given these options can be specified in multiple ways, possibly with
+different values, the precedence rules are if
+.B PCP_DERIVED_CONTROL
+is set, then that value is honoured, else the most recently set value
+from
+.B #control
+or
+.B pmSetDerivedControl
+is used.
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR pmAddDerived (3),
@@ -113,3 +219,4 @@ and
 
 .\" control lines for scripts/man-spell
 .\" +ok+ pmDerivedControl {from man generic page name}
+.\" +ok+ novalue {from novalue()} PCP_DERIVED_ {from prefix strip}

@@ -1,0 +1,622 @@
+QA output created by 1657
+QA output created by 1656 --valgrind
+=== simplest working option_novalue example  ===
+
+foo
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+No value(s) available!
+
+=== OPTION_NOVALUE derived control off (default)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+=== OPTION_NOVALUE derived control on (via $PCP_DERIVED_CONTROL)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== $PCP_DERIVED_CONTROL error cases ===
+--- badoption=1 ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: unknown derived metric control (badoption)
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: missing '=' in derived metric control (option_novalue)
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue= ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: missing value in derived metric control (option_novalue=)
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue=bar ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: bad value (bar) for derived metric control (option_novalue)
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue=1bar ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: bad value (1bar) for derived metric control (option_novalue)
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue=1,badoption=1 ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: unknown derived metric control (badoption)
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+--- option_novalue=1,context_limit ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: missing '=' in derived metric control (context_limit)
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+--- option_novalue=1,context_limit= ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: missing value in derived metric control (context_limit=)
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+--- option_novalue=1,context_limit=bar ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: bad value (bar) for derived metric control (context_limit)
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+--- option_novalue=1,context_limit=1bar ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+Warning: $PCP_DERIVED_CONTROL: bad value (1bar) for derived metric control (context_limit)
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+
+OPTION_NOVALUE derived control on (via #control)
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] derived metric control: option_novalue=1 set
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Warning: derived metric qa.bar: operand "nosuchmetric" not found, mapped to novalue()
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== #control error cases ===
+--- badoption=1 ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Warning: unknown derived metric control (badoption)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Error: missing '=' in derived metric control (option_novalue)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue= ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Warning: missing value in derived metric control (option_novalue=)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue=bar ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Warning: bad value (bar) for derived metric control (option_novalue)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue=1bar ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Warning: bad value (1bar) for derived metric control (option_novalue)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- option_novalue=1,badoption=1 ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] derived metric control: option_novalue=1 set
+[TMP.config:1] Warning: unknown derived metric control (badoption)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Warning: derived metric qa.bar: operand "nosuchmetric" not found, mapped to novalue()
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+--- option_novalue=1,context_limit ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] derived metric control: option_novalue=1 set
+[TMP.config:1] Error: missing '=' in derived metric control (context_limit)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Warning: derived metric qa.bar: operand "nosuchmetric" not found, mapped to novalue()
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+--- option_novalue=1,context_limit= ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] derived metric control: option_novalue=1 set
+[TMP.config:1] Warning: missing value in derived metric control (context_limit=)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Warning: derived metric qa.bar: operand "nosuchmetric" not found, mapped to novalue()
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+--- option_novalue=1,context_limit=bar ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] derived metric control: option_novalue=1 set
+[TMP.config:1] Warning: bad value (bar) for derived metric control (context_limit)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Warning: derived metric qa.bar: operand "nosuchmetric" not found, mapped to novalue()
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+--- option_novalue=1,context_limit=1bar ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] derived metric control: option_novalue=1 set
+[TMP.config:1] Warning: bad value (1bar) for derived metric control (context_limit)
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Warning: derived metric qa.bar: operand "nosuchmetric" not found, mapped to novalue()
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+qa.bar
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+No value(s) available!
+
+=== some value out of range cases ===
+--- GLOBAL_LIMIT=-2 ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Warning: failed to set derived metric control GLOBAL_LIMIT=-2: Bad value for function argument
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- CONTEXT_LIMIT=0 ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Warning: failed to set derived metric control CONTEXT_LIMIT=0: Bad value for function argument
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+--- Debug_Syntax=3 ---
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pminfo -df qa
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Warning: failed to set derived metric control Debug_Syntax=3: Bad value for function argument
+pmRegisterDerived: global metric[2] qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+pmRegisterDerived: global metric[3] qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+Semantic error: derived metric qa.bar: operand nosuchmetric: Unknown operand metric
+
+qa.foo
+    Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 42
+
+=== precedence cases ===
+--- all are ok ---
+=== std out ===
+Set PCP_DERIVED_CONTROL=option_novalue=1
+Context 0 created
+Set option_novalue(6)=1
+Loaded TMP.config
+foo:
+    Data Type: 32-bit int  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: discrete  Units: none
+Fetched 0 values
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/derived_control -e PCP_DERIVED_CONTROL=option_novalue=1 -c -s option_novalue=1 -l TMP.config foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- env trumps #control ---
+=== std out ===
+Set PCP_DERIVED_CONTROL=option_novalue=0
+Context 0 created
+Loaded TMP.config
+foo:
+pmLookupDesc failed: Derived metric definition failed
+=== std err ===
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric control: $PCP_DERIVED_CONTROL: option_novalue=0 set
+pmLoadDerivedConfig("TMP.config")
+[TMP.config:1] Warning: failed to set derived metric control option_novalue=1: Try again. Information not currently available
+pmRegisterDerived: global metric[2] foo = bar
+__dmgetpmid: metric "foo" -> PMID 511.0.3
+__dmbind(derive_locked=0, ctx=0, metric[2] foo, async= 1)
+__dmgetpmid: metric "foo" -> PMID 511.0.3
+__dmgetpmid: metric "bar" -> Unknown metric name
+Semantic error: derived metric foo: operand bar: Unknown operand metric
+__dmbind: bind_expr failed for metric[2] foo
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/derived_control -Dderive -e PCP_DERIVED_CONTROL=option_novalue=0 -c -l TMP.config foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+--- env trumps pmSetDerivedControl() ---
+=== std out ===
+Set PCP_DERIVED_CONTROL=option_novalue=0
+pmSetDerivedControl(6, 1) failed: Try again. Information not currently available
+Loaded TMP.config
+Context 0 created
+foo:
+pmLookupDesc failed: Derived metric definition failed
+=== std err ===
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric control: $PCP_DERIVED_CONTROL: option_novalue=0 set
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: global metric[2] foo = bar
+__dmgetpmid: metric "foo" -> PMID 511.0.3
+__dmbind(derive_locked=0, ctx=0, metric[2] foo, async= 1)
+__dmgetpmid: metric "foo" -> PMID 511.0.3
+__dmgetpmid: metric "bar" -> Unknown metric name
+Semantic error: derived metric foo: operand bar: Unknown operand metric
+__dmbind: bind_expr failed for metric[2] foo
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: src/derived_control -Dderive -e PCP_DERIVED_CONTROL=option_novalue=0 -s option_novalue=1 -l TMP.config -c foo
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...

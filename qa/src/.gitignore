@@ -63,6 +63,7 @@ crashpmcd
 ctx_derive
 defctx
 derived
+derived_control
 derived_help
 descreqX2
 disk_test

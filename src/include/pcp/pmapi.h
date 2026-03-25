@@ -1086,6 +1086,7 @@ PCP_CALL extern int pmSetDerivedControl(int, int);
 #define PCP_DERIVED_DEBUG_SYNTAX	3
 #define PCP_DERIVED_DEBUG_SEMANTICS	4
 #define PCP_DERIVED_DEBUG_EVAL		5
+#define PCP_DERIVED_OPTION_NOVALUE	6
 
 /*
  * Event Record support

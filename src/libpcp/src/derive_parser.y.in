@@ -13,6 +13,12 @@
  *   derive && appl2
  *	_dmchildren(), PMNS ops, pmFetch ops, pmDesc ops,
  *
+ * Thread-safe notes
+ *
+ * map2novalue - no serious side-effects, most unlikely to be used, and
+ * if concurrent calls change the value then the last one wins, so don't
+ * bother to make thread-safe
+ *
  * Copyright (c) 1995 Silicon Graphics, Inc.  All Rights Reserved.
  * Copyright (c) 2017-2020 Ken McDonell.  All Rights Reserved.
  * Copyright (c) 2020 Red Hat.  All Rights Reserved.
@@ -46,7 +52,7 @@
 
 #define YYDEBUG 1
 
-static int		need_init = 1;
+static int		need_init = 2;
 static int		in_matchinst = 0;	/* context sensitive / lexing */
 static ctl_t		registered = {
     0,			/* nmetric */
@@ -79,6 +85,34 @@ pthread_mutex_t	unregister_lock = PTHREAD_MUTEX_INITIALIZER;
 void		*unregister_lock;
 #endif
 
+/*
+ * Control options for derived metrics ... used by
+ * pm{Get,Set}DerivedControl(), the $PCP_DERIVED_CONTROL environment
+ * variable and #control from a config file
+ *
+ * This table needs to match the ordinal order of the matching #defines.
+ */
+#define OPT_NOTSET	0
+#define OPT_SET_ENV	1
+#define OPT_SET_APP	2
+#define OPT_SET_CONTROL	3
+static struct {
+    int		state;		/* where set, see OPT_SET_ macros */
+    const char	*name;		/* #define stripped of leading PCP_DERIVED_ */
+} options[] = {
+    /* PCP_DERIVED_... starts at 1, so first entry is a no-op */
+    { OPT_NOTSET, "" },
+    { OPT_NOTSET, "GLOBAL_LIMIT" },
+    { OPT_NOTSET, "CONTEXT_LIMIT" },
+    { OPT_NOTSET, "DEBUG_SYNTAX" },
+    { OPT_NOTSET, "DEBUG_SEMANTICS" },
+    { OPT_NOTSET, "DEBUG_EVAL" },
+    { OPT_NOTSET, "OPTION_NOVALUE" },
+};
+static const int n_options = sizeof(options) / sizeof(options[0]);
+
+static int map2novalue;		/* for NOVALUE control option */
+
 /* lexer variables */
 static char		*tokbuf;
 static int		tokbuflen;
@@ -102,7 +136,7 @@ int derive_parse(void);
 static int derive_lex(void);
 static void derive_error(char *);
 static int registeranon(int, const char *, int);
-static int __dminit_configfile(const char *);
+static int __dminit_configfile(__pmContext *, const char *);
 int derive_debug;
 
 static char *n_type_c(int);
@@ -148,7 +182,7 @@ static int unregister_count;	/* for pmUnregiserDerived */
  * is propagated back to the caller.
  */
 static int
-__dminit_component(const char *name, int descend, int recover)
+__dminit_component(__pmContext *ctxp, const char *name, int descend, int recover)
 {
     struct stat	sbuf;
     int		sts = 0;
@@ -165,7 +199,7 @@ __dminit_component(const char *name, int descend, int recover)
     }
     if (S_ISREG(sbuf.st_mode)) {
 	/* regular file or symlink to a regular file, load it */
-	sts = __dminit_configfile(name);
+	sts = __dminit_configfile(ctxp, name);
 	if (sts < 0 && pmDebugOptions.derive) {
 	    char	errmsg[PM_MAXERRMSGLEN];
 	    fprintf(stderr, "pmLoadDerivedConfig(%s): %s\n", name, pmErrStr_r(sts, errmsg, sizeof(errmsg)));
@@ -198,7 +232,7 @@ __dminit_component(const char *name, int descend, int recover)
 	    if (strcmp(dp->d_name, ".") == 0) continue;
 	    if (strcmp(dp->d_name, "..") == 0) continue;
 	    pmsprintf(path, sizeof(path), "%s%c%s", name, pmPathSeparator(), dp->d_name);
-	    if ((localsts = __dminit_component(path, descend, recover)) < 0) {
+	    if ((localsts = __dminit_component(ctxp, path, descend, recover)) < 0) {
 		sts = localsts;
 		closedir(dirp);
 		goto finish;
@@ -230,7 +264,7 @@ finish:
  * derived metrics path specification.
  */
 static int
-__dminit_parse(const char *path, int recover)
+__dminit_parse(__pmContext *ctxp, const char *path, int recover)
 {
     const char	*p = path;
     const char	*q;
@@ -240,7 +274,7 @@ __dminit_parse(const char *path, int recover)
     while ((q = strchr(p, ':')) != NULL) {
 	char	*name = strndup(p, q-p+1);
 	name[q-p] = '\0';
-	lsts = __dminit_component(name, 1, recover);
+	lsts = __dminit_component(ctxp, name, 1, recover);
 	if (lsts < 0) {
 	    free(name);
 	    return lsts;
@@ -250,7 +284,7 @@ __dminit_parse(const char *path, int recover)
 	p = q+1;
     }
     if (*p != '\0') {
-	lsts = __dminit_component(p, 1, recover);
+	lsts = __dminit_component(ctxp, p, 1, recover);
 	if (lsts < 0)
 	    return lsts;
 	sts += lsts;
@@ -259,22 +293,331 @@ __dminit_parse(const char *path, int recover)
 }
 
 /*
+ * internal version of pmGetDerivedControl to set control options
+ */
+static int
+getderivedcontrol(__pmContext *ctxp, int what, int *valuep)
+{
+    int		sts = 0;
+    int		value;
+    __pmContext	*lctxp;
+
+    switch (what) {
+    case PCP_DERIVED_GLOBAL_LIMIT:
+		PM_ASSERT_IS_LOCKED(registered.mutex);
+		value = registered.limit;
+		break;
+    case PCP_DERIVED_CONTEXT_LIMIT:
+		if (ctxp == NULL) {
+		    int		ctx;
+		    if ((ctx = pmWhichContext()) < 0) {
+			sts = ctx;
+			break;
+		    }
+		    lctxp = __pmHandleToPtr(ctx);
+		    if (lctxp == NULL) {
+			sts = PM_ERR_NOCONTEXT;
+			break;
+		    }
+		}
+		else
+		    lctxp = ctxp;
+		PM_ASSERT_IS_LOCKED(lctxp->c_lock);
+		if (lctxp->c_dm != NULL)
+		    value = ((ctl_t *)lctxp->c_dm)->limit;
+		else {
+		    /* called early before c_dm set up, there can be no value */
+		    sts = PM_ERR_NOCONTEXT;
+		}
+		if (ctxp == NULL)
+		    PM_UNLOCK(lctxp->c_lock);
+		break;
+    case PCP_DERIVED_DEBUG_SYNTAX:
+		value = (pmDebugOptions.derive && pmDebugOptions.appl0);
+		break;
+    case PCP_DERIVED_DEBUG_SEMANTICS:
+		value = (pmDebugOptions.derive && pmDebugOptions.appl1);
+		break;
+    case PCP_DERIVED_DEBUG_EVAL:
+		value = (pmDebugOptions.derive && pmDebugOptions.appl2);
+		break;
+    case PCP_DERIVED_OPTION_NOVALUE:
+		value = map2novalue;
+		break;
+    default:
+		/*
+		 * this is overloading PM_ERR_NAME a bit, "what" is
+		 * the name of a control option, not a performance
+		 * metric, but this is the closest error code we
+		 * have
+		 */
+    		sts = PM_ERR_NAME;
+		break;
+    }
+
+    if (sts >= 0) {
+	*valuep = value;
+	sts = 0;
+    }
+
+    return sts;
+}
+
+/*
+ * internal version of pmSetDerivedControl to set control options
+ *
+ * where is one of the OPT_ macros, specifying the context that
+ * is trying to set the control option.
+ *
+ * what is one of the PCP_DERIVED_ macros, but also an index
+ * into options[]
+ *
+ * value is the value to be set
+ *
+ * Returns
+ * PM_ERR_CONTEXT - what == PCP_DERIVED_CONTEXT_LIMIT => need
+ * 			a PMAPI context
+ * PM_ERR_NAME - what is not a control option
+ * PM_ERR_ARG - value is outside the acceptable range
+ * PM_ERR_AGAIN - request conflicts with earlier setting
+ */
+static int
+setderivedcontrol(__pmContext *ctxp, int where, int what, int value)
+{
+    int		oldvalue;
+    __pmContext	*lctxp;
+    int		sts = 0;
+
+    if (getderivedcontrol(ctxp, what, &oldvalue) == 0) {
+	/*
+	 * what is valid if old value == requested value
+	 * return immediately as there is nothing to do
+	 */
+	if (oldvalue == value) {
+	    if (options[what].state == OPT_NOTSET) {
+		/* first setter is the winner, so far */
+		options[what].state = where;
+	    }
+	    return 0;
+	}
+	if (options[what].state != OPT_NOTSET) {
+	    /*
+	     * option already set, apply precedence rules
+	     * - setting from environment always wins
+	     */
+	    if (where != OPT_SET_ENV && options[what].state == OPT_SET_ENV) {
+		/*
+		 * not a winner ... this is overloading PM_ERR_AGAIN,
+		 * but there is no obvious better error code
+		 */
+		return PM_ERR_AGAIN;
+	    }
+	}
+    }
+
+    switch (what) {
+    case PCP_DERIVED_GLOBAL_LIMIT:
+		if (value == -1 || value > 0) {
+		    PM_ASSERT_IS_LOCKED(registered.mutex);
+		    registered.limit = value;
+		}
+		else
+		    sts = PM_ERR_ARG;
+		break;
+    case PCP_DERIVED_CONTEXT_LIMIT:
+		if (value == -1 || value > 0) {
+		    if (ctxp == NULL) {
+			int		ctx;
+			if ((ctx = pmWhichContext()) < 0) {
+			    sts = ctx;
+			    break;
+			}
+			lctxp = __pmHandleToPtr(ctx);
+			if (lctxp == NULL) {
+			    sts = PM_ERR_NOCONTEXT;
+			    break;
+			}
+		    }
+		    else
+			lctxp = ctxp;
+		    PM_ASSERT_IS_LOCKED(lctxp->c_lock);
+		    if (lctxp->c_dm != NULL)
+			((ctl_t *)lctxp->c_dm)->limit = value;
+		    else {
+			/* called early before c_dm set up, nothing to set */
+			sts = PM_ERR_NOCONTEXT;
+		    }
+		    if (ctxp == NULL)
+			PM_UNLOCK(lctxp->c_lock);
+		}
+		else
+		    sts = PM_ERR_ARG;
+		break;
+    case PCP_DERIVED_DEBUG_SYNTAX:
+		if (value == 0 || value == 1) {
+		    pmDebugOptions.derive = value;
+		    pmDebugOptions.appl0 = value;
+		}
+		else
+		    sts = PM_ERR_ARG;
+		break;
+    case PCP_DERIVED_DEBUG_SEMANTICS:
+		if (value == 0 || value == 1) {
+		    pmDebugOptions.derive = value;
+		    pmDebugOptions.appl1 = value;
+		}
+		else
+		    sts = PM_ERR_ARG;
+		break;
+    case PCP_DERIVED_DEBUG_EVAL:
+		if (value == 0 || value == 1) {
+		    pmDebugOptions.derive = value;
+		    pmDebugOptions.appl2 = value;
+		}
+		else
+		    sts = PM_ERR_ARG;
+		break;
+    case PCP_DERIVED_OPTION_NOVALUE:
+		if (value == 0 || value == 1) {
+		    map2novalue = value;
+		}
+		else
+		    sts = PM_ERR_ARG;
+		break;
+    default:
+		/*
+		 * this is overloading PM_ERR_NAME a bit, "what" is
+		 * the name of a control option, not a performance
+		 * metric, but this is the closest error code we
+		 * have
+		 */
+    		sts = PM_ERR_NAME;
+		break;
+    }
+
+    if (sts == 0)
+	options[what].state = where;
+
+    return sts;
+}
+
+/*
+ * Process control options from $PCP_DERIVED_CONTROL or #control
+ * lines in a config file.
+ *
+ * Bad stuff produces Warning: messages and processing the res
+ * of the opt string is skipped.
+ */
+static void
+do_control_options(__pmContext *ctxp, const char *fname, int lineno, const char *opt)
+{
+    const char	*ns, *ne;	/* name start and end */
+    const char	*vs;		/* value start ... */
+    char	*ve;		/* ... and end */
+    int		i;
+    int		value;
+    int		sts;
+
+    for (ns = opt; ; ) {
+	ne = strchr(ns, '=');
+	if (ne == NULL) {
+	    if (fname == NULL)
+		fprintf(stderr, "Warning: $PCP_DERIVED_CONTROL: ");
+	    else
+		fprintf(stderr, "[%s:%d] Error: ", fname, lineno);
+	    fprintf(stderr, "missing '=' in derived metric control (%s)\n",
+		    ns);
+	    break;
+	}
+	vs = ne + 1;
+	if (*vs == '\0' || *vs == ',') {
+	    if (fname == NULL)
+		fprintf(stderr, "Warning: $PCP_DERIVED_CONTROL: ");
+	    else
+		fprintf(stderr, "[%s:%d] Warning: ", fname, lineno);
+	    fprintf(stderr, "missing value in derived metric control (%s)\n",
+		    ns);
+	    break;
+	}
+	value = (int)strtol(vs, &ve, 10);
+	if (*ve != '\0' && *ve != ',') {
+	    if (fname == NULL)
+		fprintf(stderr, "Warning: $PCP_DERIVED_CONTROL: ");
+	    else
+		fprintf(stderr, "[%s:%d] Warning: ", fname, lineno);
+	    fprintf(stderr, "bad value (%s) for derived metric control (%*.*s)\n",
+		    vs, (int)(ne - ns), (int)(ne - ns), ns);
+	    break;
+	}
+	for (i = 1; i < n_options; i++) {
+	    if (strncasecmp(ns, options[i].name, ne - ns) == 0) {
+		sts = setderivedcontrol(ctxp, fname == NULL ? OPT_SET_ENV : OPT_SET_APP, i, value);
+		if (sts == 0) {
+		    if (pmDebugOptions.derive) {
+			if (fname == NULL)
+			    fprintf(stderr, "Derived metric control: $PCP_DERIVED_CONTROL: ");
+			else
+			    fprintf(stderr, "[%s:%d] derived metric control: ", fname, lineno);
+			fprintf(stderr, "%*.*s=%d set\n",
+				(int)(ne - ns), (int)(ne - ns), ns, value);
+		    }
+		}
+		else {
+		    char	errmsg[PM_MAXERRMSGLEN];
+		    if (fname == NULL)
+			fprintf(stderr, "Warning: $PCP_DERIVED_CONTROL: ");
+		    else
+			fprintf(stderr, "[%s:%d] Warning: ", fname, lineno);
+		    fprintf(stderr, "failed to set derived metric control %*.*s=%d: %s\n",
+			    (int)(ne - ns), (int)(ne - ns), ns, value,
+			    pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+		}
+		break;
+	    }
+	}
+	if (i == n_options) {
+	    if (fname == NULL)
+		fprintf(stderr, "Warning: $PCP_DERIVED_CONTROL: ");
+	    else
+		fprintf(stderr, "[%s:%d] Warning: ", fname, lineno);
+	    fprintf(stderr, "unknown derived metric control (%*.*s)\n",
+		    (int)(ne - ns), (int)(ne - ns), ns);
+	}
+	if (*ve == '\0')
+	    break;
+	ns = ve + 1;
+    }
+}
+
+/*
  * Initialization for Derived Metrics (and Anonymous Metrics for event
  * records) ...
  */
 static void
-__dminit(void)
+__dminit(__pmContext *ctxp)
 {
+    char	*opt;		/* $PCP_DERIVED_CONTROL from env */
+
+    if (need_init == 0)
+	return;
+
     /*
      * no derived metrics for PMCD or PMDAs
      */
-    if (need_init && __pmGetInternalState() == PM_STATE_PMCS)
+    if (__pmGetInternalState() == PM_STATE_PMCS) {
 	need_init = 0;
+	return;
+    }
 
-    if (need_init) {
-	char	*configpath;
+    /*
+     * Two-phase initialization ...
+     * 1. anon metrics and $PCP_DERIVED_CONTROL
+     * 2. $PCP_DERIVED_CONFIG, but only when ctxp != NULL
+     */
+    if (need_init == 2) {
 	int	sts;
-	char	global[MAXPATHLEN+1];
+
+	need_init--;
 
 	/* anon metrics for event record unpacking */
 PM_FAULT_POINT("libpcp/derive.c:7", PM_FAULT_CALL);
@@ -309,6 +652,23 @@ PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_CALL);
 	}
 
 	/*
+	 * Parse and set control options if $PCP_DERIVED_CONTOL is set.
+	 * Each specification is of the form option=value (no whitespace
+	 * allowed, option is case insensitive)
+	 * ... multiple options are separated by commas
+	 */
+	if ((opt = getenv("PCP_DERIVED_CONTROL")) != NULL) {
+	    do_control_options(ctxp, NULL, 0, opt);
+	}
+    }
+
+    if (need_init == 1 && ctxp != NULL) {
+	char	*configpath;
+	char	global[MAXPATHLEN+1];
+
+	need_init--;
+
+	/*
 	 * If PCP_DERIVED_CONFIG is NOT set, then by default we load global
 	 * derived configs from the directory $PCP_VAR_DIR/config/derived.
 	 *
@@ -329,12 +689,10 @@ PM_FAULT_POINT("libpcp/derive.c:8", PM_FAULT_CALL);
 		fprintf(stderr, "Derived metric initialization from %s\n",
 		    configpath == global ? global : "$PCP_DERIVED_CONFIG");
 	    }
-	    __dminit_parse(configpath, 1 /*recovering*/);
+	    __dminit_parse(ctxp, configpath, 1 /*recovering*/);
 	}
-	need_init = 0;
     }
 }
-
 
 static node_t *
 newnode(int type)
@@ -539,9 +897,12 @@ report_sem_error(char *name, node_t *np)
 	case N_NAME:
 	    pmprintf("operand %s", np->value);
 	    break;
+	case N_NOVALUE:
+	    pmprintf("%s ", __dmnode_type_str(np->type));
+	    break;
 	default:
 	    /* should never get here ... */
-	    pmprintf("botch @ node type #%d?", np->type);
+	    pmprintf("botch @ node type %s\n", __dmnode_type_str(np->type));
 	    break;
     }
     pmprintf(": %s\n", PM_TPD(derive_errmsg));
@@ -709,41 +1070,80 @@ bind_expr(__pmContext *ctxp, int n, node_t *np, node_t *parent, int lookup_mode,
 	/* get pmID and pmDesc from context */
 	sts = pmLookupName_ctx(ctxp, PM_LOCKED, 1, (const char **)&new->value, &new->data.info->pmid);
 	if (sts < 0) {
-	    if (lookup_mode == QUEST_BIND_LAZY) {
+	    if (map2novalue) {
 		/*
-		 * undefined metrics maybe OK here ...
-		 * set pmid for later testing
+		 * operand metric is undefined, map to "novalues" option
+		 * is in effect
+		 *
+		 * metadata is hard-wired, just like defaults for novalue()
 		 */
-		new->desc.pmid = new->data.info->pmid = PM_ID_NULL;
+		if (pmDebugOptions.derive) {
+		    if (is_global)
+			fprintf(stderr, "Warning: derived metric %s: operand \"%s\" not found, mapped to novalue()\n", registered.mlist[n].name, new->value);
+		    else
+			fprintf(stderr, "Warning: derived metric %s: operand \"%s\" not found, mapped to novalue()\n", cp->mlist[n].name, new->value);
+		}
+		/* expect this is a leaf node, just being cautious here */
+		if (new->left != NULL) {
+		    free_expr(new->left);
+		    new->left = NULL;
+		}
+		if (new->right != NULL) {
+		    free_expr(new->right);
+		    new->right = NULL;
+		}
+		/* whack the node */
+		new->type = N_NOVALUE;
+		new->desc.pmid = PM_ID_NULL;
+		new->desc.type = PM_TYPE_32;
+		new->desc.indom = PM_INDOM_NULL;
+		new->desc.sem = PM_SEM_DISCRETE;
+		new->desc.units = noUnits;
+		new->save_last = 0;
+		new->flags = 0;
+		new->data.info->numval = 0;
 		return new;
 	    }
-	    if (async) {
-		/*
-		 * async reporting considerations ...
-		 *
-		 * We've tossed and turned here between making this
-		 * reporting unconditional vs conditional on -Dderive.
-		 * Conditional was motivated by formulas in the system
-		 * derived metrics configurations that use metrics that are
-		 * not universally available, but the associated derived
-		 * metric may never be user, leading to distracting error
-		 * messages for every PMAPI client ... the addition of the
-		 * defined(x) function for derived metrics means these
-		 * cases can be handled in a more elegant manner, hence we
-		 * now warn unconditionally here.
-		 */
-		PM_TPD(derive_errmsg) = "Unknown operand metric";
-		if (is_global)
-		    report_sem_error(registered.mlist[n].name, np);
-		else
-		    report_sem_error(cp->mlist[n].name, np);
-	    }
 	    else {
-		PM_TPD(derive_errmsg) = "Unknown operand metric";
+		/*
+		 * operand metric is undefined, the classical behaviour ...
+		 */
+		if (lookup_mode == QUEST_BIND_LAZY) {
+		    /*
+		     * undefined metrics maybe OK here ...
+		     * set pmid for later testing
+		     */
+		    new->desc.pmid = new->data.info->pmid = PM_ID_NULL;
+		    return new;
+		}
+		if (async) {
+		    /*
+		     * async reporting considerations ...
+		     *
+		     * We've tossed and turned here between making this
+		     * reporting unconditional vs conditional on -Dderive.
+		     * Conditional was motivated by formulas in the system
+		     * derived metrics configurations that use metrics that are
+		     * not universally available, but the associated derived
+		     * metric may never be user, leading to distracting error
+		     * messages for every PMAPI client ... the addition of the
+		     * defined(x) function for derived metrics means these
+		     * cases can be handled in a more elegant manner, hence we
+		     * now warn unconditionally here.
+		     */
+		    PM_TPD(derive_errmsg) = "Unknown operand metric";
+		    if (is_global)
+			report_sem_error(registered.mlist[n].name, np);
+		    else
+			report_sem_error(cp->mlist[n].name, np);
+		}
+		else {
+		    PM_TPD(derive_errmsg) = "Unknown operand metric";
+		}
+		if (is_global)
+		    free_expr(new);
+		return NULL;
 	    }
-	    if (is_global)
-		free_expr(new);
-	    return NULL;
 	}
 
 	/*
@@ -1447,10 +1847,6 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 	     * depending on the result of <guard> choose do lazy
 	     * checking and binding of only <left> (true) or only
 	     * <right> (false) or both <left> and <right> (unknown)
-	     * Note: evaluation of <guard> is static, not dynamic, so
-	     * true or false is restricted to <guard>s involving ONLY
-	     * defined(x), integer constants and the boolean operators
-	     * (!, && and ||)
 	     */
 	    int	guard = eval_guard(parent->left);
 	    if (pmDebugOptions.derive && pmDebugOptions.appl1 && pmDebugOptions.desperate) {
@@ -1976,7 +2372,6 @@ checkname(char *p)
 static char *
 registerderived(int derive_locked, const char *name, const char *expr, int isanon)
 {
-    node_t		*np;
     static __pmID_int	pmid;
     int			i;
     dm_t		*tmp_mlist;
@@ -1984,6 +2379,7 @@ registerderived(int derive_locked, const char *name, const char *expr, int isano
     if (derive_locked == PM_NOT_LOCKED) {
 	PM_INIT_LOCKS();
 	PM_LOCK(registered.mutex);
+	__dminit(NULL);
     }
     else
 	PM_ASSERT_IS_LOCKED(registered.mutex);
@@ -2021,8 +2417,7 @@ registerderived(int derive_locked, const char *name, const char *expr, int isano
     /* reset lexer lookahead in case of error in previous derive_parse() call */
     lexpeek = 0;
     derive_parse();
-    np = parse_tree;
-    if (np == NULL) {
+    if (parse_tree == NULL) {
 	/* parser error */
 	char	*sts = (char *)lexicon;
 	if (derive_locked == PM_NOT_LOCKED)
@@ -2078,7 +2473,7 @@ PM_FAULT_POINT("libpcp/derive.c:1", PM_FAULT_MISC);
     registered.mlist[registered.nmetric-1].name = strdup(name);
     registered.mlist[registered.nmetric-1].anon = isanon;
     registered.mlist[registered.nmetric-1].pmid = *((pmID *)&pmid);
-    registered.mlist[registered.nmetric-1].expr = np;
+    registered.mlist[registered.nmetric-1].expr = parse_tree;
     registered.mlist[registered.nmetric-1].flags = DM_GLOBAL;
     registered.mlist[registered.nmetric-1].oneline = NULL;
     registered.mlist[registered.nmetric-1].helptext = NULL;
@@ -2086,7 +2481,7 @@ PM_FAULT_POINT("libpcp/derive.c:1", PM_FAULT_MISC);
     if (pmDebugOptions.derive) {
 	fprintf(stderr, "pmRegisterDerived: global metric[%d] %s = %s\n", registered.nmetric-1, name, expr);
 	if (pmDebugOptions.appl0)
-	    __dmdumpexpr(np, 0);
+	    __dmdumpexpr(parse_tree, 0);
     }
 
     if (derive_locked == PM_NOT_LOCKED)
@@ -2436,8 +2831,8 @@ pmLoadDerivedConfig(const char *fname)
 
     PM_INIT_LOCKS();
     PM_LOCK(registered.mutex);
-    __dminit();
-    sts = __dminit_parse(fname, 0 /*non-recovering*/);
+    __dminit(NULL);
+    sts = __dminit_parse(NULL, fname, 0 /*non-recovering*/);
     PM_UNLOCK(registered.mutex);
 
     if (pmDebugOptions.pmapi) {
@@ -2464,7 +2859,7 @@ pmLoadDerivedConfig(const char *fname)
  * - build <string> which includes \x handling and multi-line <string>s
  */  
 static int
-__dminit_configfile(const char *fname)
+__dminit_configfile(__pmContext *ctxp, const char *fname)
 {
     FILE	*fp;
     int		buflen;
@@ -2536,7 +2931,19 @@ __dminit_configfile(const char *fname)
 	}
 	if (c == '\n' && lastc != '\\') {
 	    if (p == buf || buf[0] == '#') {
-		/* comment or empty line, skip it ... */
+		/*
+		 * pragma-like things handled here and never get to the parser
+		 * - #control option=value[,option=value]...
+		 */
+		*p = '\0';
+		if (strncasecmp(buf, "#control", 8) == 0) {
+		    /*
+		     * skip #control + <space> ... option=value starts at
+		     * buf[9]
+		     */
+		    do_control_options(ctxp, fname, lineno, (const char *)&buf[9]);
+		}
+		/* otherwise comment or empty line, skip it ... */
 		goto next_line;
 	    }
 	    *p = '\0';
@@ -2847,7 +3254,6 @@ addderived(const char *name, const char *expr, char **p)
     int			ctx;
     __pmContext		*ctxp;
     ctl_t		*cp;
-    node_t		*np;
     static __pmID_int	pmid;
     dm_t		*tmp_mlist;
     int			i;
@@ -2899,11 +3305,16 @@ addderived(const char *name, const char *expr, char **p)
     /* reset lexer lookahead in case of error in previous derive_parse() call */
     lexpeek = 0;
     derive_parse();
-    np = parse_tree;
-    if (np == NULL) {
+    if (parse_tree == NULL) {
 	/* parser error */
 	*p = (char *)lexicon;
 	PM_UNLOCK(ctxp->c_lock);
+	return SYNTAX_ERROR;
+    }
+    if (parse_tree == NULL) {
+	/* post-parser error, can't help with location in expr */
+	PM_UNLOCK(ctxp->c_lock);
+	*p = (char *)expr;
 	return SYNTAX_ERROR;
     }
 
@@ -2973,7 +3384,7 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
     cp->mlist[cp->nmetric-1].name = strdup(name);
     cp->mlist[cp->nmetric-1].anon = 0;
     cp->mlist[cp->nmetric-1].pmid = *((pmID *)&pmid);
-    cp->mlist[cp->nmetric-1].expr = np;
+    cp->mlist[cp->nmetric-1].expr = parse_tree;
     cp->mlist[cp->nmetric-1].flags = 0;
     cp->mlist[cp->nmetric-1].oneline = NULL;
     cp->mlist[cp->nmetric-1].helptext = NULL;
@@ -2997,7 +3408,7 @@ PM_FAULT_POINT("libpcp/derive.c:2", PM_FAULT_MISC);
     if (pmDebugOptions.derive) {
 	fprintf(stderr, "pmAddDerived(ctx->%d): per-context metric[%d] %s = %s\n", ctxp->c_handle, cp->nmetric-1, name, expr);
 	if (pmDebugOptions.appl0)
-	    __dmdumpexpr(np, 0);
+	    __dmdumpexpr(parse_tree, 0);
     }
 
     PM_UNLOCK(ctxp->c_lock);
@@ -3127,7 +3538,7 @@ pmAddDerivedText(const char *name, int type, const char *text)
     }
 
     PM_LOCK(registered.mutex);
-    __dminit();
+    __dminit(ctxp);
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (!(registered.mlist[i].flags & DM_FREE) &&
@@ -3214,52 +3625,15 @@ done:
 int
 pmGetDerivedControl(int what, int *valuep)
 {
-    int		sts = 0;
-    int		value;
-    int		ctx;
-    __pmContext	*ctxp;
+    int		sts;
 
     if (pmDebugOptions.pmapi)
 	fprintf(stderr, "pmGetDerivedControl(what=%d, ...) <:", what);
-
-    switch (what) {
-    case PCP_DERIVED_GLOBAL_LIMIT:
-		PM_LOCK(registered.mutex);
-		value = registered.limit;
-		PM_UNLOCK(registered.mutex);
-		break;
-    case PCP_DERIVED_CONTEXT_LIMIT:
-		if ((ctx = pmWhichContext()) < 0) {
-		    sts = ctx;
-		    break;
-		}
-		ctxp = __pmHandleToPtr(ctx);
-		if (ctxp == NULL) {
-		    sts = PM_ERR_NOCONTEXT;
-		    break;
-		}
-		PM_ASSERT_IS_LOCKED(ctxp->c_lock);
-		value = ((ctl_t *)ctxp->c_dm)->limit;
-		PM_UNLOCK(ctxp->c_lock);
-		break;
-    case PCP_DERIVED_DEBUG_SYNTAX:
-		value = (pmDebugOptions.derive && pmDebugOptions.appl0);
-		break;
-    case PCP_DERIVED_DEBUG_SEMANTICS:
-		value = (pmDebugOptions.derive && pmDebugOptions.appl1);
-		break;
-    case PCP_DERIVED_DEBUG_EVAL:
-		value = (pmDebugOptions.derive && pmDebugOptions.appl2);
-		break;
-    default:
-    		sts = PM_ERR_BADDERIVE;
-		break;
-    }
-
-    if (sts >= 0) {
-	*valuep = value;
-	sts = 0;
-    }
+	
+    PM_LOCK(registered.mutex);
+    __dminit(NULL);
+    sts = getderivedcontrol(NULL, what, valuep);
+    PM_UNLOCK(registered.mutex);
 
     if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
@@ -3278,48 +3652,14 @@ int
 pmSetDerivedControl(int what, int value)
 {
     int		sts = 0;
-    int		ctx;
-    __pmContext	*ctxp;
 
     if (pmDebugOptions.pmapi)
 	fprintf(stderr, "pmSetDerivedControl(what=%d, value=%d) <:", what, value);
 
-    switch (what) {
-    case PCP_DERIVED_GLOBAL_LIMIT:
-		PM_LOCK(registered.mutex);
-		registered.limit = value;
-		PM_UNLOCK(registered.mutex);
-		break;
-    case PCP_DERIVED_CONTEXT_LIMIT:
-		if ((ctx = pmWhichContext()) < 0) {
-		    sts = ctx;
-		    break;
-		}
-		ctxp = __pmHandleToPtr(ctx);
-		if (ctxp == NULL) {
-		    sts = PM_ERR_NOCONTEXT;
-		    break;
-		}
-		PM_ASSERT_IS_LOCKED(ctxp->c_lock);
-		((ctl_t *)ctxp->c_dm)->limit = value;
-		PM_UNLOCK(ctxp->c_lock);
-		break;
-    case PCP_DERIVED_DEBUG_SYNTAX:
-		pmDebugOptions.derive = value;
-		pmDebugOptions.appl0 = value;
-		break;
-    case PCP_DERIVED_DEBUG_SEMANTICS:
-		pmDebugOptions.derive = value;
-		pmDebugOptions.appl1 = value;
-		break;
-    case PCP_DERIVED_DEBUG_EVAL:
-		pmDebugOptions.derive = value;
-		pmDebugOptions.appl2 = value;
-		break;
-    default:
-    		sts = PM_ERR_BADDERIVE;
-		break;
-    }
+    PM_LOCK(registered.mutex);
+    __dminit(NULL);
+    sts = setderivedcontrol(NULL, OPT_SET_APP, what, value);
+    PM_UNLOCK(registered.mutex);
 
     if (pmDebugOptions.pmapi) {
 	fprintf(stderr, ":> returns ");
@@ -3446,7 +3786,7 @@ __dmtraverse(__pmContext *ctxp, const char *name, char ***namelist)
     }
 
     PM_LOCK(registered.mutex);
-    __dminit();
+    __dminit(ctxp);
 
     if ((cp = getctl(ctxp)) == NULL)
 	/* PMNS operations are safe, even below PMCS */
@@ -3537,7 +3877,7 @@ __dmchildren(__pmContext *ctxp, int derive_locked, const char *name, char ***off
 
     if (derive_locked == PM_NOT_LOCKED) {
 	PM_LOCK(registered.mutex);
-	__dminit();
+	__dminit(ctxp);
     }
     else {
 	PM_ASSERT_IS_LOCKED(registered.mutex);
@@ -3703,7 +4043,7 @@ __dmgetpmid(__pmContext *ctxp, int derive_locked, const char *name, pmID *dp)
 
     if (derive_locked == PM_NOT_LOCKED) {
 	PM_LOCK(registered.mutex);
-	__dminit();
+	__dminit(ctxp);
     }
     else {
 	PM_ASSERT_IS_LOCKED(registered.mutex);
@@ -3747,7 +4087,7 @@ __dmgetname(__pmContext *ctxp, pmID pmid, char ** name)
     ctl_t	*cp;
 
     PM_LOCK(registered.mutex);
-    __dminit();
+    __dminit(ctxp);
 
     if ((cp = getctl(ctxp)) == NULL)
 	/* PMNS operations are safe, even below PMCS */
@@ -3800,7 +4140,7 @@ __dmcheckname(__pmContext *ctxp, int derive_locked, const char *name, pmID pmid)
 
     if (derive_locked == PM_NOT_LOCKED) {
 	PM_LOCK(registered.mutex);
-	__dminit();
+	__dminit(ctxp);
     }
     else {
 	PM_ASSERT_IS_LOCKED(registered.mutex);
@@ -3958,7 +4298,7 @@ __dmopencontext(__pmContext *ctxp)
     ctl_t	*cp;
 
     PM_LOCK(registered.mutex);
-    __dminit();
+    __dminit(ctxp);
 
     if (pmDebugOptions.derive && pmDebugOptions.appl1) {
 	fprintf(stderr, "__dmopencontext(->ctx %d) called, %d derived metrics\n", ctxp->c_handle, registered.nmetric);
@@ -4102,7 +4442,7 @@ __dmhelptext(pmID pmid, int level, char **buffer)
     }
 
     PM_LOCK(registered.mutex);
-    __dminit();
+    __dminit(ctxp);
 
     for (i = 0; i < registered.nmetric; i++) {
 	if (pmid == registered.mlist[i].pmid) {

@@ -269,6 +269,9 @@ derive_parser.tab.o
     ?initial_str		# const
     ?follow			# const
     ?typetab			# const
+    ?options			# const
+    ?n_options			# const
+    ?map2novalue		# no unsafe side-effects, see notes in derive_parser.y.in
     ?init			# local initialize_mutex mutex
     ?done			# guarded by local initialize_mutex mutex
     need_init			# guarded by registered.mutex
@@ -286,7 +289,6 @@ derive_parser.tab.o
     				# error path, and unlikely that two threads
 				# are trying to run pmRegisterDerived at the
 				# same time)
-
     ?derive_errmsg		# thread private (no __thread symbols for macOS)
     yytranslate            	# const
     ?yyrline			# const

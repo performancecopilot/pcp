@@ -2190,6 +2190,8 @@ suse
 1653 pmda.denki local
 1654 archive_v3 libpcp local indom
 1655 archive_v3 libpcp local valgrind indom
+1656 derive pminfo local
+1657 derive pminfo local valgrind
 1658 pmda.linux local
 1660 libpcp labels local
 1661 pmproxy libpcp_web pmlogger local pmlc

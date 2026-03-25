@@ -42,7 +42,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === context[0]=0
 --- foo.bar
 pmResult ... numpmid: 1
-  511.0.1 (foo.bar): numval: 1 valfmt: 1 vlist[]:
+  511.0.3 (foo.bar): numval: 1 valfmt: 1 vlist[]:
    value 42
 === std err ===
 === filtered valgrind report ===
@@ -61,7 +61,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 pmLookupName(foobar, ...) failed: Unknown metric name
 pmLookupDesc(foobar, ...) failed: Unknown or illegal metric identifier
 pmResult ... numpmid: 1
-  511.0.1 (<noname>): Unknown or illegal metric identifier
+  511.0.3 (<noname>): Unknown or illegal metric identifier
 === std err ===
 unregister: pmUnregisterDerived(foobar) => 1
 === filtered valgrind report ===
@@ -138,12 +138,12 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 === context[0]=0
 --- foo.bar
 pmResult ... numpmid: 1
-  511.0.1 (foo.bar): numval: 1 valfmt: 1 vlist[]:
+  511.0.3 (foo.bar): numval: 1 valfmt: 1 vlist[]:
    value 42
 === context[1]=1
 --- foo.bar
 pmResult ... numpmid: 1
-  511.0.1 (foo.bar): numval: 1 valfmt: 1 vlist[]:
+  511.0.3 (foo.bar): numval: 1 valfmt: 1 vlist[]:
    value 42
 === std err ===
 === filtered valgrind report ===
@@ -162,13 +162,13 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 pmLookupName(foo.bar, ...) failed: Unknown metric name
 pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
 pmResult ... numpmid: 1
-  511.0.1 (<noname>): Unknown or illegal metric identifier
+  511.0.3 (<noname>): Unknown or illegal metric identifier
 === context[1]=1
 --- foo.bar
 pmLookupName(foo.bar, ...) failed: Unknown metric name
 pmLookupDesc(foo.bar, ...) failed: Unknown or illegal metric identifier
 pmResult ... numpmid: 1
-  511.0.1 (<noname>): Unknown or illegal metric identifier
+  511.0.3 (<noname>): Unknown or illegal metric identifier
 === std err ===
 unregister: pmUnregisterDerived(foo.bar) => 2
 === filtered valgrind report ===

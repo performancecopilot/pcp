@@ -52,7 +52,7 @@ s/cp=green .*/cp=<COLOR> .../
 
 cat <<End-of-File >$tmp.conf
 # these ones will get registered until the limit is hit
-# and then the winnders will be in every context
+# and then the winners will be in every context
 #
 testme.big = sampledso.long.million
 testme.lights = sampledso.lights
@@ -61,6 +61,8 @@ End-of-File
 
 # real QA test starts here
 PCP_DERIVED_CONFIG=$tmp.conf; export PCP_DERIVED_CONFIG
+# limit 2 => 2 of 3 testme ones
+#
 src/ctx_derive 2>&1 -c -l 2 -M 1 -P \
     testme.big testme.lights testme.bigbin \
 | _filter

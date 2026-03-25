@@ -1215,6 +1215,13 @@ or is not accessible (due to permissions or a bad symbolic link) will
 be silently ignored.
 .RE
 .TP
+.B PCP_DERIVED_CONTROL
+Settings for control options that may be used when processing derived
+metrics.
+Refer to
+.BR pmSetDerivedControl (3)
+for details.
+.TP
 .B PCP_IGNORE_MARK_RECORDS
 When PCP archives logs are created there may be temporal gaps associated
 with discontinuities in the time series of logged data, for example when

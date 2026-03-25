@@ -1,0 +1,178 @@
+#!/bin/sh
+# PCP QA Test No. 1656
+# Control options for derived metrics
+# - $PCP_DERIVED_CONTROL
+# - #control in config file
+# - pm{Set,Get}DerivedControl() in libpcp
+#
+# non-valgrind variant, see qa/1657 for the valgrind variant
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+elif which valgrind >/dev/null 2>&1
+then
+    [ "$PCPQA_VALGRIND" = both ] || \
+        _notrun "valgrind variant qa/1657 will be run"
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_filter_err()
+{
+    tee -a $seq_full \
+    | sed \
+	-e '/^__dm/d' \
+    # end
+}
+
+do_pminfo()
+{
+    if $do_valgrind
+    then
+	_run_valgrind --save-output pminfo -df qa
+    else
+	pminfo -df qa 2>$tmp.err >$tmp.out
+    fi
+    _filter_err <$tmp.err | _filter
+    _filter <$tmp.out
+}
+
+cat <<'End-of-File' >$tmp.config
+#replace me with #control
+qa.foo = 4 * sample.long.ten + 2 * sample.long.one
+qa.bar = 4 * sample.long.ten + 2 * sample.long.one + nosuchmetric
+End-of-File
+
+PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
+
+# real QA test starts here
+echo '=== simplest working option_novalue example  ===' | tee -a $seq_full
+PCP_DERIVED_CONTROL=option_novalue=1 pminfo -r foo=bar -df foo
+
+echo | tee -a $seq_full
+echo '=== OPTION_NOVALUE derived control off (default)' | tee -a $seq_full
+do_pminfo
+
+echo | tee -a $seq_full
+echo '=== OPTION_NOVALUE derived control on (via $PCP_DERIVED_CONTROL)' | tee -a $seq_full
+PCP_DERIVED_CONTROL='OPTION_NOVALUE=1' do_pminfo
+
+echo | tee -a $seq_full
+echo '=== $PCP_DERIVED_CONTROL error cases ===' | tee -a $seq_full
+for opts in badoption=1 option_novalue option_novalue= option_novalue=bar \
+    option_novalue=1bar option_novalue=1,badoption=1 \
+    option_novalue=1,context_limit option_novalue=1,context_limit= \
+    option_novalue=1,context_limit=bar option_novalue=1,context_limit=1bar \
+# end
+do
+    echo "--- $opts ---" | tee -a $seq_full
+    PCP_DERIVED_CONTROL="$opts" do_pminfo
+done
+
+unset PCP_DERIVED_CONTROL
+
+# be a bit more chatty ...
+#
+PCP_DEBUG=derive; export PCP_DEBUG
+
+echo | tee -a $seq_full
+echo 'OPTION_NOVALUE derived control on (via #control)' | tee -a $seq_full
+sed -i -e "1s/.*/#control option_novalue=1/" $tmp.config
+do_pminfo
+
+echo | tee -a $seq_full
+echo '=== #control error cases ===' | tee -a $seq_full
+for opts in badoption=1 option_novalue option_novalue= option_novalue=bar \
+    option_novalue=1bar option_novalue=1,badoption=1 \
+    option_novalue=1,context_limit option_novalue=1,context_limit= \
+    option_novalue=1,context_limit=bar option_novalue=1,context_limit=1bar \
+# end
+do
+    echo "--- $opts ---" | tee -a $seq_full
+    sed -i -e "1s/.*/#control $opts/" $tmp.config
+    do_pminfo
+done
+
+echo | tee -a $seq_full
+echo '=== some value out of range cases ===' | tee -a $seq_full
+for opts in GLOBAL_LIMIT=-2 CONTEXT_LIMIT=0 Debug_Syntax=3 \
+# end
+do
+    echo "--- $opts ---" | tee -a $seq_full
+    sed -i -e "1s/.*/#control $opts/" $tmp.config
+    do_pminfo
+done
+
+unset PCP_DEBUG
+
+echo | tee -a $seq_full
+echo '=== precedence cases ===' | tee -a $seq_full
+cat <<End-of-File >$tmp.config
+#control option_novalue=1
+foo = bar
+End-of-File
+echo "--- all are ok ---" | tee -a $seq_full
+if $do_valgrind
+then
+    _run_valgrind src/derived_control -e PCP_DERIVED_CONTROL=option_novalue=1 -c -s option_novalue=1 -l $tmp.config foo
+else
+    src/derived_control -e PCP_DERIVED_CONTROL=option_novalue=1 -c -s option_novalue=1 -l $tmp.config foo
+fi \
+| _filter
+echo "--- env trumps #control ---" | tee -a $seq_full
+if $do_valgrind
+then
+    _run_valgrind src/derived_control -Dderive -e PCP_DERIVED_CONTROL=option_novalue=0 -c -l $tmp.config foo 2>&1
+else
+    src/derived_control -Dderive -e PCP_DERIVED_CONTROL=option_novalue=0 -c -l $tmp.config foo 2>&1
+fi \
+| _filter
+cat <<End-of-File >$tmp.config
+foo = bar
+End-of-File
+echo "--- env trumps pmSetDerivedControl() ---" | tee -a $seq_full
+if $do_valgrind
+then
+    _run_valgrind src/derived_control -Dderive -e PCP_DERIVED_CONTROL=option_novalue=0 -s option_novalue=1 -l $tmp.config -c foo 2>&1
+else
+    src/derived_control -Dderive -e PCP_DERIVED_CONTROL=option_novalue=0 -s option_novalue=1 -l $tmp.config -c foo 2>&1
+fi \
+| _filter
+
+# success, all done
+exit
