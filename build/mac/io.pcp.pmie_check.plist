@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+    <dict>
+        <key>Label</key>
+        <string>io.pcp.pmie_check</string>
+        <key>ProgramArguments</key>
+        <array>
+            <string>/usr/local/libexec/pcp/bin/pmie_check</string>
+        </array>
+        <key>Disabled</key>
+        <false/>
+        <key>UserName</key>
+        <string>pcp</string>
+        <key>GroupName</key>
+        <string>pcp</string>
+        <key>StartCalendarInterval</key>
+        <array>
+            <dict>
+                <key>Minute</key>
+                <integer>28</integer>
+            </dict>
+            <dict>
+                <key>Minute</key>
+                <integer>58</integer>
+            </dict>
+        </array>
+        <key>StandardErrorPath</key>
+        <string>/var/log/pcp/pmie/pmie_check.stderr</string>
+        <key>StandardOutPath</key>
+        <string>/var/log/pcp/pmie/pmie_check.stdout</string>
+        <key>WorkingDirectory</key>
+        <string>/private/var/lib/pcp</string>
+    </dict>
+</plist>

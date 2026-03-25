@@ -73,6 +73,14 @@ fi
 
 echo "Stopping PCP services..."
 
+# Unload periodic maintenance tasks
+for service in io.pcp.pmlogger_check io.pcp.pmlogger_daily io.pcp.pmlogger_farm_check \
+               io.pcp.pmie_check io.pcp.pmie_daily io.pcp.pmie_farm_check
+do
+    launchctl bootout system "/Library/LaunchDaemons/${service}.plist" 2>/dev/null || \
+    launchctl unload "/Library/LaunchDaemons/${service}.plist" 2>/dev/null || true
+done
+
 # Unload and remove launchd services
 for service in io.pcp.pmcd io.pcp.pmie io.pcp.pmlogger io.pcp.pmproxy
 do
@@ -101,7 +109,9 @@ then
     fi
 
     echo "Removing LaunchDaemons plists..."
-    for plist in io.pcp.pmcd io.pcp.pmie io.pcp.pmlogger io.pcp.pmproxy
+    for plist in io.pcp.pmcd io.pcp.pmie io.pcp.pmie_check io.pcp.pmie_daily \
+                 io.pcp.pmie_farm_check io.pcp.pmlogger io.pcp.pmlogger_check \
+                 io.pcp.pmlogger_daily io.pcp.pmlogger_farm_check io.pcp.pmproxy
     do
         if [ -f "/Library/LaunchDaemons/${plist}.plist" ]; then
             rm -f "/Library/LaunchDaemons/${plist}.plist"

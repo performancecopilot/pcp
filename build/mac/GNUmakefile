@@ -80,7 +80,13 @@ idb: $(DIST_MANIFEST)
 	  echo "f 755 root wheel $$bdir/uninstall-pcp uninstall-pcp replace") >> idb
 	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmcd.plist io.pcp.pmcd.plist replace" >> idb
 	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmie.plist io.pcp.pmie.plist replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmie_check.plist io.pcp.pmie_check.plist replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmie_daily.plist io.pcp.pmie_daily.plist replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmie_farm_check.plist io.pcp.pmie_farm_check.plist replace" >> idb
 	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmlogger.plist io.pcp.pmlogger.plist replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmlogger_check.plist io.pcp.pmlogger_check.plist replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmlogger_daily.plist io.pcp.pmlogger_daily.plist replace" >> idb
+	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmlogger_farm_check.plist io.pcp.pmlogger_farm_check.plist replace" >> idb
 	@echo "f 644 root wheel Library/LaunchDaemons/io.pcp.pmproxy.plist io.pcp.pmproxy.plist replace" >> idb
 	@echo idb created
 
@@ -88,7 +94,13 @@ extrabits: idb
 	DIST_MANIFEST= $(INSTALL) -m 755 idb install-pcp uninstall-pcp $(PCP_BINADM_DIR)
 	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmcd.plist Library/LaunchDaemons/io.pcp.pmcd.plist
 	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmie.plist Library/LaunchDaemons/io.pcp.pmie.plist
+	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmie_check.plist Library/LaunchDaemons/io.pcp.pmie_check.plist
+	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmie_daily.plist Library/LaunchDaemons/io.pcp.pmie_daily.plist
+	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmie_farm_check.plist Library/LaunchDaemons/io.pcp.pmie_farm_check.plist
 	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmlogger.plist Library/LaunchDaemons/io.pcp.pmlogger.plist
+	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmlogger_check.plist Library/LaunchDaemons/io.pcp.pmlogger_check.plist
+	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmlogger_daily.plist Library/LaunchDaemons/io.pcp.pmlogger_daily.plist
+	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmlogger_farm_check.plist Library/LaunchDaemons/io.pcp.pmlogger_farm_check.plist
 	DIST_MANIFEST= $(INSTALL) -m 644 io.pcp.pmproxy.plist Library/LaunchDaemons/io.pcp.pmproxy.plist
 
 

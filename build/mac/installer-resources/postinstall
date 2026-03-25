@@ -21,13 +21,11 @@ trap "exit \$status" 0 1 2 15
 
 echo "$prog: PCP for macOS Install"
 
-echo "$prog: Writing install log to /var/log/pcp_inst.log"
-echo "$prog: Writing install log to /var/log/pcp_inst.log"  > /var/log/pcp_inst.log
+echo "$prog: Writing install log to /var/log/pcp_inst.log" | tee /var/log/pcp_inst.log
 
 if [ ! -d $2 ]
 then
-    echo "$prog: Unable to open directory of new files ($2)"
-    echo "$prog: Unable to open directory of new files ($2)" >> /var/log/pcp_inst.log
+    echo "$prog: Unable to open directory of new files ($2)" | tee -a /var/log/pcp_inst.log
     exit
 fi
 
@@ -35,8 +33,7 @@ if ./install-pcp -i -l /var/log/pcp_inst.log idb
 then
     :
 else
-    echo "$prog: Install Failed"
-    echo "$prog: Install Failed" >> /var/log/pcp_inst.log
+    echo "$prog: Install Failed" | tee -a /var/log/pcp_inst.log
     exit
 fi
 
@@ -130,30 +127,40 @@ if [ -f /etc/pcp.conf ]; then
 fi
 
 # Ensure pmproxy is loaded...
-echo "$prog: Starting pmproxy service"
-echo "$prog: Starting pmproxy service" >> /var/log/pcp_inst.log
+echo "$prog: Starting pmproxy service" | tee -a /var/log/pcp_inst.log
 launchctl bootstrap system /Library/LaunchDaemons/io.pcp.pmproxy.plist
 # ...and then started by launchctl
 launchctl kickstart -p -k system/io.pcp.pmproxy
 
+# Load periodic maintenance tasks (launchd scheduled jobs)
+# These are the macOS equivalent of systemd timers / cron on Linux.
+# They handle health checks and log rotation for pmlogger and pmie.
+echo "$prog: Loading periodic maintenance tasks" | tee -a /var/log/pcp_inst.log
+for plist in \
+    io.pcp.pmlogger_check \
+    io.pcp.pmlogger_daily \
+    io.pcp.pmlogger_farm_check \
+    io.pcp.pmie_check \
+    io.pcp.pmie_daily \
+    io.pcp.pmie_farm_check
+do
+    launchctl bootstrap system /Library/LaunchDaemons/${plist}.plist
+    echo "$prog: Loaded ${plist}" >> /var/log/pcp_inst.log
+done
+
 # Debug: Check for pmproxy log files for troubleshooting
-echo "$prog: Checking for pmproxy logs"
-echo "$prog: Checking for pmproxy logs" >> /var/log/pcp_inst.log
+echo "$prog: Checking for pmproxy logs" | tee -a /var/log/pcp_inst.log
 if [ -d /var/log/pcp/pmproxy ]; then
-    echo "$prog: pmproxy log directory exists"
-    echo "$prog: pmproxy log directory exists" >> /var/log/pcp_inst.log
+    echo "$prog: pmproxy log directory exists" | tee -a /var/log/pcp_inst.log
     for logfile in /var/log/pcp/pmproxy/*.log; do
         if [ -f "$logfile" ]; then
-            echo "$prog: Found log file: $logfile"
-            echo "$prog: Found log file: $logfile" >> /var/log/pcp_inst.log
-            echo "$prog: Contents of $logfile:"
-            echo "$prog: Contents of $logfile:" >> /var/log/pcp_inst.log
+            echo "$prog: Found log file: $logfile" | tee -a /var/log/pcp_inst.log
+            echo "$prog: Contents of $logfile:" | tee -a /var/log/pcp_inst.log
             cat "$logfile" | tee -a /var/log/pcp_inst.log
         fi
     done
 else
-    echo "$prog: pmproxy log directory does not exist yet"
-    echo "$prog: pmproxy log directory does not exist yet" >> /var/log/pcp_inst.log
+    echo "$prog: pmproxy log directory does not exist yet" | tee -a /var/log/pcp_inst.log
 fi
 
 status=0
