@@ -921,7 +921,7 @@ class PMReporter(object):
         self.writer.write("Time")
         prefix_entries = []
         unit_entries = []
-        blank_field = self.sanitize_CSV_header_field("")
+        blank_field = self.sanitize_csv_header_field("")
         if self.unitinfo:
             if self.extcsv:
                 prefix_entries.extend([blank_field, blank_field])
@@ -943,17 +943,17 @@ class PMReporter(object):
                 else:
                     if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
                         name += "-" + n[1]
-                name_field = self.sanitize_CSV_header_field(name)
+                name_field = self.sanitize_csv_header_field(name)
                 self.writer.write(self.delimiter + "\"" + name_field + "\"")
                 if self.unitinfo:
-                    unit_entries.append(self.sanitize_CSV_header_field(unit_txt))
+                    unit_entries.append(self.sanitize_csv_header_field(unit_txt))
                 if self.include_labels:
                     ins = j if not self.dynamic_header else n[0]
                     labels = self.pmconfig.get_labels_str(metric, ins, self.dynamic_header, True)
                     if self.delimiter:
                         repl = ";" if self.delimiter == "," else ","
                         labels = labels.replace(self.delimiter, repl)
-                    label_field = self.sanitize_CSV_header_field(labels)
+                    label_field = self.sanitize_csv_header_field(labels)
                     self.writer.write(self.delimiter + "\"" + label_field + "\"")
                     if self.unitinfo:
                         unit_entries.append(blank_field)
@@ -1206,7 +1206,7 @@ class PMReporter(object):
                 value = value.replace(self.delimiter, " ")
         return value
 
-    def sanitize_CSV_header_field(self, value):
+    def sanitize_csv_header_field(self, value):
         """Sanitize header strings for CSV output."""
         if value in (None, NO_VAL):
             return ""
