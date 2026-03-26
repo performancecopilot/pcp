@@ -699,8 +699,10 @@ and
 \fB\-k\fR, \fB\-\-extended\-csv\fR
 Write extended CSV output, similar to
 .BR sadf (1).
-When unit information is enabled, the extended CSV header includes a
-second row containing unit strings (see
+When unit information is enabled, the extended CSV header appends unit
+strings to metric names using the form
+.RI metric "(unit)"
+(see
 .BR \-U ).
 .TP
 \fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
@@ -816,10 +818,12 @@ Requires
 .TP
 .I csv
 Print metrics in CSV format (subject to formatting options).
-When unit information is enabled (the default), a second header row
-listing unit strings is emitted after the column names; use
+When unit information is enabled (the default), unit strings appear
+inline with metric names (e.g.
+.IR metric "(unit)");
+use
 .BR \-U
-to omit the units row.
+to omit the unit suffix.
 .TP
 .I stdout
 Print metrics to stdout (format subject to formatting options).
@@ -988,7 +992,7 @@ to disable).
 .RE
 .TP
 \fB\-U\fR, \fB\-\-no\-unit\-info\fR
-Omit unit information from headers.
+Omit unit information from headers (metric names remain without unit suffixes).
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
 Report only set-valued metrics with instances (e.g. disk.dev.read) and

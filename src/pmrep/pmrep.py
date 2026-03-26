@@ -919,13 +919,6 @@ class PMReporter(object):
         if self.extcsv:
             self.writer.write("Host,Interval,")
         self.writer.write("Time")
-        prefix_entries = []
-        unit_entries = []
-        blank_field = self.sanitize_csv_header_field("")
-        if self.unitinfo:
-            if self.extcsv:
-                prefix_entries.extend([blank_field, blank_field])
-            prefix_entries.append(blank_field)
         for i, metric in enumerate(self.metrics):
             for j, n in self.get_results_iter(i, metric, results):
                 name = metric
@@ -943,10 +936,10 @@ class PMReporter(object):
                 else:
                     if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
                         name += "-" + n[1]
+                if self.unitinfo and unit_txt:
+                    name += "(" + unit_txt + ")"
                 name_field = self.sanitize_csv_header_field(name)
                 self.writer.write(self.delimiter + "\"" + name_field + "\"")
-                if self.unitinfo:
-                    unit_entries.append(self.sanitize_csv_header_field(unit_txt))
                 if self.include_labels:
                     ins = j if not self.dynamic_header else n[0]
                     labels = self.pmconfig.get_labels_str(metric, ins, self.dynamic_header, True)
@@ -955,20 +948,7 @@ class PMReporter(object):
                         labels = labels.replace(self.delimiter, repl)
                     label_field = self.sanitize_csv_header_field(labels)
                     self.writer.write(self.delimiter + "\"" + label_field + "\"")
-                    if self.unitinfo:
-                        unit_entries.append(blank_field)
         self.writer.write("\n")
-        if self.unitinfo:
-            entries = prefix_entries + unit_entries
-            if entries:
-                first = entries[0]
-                if first:
-                    self.writer.write("\"" + first + "\"")
-                else:
-                    self.writer.write("")
-                for entry in entries[1:]:
-                    self.writer.write(self.delimiter + "\"" + entry + "\"")
-            self.writer.write("\n")
 
     def write_header_stdout(self, repeat=False, results=()):
         """ Write info header for stdout output """
