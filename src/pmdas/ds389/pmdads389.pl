@@ -56,7 +56,8 @@ our %dataclusters = (
         '0' => ['0','cn=monitor','cn.',$dfscope,$dffilter,$dattrs],
         '1' => ['0','cn=monitor,cn=userRoot,cn=ldbm database,cn=plugins,cn=config','userroot.',$dfscope,$dffilter,$dattrs],
         '2' => ['0','cn=monitor,cn=changelog,cn=ldbm database,cn=plugins,cn=config','changelog_mon.',$dfscope,$dffilter,$dattrs],
-        '3' => ['0','cn=snmp,cn=monitor','snmp_mon.',$dfscope,$dffilter,$dattrs]
+        '3' => ['0','cn=snmp,cn=monitor','snmp_mon.',$dfscope,$dffilter,$dattrs],
+        '4' => ['0','cn=monitor,cn=ldbm database,cn=plugins,cn=config','ldbm_mon.',$dfscope,$dffilter,$dattrs]
 );
 our @def_met = (
         [0,0,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'threads'],
@@ -88,13 +89,6 @@ our @def_met = (
         [1,12,$mpm_type,$mpm_indom,PM_SEM_DISCRETE,'1,0,0,'.PM_SPACE_BYTE.',0,0','maxdncachesize'],
         [1,13,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'currentdncachecount'],
         [1,14,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'maxdncachecount'],
-        [1,15,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'normalizeddncachehits'],
-        [1,16,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'normalizeddncachetries'],
-        [1,17,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'normalizeddncachehitratio'],
-        [1,18,PM_TYPE_32,$mpm_indom,$mpm_sem,'1,0,0,'.PM_SPACE_BYTE.',0,0','currentnormalizeddncachesize'],
-        [1,19,PM_TYPE_32,$mpm_indom,$mpm_sem,'1,0,0,'.PM_SPACE_BYTE.',0,0','maxnormalizeddncachesize'],
-        [1,20,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'currentnormalizeddncachecount'],
-        [1,21,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'normalizeddncachemisses'],
         [2,0,$mpm_type,$mpm_indom,$mpm_sem,'0,0,0,0,0,0','readonly'],
         [2,1,PM_TYPE_U64,$mpm_indom,PM_SEM_COUNTER,$mpmda_units,'entrycachehits'],
         [2,2,PM_TYPE_U64,$mpm_indom,PM_SEM_COUNTER,$mpmda_units,'entrycachetries'],
@@ -140,7 +134,14 @@ our @def_met = (
         [3,27,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'masterentries'],
         [3,28,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'cacheentries'],
         [3,29,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'cachehits'],
-        [3,30,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'slavehits']
+        [3,30,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'slavehits'],
+        [4,0,$mpm_type,$mpm_indom,$mpm_sem,$mpmda_units,'normalizeddncachehits'],
+        [4,1,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'normalizeddncachetries'],
+        [4,2,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'normalizeddncachehitratio'],
+        [4,3,PM_TYPE_32,$mpm_indom,$mpm_sem,'1,0,0,'.PM_SPACE_BYTE.',0,0','currentnormalizeddncachesize'],
+        [4,4,PM_TYPE_32,$mpm_indom,$mpm_sem,'1,0,0,'.PM_SPACE_BYTE.',0,0','maxnormalizeddncachesize'],
+        [4,5,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'currentnormalizeddncachecount'],
+        [4,6,PM_TYPE_32,$mpm_indom,$mpm_sem,$mpmda_units,'normalizeddncachemisses']
 );
 
 our @def_replagr_met = (
@@ -240,6 +241,41 @@ sub ds389_time_to_epoch {
                 substr($time,0,4) - 1900);
 }
 
+sub ds389_metric_key_attr {
+  my ($prefix, $attr) = @_;
+  my $al = lc($attr);
+
+  if ($prefix =~ /^(?:cn|userroot|changelog_mon|snmp_mon|ldbm_mon|[a-z0-9_]+_mon)\.$/) {
+    return $al;
+  }
+
+  # Replication agreement attributes are mixed-case in PMNS; map case-insensitively.
+  my %replica_attr_map = (
+    'nsds5replicareapactive' => 'nsds5replicareapactive',
+    'nsruvreplicalastmodified' => 'nsruvReplicaLastModified',
+    'nsds5replicalastupdatestart' => 'nsds5replicaLastUpdateStart',
+    'nsds5replicalastupdateend' => 'nsds5replicaLastUpdateEnd',
+    'nsds5replicachangessentsincestartup' => 'nsds5replicaChangesSentSinceStartup',
+    'replicalastupdatestatus' => 'replicaLastUpdateStatus',
+    'nsds5replicalastinitstart' => 'nsds5replicaLastInitStart',
+    'nsds5replicalastinitend' => 'nsds5replicaLastInitEnd',
+    'nsds5replicalastupdatetime' => 'nsds5replicaLastUpdateTime',
+    'replicachangesskippedsincestartup' => 'replicaChangesSkippedSinceStartup',
+    'replicachangessentsincestartup' => 'replicaChangesSentSinceStartup',
+    'nsds5replicachangecount' => 'nsds5ReplicaChangeCount',
+  );
+  if (exists $replica_attr_map{$al}) {
+    return $replica_attr_map{$al};
+  }
+
+  if ($al eq 'nsds5replicaupdateinprogress') {
+    # Keep historical PMNS typo for compatibility.
+    return 'nsds5replicaUpdateInProgeress';
+  }
+
+  return $attr;
+}
+
 sub ds389_process_entry {
   my ($entry, $prefix, $cluster) = @_;
   my $currtime;
@@ -248,19 +284,20 @@ sub ds389_process_entry {
   if ($entry && $entry->can('attributes')) {
     foreach my $attr ($entry->attributes) {
       my $value = $entry->get_value($attr);
+      my $al = lc($attr);
 
-      if ($attr eq 'currenttime') {
+      if ($al eq 'currenttime') {
         $currtime = ds389_time_to_epoch($value);
         next;
       }
 
-      if ($attr eq 'starttime') {
+      if ($al eq 'starttime') {
         my $starttime = ds389_time_to_epoch($value);
         $value = $currtime - $starttime;
         $attr = 'uptime';
       }
 
-      if ($attr eq 'nsds5replicaLastUpdateStatus') {
+      if ($al eq 'nsds5replicalastupdatestatus') {
         if ($value =~ /No replication sessions started since server startup/i) {
           $value = 30
         } elsif ($value =~ /agreement disabled/i) {
@@ -273,31 +310,32 @@ sub ds389_process_entry {
         $attr = 'replicaLastUpdateStatus';
       }
 
-      if ($attr eq 'nsds5replicaChangesSentSinceStartup' ) {
-#       my $rep_id = (split /:/, $value)[0];
-        my ($sent, $skipped) = (split /\//, (split /:/, $value)[1]);
-#       $attr = 'replica'.$rep_id.'ChangesSentSinceStartup';
-        $attr = 'replicaChangesSentSinceStartup';
-        $metrics{"$aname." . $prefix . $attr} = $sent;
-        $value = $skipped;
-#       $attr = 'replica'.$rep_id.'ChangesSkippedSinceStartup';
-        $attr = 'replicaChangesSkippedSinceStartup';
+      if ($al eq 'nsds5replicachangessentsincestartup' ) {
+        # Format is "rid:sent/skipped rid:sent/skipped ...", aggregate all RIDs.
+        my ($sent, $skipped) = (0, 0);
+        while ($value =~ /(\d+):(\d+)\/(\d+)/g) {
+          $sent += $2;
+          $skipped += $3;
+        }
+        $metrics{"$aname." . $prefix . 'replicaChangesSentSinceStartup'} = $sent;
+        $metrics{"$aname." . $prefix . 'replicaChangesSkippedSinceStartup'} = $skipped;
       }
 
-      if ($attr eq 'nsds5replicaUpdateInProgress' ) {
+      if ($al eq 'nsds5replicaupdateinprogress' ) {
         if ($value =~ /^(true|TRUE)$/) {
           $value = 1;
         } else {
           $value = 0;
         }
+        $attr = 'nsds5replicaUpdateInProgeress';
       }
 
       if ($attr =~ /^(nsds5replicaLastInitEnd|nsds5replicaLastUpdateStart|nsds5replicaLastInitStart)$/i ) {
         $value = ds389_time_to_epoch($value);
-        if ($attr eq 'nsds5replicaLastUpdateStart') {
+        if (lc($attr) eq 'nsds5replicalastupdatestart') {
           $startrepltime = $value;
         }
-        $metrics{"$aname." . $prefix . $attr} = $value;
+        $metrics{"$aname." . $prefix . ds389_metric_key_attr($prefix, $attr)} = $value;
       }
 
       if ($endrepltime ne '' && $startrepltime ne '' ) {
@@ -316,7 +354,15 @@ sub ds389_process_entry {
         $value = (split / /, $maxcsn)[0];
       }
 
-      $metrics{"$aname." . $prefix . $attr} = $value;
+      # Newer 389-ds publishes SupplierEntries/ConsumerHits in cn=snmp,cn=monitor.
+      # Keep PCP metric names masterentries/slavehits for compatibility.
+      if ($prefix eq 'snmp_mon.' && $al eq 'supplierentries') {
+        $attr = 'masterentries';
+      } elsif ($prefix eq 'snmp_mon.' && $al eq 'consumerhits') {
+        $attr = 'slavehits';
+      }
+
+      $metrics{"$aname." . $prefix . ds389_metric_key_attr($prefix, $attr)} = $value;
     }
   }
 }
@@ -346,7 +392,7 @@ sub ds389_fetch {
   my ($cluster) = @_;
   my $mesg;
 
-  \&retrieve_ldap($cluster,$dataclusters{$cluster}[0],$dataclusters{$cluster}[1],$dataclusters{$cluster}[2],$dataclusters{$cluster}[3],$dataclusters{$cluster}[4], $dataclusters{$cluster}[5]);
+  retrieve_ldap($cluster,$dataclusters{$cluster}[0],$dataclusters{$cluster}[1],$dataclusters{$cluster}[2],$dataclusters{$cluster}[3],$dataclusters{$cluster}[4], $dataclusters{$cluster}[5]);
 }
 
 sub ds389_fetch_callback {
