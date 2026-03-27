@@ -44,7 +44,7 @@ SUBDIRS = \
 # Otherwise zeroconf will be installed for all platforms as
 # the default, which is not what we want (it's opt-in).
 #
-ifeq "$(TARGET_OS)" "linux"
+ifneq (, $(filter linux darwin, $(TARGET_OS)))
 SUBDIRS += zeroconf
 PMCHECK=zeroconf.pmcheck
 else

@@ -204,10 +204,13 @@ optional" or "QA optional".
 The pcp package uses autoconf/configure and expects a GNU build
 environment (your platform must at least have gmake).
 
-#### macOS-specific pre-requisites 
+#### macOS-specific pre-requisites
 ```
-# use Homebrew and ensure the following packages are installed 
-brew install gnu-tar pkg-config python3 python-setuptools autoconf valkey libuv
+# Install Homebrew packages (canonical list in build/mac/brew-packages.txt)
+brew install $(grep -v '^#' build/mac/brew-packages.txt | grep -v '^$' | tr '\n' ' ')
+
+# Set up Python build dependencies (uses uv, installed above)
+./build/mac/setup-python-env.sh
 ```
 
 To build from source using isolated VMs, see [MACOS_DEVELOPMENT.md](build/mac/MACOS_DEVELOPMENT.md).

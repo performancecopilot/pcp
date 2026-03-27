@@ -19,6 +19,13 @@ Install Tart and Cirrus CLI:
 brew install cirruslabs/cli/tart cirruslabs/cli/cirrus
 ```
 
+### Python Build Dependencies
+
+```bash
+brew install uv
+./build/mac/setup-python-env.sh
+```
+
 ## Basic Usage
 
 Build PCP in a fresh VM:
