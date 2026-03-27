@@ -243,13 +243,21 @@ class TotalInterruptUsage:
         cpu_dict = self.__metric_repository.current_values('hinv.map.cpu_num')
         return sorted(cpu_dict.values())
 
+class InterruptComputationContext:
+    """Small carrier for interrupt computation inputs."""
+
+    def __init__(self, delta_time, metric_repository):
+        self.delta_time = delta_time
+        self.metric_repository = metric_repository
+
+
 class InterruptUsage:
-    def __init__(self, delta_time, metric_repository, metric, instance, label=None):
+    def __init__(self, context, metric, instance, label=None):
         self.__name = metric.split('.')[-1]
         self.instance = instance
         self.metric = metric
-        self.delta_time = delta_time
-        self.__metric_repository = metric_repository
+        self.delta_time = context.delta_time
+        self.__metric_repository = context.metric_repository
         self.__label = label
 
     def name(self):
@@ -319,6 +327,7 @@ class HardInterruptUsage:
         self.delta_time = delta_time
         self.metric_repository = metric_repository
         self.interrupt_metrics = interrupt_metrics
+        self._context = InterruptComputationContext(delta_time, metric_repository)
         self._mapper = InterruptInstanceMapper(metric_repository)
 
     def get_percpu_interrupts(self):
@@ -335,8 +344,8 @@ class HardInterruptUsage:
         for cpu in sorted(instances.keys()):
             name_to_inst = instances[cpu]
             ordered_names = self._order_hard_irq_names(name_to_inst)
-            interrupts = [InterruptUsage(self.delta_time, self.metric_repository,
-                                         self.METRIC_NAME, name_to_inst[name], label=name)
+            interrupts = [InterruptUsage(self._context, self.METRIC_NAME,
+                                         name_to_inst[name], label=name)
                           for name in ordered_names]
             interrupts_by_cpu.append(CpuInterrupts(self.metric_repository, cpu, interrupts))
         return interrupts_by_cpu
@@ -351,7 +360,7 @@ class HardInterruptUsage:
         return sorted(cpu_dict.values())
 
     def _named_interrupts_for_cpu(self, cpuid):
-        return [InterruptUsage(self.delta_time, self.metric_repository, metric, cpuid)
+        return [InterruptUsage(self._context, metric, cpuid)
                 for metric in self.interrupt_metrics]
 
     def _has_named_metrics(self):
@@ -368,6 +377,7 @@ class SoftInterruptUsage:
         self.metric_repository = metric_repository
         # interrupt_metrics kept for backwards compatibility with older call sites/tests
         self._unused_interrupt_metrics = interrupt_metrics
+        self._context = InterruptComputationContext(delta_time, metric_repository)
         self._mapper = InterruptInstanceMapper(metric_repository)
 
     def get_percpu_interrupts(self):
@@ -379,8 +389,8 @@ class SoftInterruptUsage:
         for cpu in sorted(instances.keys()):
             name_to_inst = instances[cpu]
             ordered_names = self._order_soft_irq_names(name_to_inst)
-            interrupts = [InterruptUsage(self.delta_time, self.metric_repository,
-                                         self.METRIC_NAME, name_to_inst[name], label=name)
+            interrupts = [InterruptUsage(self._context, self.METRIC_NAME,
+                                         name_to_inst[name], label=name)
                           for name in ordered_names]
             interrupts_by_cpu.append(CpuInterrupts(self.metric_repository, cpu, interrupts))
         return interrupts_by_cpu
@@ -464,14 +474,16 @@ class TotalInterruptUsageReporter:
                 self.printer("%-10s\t%-5s\t%-5s"%(timestamp, total_cpu_interrupt.cpu_number(), total_cpu_interrupt.value()))
 
 class InterruptUsageReporter:
-    def __init__(self, cpu_filter, printer, mpstat_options, metric_label, max_columns=20):
+    DEFAULT_MAX_COLUMNS = 20
+
+    def __init__(self, cpu_filter, printer, mpstat_options, metric_label):
         self.cpu_filter = cpu_filter
         self.printer = printer
         self.mpstat_options = mpstat_options
         self.print_header = True
         self.metric_label = metric_label
         # Optional cap on total columns (including Timestamp and CPU). Wraps beyond this count.
-        self.max_columns = max_columns
+        self.max_columns = self.DEFAULT_MAX_COLUMNS
         self._warned_no_metrics = False
 
     def print_report(self, interrupt_usage, timestamp):
