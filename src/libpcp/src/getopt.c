@@ -1426,7 +1426,7 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 		}
 	    }
 	    /* walk short options */
-	    for (short_p = (char *)optstring; p->short_opt; short_p++) {
+	    for (short_p = (char *)optstring; *short_p; short_p++) {
 		if (*short_p == ':')
 		    continue;
 		for (p = longopts; p->long_opt; p++) {

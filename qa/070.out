@@ -17,7 +17,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -43,6 +42,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -A
 template: option requires an argument -- A
@@ -61,7 +61,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -87,6 +86,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -c
 template: option requires an argument -- c
@@ -105,7 +105,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -131,6 +130,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -D
 template: option requires an argument -- D
@@ -149,7 +149,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -175,6 +174,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -h
 template: option requires an argument -- h
@@ -193,7 +193,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -219,6 +218,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -l
 template: option requires an argument -- l
@@ -237,7 +237,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -263,6 +262,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -n
 template: option requires an argument -- n
@@ -281,7 +281,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -307,50 +306,10 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -s
-template: option requires an argument -- s
-Usage: template [options] ...
-
-General options:
-  -A TIME, --align=TIME align sample times on natural boundaries
-  -a FILE, --archive=FILE
-                        metrics source is a PCP archive
-  -D DBG, --debug=DBG   set debug options, see pmdbg(1)
-  -g, --guimode         start in GUI mode with new time control
-  -h HOST, --host=HOST  metrics source is PMCD on host
-  -n FILE, --namespace=FILE
-                        use an alternative PMNS
-  -O TIME, --origin=TIME
-                        initial sample time within the time window
-  -p N, --guiport=N     port for connection to existing time control
-  -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
-  -T TIME, --finish=TIME
-                        end of the time window
-  -t DELTA, --interval=DELTA
-                        sampling interval
-  -V, --version         display version number and exit
-  -Z TZ, --timezone=TZ  set reporting timezone
-  -z, --hostzone        set reporting timezone to local time of metrics source
-  -?, --help            show this usage message and exit
-  -H FILE, --hostsfile=FILE
-                        read metric source hosts from a file
-  -K SPEC, --spec-local=SPEC
-                        optional additional PMDA spec for local connection
-  -L, --local-PMDA      metrics source is local connection to a PMDA
-  -N FILE, --uniqnames=FILE
-                        like -n but only one name allowed for each PMID
-  --container=NAME      specify an individual container to be queried
-
-template options:
-  -c CONFIGFILE, --config=CONFIGFILE
-                        some configuration file
-  -f, --flag            some flag
-  -i INST, --instance=INST
-                        some instance
-  -l LOGFILE, --log=LOGFILE
-                        log file
+Got -s
 
 Trying ... -S
 template: option requires an argument -- S
@@ -369,7 +328,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -395,6 +353,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -t
 template: option requires an argument -- t
@@ -413,7 +372,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -439,6 +397,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -T
 template: option requires an argument -- T
@@ -457,7 +416,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -483,6 +441,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -U
 template: invalid option -- U
@@ -501,7 +460,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -527,6 +485,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -Z
 template: option requires an argument -- Z
@@ -545,7 +504,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -571,6 +529,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -h REMOTEHOST -D -n
 template: unrecognized debug options specification (-n)
@@ -589,7 +548,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -615,6 +573,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -b
 template: invalid option -- b
@@ -633,7 +592,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -659,6 +617,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 Trying ... -a -h REMOTEHOST -D pdu
 template: Cannot open archive "-h": No such file or directory

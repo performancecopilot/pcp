@@ -18,7 +18,9 @@ static pmLongOptions longopts[] = {
     PMOPT_ORIGIN,	/* -O */
     PMOPT_GUIPORT,	/* -p */
     PMOPT_START,	/* -S */
-    PMOPT_SAMPLES,	/* -s */
+/*  PMOPT_SAMPLES,	skip standard -s N, this app is using this option
+ *  			for something else without an option argument
+ */
     PMOPT_FINISH,	/* -T */
     PMOPT_INTERVAL,	/* -t */
     PMOPT_VERSION,	/* -V */
@@ -35,6 +37,7 @@ static pmLongOptions longopts[] = {
     { "flag", 0, 'f', NULL, "some flag" },
     { "instance", 1, 'i', "INST", "some instance" },
     { "log", 1, 'l', "LOGFILE", "log file" },
+    { "stuff", 0, 's', NULL, "redefine -s" },
     PMAPI_OPTIONS_END
 };
 

@@ -14,7 +14,6 @@ General options:
                         initial sample time within the time window
   -p N, --guiport=N     port for connection to existing time control
   -S TIME, --start=TIME start of the time window
-  -s N, --samples=N     terminate after this many samples
   -T TIME, --finish=TIME
                         end of the time window
   -t DELTA, --interval=DELTA
@@ -40,6 +39,7 @@ template options:
                         some instance
   -l LOGFILE, --log=LOGFILE
                         log file
+  -s, --stuff           redefine -s
 
 === bad option -w ===
 template: invalid option -- 'w'
@@ -61,7 +61,8 @@ Usage: template [options] ...
 ... usage stuff deleted
 
 === -s 13 ===
-Got -s "13"
+Got -s
+extra argument[2]: 13
 
 === -a tmparch/foo -Dpmapi ===
 pmNewContext(2, tmparch/foo) <::> returns 0
