@@ -179,19 +179,21 @@ _shutdown()
 
 _usage()
 {
-    echo "Usage: $prog [-v] {start|start-systemd|faststart|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"
+    echo "Usage: $prog [-qv] {start|start-systemd|faststart|quietstart|restart|condrestart|stop|stop-systemd|quietstop|status|reload|force-reload}"
 }
 
-VERBOSE_CTL=off
-while getopts v c
+VERBOSE_CTL=on
+while getopts qv c
 do
     case $c
     in
-	v)  # force verbose
-	    VERBOSE_CTL=on
+	q)  # quiet
+	    VERBOSE_CTL=off
 	    ;;
-	
+	v)  # verbose ... (for historical reasons) this is the default
+	    ;;
 	*)
+	    echo "$prog: unexpected option: \"$c\" from args: $*"
 	    _usage
 	    exit 1
 	    ;;
@@ -199,7 +201,7 @@ do
 done
 shift `expr $OPTIND - 1`
 
-if [ "$VERBOSE_CTL" = on ]
+if [ "$VERBOSE_CTL" = on -a "$1" != quietstart -a "$1" != quietstop ]
 then				# For a verbose startup and shutdown
     ECHO=$PCP_ECHO_PROG
     VFLAG='-V'
@@ -226,8 +228,16 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  start|start-systemd|faststart|restart|condrestart|reload|force-reload)
-	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmlogger
+  start|start-systemd|faststart|quietstart|restart|condrestart|reload|force-reload)
+	# if this service is not "enabled", exit quietly
+	#
+	if ! is_chkconfig_on pmlogger
+	then
+	    status=0
+	    exit
+	fi
+
+	if [ "$1" = "condrestart" ]
 	then
 	    status=0
 	    exit
@@ -239,16 +249,6 @@ case "$1" in
 
 	if [ -x $PMLOGGER ]
 	then
-	    # issue a warning if there's no chkconfig/crontab support
-	    if is_chkconfig_on pmlogger
-	    then
-		:
-	    elif [ "$VERBOSE_CTL" = on ]
-	    then
-		echo "$prog: Warning: Performance Co-Pilot archive logger(s) not permanently enabled."
-		chkconfig_on_msg pmlogger
-	    fi
-
 	    _start_pmlogger $1
 	fi
 
@@ -259,7 +259,7 @@ case "$1" in
 	_shutdown verbose
 	status=0
         ;;
-  stop|stop-systemd)
+  stop|stop-systemd|quietstop)
 	_shutdown quietly
 	status=0
         ;;
@@ -287,6 +287,7 @@ case "$1" in
 	;;
 
   *)
+	echo "$prog: unexpected action: \"$1\" from args: $*"
 	_usage
         ;;
 esac

@@ -35,7 +35,7 @@
 #
 # For FreeBSD
 # PROVIDE: pmcd
-# REQUIRE: NETWORKING FILESYSTEMS syslogd
+# REQUIRE: NETWORKING FILESYSTEMS DAEMON syslogd
 # KEYWORD: shutdown
 # And add the following lines to /etc/rc.conf to run pmcd:
 # pmcd_enable="YES"
@@ -54,7 +54,7 @@ PMCDOPTS=$PCP_PMCDOPTIONS_PATH
 PCPLOCAL=$PCP_PMCDRCLOCAL_PATH
 PMCDENVS=$PCP_SYSCONFIG_DIR/pmcd
 LOGDIR=$PCP_LOG_DIR/pmcd
-prog=$PCP_RC_DIR/`basename $0`
+prog=$PCP_RC_DIR/pmcd
 
 tmp=`mktemp -d "$PCP_TMPFILE_DIR/pmcd_rc.XXXXXXXXX"` || exit 1
 status=1
@@ -505,19 +505,21 @@ Warning: process ID in $PCP_RUN_DIR/pmcd.pid ($runpid) is different.
 
 _usage()
 {
-    echo "Usage: $prog [-v] {start|start-launchd|start-systemd|faststart|restart|condrestart|stop|stop-launchd|stop-systemd|status|reload|force-reload}"
+    echo "Usage: $prog [-qv] {start|start-launchd|start-systemd|faststart|quietstart|restart|condrestart|stop|stop-launchd|stop-systemd|quietstop|status|reload|force-reload}"
 }
 
 VERBOSE_CTL=on
-while getopts v c
+while getopts qv c
 do
     case $c
     in
-	v)  # force verbose ... for historical reasons only as $VERBOSE_CTL
-	    # is always "on"
+	q)  # quiet
+	    VERBOSE_CTL=off
 	    ;;
-	
+	v)  # verbose ... (for historical reasons) this is the default
+	    ;;
 	*)
+	    echo "$prog: unexpected option: \"$c\" from args: $*"
 	    _usage
 	    exit 1
 	    ;;
@@ -525,7 +527,7 @@ do
 done
 shift `expr $OPTIND - 1`
 
-if [ $VERBOSE_CTL = on ]
+if [ "$VERBOSE_CTL" = on -a "$1" != quietstart -a "$1" != quietstop ]
 then				# For a verbose startup and shutdown
     ECHO=$PCP_ECHO_PROG
     REBUILDOPT=''
@@ -566,8 +568,16 @@ $RC_RESET
 # considered a success.
 case "$1" in
 
-  start|start-systemd|start-launchd|faststart|restart|condrestart|reload|force-reload)
-	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmcd
+  start|start-systemd|start-launchd|faststart|quietstart|restart|condrestart|reload|force-reload)
+	# if this service is not "enabled", exit quietly
+	#
+	if ! is_chkconfig_on pmcd
+	then
+	    status=0
+	    exit
+	fi
+
+	if [ "$1" = "condrestart" ]
 	then
 	    status=0
 	    exit
@@ -638,7 +648,7 @@ Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot s
 
 		$PCP_BINADM_DIR/pmpost "start pmcd from $prog"
 
-		# site-local customisations after PMCD startup
+		# site-local start customisations *after* PMCD start
 		[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG start
 
 		# auto install/remove any PMDAs ... this may trigger the
@@ -654,11 +664,11 @@ Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot s
 	status=0
         ;;
 
-  stop|stop-systemd|stop-launchd)
-	# site-local customisations before pmcd shutdown
+  stop|stop-systemd|stop-launchd|quietstop)
+	# site-local stop customisations *before* pmcd stop
 	#
 	[ -x $PCPLOCAL ] && $PCPLOCAL $VFLAG stop
-	if [ "$1" = stop-systemd -o "$1" = stop-launchd ]
+	if [ "$1" = stop-systemd -o "$1" = stop-launchd -o "$1" = quietstop ]
 	then
 	    _shutdown quietly
 	else
@@ -690,6 +700,7 @@ Error: pmcd log directory $PCP_LOG_DIR/pmcd ("'"$LOGDIR"'") is missing, cannot s
 	;;
 
   *)
+	echo "$prog: unexpected action: \"$1\" from args: $*"
 	_usage
         ;;
 esac

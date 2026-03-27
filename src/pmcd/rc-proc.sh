@@ -141,12 +141,18 @@ is_chkconfig_on()
     _cmds_exist $_flag
     $_have_runlevel && _rl=`runlevel | $PCP_AWK_PROG '{print $2}'`
 
-    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = freebsd -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
+    if [ "$PCP_PLATFORM" = mingw -o "$PCP_PLATFORM" = netbsd -o "$PCP_PLATFORM" = openbsd ]
     then
 	# unknown mechanism, just do it
 	$VERBOSE_CONFIG && echo "is_chkconfig_on: unconditionally on"
 	_ret=0
-    elif [ "$PCP_PLATFORM" = "darwin" ]
+    elif [ "$PCP_PLATFORM" = freebsd ]
+    then
+	if [ -f /etc/rc.conf ] && grep -q "^$1_enable=\"YES\"" /etc/rc.conf
+	then
+	    _ret=0
+	fi
+    elif [ "$PCP_PLATFORM" = darwin ]
     then
 	$VERBOSE_CONFIG && echo "is_chkconfig_on: using /etc/hostconfig"
 	case "$1"

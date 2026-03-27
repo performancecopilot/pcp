@@ -44,7 +44,7 @@ fi
 
 _usage()
 {
-    echo "Usage: $prog [-v] {start|start-systemd|restart|condrestart|stop|stop-systemd|status|reload|force-reload}"
+    echo "Usage: $prog [-qv] {start|start-systemd|quietstart|restart|condrestart|stop|stop-systemd|quietstop|status|reload|force-reload}"
 }
 
 # Note: _start_pmcheck() starts some or all pmies configured in the
@@ -146,15 +146,18 @@ _shutdown()
     $PCP_BINADM_DIR/pmpost "stop pmie from $prog"
 }
 
-VERBOSE_CTL=off
-while getopts v c
+VERBOSE_CTL=on
+while getopts qv c
 do
     case $c
     in
-	v)  # force verbose
-	    VERBOSE_CTL=on
+	q)  # quiet
+	    VERBOSE_CTL=off
+	    ;;
+	v)  # verbose ... (for historical reasons) this is the default
 	    ;;
 	*)
+	    echo "$prog: unexpected option: \"$c\" from args: $*"
 	    _usage
 	    exit 1
 	    ;;
@@ -162,7 +165,7 @@ do
 done
 shift `expr $OPTIND - 1`
 
-if [ $VERBOSE_CTL = on ]
+if [ "$VERBOSE_CTL" = on -a "$1" != quietstart -a "$1" != quietstop ]
 then                            # For a verbose startup and shutdown
     ECHO=$PCP_ECHO_PROG
     VFLAG='-V'
@@ -172,8 +175,16 @@ else                            # For a quiet startup and shutdown
 fi
 
 case "$1" in
-  start|start-systemd|faststart|restart|condrestart|reload|force-reload)
-	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmie
+  start|start-systemd|faststart|quietstart|restart|condrestart|reload|force-reload)
+	# if this service is not "enabled", exit quietly
+	#
+	if ! is_chkconfig_on pmie
+	then
+	    status=0
+	    exit
+	fi
+
+	if [ "$1" = "condrestart" ]
 	then
 	    status=0
 	    exit
@@ -187,15 +198,6 @@ case "$1" in
 
 	if which pmie >/dev/null 2>&1
 	then
-	    # issue a warning if there's no chkconfig/crontab support
-	    if is_chkconfig_on pmie
-	    then
-		:
-	    else
-		echo "$prog: Warning: Performance Co-Pilot Inference Engine (pmie) not permanently enabled."
-		chkconfig_on_msg pmie
-	    fi
-
 	    _start_pmie $1
 	fi
 	status=0
@@ -206,7 +208,7 @@ case "$1" in
 	status=0
         ;;
 
-  stop-systemd)
+  stop-systemd|quietstop)
 	_shutdown quietly
 	status=0
         ;;
@@ -233,6 +235,7 @@ case "$1" in
         fi
         ;;
   *)
+	echo "$prog: unexpected action: \"$1\" from args: $*"
 	_usage
         ;;
 esac
