@@ -58,10 +58,11 @@ sed <$tmp.dups >$tmp.awk \
 echo "{ print }" >>$tmp.awk
 # disambiguate
 awk -f $tmp.awk <$tmp.raw >$tmp.derived
+cat $tmp.derived >>$seq_full
 
 # real QA test starts here
 echo "Silence is golden ..."
-PCP_DERIVED_CONFIG=$tmp.derived pminfo -v `cat $tmp.basenames` 2>&1 \
+PCP_DERIVED_CONTROL=option_novalue=1 PCP_DERIVED_CONFIG=$tmp.derived pminfo -v `cat $tmp.basenames` 2>&1 \
 | grep -v 'No value(s) available'
 
 # success, all done
