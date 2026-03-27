@@ -199,7 +199,7 @@ probeForServices(const char *service,
     int			sts;
     pthread_t		*threads = NULL;
     unsigned		threadIx;
-    unsigned		nThreads;
+    unsigned		nThreads = 0;
     pthread_attr_t	threadAttr;
 #endif
 
@@ -358,6 +358,8 @@ parseOptions(const char *mechanism, connectionOptions *options)
     long		longVal;
     unsigned		subnetBits;
     unsigned		subnetSize;
+
+    options->netAddress = NULL;
 
     /* Nothing to probe? */
     if (mechanism == NULL)
@@ -545,8 +547,11 @@ __pmSubnetProbeDiscoverServices(const char *service,
 
     /* Interpret the mechanism string. */
     sts = parseOptions(mechanism, &options);
-    if (sts != 0)
+    if (sts != 0) {
+	if (options.netAddress != NULL)
+	    __pmSockAddrFree(options.netAddress);
 	return 0;
+    }
     options.globalOptions = globalOptions;
 
     /* Everything checks out. Now do the actual probing. */
