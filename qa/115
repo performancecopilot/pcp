@@ -27,7 +27,6 @@ _cleanup()
     if $needclean
     then
 	_restore_config $PCP_PMIECONTROL_PATH
-	_restore_config $PCP_PMCDCONF_PATH
     fi
     $sudo rm -rf $tmp.nogo $tmp.locker
     for file in $tmp.*
@@ -37,7 +36,6 @@ _cleanup()
 	cat $file >>$seq_full
     done
     _restore_auto_restart pmcd
-    [ "$pmie_state" = on ] && _change_config pmie on
     if $pmie_was_running
     then
 	# don't trigger systemctl "request repeated too quickly" snarfoo
@@ -176,12 +174,6 @@ then
     fi
 fi
 
-# create a basic pmcd config file
-cat >$tmp.pmcd.conf << EOF
-# Installed by PCP QA test $seq on `date`
-pmcd	2	dso	pmcd_init	pmda_pmcd.so
-EOF
-
 # create a pmie config file
 cat >$tmp.conf << EOF
 foo = sample.long.one;
@@ -211,41 +203,37 @@ then
     if ! _service pmie stop >>$seq_full 2>&1; then _exit 1; fi
     _wait_pmie_end || _exit 1
 fi
+$sudo rm -f $PCP_TMP_DIR/pmie/*
 
 # real QA test starts here
 _save_config $PCP_PMIECONTROL_PATH
-_save_config $PCP_PMCDCONF_PATH
 needclean=true
-$sudo cp $tmp.pmcd.conf $PCP_PMCDCONF_PATH
 
-$sudo $signal -a -s TERM pmie >/dev/null 2>&1
-_wait_pmie_end || _exit 1
-_change_config pmcd on || _exit 1
-_change_config pmie off || _exit 1
-$sudo rm -f $PCP_TMP_DIR/pmie/*
-
+_ps_full_by_name pmie >>$seq_full
 _count_pmies
-echo "pmie count at start of QA testing: $?" | tee -a $seq_full
+npmie=$?
+echo "pmie count at start of QA testing: $npmie" | tee -a $seq_full
 echo
 
 echo === check default install operation === | tee -a $seq_full
+_triage_wait_point "$npmie pmie's running, ready to restart"
 if ! _service pmie restart 2>&1; then _exit 1; fi | tee -a $seq_full | _filter_pmie_start
 _wait_for_pmie || _exit 1
 _count_pmies
+npmie=$?
 # chkconfig no longer controls start-ability, expect non-zero
-echo "pmie count after chkconfig pmie off: $?"
+echo "pmie count after chkconfig pmie off: $npmie"
 echo
 # don't trigger systemctl "request repeated too quickly" snarfoo
 #
 sleep 2
 
 echo === check for missing control file === | tee -a $seq_full
-_change_config pmie off || _exit 1
 $sudo rm -f $PCP_PMIECONTROL_PATH
-_change_config pmie on || _exit 1
 if ! _service pmie restart 2>&1; then _exit 1; fi | tee -a $seq_full | _filter_pmie_start | _filter
 _count_pmies
-echo "pmie count after attempt without control file: $?"
+npmie=$?
+echo "pmie count after attempt without control file: $npmie"
 echo
 # don't trigger systemctl "request repeated too quickly" snarfoo
 #
@@ -415,7 +403,6 @@ echo
 $sudo rm -rf $tmp.nogo
 
 $sudo $signal -a -s TERM pmie >/dev/null 2>&1
-_change_config pmie off || _exit 1
 
 status=0
 exit
