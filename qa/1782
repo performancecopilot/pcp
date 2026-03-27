@@ -1,0 +1,48 @@
+#!/bin/sh
+# PCP QA Test No. 1782
+# Exercise pcp-mpstat against the pcp-mpstat4 archive (with per-CPU
+# interrupt and softirq counters).
+#
+# Based on qa/887 style harness but using mpstat on a single archive.
+#
+# Copyright (c) 2026 Oracle.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+pcp_mpstat="$PCP_BINADM_DIR/pcp-mpstat"
+test -x $pcp_mpstat || _notrun "No pcp-mpstat(1) installed"
+pcp_mpstat="$python $pcp_mpstat"
+
+pcp_archive4="-z -a archives/pcp-mpstat4"
+test -f archives/pcp-mpstat4.0.xz || _notrun "archives/pcp-mpstat4.0.xz not present"
+
+status=1	# failure is the default!
+trap "cd $here; rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+LC_TIME=POSIX; export LC_TIME
+
+echo && echo "=== pcp-mpstat4 basic CPU report"
+pcp $pcp_archive4 mpstat
+
+echo && echo "=== pcp-mpstat4 total interrupt usage (SUM)"
+pcp $pcp_archive4 mpstat -I SUM
+
+echo && echo "=== pcp-mpstat4 soft interrupt usage (SCPU) all CPUs"
+pcp $pcp_archive4 mpstat -I SCPU -P ALL
+
+echo && echo "=== pcp-mpstat4 hard interrupt usage (CPU) subset CPUs"
+pcp $pcp_archive4 mpstat -I CPU -P 0,2
+
+echo && echo "=== pcp-mpstat4 all interrupt classes (ALL)"
+pcp $pcp_archive4 mpstat -I ALL
+
+status=0
+exit

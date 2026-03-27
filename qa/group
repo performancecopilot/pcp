@@ -2259,6 +2259,7 @@ suse
 1774 pmlogctl pmlogger logutil
 1775 pmdumptext archive local
 1781 pmda.hdb local python
+1782 pcp local
 1784 pmlogconf local
 1787 pmda.opentelemetry local python
 1788 pmda.linux local
