@@ -53,6 +53,7 @@ _filter_ncpu()
 # 192.0.2.22 -61 (Connection refused, *BSD)
 # and
 # 192.0.2.10 -146 (Connection refused, OpenIndiana)
+# 192.0.2.10 -145 (Connection timeout, OpenIndiana)
 # so treat 'em as equivalent here ...
 #
 _filter_connect_fail()
@@ -66,6 +67,7 @@ _filter_connect_fail()
 	-e '/^192\..*-51$/s/-51/NETERROR/' \
 	-e '/^192\..*-65$/s/-65/NETERROR/' \
 	-e '/^192\..*-61$/s/-61/NETERROR/' \
+	-e '/^192\..*-145$/s/-146/NETERROR/' \
 	-e '/^192\..*-146$/s/-146/NETERROR/' \
     # end
 }
