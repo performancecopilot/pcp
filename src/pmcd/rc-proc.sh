@@ -154,14 +154,20 @@ is_chkconfig_on()
 	fi
     elif [ "$PCP_PLATFORM" = darwin ]
     then
-	$VERBOSE_CONFIG && echo "is_chkconfig_on: using /etc/hostconfig"
-	case "$1"
-        in
-	pmcd)     [ "`. /etc/hostconfig; echo $PMCD`" = "-YES-" ] && _ret=0 ;;
-	pmlogger) [ "`. /etc/hostconfig; echo $PMLOGGER`" = "-YES-" ] && _ret=0 ;;
-	pmie)     [ "`. /etc/hostconfig; echo $PMIE`" = "-YES-" ] && _ret=0 ;;
-	pmproxy)  [ "`. /etc/hostconfig; echo $PMPROXY`" = "-YES-" ] && _ret=0 ;;
-	esac
+	if [ -f /etc/hostconfig ]
+	then
+	    $VERBOSE_CONFIG && echo "is_chkconfig_on: using /etc/hostconfig"
+	    case "$1"
+	    in
+	    pmcd)     [ "`. /etc/hostconfig; echo $PMCD`" = "-YES-" ] && _ret=0 ;;
+	    pmlogger) [ "`. /etc/hostconfig; echo $PMLOGGER`" = "-YES-" ] && _ret=0 ;;
+	    pmie)     [ "`. /etc/hostconfig; echo $PMIE`" = "-YES-" ] && _ret=0 ;;
+	    pmproxy)  [ "`. /etc/hostconfig; echo $PMPROXY`" = "-YES-" ] && _ret=0 ;;
+	    esac
+	else
+	    # TODO for modern MacOS ... pro tem, just do it
+	    _ret=0
+	fi
     elif [ "$_have_systemctl" = true -a -n "$PCP_SYSTEMDUNIT_DIR" -a -f "$PCP_SYSTEMDUNIT_DIR/$_flag.service" ]
     then
 	$VERBOSE_CONFIG && echo "is_chkconfig_on: using systemctl"
