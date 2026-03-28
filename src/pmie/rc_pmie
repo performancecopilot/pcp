@@ -146,7 +146,7 @@ _shutdown()
     $PCP_BINADM_DIR/pmpost "stop pmie from $prog"
 }
 
-VERBOSE_CTL=on
+VERBOSE_CTL=off
 while getopts qv c
 do
     case $c
@@ -154,7 +154,8 @@ do
 	q)  # quiet
 	    VERBOSE_CTL=off
 	    ;;
-	v)  # verbose ... (for historical reasons) this is the default
+	v)  # verbose
+	    VERBOSE_CTL=on
 	    ;;
 	*)
 	    echo "$prog: unexpected option: \"$c\" from args: $*"
@@ -176,15 +177,7 @@ fi
 
 case "$1" in
   start|start-systemd|faststart|quietstart|restart|condrestart|reload|force-reload)
-	# if this service is not "enabled", exit quietly
-	#
-	if ! is_chkconfig_on pmie
-	then
-	    status=0
-	    exit
-	fi
-
-	if [ "$1" = "condrestart" ]
+	if [ "$1" = "condrestart" ] && ! is_chkconfig_on pmie
 	then
 	    status=0
 	    exit
