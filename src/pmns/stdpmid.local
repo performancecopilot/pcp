@@ -1,4 +1,13 @@
-# Domain numbers for local PMDAs
+# Register of domain numbers for local PMDAs not built and
+# packaged in PCP.
+#
+# PMDA Name should be in UPPERCASE to support automated
+# changes in PMDA build and install procedures for PMDA code,
+# PMNS fragments, help text, etc.  It must also be a valid
+# C (or cpp more strictly) identifier and unique across all
+# PMDAs.
+#
+# Domain Number should NOT appear in stdpmid.pcp.
 #
 # PMDA Name	Domain Number
 #

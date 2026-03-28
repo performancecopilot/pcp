@@ -1,7 +1,14 @@
-# Domain numbers for PMDAs in the base PCP product
+# Register of domain numbers for PMDAs in PCP.
+#
+# PMDA Name should be in UPPERCASE to support automated
+# changes in PMDA build and install procedures for PMDA code,
+# PMNS fragments, help text, etc.  It must also be a valid
+# C (or cpp more strictly) identifier and unique across all
+# PMDAs.
 #
 # PMDA Name	Domain Number
 #
+DO_NOT_USE	0
 ROOT		1
 PMCD		2
 PROC		3
@@ -39,7 +46,24 @@ MONGODB		35
 VALKEY		36
 RDS		37
 UNIFI		38
-### FREE SLOTS (up to 55) ###
+### FREE SLOTS 39...55 ###
+FREE_39		39
+FREE_40		40
+FREE_41		41
+FREE_42		42
+FREE_43		43
+FREE_44		44
+FREE_45		45
+FREE_46		46
+FREE_47		47
+FREE_48		48
+FREE_49		49
+FREE_50		50
+FREE_51		51
+FREE_52		52
+FREE_53		53
+FREE_54		54
+FREE_55		55
 SNMP		56
 STATSD		57
 LOCKSTAT	59
@@ -147,9 +171,10 @@ UWSGI		161
 AMDGPU		162
 ROCESTAT	163
 OPENTELEMETRY	164
-### FREE SLOTS (up to 230) ###
-# start QA section
-### FREE SLOTS 231..240 ###
+### FREE SLOTS 165...229 ###
+# start QA section 230...254
+# historically allocated *down* from 254 to 230
+### FREE QA SLOTS 230...240 ###
 SCHIZO		241
 SLOW_PYTHON	242
 SLOW		243
@@ -165,8 +190,12 @@ QA_TEST_PERL	252
 SIMPLE		253
 MEMORY_PYTHON	254
 # end QA section
-### MORE FREE SLOTS 255..510 ###
+### FREE SLOTS 255...510 ###
+# all of these became "free" when the domain field in a PMID was
+# increased from 8-bits to 9-bits
 #
 # 511 is REALLY reserved ... see DYNAMIC_PMID in libpcp.h
 #
 RESERVED_DO_NOT_USE	511
+#
+# ... and nothing greater than 511 is allowed.
