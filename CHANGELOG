@@ -1,5 +1,75 @@
 pcp-7.1.1 (30 March 2026)
-    - Work-in-progress.
+    - PMDA additions, enhancements and bug fixes:
+	pmdavalkey: new Valkey (valkey.io) server metrics
+	pmdards: new Reliable Datagram Sockets (RDS) metrics
+	pmdabcc: retired now after earlier deprecation (use pmdabpf)
+	pmdadarwin: add network.all.* aggregate network metrics
+	pmdadarwin: add GPU monitoring metrics and hinv.ngpu
+	pmdadarwin: add SMC thermal monitoring
+	pmdadarwin: add IPC and Socket Pool metrics
+	pmdadarwin: add battery/power monitoring via IOPowerSources API
+	pmdadarwin: extended disk I/O and APFS IOBlockStorageDriver metrics
+	pmdadarwin: add system limits metrics (kernel.limits.*)
+	pmdadarwin: add memory compressor timing and health metrics
+	pmdaproc: macOS per-process logical writes and memory footprint metrics
+	pmdaproc: macOS proc.net metrics for TCP/UDP socket counts
+	pmdaproc: Linux per-process numa_maps metrics
+	pmdalinux: persist the filesys metrics instance domain cache
+	pmdalinux: add WinProbe of MPTcp line from /proc/net/netstat
+	pmdafreebsd: add new kernel.all.nusers metric
+	pmdalmsensors: cleanup old pmns, root and help files
+	pmdaopentelemetry: metric removal and timestamp handling fixes
+	pmdaopenmetrics: add sample configs for Istio and llm-d EPP pods
+	pmdamssql: SQL Server metadata and derived metric updates
+	pmdads389: fix compatibility with newer versions of DS389
+    - Client tools and utilities:
+	pcp-numastat: add -p option (per-node stats, matching numactl)
+	pcp-htop: updated to include latest upstream htop fixes
+	pmrep: new views for new macOS metrics additions
+	pmlogconf: fix "force available" mode handling
+	pcp2arrow: optimize performance for large archives
+	pcp2arrow: add pmFetchArchive optimization for raw archive mode
+	pcp-nfsiostat: Add interval and count support 
+	pcp2opentelemetry: updates to make output OTLP compatible
+	pmseries: fix negative time offsets and async crash on bad input
+    - Server-side utilities and log management scripts:
+	pmcd: fix endianness state extraction issue on big endian s390x
+	pmcd, pmproxy: ensure pmcd.services metric functions on macOS
+	rc scripts: default local-only access to pmcd, pmproxy, pmlogger
+	rc scripts: reword services, especially for FreeBSD
+	rc scripts: rework for FreeBSD (with partial revert)
+	pmcd/rc-proc.sh: workaround for missing /etc/hostconfig on macOS
+	pmdaproc.sh: fix check for gmake in _install
+	macOS: add launchd periodic tasks for pmlogger/pmie maintenance
+	macOS: enable zeroconf pmlogconf configurations
+	macOS: auto-enable openmetrics and opentelemetry PMDAs on install
+	pmlogger_daily: refactor and improve archive size limit handling
+	pmlogger_daily: add disk size limit option and enforce archive purging
+	pmlogger_daily: robust per-host disk quota enforcement, overflow check
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: introduce new derived metrics option facilities
+	libpcp: fix guard error in getopt.c integrity checking
+	libpcp: fix array index in no-memory error message in logmeta.c
+	libpcp: ensure c_lock is initialized in pmDumpContext()
+	libpcp: rework __pmLogUndeltaInDom() and back-port to libpcp3
+	libpcp: fix memory leak on error path in subnetprobe.c
+    - Build, infrastructure, containers and packaging updates:
+	build: support Nix package builds
+	macOS: centralise build dependencies with uv
+	debian: rework to make build source after successful build work
+	debian: try to fix reproducible builds for tarballs below html
+	debian: add Vcs-Git and Vcs-Browser package metadata
+	build: update vendored libvalkey with latest fixes
+	build: retire use of Avahi in libpcp and services
+	selinux: update nvidia PMDA policy
+	selinux: fix pmproxy issue after startup script relocation
+	containers: back on stable fedora:latest using pcp-zeroconf
+    - Documentation:
+	docs: add a new QA COOKBOOK.md document to assist PCP developers
+	docs: eliminate Malformed table error in QuickReferenceGuide.rst
+	docs: correct some of the links and use https rather than http
+	docs: update docs to use current live URL for sphinxcontrib-redoc
+	docs: add comprehensive Nix packaging documentation
 
 pcp-7.1.0 (28 January 2026)
     - PMDA additions, enhancements and bug fixes:
