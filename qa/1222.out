@@ -63,10 +63,6 @@ proc.memory.vmsize: >10 values
 proc.memory.vmstack: >10 values
 proc.memory.vmswap: >10 values
 proc.nprocs: 1 value
-proc.numa_maps.heap: >10 values
-proc.numa_maps.hugepage: >10 values
-proc.numa_maps.private: >10 values
-proc.numa_maps.stack: >10 values
 proc.psinfo.blocked: >10 values
 proc.psinfo.blocked_s: >10 values
 proc.psinfo.cguest_time: >10 values
