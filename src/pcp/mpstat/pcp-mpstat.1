@@ -103,12 +103,41 @@ With the
 keyword, the number of each individual interrupt received per
 second by the CPU or CPUs is displayed.
 Interrupts are those under the kernel.percpu.interrupts metric tree.
+.br
+Numeric instance names (for example IRQ numbers) are listed before
+non-numeric labels so the output remains stable as new named handlers are
+added.
+.br
+If the current source (host or archive) does not export per-CPU interrupt
+metrics, the report prints
+.B "No per-CPU interrupt metrics available for this context."
+and skips the table.
 
 With the
 .B SCPU
 keyword, the number of each individual software interrupt received per
 second by the CPU or CPUs is displayed.
-Software interrupts are those under the kernel.percpu.softirqs tree
+Software interrupts are those under the kernel.percpu.softirqs tree.
+.br
+The output follows the canonical softirq ordering of
+.BR HI ,
+.BR TIMER ,
+.BR NET_TX ,
+.BR NET_RX ,
+.BR BLOCK ,
+.BR IRQ_POLL ,
+.BR TASKLET ,
+.BR SCHED ,
+.BR HRTIMER
+and
+.BR RCU
+before any remaining softirq labels, ensuring consistent column placement
+across samples.
+.br
+When per-CPU softirq metrics are not present in the current context, the
+report emits
+.B "No per-CPU softirq metrics available for this context."
+instead of the table.
 
 The
 .B ALL
