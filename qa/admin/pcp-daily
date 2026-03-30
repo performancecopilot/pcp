@@ -445,9 +445,9 @@ _script_qa()
     cat <<End-of-File
 rm -f *.out.bad
 
-# Policy for QA Farm: exclude all tests tagged BAD
+# Policy for QA Farm: exclude all tests tagged not_in_qa_farm
 #
-qa_restrict="$check_what -x BAD"
+qa_restrict="$check_what -x not_in_qa_farm"
 
 echo "Info: QA \$qa_restrict starting"
 ./check -l \$qa_restrict >>\$HOME/daily.qa.log 2>&1

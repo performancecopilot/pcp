@@ -36,6 +36,13 @@ sanity
 # presence of the explanation in the test)
 not_in_ci
 
+# not_in_qa_farm ... some tests fail in the QA Farm in ways that kill
+# QA there, e.g. hang sometimes forever despite timeout(1), or are flakey
+# and fail there due to timing issues that are either not understood or
+# have resisted serious triage ...  these tests typically are passing in
+# CI, so defer test coverage to there
+not_in_qa_farm
+
 # local check ... runs on localhost alone, no remotes used
 ## NOTE: used by testing orgs beyond developers, do not add
 ## tests here that are known to fail - goal is for 100% pass
@@ -505,10 +512,6 @@ man
 # retired tools
 pmmgr			# note this group has been retired
 pmwebd			# note this group has been retired
-
-# Bad tests with unacceptable cross-platform behaviour, these ones
-# will NOT be run in the QA Farm
-BAD
 
 # these test don't work in containers (yet)
 not_in_container
@@ -2219,7 +2222,7 @@ suse
 1700 pmda.bpftrace local python pmjson
 1701 pmda.bpftrace local python
 1702 pmda.bpftrace local python
-1703 pmda.bpftrace local python
+1703 pmda.bpftrace local python not_in_qa_farm
 1704 pmda.bpftrace local python
 1705 pmda.bpftrace local python
 1706 pmda.bpftrace local python
@@ -2339,7 +2342,7 @@ suse
 1937 pmlogrewrite pmda.xfs local pmlogdump
 1940 pmlogconf valgrind local
 1942 pmda.opentelemetry local python
-1948 pmda.opentelemetry local python
+1948 pmda.opentelemetry local python not_in_qa_farm
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
 1957 libpcp local valgrind
