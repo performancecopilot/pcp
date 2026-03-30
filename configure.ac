@@ -1862,6 +1862,14 @@ dnl Checks for C header files.
 AC_HEADER_DIRENT
 
 AC_HEADER_SYS_WAIT
+
+dnl this first bunch are needed here because they need to be in confdefs.h
+dnl so that conftest.c will properly compile ... on OpenBSD I saw
+dnl the netinet/tcp.h test fail incorrectly because <sys/types.h>
+dnl was conditional included in conftest.c and HAVE_SYS_TYPES_H had not
+dnl (yet) been set
+AC_CHECK_HEADERS(stdio.h stdlib.h string.h inttypes.h stdint.h unistd.h strings.h sys/stat.h sys/types.h)
+
 AC_CHECK_HEADERS(fcntl.h limits.h malloc.h strings.h syslog.h)
 AC_CHECK_HEADERS(stddef.h sched.h dlfcn.h dl.h)
 AC_CHECK_HEADERS(sys/times.h sys/resource.h sys/prctl.h)
@@ -1873,14 +1881,7 @@ AC_CHECK_HEADERS(pwd.h grp.h regex.h sys/wait.h)
 AC_CHECK_HEADERS(termios.h sys/termios.h)
 AC_CHECK_HEADERS(sys/ioctl.h sys/select.h sys/socket.h)
 AC_CHECK_HEADERS(netdb.h poll.h)
-if test $target_os = darwin -o $target_os = openbsd
-then
-    AC_CHECK_HEADERS(net/if.h, [], [], [#include <sys/types.h>
-#include <sys/socket.h>])
-else
-    AC_CHECK_HEADERS(net/if.h)
-fi
-AC_CHECK_HEADERS(netinet/in.h netinet/tcp.h arpa/inet.h)
+AC_CHECK_HEADERS(net/if.h netinet/in.h netinet/tcp.h arpa/inet.h)
 AC_CHECK_HEADERS(windows.h winsock2.h ws2tcpip.h)
 AC_CHECK_HEADERS(execinfo.h bits/wordsize.h)
 AC_CHECK_HEADERS(iptypes.h, [], [], [#include <windows.h>])

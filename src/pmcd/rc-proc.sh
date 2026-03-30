@@ -685,3 +685,51 @@ $2 == '$__pid' && $NF ~ /^([^)]*)$/ { print $3 }
 	fi
     done
 }
+
+# Used in our service "wrapper" scripts ... when service infrastructure
+# layers are in play, e.g. systemd, then the "wrapper" scripts are never
+# called and the real $PCP_SERVICES_DIR/pm* scripts are used once the
+# service infrastructure has decided the service action is enabled.
+#
+# For other systems the "wrapper" scripts may be run directly and we need
+# to folow the platform-specific "enabled" mechanisms.
+#
+# Usage: _check_enabled action service
+#
+check_enabled()
+{
+    if [ "$PCP_PLATFORM" = freebsd ]
+    then
+	# special rules for FreeBSD
+	#
+	# we're not using /etc/rc.subr, but trying to match a subset of the
+	# services and options from there ...
+	#
+	# commands: start stop restart rcvar (no) status poll (no) ...
+	# If command has a given prefix, then change the operation as follows:
+	#	Prefix	Operation
+	#	------	---------
+	#	fast	Skip the pid check, and set rc_fast=yes, rc_quiet=yes
+	#	force	Set ${rcvar} to YES, and set rc_force=yes
+	#	one	Set ${rcvar} to YES
+	#	quiet	Don't output some diagnostics, and set rc_quiet=yes
+	#
+	case "$1"
+	in
+	    forcestart)
+	    	return 0
+		;;
+	    *start)
+		is_chkconfig_on "$2"
+		return $?
+		;;
+	    *)
+		return 0
+		;;
+	esac
+    fi
+
+    # default is to treat all services as "enabled"
+    #
+    return 0
+}
