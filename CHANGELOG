@@ -1,3 +1,6 @@
+pcp-7.1.2 (18 May 2026)
+    - Currently work-in-progress.
+
 pcp-7.1.1 (30 March 2026)
     - PMDA additions, enhancements and bug fixes:
 	pmdavalkey: new Valkey (valkey.io) server metrics
