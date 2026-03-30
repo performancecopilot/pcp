@@ -54,6 +54,7 @@
 			but this seems bogus and is not seen elsewhere
 1210	vm[0-9][0-9]	may collide with pmlogger_check and (correctly)
 			detects presence of /etc/pcp/pmlogger/lock
+1222	i686	valgrind detected problem in proc PMDA via calls to libnl
 1264	vm26	like in CI, this failure is simply a mystery
 1264	vm28	like in CI, this failure is simply a mystery
 1339	OpenBSD 7\.	there is some race condition between pmcd and the sample
