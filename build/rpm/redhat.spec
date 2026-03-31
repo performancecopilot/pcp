@@ -3316,7 +3316,6 @@ fi
 %files pmda-lio -f pcp-pmda-lio-files.rpm
 
 %files pmda-openmetrics -f pcp-pmda-openmetrics-files.rpm
-%endif
 
 %files pmda-opentelemetry -f pcp-pmda-opentelemetry-files.rpm
 %endif
