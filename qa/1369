@@ -23,9 +23,9 @@ _cleanup()
 	_restore_config $PCP_ETC_DIR/pcp/labels
 	_sighup_pmcd
 	_wait_for_pmcd
+	_restore_auto_restart pmlogger
 	_service pmlogger start | _filter_pcp_start
 	_wait_for_pmlogger
-	_restore_auto_restart pmlogger
     fi
     $sudo rm -rf $tmp $tmp.*
 }

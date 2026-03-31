@@ -57,9 +57,9 @@ _cleanup()
 	unset PMCD_PORT
 	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
+	_restore_auto_restart pmlogger
 	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
-	_restore_auto_restart pmlogger
     fi
     
     if grep '^simple' $PCP_PMCDCONF_PATH >/dev/null

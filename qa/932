@@ -33,6 +33,8 @@ _cleanup()
     then
 	:
     else
+	_restore_auto_restart pmcd
+	_restore_auto_restart pmlogger
 	echo "Restore pmcd.conf and restart PMCD ..."
 	if [ -f $tmp.pmcd.conf ]
 	then
@@ -46,8 +48,6 @@ _cleanup()
 	_wait_for_pmlogger
 	done_clean=true
     fi
-    _restore_auto_restart pmcd
-    _restore_auto_restart pmlogger
     rm -f $tmp.*
     exit $status
 }

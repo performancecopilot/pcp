@@ -169,9 +169,9 @@ _cleanup()
 	echo "Restarting pmcd + pmlogger @ `date`" >>$seq_full
 	unset PMCD_SOCKET
 	PMLOGGER_CHECK_SKIP_LOGCONF=yes; export PMLOGGER_CHECK_SKIP_LOGCONF
+	_restore_auto_restart pmcd
 	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
-	_restore_auto_restart pmcd
 	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	rm -f $tmp.*

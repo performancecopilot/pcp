@@ -39,10 +39,10 @@ _cleanup()
 	_service pmcd stop 2>&1 >>$seq_full
 	_wait_pmcd_end
 	echo "--- pcp start ---" >>$seq_full
+	_restore_auto_restart pmcd
 	_service pmcd start 2>&1 \
 	| tee -a $seq_full \
 	| _filter_pcp_start
-	_restore_auto_restart pmcd
 	_service pmlogger start 2>&1 \
 	| tee -a $seq_full \
 	| _filter_pcp_start

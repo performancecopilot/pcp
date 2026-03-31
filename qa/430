@@ -97,8 +97,8 @@ _cleanup()
     cd
     $sudo rm -rf $tmp $tmp.*
 
-    _service pmlogger restart >/dev/null 2>&1
     _restore_auto_restart pmlogger
+    _service pmlogger restart >/dev/null 2>&1
     _wait_for_pmlogger
 }
 

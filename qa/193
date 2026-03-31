@@ -45,7 +45,7 @@ _cleanup()
 port=`_find_free_port`
 echo "port=$port" >>$seq_full
 
-# start a prive pmcd in the bacground, no daemonizing
+# start a private pmcd in the background, no daemonizing
 #
 $sudo $PCP_PMCD_PROG -f -p $port -s $tmp.pmcd.socket -l $tmp.pmcd.log >$tmp.pmcd.out 2>&1 &
 echo "sudo_pid=$!" >>$seq_full

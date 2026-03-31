@@ -475,7 +475,7 @@ OpenIndiana
     # to show zfs snapshots
     $ zfs list -t snapshot
     # to remove zfs snapshots
-    $ sudo zfs destroy [-R] <name@date>
+    $ sudo zfs destroy -R <name@date>
     # initial zoneinfo setup ... there is no /etc/localtime for
     # Solaris|OpenIndiana
     #

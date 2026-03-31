@@ -94,6 +94,8 @@ port=1214
 # kill off any old drain-server left running from previous runs
 pmsignal -s KILL -a src/drain-server
 
+_stop_auto_restart pmlogger
+
 # real QA test starts here
 _change_config pmcd on || _exit 1
 _change_config pmlogger on || _exit 1
@@ -102,7 +104,6 @@ if ! _service pmcd restart >/dev/null 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
 if ! _service pmlogger restart >/dev/null 2>&1; then _exit 1; fi
 _wait_for_pmlogger || _exit 1
-_stop_auto_restart pmlogger
 
 $sudo sed -e "1s/.*/$port/" $PCP_TMP_DIR/pmlogger/primary >$tmp.tmp
 $sudo cp $PCP_TMP_DIR/pmlogger/primary $tmp.primary

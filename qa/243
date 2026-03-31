@@ -64,9 +64,9 @@ _cleanup()
 	pmsleep 1.5
 	unset PMCD_SOCKET
 	echo "Restart and ping pmcd ..."
+	_restore_auto_restart pmcd
 	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
-	_restore_auto_restart pmcd
 	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	pmprobe pmcd.control.debug

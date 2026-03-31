@@ -24,10 +24,10 @@ _cleanup()
 	:
     else
 	_restore_loggers
+	_restore_auto_restart pmcd
 	_service pmcd restart 2>&1 | _filter_pcp_restart \
 	| sed -e '/Waiting/s/\.\.\.*/[dots]/'
 	_wait_for_pmcd
-	_restore_auto_restart pmcd
 	_service pmlogger restart 2>&1 | _filter_pcp_restart \
 	| sed -e '/Waiting/s/\.\.\.*/[dots]/'
 	_wait_for_pmlogger

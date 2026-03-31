@@ -35,14 +35,14 @@ _cleanup()
 {
     # cannot be sure what state pmcd is in if we take a signal, so restart
     #
-    _service pmcd start >>$seq_full 2>&1
     _restore_auto_restart pmcd
+    _service pmcd start >>$seq_full 2>&1
     _wait_for_pmcd
 
+    _restore_auto_restart pmlogger
     if $pmlogger_do_restore
     then
 	_service pmlogger start >>$seq_full 2>&1
-	_restore_auto_restart pmlogger
 	_wait_for_pmlogger
     fi
 
@@ -178,8 +178,8 @@ cat $PMCDLOG >>$seq_full
 
 echo "re-starting pmcd ..." | tee -a $seq_full
 PCP_RUN_DIR=$OLD_PCP_RUN_DIR; export PCP_RUN_DIR
-if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
 _restore_auto_restart pmcd
+if ! _service pmcd start >>$seq_full 2>&1; then _exit 1; fi
 _wait_for_pmcd || _exit 1
 
 # need to see the reconnect

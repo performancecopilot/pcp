@@ -38,9 +38,9 @@ _cleanup()
     else
 	_restore_config $PCP_PMCDCONF_PATH
 	[ -d $MMV_STATS_DIR.$seq ] && _restore_config $MMV_STATS_DIR
+	_restore_auto_restart pmcd
 	_service pmcd restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmcd
-	_restore_auto_restart pmcd
 	_service pmlogger restart 2>&1 | _filter_pcp_restart
 	_wait_for_pmlogger
 	if $install_on_cleanup

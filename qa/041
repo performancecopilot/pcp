@@ -57,9 +57,9 @@ _cleanup()
 	    $sudo cp $tmp.control $PCP_PMLOGGERCONTROL_PATH
 	[ -d $tmp.control.d ] && \
 	    $sudo mv $tmp.control.d $PCP_PMLOGGERCONTROL_PATH.d
+	_restore_auto_restart pmcd
 	_service pmcd start 2>&1 | _filter_pcp_start
 	_wait_for_pmcd
-	_restore_auto_restart pmcd
 	_service pmlogger start 2>&1 | _filter_pcp_start
 	_wait_for_pmlogger
 	_needclean=false

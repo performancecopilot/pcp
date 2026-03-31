@@ -90,11 +90,11 @@ _cleanup()
 	    && $sudo sh $tmp.cmd
 	echo "Restarting pmcd"
 	echo "+++ restarting pmcd `date` +++" >>$seq_full
+	_restore_auto_restart pmcd
 	_service pmcd restart 2>&1 \
 	| tee -a $seq_full \
 	| _filter_pcp_restart
 	_wait_for_pmcd
-	_restore_auto_restart pmcd
 	_service pmlogger restart 2>&1 \
 	| tee -a $seq_full \
 	| _filter_pcp_restart

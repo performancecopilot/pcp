@@ -20,9 +20,9 @@ _cleanup()
 {
     cd $here
     $sudo rm -rf $tmp $tmp.*
+    _restore_auto_restart pmlogger
     _service pmlogger start | _filter_pcp_start
     _wait_for_pmlogger
-    _restore_auto_restart pmlogger
 }
 
 status=1	# failure is the default!
