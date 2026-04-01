@@ -183,7 +183,7 @@ the skeletal test, this will **git** **add** the new test and the
 **.out** file, and update the *group* file, so when you've finished the
 script development you need to (at least):
 
-```
+```bash
 $ remake $seq
 $ git add $seq $seq.out
 $ git commit
@@ -265,11 +265,11 @@ Tests will be run in numeric test number order, after any duplicates
 are removed.
 Leading zeroes may be omitted, so all of the following are equivalent.
 
-```
-check 010 00? # assume the shell's glob will expand this
-check 010 009 008 007 006 005 004 003 002 001
-check 0-10 000
-check 000 1 002 3 4-9 10
+```bash
+$ check 010 00? # assume the shell's glob will expand this
+$ check 010 009 008 007 006 005 004 003 002 001
+$ check 0-10 000
+$ check 000 1 002 3 4-9 10
 ```
 
 If no *seqno* is specified, the default is to select all tests
@@ -407,19 +407,19 @@ flushing that makes the output non-deterministic.
 
 Instead of
 
-```
+```bash
 $ cmd | _filter
 ```
 
 the test may need to do
 
-```
+```bash
 $ cmd 2>&1 | _filter
 ```
 
 or even
 
-```
+```bash
 $ cmd >$tmp.out 2>$tmp.err
 $ cat $tmp.err $tmp.out | _filter
 ```
@@ -440,7 +440,7 @@ sort of information to **$seq_full**:
 
 The common preamble for all tests will ensure **$seq_full** is removed at the start of each test, so you can safely use constructs like:
 
-```
+```bash
 $ echo ... >>$seq_full
 $ cmd ... | tee -a $seq_full | ...
 ```
@@ -581,7 +581,7 @@ this allows the test to disclose useful information from the setup, e.g. a proce
 
 Now, to triage the test:
 
-```
+```bash
 $ touch $seq.wait
 $ ./$seq
 ```
@@ -594,7 +594,7 @@ at a log file, check an archive, ...
 
 When the triage is done,
 
-```
+```bash
 $ rm $seq.wait
 ```
 and the test will resume.
@@ -722,38 +722,38 @@ running tests with **check**.
 |**Command**|**Description**|
 |---|---|
 |<a id="idx+cmds+all-by-group">**all-by-group**</a>|Report all tests (excluding those tagged **:retired** or **:reserved**) in *group* sorted by group.|
-|<a id="idx+cmds+appchange">**appchange**</a>|Options: \[**-c**] *app1* \[*app2* ...]<br>Recheck all QA tests that appear to use the test application src/*app1* or *src/app2* or ... *${TMPDIR:-/tmp}/appcache* is a cache of mappings between test sequence numbers and uses, for all applications in *src/* \... **appchange** will build the cache if it is not already there, use **-c** to clear and rebuild the cache.|
+|<a id="idx+cmds+appchange">**appchange**</a>|Usage: **appchange** \[**-c**] *app1* \[*app2* ...]<br>Recheck all QA tests that appear to use the test application src/*app1* or *src/app2* or ... *${TMPDIR:-/tmp}/appcache* is a cache of mappings between test sequence numbers and uses, for all applications in *src/* \... **appchange** will build the cache if it is not already there, use **-c** to clear and rebuild the cache.|
 |<a id="idx+cmds+bad-by-group">**bad-by-group**</a>|Use the *\*.out.bad* files to report failures by group.|
-|<a id="idx+cmds+check.app.ok">**check.app.ok**</a>|Options: *app*<br>When the test application *src/app.c* (or similar) has been changed, this script<br>(a) remakes the application and checks **make**(1) status, and<br>(b) finds all the tests that appear to run the *src/app* application and runs **check** for these tests.|
-|<a id="idx+cmds+check-auto">**check-auto**</a>|Options: \[*seqno* ...]<br>Check that if a QA script uses **\_stop_auto_restart** for a (**systemd**) service, it also uses **\_restore_auto_restart** (preferably in \_cleanup()). If no *seqno* options are given then check all tests.|
-|<a id="idx+cmds+check-flakey">**check-flakey**</a>|Options: \[*seqno* ...\]<br>Recheck failed tests and try to classify them as "flakey" if they pass now, or determine if the failure is "hard" (same *seqno.out.bad*) or some other sort of non-deterministic failure. If no *seqno* options are given then check all tests with a *\*.out.bad* file.|
-|<a id="idx+cmds+check-group">**check-group**</a>|Options: *query*<br>Check the *group* file and test scripts for a specific *query* that is assumed to be **both** the name of a command that appears in the test scripts (or part of a command, e.g. **purify** in **\_setup_purify**) and the name of a group in the *group* file. Report differences, e.g. *command* appears in the *group* file for a specific test but is not apparently used in that test, or *command* is used in a specific test but is not included in the *group* file entry for that test.<br>There are some special cases to handle the pcp-foo commands, aliases and [PMDAs](#idx+pmda) ... refer to **check-group** for details.<br>Special control lines like:<br>`# check-group-include: group ...`<br>`# check-group-exclude: group ...`<br>may be embedded in test scripts to over-ride the heuristics used by **check-group**.|
+|<a id="idx+cmds+check.app.ok">**check.app.ok**</a>|Usage: **check.app.ok** *app*<br>When the test application *src/app.c* (or similar) has been changed, this script<br>(a) remakes the application and checks **make**(1) status, and<br>(b) finds all the tests that appear to run the *src/app* application and runs **check** for these tests.|
+|<a id="idx+cmds+check-auto">**check-auto**</a>|Usage: **check-auto** \[*seqno* ...]<br>Check that if a QA script uses **\_stop_auto_restart** for a (**systemd**) service, it also uses **\_restore_auto_restart** (preferably in \_cleanup()). If no *seqno* options are given then check all tests.|
+|<a id="idx+cmds+check-flakey">**check-flakey**</a>|Usage: **check-flakey** \[*seqno* ...\]<br>Recheck failed tests and try to classify them as "flakey" if they pass now, or determine if the failure is "hard" (same *seqno.out.bad*) or some other sort of non-deterministic failure. If no *seqno* options are given then check all tests with a *\*.out.bad* file.|
+|<a id="idx+cmds+check-group">**check-group**</a>|Usage: **check-group** *query*<br>Check the *group* file and test scripts for a specific *query* that is assumed to be **both** the name of a command that appears in the test scripts (or part of a command, e.g. **purify** in **\_setup_purify**) and the name of a group in the *group* file. Report differences, e.g. *command* appears in the *group* file for a specific test but is not apparently used in that test, or *command* is used in a specific test but is not included in the *group* file entry for that test.<br>There are some special cases to handle the pcp-foo commands, aliases and [PMDAs](#idx+pmda) ... refer to **check-group** for details.<br>Special control lines like:<br>`# check-group-include: group ...`<br>`# check-group-exclude: group ...`<br>may be embedded in test scripts to over-ride the heuristics used by **check-group**.|
 |<a id="idx+cmds+check-pdu-coverage">**check-pdu-coverage**</a>|Check that PDU-related QA apps in *src* provide full coverage of all current PDU types.|
 |<a id="idx+cmds+check-setup">**check-setup**</a>|Check QA environment is as expected. Documented in *README* but not used otherwise.|
 |<a id="idx+cmds+check-vars">**check-vars**</a>|Check shell variables across the *common\** "include" files and the scripts used to run and manage QA. For the most part, the *common\** files should use a "\_\_" prefix for shell variables\[2] to insulate them from the use of arbitrarily name shell variables in the QA tests themselves (all of which "source" multiple of the *common\** files). **check-vars** also includes some exceptions which are a useful cross-reference.|
 |<a id="idx+cmds+cull-pmlogger-config">**cull-pmlogger-config**</a>|Cull he default **pmlogger**(1) configuration (**$PCP_VAR_DIR***/config/pmlogger/config.default) *to remove any **zeroconf** proc metric logging that threatens to fill the filesystem on small QA machines.|
 |<a id="idx+cmds+daily-cleanup">**daily-cleanup**</a>|Run from **check**, this script will try to make sure the **pmlogger_daily**(1) work has really been done; this is important for QA VMs that are only booted for QA and tend to miss the nightly **pmlogger_daily**(1) run.|
-|<a id="idx+cmds+find-app">**find-app**</a>|Options: *app*<br>Find and report tests that use a QA application *src/app*.|
-|<a id="idx+cmds+find-bound">**find-bound**</a>|Options: *archive* *timestamp* *metric* \[*instance*]<br>Scan *archive* for values of *metric* (optionally constrained to the one *instance*) within the interval *timestamp* (in the format HH:MM:SS, as per **pmlogdump**(1) and assuming a timezone as per **-z**).|
-|<a id="idx+cmds+find-metric">**find-metric**</a>|Options: \[**-a**\|**-h**] *pattern* ...<br>Search for metrics with name or metadata that matches *pattern*. With **-h** interrogate the local **pmcd**(1), else with **-a** (the default) search all the QA archives in the directories *archive* and *tmparch*.<br>Multiple pattern arguments are treated as a disjunction in the search which uses **grep**(1) style regular expressions. Metadata matches are against the **pminfo**(1) **-d** output for the type, instance domain, semantics, and units.|
+|<a id="idx+cmds+find-app">**find-app**</a>|Usage: **find-app** \[**-f**] *app* ...<br>Find and report tests that use any of the QA applications *src/app* ...<br>The **-f** argument changes the interpretation of *app* from *src/app* to "all the *src/\** programs" that call the function *app*.|
+|<a id="idx+cmds+find-bound">**find-bound**</a>|Usage: **find-bound** *archive* *timestamp* *metric* \[*instance*]<br>Scan *archive* for values of *metric* (optionally constrained to the one *instance*) within the interval *timestamp* (in the format HH:MM:SS, as per **pmlogdump**(1) and assuming a timezone as per **-z**).|
+|<a id="idx+cmds+find-metric">**find-metric**</a>|Usage: **find-metric** \[**-a**\|**-h**] *pattern* ...<br>Search for metrics with name or metadata that matches *pattern*. With **-h** interrogate the local **pmcd**(1), else with **-a** (the default) search all the QA archives in the directories *archive* and *tmparch*.<br>Multiple pattern arguments are treated as a disjunction in the search which uses **grep**(1) style regular expressions. Metadata matches are against the **pminfo**(1) **-d** output for the type, instance domain, semantics, and units.|
 |<a id="idx+cmds+flakey-summary">**flakey-summary**</a>|Assuming the output from **check-flakey** has been kept for multiple QA runs across multiple hosts and saved in a file called *flakey*, this script will summarize the test failure classifications.|
-|<a id="idx+cmds+getpmcdhosts">**getpmcdhosts**</a>|Options: lots of them<br>Find a remote host matching a selection criteria based on hardware, operating system, installed [PMDA](#idx+pmda), primary logger running, etc. Use<br>`$ getpmcdhosts -?`<br>to see all options.|
-|<a id="idx+cmds+grind">**grind**</a>|Options: *seqno* \[...]<br>Run select test(s) in an loop until one of them fails and produces a **.out.bad** file. Stop with Ctl-C or for a more orderly end after the current iteration<br>`$ touch grind.stop`|
-|<a id="idx+cmds+grind-pmda">**grind-pmda**</a>|Options: *pmda* *seqno* \[...]<br> Exercise the *pmda* [PMDA](#idx+pmda) by running the PMDA's **Install** script, then using **check** to run all the selected tests, checking that the PMDA is still installed, running the PMDA's **Remove** script, then running the selected tests again and checking that the PMDA is still **not** installed.|
+|<a id="idx+cmds+getpmcdhosts">**getpmcdhosts**</a>|Usage: **getpmcdhosts** *lots-of-options*<br>Find a remote host matching a selection criteria based on hardware, operating system, installed [PMDA](#idx+pmda), primary logger running, etc. Use<br>`$ getpmcdhosts -?`<br>to see all options.|
+|<a id="idx+cmds+grind">**grind**</a>|Usage: **grind** *seqno* \[...]<br>Run select test(s) in an loop until one of them fails and produces a **.out.bad** file. Stop with Ctl-C or for a more orderly end after the current iteration<br>`$ touch grind.stop`|
+|<a id="idx+cmds+grind-pmda">**grind-pmda**</a>|Usage: **grind-pmda** *pmda* *seqno* \[...]<br> Exercise the *pmda* [PMDA](#idx+pmda) by running the PMDA's **Install** script, then using **check** to run all the selected tests, checking that the PMDA is still installed, running the PMDA's **Remove** script, then running the selected tests again and checking that the PMDA is still **not** installed.|
 |<a id="idx+cmds+group-stats">**group-stats**</a>|Report test frequency by group, and report any group name anomalies.|
 |<a id="idx+cmds+mk.localconfig">**mk.localconfig**</a>|Recreate the *localconfig* file that provides the platform and PCP version information and the *src/localconfig.h* file that can be used by C programs in the *src* directory.|
 |**mk.logfarm**|See the [**mk.logfarm**](#mk.logfarm-script) section.|
 |**mk.qa_hosts**|See the [**mk.qa_hosts**](#mk.qahosts-script) section below.|
-|<a id="idx+cmds+mk.variant">**mk.variant**</a>|Options: *seqno*<br>Sometimes a test has no choice other than to produce different output on different platforms. This script may be used to convert an existing test to accommodate multiple *seqno.out* files.|
+|<a id="idx+cmds+mk.variant">**mk.variant**</a>|Usage: **mk.variant** *seqno*<br>Sometimes a test has no choice other than to produce different output on different platforms. This script may be used to convert an existing test to accommodate multiple *seqno.out* files.|
 |**new**|See the [**new**](#the-new-script) section above.|
-|<a id="idx+cmds+new-dup">**new-dup**</a>|Options: \[**-n**] *seqno*<br>Make a copy of the test *seqno* using a new test number as assigned by [**new**](#the-new-script), including rewriting the old *seqno* in the new test and its new *.out* file. **-n** is "show me" mode and no changes are made.|
-|<a id="new-grind"></a><a id="idx+cmds+new-grind">**new-grind**</a>|Options: \[**-n**] \[**-v**] *seqno*<br>Make a copy of the test *seqno* using a new test number as assigned by [**new**](#the-new-script) and arrange matters so the new test runs the old test but selects the **valgrind**(1) sections of that test. **-n** is "show me" mode and no changes are made, use **-v** for more verbosity.|
+|<a id="idx+cmds+new-dup">**new-dup**</a>|Usage: **new-dup** \[**-n**] *seqno*<br>Make a copy of the test *seqno* using a new test number as assigned by [**new**](#the-new-script), including rewriting the old *seqno* in the new test and its new *.out* file. **-n** is "show me" mode and no changes are made.|
+|<a id="new-grind"></a><a id="idx+cmds+new-grind">**new-grind**</a>|Usage: **new-grind** \[**-n**] \[**-v**] *seqno*<br>Make a copy of the test *seqno* using a new test number as assigned by [**new**](#the-new-script) and arrange matters so the new test runs the old test but selects the **valgrind**(1) sections of that test. **-n** is "show me" mode and no changes are made, use **-v** for more verbosity.|
 |<a id="idx+cmds+new-seqs">**new-seqs**</a>|Report the unallocated blocks of test sequence numbers from the *group* file.|
-|<a id="idx+cmds+really-retire">**really-retire**</a>|Options: *seqno* \[...]<br>Mark the selected tests as **:retired** in the *group* file and then replace the test and its *.out* file with boilerplate text that explains what has happened and unilaterally calls **_notrun** (in case the test is ever really run).|
-|<a id="idx+cmds+recheck">**recheck**</a>|Options: \[**-t**] \[*options*] \[*seqno* ...\]<br>Run **check** again for failed tests. If no *seqno* options are given then check all tests with a *\*.out.bad* file. By default tests that failed last time and were classified as **triaged** will not be rerun, but **-t** overrides this. Other *options* are any command line options that **check** understands.|
-|<a id="idx+cmds+remake">**remake**</a>|Options: \[*options*] *seqno* \[...]<br>Remake the *.out* file for the specified test(s). Command line parsing is the same as **check** so *seqno* can be a single test sequence number, or a range, or a **-g** *group* specification. Similarly **-l** selects **diff**(1) rather than a graphical diff tool to show the differences.<br>Since the *seqno.out* files are precious and reflect the state of the qualified and expected output, they should typically not be changed unless some change has been made to the *seqno* test or the applications the test runs produce different output or the filters in the test have changed.|
-|<a id="idx+cmds+sameas">**sameas**</a>|Options: *seqno* \[...]<br>See if *seqno.out* and *seqno.out.bad* are identical except for line ordering. Useful to detect cases where non-determinism is caused by the order in which subtests were run, e.g. sensitive to directory entry order in the filesystem or metric name order in the [PMNS](#idx+pmns).|
-|<a id="idx+cmds+var-use">**var-use**</a>|Options: *var* \[*seqno* ...]<br>Find assignment and uses of the shell variable \[**$**]*var* in tests. If *seqno* not specified, search all tests.|
+|<a id="idx+cmds+really-retire">**really-retire**</a>|Usage: **really-retire** *seqno* \[...]<br>Mark the selected tests as **:retired** in the *group* file and then replace the test and its *.out* file with boilerplate text that explains what has happened and unilaterally calls **_notrun** (in case the test is ever really run).|
+|<a id="idx+cmds+recheck">**recheck**</a>|Usage: **recheck** \[**-t**] \[*options*] \[*seqno* ...\]<br>Run **check** again for failed tests. If no *seqno* options are given then check all tests with a *\*.out.bad* file. By default tests that failed last time and were classified as **triaged** will not be rerun, but **-t** overrides this. Other *options* are any command line options that **check** understands.|
+|<a id="idx+cmds+remake">**remake**</a>|Usage: **remake** \[*options*] *seqno* \[...]<br>Remake the *.out* file for the specified test(s). Command line parsing is the same as **check** so *seqno* can be a single test sequence number, or a range, or a **-g** *group* specification. Similarly **-l** selects **diff**(1) rather than a graphical diff tool to show the differences.<br>Since the *seqno.out* files are precious and reflect the state of the qualified and expected output, they should typically not be changed unless some change has been made to the *seqno* test or the applications the test runs produce different output or the filters in the test have changed.|
+|<a id="idx+cmds+sameas">**sameas**</a>|Usage: **sameas** *seqno* \[...]<br>See if *seqno.out* and *seqno.out.bad* are identical except for line ordering. Useful to detect cases where non-determinism is caused by the order in which subtests were run, e.g. sensitive to directory entry order in the filesystem or metric name order in the [PMNS](#idx+pmns).|
+|<a id="idx+cmds+var-use">**var-use**</a>|Usage: **var-use** *var* \[*seqno* ...]<br>Find assignment and uses of the shell variable \[**$**]*var* in tests. If *seqno* not specified, search all tests.|
 
 <br>
 \[2] If all shells supported the **local** keyword for variables we could use that, but that's not the case across all the platforms PCP runs on, so the "\_\_" prefix model is a weak substitute for proper variable scoping.
@@ -784,7 +784,7 @@ in the archive relative to the date and time in the archive's basename.
 
 A part of the default configuration is as follows:
 
-```
+```bash
 thishost        archives/foo+   20011005
 thishost        archives/foo+   20011006.00.10
 thishost        archives/foo+   20011007
@@ -944,7 +944,7 @@ adding the following line to the */etc/sudoers* file:
 ```
 and checked with
 
-```
+```bash
 $ sudo id
 ```
 
@@ -955,7 +955,7 @@ PCP employs a cient-server architecture, and so some parts of the
 QA infrastructure involve testing one component running on the local
 system and another component running on a remote system.  For example
 
-```
+```bash
 $ pmrep -h remote
 ```
 runs **pmrep**(1) locally which interacts with **pmcd**(1) on the
@@ -977,7 +977,7 @@ set up:
 Once you've setup the remote PCP QA hosts and modified *common.config*
 and *qa_hosts.primary* locally, then run validate the setup using [check-setup](#check-setup):
 
-```
+```bash
 $ ./check-setup
 ```
 
@@ -1026,7 +1026,7 @@ access list updates, e.g. "xhost +local:" for such tests to pass
 
 You can now verify your QA setup, by running:
 
-```
+```bash
 $ ./check 000
 ```
 
