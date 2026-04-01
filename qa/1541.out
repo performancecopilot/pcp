@@ -1,37 +1,36 @@
 QA output created by 1541
 TMP.in: Warning: these are lines that refactor cannot handle
-[34]_change_config foo bar || echo "expect warning"
-[35]_wait_for_pmcd || echo "expect warning"
-[36]_wait_pmcd_end && babble
-[37]_wait_for_pmcd_stop 10
-[38]_wait_for_pmlogger && echo "expect warning"
-[38]_wait_for_pmlogger && echo "expect warning"
-[38]_wait_for_pmlogger && echo "expect warning"
-[39]_wait_pmlogger_end pid &
-[40]_wait_for_pmie warning
-[41]_wait_pmie_end warning
-[42]_wait_for_pmproxy port_warning
-[43]_wait_for_pmproxy -P logfile__warning
-[44]_wait_pmproxy_end || warning
-[45]_disable_loggers >warning
-[46]_get_primary_logger_pid ; warning
-[47]_prepare_pmda_install foo & true_warning
-[48]_restore_pmda_install bar || foo_warning
-[49]_setup_purify prog foo_warning
-[50]_wait_for_pmcd;warning
-[51]_sighup_pmcd>warning
-[52]_get_config foo
-[53]c=`_get_config pmie`
-[54]c=$(_get_config bar)
-[55]w=`_get_word_size warning`
-[56]w="`_get_word_size warning`"
-[57]w=$(_get_word_size)
-[58]w="$(_get_word_size)"
-[59]e=`_get_endian warning`
-[60]_check_metric foo bar warning
+[33]_change_config foo bar || echo "expect warning"
+[34]_wait_for_pmcd || echo "expect warning"
+[35]_wait_pmcd_end && babble
+[36]_wait_for_pmcd_stop 10
+[37]_wait_for_pmlogger && echo "expect warning"
+[37]_wait_for_pmlogger && echo "expect warning"
+[37]_wait_for_pmlogger && echo "expect warning"
+[38]_wait_pmlogger_end pid &
+[39]_wait_for_pmie warning
+[40]_wait_pmie_end warning
+[41]_wait_for_pmproxy port_warning
+[42]_wait_for_pmproxy -P logfile__warning
+[43]_wait_pmproxy_end || warning
+[44]_disable_loggers >warning
+[45]_get_primary_logger_pid ; warning
+[46]_prepare_pmda_install foo & true_warning
+[47]_restore_pmda_install bar || foo_warning
+[48]_wait_for_pmcd;warning
+[49]_sighup_pmcd>warning
+[50]_get_config foo
+[51]c=`_get_config pmie`
+[52]c=$(_get_config bar)
+[53]w=`_get_word_size warning`
+[54]w="`_get_word_size warning`"
+[55]w=$(_get_word_size)
+[56]w="$(_get_word_size)"
+[57]e=`_get_endian warning`
+[58]_check_metric foo bar warning
 --- TMP.in DATESTAMP
 +++ TMP.out DATESTAMP
-@@ -1,33 +1,34 @@
+@@ -1,32 +1,33 @@
  
  # expect these all to to be rewritten
  #
@@ -53,7 +52,6 @@ TMP.in: Warning: these are lines that refactor cannot handle
 -_get_primary_logger_pid
 -_prepare_pmda_install foo
 -_restore_pmda_install bar
--_setup_purify prog
 -_sighup_pmcd
 -_check_metric sample.bin
 -_check_metric sample.bin remotehost
@@ -80,7 +78,6 @@ TMP.in: Warning: these are lines that refactor cannot handle
 +_get_primary_logger_pid || _exit 1
 +_prepare_pmda_install foo || _exit 1
 +_restore_pmda_install bar || _exit 1
-+_setup_purify prog || _exit 1
 +_sighup_pmcd || _exit 1
 +_check_metric sample.bin || _exit 1
 +_check_metric sample.bin remotehost || _exit 1

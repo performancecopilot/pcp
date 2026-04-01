@@ -81,7 +81,6 @@ _disable_loggers
 _get_primary_logger_pid
 _prepare_pmda_install foo
 _restore_pmda_install bar
-_setup_purify prog
 _sighup_pmcd
 _check_metric sample.bin
 _check_metric sample.bin remotehost
@@ -108,7 +107,6 @@ _disable_loggers >warning
 _get_primary_logger_pid ; warning
 _prepare_pmda_install foo & true_warning
 _restore_pmda_install bar || foo_warning
-_setup_purify prog foo_warning
 _wait_for_pmcd;warning
 _sighup_pmcd>warning
 _get_config foo
@@ -157,7 +155,6 @@ _cleanup()
     _get_primary_logger_pid	# no change expected
     _prepare_pmda_install	# no change expected
     _restore_pmda_install	# no change expected
-    _setup_purify	# no change expected
     _sighup_pmcd	# no change expected
     _service pmlogger stop	# no change expected
 }

@@ -659,7 +659,7 @@ _check_metric()
 
 # Check for metric availability from local pmcd and _notrun if not
 # available.
-# Use this check for metrics that are requireed by a qa test but are
+# Use this check for metrics that are required by a qa test but are
 # not universally available, e.g. kernel metrics across different
 # platforms.
 #
@@ -1505,104 +1505,6 @@ _restore_pmlogger_control()
 		$__file >$tmp.new
 	$sudo mv $tmp.new $__file
     done
-}
-
-# purify support
-#
-# typical usage:
-#
-# At the top before outputting $seq.out but after setting $seq ...
-#   _check_purify prog
-#
-# Main code...
-#   _setup_purify prog
-#   _run_purify [arg1] [arg2]
-#
-
-# initial setup for running purify
-# creates purified binary in $__purify_dir
-#
-_setup_purify()
-{
-    # Need to change these to match Purify setup locally, if you
-    # have Purify!
-    #
-    LM_LICENSE_FILE=27000@snort.melbourne.sgi.com
-    RSU_LICENSE_MAP=/usr/Rational/config/LICENSE_MAP
-    export LM_LICENSE_FILE RSU_LICENSE_MAP
-
-    __path=$1
-    __prog=`echo $__path | sed -e 's#.*/##'`
-    __pure_prog="$__prog.pure"
-    __purify_dir=$tmp.purify
-
-    rm -rf $__purify_dir
-    mkdir $__purify_dir
-    cp $__path $__purify_dir
-    __here=`pwd`
-    cd $__purify_dir
-
-    cat >.purify<<EOF
-suppress umr _write
-suppress miu
-EOF
-    unset PURIFYOPTIONS PUREOPTIONS
-    purify -log-file=stderr $__prog >out 2>&1
-    if [ ! -x $__prog.pure ]
-    then
-	cat out
-	echo "Hmm ... purify failed to create $__prog.pure"
-	return 1
-    fi
-    cd $__here
-    return 0
-}
-
-_run_purify()
-{
-    __here=`pwd`
-    cd $__purify_dir
-    $__purify_dir/$__pure_prog "$@" > $tmp._purify.out 2>&1
-    cat $tmp._purify.out >>$__here/$seq_full
-    if grep -i expired $tmp._purify.out >/dev/null; then
-	cat $tmp._purify.out
-    else
-	_filter_purify < $tmp._purify.out
-    fi
-    cd $__here
-}
-
-_filter_purify()
-{
-    $PCP_AWK_PROG '
-state == 0 && /License successfully checked out/	{ state = 1; next }
-state == 0 && /Purify checking enabled/			{ state = 1; next }
-state == 1						{ print }' \
-    | sed \
-	-e 's/pid [0-9][0-9]*/pid PID/g' \
-	-e "s;$__purify_dir;TMP;g" \
-	-e '/reserved for Purify internal use/d' \
-	-e 's/suppressed chunks/suppressed blocks/g' \
-    | $PCP_AWK_PROG -v __extra="$PURIFY_FILTER_EXTRA" '
-/Purify instrumented/		{ skip = 0 }
-/bytes leaked\./		{ print "..."; skip = 1; next }
-skip == 1			{ next }
-				{ print }
-/Purify Heap Analysis/		{ print "..."; skip = 1 }
-/Basic memory usage \(including Purify/		{ print "..."; skip = 1 }
-__extra != "" && /Current file descriptors/	{ print "..."; skip = 1 }' \
-    | (if [ "$PURIFY_FILTER_EXTRA" ]
-    then sed -e 's/in use: [0-9][0-9]*/in use: N/'
-    else cat -
-    fi)
-}
-
-_check_purify()
-{
-    [ $# -eq 1 ] || _notrun "_check_purify needs executable as argument"
-    __path=$1
-    which purify >/dev/null 2>&1
-    [ $? -eq 0 ] || _notrun "No purify binary found"
 }
 
 # check that test is not running on a 32 bit environment
@@ -2528,57 +2430,41 @@ _get_word_size()
 _all_hostnames()
 {
     touch $tmp._addr
-    ssh pcpqa@$1 </dev/null netstat -in 2>/dev/null >$tmp._tmp
-    if grep 'Network.*Address' $tmp._tmp >/dev/null
+    ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
+    if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
     then
-	# This is the IRIX version of netstat -in, get IP addr from the
-	# Address field
-	# 
-	# Name   Mtu   Network         Address            Ipkts Ierrs ...
-	# ef0    1500  134.14.55.128   134.14.55.149  712168207    10 ...
-	#                              134.14.55.159      
-	#                              134.14.55.147      
-	# ef2*   1500  none            none                   0     0 ...
-	# lo0    32992 127             127.0.0.1       23628402     0 ...
+	# This is the Linux version of ifconfig, get IP addr from the
+	# inet addr: line
 	#
-	$PCP_AWK_PROG <$tmp._tmp >$tmp._addr '
-/^lo/									{ next }
-NF >= 4 && $4 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/ 	{ print $4 }
-NF == 1 && $1 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/	{ print $1 }
-END									{ print "End-of-List" }'
-    else
-	ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
-	if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
-	then
-	    # This is the Linux version of ifconfig, get IP addr from the
-	    # inet addr: line
-	    #
-	    # eth0      Link encap:Ethernet  HWaddr 00:90:27:98:EE:A8  
-	    #	        inet addr:134.14.55.176  Bcast:134.14.55.255  ...
-	    #	        UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
-	    #	        ...
-	    #
-	    # lo        Link encap:Local Loopback  
-	    #	        inet addr:127.0.0.1  Mask:255.0.0.0
-	    #	        UP LOOPBACK RUNNING  MTU:16436  Metric:1
-	    #	        ...
-	    #
-	    # Note addr: tag is not present in some ifconfig output
-	    #
-	    $PCP_AWK_PROG <$tmp._tmp '
+	# eth0      Link encap:Ethernet  HWaddr 00:90:27:98:EE:A8  
+	#	        inet addr:134.14.55.176  Bcast:134.14.55.255  ...
+	#	        UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+	#	        ...
+	#
+	# lo        Link encap:Local Loopback  
+	#	        inet addr:127.0.0.1  Mask:255.0.0.0
+	#	        UP LOOPBACK RUNNING  MTU:16436  Metric:1
+	#	        ...
+	#
+	# Note addr: tag is not present in some ifconfig output
+	#
+	$PCP_AWK_PROG <$tmp._tmp '
 /^lo/						{ skip = 1; next }
+/^vnet/						{ skip = 1; next }
+/^docker/					{ skip = 1; next }
+/^cni-podman/					{ skip = 1; next }
+/^vibr/						{ skip = 1; next }
 skip == 1 && NF > 0				{ next }
 skip == 1 					{ skip = 0 }
 $1 == "inet" && $2 ~ /addr:/			{ print $2 }
 $1 == "inet" && $2 ~ /^[0-9]/			{ print $2 }
 END						{ print "End-of-List" }' \
 	    | sed -e 's/addr://' >$tmp._addr
-	else
-	    # Nothing we can do really, as there is no way of passing
-	    # an error back from here, other than returning an empty
-	    # list
-	    return
-	fi
+    else
+	# Nothing we can do really, as there is no way of passing
+	# an error back from here, other than returning an empty
+	# list
+	return
     fi
     cat $tmp._addr \
     | while read __ip
@@ -2614,32 +2500,15 @@ _all_ipaddrs()
     touch $tmp._addr
     if [ "$1" = "localhost" ]
     then 
-	netstat -in 2>/dev/null >$tmp._tmp
+	/sbin/ifconfig 2>/dev/null >$tmp._tmp
     else
-	ssh pcpqa@$1 </dev/null netstat -in 2>/dev/null >$tmp._tmp
+	ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
     fi
-    if grep 'Network.*Address' $tmp._tmp >/dev/null
+    if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
     then
-	# this is the IRIX version of netstat -in, get IP addr from the
-	# Address field
+	# This is the Linux version of ifconfig, get IP addr from the
+	# inet addr: line
 	#
-	$PCP_AWK_PROG <$tmp._tmp >$tmp._addr '
-/^lo/ || /^sl/ || /^pp/							{ next }
-NF >= 4 && $4 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/ 	{ print $4 }
-NF == 1 && $1 ~ /^[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*\.[0-9][0-9]*$/	{ print $1 }
-END									{ print "End-of-List" }'
-    else
-        if [ "$1" = "localhost" ]
-	then 
-	    /sbin/ifconfig 2>/dev/null >$tmp._tmp
-	else
-	    ssh pcpqa@$1 </dev/null /sbin/ifconfig 2>/dev/null >$tmp._tmp
-	fi
-	if grep 'UP.*RUNNING' $tmp._tmp >/dev/null
-	then
-	    # This is the Linux version of ifconfig, get IP addr from the
-	    # inet addr: line
-	    #
 # ppp0      Link encap:Point-to-Point Protocol
 #           inet addr:134.14.52.219  P-t-P:134.14.52.189  Mask:255.255.255.255
 #           UP POINTOPOINT RUNNING NOARP MULTICAST  MTU:1522  Metric:1
@@ -2647,27 +2516,32 @@ END									{ print "End-of-List" }'
 #           TX packets:47474 errors:0 dropped:0 overruns:0 carrier:0
 #           collisions:0 txqueuelen:3
 #           RX bytes:7017171 (6.6 Mb)  TX bytes:3952015 (3.7 Mb)
-	    #
-	    # Note addr: tag is not present in some ifconfig output,
-	    #      AND UP comes first!
-	    #
-	    $PCP_AWK_PROG <$tmp._tmp '
+	#
+	# Note addr: tag is not present in some ifconfig output,
+	#      AND UP comes first!
+	#
+	$PCP_AWK_PROG <$tmp._tmp '
+/^vnet/						{ skip = 1; next }
+/^docker/					{ skip = 1; next }
+/^cni-podman/					{ skip = 1; next }
+/^vibr/						{ skip = 1; next }
 /^[a-z]/					{ loopback = 0 }
 /^lo/						{ loopback = 1; next }
+skip == 1 && NF > 0				{ next }
+skip == 1 					{ skip = 0 }
 $1 == "inet" && $2 ~ /addr:/			{ save = $2; next }
 $1 == "inet" && $2 ~ /^[0-9]/			{ save = $2; next }
 $1 == "TX"					{ if (loopback == 0 && save != 0)
-						    print save
-						  save = 0
-						}
+						print save
+					      save = 0
+					    }
 END						{ print "End-of-List" }' \
-	    | sed -e 's/addr://' >$tmp._addr
-	else
-	    # Nothing we can do really, as there is no way of passing
-	    # an error back from here, other than returning an empty
-	    # list
-	    return
-	fi
+	| sed -e 's/addr://' >$tmp._addr
+    else
+	# Nothing we can do really, as there is no way of passing
+	# an error back from here, other than returning an empty
+	# list
+	return
     fi
     cat $tmp._addr \
     | while read __ip

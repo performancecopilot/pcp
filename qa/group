@@ -345,9 +345,6 @@ help
 # pmgadgets
 pmgadgets
 
-# tests that use purify
-purify
-
 # tests that use valgrind or helgrind
 valgrind
 helgrind
@@ -821,13 +818,13 @@ suse
 281 archive mem_leak #504616 local
 282 pmcd local pmprobe logutil pmlc folio pmlogger_check
 283 context pmcd local
-284:retired  pdu local purify
+284:retired  pdu local
 285 dbpmda local pmda.sample
 286 pmda.linux local pmval kernel
 287 pmlogreduce local pmval
 288 archive local
 289 libpcp fetch archive #505498 local
-290:retired  pmns local purify
+290:retired  pmns local
 291 logutil local pmlogextract pmlogdump
 292 logutil pmval local pmlogger_check
 293 pmstat #939275 local
@@ -866,11 +863,11 @@ suse
 326 pmlogger pmval libpcp pmcd local pmda.install pmlogdump timezone pmda.sample
 327 archive local pmlogdump pmloglabel timezone
 328 local pmlogextract pmlogdump
-329:retired archive mem_leak local purify
-330:retired archive mem_leak local purify
-331:retired archive mem_leak local purify
-332:retired archive mem_leak local purify
-333:retired archive mem_leak local purify
+329:retired archive mem_leak local
+330:retired archive mem_leak local
+331:retired archive mem_leak local
+332:retired archive mem_leak local
+333:retired archive mem_leak local
 334 derive local
 335 derive local pmval pmstore
 336 trace local pmda.install folio pmda.trace
@@ -1121,7 +1118,7 @@ suse
 581 pmie local kernel
 582 pmlogdump local
 583 pmie #698718 remote
-584:retired libpcp pmie local #698774 purify
+584:retired libpcp pmie local #698774
 585 pmval pmprobe local pminfo kernel
 586 other local
 587 pmcd #754795 local pmda.install pmda.trivial

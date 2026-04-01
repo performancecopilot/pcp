@@ -3,7 +3,7 @@
 # Check group file and qa scripts for a specific pcp command ($1)
 #
 # $1 is assumed to be _both_ the name of a command that appears in
-# the QA scripts (or part of a command, e.g. purify in _setup_purify)
+# the QA scripts (or part of a command, e.g. valgrind in _run_valgrind)
 # and the name of a group in the group file
 #
 # Note: if $1 is of the form pcp-xxx, this is special, and is the name
