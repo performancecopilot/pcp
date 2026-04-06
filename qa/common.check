@@ -1218,7 +1218,7 @@ _wait_pmlogger_end()
 	    __i=`expr $__i + 1`
 	    if [ $__i -ge 100 ]
 	    then
-		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$__pid removed after 100 iterations"
+		echo "_wait_pmlogger_end: failed to see $PCP_TMP_DIR/pmlogger/$__pid removed after 10 seconds"
 		cat "$PCP_TMP_DIR/pmlogger/$__pid"
 		_ps_full_by_name pmlogger
 		_systemctl_status pmlogger
@@ -1287,7 +1287,7 @@ _wait_for_pmie()
 	    __i=`expr $__i + 1`
 	    if [ "$__i" -ge 100 ]
 	    then
-		echo "_wait_for_pmie: failed to see pmie start after 100 iterations"
+		echo "_wait_for_pmie: failed to see pmie start after 10 seconds"
 		_systemctl_status pmie
 		return 1
 	    fi
@@ -3113,7 +3113,11 @@ _prepare_pmda_mmv()
 
 _restore_pmda_mmv()
 {
-    [ -n "$__cullmmv" ] && $__cullmmv && _restore_config "$PCP_TMP_DIR/mmv"
+    if [ "$__cullmmv" = true ]
+    then
+	_restore_config "$PCP_TMP_DIR/mmv"
+	__cullmmv=''
+    fi
 }
 
 # prepare for a save-able pmcd and pmda configuration.
@@ -3540,19 +3544,19 @@ _path_readable()
     fi
     if [ ! -f "$__path" ]
     then
-	echo >&2 "_path_readable: bozo, $__path does not exist!"
+	echo >&2 "_path_readable: $__path is not a file"
 	return 1
     fi
-    if $sudo -u "$__user" [ -r "$__path" ]
+    if $sudo -u "$__user" test -r "$__path"
     then
 	return 0
     else
 	echo >&2 "_path_readable: $__path is not readable by the user $__user"
 	__tpath=''
-	for __dir in `echo "$__path" | sed -e 's/\// /g'`
+	for __dir in `dirname "$__path" | sed -e 's/\// /g'`
 	do
 	    __tpath="$__tpath/$__dir"
-	    if $sudo -u "$__user" [ -r "$__tpath" ]
+	    if $sudo -u "$__user" test -r "$__tpath"
 	    then
 		:
 	    else
@@ -3612,10 +3616,8 @@ $2 == '$__pid' && $NF ~ /^([^)]*)$/ { print $3 }
 			$PCP_PS_PROG $PCP_PS_ALL_FLAGS -p $__pid $__ppid >>$seq_full
 		    fi
 		    return 0
-		else
-		    echo "$__tag: failed to see pid $__pid exit after 100 iterations"
 		fi
-		echo "$__tag: failed to see pid $__pid exit after 100 iterations"
+		echo "$__tag: failed to see pid $__pid exit after 10 seconds"
 		return 1
 	    fi
 	    pmsleep 0.1
@@ -3772,5 +3774,21 @@ _triage_wait_point()
 	    __i=`expr $__i + 1`
 	done
 	echo "_triage_wait_point: $seq.wait removed after $__i seconds, continuing ..."
+    fi
+}
+
+# Distro-specific filtering for init, rc scripts, chkconfig, et al
+#
+_filter_init_distro()
+{
+    if [ -f /etc/mandriva-release ]
+    then
+	# looks like this is a Mandriva bug ... see
+	# http://mandriva.598463.n5.nabble.com/Bug-24409-initscripts-New-netfs-provides-local-fs-scripts-can-t-be-turned-off-td869820.html
+	#
+	sed \
+	    -e '/Warning: netfs is needed by pcp in runlevel/d'
+    else
+	cat
     fi
 }

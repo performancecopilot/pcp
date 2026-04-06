@@ -206,7 +206,7 @@ else
 			    $2 = l1 "." l2
 			  }
 			}
-/^####*/		{ print "'"$1"'[" NR "] Warning: no renumbering support for more than 2 levels of Heading" >"'$tmp.warn'" }
+/^####*/ && $2 ~ /[0-9]/{ print "'"$1"'[" NR "] Warning: no renumbering support for more than 2 levels of Heading" >"'$tmp.warn'" }
 			{ print }
 '
 fi
@@ -242,15 +242,15 @@ then
     then
 	awk <$tmp.md >$tmp.tmp '
 @include "'$tmp.anchor'"
-
 tolower($0) ~ /^# table of contents$/	{ # marker for TOC, cull old TOC if any
 			  print
 			  skip = 1
+			  onetrip = 1
 			  next
 			}
 skip == 1 && NF == 0	{ skip = 0 }
 skip == 1		{ next }
-/^<a id="/		{ if ($2 !~ /^name="idx+/) {
+/^<a id="/		{ if ($2 !~ /^id="idx+/) {
 			    # not an index citation
 			    save_a = $0
 			    next
@@ -342,7 +342,7 @@ p
 
     # missing </a> is a bad index citation ... drop 'em
     #
-    if grep -v '</a>' <$tmp.tmp >$tmp.bad
+    if grep -v '<a[^>]*>.*</a>' <$tmp.tmp >$tmp.bad
     then
 	sed <$tmp.bad -e "s/^/$1[/" -e 's/ <a id="/] Warning: index citation </' -e 's/".*/> missing <\/a>, not indexed/'
 	grep '</a>' <$tmp.tmp >$tmp.ok
