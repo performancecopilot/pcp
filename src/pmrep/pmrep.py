@@ -149,6 +149,8 @@ class PMReporter(object):
         self.outfile = None
 
         # Internal
+        # CSV unit strings are off by default; enable with -U/--csv-unit-info
+        self.csv_unitinfo = 0
         self.format = None # stdout format
         self.writer = None
         self.pmi = None
@@ -203,7 +205,7 @@ class PMReporter(object):
 
         opts.pmSetLongOptionHeader("Reporting options")
         opts.pmSetLongOption("no-header", 0, "H", "", "omit headers")
-        opts.pmSetLongOption("no-unit-info", 0, "U", "", "omit unit info from headers")
+        opts.pmSetLongOption("csv-unit-info", 0, "U", "", "include unit info in CSV headers; suppress stdout units")
         opts.pmSetLongOption("no-inst-info", 0, "", "", "omit instance info from headers")
         opts.pmSetLongOption("no-globals", 0, "G", "", "omit global metrics")
         opts.pmSetLongOption("timestamps", 0, "p", "", "print timestamps")
@@ -299,7 +301,10 @@ class PMReporter(object):
         elif opt == 'H':
             self.header = 0
         elif opt == 'U':
-            self.unitinfo = 0
+            self.unitinfo = 0   # hide units on stdout
+            self.csv_unitinfo = 1  # show units on csv
+        elif opt == 'csv-unit-info':
+            self.csv_unitinfo = 1
         elif opt == 'G':
             self.globals = 0
         elif opt == 'p':
@@ -916,6 +921,7 @@ class PMReporter(object):
         """ Write info header for CSV output """
         if not self.header:
             return
+        csv_unitinfo = self.csv_unitinfo
         if self.extcsv:
             self.writer.write("Host,Interval,")
         self.writer.write("Time")
@@ -923,7 +929,7 @@ class PMReporter(object):
             for j, n in self.get_results_iter(i, metric, results):
                 name = metric
                 unit_txt = ""
-                if self.unitinfo:
+                if csv_unitinfo:
                     raw_unit = self.metrics[metric][2][0]
                     unit_txt = "" if raw_unit is None else str(raw_unit)
                 if not self.dynamic_header:
@@ -936,7 +942,7 @@ class PMReporter(object):
                 else:
                     if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
                         name += "-" + n[1]
-                if self.unitinfo and unit_txt:
+                if csv_unitinfo and unit_txt:
                     name += "(" + unit_txt + ")"
                 name_field = self.sanitize_csv_header_field(name)
                 self.writer.write(self.delimiter + "\"" + name_field + "\"")

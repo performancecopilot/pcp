@@ -53,17 +53,14 @@ echo "=== pmrep archive output - filter"
 pmrep $log -o archive -F $tmp.archive.f -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics | _msg_filter
 pmrep -z -a $tmp.archive.f -p -I -r -u $metrics
 
-echo "=== pmrep csv output with units header"
-pmrep $log -o csv -p -I -r -u $metrics
-
-echo "=== pmrep csv output without units header"
-pmrep $log -o csv -p -I -r -u $metrics -U
+echo "=== pmrep csv output with units header (-U)"
+pmrep $log -o csv -p -I -r -u -U $metrics
 
 echo "=== pmrep csv output - filter with units header"
-pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics
+pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics -U
 
 echo "=== pmrep csv output - filter without units header"
-pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics -U
+pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics
 # success, all done
 status=0
 exit
