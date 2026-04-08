@@ -53,9 +53,11 @@ TOPCFILES = \
 	Hashtable.c \
 	Header.c \
 	HeaderOptionsPanel.c \
+	History.c \
 	HostnameMeter.c \
 	IncSet.c \
 	InfoScreen.c \
+	LineEditor.c \
 	ListItem.c \
 	LoadAverageMeter.c \
 	Machine.c \
@@ -134,9 +136,11 @@ TOPHFILES = \
 	Header.h \
 	HeaderLayout.h \
 	HeaderOptionsPanel.h \
+	History.h \
 	HostnameMeter.h \
 	IncSet.h \
 	InfoScreen.h \
+	LineEditor.h \
 	ListItem.h \
 	LoadAverageMeter.h \
 	Machine.h \
