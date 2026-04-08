@@ -11,6 +11,7 @@
  * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
  * for more details.
  */
+#include <stdlib.h>
 #include <uv.h>
 #include "dict.h"
 #include "pmapi.h"
@@ -31,12 +32,20 @@ typedef struct {
 typedef struct {
     int			status;		/* exit status */
     int			count;		/* url count */
+    int			defer_pending;	/* deferred source_release timers */
     char		**urls;		/* callers */
     uv_mutex_t		mutex;
     dict		*uniq;
     dict		*params;
     dict		*contexts;
 } sources_t;
+
+typedef struct source_defer {
+    uv_timer_t	timer;
+    sources_t	*sp;
+    context_t	*cp;
+    sds		ctx;
+} source_defer_t;
 
 static void
 source_release(sources_t *sp, context_t *cp, sds ctx)
@@ -48,16 +57,51 @@ source_release(sources_t *sp, context_t *cp, sds ctx)
 }
 
 static void
-sources_release(void *arg, const struct dictEntry *entry)
+source_defer_close(uv_handle_t *handle)
 {
-    sources_t	*sp = (sources_t *)arg;
-    context_t	*cp = (context_t *)dictGetVal(entry);
-    sds		ctx = (sds)dictGetKey(entry);
+    source_defer_t *d = (source_defer_t *)handle->data;
 
-    if (pmDebugOptions.discovery)
-	fprintf(stderr, "releasing context %s\n", ctx);
+    free(d);
+}
 
-    source_release(sp, cp, ctx);
+/*
+ * pmWebGroupContext calls on_done, then webgroup_deref_context(cp). Calling
+ * pmWebGroupDestroy from on_done frees cp first — use-after-free. Defer destroy
+ * to the next event-loop tick so deref runs while cp is still valid.
+ */
+static void
+source_defer_cb(uv_timer_t *handle)
+{
+    source_defer_t *d = (source_defer_t *)handle->data;
+    uv_loop_t *loop = uv_handle_get_loop((uv_handle_t *)handle);
+
+    source_release(d->sp, d->cp, d->ctx);
+    if (--d->sp->defer_pending == 0)
+	uv_stop(loop);
+    uv_close((uv_handle_t *)handle, source_defer_close);
+}
+
+static int
+source_release_deferred(uv_loop_t *loop, sources_t *sp, context_t *cp, sds ctx)
+{
+    source_defer_t *d = malloc(sizeof(*d));
+
+    if (d == NULL) {
+	fprintf(stderr, "%s: out of memory deferring context release\n",
+		pmGetProgname());
+	return -ENOMEM;
+    }
+    d->sp = sp;
+    d->cp = cp;
+    d->ctx = ctx;
+    uv_timer_init(loop, &d->timer);
+    d->timer.data = d;
+    if (uv_timer_start(&d->timer, source_defer_cb, 0, 0) != 0) {
+	free(d);
+	return -EINVAL;
+    }
+    sp->defer_pending++;
+    return 0;
 }
 
 static void
@@ -166,8 +210,14 @@ on_source_done(sds context, int status, sds message, void *arg)
     if (remove) {
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "remove context %s\n", context);
-	source_release(sp, cp, context);
+	/*
+	 * Remove from the dict before pmWebGroupDestroy. The lookup key is the
+	 * PMWEBAPI context id (libpcp_web frees it in pmWebGroupDestroy); calling
+	 * dictDelete after that uses freed memory and corrupts the heap.
+	 */
 	dictDelete(sp->contexts, context);
+	if (source_release_deferred(uv_default_loop(), sp, cp, context) < 0)
+	    sp->status = 1;
     }
 
     if (release) {
@@ -176,7 +226,9 @@ on_source_done(sds context, int status, sds message, void *arg)
 	dictEntry *entry;
 	dictInitIterator(&iter, sp->contexts);
 	while ((entry = dictNext(&iter)) != NULL) {
-	    sources_release(sp, entry);
+	    if (source_release_deferred(uv_default_loop(), sp,
+		    (context_t *)dictGetVal(entry), (sds)dictGetKey(entry)) < 0)
+		sp->status = 1;
 	}
     } else if (pmDebugOptions.discovery) {
 	fprintf(stderr, "not yet releasing (count=%d)\n", count);
@@ -198,14 +250,17 @@ on_source_info(pmLogLevel level, sds message, void *arg)
 static void
 sources_discovery_start(uv_timer_t *arg)
 {
+    uv_loop_t	*loop = uv_handle_get_loop((uv_handle_t *)arg);
     uv_handle_t	*handle = (uv_handle_t *)arg;
     sources_t	*sp = (sources_t *)handle->data;
     dict	*dp = dictCreate(&sdsOwnDictCallBacks);
     sds		name, value;
     int		i, fail = 0, total = sp->count;
 
-    if (dp == NULL)
+    if (dp == NULL) {
+	uv_stop(loop);
 	return;
+    }
     name = sdsnew("hostspec");
 
     for (i = 0; i < total; i++) {
@@ -231,6 +286,11 @@ sources_discovery_start(uv_timer_t *arg)
 
     dictRelease(dp);
     pmWebTimerClose();
+    /*
+     * Allow uv_run() in source_discovery() to return: libpcp_web leaves uv_async
+     * and timers referenced until pmWebGroupClose(), which runs after the loop.
+     */
+    uv_stop(loop);
 }
 
 /*
@@ -281,12 +341,32 @@ source_discovery(int count, char **urls)
     uv_timer_init(loop, &timing);
     uv_timer_start(&timing, sources_discovery_start, 0, 0);
     uv_run(loop, UV_RUN_DEFAULT);
+    /*
+     * on_source_done defers pmWebGroupDestroy. Without uv_stop, a second
+     * UV_RUN_DEFAULT would block forever (uv_async, GC timer, ...). The last
+     * deferred callback calls uv_stop so this run exits after work is drained.
+     */
+    if (find.defer_pending > 0)
+	uv_run(loop, UV_RUN_DEFAULT);
+
+    /*
+     * Close libpcp_web loop handles before uv_loop_close(); drain each round of
+     * uv_close callbacks on this loop (Approach A — minimal shutdown).
+     */
+    pmWebGroupClose(&settings.module);
+    uv_run(loop, UV_RUN_DEFAULT);
+
+    pmWebTimerLoopFinalize();
+    uv_run(loop, UV_RUN_DEFAULT);
+
+    uv_close((uv_handle_t *)&timing, NULL);
+    uv_run(loop, UV_RUN_DEFAULT);
+
     uv_loop_close(loop);
 
     /*
      * Finished, release all resources acquired so far
      */
-    pmWebGroupClose(&settings.module);
     uv_mutex_destroy(&find.mutex);
     dictRelease(find.uniq);
     dictRelease(find.params);

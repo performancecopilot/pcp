@@ -180,6 +180,7 @@ extern int pmWebTimerSetup(void);
 extern int pmWebTimerSetEventLoop(void *);
 extern int pmWebTimerSetMetricRegistry(struct mmv_registry *);
 extern void pmWebTimerClose(void);
+extern void pmWebTimerLoopFinalize(void); /* uv_close timer; before uv_loop_close */
 
 /*
  * Asynchronous archive location and contents discovery services

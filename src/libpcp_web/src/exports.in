@@ -294,3 +294,7 @@ PCP_WEB_1.23 {
     dictSetVal;
     keySlotsContextFree;
 } PCP_WEB_1.22;
+
+PCP_WEB_1.24 {
+    pmWebTimerLoopFinalize;
+} PCP_WEB_1.23;

@@ -13,6 +13,7 @@
  */
 #include <assert.h>
 #include <ctype.h>
+#include <stddef.h>
 #include "pmapi.h"
 #include "pmda.h"
 #include "schema.h"
@@ -67,6 +68,9 @@ typedef struct webgroups {
     unsigned int	active;
     unsigned int	gc_timer_started;
 } webgroups;
+
+#define WG_FROM_TIMER(h) ((struct webgroups *)((char *)(h) - offsetof(struct webgroups, timer)))
+#define WG_FROM_ASYNC(h) ((struct webgroups *)((char *)(h) - offsetof(struct webgroups, async)))
 
 static struct webgroups *
 webgroups_lookup(pmWebGroupModule *module)
@@ -329,6 +333,29 @@ webgroup_timers_stop(struct webgroups *groups)
 	groups->gc_timer_started = 0;
     }
     groups->active = 0;
+}
+
+/*
+ * pmWebGroupClose: the GC timer and async handles live inside struct webgroups.
+ * Free the struct only after libuv has finished closing them (valgrind-safe).
+ */
+static void
+webgroup_module_close_async_cb(uv_handle_t *handle)
+{
+    struct webgroups	*groups = WG_FROM_ASYNC(handle);
+
+    memset(groups, 0, sizeof(*groups));
+    free(groups);
+}
+
+static void
+webgroup_module_close_timer_cb(uv_handle_t *handle)
+{
+    struct webgroups	*groups = WG_FROM_TIMER(handle);
+
+    groups->gc_timer_started = 0;
+    groups->active = 0;
+    uv_close((uv_handle_t *)&groups->async, webgroup_module_close_async_cb);
 }
 
 static void
@@ -2639,6 +2666,12 @@ pmWebGroupClose(pmWebGroupModule *module)
     struct webgroups	*groups = (struct webgroups *)module->privdata;
     dictEntry		*entry;
 
+    /*
+     * Clear module->privdata before async closes finish so a nested close cannot
+     * run teardown twice; struct webgroups stays valid until close callbacks run.
+     */
+    module->privdata = NULL;
+
     if (groups) {
 	/* walk the contexts, stop timers and free resources */
 	{
@@ -2648,12 +2681,19 @@ pmWebGroupClose(pmWebGroupModule *module)
 		webgroup_drop_context((context_t *)dictGetVal(entry), NULL);
 	}
 	dictRelease(groups->contexts);
-	webgroup_timers_stop(groups);
-	if (groups->events)
-	    uv_close((uv_handle_t *)&groups->async, NULL);
-	memset(groups, 0, sizeof(struct webgroups));
-	free(groups);
-	module->privdata = NULL;
+	groups->contexts = NULL;
+
+	if (groups->events) {
+	    if (groups->active && groups->gc_timer_started) {
+		uv_timer_stop(&groups->timer);
+		uv_close((uv_handle_t *)&groups->timer, webgroup_module_close_timer_cb);
+	    } else {
+		uv_close((uv_handle_t *)&groups->async, webgroup_module_close_async_cb);
+	    }
+	} else {
+	    memset(groups, 0, sizeof(struct webgroups));
+	    free(groups);
+	}
     }
 
     sdsfree(PARAM_HOSTNAME);

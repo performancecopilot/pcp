@@ -27,6 +27,12 @@ pmWebTimerClose(void)
     /* noop */
 }
 
+void
+pmWebTimerLoopFinalize(void)
+{
+    /* noop */
+}
+
 int
 pmWebTimerSetEventLoop(void *arg)
 {

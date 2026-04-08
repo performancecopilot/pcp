@@ -86,6 +86,20 @@ pmWebTimerClose(void)
     uv_mutex_unlock(&server.callback_mutex);
 }
 
+/*
+ * uv_close(2) the global instrumentation timer after pmWebTimerClose().
+ * Call before uv_loop_close(); run the loop once to process the close cb.
+ */
+void
+pmWebTimerLoopFinalize(void)
+{
+    if (server.events == NULL)
+	return;
+    if (uv_is_closing((uv_handle_t *)&server.timer))
+	return;
+    uv_close((uv_handle_t *)&server.timer, NULL);
+}
+
 static void
 timer_worker(uv_timer_t *arg)
 {
