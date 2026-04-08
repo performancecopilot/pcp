@@ -1474,6 +1474,10 @@ pmdaMetric metrictable[] = {
 		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	/*NMVE - Error Log */
 	{ .m_desc = {
+		PMDA_PMID(CLUSTER_NVME_ERROR_LOG_TOTAL, 0),
+		PM_TYPE_U64, DISK_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },	
+	{ .m_desc = {
 		PMDA_PMID(CLUSTER_NVME_ERROR_LOG, ERROR_COUNT),
 		PM_TYPE_U64, DISK_NVME_LOG_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(0,0,0,0,0,0) }, },
@@ -2948,6 +2952,10 @@ pmdaMetric metrictable[] = {
 		PMDA_PMUNITS(1,0,0,0,0,0) }, },
 	/*UUID NMVE - Error Log */
 	{ .m_desc = {
+		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG_TOTAL, 0),
+		PM_TYPE_U64, UUID_INDOM, PM_SEM_INSTANT,
+		PMDA_PMUNITS(0,0,0,0,0,0) }, },	
+	{ .m_desc = {
 		PMDA_PMID(CLUSTER_UUID_NVME_ERROR_LOG, ERROR_COUNT),
 		PM_TYPE_U64, UUID_NVME_LOG_INDOM, PM_SEM_INSTANT,
 		PMDA_PMUNITS(0,0,0,0,0,0) }, },
@@ -3437,6 +3445,13 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 				return sts;
 			return nvme_error_log_fetch(item, cluster, nvme_error_log, atom);
 
+		case CLUSTER_NVME_ERROR_LOG_TOTAL:
+			sts = pmdaCacheLookup(INDOM(DISK_INDOM), inst, NULL, (void**)&dev);
+			if (sts <0)
+				return sts;
+			atom->ull = dev->nvme_error_log_total;                                            
+			return PMDA_FETCH_STATIC;
+
 		case CLUSTER_UUID_INFO:
 			sts = pmdaCacheLookup(INDOM(UUID_INDOM), inst, NULL, (void **)&dev);
 			if (sts < 0)
@@ -3527,6 +3542,13 @@ smart_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 			if (sts <0)
 				return sts;
 			return nvme_error_log_fetch(item, cluster, nvme_error_log, atom);
+
+		case CLUSTER_UUID_NVME_ERROR_LOG_TOTAL:
+			sts = pmdaCacheLookup(INDOM(UUID_INDOM), inst, NULL, (void**)&dev);
+			if (sts <0)
+				return sts;
+			atom->ull = dev->nvme_error_log_total;                                            
+			return PMDA_FETCH_STATIC;
 
 		default:
 			return PM_ERR_PMID;

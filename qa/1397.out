@@ -1958,6 +1958,13 @@ Help:
 Decoded status code type for the error
 No value(s) available!
 
+smart.nvme_error_log.total PMID: 150.264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "sda"] value 0
+
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
@@ -4521,6 +4528,13 @@ smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type
 Help:
 Decoded status code type for the error
 No value(s) available!
+
+smart.wwid.nvme_error_log.total PMID: 150.1264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "8ce38e0500882b63"] value 0
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -7479,6 +7493,17 @@ Help:
 Decoded status code type for the error
 No value(s) available!
 
+smart.nvme_error_log.total PMID: 150.264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "sda"] value 0
+    inst [1 or "sdb"] value 0
+    inst [2 or "sdc"] value 0
+    inst [3 or "sdd"] value 0
+    inst [4 or "sde"] value 0
+
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
@@ -10042,6 +10067,13 @@ smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type
 Help:
 Decoded status code type for the error
 No value(s) available!
+
+smart.wwid.nvme_error_log.total PMID: 150.1264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "8ce38e0500882b63"] value 0
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -12662,6 +12694,13 @@ Help:
 Decoded status code type for the error
 No value(s) available!
 
+smart.nvme_error_log.total PMID: 150.264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "nvme0n1"] value 0
+
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
@@ -13292,13 +13331,13 @@ Help:
 Raw metric value for the given SMART metric
 No value(s) available!
 
-smart.wwid.attributes.airflow_temp_celsius.thresh PMID: 150.1190.3 [Normalised threshold value for the given SMART metric]
+smart.wwid.attributcat: nvme0n1.error: No such file or directory
+es.airflow_temp_celsius.thresh PMID: 150.1190.3 [Normalised threshold value for the given SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
 Normalised threshold value for the given SMART metric
-No value(s) availablcat: nvme0n1.error: No such file or directory
-e!
+No value(s) available!
 
 smart.wwid.attributes.airflow_temp_celsius.value PMID: 150.1190.1 [Normalised current recorded value for the given SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -14280,14 +14319,14 @@ Help:
 Normalised threshold value for the given SMART metric
 No value(s) available!
 
-smart.wwid.attributes.read_soft_error_rate.value PMID: 150.1013.1 [Normalised current recorded value for the given SMART metric]
+smart.wwid.attributes.read_soft_cat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+error_rate.value PMID: 150.1013.1 [Normalised current recorded value for the given SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
 Normalised current recorded value for the given SMART metric
-No value(s) availablcat: nvme0n1.error: No such file or directory
-cat: nvme0n1.error: No such file or directory
-e!
+No value(s) available!
 
 smart.wwid.attributes.read_soft_error_rate.worst PMID: 150.1013.2 [Normalised worst recorded value for the given SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -15154,15 +15193,15 @@ Currrent temperature as reported by temp sensor 2
 
 smart.wwid.nvme_attributes.unsafe_shutdowns PMID: 150.1255.12 [Contains the number of unsafe shutdowns]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
-    Semantics: instant  Units: byte
+    Semantics: inscat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+tant  Units: byte
 Help:
 Contains the number of unsafe shutdowns
     inst [0 or "8ce38e0500882b63"] value 134
 
 smart.wwid.nvme_attributes.warning_composite_temperature_time PMID: 150.1255.15 [Contains amount of time in minutes over composite temp]
-    Data Type: 32-bit unsigned incat: nvme0n1.error: No such file or directory
-cat: nvme0n1.error: No such file or directory
-t  InDom: 150.1 0x25800001
+    Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
 Contains amount of time in minutes over composite temp
@@ -15230,6 +15269,13 @@ smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type
 Help:
 Decoded status code type for the error
 No value(s) available!
+
+smart.wwid.nvme_error_log.total PMID: 150.1264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "8ce38e0500882b63"] value 0
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -17842,6 +17888,13 @@ Help:
 Decoded status code type for the error
 No value(s) available!
 
+smart.nvme_error_log.total PMID: 150.264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "nvme0n1"] value 0
+
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
@@ -18556,15 +18609,15 @@ Help:
 Normalised current recorded value for the given SMART metric
 No value(s) available!
 
-smart.wwid.attributes.command_timeout.worst PMID: 150.1188.2 [Normalised worst recorded value for the given SMART metric]
+smart.wwid.attributes.command_timeout.worst PMID: 150.1188.2 [Normalised worst recorded value forcat: nvme0n1.error: No such file or directory
+ the given SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
 Normalised worst recorded value for the given SMART metric
 No value(s) available!
 
-smart.wwid.attributes.current_helium_level.id PMID: 150.1022.0 [The gicat: nvme0n1.error: No such file or directory
-ven ID for SMART metric]
+smart.wwid.attributes.current_helium_level.id PMID: 150.1022.0 [The given ID for SMART metric]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
@@ -19447,16 +19500,16 @@ The given ID for SMART metric
 No value(s) available!
 
 smart.wwid.attributes.read_soft_error_rate.raw PMID: 150.1013.4 [Raw metric value for the given SMART metric]
-    Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
+    Data Type: 64-bit unsigncat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+ed int  InDom: 150.1 0x25800001
     Semantics: instant  Units: count
 Help:
 Raw metric value for the given SMART metric
 No value(s) available!
 
 smart.wwid.attributes.read_soft_error_rate.thresh PMID: 150.1013.3 [Normalised threshold value for the given SMART metric]
-    Data Type:cat: nvme0n1.error: No such file or directory
-cat: nvme0n1.error: No such file or directory
- 32-bit unsigned int  InDom: 150.1 0x25800001
+    Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
 Normalised threshold value for the given SMART metric
@@ -20325,14 +20378,14 @@ Help:
 Current temperature as reported by temp sensor 3
     inst [0 or "8ce38e0500882b63"] value 0
 
-smart.wwid.nvme_attributes.temperature_sensor_two PMID: 150.1255.18 [Currrent temperature as reported by temp sensor 2]
+smart.wwid.nvme_attributes.temcat: nvme0n1.error: No such file or directory
+cat: nvme0n1.error: No such file or directory
+perature_sensor_two PMID: 150.1255.18 [Currrent temperature as reported by temp sensor 2]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
     Semantics: instant  Units: byte
 Help:
 Currrent temperature as reported by temp sensor 2
-    inst [0 or "8ce38e0500882b63"] valcat: nvme0n1.error: No such file or directory
-cat: nvme0n1.error: No such file or directory
-ue 0
+    inst [0 or "8ce38e0500882b63"] value 0
 
 smart.wwid.nvme_attributes.unsafe_shutdowns PMID: 150.1255.12 [Contains the number of unsafe shutdowns]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -20410,6 +20463,13 @@ smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type
 Help:
 Decoded status code type for the error
 No value(s) available!
+
+smart.wwid.nvme_error_log.total PMID: 150.1264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "8ce38e0500882b63"] value 0
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
@@ -23045,6 +23105,13 @@ Decoded status code type for the error
     inst [2 or "nvme0n1::entry_2"] value "Command Specific Status"
     inst [3 or "nvme0n1::entry_3"] value "Command Specific Status"
 
+smart.nvme_error_log.total PMID: 150.264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.0 0x25800000
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "nvme0n1"] value 4
+
 smart.nvme_info.active_power_state PMID: 150.256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.0 0x25800000
     Semantics: instant  Units: byte
@@ -25635,6 +25702,13 @@ Decoded status code type for the error
     inst [1 or "002538d211514cfa::entry_2"] value "Command Specific Status"
     inst [2 or "002538d211514cfa::entry_3"] value "Command Specific Status"
     inst [3 or "002538d211514cfa::entry_4"] value "Command Specific Status"
+
+smart.wwid.nvme_error_log.total PMID: 150.1264.0 [Total number of NVMe Error Log Pages with errors]
+    Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
+    Semantics: instant  Units: none
+Help:
+Total number of NVMe Error Log Pages with errors
+    inst [0 or "002538d211514cfa"] value 0
 
 smart.wwid.nvme_info.active_power_state PMID: 150.1256.14 [The current active power state for the NVME drive]
     Data Type: 32-bit unsigned int  InDom: 150.1 0x25800001
