@@ -18,6 +18,16 @@
 #include "source.h"
 #include "pmwebapi.h"
 
+/*
+ * uv_handle_get_loop() is not in older libuv (e.g. Ubuntu 18.04 packages). All
+ * libuv 1.x keep the owning loop as handle->loop (UV_HANDLE_FIELDS).
+ */
+static inline uv_loop_t *
+pmfind_handle_loop(const uv_handle_t *handle)
+{
+    return handle->loop;
+}
+
 extern dictType sdsDictCallBacks;
 extern dictType sdsOwnDictCallBacks;
 extern dictType sdsKeyDictCallBacks;
@@ -73,7 +83,7 @@ static void
 source_defer_cb(uv_timer_t *handle)
 {
     source_defer_t *d = (source_defer_t *)handle->data;
-    uv_loop_t *loop = uv_handle_get_loop((uv_handle_t *)handle);
+    uv_loop_t *loop = pmfind_handle_loop((uv_handle_t *)handle);
 
     source_release(d->sp, d->cp, d->ctx);
     if (--d->sp->defer_pending == 0)
@@ -250,7 +260,7 @@ on_source_info(pmLogLevel level, sds message, void *arg)
 static void
 sources_discovery_start(uv_timer_t *arg)
 {
-    uv_loop_t	*loop = uv_handle_get_loop((uv_handle_t *)arg);
+    uv_loop_t	*loop = pmfind_handle_loop((uv_handle_t *)arg);
     uv_handle_t	*handle = (uv_handle_t *)arg;
     sources_t	*sp = (sources_t *)handle->data;
     dict	*dp = dictCreate(&sdsOwnDictCallBacks);
