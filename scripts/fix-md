@@ -630,11 +630,11 @@ $2 == "href"	{ next}
 
     # get <link> <lineno> one per line
     #
-    sed <$tmp.lineno -n -e '/(#/{
+    sed <$tmp.lineno -n -e '/(#..*)/{
 s/(#/\n&/g
 p
 }' \
-    | sed -e '/(#/{
+    | sed -e '/(#..*)/{
 s/(#//
 s/).*//
 }' \
