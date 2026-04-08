@@ -1020,16 +1020,6 @@ _filter_torture_api()
     # end
 }
 
-_filter_install()
-{
-    sed \
-        -e 's/.* \(hash table entries\)/  NNN \1/' \
-        -e 's/.* \(non-leaf nodes\)/  NNN \1/' \
-        -e 's/.* \(leaf nodes\)/  NNN \1/' \
-        -e 's/.* \(bytes of symbol table\)/  NNN \1/' \
-        -e '/Performance Co-Pilot starting/d'
-}
-
 _filter_post()
 {
     sed \

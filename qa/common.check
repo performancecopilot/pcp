@@ -1394,7 +1394,7 @@ _wait_for_pmproxy_metrics()
 	__n=`expr $__n + 1`
 	[ $__n -lt 20 ] && continue
     done
-    echo _wait_for_pmproxy_metrics failed after 20 iterations
+    echo _wait_for_pmproxy_metrics failed after 5 seconds
     return 1
 }
 
@@ -1411,7 +1411,7 @@ _wait_for_pmproxy_logfile()
 	__n=`expr $__n + 1`
 	[ $__n -lt 20 ] && continue
     done
-    echo _wait_for_pmproxy_logfile failed after 20 iterations
+    echo _wait_for_pmproxy_logfile failed after 5 seconds
     return 1
 }
 
