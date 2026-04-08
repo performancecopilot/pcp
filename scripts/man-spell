@@ -38,15 +38,10 @@ else
     exit 1
 fi
 
-tmp=/tmp/man-spell-$$
-rm -f $tmp.*
-status=1	# failure is the default
-trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
-
 # file(1) does not work, so need some heuristics
 # ... assume existance of $1 already established
 #
-_istroff()
+_troff()
 {
     # shell or other script?
     head -1 "$1" | grep -q '^#!' && return 1
@@ -82,6 +77,17 @@ then
     echo >&2 "$usage"
     exit 1
 fi
+
+status=1	# failure is the default
+if [ $debug -lt 2 ]
+then
+    tmp=/tmp/man-spell-$$
+    trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+else
+    tmp=tmp
+    trap "exit \$status" 0 1 2 3 15
+fi
+rm -f $tmp.*
 
 # the $tmp.tmp is our acceptable exception words (uses -E POSIX
 # extended regular expressions)
@@ -2516,37 +2522,53 @@ do
 	echo "Error: input file $file not found"
 	exit 1
     fi
-    if $force || _istroff "$file"
+    istroff=false
+    ismd=false
+    case "$file"
+    in
+	*.md)
+		ismd=true
+		;;
+	*)
+		if troff "$file"
+		then
+		    istroff=true
+		fi
+		;;
+    esac
+    if $force || $istroff || $ismd
     then
 	:
     else
-	[ $debug -gt 0 ] && echo >&2 "$file: skipped (not troff)"
+	[ $debug -gt 0 ] && echo >&2 "$file: skipped (not troff or markdown)"
 	continue
     fi
     [ $debug -gt 0 ] && echo "$file:"
 
     cp $tmp.common $tmp.sed
 
-    # get lines like this from the .SH SYNOPSIS section
-    # CLNoPruy from
-    # [\f3\-CLNoPruy?\f1]
-    # conffile from
-    # [\f3\-c\f1 \f2conffile\f1]
-    # metricpath from
-    # .I metricpath
-    # and from a .SH "C SYNOPSIS" section
-    # addr, av and inc from
-    # void mmv_inc_value(void *\fIaddr\fP, pmAtomValue *\fIav\fP, double \fIinc\fP);
-    #
-    sed <"$file" \
-	-e '/^\.br/d' \
-	-e '/^\.sp/d' \
-	-e "/^['.]in/d" \
-	-e '/^\.ti/d' \
-	-e '/^\.hy/d' \
-	-e '/^\.ad/d' \
-	-e '/^\.ft/d' \
-    | awk >$tmp.synopsis '
+    if $istroff
+    then
+	# get lines like this from the .SH SYNOPSIS section
+	# CLNoPruy from
+	# [\f3\-CLNoPruy?\f1]
+	# conffile from
+	# [\f3\-c\f1 \f2conffile\f1]
+	# metricpath from
+	# .I metricpath
+	# and from a .SH "C SYNOPSIS" section
+	# addr, av and inc from
+	# void mmv_inc_value(void *\fIaddr\fP, pmAtomValue *\fIav\fP, double \fIinc\fP);
+	#
+	sed <"$file" \
+	    -e '/^\.br/d' \
+	    -e '/^\.sp/d' \
+	    -e "/^['.]in/d" \
+	    -e '/^\.ti/d' \
+	    -e '/^\.hy/d' \
+	    -e '/^\.ad/d' \
+	    -e '/^\.ft/d' \
+	| awk >$tmp.synopsis '
 $1 == ".SH" && $NF ~ /SYNOPSIS/ { want = 1; next }
 want == 1 && $1 == ".SH"	{ exit }
 want == 1			{ if ($0 ~ /^[\\.[]/) {
@@ -2560,103 +2582,109 @@ want == 1			{ if ($0 ~ /^[\\.[]/) {
 				    next
 				  }
 				}'
-    if [ -s $tmp.synopsis ]
-    then
-	:
-    else
-	[ $debug -gt 0 ] && echo "$file: Warning: empty extracted SYNOPSIS section" >&2
-    fi
-    if [ $debug -gt 1 ]
-    then
-	echo >&2 "synopsis section ..."
 	if [ -s $tmp.synopsis ]
 	then
-	    cat >&2 $tmp.synopsis
-	else
 	    :
+	else
+	    [ $debug -gt 0 ] && echo "$file: Warning: empty extracted SYNOPSIS section" >&2
 	fi
-    fi
+	if [ $debug -gt 1 ]
+	then
+	    echo >&2 "synopsis section ..."
+	    if [ -s $tmp.synopsis ]
+	    then
+		cat >&2 $tmp.synopsis
+	    else
+		:
+	    fi
+	fi
 
-    # Section 1 sh-style Synopsis
-    #
-     sed <$tmp.synopsis \
-	 -e '/(.*)/d' \
-	 -e 's/^\.I /\\fI/' \
-    | tr ' ' '\012' \
-    | sed -n \
-	-e 's/^\[//' \
-	-e '/^\\f[2I]\([A-Za-z]\)/{
+	# Section 1 sh-style Synopsis
+	#
+	 sed <$tmp.synopsis \
+	     -e '/(.*)/d' \
+	     -e 's/^\.I /\\fI/' \
+	| tr ' ' '\012' \
+	| sed -n \
+	    -e 's/^\[//' \
+	    -e '/^\\f[2I]\([A-Za-z]\)/{
 s//\1/
 s/\\f.*//
 s/\\$//g
 p
 }' \
-	-e '/^\\f[3B]\\-[A-Za-z][A-Za-z][A-Za-z?]*/{
+	    -e '/^\\f[3B]\\-[A-Za-z][A-Za-z][A-Za-z?]*/{
 s/^\\f[3B]\\-//
 s/[^A-Za-z].*//
 p
 }' \
-    | tr ' ' '\012' \
-    | uniq \
-    | sed -e '/^ *$/d' >$tmp.tmp
+	| tr ' ' '\012' \
+	| uniq \
+	| sed -e '/^ *$/d' >$tmp.tmp
 
-    # Section 3 C-style Synopsis
-    #
-    sed -n <$tmp.synopsis \
-	-e '/[;,]$/{
+	# Section 3 C-style Synopsis
+	#
+	sed -n <$tmp.synopsis \
+	    -e '/[;,]$/{
 s/[()*,;]/ /g 
 s/\[]//g
 p
 }' \
-    | tr ' ' '\012' \
-    | sed -n \
-	'/^\\f[2I]/{
+	| tr ' ' '\012' \
+	| sed -n \
+	    '/^\\f[2I]/{
 s/\\f.//g
 p
-}' \
-    | sort \
-    | uniq >>$tmp.tmp
-    if [ $debug -gt 0 ]
-    then
-	echo >&2 "Args from .SH SYNOPSIS section ..."
-	if [ -s $tmp.tmp ]
+    }' \
+	| sort \
+	| uniq >>$tmp.tmp
+	if [ $debug -gt 0 ]
 	then
-	    fmt <$tmp.tmp >&2
-	else
-	    echo >&2 "<empty file>"
+	    echo >&2 "Args from .SH SYNOPSIS section ..."
+	    if [ -s $tmp.tmp ]
+	    then
+		fmt <$tmp.tmp >&2
+	    else
+		echo >&2 "<empty file>"
+	    fi
 	fi
-    fi
-    sed <$tmp.tmp >>$tmp.sed \
-	-e '/^$/d' \
-	-e ' s/.*/\/^&$\/d/' \
-    # end
+	sed <$tmp.tmp >>$tmp.sed \
+	    -e '/^$/d' \
+	    -e ' s/.*/\/^&$\/d/' \
+	# end
 
-    # and long-form options where ever they are found ...
-    # for --foo-bar we need to add foo and bar, because ispell
-    # treats '-' as a word delimiter
-    #
-    tr <"$file" ' ' '\012' \
-    | sed -n >$tmp.tmp \
-	-e '/\\-\\-/{
+	# and long-form options where ever they are found ...
+	# for --foo-bar we need to add foo and bar, because ispell
+	# treats '-' as a word delimiter
+	#
+	tr <"$file" ' ' '\012' \
+	| sed -n >$tmp.tmp \
+	    -e '/\\-\\-/{
 s/.*\\-\\-//
 s/[^A-Za-z_-].*//
 p
 }' \
-    # end
-    if [ $debug -gt 0 ]
-    then
-	echo >&2 "Long --options ..."
-	if [ -s $tmp.tmp ]
+	# end
+	if [ $debug -gt 0 ]
 	then
-	    fmt <$tmp.tmp >&2
-	else
-	    echo >&2 "<empty file>"
+	    echo >&2 "Long --options ..."
+	    if [ -s $tmp.tmp ]
+	    then
+		fmt <$tmp.tmp >&2
+	    else
+		echo >&2 "<empty file>"
+	    fi
 	fi
+	sed <$tmp.tmp >>$tmp.sed \
+	    -e '/^$/d' \
+	    -e ' s/.*/\/^&$\/d/' \
+	# end
+    elif $ismd
+    then
+	# nothing to be done here
+	#
+	touch $tmp.sed
     fi
-    sed <$tmp.tmp >>$tmp.sed \
-	-e '/^$/d' \
-	-e ' s/.*/\/^&$\/d/' \
-    # end
 
     # and for .\" +ok+ lines, all words remaining on the line are
     # spelled correctly ... annotations are {comment}
@@ -2697,91 +2725,115 @@ p
     fi
     [ $debug -gt 0 ] && echo >&2 "--- end debug output, misspelled words follow ---"
 
-
-    # strip ...
-    # - .TH lines
-    # - troff comments
-    # - C-style hex constants
-    # - leading @ in a line
-    #
-    # - tbl(1) format section (includes cw, cf, rf, lf, etc)
-    #
-    # - troff conditonals, macros. .ds, ... if it is Pod::Man generated
-    # then ispell (so we can treat _ as part of a word), sort, remove
-    # duplicates, and then cull exceptions ...
-    #
-    # - cull any \w'foobar' constructs
-    #
-    if sed <"$file" >$tmp.in \
-	    -e '/^\.TH/d' \
-	    -e '/^\.[ 	]*\\"/d' \
-	    -e "/^'[ 	]*\\\\\"/d" \
-	    -e 's/0x[0-9a-f][0-9a-f]*//' \
-	    -e "s/\\\\w'[^']*'//" \
-	    -e 's/^@//' \
-	# end
+    if $istroff
     then
-	:
-    else
-	echo "Error: $file: initial sed failed"
-	exit
-    fi
-    if awk <$tmp.in >$tmp.tmp 2>$tmp.err '
+	# strip ...
+	# - .TH lines
+	# - troff comments
+	# - C-style hex constants
+	# - leading @ in a line
+	#
+	# - tbl(1) format section (includes cw, cf, rf, lf, etc)
+	#
+	# - troff conditonals, macros. .ds, ... if it is Pod::Man generated
+	# then ispell (so we can treat _ as part of a word), sort, remove
+	# duplicates, and then cull exceptions ...
+	#
+	# - cull any \w'foobar' constructs
+	#
+	if sed <"$file" >$tmp.in \
+		-e '/^\.TH/d' \
+		-e '/^\.[ 	]*\\"/d' \
+		-e "/^'[ 	]*\\\\\"/d" \
+		-e 's/0x[0-9a-f][0-9a-f]*//' \
+		-e "s/\\\\w'[^']*'//" \
+		-e 's/^@//' \
+	    # end
+	then
+	    :
+	else
+	    echo "Error: $file: initial sed failed"
+	    exit
+	fi
+	if awk <$tmp.in >$tmp.tmp 2>$tmp.err '
 $1 == ".TS"			{ skip = 1; next }
 skip == 1 && $NF ~ /\.$/	{ skip = 0; next }
 skip == 0			{ print }'
+	then
+	    mv $tmp.tmp $tmp.in
+	else
+	    cat $tmp.err
+	    echo "Error: $file: tbl format section culling failed"
+	    exit
+	fi
+	if head -1 $file | grep 'Pod::Man' >/dev/null
+	then
+	    # strip lots of troff cmds generated by Pod::Man
+	    #
+	    sed <$tmp.in >$tmp.tmp \
+		-e "/^[.][ 	]*ds/d" \
+		-e "/^[.][ 	]*nr/d" \
+		-e "/^[.][ 	]*de/d" \
+		-e "/^[.][ 	]*r[rnm]/d" \
+		-e "/^[.][ 	]*if/d" \
+		-e "/^[.][ 	]*ie/d" \
+		-e "/^[.][ 	]*el/d" \
+		-e "/^[.][ 	]*tm/d" \
+		-e "/^[.'][ 	]*br/d" \
+		-e '/corrections for vroff/d' \
+	    # end
+	    mv $tmp.tmp $tmp.in
+	else
+	    # strip names for definition of troff strings, registers
+	    # and (non-mman) macros
+	    # ... looks like ispell already deals with some uses of these,
+	    # e.g. it does not trip up over \*(Bz but \n(Az and \n+(Az
+	    # .ds Bz ... and .nr Az and .ds ] ...  cause problems
+	    # and groff extended string notation \[foo]
+	    # and for markup files, some special characters confuse the
+	    # word delimiting for ispell
+	    #
+	    sed <$tmp.in >$tmp.tmp \
+		-e "s/^[.'][ 	]*ds [A-Za-z][A-Za-z]//" \
+		-e "s/^[.'][ 	]*ds . //" \
+		-e "s/^[.'][ 	]*nr [A-Za-z][A-Za-z]//" \
+		-e "s/^[.'][ 	]*de [A-Z][a-z]]//" \
+		-e "s/^[.'][ 	]*de [a-z][a-z]]//" \
+		-e "s/^[.'][ 	]*de [a-z][A-Z]]//" \
+		-e "s/^[.'][ 	]*r[rnm] [A-Z][a-z]]//" \
+		-e "s/^[.'][ 	]*r[rnm] [a-z][a-z]]//" \
+		-e "s/^[.'][ 	]*r[rnm] [a-z][A-Z]]//" \
+		-e "s/\\n([A-Za-z][A-Za-z]//"g \
+		-e "s/\\n+([A-Za-z][A-Za-z]//"g \
+		-e "s/\\n-([A-Za-z][A-Za-z]//"g \
+		-e 's/\\\[[A-Za-z][A-Za-z]*]//g' \
+		-e 's/[*]//g' \
+	    # end
+	    mv $tmp.tmp $tmp.in
+	    grep ' ds ' <$tmp.in
+	fi
+    elif $ismd
     then
-	mv $tmp.tmp $tmp.in
-    else
-	cat $tmp.err
-	echo "Error: $file: tbl format section culling failed"
-	exit
-    fi
-    if head -1 $file | grep 'Pod::Man' >/dev/null
-    then
-	# strip lots of troff cmds generated by Pod::Man
+	# unescaped * (bold) and _ (italic) are simply noise, so remove 'em
+	# ditto for links and anchors
 	#
-	sed <$tmp.in >$tmp.tmp \
-	    -e "/^[.][ 	]*ds/d" \
-	    -e "/^[.][ 	]*nr/d" \
-	    -e "/^[.][ 	]*de/d" \
-	    -e "/^[.][ 	]*r[rnm]/d" \
-	    -e "/^[.][ 	]*if/d" \
-	    -e "/^[.][ 	]*ie/d" \
-	    -e "/^[.][ 	]*el/d" \
-	    -e "/^[.][ 	]*tm/d" \
-	    -e "/^[.'][ 	]*br/d" \
-	    -e '/corrections for vroff/d' \
+	sed -E <"$file" >$tmp.in \
+	    -e '/^\.\\" \+ok\+ /d' \
+	    -e '{
+s/\\\*//g
+s/\*//g
+s//*/g
+s/\\_//g
+: loop
+s/(\$[A-Za-z]*[A-Za-z])_([A-Za-z])/\1\2/
+t loop
+s/_//g
+s//_/g
+s/\\\*/*/g
+s/<a id="[^"]*">//g
+s/\(#[^)]*\)//g
+}' \
 	# end
-	mv $tmp.tmp $tmp.in
-    else
-	# strip names for definition of troff strings, registers
-	# and (non-mman) macros
-	# ... looks like ispell already deals with some uses of these,
-	# e.g. it does not trip up over \*(Bz but \n(Az and \n+(Az
-	# .ds Bz ... and .nr Az and .ds ] ...  cause problems
-	# and groff extended string notation \[foo]
-	# and for markup files, some special characters confuse the
-	# word delimiting for ispell
-	#
-	sed <$tmp.in >$tmp.tmp \
-	    -e "s/^[.'][ 	]*ds [A-Za-z][A-Za-z]//" \
-	    -e "s/^[.'][ 	]*ds . //" \
-	    -e "s/^[.'][ 	]*nr [A-Za-z][A-Za-z]//" \
-	    -e "s/^[.'][ 	]*de [A-Z][a-z]]//" \
-	    -e "s/^[.'][ 	]*de [a-z][a-z]]//" \
-	    -e "s/^[.'][ 	]*de [a-z][A-Z]]//" \
-	    -e "s/^[.'][ 	]*r[rnm] [A-Z][a-z]]//" \
-	    -e "s/^[.'][ 	]*r[rnm] [a-z][a-z]]//" \
-	    -e "s/^[.'][ 	]*r[rnm] [a-z][A-Z]]//" \
-	    -e "s/\\n([A-Za-z][A-Za-z]//"g \
-	    -e "s/\\n+([A-Za-z][A-Za-z]//"g \
-	    -e "s/\\n-([A-Za-z][A-Za-z]//"g \
-	    -e 's/\\\[[A-Za-z][A-Za-z]*]//g' \
-	    -e 's/[*]//g' \
-	# end
-	mv $tmp.tmp $tmp.in
-	grep ' ds ' <$tmp.in
     fi
 
     if ispell $dict -a -w '_' <$tmp.in >$tmp.out 2>$tmp.err
