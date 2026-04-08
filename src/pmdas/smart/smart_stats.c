@@ -1433,6 +1433,7 @@ nvme_error_log_refresh(void)
 		int found_nvme_log = 0;
 		int count = 0;
 		int total;
+		dev->nvme_error_log_total = 0;
 
 		pmsprintf(buffer, sizeof(buffer), "%s -l error /dev/%s", smart_setup_stats, dev_name);
 
@@ -1446,9 +1447,11 @@ nvme_error_log_refresh(void)
 				continue;
 			}
 
-			if (found_nvme_log && strstr(buffer, "No Errors Logged"))
+			if (found_nvme_log && strstr(buffer, "No Errors Logged")) {
 				// No error entries head to next drive
+				dev->nvme_error_log_total = 0;
 				break;
+			}
 
 			if (found_nvme_log && strstr(buffer, "Num"))
 				// Skip over log entry header line
@@ -1514,6 +1517,11 @@ nvme_error_log_refresh(void)
 			}
 		}
 		pclose(pf);
+		
+		// Take the value of (count) which is the running counter of the number of
+		// NMVe Error Log entries that we have seen for the current drive as the 
+		// total number of errors.
+		dev->nvme_error_log_total = count;
 	}
 	return 0;
 }

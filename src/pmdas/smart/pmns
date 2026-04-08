@@ -611,6 +611,7 @@ smart.nvme_power_states.power_state_5 {
 }
 
 smart.nvme_error_log {
+	total			SMART:264:0
 	error_count		SMART:263:0
 	sqid			SMART:263:1
 	cmdid			SMART:263:2
@@ -1216,6 +1217,7 @@ smart.wwid.nvme_power_states.power_state_5 {
 }
 
 smart.wwid.nvme_error_log {
+	total			SMART:1264:0
 	error_count		SMART:1263:0
 	sqid			SMART:1263:1
 	cmdid			SMART:1263:2
