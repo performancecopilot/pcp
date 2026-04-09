@@ -57,6 +57,7 @@ sources_release(void *arg, const struct dictEntry *entry)
     if (pmDebugOptions.discovery)
 	fprintf(stderr, "releasing context %s\n", ctx);
 
+    dictDelete(sp->contexts, ctx);
     source_release(sp, cp, ctx);
 }
 
@@ -166,8 +167,9 @@ on_source_done(sds context, int status, sds message, void *arg)
     if (remove) {
 	if (pmDebugOptions.discovery)
 	    fprintf(stderr, "remove context %s\n", context);
-	source_release(sp, cp, context);
+
 	dictDelete(sp->contexts, context);
+	source_release(sp, cp, context);
     }
 
     if (release) {
@@ -231,6 +233,8 @@ sources_discovery_start(uv_timer_t *arg)
 
     dictRelease(dp);
     pmWebTimerClose();
+
+    uv_stop(((uv_timer_t *)arg)->loop);
 }
 
 /*
@@ -281,12 +285,17 @@ source_discovery(int count, char **urls)
     uv_timer_init(loop, &timing);
     uv_timer_start(&timing, sources_discovery_start, 0, 0);
     uv_run(loop, UV_RUN_DEFAULT);
+
+    pmWebGroupClose(&settings.module);
+
+    uv_close((uv_handle_t *)&timing, NULL);
+    (void)uv_run(loop, UV_RUN_DEFAULT);
+
     uv_loop_close(loop);
 
     /*
      * Finished, release all resources acquired so far
      */
-    pmWebGroupClose(&settings.module);
     uv_mutex_destroy(&find.mutex);
     dictRelease(find.uniq);
     dictRelease(find.params);
