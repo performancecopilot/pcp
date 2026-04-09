@@ -7,7 +7,6 @@ Version 1.0, April 2026
 <br>[2 The basic model](#the-basic-model)
 <br>[3 Creating a new test](#creating-a-new-test)
 <br>&nbsp;&nbsp;&nbsp;[3.1 The **new** script](#the-new-script)
-<br>&nbsp;&nbsp;&nbsp;[3.2 Dealing with the Known Unknowns](#dealing-with-the-known-unknowns)
 <br>[4 Control files](#control-files)
 <br>&nbsp;&nbsp;&nbsp;[4.1 The *group* file](#the-group-file)
 <br>&nbsp;&nbsp;&nbsp;[4.2 The _localconfig_ file](#the-localconfig-file)
@@ -25,6 +24,7 @@ Version 1.0, April 2026
 <br>&nbsp;&nbsp;&nbsp;[8.1 Portability considerations](#portability-considerations)
 <br>&nbsp;&nbsp;&nbsp;[8.2 Take control of stdout and stderr](#take-control-of-stdout-and-stderr)
 <br>&nbsp;&nbsp;&nbsp;[8.3 **$seq\_full** file suggestions](#seqfull-file-suggestions)
+<br>&nbsp;&nbsp;&nbsp;[8.4 Dealing with the known unknowns](#dealing-with-the-known-unknowns)
 <br>[9 Shell functions from _common.check_](#shell-functions-from-common.check)
 <br>&nbsp;&nbsp;&nbsp;[9.1 PMDA Install and Remove](#pmda-install-and-remove)
 <br>&nbsp;&nbsp;&nbsp;[Plan A](#plan-a)
@@ -246,23 +246,6 @@ Other *options* are:
 
 When you exit **$EDITOR** you'll be prompted for groups to associate
 the new test with, unless one or more *group* was specified on the command line.
-
-<a id="dealing-with-the-known-unknowns"></a>
-## 3.2 Dealing with the Known Unknowns
-
-If tests are dealing with time intervals in terms of "today" or
-"yesterday" or "4 hours ago", then running the test in the region of
-midnight can be problematic. Similarly New Year's Eve is a time where
-"this year" can change quite quickly.
-
-More subtle are the points where daylight saving might start or stop,
-leaving the system clock running but wallclock time suddenly misses an
-hour or runs the same hour twice.
-
-When this is makes a test non-deterministic, the defensive
-mechanisms are to either use an appropriate guard with
-[**\_notrun**](#idx+funcs+notrun) or add the test to the
-[*triaged*](#the-triaged-file) file.
 
 <a id="control-files"></a>
 # 4 Control files
@@ -557,6 +540,23 @@ $ cmd ... | tee -a $seq_full | ...
 ```
 
 Remember that **$seq\_full** translates to file **$seq**_.full_ (dot, not underscore) in the directory the **$seq** test is run from.
+
+<a id="dealing-with-the-known-unknowns"></a>
+## 8.4 Dealing with the known unknowns
+
+If tests are dealing with time intervals in terms of "today" or
+"yesterday" or "4 hours ago", then running the test in the region of
+midnight can be problematic. Similarly New Year's Eve is a time where
+"this year" can change quite quickly.
+
+More subtle are the points where daylight saving might start or stop,
+leaving the system clock running but wallclock time suddenly misses an
+hour or runs the same hour twice.
+
+When this is makes a test non-deterministic, the defensive
+mechanisms are to either use an appropriate guard with
+[**\_notrun**](#idx+funcs+notrun) or add the test to the
+[*triaged*](#the-triaged-file) file.
 
 <a id="shell-functions-from-common.check"></a>
 # 9 Shell functions from _common.check_
