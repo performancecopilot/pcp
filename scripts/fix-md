@@ -221,14 +221,14 @@ cat <<'End-of-File' >$tmp.anchor
 # - map to lowercase
 # - remove #, ##, #... and any initial heading number
 # - remove <...> inline HTML
-# - remove _, *, $ and \
+# - remove :, _, *, $ and \
 # - map spaces to -
 function anchor(text) {
     tmp = tolower(text)
     gsub(/^##*  *[0-9][0-9.]*  */,"",tmp)
     gsub(/^##*  */,"",tmp)
     gsub(/<[^>]*>/,"",tmp)
-    gsub(/[_*$\\]/,"",tmp)
+    gsub(/[:_*$\\]/,"",tmp)
     gsub(/  */,"-",tmp)
     return tmp
 }
@@ -243,6 +243,8 @@ then
 	awk <$tmp.md >$tmp.tmp '
 @include "'$tmp.anchor'"
 tolower($0) ~ /^# table of contents$/	{ # marker for TOC, cull old TOC if any
+			  if (save_a != "")
+			    print save_a
 			  print
 			  skip = 1
 			  onetrip = 1
