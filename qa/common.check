@@ -3506,8 +3506,21 @@ _try_pmlc()
 _private_pmcd()
 {
     [ -d $tmp ] || mkdir $tmp || return 1
+    if [ $# -eq 1 ]
+    then
+	# config provided ... 
+	#
+	if [ -f "$1" ]
+	then
+	    cat "$1" >$tmp/pmcd.conf
+	else
+	    echo "_private_pmcd: Error: $1: config not found"
+	    return 1
+	fi
+    else
+	grep -E '^(sampledso|pmcd)[ 	]' $PCP_PMCDCONF_PATH >$tmp/pmcd.conf
+    fi
     cd $tmp
-    grep -E '^(sampledso|pmcd)[ 	]' $PCP_PMCDCONF_PATH >pmcd.conf
     echo "=== private pmcd ..." >>$seq_full
     cat pmcd.conf >>$seq_full
     pmcd_port=`_find_free_port`
