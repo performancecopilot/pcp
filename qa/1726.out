@@ -45,7 +45,7 @@ I am a Gauge
     value 10
 
 opentelemetry.simplemetric.metric3 [I am a Histogram]
-    Data Type: 64-bit int  InDom: 164.10242 0x29002802
+    Data Type: 64-bit int  InDom: 164.11266 0x29002c02
     Semantics: counter  Units: none
 Help:
 I am a Histogram
