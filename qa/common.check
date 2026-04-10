@@ -3778,7 +3778,7 @@ _triage_wait_point()
 {
     if [ -f "$here/$seq.wait" ]
     then
-	[ -n "$1" ] && echo "$1"
+	[ -n "$1" ] && echo "_triage_wait_point: $1"
 	echo "_triage_wait_point: found $seq.wait, waiting ..."
 	__i=0
 	while [ -f $here/$seq.wait ]
