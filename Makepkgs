@@ -76,6 +76,9 @@ _cleanup()
 	echo "Botch: VERSION.pcp vanished from $topdir"
 	git checkout -- VERSION.pcp
     fi
+    # Optional undo local patching
+    #
+    [ -x local.patch ] && ./local.patch --undo
     rm -rf $tmp
 }
 
