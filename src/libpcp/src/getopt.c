@@ -1399,7 +1399,7 @@ pmgetopt_r(int argc, char *const *argv, pmOptions *d)
 	else {
 	    /* walk long options */
 	    pmLongOptions 	*p;
-	    char		*short_p;
+	    const char		*short_p;
 	    for (p = longopts; p->long_opt; p++) {
 		/*
 		 * expect ... short_opt to occur once in short_options
