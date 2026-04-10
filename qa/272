@@ -208,6 +208,9 @@ ssh -q $other2 -n -l pcpqa "sh -c 'pmstore -h $me sample.write_me 333'"
 echo
 echo "    checking connection limit for OTHERHOST2 (will exceed connection limit)"
 ssh -q $other2 -n -l pcpqa "sh -c 'pmval -h $me -t 666 sample.long.ten'" >/dev/null 2>&1 &
+_triage_wait_point 'from '"$other2"' as user pcpqa where pmval is already running try,
+$ pminfo -h '"$me"' -f sample.long.one
+to check connection limit'
 # guess at delay
 #
 sleep `expr $PMCD_CONNECT_TIMEOUT / 2`
@@ -215,13 +218,18 @@ sleep `expr $PMCD_CONNECT_TIMEOUT / 2`
 # reset by peer state ahead of completing the read() on the receiver side,
 # so we never get the PCP error PDU ... there has been extensive analysis
 # of this for pmcd on a Linux host and $other2 being an IRIX host, and it
-# is _not_ a PCP protocol failure.
+# is _not_ a PCP protocol failure ... further triage when $other2 is a
+# Linux host suggests the error here could be any of:
+#	Connection refused
+#	Connection reset by peer
+#	PMCD connection limit for this host exceeded
 #
 ssh -q $other2 -n -l pcpqa "sh -c 'pminfo -h $me -f sample.long.one'" 2>&1 \
 | sed \
     -e 's/".*"/"OTHERHOST2"/' \
     -e 's/IPC protocol failure/PMCD connection limit for this host exceeded/' \
     -e 's/Connection reset by peer/PMCD connection limit for this host exceeded/' \
+    -e 's/Connection refused/PMCD connection limit for this host exceeded/' \
 # end
 ssh -q $other2 -n -l pcpqa $rsignal -a pmval > /dev/null 2>&1
 
