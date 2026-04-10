@@ -9,10 +9,13 @@
 #   this Heading must already exist.
 #
 # - the Index is generated from existing embedded index citations of
-#   the form <a id="idx+{ident}">{entry}</a> (all on the same line)
+#   the form
+#       <a id="idx+{ident}">{entry}</a>... (all on the same line)
+#   or
+#       <a id="idx+{ident}"></a>{entry}... (all on the same line)
 #   where {ident} is either {tag} (for the General Index) or {list}+{tag}
-#   (for one of the optional Indices) and {entry} is a word or phrase
-#   to appear *both* in the document and the Index.
+#   (for one of the optional Indices) and {entry} is a word to appear
+#   *both* in the document and the Index.
 #   {list} and {tag} should be constructed from the conservative
 #   character set [a-zA-Z0-9._+-] to avoid possible "special" interpretation
 #   by some renderers.
@@ -326,8 +329,20 @@ export LC_LOCALE
 
 # Index
 #
-# Citations are of the form <a id="idx+{ident}">{entry}</a> (all on the
-# same line) where {ident} is either {tag} or {list}+{tag}
+# Citations are of the form
+#       <a id="idx+{ident}">{entry}</a>... (all on the same line)
+# or
+#       <a id="idx+{ident}"></a>{entry}... (all on the same line)
+#
+# The first form is lexically better because the index term is
+# defined by the span of the anchor.
+#
+# But the second form is better for some MD renderers where the
+# anchor does not span any text (and in particular any font changes)
+# ... in this case {entry} ends at the first non-word character
+# in the set [ ,.<:|)]
+#
+# {ident} is either {tag} or {list}+{tag}
 #
 if $index
 then
@@ -364,7 +379,8 @@ NF == 2	{ check = anchor($2)
     _check
 
     # at this point we have good lines like this for each index entry ...
-    # {lineno} <a id="idx+{ident}">{entry}</a>...
+    # {lineno} <a id="idx+{ident}">{entry}</a>... [old style]
+    # {lineno} <a id="idx+{ident}"></a>{entry}... [new style]
     # so turn this into a (<tab> separated) file of index citations with
     # lines like:
     # {lineno}	{list}	{tag}	{entry}
@@ -373,6 +389,10 @@ NF == 2	{ check = anchor($2)
 	-e 's/ /	/' \
 	-e 's/<a id="//' \
 	-e 's/">/	/' \
+	-e '/^[0-9]*	[^ ]*<\/a>/{
+s;</a>;;
+s/([0-9]*	[^ ]*	[^ ,.<:|)][^ ,.<:|)]*).*/\1/
+}' \
 	-e 's;</a>.*;;' \
 	-e 's/\\\*//g' \
 	-e 's/[*]//g' \
