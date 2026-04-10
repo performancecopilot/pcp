@@ -1,0 +1,40 @@
+#!/bin/sh
+#
+# find QA tests that use a QA archive $1 $2 ...
+# $1, $2, ... are assumed to be either <basename> or <dir>/<basename>
+# for archives
+#
+# archive matches are:
+# - appear in a non-comment line surrounded by whitespace, or ^, or $, or
+#   some character with special shell syntax, like |, ;, &, <, > or
+#   pathname components / or .
+#
+
+tmp=${TMPDIR:-/tmp}/find-archive-$$
+trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+# change for debugging
+verbose=false
+
+if [ $# -eq 0 ]
+then
+    echo >&2 "Usage: find-archive archive [...]"
+    exit 1
+fi
+
+archive_pat=`echo "$*" | sed -e 's/ /|/g'`
+sep_pat='[   |;&<>./]'
+
+grep -E "(^|$sep_pat)($archive_pat)($|$sep_pat)" [0-9]*[0-9][0-9] \
+| sed \
+    -e '/^[ 	]*#/d' \
+    -e 's/:.*//' \
+| sort -n \
+| uniq >$tmp.out
+
+if [ -s $tmp.out ]
+then
+    echo `cat $tmp.out`
+else
+    echo >&2 "${archive_pat}-not-used-in-any-test"
+fi
