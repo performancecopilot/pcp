@@ -33,7 +33,7 @@ archives/ok-foo.meta:
   overhead: 220 bytes [26%]
 
 === more complex metadata detailed report ===
-archives/20180102.meta:
+TMP/20180102.meta:
   metrics: 21469 bytes [1%, 411 records]
   indoms: 2077277 bytes [98%, 1576 records, 65717 instances]
     3.9: 1866115 bytes [88%, 113 records, 53703 instances]
@@ -58,7 +58,7 @@ archives/20180102.meta:
   overhead: 16028 bytes [1%]
 
 === and again with duplicates reported ===
-archives/20180102.meta:
+TMP/20180102.meta:
   metrics: 21469 bytes [1%, 411 records]
   indoms: 2077277 bytes [98%, 1576 records, 65717 instances]
     3.9: 1866115 bytes [88%, 113 records, 53703 instances (1785065 bytes for 51241 dups)]
@@ -142,7 +142,7 @@ archives/ok-foo.0:
   overhead: 312 bytes [16%]
 
 === more complex data detailed report, with cutoff ===
-archives/20180102.0:
+TMP/20180102.0:
   data: 7097172 bytes [100%, 725 records (+ 120 <mark> records)]
     60.18.10: 723060 bytes [10%, 103 records, 1236 values] (hinv.cpu.flags)
     3.9.1: 438100 bytes [6%, 115 records, 54590 values] (proc.memory.rss)
@@ -157,7 +157,7 @@ archives/20180102.0:
   overhead: 17032 bytes [0%]
 
 === and with duplicate values reported ==
-archives/20180102.0:
+TMP/20180102.0:
   data: 7097172 bytes [100%, 725 records (+ 120 <mark> records)]
     60.18.10: 723060 bytes [10%, 103 records, 1236 values (49056 bytes for 84 dups)] (hinv.cpu.flags)
     3.9.1: 438100 bytes [6%, 115 records, 54590 values (78744 bytes for 9843 dups)] (proc.memory.rss)

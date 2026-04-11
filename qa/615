@@ -19,8 +19,17 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+_filter()
+{
+    sed \
+	-e "s;$tmp;TMP;g" \
+    # end
+}
+
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
+
+mkdir $tmp || _exit 1
 
 # real QA test starts here
 echo "=== simple case ==="
@@ -34,13 +43,18 @@ echo
 echo "=== simple metadata detailed report ==="
 pmlogsize -d archives/ok-foo.meta 
 
+# copy and decompress
+#
+pmlogcp archives/20180102 $tmp
+pmlogdecompress $tmp/20180102
+
 echo
 echo "=== more complex metadata detailed report ==="
-pmlogsize -d archives/20180102.meta
+pmlogsize -d $tmp/20180102.meta 2>&1 | _filter
 
 echo
 echo "=== and again with duplicates reported ==="
-pmlogsize -r -d archives/20180102.meta
+pmlogsize -r -d $tmp/20180102.meta 2>&1 | _filter
 
 echo
 echo "=== -x cutoff for metadata ==="
@@ -60,11 +74,11 @@ pmlogsize -dr archives/ok-foo.0
 
 echo
 echo "=== more complex data detailed report, with cutoff ==="
-pmlogsize -d -x 35 archives/20180102.0
+pmlogsize -d -x 35 $tmp/20180102.0 2>&1 | _filter
 
 echo
 echo "=== and with duplicate values reported =="
-pmlogsize -dr -x 35 archives/20180102.0
+pmlogsize -dr -x 35 $tmp/20180102.0 2>&1 | _filter
 
 # success, all done
 status=0
