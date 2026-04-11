@@ -1,0 +1,4 @@
+# this one is huge and only conditionally needed for qa/1525
+qa/archives/pcp-pidstat-process-args.0.xz export-ignore
+qa/archives/pcp-pidstat-process-args.index export-ignore
+qa/archives/pcp-pidstat-process-args.meta.xz export-ignore
