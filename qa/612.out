@@ -107,7 +107,7 @@ Note: timezone set to local timezone of pmcd from archive
     Data Type: aggregate  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 
-=== -z -W badarchives/old611.meta ===
+=== -z -W TMP/old611.meta ===
 Note: timezone set to local timezone of pmcd from archive
 [0] archive label @ 19:21:19.233476000
 
