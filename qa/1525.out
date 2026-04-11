@@ -102,9 +102,9 @@ _grid hide (
 		_colorlist colors
 	)
 )
---- osvis -a archives/20180415.09.16 ... --
+--- osvis -a TMP/20180415.09.16 ... --
 /usr/bin/osvis: 1: cannot open TMP.ctrls: No such file
-pmview Version 2.1 "osvis" "-a" "archives/20180415.09.16" "-C" "-C" "-V"
+pmview Version 2.1 "osvis" "-a" "TMP/20180415.09.16" "-C" "-C" "-V"
 #
 # osvis
 #
