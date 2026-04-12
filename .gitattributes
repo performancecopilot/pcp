@@ -1,4 +1,22 @@
-# this one is huge and only conditionally needed for qa/1525
+# entries here should be explit pathnames (no patterns) ...
+# Makepkgs is not as smart as git(1)
+#
+# export-ignore is the only real attribute we care about and only
+# "set" this so no -export-ignore
+# ... this will work for Makepkgs using either git ls-files or
+# git-archive and the files with this attribute will *not* be in
+# the source tarball used for builds
+
+# this archive is huge and only conditionally needed for qa/1525
 qa/archives/pcp-pidstat-process-args.0.xz export-ignore
 qa/archives/pcp-pidstat-process-args.index export-ignore
 qa/archives/pcp-pidstat-process-args.meta.xz export-ignore
+
+# this tarball is a single huge archive that is only used in qa/1180
+qa/archives/crontab-sar-report.tar.xz export-ignore
+
+# we don't need this for the PCP build
+vendor/github.com/mnunberg/jsonsl/json_samples.tgz export-ignore
+
+# not included in packaging for any platform
+src/libpcp/doc/libpcp-locking.odt export-ignore
