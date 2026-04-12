@@ -286,6 +286,12 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
             if (mevent.bstate & BUTTON1_RELEASED) {
                if (mevent.y == LINES - 1) {
                   ch = FunctionBar_synthesizeEvent(panelFocus->currentBar, mevent.x);
+                  /* When the panel is in cursor-input mode and the click landed past
+                     the function keys (in the text input area), signal a bar click. */
+                  if (ch == ERR && panelFocus->cursorOn) {
+                     panelFocus->lastMouseBarClickX = mevent.x;
+                     ch = KEY_MOUSE_BAR_CLICK;
+                  }
                } else {
                   for (size_t i = 0; i < this->panelCount; i++) {
                      Panel* panel = (Panel*) Vector_get(this->panels, i);
@@ -299,14 +305,15 @@ void ScreenManager_run(ScreenManager* this, Panel** lastFocus, int* lastKey, con
                         } else if (mevent.y > panel->y && mevent.y <= panel->y + panel->h) {
                            ch = KEY_MOUSE;
                            if (panel == panelFocus || this->allowFocusChange) {
-                              if (i != focus && Panel_eventHandlerFn(panelFocus)) {
+                              bool changingFocus = (i != focus);
+                              if (changingFocus && Panel_eventHandlerFn(panelFocus)) {
                                  Panel_eventHandler(panelFocus, EVENT_PANEL_LOST_FOCUS);
                               }
                               focus = i;
                               panelFocus = panel;
                               const Object* oldSelection = Panel_getSelected(panel);
                               Panel_setSelected(panel, mevent.y - panel->y + panel->scrollV - 1);
-                              if (Panel_getSelected(panel) == oldSelection) {
+                              if (!changingFocus && Panel_getSelected(panel) == oldSelection) {
                                  ch = KEY_RECLICK;
                               }
                            }
