@@ -1,0 +1,118 @@
+#!/bin/sh
+#
+# Summarize size by directory in compressed source tarball
+#
+
+tmp=tmp
+#tmp=/tmp/size-tarball-$$
+#trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+
+rm -f $tmp.*
+
+if [ ! -d build/tar ]
+then
+    echo >&2 "size-tarball: no build/tar directory, not at base of git tree?"
+    exit
+fi
+
+tarball=`echo build/tar/pcp-*.src.tar.gz`
+if [ ! -f "$tarball" ]
+then
+    # try the debian renamed place ...
+    #
+    tarball=`echo build/deb/pcp_*.orig.tar.gz`
+    if [ ! -f "$tarball" ]
+    then
+	echo "size-tarball: Arrgh: pcp*.tar.gz: not found!"
+	exit
+    fi
+fi
+
+ls -l "$tarball" | awk '{printf "%s: %d Kbytes\n",$NF,($5+512)/1024}'
+
+tar tvf "$tarball" \
+| awk '
+    { if ($1 ~ /^l/) {
+	# symbolic link
+	print $(NF-2),$3
+      }
+      else {
+	print $NF,$3
+      }
+    }' \
+| sed \
+    -e 's;^[^/]*/;;' \
+| while read file size
+do
+    if [ "$size" = 0 ]
+    then
+	# probably a hard link, size will be counted via one of
+	# the other pathnames
+	#
+	gz_size=0
+    elif [ -f "$file" ]
+    then
+	gz_size=`cat "$file" | gzip - | wc -c | sed -e 's/ //g'`
+    elif [ -L "$file" ]
+    then
+	# symbolic link
+	#
+	gz_size=0
+    else
+	echo >&2 "size-tarball: $file in tarball, but missing?"
+	gz_size="$size"
+    fi
+    printf "%s\t%s\t%s\n" "$file" "$size" "$gz_size" >>$tmp.manifest
+done
+
+echo
+echo "Top 10 files by gzip'd size (Kbytes) ..."
+sort -nr -t'	' -k3,3 <$tmp.manifest \
+| awk '
+BEGIN		{ other = 0 }
+NR <= 10	{ printf "%6d %s\n",($3+512)/1024,$1; next }
+		{ other += $3 }
+END		{ printf "%6d [others]\n", (other+512)/1024 }'
+
+echo
+echo "All top level directories by gzip'd size (Kbytes) ..."
+grep -v / $tmp.manifest \
+| sed -e 's;^;. ;' >$tmp.top
+sed -n -e '/\//s/\// /p' <$tmp.manifest >>$tmp.top
+( sort -t ' ' -k 1,1 <$tmp.top; echo 'End-of-File' ) \
+| awk '
+$1 != last	{ if (NR > 1) {
+		    printf "%6d:%s [%d files]\n",(total+512)/1024,last,nfile
+		  }
+		  last = $1
+		  total = $4
+		  nfile = 1
+		  next
+		}
+		{ total += $4; nfile++ }' \
+| sort -nr -t ':' -k1,1 \
+| sed -e 's/:/ /'
+
+echo
+echo "Top 10 second level directories by gzip'd size (Kbytes) ..."
+sed -E -n -e '/\/.*\//s/^([^/]*\/[^/]*)\//\1 /p' <$tmp.manifest >$tmp.2nd
+( sort -t ' ' -k 1,1 <$tmp.2nd; echo 'End-of-File' ) \
+| awk '
+$1 != last	{ if (NR > 1) {
+		    print total ":" last " " nfile
+		  }
+		  last = $1
+		  total = $4
+		  nfile = 1
+		  next
+		}
+		{ total += $4; nfile++ }
+		' \
+| sort -nr -t ':' -k1,1 \
+| sed -e 's/:/ /' \
+| tee /tmp/eek.debug \
+| awk '
+BEGIN		{ other = 0 }
+NR <= 10	{ printf "%6d %s [%d files]\n",($1+512)/1024,$2,$3; next }
+		{ other += $1 }
+END		{ printf "%6d [others]\n", (other+512)/1024 }'
