@@ -29,6 +29,12 @@ SRCIDX = $(patsubst %.0,%.index,$(SRCARCH))
 
 FOLIOS = $(shell echo *.folio)
 
+# Compressed archives won't be picked up from the *.[0-9]
+# pattern, so not in $(SRCFULL) => not in $(SRCMETA) and
+# not in $(SRCINDEX).
+# So need to enumerate all files here for each compressed 
+# archive.
+#
 DEFLATE = small.0.xz small.meta small.index \
 	  20130706.0.bz2 20130706.meta 20130706.index \
 	  20180606.0.xz 20180606.meta.xz 20180606.index \
@@ -43,11 +49,9 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-zeroconf.0.xz pcp-zeroconf.meta pcp-zeroconf.index \
 	  value-test.0.xz value-test.meta value-test.index \
 	  coverage.0.xz coverage.meta coverage.index \
-	  bozo-20170904.0.xz bozo-20170904.meta bozo-20170904.index \
 	  pcp-buddyinfo.0.xz pcp-buddyinfo.index.xz pcp-buddyinfo.meta.xz \
 	  pcp-pidstat-process-states.0.xz pcp-pidstat-process-states.meta \
-	  pcp-pidstat-process-states.index pcp-pidstat-process-args.0.xz \
-	  pcp-pidstat-process-args.index pcp-pidstat-process-args.meta.xz \
+	  pcp-pidstat-process-states.index \
 	  pcp-pidstat-timezone.0.xz pcp-pidstat-timezone.meta.xz \
 	  pcp-pidstat-timezone.index pcp-slabinfo.0.xz pcp-slabinfo.index.xz \
 	  pcp-slabinfo.meta.xz pcp-nfsiostat.0.xz pcp-nfsiostat.meta.xz \
@@ -75,7 +79,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-numastat-8-node.index.xz gfs.0.xz gfs.meta gfs.index \
 	  numa.0.xz numa.meta.xz numa.index.xz \
 	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
-	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index
+	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index \
+	  bozo-20170904.0.xz bozo-20170904.index bozo-20170904.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
@@ -83,18 +88,27 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.numa mk.rewrite mk.eventrec mk.interpmark mk.multihost \
 	  mk.sample_expr mk.tzchange mk.arch-all mk.amdgpu mk.nvidiagpu \
 	  mk.atop mk.hotatop mk.atop-boot mk.atop-nvidia mk.atop-threads \
-mk.log-derived mk.vmstat mk.rep mk.procsched mk.netstat \
-  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
-  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo mk.zoneinfo \
-  mk.atop-sar mk.pmstat mk.rocestat mk.mpstat mk.mpstat4
+	  mk.log-derived mk.vmstat mk.rep mk.procsched mk.netstat \
+	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
+	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo mk.zoneinfo \
+	  mk.atop-sar mk.pmstat mk.rocestat mk.mpstat mk.mpstat4
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \
 	  coverage.config
 
 OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
-	 crontab-sar-report.tar.xz cputime.mpstat cputime.sar \
+	 cputime.mpstat cputime.sar \
 	 farm.tar.xz atop-sar.tar.xz
+
+# these ones are in the git tree, but we do not "install" them
+# so they are not packaged (they are typically very big and only
+# used for corner-case QA that can be done in the git tree, not
+# using the pcp-testsuite package installation)
+#
+EXTRAS = pcp-pidstat-process-args.0.xz \
+	 pcp-pidstat-process-args.index pcp-pidstat-process-args.meta.xz \
+	 crontab-sar-report.tar.xz 
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp
