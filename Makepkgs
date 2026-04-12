@@ -442,7 +442,7 @@ clean_packaging()
 {
     echo
     echo "== Cleaning build tree for packaging build"
-    rm -rf "$SRCDIR" "$SRCTAR" .gitcensus
+    rm -rf "$SRCDIR" "$SRCTAR"
 }
 
 fix_version()
@@ -486,16 +486,38 @@ src_tar_build()
     else
 	# build git file list and make tarball by hand to pick up any changes
 	#
-	git ls-files > .gitcensus
+	git ls-files >$tmp.gitcensus
+	if [ -f .gitattributes ]
+	then
+	    # pick entries with the export-ignore attribute
+	    # and cull $tmp.gitcensus
+	    #
+	    sed -n <.gitattributes >$tmp.sed \
+		-e '/^#/d' \
+		-e '/ export-ignore/{
+s/ export-ignore//
+s;/;\\/;g
+s;^;/;
+s;$;/d;
+p
+}' \
+	    # end
+	    if [ -s $tmp.sed ]
+	    then
+		sed -f $tmp.sed <$tmp.gitcensus >$tmp.tmp
+		mv $tmp.tmp $tmp.gitcensus
+	    fi
+	    rm -f $tmp.sed
+	fi
 
 	# add debian/control ... will be replaced later
 	#
 	[ -f debian/control ] || touch debian/control
-	echo "debian/control" >>.gitcensus
+	echo "debian/control" >>$tmp.gitcensus
 
-	$TAR -cz --transform="s,^,$source/,S" --files-from=.gitcensus \
+	$TAR -cz --transform="s,^,$source/,S" --files-from=$tmp.gitcensus \
 		--file="$SRCTAR"
-	rm .gitcensus
+	rm -f $tmp.gitcensus
     fi
     echo "Wrote: $SRCTAR"
 }
