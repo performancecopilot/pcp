@@ -80,6 +80,7 @@ enum {
 	CLUSTER_POWER_STATE_4 = 261,
 	CLUSTER_POWER_STATE_5 = 262,
 	CLUSTER_NVME_ERROR_LOG = 263,
+	CLUSTER_NVME_ERROR_LOG_TOTAL = 264,
 	CLUSTER_UUID_INFO = 1000,
 	CLUSTER_UUID_RAW_READ_ERROR_RATE = 1001,
 	CLUSTER_UUID_THROUGHPUT_PERFORMANCE = 1002,
@@ -137,6 +138,7 @@ enum {
 	CLUSTER_UUID_POWER_STATE_4 = 1261,
 	CLUSTER_UUID_POWER_STATE_5 = 1262,
 	CLUSTER_UUID_NVME_ERROR_LOG = 1263,
+	CLUSTER_UUID_NVME_ERROR_LOG_TOTAL = 1264,
 	NUM_CLUSTERS
 };
 
@@ -156,6 +158,7 @@ struct block_dev {
 	struct nvme_device_info		nvme_device_info;
 	struct nvme_smart_data		nvme_smart_data;
 	struct nvme_power_states	nvme_power_states;
+	uint64_t				nvme_error_log_total;
 };
 
 extern pmdaMetric metrictable[];
