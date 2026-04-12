@@ -23,6 +23,19 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 
 [ "$PCP_PLATFORM" = freebsd ] && _notrun "Insufficient metrics on FreeBSD to exercise sar-like reporting"
 
+if [ ! -f archives/crontab-sar-report.tar.xz ]
+then
+    case `pwd`
+    in
+	*/testsuite)
+	    _notrun "uses the crontab-sar-report archive, needs to be run in the git tree"
+	    ;;
+	*)
+	    _fail "Botch: crontab-sar-report archive missing"
+	    ;;
+    esac
+fi
+
 _cleanup()
 {
     cd $here
