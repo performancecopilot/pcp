@@ -3645,8 +3645,16 @@ $2 == '$__pid' && $NF ~ /^([^)]*)$/ { print $3 }
 #
 _exit()
 {
-    [ $# -gt 0 ] && status="$1"
-    exit
+    if [ $# -gt 0 ]
+    then
+	status="$1"
+	# trap may not be in place, so need arg to exit
+	# as well
+	#
+	exit "$1"
+    else
+	exit
+    fi
 }
 
 # borrowed from rc-proc.sh in ../src/pmcd
