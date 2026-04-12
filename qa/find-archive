@@ -13,28 +13,87 @@
 tmp=${TMPDIR:-/tmp}/find-archive-$$
 trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
 
-# change for debugging
-verbose=false
+all=false
+list=false
+while [ $# -gt 0 ]
+do
+    case "$1"
+    in
+	-a)
+	    all=true
+	    shift
+	    ;;
+	-l)
+	    list=true
+	    shift
+	    ;;
+	*)
+	    break
+	    ;;
+    esac
+done
 
 if [ $# -eq 0 ]
 then
-    echo >&2 "Usage: find-archive archive [...]"
+    echo >&2 "Usage: find-archive [-a] [-l] archive [...]"
     exit 1
 fi
 
 archive_pat=`echo "$*" | sed -e 's/ /|/g'`
 sep_pat='[   |;&<>./]'
 
-grep -E "(^|$sep_pat)($archive_pat)($|$sep_pat)" [0-9]*[0-9][0-9] \
-| sed \
-    -e '/^[ 	]*#/d' \
-    -e 's/:.*//' \
-| sort -n \
-| uniq >$tmp.out
+# first (and always) all of the QA test scripts
+#
+grep -E "(^|$sep_pat)($archive_pat)($|$sep_pat)" [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] >$tmp.lines
 
-if [ -s $tmp.out ]
+if [ ! -s $tmp.lines ]
 then
-    echo `cat $tmp.out`
-else
     echo >&2 "${archive_pat}-not-used-in-any-test"
+else
+    if $list
+    then
+	cat $tmp.lines
+    else
+	sed <$tmp.lines -e 's/:.*//' \
+	| sort -n \
+	| uniq >$tmp.out
+	echo `cat $tmp.out`
+    fi
+fi
+
+if $all
+then
+    # the QA makefiles and any of the scripts in the archives
+    # where directories are hiding
+    #
+    rm -f $tmp.lines
+    find archives badarchives -type f \
+    | while read f
+    do
+	case "$f"
+	in
+	    *.meta|*.index|*.[0-9])
+		;;
+
+	    *.meta.xz|*.index.xz|*.[0-9].xz)
+		;;
+
+	    *.meta.bz2|*.index.bz2|*.[0-9].bz2)
+		;;
+
+	    *)
+		grep -E "(^|$sep_pat)($archive_pat)($|$sep_pat)" "$f" \
+		| sed -e "s;^;$f:;" >>$tmp.lines
+		;;
+	esac
+    done
+fi
+
+if $list
+then
+    cat $tmp.lines
+else
+    sed <$tmp.lines -e 's/:.*//' \
+    | sort -n \
+    | uniq
 fi
