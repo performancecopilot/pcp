@@ -1,0 +1,13 @@
+These archives are large and are not included in the source tarball and
+so not in the pcp-testsuite package.
+
+They can be used by QA tests run from a git tree provided they have
+appropriate _notrun guards.
+
+The archives fall into 2 classes.
+
+1. Big archives that are used to make smaller subset archives (with
+   pmlogextract or pmlogreduce or truncate) for QA tests.
+
+2. Big archives that are used in tests that are only of interest to
+   developers working in a git tree.
