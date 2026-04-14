@@ -53,13 +53,13 @@ _filter()
 # real QA test starts here
 echo "qa.rss = delta(proc.psinfo.rss)" >$tmp.derive
 PCP_DERIVED_CONFIG=$tmp.derive; export PCP_DERIVED_CONFIG
-pminfo -d -a archives/20201109 qa.rss
+pminfo -d -a archives/20201109-a qa.rss
 
 if $do_valgrind
 then
-    _run_valgrind pmval -z -a archives/20201109 -i 110365 -t 60 -w 21 -f 0 qa.rss
+    _run_valgrind pmval -z -a archives/20201109-a -i 110365 -t 60 -w 21 -f 0 qa.rss
 else
-    pmval -z -a archives/20201109 -i 110365 -t 60 -w 21 -f 0 qa.rss
+    pmval -z -a archives/20201109-a -i 110365 -t 60 -w 21 -f 0 qa.rss
 fi \
 | _filter
 

@@ -54,9 +54,10 @@ else
     # test runs the matching test ... this is a transitive use
     # of the archive
     #
-    for seq in `sed <$tmp.lines -e 's/:.*//'`
+    rm -f $tmp.trans
+    for seq in `sed <$tmp.lines -e 's/:.*//' | sort | uniq`
     do
-	grep "^./$seq" [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] >$tmp.trans
+	grep -E "^\./$seq( |\$)" [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] >>$tmp.trans
     done
     if [ -s $tmp.trans ]
     then
@@ -102,7 +103,7 @@ then
     done
     # and the .out files
     #
-    grep -E "($archive_pat)" [0-9][0-9][0-9].out* [0-9][0-9][0-9][0-9].out* \
+    grep -E "(^|$sep_pat)($archive_pat)($|$sep_pat)" [0-9][0-9][0-9].out* [0-9][0-9][0-9][0-9].out* \
     | sed -e '/\.out\.bad:/d' >>$tmp.lines
     if [ -s $tmp.lines ]
     then

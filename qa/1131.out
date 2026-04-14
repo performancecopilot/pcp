@@ -2278,7 +2278,7 @@ hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MAC
 # TYPE hinv_ncpu gauge
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
 hinv_ncpu{domainname="DOMAINID",groupid="GROUPID",hostname="HOST",machineid="MACHINEID",userid="USERID",agent="AGENT"} NCPU
---- pcp2openmetrics -s2 -a archives/20201109 hinv.ncpu kernel.all.load
+--- pcp2openmetrics -s2 -a archives/20201109-b hinv.ncpu kernel.all.load
 # EOF
 # HELP hinv_ncpu number of CPUs in the system
 # HELP kernel_all_load 1, 5 and 15 minute load average
@@ -2542,7 +2542,7 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
     }
   ]
 }
---- pcp2opentelemetry -s1 -a archives/20201109 hinv.ncpu
+--- pcp2opentelemetry -s1 -a archives/20201109-b hinv.ncpu
 {
   "resourceMetrics": [
     {

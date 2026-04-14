@@ -28,10 +28,10 @@ then
     case `pwd`
     in
 	*/testsuite)
-	    _notrun "uses the crontab-sar-report archive, needs to be run in the git tree"
+	    _notrun "uses bigarchives/crontab-sar-report, needs to be run in the git tree"
 	    ;;
 	*)
-	    _fail "Botch: crontab-sar-report archive missing"
+	    _fail "Botch: bigarchives/crontab-sar-report missing"
 	    ;;
     esac
 fi

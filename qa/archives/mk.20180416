@@ -12,13 +12,13 @@ ibase=../bigarchives/20180416.10.00
 obase=20180416
 here=`pwd`
 status=1
-tmp=/tmp/mk.20180416-sub-$$
+tmp=/tmp/mk.20180416-$$
 
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 _fail()
 {
-    echo >&2 "mk.20180416-sub: Error: $1"
+    echo >&2 "mk.20180416: Error: $1"
     status=1
     exit
 }

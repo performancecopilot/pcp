@@ -6,7 +6,7 @@ qa.rss
 Note: timezone set to local timezone of host "shard" from archive
 
 metric:    qa.rss
-archive:   archives/20201109
+archive:   archives/20201109-a
 host:      shard
 start:     Mon Nov  9 09:00:04 2020
 end:       Mon Nov  9 09:59:54 2020

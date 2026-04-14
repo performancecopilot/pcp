@@ -27,10 +27,10 @@ then
     case `pwd`
     in
 	*/testsuite)
-	    _notrun "uses the pcp-pidstat-process-args archive, needs to be run in the git tree"
+	    _notrun "uses bigarchives/pcp-pidstat-process-args, needs to be run in the git tree"
 	    ;;
 	*)
-	    _fail "Botch: pcp-pidstat-process-args archive missing"
+	    _fail "Botch: big/archives/pcp-pidstat-process-args missing"
 	    ;;
     esac
 fi

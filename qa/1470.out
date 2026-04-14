@@ -8,7 +8,7 @@ qa.rss
 Note: timezone set to local timezone of host "shard" from archive
 
 metric:    qa.rss
-archive:   archives/20201109
+archive:   archives/20201109-a
 host:      shard
 start:     Mon Nov  9 09:00:04 2020
 end:       Mon Nov  9 09:59:54 2020
@@ -81,7 +81,7 @@ interval:  60.00 sec
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmval -z -a archives/20201109 -i 110365 -t 60 -w 21 -f 0 qa.rss
+Command: pmval -z -a archives/20201109-a -i 110365 -t 60 -w 21 -f 0 qa.rss
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

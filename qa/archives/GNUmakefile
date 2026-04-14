@@ -63,7 +63,9 @@ DEFLATE = small.0.xz small.meta small.index \
 	  20180416.10.00.meta.xz 20180416.10.00.index 20180416.10.00.0.xz \
 	  20180416.10.00.1.xz 20180416.10.00.2.xz 20180416.10.00.3.xz \
 	  20190628.04.03.0.xz 20190628.04.03.1.xz 20190628.04.03.meta.xz \
-	  20190628.04.03.index 20201109.0.xz 20201109.index 20201109.meta.xz \
+	  20190628.04.03.index \
+	  20201109-a.0.xz 20201109-a.index 20201109-a.meta.xz \
+	  20201109-b.0.xz 20201109-b.index 20201109-b.meta.xz \
 	  20190628.06.31.0.xz 20190628.06.31.meta.xz 20190628.06.31.index \
 	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index \
 	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \

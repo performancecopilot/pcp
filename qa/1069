@@ -126,8 +126,8 @@ pmrep -s 1 -t 1 -i '.[]*'   disk.dev.read 2>&1 | grep -o "Invalid regex '.\[]\*'
 pmrep -s 1 -t 1 -i '.[z-a]' disk.dev.read 2>&1 | grep -o "Invalid regex '.\[z-a\]':"
 
 echo "== metricset command line handling"
-pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :nosuchset
-pmrep -z -a $here/archives/20201109 -i '.*000001.*' -C :proc-cpu :nosuchset
+pmrep -z -a $here/archives/20201109-b -i '.*000001.*' -C :nosuchset
+pmrep -z -a $here/archives/20201109-b -i '.*000001.*' -C :proc-cpu :nosuchset
 
 echo "== invalid configuration file part 1"
 cat > $tmp.wconfig <<EOF
@@ -337,7 +337,7 @@ echo "== derived metrics v. instance profiles"  # GH#451, GH#1253
 pmrep -s 1 -w 8 -H -U -e 'y = sum(sample.bucket)' y sample.bucket
 pmrep -s 1 -w 8 -H -U -e 'y = sum(sample.bucket)' y
 # GH#1253 - should have values for all instances
-pmrep -s 1 -w 8 -H -U -e 'y = kernel.all.uptime-proc.psinfo.start_time' -a $here/archives/20201109 -z -O 30m -i 1,2,3 y
+pmrep -s 1 -w 8 -H -U -e 'y = kernel.all.uptime-proc.psinfo.start_time' -a $here/archives/20201109-b -z -O 30s -i 1,2,3 y
 
 echo "== extended existing sample configuration"
 cat > $tmp.dconfig <<EOF

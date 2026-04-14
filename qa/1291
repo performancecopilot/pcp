@@ -22,6 +22,19 @@ fi
 
 [ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "system monitoring tools not installed"
 
+if [ ! -f bigarchives/20201109.0.xz ]
+then
+    case `pwd`
+    in
+	*/testsuite)
+	    _notrun "uses bigarchives/20201109, needs to be run in the git tree"
+	    ;;
+	*)
+	    _fail "Botch: bigarchives/20201109 archive missing"
+	    ;;
+    esac
+fi
+
 _cleanup()
 {
     cd $here
@@ -51,7 +64,7 @@ _filter()
 }
 
 # real QA test starts here
-$TIME pcp -z -a archives/20201109 -Dqa atop 10 3 >$tmp.out 2>$tmp.err
+$TIME pcp -z -a bigarchives/20201109 -Dqa atop 10 3 >$tmp.out 2>$tmp.err
 
 cat $tmp.out
 _filter <$tmp.err
