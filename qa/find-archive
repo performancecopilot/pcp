@@ -58,7 +58,6 @@ else
     do
 	grep "^./$seq" [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] >$tmp.trans
     done
-    cat $tmp.extra >>$tmp.lines
     if [ -s $tmp.trans ]
     then
 	sort -t ':' -k1,1 $tmp.lines $tmp.trans >$tmp.tmp
