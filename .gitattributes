@@ -28,6 +28,10 @@ qa/bigarchives/crontab-sar-report.tar.xz export-ignore
 #
 qa/bigarchives/20180416.10.00.* export-ignore
 
+# this one is used to create the smaller 20201109 archive for QA
+#
+qa/bigarchives/20201109.* export-ignore
+
 # this one has been sliced-n-diced: bozo-20170904-a is all of the
 # pmResults for a small subset of the metrics as required by the QA tests
 # and bozo-20170904-b is all the metrics but only the first 15 pmResults
