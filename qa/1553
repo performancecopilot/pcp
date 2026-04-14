@@ -55,14 +55,14 @@ _filter()
 
 mkdir $tmp || exit
 cd $tmp
-ln -s $here/archives/20180416.10.00* .
-xzcat <20180416.10.00.3.xz >vol.3
-mv vol.3 20180416.10.00.3
+ln -s $here/archives/20180416* .
+xzcat <20180416.3.xz >vol.3
+mv vol.3 20180416.3
 cd $here
 
 # real QA test starts here
 
-for arch in archives/ok-mv-bigbin $tmp/20180416.10.00
+for arch in archives/ok-mv-bigbin $tmp/20180416
 do
     for flags in '' '-f0' '-f1' '-f0 -f1'
     do

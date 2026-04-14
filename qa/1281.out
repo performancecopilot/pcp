@@ -7,12 +7,12 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 Log Label (Log Format Version 2)
 Performance metrics from host brolley-t530
     commencing Mon Apr 16 10:01:25.325401 2018
-    ending     Mon Apr 16 14:32:47.409469 2018
+    ending     Mon Apr 16 14:27:15.378684 2018
 Archive timezone: EDT+4
 PID for pmlogger: 7047
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmdumplog -z -Dlog -L 20180416.10.00
+Command: pmdumplog -z -Dlog -L 20180416
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -25,12 +25,12 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 Log Label (Log Format Version 2)
 Performance metrics from host brolley-t530
     commencing Mon Apr 16 10:01:25.325401 2018
-    ending     Mon Apr 16 14:26:25.396920 2018
+    ending     Mon Apr 16 12:59:15.398555 2018
 Archive timezone: EDT+4
 PID for pmlogger: 7047
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmdumplog -z -Dlog -L 20180416.10.00
+Command: pmdumplog -z -Dlog -L 20180416
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
@@ -43,12 +43,12 @@ Note: timezone set to local timezone of host "brolley-t530" from archive
 Log Label (Log Format Version 2)
 Performance metrics from host brolley-t530
     commencing Mon Apr 16 10:01:25.325401 2018
-    ending     Mon Apr 16 14:26:25.380430 2018
+    ending     Mon Apr 16 11:31:05.399125 2018
 Archive timezone: EDT+4
 PID for pmlogger: 7047
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmdumplog -z -Dlog -L 20180416.10.00
+Command: pmdumplog -z -Dlog -L 20180416
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

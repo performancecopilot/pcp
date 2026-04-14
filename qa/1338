@@ -44,7 +44,7 @@ echo contents of $CONFIG >> $seq_full
 echo ........................ >> $seq_full
 cat $CONFIG >> $seq_full
 echo ........................ >> $seq_full
-IN=$DIR/20180416.10.00
+IN=$DIR/20180416
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
@@ -79,7 +79,7 @@ echo contents of $CONFIG >> $seq_full
 echo ........................ >> $seq_full
 cat $CONFIG >> $seq_full
 echo ........................ >> $seq_full
-IN=$DIR/20180416.10.00
+IN=$DIR/20180416
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full

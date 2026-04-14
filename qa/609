@@ -23,7 +23,7 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-for arch in archives/bozo-20170904 archives/bozo-disk
+for arch in archives/bozo-20170904-a archives/bozo-disk
 do
     echo
     echo "=== $arch ==="

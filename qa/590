@@ -46,7 +46,7 @@ PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 
 $sudo rm -f /tmp/thread_?.out
 src/multithread12 -a 5 -b 5 -c 5 -d 5 -e 5 -C network.interface.out.packets \
-    archives/ok-foo archives/ok-mv-foo archives/multi archives/bozo-20170904 \
+    archives/ok-foo archives/ok-mv-foo archives/multi archives/bozo-20170904-b \
     archives/multi_v3
 
 echo
@@ -77,7 +77,7 @@ else
 fi
 
 echo
-echo "=== Thread D archives/bozo-20170904 ==="
+echo "=== Thread D archives/bozo-20170904-b ==="
 if [ -f /tmp/thread_D.out ]
 then
     cat /tmp/thread_D.out

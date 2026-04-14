@@ -23,7 +23,7 @@ $python -c "from pcp import pmapi" >/dev/null 2>&1
 
 [ "$PCP_PLATFORM" = freebsd ] && _notrun "Insufficient metrics on FreeBSD to exercise sar-like reporting"
 
-if [ ! -f archives/crontab-sar-report.tar.xz ]
+if [ ! -f bigarchives/crontab-sar-report.tar.xz ]
 then
     case `pwd`
     in
@@ -57,7 +57,7 @@ _filter()
 # real QA test starts here
 mkdir -p $tmp
 $sudo chown $PCP_USER:$PCP_GROUP $tmp
-if ! xzcat archives/crontab-sar-report.tar.xz | $sudo -u $PCP_USER tar xf - -C $tmp
+if ! xzcat bigarchives/crontab-sar-report.tar.xz | $sudo -u $PCP_USER tar xf - -C $tmp
 then
     echo "Arrgh: xzcat | tar failed"
     _exit 1

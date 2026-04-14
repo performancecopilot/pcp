@@ -1,6 +1,6 @@
 QA output created by 1338
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180416 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416
 Running pmdumplog -iteh TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.rewritten.txt
 3059,3064d3058
@@ -10,8 +10,8 @@ Running diff TMP.original.txt TMP.rewritten.txt
 <         [2] name(43,8) : value(53,14) [context]
 <         [3] name(69,9) : value(80,34) [context]
 <         [4] name(116,6) : value(124,3) [context]
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180416 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416
 Running pmdumplog -iteh TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.rewritten.txt
 3057a3058,3064

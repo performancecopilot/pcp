@@ -22,6 +22,19 @@ fi
 
 which xz >/dev/null 2>&1 || _notrun "No xz binary installed"
 
+if [ ! -f bigarchives/pcp-pidstat-process-args.0.xz ]
+then
+    case `pwd`
+    in
+	*/testsuite)
+	    _notrun "uses the pcp-pidstat-process-args archive, needs to be run in the git tree"
+	    ;;
+	*)
+	    _fail "Botch: pcp-pidstat-process-args archive missing"
+	    ;;
+    esac
+fi
+
 time=`which time`
 [ -z "$time" ] && _notrun "can't find /bin/time nor /usr/bin/time"
 
@@ -91,13 +104,13 @@ END		{ print u,s }' \
     | tee -a $seq_full
 }
 
-# archives/pcp-pidstat-process-args.0.xz is the largest QA archive(s)
+# bigarchives/pcp-pidstat-process-args.0.xz is the largest QA archive(s)
 # we have (to date) at 361Mb expanded ...
 #
 base=pcp-pidstat-process-args
 mkdir $tmp
 cd $tmp
-pmlogcp $here/archives/$base .
+pmlogcp $here/bigarchives/$base .
 _time xzcat $base.0.xz | sed -e 's/^/cputime: /' >$tmp.time
 _summary <$tmp.time "data uncompress" | tee -a $seq_full >$tmp.tmp
 data=`sed -n <$tmp.tmp -e '/[0-9]cpu (/{

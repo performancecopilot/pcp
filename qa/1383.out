@@ -1,6 +1,6 @@
 QA output created by 1383
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180416 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416
 Running pmdumplog -iteh TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.rewritten.txt
 3095,3098c3095
@@ -10,8 +10,8 @@ Running diff TMP.original.txt TMP.rewritten.txt
 <     InDom 60.1 labels (47 bytes): {"device_type":"block","indom_name":"per disk"}
 ---
 >     InDom 60.2 labels (47 bytes): {"device_type":"block","indom_name":"per disk"}
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180416 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416
 Running pmdumplog -iteh TMP.pmlogrewrite
 Running diff TMP.original.txt TMP.rewritten.txt
 3057a3058,3068

@@ -3,7 +3,7 @@ QA output created by 1302
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogrewrite -c TMP.config archives/bozo-20170904 TMP
+Command: pmlogrewrite -c TMP.config archives/bozo-20170904-a TMP
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks

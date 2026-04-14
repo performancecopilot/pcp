@@ -1,0 +1,65 @@
+#!/bin/sh
+#
+# make the bozo-20170904-* subset archives from bozo-20170904 in
+# ../bigarchives
+#
+# subset-a: selecting a subset of the metrics and all pmResults
+# subset-b: selecting all metrics but only the first 15 pmResults
+#
+
+ibase=../bigarchives/bozo-20170904
+here=`pwd`
+status=1
+tmp=/tmp/mk.20180416-$$
+
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_fail()
+{
+    echo >&2 "mk.bozo-20170904: Error: $1"
+    status=1
+    exit
+}
+
+mkdir $tmp || _fail mkdir
+
+obase=bozo-20170904-a
+rm -f $obase.*
+cat <<End-of-File >$tmp.config
+# metrics needed by ...
+# multithread12
+sample.colour
+# qa/588, qa/595
+kernel.percpu.cpu.user
+network.interface.out.packets
+# qa/1069
+tape.dev.io_ns
+mem.util.used
+# qa/1302
+sample.colour
+End-of-File
+
+pmlogextract -c $tmp.config $ibase $obase || _fail "pmlogextract"
+pmlogcompress $obase || _fail pmlogcompress
+echo "$obase: subset of metrics: created"
+
+obase=bozo-20170904-b
+rm -f $obase.*
+pmlogcp $ibase $tmp/$obase || _fail "pmlogcp -> $tmp"
+cd $tmp || _fail "cd $tmp"
+pmlogdecompress $obase || _fail pmlogdecompress
+offset=''
+part=0
+eval `$here/../src/scandata -o $obase.$part | sed -n -e '/\[16]/{
+s/.* @ //
+p
+}'`
+[ -n "$offset" ] || _fail "scandata vol $part"
+echo "[vol $part] offset=$offset"
+truncate -s $offset $obase.$part || _fail "truncate vol $part"
+pmlogcheck -R $obase || _fail pmlogrepair
+cd $here || _fail "cd back"
+pmlogmv $tmp/$obase $obase || _fail "pmlogmv back"
+pmlogcompress $obase || _fail pmlogcompress
+echo "$obase: first 15 pmRsults: created"
+

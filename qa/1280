@@ -47,15 +47,15 @@ _doit()
 {
     if $do_valgrind
     then
-	_run_valgrind pmdumplog -z -Dlog -L 20180416.10.00
+	_run_valgrind pmdumplog -z -Dlog -L 20180416
     else
-	pmdumplog -z -Dlog -L 20180416.10.00 2>>$seq_full
+	pmdumplog -z -Dlog -L 20180416 2>>$seq_full
     fi
 }
 
 # real QA test starts here
 mkdir $tmp
-pmlogcp archives/20180416.10.00 $tmp
+pmlogcp archives/20180416 $tmp
 cd $tmp
 for f in *.xz
 do
@@ -67,18 +67,18 @@ _doit
 
 echo
 echo "=== volume 3 missing ==="
-rm 20180416.10.00.3
+rm 20180416.3
 _doit
 
 echo
 echo "=== volume 2 truncated ==="
-size=`stat 20180416.10.00.2 | sed -n -e '/Size:/{
+size=`stat 20180416.2 | sed -n -e '/Size:/{
 s/.*Size: *//
 s/ .*//
 p
 }'`
 size=`expr $size - 8`
-truncate -s $size 20180416.10.00.2
+truncate -s $size 20180416.2
 _doit
 
 # success, all done

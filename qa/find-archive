@@ -48,8 +48,22 @@ grep -E "(^|$sep_pat)($archive_pat)($|$sep_pat)" [0-9][0-9][0-9] [0-9][0-9][0-9]
 
 if [ ! -s $tmp.lines ]
 then
-    echo >&2 "${archive_pat}-not-used-in-any-test"
+    echo >&2 "Info: ${archive_pat}: not used in any test"
 else
+    # now hunt for any duals (like valgrind) where some other
+    # test runs the matching test ... this is a transitive use
+    # of the archive
+    #
+    for seq in `sed <$tmp.lines -e 's/:.*//'`
+    do
+	grep "^./$seq" [0-9][0-9][0-9] [0-9][0-9][0-9][0-9] >$tmp.trans
+    done
+    cat $tmp.extra >>$tmp.lines
+    if [ -s $tmp.trans ]
+    then
+	sort -t ':' -k1,1 $tmp.lines $tmp.trans >$tmp.tmp
+	mv $tmp.tmp $tmp.lines
+    fi
     if $list
     then
 	cat $tmp.lines
@@ -87,13 +101,21 @@ then
 		;;
 	esac
     done
-fi
-
-if $list
-then
-    cat $tmp.lines
-else
-    sed <$tmp.lines -e 's/:.*//' \
-    | sort -n \
-    | uniq
+    # and the .out files
+    #
+    grep -E "($archive_pat)" [0-9][0-9][0-9].out* [0-9][0-9][0-9][0-9].out* \
+    | sed -e '/\.out\.bad:/d' >>$tmp.lines
+    if [ -s $tmp.lines ]
+    then
+	if $list
+	then
+	    cat $tmp.lines
+	else
+	    sed <$tmp.lines -e 's/:.*//' \
+	    | sort -n \
+	    | uniq
+	fi
+    else
+	echo >&2 "Info: ${archive_pat}: not used in any archive script"
+    fi
 fi

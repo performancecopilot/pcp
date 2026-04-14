@@ -49,7 +49,7 @@ indom 29.1 {
 End-of-File
 
 # real QA test starts here
-_run_valgrind pmlogrewrite -c $tmp.config archives/bozo-20170904 $tmp 2>&1 \
+_run_valgrind pmlogrewrite -c $tmp.config archives/bozo-20170904-a $tmp 2>&1 \
 | _filter
 
 pmdumplog -z $tmp sample.colour

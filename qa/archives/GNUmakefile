@@ -80,7 +80,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  numa.0.xz numa.meta.xz numa.index.xz \
 	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
 	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index \
-	  bozo-20170904.0.xz bozo-20170904.index bozo-20170904.meta.xz
+	  bozo-2017090-a.0.xz bozo-2017090-a.index bozo-2017090-a.meta.xz \
+	  bozo-2017090-b.0.xz bozo-2017090-b.index bozo-2017090-b.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \

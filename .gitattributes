@@ -1,22 +1,43 @@
-# entries here should be explit pathnames (no patterns) ...
-# Makepkgs is not as smart as git(1)
+# For PCP use entries here need to be restricted to full pathnames from
+# root of the git tree, optionally with an asterisk, because Makepkgs
+# is not as smart as git(1).
+#
+# So no
+# - ! for negation
+# - no leading /
+# - no / at the end:
+# - no ? single character pattern
+# - no [...] range pattern
 #
 # export-ignore is the only real attribute we care about and only
 # "set" this so no -export-ignore
 # ... this will work for Makepkgs using either git ls-files or
 # git-archive and the files with this attribute will *not* be in
 # the source tarball used for builds
+#
 
-# this archive is huge and only conditionally needed for qa/1525
-qa/archives/pcp-pidstat-process-args.0.xz export-ignore
-qa/archives/pcp-pidstat-process-args.index export-ignore
-qa/archives/pcp-pidstat-process-args.meta.xz export-ignore
+# this archive is huge and only conditionally needed for qa/1474
+#
+qa/bigarchives/pcp-pidstat-process-args.* export-ignore
 
 # this tarball is a single huge archive that is only used in qa/1180
-qa/archives/crontab-sar-report.tar.xz export-ignore
+#
+qa/bigarchives/crontab-sar-report.tar.xz export-ignore
+
+# this one is used to create the smaller 20180416 archive for QA
+#
+qa/bigarchives/20180416.10.00.* export-ignore
+
+# this one has been sliced-n-diced: bozo-20170904-a is all of the
+# pmResults for a small subset of the metrics as required by the QA tests
+# and bozo-20170904-b is all the metrics but only the first 15 pmResults
+#
+qa/bigarchives/bozo-20170904.* export-ignore
 
 # we don't need this for the PCP build
+#
 vendor/github.com/mnunberg/jsonsl/json_samples.tgz export-ignore
 
 # not included in packaging for any platform
+#
 src/libpcp/doc/libpcp-locking.odt export-ignore

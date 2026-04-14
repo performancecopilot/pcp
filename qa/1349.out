@@ -1,7 +1,7 @@
 QA output created by 1349
 === LABEL ITEM changes ===
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180416 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416
 Running pmdumplog -zhide TMP.pmlogrewrite
 Input archive:
     PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
@@ -15,8 +15,8 @@ Output archive:
         [0] name(2,11) : value(15,5) [pmid]
 
 === LABEL ITEM cluster 0 -> cluster 1 ===
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180416 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416
 Running pmdumplog -zhide TMP.pmlogrewrite
 Input archive:
     PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
@@ -74,8 +74,8 @@ Output archive:
         [0] name(2,11) : value(15,5) [pmid]
 
 === LABEL ITEM domain 60 -> domain 127 ===
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180416 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416
 Running pmdumplog -zhide TMP.pmlogrewrite
 Input archive:
     PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}
@@ -131,8 +131,8 @@ Output archive:
         [0] name(2,11) : value(15,5) [pmid]
     PMID 127.0.82 labels (21 bytes): {"device_type":"cpu"}
         [0] name(2,11) : value(15,5) [pmid]
-Running pmlogrewrite -c TMP.config archives/20180416.10.00 TMP.pmlogrewrite
-Running pmdumplog -zhide archives/20180416.10.00
+Running pmlogrewrite -c TMP.config archives/20180416 TMP.pmlogrewrite
+Running pmdumplog -zhide archives/20180416
 Running pmdumplog -iteh TMP.pmlogrewrite
 Input archive:
     PMID 60.0.20 labels (21 bytes): {"device_type":"cpu"}

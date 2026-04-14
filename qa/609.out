@@ -1,6 +1,6 @@
 QA output created by 609
 
-=== archives/bozo-20170904 ===
+=== archives/bozo-20170904-a ===
 06:39:11.722932  <mark>
 06:52:15.968840  <mark>
 20:55:45.262997  <mark>
@@ -15,20 +15,20 @@ QA output created by 609
 21:38:43.145835  <mark>
 21:38:47.260420  <mark>
 21:38:55.124596  <mark>
-<mark> @ byte offset 9269460
-<mark> @ byte offset 9612100
-<mark> @ byte offset 31540488
-<mark> @ byte offset 31647180
-<mark> @ byte offset 31671076
-<mark> @ byte offset 31694972
-<mark> @ byte offset 31754104
-<mark> @ byte offset 32561312
-<mark> @ byte offset 32609216
-<mark> @ byte offset 32658860
-<mark> @ byte offset 32659032
-<mark> @ byte offset 32659204
-<mark> @ byte offset 32706916
-<mark> @ byte offset 32754580
+<mark> @ byte offset 257628
+<mark> @ byte offset 267060
+<mark> @ byte offset 921116
+<mark> @ byte offset 924272
+<mark> @ byte offset 925076
+<mark> @ byte offset 925880
+<mark> @ byte offset 927468
+<mark> @ byte offset 951792
+<mark> @ byte offset 952596
+<mark> @ byte offset 953960
+<mark> @ byte offset 953980
+<mark> @ byte offset 954000
+<mark> @ byte offset 954804
+<mark> @ byte offset 955608
 pmdumplog: 14 mark records
 countmark: 14 mark records
 

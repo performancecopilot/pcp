@@ -497,6 +497,7 @@ src_tar_build()
 		-e '/ export-ignore/{
 s/ export-ignore//
 s;/;\\/;g
+s;\*;.*;g
 s;^;/;
 s;$;/d;
 p
