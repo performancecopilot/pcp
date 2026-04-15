@@ -261,6 +261,8 @@ doit(void)
     struct timespec	then_cpu;
     struct timespec	now_cpu;
 
+    mark_count = result_count = 0;
+
     tmp = strdup(archpathname);
     archdirname = dirname(tmp);
     if (vflag)
