@@ -1,0 +1,68 @@
+#!/bin/sh
+#
+# make the all-ubuntu.22.04-* subset archives from all-ubuntu.22.04 in
+# ../bigarchives
+#
+# subset-a: selecting a subset of the metrics and all pmResults
+#
+
+ibase=../bigarchives/all-ubuntu.22.04
+here=`pwd`
+status=1
+tmp=/tmp/mk.all-ubuntu.22.04-$$
+
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+_fail()
+{
+    echo >&2 "mk.all-ubuntu.22.04: Error: $1"
+    status=1
+    exit
+}
+
+mkdir $tmp || _fail mkdir
+
+obase=all-ubuntu.22.04-a
+rm -f $obase.*
+cat <<End-of-File >$tmp.config
+# metrics needed by ...
+# qa/1465
+ipc.shm.owner
+kernel.uname.nodename
+network.interface.hw_addr
+network.interface.inet_addr
+openmetrics.control.status
+pmcd.agent.name
+pmcd.client.whoami
+pmcd.hostname
+pmcd.pmie.configfile
+pmcd.pmie.logfile
+pmcd.pmie.pmcd_host
+pmcd.pmlogger.archive
+pmcd.pmlogger.host
+pmcd.pmlogger.pmcd_host
+pmda.uname
+proc.id.egid_nm
+proc.id.euid_nm
+proc.id.fsgid_nm
+proc.id.fsuid_nm
+proc.id.gid_nm
+proc.id.sgid_nm
+proc.id.suid_nm
+proc.id.uid_nm
+proc.memory.maps
+proc.psinfo.cmd
+proc.psinfo.cwd
+proc.psinfo.environ
+proc.psinfo.exe
+proc.psinfo.psargs
+sampledso.proc.exec
+sampledso.proc.ordinal
+sampledso.proc.time
+sample.proc.exec
+sample.proc.ordinal
+sample.proc.time
+End-of-File
+
+pmlogextract -c $tmp.config $ibase $obase || _fail "pmlogextract"
+pmlogcompress $obase || _fail pmlogcompress

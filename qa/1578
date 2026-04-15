@@ -55,9 +55,9 @@ _filter()
 echo "lots of archive base names ..."
 if $do_valgrind
 then
-    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04 archives/moomba.client archives/kenj-pc-2 archives/omnibus_v2 archives/omnibus_v3 archives/ok-mv-foo archives/small
+    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04-a archives/moomba.client archives/kenj-pc-2 archives/omnibus_v2 archives/omnibus_v3 archives/ok-mv-foo archives/small
 else
-    pmlogcheck -w -v archives/all-ubuntu.22.04 archives/moomba.client archives/kenj-pc-2 archives/omnibus_v2 archives/omnibus_v3 archives/ok-mv-foo archives/small 2>&1
+    pmlogcheck -w -v archives/all-ubuntu.22.04-a archives/moomba.client archives/kenj-pc-2 archives/omnibus_v2 archives/omnibus_v3 archives/ok-mv-foo archives/small 2>&1
 fi \
 | _filter
 
@@ -65,9 +65,9 @@ echo
 echo "lots of .meta names"
 if $do_valgrind
 then
-    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04.meta* archives/moomba.client.meta* archives/kenj-pc-2.meta* archives/omnibus_v2.meta* archives/omnibus_v3.meta* archives/ok-mv-foo.meta* archives/small.meta*
+    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04-a.meta* archives/moomba.client.meta* archives/kenj-pc-2.meta* archives/omnibus_v2.meta* archives/omnibus_v3.meta* archives/ok-mv-foo.meta* archives/small.meta*
 else
-    pmlogcheck -w -v archives/all-ubuntu.22.04.meta* archives/moomba.client.meta* archives/kenj-pc-2.meta* archives/omnibus_v2.meta* archives/omnibus_v3.meta* archives/ok-mv-foo.meta* archives/small.meta* 2>&1
+    pmlogcheck -w -v archives/all-ubuntu.22.04-a.meta* archives/moomba.client.meta* archives/kenj-pc-2.meta* archives/omnibus_v2.meta* archives/omnibus_v3.meta* archives/ok-mv-foo.meta* archives/small.meta* 2>&1
 fi \
 | _filter
 
@@ -75,9 +75,9 @@ echo
 echo "lots of names for the same base names ..."
 if $do_valgrind
 then
-    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04.* archives/ok-mv-foo.*
+    _run_valgrind pmlogcheck -w -v archives/all-ubuntu.22.04-a.* archives/ok-mv-foo.*
 else
-    pmlogcheck -w -v archives/all-ubuntu.22.04.* archives/ok-mv-foo.*
+    pmlogcheck -w -v archives/all-ubuntu.22.04-a.* archives/ok-mv-foo.*
 fi \
 | _filter
 

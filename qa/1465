@@ -48,7 +48,7 @@ _hunt()
 
     if [ ! -f $tmp.usernames ]
     then
-	# customized for the archives/all-ubuntu.22.04 archive
+	# customized for the archives/all-ubuntu.22.04-a archive
 	# wrt users and home directories
 	#
 	cat <<'End-of-File' >$tmp.passwd
@@ -119,7 +119,7 @@ End-of-File
 	    hostname_s=`hostname -s`
 	    hostname_f=`hostname`
 	else
-	    # customized for the archives/all-ubuntu.22.04 archive
+	    # customized for the archives/all-ubuntu.22.04-a archive
 	    #
 	    hostname_s=bozo
 	    hostname_f=bozo.localdomain
@@ -178,7 +178,7 @@ s/): */\
 }
 
 # real QA test starts here
-for arch in archives/all-ubuntu.22.04 archives/geo-foo
+for arch in archives/all-ubuntu.22.04-a archives/geo-foo
 do
     rm -f $tmp.0 $tmp.index $tmp.meta
     echo "=== $arch before ==="

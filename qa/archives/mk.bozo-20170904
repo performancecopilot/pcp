@@ -10,7 +10,7 @@
 ibase=../bigarchives/bozo-20170904
 here=`pwd`
 status=1
-tmp=/tmp/mk.20180416-$$
+tmp=/tmp/mk.bozo-20170904-$$
 
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
