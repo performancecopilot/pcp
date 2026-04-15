@@ -3,10 +3,8 @@
 # make the all-ubuntu.22.04-* subset archives from all-ubuntu.22.04 in
 # ../bigarchives
 #
-# subset-a: selecting a subset of the metrics and all pmResults
-#
 
-ibase=../bigarchives/all-ubuntu.22.04
+base=all-ubuntu.22.04
 here=`pwd`
 status=1
 tmp=/tmp/mk.all-ubuntu.22.04-$$
@@ -20,10 +18,9 @@ _fail()
     exit
 }
 
-mkdir $tmp || _fail mkdir
-
-obase=all-ubuntu.22.04-a
-rm -f $obase.*
+# subset-a: selecting a subset of the metrics and all pmResults
+#
+rm -f ${base}-a.*
 cat <<End-of-File >$tmp.config
 # metrics needed by ...
 # qa/1465
@@ -42,20 +39,20 @@ pmcd.pmlogger.archive
 pmcd.pmlogger.host
 pmcd.pmlogger.pmcd_host
 pmda.uname
-proc.id.egid_nm
-proc.id.euid_nm
-proc.id.fsgid_nm
-proc.id.fsuid_nm
-proc.id.gid_nm
-proc.id.sgid_nm
-proc.id.suid_nm
-proc.id.uid_nm
-proc.memory.maps
-proc.psinfo.cmd
-proc.psinfo.cwd
-proc.psinfo.environ
-proc.psinfo.exe
-proc.psinfo.psargs
+proc.id.egid_nm[1920,3233520]
+proc.id.euid_nm[1920,3233520]
+proc.id.fsgid_nm[1920,3233520]
+proc.id.fsuid_nm[1920,3233520]
+proc.id.gid_nm[1920,3233520]
+proc.id.sgid_nm[1920,3233520]
+proc.id.suid_nm[1920,3233520]
+proc.id.uid_nm[1920,3233520]
+proc.memory.maps[2981799]
+proc.psinfo.cmd[2366,332881,3363]
+proc.psinfo.cwd[2366,332881,3363]
+proc.psinfo.environ[332881,3363]
+proc.psinfo.exe[2981799]
+proc.psinfo.psargs[2165,2166]
 sampledso.proc.exec
 sampledso.proc.ordinal
 sampledso.proc.time
@@ -63,6 +60,5 @@ sample.proc.exec
 sample.proc.ordinal
 sample.proc.time
 End-of-File
-
-pmlogextract -c $tmp.config $ibase $obase || _fail "pmlogextract"
-pmlogcompress $obase || _fail pmlogcompress
+pmlogextract -c $tmp.config ../bigarchives/$base ${base}-a || _fail "pmlogextract"
+pmlogcompress ${base}-a || _fail pmlogcompress
