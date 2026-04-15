@@ -213,6 +213,7 @@ searchmlist(__pmResult *_Oresult)
 
 	/* start by assuming all instances are required */
 	_Nresult->vset[k] = _Oresult->vset[i];
+	vsetp = _Nresult->vset[k];
 
         if (ml != NULL && ml[j].numinst != -1 && vsetp->numval > 0) {
 	    /*
@@ -221,7 +222,6 @@ searchmlist(__pmResult *_Oresult)
 	     * vlistp[k] identfies the kth instance we will
 	     * require
 	     */
-	    vsetp = _Nresult->vset[k];
 
 	    found = 0;
 	    /* requested instances loop ... */

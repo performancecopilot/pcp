@@ -1,0 +1,6 @@
+QA output created by 1659
+
+proc.psinfo.cmd
+    inst [2366 or "002366 /usr/libexec/colord"] value "colord"
+    inst [332881 or "332881 bash"] value "bash"
+    inst [3363 or "003363 /usr/libexec/ibus-engine-simple"] value "ibus-engine-sim"
