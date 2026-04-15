@@ -50,7 +50,7 @@ Recording metrics...
 00:00:18        18       N/A         18        N/A       N/A       N/A
 00:00:19        19       N/A         19        N/A       N/A       N/A
 === pmrep csv output with units header (-U)
-Time,"disk.dev.read-sda(count)","disk.dev.read-sdb(count)","disk.dev.read-sdc(count)","disk.dev.read-sdd(count)","disk.dev.read-sde(count)","disk.dev.write-sda(count)","disk.dev.write-sdb(count)","disk.dev.write-sdc(count)","disk.dev.write-sdd(count)","disk.dev.write-sde(count)","mem.util.free(Kbyte)","mem.util.used(Kbyte)"
+Time,"disk.dev.read-sda","disk.dev.read-sdb","disk.dev.read-sdc","disk.dev.read-sdd","disk.dev.read-sde","disk.dev.write-sda","disk.dev.write-sdb","disk.dev.write-sdc","disk.dev.write-sdd","disk.dev.write-sde","mem.util.free","mem.util.used"
 1970-01-01 00:00:00,0,0,,,,0,0,,,,,
 1970-01-01 00:00:01,1,1,,,,1,1,,,,,
 1970-01-01 00:00:02,2,2,2,2,,2,2,2,2,,,2

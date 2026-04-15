@@ -996,12 +996,12 @@ or
 to disable).
 .RE
 .TP
-\fB\-U\fR, \fB\-\-csv\-unit\-info\fR
-Include unit information in CSV headers; \fB\-U\fR also omits unit information from stdout headers.
+\fB\-U\fR, \fB\-\-no\-unit\-info\fR
+Omit unit information from \fIstdout\fP headers.
 .TP
 \fB\-\-csv\-unit\-info\fR
-Same as
-.BR \-U .
+Include unit information in CSV headers (off by default). This does not affect
+stdout headers.
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
 Report only set-valued metrics with instances (e.g. disk.dev.read) and

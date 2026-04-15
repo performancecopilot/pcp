@@ -57,7 +57,7 @@ echo "=== pmrep csv output with units header (-U)"
 pmrep $log -o csv -p -I -r -u -U $metrics
 
 echo "=== pmrep csv output - filter with units header"
-pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics -U
+pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' --csv-unit-info $metrics
 
 echo "=== pmrep csv output - filter without units header"
 pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics
