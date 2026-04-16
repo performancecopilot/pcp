@@ -461,6 +461,7 @@ Whether the given drive has PASSED or FAILED SMART the self-test
 @smart.nvme_power_states.power_state_5.entry_latency Entry latency going into this power state
 @smart.nvme_power_states.power_state_5.exit_latency	Exit latency leaving from this power state
 
+@smart.nvme_error_log.total Total number of NVMe Error Log Pages with errors
 @smart.nvme_error_log.error_count Incrementing error count (unique id for error)
 @smart.nvme_error_log.sqid Submission queue id of the command that the error is associated with
 @smart.nvme_error_log.cmdid Command id of the command that the error is associated with
@@ -903,6 +904,7 @@ The given block device name for the disk drive.
 @smart.wwid.nvme_power_states.power_state_5.entry_latency Entry latency going into this power state
 @smart.wwid.nvme_power_states.power_state_5.exit_latency	Exit latency leaving from this power state
 
+@smart.wwid.nvme_error_log.total Total number of NVMe Error Log Pages with errors
 @smart.wwid.nvme_error_log.error_count Incrementing error count (unique id for error)
 @smart.wwid.nvme_error_log.sqid Submission queue id of the command that the error is associated with
 @smart.wwid.nvme_error_log.cmdid Command id of the command that the error is associated with
