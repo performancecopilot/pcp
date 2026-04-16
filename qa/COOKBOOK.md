@@ -173,7 +173,7 @@ from non-PCP applications, etc. This is achieved by "filtering" command
 output and log files to remove lines or fields that are not
 deterministic, and replace variable text with constants.
 
-The tests scripts are expected to exit with status **0**, but may exit with
+The test scripts are expected to exit with status **0**, but may exit with
 a non-zero status in cases of catastrophic failure, e.g. some service to
 be exercised did not start correctly, so there is nothing to test.
 
@@ -211,7 +211,7 @@ $ git add $seq $seq.out
 $ git commit
 ```
 
-additional **git** commands and possibly *GNUmakefile* changes will be
+Additional **git** commands and possibly *GNUmakefile* changes will be
 needed if your test needs any additional new files, e.g. a new source
 program or script below in the [*qa/src*](#src) directory or a new
 archive in the [*qa/archives*](#archives) directory.
@@ -336,7 +336,7 @@ practice is to separate options with whitespace.
 
 |**Option**|**Description**|
 |---|---|
-|**-c**|Before and after check for selected configuration files to ensure they have not been modified.|
+|**-c**|Before and after each test check for selected configuration files to ensure they have not been modified.|
 |**-C**|Enable color mode to highlight outcomes (assumes interactive execution).|
 |**-CI**|When QA tests run in the github infrastructure for the CI or QA actions, there are some tests that will never pass. The **-CI** option is shorthand for "**-x x11 -x remote -x not\_in\_ci**" and also sets <a id="idx+vars+pcpqainci"></a>**$PCPQA\_IN\_CI** to **yes** so individual tests can make local decisions if they are running in this environment.|
 |**-g** *group*|Include all of the tests from the group *group*.|
@@ -358,7 +358,7 @@ a "test" failure, rather than a PCP failure or regression. Causes might be
 timing issues that are impossible to control or failures on slow VMs or
 caused by non-PCP code that's failing.
 
-The _triaged_ file provides a mechanism that to describe failures for
+The _triaged_ file provides a mechanism to describe failures for
 specific tests on particular hosts or operating system versions or
 CPU architectures, or ... that have been analyzed and should not be
 considered a hard PCP QA failure.  Comments at the head of the file
@@ -405,7 +405,7 @@ include:
 
 - Pre and post capture of AVCs on a SELinux system to detect new AVCs triggered by a specific test.
 - Did **pmlogger\_daily** get run as expected?
-- Is **pmcd** healthy? This is delegated to **./941** with **\--check**.
+- Is **pmcd** healthy? This is delegated to **./941** with **--check**.
 - Is **pmlogger** healthy? This is delegated to **./870** with **--check**.
 - Are all of the configured [PMDAs](#idx+pmda) still alive?
 - Has the [PMNS](#idx+pmns) been trashed? This is delegated to **./1190** with **--check**.
@@ -468,7 +468,7 @@ and the following shell variables that may be used in your test script.<br>
 |<a id="idx+vars+sudo"></a>**$sudo**|Proper invocation of **sudo**(1) that includes any per-platform additional command line options.|
 |<a id="idx+vars+tmp"></a>**$tmp**|Unique prefix for temporary files or directory. Use **$tmp**_.foo_ or `$ mkdir $tmp` and then use **$tmp**_/foo_ or both. The standard **trap** cleanup function in each test will remove all these files and directories automatically when the test finishes, so save anything useful to **$seq\_full**.|
 
-There are some further shell variables that may required or used by specific
+There are some further shell variables that may be required or used by specific
 parts of the QA infrastructure as described below.<br>
 
 |**Variable**|**Description** or **Reference**|
@@ -478,7 +478,7 @@ parts of the QA infrastructure as described below.<br>
 |**$PCPQA\_CLOSE\_X\_SERVER**|See the [_common.config_ files](#common.config-file) section.|
 |**$PCPQA\_DESKTOP\_HACK**|See the [_common.config_ files](#common.config-file) section.|
 |**$PCPQA\_FAR\_PMCD**|See the [_common.config_ files](#common.config-file) section.|
-|**$PCPQA\_HYPHEN\_HOST**</a>|See the [_common.config_ files](#common.config-file) section.|
+|**$PCPQA\_HYPHEN\_HOST**|See the [_common.config_ files](#common.config-file) section.|
 |**$PCPQA\_IN\_CI**|See the [Command line options for **check**](#command-line-options-for-check) section.|
 |**$PCPQA\_PREFER\_VALGRIND**|Used in [**\_prefer\_valgrind**](#idx+funcs+prefervalgrind).|
 |**$PCPQA\_SYSTEMD**|Set in [_common.check_](#idx+vars+pcpqasystemd).|
@@ -496,7 +496,7 @@ parts of the QA infrastructure as described below.<br>
 ## 8.1 Portability considerations
 
 PCP QA runs on lots of systems, including older (but not yet end-of-life) versions
-of the various Linux distibutions and non-Linux systems (particularly macOS and the
+of the various Linux distributions and non-Linux systems (particularly macOS and the
 BSD-based distributions), so portability is important.
 
 Particular attention should be paid to the following repeat offenders:
@@ -545,7 +545,7 @@ sort of information to **$seq\_full**:
 - on error paths, output from commands that might help explain the error cause
 - context that helps match up test cases in the script with the output in both the *.out* and *.full* files, e.g. this is a common pattern:<br>
 `$ echo "--- subtest foobar ---" | tee -a $seq_full`
-- log files that are unsuitable for inclusion in *.out *
+- log files that are unsuitable for inclusion in *.out*
 
 The common preamble for all tests will ensure **$seq\_full** is removed at the start of each test, so you can safely use constructs like:
 
@@ -568,7 +568,7 @@ More subtle are the points where daylight saving might start or stop,
 leaving the system clock running but wallclock time suddenly misses an
 hour or runs the same hour twice.
 
-When this is makes a test non-deterministic, the defensive
+When this makes a test non-deterministic, the defensive
 mechanisms are to either use an appropriate guard with
 [**\_notrun**](#idx+funcs+notrun) or add the test to the
 [*triaged*](#the-triaged-file) file.
@@ -603,7 +603,7 @@ In the descriptions below "output" means output to stdout.
 |<a id="idx+funcs+checkagent"></a>**\_check\_agent**|Usage: **\_check\_agent** _pmda_ \[_verbose_]<br>Checks that the _pmda_ [PMDA](#idx+pmda) is installed and responding to metric requests. Returns **0** if all is well, else returns **1** and outputs diagnostics to explain why. If _verbose_ is **true** emit diagnostics independent of return value.|
 |<a id="idx+funcs+checkcore"></a>**\_check\_core**|Usage: **\_check\_core** \[_dir_]<br>List any "core" files in _dir_ (defaults to _._), so no output if there are none.|
 |<a id="idx+funcs+checkdisplay"></a>**\_check\_display**|Usage: **\_check\_display**<br>For applications that need an X11 display (like **pmchart**(1)), call [**\_notrun**](#idx+funcs+notrun) with an appropriate message if [**$PCPQA\_CLOSE\_X\_SERVER**](#idx+vars+pcpqaclosexserver) is not set or **xdpyinfo**(1) cannot be run successfully.<br>If **\_check\_display** believes the X11 display is accessible and [**$PCPQA\_DESKTOP\_HACK**](#idx+vars+pcpqadesktophack) is set to **true** then the directory **$tmp**_/xdg-runtime_ is also created and **$XDG\_RUNTIME\_DIR** is set to the path to this directory.  This may be needed to suppress warning babble from some Qt applications. See also [**\_clean\_display**](#idx+funcs+cleandisplay).|
-|<a id="idx+funcs+checkfreespace"></a>**\_check\_freespace**|Usage: **\_check\_freespace** _need_<br>Returns **0** if there is more that _need_ Mbytes of free space in the filesystem for the current working directory, else returns **1**.|
+|<a id="idx+funcs+checkfreespace"></a>**\_check\_freespace**|Usage: **\_check\_freespace** _need_<br>Returns **0** if there is more than _need_ Mbytes of free space in the filesystem for the current working directory, else returns **1**.|
 |<a id="idx+funcs+checkjobscheduler"></a>**\_check\_job\_scheduler**|Usage: **\_check\_job\_scheduler**<br>Many of the PCP services require periodic actions to check health, rotate logs, rotate **pmlogger**(1) archives, daily report generation, etc. and these depend on **systemd**(1) timers or **cron**(1). This function tests if one of the required underlying mechanisms is available, else call [**\_notrun**](#idx+funcs+notrun) with the (somewhat cryptic) message "No crontab binary found". Tests that rely on these periodic actions are (a) rare, but (b) likely to fail when QA is running in a container, hence the need for this function.<br>When the timers need to be disabled for a QA test, the usual sequence is to call **\_check\_job\_scheduler** to ensure the underlying mechanism is available, then call [**\_remove\_job\_scheduler**](#idx+funcs+removejobscheduler) to disable the timer(s) and then call [**\_restore\_job\_scheduler**](#idx+funcs+restorejobscheduler) at the end of the test to re-enable the timer(s).|
 |<a id="idx+funcs+checkkeyserver"></a>**\_check\_key\_server**|Usage: **\_check\_key\_server** \[_port_]<br>Check if a key server is installed and running locally and the version is not too old. Optional _port_ parameter defaults to 6379. Uses [**\_check\_key\_server\_version**](#idx+funcs+checkkeyserverversion).|
 |<a id="idx+funcs+checkkeyserverping"></a>**\_check\_key\_server\_ping**|Usage: **\_check\_key\_server\_ping** _port_<br>If there is no key server CLI application installed, call **_notrun**. Otherwise send "ping" requests to the local key server on port _port_ until we see the expected response, in which case the function silently returns. Will timeout after trying for 1.25 secs and the last output from key server CLI application will be output.|
@@ -639,10 +639,10 @@ In the descriptions below "output" means output to stdout.
 |<a id="idx+funcs+ipv6localhost"></a>**\_ipv6\_localhost**|Usage: **\_ipv6\_localhost**<br>Output the IPv6 connection string for localhost. Emit an error message on stderr if this cannot be found.|
 |<a id="idx+funcs+libvirtisok"></a>**\_libvirt\_is\_ok**|Usage: **\_libvirt\_is\_ok**<br>Check if _libvirt_ and in particular the Python wrapper for _libvirt_ seems to be OK ... historically some versions were prone to core dumps. Returns **1** for known to be bad, else **0**.|
 |<a id="idx+funcs+machineid"></a>**\_machine\_id**|Usage: **\_machine\_id**<br>Output the machine id signature for the host running QA.  For Linux systems this is the SHA from _/etc/machine-id_ else the dummy value **localmachine**.|
-|<a id="idx+funcs+makehelptext"></a>**\_make\_helptext**|Usage: **\_make\_helptext** _pmda_<br>Each PMDA provides "help" text for the metrics it exports.  For some PMDAs this is in text files which need to be converted into the format required by the library routines that underpin each PMDA. This function optional runs **newhelp**(1), checks that the necessary files are in place for the _pmda_ PMDA, and returns **0** if all is well. If there is a problem, error messages are output and the return value is **1**.|
+|<a id="idx+funcs+makehelptext"></a>**\_make\_helptext**|Usage: **\_make\_helptext** _pmda_<br>Each PMDA provides "help" text for the metrics it exports.  For some PMDAs this is in text files which need to be converted into the format required by the library routines that underpin each PMDA. This function optionally runs **newhelp**(1), checks that the necessary files are in place for the _pmda_ PMDA, and returns **0** if all is well. If there is a problem, error messages are output and the return value is **1**.|
 |<a id="idx+funcs+makeprocstat"></a>**\_make\_proc\_stat**|Usage: **\_make\_proc\_stat** _path_ _ncpu_<br>Generate dummy lines for a Linux _/proc/stat_ file and write them to the file _path_. The **cpu** and **cpu**_N_ lines are generated for a machine with _ncpu_ CPUs.|
 |<a id="idx+funcs+needmetric"></a>**\_need\_metric**|Usage: **\_need\_metric** _metric_<br>Check if _metric_ is available from the local **pmcd**(1). If not available, call [**\_notrun**](#idx+funcs+notrun) with an appropriate message.<br>Use this check for a _metric_ that is required by a QA test but _metric_ is not universally available, e.g. kernel metrics that are not present on all platforms.<br>See also the [**\_avail\_metric**](#idx+funcs+availmetric) and [**\_check\_metric**](#idx+funcs+checkmetric) functions above.|
-|<a id="idx+funcs+notrun"></a>**\_notrun**|Usage: **\_notrun** _message_<br>Not all tests are expected to be able to run on all platforms. Reasons might include: won't work at all a certain operating system, application required by the test is not installed, metric required by the test is not available from **pmcd**(1), etc.<br>In these cases, the test should include a guard that captures the required precondition and call **\_notrun** with a helpful _message_ if the guard fails. For example.<br>&nbsp;&nbsp;&nbsp;`which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"`|
+|<a id="idx+funcs+notrun"></a>**\_notrun**|Usage: **\_notrun** _message_<br>Not all tests are expected to be able to run on all platforms. Reasons might include: won't work at all on a certain operating system, application required by the test is not installed, metric required by the test is not available from **pmcd**(1), etc.<br>In these cases, the test should include a guard that captures the required precondition and call **\_notrun** with a helpful _message_ if the guard fails. For example.<br>&nbsp;&nbsp;&nbsp;`which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"`|
 |<a id="idx+funcs+pathreadable"></a>**\_path\_readable**|Usage: **\_path\_readable** _user_ _path_<br>Determine if the file _path_ is readable by the login _user_. Return **0** if OK, else returns **1** after emitting reason(s) on stderr.|
 |<a id="idx+funcs+pidincontainer"></a>**\_pid\_in\_container**|Usage: **\_pid\_in\_container** _pid_<br>Return **0** if process _pid_ is definitely running in a container (assumes Linux and some heuristic pattern matching against _/proc/pid/cgroup_), otherwise return **1**.|
 |**\_prepare\_pmda**|Refer to the [PMDA Install and Remove](#pmda-install-and-remove) section below.|
@@ -658,26 +658,26 @@ In the descriptions below "output" means output to stdout.
 |<a id="idx+funcs+restorejobscheduler"></a>**\_restore\_job\_scheduler**|Usage: **\_restore\_job\_scheduler** _cron_ _systemd_ _sudo_<br>Re-enable PCP service timers (assumes [**\_remove\_job\_scheduler**](#idx+funcs+removejobscheduler) was called earlier). Desired **cron**(1) state (if any) was previously saved in the file _cron_. Desired **systemd**(1) state (if any) was previously saved in the file _systemd_. Uses _sudo_ as the **sudo**(1) command.<br>Refer to [**\_check\_job\_scheduler**](#idx+funcs+checkjobscheduler) for details.|
 |<a id="idx+funcs+restoreloggers"></a>**\_restore\_loggers**|Usage: **\_restore\_loggers**<br>Reverses the changes from [**\_disable\_loggers**](#idx+funcs+disableloggers), see above.|
 |**\_restore\_pmda\_install**|Refer to the [PMDA Install and Remove](#pmda-install-and-remove) section below.|
-|<a id="idx+funcs+restorepmdammv"></a>**\_restore\_pmda\_mmv**|Usage: **\_prepare\_pmda\_mmv**<br>Restore the directory of mmap'd files used by the **mmv** PMDA saved in an earlier call to [**\_prepare\_pmda\_mmv**](#idx+funcs+preparepmdammv).|
+|<a id="idx+funcs+restorepmdammv"></a>**\_restore\_pmda\_mmv**|Usage: **\_restore\_pmda\_mmv**<br>Restore the directory of mmap'd files used by the **mmv** PMDA saved in an earlier call to [**\_prepare\_pmda\_mmv**](#idx+funcs+preparepmdammv).|
 |<a id="idx+funcs+restorepmloggercontrol"></a>**\_restore\_pmlogger\_control**|Usage: **\_restore\_pmlogger\_control**<br>Edit the various **pmlogger**(1) control files below the **$PCP\_SYSCONF\_DIR**_/pmlogger_ directory to ensure that only the primary **pmlogger** is enabled.<br>Only the control files are changed, the caller needs to follow up with<br>`$ _service pmlogger restart`<br>for any change to take effect.|
-|<a id="idx+funcs+restoreprimarylogger"></a>**\_restore\_primary\_logger**|Usage: **\_restore\_primary\_logger**<br>Ensure the configuration file for the primary **pmlogger**(1) does _not_ allows **pmlc**(1) to make state changes to dynamically add or delete metrics to be logged (this is the default after PCP installation).<br>This function effectively reverses the changes made by [**\_writable\_primary\_logger**](#idx+funcs+writableprimarylogger).|
+|<a id="idx+funcs+restoreprimarylogger"></a>**\_restore\_primary\_logger**|Usage: **\_restore\_primary\_logger**<br>Ensure the configuration file for the primary **pmlogger**(1) does _not_ allow **pmlc**(1) to make state changes to dynamically add or delete metrics to be logged (this is the default after PCP installation).<br>This function effectively reverses the changes made by [**\_writable\_primary\_logger**](#idx+funcs+writableprimarylogger).|
 |<a id="idx+funcs+saveconfig"></a>**\_save\_config**|Usage: **\_save\_config** _target_<br>Save a configuration file or directory _target_ with a name that uses [$seq](#idx+vars+seq) so that if a test aborts we know who was dinking with the configuration.<br>Operates in concert with [**\_restore\_config**](#idx+funcs+restoreconfig).|
 |<a id="idx+funcs+service"></a>**\_service**|Usage: **\_service** \[**-v**] _service_ _action_<br>Controlling services like **pmcd**(1) or **pmlogger**(1) or ... may involve **init**(1) or **systemctl**(1) or something else. This complexity is hidden behind the **\_service** function which should be used whenever a test wants to control a PCP service.<br>Supported values for _service_ are: **pmcd**, **pmlogger**, **pmproxy** **pmie**.<br>_action_ is one of **stop**, **start** (may be no-op if already started) or **restart** (force stop if necessary, then start).<br>Use **-v** for more verbosity.|
 |<a id="idx+funcs+setdsosuffix"></a>**\_set\_dsosuffix**|Usage: **\_set\_dsosuffix**<br>Set the shell variable <a id="idx+vars+dsosuffix"></a>**$DSOSUFFIX** to the suffix used for shared libraries. This is platform-specific, but for Linux it is **so**.|
 |<a id="idx+funcs+sighuppmcd"></a>**\_sighup\_pmcd**|Usage: **\_sighup\_pmcd**<br>Send **pmcd**(1) a SIGHUP signal and reliably check that it received (at least) one.<br>Returns **0** on success, else the return value is **1** and an explanatory message is output.|
 |<a id="idx+funcs+startuppmlogger"></a>**\_start\_up\_pmlogger**|Usage: **\_start\_up\_pmlogger** _arg_ ...<br>Start a new **pmlogger**(1) instance in the background with appropriate privileges so that it can create the portmap files in **$PCP\_TMP\_DIR** and thus be managed by **pmlogctl**(1) or **pmlc**(1).  All of the _arg_ arguments are passed to the new **pmlogger** and the process ID of the new **pmlogger** is returned in <a id="idx+vars+pid"></a>**$pid** (which will be empty if **pmlogger** was not started).<br>The process will be run as the user **pcp** (or **root** if **pcp** is not available), so the current directory needs to be writable by that user and the test's **_cleanup** function needs to use **$sudo** to remove the files created by **pmlogger**.|
-|<a id="idx+funcs+stopautorestart"></a>**\_stop\_auto\_restart**|Usage: **\_stop\_auto\_restart** _service_<br>When testing error handling or timeout conditions for services it may be important to ensure the system does not try to restart a failed service (potentially leading to an hard loop of retry-fail-retry). **\_stop\_auto\_start** will change system configuration to prevent restarting for _service_ if the platform supports this function.<br>Use [**\_restore\_auto\_restart**](#idx+funcs+restoreautorestart) with the same _service_ to reinstate the system configuration.|
+|<a id="idx+funcs+stopautorestart"></a>**\_stop\_auto\_restart**|Usage: **\_stop\_auto\_restart** _service_<br>When testing error handling or timeout conditions for services it may be important to ensure the system does not try to restart a failed service (potentially leading to an hard loop of retry-fail-retry). **\_stop\_auto\_restart** will change system configuration to prevent restarting for _service_ if the platform supports this function.<br>Use [**\_restore\_auto\_restart**](#idx+funcs+restoreautorestart) with the same _service_ to reinstate the system configuration.|
 |<a id="idx+funcs+systemctlstatus"></a>**\_systemctl\_status**|Usage: **\_systemctl\_status** _service_<br>If the service _service_ is being managed by **systemd**(1) then call **systemctl**(1) and **journalctl**(1) to provide a verbose report on the status of the service.  Mostly used by other functions in this group in the event of failure to start or stop _service_.|
 |<a id="idx+funcs+triagepmcd"></a>**\_triage\_pmcd**|Usage: **\_triage\_pmcd**<br>Produce a triage report for a failing **pmcd**(1).|
 |<a id="idx+funcs+triagewaitpoint"></a>**\_triage\_wait\_point**|See the [**\_triage\_wait\_point**](#triagewaitpoint) section below.|
-|<a id="idx+funcs+trypmlc"></a>**\_try\_pmlc**|Usage: **\_try\_pmlc** \[_expect_]<br>The **pmlc**(1) application interrogates and controls **pmlogger**(1) instances, but it may not succeed if some other **pmlc** is interacting with the target **pmlogger** (this is is expected when **pmlogger** timer services are running concurrently with QA).<br>On entry to this function, the desired **pmlc** commands (including the **connect** command to identify the **pmlogger** of interest) must be in the file **$tmp**.pmlc. This function will then try up to 10 times (with 0.1 sec sleeps between tries) to run **pmlc**. A record of the successes or failures is appended to **$seq\_full**. On failure after 10 attempts, if the optional argument _expect_ is **expect-failure** the function quietly returns, else an error message and the last output (stdout and stderr) from **pmlc** is reported.|
-|<a id="idx+funcs+waitforpmcd"></a>**\_wait\_for\_pmcd**|Usage: **\_wait\_for\_pmcd** \[_maxdelay_ \[_host_ \[_port_]]]<br>Wait for **pmcd**(1) to start. The arguments are optional, but the parsing is a bit Neanderthal so if you need to specify an argument you need to specify the all the preceding arguments in the order above. The defaults are _maxdelay_ **20** (seconds), _host_ **localhost** and _port_ "" (so the default **$PMCD\_PORT**).<br>**pmcd** is considered "started" when it returns a value for the `pmcd.numclient` metric and **\_wait\_for\_pmcd** returns **0**. If, after _maxdelay_ iterations (each with a 1 sec sleep), **pmcd** does not respond, then a detailed triage report is produced and **\_wait\_for\_pmcd** returns **1**.|
+|<a id="idx+funcs+trypmlc"></a>**\_try\_pmlc**|Usage: **\_try\_pmlc** \[_expect_]<br>The **pmlc**(1) application interrogates and controls **pmlogger**(1) instances, but it may not succeed if some other **pmlc** is interacting with the target **pmlogger** (this is expected when **pmlogger** timer services are running concurrently with QA).<br>On entry to this function, the desired **pmlc** commands (including the **connect** command to identify the **pmlogger** of interest) must be in the file **$tmp**.pmlc. This function will then try up to 10 times (with 0.1 sec sleeps between tries) to run **pmlc**. A record of the successes or failures is appended to **$seq\_full**. On failure after 10 attempts, if the optional argument _expect_ is **expect-failure** the function quietly returns, else an error message and the last output (stdout and stderr) from **pmlc** is reported.|
+|<a id="idx+funcs+waitforpmcd"></a>**\_wait\_for\_pmcd**|Usage: **\_wait\_for\_pmcd** \[_maxdelay_ \[_host_ \[_port_]]]<br>Wait for **pmcd**(1) to start. The arguments are optional, but the parsing is a bit Neanderthal so if you need to specify an argument you need to specify all the preceding arguments in the order above. The defaults are _maxdelay_ **20** (seconds), _host_ **localhost** and _port_ "" (so the default **$PMCD\_PORT**).<br>**pmcd** is considered "started" when it returns a value for the `pmcd.numclient` metric and **\_wait\_for\_pmcd** returns **0**. If, after _maxdelay_ iterations (each with a 1 sec sleep), **pmcd** does not respond, then a detailed triage report is produced and **\_wait\_for\_pmcd** returns **1**.|
 |<a id="idx+funcs+waitforpmcdstop"></a>**\_wait\_for\_pmcd\_stop**|Usage: **\_wait\_for\_pmcd\_stop** \[_maxdelay_]<br>Wait for **pmcd**(1) to stop. _maxdelay_ defaults to **20** (seconds).<br>**pmcd** is considered "stopped" when it does not return a value for the `pmcd.numclient` metric and **\_wait\_for\_pmcd\_stop** returns **0**. If, after _maxdelay_ iterations (each with a 1 sec sleep), **pmcd** is still responding, then a detailed triage report is produced and **\_wait\_for\_pmcd\_stop** returns **1**.<br>See also [**\_wait\_pmcd\_end**](#idx+funcs+waitpmcdend).|
 |<a id="idx+funcs+waitforpmie"></a>**\_wait\_for\_pmie**|Usage: **\_wait\_for\_pmie**<br>Wait for the primary **pmie**(1) process to get started as indicated by the presence of the **$PCP\_RUN\_DIR**_/pmie.pid_ file. Return **0** on success, else returns **1** with a status report on failure after 10 secs.|
-|<a id="idx+funcs+waitforpmlogger"></a>**\_wait\_for\_pmlogger**|Usage: **\_wait\_for\_pmlogger** \[_pid_ \[_logfile_ \[_maxdelay_]]]<br>Wait for a **pmlogger**(1) instance to start. The arguments are optional, but the parsing is a bit Neanderthal so if you need to specify an argument you need to specify the all the preceding arguments in the order above. The defaults are _pid_ **-P** (the primary **pmlogger** instance), _logfile_ **$PCP\_ARCHIVE\_DIR**_/$(hostname)/pmlogger.log_ and _maxdelay_ **20** (seconds).<br>The designated **pmlogger** is considered "started" when it can be contacted via **pmlc**(1). On success **\_wait\_for\_pmlogger** returns **0**. If, after _maxdelay_ iterations (each with a 1 sec sleep), **pmlogger** does not respond, then a detailed triage report is produced including the contents of _logfile_ and **\_wait\_for\_pmlogger** returns **1**.|
-|<a id="idx+funcs+waitforpmproxy"></a>**\_wait\_for\_pmproxy**|Usage: **\_wait\_for\_pmproxy** \[_port_] \[_logfile_]]<br>Wait for **pmproxy**(1) to start. The arguments are optional, but the parsing is a bit Neanderthal so if you need to specify an argument you need to specify the all the preceding arguments in the order above. The defaults are _port_ **44322** and _logfile_ **$PCP\_LOG\_DIR**_/pmproxy/pmproxy.log_.<br>**pmproxy** is considered "started" when it accepts TCP connections on port _port_ and **\_wait\_for\_pmproxy** returns **0**. If, after 20 iterations (each with a 1 sec sleep), **pmproxy** does not respond then a status report is produced and **\_wait\_for\_pmproxy** returns **1**.<br>See also [**\_wait\_for\_pmproxy\_logfile**](#idx+funcs+waitforpmproxylogfile) and [**\_wait\_for\_pmproxy\_metrics**](#idx+funcs+waitforpmproxymetrics).|
+|<a id="idx+funcs+waitforpmlogger"></a>**\_wait\_for\_pmlogger**|Usage: **\_wait\_for\_pmlogger** \[_pid_ \[_logfile_ \[_maxdelay_]]]<br>Wait for a **pmlogger**(1) instance to start. The arguments are optional, but the parsing is a bit Neanderthal so if you need to specify an argument you need to specify all the preceding arguments in the order above. The defaults are _pid_ **-P** (the primary **pmlogger** instance), _logfile_ **$PCP\_ARCHIVE\_DIR**_/$(hostname)/pmlogger.log_ and _maxdelay_ **20** (seconds).<br>The designated **pmlogger** is considered "started" when it can be contacted via **pmlc**(1). On success **\_wait\_for\_pmlogger** returns **0**. If, after _maxdelay_ iterations (each with a 1 sec sleep), **pmlogger** does not respond, then a detailed triage report is produced including the contents of _logfile_ and **\_wait\_for\_pmlogger** returns **1**.|
+|<a id="idx+funcs+waitforpmproxy"></a>**\_wait\_for\_pmproxy**|Usage: **\_wait\_for\_pmproxy** \[_port_] \[_logfile_]]<br>Wait for **pmproxy**(1) to start. The arguments are optional, but the parsing is a bit Neanderthal so if you need to specify an argument you need to specify all the preceding arguments in the order above. The defaults are _port_ **44322** and _logfile_ **$PCP\_LOG\_DIR**_/pmproxy/pmproxy.log_.<br>**pmproxy** is considered "started" when it accepts TCP connections on port _port_ and **\_wait\_for\_pmproxy** returns **0**. If, after 20 iterations (each with a 1 sec sleep), **pmproxy** does not respond then a status report is produced and **\_wait\_for\_pmproxy** returns **1**.<br>See also [**\_wait\_for\_pmproxy\_logfile**](#idx+funcs+waitforpmproxylogfile) and [**\_wait\_for\_pmproxy\_metrics**](#idx+funcs+waitforpmproxymetrics).|
 |<a id="idx+funcs+waitforpmproxylogfile"></a>**\_wait\_for\_pmproxy\_logfile**|Usage: **\_wait\_for\_pmproxy\_logfile** _logfile_<br>Called after **\_wait\_for\_pmproxy**, this function waits up to 5 secs for the file _logfile_ to appear. Returns **0** on success, else returns **1**.|
-|<a id="idx+funcs+waitforpmproxymetrics"></a>**\_wait\_for\_pmproxy\_metrics**|Usage: **\_wait\_for\_pmproxy\_metrics**<br>Called after **\_wait\_for\_pmproxy**, this function waits up to 5 secs for values of the metrics `pmproxy.pid`, `pmproxy.cpu` and `pmproxy.map.instance.size` be available. Returns **0** on success, else returns **1**.|
+|<a id="idx+funcs+waitforpmproxymetrics"></a>**\_wait\_for\_pmproxy\_metrics**|Usage: **\_wait\_for\_pmproxy\_metrics**<br>Called after **\_wait\_for\_pmproxy**, this function waits up to 5 secs for values of the metrics `pmproxy.pid`, `pmproxy.cpu` and `pmproxy.map.instance.size` to be available. Returns **0** on success, else returns **1**.|
 |<a id="idx+funcs+waitforport"></a>**\_wait\_for\_port**|Usage: **\_wait\_for\_port** _port_<br>Wait up to 5 secs for a process running on the local system to be accepting connections on TCP port _port_. Returns **0** for success, else returns **1**.|
 |<a id="idx+funcs+waitpmcdend"></a>**\_wait\_pmcd\_end**|Usage: **\_wait\_pmcd\_end**<br>Wait up to 10 secs until **pmcd**(1) is no longer running, usually called after `_service pmcd stop`. If the process is running, calls [**\_wait\_process\_end**](#idx+funcs+waitprocessend).<br>Returns **0** on success, else returns **1**.<br>See also [**\_wait\_for\_pmcd\_stop**](#idx+funcs+waitforpmcdstop).|
 |<a id="idx+funcs+waitpmieend"></a>**\_wait\_pmie\_end**|Usage: **\_wait\_pmie\_end**<br>Wait up to 10 secs until the primary **pmie**(1) is no longer running, usually called after `_service pmie stop`. If the process is running, calls [**\_wait\_process\_end**](#idx+funcs+waitprocessend).<br>Returns **0** on success, else returns **1**.|
@@ -687,7 +687,7 @@ In the descriptions below "output" means output to stdout.
 |<a id="idx+funcs+waitprocessend"></a>**\_wait\_process\_end**|Usage: **\_wait\_process\_end** \[_tag_] _pid_<br>Wait up to 10 seconds for process _pid_ to vanish. _tag_ is used as a prefix for any output and defaults to **\_wait\_process\_end**. If process _pid_ vanishes, return **0**, else return **1** and output a message. If process _pid_ has exited, but has not yet gone away because it has not been harvested by its parent process, then return **0** and further details are appended to [**$seq\_full**](#idx+vars+seqfull).|
 |<a id="idx+funcs+webapiheaderfilter"></a>**\_webapi\_header\_filter**|Usage: **\_webapi\_header\_filter**<br>This filter makes HTTP header responses from **pmproxy**(1) deterministic by replacing variable components (sizes, dates, context numbers, version numbers, ...) by constant strings and deleting some optional header lines.<br>The unfiltered input to **\_webapi\_header\_filter** is appended to [**$seq\_full**](#idx+vars+seqfull).|
 |<a id="idx+funcs+webapiresponsefilter"></a>**\_webapi\_response\_filter**|Usage: **\_webapi\_response\_filter**<br>This filter makes HTTP responses from **pmproxy**(1) deterministic by replacing variable components (hostnames, ip addresses, sizes, dates, version numbers, ...) by constant strings and deleting some optional header lines and diagnostics.<br>The unfiltered input to **\_webapi\_response\_filter** is appended to [**$seq\_full**](#idx+vars+seqfull).|
-|<a id="idx+funcs+withintolerance"></a>**\_within\_tolerance**|Usage: **\_within\_tolerance** _name_ _observed_ _expected_ _mintol_ \[_maxtol_] \[**-v**]<br>When tests report the values of performance metrics, especially from live systems, the acceptable values may fall within a range and in this case outputting the metric's value makes the test non-deterministic. This function determines if the _observed_ value is within an acceptable range as defined by _expected_ minus _mintol_ to _expected_ plus _maxtol_.<br>_maxtol_ defaults to _mintol_ and these arguments are percentages (with an optional **%** suffix to aid readability).<br>If the _observed_ value is with the specified range the function returns **0** else the return value is **1**.<br>The **-v** option outputs an explanation as well.|
+|<a id="idx+funcs+withintolerance"></a>**\_within\_tolerance**|Usage: **\_within\_tolerance** _name_ _observed_ _expected_ _mintol_ \[_maxtol_] \[**-v**]<br>When tests report the values of performance metrics, especially from live systems, the acceptable values may fall within a range and in this case outputting the metric's value makes the test non-deterministic. This function determines if the _observed_ value is within an acceptable range as defined by _expected_ minus _mintol_ to _expected_ plus _maxtol_.<br>_maxtol_ defaults to _mintol_ and these arguments are percentages (with an optional **%** suffix to aid readability).<br>If the _observed_ value is within the specified range the function returns **0** else the return value is **1**.<br>The **-v** option outputs an explanation as well.|
 |<a id="idx+funcs+writableprimarylogger"></a>**\_writable\_primary\_logger**|Usage: **\_writable\_primary\_logger**<br>Ensure the configuration file for the primary **pmlogger**(1) allows **pmlc**(1) to make state changes to dynamically add or delete metrics to be logged.<br>Assumes the configuration file is the default one generated by **pmlogconf**(1) and calls [**\_save\_config**](#idx+funcs+saveconfig) to save the old configuration file, so the test **must** call either [**\_restore\_primary\_logger**](#idx+funcs+restoreprimarylogger) or [**\_restore\_config**](#idx+funcs+restoreconfig) with the argument **$PCP\_VAR\_DIR**_/config/pmlogger/config.default_ before exiting.<br>Does not restart the primary **pmlogger**(1) instance, so the caller must do that before the changes take effect.|
 
 <a id="pmda-install-and-remove"></a>
@@ -775,7 +775,7 @@ it was in when **\_prepare\_pmda\_install** was called.
 And before the test exits, call
 
 <a id="idx+funcs+restorepmdainstall"></a>**\_restore\_pmda\_install**<br>
-Usage: **\_restore\_pmda** _pmda_ \[_reinstall_]<br>
+Usage: **\_restore\_pmda\_install** _pmda_ \[_reinstall_]<br>
 Called at the end of a test to (sort of) restore the state of the
 _pmda_ PMDA to the state it was in when the companion function
 [**\_prepare\_pmda\_install**](#idx+funcs+preparepmdainstall) was
@@ -831,7 +831,7 @@ If you have a QA test that needs triaging after it has done some setup
 "fake" set of kernel stats files, create an archive), then add a call
 to **\_triage\_wait\_point** in the test once the setup has been done.
 
-The _message_ must be specified it will be echoed; this allows the test
+The _message_ must be specified and it will be echoed; this allows the test
 to disclose useful information from the setup, e.g. a process ID or the
 path to where the magic files have been unpacked.
 
@@ -891,7 +891,7 @@ arguments, except where noted with a _Usage_ message.
 |<a id="idx+funcs+filterpcpstop"></a>**\_filter\_pcp\_stop**|Input is from [**_service**](#idx+funcs+service) stopping **pmcd** and/or **pmlogger**. Platform-specific paths are rewritten, optional chatter from the "rc" scripts or the infrastructure that runs them (e.g. **init**(1) or **systemctl**(1)) is removed.<br>Also calls [**\_filter\_init\_distro**](#idx+funcs+filterinitdistro).|
 |<a id="idx+funcs+filterpmcdlog"></a>**\_filter\_pmcd\_log**|Input is a _pmcd.log_ file from **pmcd**(1).|
 |<a id="idx+funcs+filterpmdainstall"></a>**\_filter\_pmda\_install**|Input is from a PMDA's **Install** script. Remove the non-deterministic chatter from installing a PMDA and notifying **pmcd**(1).<br>Calls [**\_filter\_pcp\_start**](#idx+funcs+filterpcpstart).|
-|<a id="idx+funcs+filterpmdaremove"></a>**\_filter\_pmda\_remove**|Input is from a PMDA's **Remove** script. Remove the non-deterministic chatter from uninstalling a PMDA and notifying **pmcd**(1).<br>Calls [**\_filter\_pmda\_install**](#idx+funcs+filterpcpstart).|
+|<a id="idx+funcs+filterpmdaremove"></a>**\_filter\_pmda\_remove**|Input is from a PMDA's **Remove** script. Remove the non-deterministic chatter from uninstalling a PMDA and notifying **pmcd**(1).<br>Calls [**\_filter\_pmda\_install**](#idx+funcs+filterpmdainstall).|
 |<a id="idx+funcs+filterpmdumplog"></a>**\_filter\_pmdumplog**|Usage: **\_filter\_pmdumplog** \[_opt_]<br>Input is from **pmlogdump**(1), also known as **pmdumplog**(1). Replace dates with **DATE**, timestamps with **TIMESTAMP**, host name with **HOST** and archive name with **ARCHIVE**. If _opt_ is **--any-version** also handle differences in format between V2 and V3 archives.|
 |<a id="idx+funcs+filterpmdumptext"></a>**\_filter\_pmdumptext**|Input is from **pmdumptext**(1). Replace date and time with **DATE**.|
 |<a id="idx+funcs+filterpmielog"></a>**\_filter\_pmie\_log**|Input is a _pmie.log_ file from **pmie**(1).|
@@ -912,7 +912,7 @@ arguments, except where noted with a _Usage_ message.
 |<a id="idx+funcs+quotefilter"></a>**\_quote\_filter**|Input is arbitrary.  Replace each newline embedded in quotes (") with a literal backslash-n (**\\n**).|
 |<a id="idx+funcs+showpmieerrors"></a>**\_show\_pmie\_errors**|Input is stdout from **pmie**(1).  Strip header and footer lines (contain host name, date and time), blank lines and deal with some differences in message formatting.|
 |<a id="idx+funcs+showpmieexit"></a>**\_show\_pmie\_exit**|Input is stdout from **pmie**(1).  Report just the "evaluator exiting" line in a canonical form.|
-|<a id="idx+funcs+sortpmdumplogd"></a>**\_sort\_pmdumplog\_d**|Input is from **pmlogdump**(1) **-d**. This filter sorts the metadata into ascending [PMID](#idx+pmns) sequence and calls _src/hex2nbo_ to convert any hexadecimal numbers into network byte order.|
+|<a id="idx+funcs+sortpmdumplogd"></a>**\_sort\_pmdumplog\_d**|Input is from **pmlogdump**(1) **-d**. This filter sorts the metadata into ascending [PMID](#idx+pmid) sequence and calls _src/hex2nbo_ to convert any hexadecimal numbers into network byte order.|
 |<a id="idx+funcs+valuefilterany"></a>**\_value\_filter\_any**|Input from **pminfo**(1) **-f** (or similar). For all lines, if a metric instance has a value, replace the value with **OK**.|
 |<a id="idx+funcs+valuefilternonzero"></a>**\_value\_filter\_nonzero**|Input from **pminfo**(1) **-f** (or similar). For all lines, if a metric instance has a value and the value is greater than zero, replace the value with **OK**.|
 
@@ -935,14 +935,14 @@ running tests with [**check**](#check-script).<br>
 |<a id="idx+cmds+check-pdu-coverage"></a>**check-pdu-coverage**|Check that PDU-related QA apps in _src_ provide full coverage of all current PDU types.|
 |<a id="idx+cmds+check-setup"></a>**check-setup**|Check the QA environment is as expected. Documented in the [Distributed QA](#distributed-qa) section below but not used otherwise.|
 |<a id="idx+cmds+check-vars"></a>**check-vars**|Check shell variables across the _common\*_ "include" files and the scripts used to run and manage QA. For the most part, the _common\*_ files should use a "\_\_" prefix for shell variables\[2] to insulate them from the use of arbitrarily named shell variables in the QA tests themselves (all of which "source" multiple of the _common\*_ files). **check-vars** also includes some exceptions which are a useful cross-reference.<br>\[2] If all shells supported the **local** keyword for variables we could use that, but that's not the case across all the platforms PCP runs on, so the "\_\_" prefix model is a weak substitute for proper variable scoping.|
-|<a id="idx+cmds+cull-pmlogger-config"></a>**cull-pmlogger-config**|Cull he default **pmlogger**(1) configuration (**$PCP\_VAR\_DIR**_/config/pmlogger/config.default)_ to remove any **zeroconf** proc metric logging that threatens to fill the filesystem on small QA machines.|
+|<a id="idx+cmds+cull-pmlogger-config"></a>**cull-pmlogger-config**|Cull the default **pmlogger**(1) configuration (**$PCP\_VAR\_DIR**_/config/pmlogger/config.default)_ to remove any **zeroconf** proc metric logging that threatens to fill the filesystem on small QA machines.|
 |<a id="idx+cmds+daily-cleanup"></a>**daily-cleanup**|Run from [**check**](#check-script), this script will try to make sure the **pmlogger\_daily**(1) work has really been done; this is important for QA VMs that are only booted for QA and tend to miss the nightly **pmlogger\_daily**(1) run and this may lead to QA test failure.|
 |<a id="idx+cmds+find-app"></a>**find-app**|Usage: **find-app** \[**-f**] _app_ ...<br>Find and report tests that use any of the QA applications _src/app_ ...<br>The **-f** argument changes the interpretation of _app_ from _src/app_ to "all the _src/\*_ programs" that call the function _app_.|
 |<a id="idx+cmds+find-bound"></a>**find-bound**|Usage: **find-bound** _archive_ _timestamp_ _metric_ \[_instance_]<br>Scan _archive_ for values of _metric_ (optionally constrained to the one _instance_) within the interval _timestamp_ (in the format HH:MM:SS, as per **pmlogdump**(1) and assuming a timezone as per **-z**).|
 |<a id="idx+cmds+find-metric"></a>**find-metric**|Usage: **find-metric** \[**-a**\|**-h**] _pattern_ ...<br>Search for metrics with name or metadata that matches _pattern_. With **-h** interrogate the local **pmcd**(1), else with **-a** (the default) search all the QA archives in the directories _archive_ and _tmparch_.<br>Multiple pattern arguments are treated as a disjunction in the search which uses **grep**(1) style regular expressions. Metadata matches are against the **pminfo**(1) **-d** output for the type, instance domain, semantics, and units.|
 |<a id="idx+cmds+flakey-summary"></a>**flakey-summary**|Assuming the output from **check-flakey** has been kept for multiple QA runs across multiple hosts and saved in a file called _flakey_, this script will summarize the test failure classifications.|
 |<a id="idx+cmds+getpmcdhosts"></a>**getpmcdhosts**|Usage: **getpmcdhosts** _lots-of-options_<br>Find a remote host matching a selection criteria based on hardware, operating system, installed [PMDA](#idx+pmda), primary logger running, etc. Use<br>`$ ./getpmcdhosts -?`<br>to see all options.|
-|<a id="idx+cmds+grind"></a>**grind**|Usage: **grind** _seqno_ \[...]<br>Run select test(s) in an loop until one of them fails and produces a _.out.bad_ file. Stop with Ctl-C or for a more orderly end after the current iteration<br>`$ touch grind.stop`|
+|<a id="idx+cmds+grind"></a>**grind**|Usage: **grind** _seqno_ \[...]<br>Run select test(s) in a loop until one of them fails and produces a _.out.bad_ file. Stop with Ctrl-C or for a more orderly end after the current iteration<br>`$ touch grind.stop`|
 |<a id="idx+cmds+grind-pmda"></a>**grind-pmda**|Usage: **grind-pmda** _pmda_ _seqno_ \[...]<br>Exercise the _pmda_ [PMDA](#idx+pmda) by running the PMDA's **Install** script, then using [**check**](#check-script) to run all the selected tests, checking that the PMDA is still installed, running the PMDA's **Remove** script, then running the selected tests again and checking that the PMDA is still **not** installed.|
 |<a id="idx+cmds+group-stats"></a>**group-stats**|Report test frequency by group, and report any group name anomalies.|
 |<a id="idx+cmds+mk.localconfig"></a>**mk.localconfig**|Recreate the _localconfig_ file that provides the platform and PCP version information and the _src/localconfig.h_ file that can be used by C programs in the _src_ directory.|
@@ -1088,7 +1088,7 @@ cases.<br>
 <a id="admin"></a>
 ## 12.6 _admin_
 
-A collection if scripts, mostly for use in the QA Farm in Melbourne,
+A collection of scripts, mostly for use in the QA Farm in Melbourne,
 so of limited general interest.
 
 Exceptions are:
@@ -1106,7 +1106,7 @@ to exercise specific PCP applications, PMDAs or libraries.  Some examples are li
 are many more like this.<br>
 
 |**Directory**|**Description**|
-|--|--|
+|---|---|
 |bpftrace|Python scripts to exercise the bpftrace PMDA.|
 |ceph|JSON test files for exercising the JSON string manipulation routines in **libpcp\_web**.|
 |cifs|**tar**(1) archives of _/proc/fs/cifs/_ files for various Linux kernel versions for testing the cifs PMDA.|
@@ -1124,12 +1124,12 @@ are many more like this.<br>
 # 14 Using valgrind
 
 The **valgrind**(1) tool is very useful and we try to maximize the
-**valgrind** code coverage for the components PCP that are written in C
+**valgrind** code coverage for the components of PCP that are written in C
 (all of the libraries and the key daemons and services **pmcd**(1),
 **pmlogger**(1) and **pmproxy**(1)).
 
 But **valgrind** is not 100% foolproof, so we need "suppressions"
-once an issue had been triaged and classified as an problem with
+once an issue has been triaged and classified as a problem with
 **valgrind** or some other non-PCP code and not PCP _per se_.
 This is done in one of several ways:
 
@@ -1145,7 +1145,7 @@ using **valgrind**(1) in a QA test.<br>
 |---|---|
 |<a id="idx+funcs+checkvalgrind"></a>**\_check\_valgrind**|Usage: **\_check\_valgrind**<br>Check if **valgrind**(1) is installed and call [**\_notrun**](#idx+funcs+notrun) if not. Must be called after [**$seq**](#idx+vars+seq) is assigned and before calling [**\_check\_helgrind**](#idx+funcs+checkhelgrind), or [**\_run\_valgrind**](#idx+funcs+runvalgrind), or [**\_run\_helgrind**](#idx+funcs+runhelgrind), or using [**$valgrind\_clean\_assert**](#idx+vars+valgrindcleanassert).|
 |<a id="idx+funcs+filtervalgrind"></a>**\_filter\_valgrind**|Usage: **\_filter\_valgrind**<br>Remove the fluff from **valgrind**(1)'s reporting and leave behind the summary lines.|
-|<a id="idx+funcs+prefervalgrind"></a>**\_prefer\_valgrind**|Usage: **\_prefer\_valgrind**<br>If **valgrind**(1) is not installed, or we're running on a platform where **valgrind** is known to be broken, or the shell variable <a id="idx+vars+pcpqaprefervalgrind"></a>**$PCPQA\_PREFER\_VALGRIND** has the value **no** the return **1** to indicate we'd prefer to run a non-valgrind version of a test if possible. Otherwise return **0** to indicate we'd prefer to run a valgrind version of a test.<br>This has been replaced to some extent by the valgrind support that is in the skeletal test generated by the [**new**](#the-new-script) script and the "dual" version non-valgrind and valgrind pairing of tests supported by the [**new-grind**](#idx+cmds+new-grind) script.|
+|<a id="idx+funcs+prefervalgrind"></a>**\_prefer\_valgrind**|Usage: **\_prefer\_valgrind**<br>If **valgrind**(1) is not installed, or we're running on a platform where **valgrind** is known to be broken, or the shell variable <a id="idx+vars+pcpqaprefervalgrind"></a>**$PCPQA\_PREFER\_VALGRIND** has the value **no** then return **1** to indicate we'd prefer to run a non-valgrind version of a test if possible. Otherwise return **0** to indicate we'd prefer to run a valgrind version of a test.<br>This has been replaced to some extent by the valgrind support that is in the skeletal test generated by the [**new**](#the-new-script) script and the "dual" version non-valgrind and valgrind pairing of tests supported by the [**new-grind**](#idx+cmds+new-grind) script.|
 |<a id="idx+funcs+runvalgrind"></a>**\_run\_valgrind**|Usage: **\_run\_valgrind** \[**--sudo**] \[**--save-output**] _app_ \[_arg_ ...]<br>Run the application _app_ with the optional arguments _arg_ under the control of **valgrind**.<br>Use **--sudo** to execute **valgrind** with [**$sudo**](#idx+vars+sudo).<br>Normally **\_run\_valgrind** will take care of separating and reporting stdout and stderr, but with the **--save-output** option these are saved in **$tmp**_.out_ and **$tmp**_.err_ respectively.<br>If set, <a id="idx+vars+grindextra"></a>**$grind\_extra** may be used to pass additional arguments to **valgrind**.<br>The full report from **valgrind** itself is appended to **$seq\_full** and this same information is output after filtering with [**\_filter\_valgrind**](#idx+funcs+filtervalgrind).|
 |<a id="idx+funcs+filtervalgrindpossibly"></a>**\_filter\_valgrind\_possibly**|Usage: **\_filter\_valgrind\_possibly**<br>Strip "blocks are possibly lost in loss record" information from **valgrind** report.|
 |<a id="idx+vars+valgrindcleanassert"></a>**$valgrind\_clean\_assert**|A shell variable, not a function, but provides similar functionality to [**\_run\_valgrind**](#idx+funcs+runvalgrind).<br>Typical usage would be:<br>`_check_valgrind`<br>`...`<br>`$valgrind_clean_assert app args ...`|
@@ -1193,7 +1193,7 @@ SELinux has a long and gory history with PCP QA.  If you're using SELinux
 then these are the suggested steps to resolve problems:
 
 - if SELinux is **Enforcing**, change it to **Permissive**<br>`$ sudo setenforce Permissive`<br>and rerun the failing test.  If it passes, then it is unlikely to be a PCP QA issue.
-- enable the default [**check.callback**](#check.callback-script) script and rerun the failing test.  Look to **$$seq**_.out.bad for AVCs triggered by the failing test.
+- enable the default [**check.callback**](#check.callback-script) script and rerun the failing test.  Look to **$seq**_.out.bad for AVCs triggered by the failing test.
 
 If the problem is a missing SELinux policy then you'll need to decide
 if it is a generic PCP issue in which case the "fix" will need to be
@@ -1221,7 +1221,7 @@ a (distro) version.  The defaults come from a slice-n-dice of the
 output from the [admin/whatami](#idx+cmds+whatami) command, but may be
 over-ridden using the **-A**, **-D** or **-V** options.
 
-The current platform identifies a file in the _admin/packing-lists_
+The current platform identifies a file in the _admin/package-lists_
 directory using some "fuzzy" matching where **any** matches any _arch_
 and _version_ matches any distro version for which it is a prefix.
 The **-n** option simply prints the matching packing-list file, which
@@ -1247,7 +1247,7 @@ If there is no matching _packing-list_ file this is treated as an error.
 But a new one can be created using this recipe:
 
 ```bash
-$ cd admin/list-packages
+$ cd admin/package-lists
 $ ./new
 ```
 
@@ -1262,7 +1262,7 @@ If you find something that does not work or seems "not quite right"&trade;, then
 send email to  <a href="mailto:pcp@groups.io">pcp@groups.io</a>
 or join the Performance Co-Pilot chat at
 [www.performancecopilot.slack.com](https://www.performancecopilot.slack.com/)
-and and post to the **#pcpqa** channel.
+and post to the **#pcpqa** channel.
 
 Better still, if you can fix the problem or create
 additional QA tests please commit these to **git** and open
@@ -1312,7 +1312,7 @@ host `remote`.
 To make this work, some additional effort is required in the QA setup
 both locally and on the remote system(s).
 
-Refer to the [**mk.qahosts** script](#mk.qahosts-script) section
+Refer to the [**mk.qa_hosts** script](#mk.qahosts-script) section
 to see how the remote QA hosts are configured.
 
 For each of the potential remote PCP QA hosts, the following must be
@@ -1320,10 +1320,10 @@ set up:
 
 1. PCP installed from packages,
 2. **pmcd**(1) enabled and running,
-3. a login for the user **pcpqa** needs to be created, and then set up in such a way that **ssh**(1) and **scp**(1) will work without the need for any password, i.e. these sorts of commands<br>`$ ssh pcpqa@pcp-qa-host some-command`<br>`$ scp some-file pcpqa@pcp-qa-host:some-dir`<br>must work correctly when run from the local host with no interactive input and no Password: prompt<br><br>On SELinux systems it may be necessary to execute the following command to make this work:<br>`$ sudo chcon -R unconfined_u:object_r:ssh_home_t:s0 ~pcpqa/.ssh`<br>so that the ssh\_home\_t attribute is set on ~pcpqa/.ssh and all the files below there.<br><br>The **pcpqa** user's environment must also be initialized so that their shell's path includes all of the PCP binary directories (identify these with `$ grep BIN /etc/pcp.conf`), so that all PCP commands are executable without full pathnames.  Of most concern would be auxiliary directory (usually _/usr/lib/pcp/bin_, _/usr/share/pcp/bin_ or _/usr/libexec/pcp/bin_) where commands like **pmlogger\_daily**(1), **pmnsadd**(1), **newhelp**(1), **mkaf**(1)etc.) are installed.<br><br>And finally, the **pcpqa** user needs to be included in the group **pcp** in _/etc/group_.
+3. a login for the user **pcpqa** needs to be created, and then set up in such a way that **ssh**(1) and **scp**(1) will work without the need for any password, i.e. these sorts of commands<br>`$ ssh pcpqa@pcp-qa-host some-command`<br>`$ scp some-file pcpqa@pcp-qa-host:some-dir`<br>must work correctly when run from the local host with no interactive input and no Password: prompt<br><br>On SELinux systems it may be necessary to execute the following command to make this work:<br>`$ sudo chcon -R unconfined_u:object_r:ssh_home_t:s0 ~pcpqa/.ssh`<br>so that the ssh\_home\_t attribute is set on ~pcpqa/.ssh and all the files below there.<br><br>The **pcpqa** user's environment must also be initialized so that their shell's path includes all of the PCP binary directories (identify these with `$ grep BIN /etc/pcp.conf`), so that all PCP commands are executable without full pathnames.  Of most concern would be auxiliary directory (usually _/usr/lib/pcp/bin_, _/usr/share/pcp/bin_ or _/usr/libexec/pcp/bin_) where commands like **pmlogger\_daily**(1), **pmnsadd**(1), **newhelp**(1), **mkaf**(1) etc.) are installed.<br><br>And finally, the **pcpqa** user needs to be included in the group **pcp** in _/etc/group_.
 
 Once you've setup the remote PCP QA hosts and modified _common.config_
-and _qa\_hosts.primary_ locally, then run validate the setup using
+and _qa\_hosts.primary_ locally, then validate the setup using
 [check-setup](#check-setup):
 
 ```bash
@@ -1454,7 +1454,7 @@ to **git**.
 .\" +ok+ _wait_pmcd_end _wait_pmie_end _wait_pmlogctl _wait_pmlogger_end
 .\" +ok+ _wait_pmproxy_end _wait_process_end _webapi_header_filter
 .\" +ok+ _webapi_response_filter _within_tolerance _writable_primary_logger
-.\" +ok+ _restore_auto_restart _restore_pmda _restore__primary_logger
+.\" +ok+ _restore_auto_restart _restore_pmda _restore_primary_logger
 .\" +ok+ _stop_auto_start
 .\"
 .\" -- scripts
@@ -1543,7 +1543,7 @@ General Index|Commands and Scripts|Shell Functions|Shell Variables|Files
 |[appchange](#idx+cmds+appchange)|[\_clean\_display](#idx+funcs+cleandisplay)|[\_instances\_filter\_exact](#idx+funcs+instancesfilterexact)|[\_wait\_pmie\_end](#idx+funcs+waitpmieend)|
 |[bad-by-group](#idx+cmds+bad-by-group)|[\_cleanup\_pmda](#idx+funcs+cleanuppmda)|[\_instances\_filter\_nonzero](#idx+funcs+instancesfilternonzero)|[\_wait\_pmlogctl](#idx+funcs+waitpmlogctl)|
 |[check](#idx+cmds+check)|[\_cull\_dup\_lines](#idx+funcs+cullduplines)|[\_inst\_value\_filter](#idx+funcs+instvaluefilter)|[\_wait\_pmlogger\_end](#idx+funcs+waitpmloggerend)|
-|[check](#idx+cmds+check.app.ok)|[\_disable\_loggers](#idx+funcs+disableloggers)|[\_ipaddr\_to\_host](#idx+funcs+ipaddrtohost)|[\_wait\_pmproxy\_end](#idx+funcs+waitpmproxyend)|
+|[check.app.ok](#idx+cmds+check.app.ok)|[\_disable\_loggers](#idx+funcs+disableloggers)|[\_ipaddr\_to\_host](#idx+funcs+ipaddrtohost)|[\_wait\_pmproxy\_end](#idx+funcs+waitpmproxyend)|
 |[check-auto](#idx+cmds+check-auto)|[\_domain\_name](#idx+funcs+domainname)|[\_ipv6\_localhost](#idx+funcs+ipv6localhost)|[\_wait\_process\_end](#idx+funcs+waitprocessend)|
 |[check-flakey](#idx+cmds+check-flakey)|[\_exit](#idx+funcs+exit)|[\_libvirt\_is\_ok](#idx+funcs+libvirtisok)|[\_webapi\_header\_filter](#idx+funcs+webapiheaderfilter)|
 |[check-group](#idx+cmds+check-group)|[\_fail](#idx+funcs+fail)|[\_machine\_id](#idx+funcs+machineid)|[\_webapi\_response\_filter](#idx+funcs+webapiresponsefilter)|
