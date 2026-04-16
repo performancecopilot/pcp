@@ -17,7 +17,7 @@ status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pminfo -f -a archives/simple-nvme disk.dev.read disk.partitions.write
+pminfo -f -a archives/simple-nvme-a disk.dev.read disk.partitions.write
 
 # success, all done
 status=0
