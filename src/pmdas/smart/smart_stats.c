@@ -1488,8 +1488,6 @@ nvme_error_log_refresh(void)
 				
 				pmsprintf(nvme_error_log->status_type, sizeof(nvme_error_log->status_type), "%s", get_status_type(status_type));
 				pmsprintf(nvme_error_log->status_code, sizeof(nvme_error_log->status_code), "%s", get_status_code(status_type, status_code));
-				
-				count++;
 
 				pmdaCacheStore(disk_error_indom, PMDA_CACHE_ADD, inst_name, (void *)nvme_error_log);
 				
@@ -1514,6 +1512,7 @@ nvme_error_log_refresh(void)
 					
 					pmdaCacheStore(uuid_error_indom, PMDA_CACHE_ADD, uuid_name, (void *)uuid_nvme_error_log);
 				}
+				count++;
 			}
 		}
 		pclose(pf);

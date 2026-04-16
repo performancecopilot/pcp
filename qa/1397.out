@@ -25618,90 +25618,90 @@ smart.wwid.nvme_error_log.cmdid PMID: 150.1263.2 [Command id of the command that
     Semantics: instant  Units: none
 Help:
 Command id of the command that the error is associated with
-    inst [0 or "002538d211514cfa::entry_1"] value 21
-    inst [1 or "002538d211514cfa::entry_2"] value 19
-    inst [2 or "002538d211514cfa::entry_3"] value 21
-    inst [3 or "002538d211514cfa::entry_4"] value 19
+    inst [0 or "002538d211514cfa::entry_0"] value 21
+    inst [1 or "002538d211514cfa::entry_1"] value 19
+    inst [2 or "002538d211514cfa::entry_2"] value 21
+    inst [3 or "002538d211514cfa::entry_3"] value 19
 
 smart.wwid.nvme_error_log.error_count PMID: 150.1263.0 [Incrementing error count (unique id for error)]
     Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
     Semantics: instant  Units: none
 Help:
 Incrementing error count (unique id for error)
-    inst [0 or "002538d211514cfa::entry_1"] value 1181
-    inst [1 or "002538d211514cfa::entry_2"] value 1180
-    inst [2 or "002538d211514cfa::entry_3"] value 1179
-    inst [3 or "002538d211514cfa::entry_4"] value 1178
+    inst [0 or "002538d211514cfa::entry_0"] value 1181
+    inst [1 or "002538d211514cfa::entry_1"] value 1180
+    inst [2 or "002538d211514cfa::entry_2"] value 1179
+    inst [3 or "002538d211514cfa::entry_3"] value 1178
 
 smart.wwid.nvme_error_log.lba PMID: 150.1263.7 [Logical Block Address I/O command set specific data about the error, if any]
     Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
     Semantics: instant  Units: none
 Help:
 Logical Block Address I/O command set specific data about the error, if any
-    inst [0 or "002538d211514cfa::entry_1"] value 0
-    inst [1 or "002538d211514cfa::entry_2"] value 2
-    inst [2 or "002538d211514cfa::entry_3"] value 22
-    inst [3 or "002538d211514cfa::entry_4"] value 334
+    inst [0 or "002538d211514cfa::entry_0"] value 0
+    inst [1 or "002538d211514cfa::entry_1"] value 2
+    inst [2 or "002538d211514cfa::entry_2"] value 22
+    inst [3 or "002538d211514cfa::entry_3"] value 334
 
 smart.wwid.nvme_error_log.nsid PMID: 150.1263.8 [Namespace identifier (NSID) of the namespace of which the error is associated with]
     Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
     Semantics: instant  Units: none
 Help:
 Namespace identifier (NSID) of the namespace of which the error is associated with
-    inst [0 or "002538d211514cfa::entry_1"] value 0
-    inst [1 or "002538d211514cfa::entry_2"] value 1
-    inst [2 or "002538d211514cfa::entry_3"] value 11
-    inst [3 or "002538d211514cfa::entry_4"] value 222
+    inst [0 or "002538d211514cfa::entry_0"] value 0
+    inst [1 or "002538d211514cfa::entry_1"] value 1
+    inst [2 or "002538d211514cfa::entry_2"] value 11
+    inst [3 or "002538d211514cfa::entry_3"] value 222
 
 smart.wwid.nvme_error_log.param_error_loc PMID: 150.1263.6 [Byte and bit of the command parameter that the error is associated with]
     Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
     Semantics: instant  Units: none
 Help:
 Byte and bit of the command parameter that the error is associated with
-    inst [0 or "002538d211514cfa::entry_1"] value 40
-    inst [1 or "002538d211514cfa::entry_2"] value 41
-    inst [2 or "002538d211514cfa::entry_3"] value 42
-    inst [3 or "002538d211514cfa::entry_4"] value 43
+    inst [0 or "002538d211514cfa::entry_0"] value 40
+    inst [1 or "002538d211514cfa::entry_1"] value 41
+    inst [2 or "002538d211514cfa::entry_2"] value 42
+    inst [3 or "002538d211514cfa::entry_3"] value 43
 
 smart.wwid.nvme_error_log.sqid PMID: 150.1263.1 [Submission queue id of the command that the error is associated with]
     Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
     Semantics: instant  Units: none
 Help:
 Submission queue id of the command that the error is associated with
-    inst [0 or "002538d211514cfa::entry_1"] value 0
-    inst [1 or "002538d211514cfa::entry_2"] value 1
-    inst [2 or "002538d211514cfa::entry_3"] value 2
-    inst [3 or "002538d211514cfa::entry_4"] value 3
+    inst [0 or "002538d211514cfa::entry_0"] value 0
+    inst [1 or "002538d211514cfa::entry_1"] value 1
+    inst [2 or "002538d211514cfa::entry_2"] value 2
+    inst [3 or "002538d211514cfa::entry_3"] value 3
 
 smart.wwid.nvme_error_log.status_code PMID: 150.1263.5 [Decoded status code for the error]
     Data Type: string  InDom: 150.3 0x25800003
     Semantics: instant  Units: none
 Help:
 Decoded status code for the error
-    inst [0 or "002538d211514cfa::entry_1"] value "Feature Identifier Not Saveable"
-    inst [1 or "002538d211514cfa::entry_2"] value "Invalid Log Page"
-    inst [2 or "002538d211514cfa::entry_3"] value "Feature Identifier Not Saveable"
-    inst [3 or "002538d211514cfa::entry_4"] value "Invalid Log Page"
+    inst [0 or "002538d211514cfa::entry_0"] value "Feature Identifier Not Saveable"
+    inst [1 or "002538d211514cfa::entry_1"] value "Invalid Log Page"
+    inst [2 or "002538d211514cfa::entry_2"] value "Feature Identifier Not Saveable"
+    inst [3 or "002538d211514cfa::entry_3"] value "Invalid Log Page"
 
 smart.wwid.nvme_error_log.status_field PMID: 150.1263.3 [Status field from the completion queue]
     Data Type: 64-bit unsigned int  InDom: 150.3 0x25800003
     Semantics: instant  Units: none
 Help:
 Status field from the completion queue
-    inst [0 or "002538d211514cfa::entry_1"] value 16922
-    inst [1 or "002538d211514cfa::entry_2"] value 16914
-    inst [2 or "002538d211514cfa::entry_3"] value 16922
-    inst [3 or "002538d211514cfa::entry_4"] value 16914
+    inst [0 or "002538d211514cfa::entry_0"] value 16922
+    inst [1 or "002538d211514cfa::entry_1"] value 16914
+    inst [2 or "002538d211514cfa::entry_2"] value 16922
+    inst [3 or "002538d211514cfa::entry_3"] value 16914
 
 smart.wwid.nvme_error_log.status_type PMID: 150.1263.4 [Decoded status code type for the error]
     Data Type: string  InDom: 150.3 0x25800003
     Semantics: instant  Units: none
 Help:
 Decoded status code type for the error
-    inst [0 or "002538d211514cfa::entry_1"] value "Command Specific Status"
-    inst [1 or "002538d211514cfa::entry_2"] value "Command Specific Status"
-    inst [2 or "002538d211514cfa::entry_3"] value "Command Specific Status"
-    inst [3 or "002538d211514cfa::entry_4"] value "Command Specific Status"
+    inst [0 or "002538d211514cfa::entry_0"] value "Command Specific Status"
+    inst [1 or "002538d211514cfa::entry_1"] value "Command Specific Status"
+    inst [2 or "002538d211514cfa::entry_2"] value "Command Specific Status"
+    inst [3 or "002538d211514cfa::entry_3"] value "Command Specific Status"
 
 smart.wwid.nvme_error_log.total PMID: 150.1264.0 [Total number of NVMe Error Log Pages with errors]
     Data Type: 64-bit unsigned int  InDom: 150.1 0x25800001
