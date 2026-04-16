@@ -79,7 +79,7 @@ _dumplog_filter()
 }
 
 log="--archive $here/archives/rep"
-log2="--archive $here/archives/20130706 -O 10m"
+log2="--archive $here/archives/20130706-a -O 10m"
 
 # real QA test starts here
 echo "== pmrep archive reporting and creation"

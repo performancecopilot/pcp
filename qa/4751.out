@@ -94,7 +94,7 @@ ERROR SUMMARY: 0 errors from 0 contexts ...
 ./archives/20041125.meta -12357
 ./archives/20071023-08-06-36.meta -12357
 ./archives/20101004-trunc.meta NUMBER
-./archives/20130706.meta NUMBER
+./archives/20130706-a.meta NUMBER
 ./archives/20150105.17.57-00.meta NUMBER
 ./archives/20150105.17.57.meta NUMBER
 localhost NUMBER
@@ -172,7 +172,7 @@ local: NUMBER
 ./archives/20041125.meta -12357
 ./archives/20071023-08-06-36.meta -12357
 ./archives/20101004-trunc.meta NUMBER
-./archives/20130706.meta NUMBER
+./archives/20130706-a.meta NUMBER
 ./archives/20150105.17.57-00.meta NUMBER
 ./archives/20150105.17.57.meta NUMBER
 localhost NUMBER

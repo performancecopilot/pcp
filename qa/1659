@@ -17,19 +17,7 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-
-if [ ! -f bigarchives/all-ubuntu.22.04.index ]
-then
-    case `pwd`
-    in
-	*/testsuite)
-	    _notrun "uses bigarchives/all-ubuntu.22.04, needs to be run in the git tree"
-	    ;;
-	*)
-	    _fail "Botch: bigarchives/all-ubuntu.22.04 missing"
-	    ;;
-    esac
-fi
+_check_big_file bigarchives/all-ubuntu.22.04.index
 
 _cleanup()
 {

@@ -1,10 +1,10 @@
 #!/bin/sh
 #
-# make the 20201109 subset archives from 20201109 in
+# make the 20130706 subset archives from 20130706 in
 # ../bigarchives
 #
 
-base=20201109
+base=20130706
 here=`pwd`
 status=1
 tmp=/tmp/mk.$base-$$
@@ -13,22 +13,45 @@ trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 . ./mk.rc
 
+
 # subset-a: selecting a subset of the metrics and all pmResults
 #
 rm -f ${base}-a.*
 cat <<End-of-File >$tmp.config
 # metrics needed by ...
-# same starting pmResult and archive label
+# preamble so archive label records match
+pmcd.pmlogger.host
+# qa/733 ...
+filesys.used
+filesys.capacity
+kernel.all.cpu.idle
 hinv.ncpu
-# qa/1298
-proc.psinfo.rss
-# qa/1775
-proc.psinfo.utime
+kernel.percpu.cpu.idle
+swap.pagesout
+# and qa/880 ...
+kernel.all.sysfork
+# and qa/1069 ...
+hinv.machine
+hinv.map.scsi
+disk.dev
+network.interface.mtu
+mem.util
+kernel.all.load
+kernel.all.sysfork
+kernel.all.uptime
+kernel.all.cpu.user
+kernel.percpu.cpu.user
+# and qa/1070 ...
+hinv.cpu.clock
+# and qa/1792 ...
+disk.all.avactive
 End-of-File
 pmlogextract -c $tmp.config ../bigarchives/$base ${base}-a || _fail "pmlogextract"
-pmlogcompress ${base}-a || _fail pmlogcompress
-_report $base -a
+pmlogcompress -f bzip2 ${base}-a.0 || _fail pmlogcompress
+_report ${base} -a
 
+if false
+then
 # subset-b: selecting all metrics but only the first 20 pmResults
 #           from each data volume
 #
@@ -53,6 +76,6 @@ pmlogcheck -w -R $base || _fail pmlogrepair
 cd $here || _fail "cd back"
 rm -f ${base}-b.*
 pmlogmv $tmp/$base ${base}-b || _fail "pmlogmv back"
-pmlogcompress ${base}-b || _fail pmlogcompress
+pmlogcompress ${base}.0-b || _fail pmlogcompress
 _report $base -b
-
+fi

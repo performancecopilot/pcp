@@ -21,19 +21,7 @@ fi
 . ./common.check
 
 which xz >/dev/null 2>&1 || _notrun "No xz binary installed"
-
-if [ ! -f bigarchives/pcp-pidstat-process-args.0.xz ]
-then
-    case `pwd`
-    in
-	*/testsuite)
-	    _notrun "uses bigarchives/pcp-pidstat-process-args, needs to be run in the git tree"
-	    ;;
-	*)
-	    _fail "Botch: big/archives/pcp-pidstat-process-args missing"
-	    ;;
-    esac
-fi
+_check_big_file bigarchives/pcp-pidstat-process-args.0.xz
 
 time=`which time`
 [ -z "$time" ] && _notrun "can't find /bin/time nor /usr/bin/time"

@@ -21,19 +21,7 @@ fi
 . ./common.check
 
 [ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "system monitoring tools not installed"
-
-if [ ! -f bigarchives/20201109.0.xz ]
-then
-    case `pwd`
-    in
-	*/testsuite)
-	    _notrun "uses bigarchives/20201109, needs to be run in the git tree"
-	    ;;
-	*)
-	    _fail "Botch: bigarchives/20201109 archive missing"
-	    ;;
-    esac
-fi
+_check_big_file bigarchives/20201109.0.xz
 
 _cleanup()
 {

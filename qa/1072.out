@@ -3,7 +3,7 @@ QA output created by 1072
 Writing output from the original archives to files
 Recording 19 metrics to TMP.new_archive1:
 5 samples(s) with 1.0 sec interval ~ 4 sec duration.
-Recording 58 metrics to TMP.new_archive2:
+Recording 7 metrics to TMP.new_archive2:
 5 samples(s) with 1.0 sec interval ~ 4 sec duration.
 Writing output from the created archives to files
 Diff of outputs start (only path / minor timestamp diff expected):
@@ -16,7 +16,7 @@ Diff of outputs start (only path / minor timestamp diff expected):
      start: Wed Feb 10 14:39:13 2016
 @@ -1,13 +1,13 @@
  
--  archive: QAPATH/archives/20130706
+-  archive: QAPATH/archives/20130706-a
 +  archive: temp-archive
       host: billing02
   timezone: UTC+10
@@ -24,14 +24,14 @@ Diff of outputs start (only path / minor timestamp diff expected):
 -      end: Sun Jul  7 00:15:43 2013
 +    start: Sat Jul  6 00:28:01 2013
 +      end: Sat Jul  6 00:32:01 2013
-   metrics: 58 (80 instances)
+   metrics: 7 (11 instances)
    samples: 5 (requested)
   interval: N/A
 - duration: 23:48:41
 + duration: 00:04:00
  
-            k.a.c.guest    k.a.c.idle    k.a.c.intr  k.a.c.i.hard  k.a.c.i.soft    k.a.c.nice   k.a.c.steal     k.a.c.sys    k.a.c.user  k.a.c.w.tota        k.a.hz  k.a.idletime  k.a.i.errors      k.a.intr   k.a.lastpid      k.a.load      k.a.load      k.a.load    k.a.nprocs    k.a.nusers   k.a.pswitch  k.a.runnable   k.a.sysfork    k.a.uptime   k.p.c.guest   k.p.c.guest    k.p.c.idle    k.p.c.idle    k.p.c.intr    k.p.c.intr  k.p.c.i.hard  k.p.c.i.hard  k.p.c.i.soft  k.p.c.i.soft    k.p.c.nice    k.p.c.nice   k.p.c.steal   k.p.c.steal     k.p.c.sys     k.p.c.sys    k.p.c.user    k.p.c.user  k.p.c.w.tota  k.p.c.w.tota     k.p.i.LOC     k.p.i.LOC   k.p.i.line0   k.p.i.line0   k.p.i.line1   k.p.i.line1  k.p.i.line12  k.p.i.line12  k.p.i.line15  k.p.i.line15  k.p.i.line15  k.p.i.line15  k.p.i.line16  k.p.i.line16   k.p.i.line2   k.p.i.line2   k.p.i.line6   k.p.i.line6   k.p.i.line8   k.p.i.line8   k.p.c.guest    k.p.c.idle    k.p.c.intr  k.p.c.i.hard  k.p.c.i.soft    k.p.c.nice   k.p.c.steal     k.p.c.sys    k.p.c.user  k.p.c.w.tota    k.u.distro   k.u.machine  k.u.nodename   k.u.release   k.u.sysname   k.u.version
-                                                                                                                                                                                                                                 1 minute      5 minute     15 minute                                                                                              cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1          cpu0          cpu1         node0         node0         node0         node0         node0         node0         node0         node0         node0         node0                                                                                    
+             k.a.c.idle    k.a.c.user      k.a.load      k.a.load      k.a.load   k.a.sysfork    k.a.uptime    k.p.c.idle    k.p.c.idle    k.p.c.user    k.p.c.user
+                                           1 minute      5 minute     15 minute                                      cpu0          cpu1          cpu0          cpu1
 Diff of outputs end
 === pmrep archive creation with filtering
 Recording 1 metrics to TMP.new_archive3:

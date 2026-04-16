@@ -52,7 +52,7 @@ _archive_filter()
     #end
 }
 
-log="--archive $here/archives/20130706 -z -O 30m"
+log="--archive $here/archives/20130706-a -z -O 30m"
 
 # real QA test starts here
 echo "== pmrep csv / sheet2pcp / pmrep csv roundtrip compatibility"

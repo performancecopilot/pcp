@@ -1,0 +1,39 @@
+# common functions for the weigth loss mk.* scripts
+#
+
+# Usage: _fail "message"
+#
+_fail()
+{
+    echo >&2 "mk.$base: Error: $1"
+    status=1
+    exit
+}
+
+# Usage: _report <base> <sub>
+# e.g. _report $base -a
+#
+_report()
+{
+    if [ $# -ne 2 ]
+    then
+	echo >&2 "mk.rc: Botch: Usage: _report <base> <sub>, \$#=$#"
+	return
+    fi
+    for file in ../bigarchives/"$1".*
+    do
+	orig=`echo "$file" | sed -e 's;../bigarchives/;;'`
+	new=`echo "$orig" | sed -e "s/\./$2./"`
+	if [ -f "$orig" -a ! -f "$new" ]
+	then
+	    echo >&2 "mk.$base: Warning: $orig: $new not found"
+	else
+	    ( ls -l "../bigarchives/$orig" 2>&1;
+	      ls -l "$new" 2>/dev/null ) \
+	    | awk '
+NR == 1	{ f = $NF; s = $5; next }
+	{ printf "Info: %s: %d -> %d saving: %d %.1f%%\n",$NF,s,$5,s-$5,100*(s-$5)/s }'
+	fi
+    done
+}
+

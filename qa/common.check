@@ -3813,3 +3813,25 @@ _filter_init_distro()
 	cat
     fi
 }
+
+# Usage: _check_big_file file
+#
+# Big files are may not be packaged so check if the file exists
+# and if it does return.
+# Otherwise call _notrun() if QA is being run from the package install
+# directory ($PCP_VAR_LIB)/testsuite) else this is a problem and
+# call _fail().
+#
+_check_big_file()
+{
+    [ -f "$1" ] && return
+    case `pwd`
+    in
+	*/testsuite)
+	    _notrun "uses $1, this test needs to be run in the git tree"
+	    ;;
+	*)
+	    _fail "Botch: $1 missing"
+	    ;;
+    esac
+}

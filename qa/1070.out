@@ -2,7 +2,7 @@ QA output created by 1070
 == pmrep csv / sheet2pcp / pmrep csv roundtrip compatibility
 Test data to be used:
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013

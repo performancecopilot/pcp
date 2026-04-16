@@ -263,12 +263,12 @@ Incompatible metric tape.dev.io_ns (PM_ERR_INDOM_LOG Instance domain identifier 
  duration: 00:00:04
 
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:17:01 2013
       end: Sun Jul  7 00:15:43 2013
-  metrics: 294 (564 instances)
+  metrics: 75 (129 instances)
   samples: N/A
  interval: N/A
  duration: 23:58:41
@@ -1233,7 +1233,7 @@ Failed to read configuration file CONF_FILE:
 Unknown option mem.util.free in [options].
 No metrics specified.
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
@@ -1244,7 +1244,7 @@ No metrics specified.
  duration: 00:00:00
 
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
@@ -1255,7 +1255,7 @@ No metrics specified.
  duration: 00:00:00
 
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
@@ -1273,7 +1273,7 @@ Unknown option mem.util.free in [options].
   yes  freemem
          Kbyte
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
@@ -1289,7 +1289,7 @@ Failed to read configuration file CONF_FILE:
 Section [global] contains options.
 No metrics specified.
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
@@ -1302,7 +1302,7 @@ No metrics specified.
   freemem
     Kbyte
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
@@ -1315,7 +1315,7 @@ No metrics specified.
   freemem  usedmem
     Kbyte    Kbyte
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013
@@ -1328,7 +1328,7 @@ No metrics specified.
   usedmem
     Kbyte
 
-  archive: QAPATH/archives/20130706
+  archive: QAPATH/archives/20130706-a
      host: billing02
  timezone: UTC+10
     start: Sat Jul  6 00:47:01 2013

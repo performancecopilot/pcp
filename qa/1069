@@ -52,7 +52,7 @@ _conf_error_filter()
 }
 
 log="--archive $here/archives/sample-secs -z"
-log2="--archive $here/archives/20130706 -z -O 30m"
+log2="--archive $here/archives/20130706-a -z -O 30m"
 
 # real QA test starts here
 echo "== basic live mode reporting"
@@ -109,7 +109,7 @@ pmrep -s 5 -t 2 $log -0 3 sample.seconds,,,,,,50
 
 echo "== exercise extended header"
 pmrep -z -a $here/archives/rep -x -H -U -C -u -I "" | _archive_filter
-pmrep -z -a $here/archives/20130706 -x -H -U -C -u -I "" | _archive_filter
+pmrep -z -a $here/archives/20130706-a -x -H -U -C -u -I "" | _archive_filter
 pmrep -z -a $here/archives/bug-1044.meta -x -H -U -C -u -I "" | _archive_filter
 
 echo "== exercise separate header"

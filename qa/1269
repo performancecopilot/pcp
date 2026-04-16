@@ -23,7 +23,7 @@ status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 # real QA test starts here
-pmval -a $here/archives/20130706 -A 0 disk.dev.read
+pmval -a $here/archives/20130706-a -A 0 disk.dev.read
 
 # success, all done
 status=0
