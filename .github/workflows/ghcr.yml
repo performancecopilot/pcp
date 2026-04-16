@@ -2,6 +2,7 @@ name: Github Container Registry (GHCR)
 on:
   push:
     branches: [ "main" ]
+    tags: ['*']
 
 env:
   REGISTRY: ghcr.io
@@ -36,14 +37,28 @@ jobs:
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.BASE_IMAGE }}
-          tags: type=raw,value=latest,enable={{is_default_branch}}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=tag
+            type=sha,prefix={{branch}}-
+            type=raw,value={{branch}}
 
       - name: Extract tags and labels for archive image
         id: meta_archive
         uses: docker/metadata-action@v6
         with:
           images: ${{ env.REGISTRY }}/${{ env.ARCHIVE_IMAGE }}
-          tags: type=raw,value=latest,enable={{is_default_branch}}
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=ref,event=tag
+            type=sha,prefix={{branch}}-
+            type=raw,value={{branch}}
 
       - name: Build and push base image
         uses: docker/build-push-action@v7
@@ -54,6 +69,8 @@ jobs:
           tags: ${{ steps.meta_base.outputs.tags }}
           labels: ${{ steps.meta_base.outputs.labels }}
           platforms: ${{ env.PLATFORMS }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
       - name: Build and push archive-analysis image
         uses: docker/build-push-action@v7
@@ -64,3 +81,10 @@ jobs:
           tags: ${{ steps.meta_archive.outputs.tags }}
           labels: ${{ steps.meta_archive.outputs.labels }}
           platforms: ${{ env.PLATFORMS }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Image digest
+        run: |
+          echo "Base image pushed with tags: ${{ steps.meta_base.outputs.tags }}"
+          echo "Archive image pushed with tags: ${{ steps.meta_archive.outputs.tags }}"
