@@ -701,14 +701,7 @@ SignalReloadPMNS(void)
 {
     int sts;
 
-    /* Reload PMNS if necessary. 
-     * Note: this will only stat() the base name i.e. ASCII pmns,
-     * typically $PCP_VAR_DIR/pmns/root and not $PCP_VAR_DIR/pmns/root.bin .
-     * This is considered a very low risk problem, as the binary
-     * PMNS is always compiled from the ASCII version;
-     * when one changes so should the other.
-     * This caveat was allowed to make the code a lot simpler. 
-     */
+    /* Reload PMNS if necessary. */
     if (__pmHasPMNSFileChanged(pmnsfile)) {
 	pmNotifyErr(LOG_INFO, "Reloading PMNS \"%s\"",
 	   (pmnsfile==PM_NS_DEFAULT)?"DEFAULT":pmnsfile);
