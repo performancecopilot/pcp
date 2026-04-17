@@ -36,7 +36,7 @@ FOLIOS = $(shell echo *.folio)
 # archive.
 #
 DEFLATE = small.0.xz small.meta small.index \
-	  20130706.0.bz2 20130706.meta 20130706.index \
+	  20130706-a.0.bz2 20130706-a.meta 20130706-a.index \
 	  20180606.0.xz 20180606.meta.xz 20180606.index \
 	  pcp-atop.0.xz pcp-atop.meta pcp-atop.index \
 	  pcp-atop-boot.0.xz pcp-atop-boot.meta pcp-atop-boot.index \
@@ -60,21 +60,22 @@ DEFLATE = small.0.xz small.meta small.index \
 	  zero_disk_activity.0.xz zero_disk_activity.meta.xz \
 	  dstat-disks.0.xz dstat-disks.meta.xz dstat-disks.index \
 	  dstat-diskfarm.0.xz dstat-diskfarm.meta.xz dstat-diskfarm.index \
-	  20180416.10.00.meta.xz 20180416.10.00.index 20180416.10.00.0.xz \
-	  20180416.10.00.1.xz 20180416.10.00.2.xz 20180416.10.00.3.xz \
+	  20180416.meta.xz 20180416.index 20180416.0.xz \
+	  20180416.1.xz 20180416.2.xz 20180416.3.xz \
 	  20190628.04.03.0.xz 20190628.04.03.1.xz 20190628.04.03.meta.xz \
 	  20190628.04.03.index \
 	  20201109-a.0.xz 20201109-a.index 20201109-a.meta.xz \
 	  20201109-b.0.xz 20201109-b.index 20201109-b.meta.xz \
 	  20190628.06.31.0.xz 20190628.06.31.meta.xz 20190628.06.31.index \
 	  pcp-ss.0.xz pcp-ss.meta.xz pcp-ss.index \
-	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index all-ubuntu.22.04.index \
+	  pcp-ps.0.xz pcp-ps.meta.xz pcp-ps.index \
 	  pcp-meminfo.0.xz pcp-meminfo.meta.xz pcp-meminfo.index \
 	  pcp-mpstat.0.xz pcp-mpstat.meta.xz pcp-mpstat.index.xz \
 	  pcp-mpstat4.0.xz pcp-mpstat4.meta.xz pcp-mpstat4.index.xz \
 	  pcp-netstat.0.xz pcp-netstat.meta.xz pcp-netstat.index \
 	  pcp-rocestat.0.xz pcp-rocestat.meta.xz pcp-rocestat.index.xz \
-	  all-ubuntu.22.04.0.xz all-ubuntu.22.04.meta.xz all-ubuntu.22.04.index \
+	  all-ubuntu.22.04-a.0.xz all-ubuntu.22.04-a.meta.xz \
+	  all-ubuntu.22.04-a.index \
 	  bind2-9.18.0.xz bind2-9.18.meta.xz bind2-9.18.index \
 	  bind2-9.18+.0.xz bind2-9.18+.meta.xz bind2-9.18+.index \
 	  pcp-numastat-8-node.0.xz pcp-numastat-8-node.meta.xz \
@@ -82,8 +83,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  numa.0.xz numa.meta.xz numa.index.xz \
 	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
 	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index \
-	  bozo-2017090-a.0.xz bozo-2017090-a.index bozo-2017090-a.meta.xz \
-	  bozo-2017090-b.0.xz bozo-2017090-b.index bozo-2017090-b.meta.xz
+	  bozo-20170904-a.0.xz bozo-20170904-a.index bozo-20170904-a.meta.xz \
+	  bozo-20170904-b.0.xz bozo-20170904-b.index bozo-20170904-b.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
