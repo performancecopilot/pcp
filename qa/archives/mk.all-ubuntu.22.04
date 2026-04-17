@@ -5,24 +5,19 @@
 #
 
 base=all-ubuntu.22.04
-here=`pwd`
 status=1
 tmp=/tmp/mk.all-ubuntu.22.04-$$
 
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
-_fail()
-{
-    echo >&2 "mk.all-ubuntu.22.04: Error: $1"
-    status=1
-    exit
-}
+. ./mk.rc
 
 # subset-a: selecting a subset of the metrics and all pmResults
 #
-rm -f ${base}-a.*
 cat <<End-of-File >$tmp.config
 # metrics needed by ...
+# preamble so archive label records match
+pmcd.pmlogger.host
 # qa/1465
 ipc.shm.owner
 kernel.uname.nodename
@@ -36,7 +31,6 @@ pmcd.pmie.configfile
 pmcd.pmie.logfile
 pmcd.pmie.pmcd_host
 pmcd.pmlogger.archive
-pmcd.pmlogger.host
 pmcd.pmlogger.pmcd_host
 pmda.uname
 proc.id.egid_nm[1920,3233520]
@@ -60,5 +54,4 @@ sample.proc.exec
 sample.proc.ordinal
 sample.proc.time
 End-of-File
-pmlogextract -c $tmp.config ../bigarchives/$base ${base}-a || _fail "pmlogextract"
-pmlogcompress ${base}-a || _fail pmlogcompress
+_select_metrics ../bigarchives/$base $base-a

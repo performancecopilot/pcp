@@ -5,7 +5,6 @@
 #
 
 base=20201109
-here=`pwd`
 status=1
 tmp=/tmp/mk.$base-$$
 
@@ -15,7 +14,6 @@ trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
 # subset-a: selecting a subset of the metrics and all pmResults
 #
-rm -f ${base}-a.*
 cat <<End-of-File >$tmp.config
 # metrics needed by ...
 # same starting pmResult and archive label
@@ -25,34 +23,9 @@ proc.psinfo.rss
 # qa/1775
 proc.psinfo.utime
 End-of-File
-pmlogextract -c $tmp.config ../bigarchives/$base ${base}-a || _fail "pmlogextract"
-pmlogcompress ${base}-a || _fail pmlogcompress
-_report $base -a
+_select_metrics ../bigarchives/$base $base-a
 
 # subset-b: selecting all metrics but only the first 20 pmResults
 #           from each data volume
 #
-mkdir $tmp || _fail mkdir
-pmlogcp ../bigarchives/$base $tmp || _fail "pmlogcp -> $tmp"
-cd $tmp || _fail "cd $tmp"
-pmlogdecompress $base || _fail pmlogdecompress
-for vol in $base.[0-9]*
-do
-    part=`echo "$vol" | sed -e "s;.*$base\.;;" -e 's/\..*//'`
-    [ -f $base.$part ] || _fail "missing vol $vol -> $part"
-    offset=''
-    eval `$here/../src/scandata -o $base.$part | sed -n -e '/\[21]/{
-s/.* @ //
-p
-}'`
-    [ -n "$offset" ] || _fail "scandata vol $part"
-    echo "[vol $part] offset=$offset"
-    truncate -s $offset $base.$part || _fail "truncate vol $part"
-done
-pmlogcheck -w -R $base || _fail pmlogrepair
-cd $here || _fail "cd back"
-rm -f ${base}-b.*
-pmlogmv $tmp/$base ${base}-b || _fail "pmlogmv back"
-pmlogcompress ${base}-b || _fail pmlogcompress
-_report $base -b
-
+_select_first_n 20 ../bigarchives/$base $base-b

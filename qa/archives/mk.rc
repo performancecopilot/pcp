@@ -1,39 +1,182 @@
 # common functions for the weigth loss mk.* scripts
 #
 
+debug=false
+. /etc/pcp.conf
+. $PCP_SYSCONF_DIR/pmlogcompress/defaults
+
 # Usage: _fail "message"
 #
 _fail()
 {
-    echo >&2 "mk.$base: Error: $1"
+    echo "$1"
     status=1
     exit
 }
 
-# Usage: _report <base> <sub>
-# e.g. _report $base -a
+# Usage: _compress <orig> <subset>
+#
+# compress each volume of <subset> using the same compression
+# (if any) as for the same volume in <orig>
+#
+_compress()
+{
+    if [ $# -ne 2 ]
+    then
+	_fail "Botch: Usage: _compress <orig> <subset>, \$#=$#"
+    fi
+    func=_compress
+
+    for file in "$1".*
+    do
+	suff=`echo "$file" | sed -e 's;.*\.;;'`
+	arg=''
+	case "$suff"
+	in
+	    [0-9]*|index|meta)
+		    # orig file was not compressed, nothing to do
+		    $debug && echo >&2 "$func: Debug: $file: skip compress"
+		    continue
+		    ;;
+	    xz|lzma)
+		    arg='-f xz -A -2 -A --block-size=10MiB'
+		    ;;
+	    bz|bz2)
+		    arg='-f bzip2'
+		    ;;
+	    gz|z)
+		    arg='-f gzip'
+		    ;;
+	    zst)
+		    arg='-f zstd -A --rm -A --quiet'
+		    ;;
+	    *)
+		    _fail "$func: Botch: don't know what to do with $file (suffix=$suff)"
+		    ;;
+	esac
+	vol=`echo "$file" | sed -e "s/\.$suff$//"`
+	vol=`echo "$vol" | sed -e 's/.*\.//'`
+	$debug && echo >&2 "$func: Debug: $file: do compress orig=$file file=$2.$vol vol=$vol suff=$suff arg=$arg"
+	[ -f "$2.$vol" ] || _fail "$func: Error: expected $2.$vol, but not found"
+	pmlogcompress $arg "$2.$vol" || _fail "$func: Error: pmlogcompress failed for $2.$vol"
+    done
+}
+
+# Usage: _report <orig> <subset>
+# e.g. _report ../bigarchive/$base $base-a
 #
 _report()
 {
     if [ $# -ne 2 ]
     then
-	echo >&2 "mk.rc: Botch: Usage: _report <base> <sub>, \$#=$#"
-	return
+	_fail "Botch: Usage: _report <orig> <subset>, \$#=$#"
     fi
-    for file in ../bigarchives/"$1".*
+    func=_report
+
+    for file in "$1".*
     do
-	orig=`echo "$file" | sed -e 's;../bigarchives/;;'`
-	new=`echo "$orig" | sed -e "s/\./$2./"`
-	if [ -f "$orig" -a ! -f "$new" ]
+	if [ ! -f "$file" ]
 	then
-	    echo >&2 "mk.$base: Warning: $orig: $new not found"
+	    _fail "$func: Botch: $file not found"
+	fi
+	suff=`echo "$file" | sed -e "s;$1\.;;"`
+	if [ ! -f "$2.$suff" ]
+	then
+	    _fail "$func: Error: expected $2.$suff, but not found"
 	else
-	    ( ls -l "../bigarchives/$orig" 2>&1;
-	      ls -l "$new" 2>/dev/null ) \
+	    ( ls -l "$1.$suff" 2>&1;
+	      ls -l "$2.$suff" 2>/dev/null ) \
 	    | awk '
 NR == 1	{ f = $NF; s = $5; next }
 	{ printf "Info: %s: %d -> %d saving: %d %.1f%%\n",$NF,s,$5,s-$5,100*(s-$5)/s }'
 	fi
     done
+
+    # expect new archive label to match original archive label
+    #
+    pmloglabel -L "$1" >$tmp.orig || _fail "$func: Error: pmloglabel -L $1 failed"
+    sed -e '/^PID for pmlogger:/d' <$tmp.orig >$tmp.label-orig
+    pmloglabel -L "$2" >$tmp.new || _fail "$func: Error: pmloglabel -L $2 failed"
+    sed -e '/^PID for pmlogger:/d' <$tmp.new >$tmp.label-new
+    if ! diff -u $tmp.label-orig $tmp.label-new >$tmp.tmp
+    then
+	echo "Warning: archive label differences ..."
+	cat $tmp.tmp
+    fi
 }
 
+# Usage: _select_metrics <orig> <subset>
+#
+# on entry $tmp.config must contain the pmlogextract configuration
+#
+_select_metrics()
+{
+    if [ $# -ne 2 ]
+    then
+	_fail "Botch: Usage: _select_metrics <orig> <subset>, \$#=$#"
+    fi
+    func=_select_metrics
+
+    rm -f "$2".*
+
+    pmlogextract -c $tmp.config "$1" "$2" || _fail "$func: Errror: pmlogextract failed"
+
+    _compress "$1" "$2"
+    _report "$1" "$2"
+
+}
+
+# Usage: _select_first_n <n> <orig> <subset>
+#
+# pick the first <n> pmResults from every data volume
+#
+_select_first_n()
+{
+    if [ $# -ne 3 ]
+    then
+	_fail "Botch: Usage: _select_first_n <n> <orig> <subset>, \$#=$#"
+    fi
+    func=_select_metrics
+
+    [ -x ../src/scandata ] || _fail "Error: need ../src/scandata executable"
+
+    rm -f "$3".*
+
+    # need offset for (<n>+1)th pmResult
+    np1=`expr "$1" +  1`
+
+    base=`echo "$2" | sed -e 's;.*/;;'`
+    $debug && echo >&2 "Debug: _select_first_n: base=$base"
+
+    here=`pwd`
+    mkdir $tmp || _fail "$func: Error: mkdir failed"
+    pmlogcp "$2" $tmp || _fail "$func: Error: pmlogcp -> $tmp failed"
+    cd $tmp || _fail "$func: Error: cd $tmp failed"
+    pmlogdecompress "$base" || _fail "$func: Error: pmlogdecompress $base failed"
+    for vol in "$base".[0-9]*
+    do
+	part=`echo "$vol" | sed -e "s;.*$base\.;;" -e 's/\..*//'`
+	[ -f "$base.$part" ] || _fail "$func: missing vol $vol -> $part"
+	offset=''
+	eval `$here/../src/scandata -o $base.$part 2>&1 | tee $tmp.tmp | sed -n -e '/\['"$np1"']/{
+s/.* @ //
+p
+}'`
+	if [ -z "$offset" ]
+	then
+	    cat $tmp.tmp
+	    _fail "$func: Error: scandata $base.$part failed np1=$np1"
+	fi
+	$debug && echo "$func: Debug: $base.$part: offset=$offset"
+	truncate -s $offset "$base.$part" || _fail "$func: Error: truncate $base.$part failed"
+    done
+    if ! pmlogcheck -w -R "$base" >$tmp.tmp 2>&1
+    then
+	cat $tmp.tmp
+	_fail "$func: Error: pmlogrepair $base failed"
+    fi
+    cd $here || _fail "$func: cd back failed"
+    pmlogmv "$tmp/$base" "$3" || _fail "$func: Error: pmlogmv $tmp/$base $3 failed"
+    _compress "$2" "$3"
+    _report "$2" "$3"
+}

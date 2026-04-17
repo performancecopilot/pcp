@@ -8,44 +8,13 @@
 # comes from
 #
 
-ibase=../bigarchives/20180416.10.00
-obase=20180416
-here=`pwd`
 status=1
 tmp=/tmp/mk.20180416-$$
 
 trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
 
-_fail()
-{
-    echo >&2 "mk.20180416: Error: $1"
-    status=1
-    exit
-}
+. ./mk.rc
 
-mkdir $tmp || _fail mkdir
-pmlogcp $ibase $tmp || _fail "pmlogcp -> $tmp"
-cd $tmp || _fail "cd $tmp"
-pmlogdecompress $ibase || _fail pmlogdecompress
-
-rm -f $obase.*
-pmlogcp $ibase $obase || _fail "pmlogcp -> $obase"
-for part in 0 1 2 3
-do
-    offset=''
-    eval `$here/../src/scandata -o $obase.$part | sed -n -e '/\[11]/{
-s/.* @ //
-p
-}'`
-    [ -n "$offset" ] || _fail "scandata vol $part"
-    echo "[vol $part] offset=$offset"
-    truncate -s $offset $obase.$part || _fail "truncate vol $part"
-done
-
-pmlogcheck -R $obase || _fail pmlogrepair
-
-cd $here || _fail "cd back"
-rm -f $obase.*
-pmlogmv $tmp/$obase $obase || _fail "pmlogmv back"
-pmlogcompress $obase || _fail pmlogcompress
-
+# just first 10 pmResults from each data volume
+#
+_select_first_n 10 ../bigarchives/20180416.10.00 20180416
