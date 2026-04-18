@@ -40,7 +40,7 @@ then
 fi
 
 archive_pat=`echo "$*" | sed -e 's/ /|/g'`
-sep_pat='[   |;&<>./]'
+sep_pat='[   |;&<>./,"]'
 
 # first (and always) all of the QA test scripts
 #

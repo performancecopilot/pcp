@@ -84,7 +84,11 @@ DEFLATE = small.0.xz small.meta small.index \
 	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
 	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index \
 	  bozo-20170904-a.0.xz bozo-20170904-a.index bozo-20170904-a.meta.xz \
-	  bozo-20170904-b.0.xz bozo-20170904-b.index bozo-20170904-b.meta.xz
+	  bozo-20170904-b.0.xz bozo-20170904-b.index bozo-20170904-b.meta.xz \
+	  pcp-pidstat-process-args-a.0.xz \
+	  pcp-pidstat-process-args-a.index pcp-pidstat-process-args-a.meta \
+	  pcp-pidstat-process-args-b.0.xz \
+	  pcp-pidstat-process-args-b.index pcp-pidstat-process-args-b.meta
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \
@@ -104,15 +108,6 @@ CONFIGS = config.verify config.shping YWhcCi.toium.config \
 OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
 	 cputime.mpstat cputime.sar \
 	 farm.tar.xz atop-sar.tar.xz
-
-# these ones are in the git tree, but we do not "install" them
-# so they are not packaged (they are typically very big and only
-# used for corner-case QA that can be done in the git tree, not
-# using the pcp-testsuite package installation)
-#
-EXTRAS = pcp-pidstat-process-args.0.xz \
-	 pcp-pidstat-process-args.index pcp-pidstat-process-args.meta.xz \
-	 crontab-sar-report.tar.xz 
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp

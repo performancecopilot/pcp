@@ -1,0 +1,29 @@
+#!/bin/sh
+#
+# make the pcp-pidstat-process-args subset archives from
+# pcp-pidstat-process-args in ../bigarchives
+#
+
+base=pcp-pidstat-process-args
+status=1
+tmp=/tmp/mk.$base-$$
+
+trap "rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+. ./mk.rc
+
+# subset-a: selecting a subset of the metrics and all pmResults
+#
+cat <<End-of-File >$tmp.config
+# metrics needed by ...
+# preamble so archive label records match
+pmcd.pmlogger.host
+# qa/914
+nfs.server.reqs
+End-of-File
+_select_metrics ../bigarchives/$base $base-a
+
+# subset-b: selecting all metrics but only the first 11 pmResults
+#           from the data volume
+#
+_select_first_n 11 ../bigarchives/$base $base-b

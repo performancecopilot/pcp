@@ -80,16 +80,32 @@ _report()
 	    _fail "$func: Botch: $file not found"
 	fi
 	suff=`echo "$file" | sed -e "s;$1\.;;"`
+	cmp="$2.$suff"
 	if [ ! -f "$2.$suff" ]
 	then
-	    _fail "$func: Error: expected $2.$suff, but not found"
-	else
-	    ( ls -l "$1.$suff" 2>&1;
-	      ls -l "$2.$suff" 2>/dev/null ) \
-	    | awk '
+	    ok=false
+	    case "$suff"
+	    in
+		*.xz|*.lzma|*.bz2|*.bz|*.gz|*.Z|*.z|*.zst)
+			try=`echo "$suff" | sed -e 's/\.[^.]*$//'`
+			if [ -f "$2.$try" ]
+			then
+			    echo "Warning: expected $2.$suff, but found $2.$try"
+			    cmp="$2.$try"
+			    ok=true
+			fi
+			;;
+	    esac
+	    if ! $ok
+	    then
+		_fail "$func: Error: expected $2.$suff not found"
+	    fi
+	fi
+	( ls -l "$file" 2>&1;
+	  ls -l "$cmp" 2>&1 ) \
+	| awk '
 NR == 1	{ f = $NF; s = $5; next }
 	{ printf "Info: %s: %d -> %d saving: %d %.1f%%\n",$NF,s,$5,s-$5,100*(s-$5)/s }'
-	fi
     done
 
     # expect new archive label to match original archive label

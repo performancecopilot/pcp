@@ -452,7 +452,7 @@ QA output created by 914
 [0] ok
 [100] ok
 
-=== -a archives/pcp-pidstat-process-args nfs.server.reqs ===
+=== -a archives/pcp-pidstat-process-args-a nfs.server.reqs ===
 [1] ok
 [0] ok
 [1] ok
