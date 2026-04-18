@@ -36,8 +36,16 @@ fi
 
 # real QA test starts here
 [ ! -d "$tmp" ] && mkdir -p $tmp
+
+# xz encoding is much more efficient than gzip for this dataset,
+# but collectl2pcp only understands gzip (de)compression ...
+# re-compressing here to preserve original test coverage for a
+# .gz input file
+#
+xzcat collectl/rhel6.raw.xz | gzip - >$tmp/rhel6.raw.gz
+
 echo checking one volume created without PCP_LOGIMPORT_MAXLOGSZ
-collectl2pcp collectl/rhel6.raw.gz $tmp/onevol
+collectl2pcp $tmp/rhel6.raw.gz $tmp/onevol
 vols=`echo $tmp/onevol.[0-9]* | wc -w`
 [ "$vols" -ne 1 ] && echo onevol FAILED, expected 1 volume but got $vols && status=1 && exit
 echo checking temporal index
@@ -46,7 +54,7 @@ pmdumplog -t $tmp/onevol | sed -e 's/^[0-2][0-9]:[^ ]*/TIMESTAMP/'
 src/scandata -o -v $tmp/onevol.0 | grep '^\['
 
 echo checking 4 volumes created with PCP_LOGIMPORT_MAXLOGSZ=250000
-PCP_LOGIMPORT_MAXLOGSZ=250000 collectl2pcp collectl/rhel6.raw.gz $tmp/manyvols
+PCP_LOGIMPORT_MAXLOGSZ=250000 collectl2pcp $tmp/rhel6.raw.gz $tmp/manyvols
 vols=`echo $tmp/manyvols.[0-9]* | wc -w`
 [ "$vols" -ne 4 ] && echo manyvols FAILED, expected 14 volumes but got $vols && status=1 && exit
 echo checking temporal index
