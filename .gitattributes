@@ -54,3 +54,7 @@ vendor/github.com/mnunberg/jsonsl/json_samples.tgz export-ignore
 # not included in packaging for any platform
 #
 src/libpcp/doc/libpcp-locking.odt export-ignore
+
+# large dataset, only used conditionally in qa/1663
+#
+qa/linux/meminfo-root-008.tgz export-ignore

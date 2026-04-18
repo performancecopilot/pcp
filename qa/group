@@ -2197,6 +2197,7 @@ suse
 1660 libpcp labels local
 1661 pmproxy libpcp_web pmlogger local pmlc
 1662 pmproxy libpcp_web pmlogger valgrind local
+1663 pmda.linux local
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1673 pmda.bpf local

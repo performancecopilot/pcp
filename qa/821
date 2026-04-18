@@ -4,9 +4,24 @@
 #
 # Copyright (c) 2016 Red Hat.
 #
+# The linux/meminfo-root-008.tgz is very large (close to 1 Mbyte)
+# so it has been tagged as a "big file" and is not in the source
+# tarball and so not packaged.  This test has been split ...
+# - by default the 008 data set is skipped
+# - with command line arguments of <seq> and <dataset> just that
+#   <dataset> is run and this is used by the dual test qa/1663 to
+#   exercise the 008 data set
+#
 
-seq=`basename $0`
-echo "QA output created by $seq"
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
 
 # get standard environment, filters and checks
 . ./common.product
@@ -72,12 +87,26 @@ then
     $sudo rm -f "$config"  # ensure deterministic output, see qa/826
 fi
 
-for tgz in $here/linux/meminfo-*.tgz
+if [ $# -eq 0 ]
+then
+    datasets=`cd $here/linux; echo meminfo-root-*.tgz | sed -e 's/ *meminfo-root-008.tgz//'`
+elif [ $# -eq 2 ]
+then
+    datasets="$2"
+else
+    _fail "Usage: arg count $# not 0 or 2"
+fi
+
+for tgz in $datasets
 do
+    if [ -f "$tgz" ]
+    then
+	echo foo $tgz
+    fi
     rm -fr $root
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root
-    tar xzf $tgz
+    tar xzf $here/linux/$tgz
     base=`basename $tgz`
 
     echo "== Checking all mem metric values - $base"
