@@ -20,6 +20,8 @@ fi
 . ./common.filter
 . ./common.check
 
+_check_big_file linux/meminfo-root-008.tgz
+
 _cleanup()
 {
     cd $here

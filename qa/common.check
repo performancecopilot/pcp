@@ -3816,7 +3816,7 @@ _filter_init_distro()
 
 # Usage: _check_big_file file
 #
-# Big files are may not be packaged so check if the file exists
+# Big files may not be packaged so check if the file exists
 # and if it does return.
 # Otherwise call _notrun() if QA is being run from the package install
 # directory ($PCP_VAR_LIB)/testsuite) else this is a problem and
