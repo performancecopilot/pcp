@@ -73,9 +73,9 @@ Package: libpcp4-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp4 (= ${binary:Version}), libc6-dev | libc-dev
 Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
-	pcp-manager (<< 5.2.0)
+	pcp-manager (<< 5.2.0), libpcp3-dev (<< 7.1.2)
 Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
-	pcp-manager (<< 5.2.0)
+	pcp-manager (<< 5.2.0), libpcp3-dev (<< 7.1.2)
 Conflicts: libpgpool-dev
 Architecture: any
 Description: Performance Co-Pilot library and headers

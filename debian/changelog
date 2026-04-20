@@ -2,6 +2,7 @@ pcp (7.1.2-1) unstable; urgency=high
 
   * New release (full details in CHANGELOG).
   * Rework conflict over libpcp.so with libpgpool2 and libpgpool-dev
+  * Fix dbpkg conflicts between libpcp3-dev and libpcp4-dev (closes: #1133993)
 
  -- Nathan Scott <nathans@debian.org>  Mon, 18 May 2026 13:12:11 +1100
 
