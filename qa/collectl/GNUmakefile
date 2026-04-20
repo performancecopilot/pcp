@@ -4,7 +4,7 @@ include $(TOPDIR)/src/include/builddefs
 TESTDIR = $(PCP_VAR_DIR)/testsuite/collectl
 
 RAWFILES = $(shell echo *.raw)
-BIGFILES = $(shell echo *.raw.gz)
+BIGFILES = $(shell echo *.raw.gz *.raw.xz)
 
 default default_pcp setup: 
 

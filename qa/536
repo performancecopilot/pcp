@@ -44,8 +44,16 @@ collectl2pcp -F $C/some_host.raw $TA
 pmdumplog -L $TA | grep timezone
 awk '$6 == "TZ:" {print "collectl header timezone", $7}' $C/some_host.raw
 
+[ ! -d "$tmp" ] && mkdir -p $tmp
+# xz encoding is much more efficient than gzip for this dataset,
+# but collectl2pcp only understands gzip (de)compression ...
+# re-compressing here to preserve original test coverage for a
+# .gz input file
+#
+xzcat collectl/rhel6.raw.xz | gzip - >$tmp/rhel6.raw.gz
+
 echo '## Testing RHEL64 conversion'
-collectl2pcp -F $C/rhel6.raw.gz $TA
+collectl2pcp -F $tmp/rhel6.raw.gz $TA
 
 echo '## Testing Debian (sid) conversion, defaults'
 collectl2pcp -F $C/debian_sid_defaults.raw.gz $TA

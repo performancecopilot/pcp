@@ -281,8 +281,16 @@ $1 == "proc:'"$inst"'" && $2 == "'"$idx"':"	{ print }' \
 
 # real QA test starts here
 
+[ ! -d "$tmp" ] && mkdir -p $tmp
+# xz encoding is much more efficient than gzip for this dataset,
+# but collectl2pcp only understands gzip (de)compression ...
+# re-compressing here to preserve original test coverage for a
+# .gz input file
+#
+xzcat collectl/rhel6.raw.xz | gzip - >$tmp/rhel6.raw.gz
+
 echo '## Testing RHEL6.4 inst/value extraction:' | tee -a $seq_full
-collectl2pcp -F $C/rhel6.raw.gz $TA
+collectl2pcp -F $tmp/rhel6.raw.gz $TA
 _checksums
 
 # compare values for some metrics and instances
@@ -305,7 +313,7 @@ proc.memory.vmrss	12223		VmRSS		1.0
 proc.memory.vmrss	11712		VmRSS		1.0
 End-of-File
 
-zcat <$C/rhel6.raw.gz >$tmp.raw
+zcat <$tmp/rhel6.raw.gz >$tmp.raw
 _value_checker
 
 echo | tee -a $seq_full

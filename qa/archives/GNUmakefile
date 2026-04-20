@@ -88,7 +88,11 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-pidstat-process-args-a.0.xz \
 	  pcp-pidstat-process-args-a.index pcp-pidstat-process-args-a.meta \
 	  pcp-pidstat-process-args-b.0.xz \
-	  pcp-pidstat-process-args-b.index pcp-pidstat-process-args-b.meta.xz
+	  pcp-pidstat-process-args-b.index pcp-pidstat-process-args-b.meta.xz \
+	  simple-nvme-a.0.xz simple-nvme-a.index simple-nvme-a.meta.xz \
+	  20180102.0.xz 20180102.index 20180102.meta.xz \
+	  20180127.08.40.0.xz 20180127.08.40.index 20180127.08.40.meta.xz \
+	  20180415.09.16.0.xz 20180415.09.16.index 20180415.09.16.meta.xz
 
 SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.dynmetric mk.instant mk.dyninsts \

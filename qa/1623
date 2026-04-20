@@ -36,7 +36,6 @@ fi
 
 # real QA test starts here
 [ ! -d "$tmp" ] && mkdir -p $tmp
-
 # xz encoding is much more efficient than gzip for this dataset,
 # but collectl2pcp only understands gzip (de)compression ...
 # re-compressing here to preserve original test coverage for a
