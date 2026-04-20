@@ -184,13 +184,6 @@ else
     echo 's/\?\{python-pcp}(, *|$)//' >>$tmp.sed
 fi
 
-if $HAVE_PYTHON_OPENPYXL
-then
-    echo 's/\?\{python-openpyxl}(, *|$)/python3-openpyxl\\1/' >>$tmp.sed
-else
-    echo 's/\?\{python-openpyxl}(, *|$)//' >>$tmp.sed
-fi
-
 if $HAVE_PYTHON_REQUESTS
 then
     echo 's/\?\{python-requests}(, *|$)/python3-requests\\1/' >>$tmp.sed
