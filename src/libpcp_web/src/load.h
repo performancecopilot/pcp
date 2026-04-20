@@ -47,13 +47,10 @@ typedef struct context {
     unsigned int	garbage	: 1;	/* context pending removal */
     unsigned int	inactive: 1;	/* context removal deferred */
     unsigned int	updated : 1;	/* context labels are updated */
-    unsigned int	timer_init : 1;	/* timer has been initialized */
-    unsigned int	padding : 2;	/* zero-filled struct padding */
+    unsigned int	padding : 3;	/* zero-filled struct padding */
     unsigned int	refcount : 16;	/* currently-referenced counter */
     unsigned int	timeout;	/* context timeout in milliseconds */
-    uint64_t		last_active;	/* last use timestamp (uv_hrtime) */
     uv_timer_t		timer;
-    struct context	*next_pending;	/* pending timer init list */
     int			context;	/* PMAPI context handle */
     int			randomid;	/* random number identifier */
     struct dict		*pmids;		/* metric pmID to metric struct */

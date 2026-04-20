@@ -60,12 +60,9 @@ typedef struct webgroups {
 
     uv_loop_t		*events;
     uv_timer_t		timer;
-    uv_async_t		async;
     uv_mutex_t		mutex;
 
-    struct context	*pending_timer_init;
     unsigned int	active;
-    unsigned int	gc_timer_started;
 } webgroups;
 
 static struct webgroups *
@@ -112,18 +109,14 @@ webgroup_drop_context(struct context *context, struct webgroups *groups)
     if (webgroup_deref_context(context) == 0) {
 	if (context->garbage == 0) {
 	    context->garbage = 1;
-	    if (context->timer_init)
-		uv_timer_stop(&context->timer);
+	    uv_timer_stop(&context->timer);
 	}
 	if (groups) {
 	    uv_mutex_lock(&groups->mutex);
 	    dictDelete(groups->contexts, &context->randomid);
 	    uv_mutex_unlock(&groups->mutex);
 	}
-	if (context->timer_init)
-	    uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
-	else
-	    pmwebapi_free_context(context);
+	uv_close((uv_handle_t *)&context->timer, webgroup_release_context);
     }
 }
 
@@ -132,17 +125,6 @@ webgroup_timeout_context(uv_timer_t *arg)
 {
     uv_handle_t		*handle = (uv_handle_t *)arg;
     struct context	*cp = (struct context *)handle->data;
-    uint64_t		elapsed;
-
-    /*
-     * Check if the context was recently used by a worker thread.
-     * Worker threads update last_active via uv_hrtime() which is
-     * thread-safe, avoiding unsafe uv_timer_start calls from
-     * non-event-loop threads that previously caused heap corruption.
-     */
-    elapsed = (uv_hrtime() - cp->last_active) / 1000000;
-    if (elapsed < cp->timeout)
-	return;
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "context %u timed out (" PRINTF_P_PFX "%p)\n", cp->randomid, cp);
@@ -227,6 +209,7 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     struct webgroups	*groups = webgroups_lookup(&sp->module);
     struct context	*cp;
     unsigned int	polltime = DEFAULT_POLL_TIMEOUT;
+    uv_handle_t		*handle;
     pmWebAccess		access;
     double		seconds;
     char		*endptr;
@@ -303,16 +286,13 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
     dictAdd(groups->contexts, &cp->randomid, cp);
     uv_mutex_unlock(&groups->mutex);
 
+    /* leave until the end because uv_timer_init makes this visible in uv_run */
+    handle = (uv_handle_t *)&cp->timer;
+    handle->data = (void *)cp;
+    uv_timer_init(groups->events, &cp->timer);
+
     cp->privdata = groups;
     cp->setup = 1;
-    cp->last_active = uv_hrtime();
-
-    /* Defer timer init to event loop thread via async callback */
-    uv_mutex_lock(&groups->mutex);
-    cp->next_pending = groups->pending_timer_init;
-    groups->pending_timer_init = cp;
-    uv_mutex_unlock(&groups->mutex);
-    uv_async_send(&groups->async);
 
     if (pmDebugOptions.http || pmDebugOptions.libweb)
 	fprintf(stderr, "new context[%d] setup (" PRINTF_P_PFX "%p)\n", cp->randomid, cp);
@@ -323,12 +303,11 @@ webgroup_new_context(pmWebGroupSettings *sp, dict *params,
 static void
 webgroup_timers_stop(struct webgroups *groups)
 {
-    if (groups->active && groups->gc_timer_started) {
+    if (groups->active) {
 	uv_timer_stop(&groups->timer);
 	uv_close((uv_handle_t *)&groups->timer, NULL);
-	groups->gc_timer_started = 0;
+	groups->active = 0;
     }
-    groups->active = 0;
 }
 
 static void
@@ -396,54 +375,12 @@ webgroup_worker(uv_timer_t *arg)
     webgroup_garbage_collect(groups);
 }
 
-/*
- * Async callback - runs on the event loop thread.
- * Processes deferred timer operations that cannot safely be
- * performed from worker threads (libuv handles are not thread-safe).
- */
-static void
-webgroup_async_cb(uv_async_t *async)
-{
-    struct webgroups	*groups = (struct webgroups *)async->data;
-    struct context	*cp, *list;
-    uv_handle_t		*handle;
-
-    /* Start the GC timer if activation was requested from a worker thread */
-    if (groups->active && !groups->gc_timer_started) {
-	groups->gc_timer_started = 1;
-	uv_timer_init(groups->events, &groups->timer);
-	groups->timer.data = (void *)groups;
-	uv_timer_start(&groups->timer, webgroup_worker,
-			default_worker, default_worker);
-    }
-
-    /* Drain pending timer init queue (built by worker threads) */
-    uv_mutex_lock(&groups->mutex);
-    list = groups->pending_timer_init;
-    groups->pending_timer_init = NULL;
-    uv_mutex_unlock(&groups->mutex);
-
-    while (list) {
-	cp = list;
-	list = cp->next_pending;
-	cp->next_pending = NULL;
-
-	if (cp->garbage == 0) {
-	    handle = (uv_handle_t *)&cp->timer;
-	    handle->data = (void *)cp;
-	    uv_timer_init(groups->events, &cp->timer);
-	    cp->timer_init = 1;
-	    uv_timer_start(&cp->timer, webgroup_timeout_context,
-			    cp->timeout, cp->timeout);
-	}
-    }
-}
-
 static struct context *
 webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 {
     char		errbuf[PM_MAXERRMSGLEN];
     int			sts;
+    struct webgroups    *gp = (struct webgroups *)cp->privdata;
 
     if (cp->garbage == 0 && cp->inactive == 0) {
 	if (cp->setup == 0) {
@@ -466,15 +403,11 @@ webgroup_use_context(struct context *cp, int *status, sds *message, void *arg)
 	    fprintf(stderr, "context %u timer set (" PRINTF_P_PFX "%p) to %u msec\n",
 			cp->randomid, cp, cp->timeout);
 
-	/*
-	 * Record last-active time using thread-safe uv_hrtime().
-	 * The repeating per-context timer (started at context creation)
-	 * checks this timestamp to determine if the context has truly
-	 * timed out.  This replaces the previous uv_timer_start() call
-	 * which was unsafe from worker threads and caused heap corruption
-	 * (SIGSEGV in libuv heap_remove).
-	 */
-	cp->last_active = uv_hrtime();
+	/* refresh current time: https://github.com/libuv/libuv/issues/1068 */
+	uv_update_time(gp->events);
+
+	/* if already started, uv_timer_start updates the existing timer */
+	uv_timer_start(&cp->timer, webgroup_timeout_context, cp->timeout, 0);
     } else {
 	infofmt(*message, "expired context identifier: %u", cp->randomid);
 	*status = -ENOTCONN;
@@ -496,8 +429,11 @@ webgroup_lookup_context(pmWebGroupSettings *sp, sds *id, dict *params,
 
     if (groups->active == 0) {
 	groups->active = 1;
-	/* defer GC timer init to event loop thread */
-	uv_async_send(&groups->async);
+	/* install general background work timer (GC) */
+	uv_timer_init(groups->events, &groups->timer);
+	groups->timer.data = (void *)groups;
+	uv_timer_start(&groups->timer, webgroup_worker,
+			default_worker, default_worker);
     }
 
     if (*id == NULL) {
@@ -2537,8 +2473,6 @@ pmWebGroupSetEventLoop(pmWebGroupModule *module, void *events)
 
     if (groups) {
 	groups->events = (uv_loop_t *)events;
-	uv_async_init(groups->events, &groups->async, webgroup_async_cb);
-	groups->async.data = (void *)groups;
 	return 0;
     }
     return -ENOMEM;
@@ -2649,8 +2583,6 @@ pmWebGroupClose(pmWebGroupModule *module)
 	}
 	dictRelease(groups->contexts);
 	webgroup_timers_stop(groups);
-	if (groups->events)
-	    uv_close((uv_handle_t *)&groups->async, NULL);
 	memset(groups, 0, sizeof(struct webgroups));
 	free(groups);
 	module->privdata = NULL;
