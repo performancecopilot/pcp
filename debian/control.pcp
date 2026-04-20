@@ -36,7 +36,7 @@ Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends},
 	libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}),
 	libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
 Recommends: libpcp-pmda-perl
-Conflicts: pgpool2, dstat, pcp-webapi, pcp-manager
+Conflicts: dstat, pcp-webapi, pcp-manager
 Suggests: pcp-gui, libpcp-import-perl, redis-server,
 	?{bpftrace}
 Provides: dstat, pcp-webapi, pcp-manager
@@ -76,6 +76,7 @@ Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
 	pcp-manager (<< 5.2.0)
 Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
 	pcp-manager (<< 5.2.0)
+Conflicts: libpgpool-dev
 Architecture: any
 Description: Performance Co-Pilot library and headers
  The libpcp4-dev package contains the base Performance Co-Pilot (PCP)
@@ -98,7 +99,7 @@ Description: transitional package
 
 Package: libpcp4
 Depends: ${shlibs:Depends}, ${misc:Depends}, pcp-conf (= ${binary:Version})
-Conflicts: pgpool2
+Conflicts: libpgpool2
 Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
 Section: libs
 Architecture: any
