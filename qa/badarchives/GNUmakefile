@@ -14,7 +14,6 @@ SUBDIRS =
 # volumes other than .0 or with compressed archive volumes
 SRCPART = 20230506.20.02-01.0.xz 20230506.20.02-01.1.xz \
 	  20230506.20.02-01.index 20230506.20.02-01.meta \
-	  20250410.06.19.0.zst 20250410.06.19.index 20250410.06.19.meta.xz \
 	  archive-20141125-000009.0.xz archive-20141125-000009.index \
 	  archive-20141125-000009.meta.xz \
 	  old611.0.xz old611.index old611.meta.xz
