@@ -82,15 +82,22 @@ PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG
 
 # real QA test starts here
 echo '=== simplest working option_novalue example  ===' | tee -a $seq_full
-PCP_DERIVED_CONTROL=option_novalue=1 pminfo -r foo=bar -df foo
+PCP_DERIVED_CONTROL=option_novalue=1
+export PCP_DERIVED_CONTROL
+pminfo -r foo=bar -df foo
+unset PCP_DERIVED_CONTROL
 
 echo | tee -a $seq_full
 echo '=== OPTION_NOVALUE derived control off (default)' | tee -a $seq_full
 do_pminfo
+_triage_wait_point $seq.wait.1 "PCP_DERIVED_CONFIG=$tmp.config; export PCP_DERIVED_CONFIG"
 
 echo | tee -a $seq_full
 echo '=== OPTION_NOVALUE derived control on (via $PCP_DERIVED_CONTROL)' | tee -a $seq_full
-PCP_DERIVED_CONTROL='OPTION_NOVALUE=1' do_pminfo
+PCP_DERIVED_CONTROL='OPTION_NOVALUE=1'; export PCP_DERIVED_CONTROL
+do_pminfo
+
+_triage_wait_point $seq.wait.2 "now with PCP_DERIVED_CONTROL='OPTION_NOVALUE=1'"
 
 echo | tee -a $seq_full
 echo '=== $PCP_DERIVED_CONTROL error cases ===' | tee -a $seq_full
@@ -101,7 +108,8 @@ for opts in badoption=1 option_novalue option_novalue= option_novalue=bar \
 # end
 do
     echo "--- $opts ---" | tee -a $seq_full
-    PCP_DERIVED_CONTROL="$opts" do_pminfo
+    PCP_DERIVED_CONTROL="$opts"
+    do_pminfo
 done
 
 unset PCP_DERIVED_CONTROL
