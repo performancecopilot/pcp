@@ -112,10 +112,10 @@ trap "echo; echo 'Reinstall PMDA ...'; $sudo ./Install </dev/null >$tmp.out; _fi
 
 # pick two tcp ports that are not in use
 #
-port1=`_find_free_port 5670`
+port1=`_find_free_port`
 if [ -z "$port1" ]
 then
-    echo "Arrgh ... port1: no free TCP port in the range 5670 ... "
+    echo "Arrgh ... port1: no free TCP port ... "
     exit
 fi
 echo "port1=$port1" >>$seq_full
