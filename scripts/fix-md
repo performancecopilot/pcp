@@ -353,22 +353,22 @@ then
 s/<a id="idx+/\n&/g
 p
 }' \
-    | awk >$tmp.tmp '
+    | awk >$tmp.cit '
 /<a id="idx+/	{ print lineno,$0; next }
 		{ lineno = $1 }'
 
     # missing </a> is a bad index citation ... drop 'em
     #
-    if grep -v '<a[^>]*>.*</a>' <$tmp.tmp >$tmp.bad
+    if grep -v '<a[^>]*>.*</a>' <$tmp.cit >$tmp.bad
     then
 	sed <$tmp.bad -e "s/^/$1[/" -e 's/ <a id="/] Warning: index citation </' -e 's/".*/> missing <\/a>, not indexed/'
-	grep '</a>' <$tmp.tmp >$tmp.ok
-	mv $tmp.ok $tmp.tmp
+	grep '</a>' <$tmp.cit >$tmp.ok
+	mv $tmp.ok $tmp.cit
     fi
 
     # {ident} should only contain a limited character set [a-zA-Z0-9.+-]
     #
-    sed <$tmp.tmp -e 's/ *<a id="idx+/ /' -e 's/">.*//' \
+    sed <$tmp.cit -e 's/ *<a id="idx+/ /' -e 's/">.*//' \
     | awk >$tmp.warn '
 @include "'$tmp.anchor'"
 
@@ -384,14 +384,17 @@ NF == 2	{ check = anchor($2)
     # so turn this into a (<tab> separated) file of index citations with
     # lines like:
     # {lineno}	{list}	{tag}	{entry}
+    # need special care for embedded . in {entry}
     #
-    sed -E <$tmp.tmp \
+    sed -E <$tmp.cit \
 	-e 's/ /	/' \
 	-e 's/<a id="//' \
 	-e 's/">/	/' \
 	-e '/^[0-9]*	[^ ]*<\/a>/{
 s;</a>;;
+s/([a-z])\.([^ ]|$)/\1\2/g
 s/([0-9]*	[^ ]*	[^ ,.<:|)][^ ,.<:|)]*).*/\1/
+s//./g
 }' \
 	-e 's;</a>.*;;' \
 	-e 's/\\\*//g' \

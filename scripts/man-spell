@@ -21,12 +21,12 @@
 # Copyright (c) 2024 Ken McDonell, Inc.  All Rights Reserved.
 #
 
-usage='Usage: man-spell [-de] filename ...
+usage='Usage: man-spell [-def] filename ...
 
 Options:
  -d	debug
  -e	emit .\" +ok+  control lines
- -f     force even if filename is not troff source'
+ -f     force even if filename is not troff or markdown source'
 
 LC_COLATE=POSIX; export LC_COLATE
 
@@ -2814,8 +2814,14 @@ skip == 0			{ print }'
 	fi
     elif $ismd
     then
-	# unescaped * (bold) and _ (italic) are simply noise, so remove 'em
-	# ditto for links and anchors
+	# Unescaped * (bold) and _ (italic) are simply font change
+	# noise, so remove 'em ditto for links and anchors ...
+	# This is NQR ... * and _ inside ``` ... ``` and 
+	# ` ... ` are literal in markdown-land and this will strip
+	# these as well ... it is too hard to make this context
+	# sensitive, so be prepared for some "mis-spelled" words
+	# when for example `$PCP_VAR_DIR/...` gets turned into
+	# PCPVARDIR for the dictionary checking.
 	#
 	sed -E <"$file" >$tmp.in \
 	    -e '/^\.\\" \+ok\+ /d' \
