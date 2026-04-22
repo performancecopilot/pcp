@@ -427,7 +427,7 @@ jobs:
         run: |
           echo "Not a Release!" >> $GITHUB_STEP_SUMMARY
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: steps.check_tag.outputs.match != ''
         with:
           files: |
