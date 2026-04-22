@@ -3777,24 +3777,40 @@ _pid_in_container()
     return 1
 }
 
-# if $seq.wait exists, loop forever here until it is removed
-# the optional $1 provides a message that is output on stdout
-# before looping (typically the PID of an "interesting" process
-# to debug or attach to with gdb before continuing the test).
+# Usage: _triage_wait_point [[file] message]
+#
+# If file (defaults to $seq.wait) exists, loop forever here until it
+# is removed.
+# The optional message provides a message that is output on stdout
+# before looping (typically the PID of an "interesting" process to
+# debug or attach to with gdb, or a temp file name, or a shell variable
+# setting).
 #
 _triage_wait_point()
 {
-    if [ -f "$here/$seq.wait" ]
+    if [ $# -eq 2 ]
     then
-	[ -n "$1" ] && echo "_triage_wait_point: $1"
-	echo "_triage_wait_point: found $seq.wait, waiting ..."
+	__file="$1"
+	__msg="$2"
+    elif [ $# -eq 1 ]
+    then
+	__file=$seq.wait
+	__msg="$1"
+    else
+	__file=$seq.wait
+	__msg=""
+    fi
+    if [ -f "$__file" ]
+    then
+	[ -n "$__msg" ] && echo "_triage_wait_point: $__msg"
+	echo "_triage_wait_point: found $__file, waiting ..."
 	__i=0
-	while [ -f $here/$seq.wait ]
+	while [ -f $__file ]
 	do
 	    sleep 1
 	    __i=`expr $__i + 1`
 	done
-	echo "_triage_wait_point: $seq.wait removed after $__i seconds, continuing ..."
+	echo "_triage_wait_point: $__file removed after $__i seconds, continuing ..."
     fi
 }
 
