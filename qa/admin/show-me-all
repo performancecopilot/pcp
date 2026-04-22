@@ -170,8 +170,19 @@ do
 		    break
 		fi
 	    fi
+	    if grep '^Callback: ' $log >$tmp.tmp
+	    then
+		# found a Callback: line ... is our test included in the
+		# last Callback: line?
+		#
+		if tail -1 $tmp.tmp | grep " $seq" >/dev/null
+		then
+		    touch $tmp.callback
+		    break
+		fi
+	    fi
 	done
-	if [ ! -f $tmp.failed -a ! -f $tmp.triaged ]
+	if [ ! -f $tmp.failed -a ! -f $tmp.triaged -a ! -f $tmp.callback ]
 	then
 	    # cleanup because test was subsequently made to pass?
 	    #
