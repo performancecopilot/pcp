@@ -12,8 +12,6 @@
  */
 // include: @usecs
 
-#include <linux/sched.h>
-
 tracepoint:sched:sched_wakeup,
 tracepoint:sched:sched_wakeup_new
 {
@@ -22,7 +20,7 @@ tracepoint:sched:sched_wakeup_new
 
 tracepoint:sched:sched_switch
 {
-	if (args->prev_state == TASK_RUNNING) {
+	if (args->prev_state == 0) { /* TASK_RUNNING */
 		@qtime[args->prev_pid] = nsecs;
 	}
 
@@ -31,4 +29,9 @@ tracepoint:sched:sched_switch
 		@usecs = hist((nsecs - $ns) / 1000);
 	}
 	delete(@qtime[args->next_pid]);
+}
+
+END
+{
+        clear(@qtime);
 }
