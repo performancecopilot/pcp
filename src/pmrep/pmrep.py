@@ -149,6 +149,8 @@ class PMReporter(object):
         self.outfile = None
 
         # Internal
+        # CSV unit strings are off by default; enable with --csv-unit-info
+        self.csv_unitinfo = 0
         self.format = None # stdout format
         self.writer = None
         self.pmi = None
@@ -203,7 +205,8 @@ class PMReporter(object):
 
         opts.pmSetLongOptionHeader("Reporting options")
         opts.pmSetLongOption("no-header", 0, "H", "", "omit headers")
-        opts.pmSetLongOption("no-unit-info", 0, "U", "", "omit unit info from headers")
+        opts.pmSetLongOption("no-unit-info", 0, "U", "", "omit unit info from stdout headers")
+        opts.pmSetLongOption("csv-unit-info", 0, "", "", "include unit info in CSV headers")
         opts.pmSetLongOption("no-inst-info", 0, "", "", "omit instance info from headers")
         opts.pmSetLongOption("no-globals", 0, "G", "", "omit global metrics")
         opts.pmSetLongOption("timestamps", 0, "p", "", "print timestamps")
@@ -298,8 +301,10 @@ class PMReporter(object):
                 self.derived = self.derived + ";" + optarg
         elif opt == 'H':
             self.header = 0
-        elif opt == 'U':
-            self.unitinfo = 0
+        elif opt == 'U' or opt == 'no-unit-info':
+            self.unitinfo = 0   # hide units on stdout
+        elif opt == 'csv-unit-info':
+            self.csv_unitinfo = 1
         elif opt == 'G':
             self.globals = 0
         elif opt == 'p':
@@ -916,12 +921,17 @@ class PMReporter(object):
         """ Write info header for CSV output """
         if not self.header:
             return
+        csv_unitinfo = self.csv_unitinfo
         if self.extcsv:
             self.writer.write("Host,Interval,")
         self.writer.write("Time")
         for i, metric in enumerate(self.metrics):
             for j, n in self.get_results_iter(i, metric, results):
                 name = metric
+                unit_txt = ""
+                if csv_unitinfo:
+                    raw_unit = self.metrics[metric][2][0]
+                    unit_txt = "" if raw_unit is None else str(raw_unit)
                 if not self.dynamic_header:
                     if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
                         # Always mark metrics with instance domain
@@ -932,18 +942,18 @@ class PMReporter(object):
                 else:
                     if self.pmconfig.descs[i].contents.indom != PM_INDOM_NULL:
                         name += "-" + n[1]
-                if self.delimiter:
-                    name = name.replace(self.delimiter, " ")
-                name = name.replace("\n", " ").replace("\"", " ")
-                self.writer.write(self.delimiter + "\"" + name + "\"")
+                if csv_unitinfo and unit_txt:
+                    name += "(" + unit_txt + ")"
+                name_field = self.sanitize_csv_header_field(name)
+                self.writer.write(self.delimiter + "\"" + name_field + "\"")
                 if self.include_labels:
                     ins = j if not self.dynamic_header else n[0]
                     labels = self.pmconfig.get_labels_str(metric, ins, self.dynamic_header, True)
                     if self.delimiter:
                         repl = ";" if self.delimiter == "," else ","
                         labels = labels.replace(self.delimiter, repl)
-                    labels = labels.replace("\n", " ").replace("\"", " ")
-                    self.writer.write(self.delimiter + "\"" + labels + "\"")
+                    label_field = self.sanitize_csv_header_field(labels)
+                    self.writer.write(self.delimiter + "\"" + label_field + "\"")
         self.writer.write("\n")
 
     def write_header_stdout(self, repeat=False, results=()):
@@ -1181,6 +1191,15 @@ class PMReporter(object):
             else:
                 value = value.replace(self.delimiter, " ")
         return value
+
+    def sanitize_csv_header_field(self, value):
+        """Sanitize header strings for CSV output."""
+        if value in (None, NO_VAL):
+            return ""
+        text = str(value)
+        if self.delimiter:
+            text = text.replace(self.delimiter, " ")
+        return text.replace("\n", " ").replace("\"", " ")
 
     def write_csv(self, timestamp):
         """ Write results in CSV format """

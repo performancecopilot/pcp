@@ -699,6 +699,12 @@ and
 \fB\-k\fR, \fB\-\-extended\-csv\fR
 Write extended CSV output, similar to
 .BR sadf (1).
+Use
+.BR \-U
+or
+.BR \-\-csv\-unit\-info
+to append unit strings to metric names in the CSV header using the form
+.RI metric "(unit)" .
 .TP
 \fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
 When fetching metrics from a local context (see
@@ -813,6 +819,16 @@ Requires
 .TP
 .I csv
 Print metrics in CSV format (subject to formatting options).
+For CSV output, unit strings are omitted by default.  Use
+.BR \-U
+or
+.BR \-\-csv\-unit\-info
+to include unit strings inline with metric names (e.g.
+.IR metric "(unit)" ).
+.BR \-U
+also suppresses unit strings from
+.I stdout
+headers.
 .TP
 .I stdout
 Print metrics to stdout (format subject to formatting options).
@@ -981,7 +997,11 @@ to disable).
 .RE
 .TP
 \fB\-U\fR, \fB\-\-no\-unit\-info\fR
-Omit unit information from headers.
+Omit unit information from \fIstdout\fP headers.
+.TP
+\fB\-\-csv\-unit\-info\fR
+Include unit information in CSV headers (off by default). This does not affect
+stdout headers.
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
 Report only set-valued metrics with instances (e.g. disk.dev.read) and
@@ -1323,4 +1343,3 @@ and
 .\" +ok+ sp {from .sp in troff macro} un {from (un)available)}
 .\" +ok+ Dderive {from -Dderive}
 .\" +ok+ PCP_DISCRETE_ONCE {from pmrep-only env var}
-
