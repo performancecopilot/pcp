@@ -12,7 +12,7 @@ $ podman run \
     -p 127.0.0.1:44323:44323 \
     -v /pcp/archives/on/host:/archives \
     -v /grafana/dashboards/on/host:/dashboards \
-    quay.io/performancecopilot/archive-analysis
+    ghcr.io/performancecopilot/archive-analysis
 ```
 
 This command starts the container, which runs Valkey, Grafana, the PCP REST API (pmproxy) and loads all PCP archives of the selected directory on the host into Valkey.  This directory is checked every few seconds for new archives arriving while the container is running as described at `https://man7.org/linux/man-pages/man1/pmseries_import.1.html`.

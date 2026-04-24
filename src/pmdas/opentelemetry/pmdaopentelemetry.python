@@ -291,28 +291,34 @@ class Metric(object):
         ''' Store instance/value pair of metric with > 1 instances '''
         # keep track of if the number of instances in the inst name list matches the num of inst values ?
         if len(instances) != len(values):
-            self.source.pmda.err("error num instances doesn't match num values")
-        if instances[0] == "inst-0":
-            self.indom_table.prefix_mode = True # Mark for instance# prefixed names
+            self.source.pmda.err(f"Metric {self.mname}: instances({len(instances)}) != values({len(values)})")
+            return
+
+        if instances and instances[0] == "inst-0":
+            self.indom_table.prefix_mode = True
+
+        val_dict = self.values
+        lbl_dict = self.inst_labels
+        lookup = self.indom_table.intern_lookup_value
 
         if metric_type in ("histogram", "summary"):
-            for idx in range (len(instances)):
-                included_labels, optional_labels = self.source.filter_labelset(labels)
-                inst = self.indom_table.intern_lookup_value(instances[idx])
-                self.values[inst] = values[idx]
-                self.inst_labels[inst] = included_labels
+            included_labels, _ = self.source.filter_labelset(labels)
+            for iname, val in zip(instances, values):
+                inst = lookup(iname)
+                val_dict[inst] = val
+                lbl_dict[inst] = included_labels
+
                 if self.source.pmda.dbg:
-                    self.source.pmda.debug('store_inst mname=%s inst=%d instname="%s" value="%s"' % (self.mname, inst, instances[idx], values[idx]))
-                    self.source.pmda.debug('store_inst mname=%s inst_labels[%d]=%s' % (self.mname, inst, included_labels))
+                    self.source.pmda.debug('store_inst mname=%s inst=%d instname="%s" value="%s"' % (self.mname, inst, iname, val))
         else:
-            for idx in range (len(instances)):
-                included_labels, optional_labels = self.source.filter_labelset(labels[idx][idx])
-                inst = self.indom_table.intern_lookup_value(instances[idx])
-                self.values[inst] = values[idx]
-                self.inst_labels[inst] = included_labels
+            for iname, val, lbl in zip(instances, values, labels):
+                inst = lookup(iname)
+                val_dict[inst] = val
+                lbl_dict[inst] = lbl
+
                 if self.source.pmda.dbg:
-                    self.source.pmda.debug('store_inst mname=%s inst=%d instname="%s" value="%s"' % (self.mname, inst, instances[idx], values[idx]))
-                    self.source.pmda.debug('store_inst mname=%s inst_labels[%d]=%s' % (self.mname, inst, included_labels))
+                    self.source.pmda.debug('store_inst mname=%s inst=%d instname="%s" value="%s"' % (self.mname, inst, iname, val))
+
 
     def save(self):
         if self.indom_table is not None:
@@ -458,6 +464,19 @@ class Source(object):
         self.metadatalist = None
         self.document = None
 
+        self.metric_type_map = {
+            "sum":       ("counter", "sum"),
+            "gauge":     ("gauge",   "gauge"),
+            "histogram": ("counter", "histogram"),
+            "summary":   ("counter", "summary")
+        }
+
+        self.metric_data_type_map = {
+            "asInt": "int",
+            "asDouble": "double",
+            "asString": "string"
+        }
+
         self.refresh_time = 0 # "never"
         if not is_scripted:
             # source is a URL.  Create a session for it and initialize a few things
@@ -565,15 +584,13 @@ class Source(object):
     def add_metric(self, metric):
         try:
             mname = metric["name"]
-            fullname = ("opentelemetry.%s.%s") % (self.name, mname)
+            fullname = f"opentelemetry.{self.name}.{mname}"
             if metric["type"] == "histogram" or metric["type"] == "summary":
                 included_labels, optional_labels = self.filter_labelset(metric["labels"])
             elif len(metric["labels"]) == 0:
                 included_labels, optional_labels = self.filter_labelset(metric["labels"][0])
             else:
-                all_labels = {}
-                for idx in range (len(metric["labels"])):
-                    all_labels.update(metric["labels"][idx][idx])
+                all_labels = {k: v for idx, d in enumerate(metric["labels"]) for k, v in d[idx].items()}
                 included_labels, optional_labels = self.filter_labelset(all_labels)
             self.pmda.debug("included_labels '%s'" % (included_labels)) if self.pmda.dbg else None
             self.pmda.debug("optional_labels '%s'" % (optional_labels)) if self.pmda.dbg else None
@@ -645,115 +662,105 @@ class Source(object):
     def parse_metric(self, resource_name, scope_name, metric_dictionary):
         num_metrics = 0
         metric = {}
-        metric["prefix_name"] = "%s.%s" % (resource_name, scope_name)
+        metric["prefix_name"] = f"{resource_name}.{scope_name}"
         metric["name"] = metric_dictionary["name"]
-        metric["unit"] = metric_dictionary["unit"]
-        metric["description"] = metric_dictionary["description"]
+        metric["unit"] = metric_dictionary.get("unit", "")
+        metric["description"] = metric_dictionary.get("description", "")
 
         # determine metric type
-        if "sum" in metric_dictionary:  # sum or counter
-            metric["semantic"] = "counter"
-            metric["type"] = "sum"
-        elif "gauge" in metric_dictionary:  # gauge
-            metric["semantic"] = "gauge"
-            metric["type"] = "gauge"
-        elif "histogram" in metric_dictionary:  # histogram
-            metric["semantic"] = "counter"
-            metric["type"] = "histogram"
-        elif "summary" in metric_dictionary:    # sum
-            metric["semantic"] = "counter"
-            metric["type"] = "summary"
+        found_type = next((t for t in self.metric_type_map if t in metric_dictionary), None)
+        if found_type:
+            metric["semantic"], metric["type"] = self.metric_type_map[found_type]
         else:
-            # what to do in this case? set to gauge or throw an exception?
-            self.pmda.debug("error") if self.pmda.dbg else None
+            metric["semantic"], metric["type"] = ("gauge", "gauge") # Default to gauge
+            if self.pmda.dbg: self.pmda.debug("Unknown OTel metric type")
 
-        if "aggregationTemporality" in metric_dictionary[metric["type"]]:
-            metric["a_temp"] = metric_dictionary[metric["type"]]["aggregationTemporality"]
+        m_type = metric["type"]
+        inner_dict = metric_dictionary[m_type]
 
-        if "isMonotonic" in metric_dictionary[metric["type"]]:
-            metric["isMonotonic"] = metric_dictionary[metric["type"]]["isMonotonic"]
-        else:
-            metric["isMonotonic"] = False
+        metric["a_temp"] = inner_dict.get("aggregationTemporality", "")
+
+        metric["isMonotonic"] = inner_dict.get("isMonotonic", False)
 
         # determine if metric is singular
-        if len(metric_dictionary[metric["type"]]["dataPoints"]) == 1 and metric["type"] != "histogram" and metric["type"] != "summary":
-            metric["is_singular"] = True
-        else:
-            metric["is_singular"] = False
+        data_points = inner_dict.get("dataPoints", [])
+        metric["is_singular"] = (
+            len(data_points) == 1 and
+            m_type not in ("histogram", "summary")
+        )
 
         metric["values"] = []
         metric["instances"] = []
         metric["labels"] = []
-        data_points = metric_dictionary[metric["type"]]["dataPoints"]
-        if metric["type"] == "sum" or metric["type"] == "gauge":
-            inst_num = 0
-            for instance in data_points:
-                metric["time"] = instance["timeUnixNano"]
+        for inst_num, instance in enumerate(data_points):
+            self.pmda.debug("instance: %s" % instance) if self.pmda.dbg else None
+            metric["time"] = instance.get("timeUnixNano", "")
+            if metric["type"] in ("sum", "gauge"):
                 labels = self.collect_attributes(instance["attributes"])
                 metric["labels"].append({inst_num: labels})
 
                 if "instance" in metric["labels"][inst_num]:
                     metric["instances"].append(metric["labels"][inst_num]["instance"])
-                    inst_num += 1
                 elif "instname" in metric["labels"]:
                     metric["instances"].append(metric["labels"][inst_num]["instname"])
-                    inst_num += 1
                 else:
                     metric["instances"].append("inst-%s" % inst_num)
-                    inst_num += 1
 
-                if "asDouble" in instance:
-                    metric["data_type"] = "double"
-                    metric["values"].append(instance["asDouble"])
-                elif "asInt" in instance:
-                    metric["data_type"] = "int"
-                    metric["values"].append(instance["asInt"])
-                elif "asString" in instance:
-                    metric["data_type"] = "string"
-                    metric["values"].append(instance["asString"])
-                else:
-                    self.pmda.debug("error2") if self.pmda.dbg else None
-            if self.add_metric(metric):
-                num_metrics += 1
-        else: # histogram or sum
-            for instance in data_points:
-                count_attr = instance["count"]
-                sum_attr = instance["sum"]
-                metric["time"] = instance["timeUnixNano"]
-                metric["data_type"] = "int"
-                metric["labels"] = self.collect_attributes(instance["attributes"])
-                if metric["type"] == "histogram":
-                    self.pmda.debug("instance: %s" % instance) if self.pmda.dbg else None
-                    metric["values"] = instance["bucketCounts"]
-                    for item in instance["explicitBounds"]:
-                        metric["instances"].append("le=%s" % item)
-                    metric["instances"].append("le=inf")
+                key = next((t for t in self.metric_data_type_map if t in instance), None)
+                metric["data_type"] = self.metric_data_type_map.get(key)
+                self.pmda.debug("d_type: %s" % d_type) if self.pmda.dbg else None
+                metric["values"].append(instance[key])
+
+                if self.add_metric(metric):
+                    num_metrics += 1
+            # histogram or sum metric
+            else:
+                m_time = instance.get("timeUnixNano")
+                m_labels = self.collect_attributes(instance.get("attributes"))
+                base_name = metric["name"]
+
+                main_metric = metric.copy()
+                main_metric.update({
+                    "time": m_time,
+                    "instances": [],
+                    "values": [],
+                    "labels": m_labels,
+                    "is_singular": False
+                })
+
+                if m_type == "histogram":
+                    main_metric["data_type"] = "int"
+                    main_metric["values"] = instance.get("bucketCounts", [])
+                    main_metric["instances"] = [f"le={b}" for b in instance.get("explicitBounds", [])]
+                    main_metric["instances"].append("le=inf")
                 else: # summary
-                    quantiles = instance["quantileValues"]
-                    metric["data_type"] = "double"
-                    for item in quantiles:
-                        metric["instances"].append("quantile: %s" % item["quantile"])
-                        metric["values"].append(item["value"])
+                    main_metric["data_type"] = "double"
+                    quantiles = instance.get("quantileValues", [])
+                    main_metric["instances"] = [f"quantile: {q['quantile']}" for q in quantiles]
+                    main_metric["values"] = [q['value'] for q in quantiles]
 
-                if self.add_metric(metric):
+                if self.add_metric(main_metric):
                     num_metrics += 1
 
-                # add additional metrics for histogram type
-                metric_count_name = metric["name"] + "_count"
-                metric_sum_name = metric["name"] + "_sum"
+                suffix_data = (
+                    ("_count", instance.get("count", 0), "int"),
+                    ("_sum", instance.get("sum", 0), "double")
+                )
 
-                metric["name"] = metric_count_name
-                metric["values"].clear(); metric["values"].append(count_attr)
-                metric["is_singular"] = True
-                metric["data_type"] = "int"
-                if self.add_metric(metric):
-                    num_metrics += 1
+                for suffix, val, d_type in suffix_data:
+                    sub_metric = metric.copy()
+                    sub_metric.update({
+                        "name": f"{base_name}{suffix}",
+                        "time": m_time,
+                        "values": [val],
+                        "data_type": d_type,
+                        "instances": ["total"],
+                        "labels": m_labels,
+                        "is_singular": True
+                    })
+                    if self.add_metric(sub_metric):
+                        num_metrics += 1
 
-                metric["name"] = metric_sum_name
-                metric["values"].clear(); metric["values"].append(sum_attr)
-                metric["data_type"] = "double"
-                if self.add_metric(metric):
-                    num_metrics += 1
         return num_metrics
 
     def parse_lines(self, text):
@@ -762,7 +769,7 @@ class Source(object):
 
         for resource in data:
             resource_attributes = self.collect_attributes(resource["resource"]["attributes"])
-            resource_name = resource_attributes["service_name"]
+            resource_name = resource_attributes.get("service_name", "unknown_service")
             scope_metrics = resource["scopeMetrics"]
             for scope in scope_metrics:
                 scope_name = scope["scope"]["name"]
@@ -907,7 +914,7 @@ class Source(object):
 
         except Exception as e:
             self.pmda.stats_status[self.cluster] = 'failed to fetch URL or execute script %s: %s' % (self.path, e)
-            self.pmda.stats_status_code[self.cluster] = status_code
+            self.pmda.stats_status_code[self.cluster] = 1
             self.pmda.debug('cannot fetch URL or execute script %s: %s' % (self.path, e))
 
     def refresh2(self, timeout):

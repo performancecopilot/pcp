@@ -5,7 +5,7 @@ pcp (7.1.2-1) unstable; urgency=high
   * Fix dbpkg conflicts between libpcp3-dev and libpcp4-dev (closes: #1133993)
   * Drop pcp2xlsx from the default distro build to dodge #1132566
 
- -- Nathan Scott <nathans@debian.org>  Mon, 18 May 2026 13:12:11 +1100
+ -- Nathan Scott <nathans@debian.org>  Fri, 24 Apr 2026 09:12:11 +1100
 
 pcp (7.1.1-1) unstable; urgency=high
 

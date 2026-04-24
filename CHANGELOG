@@ -1,5 +1,36 @@
-pcp-7.1.2 (18 May 2026)
-    - Currently work-in-progress.
+pcp-7.1.2 (24 April 2026)
+    - PMDA additions, enhancements and bug fixes:
+	pmdasmart: add nvme_error_log.total metric for NVMe error tracking
+	pmdasmart: fix off-by-one error in NVMe UUID error log entry naming
+	pmdabpftrace: fix kprobes used in the biolatency example
+	pmdabpftrace: fix TASK_RUNNING use in runq latency example
+	pmdaopentelemetry: further optimizations and bug fixes
+    - Client tools and utilities:
+	pcp2opentelemetry: export PCP PMID attribute in OTLP output
+	pcp-mpstat: fix interrupt ordering for the -I option
+	pcp-htop: fix units used when printing M_PRIV memory column values
+	pcp-htop: show M_PRIV instead of M_SHARE by default
+	pcp-htop: sync with latest upstream htop changes
+    - Server-side utilities and log management scripts:
+	pmproxy: updated OpenTelemetry output fields (ala pcp2opentelemetry)
+	pmproxy: revert the default change to set PMPROXY_LOCAL=1
+	rc scripts: rework "enabled" tests
+	pcp.env: refactor _ps_full_by_name() for OpenBSD portability
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	pmlogextract: fix long-standing latent bug in metric list handling
+	pmlogcheck: fix record counting bug when processing multiple archives
+	libpcp: serialize __pmDumpStack() to avoid interleaved output
+    - Build, infrastructure, containers and packaging updates:
+	containers: improve GHCR workflow tag handling and build caching
+	containers: retired quay.io, using ghcr.io for all container builds
+	debian: drop pcp2xlsx from Debian distro builds
+	debian: fix file conflicts in libpcp3-dev and libpcp4-dev packages
+	Makepkgs: prune source tarball using .gitattributes exclusions
+	Makepkgs: add option to undo local patching after build
+	configure.ac: add explicit early detection tests for autoconf headers
+	build: bump several GitHub Actions dependencies to latest versions
+    - Documentation:
+	docs: continued expansion and refinement of QA COOKBOOK.md
 
 pcp-7.1.1 (30 March 2026)
     - PMDA additions, enhancements and bug fixes:

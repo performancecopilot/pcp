@@ -13,7 +13,7 @@ $ podman run -d \
     -e PCP_DOMAIN_AGENTS=apache,uwsgi \
     -v pmlogger:/var/log/pcp/pmlogger \
     -v pmproxy:/var/log/pcp/pmproxy \
-    quay.io/performancecopilot/pcp
+    ghcr.io/performancecopilot/pcp
 ```
 
 **Note:** On SELinux enabled systems, the following boolean needs to be set: `sudo setsebool -P container_manage_cgroup true`
@@ -32,7 +32,7 @@ $ sudo podman run -d \
     -v pmlogger:/var/log/pcp/pmlogger \
     -v pmproxy:/var/log/pcp/pmproxy \
     -v /:/host:ro,rslave \
-    quay.io/performancecopilot/pcp
+    ghcr.io/performancecopilot/pcp
 ```
 
 ## Usage with docker
@@ -90,7 +90,7 @@ $ podman run -d \
     -v $(pwd)/pmlogger.control:/etc/pcp/pmlogger/control.d/local:z \
     -v pmlogger:/var/log/pcp/pmlogger \
     -v pmproxy:/var/log/pcp/pmproxy \
-    quay.io/performancecopilot/pcp
+    ghcr.io/performancecopilot/pcp
 ```
 
 pmlogger.control for local logging:

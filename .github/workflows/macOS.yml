@@ -10,8 +10,8 @@ jobs:
           ref: ${{ github.ref_name }}
       - name: Install Homebrew
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      - name: Update Homebrew
-        run: brew update
+      - name: Wait for Homebrew install to settle
+        run: sleep 3
       - name: Install Homebrew deps
         id: install-brew-deps
         run: |
@@ -427,7 +427,7 @@ jobs:
         run: |
           echo "Not a Release!" >> $GITHUB_STEP_SUMMARY
       - name: Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         if: steps.check_tag.outputs.match != ''
         with:
           files: |

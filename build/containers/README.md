@@ -7,7 +7,7 @@ There are two Performance Co-Pilot container builds here.
    setup to run (your choice of) pmcd, pmproxy, pmlogger, pmie and a
    selection of PMDAs.
     
-   https://quay.io/repository/performancecopilot/pcp
+   https://ghcr.io/performancecopilot/pcp
    https://github.com/performancecopilot/pcp/pkgs/container/pcp
 
 2. A Grafana container, archive-analysis, which focusses on allowing
@@ -16,7 +16,7 @@ There are two Performance Co-Pilot container builds here.
    a local valkey-server and grafana-server.  An automated discovery
    process loads PCP data in /archives and pre-fills dashboards.
    
-   https://quay.io/repository/performancecopilot/archive-analysis
+   https://ghcr.io/performancecopilot/archive-analysis
    https://github.com/performancecopilot/pcp/pkgs/container/archive-analysis
 
 The ideal way to build these is using the Containerfile for each.  A
