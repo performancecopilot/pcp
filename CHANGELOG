@@ -13,6 +13,7 @@ pcp-7.1.2 (24 April 2026)
 	pcp-htop: sync with latest upstream htop changes
     - Server-side utilities and log management scripts:
 	pmproxy: updated OpenTelemetry output fields (ala pcp2opentelemetry)
+	pmproxy: revert the default change to set PMPROXY_LOCAL=1
 	rc scripts: rework "enabled" tests
 	pcp.env: refactor _ps_full_by_name() for OpenBSD portability
     - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
