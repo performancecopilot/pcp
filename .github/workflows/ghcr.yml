@@ -43,8 +43,8 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=ref,event=tag
-            type=sha,prefix={{branch}}-
-            type=raw,value={{branch}}
+            type=sha,prefix={{branch}}-,enable=${{ github.ref_type != 'tag' }}
+            type=raw,value={{branch}},enable=${{ github.ref_type != 'tag' }}
 
       - name: Extract tags and labels for archive image
         id: meta_archive
@@ -57,8 +57,8 @@ jobs:
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
             type=ref,event=tag
-            type=sha,prefix={{branch}}-
-            type=raw,value={{branch}}
+            type=sha,prefix={{branch}}-,enable=${{ github.ref_type != 'tag' }}
+            type=raw,value={{branch}},enable=${{ github.ref_type != 'tag' }}
 
       - name: Build and push base image
         uses: docker/build-push-action@v7
