@@ -301,7 +301,7 @@ class PMReporter(object):
                 self.derived = self.derived + ";" + optarg
         elif opt == 'H':
             self.header = 0
-        elif opt == 'U' or opt == 'no-unit-info':
+        elif opt in ('U', 'no-unit-info'):
             self.unitinfo = 0   # hide units on stdout
         elif opt == 'csv-unit-info':
             self.csv_unitinfo = 1
