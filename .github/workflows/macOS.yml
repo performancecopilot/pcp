@@ -10,21 +10,8 @@ jobs:
           ref: ${{ github.ref_name }}
       - name: Install Homebrew
         run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      - name: Wait for Homebrew update lock
-        run: |
-          TIMEOUT=120
-          ELAPSED=0
-          LOCKDIR="$(brew --prefix)/var/homebrew/locks"
-          while [ -f "$LOCKDIR/update" ] 2>/dev/null; do
-            echo "Waiting for brew update lock to release (${ELAPSED}s)..."
-            sleep 5
-            ELAPSED=$((ELAPSED + 5))
-            if [ $ELAPSED -ge $TIMEOUT ]; then
-              echo "Timed out waiting for brew update lock"
-              exit 1
-            fi
-          done
-          brew update
+      - name: Wait for Homebrew install to settle
+        run: sleep 3
       - name: Install Homebrew deps
         id: install-brew-deps
         run: |
