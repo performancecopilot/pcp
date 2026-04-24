@@ -640,10 +640,7 @@ class PCP2OPENTELEMETRY(object):
                 try:
                     pmid_str = context.pmIDStr(pmid[0])
                 except Exception:
-                    try:
-                        pmid_str = cpmapi.pmIDStr(pmid[0])
-                    except Exception:
-                        pmid_str = str(pmid[0])
+                    pmid_str = str(pmid[0])
 
                 i = self.metric_idx.get(metric)
                 if i is None:
