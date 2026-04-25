@@ -641,9 +641,9 @@ prepare_debian_sources()
     fi
     if head -1 debian/changelog | grep -q "^pcp ($PACKAGE_MAJOR.$PACKAGE_MINOR.$PACKAGE_REVISION-"
     then
-	# correct version, even if $PACKAGE_BUILD is different
+	# correct package version, fix $PACKAGE_BUILD
 	#
-	:
+	sed -i -e "1s/-[0-9][0-9]*)/-$PACKAGE_BUILD)/" debian/changelog
     else
 	# new|different version, add dummy stanza for this (developer build)
 	#
