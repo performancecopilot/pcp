@@ -41,8 +41,7 @@ export AUTOHEADER = true
 # pass in all our configure magic
 #
 override_dh_auto_configure:
-	$(configure_tools) \
-        ./configure $(configure_paths) $(configure_debug) $(configure_opts)
+	$(configure_tools) dh_auto_configure -- $(configure_paths) $(configure_debug) $(configure_opts)
 
 # need some extra work here ...
 #
