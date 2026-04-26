@@ -557,7 +557,7 @@ but the instance domain will be empty and a fetch will return no values.
 A string representing the status of the last fetch of the corresponding source.
 This will generally be
 .B success
-for an http response code of 200.
+for an http response code of 200 or an exit code of 0 for scripted sources.
 This metric can be used for service availability monitoring -
 provided, as stated above, the corresponding source URL is fetched
 too.
@@ -567,7 +567,10 @@ This metric is similar to
 except that it is the integer response code of the last fetch.
 A value of
 .B 200
-usually signifies success and any other value failure.
+usually signifies success and any other value failure. For scripted
+sources, a
+.B zero
+exit code signifies sucess and any non zero code failure.
 This metric can also be used for service availability monitoring,
 with the same caveats as
 .BR opentelemetry.control.status .

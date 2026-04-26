@@ -240,6 +240,7 @@ scandata
 scanindex
 scanmeta
 semstr
+series_time_parse_test
 sha1ext2int
 sha1int2ext
 sizeof

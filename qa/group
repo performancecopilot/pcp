@@ -2336,6 +2336,7 @@ suse
 1921 pmda.sockets local
 1922 pmseries pmproxy libpcp_web local
 1927 pmda.sockets local
+1929 pmrep local
 1931 pmda.bpf local
 1936 other local pmclient
 1937 pmlogrewrite pmda.xfs local pmlogdump

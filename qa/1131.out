@@ -2331,6 +2331,10 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
       },
       "scopeMetrics": [
         {
+          "scope": {
+            "name": "performance-co-pilot",
+            "version": "VERSION"
+          },
           "metrics": [
             {
               "name": "hinv.ncpu",
@@ -2359,17 +2363,19 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
                         "value": {
                           "stringValue": "VALUE"
                         }
+                      },
+                      {
+                        "key": "pmid",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
                       }
                     ]
                   }
                 ]
               }
             }
-          ],
-          "scope": {
-            "name": "performance-co-pilot",
-            "version": "VERSION"
-          }
+          ]
         }
       ]
     }
@@ -2415,6 +2421,10 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
       },
       "scopeMetrics": [
         {
+          "scope": {
+            "name": "performance-co-pilot",
+            "version": "VERSION"
+          },
           "metrics": [
             {
               "name": "hinv.ncpu",
@@ -2443,17 +2453,19 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
                         "value": {
                           "stringValue": "VALUE"
                         }
+                      },
+                      {
+                        "key": "pmid",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
                       }
                     ]
                   }
                 ]
               }
             }
-          ],
-          "scope": {
-            "name": "performance-co-pilot",
-            "version": "VERSION"
-          }
+          ]
         }
       ]
     }
@@ -2498,6 +2510,10 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
       },
       "scopeMetrics": [
         {
+          "scope": {
+            "name": "performance-co-pilot",
+            "version": "VERSION"
+          },
           "metrics": [
             {
               "name": "hinv.ncpu",
@@ -2526,17 +2542,19 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
                         "value": {
                           "stringValue": "VALUE"
                         }
+                      },
+                      {
+                        "key": "pmid",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
                       }
                     ]
                   }
                 ]
               }
             }
-          ],
-          "scope": {
-            "name": "performance-co-pilot",
-            "version": "VERSION"
-          }
+          ]
         }
       ]
     }
@@ -2558,6 +2576,10 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
       },
       "scopeMetrics": [
         {
+          "scope": {
+            "name": "performance-co-pilot",
+            "version": "VERSION"
+          },
           "metrics": [
             {
               "name": "hinv.ncpu",
@@ -2580,17 +2602,19 @@ kernel_all_load{,hostname="shard",instname="5 minute",instid="5"} NCPU
                         "value": {
                           "stringValue": "VALUE"
                         }
+                      },
+                      {
+                        "key": "pmid",
+                        "value": {
+                          "stringValue": "VALUE"
+                        }
                       }
                     ]
                   }
                 ]
               }
             }
-          ],
-          "scope": {
-            "name": "performance-co-pilot",
-            "version": "VERSION"
-          }
+          ]
         }
       ]
     }

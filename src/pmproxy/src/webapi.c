@@ -89,7 +89,7 @@ static pmWebRestCommand openmetrics[] = {
 
 static sds PARAM_NAMES, PARAM_NAME, PARAM_PMIDS, PARAM_PMID,
 	   PARAM_INDOM, PARAM_EXPR, PARAM_VALUE, PARAM_TIMES,
-	   PARAM_CONTEXT, PARAM_CLIENT, PMAPI_TYPE, PMAPI_SEMANTICS;
+	   PARAM_CONTEXT, PARAM_CLIENT, PMAPI_TYPE, PMAPI_SEMANTICS, PMAPI_PMID, PMAPI_INDOM;
 
 
 static pmWebRestCommand *
@@ -679,6 +679,10 @@ add_metric_datapoint(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape, in
     pmWebMetric		*metric = &scrape->metric;
     pmWebValue		*value = &scrape->value;
     unsigned long long	nanoseconds;
+    char		pmidstr[20];
+    sds			pmid_sds;
+    char		indomstr[20];
+    sds			indom_sds;
 
     if (!first)
 	result = sdscatlen(result, ",", 1);
@@ -686,6 +690,19 @@ add_metric_datapoint(pmWebGroupBaton *baton, sds result, pmWebScrape *scrape, in
     result = sdscatlen(result, "{\"attributes\":[", 15);
     result = add_str_attribute(result, PMAPI_SEMANTICS, metric->sem);
     result = add_str_attribute(result, PMAPI_TYPE, metric->type);
+
+    pmIDStr_r(baton->pmid, pmidstr, sizeof(pmidstr));
+    pmid_sds = sdsnew(pmidstr);
+    result = add_str_attribute(result, PMAPI_PMID, pmid_sds);
+    sdsfree(pmid_sds);
+
+    if (metric->indom != PM_INDOM_NULL) {
+        pmInDomStr_r(metric->indom, indomstr, sizeof(indomstr));
+        indom_sds = sdsnew(indomstr);
+        result = add_str_attribute(result, PMAPI_INDOM, indom_sds);
+        sdsfree(indom_sds);
+    }
+
     if (baton->buffer)
 	result = sdscatsds(result, baton->buffer);
     else
@@ -1258,6 +1275,8 @@ pmwebapi_servlet_setup(struct proxy *proxy)
     PARAM_CLIENT = sdsnew("client");
     PARAM_CONTEXT = sdsnew("context");
     PMAPI_SEMANTICS = sdsnew("semantics");
+    PMAPI_PMID = sdsnew("pmid");
+    PMAPI_INDOM = sdsnew("indom");
     PMAPI_TYPE = sdsnew("type");
 
     pmWebGroupSetup(&pmwebapi_settings.module);
@@ -1283,6 +1302,8 @@ pmwebapi_servlet_close(struct proxy *proxy)
     sdsfree(PARAM_CLIENT);
     sdsfree(PARAM_CONTEXT);
     sdsfree(PMAPI_SEMANTICS);
+    sdsfree(PMAPI_PMID);
+    sdsfree(PMAPI_INDOM);
     sdsfree(PMAPI_TYPE);
 }
 

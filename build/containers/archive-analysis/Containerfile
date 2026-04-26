@@ -11,8 +11,7 @@ RUN microdnf install -y --setopt=install_weak_deps=0 --setopt=tsflags=nodocs \
 ENV NAME="archive-analysis"
 ENV VERSION="7"
 ENV SUMMARY="Performance Co-Pilot archive analysis automation"
-ENV REGISTRY="quay.io/performancecopilot/"
-#ENV REGISTRY="ghcr.io/performancecopilot/"
+ENV REGISTRY="ghcr.io/performancecopilot/"
 ENV DESCRIPTION="Grafana analysis automation for Performance Co-Pilot archives."
 
 LABEL RUN="podman run -d --name ${NAME} --security-opt label=disable --systemd always -p 3000:3000 -p 44323:44323 -v dashboards:/dashboards -v archives:/archives ${REGISTRY}/${NAME}"
