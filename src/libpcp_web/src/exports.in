@@ -294,3 +294,8 @@ PCP_WEB_1.23 {
     dictSetVal;
     keySlotsContextFree;
 } PCP_WEB_1.22;
+
+PCP_WEB_1.24 {
+  global:
+    pmSeriesGC;
+} PCP_WEB_1.23;
