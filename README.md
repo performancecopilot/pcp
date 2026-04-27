@@ -26,6 +26,25 @@ supporting both live and retrospective analysis. The distributed PCP
 architecture makes it especially useful for those seeking centralized
 monitoring of distributed processing.
 
+## Installation
+
+For common Linux distributions with prebuilt Performance Co-Pilot packages
+you can follow the [Quick install instructions]
+[https://pcp.readthedocs.io/en/latest/HowTos/installation/index.html].
 See the [INSTALL](INSTALL.md) file for build, installation and configuration steps.
+
+## Usage
+
+The [Performance Co-Pilot Quick Guides]
+[https://pcp.readthedocs.io/en/latest/QG/QuickGuides.html]
+provide information on how to perform basic tasks with
+Performance Co-Pilot.  Check the [Performance Co-Pilot
+documentation][https://pcp.io/documentation.html] for addition
+information about
+[man pages][https://man7.org/linux/man-pages/dir_by_project.html#PCP]
+and [guides][https://pcp.readthedocs.io/en/latest/].
+
+## Development
+
 For more information and details on how to contribute to the PCP project
-visit [pcp.io](https://pcp.io/community.html)
+visit [pcp.io](https://pcp.io/community.html).
