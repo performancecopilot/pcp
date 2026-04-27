@@ -44,6 +44,8 @@ typedef enum series_flags {
     PMSERIES_OPT_QUERY	= (1<<23),	/* -q, --query option (default) */
     PMSERIES_OPT_VALUES = (1<<24),	/* -v, --values option */
     PMSERIES_OPT_WINDOW = (1<<25),	/* -w, --window option */
+    PMSERIES_OPT_GC	= (1<<26),	/* -G, --gc option */
+    PMSERIES_OPT_DRYRUN	= (1<<27),	/* -N, --dryrun option */
 } series_flags;
 
 #define PMSERIES_META_OPTS	(PMSERIES_OPT_DESC | PMSERIES_OPT_INSTS | \
@@ -343,6 +345,17 @@ series_type_phrase(const char *type_word)
     if (strcasecmp(type_word, "NO_SUPPORT") == 0)
 	return "Not Supported";
     return "???";
+}
+
+static void
+series_gc(series_data *dp)
+{
+    pmSeriesFlags	flags = dp->flags & PMSERIES_OPT_DRYRUN ?
+				PM_SERIES_FLAG_DRYRUN : 0;
+    int			sts;
+
+    if ((sts = pmSeriesGC(&dp->settings, flags, dp)) < 0)
+	on_series_done(sts, dp);
 }
 
 static void
@@ -1117,7 +1130,9 @@ on_series_setup(void *arg)
 	sdsfree(msg);
     }
 
-    if (flags & PMSERIES_OPT_LOAD)
+    if (flags & PMSERIES_OPT_GC)
+	series_gc(dp);
+    else if (flags & PMSERIES_OPT_LOAD)
 	series_load(dp);
     else if (flags & PMSERIES_OPT_QUERY)
 	series_query(dp);
@@ -1201,8 +1216,8 @@ static int
 pmseries_overrides(int opt, pmOptions *opts)
 {
     switch (opt) {
-    case 'a': case 'h': case 'g': case 'L': case 'n':
-    case 'p': case 's': case 'S': case 't': case 'Z':
+    case 'a': case 'G': case 'h': case 'g': case 'L': case 'n':
+    case 'N': case 'p': case 's': case 'S': case 't': case 'Z':
 	return 1;
     }
     return 0;
@@ -1233,6 +1248,8 @@ static pmLongOptions longopts[] = {
     { "load", 0, 'L', 0, "load time series values and metadata" },
     { "query", 0, 'q', 0, "perform a time series query (default)" },
     { "values", 0, 'v', 0, "extract values for given series or label(s)" },
+    { "gc", 0, 'G', 0, "garbage collect expired time series" },
+    { "dryrun", 0, 'N', 0, "with --gc, log what would be removed without writing" },
     PMOPT_DEBUG,
     PMAPI_OPTIONS_HEADER("Reporting Options"),
     { "all", 0, 'a', 0, "report all metadata (-dilms) for time series" },
@@ -1257,7 +1274,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_BOUNDARIES,
-    .short_options = "ac:dD:Fg:h:iIlLmMnqp:sStvVw:Z:?",
+    .short_options = "ac:dD:Fg:Gh:iIlLmMnNqp:sStvVw:Z:?",
     .long_options = longopts,
     .short_usage = "[options] [query ... | labels ... | series ... | source ...]",
     .override = pmseries_overrides,
@@ -1306,6 +1323,10 @@ main(int argc, char *argv[])
 	    flags |= PMSERIES_FAST;
 	    break;
 
+	case 'G':	/* garbage collect expired series from key server */
+	    flags |= PMSERIES_OPT_GC;
+	    break;
+
 	case 'g':
 	    match = sdsnew(opts.optarg);
 	    break;
@@ -1341,6 +1362,10 @@ main(int argc, char *argv[])
 
 	case 'n':	/* report label names only, not values */
 	    flags |= (PMSERIES_OPT_LABELS|PMSERIES_ONLY_NAMES);
+	    break;
+
+	case 'N':	/* dry-run for --gc: log only, no writes */
+	    flags |= PMSERIES_OPT_DRYRUN;
 	    break;
 
 	case 'p':	/* key server port to connect to */
@@ -1414,7 +1439,18 @@ main(int argc, char *argv[])
     if (flags & PMSERIES_OPT_ALL)
 	flags |= PMSERIES_META_OPTS;
 
-    if ((flags & PMSERIES_OPT_LOAD) && (flags & (PMSERIES_META_OPTS |
+    if ((flags & PMSERIES_OPT_GC) && (flags & (PMSERIES_OPT_LOAD |
+	    PMSERIES_OPT_QUERY | PMSERIES_OPT_WINDOW | PMSERIES_OPT_VALUES |
+	    PMSERIES_META_OPTS | PMSERIES_OPT_SOURCE))) {
+	pmprintf("%s: error - cannot combine --gc with other operation options\n",
+			pmGetProgname());
+	opts.errors++;
+    }
+    else if ((flags & PMSERIES_OPT_DRYRUN) && !(flags & PMSERIES_OPT_GC)) {
+	pmprintf("%s: error - --dryrun requires --gc\n", pmGetProgname());
+	opts.errors++;
+    }
+    else if ((flags & PMSERIES_OPT_LOAD) && (flags & (PMSERIES_META_OPTS |
 	    PMSERIES_OPT_SOURCE | PMSERIES_OPT_VALUES | PMSERIES_OPT_WINDOW))) {
 	pmprintf("%s: error - cannot use load and reporting options together\n",
 			pmGetProgname());
@@ -1450,7 +1486,7 @@ main(int argc, char *argv[])
      * If all parameters are series hashes, assume --all metadata
      * mode otherwise assume its a --query request.
      */
-    if (!(flags & (PMSERIES_META_OPTS | PMSERIES_OPT_LOAD)) &&
+    if (!(flags & (PMSERIES_META_OPTS | PMSERIES_OPT_LOAD | PMSERIES_OPT_GC)) &&
         !(flags & (PMSERIES_OPT_SOURCE | PMSERIES_OPT_VALUES)) &&
 	!(flags & (PMSERIES_NEED_DESCS | PMSERIES_NEED_INSTS))) {
 	for (c = opts.optind; c < argc; c++) {
@@ -1463,7 +1499,8 @@ main(int argc, char *argv[])
 	    flags |= PMSERIES_OPT_ALL | PMSERIES_META_OPTS | PMSERIES_SERIESID;
     }
 
-    if (opts.optind == argc && !opts.errors && !(opts.flags & PM_OPTFLAG_EXIT)) {
+    if (opts.optind == argc && !opts.errors && !(opts.flags & PM_OPTFLAG_EXIT) &&
+	!(flags & PMSERIES_OPT_GC)) {
 	if ((flags & PMSERIES_OPT_QUERY)) {
 	   pmprintf("%s: error - no query string provided\n",
 			   pmGetProgname());
