@@ -584,3 +584,164 @@ Number of zone reset (REQ_OP_ZONE_RESET) operations issued during
 zoned garbage collection
 @ xfs.zoned.bytes
 Total bytes of data relocated by the zoned garbage collector
+
+@ xfs.defer_relog
+Number of log items relogged to keep them from pinning the tail of the log
+
+@ xfs.metafile.inodes
+Number of active metafile inodes (internal filesystem metadata inodes)
+
+@ xfs.btree.rmap_mem.lookup
+Number of in-memory reverse-mapping btree record lookups
+@ xfs.btree.rmap_mem.compare
+Number of in-memory reverse-mapping btree record compares
+@ xfs.btree.rmap_mem.insrec
+Number of in-memory reverse-mapping btree insert record operations executed
+@ xfs.btree.rmap_mem.delrec
+Number of in-memory reverse-mapping btree delete record operations executed
+@ xfs.btree.rmap_mem.newroot
+Number of times a new level is added to an in-memory reverse-mapping btree
+@ xfs.btree.rmap_mem.killroot
+Number of times a level is removed from an in-memory reverse-mapping btree
+@ xfs.btree.rmap_mem.increment
+Number of times a cursor has been moved forward one in-memory reverse-mapping btree record
+@ xfs.btree.rmap_mem.decrement
+Number of times a cursor has been moved backward one in-memory reverse-mapping btree record
+@ xfs.btree.rmap_mem.lshift
+Left shift block operations to make space for a new in-memory reverse-mapping btree record
+@ xfs.btree.rmap_mem.rshift
+Right shift block operations to make space for a new in-memory reverse-mapping btree record
+@ xfs.btree.rmap_mem.split
+Split block operations to make space for a new in-memory reverse-mapping btree record
+@ xfs.btree.rmap_mem.join
+Merge block operations when deleting in-memory reverse-mapping btree records
+@ xfs.btree.rmap_mem.alloc
+Btree block allocations during in-memory reverse-mapping btree operations
+@ xfs.btree.rmap_mem.free
+Btree blocks freed during in-memory reverse-mapping btree operations
+@ xfs.btree.rmap_mem.moves
+Records moved inside blocks during in-memory reverse-mapping btree operations
+
+@ xfs.btree.rcbag.lookup
+Number of reference-count bag btree record lookups
+@ xfs.btree.rcbag.compare
+Number of reference-count bag btree record compares
+@ xfs.btree.rcbag.insrec
+Number of reference-count bag btree insert record operations executed
+@ xfs.btree.rcbag.delrec
+Number of reference-count bag btree delete record operations executed
+@ xfs.btree.rcbag.newroot
+Number of times a new level is added to a reference-count bag btree
+@ xfs.btree.rcbag.killroot
+Number of times a level is removed from a reference-count bag btree
+@ xfs.btree.rcbag.increment
+Number of times a cursor has been moved forward one reference-count bag btree record
+@ xfs.btree.rcbag.decrement
+Number of times a cursor has been moved backward one reference-count bag btree record
+@ xfs.btree.rcbag.lshift
+Left shift block operations to make space for a new reference-count bag btree record
+@ xfs.btree.rcbag.rshift
+Right shift block operations to make space for a new reference-count bag btree record
+@ xfs.btree.rcbag.split
+Split block operations to make space for a new reference-count bag btree record
+@ xfs.btree.rcbag.join
+Merge block operations when deleting reference-count bag btree records
+@ xfs.btree.rcbag.alloc
+Btree block allocations during reference-count bag btree operations
+@ xfs.btree.rcbag.free
+Btree blocks freed during reference-count bag btree operations
+@ xfs.btree.rcbag.moves
+Records moved inside blocks during reference-count bag btree operations
+
+@ xfs.btree.rtrmap.lookup
+Number of realtime reverse-mapping btree record lookups
+@ xfs.btree.rtrmap.compare
+Number of realtime reverse-mapping btree record compares
+@ xfs.btree.rtrmap.insrec
+Number of realtime reverse-mapping btree insert record operations executed
+@ xfs.btree.rtrmap.delrec
+Number of realtime reverse-mapping btree delete record operations executed
+@ xfs.btree.rtrmap.newroot
+Number of times a new level is added to a realtime reverse-mapping btree
+@ xfs.btree.rtrmap.killroot
+Number of times a level is removed from a realtime reverse-mapping btree
+@ xfs.btree.rtrmap.increment
+Number of times a cursor has been moved forward one realtime reverse-mapping btree record
+@ xfs.btree.rtrmap.decrement
+Number of times a cursor has been moved backward one realtime reverse-mapping btree record
+@ xfs.btree.rtrmap.lshift
+Left shift block operations to make space for a new realtime reverse-mapping btree record
+@ xfs.btree.rtrmap.rshift
+Right shift block operations to make space for a new realtime reverse-mapping btree record
+@ xfs.btree.rtrmap.split
+Split block operations to make space for a new realtime reverse-mapping btree record
+@ xfs.btree.rtrmap.join
+Merge block operations when deleting realtime reverse-mapping btree records
+@ xfs.btree.rtrmap.alloc
+Btree block allocations during realtime reverse-mapping btree operations
+@ xfs.btree.rtrmap.free
+Btree blocks freed during realtime reverse-mapping btree operations
+@ xfs.btree.rtrmap.moves
+Records moved inside blocks during realtime reverse-mapping btree operations
+
+@ xfs.btree.rtrmap_mem.lookup
+Number of in-memory realtime reverse-mapping btree record lookups
+@ xfs.btree.rtrmap_mem.compare
+Number of in-memory realtime reverse-mapping btree record compares
+@ xfs.btree.rtrmap_mem.insrec
+Number of in-memory realtime reverse-mapping btree insert record operations executed
+@ xfs.btree.rtrmap_mem.delrec
+Number of in-memory realtime reverse-mapping btree delete record operations executed
+@ xfs.btree.rtrmap_mem.newroot
+Number of times a new level is added to an in-memory realtime reverse-mapping btree
+@ xfs.btree.rtrmap_mem.killroot
+Number of times a level is removed from an in-memory realtime reverse-mapping btree
+@ xfs.btree.rtrmap_mem.increment
+Number of times a cursor has been moved forward one in-memory realtime reverse-mapping btree record
+@ xfs.btree.rtrmap_mem.decrement
+Number of times a cursor has been moved backward one in-memory realtime reverse-mapping btree record
+@ xfs.btree.rtrmap_mem.lshift
+Left shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+@ xfs.btree.rtrmap_mem.rshift
+Right shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+@ xfs.btree.rtrmap_mem.split
+Split block operations to make space for a new in-memory realtime reverse-mapping btree record
+@ xfs.btree.rtrmap_mem.join
+Merge block operations when deleting in-memory realtime reverse-mapping btree records
+@ xfs.btree.rtrmap_mem.alloc
+Btree block allocations during in-memory realtime reverse-mapping btree operations
+@ xfs.btree.rtrmap_mem.free
+Btree blocks freed during in-memory realtime reverse-mapping btree operations
+@ xfs.btree.rtrmap_mem.moves
+Records moved inside blocks during in-memory realtime reverse-mapping btree operations
+
+@ xfs.btree.rtrefcount.lookup
+Number of realtime reference-count btree record lookups
+@ xfs.btree.rtrefcount.compare
+Number of realtime reference-count btree record compares
+@ xfs.btree.rtrefcount.insrec
+Number of realtime reference-count btree insert record operations executed
+@ xfs.btree.rtrefcount.delrec
+Number of realtime reference-count btree delete record operations executed
+@ xfs.btree.rtrefcount.newroot
+Number of times a new level is added to a realtime reference-count btree
+@ xfs.btree.rtrefcount.killroot
+Number of times a level is removed from a realtime reference-count btree
+@ xfs.btree.rtrefcount.increment
+Number of times a cursor has been moved forward one realtime reference-count btree record
+@ xfs.btree.rtrefcount.decrement
+Number of times a cursor has been moved backward one realtime reference-count btree record
+@ xfs.btree.rtrefcount.lshift
+Left shift block operations to make space for a new realtime reference-count btree record
+@ xfs.btree.rtrefcount.rshift
+Right shift block operations to make space for a new realtime reference-count btree record
+@ xfs.btree.rtrefcount.split
+Split block operations to make space for a new realtime reference-count btree record
+@ xfs.btree.rtrefcount.join
+Merge block operations when deleting realtime reference-count btree records
+@ xfs.btree.rtrefcount.alloc
+Btree block allocations during realtime reference-count btree operations
+@ xfs.btree.rtrefcount.free
+Btree blocks freed during realtime reference-count btree operations
+@ xfs.btree.rtrefcount.moves
+Records moved inside blocks during realtime reference-count btree operations

@@ -169,6 +169,15 @@ typedef struct sysfs_xfs {
 
     struct xfs_xpc	xpc;
     struct xfs_zoned	xs_zoned;
+
+    struct xfs_btree2	xs_rmap_mem_2;		/* btree.rmap_mem.* */
+    struct xfs_btree2	xs_rcbag_2;		/* btree.rcbag.* */
+    struct xfs_btree2	xs_rtrmap_2;		/* btree.rtrmap.* */
+    struct xfs_btree2	xs_rtrmap_mem_2;	/* btree.rtrmap_mem.* */
+    struct xfs_btree2	xs_rtrefcbt_2;		/* btree.rtrefcount.* */
+
+    unsigned int	xs_inodes_meta;		/* metafile.inodes */
+    __uint64_t		xs_defer_relog;		/* defer_relog */
 } sysfs_xfs_t;
 
 extern FILE *xfs_statsfile(const char *, const char *);

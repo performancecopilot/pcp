@@ -275,6 +275,96 @@ refresh_xfs(FILE *fp, sysfs_xfs_t *sysfs_xfs)
 	else if (strncmp(buf, "gc xpc ", 7) == 0)
 	    sscanf(buf, "gc xpc %llu",
 		    (unsigned long long *)&sysfs_xfs->xs_zoned.gc_bytes);
+	else if (strncmp(buf, "rmapbt_mem ", 11) == 0)
+	    sscanf(buf, "rmapbt_mem %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &sysfs_xfs->xs_rmap_mem_2.lookup,
+		    &sysfs_xfs->xs_rmap_mem_2.compare,
+		    &sysfs_xfs->xs_rmap_mem_2.insrec,
+		    &sysfs_xfs->xs_rmap_mem_2.delrec,
+		    &sysfs_xfs->xs_rmap_mem_2.newroot,
+		    &sysfs_xfs->xs_rmap_mem_2.killroot,
+		    &sysfs_xfs->xs_rmap_mem_2.increment,
+		    &sysfs_xfs->xs_rmap_mem_2.decrement,
+		    &sysfs_xfs->xs_rmap_mem_2.lshift,
+		    &sysfs_xfs->xs_rmap_mem_2.rshift,
+		    &sysfs_xfs->xs_rmap_mem_2.split,
+		    &sysfs_xfs->xs_rmap_mem_2.join,
+		    &sysfs_xfs->xs_rmap_mem_2.alloc,
+		    &sysfs_xfs->xs_rmap_mem_2.free,
+		    &sysfs_xfs->xs_rmap_mem_2.moves);
+	else if (strncmp(buf, "rcbagbt ", 8) == 0)
+	    sscanf(buf, "rcbagbt %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &sysfs_xfs->xs_rcbag_2.lookup,
+		    &sysfs_xfs->xs_rcbag_2.compare,
+		    &sysfs_xfs->xs_rcbag_2.insrec,
+		    &sysfs_xfs->xs_rcbag_2.delrec,
+		    &sysfs_xfs->xs_rcbag_2.newroot,
+		    &sysfs_xfs->xs_rcbag_2.killroot,
+		    &sysfs_xfs->xs_rcbag_2.increment,
+		    &sysfs_xfs->xs_rcbag_2.decrement,
+		    &sysfs_xfs->xs_rcbag_2.lshift,
+		    &sysfs_xfs->xs_rcbag_2.rshift,
+		    &sysfs_xfs->xs_rcbag_2.split,
+		    &sysfs_xfs->xs_rcbag_2.join,
+		    &sysfs_xfs->xs_rcbag_2.alloc,
+		    &sysfs_xfs->xs_rcbag_2.free,
+		    &sysfs_xfs->xs_rcbag_2.moves);
+	else if (strncmp(buf, "rtrmapbt_mem ", 13) == 0)
+	    sscanf(buf, "rtrmapbt_mem %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &sysfs_xfs->xs_rtrmap_mem_2.lookup,
+		    &sysfs_xfs->xs_rtrmap_mem_2.compare,
+		    &sysfs_xfs->xs_rtrmap_mem_2.insrec,
+		    &sysfs_xfs->xs_rtrmap_mem_2.delrec,
+		    &sysfs_xfs->xs_rtrmap_mem_2.newroot,
+		    &sysfs_xfs->xs_rtrmap_mem_2.killroot,
+		    &sysfs_xfs->xs_rtrmap_mem_2.increment,
+		    &sysfs_xfs->xs_rtrmap_mem_2.decrement,
+		    &sysfs_xfs->xs_rtrmap_mem_2.lshift,
+		    &sysfs_xfs->xs_rtrmap_mem_2.rshift,
+		    &sysfs_xfs->xs_rtrmap_mem_2.split,
+		    &sysfs_xfs->xs_rtrmap_mem_2.join,
+		    &sysfs_xfs->xs_rtrmap_mem_2.alloc,
+		    &sysfs_xfs->xs_rtrmap_mem_2.free,
+		    &sysfs_xfs->xs_rtrmap_mem_2.moves);
+	else if (strncmp(buf, "rtrmapbt ", 9) == 0)
+	    sscanf(buf, "rtrmapbt %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &sysfs_xfs->xs_rtrmap_2.lookup,
+		    &sysfs_xfs->xs_rtrmap_2.compare,
+		    &sysfs_xfs->xs_rtrmap_2.insrec,
+		    &sysfs_xfs->xs_rtrmap_2.delrec,
+		    &sysfs_xfs->xs_rtrmap_2.newroot,
+		    &sysfs_xfs->xs_rtrmap_2.killroot,
+		    &sysfs_xfs->xs_rtrmap_2.increment,
+		    &sysfs_xfs->xs_rtrmap_2.decrement,
+		    &sysfs_xfs->xs_rtrmap_2.lshift,
+		    &sysfs_xfs->xs_rtrmap_2.rshift,
+		    &sysfs_xfs->xs_rtrmap_2.split,
+		    &sysfs_xfs->xs_rtrmap_2.join,
+		    &sysfs_xfs->xs_rtrmap_2.alloc,
+		    &sysfs_xfs->xs_rtrmap_2.free,
+		    &sysfs_xfs->xs_rtrmap_2.moves);
+	else if (strncmp(buf, "rtrefcntbt ", 11) == 0)
+	    sscanf(buf, "rtrefcntbt %u %u %u %u %u %u %u %u %u %u %u %u %u %u %u",
+		    &sysfs_xfs->xs_rtrefcbt_2.lookup,
+		    &sysfs_xfs->xs_rtrefcbt_2.compare,
+		    &sysfs_xfs->xs_rtrefcbt_2.insrec,
+		    &sysfs_xfs->xs_rtrefcbt_2.delrec,
+		    &sysfs_xfs->xs_rtrefcbt_2.newroot,
+		    &sysfs_xfs->xs_rtrefcbt_2.killroot,
+		    &sysfs_xfs->xs_rtrefcbt_2.increment,
+		    &sysfs_xfs->xs_rtrefcbt_2.decrement,
+		    &sysfs_xfs->xs_rtrefcbt_2.lshift,
+		    &sysfs_xfs->xs_rtrefcbt_2.rshift,
+		    &sysfs_xfs->xs_rtrefcbt_2.split,
+		    &sysfs_xfs->xs_rtrefcbt_2.join,
+		    &sysfs_xfs->xs_rtrefcbt_2.alloc,
+		    &sysfs_xfs->xs_rtrefcbt_2.free,
+		    &sysfs_xfs->xs_rtrefcbt_2.moves);
+	else if (strncmp(buf, "metafile ", 9) == 0)
+	    sscanf(buf, "metafile %u", &sysfs_xfs->xs_inodes_meta);
+	else if (strncmp(buf, "defer_relog ", 12) == 0)
+	    sscanf(buf, "defer_relog %llu",
+		    (unsigned long long *)&sysfs_xfs->xs_defer_relog);
     }
 
     if (sysfs_xfs->xs_log_writes)
