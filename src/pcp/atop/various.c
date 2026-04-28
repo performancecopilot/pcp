@@ -1434,7 +1434,7 @@ instances(const char *purpose, int all, int id, pmDesc *descs, int **ids, char *
 	sts = (rawreadflag && all) ?
 			pmGetInDomArchive(descs[id].indom, ids, insts) :
 			pmGetInDom(descs[id].indom, ids, insts);
-	if (sts == PM_ERR_INDOM_LOG)
+	if (sts == PM_ERR_INDOM_LOG || sts == PM_ERR_IPC)
 	{
 		/* metrics but no indom - expected sometimes, "no values" */
 		*insts = NULL;
