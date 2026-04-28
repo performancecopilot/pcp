@@ -77,6 +77,9 @@ procmetrics {
 	hotproc.id.container			TASK_GEN_CONTAINER
 	hotproc.psinfo.cgroups			TASK_GEN_CGROUP
 
+	# /proc/pid/cmdline
+	hotproc.psinfo.psargs			TASK_GEN_CMDLINE
+
 	# end marker - provides count
 	.					TASK_NMETRICS
 }

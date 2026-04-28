@@ -291,6 +291,10 @@ update_task(struct tstat *task, int pid, char *name, pmResult *rp, pmDesc *dp, i
 	    extract_string_inst(rp, dp, TASK_GEN_FSGIDNM, buf, sizeof buf, pid, offset))
 		add_groupname(key, buf);
 
+	/* /proc/pid/cmdline */
+	extract_string_inst(rp, dp, TASK_GEN_CMDLINE, &task->gen.cmdline[0],
+				sizeof(task->gen.cmdline), pid, offset);
+
 	/*
 	** normalization
 	*/
