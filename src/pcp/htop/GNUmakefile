@@ -34,7 +34,6 @@ TOPCFILES = \
 	AvailableMetersPanel.c \
 	BatteryMeter.c \
 	CategoriesPanel.c \
-	ClockMeter.c \
 	ColorsPanel.c \
 	ColumnsPanel.c \
 	CommandLine.c \
@@ -93,6 +92,7 @@ TOPCFILES = \
 	XUtils.c \
 
 SUBCFILES = \
+	generic/gettime.c \
 	linux/CGroupUtils.c \
 	linux/PressureStallMeter.c \
 	linux/ZramMeter.c \
@@ -115,7 +115,6 @@ TOPHFILES = \
 	AvailableMetersPanel.h \
 	BatteryMeter.h \
 	CategoriesPanel.h \
-	ClockMeter.h \
 	ColorsPanel.h \
 	ColumnsPanel.h \
 	CommandLine.h \
@@ -181,6 +180,7 @@ TOPHFILES = \
 	XUtils.h \
 
 SUBHFILES = \
+	generic/gettime.h \
 	linux/CGroupUtils.h \
 	linux/PressureStallMeter.h \
 	linux/ZramMeter.h \
@@ -263,7 +263,7 @@ $(TOPXFILES):
 $(TOPCFILES): $(SUBHFILES) $(TOPHFILES)
 
 $(SUBXFILES):
-	mkdir -p linux pcp zfs
+	mkdir -p generic linux pcp zfs
 	$(LN_S) -f $(TOPDIR)/../vendor/github.com/htop-dev/htop/$@ $@
 
 $(SUBCFILES): $(SUBHFILES) $(TOPHFILES)
