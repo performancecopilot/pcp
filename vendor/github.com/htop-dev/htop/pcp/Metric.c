@@ -223,7 +223,7 @@ void Metric_enableThreads(void) {
    pmFreeResult(result);
 }
 
-bool Metric_fetch(struct timeval* timestamp) {
+bool Metric_fetch(struct timespec* timestamp) {
    if (pcp->result) {
       pmFreeResult(pcp->result);
       pcp->result = NULL;
@@ -247,9 +247,9 @@ bool Metric_fetch(struct timeval* timestamp) {
    }
    if (timestamp) {
 #if PMAPI_VERSION >= 3
-      pmtimespecTotimeval(&pcp->result->timestamp, timestamp);
-#else
       *timestamp = pcp->result->timestamp;
+#else
+      pmtimevalTotimespec(&pcp->result->timestamp, timestamp);
 #endif
    }
    return true;

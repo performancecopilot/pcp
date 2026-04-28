@@ -18,6 +18,7 @@ in the source distribution for its full text.
 #include <net/if_types.h>
 #include <net/route.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <mach/port.h>
 #include <net/if.h> // After `sys/socket.h` for struct `sockaddr` (for iOS6 SDK)
 
@@ -33,7 +34,6 @@ in the source distribution for its full text.
 #include <IOKit/ps/IOPSKeys.h>
 #include <IOKit/storage/IOBlockStorageDriver.h>
 
-#include "ClockMeter.h"
 #include "CPUMeter.h"
 #include "CRT.h"
 #include "DateTimeMeter.h"
