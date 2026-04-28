@@ -46,6 +46,9 @@ xfs {
     vnodes
     control
     btree
+    zoned
+    defer_relog	XFS:16:200
+    metafile
     perdev
 }
 
@@ -189,6 +192,11 @@ xfs.btree {
     free_inode
     reverse_map
     refcount
+    rmap_mem
+    rcbag
+    rtrmap
+    rtrmap_mem
+    rtrefcount
 }
 
 xfs.btree.alloc_blocks {
@@ -317,6 +325,107 @@ xfs.btree.refcount {
     moves		XFS:16:184
 }
 
+xfs.zoned {
+    read_calls		XFS:16:196
+    write_calls		XFS:16:197
+    zone_reset_calls	XFS:16:198
+    bytes		XFS:16:199
+}
+
+xfs.metafile {
+    inodes		XFS:16:276
+}
+
+xfs.btree.rmap_mem {
+    lookup		XFS:16:201
+    compare		XFS:16:202
+    insrec		XFS:16:203
+    delrec		XFS:16:204
+    newroot		XFS:16:205
+    killroot		XFS:16:206
+    increment		XFS:16:207
+    decrement		XFS:16:208
+    lshift		XFS:16:209
+    rshift		XFS:16:210
+    split		XFS:16:211
+    join		XFS:16:212
+    alloc		XFS:16:213
+    free		XFS:16:214
+    moves		XFS:16:215
+}
+
+xfs.btree.rcbag {
+    lookup		XFS:16:216
+    compare		XFS:16:217
+    insrec		XFS:16:218
+    delrec		XFS:16:219
+    newroot		XFS:16:220
+    killroot		XFS:16:221
+    increment		XFS:16:222
+    decrement		XFS:16:223
+    lshift		XFS:16:224
+    rshift		XFS:16:225
+    split		XFS:16:226
+    join		XFS:16:227
+    alloc		XFS:16:228
+    free		XFS:16:229
+    moves		XFS:16:230
+}
+
+xfs.btree.rtrmap {
+    lookup		XFS:16:231
+    compare		XFS:16:232
+    insrec		XFS:16:233
+    delrec		XFS:16:234
+    newroot		XFS:16:235
+    killroot		XFS:16:236
+    increment		XFS:16:237
+    decrement		XFS:16:238
+    lshift		XFS:16:239
+    rshift		XFS:16:240
+    split		XFS:16:241
+    join		XFS:16:242
+    alloc		XFS:16:243
+    free		XFS:16:244
+    moves		XFS:16:245
+}
+
+xfs.btree.rtrmap_mem {
+    lookup		XFS:16:246
+    compare		XFS:16:247
+    insrec		XFS:16:248
+    delrec		XFS:16:249
+    newroot		XFS:16:250
+    killroot		XFS:16:251
+    increment		XFS:16:252
+    decrement		XFS:16:253
+    lshift		XFS:16:254
+    rshift		XFS:16:255
+    split		XFS:16:256
+    join		XFS:16:257
+    alloc		XFS:16:258
+    free		XFS:16:259
+    moves		XFS:16:260
+}
+
+xfs.btree.rtrefcount {
+    lookup		XFS:16:261
+    compare		XFS:16:262
+    insrec		XFS:16:263
+    delrec		XFS:16:264
+    newroot		XFS:16:265
+    killroot		XFS:16:266
+    increment		XFS:16:267
+    decrement		XFS:16:268
+    lshift		XFS:16:269
+    rshift		XFS:16:270
+    split		XFS:16:271
+    join		XFS:16:272
+    alloc		XFS:16:273
+    free		XFS:16:274
+    moves		XFS:16:275
+}
+
 quota {
     state
     project
@@ -373,6 +482,9 @@ xfs.perdev {
     buffer
     vnodes
     btree
+    zoned
+    defer_relog	XFS:18:200
+    metafile
 }
 
 xfs.perdev.allocs {
@@ -511,6 +623,11 @@ xfs.perdev.btree {
     free_inode
     reverse_map
     refcount
+    rmap_mem
+    rcbag
+    rtrmap
+    rtrmap_mem
+    rtrefcount
 }
 
 xfs.perdev.btree.alloc_blocks {
@@ -637,4 +754,105 @@ xfs.perdev.btree.refcount {
     alloc		XFS:18:182
     free		XFS:18:183
     moves		XFS:18:184
+}
+
+xfs.perdev.zoned {
+    read_calls		XFS:18:196
+    write_calls		XFS:18:197
+    zone_reset_calls	XFS:18:198
+    bytes		XFS:18:199
+}
+
+xfs.perdev.metafile {
+    inodes		XFS:18:276
+}
+
+xfs.perdev.btree.rmap_mem {
+    lookup		XFS:18:201
+    compare		XFS:18:202
+    insrec		XFS:18:203
+    delrec		XFS:18:204
+    newroot		XFS:18:205
+    killroot		XFS:18:206
+    increment		XFS:18:207
+    decrement		XFS:18:208
+    lshift		XFS:18:209
+    rshift		XFS:18:210
+    split		XFS:18:211
+    join		XFS:18:212
+    alloc		XFS:18:213
+    free		XFS:18:214
+    moves		XFS:18:215
+}
+
+xfs.perdev.btree.rcbag {
+    lookup		XFS:18:216
+    compare		XFS:18:217
+    insrec		XFS:18:218
+    delrec		XFS:18:219
+    newroot		XFS:18:220
+    killroot		XFS:18:221
+    increment		XFS:18:222
+    decrement		XFS:18:223
+    lshift		XFS:18:224
+    rshift		XFS:18:225
+    split		XFS:18:226
+    join		XFS:18:227
+    alloc		XFS:18:228
+    free		XFS:18:229
+    moves		XFS:18:230
+}
+
+xfs.perdev.btree.rtrmap {
+    lookup		XFS:18:231
+    compare		XFS:18:232
+    insrec		XFS:18:233
+    delrec		XFS:18:234
+    newroot		XFS:18:235
+    killroot		XFS:18:236
+    increment		XFS:18:237
+    decrement		XFS:18:238
+    lshift		XFS:18:239
+    rshift		XFS:18:240
+    split		XFS:18:241
+    join		XFS:18:242
+    alloc		XFS:18:243
+    free		XFS:18:244
+    moves		XFS:18:245
+}
+
+xfs.perdev.btree.rtrmap_mem {
+    lookup		XFS:18:246
+    compare		XFS:18:247
+    insrec		XFS:18:248
+    delrec		XFS:18:249
+    newroot		XFS:18:250
+    killroot		XFS:18:251
+    increment		XFS:18:252
+    decrement		XFS:18:253
+    lshift		XFS:18:254
+    rshift		XFS:18:255
+    split		XFS:18:256
+    join		XFS:18:257
+    alloc		XFS:18:258
+    free		XFS:18:259
+    moves		XFS:18:260
+}
+
+xfs.perdev.btree.rtrefcount {
+    lookup		XFS:18:261
+    compare		XFS:18:262
+    insrec		XFS:18:263
+    delrec		XFS:18:264
+    newroot		XFS:18:265
+    killroot		XFS:18:266
+    increment		XFS:18:267
+    decrement		XFS:18:268
+    lshift		XFS:18:269
+    rshift		XFS:18:270
+    split		XFS:18:271
+    join		XFS:18:272
+    alloc		XFS:18:273
+    free		XFS:18:274
+    moves		XFS:18:275
 }
