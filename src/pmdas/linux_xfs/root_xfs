@@ -46,6 +46,7 @@ xfs {
     vnodes
     control
     btree
+    zoned
     perdev
 }
 
@@ -317,6 +318,13 @@ xfs.btree.refcount {
     moves		XFS:16:184
 }
 
+xfs.zoned {
+    read_calls		XFS:16:196
+    write_calls		XFS:16:197
+    zone_reset_calls	XFS:16:198
+    bytes		XFS:16:199
+}
+
 quota {
     state
     project
@@ -373,6 +381,7 @@ xfs.perdev {
     buffer
     vnodes
     btree
+    zoned
 }
 
 xfs.perdev.allocs {
@@ -637,4 +646,11 @@ xfs.perdev.btree.refcount {
     alloc		XFS:18:182
     free		XFS:18:183
     moves		XFS:18:184
+}
+
+xfs.perdev.zoned {
+    read_calls		XFS:18:196
+    write_calls		XFS:18:197
+    zone_reset_calls	XFS:18:198
+    bytes		XFS:18:199
 }

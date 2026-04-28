@@ -844,6 +844,23 @@ static pmdaMetric xfs_metrictab[] = {
       { PMDA_PMID(CLUSTER_XFS,184), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
 
+/* xfs.zoned.read_calls */
+    { &sysfs_xfs.xs_zoned.gc_read_calls,
+      { PMDA_PMID(CLUSTER_XFS,196), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.zoned.write_calls */
+    { &sysfs_xfs.xs_zoned.gc_write_calls,
+      { PMDA_PMID(CLUSTER_XFS,197), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.zoned.zone_reset_calls */
+    { &sysfs_xfs.xs_zoned.gc_zone_reset_calls,
+      { PMDA_PMID(CLUSTER_XFS,198), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.zoned.bytes */
+    { &sysfs_xfs.xs_zoned.gc_bytes,
+      { PMDA_PMID(CLUSTER_XFS,199), PM_TYPE_U64, PM_INDOM_NULL, PM_SEM_COUNTER,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
+
 /* quota.state.project.accounting */
     { NULL,
       { PMDA_PMID(CLUSTER_QUOTA,0), PM_TYPE_U32, FILESYS_INDOM, PM_SEM_DISCRETE,
@@ -1692,6 +1709,23 @@ static pmdaMetric xfs_metrictab[] = {
     { &sysfs_xfs.xs_refcntbt.moves,
       { PMDA_PMID(CLUSTER_PERDEV,184), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+
+/* xfs.perdev.zoned.read_calls */
+    { &sysfs_xfs.xs_zoned.gc_read_calls,
+      { PMDA_PMID(CLUSTER_PERDEV,196), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.zoned.write_calls */
+    { &sysfs_xfs.xs_zoned.gc_write_calls,
+      { PMDA_PMID(CLUSTER_PERDEV,197), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.zoned.zone_reset_calls */
+    { &sysfs_xfs.xs_zoned.gc_zone_reset_calls,
+      { PMDA_PMID(CLUSTER_PERDEV,198), PM_TYPE_U32, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(0,0,1,0,0,PM_COUNT_ONE) }, },
+/* xfs.perdev.zoned.bytes */
+    { &sysfs_xfs.xs_zoned.gc_bytes,
+      { PMDA_PMID(CLUSTER_PERDEV,199), PM_TYPE_U64, DEVICES_INDOM, PM_SEM_COUNTER,
+      PMDA_PMUNITS(1,0,0,PM_SPACE_BYTE,0,0) }, },
 };
 
 char * 			xfs_statspath = "";

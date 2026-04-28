@@ -69,6 +69,13 @@ struct xfs_xpc	{
     __uint64_t		xstrat_bytes;
 };
 
+struct xfs_zoned {
+    unsigned int	gc_read_calls;		/* zoned.read_calls */
+    unsigned int	gc_write_calls;		/* zoned.write_calls */
+    unsigned int	gc_zone_reset_calls;	/* zoned.zone_reset_calls */
+    __uint64_t		gc_bytes;		/* gc xpc: zoned.bytes */
+};
+
 typedef struct sysfs_xfs {
     int			errcode;	/* error from previous refresh */
     int			uptodate;	/* values up-to-date this fetch */
@@ -161,6 +168,7 @@ typedef struct sysfs_xfs {
     struct xfs_vnodes	vnodes;
 
     struct xfs_xpc	xpc;
+    struct xfs_zoned	xs_zoned;
 } sysfs_xfs_t;
 
 extern FILE *xfs_statsfile(const char *, const char *);

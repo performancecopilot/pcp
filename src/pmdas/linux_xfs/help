@@ -574,3 +574,13 @@ Btree block allocations during reference-count btree operations
 Btree blocks freed during reference-count btree operations
 @ xfs.btree.refcount.moves
 Records moved inside blocks during reference-count btree operations
+
+@ xfs.zoned.read_calls
+Number of read I/O operations issued during zoned garbage collection
+@ xfs.zoned.write_calls
+Number of write I/O operations issued during zoned garbage collection
+@ xfs.zoned.zone_reset_calls
+Number of zone reset (REQ_OP_ZONE_RESET) operations issued during
+zoned garbage collection
+@ xfs.zoned.bytes
+Total bytes of data relocated by the zoned garbage collector

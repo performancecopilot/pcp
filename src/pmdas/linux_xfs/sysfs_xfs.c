@@ -267,6 +267,14 @@ refresh_xfs(FILE *fp, sysfs_xfs_t *sysfs_xfs)
 		    (unsigned long long *)&sysfs_xfs->xpc.xstrat_bytes,
 		    (unsigned long long *)&sysfs_xfs->xpc.write_bytes,
 		    (unsigned long long *)&sysfs_xfs->xpc.read_bytes);
+	else if (strncmp(buf, "zoned ", 6) == 0)
+	    sscanf(buf, "zoned %u %u %u",
+		    &sysfs_xfs->xs_zoned.gc_read_calls,
+		    &sysfs_xfs->xs_zoned.gc_write_calls,
+		    &sysfs_xfs->xs_zoned.gc_zone_reset_calls);
+	else if (strncmp(buf, "gc xpc ", 7) == 0)
+	    sscanf(buf, "gc xpc %llu",
+		    (unsigned long long *)&sysfs_xfs->xs_zoned.gc_bytes);
     }
 
     if (sysfs_xfs->xs_log_writes)
