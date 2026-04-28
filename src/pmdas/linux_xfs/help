@@ -604,15 +604,20 @@ Number of times a new level is added to an in-memory reverse-mapping btree
 @ xfs.btree.rmap_mem.killroot
 Number of times a level is removed from an in-memory reverse-mapping btree
 @ xfs.btree.rmap_mem.increment
-Number of times a cursor has been moved forward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory reverse-mapping
+btree record
 @ xfs.btree.rmap_mem.decrement
-Number of times a cursor has been moved backward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory reverse-mapping
+btree record
 @ xfs.btree.rmap_mem.lshift
-Left shift block operations to make space for a new in-memory reverse-mapping btree record
+Left shift block operations to make space for a new in-memory reverse-mapping
+btree record
 @ xfs.btree.rmap_mem.rshift
-Right shift block operations to make space for a new in-memory reverse-mapping btree record
+Right shift block operations to make space for a new in-memory reverse-mapping
+btree record
 @ xfs.btree.rmap_mem.split
-Split block operations to make space for a new in-memory reverse-mapping btree record
+Split block operations to make space for a new in-memory reverse-mapping
+btree record
 @ xfs.btree.rmap_mem.join
 Merge block operations when deleting in-memory reverse-mapping btree records
 @ xfs.btree.rmap_mem.alloc
@@ -637,11 +642,13 @@ Number of times a level is removed from a reference-count bag btree
 @ xfs.btree.rcbag.increment
 Number of times a cursor has been moved forward one reference-count bag btree record
 @ xfs.btree.rcbag.decrement
-Number of times a cursor has been moved backward one reference-count bag btree record
+Number of times a cursor has been moved backward one reference-count bag
+btree record
 @ xfs.btree.rcbag.lshift
 Left shift block operations to make space for a new reference-count bag btree record
 @ xfs.btree.rcbag.rshift
-Right shift block operations to make space for a new reference-count bag btree record
+Right shift block operations to make space for a new reference-count bag
+btree record
 @ xfs.btree.rcbag.split
 Split block operations to make space for a new reference-count bag btree record
 @ xfs.btree.rcbag.join
@@ -666,13 +673,17 @@ Number of times a new level is added to a realtime reverse-mapping btree
 @ xfs.btree.rtrmap.killroot
 Number of times a level is removed from a realtime reverse-mapping btree
 @ xfs.btree.rtrmap.increment
-Number of times a cursor has been moved forward one realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one realtime reverse-mapping
+btree record
 @ xfs.btree.rtrmap.decrement
-Number of times a cursor has been moved backward one realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one realtime reverse-mapping
+btree record
 @ xfs.btree.rtrmap.lshift
-Left shift block operations to make space for a new realtime reverse-mapping btree record
+Left shift block operations to make space for a new realtime reverse-mapping
+btree record
 @ xfs.btree.rtrmap.rshift
-Right shift block operations to make space for a new realtime reverse-mapping btree record
+Right shift block operations to make space for a new realtime reverse-mapping
+btree record
 @ xfs.btree.rtrmap.split
 Split block operations to make space for a new realtime reverse-mapping btree record
 @ xfs.btree.rtrmap.join
@@ -697,23 +708,30 @@ Number of times a new level is added to an in-memory realtime reverse-mapping bt
 @ xfs.btree.rtrmap_mem.killroot
 Number of times a level is removed from an in-memory realtime reverse-mapping btree
 @ xfs.btree.rtrmap_mem.increment
-Number of times a cursor has been moved forward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory realtime
+reverse-mapping btree record
 @ xfs.btree.rtrmap_mem.decrement
-Number of times a cursor has been moved backward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory realtime
+reverse-mapping btree record
 @ xfs.btree.rtrmap_mem.lshift
-Left shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Left shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 @ xfs.btree.rtrmap_mem.rshift
-Right shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Right shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 @ xfs.btree.rtrmap_mem.split
-Split block operations to make space for a new in-memory realtime reverse-mapping btree record
+Split block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 @ xfs.btree.rtrmap_mem.join
-Merge block operations when deleting in-memory realtime reverse-mapping btree records
+Merge block operations when deleting in-memory realtime
+reverse-mapping btree records
 @ xfs.btree.rtrmap_mem.alloc
 Btree block allocations during in-memory realtime reverse-mapping btree operations
 @ xfs.btree.rtrmap_mem.free
 Btree blocks freed during in-memory realtime reverse-mapping btree operations
 @ xfs.btree.rtrmap_mem.moves
-Records moved inside blocks during in-memory realtime reverse-mapping btree operations
+Records moved inside blocks during in-memory realtime
+reverse-mapping btree operations
 
 @ xfs.btree.rtrefcount.lookup
 Number of realtime reference-count btree record lookups
@@ -728,13 +746,17 @@ Number of times a new level is added to a realtime reference-count btree
 @ xfs.btree.rtrefcount.killroot
 Number of times a level is removed from a realtime reference-count btree
 @ xfs.btree.rtrefcount.increment
-Number of times a cursor has been moved forward one realtime reference-count btree record
+Number of times a cursor has been moved forward one realtime reference-count
+btree record
 @ xfs.btree.rtrefcount.decrement
-Number of times a cursor has been moved backward one realtime reference-count btree record
+Number of times a cursor has been moved backward one realtime reference-count
+btree record
 @ xfs.btree.rtrefcount.lshift
-Left shift block operations to make space for a new realtime reference-count btree record
+Left shift block operations to make space for a new realtime reference-count
+btree record
 @ xfs.btree.rtrefcount.rshift
-Right shift block operations to make space for a new realtime reference-count btree record
+Right shift block operations to make space for a new realtime reference-count
+btree record
 @ xfs.btree.rtrefcount.split
 Split block operations to make space for a new realtime reference-count btree record
 @ xfs.btree.rtrefcount.join

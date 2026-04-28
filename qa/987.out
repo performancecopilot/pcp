@@ -1540,35 +1540,40 @@ xfs.btree.rmap_mem.increment PMID: 11.16.207 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.decrement PMID: 11.16.208 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.lshift PMID: 11.16.209 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory reverse-mapping btree record
+Left shift block operations to make space for a new in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.rshift PMID: 11.16.210 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory reverse-mapping btree record
+Right shift block operations to make space for a new in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.split PMID: 11.16.211 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory reverse-mapping btree record
+Split block operations to make space for a new in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.join PMID: 11.16.212 []
@@ -1652,7 +1657,8 @@ xfs.btree.rcbag.decrement PMID: 11.16.223 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one reference-count bag btree record
+Number of times a cursor has been moved backward one reference-count bag
+btree record
     value 0
 
 xfs.btree.rcbag.lshift PMID: 11.16.224 []
@@ -1666,7 +1672,8 @@ xfs.btree.rcbag.rshift PMID: 11.16.225 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new reference-count bag btree record
+Right shift block operations to make space for a new reference-count bag
+btree record
     value 0
 
 xfs.btree.rcbag.split PMID: 11.16.226 []
@@ -1750,28 +1757,32 @@ xfs.btree.rtrmap.increment PMID: 11.16.237 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one realtime reverse-mapping
+btree record
     value 0
 
 xfs.btree.rtrmap.decrement PMID: 11.16.238 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one realtime reverse-mapping
+btree record
     value 0
 
 xfs.btree.rtrmap.lshift PMID: 11.16.239 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reverse-mapping btree record
+Left shift block operations to make space for a new realtime reverse-mapping
+btree record
     value 0
 
 xfs.btree.rtrmap.rshift PMID: 11.16.240 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reverse-mapping btree record
+Right shift block operations to make space for a new realtime reverse-mapping
+btree record
     value 0
 
 xfs.btree.rtrmap.split PMID: 11.16.241 []
@@ -1855,42 +1866,48 @@ xfs.btree.rtrmap_mem.increment PMID: 11.16.252 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.decrement PMID: 11.16.253 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.lshift PMID: 11.16.254 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Left shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.rshift PMID: 11.16.255 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Right shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.split PMID: 11.16.256 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory realtime reverse-mapping btree record
+Split block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.join PMID: 11.16.257 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Merge block operations when deleting in-memory realtime reverse-mapping btree records
+Merge block operations when deleting in-memory realtime
+reverse-mapping btree records
     value 0
 
 xfs.btree.rtrmap_mem.alloc PMID: 11.16.258 []
@@ -1911,7 +1928,8 @@ xfs.btree.rtrmap_mem.moves PMID: 11.16.260 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Records moved inside blocks during in-memory realtime reverse-mapping btree operations
+Records moved inside blocks during in-memory realtime
+reverse-mapping btree operations
     value 0
 
 xfs.btree.rtrefcount.lookup PMID: 11.16.261 []
@@ -1960,28 +1978,32 @@ xfs.btree.rtrefcount.increment PMID: 11.16.267 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reference-count btree record
+Number of times a cursor has been moved forward one realtime reference-count
+btree record
     value 0
 
 xfs.btree.rtrefcount.decrement PMID: 11.16.268 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reference-count btree record
+Number of times a cursor has been moved backward one realtime reference-count
+btree record
     value 0
 
 xfs.btree.rtrefcount.lshift PMID: 11.16.269 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reference-count btree record
+Left shift block operations to make space for a new realtime reference-count
+btree record
     value 0
 
 xfs.btree.rtrefcount.rshift PMID: 11.16.270 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reference-count btree record
+Right shift block operations to make space for a new realtime reference-count
+btree record
     value 0
 
 xfs.btree.rtrefcount.split PMID: 11.16.271 []
@@ -3587,35 +3609,40 @@ xfs.perdev.btree.rmap_mem.increment PMID: 11.18.207 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.decrement PMID: 11.18.208 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.lshift PMID: 11.18.209 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory reverse-mapping btree record
+Left shift block operations to make space for a new in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.rshift PMID: 11.18.210 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory reverse-mapping btree record
+Right shift block operations to make space for a new in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.split PMID: 11.18.211 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory reverse-mapping btree record
+Split block operations to make space for a new in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.join PMID: 11.18.212 []
@@ -3699,7 +3726,8 @@ xfs.perdev.btree.rcbag.decrement PMID: 11.18.223 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one reference-count bag btree record
+Number of times a cursor has been moved backward one reference-count bag
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rcbag.lshift PMID: 11.18.224 []
@@ -3713,7 +3741,8 @@ xfs.perdev.btree.rcbag.rshift PMID: 11.18.225 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new reference-count bag btree record
+Right shift block operations to make space for a new reference-count bag
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rcbag.split PMID: 11.18.226 []
@@ -3797,28 +3826,32 @@ xfs.perdev.btree.rtrmap.increment PMID: 11.18.237 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one realtime reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap.decrement PMID: 11.18.238 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one realtime reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap.lshift PMID: 11.18.239 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reverse-mapping btree record
+Left shift block operations to make space for a new realtime reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap.rshift PMID: 11.18.240 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reverse-mapping btree record
+Right shift block operations to make space for a new realtime reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap.split PMID: 11.18.241 []
@@ -3902,42 +3935,48 @@ xfs.perdev.btree.rtrmap_mem.increment PMID: 11.18.252 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.decrement PMID: 11.18.253 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.lshift PMID: 11.18.254 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Left shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.rshift PMID: 11.18.255 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Right shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.split PMID: 11.18.256 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory realtime reverse-mapping btree record
+Split block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.join PMID: 11.18.257 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Merge block operations when deleting in-memory realtime reverse-mapping btree records
+Merge block operations when deleting in-memory realtime
+reverse-mapping btree records
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.alloc PMID: 11.18.258 []
@@ -3958,7 +3997,8 @@ xfs.perdev.btree.rtrmap_mem.moves PMID: 11.18.260 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Records moved inside blocks during in-memory realtime reverse-mapping btree operations
+Records moved inside blocks during in-memory realtime
+reverse-mapping btree operations
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.lookup PMID: 11.18.261 []
@@ -4007,28 +4047,32 @@ xfs.perdev.btree.rtrefcount.increment PMID: 11.18.267 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reference-count btree record
+Number of times a cursor has been moved forward one realtime reference-count
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.decrement PMID: 11.18.268 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reference-count btree record
+Number of times a cursor has been moved backward one realtime reference-count
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.lshift PMID: 11.18.269 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reference-count btree record
+Left shift block operations to make space for a new realtime reference-count
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.rshift PMID: 11.18.270 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reference-count btree record
+Right shift block operations to make space for a new realtime reference-count
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.split PMID: 11.18.271 []
@@ -5645,35 +5689,40 @@ xfs.btree.rmap_mem.increment PMID: 11.16.207 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.decrement PMID: 11.16.208 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.lshift PMID: 11.16.209 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory reverse-mapping btree record
+Left shift block operations to make space for a new in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.rshift PMID: 11.16.210 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory reverse-mapping btree record
+Right shift block operations to make space for a new in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.split PMID: 11.16.211 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory reverse-mapping btree record
+Split block operations to make space for a new in-memory reverse-mapping
+btree record
     value 0
 
 xfs.btree.rmap_mem.join PMID: 11.16.212 []
@@ -5757,7 +5806,8 @@ xfs.btree.rcbag.decrement PMID: 11.16.223 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one reference-count bag btree record
+Number of times a cursor has been moved backward one reference-count bag
+btree record
     value 0
 
 xfs.btree.rcbag.lshift PMID: 11.16.224 []
@@ -5771,7 +5821,8 @@ xfs.btree.rcbag.rshift PMID: 11.16.225 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new reference-count bag btree record
+Right shift block operations to make space for a new reference-count bag
+btree record
     value 0
 
 xfs.btree.rcbag.split PMID: 11.16.226 []
@@ -5855,28 +5906,32 @@ xfs.btree.rtrmap.increment PMID: 11.16.237 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one realtime reverse-mapping
+btree record
     value 0
 
 xfs.btree.rtrmap.decrement PMID: 11.16.238 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one realtime reverse-mapping
+btree record
     value 0
 
 xfs.btree.rtrmap.lshift PMID: 11.16.239 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reverse-mapping btree record
+Left shift block operations to make space for a new realtime reverse-mapping
+btree record
     value 0
 
 xfs.btree.rtrmap.rshift PMID: 11.16.240 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reverse-mapping btree record
+Right shift block operations to make space for a new realtime reverse-mapping
+btree record
     value 0
 
 xfs.btree.rtrmap.split PMID: 11.16.241 []
@@ -5960,42 +6015,48 @@ xfs.btree.rtrmap_mem.increment PMID: 11.16.252 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.decrement PMID: 11.16.253 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.lshift PMID: 11.16.254 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Left shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.rshift PMID: 11.16.255 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Right shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.split PMID: 11.16.256 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory realtime reverse-mapping btree record
+Split block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     value 0
 
 xfs.btree.rtrmap_mem.join PMID: 11.16.257 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Merge block operations when deleting in-memory realtime reverse-mapping btree records
+Merge block operations when deleting in-memory realtime
+reverse-mapping btree records
     value 0
 
 xfs.btree.rtrmap_mem.alloc PMID: 11.16.258 []
@@ -6016,7 +6077,8 @@ xfs.btree.rtrmap_mem.moves PMID: 11.16.260 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Records moved inside blocks during in-memory realtime reverse-mapping btree operations
+Records moved inside blocks during in-memory realtime
+reverse-mapping btree operations
     value 0
 
 xfs.btree.rtrefcount.lookup PMID: 11.16.261 []
@@ -6065,28 +6127,32 @@ xfs.btree.rtrefcount.increment PMID: 11.16.267 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reference-count btree record
+Number of times a cursor has been moved forward one realtime reference-count
+btree record
     value 0
 
 xfs.btree.rtrefcount.decrement PMID: 11.16.268 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reference-count btree record
+Number of times a cursor has been moved backward one realtime reference-count
+btree record
     value 0
 
 xfs.btree.rtrefcount.lshift PMID: 11.16.269 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reference-count btree record
+Left shift block operations to make space for a new realtime reference-count
+btree record
     value 0
 
 xfs.btree.rtrefcount.rshift PMID: 11.16.270 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reference-count btree record
+Right shift block operations to make space for a new realtime reference-count
+btree record
     value 0
 
 xfs.btree.rtrefcount.split PMID: 11.16.271 []
@@ -7892,7 +7958,8 @@ xfs.perdev.btree.rmap_mem.increment PMID: 11.18.207 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -7900,7 +7967,8 @@ xfs.perdev.btree.rmap_mem.decrement PMID: 11.18.208 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -7908,7 +7976,8 @@ xfs.perdev.btree.rmap_mem.lshift PMID: 11.18.209 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory reverse-mapping btree record
+Left shift block operations to make space for a new in-memory reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -7916,7 +7985,8 @@ xfs.perdev.btree.rmap_mem.rshift PMID: 11.18.210 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory reverse-mapping btree record
+Right shift block operations to make space for a new in-memory reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -7924,7 +7994,8 @@ xfs.perdev.btree.rmap_mem.split PMID: 11.18.211 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory reverse-mapping btree record
+Split block operations to make space for a new in-memory reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8020,7 +8091,8 @@ xfs.perdev.btree.rcbag.decrement PMID: 11.18.223 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one reference-count bag btree record
+Number of times a cursor has been moved backward one reference-count bag
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8036,7 +8108,8 @@ xfs.perdev.btree.rcbag.rshift PMID: 11.18.225 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new reference-count bag btree record
+Right shift block operations to make space for a new reference-count bag
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8132,7 +8205,8 @@ xfs.perdev.btree.rtrmap.increment PMID: 11.18.237 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one realtime reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8140,7 +8214,8 @@ xfs.perdev.btree.rtrmap.decrement PMID: 11.18.238 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one realtime reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8148,7 +8223,8 @@ xfs.perdev.btree.rtrmap.lshift PMID: 11.18.239 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reverse-mapping btree record
+Left shift block operations to make space for a new realtime reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8156,7 +8232,8 @@ xfs.perdev.btree.rtrmap.rshift PMID: 11.18.240 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reverse-mapping btree record
+Right shift block operations to make space for a new realtime reverse-mapping
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8252,7 +8329,8 @@ xfs.perdev.btree.rtrmap_mem.increment PMID: 11.18.252 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory realtime
+reverse-mapping btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8260,7 +8338,8 @@ xfs.perdev.btree.rtrmap_mem.decrement PMID: 11.18.253 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory realtime
+reverse-mapping btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8268,7 +8347,8 @@ xfs.perdev.btree.rtrmap_mem.lshift PMID: 11.18.254 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Left shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8276,7 +8356,8 @@ xfs.perdev.btree.rtrmap_mem.rshift PMID: 11.18.255 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Right shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8284,7 +8365,8 @@ xfs.perdev.btree.rtrmap_mem.split PMID: 11.18.256 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory realtime reverse-mapping btree record
+Split block operations to make space for a new in-memory realtime
+reverse-mapping btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8292,7 +8374,8 @@ xfs.perdev.btree.rtrmap_mem.join PMID: 11.18.257 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Merge block operations when deleting in-memory realtime reverse-mapping btree records
+Merge block operations when deleting in-memory realtime
+reverse-mapping btree records
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8316,7 +8399,8 @@ xfs.perdev.btree.rtrmap_mem.moves PMID: 11.18.260 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Records moved inside blocks during in-memory realtime reverse-mapping btree operations
+Records moved inside blocks during in-memory realtime
+reverse-mapping btree operations
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8372,7 +8456,8 @@ xfs.perdev.btree.rtrefcount.increment PMID: 11.18.267 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reference-count btree record
+Number of times a cursor has been moved forward one realtime reference-count
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8380,7 +8465,8 @@ xfs.perdev.btree.rtrefcount.decrement PMID: 11.18.268 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reference-count btree record
+Number of times a cursor has been moved backward one realtime reference-count
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8388,7 +8474,8 @@ xfs.perdev.btree.rtrefcount.lshift PMID: 11.18.269 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reference-count btree record
+Left shift block operations to make space for a new realtime reference-count
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8396,7 +8483,8 @@ xfs.perdev.btree.rtrefcount.rshift PMID: 11.18.270 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reference-count btree record
+Right shift block operations to make space for a new realtime reference-count
+btree record
     inst [0-or-1 or "/dev/loop3"] value 0
     inst [0-or-1 or "/dev/mapper/tmpvg-tmplv"] value 0
 
@@ -8491,7 +8579,7 @@ xfs.write PMID: 11.16.51 [number of XFS file system write operations]
 Help:
 This is the number of write(2) system calls made to files in
 XFS file systems.
-    value 252
+No value(s) available!
 
 xfs.write_bytes PMID: 11.16.52 [number of bytes written in XFS file system write operations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8501,7 +8589,7 @@ This is the number of bytes written via write(2) system calls to files
 in XFS file systems. It can be used in conjunction with the write_calls
 count to calculate the average size of the write operations to files in
 XFS file systems.
-    value 945504
+No value(s) available!
 
 xfs.read PMID: 11.16.53 [number of XFS file system read operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8509,7 +8597,7 @@ xfs.read PMID: 11.16.53 [number of XFS file system read operations]
 Help:
 This is the number of read(2) system calls made to files in XFS file
 systems.
-    value 500
+No value(s) available!
 
 xfs.read_bytes PMID: 11.16.54 [number of bytes read in XFS file system read operations]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8519,7 +8607,7 @@ This is the number of bytes read via read(2) system calls to files in
 XFS file systems. It can be used in conjunction with the read_calls
 count to calculate the average size of the read operations to files in
 XFS file systems.
-    value 938000
+No value(s) available!
 
 xfs.iflush_count PMID: 11.16.67 [the number of calls to xfs_iflush]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8529,14 +8617,14 @@ This is the number of calls to xfs_iflush which gets called when an
 inode is being flushed (such as by bdflush or tail pushing).
 xfs_iflush searches for other inodes in the same cluster which are
 dirty and flushable.
-    value 14
+No value(s) available!
 
 xfs.icluster_flushcnt PMID: 11.16.68 [value from xs_icluster_flushcnt field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_icluster_flushcnt field of struct xfsstats
-    value 12
+No value(s) available!
 
 xfs.icluster_flushinode PMID: 11.16.69 [number of flushes of only one inode in cluster]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8544,147 +8632,147 @@ xfs.icluster_flushinode PMID: 11.16.69 [number of flushes of only one inode in c
 Help:
 This is the number of times that the inode clustering was not able to
 flush anything but the one inode it was called with.
-    value 264
+No value(s) available!
 
 xfs.defer_relog PMID: 11.16.200 []
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of log items relogged to keep them from pinning the tail of the log
-    value 12345678
+No value(s) available!
 
 xfs.allocs.alloc_extent PMID: 11.16.0 [XFS extents allocated]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of file system extents allocated over XFS filesystems
-    value 234
+No value(s) available!
 
 xfs.allocs.alloc_block PMID: 11.16.1 [XFS blocks allocated]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of file system blocks allocated over XFS filesystems
-    value 248
+No value(s) available!
 
 xfs.allocs.free_extent PMID: 11.16.2 [XFS extents freed]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of file system extents freed over XFS filesystems
-    value 61
+No value(s) available!
 
 xfs.allocs.free_block PMID: 11.16.3 [XFS blocks freed]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of file system blocks freed over XFS filesystems
-    value 61
+No value(s) available!
 
 xfs.alloc_btree.lookup PMID: 11.16.4 [lookups in XFS alloc btrees]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of lookup operations in XFS filesystem allocation btrees
-    value 0
+No value(s) available!
 
 xfs.alloc_btree.compare PMID: 11.16.5 [compares in XFS alloc btrees]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of compares in XFS filesystem allocation btree lookups
-    value 0
+No value(s) available!
 
 xfs.alloc_btree.insrec PMID: 11.16.6 [insertions in XFS alloc btrees]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of extent records inserted into XFS filesystem allocation btrees
-    value 0
+No value(s) available!
 
 xfs.alloc_btree.delrec PMID: 11.16.7 [deletions in XFS alloc btrees]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of extent records deleted from XFS filesystem allocation btrees
-    value 0
+No value(s) available!
 
 xfs.block_map.read_ops PMID: 11.16.8 [block map read ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of block map for read operations performed on XFS files
-    value 1075
+No value(s) available!
 
 xfs.block_map.write_ops PMID: 11.16.9 [block map write ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of block map for write operations performed on XFS files
-    value 484
+No value(s) available!
 
 xfs.block_map.unmap PMID: 11.16.10 [block unmap ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of block unmap (delete) operations performed on XFS files
-    value 296
+No value(s) available!
 
 xfs.block_map.add_exlist PMID: 11.16.11 [extent list add ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of extent list insertion operations for XFS files
-    value 232
+No value(s) available!
 
 xfs.block_map.del_exlist PMID: 11.16.12 [extent list delete ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of extent list deletion operations for XFS files
-    value 83
+No value(s) available!
 
 xfs.block_map.look_exlist PMID: 11.16.13 [extent list lookup ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of extent list lookup operations for XFS files
-    value 1855
+No value(s) available!
 
 xfs.block_map.cmp_exlist PMID: 11.16.14 [extent list compare ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of extent list comparisons in XFS extent list lookups
-    value 0
+No value(s) available!
 
 xfs.bmap_btree.lookup PMID: 11.16.15 [block map btree lookup ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of block map btree lookup operations on XFS files
-    value 0
+No value(s) available!
 
 xfs.bmap_btree.compare PMID: 11.16.16 [block map btree compare ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of block map btree compare operations in XFS block map lookups
-    value 0
+No value(s) available!
 
 xfs.bmap_btree.insrec PMID: 11.16.17 [block map btree insert ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of block map btree records inserted for XFS files
-    value 0
+No value(s) available!
 
 xfs.bmap_btree.delrec PMID: 11.16.18 [block map btree delete ops in XFS]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of block map btree records deleted for XFS files
-    value 0
+No value(s) available!
 
 xfs.dir_ops.lookup PMID: 11.16.19 [number of file name directory lookups]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8695,7 +8783,7 @@ filesystems. It counts only those lookups which miss in the operating
 system's directory name lookup cache and must search the real directory
 structure for the name in question.  The count is incremented once for
 each level of a pathname search that results in a directory lookup.
-    value 202
+No value(s) available!
 
 xfs.dir_ops.create PMID: 11.16.20 [number of directory entry creation operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8705,7 +8793,7 @@ This is the number of times a new directory entry was created in XFS
 filesystems. Each time that a new file, directory, link, symbolic link,
 or special file is created in the directory hierarchy the count is
 incremented.
-    value 213
+No value(s) available!
 
 xfs.dir_ops.remove PMID: 11.16.21 [number of directory entry remove operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8715,7 +8803,7 @@ This is the number of times an existing directory entry was removed in
 XFS filesystems. Each time that a file, directory, link, symbolic link,
 or special file is removed from the directory hierarchy the count is
 incremented.
-    value 44
+No value(s) available!
 
 xfs.dir_ops.getdents PMID: 11.16.22 [number of times the getdents operation is performed]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8726,7 +8814,7 @@ performed. The getdents operation is used by programs to read the
 contents of directories in a file system independent fashion.  This
 count corresponds exactly to the number of times the getdents(2) system
 call was successfully used on an XFS directory.
-    value 22
+No value(s) available!
 
 xfs.transactions.sync PMID: 11.16.23 [number of synchronous meta-data transactions performed]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8738,7 +8826,7 @@ transaction to continue. These transactions are slower and more
 expensive than asynchronous transactions, because they force the in
 memory log buffers to be forced to disk more often and they wait for
 the completion of the log buffer writes.
-    value 7
+No value(s) available!
 
 xfs.transactions.async PMID: 11.16.24 [number of asynchronous meta-data transactions performed]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8752,7 +8840,7 @@ to the in memory log buffers without forcing those buffers to be
 written to disk. This allows multiple asynchronous transactions to be
 committed to disk in a single log buffer write. Most transactions used
 in XFS file systems are asynchronous.
-    value 1674
+No value(s) available!
 
 xfs.transactions.empty PMID: 11.16.25 [number of meta-data transactions which committed without changing anything]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8761,7 +8849,7 @@ Help:
 This is the number of meta-data transactions which did not actually
 change anything. These are transactions which were started for some
 purpose, but in the end it turned out that no change was necessary.
-    value 0
+No value(s) available!
 
 xfs.inode_ops.ig_attempts PMID: 11.16.26 [number of in memory inode lookup operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8771,7 +8859,7 @@ This is the number of times the operating system looked for an XFS
 inode in the inode cache. Whether the inode was found in the cache or
 needed to be read in from the disk is not indicated here, but this can
 be computed from the ig_found and ig_missed counts.
-    value 216
+No value(s) available!
 
 xfs.inode_ops.ig_found PMID: 11.16.27 [number of successful in memory inode lookup operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8780,7 +8868,7 @@ Help:
 This is the number of times the operating system looked for an XFS
 inode in the inode cache and found it. The closer this count is to the
 ig_attempts count the better the inode cache is performing.
-    value 0
+No value(s) available!
 
 xfs.inode_ops.ig_frecycle PMID: 11.16.28 [number of just missed in memory inode lookup operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8790,7 +8878,7 @@ This is the number of times the operating system looked for an XFS
 inode in the inode cache and saw that it was there but was unable to
 use the in memory inode because it was being recycled by another
 process.
-    value 0
+No value(s) available!
 
 xfs.inode_ops.ig_missed PMID: 11.16.29 [number of failed in memory inode lookup operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8799,7 +8887,7 @@ Help:
 This is the number of times the operating system looked for an XFS
 inode in the inode cache and the inode was not there. The further this
 count is from the ig_attempts count the better.
-    value 216
+No value(s) available!
 
 xfs.inode_ops.ig_dup PMID: 11.16.30 [number of inode cache insertions that fail because the inode is there]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8809,7 +8897,7 @@ This is the number of times the operating system looked for an XFS
 inode in the inode cache and found that it was not there but upon
 attempting to add the inode to the cache found that another process had
 already inserted it.
-    value 0
+No value(s) available!
 
 xfs.inode_ops.ig_reclaims PMID: 11.16.31 [number of in memory inode recycle operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8821,7 +8909,7 @@ another purpose. Inodes are recycled in order to keep the inode cache
 from growing without bound. If the reclaim rate is high it may be
 beneficial to raise the vnode_free_ratio kernel tunable variable to
 increase the size of inode cache.
-    value 45
+No value(s) available!
 
 xfs.inode_ops.ig_attrchg PMID: 11.16.32 [number of inode attribute change operations]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8830,7 +8918,7 @@ Help:
 This is the number of times the operating system explicitly changed the
 attributes of an XFS inode. For example, this could be to change the
 inode's owner, the inode's size, or the inode's timestamps.
-    value 39
+No value(s) available!
 
 xfs.log.writes PMID: 11.16.33 [number of buffer writes going to the disk from the log]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8840,7 +8928,7 @@ This variable counts the number of log buffer writes going to the
 physical log partitions of XFS filesystems. Log data traffic is
 proportional to the level of meta-data updating. Log buffer writes get
 generated when they fill up or external syncs occur.
-    value 19
+No value(s) available!
 
 xfs.log.blocks PMID: 11.16.34 [write throughput to the physical XFS log]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8853,7 +8941,7 @@ log data gets written depends on the size of internal log buffers and
 disk write speed. Therefore, filesystems with very high meta-data
 updating may need to stripe the log partition or put the log partition
 on a separate drive.
-    value 170
+No value(s) available!
 
 xfs.log.write_ratio PMID: 11.16.78 [ratio of count of XFS log blocks written to log writes]
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
@@ -8864,7 +8952,7 @@ The ratio of log blocks written to log writes.  If block count isn't a
 performed - this is suboptimal.  Perfection is 64.  Fine-grain control
 can be obtained when this metric is used in conjuntion with pmstore(1)
 and the xfs.control.reset metric.
-    value 17
+No value(s) available!
 
 xfs.log.noiclogs PMID: 11.16.35 [count of failures for immediate get of buffered/internal]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8873,7 +8961,7 @@ Help:
 This variable keeps track of times when a logged transaction can not
 get any log buffer space. When this occurs, all of the internal log
 buffers are busy flushing their data to the physical on-disk log.
-    value 0
+No value(s) available!
 
 xfs.log.force PMID: 11.16.36 [value from xs_log_force field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8882,28 +8970,28 @@ Help:
 The number of times the in-core log is forced to disk.  It is
 equivalent to the number of successful calls to the function
 xfs_log_force().
-    value 317
+No value(s) available!
 
 xfs.log.force_sleep PMID: 11.16.37 [value from xs_log_force_sleep field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 This metric is exported from the xs_log_force_sleep field of struct xfsstats
-    value 8
+No value(s) available!
 
 xfs.log_tail.try_logspace PMID: 11.16.38 [value from xs_try_logspace field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 This metric is exported from the xs_try_logspace field of struct xfsstats
-    value 1682
+No value(s) available!
 
 xfs.log_tail.sleep_logspace PMID: 11.16.39 [value from xs_sleep_logspace field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 This metric is exported from the xs_sleep_logspace field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.log_tail.push_ail.pushes PMID: 11.16.40 [number of times the AIL tail is moved forward]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8912,56 +9000,56 @@ Help:
 The number of times the tail of the AIL is moved forward.  It is
 equivalent to the number of successful calls to the function
 xfs_trans_push_ail().
-    value 2973
+No value(s) available!
 
 xfs.log_tail.push_ail.success PMID: 11.16.41 [value from xs_push_ail_success field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_push_ail_success field of struct xfsstats
-    value 53
+No value(s) available!
 
 xfs.log_tail.push_ail.pushbuf PMID: 11.16.42 [value from xs_push_ail_pushbuf field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_push_ail_pushbuf field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.log_tail.push_ail.pinned PMID: 11.16.43 [value from xs_push_ail_pinned field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_push_ail_pinned field of struct xfsstats
-    value 213
+No value(s) available!
 
 xfs.log_tail.push_ail.locked PMID: 11.16.44 [value from xs_push_ail_locked field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_push_ail_locked field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.log_tail.push_ail.flushing PMID: 11.16.45 [value from xs_push_ail_flushing field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_push_ail_flushing field of struct xfsstats
-    value 264
+No value(s) available!
 
 xfs.log_tail.push_ail.restarts PMID: 11.16.46 [value from xs_push_ail_restarts field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_push_ail_restarts field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.log_tail.push_ail.flush PMID: 11.16.47 [value from xs_push_ail_flush field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_push_ail_flush field of struct xfsstats
-    value 5
+No value(s) available!
 
 xfs.xstrat.bytes PMID: 11.16.48 [number of bytes of data processed by the XFS daemons]
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8969,7 +9057,7 @@ xfs.xstrat.bytes PMID: 11.16.48 [number of bytes of data processed by the XFS da
 Help:
 This is the number of bytes of file data flushed out by the XFS
 flushing daemons.
-    value 942080
+No value(s) available!
 
 xfs.xstrat.quick PMID: 11.16.49 [number of buffers processed by the XFS daemons written to contiguous space on disk]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8980,7 +9068,7 @@ which are written to contiguous space on disk. The buffers handled by
 the XFS daemons are delayed allocation buffers, so this count gives an
 indication of the success of the XFS daemons in allocating contiguous
 disk space for the data being flushed to disk.
-    value 230
+No value(s) available!
 
 xfs.xstrat.split PMID: 11.16.50 [number of buffers processed by the XFS daemons written to non-contiguous space on disk]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -8992,7 +9080,7 @@ by the XFS daemons are delayed allocation buffers, so this count gives
 an indication of the failure of the XFS daemons in allocating
 contiguous disk space for the data being flushed to disk. Large values
 in this counter indicate that the file system has become fragmented.
-    value 0
+No value(s) available!
 
 xfs.attr.get PMID: 11.16.55 [number of "get" operations on XFS extended file attributes]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9001,7 +9089,7 @@ Help:
 The number of "get" operations performed on extended file attributes
 within XFS filesystems.  The "get" operation retrieves the value of an
 extended attribute.
-    value 0
+No value(s) available!
 
 xfs.attr.set PMID: 11.16.56 [number of "set" operations on XFS extended file attributes]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9010,7 +9098,7 @@ Help:
 The number of "set" operations performed on extended file attributes
 within XFS filesystems.  The "set" operation creates and sets the value
 of an extended attribute.
-    value 0
+No value(s) available!
 
 xfs.attr.remove PMID: 11.16.57 [number of "remove" operations on XFS extended file attributes]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9019,7 +9107,7 @@ Help:
 The number of "remove" operations performed on extended file attributes
 within XFS filesystems.  The "remove" operation deletes an extended
 attribute.
-    value 0
+No value(s) available!
 
 xfs.attr.list PMID: 11.16.58 [number of "list" operations on XFS extended file attributes]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9028,182 +9116,182 @@ Help:
 The number of "list" operations performed on extended file attributes
 within XFS filesystems.  The "list" operation retrieves the set of
 extended attributes associated with a file.
-    value 0
+No value(s) available!
 
 xfs.quota.reclaims PMID: 11.16.59 [value from xs_qm_dqreclaims field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_qm_dqreclaims field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.quota.reclaim_misses PMID: 11.16.60 [value from xs_qm_dqreclaim_misses field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_qm_dqreclaim_misses field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.quota.dquot_dups PMID: 11.16.61 [value from xs_qm_dquot_dups field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_qm_dquot_dups field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.quota.cachemisses PMID: 11.16.62 [value from xs_qm_dqcachemisses field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_qm_dqcachemisses field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.quota.cachehits PMID: 11.16.63 [value from xs_qm_dqcachehits field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_qm_dqcachehits field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.quota.wants PMID: 11.16.64 [value from xs_qm_dqwants field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_qm_dqwants field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.quota.dquots PMID: 11.16.185 [value from xs_qm_dquots field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_qm_dquots field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.quota.dquots_unused PMID: 11.16.186 [value from xs_qm_dquots_unused field of struct xfsstats]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 value from xs_qm_dquots_unused field of struct xfsstats
-    value 0
+No value(s) available!
 
 xfs.buffer.get PMID: 11.17.0 [number of request buffer calls]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of request buffer calls
-    value 2411
+No value(s) available!
 
 xfs.buffer.create PMID: 11.17.1 [number of buffers created]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of buffers created
-    value 76
+No value(s) available!
 
 xfs.buffer.get_locked PMID: 11.17.2 [number of requests for a locked buffer which succeeded]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which succeeded
-    value 2386
+No value(s) available!
 
 xfs.buffer.get_locked_waited PMID: 11.17.3 [number of requests for a locked buffer which waited]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which waited
-    value 0
+No value(s) available!
 
 xfs.buffer.busy_locked PMID: 11.17.4 [number of non-blocking requests for a locked buffer which failed]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of non-blocking requests for a locked buffer which failed
-    value 0
+No value(s) available!
 
 xfs.buffer.miss_locked PMID: 11.17.5 [number of requests for a locked buffer which failed due to no buffer]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of requests for a locked buffer which failed due to no buffer
-    value 25
+No value(s) available!
 
 xfs.buffer.page_retries PMID: 11.17.6 [number of retry attempts when allocating a page for insertion in a buffer]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of retry attempts when allocating a page for insertion in a buffer
-    value 0
+No value(s) available!
 
 xfs.buffer.page_found PMID: 11.17.7 [number of hits in the page cache when looking for a page]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of hits in the page cache when looking for a page
-    value 46
+No value(s) available!
 
 xfs.buffer.get_read PMID: 11.17.8 [number of buffer get calls requiring immediate device reads]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of buffer get calls requiring immediate device reads
-    value 19
+No value(s) available!
 
 xfs.vnodes.active PMID: 11.16.70 [number of vnodes not on free lists]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: none
 Help:
 number of vnodes not on free lists
-    value 171
+No value(s) available!
 
 xfs.vnodes.alloc PMID: 11.16.71 [number of times vn_alloc called]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of times vn_alloc called
-    value 0
+No value(s) available!
 
 xfs.vnodes.get PMID: 11.16.72 [number of times vn_get called]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of times vn_get called
-    value 0
+No value(s) available!
 
 xfs.vnodes.hold PMID: 11.16.73 [number of times vn_hold called]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of times vn_hold called
-    value 0
+No value(s) available!
 
 xfs.vnodes.rele PMID: 11.16.74 [number of times vn_rele called]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of times vn_rele called
-    value 45
+No value(s) available!
 
 xfs.vnodes.reclaim PMID: 11.16.75 [number of times vn_reclaim called]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of times vn_reclaim called
-    value 45
+No value(s) available!
 
 xfs.vnodes.remove PMID: 11.16.76 [number of times vn_remove called]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of times vn_remove called
-    value 45
+No value(s) available!
 
 xfs.vnodes.free PMID: 11.16.77 [number of times vn_free called]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 number of times vn_free called
-    value 0
+No value(s) available!
 
 xfs.control.reset PMID: 11.16.79 [reset the values of all XFS metrics to zero]
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9217,42 +9305,42 @@ xfs.btree.alloc_blocks.lookup PMID: 11.16.80 []
     Semantics: counter  Units: count
 Help:
 Number of free-space-by-block-number btree record lookups
-    value 299
+No value(s) available!
 
 xfs.btree.alloc_blocks.compare PMID: 11.16.81 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-space-by-block-number btree record compares
-    value 420
+No value(s) available!
 
 xfs.btree.alloc_blocks.insrec PMID: 11.16.82 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-space-by-block-number btree insert record operations executed
-    value 6
+No value(s) available!
 
 xfs.btree.alloc_blocks.delrec PMID: 11.16.83 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-space-by-block-number btree delete record operations executed
-    value 3
+No value(s) available!
 
 xfs.btree.alloc_blocks.newroot PMID: 11.16.84 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a free-space-by-block-number btree
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.killroot PMID: 11.16.85 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a free-space-by-block-number btree
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.increment PMID: 11.16.86 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9260,7 +9348,7 @@ xfs.btree.alloc_blocks.increment PMID: 11.16.86 []
 Help:
 Number of times a cursor has been moved forward one free-space-by-block-number
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.decrement PMID: 11.16.87 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9268,7 +9356,7 @@ xfs.btree.alloc_blocks.decrement PMID: 11.16.87 []
 Help:
 Number of times a cursor has been moved backward one free-space-by-block-number
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.lshift PMID: 11.16.88 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9276,7 +9364,7 @@ xfs.btree.alloc_blocks.lshift PMID: 11.16.88 []
 Help:
 Left shift block operations to make space for a new free-space-by-block-number
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.rshift PMID: 11.16.89 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9284,7 +9372,7 @@ xfs.btree.alloc_blocks.rshift PMID: 11.16.89 []
 Help:
 Right shift block operations to make space for a new free-space-by-block-number
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.split PMID: 11.16.90 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9292,77 +9380,77 @@ xfs.btree.alloc_blocks.split PMID: 11.16.90 []
 Help:
 Split block operations to make space for a new free-space-by-block-number
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.join PMID: 11.16.91 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting free-space-by-block-number btree records
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.alloc PMID: 11.16.92 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during free-space-by-block-number btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.free PMID: 11.16.93 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during free-space-by-block-number btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_blocks.moves PMID: 11.16.94 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during free-space-by-block-number btree operations
-    value 6
+No value(s) available!
 
 xfs.btree.alloc_contig.lookup PMID: 11.16.95 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-space-by-size btree record lookups
-    value 587
+No value(s) available!
 
 xfs.btree.alloc_contig.compare PMID: 11.16.96 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-space-by-size btree btree record compares
-    value 575
+No value(s) available!
 
 xfs.btree.alloc_contig.insrec PMID: 11.16.97 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-space-by-size btree insert record operations executed
-    value 295
+No value(s) available!
 
 xfs.btree.alloc_contig.delrec PMID: 11.16.98 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-space-by-size btree delete record operations executed
-    value 292
+No value(s) available!
 
 xfs.btree.alloc_contig.newroot PMID: 11.16.99 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a free-space-by-size btree tree
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.killroot PMID: 11.16.100 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a free-space-by-size btree tree
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.increment PMID: 11.16.101 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9370,7 +9458,7 @@ xfs.btree.alloc_contig.increment PMID: 11.16.101 []
 Help:
 Number of times a free-space-by-size btree cursor has been moved forward
 one record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.decrement PMID: 11.16.102 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9378,7 +9466,7 @@ xfs.btree.alloc_contig.decrement PMID: 11.16.102 []
 Help:
 Number of times a free-space-by-size btree cursor has been moved backward
 one record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.lshift PMID: 11.16.103 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9386,7 +9474,7 @@ xfs.btree.alloc_contig.lshift PMID: 11.16.103 []
 Help:
 Left shift block operations to make space for a new free-space-by-size
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.rshift PMID: 11.16.104 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9394,7 +9482,7 @@ xfs.btree.alloc_contig.rshift PMID: 11.16.104 []
 Help:
 Right shift block operations to make space for a new free-space-by-size
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.split PMID: 11.16.105 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9402,77 +9490,77 @@ xfs.btree.alloc_contig.split PMID: 11.16.105 []
 Help:
 Split block operations to make space for a new free-space-by-size btree
 record
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.join PMID: 11.16.106 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting free-space-by-size btree records
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.alloc PMID: 11.16.107 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during free-space-by-size btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.free PMID: 11.16.108 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during free-space-by-size btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.alloc_contig.moves PMID: 11.16.109 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during free-space-by-size btree operations
-    value 147
+No value(s) available!
 
 xfs.btree.block_map.lookup PMID: 11.16.110 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of inode-block-map/extent btree record lookups
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.compare PMID: 11.16.111 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of inode-block-map/extent btree record compares
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.insrec PMID: 11.16.112 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of inode-block-map/extent btree insert record operations executed
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.delrec PMID: 11.16.113 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of inode-block-map/extent btree delete record operations executed
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.newroot PMID: 11.16.114 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to an inode-block-map/extent btree
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.killroot PMID: 11.16.115 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from an inode-block-map/extent btree
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.increment PMID: 11.16.116 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9480,7 +9568,7 @@ xfs.btree.block_map.increment PMID: 11.16.116 []
 Help:
 Number of times an inode-block-map/extent btree cursor has been moved
 forward one record
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.decrement PMID: 11.16.117 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9488,7 +9576,7 @@ xfs.btree.block_map.decrement PMID: 11.16.117 []
 Help:
 Number of times an inode-block-map/extent btree cursor has been moved
 backward one record
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.lshift PMID: 11.16.118 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9496,7 +9584,7 @@ xfs.btree.block_map.lshift PMID: 11.16.118 []
 Help:
 Left shift block operations to make space for a new inode-block-map/extent
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.rshift PMID: 11.16.119 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9504,7 +9592,7 @@ xfs.btree.block_map.rshift PMID: 11.16.119 []
 Help:
 Right shift block operations to make space for a new inode-block-map/extent
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.split PMID: 11.16.120 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9512,77 +9600,77 @@ xfs.btree.block_map.split PMID: 11.16.120 []
 Help:
 Split block operations to make space for a new inode-block-map/extent
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.join PMID: 11.16.121 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting inode-block-map/extent btree records
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.alloc PMID: 11.16.122 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during inode-block-map/extent btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.free PMID: 11.16.123 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during inode-block-map/extent btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.block_map.moves PMID: 11.16.124 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during inode-block-map/extent btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.inode.lookup PMID: 11.16.125 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of inode-allocation btree record lookups
-    value 383
+No value(s) available!
 
 xfs.btree.inode.compare PMID: 11.16.126 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of inode-allocation btree record compares
-    value 259
+No value(s) available!
 
 xfs.btree.inode.insrec PMID: 11.16.127 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of inode-allocation btree insert record operations executed
-    value 2
+No value(s) available!
 
 xfs.btree.inode.delrec PMID: 11.16.128 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of inode-allocation btree delete record operations executed
-    value 0
+No value(s) available!
 
 xfs.btree.inode.newroot PMID: 11.16.129 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to an inode-allocation btree
-    value 0
+No value(s) available!
 
 xfs.btree.inode.killroot PMID: 11.16.130 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from an inode-allocation btree
-    value 0
+No value(s) available!
 
 xfs.btree.inode.increment PMID: 11.16.131 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9590,7 +9678,7 @@ xfs.btree.inode.increment PMID: 11.16.131 []
 Help:
 Number of times a cursor has been moved forward one inode-allocation
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.inode.decrement PMID: 11.16.132 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9598,7 +9686,7 @@ xfs.btree.inode.decrement PMID: 11.16.132 []
 Help:
 Number of times a cursor has been moved backward one inode-allocation
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.inode.lshift PMID: 11.16.133 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9606,7 +9694,7 @@ xfs.btree.inode.lshift PMID: 11.16.133 []
 Help:
 Left shift block operations to make space for a new inode-allocation
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.inode.rshift PMID: 11.16.134 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9614,84 +9702,84 @@ xfs.btree.inode.rshift PMID: 11.16.134 []
 Help:
 Right shift block operations to make space for a new inode-allocation
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.inode.split PMID: 11.16.135 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new inode-allocation btree record
-    value 0
+No value(s) available!
 
 xfs.btree.inode.join PMID: 11.16.136 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting inode-allocation btree records
-    value 0
+No value(s) available!
 
 xfs.btree.inode.alloc PMID: 11.16.137 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during inode-allocation btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.inode.free PMID: 11.16.138 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during inode-allocation btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.inode.moves PMID: 11.16.139 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during inode-allocation btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.lookup PMID: 11.16.140 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-inode btree record lookups
-    value 337
+No value(s) available!
 
 xfs.btree.free_inode.compare PMID: 11.16.141 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-inode btree record compares
-    value 339
+No value(s) available!
 
 xfs.btree.free_inode.insrec PMID: 11.16.142 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-inode btree insert record operations executed
-    value 5
+No value(s) available!
 
 xfs.btree.free_inode.delrec PMID: 11.16.143 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of free-inode btree delete record operations executed
-    value 3
+No value(s) available!
 
 xfs.btree.free_inode.newroot PMID: 11.16.144 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a free-inode btree
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.killroot PMID: 11.16.145 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a free-inode btree
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.increment PMID: 11.16.146 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9699,7 +9787,7 @@ xfs.btree.free_inode.increment PMID: 11.16.146 []
 Help:
 Number of times a cursor has been moved forward one free-inode
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.decrement PMID: 11.16.147 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9707,7 +9795,7 @@ xfs.btree.free_inode.decrement PMID: 11.16.147 []
 Help:
 Number of times a cursor has been moved backward one free-inode
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.lshift PMID: 11.16.148 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9715,7 +9803,7 @@ xfs.btree.free_inode.lshift PMID: 11.16.148 []
 Help:
 Left shift block operations to make space for a new free-inode
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.rshift PMID: 11.16.149 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9723,84 +9811,84 @@ xfs.btree.free_inode.rshift PMID: 11.16.149 []
 Help:
 Right shift block operations to make space for a new free-inode
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.split PMID: 11.16.150 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new free-inode btree record
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.join PMID: 11.16.151 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting free-inode btree records
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.alloc PMID: 11.16.152 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during free-inode btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.free PMID: 11.16.153 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during free-inode btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.free_inode.moves PMID: 11.16.154 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during free-inode btree operations
-    value 4
+No value(s) available!
 
 xfs.btree.reverse_map.lookup PMID: 11.16.155 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree record lookups
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.compare PMID: 11.16.156 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree record compares
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.insrec PMID: 11.16.157 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree insert record operations executed
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.delrec PMID: 11.16.158 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reverse-mapping btree delete record operations executed
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.newroot PMID: 11.16.159 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a reverse-mapping btree
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.killroot PMID: 11.16.160 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a reverse-mapping btree
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.increment PMID: 11.16.161 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9808,7 +9896,7 @@ xfs.btree.reverse_map.increment PMID: 11.16.161 []
 Help:
 Number of times a cursor has been moved forward one reverse-mapping
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.decrement PMID: 11.16.162 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9816,7 +9904,7 @@ xfs.btree.reverse_map.decrement PMID: 11.16.162 []
 Help:
 Number of times a cursor has been moved backward one reverse-mapping
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.lshift PMID: 11.16.163 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9824,7 +9912,7 @@ xfs.btree.reverse_map.lshift PMID: 11.16.163 []
 Help:
 Left shift block operations to make space for a new reverse-mapping
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.rshift PMID: 11.16.164 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9832,84 +9920,84 @@ xfs.btree.reverse_map.rshift PMID: 11.16.164 []
 Help:
 Right shift block operations to make space for a new reverse-mapping
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.split PMID: 11.16.165 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new reverse-mapping btree record
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.join PMID: 11.16.166 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting reverse-mapping btree records
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.alloc PMID: 11.16.167 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.free PMID: 11.16.168 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.reverse_map.moves PMID: 11.16.169 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.lookup PMID: 11.16.170 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reference-count btree record lookups
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.compare PMID: 11.16.171 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reference-count btree record compares
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.insrec PMID: 11.16.172 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reference-count btree insert record operations executed
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.delrec PMID: 11.16.173 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reference-count btree delete record operations executed
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.newroot PMID: 11.16.174 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a reference-count btree
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.killroot PMID: 11.16.175 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a reference-count btree
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.increment PMID: 11.16.176 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9917,7 +10005,7 @@ xfs.btree.refcount.increment PMID: 11.16.176 []
 Help:
 Number of times a cursor has been moved forward one reference-count
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.decrement PMID: 11.16.177 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9925,7 +10013,7 @@ xfs.btree.refcount.decrement PMID: 11.16.177 []
 Help:
 Number of times a cursor has been moved backward one reference-count
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.lshift PMID: 11.16.178 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9933,7 +10021,7 @@ xfs.btree.refcount.lshift PMID: 11.16.178 []
 Help:
 Left shift block operations to make space for a new reference-count
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.rshift PMID: 11.16.179 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -9941,581 +10029,603 @@ xfs.btree.refcount.rshift PMID: 11.16.179 []
 Help:
 Right shift block operations to make space for a new reference-count
 btree record
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.split PMID: 11.16.180 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new reference-count btree record
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.join PMID: 11.16.181 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting reference-count btree records
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.alloc PMID: 11.16.182 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during reference-count btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.free PMID: 11.16.183 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during reference-count btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.refcount.moves PMID: 11.16.184 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during reference-count btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rmap_mem.lookup PMID: 11.16.201 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of in-memory reverse-mapping btree record lookups
-    value 10
+No value(s) available!
 
 xfs.btree.rmap_mem.compare PMID: 11.16.202 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of in-memory reverse-mapping btree record compares
-    value 20
+No value(s) available!
 
 xfs.btree.rmap_mem.insrec PMID: 11.16.203 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of in-memory reverse-mapping btree insert record operations executed
-    value 5
+No value(s) available!
 
 xfs.btree.rmap_mem.delrec PMID: 11.16.204 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of in-memory reverse-mapping btree delete record operations executed
-    value 3
+No value(s) available!
 
 xfs.btree.rmap_mem.newroot PMID: 11.16.205 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to an in-memory reverse-mapping btree
-    value 0
+No value(s) available!
 
 xfs.btree.rmap_mem.killroot PMID: 11.16.206 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from an in-memory reverse-mapping btree
-    value 0
+No value(s) available!
 
 xfs.btree.rmap_mem.increment PMID: 11.16.207 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory reverse-mapping btree record
-    value 0
+Number of times a cursor has been moved forward one in-memory reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rmap_mem.decrement PMID: 11.16.208 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory reverse-mapping btree record
-    value 0
+Number of times a cursor has been moved backward one in-memory reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rmap_mem.lshift PMID: 11.16.209 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory reverse-mapping btree record
-    value 0
+Left shift block operations to make space for a new in-memory reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rmap_mem.rshift PMID: 11.16.210 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory reverse-mapping btree record
-    value 0
+Right shift block operations to make space for a new in-memory reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rmap_mem.split PMID: 11.16.211 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory reverse-mapping btree record
-    value 0
+Split block operations to make space for a new in-memory reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rmap_mem.join PMID: 11.16.212 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting in-memory reverse-mapping btree records
-    value 0
+No value(s) available!
 
 xfs.btree.rmap_mem.alloc PMID: 11.16.213 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during in-memory reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rmap_mem.free PMID: 11.16.214 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during in-memory reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rmap_mem.moves PMID: 11.16.215 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during in-memory reverse-mapping btree operations
-    value 2
+No value(s) available!
 
 xfs.btree.rcbag.lookup PMID: 11.16.216 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reference-count bag btree record lookups
-    value 7
+No value(s) available!
 
 xfs.btree.rcbag.compare PMID: 11.16.217 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reference-count bag btree record compares
-    value 14
+No value(s) available!
 
 xfs.btree.rcbag.insrec PMID: 11.16.218 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reference-count bag btree insert record operations executed
-    value 2
+No value(s) available!
 
 xfs.btree.rcbag.delrec PMID: 11.16.219 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of reference-count bag btree delete record operations executed
-    value 1
+No value(s) available!
 
 xfs.btree.rcbag.newroot PMID: 11.16.220 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a reference-count bag btree
-    value 0
+No value(s) available!
 
 xfs.btree.rcbag.killroot PMID: 11.16.221 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a reference-count bag btree
-    value 0
+No value(s) available!
 
 xfs.btree.rcbag.increment PMID: 11.16.222 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a cursor has been moved forward one reference-count bag btree record
-    value 0
+No value(s) available!
 
 xfs.btree.rcbag.decrement PMID: 11.16.223 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one reference-count bag btree record
-    value 0
+Number of times a cursor has been moved backward one reference-count bag
+btree record
+No value(s) available!
 
 xfs.btree.rcbag.lshift PMID: 11.16.224 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Left shift block operations to make space for a new reference-count bag btree record
-    value 0
+No value(s) available!
 
 xfs.btree.rcbag.rshift PMID: 11.16.225 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new reference-count bag btree record
-    value 0
+Right shift block operations to make space for a new reference-count bag
+btree record
+No value(s) available!
 
 xfs.btree.rcbag.split PMID: 11.16.226 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new reference-count bag btree record
-    value 0
+No value(s) available!
 
 xfs.btree.rcbag.join PMID: 11.16.227 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting reference-count bag btree records
-    value 0
+No value(s) available!
 
 xfs.btree.rcbag.alloc PMID: 11.16.228 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during reference-count bag btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rcbag.free PMID: 11.16.229 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during reference-count bag btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rcbag.moves PMID: 11.16.230 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during reference-count bag btree operations
-    value 1
+No value(s) available!
 
 xfs.btree.rtrmap.lookup PMID: 11.16.231 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of realtime reverse-mapping btree record lookups
-    value 100
+No value(s) available!
 
 xfs.btree.rtrmap.compare PMID: 11.16.232 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of realtime reverse-mapping btree record compares
-    value 200
+No value(s) available!
 
 xfs.btree.rtrmap.insrec PMID: 11.16.233 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of realtime reverse-mapping btree insert record operations executed
-    value 10
+No value(s) available!
 
 xfs.btree.rtrmap.delrec PMID: 11.16.234 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of realtime reverse-mapping btree delete record operations executed
-    value 5
+No value(s) available!
 
 xfs.btree.rtrmap.newroot PMID: 11.16.235 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a realtime reverse-mapping btree
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap.killroot PMID: 11.16.236 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a realtime reverse-mapping btree
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap.increment PMID: 11.16.237 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reverse-mapping btree record
-    value 0
+Number of times a cursor has been moved forward one realtime reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rtrmap.decrement PMID: 11.16.238 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reverse-mapping btree record
-    value 0
+Number of times a cursor has been moved backward one realtime reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rtrmap.lshift PMID: 11.16.239 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reverse-mapping btree record
-    value 0
+Left shift block operations to make space for a new realtime reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rtrmap.rshift PMID: 11.16.240 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reverse-mapping btree record
-    value 0
+Right shift block operations to make space for a new realtime reverse-mapping
+btree record
+No value(s) available!
 
 xfs.btree.rtrmap.split PMID: 11.16.241 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new realtime reverse-mapping btree record
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap.join PMID: 11.16.242 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting realtime reverse-mapping btree records
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap.alloc PMID: 11.16.243 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during realtime reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap.free PMID: 11.16.244 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during realtime reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap.moves PMID: 11.16.245 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during realtime reverse-mapping btree operations
-    value 8
+No value(s) available!
 
 xfs.btree.rtrmap_mem.lookup PMID: 11.16.246 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of in-memory realtime reverse-mapping btree record lookups
-    value 50
+No value(s) available!
 
 xfs.btree.rtrmap_mem.compare PMID: 11.16.247 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of in-memory realtime reverse-mapping btree record compares
-    value 100
+No value(s) available!
 
 xfs.btree.rtrmap_mem.insrec PMID: 11.16.248 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of in-memory realtime reverse-mapping btree insert record operations executed
-    value 8
+No value(s) available!
 
 xfs.btree.rtrmap_mem.delrec PMID: 11.16.249 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of in-memory realtime reverse-mapping btree delete record operations executed
-    value 4
+No value(s) available!
 
 xfs.btree.rtrmap_mem.newroot PMID: 11.16.250 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to an in-memory realtime reverse-mapping btree
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap_mem.killroot PMID: 11.16.251 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from an in-memory realtime reverse-mapping btree
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap_mem.increment PMID: 11.16.252 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory realtime reverse-mapping btree record
-    value 0
+Number of times a cursor has been moved forward one in-memory realtime
+reverse-mapping btree record
+No value(s) available!
 
 xfs.btree.rtrmap_mem.decrement PMID: 11.16.253 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory realtime reverse-mapping btree record
-    value 0
+Number of times a cursor has been moved backward one in-memory realtime
+reverse-mapping btree record
+No value(s) available!
 
 xfs.btree.rtrmap_mem.lshift PMID: 11.16.254 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory realtime reverse-mapping btree record
-    value 0
+Left shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
+No value(s) available!
 
 xfs.btree.rtrmap_mem.rshift PMID: 11.16.255 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory realtime reverse-mapping btree record
-    value 0
+Right shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
+No value(s) available!
 
 xfs.btree.rtrmap_mem.split PMID: 11.16.256 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory realtime reverse-mapping btree record
-    value 0
+Split block operations to make space for a new in-memory realtime
+reverse-mapping btree record
+No value(s) available!
 
 xfs.btree.rtrmap_mem.join PMID: 11.16.257 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Merge block operations when deleting in-memory realtime reverse-mapping btree records
-    value 0
+Merge block operations when deleting in-memory realtime
+reverse-mapping btree records
+No value(s) available!
 
 xfs.btree.rtrmap_mem.alloc PMID: 11.16.258 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during in-memory realtime reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap_mem.free PMID: 11.16.259 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during in-memory realtime reverse-mapping btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rtrmap_mem.moves PMID: 11.16.260 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Records moved inside blocks during in-memory realtime reverse-mapping btree operations
-    value 3
+Records moved inside blocks during in-memory realtime
+reverse-mapping btree operations
+No value(s) available!
 
 xfs.btree.rtrefcount.lookup PMID: 11.16.261 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of realtime reference-count btree record lookups
-    value 30
+No value(s) available!
 
 xfs.btree.rtrefcount.compare PMID: 11.16.262 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of realtime reference-count btree record compares
-    value 60
+No value(s) available!
 
 xfs.btree.rtrefcount.insrec PMID: 11.16.263 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of realtime reference-count btree insert record operations executed
-    value 3
+No value(s) available!
 
 xfs.btree.rtrefcount.delrec PMID: 11.16.264 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of realtime reference-count btree delete record operations executed
-    value 1
+No value(s) available!
 
 xfs.btree.rtrefcount.newroot PMID: 11.16.265 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a new level is added to a realtime reference-count btree
-    value 0
+No value(s) available!
 
 xfs.btree.rtrefcount.killroot PMID: 11.16.266 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of times a level is removed from a realtime reference-count btree
-    value 0
+No value(s) available!
 
 xfs.btree.rtrefcount.increment PMID: 11.16.267 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reference-count btree record
-    value 0
+Number of times a cursor has been moved forward one realtime reference-count
+btree record
+No value(s) available!
 
 xfs.btree.rtrefcount.decrement PMID: 11.16.268 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reference-count btree record
-    value 0
+Number of times a cursor has been moved backward one realtime reference-count
+btree record
+No value(s) available!
 
 xfs.btree.rtrefcount.lshift PMID: 11.16.269 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reference-count btree record
-    value 0
+Left shift block operations to make space for a new realtime reference-count
+btree record
+No value(s) available!
 
 xfs.btree.rtrefcount.rshift PMID: 11.16.270 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reference-count btree record
-    value 0
+Right shift block operations to make space for a new realtime reference-count
+btree record
+No value(s) available!
 
 xfs.btree.rtrefcount.split PMID: 11.16.271 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Split block operations to make space for a new realtime reference-count btree record
-    value 0
+No value(s) available!
 
 xfs.btree.rtrefcount.join PMID: 11.16.272 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Merge block operations when deleting realtime reference-count btree records
-    value 0
+No value(s) available!
 
 xfs.btree.rtrefcount.alloc PMID: 11.16.273 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree block allocations during realtime reference-count btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rtrefcount.free PMID: 11.16.274 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Btree blocks freed during realtime reference-count btree operations
-    value 0
+No value(s) available!
 
 xfs.btree.rtrefcount.moves PMID: 11.16.275 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Records moved inside blocks during realtime reference-count btree operations
-    value 1
+No value(s) available!
 
 xfs.zoned.read_calls PMID: 11.16.196 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of read I/O operations issued during zoned garbage collection
-    value 1450
+No value(s) available!
 
 xfs.zoned.write_calls PMID: 11.16.197 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: count
 Help:
 Number of write I/O operations issued during zoned garbage collection
-    value 850
+No value(s) available!
 
 xfs.zoned.zone_reset_calls PMID: 11.16.198 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
@@ -10523,21 +10633,21 @@ xfs.zoned.zone_reset_calls PMID: 11.16.198 []
 Help:
 Number of zone reset (REQ_OP_ZONE_RESET) operations issued during
 zoned garbage collection
-    value 42
+No value(s) available!
 
 xfs.zoned.bytes PMID: 11.16.199 []
     Data Type: 64-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: counter  Units: byte
 Help:
 Total bytes of data relocated by the zoned garbage collector
-    value 1204560
+No value(s) available!
 
 xfs.metafile.inodes PMID: 11.16.276 []
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: count
 Help:
 Number of active metafile inodes (internal filesystem metadata inodes)
-    value 17
+No value(s) available!
 
 xfs.perdev.write PMID: 11.18.51 [number of XFS file system write operations]
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
@@ -12071,35 +12181,40 @@ xfs.perdev.btree.rmap_mem.increment PMID: 11.18.207 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.decrement PMID: 11.18.208 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.lshift PMID: 11.18.209 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory reverse-mapping btree record
+Left shift block operations to make space for a new in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.rshift PMID: 11.18.210 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory reverse-mapping btree record
+Right shift block operations to make space for a new in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.split PMID: 11.18.211 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory reverse-mapping btree record
+Split block operations to make space for a new in-memory reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rmap_mem.join PMID: 11.18.212 []
@@ -12183,7 +12298,8 @@ xfs.perdev.btree.rcbag.decrement PMID: 11.18.223 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one reference-count bag btree record
+Number of times a cursor has been moved backward one reference-count bag
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rcbag.lshift PMID: 11.18.224 []
@@ -12197,7 +12313,8 @@ xfs.perdev.btree.rcbag.rshift PMID: 11.18.225 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new reference-count bag btree record
+Right shift block operations to make space for a new reference-count bag
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rcbag.split PMID: 11.18.226 []
@@ -12281,28 +12398,32 @@ xfs.perdev.btree.rtrmap.increment PMID: 11.18.237 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one realtime reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap.decrement PMID: 11.18.238 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one realtime reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap.lshift PMID: 11.18.239 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reverse-mapping btree record
+Left shift block operations to make space for a new realtime reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap.rshift PMID: 11.18.240 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reverse-mapping btree record
+Right shift block operations to make space for a new realtime reverse-mapping
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap.split PMID: 11.18.241 []
@@ -12386,42 +12507,48 @@ xfs.perdev.btree.rtrmap_mem.increment PMID: 11.18.252 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved forward one in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.decrement PMID: 11.18.253 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one in-memory realtime reverse-mapping btree record
+Number of times a cursor has been moved backward one in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.lshift PMID: 11.18.254 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Left shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.rshift PMID: 11.18.255 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new in-memory realtime reverse-mapping btree record
+Right shift block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.split PMID: 11.18.256 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Split block operations to make space for a new in-memory realtime reverse-mapping btree record
+Split block operations to make space for a new in-memory realtime
+reverse-mapping btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.join PMID: 11.18.257 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Merge block operations when deleting in-memory realtime reverse-mapping btree records
+Merge block operations when deleting in-memory realtime
+reverse-mapping btree records
 No value(s) available!
 
 xfs.perdev.btree.rtrmap_mem.alloc PMID: 11.18.258 []
@@ -12442,7 +12569,8 @@ xfs.perdev.btree.rtrmap_mem.moves PMID: 11.18.260 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Records moved inside blocks during in-memory realtime reverse-mapping btree operations
+Records moved inside blocks during in-memory realtime
+reverse-mapping btree operations
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.lookup PMID: 11.18.261 []
@@ -12491,28 +12619,32 @@ xfs.perdev.btree.rtrefcount.increment PMID: 11.18.267 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved forward one realtime reference-count btree record
+Number of times a cursor has been moved forward one realtime reference-count
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.decrement PMID: 11.18.268 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Number of times a cursor has been moved backward one realtime reference-count btree record
+Number of times a cursor has been moved backward one realtime reference-count
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.lshift PMID: 11.18.269 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Left shift block operations to make space for a new realtime reference-count btree record
+Left shift block operations to make space for a new realtime reference-count
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.rshift PMID: 11.18.270 []
     Data Type: 32-bit unsigned int  InDom: 11.6 0x2c00006
     Semantics: counter  Units: count
 Help:
-Right shift block operations to make space for a new realtime reference-count btree record
+Right shift block operations to make space for a new realtime reference-count
+btree record
 No value(s) available!
 
 xfs.perdev.btree.rtrefcount.split PMID: 11.18.271 []
