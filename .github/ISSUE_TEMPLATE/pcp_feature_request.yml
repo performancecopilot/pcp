@@ -1,0 +1,23 @@
+name: Performance Co-Pilot Feature Request
+description: Request additional functionality or suggest a new approach to existing functionality
+title: "[RFE] "
+labels: ["feature"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for taking the time to make a feature request!
+  - type: textarea
+    id: feature-request
+    attributes:
+      label: Description of Request for Enhancement
+      description: Describe the feature that you would like to see in PCP.
+    validations:
+      required: True
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: If this is for a specific PCP component, please mention it here (optional).
+      placeholder: e.g. pmlogger
+    validations:
+      required: False
