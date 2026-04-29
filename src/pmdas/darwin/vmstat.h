@@ -35,6 +35,7 @@ struct compressor_stats {
     uint64_t lz4_compressions;
 };
 
+extern int refresh_physmem(uint64_t *);
 extern int refresh_vmstat(struct vm_statistics64 *);
 extern int refresh_swap(struct xsw_usage *);
 extern int refresh_compressor_stats(struct compressor_stats *);

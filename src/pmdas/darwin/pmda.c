@@ -72,6 +72,7 @@ float			mach_loadavg[3] = { 0,0,0 };
 int			mach_cpuload_error = 0;
 struct host_cpu_load_info	mach_cpuload = { { 0 } };
 
+uint64_t		mach_physmem;
 int			mach_vmstat_error = 0;
 struct vm_statistics64	mach_vmstat = { 0 };
 extern int refresh_vmstat(struct vm_statistics64 *);
@@ -390,6 +391,7 @@ darwin_init(pmdaInterface *dp)
     mach_host = mach_host_self();
     host_page_size(mach_host, &mach_page_size);
     mach_page_shift = ffs(mach_page_size) - 1;
+    refresh_physmem(&mach_physmem);
     if (refresh_hertz(&mach_hertz) != 0)
 	mach_hertz = 100;
     if ((sts = refresh_hinv()) != 0)
