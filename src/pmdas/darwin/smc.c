@@ -63,9 +63,9 @@ typedef struct {
 /*
  * Module state
  */
-static io_connect_t smc_connection = 0;
-static bool smc_available = false;
-static bool smc_init_attempted = false;
+static io_connect_t smc_connection;
+static bool smc_available;
+static bool smc_init_attempted;
 
 /*
  * Platform detection
