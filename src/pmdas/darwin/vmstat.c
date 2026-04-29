@@ -23,6 +23,16 @@
 #define page_count_to_mb(x) (((__uint64_t)(x) << mach_page_shift) >> 20)
 
 int
+refresh_physmem(uint64_t *physmem)
+{
+	size_t	size = sizeof(*physmem);
+
+	if (sysctlbyname("hw.memsize", physmem, &size, NULL, 0) == -1)
+		return -oserror();
+	return 0;
+}
+
+int
 refresh_vmstat(struct vm_statistics64 *vmstat)
 {
 	extern mach_port_t mach_host;
@@ -94,19 +104,16 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	extern struct compressor_stats mach_compressor;
 	extern int mach_compressor_error;
 	extern unsigned int mach_page_shift;
+	extern uint64_t mach_physmem;
 
 	if (mach_vmstat_error)
 		return mach_vmstat_error;
 	switch (item) {
 	case 2: /* hinv.physmem */
-		atom->ul = (__uint32_t)page_count_to_mb(
-				mach_vmstat.free_count + mach_vmstat.wire_count +
-				mach_vmstat.active_count + mach_vmstat.inactive_count);
+		atom->ul = (__uint32_t)(mach_physmem >> 20);
 		return 1;
 	case 3: /* mem.physmem */
-		atom->ull = page_count_to_kb(
-				mach_vmstat.free_count + mach_vmstat.wire_count +
-				mach_vmstat.active_count + mach_vmstat.inactive_count);
+		atom->ull = mach_physmem >> 10;
 		return 1;
 	case 4: /* mem.freemem */
 		atom->ull = page_count_to_kb(mach_vmstat.free_count);
@@ -132,7 +139,8 @@ fetch_vmstat(unsigned int item, unsigned int inst, pmAtomValue *atom)
 	case 23: /* mem.util.used */
 		atom->ull = page_count_to_kb(mach_vmstat.wire_count +
 				mach_vmstat.active_count +
-				mach_vmstat.inactive_count);
+				mach_vmstat.inactive_count +
+				mach_vmstat.compressor_page_count);
 		return 1;
 	case 24: /* swap.length */
 		if (mach_swap_error)

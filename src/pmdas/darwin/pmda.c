@@ -56,96 +56,97 @@ static pmdaInterface		dispatch;
 static int			_isDSO = 1;	/* =0 I am a daemon */
 static char			*username;
 
-mach_port_t		mach_host = 0;
-vm_size_t		mach_page_size = 0;
-unsigned int		mach_page_shift = 0;
+mach_port_t		mach_host;
+vm_size_t		mach_page_size;
+unsigned int		mach_page_shift;
 
-unsigned int		mach_hertz = 0;
+unsigned int		mach_hertz;
 extern int refresh_hertz(unsigned int *);
 
-int			mach_uname_error = 0;
-struct utsname		mach_uname = { { 0 } };
+int			mach_uname_error;
+struct utsname		mach_uname;
 
-int			mach_loadavg_error = 0;
-float			mach_loadavg[3] = { 0,0,0 };
+int			mach_loadavg_error;
+float			mach_loadavg[3];
 
-int			mach_cpuload_error = 0;
-struct host_cpu_load_info	mach_cpuload = { { 0 } };
+int			mach_cpuload_error;
+struct host_cpu_load_info	mach_cpuload;
 
-int			mach_vmstat_error = 0;
-struct vm_statistics64	mach_vmstat = { 0 };
+uint64_t		mach_physmem;
+int			mach_vmstat_error;
+struct vm_statistics64	mach_vmstat;
 extern int refresh_vmstat(struct vm_statistics64 *);
 
-int			mach_swap_error = 0;
-struct xsw_usage	mach_swap = { 0 };
+int			mach_swap_error;
+struct xsw_usage	mach_swap;
 extern int refresh_swap(struct xsw_usage *);
 
-int			mach_compressor_error = 0;
-struct compressor_stats	mach_compressor = { 0 };
+int			mach_compressor_error;
+struct compressor_stats	mach_compressor;
 extern int refresh_compressor_stats(struct compressor_stats *);
 
-int			mach_fs_error = 0;
-struct statfs		*mach_fs = NULL;
+int			mach_fs_error;
+struct statfs		*mach_fs;
 
-int			mach_disk_error = 0;
-struct diskstats	mach_disk = { 0 };
+int			mach_disk_error;
+struct diskstats	mach_disk;
 extern int refresh_disks(struct diskstats *, pmdaIndom *);
 
-int			mach_cpu_error = 0;
-struct processor_cpu_load_info	*mach_cpu = NULL;
+int			mach_cpu_error;
+struct processor_cpu_load_info	*mach_cpu;
 extern int refresh_cpus(struct processor_cpu_load_info **, pmdaIndom *);
 
-int			mach_uptime_error = 0;
-unsigned int		mach_uptime = 0;
+int			mach_uptime_error;
+unsigned int		mach_uptime;
 extern int refresh_uptime(unsigned int *);
 
-int			mach_net_error = 0;
-struct netstats		mach_net = { 0 };
-net_all_t		mach_net_all = { 0 };
+int			mach_net_error;
+struct netstats		mach_net;
+net_all_t		mach_net_all;
 extern int refresh_network(struct netstats *, pmdaIndom *);
 extern void init_network(void);
 
-int			mach_nfs_error = 0;
-struct nfsstats		mach_nfs = { 0 };
+int			mach_nfs_error;
+struct nfsstats		mach_nfs;
 
-int			mach_vfs_error = 0;
-vfsstats_t		mach_vfs = { 0 };
+int			mach_vfs_error;
+vfsstats_t		mach_vfs;
 
-int			mach_udp_error = 0;
-udpstats_t		mach_udp = { 0 };
+int			mach_udp_error;
+udpstats_t		mach_udp;
 
-int			mach_icmp_error = 0;
-icmpstats_t		mach_icmp = { 0 };
+int			mach_icmp_error;
+icmpstats_t		mach_icmp;
 
-int			mach_ipv6_error = 0;
-ipv6stats_t		mach_ipv6 = { 0 };
+int			mach_ipv6_error;
+ipv6stats_t		mach_ipv6;
 
-int			mach_sockstat_error = 0;
-sockstats_t		mach_sockstat = { 0 };
+int			mach_sockstat_error;
+sockstats_t		mach_sockstat;
 
-int			mach_tcpconn_error = 0;
-tcpconn_stats_t		mach_tcpconn = { 0 };
+int			mach_tcpconn_error;
+tcpconn_stats_t		mach_tcpconn;
 
-int			mach_tcp_error = 0;
-tcpstats_t		mach_tcp = { 0 };
+int			mach_tcp_error;
+tcpstats_t		mach_tcp;
 
-int			mach_login_error = 0;
-login_info_t		mach_login = { 0 };
+int			mach_login_error;
+login_info_t		mach_login;
 
-int			mach_gpu_error = 0;
-struct gpustats		mach_gpu = { 0 };
+int			mach_gpu_error;
+struct gpustats		mach_gpu;
 
-int			mach_ipc_error = 0;
-ipcstats_t		mach_ipc = { 0 };
+int			mach_ipc_error;
+ipcstats_t		mach_ipc;
 
-int			mach_power_error = 0;
-powerstats_t		mach_power = { 0 };
+int			mach_power_error;
+powerstats_t		mach_power;
 
-int			mach_thermal_error = 0;
-thermalstats_t		mach_thermal = { 0 };
+int			mach_thermal_error;
+thermalstats_t		mach_thermal;
 
-int			mach_apfs_error = 0;
-struct apfs_stats	mach_apfs = { 0 };
+int			mach_apfs_error;
+struct apfs_stats	mach_apfs;
 
 char			hw_model[MODEL_SIZE];
 extern int refresh_hinv(void);
@@ -390,6 +391,7 @@ darwin_init(pmdaInterface *dp)
     mach_host = mach_host_self();
     host_page_size(mach_host, &mach_page_size);
     mach_page_shift = ffs(mach_page_size) - 1;
+    refresh_physmem(&mach_physmem);
     if (refresh_hertz(&mach_hertz) != 0)
 	mach_hertz = 100;
     if ((sts = refresh_hinv()) != 0)

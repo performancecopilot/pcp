@@ -31,7 +31,7 @@
  */
 static thermalstats_t thermal_stats;
 static int thermal_pressure_token = -1;
-static bool thermal_initialized = false;
+static bool thermal_initialized;
 
 /*
  * Temperature sensor key mappings
