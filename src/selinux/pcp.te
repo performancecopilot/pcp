@@ -113,6 +113,7 @@ allow pcp_pmcd_t self:unix_dgram_socket { create_socket_perms getattr };
 allow pcp_pmcd_t self:cap_userns sys_ptrace;
 
 kernel_get_sysvipc_info(pcp_pmcd_t)
+kernel_io_uring_use(pcp_pmcd_t)
 kernel_manage_perf_event(pcp_pmcd_t)
 kernel_read_debugfs(pcp_pmcd_t)
 kernel_read_network_state(pcp_pmcd_t)
