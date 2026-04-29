@@ -1,0 +1,61 @@
+name: Performance Co-Pilot Issue Report
+description: Create a report for a PCP related bug
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: Thank you for taking the time to fill out this bug report!
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: Issue Description
+      description: What is the issue that you are encountering?
+    validations:
+      required: True
+  - type: input
+    id: operating-system
+    attributes:
+      label: Operating System
+      description: What is your machines operating system? Include name and version number.<br>(`cat /etc/os-release | grep -E "^(NAME=|VERSION=)"`)
+      placeholder: e.g. Rocky Linux Version 9.5
+    validations:
+      required: True
+  - type: input
+    id: architecture
+    attributes:
+      label: Architecture
+      description: What is your machines architecture?<br>(`uname -m`)
+      placeholder: e.g. x86_64
+    validations:
+      required: True
+  - type: input
+    id: pcp-version
+    attributes:
+      label: PCP Version
+      description: What version of PCP are you using (optional)?<br>(`(cd path_to_your_pcp_install/bin && ./pcp)`)
+      placeholder: e.g. main or PCP 7.1.2
+    validations:
+      required: False
+  - type: input
+    id: component
+    attributes:
+      label: Component
+      description: What PCP component does this issue pertain to (optional)?
+      placeholder: e.g. pmlogger
+    validations:
+      required: False
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide steps to reproduce this issue (optional).
+    validations:
+      required: False
+  - type: textarea
+    id: additional-information
+    attributes:
+      label: Additional Information
+      description: Is there any additional information that is relevant to your issue? Are there known machine configurations or versions of PCP where this issue does not occur?
+    validations:
+      required: False
