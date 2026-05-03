@@ -112,22 +112,23 @@ main(int argc, char *argv[])
 
 	if (python) {
 	    printf("    PMDA.pmid(%d,%d) : ['%s', 'TABLE', 'COLUMN', pmdaMetric(\n"
-		   "        PMDA.pmid(%d,%d), c_api.PM_TYPE_%s, %s, c_api.%s, pmUnits(%d,%d,%d,%d,%d,%d))],\n",
+		   "        PMDA.pmid(%d,%d), c_api.PM_TYPE_%s, %s, c_api.%s, pmUnits(%d,%d,%d,%d,%d,%d%d,%d))],\n",
 		pmID_cluster(pmid), pmID_item(pmid), name,
 	    	pmID_cluster(pmid), pmID_item(pmid), pmTypeStr(desc.type),
-		indomStr(desc.indom), semStr[desc.sem], desc.units.dimSpace,
-		desc.units.dimTime, desc.units.dimCount, desc.units.scaleSpace,
-		desc.units.scaleTime, desc.units.scaleCount);
-
+		indomStr(desc.indom), semStr[desc.sem],
+                desc.units.dimSpace, desc.units.dimTime, desc.units.dimCount,
+                desc.units.scaleSpace, desc.units.scaleTime, desc.units.scaleCount,
+                desc.units.extraUnit, desc.units.extraScale);
 	}
 	else {
 	    printf("    /* %-8s */ { \"%s\", { 0x%04x, PM_TYPE_%s, %s, %s,\n"
 		   "                  { .dimSpace=%d, .dimTime=%d, .dimCount=%d, "
-		   ".scaleSpace=%d, .scaleTime=%d, .scaleCount=%d } } },\n",
+		   ".scaleSpace=%d, .scaleTime=%d, .scaleCount=%d, .extraUnit=%d, .extraScale=%d } } },\n",
 		pmIDStr(desc.pmid), name, desc.pmid, pmTypeStr(desc.type),
-		indomStr(desc.indom), semStr[desc.sem], desc.units.dimSpace,
-		desc.units.dimTime, desc.units.dimCount, desc.units.scaleSpace,
-		desc.units.scaleTime, desc.units.scaleCount);
+		indomStr(desc.indom), semStr[desc.sem],
+                desc.units.dimSpace, desc.units.dimTime, desc.units.dimCount,
+                desc.units.scaleSpace, desc.units.scaleTime, desc.units.scaleCount,
+                desc.units.extraUnit, desc.units.extraScale);
 	}
     }
 
