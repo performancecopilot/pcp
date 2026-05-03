@@ -51,6 +51,9 @@ units(void)
     pmUnits forw;
     pmUnits back;
 
+    memset(&forw, 0, sizeof(forw));
+    memset(&back, 0, sizeof(back));
+
     forw.pad = back.pad = 0;
     forw.dimSpace	= back.scaleCount	= 1;
     forw.dimTime	= back.scaleTime	= 2;
@@ -58,8 +61,8 @@ units(void)
     forw.scaleSpace	= back.dimCount		= 4;
     forw.scaleTime	= back.dimTime		= 5;
     forw.scaleCount	= back.dimSpace		= 6;
-    printf("pmUnits: 1,2,3,4,5,6 = %d\n", *(unsigned int *)&forw);
-    printf("pmUnits: 6,5,4,3,2,1 = %d\n", *(unsigned int *)&back);
+    printf("pmUnits: 1,2,3,4,5,6 = %08x\n", *(unsigned int *)&forw);
+    printf("pmUnits: 6,5,4,3,2,1 = %08x\n", *(unsigned int *)&back);
 }
 
 void
