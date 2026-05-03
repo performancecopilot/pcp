@@ -331,8 +331,10 @@ typedef struct __pmDSO {
 #define PMDA_PMID(cluster,item) ((((cluster)&0xfff)<<10)|((item)&0x3ff))
 
 /* Macros for pmUnits bitmap in a pmDesc declaration */
-#define PMDA_PMUNITS(a,b,c,d,e,f) {.dimSpace=a, .dimTime=b, .dimCount=c, .scaleSpace=d, .scaleTime=e, .scaleCount=f}
+#define PMDA_UNITS(a,b,c,d,e,f) {.dimSpace=a, .dimTime=b, .dimCount=c, .scaleSpace=d, .scaleTime=e, .scaleCount=f}
 #define PMDA_EXTRAUNITS(a,b,c,d,e,f,g,h) {.dimSpace=a, .dimTime=b, .dimCount=c, .scaleSpace=d, .scaleTime=e, .scaleCount=f, .extraUnit=g, .extraScale=h}
+/* for backwards compatibility */
+#define PMDA_PMUNITS(a,b,c,d,e,f) PMDA_UNITS(a,b,c,d,e,f)
 
 /* Command line option processing macros and data structures */
 
