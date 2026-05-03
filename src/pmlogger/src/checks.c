@@ -372,15 +372,19 @@ validate_metrics(void)
 		new_desc.units.dimCount != old_desc->units.dimCount ||
 		new_desc.units.scaleSpace != old_desc->units.scaleSpace ||
 		new_desc.units.scaleTime != old_desc->units.scaleTime ||
-		new_desc.units.scaleCount != old_desc->units.scaleCount) {
+		new_desc.units.scaleCount != old_desc->units.scaleCount ||
+		new_desc.units.extraUnit != old_desc->units.extraUnit ||
+		new_desc.units.extraScale != old_desc->units.extraScale) {
 		++error;
-		fprintf(stderr, "Units of metric \"%s\" has changed from [%d,%d,%d,%d,%d,%d] %s to [%d,%d,%d,%d,%d,%d] %s\n",
+		fprintf(stderr, "Units of metric \"%s\" has changed from [%d,%d,%d,%d,%d,%d,%d,%d] %s to [%d,%d,%d,%d,%d,%d,%d,%d] %s\n",
 			tp->t_namelist[index],
 			old_desc->units.dimSpace, old_desc->units.dimTime, old_desc->units.dimCount,
 			old_desc->units.scaleSpace, old_desc->units.scaleTime, old_desc->units.scaleCount,
+			old_desc->units.extraUnit, old_desc->units.extraScale,
 			pmUnitsStr_r(&old_desc->units, buf1, sizeof(buf1)),
 			new_desc.units.dimSpace, new_desc.units.dimTime, new_desc.units.dimCount,
 			new_desc.units.scaleSpace, new_desc.units.scaleTime, new_desc.units.scaleCount,
+			new_desc.units.extraUnit, new_desc.units.extraScale,
 			pmUnitsStr_r(&new_desc.units, buf2, sizeof(buf2)));
 	    }
 	} /* loop over metrics */
