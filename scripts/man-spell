@@ -2530,7 +2530,7 @@ do
 		ismd=true
 		;;
 	*)
-		if troff "$file"
+		if _troff "$file"
 		then
 		    istroff=true
 		fi
