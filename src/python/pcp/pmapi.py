@@ -412,9 +412,11 @@ class pmUnits(Structure):
                     ("scaleSpace", c_int, 4),
                     ("scaleTime", c_int, 4),
                     ("scaleCount", c_int, 4),
-                    ("pad", c_int, 8)]
+                    ("extraUnit", c_int, 5),
+                    ("extraScale", c_int, 3)]
     else:
-        _fields_ = [("pad", c_int, 8),
+        _fields_ = [("extraScale", c_int, 3),
+                    ("extraUnit", c_int, 5),
                     ("scaleCount", c_int, 4),
                     ("scaleTime", c_int, 4),
                     ("scaleSpace", c_int, 4),
@@ -422,7 +424,7 @@ class pmUnits(Structure):
                     ("dimTime", c_int, 4),
                     ("dimSpace", c_int, 4)]
 
-    def __init__(self, dimS=0, dimT=0, dimC=0, scaleS=0, scaleT=0, scaleC=0):
+    def __init__(self, dimS=0, dimT=0, dimC=0, scaleS=0, scaleT=0, scaleC=0, extraU=0, extraS=0):
         Structure.__init__(self)
         self.dimSpace = dimS
         self.dimTime = dimT
@@ -430,11 +432,12 @@ class pmUnits(Structure):
         self.scaleSpace = scaleS
         self.scaleTime = scaleT
         self.scaleCount = scaleC
-        self.pad = 0
+        self.extraUnit = extraU
+        self.extraScale = extraS
 
     def __int__(self):
         return c_api.pmUnits_int(self.dimSpace, self.dimTime, self.dimCount,
-                                 self.scaleSpace, self.scaleTime, self.scaleCount)
+                                 self.scaleSpace, self.scaleTime, self.scaleCount, self.extraUnit, self.extraScale)
 
     def __str__(self):
         unitstr = ctypes.create_string_buffer(64)
