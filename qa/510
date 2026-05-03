@@ -27,9 +27,10 @@ _check_pmlogger_lock()
     find $PCP_ARCHIVE_DIR -name lock \
     | while read _lock
     do
-	ls -l $_lock >>$seq_full
-	# lock file could have vanished by now ...
+	# possible TOCTOU race here, lock file could have vanished
+	# by now ...
 	#
+	ls -l $_lock >>$seq_full 2>&1
 	cat $_lock >>$tmp.checklock 2>/dev/null
     done
     if [ -s $tmp.checklock ]
