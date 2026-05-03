@@ -121,14 +121,40 @@ main(int argc, char *argv[])
                 desc.units.extraUnit, desc.units.extraScale);
 	}
 	else {
+	    int	somedim = 0;
 	    printf("    /* %-8s */ { \"%s\", { 0x%04x, PM_TYPE_%s, %s, %s,\n"
-		   "                  { .dimSpace=%d, .dimTime=%d, .dimCount=%d, "
-		   ".scaleSpace=%d, .scaleTime=%d, .scaleCount=%d, .extraUnit=%d, .extraScale=%d } } },\n",
+		   "                  {",
 		pmIDStr(desc.pmid), name, desc.pmid, pmTypeStr(desc.type),
-		indomStr(desc.indom), semStr[desc.sem],
-                desc.units.dimSpace, desc.units.dimTime, desc.units.dimCount,
-                desc.units.scaleSpace, desc.units.scaleTime, desc.units.scaleCount,
-                desc.units.extraUnit, desc.units.extraScale);
+		indomStr(desc.indom), semStr[desc.sem]);
+	    if (desc.units.dimSpace != 0) {
+		printf(" .dimSpace=%d, .scaleSpace=%d", 
+		    desc.units.dimSpace, desc.units.scaleSpace);
+		somedim = 1;
+	    }
+	    if (desc.units.dimTime != 0) {
+		if (somedim)
+		    putchar(',');
+		printf(" .dimTime=%d, .scaleTime=%d", 
+		   desc.units.dimTime, desc.units.scaleTime);
+		somedim = 1;
+	    }
+	    if (desc.units.dimCount != 0) {
+		if (somedim)
+		    putchar(',');
+		printf(" .dimCount=%d, .scaleCount=%d", 
+		   desc.units.dimCount, desc.units.scaleCount);
+		somedim = 1;
+	    }
+	    if (desc.units.extraUnit != 0) {
+		if (somedim)
+		    putchar(',');
+		printf(" .extraUnit=%d, .extraScale=%d", 
+		   desc.units.extraUnit, desc.units.extraScale);
+		somedim = 1;
+	    }
+	    if (!somedim)
+		printf(" 0" );
+	    printf(" } } },\n");
 	}
     }
 
