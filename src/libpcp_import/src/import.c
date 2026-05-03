@@ -169,7 +169,7 @@ pmiDump(void)
 }
 
 pmUnits
-pmiUnits(int dimSpace, int dimTime, int dimCount, int scaleSpace, int scaleTime, int scaleCount)
+pmiUnits(int dimSpace, int dimTime, int dimCount, unsigned int scaleSpace, unsigned int scaleTime, unsigned int scaleCount)
 {
     static pmUnits units;
     units.dimSpace = dimSpace;
@@ -178,6 +178,24 @@ pmiUnits(int dimSpace, int dimTime, int dimCount, int scaleSpace, int scaleTime,
     units.scaleSpace = scaleSpace;
     units.scaleTime = scaleTime;
     units.scaleCount = scaleCount;
+    units.extraUnit = 0;
+    units.extraScale = 0;
+
+    return units;
+}
+
+pmUnits
+pmiExtraUnits(int dimSpace, int dimTime, int dimCount, unsigned int scaleSpace, unsigned int scaleTime, unsigned int scaleCount, int extraUnit, unsigned int extraScale)
+{
+    static pmUnits units;
+    units.dimSpace = dimSpace;
+    units.dimTime = dimTime;
+    units.dimCount = dimCount;
+    units.scaleSpace = scaleSpace;
+    units.scaleTime = scaleTime;
+    units.scaleCount = scaleCount;
+    units.extraUnit = extraUnit;
+    units.extraScale = extraScale;
 
     return units;
 }

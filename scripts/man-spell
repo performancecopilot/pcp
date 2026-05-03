@@ -2118,6 +2118,7 @@ pmiAddMetric
 pmiEnd
 pmiErrStr
 pmiErrStr_r
+pmiExtraUnits
 pmiGetHandle
 pmiID
 pmiInDom
