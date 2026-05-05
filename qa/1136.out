@@ -71,28 +71,6 @@ Time,"disk.dev.read[sda]","disk.dev.read[sdb]","disk.dev.read[sdc]","disk.dev.re
 1970-01-01 00:00:17,,17,,,,,,,,,,
 1970-01-01 00:00:18,,18,,,,,18,,,,,
 1970-01-01 00:00:19,,19,,,,,19,,,,,
-=== pmrep csv output (units via -U)
-Time,"disk.dev.read[sda]","disk.dev.read[sdb]","disk.dev.read[sdc]","disk.dev.read[sdd]","disk.dev.read[sde]","disk.dev.write[sda]","disk.dev.write[sdb]","disk.dev.write[sdc]","disk.dev.write[sdd]","disk.dev.write[sde]","mem.util.free","mem.util.used"
-1970-01-01 00:00:00,0,0,,,,0,0,,,,,
-1970-01-01 00:00:01,1,1,,,,1,1,,,,,
-1970-01-01 00:00:02,2,2,2,2,,2,2,2,2,,,2
-1970-01-01 00:00:03,3,3,3,3,,3,3,3,3,,,3
-1970-01-01 00:00:04,,4,,4,,,4,,4,,,4
-1970-01-01 00:00:05,,5,,5,,,5,,5,,,5
-1970-01-01 00:00:06,,6,,6,6,,6,,6,,,
-1970-01-01 00:00:07,,7,,7,7,,7,,7,,,
-1970-01-01 00:00:08,8,8,8,8,8,8,8,8,8,8,,8
-1970-01-01 00:00:09,9,9,9,9,9,9,9,9,9,9,,9
-1970-01-01 00:00:10,10,10,10,10,10,10,10,10,10,10,,10
-1970-01-01 00:00:11,11,11,11,11,11,11,11,11,11,11,,11
-1970-01-01 00:00:12,12,12,12,12,12,12,12,12,12,12,,12
-1970-01-01 00:00:13,13,,13,,,13,,13,,,,13
-1970-01-01 00:00:14,14,,14,,,14,,14,,,,14
-1970-01-01 00:00:15,,,,,,,,,,,15,
-1970-01-01 00:00:16,,,,,,,,,,,16,
-1970-01-01 00:00:17,,17,,,,,,,,,,
-1970-01-01 00:00:18,,18,,,,,18,,,,,
-1970-01-01 00:00:19,,19,,,,,19,,,,,
 === pmrep csv output - filter
 Time,"disk.dev.read[sdb]","disk.dev.read[sdd]","disk.dev.write[sdb]","disk.dev.write[sdd]","mem.util.free","mem.util.used"
 1970-01-01 00:00:00,0,,0,,,
@@ -115,8 +93,30 @@ Time,"disk.dev.read[sdb]","disk.dev.read[sdd]","disk.dev.write[sdb]","disk.dev.w
 1970-01-01 00:00:17,17,,,,,
 1970-01-01 00:00:18,18,,18,,,
 1970-01-01 00:00:19,19,,19,,,
-=== pmrep csv output (no units)
+=== pmrep csv output without unit info
 Time,"disk.dev.read[sda]","disk.dev.read[sdb]","disk.dev.read[sdc]","disk.dev.read[sdd]","disk.dev.read[sde]","disk.dev.write[sda]","disk.dev.write[sdb]","disk.dev.write[sdc]","disk.dev.write[sdd]","disk.dev.write[sde]","mem.util.free","mem.util.used"
+1970-01-01 00:00:00,0,0,,,,0,0,,,,,
+1970-01-01 00:00:01,1,1,,,,1,1,,,,,
+1970-01-01 00:00:02,2,2,2,2,,2,2,2,2,,,2
+1970-01-01 00:00:03,3,3,3,3,,3,3,3,3,,,3
+1970-01-01 00:00:04,,4,,4,,,4,,4,,,4
+1970-01-01 00:00:05,,5,,5,,,5,,5,,,5
+1970-01-01 00:00:06,,6,,6,6,,6,,6,,,
+1970-01-01 00:00:07,,7,,7,7,,7,,7,,,
+1970-01-01 00:00:08,8,8,8,8,8,8,8,8,8,8,,8
+1970-01-01 00:00:09,9,9,9,9,9,9,9,9,9,9,,9
+1970-01-01 00:00:10,10,10,10,10,10,10,10,10,10,10,,10
+1970-01-01 00:00:11,11,11,11,11,11,11,11,11,11,11,,11
+1970-01-01 00:00:12,12,12,12,12,12,12,12,12,12,12,,12
+1970-01-01 00:00:13,13,,13,,,13,,13,,,,13
+1970-01-01 00:00:14,14,,14,,,14,,14,,,,14
+1970-01-01 00:00:15,,,,,,,,,,,15,
+1970-01-01 00:00:16,,,,,,,,,,,16,
+1970-01-01 00:00:17,,17,,,,,,,,,,
+1970-01-01 00:00:18,,18,,,,,18,,,,,
+1970-01-01 00:00:19,,19,,,,,19,,,,,
+=== pmrep csv output with unit info
+Time,"disk.dev.read[sda](count)","disk.dev.read[sdb](count)","disk.dev.read[sdc](count)","disk.dev.read[sdd](count)","disk.dev.read[sde](count)","disk.dev.write[sda](count)","disk.dev.write[sdb](count)","disk.dev.write[sdc](count)","disk.dev.write[sdd](count)","disk.dev.write[sde](count)","mem.util.free(Kbyte)","mem.util.used(Kbyte)"
 1970-01-01 00:00:00,0,0,,,,0,0,,,,,
 1970-01-01 00:00:01,1,1,,,,1,1,,,,,
 1970-01-01 00:00:02,2,2,2,2,,2,2,2,2,,,2
@@ -185,7 +185,7 @@ Time,"disk.dev.read[sda]","disk.dev.read[sdb]","disk.dev.read[sdc]","disk.dev.re
 00:00:17        17       N/A        N/A        N/A       N/A       N/A
 00:00:18        18       N/A         18        N/A       N/A       N/A
 00:00:19        19       N/A         19        N/A       N/A       N/A
-=== pmrep stdout output (no units)
+=== pmrep stdout output without unit info
           d.d.read  d.d.read  d.d.read  d.d.read  d.d.read  d.d.write  d.d.write  d.d.write  d.d.write  d.d.write  m.u.free  m.u.used
                sda       sdb       sdc       sdd       sde        sda        sdb        sdc        sdd        sde                    
 00:00:00         0         0       N/A       N/A       N/A          0          0        N/A        N/A        N/A       N/A       N/A

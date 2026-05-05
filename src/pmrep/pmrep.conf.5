@@ -1,6 +1,6 @@
 '\"macro stdmacro
 .\"
-.\" Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2026 Marko Myllynen <myllynen@redhat.com>
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -176,9 +176,16 @@ Defaults to \fByes\fP.
 .PP
 unitinfo (boolean)
 .RS 4
-Indicates whether to include unit information as part of headers.
+Indicates whether to include unit information as part of stdout headers.
 Corresponding command line option is \fB\-U\fP.
 Defaults to \fByes\fP.
+.RE
+.PP
+csv_unitinfo (boolean)
+.RS 4
+Indicates whether to include unit information as part of CSV headers.
+Corresponding command line option is \fB\-\-csv\-unit\-info\fP.
+Defaults to \fBno\fP.
 .RE
 .PP
 globals (boolean)

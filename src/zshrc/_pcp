@@ -792,6 +792,7 @@ _pcp () {
       "$common_python[@]" \
       "(-o --output $exargs)"{-o+,--output=}'[set output target]:target:(archive csv stdout)' \
       "(-F --output-file $exargs)"{-F+,--output-file=}'[specify output file]:file:_files' \
+      "(--csv-unit-info $exargs)"--csv-unit-info'[include unit info in CSV header]' \
       "(--no-inst-info $exargs)"--no-inst-info'[omit instance info]' \
       "(-U --no-unit-info $exargs)"{-U,--no-unit-info}'[omit unit info]' \
       "(-p --timestamps $exargs)"{-p,--timestamps}'[print timestamps]' \

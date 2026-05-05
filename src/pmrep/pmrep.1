@@ -1,6 +1,6 @@
 '\" t
 .\"
-.\" Copyright (C) 2015-2021 Marko Myllynen <myllynen@redhat.com>
+.\" Copyright (C) 2015-2026 Marko Myllynen <myllynen@redhat.com>
 .\" Copyright (c) 2016-2018 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@
 [\fB\-b\fP|\fB\-B\fP \fIspace-scale\fP]
 [\fB\-c\fP \fIconfig\fP]
 [\fB\-\-container\fP \fIcontainer\fP]
+[\fB\-\-csv\-unit\-info\fP]
 [\f3\-D\f1 \f2debug\f1]
 [\fB\-\-daemonize\fP]
 [\fB\-e\fP \fIderived\fP]
@@ -452,6 +453,14 @@ Fetch performance metrics from the specified
 either local or remote (see
 .BR \-h ).
 .TP
+\fB\-\-csv\-unit\-info\fR
+Append unit strings to metric names in the CSV header using the form
+.I "metric(unit)"
+or
+.IR "metric[inst](unit)" .
+See also
+.BR \-k .
+.TP
 \fB\-C\fR, \fB\-\-check\fR
 Exit before reporting any values, but after parsing the configuration
 and metrics and printing possible headers.
@@ -699,12 +708,8 @@ and
 \fB\-k\fR, \fB\-\-extended\-csv\fR
 Write extended CSV output, similar to
 .BR sadf (1).
-Use
-.BR \-U
-or
-.BR \-\-csv\-unit\-info
-to append unit strings to metric names in the CSV header using the form
-.RI metric "(unit)" .
+See also
+.BR \-\-csv\-unit\-info .
 .TP
 \fB\-K\fR \fIspec\fR, \fB\-\-spec\-local\fR=\fIspec\fR
 When fetching metrics from a local context (see
@@ -819,16 +824,6 @@ Requires
 .TP
 .I csv
 Print metrics in CSV format (subject to formatting options).
-For CSV output, unit strings are omitted by default.  Use
-.BR \-U
-or
-.BR \-\-csv\-unit\-info
-to include unit strings inline with metric names (e.g.
-.IR metric "(unit)" ).
-.BR \-U
-also suppresses unit strings from
-.I stdout
-headers.
 .TP
 .I stdout
 Print metrics to stdout (format subject to formatting options).
@@ -998,10 +993,6 @@ to disable).
 .TP
 \fB\-U\fR, \fB\-\-no\-unit\-info\fR
 Omit unit information from \fIstdout\fP headers.
-.TP
-\fB\-\-csv\-unit\-info\fR
-Include unit information in CSV headers (off by default). This does not affect
-stdout headers.
 .TP
 \fB\-v\fR, \fB\-\-omit\-flat\fR
 Report only set-valued metrics with instances (e.g. disk.dev.read) and
