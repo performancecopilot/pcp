@@ -1018,6 +1018,18 @@ allow pcp_pmproxy_t proc_net_t:file read;
 # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="pmproxy" name="pmlogger" dev="dm-92" ino=INO scontext=system_u:system_r:pcp_pmproxy_t:s0 tcontext=system_u:object_r:pcp_log_t:s0 tclass=lnk_file
 allow pcp_pmproxy_t pcp_log_t:lnk_file read;
 
+#============= pmda-rds ==============
+
+# type=AVC msg=audit(1778012003.361:174892): avc:  denied  { create } for  pid=2195358 comm="python3" scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:system_r:pcp_pmcd_t:s0 tclass=rds_socket permissive=0
+optional_policy(`
+require {
+	type pcp_pmcd_t;
+	class rds_socket create;
+}
+
+allow pcp_pmcd_t self:rds_socket create;
+')
+
 #============= pmda-smart ==============
 
 # type=AVC msg=audit(N): avc: denied { read } for pid=PID comm="sh" name="smartctl" dev="dm-1" ino=INO scontext=system_u:system_r:pcp_pmcd_t:s0 tcontext=system_u:object_r:fsadm_exec_t:s0 tclass=file permissive=1
