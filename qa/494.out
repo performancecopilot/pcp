@@ -257,6 +257,24 @@ pmdumplog diffs ...
          inst [100 or "bin-100"] value 100
 
 === indom 29.* { indom -> 109.* } ===
+Warning [TMP.config, line 2]
+sample.longlong.bin_ctr: Warning: domain (29) in metric pmid (29.0.110) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.part_bin: Warning: domain (29) in metric pmid (29.0.50) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.bin: Warning: domain (29) in metric pmid (29.0.6) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.float.bin_ctr: Warning: domain (29) in metric pmid (29.0.108) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.ulonglong.bin_ctr: Warning: domain (29) in metric pmid (29.0.112) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.ulong.bin_ctr: Warning: domain (29) in metric pmid (29.0.106) different to domain (109) in metric indom (109.2)
+
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -316,6 +334,18 @@ pmdumplog diffs ...
     300 or "bin-300"
 
 === metric 30.*.* { pmid -> 123.*.* } ===
+Warning [TMP.config, line 2]
+sampledso.part_bin: Warning: domain (123) in metric pmid (123.0.50) different to domain (30) in metric indom (30.2)
+
+Warning [TMP.config, line 2]
+sampledso.long.bin_ctr: Warning: domain (123) in metric pmid (123.0.104) different to domain (30) in metric indom (30.2)
+
+Warning [TMP.config, line 2]
+sampledso.double.bin_ctr: Warning: domain (123) in metric pmid (123.0.114) different to domain (30) in metric indom (30.2)
+
+Warning [TMP.config, line 2]
+sampledso.bin: Warning: domain (123) in metric pmid (123.0.6) different to domain (30) in metric indom (30.2)
+
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out
@@ -497,6 +527,24 @@ pmdumplog diffs ...
          inst [200 or "bin-200"] value 200
 
 === indom 29.* { indom -> 109.* } metric sample.bin { indom -> 109.2 } ===
+Warning [TMP.config, line 2]
+sample.longlong.bin_ctr: Warning: domain (29) in metric pmid (29.0.110) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.part_bin: Warning: domain (29) in metric pmid (29.0.50) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.float.bin_ctr: Warning: domain (29) in metric pmid (29.0.108) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.ulonglong.bin_ctr: Warning: domain (29) in metric pmid (29.0.112) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.ulong.bin_ctr: Warning: domain (29) in metric pmid (29.0.106) different to domain (109) in metric indom (109.2)
+
+Warning [TMP.config, line 2]
+sample.bin: Warning: domain (29) in metric pmid (29.0.6) different to domain (109) in metric indom (109.2)
+
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out

@@ -942,7 +942,7 @@ Used with pmstore(1) and any value will trigger a reset of the control
 state to: obs=0, min=0, max=200, step=10, repeat=5 and mode=1. and
 up.
 
-@ sample.temperature.centigrade temperature in degrees Centigrade
+@ sample.temperature.celsius temperature in degrees Celsius
 All sample.temperature.* metrics share the same current temperature
 (defaults to the freezing point of wqater at sea level), but the value
 can be changed with pmstore(1).

@@ -1375,6 +1375,48 @@ check_indoms()
 }
 
 static void
+check_metadata()
+{
+    /*
+     * For each metric, if there is any metadata change check
+     * the integrity of the new metadata
+     */
+    metricspec_t	*mp;
+    int			sts;
+    char		*errmsg;
+    char		*where;
+    size_t		wherelen;
+
+    for (mp = metric_root; mp != NULL; mp = mp->m_next) {
+	if (mp->flags & (METRIC_CHANGE_PMID|METRIC_CHANGE_NAME|METRIC_CHANGE_TYPE|METRIC_CHANGE_INDOM|METRIC_CHANGE_SEM|METRIC_CHANGE_UNITS)) {
+	    wherelen = strlen(mp->old_name)+3;
+	    where = malloc(wherelen);
+	    /*
+	     * if this fails, pass NULL to __pmCheckDesc() and we
+	     * just won't have the metric names as the line prefix
+	     */
+	    if (where != NULL) {
+		pmstrncpy(where, wherelen, mp->old_name);
+		pmstrncat(where, wherelen, ": ");
+	    }
+	    sts = __pmCheckDesc(&mp->new_desc, where, &errmsg);
+	    if (where != NULL)
+		free(where);
+	    if (sts <= 0)
+		continue;
+	    else if (sts == 1) {
+		yywarn(errmsg);
+		free(errmsg);
+	    }
+	    else if (sts == 2) {
+		yyerror(errmsg);
+		free(errmsg);
+	    }
+	}
+    }
+}
+
+static void
 check_output()
 {
     /*
@@ -1790,6 +1832,7 @@ main(int argc, char **argv)
      * config files have been processed
      */
     link_entries();
+    check_metadata();
     check_indoms();
     check_output();
 

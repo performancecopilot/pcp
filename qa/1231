@@ -25,9 +25,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     tmpx=`echo $tmp`
-    sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
+    sed \
+	-e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
 	-e "s|$tmpx|TMP|g" \
-	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|'
+	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|' \
+	-e "s@$tmp@TMP@g" \
+    # end
 }
 
 # real QA test starts here
@@ -35,7 +38,7 @@ DIR=archives
 
 # First, run pmlogrewrite against the archive, changing indom 2.1 to 2.200
 CONFIG=$tmp.config
-cat > $CONFIG << EOF
+cat >$CONFIG <<EOF
 INDOM 2.1 { INDOM -> 2.200 }
 EOF
 echo contents of $CONFIG >> $seq_full
@@ -46,27 +49,27 @@ IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT >> $seq_full 2>&1
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
 echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP1
+pmdumplog -zhide $IN >$DUMP1 2>&1
 
 DUMP2=$tmp.extracted.txt
 IN=$OUT
 echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP2
+pmdumplog -zhide $IN >$DUMP2 2>&1
 
 # Make sure the indom has been updated in the help text records
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full
 diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq_full
 
-# Now, run pmlogrewrite against the archive, changing indom 2.1 to 200.1
+# Now, run pmlogrewrite against the archive, changing indom 2.1 to 251.1
 CONFIG=$tmp.config
-cat > $CONFIG << EOF
-INDOM 2.1 { INDOM -> 200.1 }
+cat >$CONFIG <<EOF
+INDOM 2.1 { INDOM -> 251.1 }
 EOF
 echo contents of $CONFIG >> $seq_full
 echo ........................ >> $seq_full
@@ -76,18 +79,18 @@ IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT >> $seq_full 2>&1
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 pmlogextract $OUT $tmp.xxxx
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
 echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP1
+pmdumplog -zhide $IN >$DUMP1 2>&1
 
 DUMP2=$tmp.extracted.txt
 IN=$OUT
 echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP2
+pmdumplog -zhide $IN >$DUMP2 2>&1
 
 # Make sure the imdom has been updated in the help text records
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full

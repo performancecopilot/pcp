@@ -382,7 +382,7 @@ sample.updown.control {
 }
 
 sample.temperature {
-    centigrade		SAMPLE:0:172
+    celsius		SAMPLE:0:172
     farenheit		SAMPLE:0:173
     kelvin		SAMPLE:0:174
 }

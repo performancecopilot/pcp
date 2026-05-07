@@ -25,9 +25,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     tmpx=`echo $tmp`
-    sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
+    sed \
+	-e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
 	-e "s|$tmpx|TMP|g" \
-	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|'
+	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|' \
+	-e "s@$tmp@TMP@g" \
+    # end
 }
 
 # find these lines, report 'em and the next one
@@ -75,7 +78,7 @@ IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT >>$seq_full 2>&1 
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.

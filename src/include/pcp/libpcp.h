@@ -1598,6 +1598,10 @@ PCP_CALL extern void __pmDumpFetchFlags(FILE *, int);
 /* integrity checker for pmDesc */
 PCP_CALL extern int __pmCheckDesc(pmDesc *, char *, char **);
 
+/* extra units support */
+PCP_CALL extern int __pmLookupExtraUnit(const char *);
+PCP_CALL extern int __pmLookupExtraScale(int, const char *);
+
 /*
  * PMAPI_VERSION_2 interfaces
  */

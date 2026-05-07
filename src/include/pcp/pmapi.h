@@ -160,7 +160,7 @@ typedef struct pmUnits {
  * scale factors for extra units ... must be > 0 and <= 7 and
  * unique for each extra unit type
  */
-#define PM_TEMPERATURE_C	1	/* centigrade */
+#define PM_TEMPERATURE_C	1	/* celsius */
 #define PM_TEMPERATURE_F	2	/* farenheit */
 #define PM_TEMPERATURE_K	3	/* kelvin */
 #define PM_VOLTAGE_V		1	/* Volt */

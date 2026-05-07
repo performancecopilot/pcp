@@ -38,6 +38,7 @@ char	mess[256];
 int mystate = LEX_NONE;
 
 static int	comma_count;
+static int	in_extra;
 
 #include "gram.tab.h"
 
@@ -97,7 +98,7 @@ duptextstr(char *s, int strip_quotes)
 #endif
 %}
 
-%s none glob host indom metric text label type iftype sem units space time count output
+%s none glob host indom metric text label type iftype sem units space time count extra output
 %option case-insensitive
 
 %%
@@ -134,6 +135,7 @@ duptextstr(char *s, int strip_quotes)
 <metric>"output"	{ BEGIN(output); return TOK_OUTPUT; }
 <metric>"sem"		{ BEGIN(sem); return TOK_SEM; }
 <metric>"units"		{ BEGIN(units); comma_count = 0; return TOK_UNITS; }
+<metric>"extraunits"	{ BEGIN(units); comma_count = 0; in_extra = 1; return TOK_EXTRAUNITS; }
 <metric>"value"		{ return TOK_METRIC_VALUE; }
 <metric>"replace"	{ return TOK_REPLACE; }
 
@@ -192,9 +194,6 @@ duptextstr(char *s, int strip_quotes)
 <units>","		{
 			    ++comma_count;
 			    switch (comma_count) {
-				case 1:
-				case 2:
-				    break;
 				case 3:
 				    BEGIN(space);
 				    break;
@@ -203,6 +202,10 @@ duptextstr(char *s, int strip_quotes)
 				    break;
 				case 5:
 				    BEGIN(count);
+				    break;
+				case 6:
+				case 7:
+				    BEGIN(extra);
 				    break;
 			    }
 			    return TOK_COMMA;
@@ -226,8 +229,24 @@ duptextstr(char *s, int strip_quotes)
 <time>"HOUR"		{ yylval.ival = PM_TIME_HOUR; BEGIN(units); return TOK_TIME_NAME; }
 <time>"0"		{ yylval.ival = 0; BEGIN(units); return TOK_TIME_NAME; }
 
-<count>"ONE"		{ yylval.ival = PM_COUNT_ONE; BEGIN(metric); return TOK_COUNT_NAME; }
-<count>[0-9]+		{ yylval.ival = atoi(yytext); BEGIN(metric); return TOK_COUNT_NAME; }
+<count>"ONE"		{
+			    yylval.ival = PM_COUNT_ONE;
+			    if (in_extra == 1)
+				BEGIN(units);
+			    else
+				BEGIN(metric);
+			    return TOK_COUNT_NAME;
+			}
+<count>[0-9]+		{
+			    yylval.ival = atoi(yytext);
+			    if (in_extra == 1)
+				BEGIN(units);
+			    else
+				BEGIN(metric);
+			    return TOK_COUNT_NAME;
+			}
+
+<extra>[A-Z][A-Z_]*	{ yylval.str = dupstr(yytext, 0); BEGIN(units); return TOK_MACRO; }
 
 \"[^\"\n][^\"\n]*\"	{ yylval.str = dupstr(yytext, 1); return TOK_STRING; }
 \"(\\\"|[^\"])+\"	{ yylval.str = duptextstr(yytext, 1); return TOK_TEXT_STRING; }

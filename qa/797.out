@@ -2,6 +2,9 @@ QA output created by 797
 ===511.2048.1 case ===
 Warning [TMP.rewrite, line 1]
 Dynamic metric domain field (511) for pmid
+Warning [TMP.rewrite, line 4]
+mem.util.allcache: Warning: domain (510) in metric pmid (510.2048.1) is not recognized
+
 Note: timezone set to local timezone of host "bozo" from archive
 
 
@@ -153,6 +156,13 @@ Note: timezone set to local timezone of host "bozo" from archive
 ===511.2048.* case ===
 Warning [TMP.rewrite, line 1]
 Dynamic metric domain field (511) for pmid
+Warning [TMP.rewrite, line 4]
+mem.util.bin: Warning: domain (510) in metric pmid (510.2048.2) is not recognized
+mem.util.bin: Warning: domain (510) in metric pmid (510.2048.2) different to domain (29) in metric indom (29.2)
+
+Warning [TMP.rewrite, line 4]
+mem.util.allcache: Warning: domain (510) in metric pmid (510.2048.1) is not recognized
+
 Note: timezone set to local timezone of host "bozo" from archive
 
 
@@ -304,6 +314,13 @@ Note: timezone set to local timezone of host "bozo" from archive
 ===511.*.* case ===
 Warning [TMP.rewrite, line 1]
 Dynamic metric domain field (511) for pmid
+Warning [TMP.rewrite, line 4]
+mem.util.bin: Warning: domain (510) in metric pmid (510.2048.2) is not recognized
+mem.util.bin: Warning: domain (510) in metric pmid (510.2048.2) different to domain (29) in metric indom (29.2)
+
+Warning [TMP.rewrite, line 4]
+mem.util.allcache: Warning: domain (510) in metric pmid (510.2048.1) is not recognized
+
 Note: timezone set to local timezone of host "bozo" from archive
 
 

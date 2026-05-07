@@ -404,7 +404,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,170), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* updown.control.reset */
     { PMDA_PMID(0,171), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
-/* sample.temperature.centigrade */
+/* sample.temperature.celsius */
     { PMDA_PMID(0,172), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNITS_TEMPERATURE, PM_TEMPERATURE_C) },
 /* sample.temperature.farenheit */
     { PMDA_PMID(0,173), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNITS_TEMPERATURE, PM_TEMPERATURE_F) },
@@ -776,7 +776,7 @@ static int	_bin_val[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900 };
 static struct timeval mirage_ctl = { 0, 0 };
 static struct timeval mirage_reset = { 10, 0 };
 
-static float	temperature = 0;	/* centigrade, default is freezing water */
+static float	temperature = 0;	/* celsius, default is freezing water */
 static float	voltage = 240;		/* AC in most places */
 static float	current = 13;		/* lucky for some */
 static float	power = 42;		/* answer to the ultimate question of life, the universe, and everything */
@@ -2742,7 +2742,7 @@ doit:
 			atom.ul = 0;
 			break;
 
-		    case 172:	/* sample.temperature.centigrade */
+		    case 172:	/* sample.temperature.celsius */
 			atom.f = temperature;
 			break;
 
@@ -3132,7 +3132,7 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 	    case 143:	/* negative.ctr.m_float */
 	    case 147:	/* negative.instant.m_float */
 	    case 151:	/* negative.discrete.m_float */
-	    case 172:	/* sample.temperature.centigrade */
+	    case 172:	/* sample.temperature.celsius */
 	    case 173:	/* sample.temperature.farenheit */
 	    case 174:	/* sample.temperature.kelvin */
 	    case 175:	/* sample.voltage.volt */
@@ -3395,7 +3395,7 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 		updown_max = 200;
 		updown_step = 10;
 		break;
-	    case 172:	/* sample.temperature.centigrade */
+	    case 172:	/* sample.temperature.celsius */
 		temperature = av.f;
 		break;
 	    case 173:	/* sample.temperature.farenheit */

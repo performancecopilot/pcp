@@ -175,8 +175,11 @@ append(char **buf, size_t *buflen, char *preamble, char *new)
 /*
  * Check the integrity of a pmDesc
  *
- * Returns 0 if OK else 1 if problem found else < 0 for fatal error
- * (most likely NOMEM).
+ * Returns
+ *   0 if OK else
+ *   1 if most serious issue is a warning
+ *   2 if most serious issue is an error
+ *   < 0 for fatal error (most likely NOMEM)
  *
  * If an issue is found then errmsg also returns one or more lines of
  * explanation messages (each terminated by a newline) and the caller
@@ -239,7 +242,8 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 		sts = -ENOMEM;
 		goto done;
 	    }
-	    sts = 1;
+	    if (sts != 2)
+		sts = 1;
 	}
     }
 
@@ -255,7 +259,8 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 		    sts = -ENOMEM;
 		    goto done;
 		}
-		sts = 1;
+		if (sts != 2)
+		    sts = 1;
 	    }
 	}
 	if (pmID_domain(dp->pmid) != DYNAMIC_PMID &&
@@ -265,7 +270,8 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 		sts = -ENOMEM;
 		goto done;
 	    }
-	    sts = 1;
+	    if (sts != 2)
+		sts = 1;
 	}
     }
 
@@ -275,7 +281,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	sts = 2;
     }
 
     if (dp->sem != PM_SEM_COUNTER && dp->sem != PM_SEM_INSTANT && dp->sem != PM_SEM_DISCRETE) {
@@ -284,7 +290,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	sts = 2;
     }
 
     /*
@@ -297,7 +303,8 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	if (sts != 2)
+	    sts = 1;
     }
     if (dp->units.dimTime < -2 || dp->units.dimTime > 2) {
 	pmsprintf(buf, sizeof(buf), "Warning: unusual dimension (%d) for Time in pmUnits\n", dp->units.dimTime);
@@ -305,7 +312,8 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	if (sts != 2)
+	    sts = 1;
     }
     if (dp->units.dimCount < -2 || dp->units.dimCount > 2) {
 	pmsprintf(buf, sizeof(buf), "Warning: unusual dimension (%d) for Count in pmUnits\n", dp->units.dimCount);
@@ -313,7 +321,8 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	if (sts != 2)
+	    sts = 1;
     }
 
     /*
@@ -326,7 +335,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	sts = 2;
     }
     if (dp->units.scaleSpace > PM_SPACE_EBYTE) {
 	pmsprintf(buf, sizeof(buf), "Error: scale (%d) for Space in pmUnits is not one of the valid PM_SPACE_* values\n", dp->units.scaleSpace);
@@ -334,7 +343,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	sts = 2;
     }
     if (dp->units.dimTime == 0 && dp->units.scaleTime != 0) {
 	pmsprintf(buf, sizeof(buf), "Error: non-zero scale (%d) with zero dimension for Time in pmUnits\n", dp->units.scaleTime);
@@ -342,7 +351,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	sts = 2;
     }
     if (dp->units.scaleTime > PM_TIME_HOUR) {
 	pmsprintf(buf, sizeof(buf), "Error: scale (%d) for Time in pmUnits is not one of the valid PM_SPACE_* values\n", dp->units.scaleTime);
@@ -350,7 +359,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	sts = 2;
     }
     if (dp->units.dimCount == 0 && dp->units.scaleCount != 0) {
 	pmsprintf(buf, sizeof(buf), "Error: non-zero scale (%d) with zero dimension for Count in pmUnits\n", dp->units.scaleCount);
@@ -358,7 +367,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    sts = -ENOMEM;
 	    goto done;
 	}
-	sts = 1;
+	sts = 2;
     }
 
     if (dp->units.extraUnit != 0) {
@@ -385,7 +394,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 		    sts = -ENOMEM;
 		    goto done;
 		}
-		sts = 1;
+		sts = 2;
 	    }
 	}
 	else {
@@ -394,7 +403,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 		sts = -ENOMEM;
 		goto done;
 	    }
-	    sts = 1;
+	    sts = 2;
 	}
     }
 
@@ -402,4 +411,42 @@ done:
     if (err != NULL)
 	*errmsg = err;
     return sts;
+}
+
+/*
+ * map extra unit name -> type (PM_UNITS_*)
+ */
+int
+__pmLookupExtraUnit(const char *name)
+{
+    int		u;	/* index into extra[] */
+
+    for (u = 0; u < nextra; u++) {
+	if (strcasecmp(name, extra[u].name) == 0) {
+	    return extra[u].type;
+	}
+    }
+    return -1;
+}
+
+/*
+ * for extra unit type map text -> ident
+ */
+int
+__pmLookupExtraScale(int type, const char *text)
+{
+    int		u;	/* index into extra[] */
+    int		s;	/* scale selector */
+
+    for (u = 0; u < nextra; u++) {
+	if (type == extra[u].type) {
+	    for (s = 0; s < extra[u].nscale; s++) {
+		if (strcasecmp(text, extra[u].scale[s].text) == 0) {
+		    return extra[u].scale[s].ident;
+		}
+	    }
+	    return -1;
+	}
+    }
+    return -1;
 }

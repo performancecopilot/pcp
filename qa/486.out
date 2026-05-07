@@ -1,6 +1,9 @@
 QA output created by 486
 
 === archives/mirage: metric sample.bin { pmid->42.42.42 } ===
+Warning [TMP.config, line 2]
+sample.bin: Warning: domain (42) in metric pmid (42.42.42) different to domain (29) in metric indom (29.2)
+
 pmdumplog diffs ...
 --- TMP.in
 +++ TMP.out

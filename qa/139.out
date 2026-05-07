@@ -197,7 +197,7 @@ sample.updown.control.max
 sample.updown.control.step
 sample.updown.control.mode
 sample.updown.control.reset
-sample.temperature.centigrade
+sample.temperature.celsius
 sample.temperature.farenheit
 sample.temperature.kelvin
 sample.voltage.volt
