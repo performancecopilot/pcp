@@ -71,7 +71,7 @@ class PCP2OPENTELEMETRY(object):
         # Ignored for pmrep(1) compatibility
         self.keys_ignore = (
                      'timestamp', 'unitinfo', 'colxrow', 'separate_header', 'fixed_header',
-                     'delay', 'width', 'delimiter', 'extcsv', 'width_force',
+                     'delay', 'width', 'delimiter', 'extcsv', 'width_force', 'csv_unitinfo',
                      'extheader', 'repeat_header', 'interpol',
                      'dynamic_header', 'overall_rank', 'overall_rank_alt', 'sort_metric',
                      'instinfo', 'include_texts')
