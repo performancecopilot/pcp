@@ -36,7 +36,7 @@ DIR=archives
 
 # First, run pmlogrewrite against the archive, deleting and reassociating some item labels
 CONFIG=$tmp.config
-cat > $CONFIG << EOF
+cat >$CONFIG <<EOF
 LABEL INSTANCES 3.9 {  }
 LABEL INSTANCES 3.9 { DELETE }
 LABEL INSTANCES 60.19 { INSTANCES -> 60.24 }
@@ -49,88 +49,88 @@ LABEL INSTANCES 60.10 * * "sda2" { DELETE }
 LABEL INSTANCES 60.24 * "device_name" * { DELETE }
 LABEL INSTANCES 60.32 * * * { DELETE }
 EOF
-echo contents of $CONFIG >> $seq_full
-echo ........................ >> $seq_full
-cat $CONFIG >> $seq_full
-echo ........................ >> $seq_full
+echo contents of $CONFIG >>$seq_full
+echo ........................ >>$seq_full
+cat $CONFIG >>$seq_full
+echo ........................ >>$seq_full
 IN=$DIR/20180416
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT >>$seq_full 2>&1
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and rewritten archives.
 DUMP1=$tmp.original.txt
 echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP1
+pmdumplog -zhide $IN >$DUMP1 2>&1
 
 DUMP2=$tmp.rewritten.txt
 IN=$OUT
 echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP2
+pmdumplog -zhide $IN >$DUMP2 2>&1
 
 # Make sure the item labels have been deleted or reassociated
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full
 diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq_full
 
 # Test deleting all instance labels for an entire domain
-cat > $CONFIG << EOF
+cat >$CONFIG <<EOF
 LABEL INSTANCES 3.* { DELETE }
 EOF
-echo contents of $CONFIG >> $seq_full
-echo ........................ >> $seq_full
-cat $CONFIG >> $seq_full
-echo ........................ >> $seq_full
+echo contents of $CONFIG >>$seq_full
+echo ........................ >>$seq_full
+cat $CONFIG >>$seq_full
+echo ........................ >>$seq_full
 IN=$DIR/20180416
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT >>$seq_full 2>&1
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and rewritten archives.
 DUMP1=$tmp.original.txt
 echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP1
+pmdumplog -zhide $IN >$DUMP1 2>&1
 
 DUMP2=$tmp.rewritten.txt
 IN=$OUT
 echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP2
+pmdumplog -zhide $IN >$DUMP2 2>&1
 
 # Make sure the item labels have been deleted or reassociated
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full
 diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq_full
 
 # Test creating new instance labels
-cat > $CONFIG << EOF
+cat >$CONFIG <<EOF
 LABEL INSTANCES 3.9 { NEW "new_name" "new_value" }
 LABEL INSTANCES 60.0 1 { NEW "new_name" 60 }
 LABEL INSTANCES 60.10 * { NEW "new_name" true }
 LABEL INSTANCES 60.24 * { NEW "new_name" false }
 LABEL INSTANCES 60.32 * { NEW "new_name" null }
 EOF
-echo contents of $CONFIG >> $seq_full
-echo ........................ >> $seq_full
-cat $CONFIG >> $seq_full
-echo ........................ >> $seq_full
+echo contents of $CONFIG >>$seq_full
+echo ........................ >>$seq_full
+cat $CONFIG >>$seq_full
+echo ........................ >>$seq_full
 IN=$DIR/20180416
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
-pmlogrewrite -c $CONFIG $IN $OUT 2>&1 >> $seq_full
+pmlogrewrite -c $CONFIG $IN $OUT >>$seq_full 2>&1
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and rewritten archives.
 DUMP1=$tmp.original.txt
 echo "Running pmdumplog -zhide $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP1
+pmdumplog -zhide $IN >$DUMP1 2>&1
 
 DUMP2=$tmp.rewritten.txt
 IN=$OUT
 echo "Running pmdumplog -iteh $IN" | _filter | tee -a $seq_full
-pmdumplog -zhide $IN 2>&1 > $DUMP2
+pmdumplog -zhide $IN >$DUMP2 2>&1
 
 # Make sure the item labels have been deleted or reassociated
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full

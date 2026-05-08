@@ -88,7 +88,7 @@ pmrep -z -p -u -a $A -w 40 sample.float.one
 echo "--- 02"
 pmrep -z -p -u -a $A -w 40 --ignore-unknown no.such.metric sample.float.one
 echo "--- 03"
-cat > $tmp.config <<EOF
+cat >$tmp.config <<EOF
 [test]
 no.such.metric = ,,
 sample.float.one = ,,

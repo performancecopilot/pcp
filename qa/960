@@ -16,7 +16,7 @@ echo "QA output created by $seq"
 [ -d $PCP_PMDAS_DIR/ds389log ] || _notrun "ds389log PMDA directory is not installed"
 
 which logconv.pl >/dev/null 2>&1 || _notrun "No logconv.pl script installed"
-$sudo ls /var/log/dirsrv/slapd-*/access 2>&1 >/dev/null || \
+$sudo ls /var/log/dirsrv/slapd-*/access >/dev/null 2>&1 || \
     _notrun "No ds389 directory log files accessible"
 id dirsrv >/dev/null 2>&1 || _notrun "No dirsrv (default) account installed"
 
@@ -41,8 +41,8 @@ pmdads389log_install()
 \$server = '$server';
 \$bindpw = '$passwd';
 EOF
-    echo "pmdads389log config:" >> $seq_full
-    cat $tmp.config >> $seq_full
+    echo "pmdads389log config:" >>$seq_full
+    cat $tmp.config >>$seq_full
 
     [ -f $PCP_PMDAS_DIR/ds389log/ds389log.conf ] && \
     $sudo cp $PCP_PMDAS_DIR/ds389log/ds389log.conf $tmp.backup
@@ -61,10 +61,10 @@ EOF
                                          if ($10 >= 10 && $10 <= 50) $10 = "X"
                                        }
                                        { print }'
-    echo Install: >> $seq_full
-    cat $tmp.out >> $seq_full
-    echo Logfile: >> $seq_full
-    cat $PCP_LOG_DIR/pmcd/ds389log.log >> $seq_full
+    echo Install: >>$seq_full
+    cat $tmp.out >>$seq_full
+    echo Logfile: >>$seq_full
+    cat $PCP_LOG_DIR/pmcd/ds389log.log >>$seq_full
 }
 
 pmdads389log_cleanup()

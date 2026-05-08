@@ -34,10 +34,10 @@ _clean_iscsi()
 	# leftover turds from one of our lio PMDA tests failing
 	# ... cleanup
 	#
-	$sudo targetcli iscsi/ delete iqn.2003-01.com.pcpio.test:iscsi-gateway 2>&1 >>$seq_full
+	$sudo targetcli iscsi/ delete iqn.2003-01.com.pcpio.test:iscsi-gateway >>$seq_full 2>&1
 	for i in 1 2 3
 	do
-	    $sudo targetcli backstores/ramdisk/ delete ramdisk$i 2>&1 >>$seq_full
+	    $sudo targetcli backstores/ramdisk/ delete ramdisk$i >>$seq_full 2>&1
 	done
     fi
 }

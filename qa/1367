@@ -34,7 +34,7 @@ domain=253
 cd "$PCP_PMDAS_DIR/simple"
 $sudo ./Install </dev/null >/dev/null 2>&1
 
-$sudo TERM=ansi dbpmda -n root <<End-of-File 2>&1 | _filter > $tmp.simple.python
+$sudo TERM=ansi dbpmda -n root <<End-of-File 2>&1 | _filter >$tmp.simple.python
 open pipe $python_path pmdasimple.python
 label domain
 label indom $domain.0
@@ -45,7 +45,7 @@ label cluster $domain.2
 label item $domain.2.4
 End-of-File
 
-$sudo TERM=ansi dbpmda -n root <<End-of-File 2>&1 | _filter > $tmp.simple.C
+$sudo TERM=ansi dbpmda -n root <<End-of-File 2>&1 | _filter >$tmp.simple.C
 open pipe pmdasimple -d $domain
 label domain
 label indom $domain.0

@@ -34,9 +34,9 @@ _cleanup()
 	&& $sudo sh $tmp.cmd
 	echo >>$seq_full
 	echo "--- pcp stop ---" >>$seq_full
-	_service pmlogger stop 2>&1 >>$seq_full
+	_service pmlogger stop >>$seq_full 2>&1
 	_wait_pmlogger_end
-	_service pmcd stop 2>&1 >>$seq_full
+	_service pmcd stop >>$seq_full 2>&1
 	_wait_pmcd_end
 	echo "--- pcp start ---" >>$seq_full
 	_restore_auto_restart pmcd

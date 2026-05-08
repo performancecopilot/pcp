@@ -56,8 +56,8 @@ trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
 extract_iostat()
 {
-    echo "== Raw iostat:" >> $seq_full
-    cat $1 >> $seq_full
+    echo "== Raw iostat:" >>$seq_full
+    cat $1 >>$seq_full
 
     f="$2.unsorted"
     $PCP_AWK_PROG < $1 '
@@ -124,10 +124,10 @@ BEGIN		{ cpucount=0; devcount=0; s=1.0 }
     for sample in 1 2
     do
 	result=`echo $f.$sample | sed -e 's/.unsorted//g'`
-	sort -u < $f.$sample > $result
+	sort -u < $f.$sample >$result
 
-	echo "== Extracted iostat sample $sample" >> $seq_full
-	cat $result >> $seq_full
+	echo "== Extracted iostat sample $sample" >>$seq_full
+	cat $result >>$seq_full
     done
 }
 
@@ -136,12 +136,12 @@ extract_pcp()
     archive=$1
 
     # extract two samples - just disk and cpu metrics, sorted
-    pminfo -f -O+.0 -a $1 kernel disk > $tmp.pminfo.1
-    pminfo -f -O-.1 -a $1 kernel disk > $tmp.pminfo.2
+    pminfo -f -O+.0 -a $1 kernel disk >$tmp.pminfo.1
+    pminfo -f -O-.1 -a $1 kernel disk >$tmp.pminfo.2
     for sample in 1 2
     do
-	echo "== Raw pminfo sample $sample:" >> $seq_full
-	cat $tmp.pminfo.$sample >> $seq_full
+	echo "== Raw pminfo sample $sample:" >>$seq_full
+	cat $tmp.pminfo.$sample >>$seq_full
 
 	sed < $tmp.pminfo.$sample \
 	    -e 's/^disk.//g' \
@@ -153,10 +153,10 @@ extract_pcp()
 / value /       { if (NF  > 2) { printf "%s::%s %s\n", metric, $4, $6 }
                   if (NF == 2) { printf "%s %s\n", metric, $2 }
                 }' \
-	| sort -u > $2.$sample
+	| sort -u >$2.$sample
 
-	echo "== Extracted pcp sample $sample:" >> $seq_full
-	cat $2.$sample >> $seq_full
+	echo "== Extracted pcp sample $sample:" >>$seq_full
+	cat $2.$sample >>$seq_full
     done
 }
 
@@ -165,8 +165,8 @@ compare_samples()
     for sample in 1 2
     do
 	paste $1.$sample $2.$sample >$tmp.both
-	echo "== Merged $1.$sample and $2.$sample:" >> $seq_full
-	cat $tmp.both >> $seq_full
+	echo "== Merged $1.$sample and $2.$sample:" >>$seq_full
+	cat $tmp.both >>$seq_full
 
 	echo Verifying sample $sample
 	$PCP_AWK_PROG <$tmp.both '
@@ -195,11 +195,11 @@ $4+0 == 0	{
 S_TIME_FORMAT=ISO; export S_TIME_FORMAT
 
 # three samples, one second apart (ignore first though)
-iostat -t 1 3 > $tmp.iostat
+iostat -t 1 3 >$tmp.iostat
 extract_iostat $tmp.iostat $tmp.iostat.values
 
-echo "== Run iostat2pcp:" >> $seq_full
-if iostat2pcp -v $tmp.iostat $tmp.iostat2pcp >> $seq_full
+echo "== Run iostat2pcp:" >>$seq_full
+if iostat2pcp -v $tmp.iostat $tmp.iostat2pcp >>$seq_full
 then
     :
 else
@@ -220,7 +220,7 @@ echo "Comparing stock iostat output to PCP archive"
 compare_samples $tmp.iostat.values $tmp.pcp.values
 
 # compare the extended device stats next
-iostat -x -t 1 3 > $tmp.iostatx
+iostat -x -t 1 3 >$tmp.iostatx
 extract_iostat $tmp.iostatx $tmp.iostatx.values
 
 if iostat2pcp $tmp.iostatx $tmp.iostatx2pcp

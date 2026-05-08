@@ -52,8 +52,8 @@ get_syms()
 # real QA test starts here
 cd $PCP_DEMOS_DIR/trace
 unset ROOT TOOLROOT MAKEFLAGS
-$sudo $PCP_MAKE_PROG -f Makefile.stub clobber 2>&1 >/dev/null
-$sudo $PCP_MAKE_PROG -f Makefile.stub lib/libpcp_trace.$DSO_VERSION 2>&1 >$tmp.make
+$sudo $PCP_MAKE_PROG -f Makefile.stub clobber >/dev/null 2>&1
+$sudo $PCP_MAKE_PROG -f Makefile.stub lib/libpcp_trace.$DSO_VERSION >$tmp.make 2>&1
 if [ $? -ne 0 ]
 then
     echo Stub library make failed.  Heres the make output ...
@@ -62,8 +62,8 @@ else
     echo make succeeded.
 fi
 
-get_syms $PCP_LIB_DIR/libpcp_trace.$DSO_VERSION > $tmp.actual
-get_syms $PCP_DEMOS_DIR/trace/lib/libpcp_trace.$DSO_VERSION > $tmp.stub
+get_syms $PCP_LIB_DIR/libpcp_trace.$DSO_VERSION >$tmp.actual
+get_syms $PCP_DEMOS_DIR/trace/lib/libpcp_trace.$DSO_VERSION >$tmp.stub
 
 diff $tmp.actual $tmp.stub >/dev/null
 status=$?

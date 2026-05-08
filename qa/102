@@ -59,7 +59,7 @@ _my_logger_filter()
 
 _disable_agent_restart()
 {
-    echo PMCD_RESTART_AGENTS=0 > $tmp.defaults
+    echo PMCD_RESTART_AGENTS=0 >$tmp.defaults
     $sudo cp $tmp.defaults $PCP_SYSCONFIG_DIR/pmcd
 }
 
@@ -71,7 +71,7 @@ _writable_primary_logger
 _disable_agent_restart
 ls -l $PCP_VAR_DIR/config/pmlogger/config.default >>$seq_full
 cat $PCP_VAR_DIR/config/pmlogger/config.default >>$seq_full
-pmlc -P </dev/null 2>&1 >>$seq_full
+pmlc -P </dev/null >>$seq_full 2>&1
 if ! _service pmcd restart 2>&1; then _exit 1; fi \
 | _filter_pcp_restart
 _wait_for_pmcd || _exit 1
