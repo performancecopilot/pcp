@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 1929
-# csv output containing units tests with pmrep
+# csv output containing units tests with pmrep.
 #
 # Copyright (c) 2026 Oracle and/or its affiliates.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
@@ -26,41 +26,22 @@ _cleanup()
     rm -f $tmp.*
 }
 
-_msg_filter()
-{
-    sed \
-	-e "s,Recording .* metrics.*,Recording metrics...,g" \
-    #end
-}
-
-_odd_filter()
-{
-    sed \
-	-e '/00:00:06/s@N/A        N/A        N/A        N/A@N/A          6        N/A          6@' \
-    # end
-}
-
 log="--archive $here/archives/dyninsts -z"
 metrics="disk.dev.read disk.dev.write mem.util.free mem.util.used"
 
 # real QA test starts here
-echo "== csv header includes units row for archive"
-pmrep $log -o archive -F $tmp.archive.a -p -I -r -u $metrics | _msg_filter
-pmrep -z -a $tmp.archive.a -p -I -r -u $metrics \
-| _odd_filter
+echo "=== pmrep csv output without inst/units info"
+pmrep $log -o csv -I -r -u                           --no-inst-info  $metrics
 
-echo "=== pmrep archive output - filter"
-pmrep $log -o archive -F $tmp.archive.f -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics | _msg_filter
-pmrep -z -a $tmp.archive.f -p -I -r -u $metrics
+echo "=== pmrep csv output with units info"
+pmrep $log -o csv -I -r -u                           --csv-unit-info $metrics
 
-echo "=== pmrep csv output with units header"
-pmrep $log -o csv -p -I -r -u --csv-unit-info $metrics
+echo "=== pmrep csv output - filter without units info"
+pmrep $log -o csv -I -r -u -i '.*sdb.*' -i '.*sdd.*'                 $metrics
 
-echo "=== pmrep csv output - filter with units header"
-pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' --csv-unit-info $metrics
+echo "=== pmrep csv output - filter with units info"
+pmrep $log -o csv -I -r -u -i '.*sdb.*' -i '.*sdd.*' --csv-unit-info $metrics
 
-echo "=== pmrep csv output - filter without units header"
-pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics
 # success, all done
 status=0
 exit

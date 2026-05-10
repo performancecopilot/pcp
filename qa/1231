@@ -41,15 +41,15 @@ CONFIG=$tmp.config
 cat >$CONFIG <<EOF
 INDOM 2.1 { INDOM -> 2.200 }
 EOF
-echo contents of $CONFIG >> $seq_full
-echo ........................ >> $seq_full
-cat $CONFIG >> $seq_full
-echo ........................ >> $seq_full
+echo contents of $CONFIG >>$seq_full
+echo ........................ >>$seq_full
+cat $CONFIG >>$seq_full
+echo ........................ >>$seq_full
 IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
-pmlogrewrite -c $CONFIG $IN $OUT >> $seq_full 2>&1
+pmlogrewrite -c $CONFIG $IN $OUT >>$seq_full 2>&1
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.
@@ -71,15 +71,15 @@ CONFIG=$tmp.config
 cat >$CONFIG <<EOF
 INDOM 2.1 { INDOM -> 251.1 }
 EOF
-echo contents of $CONFIG >> $seq_full
-echo ........................ >> $seq_full
-cat $CONFIG >> $seq_full
-echo ........................ >> $seq_full
+echo contents of $CONFIG >>$seq_full
+echo ........................ >>$seq_full
+cat $CONFIG >>$seq_full
+echo ........................ >>$seq_full
 IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogrewrite
 rm -f $OUT.*
 echo "Running pmlogrewrite -c $CONFIG $IN $OUT" | _filter | tee -a $seq_full
-pmlogrewrite -c $CONFIG $IN $OUT >> $seq_full 2>&1
+pmlogrewrite -c $CONFIG $IN $OUT >>$seq_full 2>&1
 [ $? -eq 0 ] || echo "Error running pmlogrewrite -c $CONFIG $IN $OUT -- see $seq.full"
 pmlogextract $OUT $tmp.xxxx
 # Now run pmdumplog against the original and extracted archives.

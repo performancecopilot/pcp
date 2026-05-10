@@ -35,7 +35,7 @@ DIR=archives
 
 # First, run pmlogrewrite against the archive, changing indom 60.0 to 60.200
 CONFIG=$tmp.config
-cat >$CONFIG << EOF
+cat >$CONFIG <<EOF
 INDOM 60.0 { INDOM -> 60.200 }
 EOF
 echo contents of $CONFIG >>$seq_full
@@ -65,7 +65,7 @@ diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq_full
 
 # Now, run pmlogrewrite against the archive, changing indom 60.0 to 251.0
 CONFIG=$tmp.config
-cat >$CONFIG << EOF
+cat >$CONFIG <<EOF
 INDOM 60.0 { INDOM -> 251.00 }
 EOF
 echo contents of $CONFIG >>$seq_full

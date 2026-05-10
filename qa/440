@@ -152,6 +152,10 @@ _time_me ()
     # return time in seconds
     #
     # /usr/bin/time IS bloody important - dont port-sh it. EVER!
+    #
+    # I/O redirection here IS correct ... want to toss stdout and
+    # pipe stderr into the filterinf
+    #
     /usr/bin/time $* 2>&1 >/dev/null | \
 	if [ $PCP_PLATFORM = linux ]
 	then

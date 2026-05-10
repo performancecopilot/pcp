@@ -68,14 +68,14 @@ pmrep -z -a $tmp.archive.f -p -I -r -u $metrics
 echo "=== pmrep csv output"
 pmrep $log -o csv -p -I -r -u $metrics
 
-echo "=== pmrep csv output (units via -U)"
-pmrep $log -o csv -p -I -r -u -U $metrics
-
 echo "=== pmrep csv output - filter"
 pmrep $log -o csv -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics
 
-echo "=== pmrep csv output (no units)"
-pmrep $log -o csv -p -I -r -u  $metrics
+echo "=== pmrep csv output without unit info"
+pmrep $log -o csv -p -I -r -u $metrics
+
+echo "=== pmrep csv output with unit info"
+pmrep $log -o csv -p -I -r -u --csv-unit-info $metrics
 
 echo "=== pmrep stdout output"
 pmrep $log -o stdout -p -I -r -u $metrics
@@ -83,7 +83,7 @@ pmrep $log -o stdout -p -I -r -u $metrics
 echo "=== pmrep stdout output - filter"
 pmrep $log -o stdout -p -I -r -u -i '.*sdb.*' -i '.*sdd.*' $metrics
 
-echo "=== pmrep stdout output (no units)"
+echo "=== pmrep stdout output without unit info"
 pmrep $log -o stdout -p -I -r -u -U $metrics
 
 echo "=== pmrep colxrow output"

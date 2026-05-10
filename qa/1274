@@ -36,18 +36,18 @@ IN=$DIR/20180127.08.40
 OUT=$tmp.pmlogextract
 rm -f $OUT.*
 echo "Running pmlogextract $IN $OUT" | _filter | tee -a $seq_full
-pmlogextract $IN $OUT 2>&1 >> $seq_full
+pmlogextract $IN $OUT >>$seq_full 2>&1
 [ $? -eq 0 ] || echo "Error running pmlogextract $IN $OUT -- see $seq.full"
 
 # Now run pmdumplog against the original and extracted archives.
 DUMP1=$tmp.original.txt
 echo "Running pmdumplog -aeh $IN" | _filter | tee -a $seq_full
-pmdumplog -aehz $IN 2>&1 > $DUMP1
+pmdumplog -aehz $IN >$DUMP1 2>&1
 
 DUMP2=$tmp.extracted.txt
 IN=$OUT
 echo "Running pmdumplog -aeh $IN" | _filter | tee -a $seq_full
-pmdumplog -aehz $IN 2>&1 > $DUMP2
+pmdumplog -aehz $IN >$DUMP2 2>&1
 
 # Make sure the outputs are reasonably the same. There will be some differences
 # in the time indexes due to some help text records being written earlier in the

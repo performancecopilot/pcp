@@ -101,7 +101,7 @@ rate=`pminfo -f trace.transact.rate | grep -F sleep1 | sed -e 's/.*value //g'`
 ave_time=`pminfo -f trace.transact.ave_time | grep -F sleep1 | sed -e 's/.*value //g'`
 
 # Use bc to get these as integers, and then compare in the shell ...
-rate=`bc << EOF
+rate=`bc <<EOF
 scale=5
 (3 / $period) * 100000
 $rate * 100000
@@ -113,7 +113,7 @@ EOF` | $PCP_AWK_PROG '
 }'
 echo "Finished checking trace.transact.rate"
 
-ave_time=`bc << EOF
+ave_time=`bc <<EOF
 scale=5
 (4 / 3) * 100000
 $ave_time * 100000
@@ -141,7 +141,7 @@ sleep $interval
 
 pminfo -f trace.observe.count trace.observe.value
 rate=`pminfo -f trace.observe.rate | grep -F obs1 | sed -e 's/.*value //g'`
-rate=`bc << EOF
+rate=`bc <<EOF
 scale=5
 (5 / $period) * 100000
 $rate * 100000
@@ -169,7 +169,7 @@ sleep $interval
 
 pminfo -f trace.counter.count trace.counter.value
 rate=`pminfo -f trace.counter.rate | grep -F cnt1 | sed -e 's/.*value //g'`
-rate=`bc << EOF
+rate=`bc <<EOF
 scale=5
 (5 / $period) * 100000
 $rate * 100000
@@ -189,7 +189,7 @@ echo "Finished checking trace.point"
 
 $PCP_ECHO_PROG $PCP_ECHO_N "Checking sample programs build - ""$PCP_ECHO_C"
 cd $PCP_DEMOS_DIR/trace
-$sudo $PCP_MAKE_PROG clobber 2>&1 >/dev/null
+$sudo $PCP_MAKE_PROG clobber >/dev/null 2>&1
 $sudo $PCP_MAKE_PROG app1 app2 app3 pmtrace >$tmp.make 2>&1
 if [ $? -ne 0 ]
 then

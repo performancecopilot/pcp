@@ -27,7 +27,7 @@ echo >$seq_full
 
 # real QA test starts here
 pmdumplog -z -l archives/mirage
-pmdumplog -z -dilmst archives/mirage 2>&1 >>$seq_full
+pmdumplog -z -dilmst archives/mirage >>$seq_full 2>&1
 
 pmlogextract -S 5min -T 5min archives/mirage $tmp
 

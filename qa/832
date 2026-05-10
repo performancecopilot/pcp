@@ -60,7 +60,7 @@ _filter()
 
 # real QA test starts here
 _save_config $PCP_SASLCONF_DIR/pmcd.conf
-echo 'mech_list: plain' > $tmp.sasl
+echo 'mech_list: plain' >$tmp.sasl
 $sudo cp $tmp.sasl $PCP_SASLCONF_DIR/pmcd.conf
 
 _save_config $PCP_PMCDOPTIONS_PATH

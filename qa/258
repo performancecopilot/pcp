@@ -112,7 +112,7 @@ else
 echo
 fi
 
-$signal -a -s KILL app2 2>&1 >/dev/null
+$signal -a -s KILL app2 >/dev/null 2>&1
 
 # xcheck observe problem where value of second observation of same tag
 # gives first calls value.
