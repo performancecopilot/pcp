@@ -353,7 +353,7 @@ static int amdgpu_fetch(int numpmid, pmID pmidlist[], pmdaResult **resp,
 {
   uint32_t i = 0;
 
-  for (i = 0; i <= numpmid; i++) {
+  for (i = 0; i < numpmid; i++) {
       unsigned int cluster = pmID_cluster(pmidlist[i]);
       unsigned int item = pmID_item(pmidlist[i]);
 

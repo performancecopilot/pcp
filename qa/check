@@ -21,6 +21,9 @@ __aborted=true
 myname=`basename $0`
 __scriptname=$myname  #  a synonym
 
+# Ensure LC_ALL is not set to allow locale-dependent sort order
+unset LC_ALL
+
 # lock (and PID) file to prevent concurrent QA execution
 #
 CHECKLOCK=/tmp/PCP-QA-LOCK
