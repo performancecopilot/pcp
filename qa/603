@@ -69,7 +69,7 @@ echo "qahost=$qahost" >$seq_full
 echo "qanet=$qanet" >>$seq_full
 echo "otherhost=$otherhost" >>$seq_full
 
-cat > $tmp.conf1 << EOF
+cat >$tmp.conf1 <<EOF
 n
 60
 10
@@ -81,7 +81,7 @@ $qahost
 
 EOF
 
-cat > $tmp.conf2 << EOF
+cat >$tmp.conf2 <<EOF
 n
 60
 10
@@ -154,7 +154,7 @@ PCP_TRACE_HOST=$qahost; export PCP_TRACE_HOST
 
 echo '=== Running demo program (app2) ==='
 # use app2 process to bump the number of connections.
-( ( $PCP_DEMOS_DIR/trace/app2 2>&1 >$tmp.out & ) )
+( ( $PCP_DEMOS_DIR/trace/app2 >$tmp.out 2>&1 & ) )
 sleep 3
 
 echo '=== Check access limits ==='

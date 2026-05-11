@@ -175,19 +175,19 @@ then
 fi
 
 # create a pmie config file
-cat >$tmp.conf << EOF
+cat >$tmp.conf <<EOF
 foo = sample.long.one;
 doo = sample.long.ten;
 EOF
 
 # create pmie control files
-cat >$tmp.control.v1.0 << EOF
+cat >$tmp.control.v1.0 <<EOF
 \$version=1.0
 $remote         n $tmp.log1 -c $tmp.conf
 $remote         n $tmp.log2 -c $tmp.conf
 LOCALHOSTNAME   n $tmp.log0 -c $tmp.conf
 EOF
-cat >$tmp.control.v1.1 << EOF
+cat >$tmp.control.v1.1 <<EOF
 \$version=1.1
 $remote         n n $tmp.log1 -c $tmp.conf
 $remote         n n $tmp.log2 -c $tmp.conf
@@ -258,7 +258,7 @@ echo
 echo "=== warnings ... ===" | tee -a $seq_full
 echo "--- stale lock file ---" | tee -a $seq_full
 case=1
-cat >$tmp.warning.$case << EOF
+cat >$tmp.warning.$case <<EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
@@ -270,7 +270,7 @@ rm -f $tmp.warning.$case.log
 echo
 echo "--- existing lock file ---" | tee -a $seq_full
 case=`expr $case + 1`
-cat >$tmp.warning.$case << EOF
+cat >$tmp.warning.$case <<EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
@@ -284,7 +284,7 @@ rm -f $tmp.warning.$case.log
 echo
 echo "--- can't create lock file ---" | tee -a $seq_full
 case=`expr $case + 1`
-cat >$tmp.warning.$case << EOF
+cat >$tmp.warning.$case <<EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.locker/ok.$case -c $tmp.conf
 EOF
@@ -296,7 +296,7 @@ $sudo rm -rf $tmp.locker
 echo
 echo "--- bad in-line shell commands ---" | tee -a $seq_full
 case=`expr $case + 1`
-cat >$tmp.warning.$case << EOF
+cat >$tmp.warning.$case <<EOF
 \$version=1.1
 \$date
 \$PATH=/some/where/bad:\$PATH
@@ -309,7 +309,7 @@ rm -f $tmp.warning.$case.log
 echo
 echo "--- missing \$version but really v1.1 ... original control.local issue ---" | tee -a $seq_full
 case=`expr $case + 1`
-cat >$tmp.warning.$case << EOF
+cat >$tmp.warning.$case <<EOF
 LOCALHOSTNAME   n n $tmp.ok.$case -c $tmp.conf
 EOF
 pmie_check -V -V -N -c $tmp.warning.$case >$tmp.warning.$case.log 2>&1
@@ -320,7 +320,7 @@ echo
 echo "=== errors ... ===" | tee -a $seq_full
 echo "--- bad version ---" | tee -a $seq_full
 case=1
-cat >$tmp.error.$case << EOF
+cat >$tmp.error.$case <<EOF
 \$version=0.0
 LOCALHOSTNAME   n $tmp.bad.$case -c $tmp.conf
 EOF
@@ -330,7 +330,7 @@ rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
 echo "--- v1.0 socks != y|n ---" | tee -a $seq_full
-cat >$tmp.error.$case << EOF
+cat >$tmp.error.$case <<EOF
 \$version=1.0
 LOCALHOSTNAME   x $tmp.bad.$case -c $tmp.conf
 EOF
@@ -340,7 +340,7 @@ rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
 echo "--- v1.1 socks != y|n ---" | tee -a $seq_full
-cat >$tmp.error.$case << EOF
+cat >$tmp.error.$case <<EOF
 \$version=1.1
 LOCALHOSTNAME   n x $tmp.bad.$case -c $tmp.conf
 EOF
@@ -350,7 +350,7 @@ rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
 echo "--- v1.1 primary != y|n ---" | tee -a $seq_full
-cat >$tmp.error.$case << EOF
+cat >$tmp.error.$case <<EOF
 \$version=1.1
 LOCALHOSTNAME   x n $tmp.bad.$case -c $tmp.conf
 EOF
@@ -360,7 +360,7 @@ rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
 echo "--- v1.0 insufficient fields ---" | tee -a $seq_full
-cat >$tmp.error.$case << EOF
+cat >$tmp.error.$case <<EOF
 \$version=1.0
 LOCALHOSTNAME   n $tmp.bad.$case
 EOF
@@ -370,7 +370,7 @@ rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
 echo "--- v1.1 insufficient fields ---" | tee -a $seq_full
-cat >$tmp.error.$case << EOF
+cat >$tmp.error.$case <<EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.bad.$case
 EOF
@@ -382,7 +382,7 @@ mkdir $tmp.nogo
 chmod 000 $tmp.nogo
 case=`expr $case + 1`
 echo "--- can't create dir for logfile ---" | tee -a $seq_full
-cat >$tmp.error.$case << EOF
+cat >$tmp.error.$case <<EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.nogo/subdir/bad.$case -c $tmp.conf
 EOF
@@ -392,7 +392,7 @@ rm -f $tmp.bad.$case.log
 echo
 case=`expr $case + 1`
 echo "--- can't chdir to dir for logfile ---" | tee -a $seq_full
-cat >$tmp.error.$case << EOF
+cat >$tmp.error.$case <<EOF
 \$version=1.1
 LOCALHOSTNAME   n n $tmp.nogo/bad.$case -c $tmp.conf
 EOF

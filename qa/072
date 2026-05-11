@@ -63,7 +63,7 @@ do
     ( echo "pmlogger output:"; cat $tmp.err $tmp.out ) >>$seq_full
     cat $tmp.err $tmp.out | _filter_pmlogger_log
 
-    pmdumplog -i $tmp 2>&1 >$tmp.out
+    pmdumplog -i $tmp >$tmp.out 2>&1
     ( echo "pmdumplog -i:"; cat $tmp.out ) >>$seq_full
 
     numindom=`grep InDom: $tmp.out | wc -l | sed -e 's/  *//g'`

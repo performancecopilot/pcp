@@ -21,7 +21,7 @@ trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
 for t in pdu_in pdu_out
 do
     echo "=== pmcd.$t ==="
-    pminfo -b 100 -f pmcd.$t 2>&1 >$tmp.tmp
+    pminfo -b 100 -f pmcd.$t >$tmp.tmp 2>&1
     sed -e "s/pmcd.$t.//" <$tmp.tmp \
     | $PCP_AWK_PROG '
 BEGIN		{ pmda_total = -1; my_total = 0; snarf = 0 }

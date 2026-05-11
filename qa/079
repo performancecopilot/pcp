@@ -40,7 +40,7 @@ echo ""
 TZ=EST-10
 export TZ
 echo "Local time, TZ=$TZ"
-pmclient -a $ARCH 2>&1 >$tmp.out 2>$tmp.err
+pmclient -a $ARCH >$tmp.out 2>$tmp.err
 cat $tmp.err $tmp.out | _filter
 
 echo ""

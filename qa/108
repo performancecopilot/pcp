@@ -94,7 +94,7 @@ rm -f $tmp.0 $tmp.meta $tmp.index
 pmlogger -c $tmp.config -s 1 $tmp >$tmp.tmp 2>&1 &
 killer=$!
 sleep 2
-_silent_kill $killer 2>&1 >/dev/null
+_silent_kill $killer >/dev/null 2>&1
 
 echo "check sampledso pmda is still alive ..."
 pminfo -f sampledso.bin

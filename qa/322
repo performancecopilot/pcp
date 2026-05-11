@@ -233,7 +233,7 @@ then
     _notrun "./getpmcdhosts failed to find a suitable host"
     # NOTREACHED
 else
-    echo "$type => $host" >>$seq_full
+    echo "$type =>$host" >>$seq_full
     _speak_to_me $host
 fi
 
