@@ -4,6 +4,22 @@
 #include <pcp/pmapi.h>
 
 void
+dump(pmUnits *in, pmUnits *out)
+{
+    fprintf(stderr, "(%d,%d,%d,%d,%d,%d,%d,%d)",
+	   in->dimSpace, in->dimTime, in->dimCount,
+	   in->scaleSpace, in->scaleTime, in->scaleCount,
+	   in->extraUnit, in->extraScale);
+    if (out != NULL) {
+	fprintf(stderr, " = > (%d,%d,%d,%d,%d,%d,%d,%d)",
+	       out->dimSpace, out->dimTime, out->dimCount,
+	       out->scaleSpace, out->scaleTime, out->scaleCount,
+	       out->extraUnit, out->extraScale);
+    }
+    fputc('\n', stderr);
+}
+
+void
 pmunits_roundtrip(int print_p, int ds, int dt, int dc, int ss, int st, int sc, int x1, int x2)
 {
     pmUnits victim = {.dimSpace = ds,
@@ -21,14 +37,15 @@ pmunits_roundtrip(int print_p, int ds, int dt, int dc, int ss, int st, int sc, i
     pmUnits reversed;
     double reversed_multiplier;
     int sts;
+    int dodge = 0;
     char *errmsg = NULL;
 
     (void) pmUnitsStr_r(&victim, converted, sizeof(converted));
     sts = pmParseUnitsStr(converted, &reversed, &reversed_multiplier, &errmsg);
     (void) pmUnitsStr_r(&reversed, convertedt, sizeof(convertedt));
 
-    if (print_p)
-	printf("(%d,%d,%d,%d,%d,%d,%d,%d) => \"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d,%d,%d)*%g => \"%s\" \n",
+    if (print_p) {
+	fprintf(stderr, "(%d,%d,%d,%d,%d,%d,%d,%d) => \"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d,%d,%d)*%g => \"%s\" \n",
 	       victim.dimSpace, victim.dimTime, victim.dimCount,
 	       victim.scaleSpace, victim.scaleTime, victim.scaleCount,
 	       victim.extraUnit, victim.extraScale,
@@ -38,33 +55,91 @@ pmunits_roundtrip(int print_p, int ds, int dt, int dc, int ss, int st, int sc, i
 	       reversed.extraUnit, reversed.extraScale,
 	       reversed_multiplier,
 	       convertedt);
-    else {
-	if (sts != 0) {
-	    printf("pmParseUnitsStr() -> %d (%s)\n", sts, pmErrStr(sts));
+    }
+
+    if (sts != 0) {
+	if (!print_p) {
+	    dump(&victim, NULL);
+	    fprintf(stderr, "pmParseUnitsStr(\"%s\") -> %d (%s)\n", converted, sts, pmErrStr(sts));
 	}
-	else {
-	    if (strcmp(converted, convertedt) != 0)
-		printf("string first \"%s\" != second \"%s\"\n", converted, convertedt);
-	    if (reversed_multiplier != 1.0)	// FP equality ok
-		printf("multiplier: %f != 1\n", reversed_multiplier);
-	    if (reversed.dimSpace != victim.dimSpace)
-		printf("dimSpace: in %d != out %d\n", victim.dimSpace, reversed.dimSpace);
-	    if (reversed.dimTime != victim.dimTime)
-		printf("dimTime: in %d != out %d\n", victim.dimTime, reversed.dimTime);
-	    // The case of 'count' is more relaxed because of the ambiguity:
-	    // "count x 10^6" => (dim=6 scale=1) or (scale=1 dim=6)
-	    if (reversed.dimCount * reversed.scaleCount != victim.dimCount * victim.scaleCount)
-		printf("dimCount: in %d * %d != %d * %d\n", victim.dimCount, victim.scaleCount, reversed.dimCount, reversed.scaleCount);
-	    if (reversed.scaleSpace != victim.scaleSpace)
-		printf("scaleSpace: in %d != out %d\n", victim.scaleSpace, reversed.scaleSpace);
-	    if (reversed.scaleTime != victim.scaleTime)
-		printf("scaleTime: in %d != out %d\n", victim.scaleTime, reversed.scaleTime);
-	    if (reversed.scaleCount != victim.scaleCount)
-		printf("scaleCount: in %d != out %d\n", victim.scaleCount, reversed.scaleCount);
-	    if (reversed.extraUnit != victim.extraUnit)
-		printf("extraUnit: in %d != out %d\n", victim.extraUnit, reversed.extraUnit);
-	    if (reversed.extraScale != victim.extraScale)
-		printf("extraScale: in %d != out %d\n", victim.extraScale, reversed.extraScale);
+    }
+    else {
+	int	bad = 0;
+	if (strcmp(converted, convertedt) != 0) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: string first \"%s\" != second \"%s\"\n", converted, convertedt);
+	}
+	if (reversed_multiplier != 1.0) {	// FP equality ok
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: multiplier: %f != 1\n", reversed_multiplier);
+	}
+	/* dodge "special " historical case */
+	if (victim.dimSpace + victim.dimTime + victim.dimCount == 0)
+	    dodge = 1;
+
+	if (reversed.dimSpace != victim.dimSpace && !dodge) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: dimSpace: in %d != out %d\n", victim.dimSpace, reversed.dimSpace);
+	}
+	if (reversed.dimTime != victim.dimTime && !dodge) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: dimTime: in %d != out %d\n", victim.dimTime, reversed.dimTime);
+	}
+	// The case of 'count' is more relaxed because of the ambiguity:
+	// "count x 10^6" => (dim=6 scale=1) or (scale=1 dim=6)
+	if (reversed.dimCount * reversed.scaleCount != victim.dimCount * victim.scaleCount && !dodge) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: dimCount: in %d * %d != %d * %d\n", victim.dimCount, victim.scaleCount, reversed.dimCount, reversed.scaleCount);
+	}
+	if (reversed.scaleSpace != victim.scaleSpace && !dodge) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: scaleSpace: in %d != out %d\n", victim.scaleSpace, reversed.scaleSpace);
+	}
+	if (reversed.scaleTime != victim.scaleTime && !dodge) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: scaleTime: in %d != out %d\n", victim.scaleTime, reversed.scaleTime);
+	}
+	if (reversed.scaleCount != victim.scaleCount && !dodge) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: scaleCount: in %d != out %d\n", victim.scaleCount, reversed.scaleCount);
+	}
+	if (reversed.extraUnit != victim.extraUnit) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: extraUnit: in %d != out %d\n", victim.extraUnit, reversed.extraUnit);
+	}
+	if (reversed.extraScale != victim.extraScale) {
+	    if (!bad) {
+		dump(&victim, &reversed);
+		bad = 1;
+	    }
+	    fprintf(stderr, "Botch: extraScale: in %d != out %d\n", victim.extraScale, reversed.extraScale);
 	}
     }
 
@@ -79,7 +154,6 @@ pmunits_roundtrip_all(int print_p)
     int ds, dt, dc;
     unsigned ss, st;
     int sc;
-    unsigned x1 = 0, x2 = 0;
     unsigned k = 0;
 
     for (ds = -8; ds < 8; ds += 4) {
@@ -90,18 +164,24 @@ pmunits_roundtrip_all(int print_p)
 		    for (st = 0; st < (dt ? 16 : 0); st +=4) {
 			for (sc = -8; sc < (dc ? 8 : -8); sc +=4) {
 			    k++;
-			    pmunits_roundtrip(print_p, ds, dt, dc, ss, st, sc, x1, x2);
-			    if (ds == 0 && dt == 0 && dc == 0) {
-				/* extra units */
-				x1 = PM_UNITS_TEMPERATURE;
-				pmunits_roundtrip(print_p, ds, dt, dc, ss, st, sc, x1, PM_TEMPERATURE_C);
+			    pmunits_roundtrip(print_p, ds, dt, dc, ss, st, sc, 0, 0);
+			    if (ss == 0 && st == 0 && sc == 0) {
+				/* extra units in the numerator */
+				pmunits_roundtrip(print_p, 1, 0, 0, PM_SPACE_BYTE, 0, 0, PM_UNITS_TEMPERATURE, PM_TEMPERATURE_C);
 				k++;
-				pmunits_roundtrip(print_p, ds, dt, dc, ss, st, sc, x1, PM_TEMPERATURE_F);
+				pmunits_roundtrip(print_p, 0, 1, 0, 0, PM_TIME_SEC, 0, PM_UNITS_TEMPERATURE, PM_TEMPERATURE_F);
 				k++;
-				pmunits_roundtrip(print_p, ds, dt, dc, ss, st, sc, x1, PM_TEMPERATURE_K);
+				pmunits_roundtrip(print_p, 0, 0, 1, 0, 0, PM_COUNT_ONE, PM_UNITS_TEMPERATURE, PM_TEMPERATURE_K);
 				k++;
-				x1 = 0;
-				x2 = 0;
+				/* extra units in the denominator */
+				pmunits_roundtrip(print_p, 1, -1, 0, PM_SPACE_KBYTE, PM_TIME_SEC, 0, -PM_UNITS_POWER, PM_POWER_kW);
+				k++;
+				pmunits_roundtrip(print_p, 1, 0, -1, PM_SPACE_MBYTE, 0, PM_COUNT_ONE, -PM_UNITS_POWER, PM_POWER_W);
+				k++;
+				pmunits_roundtrip(print_p, 0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE, -PM_UNITS_POWER, PM_POWER_mW);
+				k++;
+				pmunits_roundtrip(print_p, -1, 0, 1, PM_SPACE_GBYTE, 0, PM_COUNT_ONE, -PM_UNITS_POWER, PM_POWER_uW);
+				k++;
 			    }
 			}
 		    }
@@ -110,7 +190,7 @@ pmunits_roundtrip_all(int print_p)
 	}
     }
 
-    printf("%u pmUnits tuples round-tripped.\n", k);
+    fprintf(stderr, "%u pmUnits tuples round-tripped.\n", k);
 }
 
 
@@ -126,7 +206,7 @@ pmunits_parse(const char *str)
     sts = pmParseUnitsStr(str, &reversed, &reversed_multiplier, &errmsg);
     (void) pmUnitsStr_r(&reversed, converted, sizeof(converted));
 
-    printf("\"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d,%d,%d)*%g => \"%s\"\n", str, sts, (sts < 0 ? " " : ""),
+    fprintf(stderr, "\"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d,%d,%d)*%g => \"%s\"\n", str, sts, (sts < 0 ? " " : ""),
 	   (sts < 0 ? errmsg : ""),
 	   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
 	   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,

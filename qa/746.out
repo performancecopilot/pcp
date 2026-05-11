@@ -2,8 +2,12 @@ QA output created by 746
 === std out ===
 good one: count x 10^7 / Tbyte microsec
 buffer: count x 10^7 / Tbyte microsec
+good extra one: temperature (K) count x 10^7 / Tbyte microsec
+buffer: temperature (K) count x 10^7 / Tbyte microsec
 bad one: return NULL
-buffer: {
+buffer: 
+bad extra one: return NULL
+buffer: 
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector

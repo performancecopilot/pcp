@@ -1,6 +1,6 @@
 QA output created by 670
-1728 pmUnits tuples round-tripped.
-(0,0,0,1,1,1,0,0) => "x 10" => conv rc -12362 unrecognized or duplicate base unit => (0,0,0,0,0,0,0,0)*1 => "" 
+1917 pmUnits tuples round-tripped.
+(0,0,0,1,1,1,0,0) => "count x 10" => conv rc 0 => (0,0,1,0,0,1,0,0)*1 => "count x 10" 
 "2e5" => conv rc 0 => (0,0,0,0,0,0,0,0)*5e-06 => ""
 "-/2" => conv rc -12362 invalid floating point literal => (0,0,0,0,0,0,0,0)*1 => ""
 "2eg" => conv rc -12362 unrecognized or duplicate base unit => (0,0,0,0,0,0,0,0)*1 => ""

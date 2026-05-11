@@ -158,11 +158,13 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
     char *timestr = NULL;
     char *countstr = NULL;
     char *extrastr = NULL;
-    char *p;
     char sbuf[20];
     char tbuf[20];
     char cbuf[20];
     char xbuf[20];
+    char pow[5];	/* ^-XX */
+    int  extralen = 0;
+    int  started = 0;	/* 1 => started filling buf */
 
     if (pmDebugOptions.pmapi) {
 	fprintf(stderr, "pmUnitsStr_r([dimSpace=%d,dimTime=%d,dimCount=%d,scaleSpace=%d,scaleTime=%d,scaleCount=%d,extraUnit=%d,extraScale=%d], ..., %d) <",
@@ -171,22 +173,24 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 	    pu->extraUnit, pu->extraScale, buflen);
     }
 
-    /*
-     * must be at least 60 bytes, then we don't need to pollute the code
-     * below with a check every time we call pmsprintf() or increment p
-     */
-    if (buflen < 60) {
-	if (pmDebugOptions.pmapi) {
-	    fprintf(stderr, ":> returns NULL\n");
-	}
-	return NULL;
-    }
-
     buf[0] = '\0';
 
     if (pu->extraUnit) {
 	__pmExtraUnitsStr(pu, xbuf, sizeof(xbuf));
 	extrastr = xbuf;
+	extralen = strlen(extrastr) + 1;
+    }
+
+    /*
+     * must be at least 60 bytes remaining, then we don't need to
+     * pollute the code below with a check every time we call
+     * pmsprintf() or increment p
+     */
+    if (buflen - extralen < 60) {
+	if (pmDebugOptions.pmapi) {
+	    fprintf(stderr, ":> returns NULL\n");
+	}
+	return NULL;
     }
 
     if (pu->dimSpace) {
@@ -266,89 +270,92 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 	}
     }
 
-    p = buf;
-
     if (pu->extraUnit != 0) {
-	pmsprintf(p, buflen, "%s", extrastr);
-	while (*p)
-	    p++;
-	*p++ = ' ';
+	pmstrncat(buf, buflen, extrastr);
+	started = 1;
     }
 
     if (pu->dimSpace > 0) {
-	if (pu->dimSpace == 1)
-	    pmsprintf(p, buflen, "%s", spacestr);
+	if (started)
+	    pmstrncat(buf, buflen, " ");
 	else
-	    pmsprintf(p, buflen, "%s^%d", spacestr, pu->dimSpace);
-	while (*p)
-	    p++;
-	*p++ = ' ';
+	    started = 1;
+	pmstrncat(buf, buflen, spacestr);
+	if (pu->dimSpace != 1) {
+	    pmsprintf(pow, sizeof(pow), "^%d", pu->dimSpace);
+	    pmstrncat(buf, buflen, pow);
+	}
     }
     if (pu->dimTime > 0) {
-	if (pu->dimTime == 1)
-	    pmsprintf(p, buflen - (p - buf), "%s", timestr);
+	if (started)
+	    pmstrncat(buf, buflen, " ");
 	else
-	    pmsprintf(p, buflen - (p - buf), "%s^%d", timestr, pu->dimTime);
-	while (*p)
-	    p++;
-	*p++ = ' ';
+	    started = 1;
+	pmstrncat(buf, buflen, timestr);
+	if (pu->dimTime != 1) {
+	    pmsprintf(pow, sizeof(pow), "^%d", pu->dimTime);
+	    pmstrncat(buf, buflen, pow);
+	}
     }
     if (pu->dimCount > 0) {
-	if (pu->dimCount == 1)
-	    pmsprintf(p, buflen - (p - buf), "%s", countstr);
+	if (started)
+	    pmstrncat(buf, buflen, " ");
 	else
-	    pmsprintf(p, buflen - (p - buf), "%s^%d", countstr, pu->dimCount);
-	while (*p)
-	    p++;
-	*p++ = ' ';
-    }
-    if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0) {
-	*p++ = '/';
-	*p++ = ' ';
-	if (pu->dimSpace < 0) {
-	    if (pu->dimSpace == -1)
-		pmsprintf(p, buflen - (p - buf), "%s", spacestr);
-	    else
-		pmsprintf(p, buflen - (p - buf), "%s^%d", spacestr, -pu->dimSpace);
-	    while (*p)
-		p++;
-	    *p++ = ' ';
-	}
-	if (pu->dimTime < 0) {
-	    if (pu->dimTime == -1)
-		pmsprintf(p, buflen - (p - buf), "%s", timestr);
-	    else
-		pmsprintf(p, buflen - (p - buf), "%s^%d", timestr, -pu->dimTime);
-	    while (*p)
-		p++;
-	    *p++ = ' ';
-	}
-	if (pu->dimCount < 0) {
-	    if (pu->dimCount == -1)
-		pmsprintf(p, buflen - (p - buf), "%s", countstr);
-	    else
-		pmsprintf(p, buflen - (p - buf), "%s^%d", countstr, -pu->dimCount);
-	    while (*p)
-		p++;
-	    *p++ = ' ';
+	    started = 1;
+	pmstrncat(buf, buflen, countstr);
+	if (pu->dimCount != 1) {
+	    pmsprintf(pow, sizeof(pow), "^%d", pu->dimCount);
+	    pmstrncat(buf, buflen, pow);
 	}
     }
 
-    if (buf[0] == '\0') {
+    if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0) {
+	if (started)
+	    pmstrncat(buf, buflen, " ");
+	pmstrncat(buf, buflen, "/");
+	started = 1;
+	if (pu->dimSpace < 0) {
+	    pmstrncat(buf, buflen, " ");
+	    pmstrncat(buf, buflen, spacestr);
+	    if (pu->dimSpace != -1) {
+		pmsprintf(pow, sizeof(pow), "^%d", -pu->dimSpace);
+		pmstrncat(buf, buflen, pow);
+	    }
+	}
+	if (pu->dimTime < 0) {
+	    pmstrncat(buf, buflen, " ");
+	    pmstrncat(buf, buflen, timestr);
+	    if (pu->dimTime != -1) {
+		pmsprintf(pow, sizeof(pow), "^%d", -pu->dimTime);
+		pmstrncat(buf, buflen, pow);
+	    }
+	}
+	if (pu->dimCount < 0) {
+	    pmstrncat(buf, buflen, " ");
+	    pmstrncat(buf, buflen, countstr);
+	    if (pu->dimCount != -1) {
+		pmsprintf(pow, sizeof(pow), "^%d", -pu->dimCount);
+		pmstrncat(buf, buflen, pow);
+	    }
+	}
+    }
+
+    if (buf[0] == '\0' && pu->scaleCount != 0) {
 	/*
-	 * dimension is all 0, but scale maybe specified ... small
+	 * dimension is all 0, but scaleCount maybe specified ... small
 	 * anomaly here as we would expect dimCount to be 1 not
 	 * 0 for these cases, but support maintained for historical
 	 * behaviour
 	 */
 	if (pu->scaleCount == 1)
-	    pmsprintf(buf, buflen, "x 10");
-	else if (pu->scaleCount != 0)
-	    pmsprintf(buf, buflen, "x 10^%d", pu->scaleCount);
-    }
-    else {
-	p--;
-	*p = '\0';
+	    pmsprintf(cbuf, sizeof(cbuf), "count x 10");
+	else
+	    pmsprintf(cbuf, sizeof(cbuf), "count x 10^%d", pu->scaleCount);
+	if (started)
+	    pmstrncat(buf, buflen, " ");
+	else
+	    started = 1;
+	pmstrncat(buf, buflen, cbuf);
     }
 
     if (pmDebugOptions.pmapi) {
@@ -1293,6 +1300,11 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
     };
     const size_t num_exponent_keywords = sizeof(exponent_keywords) / sizeof(exponent_keywords[0]);
 
+    if (pmDebugOptions.value) {
+	fprintf(stderr, "__pmParseUnitsStrPart(\"%*.*s\", ...)\n",
+	    (int)(str_end - str), (int)(str_end - str), str);
+    }
+
     *multiplier = 1.0;
     memset(out, 0, sizeof(*out));
     ptr = str;
@@ -1319,6 +1331,8 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
 	 * extra units come first ...
 	 */
 	ptr = __pmParseExtraUnits(ptr, out);
+	while (ptr <= str_end && isspace(*ptr))
+	    ptr++;
 	if (ptr == str_end)
 	    break;
 
@@ -1415,6 +1429,20 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
     }
 
 out:
+    if (pmDebugOptions.value) {
+	fprintf(stderr, "__pmParseUnitsStrPart -> %d", sts);
+	if (sts >= 0) {
+	    fprintf(stderr, " [dimSpace=%d,dimTime=%d,dimCount=%d,scaleSpace=%d,scaleTime=%d,scaleCount=%d,extraUnit=%d,extraScale=%d]\n",
+	    out->dimSpace, out->dimTime, out->dimCount,
+	    out->scaleSpace, out->scaleTime, out->scaleCount,
+	    out->extraUnit, out->extraScale);
+	}
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
     return sts;
 }
 

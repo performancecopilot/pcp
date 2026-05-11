@@ -112,8 +112,6 @@ __pmParseExtraUnits(const char *buf, __pmUnits *pu)
     for (u = 0; u < nextra; u++) {
 	if (strncasecmp(ptr, extra[u].name, strlen(extra[u].name)) == 0) {
 	    /* matched name */
-	    if (ptr[strlen(extra[u].name)] == '\0')
-		continue;
 	    ptr += strlen(extra[u].name);
 	    /* check for " (" separator */
 	    if (*ptr != ' ')
@@ -121,8 +119,8 @@ __pmParseExtraUnits(const char *buf, __pmUnits *pu)
 	    ptr++;
 	    if (*ptr != '(')
 		continue;
+	    ptr++;
 	    for (s = 0; s < extra[u].nscale; s++) {
-fprintf(stderr, "%s %s %d\n", extra[u].scale[s].text, ptr, (int)strncasecmp(ptr, extra[u].scale[s].text, strlen(extra[u].scale[s].text)));
 		if (strncasecmp(ptr, extra[u].scale[s].text, strlen(extra[u].scale[s].text)) == 0) {
 		    /* matched scale */
 		    if (ptr[strlen(extra[u].scale[s].text)] == '\0')
@@ -133,7 +131,9 @@ fprintf(stderr, "%s %s %d\n", extra[u].scale[s].text, ptr, (int)strncasecmp(ptr,
 			ptr++;
 			pu->extraUnit = extra[u].type;
 			pu->extraScale = extra[u].scale[s].ident;
-fprintf(stderr, "%s\n", ptr);
+			/* and gobble any trailing space(s) */
+			while (*ptr && !isspace(*ptr))
+			    ptr++;
 			return ptr;
 		    }
 		    else {
