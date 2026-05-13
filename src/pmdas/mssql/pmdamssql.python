@@ -1025,7 +1025,7 @@ class MSSQLPMDA(PMDA):
         try:
             self.driver = conf_vars["connection.driver"]
         except:
-            self.driver = "{ODBC Driver 17 for SQL Server}" # default driver
+            self.driver = "{ODBC Driver 18 for SQL Server}" # default driver
         try:
             self.server = conf_vars["connection.server"]
         except:
@@ -1038,7 +1038,10 @@ class MSSQLPMDA(PMDA):
             self.trusted = self.intobool(conf_vars["authentication.trusted"])
         except:
             self.trusted = False
-        print("trusted?",self.trusted)
+        try:
+            self.trust_server_certificate = self.intobool(conf_vars["connection.trust_server_certificate"])
+        except:
+            self.trust_server_certificate = False
         # first try Assessment API credentials, else our local config file,
         # otherwise just use defaults of user 'pcp' with an empty password.
         self.username = pmContext.pmGetConfig('PCP_USER')
@@ -1299,6 +1302,8 @@ class MSSQLPMDA(PMDA):
             parameters = 'DRIVER={0};SERVER={1};UID={2};PWD={3}'
             parameters = parameters.format(self.driver, self.server,
                             self.username, self.password)
+        if self.trust_server_certificate:
+            parameters += ';TrustServerCertificate=YES'
 
         try:
             self.conn = pyodbc.connect(parameters, timeout=self.timeout)
