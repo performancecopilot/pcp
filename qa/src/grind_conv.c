@@ -19,7 +19,9 @@ main(int argc, char **argv)
     static char	*usage = "[-D debug] type value iunit ounit\n"
 "\n"
 "iunit and ounit are in the 6-integer format:\n"
-"dimspace:dimtime:dimcount:scalespace:scaletime:scalecount\n";
+"dimSpace:dimTime:dimCount:scaleSpace:scaleTime:scaleCount\n"
+"or the 8-integer format:\n"
+"dimSpace:dimTime:dimCount:scaleSpace:scaleTime:scaleCount:extraUnit:extraScale\n";
     pmUnits	iu = { 0 };
     pmUnits	ou = { 0 };
     int		type;
@@ -142,11 +144,18 @@ main(int argc, char **argv)
     vp = ++q;
     iu.scaleSpace = strtol(vp, &q, 10);
     if (*q != ':') goto bad_in;
-	vp = ++q;
+    vp = ++q;
     iu.scaleTime = strtol(vp, &q, 10);
     if (*q != ':') goto bad_in;
-	vp = ++q;
+    vp = ++q;
     iu.scaleCount = strtol(vp, &q, 10);
+    if (*q == ':') {
+	vp = ++q;
+	iu.extraUnit = strtol(vp, &q, 10);
+	if (*q != ':') goto bad_in;
+	vp = ++q;
+	iu.extraScale = strtol(vp, &q, 10);
+    }
     if (*q != '\0') goto bad_in;
     optind++;
 
@@ -167,6 +176,13 @@ main(int argc, char **argv)
     if (*q != ':') goto bad_out;
 	vp = ++q;
     ou.scaleCount = strtol(vp, &q, 10);
+    if (*q == ':') {
+	vp = ++q;
+	ou.extraUnit = strtol(vp, &q, 10);
+	if (*q != ':') goto bad_out;
+	vp = ++q;
+	ou.extraScale = strtol(vp, &q, 10);
+    }
     if (*q != '\0') goto bad_out;
 
     printf("type=%d input units=%s value=%s\n", type, pmUnitsStr(&iu), pmAtomStr(&iv, type));

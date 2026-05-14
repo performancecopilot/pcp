@@ -6,12 +6,12 @@
 void
 dump(pmUnits *in, pmUnits *out)
 {
-    fprintf(stderr, "(%d,%d,%d,%d,%d,%d,%d,%d)",
+    fprintf(stderr, "(%d,%d,%d,%u,%u,%u,%d,%u)",
 	   in->dimSpace, in->dimTime, in->dimCount,
 	   in->scaleSpace, in->scaleTime, in->scaleCount,
 	   in->extraUnit, in->extraScale);
     if (out != NULL) {
-	fprintf(stderr, " = > (%d,%d,%d,%d,%d,%d,%d,%d)",
+	fprintf(stderr, " = > (%d,%d,%d,%u,%u,%u,%d,%u)",
 	       out->dimSpace, out->dimTime, out->dimCount,
 	       out->scaleSpace, out->scaleTime, out->scaleCount,
 	       out->extraUnit, out->extraScale);
@@ -167,20 +167,20 @@ pmunits_roundtrip_all(int print_p)
 			    pmunits_roundtrip(print_p, ds, dt, dc, ss, st, sc, 0, 0);
 			    if (ss == 0 && st == 0 && sc == 0) {
 				/* extra units in the numerator */
-				pmunits_roundtrip(print_p, 1, 0, 0, PM_SPACE_BYTE, 0, 0, PM_UNITS_TEMPERATURE, PM_TEMPERATURE_C);
+				pmunits_roundtrip(print_p, 1, 0, 0, PM_SPACE_BYTE, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_C);
 				k++;
-				pmunits_roundtrip(print_p, 0, 1, 0, 0, PM_TIME_SEC, 0, PM_UNITS_TEMPERATURE, PM_TEMPERATURE_F);
+				pmunits_roundtrip(print_p, 0, 1, 0, 0, PM_TIME_SEC, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_F);
 				k++;
-				pmunits_roundtrip(print_p, 0, 0, 1, 0, 0, PM_COUNT_ONE, PM_UNITS_TEMPERATURE, PM_TEMPERATURE_K);
+				pmunits_roundtrip(print_p, 0, 0, 1, 0, 0, PM_COUNT_ONE, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_K);
 				k++;
 				/* extra units in the denominator */
-				pmunits_roundtrip(print_p, 1, -1, 0, PM_SPACE_KBYTE, PM_TIME_SEC, 0, -PM_UNITS_POWER, PM_POWER_kW);
+				pmunits_roundtrip(print_p, 1, -1, 0, PM_SPACE_KBYTE, PM_TIME_SEC, 0, -PM_UNIT_POWER, PM_POWER_kW);
 				k++;
-				pmunits_roundtrip(print_p, 1, 0, -1, PM_SPACE_MBYTE, 0, PM_COUNT_ONE, -PM_UNITS_POWER, PM_POWER_W);
+				pmunits_roundtrip(print_p, 1, 0, -1, PM_SPACE_MBYTE, 0, PM_COUNT_ONE, -PM_UNIT_POWER, PM_POWER_W);
 				k++;
-				pmunits_roundtrip(print_p, 0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE, -PM_UNITS_POWER, PM_POWER_mW);
+				pmunits_roundtrip(print_p, 0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE, -PM_UNIT_POWER, PM_POWER_mW);
 				k++;
-				pmunits_roundtrip(print_p, -1, 0, 1, PM_SPACE_GBYTE, 0, PM_COUNT_ONE, -PM_UNITS_POWER, PM_POWER_uW);
+				pmunits_roundtrip(print_p, -1, 0, 1, PM_SPACE_GBYTE, 0, PM_COUNT_ONE, -PM_UNIT_POWER, PM_POWER_uW);
 				k++;
 			    }
 			}

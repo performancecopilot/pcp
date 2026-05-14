@@ -478,7 +478,7 @@ typedef struct __pmUnits {
     unsigned int	scaleSpace;	/* one of PM_SPACE_* */
     unsigned int	scaleTime;	/* one of PM_TIME_* */
     int			scaleCount;	/* one of PM_COUNT_* */
-    unsigned int	extraUnit;	/* code for extra unit from PM_UNITS_* */
+    int			extraUnit;	/* code for extra unit from PM_UNIT_* */
     unsigned int	extraScale;	/* scale for extra units */
 } __pmUnits;
 
@@ -487,5 +487,6 @@ typedef struct __pmUnits {
  */
 extern void __pmExtraUnitsStr(const pmUnits *, char *, size_t);
 extern const char *__pmParseExtraUnits(const char *, __pmUnits *);
+extern int __pmConvExtraScale(int, pmAtomValue *, const pmUnits *, const pmUnits *);
 
 #endif /* _LIBPCP_INTERNAL_H */

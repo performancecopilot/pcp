@@ -20,7 +20,7 @@ main()
 		      };
     pmUnits	extrafoo = { .dimSpace=-1, .dimTime=-1, .dimCount=1,
 		        .scaleSpace=PM_SPACE_TBYTE, .scaleTime=PM_TIME_USEC,
-		        .scaleCount=7, .extraUnit = PM_UNITS_TEMPERATURE,
+		        .scaleCount=7, .extraUnit = PM_UNIT_TEMPERATURE,
 			.extraScale = PM_TEMPERATURE_K,
 		      };
     char	*result;

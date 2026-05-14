@@ -102,7 +102,7 @@ main(int argc, char **argv)
     check(sts, "pmiAddMetric");
     sts = pmiAddMetric("my.metric.float", PM_ID_NULL, PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_DISCRETE, pmiUnits(0,0,0,0,0,0));
     check(sts, "pmiAddMetric");
-    sts = pmiAddMetric("my.metric.temperature", PM_ID_NULL, PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, pmiExtraUnits(0,0,0,0,0,0,PM_UNITS_TEMPERATURE,PM_TEMPERATURE_C));
+    sts = pmiAddMetric("my.metric.temperature", PM_ID_NULL, PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, pmiExtraUnits(0,0,0,0,0,0,PM_UNIT_TEMPERATURE,PM_TEMPERATURE_C));
 
     sts = pmiAddInstance(pmInDom_build(245,1), "eek really", 1);
     check(sts, "pmiAddInstance");

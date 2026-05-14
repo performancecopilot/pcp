@@ -57,10 +57,10 @@ const scale_map_t	power_scale[] = {
 };
 
 static const unit_t extra[] = {
-    { PM_UNITS_TEMPERATURE, "temperature", sizeof(temperature_scale)/sizeof(temperature_scale[0]), temperature_scale },
-    { PM_UNITS_VOLTAGE, "voltage", sizeof(voltage_scale)/sizeof(voltage_scale[0]), voltage_scale },
-    { PM_UNITS_CURRENT, "current", sizeof(current_scale)/sizeof(current_scale[0]), current_scale },
-    { PM_UNITS_POWER, "power", sizeof(power_scale)/sizeof(power_scale[0]), power_scale },
+    { PM_UNIT_TEMPERATURE, "temperature", sizeof(temperature_scale)/sizeof(temperature_scale[0]), temperature_scale },
+    { PM_UNIT_VOLTAGE, "voltage", sizeof(voltage_scale)/sizeof(voltage_scale[0]), voltage_scale },
+    { PM_UNIT_CURRENT, "current", sizeof(current_scale)/sizeof(current_scale[0]), current_scale },
+    { PM_UNIT_POWER, "power", sizeof(power_scale)/sizeof(power_scale[0]), power_scale },
 };
 
 static const int nextra = sizeof(extra)/sizeof(extra[0]);
@@ -77,7 +77,8 @@ __pmExtraUnitsStr(const pmUnits *pu, char *buf, size_t buflen)
     int		s;	/* scale selector */
 
     for (u = 0; u < nextra; u++) {
-	if (pu->extraUnit == extra[u].type)
+	if (pu->extraUnit == extra[u].type ||
+	    -pu->extraUnit == extra[u].type)
 	    break;
     }
     if (u == nextra) {
@@ -398,7 +399,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    }
 	}
 	else {
-	    pmsprintf(buf, sizeof(buf), "Error: extraUnit (%d) in pmUnits is not one of the valid PM_UNITS_* values\n", dp->units.extraUnit);
+	    pmsprintf(buf, sizeof(buf), "Error: extraUnit (%d) in pmUnits is not one of the valid PM_UNIT_* values\n", dp->units.extraUnit);
 	    if (append(&err, &errlen, preamble, buf) < 0) {
 		sts = -ENOMEM;
 		goto done;
@@ -414,7 +415,7 @@ done:
 }
 
 /*
- * map extra unit name -> type (PM_UNITS_*)
+ * map extra unit name -> type (PM_UNIT_*)
  */
 int
 __pmLookupExtraUnit(const char *name)
@@ -449,4 +450,133 @@ __pmLookupExtraScale(int type, const char *text)
 	}
     }
     return -1;
+}
+
+/*
+ * Conversion for extra units is table driven using the generic
+ * formula: out = a + b * (in + c) / d
+ *
+ * There is one table for each extra unit type.  Each table is terminated
+ * with a iscale == -1 sentinal.
+ */
+
+typedef struct {
+    int		iscale;
+    int		oscale;
+    double	a;
+    double	b;
+    double	c;
+    double	d;
+} convert_t;
+
+
+static convert_t temp_conv[] = {
+    						/* a */	/* b */	/* c */	/* d */
+    { PM_TEMPERATURE_C,	PM_TEMPERATURE_F,	32,	18,	0,	10 },
+    { PM_TEMPERATURE_F,	PM_TEMPERATURE_C,	0,	10,	-32,	18 },
+    { PM_TEMPERATURE_C,	PM_TEMPERATURE_K,	273.15,	1,	0,	1 },
+    { PM_TEMPERATURE_K,	PM_TEMPERATURE_C,	0,	1,	-273.15,1 },
+    { PM_TEMPERATURE_F,	PM_TEMPERATURE_K,	273.15,	10,	-32,	18 },
+    { PM_TEMPERATURE_K,	PM_TEMPERATURE_F,	32,	18,	-273.15,10 },
+    { .iscale = -1 },
+};
+
+static convert_t volt_conv[] = {
+    					/* a */	/* b */		/* c */	/* d */
+    { PM_VOLTAGE_V,	PM_VOLTAGE_mV,	0,	1000,		0,	1 },
+    { PM_VOLTAGE_V,	PM_VOLTAGE_uV,	0,	1000000,	0,	1 },
+    { PM_VOLTAGE_mV,	PM_VOLTAGE_V,	0,	1,		0,	1000 },
+    { PM_VOLTAGE_mV,	PM_VOLTAGE_uV,	0,	1000,		0,	1 },
+    { PM_VOLTAGE_uV,	PM_VOLTAGE_V,	0,	1,		0,	1000000 },
+    { PM_VOLTAGE_uV,	PM_VOLTAGE_mV,	0,	1,		0,	1000 },
+    { .iscale = -1 },
+};
+
+/* out = a + b * (in + c) / d */
+static convert_t curr_conv[] = {
+    					/* a */	/* b */		/* c */	/* d */
+    { PM_CURRENT_A,	PM_CURRENT_mA,	0,	1000,		0,	1 },
+    { PM_CURRENT_A,	PM_CURRENT_uA,	0,	1000000,	0,	1 },
+    { PM_CURRENT_mA,	PM_CURRENT_A,	0,	1,		0,	1000 },
+    { PM_CURRENT_mA,	PM_CURRENT_uA,	0,	1000,		0,	1 },
+    { PM_CURRENT_uA,	PM_CURRENT_A,	0,	1,		0,	1000000 },
+    { PM_CURRENT_uA,	PM_CURRENT_mA,	0,	1,		0,	1000 },
+    { .iscale = -1 },
+};
+
+static convert_t power_conv[] = {
+    					/* a */	/* b */		/* c */	/* d */
+    { PM_POWER_kW,	PM_POWER_W,	0,	1000,		0,	1 },
+    { PM_POWER_kW,	PM_POWER_mW,	0,	1000000,	0,	1 },
+    { PM_POWER_kW,	PM_POWER_uW,	0,	1000000000,	0,	1 },
+    { PM_POWER_W,	PM_POWER_kW,	0,	1,		0,	1000 },
+    { PM_POWER_W,	PM_POWER_mW,	0,	1000,		0,	1 },
+    { PM_POWER_W,	PM_POWER_uW,	0,	1000000,	0,	1 },
+    { PM_POWER_mW,	PM_POWER_kW,	0,	1,		0,	1000000 },
+    { PM_POWER_mW,	PM_POWER_W,	0,	1,		0,	1000 },
+    { PM_POWER_mW,	PM_POWER_uW,	0,	1000,		0,	1 },
+    { PM_POWER_uW,	PM_POWER_kW,	0,	1,		0,	1000000000 },
+    { PM_POWER_uW,	PM_POWER_W,	0,	1,		0,	1000000 },
+    { PM_POWER_uW,	PM_POWER_mW,	0,	1,		0,	1000 },
+    { .iscale = -1 },
+};
+
+/*
+ * Rescale extra units in place (val).
+ * On entry, extraUnit is the same for iunit and ounit, so for each possible
+ * extra unit it is the N x N cases for the scale options, captured in the
+ * convert_t tables above.
+ *
+ * Return 0 if ok, else -1 for badness (no diagnostics at this point)
+ */
+int
+__pmConvExtraScale(int type, pmAtomValue *val, const pmUnits *iunit, const pmUnits *ounit)
+{
+    convert_t	*cp;
+
+    if (iunit->extraScale == ounit->extraScale)
+	return 0;
+
+    if (iunit->extraUnit == PM_UNIT_TEMPERATURE)
+	cp = temp_conv;
+    else if (iunit->extraUnit == PM_UNIT_VOLTAGE)
+	cp = volt_conv;
+    else if (iunit->extraUnit == PM_UNIT_CURRENT)
+	cp = curr_conv;
+    else if (iunit->extraUnit == PM_UNIT_POWER)
+	cp = power_conv;
+    else
+	return PM_ERR_UNIT;
+
+    for ( ; ; cp++) {
+	if (cp->iscale == -1)
+	    return PM_ERR_UNIT;
+	if (cp->iscale == iunit->extraScale && cp->oscale == ounit->extraScale)
+	    break;
+    }
+
+    switch (type) {
+	case PM_TYPE_32:
+	    val->l = (__int32_t)(cp->a + cp->b * (val->l + cp->c) / cp->d);
+	    break;
+	case PM_TYPE_U32:
+	    val->ul = (__uint32_t)(cp->a + cp->b * (val->ul + cp->c) / cp->d);
+	    break;
+	case PM_TYPE_64:
+	    val->ll = (__int64_t)(cp->a + cp->b * (val->ll + cp->c) / cp->d);
+	    break;
+	case PM_TYPE_U64:
+	    val->ull = (__uint64_t)(cp->a + cp->b * (val->ull + cp->c) / cp->d);
+	    break;
+	case PM_TYPE_FLOAT:
+	    val->f = (float)(cp->a + cp->b * (val->f + cp->c) / cp->d);
+	    break;
+	case PM_TYPE_DOUBLE:
+	    val->d = (float)(cp->a + cp->b * (val->d + cp->c) / cp->d);
+	    break;
+	default:
+	    return PM_ERR_CONV;
+    }
+
+    return 0;
 }

@@ -356,6 +356,10 @@ extraunits.o
     ?power_scale		# const
     ?extra			# const
     ?nextra			# const
+    ?temp_conv			# const
+    ?volt_conv			# const
+    ?curr_conv			# const
+    ?power_conv			# const
     ?onetrip			# one-trip initialization then read-only
     ?known_domain		# one-trip initialization then read-only
 fault.o

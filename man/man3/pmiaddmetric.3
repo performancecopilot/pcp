@@ -128,8 +128,10 @@ The semantics of the metric (counter, instantaneous value, etc.) is
 specified by the
 .I sem
 argument which would normally be the result of a call to the
-convenience constructor method
-.BR pmiUnits (3).
+convenience constructor methods
+.BR pmiUnits (3)
+or
+.BR pmiExtraUnits (3)
 .SH DIAGNOSTICS
 .B pmiAddMetric
 returns zero on success else a negative value that can be turned into an
@@ -138,12 +140,14 @@ error message by calling
 .SH SEE ALSO
 .BR PCPIntro (1),
 .BR LOGIMPORT (3),
+.BR PMAPI (3),
+.BR pmLookupDesc (3),
 .BR pmiErrStr (3),
-.BR pmiPutResult (3),
-.BR pmiPutValue (3),
-.BR pmiPutValueHandle (3),
-.BR pmiPutText (3),
+.BR pmiExtraUnits (3),
 .BR pmiPutLabel (3),
-.BR pmiUnits (3)
+.BR pmiPutResult (3),
+.BR pmiPutText (3),
+.BR pmiPutValue (3),
+.BR pmiPutValueHandle (3)
 and
-.BR pmLookupDesc (3).
+.BR pmiUnits (3).

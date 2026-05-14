@@ -1548,10 +1548,10 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_TIME_HOUR", PM_TIME_HOUR);
     dict_add(dict, "PM_COUNT_ONE", PM_COUNT_ONE);
 
-    dict_add(dict, "PM_UNITS_TEMPERATURE", PM_UNITS_TEMPERATURE);
-    dict_add(dict, "PM_UNITS_VOLTAGE", PM_UNITS_VOLTAGE);
-    dict_add(dict, "PM_UNITS_CURRENT", PM_UNITS_CURRENT);
-    dict_add(dict, "PM_UNITS_POWER", PM_UNITS_POWER);
+    dict_add(dict, "PM_UNIT_TEMPERATURE", PM_UNIT_TEMPERATURE);
+    dict_add(dict, "PM_UNIT_VOLTAGE", PM_UNIT_VOLTAGE);
+    dict_add(dict, "PM_UNIT_CURRENT", PM_UNIT_CURRENT);
+    dict_add(dict, "PM_UNIT_POWER", PM_UNIT_POWER);
     dict_add(dict, "PM_TEMPERATURE_C", PM_TEMPERATURE_C);
     dict_add(dict, "PM_TEMPERATURE_F", PM_TEMPERATURE_F);
     dict_add(dict, "PM_TEMPERATURE_K", PM_TEMPERATURE_K);

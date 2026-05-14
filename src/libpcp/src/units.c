@@ -163,7 +163,6 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
     char cbuf[20];
     char xbuf[20];
     char pow[5];	/* ^-XX */
-    int  extralen = 0;
     int  started = 0;	/* 1 => started filling buf */
 
     if (pmDebugOptions.pmapi) {
@@ -178,15 +177,14 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
     if (pu->extraUnit) {
 	__pmExtraUnitsStr(pu, xbuf, sizeof(xbuf));
 	extrastr = xbuf;
-	extralen = strlen(extrastr) + 1;
     }
 
     /*
-     * must be at least 60 bytes remaining, then we don't need to
+     * must be at least 60 bytes in buf[], then we don't need to
      * pollute the code below with a check every time we call
      * pmsprintf() or increment p
      */
-    if (buflen - extralen < 60) {
+    if (buflen < 60) {
 	if (pmDebugOptions.pmapi) {
 	    fprintf(stderr, ":> returns NULL\n");
 	}
@@ -270,11 +268,10 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 	}
     }
 
-    if (pu->extraUnit != 0) {
+    if (pu->extraUnit > 0) {
 	pmstrncat(buf, buflen, extrastr);
 	started = 1;
     }
-
     if (pu->dimSpace > 0) {
 	if (started)
 	    pmstrncat(buf, buflen, " ");
@@ -309,11 +306,15 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 	}
     }
 
-    if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0) {
+    if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0 || pu->extraUnit < 0) {
 	if (started)
 	    pmstrncat(buf, buflen, " ");
 	pmstrncat(buf, buflen, "/");
 	started = 1;
+	if (pu->extraUnit < 0) {
+	    pmstrncat(buf, buflen, " ");
+	    pmstrncat(buf, buflen, extrastr);
+	}
 	if (pu->dimSpace < 0) {
 	    pmstrncat(buf, buflen, " ");
 	    pmstrncat(buf, buflen, spacestr);
@@ -397,7 +398,7 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit_arg, pmAtomV
      * special case ... if all components of the dimension are zero
      * (dimension "none"), then treat this as the dimension of "count"
      */
-    if (iunit->dimSpace == 0 && iunit->dimTime == 0 && iunit->dimCount == 0) {
+    if (iunit->dimSpace == 0 && iunit->dimTime == 0 && iunit->dimCount == 0 && iunit->extraUnit == 0) {
 	ispecial = *iunit_arg;
 	iunit = &ispecial;
 	iunit->dimCount = 1;
@@ -405,13 +406,13 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit_arg, pmAtomV
 	    fprintf(stderr, " defaults to [%s]", pmUnitsStr_r(iunit, strbuf, sizeof(strbuf)));
 	}
     }
-    if (ounit->dimSpace == 0 && ounit->dimTime == 0 && ounit->dimCount == 0) {
+    if (ounit->dimSpace == 0 && ounit->dimTime == 0 && ounit->dimCount == 0 && ounit->extraUnit == 0) {
 	ospecial = *ounit_arg;
 	ounit = &ospecial;
 	ounit->dimCount = 1;
     }
 
-    if (iunit->dimSpace != ounit->dimSpace || iunit->dimTime != ounit->dimTime || iunit->dimCount != ounit->dimCount) {
+    if (iunit->dimSpace != ounit->dimSpace || iunit->dimTime != ounit->dimTime || iunit->dimCount != ounit->dimCount || iunit->extraUnit != ounit->extraUnit) {
 	sts = PM_ERR_CONV;
 	goto bad;
     }
@@ -614,6 +615,15 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit_arg, pmAtomV
 	default:
 	    sts = PM_ERR_CONV;
 	    goto bad;
+    }
+
+    /*
+     * extra units conversion ...
+     */
+    if (iunit->extraUnit != 0) {
+	if ((sts = __pmConvExtraScale(type, oval, iunit, ounit)) < 0) {
+	    goto bad;
+	}
     }
 
     if (pmDebugOptions.value) {
@@ -1569,13 +1579,16 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier, char **errMsg
     }
 
     /*
-     * extra units come from dividend only ... cannot appear in
-     * divisor because "dimension" is 0 or 1 (not -1) based on
-     * extraUnit value
-     * TODO how to enforce this?
+     * extra units come from either dividend or divisor, but not both
      */
-    out->extraUnit = dividend.extraUnit;
-    out->extraScale = dividend.extraScale;
+    if (dividend.extraUnit != 0) {
+	out->extraUnit = dividend.extraUnit;
+	out->extraScale = dividend.extraScale;
+    }
+    else {
+	out->extraUnit = -divisor.extraUnit;
+	out->extraScale = divisor.extraScale;
+    }
 
 out:
     if (sts < 0) {

@@ -29,8 +29,8 @@ main()
     units.scaleSpace = 0x4;
     units.scaleTime = 0x5;
     units.scaleCount = 0x6;
-    units.extraUnit = 0x3;		/* 3-bits wide */
-    units.extraScale = 0x18;		/* 5-bits wide */
+    units.extraUnit = 0xf;		/* 5-bits wide */
+    units.extraScale = 0x0;		/* 3-bits wide */
 
     if (*ip == 0x12345678)
 	printf("OK\n");

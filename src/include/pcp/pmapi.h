@@ -104,23 +104,23 @@ typedef unsigned int	pmInDom;	/* Instance-Domain */
  */
 typedef struct pmUnits {
 #ifdef HAVE_BITFIELDS_LTOR
-    signed int		dimSpace : 4;	/* space dimension */
-    signed int		dimTime : 4;	/* time dimension */
-    signed int		dimCount : 4;	/* event dimension */
+    int			dimSpace : 4;	/* space dimension */
+    int			dimTime : 4;	/* time dimension */
+    int			dimCount : 4;	/* event dimension */
     unsigned int	scaleSpace : 4;	/* one of PM_SPACE_* below */
     unsigned int	scaleTime : 4;	/* one of PM_TIME_* below */
-    signed int		scaleCount : 4;	/* one of PM_COUNT_* below */
-    int			extraUnit : 5;	/* code for extra unit from PM_UNITS_* below */
-    unsigned int	extraScale : 3;	/* scale for extra units */
+    int			scaleCount : 4;	/* one of PM_COUNT_* below */
+    int			extraUnit : 5;	/* code for extra unit from PM_UNIT_* below */
+    unsigned int	extraScale : 3;	/* scale for extra unit */
 #else
-    int			extraScale : 5;	/* scale for extra units */
-    unsigned int	extraUnit : 3;	/* code for extra unit from PM_UNITS_* below */
-    signed int		scaleCount : 4;	/* one of PM_COUNT_* below */
+    unsigned int	extraScale : 3;	/* scale for extra unit */
+    int			extraUnit : 5;	/* code for extra unit from PM_UNIT_* below */
+    int			scaleCount : 4;	/* one of PM_COUNT_* below */
     unsigned int	scaleTime : 4;	/* one of PM_TIME_* below */
     unsigned int	scaleSpace : 4;	/* one of PM_SPACE_* below */
-    signed int		dimCount : 4;	/* event dimension */
-    signed int		dimTime : 4;	/* time dimension */
-    signed int		dimSpace : 4;	/* space dimension */
+    int			dimCount : 4;	/* event dimension */
+    int			dimTime : 4;	/* time dimension */
+    int			dimSpace : 4;	/* space dimension */
 #endif
 } pmUnits;			/* dimensional units and scale of value */
 
@@ -152,10 +152,10 @@ typedef struct pmUnits {
  * the extra unit types are mutually exclusive so at most one one of
  * the following extraUnit values may be used for each metric
  */
-#define PM_UNITS_TEMPERATURE	1
-#define PM_UNITS_VOLTAGE	2
-#define PM_UNITS_CURRENT	3
-#define PM_UNITS_POWER		4
+#define PM_UNIT_TEMPERATURE	1
+#define PM_UNIT_VOLTAGE		2
+#define PM_UNIT_CURRENT		3
+#define PM_UNIT_POWER		4
 /*
  * scale factors for extra units ... must be > 0 and <= 7 and
  * unique for each extra unit type
