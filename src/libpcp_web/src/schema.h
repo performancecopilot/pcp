@@ -28,8 +28,12 @@
 #define COMMAND_LEN	(sizeof(COMMAND)-1)
 #define CLUSTER		"CLUSTER"
 #define CLUSTER_LEN	(sizeof(CLUSTER)-1)
+#define DEL		"DEL"
+#define DEL_LEN		(sizeof(DEL)-1)
 #define EVALSHA		"EVALSHA"
 #define EVALSHA_LEN	(sizeof(EVALSHA)-1)
+#define EXISTS		"EXISTS"
+#define EXISTS_LEN	(sizeof(EXISTS)-1)
 #define EXPIRE		"EXPIRE"
 #define EXPIRE_LEN	(sizeof(EXPIRE)-1)
 #define GEOADD		"GEOADD"
@@ -60,10 +64,16 @@
 #define PUBLISH_LEN	(sizeof(PUBLISH)-1)
 #define SADD		"SADD"
 #define SADD_LEN	(sizeof(SADD)-1)
+#define SCAN		"SCAN"
+#define SCAN_LEN	(sizeof(SCAN)-1)
+#define SCARD		"SCARD"
+#define SCARD_LEN	(sizeof(SCARD)-1)
 #define SETS		"SET"
 #define SETS_LEN	(sizeof(SETS)-1)
 #define SMEMBERS	"SMEMBERS"
 #define SMEMBERS_LEN	(sizeof(SMEMBERS)-1)
+#define SREM		"SREM"
+#define SREM_LEN	(sizeof(SREM)-1)
 #define XADD		"XADD"
 #define XADD_LEN	(sizeof(XADD)-1)
 #define XRANGE		"XRANGE"
@@ -176,6 +186,9 @@ enum {
     SERIES_LABELS_CALLS,
     SERIES_LABELVALUES_CALLS,
     SERIES_LOAD_CALLS,
+    SERIES_GC_CALLS,
+    SERIES_GC_SCANNED,
+    SERIES_GC_CLEANED,
     NUM_SERIES_METRIC
 };
 
@@ -198,5 +211,44 @@ extern void pmSeriesStatsSet(pmSeriesModule *, const char *, const char *, doubl
 
 extern void keysSchemaLoad(keySlots *, keySlotsFlags, keysInfoCallBack,
 	keysDoneCallBack, void *, void *, void *);
+
+/*
+ * GC baton tracking one full SCAN pass over pcp:desc:series:*
+ */
+typedef struct seriesGCBaton {
+    seriesBatonMagic	header;		/* MAGIC_GC */
+    keySlots		*slots;
+    void		*module;	/* seriesModuleData * for metric updates */
+    sds			cursor;		/* current SCAN cursor */
+    unsigned int	nscanned;	/* total series checked this run */
+    unsigned int	ncleaned;	/* total series GC'd this run */
+    int			dryrun;		/* 1 = log only, no writes */
+    pmLogInfoCallBack	info;
+    pmSeriesDoneCallBack done;
+    void		*userdata;
+} seriesGCBaton;
+
+/*
+ * Per-series baton; lives for the duration of one series cleanup
+ */
+typedef struct seriesGCEntry {
+    seriesBatonMagic	header;		/* MAGIC_GC */
+    keySlots		*slots;
+    char		hash[42];	/* series hash hex (NUL-terminated) */
+    int			dryrun;
+    pmLogInfoCallBack	info;
+    void		*userdata;
+    seriesGCBaton	*parent;
+
+    /* metadata collected in parallel before the sweep phase */
+    sds			*metric_ids;		/* binary SHA20 array */
+    unsigned int	nmetric_ids;
+    sds			*inst_hashes;		/* binary SHA20 array (inst name.hash) */
+    unsigned int	ninst_hashes;
+    sds			*label_name_ids;	/* parallel arrays, binary SHA20 */
+    sds			*label_val_ids;
+    unsigned int	nlabels;
+    unsigned char	context_hash[20];	/* "source" field from pcp:desc:series:H */
+} seriesGCEntry;
 
 #endif	/* SERIES_SCHEMA_H */
