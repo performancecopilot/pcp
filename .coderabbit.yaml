@@ -1,0 +1,6 @@
+# .coderabbit.yaml
+reviews:
+  auto_review:
+    enabled: true
+    # Set to true if you want reviews to start while the PR is still a Draft
+    drafts: false
