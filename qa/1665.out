@@ -1,0 +1,12 @@
+QA output created by 1665
+pmie: timezone set to local timezone from archives/extra
+expr_1 (Tue May 12 23:11:56 2026): unknown
+expr_2 (Tue May 12 23:11:56 2026): unknown
+
+expr_1 (Tue May 12 23:11:56 2026): true
+expr_2 (Tue May 12 23:11:56 2026): true
+
+expr_1 (Tue May 12 23:11:56 2026): true
+expr_2 (Tue May 12 23:11:56 2026): true
+
+pmie: note - evaluator exiting

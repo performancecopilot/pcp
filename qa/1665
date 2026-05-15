@@ -1,0 +1,57 @@
+#!/bin/sh
+# PCP QA Test No. 1665
+# pmie for metrics with extra units
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+
+pmie -z -t 200msec -a archives/extra -v 2>$tmp.err <<End-of-File
+// similar to pmie(1) page
+sample.temperature.celsius >= (sample.temperature.farenheit - 32) * 5 / 9;
+// expect true
+2 * sample.voltage.volt == sample.voltage.millivolt / 1000 + sample.voltage.microvolt / 1000000;
+End-of-File
+_show_pmie_exit <$tmp.err
+
+echo
+echo "some error cases ..."
+pmie -z -t 200msec -T 1sec -h local: -v 2>$tmp.err <<End-of-File
+sample.temperature.celsius > 1 byte;
+End-of-File
+_filter <$tmp.err
+
+# success, all done
+exit

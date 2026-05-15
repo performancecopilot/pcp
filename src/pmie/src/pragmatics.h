@@ -79,19 +79,6 @@ void waitMetric(Metric *);
 /* remove Metric from wait list */
 void unwaitMetric(Metric *);
 
-/* check that pmUnits dimensions are equal */
-#define dimeq(x, y)	(((x).dimSpace == (y).dimSpace) && \
-			 ((x).dimTime == (y).dimTime) && \
-			 ((x).dimCount == (y).dimCount))
-
-/* check equality of two pmUnits */
-#define unieq(x, y)	(((x).dimSpace == (y).dimSpace) && \
-			 ((x).dimTime == (y).dimTime) && \
-			 ((x).dimCount == (y).dimCount) && \
-			 ((x).scaleSpace == (y).scaleSpace) && \
-			 ((x).scaleTime == (y).scaleTime) && \
-			 ((x).scaleCount == (y).scaleCount))
-
 /* for initialization of pmUnits struct */
 extern pmUnits	noUnits;
 extern pmUnits	countUnits;
