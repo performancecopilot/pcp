@@ -133,7 +133,7 @@ _compare_values()
     fi
 
     _within_tolerance $metric "$pcpvalue" "$sqlvalue" $tolerance% -v || \
-	_fail "$metric outside 10% tolerance (PCP $pcpvalue vs SQL $sqlvalue)"
+	_fail "$metric outside ${tolerance}% tolerance (PCP $pcpvalue vs SQL $sqlvalue)"
 }
 
 pmdamssql_remove()
