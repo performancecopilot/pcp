@@ -6578,7 +6578,7 @@ _ACEOF
 if ac_fn_c_try_link "$LINENO"
 then :
 
-if test $target_cpu = "armv8l"; then
+if test $target_cpu = "arm"; then
      { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: no" >&5
 printf "%s\n" "no" >&6; }
      result=0
