@@ -619,17 +619,17 @@ domainExpr(int op, int dom, Expr *arg)
     }
 
     if (op == CND_COUNT_HOST) {
+	/*
+	 * Note: this is *really* all of CND_COUNT_HOST (dom == 0), 
+	 * 	 CND_COUNT_INST (dom == 1) and CND_COUNT_TIME (dom == 2)
+	 */
 	x = newExpr(op + dom, arg, NULL, hdom, idom, tdom, abs(tdom), PM_SEM_INSTANT);
 	newRingBfr(x);
-	//x->units = countUnits;
 	x->units = noUnits;
     }
     else {
 	x = newExpr(op + dom, arg, NULL, hdom, idom, tdom, abs(tdom), arg->sem);
 	newRingBfr(x);
-	//if (x->op == CND_COUNT_INST || x->op == CND_COUNT_TIME) {
-	    //x->units = countUnits;
-	//}
     }
 
     findEval(x);

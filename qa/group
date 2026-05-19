@@ -2204,10 +2204,8 @@ suse
 1662 pmproxy libpcp_web pmlogger valgrind local
 1663 pmda.linux local
 1664 libpcp pmunits local
-1665 pmie pmunits local
-1665 pmunits
-1666 pmda.summary pmie local
-1666 pmunits
+1665 pmie libpcp pmunits local
+1666 pmda.summary pmie local pmunits
 1667:reserved pmunits
 1668:reserved pmunits
 1671 multi-archive archive libpcp pmrep local python

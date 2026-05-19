@@ -54,13 +54,14 @@ do
 	q)	quick=true
 		;;
 	r)	reserve=true
-		if [ -n "$id" ]
+		if $unreserve
 		then
 		    echo "Error: cannot have -r after -R $id"
 		    exit 1
 		fi
 		;;
-	R)	id="$OPTARG"
+	R)	unreserve=true
+		id="$OPTARG"
 		if grep -q "^$id:reserved" group
 		then
 		    for suff in '' .out
@@ -80,7 +81,6 @@ do
 		    echo "Error: cannot have -R $id after -r"
 		    exit 1
 		fi
-		unreserve=true
 		;;
 	s)	smallest=true
 		random=false
@@ -244,7 +244,12 @@ then
     exit
 fi
 
-echo "Allocated test number $id"
+if $unreserve
+then
+    echo "Unreserve test number $id"
+else
+    echo "Allocated test number $id"
+fi
 
 if [ -f $id ]
 then
@@ -389,8 +394,26 @@ fi
 
 if $unreserve
 then
+    oldans=`sed -n <group -e "/^$id:reserved */s///p"`
     echo "Removing :reserved tag for $id in group index"
-    sed -e "/^$id:reserved/s/:reserved//" -i group
+    sed -e "/^$id:reserved/d" -i group
+    ans=`echo "$oldans $ans" | awk ' {
+  onetrip = 1
+  for (i = 1; i <= NF; i++) {
+    for (j = 1; j < i; j++) {
+	if ($i == $j)
+	    break
+    }
+    if (j == i) {
+	if (onetrip)
+	    onetrip = 0
+	else
+	    printf(" ")
+	printf("%s", $i)
+    }
+  }
+  print ""
+}'`
 fi
 echo "Adding $id to group index"
 echo "$id$tag $ans" >>group
