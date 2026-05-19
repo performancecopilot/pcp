@@ -814,7 +814,7 @@ changeSmpls(Expr **p, int nsmpls)
 
 /* propagate instance domain, semantics and units from
    argument expressions to parents */
-static void
+void
 instExpr(Expr *x)
 {
     int	    up = 0;
@@ -856,7 +856,8 @@ instExpr(Expr *x)
 	    }
 	    if (x->op == CND_RATE) {
 		up = 1;
-		x->units.dimTime--;
+		if (x->units.dimTime != 0)
+		    x->units.dimTime--;
 	    }
 	}
 	else if (!UNITS_UNKNOWN(arg1->units) &&
@@ -874,6 +875,12 @@ instExpr(Expr *x)
 		x->units.dimTime = arg1->units.dimTime - arg2->units.dimTime;
 		x->units.dimCount = arg1->units.dimCount - arg2->units.dimCount;
 	    }
+	    if (x->units.dimSpace == 0)
+		x->units.scaleSpace = 0;
+	    if (x->units.dimTime == 0)
+		x->units.scaleTime = 0;
+	    if (x->units.dimCount == 0)
+		x->units.scaleCount = 0;
 	}
     }
 
@@ -911,6 +918,8 @@ instFetchExpr(Expr *x)
 		    x->sem = PM_SEM_INSTANT;
 		    x->units = canon(m->desc.units);
 		    x->units.dimTime--;
+		    if (x->units.dimTime == 0)
+			x->units.scaleTime = 0;
 		}
 		else {
 		    x->sem = m->desc.sem;
@@ -920,6 +929,12 @@ instFetchExpr(Expr *x)
 		break;
 	    }
 	}
+	if (x->units.dimSpace == 0)
+	    x->units.scaleSpace = 0;
+	if (x->units.dimTime == 0)
+	    x->units.scaleTime = 0;
+	if (x->units.dimCount == 0)
+	    x->units.scaleCount = 0;
     }
 
     /*

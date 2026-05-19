@@ -87,61 +87,61 @@ static pmdaMetric metrictab[] = {
 /* valid.one */
     { (void *)0, 
       { PMDA_PMID(0,0), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* valid.two */
     { (void *)0, 
       { PMDA_PMID(0,1), PM_TYPE_U32, INDOM_0, PM_SEM_INSTANT, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* bad.type */
     { (void *)0,
       { PMDA_PMID(0,5), PM_TYPE_NOSUPPORT, PM_INDOM_NULL, PM_SEM_COUNTER,
-	{ 0, 0, 0, 0, 0, 0 } }, },
+	{ 0 } }, },
 /* valid.three */
     { (void *)0, 
       { PMDA_PMID(0,7), PM_TYPE_U32, INDOM_1, PM_SEM_INSTANT, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* no.fetch */
     { (void *)0, 
       { PMDA_PMID(0,9), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* no.help */
     { (void *)0, 
       { PMDA_PMID(0,10), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* no.shorthelp */
     { (void *)0, 
       { PMDA_PMID(0,11), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* no.longhelp */
     { (void *)0, 
       { PMDA_PMID(0,12), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* no.isntfetch */
     { (void *)0, 
       { PMDA_PMID(0,13), PM_TYPE_U32, INDOM_1, PM_SEM_INSTANT, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* bad.semantics */
     { (void *)0, 
       { PMDA_PMID(1,1), PM_TYPE_U32, PM_INDOM_NULL, -1, 
-        { 0, 1, 0, 0, PM_TIME_SEC, 0 } }, },
+        { .dimTime=1, .scaleTime=PM_TIME_SEC } }, },
 /* bad.scale */
     { (void *)0,
       { PMDA_PMID(1,2), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	{ 1, 0, 0, 10, 0, 0 } }, },
+	{ 1, 0, 0, 10, 0, 0, 0, 0 } }, },
 /* no.pmns */
     { (void *)0,
       { PMDA_PMID(1,3), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_COUNTER,
-	{ 1, 0, 0, 10, 0, 0 } }, },
+	{ 0 } }, },
 #ifdef BUG_1
 /* bad.indom */
     { (void *)0,
       { PMDA_PMID(1,4), PM_TYPE_U32, 17, PM_SEM_COUNTER,
-	{ 1, 0, 0, 10, 0, 0 } }, },
+	{ 0 } }, },
 #endif
 /* no.instances */
     { (void *)0,
       { PMDA_PMID(0,14), PM_TYPE_U32, INDOM_2, PM_SEM_COUNTER,
-	{ 1, 0, 0, 10, 0, 0 } }, },
+	{ 0 } }, },
 };
 
 #endif

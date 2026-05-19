@@ -163,11 +163,11 @@ PCP Archive Rewrite Specifications Summary
 Unknown instance "bin-999" in iname clause for indom 29.2
 Unknown instance 123 in inst clause for indom 29.2
 Warning [TMP.conf.dir/conf.0, line 1]
+Warning [TMP.conf.dir/conf.0, line 2]
 Warning [TMP.conf.dir/conf.1, line 1]
 Warning [TMP.conf.dir/conf.3, line 1]
 Warning [TMP.conf.dir/conf.4, line 1]
 Warning [TMP.conf.dir/conf.5, line 1]
-Warning [TMP.conf.dir/conf.5, line 2]
 Warning [TMP.conf.dir/conf.6, line 3]
 Warning [TMP.conf.dir/conf.6, line 4]
 Warning [TMP.conf.dir/conf.6, line 5]

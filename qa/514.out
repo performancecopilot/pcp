@@ -1184,7 +1184,7 @@ Expr dump @ ADDR499
 .. ..   op=60 (count_inst) arg1=ADDR507 arg2=(nil) parent=ADDR500
 .. ..   eval=cndCount_inst metrics=ADDR502 ring=ADDR508
 .. ..   valid=0 cardinality[H,I,T]=[1,-1,1] tspan=1
-.. ..   nsmpls=1 nvals=1 sem=INSTANT units=count
+.. ..   nsmpls=1 nvals=1 sem=INSTANT units=
 .. .. .. Expr dump @ ADDR507
 .. .. ..   op=34 (>) arg1=ADDR509 arg2=ADDR510 parent=ADDR504
 .. .. ..   eval=cndGt_n_1 metrics=ADDR502 ring=ADDR511
@@ -1372,7 +1372,7 @@ Expr dump @ ADDR569
 .. .. ..   op=3 (rate) arg1=ADDR579 arg2=(nil) parent=ADDR574
 .. .. ..   eval=cndRate_n metrics=ADDR572 ring=ADDR580
 .. .. ..   valid=0 cardinality[H,I,T]=[1,9,1] tspan=9
-.. .. ..   nsmpls=1 nvals=9 sem=INSTANT units=/ sec
+.. .. ..   nsmpls=1 nvals=9 sem=INSTANT units=
 .. .. .. .. Expr dump @ ADDR579
 .. .. .. ..   op=1 (<fetch node>) arg1=(nil) arg2=(nil) parent=ADDR576
 .. .. .. ..   eval=cndFetch_all metrics=ADDR572 ring=ADDR581
@@ -1789,7 +1789,7 @@ Expr dump @ ADDR729
 .. ..   op=61 (count_sample) arg1=ADDR737 arg2=(nil) parent=ADDR730
 .. ..   eval=cndCount_time metrics=ADDR732 ring=ADDR738
 .. ..   valid=0 cardinality[H,I,T]=[1,-1,-1] tspan=1
-.. ..   nsmpls=1 nvals=1 sem=INSTANT units=count
+.. ..   nsmpls=1 nvals=1 sem=INSTANT units=
 .. .. .. Expr dump @ ADDR737
 .. .. ..   op=54 (some_inst) arg1=ADDR739 arg2=(nil) parent=ADDR734
 .. .. ..   eval=cndSome_inst metrics=ADDR732 ring=ADDR740

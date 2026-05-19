@@ -1,6 +1,6 @@
 #!/bin/sh
-# PCP QA Test No. 1665
-# pmie for metrics with extra units
+# PCP QA Test No. 1666
+# metadata propagation from pmie to the summary PMDA
 #
 # Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
 #
@@ -22,11 +22,12 @@ fi
 
 _cleanup()
 {
+    _cleanup_pmda summary
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
 
-status=0	# success is the default!
+status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
@@ -36,15 +37,26 @@ _filter()
     # end
 }
 
-# real QA test starts here
+_prepare_pmda summary
 
-pmie -z -t 200msec -a archives/extra -v 2>$tmp.err <<End-of-File
-// similar to pmie(1) page
-sample.temperature.celsius >= (sample.temperature.farenheit - 32) * 5 / 9;
-// expect true
-2 * sample.voltage.volt == sample.voltage.millivolt / 1000 + sample.voltage.microvolt / 1000000;
-End-of-File
-_show_pmie_exit <$tmp.err
+unset ROOT MAKEFLAGS
+
+pmda_home=$PCP_PMDAS_DIR/summary
+if [ ! -d "$pmda_home" ]
+then
+    echo "Where is $pmda_home?"
+    exit
+fi
+cd "$pmda_home" || exit
+$sudo ./Install </dev/null || exit
+
+# real QA test starts here
+echo "metadata ok? (silence is golden) ..."
+pminfo -e summary
+
+echo "actual metadata ..."
+pminfo -dtT summary
 
 # success, all done
+status=0
 exit

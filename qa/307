@@ -14,12 +14,12 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-numval=`pmprobe -v network.tcp.drops 2>/dev/null | $PCP_AWK_PROG '{print $2}'`
-if [ -z "$numval" -o "$numval" -lt 0 ]
-then
-    _notrun "metric network.tcp.drops is not available"
-    # NOTREACHED
-fi
+pminfo network.tcp 2>/dev/null | grep drop | grep -v dropped >$tmp.metrics
+[ -s $tmp.metrics ] || _notrun "no network.tcp.*drop* metrics"
+sed <$tmp.metrics >$tmp.pmie \
+    -e 's/$/ +/' \
+    -e '$s/ +/ > 10;/' \
+# end
 
 status=0	# success is the default!
 trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
@@ -31,8 +31,7 @@ _filter()
         -e '/Goodbye/d'
 }
 
-echo "network.tcp.drops+network.tcp.conndrops+network.tcp.timeoutdrop > 10;" \
-| pmie -v -t 1 >$tmp.trace &
+pmie -v -t 0.25sec -T 1sec -c $tmp.pmie >$tmp.trace 2>&1 &
 
 # real QA test starts here
 
@@ -64,7 +63,10 @@ do
 done \
 | pmlc -P 2>&1 | _filter
 
-sort -u $tmp.trace
+wait
+
+sed -e 's/.* Info: evaluator exiting/pmie: note - evaluator exiting/g' <$tmp.trace \
+| sort -u
 cp $tmp.trace $seq_full
 
 # success, all done

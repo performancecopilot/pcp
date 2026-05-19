@@ -36,6 +36,10 @@ _cleanup()
 
 trap "_cleanup" 0 1 2 3 15
 
+# domain no. from stdpmid
+#
+FORQA=251
+
 home=$PCP_PMDAS_DIR
 cd $home/simple
 
@@ -94,13 +98,13 @@ do
     sed <$file >$tmp.tmp \
 	-e '/simple/s//idiot/g' \
 	-e '/SIMPLE/s//IDIOT/g' \
-	-e '/253/s//177/g'
+	-e "/253/s//$FORQA/g"
     chmod u+w $file
     cp $tmp.tmp $file
 done
 for file in pmns help
 do
-    sed <$file >$tmp.tmp -e '/IDIOT/s//177/g'
+    sed <$file >$tmp.tmp -e "/IDIOT/s//$FORQA/g"
     cp $tmp.tmp $file
 done
 

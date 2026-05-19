@@ -344,6 +344,32 @@ PMID 29.0.170 sample.updown.control.mode: up-down mode for sample.updown.obs
 
 PMID 29.0.171 sample.updown.control.reset: reset all controls for sample.updown.obs
 
+PMID 29.0.172 sample.temperature.celsius: temperature in degrees Celsius
+
+PMID 29.0.173 sample.temperature.farenheit: temperature in degrees Farenheit
+
+PMID 29.0.174 sample.temperature.kelvin: temperature in degrees Kelvin
+
+PMID 29.0.175 sample.voltage.volt: voltage in volts
+
+PMID 29.0.176 sample.voltage.millivolt: voltage in millivolts
+
+PMID 29.0.177 sample.voltage.microvolt: voltage in microvolts
+
+PMID 29.0.178 sample.current.amp: current in amps
+
+PMID 29.0.179 sample.current.milliamp: current in milliamps
+
+PMID 29.0.180 sample.current.microamp: current in microamps
+
+PMID 29.0.181 sample.power.kilowatt: power in kilowatts
+
+PMID 29.0.182 sample.power.watt: power in watts
+
+PMID 29.0.183 sample.power.milliwatt: power in milliwatts
+
+PMID 29.0.184 sample.power.microwatt: power in microwatts
+
 PMID 29.0.1000: dynamic sample.secret.bar metric
 
 PMID 29.0.1001: dynamic sample.secret.foo.one metric

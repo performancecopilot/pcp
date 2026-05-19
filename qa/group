@@ -2206,7 +2206,8 @@ suse
 1664 libpcp pmunits local
 1665 pmie pmunits local
 1665 pmunits
-1666:reserved pmunits
+1666 pmda.summary pmie local
+1666 pmunits
 1667:reserved pmunits
 1668:reserved pmunits
 1671 multi-archive archive libpcp pmrep local python

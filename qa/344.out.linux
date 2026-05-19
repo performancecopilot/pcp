@@ -58,6 +58,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -102,6 +103,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -146,6 +148,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -190,6 +193,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -234,6 +238,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -278,6 +283,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -322,6 +328,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -366,6 +373,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -410,6 +418,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -454,6 +463,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -498,6 +508,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -542,6 +553,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -586,6 +598,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -630,6 +643,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -674,6 +688,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -718,6 +733,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -773,6 +789,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -817,6 +834,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -873,6 +891,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -927,6 +946,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -971,6 +991,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
@@ -1015,6 +1036,7 @@ General options:
 Protocol options:
   -b N, --batch=N       fetch N metrics at a time for -f and -v [128]
   -d, --desc            get and print metric description
+  -e, --metadata-errors like -v, but don't report metrics with no values
   -f, --fetch           fetch and print values for all instances
   -F, --fetchall        fetch and print values for non-enumerable indoms
   -I, --fullindom       print InDom in verbose format
