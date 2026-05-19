@@ -863,10 +863,11 @@ do_roll(__pmContext *ctxp, double t_req, int *seen_mark)
 
     if (err == PM_ERR_LOGREC) {
 	if (pmDebugOptions.interp || pmDebugOptions.log) {
-	    fprintf(stderr, "Error: corrupted archive '%s', vol %d\n",
-		ctxp->c_archctl ->ac_log->name, ctxp->c_archctl->ac_curvol);
+	    fprintf(stderr, "Warning: corrupted archive '%s', vol %d\n",
+		ctxp->c_archctl->ac_log->name, ctxp->c_archctl->ac_curvol);
 	}
-    	return err;
+	if (ctxp->c_archctl->ac_num_logs <= 1)
+	    return err;
     }
 
     return 0;

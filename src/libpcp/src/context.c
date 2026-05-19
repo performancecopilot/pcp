@@ -946,6 +946,20 @@ initarchive(__pmContext	*ctxp, const char *name)
 	 */
 	sts = __pmFindOrOpenArchive(ctxp, current, multi_arch);
 	if (sts < 0) {
+	    if (multi_arch &&
+		(sts == PM_ERR_LABEL || sts == PM_ERR_LOGREC ||
+		 sts == PM_ERR_LOGFILE || sts == PM_ERR_NODATA ||
+		 sts == PM_ERR_RECTYPE || sts == PM_ERR_FEATURE ||
+		 sts > -PM_ERR_BASE)) {
+		/* corrupt, missing, or unreadable archive -- skip it */
+		pmNotifyErr(LOG_WARNING,
+		    "initarchive: skipping corrupt/unreadable archive \"%s\": %s",
+		    current, pmErrStr(sts));
+		if (end == NULL)
+		    break;
+		current = end + 1;
+		continue;
+	    }
 	    if (pmDebugOptions.log && pmDebugOptions.desperate) {
 		char	errmsg[PM_MAXERRMSGLEN];
 		fprintf(stderr, "initarchive(..., %s, ...): __pmFindOrOpenArchive: %s\n",
@@ -1048,6 +1062,30 @@ initarchive(__pmContext	*ctxp, const char *name)
     }
     free(namelist);
     namelist = NULL;
+
+    if (acp->ac_num_logs == 0) {
+	pmNotifyErr(LOG_ERR,
+	    "initarchive: all archives are corrupt/unreadable");
+	sts = PM_ERR_LOGFILE;
+	goto error;
+    }
+
+    /*
+     * If the active log control was lost because a failed archive open
+     * in multi-archive mode cleaned up the shared __pmLogCtl (setting
+     * acp->ac_log to NULL), rebuild it by re-opening all the archives
+     * that were previously opened successfully.  This re-accumulates
+     * their metadata (PMNS, hash tables, etc.) into a fresh __pmLogCtl.
+     */
+    if (acp->ac_log == NULL) {
+	for (i = 0; i < acp->ac_num_logs; i++) {
+	    sts = __pmFindOrOpenArchive(ctxp,
+			acp->ac_log_list[i]->name, multi_arch);
+	    if (sts < 0)
+		goto error;
+	}
+    }
+
     acp->ac_meta_loaded = 1;
 
     /*
