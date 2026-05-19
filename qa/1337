@@ -14,9 +14,18 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-SQLCMD=/opt/mssql-tools/bin/sqlcmd
-test -x "$SQLCMD" || _notrun "Microsoft SQL Server tools not installed"
-test -x /opt/mssql/bin/sqlservr || _notrun "Microsoft SQL Server not installed"
+SQLCMD=/opt/mssql-tools18/bin/sqlcmd
+test -x "$SQLCMD" \
+    && SQLCMD="$SQLCMD -C" \
+    || { \
+        SQLCMD=/opt/mssql-tools/bin/sqlcmd; \
+        test -x "$SQLCMD" \
+        || _notrun "Microsoft SQL Server tools not installed"; \
+    }
+test -x /opt/mssql/bin/sqlservr \
+        || { _wait_for_port 1433 \
+                || _notrun "Microsoft SQL Server not installed";
+        }
 test -d "$PCP_PMDAS_DIR/mssql" || _notrun "Microsoft SQL Server PMDA not installed"
 
 # extract username and password, check connection to SQL Server
@@ -40,22 +49,91 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _query()
 {
-    $SQLCMD -S "$server" -U "$username" -P "$password" -Q "$@"
+    # -W trim trailing spaces from fixed-width columns; -h-1 omit headers so
+    # scalar queries are a single numeric line (plus "(N rows affected)").
+    $SQLCMD -S "$server" -U "$username" -P "$password" -W -h-1 -Q "$@"
 }
 _query "select 1" > $tmp.query 2>&1
-grep -q '(1 rows affected)' $tmp.query || \
+grep -Eq '\(1 rows? affected\)' $tmp.query || \
 	_notrun "Cannot perform select on $server - got:" `cat $tmp.query`
+
+# First numeric line from sqlcmd output (after -h-1); ignores rulers, blank lines,
+# and trailing "(N row[s] affected)" noise.
+_sql_scalar_from_sqlcmd_out()
+{
+    $PCP_AWK_PROG '
+    BEGIN	{ sts = 1 }
+    /^\([0-9]+ row[s]? affected\)/	{ next }
+    /^[[:space:]]*\([0-9]+ row[s]? affected\)[[:space:]]*$/	{ next }
+    /^-+$/				{ next }
+    /^$/				{ next }
+    {
+	line = $0
+	gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+	if (line ~ /^-?[0-9][0-9]*(\.[0-9]+)?([eE][+-]?[0-9]+)?$/) {
+	    print line
+	    sts = 0
+	    exit
+	}
+    }
+    END	{ exit sts }' "$1"
+}
+
+# pmprobe -v: success lines look like "name N value..." (N >= 0 instances).
+# Errors look like "name <negative> message..." — do not treat message tail as a value.
+_pm_value_from_pmprobe_out()
+{
+    $PCP_AWK_PROG '
+    BEGIN	{ sts = 1 }
+    {
+	if (NF < 2)
+	    next
+	if ($2 + 0 < 0) {
+	    print $0 > "/dev/stderr"
+	    sts = 2
+	    exit
+	}
+	if (NF == 2 && $2 == "0") {
+	    print "0"
+	    sts = 0
+	    exit
+	}
+	if (NF >= 3 && ($2 + 0) > 0) {
+	    print $NF
+	    sts = 0
+	    exit
+	}
+    }
+    END	{ exit sts }' "$1"
+}
 
 _compare_values()
 {
     metric=$1
     sql=$2	# sqlcmd output file
     pcp=$3	# pmprobe output file
+    tolerance=${4:-10} # set the defaut tolerance to 10%
 
-    sqlvalue=`awk '/SQLServer:/ { print $(NF-1) }' $sql`
-    pcpvalue=`awk '{print $NF}' $pcp`
+    sqlvalue=`_sql_scalar_from_sqlcmd_out "$sql"`
+    sqlsts=$?
+    if [ "$sqlsts" -ne 0 ] || [ -z "$sqlvalue" ]
+    then
+	_fail "cannot parse cntr_value from sqlcmd output ($sql)"
+    fi
 
-    _within_tolerance $metric $pcpvalue $sqlvalue 10% -v
+    pcpvalue=`_pm_value_from_pmprobe_out "$pcp"`
+    pmsts=$?
+    if [ "$pmsts" -eq 2 ]
+    then
+	_fail "pmprobe error for $metric (see stderr above)"
+    fi
+    if [ "$pmsts" -ne 0 ] || [ -z "$pcpvalue" ]
+    then
+	_fail "cannot parse metric value from pmprobe output ($pcp)"
+    fi
+
+    _within_tolerance $metric "$pcpvalue" "$sqlvalue" $tolerance% -v || \
+	_fail "$metric outside ${tolerance}% tolerance (PCP $pcpvalue vs SQL $sqlvalue)"
 }
 
 pmdamssql_remove()
@@ -97,19 +175,19 @@ _stop_auto_restart pmcd
 pmdamssql_install
 
 # verify metrics compating PCP values to sqlcmd queries
-_query "select * from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Active Temp Tables'" > $tmp.sql_active_temp_tables
+_query "select cntr_value from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Active Temp Tables'" > $tmp.sql_active_temp_tables
 pmprobe -v mssql.general.active_temp_tables > $tmp.pcp_active_temp_tables
 _compare_values mssql.general.active_temp_tables $tmp.sql_active_temp_tables $tmp.pcp_active_temp_tables
 
-_query "select * from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Logins/sec'" > $tmp.sql_logins
+_query "select cntr_value from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Logins/sec'" > $tmp.sql_logins
 pmprobe -v mssql.general.logins > $tmp.pcp_logins
-_compare_values mssql.general.logins $tmp.sql_logins $tmp.pcp_logins
+_compare_values mssql.general.logins $tmp.sql_logins $tmp.pcp_logins 20
 
-_query "select * from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Logouts/sec'" > $tmp.sql_logouts
+_query "select cntr_value from sys.dm_os_performance_counters where object_name = 'SQLServer:General Statistics' and counter_name = 'Logouts/sec'" > $tmp.sql_logouts
 pmprobe -v mssql.general.logouts > $tmp.pcp_logouts
-_compare_values mssql.general.logouts $tmp.sql_logouts $tmp.pcp_logouts
+_compare_values mssql.general.logouts $tmp.sql_logouts $tmp.pcp_logouts 20
 
-_query "select * from sys.dm_os_performance_counters where object_name = 'SQLServer:Latches ' and counter_name = 'Latch Waits/sec'" > $tmp.sql_latch_waits
+_query "select cntr_value from sys.dm_os_performance_counters where object_name = 'SQLServer:Latches ' and counter_name = 'Latch Waits/sec'" > $tmp.sql_latch_waits
 pmprobe -v mssql.latches.latch_waits > $tmp.pcp_latch_waits
 _compare_values mssql.latches.latch_waits $tmp.sql_latch_waits $tmp.pcp_latch_waits
 
