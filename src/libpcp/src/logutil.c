@@ -1642,6 +1642,7 @@ __pmLogRead_ctx(__pmContext *ctxp, int mode, __pmFILE *peekf, __pmResult **resul
 	    acp->ac_curvol, (long)offset);
     }
 
+read_retry:
     if (mode == PM_MODE_BACK) {
        for ( ; ; ) {
 	   if (offset <= __pmLogLabelSize(lcp)) {
@@ -1961,6 +1962,72 @@ again:
     sts = 0;
 
 func_return:
+
+    /*
+     * Recovery for corrupted archives in a multi-archive context:
+     * remove the corrupted archive from the log list entirely and
+     * attempt to continue with the next (or previous) archive.
+     */
+    if (sts == PM_ERR_LOGREC && peekf == NULL && acp->ac_num_logs > 1) {
+	int		corrupt_idx = acp->ac_cur_log;
+	__pmMultiLogCtl	*bad;
+
+	pmNotifyErr(LOG_WARNING,
+	    "__pmLogRead: removing corrupted archive \"%s\" vol %d",
+	    acp->ac_log->name, acp->ac_curvol);
+
+	if (corrupt_idx >= 0 && corrupt_idx < acp->ac_num_logs) {
+	    bad = acp->ac_log_list[corrupt_idx];
+	    if (bad->name) free(bad->name);
+	    if (bad->hostname) free(bad->hostname);
+	    if (bad->timezone) free(bad->timezone);
+	    if (bad->zoneinfo) free(bad->zoneinfo);
+	    free(bad);
+	    acp->ac_num_logs--;
+	    if (corrupt_idx < acp->ac_num_logs)
+		memmove(&acp->ac_log_list[corrupt_idx],
+			&acp->ac_log_list[corrupt_idx + 1],
+			(acp->ac_num_logs - corrupt_idx) *
+			    sizeof(*acp->ac_log_list));
+	    acp->ac_cur_log = -1;
+
+	    if (mode == PM_MODE_FORW &&
+		corrupt_idx < acp->ac_num_logs) {
+		acp->ac_mark_done = 0;
+		if (__pmLogChangeArchive(ctxp, corrupt_idx) == 0) {
+		    lcp = acp->ac_log;
+		    f = acp->ac_mfp;
+		    acp->ac_offset = __pmLogLabelSize(lcp);
+		    acp->ac_vol = acp->ac_curvol;
+		    offset = __pmFtell(f);
+		    assert(offset >= 0);
+		    goto again;
+		}
+	    }
+	    else if (mode == PM_MODE_BACK && corrupt_idx > 0) {
+		int	j;
+		acp->ac_mark_done = 0;
+		if (__pmLogChangeArchive(ctxp, corrupt_idx - 1) == 0) {
+		    lcp = acp->ac_log;
+		    for (j = lcp->maxvol; j >= lcp->minvol; j--) {
+			if (__pmLogChangeVol(acp, j) >= 0)
+			    break;
+		    }
+		    if (j >= lcp->minvol) {
+			__pmFseek(acp->ac_mfp, (long)0, SEEK_END);
+			acp->ac_offset = __pmFtell(acp->ac_mfp);
+			assert(acp->ac_offset >= 0);
+			acp->ac_vol = acp->ac_curvol;
+			f = acp->ac_mfp;
+			offset = __pmFtell(f);
+			assert(offset >= 0);
+			goto read_retry;
+		    }
+		}
+	    }
+	}
+	sts = PM_ERR_EOL;
+    }
 
     if (ctx_ctl.need_ctx_unlock)
 	PM_UNLOCK(ctx_ctl.ctxp->c_lock);
@@ -3312,7 +3379,7 @@ LogChangeToPreviousArchive(__pmContext *ctxp)
      */
     save_origin = ctxp->c_origin;
     save_mode = ctxp->c_mode;
-    /* Switch to the next archive. */
+    /* Switch to the previous archive. */
     __pmLogChangeArchive(ctxp, acp->ac_cur_log - 1);
     lcp = acp->ac_log;
     ctxp->c_origin = save_origin;
