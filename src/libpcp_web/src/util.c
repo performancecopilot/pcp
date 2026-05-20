@@ -244,6 +244,13 @@ instance_labelsets(indom_t *indom, instance_t *inst, char *buffer, int length,
     return pmMergeLabelSets(sets, nsets, buffer, length, filter, arg);
 }
 
+/* extract all labels (both identifying and optional) */
+static int
+all_labels(const pmLabel *label, const char *json, void *arg)
+{
+    return 1;
+}
+
 /* extract only the identifying labels (not optional) */
 static int
 labels(const pmLabel *label, const char *json, void *arg)
@@ -276,7 +283,13 @@ pmwebapi_source_meta(context_t *c, char *buffer, int length)
 static int
 context_labels_str(context_t *c, char *buffer, int length)
 {
-    return pmMergeLabelSets(&c->labelset, 1, buffer, length, NULL, NULL);
+    return pmMergeLabelSets(&c->labelset, 1, buffer, length, all_labels, NULL);
+}
+
+static int
+context_labels_str_identifying(context_t *c, char *buffer, int length)
+{
+    return pmMergeLabelSets(&c->labelset, 1, buffer, length, labels, NULL);
 }
 
 int
@@ -447,6 +460,7 @@ int
 pmwebapi_context_hash(context_t *context)
 {
     char		labels[PM_MAXLABELJSONLEN];
+    char		idlabels[PM_MAXLABELJSONLEN];
     int			sts;
 
     if (context->labels == NULL) {
@@ -454,7 +468,9 @@ pmwebapi_context_hash(context_t *context)
 	    return sts;
 	context->labels = sdsnewlen(labels, sts);
     }
-    return pmwebapi_source_hash(context->name.hash, context->labels, sdslen(context->labels));
+    if ((sts = context_labels_str_identifying(context, idlabels, sizeof(idlabels))) < 0)
+	return sts;
+    return pmwebapi_source_hash(context->name.hash, idlabels, sts);
 }
 
 void
@@ -464,22 +480,26 @@ pmwebapi_metric_hash(metric_t *metric)
     pmDesc		*desc = &metric->desc;
     sds			identifier;
     char		buf[PM_MAXLABELJSONLEN];
+    char		idbuf[PM_MAXLABELJSONLEN];
     char		sem[32], type[32], units[64];
     int			len, i;
 
     if (metric->labels == NULL) {
-	len = metric_labelsets(metric, buf, sizeof(buf), labels, NULL);
+	len = metric_labelsets(metric, buf, sizeof(buf), all_labels, NULL);
 	if (len <= 0)
 	    len = pmsprintf(buf, sizeof(buf), "null");
 	metric->labels = sdsnewlen(buf, len);
     }
 
+    if (metric_labelsets(metric, idbuf, sizeof(idbuf), labels, NULL) <= 0)
+	pmsprintf(idbuf, sizeof(idbuf), "null");
+
     identifier = sdsempty();
     for (i = 0; i < metric->numnames; i++) {
 	identifier = sdscatfmt(identifier,
-		"{\"series\":\"metric\",\"name\":\"%S\",\"labels\":%S,"
+		"{\"series\":\"metric\",\"name\":\"%S\",\"labels\":%s,"
 		 "\"semantics\":\"%s\",\"type\":\"%s\",\"units\":\"%s\"}",
-		metric->names[i].sds, metric->labels,
+		metric->names[i].sds, idbuf,
 		pmSemStr_r(desc->sem, sem, sizeof(sem)),
 		pmTypeStr_r(desc->type, type, sizeof(type)),
 		pmUnitsStr_r(&desc->units, units, sizeof(units)));
@@ -501,7 +521,7 @@ pmwebapi_add_indom_labels(indom_t *indom)
     int			len;
 
     if (indom->labels == NULL) {
-	len = instance_labelsets(indom, NULL, buf, sizeof(buf), labels, NULL);
+	len = instance_labelsets(indom, NULL, buf, sizeof(buf), all_labels, NULL);
 	if (len <= 0)
 	    len = pmsprintf(buf, sizeof(buf), "null");
 	indom->labels = sdsnewlen(buf, len);
@@ -514,18 +534,22 @@ pmwebapi_instance_hash(indom_t *ip, instance_t *instance)
     SHA1_CTX		shactx;
     sds			identifier;
     char		buf[PM_MAXLABELJSONLEN];
+    char		idbuf[PM_MAXLABELJSONLEN];
     int			len;
 
     if (instance->labels == NULL) {
-	len = instance_labelsets(ip, instance, buf, sizeof(buf), labels, NULL);
+	len = instance_labelsets(ip, instance, buf, sizeof(buf), all_labels, NULL);
 	if (len <= 0)
 	    len = pmsprintf(buf, sizeof(buf), "null");
 	instance->labels = sdsnewlen(buf, len);
     }
 
+    if (instance_labelsets(ip, instance, idbuf, sizeof(idbuf), labels, NULL) <= 0)
+	pmsprintf(idbuf, sizeof(idbuf), "null");
+
     identifier = sdscatfmt(sdsempty(),
-		"{\"series\":\"instance\",\"name\":\"%S\",\"labels\":%S}",
-		instance->name.sds, instance->labels);
+		"{\"series\":\"instance\",\"name\":\"%S\",\"labels\":%s}",
+		instance->name.sds, idbuf);
     /* Calculate unique instance identifier 20-byte SHA1 hash */
     SHA1Init(&shactx);
     SHA1Update(&shactx, (unsigned char *)identifier, sdslen(identifier));
