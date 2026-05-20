@@ -805,7 +805,7 @@ AC_MSG_CHECKING([if USDT probes should be used])
 AC_LINK_IFELSE([AC_LANG_SOURCE([
 #include "vendor/github.com/libbpf/usdt/usdt.h"
 void main() { USDT(pcp, check, 1); }])], [
-if test $target_cpu = "armv8l"; then
+if test $target_cpu = "arm"; then
      AC_MSG_RESULT(no)
      result=0
 else
