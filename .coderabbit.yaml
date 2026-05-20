@@ -1,4 +1,5 @@
 # .coderabbit.yaml
+inheritance: true
 reviews:
   auto_review:
     enabled: true
