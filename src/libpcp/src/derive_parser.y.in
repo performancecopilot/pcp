@@ -1360,7 +1360,6 @@ map_units(node_t *np)
 	np->desc.units.scaleTime = 0;
     if (np->desc.units.dimSpace == 0)
 	np->desc.units.scaleSpace = 0;
-
 }
 
 /*
@@ -1573,7 +1572,8 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	 */
 	if (left->units.dimCount != right->units.dimCount ||
 	    left->units.dimTime != right->units.dimTime ||
-	    left->units.dimSpace != right->units.dimSpace) {
+	    left->units.dimSpace != right->units.dimSpace ||
+	    left->units.extraUnit != right->units.extraUnit) {
 	    /*
 	     * or one of them is allowed to be "none" provided the
 	     * other is "count" ... this matches the special case
@@ -1581,6 +1581,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	     */
 	    if (left->units.dimTime == 0 && right->units.dimTime == 0 &&
 	        left->units.dimSpace == 0 && right->units.dimSpace == 0 &&
+	        left->units.extraUnit == 0 && right->units.extraUnit == 0 &&
 		((left->units.dimCount == 0 && right->units.dimCount == 1) ||
 		 (left->units.dimCount == 1 && right->units.dimCount == 0)))
 		    ;
@@ -1601,7 +1602,8 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	     right->type != N_INTEGER && right->type != N_DOUBLE) &&
 	    (left->units.dimCount != right->units.dimCount ||
 	     left->units.dimTime != right->units.dimTime ||
-	     left->units.dimSpace != right->units.dimSpace)) {
+	     left->units.dimSpace != right->units.dimSpace ||
+	     left->units.extraUnit != right->units.extraUnit)) {
 	    /*
 	     * or one of them is allowed to be "none" provided the
 	     * other is "count" ... this matches the special case
@@ -1609,6 +1611,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	     */
 	    if (left->units.dimTime == 0 && right->units.dimTime == 0 &&
 	        left->units.dimSpace == 0 && right->units.dimSpace == 0 &&
+	        left->units.extraUnit == 0 && right->units.extraUnit == 0 &&
 		((left->units.dimCount == 0 && right->units.dimCount == 1) ||
 		 (left->units.dimCount == 1 && right->units.dimCount == 0)))
 		    ;
@@ -1625,7 +1628,8 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	 */
 	if (left->units.dimCount != 0 || right->units.dimCount != 0 ||
 	    left->units.dimTime != 0 ||  right->units.dimTime != 0 ||
-	    left->units.dimSpace != 0 || right->units.dimSpace != 0) {
+	    left->units.dimSpace != 0 || right->units.dimSpace != 0 ||
+	    left->units.extraUnit != 0 || right->units.extraUnit != 0) {
 	    PM_TPD(derive_errmsg) = "Dimensions are not the same";
 	    goto bad;
 	}
@@ -1642,7 +1646,8 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	if (left->sem == PM_SEM_COUNTER && right->sem != PM_SEM_COUNTER) {
 	    if (right->units.dimCount != 0 ||
 	        right->units.dimTime != 0 ||
-	        right->units.dimSpace != 0) {
+	        right->units.dimSpace != 0 ||
+		right->units.extraUnit != 0) {
 		PM_TPD(derive_errmsg) = "Non-counter and not dimensionless for right operand";
 		goto bad;
 	    }
@@ -1650,10 +1655,47 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	if (left->sem != PM_SEM_COUNTER && right->sem == PM_SEM_COUNTER) {
 	    if (left->units.dimCount != 0 ||
 	        left->units.dimTime != 0 ||
-	        left->units.dimSpace != 0) {
+	        left->units.dimSpace != 0 ||
+		left->units.extraUnit != 0) {
 		PM_TPD(derive_errmsg) = "Non-counter and not dimensionless for left operand";
 		goto bad;
 	    }
+	}
+    }
+
+    if (np->type == N_STAR || np->type == N_SLASH) {
+	/*
+	 * don't allow extra units in divisor and dividend unless
+	 * they are identical
+	 */
+	if ((left->units.extraUnit != 0 && right->units.extraUnit != 0) &&
+	    ((left->units.extraUnit != right->units.extraUnit) ||
+	     (left->units.extraScale != right->units.extraScale))) {
+	    PM_TPD(derive_errmsg) = "Extra units not allowed for both operands of * or /";
+	    goto bad;
+	}
+	/*
+	 * if one is has extra units, only none is allowed for the other
+	 * operand
+	 */
+	if ((left->units.extraUnit != 0 &&
+	     (right->units.dimSpace + right->units.dimTime + right->units.dimCount != 0)) ||
+	    (right->units.extraUnit != 0 &&
+	     (left->units.dimSpace + left->units.dimTime + left->units.dimCount != 0))) {
+	    PM_TPD(derive_errmsg) = "Extra units not allowed with non-extra units for operands of * or /";
+	    goto bad;
+	}
+    }
+
+    if (left->units.extraUnit != 0 && right->units.extraUnit != 0) {
+	/*
+	 * if both operands use extra units then they must have
+	 * the same unit and scale
+	 */
+	if (left->units.extraUnit != right->units.extraUnit ||
+	    left->units.extraScale != right->units.extraScale) {
+	    PM_TPD(derive_errmsg) = "Operands have incompatible extra units or scale";
+	    goto bad;
 	}
     }
 
@@ -2024,6 +2066,22 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
+	    if (np->left->desc.units.extraUnit != np->right->desc.units.extraUnit ||
+	        np->left->desc.units.extraScale != np->right->desc.units.extraScale)
+		{
+		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
+		    char	strbuf[60];
+
+		    pmUnitsStr_r(&np->left->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, "Semantic error: ternary op units (extra): left=%s", strbuf);
+		    pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, " right=%s\n", strbuf);
+		}
+		PM_TPD(derive_errmsg) = "Different units or scale (extra) for ternary operands";
+		if (async)
+		    report_sem_error(dmp->name, np);
+		return -1;
+	    }
 	    return 0;
 
 	case N_QUEST:
@@ -2296,11 +2354,12 @@ __dmdumpexpr(node_t *np, int level)
 	    fprintf(stderr, " [%s] primary=%d", np->value, np->data.info == NULL ? 1 : 0);
 	if (np->type == N_SCALE) {
 	    if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
-		fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
+		fprintf(stderr, " [bad units: %d %d %d %u %u %d %d %u]", 
 		    np->desc.units.scaleCount, np->desc.units.scaleTime,
 		    np->desc.units.scaleSpace,
 		    np->desc.units.dimCount, np->desc.units.dimTime,
-		    np->desc.units.dimSpace);
+		    np->desc.units.dimSpace,
+		    np->desc.units.extraUnit, np->desc.units.extraScale);
 	    }
 	    else
 		fprintf(stderr, " [%s]", strbuf);
