@@ -1,5 +1,15 @@
-pcp-7.1.4 (31 July 2026)
-    - Work-in-progress.  Not yet released.
+pcp-7.1.4 (22 May 2026)
+    - PMDA additions, enhancements and bug fixes:
+	pmdaamdgpu: prevent out-of-bound references in fetch function
+	pmdamssql: update default driver to SQL Server 18
+	pmdamssql: add trust_server_certificate option
+    - Client tools and utilities:
+	pmrep: complete and fix csv header unit info change
+	pcp-htop: sync with upstream code fixes
+    - libpcp, libpcp_pmda, libpcp_mmv, libpcp_web and language bindings:
+	libpcp: recover from corrupted archives in multi-archive contexts
+    - Build, infrastructure, containers and packaging updates:
+	build: fix the configure.ac USDT check for armhf platform
 
 pcp-7.1.3 (1 May 2026)
     - PMDA additions, enhancements and bug fixes:

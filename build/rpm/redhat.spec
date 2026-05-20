@@ -3412,5 +3412,5 @@ fi
 %files zeroconf -f pcp-zeroconf-files.rpm
 
 %changelog
-* Fri Jul 31 2026 Lauren Chilton <lchilton@redhat.com> - 7.1.4-1
+* Fri May 22 2026 Lauren Chilton <lchilton@redhat.com> - 7.1.4-1
 - Latest release.
