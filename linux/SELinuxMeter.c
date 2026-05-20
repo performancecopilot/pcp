@@ -11,6 +11,7 @@ in the source distribution for its full text.
 
 #include "CRT.h"
 
+#include <errno.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -27,8 +28,19 @@ static const int SELinuxMeter_attributes[] = {
    METER_TEXT,
 };
 
-static bool enabled = false;
-static bool enforcing = false;
+typedef enum {
+   SELINUX_PERMISSIVE,
+   SELINUX_ENFORCING,
+   SELINUX_UNKNOWN,
+   SELINUX_DISABLED,
+} EnforcingMode;
+
+static const char* const enforcingText[] = {
+   [SELINUX_PERMISSIVE] = "enabled; mode: permissive",
+   [SELINUX_ENFORCING]  = "enabled; mode: enforcing",
+   [SELINUX_UNKNOWN]    = "enabled; mode: unknown",
+   [SELINUX_DISABLED]   = "disabled",
+};
 
 static bool hasSELinuxMount(void) {
    struct statfs sfbuf;
@@ -51,32 +63,28 @@ static bool hasSELinuxMount(void) {
 }
 
 static bool isSelinuxEnabled(void) {
-   return hasSELinuxMount() && (0 == access("/etc/selinux/config", F_OK));
+   return hasSELinuxMount();
 }
 
-static bool isSelinuxEnforcing(void) {
-   if (!enabled) {
-      return false;
-   }
+static EnforcingMode getSelinuxEnforcing(void) {
+   if (!isSelinuxEnabled())
+      return SELINUX_DISABLED;
 
    char buf[20];
    ssize_t r = Compat_readfile("/sys/fs/selinux/enforce", buf, sizeof(buf));
    if (r < 0)
-      return false;
+      return (r == -ENOENT) ? SELINUX_DISABLED : SELINUX_UNKNOWN;
 
    int enforce = 0;
-   if (sscanf(buf, "%d", &enforce) != 1) {
-      return false;
-   }
+   if (sscanf(buf, "%d", &enforce) != 1)
+      return SELINUX_UNKNOWN;
 
-   return !!enforce;
+   return enforce ? SELINUX_ENFORCING : SELINUX_PERMISSIVE;
 }
 
 static void SELinuxMeter_updateValues(Meter* this) {
-   enabled = isSelinuxEnabled();
-   enforcing = isSelinuxEnforcing();
-
-   xSnprintf(this->txtBuffer, sizeof(this->txtBuffer), "%s%s", enabled ? "enabled" : "disabled", enabled ? (enforcing ? "; mode: enforcing" : "; mode: permissive") : "");
+   EnforcingMode enforcing = getSelinuxEnforcing();
+   xSnprintf(this->txtBuffer, sizeof(this->txtBuffer), "%s", enforcingText[enforcing]);
 }
 
 const MeterClass SELinuxMeter_class = {

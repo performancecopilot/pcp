@@ -349,10 +349,13 @@ AC_LINK_IFELSE(
 )
 
 AC_MSG_CHECKING(for __builtin_ctz)
-AC_COMPILE_IFELSE(
+AC_LINK_IFELSE(
    [AC_LANG_PROGRAM(
       [],
-      [[__builtin_ctz(1); /* Supported in GCC 3.4 or later */]]
+      [[
+         /* Supported in GCC 3.4 or later */
+         return __builtin_ctz(1U); /* Should be 0 (exit success) */
+      ]]
    )],
    AC_DEFINE([HAVE_BUILTIN_CTZ], 1, [Define to 1 if the compiler supports '__builtin_ctz' function.])
    AC_MSG_RESULT(yes),

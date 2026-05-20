@@ -64,6 +64,7 @@ void Panel_init(Panel* this, int x, int y, int w, int h, const ObjectClass* type
    this->needsRedraw = true;
    this->cursorOn = false;
    this->wasFocus = false;
+   this->allowExcessScrollV = false;
    RichString_beginAllocated(this->header);
    this->defaultBar = fuBar;
    this->currentBar = fuBar;
@@ -118,6 +119,7 @@ void Panel_prune(Panel* this) {
    this->selected = 0;
    this->oldSelected = 0;
    this->needsRedraw = true;
+   this->allowExcessScrollV = false;
 }
 
 void Panel_add(Panel* this, Object* o) {
@@ -262,11 +264,20 @@ void Panel_draw(Panel* this, bool force_redraw, bool focus, bool highlightSelect
       h--;
    }
 
-   // ensure scroll area is on screen
-   if (this->scrollV < 0) {
-      this->scrollV = 0;
-      this->needsRedraw = true;
-   } else if (this->scrollV > size - h) {
+   /* ensure scroll area is on screen
+      Note: when allowExcessScrollV is set, negative scrollV is allowed to display
+      empty lines above the first row, and scrollV > size-h is allowed to display
+      empty lines below the last row. Both are used by stable tree view hard mode
+      to keep the selected row at a fixed screen position. */
+   if (!this->allowExcessScrollV) {
+      if (this->scrollV < 0) {
+         this->scrollV = 0;
+         this->needsRedraw = true;
+      } else if (this->scrollV > size - h) {
+         this->scrollV = MAXIMUM(size - h, 0);
+         this->needsRedraw = true;
+      }
+   }   if (!this->allowExcessScrollV && this->scrollV > size - h) {
       this->scrollV = MAXIMUM(size - h, 0);
       this->needsRedraw = true;
    }
@@ -279,8 +290,10 @@ void Panel_draw(Panel* this, bool force_redraw, bool focus, bool highlightSelect
       this->needsRedraw = true;
    }
 
-   int first = this->scrollV;
-   int upTo = MINIMUM(first + h, size);
+   // topPad: empty screen lines above the first row (non-zero when scrollV is negative)
+   int topPad = (this->scrollV < 0) ? -this->scrollV : 0;
+   int first = this->scrollV + topPad;
+   int upTo = MINIMUM(first + h - topPad, size);
 
    int selectionColor = focus
       ? CRT_colors[this->selectionColorId]
@@ -289,6 +302,10 @@ void Panel_draw(Panel* this, bool force_redraw, bool focus, bool highlightSelect
    RichString_begin(item);
    if (this->needsRedraw || force_redraw) {
       int line = 0;
+      while (line < topPad) {
+         mvhline(y + line, x, ' ', this->w);
+         line++;
+      }
       for (int i = first; line < h && i < upTo; i++) {
          const Object* itemObj = Vector_get(this->items, i);
          RichString_rewind(&item, RichString_size(&item));
@@ -321,9 +338,9 @@ void Panel_draw(Panel* this, bool force_redraw, bool focus, bool highlightSelect
       RichString_rewind(&item, RichString_size(&item));
       Object_display(oldObj, &item);
       int oldLen = RichString_sizeVal(item);
-      mvhline(y + this->oldSelected - first, x + 0, ' ', this->w);
+      mvhline(y + this->oldSelected - this->scrollV, x + 0, ' ', this->w);
       if (scrollH < oldLen)
-         RichString_printoffnVal(item, y + this->oldSelected - first, x,
+         RichString_printoffnVal(item, y + this->oldSelected - this->scrollV, x,
             scrollH, MINIMUM(oldLen - scrollH, this->w));
 
       const Object* newObj = Vector_get(this->items, this->selected);
@@ -333,10 +350,10 @@ void Panel_draw(Panel* this, bool force_redraw, bool focus, bool highlightSelect
       int newLen = RichString_sizeVal(item);
       this->selectedLen = newLen;
       attrset(selectionColor);
-      mvhline(y + this->selected - first, x + 0, ' ', this->w);
+      mvhline(y + this->selected - this->scrollV, x + 0, ' ', this->w);
       RichString_setAttr(&item, selectionColor);
       if (scrollH < newLen)
-         RichString_printoffnVal(item, y + this->selected - first, x,
+         RichString_printoffnVal(item, y + this->selected - this->scrollV, x,
             scrollH, MINIMUM(newLen - scrollH, this->w));
       attrset(CRT_colors[RESET_COLOR]);
    }
@@ -364,6 +381,8 @@ bool Panel_onKey(Panel* this, int key) {
    assert(this != NULL);
 
    const int size = Vector_size(this->items);
+   const int availableHeight = this->h - Panel_headerHeight(this);
+   const int maxScroll = MAXIMUM(0, size - availableHeight);
 
    #define PANEL_SCROLL(amount)                                                                                     \
    do {                                                                                                             \
@@ -417,6 +436,26 @@ bool Panel_onKey(Panel* this, int key) {
 
       case KEY_WHEELDOWN:
          PANEL_SCROLL(+CRT_scrollWheelVAmount);
+         break;
+
+      case KEY_SR:
+         if (this->scrollV > 0) {
+            // keep selection within the now-visible area
+            if (this->selected < this->scrollV + availableHeight) {
+               this->scrollV--;
+               this->needsRedraw = true;
+            }
+         }
+         break;
+
+      case KEY_SF:
+         if (this->scrollV < maxScroll) {
+            // keep selection within the now-visible area
+            if (this->selected >= this->scrollV) {
+               this->scrollV++;
+               this->needsRedraw = true;
+            }
+         }
          break;
 
       case KEY_HOME:
