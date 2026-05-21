@@ -10,6 +10,7 @@ pcp-7.1.4 (22 May 2026)
 	libpcp: recover from corrupted archives in multi-archive contexts
     - Build, infrastructure, containers and packaging updates:
 	build: fix the configure.ac USDT check for armhf platform
+	selinux: update policy for the RDS pmda
 
 pcp-7.1.3 (1 May 2026)
     - PMDA additions, enhancements and bug fixes:
