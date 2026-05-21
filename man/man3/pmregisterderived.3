@@ -702,8 +702,14 @@ is allowed.
 .PP
 Metrics with extra units, like temperature or voltage, are subject
 to some additional constraints, specifically no automatic scale
-conversion and cannot be used as both operands in 
-multiplication (``*'') or division (``/'').
+conversion (although the
+.ft CR
+rescale
+.ft R
+function works as expected),
+extra units cannot be used for both operands in 
+multiplication (``*'') and extra units are only allowed for
+both operands of division (``/'') if the units and scale are identical.
 .PP
 Because relational expressions use the current value only and produce
 a result that is not a counter, either or both operands of a relational expression

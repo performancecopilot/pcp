@@ -50,10 +50,14 @@ export PCP_DERIVED_CONFIG=$tmp.config
 cat <<End-of-File >$tmp.config
 qa.volt.mV = sample.voltage.millivolt
 qa.volt.V = rescale(sample.voltage.millivolt, "voltage (V)")
-qa.volt.arith = sample.voltage.millivolt + sample.voltage.millivolt / 1000
+qa.volt.arith = sample.voltage.millivolt + rescale(sample.voltage.millivolt / 1000, "voltage (mV)")
 qa.volt.rescale = rescale(sample.voltage.millivolt, "voltage (V)") + sample.voltage.volt
 qa.temp.c2f = rescale(sample.temperature.celsius, "temperature (F)")
 qa.temp.boiling = rescale(mkconst(212, units="temperature (F)"), "temperature (C)")
+qa.energy = sample.power.kilowatt * mkconst(24, units="hour")
+qa.odd.one = sample.bigid / sample.temperature.farenheit
+qa.odd.two = sample.temperature.celsius * sample.bigid
+qa.odd.three = sample.current.amp / (rescale(sample.current.milliamp, "current (A)") + rescale(sample.current.microamp, "current (A)"))
 End-of-File
 
 if $do_valgrind
@@ -72,12 +76,10 @@ qa.bad.a = sample.voltage.millivolt + sample.byte_rate
 qa.bad.b = sample.voltage.volt + sample.voltage.millivolt
 qa.bad.c = sample.temperature.celsius + sample.step
 qa.bad.d = sample.step - sample.temperature.celsius
-qa.bad.e = sample.temperature.celsius * sample.step
-qa.bad.f = sample.step / sample.temperature.celsius
-qa.bad.g = sample.temperature.celsius + sample.current.amp
-qa.bad.h = sample.current.amp - sample.temperature.celsius
-qa.bad.i = sample.temperature.celsius * sample.current.amp
-qa.bad.j = sample.current.amp / sample.temperature.celsius
+qa.bad.e = sample.temperature.celsius + sample.current.amp
+qa.bad.f = sample.current.amp - sample.temperature.celsius
+qa.bad.g = sample.temperature.celsius * sample.current.amp
+qa.bad.h = sample.current.amp / sample.temperature.celsius
 End-of-File
 
 if $do_valgrind

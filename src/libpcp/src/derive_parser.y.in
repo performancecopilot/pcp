@@ -1330,11 +1330,31 @@ map_units(node_t *np)
 	np->desc.units.dimCount = left->units.dimCount + right->units.dimCount;
 	np->desc.units.dimTime = left->units.dimTime + right->units.dimTime;
 	np->desc.units.dimSpace = left->units.dimSpace + right->units.dimSpace;
+	/* prior checks ensure no extra units for multiplication */
     }
     else if (np->type == N_SLASH) {
 	np->desc.units.dimCount = left->units.dimCount - right->units.dimCount;
 	np->desc.units.dimTime = left->units.dimTime - right->units.dimTime;
 	np->desc.units.dimSpace = left->units.dimSpace - right->units.dimSpace;
+	if (left->units.extraUnit != 0 && right->units.extraUnit != 0) {
+	    /*
+	     * if both operands have extra units then prior checks ensure
+	     * extraUnit and extraScale are identical for both operands of
+	     * division
+	     */
+	    np->desc.units.extraUnit = 0;
+	    np->desc.units.extraScale = 0;
+	}
+	else if (left->units.extraUnit) {
+	    /* extra units in the dividend */
+	    np->desc.units.extraUnit = left->units.extraUnit;
+	    np->desc.units.extraScale = left->units.extraScale;
+	}
+	else if (right->units.extraUnit) {
+	    /* extra units in the divisor */
+	    np->desc.units.extraUnit = -right->units.extraUnit;
+	    np->desc.units.extraScale = right->units.extraScale;
+	}
     }
     
     /*
@@ -1360,6 +1380,8 @@ map_units(node_t *np)
 	np->desc.units.scaleTime = 0;
     if (np->desc.units.dimSpace == 0)
 	np->desc.units.scaleSpace = 0;
+    if (np->desc.units.extraUnit == 0)
+	np->desc.units.extraScale = 0;
 }
 
 /*
@@ -1663,26 +1685,25 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	}
     }
 
-    if (np->type == N_STAR || np->type == N_SLASH) {
+    if (np->type == N_STAR) {
 	/*
-	 * don't allow extra units in divisor and dividend unless
+	 * don't allow extra units in both operands for multiplication
+	 */
+	if (left->units.extraUnit != 0 && right->units.extraUnit != 0) {
+	    PM_TPD(derive_errmsg) = "Extra units not allowed for both operands of *";
+	    goto bad;
+	}
+    }
+
+    if (np->type == N_SLASH) {
+	/*
+	 * don't allow extra units in both operands for division unless
 	 * they are identical
 	 */
 	if ((left->units.extraUnit != 0 && right->units.extraUnit != 0) &&
 	    ((left->units.extraUnit != right->units.extraUnit) ||
 	     (left->units.extraScale != right->units.extraScale))) {
-	    PM_TPD(derive_errmsg) = "Extra units not allowed for both operands of * or /";
-	    goto bad;
-	}
-	/*
-	 * if one is has extra units, only none is allowed for the other
-	 * operand
-	 */
-	if ((left->units.extraUnit != 0 &&
-	     (right->units.dimSpace + right->units.dimTime + right->units.dimCount != 0)) ||
-	    (right->units.extraUnit != 0 &&
-	     (left->units.dimSpace + left->units.dimTime + left->units.dimCount != 0))) {
-	    PM_TPD(derive_errmsg) = "Extra units not allowed with non-extra units for operands of * or /";
+	    PM_TPD(derive_errmsg) = "Different extra units not allowed for both operands of /";
 	    goto bad;
 	}
     }

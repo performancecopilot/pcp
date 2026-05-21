@@ -30,15 +30,33 @@ qa.temp.boiling
     Semantics: discrete  Units: temperature (C)
     value 100
 
+qa.energy
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: power (kW) hour
+    value 1.008
+
+qa.odd.one
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / temperature (F)
+    value 131071.96875
+
+qa.odd.two
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (C) count
+    value 0
+
+qa.odd.three
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+    value 0.5
+
 Some error cases ...
 Semantic error: derived metric qa.bad.a: sample.voltage.millivolt + sample.byte_rate: Dimensions are not the same
 Semantic error: derived metric qa.bad.b: sample.voltage.volt + sample.voltage.millivolt: Operands have incompatible extra units or scale
 Semantic error: derived metric qa.bad.c: sample.temperature.celsius + sample.step: Dimensions are not the same
 Semantic error: derived metric qa.bad.d: sample.step - sample.temperature.celsius: Dimensions are not the same
-Semantic error: derived metric qa.bad.e: sample.temperature.celsius * sample.step: Extra units not allowed with non-extra units for operands of * or /
-Semantic error: derived metric qa.bad.f: sample.step / sample.temperature.celsius: Extra units not allowed with non-extra units for operands of * or /
-Semantic error: derived metric qa.bad.g: sample.temperature.celsius + sample.current.amp: Dimensions are not the same
-Semantic error: derived metric qa.bad.h: sample.current.amp - sample.temperature.celsius: Dimensions are not the same
-Semantic error: derived metric qa.bad.i: sample.temperature.celsius * sample.current.amp: Extra units not allowed for both operands of * or /
-Semantic error: derived metric qa.bad.j: sample.current.amp / sample.temperature.celsius: Extra units not allowed for both operands of * or /
+Semantic error: derived metric qa.bad.e: sample.temperature.celsius + sample.current.amp: Dimensions are not the same
+Semantic error: derived metric qa.bad.f: sample.current.amp - sample.temperature.celsius: Dimensions are not the same
+Semantic error: derived metric qa.bad.g: sample.temperature.celsius * sample.current.amp: Extra units not allowed for both operands of *
+Semantic error: derived metric qa.bad.h: sample.current.amp / sample.temperature.celsius: Different extra units not allowed for both operands of /
 Error: qa: Unknown metric name
