@@ -1,3 +1,6 @@
+pcp-7.1.5 (15 July 2026)
+    - Work-in-progress, not yet released.
+
 pcp-7.1.4 (22 May 2026)
     - PMDA additions, enhancements and bug fixes:
 	pmdaamdgpu: prevent out-of-bound references in fetch function
