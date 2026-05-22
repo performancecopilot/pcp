@@ -29,8 +29,8 @@
  *     .vlen fields in the first word of a pmValueBlock, <type> is an
  *     integer or FOO for PM_TYPE_FOO and <len> is an integer, use S32 for
  *     PM_TYPE_32 and S64 for PM_TYPE_64 to avoid 32 and 64 ambiguity}
- *   + units(ds.dt.dc.ss.st.sc) {no whitespace allowed, build a pmUnits
- *     struct ds == dimSpace (decimal) etc for 6 fields}
+ *   + units(ds.dt.dc.ss.st.sc.eu.es) {no whitespace allowed, build
+ *     a (extra) pmUnits struct ds == dimSpace (decimal) etc for 8 fields}
  *   + label(n.nl.f.v.vl) {no whitespace allowed, build a pmLabel
  *     struct n == name (offset) etc for 5 fields}
  *   + the unary prefix operator (~) means the following word is NOT
@@ -705,7 +705,7 @@ main(int argc, char **argv)
 		}
 		if (ok == 5) {
 		    f = strtol(p, &end, 10);
-		    if (*end == ')') {
+		    if (*end == '.') {
 			p = &end[1];
 			units.scaleCount = f;
 			if (units.scaleCount != f)
@@ -714,9 +714,35 @@ main(int argc, char **argv)
 			    ok++;
 		    }
 		    else
-			fprintf(stderr, "%d: units(): expected ) found %c after scaleCount\n", lineno, *end);
+			fprintf(stderr, "%d: units(): expected . found %c after scaleCount\n", lineno, *end);
 		}
 		if (ok == 6) {
+		    f = strtol(p, &end, 10);
+		    if (*end == '.') {
+			p = &end[1];
+			units.extraUnit = f;
+			if (units.extraUnit != f)
+			    fprintf(stderr, "%d: units(): extraUnit overflow %d -> %d(\n", lineno, f, units.scaleCount);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: units(): expected . found %c after extraUnit\n", lineno, *end);
+		}
+		if (ok == 7) {
+		    f = strtol(p, &end, 10);
+		    if (*end == ')') {
+			p = &end[1];
+			units.extraScale = f;
+			if (units.extraScale != f)
+			    fprintf(stderr, "%d: units(): extraScale overflow %d -> %d(\n", lineno, f, units.extraScale);
+			else
+			    ok++;
+		    }
+		    else
+			fprintf(stderr, "%d: units(): expected ) found %c after extraScale\n", lineno, *end);
+		}
+		if (ok == 8) {
 		    out = *((int *)&units);
 		}
 		else {

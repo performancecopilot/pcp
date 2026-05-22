@@ -41,7 +41,8 @@ QmcDesc::setUnitStrings()
 	if (my.scaleFlag &&
 	    my.scaleUnits.dimTime == 1 &&
 	    my.scaleUnits.dimSpace == 0 &&
-	    my.scaleUnits.dimCount == 0) {
+	    my.scaleUnits.dimCount == 0 &&
+	    my.scaleUnits.extraUnit == 0) {
 	    my.units = "Time Utilization";
 	    my.shortUnits = "util";
 	}
@@ -75,13 +76,19 @@ QmcDesc::setScaleUnits(const pmUnits &units)
 const char *
 QmcDesc::shortUnitsString(pmUnits *pu)
 {
-    const char *spaceString, *timeString, *countString;
-    char sbuf[20], tbuf[20], cbuf[20];
+    const char *spaceString, *timeString, *countString, *extraString;
+    char sbuf[20], tbuf[20], cbuf[20], ebuf[20];
     static char buf[60];
     char *p;
+    char *div;
 
-    spaceString = timeString = countString = NULL;
+    spaceString = timeString = countString = extraString = NULL;
     buf[0] = '\0';
+
+    if (pu->extraUnit) {
+	__pmExtraUnitsShortStr(pu, ebuf, sizeof(ebuf));
+	extraString = ebuf;
+    }
 
     if (pu->dimSpace) {
 	switch (pu->scaleSpace) {
@@ -149,7 +156,13 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 
     p = buf;
 
+    if (pu->extraUnit > 0) {
+	pmsprintf(p, sizeof(buf)-(p-buf), "%s", extraString);
+	while (*p) p++;
+    }
     if (pu->dimSpace > 0) {
+	if (p > buf)
+	    *p++ = ' ';
 	if (pu->dimSpace == 1)
 	    pmsprintf(p, sizeof(buf)-(p-buf), "%s", spaceString);
 	else
@@ -157,6 +170,8 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 	while (*p) p++;
     }
     if (pu->dimTime > 0) {
+	if (p > buf)
+	    *p++ = ' ';
 	if (pu->dimTime == 1)
 	    pmsprintf(p, sizeof(buf)-(p-buf), "%s", timeString);
 	else
@@ -164,15 +179,24 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 	while (*p) p++;
     }
     if (pu->dimCount > 0) {
+	if (p > buf)
+	    *p++ = ' ';
 	if (pu->dimCount == 1)
 	    pmsprintf(p, sizeof(buf)-(p-buf), "%s", countString);
 	else
 	    pmsprintf(p, sizeof(buf)-(p-buf), "%s^%d", countString, pu->dimCount);
 	while (*p) p++;
     }
-    if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0) {
+    if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0 || pu->extraUnit < 0) {
 	*p++ = '/';
+	div = p;
+	if (pu->extraUnit > 0) {
+	    pmsprintf(p, sizeof(buf)-(p-buf), "%s", extraString);
+	    while (*p) p++;
+	}
 	if (pu->dimSpace < 0) {
+	    if (p > div)
+		*p++ = ' ';
 	    if (pu->dimSpace == -1)
 		pmsprintf(p, sizeof(buf)-(p-buf), "%s", spaceString);
 	    else
@@ -180,6 +204,8 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 	    while (*p) p++;
 	}
 	if (pu->dimTime < 0) {
+	    if (p > div)
+		*p++ = ' ';
 	    if (pu->dimTime == -1)
 		pmsprintf(p, sizeof(buf)-(p-buf), "%s", timeString);
 	    else
@@ -187,6 +213,8 @@ QmcDesc::shortUnitsString(pmUnits *pu)
 	    while (*p) p++;
 	}
 	if (pu->dimCount < 0) {
+	    if (p > div)
+		*p++ = ' ';
 	    if (pu->dimCount == -1)
 		pmsprintf(p, sizeof(buf)-(p-buf), "%s", countString);
 	    else

@@ -739,4 +739,5 @@ PCP_4.2 {
     __pmCheckDesc;
     __pmLookupExtraUnit;
     __pmLookupExtraScale;
+    __pmExtraUnitsShortStr;
 } PCP_4.1;

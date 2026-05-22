@@ -2967,7 +2967,8 @@ compare_pmUnits_dim(pmUnits *a, pmUnits *b)
 {
     if (a->dimCount == b->dimCount &&
 	a->dimTime == b->dimTime &&
-	a->dimSpace == b->dimSpace)
+	a->dimSpace == b->dimSpace &&
+	a->extraUnit == b->extraUnit)
 	return 0;
     return -1;
 }
@@ -4272,6 +4273,20 @@ series_calculate_binary_check(int ope_type, seriesQueryBaton *baton,
 	errmsg = NULL;
     }
     /*
+     * if both operands have extra units then they must have the same
+     * Unit and Scale
+     */
+    if (l_units->extraUnit != 0 && r_units->extraUnit != 0 &&
+        (l_units->extraUnit != r_units->extraUnit ||
+         l_units->extraScale != r_units->extraScale)) {
+	infofmt(msg, "Extra units of %s and %s are not the same\n",
+	    left->value_set.series_values[0].sid->name,
+	    right->value_set.series_values[0].sid->name);
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return -1;
+    }
+    /*
      * If both operands have a dimension of Count/Time/Space and the scales
      * are not the same, use the larger scale and convert the values of the
      * operand with the smaller scale.
@@ -4551,6 +4566,7 @@ series_calculate_plus(node_t *np, void *arg)
     large_units.dimCount = l_units.dimCount;
     large_units.dimSpace = l_units.dimSpace;
     large_units.dimTime = l_units.dimTime;
+    large_units.extraUnit = l_units.extraUnit;
 
     series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
@@ -4603,6 +4619,7 @@ series_calculate_minus(node_t *np, void *arg)
     large_units.dimCount = l_units.dimCount;
     large_units.dimSpace = l_units.dimSpace;
     large_units.dimTime = l_units.dimTime;
+    large_units.extraUnit = l_units.extraUnit;
 
     series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
@@ -4699,12 +4716,30 @@ series_calculate_star(node_t *np, void *arg)
 		}
 	    }
 	    /*
+	     * extra units not allowed for both operands in multiplication
+	     */
+	    if (l_units.extraUnit != 0 && r_units.extraUnit != 0) {
+		infofmt(msg, "Extra units not allowed with multiplication.\n");
+		batoninfo(baton, PMLOG_ERROR, msg);
+		baton->error = -EPROTO;
+		return;
+	    }
+	    /*
 	    * For multiplication, the dimensions of the result are the
 	    * sum of the dimensions of the operands.
 	    */
 	    large_units.dimCount = l_units.dimCount + r_units.dimCount;
 	    large_units.dimSpace = l_units.dimSpace + r_units.dimSpace;
 	    large_units.dimTime = l_units.dimTime + r_units.dimTime;
+	    /* at least one of these must be zero */
+	    if (l_units.extraUnit != 0) {
+		large_units.extraUnit = l_units.extraUnit;
+		large_units.extraScale = l_units.extraScale;
+	    }
+	    else if (r_units.extraUnit != 0) {
+		large_units.extraUnit = r_units.extraUnit;
+		large_units.extraScale = r_units.extraScale;
+	    }
 
 	    series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
 	    np->value_set = left->value_set;
@@ -4754,12 +4789,26 @@ series_calculate_slash(node_t *np, void *arg)
 	}
     }
     /*
+     * extra units not allowed for both operands in division unless
+     * they are the same Unit and Scale (the result is dimensionless
+     * in this case)
+     */
+    if ((l_units.extraUnit != 0 || r_units.extraUnit != 0) &&
+        (l_units.extraUnit != r_units.extraUnit ||
+	 l_units.extraScale != r_units.extraScale)) {
+	infofmt(msg, "Different extra units not allowed with division.\n");
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return;
+    }
+    /*
      * For division, the dimensions of the result are the
      * difference of the dimensions of the operands.
      */
     large_units.dimCount = l_units.dimCount - r_units.dimCount;
     large_units.dimSpace = l_units.dimSpace - r_units.dimSpace;
     large_units.dimTime = l_units.dimTime - r_units.dimTime;
+    large_units.extraUnit = l_units.extraUnit - r_units.extraUnit;
 
     series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;

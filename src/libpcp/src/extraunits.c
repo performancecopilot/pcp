@@ -18,6 +18,7 @@
 #include "libpcp.h"
 #include "internal.h"
 #include <ctype.h>
+#include <stdlib.h>
 
 typedef struct {
     int		ident;		/* one of the PM_<unit>_* values */
@@ -83,7 +84,7 @@ __pmExtraUnitsStr(const pmUnits *pu, char *buf, size_t buflen)
     }
     if (u == nextra) {
 	/* unknown extraUnit */
-	pmsprintf(buf, buflen, "extra-%d", pu->extraUnit);
+	pmsprintf(buf, buflen, "extra-%d", abs(pu->extraUnit));
 	return;
     }
     for (s = 0; s < extra[u].nscale; s++) {
@@ -94,6 +95,39 @@ __pmExtraUnitsStr(const pmUnits *pu, char *buf, size_t buflen)
     }
     /* unknown extraScale */
     pmsprintf(buf, buflen, "%s (scale-%d)", extra[u].name, pu->extraScale);
+    return;
+}
+
+/*
+ * extraUnit + extraScale => short string for printing (just the extraScale
+ * part, assuming this will be unique)
+ *
+ * On entry, pu->extraUnits != 0
+ */
+void
+__pmExtraUnitsShortStr(const pmUnits *pu, char *buf, size_t buflen)
+{
+    int		u;	/* index into extra[] */
+    int		s;	/* scale selector */
+
+    for (u = 0; u < nextra; u++) {
+	if (pu->extraUnit == extra[u].type ||
+	    -pu->extraUnit == extra[u].type)
+	    break;
+    }
+    if (u == nextra) {
+	/* unknown extraUnit */
+	pmsprintf(buf, buflen, "%d-%d", abs(pu->extraUnit), pu->extraScale);
+	return;
+    }
+    for (s = 0; s < extra[u].nscale; s++) {
+	if (pu->extraScale == extra[u].scale[s].ident) {
+	    pmsprintf(buf, buflen, "%s", extra[u].scale[s].text);
+	    return;
+	}
+    }
+    /* unknown extraScale */
+    pmsprintf(buf, buflen, "%d-%d", abs(pu->extraUnit), pu->extraScale);
     return;
 }
 

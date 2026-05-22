@@ -89,5 +89,23 @@ close TEST;
 if ($failed != 0) { print "not ok 4 (failed $failed of $cases cases)\n"; }
 else { print "ok 4\n"; }
 
+# test data initialisation via the pmda_extraunits macro (eu=="extra units")
+# 
+$failed=0;
+$cases = 0;
+open(TEST, './cvalue eu |') || die "cannot run test program 'cvalue'";
+while (<TEST>) {
+    /^extra pmUnits: (\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+),(\d+) = (.*)$/;
+    $cvalue = $9;
+    $perlvalue = pmda_extraunits($1, $2, $3, $4, $5, $6, $7, $8);
+    unless ($perlvalue == $cvalue) {
+	print "$1,$2,$3,$4,$5,$6,$7,$8: $perlvalue != $cvalue\n";
+	$failed++;
+    }
+    $cases++;
+}
+close TEST;
+if ($failed != 0) { print "not ok 5 (failed $failed of $cases cases)\n"; }
+else { print "ok 5\n"; }
 
 ######################### 

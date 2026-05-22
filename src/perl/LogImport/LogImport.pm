@@ -13,6 +13,7 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
     pmiStart pmiUseContext pmiEnd pmiSetHostname pmiSetTimezone pmiSetVersion
     pmiAddMetric pmiAddInstance pmiPutValue pmiGetHandle pmiPutValueHandle
     pmiWrite pmiPutText pmiPutLabel pmiPutMark pmiDump pmiErrStr pmiUnits
+    pmiExtraUnits
     pmiID pmiInDom
     pmID_build pmid_build pmInDom_build
     pmSetDebug
@@ -203,7 +204,7 @@ pmiGetHandle(3), pmiID(3), pmID_build(3), pmid_build(3),
 pmiInDom(3), pmInDom_build(3), pmiPutResult(3), pmiPutValue(3),
 pmiPutValueHandle(3), pmiPutMark(3), pmiPutText(3), pmiPutLabel(3),
 pmiStart(3), pmiSetHostname(3), pmiSetTimezone(3), pmiSetVersion(3),
-pmiUnits(3), pmiUseContext(3), pmiWrite(3) and pmSetDebug(3).
+pmiUnits(3), pmiExtraUnits(3), pmiUseContext(3), pmiWrite(3) and pmSetDebug(3).
 
 The PCP mailing list pcp@groups.io can be used for questions about
 this module.

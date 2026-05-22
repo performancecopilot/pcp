@@ -303,7 +303,9 @@ Options:\n\
 		    desc.units.scaleSpace != ctl[i].desc.units.scaleSpace ||
 		    desc.units.dimCount != ctl[i].desc.units.dimCount ||
 		    desc.units.dimTime != ctl[i].desc.units.dimTime ||
-		    desc.units.dimSpace != ctl[i].desc.units.dimSpace) {
+		    desc.units.dimSpace != ctl[i].desc.units.dimSpace ||
+		    desc.units.extraUnit != ctl[i].desc.units.extraUnit ||
+		    desc.units.extraScale != ctl[i].desc.units.extraScale) {
 		    fprintf(stderr, "Error: returned desc.units %s", pmUnitsStr(&desc.units));
 		    fprintf(stderr, " expecting %s\n", pmUnitsStr(&ctl[i].desc.units));
 		}

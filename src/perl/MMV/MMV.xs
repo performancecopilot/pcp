@@ -246,19 +246,40 @@ mmv_stats_stop(handle,name)
 
 int
 mmv_units(dim_space,dim_time,dim_count,scale_space,scale_time,scale_count)
-	unsigned int		dim_space
-	unsigned int		dim_time
-	unsigned int		dim_count
+	int			dim_space
+	int			dim_time
+	int			dim_count
 	unsigned int		scale_space
 	unsigned int		scale_time
 	unsigned int		scale_count
     PREINIT:
 	pmUnits			units;
     CODE:
-	units.extraUnit = units.extraScale = 0;
 	units.dimSpace = dim_space;	units.scaleSpace = scale_space;
 	units.dimTime = dim_time;	units.scaleTime = scale_time;
 	units.dimCount = dim_count;	units.scaleCount = scale_count;
+	units.extraUnit = 0;		units.extraScale = 0;
+	RETVAL = *(int *)(&units);
+    OUTPUT:
+	RETVAL
+
+int
+mmv_extraunits(dim_space,dim_time,dim_count,scale_space,scale_time,scale_count,extra_unit,extra_scale)
+	int			dim_space
+	int			dim_time
+	int			dim_count
+	unsigned int		scale_space
+	unsigned int		scale_time
+	unsigned int		scale_count
+	int			extra_unit
+	unsigned int		extra_scale
+    PREINIT:
+	pmUnits			units;
+    CODE:
+	units.dimSpace = dim_space;	units.scaleSpace = scale_space;
+	units.dimTime = dim_time;	units.scaleTime = scale_time;
+	units.dimCount = dim_count;	units.scaleCount = scale_count;
+	units.extraUnit = extra_unit;	units.extraScale = extra_scale;
 	RETVAL = *(int *)(&units);
     OUTPUT:
 	RETVAL

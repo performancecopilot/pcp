@@ -9,7 +9,7 @@ require DynaLoader;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
-    mmv_stats_init mmv_stats_stop mmv_units
+    mmv_stats_init mmv_stats_stop mmv_units mmv_extraunits
 	mmv_lookup_value_desc
 	mmv_inc_atomvalue mmv_set_atomvalue
 	mmv_inc_value mmv_set_value mmv_set_string
@@ -25,6 +25,10 @@ require DynaLoader;
     MMV_TYPE_FLOAT MMV_TYPE_DOUBLE
     MMV_TYPE_STRING MMV_TYPE_ELAPSED
     MMV_COUNT_ONE
+    MMV_UNIT_TEMPERATURE MMV_TEMPERATURE_C MMV_TEMPERATURE_F MMV_TEMPERATURE_K
+    MMV_UNIT_VOLTAGE MMV_VOLTAGE_V MMV_VOLTAGE_mV MMV_VOLTAGE_uV
+    MMV_UNIT_CURRENT MMV_CURRENT_A MMV_CURRENT_mA MMV_CURRENT_uA
+    MMV_UNIT_POWER MMV_POWER_kW MMV_POWER_W MMV_POWER_mW MMV_POWER_uW
     MMV_SEM_COUNTER MMV_SEM_INSTANT MMV_SEM_DISCRETE
     MMV_SPACE_BYTE MMV_SPACE_KBYTE MMV_SPACE_MBYTE
     MMV_SPACE_GBYTE MMV_SPACE_TBYTE
@@ -70,6 +74,31 @@ sub MMV_TIME_HOUR	{ 5; }  # hours
 # interrupts, etc - these are simply powers of ten and not enumerated here
 # (e.g. 6 for 10^6, or -3 for 10^-3).
 sub MMV_COUNT_ONE	{ 0; }  # 1
+
+# extra units - temperature
+sub MMV_UNIT_TEMPERATURE	{ 1; }
+sub MMV_TEMPERATURE_C	{ 1; }	# celsius
+sub MMV_TEMPERATURE_F	{ 2; }	# farenheit
+sub MMV_TEMPERATURE_K	{ 3; }	# kelvin
+
+# extra units - voltage
+sub MMV_UNIT_VOLTAGE	{ 2; }
+sub MMV_VOLTAGE_V	{ 1; }	# volt
+sub MMV_VOLTAGE_mV	{ 2; }	# millivolt
+sub MMV_VOLTAGE_uV	{ 3; }	# microvolt
+
+# extra units - current
+sub MMV_UNIT_CURRENT	{ 3; }
+sub MMV_CURRENT_A	{ 1; }	# amp
+sub MMV_CURRENT_mA	{ 2; }	# milliamp
+sub MMV_CURRENT_uA	{ 3; }	# microamp
+
+# extra units - power
+sub MMV_UNIT_POWER	{ 4; }
+sub MMV_POWER_kW		{ 1; }	# kilowatt
+sub MMV_POWER_W		{ 2; }	# watt
+sub MMV_POWER_mW		{ 3; }	# milliwatt
+sub MMV_POWER_uW		{ 4; }	# microwatt
 
 # semantics/interpretation of metric values
 sub MMV_SEM_COUNTER	{ 1; }	# cumulative counter, monotonic increasing
