@@ -409,17 +409,17 @@ class pmUnits(Structure):
         _fields_ = [("dimSpace", c_int, 4),
                     ("dimTime", c_int, 4),
                     ("dimCount", c_int, 4),
-                    ("scaleSpace", c_int, 4),
-                    ("scaleTime", c_int, 4),
-                    ("scaleCount", c_int, 4),
+                    ("scaleSpace", c_uint, 4),
+                    ("scaleTime", c_uint, 4),
+                    ("scaleCount", c_uint, 4),
                     ("extraUnit", c_int, 5),
-                    ("extraScale", c_int, 3)]
+                    ("extraScale", c_uint, 3)]
     else:
-        _fields_ = [("extraScale", c_int, 3),
+        _fields_ = [("extraScale", c_uint, 3),
                     ("extraUnit", c_int, 5),
-                    ("scaleCount", c_int, 4),
-                    ("scaleTime", c_int, 4),
-                    ("scaleSpace", c_int, 4),
+                    ("scaleCount", c_uint, 4),
+                    ("scaleTime", c_uint, 4),
+                    ("scaleSpace", c_uint, 4),
                     ("dimCount", c_int, 4),
                     ("dimTime", c_int, 4),
                     ("dimSpace", c_int, 4)]

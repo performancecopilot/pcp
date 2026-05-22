@@ -926,7 +926,7 @@ pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
                             "extraUnit", "extraScale", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-		"IIIIII:pmSetContextOptions", keyword_list,
+		"IIIIIIII:pmSetContextOptions", keyword_list,
 		&dimSpace, &dimTime, &dimCount,
 		&scaleSpace, &scaleTime, &scaleCount,
                 &extraUnit, &extraScale))

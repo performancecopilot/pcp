@@ -949,6 +949,9 @@ class pmConfig(object):
                     self.util.metrics[metric][2] = str(unit)
             if not self.util.metrics[metric][2]:
                 self.util.metrics[metric][2] = str(unit)
+            if is_extra(unit):
+                sys.stderr.write("TODO extra units: %s.\n" % (self.util.metrics[metric][2]))
+                sys.exit(1)
 
             # Force native units with archive mode of any tool in order to
             # create pmlogger(1) compatible archives that can be merged.
