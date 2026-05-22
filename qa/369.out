@@ -401,6 +401,7 @@ Perl wrapper version ...
 *PCP::LogImport::pmiDump
 *PCP::LogImport::pmiEnd
 *PCP::LogImport::pmiErrStr
+*PCP::LogImport::pmiExtraUnits
 *PCP::LogImport::pmiGetHandle
 *PCP::LogImport::pmiID
 *PCP::LogImport::pmiInDom
@@ -504,6 +505,7 @@ pmiBatchWrite
 pmiDump
 pmiEnd
 pmiErrStr
+pmiExtraUnits
 pmiGetHandle
 pmiID
 pmiInDom
