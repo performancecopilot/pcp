@@ -131,6 +131,27 @@ static inline ssize_t full_write_str(int fd, const char* str) {
    return full_write(fd, str, strlen(str));
 }
 
+static inline bool Char_isControl(char c) {
+   return (unsigned char)c < ' ' || c == '\x7F';
+}
+
+static inline bool Char_isC1Control(char c, char next) {
+   return (unsigned char)c == 0xC2 && (unsigned char)next >= 0x80 && (unsigned char)next <= 0x9F;
+}
+
+/* Replace control characters (C0, DEL, and C1) with a safe substitute. */
+ATTR_NONNULL
+static inline void String_stripControlChars(char* s) {
+   for (; s[0]; s++) {
+      if (Char_isControl(s[0])) {
+         s[0] = '?';
+      } else if (Char_isC1Control(s[0], s[1])) {
+         s[0] = s[1] = '?';
+         s++;
+      }
+   }
+}
+
 /* Compares floating point values for ordering data entries. In this function,
    NaN is considered "less than" any other floating point value (regardless of
    sign), and two NaNs are considered "equal" regardless of payload. */

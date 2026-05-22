@@ -1243,6 +1243,11 @@ IGNORE_WCASTQUAL_BEGIN
       /* These are a bit of a gamble: */
       define_key("\033[1;5D", KEY_CTRL_LEFT);
       define_key("\033[1;5C", KEY_CTRL_RIGHT);
+      define_key("\033[1;2A", KEY_SR); // SR = scroll reverse, Shift-UP
+      define_key("\033[1;2B", KEY_SF); // SF = scroll forward, Shift-DOWN
+      define_key("\033[1;3A", KEY_SR); // SR = scroll reverse, Alt-UP
+      define_key("\033[1;3B", KEY_SF); // SF = scroll forward, Alt-DOWN
+
 
       char sequence[3] = "\033a";
       for (char c = 'a'; c <= 'z'; c++) {
@@ -1258,6 +1263,10 @@ IGNORE_WCASTQUAL_END
    }
    if (termType && (String_startsWith(termType, "rxvt"))) {
       define_key("\033[Z", KEY_SHIFT_TAB);
+      define_key("\033[a", KEY_SR); // SR = scroll reverse, Shift-UP
+      define_key("\033[b", KEY_SF); // SF = scroll forward, Shift-DOWN
+      define_key("\033\033[A", KEY_SR); // SR = scroll reverse, Alt-UP
+      define_key("\033\033[B", KEY_SF); // SF = scroll forward, Alt-DOWN
    }
 
    CRT_installSignalHandlers();
