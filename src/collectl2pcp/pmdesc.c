@@ -112,7 +112,7 @@ main(int argc, char *argv[])
 
 	if (python) {
 	    printf("    PMDA.pmid(%d,%d) : ['%s', 'TABLE', 'COLUMN', pmdaMetric(\n"
-		   "        PMDA.pmid(%d,%d), c_api.PM_TYPE_%s, %s, c_api.%s, pmUnits(%d,%d,%d,%d,%d,%d%d,%d))],\n",
+		   "        PMDA.pmid(%d,%d), c_api.PM_TYPE_%s, %s, c_api.%s, pmUnits(%d,%d,%d,%d,%d,%d,%d,%d))],\n",
 		pmID_cluster(pmid), pmID_item(pmid), name,
 	    	pmID_cluster(pmid), pmID_item(pmid), pmTypeStr(desc.type),
 		indomStr(desc.indom), semStr[desc.sem],
