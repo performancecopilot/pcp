@@ -933,6 +933,7 @@ statsd_resolve_dynamic_metric_fetch(pmdaMetric* mdesc, unsigned int instance, pm
     int is_default_domain = (serial == STATSD_METRIC_DEFAULT_INDOM) ||
                             (serial == STATSD_METRIC_DEFAULT_DURATION_INDOM);
     int status = PM_ERR_INST;
+    enum DURATION_INSTANCE duration_stat;
     // metrics without any labels
     if (is_default_domain) {
         pthread_mutex_lock(&data->metrics_storage->mutex);

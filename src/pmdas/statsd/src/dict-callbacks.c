@@ -30,9 +30,9 @@ metric_label_free_callback(void* val)
 void
 metric_free_callback(void* val)
 {
-    struct metric* metric = (struct metric*)val;
-    if (metric != NULL && metric->config != NULL) {
-        free_metric(metric->config, metric);
+    struct metric* l_metric = (struct metric*)val;
+    if (l_metric != NULL && l_metric->config != NULL) {
+        free_metric(l_metric->config, l_metric);
     }
 }
 
