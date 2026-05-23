@@ -40,7 +40,7 @@ _filter()
 
 pmie -z -t 200msec -a archives/extra -v 2>$tmp.err <<End-of-File
 // similar to pmie(1) page
-sample.temperature.celsius >= (sample.temperature.farenheit - 32) * 5 / 9;
+sample.temperature.celsius >= (sample.temperature.fahrenheit - 32) * 5 / 9;
 // expect true
 2 * sample.voltage.volt == sample.voltage.millivolt / 1000 + sample.voltage.microvolt / 1000000;
 End-of-File

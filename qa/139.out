@@ -198,7 +198,7 @@ sample.updown.control.step
 sample.updown.control.mode
 sample.updown.control.reset
 sample.temperature.celsius
-sample.temperature.farenheit
+sample.temperature.fahrenheit
 sample.temperature.kelvin
 sample.voltage.volt
 sample.voltage.millivolt

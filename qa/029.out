@@ -171,7 +171,7 @@ PMID: 30.0.3 (sampledso.milliseconds)
 2 sampledso.string.write_me
 2 sampledso.sysinfo
 2 sampledso.temperature.celsius
-2 sampledso.temperature.farenheit
+2 sampledso.temperature.fahrenheit
 2 sampledso.temperature.kelvin
 2 sampledso.ulong.bin
 2 sampledso.ulong.bin_ctr
@@ -373,7 +373,7 @@ Error: pmTrimNameSpace: PMNS not accessible
 2 sampledso.string.write_me
 2 sampledso.sysinfo
 2 sampledso.temperature.celsius
-2 sampledso.temperature.farenheit
+2 sampledso.temperature.fahrenheit
 2 sampledso.temperature.kelvin
 2 sampledso.ulong.bin
 2 sampledso.ulong.bin_ctr
@@ -561,7 +561,7 @@ Error: pmTrimNameSpace: PMNS not accessible
 0 sampledso.string.write_me
 0 sampledso.sysinfo
 0 sampledso.temperature.celsius
-0 sampledso.temperature.farenheit
+0 sampledso.temperature.fahrenheit
 0 sampledso.temperature.kelvin
 0 sampledso.ulong.bin
 0 sampledso.ulong.bin_ctr
@@ -748,7 +748,7 @@ Error: pmTrimNameSpace: PMNS not accessible
 1 sampledso.string.write_me
 1 sampledso.sysinfo
 1 sampledso.temperature.celsius
-1 sampledso.temperature.farenheit
+1 sampledso.temperature.fahrenheit
 1 sampledso.temperature.kelvin
 1 sampledso.ulong.bin
 1 sampledso.ulong.bin_ctr
@@ -935,7 +935,7 @@ Error: pmTrimNameSpace: PMNS not accessible
 2 sampledso.string.write_me
 2 sampledso.sysinfo
 2 sampledso.temperature.celsius
-2 sampledso.temperature.farenheit
+2 sampledso.temperature.fahrenheit
 2 sampledso.temperature.kelvin
 2 sampledso.ulong.bin
 2 sampledso.ulong.bin_ctr
@@ -1123,7 +1123,7 @@ Error: pmTrimNameSpace: PMNS not accessible
 0 sampledso.string.write_me
 0 sampledso.sysinfo
 0 sampledso.temperature.celsius
-0 sampledso.temperature.farenheit
+0 sampledso.temperature.fahrenheit
 0 sampledso.temperature.kelvin
 0 sampledso.ulong.bin
 0 sampledso.ulong.bin_ctr
@@ -1310,7 +1310,7 @@ Error: pmTrimNameSpace: PMNS not accessible
 1 sampledso.string.write_me
 1 sampledso.sysinfo
 1 sampledso.temperature.celsius
-1 sampledso.temperature.farenheit
+1 sampledso.temperature.fahrenheit
 1 sampledso.temperature.kelvin
 1 sampledso.ulong.bin
 1 sampledso.ulong.bin_ctr
@@ -1497,7 +1497,7 @@ Error: pmTrimNameSpace: PMNS not accessible
 2 sampledso.string.write_me
 2 sampledso.sysinfo
 2 sampledso.temperature.celsius
-2 sampledso.temperature.farenheit
+2 sampledso.temperature.fahrenheit
 2 sampledso.temperature.kelvin
 2 sampledso.ulong.bin
 2 sampledso.ulong.bin_ctr
@@ -1736,7 +1736,7 @@ Error: pmTrimNameSpace: Attempt to use an illegal context
 0 sampledso.string.write_me
 0 sampledso.sysinfo
 0 sampledso.temperature.celsius
-0 sampledso.temperature.farenheit
+0 sampledso.temperature.fahrenheit
 0 sampledso.temperature.kelvin
 0 sampledso.ulong.bin
 0 sampledso.ulong.bin_ctr
@@ -1923,7 +1923,7 @@ Error: pmTrimNameSpace: Attempt to use an illegal context
 1 sampledso.string.write_me
 1 sampledso.sysinfo
 1 sampledso.temperature.celsius
-1 sampledso.temperature.farenheit
+1 sampledso.temperature.fahrenheit
 1 sampledso.temperature.kelvin
 1 sampledso.ulong.bin
 1 sampledso.ulong.bin_ctr
@@ -2110,7 +2110,7 @@ Error: pmTrimNameSpace: Attempt to use an illegal context
 2 sampledso.string.write_me
 2 sampledso.sysinfo
 2 sampledso.temperature.celsius
-2 sampledso.temperature.farenheit
+2 sampledso.temperature.fahrenheit
 2 sampledso.temperature.kelvin
 2 sampledso.ulong.bin
 2 sampledso.ulong.bin_ctr
@@ -2298,7 +2298,7 @@ Error: pmTrimNameSpace: Attempt to use an illegal context
 0 sampledso.string.write_me
 0 sampledso.sysinfo
 0 sampledso.temperature.celsius
-0 sampledso.temperature.farenheit
+0 sampledso.temperature.fahrenheit
 0 sampledso.temperature.kelvin
 0 sampledso.ulong.bin
 0 sampledso.ulong.bin_ctr
@@ -2485,7 +2485,7 @@ Error: pmTrimNameSpace: Attempt to use an illegal context
 1 sampledso.string.write_me
 1 sampledso.sysinfo
 1 sampledso.temperature.celsius
-1 sampledso.temperature.farenheit
+1 sampledso.temperature.fahrenheit
 1 sampledso.temperature.kelvin
 1 sampledso.ulong.bin
 1 sampledso.ulong.bin_ctr
@@ -2672,7 +2672,7 @@ Error: pmTrimNameSpace: Attempt to use an illegal context
 2 sampledso.string.write_me
 2 sampledso.sysinfo
 2 sampledso.temperature.celsius
-2 sampledso.temperature.farenheit
+2 sampledso.temperature.fahrenheit
 2 sampledso.temperature.kelvin
 2 sampledso.ulong.bin
 2 sampledso.ulong.bin_ctr

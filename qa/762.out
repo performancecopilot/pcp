@@ -346,7 +346,7 @@ PMID 29.0.171 sample.updown.control.reset: reset all controls for sample.updown.
 
 PMID 29.0.172 sample.temperature.celsius: temperature in degrees Celsius
 
-PMID 29.0.173 sample.temperature.farenheit: temperature in degrees Farenheit
+PMID 29.0.173 sample.temperature.fahrenheit: temperature in degrees Fahrenheit
 
 PMID 29.0.174 sample.temperature.kelvin: temperature in degrees Kelvin
 

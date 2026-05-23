@@ -225,7 +225,7 @@ done
 # extra units exercises
 #
 cat <<End-of-File >$tmp.conf
-metric sample.temperature.farenheit {
+metric sample.temperature.fahrenheit {
     extraunits -> 1,-1,0,BYTE,SEC,0,Voltage,mV
 }
 End-of-File

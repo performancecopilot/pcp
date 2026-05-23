@@ -55,7 +55,7 @@ qa.volt.rescale = rescale(sample.voltage.millivolt, "voltage (V)") + sample.volt
 qa.temp.c2f = rescale(sample.temperature.celsius, "temperature (F)")
 qa.temp.boiling = rescale(mkconst(212, units="temperature (F)"), "temperature (C)")
 qa.energy = sample.power.kilowatt * mkconst(24, units="hour")
-qa.odd.one = sample.bigid / sample.temperature.farenheit
+qa.odd.one = sample.bigid / sample.temperature.fahrenheit
 qa.odd.two = sample.temperature.celsius * sample.bigid
 qa.odd.three = sample.current.amp / (rescale(sample.current.milliamp, "current (A)") + rescale(sample.current.microamp, "current (A)"))
 End-of-File

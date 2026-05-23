@@ -505,7 +505,7 @@ sampledso.updown.control.step
 sampledso.updown.control.mode
 sampledso.updown.control.reset
 sampledso.temperature.celsius
-sampledso.temperature.farenheit
+sampledso.temperature.fahrenheit
 sampledso.temperature.kelvin
 sampledso.voltage.volt
 sampledso.voltage.millivolt
@@ -757,7 +757,7 @@ sampledso.updown.control.step
 sampledso.updown.control.mode
 sampledso.updown.control.reset
 sampledso.temperature.celsius
-sampledso.temperature.farenheit
+sampledso.temperature.fahrenheit
 sampledso.temperature.kelvin
 sampledso.voltage.volt
 sampledso.voltage.millivolt

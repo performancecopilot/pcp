@@ -947,7 +947,7 @@ All sample.temperature.* metrics share the same current temperature
 (defaults to the freezing point of wqater at sea level), but the value
 can be changed with pmstore(1).
 
-@ sample.temperature.farenheit temperature in degrees Farenheit
+@ sample.temperature.fahrenheit temperature in degrees Fahrenheit
 All sample.temperature.* metrics share the same current temperature
 (defaults to the freezing point of wqater at sea level), but the value
 can be changed with pmstore(1).

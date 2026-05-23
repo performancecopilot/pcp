@@ -127,7 +127,7 @@ pmLoadNameSpace: end -> 29.0.125
 pmLoadNameSpace: error_check -> 29.0.75
 pmLoadNameSpace: error_code -> 29.0.74
 pmLoadNameSpace: exec -> 29.0.157
-pmLoadNameSpace: farenheit -> 29.0.173
+pmLoadNameSpace: fahrenheit -> 29.0.173
 pmLoadNameSpace: ghosts -> 29.*.*
 pmLoadNameSpace: gradient -> 29.0.73
 pmLoadNameSpace: hecto -> 29.0.117

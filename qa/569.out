@@ -211,7 +211,7 @@ sample.updown.control.step 1
 sample.updown.control.mode 1
 sample.updown.control.reset 1
 sample.temperature.celsius 1
-sample.temperature.farenheit 1
+sample.temperature.fahrenheit 1
 sample.temperature.kelvin 1
 sample.voltage.volt 1
 sample.voltage.millivolt 1
@@ -451,7 +451,7 @@ sample.updown.control.step 1 PM_IN_NULL
 sample.updown.control.mode 1 PM_IN_NULL
 sample.updown.control.reset 1 PM_IN_NULL
 sample.temperature.celsius 1 PM_IN_NULL
-sample.temperature.farenheit 1 PM_IN_NULL
+sample.temperature.fahrenheit 1 PM_IN_NULL
 sample.temperature.kelvin 1 PM_IN_NULL
 sample.voltage.volt 1 PM_IN_NULL
 sample.voltage.millivolt 1 PM_IN_NULL
@@ -697,7 +697,7 @@ sample.updown.control.step 1 PM_IN_NULL
 sample.updown.control.mode 1 PM_IN_NULL
 sample.updown.control.reset 1 PM_IN_NULL
 sample.temperature.celsius 1 PM_IN_NULL
-sample.temperature.farenheit 1 PM_IN_NULL
+sample.temperature.fahrenheit 1 PM_IN_NULL
 sample.temperature.kelvin 1 PM_IN_NULL
 sample.voltage.volt 1 PM_IN_NULL
 sample.voltage.millivolt 1 PM_IN_NULL
@@ -929,7 +929,7 @@ sample.updown.control.step 1 NUMBER
 sample.updown.control.mode 1 NUMBER
 sample.updown.control.reset 1 NUMBER
 sample.temperature.celsius 1 0
-sample.temperature.farenheit 1 32
+sample.temperature.fahrenheit 1 32
 sample.temperature.kelvin 1 237.14999
 sample.voltage.volt 1 240
 sample.voltage.millivolt 1 240000
@@ -1214,7 +1214,7 @@ sample.updown.control.step 1 PM_IN_NULL PM_IN_NULL
 sample.updown.control.mode 1 PM_IN_NULL PM_IN_NULL
 sample.updown.control.reset 1 PM_IN_NULL PM_IN_NULL
 sample.temperature.celsius 1 PM_IN_NULL PM_IN_NULL
-sample.temperature.farenheit 1 PM_IN_NULL PM_IN_NULL
+sample.temperature.fahrenheit 1 PM_IN_NULL PM_IN_NULL
 sample.temperature.kelvin 1 PM_IN_NULL PM_IN_NULL
 sample.voltage.volt 1 PM_IN_NULL PM_IN_NULL
 sample.voltage.millivolt 1 PM_IN_NULL PM_IN_NULL

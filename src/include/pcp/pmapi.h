@@ -161,7 +161,7 @@ typedef struct pmUnits {
  * unique for each extra unit type
  */
 #define PM_TEMPERATURE_C	1	/* celsius */
-#define PM_TEMPERATURE_F	2	/* farenheit */
+#define PM_TEMPERATURE_F	2	/* fahrenheit */
 #define PM_TEMPERATURE_K	3	/* kelvin */
 #define PM_VOLTAGE_V		1	/* Volt */
 #define PM_VOLTAGE_mV		2	/* milli Volt */

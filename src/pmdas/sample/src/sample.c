@@ -406,7 +406,7 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,171), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* sample.temperature.celsius */
     { PMDA_PMID(0,172), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_C) },
-/* sample.temperature.farenheit */
+/* sample.temperature.fahrenheit */
     { PMDA_PMID(0,173), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_F) },
 /* sample.temperature.kelvin */
     { PMDA_PMID(0,174), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_K) },
@@ -2746,7 +2746,7 @@ doit:
 			atom.f = temperature;
 			break;
 
-		    case 173:	/* sample.temperature.farenheit */
+		    case 173:	/* sample.temperature.fahrenheit */
 			atom.f = 32 + 1.8 * temperature;
 			break;
 
@@ -3133,7 +3133,7 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 	    case 147:	/* negative.instant.m_float */
 	    case 151:	/* negative.discrete.m_float */
 	    case 172:	/* sample.temperature.celsius */
-	    case 173:	/* sample.temperature.farenheit */
+	    case 173:	/* sample.temperature.fahrenheit */
 	    case 174:	/* sample.temperature.kelvin */
 	    case 175:	/* sample.voltage.volt */
 	    case 176:	/* sample.voltage.millivolt */
@@ -3398,7 +3398,7 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 	    case 172:	/* sample.temperature.celsius */
 		temperature = av.f;
 		break;
-	    case 173:	/* sample.temperature.farenheit */
+	    case 173:	/* sample.temperature.fahrenheit */
 		temperature = (av.f - 32) / 1.8;
 		break;
 	    case 174:	/* sample.temperature.kelvin */

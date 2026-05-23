@@ -256,7 +256,7 @@ len(metrics[]):226
   metric:sample.string.write_me metadata:9
   metric:sample.sysinfo metadata:9
   metric:sample.temperature.celsius metadata:9
-  metric:sample.temperature.farenheit metadata:9
+  metric:sample.temperature.fahrenheit metadata:9
   metric:sample.temperature.kelvin metadata:9
   metric:sample.ulong.bin metadata:10
   metric:sample.ulong.bin_ctr metadata:10

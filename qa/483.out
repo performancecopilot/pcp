@@ -743,7 +743,7 @@ sample.temperature.celsius
     Semantics: instant  Units: temperature (C)
     value 0
 
-sample.temperature.farenheit
+sample.temperature.fahrenheit
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: instant  Units: voltage (mV) byte / sec
     value 32

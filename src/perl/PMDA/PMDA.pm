@@ -78,7 +78,7 @@ sub PM_COUNT_ONE	{ 0; }	# 1
 # extra units - temperature
 sub PM_UNIT_TEMPERATURE	{ 1; }
 sub PM_TEMPERATURE_C	{ 1; }	# celsius
-sub PM_TEMPERATURE_F	{ 2; }	# farenheit
+sub PM_TEMPERATURE_F	{ 2; }	# fahrenheit
 sub PM_TEMPERATURE_K	{ 3; }	# kelvin
 
 # extra units - voltage

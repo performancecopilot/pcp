@@ -214,7 +214,7 @@ sampledso.updown.control.step [increment or decrement value for sample.updown.ob
 sampledso.updown.control.mode [up-down mode for sample.updown.obs]
 sampledso.updown.control.reset [reset all controls for sample.updown.obs]
 sampledso.temperature.celsius [temperature in degrees Celsius]
-sampledso.temperature.farenheit [temperature in degrees Farenheit]
+sampledso.temperature.fahrenheit [temperature in degrees Fahrenheit]
 sampledso.temperature.kelvin [temperature in degrees Kelvin]
 sampledso.voltage.volt [voltage in volts]
 sampledso.voltage.millivolt [voltage in millivolts]
@@ -1599,7 +1599,7 @@ All sampledso.temperature.* metrics share the same current temperature
 (defaults to the freezing point of wqater at sea level), but the value
 can be changed with pmstore(1).
 
-sampledso.temperature.farenheit
+sampledso.temperature.fahrenheit
 Help:
 All sampledso.temperature.* metrics share the same current temperature
 (defaults to the freezing point of wqater at sea level), but the value
