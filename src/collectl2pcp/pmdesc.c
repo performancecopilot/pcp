@@ -57,7 +57,7 @@ main(int argc, char *argv[])
 
     if (isatty(fileno(stdin))) {
     	fprintf(stderr,
-	    "Usage: pminfo metric ... | pmdesc [-p]\n\n"
+	    "Usage: pmdesc metric ... | pmdesc [-p]\n\n"
 	    "-p python mode (else C declarations are produced).\n\n"
 	    "Reads metric names on stdin and prints a descriptor for each in a table.\n"
 	    "The metric descriptor table should be defined in \"./metrics.h\" as follows :\n"
