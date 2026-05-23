@@ -606,7 +606,7 @@ __pmConvExtraScale(int type, pmAtomValue *val, const pmUnits *iunit, const pmUni
 	    val->f = (float)(cp->a + cp->b * (val->f + cp->c) / cp->d);
 	    break;
 	case PM_TYPE_DOUBLE:
-	    val->d = (float)(cp->a + cp->b * (val->d + cp->c) / cp->d);
+	    val->d = (double)(cp->a + cp->b * (val->d + cp->c) / cp->d);
 	    break;
 	default:
 	    return PM_ERR_CONV;

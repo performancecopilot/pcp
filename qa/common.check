@@ -393,7 +393,7 @@ END             { if (warn) printf "%d warnings, ",warn
 		  printf "%d metrics and %d values\n",metric,value
 		}' >$tmp.fetch 2>&1
 
-    pminfo -v $__agent 2>&1 >$tmp.verify
+    pminfo -v $__agent >$tmp.verify 2>&1
     $__quiet || cat $tmp.fetch
     if grep warnings $tmp.fetch >/dev/null 2>&1
     then

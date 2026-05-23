@@ -34,7 +34,7 @@ include $(BUILDRULES)
 install: $(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
-metrics.c: metrics.h pmdesc.c
+metrics.c: metrics.h pmdesc.c pmdesc
 	PCP_DERIVED_CONFIG='' pminfo hinv kernel mem swap network disk filesys \
 	swapdev rpc nfs nfs3 nfs4 xfs pmda ipc vfs quota tmpfs sysfs proc \
 	| ./pmdesc > metrics.c
