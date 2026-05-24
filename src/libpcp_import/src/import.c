@@ -187,17 +187,17 @@ pmiUnits(int dimSpace, int dimTime, int dimCount, unsigned int scaleSpace, unsig
 pmUnits
 pmiExtraUnits(int dimSpace, int dimTime, int dimCount, unsigned int scaleSpace, unsigned int scaleTime, unsigned int scaleCount, int extraUnit, unsigned int extraScale)
 {
-    static pmUnits units;
-    units.dimSpace = dimSpace;
-    units.dimTime = dimTime;
-    units.dimCount = dimCount;
-    units.scaleSpace = scaleSpace;
-    units.scaleTime = scaleTime;
-    units.scaleCount = scaleCount;
-    units.extraUnit = extraUnit;
-    units.extraScale = extraScale;
+    static pmUnits extraunits;
+    extraunits.dimSpace = dimSpace;
+    extraunits.dimTime = dimTime;
+    extraunits.dimCount = dimCount;
+    extraunits.scaleSpace = scaleSpace;
+    extraunits.scaleTime = scaleTime;
+    extraunits.scaleCount = scaleCount;
+    extraunits.extraUnit = extraUnit;
+    extraunits.extraScale = extraScale;
 
-    return units;
+    return extraunits;
 }
 
 pmID
