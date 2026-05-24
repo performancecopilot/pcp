@@ -72,9 +72,9 @@ Description: Performance Co-Pilot runtime configuration
 Package: libpcp4-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp4 (= ${binary:Version}), libc6-dev | libc-dev
-Breaks: pcp (<< 4.3.4), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
+Breaks: pcp (<< 7.1.5), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
 	pcp-manager (<< 5.2.0), libpcp3-dev (<< 7.1.2)
-Replaces: libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
+Replaces: pcp (<< 7.1.5), libpcp-gui2-dev (<< 3.11.10~), pcp-webapi (<< 5.0.0),
 	pcp-manager (<< 5.2.0), libpcp3-dev (<< 7.1.2)
 Conflicts: libpgpool-dev
 Architecture: any
@@ -114,6 +114,8 @@ Description: Performance Co-Pilot library
 
 Package: libpcp3
 Depends: libpcp4, ${shlibs:Depends}, ${misc:Depends}
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Architecture: any
 Priority: optional
 Section: oldlibs
@@ -126,6 +128,8 @@ Section: libdevel
 Depends: ${misc:Depends}, libpcp-gui2 (= ${binary:Version}),
 	libpcp4 (= ${binary:Version})
 Conflicts: libpcp-gui1-dev
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library and headers
  The libpcp-gui2-dev package contains the Performance Co-Pilot (PCP)
@@ -139,6 +143,8 @@ Description: Performance Co-Pilot graphical client tools library and headers
 
 Package: libpcp-gui2
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot graphical client tools library
@@ -154,6 +160,8 @@ Package: libpcp-mmv1-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-mmv1 (= ${binary:Version}),
 	libpcp4 (= ${binary:Version})
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value library and headers
  The libpcp-mmv1-dev package contains the Performance Co-Pilot (PCP)
@@ -167,6 +175,8 @@ Description: Performance Co-Pilot Memory Mapped Value library and headers
 
 Package: libpcp-mmv1
 Depends: ${shlibs:Depends}, ${misc:Depends}
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot Memory Mapped Value client library
@@ -183,8 +193,8 @@ Package: libpcp-pmda3-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-pmda3 (= ${binary:Version}),
 	libpcp4 (= ${binary:Version})
-Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 3.11.10~)
-Replaces: libpcp3-dev (<< 3.11.10~)
+Breaks: pcp (<< 7.1.5), libpcp3-dev (<< 3.11.10~)
+Replaces: pcp (<< 7.1.5), libpcp3-dev (<< 3.11.10~)
 Architecture: any
 Description: Performance Co-Pilot Domain Agent library and headers
  The libpcp-pmda3-dev package contains the Performance Co-Pilot (PCP)
@@ -212,7 +222,8 @@ Package: libpcp-trace2-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-trace2 (= ${binary:Version}),
 	libpcp4 (= ${binary:Version})
-Breaks: pcp (<< 2.8.0)
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Architecture: any
 Description: Performance Co-Pilot application tracing library and headers
  The libpcp-trace2-dev package contains the Performance Co-Pilot (PCP)
@@ -227,6 +238,8 @@ Description: Performance Co-Pilot application tracing library and headers
 
 Package: libpcp-trace2
 Depends: ${misc:Depends}, ${shlibs:Depends}
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot application tracing library
@@ -242,6 +255,8 @@ Description: Performance Co-Pilot application tracing library
 Package: libpcp-import1-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version}), libpcp4-dev
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Architecture: any
 Description: Performance Co-Pilot data import library and headers
  The libpcp-import1-dev package contains the library and header files
@@ -256,6 +271,8 @@ Description: Performance Co-Pilot data import library and headers
 
 Package: libpcp-import1
 Depends: ${misc:Depends}, ${shlibs:Depends}
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
@@ -272,6 +289,8 @@ Description: Performance Co-Pilot data import library
 Package: libpcp-web1-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-web1 (= ${binary:Version}), libpcp4-dev
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Architecture: any
 Description: Performance Co-Pilot web tooling
  The libpcp-web1-dev package contains the library and header files
@@ -285,6 +304,8 @@ Description: Performance Co-Pilot web tooling
 
 Package: libpcp-web1
 Depends: ${misc:Depends}, ${shlibs:Depends}
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
@@ -299,6 +320,8 @@ Description: Performance Co-Pilot data import library
 Package: libpcp-archive1-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-archive1 (= ${binary:Version}), libpcp4-dev
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Architecture: any
 Description: Performance Co-Pilot archive writing library and headers
  The libpcp-archive1-dev package contains the library and header files
@@ -312,7 +335,8 @@ Description: Performance Co-Pilot archive writing library and headers
 
 Package: libpcp-archive1
 Depends: ${misc:Depends}, ${shlibs:Depends}
-Breaks: pcp (<< 6.0.1)
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot archive writing library
@@ -428,11 +452,12 @@ Description: Performance Co-Pilot (PCP) Zeroconf Package
 Package: pcp-testsuite
 Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, time,
 	pcp (= ${binary:Version}), python3
-Architecture: any
 Suggests: valgrind
 Provides: pcpqa, pcp-gui-testsuite
 Conflicts: pcpqa, pcp-gui-testsuite
-Replaces: pcpqa, pcp-gui-testsuite
+Breaks: pcp (<< 7.1.5)
+Replaces: pcp (<< 7.1.5), pcpqa, pcp-gui-testsuite
+Architecture: any
 Description: Performance Co-Pilot (PCP) Test Suite
  Quality assurance test suite for Performance Co-Pilot (PCP).
  .

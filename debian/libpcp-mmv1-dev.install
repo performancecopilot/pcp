@@ -1,7 +1,7 @@
 usr/include/pcp/mmv_dev.h
 usr/include/pcp/mmv_stats.h
-usr/lib/libpcp_mmv.a
-usr/lib/libpcp_mmv.so
+usr/lib/*/libpcp_mmv.a
+usr/lib/*/libpcp_mmv.so
 usr/share/man/man3/mmv_inc.3.gz
 usr/share/man/man3/mmv_inc_atomvalue.3.gz
 usr/share/man/man3/mmv_inc_value.3.gz
