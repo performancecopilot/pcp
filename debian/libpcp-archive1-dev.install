@@ -1,6 +1,6 @@
 usr/include/pcp/archive.h
-usr/lib/libpcp_archive.a
-usr/lib/libpcp_archive.so
+usr/lib/*/libpcp_archive.a
+usr/lib/*/libpcp_archive.so
 usr/lib/*/pkgconfig/libpcp_archive.pc
 usr/share/man/man3/pmaDeltaInDom.3.gz
 usr/share/man/man3/pmaGetLog.3.gz
