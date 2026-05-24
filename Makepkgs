@@ -170,7 +170,18 @@ ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`; export ZIP
 [ -n "$TAR" ] && $TAR --help | 2>&1 grep -q transform || USE_GIT_ARCHIVE=1
 #debug# echo TAR=$TAR USE_GIT_ARCHIVE=$USE_GIT_ARCHIVE
 
-configure=./configure
+if [ -x ./configure ]
+then
+    if which dh_auto_configure >/dev/null 2>&1
+    then
+	configure='dh_auto_configure --'
+    else
+	configure=./configure
+    fi
+else
+    echo "Arrgh! cannot find the configure script"
+    exit
+fi
 cmdline_configopts=''
 
 # our default is to build without -DNDEBUG, so assert()s are active.
