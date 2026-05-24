@@ -2321,14 +2321,28 @@ do
 		# be collected in $DEVFILELIST
 		;;
 	*)
-		[ -f "$f" ] && LIBFILELIST="$LIBFILELIST $f"
+		if [ -f "$f" ]
+		then
+		    # fix Debian Multiarch pathname
+		    # usr/lib/*/libpcp... => usr/lib/libpcp...
+		    fix_f=`basename "$f"`.fixed
+		    sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
+		    LIBFILELIST="$LIBFILELIST $fix_f"
+		fi
 		;;
     esac
 done
 DEVFILELIST=''
 for f in `echo $BACKDIR/debian/lib*-dev.{install,dirs}`
 do
-    [ -f "$f" ] && DEVFILELIST="$DEVFILELIST $f"
+    if [ -f "$f" ]
+    then
+	# fix Debian Multiarch pathname
+	# usr/lib/*/libpcp... => usr/lib/libpcp...
+	fix_f=`basename "$f"`.fixed
+	sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
+	DEVFILELIST="$DEVFILELIST $fix_f"
+    fi
 done
 
 # Package split: pcp{-conf,-libs,-libs-devel,-testsuite,-import-*,-export-*}...
