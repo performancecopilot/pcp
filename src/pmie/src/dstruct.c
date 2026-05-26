@@ -856,7 +856,7 @@ instExpr(Expr *x)
 	    }
 	    if (x->op == CND_RATE) {
 		up = 1;
-		if (x->units.dimSpace != 0 || x->units.dimTime != 0 || x->units.dimCount != 0 || x->units.extraScale != 0) {
+		if (x->units.dimSpace != 0 || x->units.dimTime != 0 || x->units.dimCount != 0 || x->units.extraUnit != 0) {
 		    /* has some units, so / time makes sense */
 		    if (x->units.dimTime != 0) {
 			x->units.dimTime--;
