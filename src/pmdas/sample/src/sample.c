@@ -2751,7 +2751,7 @@ doit:
 			break;
 
 		    case 174:	/* sample.temperature.kelvin */
-			atom.f = 237.15 + temperature;
+			atom.f = temperature + 273.15;
 			break;
 
 		    case 175:	/* sample.voltage.volt */
@@ -2787,7 +2787,7 @@ doit:
 			break;
 
 		    case 183:	/* sample.power.milliwatt */
-			atom.f = power * 1000000;
+			atom.f = power * 1000;
 			break;
 
 		    case 184:	/* sample.power.microwatt */
@@ -3402,37 +3402,37 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 		temperature = (av.f - 32) / 1.8;
 		break;
 	    case 174:	/* sample.temperature.kelvin */
-		temperature = av.f + 237.15;
+		temperature = av.f - 273.15;
 		break;
 	    case 175:	/* sample.voltage.volt */
 		voltage = av.f;
 		break;
 	    case 176:	/* sample.voltage.millivolt */
-		voltage = av.f * 1000;
+		voltage = av.f / 1000;
 		break;
 	    case 177:	/* sample.voltage.microvolt */
-		voltage = av.f * 1000000;
+		voltage = av.f / 1000000;
 		break;
 	    case 178:	/* sample.current.amp */
 		current = av.f;
 		break;
 	    case 179:	/* sample.current.milliamp */
-		current = av.f * 1000;
+		current = av.f / 1000;
 		break;
 	    case 180:	/* sample.current.microamp */
-		current = av.f * 1000000;
+		current = av.f / 1000000;
 		break;
 	    case 181:	/* sample.power.kilowatt */
-		power = av.f / 1000;
+		power = av.f * 1000;
 		break;
 	    case 182:	/* sample.power.watt */
 		power = av.f;
 		break;
 	    case 183:	/* sample.power.milliwatt */
-		power = av.f * 1000;
+		power = av.f / 1000;
 		break;
 	    case 184:	/* sample.power.microwatt */
-		power = av.f * 1000000;
+		power = av.f / 1000000;
 		break;
 	    case 1008:	/* ghosts.visible */
 		visible_ghosts = av.l;

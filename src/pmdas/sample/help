@@ -944,17 +944,17 @@ up.
 
 @ sample.temperature.celsius temperature in degrees Celsius
 All sample.temperature.* metrics share the same current temperature
-(defaults to the freezing point of wqater at sea level), but the value
+(defaults to the freezing point of water at sea level), but the value
 can be changed with pmstore(1).
 
 @ sample.temperature.fahrenheit temperature in degrees Fahrenheit
 All sample.temperature.* metrics share the same current temperature
-(defaults to the freezing point of wqater at sea level), but the value
+(defaults to the freezing point of water at sea level), but the value
 can be changed with pmstore(1).
 
 @ sample.temperature.kelvin temperature in degrees Kelvin
 All sample.temperature.* metrics share the same current temperature
-(defaults to the freezing point of wqater at sea level), but the value
+(defaults to the freezing point of water at sea level), but the value
 can be changed with pmstore(1).
 
 @ sample.voltage.volt voltage in volts

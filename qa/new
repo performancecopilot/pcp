@@ -413,7 +413,8 @@ if $unreserve
 then
     oldans=`sed -n <group -e "/^$id:reserved */s///p"`
     echo "Removing :reserved tag for $id in group index"
-    sed -e "/^$id:reserved/d" -i group
+    sed <group >$tmp.group -e "/^$id:reserved/d"
+    mv $tmp.group group
     ans=`echo "$oldans $ans" | awk ' {
   onetrip = 1
   for (i = 1; i <= NF; i++) {

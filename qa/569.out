@@ -930,7 +930,7 @@ sample.updown.control.mode 1 NUMBER
 sample.updown.control.reset 1 NUMBER
 sample.temperature.celsius 1 0
 sample.temperature.fahrenheit 1 32
-sample.temperature.kelvin 1 237.14999
+sample.temperature.kelvin 1 273.14999
 sample.voltage.volt 1 240
 sample.voltage.millivolt 1 240000
 sample.voltage.microvolt 1 2.4e+08
@@ -939,7 +939,7 @@ sample.current.milliamp 1 13000
 sample.current.microamp 1 13000000
 sample.power.kilowatt 1 0.041999999
 sample.power.watt 1 42
-sample.power.milliwatt 1 42000000
+sample.power.milliwatt 1 42000
 sample.power.microwatt 1 42000000
 
 === -iI ===

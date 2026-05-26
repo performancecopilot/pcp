@@ -856,8 +856,18 @@ instExpr(Expr *x)
 	    }
 	    if (x->op == CND_RATE) {
 		up = 1;
-		if (x->units.dimTime != 0)
-		    x->units.dimTime--;
+		if (x->units.dimSpace != 0 || x->units.dimTime != 0 || x->units.dimCount != 0 || x->units.extraScale != 0) {
+		    /* has some units, so / time makes sense */
+		    if (x->units.dimTime != 0) {
+			x->units.dimTime--;
+			if (x->units.dimTime == 0)
+			    x->units.scaleTime = 0;
+		    }
+		    else {
+			x->units.dimTime = -1;
+			x->units.scaleTime = PM_TIME_SEC;
+		    }
+		}
 	    }
 	}
 	else if (!UNITS_UNKNOWN(arg1->units) &&

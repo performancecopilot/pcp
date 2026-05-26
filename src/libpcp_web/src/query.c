@@ -4567,6 +4567,7 @@ series_calculate_plus(node_t *np, void *arg)
     large_units.dimSpace = l_units.dimSpace;
     large_units.dimTime = l_units.dimTime;
     large_units.extraUnit = l_units.extraUnit;
+    large_units.extraScale = l_units.extraScale;
 
     series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
@@ -4620,6 +4621,7 @@ series_calculate_minus(node_t *np, void *arg)
     large_units.dimSpace = l_units.dimSpace;
     large_units.dimTime = l_units.dimTime;
     large_units.extraUnit = l_units.extraUnit;
+    large_units.extraScale = l_units.extraScale;
 
     series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
@@ -4697,6 +4699,16 @@ series_calculate_star(node_t *np, void *arg)
 		right->value_set.series_values[i].series_desc.indom) != 0)
 	        return;
 
+	    /*
+	     * extra units not allowed for both operands in multiplication
+	     */
+	    if (l_units.extraUnit != 0 && r_units.extraUnit != 0) {
+		infofmt(msg, "Extra units not allowed with multiplication.\n");
+		batoninfo(baton, PMLOG_ERROR, msg);
+		baton->error = -EPROTO;
+		return;
+	    }
+
 	    num_samples = left->value_set.series_values[i].num_samples;
 
 	    for (j = 0; j < num_samples; j++) {
@@ -4714,15 +4726,6 @@ series_calculate_star(node_t *np, void *arg)
 			right->value_set.series_values[i].series_sample[j].series_instance + k,
 			&l_units, &r_units, &large_units, calculate_star);
 		}
-	    }
-	    /*
-	     * extra units not allowed for both operands in multiplication
-	     */
-	    if (l_units.extraUnit != 0 && r_units.extraUnit != 0) {
-		infofmt(msg, "Extra units not allowed with multiplication.\n");
-		batoninfo(baton, PMLOG_ERROR, msg);
-		baton->error = -EPROTO;
-		return;
 	    }
 	    /*
 	    * For multiplication, the dimensions of the result are the
@@ -4770,6 +4773,20 @@ series_calculate_slash(node_t *np, void *arg)
 		right->value_set.series_values[0].series_desc.indom) != 0)
 	return;
 
+    /*
+     * extra units not allowed for both operands in division unless
+     * they are the same Unit and Scale (the result is dimensionless
+     * in this case)
+     */
+    if ((l_units.extraUnit != 0 || r_units.extraUnit != 0) &&
+        (l_units.extraUnit != r_units.extraUnit ||
+	 l_units.extraScale != r_units.extraScale)) {
+	infofmt(msg, "Different extra units not allowed with division.\n");
+	batoninfo(baton, PMLOG_ERROR, msg);
+	baton->error = -EPROTO;
+	return;
+    }
+
     num_samples = left->value_set.series_values[0].num_samples;
 
     for (j = 0; j < num_samples; j++) {
@@ -4789,19 +4806,6 @@ series_calculate_slash(node_t *np, void *arg)
 	}
     }
     /*
-     * extra units not allowed for both operands in division unless
-     * they are the same Unit and Scale (the result is dimensionless
-     * in this case)
-     */
-    if ((l_units.extraUnit != 0 || r_units.extraUnit != 0) &&
-        (l_units.extraUnit != r_units.extraUnit ||
-	 l_units.extraScale != r_units.extraScale)) {
-	infofmt(msg, "Different extra units not allowed with division.\n");
-	batoninfo(baton, PMLOG_ERROR, msg);
-	baton->error = -EPROTO;
-	return;
-    }
-    /*
      * For division, the dimensions of the result are the
      * difference of the dimensions of the operands.
      */
@@ -4809,6 +4813,7 @@ series_calculate_slash(node_t *np, void *arg)
     large_units.dimSpace = l_units.dimSpace - r_units.dimSpace;
     large_units.dimTime = l_units.dimTime - r_units.dimTime;
     large_units.extraUnit = l_units.extraUnit - r_units.extraUnit;
+    large_units.extraScale = 0;
 
     series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;

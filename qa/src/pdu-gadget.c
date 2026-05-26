@@ -722,7 +722,7 @@ main(int argc, char **argv)
 			p = &end[1];
 			units.extraUnit = f;
 			if (units.extraUnit != f)
-			    fprintf(stderr, "%d: units(): extraUnit overflow %d -> %d(\n", lineno, f, units.scaleCount);
+			    fprintf(stderr, "%d: units(): extraUnit overflow %d -> %d(\n", lineno, f, units.extraUnit);
 			else
 			    ok++;
 		    }

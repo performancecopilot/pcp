@@ -50,6 +50,93 @@ qa.odd.three
     Semantics: instant  Units: none
     value 0.5
 
+Some corner cases ...
+pmRegisterDerived: global metric[0] event.flags = anon(PM_TYPE_U32)
+pmRegisterDerived: global metric[1] event.missed = anon(PM_TYPE_U32)
+Derived metric initialization from $PCP_DERIVED_CONFIG
+pmLoadDerivedConfig("TMP.config")
+pmRegisterDerived: global metric[2] qa.const.a = sample.temperature.fahrenheit * 2
+pmRegisterDerived: global metric[3] qa.const.b = 2 * sample.temperature.fahrenheit
+pmRegisterDerived: global metric[4] qa.const.c = sample.temperature.fahrenheit / 2
+pmRegisterDerived: global metric[5] qa.const.d = 128 / sample.temperature.fahrenheit
+pmRegisterDerived: global metric[6] qa.none.a = sample.temperature.fahrenheit * sampledso.long.ten
+pmRegisterDerived: global metric[7] qa.none.b = sampledso.long.ten * sample.temperature.fahrenheit
+pmRegisterDerived: global metric[8] qa.none.c = sample.temperature.fahrenheit / sampledso.long.ten
+pmRegisterDerived: global metric[9] qa.none.d = sampledso.long.hundred / sample.temperature.fahrenheit
+__dmtraverse(ctx=0, name="qa", ...)
+__dmbind(derive_locked=1, ctx=0, metric[2] qa.const.a, async= 1)
+__dmgetpmid: metric "qa.const.a" -> PMID 511.0.3
+__dmtraverse: name="qa" added "qa.const.a"
+__dmbind(derive_locked=1, ctx=0, metric[3] qa.const.b, async= 1)
+__dmgetpmid: metric "qa.const.b" -> PMID 511.0.4
+__dmtraverse: name="qa" added "qa.const.b"
+__dmbind(derive_locked=1, ctx=0, metric[4] qa.const.c, async= 1)
+__dmgetpmid: metric "qa.const.c" -> PMID 511.0.5
+__dmtraverse: name="qa" added "qa.const.c"
+__dmbind(derive_locked=1, ctx=0, metric[5] qa.const.d, async= 1)
+__dmgetpmid: metric "qa.const.d" -> PMID 511.0.6
+__dmtraverse: name="qa" added "qa.const.d"
+__dmbind(derive_locked=1, ctx=0, metric[6] qa.none.a, async= 1)
+__dmgetpmid: metric "qa.none.a" -> PMID 511.0.7
+__dmtraverse: name="qa" added "qa.none.a"
+__dmbind(derive_locked=1, ctx=0, metric[7] qa.none.b, async= 1)
+__dmgetpmid: metric "qa.none.b" -> PMID 511.0.8
+__dmtraverse: name="qa" added "qa.none.b"
+__dmbind(derive_locked=1, ctx=0, metric[8] qa.none.c, async= 1)
+__dmgetpmid: metric "qa.none.c" -> PMID 511.0.9
+__dmtraverse: name="qa" added "qa.none.c"
+__dmbind(derive_locked=1, ctx=0, metric[9] qa.none.d, async= 1)
+__dmgetpmid: metric "qa.none.d" -> PMID 511.0.10
+__dmtraverse: name="qa" added "qa.none.d"
+__dmgetpmid: metric "qa.const.a" -> PMID 511.0.3
+__dmgetpmid: metric "qa.const.b" -> PMID 511.0.4
+__dmgetpmid: metric "qa.const.c" -> PMID 511.0.5
+__dmgetpmid: metric "qa.const.d" -> PMID 511.0.6
+__dmgetpmid: metric "qa.none.a" -> PMID 511.0.7
+__dmgetpmid: metric "qa.none.b" -> PMID 511.0.8
+__dmgetpmid: metric "qa.none.c" -> PMID 511.0.9
+__dmgetpmid: metric "qa.none.d" -> PMID 511.0.10
+
+qa.const.a
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (F)
+    value 64
+
+qa.const.b
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (F)
+    value 64
+
+qa.const.c
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (F)
+    value 16
+
+qa.const.d
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: / temperature (F)
+    value 4
+
+qa.none.a
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (F)
+    value 320
+
+qa.none.b
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (F)
+    value 320
+
+qa.none.c
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (F)
+    value 3.2
+
+qa.none.d
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: / temperature (F)
+    value 3.125
+
 Some error cases ...
 Semantic error: derived metric qa.bad.a: sample.voltage.millivolt + sample.byte_rate: Dimensions are not the same
 Semantic error: derived metric qa.bad.b: sample.voltage.volt + sample.voltage.millivolt: Operands have incompatible extra units or scale

@@ -1330,7 +1330,20 @@ map_units(node_t *np)
 	np->desc.units.dimCount = left->units.dimCount + right->units.dimCount;
 	np->desc.units.dimTime = left->units.dimTime + right->units.dimTime;
 	np->desc.units.dimSpace = left->units.dimSpace + right->units.dimSpace;
-	/* prior checks ensure no extra units for multiplication */
+	/*
+	 * for extra units + ! extra units, propagate the
+	 * extrta units to the result
+	 */
+	if (left->units.extraUnit == 0 && right->units.extraUnit != 0) {
+	    /* extra units in the right operand */
+	    np->desc.units.extraUnit = right->units.extraUnit;
+	    np->desc.units.extraScale = right->units.extraScale;
+	}
+	if (left->units.extraUnit != 0 && right->units.extraUnit == 0) {
+	    /* extra units in the left operand */
+	    np->desc.units.extraUnit = left->units.extraUnit;
+	    np->desc.units.extraScale = left->units.extraScale;
+	}
     }
     else if (np->type == N_SLASH) {
 	np->desc.units.dimCount = left->units.dimCount - right->units.dimCount;

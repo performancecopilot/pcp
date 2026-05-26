@@ -69,6 +69,28 @@ fi \
 | _filter
 
 echo
+echo "Some corner cases ..."
+
+cat <<End-of-File >$tmp.config
+qa.const.a = sample.temperature.fahrenheit * 2
+qa.const.b = 2 * sample.temperature.fahrenheit
+qa.const.c = sample.temperature.fahrenheit / 2
+qa.const.d = 128 / sample.temperature.fahrenheit
+qa.none.a = sample.temperature.fahrenheit * sampledso.long.ten
+qa.none.b = sampledso.long.ten * sample.temperature.fahrenheit
+qa.none.c = sample.temperature.fahrenheit / sampledso.long.ten
+qa.none.d = sampledso.long.hundred / sample.temperature.fahrenheit
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pminfo -Dderive -df qa
+else
+    pminfo -Dderive -df qa 2>&1
+fi \
+| _filter
+
+echo
 echo "Some error cases ..."
 
 cat <<End-of-File >$tmp.config

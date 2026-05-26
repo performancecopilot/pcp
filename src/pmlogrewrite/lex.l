@@ -134,8 +134,17 @@ duptextstr(char *s, int strip_quotes)
 <metric>"NULL"		{ return TOK_NULL_INT; }
 <metric>"output"	{ BEGIN(output); return TOK_OUTPUT; }
 <metric>"sem"		{ BEGIN(sem); return TOK_SEM; }
-<metric>"units"		{ BEGIN(units); comma_count = 0; return TOK_UNITS; }
+<metric>"units"		{ BEGIN(units); comma_count = 0; in_extra = 0; return TOK_UNITS; }
 <metric>"extraunits"	{ BEGIN(units); comma_count = 0; in_extra = 1; return TOK_EXTRAUNITS; }
+<extra>[A-Z][A-Z_]*	{ yylval.str = dupstr(yytext, 0);
+			  if (comma_count == 7) {
+			      in_extra = 0;
+			      BEGIN(metric);
+			  }
+			  else
+			      BEGIN(units);
+			  return TOK_MACRO;
+			}
 <metric>"value"		{ return TOK_METRIC_VALUE; }
 <metric>"replace"	{ return TOK_REPLACE; }
 

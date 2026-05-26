@@ -190,7 +190,7 @@ QmcDesc::shortUnitsString(pmUnits *pu)
     if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0 || pu->extraUnit < 0) {
 	*p++ = '/';
 	div = p;
-	if (pu->extraUnit > 0) {
+	if (pu->extraUnit < 0) {
 	    pmsprintf(p, sizeof(buf)-(p-buf), "%s", extraString);
 	    while (*p) p++;
 	}

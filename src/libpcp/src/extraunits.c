@@ -167,7 +167,7 @@ __pmParseExtraUnits(const char *buf, __pmUnits *pu)
 			pu->extraUnit = extra[u].type;
 			pu->extraScale = extra[u].scale[s].ident;
 			/* and gobble any trailing space(s) */
-			while (*ptr && !isspace(*ptr))
+			while (*ptr && isspace(*ptr))
 			    ptr++;
 			return ptr;
 		    }

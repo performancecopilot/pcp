@@ -71,6 +71,9 @@ extraunits(void)
     pmUnits forw;
     pmUnits back;
 
+    memset(&forw, 0, sizeof(forw));
+    memset(&back, 0, sizeof(back));
+
     forw.dimSpace	= back.extraScale       = 1;
     forw.dimTime	= back.extraUnit        = 2;
     forw.dimCount	= back.scaleCount	= 3;

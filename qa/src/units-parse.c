@@ -40,31 +40,44 @@ pmunits_roundtrip(int print_p, int ds, int dt, int dc, int ss, int st, int sc, i
     int dodge = 0;
     char *errmsg = NULL;
 
-    (void) pmUnitsStr_r(&victim, converted, sizeof(converted));
-    sts = pmParseUnitsStr(converted, &reversed, &reversed_multiplier, &errmsg);
-    (void) pmUnitsStr_r(&reversed, convertedt, sizeof(convertedt));
-
-    if (print_p) {
-	fprintf(stderr, "(%d,%d,%d,%d,%d,%d,%d,%d) => \"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d,%d,%d)*%g => \"%s\" \n",
+    if (pmUnitsStr_r(&victim, converted, sizeof(converted)) == NULL) {
+	fprintf(stderr, "pmUnitsStr_r(victim [%d,%d,%d,%u,%u,%u,%d,%u]) => NULL\n",
 	       victim.dimSpace, victim.dimTime, victim.dimCount,
 	       victim.scaleSpace, victim.scaleTime, victim.scaleCount,
-	       victim.extraUnit, victim.extraScale,
-	       converted, sts, (sts < 0 ? " " : ""), (sts < 0 ? errmsg : ""),
-	       reversed.dimSpace, reversed.dimTime, reversed.dimCount,
-	       reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
-	       reversed.extraUnit, reversed.extraScale,
-	       reversed_multiplier,
-	       convertedt);
+	       victim.extraUnit, victim.extraScale);
+	return;
     }
-
-    if (sts != 0) {
-	if (!print_p) {
-	    dump(&victim, NULL);
-	    fprintf(stderr, "pmParseUnitsStr(\"%s\") -> %d (%s)\n", converted, sts, pmErrStr(sts));
+    if ((sts = pmParseUnitsStr(converted, &reversed, &reversed_multiplier, &errmsg)) >= 0) {
+	if (pmUnitsStr_r(&reversed, convertedt, sizeof(convertedt)) == NULL) {
+	    fprintf(stderr, "pmUnitsStr_r(reversed [%d,%d,%d,%u,%u,%u,%d,%u]) => NULL\n",
+		   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
+		   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
+		   reversed.extraUnit, reversed.extraScale);
+	    return;
 	}
     }
     else {
+	if (!print_p) {
+	    dump(&victim, NULL);
+	    fprintf(stderr, "pmParseUnitsStr(\"%s\") -> Error: sts=%d (%s)\n", converted, sts, errmsg);
+	}
+    }
+    if (sts == 0) {
 	int	bad = 0;
+
+	if (print_p) {
+	    fprintf(stderr, "(%d,%d,%d,%d,%d,%d,%d,%d) => \"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d,%d,%d)*%g => \"%s\" \n",
+		   victim.dimSpace, victim.dimTime, victim.dimCount,
+		   victim.scaleSpace, victim.scaleTime, victim.scaleCount,
+		   victim.extraUnit, victim.extraScale,
+		   converted, sts, (sts < 0 ? " " : ""), (sts < 0 ? errmsg : ""),
+		   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
+		   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
+		   reversed.extraUnit, reversed.extraScale,
+		   reversed_multiplier,
+		   convertedt);
+	}
+
 	if (strcmp(converted, convertedt) != 0) {
 	    if (!bad) {
 		dump(&victim, &reversed);
@@ -203,18 +216,29 @@ pmunits_parse(const char *str)
     char converted[100] = "";
     char *errmsg;
 
-    sts = pmParseUnitsStr(str, &reversed, &reversed_multiplier, &errmsg);
-    (void) pmUnitsStr_r(&reversed, converted, sizeof(converted));
-
-    fprintf(stderr, "\"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d,%d,%d)*%g => \"%s\"\n", str, sts, (sts < 0 ? " " : ""),
-	   (sts < 0 ? errmsg : ""),
-	   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
-	   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
-	   reversed.extraUnit, reversed.extraScale,
-	   reversed_multiplier, converted);
-
-    if (sts < 0)
+    if ((sts = pmParseUnitsStr(str, &reversed, &reversed_multiplier, &errmsg)) < 0) {
+	fprintf(stderr, "\"%s\" => conv rc Error: sts=%d (%s)\n", str, sts, errmsg);
 	free(errmsg);
+    }
+    else {
+	if (pmUnitsStr_r(&reversed, converted, sizeof(converted)) == NULL) {
+	    fprintf(stderr, "\"%s\" => conv rc %d => (%d,%d,%d,%u,%u,%u,%d,%u)*%g => NULL\n",
+		   str, sts,
+		   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
+		   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
+		   reversed.extraUnit, reversed.extraScale,
+		   reversed_multiplier);
+	}
+	else {
+
+	    fprintf(stderr, "\"%s\" => conv rc %d => (%d,%d,%d,%u,%u,%u,%d,%u)*%g => \"%s\"\n", str, sts,
+		   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
+		   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
+		   reversed.extraUnit, reversed.extraScale,
+		   reversed_multiplier, converted);
+	}
+    }
+
 }
 
 static pmLongOptions longopts[] = {

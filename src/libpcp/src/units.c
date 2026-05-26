@@ -174,11 +174,6 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 
     buf[0] = '\0';
 
-    if (pu->extraUnit) {
-	__pmExtraUnitsStr(pu, xbuf, sizeof(xbuf));
-	extrastr = xbuf;
-    }
-
     /*
      * must be at least 60 bytes in buf[], then we don't need to
      * pollute the code below with a check every time we call
@@ -189,6 +184,11 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 	    fprintf(stderr, ":> returns NULL\n");
 	}
 	return NULL;
+    }
+
+    if (pu->extraUnit) {
+	__pmExtraUnitsStr(pu, xbuf, sizeof(xbuf));
+	extrastr = xbuf;
     }
 
     if (pu->dimSpace) {
@@ -1581,6 +1581,15 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier, char **errMsg
     /*
      * extra units come from either dividend or divisor, but not both
      */
+    if (dividend.extraUnit != 0 && divisor.extraUnit != 0) {
+	*errMsg = strdup("extra units cannot appear in both dividend and divisor");
+	sts = PM_ERR_CONV;
+	goto out;
+    }
+     if (dividend.extraUnit != 0) {
+ 	out->extraUnit = dividend.extraUnit;
+ 	out->extraScale = dividend.extraScale;
+     }
     if (dividend.extraUnit != 0) {
 	out->extraUnit = dividend.extraUnit;
 	out->extraScale = dividend.extraScale;
