@@ -1,5 +1,5 @@
-pcp-7.1.5 (15 July 2026)
-    - Work-in-progress, not yet released.
+pcp-7.1.5 (26 May 2026)
+    - Small bug-fix release to resolve a packaging issue.
 
 pcp-7.1.4 (22 May 2026)
     - PMDA additions, enhancements and bug fixes:
