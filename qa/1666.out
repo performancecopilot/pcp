@@ -49,5 +49,5 @@ summary.netif.busy [Proportion of the network interfaces that are busy]
     Semantics: instant  Units: none
 Help:
 Fraction of the active network interfaces busy serving at least 400
-packets per second).
+packets per second.
 Value in the range 0 to 1.

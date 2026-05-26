@@ -1596,19 +1596,19 @@ up.
 sampledso.temperature.celsius
 Help:
 All sampledso.temperature.* metrics share the same current temperature
-(defaults to the freezing point of wqater at sea level), but the value
+(defaults to the freezing point of water at sea level), but the value
 can be changed with pmstore(1).
 
 sampledso.temperature.fahrenheit
 Help:
 All sampledso.temperature.* metrics share the same current temperature
-(defaults to the freezing point of wqater at sea level), but the value
+(defaults to the freezing point of water at sea level), but the value
 can be changed with pmstore(1).
 
 sampledso.temperature.kelvin
 Help:
 All sampledso.temperature.* metrics share the same current temperature
-(defaults to the freezing point of wqater at sea level), but the value
+(defaults to the freezing point of water at sea level), but the value
 can be changed with pmstore(1).
 
 sampledso.voltage.volt

@@ -23,6 +23,7 @@ pmiAddMetric: OK
 pmiAddMetric: OK
 pmiAddMetric: Error: Metric pmID already defined
 pmiAddMetric: OK
+pmiAddMetric: OK
 pmiAddInstance: OK
 pmiAddInstance: OK
 pmiAddInstance: OK
