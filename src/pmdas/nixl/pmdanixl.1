@@ -1,0 +1,180 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2026 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.TH PMDANIXL 1 "PCP" "Performance Co-Pilot" "General Commands Manual"
+.SH NAME
+\f3pmdanixl\f1 \- NVIDIA NIXL Performance Metrics Domain Agent
+.SH SYNOPSIS
+\f3$PCP_PMDAS_DIR/nixl/pmdanixl\f1
+.SH DESCRIPTION
+.B pmdanixl
+is a Performance Co-Pilot (PCP) Performance Metrics Domain Agent (PMDA)
+that collects performance telemetry from one or more running
+NIXL (NVIDIA Inference Xfer Library) agents.
+.PP
+NIXL agents write per-event telemetry into shared-memory ring buffers
+located in the directory specified by the
+.B NIXL_TELEMETRY_DIR
+environment variable (default
+.BR /var/tmp ).
+The PMDA discovers agent files in that directory, drains new events on
+each fetch, and accumulates them into per-agent running counters.
+Each discovered agent appears as a separate instance in the
+.B nixl.agents
+instance domain, so metrics from different agents can be monitored
+independently.
+.PP
+Metrics are organised into four groups:
+.TP
+.B nixl.transfer.*
+Data transfer byte and request counts (TX and RX).
+.TP
+.B nixl.memory.*
+Memory registration and deregistration sizes.
+.TP
+.B nixl.performance.*
+Accumulated transfer time measurements (in microseconds).
+.TP
+.B nixl.errors.*
+Error event counts, broken down by error type.
+.SH NIXL CONFIGURATION
+NIXL telemetry is disabled by default.
+The following environment variables must be set in each NIXL application
+process before it creates its agent for telemetry data to be written to
+shared memory and discovered by this PMDA.
+.TP
+.B NIXL_TELEMETRY_ENABLE=1
+Activates telemetry collection.
+Accepted values are
+.BR 1 ,
+.BR yes ,
+.BR on ,
+.BR true ,
+or
+.B enable
+(case-insensitive).
+.TP
+.B NIXL_TELEMETRY_DIR=\fIdir\fP
+Directory in which NIXL writes its shared-memory telemetry files,
+one file per agent, named after the agent name supplied at agent
+creation time.
+This must match the
+.B telemetry_dir
+setting in
+.IR $PCP_SYSCONF_DIR/nixl/nixl.conf .
+Defaults to
+.BR /var/tmp .
+.TP
+.B NIXL_TELEMETRY_BUFFER_SIZE=\fIN\fP
+Number of events the ring buffer can hold before older events are
+silently overwritten.
+Increase this value if the application produces bursts of telemetry
+faster than the PMDA drains them.
+Defaults to
+.BR 4096 .
+.TP
+.B NIXL_TELEMETRY_RUN_INTERVAL=\fIms\fP
+Flush interval in milliseconds used by the NIXL exporter thread.
+Defaults to
+.BR 100 .
+.PP
+A minimal setup for a single application is:
+.RS
+.nf
+export NIXL_TELEMETRY_ENABLE=1
+export NIXL_TELEMETRY_DIR=/var/tmp
+\&./my_nixl_application
+.fi
+.RE
+.PP
+With multiple applications writing to the same directory, each agent
+file will be discovered automatically and reported as its own instance.
+The PMDA user (set via
+.B user
+in
+.IR nixl.conf )
+should match the user running the NIXL applications so that file
+permissions align without requiring world-writable telemetry files.
+.SH INSTALLATION
+Once NIXL applications are configured to export telemetry, install the PMDA:
+.RS
+.nf
+# cd $PCP_PMDAS_DIR/nixl
+# ./Install
+.fi
+.RE
+If
+.B NIXL_TELEMETRY_DIR
+is not the default
+.BR /var/tmp ,
+set it in the environment before running
+.B Install
+so it is recorded in the PMDA's startup configuration.
+.PP
+To verify the PMDA is running and instances are visible:
+.RS
+.nf
+$ pminfo -t nixl
+$ pminfo -f nixl.transfer.tx_bytes
+.fi
+.RE
+.SH REMOVAL
+.RS
+.nf
+# cd $PCP_PMDAS_DIR/nixl
+# ./Remove
+.fi
+.RE
+.SH ENVIRONMENT
+.TP
+.B NIXL_TELEMETRY_DIR
+Overrides
+.B telemetry_dir
+from
+.I nixl.conf
+at runtime.
+Defaults to
+.BR /var/tmp .
+.SH FILES
+.TP
+.I $PCP_SYSCONF_DIR/nixl/nixl.conf
+PMDA configuration file.
+.TP
+.I $PCP_PMDAS_DIR/nixl/Install
+Installation script.
+.TP
+.I $PCP_PMDAS_DIR/nixl/Remove
+Removal script.
+.TP
+.I $PCP_LOG_DIR/pmcd/nixl.log
+PMDA log file.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix
+.B PCP_
+are used to parameterize the file and directory names used by PCP.
+On each installation, the file
+.I /etc/pcp.conf
+contains the local values for these variables.
+The
+.B $PCP_CONF
+variable may be used to specify an alternative configuration file,
+as described in
+.BR pcp.conf (5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pminfo (1),
+.BR pmval (1)
+and
+.BR PMDA (3).

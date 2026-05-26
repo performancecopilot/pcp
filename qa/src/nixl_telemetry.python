@@ -1,0 +1,119 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (c) 2026 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# Create a synthetic NIXL telemetry ring buffer file for QA testing.
+# Usage: nixl_telemetry.python <output_path>
+#
+"""Creates a synthetic NIXL shared-memory telemetry file populated with
+known events, so that pmdanixl QA tests can verify metric values without
+requiring a live NIXL application."""
+
+import ctypes
+import mmap
+import sys
+
+TELEMETRY_VERSION = 2
+CAPACITY = 64  # must be a power of 2
+
+# nixl_telemetry_category_t
+NIXL_TELEMETRY_MEMORY      = 0
+NIXL_TELEMETRY_TRANSFER    = 1
+NIXL_TELEMETRY_PERFORMANCE = 5
+NIXL_TELEMETRY_ERROR       = 4
+
+# nixl_telemetry_event_type_t
+AGENT_TX_BYTES           = 0
+AGENT_RX_BYTES           = 1
+AGENT_TX_REQUESTS_NUM    = 2
+AGENT_RX_REQUESTS_NUM    = 3
+AGENT_MEMORY_REGISTERED  = 4
+AGENT_MEMORY_DEREGISTERED = 5
+AGENT_XFER_TIME          = 6
+AGENT_XFER_POST_TIME     = 7
+AGENT_ERR_BACKEND        = 10
+
+
+class BufferHeader(ctypes.Structure):
+    _pack_ = 1
+    _layout_ = 'ms'
+    _fields_ = [
+        ("write_pos",        ctypes.c_size_t),
+        ("read_pos",         ctypes.c_size_t),
+        ("version",          ctypes.c_uint32),
+        ("expected_version", ctypes.c_uint32),
+        ("capacity",         ctypes.c_size_t),
+        ("mask",             ctypes.c_size_t),
+    ]
+
+
+class NixlTelemetryEvent(ctypes.Structure):
+    _pack_ = 1
+    _layout_ = 'ms'
+    _fields_ = [
+        ("category",   ctypes.c_int),
+        ("event_type", ctypes.c_uint8),
+        ("_padding",   ctypes.c_char * 3),
+        ("value",      ctypes.c_uint64),
+    ]
+
+
+# (category, event_type, value) — values chosen to be easily verified in QA
+EVENTS = [
+    (NIXL_TELEMETRY_TRANSFER,    AGENT_TX_BYTES,          1048576),  # 1 MB
+    (NIXL_TELEMETRY_TRANSFER,    AGENT_RX_BYTES,           524288),  # 512 KB
+    (NIXL_TELEMETRY_TRANSFER,    AGENT_TX_REQUESTS_NUM,        10),
+    (NIXL_TELEMETRY_TRANSFER,    AGENT_RX_REQUESTS_NUM,        10),
+    (NIXL_TELEMETRY_MEMORY,      AGENT_MEMORY_REGISTERED,    4096),
+    (NIXL_TELEMETRY_MEMORY,      AGENT_MEMORY_DEREGISTERED,     0),
+    (NIXL_TELEMETRY_PERFORMANCE, AGENT_XFER_TIME,            5000),  # 5 ms
+    (NIXL_TELEMETRY_PERFORMANCE, AGENT_XFER_POST_TIME,       1000),  # 1 ms
+    (NIXL_TELEMETRY_ERROR,       AGENT_ERR_BACKEND,             1),
+]
+
+
+def create(path):
+    hdr_size = ctypes.sizeof(BufferHeader)
+    evt_size = ctypes.sizeof(NixlTelemetryEvent)
+    total    = hdr_size + evt_size * CAPACITY
+
+    with open(path, 'wb') as f:
+        f.write(b'\x00' * total)
+
+    with open(path, 'r+b') as f:
+        mm = mmap.mmap(f.fileno(), total)
+
+        hdr                  = BufferHeader.from_buffer(mm)
+        hdr.version          = TELEMETRY_VERSION
+        hdr.expected_version = TELEMETRY_VERSION
+        hdr.capacity         = CAPACITY
+        hdr.mask             = CAPACITY - 1
+        hdr.read_pos         = 0
+
+        data = (NixlTelemetryEvent * CAPACITY).from_buffer(mm, hdr_size)
+        for i, (cat, etype, val) in enumerate(EVENTS):
+            data[i].category   = cat
+            data[i].event_type = etype
+            data[i].value      = val
+
+        hdr.write_pos = len(EVENTS)
+        mm.flush()
+        del hdr, data
+        mm.close()
+
+
+if __name__ == "__main__":
+    if len(sys.argv) != 2:
+        print("Usage: nixl_telemetry.python <output_path>", file=sys.stderr)
+        sys.exit(1)
+    create(sys.argv[1])

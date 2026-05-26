@@ -1,0 +1,113 @@
+#!/bin/sh
+# PCP QA Test No. 1999
+# Test pmdanixl - install, metric namespace, per-agent instances and values.
+#
+# Copyright (c) 2026 Red Hat.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+pmda_path="$PCP_PMDAS_DIR/nixl"
+pmda_script="$pmda_path/pmdanixl.python"
+
+[ -d "$pmda_path" ] || _notrun "NIXL PMDA is not installed"
+
+$python -c "from pcp import pmda" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
+
+$python -c "import mmap, ctypes" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python mmap or ctypes module not available"
+
+status=1	# failure is the default!
+
+# Use /tmp (the PMDA default) so no special env var needs to reach pmcd
+agent_file="/var/tmp/pcp_qa_nixl_1999"
+
+_cleanup()
+{
+    cd $here
+    _cleanup_pmda nixl
+    rm -f "$agent_file"
+    $sudo rm -rf $tmp $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter_nixl()
+{
+    sed \
+        -e 's/PMID: 39\./PMID: NIXL./g' \
+        -e 's/InDom: 39\./InDom: NIXL./g' \
+        -e 's/0x[0-9a-f]*/0xNNNNNNNN/g' \
+        # end
+}
+
+pmdanixl_remove()
+{
+    cd "$pmda_path"
+    echo
+    echo "=== Removing NIXL agent ===" | tee -a $seq_full
+    $sudo ./Remove >>$seq_full 2>&1
+    cd "$here"
+}
+
+pmdanixl_install()
+{
+    cd "$pmda_path"
+    $sudo ./Remove >>$seq_full 2>&1
+    echo
+    echo "=== Installing NIXL agent ===" | tee -a $seq_full
+    $sudo ./Install </dev/null >>$seq_full 2>&1
+    cd "$here"
+}
+
+# Real QA test starts here
+_prepare_pmda nixl
+
+$python "$here/src/nixl_telemetry.python" "$agent_file"
+[ $? -eq 0 ] || _notrun "failed to create synthetic NIXL telemetry file"
+chmod 666 "$agent_file"
+
+pmdanixl_install
+
+if ! pminfo -f pmcd.agent.status 2>&1 | grep -q '"nixl"'
+then
+    echo "Arrgh! PMDA install failed ... see $seq_full"
+    _exit 1
+fi
+
+echo "=== Metric namespace ==="
+pminfo nixl | LC_COLLATE=POSIX sort
+
+echo
+echo "=== Metric types and semantics ==="
+pminfo -dfmtT nixl 2>&1 | _filter_nixl
+
+echo
+echo "=== Transfer metric values ==="
+pminfo -f nixl.transfer.tx_bytes \
+          nixl.transfer.rx_bytes \
+          nixl.transfer.tx_requests \
+          nixl.transfer.rx_requests 2>&1
+
+echo
+echo "=== Memory metric values ==="
+pminfo -f nixl.memory.registered \
+          nixl.memory.deregistered 2>&1
+
+echo
+echo "=== Performance metric values ==="
+pminfo -f nixl.performance.xfer_time_us \
+          nixl.performance.xfer_post_time_us 2>&1
+
+echo
+echo "=== Error metric values ==="
+pminfo -f nixl.errors.backend 2>&1
+
+pmdanixl_remove
+
+# success, all done
+status=0
+exit
