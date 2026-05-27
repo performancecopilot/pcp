@@ -23,8 +23,11 @@ on:
           - ubuntu2204
           - ubuntu2404-container
           - ubuntu2404
+          - ubuntu2604-container
+          - ubuntu2604
           - fedora42-container
           - fedora43-container
+          - fedora44-container
           - fedora-rawhide-container
           - centos-stream8-container
           - centos-stream9-container
@@ -57,8 +60,11 @@ jobs:
             {"platform": "ubuntu2204",                "os": "ubuntu-latest", "experimental": false},
             {"platform": "ubuntu2404-container",      "os": "ubuntu-latest", "experimental": false},
             {"platform": "ubuntu2404",                "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu2604-container",      "os": "ubuntu-latest", "experimental": false},
+            {"platform": "ubuntu2604",                "os": "ubuntu-latest", "experimental": false},
             {"platform": "fedora42-container",        "os": "ubuntu-22.04",  "experimental": false},
             {"platform": "fedora43-container",        "os": "ubuntu-22.04",  "experimental": false},
+            {"platform": "fedora44-container",        "os": "ubuntu-22.04",  "experimental": false},
             {"platform": "fedora-rawhide-container",  "os": "ubuntu-22.04",  "experimental": true},
             {"platform": "centos-stream8-container",  "os": "ubuntu-latest", "experimental": false},
             {"platform": "centos-stream9-container",  "os": "ubuntu-22.04",  "experimental": false},
