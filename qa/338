@@ -39,10 +39,11 @@ _notrun "current time - $now_hr:$now_min - is too close to midnight"
 
 _filter()
 {
-    if fmt -g 76 -w 76 </dev/null >/dev/null 2>&1
+    if fmt -w 64 </dev/null >/dev/null 2>&1
     then
-	# GNU fmt(1) with -g
-	cmd='fmt -g 76 -w 76'
+	# GNU fmt(1) - fmt -g reflows the archive list differently (e.g.
+	# coreutils 9.x on Ubuntu 26.04) and breaks the golden file layout
+	cmd='fmt -w 64'
     elif fmt 76 76 </dev/null >/dev/null 2>&1
     then
 	# FreeBSD fmt(1) with goal [maximum]
