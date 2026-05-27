@@ -176,6 +176,7 @@ extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsExecLock(void *) _PCP_HIDDEN;
 extern int __pmIsThrottleLock(void *) _PCP_HIDDEN;
 extern int __pmIsUnregisterLock(void *) _PCP_HIDDEN;
+extern int __pmIsExtraunitsLock(void *) _PCP_HIDDEN;
 #endif
 
 /*

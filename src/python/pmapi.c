@@ -919,14 +919,14 @@ pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
 	pmUnits		units;
 	unsigned int	uint;
     } val;
-    int dimSpace = 0, dimTime = 0, dimCount = 0, extraUnit = 0;
-    unsigned int scaleSpace = 0, scaleTime = 0, scaleCount = 0, extraScale = 0;
+    int dimSpace = 0, dimTime = 0, dimCount = 0, scaleCount = 0, extraUnit = 0;
+    unsigned int scaleSpace = 0, scaleTime = 0, extraScale = 0;
     char *keyword_list[] = {"dimSpace", "dimTime", "dimCount",
 			    "scaleSpace", "scaleTime", "scaleCount",
                             "extraUnit", "extraScale", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-		"IIIIIIII:pmUnits_int", keyword_list,
+		"iiiIIiiI:pmUnits_int", keyword_list,
 		&dimSpace, &dimTime, &dimCount,
 		&scaleSpace, &scaleTime, &scaleCount,
                 &extraUnit, &extraScale))

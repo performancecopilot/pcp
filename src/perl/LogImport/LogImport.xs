@@ -67,7 +67,7 @@ pmiUnits(dimSpace, dimTime, dimCount, scaleSpace, scaleTime, scaleCount)
 	int		dimCount;
 	unsigned int	scaleSpace;
 	unsigned int	scaleTime;
-	unsigned int	scaleCount;
+	int		scaleCount;
 
 pmUnits
 pmiExtraUnits(dimSpace, dimTime, dimCount, scaleSpace, scaleTime, scaleCount, extraUnit, extraScale)
@@ -76,7 +76,7 @@ pmiExtraUnits(dimSpace, dimTime, dimCount, scaleSpace, scaleTime, scaleCount, ex
 	int		dimCount;
 	unsigned int	scaleSpace;
 	unsigned int	scaleTime;
-	unsigned int	scaleCount;
+	int		scaleCount;
 	int		extraUnit;
 	unsigned int	extraScale;
 

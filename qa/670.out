@@ -1,5 +1,5 @@
 QA output created by 670
-1917 pmUnits tuples round-tripped.
+2364 pmUnits tuples round-tripped.
 (0,0,0,1,1,1,0,0) => "count x 10" => conv rc 0 => (0,0,1,0,0,1,0,0)*1 => "count x 10" 
 (1,-1,0,1,3,0,0,0) => "Kbyte / sec" => conv rc 0 => (1,-1,0,1,3,0,0,0)*1 => "Kbyte / sec" 
 (0,0,0,0,0,0,-1,1) => "/ temperature (C)" => conv rc 0 => (0,0,0,0,0,0,-1,1)*1 => "/ temperature (C)" 
@@ -72,3 +72,6 @@ QA output created by 670
 "Kbyte^8" => conv rc Error: sts=-12362 (space dimension out of bounds)
 "microsec^8" => conv rc Error: sts=-12362 (time dimension out of bounds)
 "count x 10^-7^-7 / count x 10^7^7" => conv rc Error: sts=-12362 (count dimension out of bounds)
+"power (kW) hour" => conv rc 0 => (0,1,0,0,5,0,4,1)*1 => "power (kW) hour"
+"current (A) / sec" => conv rc 0 => (0,-1,0,0,3,0,3,1)*1 => "current (A) / sec"
+"temperature (C) voltage (V)" => conv rc Error: sts=-12362 (multiple extra units not allowed)

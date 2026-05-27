@@ -4778,7 +4778,7 @@ series_calculate_slash(node_t *np, void *arg)
      * they are the same Unit and Scale (the result is dimensionless
      * in this case)
      */
-    if ((l_units.extraUnit != 0 || r_units.extraUnit != 0) &&
+    if ((l_units.extraUnit != 0 && r_units.extraUnit != 0) &&
         (l_units.extraUnit != r_units.extraUnit ||
 	 l_units.extraScale != r_units.extraScale)) {
 	infofmt(msg, "Different extra units not allowed with division.\n");

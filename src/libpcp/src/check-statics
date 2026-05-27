@@ -350,6 +350,7 @@ exec.o
     map				# guarded by exec_lock mutex
     nmap			# guarded by exec_lock mutex
 extraunits.o
+    extraunits_lock		# local mutex
     ?temperature_scale		# const
     ?voltage_scale		# const
     ?current_scale		# const
@@ -360,8 +361,8 @@ extraunits.o
     ?volt_conv			# const
     ?curr_conv			# const
     ?power_conv			# const
-    ?onetrip			# one-trip initialization then read-only
-    ?known_domain		# one-trip initialization then read-only
+    ?onetrip			# setup guarded by extraunits_lock mutex
+    ?known_domain		# setup guarded by extraunits_lock mutex
 fault.o
 fetchlocal.o
     splitlist			# single-threaded PM_SCOPE_DSO_PMDA

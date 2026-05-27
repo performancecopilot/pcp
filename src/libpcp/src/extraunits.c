@@ -66,6 +66,23 @@ static const unit_t extra[] = {
 
 static const int nextra = sizeof(extra)/sizeof(extra[0]);
 
+#ifdef PM_MULTI_THREAD
+static pthread_mutex_t	extraunits_lock = PTHREAD_MUTEX_INITIALIZER;
+#else
+void			*extraunits_lock;
+#endif
+
+#if defined(PM_MULTI_THREAD) && defined(PM_MULTI_THREAD_DEBUG)
+/*
+ * return true if lock == extraunits_lock
+ */
+int
+__pmIsExtraunitsLock(void *lock)
+{
+    return lock == (void *)&extraunits_lock;
+}
+#endif
+
 /*
  * extraUnit + extraScale => string for printing
  *
@@ -231,6 +248,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
     static int		known_domain[512];
     static int		onetrip = 0;	/* state of known_domain[] */
 
+    PM_LOCK(extraunits_lock);
     if (onetrip == 0) {
 	/* load known_domain[] from $PCP_VAR_DIR/pmns/stdpmid */
 	int	sep = pmPathSeparator();
@@ -269,6 +287,7 @@ int __pmCheckDesc(pmDesc *dp, char *preamble, char **errmsg)
 	    known_domain[DYNAMIC_PMID] = 1;	/* dynamic metrics */
 	}
     }
+    PM_UNLOCK(extraunits_lock);
 
     if (onetrip == 1) {
 	if (known_domain[pmID_domain(dp->pmid)] == 0) {

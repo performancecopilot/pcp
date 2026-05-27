@@ -99,6 +99,12 @@ src/units-parse parse "Kbyte^8"		# exponent overflow
 src/units-parse parse "microsec^8"	# exponent overflow
 src/units-parse parse "count x 10^-7^-7 / count x 10^7^7"	# exponent overflow
 
+# some extra units cases
+src/units-parse parse "power (kW) hour"
+src/units-parse parse "current (A) / sec"
+# some error cases
+src/units-parse parse "temperature (C) voltage (V)"
+
 # success, all done
 status=0
 exit

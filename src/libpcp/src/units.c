@@ -1205,6 +1205,8 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
     int sts = 0;
     unsigned i;
     const char *ptr;		/* scanning along str */
+    const char *tmp;		/* temporary */
+    int extra_cnt = 0;
     enum { d_none, d_space, d_time, d_count } dimension;
     struct unit_keyword_t {
 	const char	*keyword;
@@ -1338,9 +1340,19 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
 	dimension = d_none;	/* classify dimension of base unit */
 
 	/*
-	 * extra units come first ...
+	 * extra units come first ... but only 1 of 'em per part
 	 */
-	ptr = __pmParseExtraUnits(ptr, out);
+	tmp = __pmParseExtraUnits(ptr, out);
+	if (tmp != ptr) {
+	    if (extra_cnt != 0) {
+		/* oops, thanks @coderabbit */
+		sts = PM_ERR_CONV;
+		*errMsg = strdup("multiple extra units not allowed");
+		goto out;
+	    }
+	    extra_cnt++;
+	    ptr = tmp;
+	}
 	while (ptr <= str_end && isspace(*ptr))
 	    ptr++;
 	if (ptr == str_end)
@@ -1391,9 +1403,12 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
 	/* parse optional dimension exponent */
 	switch (dimension) {
 	    case d_none:
-		*errMsg = strdup("unrecognized or duplicate base unit");
-		sts = PM_ERR_CONV;
-		goto out;
+		if (extra_cnt == 0) {
+		    *errMsg = strdup("unrecognized or duplicate base unit");
+		    sts = PM_ERR_CONV;
+		    goto out;
+		}
+		break;
 
 	    case d_time:
 		if (ptr == str_end || isspace((int)(*ptr))) {

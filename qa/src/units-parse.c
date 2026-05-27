@@ -6,12 +6,12 @@
 void
 dump(pmUnits *in, pmUnits *out)
 {
-    fprintf(stderr, "(%d,%d,%d,%u,%u,%u,%d,%u)",
+    fprintf(stderr, "(%d,%d,%d,%u,%u,%d,%d,%u)",
 	   in->dimSpace, in->dimTime, in->dimCount,
 	   in->scaleSpace, in->scaleTime, in->scaleCount,
 	   in->extraUnit, in->extraScale);
     if (out != NULL) {
-	fprintf(stderr, " = > (%d,%d,%d,%u,%u,%u,%d,%u)",
+	fprintf(stderr, " = > (%d,%d,%d,%u,%u,%d,%d,%u)",
 	       out->dimSpace, out->dimTime, out->dimCount,
 	       out->scaleSpace, out->scaleTime, out->scaleCount,
 	       out->extraUnit, out->extraScale);
@@ -20,7 +20,7 @@ dump(pmUnits *in, pmUnits *out)
 }
 
 void
-pmunits_roundtrip(int print_p, int ds, int dt, int dc, int ss, int st, int sc, int x1, int x2)
+pmunits_roundtrip(int print_p, int ds, int dt, int dc, unsigned int ss, unsigned int st, int sc, int x1, unsigned int x2)
 {
     pmUnits victim = {.dimSpace = ds,
 	.dimTime = dt,
@@ -41,7 +41,7 @@ pmunits_roundtrip(int print_p, int ds, int dt, int dc, int ss, int st, int sc, i
     char *errmsg = NULL;
 
     if (pmUnitsStr_r(&victim, converted, sizeof(converted)) == NULL) {
-	fprintf(stderr, "pmUnitsStr_r(victim [%d,%d,%d,%u,%u,%u,%d,%u]) => NULL\n",
+	fprintf(stderr, "pmUnitsStr_r(victim [%d,%d,%d,%u,%u,%d,%d,%u]) => NULL\n",
 	       victim.dimSpace, victim.dimTime, victim.dimCount,
 	       victim.scaleSpace, victim.scaleTime, victim.scaleCount,
 	       victim.extraUnit, victim.extraScale);
@@ -49,7 +49,7 @@ pmunits_roundtrip(int print_p, int ds, int dt, int dc, int ss, int st, int sc, i
     }
     if ((sts = pmParseUnitsStr(converted, &reversed, &reversed_multiplier, &errmsg)) >= 0) {
 	if (pmUnitsStr_r(&reversed, convertedt, sizeof(convertedt)) == NULL) {
-	    fprintf(stderr, "pmUnitsStr_r(reversed [%d,%d,%d,%u,%u,%u,%d,%u]) => NULL\n",
+	    fprintf(stderr, "pmUnitsStr_r(reversed [%d,%d,%d,%u,%u,%d,%d,%u]) => NULL\n",
 		   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
 		   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
 		   reversed.extraUnit, reversed.extraScale);
@@ -66,7 +66,7 @@ pmunits_roundtrip(int print_p, int ds, int dt, int dc, int ss, int st, int sc, i
 	int	bad = 0;
 
 	if (print_p) {
-	    fprintf(stderr, "(%d,%d,%d,%d,%d,%d,%d,%d) => \"%s\" => conv rc %d%s%s => (%d,%d,%d,%d,%d,%d,%d,%d)*%g => \"%s\" \n",
+	    fprintf(stderr, "(%d,%d,%d,%u,%u,%d,%d,%u) => \"%s\" => conv rc %d%s%s => (%d,%d,%d,%u,%u,%d,%d,%u)*%g => \"%s\" \n",
 		   victim.dimSpace, victim.dimTime, victim.dimCount,
 		   victim.scaleSpace, victim.scaleTime, victim.scaleCount,
 		   victim.extraUnit, victim.extraScale,
@@ -172,10 +172,10 @@ pmunits_roundtrip_all(int print_p)
     for (ds = -8; ds < 8; ds += 4) {
 	for (dt = -8; dt < 8; dt +=4) {
 	    for (dc = -8; dc < 8; dc +=4) {
-		// scale X only if dim X != 0
-		for (ss = 0; ss < (ds ? 16 : 0); ss += 4) {
-		    for (st = 0; st < (dt ? 16 : 0); st +=4) {
-			for (sc = -8; sc < (dc ? 8 : -8); sc +=4) {
+		// scale X only if dim X != 0, else just do dimensionless case
+		for (ss = 0; ss < (ds ? 16 : 1); ss += 4) {
+		    for (st = 0; st < (dt ? 16 : 1); st +=4) {
+			for (sc = (dc ? -8 : 0); sc < (dc ? 8 : -7); sc +=4) {
 			    k++;
 			    pmunits_roundtrip(print_p, ds, dt, dc, ss, st, sc, 0, 0);
 			    if (ss == 0 && st == 0 && sc == 0) {
@@ -222,7 +222,7 @@ pmunits_parse(const char *str)
     }
     else {
 	if (pmUnitsStr_r(&reversed, converted, sizeof(converted)) == NULL) {
-	    fprintf(stderr, "\"%s\" => conv rc %d => (%d,%d,%d,%u,%u,%u,%d,%u)*%g => NULL\n",
+	    fprintf(stderr, "\"%s\" => conv rc %d => (%d,%d,%d,%u,%u,%d,%d,%u)*%g => NULL\n",
 		   str, sts,
 		   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
 		   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
@@ -231,7 +231,7 @@ pmunits_parse(const char *str)
 	}
 	else {
 
-	    fprintf(stderr, "\"%s\" => conv rc %d => (%d,%d,%d,%u,%u,%u,%d,%u)*%g => \"%s\"\n", str, sts,
+	    fprintf(stderr, "\"%s\" => conv rc %d => (%d,%d,%d,%u,%u,%d,%d,%u)*%g => \"%s\"\n", str, sts,
 		   reversed.dimSpace, reversed.dimTime, reversed.dimCount,
 		   reversed.scaleSpace, reversed.scaleTime, reversed.scaleCount,
 		   reversed.extraUnit, reversed.extraScale,
