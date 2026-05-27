@@ -39,8 +39,12 @@ def lmsensors_get():
 
     if args.inject:
         # we will inject sensor data from a file
-        f = open(args.inject.name, args.inject.mode)
-        output = f.read()
+        try:
+            with open(args.inject, encoding='utf-8') as f:
+                output = f.read()
+        except OSError as exc:
+            print(f"cannot read inject file {args.inject}: {exc}", file=sys.stderr)
+            sys.exit(1)
     else:
         # we will read real sensor data
         with open(os.devnull, 'w') as devnull:
@@ -117,7 +121,7 @@ class LmsensorsPMDA(PMDA):
 
 # main
 parser = argparse.ArgumentParser()
-parser.add_argument("-i", "--inject", type=argparse.FileType('r'),
+parser.add_argument("-i", "--inject", metavar="FILE",
                     help="inject data from file instead of using sensors")
 parser.add_argument("-d", "--debug", dest="debug_value", type=int, choices=[0, 1, 2],
                     help="change debug level, 0 is default")
