@@ -218,7 +218,20 @@ esac
 
 echo "Using: $configtools configure $configopts ..."
 
-eval $configtools ./configure $configopts
+if [ -x ./configure ]
+then
+    if which dh_auto_configure >/dev/null 2>&1
+    then
+	configure='dh_auto_configure --'
+    else
+	configure=./configure
+    fi
+else
+    echo "Arrgh, cannot find the configure script!"
+    exit 1
+fi
+
+eval $configtools $configure $configopts
 
 if [ ! -f src/include/pcp.conf ]
 then

@@ -57,6 +57,7 @@ _filter()
 	-e 's@\(.*\) at .*libpcp\.so.*@libpcp\1@' \
 	-e 's@src/dumpstack(@dumpstack(@' \
 	-e 's/^[ 	]*//' \
+	-e 's@^[/a-z0-9_-]*libpcp@libpcp@' \
 	-e 's/libpcp\.so\.[0-9]*/libpcp/' \
 	-e 's@^.*/libpcp(@libpcp(@' \
 	-e 's/+0x.*)/...)/' \

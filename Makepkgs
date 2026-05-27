@@ -170,6 +170,11 @@ ZIP=`gnu_tool Error "$ZIP" gzip gnuzip`; export ZIP
 [ -n "$TAR" ] && $TAR --help | 2>&1 grep -q transform || USE_GIT_ARCHIVE=1
 #debug# echo TAR=$TAR USE_GIT_ARCHIVE=$USE_GIT_ARCHIVE
 
+if [ ! -x ./configure ]
+then
+    echo "Arrgh! cannot find the configure script"
+    exit
+fi
 configure=./configure
 cmdline_configopts=''
 
