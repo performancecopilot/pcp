@@ -38,8 +38,42 @@ do
     mkdir $root || _fail "root in use when processing $tgz"
     cd $root
     $sudo tar xzf $tgz
-    base=`basename $tgz`
+    # if the tarball has restrictive mode for . (aka $root) we're
+    # screwed, so apply the big hammer
+    #
+    $sudo chmod 755 .
+    # now there are multiple cases of badness here ...
+    # 1. the files/dirs get unpacked with permissions that prevent
+    #    a non-root user from reading proc/fs/xfs/stat
+    # 2. the stat file is null-byte padded to a 4Kbyte boundary
+    #    (this may be a red herring, 1. may be the real problem,
+    #    but fix it to be sure, to be sure
+    #
+    find proc -type d -exec $sudo chmod 755 {} \;
+    find proc -type f -exec $sudo chmod 644 {} \;
+    if [ ! -f proc/fs/xfs/stat ]
+    then
+	echo "Arrgh! no proc/fs/xfs/stat"
+	ls -lR `pwd`
+	tar ztvf $tgz
+	_exit 1
+    fi
+    tr -d '\0' <proc/fs/xfs/stat >$tmp.stat
+    if cmp -s proc/fs/xfs/stat $tmp.stat
+    then
+	echo "No null byte padding, OK" >>$seq_full
+    else
+	echo "Null byte padding ..." >>$seq_full
+	ls -l $tmp.stat proc/fs/xfs/stat >>$seq_full
+	if ! $sudo cp $tmp.stat proc/fs/xfs/stat
+	then
+	    echo "Arrgh! cannot fix proc/fs/xfs/stat"
+	    _exit 1
+	fi
+    fi
+    cat proc/fs/xfs/stat >>$seq_full
 
+    base=`basename $tgz`
     echo "== Valgrind checking metric descriptors and values - $base"
     _run_valgrind pminfo -L -K clear -K add,11,$pmda -dfmtT xfs 2>&1 \
     | _filter
