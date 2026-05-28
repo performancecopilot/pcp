@@ -3033,10 +3033,14 @@ series_pmAtomValue_conv_str(int type, char *str, pmAtomValue *val, int max_len)
     case PM_TYPE_U32:
     case PM_TYPE_64:
     case PM_TYPE_U64:
+        s = pmAtomStr_r(val, type, str, max_len);
+	if (s && (isdigit((unsigned char)*s) || *s == '-' || *s == '+'))
+            return strlen(str);
+        break;
     case PM_TYPE_FLOAT:
     case PM_TYPE_DOUBLE:
         s = pmAtomStr_r(val, type, str, max_len);
-	if (s && (isdigit(*s) || *s == '-' || *s == '+'))
+        if (s != NULL)
             return strlen(str);
         break;
 
