@@ -1,0 +1,51 @@
+#!/bin/sh
+# PCP QA Test No. 1668
+# pmrep with extra units
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.python
+
+$python -c "from pcp import pmapi" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python pcp pmapi module not installed"
+$python -c "from collections import OrderedDict" >/dev/null 2>&1
+[ $? -eq 0 ] || _notrun "python collections OrderedDict module not installed"
+
+which pmrep >/dev/null 2>&1 || _notrun "pmrep not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+# real QA test starts here
+echo "some unscaled units ..."
+pmrep -a archives/extra -p -z -x -u -w 20 sample.temperature.celsius,,,'temperature (C)'
+pmrep -a archives/extra -p -z -x -u -w 20 sample.voltage.microvolt,,,'voltage (uV)'
+pmrep -a archives/extra -p -z -x -u -w 20 sample.current.milliamp,,,'current (mA)'
+pmrep -a archives/extra -p -z -x -u -w 20 sample.power.watt,,,'power (W)'
+
+echo
+echo "some rescaled units ..."
+pmrep -a archives/extra -p -z -x -u -w 20 sample.temperature.celsius,,,'temperature (K)'
+pmrep -a archives/extra -p -z -x -u -w 20 sample.voltage.microvolt,,,'voltage (V)'
+pmrep -a archives/extra -p -z -x -u -w 20 sample.current.milliamp,,,'current (A)'
+pmrep -a archives/extra -p -z -x -u -w 20 sample.power.watt,,,'power (kW)'
+
+# success, all done
+exit
