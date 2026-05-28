@@ -143,6 +143,7 @@ valkey-tools
 valgrind
 xfsprogs
 xkb-data
+zabbix-agent
 zfsutils-linux
 zlib1g-dev
 zstd
