@@ -72,11 +72,7 @@ _doit
 
 echo
 echo "=== volume 2 truncated ==="
-size=`stat 20180416.2 | sed -n -e '/Size:/{
-s/.*Size: *//
-s/ .*//
-p
-}'`
+size=`_filesize 20180416.2`
 size=`expr $size - 8`
 truncate -s $size 20180416.2
 _doit
