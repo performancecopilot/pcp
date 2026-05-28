@@ -1,16 +1,5 @@
 QA output created by 1668
 some unscaled units ...
-
-   source: archives/extra (archive)
-     host: bozo.localdomain
- timezone: UTC+10
-    start: Sat May 23 16:08:33 2026
-      end: Sat May 23 16:08:34 2026
-  metrics: 1 (1 instance)
-  samples: N/A
- interval: N/A
- duration: 00:00:01
-
                    s.t.celsius
                temperature (C)
 16:08:33                 0.000
@@ -18,17 +7,6 @@ some unscaled units ...
 16:08:34                 0.000
 16:08:34                 0.000
 16:08:34                 0.000
-
-   source: archives/extra (archive)
-     host: bozo.localdomain
- timezone: UTC+10
-    start: Sat May 23 16:08:33 2026
-      end: Sat May 23 16:08:34 2026
-  metrics: 1 (1 instance)
-  samples: N/A
- interval: N/A
- duration: 00:00:01
-
                  s.v.microvolt
                   voltage (uV)
 16:08:33         240000000.000
@@ -36,17 +14,6 @@ some unscaled units ...
 16:08:34         240000000.000
 16:08:34         240000000.000
 16:08:34         240000000.000
-
-   source: archives/extra (archive)
-     host: bozo.localdomain
- timezone: UTC+10
-    start: Sat May 23 16:08:33 2026
-      end: Sat May 23 16:08:34 2026
-  metrics: 1 (1 instance)
-  samples: N/A
- interval: N/A
- duration: 00:00:01
-
                   s.c.milliamp
                   current (mA)
 16:08:33             13000.000
@@ -54,17 +21,6 @@ some unscaled units ...
 16:08:34             13000.000
 16:08:34             13000.000
 16:08:34             13000.000
-
-   source: archives/extra (archive)
-     host: bozo.localdomain
- timezone: UTC+10
-    start: Sat May 23 16:08:33 2026
-      end: Sat May 23 16:08:34 2026
-  metrics: 1 (1 instance)
-  samples: N/A
- interval: N/A
- duration: 00:00:01
-
                       s.p.watt
                      power (W)
 16:08:33                42.000
@@ -74,17 +30,6 @@ some unscaled units ...
 16:08:34                42.000
 
 some rescaled units ...
-
-   source: archives/extra (archive)
-     host: bozo.localdomain
- timezone: UTC+10
-    start: Sat May 23 16:08:33 2026
-      end: Sat May 23 16:08:34 2026
-  metrics: 1 (1 instance)
-  samples: N/A
- interval: N/A
- duration: 00:00:01
-
                    s.t.celsius
                temperature (K)
 16:08:33               273.150
@@ -92,17 +37,6 @@ some rescaled units ...
 16:08:34               273.150
 16:08:34               273.150
 16:08:34               273.150
-
-   source: archives/extra (archive)
-     host: bozo.localdomain
- timezone: UTC+10
-    start: Sat May 23 16:08:33 2026
-      end: Sat May 23 16:08:34 2026
-  metrics: 1 (1 instance)
-  samples: N/A
- interval: N/A
- duration: 00:00:01
-
                  s.v.microvolt
                    voltage (V)
 16:08:33               240.000
@@ -110,17 +44,6 @@ some rescaled units ...
 16:08:34               240.000
 16:08:34               240.000
 16:08:34               240.000
-
-   source: archives/extra (archive)
-     host: bozo.localdomain
- timezone: UTC+10
-    start: Sat May 23 16:08:33 2026
-      end: Sat May 23 16:08:34 2026
-  metrics: 1 (1 instance)
-  samples: N/A
- interval: N/A
- duration: 00:00:01
-
                   s.c.milliamp
                    current (A)
 16:08:33                13.000
@@ -128,17 +51,6 @@ some rescaled units ...
 16:08:34                13.000
 16:08:34                13.000
 16:08:34                13.000
-
-   source: archives/extra (archive)
-     host: bozo.localdomain
- timezone: UTC+10
-    start: Sat May 23 16:08:33 2026
-      end: Sat May 23 16:08:34 2026
-  metrics: 1 (1 instance)
-  samples: N/A
- interval: N/A
- duration: 00:00:01
-
                       s.p.watt
                     power (kW)
 16:08:33                 0.042

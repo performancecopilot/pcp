@@ -35,17 +35,17 @@ _filter()
 
 # real QA test starts here
 echo "some unscaled units ..."
-pmrep -a archives/extra -p -z -x -u -w 20 sample.temperature.celsius,,,'temperature (C)'
-pmrep -a archives/extra -p -z -x -u -w 20 sample.voltage.microvolt,,,'voltage (uV)'
-pmrep -a archives/extra -p -z -x -u -w 20 sample.current.milliamp,,,'current (mA)'
-pmrep -a archives/extra -p -z -x -u -w 20 sample.power.watt,,,'power (W)'
+pmrep -a archives/extra -p -z -u -w 20 sample.temperature.celsius,,,'temperature (C)'
+pmrep -a archives/extra -p -z -u -w 20 sample.voltage.microvolt,,,'voltage (uV)'
+pmrep -a archives/extra -p -z -u -w 20 sample.current.milliamp,,,'current (mA)'
+pmrep -a archives/extra -p -z -u -w 20 sample.power.watt,,,'power (W)'
 
 echo
 echo "some rescaled units ..."
-pmrep -a archives/extra -p -z -x -u -w 20 sample.temperature.celsius,,,'temperature (K)'
-pmrep -a archives/extra -p -z -x -u -w 20 sample.voltage.microvolt,,,'voltage (V)'
-pmrep -a archives/extra -p -z -x -u -w 20 sample.current.milliamp,,,'current (A)'
-pmrep -a archives/extra -p -z -x -u -w 20 sample.power.watt,,,'power (kW)'
+pmrep -a archives/extra -p -z -u -w 20 sample.temperature.celsius,,,'temperature (K)'
+pmrep -a archives/extra -p -z -u -w 20 sample.voltage.microvolt,,,'voltage (V)'
+pmrep -a archives/extra -p -z -u -w 20 sample.current.milliamp,,,'current (A)'
+pmrep -a archives/extra -p -z -u -w 20 sample.power.watt,,,'power (kW)'
 
 # success, all done
 exit
