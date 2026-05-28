@@ -82,12 +82,13 @@ _filesize()
 	# stat(1) format
 	#   File: `441'
 	#   Size: 2016      	Blocks: 8          IO Block: 4096   regular file
+	# (newer GNU coreutils uses "size:" instead of "Size:")
 	# Device: 816h/2070d	Inode: 758237      Links: 1
 	# Access: (0755/-rwxr-xr-x)  Uid: ( 1000/    kenj)   Gid: ( 1000/    kenj)
 	# Access: 2011-05-09 06:52:58.000000000 +1000
 	# Modify: 2011-02-27 14:42:30.000000000 +1100
 	# Change: 2011-02-28 19:21:27.000000000 +1100
-	stat "$__filename" 2>&1 | $PCP_AWK_PROG '$1 == "Size:" { print $2 }'
+	stat "$__filename" 2>&1 | $PCP_AWK_PROG 'tolower($1) == "size:" { print $2 }'
     fi
 }
 

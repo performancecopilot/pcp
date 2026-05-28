@@ -57,6 +57,8 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #	not:
 #	  mkdir: cannot create directory '/eek/': Permission denied
 #                                        ^    ^^
+#	and uutils coreutils (Ubuntu 26.04) reports:
+#	  mkdir: Permission denied
 #
 _filter()
 {
@@ -77,6 +79,7 @@ _filter()
 	-e "/mkdir/s/: '/: /g" \
 	-e "/mkdir/s/\/': /: /g" \
 	-e "/mkdir/s/': /: /g" \
+	-e 's/^mkdir:.*Permission denied$/mkdir: Permission denied/' \
     | $PCP_AWK_PROG '
 /-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \
