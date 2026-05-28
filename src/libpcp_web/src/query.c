@@ -4813,7 +4813,18 @@ series_calculate_slash(node_t *np, void *arg)
     large_units.dimSpace = l_units.dimSpace - r_units.dimSpace;
     large_units.dimTime = l_units.dimTime - r_units.dimTime;
     large_units.extraUnit = l_units.extraUnit - r_units.extraUnit;
-    large_units.extraScale = 0;
+    if (large_units.extraUnit == 0) {
+	/* extra units are identical => dimensionless */
+	large_units.extraScale = 0;
+    }
+    else if (l_units.extraUnit != 0 && r_units.extraUnit == 0) {
+	/* propagate extrScale from dividend */
+	large_units.extraScale = l_units.extraScale;
+    }
+    else if (l_units.extraUnit == 0 && r_units.extraUnit != 0) {
+	/* propagate extraScale from divisor */
+	large_units.extraScale = r_units.extraScale;
+    }
 
     series_binary_meta_update(left, &large_units, &l_sem, &r_sem, &otype);
     np->value_set = left->value_set;
