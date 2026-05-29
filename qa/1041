@@ -34,10 +34,28 @@ $python -c "import libvirt" >/dev/null 2>&1
 $python -c "import lxml" >/dev/null 2>&1
 [ $? -eq 0 ] || _notrun "python lxml module not installed"
 
+# libvirtd must be installed (systemd unit or rc script)
+#
+[ -f $PCP_SYSTEMDUNIT_DIR/libvirtd.service -o -f $PCP_RC_DIR/libvirtd ] \
+    || _notrun "libvirtd not installed"
+
 # start libvirtd
 #
-if ! _service libvirtd start >$seq_full 2>&1; then _exit 1; fi
-[ -e /var/run/libvirt/libvirt-sock-ro ] || _notrun "no socket, libvirtd not running?"
+if ! _service libvirtd start >>$seq_full 2>&1
+then
+    _notrun "libvirtd could not be started"
+fi
+[ -e /run/libvirt/libvirt-sock-ro -o -e /var/run/libvirt/libvirt-sock-ro ] \
+    || _notrun "no libvirt socket, libvirtd not running?"
+
+$python -c "
+import libvirt
+conn = libvirt.openReadOnly('qemu:///system')
+if conn is None:
+    raise SystemExit(1)
+conn.close()
+" >/dev/null 2>&1 \
+    || _notrun "no libvirt qemu:///system connection driver available"
 
 status=1	# failure is the default!
 
@@ -70,7 +88,7 @@ EOF
     echo
     echo "=== libvirt agent installation ==="
     PCPQA_CHECK_DELAY=10; export PCPQA_CHECK_DELAY
-    $sudo ./Install </dev/null >$tmp.out 2>&1
+    $sudo env PCPQA_CHECK_DELAY=$PCPQA_CHECK_DELAY ./Install </dev/null >$tmp.out 2>&1
     cat $tmp.out >>$seq_full
     # Check metrics have appeared ... X metrics and Y values
     # skip lines like ...

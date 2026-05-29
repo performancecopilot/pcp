@@ -1021,8 +1021,11 @@ _wait_for_pmlogger()
 	then
 	    # pmlogger socket has been set up ...
 	    __dead=false
-	    echo "_wait_for_pmlogger() success at iter $__i ..." >>$seq_full
-	    cat $tmp._wait_for_pmlogger.tmp >>$seq_full
+	    if [ -n "$seq_full" ]
+	    then
+		echo "_wait_for_pmlogger() success at iter $__i ..." >>$seq_full
+		cat $tmp._wait_for_pmlogger.tmp >>$seq_full
+	    fi
 	    # give pmlogger a chance to detect that pmlc has gone away
 	    # so the port is free
 	    pmsleep 0.25

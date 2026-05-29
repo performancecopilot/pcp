@@ -77,6 +77,8 @@ _filter()
 		-e '/pmcd\[[0-9]*]: .*\/pmcd: .* cannot start pmcd/d' \
 		-e '/pmcd\[[0-9]*]: pmprobe: Cannot connect to PMCD on host "local:"/d' \
 		-e '/systemctl\[[0-9]*]: .* pmcd\.service changed on disk/d' \
+		-e '/pmcd\[[0-9]*]: .*OpenRequestSocket(.*, \/tmp\/[0-9]*-[0-9]*\.socket, unix).*Address already in use/d' \
+		-e '/pmcd\[[0-9]*]: .*pmcd may already be running/d' \
 	    #end
 	    ;;
 

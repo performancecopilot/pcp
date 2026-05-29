@@ -138,7 +138,15 @@ do
     min_set=`expr 10 - $now_min`
     [ "$min_set" -ge 0 ] && min_set="+$min_set"
     namea=`pmdate -${day}d ${hr_set}H ${min_set}M %Y%m%d`
-    stampa=`echo $namea | sed -e 's/\.//g'`0010
+    if [ $day -ge 5 ]
+    then
+	# find-filter mtime +5 discards archives strictly older than 5*24
+	# hours from "now".  00:10 on the calendar day $day days ago can
+	# be just inside that window when QA runs soon after midnight.
+	stampa=`pmdate -${day}d -25H +10M %Y%m%d%H%M`
+    else
+	stampa=`echo $namea | sed -e 's/\.//g'`0010
+    fi
     echo "s/$namea/TODAY-$day/g" >>$tmp/sed
 
     for ext in 0 index meta
