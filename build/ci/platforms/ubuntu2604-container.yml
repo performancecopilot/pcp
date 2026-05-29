@@ -11,7 +11,8 @@ artifactory:
 container:
   containerfile: |
     FROM docker.io/library/ubuntu:26.04
-    RUN apt-get update && apt-get install -y systemd sudo
+    RUN apt-get update && apt-get install -y systemd sudo \
+     && update-alternatives --set sudo /usr/bin/sudo.ws
     RUN useradd --create-home pcpbuild
     RUN echo 'pcpbuild ALL=(ALL) NOPASSWD: ALL' > /etc/sudoers.d/pcpbuild
 
