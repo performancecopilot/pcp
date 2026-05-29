@@ -174,133 +174,133 @@ Running diff TMP.original.txt TMP.extracted.txt
 255c255
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 258c258
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 261c261
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 264c264
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 339c339
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 342c342
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 414c414
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 417c417
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 420c420
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 426c426
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 441c441
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 456c456
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 735c735
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 1083c1083
 <     Data Type: float  InDom: 60.0 0xf000000
 ---
->     Data Type: float  InDom: 200.0 0x32000000
+>     Data Type: float  InDom: 251.0 0x3ec00000
 1086c1086
 <     Data Type: string  InDom: 60.0 0xf000000
 ---
->     Data Type: string  InDom: 200.0 0x32000000
+>     Data Type: string  InDom: 251.0 0x3ec00000
 1089c1089
 <     Data Type: string  InDom: 60.0 0xf000000
 ---
->     Data Type: string  InDom: 200.0 0x32000000
+>     Data Type: string  InDom: 251.0 0x3ec00000
 1092c1092
 <     Data Type: string  InDom: 60.0 0xf000000
 ---
->     Data Type: string  InDom: 200.0 0x32000000
+>     Data Type: string  InDom: 251.0 0x3ec00000
 1095c1095
 <     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 32-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
 1098c1098
 <     Data Type: float  InDom: 60.0 0xf000000
 ---
->     Data Type: float  InDom: 200.0 0x32000000
+>     Data Type: float  InDom: 251.0 0x3ec00000
 1101c1101
 <     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 32-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
 1107c1107
 <     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 32-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
 1110c1110
 <     Data Type: string  InDom: 60.0 0xf000000
 ---
->     Data Type: string  InDom: 200.0 0x32000000
+>     Data Type: string  InDom: 251.0 0x3ec00000
 1113c1113
 <     Data Type: string  InDom: 60.0 0xf000000
 ---
->     Data Type: string  InDom: 200.0 0x32000000
+>     Data Type: string  InDom: 251.0 0x3ec00000
 1116c1116
 <     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 32-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
 1314c1314
 <     Data Type: 32-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 32-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 32-bit unsigned int  InDom: 251.0 0x3ec00000
 1338c1338
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 1341c1341
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 1344c1344
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 1347c1347
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 1350c1350
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 1353c1353
 <     Data Type: 64-bit unsigned int  InDom: 60.0 0xf000000
 ---
->     Data Type: 64-bit unsigned int  InDom: 200.0 0x32000000
+>     Data Type: 64-bit unsigned int  InDom: 251.0 0x3ec00000
 1525,1527d1524
 <     InDom 60.0 labels (44 bytes): {"device_type":"cpu","indom_name":"per cpu"}
 <         [0] name(2,11) : value(15,5) [indom]
 <         [1] name(22,10) : value(34,9) [indom]
 1533a1531,1533
->     InDom 200.0 labels (44 bytes): {"device_type":"cpu","indom_name":"per cpu"}
+>     InDom 251.0 labels (44 bytes): {"device_type":"cpu","indom_name":"per cpu"}
 >         [0] name(2,11) : value(15,5) [indom]
 >         [1] name(22,10) : value(34,9) [indom]
 2146,2153d2145
@@ -313,13 +313,13 @@ Running diff TMP.original.txt TMP.extracted.txt
 <     InDom 60.0[3] labels (9 bytes): {"cpu":3}
 <         [0] name(2,3) : value(7,1) [instances]
 2176a2169,2176
->     InDom 200.0[3] labels (9 bytes): {"cpu":3}
+>     InDom 251.0[3] labels (9 bytes): {"cpu":3}
 >         [0] name(2,3) : value(7,1) [instances]
->     InDom 200.0[2] labels (9 bytes): {"cpu":2}
+>     InDom 251.0[2] labels (9 bytes): {"cpu":2}
 >         [0] name(2,3) : value(7,1) [instances]
->     InDom 200.0[1] labels (9 bytes): {"cpu":1}
+>     InDom 251.0[1] labels (9 bytes): {"cpu":1}
 >         [0] name(2,3) : value(7,1) [instances]
->     InDom 200.0[0] labels (9 bytes): {"cpu":0}
+>     InDom 251.0[0] labels (9 bytes): {"cpu":0}
 >         [0] name(2,3) : value(7,1) [instances]
 10869,10874d10868
 < InDom: 60.0
@@ -329,7 +329,7 @@ Running diff TMP.original.txt TMP.extracted.txt
 <    2 or "cpu2"
 <    3 or "cpu3"
 10962a10957,10962
-> InDom: 200.0
+> InDom: 251.0
 > 08:40:29.125510 4 instances
 >    0 or "cpu0"
 >    1 or "cpu1"

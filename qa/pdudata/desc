@@ -15,7 +15,7 @@
 
 # desc: len type from pmid type indom sem units
 # OK
-? PDU_DESC 42 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0)
+? PDU_DESC 42 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0.0.0)
 
 # desc: len type from pmid type indom sem
 # BAD short PDU
@@ -23,5 +23,5 @@
 
 # desc: len type from pmid type indom sem units extra
 # BAD long PDU
-? PDU_DESC 42 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0) 0xdeadbeef
+? PDU_DESC 42 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0.0.0) 0xdeadbeef
 

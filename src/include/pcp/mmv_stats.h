@@ -116,11 +116,8 @@ typedef enum mmv_value_type {
     MMV_MAP_TYPE   	= 0x6,	
 } mmv_value_type_t;
 
-#ifdef HAVE_BITFIELDS_LTOR
-#define MMV_UNITS(a,b,c,d,e,f)	{a,b,c,d,e,f,0}
-#else
-#define MMV_UNITS(a,b,c,d,e,f)	{0,f,e,d,c,b,a}
-#endif
+#define MMV_UNITS(a,b,c,d,e,f) {.dimSpace=a, .dimTime=b, .dimCount=c, .scaleSpace=d, .scaleTime=e, .scaleCount=f}
+#define MMV_EXTRAUNITS(a,b,c,d,e,f,g,h) {.dimSpace=a, .dimTime=b, .dimCount=c, .scaleSpace=d, .scaleTime=e, .scaleCount=f, .extraUnit=g, .extraScale=h}
 
 struct mmv_registry;
 typedef struct mmv_registry mmv_registry_t;

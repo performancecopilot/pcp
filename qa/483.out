@@ -1,4 +1,7 @@
 QA output created by 483
+Warning [TMP.conf, line 20]
+irix.kernel.all.load: Warning: domain (4) in metric pmid (4.5.6) different to domain (1) in metric indom (1.10)
+
 PCP Archive Rewrite Specifications Summary
 Hostname:	rattle -> whizz-bang.engr.sgi.com
 Timezone:	EST-11 -> GMT+10
@@ -239,6 +242,9 @@ Specification error in configuration file (TMP.conf)
 [line 1] Duplicate type clause for metric hinv.ncpu
 
 === metric irix.kernel.all.load { indom -> 2.1 } ===
+Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (1) in metric pmid (1.18.3) different to domain (2) in metric indom (2.1)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: irix.kernel.all.load (1.18.3)
@@ -249,6 +255,9 @@ Semantic error in configuration file (TMP.conf)
 New indom (1.3) for metric irix.kernel.all.load is not in the output archive
 
 === metric irix.kernel.all.load { indom -> 42.* } ===
+Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (1) in metric pmid (1.18.3) different to domain (42) in metric indom (42.5)
+
 Semantic error in configuration file (TMP.conf)
 New indom (42.5) for metric irix.kernel.all.load is not in the output archive
 
@@ -323,6 +332,9 @@ Output:		average value (output instance 0)
 
 === metric irix.kernel.all.load { indom -> 2.1 output inst 123 } ===
 Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (1) in metric pmid (1.18.3) different to domain (2) in metric indom (2.1)
+
+Warning [TMP.conf, line 2]
 Instance 123 from OUTPUT clause not found in old indom 1.5
 Warning [TMP.conf, line 2]
 Instance 123 from OUTPUT clause not found in new indom 2.1
@@ -337,6 +349,9 @@ Semantic error in configuration file (TMP.conf)
 Conflicting indom change for metric irix.kernel.all.load (42.42 from metric clause, 33.33 from indom clause)
 
 === metric pmcd.pmlogger.port { indom -> 60.* } ===
+Warning [TMP.conf, line 2]
+pmcd.pmlogger.port: Warning: domain (2) in metric pmid (2.3.0) different to domain (60) in metric indom (60.1)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.port (2.3.0)
@@ -616,6 +631,9 @@ InDom:		1.5 -> 42.5
 Semantics:	instant -> discrete
 
 === metric 1.*.* { pmid -> 7.*.* } ===
+Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (7) in metric pmid (7.18.3) different to domain (1) in metric indom (1.5)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
@@ -628,6 +646,9 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 7.18.3
 
 === metric 1.*.* { pmid -> 8.9.* } ===
+Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (8) in metric pmid (8.9.3) different to domain (1) in metric indom (1.5)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
@@ -640,6 +661,9 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 8.9.3
 
 === metric 1.*.* { pmid -> 10.11.12 } ===
+Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (10) in metric pmid (10.11.12) different to domain (1) in metric indom (1.5)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ndisk (1.26.7)
@@ -652,6 +676,9 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 10.11.12
 
 === metric 1.18.* { pmid -> 7.*.* } ===
+Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (7) in metric pmid (7.18.3) different to domain (1) in metric indom (1.5)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
@@ -661,6 +688,9 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 7.18.3
 
 === metric 1.18.* { pmid -> 8.9.* } ===
+Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (8) in metric pmid (8.9.3) different to domain (1) in metric indom (1.5)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
@@ -670,6 +700,9 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 8.9.3
 
 === metric 1.18.* { pmid -> 10.11.12 } ===
+Warning [TMP.conf, line 2]
+irix.kernel.all.load: Warning: domain (10) in metric pmid (10.11.12) different to domain (1) in metric indom (1.5)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: hinv.ncpu (1.18.2)
@@ -679,19 +712,43 @@ Metric: irix.kernel.all.load (1.18.3)
 pmID:		1.18.3 -> 10.11.12
 
 === metric 2.3.2 { pmid -> 7.*.* } ===
+Warning [TMP.conf, line 2]
+pmcd.pmlogger.archive: Warning: domain (7) in metric pmid (7.3.2) different to domain (2) in metric indom (2.1)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 7.3.2
 
 === metric 2.3.2 { pmid -> 8.9.* } ===
+Warning [TMP.conf, line 2]
+pmcd.pmlogger.archive: Warning: domain (8) in metric pmid (8.9.2) different to domain (2) in metric indom (2.1)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 8.9.2
 
 === metric 2.3.2 { pmid -> 10.11.12 } ===
+Warning [TMP.conf, line 2]
+pmcd.pmlogger.archive: Warning: domain (10) in metric pmid (10.11.12) different to domain (2) in metric indom (2.1)
+
 PCP Archive Rewrite Specifications Summary
 
 Metric: pmcd.pmlogger.archive (2.3.2)
 pmID:		2.3.2 -> 10.11.12
+
+sample.temperature.celsius
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (C)
+    value 0
+
+sample.temperature.fahrenheit
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: voltage (mV) byte / sec
+    value 32
+
+sample.temperature.kelvin
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (K)
+    value 237.14999

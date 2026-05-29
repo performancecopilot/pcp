@@ -404,6 +404,32 @@ static pmDesc	desctab[] = {
     { PMDA_PMID(0,170), PM_TYPE_32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
 /* updown.control.reset */
     { PMDA_PMID(0,171), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_PMUNITS(0,0,0,0,0,0) },
+/* sample.temperature.celsius */
+    { PMDA_PMID(0,172), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_C) },
+/* sample.temperature.fahrenheit */
+    { PMDA_PMID(0,173), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_F) },
+/* sample.temperature.kelvin */
+    { PMDA_PMID(0,174), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_K) },
+/* sample.voltage.volt */
+    { PMDA_PMID(0,175), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_VOLTAGE, PM_VOLTAGE_V) },
+/* sample.voltage.millivolt */
+    { PMDA_PMID(0,176), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_VOLTAGE, PM_VOLTAGE_mV) },
+/* sample.voltage.microvolt */
+    { PMDA_PMID(0,177), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_VOLTAGE, PM_VOLTAGE_uV) },
+/* sample.current.amp */
+    { PMDA_PMID(0,178), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_CURRENT, PM_CURRENT_A) },
+/* sample.current.milliamp */
+    { PMDA_PMID(0,179), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_CURRENT, PM_CURRENT_mA) },
+/* sample.current.microamp */
+    { PMDA_PMID(0,180), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_CURRENT, PM_CURRENT_uA) },
+/* sample.power.kilowatt */
+    { PMDA_PMID(0,181), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_kW) },
+/* sample.power.watt */
+    { PMDA_PMID(0,182), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_W) },
+/* sample.power.milliwatt */
+    { PMDA_PMID(0,183), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_mW) },
+/* sample.power.microwatt */
+    { PMDA_PMID(0,184), PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_uW) },
 
 /*
  * dynamic PMNS ones
@@ -749,6 +775,11 @@ static int	_bin_val[] = { 100, 200, 300, 400, 500, 600, 700, 800, 900 };
 
 static struct timeval mirage_ctl = { 0, 0 };
 static struct timeval mirage_reset = { 10, 0 };
+
+static float	temperature = 0;	/* celsius, default is freezing water */
+static float	voltage = 240;		/* AC in most places */
+static float	current = 13;		/* lucky for some */
+static float	power = 42;		/* answer to the ultimate question of life, the universe, and everything */
 
 /*
  * increment == 1 to add 1 to _dyn_ctr[] values
@@ -2711,6 +2742,58 @@ doit:
 			atom.ul = 0;
 			break;
 
+		    case 172:	/* sample.temperature.celsius */
+			atom.f = temperature;
+			break;
+
+		    case 173:	/* sample.temperature.fahrenheit */
+			atom.f = 32 + 1.8 * temperature;
+			break;
+
+		    case 174:	/* sample.temperature.kelvin */
+			atom.f = temperature + 273.15;
+			break;
+
+		    case 175:	/* sample.voltage.volt */
+			atom.f = voltage;
+			break;
+
+		    case 176:	/* sample.voltage.millivolt */
+			atom.f = voltage * 1000;
+			break;
+
+		    case 177:	/* sample.voltage.microvolt */
+			atom.f = voltage * 1000000;
+			break;
+
+		    case 178:	/* sample.current.amp */
+			atom.f = current;
+			break;
+
+		    case 179:	/* sample.current.milliamp */
+			atom.f = current * 1000;
+			break;
+
+		    case 180:	/* sample.current.microamp */
+			atom.f = current * 1000000;
+			break;
+
+		    case 181:	/* sample.power.kilowatt */
+			atom.f = power / 1000;
+			break;
+
+		    case 182:	/* sample.power.watt */
+			atom.f = power;
+			break;
+
+		    case 183:	/* sample.power.milliwatt */
+			atom.f = power * 1000;
+			break;
+
+		    case 184:	/* sample.power.microwatt */
+			atom.f = power * 1000000;
+			break;
+
 		    case 1000:	/* secret.bar */
 			atom.cp = "foo";
 			break;
@@ -3049,6 +3132,19 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 	    case 143:	/* negative.ctr.m_float */
 	    case 147:	/* negative.instant.m_float */
 	    case 151:	/* negative.discrete.m_float */
+	    case 172:	/* sample.temperature.celsius */
+	    case 173:	/* sample.temperature.fahrenheit */
+	    case 174:	/* sample.temperature.kelvin */
+	    case 175:	/* sample.voltage.volt */
+	    case 176:	/* sample.voltage.millivolt */
+	    case 177:	/* sample.voltage.microvolt */
+	    case 178:	/* sample.current.amp */
+	    case 179:	/* sample.current.milliamp */
+	    case 180:	/* sample.current.microamp */
+	    case 181:	/* sample.power.kilowatt */
+	    case 182:	/* sample.power.watt */
+	    case 183:	/* sample.power.milliwatt */
+	    case 184:	/* sample.power.microwatt */
 		if (vsp->numval != 1)
 		    sts = PM_ERR_BADSTORE;
 		/* accommodate both old and new encoding styles for floats */
@@ -3298,6 +3394,45 @@ sample_store(pmdaResult *result, pmdaExt *ep)
 		updown_min = 0;
 		updown_max = 200;
 		updown_step = 10;
+		break;
+	    case 172:	/* sample.temperature.celsius */
+		temperature = av.f;
+		break;
+	    case 173:	/* sample.temperature.fahrenheit */
+		temperature = (av.f - 32) / 1.8;
+		break;
+	    case 174:	/* sample.temperature.kelvin */
+		temperature = av.f - 273.15;
+		break;
+	    case 175:	/* sample.voltage.volt */
+		voltage = av.f;
+		break;
+	    case 176:	/* sample.voltage.millivolt */
+		voltage = av.f / 1000;
+		break;
+	    case 177:	/* sample.voltage.microvolt */
+		voltage = av.f / 1000000;
+		break;
+	    case 178:	/* sample.current.amp */
+		current = av.f;
+		break;
+	    case 179:	/* sample.current.milliamp */
+		current = av.f / 1000;
+		break;
+	    case 180:	/* sample.current.microamp */
+		current = av.f / 1000000;
+		break;
+	    case 181:	/* sample.power.kilowatt */
+		power = av.f * 1000;
+		break;
+	    case 182:	/* sample.power.watt */
+		power = av.f;
+		break;
+	    case 183:	/* sample.power.milliwatt */
+		power = av.f / 1000;
+		break;
+	    case 184:	/* sample.power.microwatt */
+		power = av.f / 1000000;
 		break;
 	    case 1008:	/* ghosts.visible */
 		visible_ghosts = av.l;

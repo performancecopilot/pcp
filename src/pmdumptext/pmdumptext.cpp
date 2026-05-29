@@ -125,6 +125,8 @@ checkUnits(QmcMetric *metric)
     if (rawFlag)
 	return;
 
+    memset(&units, 0, sizeof(units));
+
     // Change to canonical bytes
     if (desc.units.dimTime == 0 &&
 	     desc.units.dimSpace == 1 &&

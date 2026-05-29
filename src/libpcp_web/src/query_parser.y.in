@@ -2519,11 +2519,15 @@ series_dumpexpr(node_t *np, int level)
 	char	strbuf[60];
 
 	if (pmUnitsStr_r(&np->meta.units, strbuf, sizeof(strbuf)) == NULL)
-	    fprintf(stderr, " [bad units: %d %d %d %d %d %d]",
-			np->meta.units.scaleCount, np->meta.units.scaleTime,
+	    fprintf(stderr, " [bad units: %d %d %d %u %u %u %d %u]",
+			np->meta.units.dimSpace,
+			np->meta.units.dimTime,
+			np->meta.units.dimCount,
 			np->meta.units.scaleSpace,
-			np->meta.units.dimCount, np->meta.units.dimTime,
-			np->meta.units.dimSpace);
+			np->meta.units.scaleTime,
+			np->meta.units.scaleCount,
+			np->meta.units.extraUnit,
+			np->meta.units.extraScale);
 	else
 	    fprintf(stderr, " [%s]", strbuf);
 	break;

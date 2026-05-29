@@ -65,14 +65,14 @@ static struct {
 
 static pmDesc		desc = {
     0xdeadbeef, PM_TYPE_64, 0xface, PM_SEM_COUNTER,
-	{ 1, -1 , 0, PM_SPACE_MBYTE, PM_TIME_HOUR, 0 }
+	{ .dimSpace=1, .dimTime=-1, .scaleSpace=PM_SPACE_MBYTE, .scaleTime=PM_TIME_HOUR }
 };
 
 static pmDesc		desclist[] = { {
     0xdeadbeef, PM_TYPE_64, 0xface, PM_SEM_COUNTER,
-	{ 1, -1 , 0, PM_SPACE_MBYTE, PM_TIME_HOUR, 0 } }, {
+	{ .dimSpace=1, .dimTime=-1, .scaleSpace=PM_SPACE_MBYTE, .scaleTime=PM_TIME_HOUR } }, {
     0xfeedbabe, PM_TYPE_32, 0xcafe, PM_SEM_INSTANT,
-	{ 1, -1 , 0, PM_SPACE_KBYTE, PM_TIME_MSEC, 0 } }
+	{ .dimSpace=1, .dimTime=-1, .scaleSpace=PM_SPACE_KBYTE, .scaleTime=PM_TIME_MSEC } }
 };
 
 __pmLoggerStatus	logstat;

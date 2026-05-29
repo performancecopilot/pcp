@@ -1,0 +1,116 @@
+#!/bin/sh
+# PCP QA Test No. 1667
+# derived metrics with extra units
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+export PCP_DERIVED_CONFIG=$tmp.config
+
+# real QA test starts here
+
+cat <<End-of-File >$tmp.config
+qa.volt.mV = sample.voltage.millivolt
+qa.volt.V = rescale(sample.voltage.millivolt, "voltage (V)")
+qa.volt.arith = sample.voltage.millivolt + rescale(sample.voltage.millivolt / 1000, "voltage (mV)")
+qa.volt.rescale = rescale(sample.voltage.millivolt, "voltage (V)") + sample.voltage.volt
+qa.temp.c2f = rescale(sample.temperature.celsius, "temperature (F)")
+qa.temp.boiling = rescale(mkconst(212, units="temperature (F)"), "temperature (C)")
+qa.energy = sample.power.kilowatt * mkconst(24, units="hour")
+qa.odd.one = sample.bigid / sample.temperature.fahrenheit
+qa.odd.two = sample.temperature.celsius * sample.bigid
+qa.odd.three = sample.current.amp / (rescale(sample.current.milliamp, "current (A)") + rescale(sample.current.microamp, "current (A)"))
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pminfo -df qa
+else
+    pminfo -df qa 2>&1
+fi \
+| _filter
+
+echo
+echo "Some corner cases ..."
+
+cat <<End-of-File >$tmp.config
+qa.const.a = sample.temperature.fahrenheit * 2
+qa.const.b = 2 * sample.temperature.fahrenheit
+qa.const.c = sample.temperature.fahrenheit / 2
+qa.const.d = 128 / sample.temperature.fahrenheit
+qa.none.a = sample.temperature.fahrenheit * sampledso.long.ten
+qa.none.b = sampledso.long.ten * sample.temperature.fahrenheit
+qa.none.c = sample.temperature.fahrenheit / sampledso.long.ten
+qa.none.d = sampledso.long.hundred / sample.temperature.fahrenheit
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pminfo -Dderive -df qa
+else
+    pminfo -Dderive -df qa 2>&1
+fi \
+| _filter
+
+echo
+echo "Some error cases ..."
+
+cat <<End-of-File >$tmp.config
+qa.bad.a = sample.voltage.millivolt + sample.byte_rate
+qa.bad.b = sample.voltage.volt + sample.voltage.millivolt
+qa.bad.c = sample.temperature.celsius + sample.step
+qa.bad.d = sample.step - sample.temperature.celsius
+qa.bad.e = sample.temperature.celsius + sample.current.amp
+qa.bad.f = sample.current.amp - sample.temperature.celsius
+qa.bad.g = sample.temperature.celsius * sample.current.amp
+qa.bad.h = sample.current.amp / sample.temperature.celsius
+End-of-File
+
+if $do_valgrind
+then
+    _run_valgrind pminfo -df qa
+else
+    pminfo -df qa 2>&1
+fi \
+| _filter
+
+# success, all done
+exit

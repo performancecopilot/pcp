@@ -315,6 +315,8 @@ ruleExpr(Expr *cond, Expr *act)
     x = newExpr(RULE, cond, act, -1, -1, -1, 1, SEM_BOOLEAN);
     newRingBfr(x);
     findEval(x);
+    instExpr(x);
+
     return x;
 }
 
@@ -452,6 +454,7 @@ relExpr(int op, Expr *arg1, Expr *arg2)
 	    *((char *)x->ring + i) = B_UNKNOWN;
     }
     findEval(x);
+    instExpr(x);
 
     /* evaluate constant expression now */
     evalConst(x);
@@ -512,6 +515,7 @@ binaryExpr(int op, Expr *arg1, Expr *arg2)
     }
     newRingBfr(x);
     findEval(x);
+    instExpr(x);
 
     /* evaluate constant expression now */
     evalConst(x);
@@ -533,6 +537,7 @@ unaryExpr(int op, Expr *arg)
     x = newExpr(op, arg, NULL, arg->hdom, arg->e_idom, arg->tdom, abs(arg->tdom), arg->sem);
     newRingBfr(x);
     findEval(x);
+    instExpr(x);
 
     /* evaluate constant expression now */
     evalConst(x);
@@ -614,9 +619,13 @@ domainExpr(int op, int dom, Expr *arg)
     }
 
     if (op == CND_COUNT_HOST) {
+	/*
+	 * Note: this is *really* all of CND_COUNT_HOST (dom == 0), 
+	 * 	 CND_COUNT_INST (dom == 1) and CND_COUNT_TIME (dom == 2)
+	 */
 	x = newExpr(op + dom, arg, NULL, hdom, idom, tdom, abs(tdom), PM_SEM_INSTANT);
 	newRingBfr(x);
-	x->units = countUnits;
+	x->units = noUnits;
     }
     else {
 	x = newExpr(op + dom, arg, NULL, hdom, idom, tdom, abs(tdom), arg->sem);
@@ -624,6 +633,8 @@ domainExpr(int op, int dom, Expr *arg)
     }
 
     findEval(x);
+    instExpr(x);
+
     return x;
 }
 

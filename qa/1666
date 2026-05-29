@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 1666
+# metadata propagation from pmie to the summary PMDA
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    _cleanup_pmda summary
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_prepare_pmda summary
+
+unset ROOT MAKEFLAGS
+
+pmda_home=$PCP_PMDAS_DIR/summary
+if [ ! -d "$pmda_home" ]
+then
+    echo "Where is $pmda_home?"
+    exit
+fi
+cd "$pmda_home" || exit
+$sudo ./Install </dev/null || exit
+
+# real QA test starts here
+echo "metadata ok? (silence is golden) ..."
+pminfo -e summary
+
+echo "actual metadata ..."
+pminfo -dtT summary
+
+# success, all done
+status=0
+exit

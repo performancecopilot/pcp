@@ -1,0 +1,17 @@
+#!/bin/sh
+#
+# Recipe to remake extra (units) archive
+#
+
+rm -f extra.0 extra.index extra.meta
+
+. $PCP_DIR/etc/pcp.env
+
+cat <<End-of-File | $PCP_BINADM_DIR/pmlogger -s 5 -l extra.log extra
+log mandatory on 150msec {
+    sample.temperature
+    sample.voltage
+    sample.current
+    sample.power
+}
+End-of-File

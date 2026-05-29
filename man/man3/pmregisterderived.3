@@ -700,6 +700,17 @@ multiplication or division are allowed, or if the left operand is
 not a counter and the right operand is a counter, then only multiplication
 is allowed.
 .PP
+Metrics with extra units, like temperature or voltage, are subject
+to some additional constraints, specifically no automatic scale
+conversion (although the
+.ft CR
+rescale
+.ft R
+function works as expected),
+extra units cannot be used for both operands in 
+multiplication (``*'') and extra units are only allowed for
+both operands of division (``/'') if the units and scale are identical.
+.PP
 Because relational expressions use the current value only and produce
 a result that is not a counter, either or both operands of a relational expression
 may be counters.

@@ -8,8 +8,8 @@
 #include <pcp/pmapi.h>
 
 /* default is the "no" dimension case */
-pmUnits		units = {0, 0, 0, 0, 0, 0};
-pmUnits		oldunits = {0, 0, 0, 0, 0, 0};
+pmUnits		units;
+pmUnits		oldunits;
 
 static int sscales[] = { PM_SPACE_GBYTE, PM_SPACE_TBYTE, PM_SPACE_GBYTE, PM_SPACE_MBYTE, PM_SPACE_KBYTE, PM_SPACE_BYTE, PM_SPACE_KBYTE, PM_SPACE_MBYTE };
 static int n_sscales = sizeof(sscales) / sizeof(sscales[0]);
@@ -21,11 +21,7 @@ static int cscales[] = {1, 2, 3, 4, 5, 6, 7, 6, 5, 4, 3, 2, 1, 0, -1, -2, -3, -4
 static int n_cscales = sizeof(cscales) / sizeof(cscales[0]);
 
 /* just for PBYTE and EBYTE space extensions */
-#ifdef HAVE_BITFIELDS_LTOR
-pmUnits myunits = { 1, -1, 0, PM_SPACE_EBYTE, PM_TIME_SEC, 0 };
-#else
-pmUnits myunits = { 0, 0, PM_TIME_SEC, PM_SPACE_EBYTE, 0, -1, 1 };
-#endif
+pmUnits myunits = { .dimSpace=1, .dimTime=-1, .scaleSpace=PM_SPACE_EBYTE, .scaleTime=PM_TIME_SEC };
 
 static pmLongOptions longopts[] = {
     PMOPT_DEBUG,

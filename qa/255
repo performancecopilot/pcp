@@ -184,7 +184,7 @@ cd $PCP_PMDAS_DIR/simple
 echo "sec,min,hour" >$tmp.simple.conf
 $sudo cp $tmp.simple.conf simple.conf
 
-if $sudo $PCP_MAKE_PROG > $tmp.make 2>&1
+if $sudo $PCP_MAKE_PROG >$tmp.make 2>&1
 then
     echo "PMDA built"
 else
@@ -192,16 +192,31 @@ else
     cat $tmp.make
     exit
 fi
-sed -e "/^@ SIMPLE/s/SIMPLE/$simple_domain/" < help \
+sed -e "/^@ SIMPLE/s/SIMPLE/$simple_domain/" <help \
 | $sudo $PCP_BINADM_DIR/newhelp -v 2 -o help
 echo "Help generated"
+cd $here
+
+# Build broken agent
+#
+echo "=== Building broken agent ==="
+cd pmdas/broken
+
+if $PCP_MAKE_PROG >$tmp.make 2>&1
+then
+    echo "PMDA built"
+else
+    echo "Unable to build the broken PMDAs:"
+    cat $tmp.make
+    exit
+fi
 cd $here
 
 # Replace pmcd.options
 #
 echo "=== Replacing pmcd.options ==="
 _save_config $PCP_PMCDOPTIONS_PATH
-cat << end-of-file > $tmp.newoptions
+cat <<end-of-file >$tmp.newoptions
 # New pmcd.options file created by PCP QA test $seq
 #
 -t 10
@@ -239,12 +254,12 @@ _agent_install()
     cp $tmp.newconf $tmp.latest
     if $daemon
     then
-	cat << end-of-file >> $tmp.latest
+	cat <<end-of-file >>$tmp.latest
 # Installed by PCP QA test $seq on `date`
 $agent	$domain	pipe	binary	$path/pmda$agent -d $domain -l $tmp.$agent.log
 end-of-file
     else
-    	cat << end-of-file >> $tmp.latest
+    	cat <<end-of-file >>$tmp.latest
 # Installed by PCP QA test $seq on `date`
 $agent	$domain	dso	${agent}_init	$path/pmda_$agent.$DSO_SUFFIX
 end-of-file
@@ -255,6 +270,7 @@ end-of-file
     sleep 4
     _wait_for_pmcd || _exit 1
 
+    pminfo -v $agent >>$seq_full 2>&1
     if _check_agent $agent
     then
     	echo "$agent is alive and well"
@@ -293,8 +309,12 @@ _broken_install()
     cp $tmp.newconf $tmp.latest
     # need PMDA executable someplace user $PCP_USER (pmcd) can read it
     #
-    cp $here/pmdas/broken/$agent $tmp.$agent
-    cat << end-of-file >> $tmp.latest
+    if ! cp $here/pmdas/broken/$agent $tmp.$agent
+    then
+	echo "cp failed for $here/pmdas/broken/$agent"
+	exit
+    fi
+    cat <<end-of-file >>$tmp.latest
 # Installed by PCP QA test $seq on `date`
 broken	$broken_domain	pipe	binary	$tmp.$agent -d $broken_domain -l $tmp.broken.log
 end-of-file
@@ -321,7 +341,7 @@ end-of-file
 # Copy and replace pmcd.conf
 #
 _save_config $PCP_PMCDCONF_PATH
-cat << end-of-file > $tmp.newconf
+cat <<end-of-file >$tmp.newconf
 # pmcd.conf installed by PCP QA test $seq
 #
 end-of-file
@@ -388,6 +408,7 @@ _agent_remove simple
 # Test 2.0 broken PMDA
 #
 _broken_install broken_pmda_2_0 2
+_triage_wait_point "broken pmda_2 installed?"
 _agent_remove broken
 
 status=0

@@ -146,6 +146,8 @@ static char
 	return "throttle";
     else if (__pmIsUnregisterLock(lock))
 	return "unregister";
+    else if (__pmIsExtraunitsLock(lock))
+	return "extraunits";
     else if (lock == (void *)&__pmLock_extcall)
 	return "global_extcall";
     else if ((ctxid = __pmIsContextLock(lock)) != -1) {

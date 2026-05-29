@@ -39,7 +39,7 @@ CFILES = connect.c context.c desc.c err.c fetch.c fetchgroup.c result.c \
 	p_lcontrol.c p_lrequest.c p_lstatus.c logconnect.c logcontrol.c \
 	connectlocal.c derive_fetch.c events.c lock.c hash.c \
 	fault.c access.c getopt.c getopt_v2.c \
-	io.c io_stdio.c exec.c sha256.c strings.c \
+	io.c io_stdio.c exec.c sha256.c strings.c extraunits.c \
 	shellprobe.c subnetprobe.c deprecated.c equivindom.c \
 	e_loglabel.c e_index.c e_indom.c e_labels.c throttle.c \
 	$(JSONSL_CFILES)

@@ -33,10 +33,12 @@ _filter()
 # real QA test starts here
 DIR=archives
 
-# First, run pmlogrewrite against the archive, changing PMID 70.0.2 to 200.0.2.
+# First, run pmlogrewrite against the archive, changing PMID 70.0.2 to 251.0.2.
+# (domain 251 is FORQA)
+#
 CONFIG=$tmp.config
 cat >$CONFIG <<EOF
-METRIC 70.0.2 { PMID -> 200.0.2 }
+METRIC 70.0.2 { PMID -> 251.0.2 }
 EOF
 echo contents of $CONFIG >>$seq_full
 echo ........................ >>$seq_full

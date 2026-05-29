@@ -23,6 +23,7 @@ pmiAddMetric: OK
 pmiAddMetric: OK
 pmiAddMetric: Error: Metric pmID already defined
 pmiAddMetric: OK
+pmiAddMetric: OK
 pmiAddInstance: OK
 pmiAddInstance: OK
 pmiAddInstance: OK
@@ -33,6 +34,7 @@ pmiPutValue: OK
 pmiPutValue: OK
 pmiPutValue: Error: Unknown or illegal instance identifier
 pmiPutValue: Error: Null instance not allowed for a non-singular metric
+pmiPutValue: OK
 pmiPutValue: OK
 pmiPutValue: OK
 pmiPutValue: OK
@@ -114,6 +116,9 @@ pmiDump: context 0 of 1 archive: myarchive
   metric[5] name=my.metric.float pmid=245.0.6
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+  metric[6] name=my.metric.temperature pmid=245.0.7
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (C)
   indom[0] indom=245.1
    instance[0] eek really (1)
    instance[1] eek (2)
@@ -142,7 +147,7 @@ Full help text for indom 'eek'
         [0] name(2,25) : value(29,42) [instances]
   label[6]  instance=3 of indom=245.1     InDom 245.1[3] labels (72 bytes): {"NewInstancesLabel245_1__3":"ReplacementInstancesLabel245_1__3Content"}
         [0] name(2,25) : value(29,42) [instances]
-__pmResult ... numpmid: 6
+__pmResult ... numpmid: 7
   245.0.1 (<noname>): numval: 1 valfmt: 0 vlist[]:
    value 123 1.7235971e-43 0x7b
   245.0.2 (<noname>): numval: 2 valfmt: 1 vlist[]:
@@ -156,6 +161,8 @@ __pmResult ... numpmid: 6
    value 1.23456789012
   245.0.6 (<noname>): numval: 1 valfmt: 1 vlist[]:
    value -1.234567
+  245.0.7 (<noname>): numval: 1 valfmt: 1 vlist[]:
+   value -40
 pmiWrite: OK
 pmiPutValueHandle: OK
 pmiPutValue: OK
@@ -190,6 +197,9 @@ pmiDump: context 1 of 2 archive: myotherarchive
   metric[5] name=my.metric.float pmid=245.0.6
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+  metric[6] name=my.metric.temperature pmid=245.0.7
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (C)
   indom[0] indom=245.1
    instance[0] eek really (1)
    instance[1] eek (2)
@@ -206,6 +216,10 @@ Full help text for indom 'eek'
 __pmResult ... numpmid: 1
   245.0.2 (<noname>): numval: 1 valfmt: 1 vlist[]:
     inst [2 or ???] value 6543210987654
+
+my.metric.temperature PMID: 245.0.7
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (C)
 
 my.metric.float PMID: 245.0.6
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
@@ -262,6 +276,9 @@ PMID: 245.0.5 (my.metric.string)
 PMID: 245.0.6 (my.metric.float)
     Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
     Semantics: discrete  Units: none
+PMID: 245.0.7 (my.metric.temperature)
+    Data Type: float  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: temperature (C)
 
 Instance Domains in the Log ...
 InDom: 245.1
@@ -273,10 +290,10 @@ TIMESTAMP 3 instances
 Temporal Index
 		Log Vol    end(meta)     end(log)
 TIMESTAMP	      0          132          132
-TIMESTAMP	      0         1616          536
+TIMESTAMP	      0         1677          564
 
-[228 bytes]
-TIMESTAMP 6 metrics
+[256 bytes]
+TIMESTAMP 7 metrics
     245.0.1 (my.metric.foo): value 123
     245.0.2 (my.metric.bar):
         inst [2 or "eek"] value 4567890123456
@@ -285,6 +302,7 @@ TIMESTAMP 6 metrics
     245.0.3 (my.metric.long): value 123456789012345
     245.0.4 (my.metric.double): value 1.23456789012
     245.0.6 (my.metric.float): value -1.234567
+    245.0.7 (my.metric.temperature): value -40
 
 [88 bytes]
 TIMESTAMP 2 metrics
@@ -384,6 +402,7 @@ Perl wrapper version ...
 *PCP::LogImport::pmiDump
 *PCP::LogImport::pmiEnd
 *PCP::LogImport::pmiErrStr
+*PCP::LogImport::pmiExtraUnits
 *PCP::LogImport::pmiGetHandle
 *PCP::LogImport::pmiID
 *PCP::LogImport::pmiInDom
@@ -487,6 +506,7 @@ pmiBatchWrite
 pmiDump
 pmiEnd
 pmiErrStr
+pmiExtraUnits
 pmiGetHandle
 pmiID
 pmiInDom

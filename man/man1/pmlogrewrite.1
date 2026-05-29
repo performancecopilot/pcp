@@ -200,7 +200,9 @@ the
 .KW RESCALE
 option for the
 .KW UNITS
-clause of the metric rewriting rule described below.
+and
+.KW EXTRAUNITS
+clauses of the metric rewriting rule described below.
 .TP
 \fB\-v\fR, \fB\-\-verbose\fR
 Enable verbose mode.
@@ -1116,6 +1118,51 @@ unaltered) the optional keyword
 may be used to chose value rescaling as per the
 .B \-s
 command line option, but applied to just this metric.
+.RE
+
+.PP
+.KW EXTRAUNITS
+.KW ->
+.I newextraunits
+[
+.KW RESCALE
+]
+.RS +4n
+.PP
+Same semantics as the
+.KW UNITS
+clause, except
+.I newextraunits
+is eight values separated by commas.
+The first six values are exactly the same as for
+.I newunits
+in the
+.KW UNITS
+clause.
+The seventh value identifies one of the ``extra'' units and
+should be 0 (if there is none),
+else the
+the XXX part of the name of one of the
+.B PM_UNIT_XXX
+macros, e.g.
+.KW TEMPERATURE
+for
+.BR PM_UNIT_TEMPERATURE .
+The eigth value identifies the scale of the ``extra'' unit and
+should be 0 (if there is none),
+else the XXX part of the name of one of the associated
+.BI PM_ <unit> _XXX
+macros, e.g.
+.KW C
+for
+.BR PM_TEMPERATURE_C
+(the value is a temperature in degrees Celsius).
+.PP
+The optional keyword
+.KW RESCALE
+has the same meaning as for the
+.KW UNITS
+clause.
 .RE
 
 .PP

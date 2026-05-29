@@ -102,6 +102,8 @@ main(int argc, char **argv)
     check(sts, "pmiAddMetric");
     sts = pmiAddMetric("my.metric.float", PM_ID_NULL, PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_DISCRETE, pmiUnits(0,0,0,0,0,0));
     check(sts, "pmiAddMetric");
+    sts = pmiAddMetric("my.metric.temperature", PM_ID_NULL, PM_TYPE_FLOAT, PM_INDOM_NULL, PM_SEM_INSTANT, pmiExtraUnits(0,0,0,0,0,0,PM_UNIT_TEMPERATURE,PM_TEMPERATURE_C));
+    check(sts, "pmiAddMetric");
 
     sts = pmiAddInstance(pmInDom_build(245,1), "eek really", 1);
     check(sts, "pmiAddInstance");
@@ -131,6 +133,8 @@ main(int argc, char **argv)
     sts = pmiPutValue("my.metric.double", "", "1.23456789012");
     check(sts, "pmiPutValue");
     sts = pmiPutValue("my.metric.float", "", "-1.234567");
+    check(sts, "pmiPutValue");
+    sts = pmiPutValue("my.metric.temperature", "", "-40");
     check(sts, "pmiPutValue");
 
     hdl1 = pmiGetHandle("my.metric.foo", "");

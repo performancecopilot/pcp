@@ -2118,6 +2118,7 @@ pmiAddMetric
 pmiEnd
 pmiErrStr
 pmiErrStr_r
+pmiExtraUnits
 pmiGetHandle
 pmiID
 pmiInDom
@@ -2530,7 +2531,7 @@ do
 		ismd=true
 		;;
 	*)
-		if troff "$file"
+		if _troff "$file"
 		then
 		    istroff=true
 		fi

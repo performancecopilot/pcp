@@ -198,14 +198,14 @@ IDlist dump: numids = 6
 000:       2c     7016   SERVER ffffffff  6000000        0 1523c71e     c03f 
 008:   3ffc00      3ff ffffffff 
 [SERVER]pmGetPDU: DESCS fd=<n> len=56 from=CLIENT
-000:       38     7017   CLIENT  2000000 deadbeef  2000000     face  1000000 
+000:       38     7017   CLIENT  2000000 deadbeef        2     face  1000000 
 008:  10f5200 feedbabe        0     face  3000000  10f2100 
 + PDU_DESCS:     Data Type: 64-bit int  InDom: 0.64206 0xface
     Semantics: counter  Units: Mbyte / hour
     Data Type: 32-bit int  InDom: 0.51966 0xcafe
     Semantics: instant  Units: count x 10^-1^2
 [SERVER]pmXmitPDU: DESCS fd=<n> len=56
-000:       38     7017   SERVER  2000000 deadbeef  2000000     face  1000000 
+000:       38     7017   SERVER  2000000 deadbeef        2     face  1000000 
 008:  10f5200 feedbabe        0     face  3000000  10f2100 
 [SERVER]pmGetPDU: INSTANCE_REQ fd=<n> len=32 from=CLIENT
 000:       20     7006   CLIENT     face    34bc0    9fbf1     dead        0 

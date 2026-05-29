@@ -1,0 +1,151 @@
+#!/bin/sh
+# PCP QA Test No. 1664
+# pmConvScale with extra units
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+do_valgrind=false
+if [ "$1" = "--valgrind" ]
+then
+    _check_valgrind
+    do_valgrind=true
+fi
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+    # end
+}
+
+_do()
+{
+    if $do_valgrind
+    then
+	_run_valgrind src/grind_conv "$@"
+    else
+	src/grind_conv "$@"
+    fi \
+    | _filter
+}
+
+# PM_TYPE_... from pmapi.h
+#
+type_32=0
+type_u32=1
+type_64=2
+type_u64=3
+type_f=4
+type_d=5
+
+# PM_UNITS_... et al from pmapi.h
+#
+temp=1
+volt=2
+curr=3
+power=4
+
+# temp scales
+#
+temp_C=1
+temp_F=2
+temp_K=3
+
+# voltage scales
+#
+volt_V=1
+volt_mV=2
+volt_uV=3
+
+# current scales
+#
+curr_A=1
+curr_mA=2
+curr_uA=3
+
+# power scales
+#
+power_kW=1
+power_W=2
+power_mW=3
+power_uW=4
+
+
+# real QA test starts here
+echo "=== no change"
+_do $type_u32 100 0:0:0:0:0:0:$temp:$temp_C 0:0:0:0:0:0:$temp:$temp_C
+
+echo
+echo "=== water freezing point"
+_do $type_u32 0 0:0:0:0:0:0:$temp:$temp_C 0:0:0:0:0:0:$temp:$temp_F
+_do $type_u64 0 0:0:0:0:0:0:$temp:$temp_C 0:0:0:0:0:0:$temp:$temp_F
+_do $type_f 0 0:0:0:0:0:0:$temp:$temp_C 0:0:0:0:0:0:$temp:$temp_K
+
+echo
+echo "=== C-F temp cross-over"
+_do $type_32 -40 0:0:0:0:0:0:$temp:$temp_C 0:0:0:0:0:0:$temp:$temp_F
+_do $type_64 -40 0:0:0:0:0:0:$temp:$temp_C 0:0:0:0:0:0:$temp:$temp_F
+_do $type_d -40 0:0:0:0:0:0:$temp:$temp_C 0:0:0:0:0:0:$temp:$temp_F
+_do $type_f -40 0:0:0:0:0:0:$temp:$temp_C 0:0:0:0:0:0:$temp:$temp_K
+_do $type_f -40 0:0:0:0:0:0:$temp:$temp_F 0:0:0:0:0:0:$temp:$temp_K
+
+echo
+echo "=== voltage"
+_do $type_d 1.234 0:0:0:0:0:0:$volt:$volt_V 0:0:0:0:0:0:$volt:$volt_mV
+_do $type_d 1.234 0:0:0:0:0:0:$volt:$volt_V 0:0:0:0:0:0:$volt:$volt_uV
+_do $type_d 1.234 0:0:0:0:0:0:$volt:$volt_mV 0:0:0:0:0:0:$volt:$volt_V
+_do $type_d 1.234 0:0:0:0:0:0:$volt:$volt_mV 0:0:0:0:0:0:$volt:$volt_uV
+_do $type_d 1.234 0:0:0:0:0:0:$volt:$volt_uV 0:0:0:0:0:0:$volt:$volt_V
+_do $type_d 1.234 0:0:0:0:0:0:$volt:$volt_uV 0:0:0:0:0:0:$volt:$volt_mV
+
+echo
+echo "=== current"
+_do $type_u64 56789 0:0:0:0:0:0:$curr:$curr_A 0:0:0:0:0:0:$curr:$curr_mA
+_do $type_u64 56789 0:0:0:0:0:0:$curr:$curr_A 0:0:0:0:0:0:$curr:$curr_uA
+_do $type_f 56.789 0:0:0:0:0:0:$curr:$curr_mA 0:0:0:0:0:0:$curr:$curr_A
+_do $type_u64 56789 0:0:0:0:0:0:$curr:$curr_mA 0:0:0:0:0:0:$curr:$curr_uA
+_do $type_f 56.789 0:0:0:0:0:0:$curr:$curr_uA 0:0:0:0:0:0:$curr:$curr_A
+_do $type_f 56.789 0:0:0:0:0:0:$curr:$curr_uA 0:0:0:0:0:0:$curr:$curr_mA
+
+echo
+echo "=== power"
+_do $type_u64 1234 0:0:0:0:0:0:$power:$power_kW 0:0:0:0:0:0:$power:$power_W
+_do $type_u64 1234 0:0:0:0:0:0:$power:$power_kW 0:0:0:0:0:0:$power:$power_mW
+_do $type_u64 1234 0:0:0:0:0:0:$power:$power_kW 0:0:0:0:0:0:$power:$power_uW
+_do $type_f 12345 0:0:0:0:0:0:$power:$power_W 0:0:0:0:0:0:$power:$power_kW
+_do $type_u64 12345 0:0:0:0:0:0:$power:$power_W 0:0:0:0:0:0:$power:$power_mW
+_do $type_u64 12345 0:0:0:0:0:0:$power:$power_W 0:0:0:0:0:0:$power:$power_uW
+_do $type_f 12345 0:0:0:0:0:0:$power:$power_mW 0:0:0:0:0:0:$power:$power_kW
+_do $type_f 12345 0:0:0:0:0:0:$power:$power_mW 0:0:0:0:0:0:$power:$power_W
+_do $type_u64 12345 0:0:0:0:0:0:$power:$power_mW 0:0:0:0:0:0:$power:$power_uW
+_do $type_f 12345 0:0:0:0:0:0:$power:$power_uW 0:0:0:0:0:0:$power:$power_kW
+_do $type_f 12345 0:0:0:0:0:0:$power:$power_uW 0:0:0:0:0:0:$power:$power_W
+_do $type_f 12345 0:0:0:0:0:0:$power:$power_uW 0:0:0:0:0:0:$power:$power_mW
+
+# success, all done
+exit

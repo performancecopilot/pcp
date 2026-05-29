@@ -22,8 +22,13 @@ src/units-parse scan | tee -a $seq_full
 
 src/units-parse tuple 0 0 0 1 1 1	# scales without dimensions
 
+# some extra units and mixed units special cases
+src/units-parse -- tuple 1 -1 0 1 3 0		# kbyte / sec
+src/units-parse -- tuple 0 0 0 0 0 0 -1 1	# / temp C
+src/units-parse -- tuple 0 -1 0 0 2 0 2 2	# mV / msec
+
 src/units-parse parse "2e5"
-src/units-parse parse "-/2"		# bad floating point
+src/units-parse parse -- "-/2"		# bad floating point
 src/units-parse parse "2eg"		# bad floating point
 src/units-parse parse "25 sec/kb"
 src/units-parse parse "5 ms / 3 sec"
@@ -93,6 +98,12 @@ src/units-parse parse "25 sec^9"	# dimension too high
 src/units-parse parse "Kbyte^8"		# exponent overflow
 src/units-parse parse "microsec^8"	# exponent overflow
 src/units-parse parse "count x 10^-7^-7 / count x 10^7^7"	# exponent overflow
+
+# some extra units cases
+src/units-parse parse "power (kW) hour"
+src/units-parse parse "current (A) / sec"
+# some error cases
+src/units-parse parse "temperature (C) voltage (V)"
 
 # success, all done
 status=0

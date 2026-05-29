@@ -46,3 +46,8 @@ PCP_IMPORT_1.3 {
     pmiPutHighResResult;
     pmiSetVersion;
 } PCP_IMPORT_1.2;
+
+PCP_IMPORT_1.4 {
+  global:
+    pmiExtraUnits;
+} PCP_IMPORT_1.3;

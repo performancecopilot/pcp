@@ -939,5 +939,61 @@ Defaults to 1, but maybe changed with pmstore(1).
 
 @ sample.updown.control.reset reset all controls for sample.updown.obs
 Used with pmstore(1) and any value will trigger a reset of the control
-state to: obs=0, min=0, max=200, step=10, repeat=5 and mode=1.
+state to: obs=0, min=0, max=200, step=10, repeat=5 and mode=1. and
 up.
+
+@ sample.temperature.celsius temperature in degrees Celsius
+All sample.temperature.* metrics share the same current temperature
+(defaults to the freezing point of water at sea level), but the value
+can be changed with pmstore(1).
+
+@ sample.temperature.fahrenheit temperature in degrees Fahrenheit
+All sample.temperature.* metrics share the same current temperature
+(defaults to the freezing point of water at sea level), but the value
+can be changed with pmstore(1).
+
+@ sample.temperature.kelvin temperature in degrees Kelvin
+All sample.temperature.* metrics share the same current temperature
+(defaults to the freezing point of water at sea level), but the value
+can be changed with pmstore(1).
+
+@ sample.voltage.volt voltage in volts
+All sample.voltage.* metrics share the same voltage, but the value can
+be changed with pmstore(1).
+
+@ sample.voltage.millivolt voltage in millivolts
+All sample.voltage.* metrics share the same voltage, but the value can
+be changed with pmstore(1).
+
+@ sample.voltage.microvolt voltage in microvolts
+All sample.voltage.* metrics share the same voltage, but the value can
+be changed with pmstore(1).
+
+@ sample.current.amp current in amps
+All sample.current.* metrics share the same current, but the value can
+be changed with pmstore(1).
+
+@ sample.current.milliamp current in milliamps
+All sample.current.* metrics share the same current, but the value can
+be changed with pmstore(1).
+
+@ sample.current.microamp current in microamps
+All sample.current.* metrics share the same current, but the value can
+be changed with pmstore(1).
+
+@ sample.power.kilowatt power in kilowatts
+All sample.power.* metrics share the same power, but the value can be
+changed with pmstore(1).
+
+@ sample.power.watt power in watts
+All sample.power.* metrics share the same power, but the value can be
+changed with pmstore(1).
+
+@ sample.power.milliwatt power in milliwatts
+All sample.power.* metrics share the same power, but the value can be
+changed with pmstore(1).
+
+@ sample.power.microwatt power in microwatts
+All sample.power.* metrics share the same power, but the value can be
+changed with pmstore(1).
+

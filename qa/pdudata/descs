@@ -15,7 +15,7 @@
 
 # descs: len type from numdesc pmid type indom sem units ...
 # OK
-? PDU_DESCS 42 2 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0) pmid(sampledso.double.one) 5 -1 3 0
+? PDU_DESCS 42 2 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0.0.0) pmid(sampledso.double.one) 5 -1 3 0
 
 # descs: len type from numdesc pmid type indom sem units ...
 # BAD short PDU < min size
@@ -23,16 +23,16 @@
 
 # descs: len type from numdesc pmid type indom sem units ...
 # BAD long PDU
-? PDU_DESCS 42 2 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0) pmid(sampledso.double.one) 5 -1 3 0 0xdeadbeef
+? PDU_DESCS 42 2 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0.0.0) pmid(sampledso.double.one) 5 -1 3 0 0xdeadbeef
 
 # descs: len type from numdesc pmid type indom sem units ...
 # BAD short PDU (Desc) or numdescs too big (Desc2)
-? PDU_DESCS 42 2 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0) pmid(sampledso.double.one) 5 -1 3
+? PDU_DESCS 42 2 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0.0.0) pmid(sampledso.double.one) 5 -1 3
 
 # descs: len type from numdesc pmid type indom sem units ...
 # BAD numdescs negative
-? PDU_DESCS 42 -1 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0) pmid(sampledso.double.one) 5 -1 3
+? PDU_DESCS 42 -1 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0.0.0) pmid(sampledso.double.one) 5 -1 3
 
 # descs: len type from numdesc pmid type indom sem units ...
 # BAD numdescs wrong
-? PDU_DESCS 42 3 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0) pmid(sampledso.double.one) 5 -1 3
+? PDU_DESCS 42 3 pmid(sampledso.double.bin) 5 indom(30.2) 3 units(1.-1.0.2.3.0.0.0) pmid(sampledso.double.one) 5 -1 3

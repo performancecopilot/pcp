@@ -620,7 +620,9 @@ __pmLogAddDesc(__pmArchCtl *acp, const pmDesc *newdp)
 	    newdp->units.dimCount != olddp->units.dimCount ||
 	    newdp->units.scaleSpace != olddp->units.scaleSpace ||
 	    newdp->units.scaleTime != olddp->units.scaleTime ||
-	    newdp->units.scaleCount != olddp->units.scaleCount)
+	    newdp->units.scaleCount != olddp->units.scaleCount ||
+	    newdp->units.extraUnit != olddp->units.extraUnit ||
+	    newdp->units.extraScale != olddp->units.extraScale)
 	    return PM_ERR_LOGCHANGEUNITS;
 
 	/* PMID is already known and checks out - we're done here. */

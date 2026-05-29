@@ -448,7 +448,7 @@ Expr dump @ ADDR180
 .. ..   op=59 (count_host) arg1=ADDR188 arg2=(nil) parent=ADDR181
 .. ..   eval=cndCount_host metrics=ADDR183 ring=ADDR189
 .. ..   valid=0 cardinality[H,I,T]=[-1,-1,1] tspan=1
-.. ..   nsmpls=1 nvals=1 sem=INSTANT units=count
+.. ..   nsmpls=1 nvals=1 sem=INSTANT units=
 .. .. .. Expr dump @ ADDR188
 .. .. ..   op=54 (some_inst) arg1=ADDR190 arg2=(nil) parent=ADDR185
 .. .. ..   eval=cndSome_inst metrics=ADDR183 ring=ADDR191

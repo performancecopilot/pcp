@@ -62,12 +62,23 @@ pmiDump()
 
 pmUnits
 pmiUnits(dimSpace, dimTime, dimCount, scaleSpace, scaleTime, scaleCount)
-	int	dimSpace;
-	int	dimTime;
-	int	dimCount;
-	int	scaleSpace;
-	int	scaleTime;
-	int	scaleCount;
+	int		dimSpace;
+	int		dimTime;
+	int		dimCount;
+	unsigned int	scaleSpace;
+	unsigned int	scaleTime;
+	int		scaleCount;
+
+pmUnits
+pmiExtraUnits(dimSpace, dimTime, dimCount, scaleSpace, scaleTime, scaleCount, extraUnit, extraScale)
+	int		dimSpace;
+	int		dimTime;
+	int		dimCount;
+	unsigned int	scaleSpace;
+	unsigned int	scaleTime;
+	int		scaleCount;
+	int		extraUnit;
+	unsigned int	extraScale;
 
 pmID
 pmiID(domain, cluster, item)

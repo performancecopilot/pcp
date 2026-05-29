@@ -53,34 +53,33 @@ do
 		;;
 	q)	quick=true
 		;;
-	r)	reserve=true
-		if [ -n "$id" ]
+	r)	if $unreserve
 		then
 		    echo "Error: cannot have -r after -R $id"
 		    exit 1
 		fi
+		reserve=true
 		;;
-	R)	id="$OPTARG"
+	R)	if $reserve
+		then
+		    echo "Error: cannot have -R $id after -r"
+		    exit 1
+		fi
+		unreserve=true
+		id="$OPTARG"
 		if grep -q "^$id:reserved" group
 		then
 		    for suff in '' .out
 		    do
 			if [ -f $id$suff ]
 			then
-			    echo "Error: $id$suff already exists"
-			    exit 1
+			    echo "Warning: $id$suff already exists"
 			fi
 		    done
 		else
 		    echo "Error: $id not reserved in group file"
 		    exit 1
 		fi
-		if $reserve
-		then
-		    echo "Error: cannot have -R $id after -r"
-		    exit 1
-		fi
-		unreserve=true
 		;;
 	s)	smallest=true
 		random=false
@@ -244,16 +243,28 @@ then
     exit
 fi
 
-echo "Allocated test number $id"
+if $unreserve
+then
+    echo "Unreserve test number $id"
+else
+    echo "Allocated test number $id"
+fi
 
 if [ -f $id ]
 then
-    echo >&2 "Error: test $id already exists, but not in group file!"
-    _cleanup
-    exit
-fi
-
-cat <<End-of-File >$id
+    if $unreserve
+    then
+	# assume prior -r created the test ...
+	#
+	new_file=false
+    else
+	echo >&2 "Error: test $id already exists, but not in group file!"
+	_cleanup
+	exit
+    fi
+else
+    new_file=true
+    cat <<End-of-File >$id
 #!/bin/sh
 # PCP QA Test No. $id
 End-of-File
@@ -328,7 +339,8 @@ exit
 # success, all done
 exit
 End-of-File
-chmod 755 $id
+    chmod 755 $id
+fi
 
 tag=""
 if $reserve
@@ -337,9 +349,19 @@ then
     tag=":reserved"
 elif $quick
 then
-    echo "Skeletal $id script created"
+    if $new_file
+    then
+	echo "Skeletal $id script created"
+    else
+	echo "Skeletal $id script already existed"
+    fi
 else
-    $PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal $id script for you to edit ...""$PCP_ECHO_C"
+    if $new_file
+    then
+	$PCP_ECHO_PROG $PCP_ECHO_N "Creating skeletal $id script for you to edit ...""$PCP_ECHO_C"
+    else
+	$PCP_ECHO_PROG $PCP_ECHO_N "Using existing $id script for you to edit ...""$PCP_ECHO_C"
+    fi
     sleep 2		# latency to read messages to this point, before vi(1)
     echo ""
     ${EDITOR-vi} $id
@@ -389,10 +411,31 @@ fi
 
 if $unreserve
 then
+    oldans=`sed -n <group -e "/^$id:reserved */s///p"`
     echo "Removing :reserved tag for $id in group index"
-    sed -e "/^$id:reserved/s/:reserved//" -i group
+    sed <group >$tmp.group -e "/^$id:reserved/d"
+    mv $tmp.group group
+    ans=`echo "$oldans $ans" | awk ' {
+  onetrip = 1
+  for (i = 1; i <= NF; i++) {
+    for (j = 1; j < i; j++) {
+	if ($i == $j)
+	    break
+    }
+    if (j == i) {
+	if (onetrip)
+	    onetrip = 0
+	else
+	    printf(" ")
+	printf("%s", $i)
+    }
+  }
+  print ""
+}'`
+    echo "Updating $id entry in group index"
+else
+    echo "Adding $id entry to group index"
 fi
-echo "Adding $id to group index"
 echo "$id$tag $ans" >>group
 
 # sort the tests numerically

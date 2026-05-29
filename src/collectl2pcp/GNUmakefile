@@ -27,17 +27,19 @@ LLDLIBS = -L$(TOPDIR)/src/libpcp_import/src -lpcp_import $(PCPLIB)
 # LDIRT   = metrics.c
 LDIRT = pmdesc pmdesc.o
 
-default: pmdesc $(CMDTARGET)
+default: $(CMDTARGET)
 
 include $(BUILDRULES)
 
 install: $(CMDTARGET)
 	$(INSTALL) -m 755 $(CMDTARGET) $(PCP_BIN_DIR)/$(CMDTARGET)
 
-# metrics.c: pmdesc
-# 	PCP_DERIVED_CONFIG='' pminfo hinv kernel mem swap network disk filesys \
-# 	swapdev rpc nfs nfs3 nfs4 xfs pmda ipc vfs quota tmpfs sysfs proc \
-# 	| ./pmdesc > metrics.c
+# only used to remake metrics.c which is in the git repo
+#
+remake:	pmdesc
+	PCP_DERIVED_CONFIG='' pminfo hinv kernel mem swap network disk filesys \
+	swapdev rpc nfs nfs3 nfs4 xfs pmda ipc vfs quota tmpfs sysfs proc \
+	| ./pmdesc >metrics.c
 
 pmdesc: pmdesc.o
 

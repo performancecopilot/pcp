@@ -33,8 +33,8 @@ summary.disk.busy = (count_inst $diskio > 40) / $ndisk;
 //
 netio   = "network.interface.total.packets";
 
-// average network interface activity
-summary.netif.packets = avg_inst ($netio);
+// average network interface activity for active interfaces
+summary.netif.packets = sum_inst ($netio) / (count_inst $netio > 0);
 
-// proportion of network interfaces that are busy
-summary.netif.busy = (count_inst $netio > 400) / (count_inst $netio >= 0);
+// proportion of active network interfaces that are busy
+summary.netif.busy = (count_inst $netio > 400) / (count_inst $netio > 0);

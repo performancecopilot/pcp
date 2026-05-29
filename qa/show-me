@@ -207,7 +207,7 @@ do
     else
 	if cmp $ref$id.out $badref$id.out.bad >/dev/null 2>&1
 	then
-	    echo " .out.bad and out are the same"
+	    echo " $id.out and $id.out.bad are the same"
 	else
 	    echo
 	    if [ "$DIFF" = xxdiff ]

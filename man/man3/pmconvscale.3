@@ -74,7 +74,17 @@ The scaling takes place from the units defined by
 .I iunit
 into the units defined by
 .IR ounit .
-Both input and output units must have the same dimensionality.
+Both input and output units must have the same dimensionality, i.e. each
+of the fields
+.IR dimSpace ,
+.IR dimTime ,
+.IR dimCount
+and
+.I extraUnit
+must have the same value in both
+.I iunit
+and
+.IR ounit .
 .PP
 The performance metric type for both input and output values is determined by
 .IR type ,

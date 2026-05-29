@@ -355,7 +355,8 @@ pmfg_prep_conversion(const pmDesc *desc, const char *scale, pmFGC conv, int otyp
 	/* Allow rate-conversion, but otherwise match dimensionality. */
 	if (desc->units.dimSpace == conv->output_units.dimSpace &&
 	    desc->units.dimCount == conv->output_units.dimCount &&
-	    desc->units.dimTime == conv->output_units.dimTime) {
+	    desc->units.dimTime == conv->output_units.dimTime &&
+	    desc->units.extraUnit == conv->output_units.extraUnit) {
 	    conv->unit_convert = 1;
 	    conv->rate_convert = 0;
 	    return 0;

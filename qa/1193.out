@@ -6,13 +6,13 @@ Running diff TMP.original.txt TMP.extracted.txt
 1493c1493
 < PMID: 70.0.2 (mmv.control.files)
 ---
-> PMID: 200.0.2 (mmv.control.files)
+> PMID: 251.0.2 (mmv.control.files)
 2750,2751c2750,2751
 < PMID: 70.0.2 [Memory mapped file count]
 < PMID: 70.0.2
 ---
-> PMID: 200.0.2 [Memory mapped file count]
-> PMID: 200.0.2
+> PMID: 251.0.2 [Memory mapped file count]
+> PMID: 251.0.2
 Running pmlogrewrite -c TMP.config archives/20180127.08.40 TMP.pmlogrewrite
 Running pmdumplog -zhid archives/20180127.08.40
 Running pmdumplog -zhid TMP.pmlogrewrite

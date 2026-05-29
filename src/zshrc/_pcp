@@ -514,6 +514,7 @@ _pcp () {
       "(-z --hostzone -Z --timezone $exargs)"{-z,--hostzone}'[use metrics source timezone]' \
       "(-b --batch $exargs)"{-b+,--batch=}'[set fetch batch size]:size:' \
       "(-d --desc $exargs)"{-d,--desc}'[print metric description]' \
+      "(-e --metadata-errors $exargs)"{-e,--metadata-errors}'[like -v but do not report metrics with no values]' \
       "(-D --debug $exargs)"{-D,--debug}'[set debug options]:options:->debug_opts' \
       "(-f --fetch $exargs)"{-f,--fetch}'[fetch and print metric values]' \
       "(-F --fetchall $exargs)"{-F,--fetchall}'[fetch and print all metric values]' \

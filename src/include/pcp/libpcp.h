@@ -1595,6 +1595,14 @@ PCP_CALL extern int __pmCheckAttribute(__pmAttrKey, const char *);
 /* dump status change flags from pmcd */
 PCP_CALL extern void __pmDumpFetchFlags(FILE *, int);
 
+/* integrity checker for pmDesc */
+PCP_CALL extern int __pmCheckDesc(pmDesc *, char *, char **);
+
+/* extra units support */
+PCP_CALL extern int __pmLookupExtraUnit(const char *);
+PCP_CALL extern int __pmLookupExtraScale(int, const char *);
+PCP_CALL extern void __pmExtraUnitsShortStr(const pmUnits *, char *, size_t);
+
 /*
  * PMAPI_VERSION_2 interfaces
  */

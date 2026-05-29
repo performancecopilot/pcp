@@ -19,6 +19,13 @@ _cleanup()
     $sudo rm -rf $tmp $tmp.*
 }
 
+_filter()
+{
+    sed \
+	-e '/InDom: /s/0x[0-9a-f][0-9a-f]*/.../' \
+    # end
+}
+
 status=1	# failure is the default!
 trap "_cleanup; exit \$status" 0 1 2 3 15
 
@@ -28,7 +35,7 @@ trap "_cleanup_pmda statsd; exit \$status" 0 1 2 3 15
 _stop_auto_restart pmcd
 
 cd $here/statsd/src
-$sudo $python cases/07.py
+$sudo $python cases/07.py 2>&1 | _filter
 cd $here
 status=0
 exit

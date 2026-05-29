@@ -51,15 +51,39 @@ units(void)
     pmUnits forw;
     pmUnits back;
 
-    forw.pad = back.pad = 0;
+    memset(&forw, 0, sizeof(forw));
+    memset(&back, 0, sizeof(back));
+
     forw.dimSpace	= back.scaleCount	= 1;
     forw.dimTime	= back.scaleTime	= 2;
     forw.dimCount	= back.scaleSpace	= 3;
     forw.scaleSpace	= back.dimCount		= 4;
     forw.scaleTime	= back.dimTime		= 5;
     forw.scaleCount	= back.dimSpace		= 6;
-    printf("pmUnits: 1,2,3,4,5,6 = %d\n", *(unsigned int *)&forw);
-    printf("pmUnits: 6,5,4,3,2,1 = %d\n", *(unsigned int *)&back);
+    printf("pmUnits: 1,2,3,4,5,6 = %d %08x\n", *(unsigned int *)&forw, *(unsigned int *)&forw);
+    printf("pmUnits: 6,5,4,3,2,1 = %d %08x\n", *(unsigned int *)&back, *(unsigned int *)&back);
+}
+
+
+void
+extraunits(void)
+{
+    pmUnits forw;
+    pmUnits back;
+
+    memset(&forw, 0, sizeof(forw));
+    memset(&back, 0, sizeof(back));
+
+    forw.dimSpace	= back.extraScale       = 1;
+    forw.dimTime	= back.extraUnit        = 2;
+    forw.dimCount	= back.scaleCount	= 3;
+    forw.scaleSpace	= back.scaleTime	= 4;
+    forw.scaleTime	= back.scaleSpace	= 5;
+    forw.scaleCount	= back.dimCount		= 6;
+    forw.extraUnit      = back.dimTime          = 7;
+    forw.extraScale     = back.dimSpace         = 8;
+    printf("extra pmUnits: 1,2,3,4,5,6,7,8 = %d %08x\n", *(unsigned int *)&forw, *(unsigned int *)&forw);
+    printf("extra pmUnits: 8,7,6,5,4,3,2,1 = %d %08x\n", *(unsigned int *)&back, *(unsigned int *)&back);
 }
 
 void
@@ -81,6 +105,28 @@ defines(void)
     printf("PM_TIME_SEC=%u\n", PM_TIME_SEC);
     printf("PM_TIME_MIN=%u\n", PM_TIME_MIN);
     printf("PM_TIME_HOUR=%u\n", PM_TIME_HOUR);
+
+    printf("PM_UNIT_TEMPERATURE=%u\n", PM_UNIT_TEMPERATURE);
+    printf("PM_TEMPERATURE_C=%u\n", PM_TEMPERATURE_C);
+    printf("PM_TEMPERATURE_F=%u\n", PM_TEMPERATURE_F);
+    printf("PM_TEMPERATURE_K=%u\n", PM_TEMPERATURE_K);
+
+    printf("PM_UNIT_VOLTAGE=%u\n", PM_UNIT_VOLTAGE);
+    printf("PM_VOLTAGE_V=%u\n", PM_VOLTAGE_V);
+    printf("PM_VOLTAGE_mV=%u\n", PM_VOLTAGE_mV);
+    printf("PM_VOLTAGE_uV=%u\n", PM_VOLTAGE_uV);
+
+    printf("PM_UNIT_CURRENT=%u\n", PM_UNIT_CURRENT);
+    printf("PM_CURRENT_A=%u\n", PM_CURRENT_A);
+    printf("PM_CURRENT_mA=%u\n", PM_CURRENT_mA);
+    printf("PM_CURRENT_uA=%u\n", PM_CURRENT_uA);
+
+
+    printf("PM_UNIT_POWER=%u\n", PM_UNIT_POWER);
+    printf("PM_POWER_kW=%u\n", PM_POWER_kW);
+    printf("PM_POWER_W=%u\n", PM_POWER_W);
+    printf("PM_POWER_mW=%u\n", PM_POWER_mW);
+    printf("PM_POWER_uW=%u\n", PM_POWER_uW);
 
     printf("PM_TYPE_NOSUPPORT=%u\n", PM_TYPE_NOSUPPORT);
     printf("PM_TYPE_32=%u\n", PM_TYPE_32);
@@ -169,7 +215,7 @@ defines(void)
 int
 main(int argc, char **argv)
 {
-    char *use = "Error: must provide one argument - either 'd', 'i' or 'u'\n";
+    char *use = "Error: must provide one argument - either 'd', 'i', 'u' or 'eu'\n";
     if (argc != 2) {
 	fputs(use, stderr);
 	return 1;
@@ -180,6 +226,8 @@ main(int argc, char **argv)
 	ids();
     else if (argv[1][0] == 'u')
 	units();
+    else if (strcmp(argv[1], "eu") == 0)
+	extraunits();
     else {
 	fputs(use, stderr);
 	fprintf(stderr, "(ouch!!!!  that really hurt!  who throws a '%s' anyway? --Austin)\n", argv[1]);

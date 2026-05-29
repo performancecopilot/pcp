@@ -837,10 +837,12 @@ The _message_ must be specified and it will be echoed; this allows the test
 to disclose useful information from the setup, e.g. a process ID or the
 path to where the magic files have been unpacked.
 
-If _file_ is missing, the default file name is **$seq**_.wait_.
-Specifying _file_ allows for multiple wait points with different
-files as the guard so a test can be paused at more than one point of
-interest.
+If _file_ is missing, the default file name is
+**$here**_/_**$seq**_.wait_.  Specifying _file_ allows for multiple
+wait points with different files as the guard so a test can be paused
+at more than one point of interest, but be careful to use an absolute
+pathname for _file_ if the test **cd**'s away from **$here** before a
+call to **\_triage\_wait\_point** is made.
 
 Now, to triage the test:
 

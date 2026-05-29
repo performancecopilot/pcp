@@ -14,6 +14,8 @@
  */
 
 #include "pmapi.h"
+#include "libpcp.h"
+#include "internal.h"
 #include <inttypes.h>
 #include <assert.h>
 #include <ctype.h>
@@ -155,19 +157,39 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
     char *spacestr = NULL;
     char *timestr = NULL;
     char *countstr = NULL;
-    char *p;
+    char *extrastr = NULL;
     char sbuf[20];
     char tbuf[20];
     char cbuf[20];
+    char xbuf[20];
+    char pow[5];	/* ^-XX */
+    int  started = 0;	/* 1 => started filling buf */
 
-    /*
-     * must be at least 60 bytes, then we don't need to pollute the code
-     * below with a check every time we call pmsprintf() or increment p
-     */
-    if (buflen < 60)
-	return NULL;
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, "pmUnitsStr_r([dimSpace=%d,dimTime=%d,dimCount=%d,scaleSpace=%d,scaleTime=%d,scaleCount=%d,extraUnit=%d,extraScale=%d], ..., %d) <",
+	    pu->dimSpace, pu->dimTime, pu->dimCount,
+	    pu->scaleSpace, pu->scaleTime, pu->scaleCount,
+	    pu->extraUnit, pu->extraScale, buflen);
+    }
 
     buf[0] = '\0';
+
+    /*
+     * must be at least 60 bytes in buf[], then we don't need to
+     * pollute the code below with a check every time we call
+     * pmsprintf() or increment p
+     */
+    if (buflen < 60) {
+	if (pmDebugOptions.pmapi) {
+	    fprintf(stderr, ":> returns NULL\n");
+	}
+	return NULL;
+    }
+
+    if (pu->extraUnit) {
+	__pmExtraUnitsStr(pu, xbuf, sizeof(xbuf));
+	extrastr = xbuf;
+    }
 
     if (pu->dimSpace) {
 	switch (pu->scaleSpace) {
@@ -246,82 +268,99 @@ pmUnitsStr_r(const pmUnits *pu, char *buf, int buflen)
 	}
     }
 
-    p = buf;
-
+    if (pu->extraUnit > 0) {
+	pmstrncat(buf, buflen, extrastr);
+	started = 1;
+    }
     if (pu->dimSpace > 0) {
-	if (pu->dimSpace == 1)
-	    pmsprintf(p, buflen, "%s", spacestr);
+	if (started)
+	    pmstrncat(buf, buflen, " ");
 	else
-	    pmsprintf(p, buflen, "%s^%d", spacestr, pu->dimSpace);
-	while (*p)
-	    p++;
-	*p++ = ' ';
+	    started = 1;
+	pmstrncat(buf, buflen, spacestr);
+	if (pu->dimSpace != 1) {
+	    pmsprintf(pow, sizeof(pow), "^%d", pu->dimSpace);
+	    pmstrncat(buf, buflen, pow);
+	}
     }
     if (pu->dimTime > 0) {
-	if (pu->dimTime == 1)
-	    pmsprintf(p, buflen - (p - buf), "%s", timestr);
+	if (started)
+	    pmstrncat(buf, buflen, " ");
 	else
-	    pmsprintf(p, buflen - (p - buf), "%s^%d", timestr, pu->dimTime);
-	while (*p)
-	    p++;
-	*p++ = ' ';
+	    started = 1;
+	pmstrncat(buf, buflen, timestr);
+	if (pu->dimTime != 1) {
+	    pmsprintf(pow, sizeof(pow), "^%d", pu->dimTime);
+	    pmstrncat(buf, buflen, pow);
+	}
     }
     if (pu->dimCount > 0) {
-	if (pu->dimCount == 1)
-	    pmsprintf(p, buflen - (p - buf), "%s", countstr);
+	if (started)
+	    pmstrncat(buf, buflen, " ");
 	else
-	    pmsprintf(p, buflen - (p - buf), "%s^%d", countstr, pu->dimCount);
-	while (*p)
-	    p++;
-	*p++ = ' ';
-    }
-    if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0) {
-	*p++ = '/';
-	*p++ = ' ';
-	if (pu->dimSpace < 0) {
-	    if (pu->dimSpace == -1)
-		pmsprintf(p, buflen - (p - buf), "%s", spacestr);
-	    else
-		pmsprintf(p, buflen - (p - buf), "%s^%d", spacestr, -pu->dimSpace);
-	    while (*p)
-		p++;
-	    *p++ = ' ';
-	}
-	if (pu->dimTime < 0) {
-	    if (pu->dimTime == -1)
-		pmsprintf(p, buflen - (p - buf), "%s", timestr);
-	    else
-		pmsprintf(p, buflen - (p - buf), "%s^%d", timestr, -pu->dimTime);
-	    while (*p)
-		p++;
-	    *p++ = ' ';
-	}
-	if (pu->dimCount < 0) {
-	    if (pu->dimCount == -1)
-		pmsprintf(p, buflen - (p - buf), "%s", countstr);
-	    else
-		pmsprintf(p, buflen - (p - buf), "%s^%d", countstr, -pu->dimCount);
-	    while (*p)
-		p++;
-	    *p++ = ' ';
+	    started = 1;
+	pmstrncat(buf, buflen, countstr);
+	if (pu->dimCount != 1) {
+	    pmsprintf(pow, sizeof(pow), "^%d", pu->dimCount);
+	    pmstrncat(buf, buflen, pow);
 	}
     }
 
-    if (buf[0] == '\0') {
+    if (pu->dimSpace < 0 || pu->dimTime < 0 || pu->dimCount < 0 || pu->extraUnit < 0) {
+	if (started)
+	    pmstrncat(buf, buflen, " ");
+	pmstrncat(buf, buflen, "/");
+	started = 1;
+	if (pu->extraUnit < 0) {
+	    pmstrncat(buf, buflen, " ");
+	    pmstrncat(buf, buflen, extrastr);
+	}
+	if (pu->dimSpace < 0) {
+	    pmstrncat(buf, buflen, " ");
+	    pmstrncat(buf, buflen, spacestr);
+	    if (pu->dimSpace != -1) {
+		pmsprintf(pow, sizeof(pow), "^%d", -pu->dimSpace);
+		pmstrncat(buf, buflen, pow);
+	    }
+	}
+	if (pu->dimTime < 0) {
+	    pmstrncat(buf, buflen, " ");
+	    pmstrncat(buf, buflen, timestr);
+	    if (pu->dimTime != -1) {
+		pmsprintf(pow, sizeof(pow), "^%d", -pu->dimTime);
+		pmstrncat(buf, buflen, pow);
+	    }
+	}
+	if (pu->dimCount < 0) {
+	    pmstrncat(buf, buflen, " ");
+	    pmstrncat(buf, buflen, countstr);
+	    if (pu->dimCount != -1) {
+		pmsprintf(pow, sizeof(pow), "^%d", -pu->dimCount);
+		pmstrncat(buf, buflen, pow);
+	    }
+	}
+    }
+
+    if (buf[0] == '\0' && pu->scaleCount != 0) {
 	/*
-	 * dimension is all 0, but scale maybe specified ... small
+	 * dimension is all 0, but scaleCount maybe specified ... small
 	 * anomaly here as we would expect dimCount to be 1 not
 	 * 0 for these cases, but support maintained for historical
 	 * behaviour
 	 */
 	if (pu->scaleCount == 1)
-	    pmsprintf(buf, buflen, "x 10");
-	else if (pu->scaleCount != 0)
-	    pmsprintf(buf, buflen, "x 10^%d", pu->scaleCount);
+	    pmsprintf(cbuf, sizeof(cbuf), "count x 10");
+	else
+	    pmsprintf(cbuf, sizeof(cbuf), "count x 10^%d", pu->scaleCount);
+	if (started)
+	    pmstrncat(buf, buflen, " ");
+	else
+	    started = 1;
+	pmstrncat(buf, buflen, cbuf);
     }
-    else {
-	p--;
-	*p = '\0';
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns \"%s\"\n", buf);
     }
 
     return buf;
@@ -359,7 +398,7 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit_arg, pmAtomV
      * special case ... if all components of the dimension are zero
      * (dimension "none"), then treat this as the dimension of "count"
      */
-    if (iunit->dimSpace == 0 && iunit->dimTime == 0 && iunit->dimCount == 0) {
+    if (iunit->dimSpace == 0 && iunit->dimTime == 0 && iunit->dimCount == 0 && iunit->extraUnit == 0) {
 	ispecial = *iunit_arg;
 	iunit = &ispecial;
 	iunit->dimCount = 1;
@@ -367,13 +406,13 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit_arg, pmAtomV
 	    fprintf(stderr, " defaults to [%s]", pmUnitsStr_r(iunit, strbuf, sizeof(strbuf)));
 	}
     }
-    if (ounit->dimSpace == 0 && ounit->dimTime == 0 && ounit->dimCount == 0) {
+    if (ounit->dimSpace == 0 && ounit->dimTime == 0 && ounit->dimCount == 0 && ounit->extraUnit == 0) {
 	ospecial = *ounit_arg;
 	ounit = &ospecial;
 	ounit->dimCount = 1;
     }
 
-    if (iunit->dimSpace != ounit->dimSpace || iunit->dimTime != ounit->dimTime || iunit->dimCount != ounit->dimCount) {
+    if (iunit->dimSpace != ounit->dimSpace || iunit->dimTime != ounit->dimTime || iunit->dimCount != ounit->dimCount || iunit->extraUnit != ounit->extraUnit) {
 	sts = PM_ERR_CONV;
 	goto bad;
     }
@@ -576,6 +615,15 @@ pmConvScale(int type, const pmAtomValue *ival, const pmUnits *iunit_arg, pmAtomV
 	default:
 	    sts = PM_ERR_CONV;
 	    goto bad;
+    }
+
+    /*
+     * extra units conversion ...
+     */
+    if (iunit->extraUnit != 0) {
+	if ((sts = __pmConvExtraScale(type, oval, iunit, ounit)) < 0) {
+	    goto bad;
+	}
     }
 
     if (pmDebugOptions.value) {
@@ -1146,20 +1194,6 @@ pmExtractValue(int valfmt, const pmValue * ival, int itype, pmAtomValue * oval, 
 }
 
 /*
- * An internal variant of pmUnits, but without the narrow bitfields.
- * That way, we can tolerate intermediate arithmetic that goes out of
- * range of the 4-bit bitfields.
- */
-typedef struct __pmUnits {
-    int			dimSpace;	/* space dimension */
-    int			dimTime;	/* time dimension */
-    int			dimCount;	/* event dimension */
-    unsigned int	scaleSpace;	/* one of PM_SPACE_* */
-    unsigned int	scaleTime;	/* one of PM_TIME_* */
-    int			scaleCount;	/* one of PM_COUNT_* */
-} __pmUnits;
-
-/*
  * Parse a general "N $units" string into a pmUnits tuple and a multiplier.
  * @units can be a series of SCALE-UNIT^EXPONENT, each unit dimension appearing
  * at most once.
@@ -1171,6 +1205,8 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
     int sts = 0;
     unsigned i;
     const char *ptr;		/* scanning along str */
+    const char *tmp;		/* temporary */
+    int extra_cnt = 0;
     enum { d_none, d_space, d_time, d_count } dimension;
     struct unit_keyword_t {
 	const char	*keyword;
@@ -1276,6 +1312,11 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
     };
     const size_t num_exponent_keywords = sizeof(exponent_keywords) / sizeof(exponent_keywords[0]);
 
+    if (pmDebugOptions.value) {
+	fprintf(stderr, "__pmParseUnitsStrPart(\"%*.*s\", ...)\n",
+	    (int)(str_end - str), (int)(str_end - str), str);
+    }
+
     *multiplier = 1.0;
     memset(out, 0, sizeof(*out));
     ptr = str;
@@ -1287,6 +1328,35 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
 	    ptr++;
 	    continue;
 	}
+
+	/* match & skip over keyword (followed by space, ^, or EOL) */
+#define streqskip(q) (((ptr+strlen(q) <= str_end) &&        \
+                       (strncasecmp(ptr,q,strlen(q))==0) && \
+                       ((isspace((int)(*(ptr+strlen(q))))) ||      \
+                        (*(ptr+strlen(q))=='^') ||          \
+                        (ptr+strlen(q)==str_end)))          \
+                       ? (ptr += strlen(q), 1) : 0)
+
+	dimension = d_none;	/* classify dimension of base unit */
+
+	/*
+	 * extra units come first ... but only 1 of 'em per part
+	 */
+	tmp = __pmParseExtraUnits(ptr, out);
+	if (tmp != ptr) {
+	    if (extra_cnt != 0) {
+		/* oops, thanks @coderabbit */
+		sts = PM_ERR_CONV;
+		*errMsg = strdup("multiple extra units not allowed");
+		goto out;
+	    }
+	    extra_cnt++;
+	    ptr = tmp;
+	}
+	while (ptr <= str_end && isspace(*ptr))
+	    ptr++;
+	if (ptr == str_end)
+	    break;
 
 	if (*ptr == '-' || *ptr == '.' || isdigit((int)(*ptr))) {
 	    /* possible floating-point number - parse with strtod(3). */
@@ -1302,16 +1372,6 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
 	    *multiplier *= m;
 	    continue;
 	}
-
-	dimension = d_none;	/* classify dimension of base unit */
-
-	/* match & skip over keyword (followed by space, ^, or EOL) */
-#define streqskip(q) (((ptr+strlen(q) <= str_end) &&        \
-                       (strncasecmp(ptr,q,strlen(q))==0) && \
-                       ((isspace((int)(*(ptr+strlen(q))))) ||      \
-                        (*(ptr+strlen(q))=='^') ||          \
-                        (ptr+strlen(q)==str_end)))          \
-                       ? (ptr += strlen(q), 1) : 0)
 
 	/*
 	 * Parse base unit, only once per input string.  We don't support
@@ -1343,9 +1403,12 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
 	/* parse optional dimension exponent */
 	switch (dimension) {
 	    case d_none:
-		*errMsg = strdup("unrecognized or duplicate base unit");
-		sts = PM_ERR_CONV;
-		goto out;
+		if (extra_cnt == 0) {
+		    *errMsg = strdup("unrecognized or duplicate base unit");
+		    sts = PM_ERR_CONV;
+		    goto out;
+		}
+		break;
 
 	    case d_time:
 		if (ptr == str_end || isspace((int)(*ptr))) {
@@ -1391,6 +1454,20 @@ __pmParseUnitsStrPart(const char *str, const char *str_end, __pmUnits *out, doub
     }
 
 out:
+    if (pmDebugOptions.value) {
+	fprintf(stderr, "__pmParseUnitsStrPart -> %d", sts);
+	if (sts >= 0) {
+	    fprintf(stderr, " [dimSpace=%d,dimTime=%d,dimCount=%d,scaleSpace=%d,scaleTime=%d,scaleCount=%d,extraUnit=%d,extraScale=%d]\n",
+	    out->dimSpace, out->dimTime, out->dimCount,
+	    out->scaleSpace, out->scaleTime, out->scaleCount,
+	    out->extraUnit, out->extraScale);
+	}
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
     return sts;
 }
 
@@ -1402,6 +1479,10 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier, char **errMsg
     double dividend_mult, divisor_mult;
     __pmUnits dividend, divisor;
     int dim, sts;
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, "pmParseUnitsStr(\"%s\", ..._ <", str);
+    }
 
     memset(out, 0, sizeof(*out));
 
@@ -1512,10 +1593,47 @@ pmParseUnitsStr(const char *str, pmUnits *out, double *multiplier, char **errMsg
 	    out->scaleTime = 0;
     }
 
+    /*
+     * extra units come from either dividend or divisor, but not both
+     */
+    if (dividend.extraUnit != 0 && divisor.extraUnit != 0) {
+	*errMsg = strdup("extra units cannot appear in both dividend and divisor");
+	sts = PM_ERR_CONV;
+	goto out;
+    }
+     if (dividend.extraUnit != 0) {
+ 	out->extraUnit = dividend.extraUnit;
+ 	out->extraScale = dividend.extraScale;
+     }
+    if (dividend.extraUnit != 0) {
+	out->extraUnit = dividend.extraUnit;
+	out->extraScale = dividend.extraScale;
+    }
+    else {
+	out->extraUnit = -divisor.extraUnit;
+	out->extraScale = divisor.extraScale;
+    }
+
 out:
     if (sts < 0) {
 	memset(out, 0, sizeof(*out));	/* clear partially filled in pmUnits */
 	*multiplier = 1.0;
     }
+
+    if (pmDebugOptions.pmapi) {
+	fprintf(stderr, ":> returns ");
+	if (sts >= 0) {
+	    fprintf(stderr, "%d [dimSpace=%d,dimTime=%d,dimCount=%d.scaleSpace=%d.scaleTime=%d.scaleCount=%d,extraUnit=%d,extraScale=%d]\n",
+	    sts,
+	    out->dimSpace, out->dimTime, out->dimCount,
+	    out->scaleSpace, out->scaleTime, out->scaleCount,
+	    out->extraUnit, out->extraScale);
+	}
+	else {
+	    char	errmsg[PM_MAXERRMSGLEN];
+	    fprintf(stderr, "%s\n", pmErrStr_r(sts, errmsg, sizeof(errmsg)));
+	}
+    }
+
     return sts;
 }

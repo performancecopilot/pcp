@@ -889,7 +889,8 @@ class pmConfig(object):
                 """ Test count dimension """
                 if unit.dimCount == 1 and ( \
                    unit.dimSpace == 0 and \
-                   unit.dimTime == 0):
+                   unit.dimTime == 0 and \
+                   unit.extraUnit == 0):
                     return True
                 return False
 
@@ -897,7 +898,8 @@ class pmConfig(object):
                 """ Test space dimension """
                 if unit.dimSpace == 1 and ( \
                    unit.dimCount == 0 and \
-                   unit.dimTime == 0):
+                   unit.dimTime == 0 and \
+                   unit.extraUnit == 0):
                     return True
                 return False
 
@@ -905,7 +907,17 @@ class pmConfig(object):
                 """ Test time dimension """
                 if unit.dimTime == 1 and ( \
                    unit.dimCount == 0 and \
-                   unit.dimSpace == 0):
+                   unit.dimSpace == 0 and \
+                   unit.extraUnit == 0):
+                    return True
+                return False
+
+            def is_extra(unit):
+                """ Test extra units """
+                if unit.extraUnit != 0 and ( \
+                   unit.dimSpace == 0 and \
+                   unit.dimTime == 0 and \
+                   unit.dimCount == 0):
                     return True
                 return False
 
@@ -933,6 +945,14 @@ class pmConfig(object):
                 elif hasattr(self.util, 'time_scale') and self.util.time_scale and \
                    not self.util.metrics[metric][2]:
                     self.util.metrics[metric][2] = self.util.time_scale
+                elif not self.util.metrics[metric][2]:
+                    self.util.metrics[metric][2] = str(unit)
+            if is_extra(unit):
+                if hasattr(self.util, 'extra_scale_force') and self.util.extra_scale_force:
+                    self.util.metrics[metric][2] = self.util.extra_scale_force
+                elif hasattr(self.util, 'extra_scale') and self.util.extra_scale and \
+                   not self.util.metrics[metric][2]:
+                    self.util.metrics[metric][2] = self.util.extra_scale
                 elif not self.util.metrics[metric][2]:
                     self.util.metrics[metric][2] = str(unit)
             if not self.util.metrics[metric][2]:

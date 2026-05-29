@@ -176,6 +176,7 @@ extern int __pmIsConnectLock(void *) _PCP_HIDDEN;
 extern int __pmIsExecLock(void *) _PCP_HIDDEN;
 extern int __pmIsThrottleLock(void *) _PCP_HIDDEN;
 extern int __pmIsUnregisterLock(void *) _PCP_HIDDEN;
+extern int __pmIsExtraunitsLock(void *) _PCP_HIDDEN;
 #endif
 
 /*
@@ -465,5 +466,28 @@ extern void __pmDumpResult_ctx_v2(__pmContext *, FILE *, const pmResult_v2 *) _P
  */
 #define __pmDumpHighResResult_ctx __pmDumpResult_ctx
 #endif
+
+/*
+ * An internal variant of pmUnits, but without the narrow bitfields.
+ * That way, we can tolerate intermediate arithmetic that goes out of
+ * range of the 4-bit bitfields.
+ */
+typedef struct __pmUnits {
+    int			dimSpace;	/* space dimension */
+    int			dimTime;	/* time dimension */
+    int			dimCount;	/* event dimension */
+    unsigned int	scaleSpace;	/* one of PM_SPACE_* */
+    unsigned int	scaleTime;	/* one of PM_TIME_* */
+    int			scaleCount;	/* one of PM_COUNT_* */
+    int			extraUnit;	/* code for extra unit from PM_UNIT_* */
+    unsigned int	extraScale;	/* scale for extra units */
+} __pmUnits;
+
+/*
+ * extra units methods
+ */
+extern void __pmExtraUnitsStr(const pmUnits *, char *, size_t);
+extern const char *__pmParseExtraUnits(const char *, __pmUnits *);
+extern int __pmConvExtraScale(int, pmAtomValue *, const pmUnits *, const pmUnits *);
 
 #endif /* _LIBPCP_INTERNAL_H */

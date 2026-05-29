@@ -1,0 +1,78 @@
+QA output created by 1664
+=== no change
+type=1 input units=temperature (C) value=100
+output units=temperature (C) value=100
+
+=== water freezing point
+type=1 input units=temperature (C) value=0
+output units=temperature (F) value=32
+type=3 input units=temperature (C) value=0
+output units=temperature (F) value=32
+type=4 input units=temperature (C) value=0.000000e+00
+output units=temperature (K) value=2.731500e+02
+
+=== C-F temp cross-over
+type=0 input units=temperature (C) value=-40
+output units=temperature (F) value=-40
+type=2 input units=temperature (C) value=-40
+output units=temperature (F) value=-40
+type=5 input units=temperature (C) value=-4.000000e+01
+output units=temperature (F) value=-4.000000e+01
+type=4 input units=temperature (C) value=-4.000000e+01
+output units=temperature (K) value=2.331500e+02
+type=4 input units=temperature (F) value=-4.000000e+01
+output units=temperature (K) value=2.331500e+02
+
+=== voltage
+type=5 input units=voltage (V) value=1.234000e+00
+output units=voltage (mV) value=1.234000e+03
+type=5 input units=voltage (V) value=1.234000e+00
+output units=voltage (uV) value=1.234000e+06
+type=5 input units=voltage (mV) value=1.234000e+00
+output units=voltage (V) value=1.234000e-03
+type=5 input units=voltage (mV) value=1.234000e+00
+output units=voltage (uV) value=1.234000e+03
+type=5 input units=voltage (uV) value=1.234000e+00
+output units=voltage (V) value=1.234000e-06
+type=5 input units=voltage (uV) value=1.234000e+00
+output units=voltage (mV) value=1.234000e-03
+
+=== current
+type=3 input units=current (A) value=56789
+output units=current (mA) value=56789000
+type=3 input units=current (A) value=56789
+output units=current (uA) value=56789000000
+type=4 input units=current (mA) value=5.678900e+01
+output units=current (A) value=5.678900e-02
+type=3 input units=current (mA) value=56789
+output units=current (uA) value=56789000
+type=4 input units=current (uA) value=5.678900e+01
+output units=current (A) value=5.678900e-05
+type=4 input units=current (uA) value=5.678900e+01
+output units=current (mA) value=5.678900e-02
+
+=== power
+type=3 input units=power (kW) value=1234
+output units=power (W) value=1234000
+type=3 input units=power (kW) value=1234
+output units=power (mW) value=1234000000
+type=3 input units=power (kW) value=1234
+output units=power (uW) value=1234000000000
+type=4 input units=power (W) value=1.234500e+04
+output units=power (kW) value=1.234500e+01
+type=3 input units=power (W) value=12345
+output units=power (mW) value=12345000
+type=3 input units=power (W) value=12345
+output units=power (uW) value=12345000000
+type=4 input units=power (mW) value=1.234500e+04
+output units=power (kW) value=1.234500e-02
+type=4 input units=power (mW) value=1.234500e+04
+output units=power (W) value=1.234500e+01
+type=3 input units=power (mW) value=12345
+output units=power (uW) value=12345000
+type=4 input units=power (uW) value=1.234500e+04
+output units=power (kW) value=1.234500e-05
+type=4 input units=power (uW) value=1.234500e+04
+output units=power (W) value=1.234500e-02
+type=4 input units=power (uW) value=1.234500e+04
+output units=power (mW) value=1.234500e+01

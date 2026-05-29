@@ -25,9 +25,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     tmpx=`echo $tmp`
-    sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
+    sed \
+	-e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
 	-e "s|$tmpx|TMP|g" \
-	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|'
+	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|' \
+	-e "s@$tmp@TMP@g" \
+    # end
 }
 
 # find these lines, report 'em and the next one

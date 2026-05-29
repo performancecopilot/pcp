@@ -1,0 +1,53 @@
+QA output created by 1666
+Interval between summary expression evaluation (seconds)? [10] Updating the Performance Metrics Name Space (PMNS) ...
+Terminate PMDA if already installed ...
+Updating the PMCD control file, and notifying PMCD ...
+Wait 15 seconds for the summary agent to initialize ...
+Check summary metrics have appeared ... 6 metrics and 6 values
+metadata ok? (silence is golden) ...
+actual metadata ...
+
+summary.cpu.util [CPU utilization]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Fraction of time spent executing in user or system mode, averaged
+over all CPUs.  Any time not accountered for here is spent either
+idle or processing interrupts or waiting for I/O.
+Value in the range 0 to 1.
+
+summary.cpu.busy [Proportion of the CPUs that are busy]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Fraction of the CPUs busy executing in user and/or system mode for more
+than 70% of the time.
+Value in the range 0 to 1.
+
+summary.disk.iops [Average disk IOPS]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / sec
+Help:
+Average disk throughput in IO operations per second.
+
+summary.disk.busy [Proportion of the disks that are busy]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Fraction of the disks busy serving at least 40 IO operations per second.
+Value in the range 0 to 1.
+
+summary.netif.packets [Average network interface throughput]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: count / sec
+Help:
+The average network interface throughput in packets per second across
+the active interfaces.
+
+summary.netif.busy [Proportion of the network interfaces that are busy]
+    Data Type: double  InDom: PM_INDOM_NULL 0xffffffff
+    Semantics: instant  Units: none
+Help:
+Fraction of the active network interfaces busy serving at least 400
+packets per second.
+Value in the range 0 to 1.

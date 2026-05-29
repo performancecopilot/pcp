@@ -620,6 +620,9 @@ A
 .B pmie
 specification is a sequence of semicolon terminated expressions.
 .PP
+The sequence ``//'' introduces a comment and all text from here
+to the end of the current input line will be ignored.
+.PP
 Basic operators are modeled on the arithmetic, relational and Boolean
 operators of the C programming language.
 Precedence rules are as expected, although the use of parentheses
@@ -670,6 +673,8 @@ and the time interval between these samples.
 All numeric expressions are evaluated in double precision, and where
 appropriate, automatically
 scaled into canonical units of ``bytes'', ``seconds'' and ``counts''.
+Note that metrics defined over extra units like ``temperature'' or ``voltage''
+are not scaled into canonical units.
 .PP
 A
 .B rule
@@ -1046,6 +1051,17 @@ Simple scale factors are constructed from the keywords:
 \f(CBbyte\fR, \f(CBKbyte\fR, \f(CBMbyte\fR, \f(CBGbyte\fR, \f(CBTbyte\f1,
 \f(CBcount\fR, \f(CBKcount\fR and \f(CBMcount\fR,
 and the operator \f(CR/\fR, for example ``\f(CBKbytes / hour\f1''.
+.PP
+Metrics defined over extra units like ``temperature'' or ``voltage''
+may have a very wide variety of possible scales, but there is no support
+in
+.B pmie
+for keywords to effect scaling, so expressions must use explicit scaling,
+e.g.
+.br
+.ti +0.5i
+\f(CBthis.temp.celsius\fR >= (\f(CBother.temp.fahrenheit\fR - 32) * 5 / 9
+.br
 .SH MACROS
 Macros are defined using expressions of the form:
 .PP

@@ -27,7 +27,7 @@ def run_test():
     utils.pmdastatsd_install(basic_duration_aggregation)
     for x in range(1, 101):
         sock.sendto("test_duration:{}|ms".format(x).encode("utf-8"), (ip, port))
-    utils.print_metric("statsd.test_duration")
+    os.system("pminfo -def statsd.test_duration")
     utils.pmdastatsd_remove()
     utils.restore_config()
 

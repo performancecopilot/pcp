@@ -859,6 +859,7 @@ new_indom_instance_label(int indom)
 	TOK_IF
 	TOK_SEM
 	TOK_UNITS
+	TOK_EXTRAUNITS
 	TOK_METRIC_VALUE
 	TOK_OUTPUT
 	TOK_RESCALE
@@ -879,7 +880,7 @@ new_indom_instance_label(int indom)
 	TOK_BITS
 
 %token<str>	TOK_GNAME TOK_NUMBER TOK_STRING TOK_TEXT_STRING TOK_HNAME TOK_FLOAT
-%token<str>	TOK_PATTERN
+%token<str>	TOK_PATTERN TOK_MACRO
 %token<str>	TOK_JSON_STRING TOK_JSON_NUMBER
 %token<str>	TOK_JSON_TRUE TOK_JSON_FALSE TOK_JSON_NULL
 %token<str>	TOK_INDOM_STAR TOK_PMID_INT TOK_PMID_STAR
@@ -1846,6 +1847,68 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				mp->new_desc.units.scaleCount = $13;
 				mp->flags |= METRIC_CHANGE_UNITS;
 				if ($14 == 1) {
+				    if ($3 == mp->old_desc.units.dimSpace &&
+					$5 == mp->old_desc.units.dimTime &&
+					$7 == mp->old_desc.units.dimCount)
+					/* OK, no dim changes */
+					mp->flags |= METRIC_RESCALE;
+				    else {
+					if (wflag) {
+					    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): Dimension changed, cannot rescale", mp->old_name, pmIDStr(mp->old_desc.pmid));
+					    yywarn(mess);
+					}
+				    }
+				}
+				else if (sflag) {
+				    if ($3 == mp->old_desc.units.dimSpace &&
+					$5 == mp->old_desc.units.dimTime &&
+					$7 == mp->old_desc.units.dimCount)
+					mp->flags |= METRIC_RESCALE;
+				}
+			    }
+			}
+		    }
+		| TOK_EXTRAUNITS TOK_ASSIGN signnumber TOK_COMMA signnumber TOK_COMMA signnumber TOK_COMMA TOK_SPACE_NAME TOK_COMMA TOK_TIME_NAME TOK_COMMA TOK_COUNT_NAME TOK_COMMA TOK_MACRO TOK_COMMA TOK_MACRO rescaleopt
+		    {
+			int		extraUnit = __pmLookupExtraUnit($15);
+			int		extraScale;
+			metricspec_t	*mp;
+
+			if (extraUnit < 0) {
+			    pmsprintf(mess, sizeof(mess), "Unknown extra unit type \"%s\"", $15);
+			    yyerror(mess);
+			}
+			extraScale = __pmLookupExtraScale(extraUnit, $17);
+			if (extraScale < 0) {
+			    pmsprintf(mess, sizeof(mess), "Unknown extra unit scale \"%s\" for type \"%s\"", $17, $15);
+			    yyerror(mess);
+			}
+			for (mp = walk_metric(W_START, METRIC_CHANGE_UNITS, "units", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_UNITS, "units", 0)) {
+			    if ($3 == mp->old_desc.units.dimSpace &&
+			        $5 == mp->old_desc.units.dimTime &&
+			        $7 == mp->old_desc.units.dimCount &&
+			        $9 == mp->old_desc.units.scaleSpace &&
+			        $11 == mp->old_desc.units.scaleTime &&
+			        $13 == mp->old_desc.units.scaleCount &&
+				extraUnit == mp->old_desc.units.extraUnit &&
+				extraScale == mp->old_desc.units.extraScale) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): units: %s: No change", mp->old_name, pmIDStr(mp->old_desc.pmid), pmUnitsStr(&mp->old_desc.units));
+				    yywarn(mess);
+				}
+			    }
+			    else {
+				mp->new_desc.units.dimSpace = $3;
+				mp->new_desc.units.dimTime = $5;
+				mp->new_desc.units.dimCount = $7;
+				mp->new_desc.units.scaleSpace = $9;
+				mp->new_desc.units.scaleTime = $11;
+				mp->new_desc.units.scaleCount = $13;
+				mp->new_desc.units.extraUnit = extraUnit;
+				mp->new_desc.units.extraScale = extraScale;
+				mp->flags |= METRIC_CHANGE_UNITS;
+				if ($18 == 1) {
 				    if ($3 == mp->old_desc.units.dimSpace &&
 					$5 == mp->old_desc.units.dimTime &&
 					$7 == mp->old_desc.units.dimCount)

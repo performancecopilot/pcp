@@ -349,6 +349,20 @@ exec.o
     exec_lock			# local mutex
     map				# guarded by exec_lock mutex
     nmap			# guarded by exec_lock mutex
+extraunits.o
+    extraunits_lock		# local mutex
+    ?temperature_scale		# const
+    ?voltage_scale		# const
+    ?current_scale		# const
+    ?power_scale		# const
+    ?extra			# const
+    ?nextra			# const
+    ?temp_conv			# const
+    ?volt_conv			# const
+    ?curr_conv			# const
+    ?power_conv			# const
+    ?onetrip			# setup guarded by extraunits_lock mutex
+    ?known_domain		# setup guarded by extraunits_lock mutex
 fault.o
 fetchlocal.o
     splitlist			# single-threaded PM_SCOPE_DSO_PMDA

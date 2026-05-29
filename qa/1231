@@ -25,9 +25,12 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 _filter()
 {
     tmpx=`echo $tmp`
-    sed -e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
+    sed \
+	-e 's/^Archive:.* Host:/ARCHIVE: Host:/' \
 	-e "s|$tmpx|TMP|g" \
-	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|'
+	-e 's|PID for pmlogger: [0-9]*|PID for pmlogger: PID|' \
+	-e "s@$tmp@TMP@g" \
+    # end
 }
 
 # real QA test starts here
@@ -63,10 +66,10 @@ pmdumplog -zhide $IN >$DUMP2 2>&1
 echo "Running diff $DUMP1 $DUMP2" | _filter | tee -a $seq_full
 diff $DUMP1 $DUMP2 2>&1 | _filter | tee -a $seq_full
 
-# Now, run pmlogrewrite against the archive, changing indom 2.1 to 200.1
+# Now, run pmlogrewrite against the archive, changing indom 2.1 to 251.1
 CONFIG=$tmp.config
 cat >$CONFIG <<EOF
-INDOM 2.1 { INDOM -> 200.1 }
+INDOM 2.1 { INDOM -> 251.1 }
 EOF
 echo contents of $CONFIG >>$seq_full
 echo ........................ >>$seq_full

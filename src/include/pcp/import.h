@@ -51,7 +51,8 @@ PMI_CALL extern int pmiPutLabel(unsigned int, unsigned int, unsigned int, const 
 PMI_CALL extern pmID pmiID(int, int, int);
 PMI_CALL extern pmID pmiCluster(int, int);
 PMI_CALL extern pmInDom pmiInDom(int, int);
-PMI_CALL extern pmUnits pmiUnits(int, int, int, int, int, int);
+PMI_CALL extern pmUnits pmiUnits(int, int, int, unsigned int, unsigned int, int);
+PMI_CALL extern pmUnits pmiExtraUnits(int, int, int, unsigned int, unsigned int, int, int, unsigned int);
 
 /* diagnostic routines */
 #define PMI_MAXERRMSGLEN	128	/* sized to accomodate any error message */

@@ -919,15 +919,17 @@ pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
 	pmUnits		units;
 	unsigned int	uint;
     } val;
-    unsigned int dimSpace = 0, dimTime = 0, dimCount = 0;
-    unsigned int scaleSpace = 0, scaleTime = 0, scaleCount = 0;
+    int dimSpace = 0, dimTime = 0, dimCount = 0, scaleCount = 0, extraUnit = 0;
+    unsigned int scaleSpace = 0, scaleTime = 0, extraScale = 0;
     char *keyword_list[] = {"dimSpace", "dimTime", "dimCount",
-			    "scaleSpace", "scaleTime", "scaleCount", NULL};
+			    "scaleSpace", "scaleTime", "scaleCount",
+                            "extraUnit", "extraScale", NULL};
 
     if (!PyArg_ParseTupleAndKeywords(args, keywords,
-		"IIIIII:pmSetContextOptions", keyword_list,
+		"iiiIIiiI:pmUnits_int", keyword_list,
 		&dimSpace, &dimTime, &dimCount,
-		&scaleSpace, &scaleTime, &scaleCount))
+		&scaleSpace, &scaleTime, &scaleCount,
+                &extraUnit, &extraScale))
 	return NULL;
 
     val.uint = 0;
@@ -937,6 +939,8 @@ pmUnits_int(PyObject *self, PyObject *args, PyObject *keywords)
     val.units.scaleSpace = scaleSpace;
     val.units.scaleTime = scaleTime;
     val.units.scaleCount = scaleCount;
+    val.units.extraUnit = extraUnit;
+    val.units.extraScale = extraScale;
 
     return Py_BuildValue("i", val.uint);
 }
@@ -1543,6 +1547,24 @@ MOD_INIT(cpmapi)
     dict_add(dict, "PM_TIME_MIN", PM_TIME_MIN);
     dict_add(dict, "PM_TIME_HOUR", PM_TIME_HOUR);
     dict_add(dict, "PM_COUNT_ONE", PM_COUNT_ONE);
+
+    dict_add(dict, "PM_UNIT_TEMPERATURE", PM_UNIT_TEMPERATURE);
+    dict_add(dict, "PM_UNIT_VOLTAGE", PM_UNIT_VOLTAGE);
+    dict_add(dict, "PM_UNIT_CURRENT", PM_UNIT_CURRENT);
+    dict_add(dict, "PM_UNIT_POWER", PM_UNIT_POWER);
+    dict_add(dict, "PM_TEMPERATURE_C", PM_TEMPERATURE_C);
+    dict_add(dict, "PM_TEMPERATURE_F", PM_TEMPERATURE_F);
+    dict_add(dict, "PM_TEMPERATURE_K", PM_TEMPERATURE_K);
+    dict_add(dict, "PM_VOLTAGE_V", PM_VOLTAGE_V);
+    dict_add(dict, "PM_VOLTAGE_mV", PM_VOLTAGE_mV);
+    dict_add(dict, "PM_VOLTAGE_uV", PM_VOLTAGE_uV);
+    dict_add(dict, "PM_CURRENT_A", PM_CURRENT_A);
+    dict_add(dict, "PM_CURRENT_mA", PM_CURRENT_mA);
+    dict_add(dict, "PM_CURRENT_uA", PM_CURRENT_uA);
+    dict_add(dict, "PM_POWER_kW", PM_POWER_kW);
+    dict_add(dict, "PM_POWER_W", PM_POWER_W);
+    dict_add(dict, "PM_POWER_mW", PM_POWER_mW);
+    dict_add(dict, "PM_POWER_uW", PM_POWER_uW);
 
     dict_add(dict, "PM_TYPE_NOSUPPORT", PM_TYPE_NOSUPPORT);
     dict_add(dict, "PM_TYPE_32", PM_TYPE_32);

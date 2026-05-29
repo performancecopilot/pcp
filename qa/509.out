@@ -76,6 +76,7 @@ load(name=(null), dupok=1, use_cpp=0) lic case=0 fname=/var/lib/pcp/pmns/root
 loadascii(dupok=1, use_cpp=0) fname=/var/lib/pcp/pmns/root
 pmLoadNameSpace: active -> 29.0.123
 pmLoadNameSpace: again -> 29.0.154
+pmLoadNameSpace: amp -> 29.0.178
 pmLoadNameSpace: base -> 29.0.115
 pmLoadNameSpace: bigid -> 29.0.1023
 pmLoadNameSpace: bin -> 29.0.103
@@ -105,6 +106,7 @@ pmLoadNameSpace: byte_rate -> 29.0.82
 pmLoadNameSpace: byte_rate_perhour -> 29.0.85
 pmLoadNameSpace: bytes_down -> 29.0.66
 pmLoadNameSpace: bytes_up -> 29.0.65
+pmLoadNameSpace: celsius -> 29.0.172
 pmLoadNameSpace: colour -> 29.0.5
 pmLoadNameSpace: colour -> 29.0.5
 pmLoadNameSpace: control -> 29.0.0
@@ -125,6 +127,7 @@ pmLoadNameSpace: end -> 29.0.125
 pmLoadNameSpace: error_check -> 29.0.75
 pmLoadNameSpace: error_code -> 29.0.74
 pmLoadNameSpace: exec -> 29.0.157
+pmLoadNameSpace: fahrenheit -> 29.0.173
 pmLoadNameSpace: ghosts -> 29.*.*
 pmLoadNameSpace: gradient -> 29.0.73
 pmLoadNameSpace: hecto -> 29.0.117
@@ -142,7 +145,9 @@ pmLoadNameSpace: instant -> 29.0.78
 pmLoadNameSpace: int -> 29.0.80
 pmLoadNameSpace: kbyte_ctr -> 29.0.83
 pmLoadNameSpace: kbyte_rate -> 29.0.84
+pmLoadNameSpace: kelvin -> 29.0.174
 pmLoadNameSpace: kilo -> 29.0.118
+pmLoadNameSpace: kilowatt -> 29.0.181
 pmLoadNameSpace: lights -> 29.0.46
 pmLoadNameSpace: lights -> 29.0.46
 pmLoadNameSpace: load -> 29.0.4
@@ -167,6 +172,10 @@ pmLoadNameSpace: magnitude -> 29.0.47
 pmLoadNameSpace: max -> 29.0.167
 pmLoadNameSpace: mega -> 29.0.119
 pmLoadNameSpace: metric -> 29.0.86
+pmLoadNameSpace: microamp -> 29.0.180
+pmLoadNameSpace: microvolt -> 29.0.177
+pmLoadNameSpace: microwatt -> 29.0.184
+pmLoadNameSpace: milliamp -> 29.0.179
 pmLoadNameSpace: million -> 29.0.101
 pmLoadNameSpace: million -> 29.0.13
 pmLoadNameSpace: million -> 29.0.18
@@ -174,6 +183,8 @@ pmLoadNameSpace: million -> 29.0.23
 pmLoadNameSpace: million -> 29.0.28
 pmLoadNameSpace: million -> 29.0.96
 pmLoadNameSpace: milliseconds -> 29.0.3
+pmLoadNameSpace: millivolt -> 29.0.176
+pmLoadNameSpace: milliwatt -> 29.0.183
 pmLoadNameSpace: min -> 29.0.166
 pmLoadNameSpace: mirage -> 29.0.155
 pmLoadNameSpace: mirage -> 29.0.37
@@ -252,6 +263,8 @@ pmLoadNameSpace: unknown -> 29.0.54
 pmLoadNameSpace: value -> 29.0.62
 pmLoadNameSpace: value -> 29.0.72
 pmLoadNameSpace: version -> 29.0.120
+pmLoadNameSpace: volt -> 29.0.175
+pmLoadNameSpace: watt -> 29.0.182
 pmLoadNameSpace: write_me -> 29.0.102
 pmLoadNameSpace: write_me -> 29.0.14
 pmLoadNameSpace: write_me -> 29.0.19

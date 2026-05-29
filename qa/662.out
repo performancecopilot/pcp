@@ -66,7 +66,7 @@ len(metrics[]):3
   metric:no.such.metric2 metadata:3
   metric:pmcd.client.whoami metadata:10
 context #### metadata prefix=sample response code 200
-len(metrics[]):213
+len(metrics[]):226
   metric:sample.aggregate.hullo metadata:9
   metric:sample.aggregate.null metadata:9
   metric:sample.aggregate.write_me metadata:9
@@ -86,6 +86,9 @@ len(metrics[]):213
   metric:sample.const_rate.value metadata:9
   metric:sample.control metadata:9
   metric:sample.controller.mirage metadata:9
+  metric:sample.current.amp metadata:9
+  metric:sample.current.microamp metadata:9
+  metric:sample.current.milliamp metadata:9
   metric:sample.daemon_pid metadata:9
   metric:sample.darkness metadata:10
   metric:sample.datasize metadata:9
@@ -198,6 +201,10 @@ len(metrics[]):213
   metric:sample.percontext.pdu metadata:9
   metric:sample.percontext.recv_pdu metadata:9
   metric:sample.percontext.xmit_pdu metadata:9
+  metric:sample.power.kilowatt metadata:9
+  metric:sample.power.microwatt metadata:9
+  metric:sample.power.milliwatt metadata:9
+  metric:sample.power.watt metadata:9
   metric:sample.proc.exec metadata:10
   metric:sample.proc.ordinal metadata:10
   metric:sample.proc.reset metadata:9
@@ -248,6 +255,9 @@ len(metrics[]):213
   metric:sample.string.null metadata:9
   metric:sample.string.write_me metadata:9
   metric:sample.sysinfo metadata:9
+  metric:sample.temperature.celsius metadata:9
+  metric:sample.temperature.fahrenheit metadata:9
+  metric:sample.temperature.kelvin metadata:9
   metric:sample.ulong.bin metadata:10
   metric:sample.ulong.bin_ctr metadata:10
   metric:sample.ulong.count.base metadata:9
@@ -274,6 +284,9 @@ len(metrics[]):213
   metric:sample.updown.control.reset metadata:9
   metric:sample.updown.control.step metadata:9
   metric:sample.updown.obs metadata:9
+  metric:sample.voltage.microvolt metadata:9
+  metric:sample.voltage.millivolt metadata:9
+  metric:sample.voltage.volt metadata:9
   metric:sample.wrap.long metadata:9
   metric:sample.wrap.longlong metadata:9
   metric:sample.wrap.ulong metadata:9

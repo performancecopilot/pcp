@@ -86,6 +86,10 @@ sample {
     controller
     proc
     updown
+    temperature
+    voltage
+    current
+    power
 }
 
 sample.long {
@@ -376,3 +380,29 @@ sample.updown.control {
     mode		SAMPLE:0:170
     reset		SAMPLE:0:171
 }
+
+sample.temperature {
+    celsius		SAMPLE:0:172
+    fahrenheit		SAMPLE:0:173
+    kelvin		SAMPLE:0:174
+}
+
+sample.voltage {
+    volt		SAMPLE:0:175
+    millivolt		SAMPLE:0:176
+    microvolt		SAMPLE:0:177
+}
+
+sample.current {
+    amp			SAMPLE:0:178
+    milliamp		SAMPLE:0:179
+    microamp		SAMPLE:0:180
+}
+
+sample.power {
+    kilowatt		SAMPLE:0:181
+    watt		SAMPLE:0:182
+    milliwatt		SAMPLE:0:183
+    microwatt		SAMPLE:0:184
+}
+

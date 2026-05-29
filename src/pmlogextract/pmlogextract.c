@@ -907,7 +907,9 @@ update_descreclist(int indx)
 	    curr->desc.units.dimCount != pmu.dimCount ||
 	    curr->desc.units.scaleSpace != pmu.scaleSpace ||
 	    curr->desc.units.scaleTime != pmu.scaleTime ||
-	    curr->desc.units.scaleCount != pmu.scaleCount) {
+	    curr->desc.units.scaleCount != pmu.scaleCount ||
+	    curr->desc.units.extraUnit != pmu.extraUnit ||
+	    curr->desc.units.extraScale != pmu.extraScale) {
 	    fprintf(stderr, "%s: %s: metric ",
 		pmGetProgname(), xarg == 0 ? "Error" : "Warning");
 	    printmetricnames(stderr, curr->pdu);

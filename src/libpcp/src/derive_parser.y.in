@@ -1330,11 +1330,44 @@ map_units(node_t *np)
 	np->desc.units.dimCount = left->units.dimCount + right->units.dimCount;
 	np->desc.units.dimTime = left->units.dimTime + right->units.dimTime;
 	np->desc.units.dimSpace = left->units.dimSpace + right->units.dimSpace;
+	/*
+	 * for extra units + ! extra units, propagate the
+	 * extrta units to the result
+	 */
+	if (left->units.extraUnit == 0 && right->units.extraUnit != 0) {
+	    /* extra units in the right operand */
+	    np->desc.units.extraUnit = right->units.extraUnit;
+	    np->desc.units.extraScale = right->units.extraScale;
+	}
+	if (left->units.extraUnit != 0 && right->units.extraUnit == 0) {
+	    /* extra units in the left operand */
+	    np->desc.units.extraUnit = left->units.extraUnit;
+	    np->desc.units.extraScale = left->units.extraScale;
+	}
     }
     else if (np->type == N_SLASH) {
 	np->desc.units.dimCount = left->units.dimCount - right->units.dimCount;
 	np->desc.units.dimTime = left->units.dimTime - right->units.dimTime;
 	np->desc.units.dimSpace = left->units.dimSpace - right->units.dimSpace;
+	if (left->units.extraUnit != 0 && right->units.extraUnit != 0) {
+	    /*
+	     * if both operands have extra units then prior checks ensure
+	     * extraUnit and extraScale are identical for both operands of
+	     * division
+	     */
+	    np->desc.units.extraUnit = 0;
+	    np->desc.units.extraScale = 0;
+	}
+	else if (left->units.extraUnit) {
+	    /* extra units in the dividend */
+	    np->desc.units.extraUnit = left->units.extraUnit;
+	    np->desc.units.extraScale = left->units.extraScale;
+	}
+	else if (right->units.extraUnit) {
+	    /* extra units in the divisor */
+	    np->desc.units.extraUnit = -right->units.extraUnit;
+	    np->desc.units.extraScale = right->units.extraScale;
+	}
     }
     
     /*
@@ -1360,7 +1393,8 @@ map_units(node_t *np)
 	np->desc.units.scaleTime = 0;
     if (np->desc.units.dimSpace == 0)
 	np->desc.units.scaleSpace = 0;
-
+    if (np->desc.units.extraUnit == 0)
+	np->desc.units.extraScale = 0;
 }
 
 /*
@@ -1573,7 +1607,8 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	 */
 	if (left->units.dimCount != right->units.dimCount ||
 	    left->units.dimTime != right->units.dimTime ||
-	    left->units.dimSpace != right->units.dimSpace) {
+	    left->units.dimSpace != right->units.dimSpace ||
+	    left->units.extraUnit != right->units.extraUnit) {
 	    /*
 	     * or one of them is allowed to be "none" provided the
 	     * other is "count" ... this matches the special case
@@ -1581,6 +1616,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	     */
 	    if (left->units.dimTime == 0 && right->units.dimTime == 0 &&
 	        left->units.dimSpace == 0 && right->units.dimSpace == 0 &&
+	        left->units.extraUnit == 0 && right->units.extraUnit == 0 &&
 		((left->units.dimCount == 0 && right->units.dimCount == 1) ||
 		 (left->units.dimCount == 1 && right->units.dimCount == 0)))
 		    ;
@@ -1601,7 +1637,8 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	     right->type != N_INTEGER && right->type != N_DOUBLE) &&
 	    (left->units.dimCount != right->units.dimCount ||
 	     left->units.dimTime != right->units.dimTime ||
-	     left->units.dimSpace != right->units.dimSpace)) {
+	     left->units.dimSpace != right->units.dimSpace ||
+	     left->units.extraUnit != right->units.extraUnit)) {
 	    /*
 	     * or one of them is allowed to be "none" provided the
 	     * other is "count" ... this matches the special case
@@ -1609,6 +1646,7 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	     */
 	    if (left->units.dimTime == 0 && right->units.dimTime == 0 &&
 	        left->units.dimSpace == 0 && right->units.dimSpace == 0 &&
+	        left->units.extraUnit == 0 && right->units.extraUnit == 0 &&
 		((left->units.dimCount == 0 && right->units.dimCount == 1) ||
 		 (left->units.dimCount == 1 && right->units.dimCount == 0)))
 		    ;
@@ -1625,7 +1663,8 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	 */
 	if (left->units.dimCount != 0 || right->units.dimCount != 0 ||
 	    left->units.dimTime != 0 ||  right->units.dimTime != 0 ||
-	    left->units.dimSpace != 0 || right->units.dimSpace != 0) {
+	    left->units.dimSpace != 0 || right->units.dimSpace != 0 ||
+	    left->units.extraUnit != 0 || right->units.extraUnit != 0) {
 	    PM_TPD(derive_errmsg) = "Dimensions are not the same";
 	    goto bad;
 	}
@@ -1642,7 +1681,8 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	if (left->sem == PM_SEM_COUNTER && right->sem != PM_SEM_COUNTER) {
 	    if (right->units.dimCount != 0 ||
 	        right->units.dimTime != 0 ||
-	        right->units.dimSpace != 0) {
+	        right->units.dimSpace != 0 ||
+		right->units.extraUnit != 0) {
 		PM_TPD(derive_errmsg) = "Non-counter and not dimensionless for right operand";
 		goto bad;
 	    }
@@ -1650,10 +1690,46 @@ map_desc(dm_t *dmp, node_t *np, int async)
 	if (left->sem != PM_SEM_COUNTER && right->sem == PM_SEM_COUNTER) {
 	    if (left->units.dimCount != 0 ||
 	        left->units.dimTime != 0 ||
-	        left->units.dimSpace != 0) {
+	        left->units.dimSpace != 0 ||
+		left->units.extraUnit != 0) {
 		PM_TPD(derive_errmsg) = "Non-counter and not dimensionless for left operand";
 		goto bad;
 	    }
+	}
+    }
+
+    if (np->type == N_STAR) {
+	/*
+	 * don't allow extra units in both operands for multiplication
+	 */
+	if (left->units.extraUnit != 0 && right->units.extraUnit != 0) {
+	    PM_TPD(derive_errmsg) = "Extra units not allowed for both operands of *";
+	    goto bad;
+	}
+    }
+
+    if (np->type == N_SLASH) {
+	/*
+	 * don't allow extra units in both operands for division unless
+	 * they are identical
+	 */
+	if ((left->units.extraUnit != 0 && right->units.extraUnit != 0) &&
+	    ((left->units.extraUnit != right->units.extraUnit) ||
+	     (left->units.extraScale != right->units.extraScale))) {
+	    PM_TPD(derive_errmsg) = "Different extra units not allowed for both operands of /";
+	    goto bad;
+	}
+    }
+
+    if (left->units.extraUnit != 0 && right->units.extraUnit != 0) {
+	/*
+	 * if both operands use extra units then they must have
+	 * the same unit and scale
+	 */
+	if (left->units.extraUnit != right->units.extraUnit ||
+	    left->units.extraScale != right->units.extraScale) {
+	    PM_TPD(derive_errmsg) = "Operands have incompatible extra units or scale";
+	    goto bad;
 	}
     }
 
@@ -2024,6 +2100,22 @@ check_expr(dm_t *dmp, node_t *np, node_t *parent, int async)
 		    report_sem_error(dmp->name, np);
 		return -1;
 	    }
+	    if (np->left->desc.units.extraUnit != np->right->desc.units.extraUnit ||
+	        np->left->desc.units.extraScale != np->right->desc.units.extraScale)
+		{
+		if (pmDebugOptions.derive && pmDebugOptions.appl1) {
+		    char	strbuf[60];
+
+		    pmUnitsStr_r(&np->left->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, "Semantic error: ternary op units (extra): left=%s", strbuf);
+		    pmUnitsStr_r(&np->right->desc.units, strbuf, sizeof(strbuf));
+		    fprintf(stderr, " right=%s\n", strbuf);
+		}
+		PM_TPD(derive_errmsg) = "Different units or scale (extra) for ternary operands";
+		if (async)
+		    report_sem_error(dmp->name, np);
+		return -1;
+	    }
 	    return 0;
 
 	case N_QUEST:
@@ -2296,11 +2388,12 @@ __dmdumpexpr(node_t *np, int level)
 	    fprintf(stderr, " [%s] primary=%d", np->value, np->data.info == NULL ? 1 : 0);
 	if (np->type == N_SCALE) {
 	    if (pmUnitsStr_r(&np->desc.units, strbuf, sizeof(strbuf)) == NULL) {
-		fprintf(stderr, " [bad units: %d %d %d %d %d %d]", 
+		fprintf(stderr, " [bad units: %d %d %d %u %u %d %d %u]", 
 		    np->desc.units.scaleCount, np->desc.units.scaleTime,
 		    np->desc.units.scaleSpace,
 		    np->desc.units.dimCount, np->desc.units.dimTime,
-		    np->desc.units.dimSpace);
+		    np->desc.units.dimSpace,
+		    np->desc.units.extraUnit, np->desc.units.extraScale);
 	    }
 	    else
 		fprintf(stderr, " [%s]", strbuf);

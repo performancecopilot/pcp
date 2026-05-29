@@ -10,11 +10,16 @@ require DynaLoader;
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw(
     pmda_pmid pmda_pmid_name pmda_pmid_text pmda_inst_name pmda_inst_lookup
-    pmda_units pmda_config pmda_uptime pmda_long pmda_ulong pmda_install
+    pmda_units pmda_extraunits pmda_config pmda_uptime pmda_long pmda_ulong
+    pmda_install
     PM_ID_NULL PM_INDOM_NULL PM_IN_NULL
     PM_SPACE_BYTE PM_SPACE_KBYTE PM_SPACE_MBYTE PM_SPACE_GBYTE PM_SPACE_TBYTE
     PM_TIME_NSEC PM_TIME_USEC PM_TIME_MSEC PM_TIME_SEC PM_TIME_MIN PM_TIME_HOUR
     PM_COUNT_ONE
+    PM_UNIT_TEMPERATURE PM_TEMPERATURE_C PM_TEMPERATURE_F PM_TEMPERATURE_K
+    PM_UNIT_VOLTAGE PM_VOLTAGE_V PM_VOLTAGE_mV PM_VOLTAGE_uV
+    PM_UNIT_CURRENT PM_CURRENT_A PM_CURRENT_mA PM_CURRENT_uA
+    PM_UNIT_POWER PM_POWER_kW PM_POWER_W PM_POWER_mW PM_POWER_uW
     PM_TYPE_NOSUPPORT PM_TYPE_32 PM_TYPE_U32 PM_TYPE_64 PM_TYPE_U64
 	PM_TYPE_FLOAT PM_TYPE_DOUBLE PM_TYPE_STRING
     PM_SEM_COUNTER PM_SEM_INSTANT PM_SEM_DISCRETE
@@ -69,6 +74,31 @@ sub PM_TIME_HOUR	{ 5; }	# hours
 # interrupts, etc - these are simply powers of ten and not enumerated here
 # (e.g. 6 for 10^6, or -3 for 10^-3).
 sub PM_COUNT_ONE	{ 0; }	# 1
+
+# extra units - temperature
+sub PM_UNIT_TEMPERATURE	{ 1; }
+sub PM_TEMPERATURE_C	{ 1; }	# celsius
+sub PM_TEMPERATURE_F	{ 2; }	# fahrenheit
+sub PM_TEMPERATURE_K	{ 3; }	# kelvin
+
+# extra units - voltage
+sub PM_UNIT_VOLTAGE	{ 2; }
+sub PM_VOLTAGE_V	{ 1; }	# volt
+sub PM_VOLTAGE_mV	{ 2; }	# millivolt
+sub PM_VOLTAGE_uV	{ 3; }	# microvolt
+
+# extra units - current
+sub PM_UNIT_CURRENT	{ 3; }
+sub PM_CURRENT_A	{ 1; }	# amp
+sub PM_CURRENT_mA	{ 2; }	# milliamp
+sub PM_CURRENT_uA	{ 3; }	# microamp
+
+# extra units - power
+sub PM_UNIT_POWER	{ 4; }
+sub PM_POWER_kW		{ 1; }	# kilowatt
+sub PM_POWER_W		{ 2; }	# watt
+sub PM_POWER_mW		{ 3; }	# milliwatt
+sub PM_POWER_uW		{ 4; }	# microwatt
 
 # data type of metric values
 sub PM_TYPE_NOSUPPORT	{ 0xffffffff; }	# not implemented in this version
@@ -469,6 +499,11 @@ so complex data structures can be referenced).
 
 Construct a B<pmUnits> structure suitable for registering a metrics metadata
 via B<add_metric>().
+
+=item pmda_extraunits(dim_space, dim_time, dim_count, scale_space, scale_time, scale_count, extra_unit, extra_scale)
+
+Construct a B<pmUnits> structure with extra units suitable for registering
+a metrics metadata via B<add_metric>().
 
 =item pmda_config(name)
 

@@ -13,6 +13,7 @@
  * for more details.
  *
  * Debug flags
+ * -Dappl3	check metadata consistency
  * -Dappl4	report downsizing of -b
  * -Dappl5	dump PDU stats at end if context is a host
  */
@@ -44,6 +45,7 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_HEADER("Protocol options"),
     { "batch",    1, 'b', "N", "fetch N metrics at a time for -f and -v [128]" },
     { "desc",     0, 'd', 0, "get and print metric description" },
+    { "metadata-errors",   0, 'e', 0, "like -v, but don't report metrics with no values" },
     { "fetch",    0, 'f', 0, "fetch and print values for all instances" },
     { "fetchall", 0, 'F', 0, "fetch and print values for non-enumerable indoms" },
     { "fullindom",0, 'I', 0, "print InDom in verbose format" },
@@ -63,7 +65,7 @@ static pmLongOptions longopts[] = {
 
 static pmOptions opts = {
     .flags = PM_OPTFLAG_STDOUT_TZ,
-    .short_options = "a:b:c:dD:Ffh:IK:lLMmN:n:O:r:stTvVxzZ:?",
+    .short_options = "a:b:c:dD:eFfh:IK:lLMmN:n:O:r:stTvVxzZ:?",
     .long_options = longopts,
     .short_usage = "[options] [metricname | pmid | indom]...",
     .override = myoverrides,
@@ -1013,12 +1015,29 @@ report(void)
 	}
 
 	if (verify) {
+	    /*
+	     * pmid == PM_ID_NULL => no metadata, otherwise
+	     * check metadata with -e or -v
+	     */
+	    if (desclist[i].pmid != PM_ID_NULL) {
+		char	*errmsg;
+		if (__pmCheckDesc(&desclist[i], NULL, &errmsg)) {
+		    printf("%s: Questionable metadata ...\n", namelist[i]);
+		    mydesc(&desclist[i]);
+		    printf("%s\n", errmsg);
+		    free(errmsg);
+		}
+	    }
 	    if (desclist[i].type == PM_TYPE_NOSUPPORT)
 		printf("%s: Not Supported\n", namelist[i]);
 	    else if (vsp->numval < 0)
 		printf("%s: %s\n", namelist[i], pmErrStr(vsp->numval));
-	    else if (vsp->numval == 0)
+	    else if (vsp->numval == 0 && verify == 1) {
+		/*
+		 * skip if -e, report if -v
+		 */
 		printf("%s: No value(s) available\n", namelist[i]);
+	    }
 	    continue;
 	}
 
@@ -1031,7 +1050,7 @@ report(void)
 	if (p_oneline)
 	    myoneline(pmidlist[i], PM_TEXT_PMID);
 	putchar('\n');
-	if (p_desc)
+	if (p_desc == 1)
 	    mydesc(&desclist[i]);
 	if (p_series)
 	    mymetricseries(namelist[i], &desclist[i]);
@@ -1186,6 +1205,12 @@ main(int argc, char **argv)
 		need_pmid = 1;
 		break;
 
+	    case 'e':
+		verify = 2;
+		need_context = 1;
+		need_pmid = 1;
+		break;
+
 	    case 'F':
 		p_force = p_value = 1;
 		need_context = 1;
@@ -1271,6 +1296,13 @@ main(int argc, char **argv)
 	exit(exitsts);
     }
 
+    if (pmDebugOptions.appl3) {
+	/* -Dappl3 => -d */
+	p_desc = p_desc == 0 ? 2 : p_desc;
+	need_context = 1;
+	need_pmid = 1;
+    }
+
     if (opts.context)
 	need_context = 1;
 
@@ -1294,7 +1326,6 @@ main(int argc, char **argv)
 
     if (verify)
 	p_desc = p_mid = p_fullmid = p_help = p_oneline = p_value = p_force = p_label = 0;
-
 
     if ((namelist = (char **)malloc(batchsize * sizeof(char *))) == NULL) {
 	fprintf(stderr, "%s: namelist malloc: %s\n", pmGetProgname(), osstrerror());

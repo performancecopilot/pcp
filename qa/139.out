@@ -197,4 +197,17 @@ sample.updown.control.max
 sample.updown.control.step
 sample.updown.control.mode
 sample.updown.control.reset
+sample.temperature.celsius
+sample.temperature.fahrenheit
+sample.temperature.kelvin
+sample.voltage.volt
+sample.voltage.millivolt
+sample.voltage.microvolt
+sample.current.amp
+sample.current.milliamp
+sample.current.microamp
+sample.power.kilowatt
+sample.power.watt
+sample.power.milliwatt
+sample.power.microwatt
 pmlc> 

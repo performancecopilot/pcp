@@ -391,14 +391,14 @@ NF==0           { next }
 		{ warn++ }
 END             { if (warn) printf "%d warnings, ",warn
 		  printf "%d metrics and %d values\n",metric,value
-		}' > $tmp.fetch 2>&1
+		}' >$tmp.fetch 2>&1
 
-    pminfo -v $__agent 2>&1 | LC_COLLATE=POSIX sort >$tmp.verify
+    pminfo -v $__agent >$tmp.verify 2>&1
     $__quiet || cat $tmp.fetch
-    if grep warnings $tmp.fetch > /dev/null 2>&1
+    if grep warnings $tmp.fetch >/dev/null 2>&1
     then
 	# X warnings, Y metrics and Z values
-	num_warn=`sed -n -e '/warnings/s/ .*//p' < $tmp.fetch`
+	num_warn=`sed -n -e '/warnings/s/ .*//p' <$tmp.fetch`
 	if [ "$num_warn" -gt 0 ]
 	then
 	    echo "Warnings when fetching $__agent metrics:"
@@ -486,11 +486,11 @@ _make_proc_stat()
     __path=$1
     __ncpu=$2
 
-    echo cpu 0 0 0 0 0 0 0 0 0 > $__path
+    echo cpu 0 0 0 0 0 0 0 0 0 >$__path
     __cpu=0
     while [ $__cpu -lt $__ncpu ]
     do
-	echo cpu$__cpu 0 0 0 0 0 0 0 0 0 >> $__path
+	echo cpu$__cpu 0 0 0 0 0 0 0 0 0 >>$__path
 	__cpu=`expr $__cpu + 1`
     done
 }
@@ -639,7 +639,7 @@ _domain_name()
 
 _machine_id()
 {
-    cat /etc/machine-id 2> /dev/null || echo localmachine
+    cat /etc/machine-id 2>/dev/null || echo localmachine
 }
 
 # Check metric ($1) availability from pmcd on host ($2, defaults to
@@ -2172,20 +2172,20 @@ _within_tolerance()
   $__debug && echo "min = $__min"
   $__debug && echo "max = $__max"
 
-  cat <<EOF > $tmp._bc.1
+  cat <<EOF >$tmp._bc.1
 scale=5;
 if ($__min <= $__given_val) 1;
 if ($__min > $__given_val) 0; 
 EOF
 
-  cat <<EOF > $tmp._bc.2
+  cat <<EOF >$tmp._bc.2
 scale=5;
 if ($__given_val <= $__max) 1;
 if ($__given_val > $__max) 0;
 EOF
 
-  __above_min=`bc < $tmp._bc.1`
-  __below_max=`bc < $tmp._bc.2`
+  __above_min=`bc <$tmp._bc.1`
+  __below_max=`bc <$tmp._bc.2`
 
   __in_range=`expr $__above_min \& $__below_max` 
 
@@ -2227,9 +2227,9 @@ _remove_job_scheduler()
 		pmie_check.timer pmie_farm_check.timer \
 		pmlogger_daily.timer \
 		pmlogger_check.timer pmlogger_farm_check.timer ; do
-	    $__rc_sudo systemctl is-active $__i > /dev/null || continue
+	    $__rc_sudo systemctl is-active $__i >/dev/null || continue
 	    $__rc_sudo systemctl stop $__i >/dev/null
-	    echo $__i >> $__rc_systemd_state
+	    echo $__i >>$__rc_systemd_state
 	done
     fi
 
@@ -2262,7 +2262,7 @@ _remove_job_scheduler()
 	    -e 's/^[^#].*pmsnap/#&/' \
 	    -e 's/^[^#].*cron.pmcheck/#&/' \
 	    -e 's/^[^#].*cron.pmsnap/#&/' \
-	| $__rc_sudo crontab > /dev/null 2>&1
+	| $__rc_sudo crontab >/dev/null 2>&1
     fi
 }
 
@@ -3163,7 +3163,7 @@ _restore_pmda_install()
     [ -f $PCP_VAR_DIR/config/$iam/$iam.conf.$seq ] \
 	&& $sudo mv $PCP_VAR_DIR/config/$iam/$iam.conf.$seq $PCP_VAR_DIR/config/$iam/$iam.conf
 
-    if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
+    if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH >/dev/null 2>&1
     then
 	_restore_config $PCP_PMCDCONF_PATH
     else
@@ -3175,14 +3175,14 @@ _restore_pmda_install()
 	    #
 	    __here=`pwd`
 	    cd $PCP_PMDAS_DIR/$iam
-	    $sudo ./Install < /dev/null > /dev/null 2>&1
+	    $sudo ./Install </dev/null >/dev/null 2>&1
 	    cd $__here
 	fi
 
 # PMDA may have been installed differently to default. As everything is
 # installed we can use the old pmcd.conf file to restore state.
 
-        if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH > /dev/null 2>&1
+        if diff $PCP_PMCDCONF_PATH.$seq $PCP_PMCDCONF_PATH >/dev/null 2>&1
         then
 	    _restore_config $PCP_PMCDCONF_PATH
         else
@@ -3294,7 +3294,7 @@ _get_primary_logger_pid()
 
 _get_libpcp_config()
 {
-    $PCP_BINADM_DIR/pmconfig -L -s > $tmp.config
+    $PCP_BINADM_DIR/pmconfig -L -s >$tmp.config
     . $tmp.config
     rm $tmp.config
 }
@@ -3794,7 +3794,7 @@ _triage_wait_point()
 	__msg="$2"
     elif [ $# -eq 1 ]
     then
-	__file=$seq.wait
+	__file="$here/$seq.wait"
 	__msg="$1"
     else
 	__file=$seq.wait
