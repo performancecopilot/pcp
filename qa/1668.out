@@ -3,7 +3,7 @@ some unscaled units ...
 
    source: archives/extra (archive)
      host: bozo.localdomain
- timezone: UTC+10
+ timezone: UTC+10 (reporting, current is UTC+0)
     start: Sat May 23 16:08:33 2026
       end: Sat May 23 16:08:34 2026
   metrics: 1 (1 instance)
@@ -21,7 +21,7 @@ some unscaled units ...
 
    source: archives/extra (archive)
      host: bozo.localdomain
- timezone: UTC+10
+ timezone: UTC+10 (reporting, current is UTC+0)
     start: Sat May 23 16:08:33 2026
       end: Sat May 23 16:08:34 2026
   metrics: 1 (1 instance)
@@ -39,7 +39,7 @@ some unscaled units ...
 
    source: archives/extra (archive)
      host: bozo.localdomain
- timezone: UTC+10
+ timezone: UTC+10 (reporting, current is UTC+0)
     start: Sat May 23 16:08:33 2026
       end: Sat May 23 16:08:34 2026
   metrics: 1 (1 instance)
@@ -57,7 +57,7 @@ some unscaled units ...
 
    source: archives/extra (archive)
      host: bozo.localdomain
- timezone: UTC+10
+ timezone: UTC+10 (reporting, current is UTC+0)
     start: Sat May 23 16:08:33 2026
       end: Sat May 23 16:08:34 2026
   metrics: 1 (1 instance)
@@ -77,7 +77,7 @@ some rescaled units ...
 
    source: archives/extra (archive)
      host: bozo.localdomain
- timezone: UTC+10
+ timezone: UTC+10 (reporting, current is UTC+0)
     start: Sat May 23 16:08:33 2026
       end: Sat May 23 16:08:34 2026
   metrics: 1 (1 instance)
@@ -95,7 +95,7 @@ some rescaled units ...
 
    source: archives/extra (archive)
      host: bozo.localdomain
- timezone: UTC+10
+ timezone: UTC+10 (reporting, current is UTC+0)
     start: Sat May 23 16:08:33 2026
       end: Sat May 23 16:08:34 2026
   metrics: 1 (1 instance)
@@ -113,7 +113,7 @@ some rescaled units ...
 
    source: archives/extra (archive)
      host: bozo.localdomain
- timezone: UTC+10
+ timezone: UTC+10 (reporting, current is UTC+0)
     start: Sat May 23 16:08:33 2026
       end: Sat May 23 16:08:34 2026
   metrics: 1 (1 instance)
@@ -131,7 +131,7 @@ some rescaled units ...
 
    source: archives/extra (archive)
      host: bozo.localdomain
- timezone: UTC+10
+ timezone: UTC+10 (reporting, current is UTC+0)
     start: Sat May 23 16:08:33 2026
       end: Sat May 23 16:08:34 2026
   metrics: 1 (1 instance)

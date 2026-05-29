@@ -33,6 +33,10 @@ _filter()
     # end
 }
 
+# for local timezone reported with -x
+#
+export TZ=UTC
+
 # real QA test starts here
 echo "some unscaled units ..."
 pmrep -a archives/extra -p -z -x -u -w 20 sample.temperature.celsius,,,'temperature (C)'
