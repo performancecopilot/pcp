@@ -484,7 +484,9 @@ OpenIndiana
 
 OpenBSD
     https://cdn.openbsd.org/pub/OpenBSD/
-    22 Oct 2025: 7.7, 7.8
+    30 May 2026: 7.7, 7.8, 7.9
+    # which packages are installed
+    $ pkg_info -a
     # package search recipe (name only, not info or description)
     $ pkg_info -Q <pattern>
     # which package installs a file/directory

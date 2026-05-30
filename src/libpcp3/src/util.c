@@ -325,6 +325,13 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		    oldstream = fdopen(fileno(stderr), "w");
 	    }
 	    outstream = oldstream;
+#ifdef IS_OPENBSD
+	    /*
+	     * For OpenBSD a stdio FILE is opaque, so this struct copying
+	     * does not work ... leads to slightly different semantics on
+	     * this unlikely error path, but otherwise is OK
+	     */
+#else
 	    if (oldstream != NULL) {
 		/*
 		 * oldstream was NULL, but recovered so now fixup
@@ -342,6 +349,7 @@ logreopen(const char *progname, const char *logname, FILE *oldstream,
 		/* put oldstream back for return value */
 		outstream = dupoldstream;
 	    }
+#endif
 #ifdef HAVE_STRERROR_R_PTR
 	    {
 		char	*p;
