@@ -25,9 +25,9 @@ tracepoint:raw_syscalls:sys_enter { @c = count(; }"
 found metric bpftrace.scripts.test3.status with matching value "error"
 
 bpftrace.scripts.test3.error
-    value "stdin:2:42-49: ERROR: syntax error, unexpected ;
+    value "stdin:<lineno>: ERROR: syntax error, unexpected ;
 tracepoint:raw_syscalls:sys_enter { @c = count(; }
-                                         ~~~~~~~"
+<tilde>"
 
 bpftrace.scripts.test3.exit_code
     value 1

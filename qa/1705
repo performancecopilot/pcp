@@ -100,7 +100,11 @@ tracepoint:raw_syscalls:sys_enter { @c = count(; }"
 # 10sec (default) is not long enough on vm03
 #
 _pmdabpftrace_wait_for_value bpftrace.scripts.test3.status '"error"' 15
-pminfo -f bpftrace.scripts.test3.error
+pminfo -f bpftrace.scripts.test3.error 2>&1 \
+| sed \
+    -e 's/stdin:[^ ]*: /stdin:<lineno>: /' \
+    -e 's/^  *~~*"/<tilde>"/' \
+# end
 pminfo -f bpftrace.scripts.test3.exit_code
 echo
 echo "=== too many attached tracepoints ==="
@@ -132,7 +136,10 @@ then
 fi
 pmstore bpftrace.control.register "`cat $tmp.probe`" 2>&1 \
 | _filter_kprobe
-_pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"' 15
+# took 25sec to get started on vm24 x86_64 Ubuntu 26.04
+# - kenj 01 Jun 2026
+#
+_pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"' 30
 # Note: Failure texts we've seen here include
 #    vm03 (Fedora 42)
 #	value "cannot attach kprobe, Invalid argument
@@ -140,6 +147,8 @@ _pmdabpftrace_wait_for_value bpftrace.scripts.test4.status '"error"' 15
 #    bozo (Ubuntu 24.04)
 #	value "ERROR: Can't attach to 514 probes because it exceeds the current limit of 512 probes.
 #    You can increase the limit through the BPFTRACE_MAX_PROBES environment variable, but BE CAREFUL since a high number of probes attached can cause your system to crash."
+#    vm24 (Ubuntu 26.04)
+#       value "Unable to attach probe: kprobe:datablob_parse. If this is expected, set the 'missing_probes' config variable to 'warn'."
 #
 pminfo -f bpftrace.scripts.test4.error \
 | tee -a $seq_full \
@@ -164,7 +173,7 @@ s/value ".*"*/value "<kprobes error babble>"/
 n
 /^ERROR: Error attaching probe: kprobe:/d
 }' \
-    -e '/value "Unable to attach probe: kprobe:dbg_get_reg. /{
+    -e '/value "Unable to attach probe: kprobe:/{
 s/value ".*"/value "<kprobes error babble>"/
 }'
     # end

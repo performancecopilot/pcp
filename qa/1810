@@ -20,6 +20,18 @@ then
     _notrun "Physical memory too large ($physmem)"
 fi
 
+# the oom recipe used here does not work on some platforms
+# vm24                7.1.6    x86_64  Ubuntu 26.04 (resolute) [kernel=7.0.0 py=3.14.4 se=none]
+#
+admin/whatami 2>&1 \
+| $PCP_AWK_PROG '
+$4 == "Ubuntu"  { fix = sub(/\./, "", $5)
+		  if (fix != 1)
+		    print "Botch: parsing whatami output, expected Ubuntu version, got " $5
+		  if ($5 >= 2604) print "oom recipe does not work for Ubuntu 26.04 or later" >>"'$tmp.notrun'"
+	    	}'
+[ -f $tmp.notrun ] && _notrun "`cat $tmp.notrun`"
+
 _pmdabpf_check
 _pmdabpf_require_kernel_version 5 0
 _pmdabpf_require_libbpf_version 1 0

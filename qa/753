@@ -55,10 +55,11 @@ End-of-File
     echo "--- $metric ---" | tee -a $seq_full
     echo "d=delta($metric)" >$tmp.config
     echo "r=rate($metric)" >>$tmp.config
+    cat $tmp.config >>$seq_full
     echo "+++ delta +++" >>$seq_full
-    pmval -t 0.5 -f 0 -s 2 d | _filter $metric
+    pmval -t 0.5 -f 0 -s 2 d 2>&1 | _filter $metric
     echo "+++ rate +++" >>$seq_full
-    pmval -t 0.5 -f 0 -s 2 r | _filter $metric
+    pmval -t 0.5 -f 0 -s 2 r 2>&1 | _filter $metric
 done
 
 # success, all done
