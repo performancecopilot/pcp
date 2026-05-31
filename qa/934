@@ -23,14 +23,16 @@ _cleanup()
 #
 _filter()
 {
-    sed \
+    # Ubuntu 26.04 broke things here:
+    # mkdir: no dir name in Permission denied message
+    # chown: (os error 1) babble appended to message
+    #
+    tee -a $seq_full \
+    | sed \
 	-e "s/\`/'/g" \
-	-e '/^mkdir: foo/{
-s/: foo/: cannot create directory "foo/
-s/bar:/bar":/
-s/"/'"'"'/g
-}' \
-	-e '/^chown: foo/{
+	-e 's/^mkdir: .*Permission denied/mkdir: Permission denied/' \
+	-e '/^chown: /{
+s/ (os error 1)//
 s/: foo/: changing ownership of "foo"/
 s/"/'"'"'/g
 }' \

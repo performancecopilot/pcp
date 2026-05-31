@@ -72,7 +72,7 @@ mode= drwxr-xr-x user=pcp group=pcp name=foobar
 Error cases ...
 
 Permissions for mkdir ...
-mkdir: cannot create directory 'foo/bar': Permission denied
+mkdir: Permission denied
 mkdir_and_chown: foo/bar: mkdir -m 755 failed
 return status=1
 mode=dr-xr-xr-x name=foo
