@@ -61,6 +61,9 @@
 			PMDA when using inet sockects to communicate ... the
 			test passes sometimes and fails other times and hand
 			testing with dbpmda cannot reproduce a failure
+1514	Ubuntu 26\.04	env memory fault (launchpad bug) amd/or valgrind
+			is broken wirth this babble
+			coreutils: unknown program 'memcheck-amd64-linux'
 1595	vm20	valgrind issue goes away when linux PMDA compiled -O0
 1574	.*	valgrind-reported issue in libpcp_web pmseries functions
 1600	OpenIndiana	pmseries sees nothing in this test, don't know why

@@ -21,14 +21,17 @@ _cleanup()
 
 _filter()
 {
-    # note stripping special UTF-8 quotes thanks to coreutils brain damage
-    # from mkdir(1) error message
+    # In some distros (like Ubuntu 26.04) the error message changed
+    # so that
+    #     mkdir: cannot create directory TMP/thishost: Permission denied
+    # became
+    #     mkdir: Permission denied
+    # removing the additional text and the dir name dodges an earlier
+    # problem with UTF-8 quoting of the dir name
     #
     sed \
 	-e "s@$tmp@TMP@g" \
-	-e "s/[‘’]//g" \
-	-e "s/'//g" \
-	-e 's/`//g' \
+	-e 's/^mkdir: .*Permission denied/mkdir: Permission denied/' \
     # end
 }
 

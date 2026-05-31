@@ -68,12 +68,24 @@ esac
 # or
 #	-E, --preserve-env
 #
-sudo=`which sudo`
-if $sudo -h 2>&1 | grep -E '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
+# Ubuntu 26.04 introduced "alternatives" so there are potentially multiple
+# sudo's to choose from ...
+#
+for cmd in sudo sudo.ws
+do
+    if $cmd -h 2>&1 | grep -E '(\[-[a-zA-DF-Z]*E[a-zA-Z]*\])|(.-E[, 	])' >/dev/null 2>&1
+    then
+	# $cmd has -E to preserve the environment
+	#
+	sudo="`which $cmd` -E"
+	break
+    fi
+done
+[ -z "$sudo" ] && sudo=`which sudo`
+if [ -z "$sudo" ]
 then
-    # sudo has -E to preserve the environment
-    #
-    sudo="$sudo -E"
+    echo "Error: unable to find useable sudo(1)" >&2
+    exit 1
 fi
 
 # $sudo_local_ctx maybe $sudo if PM_CONTEXT_LOCAL needs to run as root,
