@@ -1,0 +1,367 @@
+#!/usr/bin/env pmpython
+'''
+Performance Metrics Domain Agent exporting chronyd metrics.
+'''
+#
+# Copyright (c) 2026 Nutanix, Inc.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# pylint: disable=bad-continuation,line-too-long,too-many-lines,bare-except
+#
+
+from ctypes import c_int
+
+import cpmapi as c_api
+from pcp.pmapi import pmUnits
+from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
+from cpmda import PMDA_FETCH_NOVALUES
+import subprocess
+
+# functions to convert `chronyc -c tracking` values to typed values
+TRACKING_FXNS = (
+    lambda x: int(x, 16), # ref id
+    str, # ref id ip
+    int, # stratum
+    float, # ref time
+    float, # sys time off
+    float, # last off
+    float, # rms off
+    float, # freq
+    float, # resid freq
+    float, # skew
+    float, # root delay
+    float, # root disp
+    float, # update interval
+    str, # leap status FIXME: map to something more useful?
+)
+
+# functions to convert `chronyc -c souces` values to typed values
+SOURCES_FXNS = (
+    str, # M FIXME: map char to something more useful?
+    str, # S FIXME: map char to something more useful?
+    str, # ip
+    int, # stratum
+    int, # poll
+    lambda x: int(x, 8), # reach
+    int, # last rx
+    float, # last sample 1
+    float, # last sample 2
+    float, # last sample 3
+)
+
+# functions to convert `chronyc -c sourcestats` values to typed values
+SOURCESTATS_FXNS = (
+    str, # ip
+    int, # np
+    int, # nr
+    int, # span
+    float, # freq
+    float, # freq skew
+    float, # offset
+    float, # std dev
+)
+
+
+class ChronyPMDA(PMDA):
+    '''
+    Performance Metrics Domain Agent exporting chronyd metrics.
+    Install it and make basic use of it if you use chrony, as follows:
+
+    # $PCP_PMDAS_DIR/chrony/Install
+    $ pminfo -fmdtT chrony
+    '''
+
+    def _oneline_cmd(self, cmd, cvt_fxns):
+        out = {}
+
+        try:
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, universal_newlines=True, check=True)
+            values = res.stdout.strip().split(",")
+            assert len(values) >= len(cvt_fxns), (values, cvt_fxns)
+
+            # parse each item
+            for i in range(len(values)):
+                out[i] = cvt_fxns[i](values[i])
+        except subprocess.CalledProcessError as e:
+            cmd = " ".join(cmd)
+            self.log(f"Error running '{cmd}': {e}")
+            return {}
+
+        return out
+
+    def _multiline_cmd(self, cmd, ip_idx, cvt_fxns):
+        out = {}
+
+        try:
+            res = subprocess.run(cmd, stdout=subprocess.PIPE, universal_newlines=True, check=True)
+            for line in res.stdout.split("\n"):
+                if line == "":
+                    continue
+
+                values = line.strip().split(",")
+                assert len(values) >= len(cvt_fxns), (values, cvt_fxns)
+                assert values[ip_idx] not in out, (values[ip_idx], out)
+
+                out[values[ip_idx]] = {}
+
+                # parse each item
+                for i in range(len(values)):
+                    out[values[ip_idx]][i] = cvt_fxns[i](values[i])
+        except subprocess.CalledProcessError as e:
+            cmd = " ".join(cmd)
+            self.log(f"Error running '{cmd}': {e}")
+            return {}
+
+        return out
+
+    def _refresh_inst(self, hosts):
+        insts = {host: c_int(1) for host in hosts}
+
+        self.sourcesinsts.set_instances(self.sourcesindom, insts)
+        self.replace_indom(self.sourcesindom, insts)
+
+    def chrony_refresh(self, cluster):
+        '''
+        Called once for each cluster in a PCP "fetch" PDU from pmcd(1)
+        Invokes `chronyc tracking`, `chronyc sources`, etc. to gather
+        statistics.
+        '''
+        #self.log("refresh callback for %d" % cluster)
+        if cluster == 0:
+            # chrony.tracking.*
+            self.tracking = self._oneline_cmd(["chronyc", "-c", "tracking"],
+                                              TRACKING_FXNS)
+        elif cluster == 1:
+            # chrony.sources.*
+            self.sources = self._multiline_cmd(["chronyc", "-c", "sources"], 2,
+                                               SOURCES_FXNS)
+            self._refresh_inst(self.sources)
+        elif cluster == 2:
+            # chrony.sourcestats.*
+            self.sourcestats = self._multiline_cmd(["chronyc", "-c", "sourcestats"], 0,
+                                                   SOURCESTATS_FXNS)
+            self._refresh_inst(self.sourcestats)
+
+    def chrony_fetch_callback(self, cluster, item, inst):
+        '''
+        Main fetch callback - looks up value associated with requested PMID
+        (from chrony_fetch) and returns a list of value,status (single pair)
+        for the requested pmid
+        '''
+        #self.log("fetch callback for %d.%d[%d]" % (cluster, item, inst))
+        if cluster == 0:
+            # chrony.tracking.*
+            if inst != c_api.PM_IN_NULL:
+                return [c_api.PM_ERR_INST, 0]
+            if item in self.tracking:
+                return [self.tracking[item], 1]
+            return [c_api.PM_ERR_PMID, 0]
+        elif cluster == 1:
+            # chrony.sources.*
+            source = self.sourcesinsts.inst_name_lookup(inst)
+            if source not in self.sources:
+                return [c_api.PM_ERR_INST, 0]
+            if item not in self.sources[source]:
+                return [c_api.PM_ERR_INST, 0]
+            return [self.sources[source][item], 1]
+        elif cluster == 2:
+            # chrony.sourcestats.*
+            source = self.sourcesinsts.inst_name_lookup(inst)
+            if source not in self.sourcestats:
+                return [c_api.PM_ERR_INST, 0]
+            if item not in self.sourcestats[source]:
+                return [c_api.PM_ERR_INST, 0]
+            return [self.sourcestats[source][item], 1]
+        return [c_api.PM_ERR_PMID, 0]
+
+
+    def setup_metrics(self, name):
+        '''
+        Setup the metric table
+        '''
+
+        # cluster 0: chrony.tracking.*
+        self.add_metric(name + '.tracking.ref_id', pmdaMetric(
+                self.pmid(0, 0),
+                c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'The numeric NTP reference ID of the synchronized to server.')
+        self.add_metric(name + '.tracking.ref_id_ip', pmdaMetric(
+                self.pmid(0, 1),
+                c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'The NTP reference ID expressed as an IPv4 address.')
+        self.add_metric(name + '.tracking.stratum', pmdaMetric(
+                self.pmid(0, 2),
+                c_api.PM_TYPE_U32, c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'The current stratum (number of hops away from a computer with attached refrence clock.')
+        self.add_metric(name + '.tracking.ref_time', pmdaMetric(
+                self.pmid(0, 3),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Time (UTC) of the last measurement from the reference source.')
+        self.add_metric(name + '.tracking.sys_time_off', pmdaMetric(
+                self.pmid(0, 4),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Time offset between system clock and true time estimate.')
+        self.add_metric(name + '.tracking.last_off', pmdaMetric(
+                self.pmid(0, 5),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Estimated local offset during last clock update.')
+        self.add_metric(name + '.tracking.rms_off', pmdaMetric(
+                self.pmid(0, 6),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Long-term average of the offset value.')
+        self.add_metric(name + '.tracking.freq', pmdaMetric(
+                self.pmid(0, 7),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'System clock frequency error in ppm.')
+        self.add_metric(name + '.tracking.freq_resid', pmdaMetric(
+                self.pmid(0, 8),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Resitual frequency for the currently selected reference source.')
+        self.add_metric(name + '.tracking.skew', pmdaMetric(
+                self.pmid(0, 9),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Estimated error bound on the frequency.')
+        self.add_metric(name + '.tracking.root_delay', pmdaMetric(
+                self.pmid(0, 10),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Total network path delays to stratum-1 computer.')
+        self.add_metric(name + '.tracking.root_disp', pmdaMetric(
+                self.pmid(0, 11),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Total dispersion accumulated through all hops to stratum-1.')
+        self.add_metric(name + '.tracking.update_interval', pmdaMetric(
+                self.pmid(0, 12),
+                c_api.PM_TYPE_DOUBLE, c_api.PM_INDOM_NULL, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'iInterval between the last two clock updates.')
+        self.add_metric(name + '.tracking.leap_status', pmdaMetric(
+                self.pmid(0, 13),
+                c_api.PM_TYPE_STRING, c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Leap second indication (Normal, Insert, Delete, or Not synchronized).')
+
+        # cluster 1: chrony.sources.*
+        self.add_metric(name + '.sources.m', pmdaMetric(
+                self.pmid(1, 0),
+                c_api.PM_TYPE_STRING, self.sourcesindom, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Source mode (^ is server, = is peer, # is local reference clock)')
+        self.add_metric(name + '.sources.s', pmdaMetric(
+                self.pmid(1, 1),
+                c_api.PM_TYPE_STRING, self.sourcesindom, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Source selection state (* best & selected, + selected & combined, - selectable & not selected, x falseticker, ~ too variable, ? other reason for not-selectable)')
+        # skipping pmid(1, 2) which would map to the IP that's used for the indom
+        self.add_metric(name + '.sources.stratum', pmdaMetric(
+                self.pmid(1, 3),
+                c_api.PM_TYPE_U32, self.sourcesindom, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Stratum of the source as reported in most recent sample.')
+        self.add_metric(name + '.sources.poll', pmdaMetric(
+                self.pmid(1, 4),
+                c_api.PM_TYPE_U32, self.sourcesindom, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Rate of polling of the source as base-2 logarithm.')
+        self.add_metric(name + '.sources.reach', pmdaMetric(
+                self.pmid(1, 5),
+                c_api.PM_TYPE_U32, self.sourcesindom, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Source\'s reachability (8 bits)')
+        self.add_metric(name + '.sources.last_rx', pmdaMetric(
+                self.pmid(1, 6),
+                c_api.PM_TYPE_U32, self.sourcesindom, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Age of last good sample received from the source.')
+        self.add_metric(name + '.sources.last_sample.adjusted', pmdaMetric(
+                self.pmid(1, 7),
+                c_api.PM_TYPE_DOUBLE, self.sourcesindom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Original measurement, adjusted for any slews since.')
+        self.add_metric(name + '.sources.last_sample.measured', pmdaMetric(
+                self.pmid(1, 8),
+                c_api.PM_TYPE_DOUBLE, self.sourcesindom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Measured offset.')
+        self.add_metric(name + '.sources.last_sample.error', pmdaMetric(
+                self.pmid(1, 9),
+                c_api.PM_TYPE_DOUBLE, self.sourcesindom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Margin of error in the measurement.')
+
+        # cluster 2: chrony.sourcestats.*
+        # skipping pmid(2, 0) which would map to the IP that's used for the indom
+        self.add_metric(name + '.sourcestats.np', pmdaMetric(
+                self.pmid(2, 1),
+                c_api.PM_TYPE_U32, self.sourcesindom, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of sample points retained.')
+        self.add_metric(name + '.sourcestats.nr', pmdaMetric(
+                self.pmid(2, 2),
+                c_api.PM_TYPE_U32, self.sourcesindom, c_api.PM_SEM_DISCRETE,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Number of runs of residuals with same sign after last regression.')
+        self.add_metric(name + '.sourcestats.span', pmdaMetric(
+                self.pmid(2, 3),
+                c_api.PM_TYPE_U32, self.sourcesindom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Interval between oldest and newest samples.')
+        self.add_metric(name + '.sourcestats.freq', pmdaMetric(
+                self.pmid(2, 4),
+                c_api.PM_TYPE_DOUBLE, self.sourcesindom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Estimated residual frequency for the server in ppm.')
+        self.add_metric(name + '.sourcestats.freq_skew', pmdaMetric(
+                self.pmid(2, 5),
+                c_api.PM_TYPE_DOUBLE, self.sourcesindom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)),
+        'Estimated error bounds on ' + name + '.sourcestats.freq in ppm')
+        self.add_metric(name + '.sourcestats.offset', pmdaMetric(
+                self.pmid(2, 6),
+                c_api.PM_TYPE_DOUBLE, self.sourcesindom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Estimated time offset of the source.')
+        self.add_metric(name + '.sourcestats.std_dev', pmdaMetric(
+                self.pmid(2, 7),
+                c_api.PM_TYPE_DOUBLE, self.sourcesindom, c_api.PM_SEM_INSTANT,
+                pmUnits(0, 1, 0, 0, c_api.PM_TIME_SEC, 0)),
+        'Estimated sample standard deviation.')
+
+    def __init__(self, name, domain):
+        PMDA.__init__(self, name, domain)
+
+        self.sourcesindom = self.indom(0)
+        self.sourcesinsts = pmdaIndom(self.sourcesindom, {})
+        self.add_indom(self.sourcesinsts)
+
+        self.tracking = {} # [<item>] = <value>
+        self.sources = {} # [<inst>][<item>] = <value>
+        self.sourcestats = {} # [<inst>][<item>] = <value>
+        self.setup_metrics(name)
+
+        self.set_refresh(self.chrony_refresh)
+        self.set_fetch_callback(self.chrony_fetch_callback)
+
+
+if __name__ == '__main__':
+    ChronyPMDA('chrony', 165).run()

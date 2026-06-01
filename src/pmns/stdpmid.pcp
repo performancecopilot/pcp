@@ -171,7 +171,8 @@ UWSGI		161
 AMDGPU		162
 ROCESTAT	163
 OPENTELEMETRY	164
-### FREE SLOTS 165...229 ###
+CHRONY		165
+### FREE SLOTS 166...229 ###
 # start QA section 230...254
 # historically allocated *down* from 254 to 230
 ### FREE QA SLOTS 230...240 ###
