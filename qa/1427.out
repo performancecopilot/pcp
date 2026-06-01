@@ -11,16 +11,16 @@ foo+.meta
 checksum cmd: ...
 source checksum: ...
 destination checksum: ...
-copy ./foo+.0 -> /tmp/foo+.0
+copy foo+.0 -> /tmp/foo+.0
 source checksum: ...
 destination checksum: ...
-copy ./foo+.index -> /tmp/foo+.index
+copy foo+.index -> /tmp/foo+.index
 source checksum: ...
 destination checksum: ...
-copy ./foo+.meta -> /tmp/foo+.meta
-remove ./foo+.0
-remove ./foo+.index
-remove ./foo+.meta
+copy foo+.meta -> /tmp/foo+.meta
+remove foo+.0
+remove foo+.index
+remove foo+.meta
 src ...
 ls: cannot access foo+.*: No such file or directory
 dest ...
@@ -39,12 +39,12 @@ ls: cannot access foo+.*: No such file or directory
 
 === fake out no checksum command ===
 pmlogmv: warning: no checksum command found, checksums skipped
-copy ./foo+.0 -> /tmp/foo+.0
-copy ./foo+.index -> /tmp/foo+.index
-copy ./foo+.meta -> /tmp/foo+.meta
-remove ./foo+.0
-remove ./foo+.index
-remove ./foo+.meta
+copy foo+.0 -> /tmp/foo+.0
+copy foo+.index -> /tmp/foo+.index
+copy foo+.meta -> /tmp/foo+.meta
+remove foo+.0
+remove foo+.index
+remove foo+.meta
 src ...
 ls: cannot access foo+.*: No such file or directory
 dest ...

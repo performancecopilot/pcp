@@ -248,7 +248,7 @@ do_checksum(const char *file, char *sum)
 }
 
 /*
- * make link or copy for one physical file
+ * make link or make copy or list for one physical file
  * return codes:
  * 1: ok
  * 0: source file not found
@@ -541,6 +541,10 @@ main(int argc, char **argv)
 	exit(1);
     }
     srcname = ctxp->c_archctl->ac_log->name;
+
+    /* strip a leading "./" from the libpcp name */
+    if (strncmp(srcname, "./", 2) == 0)
+	srcname += 2;
 
     if (mode != LS) {
 	opts->optind++;
