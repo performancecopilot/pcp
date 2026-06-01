@@ -190,7 +190,7 @@ pmlogextract
 pmlogreduce
 # log rotation script
 #retired# pmnewlog
-# log rename (move) and copy apps - pmlogmv and pmlogcp
+# log rename (move), copy and list apps - pmlogmv, pmlogcp and pmlogls
 pmlogmv
 # log summary app
 pmlogsummary
@@ -2208,6 +2208,7 @@ suse
 1666 pmda.summary pmie local pmunits
 1667 pmunits derive local
 1668 pmunits pmrep python local
+1669 pmlogmv local
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1673 pmda.bpf local

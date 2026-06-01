@@ -1,0 +1,35 @@
+QA output created by 1669
+
+=== archives/foo+ ===
+archives/foo+.0
+archives/foo+.index
+archives/foo+.meta
+
+=== archives/ok-mv-bigbin ===
+archives/ok-mv-bigbin.0
+archives/ok-mv-bigbin.1
+archives/ok-mv-bigbin.2
+archives/ok-mv-bigbin.3
+archives/ok-mv-bigbin.4
+archives/ok-mv-bigbin.5
+archives/ok-mv-bigbin.6
+archives/ok-mv-bigbin.7
+archives/ok-mv-bigbin.8
+archives/ok-mv-bigbin.9
+archives/ok-mv-bigbin.index
+archives/ok-mv-bigbin.meta
+
+=== no-such-archive ===
+
+=== tmparch/mv-bar.meta ===
+tmparch/mv-bar.0
+tmparch/mv-bar.1
+tmparch/mv-bar.2
+tmparch/mv-bar.3
+tmparch/mv-bar.index
+tmparch/mv-bar.meta
+
+=== archives/amdgpu.0.xz ===
+archives/amdgpu.0.xz
+archives/amdgpu.index
+archives/amdgpu.meta.xz

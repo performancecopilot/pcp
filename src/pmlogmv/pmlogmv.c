@@ -13,8 +13,9 @@
  */
 
 /*
- * pmlogmv - move/rename PCP archives
- * pmlogcp - copy PCP archives
+ * pmlogmv - move/rename a PCP archive
+ * pmlogcp - copy a PCP archive
+ * pmlogls - list files in a PCP archive
  */
 
 #include <unistd.h>
@@ -28,7 +29,10 @@
 
 static int myoverrides(int, pmOptions *);
 
-static pmLongOptions longopts[] = {
+/*
+ * options for pmlogmv|pmlogcp
+ */
+static pmLongOptions longopts_mvcp[] = {
     PMAPI_OPTIONS_HEADER("Options"),
     PMOPT_DEBUG,
     { "checksum", 0, 'c', 0, "checksum all source and destintion files when copying" },
@@ -39,18 +43,39 @@ static pmLongOptions longopts[] = {
     PMAPI_OPTIONS_END
 };
 
-static pmOptions opts = {
+static pmOptions opts_mvcp = {
     .short_options = "cD:fNV?",
-    .long_options = longopts,
+    .long_options = longopts_mvcp,
     .short_usage = "[options] srcname dstname",
     .override = myoverrides
 };
 
+/*
+ * options for pmlogls
+ */
+static pmLongOptions longopts_ls[] = {
+    PMAPI_OPTIONS_HEADER("Options"),
+    PMOPT_DEBUG,
+    { "verbose", 0, 'V', 0, "increase diagnostic verbosity" },
+    PMOPT_HELP,
+    PMAPI_OPTIONS_END
+};
+
+static pmOptions opts_ls = {
+    .short_options = "D:V?",
+    .long_options = longopts_ls,
+    .short_usage = "[options] srcname",
+    .override = myoverrides
+};
+
+static pmOptions *opts;
+
 static char	*progname;
 
+static int	mode;		/* MV, CP or LS depending on argv[0] */
 #define MV 1
 #define CP 2
-static int	mode;		/* MV or CP depending on argv[0] */
+#define LS 3
 
 static int	showme = 0;
 static int	verbose = 0;
@@ -250,6 +275,10 @@ do_link(int vol)
 	}
 	if (access(src, F_OK) == 0) {
 	    /* src exists ... off to the races */
+	    if (mode == LS) {
+		printf("%s\n", src);
+		return 1;
+	    }
 	    switch (vol) {
 		case PM_LOG_VOL_TI:
 			snprintf(dst, sizeof(src), "%s.index%s", dstname, *suff);
@@ -389,6 +418,9 @@ cleanup(int sig)
 {
     int		i;
 
+    if (mode == LS)
+	exit(0);
+
     if (sig != 0) {
 	fprintf(stderr, "Caught signal %d\n", sig);
 	verbose = 1;
@@ -440,19 +472,27 @@ main(int argc, char **argv)
     pmSetProgname(argv[0]);
     progname = pmGetProgname();
 
-    if (strcmp(progname, "pmlogmv") == 0)
+    if (strcmp(progname, "pmlogmv") == 0) {
 	mode = MV;
-    else if (strcmp(progname, "pmlogcp") == 0)
+	opts = &opts_mvcp;
+    }
+    else if (strcmp(progname, "pmlogcp") == 0) {
 	mode = CP;
+	opts = &opts_mvcp;
+    }
+    else if (strcmp(progname, "pmlogls") == 0) {
+	mode = LS;
+	opts = &opts_ls;
+    }
     else {
-	fprintf(stderr, "%s: Arrgh, not pmlogmv nor pmlogcp so I don't know who I am!\n", progname);
+	fprintf(stderr, "%s: Arrgh, not pmlogmv nor pmlogcp nor pmlogls so I don't know who I am!\n", progname);
 	return(1);
     }
 
     setlinebuf(stdout);
     setlinebuf(stderr);
 
-    while ((c = pmGetOptions(argc, argv, &opts)) != EOF) {
+    while ((c = pmGetOptions(argc, argv, opts)) != EOF) {
 	switch (c) {
 
 	case 'c':	/* checksum if copying */
@@ -473,24 +513,27 @@ main(int argc, char **argv)
 
 	case '?':
 	default:
-	    opts.errors++;
+	    opts->errors++;
 	    break;
 	}
     }
 
-    if (opts.errors || opts.optind != argc-2) {
-	pmUsageMessage(&opts);
+    if (opts->errors ||
+	(mode != LS && opts->optind != argc-2) ||
+	(mode == LS && opts->optind != argc-1)) {
+	pmUsageMessage(opts);
 	exit(1);
     }
 
-    srcname = strdup(argv[opts.optind]);
+    srcname = strdup(argv[opts->optind]);
     if (srcname == NULL) {
 	fprintf(stderr, "%s: malloc(srcname) failed!\n", progname);
 	exit(1);
     }
 
     if ((sts = pmNewContext(PM_CONTEXT_ARCHIVE, srcname)) < 0) {
-	fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n", progname, srcname, pmErrStr(sts));
+	if (mode != LS || verbose)
+	    fprintf(stderr, "%s: Cannot open archive \"%s\": %s\n", progname, srcname, pmErrStr(sts));
 	exit(1);
     }
     if ((ctxp = __pmHandleToPtr(sts)) == NULL) {
@@ -499,25 +542,27 @@ main(int argc, char **argv)
     }
     srcname = ctxp->c_archctl->ac_log->name;
 
-    opts.optind++;
-    /*
-     * default is that dstname is really the basename for the
-     * destination archive
-     */
-    snprintf(dstname, sizeof(dstname), "%s", argv[opts.optind]);
-    sb.st_mode = 0;
-    if (stat(argv[opts.optind], &sb) == 0 && S_ISDIR(sb.st_mode)) {
-	/* 
-	 * dstname is an existing directory ... append
-	 * basename of srcname
+    if (mode != LS) {
+	opts->optind++;
+	/*
+	 * default is that dstname is really the basename for the
+	 * destination archive
 	 */
-	snprintf(dstname, sizeof(dstname), "%s%c%s",
-	    argv[opts.optind], pmPathSeparator(), basename(srcname));
-    }
+	snprintf(dstname, sizeof(dstname), "%s", argv[opts->optind]);
+	sb.st_mode = 0;
+	if (stat(argv[opts->optind], &sb) == 0 && S_ISDIR(sb.st_mode)) {
+	    /* 
+	     * dstname is an existing directory ... append
+	     * basename of srcname
+	     */
+	    snprintf(dstname, sizeof(dstname), "%s%c%s",
+		argv[opts->optind], pmPathSeparator(), basename(srcname));
+	}
 
-    if (!force && check_name(dstname) < 0) {
-	/* error reported in check_name() */
-	exit(1);
+	if (!force && check_name(dstname) < 0) {
+	    /* error reported in check_name() */
+	    exit(1);
+	}
     }
 
     if (setup_sufftab() < 0) {
@@ -556,6 +601,7 @@ main(int argc, char **argv)
 	do_unlink(0, srcname, PM_LOG_VOL_TI);
 	do_unlink(0, srcname, PM_LOG_VOL_META);
     }
+
     return 0;
 
 /* fatal error once we're started ... remove any dstname files */

@@ -15,19 +15,13 @@
 .\"
 .TH PMLOGMV 1 "PCP" "Performance Co-Pilot"
 .SH NAME
-\f3pmlogmv\f1, \f3pmlogcp\f1 \- move (rename) or copy Performance Co-Pilot archive files
+\f3pmlogmv\f1, \f3pmlogcp\f1, \f3pmlogls\f1 \- move (rename), copy or list Performance Co-Pilot archive files
 .SH SYNOPSIS
-\f3pmlogmv\f1
-[\f3\-cfNV?\f1]
-[\f3\-D\f1 \f2debug\f1]
-\f2srcname\f1
-\f2dstname\f1
+\f3pmlogmv\f1 [\f3\-cfNV?\f1] [\f3\-D\f1 \f2debug\f1] \f2srcname\f1 \f2dstname\f1
 .br
-\f3pmlogcp\f1
-[\f3\-cfNV?\f1]
-[\f3\-D\f1 \f2debug\f1]
-\f2srcname\f1
-\f2dstname\f1
+\f3pmlogcp\f1 [\f3\-cfNV?\f1] [\f3\-D\f1 \f2debug\f1] \f2srcname\f1 \f2dstname\f1
+.br
+\f3pmlogls\f1 [\f3\-V?\f1] [\f3\-D\f1 \f2debug\f1] \f2srcname\f1
 .SH DESCRIPTION
 A Performance Co-Pilot (PCP) archive consists of multiple files as
 created by
@@ -39,13 +33,21 @@ Similarly
 .B pmlogcp
 copies all the files of single PCP archive in a single operation.
 .PP
+.B pmlogls
+is a convenience application that lists the names of
+all the files in a single PCP archive and then exits.
+.PP
 The
 .I srcname
 argument identifies the target archive, and may be either the basename
 that is common to all files in that archive or one of the archive's
 files.
 .PP
-The new archive's basename is
+For
+.B pmlogmv
+or
+.BR pmlogcp ,
+the new archive's basename is
 .IR dstname ,
 except when
 .I dstname
