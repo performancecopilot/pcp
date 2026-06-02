@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
-.\" Copyright (c) 2018 Red Hat.
+.\" Copyright (c) 2018,2026 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -16,7 +16,9 @@
 .\"
 .TH PMIWRITE 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiWrite\f1 \- flush data to a LOGIMPORT archive
+\f3pmiWrite\f1,
+\f3pmiWrite2\f1,
+\f3pmiHighResWrite\f1 \- flush data to a LOGIMPORT archive
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -26,6 +28,10 @@
 #include <pcp/import.h>
 .sp
 int pmiWrite(int \fIsec\fP, int \fIusec\fP);
+.br
+int pmiWrite2(int64_t \fIsec\fP, int \fIusec\fP);
+.br
+int pmiHighResWrite(int64_t \fIsec\fP, int \fInsec\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .hy
@@ -44,8 +50,7 @@ pmiWrite($\fIsec\fP, $\fIusec\fP);
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
-.B pmiWrite
-forces accumulated data values out to the PCP archive.
+these routines flush accumulated data values out to the PCP archive.
 .PP
 The data values and associated metadata have previously been
 built up using calls to
@@ -55,17 +60,46 @@ built up using calls to
 and
 .BR pmiPutValueHandle (3).
 .PP
-The current set of data values and any new metadata is written to the archive with
-a timestamp of
+The current set of data values and any new metadata is written to the archive
+with the specified timestamp in the source timezone of the archive
+(see
+.BR pmiSetTimezone (3)).
+.PP
+.B pmiHighResWrite
+is the preferred interface.
+It accepts a nanosecond-resolution timestamp: seconds since the Unix epoch
+as a 64-bit signed integer
+.RI ( sec )
+and nanoseconds within that second
+.RI ( nsec ).
+Using a 64-bit
 .I sec
-and
-.I usec
-in the source timezone of the archive, see
-.BR pmiSetTimezone (3).
-.SH DIAGNOSTICS
+argument makes
+.B pmiHighResWrite
+safe beyond the year 2038, unlike
+.BR pmiWrite .
+.PP
+.B pmiWrite2
+is equivalent to
+.B pmiHighResWrite
+except that the sub-second component is specified in microseconds
+rather than nanoseconds.
+.PP
 .B pmiWrite
-returns zero on success else a negative value that can be turned into an
-error message by calling
+is deprecated.
+Its 32-bit
+.I sec
+argument overflows in January 2038 and callers should migrate to
+.B pmiHighResWrite
+(or
+.BR pmiWrite2 ).
+Passing a negative value for
+.I sec
+to any of these routines causes the current wall-clock time to be
+used as the timestamp.
+.SH DIAGNOSTICS
+All three routines return zero on success, else a negative value that
+can be turned into an error message by calling
 .BR pmiErrStr (3).
 .SH SEE ALSO
 .BR LOGIMPORT (3),
