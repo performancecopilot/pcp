@@ -1,0 +1,84 @@
+# common mk.* code ...
+# caller must
+# . /etc/pcp.env
+# set $tmp and install trap, optionally set sts=1
+#
+# set $archive (the archive basename)
+# set $probe (metric that should be present with values)
+#    - not in PMNS => fatal error
+#    - no values available => (LOUD) warning
+# set $samples (for -s)
+#    1 for hinv logged once
+#    2,... real data
+# set $expect (optional, number of seconds expecting pmlogger to run)
+# create $tmp.config (pmlogger config)
+# . mk.common (me)
+#
+
+if [ -z "$archive" ]
+then
+    echo >&2 "mk.common: Botch: \$archive not set"
+    exit
+fi
+if [ -z "$probe" ]
+then
+    echo >&2 "mk.common: Botch: \$probe not set"
+    exit
+fi
+if [ -z "$samples" ]
+then
+    echo >&2 "mk.common: Botch: \$samples not set"
+    exit
+fi
+if [ ! -f $tmp.config ]
+then
+    echo >&2 "mk.common: Botch: \$tmp.config not created"
+    exit
+fi
+
+pmprobe $probe >$tmp.check 2>&1
+if grep -q "Unknown metric name" <$tmp.check
+then
+    # punt on PMDA name as first part of $probe
+    #
+    pmda=`echo "$probe" | sed -e 's/\..*//'`
+    echo >&2 "mk.common: Error: $probe is not in the PMNS ... do you need to install the $pmda PMDA?"
+    exit
+fi
+numval=`sed -n <$tmp.check -e "/$probe [0-9][0-9]*$/{\
+s/$probe //\
+p\
+}"`
+if [ -z "$numval" ]
+then
+    echo >&2 "mk.common: Error: cannot extract numval from pmrobe output for $probe ..."
+    cat >&2 $tmp.check
+    exit
+fi
+if [ "$numval" -lt 1 ]
+then
+    echo "WARNING: no values available for $probe, hope you know what you're doing"
+fi
+
+# remove any axisting files for this archive
+#
+pmlogls "$archive" \
+| while read file
+do
+    rm -f "$file"
+done
+
+[ -n "$expect" ] && echo "Expect pmlogger to run for about $expect seconds ..."
+if ! pmlogger -s $samples -c $tmp.config -l $tmp.log "$archive"
+then
+    echo >&2 "mk.common: Arrgh! pmlogger failed ..."
+    cat >&2 $tmp.log
+    exit
+fi
+
+pmlogcompress "$archive"
+
+echo "Created: `pmlogls "$archive" | tr '\012' ' '`"
+
+sts=0
+
