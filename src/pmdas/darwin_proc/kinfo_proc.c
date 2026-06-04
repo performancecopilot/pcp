@@ -336,8 +336,10 @@ darwin_process_threads(darwin_procs_t *processes, darwin_runq_t *runq,
 	}
     }
 
+    for (i = 0; i < thread_count; i++)
+	mach_port_deallocate(mach_task_self(), threads[i]);
     count = thread_count - count;
-    bytes = count * sizeof(thread_port_array_t);
+    bytes = thread_count * sizeof(thread_act_t);
     vm_deallocate(mach_task_self(), (vm_address_t)threads, bytes);
     mach_port_deallocate(mach_task_self(), task);
     return count;

@@ -1,0 +1,386 @@
+#!/usr/bin/env pmpython
+#
+# Copyright (c) 2026 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# pylint: disable=c-extension-no-member, too-many-instance-attributes
+# pylint: disable=too-many-arguments, unused-argument
+# pylint: disable=too-many-branches, too-many-statements
+"""
+Python implementation of the "nixl" Performance Metrics Domain Agent.
+
+Reads telemetry from NIXL agent shared-memory ring buffers.  Each running
+NIXL agent that has written a telemetry file to NIXL_TELEMETRY_DIR (default
+/var/tmp) becomes a separate instance in the nixl instance domain.
+Accumulated per-agent counters are exposed as PCP metrics.
+"""
+
+import configparser
+import ctypes
+import mmap
+import os
+import stat
+
+import cpmapi as c_api
+from pcp.pmapi import pmContext as PCP
+from pcp.pmda import PMDA, pmdaIndom, pmdaMetric
+from pcp.pmapi import pmUnits
+from ctypes import c_uint64, POINTER, cast, Structure
+
+DEFAULT_USER        = 'root'
+DEFAULT_TELEMETRY_DIR = '/var/tmp'
+
+# ── Shared-memory ring-buffer constants (must match NIXL telemetry_event.h) ──
+
+TELEMETRY_VERSION = 2
+
+# nixl_telemetry_category_t
+NIXL_TELEMETRY_MEMORY      = 0
+NIXL_TELEMETRY_TRANSFER    = 1
+NIXL_TELEMETRY_CONNECTION  = 2
+NIXL_TELEMETRY_BACKEND     = 3
+NIXL_TELEMETRY_ERROR       = 4
+NIXL_TELEMETRY_PERFORMANCE = 5
+NIXL_TELEMETRY_SYSTEM      = 6
+NIXL_TELEMETRY_CUSTOM      = 7
+
+# nixl_telemetry_event_type_t
+AGENT_TX_BYTES              = 0
+AGENT_RX_BYTES              = 1
+AGENT_TX_REQUESTS_NUM       = 2
+AGENT_RX_REQUESTS_NUM       = 3
+AGENT_MEMORY_REGISTERED     = 4
+AGENT_MEMORY_DEREGISTERED   = 5
+AGENT_XFER_TIME             = 6
+AGENT_XFER_POST_TIME        = 7
+AGENT_ERR_NOT_POSTED        = 8
+AGENT_ERR_INVALID_PARAM     = 9
+AGENT_ERR_BACKEND           = 10
+AGENT_ERR_NOT_FOUND         = 11
+AGENT_ERR_MISMATCH          = 12
+AGENT_ERR_NOT_ALLOWED       = 13
+AGENT_ERR_REPOST_ACTIVE     = 14
+AGENT_ERR_UNKNOWN           = 15
+AGENT_ERR_NOT_SUPPORTED     = 16
+AGENT_ERR_REMOTE_DISCONNECT = 17
+AGENT_ERR_CANCELED          = 18
+AGENT_ERR_NO_TELEMETRY      = 19
+
+
+class NixlTelemetryEvent(ctypes.Structure):
+    """Mirrors struct nixlTelemetryEvent (packed)."""
+    _pack_ = 1
+    _layout_ = 'ms'
+    _fields_ = [
+        ("category",   ctypes.c_int),
+        ("event_type", ctypes.c_uint8),
+        ("_padding",   ctypes.c_char * 3),
+        ("value",      ctypes.c_uint64),
+    ]
+
+
+class BufferHeader(ctypes.Structure):
+    """Mirrors struct BufferHeader from cyclic_buffer.h (packed)."""
+    _pack_ = 1
+    _layout_ = 'ms'
+    _fields_ = [
+        ("write_pos",        ctypes.c_size_t),
+        ("read_pos",         ctypes.c_size_t),
+        ("version",          ctypes.c_uint32),
+        ("expected_version", ctypes.c_uint32),
+        ("capacity",         ctypes.c_size_t),
+        ("mask",             ctypes.c_size_t),
+    ]
+
+
+# ── Per-agent stats struct ───────────────────────────────────────────────────
+#
+# One NixlAgentStats instance per discovered agent is stored as the indom
+# cache value (matching the rocestat pattern).  Field order within each
+# group defines the item numbers used in the fetch callback.
+
+NixlTransferFields = [
+    ("tx_bytes",    c_uint64),   # item 0
+    ("rx_bytes",    c_uint64),   # item 1
+    ("tx_requests", c_uint64),   # item 2
+    ("rx_requests", c_uint64),   # item 3
+]
+
+NixlMemoryFields = [
+    ("registered",   c_uint64),  # item 0
+    ("deregistered", c_uint64),  # item 1
+]
+
+NixlPerformanceFields = [
+    ("xfer_time_us",      c_uint64),  # item 0
+    ("xfer_post_time_us", c_uint64),  # item 1
+]
+
+NixlErrorFields = [
+    ("not_posted",        c_uint64),  # item 0
+    ("invalid_param",     c_uint64),  # item 1
+    ("backend",           c_uint64),  # item 2
+    ("not_found",         c_uint64),  # item 3
+    ("mismatch",          c_uint64),  # item 4
+    ("not_allowed",       c_uint64),  # item 5
+    ("repost_active",     c_uint64),  # item 6
+    ("unknown",           c_uint64),  # item 7
+    ("not_supported",     c_uint64),  # item 8
+    ("remote_disconnect", c_uint64),  # item 9
+    ("canceled",          c_uint64),  # item 10
+    ("no_telemetry",      c_uint64),  # item 11
+]
+
+
+class NixlAgentStats(Structure):
+    """Combined per-agent counters stored in the pmdaCache indom."""
+    _fields_ = (NixlTransferFields + NixlMemoryFields +
+                NixlPerformanceFields + NixlErrorFields)
+
+
+# Precomputed (cluster, item) → field_name lookup built from the field lists
+_CLUSTER_FIELDS = {
+    0: [f for f, _ in NixlTransferFields],
+    1: [f for f, _ in NixlMemoryFields],
+    2: [f for f, _ in NixlPerformanceFields],
+    3: [f for f, _ in NixlErrorFields],
+}
+
+# Maps NIXL event_type constant → field name on NixlAgentStats
+_EVENT_TO_FIELD = {
+    AGENT_TX_BYTES:              "tx_bytes",
+    AGENT_RX_BYTES:              "rx_bytes",
+    AGENT_TX_REQUESTS_NUM:       "tx_requests",
+    AGENT_RX_REQUESTS_NUM:       "rx_requests",
+    AGENT_MEMORY_REGISTERED:     "registered",
+    AGENT_MEMORY_DEREGISTERED:   "deregistered",
+    AGENT_XFER_TIME:             "xfer_time_us",
+    AGENT_XFER_POST_TIME:        "xfer_post_time_us",
+    AGENT_ERR_NOT_POSTED:        "not_posted",
+    AGENT_ERR_INVALID_PARAM:     "invalid_param",
+    AGENT_ERR_BACKEND:           "backend",
+    AGENT_ERR_NOT_FOUND:         "not_found",
+    AGENT_ERR_MISMATCH:          "mismatch",
+    AGENT_ERR_NOT_ALLOWED:       "not_allowed",
+    AGENT_ERR_REPOST_ACTIVE:     "repost_active",
+    AGENT_ERR_UNKNOWN:           "unknown",
+    AGENT_ERR_NOT_SUPPORTED:     "not_supported",
+    AGENT_ERR_REMOTE_DISCONNECT: "remote_disconnect",
+    AGENT_ERR_CANCELED:          "canceled",
+    AGENT_ERR_NO_TELEMETRY:      "no_telemetry",
+}
+
+
+class NixlRingBuffer:
+    """Read-side accessor for one NIXL agent shared-memory telemetry file."""
+
+    def __init__(self, path):
+        self._map = None
+        # O_NOFOLLOW rejects symlinks atomically at open time, avoiding TOCTOU
+        self._fd = os.open(path, os.O_RDWR | os.O_NOFOLLOW)
+        try:
+            st = os.fstat(self._fd)
+            if not stat.S_ISREG(st.st_mode):
+                raise ValueError("not a regular file")
+
+            hdr_size = ctypes.sizeof(BufferHeader)
+            hdr_map = mmap.mmap(self._fd, hdr_size, mmap.MAP_SHARED,
+                                mmap.PROT_READ | mmap.PROT_WRITE)
+            try:
+                tmp_hdr = BufferHeader.from_buffer(hdr_map)
+                if tmp_hdr.version != TELEMETRY_VERSION:
+                    del tmp_hdr
+                    raise ValueError("version mismatch: not a NIXL telemetry file")
+                capacity = tmp_hdr.capacity
+                del tmp_hdr
+            finally:
+                hdr_map.close()
+
+            total = hdr_size + ctypes.sizeof(NixlTelemetryEvent) * capacity
+            self._map  = mmap.mmap(self._fd, total, mmap.MAP_SHARED,
+                                   mmap.PROT_READ | mmap.PROT_WRITE)
+            self._hdr  = BufferHeader.from_buffer(self._map)
+            self._data = (NixlTelemetryEvent * capacity).from_buffer(
+                self._map, hdr_size)
+        except Exception:
+            if self._map is not None:
+                self._map.close()
+            os.close(self._fd)
+            self._fd = -1
+            raise
+
+    def drain(self):
+        """Pop and yield all pending (event_type, value) tuples."""
+        while self._hdr.read_pos != self._hdr.write_pos:
+            pos = self._hdr.read_pos
+            evt = self._data[pos]
+            self._hdr.read_pos = (pos + 1) & self._hdr.mask
+            yield evt.event_type, evt.value
+
+    def close(self):
+        if self._fd != -1:
+            os.close(self._fd)
+            self._fd = -1
+
+
+class NIXLPMDA(PMDA):
+    """NIXL Performance Metrics Domain Agent."""
+
+    CLUSTER_TRANSFER    = 0
+    CLUSTER_MEMORY      = 1
+    CLUSTER_PERFORMANCE = 2
+    CLUSTER_ERRORS      = 3
+
+    # (cluster, field-list, metric-prefix, units-selector)
+    # units-selector: 'byte', 'time', or 'count'
+    _CLUSTERS = [
+        (CLUSTER_TRANSFER,    NixlTransferFields,    "transfer",    None),
+        (CLUSTER_MEMORY,      NixlMemoryFields,      "memory",      None),
+        (CLUSTER_PERFORMANCE, NixlPerformanceFields, "performance", None),
+        (CLUSTER_ERRORS,      NixlErrorFields,       "errors",      None),
+    ]
+
+    # Explicit units map for fields that don't contain 'bytes' or 'time'
+    _BYTE_FIELDS = {"tx_bytes", "rx_bytes", "registered", "deregistered"}
+    _TIME_FIELDS = {"xfer_time_us", "xfer_post_time_us"}
+
+    def _read_config(self):
+        conffile = PCP.pmGetConfig('PCP_SYSCONF_DIR')
+        conffile += '/nixl/nixl.conf'
+        config = configparser.ConfigParser()
+        config.read(conffile)
+        if config.has_section('nixl'):
+            for opt in config.options('nixl'):
+                if opt == 'user':
+                    self._user = config.get('nixl', opt)
+                elif opt == 'telemetry_dir':
+                    self._telemetry_dir = config.get('nixl', opt)
+                else:
+                    self.log("ignoring unknown option '%s' in %s" % (opt, conffile))
+
+    def __init__(self, name, domain, logfile):
+        super().__init__(name, domain, logfile)
+
+        self._user          = DEFAULT_USER
+        self._telemetry_dir = DEFAULT_TELEMETRY_DIR
+        self._read_config()
+        self.set_user(self._user)
+        self.connect_pmcd()
+
+        # agent-name → NixlRingBuffer
+        self._buffers = {}
+        # agent-name → NixlAgentStats  (also the indom cache value)
+        self._agents = {}
+
+        byte_units  = pmUnits(1, 0, 0, c_api.PM_SPACE_BYTE, 0, 0)
+        count_units = pmUnits(0, 0, 1, 0, 0, 0)
+        time_units  = pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)
+
+        self._agent_indom = self.indom(0)
+        self.add_indom(pmdaIndom(self._agent_indom, self._agents))
+
+        for cluster, fields, prefix, _ in self._CLUSTERS:
+            for item, (field_name, _ctype) in enumerate(fields):
+                mname = "{}.{}.{}".format(name, prefix, field_name)
+                if field_name in self._BYTE_FIELDS:
+                    units = byte_units
+                elif field_name in self._TIME_FIELDS:
+                    units = time_units
+                else:
+                    units = count_units
+                self.add_metric(
+                    mname,
+                    pmdaMetric(
+                        self.pmid(cluster, item),
+                        c_api.PM_TYPE_U64,
+                        self._agent_indom,
+                        c_api.PM_SEM_COUNTER,
+                        units,
+                    ),
+                )
+
+        self.set_fetch(self._fetch)
+        self.set_fetch_callback(self._fetch_callback)
+
+    # ── discovery & ring-buffer drain ────────────────────────────────────────
+
+    def _discover_agents(self):
+        """Scan telemetry dir, open ring buffers for new agents, evict any removed."""
+        try:
+            entries = set(os.listdir(self._telemetry_dir))
+        except OSError:
+            return  # skip eviction; preserve state on transient FS errors
+
+        for fname in list(self._buffers):
+            if fname not in entries:
+                try:
+                    self._buffers[fname].close()
+                except Exception:
+                    pass
+                del self._buffers[fname]
+                del self._agents[fname]
+
+        for fname in entries:
+            if fname in self._buffers:
+                continue
+            path = os.path.join(self._telemetry_dir, fname)
+            try:
+                rb = NixlRingBuffer(path)
+            except Exception:
+                continue
+            self._buffers[fname] = rb
+            self._agents[fname]  = NixlAgentStats()
+
+    def _drain_all(self):
+        """Drain every known ring buffer and accumulate into per-agent stats."""
+        dead = []
+        for agent, rb in self._buffers.items():
+            stats = self._agents[agent]
+            try:
+                for etype, value in rb.drain():
+                    field = _EVENT_TO_FIELD.get(etype)
+                    if field is None:
+                        continue
+                    setattr(stats, field, getattr(stats, field) + value)
+            except Exception:
+                dead.append(agent)
+        for agent in dead:
+            try:
+                self._buffers[agent].close()
+            except Exception:
+                pass
+            del self._buffers[agent]
+            del self._agents[agent]
+
+    def _fetch(self):
+        self._discover_agents()
+        self._drain_all()
+        self.replace_indom(self._agent_indom, self._agents)
+
+    # ── fetch callback ───────────────────────────────────────────────────────
+
+    def _fetch_callback(self, cluster, item, inst):
+        voidp = self.inst_lookup(self._agent_indom, inst)
+        if voidp is None:
+            return [c_api.PM_ERR_INST, 0]
+
+        stats = cast(voidp, POINTER(NixlAgentStats)).contents
+        fields = _CLUSTER_FIELDS.get(cluster)
+        if fields is None or item < 0 or item >= len(fields):
+            return [c_api.PM_ERR_PMID, 0]
+
+        return [getattr(stats, fields[item]), 1]
+
+
+if __name__ == "__main__":
+    pmda = NIXLPMDA(name="nixl", domain=39, logfile="nixl.log")
+    pmda.run()

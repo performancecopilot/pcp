@@ -1,0 +1,183 @@
+QA output created by 1999
+
+=== Installing NIXL agent ===
+=== Metric namespace ===
+nixl.errors.backend
+nixl.errors.canceled
+nixl.errors.invalid_param
+nixl.errors.mismatch
+nixl.errors.no_telemetry
+nixl.errors.not_allowed
+nixl.errors.not_found
+nixl.errors.not_posted
+nixl.errors.not_supported
+nixl.errors.remote_disconnect
+nixl.errors.repost_active
+nixl.errors.unknown
+nixl.memory.deregistered
+nixl.memory.registered
+nixl.performance.xfer_post_time_us
+nixl.performance.xfer_time_us
+nixl.transfer.rx_bytes
+nixl.transfer.rx_requests
+nixl.transfer.tx_bytes
+nixl.transfer.tx_requests
+
+=== Metric types and semantics ===
+
+nixl.errors.no_telemetry PMID: NIXL.3.11 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.canceled PMID: NIXL.3.10 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.remote_disconnect PMID: NIXL.3.9 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.not_supported PMID: NIXL.3.8 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.unknown PMID: NIXL.3.7 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.repost_active PMID: NIXL.3.6 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.not_allowed PMID: NIXL.3.5 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.mismatch PMID: NIXL.3.4 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.not_found PMID: NIXL.3.3 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.backend PMID: NIXL.3.2 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 1
+
+nixl.errors.invalid_param PMID: NIXL.3.1 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.errors.not_posted PMID: NIXL.3.0 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.performance.xfer_post_time_us PMID: NIXL.2.1 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: microsec
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 1000
+
+nixl.performance.xfer_time_us PMID: NIXL.2.0 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: microsec
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 5000
+
+nixl.memory.deregistered PMID: NIXL.1.1 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+nixl.memory.registered PMID: NIXL.1.0 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 4096
+
+nixl.transfer.rx_requests PMID: NIXL.0.3 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 10
+
+nixl.transfer.tx_requests PMID: NIXL.0.2 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: count
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 10
+
+nixl.transfer.rx_bytes PMID: NIXL.0.1 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 524288
+
+nixl.transfer.tx_bytes PMID: NIXL.0.0 []
+    Data Type: 64-bit unsigned int  InDom: NIXL.0 0xNNNNNNNN
+    Semantics: counter  Units: byte
+Help: <empty entry>
+    inst [0 or "pcp_qa_nixl_1999"] value 1048576
+
+=== Transfer metric values ===
+
+nixl.transfer.tx_bytes
+    inst [0 or "pcp_qa_nixl_1999"] value 1048576
+
+nixl.transfer.rx_bytes
+    inst [0 or "pcp_qa_nixl_1999"] value 524288
+
+nixl.transfer.tx_requests
+    inst [0 or "pcp_qa_nixl_1999"] value 10
+
+nixl.transfer.rx_requests
+    inst [0 or "pcp_qa_nixl_1999"] value 10
+
+=== Memory metric values ===
+
+nixl.memory.registered
+    inst [0 or "pcp_qa_nixl_1999"] value 4096
+
+nixl.memory.deregistered
+    inst [0 or "pcp_qa_nixl_1999"] value 0
+
+=== Performance metric values ===
+
+nixl.performance.xfer_time_us
+    inst [0 or "pcp_qa_nixl_1999"] value 5000
+
+nixl.performance.xfer_post_time_us
+    inst [0 or "pcp_qa_nixl_1999"] value 1000
+
+=== Error metric values ===
+
+nixl.errors.backend
+    inst [0 or "pcp_qa_nixl_1999"] value 1
+
+=== Removing NIXL agent ===

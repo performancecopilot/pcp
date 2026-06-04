@@ -1642,6 +1642,21 @@ collecting metrics from simple network checks.
 # end pcp-pmda-netcheck
 
 #
+# pcp-pmda-nixl
+#
+%package pmda-nixl
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for NVIDIA NIXL agents
+URL: https://pcp.io
+Requires: pcp = @package_version@ pcp-libs = @package_version@
+Requires: python3-pcp
+%description pmda-nixl
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting performance telemetry from NIXL (NVIDIA Inference Xfer
+Library) agents via their shared-memory ring buffer interface.
+# end pcp-pmda-nixl
+
+#
 # pcp-pmda-rocestat
 #
 %package pmda-rocestat
@@ -2379,6 +2394,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/rabbitmq(/|$)' >pcp-pmda-rabbitmq-files
 basic_manifest | keep '(etc/pcp|pmdas)/rds(/|$)' >pcp-pmda-rds-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
 basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
+basic_manifest | keep '(etc/pcp|pmdas)/nixl(/|$)' >pcp-pmda-nixl-files
 basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
 basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
@@ -2413,6 +2429,7 @@ for pmda_package in \
     libvirt lio lmsensors logger lustre lustrecomm \
     mailq memcache mic mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
+    nixl \
     nutcracker nvidia \
     openmetrics opentelemetry openvswitch oracle \
     pdns perfevent podman postfix postgresql \
@@ -2843,6 +2860,9 @@ done
 %preun pmda-nfsclient
 %{pmda_remove "$1" "nfsclient"}
 
+%preun pmda-nixl
+%{pmda_remove "$1" "nixl"}
+
 %preun pmda-openvswitch
 %{pmda_remove "$1" "openvswitch"}
 
@@ -3172,6 +3192,8 @@ fi
 %files pmda-netcheck -f pcp-pmda-netcheck-files.rpm
 
 %files pmda-nfsclient -f pcp-pmda-nfsclient-files.rpm
+
+%files pmda-nixl -f pcp-pmda-nixl-files.rpm
 
 %files pmda-openvswitch -f pcp-pmda-openvswitch-files.rpm
 
