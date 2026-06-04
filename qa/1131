@@ -62,7 +62,9 @@ _filter_pcp2openmetrics()
 	-e '/userid=/s/userid="*[0-9][0-9]*"*/userid="USERID"/' \
 	-e '/version=/s/version="*[^"]*"*/version="VERSION"/' \
 	-e '/agent=/s/agent="*[^"]*"*/agent="AGENT"/' \
-	-e 's/\(.*}\).*/\1 NCPU/' \
+    -e '/instname=/s/instname="*[^"]*"*/instname="INSTNAME"/' \
+    -e '/instid=/s/instid="*[^"]*"*/instid="ID"/' \
+	-e 's/\(.*}\).*/\1 VALUE/' \
 	-e '/PCP5 kernel.all.load/{
 s/ 60.2.0 / PMID /
 s/ 60.2 / PMID /
@@ -70,6 +72,10 @@ s/ 60.2 / PMID /
 	-e '/PCP5 hinv_ncpu/{
 s/ 60.0.32 / PMID /
 s/ 85.0.0 / PMID /
+}' \
+    -e '/PCP5 kernel_pernode_cpu_idle/{
+s/ 60.0.65 / PMID /
+s/ 60.19 / PMID /
 }' \
     | LC_COLLATE=POSIX sort
 }
@@ -103,6 +109,8 @@ echo "--- pcp2openmetrics -s1 -z hinv.ncpu"
 pcp2openmetrics -s1 -z hinv.ncpu | _filter_pcp2openmetrics
 echo "--- pcp2openmetrics -s2 -x hinv.ncpu"
 pcp2openmetrics -s2 -x hinv.ncpu | _filter_pcp2openmetrics
+echo "--- pcp2openmetrics -s2 --time-stamp kernel.pernode.cpu.idle"
+pcp2openmetrics -s2 --time-stamp kernel.pernode.cpu.idle | _filter_pcp2openmetrics
 echo "--- pcp2openmetrics -s2 -a archives/20201109-b hinv.ncpu kernel.all.load"
 pcp2openmetrics -s2 -a $A1 hinv.ncpu kernel.all.load | _filter_pcp2openmetrics | _archive_filter
 echo "--- pcp2opentelemetry -s1 -z hinv.ncpu"
