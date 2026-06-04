@@ -45,6 +45,7 @@ PMI_CALL extern int pmiAddInstance(pmInDom, const char *, int);
 PMI_CALL extern int pmiPutValue(const char *, const char *, const char *);
 PMI_CALL extern int pmiGetHandle(const char *, const char *);
 PMI_CALL extern int pmiPutValueHandle(int, const char *);
+PMI_CALL extern int pmiPutAtomValueHandle(int, pmAtomValue *);
 PMI_CALL extern int pmiWrite(int, int);			/* deprecated: not Y2038-safe, use either pmiWrite2 or pmiHighResWrite */
 PMI_CALL extern int pmiWrite2(int64_t, int);		/* Y2038-safe, microsecond resolution */
 PMI_CALL extern int pmiHighResWrite(int64_t, int);	/* Y2038-safe, nanosecond resolution */

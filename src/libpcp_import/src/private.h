@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2018,2021-2022 Red Hat.
+ * Copyright (c) 2013-2018,2021-2022,2026 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  *
  * This library is free software; you can redistribute it and/or modify it
@@ -84,6 +84,7 @@ typedef struct {
 # define _PMI_HIDDEN
 #endif
 
+extern int _pmi_stuff_atomvalue(pmi_context *, pmi_handle *, pmAtomValue *) _PMI_HIDDEN;
 extern int _pmi_stuff_value(pmi_context *, pmi_handle *, const char *) _PMI_HIDDEN;
 extern int _pmi_put_result(pmi_context *, __pmResult *) _PMI_HIDDEN;
 extern int _pmi_put_text(pmi_context *) _PMI_HIDDEN;

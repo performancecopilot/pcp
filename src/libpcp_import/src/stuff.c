@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
- * Copyright (c) 2022 Red Hat.
+ * Copyright (c) 2022,2026 Red Hat.
  *
  * This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
@@ -18,8 +18,13 @@
 #include "import.h"
 #include "private.h"
 
-int
-_pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
+/*
+ * Shared setup: find or create the pmValueSet slot for hp's metric in
+ * current->result, add one pmValue slot, and return pointers to both.
+ * Returns 0 on success, or a negative error code.
+ */
+static int
+_pmi_alloc_vp(pmi_context *current, pmi_handle *hp, pmValueSet **vspp, pmValue **vpp)
 {
     __pmResult	*rp;
     int		i;
@@ -27,13 +32,6 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
     pmValueSet	*vsp;
     pmValue	*vp;
     pmi_metric	*mp;
-    char	*end;
-    int		dsize;
-    void	*data;
-    __int64_t	ll;
-    __uint64_t	ull;
-    float	f;
-    double	d;
     size_t	size;
 
     mp = &current->metric[hp->midx];
@@ -42,7 +40,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	/* first time - do not use __pmAllocResult due to realloc requirement */
 	current->result = (__pmResult *)calloc(1, sizeof(__pmResult));
 	if (current->result == NULL) {
-	    pmNoMem("_pmi_stuff_value: result calloc", sizeof(__pmResult), PM_FATAL_ERR);
+	    pmNoMem("_pmi_alloc_vp: result calloc", sizeof(__pmResult), PM_FATAL_ERR);
 	}
     }
     rp = current->result;
@@ -61,11 +59,11 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	size = sizeof(__pmResult) + (rp->numpmid-1)*sizeof(pmValueSet *);
 	rp = current->result = (__pmResult *)realloc(current->result, size);
 	if (current->result == NULL) {
-	    pmNoMem("_pmi_stuff_value: result realloc", size, PM_FATAL_ERR);
+	    pmNoMem("_pmi_alloc_vp: result realloc", size, PM_FATAL_ERR);
 	}
 	rp->vset[rp->numpmid-1] = (pmValueSet *)malloc(sizeof(pmValueSet));
 	if (rp->vset[rp->numpmid-1] == NULL) {
-	    pmNoMem("_pmi_stuff_value: vset alloc", sizeof(pmValueSet), PM_FATAL_ERR);
+	    pmNoMem("_pmi_alloc_vp: vset alloc", sizeof(pmValueSet), PM_FATAL_ERR);
 	}
 	vsp = rp->vset[rp->numpmid-1];
 	vsp->pmid = pmid;
@@ -89,18 +87,59 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	size = sizeof(pmValueSet) + (rp->vset[i]->numval-1)*sizeof(pmValue);
 	vsp = rp->vset[i] = (pmValueSet *)realloc(rp->vset[i], size);
 	if (rp->vset[i] == NULL) {
-	    pmNoMem("_pmi_stuff_value: vset realloc", size, PM_FATAL_ERR);
+	    pmNoMem("_pmi_alloc_vp: vset realloc", size, PM_FATAL_ERR);
 	}
     }
     vp = &vsp->vlist[vsp->numval-1];
     vp->inst = hp->inst;
+    *vspp = vsp;
+    *vpp = vp;
+    return 0;
+}
+
+/* Shared pmValueBlock allocation for heap-stored types (64-bit, float, string, ...). */
+static void
+_pmi_alloc_valblock(pmi_metric *mp, pmValue *vp, int dsize, void *data)
+{
+    int		need = dsize + PM_VAL_HDR_SIZE;
+
+    /* logic copied from stuffvalue.c in libpcp */
+    vp->value.pval = (pmValueBlock *)malloc(need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need);
+    if (vp->value.pval == NULL) {
+	pmNoMem("_pmi_alloc_valblock: pmValueBlock", need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need, PM_FATAL_ERR);
+    }
+    vp->value.pval->vlen = (int)need;
+    vp->value.pval->vtype = mp->desc.type;
+    memcpy((void *)vp->value.pval->vbuf, data, dsize);
+}
+
+int
+_pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
+{
+    int		sts;
+    pmValueSet	*vsp;
+    pmValue	*vp;
+    pmi_metric	*mp;
+    char	*end;
+    int		dsize;
+    void	*data;
+    __int64_t	ll;
+    __uint64_t	ull;
+    float	f;
+    double	d;
+
+    mp = &current->metric[hp->midx];
+
+    if ((sts = _pmi_alloc_vp(current, hp, &vsp, &vp)) != 0)
+	return sts;
+
     dsize = -1;
     switch (mp->desc.type) {
 	case PM_TYPE_32:
 	    vp->value.lval = (__int32_t)strtol(value, &end, 10);
 	    if (*end != '\0') {
 		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
-		else rp->vset[i]->numval--;
+		else vsp->numval--;
 		return PM_ERR_CONV;
 	    }
 	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
@@ -110,7 +149,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	    vp->value.lval = (__uint32_t)strtoul(value, &end, 10);
 	    if (*end != '\0') {
 		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
-		else rp->vset[i]->numval--;
+		else vsp->numval--;
 		return PM_ERR_CONV;
 	    }
 	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
@@ -120,7 +159,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	    ll = strtoint64(value, &end, 10);
 	    if (*end != '\0') {
 		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
-		else rp->vset[i]->numval--;
+		else vsp->numval--;
 		return PM_ERR_CONV;
 	    }
 	    dsize = sizeof(ll);
@@ -132,7 +171,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	    ull = strtouint64(value, &end, 10);
 	    if (*end != '\0') {
 		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
-		else rp->vset[i]->numval--;
+		else vsp->numval--;
 		return PM_ERR_CONV;
 	    }
 	    dsize = sizeof(ull);
@@ -144,7 +183,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	    f = strtof(value, &end);
 	    if (*end != '\0') {
 		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
-		else rp->vset[i]->numval--;
+		else vsp->numval--;
 		return PM_ERR_CONV;
 	    }
 	    dsize = sizeof(f);
@@ -156,7 +195,7 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 	    d = strtod(value, &end);
 	    if (*end != '\0') {
 		if (vsp->numval == 1) vsp->numval = PM_ERR_CONV;
-		else rp->vset[i]->numval--;
+		else vsp->numval--;
 		return PM_ERR_CONV;
 	    }
 	    dsize = sizeof(d);
@@ -172,22 +211,81 @@ _pmi_stuff_value(pmi_context *current, pmi_handle *hp, const char *value)
 
 	default:
 	    if (vsp->numval == 1) vsp->numval = PM_ERR_TYPE;
-	    else rp->vset[i]->numval--;
+	    else vsp->numval--;
 	    return PM_ERR_TYPE;
     }
 
-    if (dsize != -1) {
-	/* logic copied from stuffvalue.c in libpcp */
-	int	need = dsize + PM_VAL_HDR_SIZE;
+    if (dsize != -1)
+	_pmi_alloc_valblock(mp, vp, dsize, data);
 
-	vp->value.pval = (pmValueBlock *)malloc(need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need);
-	if (vp->value.pval == NULL) {
-	    pmNoMem("_pmi_stuff_value: pmValueBlock", need < sizeof(pmValueBlock) ? sizeof(pmValueBlock) : need, PM_FATAL_ERR);
-	}
-	vp->value.pval->vlen = (int)need;
-	vp->value.pval->vtype = mp->desc.type;
-	memcpy((void *)vp->value.pval->vbuf, data, dsize);
+    return 0;
+}
+
+int
+_pmi_stuff_atomvalue(pmi_context *current, pmi_handle *hp, pmAtomValue *atom)
+{
+    int		sts;
+    pmValueSet	*vsp;
+    pmValue	*vp;
+    pmi_metric	*mp;
+    int		dsize;
+    void	*data;
+
+    mp = &current->metric[hp->midx];
+
+    if ((sts = _pmi_alloc_vp(current, hp, &vsp, &vp)) != 0)
+	return sts;
+
+    dsize = -1;
+    switch (mp->desc.type) {
+	case PM_TYPE_32:
+	    vp->value.lval = atom->l;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
+	    break;
+
+	case PM_TYPE_U32:
+	    vp->value.lval = atom->ul;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_INSITU;
+	    break;
+
+	case PM_TYPE_64:
+	    dsize = sizeof(atom->ll);
+	    data = (void *)&atom->ll;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
+	    break;
+
+	case PM_TYPE_U64:
+	    dsize = sizeof(atom->ull);
+	    data = (void *)&atom->ull;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
+	    break;
+
+	case PM_TYPE_FLOAT:
+	    dsize = sizeof(atom->f);
+	    data = (void *)&atom->f;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
+	    break;
+
+	case PM_TYPE_DOUBLE:
+	    dsize = sizeof(atom->d);
+	    data = (void *)&atom->d;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
+	    break;
+
+	case PM_TYPE_STRING:
+	    dsize = strlen(atom->cp)+1;
+	    data = (void *)atom->cp;
+	    if (vsp->numval == 1) vsp->valfmt = PM_VAL_DPTR;
+	    break;
+
+	default:
+	    if (vsp->numval == 1) vsp->numval = PM_ERR_TYPE;
+	    else vsp->numval--;
+	    return PM_ERR_TYPE;
     }
+
+    if (dsize != -1)
+	_pmi_alloc_valblock(mp, vp, dsize, data);
 
     return 0;
 }

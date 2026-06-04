@@ -40,9 +40,11 @@ pmiPutValue: OK
 pmiPutValue: OK
 pmiPutValue: OK
 pmiGetHandle: OK ->1
+pmiGetHandle: OK ->2
 pmiGetHandle: Error: Unknown metric name
 pmiPutValueHandle: Error: Value already assigned for this metric-instance
 pmiPutValueHandle: Error: Illegal handle
+pmiPutAtomValueHandle: Error: Illegal handle
 pmiPutText: OK
 pmiPutText: OK
 pmiPutText: OK
@@ -124,6 +126,7 @@ pmiDump: context 0 of 1 archive: myarchive
    instance[1] eek (2)
    instance[2] blah (3)
   handle[0] metric=my.metric.foo (245.0.1) instance=-1
+  handle[1] metric=my.metric.long (245.0.3) instance=-1
   text[0] pmid=245.0.1 [One line text for my.metric.foo]
   text[1] pmid=245.0.1 
 Full help text for my.metric.foo
@@ -170,13 +173,17 @@ pmiWrite: OK
 pmiPutValue: OK
 pmiWrite: OK
 pmiWrite: Error: No data to output
+pmiPutAtomValueHandle: OK
+pmiPutAtomValueHandle: OK
+pmiPutAtomValueHandle: Error: Value already assigned for this metric-instance
+pmiWrite: OK
 pmiPutMark: OK
 pmiEnd: OK
 pmiStart: OK ->2
 pmiAddInstance: Error: Internal instance identifer already defined
-pmiGetHandle: OK ->2
+pmiGetHandle: OK ->3
 pmiPutValueHandle: OK
-pmiPutValueHandle: Error: Illegal handle
+pmiPutValueHandle: Error: Value already assigned for this metric-instance
 pmiDump: context 1 of 2 archive: myotherarchive
   state: 1 (start) hostname: <undefined> timezone: <undefined>
   metric[0] name=my.metric.foo pmid=245.0.1
@@ -205,7 +212,8 @@ pmiDump: context 1 of 2 archive: myotherarchive
    instance[1] eek (2)
    instance[2] blah (3)
   handle[0] metric=my.metric.foo (245.0.1) instance=-1
-  handle[1] metric=my.metric.bar (245.0.2) instance=2
+  handle[1] metric=my.metric.long (245.0.3) instance=-1
+  handle[2] metric=my.metric.bar (245.0.2) instance=2
   text[0] pmid=245.0.1 [One line text for my.metric.foo]
   text[1] pmid=245.0.1 
 Full help text for my.metric.foo
@@ -290,7 +298,7 @@ TIMESTAMP 3 instances
 Temporal Index
 			Log Vol    end(meta)     end(log)
 TIMESTAMP	      0          808          808
-TIMESTAMP	      0         2385         1256
+TIMESTAMP	      0         2385         1332
 
 [260 bytes]
 TIMESTAMP 7 metrics
@@ -312,6 +320,11 @@ TIMESTAMP 2 metrics
 [72 bytes]
 TIMESTAMP 1 metric
     245.0.5 (my.metric.string): value "a third string value"
+
+[76 bytes]
+TIMESTAMP 2 metrics
+    245.0.1 (my.metric.foo): value 55555
+    245.0.3 (my.metric.long): value 1234567890123
 
 [24 bytes]
 TIMESTAMP  <mark>

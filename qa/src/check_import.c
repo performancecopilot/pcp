@@ -27,6 +27,8 @@ main(int argc, char **argv)
     int		ctx2;
     int		hdl1;
     int		hdl2;
+    int		hdl3;
+    pmAtomValue	av;
     int		errflag = 0;
     int		c;
     int		Vflag = 0;
@@ -139,12 +141,17 @@ main(int argc, char **argv)
 
     hdl1 = pmiGetHandle("my.metric.foo", "");
     check(hdl1, "pmiGetHandle");
+    hdl3 = pmiGetHandle("my.metric.long", "");
+    check(hdl3, "pmiGetHandle");
     sts = pmiGetHandle("my.bad", "");
     check(sts, "pmiGetHandle");
     sts = pmiPutValueHandle(hdl1, "321");
     check(sts, "pmiPutValueHandle");
     sts = pmiPutValueHandle(0, "error");
     check(sts, "pmiPutValueHandle");
+    av.ul = 0;
+    sts = pmiPutAtomValueHandle(0, &av);
+    check(sts, "pmiPutAtomValueHandle");
 
     sts = pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE, pmID_build(245,0,1),
 		     "One line text for my.metric.foo");
@@ -331,6 +338,17 @@ main(int argc, char **argv)
     check(sts, "pmiPutValue");
     sts = pmiWrite(-1, -1);
     check(sts, "pmiWrite");
+    sts = pmiWrite(-1, -1);
+    check(sts, "pmiWrite");
+    av.ul = 55555;
+    sts = pmiPutAtomValueHandle(hdl1, &av);		/* U32: PM_VAL_INSITU path */
+    check(sts, "pmiPutAtomValueHandle");
+    av.ll = 1234567890123LL;
+    sts = pmiPutAtomValueHandle(hdl3, &av);		/* 64-bit: PM_VAL_DPTR path */
+    check(sts, "pmiPutAtomValueHandle");
+    av.ul = 0;
+    sts = pmiPutAtomValueHandle(hdl1, &av);		/* duplicate: PMI_ERR_DUPVALUE */
+    check(sts, "pmiPutAtomValueHandle");
     sts = pmiWrite(-1, -1);
     check(sts, "pmiWrite");
 

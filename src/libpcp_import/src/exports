@@ -50,4 +50,5 @@ PCP_IMPORT_1.3 {
 PCP_IMPORT_1.4 {
   global:
     pmiExtraUnits;
+    pmiPutAtomValueHandle;
 } PCP_IMPORT_1.3;

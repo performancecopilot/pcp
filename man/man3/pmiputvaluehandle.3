@@ -1,7 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
-.\" Copyright (c) 2018 Red Hat.
+.\" Copyright (c) 2018,2026 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -16,6 +16,7 @@
 .\"
 .TH PMIPUTVALUEHANDLE 3 "" "Performance Co-Pilot"
 .SH NAME
+\f3pmiPutAtomValueHandle\f1,
 \f3pmiPutValueHandle\f1 \- add a value for a metric-instance pair via a handle
 .SH "C SYNOPSIS"
 .ft 3
@@ -25,6 +26,8 @@
 .br
 #include <pcp/import.h>
 .sp
+int pmiPutAtomValueHandle(int \fIhandle\fP, pmAtomValue *\fIatom\fP);
+.br
 int pmiPutValueHandle(int \fIhandle\fP, const char *\fIvalue\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
@@ -44,14 +47,24 @@ pmiPutValueHandle($\fIhandle\fP, $\fIvalue\fP);
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
+.B pmiPutAtomValueHandle
+and
 .B pmiPutValueHandle
-adds a single value to the current output record for a given
+add a single value to the current output record for a given
 metric and instance, using the
 .I handle
 defined by an earlier call to
 .BR pmiGetHandle (3).
 .PP
-The
+With
+.B pmiPutAtomValueHandle
+the
+.I atom
+passes the binary value directly using a union of types.
+.PP
+In the case of
+.B pmiPutValueHandle
+the
 .I value
 should be in a format consistent with the metric's type as
 defined in the call to
@@ -60,6 +73,7 @@ defined in the call to
 No data will be written until
 .BR pmiWrite (3)
 is called, so multiple calls to
+.BR pmiPutAtomValueHandle ,
 .B pmiPutValueHandle
 or
 .BR pmiPutValue (3)
@@ -67,8 +81,10 @@ are typically used to accumulate data values for several
 metric-instance pairs before calling
 .BR pmiWrite (3).
 .SH DIAGNOSTICS
+.B pmiPutAtomValueHandle
+and
 .B pmiPutValueHandle
-returns zero on success else a negative value that can be turned into an
+return zero on success else a negative value that can be turned into an
 error message by calling
 .BR pmiErrStr (3).
 .SH SEE ALSO

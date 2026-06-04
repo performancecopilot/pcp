@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022 Red Hat.
+ * Copyright (c) 2013-2022,2026 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -886,6 +886,17 @@ pmiPutValueHandle(int handle, const char *value)
 	return current->last_sts = PMI_ERR_BADHANDLE;
 
     return current->last_sts = _pmi_stuff_value(current, &current->handle[handle-1], value);
+}
+
+int
+pmiPutAtomValueHandle(int handle, pmAtomValue *atom)
+{
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+    if (handle <= 0 || handle > current->nhandle)
+	return current->last_sts = PMI_ERR_BADHANDLE;
+
+    return current->last_sts = _pmi_stuff_atomvalue(current, &current->handle[handle-1], atom);
 }
 
 int
