@@ -16,7 +16,7 @@
 .TH PMISETVERSION 3 "" "Performance Co-Pilot"
 .SH NAME
 \f3pmiSetVersion\f1 \- set the archive version for a LOGIMPORT archive
-.SH C SYNOPSIS
+.SH "C SYNOPSIS"
 .ft 3
 .ad l
 .hy 0
@@ -30,7 +30,7 @@ cc ... \-lpcp_import \-lpcp
 .hy
 .ad
 .ft 1
-.SH PERL SYNOPSIS
+.SH "Perl SYNOPSIS"
 .ft 3
 .ad l
 .hy 0
@@ -40,13 +40,13 @@ pmiSetVersion($\fIvalue\fP);
 .hy
 .ad
 .ft 1
-.SH PYTHON SYNOPSIS
+.SH "Python SYNOPSIS"
 .ft 3
 .ad l
 .hy 0
 from pcp import pmi
 .sp
-log = pmi.pmiLogImport(\fIpath\fP).pmiSetVersion(\fIvalue\fP)
+log.pmiSetVersion(\fIvalue\fP)
 .hy
 .ad
 .ft 1

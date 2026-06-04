@@ -88,6 +88,23 @@ $\fIextraScale\fP);
 .hy
 .ad
 .ft 1
+.SH "Python SYNOPSIS"
+.ft 3
+.ad l
+.hy 0
+from pcp import pmi
+.sp
+\fIpmid\fP = pmi.pmiLogImport.pmiID(\fIdomain\fP, \fIcluster\fP, \fIitem\fP)
+.br
+\fIindom\fP = pmi.pmiLogImport.pmiInDom(\fIdomain\fP, \fIserial\fP)
+.br
+\fIunits\fP = pmi.pmiLogImport.pmiUnits(\fIdim_space\fP, \fIdim_time\fP, \fIdim_count\fP,
+'in +\w'pmi.pmiLogImport.pmiUnits('u
+\fIscale_space\fP, \fIscale_time\fP, \fIscale_count\fP)
+.in
+.hy
+.ad
+.ft 1
 .SH DESCRIPTION
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
