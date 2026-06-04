@@ -1,0 +1,21 @@
+QA output created by 1744
+PING
+PONG
+
+Flushing key server on port 54321 ...
+Key server flushed successfully
+Loading test archive into pmseries ...
+pmseries: [Info] processed 11 archive records from ARCHIVE
+Waiting for metrics to be indexed ...
+
+=== nvidia.gpuactive (optional labels gpu & uuid) ===
+
+TIMESERIES
+    PMID: 120.0.7
+    Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
+    Semantics: instant  Units: none
+    Source: TIMESERIES
+    Metric: nvidia.gpuactive
+    inst [0 or "gpu0"] series TIMESERIES
+    inst [0 or "gpu0"] labels {"agent":"nvidia","device_type":"gpu","gpu":0,"hostname":"HOSTNAME","indom_name":"per gpu","uuid":"UUID"}
+== Note: check 1744.full for details
