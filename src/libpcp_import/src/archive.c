@@ -195,11 +195,22 @@ check_metric(pmi_context *current, pmID pmid, int *needti)
 	    /*
 	     * If the archive was opened for appending, __pmLogLoadMeta() will
 	     * have populated hashpmid with all descriptors already on disk.
-	     * Skip re-writing a descriptor that is already there — metric
-	     * descriptors are immutable, so there is no need for duplicates
-	     * that would cause .meta to grow on every short-lived invocation.
+	     * Skip re-writing a descriptor that is already there, but first
+	     * verify it is compatible with the registered metric — e.g. a
+	     * package upgrade may have corrected a metric's type, semantics,
+	     * instance domain or units, in which case the old archive cannot
+	     * be extended with the new data.
 	     */
 	    if (__pmLogLookupDesc(acp, pmid, &existing) == 0) {
+		if (existing.type != current->metric[m].desc.type)
+		    return PM_ERR_LOGCHANGETYPE;
+		if (existing.sem != current->metric[m].desc.sem)
+		    return PM_ERR_LOGCHANGESEM;
+		if (existing.indom != current->metric[m].desc.indom)
+		    return PM_ERR_LOGCHANGEINDOM;
+		if (memcmp(&existing.units, &current->metric[m].desc.units,
+			   sizeof(existing.units)) != 0)
+		    return PM_ERR_LOGCHANGEUNITS;
 		current->metric[m].meta_done = 1;
 	    }
 	    else {

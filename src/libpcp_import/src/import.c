@@ -351,6 +351,17 @@ pmiStart(const char *archive, int flags)
     memset((void *)&current->logctl, 0, sizeof(current->logctl));
     memset((void *)&current->archctl, 0, sizeof(current->archctl));
     __pmLogWriterInit(&current->archctl, &current->logctl);
+    /*
+     * PMI_APPEND and PMI_INHERIT may be used together: the inherited
+     * metric and indom definitions are carried into the new context, and
+     * when the append archive is opened on the first pmiWrite() call,
+     * each inherited descriptor is checked against what is already on
+     * disk.  Compatible descriptors are silently skipped (no duplicate
+     * written); incompatible ones are rejected with PM_ERR_LOGCHANGE*.
+     * In the common case -- inheriting from a context that was writing
+     * to the same archive -- every inherited descriptor already exists
+     * and the combination is effectively a no-op beyond convenience.
+     */
     if ((flags & PMI_INHERIT) && old_current != NULL) {
 	current->nmetric = old_current->nmetric;
 	if (old_current->metric != NULL) {
@@ -895,6 +906,8 @@ pmiPutAtomValueHandle(int handle, pmAtomValue *atom)
 	return PM_ERR_NOCONTEXT;
     if (handle <= 0 || handle > current->nhandle)
 	return current->last_sts = PMI_ERR_BADHANDLE;
+    if (atom == NULL)
+	return current->last_sts = PM_ERR_ARG;
 
     return current->last_sts = _pmi_stuff_atomvalue(current, &current->handle[handle-1], atom);
 }

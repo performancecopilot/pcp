@@ -146,6 +146,22 @@ If the archive files do not yet exist,
 .B PMI_APPEND
 behaves identically to creating a new archive (no flags).
 .PP
+.B PMI_APPEND
+and
+.B PMI_INHERIT
+may be used together.
+The inherited metric and instance-domain definitions are carried into
+the new context, and when the archive is opened on the first
+.BR pmiWrite (3)
+call, each inherited descriptor is checked against what is already
+on disk: compatible descriptors are silently skipped (no duplicate
+written); incompatible ones are rejected with an appropriate error
+(e.g.
+.BR PM_ERR_LOGCHANGETYPE ).
+When the previous context was writing to the same archive, every
+inherited descriptor already exists on disk so the combination is
+effectively a no-op beyond convenience.
+.PP
 If
 .I flags
 is zero, or neither
