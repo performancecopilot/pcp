@@ -386,7 +386,7 @@ class pmiLogImport(object):
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if sec and not usec:
+        if usec is None:
             if isinstance(sec, datetime):
                 sec = float((sec - self._epoch).total_seconds())
             if isinstance(sec, float):

@@ -5,6 +5,7 @@ pmiSetTimezone: UTC
 pmid 251.1.1
 units 
 pmiAddMetric: qa.one
+pmiPutValue: qa.one (epoch)
 pmiPutValue: qa.one
 pmid 251.1.2
 indom 251.3
@@ -26,7 +27,7 @@ Note: timezone set to local timezone of host "fu.bar.com" from archive
 qa.one
     Data Type: 32-bit unsigned int  InDom: PM_INDOM_NULL 0x........
     Semantics: discrete  Units: none
-    value 42
+    value 1
 
 qa.two
     Data Type: float  InDom: 251.3 0x........
