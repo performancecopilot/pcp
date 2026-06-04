@@ -321,6 +321,7 @@ _filter_optional_pmdas()
 	-e '/pmdanews/d' \
 	-e '/pmdanfsclient/d' \
 	-e '/pmdanginx/d' \
+	-e '/pmdanixl/d' \
 	-e '/pmdanutcracker/d' \
 	-e '/pmdanvidia/d' \
 	-e '/pmdaopenmetrics/d' \
@@ -397,6 +398,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[33 or "podman"]/d' \
 	-e '/inst \[35 or "mongodb"]/d' \
 	-e '/inst \[37 or "rds"]/d' \
+	-e '/inst \[39 or "nixl"]/d' \
 	-e '/inst \[57 or "statsd"]/d' \
 	-e '/inst \[60 or "linux"]/d' \
 	-e '/inst \[62 or "nfsclient"]/d' \
@@ -504,6 +506,7 @@ _filter_top_pmns()
 	-e '/^    news /d' \
 	-e '/^    nfsclient /d' \
 	-e '/^    nginx /d' \
+	-e '/^    nixl /d' \
 	-e '/^    nutcracker /d' \
 	-e '/^    nvidia /d' \
 	-e '/^    openmetrics /d' \
