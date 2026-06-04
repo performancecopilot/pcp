@@ -2099,6 +2099,7 @@ suse
 1556 pmlogconf local
 1557 libpcp local
 1558 libpcp local
+1559:reserved pmlogrewrite pmda.amdgpu
 1560 libpcp pdu local
 1561 pmcd libpcp pmcd.pdu suse local
 1562 pminfo local
@@ -2209,9 +2210,14 @@ suse
 1667 pmunits derive local
 1668 pmunits pmrep python local
 1669 pmlogmv local
+1670:reserved pmlogrewrite pmda.amdgpu
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1673 pmda.bpf local
+1674:reserved pmlogrewrite pmda.amdgpu
+1675:reserved pmlogrewrite pmda.amdgpu
+1676:reserved pmlogrewrite pmda.amdgpu
+1677:reserved pmlogrewrite pmda.amdgpu
 1678 pmda.opentelemetry local python
 1679 pmlogconf local
 1680 pmda.openvswitch local

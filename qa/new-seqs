@@ -52,8 +52,8 @@ done >$tmp.avail
 if [ -s $tmp.avail ]
 then
     echo "9999999" >>$tmp.avail
-    _do_range <$tmp.avail
-    echo "Below min=$min [`wc -l <$tmp.avail | sed -e 's/ //g'` available] ..."
+    _do_range <$tmp.avail | tee $tmp.found
+    echo "Below min=$min [`wc -l <$tmp.found | sed -e 's/ //g'` available] ..."
     echo
 fi
 
