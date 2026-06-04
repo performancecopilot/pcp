@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2012-2021 Red Hat.
+# Copyright (c) 2012-2026 Red Hat.
 # Copyright (c) 2009 Aconex.  All Rights Reserved.
 # Copyright (c) 1997-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -36,7 +36,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	mmv2_genstats.c mmv2_instances.c mmv2_nostats.c mmv2_simple.c \
 	mmv3_simple.c mmv3_labels.c mmv3_bad_labels.c mmv3_nostats.c mmv3_genstats.c \
 	record.c record-setarg.c clientid.c grind_ctx.c \
-	pmdacache.c check_import.c unpack.c hrunpack.c aggrstore.c atomstr.c \
+	check_import_append.c check_import_name.c check_import.c \
+	pmdacache.c unpack.c hrunpack.c aggrstore.c atomstr.c \
 	semstr.c grind_conv.c getconfig.c err.c torture_logmeta.c keycache.c \
 	keycache2.c pmdaqueue.c drain-server.c template.c anon-sa.c \
 	username.c rtimetest.c getcontexthost.c badpmda.c chklogputresult.c \
@@ -56,7 +57,13 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	throttle.c throttle_timeout.c y2038.c bigpmcdpmids.c pdu-gadget.c \
 	strnfoo.c mmv_ondisk.c newcontext.c api_abi.c interp_bug3.c \
 	pmsetmode.c scanindex.c localtime.c httpcache.c unregister.c \
-	genpmns.c undelta.c series_time_parse_test.c derived_control.c
+	genpmns.c undelta.c series_time_parse_test.c derived_control.c \
+	multithread0.c multithread1.c multithread2.c multithread3.c \
+	multithread4.c multithread5.c multithread6.c multithread7.c \
+	multithread8.c multithread9.c multithread10.c multithread11.c \
+	multithread12.c multithread13.c multithread14.c \
+	exerlock.c hashwalk.c parsehostattrs.c parsehostspec.c getoptions.c
+
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
 include ../localconfig
@@ -68,53 +75,7 @@ $(error Cannot make qa/localconfig)
 endif
 endif
 
-ifeq ($(shell test $(PCP_VER) -ge 3600 && echo 1), 1)
-CFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
-	multithread4.c multithread5.c multithread6.c multithread7.c \
-	multithread8.c multithread9.c multithread10.c multithread11.c \
-	multithread12.c multithread13.c multithread14.c \
-	exerlock.c
-else
-MYFILES += multithread0.c multithread1.c multithread2.c multithread3.c \
-	multithread4.c multithread5.c multithread6.c multithread7.c \
-	multithread8.c multithread9.c multithread10.c multithread11.c \
-	multithread12.c multithread13.c multithread14.c \
-	exerlock.c
-LDIRT += multithread0 multithread1 multithread2 multithread3 \
-	multithread4 multithread5 multithread6 multithread7 \
-	multithread8 multithread9 multithread10 multithread11 \
-	multithread12 multithread13 multithread14 \
-	exerlock
-endif
-
-ifeq ($(shell test $(PCP_VER) -ge 3700 && echo 1), 1)
-CFILES += hashwalk.c
-else
-MYFILES += hashwalk.c
-LDIRT += hashwalk
-endif
-
-ifeq ($(shell test $(PCP_VER) -ge 3800 && echo 1), 1)
-CFILES += parsehostattrs.c parsehostspec.c check_import_name.c
-else
-MYFILES += parsehostattrs.c parsehostspec.c check_import_name.c
-LDIRT += parsehostattrs parsehostspec check_import_name
-endif
-
-ifeq ($(shell test $(PCP_VER) -ge 3802 && echo 1), 1)
-POSIXFILES += chkacc4.c
-else
-MYFILES += chkacc4.c
-LDIRT += chkacc4
-endif
-
-ifeq ($(shell test $(PCP_VER) -ge 3901 && echo 1), 1)
-CFILES += getoptions.c
 XTRATARGETS += getoptions_v2
-else
-MYFILES += getoptions.c
-LDIRT += getoptions getoptions_v2
-endif
 
 ifeq ($(shell test -f /usr/include/pcp/fault.h && echo 1), 1)
 # only make these ones if the fault injection version of libpcp
@@ -142,7 +103,7 @@ endif
 #
 POSIXFILES = \
 	ipc.c proc_test.c context_fd_leak.c arch_maxfd.c torture_trace.c \
-	779246.c killparent.c fetchloop.c chain.c spawn.c 
+	779246.c killparent.c fetchloop.c chain.c spawn.c chkacc4.c
 
 TRACEFILES = \
 	obs.c tstate.c tabort.c 
