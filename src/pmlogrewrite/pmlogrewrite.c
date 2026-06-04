@@ -311,35 +311,44 @@ parseargs(int argc, char *argv[])
 		}
 	    }
 	    else if (S_ISDIR(sbuf.st_mode)) {
-		DIR		*dirp;
-		struct dirent	*dp;
-		char		path[MAXPATHLEN+1];
 
-		if ((dirp = opendir(opts.optarg)) == NULL) {
-		    pmprintf("%s: opendir(%s) failed: %s\n", pmGetProgname(), opts.optarg, osstrerror());
+		struct dirent	**ent;
+		int		num_ent;
+
+		num_ent = scandir(opts.optarg, &ent, NULL, alphasort);
+
+		if (num_ent < 0) {
+		    pmprintf("%s: scandir(%s) failed: %s\n", pmGetProgname(), opts.optarg, osstrerror());
 		    opts.errors++;
 		}
-		else while ((dp = readdir(dirp)) != NULL) {
-		    /* skip ., .. and "hidden" files */
-		    if (dp->d_name[0] == '.') continue;
-		    pmsprintf(path, sizeof(path), "%s%c%s", opts.optarg, sep, dp->d_name);
-		    if (stat(path, &sbuf) < 0) {
-			pmprintf("%s: %s: %s\n", pmGetProgname(), path, osstrerror());
-			opts.errors++;
-		    }
-		    else if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
-			if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL)
-			    break;
-			conf = cp;
-			if ((conf[nconf++] = strdup(path)) == NULL) {
-			    fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
-			    abandon();
-			    /*NOTREACHED*/
+		else {
+		    int		i;
+		    char	path[MAXPATHLEN+1];
+
+		    for (i = 0; i < num_ent; i++) {
+			/* skip ., .. and "hidden" files */
+			if (ent[i]->d_name[0] == '.')
+			    goto next;
+			pmsprintf(path, sizeof(path), "%s%c%s", opts.optarg, sep, ent[i]->d_name);
+			if (stat(path, &sbuf) < 0) {
+			    pmprintf("%s: %s: %s\n", pmGetProgname(), path, osstrerror());
+			    opts.errors++;
 			}
+			else if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
+			    if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL)
+				break;
+			    conf = cp;
+			    if ((conf[nconf++] = strdup(path)) == NULL) {
+				fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
+				abandon();
+				/*NOTREACHED*/
+			    }
+			}
+next:
+			free(ent[i]);
 		    }
+		    free(ent);
 		}
-		if (dirp != NULL)
-		    closedir(dirp);
 	    }
 	    else {
 		pmprintf("%s: Error: -c config %s is not a file or directory\n", pmGetProgname(), opts.optarg);

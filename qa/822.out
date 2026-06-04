@@ -106,7 +106,7 @@ ref++ InDom: 2.1 refcnt: 3 (for PMID: 2.3.3)
 ref++ InDom: 30.1 refcnt: 1 (for PMID: 30.0.5)
 renumber indom ref-- InDom: 29.1 refcnt: 0 (for PMID: 29.0.5)
 renumber indom ref++ InDom: 30.1 refcnt: 2 (for PMID: 29.0.5)
-Rewrite: pmDesc for 29.0.5
+Rewrite: pmDesc for 29.0.5: pmid type
 Delete: InDom: 29.1: no output metrics use this
 --- TMP.in
 +++ TMP.out
@@ -277,9 +277,9 @@ ref++ InDom: 60.24 refcnt: 10 (for PMID: 60.54.13)
 ref++ InDom: 60.24 refcnt: 11 (for PMID: 60.54.14)
 ref++ InDom: 60.24 refcnt: 12 (for PMID: 60.54.15)
 renumber indom ref-- InDom: 60.11 refcnt: 0 (for PMID: 60.15.0)
-Rewrite: pmDesc for 60.18.0
-Rewrite: pmDesc for 60.18.4
-Rewrite: pmDesc for 60.15.0
+Rewrite: pmDesc for 60.18.0: units
+Rewrite: pmDesc for 60.18.4: units
+Rewrite: pmDesc for 60.15.0: type
 Delete: InDom: 60.11: no output metrics use this
 --- TMP.in
 +++ TMP.out
@@ -433,9 +433,9 @@ ref++ InDom: 60.24 refcnt: 10 (for PMID: 60.54.13)
 ref++ InDom: 60.24 refcnt: 11 (for PMID: 60.54.14)
 ref++ InDom: 60.24 refcnt: 12 (for PMID: 60.54.15)
 renumber indom ref-- InDom: 60.7 refcnt: 1 (for PMID: 60.7.4)
-Rewrite: pmDesc for 60.18.0
-Rewrite: pmDesc for 60.7.4
-Rewrite: pmDesc for 60.18.4
+Rewrite: pmDesc for 60.18.0: units
+Rewrite: pmDesc for 60.7.4: type
+Rewrite: pmDesc for 60.18.4: units
 --- TMP.in
 +++ TMP.out
 @@ -520,7 +520,7 @@
@@ -527,7 +527,7 @@ ref++ InDom: 2.1 refcnt: 3 (for PMID: 2.3.3)
 ref++ InDom: 1.15 refcnt: 10 (for PMID: 1.38.5)
 renumber indom ref-- InDom: 1.19 refcnt: 0 (for PMID: 1.42.2)
 renumber indom ref++ InDom: 1.17 refcnt: 2 (for PMID: 1.42.2)
-Rewrite: pmDesc for 1.42.2
+Rewrite: pmDesc for 1.42.2: type
 Delete: InDom: 1.19: no output metrics use this
 --- TMP.in
 +++ TMP.out
@@ -600,7 +600,7 @@ ref++ InDom: 2.1 refcnt: 3 (for PMID: 2.3.3)
 ref++ InDom: 1.15 refcnt: 10 (for PMID: 1.38.5)
 renumber indom ref-- InDom: 1.1 refcnt: 3 (for PMID: 1.26.9)
 renumber indom ref++ InDom: 1.17 refcnt: 2 (for PMID: 1.26.9)
-Rewrite: pmDesc for 1.26.9
+Rewrite: pmDesc for 1.26.9: type
 --- TMP.in
 +++ TMP.out
 @@ -28,7 +28,7 @@
@@ -685,9 +685,9 @@ renumber indom ref-- InDom: 1.17 refcnt: 0 (for PMID: 1.39.49)
 renumber indom ref++ InDom: 1.17 refcnt: 1 (for PMID: 1.39.49)
 renumber indom ref-- InDom: 1.19 refcnt: 0 (for PMID: 1.42.2)
 renumber indom ref++ InDom: 1.17 refcnt: 2 (for PMID: 1.42.2)
-Rewrite: pmDesc for 1.42.2
+Rewrite: pmDesc for 1.42.2: type
 Delete: InDom: 1.19: no output metrics use this
-Rewrite: pmDesc for 1.39.49
+Rewrite: pmDesc for 1.39.49: type
 --- TMP.in
 +++ TMP.out
 @@ -115,13 +115,13 @@
@@ -775,8 +775,8 @@ renumber indom ref-- InDom: 1.19 refcnt: 0 (for PMID: 1.42.2)
 renumber indom ref++ InDom: 1.19 refcnt: 1 (for PMID: 1.42.2)
 renumber indom ref-- InDom: 1.1 refcnt: 3 (for PMID: 1.26.9)
 renumber indom ref++ InDom: 1.19 refcnt: 2 (for PMID: 1.26.9)
-Rewrite: pmDesc for 1.42.2
-Rewrite: pmDesc for 1.26.9
+Rewrite: pmDesc for 1.42.2: type
+Rewrite: pmDesc for 1.26.9: type
 --- TMP.in
 +++ TMP.out
 @@ -28,7 +28,7 @@
@@ -878,7 +878,7 @@ ref++ InDom: 1.16 refcnt: 10 (for PMID: 1.38.19)
 ref++ InDom: 2.1 refcnt: 3 (for PMID: 2.3.3)
 ref++ InDom: 1.15 refcnt: 10 (for PMID: 1.38.5)
 renumber indom ref++ InDom: 1.17 refcnt: 2 (for PMID: 1.26.12)
-Rewrite: pmDesc for 1.26.12
+Rewrite: pmDesc for 1.26.12: type
 --- TMP.in
 +++ TMP.out
 @@ -37,7 +37,7 @@
@@ -939,8 +939,8 @@ ref++ InDom: 1.15 refcnt: 10 (for PMID: 1.38.5)
 renumber indom ref-- InDom: 1.17 refcnt: 0 (for PMID: 1.39.49)
 renumber indom ref++ InDom: 1.17 refcnt: 1 (for PMID: 1.39.49)
 renumber indom ref++ InDom: 1.17 refcnt: 2 (for PMID: 1.26.12)
-Rewrite: pmDesc for 1.39.49
-Rewrite: pmDesc for 1.26.12
+Rewrite: pmDesc for 1.39.49: type
+Rewrite: pmDesc for 1.26.12: type
 --- TMP.in
 +++ TMP.out
 @@ -37,7 +37,7 @@

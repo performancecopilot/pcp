@@ -128,6 +128,7 @@ duptextstr(char *s, int strip_quotes)
 <indom>"inst"		{ return TOK_INST; }
 
 <metric>"name"		{ return TOK_NAME; }
+<metric>"dupok"		{ return TOK_DUPOK; }
 <metric>"pmid"		{ return TOK_PMID; }
 <metric>"type"		{ BEGIN(type); return TOK_TYPE; }
 <metric>"indom"		{ return TOK_INDOM; }
@@ -153,6 +154,7 @@ duptextstr(char *s, int strip_quotes)
 <text>"oneline"		{ return TOK_ONELINE; }
 <text>"help"		{ return TOK_HELP; }
 <text>"text"		{ return TOK_TEXT; }
+<text>all		{ return TOK_TEXT_STAR; }
 <text>\*		{ return TOK_TEXT_STAR; }
 
 <label>"context"	{ return TOK_CONTEXT; }

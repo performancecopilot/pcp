@@ -179,8 +179,22 @@ do_desc(void)
 		fprintf(stderr, "Delete: pmDesc for %s\n", pmIDStr(desc.pmid));
 	    goto done;
 	}
-	if (pmDebugOptions.appl1)
-	    fprintf(stderr, "Rewrite: pmDesc for %s\n", pmIDStr(desc.pmid));
+	if (pmDebugOptions.appl1) {
+	    fprintf(stderr, "Rewrite: pmDesc for %s:", pmIDStr(desc.pmid));
+	    if (mp->flags & METRIC_CHANGE_PMID)
+		fprintf(stderr, " pmid");
+	    if (mp->flags & METRIC_CHANGE_NAME)
+		fprintf(stderr, " name");
+	    if (mp->flags & METRIC_CHANGE_TYPE)
+		fprintf(stderr, " type");
+	    if (mp->flags & METRIC_CHANGE_INDOM)
+		fprintf(stderr, " type");
+	    if (mp->flags & METRIC_CHANGE_SEM)
+		fprintf(stderr, " sem");
+	    if (mp->flags & METRIC_CHANGE_UNITS)
+		fprintf(stderr, " units");
+	    fputc('\n', stderr);
+	}
 	if (mp->flags & METRIC_CHANGE_PMID)
 	    desc.pmid = mp->new_desc.pmid;
 	if (mp->flags & METRIC_CHANGE_NAME) {
