@@ -119,11 +119,11 @@ If
 is a directory, then all of the files or symbolic links in that
 directory (excluding those beginning with a period ``.'') will
 be used to provide the rewriting rules.
-The directory is scanned using
+In the directory case, scanning uses
 .BR scandir (3)
-and
-.BR alphasort (3)
-so the entries are processed in sorted file name order.
+and a
+.BR strcmp (3)-based
+sorting algorithm so the entries are processed in sorted file name order.
 Multiple
 .B \-c
 options are allowed.
@@ -1811,7 +1811,6 @@ appl7	temporal index generation diagnostics
 .BR pmlogredact (1),
 .BR pmlogreduce (1),
 .BR PMAPI (3),
-.BR alphasort (3),
 .BR pmLookupDesc (3),
 .BR pmdaInstance (3),
 .BR scandir (3),

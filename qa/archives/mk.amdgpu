@@ -7,10 +7,10 @@
 
 . /etc/pcp.env
 
-tmp=${TMPDIR:-/tmp}/`basename $0`-$$
-rm -f $tmp.*
+tmp=${TMPDIR:-/tmp}/"`basename $0`"-$$
+rm -f "$tmp".*
 sts=1
-trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
+trap "rm -f \"$tmp\".*; exit \$sts" 0 1 2 3 15
 
 # see ./mk.common for shell variable definitions
 #
@@ -22,7 +22,7 @@ expect=5
 
 # pmlogger configuration
 #
-cat <<End-of-File >>$tmp.config
+cat <<End-of-File >>"$tmp.config"
 log mandatory on once { hinv }
 log mandatory on 1 sec {
     `echo $probe | sed -e 's/\..*//'`
@@ -35,11 +35,11 @@ End-of-File
 rm -f amdgpu.smi.txt
 if which amd-smi >/dev/null 2>&1
 then
-    amd-smi metric >amdgpu.smi.txt 2>$tmp.err
-    if [ $? != 0 -o -s $tmp.err ]
+    amd-smi metric >amdgpu.smi.txt 2>"$tmp.err"
+    if [ $? != 0 -o -s "$tmp.err" ]
     then
 	echo >&2 "mk.amdgpu: Warning: amd-smi failed"
-	cat $tmp.err
+	cat "$tmp.err"
     fi
 else
     echo >&2 "mk.amdgpu: Warning: amd-smi not installed, cannot recreate amdgpu.smi.txt"

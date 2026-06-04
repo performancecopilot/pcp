@@ -188,7 +188,7 @@ do_desc(void)
 	    if (mp->flags & METRIC_CHANGE_TYPE)
 		fprintf(stderr, " type");
 	    if (mp->flags & METRIC_CHANGE_INDOM)
-		fprintf(stderr, " type");
+		fprintf(stderr, " indom");
 	    if (mp->flags & METRIC_CHANGE_SEM)
 		fprintf(stderr, " sem");
 	    if (mp->flags & METRIC_CHANGE_UNITS)

@@ -1685,9 +1685,11 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				    yywarn(mess);
 				}
 			    }
-			    mp->new_name = $3;
-			    mp->flags |= METRIC_CHANGE_NAME;
-			    picked = 1;
+			    else {
+				mp->new_name = $3;
+				mp->flags |= METRIC_CHANGE_NAME;
+				picked = 1;
+			    }
 			}
 			if (!picked)
 			    free($3);

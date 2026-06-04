@@ -282,6 +282,11 @@ nextlog(void)
 #define S_ISLNK(mode) ((mode & S_IFMT) == S_IFLNK)
 #endif
 
+static int
+strsort(const struct dirent **a, const struct dirent **b) {
+    return strcmp((*a)->d_name, (*b)->d_name);
+}
+
 /*
  * parse command line arguments
  */
@@ -315,7 +320,7 @@ parseargs(int argc, char *argv[])
 		struct dirent	**ent;
 		int		num_ent;
 
-		num_ent = scandir(opts.optarg, &ent, NULL, alphasort);
+		num_ent = scandir(opts.optarg, &ent, NULL, strsort);
 
 		if (num_ent < 0) {
 		    pmprintf("%s: scandir(%s) failed: %s\n", pmGetProgname(), opts.optarg, osstrerror());
@@ -335,8 +340,11 @@ parseargs(int argc, char *argv[])
 			    opts.errors++;
 			}
 			else if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
-			    if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL)
-				break;
+			    if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL) {
+				fprintf(stderr, "conf[%d] realloc() failed: %s\n", nconf-1, strerror(errno));
+				abandon();
+				/*NOTREACHED*/
+			    }
 			    conf = cp;
 			    if ((conf[nconf++] = strdup(path)) == NULL) {
 				fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
