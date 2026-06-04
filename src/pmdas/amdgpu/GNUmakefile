@@ -32,6 +32,9 @@ LDIRT	= domain.h *.log *.dir *.pag so_locations
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
 
+REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
+REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
+
 ifeq "$(PMDA_AMDGPU)" "true"
 default_pcp default:	$(LIBTARGET) $(CMDTARGET)
 
@@ -43,6 +46,7 @@ install_pcp install:	default
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(PMDAADMDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) $(DFILES) root help pmns domain.h $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/$(IAM).conf rewrite.conf $(REWRITEDIR)/$(IAM).conf
 else
 
 default_pcp default:

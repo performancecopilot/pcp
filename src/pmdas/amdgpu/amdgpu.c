@@ -70,6 +70,7 @@ enum {
   AMDGPU_GPU_AVG_PWR,
   AMDGPU_GPU_CLOCK,
   AMDGPU_GPU_CLOCK_MAX,
+  AMDGPU_GPU_OLD_TEMPERATURE,
 
   AMDGPU_GPU_METRIC_COUNT
 };
@@ -156,20 +157,23 @@ static pmdaMetric metrictab[] = {
       PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE) } },
 
     {NULL,
-     {PMDA_PMID(2, AMDGPU_GPU_TEMPERATURE), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
+     {PMDA_PMID(3, AMDGPU_GPU_TEMPERATURE), PM_TYPE_FLOAT, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     {NULL,
-     {PMDA_PMID(2, AMDGPU_GPU_LOAD), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
+     {PMDA_PMID(3, AMDGPU_GPU_LOAD), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     {NULL,
-     {PMDA_PMID(2, AMDGPU_GPU_AVG_PWR), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
+     {PMDA_PMID(3, AMDGPU_GPU_AVG_PWR), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
     {NULL,
-     {PMDA_PMID(2, AMDGPU_GPU_CLOCK), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
+     {PMDA_PMID(3, AMDGPU_GPU_CLOCK), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE) } },
     {NULL,
-     {PMDA_PMID(2, AMDGPU_GPU_CLOCK_MAX), PM_TYPE_U32, GCARD_INDOM, PM_SEM_DISCRETE,
+     {PMDA_PMID(3, AMDGPU_GPU_CLOCK_MAX), PM_TYPE_U32, GCARD_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE) } },
+    {NULL,
+     {PMDA_PMID(3, AMDGPU_GPU_OLD_TEMPERATURE), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
 };
 
 /* GCARD_INDOM struct, stats that are per card */
@@ -453,9 +457,13 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
        */
       atom->ul = pcp_amdgpuinfo.info[inst].gpu_info.max_memory_clk;
       break;
-    case AMDGPU_GPU_TEMPERATURE:
+    case AMDGPU_GPU_OLD_TEMPERATURE:
       /* In millidegrees Celsius */
       atom->ul = pcp_amdgpuinfo.info[inst].temperature;
+      break;
+    case AMDGPU_GPU_TEMPERATURE:
+      /* In degrees Celsius */
+      atom->f = (float)pcp_amdgpuinfo.info[inst].temperature / 1000;
       break;
     case AMDGPU_GPU_LOAD:
       atom->ul = pcp_amdgpuinfo.info[inst].load;
@@ -504,12 +512,19 @@ static int amdgpu_labelItem(pmID pmid, pmLabelSet **lp) {
   if (pmID_cluster(pmid) != GPU_CLUSTER)
     return 0;
 
-  if (pmID_item(pmid) != AMDGPU_GPU_TEMPERATURE)
-    return 0;
+  if (pmID_item(pmid) == AMDGPU_GPU_TEMPERATURE) {
+    pmdaAddLabels(lp, "{\"measure\":\"temperature\"}");
+    pmdaAddLabels(lp, "{\"units\":\"degrees Celsius\"}");
+    return 1;
+  }
 
-  pmdaAddLabels(lp, "{\"measure\":\"temperature\"}");
-  pmdaAddLabels(lp, "{\"units\":\"millidegrees Celsius\"}");
-  return 1;
+  if (pmID_item(pmid) == AMDGPU_GPU_OLD_TEMPERATURE) {
+    pmdaAddLabels(lp, "{\"measure\":\"temperature\"}");
+    pmdaAddLabels(lp, "{\"units\":\"millidegrees Celsius\"}");
+    return 1;
+  }
+
+  return 0;
 }
 
 static int amdgpu_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda) {

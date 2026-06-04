@@ -1,0 +1,86 @@
+QA output created by 1670
+QA output created by 1559 --valgrind
+=== std out ===
+=== std err ===
+=== filtered valgrind report ===
+Memcheck, a memory error detector
+Command: pmlogrewrite -c /etc/pcp/pmlogrewrite/amdgpu.conf archives/amdgpu-0 TMP
+LEAK SUMMARY:
+definitely lost: 0 bytes in 0 blocks
+indirectly lost: 0 bytes in 0 blocks
+ERROR SUMMARY: 0 errors from 0 contexts ...
+metadata diffs
+--- TMP.old ...
++++ TMP.new ...
+@@ -17,34 +17,34 @@
+     inst [0 or "gpu0"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+     inst [1 or "gpu1"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ 
+-amdgpu.gpu.average_power PMID: 162.2.4 [The GPU average power consumption]
++amdgpu.gpu.average_power PMID: 162.3.2 [The GPU average power consumption]
+     Data Type: 32-bit unsigned int  InDom: 162.0 0x28800000
+-    Semantics: discrete  Units: / microsec
++    Semantics: instant  Units: none
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ Help:
+ The GPU average power consumption
+     inst [0 or "gpu0"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+     inst [1 or "gpu1"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ 
+-amdgpu.gpu.clock PMID: 162.2.0 [The GPU clock speed in MHz]
++amdgpu.gpu.clock PMID: 162.3.3 [The GPU clock speed in MHz]
+     Data Type: 32-bit unsigned int  InDom: 162.0 0x28800000
+-    Semantics: instant  Units: none
++    Semantics: instant  Units: count / microsec
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ Help:
+ The GPU clock speed in MHz
+     inst [0 or "gpu0"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+     inst [1 or "gpu1"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ 
+-amdgpu.gpu.clock_max PMID: 162.2.1 [The maximum GPU clock speed in MHz]
++amdgpu.gpu.clock_max PMID: 162.3.4 [The maximum GPU clock speed in MHz]
+     Data Type: 32-bit unsigned int  InDom: 162.0 0x28800000
+-    Semantics: instant  Units: none
++    Semantics: discrete  Units: count / microsec
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ Help:
+ The maximum GPU clock speed in MHz
+     inst [0 or "gpu0"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+     inst [1 or "gpu1"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ 
+-amdgpu.gpu.load PMID: 162.2.2 [The GPU load, as a percentage]
++amdgpu.gpu.load PMID: 162.3.1 [The GPU load, as a percentage]
+     Data Type: 32-bit unsigned int  InDom: 162.0 0x28800000
+     Semantics: instant  Units: none
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+@@ -53,9 +53,9 @@
+     inst [0 or "gpu0"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+     inst [1 or "gpu1"] labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ 
+-amdgpu.gpu.temperature PMID: 162.2.3 [The GPU temperature in millidegrees Celsius]
++amdgpu.gpu.old_temperature PMID: 162.3.5 [The GPU temperature in millidegrees Celsius]
+     Data Type: 32-bit unsigned int  InDom: 162.0 0x28800000
+-    Semantics: instant  Units: / microsec
++    Semantics: instant  Units: none
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ Help:
+ The temperature provided is returned in millidegrees celsius, but the
+@@ -65,7 +65,7 @@
+ 
+ amdgpu.memory.clock PMID: 162.1.4 [The GDDRx memory clock speed in MHz]
+     Data Type: 32-bit unsigned int  InDom: 162.0 0x28800000
+-    Semantics: instant  Units: / microsec
++    Semantics: instant  Units: count / microsec
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ Help:
+ The GDDRx memory clock speed in MHz
+@@ -74,7 +74,7 @@
+ 
+ amdgpu.memory.clock_max PMID: 162.1.5 [The maximum GDDRx memory clock speed in MHz]
+     Data Type: 32-bit unsigned int  InDom: 162.0 0x28800000
+-    Semantics: discrete  Units: / microsec
++    Semantics: discrete  Units: count / microsec
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ Help:
+ The maximum GDDRx memory clock speed in MHz

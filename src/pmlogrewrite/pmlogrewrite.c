@@ -1084,10 +1084,16 @@ link_entries(void)
 		assert(tp->old_id == mp->old_desc.pmid);
 		if (mp->new_desc.pmid != mp->old_desc.pmid) {
 		    if (tp->flags & TEXT_CHANGE_ID) {
-			/* pmid already changed via text clause */
-			if (tp->new_id != mp->new_desc.pmid) {
+			/*
+			 * pmid already changed via metric pmid clause
+			 * ... old != old test needed to accommodate
+			 * PMID fixups where rewrite in help text and
+			 * pmDesc may be different
+			 */
+			if (tp->new_id != mp->new_desc.pmid &&
+			    tp->old_id != mp->old_desc.pmid) {
 			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(tp->new_id));
-			    pmsprintf(mess, sizeof(mess), "Conflicting pmid change for help text (%s from text clause, %s from pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
+			    pmsprintf(mess, sizeof(mess), "Conflicting pmid change for help text (%s from text clause, %s from metric pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
 			    yysemantic(mess);
 			}
 		    }

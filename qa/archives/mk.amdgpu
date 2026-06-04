@@ -30,19 +30,35 @@ log mandatory on 1 sec {
 }
 End-of-File
 
-. ./mk.common
+_capture_smi()
+{
+    if which amd-smi >/dev/null 2>&1
+    then
+	echo "=== $1 archive capture ===" >>amdgpu.smi.txt
+	amd-smi >>amdgpu.smi.txt 2>"$tmp.err"
+	if [ $? != 0 -o -s "$tmp.err" ]
+	then
+	    echo >&2 "mk.amdgpu: Warning: amd-smi failed"
+	    cat >&2 "$tmp.err"
+	    rm -f "$tmp.err"
+	fi
+	amd-smi metric >>amdgpu.smi.txt 2>>"$tmp.err"
+	if [ $? != 0 -o -s "$tmp.err" ]
+	then
+	    echo >&2 "mk.amdgpu: Warning: amd-smi metric failed"
+	    cat >&2 "$tmp.err"
+	    rm -f "$tmp.err"
+	fi
+    else
+	[ "$1" = before ] && echo >&2 "mk.amdgpu: Warning: amd-smi not installed, cannot recreate amdgpu.smi.txt"
+    fi
+}
 
 rm -f amdgpu.smi.txt
-if which amd-smi >/dev/null 2>&1
-then
-    amd-smi metric >amdgpu.smi.txt 2>"$tmp.err"
-    if [ $? != 0 -o -s "$tmp.err" ]
-    then
-	echo >&2 "mk.amdgpu: Warning: amd-smi failed"
-	cat "$tmp.err"
-    fi
-else
-    echo >&2 "mk.amdgpu: Warning: amd-smi not installed, cannot recreate amdgpu.smi.txt"
-fi
+touch amdgpu.smi.txt
+
+_capture_smi before
+. ./mk.common
+_capture_smi after
 
 exit
