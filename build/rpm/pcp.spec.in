@@ -2164,10 +2164,6 @@ automated pmie diagnosis, alerting and self-healing for the localhost.
 %prep
 %setup -q
 
-%clean
-[ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
-rm -Rf $RPM_BUILD_ROOT
-
 %build
 # the buildsubdir macro gets defined in %%setup and is apparently only available in the next step (i.e. the %%build step)
 %global __strip %{_builddir}/%{?buildsubdir}/build/rpm/custom-strip
