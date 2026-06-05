@@ -74,6 +74,11 @@ enum {
 
   AMDGPU_GPU_METRIC_COUNT
 };
+
+/*
+ * Warning: MAX_ITEM_COUNT must be the larger of AMDGPU_MEMORY_METRIC_COUNT
+ * and AMDGPU_GPU_METRIC_COUNT
+ */
 #define MAX_ITEM_COUNT AMDGPU_MEMORY_METRIC_COUNT
 
 enum {
@@ -122,6 +127,7 @@ struct {
 	&amd_refresher[AMDGPU_GPU_AVG_PWR_REFRESHER], /* GPU Average power */
 	&amd_refresher[AMDGPU_GPU_CLOCK_REFRESHER], /* GPU clock, current */
 	&amd_refresher[AMDGPU_GPU_INFO_REFRESHER], /* GPU clock, max */
+	&amd_refresher[AMDGPU_GPU_TEMPERATURE_REFRESHER], /* GPU old_temperature (millidegrees) */
       },
 };
 
