@@ -7,7 +7,7 @@
 
 . /etc/pcp.env
 
-tmp=${TMPDIR:-/tmp}/"`basename $0`"-$$
+tmp="${TMPDIR:-/tmp}/`basename $0`-$$"
 rm -f "$tmp".*
 sts=1
 trap "rm -f \"$tmp\".*; exit \$sts" 0 1 2 3 15
@@ -30,35 +30,27 @@ log mandatory on 1 sec {
 }
 End-of-File
 
-_capture_smi()
-{
-    if which amd-smi >/dev/null 2>&1
-    then
-	echo "=== $1 archive capture ===" >>amdgpu.smi.txt
-	amd-smi >>amdgpu.smi.txt 2>"$tmp.err"
-	if [ $? != 0 -o -s "$tmp.err" ]
-	then
-	    echo >&2 "mk.amdgpu: Warning: amd-smi failed"
-	    cat >&2 "$tmp.err"
-	    rm -f "$tmp.err"
-	fi
-	amd-smi metric >>amdgpu.smi.txt 2>>"$tmp.err"
-	if [ $? != 0 -o -s "$tmp.err" ]
-	then
-	    echo >&2 "mk.amdgpu: Warning: amd-smi metric failed"
-	    cat >&2 "$tmp.err"
-	    rm -f "$tmp.err"
-	fi
-    else
-	[ "$1" = before ] && echo >&2 "mk.amdgpu: Warning: amd-smi not installed, cannot recreate amdgpu.smi.txt"
-    fi
-}
+. ./mk.common
 
 rm -f amdgpu.smi.txt
-touch amdgpu.smi.txt
-
-_capture_smi before
-. ./mk.common
-_capture_smi after
+if which amd-smi >/dev/null 2>&1
+then
+    amd-smi >amdgpu.smi.txt 2>"$tmp.err"
+    if [ $? != 0 -o -s "$tmp.err" ]
+    then
+	echo >&2 "mk.amdgpu: Warning: amd-smi failed"
+	cat >&2 "$tmp.err"
+	rm -f "$tmp.err"
+    fi
+    amd-smi metric >>amdgpu.smi.txt 2>>"$tmp.err"
+    if [ $? != 0 -o -s "$tmp.err" ]
+    then
+	echo >&2 "mk.amdgpu: Warning: amd-smi metric failed"
+	cat >&2 "$tmp.err"
+	rm -f "$tmp.err"
+    fi
+else
+    echo >&2 "mk.amdgpu: Warning: amd-smi not installed, cannot recreate amdgpu.smi.txt"
+fi
 
 exit
