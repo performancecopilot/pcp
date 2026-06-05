@@ -1097,6 +1097,7 @@ link_entries(void)
 			    if (wflag) {
 				pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(tp->new_id));
 				pmsprintf(mess, sizeof(mess), "Warning: conflicting pmid change for help text (%s from text clause will be used, but %s is from metric pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
+				yywarn(mess);
 			    }
 			}
 		    }
