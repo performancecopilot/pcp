@@ -1085,16 +1085,19 @@ link_entries(void)
 		if (mp->new_desc.pmid != mp->old_desc.pmid) {
 		    if (tp->flags & TEXT_CHANGE_ID) {
 			/*
-			 * pmid already changed via metric pmid clause
-			 * ... old != old test needed to accommodate
-			 * PMID fixups where rewrite in help text and
-			 * pmDesc may be different
+			 * This is potentially a conflicting pmid change
+			 * - one from a metric { pmid= clause
+			 * - one from a text metric xxx { pmid= clause
+			 * in general this indicates a problem, but if the PMDA
+			 * generated really bad metadata, then the remediation
+			 * may require exactly this rewrite ... for an example
+			 * see src/pmdas/amdgpu/rewrite.conf
 			 */
-			if (tp->new_id != mp->new_desc.pmid &&
-			    tp->old_id != mp->old_desc.pmid) {
-			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(tp->new_id));
-			    pmsprintf(mess, sizeof(mess), "Conflicting pmid change for help text (%s from text clause, %s from metric pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
-			    yysemantic(mess);
+			if (tp->new_id != mp->new_desc.pmid) {
+			    if (wflag) {
+				pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(tp->new_id));
+				pmsprintf(mess, sizeof(mess), "Warning: conflicting pmid change for help text (%s from text clause will be used, but %s is from metric pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
+			    }
 			}
 		    }
 		    else {
