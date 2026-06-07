@@ -292,6 +292,11 @@ numqahosts=0
 for vm
 do
     cd $HOME/Logs/by-vm
+    # skip files in this directory
+    #
+    [ -f "$vm" ] && continue
+    # expect directories or prefix of directories
+    #
     if [ -d "$vm" ]
     then
 	cd "$vm"
