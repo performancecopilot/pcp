@@ -5,3 +5,6 @@ reviews:
     enabled: true
     # Set to true if you want reviews to start while the PR is still a Draft
     drafts: false
+  pre_merge_checks:
+    docstrings:
+      mode: off
