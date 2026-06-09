@@ -2144,9 +2144,6 @@ Requires: pcp-pmda-dm = @package_version@
 %if "@pmda_bpf@" == "true"
 Requires: pcp-pmda-bpf = @package_version@
 %endif
-%if "@pmda_bpftrace@" == "true"
-Requires: pcp-pmda-bpftrace = @package_version@
-%endif
 %if "@have_python@" == "true"
 Requires: pcp-pmda-nfsclient = @package_version@
 %endif

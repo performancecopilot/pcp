@@ -2119,9 +2119,6 @@ Requires: pcp-pmda-dm = %{version}-%{release}
 %if !%{disable_bpf}
 Requires: pcp-pmda-bpf = %{version}-%{release}
 %endif
-%if !%{disable_bpftrace}
-Requires: pcp-pmda-bpftrace = %{version}-%{release}
-%endif
 %if !%{disable_python3}
 Requires: pcp-pmda-nfsclient = %{version}-%{release}
 Requires: pcp-pmda-openmetrics = %{version}-%{release}
