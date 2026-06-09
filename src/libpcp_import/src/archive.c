@@ -20,6 +20,68 @@
 
 static __pmTimestamp	stamp;
 
+/*
+ * Transition a CONTEXT_APPEND context to CONTEXT_ACTIVE by delegating
+ * all archive-format knowledge to __pmLogOpenAppend() in libpcp.
+ * After return the file handles in logctl/archctl are open and positioned
+ * at end-of-file; the caller's pmi_context fields are updated from the
+ * restored archive label and last timestamp.
+ */
+static int
+check_context_append(pmi_context *current)
+{
+    __pmLogCtl	*lcp = &current->logctl;
+    __pmArchCtl	*acp = &current->archctl;
+    int		sts;
+
+    sts = __pmLogOpenAppend(current->archive, acp);
+    if (sts < 0)
+	return sts;
+
+    /*
+     * Load all existing metric and instance-domain descriptors from .meta
+     * into the hash tables (hashpmid, hashindom).  check_metric() will use
+     * __pmLogLookupDesc() to skip re-writing descriptors that are already
+     * present, preventing .meta from growing on every timer-driven invocation
+     * of a short-lived collector such as sadc.
+     *
+     * __pmLogOpenAppend() left mdfp positioned at end-of-file; rewind to the
+     * start so __pmLogLoadMeta() can read from the beginning of the file, then
+     * seek back to the end ready for subsequent appended writes.
+     */
+    __pmFseek(lcp->mdfp, 0, SEEK_SET);
+    if ((sts = __pmLogLoadMeta(acp)) < 0) {
+	__pmLogClose(acp);
+	return sts;
+    }
+    __pmFseek(lcp->mdfp, 0, SEEK_END);
+
+    /* Restore version from the archive label (may differ from the default) */
+    current->version = __pmLogVersion(lcp);
+
+    /* Use the archive's hostname/timezone unless the caller overrode them */
+    if (current->hostname == NULL && lcp->label.hostname != NULL)
+	current->hostname = strdup(lcp->label.hostname);
+    if (current->timezone == NULL && lcp->label.timezone != NULL)
+	current->timezone = strdup(lcp->label.timezone);
+
+    /*
+     * Seed last_stamp from the archive's end time so that the monotonicity
+     * check in _pmi_write() rejects out-of-order timestamps if a caller
+     * tries to write before the archive's existing last timestamp.
+     *
+     * Do NOT update 'stamp' here: _pmi_put_result() has already set it
+     * from result->timestamp (the correct current-write time) before
+     * calling check_context_start().  Overwriting stamp with lcp->endtime
+     * (the previous session's last timestamp) would produce a stale
+     * temporal index entry for the first record of this append session.
+     */
+    current->last_stamp = lcp->endtime;
+
+    current->state = CONTEXT_ACTIVE;
+    return 0;
+}
+
 static int
 check_context_start(pmi_context *current)
 {
@@ -28,6 +90,18 @@ check_context_start(pmi_context *current)
     __pmLogCtl	*lcp;
     __pmArchCtl	*acp;
     int		sts;
+
+    if (current->state == CONTEXT_APPEND) {
+	sts = check_context_append(current);
+	if (sts != -ENOENT)
+	    return sts;
+	/*
+	 * Archive doesn't exist yet: fall through to create it normally.
+	 * This makes PMI_APPEND safe to use unconditionally on first invocation
+	 * of a timer-driven collector (e.g. sadc) before any archive exists.
+	 */
+	current->state = CONTEXT_START;
+    }
 
     if (current->state != CONTEXT_START)
 	return 0; /* ok */
@@ -116,12 +190,25 @@ check_metric(pmi_context *current, pmID pmid, int *needti)
 	    continue;
 	if (current->metric[m].meta_done == 0) {
 	    char	**namelist = &current->metric[m].name;
+	    pmDesc	existing;
 
-	    if ((sts = __pmLogPutDesc(acp, &current->metric[m].desc, 1, namelist)) < 0)
-		return sts;
+	    /*
+	     * If the archive was opened for appending, __pmLogLoadMeta() will
+	     * have populated hashpmid with all descriptors already on disk.
+	     * Skip re-writing a descriptor that is already there — metric
+	     * descriptors are immutable, so there is no need for duplicates
+	     * that would cause .meta to grow on every short-lived invocation.
+	     */
+	    if (__pmLogLookupDesc(acp, pmid, &existing) == 0) {
+		current->metric[m].meta_done = 1;
+	    }
+	    else {
+		if ((sts = __pmLogPutDesc(acp, &current->metric[m].desc, 1, namelist)) < 0)
+		    return sts;
 
-	    current->metric[m].meta_done = 1;
-	    *needti = 1;
+		current->metric[m].meta_done = 1;
+		*needti = 1;
+	    }
 	}
 	if (current->metric[m].desc.indom != PM_INDOM_NULL) {
 	    if ((sts = check_indom(current, current->metric[m].desc.indom, needti)) < 0)

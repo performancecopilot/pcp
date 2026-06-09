@@ -30,6 +30,7 @@ chain
 check_attribute
 check_fault_injection
 check_import
+check_import_append
 check_import_name
 check_import.pl
 check_pmiend_fdleak

@@ -25,7 +25,7 @@
 .br
 #include <pcp/import.h>
 .sp
-int pmiStart(const char *\fIarchive\fP, int \fIinherit\fP);
+int pmiStart(const char *\fIarchive\fP, int \fIflags\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .hy
@@ -37,7 +37,7 @@ cc ... \-lpcp_import \-lpcp
 .hy 0
 use PCP::LogImport;
 .sp
-pmiStart($\fIarchive\fP, $\fIinherit\fP);
+pmiStart($\fIarchive\fP, $\fIflags\fP);
 .hy
 .ad
 .ft 1
@@ -88,20 +88,62 @@ by calls to
 or
 .BR pmiPutValueHandle (3).
 .PP
-If
-.I inherit
-is true, then the new context will inherit any and all
-metadata (metrics, instance domains, instances and handles) from the current
-context, otherwise the new context is created with no metadata.
+The
+.I flags
+argument is a bitwise-OR of zero or more of the following constants:
+.TP
+.B PMI_INHERIT
+The new context will inherit any and all metadata (metrics, instance
+domains, instances and handles) from the current context.
 The basename for the output PCP archive, the source hostname, the
 source timezone and any data values from the current context are
 .B not
 inherited.
 If this is the first call to
 .B pmiStart
-the metadata will be empty
-independent of the value of
-.IR inherit .
+the metadata will be empty independent of whether
+.B PMI_INHERIT
+is set.
+.TP
+.B PMI_APPEND
+Open an existing PCP archive for appending rather than creating a
+new one.
+The archive label (hostname, timezone, version, start timestamp) is
+read from the existing
+.IR archive .meta
+file and used to initialise the new context.
+The temporal index is read to seed the last-written timestamp; all
+subsequent
+.BR pmiWrite (3)
+calls must use timestamps strictly later than this value.
+The
+.IR archive .meta
+and
+.IR archive .index
+files are opened in read/write mode and positioned at end-of-file;
+the highest-numbered data volume is opened in append mode.
+Metrics and instance domains must still be registered via
+.BR pmiAddMetric (3)
+and
+.BR pmiAddInstance (3)
+before calling
+.BR pmiPutValue (3)
+\(em if the metric descriptor is already present in the archive the
+duplicate entry in
+.I archive .meta
+is harmless and will be ignored by readers.
+If the archive files do not yet exist,
+.B PMI_APPEND
+behaves identically to creating a new archive (no flags).
+.PP
+If
+.I flags
+is zero, or neither
+.B PMI_INHERIT
+nor
+.B PMI_APPEND
+is set, the new context is created with no metadata and a new archive
+will be created from scratch.
 .PP
 Since no physical files for the output PCP archive
 will be created until the first call to
@@ -125,7 +167,10 @@ call or a call to
 or a call to
 .BR pmiEnd (3).
 .SH DIAGNOSTICS
-It is an error if the physical files
+When creating a new archive (neither
+.B PMI_APPEND
+nor any other flag that implies file creation), it is an error if the
+physical files
 \fIarchive\fR.\fB0\fR and/or
 \fIarchive\fR.\fBindex\fR and/or
 \fIarchive\fR.\fBmeta\fR already exist, but this is not discovered
@@ -136,6 +181,14 @@ or
 so
 .B pmiStart
 always returns a positive context identifier.
+.PP
+When
+.B PMI_APPEND
+is set and the archive files do not exist,
+.B pmiStart
+silently falls back to creating a new archive, making it safe to use
+.B PMI_APPEND
+unconditionally on the first invocation of a data collector.
 .SH SEE ALSO
 .BR LOGIMPORT (3),
 .BR PMAPI (3),

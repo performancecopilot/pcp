@@ -664,6 +664,130 @@ logFreeMeta(__pmLogCtl *lcp)
 }
 
 /*
+ * Open an existing PCP archive for appending additional records.
+ *
+ * Volume discovery uses __pmLogFindOpen (canonical directory scan via
+ * readdir + __pmLogAddVolume) which correctly sets lcp->minvol and
+ * lcp->maxvol.  The resulting read-mode handles are used to validate
+ * labels and load the temporal index, then closed and reopened in r+
+ * mode for subsequent appending:
+ *
+ *   .meta  - r+ read label + seek to end; metadata appended at end
+ *   .index - r+ read temporal index for lcp->endtime + seek to end
+ *   .N     - r+ validate volume label + seek to end-of-file
+ *
+ * acp->ac_flags is set to PM_CTXFLAG_LAST_VOLUME following the
+ * __pmLogOpen convention to signal we are at the most recent volume.
+ *
+ * On success: lcp->label is populated; lcp->endtime holds the last
+ * timestamp already in the archive; all three file handles are at
+ * end-of-file ready for writing; lcp->state == PM_LOG_STATE_INIT.
+ *
+ * Returns 0 on success, negative PCP error code on failure.
+ */
+int
+__pmLogOpenAppend(const char *base, __pmArchCtl *acp)
+{
+    __pmLogCtl	*lcp = acp->ac_log;
+    __pmLogLabel label = {0};
+    char	fname[MAXPATHLEN];
+    int		sts;
+
+    /* Initialise write-path hash tables and file handles (mirrors __pmLogCreate) */
+    lcp->hashpmid.nodes   = lcp->hashpmid.hsize   = 0;
+    lcp->hashindom.nodes  = lcp->hashindom.hsize   = 0;
+    lcp->trimindom.nodes  = lcp->trimindom.hsize   = 0;
+    lcp->hashlabels.nodes = lcp->hashlabels.hsize  = 0;
+    lcp->hashtext.nodes   = lcp->hashtext.hsize    = 0;
+    lcp->tifp = lcp->mdfp = acp->ac_mfp = NULL;
+    lcp->last_ti.sec  = -1;
+    lcp->last_ti.nsec = -1;
+
+    /*
+     * Use the canonical directory scan to discover all data volumes,
+     * setting lcp->name, lcp->minvol and lcp->maxvol correctly via
+     * __pmLogAddVolume.  Also opens .meta and .index in read mode.
+     */
+    if ((sts = __pmLogFindOpen(acp, base)) < 0)
+	return sts;
+
+    /* Read and validate the .meta archive label */
+    if ((sts = __pmLogChkLabel(acp, lcp->mdfp, &label, PM_LOG_VOL_META)) < 0) {
+	__pmLogFreeLabel(&label);
+	goto fail;
+    }
+    lcp->label = label;
+
+    /* Validate the .index label before trusting its contents */
+    if ((sts = __pmLogChkLabel(acp, lcp->tifp, &label, PM_LOG_VOL_TI)) < 0) {
+	__pmLogFreeLabel(&label);
+	goto fail;
+    }
+    __pmLogFreeLabel(&label);
+
+    /* Load temporal index: populates lcp->endtime (last timestamp) */
+    if ((sts = __pmLogLoadIndex(lcp)) < 0)
+	goto fail;
+
+    /* Done with the read-mode handles from __pmLogFindOpen */
+    __pmFclose(lcp->mdfp);
+    __pmFclose(lcp->tifp);
+    lcp->mdfp = lcp->tifp = NULL;
+
+    /* Free the in-memory index array - not used by the write path */
+    free(lcp->ti);
+    lcp->ti = NULL;
+    lcp->numti = 0;
+
+    /* Reopen .meta in r+ - label already validated; position at end */
+    __pmLogName_r(base, PM_LOG_VOL_META, fname, sizeof(fname));
+    if ((lcp->mdfp = __pmFopen(fname, "r+")) == NULL) {
+	sts = -oserror();
+	goto fail;
+    }
+    __pmSetvbuf(lcp->mdfp, NULL, _IONBF, 0);
+    __pmFseek(lcp->mdfp, 0, SEEK_END);
+
+    /* Reopen .index in r+; position at end */
+    __pmLogName_r(base, PM_LOG_VOL_TI, fname, sizeof(fname));
+    if ((lcp->tifp = __pmFopen(fname, "r+")) == NULL) {
+	sts = -oserror();
+	goto fail;
+    }
+    __pmSetvbuf(lcp->tifp, NULL, _IONBF, 0);
+    __pmFseek(lcp->tifp, 0, SEEK_END);
+
+    /*
+     * Open the highest-numbered data volume (lcp->maxvol, set by
+     * __pmLogFindOpen) in r+ mode, validate its label for consistency
+     * with the archive, then position at end-of-file for appending.
+     * Set PM_CTXFLAG_LAST_VOLUME following the __pmLogOpen convention.
+     */
+    __pmLogName_r(base, lcp->maxvol, fname, sizeof(fname));
+    if ((acp->ac_mfp = __pmFopen(fname, "r+")) == NULL) {
+	sts = -oserror();
+	goto fail;
+    }
+    __pmSetvbuf(acp->ac_mfp, NULL, _IONBF, 0);
+
+    if ((sts = __pmLogChkLabel(acp, acp->ac_mfp, &label, lcp->maxvol)) < 0) {
+	__pmLogFreeLabel(&label);
+	goto fail;
+    }
+    __pmFseek(acp->ac_mfp, 0, SEEK_END);
+
+    acp->ac_curvol  = lcp->maxvol;
+    acp->ac_flags  |= PM_CTXFLAG_LAST_VOLUME;
+    lcp->state      = PM_LOG_STATE_INIT;
+    return 0;
+
+fail:
+    __pmLogClose(acp);
+    logFreeMeta(lcp);
+    return sts;
+}
+
+/*
  * Close the log files.
  * Free up the space used by __pmLogCtl.
  */

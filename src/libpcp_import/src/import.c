@@ -51,6 +51,9 @@ pmiDump(void)
 	case CONTEXT_END:
 	    fprintf(f, "(end)");
 	    break;
+	case CONTEXT_APPEND:
+	    fprintf(f, "(append)");
+	    break;
 	default:
 	    fprintf(f, "(BAD)");
 	    break;
@@ -316,7 +319,7 @@ pmiErrStr_r(int code, char *buf, int buflen)
 }
 
 int
-pmiStart(const char *archive, int inherit)
+pmiStart(const char *archive, int flags)
 {
     pmi_context	*old_current;
     char	*np;
@@ -336,7 +339,7 @@ pmiStart(const char *archive, int inherit)
     old_current = &context_tab[c];
     current = &context_tab[ncontext-1];
 
-    current->state = CONTEXT_START;
+    current->state = (flags & PMI_APPEND) ? CONTEXT_APPEND : CONTEXT_START;
     current->version = archive_version;
     current->archive = strdup(archive);
     if (current->archive == NULL) {
@@ -348,7 +351,7 @@ pmiStart(const char *archive, int inherit)
     memset((void *)&current->logctl, 0, sizeof(current->logctl));
     memset((void *)&current->archctl, 0, sizeof(current->archctl));
     __pmLogWriterInit(&current->archctl, &current->logctl);
-    if (inherit && old_current != NULL) {
+    if ((flags & PMI_INHERIT) && old_current != NULL) {
 	current->nmetric = old_current->nmetric;
 	if (old_current->metric != NULL) {
 	    int		m;

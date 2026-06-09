@@ -76,6 +76,7 @@ typedef struct {
 #define CONTEXT_START	1
 #define CONTEXT_ACTIVE	2
 #define CONTEXT_END	3
+#define CONTEXT_APPEND	4	/* open existing archive for appending */
 
 #if defined(__GNUC__) && (__GNUC__ >= 4) && !defined(IS_MINGW)
 # define _PMI_HIDDEN __attribute__ ((visibility ("hidden")))
