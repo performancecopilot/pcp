@@ -209,8 +209,8 @@ environment (your platform must at least have gmake).
 # install Homebrew (see https://brew.sh)
 bash -c $(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
 
-# Install Homebrew packages (canonical list in build/mac/brew-packages.txt)
-brew install $(grep -v '^#' build/mac/brew-packages.txt | grep -v '^$' | tr '\n' ' ')
+# Install Homebrew packages (canonical list in the top-level Brewfile)
+brew bundle
 
 # and assuming you're using zsh
 rehash
@@ -218,6 +218,10 @@ rehash
 # Set up Python build dependencies (uses uv, installed above)
 ./build/mac/setup-python-env.sh
 ```
+
+`brew bundle` generates a `Brewfile.lock.json` in your working tree (already
+gitignored). If you would rather it not be created at all, use
+`brew bundle --no-lock`.
 
 To build from source using isolated VMs, see [MACOS_DEVELOPMENT.md](build/mac/MACOS_DEVELOPMENT.md).
 
