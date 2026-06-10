@@ -126,9 +126,9 @@ get_instance_metadata(seriesLoadBaton *baton, pmInDom indom, int force_refresh)
 	if ((dp = pmwebapi_add_domain(cp, pmInDom_domain(indom))))
 	    pmwebapi_add_domain_labels(cp, dp);
 	if ((ip = pmwebapi_add_indom(cp, dp, indom)) != NULL) {
-	    if (force_refresh)
-		ip->updated = 1;
-	    if (ip->updated) {
+	    if (force_refresh || !ip->updated) {
+		if (force_refresh)
+		   ip->updated = 0;
 		pmwebapi_add_indom_instances(cp, ip);
 		pmwebapi_add_instances_labels(cp, ip);
 	    }
