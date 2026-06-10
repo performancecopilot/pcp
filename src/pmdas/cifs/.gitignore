@@ -1,4 +1,6 @@
 domain.h
+exports
+help.dir
+help.pag
 pmdacifs
 pmda_cifs.so
-

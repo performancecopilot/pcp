@@ -15,19 +15,23 @@
 TOPDIR = ../../..
 include	$(TOPDIR)/src/include/builddefs
 
-CFILES		= pmda.c stats.c
-HFILES		= pmdagcifs.h stats.h
-CMDTARGET	= pmdacifs
-LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
-
-LLDLIBS		= $(PCP_PMDALIB)
-
 IAM		= cifs
 DOMAIN		= CIFS
-PMDAINIT	= $(IAM)_init
-PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
+PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
+CMDTARGET	= pmda$(IAM)
+LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
+PMDAINIT	= $(IAM)_init
+CONF_LINE	= "cifs	121	dso	cifs_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
+CFILES		= pmda.c stats.c
+HFILES		= pmdacifs.h stats.h
+SCRIPTS		= Install Remove
+
+VERSION_SCRIPT	= exports
+HELPTARGETS	= help.dir help.pag
+LLDLIBS		= $(PCP_PMDALIB)
+DFILES		= help
 LDIRT		= domain.h $(IAM).log
 
 MAN_SECTION	= 1
@@ -39,13 +43,19 @@ default:	build-me
 include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
-build-me: $(CMDTARGET) $(LIBTARGET)
+build-me: $(CMDTARGET) $(LIBTARGET) $(HELPTARGETS)
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(CONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
+	fi
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
-	$(INSTALL) -m 644 -t $(PMDATMPDIR) root pmns domain.h help $(PMDAADMDIR)
-	$(INSTALL) -m 755 -t $(PMDATMPDIR) Install Remove $(CMDTARGET) $(LIBTARGET) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_cifs $(PMDAADMDIR)
+	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_cifs root_cifs $(PCP_PMNSADM_DIR)/root_cifs
 	@$(INSTALL_MAN)
 else
 build-me:
@@ -60,6 +70,12 @@ $(OBJECTS): domain.h
 
 domain.h: ../../pmns/stdpmid
 	$(DOMAIN_MAKERULE)
+
+$(HELPTARGETS) : help
+	$(NEWHELP) -n root_cifs -v 2 -o help < help
+
+$(VERSION_SCRIPT):
+	$(VERSION_SCRIPT_MAKERULE)
 
 pmda.o:			pmdacifs.h
 pmda.o stats.o:		stats.h
