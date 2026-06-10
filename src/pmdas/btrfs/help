@@ -1,0 +1,171 @@
+#
+# Copyright (c) 2026 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# btrfs PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  helptext
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+# There should be no blank lines between the @ line and the body of the
+# @-entry.
+#
+
+@ 41.0 mounted btrfs filesystems
+@ 41.1 btrfs devices
+
+@ btrfs.fs.label btrfs filesystem label
+The user-assigned label for this btrfs filesystem, or empty if not set.
+
+@ btrfs.fs.nodesize btrfs tree node size
+The size of internal btree nodes in bytes (typically 16384).
+
+@ btrfs.fs.sectorsize btrfs sector size
+The filesystem sector size in bytes (typically 4096).
+
+@ btrfs.fs.generation btrfs filesystem generation
+The current transaction generation number of the filesystem.
+
+@ btrfs.fs.checksum btrfs checksum algorithm
+The name of the checksum algorithm used by this filesystem (e.g. crc32c, xxhash, sha256, blake2).
+
+@ btrfs.fs.metadata_uuid btrfs metadata UUID
+The metadata UUID for this filesystem.
+
+@ btrfs.commit.count total number of btrfs commits
+Total number of transaction commits performed on this filesystem.
+
+@ btrfs.commit.last_time duration of last btrfs commit
+Duration of the most recent transaction commit in milliseconds.
+
+@ btrfs.commit.max_time maximum btrfs commit duration
+Maximum duration of any single transaction commit in milliseconds.
+
+@ btrfs.commit.total_time total btrfs commit time
+Cumulative time spent in transaction commits in milliseconds.
+
+@ btrfs.allocation.data.total_bytes total data allocation space
+Total bytes allocated for data block groups.
+
+@ btrfs.allocation.data.bytes_used data bytes used
+Bytes of data space currently in use.
+
+@ btrfs.allocation.data.bytes_pinned data bytes pinned
+Bytes of data space pinned (to be freed at end of transaction).
+
+@ btrfs.allocation.data.bytes_reserved data bytes reserved
+Bytes of data space reserved for allocations.
+
+@ btrfs.allocation.data.bytes_readonly data bytes readonly
+Bytes of data space that are read-only.
+
+@ btrfs.allocation.data.disk_used actual data disk bytes used
+Actual disk bytes used for data (accounts for RAID mirroring).
+
+@ btrfs.allocation.data.disk_total total data disk bytes
+Total disk bytes allocated for data (accounts for RAID mirroring).
+
+@ btrfs.allocation.metadata.total_bytes total metadata allocation space
+Total bytes allocated for metadata block groups.
+
+@ btrfs.allocation.metadata.bytes_used metadata bytes used
+Bytes of metadata space currently in use.
+
+@ btrfs.allocation.metadata.bytes_pinned metadata bytes pinned
+Bytes of metadata space pinned (to be freed at end of transaction).
+
+@ btrfs.allocation.metadata.bytes_reserved metadata bytes reserved
+Bytes of metadata space reserved for allocations.
+
+@ btrfs.allocation.metadata.bytes_readonly metadata bytes readonly
+Bytes of metadata space that are read-only.
+
+@ btrfs.allocation.metadata.disk_used actual metadata disk bytes used
+Actual disk bytes used for metadata (accounts for RAID mirroring).
+
+@ btrfs.allocation.metadata.disk_total total metadata disk bytes
+Total disk bytes allocated for metadata (accounts for RAID mirroring).
+
+@ btrfs.allocation.system.total_bytes total system allocation space
+Total bytes allocated for system block groups.
+
+@ btrfs.allocation.system.bytes_used system bytes used
+Bytes of system space currently in use.
+
+@ btrfs.allocation.system.bytes_pinned system bytes pinned
+Bytes of system space pinned (to be freed at end of transaction).
+
+@ btrfs.allocation.system.bytes_reserved system bytes reserved
+Bytes of system space reserved for allocations.
+
+@ btrfs.allocation.system.bytes_readonly system bytes readonly
+Bytes of system space that are read-only.
+
+@ btrfs.allocation.system.disk_used actual system disk bytes used
+Actual disk bytes used for system data (accounts for RAID mirroring).
+
+@ btrfs.allocation.system.disk_total total system disk bytes
+Total disk bytes allocated for system data (accounts for RAID mirroring).
+
+@ btrfs.allocation.global_rsv_size global block reservation size
+Size of the global block reservation in bytes.
+
+@ btrfs.allocation.global_rsv_reserved global block reservation reserved
+Bytes currently reserved in the global block reservation.
+
+@ btrfs.device.write_errs device write errors
+Number of write errors (EIO/EREMOTEIO) encountered on this device.
+
+@ btrfs.device.read_errs device read errors
+Number of read errors (EIO/EREMOTEIO) encountered on this device.
+
+@ btrfs.device.flush_errs device flush errors
+Number of flush errors (EIO/EREMOTEIO) encountered on this device.
+
+@ btrfs.device.corruption_errs device corruption errors
+Number of checksum or content corruption errors encountered on this device.
+
+@ btrfs.device.generation_errs device generation errors
+Number of generation mismatch errors encountered on this device.
+
+@ btrfs.discard.discardable_bytes bytes available for discard
+Total bytes that are available for async discard operations.
+
+@ btrfs.discard.discardable_extents extents available for discard
+Number of extents that are available for async discard operations.
+
+@ btrfs.discard.discard_bitmap_bytes bytes in discard bitmap state
+Bytes of discardable space tracked in bitmap form.
+
+@ btrfs.discard.discard_extent_bytes bytes in discard extent state
+Bytes of discardable space tracked in extent form.
+
+@ btrfs.discard.discard_bytes_saved bytes saved by discard
+Cumulative bytes saved by discard operations.
+
+@ btrfs.discard.iops_limit discard IOPS limit
+Maximum number of discard operations per second (0 for no limit).
+
+@ btrfs.discard.kbps_limit discard throughput limit
+Maximum discard throughput in kilobytes per second (0 for no limit).
+
+@ btrfs.discard.max_discard_size maximum discard size
+Maximum size of a single discard operation in bytes.

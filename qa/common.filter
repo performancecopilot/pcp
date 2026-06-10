@@ -274,6 +274,7 @@ _filter_optional_pmdas()
 	-e '/pmdabpf/d' \
 	-e '/pmdabpftrace/d' \
 	-e '/pmdabrocade/d' \
+	-e '/pmdabtrfs/d' \
 	-e '/pmdacisco/d' \
 	-e '/pmdadbping/d' \
 	-e '/pmdadenki/d' \
@@ -399,6 +400,7 @@ _filter_optional_pmda_instances()
 	-e '/inst \[35 or "mongodb"]/d' \
 	-e '/inst \[37 or "rds"]/d' \
 	-e '/inst \[39 or "nixl"]/d' \
+	-e '/inst \[41 or "btrfs"]/d' \
 	-e '/inst \[57 or "statsd"]/d' \
 	-e '/inst \[60 or "linux"]/d' \
 	-e '/inst \[62 or "nfsclient"]/d' \
@@ -459,6 +461,7 @@ _filter_top_pmns()
 	-e '/^    bpftrace /d' \
 	-e '/^    brocade /d' \
 	-e '/^    broken /d' \
+	-e '/^    btrfs /d' \
 	-e '/^    cgroup /d' \
 	-e '/^    containers /d' \
 	-e '/^    cisco /d' \
@@ -965,6 +968,7 @@ _filter_torture_api()
 	-e '/^    services /d' \
 	-e '/^    apache /d' \
 	-e '/^    bonding /d' \
+	-e '/^    btrfs /d' \
 	-e '/^    cihb /d' \
 	-e '/^    cms /d' \
 	-e '/^    cxfs /d' \
