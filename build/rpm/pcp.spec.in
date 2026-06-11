@@ -187,19 +187,19 @@ then
     PCP_PMCDCONF_PATH=@pcp_pmcdconf_path@
     if [ -d "$PCP_PMDAS_DIR/%2/" ]
     then
-	here=`pwd`
-	if cd "$PCP_PMDAS_DIR/%2/"
-	then
-	    if [ -f "$PCP_PMCDCONF_PATH" -a -f "domain.h" ]
-	    then
-		./Remove >/dev/null 2>&1
-	    fi
-	    rm -f domain.h domain.h.perl domain.h.python
-	    rm -f pmns pmns.perl pmns.python
-	    rm -f help.dir help.pag
-	    rm -f *.o
-	    cd $here
-	fi
+        here=`pwd`
+        if cd "$PCP_PMDAS_DIR/%2/"
+        then
+            if [ -f "$PCP_PMCDCONF_PATH" -a -f "domain.h" ]
+            then
+                ./Remove >/dev/null 2>&1
+            fi
+            rm -f domain.h domain.h.perl domain.h.python
+            rm -f pmns pmns.perl pmns.python
+            rm -f help.dir help.pag
+            rm -f *.o
+            cd $here
+        fi
     fi
     # avoid error when run as %preun and PMDA is not configured for
     # use by pmcd
@@ -2136,9 +2136,6 @@ Requires: pcp-pmda-dm = @package_version@
 %if "@pmda_bpf@" == "true"
 Requires: pcp-pmda-bpf = @package_version@
 %endif
-%if "@pmda_bpftrace@" == "true"
-Requires: pcp-pmda-bpftrace = @package_version@
-%endif
 %if "@have_python@" == "true"
 Requires: pcp-pmda-nfsclient = @package_version@
 %endif
@@ -2155,10 +2152,6 @@ automated pmie diagnosis, alerting and self-healing for the localhost.
 
 %prep
 %setup -q
-
-%clean
-[ ! -z "$DIST_ROOT" ] && rm -rf $DIST_ROOT
-rm -Rf $RPM_BUILD_ROOT
 
 %build
 # the buildsubdir macro gets defined in %%setup and is apparently only available in the next step (i.e. the %%build step)
@@ -2198,20 +2191,20 @@ for f in `echo $BACKDIR/debian/lib*.{install,dirs}`
 do
     case "$f"
     in
-	*-dev.*)
-		# skip libpcp<foo>-dev.{install,dirs} ones, they'll
-		# be collected in $DEVFILELIST
-		;;
-	*)
-		if [ -f "$f" ]
-		then
-		    # fix Debian Multiarch pathname
-		    # usr/lib/*/libpcp... => usr/lib/libpcp...
-		    fix_f=`basename "$f"`.fixed
-		    sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
-		    LIBFILELIST="$LIBFILELIST $fix_f"
-		fi
-		;;
+        *-dev.*)
+                # skip libpcp<foo>-dev.{install,dirs} ones, they'll
+                # be collected in $DEVFILELIST
+                ;;
+        *)
+                if [ -f "$f" ]
+                then
+                    # fix Debian Multiarch pathname
+                    # usr/lib/*/libpcp... => usr/lib/libpcp...
+                    fix_f=`basename "$f"`.fixed
+                    sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
+                    LIBFILELIST="$LIBFILELIST $fix_f"
+                fi
+                ;;
     esac
 done
 DEVFILELIST=''
@@ -2219,11 +2212,11 @@ for f in `echo $BACKDIR/debian/lib*-dev.{install,dirs}`
 do
     if [ -f "$f" ]
     then
-	# fix Debian Multiarch pathname
-	# usr/lib/*/libpcp... => usr/lib/libpcp...
-	fix_f=`basename "$f"`.fixed
-	sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
-	DEVFILELIST="$DEVFILELIST $fix_f"
+        # fix Debian Multiarch pathname
+        # usr/lib/*/libpcp... => usr/lib/libpcp...
+        fix_f=`basename "$f"`.fixed
+        sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
+        DEVFILELIST="$DEVFILELIST $fix_f"
     fi
 done
 
@@ -2480,32 +2473,32 @@ BEGIN {
     f=p"-files.rpm";
 }
 $1 == "d" {
-	    if (match ($5, "'$PCP_RUN_DIR'")) {
-		printf ("%%%%ghost ") >> f;
-	    }
-	    if (match ($5, "'$PCP_VAR_DIR'/testsuite")) {
-		$3 = $4 = "pcpqa";
-	    }
-	    printf ("%%%%dir %%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $5) >> f
-	  }
+            if (match ($5, "'$PCP_RUN_DIR'")) {
+                printf ("%%%%ghost ") >> f;
+            }
+            if (match ($5, "'$PCP_VAR_DIR'/testsuite")) {
+                $3 = $4 = "pcpqa";
+            }
+            printf ("%%%%dir %%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $5) >> f
+          }
 $1 == "f" && $6 ~ "etc/pcp\\.conf" { printf ("%%%%config ") >> f; }
 $1 == "f" && $6 ~ "etc/pcp\\.env"  { printf ("%%%%config ") >> f; }
 $1 == "f" && $6 ~ "etc/pcp\\.sh"   { printf ("%%%%config ") >> f; }
 $1 == "f" {
-	    for (i=0; i < nconf; i++) {
-		if ($6 ~ conf[i]) {
-		    printf ("%%%%config(noreplace) ") >> f;
-		    break;
-		}
-	    }
-	    if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
-		printf ("%%%%doc ") >> f;
-	    }
+            for (i=0; i < nconf; i++) {
+                if ($6 ~ conf[i]) {
+                    printf ("%%%%config(noreplace) ") >> f;
+                    break;
+                }
+            }
+            if (match ($6, "'$PCP_MAN_DIR'") || match ($6, "'$PCP_DOC_DIR'")) {
+                printf ("%%%%doc ") >> f;
+            }
             if (match ($6, "'$PCP_VAR_DIR'/testsuite")) {
                 $3 = $4 = "pcpqa";
             }
-	    printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f
-	  }
+            printf ("%%%%attr(%s,%s,%s) %s\n", $2, $3, $4, $6) >> f
+          }
 $1 == "l" {
 %if "@pmda_systemd@" == "true"
             if (match ($3, "'$PCP_VAR_DIR'")) {
@@ -2577,7 +2570,7 @@ needinstall='sample simple'
 for PMDA in $needinstall ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
-	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
+        %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
 # inherited from %post for pcp-collector
@@ -2628,7 +2621,7 @@ needinstall="$needinstall opentelemetry"
 for PMDA in $needinstall ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
-	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
+        %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
 # managed via /usr/lib/systemd/system-preset/90-default.preset nowadays:
@@ -2941,20 +2934,20 @@ if [ "$1" -eq 0 ]
 then
     # stop daemons before erasing the package
     %if "@enable_systemd@" == "true"
-	%systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service
+        %systemd_preun pmlogger_check.timer pmlogger_daily.timer pmlogger_farm_check.timer pmlogger_farm_check.service pmlogger_farm.service pmlogger.service pmie_check.timer pmie_daily.timer pmie_farm_check.timer pmie_farm_check.service pmie_farm.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service
 
-	systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service >/dev/null 2>&1
+        systemctl stop pmlogger.service pmie.service pmproxy.service pmfind.service pmcd.service pcp-reboot-init.service >/dev/null 2>&1
     %else
-	/sbin/service pmlogger stop >/dev/null 2>&1
-	/sbin/service pmie stop >/dev/null 2>&1
-	/sbin/service pmproxy stop >/dev/null 2>&1
-	/sbin/service pmcd stop >/dev/null 2>&1
+        /sbin/service pmlogger stop >/dev/null 2>&1
+        /sbin/service pmie stop >/dev/null 2>&1
+        /sbin/service pmproxy stop >/dev/null 2>&1
+        /sbin/service pmcd stop >/dev/null 2>&1
 
-	/sbin/chkconfig --del pcp >/dev/null 2>&1
-	/sbin/chkconfig --del pmcd >/dev/null 2>&1
-	/sbin/chkconfig --del pmlogger >/dev/null 2>&1
-	/sbin/chkconfig --del pmie >/dev/null 2>&1
-	/sbin/chkconfig --del pmproxy >/dev/null 2>&1
+        /sbin/chkconfig --del pcp >/dev/null 2>&1
+        /sbin/chkconfig --del pmcd >/dev/null 2>&1
+        /sbin/chkconfig --del pmlogger >/dev/null 2>&1
+        /sbin/chkconfig --del pmie >/dev/null 2>&1
+        /sbin/chkconfig --del pmproxy >/dev/null 2>&1
     %endif
     # cleanup namespace state/flag, may still exist
     PCP_PMNS_DIR=@pcp_var_dir@/pmns

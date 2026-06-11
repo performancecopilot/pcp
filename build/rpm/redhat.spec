@@ -2111,9 +2111,6 @@ Requires: pcp-pmda-dm = %{version}-%{release}
 %if !%{disable_bpf}
 Requires: pcp-pmda-bpf = %{version}-%{release}
 %endif
-%if !%{disable_bpftrace}
-Requires: pcp-pmda-bpftrace = %{version}-%{release}
-%endif
 %if !%{disable_python3}
 Requires: pcp-pmda-nfsclient = %{version}-%{release}
 Requires: pcp-pmda-openmetrics = %{version}-%{release}
@@ -2308,20 +2305,20 @@ for f in `echo $BACKDIR/debian/lib*.{install,dirs}`
 do
     case "$f"
     in
-	*-dev.*)
-		# skip libpcp<foo>-dev.{install,dirs} ones, they'll
-		# be collected in $DEVFILELIST
-		;;
-	*)
-		if [ -f "$f" ]
-		then
-		    # fix Debian Multiarch pathname
-		    # usr/lib/*/libpcp... => usr/lib/libpcp...
-		    fix_f=`basename "$f"`.fixed
-		    sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
-		    LIBFILELIST="$LIBFILELIST $fix_f"
-		fi
-		;;
+        *-dev.*)
+                # skip libpcp<foo>-dev.{install,dirs} ones, they'll
+                # be collected in $DEVFILELIST
+                ;;
+        *)
+                if [ -f "$f" ]
+                then
+                    # fix Debian Multiarch pathname
+                    # usr/lib/*/libpcp... => usr/lib/libpcp...
+                    fix_f=`basename "$f"`.fixed
+                    sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
+                    LIBFILELIST="$LIBFILELIST $fix_f"
+                fi
+                ;;
     esac
 done
 DEVFILELIST=''
@@ -2329,11 +2326,11 @@ for f in `echo $BACKDIR/debian/lib*-dev.{install,dirs}`
 do
     if [ -f "$f" ]
     then
-	# fix Debian Multiarch pathname
-	# usr/lib/*/libpcp... => usr/lib/libpcp...
-	fix_f=`basename "$f"`.fixed
-	sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
-	DEVFILELIST="$DEVFILELIST $fix_f"
+        # fix Debian Multiarch pathname
+        # usr/lib/*/libpcp... => usr/lib/libpcp...
+        fix_f=`basename "$f"`.fixed
+        sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
+        DEVFILELIST="$DEVFILELIST $fix_f"
     fi
 done
 
@@ -2695,7 +2692,7 @@ needinstall='sample simple'
 for PMDA in $needinstall ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
-	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
+        %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
 %if 0%{?rhel}
