@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2016,2020-2021 Red Hat.
+# Copyright (c) 2013-2016,2020-2021,2026 Red Hat.
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 #
 # This program is free software; you can redistribute it and/or modify it
@@ -25,7 +25,8 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "xfs	11	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 11"
+PMCDCONF_LINE	= "xfs	11	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 11"
+LOCALCONF_LINE	= "xfs	11	dso	xfs_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= sysfs_xfs.c filesys.c pmda.c
 HFILES		= sysfs_xfs.h filesys.h clusters.h indom.h
@@ -48,11 +49,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

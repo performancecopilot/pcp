@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2015,2020,2025 Red Hat.
+# Copyright (c) 2015,2020,2025-2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,7 +22,8 @@ CMDTARGET	= pmdadarwin
 LIBTARGET	= pmda_darwin.dylib
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
-CONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE	= "darwin	78	dso	darwin_init	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 MAN_SECTION	= 1
 MAN_PAGES	= pmda$(IAM).$(MAN_SECTION)
@@ -44,11 +45,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "darwin" 
 build-me: root_darwin $(LIBTARGET) $(CMDTARGET) help.dir help.pag
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

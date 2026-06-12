@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2020,2022 Red Hat.  All Rights Reserved.
+# Copyright (c) 2020,2022,2026 Red Hat.  All Rights Reserved.
 # Copyright (c) 2008-2009 Aconex.  All Rights Reserved.
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -40,7 +40,8 @@ PMDAADMDIR 	= $(PCP_PMDASADM_DIR)/$(IAM)
 LOGCONFDIR	= $(PCP_SYSCONF_DIR)/pmlogconf
 LOGCONFVARDIR	= $(PCP_VAR_DIR)/config/pmlogconf
 
-CONF_LINE	= "$(IAM)	79	dso	$(IAM)_init	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE	= "$(IAM)	79	dso	$(IAM)_init	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 default:	build-me
 
@@ -48,11 +49,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "mingw"
 build-me: root_windows $(LIBTARGET) $(EXTRATARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: build-me configs
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

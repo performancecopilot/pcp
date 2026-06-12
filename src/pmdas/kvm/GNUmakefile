@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2018 Fujitsu.
-# Copyright (c) 2018,2020 Red Hat.
+# Copyright (c) 2018,2020,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -26,7 +26,8 @@ REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 CMDTARGET  = pmda$(IAM)
 LIBTARGET  = pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT   = $(IAM)_init
-CONF_LINE  = "kvm	95	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 95"
+PMCDCONF_LINE  = "kvm	95	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 95"
+LOCALCONF_LINE  = "kvm	95	dso	kvm_init	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES	   = kvmstat.c
 HFILES	   = kvmstat.h
@@ -48,11 +49,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

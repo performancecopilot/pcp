@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2013-2015,2020 Red Hat.
+# Copyright (c) 2013-2015,2020,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -25,7 +25,8 @@ PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "jbd2	122	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE	= "jbd2	122	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 CFILES		= proc_jbd2.c pmda.c
 HFILES		= proc_jbd2.h convert.h
@@ -48,11 +49,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(MYFILES)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

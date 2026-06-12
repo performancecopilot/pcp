@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014-2015,2018,2020 Red Hat.
+# Copyright (c) 2014-2015,2018,2020,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,7 +21,7 @@ CMDTARGET	= pmda$(IAM)$(EXECSUFFIX)
 
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
-CONF_LINE	= "root	1	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET)"
+PMCDCONF_LINE	= "root	1	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET)"
 
 JSONSL_HFILES   = $(addprefix deps/jsonsl/, jsonsl.h)
 JSONSL_CFILES   = $(addprefix deps/jsonsl/, jsonsl.c)
@@ -43,11 +43,7 @@ LLDLIBS		= $(PCP_WEBLIB)
 
 default:	$(JSONSL_XFILES) $(CMDTARGET) $(HELPTARGETS) pmns
 ifneq "$(TARGET_OS)" "mingw"
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
 endif
 
 include $(BUILDRULES)

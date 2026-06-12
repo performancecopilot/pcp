@@ -1,7 +1,7 @@
 #
 # Copyright (c) 2000,2003,2004,2008 Silicon Graphics, Inc.  All Rights Reserved.
 # Copyright (c) 2007-2010 Aconex.  All Rights Reserved.
-# Copyright (c) 2013-2016,2019-2021 Red Hat.
+# Copyright (c) 2013-2016,2019-2021,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -27,7 +27,8 @@ PMDACONFIG	= $(PCP_SYSCONF_DIR)/$(IAM)
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 REWRITEDIR	= $(PCP_SYSCONF_DIR)/pmlogrewrite
 REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
-CONF_LINE	= "proc	3	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 3"
+PMCDCONF_LINE	= "$(IAM)	3	pipe	binary		$(PMDATMPDIR)/$(CMDTARGET) -d 3"
+LOCALCONF_LINE	= "$(IAM)	3	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 
 CFILES		= pmda.c acct.c cgroups.c contexts.c proc_pid.c proc_dynamic.c \
 		  getinfo.c delayacct.c gram_node.c config.c error.c hotproc.c
@@ -68,11 +69,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" "linux"
 build-me: root_proc $(LIBTARGET) $(CMDTARGET) $(HELPTARGETS) $(LOGREWRITERS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: default
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

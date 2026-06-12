@@ -32,7 +32,8 @@ LIBTARGET	= pmda_etw.dll
 EXTRATARGETS	= tdhlist.exe tdhconsume.exe help.dir help.pag
 LDIRT		= $(EXTRATARGETS) root_etw domain.h $(IAM).log
 
-CONF_LINE = "etw	87	dso	etw_init	$(PMDATMPDIR)/pmda_etw.dll"
+PMCDCONF_LINE	= "etw	87	dso	etw_init	$(PMDATMPDIR)/pmda_etw.dll"
+LOCALCONF_LINE	= $(PMCDCONF_LINE)
 
 default:	build-me
 
@@ -40,11 +41,8 @@ include $(BUILDRULES)
 
 ifeq "$(TARGET_OS)" ""# "mingw"
 build-me: root_etw $(LSRCFILES) $(LIBTARGET) $(EXTRATARGETS)
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)

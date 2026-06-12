@@ -1,4 +1,7 @@
 etc/pcp.conf
+etc/pcp/indom.conf
+etc/pcp/labels.conf
+etc/pcp/local.conf
 etc/pcp/derived/cpu-util.conf
 etc/pcp/derived/denki.conf
 etc/pcp/derived/iostat.conf

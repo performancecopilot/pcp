@@ -529,6 +529,20 @@ POD_OPTIONS = --section=$(MAN_SECTION) --release=$(PCP_VERSION) \
 		--center="Performance Co-Pilot" --date="Performance Co-Pilot"
 POD_MAKERULE = $(POD2MAN) $(POD_OPTIONS) $^ $@
 
+PMCDCONF_MAKERULE = \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(PMCDCONF_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(PMCDCONF_LINE) >> ../pmcd.conf ; \
+	    fi; \
+	fi
+
+LOCALCONF_MAKERULE = \
+	@if [ -f ../local.conf ]; then \
+	    if [ `grep -c $(LOCALCONF_LINE) ../local.conf` -eq 0 ]; then \
+		echo $(LOCALCONF_LINE) >> ../local.conf ; \
+	    fi; \
+	fi
+
 ifeq "$(TARGET_OS)" "mingw"
 INSTALL_MAN =
 else

@@ -1,6 +1,6 @@
 #
 # Copyright (c) 2000,2003,2004 Silicon Graphics, Inc.  All Rights Reserved.
-# Copyright (c) 2015 Red Hat.
+# Copyright (c) 2015,2026 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,7 +22,8 @@ CMDTARGET = pmdaaix
 LIBTARGET = pmda_aix.so
 PMDAADMDIR = $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR = $(PCP_PMDAS_DIR)/$(IAM)
-CONF_LINE = "aix	80	dso	aix_init	$(PMDATMPDIR)/$(LIBTARGET)"
+PMCDCONF_LINE = "aix	80	dso	aix_init	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE = $(PMCDCONF_LINE)
 
 CFILES	= aix.c data.c disk_total.c disk.c cpu_total.c cpu.c netif.c
 
@@ -34,11 +35,8 @@ default:	build-me
 
 ifeq "$(TARGET_OS)" "aix" 
 build-me: common.h root_aix $(CMDTARGET) $(LIBTARGET) help.dir help.pag
-	@if [ -f ../pmcd.conf ]; then \
-	    if [ `grep -c $(CONF_LINE) ../pmcd.conf` -eq 0 ]; then \
-		echo $(CONF_LINE) >> ../pmcd.conf ; \
-	    fi; \
-	fi
+	$(PMCDCONF_MAKERULE)
+	$(LOCALCONF_MAKERULE)
 
 install: build-me
 	$(INSTALL) -m 755 -d $(PMDAADMDIR)
