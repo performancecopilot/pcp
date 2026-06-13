@@ -229,8 +229,12 @@ _mkdir_p()
             continue
         fi
 
-        __path="${__path%/}/$__component"
-
+        if [ -z "$__path" ]
+        then
+            __path="$__component"
+        else
+            __path="${__path%/}/$__component"
+        fi
         if [ ! -d "$__path" ]
 	then
             if [ -n "$__mode" ]
