@@ -236,14 +236,14 @@ LOCALHOSTNAME	n   n	\$qatmp/\$A --pmlc-ipc-version=2 -c $tmp.config -l $tmp.A.lo
 LOCALHOSTNAME	n   n	'\$(echo $qatmp/B)' --pmlc-ipc-version=2 -c $tmp.config -l $tmp.B.log -Dservices,appl3,appl4
 LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" --pmlc-ipc-version=2 -c $tmp.config -l $tmp.C.log -Dservices,appl3,appl4
 End-of-File
-sudo runaspcp "cp $tmp.control $tmp/control"
+sudo $PCP_BINADM_DIR/runaspcp "cp $tmp.control $tmp/control"
 
 cat $tmp/control >>$seq_full
 echo "qatmp=$qatmp" >>$seq_full
 echo "PCP_TMP_DIR=$PCP_TMP_DIR" >>$seq_full
 
 echo "pmlogger_check #1" | tee -a $seq_full
-$sudo runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
+$sudo $PCP_BINADM_DIR/runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_check #1 ..." >>$seq_full
@@ -262,7 +262,7 @@ sleep 1
 _stop_loggers
 
 echo "pmlogger_check #2" | tee -a $seq_full
-$sudo runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
+$sudo $PCP_BINADM_DIR/runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_check #2 ..." >>$seq_full
@@ -297,7 +297,7 @@ fi
 echo
 echo "pmlogger_daily"
 _triage_wait_point "About to runaspcp qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -P -D -Z -VV -x never -c $tmp/control -l $tmp/log"
-$sudo runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -P -D -Z -VV -x never -c $tmp/control -l $tmp/log"
+$sudo $PCP_BINADM_DIR/runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -P -D -Z -VV -x never -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_daily ..." >>$seq_full

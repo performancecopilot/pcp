@@ -46,9 +46,9 @@ if [ -n "$TMPDIR" ]
 then
     if echo 'hullo world' >"$TMPDIR".hullo
     then
-	if sudo runaspcp 'cat '"$TMPDIR"'.hullo' 2>/dev/null
+	if sudo $PCP_BINADM_DIR/runaspcp 'cat '"$TMPDIR"'.hullo' 2>/dev/null
 	then
-	    if [ "hullo world" = "`sudo runaspcp 'cat '"$TMPDIR"'.hullo' 2>/dev/null`" ]
+	    if [ "hullo world" = "`sudo $PCP_BINADM_DIR/runaspcp 'cat '"$TMPDIR"'.hullo' 2>/dev/null`" ]
 	    then
 		# all good ...
 		#

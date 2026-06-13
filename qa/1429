@@ -369,7 +369,7 @@ fi
 echo "daily dir ..."
 ls $tmp | _filter | grep -E '.(index|meta|0)$' | grep -v TODAY
 echo "autosave dir ..."
-ls -R $tmp.ok | _filter
+ls -R $tmp.ok | _filter | sed -e '/^TMP.ok:/d'
 
 echo | tee -a $seq_full
 echo "=== merge callback tests ===" | tee -a $seq_full
