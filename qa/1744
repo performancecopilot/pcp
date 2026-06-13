@@ -1,0 +1,118 @@
+#!/bin/sh
+# PCP QA Test No. 1744
+# Test pmproxy / pmseries label storing mechanism
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.python
+. ./common.keys
+
+_check_series
+
+status=1	# failure is the default!
+
+_cleanup()
+{
+    cd $here
+    [ -n "$pmloggerpid" ] && $sudo kill -TERM $pmloggerpid 2>/dev/null
+    if [ -n "$key_server_port" ]; then
+        echo "Shutting down key server on port $key_server_port..." >>$here/$seq.full
+        $keys_cli -p $key_server_port shutdown >>$here/$seq.full 2>&1
+        sleep 1
+        # Verify it's actually dead
+        if $keys_cli -p $key_server_port PING >>$here/$seq.full 2>&1; then
+            echo "WARNING: Key server still running after shutdown!" >>$here/$seq.full
+        else
+            echo "Key server shutdown confirmed" >>$here/$seq.full
+        fi
+    fi
+    _sighup_pmcd
+    _restore_auto_restart pmcd
+    _restore_config $PCP_SYSCONF_DIR/pmseries
+    $sudo rm -rf $tmp $tmp.*
+}
+
+trap "_cleanup; exit \$status" 0 1 2 3 15
+_stop_auto_restart pmcd
+
+A="$here/archives/pcp-atop-nvidia"
+
+_filter()
+{
+    # Replace machine-specific label values with placeholders
+    sed \
+    -e "s/\"hostname\":\"[a-z]*\"/\"hostname\":\"HOSTNAME\"/g" \
+    -e 's/"uuid":"GPU-[0-9a-f-]*"/"uuid":"UUID"/g'
+}
+
+_filter_series()
+{
+    sed \
+	-e 's/[0-9a-z]\{40\}/TIMESERIES/g' \
+    #end
+}
+
+# real QA test starts here
+key_server_port=`_find_free_port`
+_save_config $PCP_SYSCONF_DIR/pmseries
+$sudo rm -f $PCP_SYSCONF_DIR/pmseries/*
+
+# Create pmseries config pointing to our test key server
+$sudo tee $PCP_SYSCONF_DIR/pmseries/pmseries.conf > /dev/null <<EOF
+[pmseries]
+servers = localhost:$key_server_port
+EOF
+
+echo "Start test key server on port $key_server_port..." >>$seq.full
+$key_server --port $key_server_port --save "" > $tmp.keys 2>&1 &
+_check_key_server_ping $key_server_port
+_check_key_server $key_server_port
+echo
+
+_check_key_server_version $key_server_port
+
+
+# Check key server port and flush
+echo "Using key server on port $key_server_port" >>$seq_full
+echo "Flushing key server on port $key_server_port ..."
+flush_result=`echo "FLUSHALL" | $keys_cli -p $key_server_port 2>&1`
+echo "Flush result: $flush_result" >>$seq_full
+if [ "$flush_result" != "OK" ]; then
+    echo "ERROR: Failed to flush key server, got: $flush_result"
+    status=1
+    exit
+fi
+echo "Key server flushed successfully"
+
+# Load the archive into pmseries
+echo "Loading test archive into pmseries ..."
+pmseries $options --load "{source.path: \"$A\"}" 2>&1 | \
+    sed "s|$A|ARCHIVE|g" | tee -a $seq_full
+
+# Wait for metrics to be indexed
+echo "Waiting for metrics to be indexed ..."
+pmsleep 2
+
+# Query for the first metric (identifying labels only)
+echo
+echo "=== nvidia.gpuactive (optional labels "gpu" & "uuid") ==="
+series1=`pmseries $options 'nvidia.gpuactive'`
+if [ -z "$series1" ]; then
+    echo "ERROR: No series found for nvidia.gpuactive"
+    status=1
+    exit
+else
+    pmseries $series1 | _filter_series | _filter
+fi
+
+echo == Note: check $seq.full for details
+echo == pmlogger LOG == >>$seq_full
+cat $tmp.pmlogger.log >>$seq_full 2>&1
+
+# success, all done
+status=0
+exit

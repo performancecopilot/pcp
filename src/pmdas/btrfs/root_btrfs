@@ -1,0 +1,102 @@
+/*
+ * Copyright (c) 2026 Red Hat.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms of the GNU General Public License as published by the
+ * Free Software Foundation; either version 2 of the License, or (at your
+ * option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+ * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+ * for more details.
+ */
+
+#ifndef BTRFS
+#define BTRFS 41
+#endif
+
+root {
+    btrfs
+}
+
+btrfs {
+    fs
+    commit
+    allocation
+    device
+    discard
+}
+
+btrfs.fs {
+    label				BTRFS:0:0
+    nodesize				BTRFS:0:1
+    sectorsize				BTRFS:0:2
+    generation				BTRFS:0:3
+    checksum				BTRFS:0:4
+    metadata_uuid			BTRFS:0:5
+}
+
+btrfs.commit {
+    count				BTRFS:1:0
+    last_time				BTRFS:1:1
+    max_time				BTRFS:1:2
+    total_time				BTRFS:1:3
+}
+
+btrfs.allocation {
+    data
+    metadata
+    system
+    global_rsv_size			BTRFS:5:0
+    global_rsv_reserved			BTRFS:5:1
+}
+
+btrfs.allocation.data {
+    total_bytes				BTRFS:2:0
+    bytes_used				BTRFS:2:1
+    bytes_pinned			BTRFS:2:2
+    bytes_reserved			BTRFS:2:3
+    bytes_readonly			BTRFS:2:4
+    disk_used				BTRFS:2:5
+    disk_total				BTRFS:2:6
+}
+
+btrfs.allocation.metadata {
+    total_bytes				BTRFS:3:0
+    bytes_used				BTRFS:3:1
+    bytes_pinned			BTRFS:3:2
+    bytes_reserved			BTRFS:3:3
+    bytes_readonly			BTRFS:3:4
+    disk_used				BTRFS:3:5
+    disk_total				BTRFS:3:6
+}
+
+btrfs.allocation.system {
+    total_bytes				BTRFS:4:0
+    bytes_used				BTRFS:4:1
+    bytes_pinned			BTRFS:4:2
+    bytes_reserved			BTRFS:4:3
+    bytes_readonly			BTRFS:4:4
+    disk_used				BTRFS:4:5
+    disk_total				BTRFS:4:6
+}
+
+btrfs.device {
+    write_errs				BTRFS:6:0
+    read_errs				BTRFS:6:1
+    flush_errs				BTRFS:6:2
+    corruption_errs			BTRFS:6:3
+    generation_errs			BTRFS:6:4
+}
+
+btrfs.discard {
+    discardable_bytes			BTRFS:7:0
+    discardable_extents			BTRFS:7:1
+    discard_bitmap_bytes		BTRFS:7:2
+    discard_extent_bytes		BTRFS:7:3
+    discard_bytes_saved			BTRFS:7:4
+    iops_limit				BTRFS:7:5
+    kbps_limit				BTRFS:7:6
+    max_discard_size			BTRFS:7:7
+}

@@ -1,0 +1,327 @@
+QA output created by 2001
+== Checking metric descriptors and values
+
+btrfs.allocation.data.bytes_pinned PMID: 41.2.2 [data bytes pinned]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of data space pinned (to be freed at end of transaction).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.data.bytes_readonly PMID: 41.2.4 [data bytes readonly]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of data space that are read-only.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.data.bytes_reserved PMID: 41.2.3 [data bytes reserved]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of data space reserved for allocations.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.data.bytes_used PMID: 41.2.1 [data bytes used]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of data space currently in use.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 536870912
+
+btrfs.allocation.data.disk_total PMID: 41.2.6 [total data disk bytes]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Total disk bytes allocated for data (accounts for RAID mirroring).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 1073741824
+
+btrfs.allocation.data.disk_used PMID: 41.2.5 [actual data disk bytes used]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Actual disk bytes used for data (accounts for RAID mirroring).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 1073741824
+
+btrfs.allocation.data.total_bytes PMID: 41.2.0 [total data allocation space]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Total bytes allocated for data block groups.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 1073741824
+
+btrfs.allocation.global_rsv_reserved PMID: 41.5.1 [global block reservation reserved]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes currently reserved in the global block reservation.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.global_rsv_size PMID: 41.5.0 [global block reservation size]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Size of the global block reservation in bytes.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 16777216
+
+btrfs.allocation.metadata.bytes_pinned PMID: 41.3.2 [metadata bytes pinned]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of metadata space pinned (to be freed at end of transaction).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.metadata.bytes_readonly PMID: 41.3.4 [metadata bytes readonly]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of metadata space that are read-only.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.metadata.bytes_reserved PMID: 41.3.3 [metadata bytes reserved]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of metadata space reserved for allocations.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.metadata.bytes_used PMID: 41.3.1 [metadata bytes used]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of metadata space currently in use.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 67108864
+
+btrfs.allocation.metadata.disk_total PMID: 41.3.6 [total metadata disk bytes]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Total disk bytes allocated for metadata (accounts for RAID mirroring).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 268435456
+
+btrfs.allocation.metadata.disk_used PMID: 41.3.5 [actual metadata disk bytes used]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Actual disk bytes used for metadata (accounts for RAID mirroring).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 268435456
+
+btrfs.allocation.metadata.total_bytes PMID: 41.3.0 [total metadata allocation space]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Total bytes allocated for metadata block groups.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 268435456
+
+btrfs.allocation.system.bytes_pinned PMID: 41.4.2 [system bytes pinned]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of system space pinned (to be freed at end of transaction).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.system.bytes_readonly PMID: 41.4.4 [system bytes readonly]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of system space that are read-only.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.system.bytes_reserved PMID: 41.4.3 [system bytes reserved]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of system space reserved for allocations.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.allocation.system.bytes_used PMID: 41.4.1 [system bytes used]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of system space currently in use.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 16384
+
+btrfs.allocation.system.disk_total PMID: 41.4.6 [total system disk bytes]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Total disk bytes allocated for system data (accounts for RAID mirroring).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 8388608
+
+btrfs.allocation.system.disk_used PMID: 41.4.5 [actual system disk bytes used]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Actual disk bytes used for system data (accounts for RAID mirroring).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 8388608
+
+btrfs.allocation.system.total_bytes PMID: 41.4.0 [total system allocation space]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Total bytes allocated for system block groups.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 8388608
+
+btrfs.commit.count PMID: 41.1.0 [total number of btrfs commits]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: counter  Units: count
+Help:
+Total number of transaction commits performed on this filesystem.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 100
+
+btrfs.commit.last_time PMID: 41.1.1 [duration of last btrfs commit]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: millisec
+Help:
+Duration of the most recent transaction commit in milliseconds.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 42
+
+btrfs.commit.max_time PMID: 41.1.2 [maximum btrfs commit duration]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: discrete  Units: millisec
+Help:
+Maximum duration of any single transaction commit in milliseconds.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 500
+
+btrfs.commit.total_time PMID: 41.1.3 [total btrfs commit time]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: counter  Units: millisec
+Help:
+Cumulative time spent in transaction commits in milliseconds.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 4200
+
+btrfs.device.corruption_errs PMID: 41.6.3 [device corruption errors]
+    Data Type: 64-bit unsigned int  InDom: 41.1 0xa400001
+    Semantics: counter  Units: count
+Help:
+Number of checksum or content corruption errors encountered on this device.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654::1"] value 1
+
+btrfs.device.flush_errs PMID: 41.6.2 [device flush errors]
+    Data Type: 64-bit unsigned int  InDom: 41.1 0xa400001
+    Semantics: counter  Units: count
+Help:
+Number of flush errors (EIO/EREMOTEIO) encountered on this device.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654::1"] value 0
+
+btrfs.device.generation_errs PMID: 41.6.4 [device generation errors]
+    Data Type: 64-bit unsigned int  InDom: 41.1 0xa400001
+    Semantics: counter  Units: count
+Help:
+Number of generation mismatch errors encountered on this device.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654::1"] value 0
+
+btrfs.device.read_errs PMID: 41.6.1 [device read errors]
+    Data Type: 64-bit unsigned int  InDom: 41.1 0xa400001
+    Semantics: counter  Units: count
+Help:
+Number of read errors (EIO/EREMOTEIO) encountered on this device.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654::1"] value 2
+
+btrfs.device.write_errs PMID: 41.6.0 [device write errors]
+    Data Type: 64-bit unsigned int  InDom: 41.1 0xa400001
+    Semantics: counter  Units: count
+Help:
+Number of write errors (EIO/EREMOTEIO) encountered on this device.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654::1"] value 0
+
+btrfs.discard.discard_bitmap_bytes PMID: 41.7.2 [bytes in discard bitmap state]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of discardable space tracked in bitmap form.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 1048576
+
+btrfs.discard.discard_bytes_saved PMID: 41.7.4 [bytes saved by discard]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: counter  Units: byte
+Help:
+Cumulative bytes saved by discard operations.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 2097152
+
+btrfs.discard.discard_extent_bytes PMID: 41.7.3 [bytes in discard extent state]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Bytes of discardable space tracked in extent form.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 3145728
+
+btrfs.discard.discardable_bytes PMID: 41.7.0 [bytes available for discard]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Total bytes that are available for async discard operations.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 4194304
+
+btrfs.discard.discardable_extents PMID: 41.7.1 [extents available for discard]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: count
+Help:
+Number of extents that are available for async discard operations.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 10
+
+btrfs.discard.iops_limit PMID: 41.7.5 [discard IOPS limit]
+    Data Type: 32-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: count
+Help:
+Maximum number of discard operations per second (0 for no limit).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 10
+
+btrfs.discard.kbps_limit PMID: 41.7.6 [discard throughput limit]
+    Data Type: 32-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: Kbyte / sec
+Help:
+Maximum discard throughput in kilobytes per second (0 for no limit).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 0
+
+btrfs.discard.max_discard_size PMID: 41.7.7 [maximum discard size]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: byte
+Help:
+Maximum size of a single discard operation in bytes.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 67108864
+
+btrfs.fs.checksum PMID: 41.0.4 [btrfs checksum algorithm]
+    Data Type: string  InDom: 41.0 0xa400000
+    Semantics: discrete  Units: none
+Help:
+The name of the checksum algorithm used by this filesystem (e.g. crc32c, xxhash, sha256, blake2).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value "crc32c"
+
+btrfs.fs.generation PMID: 41.0.3 [btrfs filesystem generation]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: instant  Units: none
+Help:
+The current transaction generation number of the filesystem.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 12345
+
+btrfs.fs.label PMID: 41.0.0 [btrfs filesystem label]
+    Data Type: string  InDom: 41.0 0xa400000
+    Semantics: discrete  Units: none
+Help:
+The user-assigned label for this btrfs filesystem, or empty if not set.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value "testfs"
+
+btrfs.fs.metadata_uuid PMID: 41.0.5 [btrfs metadata UUID]
+    Data Type: string  InDom: 41.0 0xa400000
+    Semantics: discrete  Units: none
+Help:
+The metadata UUID for this filesystem.
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value "5e3b1234-abcd-4321-9876-fedcba987654"
+
+btrfs.fs.nodesize PMID: 41.0.1 [btrfs tree node size]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: discrete  Units: byte
+Help:
+The size of internal btree nodes in bytes (typically 16384).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 16384
+
+btrfs.fs.sectorsize PMID: 41.0.2 [btrfs sector size]
+    Data Type: 64-bit unsigned int  InDom: 41.0 0xa400000
+    Semantics: discrete  Units: byte
+Help:
+The filesystem sector size in bytes (typically 4096).
+    inst [0 or "5e3b1234-abcd-4321-9876-fedcba987654"] value 4096
+
+== done
+

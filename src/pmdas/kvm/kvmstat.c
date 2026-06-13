@@ -32,7 +32,7 @@ typedef struct perf_event_attr perf_event_attr_t;
 #define CONFIDENTIALITY		"[confidentiality]"
 #define CONFIDENTIALITY_LEN	(sizeof(CONFIDENTIALITY)-1)
 
-static int _isDSO;
+static int _isDSO = 1;		/* =0 I am a daemon */
 static pmdaNameSpace *pmns;
 static char *username;
 static char helppath[MAXPATHLEN];
