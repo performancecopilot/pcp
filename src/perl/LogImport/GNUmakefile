@@ -50,7 +50,7 @@ Makefile: COPYING Makefile.PL
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING
 
-test dist: LogImport.o
+test dist: LogImport.o linker_fixup_done
 	rm -rf $(LPKGDIRT)
 	$(PERLMAKE) -f Makefile $@
 
@@ -73,3 +73,18 @@ default_pcp: default
 install_pcp: install
 
 LogImport.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+ifeq "$(PACKAGE_DISTRIBUTION)" "macos"
+BUNDLE=blib/arch/auto/PCP/LogImport/LogImport.bundle
+# this is the equivalent for $(LINKER_MAKERULE) which does not work here
+# because we're missing a $(BUNDLE): target
+#
+linker_fixup_done:
+	for lib in `otool -L $(BUNDLE) | ${AWK} '/libpcp/ {print $$1}'`; do \
+	    install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $(BUNDLE); \
+	done
+	touch linker_fixup_done
+else
+.PHONY: linker_fixup_done
+linker_fixup_done:
+endif

@@ -49,7 +49,7 @@ Makefile: COPYING Makefile.PL
 COPYING:
 	$(LN_S) $(TOPDIR)/COPYING COPYING
 
-test dist: MMV.o
+test dist: MMV.o linker_fixup_done
 	rm -f $(LPKGDIRT)
 	$(PERLMAKE) -f Makefile $@
 
@@ -71,3 +71,17 @@ default_pcp: default
 
 install_pcp: install
 
+ifeq "$(PACKAGE_DISTRIBUTION)" "macos"
+BUNDLE=blib/arch/auto/PCP/MMV/MMV.bundle
+# this is the equivalent for $(LINKER_MAKERULE) which does not work here
+# because we're missing a $(BUNDLE): target
+#
+linker_fixup_done:
+	for lib in `otool -L $(BUNDLE) | ${AWK} '/libpcp/ {print $$1}'`; do \
+	    install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $(BUNDLE); \
+	done
+	touch linker_fixup_done
+else
+.PHONY: linker_fixup_done
+linker_fixup_done:
+endif
