@@ -81,7 +81,7 @@ BUNDLE=blib/arch/auto/PCP/PMDA/PMDA.bundle
 # this is the equivalent for $(LINKER_MAKERULE) which does not work here
 # because we're missing a $(BUNDLE): target
 #
-linker_fixup_done:
+linker_fixup_done: $(BUNDLE)
 	for lib in `otool -L $(BUNDLE) | ${AWK} '/libpcp/ {print $$1}'`; do \
 	    install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $(BUNDLE); \
 	done

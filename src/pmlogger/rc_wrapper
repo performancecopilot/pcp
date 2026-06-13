@@ -46,7 +46,11 @@
 
 # need to be in a directory the user pcp can access
 #
-cd "$PCP_VAR_DIR"
+if ! cd "$PCP_VAR_DIR"
+then
+    echo "$0: Error: cannot cd to PCP_VAR_DIR ($PCP_VAR_DIR)!"
+    exit 1
+fi
 
 if [ "$1" = status ]
 then

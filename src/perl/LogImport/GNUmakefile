@@ -25,7 +25,7 @@ LSRCFILES = Makefile.PL $(PERLDOCS) $(PERLMOD) $(INTERFACE) $(TESTCODE)
 LPKGDIRT = PCP-LogImport-*.tar.gz tmp MYMETA.yml MYMETA.json
 LDIRDIRT = PCP-LogImport-*
 LDIRT = Makefile COPYING LogImport.bs LogImport.c LogImport.o cvalue pm_to_blib blib \
-	Makefile.old $(LPKGDIRT)
+	Makefile.old $(LPKGDIRT) linker_fixup_done
 
 default: dist
 
@@ -79,7 +79,7 @@ BUNDLE=blib/arch/auto/PCP/LogImport/LogImport.bundle
 # this is the equivalent for $(LINKER_MAKERULE) which does not work here
 # because we're missing a $(BUNDLE): target
 #
-linker_fixup_done:
+linker_fixup_done: $(BUNDLE)
 	for lib in `otool -L $(BUNDLE) | ${AWK} '/libpcp/ {print $$1}'`; do \
 	    install_name_tool -change $$lib $(PCP_LIB_DIR)/$$lib $(BUNDLE); \
 	done

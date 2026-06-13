@@ -540,7 +540,10 @@ _check_archive()
 	    :
 	else
 	    logdir=`dirname "$logfile"`
-	    __pwddir=`cd "$logdir"; $PWDCMND`
+	    # being cautious in case cd fails ...
+	    #
+	    __pwddir=`cd "$logdir && $PWDCMND`
+	    [ -z "$__pwddir" ] && __pwddir="$logdir"
 	    if [ "$PCP_PLATFORM" = darwin ]
 	    then
 		# strip unhelpful /private prefix from macOS

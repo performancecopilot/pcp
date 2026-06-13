@@ -786,7 +786,7 @@ then
   echo_n=-n echo_c=
   AC_MSG_RESULT([ -n])
 else
-  if ( $echo 'testing\c'; $echo 1,2,3 ) | grep c >/dev/null
+  if ( $echo 'testing\c'; $echo 1,2,3 ) | grep 'testing1,2,3' >/dev/null
   then
     echo_n= echo_c='\c'
     AC_MSG_RESULT([backslash-c])

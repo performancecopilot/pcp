@@ -6295,7 +6295,7 @@ then
   { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result:  -n" >&5
 printf "%s\n" " -n" >&6; }
 else
-  if ( $echo 'testing\c'; $echo 1,2,3 ) | grep c >/dev/null
+  if ( $echo 'testing\c'; $echo 1,2,3 ) | grep 'testing1,2,3' >/dev/null
   then
     echo_n= echo_c='\c'
     { printf "%s\n" "$as_me:${as_lineno-$LINENO}: result: backslash-c" >&5

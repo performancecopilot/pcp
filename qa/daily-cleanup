@@ -18,11 +18,11 @@ verbose=true
 
 # need to be a place the user $PCP_USER can cd to from pmlogger_*
 #
-cd ${TMPDIR:-/tmp}
+cd "$PCP_LOG_DIR" || exit 1
 
 # Anything to be merged?
 #
-pmlogger_daily -N -V >$tmp.tmp 2>&1
+$PCP_BINADM_DIR/pmlogger_daily -N -V >$tmp.tmp 2>&1
 
 if grep '^+ pmlogger_merge ' $tmp.tmp >/dev/null
 then
@@ -66,8 +66,8 @@ state == 1	{ print }'
 	    sudo cp $tmp.conf $CONF
 	fi
     fi
-    sudo $PCP_BINADM_DIR/runaspcp `which pmlogger_daily`
-    pmlogger_daily -N -V >$tmp.tmp
+    sudo $PCP_BINADM_DIR/runaspcp $PCP_BINADM_DIR/pmlogger_daily
+    $PCP_BINADM_DIR/pmlogger_daily -N -V >$tmp.tmp
     if grep '^+ pmlogger_merge ' $tmp.tmp 
     then
 	echo >&2 "Error: pmlogger_daily failed!"

@@ -207,7 +207,7 @@ environment (your platform must at least have gmake).
 #### macOS-specific pre-requisites
 ```
 # install Homebrew (see https://brew.sh)
-curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh
+bash -c $(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
 
 # Install Homebrew packages (canonical list in build/mac/brew-packages.txt)
 brew install $(grep -v '^#' build/mac/brew-packages.txt | grep -v '^$' | tr '\n' ' ')

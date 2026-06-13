@@ -252,20 +252,6 @@ _restore_auto_restart()
 #
 _service()
 {
-    # because _service may end up running commands as root and then
-    # as the user pcp, we need cwd to be someplace that all of these
-    # can safely cd to ... on macOS not doing this leads to this sort
-    # of babble
-    # shell-init: error retrieving current directory: getcwd: cannot access parent directories: Permission denied
-    # /tmp seems a platform-neutral safe bet
-    #
-    __here=`pwd`
-    if ! cd /tmp
-    then
-	$__verbose && echo "_service: cd to /tmp failed"
-	__here=''
-    fi
-
     if [ -n "$1" -a "$1" = "-v" ]
     then
 	__verbose=true
@@ -275,6 +261,25 @@ _service()
 	__verbose=false
 	__vflag=''
     fi
+
+    # Because _service() may end up running commands as root and then as the
+    # user pcp, we need the current directory to be someplace that all of
+    # these can safely cd to ... a cd to /tmp (and back at the end) seems
+    # a platform-neutral safe bet.
+    #
+    # On macOS not doing this leads to this sort of babble
+    # shell-init: error retrieving current directory: getcwd: cannot access parent directories: Permission denied
+    #
+    # Note: this only works because this procedure makes no reference to
+    #       files via relative path names
+    #
+    __here=`pwd`
+    if ! cd /tmp
+    then
+	$__verbose && echo "_service: cd to /tmp failed"
+	__here=''
+    fi
+
     __do_systemctl=false
     if [ "$PCPQA_SYSTEMD" = no ]
     then
@@ -2749,7 +2754,10 @@ _change_config()
 	    verbose)	__pat="" ;;
 	    *)		__pat=$1 ;;
 	esac
-	if $sudo launchctl list | grep -q "$__pat\$"
+	if [ -z "$__pat" ]
+	then
+	    :
+	elif $sudo launchctl list | grep -q "$__pat\$"
 	then
 	    # looks like bootstrap has been done
 	    #
