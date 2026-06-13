@@ -385,7 +385,7 @@ a\
 # added by Performance Co-Pilot Quality Assurance test '$seq'\
 127.0.0.7	boofa-'$seq'
 }'
-    sudo cp $tmp.tmp /etc/hosts
+    $sudo cp $tmp.tmp /etc/hosts
     echo "Added boofa-$seq entry in /etc/hosts" >>$seq_full
 fi
 

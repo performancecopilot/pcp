@@ -80,7 +80,7 @@ then
     for file in $tmp.tls/*
     do
 	ls -l $file
-	sudo -u $PCP_USER sum $file
+	$sudo -u $PCP_USER sum $file
     done
     echo "--- openssl.log from key & cert setup"
     cat $tmp.tls/openssl.log
