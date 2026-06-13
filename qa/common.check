@@ -252,6 +252,20 @@ _restore_auto_restart()
 #
 _service()
 {
+    # because _service may end up running commands as root and then
+    # as the user pcp, we need cwd to be someplace that all of these
+    # can safely cd to ... on macOS not doing this leads to this sort
+    # of babble
+    # shell-init: error retrieving current directory: getcwd: cannot access parent directories: Permission denied
+    # /tmp seems a platform-neutral safe bet
+    #
+    __here=`pwd`
+    if ! cd /tmp
+    then
+	$__verbose && echo "_service: cd to /tmp failed"
+	__here=''
+    fi
+
     if [ -n "$1" -a "$1" = "-v" ]
     then
 	__verbose=true
@@ -367,6 +381,17 @@ _service()
 	echo "_service: $1 is not a systemctl service nor a $PCP_RC_DIR script!"
 	return 1
     fi
+
+    # go back to where we came from ...
+    #
+    if [ -n "$__here" ]
+    then
+	if ! cd "$__here"
+	then
+	    $__verbose && echo "_service: cd back to $__here failed"
+	fi
+    fi
+
     return 0
 }
 
@@ -2717,41 +2742,39 @@ _change_config()
     then
 	case $1 
 	in
-	    pmcd)	__pat=PMCD ;;
-	    pmlogger)	__pat=PMLOGGER ;;
-	    pmie)	__pat=PMIE ;;
-	    pmproxy)	__pat=PMPROXY ;;
+	    pmcd)	__pat=io.pcp.pmcd ;;
+	    pmlogger)	__pat=io.pcp.pmlogger ;;
+	    pmie)	__pat=io.pcp.pmie ;;
+	    pmproxy)	__pat=io.pcp.pmproxy ;;
 	    verbose)	__pat="" ;;
 	    *)		__pat=$1 ;;
 	esac
-	if [ -n "$__pat" ]
+	if $sudo launchctl list | grep -q "$__pat\$"
 	then
-	    __state=`sed -n -e "/^$__pat=/{"'
-s/.*=//
-s/-//g
-p
-}' /etc/hostconfig`
-	    if [ -z "$__state" ]
-	    then
-		echo "_change_config: Error: No $__pat control line in /etc/hostconfig"
-		echo "You need to add a $__pat=-YES- line to this file"
-		return 1
-	    fi
+	    # looks like bootstrap has been done
+	    #
 	    if [ "$2" = "on" ]
 	    then
-		__req_state=YES
+		: nothing to be done
 	    elif [ "$2" = "off" ]
 	    then
-		__req_state=NO
+		$sudo launchctl bootout system /Library/LaunchDaemons/$__pat.plist
 	    else
 		echo "_change_config: Error: bad state ($2) should be on or off"
 		return 1
 	    fi
-	    if [ "$__state" != "$__req_state" ]
+	else
+	    # not in list, so bootout done or bootstrap never done
+	    #
+	    if [ "$2" = "off" ]
 	    then
-		sed </etc/hostconfig >$tmp._state \
-		    -e "/^$__pat=/s/-.*/-$__req_state-/"
-		$sudo cp $tmp._state /etc/hostconfig
+		: nothing to be done
+	    elif [ "$2" = "on" ]
+	    then
+		$sudo launchctl bootstrap system /Library/LaunchDaemons/$__pat.plist
+	    else
+		echo "_change_config: Error: bad state ($2) should be on or off"
+		return 1
 	    fi
 	fi
     elif [ $PCP_PLATFORM = freebsd ]
@@ -2948,35 +2971,18 @@ _get_config()
     then
 	case $1 
 	in
-	    pmcd)	__pat=PMCD ;;
-	    pmlogger)	__pat=PMLOGGER ;;
-	    pmie)	__pat=PMIE ;;
+	    pmcd)	__pat=io.pcp.pmcd ;;
+	    pmlogger)	__pat=io.pcp.pmlogger ;;
+	    pmie)	__pat=io.pcp.pmie ;;
+	    pmproxy)	__pat=io.pcp.pmproxy ;;
 	    verbose)	__pat="" ;;
 	    *)		__pat=$1 ;;
 	esac
-	if [ -n "$__pat" ]
+	if $sudo launchctl list | grep -q "$__pat\$"
 	then
-	    __state=`sed -n -e "/^$__pat=/{"'
-s/.*=//
-s/-//g
-p
-}' /etc/hostconfig`
-	    if [ -z "$__state" ]
-	    then
-		echo "_get_config: Error: No $__pat control line in /etc/hostconfig" >&2
-		echo "You need to add a $__pat=-YES- line to this file" >&2
-		return 1
-	    fi
-	    if [ "$__state" = "YES" ]
-	    then
-		echo on
-	    elif [ "$__state" = "NO" ]
-	    then
-		echo off
-	    else
-		echo "_get_config: Error: bad state ($__state) should be YES or NO" >&2
-		return 1
-	    fi
+	    echo on
+	else
+	    echo off
 	fi
     elif [ $PCP_PLATFORM = freebsd ]
     then

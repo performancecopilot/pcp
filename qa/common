@@ -273,6 +273,7 @@ _haveremote()
     done
 
 }
+
 _havepmcdtrace()
 {
     __fix=false
@@ -300,6 +301,20 @@ _havepmcdtrace()
 End-of-File
 	$sudo cp $tmp.tmp $PCPQA_PMCDOPTIONS
 	touch $tmp.restart
+    fi
+}
+
+_havetcpstats()
+{
+    if which sysctl >/dev/null 2>&1
+    then
+	__state="`sysctl net.inet.tcp.disable_access_to_stats | sed -e 's/.*: //'`"
+	if [ "$__state" = 1 ]
+	then
+	    echo "turn on TCP stats ..."
+	    $sudo sysctl -w net.inet.tcp.disable_access_to_stats=0
+	    # TODO add to /etc/sysctl.conf?
+	fi
     fi
 }
 
@@ -374,12 +389,13 @@ then
 fi
 
 __diff=diff
-if [ ! -z "$DISPLAY" ]
+if [ ! -z "$DISPLAY" -o "$TERM_PROGRAM" = "Apple_Terminal" ]
 then
     which tkdiff >/dev/null 2>&1 && __diff=tkdiff
     which xdiff >/dev/null 2>&1 && __diff=xdiff
     which xxdiff >/dev/null 2>&1 && __diff=xxdiff
     which gdiff >/dev/null 2>&1 && __diff=gdiff
+    which meld >/dev/null 2>&1 && __diff=meld
 fi
 
 __color=false
@@ -833,13 +849,14 @@ else
     $OPTION_PMCD_TRACE && _havepmcdtrace
     $OPTION_PMCD_LIMITS && _setpmcdlimits
     $OPTION_AGENTS && _haveagents
+    $OPTION_MAC_TCP_STATS && _havetcpstats
 
     if [ -f $tmp.restart ]
     then
 	__grp=root
 	case $PCP_PLATFORM
 	in
-	    freebsd|netbsd|openbsd)
+	    freebsd|netbsd|openbsd|darwin)
 		    __grp=wheel
 		    ;;
 	esac

@@ -32,6 +32,7 @@ _filter()
 	-e '/^Merge callbacks .../d' \
 	-e '/^callback: .*pmlogger_daily_report/d' \
 	-e "s;$tmp;TMP;g" \
+	-e "s;/privateTMP;TMP;g" \
 	-e "s/local:/HOST/g" \
 	-e "s/`hostname`/HOST/g" \
 	-e "s/`hostname | sed -e 's/\..*//'`/HOST/g" \
@@ -65,6 +66,11 @@ mkdir $tmp
 mkdir $tmp/foo
 
 # real QA test starts here
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
+
 verbose=-V
 echo >$tmp/sed
 for day in 0 1 2 3
@@ -104,12 +110,12 @@ do
 	do
 	    if [ $hour -ne 4 ]
 	    then
-		cp archives/arch_a.$ext $tmp/$namea.$ext
+		cp $here/archives/arch_a.$ext $tmp/$namea.$ext
 		touch -t $stampa $tmp/$namea.$ext
 	    fi
-	    cp archives/arch_b.$ext $tmp/$nameb.$ext
+	    cp $here/archives/arch_b.$ext $tmp/$nameb.$ext
 	    touch -t $stampb $tmp/$nameb.$ext
-	    cp archives/arch_b.$ext $tmp/$namec.$ext
+	    cp $here/archives/arch_b.$ext $tmp/$namec.$ext
 	    touch -t $stampc $tmp/$namec.$ext
 	done
     done
@@ -141,11 +147,7 @@ ls -l $tmp >>$seq_full
 # complexity at the end of this pipeline
 #
 echo
-# need to be a place the user $PCP_USER can cd to from pmlogger_daily
-#
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -o -c $tmp/control -x never -k 3 $verbose -l $tmp.log"
-cd $here
 $sudo cat $tmp.log \
 | _filter \
 | $PCP_AWK_PROG '

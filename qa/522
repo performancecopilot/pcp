@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 522
-# #655108 $PCP_RC_DIR scripts leave files in ${TMPDIR:-/tmp}
+# #655108 $PCP_RC_DIR scripts leave files in "$PCP_TMPFILE_DIR"
 #
 # Copyright (c) 1995-2002 Silicon Graphics, Inc.  All Rights Reserved.
 #
@@ -27,7 +27,7 @@ _stop_auto_restart pmcd
 _stop_auto_restart pmlogger
 
 # real QA test starts here
-$sudo rm -f ${TMPDIR:-/tmp}/*.pmcheck
+$sudo rm -f "$PCP_TMPFILE_DIR"/*.pmcheck
 _change_config pmlogger on || _exit 1
 if ! _service pmcd restart 2>&1; then _exit 1; fi \
 | _filter_pcp_restart
@@ -56,7 +56,7 @@ done
 rm -f $tmp.ps
 
 echo "Expect no files ..."
-echo ${TMPDIR:-/tmp}/*.pmcheck 2>&1 | sed -e "s@${TMPDIR:-/tmp}/@TMP/@"
+echo "$PCP_TMPFILE_DIR"/*.pmcheck 2>&1 | sed -e "s@$PCP_TMPFILE_DIR/@TMP/@"
 
 # success, all done
 status=0

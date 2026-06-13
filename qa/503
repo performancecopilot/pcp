@@ -54,6 +54,7 @@ _filter()
 	-e '/^Merge callbacks .../d' \
 	-e '/^callback: .*pmlogger_daily_report/d' \
 	-e "s;$tmp;TMP;g" \
+	-e "s;/privateTMP;TMP;g" \
 	-e "s/^\([+-][+-][+-] TMP\...t*\).*/\1/" \
 	-e '/^-rw-r--r--/s/-rw-r--r--.* 2011/-rw-r--r-- ... 2011/' \
 	-e `echo $PCP_LOG_DIR | sed -e 's/\//\\\\\//g'`'\/NOTICES/d'
@@ -62,8 +63,8 @@ _filter()
 _setup()
 {
     $sudo rm -f $tmp.arch/*
-    sudo pmlogcp archives/rewrite $tmp.arch/20111001.21.10
-    sudo pmlogcp archives/rewrite $tmp.arch/20111001.22.10
+    sudo pmlogcp $here/archives/rewrite $tmp.arch/20111001.21.10
+    sudo pmlogcp $here/archives/rewrite $tmp.arch/20111001.22.10
     echo "global { time -> +1:00:00 }" >$tmp.conf.time
     $sudo $PMLOGREWRITE -c $tmp.conf.time -i $tmp.arch/20111001.22.10
 
@@ -146,13 +147,14 @@ log mandatory on once { sample.bin }
 End-of-File
 
 # real QA test starts here
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
+
 echo "+++ should just work ... +++" | tee -a $seq_full
 _setup
-# need to be a place the user $PCP_USER can cd to from pmlogger_daily
-#
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
-cd $here
 $sudo cat $tmp.log | _filter
 mkdir $tmp.ok
 $sudo mv $tmp.arch/20111001.* $tmp.ok
@@ -170,9 +172,7 @@ do
     echo "+++ expect mismatch +++" | tee -a $seq_full
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
-    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
-    cd $here
     $sudo cat $tmp.log | _filter
 
     echo | tee -a $seq_full
@@ -180,9 +180,7 @@ do
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo cp $tmp.conf $tmp.arch/pmlogrewrite
-    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
-    cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
 
@@ -191,9 +189,7 @@ do
     _setup
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo ln -s $tmp.conf $tmp.arch/pmlogrewrite
-    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
-    cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
 
@@ -203,9 +199,7 @@ do
     $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
-    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
-    cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
     $sudo rm -f $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
@@ -217,9 +211,7 @@ do
     $sudo mkdir -p $PCP_VAR_DIR/config/pmlogrewrite
     $sudo cp $tmp.conf $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
     $sudo ln -s $PCP_VAR_DIR/config/pmlogrewrite $tmp.arch/pmlogrewrite
-    cd ${TMPDIR:-/tmp}
     $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -V -l $tmp.log"
-    cd $here
     $sudo cat $tmp.log | _filter
     _cmp $tmp.ok/20111001 $tmp.arch/20111001
     $sudo rm -f $PCP_VAR_DIR/config/pmlogrewrite/qa.$seq
@@ -231,9 +223,7 @@ echo "+++ expect fail when -r used and local config file present +++" | tee -a $
 _setup
 $sudo $PMLOGREWRITE -c $tmp.conf -i $tmp.arch/20111001.22.10
 $sudo cp $tmp.conf $tmp.arch/pmlogrewrite
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -r -c $tmp.control -x never -V -l $tmp.log"
-cd $here
 $sudo cat $tmp.log | _filter
 
 # success, all done

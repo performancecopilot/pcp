@@ -83,6 +83,11 @@ skip > 0			{ skip--; next }
 }
 
 # real QA test starts here
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
+
 _remove_job_scheduler $tmp.cron $tmp.systemd $sudo
 
 # create orphaned pmloggers for pmlogger_janitor testing
@@ -177,11 +182,7 @@ ls -l $PCP_TMP_DIR/pmlogger >>$seq_full
 
 # now run the janitor ...
 #
-# need to be a place the user $PCP_USER can cd to from pmlogger_janitor
-#
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER $PCP_BINADM_DIR/pmlogger_janitor -V -l ${TMPDIR:-/tmp}/janitor-$seq.log
-cd $here
 cat ${TMPDIR:-/tmp}/janitor-$seq.log >>$seq_full
 _filter <${TMPDIR:-/tmp}/janitor-$seq.log >$tmp.tmp
 grep Killing <$tmp.tmp | LC_COLLATE=POSIX sort

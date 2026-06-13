@@ -11,9 +11,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.perl
 
 which sar >/dev/null 2>&1 || _notrun "sar not installed"
 which sadf >/dev/null 2>&1 || _notrun "sadf not installed"

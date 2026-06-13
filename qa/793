@@ -40,6 +40,7 @@ _filter()
 	-e '/^Start \[/s/ 2[0-9:. -]*/ DATESTAMP/' \
 	-e '/^End \[/s/ 2[0-9:. -]*/ DATESTAMP /' \
 	-e "s;$tmp;TMP;g" \
+	-e "s;/privateTMP;TMP;g" \
 	-e '/Duplicate/d' \
 	-e '/Roll [^ ]*\/NOTICES /d' \
 	-e '/Start new [^ ]*\/NOTICES$/d' \
@@ -125,7 +126,6 @@ _setup()
     if ! _service pmlogger stop; then _exit 1; fi \
     | _filter_pcp_stop
     _stop_loggers
-    cd
 }
 
 _check_loggers()
@@ -210,6 +210,10 @@ echo "pmproxy_was_running=$pmproxy_was_running" >>$seq_full
 
 # real QA test starts here
 
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
+
 _setup
 
 mkdir $tmp
@@ -232,18 +236,14 @@ LOCALHOSTNAME	n   n	\$qatmp/\$A --pmlc-ipc-version=2 -c $tmp.config -l $tmp.A.lo
 LOCALHOSTNAME	n   n	'\$(echo $qatmp/B)' --pmlc-ipc-version=2 -c $tmp.config -l $tmp.B.log -Dservices,appl3,appl4
 LOCALHOSTNAME	n   n	"$qatmp/\`echo c | tr '[a-z]' '[A-Z]'\`" --pmlc-ipc-version=2 -c $tmp.config -l $tmp.C.log -Dservices,appl3,appl4
 End-of-File
-sudo -u $PCP_USER -g $PCP_GROUP cp $tmp.control $tmp/control
+sudo runaspcp "cp $tmp.control $tmp/control"
 
 cat $tmp/control >>$seq_full
 echo "qatmp=$qatmp" >>$seq_full
 echo "PCP_TMP_DIR=$PCP_TMP_DIR" >>$seq_full
 
 echo "pmlogger_check #1" | tee -a $seq_full
-# need to be a place the user $PCP_USER can cd to from pmlogger_check
-#
-cd ${TMPDIR:-/tmp}
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
-cd $here
+$sudo runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_check #1 ..." >>$seq_full
@@ -262,9 +262,7 @@ sleep 1
 _stop_loggers
 
 echo "pmlogger_check #2" | tee -a $seq_full
-cd ${TMPDIR:-/tmp}
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
-cd $here
+$sudo runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_check -V -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_check #2 ..." >>$seq_full
@@ -298,9 +296,8 @@ fi
 
 echo
 echo "pmlogger_daily"
-cd ${TMPDIR:-/tmp}
-$sudo -u $PCP_USER -g $PCP_GROUP sh -c "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -P -D -Z -VV -x never -c $tmp/control -l $tmp/log"
-cd $here
+_triage_wait_point "About to runaspcp qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -P -D -Z -VV -x never -c $tmp/control -l $tmp/log"
+$sudo runaspcp "qatmp=$qatmp $PCP_BINADM_DIR/pmlogger_daily -P -D -Z -VV -x never -c $tmp/control -l $tmp/log"
 if [ -s $tmp/log ]
 then
     echo "$tmp.log from pmlogger_daily ..." >>$seq_full

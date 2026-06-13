@@ -37,6 +37,39 @@ PCP_PMCD_PROG=$PCP_BINADM_DIR/pmcd
 PCP_PMCDLOG_PATH=$PCP_LOG_DIR/pmcd/pmcd.log
 export PCP_PMCD_PROG PCP_PMCDLOG_PATH
 
+# on macOS there is a problem with $TMPDIR it is "hardened" so that when
+# a qa script creates $TMPDIR.foo (via $tmp.foo) the creating shell can
+# read the file, but user pcp cannot ... and similar for the mkdir $tmp;
+# cd $tmp scenario
+#
+if [ -n "$TMPDIR" ]
+then
+    if echo 'hullo world' >"$TMPDIR".hullo
+    then
+	if sudo runaspcp 'cat '"$TMPDIR"'.hullo' 2>/dev/null
+	then
+	    if [ "hullo world" = "`sudo runaspcp 'cat '"$TMPDIR"'.hullo' 2>/dev/null`" ]
+	    then
+		# all good ...
+		#
+		:
+	    else
+		# output mismatch
+		#
+		unset TMPDIR
+	    fi
+	else
+	    # sudo runaspcp failed
+	    #
+	    unset TMPDIR
+	fi
+    else
+	# can't even write there!
+	#
+	unset TMPDIR
+    fi
+fi
+
 # In openSUSE 12.1, /etc/rc.status intercepts our rc script and passes
 # control to systemctl which uses systemd ... the result is that messages
 # from our rc scripts are sent to syslog by default, and there is no
@@ -125,17 +158,24 @@ here=`pwd`
 seq_full=$here/$seq.full
 rm -f $seq_full
 
-# On OpenBSd in particular, /var/tmp is a symbolic link to /tmp
-# which leads to some confusion, especially in pmlogger_check and
-# friends when /tmp/foo and /var/tmp/foo are different paths to the
-# _same_ file or directory ... so go with the canonical name without
-# symbolic links
-#
-if which realpath >/dev/null 2>&1
+if [ "$PCP_PLATFORM" = darwin ]
 then
-    __tmp_dir=`realpath ${TMPDIR:-/tmp}`
+    # see earlier note about $TMPDIR and macOS
+    #
+    __tmp_dir=/tmp
 else
-    __tmp_dir=${TMPDIR:-/tmp}
+    # On OpenBSd in particular, /var/tmp is a symbolic link to /tmp
+    # which leads to some confusion, especially in pmlogger_check and
+    # friends when /tmp/foo and /var/tmp/foo are different paths to the
+    # _same_ file or directory ... so go with the canonical name without
+    # symbolic links
+    #
+    if which realpath >/dev/null 2>&1
+    then
+	__tmp_dir=`realpath ${TMPDIR:-/tmp}`
+    else
+	__tmp_dir=${TMPDIR:-/tmp}
+    fi
 fi
 
 if [ -z "$tmp" ]
@@ -149,6 +189,13 @@ then
 	tmp=$__tmp_dir/$seq-$$
     fi
 fi
+
+if [ "`dirname $tmp`" = / ]
+then
+    echo >&2 "common.rc Panic: \$tmp=$tmp and this means trashing / !!!"
+    exit
+fi
+
 # make sure nothing remains from earlier runs (with the same PID)
 # ... unlikely, but doing it here means we don't have to do it
 # in each script

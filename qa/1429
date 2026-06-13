@@ -60,6 +60,11 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 #	and uutils coreutils (Ubuntu 26.04) reports:
 #	  mkdir: Permission denied
 #
+#	and macOS reports
+#	  mkdir: /no: Read-only file system
+#	
+#	and finally, had to rewrite mkdir as _mkdir_p in utilproc.sh
+#
 _filter()
 {
     tee -a $seq_full \
@@ -76,10 +81,13 @@ _filter()
 	-e '/\/var\/adm\/pcplog\/NOTICES/d' \
 	-e 's/-rw-r--r--\./-rw-r--r--/' \
 	-e "s/ [\`]/ '/" \
+	-e '/^_mkdir_p: failed /d' \
 	-e "/mkdir/s/: '/: /g" \
 	-e "/mkdir/s/\/': /: /g" \
 	-e "/mkdir/s/': /: /g" \
 	-e 's/^mkdir:.*Permission denied$/mkdir: Permission denied/' \
+	-e 's/^mkdir:.*Read-only file system$/mkdir: Permission denied/' \
+	-e 's;/privateTMP;TMP;' \
     | $PCP_AWK_PROG '
 /-rw-r--r--/	{ print $1,"...",$5,"...",$9; next }
 		{ print }' \
@@ -102,6 +110,7 @@ _setup()
     $sudo rm -f $tmp.log
     mkdir $tmp
     echo "s@$tmp@TMP@g" >$tmp.sed
+    echo "s@/privateTMP@TMP@g" >>$tmp.sed
     # in case /tmp and ${TMPDIR:-/tmp} are the same thing, in which case
     # pmlogmv diagnostics sometimes use /tmp and sometimes use
     # ${TMPDIR:-/tmp}
@@ -144,12 +153,12 @@ _setup()
 	    do
 		if [ $hour -ne 4 ]
 		then
-		    cp archives/arch_a.$ext $tmp/$namea.$ext
+		    cp $here/archives/arch_a.$ext $tmp/$namea.$ext
 		    touch -t $stampa $tmp/$namea.$ext
 		fi
-		cp archives/arch_b.$ext $tmp/$nameb.$ext
+		cp $here/archives/arch_b.$ext $tmp/$nameb.$ext
 		touch -t $stampb $tmp/$nameb.$ext
-		cp archives/arch_b.$ext $tmp/$namec.$ext
+		cp $here/archives/arch_b.$ext $tmp/$namec.$ext
 		touch -t $stampc $tmp/$namec.$ext
 	    done
 	done
@@ -188,6 +197,10 @@ echo >>$seq_full
 
 # real QA test starts here
 
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
+
 echo | tee -a $seq_full
 echo "=== autosave tests ===" | tee -a $seq_full
 echo "--- destdir dir does not exist ---" | tee -a $seq_full
@@ -198,11 +211,7 @@ cat <<End-of-File >$tmp.control
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
 
-# need to be a place the user $PCP_USER can cd to from pmlogger_daily
-#
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/dir $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
-cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -228,9 +237,7 @@ chmod 555 $tmp.nowrite
 
 _setup
 
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_AUTOSAVE_DIR=/no/such/file $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
-cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -253,15 +260,14 @@ cat <<End-of-File >$tmp.control
 LOCALHOSTNAME	n   n	$tmp	-c ./config
 End-of-File
 
+_setup
+
 mkdir $tmp.ok
 $sudo chown $PCP_USER:$PCP_GROUP $tmp.ok
 $sudo chmod 775 $tmp.ok
+ls -ld $tmp.ok >>$seq_full
 
-_setup
-
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
-cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -307,9 +313,7 @@ done
 
 _setup
 
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
-cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -353,9 +357,7 @@ done
 
 _setup
 
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x never -l $tmp.log"
-cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -397,9 +399,7 @@ End-of-File
 
 _setup
 
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_MERGE_CALLBACK=$tmp.merge $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -x never -k 3 -l $tmp.log"
-cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
@@ -438,15 +438,11 @@ End-of-File
 
 _setup
 
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -c $tmp.control -l $tmp.log"
-cd $here
 [ -f $tmp.log ] && $sudo cat $tmp.log >>$seq_full
 pmlogctl status >>$seq_full
 
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; PCP_COMPRESS_CALLBACK=$tmp.compress $PCP_BINADM_DIR/pmlogger_daily -P -D -c $tmp.control -k 3 -x 0 -l $tmp.log"
-cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log \
