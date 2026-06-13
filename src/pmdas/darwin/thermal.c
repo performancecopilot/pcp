@@ -54,7 +54,8 @@ init_thermal(pmdaIndom *fan_indom)
     if (thermal_initialized)
         return 0;
 
-    pmNotifyErr(LOG_INFO, "init_thermal: initializing thermal monitoring");
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_INFO, "init_thermal: initializing thermal monitoring");
 
     /* Initialize stats structure */
     memset(&thermal_stats, 0, sizeof(thermal_stats));
@@ -71,7 +72,8 @@ init_thermal(pmdaIndom *fan_indom)
         pmNotifyErr(LOG_WARNING, "init_thermal: failed to register for thermal pressure notifications (ret=%d)", ret);
         thermal_pressure_token = -1;
     } else {
-        pmNotifyErr(LOG_DEBUG, "init_thermal: registered for thermal pressure notifications");
+	if (pmDebugOptions.appl0)
+	    pmNotifyErr(LOG_INFO, "init_thermal: registered for thermal pressure notifications");
     }
 
     thermal_initialized = true;
