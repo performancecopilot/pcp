@@ -1,7 +1,12 @@
 #!/bin/sh -e
 #DEBHELPER#
 
-getent group pcpqa >/dev/null || groupadd -r pcpqa
-getent passwd pcpqa >/dev/null || \
-  useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite -m -r -s /bin/bash pcpqa
+# use user pcpqa controls installed in /usr/lib/sysusers.d to
+# create user and group
+#
+if which systemd-sysusers >/dev/null 2>&1
+then
+    systemd-sysusers
+fi
+
 chown -RH pcpqa:pcpqa /var/lib/pcp/testsuite 2>/dev/null || true

@@ -1,7 +1,11 @@
 
-getent group pcp >/dev/null || groupadd -r pcp
-getent passwd pcp >/dev/null || \
-useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
+# use user pcp controls installed in /usr/lib/sysusers.d to
+# create user and group
+#
+if which systemd-sysusers >/dev/null 2>&1
+then
+    systemd-sysusers
+fi
 
 # must match pmns/GNUmakefile, owned by root:root so $PCP_SYSCONF_DIR/pmcd/rc
 # can remove it once PMNS rebuild is done on first pmcd startup
