@@ -129,10 +129,8 @@ static int detect_rapl_packages(void) {
 	FILE *fff;
 	int package,i;
 
-	if (cpu_model<0)
-		return cpu_model;
-
-	pmNotifyErr(LOG_INFO, "Looking for RAPL packages.");
+	if (!isDSO)
+		pmNotifyErr(LOG_INFO, "Looking for RAPL packages.");
 
 	for(i=0;i<MAX_PACKAGES;i++)
 		package_map[i]=-1;
@@ -163,7 +161,8 @@ static int detect_rapl_packages(void) {
 
 	total_cores=i;
 
-	pmNotifyErr(LOG_INFO, "Detected %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
+	if (!isDSO)
+		pmNotifyErr(LOG_INFO, "Detected %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
 
 	return 0;
 }
