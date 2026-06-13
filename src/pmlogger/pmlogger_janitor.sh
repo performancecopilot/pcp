@@ -111,6 +111,12 @@ BEGIN	    	{ i = 0 }
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 here=`$PWDCMND`
+if [ "$PCP_PLATFORM" = darwin ]
+then
+    # strip unhelpful /private prefix from macOS
+    #
+    here=`echo "$here" | sed -e 's;^/private/;/;'`
+fi
 
 # default location
 #
@@ -444,7 +450,7 @@ then
 	# find(1) and awk(1), so just ignore any errors ...
 	#
 	$PCP_AWK_PROG <"$file" 2>&1 '
-NR == 3			{ dir = $1; sub(/\/[^/]*$/, "", dir) }
+NR == 3			{ dir = $1; sub(/\/[^\/]*$/, "", dir) }
 NR == 4 && NF == 1	{ if ($1 == "pmlogger_check" ||
 			      $1 == "reexec") {
 			    print "'"$pid"'	" dir >>"'$tmp/loggers'"

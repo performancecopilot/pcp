@@ -44,6 +44,10 @@
 . $PCP_DIR/etc/pcp.env
 . $PCP_SHARE_DIR/lib/rc-proc.sh
 
+# need to be in a directory the user pcp can access
+#
+cd "$PCP_VAR_DIR"
+
 if [ "$1" = status ]
 then
     $PCP_SERVICES_DIR/pmlogger -v status

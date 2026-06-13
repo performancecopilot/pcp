@@ -94,6 +94,12 @@ BEGIN	    	{ i = 0 }
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 here=`$PWDCMND`
+if [ "$PCP_PLATFORM" = darwin ]
+then
+    # strip unhelpful /private prefix from macOS
+    #
+    here=`echo "$here" | sed -e 's;^/private/;/;'`
+fi
 
 # default location
 #
@@ -534,7 +540,14 @@ _check_archive()
 	    :
 	else
 	    logdir=`dirname "$logfile"`
-	    echo "Directory (`cd "$logdir"; $PWDCMND`) contents:"
+	    __pwddir=`cd "$logdir"; $PWDCMND`
+	    if [ "$PCP_PLATFORM" = darwin ]
+	    then
+		# strip unhelpful /private prefix from macOS
+		#
+		__pwddir=`echo "$__pwddir" | sed -e 's;^/private/;/;'`
+	    fi
+	    echo "Directory ($__pwddir) contents:"
 	    LC_TIME=POSIX ls -la "$logdir"
 	fi
     elif [ -f "$logfile" ]
