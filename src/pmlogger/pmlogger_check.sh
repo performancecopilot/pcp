@@ -345,7 +345,7 @@ _get_configfile()
 {
     # extract the pmlogger configuration file (-c) from a list of arguments
     #
-    echo $@ | sed -n \
+    echo "$@" | sed -n \
         -e 's/^/ /' \
         -e 's/[         ][      ]*/ /g' \
         -e 's/-c /-c/' \
@@ -542,7 +542,7 @@ _check_archive()
 	    logdir=`dirname "$logfile"`
 	    # being cautious in case cd fails ...
 	    #
-	    __pwddir=`cd "$logdir && $PWDCMND`
+	    __pwddir=`cd "$logdir" && $PWDCMND`
 	    [ -z "$__pwddir" ] && __pwddir="$logdir"
 	    if [ "$PCP_PLATFORM" = darwin ]
 	    then
