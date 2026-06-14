@@ -12,6 +12,25 @@ then
 	echo >&2 "pcp-testsuite.postinstall: Error: systemd-sysusers failed to create pcpqa user"
 	exit 1
     fi
+    # older versions of systemd-sysusers don't set the login shell to
+    # anything useful
+    #
+    if grep -q '^pcpqa:.*/nologin' /etc/passwd
+    then
+	for shell in bash sh
+	do
+	    exec=`which $shell 2>/dev/null`
+	    if [ -n "$exec" ]
+	    then
+		if chsh -s "$exec" pcpqa
+		then
+		    break
+		else
+		    echo >&2 "pcp-testsuite.postinstall: Warning: failed to change shell to $exec for pcpqa user"
+		fi
+	    fi
+	done
+    fi
 elif which useradd >/dev/null 2>&1
 then
     # old-style
