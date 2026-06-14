@@ -116,9 +116,19 @@ LDIRT = *.debhelper *.substvars *.log pcp files pcp.postrm \
 	$(PCPIMPORTCOLLECTL) $(PCPIMPORTGANGLIA)
 
 default: pcp.preinst pcp.postinst pcp.postrm rules pcp-gui.install \
-	 pcp-testsuite.install pcp-import-ganglia2pcp.install
+	 pcp-testsuite.install pcp-import-ganglia2pcp.install sysusers
 
 include $(BUILDRULES)
+
+ifeq ($(ENABLE_SYSTEMD),true)
+sysusers: pcp.sysusers pcp-testsuite.sysusers
+pcp.sysusers: pcp.sysusers.in
+	./fixsysusers $@
+pcp-testsuite.sysusers: pcp.sysusers.in
+	./fixsysusers $@
+else
+.PHONY: sysusers
+endif
 
 install: default
 ifeq ($(ENABLE_SYSTEMD),true)

@@ -1,0 +1,54 @@
+#!/bin/sh
+#
+# handle systemusers.d file format change
+# - prior to version 247 there was no shell (6th field) for the "u" record
+#
+
+if [ ! -f "$1".in ]
+then
+    echo >&2 "fixsysusers: Error: $1.in missing"
+    exit 1
+fi
+
+cull=false
+if which systemd-sysusers >/dev/null 2>&1
+then
+    version=`systemd-sysusers --version 2>&1 | awk 'NR == 1 { print $2 }'`
+    [ -n "$version" -a "$version" -lt 247 ] && cull=true
+fi
+
+ifile="$1".in
+ofile="$1"
+
+if $cull
+then
+    # fields maye be enclosed by quotes (") which makes
+    # it a bit tougher for awk
+    #
+    awk <"$ifile" >"$ofile" '
+$1 == "u" && NF > 5 {
+	  printf "%s",$1
+	  outfield = 1
+	  inquote = 0
+	  for (i = 2; i <= NF; i++) {
+	      printf " %s",$i
+	      if (inquote == 0 && $i ~ /^"/)
+		inquote = 1
+	      else if (inquote == 1 && $i ~ /"$/)
+	        inquote = 0
+	      if (! inquote) {
+		outfield++
+		if (outfield == 5) {
+		    break
+		}
+	      }
+	  }
+	  print ""
+	  next
+	}
+	{ print }'
+else
+    cp "$ifile" "$ofile"
+fi
+
+exit 0

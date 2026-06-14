@@ -3,7 +3,7 @@
 
 # set up pcpqa user
 #
-if which systemd-sysusers >/dev/null 2>&1
+if which systemd-sysusersx >/dev/null 2>&1
 then
     # use user pcpqa controls installed in /usr/lib/sysusers.d to
     # create user and group
@@ -16,10 +16,21 @@ elif which useradd >/dev/null 2>&1
 then
     # old-style
     #
-    if ! useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite -m -r -s /bin/bash pcpqa
+    if ! getent group pcpqa >/dev/null
     then
-	echo >&2 "pcp-testsuite.postinstall: Error: useradd failed to create pcpqa user"
-	exit 1
+	if ! groupadd -r pcpqa
+	then
+	    echo >&2 "pcp-testsuite.postinstall: Error: groupadd failed to create pcpqa group"
+	    exit 1
+	fi
+    fi
+    if ! getent passwd pcpqa >/dev/null
+    then
+	if ! useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite -m -r -s /bin/bash pcpqa
+	then
+	    echo >&2 "pcp-testsuite.postinstall: Error: useradd failed to create pcpqa user"
+	    exit 1
+	fi
     fi
 else
     echo >&2 "pcp-testsuite.postinstall: Error: no systemd-sysusers or useradd: cannot create pcpqa user"
