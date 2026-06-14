@@ -2545,7 +2545,7 @@ done
 %selinux_relabel_pre -s targeted
 %endif
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1600
-systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp-testsuite.conf - < %{_topdir}/debian/pcp-testsuite.sysusers
+systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp-testsuite.conf - < %{_topdir}/debian/pcp-testsuite.sysusers.in
 %else
 getent group pcpqa >/dev/null || groupadd -r pcpqa
 getent passwd pcpqa >/dev/null || \
@@ -2595,7 +2595,7 @@ fi
 
 %pre
 %if 0%{?fedora} >= 32 || 0%{?rhel} >= 9 || 0%{?suse_version} >= 1600
-systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp.conf - < %{_topdir}/debian/pcp.sysusers
+systemd-sysusers --replace=@pcp_systemdsysusers_dir@/pcp.conf - < %{_topdir}/debian/pcp.sysusers.in
 %else
 getent group pcp >/dev/null || groupadd -r pcp
 getent passwd pcp >/dev/null || \
