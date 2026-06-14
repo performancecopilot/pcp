@@ -94,6 +94,13 @@ enum {
   AMDGPU_REFRESHER_COUNT
 };
 
+char *refresher_name[] = {
+  "DRMDeviceGetName", "DRMDeviceGetGPUInfo", "DRMDeviceGetGPUClock",
+  "DRMDeviceGetTemperature", "DRMDeviceGetGPULoad",
+  "DRMDeviceGetGPUAveragePower", "DRMDeviceGetMemoryInfo",
+  "DRMDeviceGetMemoryClock"
+};
+
 struct {
     int (*refresher)(amdgpu_device_handle, void *);
     uint32_t needs_refresh;
@@ -280,9 +287,12 @@ static int setup_gcard_indom(void) {
   return 0;
 }
 
+#define FAIL_REPORT_LIMIT 10
+
 static int refresh(pcp_amdgpuinfo_t *amdgpuinfo, uint32_t to_refresh)
 {
   int i;
+  static int nfail = 0;		/* used to throttle failure reporting */
 
   if (!drm_initialized) {
       int ret = setup_gcard_indom();
@@ -329,15 +339,34 @@ static int refresh(pcp_amdgpuinfo_t *amdgpuinfo, uint32_t to_refresh)
       ret = amd_refresher[to_refresh].refresher(info->amd_device, param);
 
       if (ret != DRM_SUCCESS) {
-	  /* Mark all metrics that depend on the same refresher as failed */
-	  for (int j = 0; j < CLUSTER_COUNT; j++)
-	    for (int k = 0; k < MAX_ITEM_COUNT; k++) {
-		if (&amd_refresher[to_refresh] == refresher_list[j][k])
-		  info->failed[j][k] = 1;
-	    }
-
-	  continue;
+	  if (++nfail < FAIL_REPORT_LIMIT) {
+	    pmNotifyErr(LOG_WARNING, "refresh: refresher[%d] %s failed: %d\n", to_refresh, refresher_name[to_refresh], ret);
+	  }
+	  else if (nfail == FAIL_REPORT_LIMIT) {
+	    pmNotifyErr(LOG_WARNING, "refresh: further failure reporting suppressed ...\n");
+	  }
       }
+
+      /* update state for all metrics that depend on the same refresher */
+      for (int j = 0; j < CLUSTER_COUNT; j++) {
+	for (int k = 0; k < MAX_ITEM_COUNT; k++) {
+	  if (&amd_refresher[to_refresh] == refresher_list[j][k]) {
+	    if (ret != DRM_SUCCESS && info->failed[j][k] == 0) {
+	      info->failed[j][k] = 1;
+	      if (nfail < FAIL_REPORT_LIMIT)
+		fprintf(stderr, "mark PMID *:%d:%d failed\n", j, k);
+	    }
+	    else if (ret == DRM_SUCCESS && info->failed[j][k] == 1) {
+	      info->failed[j][k] = 0;
+	      if (nfail < FAIL_REPORT_LIMIT)
+		fprintf(stderr, "mark PMID *:%d:%d OK\n", j, k);
+	    }
+	  }
+	}
+      }
+
+      if (ret != DRM_SUCCESS)
+	continue;
 
       if (param == &memory) {
 	  info->memory = memory; /* struct copy */
