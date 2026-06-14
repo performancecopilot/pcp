@@ -3,7 +3,7 @@
 
 # set up pcpqa user
 #
-if which systemd-sysusersx >/dev/null 2>&1
+if which systemd-sysusers >/dev/null 2>&1
 then
     # use user pcpqa controls installed in /usr/lib/sysusers.d to
     # create user and group
