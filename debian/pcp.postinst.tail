@@ -1,10 +1,27 @@
 
-# use user pcp controls installed in /usr/lib/sysusers.d to
-# create user and group
+# set up pcp user
 #
 if which systemd-sysusers >/dev/null 2>&1
 then
-    systemd-sysusers
+    # use user pcp controls installed in /usr/lib/sysusers.d to
+    # create user and group
+    if ! systemd-sysusers
+    then
+	echo >&2 "pcp.postinstall: Error: systemd-sysusers failed to create pcp user"
+	exit 1
+    fi
+elif which useradd >/dev/null 2>&1
+then
+    # old-style
+    #
+    if ! useradd -c "Performance Co-Pilot" -g pcp -d /var/lib/pcp -M -r -s /usr/sbin/nologin pcp
+    then
+	echo >&2 "pcp.postinstall: Error: useradd failed to create pcp user"
+	exit 1
+    fi
+else
+    echo >&2 "pcp.postinstall: Error: no systemd-sysusers or useradd: cannot create pcp user"
+    exit 1
 fi
 
 # must match pmns/GNUmakefile, owned by root:root so $PCP_SYSCONF_DIR/pmcd/rc

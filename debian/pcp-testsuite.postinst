@@ -1,12 +1,29 @@
 #!/bin/sh -e
 #DEBHELPER#
 
-# use user pcpqa controls installed in /usr/lib/sysusers.d to
-# create user and group
+# set up pcpqa user
 #
 if which systemd-sysusers >/dev/null 2>&1
 then
-    systemd-sysusers
+    # use user pcpqa controls installed in /usr/lib/sysusers.d to
+    # create user and group
+    if ! systemd-sysusers
+    then
+	echo >&2 "pcp-testsuite.postinstall: Error: systemd-sysusers failed to create pcpqa user"
+	exit 1
+    fi
+elif which useradd >/dev/null 2>&1
+then
+    # old-style
+    #
+    if ! useradd -c "PCP Quality Assurance" -g pcpqa -d /var/lib/pcp/testsuite -m -r -s /bin/bash pcpqa
+    then
+	echo >&2 "pcp-testsuite.postinstall: Error: useradd failed to create pcpqa user"
+	exit 1
+    fi
+else
+    echo >&2 "pcp-testsuite.postinstall: Error: no systemd-sysusers or useradd: cannot create pcpqa user"
+    exit 1
 fi
 
 chown -RH pcpqa:pcpqa /var/lib/pcp/testsuite 2>/dev/null || true
