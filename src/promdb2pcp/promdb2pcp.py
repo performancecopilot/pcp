@@ -260,8 +260,11 @@ def load_json(filepath):
     """ Load a Prometheus query_range API JSON response file. """
     if not os.path.exists(filepath):
         return None
-    with open(filepath) as f:
-        data = json.load(f)
+    try:
+        with open(filepath) as f:
+            data = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
     if data.get('status') != 'success':
         return None
     return data.get('data', {}).get('result', [])
@@ -308,6 +311,9 @@ def register_simple_metrics(log, data_dir, verbose):
                         if r['metric'].get('__name__') == prom_name]
             if not matching:
                 continue
+            if len(matching) > 1:
+                print('Warning: %s has %d matching series, using first'
+                      % (prom_name, len(matching)), file=sys.stderr)
 
             r = matching[0]
             units = pmapi.pmUnits(*units_args)
@@ -318,8 +324,9 @@ def register_simple_metrics(log, data_dir, verbose):
                                  PM_INDOM_NULL, sem, units)
                 log.pmiPutText(PM_TEXT_PMID, PM_TEXT_ONELINE,
                                pmid, helptext)
-            except pmi.pmiErr:
-                pass
+            except pmi.pmiErr as err:
+                print(f"PCP metric registration failed for {pcp_name}: {err}", file=sys.stderr)
+                continue
 
             item += 1
             values = {}
@@ -487,9 +494,16 @@ def convert(data_dir, archive_name, hostname, verbose):
     log = pmi.pmiLogImport(archive_name)
 
     meta_file = os.path.join(data_dir, 'metadata.json')
+    meta = None
     if os.path.exists(meta_file):
-        with open(meta_file) as f:
-            meta = json.load(f)
+        try:
+            with open(meta_file) as f:
+                meta = json.load(f)
+        except (OSError, json.JSONDecodeError):
+            print('Warning: failed to parse %s, using defaults'
+                  % meta_file, file=sys.stderr)
+
+    if meta:
         host = meta.get('node', hostname)
         log.pmiSetHostname(host)
         tz_str = meta.get('timezone', 'UTC')
