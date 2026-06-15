@@ -26,15 +26,10 @@ test -d "$PCP_PMDAS_DIR/db2" || _notrun "IBM Db2 PMDA not installed"
 _db2_conf="$PCP_SYSCONF_DIR/db2/db2.conf"
 
 # extract connection settings from [connection] and [authentication] sections
-eval `$sudo awk -F= '
-    /^\[connection\]/{s="connection";next}
-    /^\[authentication\]/{s="authentication";next}
-    /^\[/{s="";next}
-    s=="connection" && /^hostname=/{print "hostname=" $2}
-    s=="connection" && /^port=/{print "port=" $2}
-    s=="authentication" && /^username=/{print "username=" $2}
-    s=="authentication" && /^password=/{print "password=" $2}
-' "$_db2_conf" 2>/dev/null`
+hostname=`$sudo awk -F= '/^\[connection\]/{s=1;next} /^\[/{s=0;next} s && /^hostname=/{print $2;exit}' "$_db2_conf" 2>/dev/null`
+port=`$sudo awk -F= '/^\[connection\]/{s=1;next} /^\[/{s=0;next} s && /^port=/{print $2;exit}' "$_db2_conf" 2>/dev/null`
+username=`$sudo awk -F= '/^\[authentication\]/{s=1;next} /^\[/{s=0;next} s && /^username=/{print $2;exit}' "$_db2_conf" 2>/dev/null`
+password=`$sudo awk -F= '/^\[authentication\]/{s=1;next} /^\[/{s=0;next} s && /^password=/{print $2;exit}' "$_db2_conf" 2>/dev/null`
 
 # extract the database names list from [databases] section
 _db2_names=`$sudo awk -F= '

@@ -2738,9 +2738,6 @@ done
 %{pmda_remove "$1" "snmp"}
 %endif
 
-%preun pmda-db2
-%{pmda_remove "$1" "db2"}
-
 %if "@pmda_mssql@" == "true"
 %preun pmda-mssql
 %{pmda_remove "$1" "mssql"}
@@ -2856,6 +2853,9 @@ done
 
 %preun pmda-lmsensors
 %{pmda_remove "$1" "lmsensors"}
+
+%preun pmda-db2
+%{pmda_remove "$1" "db2"}
 
 %preun pmda-netcheck
 %{pmda_remove "$1" "netcheck"}
@@ -3130,8 +3130,6 @@ fi
 
 %files pmda-lustrecomm -f pcp-pmda-lustrecomm-files.rpm
 
-%files pmda-db2 -f pcp-pmda-db2-files.rpm
-
 %if "@pmda_mssql@" == "true"
 %files pmda-mssql -f pcp-pmda-mssql-files.rpm
 %endif
@@ -3190,6 +3188,8 @@ fi
 %files pmda-haproxy -f pcp-pmda-haproxy-files.rpm
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
+
+%files pmda-db2 -f pcp-pmda-db2-files.rpm
 
 %files pmda-netcheck -f pcp-pmda-netcheck-files.rpm
 

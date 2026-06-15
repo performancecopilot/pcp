@@ -18,6 +18,7 @@
 # pylint: disable=bad-continuation,line-too-long,too-many-lines,bare-except
 # pylint: disable=consider-using-dict-items
 
+import json
 import os
 import sys
 import time
@@ -67,16 +68,6 @@ class DB2PMDA(PMDA):
         string = string.replace("'", "\\'")
         string = string.replace(";", "\\;")
         return string
-
-    def intobool(self, string):
-        """ convert configuration input into a boolean """
-        if string is None:
-            return False
-        elif not isinstance(string, str):
-            string = str(string)
-        if string.lower() in ['true', '1', 't', 'y', 'yes']:
-            return True
-        return False
 
     def __init__(self, name, domain):
         """ constructor """
@@ -1423,13 +1414,14 @@ class DB2PMDA(PMDA):
             Iterates all configured databases; the database name is the
             instance key in the values dict and in indom 6. """
         meta = clusters[cluster]
-        instances = {}
+        # Pre-populate all configured databases so transient query failures
+        # do not remove a database from indom 6 for all db-scoped metrics.
+        instances = {dbname: c_int(1) for dbname in self.databases}
         for dbname in self.databases:
             rows = self.db2_exec(dbname, meta[self.CLUSTER_QUERY])
             if not rows:
                 continue
             row = rows[0]
-            instances[dbname] = c_int(1)
             for item in range(items):
                 pmid = self.PM_ID(cluster, item)
                 if pmid in self.metrics:
@@ -1516,12 +1508,13 @@ class DB2PMDA(PMDA):
             self.INDOM_ID(5): 'latch',
         }
 
-        labels = '"database":"%s"' % db
+        result = {'database': db}
         if indom == self.INDOM_ID(4) and len(parts) >= 3:
-            labels += ',"application":"%s","handle":"%s"' % (parts[1], parts[2])
+            result['application'] = parts[1]
+            result['handle'] = parts[2]
         elif indom in label_keys and len(parts) >= 2:
-            labels += ',"%s":"%s"' % (label_keys[indom], parts[1])
-        return '{%s}' % labels
+            result[label_keys[indom]] = parts[1]
+        return json.dumps(result, separators=(',', ':'))
 
     def setup_indoms(self):
         """ register all indom objects with help text """
@@ -1541,7 +1534,7 @@ class DB2PMDA(PMDA):
 
     def config(self, filename, sections):
         """ parse ini-style config file, raise on missing section """
-        parser = configparser.ConfigParser()
+        parser = configparser.RawConfigParser()
         parser.read(filename)
         params = {}
         for section in sections:

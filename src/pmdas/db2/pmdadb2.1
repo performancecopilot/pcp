@@ -65,11 +65,28 @@ Per-connection counters from
 covering CPU time, row operations, lock activity, and transaction counts.
 Instance names are \fIdbname\fP::\fIappname\fP::\fIhandle\fP.
 .TP
+.B db2.latch
+Per-latch-type extended wait statistics from
+.BR MON_GET_LATCH ,
+covering cumulative wait time and event count.
+Only latch types that have experienced at least one extended wait event
+appear in the instance domain.
+Instance names are \fIdbname\fP::\fIlatch_name\fP.
+.TP
 .B db2.log
 Transaction log I/O counters from
 .BR MON_GET_TRANSACTION_LOG ,
-covering log write and read operations, physical I/O counts, and
-the number of log pages found in the in-memory buffer.
+covering log write and read operations, physical I/O counts, buffer-full
+events, and current used and available log space.
+The instance domain contains one entry per monitored database name.
+.TP
+.B db2.pkg_cache
+Package cache aggregate counters from
+.BR MON_GET_PKG_CACHE_STMT ,
+summarising the entire statement cache without a per-statement instance
+domain: cached statement count, total executions, CPU time, rows read,
+sort operations, and sort overflows.
+The instance domain contains one entry per monitored database name.
 .SH CONFIGURATION
 Firstly, \f3pmdadb2\f1 requires installation of the
 .B ibm_db
