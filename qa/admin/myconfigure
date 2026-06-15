@@ -220,11 +220,17 @@ echo "Using: $configtools configure $configopts ..."
 
 if [ -x ./configure ]
 then
+    configure=./configure
     if which dh_auto_configure >/dev/null 2>&1
     then
-	configure='dh_auto_configure --'
-    else
-	configure=./configure
+	# looking good ... but for a virgin git tree we don't
+	# have debian/control yet, so we may need to use ./configure
+	# to bootstrap us ...
+	#
+	if [ -f debian/contrtol ]
+	then
+	    configure='dh_auto_configure --'
+	fi
     fi
 else
     echo "Arrgh, cannot find the configure script!"

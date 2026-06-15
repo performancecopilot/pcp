@@ -39,7 +39,7 @@ _kill_my_pmloggers()
     | $PCP_AWK_PROG '{ print $2 }' \
     | while read pid
     do
-	sudo kill -TERM $pid
+	$sudo kill -TERM $pid
     done
 }
 

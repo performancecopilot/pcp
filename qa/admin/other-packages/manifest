@@ -760,7 +760,7 @@ slackpkg?	Net::SNMP	[cpan(Net::SNMP)]
 pacman?	Net::SNMP		[extra/perl-net-snmp]
 brew?	Net::SNMP		[base Darwin install]
 # -- Archive::Zip
-dpkg?		?		[? {dpkg-based, Debian, Ubuntu, LinuxMint, MX, ...}]
+dpkg?		?		[libarchive-zip-perl]
 rpm?		?		[? {rpm-based, RHEL, Fedora, OpenSuSE, ...}]
 emerge?		?		[? {Gentoo}]
 pkgin?		?		[? {NetBSD}]
@@ -1636,7 +1636,7 @@ pacman?		ibdev2netdev	[N/A]
 brew?		ibdev2netdev	[? {MacOS?}]
 
 # -- qshape (for postfix PMDA)
-dpkg?		?		[? {dpkg-based, Debian, Ubuntu, LinuxMint, MX, ...}]
+dpkg?		?		[postfix]
 rpm?		/usr/sbin/qshape	[postfix-perl-scripts]
 suse?		/usr/share/doc/packages/postfix-doc/auxiliary/qshape/qshape.pl		[postfix-doc]
 emerge?		?		[? {Gentoo}]

@@ -2230,6 +2230,7 @@ suse
 1690 pmseries local
 1691 pmseries local
 1692 pmda.pmcd local
+1693:reserved libpcp_import python
 1694 pidstat local python pcp pmlogextract
 1695 pmproxy valgrind local
 1696 pmproxy valgrind local
@@ -2265,6 +2266,7 @@ suse
 1727 pmproxy libpcp_web pmda.openmetrics local
 1735 python pmimport local
 1740 pmda.proc local
+1744 pmseries local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
 1747 pmlogger labels local
 1748 atop local
@@ -2385,5 +2387,7 @@ suse
 1997 pcp nfsiostat python local
 1998 pmda.rds local python
 1999 pmda.nixl local python
+2000 pmda.btrfs local valgrind
+2001 pmda.btrfs local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

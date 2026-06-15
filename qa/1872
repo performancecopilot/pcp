@@ -74,9 +74,9 @@ key_server_path=`_find_key_server_modules`
 key_server_search=`_find_key_server_search`
 keysearch="$key_server_path/$key_server_search.$DSO_SUFFIX"
 # workaround until https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=989385 is fixed
-sudo chmod +x $keysearch
+$sudo chmod +x $keysearch
 # search module is only accessible by the key server user account
-sudo -u $key_server_name $key_server --port $key_server_port --save "" --loadmodule $keysearch > $tmp.keys 2>&1 &
+$sudo -u $key_server_name $key_server --port $key_server_port --save "" --loadmodule $keysearch > $tmp.keys 2>&1 &
 _check_key_server_ping $key_server_port
 port="-p $key_server_port"
 echo

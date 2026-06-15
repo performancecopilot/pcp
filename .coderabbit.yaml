@@ -1,7 +1,26 @@
 # .coderabbit.yaml
 inheritance: true
 reviews:
+
   auto_review:
     enabled: true
-    # Set to true if you want reviews to start while the PR is still a Draft
+    auto_incremental_review: true
     drafts: false
+    base_branches:
+      - "main"
+
+  pre_merge_checks:
+    docstrings:
+      mode: off
+ 
+  path_instructions:
+
+    # ── C/C++ ────────────────────────────────────────────────────
+    # Skills: safe-c-functions, compiler-hardening
+    - path: "**/*.{c,cpp,h,hpp}"
+      instructions: |
+        C/C++ security:
+        - Banned: gets, sprintf, strcpy, strcat, strtok
+        - Use pmfstring, pmsprintf, pmstrncpy, pmstrncat, pmstrlen, bounded APIs
+        - Nullify pointers after free; no use-after-free
+        - Integer overflow: check arithmetic on untrusted sizes

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2014, 2018, 2025 Red Hat.
+# Copyright (c) 2014, 2018, 2025-2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -26,7 +26,19 @@
 #
 # blank lines before the @ line are ignored
 #
-@ CIFS.0 Instance domain for mounted CIFS filesystems
+@ 121.0 Instance domain for mounted CIFS filesystems
+
+@ 121.1 Instance domain for CIFS servers
+Each instance represents a remote CIFS server with an active connection,
+identified by its connection ID as reported in /proc/fs/cifs/DebugData.
+
+@ 121.2 Instance domain for CIFS sessions
+Each instance represents an active CIFS session, identified by the server
+address and session number as reported in /proc/fs/cifs/DebugData.
+
+@ 121.3 Instance domain for CIFS shares
+Each instance represents a mounted CIFS share, identified by the share
+name as reported in /proc/fs/cifs/DebugData.
 
 @ cifs.session Number of sessions
 Count of the number of active CIFS sessions.

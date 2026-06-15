@@ -160,22 +160,41 @@ then
     echo "Arrgh! dir \"qa\" does not exist"
     exit
 fi
-cd qa
-if [ ! -d src ]
-then
-    echo "Arrgh! dir \"qa/src\" does not exist"
-    exit
-fi
-cd src
-$PCP_MAKE_PROG clean-exec
-cd ..
+cd qa || ( echo "Arrgh! cd qa failed"; exit )
+# make clean or equivalent in all qa dirs with apps
+#
+find . -maxdepth 1 -type d \
+| while read dir
+do
+    [ "$dir" = "." ] && continue
+    dir=`echo "$dir" | sed -e 's;^\./;;'`
+    # only process the directories known to git
+    #
+    git ls-files "$dir" >$tmp.tmp
+    [ -s $tmp.tmp ] || continue
+    cd "$dir" || ( echo "Arrgh! cd $dir failed"; exit )
+    case "$dir"
+    in
+	.*)		;;
+			# want tmparch to stay the same to
+			# aid triage over repeated QA runs
+	tmparch)	;;
+	src)		$PCP_MAKE_PROG clean-exec
+			;;
+	*)		$PCP_MAKE_PROG clean
+			;;
+    esac
+    cd .. || ( echo "Arrgh! cd .. from $dir failed"; exit )
+done
+
 if $PCP_MAKE_PROG
 then
     :
 else
-    echo "Error: make failed!"
+    echo "Error: make failed in qa directory!"
     exit
 fi
+cd ..
 
 # success
 #

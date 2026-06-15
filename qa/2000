@@ -1,0 +1,69 @@
+#!/bin/sh
+# PCP QA Test No. 2000
+# Test Btrfs PMDA with valgrind
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_check_valgrind
+[ $PCP_PLATFORM = linux ] || _notrun "Btrfs PMDA is Linux-specific"
+[ -d $PCP_PMDAS_DIR/btrfs ] || _notrun "Btrfs PMDA not installed"
+
+status=1
+trap "cd $here; $sudo rm -rf $tmp $tmp.*; exit \$status" 0 1 2 3 15
+
+if [ ! -f $PCP_PMDAS_DIR/btrfs/help.pag ]
+then
+    cd $PCP_PMDAS_DIR/btrfs
+    $sudo $PCP_BINADM_DIR/newhelp -n root_btrfs -o help <help
+    cd $here
+fi
+
+_filter()
+{
+    $PCP_AWK_PROG '
+BEGIN			{ outfile = "'$tmp.0'" }
+/^=== std err ===$/	{ outfile = "'$tmp.1'" }
+			{ print >outfile }'
+    if [ ! -f $tmp.0 ]
+    then
+	echo "Botch: no part 0 output?"
+	touch $tmp.0
+    fi
+    if [ ! -f $tmp.1 ]
+    then
+	echo "Botch: no part 1 output?"
+	touch $tmp.1
+    fi
+    ( $here/src/sortinst <$tmp.0; cat $tmp.1 ) \
+    | sed \
+        -e "s,$PCP_PMDAS_DIR,PCP_PMDAS_DIR,g" \
+        -e "s,$PCP_VAR_DIR,PCP_VAR_DIR,g" \
+    #end
+}
+
+root=$tmp.root
+pmns=$PCP_PMDAS_DIR/btrfs/root_btrfs
+pmda=$PCP_PMDAS_DIR/btrfs/pmda_btrfs.so,btrfs_init
+tgz=$here/btrfs/btrfs-stats.v0.tgz
+$sudo rm -f $PCP_VAR_DIR/config/pmda/41.*
+$sudo rm -fr $root
+mkdir $root || _fail "root in use when processing $tgz"
+cd $root
+$sudo tar xzf $tgz
+BTRFS_PATH=$root/btrfs; export BTRFS_PATH
+metrics=`pminfo -n $pmns btrfs | LC_COLLATE=POSIX sort`
+echo "== Valgrind checking metric descriptors and values"
+_run_valgrind pminfo -L -K clear -K add,41,$pmda -n $pmns -dfmtT $metrics | _filter
+echo && echo "== done" && echo
+cd $here
+
+# success, all done
+status=0
+exit

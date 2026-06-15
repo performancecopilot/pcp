@@ -199,6 +199,11 @@ Conflicts: librapi < 0.16
 Obsoletes: pcp-pmda-kvm < 4.1.1
 Provides: pcp-pmda-kvm = %{version}-%{release}
 
+# CIFS PMDA moved into pcp (kernel metrics, default on)
+Obsoletes: pcp-pmda-cifs < 7.1.6
+Obsoletes: pcp-pmda-cifs-debuginfo < 7.1.6
+Provides: pcp-pmda-cifs = %{version}-%{release}
+
 # RPM PMDA retired completely
 Obsoletes: pcp-pmda-rpm < 5.3.2
 Obsoletes: pcp-pmda-rpm-debuginfo < 5.3.2
@@ -1830,19 +1835,6 @@ collecting metrics about the Bash shell.
 # end pcp-pmda-bash
 
 #
-# pcp-pmda-cifs
-#
-%package pmda-cifs
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for the CIFS protocol
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%description pmda-cifs
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the Common Internet Filesytem.
-# end pcp-pmda-cifs
-
-#
 # pcp-pmda-cisco
 #
 %package pmda-cisco
@@ -2119,9 +2111,6 @@ Requires: pcp-pmda-dm = %{version}-%{release}
 %if !%{disable_bpf}
 Requires: pcp-pmda-bpf = %{version}-%{release}
 %endif
-%if !%{disable_bpftrace}
-Requires: pcp-pmda-bpftrace = %{version}-%{release}
-%endif
 %if !%{disable_python3}
 Requires: pcp-pmda-nfsclient = %{version}-%{release}
 Requires: pcp-pmda-openmetrics = %{version}-%{release}
@@ -2316,20 +2305,20 @@ for f in `echo $BACKDIR/debian/lib*.{install,dirs}`
 do
     case "$f"
     in
-	*-dev.*)
-		# skip libpcp<foo>-dev.{install,dirs} ones, they'll
-		# be collected in $DEVFILELIST
-		;;
-	*)
-		if [ -f "$f" ]
-		then
-		    # fix Debian Multiarch pathname
-		    # usr/lib/*/libpcp... => usr/lib/libpcp...
-		    fix_f=`basename "$f"`.fixed
-		    sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
-		    LIBFILELIST="$LIBFILELIST $fix_f"
-		fi
-		;;
+        *-dev.*)
+                # skip libpcp<foo>-dev.{install,dirs} ones, they'll
+                # be collected in $DEVFILELIST
+                ;;
+        *)
+                if [ -f "$f" ]
+                then
+                    # fix Debian Multiarch pathname
+                    # usr/lib/*/libpcp... => usr/lib/libpcp...
+                    fix_f=`basename "$f"`.fixed
+                    sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
+                    LIBFILELIST="$LIBFILELIST $fix_f"
+                fi
+                ;;
     esac
 done
 DEVFILELIST=''
@@ -2337,11 +2326,11 @@ for f in `echo $BACKDIR/debian/lib*-dev.{install,dirs}`
 do
     if [ -f "$f" ]
     then
-	# fix Debian Multiarch pathname
-	# usr/lib/*/libpcp... => usr/lib/libpcp...
-	fix_f=`basename "$f"`.fixed
-	sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
-	DEVFILELIST="$DEVFILELIST $fix_f"
+        # fix Debian Multiarch pathname
+        # usr/lib/*/libpcp... => usr/lib/libpcp...
+        fix_f=`basename "$f"`.fixed
+        sed -e 's@usr/lib/[*]/@usr/lib/@' <"$f" >"$fix_f"
+        DEVFILELIST="$DEVFILELIST $fix_f"
     fi
 done
 
@@ -2453,7 +2442,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/bind2(/|$)' >pcp-pmda-bind2-files
 basic_manifest | keep '(etc/pcp|pmdas)/bonding(/|$)' >pcp-pmda-bonding-files
 basic_manifest | keep '(etc/pcp|pmdas)/bpf(/|$)' >pcp-pmda-bpf-files
 basic_manifest | keep '(etc/pcp|pmdas)/bpftrace(/|$)' >pcp-pmda-bpftrace-files
-basic_manifest | keep '(etc/pcp|pmdas)/cifs(/|$)' >pcp-pmda-cifs-files
 basic_manifest | keep '(etc/pcp|pmdas)/cisco(/|$)' >pcp-pmda-cisco-files
 basic_manifest | keep '(etc/pcp|pmdas)/dbping(/|$)' >pcp-pmda-dbping-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/dm(/|$)' >pcp-pmda-dm-files
@@ -2530,7 +2518,7 @@ rm -f packages.list
 for pmda_package in \
     activemq amdgpu apache \
     bash bind2 bonding bpf bpftrace \
-    cifs cisco \
+    cisco \
     dbping denki docker dm ds389 ds389log \
     elasticsearch \
     farm \
@@ -2704,7 +2692,7 @@ needinstall='sample simple'
 for PMDA in $needinstall ; do
     if ! grep -q "$PMDA/pmda$PMDA" "$PCP_PMCDCONF_PATH"
     then
-	%{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
+        %{install_file "$PCP_PMDAS_DIR/$PMDA" .NeedInstall}
     fi
 done
 %if 0%{?rhel}
@@ -2941,9 +2929,6 @@ exit 0
 
 %preun pmda-bash
 %{pmda_remove "$1" "bash"}
-
-%preun pmda-cifs
-%{pmda_remove "$1" "cifs"}
 
 %preun pmda-cisco
 %{pmda_remove "$1" "cisco"}
@@ -3341,8 +3326,6 @@ fi
 %files pmda-apache -f pcp-pmda-apache-files.rpm
 
 %files pmda-bash -f pcp-pmda-bash-files.rpm
-
-%files pmda-cifs -f pcp-pmda-cifs-files.rpm
 
 %files pmda-cisco -f pcp-pmda-cisco-files.rpm
 

@@ -3,7 +3,4 @@
  */
 
 #include <stdpmid>
-
-root { cifs }
-
-#include "pmns"
+#include "root_cifs"

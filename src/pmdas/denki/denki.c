@@ -2,7 +2,7 @@
  * Denki (電気, Japanese for 'electricity'), PMDA for electricity related 
  * metrics
  *
- * Copyright (c) 2012-2014,2017,2021-2025 Red Hat.
+ * Copyright (c) 2012-2014,2017,2021-2026 Red Hat.
  * Copyright (c) 1995,2004 Silicon Graphics, Inc.  All Rights Reserved.
  * 
  * This program is free software; you can redistribute it and/or modify it
@@ -29,7 +29,7 @@
 
 #define MAX_RAPL_DOMAINS	10
 #define MAX_PACKAGES		16
-#define MAX_CPUS			2147483648
+#define MAX_CPUS		2147483648
 #define MAX_BATTERIES		8
 
 #define PACKAGE	1
@@ -95,9 +95,9 @@ double msr_energy[5][MAX_PACKAGES];
 
 static double cpu_energy_units[MAX_PACKAGES],dram_energy_units[MAX_PACKAGES];
 
-int has_rapl_sysfs = 0, has_rapl_msr = 0, has_bat = 0;			/* Has the system any rapl or battery? */
-int has_msr_dram=0, has_msr_pp0=0, has_msr_pp1=0, has_msr_psys=0, msr_different_units=0;
-int cpu_model=0, cpu_core=0, msr_instances=0;
+int has_rapl_sysfs, has_rapl_msr, has_bat;			/* Has the system any rapl or battery? */
+int has_msr_dram, has_msr_pp0, has_msr_pp1, has_msr_psys, msr_different_units;
+int cpu_model, cpu_core, msr_instances;
 
 static int total_cores, total_packages;							/* detected cpu cores and rapl packages */
 static int package_map[MAX_PACKAGES];
@@ -117,6 +117,10 @@ static long long read_msr(int, int);
 
 static char rootpath[MAXPATHLEN] = "/";			/* path to rootpath, gets changed for regression tests */
 
+static int isDSO = 1;		/* =0 I am a daemon */
+static char *username;
+
+
 /* detect RAPL packages and cpu cores, used for both RAPL-sysfs and RAPL-MSX
    This also detects cpu cores on Asahi Linux, despite no RAPL available there. */
 static int detect_rapl_packages(void) {
@@ -125,7 +129,8 @@ static int detect_rapl_packages(void) {
 	FILE *fff;
 	int package,i;
 
-	pmNotifyErr(LOG_INFO, "Looking for RAPL packages.");
+	if (!isDSO)
+		pmNotifyErr(LOG_INFO, "Looking for RAPL packages.");
 
 	for(i=0;i<MAX_PACKAGES;i++)
 		package_map[i]=-1;
@@ -156,7 +161,8 @@ static int detect_rapl_packages(void) {
 
 	total_cores=i;
 
-	pmNotifyErr(LOG_INFO, "Detected %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
+	if (!isDSO)
+		pmNotifyErr(LOG_INFO, "Detected %d cpu-cores and %d rapl-packages.", total_cores, total_packages);
 
 	return 0;
 }
@@ -340,7 +346,8 @@ static int detect_cpu(void) {
 			pmNotifyErr(LOG_INFO, "Processor family: Atom");
 			break;
 		default:
-			pmNotifyErr(LOG_INFO, "Unsupported processor model %d\n",model);
+			if (!isDSO)	/* quiet startup */
+				pmNotifyErr(LOG_INFO, "Unsupported processor model %d\n",model);
 			model=-1;
 			break;
 	}
@@ -412,8 +419,9 @@ static int detect_cpu(void) {
 			break;
 	}
 
-	pmNotifyErr(LOG_INFO, "Found extra MSRs: dram %d, pp0 %d, pp1 %d, psys %d\n",
-		has_msr_dram,has_msr_pp0,has_msr_pp1,has_msr_psys);
+	if (model != -1)
+		pmNotifyErr(LOG_INFO, "Found extra MSRs: dram %d, pp0 %d, pp1 %d, psys %d\n",
+			has_msr_dram,has_msr_pp0,has_msr_pp1,has_msr_psys);
 
 	return model;
 }
@@ -424,10 +432,8 @@ static int read_rapl_msr(int core) {
 	long long	result;
 	int			j;
 
-	if (cpu_model<0) {
-		pmNotifyErr(LOG_INFO, "Unsupported CPU model %d\n",cpu_model);
-		return -1;
-	}
+	if (cpu_model<0)
+		return cpu_model;
 
 	for(j=0;j<total_packages;j++) {
 
@@ -520,9 +526,7 @@ static int detect_rapl_sysfs(void) {			/* detect RAPL offered via /sysfs */
 
 	pmsprintf(filename,sizeof(filename),"%s/sys/class/powercap/intel-rapl",rootpath);
 	directory = opendir(filename);
-	if ( directory == NULL ) {
-		pmNotifyErr(LOG_INFO, "RAPL via /sys-filesystem not found.");
-	} else {
+	if ( directory != NULL ) {
 		pmNotifyErr(LOG_INFO, "RAPL via /sys-filesystem was found.");
 		has_rapl_sysfs=1;
 		closedir(directory);
@@ -564,10 +568,8 @@ static int detect_rapl_msr(int core) {
 	int			j;
 	char		dirname[MAXPATHLEN];
 
-	if (cpu_model<0) {
-		pmNotifyErr(LOG_INFO, "CPU model %d not supported for RAPL MSR.\n",cpu_model);
-		return -1;
-	}
+	if (cpu_model<0)
+		return cpu_model;
 
 	pmsprintf(dirname,sizeof(dirname),"%s/dev/cpu/0/",rootpath);
 	directory = opendir (dirname);
@@ -905,9 +907,6 @@ static pmdaMetric metrictab[] = {
 	{ PMDA_PMID(1,2), PM_TYPE_32, BAT_CAPACITY_INDOM, PM_SEM_INSTANT,
 	PMDA_PMUNITS(0,0,0,0,0,0) }, }
 };
-
-static int	isDSO = 1;		/* =0 I am a daemon */
-static char	*username;
 
 static void denki_rapl_sysfs_clear(void);
 static void denki_rapl_sysfs_init(void);
@@ -1336,9 +1335,10 @@ denki_init(pmdaInterface *dp)
 	pmdaInit(dp, indomtab, sizeof(indomtab)/sizeof(indomtab[0]), metrictab,
 		sizeof(metrictab)/sizeof(metrictab[0]));
 
-	pmNotifyErr(LOG_INFO, "Configured to use %s as rootpath.", rootpath);
+	if (strcmp(rootpath, "/") != 0)
+		pmNotifyErr(LOG_INFO, "Configured to use %s as rootpath.", rootpath);
 
-	cpu_model=detect_cpu();
+	cpu_model = detect_cpu();
 	detect_rapl_packages();			// needed by both RAPL-sysfs and RAPL-MSR
 
 	detect_rapl_sysfs();
@@ -1366,7 +1366,7 @@ denki_init(pmdaInterface *dp)
 int
 main(int argc, char **argv)
 {
-	int				c,sep = pmPathSeparator();
+	int		c,sep = pmPathSeparator();
 	pmdaInterface	dispatch;
 
 	isDSO = 0;

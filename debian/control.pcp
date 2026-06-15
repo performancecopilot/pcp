@@ -32,6 +32,7 @@ X-Python3-Version: >= 3.6
 Package: pcp
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${perl:Depends},
 	gawk, procps, zstd, ?{python-pcp}, ?{python},
+	systemd | passwd,
 	libpcp-pmda3 (= ${binary:Version}), libpcp-mmv1 (= ${binary:Version}),
 	libpcp-web1 (= ${binary:Version}), libpcp-archive1 (= ${binary:Version}),
 	libpcp4 (= ${binary:Version}), pcp-conf (= ${binary:Version})
@@ -451,6 +452,7 @@ Description: Performance Co-Pilot (PCP) Zeroconf Package
 
 Package: pcp-testsuite
 Depends: ${misc:Depends}, ${shlibs:Depends}, ${perl:Depends}, time,
+	systemd | passwd,
 	pcp (= ${binary:Version}), python3
 Suggests: valgrind
 Provides: pcpqa, pcp-gui-testsuite

@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-# Copyright (c) 2014 Red Hat.
+# Copyright (c) 2014,2026 Red Hat.
 # 
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -22,6 +22,7 @@ iam=cifs
 dso_opt=true
 daemon_opt=true
 pipe_opt=true
+pmns_source=root_cifs
 
 pmdaSetup
 pmdaInstall
