@@ -53,7 +53,8 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_cifs $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_cifs root_cifs $(PCP_PMNSADM_DIR)/root_cifs
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_cifs root_cifs $(PMDAADMDIR)/root_cifs
+	$(INSTALL) -S $(PMDAADMDIR)/root_cifs $(PCP_PMNSADM_DIR)/root_cifs
 	@$(INSTALL_MAN)
 else
 build-me:

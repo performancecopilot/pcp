@@ -80,7 +80,8 @@ install: default
 	$(INSTALL) -m 644 access.conf $(PMDACONFIG)/access.conf
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/samplehotproc.conf samplehotproc.conf $(PMDACONFIG)/samplehotproc.conf
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_proc root_proc $(PCP_PMNSADM_DIR)/root_proc
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_proc root_proc $(PMDAADMDIR)/root_proc
+	$(INSTALL) -S $(PMDAADMDIR)/root_proc $(PCP_PMNSADM_DIR)/root_proc
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR) $(LOGREWRITERS) $(REWRITEDIR)
 	@$(INSTALL_MAN)
 else

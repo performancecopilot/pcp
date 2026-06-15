@@ -57,7 +57,8 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help help.dir help.pag root root_xfs $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_xfs root_xfs $(PCP_PMNSADM_DIR)/root_xfs
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_xfs root_xfs $(PMDAADMDIR)/root_xfs
+	$(INSTALL) -S $(PMDAADMDIR)/root_xfs $(PCP_PMNSADM_DIR)/root_xfs
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR) linux_xfs_migrate.conf linux_xfs_perdev_buffer.conf $(REWRITEDIR)
 	@$(INSTALL_MAN)
 else

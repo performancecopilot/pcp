@@ -59,7 +59,8 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDACONFIG)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR)/kvm.conf kvm.conf $(PMDACONFIG)/kvm.conf
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_kvm root_kvm $(PCP_PMNSADM_DIR)/root_kvm
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_kvm root_kvm $(PMDAADMDIR)/root_kvm
+	$(INSTALL) -S $(PMDAADMDIR)/root_kvm $(PCP_PMNSADM_DIR)/root_kvm
 	$(INSTALL) -m 644 -t $(REWRITEVARDIR)/kvm_fixups.conf kvm_fixups.conf $(REWRITEDIR)/kvm_fixups.conf
 	@$(INSTALL_MAN)
 else

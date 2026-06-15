@@ -52,7 +52,8 @@ install: default
 	$(INSTALL) -m 755 -d $(PMDATMPDIR)
 	$(INSTALL) -m 644 -t $(PMDATMPDIR) domain.h help $(HELPTARGETS) root root_btrfs $(PMDAADMDIR)
 	$(INSTALL) -m 755 -t $(PMDATMPDIR) $(LIBTARGET) $(CMDTARGET) $(SCRIPTS) $(PMDAADMDIR)
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_btrfs root_btrfs $(PCP_PMNSADM_DIR)/root_btrfs
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root_btrfs root_btrfs $(PMDAADMDIR)/root_btrfs
+	$(INSTALL) -S $(PMDAADMDIR)/root_btrfs $(PCP_PMNSADM_DIR)/root_btrfs
 	@$(INSTALL_MAN)
 else
 build-me:
