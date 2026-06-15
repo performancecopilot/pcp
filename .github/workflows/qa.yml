@@ -1,7 +1,6 @@
 # Runs the entire testsuite
 name: QA
 on:
-  pull_request:
   schedule:
     - cron:  '0 18 * * *'
   workflow_dispatch:
