@@ -128,7 +128,8 @@ class DB2PMDA(PMDA):
             self.INDOM_ID(5) : [pmdaIndom(self.INDOM_ID(5), {}),
                 'SELECT DISTINCT LATCH_NAME '
                 'FROM TABLE(MON_GET_LATCH(-1)) '
-                'WHERE LATCH_NAME IS NOT NULL',
+                'WHERE LATCH_NAME IS NOT NULL '
+                'AND TOTAL_EXTENDED_LATCH_WAITS > 0',
                 'Latch name',
                 'Each instance represents one internal Db2 latch type that\n'
                 'has experienced extended wait events.  High latch contention\n'
@@ -1201,43 +1202,43 @@ class DB2PMDA(PMDA):
                 'Source: COUNT(*) over MON_GET_PKG_CACHE_STMT'],
             self.PM_ID(8, 1) : ['db2.pkg_cache.total_executions',
                 pmdaMetric(self.PM_ID(8, 1), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
                 {},
                 'Total executions of all cached statements',
-                'Cumulative number of times any cached statement has been\n'
+'Snapshot aggregate number of times any cached statement has been\n'
                 'executed since the statements entered the cache.\n'
                 'Source: SUM(NUM_EXECUTIONS) over MON_GET_PKG_CACHE_STMT'],
             self.PM_ID(8, 2) : ['db2.pkg_cache.total_cpu_time',
                 pmdaMetric(self.PM_ID(8, 2), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, usecUnits),
                 {},
                 'Total CPU time consumed by all cached statement executions (microseconds)',
-                'Cumulative CPU time consumed by all executions of all cached\n'
+'Snapshot aggregate CPU time consumed by all executions of all cached\n'
                 'statements, in microseconds.  Useful for identifying which\n'
                 'workload types dominate CPU consumption.\n'
                 'Source: SUM(TOTAL_CPU_TIME) over MON_GET_PKG_CACHE_STMT'],
             self.PM_ID(8, 3) : ['db2.pkg_cache.total_rows_read',
                 pmdaMetric(self.PM_ID(8, 3), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
                 {},
                 'Total rows read by all cached statement executions',
-                'Cumulative number of rows read by all executions of all\n'
+'Snapshot aggregate number of rows read by all executions of all\n'
                 'statements in the package cache.\n'
                 'Source: SUM(ROWS_READ) over MON_GET_PKG_CACHE_STMT'],
             self.PM_ID(8, 4) : ['db2.pkg_cache.total_sorts',
                 pmdaMetric(self.PM_ID(8, 4), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
                 {},
                 'Total sorts performed by all cached statement executions',
-                'Cumulative number of sort operations performed across all\n'
+'Snapshot aggregate number of sort operations performed across all\n'
                 'executions of all cached statements.\n'
                 'Source: SUM(STMT_SORTS) over MON_GET_PKG_CACHE_STMT'],
             self.PM_ID(8, 5) : ['db2.pkg_cache.total_sort_overflows',
                 pmdaMetric(self.PM_ID(8, 5), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
                 {},
                 'Total sort overflows in all cached statement executions',
-                'Cumulative number of sort operations that spilled to disk\n'
+'Snapshot aggregate number of sort operations that spilled to disk\n'
                 'across all executions of cached statements.  Divide by\n'
                 'total_sorts to find the statement-level overflow rate.\n'
                 'Source: SUM(SORT_OVERFLOWS) over MON_GET_PKG_CACHE_STMT'],
@@ -1347,8 +1348,10 @@ class DB2PMDA(PMDA):
     def db2_connect(self, dbname):
         """ connect to a specific Db2 database """
         self.set_user(pmContext.pmGetConfig('PCP_USER'))
-        dsn = ('DATABASE=%s;HOSTNAME=%s;PORT=%s;PROTOCOL=TCPIP;UID=%s;PWD=%s;' %
-               (dbname, self.hostname, self.port, self.username, self.password))
+        dsn = ('DATABASE=%s;HOSTNAME=%s;PORT=%s;PROTOCOL=TCPIP;'
+               'ConnectTimeout=%s;UID=%s;PWD=%s;' %
+               (dbname, self.hostname, self.port, self.timeout,
+                self.username, self.password))
         try:
             self.conns[dbname] = ibm_db.connect(dsn, '', '')
         except Exception as error:
@@ -1478,6 +1481,10 @@ class DB2PMDA(PMDA):
             Iterates all configured databases; the database name is the
             instance key in the values dict and in indom 6. """
         meta = clusters[cluster]
+        for item in range(items):
+            pmid = self.PM_ID(cluster, item)
+            if pmid in self.metrics:
+                self.metrics[pmid][self.METRIC_VALUES].clear()
         # Pre-populate all configured databases so transient query failures
         # do not remove a database from indom 6 for all db-scoped metrics.
         instances = {dbname: c_int(1) for dbname in self.databases}
@@ -1498,6 +1505,10 @@ class DB2PMDA(PMDA):
             Iterates all configured databases; instance names are prefixed
             with the database name as dbname/instname. """
         meta = clusters[cluster]
+        for item in range(items):
+            pmid = self.PM_ID(cluster, item)
+            if pmid in self.metrics:
+                self.metrics[pmid][self.METRIC_VALUES].clear()
         instances = {}
         for dbname in self.databases:
             rows = self.db2_exec(dbname, meta[self.CLUSTER_QUERY])
