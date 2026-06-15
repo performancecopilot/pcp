@@ -418,13 +418,35 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
                                 pmAtomValue *atom) {
   unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
   unsigned int item = pmID_item(mdesc->m_desc.pmid);
+  static int nfail = 0;		/* used to throttle failure reporting */
 
-  if (item != 0 && cluster == 0 && inst > indomtab[GCARD_INDOM].it_numinst)
-    return PM_ERR_INST;
-
-  if (inst < indomtab[GCARD_INDOM].it_numinst &&
-      pcp_amdgpuinfo.info[inst].failed[cluster][item])
-    return PM_ERR_VALUE;
+  if (cluster == 0 && item == AMDGPU_NUMCARDS) {
+    /* no indom */
+    ;
+  }
+  else {
+    /* check indom and value refresh */
+    if (inst < 0 || inst >= indomtab[GCARD_INDOM].it_numinst) {
+      if (++nfail < FAIL_REPORT_LIMIT) {
+	pmNotifyErr(LOG_WARNING, "amdgpu_fetchCallBack: PMID: %s inst %d not in range 0..%d\n",
+	  pmIDStr(mdesc->m_desc.pmid), inst, indomtab[GCARD_INDOM].it_numinst);
+      }
+      else if (nfail == FAIL_REPORT_LIMIT) {
+	pmNotifyErr(LOG_WARNING, "amdgpu_fetchCallBack: further failure reporting suppressed ...\n");
+      }
+      return PM_ERR_INST;
+    }
+    else if (pcp_amdgpuinfo.info[inst].failed[cluster][item]) {
+      if (++nfail < FAIL_REPORT_LIMIT) {
+	pmNotifyErr(LOG_WARNING, "amdgpu_fetchCallBack: PMID: %s inst %d: no value, refresh failed\n",
+	  pmIDStr(mdesc->m_desc.pmid), inst);
+      }
+      else if (nfail == FAIL_REPORT_LIMIT) {
+	pmNotifyErr(LOG_WARNING, "amdgpu_fetchCallBack: further failure reporting suppressed ...\n");
+      }
+      return PM_ERR_VALUE;
+    }
+  }
 
   switch (cluster) {
   case GCARD_CLUSTER: /* amdgpu general and per-card metrics */
@@ -439,7 +461,7 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
       atom->cp = pcp_amdgpuinfo.info[inst].name;
       break;
     default:
-      return PM_ERR_PMID;
+      goto bad_pmid;
     }
     break;
   case MEMORY_CLUSTER: /* Memory related metrics */
@@ -473,7 +495,7 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
       atom->ul = pcp_amdgpuinfo.info[inst].gpu_info.max_engine_clk;
       break;
     default:
-      return PM_ERR_PMID;
+      goto bad_pmid;
     }
     break;
   case GPU_CLUSTER: /* SOC related metrics */
@@ -507,14 +529,24 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
       atom->ul = pcp_amdgpuinfo.info[inst].avg_pwr;
       break;
     default:
-      return PM_ERR_PMID;
+      goto bad_pmid;
     }
     break;
   default:
-    return PM_ERR_PMID;
+    goto bad_pmid;
   }
 
   return 1;
+
+bad_pmid:
+  if (++nfail < FAIL_REPORT_LIMIT) {
+    pmNotifyErr(LOG_WARNING, "amdgpu_fetchCallBack: PMID: %s not known\n",
+      pmIDStr(mdesc->m_desc.pmid));
+  }
+  else if (nfail == FAIL_REPORT_LIMIT) {
+    pmNotifyErr(LOG_WARNING, "amdgpu_fetchCallBack: further failure reporting suppressed ...\n");
+  }
+  return PM_ERR_PMID;
 }
 
 static int amdgpu_labelCallBack(pmInDom indom, unsigned int inst,
