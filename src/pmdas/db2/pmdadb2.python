@@ -302,6 +302,18 @@ class DB2PMDA(PMDA):
                 'WHERE TOTAL_EXTENDED_LATCH_WAITS > 0'],
         }
 
+        # Cluster 9: ENV_GET_INSTANCE_INFO — instance metadata (null indom, discrete)
+        # 3 items.  Queried from the first available database connection since
+        # instance attributes (version, platform, name) are shared across all
+        # databases on the same Db2 instance.  PM_SEM_DISCRETE: log-once.
+        self.cluster_inst_items = 3
+        self.cluster_inst = {
+            9: [c_api.PM_INDOM_NULL,
+                'SELECT INST_NAME, SERVICE_LEVEL, PLATFORM '
+                'FROM TABLE(ENV_GET_INSTANCE_INFO()) '
+                'FETCH FIRST ROW ONLY'],
+        }
+
         # Cluster 7: MON_GET_TRANSACTION_LOG — log I/O aggregate (null indom)
         # 10 items.  Function signature: (db_name, member); NULL,-1 = current
         # database, all members.
@@ -345,6 +357,7 @@ class DB2PMDA(PMDA):
         self.METRIC_ONELINE = 3
         self.METRIC_TEXT    = 4
 
+        noUnits    = pmUnits(0, 0, 0, 0, 0, 0)
         usecUnits  = pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)
         msecUnits  = pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)
         countUnits = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
@@ -1228,6 +1241,36 @@ class DB2PMDA(PMDA):
                 'across all executions of cached statements.  Divide by\n'
                 'total_sorts to find the statement-level overflow rate.\n'
                 'Source: SUM(SORT_OVERFLOWS) over MON_GET_PKG_CACHE_STMT'],
+
+            # -----------------------------------------------------------
+            # Cluster 9: ENV_GET_INSTANCE_INFO  (null indom, 3 items)
+            # PM_SEM_DISCRETE: these values rarely change; logged once.
+            # -----------------------------------------------------------
+            self.PM_ID(9, 0) : ['db2.instance.name',
+                pmdaMetric(self.PM_ID(9, 0), c_api.PM_TYPE_STRING,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
+                {},
+                'Db2 instance name',
+                'Name of the Db2 instance (database manager instance) to\n'
+                'which the monitored databases belong.\n'
+                'Source: ENV_GET_INSTANCE_INFO.INST_NAME'],
+            self.PM_ID(9, 1) : ['db2.instance.version',
+                pmdaMetric(self.PM_ID(9, 1), c_api.PM_TYPE_STRING,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
+                {},
+                'Db2 instance service level (version string)',
+                'Full Db2 release and service level string, for example\n'
+                '"DB2 v11.5.8.0 s2309091300".  Useful as archive context\n'
+                'when analysing historical performance data.\n'
+                'Source: ENV_GET_INSTANCE_INFO.SERVICE_LEVEL'],
+            self.PM_ID(9, 2) : ['db2.instance.platform',
+                pmdaMetric(self.PM_ID(9, 2), c_api.PM_TYPE_STRING,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
+                {},
+                'Db2 instance operating platform',
+                'Operating system and CPU architecture on which the Db2\n'
+                'instance is running, for example "Linux/X8664".\n'
+                'Source: ENV_GET_INSTANCE_INFO.PLATFORM'],
         }
 
         # register all the indoms and metrics with the module
@@ -1408,6 +1451,27 @@ class DB2PMDA(PMDA):
         elif cluster in self.cluster_pkgcache:
             self.db2_refresh_db_scoped(cluster, self.cluster_pkgcache,
                                        self.cluster_pkgcache_items)
+        elif cluster in self.cluster_inst:
+            self.db2_refresh_singleton(cluster, self.cluster_inst,
+                                       self.cluster_inst_items)
+
+    def db2_refresh_singleton(self, cluster, clusters, items):
+        """ refresh a cluster returning instance-wide metadata.
+            Queries only the first available database — all databases on the
+            same Db2 instance share the same version, platform and name.
+            Stores results as null-indom values keyed '0'. """
+        meta = clusters[cluster]
+        for dbname in self.databases:
+            rows = self.db2_exec(dbname, meta[self.CLUSTER_QUERY])
+            if not rows:
+                continue
+            row = rows[0]
+            for item in range(items):
+                pmid = self.PM_ID(cluster, item)
+                if pmid in self.metrics:
+                    val = row[item] if row[item] is not None else ''
+                    self.metrics[pmid][self.METRIC_VALUES]['0'] = val
+            break  # instance-wide; one successful query is sufficient
 
     def db2_refresh_db_scoped(self, cluster, clusters, items):
         """ refresh a cluster returning one aggregate row per database.

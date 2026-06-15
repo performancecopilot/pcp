@@ -48,6 +48,7 @@ install_pcp install: default
 	$(INSTALL) -m 755 -d $(LOGCONFDIR)
 	$(INSTALL) -m 755 -d $(LOGCONFVARDIR)
 	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/summary pmlogconf.summary $(LOGCONFDIR)/summary
+	$(INSTALL) -m 644 -t $(LOGCONFVARDIR)/default pmlogconf.default $(LOGCONFDIR)/default
 	@$(INSTALL_MAN)
 else
 build-me:

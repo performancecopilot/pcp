@@ -24,6 +24,15 @@ IBM Db2 database server using the Db2 monitoring table functions
 .PP
 Metrics are organised into the following groups:
 .TP 5
+.B db2.instance
+Instance-level identity metrics from
+.BR ENV_GET_INSTANCE_INFO ,
+covering the instance name, full service level (version) string, and
+operating platform.
+These are
+.B PM_SEM_DISCRETE
+metrics: they are logged once at recording start and only when changed.
+.TP
 .B db2.database
 Database-wide aggregate counters from
 .BR MON_GET_DATABASE ,
@@ -214,6 +223,6 @@ and
 .BR pmdapostgresql (1).
 
 .\" control lines for scripts/man-spell
-.\" +ok+ pmdadb2 ibm_db Db2 db2 TCPIP MON_GET tabschema tabname appname DATAACCESS PCP_SYSCONF_DIR dbname bpname
+.\" +ok+ pmdadb2 ibm_db Db2 db2 TCPIP MON_GET tabschema tabname appname DATAACCESS PCP_SYSCONF_DIR dbname bpname ENV_GET_INSTANCE_INFO
 .\" +ok+ MON_GET_DATABASE MON_GET_BUFFERPOOL MON_GET_TABLE MON_GET_WORKLOAD
 .\" +ok+ MON_GET_TABLESPACE MON_GET_CONNECTION MON_GET_TRANSACTION_LOG
