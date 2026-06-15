@@ -44,7 +44,7 @@ PYPMDAS = gluster zswap unbound mic haproxy \
 	uwsgi rocestat hdb rds db2
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
-LDIRT = local.conf pmcd.conf
+LDIRT = local.conf pmcd.conf root.local
 
 ifneq ("$(wildcard $(TOPDIR)/src/include/pcp/config.h)","")
 HAVE_UNIX_DOMAIN_SOCKETS = $(shell grep 'define HAVE_STRUCT_SOCKADDR_UN' $(TOPDIR)/src/include/pcp/config.h >/dev/null && echo yes)
@@ -71,6 +71,26 @@ ifeq "$(HAVE_UNIX_DOMAIN_SOCKETS)" "yes"
 else
 	@echo 'allow "localhost" : all;' >> pmcd.conf
 endif
+	@root_files=""; \
+	for pmda in `$(AWK) '/^[^#]/ {print $$1}' local.conf`; do \
+	    f=`find . -maxdepth 3 -name "root_$$pmda" \
+	       | grep "^\./$(PCP_PLATFORM)" | head -1`; \
+	    [ -z "$$f" ] && \
+	        f=`find . -maxdepth 3 -name "root_$$pmda" | head -1`; \
+	    [ -n "$$f" ] && root_files="$$root_files $$f"; \
+	done; \
+	if [ -n "$$root_files" ]; then \
+	    for f in $$root_files; do ( $(PMCPP) ) < $$f; done \
+	    | $(AWK) ' \
+	        BEGIN { print "root {" } \
+	        /^#/ { next } \
+	        /^root *\{/ { r=1; next } \
+	        r && /^\}/ { r=0; next } \
+	        r { print; next } \
+	        { buf[n++] = $$0 } \
+	        END { print "}"; for (i=0; i<n; i++) print buf[i] }' \
+	    > root.local; \
+	fi
 
 install :: install_pcp
 
@@ -81,5 +101,6 @@ install_pcp :: default_pcp
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDCONF_PATH)`
 	$(INSTALL) -m 644 pmcd.conf $(PCP_PMCDCONF_PATH)
 	$(INSTALL) -m 644 local.conf indom.conf $(PCP_ETC_DIR)/pcp
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root.local root.local $(PCP_PMNSADM_DIR)/root.local
 
 include $(BUILDRULES)

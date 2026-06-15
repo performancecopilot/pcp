@@ -1,5 +1,6 @@
 pmcd.conf
 local.conf
+root.local
 *.[1-9].tmp
 *.[1-9].gz
 .dbpmdarc
