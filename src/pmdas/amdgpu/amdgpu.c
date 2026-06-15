@@ -599,7 +599,7 @@ static int amdgpu_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda) {
   case PM_LABEL_INDOM:
     amdgpu_labelInDom((pmInDom)ident, lpp);
     break;
-  case PM_LABEL_CLUSTER:
+  case PM_LABEL_ITEM:
     amdgpu_labelItem((pmID)ident, lpp);
     break;
   default:
