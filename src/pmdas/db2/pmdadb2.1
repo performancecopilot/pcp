@@ -1,0 +1,202 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2026 Red Hat.  All Rights Reserved.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMDADB2 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3pmdadb2\f1 \- IBM Db2 database PMDA
+.SH DESCRIPTION
+\fBpmdadb2\fP is a Performance Co-Pilot (PCP) Performance Metrics
+Domain Agent (PMDA) which extracts live performance data from a running
+IBM Db2 database server using the Db2 monitoring table functions
+(\fBMON_GET_*\fP).
+.PP
+Metrics are organised into the following groups:
+.TP 5
+.B db2.database
+Database-wide aggregate counters from
+.BR MON_GET_DATABASE ,
+covering transactions, row operations, sort activity, locking,
+package cache efficiency, and direct I/O.
+The instance domain contains one entry per monitored database name.
+.TP
+.B db2.bufferpool
+Per-buffer-pool counters from
+.BR MON_GET_BUFFERPOOL ,
+covering logical and physical reads and writes for data, index, and
+column-organised pages, together with pool read/write times and
+unread prefetch pages.
+Instance names are \fIdbname\fP::\fIbpname\fP.
+.TP
+.B db2.table
+Per-table counters from
+.BR MON_GET_TABLE ,
+covering row operations, lock activity, overflow accesses, and
+full-table scans.
+System tables (schema prefix \fBSYS\fP) are excluded.
+Instance names are \fIdbname\fP::\fItabschema.tabname\fP.
+.TP
+.B db2.workload
+Per-workload counters from
+.BR MON_GET_WORKLOAD ,
+covering row operations, CPU time, and transaction counts.
+Instance names are \fIdbname\fP::\fIworkload_name\fP.
+.TP
+.B db2.tablespace
+Per-tablespace I/O counters from
+.BR MON_GET_TABLESPACE ,
+covering buffer pool and direct read/write operations and times.
+Instance names are \fIdbname\fP::\fItablespace_name\fP.
+.TP
+.B db2.connection
+Per-connection counters from
+.BR MON_GET_CONNECTION ,
+covering CPU time, row operations, lock activity, and transaction counts.
+Instance names are \fIdbname\fP::\fIappname\fP::\fIhandle\fP.
+.TP
+.B db2.log
+Transaction log I/O counters from
+.BR MON_GET_TRANSACTION_LOG ,
+covering log write and read operations, physical I/O counts, and
+the number of log pages found in the in-memory buffer.
+.SH CONFIGURATION
+Firstly, \f3pmdadb2\f1 requires installation of the
+.B ibm_db
+Python package, which provides the IBM Db2 driver for Python.
+.PP
+\fBpmdadb2\fP reads a mandatory ini-style configuration file:
+.IP
+.PD 0
+.IP
+.I \f(CR$PCP_SYSCONF_DIR\fP/db2/db2.conf
+.PD
+.PP
+This file has two sections.
+.PP
+.B [connection]
+specifies how to reach the Db2 server
+(default values shown in parentheses):
+.TP 15
+.B hostname \fR(\fP\fIlocalhost\fP\fR)\fP
+Hostname or IP address of the Db2 instance.
+.TP
+.B port \fR(\fP\fI50000\fP\fR)\fP
+TCP port number of the Db2 instance listener.
+.TP
+.B timeout \fR(\fP\fI5\fP\fR)\fP
+Connection timeout in seconds.
+.PP
+.B [databases]
+specifies which databases on the instance to monitor:
+.TP 15
+.B names
+Space-separated list of Db2 database names to monitor.
+All databases must be reachable at the configured hostname and port using
+the same credentials.
+The database name appears as the instance name for
+.BR db2.database.* ,
+.BR db2.log.*
+and
+.BR db2.pkg_cache.*
+metrics, and as the
+.I dbname::
+prefix in all per-object instance domains
+(buffer pools, tables, tablespaces, workloads, connections, latches).
+.PP
+.B [authentication]
+specifies the Db2 user credentials:
+.TP 15
+.B username
+Db2 username to authenticate as.
+The user must have
+.B EXECUTE
+privilege on the
+.B MON_GET_*
+table functions and
+.B DATAACCESS
+or the appropriate
+.B MON_*
+authorities on the target database.
+.TP
+.B password
+Password for the above username.
+.SH INSTALLATION
+To install, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/db2
+# ./Install
+.fi
+.ft P
+.RE
+.sp 1
+To uninstall, the following must be done as root:
+.sp 1
+.RS +4
+.ft B
+.nf
+# cd $PCP_PMDAS_DIR/db2
+# ./Remove
+.fi
+.ft P
+.RE
+.sp 1
+\fBpmdadb2\fP is launched by \fBpmcd\fP(1) and should never be
+executed directly.
+The \fBInstall\fP and \fBRemove\fP scripts notify \fBpmcd\fP(1) when
+the agent is installed or removed.
+.PP
+\fBpmdadb2\fR will automatically attempt to reconnect to the Db2 server
+if the connection is lost.
+.SH FILES
+.TP 5
+.I \f(CR$PCP_SYSCONF_DIR\fP/db2/db2.conf
+configuration file for the \fBpmdadb2\fR agent
+.TP
+.I \f(CR$PCP_PMDAS_DIR\fP/db2/Install
+installation script for the \fBpmdadb2\fR agent
+.TP
+.I \f(CR$PCP_PMDAS_DIR\fP/db2/Remove
+undo installation script for the \fBpmdadb2\fR agent
+.TP
+.I \f(CR$PCP_LOG_DIR\fP/pmcd/db2.log
+default log file for messages from the \fBpmdadb2\fR agent
+.PP
+Note that the usual/default value for \fB$PCP_SYSCONF_DIR\fP is
+.B /etc/pcp
+the default for \fB$PCP_PMDAS_DIR\fP is
+.B /var/lib/pcp/pmdas
+and the default for \fB$PCP_LOG_DIR\fP is
+.B /var/log/pcp
+but these settings are platform dependent.
+.SH PCP ENVIRONMENT
+Environment variables with the prefix \fBPCP_\fR are used to parameterize
+the file and directory names used by PCP.
+On each installation, the
+file \fI/etc/pcp.conf\fR contains the local values for these variables.
+The \fB$PCP_CONF\fR variable may be used to specify an alternative
+configuration file, as described in \fBpcp.conf\fR(5).
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pmcd (1),
+.BR pmdamssql (1)
+and
+.BR pmdapostgresql (1).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ pmdadb2 ibm_db Db2 db2 TCPIP MON_GET tabschema tabname appname DATAACCESS PCP_SYSCONF_DIR dbname bpname
+.\" +ok+ MON_GET_DATABASE MON_GET_BUFFERPOOL MON_GET_TABLE MON_GET_WORKLOAD
+.\" +ok+ MON_GET_TABLESPACE MON_GET_CONNECTION MON_GET_TRANSACTION_LOG

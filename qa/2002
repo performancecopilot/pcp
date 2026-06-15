@@ -1,0 +1,163 @@
+#!/bin/sh
+# PCP QA Test No. 2002
+# Copyright (c) 2026 Red Hat.
+#
+# Exercise IBM Db2 PMDA Install and Remove scripts,
+# plus metric value validation on select metrics.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+# Check for Db2 client tooling (db2 CLI)
+DB2_CLI=""
+for p in /opt/ibm/db2/*/bin/db2 /usr/local/bin/db2 /usr/bin/db2; do
+    test -x "$p" && DB2_CLI="$p" && break
+done
+test -n "$DB2_CLI" || _notrun "IBM Db2 client tools not installed"
+
+test -d "$PCP_PMDAS_DIR/db2" || _notrun "IBM Db2 PMDA not installed"
+
+_db2_conf="$PCP_SYSCONF_DIR/db2/db2.conf"
+
+# extract connection settings from [connection] and [authentication] sections
+eval `$sudo awk -F= '
+    /^\[connection\]/{s="connection";next}
+    /^\[authentication\]/{s="authentication";next}
+    /^\[/{s="";next}
+    s=="connection" && /^hostname=/{print "hostname=" $2}
+    s=="connection" && /^port=/{print "port=" $2}
+    s=="authentication" && /^username=/{print "username=" $2}
+    s=="authentication" && /^password=/{print "password=" $2}
+' "$_db2_conf" 2>/dev/null`
+
+# extract the database names list from [databases] section
+_db2_names=`$sudo awk -F= '
+    /^\[databases\]/{s=1;next}
+    /^\[/{s=0;next}
+    s && /^names=/{sub(/^names=/,""); print; exit}
+' "$_db2_conf" 2>/dev/null`
+
+test -n "$_db2_names" || _notrun "Cannot find database names in [databases] section of $_db2_conf"
+test -n "$username"   || _notrun "Cannot find Db2 username setting in $_db2_conf"
+test -n "$password"   || _notrun "Cannot find Db2 password setting in $_db2_conf"
+test -n "$hostname"   || hostname=localhost
+test -n "$port"       || port=50000
+
+# use the first configured database for SQL and metric validation
+_db2_primary=`echo $_db2_names | awk '{print $1}'`
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1	# failure is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# Run a Db2 SQL query against the primary database, return the first numeric value
+_db2_scalar()
+{
+    "$DB2_CLI" -stof \
+        "db2 connect to $_db2_primary user $username using $password" \
+        -stof "db2 \"$1\"" 2>/dev/null \
+    | $PCP_AWK_PROG '
+    BEGIN { sts = 1 }
+    /^[[:space:]]*[0-9]/ {
+        gsub(/^[[:space:]]+|[[:space:]]+$/, "")
+        if ($0 ~ /^[0-9]+$/) { print $0; sts = 0; exit }
+    }
+    END { exit sts }'
+}
+
+_db2_connect_check()
+{
+    "$DB2_CLI" -stof \
+        "db2 connect to $_db2_primary user $username using $password" \
+        "db2 terminate" > $tmp.connect 2>&1
+    grep -qi "Database Connection Information" $tmp.connect
+}
+
+_db2_connect_check \
+    || _notrun "Cannot connect to Db2 database $_db2_primary on $hostname:$port"
+
+pmdadb2_remove()
+{
+    echo
+    echo "=== remove db2 agent ==="
+    $sudo ./Remove >$tmp.out 2>&1
+    _filter_pmda_remove <$tmp.out
+}
+
+pmdadb2_install()
+{
+    # start from a known state
+    cd $PCP_PMDAS_DIR/db2
+    $sudo ./Remove >/dev/null 2>&1
+
+    echo
+    echo "=== db2 agent installation ==="
+    $sudo ./Install </dev/null >$tmp.out 2>&1
+    cat $tmp.out >>$seq_full
+    # Check db2 metrics have appeared ... X metrics and Y values
+    _filter_pmda_install <$tmp.out \
+    | sed \
+        -e 's/[0-9][0-9]* warnings, //' \
+    | $PCP_AWK_PROG '
+/Check db2 metrics have appeared/  { if ($7 >= 20 && $7 <= 800) $7 = "X"
+                                      if ($10 >= 0 && $10 <= 800) $10 = "Y"
+                                    }
+                                    { print }'
+}
+
+_prepare_pmda db2
+# note: _restore_auto_restart pmcd done in _cleanup_pmda()
+trap "_cleanup_pmda db2; exit \$status" 0 1 2 3 15
+
+_stop_auto_restart pmcd
+
+# real QA test starts here
+pmdadb2_install
+
+# Verify the primary database appears as an instance in db2.database metrics
+echo "Check primary database appears as instance"
+pmprobe -I db2.database.active_connections | $PCP_AWK_PROG -v db="$_db2_primary" '
+    $0 ~ db { found=1 }
+    END { if (found) print "db2.database active_connections instance ok"
+          else print "FAIL: instance " db " not found" }'
+
+# Verify active_connections value for the primary database is non-negative
+echo "Check active_connections is non-negative"
+pmprobe -v -i "$_db2_primary" db2.database.active_connections | $PCP_AWK_PROG '
+    { if ($2 == 1 && $3+0 >= 0) print "db2.database.active_connections ok"
+      else print "FAIL: " $0 }'
+
+# Verify db2.database.commits is present and non-negative
+echo "Check database.commits is present and non-negative"
+pmprobe -v -i "$_db2_primary" db2.database.commits | $PCP_AWK_PROG '
+    { if ($2 == 1 && $3+0 >= 0) print "db2.database.commits ok"
+      else print "FAIL: " $0 }'
+
+# Verify bufferpool indom has at least one instance for the primary database
+echo "Check bufferpool indom has instances for primary database"
+pmprobe -I db2.bufferpool.data_logical_reads | $PCP_AWK_PROG -v db="$_db2_primary" '
+    $0 ~ (db "::") { count++ }
+    END { if (count >= 1) print "db2.bufferpool indom ok"
+          else print "FAIL: no bufferpool instances for " db }'
+
+# Verify log metrics are present for the primary database
+echo "Check log.writes is present"
+pmprobe -v -i "$_db2_primary" db2.log.writes | $PCP_AWK_PROG '
+    { if ($2 == 1 && $3+0 >= 0) print "db2.log.writes ok"
+      else print "FAIL: " $0 }'
+
+pmdadb2_remove
+# success, all done
+status=0
+exit

@@ -1,0 +1,31 @@
+#pmlogconf-setup 2.0
+ident	IBM Db2 database performance summary
+probe	db2.database.commits == 0 ? include : include
+	db2.database.commits
+	db2.database.rollbacks
+	db2.database.rows_read
+	db2.database.rows_modified
+	db2.database.rows_returned
+	db2.database.sort_overflows
+	db2.database.total_cpu_time
+	db2.database.total_wait_time
+	db2.database.lock_waits
+	db2.database.lock_wait_time
+	db2.database.deadlocks
+	db2.database.lock_escalations
+	db2.database.active_connections
+	db2.database.pkg_cache_lookups
+	db2.database.pkg_cache_inserts
+	db2.database.pkg_cache_overflows
+	db2.bufferpool.data_logical_reads
+	db2.bufferpool.data_physical_reads
+	db2.bufferpool.data_writes
+	db2.bufferpool.index_logical_reads
+	db2.bufferpool.index_physical_reads
+	db2.bufferpool.index_writes
+	db2.bufferpool.read_time
+	db2.bufferpool.write_time
+	db2.log.writes
+	db2.log.write_time
+	db2.log.reads
+	db2.log.read_time

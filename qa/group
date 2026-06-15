@@ -231,6 +231,7 @@ pmda.bpf
 pmda.bpftrace
 pmda.cifs
 pmda.cisco
+pmda.db2
 pmda.dm
 pmda.denki
 pmda.docker
@@ -2389,5 +2390,6 @@ suse
 1999 pmda.nixl local python
 2000 pmda.btrfs local valgrind
 2001 pmda.btrfs local
+2002 pmda.db2 local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local
