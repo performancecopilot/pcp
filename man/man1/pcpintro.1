@@ -1519,6 +1519,41 @@ will have access to the ``sample'' PMDA if this optional PMDA has
 been installed locally.
 .RE
 .TP
+.B PCP_PMCDCONF_PATH
+Overrides the path to the
+.BR pmcd (1)
+configuration file.
+When set to
+.IR $PCP_SYSCONF_DIR/local.conf ,
+a
+.B PM_CONTEXT_LOCAL
+context will load only the DSO PMDAs listed in that file, without
+requiring
+.BR pmcd (1)
+to be running.
+This is the recommended way to restrict local context to a minimal,
+well-known set of DSO PMDAs.
+Pair with
+.B PMNS_DEFAULT
+(below) for a matching namespace.
+.TP
+.B PMNS_DEFAULT
+Overrides the default Performance Metrics Name Space used when
+no explicit namespace is specified.
+When set to
+.IR $PCP_VAR_DIR/pmns/root.local ,
+a
+.B PM_CONTEXT_LOCAL
+context will use the merged namespace for the DSO PMDAs listed in
+.IR $PCP_SYSCONF_DIR/local.conf ,
+rather than the full system namespace.
+See also
+.BR pmns (5)
+and
+.BR PMNS_DEFAULT
+in
+.BR pcpintro (1).
+.TP
 .B PMIECONF_PATH
 If set,
 .BR pmieconf (1)
