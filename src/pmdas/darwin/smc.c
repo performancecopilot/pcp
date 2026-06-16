@@ -114,7 +114,8 @@ smc_init(void)
 
     smc_init_attempted = true;
 
-    pmNotifyErr(LOG_DEBUG, "smc_init: initializing SMC connection");
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_INFO, "smc_init: initializing SMC connection");
 
     /* Get AppleSMC service */
     service = IOServiceGetMatchingService(
@@ -123,7 +124,8 @@ smc_init(void)
     );
 
     if (!service) {
-        pmNotifyErr(LOG_INFO, "smc_init: AppleSMC service not found (may not be available on this system)");
+	if (pmDebugOptions.appl0)
+	    pmNotifyErr(LOG_INFO, "smc_init: AppleSMC service not found (may not be available on this system)");
         return PM_ERR_AGAIN;
     }
 
@@ -132,13 +134,14 @@ smc_init(void)
     IOObjectRelease(service);
 
     if (kr != KERN_SUCCESS) {
-        pmNotifyErr(LOG_INFO, "smc_init: failed to open SMC connection (kr=%d, may require entitlements)", kr);
+        pmNotifyErr(LOG_WARNING, "smc_init: failed to open SMC connection (kr=%d, may require entitlements)", kr);
         smc_connection = 0;
         return PM_ERR_AGAIN;
     }
 
     smc_available = true;
-    pmNotifyErr(LOG_INFO, "smc_init: SMC connection established (platform: %s)",
+    if (pmDebugOptions.appl0)
+	pmNotifyErr(LOG_INFO, "smc_init: SMC connection established (platform: %s)",
                 is_apple_silicon() ? "Apple Silicon" : "Intel");
 
     return 0;

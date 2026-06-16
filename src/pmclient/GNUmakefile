@@ -43,10 +43,12 @@ pmclient.o:	pmnsmap.h
 pmclient$(EXECSUFFIX):  pmclient.o 
 	rm -f $@
 	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pmclient_fg$(EXECSUFFIX):  pmclient_fg.o
 	rm -f $@
 	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pmgenmap.sh:
 	sed -e "s;^\. .PCP_DIR.etc.pcp.env;. $(TOPDIR)/src/include/pcp.env;" \

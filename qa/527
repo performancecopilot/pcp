@@ -11,9 +11,7 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.perl
 
 [ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
         _notrun "No support for libpcp_import"

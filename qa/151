@@ -43,6 +43,7 @@ _filter()
 	-e '/^Merge callbacks .../d' \
 	-e '/^callback: .*pmlogger_daily_report/d' \
 	-e "s;$tmp;TMP;g" \
+	-e "s;/privateTMP;TMP;g" \
 	-e "s/local:/HOST/g" \
 	-e "s/localhost/HOST/g" \
 	-e "s/`hostname`/HOST/g" \
@@ -77,6 +78,10 @@ mkdir $tmp/foo
 [ -f $NEEDREWRITE ] && $sudo mv $NEEDREWRITE $NEEDREWRITE.$seq
 
 # real QA test starts here
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
 
 echo >$tmp/sed
 # unmerged archives for these days ...
@@ -115,12 +120,12 @@ do
 	do
 	    if [ $hour -ne 4 ]
 	    then
-		cp archives/arch_a.$ext $tmp/$namea.$ext
+		cp $here/archives/arch_a.$ext $tmp/$namea.$ext
 		touch -t $stampa $tmp/$namea.$ext
 	    fi
-	    cp archives/arch_b.$ext $tmp/$nameb.$ext
+	    cp $here/archives/arch_b.$ext $tmp/$nameb.$ext
 	    touch -t $stampb $tmp/$nameb.$ext
-	    cp archives/arch_b.$ext $tmp/$namec.$ext
+	    cp $here/archives/arch_b.$ext $tmp/$namec.$ext
 	    touch -t $stampc $tmp/$namec.$ext
 	done
     done
@@ -143,7 +148,7 @@ do
 
     for ext in 0 index meta
     do
-	cp archives/arch_a.$ext $tmp/$namea.$ext
+	cp $here/archives/arch_a.$ext $tmp/$namea.$ext
 	touch -t $stampa $tmp/$namea.$ext
     done
     echo "s/$namea/TODAY-$day/g" >>$tmp/sed
@@ -175,9 +180,6 @@ ls -l $tmp >>$seq_full
 # list of culled files is in directory order, hence the cut and sort
 # complexity at the end of this pipeline
 #
-# need to be a place the user $PCP_USER can cd to from pmlogger_daily
-#
-cd ${TMPDIR:-/tmp}
 echo
 echo "pmlogger_daily -D -P -k 5 -x never -V ..." >>$seq_full
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -D -P -c $tmp/control -k 5 -x never -V -l $tmp.log"

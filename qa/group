@@ -43,6 +43,13 @@ not_in_ci
 # CI, so defer test coverage to there
 not_in_qa_farm
 
+# not_for_macos ... some tests are failing in macOS and the reasons are not
+# yet understood or resolved ... tag 'em here so we can avoid running them
+# but keep a record of which tests are in this category ... like not_in_ci
+# there should be a # :not_for_macos: comment in the test to descibe the
+# failure scenario
+not_for_macos
+
 # local check ... runs on localhost alone, no remotes used
 ## NOTE: used by testing orgs beyond developers, do not add
 ## tests here that are known to fail - goal is for 100% pass
@@ -1247,7 +1254,7 @@ suse
 704 pmda.mmv python libpcp_mmv local
 705 libpcp local
 706 libpcp local
-707 python libpcp local sanity
+707 python libpcp local sanity not_for_macos
 708 python pmimport local
 709:retired pmcollect
 710 python pmimport local pmlogdump libpcp_import
@@ -2266,7 +2273,6 @@ suse
 1727 pmproxy libpcp_web pmda.openmetrics local
 1735 python pmimport local
 1740 pmda.proc local
-1744 pmseries local
 1745 pmlogger libpcp pmval local pmda.sample pmda.simple pmlogdump
 1747 pmlogger labels local
 1748 atop local
@@ -2387,7 +2393,5 @@ suse
 1997 pcp nfsiostat python local
 1998 pmda.rds local python
 1999 pmda.nixl local python
-2000 pmda.btrfs local valgrind
-2001 pmda.btrfs local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

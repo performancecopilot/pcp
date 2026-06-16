@@ -8,9 +8,7 @@
 seq=`basename $0`
 echo "QA output created by $seq"
 
-. ./common.check
-. ./common.setup
-[ -f common.python ] || _notrun "No python bindings installed"
+. ./common.perl
 
 . ./common.python
 

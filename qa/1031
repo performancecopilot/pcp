@@ -9,13 +9,11 @@ seq=`basename $0`
 echo "QA output created by $seq"
 
 # get standard environment, filters and checks
-. ./common.product
-. ./common.filter
-. ./common.check
+. ./common.perl
 
 # we're using our own Slurm Perl module for testing
 #
-PERL5LIB=$here/slurm; export PERL5LIB
+PERL5LIB="$here/slurm${PERL5LIB:+:$PERL5LIB}"; export PERL5LIB
 
 [ -d $PCP_PMDAS_DIR/slurm ] || _notrun "slurm PMDA directory is not installed"
 [ -f $PCP_PMDAS_DIR/slurm/pmdaslurm.pl ] || _notrun "slurm PMDA is not installed"
@@ -67,7 +65,7 @@ fetch slurm.node.job.job_alloc_cores
 End-of-File
 
 echo === Testing perl pmda
-$sudo PERL5LIB=$here/slurm dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
+$sudo PERL5LIB="$here/slurm${PERL5LIB:+:$PERL5LIB}" dbpmda -n $tmp.root -ie < $tmp.cmds 2>&1 | _filter
 
 cat $PCP_PMDAS_DIR/slurm/slurm.log >>$seq_full
 

@@ -284,43 +284,13 @@ statvfs:	statvfs.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ statvfs.c
 
-pause:	pause.c
-	$(CCF) $(CDEFS) -o pause pause.c
-
-errmap: errmap.c
-	$(CCF) $(CDEFS) -o errmap errmap.c
-
-cpuload:	cpuload.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ cpuload.c
-
-load_o2000:	load_o2000.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ load_o2000.c
-
 chain:	chain.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ chain.c
 
-syscall:	syscall.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ syscall.c
-
-getpagesize:	getpagesize.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ getpagesize.c
-
-rdwr:	rdwr.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ rdwr.c
-
 spawn:	spawn.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ spawn.c
-
-diowr:	diowr.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ diowr.c
 
 endian:	endian.c localconfig.h
 	rm -f $@
@@ -330,17 +300,72 @@ pmlcmacro:	pmlcmacro.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pmlcmacro.c
 
-sys5_ipc:	sys5_ipc.c
-	rm -f $@
-	$(CCF) $(CDEFS) -o $@ sys5_ipc.c
-
 anon-sa: anon-sa.c
+	rm -f $@
 	$(CCF) $(CDEFS) -o $@ anon-sa.c
 
 bcc_profile: bcc_profile.c
+	rm -f $@
 	$(CCF) $(CDEFS) -g -fno-omit-frame-pointer -o $@ bcc_profile.c
 
 sizeof:	sizeof.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+args:	args.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+hanoi:	hanoi.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+infiniband-verbs:	infiniband-verbs.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+killparent:	killparent.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+matchInstanceName:	matchInstanceName.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+qa_msgctl_stat:	qa_msgctl_stat.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+qa_sem_msg_ctl:	qa_sem_msg_ctl.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+qa_semctl_stat:	qa_semctl_stat.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+qa_shmctl_stat:	qa_shmctl_stat.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+qa_shmctl:	qa_shmctl.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+qa_test:	qa_test.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+sum16:	sum16.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+time_stamp:	time_stamp.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $<
+
+wrap_int:	wrap_int.c
+	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $<
 
 # --- need libpcp
@@ -349,154 +374,867 @@ sizeof:	sizeof.c
 template:	template.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 exercise:	exercise.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 chkacc1:	chkacc1.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 chkacc2:	chkacc2.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 chkacc3:	chkacc3.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 ipc:	ipc.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 chk_memleak:	chk_memleak.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 chknumval:	chknumval.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 logcontrol:	logcontrol.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 numberstr: numberstr.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pmcdgone:	pmcdgone.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 slow_af:	slow_af.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 mmv_poke:	mmv_poke.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 labels:	labels.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 mergelabels:	mergelabels.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 mergelabelsets:	mergelabelsets.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 parselabels:	parselabels.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 traverse_return_codes:	traverse_return_codes.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 getdomainname:	getdomainname.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pmstrn:	pmstrn.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pmfstring:	pmfstring.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 usergroup:	usergroup.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 derived_help:	derived_help.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 derived_control:	derived_control.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 ready-or-not:	ready-or-not.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 throttle:	throttle.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 throttle_timeout:	throttle_timeout.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 y2038:	y2038.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pdu-gadget:	pdu-gadget.c myprintresult.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< myprintresult.o $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 strnfoo:	strnfoo.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 mmv_ondisk:	mmv_ondisk.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 newcontext:	newcontext.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 scanindex:	scanindex.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 localtime:	localtime.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 unregister:	unregister.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 genpmns:	genpmns.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 undelta:	undelta.c libpcp.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 series_time_parse_test:	series_time_parse_test.c libpcp.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+context_test:	context_test.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chkoptfetch:	chkoptfetch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+archfetch:	archfetch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+779246:	779246.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+addctxdm:	addctxdm.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+addlabels:	addlabels.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+agenttimeout:	agenttimeout.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+aggrstore:	aggrstore.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+api_abi:	api_abi.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+arch_maxfd:	arch_maxfd.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+archctl_segfault:	archctl_segfault.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+archend:	archend.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+archinst:	archinst.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+badloglabel:	badloglabel.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+badmmv:	badmmv.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+badpmcdpmid:	badpmcdpmid.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+badUnitsStr_r:	badUnitsStr_r.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+bigpmcdpmids:	bigpmcdpmids.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+check_attribute:	check_attribute.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+checkstructs:	checkstructs.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chk_metric_types:	chk_metric_types.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chkacc4:	chkacc4.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chkconnect:	chkconnect.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chkctx2:	chkctx2.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chkhelp:	chkhelp.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chklogputresult:	chklogputresult.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chkopenlog:	chkopenlog.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+chktrim:	chktrim.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+cleanmapdir:	cleanmapdir.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+clientid:	clientid.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+clienttimeout:	clienttimeout.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+compare:	compare.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+context_fd_leak:	context_fd_leak.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+countmark:	countmark.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+crashpmcd:	crashpmcd.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+ctx_derive:	ctx_derive.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+debug:	debug.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+defctx:	defctx.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+derived:	derived.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+descreqX2:	descreqX2.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+disk_test:	disk_test.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+drain-server:	drain-server.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+eofarch:	eofarch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+eol:	eol.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+err:	err.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+exectest:	exectest.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+exertz:	exertz.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+fetchgroup:	fetchgroup.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+fetchloop:	fetchloop.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+fetchpdu:	fetchpdu.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+fetchrate:	fetchrate.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+getconfig:	getconfig.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+getcontexthost:	getcontexthost.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+getoptions:	getoptions.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+getversion:	getversion.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+github-50:	github-50.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+grind_conv:	grind_conv.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+hashwalk:	hashwalk.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+hex2nbo:	hex2nbo.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+hrunpack:	hrunpack.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+indom:	indom.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+indom2int:	indom2int.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+infiniband-umad:	infiniband-umad.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+int2indom:	int2indom.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+int2pmid:	int2pmid.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+interp_bug:	interp_bug.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+interp_bug2:	interp_bug2.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+interp_bug3:	interp_bug3.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+interp0:	interp0.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+interp1:	interp1.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+interp2:	interp2.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+interp3:	interp3.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+interp4:	interp4.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+loadconfig2:	loadconfig2.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+loadderived:	loadderived.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+lookupnametest:	lookupnametest.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+mark-bug:	mark-bug.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+mkfiles:	mkfiles.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+multictx:	multictx.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+multifetch:	multifetch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+myprintresult:	myprintresult.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+nameall:	nameall.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+nullinst:	nullinst.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+nvidia-ml:	nvidia-ml.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+parsehighresinterval:	parsehighresinterval.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+parsehostattrs:	parsehostattrs.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+parsehostspec:	parsehostspec.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+parseinterval:	parseinterval.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+parsemetricspec:	parsemetricspec.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pdubufbounds:	pdubufbounds.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+permfetch:	permfetch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmconvscale:	pmconvscale.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmfg-derived:	pmfg-derived.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmid2int:	pmid2int.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmnsinarchives:	pmnsinarchives.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmnsunload:	pmnsunload.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmprintf:	pmprintf.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmsetmode:	pmsetmode.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmsocks_objstyle:	pmsocks_objstyle.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pmsprintf:	pmsprintf.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+proc_test:	proc_test.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+profilecrash:	profilecrash.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+progname:	progname.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+pv:	pv.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+qa_libpcp_compat:	qa_libpcp_compat.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+qa_timezone:	qa_timezone.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+read-bf:	read-bf.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+recon:	recon.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+rtimetest:	rtimetest.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+scale:	scale.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+scandata:	scandata.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+scanmeta:	scanmeta.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+stampconv:	stampconv.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+storepast:	storepast.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+storepdu:	storepdu.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+storepmcd:	storepmcd.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+stripmark:	stripmark.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+t_fetch:	t_fetch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+test_service_notify:	test_service_notify.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+timeshift:	timeshift.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+torture_api:	torture_api.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+torture_logmeta:	torture_logmeta.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+torture-eol:	torture-eol.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+tztest:	tztest.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+unpack:	unpack.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+unpickargs:	unpickargs.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+username:	username.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+wait_for_values:	wait_for_values.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+whichtimezone:	whichtimezone.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+write-bf:	write-bf.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+xarch:	xarch.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+xlog:	xlog.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+xmktime:	xmktime.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+xval:	xval.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+xxx:	xxx.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 # --- need libpcp but different versions of PMAPI_VERSION and/or
 #     libpcp.$(DSOSUFFIX)
@@ -505,19 +1243,31 @@ series_time_parse_test:	series_time_parse_test.c libpcp.h
 getoptions_v2:	getoptions.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DPMAPI_VERSION=2 -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 api_abi_v2:	api_abi.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DPMAPI_VERSION=2 -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 # have to play games with libpcp.h so we include the one from
 # ../../src/libpcp3/src/include/pcp, not ./libpcp.h
+# ... trap games are to preserve libpcp.h if the compile or
+# $(LINKER_MAKERULE) step fail [thanks coderabbitai], but extra
+# " :" needed after $(LINKER_MAKERULE) to avoid shell
+#	Syntax error: ";" unexpected
+# when $(LINKER_MAKERULE) expands to nothing (like everywhere except
+# macOS)
 #
 api_abi_compat:	api_abi.c libpcp.h
 	rm -f $@ 
-	mv libpcp.h libpcp.h.save
-	$(CC) -I../../src/libpcp3/src/include/pcp $(CFLAGS) $(CDEFS) -o $@ $< ../../src/libpcp3/src/$(LIBPCP3)
-	mv libpcp.h.save libpcp.h
+	`set -e; \
+	mv libpcp.h libpcp.h.save; \
+	trap 'mv -f libpcp.h.save libpcp.h' 0 1 2 3 15; \
+	$(CC) -I../../src/libpcp3/src/include/pcp $(CFLAGS) $(CDEFS) -o $@ $< ../../src/libpcp3/src/$(LIBPCP3); \
+	$(LINKER_MAKERULE) :; \
+	mv -f libpcp.h.save libpcp.h; \
+	trap - 0`
 
 # --- need libpcp but also PM_CONTEXT_LOCAL
 #
@@ -525,6 +1275,7 @@ api_abi_compat:	api_abi.c libpcp.h
 fetchrate_lite:	fetchrate_lite.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DLITE=1 -o $@ fetchrate_lite.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 fetchrate_lite.c:	fetchrate.c
 	rm -f $@
@@ -533,6 +1284,7 @@ fetchrate_lite.c:	fetchrate.c
 chkctx2_lite:	chkctx2_lite.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DLITE=1 -o $@ chkctx2_lite.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 chkctx2_lite.c:	chkctx2.c
 	rm -f $@
@@ -541,18 +1293,22 @@ chkctx2_lite.c:	chkctx2.c
 hp-mib: hp-mib.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DLITE=1 -o $@ hp-mib.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pcp_lite_crash: pcp_lite_crash.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DLITE=1 -o $@ pcp_lite_crash.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 store: store.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DLITE=1 -o $@ store.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 store_and_fetch: store_and_fetch.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DLITE=1 -o $@ store_and_fetch.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 # --- need libpcp_pmda
 #
@@ -568,37 +1324,48 @@ domain.h:	$(PCP_VAR_DIR)/pmns/stdpmid
 pmdashutdown:	pmdashutdown.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 dumb_pmda: dumb_pmda.c localconfig.h
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 pmdacache: pmdacache.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 pmdaqueue: pmdaqueue.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 rootclient: rootclient.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 atomstr: atomstr.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 semstr: semstr.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 keycache: keycache.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 keycache2: keycache2.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 badpmda: badpmda.c
 	$(CCF) $(LCDEFS) $(LCOPTS) -o $@ $@.c $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 torture_cache:	torture_cache.o 
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.o $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 # --- need libpcp_gui
 #
@@ -606,50 +1373,61 @@ torture_cache:	torture_cache.o
 record:	record.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_gui
+	$(LINKER_MAKERULE)
 
 record-setarg: record-setarg.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_gui
+	$(LINKER_MAKERULE)
 
 # --- need libpcp_mmv
 #
 mmv%:	mmv%.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_mmv
+	$(LINKER_MAKERULE)
 
 # --- need extra libraries
 #
 pducheck:	pducheck.o 
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pducheck.o $(TRACELIB) $(LDLIBS) -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 pducrash:	pducrash.o 
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pducrash.o $(TRACELIB) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 pdu-server:	pdu-server.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ pdu-server.o $(TRACELIB) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 obs:	obs.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ obs.c $(TRACELIB) 
+	$(LINKER_MAKERULE)
 
 torture_trace:	torture_trace.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ torture_trace.c $(LIB_FOR_PTHREADS) $(TRACELIB) 
+	$(LINKER_MAKERULE)
 
 tstate:	tstate.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ tstate.c $(TRACELIB) 
+	$(LINKER_MAKERULE)
 
 tabort:	tabort.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ tabort.c $(TRACELIB) 
+	$(LINKER_MAKERULE)
 
 sortinst:	sortinst.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ sortinst.c $(LIB_FOR_REGEX)
+	$(LINKER_MAKERULE)
 
 # --- need libpcp_import
 #
@@ -657,37 +1435,46 @@ sortinst:	sortinst.c
 check_import:	check_import.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
+	$(LINKER_MAKERULE)
 
 check_import_name:	check_import_name.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
+	$(LINKER_MAKERULE)
 
 check_pmiend_fdleak:	check_pmiend_fdleak.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
+	$(LINKER_MAKERULE)
 
 check_pmi_errconv:	check_pmi_errconv.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_import
+	$(LINKER_MAKERULE)
 
 # --- need libpcp_web
 #
 httpcache:	httpcache.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web -lpcp_mmv
+	$(LINKER_MAKERULE)
 
 httpfetch:	httpfetch.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web -lpcp_mmv
+	$(LINKER_MAKERULE)
 json_test:	json_test.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web -lpcp_mmv
+	$(LINKER_MAKERULE)
 sha1int2ext:	sha1int2ext.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web -lpcp_mmv
+	$(LINKER_MAKERULE)
 sha1ext2int:	sha1ext2int.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_pmda -lpcp_web -lpcp_mmv
+	$(LINKER_MAKERULE)
 
 # --- need libpcp_fault
 #
@@ -695,10 +1482,12 @@ sha1ext2int:	sha1ext2int.o
 check_fault_injection: check_fault_injection.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c $(LDLIBS) -lpcp_fault -lpcp -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 exercise_fault: exercise_fault.c
 	rm -f $@
 	$(CCF) $(CDEFS) -DPM_FAULT_INJECTION=1 -o $@ $@.c $(LDLIBS) -lpcp_fault -lpcp -lpcp_pmda
+	$(LINKER_MAKERULE)
 
 # --- need lib for pthreads
 #
@@ -706,71 +1495,88 @@ exercise_fault: exercise_fault.c
 multithread0:	multithread0.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread1:	multithread1.c
 	rm -f $@
 ifeq "$(TARGET_OS)" "darwin"
 	@# see comments in multithread1.c to explain this crock
 	$(CCF) $(CDEFS) -Ddarwin_hack=1 -o $@ $@.c $(LIB_FOR_PTHREADS) -framework CoreFoundation $(LDLIBS)
+	$(LINKER_MAKERULE)
 else
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 endif
 
 multithread2:	multithread2.c localconfig.h
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread3:	multithread3.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread4:	multithread4.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread5:	multithread5.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread6:	multithread6.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread7:	multithread7.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread8:	multithread8.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread9:	multithread9.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread10:	multithread10.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread11:	multithread11.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread12:	multithread12.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread13:	multithread13.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 multithread14:	multithread14.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 exerlock:	exerlock.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LIB_FOR_PTHREADS) $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 # --- binary format dependencies
 #
@@ -778,6 +1584,7 @@ exerlock:	exerlock.c
 ifeq ($(HAVE_64), 1)
 pv64: pv.c
 	$(CCF) $(CDEFS) -o $@ pv.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 else
 pv64:
 endif
@@ -788,24 +1595,29 @@ endif
 torture_indom: torture_indom.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ torture_indom.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 units-parse: units-parse.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ units-parse.c $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 # --- need add_ctx_dm()
 #
 grind_ctx:	grind_ctx.o addctxdm.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 churnctx:	churnctx.o addctxdm.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 torture_pmns: torture_pmns.o addctxdm.o
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $^ $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 # --- miscellaneous
 #
@@ -839,10 +1651,12 @@ ifeq "$(HAVE_CMOCKA)" "true"
 test_encodings:	test_encodings.c
 	rm -f $@
 	$(CCF) $(CMOCKACFLAGS) $(CDEFS) -o $@ $^ $(LDLIBS) $(LIB_FOR_CMOCKA) -lpcp_pmda -lpcp_web -lpcp_mmv
+	$(LINKER_MAKERULE)
 
 test_hostspec:	test_hostspec.c
 	rm -f $@
 	$(CCF) $(CMOCKACFLAGS) $(CDEFS) -o $@ $^ $(LDLIBS) $(LIB_FOR_CMOCKA)
+	$(LINKER_MAKERULE)
 else
 test_encodings:
 test_hostspec:
@@ -859,21 +1673,26 @@ dumpstack:	dumpstack.c
 	rm -f $@
 ifeq "$(TOPDIR)" ""
 	$(CC) -I$(PCP_INC_DIR) -I. $(PCFLAGS) -o $@ -rdynamic $^ -lpcp
+	$(LINKER_MAKERULE)
 else
 	$(CC) -I$(TOPDIR)/src/include -I. $(PCFLAGS) -o $@ -rdynamic $^ -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) $(LDLIBS) -lpcp
+	$(LINKER_MAKERULE)
 endif
 
 ifneq ($(NVIDIAQALIB),)
 $(NVIDIAQALIB):	nvidia-ml.o
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 endif
 
 ifneq ($(IBUMADQALIB),)
 $(IBUMADQALIB):	infiniband-umad.o
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 
 $(IBVERBSQALIB):	infiniband-verbs.o
 	$(CC) $(LDFLAGS) $(_SHAREDOPTS) -o $@ $< $(LDLIBS)
+	$(LINKER_MAKERULE)
 endif
 
 arch_maxfd.o:	localconfig.h

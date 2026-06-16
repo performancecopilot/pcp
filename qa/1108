@@ -143,9 +143,11 @@ done
 echo "done, now=$now" >>$seq_full
 
 # real QA test starts here
-# need to be a place the user $PCP_USER can cd to from pmlogger_daily
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
 #
-cd ${TMPDIR:-/tmp}
+cd "$PCP_LOG_DIR"
+
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_daily -P -o -k 550 -N -c $tmp.control" 2>&1 \
 | tee -a $seq_full \
 | _filter

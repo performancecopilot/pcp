@@ -159,6 +159,11 @@ do
 	    )  && echo $seq >>$tmp.tmp
 	    ;;
 
+	not_in_macos)
+	    ( grep '^[ 	]*#.*:not_in_macos:' $seq >$tmp.debug  \
+	    )  && echo $seq >>$tmp.tmp
+	    ;;
+
 	pmlogcompress)	# this is a group
 	    ( grep -v '^[ 	]*#' $seq \
 	      | grep -E -q "(^[ 	]*(pmlogcompress|pmlogdecompress)([ '\"]|$))|([ /'\"\`_=](pmlogcompress|pmlogdecompress)([ '\"\`_]|$))" \

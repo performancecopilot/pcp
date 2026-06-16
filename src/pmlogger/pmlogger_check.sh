@@ -94,6 +94,12 @@ BEGIN	    	{ i = 0 }
 eval $PWDCMND -P >/dev/null 2>&1
 [ $? -eq 0 ] && PWDCMND="$PWDCMND -P"
 here=`$PWDCMND`
+if [ "$PCP_PLATFORM" = darwin ]
+then
+    # strip unhelpful /private prefix from macOS
+    #
+    here=`echo "$here" | sed -e 's;^/private/;/;'`
+fi
 
 # default location
 #
@@ -339,7 +345,7 @@ _get_configfile()
 {
     # extract the pmlogger configuration file (-c) from a list of arguments
     #
-    echo $@ | sed -n \
+    echo "$@" | sed -n \
         -e 's/^/ /' \
         -e 's/[         ][      ]*/ /g' \
         -e 's/-c /-c/' \
@@ -534,7 +540,17 @@ _check_archive()
 	    :
 	else
 	    logdir=`dirname "$logfile"`
-	    echo "Directory (`cd "$logdir"; $PWDCMND`) contents:"
+	    # being cautious in case cd fails ...
+	    #
+	    __pwddir=`cd "$logdir" && $PWDCMND`
+	    [ -z "$__pwddir" ] && __pwddir="$logdir"
+	    if [ "$PCP_PLATFORM" = darwin ]
+	    then
+		# strip unhelpful /private prefix from macOS
+		#
+		__pwddir=`echo "$__pwddir" | sed -e 's;^/private/;/;'`
+	    fi
+	    echo "Directory ($__pwddir) contents:"
 	    LC_TIME=POSIX ls -la "$logdir"
 	fi
     elif [ -f "$logfile" ]

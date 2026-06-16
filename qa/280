@@ -26,7 +26,14 @@ fi
 
 if which realpath >/dev/null 2>&1
 then
-    [ `realpath $PCP_ARCHIVE_DIR/$(hostname)` = "$PCP_ARCHIVE_DIR/$(hostname)" ] || _notrun "symlinks in PCP_ARCHIVE_DIR: `realpath $PCP_ARCHIVE_DIR/$(hostname)` != $PCP_ARCHIVE_DIR/$(hostname)"
+    realpath="`realpath $PCP_ARCHIVE_DIR/$(hostname)`"
+    if [ "$PCP_PLATFORM" = darwin ]
+    then
+	# /private is a real annoyance!
+	#
+	realpath="`echo "$realpath" | sed -e 's;^/private/;/;'`"
+    fi
+    [ "$realpath" = "$PCP_ARCHIVE_DIR/$(hostname)" ] || _notrun "symlinks in PCP_ARCHIVE_DIR: $realpath != $PCP_ARCHIVE_DIR/$(hostname)"
 fi
 
 _filter()
@@ -103,6 +110,11 @@ skip == 0							{ print }'
 PMLOGGER_CHECK_SKIP_LOGCONF=yes; export PMLOGGER_CHECK_SKIP_LOGCONF
 
 # real QA test starts here
+
+# need to be in a directory the user $PCP_USER can access, and . may not be ok
+#
+cd "$PCP_LOG_DIR"
+
 _save_config $PCP_ETC_DIR/pcp/pmlogger
 _restore_pmlogger_control
 umask 022
@@ -129,11 +141,7 @@ echo "Expect this should do nothing ..." | tee -a $seq_full
 touch $tmp.log
 $sudo chown $PCP_USER:$PCP_GROUP $tmp.log
 
-# need to be a place the user $PCP_USER can cd to from pmlogger_check
-#
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_GROUP sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
-cd $here
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter
 _try_pmlc
 
@@ -161,11 +169,9 @@ sleep 2
 
 echo
 echo "Expect this to re-start the primary logger ..." | tee -a $seq_full
-cd ${TMPDIR:-/tmp}
 #debug# echo "PCP_PMLOGGERCONTROL_PATH=$PCP_PMLOGGERCONTROL_PATH"
 #debug# ls -l $PCP_PMLOGGERCONTROL_PATH
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -V -l $tmp.log"
-cd $here
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter
 _try_pmlc
 
@@ -198,18 +204,14 @@ sleep 2
 
 echo
 echo "Expect this to quietly re-start the primary logger ..." | tee -a $seq_full
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
-cd $here
 [ -f $tmp.log ] && $sudo cat $tmp.log | tee -a $seq_full | _filter
 _try_pmlc
 
 echo
 echo "Expect this to get a mutex failure ..." | tee -a $seq_full
 $sudo touch $LOGGING_DIR/$LOCALHOST/lock
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
-cd $here
 if [ -f $tmp.log ]
 then
     $sudo cat $tmp.log | tee -a $seq_full | _filter \
@@ -222,9 +224,7 @@ echo
 echo "Expect this to cleanup an old lock file ..." | tee -a $seq_full
 $sudo rm -f $LOGGING_DIR/$LOCALHOST/lock
 $sudo touch -t 199701020304.00 $LOGGING_DIR/$LOCALHOST/lock
-cd ${TMPDIR:-/tmp}
 $sudo -u $PCP_USER -g $PCP_USER sh -c "umask 022; $PCP_BINADM_DIR/pmlogger_check -l $tmp.log"
-cd $here
 for i in 1 2 3 4 5 6 7 8 9 10
 do
     if [ -f $tmp.log ]

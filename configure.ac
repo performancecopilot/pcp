@@ -781,19 +781,19 @@ AC_SUBST(sort)
 dnl echo_n set to -n if echo understands -n to suppress newline
 dnl echo_c set to \c if echo understands \c to suppress newline
 AC_MSG_CHECKING([if echo uses -n or backslash-c to suppress newlines])
-if ( $echo "testing\c"; $echo 1,2,3 ) | grep c >/dev/null
+if ( $echo -n testing; $echo 1,2,3 ) | grep testing1,2,3 >/dev/null
 then
-  if ( $echo -n testing; $echo 1,2,3 ) | sed s/-n/xn/ | grep xn >/dev/null
+  echo_n=-n echo_c=
+  AC_MSG_RESULT([ -n])
+else
+  if ( $echo 'testing\c'; $echo 1,2,3 ) | grep 'testing1,2,3' >/dev/null
   then
+    echo_n= echo_c='\c'
+    AC_MSG_RESULT([backslash-c])
+  else
     echo_n= echo_c=
     AC_MSG_RESULT([neither?])
-  else
-    echo_n=-n echo_c=
-    AC_MSG_RESULT([ -n])
   fi
-else
-  echo_n= echo_c='\\c'
-  AC_MSG_RESULT([backslash-c])
 fi
 AC_SUBST(echo_n)
 AC_SUBST(echo_c)
