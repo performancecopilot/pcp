@@ -143,12 +143,21 @@ def test_pcp(self):
 
     # pmGetChildren
     if not self.archive_type:
-        gcs = ctx.pmGetChildren("kernel")
+        if (ARCHIVE == ""):
+            # change from kernel to simple here (and a couple of other places)
+            # to avoid PMNS non-determinism for non-Linux platforms, like
+            # macOS with live pmcd
+            gcs = ctx.pmGetChildren("simple")
+        else:
+            gcs = ctx.pmGetChildren("kernel")
         print("pmGetChildren:", gcs)
         self.assertTrue(len(gcs) >=2)
 
         # pmGetChildrenStatus
-        gcs = ctx.pmGetChildrenStatus("kernel")
+        if (ARCHIVE == ""):
+            gcs = ctx.pmGetChildrenStatus("simple")
+        else:
+            gcs = ctx.pmGetChildrenStatus("kernel")
         print("pmGetChildrenStatus:", gcs)
         self.assertTrue(len(gcs[0]) == len(gcs[1]))
 
@@ -160,7 +169,10 @@ def test_pcp(self):
                     index == api.PMNS_REMOTE)
 
     # pmTraversePMNS
-    ctx.pmTraversePMNS("kernel", traverse_callback)
+    if (ARCHIVE == ""):
+        ctx.pmTraversePMNS("simple", traverse_callback)
+    else:
+        ctx.pmTraversePMNS("kernel", traverse_callback)
     print("pmTraversePMNS:", TRAVERSE_CALLBACK_COUNT)
     self.assertTrue(TRAVERSE_CALLBACK_COUNT > 0)
 

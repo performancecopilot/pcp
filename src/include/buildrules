@@ -50,7 +50,7 @@ _SHAREDOPTS	= -shared -fpic
 endif
 ifeq ($(TARGET_OS), darwin)
 # libtool doesnt understand -dynamiclib so we need both
-_SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined suppress -headerpad_max_install_names
+_SHAREDOPTS	= -fPIC -dynamic -dynamiclib -flat_namespace -undefined dynamic_lookup -headerpad_max_install_names
 endif
 ifeq ($(TARGET_OS), aix)
 _SHAREDOPTS	= -qmkshrobj

@@ -81,6 +81,7 @@ port2=`expr $port1 + 1`
 port2=`_find_free_port $port2`
 port3=`expr $port2 + 1`
 port3=`_find_free_port $port3`
+echo "port1=$port1 port2=$port2 port3=$port3" >>$seq_full
 
 # Avoid derived metrics delay at startup ... want "a" and "b" to run
 # as close as possible to concurrently
@@ -91,10 +92,12 @@ PCP_DERIVED_CONFIG=; export PCP_DERIVED_CONFIG
 # a: 25 x 0.6 sec + prologue + epilogue = 27
 # b: 20 x 0.3 sec + prologue + epilogue = 22
 #
+echo "pmcd PID before a and b: `pgrep pmcd`" >>$seq_full
 PMLOGGER_PORT=$port1 \
 pmlogger -c $tmp.a.config -l $tmp.a.log -s 25 $tmp.a >$tmp.a.err 2>&1 &
 PMLOGGER_PORT=$port2 \
 pmlogger -c $tmp.b.config -l $tmp.b.log -s 20 $tmp.b >$tmp.b.err 2>&1 &
+echo "pmcd PID after a and b: `pgrep pmcd`" >>$seq_full
 
 wait
 echo "log for archive 'a' ..." >>$seq_full

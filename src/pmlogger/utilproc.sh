@@ -68,14 +68,14 @@ _do_dir_and_args()
     then
 	# secret debugging ...
 	#
-	echo "_do_dir_and_args ... dir=\"$quote_c$dir\""
+	echo >&2 "_do_dir_and_args: quotes_parsed:  dir=\"$quote_c$dir\""
 	__i=0
 	for word in $args
 	do
-	    echo " args[$__i]=\"$word\""
+	    echo >&2 " args[$__i]=\"$word\""
 	    __i=`expr $__i + 1`
 	done
-	echo " strip_quote=$strip_quote in_quote=$in_quote close_quote=$close_quote quote_c=$quote_c"
+	echo >&2 " strip_quote=$strip_quote in_quote=$in_quote close_quote=$close_quote quote_c=$quote_c"
     fi
     if $strip_quote
     then
@@ -132,6 +132,19 @@ _do_dir_and_args()
 	    dir="$newdir"
 	    args="$newargs"
 	fi
+	if [ "$debug_do_dir_and_args" = true ]
+	then
+	    # secret debugging ...
+	    #
+	    echo >&2 "_do_dir_and_args: quotes_stripped:  dir=\"$quote_c$dir\""
+	    __i=0
+	    for word in $args
+	    do
+		echo >&2 " args[$__i]=\"$word\""
+		__i=`expr $__i + 1`
+	    done
+	    echo >&2 " strip_quote=$strip_quote in_quote=$in_quote close_quote=$close_quote quote_c=$quote_c"
+	fi
     fi
 
     # save _all_ of the directory field after white space mangling
@@ -152,8 +165,9 @@ _do_dir_and_args()
     then
 	# secret debugging ...
 	#
-	echo " end strip_quote=$strip_quote in_quote=$in_quote close_quote=$close_quote quote_c=$quote_c"
-	echo " orig_dir=\"$orig_dir\" dir=\"$dir\" args=\"$args\""
+	echo >&2 "_do_dir_and_args: done: ..."
+	echo >&2 " end strip_quote=$strip_quote in_quote=$in_quote close_quote=$close_quote quote_c=$quote_c"
+	echo >&2 " orig_dir=\"$orig_dir\" dir=\"$dir\" args=\"$args\""
     fi
 }
 
@@ -173,6 +187,75 @@ _warning()
 {
     [ -n "$filename$line" ] && echo "$prog: [$filename:$line]"
     echo "Warning: $@"
+}
+
+# mkdir(1) on macOS with -m and -p is broken ... here's a replacement
+# that does the root-to-leaf creation and mode fixing on the fly
+#
+# Originally generated with the assistance of Claude (Anthropic)
+#
+# Usage: _mkdir_p [-m mode] target
+#
+_mkdir_p()
+{
+    __mode=""
+    if [ "$1" = "-m" ]
+    then
+        __mode="$2"
+	__umask=`umask`
+	umask 0		# otherwise $__mode may get masked
+        shift 2
+    fi
+
+    __target="$1"
+
+    # Strip trailing slashes
+    __target="${__target%/}"
+
+    # Build the path component by component
+    __remaining="$__target"
+    __path=""
+
+    while [ -n "$__remaining" ]
+    do
+        # Get the next component
+        __component="${__remaining%%/*}"
+        __remaining="${__remaining#"$__component"}"
+        __remaining="${__remaining#/}"
+
+        # Handle absolute paths
+        if [ -z "$__component" ]; then
+            __path="/"
+            continue
+        fi
+
+        if [ -z "$__path" ]
+        then
+            __path="$__component"
+        else
+            __path="${__path%/}/$__component"
+        fi
+        if [ ! -d "$__path" ]
+	then
+            if [ -n "$__mode" ]
+	    then
+                if ! mkdir -m "$__mode" "$__path"
+		then
+		    echo "_mkdir_p: failed for $__path and -m $__mode"
+		    [ -n "$__umask" ] && umask "$__umask"
+		    return 1
+		fi
+            else
+                if ! mkdir "$__path"
+		then
+		    echo "_mkdir_p: failed for $__path"
+		    [ -n "$__umask" ] && umask "$__umask"
+		    return 1
+		fi
+            fi
+        fi
+    done
+    [ -n "$__umask" ] && umask "$__umask"
 }
 
 # parse_log_control:
@@ -256,6 +339,12 @@ BEGIN           { i = 0 }
 	[ $? -eq 0 ] && _PWDCMD="$_PWDCMD -P"
     fi
     _here=`$_PWDCMD`
+    if [ "$PCP_PLATFORM" = darwin ]
+    then
+	# strip unhelpful /private prefix from macOS
+	#
+	_here=`echo "$_here" | sed -e 's;^/private/;/;'`
+    fi
     $VERY_VERBOSE && echo >&2 "_parse_log_control: initial pwd=$_here"
 
     if echo "$1" | grep -q -e '\.rpmsave$' -e '\.rpmnew$' -e '\.rpmorig$' -e '\.dpkg-dist$' -e '\.dpkg-old$' -e '\.dpkg-new$'
@@ -564,10 +653,7 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    #
 	    $SHOWME && echo "+ mkdir -p -m 0775 $dir"
 	    # mode rwxrwxr-x is the default for pcp:pcp dirs
-	    umask 002
-	    mkdir -p -m 0775 "$dir" >$tmp/_tmp 2>&1
-	    # reset the default mode to rw-rw-r- for files
-	    umask 022
+	    _mkdir_p -m 0775 "$dir" >$tmp/_tmp 2>&1
 	    if [ ! -d "$dir" ]
 	    then
 		cat $tmp/_tmp
@@ -597,6 +683,12 @@ s/^\([A-Za-z][A-Za-z0-9_]*\)=/export \1; \1=/p
 	    continue
 	fi
 	dir=`$_PWDCMD`
+	if [ "$PCP_PLATFORM" = darwin ]
+	then
+	    # strip unhelpful /private prefix from macOS
+	    #
+	    dir=`echo "$dir" | sed -e 's;^/private/;/;'`
+	fi
 	$VERY_VERBOSE && echo >&2 "Current dir: $dir"
 
 	# pmlogger_janitor does NOT need the lock because it is only
