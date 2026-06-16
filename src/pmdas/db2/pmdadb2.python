@@ -1443,23 +1443,23 @@ class DB2PMDA(PMDA):
                                        self.cluster_db_items)
         elif cluster in self.cluster_bp:
             self.db2_refresh_instanced(cluster, self.cluster_bp,
-                                       self.cluster_bp_items, self.INDOM_ID(0))
+                                       self.cluster_bp_items)
         elif cluster in self.cluster_table:
             self.db2_refresh_instanced(cluster, self.cluster_table,
-                                       self.cluster_table_items, self.INDOM_ID(1),
+                                       self.cluster_table_items,
                                        row_val=self.table_row_val)
         elif cluster in self.cluster_wl:
             self.db2_refresh_instanced(cluster, self.cluster_wl,
-                                       self.cluster_wl_items, self.INDOM_ID(2))
+                                       self.cluster_wl_items)
         elif cluster in self.cluster_ts:
             self.db2_refresh_instanced(cluster, self.cluster_ts,
-                                       self.cluster_ts_items, self.INDOM_ID(3))
+                                       self.cluster_ts_items)
         elif cluster in self.cluster_conn:
             self.db2_refresh_instanced(cluster, self.cluster_conn,
-                                       self.cluster_conn_items, self.INDOM_ID(4))
+                                       self.cluster_conn_items)
         elif cluster in self.cluster_latch:
             self.db2_refresh_instanced(cluster, self.cluster_latch,
-                                       self.cluster_latch_items, self.INDOM_ID(5))
+                                       self.cluster_latch_items)
         elif cluster in self.cluster_log:
             self.db2_refresh_db_scoped(cluster, self.cluster_log,
                                        self.cluster_log_items)
@@ -1512,11 +1512,12 @@ class DB2PMDA(PMDA):
                         row[item] if row[item] is not None else 0)
         self.replace_indom(self.INDOM_ID(6), instances)
 
-    def db2_refresh_instanced(self, cluster, clusters, items, indom, row_val=None):
+    def db2_refresh_instanced(self, cluster, clusters, items, row_val=None):
         """ refresh a cluster returning one row per object instance.
             Iterates all configured databases; instance names are prefixed
             with the database name as dbname/instname. """
         meta = clusters[cluster]
+        indom = meta[self.CLUSTER_INDOM]
         for item in range(items):
             pmid = self.PM_ID(cluster, item)
             if pmid in self.metrics:
