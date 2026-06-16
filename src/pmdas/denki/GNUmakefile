@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2018,2020-2021 Red Hat.
+# Copyright (c) 2018,2020-2021,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -20,7 +20,7 @@ DOMAIN		= DENKI
 CMDTARGET	= pmda$(IAM)
 LIBTARGET	= pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT	= $(IAM)_init
-LOCALCONF_LINE	= "$(IAM)	3	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
+LOCALCONF_LINE	= "$(IAM)	156	dso	$(PMDAINIT)	$(PMDATMPDIR)/$(LIBTARGET)"
 
 PMDAADMDIR	= $(PCP_PMDASADM_DIR)/$(IAM)
 PMDATMPDIR	= $(PCP_PMDAS_DIR)/$(IAM)

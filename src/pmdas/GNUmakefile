@@ -86,9 +86,11 @@ endif
 	        /^#/ { next } \
 	        /^root *\{/ { r=1; next } \
 	        r && /^\}/ { r=0; next } \
-	        r { print; next } \
+	        r { sub(/^[ \t]*/, "    "); print; next } \
+	        $$0 == "" && n == 0 { next } \
+	        $$0 == "" && buf[n-1] == "" { next } \
 	        { buf[n++] = $$0 } \
-	        END { print "}"; for (i=0; i<n; i++) print buf[i] }' \
+	        END { print "}"; print ""; for (i=0; i<n; i++) print buf[i] }' \
 	    > root.local; \
 	fi
 

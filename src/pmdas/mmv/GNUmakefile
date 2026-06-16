@@ -40,8 +40,8 @@ REWRITEVARDIR	= $(PCP_VAR_DIR)/config/pmlogrewrite
 
 DEMOFILES = README.demos Makefile.demos
 PMCDCONF_LINE	= "mmv	70	dso	mmv_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
+PMPROXY_LINE	= "pmproxy	4	dso	pmproxy_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
 LOCALCONF_LINE	= $(PMCDCONF_LINE)
-PMPROXYDSO_LINE	= "pmproxy	4	dso	pmproxy_init	$(PMDATMPDIR)/pmda_mmv.$(DSOSUFFIX)"
 
 default_pcp default :: $(TARGETS)
 
@@ -49,13 +49,11 @@ default_pcp default :: $(SUBDIRS)
 	$(SUBDIRS_MAKERULE)
 	$(PMCDCONF_MAKERULE)
 	$(LOCALCONF_MAKERULE)
-	@for f in ../local.conf ../pmcd.conf ; do \
-	    if [ -f $$f ]; then \
-		if [ `grep -c $(PMPROXYDSO_LINE) $$f ` -eq 0 ]; then \
-		    echo $(PMPROXYDSO_LINE) >> $$f ; \
-		fi; \
+	@if [ -f ../pmcd.conf ]; then \
+	    if [ `grep -c $(PMPROXY_LINE) ../pmcd.conf` -eq 0 ]; then \
+		echo $(PMPROXY_LINE) >> ../pmcd.conf; \
 	    fi; \
-	done
+	fi
 
 include $(BUILDRULES)
 
