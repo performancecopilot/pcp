@@ -28,7 +28,7 @@ jobs:
         id: Build
         run: |
           xcodebuild -version
-          ./Makepkgs -verbose
+          ./Makepkgs --ci
       # Validate PMID consistency
       - name: Validate PMID Consistency
         id: pmid-validation

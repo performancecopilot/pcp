@@ -1787,6 +1787,21 @@ collecting metrics from MongoDB.
 # end pcp-pmda-mongodb
 %endif
 
+#
+# pcp-pmda-db2
+#
+%package pmda-db2
+License: GPL-2.0-or-later
+Summary: Performance Co-Pilot (PCP) metrics for IBM Db2
+URL: https://pcp.io
+Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
+Requires: python3-pcp
+%description pmda-db2
+This package contains the PCP Performance Metrics Domain Agent (PMDA) for
+collecting metrics from IBM Db2 database servers.
+The ibm_db Python package must be installed separately before use.
+# end pcp-pmda-db2
+
 %if !%{disable_mssql}
 #
 # pcp-pmda-mssql
@@ -2470,6 +2485,7 @@ basic_manifest | keep '(etc/pcp|pmdas)/mailq(/|$)' >pcp-pmda-mailq-files
 basic_manifest | keep '(etc/pcp|pmdas)/mic(/|$)' >pcp-pmda-mic-files
 basic_manifest | keep '(etc/pcp|pmdas)/mounts(/|$)' >pcp-pmda-mounts-files
 basic_manifest | keep '(etc/pcp|pmdas)/mongodb(/|$)' >pcp-pmda-mongodb-files
+basic_manifest | keep '(etc/pcp|pmdas)/db2(/|$)' >pcp-pmda-db2-files
 basic_manifest | keep '(etc/pcp|pmdas|pmieconf)/mssql(/|$)' >pcp-pmda-mssql-files
 basic_manifest | keep '(etc/pcp|pmdas)/mysql(/|$)' >pcp-pmda-mysql-files
 basic_manifest | keep '(etc/pcp|pmdas)/named(/|$)' >pcp-pmda-named-files
@@ -2519,7 +2535,7 @@ for pmda_package in \
     activemq amdgpu apache \
     bash bind2 bonding bpf bpftrace \
     cisco \
-    dbping denki docker dm ds389 ds389log \
+    db2 dbping denki docker dm ds389 ds389log \
     elasticsearch \
     farm \
     gfs2 gluster gpfs gpsd \
@@ -2908,6 +2924,9 @@ exit 0
 %{pmda_remove "$1" "mongodb"}
 %endif
 
+%preun pmda-db2
+%{pmda_remove "$1" "db2"}
+
 %if !%{disable_mssql}
 %preun pmda-mssql
 %{pmda_remove "$1" "mssql"}
@@ -3255,6 +3274,8 @@ fi
 %if !%{disable_mongodb}
 %files pmda-mongodb -f pcp-pmda-mongodb-files.rpm
 %endif
+
+%files pmda-db2 -f pcp-pmda-db2-files.rpm
 
 %if !%{disable_mssql}
 %files pmda-mssql -f pcp-pmda-mssql-files.rpm
