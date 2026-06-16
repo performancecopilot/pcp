@@ -127,14 +127,14 @@ class DB2PMDA(PMDA):
                 'dropped.  Source: MON_GET_CONNECTION.'],
             self.INDOM_ID(5) : [pmdaIndom(self.INDOM_ID(5), {}),
                 'SELECT DISTINCT LATCH_NAME '
-                'FROM TABLE(MON_GET_LATCH(-1)) '
+                'FROM TABLE(MON_GET_EXTENDED_LATCH_WAIT(NULL)) '
                 'WHERE LATCH_NAME IS NOT NULL '
                 'AND TOTAL_EXTENDED_LATCH_WAITS > 0',
                 'Latch name',
                 'Each instance represents one internal Db2 latch type that\n'
                 'has experienced extended wait events.  High latch contention\n'
                 'indicates internal memory or I/O bottlenecks.\n'
-                'Source: MON_GET_LATCH.'],
+                'Source: MON_GET_EXTENDED_LATCH_WAIT.'],
             self.INDOM_ID(6) : [pmdaIndom(self.INDOM_ID(6), {}),
                 None,
                 'Database name',
@@ -166,7 +166,7 @@ class DB2PMDA(PMDA):
                 'SORT_OVERFLOWS,'              # 5
                 'TOTAL_CPU_TIME,'              # 6  microseconds
                 'TOTAL_WAIT_TIME,'             # 7  microseconds
-                'TOTAL_SORT_TIME,'             # 8  microseconds
+                'TOTAL_SECTION_SORT_TIME,'     # 8  microseconds
                 'LOCK_WAITS,'                  # 9
                 'LOCK_WAIT_TIME,'              # 10 milliseconds
                 'DEADLOCKS,'                   # 11
@@ -190,7 +190,7 @@ class DB2PMDA(PMDA):
 
         # Cluster 1: MON_GET_BUFFERPOOL — per buffer pool (indom 0)
         # 14 items; first SELECT column is BP_NAME (instance), then 14 values.
-        self.cluster_bp_items = 14
+        self.cluster_bp_items = 12
         self.cluster_bp = {
             1: [self.INDOM_ID(0),
                 'SELECT BP_NAME,'
@@ -205,9 +205,7 @@ class DB2PMDA(PMDA):
                 'POOL_COL_L_READS,'            # 8
                 'POOL_COL_P_READS,'            # 9
                 'POOL_READ_TIME,'              # 10 milliseconds
-                'POOL_WRITE_TIME,'             # 11 milliseconds
-                'UNREAD_PREFETCH_PAGES,'       # 12
-                'POOL_NO_VICTIM_BUFFER '       # 13
+                'POOL_WRITE_TIME '             # 11 milliseconds
                 'FROM TABLE(MON_GET_BUFFERPOOL(NULL,-1))'],
         }
 
@@ -250,7 +248,7 @@ class DB2PMDA(PMDA):
 
         # Cluster 4: MON_GET_TABLESPACE — per tablespace (indom 3)
         # 14 items; first SELECT column is TABLESPACE_NAME (instance).
-        self.cluster_ts_items = 14
+        self.cluster_ts_items = 15
         self.cluster_ts = {
             4: [self.INDOM_ID(3),
                 'SELECT TABLESPACE_NAME,'
@@ -267,7 +265,8 @@ class DB2PMDA(PMDA):
                 'DIRECT_READS,'                # 10
                 'DIRECT_READ_TIME,'            # 11 microseconds
                 'DIRECT_WRITES,'               # 12
-                'DIRECT_WRITE_TIME '           # 13 microseconds
+                'DIRECT_WRITE_TIME,'           # 13 microseconds
+                'UNREAD_PREFETCH_PAGES '       # 14
                 'FROM TABLE(MON_GET_TABLESPACE(NULL,-1))'],
         }
 
@@ -290,7 +289,7 @@ class DB2PMDA(PMDA):
                 'FROM TABLE(MON_GET_CONNECTION(NULL,-1))'],
         }
 
-        # Cluster 6: MON_GET_LATCH — per latch type (indom 5)
+        # Cluster 6: MON_GET_EXTENDED_LATCH_WAIT — per latch type (indom 5)
         # 2 items; first SELECT column is LATCH_NAME (instance).
         # Filtered to latches with at least one extended wait event.
         self.cluster_latch_items = 2
@@ -299,7 +298,7 @@ class DB2PMDA(PMDA):
                 'SELECT LATCH_NAME,'
                 'TOTAL_EXTENDED_LATCH_WAIT_TIME,'  # 0 microseconds
                 'TOTAL_EXTENDED_LATCH_WAITS '      # 1
-                'FROM TABLE(MON_GET_LATCH(-1)) '
+                'FROM TABLE(MON_GET_EXTENDED_LATCH_WAIT(NULL)) '
                 'WHERE TOTAL_EXTENDED_LATCH_WAITS > 0'],
         }
 
@@ -316,8 +315,8 @@ class DB2PMDA(PMDA):
         }
 
         # Cluster 7: MON_GET_TRANSACTION_LOG — log I/O aggregate (null indom)
-        # 10 items.  Function signature: (db_name, member); NULL,-1 = current
-        # database, all members.
+        # 10 items.  Function takes a single member INTEGER parameter; -1
+        # selects all database members.
         self.cluster_log_items = 10
         self.cluster_log = {
             7: [c_api.PM_INDOM_NULL,
@@ -332,7 +331,7 @@ class DB2PMDA(PMDA):
                 'NUM_LOG_BUFFER_FULL,'              # 7
                 'TOT_LOG_USED_KB,'                  # 8 gauge
                 'TOT_LOG_AVAILABLE_KB '             # 9 gauge
-                'FROM TABLE(MON_GET_TRANSACTION_LOG(NULL,-1))'],
+                'FROM TABLE(MON_GET_TRANSACTION_LOG(-1))'],
         }
 
         # Cluster 8: MON_GET_PKG_CACHE_STMT aggregate (null indom)
@@ -346,7 +345,7 @@ class DB2PMDA(PMDA):
                 'SUM(NUM_EXECUTIONS),'              # 1
                 'SUM(TOTAL_CPU_TIME),'              # 2 microseconds
                 'SUM(ROWS_READ),'                   # 3
-                'SUM(STMT_SORTS),'                  # 4
+                'SUM(TOTAL_SORTS),'                  # 4
                 'SUM(SORT_OVERFLOWS) '              # 5
                 'FROM TABLE(MON_GET_PKG_CACHE_STMT(NULL,NULL,NULL,-1))'],
         }
@@ -436,14 +435,14 @@ class DB2PMDA(PMDA):
                 'database resource (locks, I/O, latches, etc.) since\n'
                 'activation, in microseconds.\n'
                 'Source: MON_GET_DATABASE.TOTAL_WAIT_TIME'],
-            self.PM_ID(0, 8) : ['db2.database.total_sort_time',
+            self.PM_ID(0, 8) : ['db2.database.total_section_sort_time',
                 pmdaMetric(self.PM_ID(0, 8), c_api.PM_TYPE_U64,
                     self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
                 {},
-                'Total time spent performing sorts (microseconds)',
-                'Cumulative time consumed by all sort operations since\n'
+                'Total time spent in section sorts (microseconds)',
+                'Cumulative time consumed by all section sort operations since\n'
                 'activation, in microseconds.\n'
-                'Source: MON_GET_DATABASE.TOTAL_SORT_TIME'],
+                'Source: MON_GET_DATABASE.TOTAL_SECTION_SORT_TIME'],
             self.PM_ID(0, 9) : ['db2.database.lock_waits',
                 pmdaMetric(self.PM_ID(0, 9), c_api.PM_TYPE_U64,
                     self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
@@ -699,26 +698,6 @@ class DB2PMDA(PMDA):
                 'Cumulative time spent writing pages from the buffer pool to\n'
                 'disk, in milliseconds.\n'
                 'Source: MON_GET_BUFFERPOOL.POOL_WRITE_TIME'],
-            self.PM_ID(1, 12) : ['db2.bufferpool.unread_prefetch_pages',
-                pmdaMetric(self.PM_ID(1, 12), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
-                {},
-                'Prefetched pages that were never read by an application',
-                'Cumulative number of pages read by the prefetcher that were\n'
-                'never subsequently accessed by an application, indicating\n'
-                'wasted I/O from over-aggressive or mis-targeted prefetching.\n'
-                'Source: MON_GET_BUFFERPOOL.UNREAD_PREFETCH_PAGES'],
-            self.PM_ID(1, 13) : ['db2.bufferpool.no_victim_buffer',
-                pmdaMetric(self.PM_ID(1, 13), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
-                {},
-                'Times no victim buffer was available in the buffer pool',
-                'Cumulative number of times a page cleaner was invoked\n'
-                'because the buffer pool had no free page to use as a victim\n'
-                'for a new read.  Sustained non-zero values indicate the\n'
-                'buffer pool size (BUFFPAGE) should be increased.\n'
-                'Source: MON_GET_BUFFERPOOL.POOL_NO_VICTIM_BUFFER'],
-
             # -----------------------------------------------------------
             # Cluster 2: MON_GET_TABLE  (indom 1, 10 items)
             # -----------------------------------------------------------
@@ -989,6 +968,16 @@ class DB2PMDA(PMDA):
                 'Cumulative time performing direct writes for this tablespace,\n'
                 'in microseconds.\n'
                 'Source: MON_GET_TABLESPACE.DIRECT_WRITE_TIME'],
+            self.PM_ID(4, 14) : ['db2.tablespace.unread_prefetch_pages',
+                pmdaMetric(self.PM_ID(4, 14), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Prefetched pages that were never read by an application',
+                'Cumulative number of pages read by the prefetcher for this\n'
+                'tablespace that were never subsequently accessed by an\n'
+                'application, indicating wasted I/O from over-aggressive or\n'
+                'mis-targeted prefetching.\n'
+                'Source: MON_GET_TABLESPACE.UNREAD_PREFETCH_PAGES'],
 
             # -----------------------------------------------------------
             # Cluster 5: MON_GET_CONNECTION  (indom 4, 10 items)
@@ -1075,7 +1064,7 @@ class DB2PMDA(PMDA):
                 'Source: MON_GET_CONNECTION.LOCK_ESCALS'],
 
             # -----------------------------------------------------------
-            # Cluster 6: MON_GET_LATCH  (indom 5, 2 items)
+            # Cluster 6: MON_GET_EXTENDED_LATCH_WAIT  (indom 5, 2 items)
             # -----------------------------------------------------------
             self.PM_ID(6, 0) : ['db2.latch.total_wait_time',
                 pmdaMetric(self.PM_ID(6, 0), c_api.PM_TYPE_U64,
@@ -1086,7 +1075,7 @@ class DB2PMDA(PMDA):
                 'during extended wait events, in microseconds.  High latch\n'
                 'wait times on specific latches pinpoint internal concurrency\n'
                 'bottlenecks in the Db2 engine.\n'
-                'Source: MON_GET_LATCH.TOTAL_EXTENDED_LATCH_WAIT_TIME'],
+                'Source: MON_GET_EXTENDED_LATCH_WAIT.TOTAL_EXTENDED_LATCH_WAIT_TIME'],
             self.PM_ID(6, 1) : ['db2.latch.wait_count',
                 pmdaMetric(self.PM_ID(6, 1), c_api.PM_TYPE_U64,
                     self.INDOM_ID(5), c_api.PM_SEM_COUNTER, countUnits),
@@ -1095,7 +1084,7 @@ class DB2PMDA(PMDA):
                 'Cumulative number of extended wait events on this internal\n'
                 'Db2 latch.  Only latches with at least one extended wait are\n'
                 'included in the instance domain.\n'
-                'Source: MON_GET_LATCH.TOTAL_EXTENDED_LATCH_WAITS'],
+                'Source: MON_GET_EXTENDED_LATCH_WAIT.TOTAL_EXTENDED_LATCH_WAITS'],
 
             # -----------------------------------------------------------
             # Cluster 7: MON_GET_TRANSACTION_LOG  (null indom, 10 items)
@@ -1232,7 +1221,7 @@ class DB2PMDA(PMDA):
                 'Total sorts performed by all cached statement executions',
 'Snapshot aggregate number of sort operations performed across all\n'
                 'executions of all cached statements.\n'
-                'Source: SUM(STMT_SORTS) over MON_GET_PKG_CACHE_STMT'],
+                'Source: SUM(TOTAL_SORTS) over MON_GET_PKG_CACHE_STMT'],
             self.PM_ID(8, 5) : ['db2.pkg_cache.total_sort_overflows',
                 pmdaMetric(self.PM_ID(8, 5), c_api.PM_TYPE_U64,
                     self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
