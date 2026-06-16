@@ -52,3 +52,4 @@ include $(PCP_INC_DIR)/buildrules
 
 pmdadynamic: dynamic.o
 	$(CCF) -o $@ $(LDFLAGS) $< $(LDLIBS)
+	$(LINKER_MAKERULE)

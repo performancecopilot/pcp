@@ -206,8 +206,14 @@ environment (your platform must at least have gmake).
 
 #### macOS-specific pre-requisites
 ```
+# install Homebrew (see https://brew.sh)
+bash -c $(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)
+
 # Install Homebrew packages (canonical list in build/mac/brew-packages.txt)
 brew install $(grep -v '^#' build/mac/brew-packages.txt | grep -v '^$' | tr '\n' ' ')
+
+# and assuming you're using zsh
+rehash
 
 # Set up Python build dependencies (uses uv, installed above)
 ./build/mac/setup-python-env.sh

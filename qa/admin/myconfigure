@@ -128,11 +128,13 @@ then
     fi
 elif [ $target = darwin ]
 then
-    # On macOS platforms, we're using brew ...
+    # On Mac OS platforms, we install away from /usr/bin, /usr/lib
+    # and so on because of security requirements in recent versions.
+    # Qt use is retired here due to problems with linking+packaging.
     #
-    CC=clang; export CC
-    CXX=clang; export CXX
-    configopts="`brew diy --version=$version --name=pcp`"
+    etc=`realpath /etc`
+    var=`realpath /var`
+    configopts="--sysconfdir=$etc --localstatedir=$var --prefix=/usr/local --with-qt=no"
 elif [ $target = netbsd ]
 then
     # Try to mimic where pkgsrc/pkgin place things

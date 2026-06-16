@@ -16,9 +16,18 @@ trap "rm -f $tmp.*; exit \$sts" 0 1 2 3 15
 
 verbose=true
 
+# need to be a place the user $PCP_USER can cd to from pmlogger_*
+#
+if ! cd "$PCP_LOG_DIR"
+then
+    echo >&2 "Error: cd PCP_LOG_DIR ($PCP_LOG_DIR) failed"
+    sts=1
+    exit
+fi
+
 # Anything to be merged?
 #
-pmlogger_daily -N -V >$tmp.tmp 2>&1
+$PCP_BINADM_DIR/pmlogger_daily -N -V >$tmp.tmp 2>&1
 
 if grep '^+ pmlogger_merge ' $tmp.tmp >/dev/null
 then
@@ -62,8 +71,8 @@ state == 1	{ print }'
 	    sudo cp $tmp.conf $CONF
 	fi
     fi
-    sudo -u pcp -g pcp `which pmlogger_daily`
-    pmlogger_daily -N -V >$tmp.tmp
+    sudo $PCP_BINADM_DIR/runaspcp $PCP_BINADM_DIR/pmlogger_daily
+    $PCP_BINADM_DIR/pmlogger_daily -N -V >$tmp.tmp 2>&1
     if grep '^+ pmlogger_merge ' $tmp.tmp 
     then
 	echo >&2 "Error: pmlogger_daily failed!"
