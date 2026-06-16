@@ -109,9 +109,9 @@ class DB2PMDA(PMDA):
                 'Workloads classify incoming connections based on attributes\n'
                 'such as application name or IP address.  Source: MON_GET_WORKLOAD.'],
             self.INDOM_ID(3) : [pmdaIndom(self.INDOM_ID(3), {}),
-                'SELECT DISTINCT TABLESPACE_NAME '
+                'SELECT DISTINCT TBSP_NAME '
                 'FROM TABLE(MON_GET_TABLESPACE(NULL,-1)) '
-                'WHERE TABLESPACE_NAME IS NOT NULL',
+                'WHERE TBSP_NAME IS NOT NULL',
                 'Tablespace name',
                 'Each instance represents one Db2 tablespace.\n'
                 'Tablespaces are logical storage units that group related\n'
@@ -176,7 +176,7 @@ class DB2PMDA(PMDA):
                 'APPLS_CUR_CONS,'              # 15 gauge
                 'APPLS_IN_DB2,'                # 16 gauge
                 'CONNECTIONS_TOP,'             # 17 gauge (peak)
-                'STMTS_COMPLETED,'             # 18
+                'ACT_COMPLETED_TOTAL,'         # 18 (STMTS_COMPLETED on older Db2)
                 'TOTAL_SORTS,'                 # 19
                 'PKG_CACHE_LOOKUPS,'           # 20
                 'PKG_CACHE_INSERTS,'           # 21
@@ -222,9 +222,8 @@ class DB2PMDA(PMDA):
                 'LOCK_WAITS,'                  # 4
                 'LOCK_WAIT_TIME,'              # 5 milliseconds
                 'LOCK_ESCALS,'                 # 6
-                'DEADLOCKS,'                   # 7
-                'OVERFLOW_ACCESSES,'           # 8
-                'TABLE_SCANS '                 # 9
+                'OVERFLOW_ACCESSES,'           # 7 (item 7 deadlocks not in MON_GET_TABLE)
+                'TABLE_SCANS '                 # 8
                 'FROM TABLE(MON_GET_TABLE(NULL,NULL,-1)) '
                 "WHERE TABSCHEMA NOT LIKE 'SYS%'"],
         }
@@ -247,11 +246,11 @@ class DB2PMDA(PMDA):
         }
 
         # Cluster 4: MON_GET_TABLESPACE — per tablespace (indom 3)
-        # 14 items; first SELECT column is TABLESPACE_NAME (instance).
+        # 15 items; first SELECT column is TBSP_NAME (instance).
         self.cluster_ts_items = 15
         self.cluster_ts = {
             4: [self.INDOM_ID(3),
-                'SELECT TABLESPACE_NAME,'
+                'SELECT TBSP_NAME,'
                 'POOL_DATA_L_READS,'           # 0
                 'POOL_DATA_P_READS,'           # 1
                 'POOL_DATA_WRITES,'            # 2
@@ -302,15 +301,15 @@ class DB2PMDA(PMDA):
                 'WHERE TOTAL_EXTENDED_LATCH_WAITS > 0'],
         }
 
-        # Cluster 9: ENV_GET_INSTANCE_INFO — instance metadata (null indom, discrete)
+        # Cluster 9: SYSIBMADM.ENV_INST_INFO — instance metadata (null indom, discrete)
         # 3 items.  Queried from the first available database connection since
         # instance attributes (version, platform, name) are shared across all
         # databases on the same Db2 instance.  PM_SEM_DISCRETE: log-once.
         self.cluster_inst_items = 3
         self.cluster_inst = {
             9: [c_api.PM_INDOM_NULL,
-                'SELECT INST_NAME, SERVICE_LEVEL, PLATFORM '
-                'FROM TABLE(ENV_GET_INSTANCE_INFO()) '
+                'SELECT INST_NAME, SERVICE_LEVEL, BLD_LEVEL '
+                'FROM SYSIBMADM.ENV_INST_INFO '
                 'FETCH FIRST ROW ONLY'],
         }
 
@@ -329,8 +328,8 @@ class DB2PMDA(PMDA):
                 'NUM_LOG_READ_IO,'                  # 5
                 'NUM_LOG_DATA_FOUND_IN_BUFFER,'     # 6
                 'NUM_LOG_BUFFER_FULL,'              # 7
-                'TOT_LOG_USED_KB,'                  # 8 gauge
-                'TOT_LOG_AVAILABLE_KB '             # 9 gauge
+                'TOTAL_LOG_USED / 1024,'            # 8 gauge (bytes -> KB)
+                'TOTAL_LOG_AVAILABLE / 1024 '       # 9 gauge (bytes -> KB)
                 'FROM TABLE(MON_GET_TRANSACTION_LOG(-1))'],
         }
 
@@ -525,7 +524,7 @@ class DB2PMDA(PMDA):
                 'Total SQL statements completed',
                 'Cumulative number of SQL and XQuery statements that have\n'
                 'completed execution since the database was activated.\n'
-                'Source: MON_GET_DATABASE.STMTS_COMPLETED'],
+                'Source: MON_GET_DATABASE.ACT_COMPLETED_TOTAL'],
             self.PM_ID(0, 19) : ['db2.database.total_sorts',
                 pmdaMetric(self.PM_ID(0, 19), c_api.PM_TYPE_U64,
                     self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
@@ -763,9 +762,10 @@ class DB2PMDA(PMDA):
                     self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
                 {},
                 'Deadlocks involving this table',
-                'Cumulative number of deadlock events that involved a lock\n'
-                'on this table.\n'
-                'Source: MON_GET_TABLE.DEADLOCKS'],
+                'Deadlock counts are not available per-table in MON_GET_TABLE\n'
+                'on Db2 v12; this metric is always reported as zero.\n'
+                'Use db2.database.deadlocks for database-wide deadlock counts.\n'
+                'Source: not available in MON_GET_TABLE'],
             self.PM_ID(2, 8) : ['db2.table.overflow_accesses',
                 pmdaMetric(self.PM_ID(2, 8), c_api.PM_TYPE_U64,
                     self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
@@ -1165,7 +1165,7 @@ class DB2PMDA(PMDA):
                 'Current transaction log space used (kilobytes)',
                 'Instantaneous amount of log space currently in use across\n'
                 'all active log files, in kilobytes.\n'
-                'Source: MON_GET_TRANSACTION_LOG.TOT_LOG_USED_KB'],
+                'Source: MON_GET_TRANSACTION_LOG.TOTAL_LOG_USED'],
             self.PM_ID(7, 9) : ['db2.log.available_kb',
                 pmdaMetric(self.PM_ID(7, 9), c_api.PM_TYPE_U64,
                     self.INDOM_ID(6), c_api.PM_SEM_INSTANT, kbyteUnits),
@@ -1174,7 +1174,7 @@ class DB2PMDA(PMDA):
                 'Instantaneous amount of log space still available before\n'
                 'the database runs out of log space (LOGFULL condition),\n'
                 'in kilobytes.\n'
-                'Source: MON_GET_TRANSACTION_LOG.TOT_LOG_AVAILABLE_KB'],
+                'Source: MON_GET_TRANSACTION_LOG.TOTAL_LOG_AVAILABLE'],
 
             # -----------------------------------------------------------
             # Cluster 8: MON_GET_PKG_CACHE_STMT aggregate (null indom, 6 items)
@@ -1233,7 +1233,7 @@ class DB2PMDA(PMDA):
                 'Source: SUM(SORT_OVERFLOWS) over MON_GET_PKG_CACHE_STMT'],
 
             # -----------------------------------------------------------
-            # Cluster 9: ENV_GET_INSTANCE_INFO  (null indom, 3 items)
+            # Cluster 9: SYSIBMADM.ENV_INST_INFO  (null indom, 3 items)
             # PM_SEM_DISCRETE: these values rarely change; logged once.
             # -----------------------------------------------------------
             self.PM_ID(9, 0) : ['db2.instance.name',
@@ -1243,7 +1243,7 @@ class DB2PMDA(PMDA):
                 'Db2 instance name',
                 'Name of the Db2 instance (database manager instance) to\n'
                 'which the monitored databases belong.\n'
-                'Source: ENV_GET_INSTANCE_INFO.INST_NAME'],
+                'Source: SYSIBMADM.ENV_INST_INFO.INST_NAME'],
             self.PM_ID(9, 1) : ['db2.instance.version',
                 pmdaMetric(self.PM_ID(9, 1), c_api.PM_TYPE_STRING,
                     c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
@@ -1252,15 +1252,16 @@ class DB2PMDA(PMDA):
                 'Full Db2 release and service level string, for example\n'
                 '"DB2 v11.5.8.0 s2309091300".  Useful as archive context\n'
                 'when analysing historical performance data.\n'
-                'Source: ENV_GET_INSTANCE_INFO.SERVICE_LEVEL'],
+                'Source: SYSIBMADM.ENV_INST_INFO.SERVICE_LEVEL'],
             self.PM_ID(9, 2) : ['db2.instance.platform',
                 pmdaMetric(self.PM_ID(9, 2), c_api.PM_TYPE_STRING,
                     c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
                 {},
-                'Db2 instance operating platform',
-                'Operating system and CPU architecture on which the Db2\n'
-                'instance is running, for example "Linux/X8664".\n'
-                'Source: ENV_GET_INSTANCE_INFO.PLATFORM'],
+                'Db2 instance build level identifier',
+                'Db2 build level string from the instance environment,\n'
+                'which often encodes CPU architecture (e.g. AMD64).  PLATFORM\n'
+                'is not available in SYSIBMADM.ENV_INST_INFO on Db2 v12.\n'
+                'Source: SYSIBMADM.ENV_INST_INFO.BLD_LEVEL'],
         }
 
         # register all the indoms and metrics with the module
@@ -1374,11 +1375,31 @@ class DB2PMDA(PMDA):
                     time.sleep(1)
         return self.conns[dbname]
 
+    def _db2_connection_lost(self, conn, error):
+        """ return True when the error indicates the connection is unusable """
+        err_str = str(error)
+        if 'SQLSTATE=08' in err_str:
+            return True
+        if conn is None:
+            return True
+        try:
+            return not ibm_db.active(conn)
+        except Exception:
+            return True
+
+    def table_row_val(self, row, item):
+        """ map MON_GET_TABLE columns to metric items; deadlocks not per-table """
+        if item == 7:
+            return 0
+        if item <= 6:
+            return row[item + 1]
+        return row[item]
+
     def db2_exec(self, dbname, sql):
         """ execute sql against dbname, return list of row tuples; [] on error.
 
-        Clears the connection handle on failure so the next db2_cursor() call
-        triggers a full reconnect rather than retrying a dead handle. """
+        Clears the connection handle only on communication failures so a bad
+        SQL statement does not force reconnect on every cluster refresh. """
         conn = self.db2_cursor(dbname)
         try:
             stmt = ibm_db.exec_immediate(conn, sql)
@@ -1390,7 +1411,8 @@ class DB2PMDA(PMDA):
             return rows
         except Exception as error:
             self.error("db2_exec", "%s: query '%s': %s" % (dbname, sql[:60], str(error)))
-            self.conns[dbname] = None
+            if self._db2_connection_lost(conn, error):
+                self.conns[dbname] = None
             return []
 
     def db2_refresh_indom(self, indom):
@@ -1424,7 +1446,8 @@ class DB2PMDA(PMDA):
                                        self.cluster_bp_items, self.INDOM_ID(0))
         elif cluster in self.cluster_table:
             self.db2_refresh_instanced(cluster, self.cluster_table,
-                                       self.cluster_table_items, self.INDOM_ID(1))
+                                       self.cluster_table_items, self.INDOM_ID(1),
+                                       row_val=self.table_row_val)
         elif cluster in self.cluster_wl:
             self.db2_refresh_instanced(cluster, self.cluster_wl,
                                        self.cluster_wl_items, self.INDOM_ID(2))
@@ -1489,7 +1512,7 @@ class DB2PMDA(PMDA):
                         row[item] if row[item] is not None else 0)
         self.replace_indom(self.INDOM_ID(6), instances)
 
-    def db2_refresh_instanced(self, cluster, clusters, items, indom):
+    def db2_refresh_instanced(self, cluster, clusters, items, indom, row_val=None):
         """ refresh a cluster returning one row per object instance.
             Iterates all configured databases; instance names are prefixed
             with the database name as dbname/instname. """
@@ -1507,7 +1530,10 @@ class DB2PMDA(PMDA):
                 for item in range(items):
                     pmid = self.PM_ID(cluster, item)
                     if pmid in self.metrics:
-                        val = row[item + 1]
+                        if row_val is not None:
+                            val = row_val(row, item)
+                        else:
+                            val = row[item + 1]
                         self.metrics[pmid][self.METRIC_VALUES][instname] = (
                             val if val is not None else 0)
         self.replace_indom(indom, instances)
