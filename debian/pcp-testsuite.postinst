@@ -15,7 +15,7 @@ then
     # older versions of systemd-sysusers don't set the login shell to
     # anything useful
     #
-    if grep -q '^pcpqa:.*/nologin' /etc/passwd
+    if getent passwd pcpqa | grep  -q '/nologin'
     then
 	for shell in bash sh
 	do
