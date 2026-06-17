@@ -286,9 +286,7 @@ drmGetDevices(drmDevicePtr devices[], int max_devices)
     fprintf(stderr, "fake drmGetDevices(%p,%d) called\n", devices, max_devices);
     if (devices == NULL)
 	return FAKE_DRM;
-    for (i = 0; i < FAKE_DRM; i++) {
-fprintf(stderr, "drmDevice: %d\n", (int)sizeof(drmDevice));
-fprintf(stderr, "struct _drmDevice: %d\n", (int)sizeof(struct _drmDevice));
+    for (i = 0; i < max_devices ; i++) {
 	devices[i] = (drmDevice *)calloc(1, sizeof(drmDevice));
 	devices[i]->bustype = DRM_BUS_PCI;
 	devices[i]->deviceinfo.pci = (drmPciDeviceInfo *)calloc(1, sizeof(drmPciDeviceInfo));
@@ -312,6 +310,9 @@ void
 drmFreeDevices(drmDevicePtr devices[], int count)
 {
     fprintf(stderr, "fake drmFreeDevices(%p,%d) called\n", devices, count);
+    /*
+     * this is a fake implementation, don't worry about memory leaks
+     */
     return;
 }
 
