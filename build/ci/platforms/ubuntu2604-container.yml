@@ -28,7 +28,7 @@ tasks:
     pkgs=$(qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
     sudo DEBIAN_FRONTEND=noninteractive apt-get install -y $pkgs
   build: |
-    ./Makepkgs --nonrpm --verbose
+    ./Makepkgs --nonrpm --ci
     dpkg -I build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
     cp build/deb/*.deb ../artifacts/build

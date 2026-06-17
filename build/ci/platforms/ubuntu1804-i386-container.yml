@@ -23,7 +23,7 @@ tasks:
     pkgs=$(linux32 qa/admin/list-packages -m -v -x cpan -x pip3 -x not4ci)
     sudo DEBIAN_FRONTEND=noninteractive linux32 apt-get install -y $pkgs
   build: |
-    linux32 ./Makepkgs --nonrpm --verbose
+    linux32 ./Makepkgs --nonrpm --ci
     linux32 dpkg -I build/deb/pcp_*.deb | grep Depends | grep -q libuv1
   copy_build_artifacts: |
     cp build/deb/*.deb ../artifacts/build

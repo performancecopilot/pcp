@@ -1,10 +1,12 @@
 pcp/
 pcp-import-ganglia2pcp.install
 pcp-testsuite.install
+pcp-testsuite.sysusers
 pcp.preinst
 pcp.preinst.head
 pcp.postinst
 pcp.postinst.head
 pcp.postrm
+pcp.sysusers
 pcp-gui.install
 control

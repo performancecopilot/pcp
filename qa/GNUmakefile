@@ -82,7 +82,7 @@ COMMON = common.check common.config common.filter \
 	 common.product common.rc common.setup \
 	 common.secure common.pmcd.pdu common.qt \
 	 common.containers common.compress \
-	 common.discovery common.python \
+	 common.discovery common.perl common.python \
 	 common.openmetrics common.opentelemetry \
 	 common.bpf common.bpftrace common.keys \
 	 common.perl

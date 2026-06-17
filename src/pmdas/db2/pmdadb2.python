@@ -1,0 +1,1634 @@
+#!/usr/bin/env pmpython
+
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+
+""" PCP IBM Db2 Performance Metrics Domain Agent """
+
+# pylint: disable=bad-continuation,line-too-long,too-many-lines,bare-except
+# pylint: disable=consider-using-dict-items
+
+import json
+import os
+import sys
+import time
+try:
+    import configparser
+except ImportError:
+    import ConfigParser as configparser
+from ctypes import c_int
+from pcp.pmapi import pmUnits, pmContext
+from pcp.pmda import PMDA, pmdaMetric, pmdaIndom
+import cpmapi as c_api
+try:
+    import ibm_db
+    ibm_db_available = True
+except ImportError:
+    ibm_db = None
+    ibm_db_available = False
+
+
+class DB2PMDA(PMDA):
+    """
+    PMDA class for IBM Db2 performance metrics.
+
+    Query strategy: each cluster maps to exactly one MON_GET_* SQL call that
+    returns all columns for all instances in a single round-trip.  PCP's
+    cluster-based refresh mechanism ensures only the clusters whose metrics
+    are actually requested are ever queried.  A fetch of a single metric
+    issues one query; a fetch of all metrics issues one query per cluster.
+    No per-metric queries are issued.
+    """
+
+    def PM_ID(self, cluster, item):
+        """ pmid from PMDA domain, cluster and item """
+        return PMDA.pmid(cluster, item)
+
+    def INDOM_ID(self, serial):
+        """ indom id from PMDA domain and serial """
+        return PMDA.indom(serial)
+
+    def sanitize(self, string):
+        """ escape special characters for DSN connection strings """
+        if string is None:
+            return ''
+        elif not isinstance(string, str):
+            string = str(string)
+        string = string.replace("\\", "\\\\")
+        string = string.replace("'", "\\'")
+        string = string.replace(";", "\\;")
+        return string
+
+    def __init__(self, name, domain):
+        """ constructor """
+        PMDA.__init__(self, name, domain)
+        self.connect_pmcd()
+        self.verbose = False
+        self.conns = {}
+        self.databases = []
+        self.debug("__init__")
+
+        # InDom dictionary entries: [pmdaIndom, instance_query, oneline, text]
+        self.INDOM_META   = 0
+        self.INDOM_QUERY  = 1
+        self.INDOM_ONE    = 2
+        self.INDOM_TEXT   = 3
+        self.indoms = {
+            self.INDOM_ID(0) : [pmdaIndom(self.INDOM_ID(0), {}),
+                'SELECT DISTINCT BP_NAME '
+                'FROM TABLE(MON_GET_BUFFERPOOL(NULL,-1)) '
+                'WHERE BP_NAME IS NOT NULL',
+                'Buffer pool name',
+                'Each instance represents one Db2 buffer pool by name.\n'
+                'Buffer pools are areas of memory used to cache database\n'
+                'pages for table data, indexes, and column-organised data.'],
+            self.INDOM_ID(1) : [pmdaIndom(self.INDOM_ID(1), {}),
+                "SELECT DISTINCT RTRIM(TABSCHEMA)||'.'||RTRIM(TABNAME) "
+                'FROM TABLE(MON_GET_TABLE(NULL,NULL,-1)) '
+                "WHERE TABSCHEMA NOT LIKE 'SYS%'",
+                'Table name (schema.table)',
+                'Each instance represents one user table in the database,\n'
+                'identified as schema.table.  System tables (SYS* schemas)\n'
+                'are excluded.  Source: MON_GET_TABLE.'],
+            self.INDOM_ID(2) : [pmdaIndom(self.INDOM_ID(2), {}),
+                'SELECT DISTINCT WORKLOAD_NAME '
+                'FROM TABLE(MON_GET_WORKLOAD(NULL,-1)) '
+                'WHERE WORKLOAD_NAME IS NOT NULL',
+                'Workload name',
+                'Each instance represents a Db2 workload definition.\n'
+                'Workloads classify incoming connections based on attributes\n'
+                'such as application name or IP address.  Source: MON_GET_WORKLOAD.'],
+            self.INDOM_ID(3) : [pmdaIndom(self.INDOM_ID(3), {}),
+                'SELECT DISTINCT TABLESPACE_NAME '
+                'FROM TABLE(MON_GET_TABLESPACE(NULL,-1)) '
+                'WHERE TABLESPACE_NAME IS NOT NULL',
+                'Tablespace name',
+                'Each instance represents one Db2 tablespace.\n'
+                'Tablespaces are logical storage units that group related\n'
+                'table and index data.  Source: MON_GET_TABLESPACE.'],
+            self.INDOM_ID(4) : [pmdaIndom(self.INDOM_ID(4), {}),
+                "SELECT DISTINCT "
+                "COALESCE(APPLICATION_NAME,'unknown')||'::'||CHAR(APPLICATION_HANDLE) "
+                'FROM TABLE(MON_GET_CONNECTION(NULL,-1))',
+                'Connection identifier (appname::handle)',
+                'Each instance represents one active application connection,\n'
+                'identified as application_name/application_handle.  Instances\n'
+                'are transient and change as connections are established and\n'
+                'dropped.  Source: MON_GET_CONNECTION.'],
+            self.INDOM_ID(5) : [pmdaIndom(self.INDOM_ID(5), {}),
+                'SELECT DISTINCT LATCH_NAME '
+                'FROM TABLE(MON_GET_EXTENDED_LATCH_WAIT(NULL)) '
+                'WHERE LATCH_NAME IS NOT NULL '
+                'AND TOTAL_EXTENDED_LATCH_WAITS > 0',
+                'Latch name',
+                'Each instance represents one internal Db2 latch type that\n'
+                'has experienced extended wait events.  High latch contention\n'
+                'indicates internal memory or I/O bottlenecks.\n'
+                'Source: MON_GET_EXTENDED_LATCH_WAIT.'],
+            self.INDOM_ID(6) : [pmdaIndom(self.INDOM_ID(6), {}),
+                None,
+                'Database name',
+                'Each instance represents one monitored Db2 database.\n'
+                'Database names are taken from the [databases] section of\n'
+                'the configuration file.  All db2.database.*, db2.log.*\n'
+                'and db2.pkg_cache.* metrics are instanced on this domain.'],
+        }
+
+        # Cluster metadata: [indom_id, SQL query]
+        # Null-indom clusters: query returns a single aggregate row; column
+        # positions map sequentially to item numbers 0..N-1.
+        # Instanced clusters: first SELECT column is the instance name;
+        # subsequent columns map to item numbers 0..N-1.
+        self.CLUSTER_INDOM = 0
+        self.CLUSTER_QUERY = 1
+
+        # Cluster 0: MON_GET_DATABASE — database-wide aggregate (null indom)
+        # 27 items (columns 0-26 in SELECT order).
+        self.cluster_db_items = 27
+        self.cluster_db = {
+            0: [c_api.PM_INDOM_NULL,
+                'SELECT '
+                'TOTAL_APP_COMMITS,'           # 0
+                'TOTAL_APP_ROLLBACKS,'         # 1
+                'ROWS_READ,'                   # 2
+                'ROWS_MODIFIED,'               # 3
+                'ROWS_RETURNED,'               # 4
+                'SORT_OVERFLOWS,'              # 5
+                'TOTAL_CPU_TIME,'              # 6  microseconds
+                'TOTAL_WAIT_TIME,'             # 7  microseconds
+                'TOTAL_SECTION_SORT_TIME,'     # 8  microseconds
+                'LOCK_WAITS,'                  # 9
+                'LOCK_WAIT_TIME,'              # 10 milliseconds
+                'DEADLOCKS,'                   # 11
+                'LOCK_ESCALS,'                 # 12
+                'LOCK_TIMEOUTS,'               # 13
+                'NUM_LOCKS_HELD,'              # 14 gauge
+                'APPLS_CUR_CONS,'              # 15 gauge
+                'APPLS_IN_DB2,'                # 16 gauge
+                'CONNECTIONS_TOP,'             # 17 gauge (peak)
+                'STMTS_COMPLETED,'             # 18
+                'TOTAL_SORTS,'                 # 19
+                'PKG_CACHE_LOOKUPS,'           # 20
+                'PKG_CACHE_INSERTS,'           # 21
+                'PKG_CACHE_NUM_OVERFLOWS,'     # 22
+                'DIRECT_READS,'                # 23
+                'DIRECT_READ_TIME,'            # 24 microseconds
+                'DIRECT_WRITES,'               # 25
+                'DIRECT_WRITE_TIME '           # 26 microseconds
+                'FROM TABLE(MON_GET_DATABASE(-1))'],
+        }
+
+        # Cluster 1: MON_GET_BUFFERPOOL — per buffer pool (indom 0)
+        # 14 items; first SELECT column is BP_NAME (instance), then 14 values.
+        self.cluster_bp_items = 12
+        self.cluster_bp = {
+            1: [self.INDOM_ID(0),
+                'SELECT BP_NAME,'
+                'POOL_DATA_L_READS,'           # 0
+                'POOL_DATA_P_READS,'           # 1
+                'POOL_DATA_WRITES,'            # 2
+                'POOL_ASYNC_DATA_READS,'       # 3
+                'POOL_INDEX_L_READS,'          # 4
+                'POOL_INDEX_P_READS,'          # 5
+                'POOL_INDEX_WRITES,'           # 6
+                'POOL_ASYNC_INDEX_READS,'      # 7
+                'POOL_COL_L_READS,'            # 8
+                'POOL_COL_P_READS,'            # 9
+                'POOL_READ_TIME,'              # 10 milliseconds
+                'POOL_WRITE_TIME '             # 11 milliseconds
+                'FROM TABLE(MON_GET_BUFFERPOOL(NULL,-1))'],
+        }
+
+        # Cluster 2: MON_GET_TABLE — per user table (indom 1)
+        # 10 items; first SELECT column is schema.table (instance).
+        self.cluster_table_items = 10
+        self.cluster_table = {
+            2: [self.INDOM_ID(1),
+                "SELECT RTRIM(TABSCHEMA)||'.'||RTRIM(TABNAME),"
+                'ROWS_READ,'                   # 0
+                'ROWS_INSERTED,'               # 1
+                'ROWS_UPDATED,'                # 2
+                'ROWS_DELETED,'                # 3
+                'LOCK_WAITS,'                  # 4
+                'LOCK_WAIT_TIME,'              # 5 milliseconds
+                'LOCK_ESCALS,'                 # 6
+                'DEADLOCKS,'                   # 7
+                'OVERFLOW_ACCESSES,'           # 8
+                'TABLE_SCANS '                 # 9
+                'FROM TABLE(MON_GET_TABLE(NULL,NULL,-1)) '
+                "WHERE TABSCHEMA NOT LIKE 'SYS%'"],
+        }
+
+        # Cluster 3: MON_GET_WORKLOAD — per workload (indom 2)
+        # 8 items; first SELECT column is WORKLOAD_NAME (instance).
+        self.cluster_wl_items = 8
+        self.cluster_wl = {
+            3: [self.INDOM_ID(2),
+                'SELECT WORKLOAD_NAME,'
+                'ROWS_READ,'                   # 0
+                'ROWS_RETURNED,'               # 1
+                'ROWS_MODIFIED,'               # 2
+                'TOTAL_CPU_TIME,'              # 3 microseconds
+                'TOTAL_APP_COMMITS,'           # 4
+                'TOTAL_APP_ROLLBACKS,'         # 5
+                'LOCK_WAITS,'                  # 6
+                'LOCK_WAIT_TIME '              # 7 milliseconds
+                'FROM TABLE(MON_GET_WORKLOAD(NULL,-1))'],
+        }
+
+        # Cluster 4: MON_GET_TABLESPACE — per tablespace (indom 3)
+        # 14 items; first SELECT column is TABLESPACE_NAME (instance).
+        self.cluster_ts_items = 15
+        self.cluster_ts = {
+            4: [self.INDOM_ID(3),
+                'SELECT TABLESPACE_NAME,'
+                'POOL_DATA_L_READS,'           # 0
+                'POOL_DATA_P_READS,'           # 1
+                'POOL_DATA_WRITES,'            # 2
+                'POOL_ASYNC_DATA_READS,'       # 3
+                'POOL_ASYNC_DATA_WRITES,'      # 4
+                'POOL_INDEX_L_READS,'          # 5
+                'POOL_INDEX_P_READS,'          # 6
+                'POOL_INDEX_WRITES,'           # 7
+                'POOL_ASYNC_INDEX_READS,'      # 8
+                'POOL_ASYNC_INDEX_WRITES,'     # 9
+                'DIRECT_READS,'                # 10
+                'DIRECT_READ_TIME,'            # 11 microseconds
+                'DIRECT_WRITES,'               # 12
+                'DIRECT_WRITE_TIME,'           # 13 microseconds
+                'UNREAD_PREFETCH_PAGES '       # 14
+                'FROM TABLE(MON_GET_TABLESPACE(NULL,-1))'],
+        }
+
+        # Cluster 5: MON_GET_CONNECTION — per active connection (indom 4)
+        # 10 items; first SELECT column is appname::handle (instance).
+        self.cluster_conn_items = 10
+        self.cluster_conn = {
+            5: [self.INDOM_ID(4),
+                "SELECT COALESCE(APPLICATION_NAME,'unknown')||'::'||CHAR(APPLICATION_HANDLE),"
+                'TOTAL_CPU_TIME,'              # 0 microseconds
+                'ROWS_READ,'                   # 1
+                'ROWS_MODIFIED,'               # 2
+                'ROWS_RETURNED,'               # 3
+                'TOTAL_APP_COMMITS,'           # 4
+                'TOTAL_APP_ROLLBACKS,'         # 5
+                'LOCK_WAITS,'                  # 6
+                'LOCK_WAIT_TIME,'              # 7 milliseconds
+                'DEADLOCKS,'                   # 8
+                'LOCK_ESCALS '                 # 9
+                'FROM TABLE(MON_GET_CONNECTION(NULL,-1))'],
+        }
+
+        # Cluster 6: MON_GET_EXTENDED_LATCH_WAIT — per latch type (indom 5)
+        # 2 items; first SELECT column is LATCH_NAME (instance).
+        # Filtered to latches with at least one extended wait event.
+        self.cluster_latch_items = 2
+        self.cluster_latch = {
+            6: [self.INDOM_ID(5),
+                'SELECT LATCH_NAME,'
+                'TOTAL_EXTENDED_LATCH_WAIT_TIME,'  # 0 microseconds
+                'TOTAL_EXTENDED_LATCH_WAITS '      # 1
+                'FROM TABLE(MON_GET_EXTENDED_LATCH_WAIT(NULL)) '
+                'WHERE TOTAL_EXTENDED_LATCH_WAITS > 0'],
+        }
+
+        # Cluster 9: ENV_GET_INSTANCE_INFO — instance metadata (null indom, discrete)
+        # 3 items.  Queried from the first available database connection since
+        # instance attributes (version, platform, name) are shared across all
+        # databases on the same Db2 instance.  PM_SEM_DISCRETE: log-once.
+        self.cluster_inst_items = 3
+        self.cluster_inst = {
+            9: [c_api.PM_INDOM_NULL,
+                'SELECT INST_NAME, SERVICE_LEVEL, PLATFORM '
+                'FROM TABLE(ENV_GET_INSTANCE_INFO()) '
+                'FETCH FIRST ROW ONLY'],
+        }
+
+        # Cluster 7: MON_GET_TRANSACTION_LOG — log I/O aggregate (null indom)
+        # 10 items.  Function takes a single member INTEGER parameter; -1
+        # selects all database members.
+        self.cluster_log_items = 10
+        self.cluster_log = {
+            7: [c_api.PM_INDOM_NULL,
+                'SELECT '
+                'LOG_WRITES,'                       # 0
+                'LOG_WRITE_TIME,'                   # 1 microseconds
+                'LOG_READS,'                        # 2
+                'LOG_READ_TIME,'                    # 3 microseconds
+                'NUM_LOG_WRITE_IO,'                 # 4
+                'NUM_LOG_READ_IO,'                  # 5
+                'NUM_LOG_DATA_FOUND_IN_BUFFER,'     # 6
+                'NUM_LOG_BUFFER_FULL,'              # 7
+                'TOT_LOG_USED_KB,'                  # 8 gauge
+                'TOT_LOG_AVAILABLE_KB '             # 9 gauge
+                'FROM TABLE(MON_GET_TRANSACTION_LOG(-1))'],
+        }
+
+        # Cluster 8: MON_GET_PKG_CACHE_STMT aggregate (null indom)
+        # Summarises the entire package cache without a per-statement indom.
+        # 6 items.
+        self.cluster_pkgcache_items = 6
+        self.cluster_pkgcache = {
+            8: [c_api.PM_INDOM_NULL,
+                'SELECT '
+                'COUNT(*),'                         # 0 gauge
+                'SUM(NUM_EXECUTIONS),'              # 1
+                'SUM(TOTAL_CPU_TIME),'              # 2 microseconds
+                'SUM(ROWS_READ),'                   # 3
+                'SUM(TOTAL_SORTS),'                  # 4
+                'SUM(SORT_OVERFLOWS) '              # 5
+                'FROM TABLE(MON_GET_PKG_CACHE_STMT(NULL,NULL,NULL,-1))'],
+        }
+
+        # Metric table: PMID -> [name, pmdaMetric, values_dict, oneline, text]
+        self.METRIC_NAME    = 0
+        self.METRIC_META    = 1
+        self.METRIC_VALUES  = 2
+        self.METRIC_ONELINE = 3
+        self.METRIC_TEXT    = 4
+
+        noUnits    = pmUnits(0, 0, 0, 0, 0, 0)
+        usecUnits  = pmUnits(0, 1, 0, 0, c_api.PM_TIME_USEC, 0)
+        msecUnits  = pmUnits(0, 1, 0, 0, c_api.PM_TIME_MSEC, 0)
+        countUnits = pmUnits(0, 0, 1, 0, 0, c_api.PM_COUNT_ONE)
+        kbyteUnits = pmUnits(1, 0, 0, c_api.PM_SPACE_KBYTE, 0, 0)
+
+        self.metrics = {
+
+            # -----------------------------------------------------------
+            # Cluster 0: MON_GET_DATABASE  (null indom, 27 items)
+            # -----------------------------------------------------------
+            self.PM_ID(0, 0) : ['db2.database.commits',
+                pmdaMetric(self.PM_ID(0, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total application commits',
+                'Cumulative number of units of work that have been committed\n'
+                'since the database was activated.\n'
+                'Source: MON_GET_DATABASE.TOTAL_APP_COMMITS'],
+            self.PM_ID(0, 1) : ['db2.database.rollbacks',
+                pmdaMetric(self.PM_ID(0, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total application rollbacks',
+                'Cumulative number of units of work that have been rolled back\n'
+                'since the database was activated.\n'
+                'Source: MON_GET_DATABASE.TOTAL_APP_ROLLBACKS'],
+            self.PM_ID(0, 2) : ['db2.database.rows_read',
+                pmdaMetric(self.PM_ID(0, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total rows read',
+                'Cumulative number of rows read by all database operations.\n'
+                'High values relative to rows_returned indicate poorly tuned\n'
+                'queries performing excessive table scans.\n'
+                'Source: MON_GET_DATABASE.ROWS_READ'],
+            self.PM_ID(0, 3) : ['db2.database.rows_modified',
+                pmdaMetric(self.PM_ID(0, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total rows modified (inserted, updated, deleted)',
+                'Cumulative number of rows inserted, updated, and deleted\n'
+                'since the database was activated.\n'
+                'Source: MON_GET_DATABASE.ROWS_MODIFIED'],
+            self.PM_ID(0, 4) : ['db2.database.rows_returned',
+                pmdaMetric(self.PM_ID(0, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total rows returned to applications',
+                'Cumulative number of rows returned to applications.\n'
+                'Compare with rows_read to assess query efficiency.\n'
+                'Source: MON_GET_DATABASE.ROWS_RETURNED'],
+            self.PM_ID(0, 5) : ['db2.database.sort_overflows',
+                pmdaMetric(self.PM_ID(0, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total sort overflows',
+                'Cumulative number of sorts that ran out of sort heap memory\n'
+                'and spilled to temporary tablespace on disk.  High values\n'
+                'indicate the sort heap (SORTHEAP) is undersized.\n'
+                'Source: MON_GET_DATABASE.SORT_OVERFLOWS'],
+            self.PM_ID(0, 6) : ['db2.database.total_cpu_time',
+                pmdaMetric(self.PM_ID(0, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Total CPU time consumed by database activity (microseconds)',
+                'Cumulative CPU time (user + system) consumed by all database\n'
+                'activity since activation, in microseconds.\n'
+                'Source: MON_GET_DATABASE.TOTAL_CPU_TIME'],
+            self.PM_ID(0, 7) : ['db2.database.total_wait_time',
+                pmdaMetric(self.PM_ID(0, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Total time applications spent waiting (microseconds)',
+                'Cumulative time all applications spent waiting for any\n'
+                'database resource (locks, I/O, latches, etc.) since\n'
+                'activation, in microseconds.\n'
+                'Source: MON_GET_DATABASE.TOTAL_WAIT_TIME'],
+            self.PM_ID(0, 8) : ['db2.database.total_section_sort_time',
+                pmdaMetric(self.PM_ID(0, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Total time spent in section sorts (microseconds)',
+                'Cumulative time consumed by all section sort operations since\n'
+                'activation, in microseconds.\n'
+                'Source: MON_GET_DATABASE.TOTAL_SECTION_SORT_TIME'],
+            self.PM_ID(0, 9) : ['db2.database.lock_waits',
+                pmdaMetric(self.PM_ID(0, 9), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total lock wait events',
+                'Cumulative number of times applications had to wait for a\n'
+                'lock since activation.  Use with lock_wait_time to compute\n'
+                'average lock wait duration.\n'
+                'Source: MON_GET_DATABASE.LOCK_WAITS'],
+            self.PM_ID(0, 10) : ['db2.database.lock_wait_time',
+                pmdaMetric(self.PM_ID(0, 10), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, msecUnits),
+                {},
+                'Total time applications spent waiting for locks (milliseconds)',
+                'Cumulative time all applications spent waiting to acquire\n'
+                'locks since activation, in milliseconds.\n'
+                'Source: MON_GET_DATABASE.LOCK_WAIT_TIME'],
+            self.PM_ID(0, 11) : ['db2.database.deadlocks',
+                pmdaMetric(self.PM_ID(0, 11), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total deadlocks detected',
+                'Cumulative number of deadlocks that were detected and\n'
+                'resolved by rolling back one of the conflicting transactions.\n'
+                'Source: MON_GET_DATABASE.DEADLOCKS'],
+            self.PM_ID(0, 12) : ['db2.database.lock_escalations',
+                pmdaMetric(self.PM_ID(0, 12), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total lock escalations',
+                'Cumulative number of times row locks were escalated to table\n'
+                'locks to reduce the lock list memory footprint.  Escalations\n'
+                'degrade concurrency significantly.\n'
+                'Source: MON_GET_DATABASE.LOCK_ESCALS'],
+            self.PM_ID(0, 13) : ['db2.database.lock_timeouts',
+                pmdaMetric(self.PM_ID(0, 13), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total lock timeout events',
+                'Cumulative number of times a lock request timed out rather\n'
+                'than waiting (controlled by LOCKTIMEOUT database config).\n'
+                'Source: MON_GET_DATABASE.LOCK_TIMEOUTS'],
+            self.PM_ID(0, 14) : ['db2.database.num_locks_held',
+                pmdaMetric(self.PM_ID(0, 14), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Current number of locks held',
+                'Instantaneous count of locks currently held by all\n'
+                'applications connected to the database.\n'
+                'Source: MON_GET_DATABASE.NUM_LOCKS_HELD'],
+            self.PM_ID(0, 15) : ['db2.database.active_connections',
+                pmdaMetric(self.PM_ID(0, 15), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Current number of connected applications',
+                'Instantaneous count of applications currently connected to\n'
+                'the database, including both active and idle connections.\n'
+                'Source: MON_GET_DATABASE.APPLS_CUR_CONS'],
+            self.PM_ID(0, 16) : ['db2.database.appls_in_db2',
+                pmdaMetric(self.PM_ID(0, 16), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Current number of applications actively executing in Db2',
+                'Instantaneous count of applications that are currently\n'
+                'processing a request inside the Db2 engine (subset of\n'
+                'active_connections).\n'
+                'Source: MON_GET_DATABASE.APPLS_IN_DB2'],
+            self.PM_ID(0, 17) : ['db2.database.connections_top',
+                pmdaMetric(self.PM_ID(0, 17), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Peak number of simultaneous connections since last reset',
+                'Maximum number of applications connected at the same time\n'
+                'since the database was last activated or statistics reset.\n'
+                'Source: MON_GET_DATABASE.CONNECTIONS_TOP'],
+            self.PM_ID(0, 18) : ['db2.database.stmts_completed',
+                pmdaMetric(self.PM_ID(0, 18), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total SQL statements completed',
+                'Cumulative number of SQL and XQuery statements that have\n'
+                'completed execution since the database was activated.\n'
+                'Source: MON_GET_DATABASE.STMTS_COMPLETED'],
+            self.PM_ID(0, 19) : ['db2.database.total_sorts',
+                pmdaMetric(self.PM_ID(0, 19), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total sort operations performed',
+                'Cumulative number of sort operations executed since\n'
+                'activation.  Use with sort_overflows to assess sort\n'
+                'heap adequacy.\n'
+                'Source: MON_GET_DATABASE.TOTAL_SORTS'],
+            self.PM_ID(0, 20) : ['db2.database.pkg_cache_lookups',
+                pmdaMetric(self.PM_ID(0, 20), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Package cache lookup attempts',
+                'Cumulative number of times the package cache was searched\n'
+                'for a cached statement execution plan since activation.\n'
+                'Source: MON_GET_DATABASE.PKG_CACHE_LOOKUPS'],
+            self.PM_ID(0, 21) : ['db2.database.pkg_cache_inserts',
+                pmdaMetric(self.PM_ID(0, 21), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Package cache misses requiring compilation',
+                'Cumulative number of times a statement was not found in the\n'
+                'package cache and had to be compiled (hard parses).\n'
+                'High relative to pkg_cache_lookups indicates excessive compilation.\n'
+                'Source: MON_GET_DATABASE.PKG_CACHE_INSERTS'],
+            self.PM_ID(0, 22) : ['db2.database.pkg_cache_overflows',
+                pmdaMetric(self.PM_ID(0, 22), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Package cache overflow events',
+                'Cumulative number of times the package cache overflowed into\n'
+                'the database heap, forcing cached entries to be discarded.\n'
+                'Indicates the package cache (PCKCACHESZ) is undersized.\n'
+                'Source: MON_GET_DATABASE.PKG_CACHE_NUM_OVERFLOWS'],
+            self.PM_ID(0, 23) : ['db2.database.direct_reads',
+                pmdaMetric(self.PM_ID(0, 23), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total direct read operations (bypassing buffer pool)',
+                'Cumulative number of read operations that bypassed the buffer\n'
+                'pool and read directly from disk (e.g. for large object data).\n'
+                'Source: MON_GET_DATABASE.DIRECT_READS'],
+            self.PM_ID(0, 24) : ['db2.database.direct_read_time',
+                pmdaMetric(self.PM_ID(0, 24), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Total time spent on direct reads (microseconds)',
+                'Cumulative time spent performing direct reads that bypassed\n'
+                'the buffer pool, in microseconds.\n'
+                'Source: MON_GET_DATABASE.DIRECT_READ_TIME'],
+            self.PM_ID(0, 25) : ['db2.database.direct_writes',
+                pmdaMetric(self.PM_ID(0, 25), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total direct write operations (bypassing buffer pool)',
+                'Cumulative number of write operations that bypassed the\n'
+                'buffer pool and wrote directly to disk.\n'
+                'Source: MON_GET_DATABASE.DIRECT_WRITES'],
+            self.PM_ID(0, 26) : ['db2.database.direct_write_time',
+                pmdaMetric(self.PM_ID(0, 26), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Total time spent on direct writes (microseconds)',
+                'Cumulative time spent performing direct writes that bypassed\n'
+                'the buffer pool, in microseconds.\n'
+                'Source: MON_GET_DATABASE.DIRECT_WRITE_TIME'],
+
+            # -----------------------------------------------------------
+            # Cluster 1: MON_GET_BUFFERPOOL  (indom 0, 14 items)
+            # -----------------------------------------------------------
+            self.PM_ID(1, 0) : ['db2.bufferpool.data_logical_reads',
+                pmdaMetric(self.PM_ID(1, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Logical reads for data pages',
+                'Cumulative number of data page read requests satisfied from\n'
+                'the buffer pool (cache hits) or from disk (cache misses).\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_DATA_L_READS'],
+            self.PM_ID(1, 1) : ['db2.bufferpool.data_physical_reads',
+                pmdaMetric(self.PM_ID(1, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Physical reads for data pages (cache misses)',
+                'Cumulative number of data page requests that required a\n'
+                'physical disk read because the page was not in the buffer\n'
+                'pool.  Hit ratio = 1 - (physical / logical).\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_DATA_P_READS'],
+            self.PM_ID(1, 2) : ['db2.bufferpool.data_writes',
+                pmdaMetric(self.PM_ID(1, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Write operations for data pages',
+                'Cumulative number of times data pages were written from the\n'
+                'buffer pool to disk (synchronous and asynchronous combined).\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_DATA_WRITES'],
+            self.PM_ID(1, 3) : ['db2.bufferpool.async_data_reads',
+                pmdaMetric(self.PM_ID(1, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Asynchronous (prefetch) reads for data pages',
+                'Cumulative number of data pages read asynchronously by the\n'
+                'prefetcher before they were requested by an application.\n'
+                'High values indicate effective prefetching.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_ASYNC_DATA_READS'],
+            self.PM_ID(1, 4) : ['db2.bufferpool.index_logical_reads',
+                pmdaMetric(self.PM_ID(1, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Logical reads for index pages',
+                'Cumulative number of index page read requests satisfied from\n'
+                'the buffer pool or from disk.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_INDEX_L_READS'],
+            self.PM_ID(1, 5) : ['db2.bufferpool.index_physical_reads',
+                pmdaMetric(self.PM_ID(1, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Physical reads for index pages (cache misses)',
+                'Cumulative number of index page requests that required a\n'
+                'physical disk read.  High values relative to logical reads\n'
+                'indicate the buffer pool is too small for the working set.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_INDEX_P_READS'],
+            self.PM_ID(1, 6) : ['db2.bufferpool.index_writes',
+                pmdaMetric(self.PM_ID(1, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Write operations for index pages',
+                'Cumulative number of times index pages were written from the\n'
+                'buffer pool to disk.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_INDEX_WRITES'],
+            self.PM_ID(1, 7) : ['db2.bufferpool.async_index_reads',
+                pmdaMetric(self.PM_ID(1, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Asynchronous (prefetch) reads for index pages',
+                'Cumulative number of index pages read asynchronously by the\n'
+                'prefetcher ahead of application demand.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_ASYNC_INDEX_READS'],
+            self.PM_ID(1, 8) : ['db2.bufferpool.col_logical_reads',
+                pmdaMetric(self.PM_ID(1, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Logical reads for column-organised pages',
+                'Cumulative number of column-organised (BLU) page read\n'
+                'requests satisfied from the buffer pool or disk.\n'
+                'Non-zero only when column-organised tables are in use.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_COL_L_READS'],
+            self.PM_ID(1, 9) : ['db2.bufferpool.col_physical_reads',
+                pmdaMetric(self.PM_ID(1, 9), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Physical reads for column-organised pages (cache misses)',
+                'Cumulative number of column-organised page requests that\n'
+                'required a physical disk read.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_COL_P_READS'],
+            self.PM_ID(1, 10) : ['db2.bufferpool.read_time',
+                pmdaMetric(self.PM_ID(1, 10), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, msecUnits),
+                {},
+                'Total buffer pool read time (milliseconds)',
+                'Cumulative time spent reading pages into the buffer pool\n'
+                'from disk, in milliseconds.  Covers both synchronous and\n'
+                'asynchronous reads.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_READ_TIME'],
+            self.PM_ID(1, 11) : ['db2.bufferpool.write_time',
+                pmdaMetric(self.PM_ID(1, 11), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(0), c_api.PM_SEM_COUNTER, msecUnits),
+                {},
+                'Total buffer pool write time (milliseconds)',
+                'Cumulative time spent writing pages from the buffer pool to\n'
+                'disk, in milliseconds.\n'
+                'Source: MON_GET_BUFFERPOOL.POOL_WRITE_TIME'],
+            # -----------------------------------------------------------
+            # Cluster 2: MON_GET_TABLE  (indom 1, 10 items)
+            # -----------------------------------------------------------
+            self.PM_ID(2, 0) : ['db2.table.rows_read',
+                pmdaMetric(self.PM_ID(2, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows read from this table',
+                'Cumulative number of rows read from this table by any\n'
+                'database operation since activation.\n'
+                'Source: MON_GET_TABLE.ROWS_READ'],
+            self.PM_ID(2, 1) : ['db2.table.rows_inserted',
+                pmdaMetric(self.PM_ID(2, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows inserted into this table',
+                'Cumulative number of rows inserted into this table since\n'
+                'the database was activated.\n'
+                'Source: MON_GET_TABLE.ROWS_INSERTED'],
+            self.PM_ID(2, 2) : ['db2.table.rows_updated',
+                pmdaMetric(self.PM_ID(2, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows updated in this table',
+                'Cumulative number of rows updated in this table since\n'
+                'the database was activated.\n'
+                'Source: MON_GET_TABLE.ROWS_UPDATED'],
+            self.PM_ID(2, 3) : ['db2.table.rows_deleted',
+                pmdaMetric(self.PM_ID(2, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows deleted from this table',
+                'Cumulative number of rows deleted from this table since\n'
+                'the database was activated.\n'
+                'Source: MON_GET_TABLE.ROWS_DELETED'],
+            self.PM_ID(2, 4) : ['db2.table.lock_waits',
+                pmdaMetric(self.PM_ID(2, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Lock wait events on this table',
+                'Cumulative number of times applications waited for a lock\n'
+                'on this table since activation.  Hot tables with high lock\n'
+                'wait counts are candidates for concurrency tuning.\n'
+                'Source: MON_GET_TABLE.LOCK_WAITS'],
+            self.PM_ID(2, 5) : ['db2.table.lock_wait_time',
+                pmdaMetric(self.PM_ID(2, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, msecUnits),
+                {},
+                'Total lock wait time on this table (milliseconds)',
+                'Cumulative time applications spent waiting for locks on\n'
+                'this table since activation, in milliseconds.\n'
+                'Source: MON_GET_TABLE.LOCK_WAIT_TIME'],
+            self.PM_ID(2, 6) : ['db2.table.lock_escalations',
+                pmdaMetric(self.PM_ID(2, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Lock escalations on this table',
+                'Cumulative number of times row locks on this table were\n'
+                'escalated to a table lock.\n'
+                'Source: MON_GET_TABLE.LOCK_ESCALS'],
+            self.PM_ID(2, 7) : ['db2.table.deadlocks',
+                pmdaMetric(self.PM_ID(2, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Deadlocks involving this table',
+                'Cumulative number of deadlock events that involved a lock\n'
+                'on this table.\n'
+                'Source: MON_GET_TABLE.DEADLOCKS'],
+            self.PM_ID(2, 8) : ['db2.table.overflow_accesses',
+                pmdaMetric(self.PM_ID(2, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Overflow page accesses on this table',
+                'Cumulative number of accesses to overflow records in this\n'
+                'table (rows that no longer fit in their original data page\n'
+                'after update).  High values suggest a REORG is needed.\n'
+                'Source: MON_GET_TABLE.OVERFLOW_ACCESSES'],
+            self.PM_ID(2, 9) : ['db2.table.scans',
+                pmdaMetric(self.PM_ID(2, 9), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Full table scans on this table',
+                'Cumulative number of full table scans performed on this\n'
+                'table.  Frequent scans on large tables indicate missing or\n'
+                'unused indexes.\n'
+                'Source: MON_GET_TABLE.TABLE_SCANS'],
+
+            # -----------------------------------------------------------
+            # Cluster 3: MON_GET_WORKLOAD  (indom 2, 8 items)
+            # -----------------------------------------------------------
+            self.PM_ID(3, 0) : ['db2.workload.rows_read',
+                pmdaMetric(self.PM_ID(3, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows read by this workload',
+                'Cumulative number of rows read by all connections classified\n'
+                'under this workload.\n'
+                'Source: MON_GET_WORKLOAD.ROWS_READ'],
+            self.PM_ID(3, 1) : ['db2.workload.rows_returned',
+                pmdaMetric(self.PM_ID(3, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows returned to applications by this workload',
+                'Cumulative number of rows returned to calling applications\n'
+                'by connections under this workload.\n'
+                'Source: MON_GET_WORKLOAD.ROWS_RETURNED'],
+            self.PM_ID(3, 2) : ['db2.workload.rows_modified',
+                pmdaMetric(self.PM_ID(3, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows modified by this workload',
+                'Cumulative number of rows inserted, updated, and deleted by\n'
+                'connections under this workload.\n'
+                'Source: MON_GET_WORKLOAD.ROWS_MODIFIED'],
+            self.PM_ID(3, 3) : ['db2.workload.total_cpu_time',
+                pmdaMetric(self.PM_ID(3, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'CPU time consumed by this workload (microseconds)',
+                'Cumulative CPU time consumed by all connections classified\n'
+                'under this workload, in microseconds.\n'
+                'Source: MON_GET_WORKLOAD.TOTAL_CPU_TIME'],
+            self.PM_ID(3, 4) : ['db2.workload.commits',
+                pmdaMetric(self.PM_ID(3, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Commits by this workload',
+                'Cumulative number of committed units of work submitted by\n'
+                'connections under this workload.\n'
+                'Source: MON_GET_WORKLOAD.TOTAL_APP_COMMITS'],
+            self.PM_ID(3, 5) : ['db2.workload.rollbacks',
+                pmdaMetric(self.PM_ID(3, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rollbacks by this workload',
+                'Cumulative number of rolled-back units of work by connections\n'
+                'under this workload.\n'
+                'Source: MON_GET_WORKLOAD.TOTAL_APP_ROLLBACKS'],
+            self.PM_ID(3, 6) : ['db2.workload.lock_waits',
+                pmdaMetric(self.PM_ID(3, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Lock wait events by this workload',
+                'Cumulative number of lock wait events experienced by\n'
+                'connections classified under this workload.\n'
+                'Source: MON_GET_WORKLOAD.LOCK_WAITS'],
+            self.PM_ID(3, 7) : ['db2.workload.lock_wait_time',
+                pmdaMetric(self.PM_ID(3, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(2), c_api.PM_SEM_COUNTER, msecUnits),
+                {},
+                'Total lock wait time for this workload (milliseconds)',
+                'Cumulative time connections under this workload spent waiting\n'
+                'for locks, in milliseconds.\n'
+                'Source: MON_GET_WORKLOAD.LOCK_WAIT_TIME'],
+
+            # -----------------------------------------------------------
+            # Cluster 4: MON_GET_TABLESPACE  (indom 3, 14 items)
+            # -----------------------------------------------------------
+            self.PM_ID(4, 0) : ['db2.tablespace.pool_data_logical_reads',
+                pmdaMetric(self.PM_ID(4, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Logical reads for data pages in this tablespace',
+                'Cumulative number of data page read requests for this\n'
+                'tablespace satisfied from buffer pool or disk.\n'
+                'Source: MON_GET_TABLESPACE.POOL_DATA_L_READS'],
+            self.PM_ID(4, 1) : ['db2.tablespace.pool_data_physical_reads',
+                pmdaMetric(self.PM_ID(4, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Physical reads for data pages in this tablespace (cache misses)',
+                'Cumulative number of data page requests for this tablespace\n'
+                'that required a physical disk read.\n'
+                'Source: MON_GET_TABLESPACE.POOL_DATA_P_READS'],
+            self.PM_ID(4, 2) : ['db2.tablespace.pool_data_writes',
+                pmdaMetric(self.PM_ID(4, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Write operations for data pages in this tablespace',
+                'Cumulative number of data pages written to disk for this\n'
+                'tablespace.\n'
+                'Source: MON_GET_TABLESPACE.POOL_DATA_WRITES'],
+            self.PM_ID(4, 3) : ['db2.tablespace.pool_async_data_reads',
+                pmdaMetric(self.PM_ID(4, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Asynchronous prefetch reads for data pages in this tablespace',
+                'Cumulative number of data pages read asynchronously by the\n'
+                'prefetcher for this tablespace.\n'
+                'Source: MON_GET_TABLESPACE.POOL_ASYNC_DATA_READS'],
+            self.PM_ID(4, 4) : ['db2.tablespace.pool_async_data_writes',
+                pmdaMetric(self.PM_ID(4, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Asynchronous background writes for data pages in this tablespace',
+                'Cumulative number of data pages written asynchronously by\n'
+                'the page cleaner for this tablespace.\n'
+                'Source: MON_GET_TABLESPACE.POOL_ASYNC_DATA_WRITES'],
+            self.PM_ID(4, 5) : ['db2.tablespace.pool_index_logical_reads',
+                pmdaMetric(self.PM_ID(4, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Logical reads for index pages in this tablespace',
+                'Cumulative number of index page read requests for this\n'
+                'tablespace satisfied from buffer pool or disk.\n'
+                'Source: MON_GET_TABLESPACE.POOL_INDEX_L_READS'],
+            self.PM_ID(4, 6) : ['db2.tablespace.pool_index_physical_reads',
+                pmdaMetric(self.PM_ID(4, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Physical reads for index pages in this tablespace (cache misses)',
+                'Cumulative number of index page requests for this tablespace\n'
+                'that required a physical disk read.\n'
+                'Source: MON_GET_TABLESPACE.POOL_INDEX_P_READS'],
+            self.PM_ID(4, 7) : ['db2.tablespace.pool_index_writes',
+                pmdaMetric(self.PM_ID(4, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Write operations for index pages in this tablespace',
+                'Cumulative number of index pages written to disk for this\n'
+                'tablespace.\n'
+                'Source: MON_GET_TABLESPACE.POOL_INDEX_WRITES'],
+            self.PM_ID(4, 8) : ['db2.tablespace.pool_async_index_reads',
+                pmdaMetric(self.PM_ID(4, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Asynchronous prefetch reads for index pages in this tablespace',
+                'Cumulative number of index pages read asynchronously by the\n'
+                'prefetcher for this tablespace.\n'
+                'Source: MON_GET_TABLESPACE.POOL_ASYNC_INDEX_READS'],
+            self.PM_ID(4, 9) : ['db2.tablespace.pool_async_index_writes',
+                pmdaMetric(self.PM_ID(4, 9), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Asynchronous background writes for index pages in this tablespace',
+                'Cumulative number of index pages written asynchronously by\n'
+                'the page cleaner for this tablespace.\n'
+                'Source: MON_GET_TABLESPACE.POOL_ASYNC_INDEX_WRITES'],
+            self.PM_ID(4, 10) : ['db2.tablespace.direct_reads',
+                pmdaMetric(self.PM_ID(4, 10), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Direct reads bypassing the buffer pool for this tablespace',
+                'Cumulative number of read operations that bypassed the buffer\n'
+                'pool and read directly from storage for this tablespace.\n'
+                'Source: MON_GET_TABLESPACE.DIRECT_READS'],
+            self.PM_ID(4, 11) : ['db2.tablespace.direct_read_time',
+                pmdaMetric(self.PM_ID(4, 11), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Time spent on direct reads for this tablespace (microseconds)',
+                'Cumulative time performing direct reads for this tablespace,\n'
+                'in microseconds.\n'
+                'Source: MON_GET_TABLESPACE.DIRECT_READ_TIME'],
+            self.PM_ID(4, 12) : ['db2.tablespace.direct_writes',
+                pmdaMetric(self.PM_ID(4, 12), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Direct writes bypassing the buffer pool for this tablespace',
+                'Cumulative number of write operations that bypassed the\n'
+                'buffer pool for this tablespace.\n'
+                'Source: MON_GET_TABLESPACE.DIRECT_WRITES'],
+            self.PM_ID(4, 13) : ['db2.tablespace.direct_write_time',
+                pmdaMetric(self.PM_ID(4, 13), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Time spent on direct writes for this tablespace (microseconds)',
+                'Cumulative time performing direct writes for this tablespace,\n'
+                'in microseconds.\n'
+                'Source: MON_GET_TABLESPACE.DIRECT_WRITE_TIME'],
+            self.PM_ID(4, 14) : ['db2.tablespace.unread_prefetch_pages',
+                pmdaMetric(self.PM_ID(4, 14), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(3), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Prefetched pages that were never read by an application',
+                'Cumulative number of pages read by the prefetcher for this\n'
+                'tablespace that were never subsequently accessed by an\n'
+                'application, indicating wasted I/O from over-aggressive or\n'
+                'mis-targeted prefetching.\n'
+                'Source: MON_GET_TABLESPACE.UNREAD_PREFETCH_PAGES'],
+
+            # -----------------------------------------------------------
+            # Cluster 5: MON_GET_CONNECTION  (indom 4, 10 items)
+            # -----------------------------------------------------------
+            self.PM_ID(5, 0) : ['db2.connection.total_cpu_time',
+                pmdaMetric(self.PM_ID(5, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'CPU time consumed by this connection (microseconds)',
+                'Cumulative CPU time consumed since this connection was\n'
+                'established, in microseconds.\n'
+                'Source: MON_GET_CONNECTION.TOTAL_CPU_TIME'],
+            self.PM_ID(5, 1) : ['db2.connection.rows_read',
+                pmdaMetric(self.PM_ID(5, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows read by this connection',
+                'Cumulative number of rows read since this connection was\n'
+                'established.\n'
+                'Source: MON_GET_CONNECTION.ROWS_READ'],
+            self.PM_ID(5, 2) : ['db2.connection.rows_modified',
+                pmdaMetric(self.PM_ID(5, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows modified by this connection',
+                'Cumulative number of rows inserted, updated, and deleted\n'
+                'since this connection was established.\n'
+                'Source: MON_GET_CONNECTION.ROWS_MODIFIED'],
+            self.PM_ID(5, 3) : ['db2.connection.rows_returned',
+                pmdaMetric(self.PM_ID(5, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rows returned to the application by this connection',
+                'Cumulative number of rows returned to the calling application\n'
+                'since this connection was established.\n'
+                'Source: MON_GET_CONNECTION.ROWS_RETURNED'],
+            self.PM_ID(5, 4) : ['db2.connection.commits',
+                pmdaMetric(self.PM_ID(5, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Commits by this connection',
+                'Cumulative number of committed units of work since this\n'
+                'connection was established.\n'
+                'Source: MON_GET_CONNECTION.TOTAL_APP_COMMITS'],
+            self.PM_ID(5, 5) : ['db2.connection.rollbacks',
+                pmdaMetric(self.PM_ID(5, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Rollbacks by this connection',
+                'Cumulative number of rolled-back units of work since this\n'
+                'connection was established.\n'
+                'Source: MON_GET_CONNECTION.TOTAL_APP_ROLLBACKS'],
+            self.PM_ID(5, 6) : ['db2.connection.lock_waits',
+                pmdaMetric(self.PM_ID(5, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Lock wait events by this connection',
+                'Cumulative number of times this connection waited for a\n'
+                'lock since it was established.\n'
+                'Source: MON_GET_CONNECTION.LOCK_WAITS'],
+            self.PM_ID(5, 7) : ['db2.connection.lock_wait_time',
+                pmdaMetric(self.PM_ID(5, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, msecUnits),
+                {},
+                'Total lock wait time for this connection (milliseconds)',
+                'Cumulative time this connection spent waiting for locks\n'
+                'since it was established, in milliseconds.\n'
+                'Source: MON_GET_CONNECTION.LOCK_WAIT_TIME'],
+            self.PM_ID(5, 8) : ['db2.connection.deadlocks',
+                pmdaMetric(self.PM_ID(5, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Deadlocks involving this connection',
+                'Cumulative number of deadlock events that involved this\n'
+                'connection since it was established.\n'
+                'Source: MON_GET_CONNECTION.DEADLOCKS'],
+            self.PM_ID(5, 9) : ['db2.connection.lock_escalations',
+                pmdaMetric(self.PM_ID(5, 9), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(4), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Lock escalations triggered by this connection',
+                'Cumulative number of times this connection caused row locks\n'
+                'to be escalated to table locks.\n'
+                'Source: MON_GET_CONNECTION.LOCK_ESCALS'],
+
+            # -----------------------------------------------------------
+            # Cluster 6: MON_GET_EXTENDED_LATCH_WAIT  (indom 5, 2 items)
+            # -----------------------------------------------------------
+            self.PM_ID(6, 0) : ['db2.latch.total_wait_time',
+                pmdaMetric(self.PM_ID(6, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Total extended latch wait time (microseconds)',
+                'Cumulative time spent waiting for this internal Db2 latch\n'
+                'during extended wait events, in microseconds.  High latch\n'
+                'wait times on specific latches pinpoint internal concurrency\n'
+                'bottlenecks in the Db2 engine.\n'
+                'Source: MON_GET_EXTENDED_LATCH_WAIT.TOTAL_EXTENDED_LATCH_WAIT_TIME'],
+            self.PM_ID(6, 1) : ['db2.latch.wait_count',
+                pmdaMetric(self.PM_ID(6, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(5), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total extended latch wait events',
+                'Cumulative number of extended wait events on this internal\n'
+                'Db2 latch.  Only latches with at least one extended wait are\n'
+                'included in the instance domain.\n'
+                'Source: MON_GET_EXTENDED_LATCH_WAIT.TOTAL_EXTENDED_LATCH_WAITS'],
+
+            # -----------------------------------------------------------
+            # Cluster 7: MON_GET_TRANSACTION_LOG  (null indom, 10 items)
+            # -----------------------------------------------------------
+            self.PM_ID(7, 0) : ['db2.log.writes',
+                pmdaMetric(self.PM_ID(7, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total transaction log write operations',
+                'Cumulative number of log write operations performed since\n'
+                'the database was activated.\n'
+                'Source: MON_GET_TRANSACTION_LOG.LOG_WRITES'],
+            self.PM_ID(7, 1) : ['db2.log.write_time',
+                pmdaMetric(self.PM_ID(7, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Total time spent writing transaction log records (microseconds)',
+                'Cumulative time taken to write log records since activation,\n'
+                'in microseconds.  High values indicate log I/O is a bottleneck\n'
+                'for commit throughput.\n'
+                'Source: MON_GET_TRANSACTION_LOG.LOG_WRITE_TIME'],
+            self.PM_ID(7, 2) : ['db2.log.reads',
+                pmdaMetric(self.PM_ID(7, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total transaction log read operations',
+                'Cumulative number of log read operations since activation\n'
+                '(e.g. for rollback, log shipping, or crash recovery).\n'
+                'Source: MON_GET_TRANSACTION_LOG.LOG_READS'],
+            self.PM_ID(7, 3) : ['db2.log.read_time',
+                pmdaMetric(self.PM_ID(7, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, usecUnits),
+                {},
+                'Total time spent reading transaction log records (microseconds)',
+                'Cumulative time taken to read log records since activation,\n'
+                'in microseconds.\n'
+                'Source: MON_GET_TRANSACTION_LOG.LOG_READ_TIME'],
+            self.PM_ID(7, 4) : ['db2.log.write_io_count',
+                pmdaMetric(self.PM_ID(7, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total physical log write I/O operations',
+                'Cumulative number of physical I/O write operations issued\n'
+                'to the transaction log storage device.  Fewer, larger I/Os\n'
+                'are generally more efficient than many small ones.\n'
+                'Source: MON_GET_TRANSACTION_LOG.NUM_LOG_WRITE_IO'],
+            self.PM_ID(7, 5) : ['db2.log.read_io_count',
+                pmdaMetric(self.PM_ID(7, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Total physical log read I/O operations',
+                'Cumulative number of physical I/O read operations issued\n'
+                'to the transaction log storage device.\n'
+                'Source: MON_GET_TRANSACTION_LOG.NUM_LOG_READ_IO'],
+            self.PM_ID(7, 6) : ['db2.log.data_found_in_buffer',
+                pmdaMetric(self.PM_ID(7, 6), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Log read requests satisfied from the log buffer',
+                'Cumulative number of times a log read request was satisfied\n'
+                'from the in-memory log buffer rather than from disk, avoiding\n'
+                'physical I/O.\n'
+                'Source: MON_GET_TRANSACTION_LOG.NUM_LOG_DATA_FOUND_IN_BUFFER'],
+            self.PM_ID(7, 7) : ['db2.log.buffer_full',
+                pmdaMetric(self.PM_ID(7, 7), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_COUNTER, countUnits),
+                {},
+                'Times the log buffer was completely full',
+                'Cumulative number of times the in-memory log buffer filled\n'
+                'to capacity, forcing synchronous flushes to disk before\n'
+                'a commit could complete.  Non-zero values indicate log I/O\n'
+                'pressure; increase LOGBUFSZ to reduce.\n'
+                'Source: MON_GET_TRANSACTION_LOG.NUM_LOG_BUFFER_FULL'],
+            self.PM_ID(7, 8) : ['db2.log.used_kb',
+                pmdaMetric(self.PM_ID(7, 8), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, kbyteUnits),
+                {},
+                'Current transaction log space used (kilobytes)',
+                'Instantaneous amount of log space currently in use across\n'
+                'all active log files, in kilobytes.\n'
+                'Source: MON_GET_TRANSACTION_LOG.TOT_LOG_USED_KB'],
+            self.PM_ID(7, 9) : ['db2.log.available_kb',
+                pmdaMetric(self.PM_ID(7, 9), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, kbyteUnits),
+                {},
+                'Current transaction log space available (kilobytes)',
+                'Instantaneous amount of log space still available before\n'
+                'the database runs out of log space (LOGFULL condition),\n'
+                'in kilobytes.\n'
+                'Source: MON_GET_TRANSACTION_LOG.TOT_LOG_AVAILABLE_KB'],
+
+            # -----------------------------------------------------------
+            # Cluster 8: MON_GET_PKG_CACHE_STMT aggregate (null indom, 6 items)
+            # -----------------------------------------------------------
+            self.PM_ID(8, 0) : ['db2.pkg_cache.cached_stmts',
+                pmdaMetric(self.PM_ID(8, 0), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Current number of statements in the package cache',
+                'Instantaneous count of SQL and XQuery execution plans\n'
+                'currently stored in the package cache.  Dropping counts\n'
+                'paired with rising pkg_cache_overflows indicates cache\n'
+                'pressure.\n'
+                'Source: COUNT(*) over MON_GET_PKG_CACHE_STMT'],
+            self.PM_ID(8, 1) : ['db2.pkg_cache.total_executions',
+                pmdaMetric(self.PM_ID(8, 1), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Total executions of all cached statements',
+'Snapshot aggregate number of times any cached statement has been\n'
+                'executed since the statements entered the cache.\n'
+                'Source: SUM(NUM_EXECUTIONS) over MON_GET_PKG_CACHE_STMT'],
+            self.PM_ID(8, 2) : ['db2.pkg_cache.total_cpu_time',
+                pmdaMetric(self.PM_ID(8, 2), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, usecUnits),
+                {},
+                'Total CPU time consumed by all cached statement executions (microseconds)',
+'Snapshot aggregate CPU time consumed by all executions of all cached\n'
+                'statements, in microseconds.  Useful for identifying which\n'
+                'workload types dominate CPU consumption.\n'
+                'Source: SUM(TOTAL_CPU_TIME) over MON_GET_PKG_CACHE_STMT'],
+            self.PM_ID(8, 3) : ['db2.pkg_cache.total_rows_read',
+                pmdaMetric(self.PM_ID(8, 3), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Total rows read by all cached statement executions',
+'Snapshot aggregate number of rows read by all executions of all\n'
+                'statements in the package cache.\n'
+                'Source: SUM(ROWS_READ) over MON_GET_PKG_CACHE_STMT'],
+            self.PM_ID(8, 4) : ['db2.pkg_cache.total_sorts',
+                pmdaMetric(self.PM_ID(8, 4), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Total sorts performed by all cached statement executions',
+'Snapshot aggregate number of sort operations performed across all\n'
+                'executions of all cached statements.\n'
+                'Source: SUM(TOTAL_SORTS) over MON_GET_PKG_CACHE_STMT'],
+            self.PM_ID(8, 5) : ['db2.pkg_cache.total_sort_overflows',
+                pmdaMetric(self.PM_ID(8, 5), c_api.PM_TYPE_U64,
+                    self.INDOM_ID(6), c_api.PM_SEM_INSTANT, countUnits),
+                {},
+                'Total sort overflows in all cached statement executions',
+'Snapshot aggregate number of sort operations that spilled to disk\n'
+                'across all executions of cached statements.  Divide by\n'
+                'total_sorts to find the statement-level overflow rate.\n'
+                'Source: SUM(SORT_OVERFLOWS) over MON_GET_PKG_CACHE_STMT'],
+
+            # -----------------------------------------------------------
+            # Cluster 9: ENV_GET_INSTANCE_INFO  (null indom, 3 items)
+            # PM_SEM_DISCRETE: these values rarely change; logged once.
+            # -----------------------------------------------------------
+            self.PM_ID(9, 0) : ['db2.instance.name',
+                pmdaMetric(self.PM_ID(9, 0), c_api.PM_TYPE_STRING,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
+                {},
+                'Db2 instance name',
+                'Name of the Db2 instance (database manager instance) to\n'
+                'which the monitored databases belong.\n'
+                'Source: ENV_GET_INSTANCE_INFO.INST_NAME'],
+            self.PM_ID(9, 1) : ['db2.instance.version',
+                pmdaMetric(self.PM_ID(9, 1), c_api.PM_TYPE_STRING,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
+                {},
+                'Db2 instance service level (version string)',
+                'Full Db2 release and service level string, for example\n'
+                '"DB2 v11.5.8.0 s2309091300".  Useful as archive context\n'
+                'when analysing historical performance data.\n'
+                'Source: ENV_GET_INSTANCE_INFO.SERVICE_LEVEL'],
+            self.PM_ID(9, 2) : ['db2.instance.platform',
+                pmdaMetric(self.PM_ID(9, 2), c_api.PM_TYPE_STRING,
+                    c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
+                {},
+                'Db2 instance operating platform',
+                'Operating system and CPU architecture on which the Db2\n'
+                'instance is running, for example "Linux/X8664".\n'
+                'Source: ENV_GET_INSTANCE_INFO.PLATFORM'],
+        }
+
+        # register all the indoms and metrics with the module
+        self.setup_indoms()
+        self.setup_metrics()
+
+        # bail out early during Install (domain/PMNS generation only)
+        if self.install():
+            return
+
+        if not ibm_db_available:
+            self.log("FATAL: Python 'ibm_db' module is not installed")
+            self.log("Install it with: pip install ibm_db")
+            sys.exit(1)
+
+        conf_file = os.path.join(pmContext.pmGetConfig('PCP_SYSCONF_DIR'), name, 'db2.conf')
+
+        # parse config for connection settings
+        conf_vars = self.config(conf_file, ['connection', 'authentication', 'databases'])
+        try:
+            self.hostname = conf_vars['connection.hostname']
+        except:
+            self.hostname = 'localhost'
+        try:
+            self.port = conf_vars['connection.port']
+        except:
+            self.port = '50000'
+        try:
+            self.timeout = int(conf_vars['connection.timeout'])
+        except:
+            self.timeout = 5
+
+        self.username = ''
+        self.password = ''
+        try:
+            self.username = self.sanitize(conf_vars['authentication.username'])
+            self.password = self.sanitize(conf_vars['authentication.password'])
+        except:
+            pass
+
+        try:
+            names = conf_vars['databases.names']
+            self.databases = [d for d in names.split() if d]
+        except:
+            self.databases = []
+        if not self.databases:
+            self.log("FATAL: no database names configured in [databases] names=")
+            sys.exit(1)
+
+        self.log("Connecting to %s, databases: %s, user: %s" %
+                 (self.hostname, ' '.join(self.databases), self.username))
+        connected = 0
+        for dbname in self.databases:
+            retries = 0
+            while not self.db2_connect(dbname):
+                time.sleep(1)
+                if retries >= 5:
+                    self.log("WARNING: failed to connect to %s after 5 retries" % dbname)
+                    break
+                retries += 1
+            if self.conns.get(dbname) is not None:
+                connected += 1
+        if connected == 0:
+            self.log("FATAL: could not connect to any configured database")
+            sys.exit(1)
+
+        # register all the callbacks for PDU handling
+        self.set_refresh(self.db2_refresh)
+        self.set_instance(self.db2_instance)
+        self.set_fetch_callback(self.db2_fetch_callback)
+        self.set_label_callback(self.db2_label_callback)
+        self.log("Setup complete")
+
+    def db2_connect(self, dbname):
+        """ connect to a specific Db2 database """
+        self.set_user(pmContext.pmGetConfig('PCP_USER'))
+        dsn = ('DATABASE=%s;HOSTNAME=%s;PORT=%s;PROTOCOL=TCPIP;'
+               'ConnectTimeout=%s;UID=%s;PWD=%s;' %
+               (dbname, self.hostname, self.port, self.timeout,
+                self.username, self.password))
+        try:
+            self.conns[dbname] = ibm_db.connect(dsn, '', '')
+        except Exception as error:
+            self.error("db2_connect", "connecting to %s/%s as %s: %s" %
+                       (self.hostname, dbname, self.username, str(error)))
+            self.conns[dbname] = None
+            return False
+        return True
+
+    def db2_cursor(self, dbname):
+        """ return a verified live connection for dbname, reconnecting as needed.
+
+        ibm_db.active() alone is insufficient - it reflects library-side state
+        only.  After a Db2 restart the TCP connection may still appear open
+        until a query is attempted, so we probe with VALUES(1) first.
+        On any failure the connection handle is cleared to force reconnect. """
+        connected = False
+        while not connected:
+            try:
+                conn = self.conns.get(dbname)
+                if conn is None:
+                    raise Exception('Not connected')
+                if not ibm_db.active(conn):
+                    raise Exception('Connection inactive')
+                ibm_db.exec_immediate(conn, 'VALUES(1)')
+                connected = True
+            except Exception:
+                self.log("Lost connection to %s, reconnecting ..." % dbname)
+                self.conns[dbname] = None
+                if not self.db2_connect(dbname):
+                    time.sleep(1)
+        return self.conns[dbname]
+
+    def db2_exec(self, dbname, sql):
+        """ execute sql against dbname, return list of row tuples; [] on error.
+
+        Clears the connection handle on failure so the next db2_cursor() call
+        triggers a full reconnect rather than retrying a dead handle. """
+        conn = self.db2_cursor(dbname)
+        try:
+            stmt = ibm_db.exec_immediate(conn, sql)
+            rows = []
+            row = ibm_db.fetch_tuple(stmt)
+            while row:
+                rows.append(row)
+                row = ibm_db.fetch_tuple(stmt)
+            return rows
+        except Exception as error:
+            self.error("db2_exec", "%s: query '%s': %s" % (dbname, sql[:60], str(error)))
+            self.conns[dbname] = None
+            return []
+
+    def db2_refresh_indom(self, indom):
+        """ refresh instance names for the given indom across all databases """
+        instances = {}
+        if indom == self.INDOM_ID(6):
+            # database indom is populated from config, not from SQL
+            for dbname in self.databases:
+                instances[dbname] = c_int(1)
+            self.replace_indom(indom, instances)
+            return
+        query = self.indoms[indom][self.INDOM_QUERY]
+        for dbname in self.databases:
+            rows = self.db2_exec(dbname, query)
+            for row in rows:
+                instname = dbname + '::' + str(row[0]).strip().replace(' ', '_')
+                instances[instname] = c_int(1)
+        self.replace_indom(indom, instances)
+
+    def db2_instance(self, serial):
+        """ called once per instance PDU - only the requested indom is queried """
+        self.db2_refresh_indom(self.INDOM_ID(serial))
+
+    def db2_refresh(self, cluster):
+        """ called once per cluster per fetch PDU - one SQL query per database per cluster """
+        if cluster in self.cluster_db:
+            self.db2_refresh_db_scoped(cluster, self.cluster_db,
+                                       self.cluster_db_items)
+        elif cluster in self.cluster_bp:
+            self.db2_refresh_instanced(cluster, self.cluster_bp,
+                                       self.cluster_bp_items, self.INDOM_ID(0))
+        elif cluster in self.cluster_table:
+            self.db2_refresh_instanced(cluster, self.cluster_table,
+                                       self.cluster_table_items, self.INDOM_ID(1))
+        elif cluster in self.cluster_wl:
+            self.db2_refresh_instanced(cluster, self.cluster_wl,
+                                       self.cluster_wl_items, self.INDOM_ID(2))
+        elif cluster in self.cluster_ts:
+            self.db2_refresh_instanced(cluster, self.cluster_ts,
+                                       self.cluster_ts_items, self.INDOM_ID(3))
+        elif cluster in self.cluster_conn:
+            self.db2_refresh_instanced(cluster, self.cluster_conn,
+                                       self.cluster_conn_items, self.INDOM_ID(4))
+        elif cluster in self.cluster_latch:
+            self.db2_refresh_instanced(cluster, self.cluster_latch,
+                                       self.cluster_latch_items, self.INDOM_ID(5))
+        elif cluster in self.cluster_log:
+            self.db2_refresh_db_scoped(cluster, self.cluster_log,
+                                       self.cluster_log_items)
+        elif cluster in self.cluster_pkgcache:
+            self.db2_refresh_db_scoped(cluster, self.cluster_pkgcache,
+                                       self.cluster_pkgcache_items)
+        elif cluster in self.cluster_inst:
+            self.db2_refresh_singleton(cluster, self.cluster_inst,
+                                       self.cluster_inst_items)
+
+    def db2_refresh_singleton(self, cluster, clusters, items):
+        """ refresh a cluster returning instance-wide metadata.
+            Queries only the first available database — all databases on the
+            same Db2 instance share the same version, platform and name.
+            Stores results as null-indom values keyed '0'. """
+        meta = clusters[cluster]
+        for dbname in self.databases:
+            rows = self.db2_exec(dbname, meta[self.CLUSTER_QUERY])
+            if not rows:
+                continue
+            row = rows[0]
+            for item in range(items):
+                pmid = self.PM_ID(cluster, item)
+                if pmid in self.metrics:
+                    val = row[item] if row[item] is not None else ''
+                    self.metrics[pmid][self.METRIC_VALUES]['0'] = val
+            break  # instance-wide; one successful query is sufficient
+
+    def db2_refresh_db_scoped(self, cluster, clusters, items):
+        """ refresh a cluster returning one aggregate row per database.
+            Iterates all configured databases; the database name is the
+            instance key in the values dict and in indom 6. """
+        meta = clusters[cluster]
+        for item in range(items):
+            pmid = self.PM_ID(cluster, item)
+            if pmid in self.metrics:
+                self.metrics[pmid][self.METRIC_VALUES].clear()
+        # Pre-populate all configured databases so transient query failures
+        # do not remove a database from indom 6 for all db-scoped metrics.
+        instances = {dbname: c_int(1) for dbname in self.databases}
+        for dbname in self.databases:
+            rows = self.db2_exec(dbname, meta[self.CLUSTER_QUERY])
+            if not rows:
+                continue
+            row = rows[0]
+            for item in range(items):
+                pmid = self.PM_ID(cluster, item)
+                if pmid in self.metrics:
+                    self.metrics[pmid][self.METRIC_VALUES][dbname] = (
+                        row[item] if row[item] is not None else 0)
+        self.replace_indom(self.INDOM_ID(6), instances)
+
+    def db2_refresh_instanced(self, cluster, clusters, items, indom):
+        """ refresh a cluster returning one row per object instance.
+            Iterates all configured databases; instance names are prefixed
+            with the database name as dbname/instname. """
+        meta = clusters[cluster]
+        for item in range(items):
+            pmid = self.PM_ID(cluster, item)
+            if pmid in self.metrics:
+                self.metrics[pmid][self.METRIC_VALUES].clear()
+        instances = {}
+        for dbname in self.databases:
+            rows = self.db2_exec(dbname, meta[self.CLUSTER_QUERY])
+            for row in rows:
+                instname = dbname + '::' + str(row[0]).strip().replace(' ', '_')
+                instances[instname] = c_int(1)
+                for item in range(items):
+                    pmid = self.PM_ID(cluster, item)
+                    if pmid in self.metrics:
+                        val = row[item + 1]
+                        self.metrics[pmid][self.METRIC_VALUES][instname] = (
+                            val if val is not None else 0)
+        self.replace_indom(indom, instances)
+
+    def db2_fetch_callback(self, cluster, item, inst):
+        """ called for each (metric, instance) pair in a fetch PDU """
+        pmid = self.PM_ID(cluster, item)
+        if pmid not in self.metrics:
+            return [c_api.PM_ERR_PMID, 0]
+        metric = self.metrics[pmid]
+        indom = metric[self.METRIC_META].m_desc.indom
+        values = metric[self.METRIC_VALUES]
+
+        try:
+            if indom == c_api.PM_INDOM_NULL:
+                value = values['0']
+            else:
+                instname = self.inst_name_lookup(indom, inst)
+                if instname is None:
+                    return [c_api.PM_ERR_INST, 0]
+                value = values[instname]
+        except KeyError:
+            return [c_api.PM_ERR_VALUE, 0]
+        except:
+            self.error("db2_fetch_callback",
+                       "unexpected error pmid=0x%04x" % pmid)
+            return [c_api.PM_ERR_VALUE, 0]
+
+        if value is None:
+            if metric[self.METRIC_META].m_desc.type == c_api.PM_TYPE_STRING:
+                value = ''
+            else:
+                value = 0
+        return [value, 1]
+
+    def db2_label_callback(self, indom, inst):
+        """ return JSON labels for a compound dbname::component instance name.
+
+        Splits the instance name on '::' to expose the database name and
+        the per-object component as separate searchable label dimensions.
+        Indom 0 (buffer pools):  {"database":"DB","bufferpool":"BP"}
+        Indom 1 (tables):        {"database":"DB","table":"SCHEMA.TABLE"}
+        Indom 2 (workloads):     {"database":"DB","workload":"WL"}
+        Indom 3 (tablespaces):   {"database":"DB","tablespace":"TS"}
+        Indom 4 (connections):   {"database":"DB","application":"APP","handle":"H"}
+        Indom 5 (latches):       {"database":"DB","latch":"LATCH"}
+        Indom 6 (databases):     {"database":"DB"}
+        """
+        instname = self.inst_name_lookup(indom, inst)
+        if instname is None:
+            return '{}'
+        parts = instname.split('::')
+        if not parts:
+            return '{}'
+
+        db = parts[0]
+        label_keys = {
+            self.INDOM_ID(0): 'bufferpool',
+            self.INDOM_ID(1): 'table',
+            self.INDOM_ID(2): 'workload',
+            self.INDOM_ID(3): 'tablespace',
+            self.INDOM_ID(5): 'latch',
+        }
+
+        result = {'database': db}
+        if indom == self.INDOM_ID(4) and len(parts) >= 3:
+            result['application'] = parts[1]
+            result['handle'] = parts[2]
+        elif indom in label_keys and len(parts) >= 2:
+            result[label_keys[indom]] = parts[1]
+        return json.dumps(result, separators=(',', ':'))
+
+    def setup_indoms(self):
+        """ register all indom objects with help text """
+        for data in self.indoms.values():
+            oneline = data[self.INDOM_ONE] if len(data) > self.INDOM_ONE else ''
+            text    = data[self.INDOM_TEXT] if len(data) > self.INDOM_TEXT else ''
+            self.add_indom(data[self.INDOM_META], oneline, text)
+
+    def setup_metrics(self):
+        """ register all metric objects with one-line and long help text """
+        for metric in self.metrics.values():
+            oneline = metric[self.METRIC_ONELINE] if len(metric) > self.METRIC_ONELINE else ''
+            text    = metric[self.METRIC_TEXT]    if len(metric) > self.METRIC_TEXT    else ''
+            self.add_metric(metric[self.METRIC_NAME],
+                            metric[self.METRIC_META],
+                            oneline, text)
+
+    def config(self, filename, sections):
+        """ parse ini-style config file, raise on missing section """
+        parser = configparser.RawConfigParser()
+        parser.read(filename)
+        params = {}
+        for section in sections:
+            if parser.has_section(section):
+                for param in parser.items(section):
+                    params[section + '.' + param[0]] = param[1]
+            else:
+                raise NameError('Section %s not found in %s' % (section, filename))
+        return params
+
+    def install(self):
+        """ return True when running under Install for domain/PMNS generation """
+        if 'PCP_PYTHON_DOMAIN' in os.environ:
+            return True
+        elif 'PCP_PYTHON_PMNS' in os.environ:
+            return True
+        return False
+
+    def error(self, function, message):
+        """ log an error with function context """
+        self.err(function + ': ' + message)
+
+    def debug(self, function, message=''):
+        """ log a debug message when verbose is set """
+        if self.verbose:
+            if message:
+                self.dbg(function + ': ' + message)
+            else:
+                self.dbg(function)
+
+if __name__ == '__main__':
+    pmda = DB2PMDA('db2', 42)
+    pmda.run()
