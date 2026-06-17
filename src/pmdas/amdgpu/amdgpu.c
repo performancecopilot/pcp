@@ -35,6 +35,7 @@ pmdaIndom indomtab[] = {
 enum {
     GCARD_CLUSTER = 0,
     MEMORY_CLUSTER,
+    RETIRED_CLUSTER,
     GPU_CLUSTER,
 
     CLUSTER_COUNT
@@ -116,11 +117,13 @@ struct {
 
 },*refresher_list[CLUSTER_COUNT][MAX_ITEM_COUNT] = {
       {
+	/* cluster 0 in PMID */
 	NULL, /* There is no refresher for the card number */
 	&amd_refresher[AMDGPU_NAME_REFRESHER],
 	NULL, /* There is no refresher for the card ID */
       },
       {
+	/* cluster 1 in PMID */
 	&amd_refresher[AMDGPU_MEMORY_INFO_REFRESHER], /* Memory used*/
 	&amd_refresher[AMDGPU_MEMORY_INFO_REFRESHER], /* Total Memory */
 	&amd_refresher[AMDGPU_MEMORY_INFO_REFRESHER], /* Memory free */
@@ -129,6 +132,10 @@ struct {
 	&amd_refresher[AMDGPU_GPU_INFO_REFRESHER], /* Memory clock, max */
       },
       {
+        NULL,		/* cluster 2 in PMID retired */
+      },
+      {
+	/* cluster 3 in PMID */
 	&amd_refresher[AMDGPU_GPU_TEMPERATURE_REFRESHER], /* GPU temperature */
 	&amd_refresher[AMDGPU_GPU_LOAD_REFRESHER], /* GPU load (percent) */
 	&amd_refresher[AMDGPU_GPU_AVG_PWR_REFRESHER], /* GPU Average power */
@@ -287,7 +294,7 @@ static int setup_gcard_indom(void) {
   return 0;
 }
 
-#define FAIL_REPORT_LIMIT 10
+#define FAIL_REPORT_LIMIT 20
 
 static int refresh(pcp_amdgpuinfo_t *amdgpuinfo, uint32_t to_refresh)
 {
