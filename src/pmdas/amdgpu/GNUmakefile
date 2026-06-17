@@ -23,6 +23,11 @@ LIBTARGET = pmda_$(IAM).$(DSOSUFFIX)
 PMDAINIT = $(IAM)_init
 
 CFILES	= drm.c amdgpu.c
+
+# for debugging without hardware and using fake libraries include fake.c here
+# 
+#CFILES	+= fake.c
+
 HFILES	= drm.h
 DFILES	= README
 LLDLIBS	= $(PCP_PMDALIB) $(LIB_FOR_LIBDRM) $(LIB_FOR_LIBDRM_AMDGPU)
