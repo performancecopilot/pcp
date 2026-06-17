@@ -13,14 +13,14 @@ task:
     fingerprint_script: |
       brew --version
       echo $HOMEBREW_NO_AUTO_UPDATE  # if you use it
-      # Hash the package list so the cache busts when we add/remove packages
-      grep -v '^#' build/mac/brew-packages.txt | sort | shasum
+      # Hash the Brewfile (ignoring comments/blanks) so the cache busts
+      # only when the actual package set changes.
+      grep -v '^#' Brewfile | grep -v '^$' | sort | shasum
     populate_script: |
       # This runs only on cache miss — safe to install everything here
       echo "Populating Homebrew cache..."
       brew update --quiet || true
-      PACKAGES=$(grep -v '^#' build/mac/brew-packages.txt | grep -v '^$' | tr '\n' ' ')
-      brew install $PACKAGES || true
+      brew bundle || true
     # Optional: clean up non-deterministic files before cache upload
     before_cache_script: |
       brew cleanup --prune=all || true
