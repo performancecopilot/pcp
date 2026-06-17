@@ -287,11 +287,13 @@ drmGetDevices(drmDevicePtr devices[], int max_devices)
     if (devices == NULL)
 	return FAKE_DRM;
     for (i = 0; i < FAKE_DRM; i++) {
-	devices[i] = (drmDevice *)calloc(sizeof(drmDevice), 0);
+fprintf(stderr, "drmDevice: %d\n", (int)sizeof(drmDevice));
+fprintf(stderr, "struct _drmDevice: %d\n", (int)sizeof(struct _drmDevice));
+	devices[i] = (drmDevice *)calloc(1, sizeof(drmDevice));
 	devices[i]->bustype = DRM_BUS_PCI;
-	devices[i]->deviceinfo.pci = (drmPciDeviceInfo *)calloc(sizeof(drmPciDeviceInfo), 0);
+	devices[i]->deviceinfo.pci = (drmPciDeviceInfo *)calloc(1, sizeof(drmPciDeviceInfo));
 	devices[i]->deviceinfo.pci->vendor_id = PCI_VENDOR_ID_ATI;
-	devices[i]->nodes = (char **)calloc(sizeof(char *) * DRM_NODE_MAX, 0);
+	devices[i]->nodes = (char **)calloc(DRM_NODE_MAX, sizeof(char *));
 	if (i == 0) {
 	    devices[i]->available_nodes = 1 << DRM_NODE_RENDER;
 	    devices[i]->nodes[DRM_NODE_RENDER] = "/dev/null";
