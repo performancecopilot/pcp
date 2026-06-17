@@ -254,7 +254,14 @@ newvolume(pmi_context *current)
     __pmFflush(acp->ac_mfp);
 }
 
-static off_t	flushsize = 100000;
+/*
+ * Approximate byte interval between temporal index entries within a
+ * data volume.  Smaller values improve seek performance at the cost
+ * of a slightly larger index; 100000 bytes is the historical default.
+ */
+#define PMI_FLUSH_INTERVAL	((off_t)100000)
+
+static off_t	flushsize = PMI_FLUSH_INTERVAL;
 
 int
 _pmi_put_result(pmi_context *current, __pmResult *result)
@@ -312,7 +319,7 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
     off = __pmFtell(acp->ac_mfp) + ((__pmPDUHdr *)pb)->len - sizeof(__pmPDUHdr) + 2*sizeof(int);
     if (off >= max_logsz) {
     	newvolume(current);
-	flushsize = 100000;
+	flushsize = PMI_FLUSH_INTERVAL;
 	needti = 1;
     }
 
@@ -328,7 +335,7 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
 	 __pmLogPutIndex(acp, &stamp);
 	/* and restore metadata seek pointer */
 	__pmFseek(lcp->mdfp, new_meta_offset, SEEK_SET);
-	flushsize = __pmFtell(acp->ac_mfp) + 100000;
+	flushsize = __pmFtell(acp->ac_mfp) + PMI_FLUSH_INTERVAL;
     }
 
     sts = current->version >= PM_LOG_VERS03 ?
@@ -338,6 +345,32 @@ _pmi_put_result(pmi_context *current, __pmResult *result)
 
     if (sts < 0)
 	return sts;
+
+    /*
+     * User-API volume rotation: if pmiSetVolumeSize() was called, check
+     * the current data volume size after each successful write.  When the
+     * threshold is reached, rotate to the next volume and invoke the
+     * caller's callback with the path of the just-closed volume so it can
+     * arrange compression or other post-processing.
+     *
+     * This is deliberately checked *after* the write so the completed
+     * volume contains a full, consistent record set.
+     */
+    if (current->max_volume_bytes > 0 &&
+	(size_t)__pmFtell(acp->ac_mfp) >= current->max_volume_bytes) {
+	int	old_vol = acp->ac_curvol;
+	char	vol_path[MAXPATHLEN];
+
+	newvolume(current);
+	flushsize = PMI_FLUSH_INTERVAL;
+
+	if (current->on_volume_rotate) {
+	    pmsprintf(vol_path, sizeof(vol_path), "%s.%d",
+		      current->archive, old_vol);
+	    current->on_volume_rotate(vol_path);
+	}
+    }
+
     return 0;
 }
 

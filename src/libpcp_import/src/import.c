@@ -562,6 +562,43 @@ pmiSetVersion(int version)
     return current->last_sts;
 }
 
+int
+pmiSetVolumeSize(size_t max_bytes, void (*on_rotate)(const char *))
+{
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+    /*
+     * Reject a threshold below the archive label size for the current
+     * archive version — a value smaller than the label would trigger
+     * a rotation cascade on every write since each new volume begins
+     * with a label that immediately exceeds the threshold.
+     * __pmLogLabelSize() returns the correct fixed on-disk size for
+     * both v2 (124 bytes) and v3 (800 bytes) archives.
+     */
+    if (max_bytes > 0) {
+	/*
+	 * Use the context's configured archive version to determine the
+	 * on-disk label size.  __pmLogLabelSize() reads the label magic
+	 * which is not yet set on a fresh context, so derive the size
+	 * directly from the version: v2=124, v3=800 (fixed-width structs).
+	 * The version field defaults to PM_LOG_VERS02 after pmiStart().
+	 */
+	size_t	label_size;
+	label_size = (current->version >= PM_LOG_VERS03)
+		     ? (size_t)(32 + PM_MAX_HOSTNAMELEN +
+				PM_MAX_TIMEZONELEN + PM_MAX_ZONEINFOLEN)
+		     : (size_t)(20 + PM_LOG_MAXHOSTLEN + PM_TZ_MAXLEN);
+	if (max_bytes <= label_size) {
+	    current->last_sts = PM_ERR_CONV;
+	    return PM_ERR_CONV;
+	}
+    }
+    current->max_volume_bytes = max_bytes;
+    current->on_volume_rotate = on_rotate;
+    current->last_sts = 0;
+    return 0;
+}
+
 static int
 valid_pmns_name(const char *name)
 {

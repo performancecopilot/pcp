@@ -44,5 +44,13 @@ echo
 echo "=== fallback archive created ==="
 pmlogcheck appendnew
 
+echo
+echo "=== Phase 4: pmiSetVolumeSize ==="
+$here/src/check_volsize 2>&1
+
+echo
+echo "=== multi-volume archive integrity ==="
+pmlogcheck volsizetest
+
 # success, all done
 exit

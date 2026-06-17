@@ -59,18 +59,25 @@ typedef struct {
     __pmLogCtl		logctl;
     __pmArchCtl		archctl;
     __pmResult		*result;
+    /*
+     * Pair consecutive int fields to avoid 4-byte padding before each
+     * pointer on 64-bit platforms (private struct, no ABI constraint).
+     */
     int			nmetric;
-    pmi_metric		*metric;
     int			nindom;
+    pmi_metric		*metric;
     pmi_indom		*indom;
     int			nhandle;
-    pmi_handle		*handle;
     int			ntext;
+    pmi_handle		*handle;
     pmi_text		*text;
     int			nlabel;
-    pmi_label		*label;
     int			last_sts;
+    pmi_label		*label;
     __pmTimestamp	last_stamp;
+    /* optional volume rotation: 0 = disabled, callback may be NULL */
+    size_t		max_volume_bytes;
+    void		(*on_volume_rotate)(const char *vol_path);
 } pmi_context;
 
 #define CONTEXT_START	1

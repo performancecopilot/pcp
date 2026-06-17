@@ -43,3 +43,22 @@ TIMESTAMP	      0          922          960
 TIMESTAMP	      0          922         1112
 
 === fallback archive created ===
+
+=== Phase 4: pmiSetVolumeSize ===
+pmiStart: OK ->1
+pmiSetHostname: OK
+pmiSetTimezone: OK
+pmiAddMetric: OK
+pmiGetHandle: OK ->1
+pmiSetVolumeSize: OK
+pmiHighResWrite loop: OK
+pmiEnd: OK
+volume rotation: OK
+volsizetest.0: present
+volsizetest.1: present
+volume size bound: OK
+callback path: OK
+label size guard: OK
+pmiSetVolumeSize(0) disable: OK
+
+=== multi-volume archive integrity ===

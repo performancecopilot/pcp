@@ -35,6 +35,7 @@ check_import_name
 check_import.pl
 check_pmiend_fdleak
 check_pmi_errconv
+check_volsize
 checkstructs
 chkacc1
 chkacc2

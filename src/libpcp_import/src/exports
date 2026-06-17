@@ -51,4 +51,5 @@ PCP_IMPORT_1.4 {
   global:
     pmiExtraUnits;
     pmiPutAtomValueHandle;
+    pmiSetVolumeSize;
 } PCP_IMPORT_1.3;

@@ -1,0 +1,124 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2026 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMISETVOLUMESIZE 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiSetVolumeSize\f1 \- configure automatic data volume rotation for a LOGIMPORT archive
+.SH "C SYNOPSIS"
+.ft 3
+.ad l
+.hy 0
+#include <pcp/pmapi.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiSetVolumeSize(size_t \fImax_bytes\fP, void (*\fIon_rotate\fP)(const char *));
+.sp
+cc ... \-lpcp_import \-lpcp
+.hy
+.ad
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiSetVolumeSize
+configures automatic data volume rotation for the archive associated
+with the current context.
+.PP
+After each successful call to
+.BR pmiHighResWrite (3)
+or
+.BR pmiWrite (3),
+if the current data volume file size meets or exceeds
+.IR max_bytes ,
+the library closes the current data volume, opens the next numbered
+volume, and writes a new volume label.
+Volume files are named
+.IB archive .0 ,
+.IB archive .1 ,
+and so on, where
+.I archive
+is the base path given to
+.BR pmiStart (3).
+The
+.I .meta
+and
+.I .index
+files are shared across all volumes and remain open throughout.
+.PP
+If
+.I on_rotate
+is not NULL, it is called immediately after the old volume is closed
+and before the function returns.
+The single argument is the full path of the just-closed volume file
+(e.g.\&
+.IR /var/log/sa/pcp16/pcp16.0 ).
+The caller may use this callback to compress the completed volume or
+perform any other post-rotation work.
+The callback is invoked synchronously; long-running operations should
+be deferred to a child process.
+.PP
+Passing
+.I max_bytes
+as zero disables volume rotation (the default).
+.PP
+.B pmiSetVolumeSize
+interacts with the existing
+.B PCP_LOGIMPORT_MAXLOGSZ
+environment variable: both mechanisms trigger
+.BR newvolume ()
+independently, so if both are active the smaller threshold governs.
+.SH EXAMPLE
+The following fragment opens a PCP archive, configures 100\ MB
+volume rotation, and compresses each completed volume:
+.PP
+.nf
+.ft 3
+static void
+on_vol(const char *path)
+{
+    char cmd[MAXPATHLEN + 32];
+    pmsprintf(cmd, sizeof(cmd), "xz %s &", path);
+    system(cmd);
+}
+
+pmiStart("/var/log/sa/pcp16/pcp16", 0);
+pmiSetVolumeSize(100 * 1024 * 1024, on_vol);
+.ft 1
+.fi
+.SH DIAGNOSTICS
+.B pmiSetVolumeSize
+returns zero on success.
+If there is no current context,
+.B PM_ERR_NOCONTEXT
+is returned.
+If
+.I max_bytes
+is greater than zero but does not exceed the on-disk label size for the
+configured archive version (124 bytes for v2, 800 bytes for v3),
+.B PM_ERR_CONV
+is returned.
+A threshold at or below the label size would cause the new volume's label
+to immediately exceed the threshold on every write, triggering a
+rotation cascade.
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pmiEnd (3),
+.BR pmiErrStr (3),
+.BR pmiHighResWrite (3),
+.BR pmiStart (3),
+.BR pmiWrite (3)
+and
+.BR pmlogcheck (1).
