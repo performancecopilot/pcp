@@ -44,7 +44,7 @@ PYPMDAS = gluster zswap unbound mic haproxy \
 	uwsgi rocestat hdb rds db2
 
 SUBDIRS = $(CPMDAS) $(PLPMDAS) $(PYPMDAS)
-LDIRT = local.conf pmcd.conf root.local
+LDIRT = local.conf pmcd.conf local.root
 
 ifneq ("$(wildcard $(TOPDIR)/src/include/pcp/config.h)","")
 HAVE_UNIX_DOMAIN_SOCKETS = $(shell grep 'define HAVE_STRUCT_SOCKADDR_UN' $(TOPDIR)/src/include/pcp/config.h >/dev/null && echo yes)
@@ -91,7 +91,7 @@ endif
 	        $$0 == "" && buf[n-1] == "" { next } \
 	        { buf[n++] = $$0 } \
 	        END { print "}"; print ""; for (i=0; i<n; i++) print buf[i] }' \
-	    > root.local; \
+	    > local.root; \
 	fi
 
 install :: install_pcp
@@ -103,6 +103,6 @@ install_pcp :: default_pcp
 	$(INSTALL) -m 755 -d `dirname $(PCP_PMCDCONF_PATH)`
 	$(INSTALL) -m 644 pmcd.conf $(PCP_PMCDCONF_PATH)
 	$(INSTALL) -m 644 local.conf indom.conf $(PCP_ETC_DIR)/pcp
-	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/root.local root.local $(PCP_PMNSADM_DIR)/root.local
+	$(INSTALL) -m 644 -t $(PCP_PMNS_DIR)/local.root local.root $(PCP_PMNSADM_DIR)/local.root
 
 include $(BUILDRULES)

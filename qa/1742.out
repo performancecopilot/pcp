@@ -1,11 +1,11 @@
 QA output created by 1742
-=== hinv.ncpu in root.local PMNS ===
+=== hinv.ncpu in local.root PMNS ===
 hinv.ncpu
-=== hinv.ncpu accessible via local.conf + root.local ===
+=== hinv.ncpu accessible via local.conf + local.root ===
 hinv.ncpu
     value INTEGER
-=== mmv.control.files accessible via wildcard in root.local ===
+=== mmv.control.files accessible via wildcard in local.root ===
 mmv.control.files
     value INTEGER
-=== pmcd metrics absent from root.local PMNS ===
+=== pmcd metrics absent from local.root PMNS ===
 Error: METRIC: Unknown metric name

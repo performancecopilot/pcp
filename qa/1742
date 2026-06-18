@@ -1,7 +1,7 @@
 #!/bin/sh
 # PCP QA Test No. 1742
 # Verify PM_CONTEXT_LOCAL using local.conf (DSO PMDAs only) and
-# root.local PMNS via PCP_PMCDCONF_PATH and PMNS_DEFAULT.
+# local.root PMNS via PCP_PMCDCONF_PATH and PMNS_DEFAULT.
 #
 # Copyright (c) 2026 Red Hat.  All Rights Reserved.
 #
@@ -25,6 +25,7 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _filter()
 {
+    tee -a $seq_full | \
     sed \
 	-e 's/value [0-9][0-9]*/value INTEGER/' \
 	-e '/^$/d' \
@@ -33,24 +34,24 @@ _filter()
 
 # real QA test starts here
 
-echo "=== hinv.ncpu in root.local PMNS ==="
-pminfo -n $PCP_VAR_DIR/pmns/root.local hinv.ncpu
+echo "=== hinv.ncpu in local.root PMNS ==="
+pminfo -n $PCP_VAR_DIR/pmns/local.root hinv.ncpu
 
-echo "=== hinv.ncpu accessible via local.conf + root.local ==="
+echo "=== hinv.ncpu accessible via local.conf + local.root ==="
 PCP_PMCDCONF_PATH=$PCP_SYSCONF_DIR/local.conf \
-PMNS_DEFAULT=$PCP_VAR_DIR/pmns/root.local \
+PMNS_DEFAULT=$PCP_VAR_DIR/pmns/local.root \
     $sudo_local_ctx pminfo -L -f hinv.ncpu 2>&1 \
 | _filter
 
-echo "=== mmv.control.files accessible via wildcard in root.local ==="
+echo "=== mmv.control.files accessible via wildcard in local.root ==="
 PCP_PMCDCONF_PATH=$PCP_SYSCONF_DIR/local.conf \
-PMNS_DEFAULT=$PCP_VAR_DIR/pmns/root.local \
+PMNS_DEFAULT=$PCP_VAR_DIR/pmns/local.root \
     $sudo_local_ctx pminfo -L -f mmv.control.files 2>&1 \
 | _filter
 
-echo "=== pmcd metrics absent from root.local PMNS ==="
+echo "=== pmcd metrics absent from local.root PMNS ==="
 PCP_PMCDCONF_PATH=$PCP_SYSCONF_DIR/local.conf \
-PMNS_DEFAULT=$PCP_VAR_DIR/pmns/root.local \
+PMNS_DEFAULT=$PCP_VAR_DIR/pmns/local.root \
     $sudo_local_ctx pminfo -L pmcd.version 2>&1 \
 | sed -e 's/pmcd\.version/METRIC/'
 
