@@ -39,6 +39,7 @@ PMI_CALL extern int pmiUseContext(int);
 PMI_CALL extern int pmiEnd(void);
 PMI_CALL extern int pmiSetHostname(const char *);
 PMI_CALL extern int pmiSetTimezone(const char *);
+PMI_CALL extern int pmiSetZoneinfo(const char *);
 PMI_CALL extern int pmiSetVersion(int);
 PMI_CALL extern int pmiSetVolumeSize(size_t, void (*)(const char *));
 PMI_CALL extern int pmiAddMetric(const char *, pmID, int, pmInDom, int, pmUnits);

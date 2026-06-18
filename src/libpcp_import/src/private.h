@@ -56,6 +56,7 @@ typedef struct {
     char		*archive;
     char		*hostname;
     char		*timezone;
+    char		*zoneinfo;
     __pmLogCtl		logctl;
     __pmArchCtl		archctl;
     __pmResult		*result;

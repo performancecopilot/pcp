@@ -59,11 +59,13 @@ check_context_append(pmi_context *current)
     /* Restore version from the archive label (may differ from the default) */
     current->version = __pmLogVersion(lcp);
 
-    /* Use the archive's hostname/timezone unless the caller overrode them */
+    /* Use the archive's hostname/timezone/zoneinfo unless the caller overrode them */
     if (current->hostname == NULL && lcp->label.hostname != NULL)
 	current->hostname = strdup(lcp->label.hostname);
     if (current->timezone == NULL && lcp->label.timezone != NULL)
 	current->timezone = strdup(lcp->label.timezone);
+    if (current->zoneinfo == NULL && lcp->label.zoneinfo != NULL)
+	current->zoneinfo = strdup(lcp->label.zoneinfo);
 
     /*
      * Seed last_stamp from the archive's end time so that the monotonicity
@@ -123,8 +125,10 @@ check_context_start(pmi_context *current)
     if (current->timezone != NULL) {
 	free(lcp->label.timezone);
 	lcp->label.timezone = strdup(current->timezone);
+    }
+    if (current->zoneinfo != NULL) {
 	free(lcp->label.zoneinfo);
-	lcp->label.zoneinfo = NULL;
+	lcp->label.zoneinfo = strdup(current->zoneinfo);
     }
     pmNewZone(lcp->label.timezone);
     current->state = CONTEXT_ACTIVE;

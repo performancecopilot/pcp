@@ -347,6 +347,7 @@ pmiStart(const char *archive, int flags)
     }
     current->hostname = NULL;
     current->timezone = NULL;
+    current->zoneinfo = NULL;
     current->result = NULL;
     memset((void *)&current->logctl, 0, sizeof(current->logctl));
     memset((void *)&current->archctl, 0, sizeof(current->archctl));
@@ -541,6 +542,36 @@ pmiSetTimezone(const char *value)
     current->timezone = strdup(value);
     if (current->timezone == NULL) {
 	pmNoMem("pmiSetTimezone", strlen(value)+1, PM_RECOV_ERR);
+	current->last_sts = -ENOMEM;
+    } else {
+	current->last_sts = 0;
+    }
+    return current->last_sts;
+}
+
+int
+pmiSetZoneinfo(const char *value)
+{
+    char	*detected;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    if (value == NULL) {
+	/* Auto-detect Olson name via __pmZoneinfo() (libpcp tz.c) */
+	detected = __pmZoneinfo();
+	if (detected == NULL)
+	    return current->last_sts = 0;	/* no zoneinfo available */
+	value = detected;
+    } else {
+	detected = NULL;
+    }
+
+    free(current->zoneinfo);
+    current->zoneinfo = strdup(value);
+    free(detected);
+    if (current->zoneinfo == NULL) {
+	pmNoMem("pmiSetZoneinfo", strlen(value)+1, PM_RECOV_ERR);
 	current->last_sts = -ENOMEM;
     } else {
 	current->last_sts = 0;
