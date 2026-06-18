@@ -40,6 +40,11 @@ _cleanup()
 	echo "Stopping pmproxy ..." >>$seq_full
 	_service pmproxy stop >>$seq_full 2>&1
     fi
+    # pmproxy PMDA changes may have been enough to force pmlogger
+    # to exit, so start it in case there is no systemd to recover
+    #
+    _service pmlogger start >>$seq_full
+    _wait_for_pmlogger
     $sudo rm -rf $tmp $tmp.*
 }
 
