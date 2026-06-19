@@ -1,0 +1,135 @@
+#!/bin/sh
+# PCP QA Test No. 1674
+# check values for amdgpu PMDA
+#
+# Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
+#
+
+if [ $# -eq 0 ]
+then
+    seq=`basename $0`
+    echo "QA output created by $seq"
+else
+    # use $seq from caller, unless not set
+    [ -n "$seq" ] || seq=`basename $0`
+    echo "QA output created by `basename $0` $*"
+fi
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s@$tmp@TMP@g" \
+	-e "s@/privateTMP@TMP@g" \
+    # end
+}
+
+_fixval()
+{
+    sed \
+	-e '/ "/{
+s/" "/""/g
+:more
+s/"\([^ ]*\) /"\1_/
+t more
+s/""/" "/g
+}'
+}
+
+export LC_COLLATE=POSIX
+
+# real QA test starts here
+pmprobe -v -a archives/amdgpu-1 amdgpu | _fixval | sort >$tmp.pcp
+
+# Note inst order is reversed in the final awk output because amd-smi and
+#      the amdgpu PMDA do not agree on which card is GPU0 and GPU1, and
+#      Claude suggests this is somewhat arbitrary and already inconsistent
+#      across reporting tools ... this works *just* for this data set
+#      collected from Will Cohen's machine
+#
+# TODO
+# metrics still to be validated
+#	amdgpu.memory.usedaccum
+#	amdgpu.memory.clock
+#	amdgpu.memory.clock_max
+#	amdgpu.gpu.load
+#	amdgpu.gpu.average_power
+#	amdgpu.gpu.clock
+#	amdgpu.gpu.clock_max
+# metrics that are not validated by this test
+#	amdgpu.numcards
+#	amdgpu.cardname
+#	amdgpu.cardid
+#	amdgpu.gpu.old_temperature
+#
+$PCP_AWK_PROG <archives/amdgpu-1.smi.txt '
+$1 == "GPU:"	{ inst = $2; next }
+$1 == "MEM_USAGE:"	{ in_mem_use = 1; next }
+$1 == "TEMPERATURE:"	{ in_temp = 1; next }
+$1 == "GFX_0:"		{ in_clock = 1; next }
+in_mem_use == 1 && $1 == "TOTAL_VRAM:" {
+			if ($3 == "MB")
+			    mem_total[inst] = $2 * 1024 * 1024
+			else
+			    print >"'"$tmp.err"'" NR ":" $0 ": unit not MB"
+		    }
+in_mem_use == 1 && $1 == "USED_VRAM:" {
+			if ($3 == "MB")
+			    mem_used[inst] = $2 * 1024 * 1024
+			else
+			    print >"'"$tmp.err"'" NR ":" $0 ": unit not MB"
+		    }
+in_mem_use == 1 && $1 == "FREE_VRAM:" {
+			if ($3 == "MB")
+			    mem_free[inst] = $2 * 1024 * 1024
+			else
+			    print >"'"$tmp.err"'" NR ":" $0 ": unit not MB"
+		    }
+in_temp == 1 && $1 == "EDGE:" { temp[inst] = $2 }
+in_clock == 1 && $1 == "MAX_CLK:" {
+			if ($3 == "MHz")
+			    clock_max[inst] = $2
+			else
+			    print >"'"$tmp.err"'" NR ":" $0 ": unit not MHz"
+		    }
+NF == 1		{ in_mem_use = in_temp = in_clock = 0 }
+END		{ printf "amdgpu.memory.total 2 %d %d\n",mem_total[1],mem_total[0]
+		  printf "amdgpu.memory.used 2 %d %d\n",mem_used[1],mem_used[0]
+		  printf "amdgpu.memory.free 2 %d %d\n",mem_free[1],mem_free[0]
+		  printf "amdgpu.gpu.temperature 2 %d %d\n",temp[1],temp[0]
+		  #TODO# printf "amdgpu.gpu.clock_max 2 %d %d\n",clock_max[1],clock_max[0]
+		}' \
+| _fixval | sort >$tmp.smi 
+
+echo "=== pcp metrics ===" >>$seq_full
+cat $tmp.pcp >>$seq_full
+echo "=== amd-smi metrics ===" >>$seq_full
+cat $tmp.smi >>$seq_full
+
+join -a 1 -a 2 -o 1.1,1.3,1.4,2.1,2.3,2.4 -e '-' $tmp.pcp $tmp.smi \
+| while read name0 v0_0 v0_1 name1 v1_0 v1_1
+do
+    if [ "$name0" = "$name1" ]
+    then
+	_within_tolerance "$name0[0]" "$v0_0" "$v1_0" 10% -v
+	_within_tolerance "$name0[1]" "$v0_1" "$v1_1" 10% -v
+    else
+	echo "$name0: not matched"
+    fi
+done
+
+# success, all done
+exit
