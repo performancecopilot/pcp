@@ -42,7 +42,8 @@ then
     # punt on PMDA name as first part of $probe
     #
     pmda=`echo "$probe" | sed -e 's/\..*//'`
-    echo >&2 "mk.common: Error: $probe is not in the PMNS ... do you need to install the $pmda PMDA?"
+    echo >&2 "mk.common: Error: $probe is not in the PMNS ..."
+    echo >&2 "Do you need to install the $pmda PMDA?"
     exit
 fi
 numval=`sed -n <$tmp.check -e "/$probe [0-9][0-9]*$/{\
@@ -57,7 +58,8 @@ then
 fi
 if [ "$numval" -lt 1 ]
 then
-    echo "WARNING: no values available for $probe, hope you know what you're doing"
+    echo >&2 "WARNING: no values available for $probe ..."
+    echo >&2 "Hope you know what you're doing."
 fi
 
 # remove any axisting files for this archive
@@ -78,7 +80,6 @@ fi
 
 pmlogcompress "$archive"
 
-echo "Created: `pmlogls "$archive" | tr '\012' ' '`"
+echo >&2 "Created: `pmlogls "$archive" | tr '\012' ' '`"
 
 sts=0
-

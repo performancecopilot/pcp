@@ -848,6 +848,7 @@ new_indom_instance_label(int indom)
 	TOK_FEATURES
 	TOK_TIME
 	TOK_NAME
+	TOK_DUPOK
 	TOK_INST
 	TOK_INAME
 	TOK_DELETE
@@ -1648,7 +1649,7 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 		    {
 			metricspec_t	*mp;
 			int		picked = 0;
-			for (mp = walk_metric(W_START, METRIC_CHANGE_NAME, "name", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_NAME, "name", 0)) {
+			for (mp = walk_metric(W_START, METRIC_CHANGE_NAME, "name", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_NAME,  "name", 0)) {
 			    if (strcmp($3, mp->old_name) == 0) {
 				/* no change ... */
 				if (wflag) {
@@ -1664,6 +1665,27 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 				    pmsprintf(mess, sizeof(mess), "Metric name %s already assigned for PMID %s", $3, pmIDStr(pmid));
 				    yyerror(mess);
 				}
+				mp->new_name = $3;
+				mp->flags |= METRIC_CHANGE_NAME;
+				picked = 1;
+			    }
+			}
+			if (!picked)
+			    free($3);
+		    }
+		| TOK_NAME TOK_ASSIGN TOK_GNAME TOK_DUPOK
+		    {
+			metricspec_t	*mp;
+			int		picked = 0;
+			for (mp = walk_metric(W_START, METRIC_CHANGE_NAME, "name", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_NAME, "name", 0)) {
+			    if (strcmp($3, mp->old_name) == 0) {
+				/* no change ... */
+				if (wflag) {
+				    pmsprintf(mess, sizeof(mess), "Metric: %s (%s): name: No change", mp->old_name, pmIDStr(mp->old_desc.pmid));
+				    yywarn(mess);
+				}
+			    }
+			    else {
 				mp->new_name = $3;
 				mp->flags |= METRIC_CHANGE_NAME;
 				picked = 1;

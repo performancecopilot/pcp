@@ -81,7 +81,7 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-numastat-8-node.0.xz pcp-numastat-8-node.meta.xz \
 	  pcp-numastat-8-node.index.xz gfs.0.xz gfs.meta gfs.index \
 	  numa.0.xz numa.meta.xz numa.index.xz \
-	  amdgpu.0.xz amdgpu.meta.xz amdgpu.index \
+	  amdgpu-0.0.xz amdgpu-0.meta.xz amdgpu-0.index \
 	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index \
 	  bozo-20170904-a.0.xz bozo-20170904-a.index bozo-20170904-a.meta.xz \
 	  bozo-20170904-b.0.xz bozo-20170904-b.index bozo-20170904-b.meta.xz \
@@ -103,7 +103,8 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.log-derived mk.vmstat mk.rep mk.procsched mk.netstat \
 	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
 	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo mk.zoneinfo \
-	  mk.atop-sar mk.pmstat mk.rocestat mk.mpstat mk.mpstat4
+	  mk.atop-sar mk.pmstat mk.rocestat mk.mpstat mk.mpstat4 \
+	  mk.common mk.denki
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \

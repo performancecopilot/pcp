@@ -7,23 +7,50 @@
 
 . /etc/pcp.env
 
-tmp=${TMPDIR:-/tmp}/mk.amdgpu-$$
-rm -f $tmp.*
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+tmp="${TMPDIR:-/tmp}/`basename $0`-$$"
+rm -f "$tmp".*
+sts=1
+trap "rm -f \"$tmp\".*; exit \$sts" 0 1 2 3 15
 
-if pmprobe amdgpu >&1 | grep -q 'Unknown metric name'
-then
-    echo "Arrgh, AMD GPU PMDA is apparently not installed"
-    exit 1
-fi
+# see ./mk.common for shell variable definitions
+#
+archive=amdgpu
+probe=amdgpu.gpu.temperature
+samples=7
+# this is ($samples-2)*logging interval (5 sec below) [in secs]
+expect=5
 
-cat <<End-of-File >>$tmp.config
+# pmlogger configuration
+#
+cat <<End-of-File >>"$tmp.config"
+log mandatory on once { hinv }
 log mandatory on 1 sec {
-    amdgpu
+    `echo $probe | sed -e 's/\..*//'`
     proc.fdinfo
 }
 End-of-File
 
-rm -f amdgpu.0 amdgpu.meta amdgpu.index
+. ./mk.common
 
-pmlogger -s 7 -c $tmp.config amdgpu
+rm -f amdgpu.smi.txt
+if which amd-smi >/dev/null 2>&1
+then
+    amd-smi >amdgpu.smi.txt 2>"$tmp.err"
+    if [ $? != 0 -o -s "$tmp.err" ]
+    then
+	echo >&2 "mk.amdgpu: Warning: amd-smi failed"
+	cat >&2 "$tmp.err"
+	rm -f "$tmp.err"
+    fi
+    amd-smi metric >>amdgpu.smi.txt 2>>"$tmp.err"
+    if [ $? != 0 -o -s "$tmp.err" ]
+    then
+	echo >&2 "mk.amdgpu: Warning: amd-smi metric failed"
+	cat >&2 "$tmp.err"
+	rm -f "$tmp.err"
+    fi
+else
+    echo >&2 "mk.amdgpu: Warning: amd-smi not installed, cannot recreate amdgpu.smi.txt"
+fi
+
+exit

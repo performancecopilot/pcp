@@ -105,6 +105,7 @@ int DRMDeviceGetDevices(drmDevicePtr *devs[],
       if (fd < 0)
 	continue;
 
+
       /* Check the version, as it contains the driver name */
       drmVersionPtr ver = drmGetVersion(fd);
       close(fd);
@@ -127,7 +128,7 @@ int DRMDeviceGetDevices(drmDevicePtr *devs[],
   *max = dev_count;
   *count = amdgpu_count;
 
-  /* Done with all devices (we copied the ones needed */
+  /* Done with all devices (we copied the ones needed) */
   free(temp);
 
   return DRM_SUCCESS;

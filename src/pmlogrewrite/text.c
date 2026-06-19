@@ -176,13 +176,17 @@ do_text(void)
 	    continue;
 	if (tp->old_type != type)
 	    continue;
-	if (tp->old_text != NULL && strcmp(tp->old_text, buffer) != 0)
+	/*
+	 * need remap if id changed, else no remap if text is unchanged
+	 */
+	if (tp->old_id == tp->new_id &&
+	    tp->old_text != NULL && strcmp(tp->old_text, buffer) != 0)
 	    continue;
 
 	/* Delete the record? */
 	if (tp->flags & TEXT_DELETE) {
 	    if (pmDebugOptions.appl1) {
-		fprintf(stderr, "Delete: %s help text for ",
+		fprintf(stderr, "Delete: %s help text for",
 			(tp->old_type & PM_TEXT_ONELINE) ? "one line" : "full");
 		if ((tp->old_type & PM_TEXT_PMID))
 		    fprintf(stderr, " metric %s\n", pmIDStr(tp->old_id));
@@ -193,8 +197,11 @@ do_text(void)
 	}
 
 	/* Rewrite the record as specified. */
-	if ((tp->flags & TEXT_CHANGE_ID))
+	if ((tp->flags & TEXT_CHANGE_ID)) {
 	    ident = tp->new_id;
+	    if (tp->old_text != NULL)
+		buffer = tp->old_text;
+	}
 	if ((tp->flags & TEXT_CHANGE_TYPE))
 	    type = tp->new_type;
 	if ((tp->flags & TEXT_CHANGE_TEXT))
@@ -202,7 +209,7 @@ do_text(void)
 	
 	if (pmDebugOptions.appl1) {
 	    if ((tp->flags & (TEXT_CHANGE_ID | TEXT_CHANGE_TYPE | TEXT_CHANGE_TEXT))) {
-		fprintf(stderr, "Rewrite: %s help text for ",
+		fprintf(stderr, "Rewrite: %s help text for",
 			(tp->old_type & PM_TEXT_ONELINE) ? "one line" : "full");
 		if ((tp->old_type & PM_TEXT_PMID))
 		    fprintf(stderr, " metric %s", pmIDStr(tp->old_id));
@@ -213,7 +220,7 @@ do_text(void)
 		fprintf(stderr, " \"%s\"", tp->old_text);
 	    }
 	    if ((tp->flags & (TEXT_CHANGE_ID | TEXT_CHANGE_TYPE | TEXT_CHANGE_TEXT))) {
-		fprintf(stderr, " to\n%s help text for ",
+		fprintf(stderr, " to %s help text for",
 			(tp->new_type & PM_TEXT_ONELINE) ? "one line" : "full");
 		if ((tp->new_type & PM_TEXT_PMID))
 		    fprintf(stderr, " metric %s", pmIDStr(tp->new_id));
