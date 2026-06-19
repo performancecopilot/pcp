@@ -41,7 +41,7 @@ SYMTARGET =
 endif
 
 LCFLAGS = -DPMI_INTERNAL
-LLDLIBS = -lpcp
+LLDLIBS = -lpcp -lpcp_archive
 LDIRT = $(SYMTARGET) domain.h $(LIBCONFIG)
 
 DOMAIN = PMI_DOMAIN

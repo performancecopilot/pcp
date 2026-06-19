@@ -17,6 +17,7 @@
 #include "libpcp.h"
 #include "import.h"
 #include "private.h"
+#include "archive.h"
 
 static __pmTimestamp	stamp;
 
@@ -155,11 +156,16 @@ check_context_start(pmi_context *current)
 static int
 check_indom(pmi_context *current, pmInDom indom, int *needti)
 {
-    int		i;
+    int		i, n;
     int		sts = 0;
     __pmArchCtl	*acp = &current->archctl;
     int		type = current->version == PM_LOG_VERS03 ? TYPE_INDOM : TYPE_INDOM_V2;
-    __pmLogInDom	lid;
+    __pmLogInDom lid;
+    __pmLogInDom old;
+    __pmLogInDom new_delta;
+    int		*instlist;
+    char	**namelist;
+    int		needindom;
 
     for (i = 0; i < current->nindom; i++) {
 	if (indom == current->indom[i].indom) {
@@ -170,6 +176,46 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
 		lid.instlist = current->indom[i].inst;
 		lid.namelist = current->indom[i].name;
 		lid.alloc = 0;
+		pmaSortInDom(&lid);
+
+		n = __pmLogGetInDom(acp, indom, NULL, &instlist, &namelist);
+		if (n >= 0) {
+		    old.numinst = n;
+		    old.instlist = instlist;
+		    old.namelist = namelist;
+		    /*
+		     * pmaDeltaInDom() returns:
+		     *   0 = identical, skip write (stable indoms: CPUs, disks, etc.)
+		     *   1 = changed, write full indom
+		     *   2 = changed, delta record is smaller (v3 only)
+		     */
+		    if (current->version == PM_LOG_VERS03)
+			needindom = pmaDeltaInDom(&old, &lid, &new_delta);
+		    else
+			needindom = pmaSameInDom(&old, &lid) ? 0 : 1;
+
+		    if (needindom == 0) {
+			current->indom[i].meta_done = 1;
+			continue;
+		    }
+		    if (needindom == 2) {
+			new_delta.stamp = stamp;
+			new_delta.indom = indom;
+			if ((sts = __pmLogPutInDom(acp, TYPE_INDOM_DELTA, &new_delta)) < 0)
+			    return sts;
+			/*
+			 * Update hash with full indom so the next comparison
+			 * starts from the correct full state, not the delta.
+			 */
+			if ((sts = __pmLogAddInDom(acp, TYPE_INDOM, &lid, NULL)) < 0)
+			    return sts;
+			current->indom[i].meta_done = 1;
+			*needti = 1;
+			continue;
+		    }
+		}
+
+		/* first write, v2, or full indom change */
 		if ((sts = __pmLogPutInDom(acp, type, &lid)) < 0)
 		    return sts;
 
@@ -384,6 +430,7 @@ _pmi_put_text(pmi_context *current)
     int		sts;
     __pmArchCtl	*acp = &current->archctl;
     pmi_text	*tp;
+    char	*existing;
     int		t;
     int		needti;
 
@@ -420,6 +467,17 @@ _pmi_put_text(pmi_context *current)
 	    sts = check_indom(current, tp->id, &needti);
 	    if (sts < 0)
 		return sts;
+	}
+
+	/*
+	 * Skip re-writing text that is already present and unchanged in the
+	 * archive (loaded into hashtext by __pmLogLoadMeta on append open).
+	 */
+	existing = NULL;
+	if (__pmLogLookupText(acp, tp->id, tp->type, &existing) == 0 &&
+	    strcmp(existing, tp->content) == 0) {
+	    tp->meta_done = 1;
+	    continue;
 	}
 
 	/*

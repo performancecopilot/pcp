@@ -14,6 +14,7 @@ LLDFLAGS = \
 	-L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_web/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_trace/$(LIBPCP_ABIDIR) \
+	-L$(TOPDIR)/src/libpcp_archive/$(LIBPCP_ABIDIR) \
 	-L$(TOPDIR)/src/libpcp_import/$(LIBPCP_ABIDIR)
 
 NVIDIACFLAGS = -I$(TOPDIR)/src/pmdas/nvidia
