@@ -385,11 +385,13 @@ NEWHELP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/newhelp
 PMIECONF = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmieconf
 PMGENMAP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BIN_DIR/pmgenmap
 PMCPP = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/pmcpp
+PMNSMERGE = . $$PCP_DIR/etc/pcp.conf && $$PCP_BINADM_DIR/pmnsmerge
 else
 NEWHELP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/newhelp/newhelp.static$(EXECSUFFIX)
 PMIECONF = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmieconf/pmieconf.static$(EXECSUFFIX)
 PMGENMAP = $(RUN_IN_BUILD_ENV) sh ./pmgenmap.sh
 PMCPP = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmcpp/pmcpp.static$(EXECSUFFIX)
+PMNSMERGE = $(RUN_IN_BUILD_ENV) $(TOPDIR)/src/pmns/pmnsmerge.static$(EXECSUFFIX)
 endif
 
 SUBDIRS_MAKERULE = \

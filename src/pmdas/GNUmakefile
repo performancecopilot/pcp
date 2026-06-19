@@ -81,7 +81,7 @@ endif
 	done; \
 	if [ -n "$$root_files" ]; then \
 	    rm -f local.root; \
-	    ../pmns/pmnsmerge.static $$root_files local.root; \
+	    $(PMNSMERGE) $$root_files local.root; \
 	fi
 
 install :: install_pcp
