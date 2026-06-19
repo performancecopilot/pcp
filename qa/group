@@ -2221,7 +2221,7 @@ suse
 1671 multi-archive archive libpcp pmrep local python
 1672 secure pmcd local
 1673 pmda.bpf local
-1674:reserved pmlogrewrite pmda.amdgpu
+1674 pmda.amdgpu pmprobe local
 1675:reserved pmlogrewrite pmda.amdgpu
 1676:reserved pmlogrewrite pmda.amdgpu
 1677:reserved pmlogrewrite pmda.amdgpu
