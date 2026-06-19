@@ -57,10 +57,14 @@ Amount of GPU FB memory that is not currently allocated, in bytes.
 @ amdgpu.gpu.clock The GPU clock speed in MHz
 @ amdgpu.gpu.clock_max The maximum GPU clock speed in MHz
 
-@ amdgpu.gpu.temperature The GPU temperature in millidegrees Celsius
+@ amdgpu.gpu.temperature The GPU temperature in degrees Celsius
+The temperature provided is returned in degrees celsius, but the
+GPU may not have this precision.
+
+@ amdgpu.gpu.old_temperature The GPU temperature in millidegrees Celsius
 The temperature provided is returned in millidegrees celsius, but the
 GPU may not have this precision.
 
 @ amdgpu.gpu.load The GPU load, as a percentage
 
-@ amdgpu.gpu.average_power The GPU average power consumption
+@ amdgpu.gpu.average_power The GPU average power consumption in Watts

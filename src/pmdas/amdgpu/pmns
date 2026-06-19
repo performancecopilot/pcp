@@ -32,9 +32,10 @@ amdgpu.memory {
 }
 
 amdgpu.gpu {
-    clock			AMDGPU:2:0
-    clock_max			AMDGPU:2:1
-    load			AMDGPU:2:2
-    temperature			AMDGPU:2:3
-    average_power		AMDGPU:2:4
+    temperature			AMDGPU:3:0
+    load			AMDGPU:3:1
+    average_power		AMDGPU:3:2
+    clock			AMDGPU:3:3
+    clock_max			AMDGPU:3:4
+    old_temperature		AMDGPU:3:5
 }

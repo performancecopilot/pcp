@@ -282,6 +282,11 @@ nextlog(void)
 #define S_ISLNK(mode) ((mode & S_IFMT) == S_IFLNK)
 #endif
 
+static int
+strsort(const struct dirent **a, const struct dirent **b) {
+    return strcmp((*a)->d_name, (*b)->d_name);
+}
+
 /*
  * parse command line arguments
  */
@@ -311,35 +316,47 @@ parseargs(int argc, char *argv[])
 		}
 	    }
 	    else if (S_ISDIR(sbuf.st_mode)) {
-		DIR		*dirp;
-		struct dirent	*dp;
-		char		path[MAXPATHLEN+1];
 
-		if ((dirp = opendir(opts.optarg)) == NULL) {
-		    pmprintf("%s: opendir(%s) failed: %s\n", pmGetProgname(), opts.optarg, osstrerror());
+		struct dirent	**ent;
+		int		num_ent;
+
+		num_ent = scandir(opts.optarg, &ent, NULL, strsort);
+
+		if (num_ent < 0) {
+		    pmprintf("%s: scandir(%s) failed: %s\n", pmGetProgname(), opts.optarg, osstrerror());
 		    opts.errors++;
 		}
-		else while ((dp = readdir(dirp)) != NULL) {
-		    /* skip ., .. and "hidden" files */
-		    if (dp->d_name[0] == '.') continue;
-		    pmsprintf(path, sizeof(path), "%s%c%s", opts.optarg, sep, dp->d_name);
-		    if (stat(path, &sbuf) < 0) {
-			pmprintf("%s: %s: %s\n", pmGetProgname(), path, osstrerror());
-			opts.errors++;
-		    }
-		    else if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
-			if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL)
-			    break;
-			conf = cp;
-			if ((conf[nconf++] = strdup(path)) == NULL) {
-			    fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
-			    abandon();
-			    /*NOTREACHED*/
+		else {
+		    int		i;
+		    char	path[MAXPATHLEN+1];
+
+		    for (i = 0; i < num_ent; i++) {
+			/* skip ., .. and "hidden" files */
+			if (ent[i]->d_name[0] == '.')
+			    goto next;
+			pmsprintf(path, sizeof(path), "%s%c%s", opts.optarg, sep, ent[i]->d_name);
+			if (stat(path, &sbuf) < 0) {
+			    pmprintf("%s: %s: %s\n", pmGetProgname(), path, osstrerror());
+			    opts.errors++;
 			}
+			else if (S_ISREG(sbuf.st_mode) || S_ISLNK(sbuf.st_mode)) {
+			    if ((cp = (char **)realloc(conf, (nconf+1)*sizeof(conf[0]))) == NULL) {
+				fprintf(stderr, "conf[%d] realloc() failed: %s\n", nconf-1, strerror(errno));
+				abandon();
+				/*NOTREACHED*/
+			    }
+			    conf = cp;
+			    if ((conf[nconf++] = strdup(path)) == NULL) {
+				fprintf(stderr, "conf[%d] strdup(%s) failed: %s\n", nconf-1, path, strerror(errno));
+				abandon();
+				/*NOTREACHED*/
+			    }
+			}
+next:
+			free(ent[i]);
 		    }
+		    free(ent);
 		}
-		if (dirp != NULL)
-		    closedir(dirp);
 	    }
 	    else {
 		pmprintf("%s: Error: -c config %s is not a file or directory\n", pmGetProgname(), opts.optarg);
@@ -1067,11 +1084,21 @@ link_entries(void)
 		assert(tp->old_id == mp->old_desc.pmid);
 		if (mp->new_desc.pmid != mp->old_desc.pmid) {
 		    if (tp->flags & TEXT_CHANGE_ID) {
-			/* pmid already changed via text clause */
+			/*
+			 * This is potentially a conflicting pmid change
+			 * - one from a metric { pmid= clause
+			 * - one from a text metric xxx { pmid= clause
+			 * in general this indicates a problem, but if the PMDA
+			 * generated really bad metadata, then the remediation
+			 * may require exactly this rewrite ... for an example
+			 * see src/pmdas/amdgpu/rewrite.conf
+			 */
 			if (tp->new_id != mp->new_desc.pmid) {
-			    pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(tp->new_id));
-			    pmsprintf(mess, sizeof(mess), "Conflicting pmid change for help text (%s from text clause, %s from pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
-			    yysemantic(mess);
+			    if (wflag) {
+				pmsprintf(strbuf, sizeof(strbuf), "%s", pmIDStr(tp->new_id));
+				pmsprintf(mess, sizeof(mess), "Warning: conflicting pmid change for help text (%s from text clause will be used, but %s is from metric pmid clause)", strbuf, pmIDStr(mp->new_desc.pmid));
+				yywarn(mess);
+			    }
 			}
 		    }
 		    else {

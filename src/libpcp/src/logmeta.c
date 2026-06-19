@@ -1559,6 +1559,20 @@ __pmLogPutText(__pmArchCtl *acp, unsigned int ident, unsigned int type,
     assert(type & (PM_TEXT_HELP|PM_TEXT_ONELINE));
     assert(type & (PM_TEXT_PMID|PM_TEXT_INDOM));
 
+    if (pmDebugOptions.logmeta && pmDebugOptions.desperate) {
+	char	strbuf[20];
+	fprintf(stderr, "__pmLogPutText: ");
+	if (type & PM_TEXT_PMID)
+	    fprintf(stderr, " pmID: %s", pmIDStr_r(ident, strbuf, sizeof(strbuf)));
+	else
+	    fprintf(stderr, " pmInDom: %s", pmInDomStr_r(ident, strbuf, sizeof(strbuf)));
+	if (type & PM_TEXT_HELP)
+	    fprintf(stderr, " help: ");
+	else
+	    fprintf(stderr, " oneline: ");
+	fprintf(stderr, "\"%s\"\n", buffer);
+    }
+
     textlen = strlen(buffer) + 1;
     len = (int)sizeof(struct external) + textlen + LENSIZE;
 
