@@ -32,6 +32,61 @@
 /* Looks like AMD kept PCI_VENDOR_ID_ATI for its GPU IDs */
 #define PCI_VENDOR_ID_ATI 0x1002
 
+#include <stdio.h>
+#include <amdgpu.h>
+#include <amdgpu_drm.h>
+
+/* Diagnostic helper function from Claude ... */
+static void print_amdgpu_gpu_info(const struct amdgpu_gpu_info *info)
+{
+    fprintf(stderr, "=== amdgpu_gpu_info ===\n");
+    fprintf(stderr, "asic_id                   : 0x%08x\n", info->asic_id);
+    fprintf(stderr, "chip_rev                  : %u\n", info->chip_rev);
+    fprintf(stderr, "chip_external_rev         : %u\n", info->chip_external_rev);
+    fprintf(stderr, "family_id                 : %u\n", info->family_id);
+    fprintf(stderr, "ids_flags                 : 0x%016llx\n",
+           (unsigned long long)info->ids_flags);
+    fprintf(stderr, "max_engine_clk            : %llu kHz\n",
+           (unsigned long long)info->max_engine_clk);
+    fprintf(stderr, "max_memory_clk            : %llu kHz\n",
+           (unsigned long long)info->max_memory_clk);
+    fprintf(stderr, "num_shader_engines        : %u\n", info->num_shader_engines);
+    fprintf(stderr, "num_shader_arrays_per_engine: %u\n", info->num_shader_arrays_per_engine);
+    fprintf(stderr, "avail_quad_shader_pipes   : %u\n", info->avail_quad_shader_pipes);
+    fprintf(stderr, "max_quad_shader_pipes     : %u\n", info->max_quad_shader_pipes);
+    fprintf(stderr, "cache_entries_per_quad_pipe: %u\n", info->cache_entries_per_quad_pipe);
+    fprintf(stderr, "num_hw_gfx_contexts       : %u\n", info->num_hw_gfx_contexts);
+    fprintf(stderr, "rb_pipes                  : %u\n", info->rb_pipes);
+    fprintf(stderr, "enabled_rb_pipes_mask     : 0x%08x\n", info->enabled_rb_pipes_mask);
+    fprintf(stderr, "gpu_counter_freq          : %u\n", info->gpu_counter_freq);
+    fprintf(stderr, "backend_disable[]         :");
+    for (int i = 0; i < 4; i++)
+        fprintf(stderr, " 0x%08x", info->backend_disable[i]);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "pa_sc_raster_cfg[]        :");
+    for (int i = 0; i < 4; i++)
+        fprintf(stderr, " 0x%08x", info->pa_sc_raster_cfg[i]);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "pa_sc_raster_cfg1[]       :");
+    for (int i = 0; i < 4; i++)
+        fprintf(stderr, " 0x%08x", info->pa_sc_raster_cfg1[i]);
+    fprintf(stderr, "\n");
+    fprintf(stderr, "cu_active_number          : %u\n", info->cu_active_number);
+    fprintf(stderr, "cu_ao_mask                : 0x%08x\n", info->cu_ao_mask);
+    fprintf(stderr, "cu_bitmap[4][4]           :\n");
+    for (int i = 0; i < 4; i++) {
+        fprintf(stderr, "  [%d]:", i);
+        for (int j = 0; j < 4; j++)
+            fprintf(stderr, " 0x%08x", info->cu_bitmap[i][j]);
+        fprintf(stderr, "\n");
+    }
+    fprintf(stderr, "vram_type                 : %u\n", info->vram_type);
+    fprintf(stderr, "vram_bit_width            : %u\n", info->vram_bit_width);
+    fprintf(stderr, "ce_ram_size               : %u\n", info->ce_ram_size);
+    fprintf(stderr, "vce_harvest_config        : %u\n", info->vce_harvest_config);
+    fprintf(stderr, "pci_rev_id                : %u\n", info->pci_rev_id);
+}
+
 int DRMShutdown(drmDevicePtr devs[], uint32_t count)
 {
   drmFreeDevices(devs, count);
@@ -179,6 +234,11 @@ int DRMDeviceGetGPUInfo(amdgpu_device_handle device, void *out)
   if (amdgpu_query_gpu_info(device, info) < 0)
     return DRM_ERROR_NO_DATA;
 
+  if (pmDebugOptions.appl1) {
+    fprintf(stderr, "DRMDeviceGetGPUInfo: %s:\n", amdgpu_get_marketing_name(device));
+    print_amdgpu_gpu_info(info);
+  }
+
   return DRM_SUCCESS;
 }
 
@@ -191,6 +251,11 @@ int DRMDeviceGetMemoryClock(amdgpu_device_handle device, void *out)
   if (amdgpu_query_sensor_info(device, AMDGPU_INFO_SENSOR_GFX_SCLK, sizeof(*value), value) < 0)
     return DRM_ERROR_NO_DATA;
 
+  if (pmDebugOptions.appl1) {
+    fprintf(stderr, "DRMDeviceGetMemoryClock: %s: raw value %u\n",
+      amdgpu_get_marketing_name(device), *value);
+  }
+
   return DRM_SUCCESS;
 }
 
@@ -202,6 +267,11 @@ int DRMDeviceGetGPUClock(amdgpu_device_handle device, void *out)
    */
   if (amdgpu_query_sensor_info(device, AMDGPU_INFO_SENSOR_GFX_MCLK, sizeof(*value), value) < 0)
     return DRM_ERROR_NO_DATA;
+
+  if (pmDebugOptions.appl1) {
+    fprintf(stderr, "DRMDeviceGetGPUClock: %s: raw value %u\n",
+      amdgpu_get_marketing_name(device), *value);
+  }
 
   return DRM_SUCCESS;
 }
@@ -221,6 +291,11 @@ int DRMDeviceGetGPULoad(amdgpu_device_handle device, void *out)
   if (amdgpu_query_sensor_info(device, AMDGPU_INFO_SENSOR_GPU_LOAD, sizeof(*value), value) < 0)
     return DRM_ERROR_NO_DATA;
 
+  if (pmDebugOptions.appl1) {
+    fprintf(stderr, "DRMDeviceGetGPULoad: %s: raw value %u\n",
+      amdgpu_get_marketing_name(device), *value);
+  }
+
   return DRM_SUCCESS;
 }
 
@@ -229,6 +304,11 @@ int DRMDeviceGetGPUAveragePower(amdgpu_device_handle device, void *out)
   uint32_t *value = (uint32_t *) out;
   if (amdgpu_query_sensor_info(device, AMDGPU_INFO_SENSOR_GPU_AVG_POWER, sizeof(*value), value) < 0)
     return DRM_ERROR_NO_DATA;
+
+  if (pmDebugOptions.appl1) {
+    fprintf(stderr, "DRMDeviceGetGPUAveragePower: %s: raw value %u\n",
+      amdgpu_get_marketing_name(device), *value);
+  }
 
   return DRM_SUCCESS;
 }

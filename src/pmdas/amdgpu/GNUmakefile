@@ -26,7 +26,7 @@ CFILES	= drm.c amdgpu.c
 
 # for debugging without hardware and using fake libraries include fake.c here
 # 
-#CFILES	+= fake.c
+CFILES	+= fake.c
 
 HFILES	= drm.h
 DFILES	= README
