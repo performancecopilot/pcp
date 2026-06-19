@@ -1,0 +1,20 @@
+QA output created by 1674
+amdgpu.cardid: not matched
+amdgpu.cardname: not matched
+amdgpu.gpu.average_power: not matched
+amdgpu.gpu.clock: not matched
+amdgpu.gpu.clock_max: not matched
+amdgpu.gpu.load: not matched
+amdgpu.gpu.old_temperature: not matched
+amdgpu.gpu.temperature[0] is in range
+amdgpu.gpu.temperature[1] is in range
+amdgpu.memory.clock: not matched
+amdgpu.memory.clock_max: not matched
+amdgpu.memory.free[0] is in range
+amdgpu.memory.free[1] is in range
+amdgpu.memory.total[0] is in range
+amdgpu.memory.total[1] is in range
+amdgpu.memory.used[0] is in range
+amdgpu.memory.used[1] is in range
+amdgpu.memory.usedaccum: not matched
+amdgpu.numcards: not matched
