@@ -16,7 +16,7 @@ include $(TOPDIR)/src/include/builddefs
 
 HFILES = metrics.h
 CFILES  = collectl2pcp.c cpu.c disk.c net.c load.c timestamp.c util.c \
-          metrics.c header.c generic.c proc.c
+          metrics.c header.c generic.c proc.c subsys.c
 
 CMDTARGET = collectl2pcp$(EXECSUFFIX)
 LLDLIBS = -L$(TOPDIR)/src/libpcp_archive/src -lpcp_archive -L$(TOPDIR)/src/libpcp_import/src -lpcp_import $(PCPLIB)
