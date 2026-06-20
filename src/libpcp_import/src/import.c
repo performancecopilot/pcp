@@ -341,6 +341,7 @@ pmiStart(const char *archive, int flags)
     memset(current, 0, sizeof(*current));
 
     current->state = (flags & PMI_APPEND) ? CONTEXT_APPEND : CONTEXT_START;
+    current->flags = (flags & PMI_PROCESS) ? PMI_PROCESS : 0;
     current->version = archive_version;
     current->archive = strdup(archive);
     if (current->archive == NULL) {
@@ -670,6 +671,8 @@ pmiSetImportProgram(const char *tool, const char *version,
 	return current->last_sts = -oserror();
     }
 
+    if (current->flags & PMI_PROCESS)
+	fprintf(fp, "pid=%ld\n", (long)getpid());
     if (version && version[0])
 	fprintf(fp, "version=%s\n", version);
     if (args && args[0])

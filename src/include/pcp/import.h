@@ -32,6 +32,7 @@ extern "C" {
 /* Flags for the second argument to pmiStart() */
 #define PMI_INHERIT	0x1	/* inherit metric definitions from previous context */
 #define PMI_APPEND	0x2	/* append to an existing archive rather than creating a new one */
+#define PMI_PROCESS	0x4	/* long-running process: write pid= to import file, remove on pmiEnd */
 
 /* core libpcp_import API routines */
 PMI_CALL extern int pmiStart(const char *, int);

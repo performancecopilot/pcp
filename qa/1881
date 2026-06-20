@@ -21,7 +21,9 @@ _cleanup()
 
 _filter()
 {
-    sed -e "s,archive: $here,archive: CWD,g"
+    sed \
+	-e "s,archive: $here,archive: CWD,g" \
+	-e '/timezone:/s/ ([^)]*)$//'
 }
 
 status=0	# success is the default!
