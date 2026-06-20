@@ -56,8 +56,8 @@ Description: System level performance monitoring and performance management
 
 Package: pcp-conf
 Depends: ${misc:Depends}
-Breaks: libpcp3 (<< 3.9.0), pcp (<< 6.3.1)
-Replaces: pcp (<< 6.3.1)
+Breaks: libpcp3 (<< 3.9.0), pcp (<< 7.1.6)
+Replaces: pcp (<< 7.1.6)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot runtime configuration
