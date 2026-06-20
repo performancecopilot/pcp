@@ -645,6 +645,7 @@ amdgpu_store(pmdaResult *result, pmdaExt *ep) {
     pmValueSet	*vsp;
     int		sts;
     pmAtomValue	av;
+    char	*old_debug;
 
     for (i = 0; i < result->numpmid; i++) {
 	vsp = result->vset[i];
@@ -657,14 +658,23 @@ amdgpu_store(pmdaResult *result, pmdaExt *ep) {
 	/*
 	 * set debug option(s) ... clear existing (if any) first
 	 */
+	if ((old_debug = pmGetDebug()) == NULL) {
+	    free(av.cp);
+	    return -ENOMEM;
+	}
 	pmClearDebug("all");
 	if (strcmp(av.cp, "") != 0) {
 	    if ((sts = pmSetDebug(av.cp)) < 0) {
+		pmClearDebug("all");
+		if (strcmp(old_debug, "") != 0)
+		    (void)pmSetDebug(old_debug);
 		fprintf(stderr, "amdgpu_store: bad debug string (%s): %s\n", av.cp, pmErrStr(sts));
+		free(old_debug);
 		free(av.cp);
 		return sts;
 	    }
 	}
+	free(old_debug);
 	free(av.cp);
     }
     return 0;
