@@ -71,7 +71,7 @@ ifeq "$(HAVE_UNIX_DOMAIN_SOCKETS)" "yes"
 else
 	@echo 'allow "localhost" : all;' >> pmcd.conf
 endif
-	@root_files=""; \
+	root_files=""; \
 	for pmda in `$(AWK) '/^[^#]/ {print $$1}' local.conf`; do \
 	    f=`find . -maxdepth 3 -name "root_$$pmda" \
 	       | grep "^\./$(PCP_PLATFORM)" | head -1`; \
@@ -80,18 +80,8 @@ endif
 	    [ -n "$$f" ] && root_files="$$root_files $$f"; \
 	done; \
 	if [ -n "$$root_files" ]; then \
-	    for f in $$root_files; do ( $(PMCPP) ) < $$f; done \
-	    | $(AWK) ' \
-	        BEGIN { print "root {" } \
-	        /^#/ { next } \
-	        /^root *\{/ { r=1; next } \
-	        r && /^\}/ { r=0; next } \
-	        r { sub(/^[ \t]*/, "    "); print; next } \
-	        $$0 == "" && n == 0 { next } \
-	        $$0 == "" && buf[n-1] == "" { next } \
-	        { buf[n++] = $$0 } \
-	        END { print "}"; print ""; for (i=0; i<n; i++) print buf[i] }' \
-	    > local.root; \
+	    rm -f local.root; \
+	    $(PMNSMERGE) $$root_files local.root; \
 	fi
 
 install :: install_pcp

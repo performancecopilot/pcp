@@ -44,17 +44,16 @@ enum {
 /* List of metric item numbers - increasing from zero, no holes.
  * Double check against `pmns` definition file.
  */
-enum {
+enum {	/* cluster 0 in PMID */
   AMDGPU_NUMCARDS = 0,
   AMDGPU_CARDNAME,
   AMDGPU_CARDID,
-  AMDGPU_MEMORY,
-  AMDGPU_GPU,
+  AMDGPU_CONTROL_DEBUG,
 
   AMDGPU_METRIC_COUNT
 };
 
-enum {
+enum {	/* cluster 1 in PMID */
   AMDGPU_MEMORY_USED = 0,
   AMDGPU_MEMORY_TOTAL,
   AMDGPU_MEMORY_FREE,
@@ -65,7 +64,7 @@ enum {
   AMDGPU_MEMORY_METRIC_COUNT
 };
 
-enum {
+enum {	/* cluster 3 in PMID */
   AMDGPU_GPU_TEMPERATURE = 0,
   AMDGPU_GPU_LOAD,
   AMDGPU_GPU_AVG_PWR,
@@ -121,6 +120,7 @@ struct {
 	NULL, /* There is no refresher for the card number */
 	&amd_refresher[AMDGPU_NAME_REFRESHER],
 	NULL, /* There is no refresher for the card ID */
+	NULL, /* There is no refresher for control.debug */
       },
       {
 	/* cluster 1 in PMID */
@@ -147,50 +147,69 @@ struct {
 
 /* Table of metrics exported by this PMDA */
 static pmdaMetric metrictab[] = {
+    /* amdgpu.numcards */
     {NULL,
      {PMDA_PMID(0, AMDGPU_NUMCARDS), PM_TYPE_U32, PM_INDOM_NULL, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0)}},
+    /* amdgpu.cardname */
     {NULL,
      {PMDA_PMID(0, AMDGPU_CARDNAME), PM_TYPE_STRING, GCARD_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0)}},
+    /* amdgpu.cardid */
     {NULL,
      {PMDA_PMID(0, AMDGPU_CARDID), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0)}},
+    /* amdgpu.control.debug */
+    {NULL,
+     {PMDA_PMID(0, AMDGPU_CONTROL_DEBUG), PM_TYPE_STRING, PM_INDOM_NULL, PM_SEM_INSTANT,
+      PMDA_PMUNITS(0, 0, 0, 0, 0, 0)}},
 
+    /* amdgpu.memory.used */
     {NULL,
      {PMDA_PMID(1, AMDGPU_MEMORY_USED), PM_TYPE_U64, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)}},
+    /* amdgpu.memory.total */
     {NULL,
      {PMDA_PMID(1, AMDGPU_MEMORY_TOTAL), PM_TYPE_U64, GCARD_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)}},
+    /* amdgpu.memory.free */
     {NULL,
      {PMDA_PMID(1, AMDGPU_MEMORY_FREE), PM_TYPE_U64, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0)}},
+    /* amdgpu.memory.usedaccum */
     {NULL,
      {PMDA_PMID(1, AMDGPU_MEMORY_USED_ACCUM), PM_TYPE_U64, GCARD_INDOM, PM_SEM_COUNTER,
       PMDA_PMUNITS(1, 0, 0, PM_SPACE_BYTE, 0, 0) } },
+    /* amdgpu.memory.clock */
     {NULL,
      {PMDA_PMID(1, AMDGPU_MEMORY_CLOCK), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE) } },
+    /* amdgpu.memory.clock_max */
     {NULL,
      {PMDA_PMID(1, AMDGPU_MEMORY_CLOCK_MAX), PM_TYPE_U32, GCARD_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE) } },
 
+    /* amdgpu.gpu.temperature */
     {NULL,
      {PMDA_PMID(3, AMDGPU_GPU_TEMPERATURE), PM_TYPE_FLOAT, GCARD_INDOM, PM_SEM_INSTANT,
-      PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+      PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_TEMPERATURE, PM_TEMPERATURE_C) } },
+    /* amdgpu.gpu.load */
     {NULL,
      {PMDA_PMID(3, AMDGPU_GPU_LOAD), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+    /* amdgpu.gpu.average_power */
     {NULL,
      {PMDA_PMID(3, AMDGPU_GPU_AVG_PWR), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
-      PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
+      PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_W) } },
+    /* amdgpu.gpu.clock */
     {NULL,
      {PMDA_PMID(3, AMDGPU_GPU_CLOCK), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE) } },
+    /* amdgpu.gpu.clock_max */
     {NULL,
      {PMDA_PMID(3, AMDGPU_GPU_CLOCK_MAX), PM_TYPE_U32, GCARD_INDOM, PM_SEM_DISCRETE,
       PMDA_PMUNITS(0, -1, 1, 0, PM_TIME_USEC, PM_COUNT_ONE) } },
+    /* amdgpu.gpu.old_temperature */
     {NULL,
      {PMDA_PMID(3, AMDGPU_GPU_OLD_TEMPERATURE), PM_TYPE_U32, GCARD_INDOM, PM_SEM_INSTANT,
       PMDA_PMUNITS(0, 0, 0, 0, 0, 0) } },
@@ -426,8 +445,9 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
   unsigned int cluster = pmID_cluster(mdesc->m_desc.pmid);
   unsigned int item = pmID_item(mdesc->m_desc.pmid);
   static int nfail = 0;		/* used to throttle failure reporting */
+  int sts = PMDA_FETCH_STATIC;
 
-  if (cluster == 0 && item == AMDGPU_NUMCARDS) {
+  if (cluster == 0 && (item == AMDGPU_NUMCARDS || item == AMDGPU_CONTROL_DEBUG)) {
     /* no indom */
     ;
   }
@@ -467,6 +487,10 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
     case AMDGPU_CARDNAME:
       atom->cp = pcp_amdgpuinfo.info[inst].name;
       break;
+    case AMDGPU_CONTROL_DEBUG:
+      atom->cp = pmGetDebug();
+      sts = PMDA_FETCH_DYNAMIC;
+      break;
     default:
       goto bad_pmid;
     }
@@ -495,11 +519,11 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
       atom->ul = pcp_amdgpuinfo.info[inst].mem_clock;
       break;
     case AMDGPU_MEMORY_CLOCK_MAX:
-      /* The GPU max speed is the max_memory_clk.
-       * The GDDRx memory max speed is max_engine_clk
-       * In MHz
+      /* The GPU max speed is the max_memory_clk (KHz)
+       * The GDDRx memory max speed is max_engine_clk (KHz)
+       * Convert to MHz
        */
-      atom->ul = pcp_amdgpuinfo.info[inst].gpu_info.max_engine_clk;
+      atom->ul = pcp_amdgpuinfo.info[inst].gpu_info.max_engine_clk / 1000;
       break;
     default:
       goto bad_pmid;
@@ -515,11 +539,11 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
       atom->ul = pcp_amdgpuinfo.info[inst].gpu_clock;
       break;
     case AMDGPU_GPU_CLOCK_MAX:
-      /* The GPU max speed is the max_memory_clk.
-       * The GDDRx memory max speed is max_engine_clk
-       * In MHz
+      /* The GPU max speed is the max_memory_clk (KHz)
+       * The GDDRx memory max speed is max_engine_clk (KHz)
+       * Convert to MHz
        */
-      atom->ul = pcp_amdgpuinfo.info[inst].gpu_info.max_memory_clk;
+      atom->ul = pcp_amdgpuinfo.info[inst].gpu_info.max_memory_clk / 1000;
       break;
     case AMDGPU_GPU_OLD_TEMPERATURE:
       /* In millidegrees Celsius */
@@ -543,7 +567,7 @@ static int amdgpu_fetchCallBack(pmdaMetric *mdesc, unsigned int inst,
     goto bad_pmid;
   }
 
-  return 1;
+  return sts;
 
 bad_pmid:
   if (++nfail < FAIL_REPORT_LIMIT) {
@@ -615,6 +639,47 @@ static int amdgpu_label(int ident, int type, pmLabelSet **lpp, pmdaExt *pmda) {
   return pmdaLabel(ident, type, lpp, pmda);
 }
 
+static int
+amdgpu_store(pmdaResult *result, pmdaExt *ep) {
+    int		i;
+    pmValueSet	*vsp;
+    int		sts;
+    pmAtomValue	av;
+    char	*old_debug;
+
+    for (i = 0; i < result->numpmid; i++) {
+	vsp = result->vset[i];
+	if (pmID_cluster(vsp->pmid) != 0 || pmID_item(vsp->pmid) != AMDGPU_CONTROL_DEBUG)
+	    return PM_ERR_PMID;
+	if (vsp->numval != 1 || vsp->valfmt == PM_VAL_INSITU)
+	    return PM_ERR_BADSTORE;
+	if ((sts = pmExtractValue(vsp->valfmt, &vsp->vlist[0], PM_TYPE_STRING, &av, PM_TYPE_STRING)) < 0)
+	    return sts;
+	/*
+	 * set debug option(s) ... clear existing (if any) first
+	 */
+	if ((old_debug = pmGetDebug()) == NULL) {
+	    free(av.cp);
+	    return -ENOMEM;
+	}
+	pmClearDebug("all");
+	if (strcmp(av.cp, "") != 0) {
+	    if ((sts = pmSetDebug(av.cp)) < 0) {
+		pmClearDebug("all");
+		if (strcmp(old_debug, "") != 0)
+		    (void)pmSetDebug(old_debug);
+		fprintf(stderr, "amdgpu_store: bad debug string (%s): %s\n", av.cp, pmErrStr(sts));
+		free(old_debug);
+		free(av.cp);
+		return sts;
+	    }
+	}
+	free(old_debug);
+	free(av.cp);
+    }
+    return 0;
+}
+
 /**
  * Initializes the path to the help file for this PMDA.
  */
@@ -644,6 +709,7 @@ void __PMDA_INIT_CALL amdgpu_init(pmdaInterface *dp) {
 
   dp->version.seven.instance = amdgpu_instance;
   dp->version.seven.fetch = amdgpu_fetch;
+  dp->version.seven.store = amdgpu_store;
   dp->version.seven.label = amdgpu_label;
   pmdaSetFetchCallBack(dp, amdgpu_fetchCallBack);
   pmdaSetLabelCallBack(dp, amdgpu_labelCallBack);

@@ -1,5 +1,6 @@
 pmnsdel
 pmnsmerge
+pmnsmerge.static
 stdpmid
 .NeedRebuild
 build.script

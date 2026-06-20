@@ -123,7 +123,8 @@ int
 amdgpu_query_gpu_info(amdgpu_device_handle dev, struct amdgpu_gpu_info *info)
 {
     fprintf(stderr, "fake amdgpu_query_gpu_info(%p,%p) called\n", dev, info);
-    info->max_memory_clk = 3210;
+    info->max_memory_clk = 2310000;	/* KHz */
+    info->max_engine_clk = 2320000;	/* KHz */
     return 0;
 }
 
@@ -137,10 +138,10 @@ amdgpu_query_sensor_info(amdgpu_device_handle dev, unsigned sensor_type, unsigne
     }
     switch (sensor_type) {
 	case AMDGPU_INFO_SENSOR_GFX_SCLK:
-	    *((uint32_t *)value) = 4321;
+	    *((uint32_t *)value) = 2130;
 	    break;
 	case AMDGPU_INFO_SENSOR_GFX_MCLK:
-	    *((uint32_t *)value) = 4322;
+	    *((uint32_t *)value) = 2140;
 	    break;
 	case AMDGPU_INFO_SENSOR_GPU_TEMP:
 	    *((uint32_t *)value) = 38000;

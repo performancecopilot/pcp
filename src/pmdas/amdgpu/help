@@ -68,3 +68,13 @@ GPU may not have this precision.
 @ amdgpu.gpu.load The GPU load, as a percentage
 
 @ amdgpu.gpu.average_power The GPU average power consumption in Watts
+
+@ amdgpu.control.debug A debug control variable for the "amdgpu" PMDA
+When fetched, the value is the currently active set of debugging
+options for the PMDA.
+This control variable may be modified using pmStore() and then
+the allowed values are
+    ""	 disable debugging output in the PMDA
+    "option1[,option2...]"
+         comma separated list of options to set, see pmdbg -l for
+         the available debugging options

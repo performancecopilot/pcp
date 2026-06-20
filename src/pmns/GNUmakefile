@@ -15,6 +15,7 @@
 
 TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
+include	$(TOPDIR)/src/libpcp/src/GNUlibrarydefs
 -include ./GNUlocaldefs
 
 # Take control here ... do not need to search in libpcp_pmda directory
@@ -29,10 +30,16 @@ SCRIPTS = pmnsadd
 LOCKERS	= lockpmns unlockpmns
 STDPMID = stdpmid.pcp stdpmid.local
 
-LLDLIBS = $(PCPLIB)
-LDIRT	= *.log *.pmns stdpmid .NeedRebuild build.script $(TARGETS)
+ifneq "$(CROSS_COMPILING)" "yes"
+STATICTARGETS = pmnsmerge.static$(EXECSUFFIX)
+STATIC_LIBPCP = $(TOPDIR)/src/libpcp_static/src/libpcp_static.a
+STATIC_LDLIBS = $(PCPLIB_EXTRAS) $(LIBPCP_LDLIBS) $(LIB_FOR_BACKTRACE)
+endif
 
-default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) \
+LLDLIBS = $(PCPLIB)
+LDIRT	= *.log *.pmns stdpmid .NeedRebuild build.script $(TARGETS) $(STATICTARGETS)
+
+default:	$(SCRIPTS) $(LOCKERS) $(TARGETS) $(STATICTARGETS) \
 		GNUmakefile.install .NeedRebuild Rebuild ReplacePmnsSubtree stdpmid
 
 include $(BUILDRULES)
@@ -75,3 +82,6 @@ default_pcp:	default
 install_pcp:	install
 
 pmnsdel.o pmnsmerge.o pmnsutil.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+pmnsmerge.static$(EXECSUFFIX):	pmnsmerge.c pmnsutil.c $(STATIC_LIBPCP)
+	$(CCF) -DPCP_STATIC -o $@ $(LDFLAGS) pmnsmerge.c pmnsutil.c $(STATIC_LIBPCP) $(STATIC_LDLIBS)

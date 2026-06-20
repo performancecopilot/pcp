@@ -18,6 +18,7 @@ amdgpu {
     numcards			AMDGPU:0:0
     cardname			AMDGPU:0:1
     cardid			AMDGPU:0:2
+    control
     memory
     gpu
 }
@@ -38,4 +39,8 @@ amdgpu.gpu {
     clock			AMDGPU:3:3
     clock_max			AMDGPU:3:4
     old_temperature		AMDGPU:3:5
+}
+
+amdgpu.control {
+    debug			AMDGPU:0:3
 }
