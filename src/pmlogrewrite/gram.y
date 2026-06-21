@@ -1905,6 +1905,8 @@ metricopt	: TOK_PMID TOK_ASSIGN pmid_int
 			    pmsprintf(mess, sizeof(mess), "Unknown extra unit scale \"%s\" for type \"%s\"", $17, $15);
 			    yyerror(mess);
 			}
+			free($15);
+			free($17);
 			for (mp = walk_metric(W_START, METRIC_CHANGE_UNITS, "units", 0); mp != NULL; mp = walk_metric(W_NEXT, METRIC_CHANGE_UNITS, "units", 0)) {
 			    if ($3 == mp->old_desc.units.dimSpace &&
 			        $5 == mp->old_desc.units.dimTime &&
