@@ -56,27 +56,33 @@ _filter()
 
 # real QA test starts here
 
-if $do_valgrind
-then
-    _run_valgrind pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/amdgpu.conf archives/amdgpu-0 $tmp
-else
-    if ! pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/amdgpu.conf archives/amdgpu-0 $tmp
+for arch in `echo archives/amdgpu-*.index | sed -e 's/.index//'`
+do
+    echo
+    echo "=== $arch ==="
+    rm -f $tmp.*
+    if $do_valgrind
     then
-	echo "Arrgh: pmlogrewrite failed"
-	_exit 1
-    fi
-fi \
-| _filter
+	_run_valgrind pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/amdgpu.conf $arch $tmp
+    else
+	if ! pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/amdgpu.conf $arch $tmp
+	then
+	    echo "Arrgh: pmlogrewrite failed"
+	    _exit 1
+	fi
+    fi \
+    | _filter
 
-export PCP_DERIVED_CONFIG=
-metrics_old=`pminfo -a archives/amdgpu-0 amdgpu | sort`
-metrics_new=`pminfo -a $tmp  amdgpu | sort`
+    export PCP_DERIVED_CONFIG=
+    metrics_old=`pminfo -a $arch amdgpu | sort`
+    metrics_new=`pminfo -a $tmp  amdgpu | sort`
 
-echo metadata diffs
-pminfo -dmTtl -a archives/amdgpu-0 $metrics_old >$tmp.old
-pminfo -dmTtl -a $tmp $metrics_new >$tmp.new
+    echo metadata diffs
+    pminfo -dmTtl -a $arch $metrics_old >$tmp.old
+    pminfo -dmTtl -a $tmp $metrics_new >$tmp.new
 
-diff -u $tmp.old $tmp.new | _filter
+    diff -u $tmp.old $tmp.new | _filter
+done
 
 # success, all done
 exit

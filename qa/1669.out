@@ -29,17 +29,17 @@ tmparch/mv-bar.3
 tmparch/mv-bar.index
 tmparch/mv-bar.meta
 
-=== HERE/archives/amdgpu.0.xz ===
-HERE/archives/amdgpu.0.xz
-HERE/archives/amdgpu.index
-HERE/archives/amdgpu.meta.xz
+=== HERE/archives/amdgpu-0.0.xz ===
+HERE/archives/amdgpu-0.0.xz
+HERE/archives/amdgpu-0.index
+HERE/archives/amdgpu-0.meta.xz
 
 === foo+ ===
 foo+.0
 foo+.index
 foo+.meta
 
-=== amdgpu.0.xz ===
-amdgpu.0.xz
-amdgpu.index
-amdgpu.meta.xz
+=== amdgpu-0.0.xz ===
+amdgpu-0.0.xz
+amdgpu-0.index
+amdgpu-0.meta.xz
