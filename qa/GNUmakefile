@@ -20,7 +20,7 @@ SUBDIRS = src pmdas cisco gluster pconf sadist collectl nfsclient named \
 	  sockets denki gfs2 farm pdudata rocestat guidellm vllmbench
 
 ifeq "$(HAVE_PYTHON)" "true"
-SUBDIRS += secure mic haproxy lio openmetrics opentelemetry
+SUBDIRS += secure haproxy lio openmetrics opentelemetry
 endif
 ifeq "$(PMDA_BPFTRACE)" "true"
 SUBDIRS += bpftrace
