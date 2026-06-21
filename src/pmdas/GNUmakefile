@@ -23,7 +23,7 @@ CPMDAS = root pmcd \
 	solaris windows \
 	sample simple trivial sendmail mailq txmon \
 	apache cisco trace shping mounts weblog \
-	mmv lmsensors process roomtemp summary etw \
+	mmv lmsensors process summary etw \
 	lustrecomm infiniband logger bash systemd \
 	gfs2 jbd2 cifs nvidia resctrl perfevent \
 	dm pipe openbsd docker smart podman statsd \
