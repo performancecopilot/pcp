@@ -265,7 +265,6 @@ pmda.logger
 pmda.lustre
 pmda.mailq
 pmda.memcache
-pmda.mic
 pmda.mmv
 pmda.mongodb
 pmda.mounts
@@ -1332,7 +1331,7 @@ suse
 781 logutil local pmlogger_check
 782:retired pmwebd local
 783:retired pmda.rpm local valgrind
-784 pmda.mic python local dbpmda
+784:retired pmda.mic python local dbpmda
 785 pcp atop local atopsar
 786 context context_local libpcp local
 787 archive local pmie pmlogrewrite pmlogdump pmval flakey kernel
