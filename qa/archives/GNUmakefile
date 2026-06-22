@@ -113,7 +113,8 @@ CONFIGS = config.verify config.shping YWhcCi.toium.config \
 
 OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
 	 cputime.mpstat cputime.sar \
-	 farm.tar.xz atop-sar.tar.xz
+	 farm.tar.xz atop-sar.tar.xz \
+	 amdgpu-0.smi.txt amdgpu-1.smi.txt
 
 LDIRT = pmlogger.log
 LDIRDIRT = tmp
