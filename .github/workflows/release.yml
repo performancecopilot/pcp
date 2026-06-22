@@ -40,7 +40,7 @@ jobs:
           - {platform: amazonlinux2023-aarch64-container, os: ubuntu-22.04-arm}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Fix local hostname DNS lookup
         run: echo 127.0.1.1 $(hostname --fqdn) $(hostname) | sudo tee -a /etc/hosts
@@ -101,7 +101,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Download all artifacts
         uses: actions/download-artifact@v8
