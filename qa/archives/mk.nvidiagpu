@@ -7,23 +7,29 @@
 
 . /etc/pcp.env
 
-tmp=${TMPDIR:-/tmp}/mk.nvidiagpu-$$
-rm -f $tmp.*
-trap "rm -f $tmp.*; exit 0" 0 1 2 3 15
+tmp=${TMPDIR:-/tmp}/"`basename $0`"-$$
+rm -f "$tmp".*
+sts=1
+trap "rm -f \"$tmp\".*; exit \$sts" 0 1 2 3 15
 
-if pmprobe nvidia >&1 | grep -q 'Unknown metric name'
-then
-    echo "Arrgh, NVIDIA GPU PMDA is apparently not installed"
-    exit 1
-fi
+# see ./mk.common for shell variable definitions
+#
+archive=nvidiagpu
+probe=nvidia.gpuid
+samples=8
+# this is ($samples-2)*logging interval (1 sec below) [in secs]
+expect=6
 
-cat <<End-of-File >>$tmp.config
+# pmlogger configuration
+#
+cat <<End-of-File >>"$tmp.config"
+log mandatory on once { hinv }
 log mandatory on 1 sec {
     nvidia
     proc.fdinfo
 }
 End-of-File
 
-rm -f nvidiagpu.0 nvidiagpu.meta nvidiagpu.index
+. ./mk.common
 
-pmlogger -s 7 -c $tmp.config nvidiagpu
+exit

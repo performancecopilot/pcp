@@ -35,14 +35,14 @@ End-of-File
 rm -f amdgpu.smi.txt
 if which amd-smi >/dev/null 2>&1
 then
-    amd-smi >amdgpu.smi.txt 2>"$tmp.err"
+    amd-smi >$archive.smi.txt 2>"$tmp.err"
     if [ $? != 0 -o -s "$tmp.err" ]
     then
 	echo >&2 "mk.amdgpu: Warning: amd-smi failed"
 	cat >&2 "$tmp.err"
 	rm -f "$tmp.err"
     fi
-    amd-smi metric >>amdgpu.smi.txt 2>>"$tmp.err"
+    amd-smi metric >>$archive.smi.txt 2>>"$tmp.err"
     if [ $? != 0 -o -s "$tmp.err" ]
     then
 	echo >&2 "mk.amdgpu: Warning: amd-smi metric failed"
@@ -50,7 +50,7 @@ then
 	rm -f "$tmp.err"
     fi
 else
-    echo >&2 "mk.amdgpu: Warning: amd-smi not installed, cannot recreate amdgpu.smi.txt"
+    echo >&2 "mk.amdgpu: Warning: amd-smi not installed, cannot recreate $archive.smi.txt"
 fi
 
 exit

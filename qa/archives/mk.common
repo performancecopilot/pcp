@@ -62,13 +62,61 @@ then
     echo >&2 "Hope you know what you're doing."
 fi
 
-# remove any axisting files for this archive
+# we don't want to trash existing archives, so the convention is
+# (a) if $archive matches $archive-<N> for an existing archive
+#     assume we want to make $archive-<N+1>
+# (b) else if $archive matches an existing archive, assume we
+#     want to make $archive-1 (on the assumption that $archive
+#     probably should be renamed to $archive-0)
+# (c) else use $archive
 #
+next=''
+echo >$tmp.next
+ls "$archive"*.index 2>/dev/null \
+| sed -e 's/\.index$//' \
+| while read try
+do
+    case "$try"
+    in
+	"$archive"-[0-9]*)
+		vers=`echo "$try" | sed -e "s/$archive-//"`
+		vers=`expr $vers + 1`
+		if [ -z "$next" ]
+		then
+		    next="$vers"
+		elif [ "$vers" -gt "$next" ]
+		then
+		    next="$vers"
+		fi
+		;;
+	"$archive")
+		if [ -z "$next" ]
+		then
+		    next=1
+		fi
+		;;
+	*)
+		;;
+    esac
+    echo "$next" >$tmp.next
+done
+
+[ -s $tmp.next ] && archive=$archive-`cat $tmp.next`
+
+# check any existing files for this archive (should not be any)
+#
+rm -f $tmp.tmp
 pmlogls "$archive" \
 | while read file
 do
-    rm -f "$file"
+    ls -l "$file" >>$tmp.tmp
 done
+if [ -s $tmp.tmp ]
+then
+    echo >&2 "mk.common: Arrgh! archive files already exist ..."
+    cat >&2 $tmp.tmp
+    exit
+fi
 
 [ -n "$expect" ] && echo "Expect pmlogger to run for about $expect seconds ..."
 if ! pmlogger -s $samples -c $tmp.config -l $tmp.log "$archive"
