@@ -82,7 +82,8 @@ DEFLATE = small.0.xz small.meta small.index \
 	  pcp-numastat-8-node.index.xz gfs.0.xz gfs.meta gfs.index \
 	  numa.0.xz numa.meta.xz numa.index.xz \
 	  amdgpu-0.0.xz amdgpu-0.meta.xz amdgpu-0.index \
-	  nvidiagpu.0.xz nvidiagpu.meta.xz nvidiagpu.index \
+	  amdgpu-1.0.xz amdgpu-1.meta.xz amdgpu-1.index \
+	  nvidiagpu-0.0.xz nvidiagpu-0.meta.xz nvidiagpu-0.index \
 	  bozo-20170904-a.0.xz bozo-20170904-a.index bozo-20170904-a.meta.xz \
 	  bozo-20170904-b.0.xz bozo-20170904-b.index bozo-20170904-b.meta.xz \
 	  pcp-pidstat-process-args-a.0.xz \
