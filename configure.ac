@@ -3609,7 +3609,7 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 AC_MSG_NOTICE([pcp_run_dir=$pcp_run_dir])
 
-AC_ARG_WITH(importdir,[AS_HELP_STRING([--with-importdir],[PCP import tool directory [/var/run/pmimport]])],
+AC_ARG_WITH(importdir,[AS_HELP_STRING([--with-importdir],[PCP import tool directory [LOCALSTATEDIR/run/pmimport]])],
                   [pcp_import_dir=$withval], [
 if test -d /run
 then

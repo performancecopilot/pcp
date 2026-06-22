@@ -425,8 +425,10 @@ Perl wrapper version ...
 *PCP::LogImport::pmiPutValue
 *PCP::LogImport::pmiPutValueHandle
 *PCP::LogImport::pmiSetHostname
+*PCP::LogImport::pmiSetImportProgram
 *PCP::LogImport::pmiSetTimezone
 *PCP::LogImport::pmiSetVersion
+*PCP::LogImport::pmiSetZoneinfo
 *PCP::LogImport::pmiStart
 *PCP::LogImport::pmiUnits
 *PCP::LogImport::pmiUseContext
@@ -529,8 +531,10 @@ pmiPutText
 pmiPutValue
 pmiPutValueHandle
 pmiSetHostname
+pmiSetImportProgram
 pmiSetTimezone
 pmiSetVersion
+pmiSetZoneinfo
 pmiStart
 pmiUnits
 pmiUseContext

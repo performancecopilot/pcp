@@ -1,0 +1,4 @@
+# tmpfiles.d(5) config for PCP import tool registration directory
+#
+# Path			Mode  User  Group  Age  Argument
+D @PCP_IMPORT_DIR@		0755  root  root   -    -

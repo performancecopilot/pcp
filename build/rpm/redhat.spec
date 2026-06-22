@@ -2368,13 +2368,13 @@ sed -i '/\/man\//d' pcp-devel-files
 sed -i '/\/include\//d' pcp-devel-files
 
 %ifarch x86_64 ppc64 ppc64le aarch64 s390x riscv64
-sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-files
+sed -i -e '/\.so/s/usr\/lib\//usr\/lib64\//' pcp-libs-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-devel-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
 %endif
 %ifarch ia64
 %if "%{_vendor}" != "suse"
-sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-files
+sed -i -e '/\.so/s/usr\/lib\//usr\/lib64\//' pcp-libs-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-devel-files
 sed -i -e 's/usr\/lib\//usr\/lib64\//' pcp-libs-devel-files
 %endif
@@ -2416,6 +2416,7 @@ dso_files=$(awk '/^[^#]/{print $5}' $RPM_BUILD_ROOT%{_sysconfdir}/pcp/local.conf
     | xargs -I{} basename {} | sort -u | tr '\n' '|' | sed 's/|$//')
 basic_manifest | grep -E "/($dso_files)$" \
     | grep -v "^%{_pmdasdir}/" >>pcp-libs-files
+echo %{_rundir}/pmimport >>pcp-libs-files
 
 #
 # Files for the various subpackages.  We use these subpackages
@@ -2610,7 +2611,7 @@ BEGIN {
     f=p"-files.rpm";
 }
 $1 == "d" {
-            if (match ($5, "'$PCP_RUN_DIR'")) {
+            if (match ($5, "'$PCP_RUN_DIR'") || match ($5, "'$PCP_IMPORT_DIR'")) {
                 printf ("%%%%ghost ") >> f;
             }
             if (match ($5, "'$PCP_VAR_DIR'/testsuite")) {

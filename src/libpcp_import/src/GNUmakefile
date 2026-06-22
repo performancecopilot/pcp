@@ -21,6 +21,7 @@ CFILES	= import.c stuff.c archive.c
 HFILES	= private.h
 
 LIBCONFIG = libpcp_import.pc
+TMPFILESCONF = libpcp_import.conf
 VERSION_SCRIPT = exports
 
 STATICLIBTARGET	= libpcp_import.a
@@ -42,17 +43,23 @@ endif
 
 LCFLAGS = -DPMI_INTERNAL
 LLDLIBS = -lpcp -lpcp_archive
-LDIRT = $(SYMTARGET) domain.h $(LIBCONFIG)
+LDIRT = $(SYMTARGET) domain.h $(LIBCONFIG) $(TMPFILESCONF)
 
 DOMAIN = PMI_DOMAIN
 
-default:  $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) $(LIBCONFIG)
+default:  $(LIBTARGET) $(SYMTARGET) $(STATICLIBTARGET) $(LIBCONFIG) $(TMPFILESCONF)
 
 $(OBJECTS): $(HFILES) domain.h
 
 include $(BUILDRULES)
 
 install: default
+ifneq ($(PCP_SYSTEMDTMPFILES_DIR),)
+	$(INSTALL) -m 644 $(TMPFILESCONF) $(PCP_SYSTEMDTMPFILES_DIR)/$(TMPFILESCONF)
+endif
+ifneq ($(PCP_IMPORT_DIR),)
+	$(INSTALL) -m 755 -d $(PCP_IMPORT_DIR)
+endif
 ifneq ($(LIBTARGET),)
 	$(INSTALL) -m 755 $(LIBTARGET) $(PCP_LIB_DIR)/$(LIBTARGET)
 ifneq ($(DEB_HOST_MULTIARCH),)
@@ -87,6 +94,9 @@ $(LIBCONFIG): $(LIBCONFIG).in
 	     -e's|@INCDIR@|$(PCP_INC_DIR)|g' \
 	     -e's|@VERSION@|$(PCP_VERSION)|g' <$? >$@
 endif
+
+$(TMPFILESCONF): $(TMPFILESCONF).in
+	@sed -e's|@PCP_IMPORT_DIR@|$(PCP_IMPORT_DIR)|g' <$< >$@
 
 domain.h: $(TOPDIR)/src/pmns/stdpmid
 	$(DOMAIN_MAKERULE)

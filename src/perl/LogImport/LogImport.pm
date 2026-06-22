@@ -10,7 +10,8 @@ our ($VERSION, @ISA, @EXPORT, @EXPORT_OK, %EXPORT_TAGS);
 
 @ISA = qw( Exporter DynaLoader );
 @EXPORT = qw(
-    pmiStart pmiUseContext pmiEnd pmiSetHostname pmiSetTimezone pmiSetVersion
+    pmiStart pmiUseContext pmiEnd pmiSetHostname pmiSetImportProgram
+    pmiSetTimezone pmiSetVersion pmiSetZoneinfo
     pmiAddMetric pmiAddInstance pmiPutValue pmiGetHandle pmiPutValueHandle
     pmiWrite pmiPutText pmiPutLabel pmiPutMark pmiDump pmiErrStr pmiUnits
     pmiExtraUnits

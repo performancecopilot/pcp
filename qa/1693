@@ -13,9 +13,6 @@ echo "QA output created by $seq"
 . ./common.filter
 . ./common.check
 
-[ -f ${PCP_LIB_DIR}/libpcp_import.${DSO_SUFFIX} ] || \
-    _notrun "No support for libpcp_import"
-
 status=0	# success is the default!
 trap "cd $here; rm -rf $tmp; exit \$status" 0 1 2 3 15
 

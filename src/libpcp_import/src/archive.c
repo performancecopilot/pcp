@@ -44,7 +44,7 @@ check_context_append(pmi_context *current)
      * into the hash tables (hashpmid, hashindom).  check_metric() will use
      * __pmLogLookupDesc() to skip re-writing descriptors that are already
      * present, preventing .meta from growing on every timer-driven invocation
-     * of a short-lived collector such as sadc.
+     * of a short-lived collector that runs on a timer.
      *
      * __pmLogOpenAppend() left mdfp positioned at end-of-file; rewind to the
      * start so __pmLogLoadMeta() can read from the beginning of the file, then
@@ -101,7 +101,7 @@ check_context_start(pmi_context *current)
 	/*
 	 * Archive doesn't exist yet: fall through to create it normally.
 	 * This makes PMI_APPEND safe to use unconditionally on first invocation
-	 * of a timer-driven collector (e.g. sadc) before any archive exists.
+	 * of a timer-driven collector before any archive exists.
 	 */
 	current->state = CONTEXT_START;
     }

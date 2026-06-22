@@ -64,7 +64,7 @@ is not NULL, it is called immediately after the old volume is closed
 and before the function returns.
 The single argument is the full path of the just-closed volume file
 (e.g.\&
-.IR /var/log/sa/pcp16/pcp16.0 ).
+.IR myarchive.0 ).
 The caller may use this callback to compress the completed volume or
 perform any other post-rotation work.
 The callback is invoked synchronously; long-running operations should
@@ -94,7 +94,7 @@ on_vol(const char *path)
     system(cmd);
 }
 
-pmiStart("/var/log/sa/pcp16/pcp16", 0);
+pmiStart("myarchive", 0);
 pmiSetVolumeSize(100 * 1024 * 1024, on_vol);
 .ft 1
 .fi
