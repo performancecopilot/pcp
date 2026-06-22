@@ -101,6 +101,12 @@ LIBPCP_IMPORT.pmiSetTimezone.argtypes = [c_char_p]
 LIBPCP_IMPORT.pmiSetVersion.restype = c_int
 LIBPCP_IMPORT.pmiSetVersion.argtypes = [c_int]
 
+LIBPCP_IMPORT.pmiSetZoneinfo.restype = c_int
+LIBPCP_IMPORT.pmiSetZoneinfo.argtypes = [c_char_p]
+
+LIBPCP_IMPORT.pmiSetImportProgram.restype = c_int
+LIBPCP_IMPORT.pmiSetImportProgram.argtypes = [c_char_p, c_char_p, c_char_p, c_char_p]
+
 LIBPCP_IMPORT.pmiAddMetric.restype = c_int
 LIBPCP_IMPORT.pmiAddMetric.argtypes = [
         c_char_p, pmID, c_int, pmInDom, c_int, pmUnits]
@@ -269,6 +275,39 @@ class pmiLogImport(object):
         if not isinstance(version, int):
             version = 2
         status = LIBPCP_IMPORT.pmiSetVersion(version)
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
+    def pmiSetZoneinfo(self, zoneinfo: str) -> int:
+        """PMI - set the Olson timezone (zoneinfo) for a Log Import archive
+        """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        if not isinstance(zoneinfo, bytes):
+            zoneinfo = zoneinfo.encode('utf-8')
+        status = LIBPCP_IMPORT.pmiSetZoneinfo(c_char_p(zoneinfo))
+        if status < 0:
+            raise pmiErr(status)
+        return status
+
+    def pmiSetImportProgram(self, tool: str, version: str, args: str, archive: str) -> int:
+        """PMI - register import program with PCP tool discovery mechanism
+        """
+        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
+        if status < 0:
+            raise pmiErr(status)
+        if not isinstance(tool, bytes):
+            tool = tool.encode('utf-8')
+        if not isinstance(version, bytes):
+            version = version.encode('utf-8')
+        if not isinstance(args, bytes):
+            args = args.encode('utf-8')
+        if not isinstance(archive, bytes):
+            archive = archive.encode('utf-8')
+        status = LIBPCP_IMPORT.pmiSetImportProgram(
+            c_char_p(tool), c_char_p(version), c_char_p(args), c_char_p(archive))
         if status < 0:
             raise pmiErr(status)
         return status

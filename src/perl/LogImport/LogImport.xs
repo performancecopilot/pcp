@@ -120,6 +120,17 @@ pmiSetVersion(value)
 	int	value;
 
 int
+pmiSetZoneinfo(value)
+	char	*value;
+
+int
+pmiSetImportProgram(tool, version, args, archive)
+	char	*tool;
+	char	*version;
+	char	*args;
+	char	*archive;
+
+int
 pmiAddMetric(name, pmid, type, indom, sem, units)
 	const char	*name;
 	pmID		pmid;
