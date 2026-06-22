@@ -576,6 +576,15 @@ _pmi_end(pmi_context *current)
 
     __pmLogClose(&current->archctl);
 
+    /* Remove the pmimport sidecar file written by pmiSetImportInfo() */
+    if (current->tool_name[0] != '\0') {
+	char	path[MAXPATHLEN];
+	pmsprintf(path, sizeof(path), "%s/%s",
+		  pmGetConfig("PCP_IMPORT_DIR"), current->tool_name);
+	unlink(path);
+	current->tool_name[0] = '\0';
+    }
+
     current->state = CONTEXT_END;
     return 0;
 }

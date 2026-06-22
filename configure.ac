@@ -3609,6 +3609,19 @@ pcp_run_dir=`eval echo $pcp_run_dir`
 AC_SUBST(pcp_run_dir)
 AC_MSG_NOTICE([pcp_run_dir=$pcp_run_dir])
 
+AC_ARG_WITH(importdir,[AS_HELP_STRING([--with-importdir],[PCP import tool directory [/var/run/pmimport]])],
+                  [pcp_import_dir=$withval], [
+if test -d /run
+then
+    pcp_import_dir="/run/pmimport"
+else
+    pcp_import_dir="$localstatedir/run/pmimport"
+fi])
+pcp_import_dir=`eval echo $pcp_import_dir`
+pcp_import_dir=`eval echo $pcp_import_dir`
+AC_SUBST(pcp_import_dir)
+AC_MSG_NOTICE([pcp_import_dir=$pcp_import_dir])
+
 dnl world-writeable temporary files directory
 AC_ARG_WITH(tmpdir,[AS_HELP_STRING([--with-tmpdir],[tmp directory [LOCALSTATEDIR/tmp]])],
                    [pcp_tmpfile_dir=$withval],
