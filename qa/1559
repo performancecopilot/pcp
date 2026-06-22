@@ -56,7 +56,7 @@ _filter()
 
 # real QA test starts here
 
-for arch in `echo archives/amdgpu-*.index | sed -e 's/.index//'`
+for arch in `echo archives/amdgpu-*.index | sed -e 's/\.index$//'`
 do
     echo
     echo "=== $arch ==="
