@@ -208,6 +208,14 @@ Provides: pcp-pmda-cifs = %{version}-%{release}
 Obsoletes: pcp-pmda-rpm < 5.3.2
 Obsoletes: pcp-pmda-rpm-debuginfo < 5.3.2
 
+# mic PMDA retired completely
+Obsoletes: pcp-pmda-mic < 7.1.6
+Obsoletes: pcp-pmda-mic-debuginfo < 7.1.6
+
+# roomtemp PMDA retired completely
+Obsoletes: pcp-pmda-roomtemp < 7.1.6
+Obsoletes: pcp-pmda-roomtemp-debuginfo < 7.1.6
+
 # PCP REST APIs are now provided by pmproxy
 Obsoletes: pcp-webapi-debuginfo < 5.0.0
 Obsoletes: pcp-webapi < 5.0.0
@@ -1554,20 +1562,6 @@ collecting metrics about the Unbound DNS Resolver.
 # end pcp-pmda-unbound
 
 #
-# pcp-pmda-mic
-#
-%package pmda-mic
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for Intel MIC cards
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-Requires: python3-pcp
-%description pmda-mic
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about Intel MIC cards.
-# end pcp-pmda-mic
-
-#
 # pcp-pmda-haproxy
 #
 %package pmda-haproxy
@@ -1973,19 +1967,6 @@ This package contains the PCP Performance Metric Domain Agent (PMDA) for
 collecting metrics from the Linux kernel resource control functionality.
 #end pcp-pmda-resctrl
 %endif
-
-#
-# pcp-pmda-roomtemp
-#
-%package pmda-roomtemp
-License: GPL-2.0-or-later
-Summary: Performance Co-Pilot (PCP) metrics for the room temperature
-URL: https://pcp.io
-Requires: pcp = %{version}-%{release} pcp-libs = %{version}-%{release}
-%description pmda-roomtemp
-This package contains the PCP Performance Metrics Domain Agent (PMDA) for
-collecting metrics about the room temperature.
-# end pcp-pmda-roomtemp
 
 #
 # pcp-pmda-sendmail
@@ -2489,7 +2470,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/lustre(/|$)' >pcp-pmda-lustre-files
 basic_manifest | keep '(etc/pcp|pmdas)/lustrecomm(/|$)' >pcp-pmda-lustrecomm-files
 basic_manifest | keep '(etc/pcp|pmdas)/memcache(/|$)' >pcp-pmda-memcache-files
 basic_manifest | keep '(etc/pcp|pmdas)/mailq(/|$)' >pcp-pmda-mailq-files
-basic_manifest | keep '(etc/pcp|pmdas)/mic(/|$)' >pcp-pmda-mic-files
 basic_manifest | keep '(etc/pcp|pmdas)/mounts(/|$)' >pcp-pmda-mounts-files
 basic_manifest | keep '(etc/pcp|pmdas)/mongodb(/|$)' >pcp-pmda-mongodb-files
 basic_manifest | keep '(etc/pcp|pmdas)/db2(/|$)' >pcp-pmda-db2-files
@@ -2517,7 +2497,6 @@ basic_manifest | keep '(etc/pcp|pmdas)/rds(/|$)' >pcp-pmda-rds-files
 basic_manifest | keep '(etc/pcp|pmdas)/redis(/|$)' >pcp-pmda-redis-files
 basic_manifest | keep '(etc/pcp|pmdas)/resctrl(/|$)|sys-fs-resctrl' >pcp-pmda-resctrl-files
 basic_manifest | keep '(etc/pcp|pmdas)/rocestat(/|$)' >pcp-pmda-rocestat-files
-basic_manifest | keep '(etc/pcp|pmdas)/roomtemp(/|$)' >pcp-pmda-roomtemp-files
 basic_manifest | keep '(etc/pcp|pmdas)/rpm(/|$)' >pcp-pmda-rpm-files
 basic_manifest | keep '(etc/pcp|pmdas)/rsyslog(/|$)' >pcp-pmda-rsyslog-files
 basic_manifest | keep '(etc/pcp|pmdas)/samba(/|$)' >pcp-pmda-samba-files
@@ -2549,12 +2528,12 @@ for pmda_package in \
     hacluster haproxy hdb \
     infiniband \
     libvirt lio lmsensors logger lustre lustrecomm \
-    mailq memcache mic mounts mongodb mssql mysql \
+    mailq memcache mounts mongodb mssql mysql \
     named netcheck netfilter news nfsclient nginx \
     nutcracker nvidia \
     openmetrics opentelemetry openvswitch oracle \
     pdns perfevent podman postfix postgresql \
-    rabbitmq rds redis resctrl rocestat roomtemp rpm rsyslog \
+    rabbitmq rds redis resctrl rocestat rpm rsyslog \
     samba sendmail shping slurm smart snmp \
     sockets statsd summary systemd \
     unbound uwsgi \
@@ -2914,9 +2893,6 @@ exit 0
 %preun pmda-unbound
 %{pmda_remove "$1" "unbound"}
 
-%preun pmda-mic
-%{pmda_remove "$1" "mic"}
-
 %preun pmda-haproxy
 %{pmda_remove "$1" "haproxy"}
 
@@ -2986,9 +2962,6 @@ exit 0
 %preun pmda-resctrl
 %{pmda_remove "$1" "resctrl"}
 %endif
-
-%preun pmda-roomtemp
-%{pmda_remove "$1" "roomtemp"}
 
 %preun pmda-sendmail
 %{pmda_remove "$1" "sendmail"}
@@ -3272,8 +3245,6 @@ fi
 
 %files pmda-unbound -f pcp-pmda-unbound-files.rpm
 
-%files pmda-mic -f pcp-pmda-mic-files.rpm
-
 %files pmda-haproxy -f pcp-pmda-haproxy-files.rpm
 
 %files pmda-lmsensors -f pcp-pmda-lmsensors-files.rpm
@@ -3376,8 +3347,6 @@ fi
 %if !%{disable_resctrl}
 %files pmda-resctrl -f pcp-pmda-resctrl-files.rpm
 %endif
-
-%files pmda-roomtemp -f pcp-pmda-roomtemp-files.rpm
 
 %files pmda-sendmail -f pcp-pmda-sendmail-files.rpm
 
