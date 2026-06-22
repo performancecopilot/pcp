@@ -61,7 +61,7 @@ dstat_amdgpu()
 
 dstat_nvidiagpu()
 {
-    dstat_archive "$here/archives/nvidiagpu" "$@"
+    dstat_archive "$here/archives/nvidiagpu-0" "$@"
 }
 
 filter_info()
