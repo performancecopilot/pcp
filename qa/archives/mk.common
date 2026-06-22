@@ -30,14 +30,14 @@ then
     echo >&2 "mk.common: Botch: \$samples not set"
     exit
 fi
-if [ ! -f $tmp.config ]
+if [ ! -f "$tmp.config" ]
 then
     echo >&2 "mk.common: Botch: \$tmp.config not created"
     exit
 fi
 
-pmprobe $probe >$tmp.check 2>&1
-if grep -q "Unknown metric name" <$tmp.check
+pmprobe $probe >"$tmp.check" 2>&1
+if grep -q "Unknown metric name" <"$tmp.check"
 then
     # punt on PMDA name as first part of $probe
     #
@@ -46,14 +46,14 @@ then
     echo >&2 "Do you need to install the $pmda PMDA?"
     exit
 fi
-numval=`sed -n <$tmp.check -e "/$probe [0-9][0-9]*$/{\
+numval=`sed -n <"$tmp.check" -e "/$probe [0-9][0-9]*$/{\
 s/$probe //\
 p\
 }"`
 if [ -z "$numval" ]
 then
     echo >&2 "mk.common: Error: cannot extract numval from pmrobe output for $probe ..."
-    cat >&2 $tmp.check
+    cat >&2 "$tmp.check"
     exit
 fi
 if [ "$numval" -lt 1 ]
@@ -71,7 +71,7 @@ fi
 # (c) else use $archive
 #
 next=''
-echo >$tmp.next
+rm -f "$tmp.next"
 ls "$archive"*.index 2>/dev/null \
 | sed -e 's/\.index$//' \
 | while read try
@@ -88,41 +88,42 @@ do
 		then
 		    next="$vers"
 		fi
+		echo "$next" >"$tmp.next"
 		;;
 	"$archive")
 		if [ -z "$next" ]
 		then
 		    next=1
 		fi
+		echo "$next" >"$tmp.next"
 		;;
 	*)
 		;;
     esac
-    echo "$next" >$tmp.next
 done
 
-[ -s $tmp.next ] && archive=$archive-`cat $tmp.next`
+[ -s "$tmp.next" ] && archive=$archive-`cat "$tmp.next"`
 
 # check any existing files for this archive (should not be any)
 #
-rm -f $tmp.tmp
+rm -f "$tmp.tmp"
 pmlogls "$archive" \
 | while read file
 do
-    ls -l "$file" >>$tmp.tmp
+    ls -l "$file" >>"$tmp.tmp"
 done
-if [ -s $tmp.tmp ]
+if [ -s "$tmp.tmp" ]
 then
     echo >&2 "mk.common: Arrgh! archive files already exist ..."
-    cat >&2 $tmp.tmp
+    cat >&2 "$tmp.tmp"
     exit
 fi
 
 [ -n "$expect" ] && echo "Expect pmlogger to run for about $expect seconds ..."
-if ! pmlogger -s $samples -c $tmp.config -l $tmp.log "$archive"
+if ! pmlogger -s $samples -c "$tmp.config" -l "$tmp.log" "$archive"
 then
     echo >&2 "mk.common: Arrgh! pmlogger failed ..."
-    cat >&2 $tmp.log
+    cat >&2 "$tmp.log"
     exit
 fi
 
