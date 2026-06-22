@@ -221,6 +221,7 @@ Series checked (indom)
             "units": "none",
             "labels": {
                 "agent": "sample",
+                "changed": false,
                 "cluster": "zero",
                 "domainname": "DOMAINNAME"
                 "hostname": "HOSTNAME"
