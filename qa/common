@@ -391,11 +391,14 @@ fi
 __diff=diff
 if [ ! -z "$DISPLAY" -o "$TERM_PROGRAM" = "Apple_Terminal" ]
 then
+    # order here is least preferred to most preferred graphical diff tool
+    #
     which tkdiff >/dev/null 2>&1 && __diff=tkdiff
     which xdiff >/dev/null 2>&1 && __diff=xdiff
     which xxdiff >/dev/null 2>&1 && __diff=xxdiff
     which gdiff >/dev/null 2>&1 && __diff=gdiff
     which meld >/dev/null 2>&1 && __diff=meld
+    which diffuse >/dev/null 2>&1 && __diff=diffuse
 fi
 
 __color=false

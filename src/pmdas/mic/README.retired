@@ -1,0 +1,10 @@
+This PMDA has been retired as of June 2026.
+
+Files that used to be here can be retried from the git repository
+should that ever be necessary.
+
+    GNUmakefile
+    Install
+    pmdamic.1
+    pmdamic.python
+    Remove

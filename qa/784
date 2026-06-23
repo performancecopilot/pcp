@@ -5,69 +5,14 @@
 # Copyright (c) 2015 Martins Innus.  All Rights Reserved.
 #
 
+# test really-retired by kenj on 22 Jun 2026
+#
+# to see the original test
+# 	$ git diff 3b8ca296fb -- 784
+
 seq=`basename $0`
-echo "QA output created by $seq"
+. ./common.product
+. ./common.filter
+. ./common.check
 
-. ./common.python
-
-python_path=`which $python`
-pmda_path="$PCP_PMDAS_DIR/mic"
-pmda_script="$pmda_path/pmdamic.python"
-test -f "$pmda_script" || _notrun "pmdamic not installed"
-
-$python -c "from pcp import pmda" >/dev/null 2>&1
-[ $? -eq 0 ] || _notrun "python pcp pmda module not installed"
-
-# use our own libmicmgmt stub for QA
-PMDAMIC_MPSS_PYTHON_DIR="$here/mic"; export PMDAMIC_MPSS_PYTHON_DIR
-
-status=1	# failure is the default!
-trap "cd $here; rm -rf $tmp.*; $sudo rm -f mic.log*; exit \$status" 0 1 2 3 15
-
-_filter()
-{
-    tee -a $seq_full | \
-    sed \
-    -e "s;$PCP_PMDAS_DIR;\$PCP_PMDAS_DIR;" \
-    -e '/pmResult/s/ .* numpmid/ ... numpmid/' \
-    -e '/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/s/[^ ]*/TIMESTAMP/' \
-    -e "s;$python_path;\$PCP_PYTHON_PROG;" \
-    -e "s;$python_basename;python;" \
-    -e "s/value [0-9]/value NUMBER/"
-}
-
-_traverse()
-{
-    $sudo TERM=ansi dbpmda -n $tmp.root -ie <<EOF \
-	| grep "$1" | LC_COLLATE=POSIX sort -r
-open pipe $python_path $pmda_script
-traverse $1
-EOF
-    cat mic.log >>$seq_full
-}
-
-# real QA test starts here
-# (sudo use here is so that we are able to change to pcp user)
-
-domain=138
-echo "== Finding mic metrics" | tee -a $seq_full
-$sudo -E PCP_PYTHON_PMNS=root $python "$pmda_script" 2>/dev/null > $tmp.root
-
-echo "== Testing mic metrics" | tee -a $seq_full
-$sudo TERM=ansi dbpmda -n $tmp.root -ie <<End-of-File 2>&1 | _filter
-open pipe $python_path $pmda_script
-getdesc on
-desc mic.mgmt.numcards
-fetch mic.mgmt.numcards
-End-of-File
-cat mic.log >>$seq_full
-
-echo "== Traversing mgmt trees"
-_traverse mic.mgmt.power
-_traverse mic.mgmt.temp
-_traverse mic.mgmt.info
-_traverse mic.mgmt.mem
-
-# success, all done
-status=0
-exit
+_notrun 'retired and culled'
