@@ -75,6 +75,7 @@ class DB2PMDA(PMDA):
         self.connect_pmcd()
         self.verbose = False
         self.conns = {}
+        self.known_tables = {}
         self.databases = []
         self.debug("__init__")
 
@@ -210,8 +211,8 @@ class DB2PMDA(PMDA):
         }
 
         # Cluster 2: MON_GET_TABLE — per user table (indom 1)
-        # 10 items; first SELECT column is schema.table (instance).
-        self.cluster_table_items = 10
+        # 9 items; first SELECT column is schema.table (instance).
+        self.cluster_table_items = 9
         self.cluster_table = {
             2: [self.INDOM_ID(1),
                 "SELECT RTRIM(TABSCHEMA)||'.'||RTRIM(TABNAME),"
@@ -222,7 +223,7 @@ class DB2PMDA(PMDA):
                 'LOCK_WAITS,'                  # 4
                 'LOCK_WAIT_TIME,'              # 5 milliseconds
                 'LOCK_ESCALS,'                 # 6
-                'OVERFLOW_ACCESSES,'           # 7 (item 7 deadlocks not in MON_GET_TABLE)
+                'OVERFLOW_ACCESSES,'           # 7
                 'TABLE_SCANS '                 # 8
                 'FROM TABLE(MON_GET_TABLE(NULL,NULL,-1)) '
                 "WHERE TABSCHEMA NOT LIKE 'SYS%'"],
@@ -698,7 +699,7 @@ class DB2PMDA(PMDA):
                 'disk, in milliseconds.\n'
                 'Source: MON_GET_BUFFERPOOL.POOL_WRITE_TIME'],
             # -----------------------------------------------------------
-            # Cluster 2: MON_GET_TABLE  (indom 1, 10 items)
+            # Cluster 2: MON_GET_TABLE  (indom 1, 9 items)
             # -----------------------------------------------------------
             self.PM_ID(2, 0) : ['db2.table.rows_read',
                 pmdaMetric(self.PM_ID(2, 0), c_api.PM_TYPE_U64,
@@ -757,17 +758,8 @@ class DB2PMDA(PMDA):
                 'Cumulative number of times row locks on this table were\n'
                 'escalated to a table lock.\n'
                 'Source: MON_GET_TABLE.LOCK_ESCALS'],
-            self.PM_ID(2, 7) : ['db2.table.deadlocks',
+            self.PM_ID(2, 7) : ['db2.table.overflow_accesses',
                 pmdaMetric(self.PM_ID(2, 7), c_api.PM_TYPE_U64,
-                    self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
-                {},
-                'Deadlocks involving this table',
-                'Deadlock counts are not available per-table in MON_GET_TABLE\n'
-                'on Db2 v12; this metric is always reported as zero.\n'
-                'Use db2.database.deadlocks for database-wide deadlock counts.\n'
-                'Source: not available in MON_GET_TABLE'],
-            self.PM_ID(2, 8) : ['db2.table.overflow_accesses',
-                pmdaMetric(self.PM_ID(2, 8), c_api.PM_TYPE_U64,
                     self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
                 {},
                 'Overflow page accesses on this table',
@@ -775,8 +767,8 @@ class DB2PMDA(PMDA):
                 'table (rows that no longer fit in their original data page\n'
                 'after update).  High values suggest a REORG is needed.\n'
                 'Source: MON_GET_TABLE.OVERFLOW_ACCESSES'],
-            self.PM_ID(2, 9) : ['db2.table.scans',
-                pmdaMetric(self.PM_ID(2, 9), c_api.PM_TYPE_U64,
+            self.PM_ID(2, 8) : ['db2.table.scans',
+                pmdaMetric(self.PM_ID(2, 8), c_api.PM_TYPE_U64,
                     self.INDOM_ID(1), c_api.PM_SEM_COUNTER, countUnits),
                 {},
                 'Full table scans on this table',
@@ -1324,6 +1316,8 @@ class DB2PMDA(PMDA):
                 retries += 1
             if self.conns.get(dbname) is not None:
                 connected += 1
+                self.known_tables[dbname] = set()
+                self.db2_register_user_tables(dbname)
         if connected == 0:
             self.log("FATAL: could not connect to any configured database")
             sys.exit(1)
@@ -1351,6 +1345,37 @@ class DB2PMDA(PMDA):
             return False
         return True
 
+    def db2_quote_ident(self, name):
+        """ return a delimited Db2 identifier """
+        name = str(name).strip()
+        return '"' + name.replace('"', '""') + '"'
+
+    def db2_register_user_tables(self, dbname):
+        """ expose user tables through MON_GET_TABLE on this connection.
+
+        Db2 only returns a table from MON_GET_TABLE on a client connection
+        after that connection has accessed the table at least once.  Probe
+        any SYSCAT user tables not yet registered on the PMDA connection
+        so per-table metrics reflect database-wide activity. """
+        if dbname not in self.known_tables:
+            self.known_tables[dbname] = set()
+        query = (
+            "SELECT TABSCHEMA, TABNAME FROM SYSCAT.TABLES "
+            "WHERE TABSCHEMA NOT LIKE 'SYS%' AND TYPE = 'T'"
+        )
+        rows = self.db2_exec(dbname, query)
+        for row in rows:
+            schema = str(row[0]).strip()
+            table = str(row[1]).strip()
+            key = schema + '.' + table
+            if key in self.known_tables[dbname]:
+                continue
+            probe = (
+                'SELECT COUNT(*) FROM %s.%s FETCH FIRST 1 ROW ONLY' %
+                (self.db2_quote_ident(schema), self.db2_quote_ident(table)))
+            if self.db2_exec(dbname, probe):
+                self.known_tables[dbname].add(key)
+
     def db2_cursor(self, dbname):
         """ return a verified live connection for dbname, reconnecting as needed.
 
@@ -1371,8 +1396,12 @@ class DB2PMDA(PMDA):
             except Exception:
                 self.log("Lost connection to %s, reconnecting ..." % dbname)
                 self.conns[dbname] = None
+                self.known_tables.pop(dbname, None)
                 if not self.db2_connect(dbname):
                     time.sleep(1)
+                else:
+                    self.known_tables[dbname] = set()
+                    self.db2_register_user_tables(dbname)
         return self.conns[dbname]
 
     def _db2_connection_lost(self, conn, error):
@@ -1386,14 +1415,6 @@ class DB2PMDA(PMDA):
             return not ibm_db.active(conn)
         except Exception:
             return True
-
-    def table_row_val(self, row, item):
-        """ map MON_GET_TABLE columns to metric items; deadlocks not per-table """
-        if item == 7:
-            return 0
-        if item <= 6:
-            return row[item + 1]
-        return row[item]
 
     def db2_exec(self, dbname, sql):
         """ execute sql against dbname, return list of row tuples; [] on error.
@@ -1424,6 +1445,9 @@ class DB2PMDA(PMDA):
                 instances[dbname] = c_int(1)
             self.replace_indom(indom, instances)
             return
+        if indom == self.INDOM_ID(1):
+            for dbname in self.databases:
+                self.db2_register_user_tables(dbname)
         query = self.indoms[indom][self.INDOM_QUERY]
         for dbname in self.databases:
             rows = self.db2_exec(dbname, query)
@@ -1445,9 +1469,10 @@ class DB2PMDA(PMDA):
             self.db2_refresh_instanced(cluster, self.cluster_bp,
                                        self.cluster_bp_items)
         elif cluster in self.cluster_table:
+            for dbname in self.databases:
+                self.db2_register_user_tables(dbname)
             self.db2_refresh_instanced(cluster, self.cluster_table,
-                                       self.cluster_table_items,
-                                       row_val=self.table_row_val)
+                                       self.cluster_table_items)
         elif cluster in self.cluster_wl:
             self.db2_refresh_instanced(cluster, self.cluster_wl,
                                        self.cluster_wl_items)
