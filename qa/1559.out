@@ -1,4 +1,6 @@
 QA output created by 1559
+
+=== archives/amdgpu-0 ===
 metadata diffs
 --- TMP.old ...
 +++ TMP.new ...
@@ -74,3 +76,26 @@ metadata diffs
      labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
  Help:
  The maximum GDDRx memory clock speed in MHz
+
+=== archives/amdgpu-1.index ===
+metadata diffs
+--- TMP.old ...
++++ TMP.new ...
+@@ -19,7 +19,7 @@
+ 
+ amdgpu.gpu.average_power PMID: 162.3.2 [The GPU average power consumption in Watts]
+     Data Type: 32-bit unsigned int  InDom: 162.0 0x28800000
+-    Semantics: instant  Units: none
++    Semantics: instant  Units: power (W)
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","userid":1000}
+ Help:
+ The GPU average power consumption in Watts
+@@ -65,7 +65,7 @@
+ 
+ amdgpu.gpu.temperature PMID: 162.3.0 [The GPU temperature in degrees Celsius]
+     Data Type: float  InDom: 162.0 0x28800000
+-    Semantics: instant  Units: none
++    Semantics: instant  Units: temperature (C)
+     labels {"agent":"amdgpu","device_type":"gpu","domainname":"localdomain","groupid":1000,"hostname":"e-bike","indom_name":"per gpu","machineid":"25318bedbb524075b30fecd5a8ab0fb6","measure":"temperature","units":"degrees Celsius","userid":1000}
+ Help:
+ The temperature provided is returned in degrees celsius, but the
