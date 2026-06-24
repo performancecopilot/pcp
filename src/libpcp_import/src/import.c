@@ -338,6 +338,7 @@ pmiStart(const char *archive, int flags)
     }
     old_current = &context_tab[c];
     current = &context_tab[ncontext-1];
+    memset(current, 0, sizeof(*current));
 
     current->state = (flags & PMI_APPEND) ? CONTEXT_APPEND : CONTEXT_START;
     current->version = archive_version;

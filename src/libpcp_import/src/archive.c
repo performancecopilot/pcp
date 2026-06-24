@@ -163,6 +163,7 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
     __pmLogInDom lid;
     __pmLogInDom old;
     __pmLogInDom new_delta;
+    __pmLogInDom	*dup;
     int		*instlist;
     char	**namelist;
     int		needindom;
@@ -177,6 +178,17 @@ check_indom(pmi_context *current, pmInDom indom, int *needti)
 		lid.namelist = current->indom[i].name;
 		lid.alloc = 0;
 		pmaSortInDom(&lid);
+		/*
+		 * Duplicate the sorted indom so the hash owns stable
+		 * copies; subsequent pmiAddInstance() realloc() calls
+		 * cannot leave the hash with dangling name pointers.
+		 */
+		dup = __pmDupLogInDom(&lid);
+		lid.instlist = dup->instlist;
+		lid.namelist = dup->namelist;
+		lid.alloc = PMLID_INSTLIST | PMLID_NAMELIST | PMLID_NAMES;
+		dup->alloc &= ~(PMLID_INSTLIST | PMLID_NAMELIST | PMLID_NAMES);
+		__pmFreeLogInDom(dup);
 
 		n = __pmLogGetInDom(acp, indom, NULL, &instlist, &namelist);
 		if (n >= 0) {
