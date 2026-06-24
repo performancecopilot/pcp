@@ -54,7 +54,7 @@ _filter()
 
 # real QA test starts here
 
-for arch in `echo archives/nvidiagpu-*.index | sed -e 's/\.index$//'`
+for arch in `ls archives/nvidiagpu-*.index 2>/dev/null | sed -e 's/\.index$//'`
 do
     echo
     echo "=== $arch ==="
