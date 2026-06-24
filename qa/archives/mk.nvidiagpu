@@ -32,4 +32,25 @@ End-of-File
 
 . ./mk.common
 
+rm -f "$archive.smi.txt"
+if which nvidia-smi >/dev/null 2>&1
+then
+    nvidia-smi >"$archive.smi.txt" 2>"$tmp.err"
+    if [ $? != 0 -o -s "$tmp.err" ]
+    then
+	echo >&2 "mk.nvidiagpu: Warning: nvidia-smi failed"
+	cat >&2 "$tmp.err"
+	rm -f "$tmp.err"
+    fi
+    nvidia-smi -q >>"$archive.smi.txt" 2>>"$tmp.err"
+    if [ $? != 0 -o -s "$tmp.err" ]
+    then
+	echo >&2 "mk.nvidiagpu: Warning: nvidia-smi metric failed"
+	cat >&2 "$tmp.err"
+	rm -f "$tmp.err"
+    fi
+else
+    echo >&2 "mk.nvidiagpu: Warning: nvidia-smi not installed, cannot recreate $archive.smi.txt"
+fi
+
 exit

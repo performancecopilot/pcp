@@ -107,7 +107,7 @@ p
 $PCP_AWK_PROG <$tmp.tmp '
 BEGIN				{ state = "group" }
 state == "group" && /^[0-9]/	{ state = "list" }
-				{ print >"'$tmp'." state }'
+				{ print >("'$tmp'." state) }'
 sort -n $tmp.list >>$tmp.group
 
 for o in $1*out*

@@ -2222,7 +2222,7 @@ suse
 1672 secure pmcd local
 1673 pmda.bpf local
 1674 pmda.amdgpu pmprobe local
-1675:reserved pmlogrewrite pmda.amdgpu
+1675 pmlogrewrite pmda.nvidia local
 1676:reserved pmlogrewrite pmda.amdgpu
 1677:reserved pmlogrewrite pmda.amdgpu
 1678 pmda.opentelemetry local python

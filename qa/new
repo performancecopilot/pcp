@@ -444,7 +444,7 @@ echo "$id$tag $ans" >>group
 $PCP_AWK_PROG <group '
 BEGIN				{ state = "head" }
 state == "head" && /^[0-9]/	{ state = "list" }
-				{ print >"'$tmp'." state }'
+				{ print >("'$tmp'." state) }'
 sort -n $tmp.list >>$tmp.head
 cp $tmp.head group
 
