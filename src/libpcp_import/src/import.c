@@ -570,13 +570,14 @@ pmiSetZoneinfo(const char *value)
 
     free(current->zoneinfo);
     current->zoneinfo = strdup(value);
-    free(detected);
     if (current->zoneinfo == NULL) {
 	pmNoMem("pmiSetZoneinfo", strlen(value)+1, PM_RECOV_ERR);
 	current->last_sts = -ENOMEM;
     } else {
 	current->last_sts = 0;
     }
+    free(detected);
+
     return current->last_sts;
 }
 
