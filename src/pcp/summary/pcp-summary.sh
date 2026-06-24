@@ -337,9 +337,9 @@ then
 	| sed -e 's/"//g' | tee $tmp/log | _process`
 
     $PCP_AWK_PROG < $tmp/log > $tmp/loggers '
-BEGIN		{ primary=0 }
+BEGIN		{ primary="" }
 $1 == "0"	{ primary=$3; next }
-$3 == primary	{ printf "primary logger: %s\n\n",$3; exit }'
+primary != "" && $3 == primary	{ printf "primary logger: %s\n\n",$3; exit }'
 
     $PCP_AWK_PROG < $tmp/log >> $tmp/loggers '
 BEGIN		{ primary=0 }
@@ -393,9 +393,9 @@ then
     fi
 
     $PCP_AWK_PROG -v Pflag=$Pflag < $tmp/pmie '
-BEGIN		{ primary=0 }
+BEGIN		{ primary="" }
 $1 == "0"	{ primary=$3; next }
-$3 == primary	{
+primary != "" && $3 == primary	{
 	if (Pflag == "true") {
 	    printf "primary engine: %s (%u rules)\n\n",$3,$4
 	    printf "evaluations true=%u false=%u unknown=%u (actions=%u)\n\n",$5,$6,$7,$8
@@ -406,10 +406,10 @@ $3 == primary	{
     }' > $tmp/pmies
 
     $PCP_AWK_PROG -v Pflag=$Pflag < $tmp/pmie '
-BEGIN		{ primary=0 }
+BEGIN		{ primary="" }
 $1 == "0"	{ primary=$3; next }
 $1 == "1"	{ next }
-$3 == primary	{ next }
+primary != "" && $3 == primary	{ next }
     {
 	if (Pflag == "true") {
 	    printf "%s: %s (%u rules)\n\n",$2,$3,$4
