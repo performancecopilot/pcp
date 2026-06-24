@@ -3,4 +3,4 @@ ident	IBM Db2 instance identity (log-once)
 probe	db2.instance.version values ? include : exclude
 	db2.instance.name
 	db2.instance.version
-	db2.instance.platform
+	db2.instance.build_level

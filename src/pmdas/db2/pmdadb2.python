@@ -1245,7 +1245,7 @@ class DB2PMDA(PMDA):
                 '"DB2 v11.5.8.0 s2309091300".  Useful as archive context\n'
                 'when analysing historical performance data.\n'
                 'Source: SYSIBMADM.ENV_INST_INFO.SERVICE_LEVEL'],
-            self.PM_ID(9, 2) : ['db2.instance.platform',
+            self.PM_ID(9, 2) : ['db2.instance.build_level',
                 pmdaMetric(self.PM_ID(9, 2), c_api.PM_TYPE_STRING,
                     c_api.PM_INDOM_NULL, c_api.PM_SEM_DISCRETE, noUnits),
                 {},
@@ -1371,7 +1371,7 @@ class DB2PMDA(PMDA):
             if key in self.known_tables[dbname]:
                 continue
             probe = (
-                'SELECT COUNT(*) FROM %s.%s FETCH FIRST 1 ROW ONLY' %
+                'SELECT 1 FROM %s.%s FETCH FIRST 1 ROW ONLY WITH UR' %
                 (self.db2_quote_ident(schema), self.db2_quote_ident(table)))
             if self.db2_exec(dbname, probe):
                 self.known_tables[dbname].add(key)
