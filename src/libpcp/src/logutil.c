@@ -669,8 +669,8 @@ logFreeMeta(__pmLogCtl *lcp)
  * Volume discovery uses __pmLogFindOpen (canonical directory scan via
  * readdir + __pmLogAddVolume) which correctly sets lcp->minvol and
  * lcp->maxvol.  The resulting read-mode handles are used to validate
- * labels and load the temporal index, then closed and reopened in r+
- * mode for subsequent appending:
+ * archive labels and load the temporal index, then closed & reopened
+ * in r+ mode for subsequent appending:
  *
  *   .meta  - r+ read label + seek to end; metadata appended at end
  *   .index - r+ read temporal index for lcp->endtime + seek to end
