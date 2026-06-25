@@ -2281,8 +2281,10 @@ basic_manifest | grep -E '/pmns/root_|/pmns/local\.root$|/pmdas/.*/root_' \
     | grep -v "^@pcp_pmdas_dir@/" >>pcp-conf-files
 dso_files=$(awk '/^[^#]/{print $5}' $RPM_BUILD_ROOT@pcp_sysconf_dir@/local.conf \
     | xargs -I{} basename {} | sort -u | tr '\n' '|' | sed 's/|$//')
-basic_manifest | grep -E "/($dso_files)$" \
-    | grep -v "^@pcp_pmdas_dir@/" >>pcp-libs-files
+dso_dirs=$(awk '/^[^#]/{print $5}' $RPM_BUILD_ROOT@pcp_sysconf_dir@/local.conf \
+    | xargs -I{} dirname {} | xargs -I{} basename {} | sort -u | tr '\n' '|' | sed 's/|$//')
+basic_manifest | grep -E "/($dso_files)$" >>pcp-libs-files
+basic_manifest | grep -E "/pmdas/($dso_dirs)/help\.(dir|pag)$" >>pcp-libs-files
 echo @pcp_import_dir@ >>pcp-libs-files
 
 #
