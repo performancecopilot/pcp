@@ -1,9 +1,7 @@
 #!/bin/sh
-# PCP QA Test No. 1559
-# pmlogrewrite extensions to accommodate amdgpu PMDA evolution
-# (fixing bad PMNS)
-#
-# non-valgrind variant, see qa/1685 for the valgrind variant
+# PCP QA Test No. 1675
+# pmlogrewrite extensions to accommodate nvidia PMDA evolution
+# (extra units)
 #
 # Copyright (c) 2026 Ken McDonell.  All Rights Reserved.
 #
@@ -23,7 +21,7 @@ fi
 . ./common.filter
 . ./common.check
 
-[ -f $PCP_SYSCONF_DIR/pmlogrewrite/amdgpu.conf ] || _notrun "amdgpu logrewrite config not installed"
+[ -f $PCP_SYSCONF_DIR/pmlogrewrite/nvidia.conf ] || _notrun "nvidia logrewrite config not installed"
 
 do_valgrind=false
 if [ "$1" = "--valgrind" ]
@@ -56,16 +54,16 @@ _filter()
 
 # real QA test starts here
 
-for arch in `ls archives/amdgpu-*.index 2>/dev/null | sed -e 's/\.index$//'`
+for arch in `ls archives/nvidiagpu-*.index 2>/dev/null | sed -e 's/\.index$//'`
 do
     echo
     echo "=== $arch ==="
     rm -f $tmp.*
     if $do_valgrind
     then
-	_run_valgrind pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/amdgpu.conf $arch $tmp
+	_run_valgrind pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/nvidia.conf $arch $tmp
     else
-	if ! pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/amdgpu.conf $arch $tmp
+	if ! pmlogrewrite -c $PCP_SYSCONF_DIR/pmlogrewrite/nvidia.conf $arch $tmp
 	then
 	    echo "Arrgh: pmlogrewrite failed"
 	    _exit 1
@@ -74,8 +72,8 @@ do
     | _filter
 
     export PCP_DERIVED_CONFIG=
-    metrics_old=`pminfo -a $arch amdgpu | sort`
-    metrics_new=`pminfo -a $tmp  amdgpu | sort`
+    metrics_old=`pminfo -a $arch nvidia | sort`
+    metrics_new=`pminfo -a $tmp  nvidia | sort`
 
     echo metadata diffs
     pminfo -dmTtl -a $arch $metrics_old >$tmp.old

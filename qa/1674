@@ -85,26 +85,26 @@ in_mem_use == 1 && $1 == "TOTAL_VRAM:" {
 			if ($3 == "MB")
 			    mem_total[inst] = $2 * 1024 * 1024
 			else
-			    print >"'"$tmp.err"'" NR ":" $0 ": unit not MB"
+			    print NR ":" $0 ": unit not MB" >"'"$tmp.err"'"
 		    }
 in_mem_use == 1 && $1 == "USED_VRAM:" {
 			if ($3 == "MB")
 			    mem_used[inst] = $2 * 1024 * 1024
 			else
-			    print >"'"$tmp.err"'" NR ":" $0 ": unit not MB"
+			    print NR ":" $0 ": unit not MB" >"'"$tmp.err"'"
 		    }
 in_mem_use == 1 && $1 == "FREE_VRAM:" {
 			if ($3 == "MB")
 			    mem_free[inst] = $2 * 1024 * 1024
 			else
-			    print >"'"$tmp.err"'" NR ":" $0 ": unit not MB"
+			    print NR ":" $0 ": unit not MB" >"'"$tmp.err"'"
 		    }
 in_temp == 1 && $1 == "EDGE:" { temp[inst] = $2 }
 in_clock == 1 && $1 == "MAX_CLK:" {
 			if ($3 == "MHz")
 			    clock_max[inst] = $2
 			else
-			    print >"'"$tmp.err"'" NR ":" $0 ": unit not MHz"
+			    print NR ":" $0 ": unit not MHz" >"'"$tmp.err"'"
 		    }
 NF == 1		{ in_mem_use = in_temp = in_clock = 0 }
 END		{ printf "amdgpu.memory.total 2 %d %d\n",mem_total[1],mem_total[0]
@@ -113,7 +113,7 @@ END		{ printf "amdgpu.memory.total 2 %d %d\n",mem_total[1],mem_total[0]
 		  printf "amdgpu.gpu.temperature 2 %d %d\n",temp[1],temp[0]
 		  #TODO# printf "amdgpu.gpu.clock_max 2 %d %d\n",clock_max[1],clock_max[0]
 		}' \
-| _fixval | sort >$tmp.smi 
+| _fixval | sort >$tmp.smi
 
 echo "=== pcp metrics ===" >>$seq_full
 cat $tmp.pcp >>$seq_full

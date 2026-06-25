@@ -87,12 +87,12 @@ metadata diffs
  Help:
  The maximum GDDRx memory clock speed in MHz
 
-=== archives/amdgpu-1.index ===
+=== archives/amdgpu-1 ===
 === std out ===
 === std err ===
 === filtered valgrind report ===
 Memcheck, a memory error detector
-Command: pmlogrewrite -c /etc/pcp/pmlogrewrite/amdgpu.conf archives/amdgpu-1.index TMP
+Command: pmlogrewrite -c /etc/pcp/pmlogrewrite/amdgpu.conf archives/amdgpu-1 TMP
 LEAK SUMMARY:
 definitely lost: 0 bytes in 0 blocks
 indirectly lost: 0 bytes in 0 blocks
