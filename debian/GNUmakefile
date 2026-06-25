@@ -91,11 +91,11 @@ DEVTRACE_FILES = libpcp-trace2-dev.dirs libpcp-trace2-dev.install
 LIBTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2
 DEVTRACE_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-trace2-dev
 
-LIBIMPORTPCP = libpcp-import1
-LIBIMPORT_FILES = libpcp-import1.install
-DEVIMPORT_FILES = libpcp-import1-dev.dirs libpcp-import1-dev.install
-LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1
-DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import1-dev
+LIBIMPORTPCP = libpcp-import2
+LIBIMPORT_FILES = libpcp-import2.install
+DEVIMPORT_FILES = libpcp-import2-dev.dirs libpcp-import2-dev.install
+LIBIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import2
+DEVIMPORT_DOC_DIR = $(PCP_DOC_DIR)/../libpcp-import2-dev
 
 LIBWEBPCP = libpcp-web1
 LIBWEB_FILES = libpcp-web1.install

@@ -25,7 +25,7 @@ TMPFILESCONF = libpcp_import.conf
 VERSION_SCRIPT = exports
 
 STATICLIBTARGET	= libpcp_import.a
-DSOVERSION = 1
+DSOVERSION = 2
 LIBTARGET = libpcp_import.$(DSOSUFFIX).$(DSOVERSION)
 SYMTARGET = libpcp_import.$(DSOSUFFIX) 
 ifeq "$(TARGET_OS)" "darwin"
