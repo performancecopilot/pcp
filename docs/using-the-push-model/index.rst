@@ -43,7 +43,7 @@ incoming TCP connections to port 44322. For example, on Fedora:
 
 .. code-block:: bash
 
-    # dnf \-y install pcp
+    # dnf -y install pcp
     [..]
     # systemctl enable --now pmcd pmproxy
     # firewall-cmd --permanent --add-port 44322/tcp
@@ -113,7 +113,7 @@ from our remote system. The pmlogsummary utility can show details:
 .. code-block:: bash
 
     # pmlogsummary -a \
-    /var/log/pcp/pmproxy/fedora44.local/20260608.16.39|head -4
+    /var/log/pcp/pmproxy/fedora44.local/20260608.16.39|head -n 4
     Log Label (Log Format Version 3\)
     Performance metrics from host fedora44.local
     commencing Mon Jun  8 16:39:11.150408313 2026
