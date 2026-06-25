@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2022,2026 Red Hat.
+ * Copyright (c) 2013-2022 Red Hat.
  * Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
  * 
  * This library is free software; you can redistribute it and/or modify it
@@ -50,9 +50,6 @@ pmiDump(void)
 	    break;
 	case CONTEXT_END:
 	    fprintf(f, "(end)");
-	    break;
-	case CONTEXT_APPEND:
-	    fprintf(f, "(append)");
 	    break;
 	default:
 	    fprintf(f, "(BAD)");
@@ -172,7 +169,7 @@ pmiDump(void)
 }
 
 pmUnits
-pmiUnits(int dimSpace, int dimTime, int dimCount, unsigned int scaleSpace, unsigned int scaleTime, int scaleCount)
+pmiUnits(int dimSpace, int dimTime, int dimCount, int scaleSpace, int scaleTime, int scaleCount)
 {
     static pmUnits units;
     units.dimSpace = dimSpace;
@@ -181,26 +178,8 @@ pmiUnits(int dimSpace, int dimTime, int dimCount, unsigned int scaleSpace, unsig
     units.scaleSpace = scaleSpace;
     units.scaleTime = scaleTime;
     units.scaleCount = scaleCount;
-    units.extraUnit = 0;
-    units.extraScale = 0;
 
     return units;
-}
-
-pmUnits
-pmiExtraUnits(int dimSpace, int dimTime, int dimCount, unsigned int scaleSpace, unsigned int scaleTime, int scaleCount, int extraUnit, unsigned int extraScale)
-{
-    static pmUnits extraunits;
-    extraunits.dimSpace = dimSpace;
-    extraunits.dimTime = dimTime;
-    extraunits.dimCount = dimCount;
-    extraunits.scaleSpace = scaleSpace;
-    extraunits.scaleTime = scaleTime;
-    extraunits.scaleCount = scaleCount;
-    extraunits.extraUnit = extraUnit;
-    extraunits.extraScale = extraScale;
-
-    return extraunits;
 }
 
 pmID
@@ -319,7 +298,7 @@ pmiErrStr_r(int code, char *buf, int buflen)
 }
 
 int
-pmiStart(const char *archive, int flags)
+pmiStart(const char *archive, int inherit)
 {
     pmi_context	*old_current;
     char	*np;
@@ -338,9 +317,8 @@ pmiStart(const char *archive, int flags)
     }
     old_current = &context_tab[c];
     current = &context_tab[ncontext-1];
-    memset(current, 0, sizeof(*current));
 
-    current->state = (flags & PMI_APPEND) ? CONTEXT_APPEND : CONTEXT_START;
+    current->state = CONTEXT_START;
     current->version = archive_version;
     current->archive = strdup(archive);
     if (current->archive == NULL) {
@@ -348,23 +326,11 @@ pmiStart(const char *archive, int flags)
     }
     current->hostname = NULL;
     current->timezone = NULL;
-    current->zoneinfo = NULL;
     current->result = NULL;
     memset((void *)&current->logctl, 0, sizeof(current->logctl));
     memset((void *)&current->archctl, 0, sizeof(current->archctl));
     __pmLogWriterInit(&current->archctl, &current->logctl);
-    /*
-     * PMI_APPEND and PMI_INHERIT may be used together: the inherited
-     * metric and indom definitions are carried into the new context, and
-     * when the append archive is opened on the first pmiWrite() call,
-     * each inherited descriptor is checked against what is already on
-     * disk.  Compatible descriptors are silently skipped (no duplicate
-     * written); incompatible ones are rejected with PM_ERR_LOGCHANGE*.
-     * In the common case -- inheriting from a context that was writing
-     * to the same archive -- every inherited descriptor already exists
-     * and the combination is effectively a no-op beyond convenience.
-     */
-    if ((flags & PMI_INHERIT) && old_current != NULL) {
+    if (inherit && old_current != NULL) {
 	current->nmetric = old_current->nmetric;
 	if (old_current->metric != NULL) {
 	    int		m;
@@ -551,37 +517,6 @@ pmiSetTimezone(const char *value)
 }
 
 int
-pmiSetZoneinfo(const char *value)
-{
-    char	*detected;
-
-    if (current == NULL)
-	return PM_ERR_NOCONTEXT;
-
-    if (value == NULL) {
-	/* Auto-detect Olson name via __pmZoneinfo() (libpcp tz.c) */
-	detected = __pmZoneinfo();
-	if (detected == NULL)
-	    return current->last_sts = 0;	/* no zoneinfo available */
-	value = detected;
-    } else {
-	detected = NULL;
-    }
-
-    free(current->zoneinfo);
-    current->zoneinfo = strdup(value);
-    if (current->zoneinfo == NULL) {
-	pmNoMem("pmiSetZoneinfo", strlen(value)+1, PM_RECOV_ERR);
-	current->last_sts = -ENOMEM;
-    } else {
-	current->last_sts = 0;
-    }
-    free(detected);
-
-    return current->last_sts;
-}
-
-int
 pmiSetVersion(int version)
 {
     if (current == NULL)
@@ -593,93 +528,6 @@ pmiSetVersion(int version)
 	current->last_sts = 0;
     }
     return current->last_sts;
-}
-
-int
-pmiSetVolumeSize(size_t max_bytes, void (*on_rotate)(const char *))
-{
-    if (current == NULL)
-	return PM_ERR_NOCONTEXT;
-    /*
-     * Reject a threshold below the archive label size for the current
-     * archive version — a value smaller than the label would trigger
-     * a rotation cascade on every write since each new volume begins
-     * with a label that immediately exceeds the threshold.
-     * __pmLogLabelSize() returns the correct fixed on-disk size for
-     * both v2 (124 bytes) and v3 (800 bytes) archives.
-     */
-    if (max_bytes > 0) {
-	/*
-	 * Use the context's configured archive version to determine the
-	 * on-disk label size.  __pmLogLabelSize() reads the label magic
-	 * which is not yet set on a fresh context, so derive the size
-	 * directly from the version: v2=124, v3=800 (fixed-width structs).
-	 * The version field defaults to PM_LOG_VERS02 after pmiStart().
-	 */
-	size_t	label_size;
-	label_size = (current->version >= PM_LOG_VERS03)
-		     ? (size_t)(32 + PM_MAX_HOSTNAMELEN +
-				PM_MAX_TIMEZONELEN + PM_MAX_ZONEINFOLEN)
-		     : (size_t)(20 + PM_LOG_MAXHOSTLEN + PM_TZ_MAXLEN);
-	if (max_bytes <= label_size) {
-	    current->last_sts = PM_ERR_CONV;
-	    return PM_ERR_CONV;
-	}
-    }
-    current->max_volume_bytes = max_bytes;
-    current->on_volume_rotate = on_rotate;
-    current->last_sts = 0;
-    return 0;
-}
-
-int
-pmiSetImportProgram(const char *tool, const char *version,
-		 const char *args, const char *archive)
-{
-    char	path[MAXPATHLEN];
-    int		oflags;
-    int		fd;
-    FILE	*fp;
-
-    if (current == NULL)
-	return PM_ERR_NOCONTEXT;
-
-    if (tool == NULL || tool[0] == '\0')
-	return current->last_sts = PM_ERR_CONV;
-
-    /*
-     * PCP_IMPORT_DIR is root:root 0755, created by packaging.
-     * O_NOFOLLOW defeats a symlink pre-placed at the target path;
-     * O_TRUNC overwrites a stale file left by an unclean exit.
-     */
-    pmsprintf(path, sizeof(path), "%s/%s",
-	      pmGetConfig("PCP_IMPORT_DIR"), tool);
-
-    oflags = O_CREAT | O_WRONLY | O_TRUNC;
-#ifdef O_NOFOLLOW
-    oflags |= O_NOFOLLOW;
-#endif
-#ifdef O_CLOEXEC
-    oflags |= O_CLOEXEC;
-#endif
-    fd = open(path, oflags, 0644);
-    if (fd < 0)
-	return current->last_sts = -oserror();
-    if ((fp = fdopen(fd, "w")) == NULL) {
-	close(fd);
-	return current->last_sts = -oserror();
-    }
-
-    if (version && version[0])
-	fprintf(fp, "version=%s\n", version);
-    if (args && args[0])
-	fprintf(fp, "args=%s\n", args);
-    if (archive && archive[0])
-	fprintf(fp, "archive=%s\n", archive);
-    fclose(fp);
-
-    pmstrncpy(current->tool_name, sizeof(current->tool_name), tool);
-    return current->last_sts = 0;
 }
 
 static int
@@ -1020,19 +868,6 @@ pmiPutValueHandle(int handle, const char *value)
 }
 
 int
-pmiPutAtomValueHandle(int handle, pmAtomValue *atom)
-{
-    if (current == NULL)
-	return PM_ERR_NOCONTEXT;
-    if (handle <= 0 || handle > current->nhandle)
-	return current->last_sts = PMI_ERR_BADHANDLE;
-    if (atom == NULL)
-	return current->last_sts = PM_ERR_ARG;
-
-    return current->last_sts = _pmi_stuff_atomvalue(current, &current->handle[handle-1], atom);
-}
-
-int
 pmiPutText(unsigned int type, unsigned int class, unsigned int id, const char *content)
 {
     size_t		size;
@@ -1274,18 +1109,71 @@ _pmi_write(__pmTimestamp *timestamp)
     return current->last_sts = sts;
 }
 
+/* deprecated interface - not Y2038 safe - use pmiWrite2 or pmHighResWrite */
 int
-pmiWrite(unsigned long long sec, unsigned int nsec)
+pmiWrite(int sec, int usec)
 {
-    __pmTimestamp	timestamp = { .sec = sec, .nsec = nsec};
+    __pmTimestamp	timestamp = { .sec = (int64_t)sec, .nsec = usec*1000 };
 
-    if (sec == 0)
+    if (sec < 0)
 	__pmGetTimestamp(&timestamp);
     return _pmi_write(&timestamp);
 }
 
 int
-pmiPutResult(const pmResult *result)
+pmiWrite2(int64_t sec, int usec)
+{
+    __pmTimestamp	timestamp = { .sec = sec, .nsec = usec * 1000 };
+
+    if (sec < 0)
+	__pmGetTimestamp(&timestamp);
+    return _pmi_write(&timestamp);
+}
+
+int
+pmiHighResWrite(int64_t sec, int nsec)
+{
+    __pmTimestamp	timestamp = { .sec = sec, .nsec = nsec};
+
+    if (sec < 0)
+	__pmGetTimestamp(&timestamp);
+    return _pmi_write(&timestamp);
+}
+
+int
+pmiPutResult(const pmResult_v2 *result)
+{
+    __pmResult	*rp;
+    int		sts, i;
+
+    if (current == NULL)
+	return PM_ERR_NOCONTEXT;
+
+    /* translate to internal timestamp-independent result */
+    if ((rp = __pmAllocResult(result->numpmid)) == NULL)
+	return -ENOMEM;
+    rp->numpmid = result->numpmid;
+    rp->timestamp.sec = result->timestamp.tv_sec;
+    rp->timestamp.nsec = result->timestamp.tv_usec * 1000;
+    for (i = 0; i < rp->numpmid; i++)
+	rp->vset[i] = result->vset[i];
+
+    current->result = rp;
+    if ((sts = check_timestamp(&current->result->timestamp)) == 0) {
+	sts = _pmi_put_result(current, current->result);
+	current->last_stamp = current->result->timestamp;
+    }
+    current->result = NULL;
+
+    /* do not free parts of the callers result structure */
+    rp->numpmid = 0;
+    __pmFreeResult(rp);
+
+    return current->last_sts = sts;
+}
+
+int
+pmiPutHighResResult(const pmResult *result)
 {
     __pmResult	*rp;
     int		sts, i;

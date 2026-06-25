@@ -16,9 +16,7 @@
 .\"
 .TH PMIWRITE 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiWrite\f1,
-\f3pmiWrite2\f1,
-\f3pmiHighResWrite\f1 \- flush data to a LOGIMPORT archive
+\f3pmiWrite\f1 \- flush data to a LOGIMPORT archive
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -27,11 +25,7 @@
 .br
 #include <pcp/import.h>
 .sp
-int pmiWrite(int \fIsec\fP, int \fIusec\fP);
-.br
-int pmiWrite2(int64_t \fIsec\fP, int \fIusec\fP);
-.br
-int pmiHighResWrite(int64_t \fIsec\fP, int \fInsec\fP);
+int pmiWrite(unsigned long long \fIsec\fP, unsigned int \fInsec\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .hy
@@ -43,7 +37,7 @@ cc ... \-lpcp_import \-lpcp
 .hy 0
 use PCP::LogImport;
 .sp
-pmiWrite($\fIsec\fP, $\fIusec\fP);
+pmiWrite($\fIsec\fP, $\fInsec\fP);
 .hy
 .ad
 .ft 1
@@ -53,9 +47,7 @@ pmiWrite($\fIsec\fP, $\fIusec\fP);
 .hy 0
 from pcp import pmi
 .sp
-log.pmiWrite(\fIsec\fP, \fIusec\fP)
-.br
-log.pmiHighResWrite(\fIsec\fP, \fInsec\fP)
+log.pmiWrite(\fIsec\fP, \fInsec\fP)
 .hy
 .ad
 .ft 1
@@ -77,41 +69,20 @@ with the specified timestamp in the source timezone of the archive
 (see
 .BR pmiSetTimezone (3)).
 .PP
-.B pmiHighResWrite
-is the preferred interface.
-It accepts a nanosecond-resolution timestamp: seconds since the Unix epoch
+.B pmiWrite
+accepts a nanosecond-resolution timestamp: seconds since the Unix epoch
 as a 64-bit signed integer
 .RI ( sec )
 and nanoseconds within that second
 .RI ( nsec ).
-Using a 64-bit
-.I sec
-argument makes
-.B pmiHighResWrite
-safe beyond the year 2038, unlike
-.BR pmiWrite .
 .PP
-.B pmiWrite2
-is equivalent to
-.B pmiHighResWrite
-except that the sub-second component is specified in microseconds
-rather than nanoseconds.
-.PP
-.B pmiWrite
-is deprecated.
-Its 32-bit
+Passing a zero value for
 .I sec
-argument overflows in January 2038 and callers should migrate to
-.B pmiHighResWrite
-(or
-.BR pmiWrite2 ).
-Passing a negative value for
-.I sec
-to any of these routines causes the current wall-clock time to be
+causes the current wall-clock time to be
 used as the timestamp.
 .SH DIAGNOSTICS
-All three routines return zero on success, else a negative value that
-can be turned into an error message by calling
+Returns zero on success, else a negative value that can be turned into an
+error message by calling
 .BR pmiErrStr (3).
 .SH SEE ALSO
 .BR LOGIMPORT (3),

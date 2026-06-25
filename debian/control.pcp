@@ -253,14 +253,14 @@ Description: Performance Co-Pilot application tracing library
  client applications to easily retrieve and process any subset of
  that data.
 
-Package: libpcp-import1-dev
+Package: libpcp-import2-dev
 Section: libdevel
-Depends: ${misc:Depends}, libpcp-import1 (= ${binary:Version}), libpcp4-dev
-Breaks: pcp (<< 7.1.5)
-Replaces: pcp (<< 7.1.5)
+Depends: ${misc:Depends}, libpcp-import2 (= ${binary:Version}), libpcp4-dev
+Breaks: pcp (<< 7.1.5), libpcp-import2-dev (<< 7.1.5)
+Replaces: pcp (<< 7.1.5), libpcp-import2-dev (<< 7.1.5)
 Architecture: any
 Description: Performance Co-Pilot data import library and headers
- The libpcp-import1-dev package contains the library and header files
+ The libpcp-import2-dev package contains the library and header files
  needed to build an application that imports performance data from
  a file or real-time source and creates a Performance Co-Pilot (PCP)
  archive suitable for use with the PCP tools.
@@ -270,14 +270,23 @@ Description: Performance Co-Pilot data import library and headers
  client applications to easily retrieve and process any subset of
  that data.
 
-Package: libpcp-import1
+Package: libpcp-import1-dev
+Depends: libpcp-import2-dev, ${misc:Depends}
+Architecture: any
+Priority: optional
+Section: oldlibs
+Description: transitional package
+ This is a transitional package. It can safely be removed once
+ /usr/lib/libpcp_import.so.1 is no longer needed.
+
+Package: libpcp-import2
 Depends: ${misc:Depends}, ${shlibs:Depends}
 Breaks: pcp (<< 7.1.5)
 Replaces: pcp (<< 7.1.5)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot data import library
- The libpcp-import1 package contains the runtime environment required
+ The libpcp-import2 package contains the runtime environment required
  by an application that imports performance data from a file or
  real-time source and creates a Performance Co-Pilot (PCP) archive
  suitable for use with the PCP tools.
@@ -286,6 +295,14 @@ Description: Performance Co-Pilot data import library
  all of the interesting performance data in a system, and allows
  client applications to easily retrieve and process any subset of
  that data.
+
+Package: libpcp-import1
+Depends: ${misc:Depends}, ${shlibs:Depends}
+Section: oldlibs
+Architecture: any
+Description: transitional package
+ This is a transitional package. It can safely be removed once
+ /usr/lib/libpcp_import.so.1 is no longer needed.
 
 Package: libpcp-web1-dev
 Section: libdevel
