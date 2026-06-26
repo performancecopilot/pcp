@@ -55,7 +55,7 @@ class PCP2OPENMETRICS(object):
         # Configuration directives
         self.keys = ('source', 'output', 'derived', 'globals',
                      'samples', 'interval', 'precision', 'daemonize',
-                     'timefmt', 'everything',
+                     'timefmt', 'everything', 'time_stamp',
                      'count_scale', 'space_scale', 'time_scale', 'version',
                      'count_scale_force', 'space_scale_force', 'time_scale_force',
                      'precision_force', 'limit_filter', 'limit_filter_force',
@@ -111,6 +111,7 @@ class PCP2OPENMETRICS(object):
         self.space_scale_force = None
         self.time_scale = None
         self.time_scale_force = None
+        self.time_stamp = 0
 
         # Not in pcp2openmetrics.conf, won't overwrite
         self.outfile = None
@@ -138,6 +139,11 @@ class PCP2OPENMETRICS(object):
         self.pmfg = None
         self.pmfg_ts = None
 
+        # Counter metric timestamp tracking
+        # key - (metric_name, instance_id)
+        # value - timestamp when first seen
+        self.counter_timestamps = {}
+
         # Read configuration and prepare to connect
         self.config = self.pmconfig.set_config_path(DEFAULT_CONFIG)
         self.pmconfig.read_options()
@@ -150,7 +156,7 @@ class PCP2OPENMETRICS(object):
         opts = pmapi.pmOptions()
         opts.pmSetOptionCallback(self.option)
         opts.pmSetOverrideCallback(self.option_override)
-        opts.pmSetShortOptions("a:h:LK:c:Ce:D:V?GA:S:T:O:s:t:Ii:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zXo:p:U:u:x")
+        opts.pmSetShortOptions("a:h:LK:lc:Ce:D:V?GA:S:T:O:s:t:Ii:jJ:4:58:9:nN:vmP:0:q:b:y:Q:B:Y:F:f:Z:zXo:p:U:u:x")
         opts.pmSetShortUsage("[option...] metricspec [...]")
 
         opts.pmSetLongOptionHeader("General options")
@@ -200,6 +206,7 @@ class PCP2OPENMETRICS(object):
         opts.pmSetLongOption("space-scale-force", 1, "B", "SCALE", "forced space unit")
         opts.pmSetLongOption("time-scale", 1, "y", "SCALE", "default time unit")
         opts.pmSetLongOption("time-scale-force", 1, "Y", "SCALE", "forced time unit")
+        opts.pmSetLongOption("time-stamp", 0, "l", "", "addition of timestamp gauge metric")
 
         opts.pmSetLongOption("with-everything", 0, "X", "", "write everything, incl. internal IDs")
         opts.pmSetLongOption("no-comment", 0, "x", "", "omit comment lines")
@@ -221,6 +228,8 @@ class PCP2OPENMETRICS(object):
         """ Perform setup for individual command line option """
         if opt == 'daemonize':
             self.daemonize = 1
+        elif opt == 'l':
+            self.time_stamp = 1
         elif opt == 'K':
             if not self.speclocal or not self.speclocal.startswith(";"):
                 self.speclocal = ";" + optarg
@@ -495,6 +504,12 @@ class PCP2OPENMETRICS(object):
 
                 if openmetrics_type(desc) == "counter":
                     openmetrics_name_end = openmetrics_name(metric) + "_total"
+                    openmetrics_name_ts = openmetrics_name(metric) + "_created"
+
+                    # Track timestamp
+                    counter_key = (metric, inst)
+                    if counter_key not in self.counter_timestamps:
+                        self.counter_timestamps[counter_key] = ts
                 else:
                     openmetrics_name_end = openmetrics_name(metric)
 
@@ -502,6 +517,10 @@ class PCP2OPENMETRICS(object):
                     body += '%s%s %s %s\n' % (openmetrics_name_end, openmetrics_labels(inst, name, desc, labels), value, ts)
                 else:
                     body += '%s%s %s\n' % (openmetrics_name_end, openmetrics_labels(inst, name, desc, labels), value)
+                    if self.time_stamp and openmetrics_type(desc) == "counter":
+                        counter_key = (metric, inst)
+                        creation_ts = self.counter_timestamps.get(counter_key, ts)
+                        body += '%s%s %s\n' % (openmetrics_name_ts, openmetrics_labels(inst, name, desc, labels), creation_ts)
 
         if self.url:
             auth = None
