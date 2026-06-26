@@ -135,14 +135,6 @@ refresh_pmimport(void)
 	    continue;
 	}
 
-	if (++n > PMIMPORT_MAX) {
-	    pmNotifyErr(LOG_WARNING, "pmimport: too many tools"
-			" (max %d), skipping \"%s\"",
-			PMIMPORT_MAX, de->d_name);
-	    fclose(fp);
-	    continue;
-	}
-
 	/* Lookup existing cache entry or allocate a new one */
 	if (pmdaCacheLookupName(pmimport_indom, de->d_name, NULL,
 				(void **)&imp) < 0 || imp == NULL) {
@@ -156,36 +148,44 @@ refresh_pmimport(void)
 	/* Re-read only if mtime changed; always recheck pid liveness */
 	if (!mtime_changed(imp, &st)) {
 	    fclose(fp);
-	    if (imp->pid > 0 && !__pmProcessExists(imp->pid))
-		pmdaCacheStore(pmimport_indom, PMDA_CACHE_INACTIVE, de->d_name, imp);
-	    else
-		pmdaCacheStore(pmimport_indom, PMDA_CACHE_ADD, de->d_name, imp);
-	    continue;
-	}
+	    skip = (imp->pid > 0 && !__pmProcessExists(imp->pid));
+	} else {
+	    imp->version[0] = '\0';
+	    imp->args[0]    = '\0';
+	    imp->archive[0] = '\0';
+	    imp->pid        = 0;
 
-	imp->version[0] = '\0';
-	imp->args[0]    = '\0';
-	imp->archive[0] = '\0';
-	imp->pid        = 0;
+	    while (fgets(line, sizeof(line), fp)) {
+		char	*end;
+		long	pid;
 
-	while (fgets(line, sizeof(line), fp)) {
-	    long	pid;
-
-	    line[strcspn(line, "\n\r")] = '\0';
-	    if (strncmp(line, "pid=", 4) == 0) {
-		pid = atol(line + 4);
-		imp->pid = (pid_t)pid;
-		if (pid > 0 && !__pmProcessExists((pid_t)pid))
-		    skip = 1;		/* stale file from crashed daemon */
+		line[strcspn(line, "\n\r")] = '\0';
+		if (strncmp(line, "pid=", 4) == 0) {
+		    pid = strtol(line + 4, &end, 10);
+		    if (end != line + 4 && *end == '\0' && pid > 0) {
+			imp->pid = (pid_t)pid;
+			if (!__pmProcessExists(imp->pid))
+			    skip = 1;	/* stale file from crashed daemon */
+		    }
+		}
+		else if (strncmp(line, "version=", 8) == 0)
+		    pmstrncpy(imp->version, sizeof(imp->version), line + 8);
+		else if (strncmp(line, "args=", 5) == 0)
+		    pmstrncpy(imp->args, sizeof(imp->args), line + 5);
+		else if (strncmp(line, "archive=", 8) == 0)
+		    pmstrncpy(imp->archive, sizeof(imp->archive), line + 8);
 	    }
-	    else if (strncmp(line, "version=", 8) == 0)
-		pmstrncpy(imp->version, sizeof(imp->version), line + 8);
-	    else if (strncmp(line, "args=", 5) == 0)
-		pmstrncpy(imp->args, sizeof(imp->args), line + 5);
-	    else if (strncmp(line, "archive=", 8) == 0)
-		pmstrncpy(imp->archive, sizeof(imp->archive), line + 8);
+	    fclose(fp);
 	}
-	fclose(fp);
+
+	/* Count active tools; stale entries do not consume a slot */
+	if (!skip && ++n > PMIMPORT_MAX) {
+	    pmNotifyErr(LOG_WARNING, "pmimport: too many tools"
+			" (max %d), skipping \"%s\"",
+			PMIMPORT_MAX, de->d_name);
+	    skip = 1;
+	}
+
 	if (skip)
 	    pmdaCacheStore(pmimport_indom, PMDA_CACHE_INACTIVE, de->d_name, imp);
 	else
