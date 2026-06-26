@@ -332,13 +332,13 @@ main(int argc, char **argv)
     check(sts, "pmiPutValueHandle");
     sts = pmiPutValue("my.metric.string", "", "a second string value");
     check(sts, "pmiPutValue");
-    sts = pmiWrite(0, 0);
+    sts = pmiWriteNow();
     check(sts, "pmiWrite");
     sts = pmiPutValue("my.metric.string", "", "a third string value");
     check(sts, "pmiPutValue");
-    sts = pmiWrite(0, 0);
+    sts = pmiWriteNow();
     check(sts, "pmiWrite");
-    sts = pmiWrite(0, 0);
+    sts = pmiWriteNow();
     check(sts, "pmiWrite");
     av.ul = 55555;
     sts = pmiPutAtomValueHandle(hdl1, &av);		/* U32: PM_VAL_INSITU path */
@@ -349,7 +349,7 @@ main(int argc, char **argv)
     av.ul = 0;
     sts = pmiPutAtomValueHandle(hdl1, &av);		/* duplicate: PMI_ERR_DUPVALUE */
     check(sts, "pmiPutAtomValueHandle");
-    sts = pmiWrite(0, 0);
+    sts = pmiWriteNow();
     check(sts, "pmiWrite");
 
     sts = pmiPutMark();

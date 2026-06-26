@@ -51,6 +51,7 @@ PMI_CALL extern int pmiGetHandle(const char *, const char *);
 PMI_CALL extern int pmiPutValueHandle(int, const char *);
 PMI_CALL extern int pmiPutAtomValueHandle(int, pmAtomValue *);
 PMI_CALL extern int pmiWrite(unsigned long long, unsigned int);
+PMI_CALL extern int pmiWriteNow(void);
 PMI_CALL extern int pmiPutResult(const pmResult *);
 PMI_CALL extern int pmiPutMark(void);
 PMI_CALL extern int pmiPutText(unsigned int, unsigned int, unsigned int, const char *);

@@ -126,6 +126,9 @@ LIBPCP_IMPORT.pmiPutValueHandle.argtypes = [c_int, c_char_p]
 LIBPCP_IMPORT.pmiWrite.restype = c_int
 LIBPCP_IMPORT.pmiWrite.argtypes = [c_ulonglong, c_uint]
 
+LIBPCP_IMPORT.pmiWriteNow.restype = c_int
+LIBPCP_IMPORT.pmiWriteNow.argtypes = []
+
 LIBPCP_IMPORT.pmiPutResult.restype = c_int
 LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult)]
 
@@ -426,10 +429,14 @@ class pmiLogImport(object):
                 ts = modf(sec)
                 sec = int(ts[1])
                 nsec = int(ts[0] * 1000000000)
+            elif sec == 0:
+                status = LIBPCP_IMPORT.pmiWriteNow()
+                if status < 0:
+                    raise pmiErr(status)
+                return status
             else:
                 nsec = 0
-        if nsec < 0:
-            nsec = 0
+        nsec = max(nsec, 0)
         status = LIBPCP_IMPORT.pmiWrite(sec, nsec)
         if status < 0:
             raise pmiErr(status)

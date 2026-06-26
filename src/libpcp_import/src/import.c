@@ -1282,8 +1282,15 @@ pmiWrite(unsigned long long sec, unsigned int nsec)
 {
     __pmTimestamp	timestamp = { .sec = sec, .nsec = nsec};
 
-    if (sec == 0)
-	__pmGetTimestamp(&timestamp);
+    return _pmi_write(&timestamp);
+}
+
+int
+pmiWriteNow(void)
+{
+    __pmTimestamp	timestamp;
+
+    __pmGetTimestamp(&timestamp);
     return _pmi_write(&timestamp);
 }
 

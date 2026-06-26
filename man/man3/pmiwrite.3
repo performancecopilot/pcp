@@ -16,7 +16,8 @@
 .\"
 .TH PMIWRITE 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiWrite\f1 \- flush data to a LOGIMPORT archive
+\f3pmiWrite\f1,
+\f3pmiWriteNow\f1 \- flush data to a LOGIMPORT archive
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -26,6 +27,8 @@
 #include <pcp/import.h>
 .sp
 int pmiWrite(unsigned long long \fIsec\fP, unsigned int \fInsec\fP);
+.br
+int pmiWriteNow(void);
 .sp
 cc ... \-lpcp_import \-lpcp
 .hy
@@ -38,6 +41,8 @@ cc ... \-lpcp_import \-lpcp
 use PCP::LogImport;
 .sp
 pmiWrite($\fIsec\fP, $\fInsec\fP);
+.br
+pmiWriteNow();
 .hy
 .ad
 .ft 1
@@ -71,15 +76,23 @@ with the specified timestamp in the source timezone of the archive
 .PP
 .B pmiWrite
 accepts a nanosecond-resolution timestamp: seconds since the Unix epoch
-as a 64-bit signed integer
+as a 64-bit unsigned integer
 .RI ( sec )
 and nanoseconds within that second
 .RI ( nsec ).
-.PP
-Passing a zero value for
+A
 .I sec
-causes the current wall-clock time to be
-used as the timestamp.
+value of zero writes a record with a Unix epoch timestamp
+(1970-01-01 00:00:00 UTC).
+.PP
+.B pmiWriteNow
+writes a record timestamped with the current wall-clock time.
+In Python,
+.B log.pmiWrite(0)
+(integer zero with no
+.I nsec
+argument) is equivalent to calling
+.BR pmiWriteNow .
 .SH DIAGNOSTICS
 Returns zero on success, else a negative value that can be turned into an
 error message by calling
