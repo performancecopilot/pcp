@@ -93,7 +93,7 @@ jobs:
       matrix: ${{ fromJSON(needs.setup.outputs.matrix) }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Fix local hostname DNS lookup
         run: echo 127.0.1.1 $(hostname --fqdn) $(hostname) | sudo tee -a /etc/hosts
@@ -171,10 +171,10 @@ jobs:
       summary_url: ${{ steps.publish_test_summary.outputs.summary_url }}
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout performancecopilot/qa-reports
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: performancecopilot/qa-reports
           path: qa-reports
@@ -271,10 +271,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout sources
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Checkout ${{ github.repository_owner }}/qa-reports
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ${{ github.repository_owner }}/qa-reports
           path: qa-reports
