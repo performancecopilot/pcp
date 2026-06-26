@@ -33,7 +33,7 @@ No value(s) available!
 
 nvidia.temperature PMID: 120.0.4 [The temperature of the card]
     Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
-    Semantics: instant  Units: none
+    Semantics: instant  Units: temperature (C)
 Help:
 The temperature of the GPU on the NVIDIA card in degrees celsius.
 No value(s) available!
@@ -110,7 +110,7 @@ No value(s) available!
 
 nvidia.power PMID: 120.0.21 [Total GPU power consumption ]
     Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
-    Semantics: instant  Units: none
+    Semantics: instant  Units: power (mW)
 Help:
 Current power usage for this GPU and its associated circuitry, in milliwatts.
 No value(s) available!
@@ -424,7 +424,7 @@ The Bus ID as reported by the NVIDIA tools, not lspci
 
 nvidia.temperature PMID: 120.0.4 [The temperature of the card]
     Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
-    Semantics: instant  Units: none
+    Semantics: instant  Units: temperature (C)
 Help:
 The temperature of the GPU on the NVIDIA card in degrees celsius.
     inst [0 or "gpu0"] value 6
@@ -509,7 +509,7 @@ Error: Metric not supported by this version of monitored application
 
 nvidia.power PMID: 120.0.21 [Total GPU power consumption ]
     Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
-    Semantics: instant  Units: none
+    Semantics: instant  Units: power (mW)
 Help:
 Current power usage for this GPU and its associated circuitry, in milliwatts.
 Error: Metric not supported by this version of monitored application
@@ -860,7 +860,7 @@ The Bus ID as reported by the NVIDIA tools, not lspci
 
 nvidia.temperature PMID: 120.0.4 [The temperature of the card]
     Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
-    Semantics: instant  Units: none
+    Semantics: instant  Units: temperature (C)
 Help:
 The temperature of the GPU on the NVIDIA card in degrees celsius.
     inst [0 or "gpu0"] value 6
@@ -945,7 +945,7 @@ Error: Metric not supported by this version of monitored application
 
 nvidia.power PMID: 120.0.21 [Total GPU power consumption ]
     Data Type: 32-bit unsigned int  InDom: 120.0 0x1e000000
-    Semantics: instant  Units: none
+    Semantics: instant  Units: power (mW)
 Help:
 Current power usage for this GPU and its associated circuitry, in milliwatts.
 Error: Metric not supported by this version of monitored application
