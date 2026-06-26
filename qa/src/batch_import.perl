@@ -78,7 +78,7 @@ $_ = pmiBatchPutValue("my.metric.strung", "", "a first string value");
 check($_, "pmiBatchPutValue");
 $_ = pmiBatchPutValue("my.metric.string", "", "a second string value");
 check($_, "pmiBatchPutValue");
-$_ = pmiBatchWrite(0, 110000);
+$_ = pmiBatchWrite(1, 110000);
 check($_, "pmiBatchWrite");
 $hdl1 = pmiGetHandle("my.metric.string", "");
 check($hdl1, "pmiGetHandle");

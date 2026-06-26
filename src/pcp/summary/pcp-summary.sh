@@ -14,7 +14,8 @@
 # for more details.
 # 
 # Displays the Performance Co-Pilot configuration for a host running the
-# pmcd(1) daemon or from an archive created by pmlogger(1).
+# pmcd(1) daemon, from an archive created by pmlogger(1), or from an
+# archive created by a PCP import tool.
 #
 
 . $PCP_DIR/etc/pcp.env
@@ -31,7 +32,7 @@ do
 done
 
 # metrics
-metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.hostname pmcd.services pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host pmproxy.logpaths.archive hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile"
+metrics="pmcd.numagents pmcd.numclients pmcd.version pmcd.build pmcd.timezone pmcd.zoneinfo pmcd.hostname pmcd.services pmcd.agent.status pmcd.pmlogger.archive pmcd.pmlogger.pmcd_host pmproxy.logpaths.archive hinv.ncpu hinv.ndisk hinv.nnode hinv.nrouter hinv.nxbow hinv.ncell hinv.physmem hinv.cputype pmda.uname pmcd.pmie.pmcd_host pmcd.pmie.configfile pmcd.pmie.numrules pmcd.pmie.logfile pmimport.archive pmimport.version pmimport.args pmimport.hostname pmimport.timezone pmimport.zoneinfo"
 pmiemetrics="pmcd.pmie.actions pmcd.pmie.eval.true pmcd.pmie.eval.false pmcd.pmie.eval.unknown pmcd.pmie.eval.expected"
 
 # process count with 'primary' (pid 0) instance removed
@@ -163,20 +164,26 @@ else
     [ -z "$pcp_host" ] && pcp_host=`hostname`
 fi
 
-if eval pminfo $BATCH -f $metrics > $tmp/metrics 2>$tmp/err
+eval pminfo $BATCH -f $metrics > $tmp/metrics 2>$tmp/err
+if grep "^pminfo:" $tmp/err > /dev/null 2>&1
 then
-    :
-else
-    if grep "^pminfo:" $tmp/err > /dev/null 2>&1
+    if grep -q "Cannot connect\|Connection refused\|No route to host" $tmp/err \
+       && [ -z "$PCP_ARCHIVE" ]
     then
+	# pmcd not reachable in live mode - retry via local context to pick up
+	# hardware, hinv.* and other DSO PMDA metrics; pmcd:/pmda: lines will
+	# be absent since pmcd.* metrics are not available locally.
+	eval pminfo -Lf $metrics > $tmp/metrics 2>$tmp/err
+	[ -s $tmp/err ] && sed -e '/Unknown metric name/d' <$tmp/err >&2
+    else
 	$PCP_ECHO_PROG $PCP_ECHO_N "$progname: ""$PCP_ECHO_C"
 	sed < $tmp/err -e 's/^pminfo: //g'
 	sts=1
 	exit
     fi
+else
+    [ -s $tmp/err ] && sed -e '/Unknown metric name/d' <$tmp/err >&2
 fi
-
-[ -s $tmp/err ] && sed -e '/Unknown metric name/d' <$tmp/err >&2
 
 eval `$PCP_AWK_PROG < $tmp/metrics -v out=$tmp '
 BEGIN			{ mode = 0; count = 0; errors = 0; quote="" }
@@ -204,7 +211,7 @@ function inst()
     else if ($1 == "inst") {
 	count++
 	id=substr($2, 2, length($2) - 1)
-	value=$6
+	value=substr($0, index($0, $6))
 	if (mode == 2) {
 	    agent=substr($4, 2, length($4) - 3)
 	    printf "%s %s %s\n", id, agent, value > file
@@ -222,11 +229,18 @@ function inst()
 mode == 1		{ quoted(); mode = 0; next }
 mode == 2		{ inst(); next }
 mode == 3		{ inst(); next }
+/pmimport.hostname/ { mode = 1; quote="pmimport_hostname"; next }
+/pmimport.timezone/ { mode = 1; quote="pmimport_timezone"; next }
+/pmimport.zoneinfo/ { mode = 1; quote="pmimport_zoneinfo"; next }
+/pmimport.archive/  { mode = 2; count = 0; quote="pmimport_archive"; next }
+/pmimport.version/  { mode = 2; count = 0; quote="pmimport_version"; next }
+/pmimport.args/     { mode = 2; count = 0; quote="pmimport_args"; next }
 /pmcd.version/		{ mode = 1; quote="version"; next }
 /pmcd.build/		{ mode = 1; quote="build"; next }
 /pmcd.numagents/	{ mode = 1; quote="numagents"; next }
 /pmcd.numclients/	{ mode = 1; quote="numclients"; next }
 /pmcd.timezone/		{ mode = 1; quote="timezone"; next }
+/pmcd.zoneinfo/		{ mode = 1; quote="zoneinfo"; next }
 /pmcd.hostname/		{ mode = 1; quote="hostname"; next }
 /pmcd.services/		{ mode = 1; quote="services"; next }
 /pmcd.agent.status/	{ mode = 2; count = 0; quote="status"; next }
@@ -278,7 +292,7 @@ fi
 
 if [ "$version" = $unknown ]
 then
-    version="Version unknown"
+    version=""
 else
     version="Version $version"
     [ "$build" != $unknown ] && version="$version-$build"
@@ -301,6 +315,12 @@ fi
 [ "$services" = $unknown ] && services=""
 [ "$timezone" = $unknown ] && timezone="Unknown"
 [ "$hostname" = $unknown ] || pcp_host="$hostname"
+# fallback to pmimport singletons when pmcd is not available
+[ "$timezone" = "Unknown" -a "$pmimport_timezone" != $unknown ] && timezone="$pmimport_timezone"
+[ "$pcp_host" = $unknown -a "$pmimport_hostname" != $unknown ] && pcp_host="$pmimport_hostname"
+# prefer pmcd.zoneinfo, fall back to pmimport.zoneinfo; strip leading ':'
+[ "$zoneinfo" = $unknown ] && zoneinfo="$pmimport_zoneinfo"
+[ "$zoneinfo" != $unknown ] && zoneinfo=`echo "$zoneinfo" | sed 's/^://'`
 
 if [ "$cputype" = $unknown ]
 then
@@ -430,12 +450,17 @@ echo
 [ -n "$PCP_ARCHIVE" ] && echo "  archive: $PCP_ARCHIVE"
 echo " platform: ${uname}"
 echo " hardware: "`echo $hardware | _fmt`
-echo " timezone: $timezone"
+if [ -n "$zoneinfo" -a "$zoneinfo" != $unknown ]
+then
+    echo " timezone: $timezone ($zoneinfo)"
+else
+    echo " timezone: $timezone"
+fi
 [ -n "$services" ] && echo " services: $services"
 
-echo "     pmcd: ${version},${numagents}$numclients"
+[ -n "$version" ] && echo "     pmcd: ${version},${numagents}$numclients"
 
-[ -n "$agents" ] && echo "     pmda: $agents"
+[ -n "$version" -a -n "$agents" ] && echo "     pmda: $agents"
 
 if [ "$numloggers" != 0 ]
 then
@@ -461,6 +486,53 @@ then
 	| sed -e '/^$/d' | sed -e '1!s/^/           /'
     fi
 fi
+
+# sysstat/sadc: from live pmimport.*
+_pmimport_tool()
+{
+    # $1 = tool name (instance), $2 = field name
+    [ -f "$tmp/pmimport_$2" ] || return
+    $PCP_AWK_PROG -v tool="$1" '$2==tool{$1=$2=""; sub(/^ */,""); gsub(/"/,""); print}' \
+	"$tmp/pmimport_$2" | head -1
+}
+
+_sadc_ver=`_pmimport_tool sadc version`
+_sadc_args=`_pmimport_tool sadc args`
+_sadc_archive=`_pmimport_tool sadc archive`
+
+if [ -n "$_sadc_ver" ]
+then
+    echo
+    echo "  sysstat: Version $_sadc_ver"
+    if [ -n "$_sadc_args" ]
+    then
+	echo "$_sadc_args" \
+	| tr ',' ' ' \
+	| fmt -w 68 \
+	| $PCP_AWK_PROG '
+NR == 1	{ printf " activity: %s\n", $0; next }
+	{ printf "           %s\n", $0 }'
+    fi
+    [ -n "$_sadc_archive" ] && echo "     sadc: $_sadc_archive"
+fi
+
+# Generic pmimport tools (any tool other than sadc)
+if [ -f "$tmp/pmimport_version" ]
+then
+    for _tool in `$PCP_AWK_PROG '{print $2}' "$tmp/pmimport_version" | sort -u`
+    do
+	[ "$_tool" = "sadc" ] && continue
+	_ver=`_pmimport_tool "$_tool" version`
+	[ -z "$_ver" ] && continue
+	_modules=`_pmimport_tool "$_tool" args`
+	_archive=`_pmimport_tool "$_tool" archive`
+	echo
+	printf "%9s: Version %s\n" "$_tool" "$_ver"
+	[ -n "$_modules" ] && printf "%9s: %s\n" "modules" "$_modules"
+	[ -n "$_archive" ] && printf "%9s: %s\n" "archive" "$_archive"
+    done
+fi
+
 
 sts=0
 exit

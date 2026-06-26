@@ -5469,6 +5469,11 @@ static pmdaMetric metrictab[] = {
     { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 9), PM_TYPE_U32, CPU_INDOM, PM_SEM_INSTANT,
     PMDA_PMUNITS(0,-1,0,0,PM_TIME_USEC,0) } },
 
+/* hinv.cpu.frequency_scaling.current */
+  { NULL,
+    { PMDA_PMID(CLUSTER_SYSFS_DEVICES, 10), PM_TYPE_FLOAT, CPU_INDOM, PM_SEM_INSTANT,
+    PMDA_PMUNITS(0,-1,0,0,PM_TIME_USEC,0) } },
+
 /*
  * semaphore limits cluster
  * Cluster added by Mike Mason <mmlnx@us.ibm.com>
@@ -9550,6 +9555,13 @@ linux_fetchCallBack(pmdaMetric *mdesc, unsigned int inst, pmAtomValue *atom)
 		(!(cp->freq.flags & CPUFREQ_MIN)))
 		return 0;
 	    atom->ul = cp->freq.min;
+	    break;
+
+	case 10: /* hinv.cpu.frequency_scaling.current */
+	    if (refresh_sysfs_frequency_scaling_cur_freq(name, item, cp) < 0 ||
+		(!(cp->freq.flags & CPUFREQ_SCALE)) || cp->freq.scale == 0.0)
+		return 0;
+	    atom->f = cp->freq.scale;
 	    break;
 
 	default:

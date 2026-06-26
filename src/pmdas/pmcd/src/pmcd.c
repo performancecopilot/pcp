@@ -317,7 +317,7 @@ static struct {
 };
 static const int	nbufsz = sizeof(bufinst) / sizeof(bufinst[0]);
 
-static char *zoneinfo = NULL;
+static char	*zoneinfo;
 
 /*
  * Per-context structures

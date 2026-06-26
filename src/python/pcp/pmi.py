@@ -48,9 +48,9 @@
 """
 # pylint: disable=bare-except,too-many-arguments,too-many-positional-arguments
 
-from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult, pmResult_v2
+from pcp.pmapi import pmID, pmInDom, pmUnits, pmResult
 from cpmi import pmiErrSymDict, PMI_MAXERRMSGLEN
-from ctypes import c_int, c_uint, c_longlong, c_char_p
+from ctypes import c_int, c_uint, c_ulonglong, c_char_p
 from ctypes import cast, create_string_buffer, POINTER, CDLL
 from ctypes.util import find_library
 from datetime import datetime, timedelta, tzinfo
@@ -123,17 +123,14 @@ LIBPCP_IMPORT.pmiGetHandle.argtypes = [c_char_p, c_char_p]
 LIBPCP_IMPORT.pmiPutValueHandle.restype = c_int
 LIBPCP_IMPORT.pmiPutValueHandle.argtypes = [c_int, c_char_p]
 
-LIBPCP_IMPORT.pmiWrite2.restype = c_int
-LIBPCP_IMPORT.pmiWrite2.argtypes = [c_longlong, c_int]
+LIBPCP_IMPORT.pmiWrite.restype = c_int
+LIBPCP_IMPORT.pmiWrite.argtypes = [c_ulonglong, c_uint]
 
-LIBPCP_IMPORT.pmiHighResWrite.restype = c_int
-LIBPCP_IMPORT.pmiHighResWrite.argtypes = [c_longlong, c_int]
-
-LIBPCP_IMPORT.pmiPutHighResResult.restype = c_int
-LIBPCP_IMPORT.pmiPutHighResResult.argtypes = [POINTER(pmResult)]
+LIBPCP_IMPORT.pmiWriteNow.restype = c_int
+LIBPCP_IMPORT.pmiWriteNow.argtypes = []
 
 LIBPCP_IMPORT.pmiPutResult.restype = c_int
-LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult_v2)]
+LIBPCP_IMPORT.pmiPutResult.argtypes = [POINTER(pmResult)]
 
 LIBPCP_IMPORT.pmiPutMark.restype = c_int
 LIBPCP_IMPORT.pmiPutMark.argtypes = None
@@ -420,21 +417,27 @@ class pmiLogImport(object):
         return status
 
     def pmiWrite(self, sec: Union[int, float, datetime],
-                 usec: Optional[int] = None) -> int:
+                 nsec: Optional[int] = None) -> int:
         """PMI - flush data to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if usec is None:
+        if nsec is None:
             if isinstance(sec, datetime):
                 sec = float((sec - self._epoch).total_seconds())
             if isinstance(sec, float):
                 ts = modf(sec)
                 sec = int(ts[1])
-                usec = int(ts[0] * 1000000)
+                nsec = int(ts[0] * 1000000000)
+            elif sec == 0:
+                status = LIBPCP_IMPORT.pmiWriteNow()
+                if status < 0:
+                    raise pmiErr(status)
+                return status
             else:
-                usec = 0
-        status = LIBPCP_IMPORT.pmiWrite2(sec, usec)
+                nsec = 0
+        nsec = max(nsec, 0)
+        status = LIBPCP_IMPORT.pmiWrite(sec, nsec)
         if status < 0:
             raise pmiErr(status)
         return status
@@ -449,22 +452,12 @@ class pmiLogImport(object):
             raise pmiErr(status)
         return status
 
-    def put_result(self, result: pmResult_v2) -> int:
+    def pmiPutResult(self, result: pmResult) -> int:
         """PMI - add a data record to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        status = LIBPCP_IMPORT.pmiPutResult(cast(result, POINTER(pmResult_v2)))
-        if status < 0:
-            raise pmiErr(status)
-        return status
-
-    def put_highres_result(self, result: pmResult) -> int:
-        """PMI - add a data record to a Log Import archive """
-        status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
-        if status < 0:
-            raise pmiErr(status)
-        status = LIBPCP_IMPORT.pmiPutHighResResult(cast(result, POINTER(pmResult)))
+        status = LIBPCP_IMPORT.pmiPutResult(cast(result, POINTER(pmResult)))
         if status < 0:
             raise pmiErr(status)
         return status

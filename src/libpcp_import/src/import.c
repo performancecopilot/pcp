@@ -341,6 +341,7 @@ pmiStart(const char *archive, int flags)
     memset(current, 0, sizeof(*current));
 
     current->state = (flags & PMI_APPEND) ? CONTEXT_APPEND : CONTEXT_START;
+    current->flags = (flags & PMI_PROCESS) ? PMI_PROCESS : 0;
     current->version = archive_version;
     current->archive = strdup(archive);
     if (current->archive == NULL) {
@@ -670,6 +671,8 @@ pmiSetImportProgram(const char *tool, const char *version,
 	return current->last_sts = -oserror();
     }
 
+    if (current->flags & PMI_PROCESS)
+	fprintf(fp, "pid=%ld\n", (long)getpid());
     if (version && version[0])
 	fprintf(fp, "version=%s\n", version);
     if (args && args[0])
@@ -1274,71 +1277,25 @@ _pmi_write(__pmTimestamp *timestamp)
     return current->last_sts = sts;
 }
 
-/* deprecated interface - not Y2038 safe - use pmiWrite2 or pmHighResWrite */
 int
-pmiWrite(int sec, int usec)
-{
-    __pmTimestamp	timestamp = { .sec = (int64_t)sec, .nsec = usec*1000 };
-
-    if (sec < 0)
-	__pmGetTimestamp(&timestamp);
-    return _pmi_write(&timestamp);
-}
-
-int
-pmiWrite2(int64_t sec, int usec)
-{
-    __pmTimestamp	timestamp = { .sec = sec, .nsec = usec * 1000 };
-
-    if (sec < 0)
-	__pmGetTimestamp(&timestamp);
-    return _pmi_write(&timestamp);
-}
-
-int
-pmiHighResWrite(int64_t sec, int nsec)
+pmiWrite(unsigned long long sec, unsigned int nsec)
 {
     __pmTimestamp	timestamp = { .sec = sec, .nsec = nsec};
 
-    if (sec < 0)
-	__pmGetTimestamp(&timestamp);
     return _pmi_write(&timestamp);
 }
 
 int
-pmiPutResult(const pmResult_v2 *result)
+pmiWriteNow(void)
 {
-    __pmResult	*rp;
-    int		sts, i;
+    __pmTimestamp	timestamp;
 
-    if (current == NULL)
-	return PM_ERR_NOCONTEXT;
-
-    /* translate to internal timestamp-independent result */
-    if ((rp = __pmAllocResult(result->numpmid)) == NULL)
-	return -ENOMEM;
-    rp->numpmid = result->numpmid;
-    rp->timestamp.sec = result->timestamp.tv_sec;
-    rp->timestamp.nsec = result->timestamp.tv_usec * 1000;
-    for (i = 0; i < rp->numpmid; i++)
-	rp->vset[i] = result->vset[i];
-
-    current->result = rp;
-    if ((sts = check_timestamp(&current->result->timestamp)) == 0) {
-	sts = _pmi_put_result(current, current->result);
-	current->last_stamp = current->result->timestamp;
-    }
-    current->result = NULL;
-
-    /* do not free parts of the callers result structure */
-    rp->numpmid = 0;
-    __pmFreeResult(rp);
-
-    return current->last_sts = sts;
+    __pmGetTimestamp(&timestamp);
+    return _pmi_write(&timestamp);
 }
 
 int
-pmiPutHighResResult(const pmResult *result)
+pmiPutResult(const pmResult *result)
 {
     __pmResult	*rp;
     int		sts, i;

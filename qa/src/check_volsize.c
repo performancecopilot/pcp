@@ -87,10 +87,10 @@ main(int argc, char **argv)
 	av.ul = (unsigned int)i;
 	sts = pmiPutAtomValueHandle(handle, &av);
 	if (sts < 0) { check(sts, "pmiPutAtomValueHandle"); break; }
-	sts = pmiHighResWrite((int64_t)i * 10, 0);
-	if (sts < 0) { check(sts, "pmiHighResWrite"); break; }
+	sts = pmiWrite((unsigned long long)i * 10, 0);
+	if (sts < 0) { check(sts, "pmiWrite"); break; }
     }
-    check(0, "pmiHighResWrite loop");
+    check(0, "pmiWrite loop");
 
     sts = pmiEnd();
     check(sts, "pmiEnd");

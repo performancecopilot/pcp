@@ -17,7 +17,7 @@ TOPDIR = ../..
 include $(TOPDIR)/src/include/builddefs
 -include ./GNUlocaldefs
 
-CPMDAS = root pmcd \
+CPMDAS = root pmcd pmimport \
 	linux_proc linux_xfs linux_zfs linux \
 	darwin_proc darwin freebsd netbsd aix \
 	solaris windows \

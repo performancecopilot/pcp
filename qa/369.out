@@ -433,6 +433,7 @@ Perl wrapper version ...
 *PCP::LogImport::pmiUnits
 *PCP::LogImport::pmiUseContext
 *PCP::LogImport::pmiWrite
+*PCP::LogImport::pmiWriteNow
 *PCP::LogImport::pmi_batch
 *PCP::LogImport::pmid_build
 BEGIN
@@ -539,6 +540,7 @@ pmiStart
 pmiUnits
 pmiUseContext
 pmiWrite
+pmiWriteNow
 pmi_batch
 pmid_build
 

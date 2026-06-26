@@ -1,0 +1,54 @@
+#!/bin/sh
+# PCP QA Test No. 2005
+# pmimport.* metrics - verify discovery of PCP import tool activity
+#
+# Copyright (c) 2026 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.filter
+. ./common.check
+
+pmda=$PCP_PMDAS_DIR/pmimport/pmda_pmimport.$DSO_SUFFIX
+pmns=$PCP_VAR_DIR/pmns/root_pmimport
+
+export PCP_IMPORT_DIR=$tmp/pmimport
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+mkdir -p "$PCP_IMPORT_DIR"
+
+# Install a known stub sidecar
+cat > "$PCP_IMPORT_DIR/sadc" << 'EOF'
+version=12.8.0
+args=CPU,DISK
+archive=/var/log/sa/sa01
+EOF
+
+echo "=== pmimport.* values ==="
+pminfo -L \
+    -K clear \
+    -K add,43,$pmda,pmimport_init \
+    -n $pmns \
+    -f pmimport.archive pmimport.version pmimport.args \
+    2>&1 | sed -e 's;/var/log/sa/sa[0-9]*;ARCHIVE;g'
+
+echo "=== pmimport.* descriptors ==="
+pminfo -L \
+    -K clear \
+    -K add,43,$pmda,pmimport_init \
+    -n $pmns \
+    -d pmimport.archive pmimport.version pmimport.args 2>&1
+
+status=0
+exit
