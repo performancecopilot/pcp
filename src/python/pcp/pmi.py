@@ -414,21 +414,23 @@ class pmiLogImport(object):
         return status
 
     def pmiWrite(self, sec: Union[int, float, datetime],
-                 usec: Optional[int] = None) -> int:
+                 nsec: Optional[int] = None) -> int:
         """PMI - flush data to a Log Import archive """
         status = LIBPCP_IMPORT.pmiUseContext(self._ctx)
         if status < 0:
             raise pmiErr(status)
-        if usec is None:
+        if nsec is None:
             if isinstance(sec, datetime):
                 sec = float((sec - self._epoch).total_seconds())
             if isinstance(sec, float):
                 ts = modf(sec)
                 sec = int(ts[1])
-                usec = int(ts[0] * 1000000)
+                nsec = int(ts[0] * 1000000000)
             else:
-                usec = 0
-        status = LIBPCP_IMPORT.pmiWrite2(sec, usec)
+                nsec = 0
+        if nsec < 0:
+            nsec = 0
+        status = LIBPCP_IMPORT.pmiWrite(sec, nsec)
         if status < 0:
             raise pmiErr(status)
         return status
