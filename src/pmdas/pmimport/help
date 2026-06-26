@@ -1,0 +1,62 @@
+#
+# Copyright (c) 2026 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 2 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+# or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+# for more details.
+#
+# PCP import tool discovery PMDA help file in the ASCII format
+#
+# lines beginning with a # are ignored
+# lines beginning @ introduce a new entry of the form
+#  @ metric_name oneline-text
+#  help text goes
+#  here over multiple lines
+#  ...
+#
+# the metric_name is decoded against the default PMNS -- as a special case,
+# a name of the form NNN.MM (for numeric NNN and MM) is interpreted as an
+# instance domain identification, and the text describes the instance domain
+#
+# blank lines before the @ line are ignored
+#
+
+@ 43.0 Active PCP import tools
+Instance names are the names of tools actively writing PCP archives
+via status files in PCP_IMPORT_DIR/.
+
+@ pmimport.archive Current archive base path
+The base path of the PCP archive currently being written by this import
+tool, without file suffixes (.0, .meta, .index).
+
+@ pmimport.version Tool version string
+The version string of the import tool currently writing archives.
+
+@ pmimport.args Tool-specific argument string
+A tool-specific string describing what is being collected.  For sysstat
+sadc this is the comma-separated list of active activities; for other
+pmimport tools it is the space-separated list of tool-specific modules.
+
+@ pmimport.hostname local hostname
+A reasonably unique identifier of the system installation, for use by
+pmimport tools to identify the source principal of the data.
+
+@ pmimport.timezone local $TZ
+Value for the $TZ environment variable where the system is running.
+
+@ pmimport.zoneinfo local timezone tzfile identification
+Alternative value for the timezone where the system is running, in the
+style of a tzfile(5) specification: a colon followed by the path to a
+file below /usr/share/zoneinfo, e.g. ":Australia/Melbourne"
+or ":America/Argentina/Ushuaia".
+
+May be used to set $TZ.
+
+If the zoneinfo cannot be deduced, the value of this metric is "" (an
+empty string).

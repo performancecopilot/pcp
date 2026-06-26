@@ -335,6 +335,7 @@ _filter_optional_pmdas()
 	-e '/pmdaperfevent/d' \
 	-e '/pmdapipe/d' \
 	-e '/pmdapmcd/d' \
+	-e '/pmdapmimport/d' \
 	-e '/pmdapodman/d' \
 	-e '/pmdaproc/d' \
 	-e '/pmdaprocess/d' \
@@ -970,6 +971,7 @@ _filter_torture_api()
 	-e '/^    license /d' \
 	-e '/^    services /d' \
 	-e '/^    apache /d' \
+	-e '/^    amdgpu /d' \
 	-e '/^    bonding /d' \
 	-e '/^    btrfs /d' \
 	-e '/^    cifs /d' \
@@ -1008,6 +1010,7 @@ _filter_torture_api()
 	-e '/^    overhead /d' \
 	-e '/^    pdns /d' \
 	-e '/^    p76 /d' \
+	-e '/^    pmimport /d' \
 	-e '/^    process /d' \
 	-e '/^    quota /d' \
 	-e '/^    resctrl /d' \

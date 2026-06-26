@@ -588,8 +588,12 @@ _pmi_end(pmi_context *current)
 
     __pmLogClose(&current->archctl);
 
-    /* Remove the pmimport sidecar file written by pmiSetImportInfo() */
-    if (current->tool_name[0] != '\0') {
+    /*
+     * For long-running process importers (PMI_PROCESS), remove the import
+     * file on clean exit.  For one-shot importers (e.g. sadc via sa1),
+     * keep it so pcp-summary can read the configuration between runs.
+     */
+    if (current->tool_name[0] != '\0' && (current->flags & PMI_PROCESS)) {
 	char	path[MAXPATHLEN];
 	pmsprintf(path, sizeof(path), "%s/%s",
 		  pmGetConfig("PCP_IMPORT_DIR"), current->tool_name);

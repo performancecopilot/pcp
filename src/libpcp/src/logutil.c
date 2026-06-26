@@ -669,8 +669,8 @@ logFreeMeta(__pmLogCtl *lcp)
  * Volume discovery uses __pmLogFindOpen (canonical directory scan via
  * readdir + __pmLogAddVolume) which correctly sets lcp->minvol and
  * lcp->maxvol.  The resulting read-mode handles are used to validate
- * labels and load the temporal index, then closed and reopened in r+
- * mode for subsequent appending:
+ * archive labels and load the temporal index, then closed & reopened
+ * in r+ mode for subsequent appending:
  *
  *   .meta  - r+ read label + seek to end; metadata appended at end
  *   .index - r+ read temporal index for lcp->endtime + seek to end
@@ -717,6 +717,7 @@ __pmLogOpenAppend(const char *base, __pmArchCtl *acp)
 	goto fail;
     }
     lcp->label = label;
+    memset(&label, 0, sizeof(label));	/* lcp->label owns strings now */
 
     /* Validate the .index label before trusting its contents */
     if ((sts = __pmLogChkLabel(acp, lcp->tifp, &label, PM_LOG_VOL_TI)) < 0) {
@@ -774,6 +775,7 @@ __pmLogOpenAppend(const char *base, __pmArchCtl *acp)
 	__pmLogFreeLabel(&label);
 	goto fail;
     }
+    __pmLogFreeLabel(&label);
     __pmFseek(acp->ac_mfp, 0, SEEK_END);
 
     acp->ac_curvol  = lcp->maxvol;

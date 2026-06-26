@@ -300,6 +300,7 @@ usr/share/man/man3/pmiStart.3.gz
 usr/share/man/man3/pmiUnits.3.gz
 usr/share/man/man3/pmiUseContext.3.gz
 usr/share/man/man3/pmiWrite.3.gz
+usr/share/man/man3/pmiWriteNow.3.gz
 usr/share/man/man3/pmprintf.3.gz
 usr/share/man/man3/pmsprintf.3.gz
 usr/share/man/man3/pmstrncat.3.gz

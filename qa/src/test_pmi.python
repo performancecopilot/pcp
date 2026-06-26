@@ -52,11 +52,11 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
     print("pmiAddMetric: qa.one")
     self.assertTrue(code >= 0)
 
-    # exercise pmiWrite(0) - sec=0 with no usec previously raised TypeError
+    # exercise pmiWrite(1) - sec=0 now means current time; use sec=1 for epoch+1s
     code = log.pmiPutValue("qa.one", "", "1")
     print("pmiPutValue: qa.one (epoch)")
     self.assertTrue(code >= 0)
-    log.pmiWrite(0)
+    log.pmiWrite(1)
 
     # give it a value
     code = log.pmiPutValue("qa.one", "", "42")
@@ -105,8 +105,8 @@ def test_pmi(self, path = OUTFILE, inherit = 0):
 
     # write the record at a fixed time (split mode)
     sec = 1547483647
-    usec = 123456
-    log.pmiWrite(sec, usec)
+    nsec = 123456000
+    log.pmiWrite(sec, nsec)
 
     del log
 
