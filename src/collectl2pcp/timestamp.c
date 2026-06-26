@@ -30,7 +30,7 @@ timestamp_flush(void)
      * Since we've set pmiSetTimezone to what was found in the header, we need
      * to offset it here so the PCP archive matches the host timezone.
      */
-    if (seconds && (sts = pmiWrite(seconds + utc_offset * 60 * 60, mseconds*1000)) < 0) {
+    if (seconds && (sts = pmiWrite(seconds + utc_offset * 60 * 60, mseconds*1000000)) < 0) {
 	if (sts != PMI_ERR_NODATA) {
 	    fprintf(stderr, "Error: pmiWrite failed: error %d: %s\n", sts, pmiErrStr(sts));
 	    err = sts; /* probably fatal */
