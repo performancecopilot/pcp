@@ -180,4 +180,7 @@ pmiWrite(sec, usec)
 	int		usec;
 
 int
+pmiWriteNow()
+
+int
 pmiPutMark()
