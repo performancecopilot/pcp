@@ -54,7 +54,7 @@ $(OBJECTS): $(HFILES) domain.h
 include $(BUILDRULES)
 
 install: default
-ifneq ($(PCP_SYSTEMDTMPFILES_DIR),)
+ifeq ($(ENABLE_SYSTEMD),true)
 	$(INSTALL) -m 644 $(TMPFILESCONF) $(PCP_SYSTEMDTMPFILES_DIR)/$(TMPFILESCONF)
 endif
 ifneq ($(PCP_IMPORT_DIR),)
