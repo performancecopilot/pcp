@@ -105,13 +105,14 @@ SCRIPTS = mk.diff mk.gap mk.mysql mk.schizo mk.foo+ \
 	  mk.ipcs mk.value-test mk.rank-pred mk.cputime mk.meminfo \
 	  mk.sample-labels mk.pmproxy mk.mmv.help mk.slabinfo mk.zoneinfo \
 	  mk.atop-sar mk.pmstat mk.rocestat mk.mpstat mk.mpstat4 \
-	  mk.common mk.denki
+	  mk.denki
 
 CONFIGS = config.verify config.shping YWhcCi.toium.config \
 	  kenj-pc-2.config reduce.config uwrap.config wrap.config \
 	  coverage.config
 
 OTHERS = README ds390-access.gz collectl-qa bigace.pmns \
+	 mk.common \
 	 cputime.mpstat cputime.sar \
 	 farm.tar.xz atop-sar.tar.xz \
 	 amdgpu-0.smi.txt amdgpu-1.smi.txt
