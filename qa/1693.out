@@ -51,7 +51,7 @@ pmiSetTimezone: OK
 pmiAddMetric: OK
 pmiGetHandle: OK ->1
 pmiSetVolumeSize: OK
-pmiHighResWrite loop: OK
+pmiWrite loop: OK
 pmiEnd: OK
 volume rotation: OK
 volsizetest.0: present

@@ -29,7 +29,9 @@ $ sudo rpm -Uvh pcp-*.rpm
 
 If you are using a container based distribution, latest builds can
 be installed using the instructions for your runtime listed here:
-https://quay.io/repository/performancecopilot/archive-analysis
+https://github.com/performancecopilot/pcp/pkgs/container/pcp
+and
+https://github.com/performancecopilot/pcp/pkgs/container/archive-analysis
 
 *Special note for Ubuntu 8.04, 8.10, 9.04, 9.10 and 10.04*
 
