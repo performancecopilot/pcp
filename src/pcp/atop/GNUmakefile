@@ -18,7 +18,7 @@ include $(TOPDIR)/src/include/builddefs
 CMDTARGET = pcp-atop
 DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 DISTLINKS = pcp-atopsar
-LLDLIBS = $(PCPLIB) -lpcp_import -lpcp_archive $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
+LLDLIBS = $(PCPLIB) $(PCP_IMPORTLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
 LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS) \
 	pcp-atop.service pcp-atop-rotate.service pcp-atop-rotate.timer atop.conf
