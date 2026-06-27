@@ -168,7 +168,7 @@ eval pminfo $BATCH -f $metrics > $tmp/metrics 2>$tmp/err
 if grep "^pminfo:" $tmp/err > /dev/null 2>&1
 then
     if grep -q "Cannot connect\|Connection refused\|No route to host" $tmp/err \
-       && [ -z "$PCP_ARCHIVE" ]
+       && [ -z "$PCP_ARCHIVE" ] && [ -z "$PCP_HOST" ]
     then
 	# pmcd not reachable in live mode - retry via local context to pick up
 	# hardware, hinv.* and other DSO PMDA metrics; pmcd:/pmda: lines will
@@ -211,7 +211,7 @@ function inst()
     else if ($1 == "inst") {
 	count++
 	id=substr($2, 2, length($2) - 1)
-	value=substr($0, index($0, $6))
+	value=substr($0, index($0, " value ") + 7)
 	if (mode == 2) {
 	    agent=substr($4, 2, length($4) - 3)
 	    printf "%s %s %s\n", id, agent, value > file
