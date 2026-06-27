@@ -1,0 +1,15 @@
+## pcp-atop configuration
+## Settings in this file override the built-in defaults.
+## Used by pcp-atop.service via EnvironmentFile=
+
+## Command-line flags passed to pcp-atop (e.g. -L for local context only)
+LOGOPTS=""
+
+## Sample interval in seconds
+LOGINTERVAL=600
+
+## Number of daily archives to retain before culling
+LOGGENERATIONS=28
+
+## Directory where PCP archives are written
+LOGPATH=@PCP_LOG_DIR@/atop

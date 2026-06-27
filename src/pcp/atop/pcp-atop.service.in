@@ -1,0 +1,20 @@
+[Unit]
+Description=PCP atop advanced performance monitor
+Documentation=man:pcp-atop(1)
+
+[Service]
+Type=simple
+Environment="LOGOPTS="
+Environment="LOGINTERVAL=600"
+Environment="LOGGENERATIONS=28"
+Environment="LOGPATH=@PCP_LOG_DIR@/atop"
+EnvironmentFile=-@PCP_SYSCONF_DIR@/atop/atop.conf
+ExecStartPre=/bin/sh -c 'test -d "${LOGPATH}" || mkdir -p "${LOGPATH}"'
+ExecStartPre=/bin/sh -c 'test -n "$LOGINTERVAL" -a "$LOGINTERVAL" -eq "$LOGINTERVAL"'
+ExecStartPre=/bin/sh -c 'test -n "$LOGGENERATIONS" -a "$LOGGENERATIONS" -eq "$LOGGENERATIONS"'
+ExecStart=/bin/sh -c 'exec @PCP_BINADM_DIR@/pcp-atop ${LOGOPTS} -h local: -w "${LOGPATH}" ${LOGINTERVAL}'
+ExecStartPost=/usr/bin/find "${LOGPATH}" -name "*-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].*" -mtime +${LOGGENERATIONS} -exec rm -v {} \;
+KillSignal=SIGTERM
+
+[Install]
+WantedBy=multi-user.target

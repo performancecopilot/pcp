@@ -20,7 +20,8 @@ DISTARGET = $(PCP_BINADM_DIR)/$(CMDTARGET)
 DISTLINKS = pcp-atopsar
 LLDLIBS = $(PCPLIB) -lpcp_import -lpcp_archive $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
-LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS)
+LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS) \
+	pcp-atop.service pcp-atop-rotate.service pcp-atop-rotate.timer atop.conf
 
 CFILES = \
 	atop.c \
@@ -55,9 +56,29 @@ HFILES = \
 
 MAN_PAGES = pcp-atop.1 pcp-atoprc.5 pcp-atopsar.1
 
-default:	build-me
+default:	build-me \
+	pcp-atop.service pcp-atop-rotate.service pcp-atop-rotate.timer atop.conf
 
 include $(BUILDRULES)
+
+pcp-atop.service: pcp-atop.service.in
+	$(SED) \
+	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
+	    -e 's|@PCP_LOG_DIR@|$(PCP_LOG_DIR)|g' \
+	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
+	    $< > $@
+
+pcp-atop-rotate.service: pcp-atop-rotate.service.in
+	cp $< $@
+
+pcp-atop-rotate.timer: pcp-atop-rotate.timer.in
+	cp $< $@
+
+atop.conf: atop.conf.in
+	$(SED) \
+	    -e 's|@PCP_LOG_DIR@|$(PCP_LOG_DIR)|g' \
+	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
+	    $< > $@
 
 ifeq "$(HAVE_NCURSESW)" "true"
 build-me: $(CMDTARGET) $(DISTLINKS)
@@ -67,6 +88,11 @@ install: default
 	@for link in $(DISTLINKS); do \
 	    $(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$$link; \
 	done
+	$(INSTALL) -m 644 pcp-atop.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop.service
+	$(INSTALL) -m 644 pcp-atop-rotate.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-rotate.service
+	$(INSTALL) -m 644 pcp-atop-rotate.timer $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-rotate.timer
+	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/atop
+	$(INSTALL) -m 644 atop.conf $(PCP_SYSCONF_DIR)/atop/atop.conf
 	@$(INSTALL_MAN)
 else
 build-me:

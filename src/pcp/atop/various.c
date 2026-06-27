@@ -954,18 +954,50 @@ setup_context(pmOptions *opts)
 
 	if ((sts = ctx = pmNewContext(opts->context, source)) < 0)
 	{
-		if (opts->context == PM_CONTEXT_HOST)
-			pmprintf(
-		"%s: Cannot connect to pmcd on host \"%s\": %s\n",
-				pmGetProgname(), source, pmErrStr(sts));
-		else if (opts->context == PM_CONTEXT_LOCAL)
-			pmprintf(
-		"%s: Cannot make standalone connection on localhost: %s\n",
-				pmGetProgname(), pmErrStr(sts));
-		else
-			pmprintf(
-		"%s: Cannot open archive \"%s\": %s\n",
-				pmGetProgname(), source, pmErrStr(sts));
+		/*
+		** If connecting to a local pmcd failed, fall back to
+		** PM_CONTEXT_LOCAL (DSO PMDAs) so the tool works without pmcd.
+		** Point libpcp at the local DSO PMDA configuration and PMNS
+		** before opening the context (same pattern as sysstat pcp_local.c).
+		*/
+		if (opts->context == PM_CONTEXT_HOST && localhost)
+		{
+			char	path[MAXPATHLEN];
+
+			if (pmDebugOptions.appl0)
+				fprintf(stderr,
+				    "%s: pmcd unavailable (%s), falling back to local context\n",
+				    pmGetProgname(), pmErrStr(sts));
+
+			pmsprintf(path, sizeof(path), "%s/local.conf",
+				pmGetConfig("PCP_SYSCONF_DIR"));
+			setenv("PCP_PMCDCONF_FILE", path, 0);
+
+			pmsprintf(path, sizeof(path), "%s/pmns/local.root",
+				pmGetConfig("PCP_VAR_DIR"));
+			setenv("PMNS_DEFAULT", path, 0);
+
+			opts->context = PM_CONTEXT_LOCAL;
+			source = NULL;
+			localhost = 1;
+			sts = ctx = pmNewContext(PM_CONTEXT_LOCAL, NULL);
+		}
+
+		if (sts < 0)
+		{
+			if (opts->context == PM_CONTEXT_HOST)
+				pmprintf(
+			"%s: Cannot connect to pmcd on host \"%s\": %s\n",
+					pmGetProgname(), source, pmErrStr(sts));
+			else if (opts->context == PM_CONTEXT_LOCAL)
+				pmprintf(
+			"%s: Cannot make standalone connection on localhost: %s\n",
+					pmGetProgname(), pmErrStr(sts));
+			else
+				pmprintf(
+			"%s: Cannot open archive \"%s\": %s\n",
+					pmGetProgname(), source, pmErrStr(sts));
+		}
 	}
 	else if ((sts = pmGetContextOptions(ctx, opts)) == 0)
 		sts = setup_origin(opts);
@@ -1641,6 +1673,7 @@ rawarchive(pmOptions *opts, const char *name)
 ** Uses libpcp_import directly, removing the pmlogger/libpcp_gui dependency.
 */
 static int	pmi_ctx = -1;		/* pmi write context, -1 = inactive */
+static char	pmi_archpath[MAXPATHLEN];  /* base path of the current archive */
 /*
 ** Per-metric pmi handle record keyed by pmid in the hash below.
 ** The full pmDesc is stored so type, indom, sem, and units are available
@@ -1679,6 +1712,7 @@ rawwrite_open(const char *name)
 	gethostname(hostname, sizeof hostname);
 	strftime(datebuf, sizeof datebuf, "%Y%m%d", tm);
 	pmsprintf(archpath, sizeof archpath, "%s/%s-%s", name, hostname, datebuf);
+	pmstrncpy(pmi_archpath, sizeof pmi_archpath, archpath);
 
 	pmi_ctx = pmiStart(archpath, PMI_APPEND);
 	if (pmi_ctx < 0)
@@ -1862,8 +1896,59 @@ rawwrite_flush(struct timespec *ts)
 }
 
 /*
+** Compress a single archive file asynchronously in a forked child.
+** The compressor replaces the original file in-place (--rm flag).
+** Returns immediately so the caller is not blocked by I/O.
+*/
+static void
+compress_file_async(const char *path, const char *compressor)
+{
+	struct stat	st;
+	pid_t		pid;
+
+	if (stat(path, &st) < 0)
+		return;
+
+	pid = fork();
+	if (pid < 0)
+		return;
+	if (pid == 0)
+	{
+		execlp(compressor, compressor, "--rm", "-q", path, (char *)NULL);
+		_exit(1);
+	}
+	/* parent: child is reaped by the next SIGCHLD or on process exit */
+}
+
+/*
+** Compress the files of a closed PCP archive:
+**   base.meta  -> xz   (high ratio; metadata read once at open)
+**   base.N     -> zstd (fast decompression for pmval/replay)
+**   base.index -> left alone (tiny; needed for fast seeks)
+** Each compressor runs in a background child.
+*/
+static void
+compress_archive(const char *base)
+{
+	char	path[MAXPATHLEN];
+	int	vol;
+
+	pmsprintf(path, sizeof path, "%s.meta", base);
+	compress_file_async(path, "xz");
+
+	for (vol = 0; vol < 1000; vol++)
+	{
+		pmsprintf(path, sizeof path, "%s.%d", base, vol);
+		if (access(path, F_OK) != 0)
+			break;
+		compress_file_async(path, "zstd");
+	}
+}
+
+/*
 ** Close the pmi write context cleanly (called on normal exit).
-** Frees all rawmetric_t records in the hash table.
+** Frees all rawmetric_t records in the hash table, then compresses
+** the just-closed archive asynchronously.
 */
 void
 rawwrite_close(void)
@@ -1882,6 +1967,9 @@ rawwrite_close(void)
 
 	pmiEnd();
 	pmi_ctx = -1;
+
+	if (pmi_archpath[0] != '\0')
+		compress_archive(pmi_archpath);
 }
 
 /*

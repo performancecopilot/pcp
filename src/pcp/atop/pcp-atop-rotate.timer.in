@@ -1,0 +1,9 @@
+[Unit]
+Description=Daily pcp-atop archive rotation
+Documentation=man:pcp-atop(1)
+
+[Timer]
+OnCalendar=daily
+
+[Install]
+WantedBy=timers.target
