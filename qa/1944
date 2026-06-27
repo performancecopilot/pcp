@@ -1,7 +1,7 @@
 #!/bin/sh
-# PCP QA Test No. 744
-# Exercise the NVIDIA GPU PMDA, basic fetch testing - no nvidia library
-# see qa/1944 and qa/1946 for test with QA nvidia library
+# PCP QA Test No. 1944
+# Exercise the NVIDIA GPU PMDA, basic fetch testing - with QA nvidia library
+# see qa/744 for test with no nvidia library and qa/1946 for a related test
 #
 # Copyright (c) 2014-2015 Red Hat.
 #
@@ -19,27 +19,16 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
 
-# if a system-installed libnvidia-ml.so exists the dlopen() in the
-# nvidia PMDA will find this one and circumvent this test's aim
-#
-for dir in $PCP_LIB_DIR $PCP_LIB32_DIR
-do
-    if [ -d $dir ]
-    then
-	$sudo find $dir -name libnvidia-ml.$DSO_SUFFIX >$tmp.libs
-	if [ -s $tmp.libs ]
-	then
-	    _notrun "Conflicting system NVIDIA library found: `cat $tmp.libs`"
-	    # NOTREACHED
-	fi
-    fi
-done
+test -f $here/src/libnvidia-ml.$DSO_SUFFIX || \
+	_notrun "No NVIDIA QA wrapper library is available"
 
 _filter()
 {
     sed \
+	-e "s,$PCP_PMDAS_DIR/,,g" \
+	-e "s/\.$DSO_SUFFIX,/.DSO,/g" \
 	-e 's/.* pminfo\(.*\) Info:/pminfo[PID] Info:/g' \
-    #end
+    # end
 }
 
 pmns=$PCP_PMDAS_DIR/nvidia/root
@@ -47,7 +36,9 @@ pmda=$PCP_PMDAS_DIR/nvidia/pmda_nvidia,nvidia_init
 _make_helptext nvidia
 
 # real QA test starts here
-echo "== Testing behaviour with no nvidia library available" | tee -a $seq_full
+
+echo "== Testing behaviour with QA wrapper nvidia library" | tee -a $seq_full
+LD_LIBRARY_PATH=$here/src; export LD_LIBRARY_PATH
 pminfo -L -K clear -K add,120,$pmda -dfmtT -n $pmns nvidia 2>&1 | _filter
 if [ -f nvidia.log ]
 then
