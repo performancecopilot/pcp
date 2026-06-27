@@ -16,8 +16,18 @@ echo "QA output created by $seq"
 
 [ -f $PCP_PMDAS_DIR/nvidia/pmdanvidia ] || _notrun "nvidia pmda not installed"
 
+_cleanup()
+{
+    cd $here
+    if [ -f src/libnvidia-ml.so.1 -a ! -f src/libnvidia-ml.so ]
+    then
+        mv src/libnvidia-ml.so.1 src/libnvidia-ml.so
+    fi
+    $sudo rm -rf $tmp $tmp.*
+}
+
 status=1	# failure is the default!
-trap "cd $here; rm -rf $tmp.*; exit \$status" 0 1 2 3 15
+trap "_cleanup; exit \$status" 0 1 2 3 15
 
 test -f $here/src/libnvidia-ml.$DSO_SUFFIX || \
 	_notrun "No NVIDIA QA wrapper library is available"
