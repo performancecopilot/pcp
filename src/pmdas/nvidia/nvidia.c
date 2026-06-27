@@ -1036,7 +1036,7 @@ nvidia_init(pmdaInterface *dp)
 	 * This is OK, just continue on until it *is* installed;
 	 * until that time, simply report "no values available".
 	 */
-	pmNotifyErr(LOG_INFO, "NVIDIA NVML library currently unavailable");
+	pmNotifyErr(LOG_INFO, "NVIDIA NVML library currently unavailable: localNvmlInit() returned %s (%d)", localNvmlErrStr(sts), sts);
     }
 
     dp->version.seven.instance = nvidia_instance;
