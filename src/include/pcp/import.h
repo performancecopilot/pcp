@@ -29,6 +29,10 @@ extern "C" {
 # endif
 #endif
 
+/* libpcp_import ABI version */
+#define PMI_VERSION_2	2
+#define PMI_VERSION	PMI_VERSION_2
+
 /* Flags for the second argument to pmiStart() */
 #define PMI_INHERIT	0x1	/* inherit metric definitions from previous context */
 #define PMI_APPEND	0x2	/* append to an existing archive rather than creating a new one */
