@@ -16,6 +16,9 @@ echo "QA output created by $seq"
 status=1	# failure is the default!
 trap "$sudo rm -f $tmp.*; exit \$status" 0 1 2 3 15
 
+importers=`ls $PCP_IMPORT_DIR 2>/dev/null | wc -l`
+[ $importers -gt 0 ] && _notrun "pmimport induced indeterminism"
+
 cat <<End-of-File >$tmp.pmie
 hinv.ncpu > 0 -> print "we have cpus, no surprise here!";
 hinv.ncpu < 0 -> print "whoa ... no cpus!";
