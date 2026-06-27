@@ -22,7 +22,7 @@
 */
 
 #include <pcp/pmapi.h>
-#include <pcp/pmafm.h>
+#include <pcp/import.h>
 #include <pcp/libpcp.h>
 #include <stdarg.h>
 #include <ctype.h>
@@ -785,6 +785,7 @@ cleanstop(int exitcode)
 	acctswoff();
 	netatop_signoff();
 	(vis.show_end)();
+	rawwrite_close();
 
 	exit(exitcode);
 }
@@ -1347,6 +1348,10 @@ setup_metrics(const char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetri
 			pmidlist[i] = desclist[i].pmid = PM_ID_NULL;
 		}
 	}
+
+	/* register this metric group with the pmi archive if recording */
+	if (rawwriteflag)
+		rawwrite_register(metrics, pmidlist, desclist, nmetrics);
 }
 
 int
@@ -1402,6 +1407,10 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 	rp = *result;
 	if (rp->numpmid == 0)	/* mark record */
 		sampflags |= RRMARK;
+
+	/* stage this fetch into the pmi archive when in write mode */
+	if (rawwriteflag)
+		rawwrite_put(rp);
 	if (pmDebugOptions.appl1)
 	{
 		struct tm	tmp;
@@ -1627,140 +1636,252 @@ rawarchive(pmOptions *opts, const char *name)
 		free(py);
 	}
 }
+/*
+** PMI archive write context - used when recording with -w flag.
+** Uses libpcp_import directly, removing the pmlogger/libpcp_gui dependency.
+*/
+static int	pmi_ctx = -1;		/* pmi write context, -1 = inactive */
+/*
+** Per-metric pmi handle record keyed by pmid in the hash below.
+** The full pmDesc is stored so type, indom, sem, and units are available
+** for future use without a re-fetch.
+** 'handle' is the pmiGetHandle result for aggregate (indom=PM_INDOM_NULL)
+** metrics; -1 for instanced metrics (handles acquired per interval).
+*/
+typedef struct {
+	pmDesc	desc;		/* full metric descriptor */
+	int	handle;		/* pmiGetHandle for aggregate; -1 if instanced */
+} rawmetric_t;
+
+static __pmHashCtl	pmi_handle_hash;
+
 
 /*
-** Write a pmlogger configuration file for recording.
+** Open a libpcp_import write context for the named archive path.
+** Called once before the main collection loop when -w is specified.
 */
-static void
-rawconfig(FILE *fp, double delta)
-{
-	const char		**p;
-	unsigned int		logdelta;
-
-	fprintf(fp, "log mandatory on once {\n");
-	for (p = hostmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
-	for (p = ifpropmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
-	fprintf(fp, "}\n\n");
-
-	logdelta = (unsigned int)(delta * 1000.0);	/* msecs */
-	fprintf(fp, "log mandatory on every %u milliseconds {\n", logdelta);
-	for (p = systmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
-	for (p = procmetrics; (*p)[0] != '.'; p++)
-		fprintf(fp, "    %s\n", *p);
-	fputs("}\n", fp);
-}
-
 void
-rawwrite(pmOptions *opts, const char *name,
-	struct timespec *delta, unsigned int nsamples, char midnightflag)
+rawwrite_open(const char *name)
 {
-	pmRecordHost	*record;
-	struct timespec	elapsed;
-	double		duration, ddelta;
-	char		args[MAXPATHLEN];
-	char		*host;
-	int		sts;
-
-	host = (opts->nhosts > 0) ? opts->hosts[0] : "local:";
-	ddelta = pmtimespecToReal(delta);
-	duration = ddelta * nsamples;
-
-	if (midnightflag)
-	{
-		time_t		now = time(NULL);
-		struct tm	*tp;
-
-		tp = localtime(&now);
-
-		tp->tm_hour = 23;
-		tp->tm_min  = 59;
-		tp->tm_sec  = 59;
-
-		duration = (double) (mktime(tp) - now);
-	}
-
-	/* need to avoid elapsed.tv_sec going negative */
-	if (duration > INT_MAX)
-	    duration = INT_MAX - 1;
-
-	if (pmDebugOptions.appl1)
-	{
-		fprintf(stderr, "%s: start recording, %.2fsec duration [%s].\n",
-			pmGetProgname(), duration, name);
-	}
+	char	archpath[MAXPATHLEN];
+	time_t	now = time(NULL);
+	struct tm	*tm = localtime(&now);
+	char	hostname[MAXHOSTNAMELEN];
+	char	datebuf[16];
 
 	if (__pmMakePath(name, S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH) < 0)
 	{
-		fprintf(stderr, "%s: making folio path %s for recording: %s\n",
+		fprintf(stderr, "%s: cannot create archive directory %s: %s\n",
 			pmGetProgname(), name, osstrerror());
 		cleanstop(1);
 	}
-	if (chdir(name) < 0)
+
+	gethostname(hostname, sizeof hostname);
+	strftime(datebuf, sizeof datebuf, "%Y%m%d", tm);
+	pmsprintf(archpath, sizeof archpath, "%s/%s-%s", name, hostname, datebuf);
+
+	pmi_ctx = pmiStart(archpath, PMI_APPEND);
+	if (pmi_ctx < 0)
 	{
-		fprintf(stderr, "%s: entering folio %s for recording: %s\n",
-			pmGetProgname(), name, strerror(oserror()));
+		fprintf(stderr, "%s: cannot open archive %s: %s\n",
+			pmGetProgname(), archpath, pmiErrStr(pmi_ctx));
 		cleanstop(1);
 	}
-
-	/*
-        ** Non-graphical application using libpcp_gui services - never want
-	** to see popup dialogs from pmlogger(1) here, so force the issue.
-	*/
-	putenv("PCP_XCONFIRM_PROG=/bin/true");
-
-	pmsprintf(args, sizeof args, "%s.folio", basename((char *)name));
-	if (pmRecordSetup(args, pmGetProgname(), 1) == NULL)
-	{
-		fprintf(stderr, "%s: cannot setup recording to %s: %s\n",
-			pmGetProgname(), name, osstrerror());
-		cleanstop(1);
-	}
-	if ((sts = pmRecordAddHost(host, 1, &record)) < 0)
-	{
-		fprintf(stderr, "%s: adding host %s to recording: %s\n",
-			pmGetProgname(), host, pmErrStr(sts));
-		cleanstop(1);
-	}
-
-	rawconfig(record->f_config, ddelta);
-
-	/*
-	** start pmlogger with a deadhand timer, ensuring it will stop
-	*/
-	if (opts->samples || midnightflag) {
-	    pmsprintf(args, sizeof args, "-T%.3fseconds", duration);
-	    if ((sts = pmRecordControl(record, PM_REC_SETARG, args)) < 0)
-		{
-		    fprintf(stderr, "%s: setting loggers arguments: %s\n",
-			    pmGetProgname(), pmErrStr(sts));
-		    cleanstop(1);
-		}
-	}
-	if ((sts = pmRecordControl(NULL, PM_REC_ON, "")) < 0)
-	{
-		fprintf(stderr, "%s: failed to start recording: %s\n",
-			pmGetProgname(), pmErrStr(sts));
-		cleanstop(1);
-	}
-
-	pmtimespecFromReal(duration, &elapsed);
-	__pmtimespecSleep(elapsed);
-
-	if ((sts = pmRecordControl(NULL, PM_REC_OFF, "")) < 0)
-	{
-		fprintf(stderr, "%s: failed to stop recording: %s\n",
-			pmGetProgname(), pmErrStr(sts));
-		cleanstop(1);
-	}
+	pmiUseContext(pmi_ctx);
+	pmiSetImportProgram("pcp-atop", PCP_VERSION, "", archpath);
+	pmiSetZoneinfo(NULL);
 
 	if (pmDebugOptions.appl1)
+		fprintf(stderr, "%s: opened pmi archive %s\n",
+			pmGetProgname(), archpath);
+}
+
+/*
+** Register a set of metrics with the pmi write context and populate the
+** pmid-to-rawmetric_t hash for O(1) lookup in rawwrite_put().
+** Called from setup_metrics() for each metric group when rawwriteflag is set.
+*/
+void
+rawwrite_register(const char **metrics, pmID *pmids, pmDesc *descs, int nmetrics)
+{
+	int	i, saved, sts;
+
+	if (pmi_ctx < 0)
+		return;
+
+	saved = pmWhichContext();
+	pmiUseContext(pmi_ctx);
+
+	for (i = 0; i < nmetrics; i++)
 	{
-		fprintf(stderr, "%s: cleanly stopped recording.\n",
-			pmGetProgname());
+		rawmetric_t	*ph;
+
+		if (pmids[i] == PM_ID_NULL || descs[i].pmid == PM_ID_NULL)
+			continue;
+
+		/* skip duplicates already registered from a prior metric group */
+		if (__pmHashSearch((unsigned int)pmids[i], &pmi_handle_hash) != NULL)
+			continue;
+
+		sts = pmiAddMetric(metrics[i], pmids[i],
+			descs[i].type, descs[i].indom,
+			descs[i].sem, descs[i].units);
+		if (sts < 0 && sts != PMI_ERR_DUPMETRICNAME)
+		{
+			if (pmDebugOptions.appl0)
+				fprintf(stderr, "%s: pmiAddMetric %s: %s\n",
+					pmGetProgname(), metrics[i], pmiErrStr(sts));
+			continue;
+		}
+
+		ph = malloc(sizeof(*ph));
+		if (ph == NULL)
+			continue;
+
+		ph->desc   = descs[i];
+		/* pre-allocate handle for aggregate metrics; -1 for instanced */
+		if (descs[i].indom == PM_INDOM_NULL)
+			ph->handle = pmiGetHandle(metrics[i], "");
+		else
+			ph->handle = -1;
+
+		if (__pmHashAdd((unsigned int)pmids[i], ph, &pmi_handle_hash) < 0)
+			free(ph);
 	}
+
+	pmUseContext(saved);
+}
+
+/*
+** Stage metric values from a pmResult using the handle + pmAtomValue path.
+**
+** For aggregate metrics (single instance, indom=PM_INDOM_NULL): the
+** pre-allocated handle stored in pmi_handle_hash is used directly with
+** pmiPutAtomValueHandle(), avoiding any per-interval string lookup.
+**
+** For instanced metrics (per-process, per-CPU, per-disk ...): pmiGetHandle
+** is called per (metric, instance).  pmi caches these handles internally
+** so the string lookup is only paid once per new instance.
+**
+** In both cases pmExtractValue uses the real PM_TYPE_* from the registered
+** pmDesc (stored at rawwrite_register time) rather than PM_TYPE_UNKNOWN.
+**
+** Called from fetch_metrics() after each successful pmFetch.
+*/
+void
+rawwrite_put(pmResult *result)
+{
+	int		i, j, saved, sts;
+	pmValueSet	*vsp;
+	pmAtomValue	atom;
+
+	if (pmi_ctx < 0 || result == NULL)
+		return;
+
+	saved = pmWhichContext();
+	pmiUseContext(pmi_ctx);
+
+	for (i = 0; i < result->numpmid; i++)
+	{
+		__pmHashNode	*hn;
+		rawmetric_t	*ph;
+
+		vsp = result->vset[i];
+		if (vsp->numval <= 0)
+			continue;
+
+		hn = __pmHashSearch((unsigned int)vsp->pmid, &pmi_handle_hash);
+		if (hn == NULL)
+			continue;
+		ph = (rawmetric_t *)hn->data;
+
+		if (vsp->numval == 1 && vsp->vlist[0].inst == PM_IN_NULL)
+		{
+			/* Aggregate: use the pre-allocated handle */
+			if (ph->handle < 0)
+				continue;
+
+			if (pmExtractValue(vsp->valfmt, &vsp->vlist[0],
+			                   ph->desc.type, &atom, ph->desc.type) < 0)
+				continue;
+
+			if ((sts = pmiPutAtomValueHandle(ph->handle, &atom)) < 0
+			    && pmDebugOptions.appl0)
+				fprintf(stderr, "%s: pmiPutAtomValueHandle: %s\n",
+					pmGetProgname(), pmiErrStr(sts));
+		}
+		else
+		{
+			/* Instanced: acquire handle per (metric, instance) */
+			for (j = 0; j < vsp->numval; j++)
+			{
+				char	instbuf[32];
+				int	handle;
+
+				pmsprintf(instbuf, sizeof instbuf, "%d",
+					vsp->vlist[j].inst);
+				handle = pmiGetHandle(pmIDStr(vsp->pmid), instbuf);
+				if (handle < 0)
+					continue;
+
+				if (pmExtractValue(vsp->valfmt, &vsp->vlist[j],
+				                   ph->desc.type, &atom, ph->desc.type) < 0)
+					continue;
+
+				if ((sts = pmiPutAtomValueHandle(handle, &atom)) < 0
+				    && pmDebugOptions.appl0)
+					fprintf(stderr,
+						"%s: pmiPutAtomValueHandle inst: %s\n",
+						pmGetProgname(), pmiErrStr(sts));
+			}
+		}
+	}
+
+	pmUseContext(saved);
+}
+
+/*
+** Flush all staged values to the archive with the given timestamp.
+** Called once per interval from atop.c's main loop when rawwriteflag is set.
+*/
+void
+rawwrite_flush(struct timespec *ts)
+{
+	int	saved, sts;
+
+	if (pmi_ctx < 0)
+		return;
+
+	saved = pmWhichContext();
+	pmiUseContext(pmi_ctx);
+	if ((sts = pmiWrite((unsigned long long)ts->tv_sec,
+	                    (unsigned int)ts->tv_nsec)) < 0)
+		fprintf(stderr, "%s: pmiWrite: %s\n",
+			pmGetProgname(), pmiErrStr(sts));
+	pmUseContext(saved);
+}
+
+/*
+** Close the pmi write context cleanly (called on normal exit).
+** Frees all rawmetric_t records in the hash table.
+*/
+void
+rawwrite_close(void)
+{
+	__pmHashNode	*hn;
+
+	if (pmi_ctx < 0)
+		return;
+
+	/* free rawmetric_t records before clearing the hash */
+	for (hn = __pmHashWalk(&pmi_handle_hash, PM_HASH_WALK_START);
+	     hn != NULL;
+	     hn = __pmHashWalk(&pmi_handle_hash, PM_HASH_WALK_NEXT))
+		free(hn->data);
+	__pmHashFree(&pmi_handle_hash);
+
+	pmiEnd();
+	pmi_ctx = -1;
 }
 
 /*

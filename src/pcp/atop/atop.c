@@ -458,10 +458,7 @@ main(int argc, char *argv[])
 	** check if we are in data recording mode
 	*/
 	if (rawwriteflag)
-	{
-		rawwrite(&opts, rawname, &interval, nsamples, midnightflag);
-		cleanstop(0);
-	}
+		rawwrite_open(rawname);
 
 	/*
 	** catch signals for proper close-down
@@ -654,6 +651,12 @@ engine(void)
 		deviattask(curtpres, ntaskpres, curpexit,  nprocexit,
 		           	     &devtstat, devsstat);
 
+		/*
+		** flush staged metric values to the pmi archive for this interval
+		*/
+		if (rawwriteflag)
+			rawwrite_flush(&curtime);
+
 		if (sampcnt==0)
 			sampflags |= RRBOOT;
 
@@ -667,8 +670,14 @@ engine(void)
 
 		/*
 		** activate the installed print-function to visualize
-		** the deviations
+		** the deviations; suppress display in write-only mode
 		*/
+		if (rawwriteflag)
+		{
+			lastcmd = 0;
+			goto reset;
+		}
+
 		lastcmd = (vis.show_samp)(timed,
 				     delta > 1.0 ? delta : 1.0,
 		           	     &devtstat, devsstat,

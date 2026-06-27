@@ -103,6 +103,7 @@ extern char		calcpss;
 extern char		getwchan;
 extern char		hotprocflag;
 extern char		rawreadflag;
+extern char		rawwriteflag;
 extern char		rmspaces;
 extern unsigned int	begintime, endtime;
 extern char		flaglist[];
@@ -206,8 +207,11 @@ void		close_options(struct pmOptions *);
 void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);
 void		rawarchive_from_midnight(struct pmOptions *);
-void		rawwrite(struct pmOptions *, const char *, struct timespec *,
-			unsigned int, char);
+void		rawwrite_open(const char *);
+void		rawwrite_register(const char **, pmID *, pmDesc *, int);
+void		rawwrite_put(pmResult *);
+void		rawwrite_flush(struct timespec *);
+void		rawwrite_close(void);
 
 int 		numeric(char *);
 void		getalarm(int);
