@@ -1,7 +1,0 @@
-[Unit]
-Description=Restart pcp-atop to rotate archive logs
-Documentation=man:pcp-atop(1)
-
-[Service]
-Type=oneshot
-ExecStart=/bin/systemctl restart pcp-atop.service

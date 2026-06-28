@@ -1003,6 +1003,9 @@ setup_context(pmOptions *opts)
 			source = NULL;
 			localhost = 1;
 			sts = ctx = pmNewContext(PM_CONTEXT_LOCAL, NULL);
+			if (sts >= 0 &&
+			    (sts = pmGetContextOptions(ctx, opts)) == 0)
+				sts = setup_origin(opts);
 		}
 
 		if (sts < 0)
@@ -1705,6 +1708,7 @@ static char	pmi_archpath[MAXPATHLEN];  /* base path of the current archive */
 */
 typedef struct {
 	pmDesc	desc;		/* full metric descriptor */
+	char	name[128];	/* registered metric name for pmiGetHandle() */
 	int	handle;		/* pmiGetHandle for aggregate; -1 if instanced */
 } rawmetric_t;
 
@@ -1718,10 +1722,10 @@ static __pmHashCtl	pmi_handle_hash;
 void
 rawwrite_open(const char *name)
 {
-	char	archpath[MAXPATHLEN];
+	char	path[MAXPATHLEN];
+	char	host[MAXHOSTNAMELEN];
 	time_t	now = time(NULL);
 	struct tm	*tm = localtime(&now);
-	char	hostname[MAXHOSTNAMELEN];
 	char	datebuf[16];
 
 	if (__pmMakePath(name, S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH) < 0)
@@ -1731,21 +1735,81 @@ rawwrite_open(const char *name)
 		cleanstop(1);
 	}
 
-	gethostname(hostname, sizeof hostname);
-	strftime(datebuf, sizeof datebuf, "%Y%m%d", tm);
-	pmsprintf(archpath, sizeof archpath, "%s/%s-%s", name, hostname, datebuf);
-	safe_strcpy(pmi_archpath, archpath, sizeof pmi_archpath);
+	/*
+	** Fork pcp-atop-daily --compress-only to compress any prior-day archives
+	** in the background before opening the new archive.  The child exits
+	** quickly (rename is fast; compression is forked again from the script)
+	** so recording is not delayed.  Running in pcp-atop's own cgroup ensures
+	** the background compression children are not killed by systemd on service
+	** unit completion.
+	*/
+	pmsprintf(path, sizeof path, "%s/pcp-atop-daily",
+		pmGetConfig("PCP_BINADM_DIR"));
+	if (fork() == 0)
+	{
+		execl(path, path, "--compress-only", name, (char *)NULL);
+		_exit(0);	/* silently skip if script not installed */
+	}
 
-	pmi_ctx = pmiStart(archpath, PMI_APPEND);
+	gethostname(host, sizeof host);
+	host[sizeof(host) - 1] = '\0';
+	strftime(datebuf, sizeof datebuf, "%Y%m%d", tm);
+	pmsprintf(path, sizeof path, "%s/%s-%s", name, host, datebuf);
+	safe_strcpy(pmi_archpath, path, sizeof pmi_archpath);
+
+	pmi_ctx = pmiStart(path, PMI_APPEND);
 	if (pmi_ctx < 0)
 	{
 		fprintf(stderr, "%s: cannot open archive %s: %s\n",
-			pmGetProgname(), archpath, pmiErrStr(pmi_ctx));
+			pmGetProgname(), path, pmiErrStr(pmi_ctx));
 		cleanstop(1);
 	}
 	pmiUseContext(pmi_ctx);
-	pmiSetImportProgram("pcp-atop", PCP_VERSION, "", archpath);
+
+	/*
+	** Build comma-separated module list: kernel always, proc or hotproc,
+	** then optional subsystems.  Reuse host[] since hostname is done.
+	*/
+	safe_strcpy(host, "kernel", sizeof host);
+	strncat(host, hotprocflag ? ",hotproc" : ",proc",
+		sizeof(host) - strlen(host) - 1);
+	if (supportflags & GPUSTAT)
+		strncat(host, ",nvidia", sizeof(host) - strlen(host) - 1);
+	if (supportflags & (NETATOP|NETATOPBPF))
+		strncat(host, ",netatop", sizeof(host) - strlen(host) - 1);
+	pmiSetImportProgram("pcp-atop", PCP_VERSION, host, path);
+
 	pmiSetZoneinfo(NULL);
+
+	/*
+	** If LOGVOLSIZE is set (bytes), rotate data volumes at that threshold
+	** and compress each completed volume with zstd immediately.
+	** The .meta file is left uncompressed so the archive remains appendable
+	** after a mid-day service restart; prior-day archives are sealed by the
+	** ExecStartPre in pcp-atop.service (xz .meta, zstd any leftover volumes).
+	** Default 0 means no intra-day volume rotation (daily restart suffices).
+	*/
+	{
+		const char	*env = getenv("LOGVOLSIZE");
+		size_t		volsize;
+
+		if (env && *env)
+		{
+			char	*end;
+			volsize = (size_t)strtoull(env, &end, 10);
+			switch (tolower((unsigned char)*end))
+			{
+			case 'g': volsize *= 1024; /* fall through */
+			case 'm': volsize *= 1024; /* fall through */
+			case 'k': volsize *= 1024; break;
+			}
+		}
+		else
+			volsize = 100 * 1024 * 1024;	/* 100M default */
+
+		if (volsize > 0)
+			pmiSetVolumeSize(volsize, compress_volume_zstd);
+	}
 
 	if (pmDebugOptions.appl1)
 		fprintf(stderr, "%s: opened pmi archive %s\n",
@@ -1795,6 +1859,7 @@ rawwrite_register(const char **metrics, pmID *pmids, pmDesc *descs, int nmetrics
 			continue;
 
 		ph->desc   = descs[i];
+		safe_strcpy(ph->name, metrics[i], sizeof(ph->name));
 		/* pre-allocate handle for aggregate metrics; -1 for instanced */
 		if (descs[i].indom == PM_INDOM_NULL)
 			ph->handle = pmiGetHandle(metrics[i], "");
@@ -1861,8 +1926,10 @@ rawwrite_put(pmResult *result)
 			                   ph->desc.type, &atom, ph->desc.type) < 0)
 				continue;
 
-			if ((sts = pmiPutAtomValueHandle(ph->handle, &atom)) < 0
-			    && pmDebugOptions.appl0)
+			sts = pmiPutAtomValueHandle(ph->handle, &atom);
+			if (ph->desc.type == PM_TYPE_STRING)
+				free(atom.cp);
+			if (sts < 0 && pmDebugOptions.appl0)
 				fprintf(stderr, "%s: pmiPutAtomValueHandle: %s\n",
 					pmGetProgname(), pmiErrStr(sts));
 		}
@@ -1876,7 +1943,7 @@ rawwrite_put(pmResult *result)
 
 				pmsprintf(instbuf, sizeof instbuf, "%d",
 					vsp->vlist[j].inst);
-				handle = pmiGetHandle(pmIDStr(vsp->pmid), instbuf);
+				handle = pmiGetHandle(ph->name, instbuf);
 				if (handle < 0)
 					continue;
 
@@ -1884,8 +1951,10 @@ rawwrite_put(pmResult *result)
 				                   ph->desc.type, &atom, ph->desc.type) < 0)
 					continue;
 
-				if ((sts = pmiPutAtomValueHandle(handle, &atom)) < 0
-				    && pmDebugOptions.appl0)
+				sts = pmiPutAtomValueHandle(handle, &atom);
+				if (ph->desc.type == PM_TYPE_STRING)
+					free(atom.cp);
+				if (sts < 0 && pmDebugOptions.appl0)
 					fprintf(stderr,
 						"%s: pmiPutAtomValueHandle inst: %s\n",
 						pmGetProgname(), pmiErrStr(sts));
@@ -1918,12 +1987,14 @@ rawwrite_flush(struct timespec *ts)
 }
 
 /*
-** Compress a single archive file asynchronously in a forked child.
-** The compressor replaces the original file in-place (--rm flag).
-** Returns immediately so the caller is not blocked by I/O.
+** Compress a completed data volume with zstd in a background child.
+** Called by the pmiSetVolumeSize callback when the import library rotates
+** to a new volume; path is the full path of the just-completed volume.
+** Uses an absolute path for zstd to avoid PATH hijacking.
+** zstd needs --rm to remove the source; -q suppresses progress output.
 */
 static void
-compress_file_async(const char *path, const char *compressor)
+compress_volume_zstd(const char *path)
 {
 	struct stat	st;
 	pid_t		pid;
@@ -1931,46 +2002,21 @@ compress_file_async(const char *path, const char *compressor)
 	if (stat(path, &st) < 0)
 		return;
 
-	pid = fork();
-	if (pid < 0)
-		return;
-	if (pid == 0)
+	if ((pid = fork()) == 0)
 	{
-		execlp(compressor, compressor, "--rm", "-q", path, (char *)NULL);
+		execl("/usr/bin/zstd", "zstd", "-q", "--rm", path, (char *)NULL);
 		_exit(1);
 	}
-	/* parent: child is reaped by the next SIGCHLD or on process exit */
-}
-
-/*
-** Compress the files of a closed PCP archive:
-**   base.meta  -> xz   (high ratio; metadata read once at open)
-**   base.N     -> zstd (fast decompression for pmval/replay)
-**   base.index -> left alone (tiny; needed for fast seeks)
-** Each compressor runs in a background child.
-*/
-static void
-compress_archive(const char *base)
-{
-	char	path[MAXPATHLEN];
-	int	vol;
-
-	pmsprintf(path, sizeof path, "%s.meta", base);
-	compress_file_async(path, "xz");
-
-	for (vol = 0; vol < 1000; vol++)
-	{
-		pmsprintf(path, sizeof path, "%s.%d", base, vol);
-		if (access(path, F_OK) != 0)
-			break;
-		compress_file_async(path, "zstd");
-	}
+	/* parent: child reaped by next SIGCHLD or on process exit */
 }
 
 /*
 ** Close the pmi write context cleanly (called on normal exit).
-** Frees all rawmetric_t records in the hash table, then compresses
-** the just-closed archive asynchronously.
+** Does NOT compress the archive: the session may be restarted mid-day
+** and the archive reopened with PMI_APPEND.  Compression of fully-sealed
+** prior-day archives is handled by ExecStartPre in pcp-atop.service.
+** Per-volume compression during a long session is handled by the
+** pmiSetVolumeSize callback (compress_volume_zstd above).
 */
 void
 rawwrite_close(void)
@@ -1989,9 +2035,6 @@ rawwrite_close(void)
 
 	pmiEnd();
 	pmi_ctx = -1;
-
-	if (pmi_archpath[0] != '\0')
-		compress_archive(pmi_archpath);
 }
 
 /*

@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2015,2019-2021,2023 Red Hat.
+# Copyright (c) 2015,2019-2021,2023,2026 Red Hat.
 #
 # This program is free software; you can redistribute it and/or modify it
 # under the terms of the GNU General Public License as published by the
@@ -21,7 +21,8 @@ DISTLINKS = pcp-atopsar
 LLDLIBS = $(PCPLIB) $(PCP_IMPORTLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
 LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS) \
-	pcp-atop.service pcp-atop-rotate.service pcp-atop-rotate.timer atop.conf
+	pcp-atop.service pcp-atop-daily.service pcp-atop-daily.timer \\
+	atop.conf pcp-atop-daily
 
 CFILES = \
 	atop.c \
@@ -57,7 +58,8 @@ HFILES = \
 MAN_PAGES = pcp-atop.1 pcp-atoprc.5 pcp-atopsar.1
 
 default:	build-me \
-	pcp-atop.service pcp-atop-rotate.service pcp-atop-rotate.timer atop.conf
+	pcp-atop.service pcp-atop-daily.service pcp-atop-daily.timer \
+	atop.conf pcp-atop-daily
 
 include $(BUILDRULES)
 
@@ -68,11 +70,23 @@ pcp-atop.service: pcp-atop.service.in
 	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
 	    $< > $@
 
-pcp-atop-rotate.service: pcp-atop-rotate.service.in
+pcp-atop-daily.service: pcp-atop-daily.service.in
+	$(SED) \
+	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
+	    -e 's|@PCP_LOG_DIR@|$(PCP_LOG_DIR)|g' \
+	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
+	    $< > $@
+
+pcp-atop-daily.timer: pcp-atop-daily.timer.in
 	cp $< $@
 
-pcp-atop-rotate.timer: pcp-atop-rotate.timer.in
-	cp $< $@
+pcp-atop-daily: pcp-atop-daily.in
+	$(SED) \
+	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
+	    -e 's|@PCP_LOG_DIR@|$(PCP_LOG_DIR)|g' \
+	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
+	    $< > $@
+	chmod 755 $@
 
 atop.conf: atop.conf.in
 	$(SED) \
@@ -89,8 +103,9 @@ install: default
 	    $(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$$link; \
 	done
 	$(INSTALL) -m 644 pcp-atop.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop.service
-	$(INSTALL) -m 644 pcp-atop-rotate.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-rotate.service
-	$(INSTALL) -m 644 pcp-atop-rotate.timer $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-rotate.timer
+	$(INSTALL) -m 644 pcp-atop-daily.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-daily.service
+	$(INSTALL) -m 644 pcp-atop-daily.timer $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-daily.timer
+	$(INSTALL) -m 755 pcp-atop-daily $(PCP_BINADM_DIR)/pcp-atop-daily
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/atop
 	$(INSTALL) -m 644 atop.conf $(PCP_SYSCONF_DIR)/atop/atop.conf
 	@$(INSTALL_MAN)

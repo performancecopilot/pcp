@@ -22,6 +22,8 @@
 #ifndef __ATOP__
 #define __ATOP__
 
+#include <pcp/pmapi.h>
+
 #define	EQ		0
 #define SECONDSINDAY	86400
 
@@ -53,8 +55,6 @@
 typedef	long long	count_t;
 typedef	unsigned long long	ucount_t;
 
-struct pmDesc;
-struct pmResult;
 struct pmOptions;
 
 struct tstat;

@@ -1,0 +1,96 @@
+#!/bin/sh
+#
+# pcp-atop-daily - daily maintenance for pcp-atop PCP archives
+#
+# Usage:
+#   pcp-atop-daily [--compress-only] [LOGPATH]
+#
+#   --compress-only  Compress prior-day archives only; skip culling.
+#                    Used when called from pcp-atop itself at startup.
+#   LOGPATH          Archive directory (overrides $LOGPATH env var).
+#
+# Without --compress-only (normal daily run via timer or ExecStartPre):
+#   - Creates LOGPATH if absent
+#   - Compresses prior-day archives (rename to .tmp, then xz/.zst in bg)
+#   - Culls archives older than LOGGENERATIONS days
+#
+# Compression is non-blocking: files are atomically renamed then compressed
+# by background children so the caller (and pcp-atop) can proceed immediately.
+# The rename is safe whether pcp-atop is running or stopped:
+#   - Running: open file descriptors keep writing to the original inode
+#   - Stopped: no contention; rename is instantaneous
+#
+# Copyright (c) 2026 Red Hat.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+compress_only=false
+
+for arg in "$@"
+do
+    case "$arg" in
+    --compress-only)
+        compress_only=true
+        ;;
+    -*)
+        echo "$0: unknown option: $arg" >&2
+        exit 1
+        ;;
+    *)
+        LOGPATH="$arg"
+        ;;
+    esac
+done
+
+: ${LOGPATH:=@PCP_LOG_DIR@/atop}
+: ${LOGGENERATIONS:=28}
+
+$compress_only || mkdir -p "$LOGPATH" || exit 1
+
+today=$(date +%Y%m%d)
+
+#
+# Atomically rename prior-day archive files to .tmp staging names, then
+# fork background compression for each.  The script exits immediately
+# after forking so recording (or service startup) is not delayed.
+#
+for metafile in "$LOGPATH"/*-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].meta
+do
+    [ -f "$metafile" ] || continue
+    base="${metafile%.meta}"
+    day="${base##*-}"
+    [ "$day" = "$today" ] && continue
+
+    mv -f "$metafile" "$metafile.tmp" 2>/dev/null || continue
+
+    for vol in "$base".[0-9]*
+    do
+        [ -f "$vol" ] && mv -f "$vol" "$vol.tmp" 2>/dev/null
+    done
+done
+
+for f in "$LOGPATH"/*.meta.tmp
+do
+    [ -f "$f" ] || continue
+    out="${f%.tmp}.xz"
+    (xz -q -c "$f" > "$out" && rm -f "$f") &
+done
+
+for f in "$LOGPATH"/*.[0-9]*.tmp
+do
+    [ -f "$f" ] || continue
+    out="${f%.tmp}.zst"
+    (zstd -q -o "$out" "$f" && rm -f "$f") &
+done
+
+$compress_only && exit 0
+
+#
+# Cull archives (all suffixes) older than LOGGENERATIONS days.
+#
+find "$LOGPATH" -name "*-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].*" \
+    -mtime +"$LOGGENERATIONS" -exec rm -f {} \;

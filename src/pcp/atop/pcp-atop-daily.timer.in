@@ -1,5 +1,5 @@
 [Unit]
-Description=Daily pcp-atop archive rotation
+Description=Daily pcp-atop archive maintenance
 Documentation=man:pcp-atop(1)
 
 [Timer]
