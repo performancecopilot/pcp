@@ -541,17 +541,21 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
 #define	ONEGBYTE	1073741824L
 #define	ONETBYTE	1099511627776LL
 #define	ONEPBYTE	1125899906842624LL
+#define	ONEEBYTE	1152921504606846976LL
 
 #define	MAXBYTE		999
-#define	MAXKBYTE	ONEKBYTE*999L
-#define	MAXKBYTE9	ONEKBYTE*9L
-#define	MAXMBYTE	ONEMBYTE*999L
-#define	MAXMBYTE9	ONEMBYTE*9L
-#define	MAXGBYTE	ONEGBYTE*999LL
-#define	MAXGBYTE9	ONEGBYTE*9LL
-#define	MAXTBYTE	ONETBYTE*999LL
-#define	MAXTBYTE9	ONETBYTE*9LL
-#define	MAXPBYTE9	ONEPBYTE*9LL
+#define	MAXKBYTE	(ONEKBYTE*999L)
+#define	MAXKBYTE9	(ONEKBYTE*9L)
+#define	MAXMBYTE	(ONEMBYTE*999L)
+#define	MAXMBYTE9	(ONEMBYTE*9L)
+#define	MAXGBYTE	(ONEGBYTE*999LL)
+#define	MAXGBYTE9	(ONEGBYTE*9LL)
+#define	MAXTBYTE	(ONETBYTE*999LL)
+#define	MAXTBYTE9	(ONETBYTE*9LL)
+#define	MAXPBYTE	(ONEPBYTE*999LL)
+#define	MAXPBYTE9	(ONEPBYTE*9LL)
+#define	MAXEBYTE	(ONEEBYTE*999LL)
+#define	MAXEBYTE8	(ONEEBYTE*7LL+(ONEEBYTE-1))
 
 
 char *
@@ -613,7 +617,13 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 											if (verifyval <= MAXPBYTE9)/* pbytes 1-9 ? */
 												aformat = PBFORMAT;/* pbytes! */
 											else
-												aformat = PBFORMAT_INT;/* pbytes! */
+												if (verifyval <= MAXPBYTE)/* pbytes 10-999 ? */
+													aformat = PBFORMAT_INT;/* pbytes! */
+												else
+													if (verifyval <= MAXEBYTE8)/* ebytes 1-8 ? */
+														aformat = EBFORMAT;
+													else
+														aformat = OVFORMAT;
 
 	} else 
 	/*
@@ -638,7 +648,10 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 						if (verifyval <= MAXTBYTE)/* tbytes? */
 							aformat = TBFORMAT;/* tbytes! */
 						else
-							aformat = PBFORMAT;/* pbytes! */
+							if (verifyval <= MAXPBYTE)/* pbytes? */
+								aformat = PBFORMAT;/* pbytes! */
+							else
+								aformat = EBFORMAT;/* ebytes! */
 
 
 	}
@@ -705,6 +718,15 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 	   case	PBFORMAT_INT:
 		pmsprintf(strvalue, buflen, "%*lldP%s",
 			basewidth-1, llround((double)((double)value/ONEPBYTE)), suffix);
+		break;
+
+	   case	EBFORMAT:
+		pmsprintf(strvalue, buflen, "%*.1lfE%s",
+			basewidth-1, (double)((double)value/ONEEBYTE), suffix);
+		break;
+
+	   case	OVFORMAT:
+		pmsprintf(strvalue, buflen, "OVFLOW");
 		break;
 
 	   default:

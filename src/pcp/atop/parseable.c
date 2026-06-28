@@ -198,10 +198,10 @@ parseout(double timed, double delta,
 			convdate(timed, datestr, sizeof(datestr)-1);
 			convtime(timed, timestr, sizeof(timestr)-1);
 
-			pmsprintf(header, sizeof header, "%s %s %ld %s %s %d",
+			pmsprintf(header, sizeof header, "%s %s %lld %s %s %d",
 				labeldef[i].label,
 				sysname.nodename,
-				(long)timed,
+				(long long)timed,
 				datestr, timestr,
 				(int)delta);
 
