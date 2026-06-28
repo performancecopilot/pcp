@@ -973,6 +973,7 @@ _filter_torture_api()
 	-e '/^    license /d' \
 	-e '/^    services /d' \
 	-e '/^    apache /d' \
+	-e '/^    amdgpu /d' \
 	-e '/^    bonding /d' \
 	-e '/^    btrfs /d' \
 	-e '/^    cifs /d' \

@@ -2367,6 +2367,9 @@ suse
 1937 pmlogrewrite pmda.xfs local pmlogdump
 1940 pmlogconf valgrind local
 1942 pmda.opentelemetry local python
+1944 pmda.nvidia local
+1945 pmda.nvidia local valgrind
+1946 pmda.nvidia local
 1948 pmda.opentelemetry local python not_in_qa_farm
 1955 libpcp pmda pmda.pmcd local
 1956 pmda.linux pmcd local
