@@ -101,7 +101,8 @@ Description: transitional package
 Package: libpcp4
 Depends: ${shlibs:Depends}, ${misc:Depends}, pcp-conf (= ${binary:Version})
 Conflicts: libpgpool2
-Breaks: pcp (<< 2.8.0), libpcp3-dev (<< 2.8.5)
+Breaks: pcp (<< 7.1.6), libpcp3-dev (<< 2.8.5)
+Replaces: pcp (<< 7.1.6)
 Section: libs
 Architecture: any
 Description: Performance Co-Pilot library
