@@ -1281,7 +1281,7 @@ extract_string_index(pmResult *result, pmDesc *descs, int value, char *buffer, i
 	    buffer[0] = atom.cp[0];
 	}
 	else
-	    pmstrncpy(buffer, buflen, atom.cp);
+	    safe_strcpy(buffer, atom.cp, buflen);
 	free(atom.cp);
 	return buffer;
 }
@@ -1327,7 +1327,7 @@ copyout:
 	    buffer[0] = atom.cp[0];
 	}
 	else
-	    pmstrncpy(buffer, buflen, atom.cp);
+	    safe_strcpy(buffer, atom.cp, buflen);
 	free(atom.cp);
 	return buffer;
 }
@@ -1620,7 +1620,7 @@ rawarchive(pmOptions *opts, const char *name)
 	}
 
 	/* see if a valid folio exists as specified */
-	pmstrncpy(tmp, sizeof(tmp), name);
+	safe_strcpy(tmp, name, sizeof(tmp));
 	if (access(tmp, R_OK) == 0)
 	{
 		__pmAddOptArchiveFolio(opts, tmp);
@@ -1734,7 +1734,7 @@ rawwrite_open(const char *name)
 	gethostname(hostname, sizeof hostname);
 	strftime(datebuf, sizeof datebuf, "%Y%m%d", tm);
 	pmsprintf(archpath, sizeof archpath, "%s/%s-%s", name, hostname, datebuf);
-	pmstrncpy(pmi_archpath, sizeof pmi_archpath, archpath);
+	safe_strcpy(pmi_archpath, archpath, sizeof pmi_archpath);
 
 	pmi_ctx = pmiStart(archpath, PMI_APPEND);
 	if (pmi_ctx < 0)

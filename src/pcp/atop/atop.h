@@ -26,6 +26,13 @@
 #define SECONDSINDAY	86400
 
 /*
+** Compatibility bridge: upstream atop uses safe_strcpy(dst, src, n)
+** while PCP provides pmstrncpy(dst, n, src) with swapped argument order.
+** This macro lets pcp-atop use the same call sites as upstream.
+*/
+#define safe_strcpy(dst, src, n)	pmstrncpy((dst), (n), (src))
+
+/*
 ** memory-size formatting possibilities
 */
 #define	BFORMAT		0

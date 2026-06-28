@@ -3422,7 +3422,7 @@ do_username(char *name, char *val)
 {
 	struct passwd	*pwd;
 
-	pmstrncpy(procsel.username, sizeof(procsel.username), val);
+	safe_strcpy(procsel.username, val, sizeof(procsel.username));
 
 	if (procsel.username[0])
 	{
@@ -3480,7 +3480,7 @@ do_username(char *name, char *val)
 void
 do_procname(char *name, char *val)
 {
-	pmstrncpy(procsel.progname, sizeof(procsel.progname), val);
+	safe_strcpy(procsel.progname, val, sizeof(procsel.progname));
 	procsel.prognamesz = strlen(procsel.progname);
 
 	if (procsel.prognamesz)

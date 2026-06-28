@@ -191,7 +191,7 @@ compare_interface(const void *a, const void *b)
 static void
 update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(in->name, sizeof(in->name), name);
+	safe_strcpy(in->name, name, sizeof(in->name));
 
 	in->rbyte = extract_count_t_inst(rp, dp, PERINTF_RBYTE, id, offset);
 	in->rpack = extract_count_t_inst(rp, dp, PERINTF_RPACK, id, offset);
@@ -214,7 +214,7 @@ update_interface(struct perintf *in, int id, char *name, pmResult *rp, pmDesc *d
 static void
 update_ibport(struct perifb *ib, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(ib->ibname, sizeof(ib->ibname), name);
+	safe_strcpy(ib->ibname, name, sizeof(ib->ibname));
 
 	ib->portnr = extract_integer_inst(rp, dp, PERIFB_PORT_LID, id, offset);
 	ib->lanes = extract_integer_inst(rp, dp, PERIFB_PORT_WIDTH, id, offset);
@@ -267,7 +267,7 @@ update_cpunuma(struct cpupernuma *ncp, int id, char *name, pmResult *rp, pmDesc 
 static void
 update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(dsk->name, sizeof(dsk->name), name);
+	safe_strcpy(dsk->name, name, sizeof(dsk->name));
 
 	dsk->nread = extract_count_t_inst(rp, dp, PERDISK_NREAD, id, offset);
 	dsk->nrsect = extract_count_t_inst(rp, dp, PERDISK_NRSECT, id, offset);
@@ -283,7 +283,7 @@ update_disk(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, in
 static void
 update_lvm(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(dsk->name, sizeof(dsk->name), name);
+	safe_strcpy(dsk->name, name, sizeof(dsk->name));
 
 	dsk->nread = extract_count_t_inst(rp, dp, PERDM_NREAD, id, offset);
 	dsk->nrsect = extract_count_t_inst(rp, dp, PERDM_NRSECT, id, offset);
@@ -299,7 +299,7 @@ update_lvm(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int
 static void
 update_mdd(struct perdsk *dsk, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
-	pmstrncpy(dsk->name, sizeof(dsk->name), name);
+	safe_strcpy(dsk->name, name, sizeof(dsk->name));
 
 	dsk->nread = extract_count_t_inst(rp, dp, PERMD_NREAD, id, offset);
 	dsk->nrsect = extract_count_t_inst(rp, dp, PERMD_NRSECT, id, offset);
@@ -316,7 +316,7 @@ static void
 update_mnt(struct pernfsmount *mp, int id, char *name, pmResult *rp, pmDesc *dp, int offset)
 {
 	/* use local client mount unless server export is available */
-	pmstrncpy(mp->mountdev, sizeof(mp->mountdev), name);
+	safe_strcpy(mp->mountdev, name, sizeof(mp->mountdev));
 	extract_string_inst(rp, dp, PERNFS_EXPORT, &mp->mountdev[0],
 				sizeof(mp->mountdev)-1, id, offset);
 
