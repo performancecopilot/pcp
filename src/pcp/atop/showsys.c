@@ -606,9 +606,9 @@ dofmt_cpufreq(char *buf, size_t buflen, count_t maxfreq, count_t cnt, count_t ti
             strcpy(buf, "curf ");
             val2Hzstr(cnt, buf+5, buflen-6);
         }
-        else                // nothing is known: suppress
+        else                // nothing is known: show dash
         {
-            buf = NULL;
+            buf = "           -";
         }
 
 	return buf;
@@ -658,9 +658,9 @@ dofmt_cpuscale(char *buf, size_t buflen, count_t maxfreq, count_t cnt, count_t t
 		strcpy(buf, "curscal ");
 		pmsprintf(buf+7, buflen-8, "%4lld%%", 100 * cnt / maxfreq);
         }
-	else	// nothing is known: suppress
+	else	// nothing is known: show dash
 	{
-		buf = NULL;
+		buf = "           -";
 	}
 
 	return buf;
@@ -3090,12 +3090,15 @@ sysprt_IFBNAME(struct sstat *sstat, extraparam *as, int badness, int *color)
 
 	*color = -1;
 
-	busy = (ival > oval ? ival : oval) * sstat->ifb.ifb[as->index].lanes /
-                               (sstat->ifb.ifb[as->index].rate * 10);
-        if (busy < 0)
-                busy = 0;
+	if (sstat->ifb.ifb[as->index].rate)
+		busy = (ival > oval ? ival : oval) * sstat->ifb.ifb[as->index].lanes /
+				(sstat->ifb.ifb[as->index].rate * 10);
+	else
+		busy = 0;
+	if (busy < 0)
+		busy = 0;
 	else if (busy > 100)
-                busy = 100;
+		busy = 100;
 
 	pmsprintf(tmp, sizeof tmp, "%s/%d",
                  sstat->ifb.ifb[as->index].ibname,

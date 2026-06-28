@@ -2613,7 +2613,7 @@ procsuppress(struct tstat *curstat, struct pselection *sel)
 
 	/*
 	** check if only processes with particular PIDs
-	** should be shown
+	** should be shown (match on tgid so all threads of a process pass)
 	*/
 	if (sel->pid[0])
 	{
@@ -2621,12 +2621,12 @@ procsuppress(struct tstat *curstat, struct pselection *sel)
 
 		while (sel->pid[i])
 		{
-			if (sel->pid[i] == curstat->gen.pid)
+			if (sel->pid[i] == curstat->gen.tgid)
 				break;
 			i++;
 		}
 
-		if (sel->pid[i] != curstat->gen.pid)
+		if (sel->pid[i] != curstat->gen.tgid)
 			return 1;
 	}
 
@@ -2677,12 +2677,26 @@ procsuppress(struct tstat *curstat, struct pselection *sel)
 	}
 
 	/*
-	** check if only processes in specific states should be shown 
+	** check if only processes in specific states should be shown;
+	** for state selection also consider thread states so that a
+	** process with state 'S' is shown when one of its threads has
+	** state 'R' and the user selects state 'R'
 	*/
 	if (sel->states[0])
 	{
 		if (strchr(sel->states, curstat->gen.state) == NULL)
+		{
+			/* process state does not match; check thread states */
+			if (strchr(sel->states, 'R') && curstat->gen.nthrrun)
+				return 0;
+			if (strchr(sel->states, 'S') && curstat->gen.nthrslpi)
+				return 0;
+			if (strchr(sel->states, 'D') && curstat->gen.nthrslpu)
+				return 0;
+			if (strchr(sel->states, 'I') && curstat->gen.nthridle)
+				return 0;
 			return 1;
+		}
 	}
 
 	return 0;
