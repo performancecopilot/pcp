@@ -72,9 +72,8 @@ If
 .I value
 is NULL,
 .B pmiSetZoneinfo
-auto-detects the Olson name for the current local timezone via
-.BR tzname (3)
-and the system timezone database; if no Olson name can be determined
+auto-detects the Olson name for the current local timezone
+from the system timezone database; if no Olson name can be determined
 the call is a silent no-op.
 Passing an explicit Olson name such as
 .I "America/New_York"
