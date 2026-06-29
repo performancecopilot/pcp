@@ -771,15 +771,15 @@ __pmLogOpenAppend(const char *base, __pmArchCtl *acp)
     }
     __pmSetvbuf(acp->ac_mfp, NULL, _IONBF, 0);
 
+    acp->ac_curvol  = lcp->maxvol;
+    acp->ac_flags  |= PM_CTXFLAG_LAST_VOLUME;
+
     if ((sts = __pmLogChkLabel(acp, acp->ac_mfp, &label, lcp->maxvol)) < 0) {
 	__pmLogFreeLabel(&label);
 	goto fail;
     }
     __pmLogFreeLabel(&label);
     __pmFseek(acp->ac_mfp, 0, SEEK_END);
-
-    acp->ac_curvol  = lcp->maxvol;
-    acp->ac_flags  |= PM_CTXFLAG_LAST_VOLUME;
     lcp->state      = PM_LOG_STATE_INIT;
     return 0;
 
