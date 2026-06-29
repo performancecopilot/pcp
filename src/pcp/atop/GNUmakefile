@@ -21,8 +21,8 @@ DISTLINKS = pcp-atopsar
 LLDLIBS = $(PCPLIB) $(PCP_IMPORTLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
 LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS) \
-	pcp-atop.service pcp-atop-daily.service pcp-atop-daily.timer \\
-	atop.conf pcp-atop-daily
+	pcp-atop.service pcp-atop-daily.service pcp-atop-daily.timer \
+	atop.conf
 
 CFILES = \
 	atop.c \
@@ -59,7 +59,7 @@ MAN_PAGES = pcp-atop.1 pcp-atoprc.5 pcp-atopsar.1
 
 default:	build-me \
 	pcp-atop.service pcp-atop-daily.service pcp-atop-daily.timer \
-	atop.conf pcp-atop-daily
+	atop.conf
 
 include $(BUILDRULES)
 
@@ -80,13 +80,6 @@ pcp-atop-daily.service: pcp-atop-daily.service.in
 pcp-atop-daily.timer: pcp-atop-daily.timer.in
 	cp $< $@
 
-pcp-atop-daily: pcp-atop-daily.in
-	$(SED) \
-	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
-	    -e 's|@PCP_LOG_DIR@|$(PCP_LOG_DIR)|g' \
-	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
-	    $< > $@
-	chmod 755 $@
 
 atop.conf: atop.conf.in
 	$(SED) \
@@ -105,7 +98,7 @@ install: default
 	$(INSTALL) -m 644 pcp-atop.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop.service
 	$(INSTALL) -m 644 pcp-atop-daily.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-daily.service
 	$(INSTALL) -m 644 pcp-atop-daily.timer $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-daily.timer
-	$(INSTALL) -m 755 pcp-atop-daily $(PCP_BINADM_DIR)/pcp-atop-daily
+	$(INSTALL) -m 755 pcp-atop-daily.sh $(PCP_BINADM_DIR)/pcp-atop-daily
 	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/atop
 	$(INSTALL) -m 644 atop.conf $(PCP_SYSCONF_DIR)/atop/atop.conf
 	@$(INSTALL_MAN)

@@ -28,6 +28,8 @@
 # (at your option) any later version.
 #
 
+. ${PCP_DIR}/etc/pcp.env
+
 compress_only=false
 
 for arg in "$@"
@@ -46,7 +48,7 @@ do
     esac
 done
 
-: ${LOGPATH:=@PCP_LOG_DIR@/atop}
+: ${LOGPATH:=$PCP_LOG_DIR/atop}
 : ${LOGGENERATIONS:=28}
 
 $compress_only || mkdir -p "$LOGPATH" || exit 1
