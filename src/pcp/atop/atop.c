@@ -450,15 +450,16 @@ main(int argc, char *argv[])
 	}
 
 	/*
-	** find local host details (no privileged access required)
-	*/
-	setup_globals(&opts);
-
-	/*
-	** check if we are in data recording mode
+	** open the pmi archive before setup_globals so that rawwrite_register
+	** finds a valid pmi_ctx when called from setup_metrics for each group
 	*/
 	if (rawwriteflag)
 		rawwrite_open(rawname);
+
+	/*
+	** find local host details (no privileged access required)
+	*/
+	setup_globals(&opts);
 
 	/*
 	** catch signals for proper close-down

@@ -730,8 +730,7 @@ sysprt_CPUSCALE(struct sstat *sstat, extraparam *as, int badness, int *color)
         int     n = sstat->cpu.nrcpu;
 
         sumscaling(sstat, &maxfreq, &cnt, &ticks);
-        dofmt_cpuscale(buf, sizeof buf, maxfreq/n, cnt/n, ticks/n);
-        return buf;
+        return dofmt_cpuscale(buf, sizeof buf, maxfreq/n, cnt/n, ticks/n);
 }
 
 static int
@@ -762,8 +761,7 @@ sysprt_CPUISCALE(struct sstat *sstat, extraparam *as, int badness, int *color)
         count_t cnt     = sstat->cpu.cpu[as->index].freqcnt.cnt;
         count_t ticks   = sstat->cpu.cpu[as->index].freqcnt.ticks;
 
-        dofmt_cpuscale(buf, sizeof buf, maxfreq, cnt, ticks);
-	return buf;
+        return dofmt_cpuscale(buf, sizeof buf, maxfreq, cnt, ticks);
 }
 
 sys_printdef syspdef_CPUISCALE = {"CPUISCALE", sysprt_CPUISCALE, sysval_CPUSCALE};
