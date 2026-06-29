@@ -1,6 +1,7 @@
 pcp (7.1.6-1) unstable; urgency=high
 
   * New release (full details in CHANGELOG).
+  * Fix armhf configure detection in the build (closes: #1133063)
   * Remove useradd from postinst scripts (using sysusers) (closes: #1138692)
 
  -- Nathan Scott <nathans@debian.org>  Thu, 30 Jul 2026 12:47:29 +1000
