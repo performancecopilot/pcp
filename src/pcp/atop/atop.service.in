@@ -16,3 +16,4 @@ KillSignal=SIGTERM
 
 [Install]
 WantedBy=multi-user.target
+Also=atop-daily.timer
