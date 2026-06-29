@@ -1,9 +1,9 @@
 #!/bin/sh
 #
-# pcp-atop-daily - daily maintenance for pcp-atop PCP archives
+# atop-daily - daily maintenance for pcp-atop PCP archives
 #
 # Usage:
-#   pcp-atop-daily [--compress-only] [LOGPATH]
+#   atop-daily [--compress-only] [LOGPATH]
 #
 #   --compress-only  Compress prior-day archives only; skip culling.
 #                    Used when called from pcp-atop itself at startup.
@@ -48,7 +48,7 @@ do
     esac
 done
 
-: ${LOGPATH:=$PCP_LOG_DIR/atop}
+: ${LOGPATH:=/var/log/atop}
 : ${LOGGENERATIONS:=28}
 
 $compress_only || mkdir -p "$LOGPATH" || exit 1

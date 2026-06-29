@@ -7,10 +7,10 @@ Type=simple
 Environment="LOGOPTS="
 Environment="LOGINTERVAL=600"
 Environment="LOGGENERATIONS=28"
-Environment="LOGPATH=@PCP_LOG_DIR@/atop"
+Environment="LOGPATH=/var/log/atop"
 Environment="LOGVOLSIZE=100m"
-EnvironmentFile=-@PCP_SYSCONF_DIR@/atop/atop.conf
-ExecStartPre=@PCP_BINADM_DIR@/pcp-atop-daily
+EnvironmentFile=-@PCP_SYSCONFIG_DIR@/atop
+ExecStartPre=@PCP_BINADM_DIR@/atop-daily
 ExecStart=/bin/sh -c 'exec @PCP_BINADM_DIR@/pcp-atop ${LOGOPTS} -h local: -w "${LOGPATH}" ${LOGINTERVAL}'
 KillSignal=SIGTERM
 

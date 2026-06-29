@@ -15,4 +15,3 @@ pcp-atop.service
 pcp-atop-daily.service
 pcp-atop-daily.timer
 pcp-atop-daily
-atop.conf

@@ -1770,7 +1770,7 @@ rawwrite_open(const char *name)
 	** the background compression children are not killed by systemd on service
 	** unit completion.
 	*/
-	pmsprintf(path, sizeof path, "%s/pcp-atop-daily",
+	pmsprintf(path, sizeof path, "%s/atop-daily",
 		pmGetConfig("PCP_BINADM_DIR"));
 	if (fork() == 0)
 	{

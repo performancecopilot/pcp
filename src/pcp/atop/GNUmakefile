@@ -21,8 +21,7 @@ DISTLINKS = pcp-atopsar
 LLDLIBS = $(PCPLIB) $(PCP_IMPORTLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
 LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS) \
-	pcp-atop.service pcp-atop-daily.service pcp-atop-daily.timer \
-	atop.conf
+	atop.service atop-daily.service atop-daily.timer
 
 CFILES = \
 	atop.c \
@@ -58,34 +57,23 @@ HFILES = \
 MAN_PAGES = pcp-atop.1 pcp-atoprc.5 pcp-atopsar.1
 
 default:	build-me \
-	pcp-atop.service pcp-atop-daily.service pcp-atop-daily.timer \
-	atop.conf
+	atop.service atop-daily.service atop-daily.timer
 
 include $(BUILDRULES)
 
-pcp-atop.service: pcp-atop.service.in
+atop.service: atop.service.in
 	$(SED) \
 	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
-	    -e 's|@PCP_LOG_DIR@|$(PCP_LOG_DIR)|g' \
-	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
+	    -e 's|@PCP_SYSCONFIG_DIR@|$(PCP_SYSCONFIG_DIR)|g' \
 	    $< > $@
 
-pcp-atop-daily.service: pcp-atop-daily.service.in
-	$(SED) \
-	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
-	    -e 's|@PCP_LOG_DIR@|$(PCP_LOG_DIR)|g' \
-	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
-	    $< > $@
+atop-daily.service: atop-daily.service.in
+	cp $< $@
 
-pcp-atop-daily.timer: pcp-atop-daily.timer.in
+atop-daily.timer: atop-daily.timer.in
 	cp $< $@
 
 
-atop.conf: atop.conf.in
-	$(SED) \
-	    -e 's|@PCP_LOG_DIR@|$(PCP_LOG_DIR)|g' \
-	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
-	    $< > $@
 
 ifeq "$(TARGET_OS)+$(HAVE_NCURSESW)" "linux+true"
 build-me: $(CMDTARGET) $(DISTLINKS)
@@ -95,12 +83,11 @@ install: default
 	@for link in $(DISTLINKS); do \
 	    $(INSTALL) -S $(DISTARGET) $(PCP_BINADM_DIR)/$$link; \
 	done
-	$(INSTALL) -m 644 pcp-atop.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop.service
-	$(INSTALL) -m 644 pcp-atop-daily.service $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-daily.service
-	$(INSTALL) -m 644 pcp-atop-daily.timer $(PCP_SYSTEMDUNIT_DIR)/pcp-atop-daily.timer
-	$(INSTALL) -m 755 pcp-atop-daily.sh $(PCP_BINADM_DIR)/pcp-atop-daily
-	$(INSTALL) -m 755 -d $(PCP_SYSCONF_DIR)/atop
-	$(INSTALL) -m 644 atop.conf $(PCP_SYSCONF_DIR)/atop/atop.conf
+	$(INSTALL) -m 644 atop.service $(PCP_SYSTEMDUNIT_DIR)/atop.service
+	$(INSTALL) -m 644 atop-daily.service $(PCP_SYSTEMDUNIT_DIR)/atop-daily.service
+	$(INSTALL) -m 644 atop-daily.timer $(PCP_SYSTEMDUNIT_DIR)/atop-daily.timer
+	$(INSTALL) -m 755 atop-daily.sh $(PCP_BINADM_DIR)/atop-daily
+	$(INSTALL) -m 644 atop.conf $(PCP_SYSCONFIG_DIR)/atop
 	@$(INSTALL_MAN)
 else
 build-me:

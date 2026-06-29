@@ -528,9 +528,13 @@ then
 	[ -z "$_ver" ] && continue
 	_modules=`_pmimport_tool "$_tool" args`
 	_archive=`_pmimport_tool "$_tool" archive`
+	case "$_tool" in
+	    pcp-atop)	_arglabel="labels" ;;
+	    *)		_arglabel="modules" ;;
+	esac
 	echo
 	printf "%9s: Version %s\n" "$_tool" "$_ver"
-	[ -n "$_modules" ] && printf "%9s: %s\n" "modules" "$_modules"
+	[ -n "$_modules" ] && printf "%9s: %s\n" "$_arglabel" "$_modules"
 	[ -n "$_archive" ] && printf "%9s: %s\n" "archive" "$_archive"
     done
 fi

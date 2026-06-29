@@ -1,11 +1,11 @@
 [Unit]
-Description=Daily pcp-atop archive rotation and maintenance
+Description=Daily atop archive rotation and maintenance
 Documentation=man:pcp-atop(1)
 
 [Service]
 Type=oneshot
 # restart seals yesterday's archive (pmiEnd on stop), then ExecStartPre
-# in pcp-atop.service atomically renames prior-day files, forks background
+# in atop.service atomically renames prior-day files, forks background
 # compression and culls old archives before recording resumes on the new
 # date-stamped archive.  Compression runs in parallel with recording.
-ExecStart=systemctl restart pcp-atop.service
+ExecStart=systemctl restart atop.service
