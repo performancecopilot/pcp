@@ -1791,12 +1791,9 @@ rawwrite_open(const char *name)
 			pmGetProgname(), path, pmiErrStr(pmi_ctx));
 		cleanstop(1);
 	}
-	pmiUseContext(pmi_ctx);
-
-	/* sidecar written separately by rawwrite_init_sidecar() after
-	 * setup_globals() so that supportflags is fully initialised */
-
-	pmiSetZoneinfo(NULL);
+	/* sidecar and zoneinfo written in rawwrite_init_sidecar() after
+	 * setup_globals() so that supportflags is fully initialised and
+	 * the live PMAPI context exists for __pmZoneinfo() to use */
 
 	/*
 	** If LOGVOLSIZE is set (bytes), rotate data volumes at that threshold

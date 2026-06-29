@@ -117,3 +117,5 @@ then
         done
     fi
 fi
+
+exit 0
