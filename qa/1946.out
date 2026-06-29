@@ -1,4 +1,4 @@
-QA output created by 1944
+QA output created by 1946
 == Testing behaviour with alternate QA library filename
 pminfo[PID] Info: Successfully loaded NVIDIA NVML library
 
@@ -434,4 +434,3 @@ nvidia.proc.graphics.ngpus PMID: 120.4.8 [Count of GPUs used for graphics by eac
 Help:
 Count of GPUs used for graphics by each process
 No value(s) available!
-
