@@ -1,0 +1,11 @@
+QA output created by 2006
+=== Recording 3 samples ===
+=== Archive directory created ===
+passed
+=== Key metrics present in archive ===
+hinv.ncpu
+kernel.all.cpu.user
+kernel.all.load
+=== Proc metrics present in archive ===
+passed
+=== Replaying 1 sample (parseable mode) ===

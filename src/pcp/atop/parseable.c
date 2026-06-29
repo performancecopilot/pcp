@@ -177,15 +177,22 @@ void
 parseable_labels(char *buf, size_t len)
 {
 	int	i, any = 0;
+	size_t	used;
+
+	if (len == 0)
+		return;
 
 	buf[0] = '\0';
 	for (i = 0; i < numlabels; i++)
 	{
 		if (!labeldef[i].valid)
 			continue;
-		if (any)
-			strncat(buf, ",", len - strlen(buf) - 1);
-		strncat(buf, labeldef[i].label, len - strlen(buf) - 1);
+		used = strlen(buf);
+		if (any && len > used + 1)
+			strncat(buf, ",", len - used - 1);
+		used = strlen(buf);
+		if (len > used + 1)
+			strncat(buf, labeldef[i].label, len - used - 1);
 		any = 1;
 	}
 

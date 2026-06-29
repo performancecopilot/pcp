@@ -93,6 +93,10 @@ $compress_only && exit 0
 
 #
 # Cull archives (all suffixes) older than LOGGENERATIONS days.
+# LOGGENERATIONS=0 means keep forever; skip culling.
 #
-find "$LOGPATH" -name "*-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].*" \
-    -mtime +"$LOGGENERATIONS" -exec rm -f {} \;
+if [ "${LOGGENERATIONS:-0}" -gt 0 ]
+then
+    find "$LOGPATH" -name "*-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].*" \
+        -mtime +"$((LOGGENERATIONS - 1))" -exec rm -f {} \;
+fi
