@@ -1736,6 +1736,7 @@ rawarchive_compress_volume(const char *path)
 
 	if ((pid = fork()) == 0)
 	{
+		alarm(0);
 		execl("/usr/bin/zstd", "zstd", "-q", "--rm", path, (char *)NULL);
 		_exit(1);
 	}
