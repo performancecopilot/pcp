@@ -42,6 +42,28 @@ extern const char *procmetrics[];
 static struct timespec fetchstep;
 
 /*
+** PMI archive write context - used when recording with -w flag.
+** Uses libpcp_import directly, removing the pmlogger/libpcp_gui dependency.
+*/
+static int	pmi_ctx = -1;		/* PMI write context, -1 = inactive */
+static char	pmi_archpath[MAXPATHLEN];  /* base path of the current archive */
+
+/*
+** Per-metric PMI handle record keyed by pmid in the hash below.
+** The full pmDesc is stored so type, indom, sem, and units are available
+** for future use without a re-fetch.
+** 'handle' is the pmiGetHandle result for aggregate (indom=PM_INDOM_NULL)
+** metrics; -1 for instanced metrics (handles acquired per interval).
+*/
+typedef struct {
+	pmDesc	desc;		/* full metric descriptor */
+	char	name[128];	/* registered metric name for pmiGetHandle() */
+	int	handle;		/* pmiGetHandle for aggregate; -1 if instanced */
+} rawmetric_t;
+
+static __pmHashCtl	pmi_handle_hash;
+
+/*
 ** Add the PCP long option and environment variable handling into
 ** the mix, along with regular atop short option handling, ready
 ** for subsequent (combined) pmgetopt_r processing.
@@ -1406,7 +1428,7 @@ setup_metrics(const char **metrics, pmID *pmidlist, pmDesc *desclist, int nmetri
 		}
 	}
 
-	/* register this metric group with the pmi archive if recording */
+	/* register this metric group with the PMI archive if recording */
 	if (rawwriteflag)
 		rawwrite_register(metrics, pmidlist, desclist, nmetrics);
 }
@@ -1465,7 +1487,7 @@ fetch_metrics(const char *purpose, int nmetrics, pmID *pmids, pmResult **result)
 	if (rp->numpmid == 0)	/* mark record */
 		sampflags |= RRMARK;
 
-	/* stage this fetch into the pmi archive when in write mode */
+	/* stage this fetch into the PMI archive when in write mode */
 	if (rawwriteflag)
 		rawwrite_put(rp);
 	if (pmDebugOptions.appl1)
@@ -1693,27 +1715,30 @@ rawarchive(pmOptions *opts, const char *name)
 		free(py);
 	}
 }
-/*
-** PMI archive write context - used when recording with -w flag.
-** Uses libpcp_import directly, removing the pmlogger/libpcp_gui dependency.
-*/
-static int	pmi_ctx = -1;		/* pmi write context, -1 = inactive */
-static char	pmi_archpath[MAXPATHLEN];  /* base path of the current archive */
-/*
-** Per-metric pmi handle record keyed by pmid in the hash below.
-** The full pmDesc is stored so type, indom, sem, and units are available
-** for future use without a re-fetch.
-** 'handle' is the pmiGetHandle result for aggregate (indom=PM_INDOM_NULL)
-** metrics; -1 for instanced metrics (handles acquired per interval).
-*/
-typedef struct {
-	pmDesc	desc;		/* full metric descriptor */
-	char	name[128];	/* registered metric name for pmiGetHandle() */
-	int	handle;		/* pmiGetHandle for aggregate; -1 if instanced */
-} rawmetric_t;
 
-static __pmHashCtl	pmi_handle_hash;
+/*
+** Compress a completed data volume with zstd in a background child.
+** Called by the pmiSetVolumeSize callback when the import library rotates
+** to a new volume; path is the full path of the just-completed volume.
+** Uses an absolute path for zstd to avoid PATH hijacking.
+** zstd needs --rm to remove the source; -q suppresses progress output.
+*/
+static void
+rawarchive_compress_volume(const char *path)
+{
+	struct stat	st;
+	pid_t		pid;
 
+	if (stat(path, &st) < 0)
+		return;
+
+	if ((pid = fork()) == 0)
+	{
+		execl("/usr/bin/zstd", "zstd", "-q", "--rm", path, (char *)NULL);
+		_exit(1);
+	}
+	/* parent: child reaped by next SIGCHLD or on process exit */
+}
 
 /*
 ** Open a libpcp_import write context for the named archive path.
@@ -1797,27 +1822,27 @@ rawwrite_open(const char *name)
 		{
 			char	*end;
 			volsize = (size_t)strtoull(env, &end, 10);
-			switch (tolower((unsigned char)*end))
+			switch (tolower(*end))
 			{
-			case 'g': volsize *= 1024; /* fall through */
-			case 'm': volsize *= 1024; /* fall through */
-			case 'k': volsize *= 1024; break;
+				case 'g': volsize *= 1024; /* fall through */
+				case 'm': volsize *= 1024; /* fall through */
+				case 'k': volsize *= 1024; break;
 			}
 		}
 		else
 			volsize = 100 * 1024 * 1024;	/* 100M default */
 
 		if (volsize > 0)
-			pmiSetVolumeSize(volsize, compress_volume_zstd);
+			pmiSetVolumeSize(volsize, rawarchive_compress_volume);
 	}
 
 	if (pmDebugOptions.appl1)
-		fprintf(stderr, "%s: opened pmi archive %s\n",
-			pmGetProgname(), archpath);
+		fprintf(stderr, "%s: opened archive %s\n",
+			pmGetProgname(), pmi_archpath);
 }
 
 /*
-** Register a set of metrics with the pmi write context and populate the
+** Register a set of metrics with the PMI write context and populate the
 ** pmid-to-rawmetric_t hash for O(1) lookup in rawwrite_put().
 ** Called from setup_metrics() for each metric group when rawwriteflag is set.
 */
@@ -1881,7 +1906,7 @@ rawwrite_register(const char **metrics, pmID *pmids, pmDesc *descs, int nmetrics
 ** pmiPutAtomValueHandle(), avoiding any per-interval string lookup.
 **
 ** For instanced metrics (per-process, per-CPU, per-disk ...): pmiGetHandle
-** is called per (metric, instance).  pmi caches these handles internally
+** is called per (metric, instance).  PMI caches these handles internally
 ** so the string lookup is only paid once per new instance.
 **
 ** In both cases pmExtractValue uses the real PM_TYPE_* from the registered
@@ -1987,36 +2012,12 @@ rawwrite_flush(struct timespec *ts)
 }
 
 /*
-** Compress a completed data volume with zstd in a background child.
-** Called by the pmiSetVolumeSize callback when the import library rotates
-** to a new volume; path is the full path of the just-completed volume.
-** Uses an absolute path for zstd to avoid PATH hijacking.
-** zstd needs --rm to remove the source; -q suppresses progress output.
-*/
-static void
-compress_volume_zstd(const char *path)
-{
-	struct stat	st;
-	pid_t		pid;
-
-	if (stat(path, &st) < 0)
-		return;
-
-	if ((pid = fork()) == 0)
-	{
-		execl("/usr/bin/zstd", "zstd", "-q", "--rm", path, (char *)NULL);
-		_exit(1);
-	}
-	/* parent: child reaped by next SIGCHLD or on process exit */
-}
-
-/*
-** Close the pmi write context cleanly (called on normal exit).
+** Close the PMI write context cleanly (called on normal exit).
 ** Does NOT compress the archive: the session may be restarted mid-day
-** and the archive reopened with PMI_APPEND.  Compression of fully-sealed
+** and the archive reopened with PMI_APPEND.  Compression of complete
 ** prior-day archives is handled by ExecStartPre in pcp-atop.service.
 ** Per-volume compression during a long session is handled by the
-** pmiSetVolumeSize callback (compress_volume_zstd above).
+** pmiSetVolumeSize callback (rawarchive_compress_volume).
 */
 void
 rawwrite_close(void)
