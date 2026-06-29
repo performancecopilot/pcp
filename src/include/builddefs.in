@@ -58,6 +58,7 @@ PCPLIB_LDFLAGS = -L$(TOPDIR)/src/libpcp/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_web/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_pmda/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_mmv/$(LIBPCP_ABIDIR) \
+		 -L$(TOPDIR)/src/libpcp_import/$(LIBPCP_ABIDIR) \
 		 -L$(TOPDIR)/src/libpcp_archive/$(LIBPCP_ABIDIR)
 # backward compatibility
 PCP_LIBS = $(PCPLIB_LDFLAGS)
