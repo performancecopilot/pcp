@@ -1,0 +1,83 @@
+#!/bin/sh
+# PCP QA Test No. 2007
+# Verify pcp-atop systemd service lifecycle: pmimport.* metrics appear
+# after service start and disappear after a clean service stop.
+#
+# Copyright (c) 2026 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "pcp-atop not installed"
+[ -f $PCP_SYSTEMDUNIT_DIR/pcp-atop.service ] \
+    || _notrun "pcp-atop.service not installed"
+
+pmda=$PCP_PMDAS_DIR/pmimport/pmda_pmimport.$DSO_SUFFIX
+pmns=$PCP_VAR_DIR/pmns/root_pmimport
+[ -f "$pmda" ] || _notrun "pmdapmimport not installed"
+[ -f "$pmns" ] || _notrun "root_pmimport PMNS not installed"
+
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
+
+_cleanup()
+{
+    $sudo systemctl stop pcp-atop 2>/dev/null
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_pmimport_check()
+{
+    pminfo -L \
+	-K clear \
+	-K add,43,$pmda,pmimport_init \
+	-n $pmns \
+	-f pmimport.archive pmimport.version pmimport.args \
+	2>/dev/null \
+    | awk '/inst \[.*"pcp-atop"\]/ { found=1 }
+	   END { print (found ? "visible" : "not visible") }'
+}
+
+sidecar=`pmconfig -s PCP_RUN_DIR`/pmimport/pcp-atop
+
+# real QA test starts here
+
+echo "=== Before start: pcp-atop metrics not visible ==="
+_pmimport_check
+
+echo "=== Starting pcp-atop service ==="
+$sudo systemctl start pcp-atop
+
+# wait for the sidecar to appear
+for i in 1 2 3 4 5 6 7 8 9 10; do
+    [ -f "$sidecar" ] && break
+    sleep 1
+done
+
+echo "=== While running: pcp-atop metrics visible ==="
+_pmimport_check
+
+echo "=== Sidecar contains expected fields ==="
+grep -q "^pid="     "$sidecar" && echo "pid: passed"     || echo "pid: FAILED"
+grep -q "^archive=" "$sidecar" && echo "archive: passed" || echo "archive: FAILED"
+grep -q "^args=.*kernel" "$sidecar" && echo "args: passed" || echo "args: FAILED"
+
+echo "=== Stopping pcp-atop service ==="
+$sudo systemctl stop pcp-atop
+
+echo "=== After stop: pcp-atop metrics not visible ==="
+_pmimport_check
+
+echo "=== Sidecar removed on clean service stop ==="
+[ -f "$sidecar" ] && echo "FAILED: sidecar still present" || echo "passed"
+
+status=0
+exit

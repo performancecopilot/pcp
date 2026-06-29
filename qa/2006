@@ -1,0 +1,64 @@
+#!/bin/sh
+# PCP QA Test No. 2006
+# Exercise pcp-atop -w recording with libpcp_import and -r replay.
+# Verifies the archive is readable and contains expected metrics.
+#
+# Copyright (c) 2026 Red Hat.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.filter
+. ./common.check
+
+[ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "pcp-atop not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=1
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s/`hostname`/HOSTNAME/g" \
+	-e 's/[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]/YYYYMMDD/g' \
+	-e 's/[0-9][0-9]:[0-9][0-9]:[0-9][0-9]/HH:MM:SS/g' \
+	-e '/^[[:space:]]*$/d' \
+    #end
+}
+
+# real QA test starts here
+
+echo "=== Recording 3 samples ==="
+pcp atop -w $tmp.atopdir 1 3 2>&1 | _filter
+
+echo "=== Archive directory created ==="
+[ -d $tmp.atopdir ] && echo "passed" || echo "FAILED: no directory"
+
+arch=`ls $tmp.atopdir/*.index 2>/dev/null | head -1 | sed 's/\.index//'`
+[ -z "$arch" ] && echo "FAILED: no archive index found" && exit
+
+echo "=== Key metrics present in archive ==="
+pminfo -a $arch \
+    hinv.ncpu \
+    kernel.all.cpu.user \
+    kernel.all.load \
+    2>/dev/null \
+    | grep -E "^hinv\.|^kernel\." | LC_COLLATE=POSIX sort
+
+echo "=== Proc metrics present in archive ==="
+pminfo -a $arch proc.io.total_bytes 2>/dev/null \
+    | grep -q "^proc\." && echo "passed" || echo "FAILED: no proc metrics"
+
+echo "=== Replaying 1 sample (parseable mode) ==="
+pcp atop -r $tmp.atopdir -P CPU 1 1 2>&1 | _filter | grep "^CPU" | head -3
+
+status=0
+exit
