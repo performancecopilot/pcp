@@ -1,6 +1,7 @@
 '\"macro stdmacro
 .\"
 .\" Copyright (c) 2010 Ken McDonell.  All Rights Reserved.
+.\" Copyright (c) 2026 Red Hat.
 .\"
 .\" This program is free software; you can redistribute it and/or modify it
 .\" under the terms of the GNU General Public License as published by the
@@ -15,7 +16,8 @@
 .\"
 .TH PMISETTIMEZONE 3 "" "Performance Co-Pilot"
 .SH NAME
-\f3pmiSetTimezone\f1 \- set the source timezone for a LOGIMPORT archive
+\f3pmiSetTimezone\f1,
+\f3pmiSetZoneinfo\f1 \- set the source timezone for a LOGIMPORT archive
 .SH "C SYNOPSIS"
 .ft 3
 .ad l
@@ -25,6 +27,8 @@
 #include <pcp/import.h>
 .sp
 int pmiSetTimezone(const char *\fIvalue\fP);
+.br
+int pmiSetZoneinfo(const char *\fIvalue\fP);
 .sp
 cc ... \-lpcp_import \-lpcp
 .hy
@@ -54,16 +58,32 @@ log.pmiSetTimezone(\fIvalue\fP)
 As part of the Performance Co-Pilot Log Import API (see
 .BR LOGIMPORT (3)),
 .B pmiSetTimezone
-sets the source timezone in the current context to be
-.IR value .
-.PP
+sets the POSIX timezone string in the current context to
+.IR value ,
+which is stored in the archive label.
 In the absence of a call to
 .B pmiSetTimezone
 the source timezone defaults to the timezone of the localhost.
+.PP
+.B pmiSetZoneinfo
+sets the Olson (tzdata) timezone name for the archive, providing
+higher-fidelity timezone information than the POSIX string alone.
+If
+.I value
+is NULL,
+.B pmiSetZoneinfo
+auto-detects the Olson name for the current local timezone via
+.BR tzname (3)
+and the system timezone database; if no Olson name can be determined
+the call is a silent no-op.
+Passing an explicit Olson name such as
+.I "America/New_York"
+stores it directly without any lookup.
+The zoneinfo string is written into v3 archives alongside the POSIX
+timezone string.
 .SH DIAGNOSTICS
-.B pmiSetTimezone
-returns zero on success else a negative value that can be turned into an
-error message by calling
+Both functions return zero on success, or a negative value that can be
+turned into an error message by calling
 .BR pmiErrStr (3).
 .SH SEE ALSO
 .BR LOGIMPORT (3),
