@@ -89,14 +89,31 @@ do
     (zstd -q -o "$out" "$f" && rm -f "$f") &
 done
 
+# Wait for background compression children before exiting so systemd does
+# not kill them when ExecStartPre completes.  pcp-atop also compresses via
+# its own internal atop-daily --compress-only fork, so this is belt-and-
+# suspenders but ensures completeness in both call paths.
+wait
+
 $compress_only && exit 0
 
 #
-# Cull archives (all suffixes) older than LOGGENERATIONS days.
+# Cull archives (all suffixes) by the date embedded in the filename.
+# The YYYYMMDD stamp is reliable; mtime is not (compression updates it).
 # LOGGENERATIONS=0 means keep forever; skip culling.
 #
 if [ "${LOGGENERATIONS:-0}" -gt 0 ]
 then
-    find "$LOGPATH" -name "*-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].*" \
-        -mtime +"$((LOGGENERATIONS - 1))" -exec rm -f {} \;
+    cutdate=$(date -d "-${LOGGENERATIONS} days" +%Y%m%d 2>/dev/null || \
+              date -v"-${LOGGENERATIONS}d" +%Y%m%d 2>/dev/null)
+    if [ -n "$cutdate" ]
+    then
+        for f in "$LOGPATH"/*-[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9].*
+        do
+            [ -f "$f" ] || continue
+            base="${f##*/}"
+            day="${base#*-}"; day="${day%%.*}"
+            [ "$day" -lt "$cutdate" ] 2>/dev/null && rm -f "$f"
+        done
+    fi
 fi
