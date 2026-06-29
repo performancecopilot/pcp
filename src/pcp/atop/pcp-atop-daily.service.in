@@ -4,9 +4,8 @@ Documentation=man:pcp-atop(1)
 
 [Service]
 Type=oneshot
-EnvironmentFile=-@PCP_SYSCONF_DIR@/atop/atop.conf
-Environment="LOGPATH=@PCP_LOG_DIR@/atop"
-Environment="LOGGENERATIONS=28"
-ExecStart=systemctl stop pcp-atop.service
-ExecStart=@PCP_BINADM_DIR@/pcp-atop-daily
-ExecStart=systemctl start pcp-atop.service
+# restart seals yesterday's archive (pmiEnd on stop), then ExecStartPre
+# in pcp-atop.service atomically renames prior-day files, forks background
+# compression and culls old archives before recording resumes on the new
+# date-stamped archive.  Compression runs in parallel with recording.
+ExecStart=systemctl restart pcp-atop.service
