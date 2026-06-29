@@ -1,6 +1,6 @@
 #!/bin/sh
 # PCP QA Test No. 2007
-# Verify pcp-atop systemd service lifecycle: pmimport.* metrics appear
+# Verify atop systemd service lifecycle: pmimport.* metrics appear
 # after service start and disappear after a clean service stop.
 #
 # Copyright (c) 2026 Red Hat.
@@ -14,8 +14,8 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "pcp-atop not installed"
-[ -f $PCP_SYSTEMDUNIT_DIR/pcp-atop.service ] \
-    || _notrun "pcp-atop.service not installed"
+[ -f $PCP_SYSTEMDUNIT_DIR/atop.service ] \
+    || _notrun "atop.service not installed"
 
 pmda=$PCP_PMDAS_DIR/pmimport/pmda_pmimport.$DSO_SUFFIX
 pmns=$PCP_VAR_DIR/pmns/root_pmimport
@@ -24,9 +24,19 @@ pmns=$PCP_VAR_DIR/pmns/root_pmimport
 
 [ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 
+# remember whether atop was already running before the test
+atop_was_active=false
+$sudo systemctl is-active --quiet atop 2>/dev/null && atop_was_active=true
+
 _cleanup()
 {
-    $sudo systemctl stop pcp-atop 2>/dev/null
+    # restore pre-test state: stop if we started it, restart if it was running
+    if $atop_was_active
+    then
+        $sudo systemctl start atop 2>/dev/null
+    else
+        $sudo systemctl stop atop 2>/dev/null
+    fi
     cd $here
     $sudo rm -rf $tmp $tmp.*
 }
@@ -36,45 +46,60 @@ trap "_cleanup; exit \$status" 0 1 2 3 15
 
 _pmimport_check()
 {
-    pminfo -L \
-	-K clear \
-	-K add,43,$pmda,pmimport_init \
-	-n $pmns \
-	-f pmimport.archive pmimport.version pmimport.args \
-	2>/dev/null \
-    | awk '/inst \[.*"pcp-atop"\]/ { found=1 }
-	   END { print (found ? "visible" : "not visible") }'
+    # poll up to $1 seconds (default 3) for the expected state $2 (visible/not visible)
+    _timeout=${1:-3}
+    _want=${2:-visible}
+    _i=0
+    while [ $_i -lt $_timeout ]
+    do
+        _result=`pminfo -L \
+            -K clear \
+            -K add,43,$pmda,pmimport_init \
+            -n $pmns \
+            -f pmimport.archive pmimport.version pmimport.args \
+            2>/dev/null \
+        | awk '/inst \[.*"atop"\]/ { found=1 }
+               END { print (found ? "visible" : "not visible") }'`
+        [ "$_result" = "$_want" ] && break
+        sleep 1
+        _i=$((_i + 1))
+    done
+    echo "$_result"
 }
 
-sidecar=`pmconfig -s PCP_RUN_DIR`/pmimport/pcp-atop
+sidecar="$PCP_IMPORT_DIR/atop"
 
 # real QA test starts here
 
-echo "=== Before start: pcp-atop metrics not visible ==="
-_pmimport_check
+# ensure we start from a stopped state
+$sudo systemctl stop atop 2>/dev/null
+sleep 1
 
-echo "=== Starting pcp-atop service ==="
-$sudo systemctl start pcp-atop
+echo "=== Before start: atop metrics not visible ==="
+_pmimport_check 3 "not visible"
 
-# wait for the sidecar to appear
+echo "=== Starting atop service ==="
+$sudo systemctl start atop
+
+# wait for sidecar (atop writes it in rawwrite_open)
 for i in 1 2 3 4 5 6 7 8 9 10; do
     [ -f "$sidecar" ] && break
     sleep 1
 done
 
-echo "=== While running: pcp-atop metrics visible ==="
-_pmimport_check
+echo "=== While running: atop metrics visible ==="
+_pmimport_check 5 "visible"
 
 echo "=== Sidecar contains expected fields ==="
 grep -q "^pid="     "$sidecar" && echo "pid: passed"     || echo "pid: FAILED"
 grep -q "^archive=" "$sidecar" && echo "archive: passed" || echo "archive: FAILED"
-grep -q "^args=.*kernel" "$sidecar" && echo "args: passed" || echo "args: FAILED"
+grep -q "^args=.*CPU" "$sidecar" && echo "args: passed"  || echo "args: FAILED"
 
-echo "=== Stopping pcp-atop service ==="
-$sudo systemctl stop pcp-atop
+echo "=== Stopping atop service ==="
+$sudo systemctl stop atop
 
-echo "=== After stop: pcp-atop metrics not visible ==="
-_pmimport_check
+echo "=== After stop: atop metrics not visible ==="
+_pmimport_check 5 "not visible"
 
 echo "=== Sidecar removed on clean service stop ==="
 [ -f "$sidecar" ] && echo "FAILED: sidecar still present" || echo "passed"
