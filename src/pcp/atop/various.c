@@ -1877,7 +1877,7 @@ rawwrite_init_sidecar(void)
 	if (hotprocflag)
 		strncat(args, ",hotproc", sizeof(args) - strlen(args) - 1);
 
-	pmiSetImportProgram("atop", PCP_VERSION, args, pmi_archpath);
+	pmiSetImportProgram("atop", ATOP_VERSION, args, pmi_archpath);
 	pmiSetZoneinfo(NULL);
 }
 

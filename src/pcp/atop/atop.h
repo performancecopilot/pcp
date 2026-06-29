@@ -27,6 +27,9 @@
 #define	EQ		0
 #define SECONDSINDAY	86400
 
+/* upstream atop version this pcp-atop implementation is based upon */
+#define ATOP_VERSION	"2.12.1"
+
 /*
 ** Compatibility bridge: upstream atop uses safe_strcpy(dst, src, n)
 ** while PCP provides pmstrncpy(dst, n, src) with swapped argument order.

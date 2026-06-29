@@ -498,44 +498,35 @@ _pmimport_tool()
 	"$tmp/pmimport_$2" | head -1
 }
 
-_sadc_ver=`_pmimport_tool sadc version`
-_sadc_args=`_pmimport_tool sadc args`
-_sadc_archive=`_pmimport_tool sadc archive`
-
-if [ -n "$_sadc_ver" ]
-then
-    echo
-    echo "  sysstat: Version $_sadc_ver"
-    if [ -n "$_sadc_args" ]
-    then
-	echo "$_sadc_args" \
-	| tr ',' ' ' \
-	| fmt -w 68 \
-	| $PCP_AWK_PROG '
-NR == 1	{ printf " activity: %s\n", $0; next }
-	{ printf "           %s\n", $0 }'
-    fi
-    [ -n "$_sadc_archive" ] && echo "     sadc: $_sadc_archive"
-fi
-
-# Generic pmimport tools (any tool other than sadc)
+# Display all active pmimport tools with tool-specific label vocabulary.
+# All args strings are passed through tr ',' ' ' (comma-separated tools like
+# sadc/atop become space-separated; space-separated tools like collectl are
+# unaffected).  fmt -w 68 wraps long label lists consistently.
 if [ -f "$tmp/pmimport_version" ]
 then
     for _tool in `$PCP_AWK_PROG '{print $2}' "$tmp/pmimport_version" | sort -u`
     do
-	[ "$_tool" = "sadc" ] && continue
 	_ver=`_pmimport_tool "$_tool" version`
 	[ -z "$_ver" ] && continue
-	_modules=`_pmimport_tool "$_tool" args`
+	_args=`_pmimport_tool "$_tool" args`
 	_archive=`_pmimport_tool "$_tool" archive`
 	case "$_tool" in
-	    pcp-atop)	_arglabel="labels" ;;
-	    *)		_arglabel="modules" ;;
+	    sadc)   _dispname="sysstat"; _arglabel="activity"; _archlabel="sadc" ;;
+	    atop)   _dispname="atop";    _arglabel="labels";   _archlabel="archive" ;;
+	    *)      _dispname="$_tool";  _arglabel="modules";  _archlabel="archive" ;;
 	esac
 	echo
-	printf "%9s: Version %s\n" "$_tool" "$_ver"
-	[ -n "$_modules" ] && printf "%9s: %s\n" "$_arglabel" "$_modules"
-	[ -n "$_archive" ] && printf "%9s: %s\n" "archive" "$_archive"
+	printf "%9s: Version %s\n" "$_dispname" "$_ver"
+	if [ -n "$_args" ]
+	then
+	    echo "$_args" \
+	    | tr ',' ' ' \
+	    | fmt -w 68 \
+	    | $PCP_AWK_PROG -v label="$_arglabel" '
+NR == 1	{ printf "%9s: %s\n", label, $0; next }
+	{ printf "           %s\n", $0 }'
+	fi
+	[ -n "$_archive" ] && printf "%9s: %s\n" "$_archlabel" "$_archive"
     done
 fi
 
