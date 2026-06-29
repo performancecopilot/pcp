@@ -1,0 +1,119 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (c) 2026 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PMISETIMPORTPROGRAM 3 "" "Performance Co-Pilot"
+.SH NAME
+\f3pmiSetImportProgram\f1 \- register an import tool with pmdapmimport
+.SH "C SYNOPSIS"
+.ft 3
+.ad l
+.hy 0
+#include <pcp/pmapi.h>
+.br
+#include <pcp/import.h>
+.sp
+int pmiSetImportProgram(const char *\fItool\fP, const char *\fIversion\fP, const char *\fIargs\fP, const char *\fIarchive\fP);
+.sp
+cc ... \-lpcp_import \-lpcp
+.hy
+.ad
+.ft 1
+.SH DESCRIPTION
+As part of the Performance Co-Pilot Log Import API (see
+.BR LOGIMPORT (3)),
+.B pmiSetImportProgram
+registers the running import tool with
+.BR pmdapmimport (1)
+so that its status is visible through the
+.B pmimport.*
+metric family.
+.PP
+The function writes a sidecar status file to
+.B PCP_IMPORT_DIR
+(typically
+.IR /run/pmimport )
+named after
+.IR tool .
+The file is a simple
+.I key=value
+text format containing a subset of the following fields:
+.TP
+.B pid=
+The process ID of the import tool, written only when the
+.B PMI_PROCESS
+flag was passed to
+.BR pmiStart (3).
+Long-running daemons should use this flag so that
+.BR pmdapmimport (1)
+can detect and suppress stale entries left by an unclean exit.
+One-shot tools (e.g. those invoked periodically from a cron job)
+should omit the flag; their sidecar files persist between invocations
+and are always considered live.
+.TP
+.B version=
+The
+.I version
+string supplied by the caller (skipped if NULL or empty).
+.TP
+.B args=
+The
+.I args
+string supplied by the caller (skipped if NULL or empty).
+Typically a summary of the subsystems or data sources being imported,
+for display by
+.BR pcp (1).
+.TP
+.B archive=
+The
+.I archive
+base path supplied by the caller (skipped if NULL or empty).
+.PP
+The sidecar file is removed automatically when
+.BR pmiEnd (3)
+is called, so no explicit cleanup is required on a clean exit.
+.PP
+.B pmiSetImportProgram
+should be called once after
+.BR pmiStart (3)
+and before the first call to
+.BR pmiWrite (3).
+Calling it again with updated arguments (e.g. after an archive
+rotation) is permitted and overwrites the existing sidecar file.
+.SH DIAGNOSTICS
+Returns zero on success.
+.B PM_ERR_NOCONTEXT
+is returned if there is no current import context.
+.B PM_ERR_CONV
+is returned if
+.I tool
+is NULL or empty.
+Any error opening or writing the sidecar file causes the corresponding
+negated
+.BR errno (3)
+value to be returned.
+.SH FILES
+.TP
+.I $PCP_IMPORT_DIR/<tool>
+Sidecar status file for the named import tool.
+.SH SEE ALSO
+.BR LOGIMPORT (3),
+.BR pcp (1),
+.BR pmdapmimport (1),
+.BR pmiEnd (3),
+.BR pmiErrStr (3),
+.BR pmiStart (3),
+.BR pmiWrite (3)
+and
+.BR pmiWriteNow (3).
