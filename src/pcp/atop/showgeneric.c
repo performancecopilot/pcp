@@ -186,7 +186,7 @@ generic_samp(double sampletime, double nsecs,
 				break;
 
 			   case MPROCNET:	// switch to text mode: network
-				if (supportflags & NETATOP || supportflags & NETATOPBPF)
+				if (supportflags & NETATOP || supportflags & NETBPF)
 				{
 					showtype  = MPROCNET;
 
@@ -1202,7 +1202,7 @@ text_samp(double sampletime, double nsecs,
 			   ** sort in network-activity order
 			   */
 			   case MSORTNET:
-				if ( !(supportflags & NETATOP || supportflags & NETATOPBPF))
+				if ( !(supportflags & NETATOP || supportflags & NETBPF))
 				{
 					statmsg = "BPF or BCC PMDA not active or "
 					          "'netproc' module not enabled; "
@@ -1274,7 +1274,7 @@ text_samp(double sampletime, double nsecs,
 			   ** network-specific figures per process
 			   */
 			   case MPROCNET:
-				if ( !(supportflags & NETATOP || supportflags & NETATOPBPF) )
+				if ( !(supportflags & NETATOP || supportflags & NETBPF) )
 				{
 					statmsg = "BPF or BCC PMDA not active or "
 					          "'netproc' module not enabled; "
@@ -2878,7 +2878,7 @@ generic_init(void)
 			break;
 
 		   case MPROCNET:
-			if ( !(supportflags & NETATOP || supportflags & NETATOPBPF) )
+			if ( !(supportflags & NETATOP || supportflags & NETBPF) )
 			{
 				fprintf(stderr, "BPF or BCC PMDA not active or "
 					        "'netproc' module not enabled; "

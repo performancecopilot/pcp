@@ -169,6 +169,32 @@ parsedef(char *pd)
 }
 
 /*
+** Build a comma-separated string of currently-active parseable labels.
+** If no labels were selected via -P, writes the default recording set
+** (CPU,CPL,MEM,SWP,DSK,NET,PRG,PRC).
+*/
+void
+parseable_labels(char *buf, size_t len)
+{
+	int	i, any = 0;
+
+	buf[0] = '\0';
+	for (i = 0; i < numlabels; i++)
+	{
+		if (!labeldef[i].valid)
+			continue;
+		if (any)
+			strncat(buf, ",", len - strlen(buf) - 1);
+		strncat(buf, labeldef[i].label, len - strlen(buf) - 1);
+		any = 1;
+	}
+
+	if (!any)
+		/* no -P specified: use the default recording label set */
+		safe_strcpy(buf, "CPU,CPL,MEM,SWP,DSK,NET,PRG,PRC", len);
+}
+
+/*
 ** produce parsable output for an interval
 */
 char

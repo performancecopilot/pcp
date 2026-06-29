@@ -457,9 +457,14 @@ main(int argc, char *argv[])
 		rawwrite_open(rawname);
 
 	/*
-	** find local host details (no privileged access required)
+	** find local host details (no privileged access required);
+	** probe_optional_metrics() runs inside setup_globals() after
+	** setup_photosyst() so supportflags is fully populated on return.
 	*/
 	setup_globals(&opts);
+
+	if (rawwriteflag)
+		rawwrite_init_sidecar();
 
 	/*
 	** catch signals for proper close-down

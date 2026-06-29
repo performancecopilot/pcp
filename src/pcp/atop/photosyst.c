@@ -378,6 +378,45 @@ setup_photosyst(void)
 	setup_metrics(systmetrics, pmids, descs, SYST_NMETRICS);
 }
 
+/*
+** probe_optional_metrics: set supportflags bits for optional subsystems
+** by doing a quick pmFetch of one representative metric per subsystem.
+** Called from setup_globals() after setup_photosyst() has populated pmids[].
+** Any subsystem whose metric resolves AND returns at least one value is
+** considered active.
+*/
+void
+probe_optional_metrics(void)
+{
+	static const struct {
+		int		idx;	/* index into systmetrics pmids[] */
+		unsigned int	flag;	/* supportflags bit to set if active */
+	} probes[] = {
+		{ PERIFB_PORT_RATE,	IBSTAT   },
+		{ PERCPU_PERF_CYCLE,	IPCSTAT  },
+		{ LLC_OCCUPANCY,	LLCSTAT  },
+		{ NFC_RPCCNT,		NFSSTAT  },
+		{ PSI_CPUSOME_AVG,	PSISTAT  },
+		{ PERDM_NREAD,		LVMSTAT  },
+		{ PERMD_NREAD,		MDDSTAT  },
+	};
+	unsigned int	i;
+
+	for (i = 0; i < sizeof probes / sizeof probes[0]; i++)
+	{
+		pmResult	*rp = NULL;
+		pmID		 pmid = pmids[probes[i].idx];
+
+		if (pmid == PM_ID_NULL)
+			continue;
+		if (pmFetch(1, &pmid, &rp) < 0)
+			continue;
+		if (rp->numpmid > 0 && rp->vset[0]->numval > 0)
+			supportflags |= probes[i].flag;
+		pmFreeResult(rp);
+	}
+}
+
 char
 photosyst(struct sstat *si)
 {

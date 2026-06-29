@@ -439,7 +439,7 @@ photoproc(struct tstat **tasks, unsigned long *taskslen)
 
 	thread_cpu_accumulation(tasks, count);
 
-	if (supportflags & NETATOPBPF)
+	if (supportflags & NETBPF)
 		netbpfproc_update_tasks(tasks, count);
 
 	if (pmDebugOptions.appl0)

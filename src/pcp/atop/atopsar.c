@@ -2622,7 +2622,7 @@ topnline(struct sstat *ss, struct tstat *ts, struct tstat **ps, int nactproc,
 		return 0;
 	}
 
-	if ( !(supportflags & NETATOP || supportflags & NETATOPBPF) )
+	if ( !(supportflags & NETATOP || supportflags & NETBPF) )
 	{
 		printf("no per-process network counters available.....\n");
 		return 0;

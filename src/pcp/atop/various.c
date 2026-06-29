@@ -29,6 +29,7 @@
 #include <math.h>
 
 #include "atop.h"
+#include "parseable.h"
 #include "photoproc.h"
 #include "photosyst.h"
 #include "hostmetrics.h"
@@ -1079,6 +1080,7 @@ setup_globals(pmOptions *opts)
 	}
 
 	setup_photosyst();
+	probe_optional_metrics();
 	setup_photoproc();
 	setup_gpuphotoproc();
 
@@ -1782,7 +1784,7 @@ rawwrite_open(const char *name)
 	pmsprintf(path, sizeof path, "%s/%s-%s", name, host, datebuf);
 	safe_strcpy(pmi_archpath, path, sizeof pmi_archpath);
 
-	pmi_ctx = pmiStart(path, PMI_APPEND);
+	pmi_ctx = pmiStart(path, PMI_APPEND | PMI_PROCESS);
 	if (pmi_ctx < 0)
 	{
 		fprintf(stderr, "%s: cannot open archive %s: %s\n",
@@ -1791,18 +1793,8 @@ rawwrite_open(const char *name)
 	}
 	pmiUseContext(pmi_ctx);
 
-	/*
-	** Build comma-separated module list: kernel always, proc or hotproc,
-	** then optional subsystems.  Reuse host[] since hostname is done.
-	*/
-	safe_strcpy(host, "kernel", sizeof host);
-	strncat(host, hotprocflag ? ",hotproc" : ",proc",
-		sizeof(host) - strlen(host) - 1);
-	if (supportflags & GPUSTAT)
-		strncat(host, ",nvidia", sizeof(host) - strlen(host) - 1);
-	if (supportflags & (NETATOP|NETATOPBPF))
-		strncat(host, ",netatop", sizeof(host) - strlen(host) - 1);
-	pmiSetImportProgram("pcp-atop", PCP_VERSION, host, path);
+	/* sidecar written separately by rawwrite_init_sidecar() after
+	 * setup_globals() so that supportflags is fully initialised */
 
 	pmiSetZoneinfo(NULL);
 
@@ -1846,6 +1838,52 @@ rawwrite_open(const char *name)
 ** pmid-to-rawmetric_t hash for O(1) lookup in rawwrite_put().
 ** Called from setup_metrics() for each metric group when rawwriteflag is set.
 */
+/*
+** Write (or rewrite) the pmimport sidecar for pmdapmimport.
+** Called from atop.c after setup_globals() so supportflags is complete.
+** The args field uses the real -P labels (from parseable_labels()) when -P
+** was given, or the default recording label set otherwise, then appends
+** conditional labels gated on detected hardware/PMDAs.
+*/
+void
+rawwrite_init_sidecar(void)
+{
+	char	args[512];
+	static const struct { unsigned int flag; const char *label; } extras[] = {
+		{ PSISTAT,		"PSI"      },
+		{ LVMSTAT,		"LVM"      },
+		{ MDDSTAT,		"MDD"      },
+		{ NFSSTAT,		"NFC,NFM"  },
+		{ GPUSTAT,		"GPU"      },
+		{ IBSTAT,		"IFB"      },
+		{ LLCSTAT,		"LLC"      },
+		{ NETATOP|NETBPF,	"PRN"      },
+	};
+	unsigned int	i;
+
+	if (pmi_ctx < 0)
+		return;
+
+	/* core labels (default set or explicit -P selection) */
+	parseable_labels(args, sizeof args);
+
+	/* conditionally append hardware/PMDA-gated labels */
+	for (i = 0; i < sizeof extras / sizeof extras[0]; i++)
+	{
+		if (supportflags & extras[i].flag)
+		{
+			strncat(args, ",", sizeof(args) - strlen(args) - 1);
+			strncat(args, extras[i].label, sizeof(args) - strlen(args) - 1);
+		}
+	}
+
+	if (hotprocflag)
+		strncat(args, ",hotproc", sizeof(args) - strlen(args) - 1);
+
+	pmiSetImportProgram("pcp-atop", PCP_VERSION, args, pmi_archpath);
+	pmiSetZoneinfo(NULL);
+}
+
 void
 rawwrite_register(const char **metrics, pmID *pmids, pmDesc *descs, int nmetrics)
 {
@@ -1960,15 +1998,31 @@ rawwrite_put(pmResult *result)
 		}
 		else
 		{
-			/* Instanced: acquire handle per (metric, instance) */
+			/* Instanced: look up external name then acquire handle */
 			for (j = 0; j < vsp->numval; j++)
 			{
-				char	instbuf[32];
+				char	*instname;
 				int	handle;
 
-				pmsprintf(instbuf, sizeof instbuf, "%d",
-					vsp->vlist[j].inst);
-				handle = pmiGetHandle(ph->name, instbuf);
+				/*
+				 * pmNameInDom needs the live fetch context, not the
+				 * pmi write context.  Switch temporarily.
+				 */
+				pmUseContext(saved);
+				if (pmNameInDom(ph->desc.indom,
+						vsp->vlist[j].inst, &instname) < 0)
+				{
+					pmiUseContext(pmi_ctx);
+					continue;
+				}
+				pmiUseContext(pmi_ctx);
+
+				/* register instance on first sight (no-op if known) */
+				pmiAddInstance(ph->desc.indom, instname,
+						vsp->vlist[j].inst);
+
+				handle = pmiGetHandle(ph->name, instname);
+				free(instname);
 				if (handle < 0)
 					continue;
 

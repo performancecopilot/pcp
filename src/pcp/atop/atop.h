@@ -159,7 +159,14 @@ extern long long	system_boottime;
 #define	CONTAINERSTAT	0x00000040
 #define	GPUSTAT		0x00000080
 #define	CGROUPV2	0x00000100
-#define	NETATOPBPF	0x00001000
+#define	IBSTAT		0x00000200	/* infiniband PMDA: IB ports active */
+#define	IPCSTAT		0x00000400	/* perfevent PMDA: IPC/cycle counters */
+#define	LLCSTAT		0x00000800	/* resctrl PMDA: LLC occupancy active */
+#define	NETBPF		0x00001000	/* BPF PMDA: per-process network stats */
+#define	NFSSTAT		0x00002000	/* NFS client mounts active */
+#define	PSISTAT		0x00004000	/* kernel PSI pressure metrics */
+#define	LVMSTAT		0x00008000	/* LVM/device-mapper devices present */
+#define	MDDSTAT		0x00010000	/* MD software-RAID devices present */
 
 /*
 ** structure containing the start-addresses of functions for visualization
@@ -217,6 +224,7 @@ void		rawfolio(struct pmOptions *);
 void		rawarchive(struct pmOptions *, const char *);
 void		rawarchive_from_midnight(struct pmOptions *);
 void		rawwrite_open(const char *);
+void		rawwrite_init_sidecar(void);
 void		rawwrite_register(const char **, pmID *, pmDesc *, int);
 void		rawwrite_put(pmResult *);
 void		rawwrite_flush(struct timespec *);

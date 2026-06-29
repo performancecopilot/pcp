@@ -2531,18 +2531,28 @@ as much as possible.
 .PP
 Some features of
 .BR pcp-atop
-(such as reporting on the Apache HTTP daemon, Infiniband, NFS
-client mounts, hardware event counts, GPU statistics and per-process
-TCP and UDP statistics) are only activated if the corresponding PCP metrics
-are available. Refer to the documentation for
+(such as reporting on the Apache HTTP daemon, Infiniband, Last-Level Cache
+occupancy, NFS client mounts, hardware event counts, GPU statistics and
+per-process TCP and UDP statistics) are only activated if the corresponding
+PCP metrics are available. Refer to the documentation for
 .BR pmdaapache (1),
+.BR pmdabpf (1),
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
 .BR pmdanvidia (1),
 .BR pmdaperfevent (1)
 and
-.BR pmdabpf (1)
+.BR pmdaresctrl (1)
 for further details on activating these metrics.
+When
+.B pcp-atop
+is run in recording mode
+.RB ( \-w ),
+it registers with
+.BR pmdapmimport (1)
+so that
+.BR pcp (1)
+can report on its archive path, version, and active subsystems.
 .PP
 The semantics of the per-process network statistics deviate slightly from the
 .BR atop (1)
@@ -2611,7 +2621,10 @@ appl1	metric and instance domain retrievals
 .BR pmdainfiniband (1),
 .BR pmdanfsclient (1),
 .BR pmdanvidia (1),
+.BR pmdaperfevent (1),
+.BR pmdapmimport (1),
 .BR pmdaproc (1),
+.BR pmdaresctrl (1),
 .BR mkaf (1),
 .BR pmlogger (1),
 .BR pmlogger_daily (1)

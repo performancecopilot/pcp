@@ -327,7 +327,7 @@ deviattask(struct tstat    *curtpres, unsigned long ntaskpres,
 		/*
 		** try to match the network counters of netatop
 		*/
-		if (supportflags & NETATOPBPF)
+		if (supportflags & NETBPF)
 		{
 			unsigned long	val = (hashtype == 'p' ?
 						curstat->gen.pid :

@@ -87,7 +87,7 @@ atop.conf: atop.conf.in
 	    -e 's|@PCP_SYSCONF_DIR@|$(PCP_SYSCONF_DIR)|g' \
 	    $< > $@
 
-ifeq "$(HAVE_NCURSESW)" "true"
+ifeq "$(TARGET_OS)+$(HAVE_NCURSESW)" "linux+true"
 build-me: $(CMDTARGET) $(DISTLINKS)
 
 install: default
