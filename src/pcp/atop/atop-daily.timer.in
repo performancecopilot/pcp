@@ -1,6 +1,7 @@
 [Unit]
 Description=Daily atop archive maintenance
 Documentation=man:pcp-atop(1)
+BindsTo=atop.service
 
 [Timer]
 OnCalendar=daily
