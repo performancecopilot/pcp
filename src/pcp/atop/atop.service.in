@@ -1,6 +1,7 @@
 [Unit]
 Description=PCP atop advanced performance monitor
 Documentation=man:pcp-atop(1)
+BindsTo=atop-daily.timer
 
 [Service]
 Type=simple
