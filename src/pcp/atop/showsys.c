@@ -1260,7 +1260,7 @@ sysprt_MEMAVAIL(struct sstat *sstat, extraparam *notused, int badness, int *colo
 {
         static char buf[16]="avail ";
 	*color = -1;
-        val2memstr(sstat->mem.availablemem * pagesize, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
+        val2memstr(sstat->mem.availablemem * 1024, buf+6, sizeof buf-6, MBFORMAT, 0, 0);
         return buf;
 }
 

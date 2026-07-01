@@ -551,7 +551,7 @@ photosyst(struct sstat *si)
 	si->mem.shugepagesz = extract_count_t(result, descs, HUGEPAGESZ);
 	si->mem.anonhugepage = extract_count_t(result, descs, MEM_ANONHUGEPAGE);
 	/* mem.util.available is in KiB; convert to pages like all other mem fields */
-	si->mem.availablemem = extract_count_t(result, descs, MEM_AVAILABLE) * 1024 / pagesize;
+	si->mem.availablemem = extract_count_t(result, descs, MEM_AVAILABLE);
 	si->mem.zswapped = extract_count_t(result, descs, MEM_ZSWAPPED);
 	si->mem.zswap = extract_count_t(result, descs, MEM_ZSWAP);
 
