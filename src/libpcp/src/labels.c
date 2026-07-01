@@ -81,6 +81,11 @@ typedef struct parser {
     unsigned int	stacklen;	/* length of compound name 'stack' */
     unsigned int	stackseq;	/* number of 'stack' name changes */
     unsigned int	labelflags;	/* new flags (compound/optional) */
+    unsigned int	skipping;	/* depth counter for invalid key skip */
+    unsigned int	skipped;	/* count of skipped invalid labels */
+    char		*rewind;	/* buffer position before key comma */
+    unsigned int	rewindlen;	/* buflen before key comma */
+    unsigned int	rewindcomma;	/* comma state before key */
     char		*stack;		/* accumulated compound label name */
 } parser_t;
 
@@ -490,13 +495,14 @@ verify_label_name(const char *name, size_t length, int nested)
 	return -EINVAL;
     if (length >= MAXLABELNAMELEN)
 	return -E2BIG;
-    if (!isalpha((int)*name))	/* first character must be alphanumeric */
-	return -EINVAL;
-    while (++name < (start + length)) {
-	if (isalnum((int)*name) || *name == '_')	/* all the rest */
+    while (name < (start + length)) {
+	if (isalnum((unsigned char)*name) || *name == '_') {
+	    name++;
 	    continue;
+	}
 	if (*name == '.' && nested) {
 	    sts = 1;
+	    name++;
 	    continue;
 	}
 	return -EINVAL;
@@ -657,6 +663,10 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
     if (action == JSONSL_ACTION_PUSH) {
 	switch (state->type) {
 	case JSONSL_T_OBJECT:
+	    if (parser->skipping) {
+		parser->skipping++;
+		break;
+	    }
 	    if (parser->comma)
 		stash_chars(",", 1, &parser->buffer, &parser->buflen);
 	    stash_chars("{", 1, &parser->buffer, &parser->buflen);
@@ -665,6 +675,10 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
 	    break;
 
 	case JSONSL_T_LIST:
+	    if (parser->skipping) {
+		parser->skipping++;
+		break;
+	    }
 	    if (parser->comma)
 		stash_chars(",", 1, &parser->buffer, &parser->buflen);
 	    stash_chars("[", 1, &parser->buffer, &parser->buflen);
@@ -673,6 +687,11 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
 	    break;
 
 	case JSONSL_T_HKEY:
+	    if (parser->skipping)
+		break;
+	    parser->rewind = parser->buffer;
+	    parser->rewindlen = parser->buflen;
+	    parser->rewindcomma = parser->comma;
 	    if (parser->comma)
 		stash_chars(",", 1, &parser->buffer, &parser->buflen);
 	    parser->token = parser->start + json->pos;
@@ -681,6 +700,8 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
 
 	case JSONSL_T_STRING:
 	case JSONSL_T_SPECIAL:
+	    if (parser->skipping)
+		break;
 	    if (parser->comma)
 		stash_chars(",", 1, &parser->buffer, &parser->buflen);
 	    parser->token = parser->start + json->pos;
@@ -694,6 +715,11 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
     else if (action == JSONSL_ACTION_POP) {
 	switch (state->type) {
 	case JSONSL_T_OBJECT:
+	    if (parser->skipping) {
+		if (--parser->skipping == 1)
+		    parser->skipping = 0;
+		break;
+	    }
 	    stash_chars("}", 1, &parser->buffer, &parser->buflen);
 	    if (parser->namelevel == state->level && parser->name != 0)
 		add_label_value(parser, 2, 1);	/* empty map */
@@ -702,6 +728,11 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
 	    break;
 
 	case JSONSL_T_LIST:
+	    if (parser->skipping) {
+		if (--parser->skipping == 1)
+		    parser->skipping = 0;
+		break;
+	    }
 	    stash_chars("]", 1, &parser->buffer, &parser->buflen);
 	    string = parser->array;
 	    length = (at - string) + 1;
@@ -712,13 +743,22 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
 	    break;
 
 	case JSONSL_T_HKEY:
+	    if (parser->skipping)
+		break;
 	    string = parser->token + 1;
 	    length = at - string;
 	    nested = parser->labelflags & PM_LABEL_COMPOUND;
 	    if ((sts = verify_label_name(string, length, nested)) < 0) {
 		if (pmDebugOptions.labels)
-		    fprintf(stderr, "Label name is invalid %.*s", length, string);
-		parser->error = sts;
+		    fprintf(stderr, "Label name is invalid %.*s (skipping)",
+				    length, string);
+		parser->skipping = 1;
+		parser->skipped++;
+		parser->buffer = parser->rewind;
+		parser->buflen = parser->rewindlen;
+		parser->comma = parser->rewindcomma;
+		parser->token = NULL;
+		break;
 	    }
 	    parser->name = (parser->buffer - parser->jsonb) + 1;
 	    if (sts > 0 && parser->compound) {
@@ -735,6 +775,12 @@ labels_token_callback(jsonsl_t json, jsonsl_action_t action,
 
 	case JSONSL_T_STRING:
 	case JSONSL_T_SPECIAL:
+	    if (parser->skipping) {
+		if (parser->skipping == 1)
+		    parser->skipping = 0;
+		parser->token = NULL;
+		break;
+	    }
 	    string = parser->token;
 	    length = at - string;
 	    if (state->type == JSONSL_T_STRING)
@@ -809,13 +855,13 @@ __pmParseLabels(const char *s, int slen,
 
     if (parser.nlabels == 0) {
 	/*
-	 * Zero labels happens if we are passed an empty labelset string.
-	 * Argument buffer is set to a zero length string and 0 returned.
+	 * Zero labels from empty input ({}) is fine.
+	 * Zero labels because all keys were invalid is an error.
 	 */
 	*buflen = 0;
 	buffer[0] = '\0';
 	labels_hash_destroy(compound);
-	return 0;
+	return parser.skipped ? -EINVAL : 0;
     }
 
     if (pmDebugOptions.labels && pmDebugOptions.desperate) {
