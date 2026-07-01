@@ -1752,9 +1752,11 @@ rawwrite_open(const char *name)
 {
 	char	path[MAXPATHLEN];
 	char	host[MAXHOSTNAMELEN];
+	char	datebuf[16];
+	size_t	volsize;
 	time_t	now = time(NULL);
 	struct tm	*tm = localtime(&now);
-	char	datebuf[16];
+	const char	*env = getenv("LOGVOLSIZE");
 
 	if (__pmMakePath(name, S_IRWXU|S_IRWXG|S_IROTH|S_IXOTH) < 0)
 	{
@@ -1764,11 +1766,11 @@ rawwrite_open(const char *name)
 	}
 
 	/*
-	** Fork pcp-atop-daily --compress-only to compress any prior-day archives
+	** Fork atop-daily --compress-only to compress any prior-day archives
 	** in the background before opening the new archive.  The child exits
 	** quickly (rename is fast; compression is forked again from the script)
-	** so recording is not delayed.  Running in pcp-atop's own cgroup ensures
-	** the background compression children are not killed by systemd on service
+	** so recording is not delayed.  Running in atop's own cgroup ensures
+	** the background compression child is not killed by systemd on service
 	** unit completion.
 	*/
 	pmsprintf(path, sizeof path, "%s/atop-daily",
@@ -1801,41 +1803,32 @@ rawwrite_open(const char *name)
 	** and compress each completed volume with zstd immediately.
 	** The .meta file is left uncompressed so the archive remains appendable
 	** after a mid-day service restart; prior-day archives are sealed by the
-	** ExecStartPre in pcp-atop.service (xz .meta, zstd any leftover volumes).
+	** ExecStartPre in atop.service (xz .meta, zstd any leftover volumes).
 	** Default 0 means no intra-day volume rotation (daily restart suffices).
 	*/
+	env = getenv("LOGVOLSIZE");
+	if (env && *env)
 	{
-		const char	*env = getenv("LOGVOLSIZE");
-		size_t		volsize;
-
-		if (env && *env)
+		char	*end;
+		volsize = (size_t)strtoull(env, &end, 10);
+		switch (tolower(*end))
 		{
-			char	*end;
-			volsize = (size_t)strtoull(env, &end, 10);
-			switch (tolower(*end))
-			{
-				case 'g': volsize *= 1024; /* fall through */
-				case 'm': volsize *= 1024; /* fall through */
-				case 'k': volsize *= 1024; break;
-			}
+			case 'g': volsize *= 1024; /* fall through */
+			case 'm': volsize *= 1024; /* fall through */
+			case 'k': volsize *= 1024; break;
 		}
-		else
-			volsize = 100 * 1024 * 1024;	/* 100M default */
-
-		if (volsize > 0)
-			pmiSetVolumeSize(volsize, rawarchive_compress_volume);
 	}
+	else
+		volsize = 100 * 1024 * 1024;	/* 100M default */
+
+	if (volsize > 0)
+		pmiSetVolumeSize(volsize, rawarchive_compress_volume);
 
 	if (pmDebugOptions.appl1)
 		fprintf(stderr, "%s: opened archive %s\n",
 			pmGetProgname(), pmi_archpath);
 }
 
-/*
-** Register a set of metrics with the PMI write context and populate the
-** pmid-to-rawmetric_t hash for O(1) lookup in rawwrite_put().
-** Called from setup_metrics() for each metric group when rawwriteflag is set.
-*/
 /*
 ** Write (or rewrite) the pmimport sidecar for pmdapmimport.
 ** Called from atop.c after setup_globals() so supportflags is complete.
@@ -1882,6 +1875,11 @@ rawwrite_init_sidecar(void)
 	pmiSetZoneinfo(NULL);
 }
 
+/*
+** Register a set of metrics with the PMI write context and populate the
+** pmid-to-rawmetric_t hash for O(1) lookup in rawwrite_put().
+** Called from setup_metrics() for each metric group when rawwriteflag is set.
+*/
 void
 rawwrite_register(const char **metrics, pmID *pmids, pmDesc *descs, int nmetrics)
 {
@@ -2044,7 +2042,7 @@ rawwrite_put(pmResult *result)
 
 /*
 ** Flush all staged values to the archive with the given timestamp.
-** Called once per interval from atop.c's main loop when rawwriteflag is set.
+** Called once per interval from the main loop when rawwriteflag is set.
 */
 void
 rawwrite_flush(struct timespec *ts)
@@ -2067,7 +2065,7 @@ rawwrite_flush(struct timespec *ts)
 ** Close the PMI write context cleanly (called on normal exit).
 ** Does NOT compress the archive: the session may be restarted mid-day
 ** and the archive reopened with PMI_APPEND.  Compression of complete
-** prior-day archives is handled by ExecStartPre in pcp-atop.service.
+** prior-day archives is handled by ExecStartPre in atop.service.
 ** Per-volume compression during a long session is handled by the
 ** pmiSetVolumeSize callback (rawarchive_compress_volume).
 */

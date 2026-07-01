@@ -21,7 +21,7 @@ DISTLINKS = pcp-atopsar
 LLDLIBS = $(PCPLIB) $(PCP_IMPORTLIB) $(LIB_FOR_NCURSESW) $(LIB_FOR_MATH)
 GENMAPS = $(shell echo *.map | sed -e 's/\.map/\.h/g')
 LDIRT = pmgenmap.sh $(DISTLINKS) $(GENMAPS) \
-	atop.service atop-daily.service atop-daily.timer
+	atop.service
 
 CFILES = \
 	atop.c \
@@ -56,27 +56,12 @@ HFILES = \
 
 MAN_PAGES = pcp-atop.1 pcp-atoprc.5 pcp-atopsar.1
 
-default:	build-me \
-	atop.service atop-daily.service atop-daily.timer
+default:	build-me
 
 include $(BUILDRULES)
 
-atop.service: atop.service.in
-	$(SED) \
-	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
-	    -e 's|@PCP_SYSCONFIG_DIR@|$(PCP_SYSCONFIG_DIR)|g' \
-	    $< > $@
-
-atop-daily.service: atop-daily.service.in
-	cp $< $@
-
-atop-daily.timer: atop-daily.timer.in
-	cp $< $@
-
-
-
 ifeq "$(TARGET_OS)+$(HAVE_NCURSESW)" "linux+true"
-build-me: $(CMDTARGET) $(DISTLINKS)
+build-me: $(CMDTARGET) $(DISTLINKS) atop.service
 
 install: default
 	$(INSTALL) -m 755 $(CMDTARGET) $(DISTARGET)
@@ -135,6 +120,12 @@ acctproc.o:	acctmetrics.h
 gpucom.o:	gpumetrics.h
 
 atop.o atopsar.o various.o:	$(TOPDIR)/src/include/pcp/libpcp.h
+
+atop.service: atop.service.in
+	$(SED) \
+	    -e 's|@PCP_BINADM_DIR@|$(PCP_BINADM_DIR)|g' \
+	    -e 's|@PCP_SYSCONFIG_DIR@|$(PCP_SYSCONFIG_DIR)|g' \
+	    $< > $@
 
 check::	$(MAN_PAGES)
 	$(MANLINT) $^

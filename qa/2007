@@ -14,15 +14,11 @@ echo "QA output created by $seq"
 . ./common.check
 
 [ -f $PCP_BINADM_DIR/pcp-atop ] || _notrun "pcp-atop not installed"
-[ -f $PCP_SYSTEMDUNIT_DIR/atop.service ] \
-    || _notrun "atop.service not installed"
+[ -f $PCP_SYSTEMDUNIT_DIR/atop.service ] || _notrun "atop.service not found"
+[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 
 pmda=$PCP_PMDAS_DIR/pmimport/pmda_pmimport.$DSO_SUFFIX
 pmns=$PCP_VAR_DIR/pmns/root_pmimport
-[ -f "$pmda" ] || _notrun "pmdapmimport not installed"
-[ -f "$pmns" ] || _notrun "root_pmimport PMNS not installed"
-
-[ "$PCPQA_SYSTEMD" = yes ] || _notrun "systemctl not installed or not active"
 
 # remember whether atop was already running before the test
 atop_was_active=false
@@ -62,7 +58,7 @@ _pmimport_check()
                END { print (found ? "visible" : "not visible") }'`
         [ "$_result" = "$_want" ] && break
         sleep 1
-        _i=$((_i + 1))
+        _i=`expr $_i + 1`
     done
     echo "$_result"
 }

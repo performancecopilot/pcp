@@ -11,7 +11,5 @@ ifpropmetrics.h
 pcp-atop.1.*
 pcp-atoprc.5.*
 pcp-atopsar.1.*
-pcp-atop.service
-pcp-atop-daily.service
-pcp-atop-daily.timer
-pcp-atop-daily
+atop.service
+atop-daily

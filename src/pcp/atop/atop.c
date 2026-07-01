@@ -450,7 +450,7 @@ main(int argc, char *argv[])
 	}
 
 	/*
-	** open the pmi archive before setup_globals so that rawwrite_register
+	** open the PMI archive before setup_globals so that rawwrite_register
 	** finds a valid pmi_ctx when called from setup_metrics for each group
 	*/
 	if (rawwriteflag)
@@ -658,7 +658,7 @@ engine(void)
 		           	     &devtstat, devsstat);
 
 		/*
-		** flush staged metric values to the pmi archive for this interval
+		** flush staged metric values to the PMI archive for this interval
 		*/
 		if (rawwriteflag)
 			rawwrite_flush(&curtime);
