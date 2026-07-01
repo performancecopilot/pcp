@@ -889,11 +889,11 @@ static pmdaMetric metrictab[] = {
 /* rapl.sysfs */
 	{ NULL,
 	{ PMDA_PMID(0,0), PM_TYPE_U64, RAPL_SYSFS_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_W) }, },
 /* rapl.msr */
 	{ NULL,
 	{ PMDA_PMID(0,1), PM_TYPE_U64, RAPL_MSR_INDOM, PM_SEM_COUNTER,
-	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_W) }, },
 /* bat.energy_now */
 	{ NULL,
 	{ PMDA_PMID(1,0), PM_TYPE_DOUBLE, BAT_ENERGYNOW_INDOM, PM_SEM_INSTANT,
@@ -901,7 +901,7 @@ static pmdaMetric metrictab[] = {
 /* bat.power_now */
 	{ NULL,
 	{ PMDA_PMID(1,1), PM_TYPE_DOUBLE, BAT_POWERNOW_INDOM, PM_SEM_INSTANT,
-	PMDA_PMUNITS(0,0,0,0,0,0) }, },
+	PMDA_EXTRAUNITS(0, 0, 0, 0, 0, 0, PM_UNIT_POWER, PM_POWER_W) }, },
 /* bat.capacity */
 	{ NULL,
 	{ PMDA_PMID(1,2), PM_TYPE_32, BAT_CAPACITY_INDOM, PM_SEM_INSTANT,
