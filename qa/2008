@@ -1,0 +1,58 @@
+#!/bin/sh
+# PCP QA Test No. 2008
+# Exercise label name parsing: underscore-prefixed keys, invalid
+# characters skipped without rejecting the entire label set.
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+. ./common.product
+. ./common.filter
+. ./common.check
+
+status=1	# failure is the default!
+trap "rm -f $tmp.*; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "=== leading underscore in label name ==="
+src/parselabels '{"_private":"yes","public":"no"}'
+
+echo
+echo "=== all underscores ==="
+src/parselabels '{"___":"triple","_":"single"}'
+
+echo
+echo "=== mixed valid labels with digits ==="
+src/parselabels '{"abc123":"ok","x_y_z":"ok","A":"ok"}'
+
+echo
+echo "=== invalid key skipped, rest preserved ==="
+src/parselabels '{"good":"yes","bad-key":"no","also_good":"yes"}'
+
+echo
+echo "=== vllm-style large labelset with underscore prefix ==="
+src/parselabels '{"_block_size_resolved":"True","block_size":"16","cache_dtype":"auto","enable_prefix_caching":"True","gpu_memory_utilization":"0.9","num_gpu_blocks":"48973"}'
+
+echo
+echo "=== empty key rejected ==="
+src/parselabels '{"":"empty","ok":"fine"}'
+
+echo
+echo "=== invalid key with nested object value ==="
+src/parselabels '{"bad-key":{"nested":"x","deep":{"y":1}},"ok":"yes"}'
+
+echo
+echo "=== invalid key with list value ==="
+src/parselabels '{"bad-key":[1,2,3],"ok":"yes"}'
+
+echo
+echo "=== multiple invalid keys with mixed value types ==="
+src/parselabels '{"bad-1":{"x":1},"good":"yes","bad-2":[1,2],"also":"ok"}'
+
+# success, all done
+status=0
+exit

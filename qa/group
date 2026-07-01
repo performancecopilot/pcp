@@ -2399,5 +2399,6 @@ suse
 2000 pmda.btrfs local valgrind
 2001 pmda.btrfs local
 2002 pmda.db2 local
+2008 libpcp labels local
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local
