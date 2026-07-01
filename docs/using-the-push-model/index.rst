@@ -63,8 +63,8 @@ metrics are available. These can be pushed to the collector system like this:
     # pmlogpush -h collect.example.com \
     /var/log/pcp/pmlogger/fedora44.local/20260608.14.45-00
 
-On our collecthost, pmproxy is receiving and storing the data. If all went 
-well, it will now receive and store the data we sent. Verification:
+On our collector system, pmproxy is receiving and storing the data. If all 
+went well, it will now receive and store the data we sent. Verification:
 
 .. code-block:: bash
 
