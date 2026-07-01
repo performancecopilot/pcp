@@ -197,8 +197,18 @@ parseable_labels(char *buf, size_t len)
 	}
 
 	if (!any)
-		/* no -P specified: use the default recording label set */
-		safe_strcpy(buf, "CPU,CPL,MEM,SWP,DSK,NET,PRG,PRC", len);
+	{
+		/* no -P specified: build from the full labeldef table */
+		for (i = 0; i < numlabels; i++)
+		{
+			used = strlen(buf);
+			if (i && len > used + 1)
+				strncat(buf, ",", len - used - 1);
+			used = strlen(buf);
+			if (len > used + 1)
+				strncat(buf, labeldef[i].label, len - used - 1);
+		}
+	}
 }
 
 /*
