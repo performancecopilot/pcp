@@ -130,6 +130,7 @@ OTHER_SUBDIRS += \
 	telnet-probe \
 	collectl2pcp \
 	guidellm2pcp \
+	promdb2pcp \
 	vllmbench2pcp \
 	iostat2pcp \
 	mrtg2pcp \

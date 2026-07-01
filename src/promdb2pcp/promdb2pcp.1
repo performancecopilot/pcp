@@ -1,0 +1,139 @@
+'\"macro stdmacro
+.\"
+.\" Copyright (C) 2025 Red Hat.
+.\"
+.\" This program is free software; you can redistribute it and/or modify it
+.\" under the terms of the GNU General Public License as published by the
+.\" Free Software Foundation; either version 2 of the License, or (at your
+.\" option) any later version.
+.\"
+.\" This program is distributed in the hope that it will be useful, but
+.\" WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
+.\" or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
+.\" for more details.
+.\"
+.\"
+.TH PROMDB2PCP 1 "PCP" "Performance Co-Pilot"
+.SH NAME
+\f3promdb2pcp\f1 \- Prometheus node_exporter metrics importer
+.SH SYNOPSIS
+\fBpromdb2pcp\fP
+[\fB\-hv\fP]
+[\fB\-a\fP \fIarchive\fP]
+[\fB\-H\fP \fIhostname\fP]
+\fIdatadir\fP
+.SH DESCRIPTION
+.B promdb2pcp
+is a performance metrics importer tool that creates a PCP archive
+from Prometheus
+.BR node_exporter (1)
+metrics stored as JSON files.
+.PP
+The input
+.I datadir
+is a directory containing JSON files produced by the Prometheus
+HTTP API
+.B /api/v1/query_range
+endpoint.
+Each file contains time series data for a group of related metrics
+(e.g.\& cpu.json, memory.json, disk.json, network.json).
+.PP
+The following metric groups are supported:
+.TP 5
+.B cpu.json
+Per-CPU, per-mode utilisation counters
+(kernel.percpu.cpu.user, kernel.percpu.cpu.system, etc.)
+.TP
+.B memory.json
+Physical memory, swap, page cache and slab statistics
+(mem.physmem, mem.freemem, mem.util.*, etc.)
+.TP
+.B disk.json
+Per-device read/write bytes and operation counts
+(disk.dev.read, disk.dev.write, disk.dev.read_bytes, etc.)
+.TP
+.B network.json
+Per-interface bytes, packets, errors and drops
+(network.interface.in.bytes, network.interface.out.bytes, etc.)
+.TP
+.B loadavg.json
+Load averages and process counts
+(kernel.all.load, kernel.all.running, etc.)
+.TP
+.B scheduler.json
+Context switches, interrupts and fork counts
+(kernel.all.pswitch, kernel.all.intr, kernel.all.sysfork)
+.TP
+.B vmstat.json
+Virtual memory page fault and paging counters
+(mem.vmstat.pgfault, mem.vmstat.pgpgin, etc.)
+.TP
+.B pressure.json
+PSI (Pressure Stall Information) counters for CPU, memory and I/O
+(kernel.all.pressure.cpu.some.total, etc.)
+.PP
+An optional
+.B metadata.json
+file in the data directory can specify the hostname and timezone
+for the archive header.
+.PP
+The resulting PCP archive can be analysed using standard PCP tools
+such as
+.BR pmrep (1),
+.BR pcp2csv (1),
+and
+.BR pmchart (1).
+.SH OPTIONS
+The available command line options are:
+.TP 5
+\fB\-a\fR \fIarchive\fR, \fB\-\-archive\fR=\fIarchive\fR
+Specifies the name of the output PCP
+.I archive
+to be produced.
+By default, an archive named
+.B node_archive
+is created in the input data directory.
+.TP
+\fB\-H\fR \fIhostname\fR, \fB\-\-hostname\fR=\fIhostname\fR
+Sets the
+.I hostname
+that will be stamped into the PCP archive label header.
+By default, the hostname from
+.B metadata.json
+is used, or
+.B localhost
+if not available.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+Display usage message and exit.
+.TP
+\fB\-v\fR, \fB\-\-verbose\fR
+Report progress as each metric group is identified and its values saved.
+.SH EXAMPLES
+Extract Prometheus metrics from an OpenShift cluster using the
+Prometheus HTTP API, then convert to a PCP archive:
+.PP
+.nf
+.ft CR
+$ curl -sk -H "Authorization: Bearer $TOKEN" \\
+    "$PROM_URL/api/v1/query_range" \\
+    --data-urlencode 'query={__name__=~"node_cpu.*", instance="worker-0:9100"}' \\
+    --data-urlencode "start=$START" \\
+    --data-urlencode "end=$END" \\
+    --data-urlencode "step=30s" > prom_data/cpu.json
+$ promdb2pcp -v -a worker0 prom_data/
+$ pmrep -a worker0 -t 30s kernel.percpu.cpu
+.ft P
+.fi
+.SH SEE ALSO
+.BR PCPIntro (1),
+.BR pminfo (1),
+.BR pmrep (1),
+.BR pcp2csv (1),
+.BR pmchart (1),
+.BR LOGARCHIVE (5),
+and
+.BR PMNS (5).
+
+.\" control lines for scripts/man-spell
+.\" +ok+ promdb2pcp prom OCP PSI
