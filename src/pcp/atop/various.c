@@ -577,8 +577,6 @@ val2Hzstr(count_t value, char *strvalue, size_t buflen)
 #define	MAXTBYTE9	(ONETBYTE*9LL)
 #define	MAXPBYTE	(ONEPBYTE*999LL)
 #define	MAXPBYTE9	(ONEPBYTE*9LL)
-#define	MAXEBYTE	(ONEEBYTE*999LL)
-#define	MAXEBYTE8	(ONEEBYTE*7LL+(ONEEBYTE-1))
 
 
 char *
@@ -641,12 +639,9 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 												aformat = PBFORMAT;/* pbytes! */
 											else
 												if (verifyval <= MAXPBYTE)/* pbytes 10-999 ? */
-													aformat = PBFORMAT_INT;/* pbytes! */
+													aformat = PBFORMAT_INT;
 												else
-													if (verifyval <= MAXEBYTE8)/* ebytes 1-8 ? */
-														aformat = EBFORMAT;
-													else
-														aformat = OVFORMAT;
+													aformat = EBFORMAT;
 
 	} else 
 	/*
@@ -746,10 +741,6 @@ val2memstr(count_t value, char *strvalue, size_t buflen, int pformat, int avgval
 	   case	EBFORMAT:
 		pmsprintf(strvalue, buflen, "%*.1lfE%s",
 			basewidth-1, (double)((double)value/ONEEBYTE), suffix);
-		break;
-
-	   case	OVFORMAT:
-		pmsprintf(strvalue, buflen, "OVFLOW");
 		break;
 
 	   default:

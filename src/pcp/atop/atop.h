@@ -52,8 +52,6 @@
 #define	PBFORMAT	9
 #define	PBFORMAT_INT	10
 #define	EBFORMAT	11
-#define	EBFORMAT_INT	12
-#define	OVFORMAT	13
 
 typedef	long long	count_t;
 typedef	unsigned long long	ucount_t;
