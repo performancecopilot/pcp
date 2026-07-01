@@ -173,6 +173,8 @@ then
 	# pmcd not reachable in live mode - retry via local context to pick up
 	# hardware, hinv.* and other DSO PMDA metrics; pmcd:/pmda: lines will
 	# be absent since pmcd.* metrics are not available locally.
+	PCP_PMCDCONF_PATH="$PCP_SYSCONF_DIR/local.conf"; export PCP_PMCDCONF_PATH
+	PMNS_DEFAULT="$PCP_VAR_DIR/pmns/local.root"; export PMNS_DEFAULT
 	eval pminfo -Lf $metrics > $tmp/metrics 2>$tmp/err
 	[ -s $tmp/err ] && sed -e '/Unknown metric name/d' <$tmp/err >&2
     else
