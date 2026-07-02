@@ -1,0 +1,12 @@
+QA output created by 2100
+=== checking -Q and -S appear in usage ===
+-Q, --certreqd        require client certificate authentication
+-S, --reqauth         require all client connections to be authenticated
+
+=== checking -S enforces authentication on REST API ===
+pmproxy with -S started
+unauthenticated request correctly rejected (HTTP 403)
+
+=== checking without -S allows unauthenticated access ===
+pmproxy without -S started
+unauthenticated request correctly allowed (HTTP 200)
