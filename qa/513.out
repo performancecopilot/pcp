@@ -277,6 +277,14 @@ QA output created by 513
   __pmLogLoadInDom: sts = -12373 (Corrupted record in a PCP archive)
 [log_indom] checking out-of-range stridx with acp==NULL
   __pmLogLoadInDom: sts = -12373 (Corrupted record in a PCP archive)
+[log_labelset] checking rlen too small for v3 header
+  __pmLogLoadLabelSet: sts = -12373 (Corrupted record in a PCP archive)
+[log_labelset] checking rlen too small for v2 header
+  __pmLogLoadLabelSet: sts = -12373 (Corrupted record in a PCP archive)
+[log_status_oob] checking hostname_len past PDU boundary
+  __pmDecodeLogStatus: sts = -12366 (IPC protocol failure)
+[instance_overshoot] checking alignment overshoot past pdu_end
+  __pmDecodeInstance: sts = -12366 (IPC protocol failure)
 === filtered valgrind report ===
 Memcheck, a memory error detector
 Command: src/pducrash
