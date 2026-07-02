@@ -1,0 +1,62 @@
+#!/bin/sh
+# PCP QA Test No. 2103
+# Verify pmieconf does not execute shell metacharacters in -f path
+# (CWE-78 fix verification)
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which pmieconf >/dev/null 2>&1 || _notrun "pmieconf not installed"
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "=== normal -f path should work ==="
+mkdir -p $tmp.dir
+pmieconf -f $tmp.dir/subdir/test.pmie modify global delta "2min" >$tmp.out 2>&1
+_sts=$?
+if [ -f $tmp.dir/subdir/test.pmie ]; then
+    echo "directory creation and file write succeeded"
+else
+    echo "FAIL: file not created (exit=$_sts)"
+    cat $tmp.out
+fi
+
+echo
+echo "=== -f path with semicolon should not execute commands ==="
+_bad="$tmp.dir/bad;touch $tmp.dir/pwned"
+pmieconf -f "$_bad" modify global delta "2min" >$tmp.out 2>&1
+if [ -f "$tmp.dir/pwned" ]; then
+    echo "FAIL: shell metacharacter was executed"
+else
+    echo "no command execution from semicolon in path"
+fi
+
+echo
+echo "=== verify no injected file from HOME variable ==="
+_badhome="$tmp.dir/home;touch $tmp.dir/pwned2"
+HOME="$_badhome" pmieconf modify global delta "2min" >$tmp.out 2>&1
+if [ -f "$tmp.dir/pwned2" ]; then
+    echo "FAIL: shell metacharacter in HOME was executed"
+else
+    echo "no command execution from HOME injection"
+fi
+
+# success, all done
+exit
