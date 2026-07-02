@@ -2408,5 +2408,6 @@ suse
 2102 pmlogmv local security
 2103 pmieconf local security
 2104 libpcp local security
+2105 libpcp pmcd local security pmcd.pdu
 4751 libpcp threads valgrind local pcp helgrind
 9000 other local

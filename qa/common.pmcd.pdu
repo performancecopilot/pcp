@@ -54,6 +54,14 @@ _filter()
     # end
 }
 
+_filter_pmcd()
+{
+    sed \
+	-e 's/fd=[0-9][0-9]*/fd=N/g' \
+	-e 's/^\[.*\] pmcd([0-9]*) [A-Za-z]*: //' \
+    # end
+}
+
 mkdir $tmp || exit 1
 cd $tmp
 grep sampledso $PCP_PMCDCONF_PATH >pmcd.conf
@@ -90,7 +98,7 @@ wait
 [ -s $tmp.err ] && cat $tmp.err
 
 echo "expect error(s) to be logged ..."
-grep -E "$grep_pattern" pmcd.log
+grep -E "$grep_pattern" pmcd.log | _filter_pmcd
 
 echo
 echo "and no valgrind badness ..."
