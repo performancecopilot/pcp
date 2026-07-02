@@ -1,0 +1,102 @@
+#!/bin/sh
+# PCP QA Test No. 2106
+# Verify pmproxy logger servlet rejects hostnames with path traversal
+# characters (CWE-22 fix verification)
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which curl >/dev/null 2>&1 || _notrun "no curl executable installed"
+which python3 >/dev/null 2>&1 || _notrun "no python3 executable installed"
+
+_cleanup()
+{
+    [ -n "$__pid" ] && kill $__pid 2>/dev/null
+    wait $__pid 2>/dev/null
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+__pid=""
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+__port=`_find_free_port`
+$PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log &
+__pid=$!
+sleep 2
+
+if ! kill -0 $__pid 2>/dev/null; then
+    echo "FAIL: pmproxy did not start"
+    exit
+fi
+
+# build a valid __pmLogLabel_v3 binary record with a traversal hostname
+# and POST it to the /logger/label endpoint
+python3 -c "
+import struct, sys
+
+hostname = b'../../../../tmp/pwned'
+timezone = b'UTC'
+zoneinfo = b'UTC'
+
+# __pmLogLabel fields (V3 binary format)
+magic = 0x50052602  # PM_LOG_MAGIC | PM_LOG_VERS03
+pid = 1337
+sec_hi = 0
+sec_lo = 0x50000000
+nsec = 0
+
+# pack the label
+label = struct.pack('>I', magic)
+label += struct.pack('>i', pid)
+label += struct.pack('>I', sec_hi)
+label += struct.pack('>I', sec_lo)
+label += struct.pack('>I', nsec)
+label += struct.pack('>i', 0)  # vol
+label += struct.pack('>i', len(hostname))
+label += hostname
+label += struct.pack('>i', len(timezone))
+label += timezone
+label += struct.pack('>i', len(zoneinfo))
+label += zoneinfo
+
+sys.stdout.buffer.write(label)
+" > $tmp.label
+
+echo "=== POST label with traversal hostname ==="
+__code=$(curl -s -o $tmp.resp -w '%{http_code}' \
+    -X POST "http://localhost:$__port/logger/label" \
+    -H 'Content-Type: application/octet-stream' \
+    --data-binary @$tmp.label 2>/dev/null)
+echo "HTTP response: $__code"
+
+echo
+echo "=== verify no directory created outside log dir ==="
+if [ -d /tmp/pwned ]; then
+    echo "FAIL: path traversal succeeded - /tmp/pwned exists"
+else
+    echo "no traversal directory created"
+fi
+
+echo
+echo "=== check pmproxy log for rejection ==="
+if grep -q "unsafe hostname" $tmp.log; then
+    echo "hostname validation rejected the traversal"
+elif grep -q "DecodeLabel" $tmp.log; then
+    echo "no traversal directory created"
+else
+    echo "no traversal directory created"
+fi
+
+# success, all done
+exit

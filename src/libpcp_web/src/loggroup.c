@@ -581,6 +581,26 @@ renamed:	/* return here during name conflict resolution */
     return count;
 }
 
+/*
+ * Check that a hostname string (which can arrive from a remote host),
+ * conforms to simple validity checks to ensure suspicious file system
+ * path names are not being injected.
+ */
+static int
+check_hostname(const char *hostname)
+{
+    const char	*p;
+
+    if (hostname == NULL || hostname[0] == '\0' || hostname[0] == '.')
+	return 0;
+    for (p = hostname; *p; p++) {
+	if (!isalnum((unsigned char)*p) &&
+	    *p != '-' && *p != '.' && *p != '_')
+	    return 0;
+    }
+    return 1;
+}
+
 int
 pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
 		dict *params, void *arg)
@@ -609,6 +629,13 @@ pmLogGroupLabel(pmLogGroupSettings *sp, const char *content, size_t length,
 
     if (pmDebugOptions.log)
 	fprintf(stderr, "New archive label for host: %s\n", loglabel.hostname);
+
+    if (!check_hostname(loglabel.hostname)) {
+	pmNotifyErr(LOG_ERR, "Rejecting archive with unsafe hostname: %s",
+		loglabel.hostname ? loglabel.hostname : "(null)");
+	sts = -EINVAL;
+	goto fail;
+    }
 
     start = (time_t)loglabel.start.sec;
     if (localtime_r(&start, &tm) == NULL ||
