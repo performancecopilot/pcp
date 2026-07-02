@@ -257,8 +257,8 @@ Description: Performance Co-Pilot application tracing library
 Package: libpcp-import2-dev
 Section: libdevel
 Depends: ${misc:Depends}, libpcp-import2 (= ${binary:Version}), libpcp4-dev
-Breaks: pcp (<< 7.1.5), libpcp-import2-dev (<< 7.1.5)
-Replaces: pcp (<< 7.1.5), libpcp-import2-dev (<< 7.1.5)
+Breaks: pcp (<< 7.1.5), libpcp-import1-dev (<< 7.1.5)
+Replaces: pcp (<< 7.1.5), libpcp-import1-dev (<< 7.1.5)
 Architecture: any
 Description: Performance Co-Pilot data import library and headers
  The libpcp-import2-dev package contains the library and header files
