@@ -62,7 +62,8 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	multithread4.c multithread5.c multithread6.c multithread7.c \
 	multithread8.c multithread9.c multithread10.c multithread11.c \
 	multithread12.c multithread13.c multithread14.c \
-	exerlock.c hashwalk.c parsehostattrs.c parsehostspec.c getoptions.c
+	exerlock.c hashwalk.c parsehostattrs.c parsehostspec.c getoptions.c \
+	check_cloexec.c
 
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
@@ -1393,6 +1394,11 @@ sortinst:	sortinst.c
 # --- need libpcp_import
 #
 
+check_cloexec:	check_cloexec.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS)
+	$(LINKER_MAKERULE)
+
 check_import:	check_import.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS) -lpcp_archive -lpcp_import
@@ -1759,6 +1765,8 @@ xlog.o:	libpcp.h
 xmktime.o:	libpcp.h
 xxx.o:	libpcp.h
 y2038.o:	libpcp.h
+
+check_cloexec.o:	libpcp.h
 
 bozo:
 	@echo CFILES_TARGETS=$(CFILES_TARGETS)

@@ -514,8 +514,12 @@ __pmInitSocket(int fd, int family)
     }
 
 #if defined(HAVE_STRUCT_SOCKADDR_UN)
-    if (family == AF_UNIX)
+    if (family == AF_UNIX) {
+	int	fdFlags;
+	if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
+	    __pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
 	return fd;
+    }
 #endif
 
     /* Avoid 200 ms delay. This option is not supported for unix domain sockets. */

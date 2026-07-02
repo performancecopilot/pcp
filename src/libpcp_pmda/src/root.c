@@ -32,7 +32,7 @@ pmdaRootConnect(const char *path)
     char		*tmpdir;
     char		socketpath[MAXPATHLEN];
     char		errmsg[PM_MAXERRMSGLEN];
-    int			fd, sts, version, features;
+    int			fd, sts, version, features, fdFlags;
 
     /* Initialize the socket address. */
     if ((addr = __pmSockAddrAlloc()) == NULL)
@@ -70,6 +70,9 @@ pmdaRootConnect(const char *path)
 	__pmCloseSocket(fd);
 	return sts;
     }
+
+    if ((fdFlags = __pmGetFileDescriptorFlags(fd)) >= 0)
+	__pmSetFileDescriptorFlags(fd, fdFlags | FD_CLOEXEC);
 
     /* Check server connection information */
     if ((sts = __pmdaRecvRootPDUInfo(fd, &version, &features)) < 0) {
