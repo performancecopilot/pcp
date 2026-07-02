@@ -265,157 +265,157 @@ __pmDecodeLogStatus(__pmPDU *pdubuf, __pmLoggerStatus **result)
 	if (len == 0)
 	    lsp->pmcd.hostname = NULL;
 	else {
-	    if (len > PM_MAX_HOSTNAMELEN) {
-		/* cannot be longer than hostname in archive label */
+	    if (len < 0 || len > PM_MAX_HOSTNAMELEN) {
+		/* cannot be negative or longer than hostname in archive label */
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmcd.hostname too long (%d)\n", len);
+		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: invalid pmcd.hostname (%d)\n", len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
-	    if ((lsp->pmcd.hostname = strdup(p)) == NULL) {
+	    if (p + len > pduend) {
+		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
+		    fprintf(stderr, "%s: PM_ERR_IPC: pmcd.hostname data[%ld] > PDU len (%d)\n",
+			__FUNCTION__, (long)(p + len - (char *)&pp->data[0]), pp->hdr.len);
+		__pmFreeLogStatus(lsp, 1);
+		return PM_ERR_IPC;
+	    }
+	    if ((lsp->pmcd.hostname = strndup(p, len)) == NULL) {
 		sts = -oserror();
 		pmNoMem("__pmDecodeLogStatus: pmcd.hostname", len, PM_RECOV_ERR);
 		__pmFreeLogStatus(lsp, 1);
 		return sts;
 	    }
 	    p += len;
-	    if (p > pduend) {
-		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmcd.hostname data[%ld] > PDU len (%d)\n", 
-			(long)(p - (char *)&pp->data[0]), pp->hdr.len);
-		__pmFreeLogStatus(lsp, 1);
-		return PM_ERR_IPC;
-	    }
 	}
 	len = ntohl(pp->pmcd_fqdn_len);
 	if (len == 0)
 	    lsp->pmcd.fqdn = NULL;
 	else {
-	    if (len > PM_MAX_HOSTNAMELEN) {
-		/* cannot be longer than hostname in archive label */
+	    if (len < 0 || len > PM_MAX_HOSTNAMELEN) {
+		/* cannot be negative or longer than hostname in archive label */
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmcd.fqdn too long (%d)\n", len);
+		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: invalid pmcd.fqdn (%d)\n", len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
-	    if ((lsp->pmcd.fqdn = strdup(p)) == NULL) {
+	    if (p + len > pduend) {
+		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
+		    fprintf(stderr, "%s: PM_ERR_IPC: pmcd.fqdn data[%ld] > PDU len (%d)\n",
+			__FUNCTION__, (long)(p + len - (char *)&pp->data[0]), pp->hdr.len);
+		__pmFreeLogStatus(lsp, 1);
+		return PM_ERR_IPC;
+	    }
+	    if ((lsp->pmcd.fqdn = strndup(p, len)) == NULL) {
 		sts = -oserror();
 		pmNoMem("__pmDecodeLogStatus: pmcd.fqdn", len, PM_RECOV_ERR);
 		__pmFreeLogStatus(lsp, 1);
 		return sts;
 	    }
 	    p += len;
-	    if (p > pduend) {
-		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmcd.fqdn data[%ld] > PDU len (%d)\n", 
-			(long)(p - (char *)&pp->data[0]), pp->hdr.len);
-		__pmFreeLogStatus(lsp, 1);
-		return PM_ERR_IPC;
-	    }
 	}
 	len = ntohl(pp->pmcd_timezone_len);
 	if (len == 0)
 	    lsp->pmcd.timezone = NULL;
 	else {
-	    if (len > PM_MAX_TIMEZONELEN) {
-		/* cannot be longer than timezone in archive label */
+	    if (len < 0 || len > PM_MAX_TIMEZONELEN) {
+		/* cannot be negative or longer than timezone in archive label */
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmcd.timezone too long (%d)\n", len);
+		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: invalid pmcd.timezone (%d)\n", len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
-	    if ((lsp->pmcd.timezone = strdup(p)) == NULL) {
+	    if (p + len > pduend) {
+		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
+		    fprintf(stderr, "%s: PM_ERR_IPC: pmcd.timezone data[%ld] > PDU len (%d)\n",
+			__FUNCTION__, (long)(p + len - (char *)&pp->data[0]), pp->hdr.len);
+		__pmFreeLogStatus(lsp, 1);
+		return PM_ERR_IPC;
+	    }
+	    if ((lsp->pmcd.timezone = strndup(p, len)) == NULL) {
 		sts = -oserror();
 		pmNoMem("__pmDecodeLogStatus: pmcd.timezone", len, PM_RECOV_ERR);
 		__pmFreeLogStatus(lsp, 1);
 		return sts;
 	    }
 	    p += len;
-	    if (p > pduend) {
-		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmcd.timezone data[%ld] > PDU len (%d)\n", 
-			(long)(p - (char *)&pp->data[0]), pp->hdr.len);
-		__pmFreeLogStatus(lsp, 1);
-		return PM_ERR_IPC;
-	    }
 	}
 	len = ntohl(pp->pmcd_zoneinfo_len);
 	if (len == 0)
 	    lsp->pmcd.zoneinfo = NULL;
 	else {
-	    if (len > PM_MAX_ZONEINFOLEN) {
-		/* cannot be longer than zoneinfo in archive label */
+	    if (len < 0 || len > PM_MAX_ZONEINFOLEN) {
+		/* cannot be negative or longer than zoneinfo in archive label */
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmcd.zoneinfo too long (%d)\n", len);
+		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: invalid pmcd.zoneinfo (%d)\n", len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
-	    if ((lsp->pmcd.zoneinfo = strdup(p)) == NULL) {
+	    if (p + len > pduend) {
+		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
+		    fprintf(stderr, "%s: PM_ERR_IPC: pmcd.zoneinfo data[%ld] > PDU len (%d)\n",
+			__FUNCTION__, (long)(p + len - (char *)&pp->data[0]), pp->hdr.len);
+		__pmFreeLogStatus(lsp, 1);
+		return PM_ERR_IPC;
+	    }
+	    if ((lsp->pmcd.zoneinfo = strndup(p, len)) == NULL) {
 		sts = -oserror();
 		pmNoMem("__pmDecodeLogStatus: pmcd.zoneinfo", len, PM_RECOV_ERR);
 		__pmFreeLogStatus(lsp, 1);
 		return sts;
 	    }
 	    p += len;
-	    if (p > pduend) {
-		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmcd.zoneinfo data[%ld] > PDU len (%d)\n", 
-			(long)(p - (char *)&pp->data[0]), pp->hdr.len);
-		__pmFreeLogStatus(lsp, 1);
-		return PM_ERR_IPC;
-	    }
 	}
 	len = ntohl(pp->pmlogger_timezone_len);
 	if (len == 0)
 	    lsp->pmlogger.timezone = NULL;
 	else {
 	    if (len > PM_MAX_TIMEZONELEN) {
-		/* cannot be longer than timezone in archive label */
+		/* cannot be negative or longer than timezone in archive label */
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
 		    fprintf(stderr, "__pmDecodeLogStatusPM_ERR_IPC: : pmlogger.timezone too long (%d)\n", len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
-	    if ((lsp->pmlogger.timezone = strdup(p)) == NULL) {
+	    if (p + len > pduend) {
+		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
+		    fprintf(stderr, "%s: PM_ERR_IPC: pmlogger.timezone data[%ld] > PDU len (%d)\n",
+			__FUNCTION__, (long)(p + len - (char *)&pp->data[0]), pp->hdr.len);
+		__pmFreeLogStatus(lsp, 1);
+		return PM_ERR_IPC;
+	    }
+	    if ((lsp->pmlogger.timezone = strndup(p, len)) == NULL) {
 		sts = -oserror();
 		pmNoMem("__pmDecodeLogStatus: pmlogger.timezone", len, PM_RECOV_ERR);
 		__pmFreeLogStatus(lsp, 1);
 		return sts;
 	    }
 	    p += len;
-	    if (p > pduend) {
-		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmlogger.timezone data[%ld] > PDU len (%d)\n", 
-			(long)(p - (char *)&pp->data[0]), pp->hdr.len);
-		__pmFreeLogStatus(lsp, 1);
-		return PM_ERR_IPC;
-	    }
 	}
 	len = ntohl(pp->pmlogger_zoneinfo_len);
 	if (len == 0)
 	    lsp->pmlogger.zoneinfo = NULL;
 	else {
-	    if (len > PM_MAX_ZONEINFOLEN) {
-		/* cannot be longer than zoneinfo in archive label */
+	    if (len < 0 || len > PM_MAX_ZONEINFOLEN) {
+		/* cannot be negative or longer than zoneinfo in archive label */
 		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmlogger.zoneinfo too long (%d)\n", len);
+		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: invalid pmlogger.zoneinfo (%d)\n", len);
 		__pmFreeLogStatus(lsp, 1);
 		return PM_ERR_IPC;
 	    }
-	    if ((lsp->pmlogger.zoneinfo = strdup(p)) == NULL) {
+	    if (p + len > pduend) {
+		if (pmDebugOptions.pmlc || pmDebugOptions.pdu)
+		    fprintf(stderr, "%s: PM_ERR_IPC: pmlogger.zoneinfo data[%ld] > PDU len (%d)\n",
+			__FUNCTION__, (long)(p + len - (char *)&pp->data[0]), pp->hdr.len);
+		__pmFreeLogStatus(lsp, 1);
+		return PM_ERR_IPC;
+	    }
+	    if ((lsp->pmlogger.zoneinfo = strndup(p, len)) == NULL) {
 		sts = -oserror();
 		pmNoMem("__pmDecodeLogStatus: pmlogger.zoneinfo", len, PM_RECOV_ERR);
 		__pmFreeLogStatus(lsp, 1);
 		return sts;
 	    }
 	    p += len;
-	    if (p > pduend) {
-		if (pmDebugOptions.pmlc || pmDebugOptions.pdu) 
-		    fprintf(stderr, "__pmDecodeLogStatus: PM_ERR_IPC: pmlogger.zoneinfo data[%ld] > PDU len (%d)\n", 
-			(long)(p - (char *)&pp->data[0]), pp->hdr.len);
-		__pmFreeLogStatus(lsp, 1);
-		return PM_ERR_IPC;
-	    }
 	}
     }
     else if (version == LOG_PDU_VERSION2) {
