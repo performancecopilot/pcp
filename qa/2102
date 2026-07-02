@@ -1,0 +1,67 @@
+#!/bin/sh
+# PCP QA Test No. 2102
+# Verify pmlogcp/pmlogmv reject shell metacharacters in filenames
+# and that normal copy/move operations still work (CWE-78 fix)
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+_filter()
+{
+    sed \
+	-e "s,$tmp,TMP,g" \
+	-e "s/pmlogcp/TOOL/" \
+	-e "s/pmlogmv/TOOL/" \
+    # end
+}
+
+# real QA test starts here
+
+echo "=== normal pmlogcp should succeed ==="
+pmlogcp tmparch/foo $tmp.copy1 2>&1 | _filter
+if [ -f $tmp.copy1.meta ] || [ -f $tmp.copy1.0 ]; then
+    echo "copy succeeded"
+else
+    echo "FAIL: copy did not create files"
+fi
+
+echo
+echo "=== pmlogcp with backtick in destination should be rejected ==="
+pmlogcp tmparch/foo "$tmp.bad\`id\`" >$tmp.out 2>&1
+_sts=$?
+_filter <$tmp.out
+echo "exit status: $_sts"
+
+echo
+echo "=== pmlogcp with semicolon in destination should be rejected ==="
+pmlogcp tmparch/foo "$tmp.bad;id" >$tmp.out 2>&1
+_sts=$?
+_filter <$tmp.out
+echo "exit status: $_sts"
+
+echo
+echo "=== pmlogcp with dollar in destination should be rejected ==="
+pmlogcp tmparch/foo '$tmp.bad${IFS}' >$tmp.out 2>&1
+_sts=$?
+_filter <$tmp.out
+echo "exit status: $_sts"
+
+# success, all done
+exit

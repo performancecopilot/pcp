@@ -103,15 +103,22 @@ myoverrides(int opt, pmOptions *optsp)
     return 0;
 }
 
+/*
+ * Defense-in-depth: reject filenames containing shell metacharacters.
+ * The copy and checksum paths no longer use system()/popen() so these
+ * characters are not directly dangerous, but archive names containing
+ * them are almost certainly bogus and this guards against future code
+ * paths that might reintroduce shell interpretation.
+ */
 static int
 check_name(char *name)
 {
-    char	*meta = " $?*[(|;&<>";
+    char	*meta = " $?*[(|;&<>`{}\\!\n\t";
     char	*p;
 
     for (p = meta; *p; p++) {
 	if (strchr(name, *p) != NULL) {
-	    fprintf(stderr, "%s: dstname (%s) unsafe [shell metacharacter '%c']\n", progname, name, *p);
+	    fprintf(stderr, "%s: name (%s) unsafe [shell metacharacter '%c']\n", progname, name, *p);
 	    return -1;
 	}
     }
@@ -177,7 +184,6 @@ setup_sufftab(void)
 void
 do_checksum(const char *file, char *sum)
 {
-    char	cmd[2*MAXPATHLEN+20];
     static char	*executable = NULL;
     FILE	*fp;
     static int	trunc_warn = 0;
@@ -188,43 +194,49 @@ do_checksum(const char *file, char *sum)
 	 * prefer md5sum, then sha256sum, then sha1sum, then sum,
 	 * else do nothing
 	 */
-	snprintf(cmd, sizeof(cmd), "if which md5sum >/dev/null 2>&1; then exit 0; fi; exit 1");
-	if (system(cmd) == 0)
-	    executable = "md5sum";
-	else {
-	    snprintf(cmd, sizeof(cmd), "if which sha256sum >/dev/null 2>&1; then exit 0; fi; exit 1");
-	    if (system(cmd) == 0)
-		executable = "sha256sum";
-	    else {
-		snprintf(cmd, sizeof(cmd), "if which sha1sum >/dev/null 2>&1; then exit 0; fi; exit 1");
-		if (system(cmd) == 0)
-		    executable = "sha1sum";
-		else {
-		    snprintf(cmd, sizeof(cmd), "if which sum >/dev/null 2>&1; then exit 0; fi; exit 1");
-		    if (system(cmd) == 0)
-			executable = "sum";
-		    else {
-			executable = "none";
-			fprintf(stderr, "%s: warning: no checksum command found, checksums skipped\n", progname);
-		    }
-		}
+	static const char *candidates[] = {
+	    "md5sum", "sha256sum", "sha1sum", "sum", NULL
+	};
+	const char	**cp;
+	char		path[MAXPATHLEN];
+
+	executable = "none";
+	for (cp = candidates; *cp != NULL; cp++) {
+	    snprintf(path, sizeof(path), "/usr/bin/%s", *cp);
+	    if (access(path, X_OK) == 0) {
+		executable = (char *)*cp;
+		break;
+	    }
+	    snprintf(path, sizeof(path), "/usr/sbin/%s", *cp);
+	    if (access(path, X_OK) == 0) {
+		executable = (char *)*cp;
+		break;
 	    }
 	}
+	if (strcmp(executable, "none") == 0)
+	    fprintf(stderr, "%s: warning: no checksum command found, checksums skipped\n", progname);
 	if (verbose && strcmp(executable, "none") != 0)
 	    printf("checksum cmd: %s\n", executable);
     }
     sum[0] = '\0';
     if (strcmp(executable, "none") == 0)
 	return;
-    snprintf(cmd, sizeof(cmd), "%s <%s", executable, file);
-    if ((fp = popen(cmd, "r")) == NULL) {
-	/*
-	 * abandon checksuming ...
-	 */
-	fprintf(stderr, "%s: pipe(\"%s\") failed: %s\n", progname, cmd, strerror(errno));
-	executable = "none";
+    {
+	__pmExecCtl_t	*argp = NULL;
+	int		sts;
+
+	if ((sts = __pmProcessAddArg(&argp, executable)) < 0 ||
+	    (sts = __pmProcessAddArg(&argp, file)) < 0) {
+	    executable = "none";
+	    return;
+	}
+	if ((sts = __pmProcessPipe(&argp, "r", PM_EXEC_TOSS_NONE, &fp)) < 0) {
+	    fprintf(stderr, "%s: __pmProcessPipe(\"%s\") failed: %s\n", progname, executable, pmErrStr(sts));
+	    executable = "none";
+	    return;
+	}
     }
-    else {
+    {
 	char	*p = sum;
 	int	c;
 	while ((c = fgetc(fp)) != EOF) {
@@ -233,9 +245,6 @@ do_checksum(const char *file, char *sum)
 		break;
 	    }
 	    if (p >= &sum[MAX_CHECKSUM]) {
-		/*
-		 * avoid buffer overrun, report only once unless -V
-		 */
 		if (trunc_warn++ == 0 || verbose)
 		    fprintf(stderr, "%s: warning: checksum truncated after %d characters\n", progname, MAX_CHECKSUM);
 		*p = '\0';
@@ -243,8 +252,51 @@ do_checksum(const char *file, char *sum)
 	    }
 	    *p++ = c;
 	}
-	pclose(fp);
+	__pmProcessPipeClose(fp);
     }
+}
+
+/*
+ * copy a file using read/write - no shell involvement
+ */
+static int
+copy_file(const char *src, const char *dst)
+{
+    int		sfd, dfd;
+    struct stat	sbuf;
+    ssize_t	nread, nwritten;
+    char	buf[BUFSIZ];
+
+    if ((sfd = open(src, O_RDONLY)) < 0)
+	return -1;
+    if (fstat(sfd, &sbuf) < 0) {
+	close(sfd);
+	return -1;
+    }
+    if ((dfd = open(dst, O_WRONLY|O_CREAT|O_EXCL, sbuf.st_mode & 0777)) < 0) {
+	close(sfd);
+	return -1;
+    }
+    while ((nread = read(sfd, buf, sizeof(buf))) > 0) {
+	char	*p = buf;
+	while (nread > 0) {
+	    nwritten = write(dfd, p, nread);
+	    if (nwritten < 0) {
+		close(sfd);
+		close(dfd);
+		unlink(dst);
+		return -1;
+	    }
+	    nread -= nwritten;
+	    p += nwritten;
+	}
+    }
+    close(sfd);
+    if (nread < 0 || close(dfd) < 0) {
+	unlink(dst);
+	return -1;
+    }
+    return 0;
 }
 
 /*
@@ -308,7 +360,6 @@ do_link(int vol)
 #endif
 			/* pmlogcp or link() failed cross-device, need to copy ... */
 			int		sts;
-			char		cmd[2*MAXPATHLEN+60];
 			char		sum_src[MAX_CHECKSUM+1];
 			char		sum_dst[MAX_CHECKSUM+1];
 			if (checksum) {
@@ -321,8 +372,7 @@ do_link(int vol)
 				printf("source checksum: %s\n", sum_src);
 			}
 
-			snprintf(cmd, sizeof(cmd), "cp %s %s", src, dst);
-			if ((sts = system(cmd)) != 0) {
+			if ((sts = copy_file(src, dst)) != 0) {
 			    fprintf(stderr, "%s: copy %s -> %s failed: %s\n", progname, src, dst, strerror(errno));
 			    return -1;
 			}
@@ -564,6 +614,10 @@ main(int argc, char **argv)
 	}
 
 	if (!force && check_name(dstname) < 0) {
+	    /* error reported in check_name() */
+	    exit(1);
+	}
+	if (!force && check_name(srcname) < 0) {
 	    /* error reported in check_name() */
 	    exit(1);
 	}

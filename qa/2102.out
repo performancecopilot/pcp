@@ -1,0 +1,15 @@
+QA output created by 2102
+=== normal pmlogcp should succeed ===
+copy succeeded
+
+=== pmlogcp with backtick in destination should be rejected ===
+TOOL: name (TMP.bad`id`) unsafe [shell metacharacter '`']
+exit status: 1
+
+=== pmlogcp with semicolon in destination should be rejected ===
+TOOL: name (TMP.bad;id) unsafe [shell metacharacter ';']
+exit status: 1
+
+=== pmlogcp with dollar in destination should be rejected ===
+TOOL: name ($tmp.bad${IFS}) unsafe [shell metacharacter '$']
+exit status: 1
