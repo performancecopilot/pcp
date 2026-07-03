@@ -1,0 +1,97 @@
+#!/bin/sh
+# PCP QA Test No. 2108
+# Verify pmproxy logger servlet authentication via pmproxy.conf
+# [pmlogger] authenticate = true
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+which curl >/dev/null 2>&1 || _notrun "no curl executable installed"
+
+_cleanup()
+{
+    [ -n "$__pid" ] && kill $__pid 2>/dev/null
+    wait $__pid 2>/dev/null
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+__pid=""
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "=== logger servlet with authenticate = true ==="
+__port=`_find_free_port`
+cat >$tmp.conf <<EOF
+[pmproxy]
+pcp.enabled = true
+http.enabled = true
+[pmlogger]
+enabled = true
+authenticate = true
+EOF
+$PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log -c $tmp.conf &
+__pid=$!
+sleep 1
+if ! kill -0 $__pid 2>/dev/null; then
+    echo "FAIL: pmproxy did not start"
+    exit
+fi
+
+# unauthenticated POST to logger/label should be rejected
+__code=$(curl -s -o /dev/null -w '%{http_code}' \
+    -X POST "http://localhost:$__port/logger/label" \
+    -H 'Content-Type: application/octet-stream' \
+    --data-binary 'dummy' 2>/dev/null)
+echo "unauthenticated POST /logger/label: HTTP $__code"
+
+# unauthenticated GET to pmapi should still work (not logger servlet)
+__code=$(curl -s -o /dev/null -w '%{http_code}' \
+    "http://localhost:$__port/pmapi/context?hostspec=localhost" 2>/dev/null)
+echo "unauthenticated GET /pmapi/context: HTTP $__code"
+
+kill $__pid
+wait $__pid 2>/dev/null
+__pid=""
+
+echo
+echo "=== logger servlet without authenticate (default) ==="
+__port=`_find_free_port`
+cat >$tmp.conf2 <<EOF
+[pmproxy]
+pcp.enabled = true
+http.enabled = true
+[pmlogger]
+enabled = true
+EOF
+$PCP_BINADM_DIR/pmproxy -f -p $__port -l $tmp.log2 -c $tmp.conf2 &
+__pid=$!
+sleep 1
+if ! kill -0 $__pid 2>/dev/null; then
+    echo "FAIL: pmproxy did not start"
+    exit
+fi
+
+# unauthenticated POST to logger/label should be allowed (will fail on bad data, not auth)
+__code=$(curl -s -o /dev/null -w '%{http_code}' \
+    -X POST "http://localhost:$__port/logger/label" \
+    -H 'Content-Type: application/octet-stream' \
+    --data-binary 'dummy' 2>/dev/null)
+echo "unauthenticated POST /logger/label: HTTP $__code"
+
+kill $__pid
+wait $__pid 2>/dev/null
+__pid=""
+
+# success, all done
+exit
