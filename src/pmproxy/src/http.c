@@ -1129,6 +1129,20 @@ on_headers_complete(http_parser *request)
 	}
     }
 
+    /* client certificate required for all servlets */
+    if (__pmServerHasFeature(PM_SERVER_FEATURE_CERT_REQD)) {
+#ifdef HAVE_OPENSSL
+	if (!client->stream.secure ||
+	    !client->secure.ssl ||
+	    SSL_get_peer_certificate(client->secure.ssl) == NULL) {
+	    client->u.http.parser.status_code = HTTP_STATUS_FORBIDDEN;
+	}
+#else
+	/* no TLS support compiled in, reject all connections */
+	client->u.http.parser.status_code = HTTP_STATUS_FORBIDDEN;
+#endif
+    }
+
     return sts;
 }
 
