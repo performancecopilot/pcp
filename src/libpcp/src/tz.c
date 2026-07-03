@@ -25,6 +25,7 @@
  * lock initialization in pmNewContext().
  */
 
+#include <ctype.h>
 #include "pmapi.h"
 #include "libpcp.h"
 #include "sha256.h"
@@ -570,12 +571,35 @@ pmUseZone(const int tz_handle)
     return 0;
 }
 
+static int
+valid_tz(const char *tz)
+{
+    const char	*p;
+
+    if (tz == NULL || tz[0] == '\0' || tz[0] == '/')
+	return 0;
+    for (p = tz; *p; p++) {
+	if (!isalnum((unsigned char)*p) && strchr("/_+-.:,\"'", *p) == NULL)
+	    return 0;
+    }
+    if (strstr(tz, "..") != NULL)
+	return 0;
+    return 1;
+}
+
 int
 pmNewZone(const char *tz)
 {
     int		len;
     int		hack = 0;
     int		sts;
+
+    if (!valid_tz(tz)) {
+	if (pmDebugOptions.context)
+	    fprintf(stderr, "%s: rejecting unsafe timezone: %s\n",
+		__FUNCTION__, tz ? tz : "(null)");
+	return -EINVAL;
+    }
 
     PM_LOCK(__pmLock_extcall);
 

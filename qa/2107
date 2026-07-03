@@ -1,0 +1,60 @@
+#!/bin/sh
+# PCP QA Test No. 2107
+# Verify pmNewZone rejects unsafe timezone strings containing
+# path traversal or invalid characters
+#
+# Copyright (c) 2026 Red Hat.  All Rights Reserved.
+#
+
+seq=`basename $0`
+echo "QA output created by $seq"
+
+# get standard environment, filters and checks
+. ./common.product
+. ./common.filter
+. ./common.check
+
+_cleanup()
+{
+    cd $here
+    $sudo rm -rf $tmp $tmp.*
+}
+
+status=0	# success is the default!
+trap "_cleanup; exit \$status" 0 1 2 3 15
+
+# real QA test starts here
+
+echo "=== valid Olson timezone ==="
+src/check_tz "America/New_York"
+
+echo
+echo "=== valid POSIX timezone ==="
+src/check_tz "EST5EDT"
+
+echo
+echo "=== valid simple timezone ==="
+src/check_tz "UTC"
+
+echo
+echo "=== path traversal should be rejected ==="
+src/check_tz "../../etc/passwd"
+
+echo
+echo "=== leading slash should be rejected ==="
+src/check_tz "/etc/localtime"
+
+echo
+echo "=== semicolon should be rejected ==="
+src/check_tz "UTC;id"
+
+echo
+echo "=== backtick should be rejected ==="
+src/check_tz 'UTC`id`'
+
+echo
+echo "=== empty string should be accepted ==="
+src/check_tz ""
+
+# success, all done
+exit

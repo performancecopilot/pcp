@@ -63,7 +63,7 @@ CFILES = disk_test.c exercise.c context_test.c chkoptfetch.c \
 	multithread8.c multithread9.c multithread10.c multithread11.c \
 	multithread12.c multithread13.c multithread14.c \
 	exerlock.c hashwalk.c parsehostattrs.c parsehostspec.c getoptions.c \
-	check_cloexec.c
+	check_cloexec.c check_tz.c
 
 
 ifeq ($(shell test -f ../localconfig && echo 1), 1)
@@ -1395,6 +1395,11 @@ sortinst:	sortinst.c
 #
 
 check_cloexec:	check_cloexec.c
+	rm -f $@
+	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS)
+	$(LINKER_MAKERULE)
+
+check_tz:	check_tz.c
 	rm -f $@
 	$(CCF) $(CDEFS) -o $@ $@.c $(LDLIBS)
 	$(LINKER_MAKERULE)
