@@ -44,8 +44,8 @@ ExcludeArch: %{ix86}
 %endif
 %endif
 
-# Resource Control kernel feature is on recent Intel/AMD processors only
-%ifarch x86_64
+# Resource Control kernel feature is on recent Intel/AMD/ARM processors only
+%ifarch x86_64 aarch64
 %global disable_resctrl 0
 %else
 %global disable_resctrl 1
